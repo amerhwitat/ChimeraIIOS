@@ -50,7 +50,8 @@ Kore  Spotnik     VFS        Hive    Nucleus
 
 - `boot/` - Spit Fire and Jasper boot material.
 - `include/` and `src/` - public interfaces and host-side C/C++ prototypes.
-- `desktop/aurora/` - Aurora Wayland/Vulkan compositor research.
+- `desktop/aurora/` - original Aurora Wayland/Vulkan compositor research.
+- `userspace/aurora/` - enhanced Aurora Wayland userspace integration and build boundary.
 - `network/spotnik/` - zero-copy networking research.
 - `chimera_ii_c/` and `web/` - browser-backed host prototype.
 - `tests/` - unit and smoke tests.
@@ -60,15 +61,27 @@ Kore  Spotnik     VFS        Hive    Nucleus
 
 ## Build
 
+Core build, independent of graphical host dependencies:
+
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DAURORA_BUILD=OFF
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+Aurora userspace build, when Wayland development dependencies are installed:
+
+```bash
+cmake -S . -B build-aurora -DAURORA_BUILD=ON
+cmake --build build-aurora
+ctest --test-dir build-aurora --output-on-failure
+```
+
+See [`docs/AURORA_BUILD_RUN.md`](docs/AURORA_BUILD_RUN.md) and [`docs/superpowers/plans/2026-09-07-aurora-wayland-integration.md`](docs/superpowers/plans/2026-09-07-aurora-wayland-integration.md).
+
 ## Engineering status
 
-RegisterN, R8192/C8192, Spit Fire, Jasper, Koronos, Spotnik, Kore, Aurora, Nucleus, Hive and CEF are research/prototype components. The 8192-bit processor is a virtual architecture target, not a claim of existing 8192-bit silicon.
+RegisterN, R8192/C8192, Spit Fire, Jasper, Koronos, Spotnik, Kore, Aurora, Nucleus, Hive and CEF are research/prototype components. The 8192-bit processor is a virtual architecture target, not a claim of existing 8192-bit silicon. Aurora userspace is currently a dependency-gated foundation; its full wlroots backend, protocol handlers, rendering pipeline, and Kore device broker remain staged engineering work.
 
 ## Demo-source policy
 
