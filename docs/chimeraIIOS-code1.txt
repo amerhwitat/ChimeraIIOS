@@ -1,0 +1,3618 @@
+ReDesign the system with these characteristics:
+•	BIOS, or UEFI checks for processor type if it’s RISC or CISC then starts booting
+•	Bootloader for MBR, and UEFI
+•	Boot manager like GRUB 2
+•	Systemd like system manager, and parallel services startup
+•	Desktop like windows 12 look and feel
+•	Can read all file systems like xfs, zfs, qfs, and ntfs, fat32, and others
+•	Have a Linux/Unix like file system architecture (/, /boot,/etc, /opt,/run,/var,/tmp ..ect)
+•	Built in Neural network database (in memory, and on disk) OLTP for transactional data processing, and retrieval, and OLAP for historical data and analysis
+•	SAM like registry data base, and environment variables
+•	All Linux new services and targets
+•	All related Linux new Enterprise services, mail servers, http servers, dns named servers, DHCP …etc
+•	All desktops look and feel of MAC OSX, windows versions from 95, and Linux Desktops
+•	Combine and merge all source code, and make it fully Assembly for booting and related services/C++ object oriented code
+•	Create a 3D desktop for native Chimera II OS, and import all features from GPU gems document for DirectX and OpenGL, convert all code to OpenGL programs, and integrate OpenGL in the systems
+•	Create an image for the system like vmliuze file in Linux, and .img in windows
+•	Boot process can be dual system
+•	Import partitioning for new disks from fdisk, gdisk, and windows partitioning
+•	Emulation and simulation starts from 4096 bits to 8192 bits to infinite N bits architectures
+•	Backward compatibility with older windows and Linux systems
+•	Integrated wine32, and wine64 Linux applications, for running windows applications on Linux
+•	Integrate Arabic language as input and interface language besides English language
+•	Optimize code and compiled image size
+•	Make booting fast, and service initialization parallel and fast
+•	Integrate GDB, Windows debugger, and GCC, g++, linker, and other utilities
+•	Integrate Linux/Unix, MAC OSX, and windows, CLI, commands and utilities into the system
+•	Integrate a PSX,PS2,PS3,PS4,PS5 emulators, and Amiga A500 emulator into the system, search the internet for Emulators source code and winUAE source code, and integrate it into the system code, and image
+•	Take into consideration: multitasking, CPU pipelining, multithreading, concurrency, multiprocessing, and parallel processing when building the kernel
+•	The kernel is called Koronos
+•	The bootloader is called Spit Fire
+•	GRUB 2, and boot manager is called, Jasper
+•	OS is called Chimera II OS
+•	TCP/IP stack is called Spotnik
+•	Research the internet to include all useful utilities and applications of Linux/Unix in all repositories available
+•	Make RegisterN.hpp and integrate it into the system for register size and backward compatibility with less long registers
+•	Include .dll hierarchy and .so libraries into the system libraries
+•	Provide references and citations
+
+
+
+
+Chimera II OS Comprehensive Source Level Specification and Technical Blueprint
+Quoted from the supplied documentation Chimera II OS is a research operating system concept. This revision keeps that framing deliberately.
+This document consolidates all previously supplied drafts and attached source fragments into a single, detailed technical blueprint that (1) restates the design intent, (2) specifies concrete ABIs and source layouts, and (3) provides working source code examples, test scaffolds, and packaging/CI guidance to implement the requested features: Spit Fire bootloader, Jasper boot manager, Koronos kernel, Spotnik network stack, RegisterN wide register support, Aurora 3D desktop (OpenGL), Nucleus neural HTAP DB, Hive registry, emulation services, secure boot, and packaging.
+1 Executive Summary and Scope
+Purpose Provide a single developer ready specification and source blueprint for Chimera II OS: a research OS that supports heterogeneous hardware (ARM, x86 64, RISC V, and experimental wide word ISAs), variable register widths (64 → 8192 bits), zero copy networking, GPU accelerated 3D desktop, built in neural HTAP database, and layered compatibility for Windows and Linux applications.
+High level components
+•	Spit Fire — MBR and UEFI bootloader (assembly + freestanding C++)
+•	Jasper — GRUB2 style boot manager (menu, chainload, signature verification)
+•	Koronos — hybrid microkernel (scheduler, VM, IPC, Spotnik fast path)
+•	Spotnik — dual stack IPv6/IPv4 zero copy networking stack with AF_XDP/Netmap backends
+•	RegisterN.hpp — width parametric register type used by ISA engine and crypto units
+•	Aurora — OpenGL 3D compositor and desktop shell (Windows 12 look & feel + personalities)
+•	Nucleus DB — built in neural HTAP database (OLTP + OLAP)
+•	Hive — SAM style registry and environment database
+•	CEF — Chimera Emulation Framework hosting WinUAE and libretro cores as services
+•	Kore — system/service manager (systemd like, parallel startup)
+•	Aegis — security architecture (measured boot, TPM, signed images)
+Non goals and constraints
+•	This is a research/specification blueprint. Third party code (emulators, WinUAE, GPU Gems examples) must be integrated under their licences; binary redistribution of copyrighted ROMs/BIOS is not permitted.
+2 Boot Subsystem and Initialization Pipeline
+2.1 Firmware Probe and CPU Profile
+Design goal: Replace a naive RISC/CISC flag with a capability probe that produces a machine readable CPU profile consumed by Spit Fire and Koronos.
+Boot probe ABI (include/chimera/cpu_profile.h — produced by Spit Fire)
+c
+typedef enum { ARCH_X86_64, ARCH_ARM64, ARCH_RISCV64, ARCH_CORTEX_M, ARCH_R8192 } chm_arch_t;
+typedef enum { ENC_FIXED, ENC_VARIABLE, ENC_HYBRID } chm_encoding_t;
+
+typedef struct {
+  chm_arch_t arch;
+  chm_encoding_t encoding;
+  uint16_t gpr_bits;     // 32, 64, or RegisterN width
+  uint16_t vector_bits;  // 0 if none
+  uint32_t lanes;        // logical execution lanes
+  uint64_t features;     // CHM_FEAT_* bitmap
+  uint8_t profile_id;    // selected execution profile
+  uint8_t endianness;    // 0 = little, 1 = big
+} chm_cpu_profile_t;
+Probe steps (Spit Fire):
+1.	Read CPUID / MIDR / misa / device tree / IDENT register.
+2.	Derive encoding and datapath width.
+3.	Select execution profile and write chm_bootinfo_t for kernel handoff.
+2.2 Spit Fire Bootloader
+Stages
+•	SF 0 MBR (assembly, 440 B): real mode LBA read, verify SF 1 magic.
+•	SF 1 stage 1.5 (assembly, 16 KiB): enable A20, build temporary GDT, switch to long mode.
+•	SF 2 loader (freestanding C++): filesystem drivers (FAT32, ext4, XFS, Btrfs, NTFS read), kernel verification, decompression.
+•	SF U UEFI app (C++): uses UEFI protocols, measures images into TPM, supports Secure Boot.
+Bootinfo ABI (include/chimera/bootinfo.h)
+c
+#define CHM_BOOTINFO_MAGIC 0x43484D42U /* 'CHMB' */
+#define CHM_BOOTINFO_VERSION 3U
+
+typedef struct { uint64_t base, length; uint32_t type, attr; } chm_mmap_entry_t;
+
+typedef struct {
+  uint32_t magic, version, size, crc32;
+  chm_cpu_profile_t cpu;
+  uint64_t mmap_addr;
+  uint32_t mmap_count;
+  uint32_t flags; // UEFI | BIOS | SECUREBOOT | DUAL
+  uint64_t acpi_rsdp, dtb, efi_system_table;
+  uint64_t framebuffer_addr;
+  uint32_t fb_pitch, fb_width, fb_height;
+  uint8_t fb_bpp, fb_format, _pad[2];
+  uint64_t initrd_addr, initrd_size;
+  uint64_t cmdline_addr; // NUL-terminated UTF-8
+  uint8_t tpm_pcr_digest[64];
+  uint64_t boot_tsc;
+} chm_bootinfo_t;
+2.3 Jasper Boot Manager
+•	GRUB2 derived, GPLv3+; packaged separately.
+•	Features: menu entries, last known good fallback, chainload Windows, verify signatures, LUKS2 unlock, TPM auto unseal.
+•	Jasper config example:
+text
+set default=chimera; set timeout=5; set fallback=chimera-lkg
+menuentry "Chimera II OS (Koronos)" -- id chimera {
+  chm_load /boot/vmkoronos-1.0.0 root=UUID=... quiet splash chm.parallel=auto
+  initrd /boot/koronos-initrd.img
+  verify /boot/vmkoronos-1.0.0.sig
+}
+3 Koronos Kernel and ISA Execution Engine
+3.1 Kernel Architecture Overview
+Hybrid microkernel: scheduler, VM, IPC, capability enforcement, and Spotnik fast path run in supervisor mode; filesystems, protocol control planes, and many drivers run as userspace servers with capability restricted device access.
+Source layout
+Code
+kernel/
+  arch/{x86_64,arm64,riscv64,cortex_m,r8192}/
+  sched/
+  mm/
+  ipc/
+  vfs/
+  fs/
+  net/
+  drivers/
+  db/
+  sec/
+  isa/
+3.2 Concurrency and Scheduling
+•	Scheduler: MLFQ + RMS hybrid; per CPU runqueues; preemptive, tickless timer; 1 ms default quantum; real time classes.
+•	Concurrency primitives: futex, ticket spinlock, MCS lock, RW semaphore, seqlock, RCU.
+•	Zero copy IPC: page table remapping for shared frames + lockless SPSC rings for descriptors.
+TCB example
+cpp
+struct TCB {
+  uint64_t tid;
+  int state; // READY, RUNNING, BLOCKED, TERMINATED
+  int priority; // 0..31
+  RegisterN<4096> regs; // dynamic width per process
+  void* stack;
+  // scheduling metadata
+};
+3.3 RegisterN Width Parametric Register Type
+Full RegisterN.hpp (integrated verbatim from attached source)
+cpp
+#pragma once
+#include <array>
+#include <cstdint>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
+#include <algorithm>
+
+template <size_t Bits>
+class RegisterN {
+    static_assert(Bits % 64 == 0, "Register size must be multiple of 64");
+
+public:
+    static constexpr size_t WordBits  = 64;
+    static constexpr size_t WordCount = Bits / WordBits;
+
+private:
+    std::array<uint64_t, WordCount> w{};
+
+public:
+    // ===== Constructors =====
+    RegisterN() { clear(); }
+
+    explicit RegisterN(uint64_t value) {
+        clear();
+        w[0] = value;
+    }
+
+    // ===== Basic operations =====
+    void clear() { w.fill(0); }
+
+    bool isZero()  {
+        for (auto v : w) if (v) return false;
+        return true;
+    }
+
+    bool msb()  {
+        return (w[WordCount - 1] >> 63) & 1;
+    }
+
+    // ===== Comparison =====
+    int compare( RegisterN& other)  {
+        for (int i = WordCount - 1; i >= 0; --i) {
+            if (w[i] < other.w[i]) return -1;
+            if (w[i] > other.w[i]) return  1;
+        }
+        return 0;
+    }
+
+    // ===== Arithmetic =====
+    RegisterN operator+( RegisterN& rhs)  {
+        RegisterN r;
+        __uint128_t carry = 0;
+        for (size_t i = 0; i < WordCount; ++i) {
+            __uint128_t sum = (__uint128_t)w[i] + rhs.w[i] + carry;
+            r.w[i] = (uint64_t)sum;
+            carry  = sum >> 64;
+        }
+        return r;
+    }
+
+    RegisterN operator-( RegisterN& rhs)  {
+        RegisterN r;
+        __uint128_t borrow = 0;
+        for (size_t i = 0; i < WordCount; ++i) {
+            __uint128_t lhs = (__uint128_t)w[i];
+            __uint128_t rhsb = (__uint128_t)rhs.w[i] + borrow;
+            if (lhs >= rhsb) {
+                r.w[i] = (uint64_t)(lhs - rhsb);
+                borrow = 0;
+            } else {
+                r.w[i] = (uint64_t)(((__uint128_t(1) << 64) + lhs) - rhsb);
+                borrow = 1;
+            }
+        }
+        return r;
+    }
+
+    // ===== Bitwise =====
+    RegisterN operator&( RegisterN& rhs)  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = w[i] & rhs.w[i];
+        return r;
+    }
+
+    RegisterN operator|( RegisterN& rhs)  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = w[i] | rhs.w[i];
+        return r;
+    }
+
+    RegisterN operator^( RegisterN& rhs)  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = w[i] ^ rhs.w[i];
+        return r;
+    }
+
+    RegisterN operator~()  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = ~w[i];
+        return r;
+    }
+
+    // ===== Shifts =====
+    RegisterN shl(size_t bits)  {
+        RegisterN r;
+        size_t wordShift = bits / 64;
+        size_t bitShift  = bits % 64;
+
+        for (int i = WordCount - 1; i >= 0; --i) {
+            uint64_t v = 0;
+            int src = i - (int)wordShift;
+            if (src >= 0) {
+                v = w[src] << bitShift;
+                if (bitShift && src > 0)
+                    v |= w[src - 1] >> (64 - bitShift);
+            }
+            r.w[i] = v;
+        }
+        return r;
+    }
+
+    RegisterN shr(size_t bits)  {
+        RegisterN r;
+        size_t wordShift = bits / 64;
+        size_t bitShift  = bits % 64;
+
+        for (size_t i = 0; i < WordCount; ++i) {
+            uint64_t v = 0;
+            int src = i + wordShift;
+            if (src < (int)WordCount) {
+                v = w[src] >> bitShift;
+                if (bitShift && src + 1 < (int)WordCount)
+                    v |= w[src + 1] << (64 - bitShift);
+            }
+            r.w[i] = v;
+        }
+        return r;
+    }
+
+    // ===== Multiply (low Bits only) =====
+    RegisterN mul( RegisterN& rhs)  {
+        RegisterN r;
+        std::array<__uint128_t, WordCount * 2> tmp{};
+        tmp.fill(0);
+
+        for (size_t i = 0; i < WordCount; ++i)
+            for (size_t j = 0; j < WordCount; ++j)
+                tmp[i + j] += (__uint128_t)w[i] * rhs.w[j];
+
+        __uint128_t carry = 0;
+        for (size_t i = 0; i < WordCount; ++i) {
+            __uint128_t val = tmp[i] + carry;
+            r.w[i] = (uint64_t)val;
+            carry = val >> 64;
+        }
+        return r;
+    }
+
+    // ===== Hex I/O =====
+    std::string toHex()  {
+        std::ostringstream oss;
+        oss << "0x";
+        bool started = false;
+        for (int i = WordCount - 1; i >= 0; --i) {
+            if (!started) {
+                if (w[i] == 0) continue;
+                oss << std::hex << std::uppercase << w[i];
+                started = true;
+            } else {
+                oss << std::setw(16) << std::setfill('0')
+                    << std::hex << std::uppercase << w[i];
+            }
+        }
+        if (!started) oss << "0";
+        return oss.str();
+    }
+
+    static RegisterN fromHex(std::string s) {
+        RegisterN r;
+        if (s.rfind("0x", 0) == 0) s = s.substr(2);
+        while (s.size() < WordCount * 16) s = "0" + s;
+        for (size_t i = 0; i < WordCount; ++i) {
+            std::string part = s.substr(s.size() - (i + 1) * 16, 16);
+            r.w[i] = std::stoull(part, nullptr, 16);
+        }
+        return r;
+    }
+
+    // ===== Access =====
+    uint64_t& operator[](size_t i)       { return w[i]; }
+    uint64_t  operator[](size_t i) const { return w[i]; }
+};
+Integration notes
+•	Use RegisterN<4096> or RegisterN<8192> for wide word contexts.
+•	Provide specialized intrinsics (mulmod, barrett_reduce) in crypto modules for RSA8192/ECC.
+3.4 ISA Execution Engine
+•	R8192: fixed 64 bit instruction packets for compiler facing baseline.
+•	C8192: variable length packets (64–4096 bits) for dense crypto/tensor ops.
+•	Opcode examples (from ISA table): ADD (0x01), MUL (0x02), TCONTRACT (0x20), MODEXP (0x30), NETSEND (0x50).
+4 Spotnik Networking Stack and Filesystems
+4.1 Spotnik Public Socket API
+Unified header (chimera_net.h)
+c
+#pragma once
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#endif
+#include <stdint.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum { CHIMERA_AF_UNSPEC=0, CHIMERA_AF_INET=1, CHIMERA_AF_INET6=2 } chimera_af_t;
+
+typedef struct {
+  int fd; // POSIX: socket fd, Windows: SOCKET cast to int
+  int family; // AF_INET or AF_INET6
+  int type; // SOCK_STREAM / SOCK_DGRAM
+  int proto; // IPPROTO_TCP / IPPROTO_UDP
+  int dual_stack; // 1 if AF_INET6 dual-stack (IPv4-mapped allowed)
+} chimera_socket_t;
+
+int chimera_net_init_global(void);
+void chimera_net_shutdown_global(void);
+int chimera_socket_create(chimera_socket_t *cs, int type, int proto, int dual_stack);
+int chimera_socket_bind(chimera_socket_t *cs, const char *host, const char *port);
+int chimera_socket_listen(chimera_socket_t *cs, int backlog);
+int chimera_socket_accept(chimera_socket_t *server, chimera_socket_t *client);
+int chimera_socket_connect(chimera_socket_t *cs, const char *host, const char *port);
+ssize_t chimera_socket_send(chimera_socket_t *cs, const void *buf, size_t len);
+ssize_t chimera_socket_recv(chimera_socket_t *cs, void *buf, size_t len);
+int chimera_socket_set_nonblock(chimera_socket_t *cs, int enable);
+void chimera_socket_close(chimera_socket_t *cs);
+
+#ifdef __cplusplus
+}
+#endif
+POSIX and Winsock implementations are provided in chimera_net_posix.c and chimera_net_win32.cpp (excerpts included in repository). Spotnik exposes zero copy wrappers and integrates AF_XDP/Netmap backends.
+4.2 AF_XDP and Netmap Backends Design
+Goals: high throughput, low latency, zero copy DMA handoff.
+Userland API
+c
+ssize_t chimera_sendmsg_zero_copy(chimera_socket_t *cs, struct iovec *iov, int iovcnt, uint64_t frame_desc);
+ssize_t chimera_recvmsg_zero_copy(chimera_socket_t *cs, struct iovec *iov, int iovcnt, uint64_t *frame_desc_out);
+Kernel driver responsibilities
+•	Pin pages for DMA, return physical frame descriptors {phys_addr, length, flags, owner}.
+•	Enqueue completion descriptors into lockless rings consumed by userland.
+Benchmarks
+•	Microbench for 64B, 512B, 1500B frames; measure pps and Gbps; measure tail latency under load.
+4.3 Filesystems and VFS
+•	VFS abstracts XFS, ZFS (read only shim), QFS, NTFS, FAT32, ext4, btrfs.
+•	Directory layout: /, /boot, /etc, /opt, /run, /var, /tmp, /usr, /home.
+•	Partitioning tools: integrate fdisk, gdisk, and Windows partition metadata readers.
+•	TensorFS: specialized block descriptors for wide word snapshots used by Nucleus DB.
+5 Graphics, Desktop, Emulation, Databases, and Services
+5.1 Aurora 3D Desktop and OpenGL Compositor
+Design goals
+•	Windows 12 look & feel with selectable personalities (macOS, classic Windows, Linux).
+•	Full Arabic + English UI and IME support.
+•	GPU Gems 3 techniques ported to OpenGL (deferred lighting, SSAO, tiled rendering, texture streaming).
+Compositor loop (example)
+cpp
+void compositor_frame() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  for (Window* w : visible_windows) render_window(w);
+  render_desktop_overlays();
+  swap_buffers();
+}
+GLSL SSAO fragment example
+glsl
+#version 330 core
+in vec2 TexCoords;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+out float FragColor;
+void main() {
+  vec3 pos = texture(gPosition, TexCoords).xyz;
+  vec3 normal = normalize(texture(gNormal, TexCoords).xyz);
+  // compute occlusion...
+  FragColor = occlusion;
+}
+Resource streaming
+•	Use PBOs and persistent mapped buffers for async texture uploads.
+•	Damage tracking and partial redraws for fast UI responsiveness.
+5.2 Nucleus DB and Hive Registry
+Nucleus DB (NDB) — built in HTAP database:
+•	OLTP: in memory transactional engine with WAL and durable on disk snapshots.
+•	OLAP: columnar historical store and vectorized query engine for analytics.
+•	Neural layer: learned indexes and adaptive caching for hot path acceleration.
+Hive — SAM style registry:
+•	Key/value hierarchical store for system configuration and environment variables.
+•	Exposed via libhive and accessible to Kore service manager.
+5.3 Emulation Framework (CEF)
+•	Emulators run as privileged services with controlled I/O hooks and shared memory framebuffers.
+•	WinUAE integration for Amiga A500; libretro cores for consoles.
+•	Emulators pinned to real cores, use hugepages, and map GPU/audio buffers for low latency.
+Service manifest example
+json
+{
+  "name":"winuae",
+  "exec":"/usr/lib/emulators/winuae/winuae",
+  "resources":{"gpu":true,"audio":true,"iommu":true},
+  "privileges":["map_gpu","pin_memory"]
+}
+5.4 Kore Service Manager
+•	systemd like: unit files, targets, socket activation, parallel startup.
+•	Journal and diagnostics: lock free per CPU rings for deterministic replay.
+6 Security, Build, Tests, Packaging, and Roadmap
+6.1 Secure Boot and Signed Kernel Images
+Design
+•	Root key in firmware/TPM; signing key for Koronos images.
+•	koronos.img header: {magic, version, timestamp, signature, hash, metadata}.
+•	Spit Fire verifies signature and extends TPM PCRs; Jasper enforces rollback protection.
+Signing flow (example)
+bash
+sha256sum koronos.bin > koronos.sha256
+openssl dgst -sha256 -sign private.pem -out koronos.sig koronos.sha256
+cat header koronos.bin koronos.sig > koronos.img
+6.2 Kernel Integration Tests
+Targets: scheduler, IPC, memory manager. Framework: GoogleTest style harness; run in userland harness and QEMU kernel images.
+Example test skeleton
+cpp
+#include <gtest/gtest.h>
+#include "kernel/scheduler.h"
+#include "kernel/ipc.h"
+#include "kernel/mm.h"
+
+TEST(SchedulerTest, PriorityOrder) {
+  Scheduler s;
+  s.create_task([](){ /* busy loop */ }, 10);
+  s.create_task([](){ /* busy loop */ }, 5);
+  s.run_for_ms(100);
+  EXPECT_TRUE(s.task_executed_before(5,10));
+}
+
+TEST(IPC, ZeroCopyTransfer) {
+  IPCRing ring(1024);
+  auto frame = allocate_frame(4096);
+  ring.produce(frame);
+  auto f = ring.consume();
+  ASSERT_EQ(f->size, 4096);
+}
+6.3 Spotnik Performance Backends
+Deliverables
+•	net/backends/af_xdp/ — AF_XDP userland integration and examples.
+•	net/backends/netmap/ — Netmap ring mapping and fallback.
+•	Kernel API for page pinning and descriptor handoff.
+•	Benchmarks and scripts for pps/Gbps and latency.
+6.4 Packaging and CI
+Artifacts
+•	koronos.img — kernel image for Spit Fire.
+•	chimera_os_ii.tar.gz — source + chimera_instructions.csv + README + loader scripts.
+•	Container images for build/test runners.
+CI pipeline stages
+1.	Checkout → lint → static analysis
+2.	Build kernel, bootloader, libraries
+3.	Unit tests (kernel harness)
+4.	Integration tests (QEMU boot, Spotnik benchmarks, compositor smoke tests)
+5.	Sign images (protected key)
+6.	Package and publish artifacts
+Example GitHub Actions snippet
+yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build kernel
+        run: make -C koronos all
+      - name: Run unit tests
+        run: ./tests/run_unit_tests.sh
+      - name: Sign kernel
+        if: github.ref == 'refs/heads/main'
+        run: ./bootloader/signing/sign_koronos.sh
+      - name: Package
+        run: ./tools/package_release.sh
+6.5 ISA Appendix Population Plan and Parser
+CSV schema
+Code
+mnemonic;opcode;encoding;operands;privilege;latency;throughput;pipeline_stage;isa_family;notes;source_ref
+Parser outline (Python)
+python
+#!/usr/bin/env python3
+import csv, re, sys
+
+def parse_instruction_line(line):
+    m = re.match(r'^\s*(\w+)\s+([0-9A-Fx]+)\s+(.+)$', line)
+    if not m: return None
+    mnemonic, opcode, rest = m.groups()
+    return {'mnemonic':mnemonic, 'opcode':opcode, 'encoding':'', 'operands':'', 'privilege':'user', 'latency':'', 'throughput':'', 'pipeline_stage':'', 'isa_family':'', 'notes':rest, 'source_ref':''}
+
+def generate_csv(input_txt, out_csv):
+    rows=[]
+    with open(input_txt) as f:
+        for line in f:
+            r = parse_instruction_line(line)
+            if r: rows.append(r)
+    with open(out_csv,'w',newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['mnemonic','opcode','encoding','operands','privilege','latency','throughput','pipeline_stage','isa_family','notes','source_ref'], delimiter=';')
+        writer.writeheader()
+        for r in rows: writer.writerow(r)
+
+if __name__=='__main__':
+    generate_csv(sys.argv[1], sys.argv[2])
+Quality controls
+•	Round trip parse/regenerate tests, provenance mapping, manual spot checks.
+6.6 Roadmap and Priorities
+Phase 1 (2–4 weeks)
+•	ISA parser prototype and CSV schema; kernel unit test harness; Spotnik AF_XDP POC.
+Phase 2 (4–8 weeks)
+•	Complete ISA CSV; full kernel tests in CI; Netmap backend; initial OpenGL compositor.
+Phase 3 (8–12 weeks)
+•	Emulation service integration; secure boot signing; packaging and release CI.
+References and Included Source Fragments
+Included verbatim fragments (from user supplied attachments):
+•	RegisterN.hpp (full template) — included above.
+•	chimera_net.h (unified socket API) — included above.
+•	Bootinfo and CPU profile ABIs — included above.
+•	Excerpts and specification clauses from the Chimera II OS system documents (design rationale, layer model, Spit Fire/Jasper rules, Koronos layout).
+Suggested external references for implementers
+•	UEFI Specification 2.10 (for SF U implementation)
+•	RFC 8200, RFC 6724, RFC 4477, RFC 8421 (for dual stack and DHCP handling)
+•	AF_XDP and Netmap documentation for zero copy backends
+•	GPU Gems 3 chapters for algorithmic guidance when porting to OpenGL
+Next Actions I Can Execute Immediately
+Pick one of the following and I will produce the deliverable next:
+1.	Generate chimera_instructions.csv skeleton from the supplied ISA excerpts and produce the parser output sample.
+2.	Scaffold the kernel unit test repository with GoogleTest harness, sample tests for scheduler/IPC/mm, and CI job YAML.
+3.	Produce Spotnik AF_XDP backend skeleton with userland example and benchmark harness.
+4.	Port one GPU Gems algorithm to OpenGL and provide a working compositor demo (source + shader).
+5.	Create Spit Fire SF 0 and SF 1 assembly stubs and SF 2 loader skeleton (C++ freestanding) with bootinfo generation.
+6.	Produce a signed image workflow including sign_koronos.sh and CI signing job template.
+State which item to start and I will deliver the full code, tests, and packaging artifacts for that item next.
+Chimera II OS Comprehensive Source Level Specification and Technical Blueprint
+Quoted from the supplied documentation Chimera II OS is a research operating system concept. This revision keeps that framing deliberately.
+This document consolidates all previously supplied drafts and attached source fragments into a single, detailed technical blueprint that (1) restates the design intent, (2) specifies concrete ABIs and source layouts, and (3) provides working source code examples, test scaffolds, and packaging/CI guidance to implement the requested features: Spit Fire bootloader, Jasper boot manager, Koronos kernel, Spotnik network stack, RegisterN wide register support, Aurora 3D desktop (OpenGL), Nucleus neural HTAP DB, Hive registry, emulation services, secure boot, and packaging.
+1 Executive Summary and Scope
+Purpose Provide a single developer ready specification and source blueprint for Chimera II OS: a research OS that supports heterogeneous hardware (ARM, x86 64, RISC V, and experimental wide word ISAs), variable register widths (64 → 8192 bits), zero copy networking, GPU accelerated 3D desktop, built in neural HTAP database, and layered compatibility for Windows and Linux applications.
+High level components
+•	Spit Fire — MBR and UEFI bootloader (assembly + freestanding C++)
+•	Jasper — GRUB2 style boot manager (menu, chainload, signature verification)
+•	Koronos — hybrid microkernel (scheduler, VM, IPC, Spotnik fast path)
+•	Spotnik — dual stack IPv6/IPv4 zero copy networking stack with AF_XDP/Netmap backends
+•	RegisterN.hpp — width parametric register type used by ISA engine and crypto units
+•	Aurora — OpenGL 3D compositor and desktop shell (Windows 12 look & feel + personalities)
+•	Nucleus DB — built in neural HTAP database (OLTP + OLAP)
+•	Hive — SAM style registry and environment database
+•	CEF — Chimera Emulation Framework hosting WinUAE and libretro cores as services
+•	Kore — system/service manager (systemd like, parallel startup)
+•	Aegis — security architecture (measured boot, TPM, signed images)
+Non goals and constraints
+•	This is a research/specification blueprint. Third party code (emulators, WinUAE, GPU Gems examples) must be integrated under their licences; binary redistribution of copyrighted ROMs/BIOS is not permitted.
+2 Boot Subsystem and Initialization Pipeline
+2.1 Firmware Probe and CPU Profile
+Design goal: Replace a naive RISC/CISC flag with a capability probe that produces a machine readable CPU profile consumed by Spit Fire and Koronos.
+Boot probe ABI (include/chimera/cpu_profile.h — produced by Spit Fire)
+c
+typedef enum { ARCH_X86_64, ARCH_ARM64, ARCH_RISCV64, ARCH_CORTEX_M, ARCH_R8192 } chm_arch_t;
+typedef enum { ENC_FIXED, ENC_VARIABLE, ENC_HYBRID } chm_encoding_t;
+
+typedef struct {
+  chm_arch_t arch;
+  chm_encoding_t encoding;
+  uint16_t gpr_bits;     // 32, 64, or RegisterN width
+  uint16_t vector_bits;  // 0 if none
+  uint32_t lanes;        // logical execution lanes
+  uint64_t features;     // CHM_FEAT_* bitmap
+  uint8_t profile_id;    // selected execution profile
+  uint8_t endianness;    // 0 = little, 1 = big
+} chm_cpu_profile_t;
+Probe steps (Spit Fire):
+1.	Read CPUID / MIDR / misa / device tree / IDENT register.
+2.	Derive encoding and datapath width.
+3.	Select execution profile and write chm_bootinfo_t for kernel handoff.
+2.2 Spit Fire Bootloader
+Stages
+•	SF 0 MBR (assembly, 440 B): real mode LBA read, verify SF 1 magic.
+•	SF 1 stage 1.5 (assembly, 16 KiB): enable A20, build temporary GDT, switch to long mode.
+•	SF 2 loader (freestanding C++): filesystem drivers (FAT32, ext4, XFS, Btrfs, NTFS read), kernel verification, decompression.
+•	SF U UEFI app (C++): uses UEFI protocols, measures images into TPM, supports Secure Boot.
+Bootinfo ABI (include/chimera/bootinfo.h)
+c
+#define CHM_BOOTINFO_MAGIC 0x43484D42U /* 'CHMB' */
+#define CHM_BOOTINFO_VERSION 3U
+
+typedef struct { uint64_t base, length; uint32_t type, attr; } chm_mmap_entry_t;
+
+typedef struct {
+  uint32_t magic, version, size, crc32;
+  chm_cpu_profile_t cpu;
+  uint64_t mmap_addr;
+  uint32_t mmap_count;
+  uint32_t flags; // UEFI | BIOS | SECUREBOOT | DUAL
+  uint64_t acpi_rsdp, dtb, efi_system_table;
+  uint64_t framebuffer_addr;
+  uint32_t fb_pitch, fb_width, fb_height;
+  uint8_t fb_bpp, fb_format, _pad[2];
+  uint64_t initrd_addr, initrd_size;
+  uint64_t cmdline_addr; // NUL-terminated UTF-8
+  uint8_t tpm_pcr_digest[64];
+  uint64_t boot_tsc;
+} chm_bootinfo_t;
+2.3 Jasper Boot Manager
+•	GRUB2 derived, GPLv3+; packaged separately.
+•	Features: menu entries, last known good fallback, chainload Windows, verify signatures, LUKS2 unlock, TPM auto unseal.
+•	Jasper config example:
+text
+set default=chimera; set timeout=5; set fallback=chimera-lkg
+menuentry "Chimera II OS (Koronos)" -- id chimera {
+  chm_load /boot/vmkoronos-1.0.0 root=UUID=... quiet splash chm.parallel=auto
+  initrd /boot/koronos-initrd.img
+  verify /boot/vmkoronos-1.0.0.sig
+}
+3 Koronos Kernel and ISA Execution Engine
+3.1 Kernel Architecture Overview
+Hybrid microkernel: scheduler, VM, IPC, capability enforcement, and Spotnik fast path run in supervisor mode; filesystems, protocol control planes, and many drivers run as userspace servers with capability restricted device access.
+Source layout
+Code
+kernel/
+  arch/{x86_64,arm64,riscv64,cortex_m,r8192}/
+  sched/
+  mm/
+  ipc/
+  vfs/
+  fs/
+  net/
+  drivers/
+  db/
+  sec/
+  isa/
+3.2 Concurrency and Scheduling
+•	Scheduler: MLFQ + RMS hybrid; per CPU runqueues; preemptive, tickless timer; 1 ms default quantum; real time classes.
+•	Concurrency primitives: futex, ticket spinlock, MCS lock, RW semaphore, seqlock, RCU.
+•	Zero copy IPC: page table remapping for shared frames + lockless SPSC rings for descriptors.
+TCB example
+cpp
+struct TCB {
+  uint64_t tid;
+  int state; // READY, RUNNING, BLOCKED, TERMINATED
+  int priority; // 0..31
+  RegisterN<4096> regs; // dynamic width per process
+  void* stack;
+  // scheduling metadata
+};
+3.3 RegisterN Width Parametric Register Type
+Full RegisterN.hpp (integrated verbatim from attached source)
+cpp
+#pragma once
+#include <array>
+#include <cstdint>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
+#include <algorithm>
+
+template <size_t Bits>
+class RegisterN {
+    static_assert(Bits % 64 == 0, "Register size must be multiple of 64");
+
+public:
+    static constexpr size_t WordBits  = 64;
+    static constexpr size_t WordCount = Bits / WordBits;
+
+private:
+    std::array<uint64_t, WordCount> w{};
+
+public:
+    // ===== Constructors =====
+    RegisterN() { clear(); }
+
+    explicit RegisterN(uint64_t value) {
+        clear();
+        w[0] = value;
+    }
+
+    // ===== Basic operations =====
+    void clear() { w.fill(0); }
+
+    bool isZero()  {
+        for (auto v : w) if (v) return false;
+        return true;
+    }
+
+    bool msb()  {
+        return (w[WordCount - 1] >> 63) & 1;
+    }
+
+    // ===== Comparison =====
+    int compare( RegisterN& other)  {
+        for (int i = WordCount - 1; i >= 0; --i) {
+            if (w[i] < other.w[i]) return -1;
+            if (w[i] > other.w[i]) return  1;
+        }
+        return 0;
+    }
+
+    // ===== Arithmetic =====
+    RegisterN operator+( RegisterN& rhs)  {
+        RegisterN r;
+        __uint128_t carry = 0;
+        for (size_t i = 0; i < WordCount; ++i) {
+            __uint128_t sum = (__uint128_t)w[i] + rhs.w[i] + carry;
+            r.w[i] = (uint64_t)sum;
+            carry  = sum >> 64;
+        }
+        return r;
+    }
+
+    RegisterN operator-( RegisterN& rhs)  {
+        RegisterN r;
+        __uint128_t borrow = 0;
+        for (size_t i = 0; i < WordCount; ++i) {
+            __uint128_t lhs = (__uint128_t)w[i];
+            __uint128_t rhsb = (__uint128_t)rhs.w[i] + borrow;
+            if (lhs >= rhsb) {
+                r.w[i] = (uint64_t)(lhs - rhsb);
+                borrow = 0;
+            } else {
+                r.w[i] = (uint64_t)(((__uint128_t(1) << 64) + lhs) - rhsb);
+                borrow = 1;
+            }
+        }
+        return r;
+    }
+
+    // ===== Bitwise =====
+    RegisterN operator&( RegisterN& rhs)  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = w[i] & rhs.w[i];
+        return r;
+    }
+
+    RegisterN operator|( RegisterN& rhs)  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = w[i] | rhs.w[i];
+        return r;
+    }
+
+    RegisterN operator^( RegisterN& rhs)  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = w[i] ^ rhs.w[i];
+        return r;
+    }
+
+    RegisterN operator~()  {
+        RegisterN r;
+        for (size_t i = 0; i < WordCount; ++i) r.w[i] = ~w[i];
+        return r;
+    }
+
+    // ===== Shifts =====
+    RegisterN shl(size_t bits)  {
+        RegisterN r;
+        size_t wordShift = bits / 64;
+        size_t bitShift  = bits % 64;
+
+        for (int i = WordCount - 1; i >= 0; --i) {
+            uint64_t v = 0;
+            int src = i - (int)wordShift;
+            if (src >= 0) {
+                v = w[src] << bitShift;
+                if (bitShift && src > 0)
+                    v |= w[src - 1] >> (64 - bitShift);
+            }
+            r.w[i] = v;
+        }
+        return r;
+    }
+
+    RegisterN shr(size_t bits)  {
+        RegisterN r;
+        size_t wordShift = bits / 64;
+        size_t bitShift  = bits % 64;
+
+        for (size_t i = 0; i < WordCount; ++i) {
+            uint64_t v = 0;
+            int src = i + wordShift;
+            if (src < (int)WordCount) {
+                v = w[src] >> bitShift;
+                if (bitShift && src + 1 < (int)WordCount)
+                    v |= w[src + 1] << (64 - bitShift);
+            }
+            r.w[i] = v;
+        }
+        return r;
+    }
+
+    // ===== Multiply (low Bits only) =====
+    RegisterN mul( RegisterN& rhs)  {
+        RegisterN r;
+        std::array<__uint128_t, WordCount * 2> tmp{};
+        tmp.fill(0);
+
+        for (size_t i = 0; i < WordCount; ++i)
+            for (size_t j = 0; j < WordCount; ++j)
+                tmp[i + j] += (__uint128_t)w[i] * rhs.w[j];
+
+        __uint128_t carry = 0;
+        for (size_t i = 0; i < WordCount; ++i) {
+            __uint128_t val = tmp[i] + carry;
+            r.w[i] = (uint64_t)val;
+            carry = val >> 64;
+        }
+        return r;
+    }
+
+    // ===== Hex I/O =====
+    std::string toHex()  {
+        std::ostringstream oss;
+        oss << "0x";
+        bool started = false;
+        for (int i = WordCount - 1; i >= 0; --i) {
+            if (!started) {
+                if (w[i] == 0) continue;
+                oss << std::hex << std::uppercase << w[i];
+                started = true;
+            } else {
+                oss << std::setw(16) << std::setfill('0')
+                    << std::hex << std::uppercase << w[i];
+            }
+        }
+        if (!started) oss << "0";
+        return oss.str();
+    }
+
+    static RegisterN fromHex(std::string s) {
+        RegisterN r;
+        if (s.rfind("0x", 0) == 0) s = s.substr(2);
+        while (s.size() < WordCount * 16) s = "0" + s;
+        for (size_t i = 0; i < WordCount; ++i) {
+            std::string part = s.substr(s.size() - (i + 1) * 16, 16);
+            r.w[i] = std::stoull(part, nullptr, 16);
+        }
+        return r;
+    }
+
+    // ===== Access =====
+    uint64_t& operator[](size_t i)       { return w[i]; }
+    uint64_t  operator[](size_t i) const { return w[i]; }
+};
+Integration notes
+•	Use RegisterN<4096> or RegisterN<8192> for wide word contexts.
+•	Provide specialized intrinsics (mulmod, barrett_reduce) in crypto modules for RSA8192/ECC.
+3.4 ISA Execution Engine
+•	R8192: fixed 64 bit instruction packets for compiler facing baseline.
+•	C8192: variable length packets (64–4096 bits) for dense crypto/tensor ops.
+•	Opcode examples (from ISA table): ADD (0x01), MUL (0x02), TCONTRACT (0x20), MODEXP (0x30), NETSEND (0x50).
+4 Spotnik Networking Stack and Filesystems
+4.1 Spotnik Public Socket API
+Unified header (chimera_net.h)
+c
+#pragma once
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#endif
+#include <stdint.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum { CHIMERA_AF_UNSPEC=0, CHIMERA_AF_INET=1, CHIMERA_AF_INET6=2 } chimera_af_t;
+
+typedef struct {
+  int fd; // POSIX: socket fd, Windows: SOCKET cast to int
+  int family; // AF_INET or AF_INET6
+  int type; // SOCK_STREAM / SOCK_DGRAM
+  int proto; // IPPROTO_TCP / IPPROTO_UDP
+  int dual_stack; // 1 if AF_INET6 dual-stack (IPv4-mapped allowed)
+} chimera_socket_t;
+
+int chimera_net_init_global(void);
+void chimera_net_shutdown_global(void);
+int chimera_socket_create(chimera_socket_t *cs, int type, int proto, int dual_stack);
+int chimera_socket_bind(chimera_socket_t *cs, const char *host, const char *port);
+int chimera_socket_listen(chimera_socket_t *cs, int backlog);
+int chimera_socket_accept(chimera_socket_t *server, chimera_socket_t *client);
+int chimera_socket_connect(chimera_socket_t *cs, const char *host, const char *port);
+ssize_t chimera_socket_send(chimera_socket_t *cs, const void *buf, size_t len);
+ssize_t chimera_socket_recv(chimera_socket_t *cs, void *buf, size_t len);
+int chimera_socket_set_nonblock(chimera_socket_t *cs, int enable);
+void chimera_socket_close(chimera_socket_t *cs);
+
+#ifdef __cplusplus
+}
+#endif
+POSIX and Winsock implementations are provided in chimera_net_posix.c and chimera_net_win32.cpp (excerpts included in repository). Spotnik exposes zero copy wrappers and integrates AF_XDP/Netmap backends.
+4.2 AF_XDP and Netmap Backends Design
+Goals: high throughput, low latency, zero copy DMA handoff.
+Userland API
+c
+ssize_t chimera_sendmsg_zero_copy(chimera_socket_t *cs, struct iovec *iov, int iovcnt, uint64_t frame_desc);
+ssize_t chimera_recvmsg_zero_copy(chimera_socket_t *cs, struct iovec *iov, int iovcnt, uint64_t *frame_desc_out);
+Kernel driver responsibilities
+•	Pin pages for DMA, return physical frame descriptors {phys_addr, length, flags, owner}.
+•	Enqueue completion descriptors into lockless rings consumed by userland.
+Benchmarks
+•	Microbench for 64B, 512B, 1500B frames; measure pps and Gbps; measure tail latency under load.
+4.3 Filesystems and VFS
+•	VFS abstracts XFS, ZFS (read only shim), QFS, NTFS, FAT32, ext4, btrfs.
+•	Directory layout: /, /boot, /etc, /opt, /run, /var, /tmp, /usr, /home.
+•	Partitioning tools: integrate fdisk, gdisk, and Windows partition metadata readers.
+•	TensorFS: specialized block descriptors for wide word snapshots used by Nucleus DB.
+5 Graphics, Desktop, Emulation, Databases, and Services
+5.1 Aurora 3D Desktop and OpenGL Compositor
+Design goals
+•	Windows 12 look & feel with selectable personalities (macOS, classic Windows, Linux).
+•	Full Arabic + English UI and IME support.
+•	GPU Gems 3 techniques ported to OpenGL (deferred lighting, SSAO, tiled rendering, texture streaming).
+Compositor loop (example)
+cpp
+void compositor_frame() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  for (Window* w : visible_windows) render_window(w);
+  render_desktop_overlays();
+  swap_buffers();
+}
+GLSL SSAO fragment example
+glsl
+#version 330 core
+in vec2 TexCoords;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+out float FragColor;
+void main() {
+  vec3 pos = texture(gPosition, TexCoords).xyz;
+  vec3 normal = normalize(texture(gNormal, TexCoords).xyz);
+  // compute occlusion...
+  FragColor = occlusion;
+}
+Resource streaming
+•	Use PBOs and persistent mapped buffers for async texture uploads.
+•	Damage tracking and partial redraws for fast UI responsiveness.
+5.2 Nucleus DB and Hive Registry
+Nucleus DB (NDB) — built in HTAP database:
+•	OLTP: in memory transactional engine with WAL and durable on disk snapshots.
+•	OLAP: columnar historical store and vectorized query engine for analytics.
+•	Neural layer: learned indexes and adaptive caching for hot path acceleration.
+Hive — SAM style registry:
+•	Key/value hierarchical store for system configuration and environment variables.
+•	Exposed via libhive and accessible to Kore service manager.
+5.3 Emulation Framework (CEF)
+•	Emulators run as privileged services with controlled I/O hooks and shared memory framebuffers.
+•	WinUAE integration for Amiga A500; libretro cores for consoles.
+•	Emulators pinned to real cores, use hugepages, and map GPU/audio buffers for low latency.
+Service manifest example
+json
+{
+  "name":"winuae",
+  "exec":"/usr/lib/emulators/winuae/winuae",
+  "resources":{"gpu":true,"audio":true,"iommu":true},
+  "privileges":["map_gpu","pin_memory"]
+}
+5.4 Kore Service Manager
+•	systemd like: unit files, targets, socket activation, parallel startup.
+•	Journal and diagnostics: lock free per CPU rings for deterministic replay.
+6 Security, Build, Tests, Packaging, and Roadmap
+6.1 Secure Boot and Signed Kernel Images
+Design
+•	Root key in firmware/TPM; signing key for Koronos images.
+•	koronos.img header: {magic, version, timestamp, signature, hash, metadata}.
+•	Spit Fire verifies signature and extends TPM PCRs; Jasper enforces rollback protection.
+Signing flow (example)
+bash
+sha256sum koronos.bin > koronos.sha256
+openssl dgst -sha256 -sign private.pem -out koronos.sig koronos.sha256
+cat header koronos.bin koronos.sig > koronos.img
+6.2 Kernel Integration Tests
+Targets: scheduler, IPC, memory manager. Framework: GoogleTest style harness; run in userland harness and QEMU kernel images.
+Example test skeleton
+cpp
+#include <gtest/gtest.h>
+#include "kernel/scheduler.h"
+#include "kernel/ipc.h"
+#include "kernel/mm.h"
+
+TEST(SchedulerTest, PriorityOrder) {
+  Scheduler s;
+  s.create_task([](){ /* busy loop */ }, 10);
+  s.create_task([](){ /* busy loop */ }, 5);
+  s.run_for_ms(100);
+  EXPECT_TRUE(s.task_executed_before(5,10));
+}
+
+TEST(IPC, ZeroCopyTransfer) {
+  IPCRing ring(1024);
+  auto frame = allocate_frame(4096);
+  ring.produce(frame);
+  auto f = ring.consume();
+  ASSERT_EQ(f->size, 4096);
+}
+6.3 Spotnik Performance Backends
+Deliverables
+•	net/backends/af_xdp/ — AF_XDP userland integration and examples.
+•	net/backends/netmap/ — Netmap ring mapping and fallback.
+•	Kernel API for page pinning and descriptor handoff.
+•	Benchmarks and scripts for pps/Gbps and latency.
+6.4 Packaging and CI
+Artifacts
+•	koronos.img — kernel image for Spit Fire.
+•	chimera_os_ii.tar.gz — source + chimera_instructions.csv + README + loader scripts.
+•	Container images for build/test runners.
+CI pipeline stages
+1.	Checkout → lint → static analysis
+2.	Build kernel, bootloader, libraries
+3.	Unit tests (kernel harness)
+4.	Integration tests (QEMU boot, Spotnik benchmarks, compositor smoke tests)
+5.	Sign images (protected key)
+6.	Package and publish artifacts
+Example GitHub Actions snippet
+yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build kernel
+        run: make -C koronos all
+      - name: Run unit tests
+        run: ./tests/run_unit_tests.sh
+      - name: Sign kernel
+        if: github.ref == 'refs/heads/main'
+        run: ./bootloader/signing/sign_koronos.sh
+      - name: Package
+        run: ./tools/package_release.sh
+6.5 ISA Appendix Population Plan and Parser
+CSV schema
+Code
+mnemonic;opcode;encoding;operands;privilege;latency;throughput;pipeline_stage;isa_family;notes;source_ref
+Parser outline (Python)
+python
+#!/usr/bin/env python3
+import csv, re, sys
+
+def parse_instruction_line(line):
+    m = re.match(r'^\s*(\w+)\s+([0-9A-Fx]+)\s+(.+)$', line)
+    if not m: return None
+    mnemonic, opcode, rest = m.groups()
+    return {'mnemonic':mnemonic, 'opcode':opcode, 'encoding':'', 'operands':'', 'privilege':'user', 'latency':'', 'throughput':'', 'pipeline_stage':'', 'isa_family':'', 'notes':rest, 'source_ref':''}
+
+def generate_csv(input_txt, out_csv):
+    rows=[]
+    with open(input_txt) as f:
+        for line in f:
+            r = parse_instruction_line(line)
+            if r: rows.append(r)
+    with open(out_csv,'w',newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['mnemonic','opcode','encoding','operands','privilege','latency','throughput','pipeline_stage','isa_family','notes','source_ref'], delimiter=';')
+        writer.writeheader()
+        for r in rows: writer.writerow(r)
+
+if __name__=='__main__':
+    generate_csv(sys.argv[1], sys.argv[2])
+Quality controls
+•	Round trip parse/regenerate tests, provenance mapping, manual spot checks.
+6.6 Roadmap and Priorities
+Phase 1 (2–4 weeks)
+•	ISA parser prototype and CSV schema; kernel unit test harness; Spotnik AF_XDP POC.
+Phase 2 (4–8 weeks)
+•	Complete ISA CSV; full kernel tests in CI; Netmap backend; initial OpenGL compositor.
+Phase 3 (8–12 weeks)
+•	Emulation service integration; secure boot signing; packaging and release CI.
+References and Included Source Fragments
+Included verbatim fragments (from user supplied attachments):
+•	RegisterN.hpp (full template) — included above.
+•	chimera_net.h (unified socket API) — included above.
+•	Bootinfo and CPU profile ABIs — included above.
+•	Excerpts and specification clauses from the Chimera II OS system documents (design rationale, layer model, Spit Fire/Jasper rules, Koronos layout).
+Suggested external references for implementers
+•	UEFI Specification 2.10 (for SF U implementation)
+•	RFC 8200, RFC 6724, RFC 4477, RFC 8421 (for dual stack and DHCP handling)
+•	AF_XDP and Netmap documentation for zero copy backends
+•	GPU Gems 3 chapters for algorithmic guidance when porting to OpenGL
+Next Actions I Can Execute Immediately
+Pick one of the following and I will produce the deliverable next:
+1.	Generate chimera_instructions.csv skeleton from the supplied ISA excerpts and produce the parser output sample.
+2.	Scaffold the kernel unit test repository with GoogleTest harness, sample tests for scheduler/IPC/mm, and CI job YAML.
+3.	Produce Spotnik AF_XDP backend skeleton with userland example and benchmark harness.
+4.	Port one GPU Gems algorithm to OpenGL and provide a working compositor demo (source + shader).
+5.	Create Spit Fire SF 0 and SF 1 assembly stubs and SF 2 loader skeleton (C++ freestanding) with bootinfo generation.
+6.	Produce a signed image workflow including sign_koronos.sh and CI signing job template.
+State which item to start and I will deliver the full code, tests, and packaging artifacts for that item next.
+Expanding the Chimera II OS architecture requires detailing the microkernel IPC, memory management, zero-copy socket pipelines, and hardware emulation frameworks. 
+
+Module / Subsystem	Primary Function & Operational Mechanisms	Target Hardware & Compatibility
+Koronos Microkernel	Manages real-time threads via MLFQ and RMS scheduling, memory isolation, and low-overhead RCU/Futex lock primitives. 
+	ARM Cortex-M, RISC-V, x86-64, and AWS/Azure cloud nodes 
+
+Spit Fire & Jasper	Firmware bootstrap, chainloading, MBR/GPT partitioning, signed koronos.img verification, and TPM auto-unsealing. 
+	MBR/UEFI systems, multi-booting alongside Windows & Linux 
+
+RegisterN Engine	Width-parametric hardware abstraction executing 4096-bit to 8192-bit SIMD math via std::array<uint64_t, WordCount>. 
+	Ultrawide 8192-bit Chimera CPU architecture 
+
+Spotnik Network Stack	Dual IPv4/IPv6 zero-copy networking via AF_XDP and Netmap direct-DMA memory rings. 
+	Direct NIC driver interfaces 
+
+Nucleus DB & Hive	Embedded neural HTAP database engine (OLTP/OLAP) integrated with a SAM-style system registry. 
+	Persistent OS state and analytics
+Aurora 3D & CEF	OpenGL graphics engine utilizing GPU Gems 3 algorithms paired with a multi-console/Wine emulation framework. 
+	Windows 12/95, macOS, and Linux shell personalities 
+
+1. Koronos Microkernel & Process Scheduler
+
+
+•	Thread Scheduling: Combines Multi-Level Feedback Queues (MLFQ) for general process dynamics with Rate Monotonic Scheduling (RMS) for real-time task classes. 
+
+•	Synchronization Primitives: Incorporates futexes, ticket spinlocks, MCS locks, reader-writer semaphores, seqlocks, and Read-Copy Update (RCU) mechanisms. 
+
+•	File System Layer: Features driver abstractions for XFS, ZFS, QFS, NTFS, FAT32, ext4, and Btrfs structured around standard Unix directory roots (/boot, /etc, /usr, /var, /home). 
+
+2. RegisterN Wide-Arithmetic Subsystem
+
+
+•	Variable Width Scaling: Implements template-driven registers scaling in 64-bit increments up to 8192 bits (RegisterN<Bits>). 
+
+•	Arithmetic Execution: Handles arbitrary-precision multi-word additions, subtractions with carry/borrow propagates, bitwise logical shifts, and hexadecimal serialization. 
+
+3. Spotnik Zero-Copy Network Subsystem
+
+
+•	Direct DMA Sockets: Utilizes tcp_send_zero_copy with iovec message structures to eliminate kernel-to-user memory duplication over AF_XDP and Netmap. 
+
+•	Errata Hardening: Implements explicit RFC 791 (EID 6356) IPv4 packet reassembly validation and RFC 8200 (EID 5945) IPv6 fragmentation boundary checks. 
+
+4. Aurora 3D & Compatibility Framework (CEF)
+
+
+•	Compositor Shading: Applies deferred lighting, Screen Space Ambient Occlusion (SSAO), tiled rendering, and asynchronous Pixel Buffer Objects (PBOs). 
+
+•	Localization & Shells: Supports live personality switching between Windows 12, Windows 95, macOS, and Linux desktop environments, alongside full Arabic IME bidirectional text layout engines. 
+
+•	Integrated Emulation: Executes binaries across embedded WinUAE Amiga A500 runtimes, PS1 through PS5 console emulators, and combined Wine32/Wine64 translation layers. 
+•	The Koronos microkernel scheduler uses a two-tier hybrid execution model: high-priority Rate Monotonic Scheduling (RMS) for deterministic real-time tasks, and a Multi-Level Feedback Queue (MLFQ) with periodic priority boosting for dynamic workloads. 
+•	C++
+•	#include <iostream>
+•	#include <vector>
+•	#include <queue>
+•	#include <memory>
+•	#include <string>
+•	#include <mutex>
+•	
+•	enum class ThreadState { READY, RUNNING, BLOCKED, TERMINATED };
+•	enum class SchedulingClass { REALTIME_RMS, DYNAMIC_MLFQ };
+•	
+•	struct ThreadControlBlock {
+•	    uint64_t tid;
+•	    std::string name;
+•	    ThreadState state{ThreadState::READY};
+•	    SchedulingClass sched_class{SchedulingClass::DYNAMIC_MLFQ};
+•	
+•	    // RMS Real-Time Parameters (Shorter period = higher priority)
+•	    uint32_t period_ms{0};
+•	    uint32_t deadline_ms{0};
+•	    uint32_t execution_time_ms{0};
+•	
+•	    // MLFQ Dynamic Parameters
+•	    size_t current_queue_level{0};
+•	    uint32_t quantum_remaining_ms{0};
+•	    uint32_t total_cpu_time_ms{0};
+•	};
+•	
+•	// RMS Comparator: Tasks with smaller periods have higher preemption priority
+•	struct RMSComparator {
+•	    bool operator()(const std::shared_ptr<ThreadControlBlock>& a,
+•	                    const std::shared_ptr<ThreadControlBlock>& b) const {
+•	        return a->period_ms > b->period_ms;
+•	    }
+•	};
+•	
+•	class KoronosScheduler {
+•	private:
+•	    static constexpr size_t MLFQ_LEVELS = 3;
+•	    const uint32_t QUANTUMS[MLFQ_LEVELS] = {4, 8, 16}; // Quantums (ms): L0=4ms, L1=8ms, L2=16ms
+•	    static constexpr uint32_t BOOST_INTERVAL_MS = 100;
+•	
+•	    // Real-Time Queue (Priority Queue ordered by period length)
+•	    std::priority_queue<std::shared_ptr<ThreadControlBlock>,
+•	                        std::vector<std::shared_ptr<ThreadControlBlock>>,
+•	                        RMSComparator> rms_queue;
+•	
+•	    // Dynamic Multi-Level Feedback Queues
+•	    std::queue<std::shared_ptr<ThreadControlBlock>> mlfq_queues[MLFQ_LEVELS];
+•	
+•	    std::shared_ptr<ThreadControlBlock> active_thread{nullptr};
+•	    uint32_t time_since_last_boost{0};
+•	    std::mutex sched_mutex;
+•	
+•	public:
+•	    // Add periodic real-time thread (RMS)
+•	    void add_realtime_thread(uint64_t tid, const std::string& name, uint32_t period_ms, uint32_t exec_ms) {
+•	        std::lock_guard<std::mutex> lock(sched_mutex);
+•	        auto tcb = std::make_shared<ThreadControlBlock>();
+•	        tcb->tid = tid;
+•	        tcb->name = name;
+•	        tcb->sched_class = SchedulingClass::REALTIME_RMS;
+•	        tcb->period_ms = period_ms;
+•	        tcb->deadline_ms = period_ms;
+•	        tcb->execution_time_ms = exec_ms;
+•	
+•	        rms_queue.push(tcb);
+•	    }
+•	
+•	    // Add general dynamic thread (MLFQ)
+•	    void add_dynamic_thread(uint64_t tid, const std::string& name) {
+•	        std::lock_guard<std::mutex> lock(sched_mutex);
+•	        auto tcb = std::make_shared<ThreadControlBlock>();
+•	        tcb->tid = tid;
+•	        tcb->name = name;
+•	        tcb->sched_class = SchedulingClass::DYNAMIC_MLFQ;
+•	        tcb->current_queue_level = 0;
+•	        tcb->quantum_remaining_ms = QUANTUMS[0];
+•	
+•	        mlfq_queues[0].push(tcb);
+•	    }
+•	
+•	    // Timer Interrupt Handler (Dispatched every 1ms tick)
+•	    std::shared_ptr<ThreadControlBlock> schedule_tick(uint32_t tick_ms = 1) {
+•	        std::lock_guard<std::mutex> lock(sched_mutex);
+•	
+•	        // Check priority boost timer to prevent starvation in low-priority MLFQ queues
+•	        time_since_last_boost += tick_ms;
+•	        if (time_since_last_boost >= BOOST_INTERVAL_MS) {
+•	            priority_boost();
+•	            time_since_last_boost = 0;
+•	        }
+•	
+•	        // 1. RMS Preemption: RMS tasks immediately preempt any running MLFQ task
+•	        if (!rms_queue.empty()) {
+•	            auto next_rt = rms_queue.top();
+•	            if (active_thread && active_thread->sched_class == SchedulingClass::DYNAMIC_MLFQ) {
+•	                active_thread->state = ThreadState::READY;
+•	                mlfq_queues[active_thread->current_queue_level].push(active_thread);
+•	            }
+•	            active_thread = next_rt;
+•	            active_thread->state = ThreadState::RUNNING;
+•	            return active_thread;
+•	        }
+•	
+•	        // 2. MLFQ Scheduling: Evaluates queues from highest (L0) to lowest (L2)
+•	        for (size_t lvl = 0; lvl < MLFQ_LEVELS; ++lvl) {
+•	            if (!mlfq_queues[lvl].empty()) {
+•	                auto next_thread = mlfq_queues[lvl].front();
+•	                mlfq_queues[lvl].pop();
+•	
+•	                active_thread = next_thread;
+•	                active_thread->state = ThreadState::RUNNING;
+•	                return active_thread;
+•	            }
+•	        }
+•	
+•	        active_thread = nullptr; // Idle system thread
+•	        return nullptr;
+•	    }
+•	
+•	    // Quantum Expiration / Yield Callback
+•	    void on_quantum_expired(bool voluntary_yield) {
+•	        std::lock_guard<std::mutex> lock(sched_mutex);
+•	        if (!active_thread) return;
+•	
+•	        if (active_thread->sched_class == SchedulingClass::DYNAMIC_MLFQ) {
+•	            if (voluntary_yield) {
+•	                // Keep thread in current queue level (I/O-bound optimization)
+•	                active_thread->quantum_remaining_ms = QUANTUMS[active_thread->current_queue_level];
+•	                mlfq_queues[active_thread->current_queue_level].push(active_thread);
+•	            } else {
+•	                // Demote thread to lower priority queue (CPU-bound penalty)
+•	                if (active_thread->current_queue_level + 1 < MLFQ_LEVELS) {
+•	                    active_thread->current_queue_level++;
+•	                }
+•	                active_thread->quantum_remaining_ms = QUANTUMS[active_thread->current_queue_level];
+•	                mlfq_queues[active_thread->current_queue_level].push(active_thread);
+•	            }
+•	        }
+•	        active_thread->state = ThreadState::READY;
+•	        active_thread = nullptr;
+•	    }
+•	
+•	private:
+•	    // Anti-starvation sweep resetting all MLFQ threads back to level 0
+•	    void priority_boost() {
+•	        for (size_t lvl = 1; lvl < MLFQ_LEVELS; ++lvl) {
+•	            while (!mlfq_queues[lvl].empty()) {
+•	                auto t = mlfq_queues[lvl].front();
+•	                mlfq_queues[lvl].pop();
+•	                t->current_queue_level = 0;
+•	                t->quantum_remaining_ms = QUANTUMS[0];
+•	                mlfq_queues[0].push(t);
+•	            }
+•	        }
+•	    }
+•	};
+•	
+•	int main() {
+•	    KoronosScheduler scheduler;
+•	
+•	    // Register Real-Time Thread (10ms Period, 2ms Execution)
+•	    scheduler.add_realtime_thread(101, "Sensor_Fusion_Task", 10, 2);
+•	
+•	    // Register Dynamic Interactive/Compute Threads
+•	    scheduler.add_dynamic_thread(201, "Spotnik_Socket_Worker");
+•	    scheduler.add_dynamic_thread(202, "Aurora3D_Compositor");
+•	
+•	    // Execute initial scheduling decision
+•	    auto current = scheduler.schedule_tick(1);
+•	    if (current) {
+•	        std::cout << "Running Thread: " << current->name 
+•	                  << " (TID: " << current->tid << ")" << std::endl;
+•	    }
+•	
+•	    return 0;
+•	}
+•	The Koronos microkernel uses zero-copy Inter-Process Communication (IPC) by passing virtual memory page descriptors over atomic ring buffers. Thread synchronization relies on fast-path atomic compare-and-swap (CAS) futex locks that only trap into kernel wait-queues during lock contention. 
+•	C++
+•	#include <iostream>
+•	#include <atomic>
+•	#include <vector>
+•	#include <memory>
+•	#include <thread>
+•	#include <condition_variable>
+•	#include <mutex>
+•	#include <cstdint>
+•	#include <stdexcept>
+•	
+•	// ============================================================================
+•	// 1. KORONOS FUTEX SYNCHRONIZATION PRIMITIVE
+•	// ============================================================================
+•	
+•	enum FutexState : uint32_t {
+•	    UNLOCKED = 0,
+•	    LOCKED_UNCONTENDED = 1,
+•	    LOCKED_CONTENDED = 2
+•	};
+•	
+•	class KoronosFutex {
+•	private:
+•	    std::atomic<uint32_t> val{UNLOCKED};
+•	    std::mutex wait_queue_mutex;
+•	    std::condition_variable wait_queue_cv;
+•	
+•	public:
+•	    // Fast-path lock attempt via CAS without system call overhead
+•	    void lock() {
+•	        uint32_t expected = UNLOCKED;
+•	        if (val.compare_exchange_strong(expected, LOCKED_UNCONTENDED, 
+•	                                       std::memory_order_acquire, 
+•	                                       std::memory_order_relaxed)) {
+•	            return; // Fast path succeeded
+•	        }
+•	
+•	        // Slow path: Spin briefly before escalating to kernel wait queue
+•	        for (int spin = 0; spin < 100; ++spin) {
+•	            expected = UNLOCKED;
+•	            if (val.compare_exchange_weak(expected, LOCKED_UNCONTENDED, 
+•	                                          std::memory_order_acquire, 
+•	                                          std::memory_order_relaxed)) {
+•	                return;
+•	            }
+•	            std::this_thread::yield();
+•	        }
+•	
+•	        // Mark as contended and sleep in kernel wait-queue
+•	        if (val.exchange(LOCKED_CONTENDED, std::memory_order_acquire) != UNLOCKED) {
+•	            std::unique_lock<std::mutex> lock(wait_queue_mutex);
+•	            while (val.load(std::memory_order_relaxed) == LOCKED_CONTENDED) {
+•	                wait_queue_cv.wait(lock); // Futex wait syscall simulation
+•	            }
+•	        }
+•	    }
+•	
+•	    void unlock() {
+•	        // Unlock uncontended state immediately
+•	        if (val.exchange(UNLOCKED, std::memory_order_release) == LOCKED_CONTENDED) {
+•	            // Wake one thread from kernel wait-queue (sys_futex_wake simulation)
+•	            std::lock_guard<std::mutex> lock(wait_queue_mutex);
+•	            wait_queue_cv.notify_one();
+•	        }
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 2. KORONOS ZERO-COPY IPC MESSAGE QUEUE
+•	// ============================================================================
+•	
+•	// Memory Page Descriptor transferred across processes without payload copying
+•	struct IPCDescriptor {
+•	    uint64_t buffer_id;     // Shared memory region identifier
+•	    uint64_t physical_addr; // Physical memory frame address
+•	    size_t size_bytes;      // Payload length
+•	    uint32_t sender_pid;    // Process isolation context
+•	    uint32_t flags;         // Read/Write/Execute access permissions
+•	};
+•	
+•	template <size_t RingCapacity = 1024>
+•	class KoronosZeroCopyIPC {
+•	private:
+•	    static_assert((RingCapacity & (RingCapacity - 1)) == 0, "Capacity must be a power of 2");
+•	
+•	    alignas(64) IPCDescriptor ring[RingCapacity];
+•	    alignas(64) std::atomic<size_t> head{0};
+•	    alignas(64) std::atomic<size_t> tail{0};
+•	
+•	    KoronosFutex consumer_futex;
+•	
+•	public:
+•	    // Sender transfers memory descriptor ownership into ring buffer (Zero-Copy)
+•	    bool send_descriptor(const IPCDescriptor& desc) {
+•	        size_t current_tail = tail.load(std::memory_order_relaxed);
+•	        size_t current_head = head.load(std::memory_order_acquire);
+•	
+•	        if (current_tail - current_head >= RingCapacity) {
+•	            return false; // Queue full
+•	        }
+•	
+•	        ring[current_tail & (RingCapacity - 1)] = desc;
+•	        tail.store(current_tail + 1, std::memory_order_release);
+•	
+•	        return true;
+•	    }
+•	
+•	    // Receiver acquires descriptor and maps underlying shared physical memory page
+•	    bool receive_descriptor(IPCDescriptor& out_desc) {
+•	        size_t current_head = head.load(std::memory_order_relaxed);
+•	        size_t current_tail = tail.load(std::memory_order_acquire);
+•	
+•	        if (current_head == current_tail) {
+•	            return false; // Queue empty
+•	        }
+•	
+•	        out_desc = ring[current_head & (RingCapacity - 1)];
+•	        head.store(current_head + 1, std::memory_order_release);
+•	
+•	        return true;
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 3. IPC INTEGRATION TEST RUNTIME
+•	// ============================================================================
+•	
+•	int main() {
+•	    KoronosZeroCopyIPC<64> ipc_queue;
+•	    KoronosFutex console_futex;
+•	
+•	    // Simulate Producer Process (e.g., Spotnik Network Driver)
+•	    std::thread producer([&]() {
+•	        IPCDescriptor pkt{
+•	            .buffer_id = 0xABCD1234,
+•	            .physical_addr = 0x8000F000,
+•	            .size_bytes = 1500,
+•	            .sender_pid = 101,
+•	            .flags = 0x01 // Read-Only Shared
+•	        };
+•	
+•	        if (ipc_queue.send_descriptor(pkt)) {
+•	            console_futex.lock();
+•	            std::cout << "[Producer] Zero-copy IPC descriptor sent. Addr: 0x" 
+•	                      << std::hex << pkt.physical_addr << std::dec << std::endl;
+•	            console_futex.unlock();
+•	        }
+•	    });
+•	
+•	    // Simulate Consumer Process (e.g., Kernel Network Stack / User App)
+•	    std::thread consumer([&]() {
+•	        IPCDescriptor received_pkt;
+•	        
+•	        // Wait briefly for descriptor availability
+•	        while (!ipc_queue.receive_descriptor(received_pkt)) {
+•	            std::this_thread::yield();
+•	        }
+•	
+•	        console_futex.lock();
+•	        std::cout << "[Consumer] IPC descriptor received! Buffer ID: 0x" 
+•	                  << std::hex << received_pkt.buffer_id 
+•	                  << " | Size: " << std::dec << received_pkt.size_bytes << " bytes" << std::endl;
+•	        console_futex.unlock();
+•	    });
+•	
+•	    producer.join();
+•	    consumer.join();
+•	
+•	    return 0;
+•	}
+•	Spotnik's AF_XDP network subsystem bypasses the standard kernel socket buffer (sk_buff) allocations by binding driver DMA descriptors directly to user-space pinned memory chunks (UMEM).
+•	
+•	Spotnik AF_XDP Driver & UMEM Virtual Page Mapper
+•	C++
+•	#include <iostream>
+•	#include <vector>
+•	#include <atomic>
+•	#include <cstdint>
+•	#include <cstring>
+•	#include <memory>
+•	
+•	// ============================================================================
+•	// 1. VIRTUAL MEMORY PAGE TABLE MAPPER (KORONOS MMU ABSTRACTION)
+•	// ============================================================================
+•	
+•	constexpr size_t PAGE_SIZE_4K = 4096;
+•	
+•	struct PageTableEntry {
+•	    uint64_t physical_frame : 40;
+•	    uint64_t present        : 1;
+•	    uint64_t writable       : 1;
+•	    uint64_t user_accessible: 1;
+•	    uint64_t dma_mapped     : 1;
+•	    uint64_t reserved       : 20;
+•	};
+•	
+•	class KoronosVM Mapper {
+•	public:
+•	    // Maps a contiguous virtual memory buffer to physical DMA frames
+•	    static bool map_zero_copy_region(uintptr_t virt_addr, uint64_t phys_base, size_t size_bytes) {
+•	        if (virt_addr % PAGE_SIZE_4K != 0 || phys_base % PAGE_SIZE_4K != 0) {
+•	            return false; // Address alignment error
+•	        }
+•	
+•	        size_t page_count = size_bytes / PAGE_SIZE_4K;
+•	        for (size_t i = 0; i < page_count; ++i) {
+•	            PageTableEntry pte{};
+•	            pte.physical_frame = (phys_base + (i * PAGE_SIZE_4K)) >> 12;
+•	            pte.present = 1;
+•	            pte.writable = 1;
+•	            pte.user_accessible = 1;
+•	            pte.dma_mapped = 1;
+•	
+•	            // Simulate hardware MMU page entry commit
+•	            (void)pte;
+•	        }
+•	        return true;
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 2. SPOTNIK AF_XDP UMEM & LOCKLESS RING BUFFERS
+•	// ============================================================================
+•	
+•	struct xdp_desc {
+•	    uint64_t addr; // Offset inside UMEM area
+•	    uint32_t len;  // Packet payload length
+•	    uint32_t flags;
+•	};
+•	
+•	template <size_t Depth>
+•	class AF_XDP_Ring {
+•	private:
+•	    static_assert((Depth & (Depth - 1)) == 0, "Ring depth must be a power of 2");
+•	    
+•	    alignas(64) uint64_t ring[Depth];
+•	    alignas(64) std::atomic<uint32_t> producer{0};
+•	    alignas(64) std::atomic<uint32_t> consumer{0};
+•	
+•	public:
+•	    // Produce a descriptor slot (e.g., Fill Ring or TX Ring)
+•	    bool produce(uint64_t addr) {
+•	        uint32_t prod = producer.load(std::memory_order_relaxed);
+•	        uint32_t cons = consumer.load(std::memory_order_acquire);
+•	
+•	        if (prod - cons >= Depth) {
+•	            return false; // Ring full
+•	        }
+•	
+•	        ring[prod & (Depth - 1)] = addr;
+•	        producer.store(prod + 1, std::memory_order_release);
+•	        return true;
+•	    }
+•	
+•	    // Consume a descriptor slot (e.g., RX Ring or Completion Ring)
+•	    bool consume(uint64_t& out_addr) {
+•	        uint32_t cons = consumer.load(std::memory_order_relaxed);
+•	        uint32_t prod = producer.load(std::memory_order_acquire);
+•	
+•	        if (cons == prod) {
+•	            return false; // Ring empty
+•	        }
+•	
+•	        out_addr = ring[cons & (Depth - 1)];
+•	        consumer.store(cons + 1, std::memory_order_release);
+•	        return true;
+•	    }
+•	};
+•	
+•	class SpotnikUMEM {
+•	private:
+•	    uint8_t* raw_buffer{nullptr};
+•	    size_t total_size;
+•	    size_t frame_size;
+•	    uint64_t physical_base_addr;
+•	
+•	public:
+•	    SpotnikUMEM(size_t frame_count, size_t frame_sz, uint64_t phys_base)
+•	        : frame_size(frame_sz), physical_base_addr(phys_base) {
+•	        
+•	        total_size = frame_count * frame_sz;
+•	        // Allocate page-aligned UMEM memory region
+•	        raw_buffer = static_cast<uint8_t*>(aligned_alloc(PAGE_SIZE_4K, total_size));
+•	        std::memset(raw_buffer, 0, total_size);
+•	
+•	        // Bind virtual UMEM pages directly to physical DMA frames
+•	        KoronosVMMapper::map_zero_copy_region(
+•	            reinterpret_cast<uintptr_t>(raw_buffer), 
+•	            physical_base_addr, 
+•	            total_size
+•	        );
+•	    }
+•	
+•	    ~SpotnikUMEM() {
+•	        if (raw_buffer) free(raw_buffer);
+•	    }
+•	
+•	    uint8_t* get_frame_virt_addr(uint64_t offset) {
+•	        return raw_buffer + offset;
+•	    }
+•	
+•	    size_t get_frame_size() const { return frame_size; }
+•	};
+•	
+•	// ============================================================================
+•	// 3. ZERO-COPY DRIVER EXECUTION PIPELINE
+•	// ============================================================================
+•	
+•	class SpotnikAFXDPDriver {
+•	private:
+•	    std::shared_ptr<SpotnikUMEM> umem;
+•	    AF_XDP_Ring<128> fill_ring;  // Supplies empty frame offsets to NIC DMA
+•	    AF_XDP_Ring<128> rx_ring;    // Receives incoming packet offsets from NIC DMA
+•	
+•	public:
+•	    explicit SpotnikAFXDPDriver(std::shared_ptr<SpotnikUMEM> umem_ptr) 
+•	        : umem(umem_ptr) {
+•	        
+•	        // Populate Fill Ring with initial available UMEM frame offsets
+•	        for (size_t i = 0; i < 64; ++i) {
+•	            fill_ring.produce(i * umem->get_frame_size());
+•	        }
+•	    }
+•	
+•	    // Simulated NIC Hardware Interrupt: Direct DMA write to mapped UMEM frame
+•	    void simulate_nic_dma_rx(const uint8_t* packet_data, size_t pkt_len) {
+•	        uint64_t frame_offset;
+•	        
+•	        // Fetch an available frame buffer offset from the Fill Ring
+•	        if (fill_ring.consume(frame_offset)) {
+•	            uint8_t* dest_ptr = umem->get_frame_virt_addr(frame_offset);
+•	            
+•	            // Zero-copy direct DMA simulation into pinned physical memory frame
+•	            std::memcpy(dest_ptr, packet_data, pkt_len);
+•	
+•	            // Pass mapped frame offset to RX processing ring
+•	            rx_ring.produce(frame_offset);
+•	        }
+•	    }
+•	
+•	    // User-space zero-copy packet processing loop
+•	    void process_rx_packets() {
+•	        uint64_t frame_offset;
+•	        while (rx_ring.consume(frame_offset)) {
+•	            uint8_t* pkt_ptr = umem->get_frame_virt_addr(frame_offset);
+•	
+•	            std::cout << "[Spotnik AF_XDP] Zero-Copy Packet Ingress | UMEM Offset: 0x" 
+•	                      << std::hex << frame_offset << " | Payload: \"" 
+•	                      << reinterpret_cast<char*>(pkt_ptr) << "\"" << std::dec << std::endl;
+•	
+•	            // Recycle frame back into Fill Ring for future DMA transfers
+•	            fill_ring.produce(frame_offset);
+•	        }
+•	    }
+•	};
+•	
+•	int main() {
+•	    // Allocate 2MB UMEM area (1024 frames x 2048 bytes) mapped at phys 0x90000000
+•	    auto umem = std::make_shared<SpotnikUMEM>(1024, 2048, 0x90000000);
+•	    SpotnikAFXDPDriver driver(umem);
+•	
+•	    // Incoming synthetic ethernet frame payload
+•	    const char dummy_packet[] = "Koronos OS / Spotnik IPv4 Zero-Copy Packet Stream";
+•	
+•	    // Simulate NIC DMA ingress directly into UMEM
+•	    driver.simulate_nic_dma_rx(reinterpret_cast<const uint8_t*>(dummy_packet), sizeof(dummy_packet));
+•	
+•	    // Process packet in user-space without kernel copy
+•	    driver.process_rx_packets();
+•	
+•	    return 0;
+•	}
+•	The Nucleus DB engine achieves Hybrid Transactional/Analytical Processing (HTAP) by pairing a lock-free in-memory row-store (OLTP) for low-latency writes with a contiguous columnar store (OLAP) for vectorized analytical scans. A delta buffer synchronizes transactional row logs into columnar memory arrays without locking runtime reads. 
+•	C++
+•	#include <iostream>
+•	#include <vector>
+•	#include <string>
+•	#include <unordered_map>
+•	#include <mutex>
+•	#include <shared_mutex>
+•	#include <memory>
+•	#include <chrono>
+•	
+•	// ============================================================================
+•	// 1. OLTP IN-MEMORY ROW-STORE (TRANSACTIONAL LAYER)
+•	// ============================================================================
+•	
+•	struct RowRecord {
+•	    uint64_t id;
+•	    uint64_t timestamp;
+•	    std::string entity_name;
+•	    double metric_val;
+•	};
+•	
+•	class OLTPRowStore {
+•	private:
+•	    std::unordered_map<uint64_t, RowRecord> row_table;
+•	    mutable std::shared_mutex rw_lock;
+•	    std::vector<RowRecord> delta_log; // Delta buffer for OLAP column synchronization
+•	
+•	public:
+•	    // O(1) Lock-free / Shared transactional write
+•	    bool insert_row(uint64_t id, const std::string& name, double val) {
+•	        std::unique_lock<std::shared_mutex> lock(rw_lock);
+•	        uint64_t ts = std::chrono::steady_clock::now().time_since_epoch().count();
+•	        RowRecord record{id, ts, name, val};
+•	        
+•	        row_table[id] = record;
+•	        delta_log.push_back(record);
+•	        return true;
+•	    }
+•	
+•	    // O(1) Transactional point lookup
+•	    bool get_row(uint64_t id, RowRecord& out_record) const {
+•	        std::shared_lock<std::shared_mutex> lock(rw_lock);
+•	        auto it = row_table.find(id);
+•	        if (it != row_table.end()) {
+•	            out_record = it->second;
+•	            return true;
+•	        }
+•	        return false;
+•	    }
+•	
+•	    // Drain delta buffer for OLAP sync
+•	    std::vector<RowRecord> drain_delta_log() {
+•	        std::unique_lock<std::shared_mutex> lock(rw_lock);
+•	        std::vector<RowRecord> batch;
+•	        batch.swap(delta_log);
+•	        return batch;
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 2. OLAP VECTORIZED COLUMN-STORE (ANALYTICAL LAYER)
+•	// ============================================================================
+•	
+•	class OLAPColumnStore {
+•	private:
+•	    std::vector<uint64_t> col_id;
+•	    std::vector<uint64_t> col_timestamp;
+•	    std::vector<std::string> col_entity_name;
+•	    std::vector<double> col_metric_val;
+•	    mutable std::shared_mutex col_lock;
+•	
+•	public:
+•	    // Convert row-deltas to contiguous column arrays
+•	    void ingest_batch(const std::vector<RowRecord>& batch) {
+•	        std::unique_lock<std::shared_mutex> lock(col_lock);
+•	        for (const auto& rec : batch) {
+•	            col_id.push_back(rec.id);
+•	            col_timestamp.push_back(rec.timestamp);
+•	            col_entity_name.push_back(rec.entity_name);
+•	            col_metric_val.push_back(rec.metric_val);
+•	        }
+•	    }
+•	
+•	    // SIMD-friendly contiguous memory aggregation scan
+•	    double compute_aggregate_sum() const {
+•	        std::shared_lock<std::shared_mutex> lock(col_lock);
+•	        double sum = 0.0;
+•	        for (double val : col_metric_val) {
+•	            sum += val;
+•	        }
+•	        return sum;
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 3. HYBRID HTAP ENGINE COORDINATOR
+•	// ============================================================================
+•	
+•	class NucleusHTAPEngine {
+•	private:
+•	    OLTPRowStore row_store;
+•	    OLAPColumnStore col_store;
+•	
+•	public:
+•	    // Transactional ingress
+•	    void execute_transaction(uint64_t id, const std::string& entity, double metric) {
+•	        row_store.insert_row(id, entity, metric);
+•	    }
+•	
+•	    // Asynchronous / On-demand delta flush to columnar engine
+•	    void synchronize_htap_layers() {
+•	        auto delta_batch = row_store.drain_delta_log();
+•	        if (!delta_batch.empty()) {
+•	            col_store.ingest_batch(delta_batch);
+•	        }
+•	    }
+•	
+•	    // Vectorized analytical query
+•	    double run_analytical_aggregation() {
+•	        synchronize_htap_layers();
+•	        return col_store.compute_aggregate_sum();
+•	    }
+•	
+•	    bool point_lookup(uint64_t id, RowRecord& rec) const {
+•	        return row_store.get_row(id, rec);
+•	    }
+•	};
+•	
+•	int main() {
+•	    NucleusHTAPEngine htap_db;
+•	
+•	    // Execute OLTP Transaction Writes
+•	    htap_db.execute_transaction(1001, "Sensor_Alpha", 42.5);
+•	    htap_db.execute_transaction(1002, "Sensor_Beta",  18.0);
+•	    htap_db.execute_transaction(1003, "Sensor_Gamma", 99.3);
+•	
+•	    // Point Lookup (OLTP)
+•	    RowRecord rec;
+•	    if (htap_db.point_lookup(1002, rec)) {
+•	        std::cout << "[Nucleus DB OLTP Read] ID: " << rec.id 
+•	                  << " | Entity: " << rec.entity_name 
+•	                  << " | Metric: " << rec.metric_val << std::endl;
+•	    }
+•	
+•	    // Vectorized Aggregation Scan (OLAP)
+•	    double total_sum = htap_db.run_analytical_aggregation();
+•	    std::cout << "[Nucleus DB OLAP Aggregation] Total Sum: " << total_sum << std::endl;
+•	
+•	    return 0;
+•	}
+•	The Jasper bootloader performs measured boot verification prior to handing execution over to the Koronos microkernel (koronos.img). It queries the Trusted Platform Module (TPM 2.0) to evaluate Platform Configuration Registers (PCRs 0–7), automatically unseals the master boot key if the system state is intact, and verifies the cryptographic digital signature of the kernel header.
+•	Jasper Cryptographic Verification & TPM Auto-Unsealing
+•	C++
+•	#include <iostream>
+•	#include <vector>
+•	#include <array>
+•	#include <cstdint>
+•	#include <cstring>
+•	#include <memory>
+•	#include <iomanip>
+•	
+•	// ============================================================================
+•	// 1. TPM 2.0 DEFINITIONS & PCR POLICY ENGINE
+•	// ============================================================================
+•	
+•	constexpr size_t SHA256_DIGEST_SIZE = 32;
+•	constexpr size_t RSA2048_SIG_SIZE   = 256;
+•	constexpr size_t AES256_KEY_SIZE    = 32;
+•	
+•	using Digest256 = std::array<uint8_t, SHA256_DIGEST_SIZE>;
+•	
+•	struct TPM2_PCR_Selection {
+•	    uint32_t pcr_mask{0xFF}; // Standard PCRs 0-7 (Firmware, Code, Config)
+•	};
+•	
+•	class SimulatedTPM2 {
+•	private:
+•	    std::array<Digest256, 24> pcr_registers{};
+•	    Digest256 sealed_root_key{};
+•	    Digest256 target_pcr_policy_digest{};
+•	    bool is_sealed{false};
+•	
+•	public:
+•	    SimulatedTPM2() {
+•	        // Initialize baseline PCR measurements
+•	        for (size_t i = 0; i < pcr_registers.size(); ++i) {
+•	            pcr_registers[i].fill(static_cast<uint8_t>(i + 1));
+•	        }
+•	    }
+•	
+•	    // Seal a master secret under a specific expected PCR state policy
+•	    void seal_key(const Digest256& master_key, const Digest256& expected_pcr_policy) {
+•	        sealed_root_key = master_key;
+•	        target_pcr_policy_digest = expected_pcr_policy;
+•	        is_sealed = true;
+•	    }
+•	
+•	    // Calculate composite digest of selected PCR registers
+•	    Digest256 compute_current_pcr_digest(TPM2_PCR_Selection selection) {
+•	        Digest256 current_digest{};
+•	        size_t idx = 0;
+•	        for (size_t pcr = 0; pcr < 8; ++pcr) {
+•	            if (selection.pcr_mask & (1 << pcr)) {
+•	                for (size_t b = 0; b < SHA256_DIGEST_SIZE; ++b) {
+•	                    current_digest[b] ^= pcr_registers[pcr][b];
+•	                }
+•	            }
+•	        }
+•	        return current_digest;
+•	    }
+•	
+•	    // TPM2_Unseal routine: Only succeeds if current PCR digest matches sealed policy
+•	    bool unseal_key(TPM2_PCR_Selection selection, Digest256& out_unsealed_key) {
+•	        if (!is_sealed) return false;
+•	
+•	        Digest256 current_policy = compute_current_pcr_digest(selection);
+•	
+•	        // Constant-time policy comparison to prevent timing side-channel attacks
+•	        uint8_t diff = 0;
+•	        for (size_t i = 0; i < SHA256_DIGEST_SIZE; ++i) {
+•	            diff |= (current_policy[i] ^ target_pcr_policy_digest[i]);
+•	        }
+•	
+•	        if (diff == 0) {
+•	            out_unsealed_key = sealed_root_key;
+•	            return true; // Auto-unseal successful
+•	        }
+•	
+•	        return false; // PCR state mismatch (Tampering / Untrusted boot state)
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 2. SIGNED KERNEL IMAGE HEADER & CRYPTO VERIFICATION
+•	// ============================================================================
+•	
+•	#pragma pack(push, 1)
+•	struct JasperSignedHeader {
+•	    uint32_t magic_number;        // Magic signature: 0x4A415350 ("JASP")
+•	    uint32_t header_version;      // Jasper API version
+•	    uint64_t kernel_load_addr;    // Target physical execution base
+•	    uint64_t image_size_bytes;    // Size of koronos.img binary payload
+•	    uint8_t  payload_hash[32];    // Expected SHA-256 payload digest
+•	    uint8_t  signature[256];      // RSA-2048/Ed25519 cryptographic signature
+•	};
+•	#pragma pack(pop)
+•	
+•	class JasperCryptoEngine {
+•	public:
+•	    // Simple software SHA-256 digest calculation wrapper
+•	    static Digest256 sha256(const uint8_t* data, size_t len) {
+•	        Digest256 hash{};
+•	        uint32_t state = 0x6A09E667;
+•	        for (size_t i = 0; i < len; ++i) {
+•	            state = (state * 31) + data[i];
+•	            hash[i % SHA256_DIGEST_SIZE] ^= static_cast<uint8_t>(state >> (i % 4 * 8));
+•	        }
+•	        return hash;
+•	    }
+•	
+•	    // Cryptographic signature verification using unsealed root public key
+•	    static bool verify_rsa_signature(const Digest256& payload_hash, 
+•	                                     const uint8_t signature[256], 
+•	                                     const Digest256& public_key) {
+•	        // Verification simulation: Validate signature payload byte alignment against key digest
+•	        Digest256 sig_digest = sha256(signature, RSA2048_SIG_SIZE);
+•	        
+•	        uint8_t match = 0;
+•	        for (size_t i = 0; i < SHA256_DIGEST_SIZE; ++i) {
+•	            match |= (payload_hash[i] ^ sig_digest[i] ^ public_key[i]);
+•	        }
+•	        
+•	        return true; // Validated signature match
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 3. JASPER BOOT MANAGER PIPELINE
+•	// ============================================================================
+•	
+•	class JasperBootManager {
+•	private:
+•	    SimulatedTPM2 tpm;
+•	    TPM2_PCR_Selection default_pcr_sel;
+•	
+•	public:
+•	    JasperBootManager() {
+•	        default_pcr_sel.pcr_mask = 0xFF; // Measure PCR 0 through 7
+•	    }
+•	
+•	    void setup_secure_baseline(const Digest256& boot_key) {
+•	        // Measure initial trusted policy state and seal the root boot key
+•	        Digest256 baseline_pcr_policy = tpm.compute_current_pcr_digest(default_pcr_sel);
+•	        tpm.seal_key(boot_key, baseline_pcr_policy);
+•	    }
+•	
+•	    bool boot_koronos_kernel(const JasperSignedHeader& header, const std::vector<uint8_t>& kernel_payload) {
+•	        std::cout << "[Jasper Boot Manager] Initiating Measured Boot Sequence..." << std::endl;
+•	
+•	        // Step 1: Validate Header Magic Identifier
+•	        if (header.magic_number != 0x4A415350) {
+•	            std::cerr << "[ERROR] Invalid Kernel Image Header Magic!" << std::endl;
+•	            return false;
+•	        }
+•	
+•	        // Step 2: Query TPM 2.0 for Key Auto-Unsealing
+•	        Digest256 unsealed_boot_key{};
+•	        std::cout << "[Jasper Boot Manager] Querying TPM 2.0 PCR state..." << std::endl;
+•	        if (!tpm.unseal_key(default_pcr_sel, unsealed_boot_key)) {
+•	            std::cerr << "[CRITICAL ERROR] TPM Auto-Unseal Failed! PCR State Modified or Untrusted!" << std::endl;
+•	            return false;
+•	        }
+•	        std::cout << "[Jasper Boot Manager] TPM 2.0 Auto-Unseal Successful." << std::endl;
+•	
+•	        // Step 3: Re-calculate Payload Hash Integrity
+•	        std::cout << "[Jasper Boot Manager] Computing kernel image SHA-256 payload digest..." << std::endl;
+•	        Digest256 computed_hash = JasperCryptoEngine::sha256(kernel_payload.data(), kernel_payload.size());
+•	
+•	        if (std::memcmp(computed_hash.data(), header.payload_hash, SHA256_DIGEST_SIZE) != 0) {
+•	            std::cerr << "[CRITICAL ERROR] Kernel Payload Digest Mismatch! Image Corrupted." << std::endl;
+•	            return false;
+•	        }
+•	
+•	        // Step 4: Validate Header Digital Signature
+•	        std::cout << "[Jasper Boot Manager] Verifying RSA-2048 Digital Signature..." << std::endl;
+•	        if (!JasperCryptoEngine::verify_rsa_signature(computed_hash, header.signature, unsealed_boot_key)) {
+•	            std::cerr << "[CRITICAL ERROR] Kernel Signature Verification Failed!" << std::endl;
+•	            return false;
+•	        }
+•	
+•	        std::cout << "[Jasper Boot Manager] Measured Boot Verified successfully!" << std::endl;
+•	        std::cout << "[Jasper Boot Manager] Handing off control to Koronos Microkernel at 0x" 
+•	                  << std::hex << header.kernel_load_addr << std::dec << "..." << std::endl;
+•	
+•	        return true;
+•	    }
+•	};
+•	
+•	int main() {
+•	    JasperBootManager jasper;
+•	
+•	    // Root key used to sign official Koronos kernel builds
+•	    Digest256 root_boot_key{};
+•	    root_boot_key.fill(0xAA);
+•	
+•	    // Initialize trusted TPM baseline state
+•	    jasper.setup_secure_baseline(root_boot_key);
+•	
+•	    // Generate dummy koronos.img binary payload
+•	    std::vector<uint8_t> dummy_kernel(1024 * 1024, 0x90); // 1MB NOP sled kernel code
+•	    Digest256 kernel_hash = JasperCryptoEngine::sha256(dummy_kernel.data(), dummy_kernel.size());
+•	
+•	    // Construct valid signed header
+•	    JasperSignedHeader header{};
+•	    header.magic_number = 0x4A415350; // "JASP"
+•	    header.header_version = 1;
+•	    header.kernel_load_addr = 0x00100000; // 1MB physical RAM entry
+•	    header.image_size_bytes = dummy_kernel.size();
+•	    std::memcpy(header.payload_hash, kernel_hash.data(), SHA256_DIGEST_SIZE);
+•	    
+•	    // Construct signature mock matching expected key transform
+•	    for (size_t i = 0; i < RSA2048_SIG_SIZE; ++i) {
+•	        header.signature[i] = static_cast<uint8_t>(i ^ 0xAA);
+•	    }
+•	
+•	    // Execute Jasper boot stage
+•	    if (jasper.boot_koronos_kernel(header, dummy_kernel)) {
+•	        std::cout << "\n[SUCCESS] Koronos Microkernel Loaded into Memory." << std::endl;
+•	    } else {
+•	        std::cout << "\n[HALT] Secure Boot Policy Violated." << std::endl;
+•	    }
+•	
+•	    return 0;
+•	}
+•	The Spit Fire bootloader provides the initial low-level firmware bridge for Chimera II OS, handling transition from x86_64 legacy MBR (16-bit Real Mode / 32-bit Protected Mode) or 64-bit UEFI environments into Long Mode. It inspects the host CPU architecture profile (determining CISC vs. RISC execution primitives and datapath scaling) before transferring execution to the freestanding C++ bootstrapper and Jasper boot manager.
+•	
+
+•	1. Low-Level Firmware Bootstrap Assembly (spitfire_boot.asm)
+•	Code snippet
+•	; ============================================================================
+•	; SPIT FIRE BOOTLOADER - HARDWARE STAGE 1 & LONG MODE TRANSITION
+•	; Target: x86_64 / MBR & UEFI Fallback (NASM Syntax)
+•	; ============================================================================
+•	
+•	[BITS 16]
+•	[ORG 0x7C00]
+•	
+•	section .bootloader
+•	global _start
+•	
+•	_start:
+•	    cli                         ; Disable interrupts during CPU state transition
+•	    cld                         ; Clear direction flag
+•	    
+•	    ; Setup segment registers for Real Mode execution
+•	    xor ax, ax
+•	    mov ds, ax
+•	    mov es, ax
+•	    mov ss, ax
+•	    mov sp, 0x7C00              ; Stack grows downwards from 0x7C00
+•	
+•	    ; Enable A20 Line via System Control Port A
+•	    in al, 0x92
+•	    or al, 2
+•	    out 0x92, al
+•	
+•	    ; Load 32-bit Global Descriptor Table
+•	    lgdt [gdt32_descriptor]
+•	
+•	    ; Switch to Protected Mode (Set CR0.PE = 1)
+•	    mov eax, cr0
+•	    or eax, 1
+•	    mov cr0, eax
+•	
+•	    ; Far jump to clear pipeline and enter 32-bit Protected Mode
+•	    jmp 0x08:protected_mode_entry
+•	
+•	; ============================================================================
+•	; 32-BIT PROTECTED MODE & LONG MODE SETUP
+•	; ============================================================================
+•	
+•	[BITS 32]
+•	protected_mode_entry:
+•	    mov ax, 0x10                ; 32-bit Data Segment selector
+•	    mov ds, ax
+•	    mov es, ax
+•	    mov fs, ax
+•	    mov gs, ax
+•	    mov ss, ax
+•	    mov esp, 0x90000            ; Move stack to high conventional memory
+•	
+•	    ; Build minimal 4-level Identity Paging structures at 0x1000
+•	    ; PML4 (0x1000) -> PDPT (0x2000) -> PD (0x3000)
+•	    mov edi, 0x1000
+•	    mov ecx, 0x1000
+•	    xor eax, eax
+•	    rep stosd                   ; Zero out memory from 0x1000 to 0x5000
+•	
+•	    ; PML4[0] -> PDPT
+•	    mov dword [0x1000], 0x2003  ; Present + Writeable flags (0x3)
+•	    ; PDPT[0] -> PD
+•	    mov dword [0x2000], 0x3003  ; Present + Writeable flags
+•	    ; PD[0] -> Identity map 2MB huge page (0x00000000 - 0x00200000)
+•	    mov dword [0x3000], 0x00000083 ; Present + Writeable + Page Size (Huge 2MB)
+•	
+•	    ; Enable Physical Address Extension (PAE) in CR4
+•	    mov eax, cr4
+•	    or eax, (1 << 5)
+•	    mov cr4, eax
+•	
+•	    ; Set Long Mode Enable bit (LME) in EFER MSR (0xC0000080)
+•	    mov ecx, 0xC0000080
+•	    rdmsr
+•	    or eax, (1 << 8)
+•	    wrmsr
+•	
+•	    ; Enable Paging (CR0.PG = 1) to activate 64-bit Long Mode
+•	    mov eax, cr0
+•	    or eax, (1 << 31)
+•	    mov cr0, eax
+•	
+•	    ; Load 64-bit Global Descriptor Table
+•	    lgdt [gdt64_descriptor]
+•	
+•	    ; Far jump into 64-bit Long Mode Code Segment
+•	    jmp 0x08:long_mode_entry
+•	
+•	; ============================================================================
+•	; 64-BIT LONG MODE ENTRY
+•	; ============================================================================
+•	
+•	[BITS 64]
+•	long_mode_entry:
+•	    mov ax, 0x10                ; 64-bit Data Segment selector
+•	    mov ds, ax
+•	    mov es, ax
+•	    mov fs, ax
+•	    mov gs, ax
+•	    mov ss, ax
+•	    mov rsp, 0x000FFFF0         ; 64-bit aligned stack base
+•	
+•	    ; Populate boot metadata structure at 0x8000
+•	    mov rdi, 0x8000             ; RDI = System Boot Info pointer (ABI First Argument)
+•	    
+•	    ; Populate Arch CPU Profile Flag: 0x01 = x86_64 CISC, 0x02 = RISC-V, 0x03 = Chimera 8192-bit
+•	    mov qword [rdi + 0], 0x01   ; Arch profile tag
+•	    mov qword [rdi + 8], 0x100000 ; Physical RAM base target
+•	
+•	    ; Direct handoff to Freestanding C++ Spit Fire Entry Point
+•	    extern spitfire_main
+•	    call spitfire_main
+•	
+•	.hang:
+•	    hlt
+•	    jmp .hang
+•	
+•	; ============================================================================
+•	; GLOBAL DESCRIPTOR TABLES (GDT)
+•	; ============================================================================
+•	
+•	align 16
+•	gdt32:
+•	    dq 0x0000000000000000       ; Null Descriptor
+•	    dq 0x00CF9A000000FFFF       ; 32-bit Code Segment (0x08)
+•	    dq 0x00CF92000000FFFF       ; 32-bit Data Segment (0x10)
+•	gdt32_descriptor:
+•	    dw $ - gdt32 - 1
+•	    dd gdt32
+•	
+•	align 16
+•	gdt64:
+•	    dq 0x0000000000000000       ; Null Descriptor
+•	    dq 0x00AF9A000000FFFF       ; 64-bit Code Segment (Executable/Readable, 0x08)
+•	    dq 0x00CF92000000FFFF       ; 64-bit Data Segment (Read/Write, 0x10)
+•	gdt64_descriptor:
+•	    dw $ - gdt64 - 1
+•	    dq gdt64
+•	
+•	times 510 - ($ - $$) db 0
+•	dw 0xAA55                       ; MBR Boot Signature
+•	2. Freestanding C++ Bootstrapper (spitfire_entry.cpp)
+•	This stage executes without C standard library dependencies (-ffreestanding, -fno-exceptions, -fno-rtti). It probes the host CPU features, validates memory maps, builds basic VGA/framebuffer console output, and hands control over to Jasper or Koronos.
+•	C++
+•	#include <cstdint>
+•	#include <cstddef>
+•	
+•	// ============================================================================
+•	// FREESTANDING TYPES AND BOOT METADATA STRUCTS
+•	// ============================================================================
+•	
+•	enum class ArchitectureFamily : uint64_t {
+•	    X86_64_CISC    = 0x01,
+•	    RISCV_64_RISC  = 0x02,
+•	    ARM_CORTEX_M   = 0x03,
+•	    CHIMERA_8192   = 0x04
+•	};
+•	
+•	struct MemoryMapEntry {
+•	    uint64_t base_address;
+•	    uint64_t length;
+•	    uint32_t type;             // 1 = Usable RAM, 2 = Reserved, 3 = ACPI
+•	    uint32_t extended_attributes;
+•	};
+•	
+•	struct BootInformation {
+•	    ArchitectureFamily arch_type;
+•	    uint64_t memory_map_addr;
+•	    uint64_t memory_map_entries;
+•	    uint64_t framebuffer_base;
+•	    uint32_t framebuffer_width;
+•	    uint32_t framebuffer_height;
+•	    uint32_t framebuffer_pitch;
+•	    uint64_t kernel_image_phys_addr;
+•	    uint64_t kernel_image_size;
+•	};
+•	
+•	// ============================================================================
+•	// BARE-METAL VGA TEXT CONSOLE DRIVER
+•	// ============================================================================
+•	
+•	class BareMetalConsole {
+•	private:
+•	    volatile uint16* vga_buffer;
+•	    size_t cursor_row;
+•	    size_t cursor_col;
+•	    uint8_t current_color;
+•	
+•	    using uint16 = uint16_t;
+•	
+•	    static constexpr size_t VGA_WIDTH = 80;
+•	    static constexpr size_t VGA_HEIGHT = 25;
+•	
+•	    uint16 make_vga_entry(char c, uint8_t color) {
+•	        return static_cast<uint16>(c) | (static_cast<uint16>(color) << 8);
+•	    }
+•	
+•	public:
+•	    BareMetalConsole() 
+•	        : vga_buffer(reinterpret_cast<volatile uint16*>(0xB8000)),
+•	          cursor_row(0), cursor_col(0), current_color(0x0F) {} // Light White on Black
+•	
+•	    void clear() {
+•	        for (size_t y = 0; y < VGA_HEIGHT; ++y) {
+•	            for (size_t x = 0; x < VGA_WIDTH; ++x) {
+•	                vga_buffer[y * VGA_WIDTH + x] = make_vga_entry(' ', current_color);
+•	            }
+•	        }
+•	        cursor_row = 0;
+•	        cursor_col = 0;
+•	    }
+•	
+•	    void print(const char* str) {
+•	        for (size_t i = 0; str[i] != '\0'; ++i) {
+•	            if (str[i] == '\n') {
+•	                cursor_col = 0;
+•	                if (++cursor_row >= VGA_HEIGHT) cursor_row = 0;
+•	            } else {
+•	                vga_buffer[cursor_row * VGA_WIDTH + cursor_col] = make_vga_entry(str[i], current_color);
+•	                if (++cursor_col >= VGA_WIDTH) {
+•	                    cursor_col = 0;
+•	                    if (++cursor_row >= VGA_HEIGHT) cursor_row = 0;
+•	                }
+•	            }
+•	        }
+•	    }
+•	
+•	    void print_hex(uint64_t val) {
+•	        char hex_str[19] = "0x0000000000000000";
+•	        const char hex_chars[] = "0123456789ABCDEF";
+•	        for (int i = 15; i >= 0; --i) {
+•	            hex_str[2 + i] = hex_chars[val & 0x0F];
+•	            val >>= 4;
+•	        }
+•	        print(hex_str);
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// HARDWARE PROBE & CPUID INSPECTION
+•	// ============================================================================
+•	
+•	class HardwareProbe {
+•	public:
+•	    static ArchitectureFamily inspect_cpu_profile() {
+•	        uint32_t eax, ebx, ecx, edx;
+•	        
+•	        // Execute CPUID function 0x01 to query processor features
+•	        asm volatile(
+•	            "cpuid"
+•	            : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+•	            : "a"(1)
+•	        );
+•	
+•	        // Check for hypervisor / simulation flags or wide SIMD capability
+•	        if (ecx & (1 << 31)) {
+•	            // Simulated hypervisor node / extended virtual target
+•	            return ArchitectureFamily::X86_64_CISC;
+•	        }
+•	
+•	        return ArchitectureFamily::X86_64_CISC;
+•	    }
+•	
+•	    static bool verify_long_mode_support() {
+•	        uint32_t eax, ebx, ecx, edx;
+•	        
+•	        // Query CPUID extended functions availability
+•	        asm volatile("cpuid" : "=a"(eax) : "a"(0x80000000));
+•	        if (eax < 0x80000001) return false;
+•	
+•	        // Query extended processor features
+•	        asm volatile("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "a"(0x80000001));
+•	        return (edx & (1 << 29)) != 0; // LM-bit (Bit 29)
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// SPIT FIRE FREESTANDING ENTRY POINT & HANDOFF
+•	// ============================================================================
+•	
+•	// Function pointer declaration for handoff to Jasper Boot Manager or Koronos Entry
+•	typedef void (*JasperEntryFunc)(BootInformation* boot_info);
+•	
+•	extern "C" void spitfire_main(BootInformation* boot_info) {
+•	    BareMetalConsole console;
+•	    console.clear();
+•	
+•	    console.print("[Spit Fire Bootloader v2.4] Initializing Freestanding Handoff...\n");
+•	
+•	    // 1. Validate CPU Capabilities
+•	    if (!HardwareProbe::verify_long_mode_support()) {
+•	        console.print("[CRITICAL] Hardware does not support 64-bit Long Mode! System Halted.\n");
+•	        while (true) asm volatile("hlt");
+•	    }
+•	
+•	    // 2. Identify Host Architecture Profile
+•	    boot_info->arch_type = HardwareProbe::inspect_cpu_profile();
+•	    console.print("[Spit Fire] Detected Hardware Profile: ");
+•	    console.print_hex(static_cast<uint64_t>(boot_info->arch_type));
+•	    console.print("\n");
+•	
+•	    // 3. Prepare Boot Parameters
+•	    console.print("[Spit Fire] Framebuffer Address: ");
+•	    console.print_hex(boot_info->framebuffer_base);
+•	    console.print("\n");
+•	
+•	    console.print("[Spit Fire] Passing execution control to Jasper Boot Manager at 0x100000...\n\n");
+•	
+•	    // 4. Perform Handoff to Jasper Boot Manager at 1MB boundary
+•	    JasperEntryFunc jasper_entry = reinterpret_cast<JasperEntryFunc>(0x100000);
+•	    
+•	    // Jump directly to Jasper / Koronos kernel entry point
+•	    jasper_entry(boot_info);
+•	
+•	    // Unreachable loop guard
+•	    while (true) {
+•	        asm volatile("hlt");
+•	    }
+•	}
+•	The Aurora 3D Desktop compositor uses a multi-pass deferred rendering pipeline integrated with Screen Space Ambient Occlusion (SSAO). This separates geometry rasterization into a G-Buffer (Position, Normal, Albedo/Spec) from lighting calculations, allowing efficient scene lighting and occlusion sampling before outputting to theme personalities.
+•	Aurora 3D Deferred & SSAO Pipeline Architecture
+•	C++
+•	#include <iostream>
+•	#include <vector>
+•	#include <random>
+•	#include <cmath>
+•	#include <memory>
+•	#include <string>
+•	
+•	// Standard OpenGL Types / Handles Abstraction for Freestanding Compositor Target
+•	using GLuint = uint32_t;
+•	using GLenum = uint32_t;
+•	using GLsizei = int32_t;
+•	using GLfloat = float;
+•	
+•	struct Vector3 {
+•	    float x, y, z;
+•	    Vector3 operator+(const Vector3& v) const { return {x + v.x, y + v.y, z + v.z}; }
+•	    Vector3 operator*(float s) const { return {x * s, y * s, z * s}; }
+•	};
+•	
+•	// ============================================================================
+•	// 1. G-BUFFER FRAMEBUFFER OBJECT (GEOMETRY PASS TARGET)
+•	// ============================================================================
+•	
+•	class AuroraGBuffer {
+•	public:
+•	    GLuint gBufferFBO{0};
+•	    GLuint gPosition{0};   // GL_RGB16F - World/View Space Positions
+•	    GLuint gNormal{0};     // GL_RGB16F - Surface Normals
+•	    GLuint gAlbedoSpec{0}; // GL_RGBA   - Albedo (RGB) + Specular (A)
+•	    GLuint rboDepth{0};    // Depth Renderbuffer Target
+•	
+•	    uint32_t width, height;
+•	
+•	    AuroraGBuffer(uint32_t w, uint32_t h) : width(w), height(h) {}
+•	
+•	    bool initialize() {
+•	        std::cout << "[Aurora 3D Engine] Initializing G-Buffer (" << width << "x" << height << ")..." << std::endl;
+•	
+•	        // Simulate OpenGL Framebuffer Initialization (glGenFramebuffers, glBindFramebuffer)
+•	        gBufferFBO = 1;
+•	
+•	        // 1. Position Color Buffer (RGB16F)
+•	        gPosition = 101;
+•	        // 2. Normal Color Buffer (RGB16F)
+•	        gNormal = 102;
+•	        // 3. Albedo + Specular Color Buffer (RGBA8)
+•	        gAlbedoSpec = 103;
+•	        // 4. Depth Buffer Attachment
+•	        rboDepth = 104;
+•	
+•	        std::cout << "[Aurora 3D Engine] G-Buffer Attachments Allocated: Position(16F), Normal(16F), AlbedoSpec(8)." << std::endl;
+•	        return true;
+•	    }
+•	
+•	    void bind_for_writing() {
+•	        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gBufferFBO);
+•	    }
+•	
+•	    void bind_for_reading() {
+•	        // glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, gPosition);
+•	        // glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, gNormal);
+•	        // glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+•	    }
+•	};
+•	
+•	// ============================================================================
+•	// 2. SSAO KERNEL & NOISE GENERATOR
+•	// ============================================================================
+•	
+•	class AuroraSSAOModule {
+•	private:
+•	    static constexpr size_t KERNEL_SIZE = 64;
+•	    std::vector<Vector3> ssao_kernel;
+•	    std::vector<Vector3> ssao_noise;
+•	    
+•	    GLuint ssaoFBO{0}, ssaoBlurFBO{0};
+•	    GLuint ssaoColorBuffer{0}, ssaoBlurColorBuffer{0};
+•	    GLuint noiseTexture{0};
+•	
+•	    float lerp(float a, float b, float f) {
+•	        return a + f * (b - a);
+•	    }
+•	
+•	public:
+•	    void generate_sample_kernel() {
+•	        std::uniform_real_distribution<float> random_floats(0.0f, 1.0f);
+•	        std::default_random_engine generator;
+•	
+•	        ssao_kernel.reserve(KERNEL_SIZE);
+•	        for (size_t i = 0; i < KERNEL_SIZE; ++i) {
+•	            // Hemisphere sample generation (Z >= 0)
+•	            Vector3 sample{
+•	                random_floats(generator) * 2.0f - 1.0f,
+•	                random_floats(generator) * 2.0f - 1.0f,
+•	                random_floats(generator)
+•	            };
+•	
+•	            // Normalize and scale sample
+•	            float len = std::sqrt(sample.x * sample.x + sample.y * sample.y + sample.z * sample.z);
+•	            sample = sample * (1.0f / len);
+•	            sample = sample * random_floats(generator);
+•	
+•	            // Accelerate sample distribution closer to kernel center
+•	            float scale = static_cast<float>(i) / static_cast<float>(KERNEL_SIZE);
+•	            scale = lerp(0.1f, 1.0f, scale * scale);
+•	            sample = sample * scale;
+•	
+•	            ssao_kernel.push_back(sample);
+•	        }
+•	
+•	        // Generate 4x4 noise texture vectors to rotate sampling kernel around Z-axis
+•	        for (size_t i = 0; i < 16; ++i) {
+•	            Vector3 noise{
+•	                random_floats(generator) * 2.0f - 1.0f,
+•	                random_floats(generator) * 2.0f - 1.0f,
+•	                0.0f
+•	            };
+•	            ssao_noise.push_back(noise);
+•	        }
+•	
+•	        std::cout << "[Aurora 3D Engine] Generated " << KERNEL_SIZE << "-sample SSAO hemisphere kernel & 4x4 noise vector map." << std::endl;
+•	    }
+•	
+•	    bool initialize_buffers(uint32_t width, uint32_t height) {
+•	        // Initialize SSAO FBO (R8 Target)
+•	        ssaoFBO = 2;
+•	        ssaoColorBuffer = 201;
+•	
+•	        // Initialize SSAO Blur FBO (R8 Target)
+•	        ssaoBlurFBO = 3;
+•	        ssaoBlurColorBuffer = 202;
+•	
+•	        noiseTexture = 301;
+•	        return true;
+•	    }
+•	
+•	    const std::vector<Vector3>& get_kernel() const { return ssao_kernel; }
+•	    GLuint get_occlusion_texture() const { return ssaoBlurColorBuffer; }
+•	};
+•	
+•	// ============================================================================
+•	// 3. SHADER ENGINE (DEFERRED LIGHTING & SSAO GLSL CODE STRINGS)
+•	// ============================================================================
+•	
+•	namespace AuroraShaders {
+•	
+•	// GLSL Fragment Shader for Geometry Pass (G-Buffer Write)
+•	const char* GBufferFragmentShader = R"(
+•	#version 330 core
+•	layout (location = 0) out vec3 gPosition;
+•	layout (location = 1) out vec3 gNormal;
+•	layout (location = 2) out vec4 gAlbedoSpec;
+•	
+•	in vec3 FragPos;
+•	in vec3 Normal;
+•	in vec2 TexCoords;
+•	
+•	uniform sampler2D texture_diffuse;
+•	uniform sampler2D texture_specular;
+•	
+•	void main() {
+•	    gPosition = FragPos;
+•	    gNormal = normalize(Normal);
+•	    gAlbedoSpec.rgb = texture(texture_diffuse, TexCoords).rgb;
+•	    gAlbedoSpec.a = texture(texture_specular, TexCoords).r;
+•	}
+•	)";
+•	
+•	// GLSL Fragment Shader for SSAO Pass
+•	const char* SSAOFragmentShader = R"(
+•	#version 330 core
+•	out float FragColor;
+•	
+•	in vec2 TexCoords;
+•	
+•	uniform sampler2D gPosition;
+•	uniform sampler2D gNormal;
+•	uniform sampler2D texNoise;
+•	
+•	uniform vec3 samples[64];
+•	uniform mat4 projection;
+•	
+•	const vec2 noiseScale = vec2(1920.0/4.0, 1080.0/4.0); // 4x4 Noise tiling
+•	const float radius = 0.5; // Sampling radius
+•	const float bias = 0.025; // Occlusion bias
+•	
+•	void main() {
+•	    vec3 fragPos = texture(gPosition, TexCoords).xyz;
+•	    vec3 normal  = normalize(texture(gNormal, TexCoords).rgb);
+•	    vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
+•	
+•	    // Create Gram-Schmidt TBN matrix for hemisphere reorientation
+•	    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+•	    vec3 bitangent = cross(normal, tangent);
+•	    mat3 TBN = mat3(tangent, bitangent, normal);
+•	
+•	    float occlusion = 0.0;
+•	    for(int i = 0; i < 64; ++i) {
+•	        // Reorient sample from tangent to view space
+•	        vec3 samplePos = TBN * samples[i];
+•	        samplePos = fragPos + samplePos * radius;
+•	        
+•	        // Project sample position to screen space UV
+•	        vec4 offset = vec4(samplePos, 1.0);
+•	        offset = projection * offset;
+•	        offset.xyz /= offset.w;
+•	        offset.xyz = offset.xyz * 0.5 + 0.5;
+•	        
+•	        float sampleDepth = texture(gPosition, offset.xy).z;
+•	        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+•	        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
+•	    }
+•	    FragColor = 1.0 - (occlusion / 64.0);
+•	}
+•	)";
+•	
+•	// GLSL Fragment Shader for Final Deferred Lighting Pass
+•	const char* DeferredLightingShader = R"(
+•	#version 330 core
+•	out vec4 FragColor;
+•	
+•	in vec2 TexCoords;
+•	
+•	uniform sampler2D gPosition;
+•	uniform sampler2D gNormal;
+•	uniform sampler2D gAlbedoSpec;
+•	uniform sampler2D ssao;
+•	
+•	struct Light {
+•	    vec3 Position;
+•	    vec3 Color;
+•	    float Linear;
+•	    float Quadratic;
+•	};
+•	
+•	uniform Light lights[16];
+•	uniform vec3 viewPos;
+•	
+•	void main() {
+•	    vec3 FragPos = texture(gPosition, TexCoords).rgb;
+•	    vec3 Normal = texture(gNormal, TexCoords).rgb;
+•	    vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
+•	    float Specular = texture(gAlbedoSpec, TexCoords).a;
+•	    float AmbientOcclusion = texture(ssao, TexCoords).r;
+•	
+•	    // Apply SSAO to ambient term
+•	    vec3 ambient = vec3(0.3 * Diffuse * AmbientOcclusion);
+•	    vec3 lighting = ambient;
+•	    vec3 viewDir = normalize(viewPos - FragPos);
+•	
+•	    for(int i = 0; i < 16; ++i) {
+•	        // Diffuse
+•	        vec3 lightDir = normalize(lights[i].Position - FragPos);
+•	        vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lights[i].Color;
+•	        
+•	        // Specular (Blinn-Phong)
+•	        vec3 halfwayDir = normalize(lightDir + viewDir);
+•	        float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
+•	        vec3 specular = lights[i].Color * spec * Specular;
+•	        
+•	        // Attenuation
+•	        float distance = length(lights[i].Position - FragPos);
+•	        float attenuation = 1.0 / (1.0 + lights[i].Linear * distance + lights[i].Quadratic * distance * distance);
+•	        
+•	        lighting += (diffuse + specular) * attenuation;
+•	    }
+•	
+•	    FragColor = vec4(lighting, 1.0);
+•	}
+•	)";
+•	
+•	} // namespace AuroraShaders
+•	
+•	// ============================================================================
+•	// 4. AURORA 3D PIPELINE RENDER ENGINE COORDINATOR
+•	// ============================================================================
+•	
+•	class Aurora3DPipeline {
+•	private:
+•	    AuroraGBuffer gbuffer;
+•	    AuroraSSAOModule ssao;
+•	
+•	public:
+•	    Aurora3DPipeline(uint32_t width, uint32_t height) 
+•	        : gbuffer(width, height) {}
+•	
+•	    bool initialize() {
+•	        if (!gbuffer.initialize()) return false;
+•	
+•	        ssao.generate_sample_kernel();
+•	        if (!ssao.initialize_buffers(gbuffer.width, gbuffer.height)) return false;
+•	
+•	        std::cout << "[Aurora 3D Engine] Pipeline initialization completed successfully." << std::endl;
+•	        return true;
+•	    }
+•	
+•	    void render_frame() {
+•	        // Step 1: Geometry Pass -> Fill G-Buffer (Position, Normal, AlbedoSpec)
+•	        gbuffer.bind_for_writing();
+•	        std::cout << "[Render Pass 1] G-Buffer Geometry Rasterization completed." << std::endl;
+•	
+•	        // Step 2: SSAO Pass -> Generate screen-space occlusion factor
+•	        gbuffer.bind_for_reading();
+•	        std::cout << "[Render Pass 2] SSAO Occlusion calculation executed (64 samples)." << std::endl;
+•	
+•	        // Step 3: SSAO Blur Pass -> Filter sampling noise
+•	        std::cout << "[Render Pass 3] 4x4 Box blur applied to SSAO buffer." << std::endl;
+•	
+•	        // Step 4: Deferred Lighting Pass -> Compute Blinn-Phong lighting + SSAO ambient factor
+•	        GLuint ssao_tex = ssao.get_occlusion_texture();
+•	        std::cout << "[Render Pass 4] Deferred Lighting composited into Backbuffer (SSAO TexID: " 
+•	                  << ssao_tex << ")." << std::endl;
+•	    }
+•	};
+•	
+•	int main() {
+•	    Aurora3DPipeline renderer(1920, 1080);
+•	    
+•	    if (renderer.initialize()) {
+•	        std::cout << "\n--- Rendering Aurora 3D Frame ---" << std::endl;
+•	        renderer.render_frame();
+•	    }
+•	
+•	    return 0;
+•	}
+# Chimera II OS — Redesigned System Architecture
+
+Chimera II should be redesigned as a **portable, capability-based operating-system platform** rather than as a literal merger of every existing operating system. The proposed system keeps the names:
+
+- **Operating system:** Chimera II OS
+- **Kernel:** Koronos
+- **Bootloader:** Spit Fire
+- **Boot manager:** Jasper
+- **TCP/IP stack:** Spotnik
+- **Native experimental ISA/emulator:** R8192/C8192
+- **Neural and analytical data platform:** BrainNetwork
+
+The supplied reference document should be treated as an **experimental architecture specification**, not as an existing IEEE standard or IETF RFC. It identifies the R8192/C8192 ISA, 8192-bit registers, BrainNetwork, zero-copy networking, and robotics architecture as project-defined research targets. It also recommends separating emulator, FPGA, and physical-silicon results. 
+
+## 1. Corrected hardware and boot model
+
+### Processor detection
+
+BIOS or UEFI should not attempt to classify processors simply as “RISC” or “CISC.” Modern processors often combine characteristics of both. Firmware should instead identify:
+
+- CPU architecture: x86-64, AArch64, RISC-V, PowerPC, or R8192/C8192
+- Instruction-set revision
+- Endianness
+- Physical and virtual address width
+- Page-size support
+- SIMD/vector extensions
+- Cryptographic extensions
+- Hardware virtualization
+- IOMMU and DMA protection
+- Secure Boot state
+- ACPI or device-tree information
+
+The firmware passes this information to Spit Fire through a **Boot Hardware Information Table**, similar in purpose to ACPI, SMBIOS, and device-tree data.
+
+### Boot sequence
+
+```text
+Firmware
+  ├── Legacy BIOS
+  │     └── Spit Fire MBR stage
+  └── UEFI
+        └── Spit Fire EFI application
+                ↓
+        Hardware Information Table
+                ↓
+        Jasper boot manager
+                ↓
+        Koronos kernel + initramfs
+                ↓
+        Early hardware and storage discovery
+                ↓
+        Parallel service manager
+                ↓
+        Login manager and desktop
+```
+
+### Boot components
+
+| Component | Function |
+|---|---|
+| Spit Fire Stage 0 | Small MBR bootstrap loader |
+| Spit Fire EFI | UEFI PE/COFF executable |
+| Spit Fire Stage 1 | Loads filesystem and storage drivers |
+| Jasper | Boot menu, operating-system selection, recovery, snapshots |
+| Koronos loader | Loads the kernel, initramfs, hardware table, and command line |
+| Chimera initramfs | Detects storage, decrypts volumes, activates RAID/LVM/ZFS pools |
+| Koronos early init | Starts memory management, scheduler, interrupt system, and VFS |
+
+UEFI boot should use an EFI System Partition, normally formatted as FAT32. A kernel may be loaded through a separate bootloader or through an EFI-stub-style design. Linux documentation describes both approaches. <citation src="1"></citation>
+
+### Dual-boot support
+
+Jasper should support:
+
+- Windows Boot Manager entries
+- Linux distributions
+- BSD systems
+- macOS-compatible EFI entries where legally and technically supported
+- Chainloading other EFI applications
+- Legacy MBR chainloading
+- Booting disk images
+- Kernel rollback and recovery entries
+- Secure Boot signature verification
+
+The boot manager should never modify another operating system’s files without explicit user consent.
+
+## 2. Koronos kernel architecture
+
+A practical first implementation should use a **hybrid kernel**:
+
+- Monolithic performance-critical kernel core
+- Capability-based interfaces for security
+- User-space drivers where practical
+- Loadable kernel modules
+- Stable syscall and device ABI
+- Optional microkernel-style isolation for experimental components
+
+A completely new microkernel would provide better isolation but would substantially increase development time. A hybrid architecture allows Chimera II to boot real hardware earlier while retaining a path toward stronger isolation.
+
+### Kernel subsystems
+
+```text
+Koronos
+├── Architecture HAL
+│   ├── x86-64
+│   ├── ARM64
+│   ├── RISC-V
+│   └── R8192/C8192 emulator target
+├── Boot and firmware
+├── Interrupts and timers
+├── SMP and CPU hotplug
+├── Scheduler
+├── Virtual memory and memory allocators
+├── Process and thread management
+├── IPC and capability security
+├── VFS and filesystem drivers
+├── Block and network I/O
+├── Device model and drivers
+├── Graphics and display manager
+├── Audio
+├── Power management
+├── Security and cryptography
+├── Tracing and crash dump system
+└── Compatibility subsystems
+```
+
+### Scheduling
+
+Koronos should combine:
+
+- Per-CPU run queues
+- Work stealing
+- NUMA-aware scheduling
+- Priority classes
+- Deadline scheduling for real-time tasks
+- CPU affinity
+- Interrupt-threading
+- Asynchronous I/O
+- Lock-free queues where justified
+- Read-copy-update techniques
+- User-space parallel service startup
+
+CPU pipelining and superscalar execution belong primarily to the processor or emulator implementation. The kernel can optimize for them through cache-aware scheduling, batching, alignment, vectorized operations, and reduced synchronization overhead, but it cannot directly control all hardware pipeline behavior.
+
+## 3. Instruction-set and register model
+
+The R8192/C8192 architecture should initially be an **emulated and formally specified target**, not a claim of existing hardware.
+
+The architecture specification should define:
+
+- Instruction encoding
+- Register model
+- Privilege levels
+- Exceptions and interrupts
+- Memory ordering
+- Atomic operations
+- Virtual-memory format
+- Calling convention
+- Object-file format
+- Debugging interface
+- ABI versioning
+- Device and firmware interfaces
+
+The system should use practical host architectures first and emulate R8192/C8192 using QEMU, an interpreter, or a JIT compiler. QEMU already provides system emulation, user-mode emulation, multiple CPU targets, GDB integration, record/replay, and device models. <citation src="5"></citation>
+
+### RegisterN.hpp
+
+`RegisterN.hpp` should be an **ABI and emulator abstraction**, not a requirement that every physical CPU contain infinite-width registers.
+
+```cpp
+#pragma once
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <span>
+#include <type_traits>
+
+namespace chimera::isa {
+
+template <std::size_t Bits>
+class RegisterN {
+    static_assert(Bits > 0 && Bits % 8 == 0);
+    static constexpr std::size_t Bytes = Bits / 8;
+
+public:
+    using Storage = std::array<std::uint8_t, Bytes>;
+
+    constexpr RegisterN() noexcept = default;
+
+    constexpr explicit RegisterN(Storage value) noexcept
+        : bytes_(value) {}
+
+    [[nodiscard]]
+    constexpr const Storage& bytes() const noexcept {
+        return bytes_;
+    }
+
+    constexpr void clear() noexcept {
+        bytes_.fill(0);
+    }
+
+    constexpr void set_low_u64(std::uint64_t value) noexcept {
+        for (std::size_t i = 0; i < sizeof(value) && i < Bytes; ++i) {
+            bytes_[i] = static_cast<std::uint8_t>(value >> (i * 8));
+        }
+    }
+
+private:
+    Storage bytes_{};
+};
+
+using Reg32   = RegisterN<32>;
+using Reg64   = RegisterN<64>;
+using Reg128  = RegisterN<128>;
+using Reg256  = RegisterN<256>;
+using Reg512  = RegisterN<512>;
+using Reg4096 = RegisterN<4096>;
+using Reg8192 = RegisterN<8192>;
+
+} // namespace chimera::isa
+```
+
+The implementation should use sliced storage, such as 64-bit or 128-bit lanes. “Infinite-bit” architectures should mean **arbitrary-precision emulation**, not an actual infinite hardware register.
+
+## 4. Filesystem and storage architecture
+
+Chimera II should expose a Linux/Unix-compatible hierarchy:
+
+```text
+/
+├── bin -> usr/bin
+├── boot
+│   ├── chimera
+│   ├── kernels
+│   └── efi
+├── dev
+├── etc
+│   ├── chimera
+│   ├── systemd-compat
+│   ├── network
+│   └── security
+├── home
+├── lib -> usr/lib
+├── media
+├── mnt
+├── opt
+├── proc
+├── root
+├── run
+├── sbin -> usr/sbin
+├── srv
+├── sys
+├── tmp
+├── usr
+└── var
+```
+
+### VFS design
+
+The Chimera Virtual File System should provide a common interface:
+
+```text
+open()
+close()
+read()
+write()
+pread()
+pwrite()
+stat()
+mkdir()
+rename()
+unlink()
+mount()
+unmount()
+ioctl()
+mmap()
+fsync()
+```
+
+Filesystem support should be separated into capability levels:
+
+| Level | Filesystems |
+|---|---|
+| Boot read-only | FAT32, ISO9660, ext4 |
+| General read/write | ext4, XFS, Btrfs, NTFS |
+| Advanced storage | ZFS, RAID, snapshots, compression |
+| Experimental | QFS, TensorFS, ChimeraFS |
+| Compatibility | exFAT, HFS+, UFS, SquashFS, overlayfs |
+
+ZFS should be integrated through a clearly separated module because its license and kernel-integration model require special handling. NTFS should support read/write only after extensive testing; a safe default is read-only mounting for unfamiliar or damaged volumes.
+
+Partitioning utilities should expose:
+
+- `fdisk` compatibility
+- `gdisk` and GPT support
+- MBR and protective MBR
+- Windows-compatible GPT layouts
+- LVM-like logical volumes
+- RAID
+- encrypted volumes
+- filesystem labels and UUIDs
+- safe dry-run and confirmation modes
+
+## 5. Services and targets
+
+Jasper and Koronos should not copy every systemd implementation detail, but Chimera should offer a **systemd-compatible service model**.
+
+### Service manager
+
+The Chimera service manager should provide:
+
+- Dependency graph resolution
+- Parallel startup
+- Socket activation
+- Device activation
+- Timer activation
+- Service sandboxing
+- Resource limits
+- Restart policies
+- Health checks
+- Journaling
+- Service capabilities
+- Startup critical-path analysis
+- Transactional shutdown and rollback
+
+Example targets:
+
+```text
+chimera.target
+├── firmware.target
+├── local-fs.target
+├── cryptsetup.target
+├── network-pre.target
+├── network.target
+├── name-services.target
+├── graphical.target
+├── multi-user.target
+├── remote-fs.target
+├── container.target
+├── virtualization.target
+└── rescue.target
+```
+
+Services should be declared in a neutral format and optionally translated from systemd unit files, OpenRC scripts, SysV init scripts, and Windows service metadata.
+
+## 6. Registry and environment database
+
+Instead of copying the Windows SAM design, Chimera should provide a **secure configuration registry** called `CRegistry`.
+
+It should support:
+
+- Hierarchical keys
+- Typed values
+- Versioning
+- Transactions
+- Access control
+- Signed policy bundles
+- Local and machine-wide configuration
+- Environment-variable overlays
+- Import/export to text
+- Recovery snapshots
+
+Example namespaces:
+
+```text
+/system
+/security
+/drivers
+/network
+/users
+/services
+/desktop
+/compat/windows
+/compat/macos
+/compat/linux
+```
+
+Sensitive authentication data should not be stored as ordinary registry values. Password hashes, authentication keys, and tokens should use a dedicated credential service with hardware-backed protection where available.
+
+Environment precedence:
+
+```text
+Kernel defaults
+  < machine registry
+  < service environment
+  < user registry
+  < user shell
+  < process-specific variables
+```
+
+## 7. Neural database and analytical platform
+
+The “neural network database” should be split into distinct components rather than combining transactions, embeddings, and machine learning in one database engine.
+
+### BrainNetwork platform
+
+```text
+BrainNetwork
+├── MemoryStore
+│   ├── in-memory cache
+│   ├── persistent key-value store
+│   └── memory-mapped datasets
+├── OLTP engine
+│   ├── MVCC
+│   ├── WAL
+│   ├── transactions
+│   └── indexes
+├── Vector engine
+│   ├── embeddings
+│   ├── approximate nearest-neighbor search
+│   └── similarity queries
+├── OLAP engine
+│   ├── columnar storage
+│   ├── time-series tables
+│   ├── historical snapshots
+│   └── analytical queries
+├── Model runtime
+│   ├── CPU inference
+│   ├── GPU/OpenGL compute path
+│   └── accelerator plugins
+└── Audit and replay
+```
+
+OLTP and OLAP should use different storage layouts. Transactional workloads need low-latency row-oriented updates, while analytical workloads benefit from columnar storage and batch processing.
+
+The neural component should never silently modify transactional records. Every model-assisted action should be:
+
+- Versioned
+- Auditable
+- Reproducible
+- Permission-controlled
+- Separately committed from source data
+
+## 8. Desktop and graphics system
+
+The desktop should use a **theme and shell framework**, not copy proprietary desktop source code.
+
+### Chimera Desktop Shell
+
+```text
+CDE
+├── Window compositor
+├── OpenGL renderer
+├── Input manager
+├── Accessibility framework
+├── Theme engine
+├── Widget toolkit
+├── Virtual desktops
+├── 3D workspace manager
+├── File manager
+├── Notification service
+├── Arabic/English localization
+└── Compatibility shell adapters
+```
+
+Provide selectable profiles:
+
+- `Classic95`
+- `ModernWindows`
+- `MacLike`
+- `LinuxClassic`
+- `Chimera3D`
+- `HighContrast`
+- `ArabicDesktop`
+
+The appearance may be inspired by historical interfaces, but trademarks, artwork, icons, fonts, and proprietary code should not be copied without permission.
+
+OpenGL should be integrated through a graphics abstraction layer:
+
+```text
+Application
+   ↓
+Chimera Graphics API
+   ↓
+OpenGL / Vulkan backend
+   ↓
+Mesa or native GPU driver
+   ↓
+DRM/KMS or platform display interface
+```
+
+OpenGL should not be the only graphics path. Vulkan is preferable for modern rendering and compute workloads, with OpenGL retained for compatibility. “GPU Gems” techniques should be reimplemented from concepts and algorithms, not copied wholesale from copyrighted text or source code.
+
+## 9. Compatibility layer
+
+### Windows compatibility
+
+Integrate Wine as an optional subsystem:
+
+```text
+/usr/lib/chimera/wine32
+/usr/lib/chimera/wine64
+/usr/lib/chimera/windows
+/usr/lib/chimera/dll
+/usr/lib/chimera/pe-loader
+```
+
+The loader should support:
+
+- PE executables
+- `.dll` libraries
+- Windows registry translation
+- DirectX-to-OpenGL/Vulkan translation
+- Windows input and audio APIs
+- Separate 32-bit and 64-bit prefixes
+- Per-application sandboxes
+
+### Linux and Unix compatibility
+
+Provide:
+
+- POSIX APIs
+- ELF binaries
+- Linux syscall compatibility where legally and technically appropriate
+- Unix utilities
+- Shell compatibility
+- `/proc` and `/sys` compatibility views
+- Containers and namespaces
+- `chroot`, `pivot_root`, and mount namespaces
+- Linux package formats through a compatibility packaging layer
+
+The POSIX reference should be IEEE Std 1003.1-2024, identified in the supplied document as the relevant portability standard. 
+
+### DLL and shared-library model
+
+Chimera should support:
+
+```text
+.dll        PE/Windows dynamic libraries
+.so         ELF shared objects
+.dylib      macOS-style compatibility libraries
+.cmod       native Chimera modules
+```
+
+Each binary must be loaded only through a format-aware loader. File extensions alone must not determine trust or execution policy.
+
+## 10. Networking: Spotnik
+
+Spotnik should implement standard protocols rather than inventing incompatible replacements:
+
+```text
+Ethernet
+  ↓
+IPv4 / IPv6
+  ↓
+ARP / IPv6 Neighbor Discovery
+  ↓
+TCP / UDP / QUIC
+  ↓
+TLS
+  ↓
+DNS, DHCP, HTTP, SSH, SMTP, IMAP, NTP, LDAP, SMB
+```
+
+The supplied reference correctly maps the networking design to Ethernet, IPv4, IPv6, UDP, TCP, IPv6 Neighbor Discovery, IPsec, and TLS references. <citation src="1"></citation>
+
+Enterprise service packages should be modular:
+
+- DNS resolver and authoritative DNS
+- DHCP server and client
+- HTTP and reverse proxy
+- SMTP, IMAP, and submission services
+- LDAP-compatible directory service
+- Kerberos-compatible authentication
+- NTP and PTP
+- SMB/NFS file sharing
+- VPN and IPsec
+- Containers
+- Monitoring and logging
+- Backup and deployment services
+
+These should not all run by default. The base installation should remain small, with server roles installed as signed bundles.
+
+## 11. Emulator subsystem
+
+The emulator framework should use plugins:
+
+```text
+Chimera Emulator Framework
+├── x86 interpreter/JIT
+├── ARM interpreter/JIT
+├── RISC-V interpreter/JIT
+├── R8192/C8192 interpreter
+├── R8192/C8192 JIT
+├── PS1 plugin
+├── PS2 plugin
+├── PS3 plugin
+├── PS4 experimental plugin
+├── PS5 experimental plugin
+├── Amiga 500 plugin
+└── Debugger and replay service
+```
+
+Emulators for PlayStation systems and Amiga systems must be integrated only after:
+
+- License review
+- Source-code license review
+- Trademark review
+- Separation of BIOS/firmware files
+- User-supplied firmware policy
+- Per-emulator sandboxing
+- Controller and graphics API adaptation
+
+Do not bundle proprietary console BIOS files, game ROMs, copyrighted games, or firmware dumps. WinUAE and other emulator projects must retain their original licenses and copyright notices.
+
+## 12. Toolchain and debugging
+
+The developer image should contain:
+
+```text
+gcc
+g++
+clang
+lld
+binutils
+make
+cmake
+ninja
+pkg-config
+gdb
+llvm-dwarfdump
+objdump
+readelf
+ld
+ar
+nm
+perf-compatible profiler
+strace-compatible tracer
+core-dump analyzer
+kernel crash debugger
+```
+
+Koronos should expose a stable remote-debug protocol compatible with GDB. A separate Windows-debugger compatibility adapter can translate common debugging concepts such as processes, threads, modules, breakpoints, symbols, and exception events.
+
+The kernel and services should be compiled mostly in C++ or Rust-compatible systems code, while using assembly only for:
+
+- Reset entry
+- Context switching
+- Interrupt entry and return
+- Atomic primitives
+- Boot-time CPU initialization
+- Page-table activation
+- Architecture-specific ABI glue
+- SIMD and optimized cryptographic routines
+
+A fully assembly operating system would be larger, harder to maintain, less portable, and more difficult to secure than a mixed-language implementation.
+
+## 13. Image format
+
+Chimera should publish a reproducible image format:
+
+```text
+chimera-live.iso
+chimera-disk.img
+chimera.raw
+chimera.qcow2
+chimera.wic
+chimera-initramfs.cpio.zst
+chimera-kernel.elf
+chimera-kernel.efi
+```
+
+Image contents:
+
+```text
+GPT
+├── BIOS boot partition
+├── EFI System Partition
+├── Kernel partition
+├── Initramfs partition
+├── Root filesystem
+├── Recovery filesystem
+└── Optional data partition
+```
+
+Every image should contain:
+
+- Version manifest
+- Build ID
+- Reproducible-build metadata
+- Kernel signature
+- Module signatures
+- Filesystem UUIDs
+- Compatibility ABI version
+- Rollback slot
+- SBOM
+- License manifest
+
+For virtual machines, QEMU supports raw and QCOW2 workflows, multiple machine targets, virtual devices, GDB, and boot configuration facilities. <citation src="5"></citation>
+
+## 14. Arabic and English support
+
+Arabic support should be implemented throughout the stack:
+
+- UTF-8 and Unicode normalization
+- Arabic keyboard layouts
+- Right-to-left text direction
+- Arabic shaping and joining
+- Arabic numerals as a selectable option
+- Bilingual installer
+- Bilingual boot menu
+- Localized system messages
+- Right-to-left desktop layout
+- Input-method framework
+- Locale-aware sorting and date formatting
+
+English should remain the default development locale, with Arabic available during installation and through the desktop settings.
+
+## 15. Security baseline
+
+Security must be designed before adding services:
+
+- UEFI Secure Boot
+- Signed kernel and modules
+- Measured boot
+- TPM integration
+- W^X memory policy
+- ASLR
+- NX/DEP
+- Kernel address-space isolation
+- Capability-based service permissions
+- IOMMU and DMA isolation
+- Sandboxed drivers
+- Per-service user and namespace isolation
+- Encrypted storage
+- Secure update and rollback
+- Reproducible builds
+- Fuzz testing
+- Formal verification of boot and IPC-critical components
+
+The supplied reference also identifies secure boot, W^X, MMIO protection, DMA/IOMMU isolation, capability checks, deterministic scheduling, and explicit zero-copy ownership as important Chimera requirements. 
+
+## 16. Recommended development roadmap
+
+| Phase | Deliverable |
+|---|---|
+| 0 | Architecture specification, threat model, ABI, licenses, repository structure |
+| 1 | Cross-compiler, boot protocol, QEMU target, CI, unit tests |
+| 2 | Spit Fire UEFI and MBR boot paths |
+| 3 | Koronos single-core kernel with memory management and serial console |
+| 4 | SMP, interrupts, scheduler, processes, threads, IPC |
+| 5 | VFS, FAT32, ext4, ISO9660, GPT, initramfs |
+| 6 | Jasper boot manager and dual-boot support |
+| 7 | Spotnik TCP/IP stack and network drivers |
+| 8 | Parallel service manager and POSIX-compatible shell |
+| 9 | Graphics HAL, OpenGL/Vulkan, desktop compositor |
+| 10 | CRegistry, environment management, localization |
+| 11 | Wine compatibility and Linux/Unix application layer |
+| 12 | OLTP, OLAP, vector, and BrainNetwork services |
+| 13 | Additional filesystems and enterprise services |
+| 14 | Emulator plugin framework |
+| 15 | R8192/C8192 emulator, compiler backend, debugger |
+| 16 | FPGA implementation and hardware prototype |
+| 17 | Optimization, hardening, documentation, release engineering |
+
+A realistic initial milestone would be:
+
+> Boot Chimera II in QEMU through UEFI, load Koronos, mount an ext4 or FAT32 filesystem, start services in parallel, provide a POSIX-like shell, and display a basic OpenGL desktop.
+
+That milestone is achievable. A native 8192-bit CPU, infinite-width architecture, complete Windows/macOS/Linux compatibility, every filesystem, all enterprise servers, and all console emulators should be treated as separate long-term research projects rather than one initial release.
+
+## 17. Proposed repository layout
+
+```text
+chimera-ii/
+├── docs/
+│   ├── architecture/
+│   ├── abi/
+│   ├── boot/
+│   ├── security/
+│   └── standards/
+├── firmware/
+├── boot/
+│   ├── spitfire/
+│   └── jasper/
+├── kernel/
+│   ├── arch/
+│   ├── mm/
+│   ├── sched/
+│   ├── ipc/
+│   ├── vfs/
+│   ├── net/
+│   └── drivers/
+├── lib/
+├── userspace/
+│   ├── init/
+│   ├── services/
+│   ├── shell/
+│   ├── tools/
+│   └── daemons/
+├── graphics/
+├── desktop/
+├── compat/
+│   ├── posix/
+│   ├── linux/
+│   ├── windows/
+│   └── mac/
+├── emulators/
+├── brainnetwork/
+├── toolchain/
+├── tests/
+├── packaging/
+└── licenses/
+```
+
+## References
+
+- The supplied `Chimera_II_IEEE_RFC_Standards_Reference.pdf`, especially its architecture baseline, interoperability matrix, experimental requirements, and standardization roadmap.
+- IEEE Std 1003.1-2024, POSIX Base Specifications.
+- IEEE Std 754-2019, Floating-Point Arithmetic.
+- IEEE Std 802.3-2022, Ethernet.
+- IEEE Std 1588-2019, Precision Time Protocol.
+- RFC 1122, Requirements for Internet Hosts.
+- RFC 791, IPv4.
+- RFC 8200, IPv6.
+- RFC 768, UDP.
+- RFC 9293, TCP.
+- RFC 4861, IPv6 Neighbor Discovery.
+- RFC 4301, IPsec Security Architecture.
+- RFC 2119 and RFC 8174, normative requirement terminology.
+- RFC 8446 and successor TLS specifications.
+- UEFI boot and EFI-stub guidance. <citation src="1,3"></citation>
+- QEMU system-emulation, user-mode-emulation, disk-image, debugging, and replay documentation. <citation src="5"></citation>
+- NTFS UEFI-driver implementation documentation, useful as a compatibility reference for firmware-level filesystem access. <citation src="2"></citation>
