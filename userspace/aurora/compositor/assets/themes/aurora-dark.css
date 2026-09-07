@@ -1,0 +1,13 @@
+:root {
+  --bg: #07111f;
+  --panel-bg: rgba(14, 25, 43, 0.82);
+  --accent: #6ea8ff;
+  --accent-2: #8fe3ff;
+  --text: #eef5ff;
+  --muted: #9eb0c7;
+  --radius: 14px;
+  --panel-height: 48px;
+  --dock-height: 64px;
+  --blur: 18px;
+  --translucency: 0.82;
+}
