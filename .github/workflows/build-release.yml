@@ -1,0 +1,62 @@
+name: Chimera II build and release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Package
+        shell: bash
+        run: cmake --install build --prefix "${{ github.workspace }}/package" || true
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-${{ matrix.os }}
+          path: build/
+          if-no-files-found: warn
+
+  web:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate web assets
+        run: |
+          test -f web/index.html
+          test -f web/nbit-runtime.js
+          test -f web/aurora-three.js
+          test -f web/aurora-gl.js
+      - name: Upload web explorer
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy-pages:
+    if: github.ref == 'refs/heads/main'
+    needs: web
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
