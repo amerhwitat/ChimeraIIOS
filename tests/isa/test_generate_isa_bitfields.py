@@ -6,6 +6,7 @@ import csv
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,7 +34,15 @@ def test_csv_authority_reconciles_stale_cpp_name(tmp_path: Path) -> None:
     output = tmp_path / "isa.json"
 
     subprocess.run(
-        [sys.executable, str(GENERATOR), "--cpp", str(cpp), "--canonical", str(canonical), "--expanded", str(tmp_path / "missing.csv"), "--extension", str(tmp_path / "missing2.csv"), "--output", str(output)],
+        [
+            sys.executable,
+            str(GENERATOR),
+            "--cpp", str(cpp),
+            "--canonical", str(canonical),
+            "--expanded", str(tmp_path / "missing.csv"),
+            "--extension", str(tmp_path / "missing2.csv"),
+            "--output", str(output),
+        ],
         check=True,
         cwd=ROOT,
     )
@@ -42,3 +51,9 @@ def test_csv_authority_reconciles_stale_cpp_name(tmp_path: Path) -> None:
     assert len(names) == len(set(names))
     assert "AUDIT_EXPORT" in names
     assert "OP_0002" not in names
+
+
+if __name__ == "__main__":
+    with tempfile.TemporaryDirectory(prefix="chimera-isa-test-") as directory:
+        test_csv_authority_reconciles_stale_cpp_name(Path(directory))
+    print("PASS: ISA source reconciliation regression test")
