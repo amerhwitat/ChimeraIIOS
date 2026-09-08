@@ -1,30 +1,42 @@
 {
   "schema": "chimera-ii-web-data",
-  "version": 1,
+  "version": 2,
+  "release": "2026.09-gap-audit",
   "architecture": {
     "title": "Chimera II OS",
-    "subtitle": "8192-bit ISA · RISC/CISC compatibility · kernel architecture",
-    "depth": 10,
+    "subtitle": "8192-bit ISA · deterministic kernel primitives · DMA/IOMMU-aware I/O · Aurora/Wayland",
+    "depth": 12,
     "domains": [
-      ["Native ISA", "RegisterN / CPU8192", "1024 × 8192-bit GPR model with 128D research state"],
-      ["RISC compatibility", "RV32I / RV64I / AArch64", "Normalized decode layer for open and published RISC families"],
-      ["CISC compatibility", "x86-64", "Variable-length instruction frontend and common system/data classes"],
-      ["Kernel", "Scheduler · MM · VFS · IPC · Net", "Linux-inspired subsystem boundaries without copying Linux source"],
-      ["Graphics", "Aurora Wayland", "GPU, DMA-BUF, EGL and presentation architecture"],
-      ["Research", "128D / C8192", "Machine, cognitive and world-state experimentation"]
+      ["Native ISA", "R8192 / CPU8192", "284 defined opcodes (0x0001–0x011C); canonical 16-byte fetch ABI; core arithmetic/control execution"],
+      ["Kernel", "Koronos", "Deterministic priority scheduler, task state transitions, host virtual-memory mapping model and syscall boundary"],
+      ["Boot", "Spit Fire / Jasper", "Versioned CRC-protected BootInfo ABI; UEFI 2.11 / ACPI 6.6 are the platform baseline; loader remains next-stage work"],
+      ["DMA / IOMMU", "Ownership manager", "Explicit device DMA masks, mapping tokens, sync/unmap lifecycle; hardware IOMMU backend remains future work"],
+      ["Networking", "Spotnik", "Zero-copy architecture with explicit packet ownership; real NIC rings and full TCP/IP remain P1"],
+      ["Graphics", "Aurora Wayland / Vulkan", "Wayland 1.49 protocol baseline and Vulkan 1.4.x interoperability target; compositor backend remains staged"],
+      ["Storage", "VFS / TensorFS / Nucleus", "Unified filesystem boundary, snapshots and transactional research storage; durable on-disk implementation remains P2"],
+      ["Security", "CEF / capabilities", "Capability and privilege boundaries, signed/measured boot design, W^X and DMA isolation requirements"],
+      ["Cognition", "128D research plane", "Bounded recurrent-state and knowledge-bus research components; not represented as AGI or biological equivalence"],
+      ["Compatibility", "x86-64 / ARM64 / POSIX / Windows", "Host-oriented compatibility architecture; native binary conformance remains a staged milestone"]
     ],
     "isa": [
-      ["Chimera-8192", "Experimental wide-word", "8192", "Native", "Implemented core"],
+      ["Chimera-8192", "Experimental wide-word", "8192", "Native", "Core + canonical 16-byte ABI"],
       ["RV32I", "RISC", "32", "Compatibility", "Decoder skeleton"],
       ["RV64I", "RISC", "64", "Compatibility", "Decoder skeleton"],
       ["AArch64", "RISC", "64", "Compatibility", "Decoder skeleton"],
       ["x86-64", "CISC", "64", "Compatibility", "Decoder skeleton"]
     ],
     "layers": [
-      "Boot / firmware", "ISA frontend", "Koronos kernel core",
-      "Scheduler + IRQ + syscall", "Virtual memory / allocator", "VFS + TensorFS",
-      "IPC / zero-copy", "Spotnik networking", "CEF security/capabilities",
-      "Aurora compositor / GPU"
+      "UEFI / ACPI boot contract", "Spit Fire / Jasper", "R8192 ISA frontend",
+      "Koronos scheduler + task states", "Virtual memory / allocator", "BootInfo validation",
+      "Capability / privilege boundary", "DMA ownership / IOMMU model", "VFS + TensorFS",
+      "Spotnik zero-copy networking", "Aurora Wayland / Vulkan", "128D research plane"
+    ],
+    "standards": [
+      ["UEFI", "2.11", "Boot contract"],
+      ["ACPI", "6.6", "Platform description"],
+      ["Wayland protocols", "1.49", "Desktop IPC"],
+      ["Vulkan", "1.4.x", "Graphics/compute"],
+      ["IETF RFC 8305", "Happy Eyeballs v2", "Dual-stack connectivity"]
     ]
   }
 }
