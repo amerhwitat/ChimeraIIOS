@@ -2,9 +2,11 @@
 
 ## 1. Canonical catalog
 
-The complete internal instruction catalog is stored in `tools/isa/chimera_isa_r8192_complete.csv`. It defines 284 instructions from `0x0001` through `0x011C` with mnemonic, opcode, semantic encoding class, operands, privilege, latency, throughput, pipeline stage, ISA family, notes, and provenance.
+The complete internal instruction catalog is stored in `tools/isa/chimera_isa_r8192_complete.csv`. It defines the canonical semantic instruction identity and opcode assignments.
 
 The catalog is the authoritative machine-readable metadata source for the supplied R8192, Spotnik, Aurora, VFS, NDB/Hive, and Hybrid system interfaces.
+
+The expanded encoding metadata is layered on top of this semantic registry. The newly integrated extension is stored in `tools/isa/isa_extension_0092_011c.csv` and covers the supplied records for `0x0092..0x00EF` and `0x0107..0x011C`.
 
 ## 2. Fetch and decode
 
@@ -12,11 +14,11 @@ The catalog is the authoritative machine-readable metadata source for the suppli
 
 `opcode[16] | rd[16] | rs[16] | rt[16] | immediate[64]`
 
-The decoder validates instruction length, register indices, and the complete assigned opcode interval. The 16-bit opcode is required because the supplied ISA extends beyond `0x00FF` to `0x011C`.
+The decoder validates instruction length, register indices, and assigned opcode identity. The 16-bit opcode is required because the supplied ISA extends beyond `0x00FF` to `0x011C`.
 
 ## 3. Execute
 
-The CPU execution core directly implements the base wide arithmetic/control subset currently supported by `CPU8192`. Remaining catalog entries are architecturally recognized and form explicit dispatch boundaries for kernel, DMA, networking, VFS, database, GPU/Aurora, security, and service subsystems.
+The CPU execution core directly implements the base wide arithmetic/control subset currently supported by `CPU8192`. Catalog entries form explicit dispatch boundaries for kernel, DMA, networking, VFS, database, GPU/Aurora, security, media, and service subsystems.
 
 Execution status is explicit: `Executed`, `PrivilegeViolation`, `InvalidOpcode`, or `UnimplementedService`.
 
@@ -39,7 +41,7 @@ PRIVILEGE + CAPABILITY CHECK
   +---- memory/DMA ---------> MM/DMA backend
   +---- Spotnik ------------> network backend
   +---- VFS/DB -------------> filesystem/data backend
-  +---- Aurora/GPU ---------> graphics/media backend
+  +---- Aurora/GPU/media ---> graphics/media backend
   +---- Hybrid SYS/SEC -----> kernel/service boundary
   |
   v
@@ -50,22 +52,36 @@ Latency and throughput are architectural scheduling metadata, not measured silic
 
 ## 5. Expanded encoding layer
 
-`tools/isa/isa_opcodes_expanded_with_encodings.csv` provides encoding-aware metadata including `encoding_template`, `opcode_bits`, `imm_size`, `modrm_like`, and `example_binary`.
+`tools/isa/isa_opcodes_expanded_with_encodings.csv` provides encoding-aware metadata for the earlier expanded catalog. The new `tools/isa/isa_extension_0092_011c.csv` adds the supplied Aurora and Hybrid records through `0x011C`.
 
 These fields are **illustrative tooling templates**, not canonical hardware encodings. The current emulator continues to normalize native instructions into its 16-byte host packet. Longer or shorter logical encodings require an explicitly defined extension mechanism before becoming normative.
 
-The supplied encoding source in the project discussion is truncated during the `RSAMOD` record. Missing records are intentionally not fabricated. The existing 284-opcode semantic registry remains authoritative for instruction identity until the complete encoding source is supplied and validated.
+### Integrated extension ranges
 
-See:
+- `0x0092..0x00AC`: Aurora PipeWire, audio/video, GPU, shader, texture, PBO and rendering operations.
+- `0x00AD..0x00B4`: Aurora presentation notification, acknowledgement, cancellation, query, mode and priority operations.
+- `0x00B5..0x00C3`: Hybrid VirtIO, PCI, MSI, BAR and DMA operations.
+- `0x00C4..0x00EF`: Hybrid memory, lifecycle, synchronization, PMU, tracing, thermal, certificate, keystore and audit operations.
+- `0x0107..0x011C`: Hybrid configuration, licensing, metrics, cluster, service, diagnostics, maintenance and security-scan operations.
 
-- `docs/ISA_ENCODING_SPEC.md`
-- `docs/ISA_ENCODING_MIGRATION.md`
-- `docs/ISA_ENCODING_CONFORMANCE.md`
-- `docs/ISA_ENCODING_DATA_DICTIONARY.md`
+The supplied source intentionally does not define `0x00F0..0x0106` in this extension, so no missing records are fabricated.
+
+### Encoding conformance observations
+
+Several supplied templates require review before normative binary encoding:
+
+1. `ECC_POINT_ADD (0x0043)` specifies `rt in separate field` without defining its exact bit position, width or serialization order.
+2. Some opcodes above `0x00FF` have templates with an 8-bit opcode field even though their opcode identity is 16-bit, for example `0x0107` and `0x011C`. Such templates cannot represent those opcode values in an 8-bit field.
+3. Fields marked `separate field` are preserved as metadata and are not silently packed into the canonical 16-byte ABI.
+4. Example binary values are preserved as supplied and must be treated as illustrative vectors until automated round-trip validation is available.
+
+See `docs/ISA_EXTENSION_0092_011C.md` for the detailed extension and conformance policy.
 
 ## 6. Privilege model
 
 `user` instructions may execute directly when operands/capabilities are valid. `priv` instructions require a kernel or supervisor dispatch path. The host implementation must enforce the policy explicitly.
+
+The extension contains privileged operations affecting caches, TLBs, page tables, PCI, DMA, power state, reboot/shutdown, keystores, security scans and maintenance mode. These remain capability-gated subsystem operations rather than unrestricted register-core side effects.
 
 ## 7. ISA families
 
@@ -83,4 +99,4 @@ The supplied catalog is original Chimera II project metadata (`source_ref=intern
 
 ## 9. Implementation boundary
 
-A recognized opcode is not automatically a completed subsystem implementation. The CPU core provides the recognition/dispatch surface, while subsystem semantics are implemented at their owning kernel or userspace boundary. This prevents the ISA layer from silently performing host filesystem, networking, device, security, or power-management actions.
+A recognized opcode is not automatically a completed subsystem implementation. The CPU core provides the recognition/dispatch surface, while subsystem semantics are implemented at their owning kernel or userspace boundary. This prevents the ISA layer from silently performing host filesystem, networking, device, security, power-management, media, or graphics actions.
