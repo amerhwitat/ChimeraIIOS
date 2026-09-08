@@ -3,10 +3,18 @@
 #define CHIMERA_NETINET_IN_H
 
 #include <stdint.h>
-#include <sys/socket.h>
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef __sa_family_t_defined
+#ifndef _SA_FAMILY_T
+#ifndef _SA_FAMILY_T_DEFINED
+    typedef uint16_t sa_family_t;
+#define __sa_family_t_defined 1
+#endif
+#endif
 #endif
 
 typedef uint16_t in_port_t;
