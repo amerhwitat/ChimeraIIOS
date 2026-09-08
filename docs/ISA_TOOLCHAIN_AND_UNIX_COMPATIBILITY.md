@@ -12,13 +12,13 @@ The generated bitfield registry is metadata for logical instruction encodings an
 
 ## 2. Automatic bit-mask generation
 
-`tools/isa/generate_isa_bitfields.py` reads:
+`tools/isa/generate_isa_bitfields.py` derives complete opcode identity from the CPU's authoritative `kNames` table in `src/isa/chimera_isa.cpp`, then enriches those 284 definitions from:
 
-- `tools/isa/chimera_isa_r8192_complete.csv` — canonical semantic instruction identity;
+- `tools/isa/chimera_r8192_opcode_index.csv` — semantic metadata;
 - `tools/isa/isa_opcodes_expanded_with_encodings.csv` — earlier encoding metadata;
 - `tools/isa/isa_extension_0092_011c.csv` — supplied extension metadata.
 
-For every instruction the generator emits explicit `start`, `end`, `width`, `mask`, and `shift` fields. Where a logical template is unavailable, it emits the canonical 16-byte ABI fields and labels the record `canonical_abi_only`. This is deliberate: missing hardware encodings are not fabricated.
+For every instruction the generator emits explicit `start`, `end`, `width`, `mask`, and `shift` fields. Where a logical template is unavailable, it emits the canonical 16-byte ABI fields and labels the record `canonical_abi_only`. If a supplied template is structurally inconsistent, it is retained as `template_review_required` with explicit validation errors. This is deliberate: missing or contradictory hardware encodings are never silently fabricated.
 
 Run:
 
@@ -29,20 +29,18 @@ python3 tools/isa/chimera_asm.py --schema tools/isa/isa_bitfields.json assemble 
 python3 tools/isa/chimera_asm.py --schema tools/isa/isa_bitfields.json disassemble 0x01010203
 ```
 
-The generator therefore supplies the complete semantic ISA registry with automatically derived masks while retaining the distinction between canonical ABI and illustrative logical templates.
-
 ## 3. Conformance
 
 The conformance layer verifies:
 
+- all 284 opcode identities `0x0001..0x011C`;
 - unique mnemonic and 16-bit opcode identity;
-- opcode range `0x0000..0xFFFF`;
 - field width equals `end-start+1`;
 - masks equal the declared width/shift;
 - no field overlap;
 - valid hexadecimal example vectors;
 - canonical 16-byte ABI layout;
-- generated instruction count consistency.
+- explicit review status for inconsistent supplied templates.
 
 Known ambiguous records remain visible as validation data instead of being silently corrected. In particular, `ECC_POINT_ADD` has a separate `rt` field without a bit position, and several `0x0107..0x011C` templates use 8-bit opcode fields despite 16-bit opcode identities.
 
