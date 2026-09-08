@@ -1,0 +1,9 @@
+#pragma once
+#include "Modules/ModuleManager.h"
+
+class FAuroraDesktopModule final : public IModuleInterface
+{
+public:
+    void StartupModule() override;
+    void ShutdownModule() override;
+};
