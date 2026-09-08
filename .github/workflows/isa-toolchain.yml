@@ -12,6 +12,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Validate web assets
+        run: python3 -m unittest tests/web/test_web_assets.py
       - name: Generate ISA bitfield registry
         run: python3 tools/isa/generate_isa_bitfields.py --output /tmp/isa_bitfields.json
       - name: Validate complete ISA
