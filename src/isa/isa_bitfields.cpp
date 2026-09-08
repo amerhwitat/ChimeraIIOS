@@ -1,9 +1,9 @@
 #include "chimera/isa_bitfields.hpp"
 #include <cctype>
 #include <fstream>
-#include <limits>
 #include <map>
 #include <sstream>
+#include <stdexcept>
 #include <variant>
 
 namespace chimera::isa {
@@ -48,7 +48,7 @@ bool BitfieldRegistry::load_json(std::string_view json, std::string* error) {
     try {
         J root=P(json).parse();
         const J* abi=root.get("canonical_abi"); const J* count=root.get("instruction_count"); const J* list=root.get("instructions");
-        if(!abi||!count||!list) throw std::runtime_error("missing ISA schema members");
+        if(!abi||!count||!list||!abi->get("bytes")||!abi->get("layout")) throw std::runtime_error("missing ISA schema members");
         abi_bytes_=static_cast<std::uint32_t>(abi->get("bytes")->u64()); abi_layout_=abi->get("layout")->str();
         instructions_.clear();
         for(const J& item: std::get<J::array>(list->v)){
@@ -65,9 +65,13 @@ const BitfieldInstruction* BitfieldRegistry::by_opcode(std::uint16_t opcode) con
 const BitfieldInstruction* BitfieldRegistry::by_mnemonic(std::string_view mnemonic) const noexcept { for(const auto& x:instructions_)if(x.mnemonic==mnemonic)return &x; return nullptr; }
 
 std::uint64_t extract_bits(std::uint64_t word, std::uint16_t shift, std::uint16_t width) noexcept {
-    if(width==0)return 0; if(width>=64)return word>>shift; return (word>>shift)&((std::uint64_t{1}<<width)-1);
+    if(width==0 || shift>=64)return 0;
+    if(width>=64-shift)return word>>shift;
+    return (word>>shift)&((std::uint64_t{1}<<width)-1);
 }
 std::uint64_t insert_bits(std::uint64_t word, std::uint64_t value, std::uint16_t shift, std::uint16_t width) noexcept {
-    if(width==0)return word; if(width>=64)return value; const auto mask=((std::uint64_t{1}<<width)-1)<<shift; return (word&~mask)|((value<<shift)&mask);
+    if(width==0 || shift>=64)return word;
+    if(width>=64-shift)return (shift==0)?value:(value<<shift);
+    const auto mask=((std::uint64_t{1}<<width)-1)<<shift; return (word&~mask)|((value<<shift)&mask);
 }
 } // namespace chimera::isa
