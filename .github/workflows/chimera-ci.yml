@@ -8,8 +8,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
+        run: cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON
       - name: Build
         run: cmake --build build --parallel
       - name: Test
         run: ctest --test-dir build --output-on-failure
+      - name: Install smoke test
+        run: |
+          cmake --install build --prefix "$RUNNER_TEMP/chimera-install"
+          test -x "$RUNNER_TEMP/chimera-install/bin/chimera_kernel"
+          test -x "$RUNNER_TEMP/chimera-install/bin/chimera-enable-startup"
+          test -f "$RUNNER_TEMP/chimera-install/lib/systemd/system/chimera-kernel.service"
+          test -f "$RUNNER_TEMP/chimera-install/lib/systemd/system/aurora-session@.service"
+          test -f "$RUNNER_TEMP/chimera-install/share/wayland-sessions/aurora.desktop"
+          test -x "$RUNNER_TEMP/chimera-install/lib/chimera/aurora-session"
