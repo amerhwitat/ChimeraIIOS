@@ -1,0 +1,117 @@
+mnemonic;opcode;encoding;operands;privilege;latency;throughput;pipeline_stage;isa_family;notes;source_ref;encoding_template;opcode_bits;imm_size;modrm_like;example_binary
+PIPEWIRE_PUBLISH;0x0092;S;stream;user;5;1;IO;AURORA;Publish PipeWire stream;internal;[127:120 opcode][119:0 stream_ptr120];0x92;0;no;0x920102030405060708090A0B0C
+PIPEWIRE_SUBSCRIBE;0x0093;S;stream;user;5;1;IO;AURORA;Subscribe to PipeWire stream;internal;[127:120 opcode][119:0 stream_ptr120];0x93;0;no;0x930102030405060708090A0B0C
+AUDIO_PLAY;0x0094;S;buf,len;user;5;1;IO;AURORA;Play audio buffer;internal;[63:56 opcode][55:24 buf32][23:0 len24];0x94;24;no;0x9401020304050607
+AUDIO_STOP;0x0095;S;stream;user;2;2;IO;AURORA;Stop audio stream;internal;[31:24 opcode][23:0 stream24];0x95;0;no;0x95000001
+VIDEO_ENCODE;0x0096;S;frame,params;user;200;0.01;GPU;AURORA;Encode video frame;internal;[127:120 opcode][119:88 frame32][87:56 params32];0x96;0;no;0x960102030405060708090A
+VIDEO_DECODE;0x0097;S;stream;user;150;0.02;GPU;AURORA;Decode video stream;internal;[127:120 opcode][119:0 stream_ptr120];0x97;0;no;0x970102030405060708090A0B0C
+GPU_COMPOSITE;0x0098;S;layers;user;30;0.2;GPU;AURORA;Composite desktop layers;internal;[127:120 opcode][119:0 layers_ptr120];0x98;0;no;0x980102030405060708090A0B0C
+GPU_BLIT;0x0099;S;src,dst;user;5;1;GPU;AURORA;Blit texture;internal;[63:56 opcode][55:24 src32][23:0 dst24];0x99;0;no;0x9901020304050607
+GPU_CLEAR;0x009A;S;rt,color;user;2;10;GPU;AURORA;Clear render target;internal;[63:56 opcode][55:24 rt32][23:0 color24];0x9A;0;no;0x9A01020304050607
+SHADER_COMPILE;0x009B;S;src,opts;priv;500;0.01;GPU;AURORA;Compile shader;internal;[127:120 opcode][119:0 src_ptr120][opts separate];0x9B;0;no;0x9B0102030405060708090A0B0C
+SHADER_LINK;0x009C;S;objs;priv;200;0.01;GPU;AURORA;Link shader objects;internal;[127:120 opcode][119:0 objs_ptr120];0x9C;0;no;0x9C0102030405060708090A0B0C
+SHADER_BIND;0x009D;S;prog;user;1;10;GPU;AURORA;Bind shader program;internal;[31:24 opcode][23:0 prog24];0x9D;0;no;0x9D000001
+SHADER_UNBIND;0x009E;S;prog;user;1;10;GPU;AURORA;Unbind shader program;internal;[31:24 opcode][23:0 prog24];0x9E;0;no;0x9E000001
+TEXTURE_UPLOAD;0x009F;M;tex,buf;user;50;0.1;GPU;AURORA;Upload texture via PBO;internal;[127:120 opcode][119:88 tex32][87:56 buf32];0x9F;0;no;0x9F01020304050607
+TEXTURE_DOWNLOAD;0x00A0;M;tex,buf;user;80;0.05;GPU;AURORA;Download texture;internal;[127:120 opcode][119:88 tex32][87:56 buf32];0xA0;0;no;0xA001020304050607
+PBO_MAP;0x00A1;S;pbo;user;5;2;GPU;AURORA;Map PBO for CPU access;internal;[31:24 opcode][23:0 pbo24];0xA1;0;no;0xA1000001
+PBO_UNMAP;0x00A2;S;pbo;user;5;2;GPU;AURORA;Unmap PBO;internal;[31:24 opcode][23:0 pbo24];0xA2;0;no;0xA2000001
+PBO_UPLOAD;0x00A3;M;pbo,buf;user;30;0.2;GPU;AURORA;Upload via PBO;internal;[63:56 opcode][55:24 pbo32][23:0 buf24];0xA3;0;no;0xA301020304050607
+PBO_DOWNLOAD;0x00A4;M;pbo,buf;user;40;0.15;GPU;AURORA;Download via PBO;internal;[63:56 opcode][55:24 pbo32][23:0 buf24];0xA4;0;no;0xA401020304050607
+SSAO_PASS;0x00A5;S;gpos,gnorm;user;60;0.1;GPU;AURORA;SSAO fragment pass;internal;[127:120 opcode][119:88 gpos32][87:56 gnorm32];0xA5;0;no;0xA50102030405060708090A0B0C
+TILED_LIGHT_PASS;0x00A6;S;gbuffer;user;80;0.05;GPU;AURORA;Tiled lighting pass;internal;[127:120 opcode][119:0 gbuffer_ptr120];0xA6;0;no;0xA60102030405060708090A0B0C
+POSTPROCESS_PASS;0x00A7;S;input;user;30;0.2;GPU;AURORA;Post-processing pass;internal;[127:120 opcode][119:0 input_ptr120];0xA7;0;no;0xA70102030405060708090A0B0C
+PRESENT_FRAME;0x00A8;S;frame;user;5;1;GPU;AURORA;Present frame to display;internal;[63:56 opcode][55:0 frame_ptr56];0xA8;0;no;0xA801020304050607
+FRAMEBUFFER_BIND;0x00A9;S;fb;user;1;10;GPU;AURORA;Bind framebuffer;internal;[31:24 opcode][23:0 fb24];0xA9;0;no;0xA9000001
+FRAMEBUFFER_UNBIND;0x00AA;S;fb;user;1;10;GPU;AURORA;Unbind framebuffer;internal;[31:24 opcode][23:0 fb24];0xAA;0;no;0xAA000001
+SWAP_BUFFERS;0x00AB;S;wnd;user;2;5;GPU;AURORA;Swap front/back buffers;internal;[31:24 opcode][23:0 wnd24];0xAB;0;no;0xAB000001
+VSYNC_WAIT;0x00AC;S;timeout;user;16;0.06;GPU;AURORA;Wait for vsync;internal;[31:24 opcode][23:0 timeout24];0xAC;0;no;0xAC00000A
+WP_PRESENT_NOTIFY;0x00AD;S;token;user;2;2;SYS;AURORA;wp_presentation notify;internal;[31:24 opcode][23:0 token24];0xAD;0;no;0xAD000001
+WP_PRESENT_ACK;0x00AE;S;token;user;2;2;SYS;AURORA;wp_presentation ack;internal;[31:24 opcode][23:0 token24];0xAE;0;no;0xAE000001
+WP_PRESENT_CANCEL;0x00AF;S;token;user;2;2;SYS;AURORA;wp_presentation cancel;internal;[31:24 opcode][23:0 token24];0xAF;0;no;0xAF000001
+WP_PRESENT_QUERY;0x00B0;S;token;user;2;2;SYS;AURORA;wp_presentation query;internal;[31:24 opcode][23:0 token24];0xB0;0;no;0xB0000001
+WP_PRESENT_SET_MODE;0x00B1;S;mode;priv;10;0.5;SYS;AURORA;Set presentation mode;internal;[31:24 opcode][23:0 mode24];0xB1;0;no;0xB1000001
+WP_PRESENT_GET_MODE;0x00B2;S;out;user;2;2;SYS;AURORA;Get presentation mode;internal;[31:24 opcode][23:0 out_ptr24];0xB2;0;no;0xB2000001
+WP_PRESENT_SET_PRIORITY;0x00B3;S;token,prio;priv;5;1;SYS;AURORA;Set present priority;internal;[31:24 opcode][23:16 token8][15:8 prio8][7:0 reserved];0xB3;0;no;0xB3010200
+WP_PRESENT_GET_PRIORITY;0x00B4;S;token;user;2;2;SYS;AURORA;Get present priority;internal;[31:24 opcode][23:16 token8][15:0 reserved];0xB4;0;no;0xB4010200
+VIRTIO_INIT;0x00B5;S;dev;priv;100;0.01;IO;HYBRID;Initialize virtio device;internal;[127:120 opcode][119:0 dev_ptr120];0xB5;0;no;0xB50102030405060708090A0B0C
+VIRTIO_SEND;0x00B6;S;dev,buf,len;user;10;0.5;IO;HYBRID;Send virtio buffer;internal;[127:120 opcode][119:88 dev32][87:56 buf32][55:24 len32];0xB6;32;no;0xB60102030405060708090A0B0C
+VIRTIO_RECV;0x00B7;S;dev,out;user;10;0.5;IO;HYBRID;Receive virtio buffer;internal;[127:120 opcode][119:88 dev32][87:0 out_ptr88];0xB7;0;no;0xB70102030405060708090A0B0C
+VIRTIO_SHUTDOWN;0x00B8;S;dev;priv;20;0.1;IO;HYBRID;Shutdown virtio device;internal;[127:120 opcode][119:0 dev_ptr120];0xB8;0;no;0xB80102030405060708090A0B0C
+PCI_PROBE;0x00B9;S;bus;priv;200;0.01;SYS;HYBRID;Probe PCI devices;internal;[31:24 opcode][23:0 bus24];0xB9;0;no;0xB9000001
+PCI_CONFIG_READ;0x00BA;S;dev,off;priv;5;1;SYS;HYBRID;Read PCI config;internal;[31:24 opcode][23:16 dev8][15:0 off16];0xBA;0;no;0xBA010002
+PCI_CONFIG_WRITE;0x00BB;S;dev,off,val;priv;5;1;SYS;HYBRID;Write PCI config;internal;[63:56 opcode][55:48 dev8][47:32 off16][31:0 val32];0xBB;32;no;0xBB01020304050607
+PCI_ENABLE_DEVICE;0x00BC;S;dev;priv;20;0.1;SYS;HYBRID;Enable PCI device;internal;[31:24 opcode][23:0 dev24];0xBC;0;no;0xBC000001
+PCI_DISABLE_DEVICE;0x00BD;S;dev;priv;20;0.1;SYS;HYBRID;Disable PCI device;internal;[31:24 opcode][23:0 dev24];0xBD;0;no;0xBD000001
+PCI_SET_MSI;0x00BE;S;dev,msi;priv;50;0.05;SYS;HYBRID;Configure MSI;internal;[63:56 opcode][55:24 dev32][23:0 msi24];0xBE;0;no;0xBE01020304050607
+PCI_CLEAR_MSI;0x00BF;S;dev;priv;30;0.1;SYS;HYBRID;Clear MSI;internal;[31:24 opcode][23:0 dev24];0xBF;0;no;0xBF000001
+PCI_MAP_BAR;0x00C0;S;dev,bar;priv;40;0.02;SYS;HYBRID;Map BAR to kernel;internal;[63:56 opcode][55:24 dev32][23:16 bar8][15:0 reserved];0xC0;0;no;0xC001020304050607
+PCI_UNMAP_BAR;0x00C1;S;dev,bar;priv;30;0.05;SYS;HYBRID;Unmap BAR;internal;[63:56 opcode][55:24 dev32][23:16 bar8][15:0 reserved];0xC1;0;no;0xC101020304050607
+PCI_DMA_SETUP;0x00C2;S;dev,buf;priv;60;0.02;DMA;HYBRID;Setup DMA for device;internal;[127:120 opcode][119:88 dev32][87:56 buf32][55:0 flags56];0xC2;0;no;0xC20102030405060708090A0B0C
+PCI_DMA_TEARDOWN;0x00C3;S;dev;priv;40;0.05;DMA;HYBRID;Teardown DMA;internal;[31:24 opcode][23:0 dev24];0xC3;0;no;0xC3000001
+PMEM_ALLOC;0x00C4;S;size;priv;100;0.01;MEM;HYBRID;Allocate persistent memory;internal;[31:24 opcode][23:0 size24];0xC4;0;no;0xC4000010
+PMEM_FREE;0x00C5;S;addr;priv;50;0.02;MEM;HYBRID;Free persistent memory;internal;[31:24 opcode][23:0 addr24];0xC5;0;no;0xC5000001
+KERNEL_PANIC;0x00C6;S;code;priv;0;0;SYS;HYBRID;Trigger kernel panic;internal;[31:24 opcode][23:0 code24];0xC6;0;no;0xC6000001
+REBOOT;0x00C7;S;mode;priv;1000;0.001;SYS;HYBRID;System reboot;internal;[31:24 opcode][23:0 mode24];0xC7;0;no;0xC7000001
+SHUTDOWN;0x00C8;S;mode;priv;1000;0.001;SYS;HYBRID;System shutdown;internal;[31:24 opcode][23:0 mode24];0xC8;0;no;0xC8000001
+SUSPEND;0x00C9;S;state;priv;500;0.01;SYS;HYBRID;Suspend to RAM;internal;[31:24 opcode][23:0 state24];0xC9;0;no;0xC9000001
+RESUME;0x00CA;S;state;priv;500;0.01;SYS;HYBRID;Resume from suspend;internal;[31:24 opcode][23:0 state24];0xCA;0;no;0xCA000001
+USER_MODE_ENTER;0x00CB;S;entry;priv;10;0.1;SYS;HYBRID;Enter user mode from kernel;internal;[127:120 opcode][119:0 entry_ptr120];0xCB;0;no;0xCB0102030405060708090A0B0C
+USER_MODE_EXIT;0x00CC;S;status;user;10;0.1;SYS;HYBRID;Exit to kernel from user;internal;[31:24 opcode][23:0 status24];0xCC;0;no;0xCC000001
+PMU_READ;0x00CD;S;counter;priv;5;1;SYS;HYBRID;Read performance counter;internal;[31:24 opcode][23:0 counter24];0xCD;0;no;0xCD000001
+PMU_WRITE;0x00CE;S;counter,val;priv;5;1;SYS;HYBRID;Write performance counter;internal;[63:56 opcode][55:24 counter32][23:0 val24];0xCE;0;no;0xCE01020304050607
+PERF_SAMPLE;0x00CF;S;event;priv;50;0.05;SYS;HYBRID;Collect perf sample;internal;[31:24 opcode][23:0 event24];0xCF;0;no;0xCF000001
+TRACE_MARK;0x00D0;S;tag;priv;1;10;SYS;HYBRID;Emit trace marker;internal;[31:24 opcode][23:0 tag24];0xD0;0;no;0xD0000001
+DEBUG_PRINT;0x00D1;S;buf,len;priv;2;2;SYS;HYBRID;Kernel debug print;internal;[63:56 opcode][55:24 buf32][23:0 len24];0xD1;24;no;0xD101020304050607
+USER_YIELD;0x00D2;S;;user;1;10;SYS;HYBRID;User-level yield hint;internal;[31:24 opcode][23:0 reserved];0xD2;0;no;0xD2000000
+FENCE;0x00D3;S;;priv;1;10;SYS;HYBRID;Memory fence;internal;[31:24 opcode][23:0 scope24];0xD3;0;no;0xD3000001
+BARRIER;0x00D4;S;scope;priv;1;10;SYS;HYBRID;Synchronization barrier;internal;[31:24 opcode][23:0 scope24];0xD4;0;no;0xD4000001
+SEV;0x00D5;S;addr;priv;1;10;SYS;HYBRID;Send event to CPU;internal;[31:24 opcode][23:0 addr24];0xD5;0;no;0xD5000001
+WFE;0x00D6;S;;priv;1;10;SYS;HYBRID;Wait for event;internal;[31:24 opcode][23:0 reserved];0xD6;0;no;0xD6000000
+CACHE_LINE_FLUSH;0x00D7;S;addr;priv;5;1;SYS;HYBRID;Flush single cache line;internal;[31:24 opcode][23:0 addr24];0xD7;0;no;0xD7000001
+CACHE_LINE_INVALIDATE;0x00D8;S;addr;priv;5;1;SYS;HYBRID;Invalidate cache line;internal;[31:24 opcode][23:0 addr24];0xD8;0;no;0xD8000001
+TLB_FLUSH;0x00D9;S;addr;priv;100;0.01;SYS;HYBRID;Flush TLB entries;internal;[31:24 opcode][23:0 addr24];0xD9;0;no;0xD9000001
+TLB_INVALIDATE;0x00DA;S;addr;priv;80;0.02;SYS;HYBRID;Invalidate TLB entries;internal;[31:24 opcode][23:0 addr24];0xDA;0;no;0xDA000001
+PAGE_TABLE_MAP;0x00DB;S;vaddr,paddr;priv;60;0.02;MEM;HYBRID;Map page table entry;internal;[127:120 opcode][119:88 vaddr32][87:56 paddr32];0xDB;0;no;0xDB01020304050607
+PAGE_TABLE_UNMAP;0x00DC;S;vaddr;priv;40;0.05;MEM;HYBRID;Unmap page table entry;internal;[31:24 opcode][23:0 vaddr24];0xDC;0;no;0xDC000001
+KERNEL_ALLOC;0x00DD;S;size;priv;30;0.1;MEM;HYBRID;Allocate kernel memory;internal;[31:24 opcode][23:0 size24];0xDD;0;no;0xDD000010
+KERNEL_FREE;0x00DE;S;addr;priv;20;0.2;MEM;HYBRID;Free kernel memory;internal;[31:24 opcode][23:0 addr24];0xDE;0;no;0xDE000001
+USER_ALLOC;0x00DF;S;size;user;50;0.05;MEM;HYBRID;Allocate user memory via syscall;internal;[31:24 opcode][23:0 size24];0xDF;0;no;0xDF000010
+USER_FREE;0x00E0;S;addr;user;30;0.1;MEM;HYBRID;Free user memory;internal;[31:24 opcode][23:0 addr24];0xE0;0;no;0xE0000001
+MAP_IO_REGION;0x00E1;S;phys,len;priv;40;0.02;IO;HYBRID;Map IO region;internal;[63:56 opcode][55:24 phys32][23:0 len24];0xE1;24;no;0xE101020304050607
+UNMAP_IO_REGION;0x00E2;S;vaddr;priv;30;0.05;IO;HYBRID;Unmap IO region;internal;[31:24 opcode][23:0 vaddr24];0xE2;0;no;0xE2000001
+IO_PORT_READ;0x00E3;S;port;priv;5;1;IO;HYBRID;Read IO port;internal;[31:24 opcode][23:0 port24];0xE3;0;no;0xE3000001
+IO_PORT_WRITE;0x00E4;S;port,val;priv;5;1;IO;HYBRID;Write IO port;internal;[63:56 opcode][55:48 port8][47:0 val48];0xE4;48;no;0xE401020304050607
+SMP_SEND_IPI;0x00E5;S;cpu_mask;priv;10;0.5;SYS;HYBRID;Send inter-processor interrupt;internal;[31:24 opcode][23:0 cpu_mask24];0xE5;0;no;0xE5000001
+SMP_BROADCAST;0x00E6;S;msg;priv;20;0.1;SYS;HYBRID;Broadcast to all CPUs;internal;[127:120 opcode][119:0 msg_ptr120];0xE6;0;no;0xE60102030405060708090A0B0C
+CPU_FREQ_SET;0x00E7;S;freq;priv;100;0.01;SYS;HYBRID;Set CPU frequency;internal;[31:24 opcode][23:0 freq24];0xE7;0;no;0xE7000001
+CPU_FREQ_GET;0x00E8;S;out;user;5;1;SYS;HYBRID;Get CPU frequency;internal;[31:24 opcode][23:0 out_ptr24];0xE8;0;no;0xE8000001
+THERMAL_QUERY;0x00E9;S;out;user;5;1;SYS;HYBRID;Query thermal sensors;internal;[31:24 opcode][23:0 out_ptr24];0xE9;0;no;0xE9000001
+THERMAL_SET_LIMIT;0x00EA;S;limit;priv;50;0.05;SYS;HYBRID;Set thermal limit;internal;[31:24 opcode][23:0 limit24];0xEA;0;no;0xEA000001
+LOG_ROTATE;0x00EB;S;policy;priv;200;0.01;SYS;HYBRID;Rotate logs;internal;[127:120 opcode][119:0 policy_ptr120];0xEB;0;no;0xEB0102030405060708090A0B0C
+CERT_VERIFY;0x00EC;S;cert;priv;150;0.02;SEC;HYBRID;Verify certificate chain;internal;[127:120 opcode][119:0 cert_ptr120];0xEC;0;no;0xEC0102030405060708090A0B0C
+KEYSTORE_STORE;0x00ED;S;key,meta;priv;200;0.01;SEC;HYBRID;Store key in keystore;internal;[127:120 opcode][119:88 key32][87:56 meta32];0xED;0;no;0xED01020304050607
+KEYSTORE_RETRIEVE;0x00EE;S;id;priv;150;0.02;SEC;HYBRID;Retrieve key from keystore;internal;[31:24 opcode][23:0 id24];0xEE;0;no;0xEE000001
+AUDIT_EXPORT;0x00EF;S;out;priv;500;0.01;SYS;HYBRID;Export audit logs;internal;[127:120 opcode][119:0 out_ptr120];0xEF;0;no;0xEF0102030405060708090A0B0C
+CONFIG_GET;0x0107;M;key;user;5;2;SYS;HYBRID;Get config value;internal;[127:120 opcode][119:0 key_ptr120];0x107;0;no;0x01070102030405060708090A0B0C
+CONFIG_SET;0x0108;M;key,val;priv;10;1;SYS;HYBRID;Set config value;internal;[127:120 opcode][119:88 key32][87:56 val32];0x108;0;no;0x0108010203040507
+CONFIG_RELOAD;0x0109;S;;priv;200;0.01;SYS;HYBRID;Reload configuration;internal;[31:24 opcode][23:0 reserved];0x109;0;no;0x0109000000
+LICENSE_QUERY;0x010A;S;out;user;5;2;SYS;HYBRID;Query license status;internal;[31:24 opcode][23:0 out_ptr24];0x10A;0;no;0x010A000001
+METRICS_QUERY;0x010B;S;filter;user;50;0.05;SYS;HYBRID;Query metrics;internal;[127:120 opcode][119:0 filter_ptr120];0x10B;0;no;0x010B0102030405060708090A0B0C
+HEARTBEAT;0x010C;S;node;user;1;10;SYS;HYBRID;Send heartbeat;internal;[31:24 opcode][23:0 node24];0x10C;0;no;0x010C000001
+CLUSTER_JOIN;0x010D;S;node;priv;500;0.01;SYS;HYBRID;Join cluster;internal;[127:120 opcode][119:0 node_ptr120];0x10D;0;no;0x010D0102030405060708090A0B0C
+CLUSTER_LEAVE;0x010E;S;node;priv;500;0.01;SYS;HYBRID;Leave cluster;internal;[127:120 opcode][119:0 node_ptr120];0x10E;0;no;0x010E0102030405060708090A0B0C
+SERVICE_START;0x010F;S;svc;priv;200;0.01;SYS;HYBRID;Start service;internal;[127:120 opcode][119:0 svc_ptr120];0x10F;0;no;0x010F0102030405060708090A0B0C
+SERVICE_STOP;0x0110;S;svc;priv;200;0.01;SYS;HYBRID;Stop service;internal;[127:120 opcode][119:0 svc_ptr120];0x110;0;no;0x01100102030405060708090A0B0C
+SERVICE_RESTART;0x0111;S;svc;priv;500;0.01;SYS;HYBRID;Restart service;internal;[127:120 opcode][119:0 svc_ptr120];0x111;0;no;0x01110102030405060708090A0B0C
+SERVICE_STATUS;0x0112;S;svc;user;5;2;SYS;HYBRID;Query service status;internal;[127:120 opcode][119:0 svc_ptr120];0x112;0;no;0x01120102030405060708090A0B0C
+LOG_LEVEL_SET;0x0113;S;svc,level;priv;10;1;SYS;HYBRID;Set log level;internal;[127:120 opcode][119:88 svc32][87:80 level8];0x113;0;no;0x011301020304050607
+LOG_LEVEL_GET;0x0114;S;svc;user;5;2;SYS;HYBRID;Get log level;internal;[127:120 opcode][119:88 svc32];0x114;0;no;0x0114010203040506
+DIAG_UPLOAD;0x0115;S;pkg;priv;500;0.01;SYS;HYBRID;Upload diagnostic package;internal;[127:120 opcode][119:0 pkg_ptr120];0x115;0;no;0x01150102030405060708090A0B0C
+DIAG_DOWNLOAD;0x0116;S;pkg;priv;500;0.01;SYS;HYBRID;Download diagnostic package;internal;[127:120 opcode][119:0 pkg_ptr120];0x116;0;no;0x01160102030405060708090A0B0C
+MAINT_MODE_ENTER;0x0117;S;;priv;100;0.01;SYS;HYBRID;Enter maintenance mode;internal;[31:24 opcode][23:0 reserved];0x117;0;no;0x0117000000
+MAINT_MODE_EXIT;0x0118;S;;priv;100;0.01;SYS;HYBRID;Exit maintenance mode;internal;[31:24 opcode][23:0 reserved];0x118;0;no;0x0118000000
+SEC_SCAN_START;0x0119;S;target;priv;1000;0.001;SEC;HYBRID;Start security scan;internal;[127:120 opcode][119:0 target_ptr120];0x119;0;no;0x01190102030405060708090A0B0C
+SEC_SCAN_STOP;0x011A;S;scan_id;priv;200;0.01;SEC;HYBRID;Stop security scan;internal;[31:24 opcode][23:0 scan_id24];0x11A;0;no;0x011A000001
+SEC_SCAN_REPORT;0x011B;S;scan_id,out;priv;500;0.01;SEC;HYBRID;Generate scan report;internal;[127:120 opcode][119:88 scan_id32][87:0 out_ptr88];0x11B;0;no;0x011B0102030405060708090A0B0C
+POLICY_AUDIT;0x011C;S;policy;priv;300;0.01;SEC;HYBRID;Audit policy compliance;internal;[127:120 opcode][119:0 policy_ptr120];0x11C;0;no;0x011C0102030405060708090A0B0C
