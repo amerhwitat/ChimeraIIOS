@@ -45,11 +45,13 @@ Mode changes fail safely when the selected backend or width is unavailable, pres
 
 ## ISA integration
 
-`include/chimera/unified_isa.hpp` provides a normalized instruction representation for Chimera-8192, RISC-V, AArch64 and x86-64. External ISA support is extension-based rather than a copied proprietary manual. RISC-V ratified specifications are maintained publicly; QEMU TCG provides a useful reference architecture for multi-ISA translation and emulation.
+`include/chimera/unified_isa.hpp` provides a normalized instruction representation for Chimera-8192, RISC-V, AArch64 and x86-64. `include/chimera/isa_catalog.hpp` now adds a compile-time catalog covering representative RISC, CISC and specialized families. `tools/isa/isa_opcodes.csv` and `tools/isa/test_vector_generator.py` provide machine-readable Chimera metadata and deterministic test-vector generation.
+
+External ISA support is extension-based rather than a copied proprietary manual. Canonical specifications should be consulted for implementation details; the repository stores only compatible metadata and original glue code.
 
 ## Performance architecture
 
-The project now follows several proven open-source design patterns:
+The project follows proven open-source design patterns:
 
 - QEMU-style translation/backend separation
 - LLVM ORC-compatible JIT boundary
@@ -58,14 +60,21 @@ The project now follows several proven open-source design patterns:
 - optional x86 assembly hot paths
 - capability-based runtime dispatch
 - browser GPU rendering separated from native Wayland/EGL
+- GPU-side downsampled post-processing for Aurora effects
 
-See `docs/PERFORMANCE_AND_PORTABILITY.md`.
+See `docs/PERFORMANCE_AND_PORTABILITY.md` and `docs/ISA_and_Source_Artifacts.md`.
+
+## Aurora + Unreal Engine 5
+
+An **optional** UE5 Aurora Desktop plugin is now provided under `integrations/ue5/AuroraDesktop/`. It mirrors the Aurora visual model with UMG/Slate and a reusable frosted-glass shader, while Linux builds may connect to Wayland as a client. UE5 remains isolated from the core CMake build.
+
+## Windows kernel integration
+
+`integrations/windows/KMDF_ChmEcho/` contains a safe, isolated KMDF echo sample demonstrating WDF queue setup, buffered IOCTL handling and user-mode testing. It is educational integration code and is not part of the Chimera kernel. See `docs/Windows_Kernel_Dev_and_Snippets.md`.
 
 ## Quantum interoperability
 
 `include/chimera/quantum_bridge.hpp` introduces a small provider-neutral circuit IR boundary. It does **not** claim that an ordinary CPU executes quantum states natively. It is designed so a future simulator or QIR-compatible hardware/provider backend can be selected without changing the kernel ISA ABI.
-
-QIR is an LLVM-based representation intended to improve interoperability among heterogeneous quantum processors.
 
 ## Primary source tree
 
@@ -80,8 +89,9 @@ QIR is an LLVM-based representation intended to improve interoperability among h
 /net            Spotnik networking
 /userspace      Kore / Aurora / CEF / NDB / Hive
 /desktop        Aurora Wayland + GPU shaders
-/tools          ISA, source provenance and depth-crawl tooling
+/tools/isa      ISA catalog and test-vector tooling
 /tests          host-side and QEMU-oriented tests
+/integrations   optional UE5 and Windows KMDF adapters
 /docs           architecture, provenance and research documentation
 /web             browser-based ISA/kernel/Aurora explorer
 ```
@@ -104,21 +114,23 @@ The static explorer is under `web/`. It can be served locally with:
 python3 -m http.server 8080 --directory web
 ```
 
-GitHub Actions now validates the native build on Linux and Windows and publishes the web explorer through GitHub Pages. Native build directories are uploaded as CI artifacts.
-
-Cloudflare Pages is also suitable for production edge hosting because it supports GitHub integration, automatic deployments, and preview deployments.
+GitHub Actions validates the native build on Linux and Windows and publishes the web explorer through GitHub Pages. Native build directories are uploaded as CI artifacts.
 
 ## Research and provenance
 
 Do not vendor external manuals or the Linux kernel wholesale. Use canonical links, clean-room interfaces, generated metadata, and compatible licenses. See:
 
 - `docs/ISA_COMPLETE.md`
+- `docs/ISA_and_Source_Artifacts.md`
 - `docs/LINUX_7X_CROSSWALK.md`
 - `docs/SOURCE_LICENSE_BOUNDARIES.md`
 - `docs/PERFORMANCE_AND_PORTABILITY.md`
 - `docs/MASTER_SOURCE_MAP.md`
 - `docs/PROVENANCE.md`
 - `docs/W2K-ASM_IMPORT.md`
+- `docs/Windows_Kernel_Dev_and_Snippets.md`
+
+The historical `W2K-ASM.txt` material is used only as provenance/reference context; Microsoft Confidential or otherwise restricted source text is not reproduced in the implementation.
 
 ## Live demonstrations
 
