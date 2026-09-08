@@ -20,3 +20,82 @@ CMP;0x0012;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise compare;internal;[31:24 opcod
 CMPEQ;0x0013;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise equal;internal;[31:24 opcode][23:16 rd][15:8 rs][7:0 rt];0x13;0;no;0x13010203
 CMPLT;0x0014;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise less-than;internal;[31:24 opcode][23:16 rd][15:8 rs][7:0 rt];0x14;0;no;0x14010203
 MOV;0x0015;R;rd,rs;user;1;2;ALU;R8192;Register move;internal;[31:24 opcode][23:16 rd][15:8 rs][7:0 reserved];0x15;0;no;0x15010200
+ECC_POINT_ADD;0x0043;R;rd,rs,rt;priv;200;0.02;CRYPTO;R8192;ECC point addition;internal;[63:56 opcode][55:24 rd32][23:0 rs24][rt in separate field];0x43;0;no;0x4301020304050607
+ECC_POINT_MUL;0x0044;R;rd,rs,rt;priv;600;0.01;CRYPTO;R8192;ECC scalar multiplication;internal;[127:120 opcode][119:88 rd32][87:56 rs32][55:24 rt32];0x44;0;no;0x440102030405060708090A0B0C
+RNG_WAIT;0x0045;S;timeout;user;0;0;SYS;HYBRID;Wait for RNG readiness;internal;[31:24 opcode][23:0 timeout24];0x45;24;no;0x4500000A
+TRAP;0x0046;S;code;priv;1;1;CONTROL;HYBRID;Synchronous trap/exception;internal;[31:24 opcode][23:0 code24];0x46;0;no;0x46000001
+SYS_CALL;0x0047;S;num,args;user;5;1;SYS;HYBRID;System call entry;internal;[31:24 opcode][23:16 num8][15:0 args16];0x47;0;yes;0x47010000
+SVC;0x0048;S;num,args;priv;5;1;SYS;HYBRID;Supervisor call;internal;[31:24 opcode][23:16 num8][15:0 args16];0x48;0;yes;0x48010000
+IRQ_ENABLE;0x0049;S;irq;priv;2;2;SYS;HYBRID;Enable interrupt line;internal;[31:24 opcode][23:16 irq8][15:0 reserved];0x49;0;no;0x49010000
+IRQ_DISABLE;0x004A;S;irq;priv;2;2;SYS;HYBRID;Disable interrupt line;internal;[31:24 opcode][23:16 irq8][15:0 reserved];0x4A;0;no;0x4A010000
+CACHE_FLUSH;0x004B;S;addr,len;priv;50;0.1;SYS;HYBRID;Flush caches for range;internal;[127:120 opcode][119:64 addr56][63:32 len32];0x4B;32;no;0x4B0102030405060708090A0B
+CACHE_INVALIDATE;0x004C;S;addr,len;priv;40;0.1;SYS;HYBRID;Invalidate caches for range;internal;[127:120 opcode][119:64 addr56][63:32 len32];0x4C;32;no;0x4C0102030405060708090A0B
+TRACE_START;0x004D;S;mask;priv;5;1;SYS;HYBRID;Start tracing;internal;[31:24 opcode][23:0 mask24];0x4D;0;no;0x4D0000FF
+TRACE_STOP;0x004E;S;mask;priv;5;1;SYS;HYBRID;Stop tracing;internal;[31:24 opcode][23:0 mask24];0x4E;0;no;0x4E0000FF
+DEBUG_BREAK;0x004F;S;code;priv;1;1;SYS;HYBRID;Trigger debugger break;internal;[31:24 opcode][23:0 code24];0x4F;0;no;0x4F000001
+WATCHPOINT_SET;0x0050;S;addr,len;priv;3;1;SYS;HYBRID;Set watchpoint;internal;[63:56 opcode][55:24 addr32][23:0 len24];0x50;24;no;0x5001020304050607
+WATCHPOINT_CLEAR;0x0051;S;addr;priv;3;1;SYS;HYBRID;Clear watchpoint;internal;[31:24 opcode][23:0 addr24];0x51;0;no;0x51000001
+PERF_EVENT;0x0052;S;event,op;priv;5;1;SYS;HYBRID;Performance event control;internal;[31:24 opcode][23:16 event8][15:8 op8][7:0 flags];0x52;0;no;0x52010101
+POWER_STATE;0x0053;S;state;priv;200;0.01;SYS;HYBRID;Set power state;internal;[31:24 opcode][23:0 state24];0x53;0;no;0x53000001
+CLOCK_GET;0x0054;S;out;user;1;10;SYS;HYBRID;Get system clock;internal;[31:24 opcode][23:0 out_ptr24];0x54;0;no;0x54000001
+TIMER_SET;0x0055;S;timeout,cb;user;2;2;SYS;HYBRID;Set timer;internal;[63:56 opcode][55:32 timeout24][31:0 cb32];0x55;24;no;0x5501020304050607
+TIMER_CANCEL;0x0056;S;timer_id;user;2;2;SYS;HYBRID;Cancel timer;internal;[31:24 opcode][23:0 timer_id24];0x56;0;no;0x56000001
+CONTEXT_SWITCH;0x0057;S;to_tid;priv;500;0.01;SYS;HYBRID;Context switch helper;internal;[63:56 opcode][55:24 to_tid32][23:0 flags];0x57;0;no;0x5701020304050607
+TASK_CREATE;0x0058;S;entry,arg,flags;user;200;0.01;SYS;HYBRID;Create new task/TCB;internal;[127:120 opcode][119:88 entry32][87:56 arg32][55:24 flags32];0x58;0;no;0x580102030405060708090A0B0C
+TASK_EXIT;0x0059;S;status;user;50;0.1;SYS;HYBRID;Terminate task;internal;[31:24 opcode][23:0 status24];0x59;0;no;0x59000000
+TASK_YIELD;0x005A;S;;user;1;10;SYS;HYBRID;Yield CPU;internal;[31:24 opcode][23:0 reserved];0x5A;0;no;0x5A000000
+TASK_JOIN;0x005B;S;tid;user;100;0.02;SYS;HYBRID;Join on task termination;internal;[31:24 opcode][23:0 tid24];0x5B;0;no;0x5B000001
+LOCK_ACQUIRE;0x005C;S;lock_id;user;5;1;SYS;HYBRID;Acquire kernel lock;internal;[31:24 opcode][23:0 lock_id24];0x5C;0;no;0x5C000001
+LOCK_RELEASE;0x005D;S;lock_id;user;2;2;SYS;HYBRID;Release kernel lock;internal;[31:24 opcode][23:0 lock_id24];0x5D;0;no;0x5D000001
+RCU_READ_LOCK;0x005E;S;;user;1;10;SYS;HYBRID;RCU read-side lock;internal;[31:24 opcode][23:0 reserved];0x5E;0;no;0x5E000000
+RCU_READ_UNLOCK;0x005F;S;;user;1;10;SYS;HYBRID;RCU read-side unlock;internal;[31:24 opcode][23:0 reserved];0x5F;0;no;0x5F000000
+RCU_SYNCHRONIZE;0x0060;S;;priv;1000;0.001;SYS;HYBRID;Wait for RCU grace period;internal;[31:24 opcode][23:0 reserved];0x60;0;no;0x60000000
+SLAB_ALLOC;0x0061;S;size;priv;20;0.1;MEM;HYBRID;Allocate slab object;internal;[31:24 opcode][23:0 size24];0x61;0;no;0x61000010
+SLAB_FREE;0x0062;S;ptr;priv;10;0.2;MEM;HYBRID;Free slab object;internal;[31:24 opcode][23:0 ptr24];0x62;0;no;0x62000001
+PAGE_ALLOC;0x0063;S;npages;priv;50;0.05;MEM;HYBRID;Allocate physical pages;internal;[31:24 opcode][23:0 npages24];0x63;0;no;0x63000004
+PAGE_FREE;0x0064;S;addr;priv;30;0.1;MEM;HYBRID;Free physical pages;internal;[31:24 opcode][23:0 addr24];0x64;0;no;0x64000001
+KMAP;0x0065;S;phys,len;priv;10;0.2;MEM;HYBRID;Kernel map physical pages;internal;[63:56 opcode][55:24 phys32][23:0 len24];0x65;24;no;0x6501020304050607
+KUNMAP;0x0066;S;vaddr;priv;5;0.5;MEM;HYBRID;Kernel unmap pages;internal;[31:24 opcode][23:0 vaddr24];0x66;0;no;0x66000001
+USER_COPY_FROM;0x0067;S;dst,src,len;priv;20;0.1;SYS;HYBRID;Copy from user safely;internal;[127:120 opcode][119:88 dst32][87:56 src32][55:24 len32];0x67;32;no;0x670102030405060708090A0B0C
+USER_COPY_TO;0x0068;S;dst,src,len;priv;20;0.1;SYS;HYBRID;Copy to user safely;internal;[127:120 opcode][119:88 dst32][87:56 src32][55:24 len32];0x68;32;no;0x680102030405060708090A0B0C
+PIN_PAGES_IOCTL;0x0069;S;req;priv;120;0.01;SYS;SPOTNIK;IOCTL pin pages (chm_pin_hardened);internal;[127:120 opcode][119:0 req_blob120];0x69;120;no;0x690102030405060708090A0B0C0D0E0F
+MAP_FRAME;0x006A;S;frame_id,dev;priv;40;0.02;DMA;SPOTNIK;Map frame for device;internal;[63:56 opcode][55:24 frame32][23:0 dev24];0x6A;0;no;0x6A01020304050607
+UNMAP_FRAME;0x006B;S;frame_id;priv;30;0.02;DMA;SPOTNIK;Unmap frame;internal;[31:24 opcode][23:0 frame24];0x6B;0;no;0x6B000001
+RECLAIM_FRAMES;0x006C;S;queue;user;10;0.5;IO;SPOTNIK;Reclaim completed frames;internal;[31:24 opcode][23:16 queue8][15:0 reserved];0x6C;0;no;0x6C010000
+GET_EVENTFD;0x006D;S;queue;user;2;2;IO;SPOTNIK;Get eventfd for queue;internal;[31:24 opcode][23:16 queue8][15:0 reserved];0x6D;0;no;0x6D010000
+NET_POLL;0x006E;S;timeout;user;5;1;IO;SPOTNIK;Poll network events;internal;[31:24 opcode][23:0 timeout24];0x6E;0;no;0x6E00000A
+NET_CONFIG;0x006F;S;ifname,params;priv;20;0.1;IO;SPOTNIK;Configure network backend;internal;[127:120 opcode][119:88 ifname32][87:56 params32];0x6F;0;no;0x6F0102030405060708090A0B
+FS_OPEN;0x0070;M;path,flags;user;20;0.2;VFS;VFS;Open file;internal;[127:120 opcode][119:0 path_ptr120][flags in separate field];0x70;0;no;0x700102030405060708090A0B0C
+FS_READ;0x0071;M;fd,buf,len;user;30;0.2;VFS;VFS;Read file;internal;[63:56 opcode][55:48 fd8][47:16 buf32][15:0 len16];0x71;16;no;0x7101020304050607
+FS_WRITE;0x0072;M;fd,buf,len;user;30;0.2;VFS;VFS;Write file;internal;[63:56 opcode][55:48 fd8][47:16 buf32][15:0 len16];0x72;16;no;0x7201020304050607
+FS_CLOSE;0x0073;M;fd;user;5;2;VFS;VFS;Close file;internal;[31:24 opcode][23:16 fd8][15:0 reserved];0x73;0;no;0x73010000
+FS_STAT;0x0074;M;path,out;user;10;1;VFS;VFS;Stat file;internal;[127:120 opcode][119:0 path_ptr120];0x74;0;no;0x740102030405060708090A0B0C
+FS_SYNC;0x0075;M;fd;user;100;0.01;VFS;VFS;Sync file to disk;internal;[31:24 opcode][23:16 fd8][15:0 reserved];0x75;0;no;0x75010000
+VFS_MOUNT;0x0076;S;source,target,opts;priv;200;0.01;VFS;VFS;Mount filesystem;internal;[127:120 opcode][119:88 source32][87:56 target32][55:24 opts32];0x76;0;no;0x760102030405060708090A0B0C
+VFS_UNMOUNT;0x0077;S;target;priv;150;0.01;VFS;VFS;Unmount filesystem;internal;[127:120 opcode][119:88 target32][87:0 reserved88];0x77;0;no;0x770102030405060708090A0B0C
+VFS_LOOKUP;0x0078;M;dir,name;user;10;1;VFS;VFS;Lookup directory entry;internal;[127:120 opcode][119:88 dir32][87:56 name32];0x78;0;no;0x780102030405060708090A
+VFS_CREATE;0x0079;M;path,mode;user;30;0.2;VFS;VFS;Create file;internal;[127:120 opcode][119:0 path_ptr120][mode in low bits];0x79;0;no;0x790102030405060708090A0B0C
+VFS_REMOVE;0x007A;M;path;user;30;0.2;VFS;VFS;Remove file;internal;[127:120 opcode][119:0 path_ptr120];0x7A;0;no;0x7A0102030405060708090A0B0C
+VFS_RENAME;0x007B;M;oldpath,newpath;user;50;0.1;VFS;VFS;Rename file;internal;[127:120 opcode][119:88 old32][87:56 new32];0x7B;0;no;0x7B0102030405060708090A0B
+VFS_CHMOD;0x007C;M;path,mode;user;10;1;VFS;VFS;Change mode;internal;[127:120 opcode][119:0 path_ptr120][mode low bits];0x7C;0;no;0x7C0102030405060708090A0B0C
+VFS_CHOWN;0x007D;M;path,uid,gid;user;10;1;VFS;VFS;Change owner;internal;[127:120 opcode][119:88 path32][87:56 uid16][55:24 gid16];0x7D;0;no;0x7D01020304050607
+VFS_TRUNCATE;0x007E;M;path,size;user;30;0.2;VFS;VFS;Truncate file;internal;[127:120 opcode][119:88 path32][87:56 size32];0x7E;0;no;0x7E01020304050607
+VFS_LINK;0x007F;M;target,linkpath;user;30;0.2;VFS;VFS;Create hard link;internal;[127:120 opcode][119:88 target32][87:56 link32];0x7F;0;no;0x7F01020304050607
+VFS_SYMLINK;0x0080;M;target,linkpath;user;30;0.2;VFS;VFS;Create symlink;internal;[127:120 opcode][119:88 target32][87:56 link32];0x80;0;no;0x8001020304050607
+VFS_READDIR;0x0081;M;dir,buf;user;40;0.2;VFS;VFS;Read directory entries;internal;[127:120 opcode][119:88 dir32][87:56 buf32];0x81;0;no;0x8101020304050607
+VFS_IOCTL;0x0082;S;fd,code,buf;user;10;1;VFS;VFS;Filesystem ioctl;internal;[127:120 opcode][119:88 fd32][87:56 code32][55:24 buf32];0x82;0;yes;0x820102030405060708090A
+VFS_GETATTR;0x0083;M;path,out;user;10;1;VFS;VFS;Get attributes;internal;[127:120 opcode][119:0 path_ptr120];0x83;0;no;0x830102030405060708090A0B0C
+VFS_SETATTR;0x0084;M;path,attrs;user;20;0.5;VFS;VFS;Set attributes;internal;[127:120 opcode][119:88 path32][87:56 attrs32];0x84;0;no;0x8401020304050607
+NDB_TABLE_INSERT;0x0085;M;table,row;user;50;0.1;DB;NDB;Insert row into Nucleus DB;internal;[127:120 opcode][119:88 table32][87:56 row32];0x85;0;no;0x8501020304050607
+NDB_TABLE_GET;0x0086;M;table,key;user;30;0.2;DB;NDB;Get row from Nucleus DB;internal;[127:120 opcode][119:88 table32][87:56 key32];0x86;0;no;0x8601020304050607
+NDB_SNAPSHOT;0x0087;S;out;priv;500;0.01;DB;NDB;Create DB snapshot;internal;[127:120 opcode][119:0 out_ptr120];0x87;0;no;0x870102030405060708090A0B0C
+HIVE_SET;0x0088;M;key,value;user;10;1;DB;HIVE;Set registry key;internal;[127:120 opcode][119:88 key32][87:56 value32];0x88;0;no;0x8801020304050607
+HIVE_GET;0x0089;M;key;user;5;2;DB;HIVE;Get registry key;internal;[127:120 opcode][119:88 key32];0x89;0;no;0x8901020304050607
+HIVE_DELETE;0x008A;M;key;user;10;1;DB;HIVE;Delete registry key;internal;[127:120 opcode][119:88 key32];0x8A;0;no;0x8A01020304050607
+HIVE_SNAPSHOT;0x008B;S;out;priv;200;0.01;DB;HIVE;Snapshot registry;internal;[127:120 opcode][119:0 out_ptr120];0x8B;0;no;0x8B0102030405060708090A0B0C
+GPU_SUBMIT;0x008C;S;cmd_buf;user;5;1;GPU;AURORA;Submit GPU command buffer;internal;[127:120 opcode][119:0 cmd_buf_ptr120];0x8C;0;no;0x8C0102030405060708090A0B0C
+GPU_WAIT;0x008D;S;fence;user;10;0.5;GPU;AURORA;Wait for GPU fence;internal;[63:56 opcode][55:24 fence32][23:0 reserved];0x8D;0;no;0x8D01020304050607
+EGL_IMPORT;0x008E;S;fd,fmt;user;20;0.1;GPU;AURORA;Import EGL image from fd;internal;[63:56 opcode][55:24 fd32][23:0 fmt24];0x8E;0;no;0x8E01020304050607
+EGL_EXPORT;0x008F;S;img;user;20;0.1;GPU;AURORA;Export EGL image to fd;internal;[63:56 opcode][55:0 img_ptr56];0x8F;0;no;0x8F01020304050607
+DMABUF_IMPORT;0x0090;S;fd;user;10;0.5;GPU;AURORA;Import DMA-BUF;internal;[31:24 opcode][23:0 fd24];0x90;0;no;0x90000001
+DMABUF_EXPORT;0x0091;S;img;user;10;0.5;GPU;AURORA;Export DMA-BUF;internal;[63:56 opcode][55:0 img_ptr56];0x91;0;no;0x9101020304050607
