@@ -5,6 +5,8 @@
 #include "chimera/state128.hpp"
 #include "chimera/unified_isa.hpp"
 #include "chimera/kernel_arch.hpp"
+#include "chimera/nbit_runtime.hpp"
+#include "chimera/quantum_bridge.hpp"
 
 int main() {
     chimera::RegisterN<8192> a{};
@@ -35,5 +37,21 @@ int main() {
     chimera::kernel::Task task{42, 0, 0, 1, 0};
     sched.enqueue(&task);
     assert(sched.pick_next() == &task);
+
+    using chimera::runtime::Width;
+    chimera::runtime::Runtime rt({16384, true, false, true});
+    assert(rt.switch_mode(chimera::runtime::ExecutionMode::NativeWide, Width{8192}));
+    std::uint64_t one[] = {~0ULL};
+    std::uint64_t two[] = {1ULL};
+    chimera::runtime::WideInt wa{Width{8192}, one};
+    chimera::runtime::WideInt wb{Width{8192}, two};
+    auto wc = chimera::runtime::WideInt::add(wa, wb);
+    assert(wc.limbs()[0] == 0 && wc.limbs()[1] == 1);
+    assert(rt.switch_mode(chimera::runtime::ExecutionMode::QuantumHybrid, Width{256}));
+
+    chimera::quantum::Circuit circuit(2);
+    circuit.append({chimera::quantum::Gate::H, 0, 0});
+    circuit.append({chimera::quantum::Gate::CNOT, 0, 1});
+    assert(circuit.operations().size() == 2);
     return 0;
 }
