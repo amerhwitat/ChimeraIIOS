@@ -1,0 +1,9 @@
+mnemonic;opcode;encoding;operands;privilege;isa_family;notes;source_ref
+ADD;0x01;R;rd,rs,rt;user;Chimera-R8192;Wide integer add;internal
+MUL;0x02;R;rd,rs,rt;user;Chimera-R8192;Wide integer multiply low result;internal
+XOR;0x03;R;rd,rs,rt;user;Chimera-R8192;Bitwise XOR;internal
+SHL;0x04;R;rd,rs,imm;user;Chimera-N;Logical left shift;internal
+TCONTRACT;0x20;V;vd,va,vb;user;Chimera-C8192;Research tensor contraction;research
+MODEXP;0x30;M;rd,rs,imm;user;Chimera-R8192;Modular exponentiation boundary;research
+NETSEND;0x50;S;addr,len,flags;user;Chimera-Hybrid;Spotnik send operation;research
+BARRIER;0x60;S;scope;priv;Chimera-N;Execution/backend barrier;internal
