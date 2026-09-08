@@ -20,6 +20,8 @@ jobs:
         run: python3 tools/shell/generate_command_registry.py --output /tmp/chimera_command_registry.json
       - name: Validate installer planner
         run: python3 tests/installer/test_installer_plan.py
+      - name: Validate cognition prototype
+        run: python3 tests/cognition/test_chimera_rnn.py
       - name: Configure and build
         run: cmake -S . -B build -DCHIMERA_ENABLE_X86_ASM=OFF
       - name: Build
