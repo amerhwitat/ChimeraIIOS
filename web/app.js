@@ -1,91 +1,14 @@
 (() => {
   'use strict';
-
-  const DATA_URL = 'data/chimera.json';
-  const $ = (selector) => document.querySelector(selector);
-  const text = (value) => document.createTextNode(String(value ?? ''));
-
-  const fallback = {
-    schema: 'chimera-ii-web-data', version: 1,
-    architecture: {
-      title: 'Chimera II OS', depth: 10,
-      domains: [
-        ['Native ISA', 'RegisterN / CPU8192', '1024 × 8192-bit GPR model with 128D research state'],
-        ['RISC compatibility', 'RV32I / RV64I / AArch64', 'Normalized decode layer for open and published RISC families'],
-        ['CISC compatibility', 'x86-64', 'Variable-length instruction frontend and common system/data classes'],
-        ['Kernel', 'Scheduler · MM · VFS · IPC · Net', 'Linux-inspired subsystem boundaries without copying Linux source'],
-        ['Graphics', 'Aurora Wayland', 'GPU, DMA-BUF, EGL and presentation architecture'],
-        ['Research', '128D / C8192', 'Machine, cognitive and world-state experimentation']
-      ],
-      isa: [
-        ['Chimera-8192', 'Experimental wide-word', '8192', 'Native', 'Implemented core'],
-        ['RV32I', 'RISC', '32', 'Compatibility', 'Decoder skeleton'],
-        ['RV64I', 'RISC', '64', 'Compatibility', 'Decoder skeleton'],
-        ['AArch64', 'RISC', '64', 'Compatibility', 'Decoder skeleton'],
-        ['x86-64', 'CISC', '64', 'Compatibility', 'Decoder skeleton']
-      ],
-      layers: ['Boot / firmware', 'ISA frontend', 'Koronos kernel core', 'Scheduler + IRQ + syscall', 'Virtual memory / allocator', 'VFS + TensorFS', 'IPC / zero-copy', 'Spotnik networking', 'CEF security/capabilities', 'Aurora compositor / GPU']
-    }
-  };
-
-  function createCard(item) {
-    const article = document.createElement('article'); article.className = 'card';
-    const title = document.createElement('h3'); title.appendChild(text(item[0]));
-    const strong = document.createElement('strong'); strong.appendChild(text(item[1]));
-    const p = document.createElement('p'); p.appendChild(text(item[2]));
-    article.append(title, strong, p); return article;
-  }
-
-  function renderTable(rows, target) {
-    const fragment = document.createDocumentFragment();
-    rows.forEach((row) => {
-      const tr = document.createElement('tr');
-      row.forEach((cell) => { const td = document.createElement('td'); td.appendChild(text(cell)); tr.appendChild(td); });
-      fragment.appendChild(tr);
-    });
-    target.replaceChildren(fragment);
-  }
-
-  function renderLayers(layers, target) {
-    const fragment = document.createDocumentFragment();
-    layers.forEach((name, index) => {
-      const item = document.createElement('div'); item.className = 'layer';
-      const number = document.createElement('span'); number.className = 'layer-index'; number.appendChild(text(`L${index}`));
-      const label = document.createElement('strong'); label.appendChild(text(name));
-      item.append(number, label); fragment.appendChild(item);
-    });
-    target.replaceChildren(fragment);
-  }
-
-  function render(data, source) {
-    const architecture = data.architecture || fallback.architecture;
-    const cardsTarget = $('#cards'), isaTarget = $('#isa'), kernelTarget = $('#kernel');
-    if (!cardsTarget || !isaTarget || !kernelTarget) return;
-    cardsTarget.replaceChildren(...architecture.domains.map(createCard));
-    renderTable(architecture.isa, isaTarget);
-    renderLayers(architecture.layers, kernelTarget);
-    const cardCount = $('#card-count'), layerCount = $('#layer-count'), dataStatus = $('#data-status');
-    if (cardCount) cardCount.textContent = `${architecture.domains.length} domains`;
-    if (layerCount) layerCount.textContent = `${architecture.layers.length} layers`;
-    if (dataStatus) { dataStatus.textContent = source === 'remote' ? 'Data loaded' : 'Fallback data'; dataStatus.dataset.state = source; }
-  }
-
-  async function load() {
-    try {
-      const response = await fetch(DATA_URL, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      if (data.schema !== 'chimera-ii-web-data' || !data.architecture) throw new Error('Invalid data schema');
-      render(data, 'remote');
-    } catch (error) {
-      console.warn('Chimera II data manifest unavailable; using embedded fallback.', error);
-      render(fallback, 'fallback');
-    }
-  }
-
-  function init() {
-    const year = $('#year'); if (year) year.textContent = new Date().getFullYear();
-    load();
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
+  const DATA_URL='data/chimera.json';
+  const $=s=>document.querySelector(s);
+  const text=v=>document.createTextNode(String(v??''));
+  const fallback={schema:'chimera-ii-web-data',version:2,architecture:{depth:12,domains:[['Native ISA','R8192 / CPU8192','284 defined opcodes; canonical 16-byte fetch ABI'],['Kernel','Koronos','Deterministic scheduler and host VM mapping model'],['Boot','Spit Fire / Jasper','Validated BootInfo ABI; UEFI loader remains staged'],['DMA / IOMMU','Ownership manager','Explicit mapping, sync and unmap lifecycle'],['Networking','Spotnik','Zero-copy architecture; real NIC stack remains staged'],['Graphics','Aurora Wayland / Vulkan','Current protocol interoperability target'],['Storage','VFS / TensorFS / Nucleus','Unified filesystem and transactional research boundary'],['Security','CEF / capabilities','Privilege, capability and isolation model'],['Cognition','128D research plane','Bounded recurrent-state research components'],['Compatibility','x86-64 / ARM64 / POSIX / Windows','Host-oriented compatibility architecture']],isa:[['Chimera-8192','Experimental wide-word','8192','Native','Core + canonical 16-byte ABI'],['RV32I','RISC','32','Compatibility','Decoder skeleton'],['RV64I','RISC','64','Compatibility','Decoder skeleton'],['AArch64','RISC','64','Compatibility','Decoder skeleton'],['x86-64','CISC','64','Compatibility','Decoder skeleton']],layers:['UEFI / ACPI boot contract','Spit Fire / Jasper','R8192 ISA frontend','Koronos scheduler + task states','Virtual memory / allocator','BootInfo validation','Capability / privilege boundary','DMA ownership / IOMMU model','VFS + TensorFS','Spotnik zero-copy networking','Aurora Wayland / Vulkan','128D research plane'],standards:[['UEFI','2.11','Boot contract'],['ACPI','6.6','Platform description'],['Wayland protocols','1.49','Desktop IPC'],['Vulkan','1.4.x','Graphics/compute'],['IETF RFC 8305','Happy Eyeballs v2','Dual-stack connectivity']]}};
+  function createCard(item){const a=document.createElement('article');a.className='card';const h=document.createElement('h3');h.appendChild(text(item[0]));const s=document.createElement('strong');s.appendChild(text(item[1]));const p=document.createElement('p');p.appendChild(text(item[2]));a.append(h,s,p);return a;}
+  function renderTable(rows,target){const f=document.createDocumentFragment();(rows||[]).forEach(row=>{const tr=document.createElement('tr');row.forEach(cell=>{const td=document.createElement('td');td.appendChild(text(cell));tr.appendChild(td);});f.appendChild(tr);});target.replaceChildren(f);}
+  function renderLayers(layers,target){const f=document.createDocumentFragment();(layers||[]).forEach((name,i)=>{const item=document.createElement('div');item.className='layer';const n=document.createElement('span');n.className='layer-index';n.appendChild(text(`L${i}`));const l=document.createElement('strong');l.appendChild(text(name));item.append(n,l);f.appendChild(item);});target.replaceChildren(f);}
+  function render(data,source){const a=data.architecture||fallback.architecture;const cards=$('#cards'),isa=$('#isa'),kernel=$('#kernel'),standards=$('#standards');if(!cards||!isa||!kernel)return;cards.replaceChildren(...(a.domains||[]).map(createCard));renderTable(a.isa,isa);renderLayers(a.layers,kernel);if(standards)renderTable(a.standards,standards);const cc=$('#card-count'),lc=$('#layer-count'),ds=$('#data-status');if(cc)cc.textContent=`${(a.domains||[]).length} domains`;if(lc)lc.textContent=`${(a.layers||[]).length} layers`;if(ds){ds.textContent=source==='remote'?`Data v${data.version||1} loaded`:'Fallback data';ds.dataset.state=source;}}
+  async function load(){try{const r=await fetch(DATA_URL,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);const d=await r.json();if(d.schema!=='chimera-ii-web-data'||!d.architecture)throw new Error('Invalid data schema');render(d,'remote');}catch(e){console.warn('Chimera II manifest unavailable; using embedded fallback.',e);render(fallback,'fallback');}}
+  function init(){const y=$('#year');if(y)y.textContent=new Date().getFullYear();load();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
