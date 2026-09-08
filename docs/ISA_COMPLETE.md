@@ -4,7 +4,7 @@
 
 Chimera II now exposes the supplied **Chimera-R8192 native ISA** as a first-class fetch/decode/execute contract, while retaining interoperability-oriented decoders for RV32I/RV64I, AArch64 and x86-64. The native specification occupies opcodes `0x0001..0x011C` (284 instructions).
 
-The canonical machine-readable native registry is `tools/isa/chimera_r8192_opcode_index.csv`. The implementation name/dispatch table is embedded in `src/isa/chimera_isa.cpp`, and the public interface is `include/chimera/isa8192.hpp`.
+The native opcode/name registry is embedded in `src/isa/chimera_isa.cpp`; the public interface is `include/chimera/isa8192.hpp`. `tools/isa/chimera_r8192_opcode_index.csv` contains the detailed metadata seed for the supplied ISA schema and is being used as the machine-readable documentation artifact for the implemented front portion.
 
 ## Fetch phase
 
@@ -29,9 +29,11 @@ Native execution currently covers the core R8192 ALU/compare path: `ADD`, `SUB`,
 
 ## Document phase
 
-The supplied ISA schema is preserved as:
+The supplied ISA schema is:
 
 `mnemonic;opcode;encoding;operands;privilege;latency;throughput;pipeline_stage;isa_family;notes;source_ref`
+
+The complete opcode/name sequence is assigned to the contiguous `0x0001..0x011C` range in the executor. The detailed metadata artifact follows the exact supplied schema and should remain the source for subsequent generation of a complete constexpr descriptor table.
 
 The ISA is partitioned conceptually into:
 
@@ -50,7 +52,7 @@ The ISA is partitioned conceptually into:
 
 ## Pipeline contract
 
-The supplied `pipeline_stage`, `latency`, and `throughput` fields are retained as architectural metadata. They are descriptive scheduling targets for the research processor model, not measurements of a fabricated physical implementation. The executor must not infer real hardware timing solely from these fields.
+The supplied `pipeline_stage`, `latency`, and `throughput` fields are architectural metadata. They are descriptive scheduling targets for the research processor model, not measurements of a fabricated physical implementation. The executor must not infer real hardware timing solely from these fields.
 
 ## Validation
 
