@@ -16,6 +16,8 @@ jobs:
         run: python3 tools/isa/generate_isa_bitfields.py --output /tmp/isa_bitfields.json
       - name: Validate complete ISA
         run: python3 tools/isa/test_isa_conformance.py /tmp/isa_bitfields.json
+      - name: Validate ISA source reconciliation
+        run: python3 tests/isa/test_generate_isa_bitfields.py
       - name: Generate command registry
         run: python3 tools/shell/generate_command_registry.py --output /tmp/chimera_command_registry.json
       - name: Validate installer planner
