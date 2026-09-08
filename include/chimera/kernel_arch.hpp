@@ -7,7 +7,7 @@ enum class TaskState : std::uint32_t { Ready=0, Running=1, Blocked=2, Sleeping=3
 struct Task { std::uint64_t id{}, stack{}, address_space{}; std::uint32_t priority{}; TaskState state{TaskState::Ready}; std::uint64_t vruntime{}; };
 struct CpuContext { std::uint64_t pc{}, sp{}, flags{}; std::array<std::uint64_t,32> gpr{}; };
 struct Page { std::uint64_t phys{}, flags{}; };
-struct VmRegion { std::uint64_t start{}, end{}, prot{}, flags{}; };
+struct VmRegion { std::uint64_t start{}, end{}, physical{}, prot{}; };
 struct PacketView { const void* data{}; std::size_t length{}; std::uint32_t protocol{}; };
 struct FileHandle { std::uint64_t inode{}, offset{}; std::uint32_t flags{}; };
 class Scheduler {
