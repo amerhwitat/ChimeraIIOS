@@ -1,0 +1,49 @@
+name: Chimera II cross-platform build artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Configure
+        run: cmake -S . -B build -DCHIMERA_ENABLE_X86_ASM=OFF
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Package source and build tree
+        run: tar -czf chimera-ii-linux-build.tar.gz build tools docs include src tests CMakeLists.txt README.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-linux-build
+          path: chimera-ii-linux-build.tar.gz
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        shell: pwsh
+        run: cmake -S . -B build -DCHIMERA_ENABLE_X86_ASM=OFF
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config Release --parallel
+      - name: Test
+        shell: pwsh
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Package build tree
+        shell: pwsh
+        run: Compress-Archive -Path build,tools,docs,include,src,tests,CMakeLists.txt,README.md -DestinationPath chimera-ii-windows-build.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-windows-build
+          path: chimera-ii-windows-build.zip
