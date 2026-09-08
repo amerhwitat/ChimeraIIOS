@@ -29,9 +29,35 @@ The repository follows the **Chimera II OS Developer Guide** subsystem order: Sp
 
 The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon.
 
+## Kernel startup and Aurora boot
+
+The current supported workstation path now includes a **host-side Koronos startup runtime** and standard Wayland session integration:
+
+- `src/kernel/chimera_kernel_main.cpp` — starts the architecture-neutral Koronos kernel runtime and publishes `/run/chimera/kernel.ready`.
+- `platform/systemd/chimera-kernel.service` — starts the kernel runtime during normal Linux boot.
+- `desktop/aurora/aurora-session.sh` — launches a native `aurora-compositor` when available, otherwise a supported Wayland compatibility compositor.
+- `platform/wayland/aurora.desktop` — exposes Aurora to standard display managers.
+- `platform/systemd/aurora-session@.service` — optional advanced system-service launch for embedded/lab deployments.
+- `tools/installer/enable-startup.sh` — enables the kernel startup service safely.
+- `docs/CHIMERA_II_KERNEL_AURORA_STARTUP.md` — complete startup and failure model.
+
+The normal workstation flow is **UEFI/BIOS → existing Linux bootloader/kernel → systemd → Koronos runtime → display manager/logind → Aurora Wayland session**. The present Koronos runtime is not represented as a freestanding Linux-replacement kernel; a future bare-metal boot image remains a separate implementation stage.
+
+Build/install:
+
+```bash
+cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+sudo cmake --install build
+sudo chimera-enable-startup
+```
+
+Then choose **Aurora (Chimera II)** in the display manager. A native Aurora compositor is preferred automatically; compatibility compositors are fallback bridges only.
+
 ## Installer and hardware compatibility
 
-The repository now includes a **safe, cross-platform installer planning layer** under `tools/installer/`. It is Linux/Unix-oriented but includes Windows Server/workstation planning and driver-catalog compatibility.
+The repository includes a **safe, cross-platform installer planning layer** under `tools/installer/`. It is Linux/Unix-oriented but includes Windows Server/workstation planning and driver-catalog compatibility.
 
 - `tools/installer/installer_plan.py` — hardware/driver/network/storage installation plan.
 - `tools/installer/installer_capabilities.json` — machine-readable compatibility matrix.
@@ -108,12 +134,13 @@ An **optional** UE5 Aurora Desktop plugin is provided under `integrations/ue5/Au
 /kernel        Koronos + scheduler/MM/IPC/net architecture
 /include       stable public kernel, ISA and runtime headers
 /src/isa        native and external-ISA decoders
-/src/kernel    architecture-neutral kernel skeleton
+/src/kernel    architecture-neutral kernel skeleton + startup runtime
 /src/runtime   N-bit runtime and backend switching
 /src/arch       architecture-specific C/ASM fast paths
 /net            Spotnik networking
 /userspace      Kore / Aurora / CEF / NDB / Hive
 /desktop        Aurora Wayland + GPU shaders
+/platform       systemd + Wayland session integration
 /tools/isa      ISA catalog and test-vector tooling
 /tools/installer installer planning and compatibility
 /tools/cognition temporal state and evidence prototype
@@ -161,6 +188,7 @@ Do not vendor external manuals or the Linux kernel wholesale. Use canonical link
 - `docs/CHIMERA_II_INSTALLER_AND_HARDWARE_COMPATIBILITY.md`
 - `docs/CHIMERA_II_STANDARDS_BASELINE.md`
 - `docs/CHIMERA_II_COGNITIVE_NETWORK.md`
+- `docs/CHIMERA_II_KERNEL_AURORA_STARTUP.md`
 
 The historical `W2K-ASM.txt` material is used only as provenance/reference context; Microsoft Confidential or otherwise restricted source text is not reproduced in the implementation.
 
