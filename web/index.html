@@ -19,13 +19,10 @@
         <p>8192-bit ISA · RISC/CISC compatibility · kernel architecture</p>
       </div>
       <nav aria-label="Primary navigation">
-        <a href="#architecture">Architecture</a>
-        <a href="#isa-section">ISA</a>
-        <a href="#kernel-section">Kernel</a>
+        <a href="#architecture">Architecture</a><a href="#isa-section">ISA</a><a href="#kernel-section">Kernel</a>
       </nav>
     </div>
   </header>
-
   <main id="main" class="shell">
     <section id="architecture" class="hero" aria-labelledby="hero-title">
       <div>
@@ -35,52 +32,19 @@
       </div>
       <div class="badge" aria-label="Architecture depth: 10 layers">DEPTH 10 MODEL</div>
     </section>
-
     <section aria-labelledby="cards-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">SYSTEM MAP</p>
-          <h2 id="cards-title">Core domains</h2>
-        </div>
-        <span id="card-count" class="status-pill" aria-live="polite">Loading…</span>
-      </div>
+      <div class="section-heading"><div><p class="eyebrow">SYSTEM MAP</p><h2 id="cards-title">Core domains</h2></div><span id="card-count" class="status-pill" aria-live="polite">Loading…</span></div>
       <div class="grid" id="cards" aria-live="polite"></div>
     </section>
-
     <section id="isa-section" aria-labelledby="isa-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">INSTRUCTION SET</p>
-          <h2 id="isa-title">ISA Matrix</h2>
-        </div>
-        <span class="status-pill">5 reference families</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <caption>Chimera II native and compatibility instruction-set families</caption>
-          <thead><tr><th scope="col">Family</th><th scope="col">Style</th><th scope="col">Width</th><th scope="col">Role</th><th scope="col">Status</th></tr></thead>
-          <tbody id="isa"></tbody>
-        </table>
-      </div>
+      <div class="section-heading"><div><p class="eyebrow">INSTRUCTION SET</p><h2 id="isa-title">ISA Matrix</h2></div><span class="status-pill">5 reference families</span></div>
+      <div class="table-wrap"><table><caption>Chimera II native and compatibility instruction-set families</caption><thead><tr><th scope="col">Family</th><th scope="col">Style</th><th scope="col">Width</th><th scope="col">Role</th><th scope="col">Status</th></tr></thead><tbody id="isa"></tbody></table></div>
     </section>
-
     <section id="kernel-section" aria-labelledby="kernel-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">KORONOS</p>
-          <h2 id="kernel-title">Kernel layers</h2>
-        </div>
-        <span id="layer-count" class="status-pill" aria-live="polite">Loading…</span>
-      </div>
+      <div class="section-heading"><div><p class="eyebrow">KORONOS</p><h2 id="kernel-title">Kernel layers</h2></div><span id="layer-count" class="status-pill" aria-live="polite">Loading…</span></div>
       <div id="kernel" class="layers" aria-live="polite"></div>
     </section>
   </main>
-
-  <footer>
-    <div class="shell footer-inner">
-      <span>ChimeraIIOS · experimental research architecture</span>
-      <a href="https://github.com/amerhwitat/ChimeraIIOS">Source on GitHub</a>
-    </div>
-  </footer>
+  <footer><div class="shell footer-inner"><span>ChimeraIIOS · experimental research architecture · <span id="year"></span></span><span><span id="data-status" class="status-pill">Loading</span> <a href="https://github.com/amerhwitat/ChimeraIIOS">Source on GitHub</a></span></div></footer>
 </body>
 </html>
