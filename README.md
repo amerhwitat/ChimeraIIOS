@@ -8,8 +8,6 @@
 
 The repository follows the **Chimera II OS Developer Guide** subsystem order: Spit Fire/Jasper boot, Koronos kernel, RegisterN, Spotnik networking, VFS/TensorFS/Nucleus/Hive data fabric, Aurora graphics, CEF services, security/CI, ISA tooling, and QEMU-oriented tests.
 
-The current refresh adds a unified ISA layer and Linux-inspired kernel architecture crosswalk:
-
 ```text
                        CHIMERA II OS
                               |
@@ -24,50 +22,68 @@ The current refresh adds a unified ISA layer and Linux-inspired kernel architect
                               |
                        KORONOS KERNEL
                               |
-       +----------------------+----------------------+
-       |         |       |      |      |      |      |
-      ISA       MM     SCHED   IRQ    VFS    IPC    NET
-       |         |       |      |      |      |      |
-   RV/RISC     VM      Tasks   Sys   Tensor Zero   Spotnik
-   A64 / x86          Chronos        FS     Copy
+      ISA / MM / SCHED / IRQ / VFS / IPC / NET
                               |
-                     AURORA / GPU / CEF
+                   AURORA / GPU / CEF / WEB
 ```
 
 The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon.
 
+## Expandable N-bit runtime
+
+`include/chimera/nbit_runtime.hpp` and `src/runtime/nbit_runtime.cpp` make operand width an explicit runtime property. The same API can represent 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384-bit and future widths subject to capability limits.
+
+Execution modes are capability checked:
+
+- `Scalar` — portable baseline
+- `Vector` — SIMD/GPU-oriented backend
+- `NativeWide` — RegisterN/WideInt execution
+- `JIT` — future LLVM/ORC optimized backend
+- `QuantumHybrid` — classical/quantum intermediate-representation boundary
+
+Mode changes fail safely when the selected backend or width is unavailable, preserving backward compatibility.
+
 ## ISA integration
 
-`include/chimera/unified_isa.hpp` defines a normalized instruction representation for:
+`include/chimera/unified_isa.hpp` provides a normalized instruction representation for Chimera-8192, RISC-V, AArch64 and x86-64. External ISA support is extension-based rather than a copied proprietary manual. RISC-V ratified specifications are maintained publicly; QEMU TCG provides a useful reference architecture for multi-ISA translation and emulation.
 
-- Native Chimera-8192
-- RISC-V RV32I/RV64I
-- AArch64
-- x86-64 CISC
+## Performance architecture
 
-The current decoders intentionally cover stable architectural classes and common instructions. Complete external-ISA conformance requires extension-by-extension tests and is tracked as future work. RISC-V is an open ISA with ratified base and extension specifications; Intel and Arm publish their architectural references, which are linked in `docs/ISA_COMPLETE.md`.
+The project now follows several proven open-source design patterns:
 
-## Kernel architecture integration
+- QEMU-style translation/backend separation
+- LLVM ORC-compatible JIT boundary
+- MLIR-style multi-level lowering and dialect conversion
+- contiguous limb-based wide arithmetic
+- optional x86 assembly hot paths
+- capability-based runtime dispatch
+- browser GPU rendering separated from native Wayland/EGL
 
-`include/chimera/kernel_arch.hpp` and `src/kernel/kernel_arch.cpp` provide the architecture-neutral skeleton for scheduler, virtual memory, IRQ/syscall, VFS/file handles, and packet interfaces. `docs/LINUX_7X_CROSSWALK.md` maps Linux subsystem boundaries to Chimera equivalents.
+See `docs/PERFORMANCE_AND_PORTABILITY.md`.
 
-The requested Bootlin v7.2.2 URL is also encoded as the default root of `tools/kernel_depth_crawler.py`. The crawler supports a ten-level bounded traversal and records access failures instead of silently treating a blocked source as complete.
+## Quantum interoperability
+
+`include/chimera/quantum_bridge.hpp` introduces a small provider-neutral circuit IR boundary. It does **not** claim that an ordinary CPU executes quantum states natively. It is designed so a future simulator or QIR-compatible hardware/provider backend can be selected without changing the kernel ISA ABI.
+
+QIR is an LLVM-based representation intended to improve interoperability among heterogeneous quantum processors.
 
 ## Primary source tree
 
 ```text
 /boot          Spit Fire / Jasper / x86 bootstrap
 /kernel        Koronos + scheduler/MM/IPC/net architecture
-/include       stable public kernel and ISA headers
+/include       stable public kernel, ISA and runtime headers
 /src/isa        native and external-ISA decoders
 /src/kernel    architecture-neutral kernel skeleton
+/src/runtime   N-bit runtime and backend switching
+/src/arch       architecture-specific C/ASM fast paths
 /net            Spotnik networking
 /userspace      Kore / Aurora / CEF / NDB / Hive
 /desktop        Aurora Wayland + GPU shaders
 /tools          ISA, source provenance and depth-crawl tooling
 /tests          host-side and QEMU-oriented tests
 /docs           architecture, provenance and research documentation
-/web             browser-based ISA/kernel architecture explorer
+/web             browser-based ISA/kernel/Aurora explorer
 ```
 
 ## Build and test
@@ -78,15 +94,19 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-## Web interface
+The optional x86-64 assembly fast path is enabled automatically on supported x86-64 hosts and can be disabled with `-DCHIMERA_ENABLE_X86_ASM=OFF`.
 
-The static architecture explorer is under `web/`. It can be served by any static host:
+## Web interface and publishing
+
+The static explorer is under `web/`. It can be served locally with:
 
 ```bash
 python3 -m http.server 8080 --directory web
 ```
 
-It visualizes ISA families, kernel layers, and the 10-level research crawl model without requiring a backend.
+GitHub Actions now validates the native build on Linux and Windows and publishes the web explorer through GitHub Pages. Native build directories are uploaded as CI artifacts.
+
+Cloudflare Pages is also suitable for production edge hosting because it supports GitHub integration, automatic deployments, and preview deployments.
 
 ## Research and provenance
 
@@ -95,6 +115,7 @@ Do not vendor external manuals or the Linux kernel wholesale. Use canonical link
 - `docs/ISA_COMPLETE.md`
 - `docs/LINUX_7X_CROSSWALK.md`
 - `docs/SOURCE_LICENSE_BOUNDARIES.md`
+- `docs/PERFORMANCE_AND_PORTABILITY.md`
 - `docs/MASTER_SOURCE_MAP.md`
 - `docs/PROVENANCE.md`
 - `docs/W2K-ASM_IMPORT.md`
