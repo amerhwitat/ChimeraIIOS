@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Aurora (Chimera II)
+Comment=Chimera II Wayland desktop session
+Exec=/usr/lib/chimera/aurora-session
+Type=Application
+DesktopNames=Aurora;
+X-GDM-SessionRegisters=true
+X-KDE-PluginInfo-Version=1.0
