@@ -1,0 +1,22 @@
+[Unit]
+Description=Chimera II Koronos Kernel Runtime
+Documentation=https://github.com/amerhwitat/ChimeraIIOS
+After=local-fs.target
+Before=graphical.target aurora-session.service
+Wants=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/chimera-kernel
+Restart=on-failure
+RestartSec=2
+KillSignal=SIGTERM
+TimeoutStopSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/run/chimera
+
+[Install]
+WantedBy=multi-user.target
