@@ -22,7 +22,7 @@ Register8192 shift_left(const Register8192& x,unsigned s) noexcept { Register819
 Register8192 shift_right(const Register8192& x,unsigned s) noexcept { Register8192 y{}; if(s>=8192)return y; const unsigned q=s/64,r=s%64; for(unsigned k=0;k<128-q;++k){std::uint64_t v=x.lane(k+q)>>r; if(r&&k+q+1<128)v|=x.lane(k+q+1)<<(64-r); y.set_u64(k,v);} return y; }
 Register8192 rotate_left(const Register8192& x,unsigned s) noexcept { s%=8192; return s?shift_left(x,s)|shift_right(x,8192-s):x; }
 Register8192 rotate_right(const Register8192& x,unsigned s) noexcept { s%=8192; return s?shift_right(x,s)|shift_left(x,8192-s):x; }
-
+std::uint64_t mul_hi64(std::uint64_t a,std::uint64_t b) noexcept { const std::uint64_t a0=std::uint32_t(a),a1=a>>32,b0=std::uint32_t(b),b1=b>>32; const std::uint64_t w0=a0*b0; const std::uint64_t t=a1*b0+(w0>>32); std::uint64_t w1=std::uint32_t(t); const std::uint64_t w2=t>>32; w1+=a0*b1; return a1*b1+w2+(w1>>32); }
 bool uses_immediate(std::uint16_t op) noexcept { return (op>=OP_SHL && op<=OP_ROR) || op==OP_MODEXP || op==OP_PREFETCH || op==OP_LOAD || op==OP_STORE || op==OP_MEMCPY || op==OP_MEMSET; }
 }
 
@@ -35,8 +35,7 @@ Instr decode(const std::uint8_t* p,std::size_t len) {
     i.srcB=std::uint16_t(p[6])|(std::uint16_t(p[7])<<8);
     if(uses_immediate(i.opcode)) {
         if(len<16) throw std::invalid_argument("immediate instruction buffer too short");
-        i.imm=std::uint64_t(p[8])|(std::uint64_t(p[9])<<8)|(std::uint64_t(p[10])<<16)|(std::uint64_t(p[11])<<24)|
-              (std::uint64_t(p[12])<<32)|(std::uint64_t(p[13])<<40)|(std::uint64_t(p[14])<<48)|(std::uint64_t(p[15])<<56);
+        i.imm=std::uint64_t(p[8])|(std::uint64_t(p[9])<<8)|(std::uint64_t(p[10])<<16)|(std::uint64_t(p[11])<<24)|(std::uint64_t(p[12])<<32)|(std::uint64_t(p[13])<<40)|(std::uint64_t(p[14])<<48)|(std::uint64_t(p[15])<<56);
         i.imm_len=8; i.length=16;
     }
     return i;
@@ -99,7 +98,7 @@ ExecuteStatus execute(CPU8192& c,const Instr& i,bool privileged) {
         case OP_ROR:c.gpr[i.dst]=rotate_right(a,unsigned(i.imm%8192));return ExecuteStatus::Executed;
         case OP_MOV:c.gpr[i.dst]=a;return ExecuteStatus::Executed;
         case OP_MUL:{Register8192 r{};for(unsigned k=0;k<128;++k)r.set_u64(k,a.lane(k)*b.lane(k));c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
-        case OP_MULHI:{Register8192 r{};for(unsigned k=0;k<128;++k){const unsigned __int128 p=static_cast<unsigned __int128>(a.lane(k))*b.lane(k);r.set_u64(k,static_cast<std::uint64_t>(p>>64));}c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
+        case OP_MULHI:{Register8192 r{};for(unsigned k=0;k<128;++k)r.set_u64(k,mul_hi64(a.lane(k),b.lane(k)));c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
         case OP_DIV:{Register8192 r{};for(unsigned k=0;k<128;++k){if(!b.lane(k))return ExecuteStatus::UnimplementedService;r.set_u64(k,a.lane(k)/b.lane(k));}c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
         case OP_REM:{Register8192 r{};for(unsigned k=0;k<128;++k){if(!b.lane(k))return ExecuteStatus::UnimplementedService;r.set_u64(k,a.lane(k)%b.lane(k));}c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
         case OP_CMP:{bool eq=true,lt=false;for(int k=127;k>=0;--k){if(a.lane(k)!=b.lane(k)){eq=false;lt=a.lane(k)<b.lane(k);break;}}c.flags=(eq?1ULL:0ULL)|(lt?2ULL:0ULL);return ExecuteStatus::Executed;}
