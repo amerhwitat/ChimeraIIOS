@@ -49,7 +49,20 @@ add_test(NAME chimera_r8192_isa COMMAND chimera_r8192_isa_test)
 add_test(NAME chimera_isa_bitfields COMMAND chimera_isa_bitfields_test)
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
+  set(CHIMERA_ISA_JSON ${CMAKE_BINARY_DIR}/isa_bitfields.json)
+  add_custom_command(OUTPUT ${CHIMERA_ISA_JSON}
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py --output ${CHIMERA_ISA_JSON}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
+            ${CMAKE_SOURCE_DIR}/tools/isa/chimera_r8192_opcode_index.csv
+            ${CMAKE_SOURCE_DIR}/tools/isa/isa_opcodes_expanded_with_encodings.csv
+            ${CMAKE_SOURCE_DIR}/tools/isa/isa_extension_0092_011c.csv
+            ${CMAKE_SOURCE_DIR}/src/isa/chimera_isa.cpp)
+  add_custom_target(chimera_generate_isa_bitfields DEPENDS ${CHIMERA_ISA_JSON})
+  add_dependencies(chimera_isa_bitfields_test chimera_generate_isa_bitfields)
+  add_test(NAME chimera_isa_bitfield_reader COMMAND chimera_isa_bitfields_test ${CHIMERA_ISA_JSON})
   add_test(NAME chimera_isa_bitfield_generation_and_conformance
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/test_isa_toolchain.py
-      --root ${CMAKE_SOURCE_DIR})
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/test_isa_toolchain.py --root ${CMAKE_SOURCE_DIR})
+  add_test(NAME chimera_shell_command_registry
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/shell/generate_command_registry.py --output ${CMAKE_BINARY_DIR}/chimera_command_registry.json)
 endif()
