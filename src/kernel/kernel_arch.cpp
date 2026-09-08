@@ -6,13 +6,15 @@
 #include <malloc.h>
 #endif
 namespace chimera::kernel {
-static void* page_alloc(){#ifdef _WIN32
+static void* page_alloc(){
+#ifdef _WIN32
     return _aligned_malloc(MemoryManager::kPageSize,MemoryManager::kPageSize);
 #else
     return std::aligned_alloc(MemoryManager::kPageSize,MemoryManager::kPageSize);
 #endif
 }
-static void page_release(void*p){#ifdef _WIN32
+static void page_release(void*p){
+#ifdef _WIN32
     _aligned_free(p);
 #else
     std::free(p);
