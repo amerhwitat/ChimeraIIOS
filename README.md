@@ -14,9 +14,9 @@ The repository follows the **Chimera II OS Developer Guide** subsystem order: Sp
        +----------------------+----------------------+
        |                      |                      |
   MACHINE PLANE         COGNITIVE PLANE         WORLD PLANE
-  R8192 / C8192         128D State             Network / GPU
-  RegisterN             Knowledge              Files / Sensors
-  Tensor / Vector       Reasoning              Storage / UI
+  R8192 / C8192         128D State              Network / GPU
+  RegisterN             Knowledge               Files / Sensors
+  Tensor / Vector       Reasoning               Storage / UI
        |                      |                      |
        +----------------------+----------------------+
                               |
@@ -33,21 +33,19 @@ The 8192-bit processor remains an architectural/emulation research target, not a
 
 `include/chimera/nbit_runtime.hpp` and `src/runtime/nbit_runtime.cpp` make operand width an explicit runtime property. The same API can represent 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384-bit and future widths subject to capability limits.
 
-Execution modes are capability checked:
+Execution modes are capability checked: Scalar, Vector, NativeWide, JIT, and QuantumHybrid.
 
-- `Scalar` — portable baseline
-- `Vector` — SIMD/GPU-oriented backend
-- `NativeWide` — RegisterN/WideInt execution
-- `JIT` — future LLVM/ORC optimized backend
-- `QuantumHybrid` — classical/quantum intermediate-representation boundary
+## Merged Chimera II ISA
 
-Mode changes fail safely when the selected backend or width is unavailable, preserving backward compatibility.
+The supplied ISA is now integrated into the fetch/decode/execute and documentation layers. The canonical machine-readable catalog is `tools/isa/chimera_isa_r8192_complete.csv` and covers opcodes `0x0001` through `0x011C` across R8192, Spotnik, Aurora, VFS, NDB, Hive, and Hybrid families, including privilege, latency, throughput, pipeline stage, operands, notes, and source references.
 
-## ISA integration
+`include/chimera/isa8192.hpp` uses a 16-bit opcode and a canonical 16-byte host-emulation instruction container. `src/isa/chimera_isa.cpp` validates and fetches the complete assigned opcode interval, executes the core R8192 arithmetic/compare subset, and exposes explicit dispatch boundaries for privileged kernel/device/filesystem/GPU/security operations.
 
-`include/chimera/unified_isa.hpp` provides a normalized instruction representation for Chimera-8192, RISC-V, AArch64 and x86-64. `include/chimera/isa_catalog.hpp` now adds a compile-time catalog covering representative RISC, CISC and specialized families. `tools/isa/isa_opcodes.csv` and `tools/isa/test_vector_generator.py` provide machine-readable Chimera metadata and deterministic test-vector generation.
+See `docs/CHIMERA_II_ISA_MERGED.md` for the fetch → privilege/capability → execute/dispatch → retire model.
 
-External ISA support is extension-based rather than a copied proprietary manual. Canonical specifications should be consulted for implementation details; the repository stores only compatible metadata and original glue code.
+## Unified ISA interoperability
+
+`include/chimera/unified_isa.hpp` provides a normalized instruction representation for Chimera-8192, RISC-V, AArch64 and x86-64. `include/chimera/isa_catalog.hpp` provides the architecture-family matrix. External ISA support is extension-based rather than a copied proprietary manual.
 
 ## Performance architecture
 
@@ -66,15 +64,15 @@ See `docs/PERFORMANCE_AND_PORTABILITY.md` and `docs/ISA_and_Source_Artifacts.md`
 
 ## Aurora + Unreal Engine 5
 
-An **optional** UE5 Aurora Desktop plugin is now provided under `integrations/ue5/AuroraDesktop/`. It mirrors the Aurora visual model with UMG/Slate and a reusable frosted-glass shader, while Linux builds may connect to Wayland as a client. UE5 remains isolated from the core CMake build.
+An **optional** UE5 Aurora Desktop plugin is provided under `integrations/ue5/AuroraDesktop/`. It mirrors the Aurora visual model with UMG/Slate and a reusable frosted-glass shader, while Linux builds may connect to Wayland as a client. UE5 remains isolated from the core CMake build.
 
 ## Windows kernel integration
 
-`integrations/windows/KMDF_ChmEcho/` contains a safe, isolated KMDF echo sample demonstrating WDF queue setup, buffered IOCTL handling and user-mode testing. It is educational integration code and is not part of the Chimera kernel. See `docs/Windows_Kernel_Dev_and_Snippets.md`.
+`integrations/windows/KMDF_ChmEcho/` contains a safe, isolated KMDF echo sample demonstrating WDF queue setup, buffered IOCTL handling and user-mode testing. It is educational integration code and is not part of the Chimera kernel.
 
 ## Quantum interoperability
 
-`include/chimera/quantum_bridge.hpp` introduces a small provider-neutral circuit IR boundary. It does **not** claim that an ordinary CPU executes quantum states natively. It is designed so a future simulator or QIR-compatible hardware/provider backend can be selected without changing the kernel ISA ABI.
+`include/chimera/quantum_bridge.hpp` introduces a provider-neutral circuit IR boundary. It does not claim that an ordinary CPU executes quantum states natively.
 
 ## Primary source tree
 
@@ -108,34 +106,16 @@ The optional x86-64 assembly fast path is enabled automatically on supported x86
 
 ## Web interface and publishing
 
-The static explorer is under `web/`. It can be served locally with:
-
-```bash
-python3 -m http.server 8080 --directory web
-```
-
-GitHub Actions validates the native build on Linux and Windows and publishes the web explorer through GitHub Pages. Native build directories are uploaded as CI artifacts.
-
-## Research and provenance
-
-Do not vendor external manuals or the Linux kernel wholesale. Use canonical links, clean-room interfaces, generated metadata, and compatible licenses. See:
-
-- `docs/ISA_COMPLETE.md`
-- `docs/ISA_and_Source_Artifacts.md`
-- `docs/LINUX_7X_CROSSWALK.md`
-- `docs/SOURCE_LICENSE_BOUNDARIES.md`
-- `docs/PERFORMANCE_AND_PORTABILITY.md`
-- `docs/MASTER_SOURCE_MAP.md`
-- `docs/PROVENANCE.md`
-- `docs/W2K-ASM_IMPORT.md`
-- `docs/Windows_Kernel_Dev_and_Snippets.md`
-
-The historical `W2K-ASM.txt` material is used only as provenance/reference context; Microsoft Confidential or otherwise restricted source text is not reproduced in the implementation.
+The static explorer is under `web/`. It can be served locally with `python3 -m http.server 8080 --directory web`. GitHub Actions validates the native build on Linux and Windows and publishes the web explorer through GitHub Pages.
 
 ## Live demonstrations
 
 - CodeWords technical showcase: https://codewords.agemo.ai/share/html/22980add8f8df4e6c834a970234105a26c98916f152ccff79720c778407fb2ba
 - OnHercules live demo: https://chimera-ii-os-730893.onhercules.app/
+
+## Research and provenance
+
+Do not vendor external manuals or the Linux kernel wholesale. Use canonical links, clean-room interfaces, generated metadata, and compatible licenses. See `docs/ISA_COMPLETE.md`, `docs/CHIMERA_II_ISA_MERGED.md`, `docs/ISA_and_Source_Artifacts.md`, `docs/LINUX_7X_CROSSWALK.md`, `docs/SOURCE_LICENSE_BOUNDARIES.md`, `docs/PERFORMANCE_AND_PORTABILITY.md`, `docs/MASTER_SOURCE_MAP.md`, and `docs/PROVENANCE.md`.
 
 ## License
 
