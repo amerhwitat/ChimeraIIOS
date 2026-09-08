@@ -1,0 +1,30 @@
+{
+  "schema": "chimera-ii-installer-capabilities",
+  "version": 1,
+  "policy": {
+    "safe_default": true,
+    "destructive_storage_requires_explicit_confirmation": true,
+    "third_party_firmware_requires_license_review": true,
+    "windows_driver_packages_must_be_signed": true
+  },
+  "capabilities": [
+    {"id":"uefi_boot","class":"boot","optional":false,"standards":["UEFI 2.11","ACPI 6.6"]},
+    {"id":"pci","class":"bus","optional":false,"sources":["https://docs.kernel.org/driver-api/pci/index.html","https://docs.kernel.org/PCI/pci.html"]},
+    {"id":"usb","class":"bus","optional":true,"sources":["https://www.kernel.org/doc/html/latest/driver-api/usb/index.html"]},
+    {"id":"firmware","class":"firmware","optional":true,"sources":["https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware","https://www.debian.org/releases/bookworm/amd64/ch02s02.en.html"]},
+    {"id":"linux_driver_database","class":"drivers","optional":true,"sources":["https://github.com/cateee/lkddb"]},
+    {"id":"windows_driver_catalog","class":"drivers","optional":true,"sources":["https://www.catalog.update.microsoft.com/","https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk","https://learn.microsoft.com/en-us/windows-hardware/test/hlk/"]},
+    {"id":"network","class":"io","optional":false,"standards":["Ethernet","Wi-Fi","IPv4","IPv6","TCP","UDP","DHCP","DNS"]},
+    {"id":"graphics","class":"display","optional":false,"standards":["DRM/KMS","Wayland","Vulkan","OpenGL"]},
+    {"id":"wayland","class":"desktop","optional":true,"sources":["https://wayland.freedesktop.org/","https://wayland.pages.freedesktop.org/weston/"]},
+    {"id":"nvme","class":"storage","optional":true,"sources":["https://spdk.io/doc/nvme.html"]},
+    {"id":"storage_raid","class":"storage","optional":true,"standards":["Linux mdraid","Storage Spaces","ZFS RAIDZ","hardware RAID/HBA"]},
+    {"id":"partitioning","class":"storage","optional":false,"standards":["GPT","MBR-read-compatibility","UEFI ESP"]},
+    {"id":"lvm","class":"storage","optional":true,"standards":["LVM2","device-mapper"]},
+    {"id":"dynamic_volume_groups","class":"storage","optional":true,"standards":["LVM volume groups","Windows Storage Spaces"]},
+    {"id":"filesystem","class":"filesystem","optional":false,"standards":["ext4","xfs","btrfs","FAT32/ESP","exFAT interoperability","NTFS interoperability","ZFS optional"]},
+    {"id":"service_manager","class":"services","optional":false,"compatibility":["systemd service semantics","OpenRC-compatible adapters"]},
+    {"id":"remote_services","class":"services","optional":true,"services":["OpenSSH","SMB/Samba","NFS","HTTP/HTTPS","DNS","DHCP","NTP/chrony","container runtime"]},
+    {"id":"aurora_desktop","class":"desktop","optional":true,"features":["Wayland compositor","GPU acceleration","PipeWire","portals","multi-monitor","RDP-compatible remote display"]}
+  ]
+}
