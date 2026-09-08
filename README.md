@@ -29,6 +29,21 @@ The repository follows the **Chimera II OS Developer Guide** subsystem order: Sp
 
 The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon.
 
+## Installer and hardware compatibility
+
+The repository now includes a **safe, cross-platform installer planning layer** under `tools/installer/`. It is Linux/Unix-oriented but includes Windows Server/workstation planning and driver-catalog compatibility.
+
+- `tools/installer/installer_plan.py` — hardware/driver/network/storage installation plan.
+- `tools/installer/installer_capabilities.json` — machine-readable compatibility matrix.
+- `tools/installer/chimera-installer.sh` — Linux entrypoint.
+- `tools/installer/ChimeraInstaller.ps1` — Windows entrypoint.
+- `docs/CHIMERA_II_INSTALLER_AND_HARDWARE_COMPATIBILITY.md` — step-by-step installer architecture.
+- `docs/CHIMERA_II_FILESYSTEM_LAYOUT.md` — ten-level Chimera filesystem reference.
+- `docs/CHIMERA_II_STANDARDS_BASELINE.md` — UEFI/ACPI/PCI/USB/NVMe/GPT/storage/graphics/network standards baseline.
+- `docs/CHIMERA_II_SOURCE_CATALOG.md` — bounded authoritative-source and link traversal catalog.
+
+The planner is **non-destructive by default**. Disk wiping, partitioning, formatting, bootloader replacement and driver mutation remain privileged adapter operations requiring explicit confirmation.
+
 ## Expandable N-bit runtime
 
 `include/chimera/nbit_runtime.hpp` and `src/runtime/nbit_runtime.cpp` make operand width an explicit runtime property. The same API can represent 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384-bit and future widths subject to capability limits.
@@ -49,6 +64,16 @@ Mode changes fail safely when the selected backend or width is unavailable, pres
 
 External ISA support is extension-based rather than a copied proprietary manual. Canonical specifications should be consulted for implementation details; the repository stores only compatible metadata and original glue code.
 
+## Aurora desktop
+
+Aurora is the Chimera Wayland-first desktop target. Its intended stack is DRM/KMS → Mesa/Vulkan/OpenGL → Aurora compositor → Wayland clients, with software-rendering fallback. The installer can enable Aurora for workstation/developer profiles or leave it disabled for servers.
+
+## Cognitive node and RNN/SSM research
+
+`tools/cognition/chimera_rnn.py` provides a dependency-free recurrent-state/provenance prototype. `docs/CHIMERA_II_COGNITIVE_NETWORK.md` defines an opt-in mTLS/allowlist knowledge-node architecture. `docs/CHIMERA_II_COMPUTATIONAL_RESEARCH_BASELINE.md` tracks RNN, state-space, neuro-symbolic and graph-learning research directions.
+
+The node network exchanges signed evidence and summaries—not arbitrary executable code, kernel modules or privileged commands—and does not perform unrestricted Internet scanning.
+
 ## Performance architecture
 
 The project follows proven open-source design patterns:
@@ -66,7 +91,7 @@ See `docs/PERFORMANCE_AND_PORTABILITY.md` and `docs/ISA_and_Source_Artifacts.md`
 
 ## Aurora + Unreal Engine 5
 
-An **optional** UE5 Aurora Desktop plugin is now provided under `integrations/ue5/AuroraDesktop/`. It mirrors the Aurora visual model with UMG/Slate and a reusable frosted-glass shader, while Linux builds may connect to Wayland as a client. UE5 remains isolated from the core CMake build.
+An **optional** UE5 Aurora Desktop plugin is provided under `integrations/ue5/AuroraDesktop/`. It mirrors the Aurora visual model with UMG/Slate and a reusable frosted-glass shader, while Linux builds may connect to Wayland as a client. UE5 remains isolated from the core CMake build.
 
 ## Windows kernel integration
 
@@ -90,6 +115,8 @@ An **optional** UE5 Aurora Desktop plugin is now provided under `integrations/ue
 /userspace      Kore / Aurora / CEF / NDB / Hive
 /desktop        Aurora Wayland + GPU shaders
 /tools/isa      ISA catalog and test-vector tooling
+/tools/installer installer planning and compatibility
+/tools/cognition temporal state and evidence prototype
 /tests          host-side and QEMU-oriented tests
 /integrations   optional UE5 and Windows KMDF adapters
 /docs           architecture, provenance and research documentation
@@ -102,6 +129,8 @@ An **optional** UE5 Aurora Desktop plugin is now provided under `integrations/ue
 cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
+python3 tests/installer/test_installer_plan.py
+python3 tests/cognition/test_chimera_rnn.py
 ```
 
 The optional x86-64 assembly fast path is enabled automatically on supported x86-64 hosts and can be disabled with `-DCHIMERA_ENABLE_X86_ASM=OFF`.
@@ -114,7 +143,7 @@ The static explorer is under `web/`. It can be served locally with:
 python3 -m http.server 8080 --directory web
 ```
 
-GitHub Actions validates the native build on Linux and Windows and publishes the web explorer through GitHub Pages. Native build directories are uploaded as CI artifacts.
+GitHub Actions validates the native build and publishes the web explorer when configured. Public-repository GitHub Actions runners are available without charge under GitHub's public-repository policy.
 
 ## Research and provenance
 
@@ -129,6 +158,9 @@ Do not vendor external manuals or the Linux kernel wholesale. Use canonical link
 - `docs/PROVENANCE.md`
 - `docs/W2K-ASM_IMPORT.md`
 - `docs/Windows_Kernel_Dev_and_Snippets.md`
+- `docs/CHIMERA_II_INSTALLER_AND_HARDWARE_COMPATIBILITY.md`
+- `docs/CHIMERA_II_STANDARDS_BASELINE.md`
+- `docs/CHIMERA_II_COGNITIVE_NETWORK.md`
 
 The historical `W2K-ASM.txt` material is used only as provenance/reference context; Microsoft Confidential or otherwise restricted source text is not reproduced in the implementation.
 
