@@ -1,0 +1,11 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1.0",
+  "FriendlyName": "Aurora Desktop",
+  "Description": "Optional Aurora Wayland-style desktop integration for Unreal Engine 5",
+  "Category": "Chimera II OS",
+  "Modules": [
+    { "Name": "AuroraDesktop", "Type": "Runtime", "LoadingPhase": "Default" }
+  ]
+}
