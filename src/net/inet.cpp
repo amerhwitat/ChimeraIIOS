@@ -6,12 +6,27 @@
 #include <cstring>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 uint16_t swap16(uint16_t v) { return static_cast<uint16_t>((v << 8) | (v >> 8)); }
 uint32_t swap32(uint32_t v) {
     return ((v & 0x000000FFu) << 24) | ((v & 0x0000FF00u) << 8) |
            ((v & 0x00FF0000u) >> 8) | ((v & 0xFF000000u) >> 24);
+}
+uint16_t host_to_net16(uint16_t v) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    return swap16(v);
+#else
+    return v;
+#endif
+}
+uint32_t host_to_net32(uint32_t v) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    return swap32(v);
+#else
+    return v;
+#endif
 }
 
 bool parse_ipv4(std::string_view s, std::array<uint8_t, 4>& out) {
@@ -34,7 +49,7 @@ bool parse_ipv4(std::string_view s, std::array<uint8_t, 4>& out) {
             pos = end + 1;
         }
     }
-    return pos <= s.size() && pos != s.size() + 1;
+    return pos == s.size();
 }
 
 bool parse_hex16(std::string_view s, uint16_t& value) {
@@ -52,52 +67,53 @@ bool parse_hex16(std::string_view s, uint16_t& value) {
     return true;
 }
 
-bool parse_ipv6(std::string_view s, std::array<uint8_t, 16>& out) {
-    out.fill(0);
-    std::array<uint16_t, 8> words{};
-    size_t count = 0;
-    size_t compress = 8;
-    size_t i = 0;
-    if (s.empty()) return false;
-    while (i < s.size()) {
-        if (s[i] == ':') {
-            if (i + 1 >= s.size() || s[i + 1] != ':' || compress != 8) return false;
-            compress = count;
-            i += 2;
-            if (i == s.size()) break;
-            continue;
-        }
-        size_t end = s.find(':', i);
-        if (end == std::string_view::npos) end = s.size();
-        auto token = s.substr(i, end - i);
+bool parse_ipv6_side(std::string_view side, std::vector<uint16_t>& words) {
+    if (side.empty()) return true;
+    size_t pos = 0;
+    while (pos < side.size()) {
+        size_t end = side.find(':', pos);
+        if (end == std::string_view::npos) end = side.size();
+        auto token = side.substr(pos, end - pos);
+        if (token.empty()) return false;
         if (token.find('.') != std::string_view::npos) {
-            if (count > 6) return false;
+            if (end != side.size()) return false;
             std::array<uint8_t, 4> v4{};
             if (!parse_ipv4(token, v4)) return false;
-            words[count++] = static_cast<uint16_t>((v4[0] << 8) | v4[1]);
-            words[count++] = static_cast<uint16_t>((v4[2] << 8) | v4[3]);
+            words.push_back(static_cast<uint16_t>((v4[0] << 8) | v4[1]));
+            words.push_back(static_cast<uint16_t>((v4[2] << 8) | v4[3]));
         } else {
-            if (count >= 8) return false;
-            if (!parse_hex16(token, words[count])) return false;
-            ++count;
+            uint16_t value = 0;
+            if (!parse_hex16(token, value)) return false;
+            words.push_back(value);
         }
-        i = end;
-        if (i < s.size()) ++i;
+        if (words.size() > 8) return false;
+        pos = end;
+        if (pos < side.size()) ++pos;
     }
-    if (compress == 8) {
-        if (count != 8) return false;
+    return true;
+}
+
+bool parse_ipv6(std::string_view s, std::array<uint8_t, 16>& out) {
+    if (s.empty()) return false;
+    size_t dc = s.find("::");
+    if (dc != std::string_view::npos && s.find("::", dc + 2) != std::string_view::npos) return false;
+    std::vector<uint16_t> left, right;
+    if (dc == std::string_view::npos) {
+        if (!parse_ipv6_side(s, left) || left.size() != 8) return false;
     } else {
-        if (count >= 8) return false;
-        size_t zeros = 8 - count;
-        for (size_t j = count; j-- > compress;) words[j + zeros] = words[j];
-        for (size_t j = compress; j < compress + zeros; ++j) words[j] = 0;
-        count = 8;
+        if (!parse_ipv6_side(s.substr(0, dc), left) || !parse_ipv6_side(s.substr(dc + 2), right)) return false;
+        if (left.size() + right.size() >= 8) return false;
     }
-    for (size_t j = 0; j < 8; ++j) {
-        out[j * 2] = static_cast<uint8_t>(words[j] >> 8);
-        out[j * 2 + 1] = static_cast<uint8_t>(words[j]);
+    std::array<uint16_t, 8> words{};
+    size_t at = 0;
+    for (uint16_t v : left) words[at++] = v;
+    if (dc != std::string_view::npos) at = 8 - right.size();
+    for (uint16_t v : right) words[at++] = v;
+    for (size_t i = 0; i < 8; ++i) {
+        out[2*i] = static_cast<uint8_t>(words[i] >> 8);
+        out[2*i + 1] = static_cast<uint8_t>(words[i]);
     }
-    return count == 8;
+    return true;
 }
 
 std::string format_ipv6(const uint8_t* p) {
@@ -126,10 +142,10 @@ std::string format_ipv6(const uint8_t* p) {
 }
 }
 
-extern "C" uint16_t chimera_htons(uint16_t v) { return swap16(v); }
-extern "C" uint16_t chimera_ntohs(uint16_t v) { return swap16(v); }
-extern "C" uint32_t chimera_htonl(uint32_t v) { return swap32(v); }
-extern "C" uint32_t chimera_ntohl(uint32_t v) { return swap32(v); }
+extern "C" uint16_t chimera_htons(uint16_t v) { return host_to_net16(v); }
+extern "C" uint16_t chimera_ntohs(uint16_t v) { return host_to_net16(v); }
+extern "C" uint32_t chimera_htonl(uint32_t v) { return host_to_net32(v); }
+extern "C" uint32_t chimera_ntohl(uint32_t v) { return host_to_net32(v); }
 
 extern "C" int chimera_inet_pton(int af, const char* src, void* dst) {
     if (!src || !dst) return -1;
