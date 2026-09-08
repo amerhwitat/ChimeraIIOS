@@ -2,31 +2,73 @@
 
 ## Scope
 
-Chimera II now exposes a unified ISA abstraction for the experimental 8192-bit machine plus interoperability-oriented decoders for RV32I/RV64I, AArch64 and x86-64. This is an architectural integration layer, not a claim that Chimera implements every instruction of every external ISA.
+Chimera II now exposes the supplied **Chimera-R8192 native ISA** as a first-class fetch/decode/execute contract, while retaining interoperability-oriented decoders for RV32I/RV64I, AArch64 and x86-64. The native specification occupies opcodes `0x0001..0x011C` (284 instructions).
 
-RISC-V is an open standard with a small base ISA plus optional extensions. The ratified specification explicitly separates base integer ISAs from extensions and includes privileged architecture, vector, bit-manipulation and cryptography families. See https://docs.riscv.org/ and https://github.com/riscv/riscv-isa-manual .
+The native opcode/name registry is embedded in `src/isa/chimera_isa.cpp`; the public interface is `include/chimera/isa8192.hpp`. `tools/isa/chimera_r8192_opcode_index.csv` contains the detailed metadata seed for the supplied ISA schema and is being used as the machine-readable documentation artifact for the implemented front portion.
 
-x86-64 is a CISC ISA. Intel publishes the complete architecture and instruction references in its Software Developer Manuals. Chimera uses those public specifications as interoperability references but does not copy their copyrighted instruction tables into this repository. See https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html .
+## Fetch phase
 
-AArch64 is included as a second RISC-family compatibility target; Arm publishes machine-readable and human-readable instruction descriptions through its architecture documentation.
+1. Fetch reads the first 16 bits as a **little-endian 16-bit Chimera opcode**.
+2. The next three 16-bit fields are decoded as `rd`, `srcA`, and `srcB`.
+3. Immediate-bearing instructions may extend the packet to 16 bytes with a 64-bit little-endian immediate.
+4. The fetch/decode layer recognizes every supplied opcode from `0x0001` through `0x011C`.
+5. Undefined opcodes are rejected before execution.
 
-## Chimera execution layers
+This replaces the previous 8-bit native-opcode assumption and preserves the existing CPU8192 register model of 1024 × 8192-bit registers.
 
-1. **Frontend**: fetch, length classification, ISA-family selection.
-2. **Decoder**: family-specific decode into `chimera::isa::Instruction`.
-3. **IR**: normalized opcode class, registers, immediate and memory effects.
-4. **8192-bit execution**: RegisterN/CPU8192 backend.
-5. **Kernel boundary**: traps, syscalls, scheduling, virtual memory, IPC and I/O.
-6. **Aurora**: GPU/Wayland rendering and presentation.
+## Execute phase
 
-## Implementation status
+The execution dispatcher now has four explicit outcomes:
 
-- RV32I/RV64I common integer/load-store/branch/system/atomic classes: implemented decoder skeleton.
-- x86-64 common control/system/data movement classes: implemented decoder skeleton.
-- AArch64 common branch/system/load/store/integer classes: implemented decoder skeleton.
-- Full external-ISA compatibility: **not yet complete**; extension-by-extension conformance tests are required.
-- Chimera-8192 native ISA: remains the experimental primary architecture.
+- `Executed` — native semantics completed.
+- `PrivilegeViolation` — a privileged instruction was requested from user mode.
+- `InvalidOpcode` — the opcode is outside the supplied native ISA.
+- `UnimplementedService` — the opcode is valid and recognized, but requires an OS/device backend that is not yet bound into the emulator.
 
-## Design rule
+Native execution currently covers the core R8192 ALU/compare path: `ADD`, `SUB`, `AND`, `OR`, `XOR`, `NOT`, `SHL`, `SHR`, `ROL`, `ROR`, `MUL`, `MULHI`, `DIV`, `REM`, `CMP`, `CMPEQ`, `CMPLT`, and `MOV`. `TRAP`, `SYS_CALL`, `SVC`, `FENCE`, and `BARRIER` are recognized control/system operations. The remaining DMA, networking, VFS, NDB/HIVE, Aurora/GPU, PCI, security, scheduling and service operations are intentionally represented as dispatchable ISA services until their corresponding backend is attached.
 
-Do not paste external ISA manuals or Linux source wholesale into ChimeraIIOS. Use clean-room interfaces, generated metadata, SPDX-compatible references, and links to canonical sources. Keep external source trees as separate dependencies or reproducible inputs.
+## Document phase
+
+The supplied ISA schema is:
+
+`mnemonic;opcode;encoding;operands;privilege;latency;throughput;pipeline_stage;isa_family;notes;source_ref`
+
+The complete opcode/name sequence is assigned to the contiguous `0x0001..0x011C` range in the executor. The detailed metadata artifact follows the exact supplied schema and should remain the source for subsequent generation of a complete constexpr descriptor table.
+
+The ISA is partitioned conceptually into:
+
+- `0x0001..0x001A` — R8192 arithmetic, logic, shifts, multiply/divide and memory primitives.
+- `0x001B..0x002B` — page pinning, DMA, IOMMU and Spotnik zero-copy networking.
+- `0x002C..0x0048` — system, audit, TPM, crypto, module and trap/syscall operations.
+- `0x0049..0x0068` — interrupt, cache, tracing, scheduling, locking and memory-management operations.
+- `0x0069..0x006F` — frame/DMA/network service operations.
+- `0x0070..0x0084` — VFS/file-system operations.
+- `0x0085..0x008B` — NDB and HIVE data services.
+- `0x008C..0x00B4` — Aurora GPU, media, framebuffer and Wayland presentation operations.
+- `0x00B5..0x00C5` — VirtIO, PCI and persistent-memory operations.
+- `0x00C6..0x00E6` — kernel lifecycle, PMU, tracing, synchronization, paging and SMP operations.
+- `0x00E7..0x0106` — power/thermal, certificate/keystore, licensing, backup, quota, authentication and policy services.
+- `0x0107..0x011C` — configuration, cluster/service management, diagnostics, maintenance and security scanning.
+
+## Pipeline contract
+
+The supplied `pipeline_stage`, `latency`, and `throughput` fields are architectural metadata. They are descriptive scheduling targets for the research processor model, not measurements of a fabricated physical implementation. The executor must not infer real hardware timing solely from these fields.
+
+## Validation
+
+`tests/unit/test_r8192_isa.cpp` verifies:
+
+- 16-bit opcode fetch and operand extraction.
+- Recognition of the complete 284-opcode range.
+- Metadata lookup for `SHA256`.
+- Privilege enforcement for `POLICY_UPDATE`.
+
+## External ISA policy
+
+RISC-V is an open standard with a small base ISA plus optional extensions. See https://docs.riscv.org/ and https://github.com/riscv/riscv-isa-manual .
+
+x86-64 is a CISC ISA. Intel publishes the architecture and instruction references in its Software Developer Manuals. See https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html .
+
+AArch64 is included as a compatibility target; Arm publishes architecture documentation for its instruction descriptions.
+
+Do not paste external ISA manuals or Linux source wholesale into ChimeraIIOS. Use clean-room interfaces, generated metadata, SPDX-compatible references, and links to canonical sources.

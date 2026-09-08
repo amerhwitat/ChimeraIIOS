@@ -1,5 +1,6 @@
 {
   "sources": [
+    {"name":"Chimera II supplied native ISA specification","url":"../tools/isa/chimera_r8192_opcode_index.csv","coverage":["R8192","fetch","decode","execute","pipeline metadata"]},
     {"name":"RISC-V Ratified Specifications","url":"https://docs.riscv.org/","coverage":["unprivileged","privileged","profiles","extensions"]},
     {"name":"Intel 64 and IA-32 SDM","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html","coverage":["x86","x86-64","system programming","instruction reference"]},
     {"name":"AMD64 Architecture Programmer's Manual","url":"https://docs.amd.com/","coverage":["AMD64","general purpose","system programming"]},
@@ -8,10 +9,21 @@
     {"name":"Three.js Documentation","url":"https://threejs.org/docs/","coverage":["WebGLRenderer","BufferGeometry","InstancedMesh","render loop"]}
   ],
   "families": {
+    "Chimera": ["Chimera-R8192"],
     "RISC": ["RISC-V"],
     "CISC": ["x86-64"],
     "ARM": ["AArch64"],
     "graphics": ["OpenGL 4.6", "OpenGL ES 3.2", "WebGL 2"]
+  },
+  "chimera_r8192": {
+    "opcode_min": "0x0001",
+    "opcode_max": "0x011C",
+    "instruction_count": 284,
+    "fetch_packet_bytes": 8,
+    "immediate_packet_bytes": 16,
+    "opcode_endianness": "little",
+    "encodings": ["R", "M", "L", "S", "I"],
+    "execution_policy": "Native ALU/compare operations execute in CPU8192; privileged and OS/device services are recognized by the decoder and require a bound backend."
   },
   "policy": "Store metadata and generated normalization code; do not redistribute copyrighted vendor manuals verbatim."
 }

@@ -1,86 +1,122 @@
 #include "chimera/isa8192.hpp"
-#include <cstring>
+#include <array>
 #include <stdexcept>
 
 namespace chimera {
 namespace {
-uint16_t u16(const uint8_t* p) { return uint16_t(p[0]) | (uint16_t(p[1]) << 8); }
-uint64_t u64(const uint8_t* p) {
-    uint64_t v=0; std::memcpy(&v,p,sizeof(v)); return v;
-}
-Register8192 lane_not(const Register8192& x) {
-    Register8192 y{};
-    for (unsigned k=0;k<128;++k) y.set_u64(k,~x.lane(k));
-    return y;
-}
-Register8192 lane_shift(const Register8192& x, unsigned s, bool left) {
-    s %= 8192; const unsigned q=s/64, r=s%64; Register8192 y{};
-    for (unsigned k=0;k<128;++k) {
-        if (left) {
-            if (k<q) { y.set_u64(k,0); continue; }
-            uint64_t v=x.lane(k-q)<<r;
-            if (r && k>q) v |= x.lane(k-q-1)>>(64-r);
-            y.set_u64(k,v);
-        } else {
-            if (k+q>=128) { y.set_u64(k,0); continue; }
-            uint64_t v=x.lane(k+q)>>r;
-            if (r && k+q+1<128) v |= x.lane(k+q+1)<<(64-r);
-            y.set_u64(k,v);
-        }
+constexpr std::array<std::string_view, 0x11D> kNames = [] {
+    std::array<std::string_view, 0x11D> a{};
+    constexpr std::string_view names =
+        "ADD SUB AND OR XOR NOT SHL SHR ROL ROR MUL MULHI MULMOD MODEXP BARRETT DIV REM CMP CMPEQ CMPLT MOV LOAD STORE PREFETCH MEMCPY MEMSET PIN_PAGES UNPIN_PAGES DMA_MAP DMA_UNMAP DMA_START DMA_WAIT IOMMU_MAP IOMMU_UNMAP GET_FRAME_DESC RELEASE_FRAME XDP_SEND_ZC XDP_RECV_ZC XDP_GET_EVENTFD NETMAP_SEND NETMAP_RECV NIC_REGISTER NIC_UNREGISTER IOCTL IOCTL_RESPOND SYSLOG_WRITE AUDIT_LOG TPM_EXTEND TPM_SEAL TPM_UNSEAL SIGN_VERIFY VERIFY_SIGNATURE LOAD_MODULE UNLOAD_MODULE MODULE_SIGN MODULE_VERIFY KASLR_RESEED RNG_READ RNG_SEED HASH SHA256 SHA512 AESENC AESDEC RSAKEYGEN RSAMOD ECC_POINT_ADD ECC_POINT_MUL RNG_WAIT TRAP SYS_CALL SVC IRQ_ENABLE IRQ_DISABLE CACHE_FLUSH CACHE_INVALIDATE TRACE_START TRACE_STOP DEBUG_BREAK WATCHPOINT_SET WATCHPOINT_CLEAR PERF_EVENT POWER_STATE CLOCK_GET TIMER_SET TIMER_CANCEL CONTEXT_SWITCH TASK_CREATE TASK_EXIT TASK_YIELD TASK_JOIN LOCK_ACQUIRE LOCK_RELEASE RCU_READ_LOCK RCU_READ_UNLOCK RCU_SYNCHRONIZE SLAB_ALLOC SLAB_FREE PAGE_ALLOC PAGE_FREE KMAP KUNMAP USER_COPY_FROM USER_COPY_TO PIN_PAGES_IOCTL MAP_FRAME UNMAP_FRAME RECLAIM_FRAMES GET_EVENTFD NET_POLL NET_CONFIG FS_OPEN FS_READ FS_WRITE FS_CLOSE FS_STAT FS_SYNC VFS_MOUNT VFS_UNMOUNT VFS_LOOKUP VFS_CREATE VFS_REMOVE VFS_RENAME VFS_CHMOD VFS_CHOWN VFS_TRUNCATE VFS_LINK VFS_SYMLINK VFS_READDIR VFS_IOCTL VFS_GETATTR VFS_SETATTR NDB_TABLE_INSERT NDB_TABLE_GET NDB_SNAPSHOT HIVE_SET HIVE_GET HIVE_DELETE HIVE_SNAPSHOT GPU_SUBMIT GPU_WAIT EGL_IMPORT EGL_EXPORT DMABUF_IMPORT DMABUF_EXPORT PIPEWIRE_PUBLISH PIPEWIRE_SUBSCRIBE AUDIO_PLAY AUDIO_STOP VIDEO_ENCODE VIDEO_DECODE GPU_COMPOSITE GPU_BLIT GPU_CLEAR SHADER_COMPILE SHADER_LINK SHADER_BIND SHADER_UNBIND TEXTURE_UPLOAD TEXTURE_DOWNLOAD PBO_MAP PBO_UNMAP PBO_UPLOAD PBO_DOWNLOAD SSAO_PASS TILED_LIGHT_PASS POSTPROCESS_PASS PRESENT_FRAME FRAMEBUFFER_BIND FRAMEBUFFER_UNBIND SWAP_BUFFERS VSYNC_WAIT WP_PRESENT_NOTIFY WP_PRESENT_ACK WP_PRESENT_CANCEL WP_PRESENT_QUERY WP_PRESENT_SET_MODE WP_PRESENT_GET_MODE WP_PRESENT_SET_PRIORITY WP_PRESENT_GET_PRIORITY VIRTIO_INIT VIRTIO_SEND VIRTIO_RECV VIRTIO_SHUTDOWN PCI_PROBE PCI_CONFIG_READ PCI_CONFIG_WRITE PCI_ENABLE_DEVICE PCI_DISABLE_DEVICE PCI_SET_MSI PCI_CLEAR_MSI PCI_MAP_BAR PCI_UNMAP_BAR PCI_DMA_SETUP PCI_DMA_TEARDOWN PMEM_ALLOC PMEM_FREE KERNEL_PANIC REBOOT SHUTDOWN SUSPEND RESUME USER_MODE_ENTER USER_MODE_EXIT PMU_READ PMU_WRITE PERF_SAMPLE TRACE_MARK DEBUG_PRINT USER_YIELD FENCE BARRIER SEV WFE CACHE_LINE_FLUSH CACHE_LINE_INVALIDATE TLB_FLUSH TLB_INVALIDATE PAGE_TABLE_MAP PAGE_TABLE_UNMAP KERNEL_ALLOC KERNEL_FREE USER_ALLOC USER_FREE MAP_IO_REGION UNMAP_IO_REGION IO_PORT_READ IO_PORT_WRITE SMP_SEND_IPI SMP_BROADCAST CPU_FREQ_SET CPU_FREQ_GET THERMAL_QUERY THERMAL_SET_LIMIT LOG_ROTATE CERT_VERIFY KEYSTORE_STORE KEYSTORE_RETRIEVE AUDIT_QUERY LICENSE_CHECK UPDATE_APPLY ROLLBACK HEALTH_CHECK DIAGNOSTIC_RUN METRICS_PUSH ALERT_RAISE ALERT_CLEAR LICENSE_ROTATE SECRETS_ROTATE BACKUP_CREATE BACKUP_RESTORE QUOTA_CHECK QUOTA_ENFORCE SESSION_CREATE SESSION_TERMINATE AUTH_CHALLENGE AUTH_VERIFY POLICY_EVAL POLICY_UPDATE CERT_ROTATE KEY_ROTATE AUDIT_EXPORT CONFIG_GET CONFIG_SET CONFIG_RELOAD LICENSE_QUERY METRICS_QUERY HEARTBEAT CLUSTER_JOIN CLUSTER_LEAVE SERVICE_START SERVICE_STOP SERVICE_RESTART SERVICE_STATUS LOG_LEVEL_SET LOG_LEVEL_GET DIAG_UPLOAD DIAG_DOWNLOAD MAINT_MODE_ENTER MAINT_MODE_EXIT SEC_SCAN_START SEC_SCAN_STOP SEC_SCAN_REPORT POLICY_AUDIT";
+    std::size_t index=1, start=0;
+    while(start<names.size() && index<a.size()) {
+        while(start<names.size() && names[start]==' ') ++start;
+        if(start>=names.size()) break;
+        auto end=names.find(' ',start); if(end==std::string_view::npos) end=names.size();
+        a[index++]=names.substr(start,end-start); start=end+1;
     }
-    return y;
-}
-// The catalog is contiguous from 0x0001 through 0x011C. Keeping this range
-// check here makes fetch/decode forward-compatible with metadata additions:
-// execution can distinguish "recognized architectural opcode" from malformed
-// instruction bytes without hard-coding hundreds of switch labels.
-bool catalog_opcode(uint16_t op) { return op>=0x0001 && op<=0x011C; }
+    return a;
+}();
+
+Register8192 shift_left(const Register8192& x,unsigned s) noexcept { Register8192 y{}; if(s>=8192)return y; const unsigned q=s/64,r=s%64; for(unsigned k=q;k<128;++k){std::uint64_t v=x.lane(k-q)<<r; if(r&&k>q)v|=x.lane(k-q-1)>>(64-r); y.set_u64(k,v);} return y; }
+Register8192 shift_right(const Register8192& x,unsigned s) noexcept { Register8192 y{}; if(s>=8192)return y; const unsigned q=s/64,r=s%64; for(unsigned k=0;k<128-q;++k){std::uint64_t v=x.lane(k+q)>>r; if(r&&k+q+1<128)v|=x.lane(k+q+1)<<(64-r); y.set_u64(k,v);} return y; }
+Register8192 rotate_left(const Register8192& x,unsigned s) noexcept { s%=8192; return s?shift_left(x,s)|shift_right(x,8192-s):x; }
+Register8192 rotate_right(const Register8192& x,unsigned s) noexcept { s%=8192; return s?shift_right(x,s)|shift_left(x,8192-s):x; }
+std::uint64_t mul_hi64(std::uint64_t a,std::uint64_t b) noexcept { const std::uint64_t a0=std::uint32_t(a),a1=a>>32,b0=std::uint32_t(b),b1=b>>32; const std::uint64_t w0=a0*b0; const std::uint64_t t=a1*b0+(w0>>32); std::uint64_t w1=std::uint32_t(t); const std::uint64_t w2=t>>32; w1+=a0*b1; return a1*b1+w2+(w1>>32); }
+bool uses_immediate(std::uint16_t op) noexcept { return (op>=OP_SHL && op<=OP_ROR) || op==OP_MODEXP || op==OP_PREFETCH || op==OP_LOAD || op==OP_STORE || op==OP_MEMCPY || op==OP_MEMSET; }
 }
 
-Instr decode(const uint8_t* p,std::size_t len){
-    if(!p || len<16) throw std::invalid_argument("Chimera II instruction buffer too short");
+Instr decode(const std::uint8_t* p,std::size_t len) {
+    if(!p||len<8) throw std::invalid_argument("instruction buffer too short");
     Instr i{};
-    i.opcode=u16(p+0); i.dst=u16(p+2); i.srcA=u16(p+4); i.srcB=u16(p+6);
-    i.imm=u64(p+8); i.imm_len=8;
-    if (!catalog_opcode(i.opcode) && i.opcode!=OP_NOP) throw std::runtime_error("unknown Chimera II opcode");
-    if (i.dst>=1024 || i.srcA>=1024 || i.srcB>=1024) throw std::out_of_range("Chimera register index");
+    i.opcode=std::uint16_t(p[0])|(std::uint16_t(p[1])<<8);
+    i.dst=std::uint16_t(p[2])|(std::uint16_t(p[3])<<8);
+    i.srcA=std::uint16_t(p[4])|(std::uint16_t(p[5])<<8);
+    i.srcB=std::uint16_t(p[6])|(std::uint16_t(p[7])<<8);
+    if(uses_immediate(i.opcode)) {
+        if(len<16) throw std::invalid_argument("immediate instruction buffer too short");
+        i.imm=std::uint64_t(p[8])|(std::uint64_t(p[9])<<8)|(std::uint64_t(p[10])<<16)|(std::uint64_t(p[11])<<24)|(std::uint64_t(p[12])<<32)|(std::uint64_t(p[13])<<40)|(std::uint64_t(p[14])<<48)|(std::uint64_t(p[15])<<56);
+        i.imm_len=8; i.length=16;
+    }
     return i;
 }
 
-void execute(CPU8192& c,const Instr&i){
-    if (i.dst>=c.gpr.size() || i.srcA>=c.gpr.size() || i.srcB>=c.gpr.size())
-        throw std::out_of_range("Chimera register index");
-    switch(i.opcode){
-      case OP_NOP: break;
-      case 0x0001: c.gpr[i.dst]=c.gpr[i.srcA]+c.gpr[i.srcB]; break; // ADD
-      case 0x0002: c.gpr[i.dst]=c.gpr[i.srcA]-c.gpr[i.srcB]; break; // SUB
-      case 0x0003: c.gpr[i.dst]=c.gpr[i.srcA]&c.gpr[i.srcB]; break; // AND
-      case 0x0004: c.gpr[i.dst]=c.gpr[i.srcA]|c.gpr[i.srcB]; break; // OR
-      case 0x0005: c.gpr[i.dst]=c.gpr[i.srcA]^c.gpr[i.srcB]; break; // XOR
-      case 0x0006: c.gpr[i.dst]=lane_not(c.gpr[i.srcA]); break; // NOT
-      case 0x0007: c.gpr[i.dst]=lane_shift(c.gpr[i.srcA],unsigned(i.imm),true); break; // SHL
-      case 0x0008: c.gpr[i.dst]=lane_shift(c.gpr[i.srcA],unsigned(i.imm),false); break; // SHR
-      case 0x0015: c.gpr[i.dst]=c.gpr[i.srcA]; break; // MOV
-      case 0x0012: // CMP
-      case 0x0013: // CMPEQ
-      case 0x0014: // CMPLT
-        c.flags = (i.opcode==0x0013) ? (c.gpr[i.srcA]==c.gpr[i.srcB]) :
-                  (i.opcode==0x0014 ? (c.gpr[i.srcA]<c.gpr[i.srcB]) :
-                   (c.gpr[i.srcA]==c.gpr[i.srcB] ? 1u : 0u));
-        break;
-      default:
-        // The remaining catalog entries are kernel/driver/crypto/VFS/GPU
-        // dispatch boundaries. They are recognized by fetch/decode but their
-        // side effects belong to subsystem handlers, not this pure CPU core.
-        if (!catalog_opcode(i.opcode)) throw std::runtime_error("unsupported Chimera II opcode");
-        break;
+bool is_defined_opcode(std::uint16_t opcode) noexcept { return opcode>=0x0001 && opcode<=0x011C; }
+std::string_view opcode_name(std::uint16_t opcode) noexcept { return opcode<kNames.size()?kNames[opcode]:std::string_view{}; }
+
+const OpcodeInfo* opcode_info(std::uint16_t opcode) noexcept {
+    if(!is_defined_opcode(opcode)) return nullptr;
+    static std::array<OpcodeInfo,0x11D> table=[] {
+        std::array<OpcodeInfo,0x11D> t{};
+        for(std::size_t op=1;op<t.size();++op) t[op]={std::uint16_t(op),kNames[op],"R","rd,rs,rt",false,1,1.0,"ALU","R8192","Supplied Chimera-II ISA","internal"};
+        t[0x0001]={0x0001,"ADD","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise wide add","internal"};
+        t[0x0002]={0x0002,"SUB","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise wide subtract","internal"};
+        t[0x0003]={0x0003,"AND","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise bitwise and","internal"};
+        t[0x0004]={0x0004,"OR","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise bitwise or","internal"};
+        t[0x0005]={0x0005,"XOR","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise bitwise xor","internal"};
+        t[0x0006]={0x0006,"NOT","R","rd,rs",false,1,1.0,"ALU","R8192","Lane-wise bitwise not","internal"};
+        t[0x0007]={0x0007,"SHL","R","rd,rs,imm",false,2,1.0,"ALU","R8192","Logical left shift lanes","internal"};
+        t[0x0008]={0x0008,"SHR","R","rd,rs,imm",false,2,1.0,"ALU","R8192","Logical right shift lanes","internal"};
+        t[0x0009]={0x0009,"ROL","R","rd,rs,imm",false,3,0.8,"ALU","R8192","Rotate left lanes","internal"};
+        t[0x000A]={0x000A,"ROR","R","rd,rs,imm",false,3,0.8,"ALU","R8192","Rotate right lanes","internal"};
+        t[0x000B]={0x000B,"MUL","R","rd,rs,rt",false,4,0.5,"MUL","R8192","Schoolbook low bits multiply","internal"};
+        t[0x000C]={0x000C,"MULHI","R","rd,rs,rt",false,6,0.3,"MUL","R8192","High bits multiply","internal"};
+        t[0x000D]={0x000D,"MULMOD","R","rd,rs,rt,mod",true,120,0.05,"CRYPTO","R8192","Modular multiply","internal"};
+        t[0x000E]={0x000E,"MODEXP","M","rd,rs,imm",true,200,0.02,"CRYPTO","R8192","Modular exponentiation","internal"};
+        t[0x000F]={0x000F,"BARRETT","R","rd,rs,mod",true,80,0.1,"CRYPTO","R8192","Barrett reduction helper","internal"};
+        t[0x0010]={0x0010,"DIV","R","rd,rs,rt",false,20,0.05,"ALU","R8192","Wide divide (low)","internal"};
+        t[0x0011]={0x0011,"REM","R","rd,rs,rt",false,20,0.05,"ALU","R8192","Wide remainder","internal"};
+        t[0x0012]={0x0012,"CMP","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise compare","internal"};
+        t[0x0013]={0x0013,"CMPEQ","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise equal","internal"};
+        t[0x0014]={0x0014,"CMPLT","R","rd,rs,rt",false,1,1.0,"ALU","R8192","Lane-wise less-than","internal"};
+        t[0x0015]={0x0015,"MOV","R","rd,rs",false,1,2.0,"ALU","R8192","Register move","internal"};
+        t[0x0016]={0x0016,"LOAD","L","rd,addr,len",false,10,0.5,"MEM","R8192","Load wide frame from memory","internal"};
+        t[0x0017]={0x0017,"STORE","L","addr,rs,len",false,10,0.5,"MEM","R8192","Store wide frame to memory","internal"};
+        t[0x003D]={0x003D,"SHA256","R","rd,rs",false,40,0.05,"CRYPTO","R8192","SHA-256 on wide lanes","internal"};
+        t[0x0047]={0x0047,"SYS_CALL","S","num,args",false,5,1.0,"SYS","HYBRID","System call entry","internal"};
+        t[0x00D4]={0x00D4,"BARRIER","S","scope",true,1,10.0,"SYS","HYBRID","Synchronization barrier","internal"};
+        t[0x0103]={0x0103,"POLICY_UPDATE","S","policy",true,200,0.01,"SEC","HYBRID","Update security policy","internal"};
+        return t;
+    }();
+    return &table[opcode];
+}
+
+ExecuteStatus execute(CPU8192& c,const Instr& i,bool privileged) {
+    const auto* info=opcode_info(i.opcode); if(!info)return ExecuteStatus::InvalidOpcode;
+    if(info->privileged&&!privileged)return ExecuteStatus::PrivilegeViolation;
+    const auto a=c.gpr[i.srcA], b=c.gpr[i.srcB];
+    switch(i.opcode) {
+        case OP_ADD:c.gpr[i.dst]=a+b;return ExecuteStatus::Executed;
+        case OP_SUB:c.gpr[i.dst]=a-b;return ExecuteStatus::Executed;
+        case OP_AND:c.gpr[i.dst]=a&b;return ExecuteStatus::Executed;
+        case OP_OR:c.gpr[i.dst]=a|b;return ExecuteStatus::Executed;
+        case OP_XOR:c.gpr[i.dst]=a^b;return ExecuteStatus::Executed;
+        case OP_NOT:{Register8192 z{};for(unsigned k=0;k<128;++k)z.set_u64(k,~a.lane(k));c.gpr[i.dst]=z;return ExecuteStatus::Executed;}
+        case OP_SHL:c.gpr[i.dst]=shift_left(a,unsigned(i.imm%8192));return ExecuteStatus::Executed;
+        case OP_SHR:c.gpr[i.dst]=shift_right(a,unsigned(i.imm%8192));return ExecuteStatus::Executed;
+        case OP_ROL:c.gpr[i.dst]=rotate_left(a,unsigned(i.imm%8192));return ExecuteStatus::Executed;
+        case OP_ROR:c.gpr[i.dst]=rotate_right(a,unsigned(i.imm%8192));return ExecuteStatus::Executed;
+        case OP_MOV:c.gpr[i.dst]=a;return ExecuteStatus::Executed;
+        case OP_MUL:{Register8192 r{};for(unsigned k=0;k<128;++k)r.set_u64(k,a.lane(k)*b.lane(k));c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
+        case OP_MULHI:{Register8192 r{};for(unsigned k=0;k<128;++k)r.set_u64(k,mul_hi64(a.lane(k),b.lane(k)));c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
+        case OP_DIV:{Register8192 r{};for(unsigned k=0;k<128;++k){if(!b.lane(k))return ExecuteStatus::UnimplementedService;r.set_u64(k,a.lane(k)/b.lane(k));}c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
+        case OP_REM:{Register8192 r{};for(unsigned k=0;k<128;++k){if(!b.lane(k))return ExecuteStatus::UnimplementedService;r.set_u64(k,a.lane(k)%b.lane(k));}c.gpr[i.dst]=r;return ExecuteStatus::Executed;}
+        case OP_CMP:{bool eq=true,lt=false;for(int k=127;k>=0;--k){if(a.lane(k)!=b.lane(k)){eq=false;lt=a.lane(k)<b.lane(k);break;}}c.flags=(eq?1ULL:0ULL)|(lt?2ULL:0ULL);return ExecuteStatus::Executed;}
+        case OP_CMPEQ:c.flags=(a.words()==b.words())?1ULL:0ULL;return ExecuteStatus::Executed;
+        case OP_CMPLT:{bool lt=false;for(int k=127;k>=0;--k){if(a.lane(k)!=b.lane(k)){lt=a.lane(k)<b.lane(k);break;}}c.flags=lt?1ULL:0ULL;return ExecuteStatus::Executed;}
+        case OP_TRAP:case OP_SYS_CALL:case OP_SVC:case OP_FENCE:case OP_BARRIER:return ExecuteStatus::Executed;
+        default:return ExecuteStatus::UnimplementedService;
     }
 }
 
-void run(CPU8192& c,const uint8_t*code,std::size_t len){
-    while(c.pc<len){
-        if (len-c.pc<16) throw std::invalid_argument("truncated Chimera II instruction stream");
-        Instr i=decode(code+c.pc,len-c.pc); execute(c,i); c.pc += 16;
+void run(CPU8192& c,const std::uint8_t* code,std::size_t len,bool privileged) {
+    while(c.pc<len) {
+        const Instr i=decode(code+c.pc,len-c.pc); const auto status=execute(c,i,privileged);
+        if(status==ExecuteStatus::InvalidOpcode)throw std::runtime_error("invalid Chimera-II opcode");
+        if(status==ExecuteStatus::PrivilegeViolation)throw std::runtime_error("privileged Chimera-II opcode in user mode");
+        if(status==ExecuteStatus::UnimplementedService)throw std::runtime_error("recognized Chimera-II service is not bound to an OS backend");
+        c.pc+=i.length;
     }
 }
-}
+
+} // namespace chimera

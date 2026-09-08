@@ -1,0 +1,73 @@
+mnemonic;opcode;encoding;operands;privilege;latency;throughput;pipeline_stage;isa_family;notes;source_ref
+ADD;0x0001;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise wide add;internal
+SUB;0x0002;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise wide subtract;internal
+AND;0x0003;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise bitwise and;internal
+OR;0x0004;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise bitwise or;internal
+XOR;0x0005;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise bitwise xor;internal
+NOT;0x0006;R;rd,rs;user;1;1;ALU;R8192;Lane-wise bitwise not;internal
+SHL;0x0007;R;rd,rs,imm;user;2;1;ALU;R8192;Logical left shift lanes;internal
+SHR;0x0008;R;rd,rs,imm;user;2;1;ALU;R8192;Logical right shift lanes;internal
+ROL;0x0009;R;rd,rs,imm;user;3;0.8;ALU;R8192;Rotate left lanes;internal
+ROR;0x000A;R;rd,rs,imm;user;3;0.8;ALU;R8192;Rotate right lanes;internal
+MUL;0x000B;R;rd,rs,rt;user;4;0.5;MUL;R8192;Schoolbook low bits multiply;internal
+MULHI;0x000C;R;rd,rs,rt;user;6;0.3;MUL;R8192;High bits multiply;internal
+MULMOD;0x000D;R;rd,rs,rt,mod;priv;120;0.05;CRYPTO;R8192;Modular multiply;internal
+MODEXP;0x000E;M;rd,rs,imm;priv;200;0.02;CRYPTO;R8192;Modular exponentiation;internal
+BARRETT;0x000F;R;rd,rs,mod;priv;80;0.1;CRYPTO;R8192;Barrett reduction helper;internal
+DIV;0x0010;R;rd,rs,rt;user;20;0.05;ALU;R8192;Wide divide (low);internal
+REM;0x0011;R;rd,rs,rt;user;20;0.05;ALU;R8192;Wide remainder;internal
+CMP;0x0012;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise compare;internal
+CMPEQ;0x0013;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise equal;internal
+CMPLT;0x0014;R;rd,rs,rt;user;1;1;ALU;R8192;Lane-wise less-than;internal
+MOV;0x0015;R;rd,rs;user;1;2;ALU;R8192;Register move;internal
+LOAD;0x0016;L;rd,addr,len;user;10;0.5;MEM;R8192;Load wide frame from memory;internal
+STORE;0x0017;L;addr,rs,len;user;10;0.5;MEM;R8192;Store wide frame to memory;internal
+PREFETCH;0x0018;I;addr;user;2;2;MEM;R8192;Prefetch frame into cache;internal
+MEMCPY;0x0019;M;dst,src,len;user;50;0.2;MEM;R8192;Bulk memory copy for frames;internal
+MEMSET;0x001A;M;dst,val,len;user;30;0.3;MEM;R8192;Bulk memory set;internal
+PIN_PAGES;0x001B;S;user_vaddr,len;priv;100;0.01;SYS;SPOTNIK;Pin user pages for DMA;internal
+UNPIN_PAGES;0x001C;S;handle;priv;50;0.02;SYS;SPOTNIK;Unpin pages and release handle;internal
+DMA_MAP;0x001D;S;page,dev;priv;40;0.02;DMA;SPOTNIK;Map page for device DMA;internal
+DMA_UNMAP;0x001E;S;dma_addr;priv;30;0.05;DMA;SPOTNIK;Unmap DMA mapping;internal
+DMA_START;0x001F;S;chan,desc;priv;5;1;DMA;SPOTNIK;Start DMA transfer;internal
+DMA_WAIT;0x0020;S;chan;priv;10;0.5;DMA;SPOTNIK;Wait for DMA completion;internal
+IOMMU_MAP;0x0021;S;dev,addr,len;priv;60;0.02;SYS;SPOTNIK;IOMMU mapping for device;internal
+IOMMU_UNMAP;0x0022;S;handle;priv;40;0.02;SYS;SPOTNIK;IOMMU unmap;internal
+GET_FRAME_DESC;0x0023;S;handle;user;5;1;IO;SPOTNIK;Return frame descriptor to userland;internal
+RELEASE_FRAME;0x0024;S;handle;user;3;2;IO;SPOTNIK;Release frame back to pool;internal
+XDP_SEND_ZC;0x0025;S;buf,len;user;5;1;IO;SPOTNIK;AF_XDP zero-copy send;internal
+XDP_RECV_ZC;0x0026;S;out_desc;user;5;1;IO;SPOTNIK;AF_XDP zero-copy receive;internal
+XDP_GET_EVENTFD;0x0027;S;queue;user;2;2;IO;SPOTNIK;Get eventfd for completions;internal
+NETMAP_SEND;0x0028;S;buf,len;user;6;0.9;IO;SPOTNIK;Netmap send wrapper;internal
+NETMAP_RECV;0x0029;S;out_desc;user;6;0.9;IO;SPOTNIK;Netmap receive wrapper;internal
+NIC_REGISTER;0x002A;S;pci_id;priv;20;0.1;SYS;SPOTNIK;Register NIC device pointer;internal
+NIC_UNREGISTER;0x002B;S;pci_id;priv;20;0.1;SYS;SPOTNIK;Unregister NIC device;internal
+IOCTL;0x002C;S;code,buf;user;5;1;SYS;HYBRID;Generic ioctl dispatch;internal
+IOCTL_RESPOND;0x002D;S;req_id,buf;priv;3;2;SYS;HYBRID;Respond to ioctl request;internal
+SYSLOG_WRITE;0x002E;S;buf,len;priv;2;2;SYS;HYBRID;Write to kernel log;internal
+AUDIT_LOG;0x002F;S;event,meta;priv;5;1;SYS;HYBRID;Audit event logging;internal
+TPM_EXTEND;0x0030;S;pcr,data;priv;200;0.01;SEC;HYBRID;Extend TPM PCR;internal
+TPM_SEAL;0x0031;S;blob,policy;priv;300;0.01;SEC;HYBRID;Seal data to TPM;internal
+TPM_UNSEAL;0x0032;S;blob;priv;300;0.01;SEC;HYBRID;Unseal data from TPM;internal
+SIGN_VERIFY;0x0033;S;data,sig;priv;150;0.02;CRYPTO;HYBRID;Verify signature;internal
+VERIFY_SIGNATURE;0x0034;S;pubkey,data,sig;priv;150;0.02;CRYPTO;HYBRID;Signature verification;internal
+LOAD_MODULE;0x0035;S;path;priv;100;0.01;SYS;HYBRID;Load kernel module;internal
+UNLOAD_MODULE;0x0036;S;name;priv;80;0.02;SYS;HYBRID;Unload kernel module;internal
+MODULE_SIGN;0x0037;S;module,cert;priv;200;0.01;SEC;HYBRID;Sign module image;internal
+MODULE_VERIFY;0x0038;S;module;priv;120;0.02;SEC;HYBRID;Verify module signature;internal
+KASLR_RESEED;0x0039;S;seed;priv;50;0.1;SYS;HYBRID;Reseed KASLR entropy;internal
+RNG_READ;0x003A;S;out,len;user;5;2;SYS;HYBRID;Read kernel RNG;internal
+RNG_SEED;0x003B;S;seed;priv;100;0.01;SYS;HYBRID;Seed RNG;internal
+HASH;0x003C;R;rd,rs;user;10;0.2;CRYPTO;R8192;Generic hash lane-wise;internal
+SHA256;0x003D;R;rd,rs;user;40;0.05;CRYPTO;R8192;SHA-256 on wide lanes;internal
+SHA512;0x003E;R;rd,rs;user;80;0.02;CRYPTO;R8192;SHA-512 on wide lanes;internal
+AESENC;0x003F;R;rd,rs;user;12;0.2;CRYPTO;R8192;AES encrypt round;internal
+AESDEC;0x0040;R;rd,rs;user;12;0.2;CRYPTO;R8192;AES decrypt round;internal
+RSAKEYGEN;0x0041;S;params;priv;1000;0.001;CRYPTO;R8192;RSA key generation helper;internal
+RSAMOD;0x0042;R;rd,rs,rt;priv;500;0.01;CRYPTO;R8192;RSA modular operation;internal
+ECC_POINT_ADD;0x0043;R;rd,rs,rt;priv;200;0.02;CRYPTO;R8192;ECC point addition;internal
+ECC_POINT_MUL;0x0044;R;rd,rs,rt;priv;600;0.01;CRYPTO;R8192;ECC scalar multiplication;internal
+RNG_WAIT;0x0045;S;timeout;user;0;0;SYS;HYBRID;Wait for RNG readiness;internal
+TRAP;0x0046;S;code;priv;1;1;CONTROL;HYBRID;Synchronous trap/exception;internal
+SYS_CALL;0x0047;S;num,args;user;5;1;SYS;HYBRID;System call entry;internal
+SVC;0x0048;S;num,args;priv;5;1;SYS;HYBRID;Supervisor call;internal
