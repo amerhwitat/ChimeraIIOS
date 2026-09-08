@@ -1,27 +1,23 @@
-; Chimera II OS x86 MBR research stub
-; Production boot flow targets UEFI/GPT. This compatibility stub is retained for research.
-BITS 16
-ORG 0x7C00
+bits 16
+org 0x7c00
 start:
     cli
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov sp, 0x7C00
-    sti
-    mov si, message
+    xor ax,ax
+    mov ds,ax
+    mov es,ax
+    mov ss,ax
+    mov sp,0x7c00
+    mov si,msg
 .print:
     lodsb
-    test al, al
-    jz .hang
-    mov ah, 0x0E
+    test al,al
+    jz .halt
+    mov ah,0x0e
     int 0x10
     jmp .print
-.hang:
-    cli
+.halt:
     hlt
-    jmp .hang
-message db 'Chimera II Spit Fire MBR research stub', 0
-TIMES 510-($-$$) DB 0
-DW 0xAA55
+    jmp .halt
+msg db 'Chimera II / Spit Fire SF0',13,10,0
+times 510-($-$$) db 0
+dw 0xaa55
