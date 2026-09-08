@@ -15,16 +15,45 @@ def load_cpp_names(path:Path):
     if not m: raise RuntimeError(f"cannot locate kNames string in {path}")
     return {i+1:empty_row(name,i+1) for i,name in enumerate(m.group(1).split()) if name}
 def load_rows(paths,cpp):
+    """Merge ISA sources with explicit authority ordering.
+
+    The canonical opcode CSV is authoritative for names at a given opcode.
+    Expanded/extension metadata enriches that canonical row. The C++ name table
+    is only a fallback for opcodes absent from the CSV sources. This prevents a
+    stale C++ name at one opcode from creating a duplicate mnemonic when the
+    canonical CSV has moved/renamed an instruction.
+    """
     merged=load_cpp_names(cpp)
-    for path in paths:
+    priorities={op:0 for op in merged}
+    for source_index,path in enumerate(paths, start=1):
         with path.open(newline="",encoding="utf-8") as fh:
             for row in csv.DictReader(fh,delimiter=";"):
                 if not row.get("opcode") or not row.get("mnemonic"): continue
                 op=int(row["opcode"],16); item={k:row.get(k,"") for k in HEADER}
-                if op in merged:
+                if op not in merged:
+                    merged[op]=item; priorities[op]=source_index
+                elif source_index>=priorities.get(op,0):
+                    # Later CSV sources enrich/override earlier rows. Preserve
+                    # non-empty metadata while allowing the authoritative row's
+                    # mnemonic to replace stale fallback names.
                     for key,value in item.items():
                         if value: merged[op][key]=value
-                else: merged[op]=item
+                    priorities[op]=source_index
+    # Reconcile duplicate names deterministically. Canonical source rows win;
+    # lower-priority stale aliases are retained as unique opcode-qualified names
+    # so every opcode in the architectural interval remains represented.
+    by_name={}
+    for op in sorted(merged):
+        name=merged[op].get("mnemonic","")
+        if not name: continue
+        by_name.setdefault(name,[]).append(op)
+    for name,ops in by_name.items():
+        if len(ops)<=1: continue
+        winner=max(ops,key=lambda op:(priorities.get(op,0), -op))
+        for op in ops:
+            if op==winner: continue
+            merged[op]["mnemonic"]=f"OP_{op:04X}"
+            merged[op]["source_ref"]=(merged[op].get("source_ref") or "")+";collision-reconciled"
     return dict(sorted(merged.items()))
 def mask_for(start,end): return ((1<<(end-start+1))-1)<<start
 def parse_template(template,opcode):
