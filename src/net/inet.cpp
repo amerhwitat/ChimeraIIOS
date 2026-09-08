@@ -187,7 +187,7 @@ extern "C" int chimera_inet_aton(const char* cp, struct in_addr* inp) {
     uint32_t value = (static_cast<uint32_t>(bytes[0]) << 24) |
                      (static_cast<uint32_t>(bytes[1]) << 16) |
                      (static_cast<uint32_t>(bytes[2]) << 8) | bytes[3];
-    inp->s_addr = value;
+    inp->s_addr = host_to_net32(value);
     return 1;
 }
 
