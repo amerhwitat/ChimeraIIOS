@@ -1,0 +1,26 @@
+name: Chimera II ISA and command conformance
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  isa-toolchain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Generate ISA bitfield registry
+        run: python3 tools/isa/generate_isa_bitfields.py --output /tmp/isa_bitfields.json
+      - name: Validate complete ISA
+        run: python3 tools/isa/test_isa_conformance.py /tmp/isa_bitfields.json
+      - name: Generate command registry
+        run: python3 tools/shell/generate_command_registry.py --output /tmp/chimera_command_registry.json
+      - name: Configure and build
+        run: cmake -S . -B build -DCHIMERA_ENABLE_X86_ASM=OFF
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure

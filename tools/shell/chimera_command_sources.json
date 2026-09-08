@@ -1,0 +1,30 @@
+{
+  "schema": "chimera-ii-command-compatibility",
+  "schema_version": 1,
+  "policy": "discover locally; classify by standard and implementation family; never assume identical option semantics",
+  "standards": [
+    {"id":"POSIX-2024","family":"POSIX","source":"https://pubs.opengroup.org/onlinepubs/9799919799/"},
+    {"id":"GNU-Coreutils","family":"GNU/Linux","source":"https://www.gnu.org/software/coreutils/"}
+  ],
+  "unix_families": [
+    {"id":"linux","families":["GNU/Linux","BusyBox","util-linux","systemd"],"shells":["sh","bash","dash","ash","zsh","ksh","fish"]},
+    {"id":"freebsd","families":["FreeBSD","BSD userland"],"shells":["sh","csh","tcsh","zsh","bash"]},
+    {"id":"openbsd","families":["OpenBSD","BSD userland"],"shells":["ksh","sh","csh","zsh"]},
+    {"id":"netbsd","families":["NetBSD","BSD userland"],"shells":["sh","ksh","csh","zsh"]},
+    {"id":"dragonflybsd","families":["DragonFly BSD"],"shells":["sh","csh","tcsh","zsh"]},
+    {"id":"darwin","families":["Darwin","macOS","BSD-derived userland"],"shells":["zsh","bash","sh","ksh"]},
+    {"id":"solaris-illumos","families":["Solaris","illumos","System V"],"shells":["sh","ksh","bash","zsh"]},
+    {"id":"aix","families":["AIX","System V-derived"],"shells":["ksh","sh","bash","zsh"]},
+    {"id":"hp-ux","families":["HP-UX","System V-derived"],"shells":["ksh","sh","bash"]}
+  ],
+  "shells": [
+    {"name":"bash","kind":"shell+builtins","source":"https://www.man7.org/linux/man-pages/man1/bash.1.html"},
+    {"name":"zsh","kind":"shell+builtins+modules","source":"https://zsh.sourceforge.io/Doc/Release/"},
+    {"name":"sh","kind":"POSIX shell language","source":"https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sh.html"},
+    {"name":"dash","kind":"POSIX-oriented shell","source":"https://man7.org/linux/man-pages/man1/dash.1.html"},
+    {"name":"FreeBSD sh/csh","kind":"BSD shell builtins","source":"https://man.freebsd.org/cgi/man.cgi?query=builtin&sektion=1"}
+  ],
+  "command_resolution": ["alias","function","builtin","reserved-word","PATH executable","implementation extension"],
+  "generated_catalog": "tools/shell/chimera_command_registry.json",
+  "generator": "tools/shell/generate_command_registry.py"
+}
