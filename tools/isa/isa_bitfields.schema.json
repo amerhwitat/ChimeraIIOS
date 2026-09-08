@@ -1,0 +1,18 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://chimera-ii.local/schema/isa-bitfields-v1.json",
+  "title":"Chimera II ISA Bitfield Registry",
+  "type":"object",
+  "required":["schema","schema_version","canonical_abi","instruction_count","instructions"],
+  "properties":{
+    "schema":{"const":"chimera-ii-isa-bitfields"},
+    "schema_version":{"type":"integer","const":1},
+    "canonical_abi":{"type":"object","required":["name","bytes","layout","bit_order"],"properties":{"name":{"type":"string"},"bytes":{"const":16},"layout":{"const":"opcode[16] | rd[16] | rs[16] | rt[16] | immediate[64]"},"bit_order":{"type":"string"}},"additionalProperties":false},
+    "instruction_count":{"type":"integer","minimum":0},
+    "instructions":{"type":"array","items":{"$ref":"#/$defs/instruction"}}
+  },
+  "$defs":{
+    "field":{"type":"object","required":["name","start","end","width","mask","shift"],"properties":{"name":{"type":"string"},"start":{"type":"integer","minimum":0},"end":{"type":"integer","minimum":0},"width":{"type":"integer","minimum":1},"mask":{"type":"string","pattern":"^0x[0-9A-Fa-f]+$"},"shift":{"type":"integer","minimum":0}},"additionalProperties":false},
+    "instruction":{"type":"object","required":["mnemonic","opcode","opcode_bits","encoding_template","encoding_status","bitfields"],"properties":{"mnemonic":{"type":"string"},"opcode":{"type":"string","pattern":"^0x[0-9A-Fa-f]{4}$"},"opcode_bits":{"type":"string","pattern":"^0x[0-9A-Fa-f]+$"},"encoding":{"type":"string"},"operands":{"type":"string"},"privilege":{"type":"string"},"isa_family":{"type":"string"},"encoding_template":{"type":"string"},"encoding_status":{"enum":["template","canonical_abi_only"]},"bitfields":{"type":"array","items":{"$ref":"#/$defs/field"}},"example_binary":{"type":"string"},"validation_errors":{"type":"array","items":{"type":"string"}},"source_ref":{"type":"string"}},"additionalProperties":false}
+  }
+}
