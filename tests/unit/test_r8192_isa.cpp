@@ -6,7 +6,7 @@ int main() {
     using namespace chimera;
 
     // Canonical Chimera-II fetch packets use a 16-bit little-endian opcode.
-    const std::uint8_t add[] = {0x01, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00};
+    const std::uint8_t add[] = {0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x02, 0x00};
     const Instr decoded = decode(add, sizeof(add));
     assert(decoded.opcode == 0x0001);
     assert(decoded.dst == 1);
