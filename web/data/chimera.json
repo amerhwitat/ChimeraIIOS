@@ -1,0 +1,30 @@
+{
+  "schema": "chimera-ii-web-data",
+  "version": 1,
+  "architecture": {
+    "title": "Chimera II OS",
+    "subtitle": "8192-bit ISA · RISC/CISC compatibility · kernel architecture",
+    "depth": 10,
+    "domains": [
+      ["Native ISA", "RegisterN / CPU8192", "1024 × 8192-bit GPR model with 128D research state"],
+      ["RISC compatibility", "RV32I / RV64I / AArch64", "Normalized decode layer for open and published RISC families"],
+      ["CISC compatibility", "x86-64", "Variable-length instruction frontend and common system/data classes"],
+      ["Kernel", "Scheduler · MM · VFS · IPC · Net", "Linux-inspired subsystem boundaries without copying Linux source"],
+      ["Graphics", "Aurora Wayland", "GPU, DMA-BUF, EGL and presentation architecture"],
+      ["Research", "128D / C8192", "Machine, cognitive and world-state experimentation"]
+    ],
+    "isa": [
+      ["Chimera-8192", "Experimental wide-word", "8192", "Native", "Implemented core"],
+      ["RV32I", "RISC", "32", "Compatibility", "Decoder skeleton"],
+      ["RV64I", "RISC", "64", "Compatibility", "Decoder skeleton"],
+      ["AArch64", "RISC", "64", "Compatibility", "Decoder skeleton"],
+      ["x86-64", "CISC", "64", "Compatibility", "Decoder skeleton"]
+    ],
+    "layers": [
+      "Boot / firmware", "ISA frontend", "Koronos kernel core",
+      "Scheduler + IRQ + syscall", "Virtual memory / allocator", "VFS + TensorFS",
+      "IPC / zero-copy", "Spotnik networking", "CEF security/capabilities",
+      "Aurora compositor / GPU"
+    ]
+  }
+}
