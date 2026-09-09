@@ -1,0 +1,26 @@
+{
+  "schema": "chimera-retro-emulators/v1",
+  "policy": "catalog-and-adapter-only",
+  "description": "Unified launcher catalog for historically important retro-computer emulation. Emulator binaries, ROMs, disk images and proprietary firmware are not bundled.",
+  "emulators": [
+    {"id":"mame","title":"MAME","backend":"native","systems":["Arcade","Atari 2600","Atari 5200","Atari 7800","Apple II","Commodore 64","ColecoVision","Intellivision","MSX","NES","SNES","Sega Master System","Sega Genesis","ZX Spectrum"],"url":"https://www.mamedev.org/","license":"GPL-2.0-or-later"},
+    {"id":"libretro","title":"RetroArch / Libretro","backend":"browser-wasm","systems":["NES","SNES","Game Boy","Game Boy Color","Game Boy Advance","Genesis","Master System","Atari 2600","Atari 7800","Commodore 64","Amiga","MSX","ZX Spectrum","DOS"],"url":"https://www.retroarch.com/","license":"GPL-3.0"},
+    {"id":"vice","title":"VICE","backend":"native","systems":["C64","C128","VIC-20","Plus/4","PET"],"url":"https://vice-emu.sourceforge.io/","license":"GPL-2.0-or-later"},
+    {"id":"fs-uae","title":"FS-UAE / UAE","backend":"native","systems":["Amiga"],"url":"https://fs-uae.net/","license":"GPL-2.0-or-later"},
+    {"id":"hatari","title":"Hatari","backend":"native","systems":["Atari ST"],"url":"https://hatari.tuxfamily.org/","license":"GPL-2.0-or-later"},
+    {"id":"fuse","title":"Fuse","backend":"native","systems":["ZX Spectrum"],"url":"https://fuse-emulator.sourceforge.net/","license":"GPL-2.0-or-later"},
+    {"id":"openmsx","title":"openMSX","backend":"native","systems":["MSX"],"url":"https://openmsx.org/","license":"GPL-2.0-or-later"},
+    {"id":"caprice32","title":"Caprice32","backend":"native","systems":["Amstrad CPC"],"url":"https://sourceforge.net/projects/caprice32/","license":"GPL-2.0-or-later"},
+    {"id":"b-em","title":"B-em","backend":"native","systems":["BBC Micro","Acorn Electron"],"url":"https://github.com/stardot/b-em","license":"GPL-2.0-or-later"},
+    {"id":"mupen64plus","title":"Mupen64Plus","backend":"native","systems":["Nintendo 64"],"url":"https://mupen64plus.org/","license":"GPL-2.0-or-later"},
+    {"id":"dolphin","title":"Dolphin","backend":"native","systems":["Nintendo GameCube","Nintendo Wii"],"url":"https://dolphin-emu.org/","license":"GPL-2.0-or-later"},
+    {"id":"ppsspp","title":"PPSSPP","backend":"native","systems":["PlayStation Portable"],"url":"https://www.ppsspp.org/","license":"GPL-2.0-or-later"},
+    {"id":"pcsx2","title":"PCSX2","backend":"native","systems":["PlayStation 2"],"url":"https://pcsx2.net/","license":"GPL-2.0-or-later"},
+    {"id":"dosbox","title":"DOSBox Staging","backend":"native","systems":["DOS","IBM PC compatible"],"url":"https://www.dosbox-staging.org/","license":"GPL-2.0-or-later"},
+    {"id":"scummvm","title":"ScummVM","backend":"native","systems":["DOS adventure computers","Amiga","Macintosh","Atari ST"],"url":"https://www.scummvm.org/","license":"GPL-3.0-or-later"},
+    {"id":"sheepshaver","title":"SheepShaver","backend":"native","systems":["Classic Macintosh PowerPC"],"url":"https://sheepshaver.cebix.net/","license":"GPL-2.0-or-later"},
+    {"id":"basiliskii","title":"Basilisk II","backend":"native","systems":["Classic Macintosh 68k"],"url":"https://basilisk.cebix.net/","license":"GPL-2.0-or-later"},
+    {"id":"applewin","title":"AppleWin","backend":"native","systems":["Apple II"],"url":"https://github.com/AppleWin/AppleWin","license":"GPL-2.0-or-later"},
+    {"id":"pce","title":"PCE / PC Engine emulator family","backend":"native","systems":["PC Engine","TurboGrafx-16"],"url":"https://www.mamedev.org/","license":"see emulator distribution"}
+  ]
+}
