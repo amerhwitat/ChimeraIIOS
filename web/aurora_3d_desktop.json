@@ -1,0 +1,14 @@
+{
+  "schema":"chimera-aurora-3d-desktop/v1",
+  "renderer":"three.js",
+  "renderer_policy":"progressive-enhancement-webgl",
+  "design_reference":"Aurora Wayland Glass Desktop.png",
+  "design_reference_source":"ChatGPT Library",
+  "design_reference_notes":["frosted glass panels","rounded translucent launcher","left vertical dock","right system widget rail","centered bottom dock","mountain/lake Aurora background","blue/purple ambient lighting"],
+  "profile_catalog":"desktop_profiles.json",
+  "linux_adapter":"profile-driven visual shell; native Wayland session only through an authorized backend",
+  "windows_adapter":"profile-driven visual shell; real Windows only through an authorized VM/RDP backend",
+  "security":"web UI is sandboxed and does not execute host desktop commands",
+  "accessibility":"HTML controls remain authoritative over the WebGL canvas",
+  "fallback":"desktop UI remains functional when WebGL is unavailable"
+}
