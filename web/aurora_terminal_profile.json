@@ -1,0 +1,22 @@
+{
+  "schema":"chimera-aurora-terminal/v1",
+  "theme":"aurora-glass",
+  "font":"JetBrains Mono",
+  "font_fallback":["Cascadia Code","Fira Code","monospace"],
+  "background":"rgba(3,7,15,.70)",
+  "foreground":"#eaf4ff",
+  "prompt":"aurora@chimera:~$",
+  "prompt_color":"#82c8ff",
+  "accent":"#9d7cff",
+  "opacity":0.70,
+  "blur_px":22,
+  "border_radius":18,
+  "window_chrome":"aurora-glass",
+  "database":"man_pages.json",
+  "command_catalog":"command_catalog.json",
+  "startup_commands":["neofetch","chimera-health","chimera-info"],
+  "features":["history","completion","aliases","pipes","redirection","job-control","man","apropos","whatis","JSON-output"],
+  "execution":"capability-gated",
+  "web_mode":"emulated-or-authorized-backend",
+  "native_mode":"Wayland-terminal-surface"
+}
