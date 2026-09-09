@@ -1,0 +1,22 @@
+{
+  "schema": "chimera-desktop-profiles/v1",
+  "default": "aurora-native",
+  "profiles": [
+    {"id":"aurora-native","title":"Aurora Wayland Glass","family":"Aurora","mode":"native-or-web","description":"Chimera II native glass desktop and browser-compatible shell."},
+    {"id":"linux-gnome","title":"Ubuntu / GNOME","family":"Linux","mode":"session-adapter","description":"GNOME Shell profile for Ubuntu and GNOME-based distributions."},
+    {"id":"linux-kde-plasma","title":"KDE Plasma","family":"Linux","mode":"session-adapter","description":"KDE Plasma profile for Plasma-based Linux installations."},
+    {"id":"linux-xfce","title":"Xfce","family":"Linux","mode":"session-adapter","description":"Lightweight Xfce desktop profile."},
+    {"id":"linux-cinnamon","title":"Cinnamon","family":"Linux","mode":"session-adapter","description":"Cinnamon desktop profile."},
+    {"id":"linux-mate","title":"MATE","family":"Linux","mode":"session-adapter","description":"Traditional MATE desktop profile."},
+    {"id":"linux-lxqt","title":"LXQt / LXDE","family":"Linux","mode":"session-adapter","description":"Lightweight LXQt/LXDE-compatible profile."},
+    {"id":"linux-budgie","title":"Budgie","family":"Linux","mode":"session-adapter","description":"Budgie desktop profile."},
+    {"id":"linux-pantheon","title":"Pantheon","family":"Linux","mode":"session-adapter","description":"elementary/Pantheon-style profile."},
+    {"id":"linux-deepin","title":"Deepin","family":"Linux","mode":"session-adapter","description":"Deepin Desktop Environment profile."},
+    {"id":"linux-enlightenment","title":"Enlightenment","family":"Linux","mode":"session-adapter","description":"Enlightenment desktop profile."},
+    {"id":"linux-cosmic","title":"COSMIC","family":"Linux","mode":"session-adapter","description":"COSMIC desktop profile."},
+    {"id":"windows-11","title":"Windows 11 UI","family":"Windows","mode":"web-profile-or-vm","description":"Windows 11-style shell; real Windows requires an authorized VM/RDP backend."},
+    {"id":"windows-10","title":"Windows 10 UI","family":"Windows","mode":"web-profile-or-vm","description":"Windows 10-style shell; real Windows requires an authorized VM/RDP backend."},
+    {"id":"windows-classic","title":"Classic Windows UI","family":"Windows","mode":"web-profile-or-vm","description":"Classic Windows-style desktop profile."},
+    {"id":"retro-desktop","title":"Retro Computer Desktop","family":"Retro","mode":"emulator-shell","description":"Launcher shell optimized for retro-computer emulators."}
+  ]
+}
