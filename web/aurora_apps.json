@@ -1,5 +1,5 @@
 {
-  "schema":"chimera-aurora-apps/v8",
+  "schema":"chimera-aurora-apps/v9",
   "desktop":"Aurora Wayland Glass",
   "launcher":"embedded-surface",
   "security_mode":"safe-lab",
@@ -24,7 +24,7 @@
       {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"embedded"},
       {"id":"retro-emulators","title":"Retro Computer Emulators","icon":"🕹","url":"retro_emulators.html","mode":"embedded"},
       {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"embedded"},
-      {"id":"terminal","title":"Aurora Terminal","icon":"⌘","target":"#terminal-section","mode":"native-surface","profile":"aurora_terminal_profile.json"},
+      {"id":"terminal","title":"Aurora Terminal","icon":"⌘","url":"aurora_terminal.html","mode":"embedded","profile":"aurora_terminal_profile.json","database":"man_pages.json"},
       {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"}
     ]},
     {"id":"desktop","title":"Desktop Environments","apps":[
@@ -39,7 +39,7 @@
     {"id":"system","title":"System & Monitoring","apps":[
       {"id":"process-monitor","title":"Process Monitor","icon":"PS","target":"#terminal-section","mode":"sandbox"},
       {"id":"system-monitor","title":"System Monitor","icon":"CPU","target":"#terminal-section","mode":"sandbox"},
-      {"id":"command-manual","title":"Command Manual / man","icon":"?","target":"#terminal-section","mode":"sandbox","database":"man_pages.json"}
+      {"id":"command-manual","title":"Command Manual / man","icon":"?","url":"aurora_terminal.html","mode":"embedded","database":"man_pages.json"}
     ]},
     {"id":"development","title":"Development","apps":[
       {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"embedded"},
