@@ -1,0 +1,61 @@
+{
+  "schema": "chimera-system-control-center/v1",
+  "name": "Chimera System Control Center",
+  "version": 1,
+  "refresh_ms": 3000,
+  "browser_policy": "read-only-unless-authorized-backend",
+  "capabilities": {
+    "process_read": true,
+    "process_manage": false,
+    "service_read": true,
+    "service_manage": false,
+    "settings_read": true,
+    "settings_write": false,
+    "session_power_control": false
+  },
+  "process_fields": ["pid","name","user","cpu_percent","memory_percent","memory_bytes","state","start_time","priority","command","source","health"],
+  "service_fields": ["id","name","description","state","startup","pid","source","health","can_start","can_stop","can_restart","can_enable","can_disable"],
+  "kpi_fields": ["id","label","value","unit","status","source","timestamp","confidence","detail"],
+  "settings": {
+    "desktop_profile": "chimera.desktop.profile",
+    "theme": "chimera.control.theme",
+    "taskbar_behavior": "chimera.control.taskbar_behavior",
+    "startup_apps": "chimera.control.startup_apps",
+    "notifications": "chimera.control.notifications",
+    "power_session": "chimera.control.power_session",
+    "terminal_default": "chimera.control.terminal_default",
+    "network_preferences": "chimera.control.network_preferences",
+    "security_mode": "chimera.control.security_mode"
+  },
+  "actions": [
+    {"id":"process.stop-request","destructive":true,"requires":"process_manage"},
+    {"id":"process.terminate-request","destructive":true,"requires":"process_manage"},
+    {"id":"service.start-request","destructive":false,"requires":"service_manage"},
+    {"id":"service.stop-request","destructive":true,"requires":"service_manage"},
+    {"id":"service.restart-request","destructive":true,"requires":"service_manage"},
+    {"id":"service.enable-request","destructive":false,"requires":"service_manage"},
+    {"id":"service.disable-request","destructive":true,"requires":"service_manage"},
+    {"id":"session.shutdown-request","destructive":true,"requires":"session_power_control"},
+    {"id":"session.reboot-request","destructive":true,"requires":"session_power_control"}
+  ],
+  "endpoints": {
+    "overview": "/api/system/overview",
+    "processes": "/api/system/processes",
+    "services": "/api/system/services",
+    "kpis": "/api/system/kpis",
+    "settings": "/api/system/settings",
+    "action": "/api/system/action"
+  },
+  "sources": ["native-linux","native-unix","native-windows","simulated","web-browser","unavailable"],
+  "statuses": ["healthy","degraded","warning","failed","unknown","unavailable"],
+  "settings_defaults": {
+    "theme": "aurora-auto",
+    "taskbar_behavior": "show-control-center",
+    "startup_apps": [],
+    "notifications": true,
+    "power_session": "confirm",
+    "terminal_default": "aurora-terminal",
+    "network_preferences": "auto",
+    "security_mode": "safe-lab"
+  }
+}
