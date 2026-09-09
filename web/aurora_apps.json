@@ -1,20 +1,23 @@
 {
-  "schema":"chimera-aurora-apps/v5",
+  "schema":"chimera-aurora-apps/v6",
   "desktop":"Aurora Wayland Glass",
   "launcher":"separate-window",
   "security_mode":"safe-lab",
   "desktop_profiles":"desktop_profiles.json",
   "retro_emulators":"retro_emulators.json",
+  "installer_catalog":"installer_catalog.json",
   "categories":[
     {"id":"chimera","title":"Chimera II","apps":[
       {"id":"architecture","title":"Architecture","icon":"A","target":"#architecture","mode":"native-web"},
       {"id":"isa","title":"ISA Explorer","icon":"◈","target":"#isa-section","mode":"native-web"},
       {"id":"kernel","title":"Koronos Kernel","icon":"K","target":"#kernel-section","mode":"native-web"},
       {"id":"health","title":"System Health & KPIs","icon":"♥","url":"health.html","mode":"native-web"},
+      {"id":"system-control-center","title":"System Control Center","icon":"⚙","url":"system_control_center.html","mode":"native-web"},
+      {"id":"installer-manager","title":"Chimera Installer Manager","icon":"▣","url":"installer_manager.html","mode":"native-web","note":"Catalog and capability-gated package operations; native installation requires an authorized backend."},
       {"id":"network-monitor","title":"TCP/IP Network Monitor","icon":"◎","url":"network_monitor.html","mode":"native-web"},
       {"id":"crash-center","title":"Crash Center & Recovery","icon":"⚠","url":"crash_center.html","mode":"native-web"},
-      {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"native-web","note":"Switch Aurora Web shell profiles; native sessions require installed/authorized backends."},
-      {"id":"retro-emulators","title":"Retro Computer Emulators","icon":"🕹","url":"retro_emulators.html","mode":"catalog","note":"Unified emulator adapters; user-supplied legal media and firmware only."},
+      {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"native-web"},
+      {"id":"retro-emulators","title":"Retro Computer Emulators","icon":"🕹","url":"retro_emulators.html","mode":"catalog"},
       {"id":"terminal","title":"Aurora Terminal","icon":"⌘","target":"#terminal-section","mode":"native-web"},
       {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"}
     ]},
@@ -27,27 +30,15 @@
       {"id":"cinnamon","title":"Cinnamon","icon":"C","url":"desktop_switcher.html#linux-cinnamon","mode":"session-adapter"},
       {"id":"windows-ui","title":"Windows UI Profiles","icon":"⊞","url":"desktop_switcher.html#windows-11","mode":"web-profile-or-vm"}
     ]},
-    {"id":"retro","title":"Retro Computers & Consoles","apps":[
-      {"id":"retro-emulators","title":"Retro Emulator Center","icon":"🕹","url":"retro_emulators.html","mode":"catalog"},
-      {"id":"mame","title":"MAME","icon":"M","url":"https://www.mamedev.org/","mode":"external"},
-      {"id":"retroarch","title":"RetroArch / Libretro","icon":"R","url":"https://www.retroarch.com/","mode":"external"},
-      {"id":"vice","title":"VICE Commodore","icon":"C64","url":"https://vice-emu.sourceforge.io/","mode":"external"},
-      {"id":"dosbox","title":"DOSBox Staging","icon":"DOS","url":"https://www.dosbox-staging.org/","mode":"external"},
-      {"id":"scummvm","title":"ScummVM","icon":"SC","url":"https://www.scummvm.org/","mode":"external"}
-    ]},
     {"id":"system","title":"System & Monitoring","apps":[
       {"id":"process-monitor","title":"Process Monitor","icon":"PS","target":"#terminal-section","mode":"sandbox"},
       {"id":"system-monitor","title":"System Monitor","icon":"CPU","target":"#terminal-section","mode":"sandbox"},
       {"id":"command-manual","title":"Command Manual / man","icon":"?","target":"#terminal-section","mode":"sandbox"}
     ]},
-    {"id":"network","title":"Network & TCP/IP","apps":[
-      {"id":"network-monitor","title":"Network Monitor","icon":"◎","url":"network_monitor.html","mode":"native-web"},
-      {"id":"tcpip","title":"TCP/IP Toolkit","icon":"↔","target":"#terminal-section","mode":"sandbox"},
-      {"id":"windows-network","title":"Windows Network Tools","icon":"W","target":"#terminal-section","mode":"sandbox"}
-    ]},
-    {"id":"unix","title":"Linux / UNIX / POSIX","apps":[{"id":"unix-catalog","title":"UNIX Command Catalog","icon":"UX","target":"#terminal-section","mode":"sandbox","catalog":"web/command_catalog.json"}]},
-    {"id":"browsers","title":"Web Browsers","apps":[{"id":"firefox","title":"Firefox","icon":"🦊","url":"https://www.mozilla.org/firefox/","mode":"external"},{"id":"chrome","title":"Google Chrome","icon":"🌐","url":"https://www.google.com/chrome/","mode":"external"},{"id":"edge","title":"Microsoft Edge","icon":"ⓔ","url":"https://www.microsoft.com/edge","mode":"external"}]},
-    {"id":"security","title":"Security Research","apps":[{"id":"burp","title":"Burp Suite Community Edition","icon":"🛡","url":"https://portswigger.net/burp/communitydownload","mode":"external-docs","note":"Use only against authorized targets."},{"id":"metasploit","title":"Metasploit Framework","icon":"◆","url":"https://docs.metasploit.com/","mode":"external-docs","note":"Use only in owned/authorized labs."},{"id":"kali","title":"Kali Tools Catalog","icon":"K","url":"https://www.kali.org/tools/","mode":"external-catalog"}]},
-    {"id":"development","title":"Development","apps":[{"id":"python","title":"Python","icon":"Py","target":"#terminal-section","mode":"sandbox"},{"id":"bash","title":"Bash / Zsh","icon":"$","target":"#terminal-section","mode":"sandbox"},{"id":"powershell","title":"PowerShell","icon":"PS","target":"#terminal-section","mode":"sandbox"}]}
+    {"id":"development","title":"Development","apps":[
+      {"id":"python","title":"Python","icon":"Py","target":"#terminal-section","mode":"sandbox"},
+      {"id":"bash","title":"Bash / Zsh","icon":"$","target":"#terminal-section","mode":"sandbox"},
+      {"id":"powershell","title":"PowerShell","icon":"PS","target":"#terminal-section","mode":"sandbox"}
+    ]
   ]
 }
