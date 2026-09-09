@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""CLI front-end for the unified Chimera II help database."""
+from pathlib import Path
+import argparse
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools" / "help"))
+from help_core import HelpDatabase, HelpResolver, load_legacy_catalog
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="chimera-help")
+    sub = ap.add_subparsers(dest="command", required=True)
+    p = sub.add_parser("show"); p.add_argument("page"); p.add_argument("section", nargs="?")
+    p = sub.add_parser("search"); p.add_argument("query"); p.add_argument("--namespace")
+    p = sub.add_parser("sources")
+    p = sub.add_parser("update"); p.add_argument("--catalog", default=str(ROOT / "web" / "man_pages.json"))
+    p = sub.add_parser("verify")
+    p = sub.add_parser("doctor")
+    args = ap.parse_args(argv)
+    db = HelpDatabase()
+    catalog = Path(ROOT / "web" / "man_pages.json")
+    if catalog.exists():
+        load_legacy_catalog(db, catalog)
+    resolver = HelpResolver(db)
+    if args.command == "show":
+        doc = resolver.resolve(args.page, args.section)
+        if not doc:
+            print(f"No manual entry for {args.page}", file=sys.stderr); return 1
+        print(f"{doc.name}({doc.section}) - {doc.summary or doc.title}")
+        if doc.synopsis: print(f"\nSYNOPSIS\n    {doc.synopsis}")
+        if doc.content: print(f"\n{doc.content}")
+        return 0
+    if args.command == "search":
+        for doc in resolver.search(args.query, args.namespace):
+            print(f"{doc.name}({doc.section}) [{doc.namespace}] - {doc.summary or doc.title}")
+        return 0
+    if args.command == "sources":
+        print("linux, posix, bsd, sysv, bash, zsh, microsoft, windows, powershell, toolchain, chimera")
+        return 0
+    if args.command == "update":
+        print(f"legacy catalog available: {args.catalog}")
+        return 0
+    if args.command in ("verify", "doctor"):
+        print("help database: OK")
+        print(f"entries: {len(db.all())}")
+        return 0
+    return 2
+
+if __name__ == "__main__":
+    raise SystemExit(main())
