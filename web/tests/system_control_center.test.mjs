@@ -9,7 +9,7 @@ test('CSCC contract defines management sections and stable actions', () => {
   const data = JSON.parse(read('system_control_center.json'));
   assert.equal(data.schema, 'chimera-system-control-center/v1');
   for (const section of ['capabilities', 'process_fields', 'service_fields', 'kpi_fields', 'settings', 'actions']) assert.ok(data[section]);
-  for (const action of ['process.stop','process.kill','service.start','service.stop','service.restart','service.enable','service.disable','system.shutdown','system.reboot']) assert.ok(data.actions.some(x => x.id === action));
+  for (const action of ['process.stop-request','process.terminate-request','service.start-request','service.stop-request','service.restart-request','service.enable-request','service.disable-request','session.shutdown-request','session.reboot-request']) assert.ok(data.actions.some(x => x.id === action));
   assert.ok(data.kpi_fields.includes('source'));
   assert.ok(data.kpi_fields.includes('confidence'));
 });
@@ -19,7 +19,7 @@ test('CSCC UI exposes professional management sections', () => {
   const js = read('system_control_center.js');
   const css = read('system_control_center.css');
   for (const id of ['overview','processes','services','performance','settings','sessions','startup','recovery']) assert.match(html, new RegExp(`id=["']${id}["']`));
-  for (const action of ['process.stop','process.kill','service.start','service.stop','service.restart','service.enable','service.disable']) assert.match(js, new RegExp(action.replace('.', '\\.' )));
+  for (const action of ['process.stop-request','process.terminate-request','service.start-request','service.stop-request','service.restart-request','service.enable-request','service.disable-request']) assert.match(js, new RegExp(action.replace('.', '\\.' )));
   assert.match(css, /backdrop-filter/);
 });
 
