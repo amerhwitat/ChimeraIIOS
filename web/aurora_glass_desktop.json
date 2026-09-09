@@ -1,0 +1,12 @@
+{
+  "schema":"chimera-aurora-glass-desktop/v1",
+  "desktop":"Aurora Wayland Glass",
+  "background":{"asset":"assets/aurora/aurora-wallpaper.png","fit":"cover","position":"center","overlay":"aurora-glass"},
+  "surface":{"mode":"desktop-canvas","apps":"embedded-windows","external_urls":"separate-window","z_index":100},
+  "visual":{"glass":true,"blur":"backdrop-filter","border_radius":18,"panel_opacity":0.72,"window_opacity":0.86,"accent":"aurora-blue-purple","shadow":"soft"},
+  "layout":{"top_bar":true,"left_dock":true,"right_widgets":true,"bottom_dock":true,"desktop_icons":true},
+  "window_manager":{"drag":true,"resize":true,"minimize":true,"maximize":true,"close":true,"focus":true,"snap":true,"iframe_sandbox":"allow-scripts allow-forms allow-same-origin"},
+  "native_wayland":{"compositor":"Aurora","glass_renderer":"OpenGL/Vulkan","fallback":"software"},
+  "web_parity":{"same_background":true,"same_surface_model":true,"same_window_chrome":true,"same_terminal_profile":true},
+  "asset_note":"The production background must be the approved Aurora Wayland Glass Desktop artwork from the project Library; do not substitute a different wallpaper when that asset is available."
+}
