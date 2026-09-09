@@ -1,0 +1,39 @@
+{
+  "schema": "chimera-installer-catalog/v1",
+  "policy": {
+    "native_install_requires_authorized_backend": true,
+    "browser_never_executes_host_installers": true,
+    "default_without_backend": "dry-run"
+  },
+  "package_formats": [
+    {"id":"chimera-pkg","platform":"chimera","backend":"chimera-pkg"},
+    {"id":"deb","platform":"linux","backend":"apt"},
+    {"id":"rpm","platform":"linux","backend":"dnf"},
+    {"id":"pacman","platform":"linux","backend":"pacman"},
+    {"id":"zypper","platform":"linux","backend":"zypper"},
+    {"id":"apk","platform":"linux","backend":"apk"},
+    {"id":"flatpak","platform":"linux","backend":"flatpak"},
+    {"id":"appimage","platform":"linux","backend":"portable"},
+    {"id":"winget","platform":"windows","backend":"winget"},
+    {"id":"msix","platform":"windows","backend":"msix"},
+    {"id":"msi-exe","platform":"windows","backend":"windows-installer-adapter"}
+  ],
+  "backends": [
+    {"id":"web-catalog","mode":"dry-run","capabilities":["catalog","details","dry-run"]},
+    {"id":"linux-package-manager","mode":"native","capabilities":["install","remove","update","verify"],"requires":"authorized-session"},
+    {"id":"windows-package-manager","mode":"native","capabilities":["install","remove","update","verify"],"requires":"authorized-session"},
+    {"id":"chimera-package-manager","mode":"native","capabilities":["install","remove","update","verify"],"requires":"authorized-session"}
+  ],
+  "applications": [
+    {"id":"python3","title":"Python 3","category":"Development","platforms":["linux","windows","chimera"],"formats":["deb","rpm","pacman","apk","winget"],"default_mode":"dry-run"},
+    {"id":"firefox","title":"Mozilla Firefox","category":"Browsers","platforms":["linux","windows"],"formats":["deb","rpm","pacman","flatpak","winget"],"default_mode":"dry-run"},
+    {"id":"chromium","title":"Chromium","category":"Browsers","platforms":["linux","windows"],"formats":["deb","rpm","pacman","flatpak","winget"],"default_mode":"dry-run"},
+    {"id":"vlc","title":"VLC Media Player","category":"Multimedia","platforms":["linux","windows"],"formats":["deb","rpm","pacman","flatpak","winget"],"default_mode":"dry-run"},
+    {"id":"git","title":"Git","category":"Development","platforms":["linux","windows"],"formats":["deb","rpm","pacman","apk","winget"],"default_mode":"dry-run"},
+    {"id":"vscode","title":"Visual Studio Code","category":"Development","platforms":["linux","windows"],"formats":["deb","rpm","pacman","flatpak","winget","msix"],"default_mode":"dry-run"},
+    {"id":"blender","title":"Blender","category":"Graphics","platforms":["linux","windows"],"formats":["deb","rpm","pacman","flatpak","winget"],"default_mode":"dry-run"},
+    {"id":"libreoffice","title":"LibreOffice","category":"Office","platforms":["linux","windows"],"formats":["deb","rpm","pacman","flatpak","winget","msix"],"default_mode":"dry-run"},
+    {"id":"chimera-shell","title":"Chimera Shell","category":"Chimera Native","platforms":["chimera"],"formats":["chimera-pkg"],"default_mode":"dry-run"},
+    {"id":"chimera-devtools","title":"Chimera Development Tools","category":"Chimera Native","platforms":["chimera"],"formats":["chimera-pkg"],"default_mode":"dry-run"}
+  ]
+}
