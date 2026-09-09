@@ -1,11 +1,12 @@
 {
-  "schema":"chimera-aurora-apps/v6",
+  "schema":"chimera-aurora-apps/v7",
   "desktop":"Aurora Wayland Glass",
   "launcher":"separate-window",
   "security_mode":"safe-lab",
   "desktop_profiles":"desktop_profiles.json",
   "retro_emulators":"retro_emulators.json",
   "installer_catalog":"installer_catalog.json",
+  "cpp_toolchain":"chimera_cpp_toolchain.json",
   "categories":[
     {"id":"chimera","title":"Chimera II","apps":[
       {"id":"architecture","title":"Architecture","icon":"A","target":"#architecture","mode":"native-web"},
@@ -18,6 +19,7 @@
       {"id":"crash-center","title":"Crash Center & Recovery","icon":"⚠","url":"crash_center.html","mode":"native-web"},
       {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"native-web"},
       {"id":"retro-emulators","title":"Retro Computer Emulators","icon":"🕹","url":"retro_emulators.html","mode":"catalog"},
+      {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"native-web","note":"C/C++ IDE frontend; compilation/debugging requires an authorized toolchain adapter."},
       {"id":"terminal","title":"Aurora Terminal","icon":"⌘","target":"#terminal-section","mode":"native-web"},
       {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"}
     ]},
@@ -36,9 +38,10 @@
       {"id":"command-manual","title":"Command Manual / man","icon":"?","target":"#terminal-section","mode":"sandbox"}
     ]},
     {"id":"development","title":"Development","apps":[
+      {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"native-web"},
       {"id":"python","title":"Python","icon":"Py","target":"#terminal-section","mode":"sandbox"},
       {"id":"bash","title":"Bash / Zsh","icon":"$","target":"#terminal-section","mode":"sandbox"},
       {"id":"powershell","title":"PowerShell","icon":"PS","target":"#terminal-section","mode":"sandbox"}
-    ]
+    ]}
   ]
 }
