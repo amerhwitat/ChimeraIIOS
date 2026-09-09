@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Chimera II OS Aurora System Health and KPI Center">
+<title>Chimera II OS — System Health</title>
+<style>
+:root{color-scheme:dark;--bg:#07111f;--glass:rgba(18,31,50,.72);--line:rgba(255,255,255,.12);--text:#eaf2ff;--muted:#9fb0c7;--ok:#67e8a5;--warn:#ffd166;--bad:#ff7188}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#17365c 0,#07111f 42%,#030711 100%);font:14px system-ui,sans-serif;color:var(--text);min-height:100vh}.shell{max-width:1500px;margin:auto;padding:24px}.glass{background:var(--glass);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(22px);box-shadow:0 18px 50px #0005}.head{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px;margin-bottom:18px}.eyebrow{font-size:11px;letter-spacing:.18em;color:#9cc8ff;margin:0 0 8px}.head h1{margin:0;font-size:32px}.status{padding:8px 12px;border:1px solid var(--line);border-radius:999px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.card{padding:18px;min-height:145px}.card h2{font-size:14px;margin:0 0 16px}.value{font-size:30px;font-weight:700}.sub{color:var(--muted);margin-top:7px}.bar{height:7px;background:#ffffff12;border-radius:9px;margin-top:14px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .4s}.wide{margin-top:14px;padding:18px}.rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}.row{display:flex;justify-content:space-between;padding:11px;border-bottom:1px solid var(--line)}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}button{border:1px solid var(--line);background:#ffffff0a;color:var(--text);padding:9px 13px;border-radius:10px;cursor:pointer}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}@media(max-width:700px){.head{align-items:flex-start;flex-direction:column}}
+</style></head>
+<body><main class="shell">
+<header class="glass head"><div><p class="eyebrow">AURORA WAYLAND GLASS · SYSTEM HEALTH</p><h1>Chimera II Health Center</h1><p class="sub">Unified operational KPI view for the machine, kernel, runtime, graphics, applications and research planes.</p></div><div id="overall" class="status">Collecting…</div></header>
+<section id="cards" class="grid"></section>
+<section class="glass wide"><h2>Subsystem health</h2><div id="rows" class="rows"></div></section>
+<section class="glass wide"><h2>Telemetry source</h2><div id="source" class="sub">Web UI telemetry is active. Native Chimera metrics are used when /api/kpi is available.</div><div class="toolbar"><button id="refresh">Refresh now</button><button id="export">Export snapshot</button></div></section>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), fmt=n=>Number.isFinite(n)?(n<10?n.toFixed(1):Math.round(n)).toString():'—';
+const defaults={cpu:{value:0,label:'Browser-observed CPU load'},memory:{value:0,label:'Browser-observed memory'},storage:{value:0,label:'Storage usage'},network:{value:100,label:'Network reachability'},kernel:{value:100,label:'Koronos readiness'},isa:{value:100,label:'ISA service readiness'},runtime:{value:100,label:'N-bit runtime readiness'},graphics:{value:100,label:'Aurora graphics readiness'},apps:{value:100,label:'Application catalog'},security:{value:100,label:'Security policy state'},io:{value:100,label:'I/O subsystem'},cognitive:{value:100,label:'Cognitive plane'}};
+function card(k,v){return `<article class="glass card"><h2>${k.toUpperCase()}</h2><div class="value">${fmt(v.value)}%</div><div class="sub">${v.label}</div><div class="bar"><i style="width:${Math.max(0,Math.min(100,v.value))}%"></i></div></article>`}
+async function collect(){let d=structuredClone(defaults), native=false;try{const r=await fetch('/api/kpi',{cache:'no-store'});if(r.ok){const x=await r.json();native=true;Object.keys(d).forEach(k=>{if(Number.isFinite(x[k]?.value))d[k]={...d[k],...x[k]}})}}catch{}
+if(performance.memory){d.memory.value=Math.min(100,(performance.memory.usedJSHeapSize/performance.memory.jsHeapSizeLimit)*100)}
+if(navigator.storage?.estimate){try{const s=await navigator.storage.estimate();if(s.quota)d.storage.value=Math.min(100,(s.usage||0)/s.quota*100)}catch{}}
+if(navigator.onLine===false)d.network.value=0;
+$('cards').innerHTML=Object.entries(d).map(([k,v])=>card(k,v)).join('');
+const score=Object.values(d).reduce((a,v)=>a+Math.max(0,Math.min(100,v.value)),0)/Object.keys(d).length;
+$('overall').textContent=`HEALTH ${fmt(score)}%`; $('overall').className='status '+(score>=90?'ok':score>=70?'warn':'bad');
+$('rows').innerHTML=Object.entries(d).map(([k,v])=>`<div class="row"><span>${v.label}</span><b class="${v.value>=90?'ok':v.value>=70?'warn':'bad'}">${fmt(v.value)}%</b></div>`).join('');
+$('source').textContent=native?'Native Chimera KPI endpoint connected; browser telemetry supplements missing fields.':'Web-only mode: native KPI endpoint /api/kpi was not available. No native hardware values are being fabricated.';
+window.__chimeraHealth={timestamp:new Date().toISOString(),score,metrics:d,source:native?'native+web':'web'};
+}
+$('refresh').onclick=collect;$('export').onclick=()=>{const b=new Blob([JSON.stringify(window.__chimeraHealth,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='chimera-health-snapshot.json';a.click();URL.revokeObjectURL(a.href)};collect();setInterval(collect,5000);
+})();
+</script></body></html>
