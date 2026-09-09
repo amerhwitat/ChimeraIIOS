@@ -36,4 +36,12 @@ Browser code may edit source and create build plans but must not execute arbitra
 
 ## Latest C++ support
 
-The baseline should be C++23. C++26-preview is exposed only when the installed compiler advertises support. The implementation must query compiler capabilities instead of assuming a feature is available. C++20/23 modules, concepts, ranges, coroutines, constexpr improvements, three-way comparison, formatting and modern standard-library facilities should be represented by feature detection rather than hard-coded compiler claims.
+C++23 is the production baseline. C++26 is a preview/development target, not a finalized ISO baseline. The `c++26-preview` option is exposed only when the selected compiler advertises support. The IDE must query compiler capabilities rather than assume language or library features are present.
+
+## Aurora registry integration
+
+The approved Aurora registry is schema `chimera-aurora-apps/v7` and exposes `chimera-code` in the Chimera II and Development categories. The web implementation consists of `web/chimera_code_ide.html`, `web/chimera_code_ide.css`, `web/chimera_code_ide.js`, `web/chimera_cpp_toolchain.json` and `web/tests/chimera_cpp_toolchain.test.mjs`.
+
+## Verification
+
+The conformance suite checks the compiler catalog, CISC/RISC target presence, IDE controls and Aurora registry exposure. Runtime compilation remains dependent on the installed host compiler or Chimera backend and an authorized adapter.
