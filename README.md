@@ -77,6 +77,16 @@ Supported language levels include C11/C17/C23 and C++11 through C++23. `c++26-pr
 
 Chimera targets exposed by the IDE are **Chimera CISC**, **Chimera RISC**, **Chimera Native**, and **Chimera Emulator**. Host GCC/MSVC installations are adapters and do not automatically generate Chimera ISA binaries. CISC/RISC compilation requires the corresponding Chimera frontend/IR/backend/assembler/linker pipeline.
 
+## Arch Linux Giant 🐉
+
+Arch Linux is documented as a **reference platform and engineering philosophy**, not as a dependency or requirement of Chimera II OS. Its KISS-oriented approach emphasizes simplicity, explicit configuration, user choice, and understanding of the underlying system. Its rolling-release model provides continuously updated packages, while requiring disciplined full-system upgrades and attention to project news.
+
+The Arch reference covers `pacman`, the community-maintained AUR, Linux gaming with Steam/Proton/Wine/DXVK/VKD3D-Proton and Vulkan, Windows-application compatibility, migration considerations, and comparison with Fedora, Pop!_OS, Linux Mint, and Ubuntu.
+
+For Chimera II, the transferable lesson is **control without unnecessary coupling**: expose system capabilities through stable interfaces, keep subsystems modular, make privileged operations explicit, provide transparent diagnostics, and avoid silently coupling the core OS to one distribution's assumptions.
+
+Full reference: `docs/ARCH_LINUX_GIANT.md`
+
 ## Architecture baseline
 
 The repository follows the **Chimera II OS Developer Guide** subsystem order: Spit Fire/Jasper boot, Koronos kernel, RegisterN, Spotnik networking, VFS/TensorFS/Nucleus/Hive data fabric, Aurora graphics, CEF services, security/CI, ISA tooling, and QEMU-oriented tests.
