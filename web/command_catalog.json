@@ -1,0 +1,33 @@
+{
+  "schema": "chimera-command-catalog/v1",
+  "description": "Unified Aurora command catalog for Linux, POSIX/Unix, BSD, Microsoft Windows CMD, PowerShell and Chimera II. Entries describe command families and monitoring/network capabilities; availability depends on execution backend.",
+  "families": {
+    "process_monitoring": ["ps","top","htop","btop","pstree","pgrep","pkill","pidof","pidstat","prstat","psrinfo","tasklist","taskkill","Get-Process","Get-CimInstance","w","who","users","uptime","jobs","fg","bg","nice","renice","kill","killall","time","timeout","watch"],
+    "memory_cpu": ["free","vmstat","mpstat","iostat","sar","nproc","lscpu","cpupower","numactl","numastat","sysctl","sysctlbyname","top","htop","btop","Get-Counter","Get-ComputerInfo","systeminfo"],
+    "storage_filesystems": ["df","du","lsblk","blkid","findmnt","mount","umount","mountpoint","fdisk","sfdisk","parted","file","stat","sync","ls","tree","Get-Volume","Get-Disk","Get-Partition","fsutil","mountvol","diskpart"],
+    "kernel_services_logs": ["uname","hostname","dmesg","journalctl","systemctl","service","rc-service","sysrc","launchctl","kldstat","modinfo","lsmod","modprobe","insmod","rmmod","sysctl","logger","log","wevtutil","Get-WinEvent","Get-Service","sc","driverquery"],
+    "network_interfaces": ["ip","ifconfig","ifup","ifdown","ipconfig","Get-NetAdapter","Get-NetIPConfiguration","Get-NetIPAddress","Get-NetIPInterface","Get-NetAdapterStatistics","netsh","route","Get-NetRoute","arp","ip neigh","ndp","netstat","ss","Get-NetTCPConnection","Get-NetUDPEndpoint","lsof","fstat","sockstat"],
+    "tcp_ip_diagnostics": ["ping","ping6","traceroute","traceroute6","tracepath","tracert","pathping","mtr","hping3","arping","ndisc6","tcping","Test-Connection","Test-NetConnection","pathping","telnet","nc","ncat","socat"],
+    "dns_dhcp": ["dig","nslookup","host","drill","resolvectl","systemd-resolve","getent","nmcli","networkctl","ipconfig /displaydns","ipconfig /flushdns","Resolve-DnsName","Get-DnsClientServerAddress","Get-DnsClientCache"],
+    "traffic_statistics": ["ss","netstat","ip -s link","ip -s addr","ip -s route","nstat","sar -n","vnstat","iftop","nload","bmon","iptraf-ng","ethtool","ethtool -S","Get-NetAdapterStatistics","Get-NetTCPStatistics","Get-NetUDPEndpoint"],
+    "packet_analysis": ["tcpdump","dumpcap","tshark","Wireshark","pktmon","netsh trace","Network Monitor compatibility","tcpflow","ngrep"],
+    "routing_firewall": ["ip route","route","netstat -r","ip rule","ip neigh","arp","iptables","ip6tables","nft","ufw","firewall-cmd","pfctl","ipfw","pfctl","netsh advfirewall","Get-NetFirewallProfile","Get-NetFirewallRule","Get-NetIPsecRule"],
+    "network_namespaces_virtualization": ["ip netns","nsenter","unshare","networkctl","nmcli","docker network","podman network","kubectl get pods -o wide","Get-VMSwitch","Get-NetNat","Get-NetIPConfiguration"],
+    "files_text_process": ["cat","less","more","head","tail","grep","egrep","fgrep","awk","sed","cut","sort","uniq","wc","tr","tee","xargs","find","locate","which","whereis","where","type","command","file","strings","diff","cmp","comm"],
+    "shell_posix_unix": ["sh","bash","zsh","ksh","dash","csh","tcsh","fish","echo","printf","read","set","env","export","alias","unalias","history","source",". ","help","type","command","man","info","apropos","whatis"],
+    "windows_cmd": ["cmd","help","ver","systeminfo","tasklist","taskkill","sc","driverquery","ipconfig","netstat","route","arp","getmac","nbtstat","net","netsh","nslookup","tracert","pathping","ping","hostname","whoami","quser","qwinsta","wevtutil","wmic","powershell","where","tree","dir","type"],
+    "powershell": ["Get-Command","Get-Help","Get-Member","Get-Process","Get-Service","Get-ComputerInfo","Get-CimInstance","Get-WinEvent","Get-Counter","Get-NetAdapter","Get-NetAdapterStatistics","Get-NetIPConfiguration","Get-NetIPAddress","Get-NetRoute","Get-NetTCPConnection","Get-NetUDPEndpoint","Get-DnsClientCache","Resolve-DnsName","Test-Connection","Test-NetConnection","Get-NetFirewallRule","Get-Volume","Get-Disk","Get-Partition"],
+    "legacy_unix_bsd_systemv": ["ps","top","vmstat","iostat","netstat","ifconfig","route","arp","ndp","sockstat","fstat","procstat","kldstat","sysctl","dmesg","swapinfo","gstat","systat","prstat","svcs","svcadm","kstat","zpool","zfs","ipcs","ipcrm"],
+    "security_audit_observation": ["last","lastlog","who","w","id","groups","getent","sudo -l","auditctl","ausearch","aureport","journalctl","faillog","loginctl","ss","lsof","ps"],
+    "documentation": ["man","apropos","whatis","info","help","Get-Help","help","tldr","cheat","compgen -c","whereis","which","type","command -V"]
+  },
+  "execution_backends": [
+    {"id":"native-linux","description":"Host-backed Linux/POSIX command execution when explicitly enabled."},
+    {"id":"native-unix","description":"Host-backed BSD/System V/Unix command execution when available."},
+    {"id":"native-windows","description":"Windows CMD/PowerShell host execution when available."},
+    {"id":"chimera-runtime","description":"Chimera II virtual/emulated command implementation."},
+    {"id":"web-sandbox","description":"Browser-safe virtual commands and synthetic telemetry."}
+  ],
+  "status_model": ["available","host-backed","emulated","unsupported","permission-denied"],
+  "telemetry": ["cpu","memory","processes","load","filesystem","disk","interfaces","addresses","routes","neighbors","tcp","udp","icmp","dns","packet-counters","errors","services","kernel","logs"]
+}
