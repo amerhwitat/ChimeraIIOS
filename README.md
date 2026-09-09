@@ -4,6 +4,45 @@
 
 > Status: research/engineering prototype. Host-emulated components are separated from future bare-metal firmware, kernel, driver, FPGA, and silicon targets.
 
+## Chimera Code IDE and C/C++ toolchain
+
+The Aurora web desktop now exposes **Chimera Code IDE** as an approved development application. It provides a Code::Blocks-like focused workflow while following the stronger cross-platform project/toolchain architecture of Qt Creator, with lightweight compiler-profile ideas from CodeLite.
+
+Supported host toolchains:
+
+- GCC / G++
+- Clang / Clang++
+- MSVC
+- Clang-cl
+
+Supported build systems:
+
+- CMake
+- Ninja
+- Make
+- Meson
+
+Supported debugger adapters:
+
+- GDB
+- CDB / WinDbg-compatible Windows workflow
+- Chimera debugger
+
+Supported language levels include C11/C17/C23 and C++11 through C++23. `c++26-preview` is exposed only as an experimental, compiler-capability-dependent mode; C++23 is the production baseline.
+
+Chimera targets exposed by the IDE are **Chimera CISC**, **Chimera RISC**, **Chimera Native**, and **Chimera Emulator**. Host GCC/MSVC installations are adapters and do not automatically generate Chimera ISA binaries. CISC/RISC compilation requires the corresponding Chimera frontend/IR/backend/assembler/linker pipeline.
+
+The web frontend does not execute arbitrary host commands. Build, run, debug and installation operations cross an explicit authorized local/session adapter boundary with capability and workspace restrictions.
+
+Relevant files:
+
+- `web/chimera_code_ide.html`
+- `web/chimera_code_ide.css`
+- `web/chimera_code_ide.js`
+- `web/chimera_cpp_toolchain.json`
+- `web/tests/chimera_cpp_toolchain.test.mjs`
+- `docs/chimera-cpp-ide-research.md`
+
 ## Architecture baseline
 
 The repository follows the **Chimera II OS Developer Guide** subsystem order: Spit Fire/Jasper boot, Koronos kernel, RegisterN, Spotnik networking, VFS/TensorFS/Nucleus/Hive data fabric, Aurora graphics, CEF services, security/CI, ISA tooling, and QEMU-oriented tests.
@@ -42,18 +81,6 @@ The current supported workstation path now includes a **host-side Koronos startu
 - `docs/CHIMERA_II_KERNEL_AURORA_STARTUP.md` — complete startup and failure model.
 
 The normal workstation flow is **UEFI/BIOS → existing Linux bootloader/kernel → systemd → Koronos runtime → display manager/logind → Aurora Wayland session**. The present Koronos runtime is not represented as a freestanding Linux-replacement kernel; a future bare-metal boot image remains a separate implementation stage.
-
-Build/install:
-
-```bash
-cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
-sudo cmake --install build
-sudo chimera-enable-startup
-```
-
-Then choose **Aurora (Chimera II)** in the display manager. A native Aurora compositor is preferred automatically; compatibility compositors are fallback bridges only.
 
 ## Installer and hardware compatibility
 
