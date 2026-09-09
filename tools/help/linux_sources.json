@@ -1,0 +1,14 @@
+{
+  "schema": "chimera-help-linux-sources/v1",
+  "policy": "index-host-installed-documentation",
+  "layouts": [
+    {"family":"debian-ubuntu","roots":["/usr/share/man","/usr/local/share/man"]},
+    {"family":"fedora-rhel","roots":["/usr/share/man","/usr/local/share/man"]},
+    {"family":"arch","roots":["/usr/share/man","/usr/local/share/man"]},
+    {"family":"alpine","roots":["/usr/share/man","/usr/local/share/man"]},
+    {"family":"opensuse","roots":["/usr/share/man","/usr/local/share/man"]},
+    {"family":"gentoo","roots":["/usr/share/man","/usr/local/share/man"]},
+    {"family":"generic-posix","roots":["/usr/share/man","/usr/local/share/man"]}
+  ],
+  "sections": ["1","2","3","4","5","6","7","8","9"]
+}
