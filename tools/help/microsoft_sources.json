@@ -1,0 +1,11 @@
+{
+  "schema": "chimera-help-microsoft-sources/v1",
+  "policy": "licensed-local-help-or-official-reference",
+  "sources": [
+    {"namespace":"powershell","name":"PowerShell","availability":"hybrid","official":"https://learn.microsoft.com/powershell/"},
+    {"namespace":"windows","name":"Windows Command Shell","availability":"remote","official":"https://learn.microsoft.com/windows-server/administration/windows-commands/windows-commands"},
+    {"namespace":"windows","name":"Win32 API","availability":"remote","official":"https://learn.microsoft.com/windows/win32/"},
+    {"namespace":"windows","name":".NET","availability":"remote","official":"https://learn.microsoft.com/dotnet/"}
+  ],
+  "redistribution": "Do not copy restricted Microsoft documentation into the repository without verified permission. Store provenance and official links for remote material."
+}
