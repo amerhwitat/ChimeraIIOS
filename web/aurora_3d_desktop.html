@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>Chimera II — Aurora 3D Desktop</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="aurora_3d_desktop.css">
+</head>
+<body>
+  <div id="aurora3d" class="aurora3d" aria-label="Aurora Wayland Glass Web Desktop">
+    <canvas id="aurora3dCanvas" aria-hidden="true"></canvas>
+    <div class="desktop-ui">
+      <header class="topbar glass">
+        <button id="launcherButton" class="aurora-brand" aria-label="Open desktop launcher"><span class="aurora-mark">A</span><span><b>Aurora Wayland</b><small>Chimera II OS</small></span></button>
+        <div class="desktop-search"><span>⌕</span><input id="desktopSearch" placeholder="Search applications, files and help…" aria-label="Desktop search"></div>
+        <div class="system-tray"><span id="profileName">Aurora Wayland Glass</span><span>⌁</span><span>◉</span><span>▣</span><span>98%</span><span id="clock">--:--</span></div>
+      </header>
+
+      <aside class="left-dock glass" aria-label="Application dock">
+        <button data-app="launcher">✦</button><button data-app="files">▰</button><button data-app="terminal">⌘</button><button data-app="browser">◉</button><button data-app="code">&lt;/&gt;</button><button data-app="settings">⚙</button><button data-app="help">?</button>
+      </aside>
+
+      <main class="workspace">
+        <section id="welcome" class="welcome glass">
+          <div class="eyebrow">CHIMERA II · WEB DESKTOP</div>
+          <h1>AURORA<br><span>WAYLAND</span></h1>
+          <p>Modern · Secure · Open · Yours</p>
+          <div class="profile-chip"><span class="pulse"></span><span id="modeLabel">WebGL desktop renderer</span></div>
+        </section>
+
+        <section id="window" class="app-window glass hidden" aria-live="polite">
+          <div class="window-titlebar"><strong id="windowTitle">Application</strong><div><button data-window="min">—</button><button data-window="max">□</button><button data-window="close">×</button></div></div>
+          <div id="windowContent" class="window-content"></div>
+        </section>
+
+        <aside class="right-rail" aria-label="Desktop widgets">
+          <div class="widget glass"><b id="dateText">Loading…</b><strong id="timeLarge">--:--</strong><small>Local desktop session</small></div>
+          <div class="widget glass"><b>System</b><div class="meter"><span>CPU</span><i style="width:18%"></i><em>18%</em></div><div class="meter"><span>Memory</span><i style="width:31%"></i><em>31%</em></div><div class="meter"><span>Disk</span><i style="width:12%"></i><em>12%</em></div></div>
+          <div class="widget glass"><b>Network</b><p>Connected · sandbox</p><small>Web UI transport</small></div>
+          <div class="widget glass"><b>Desktop profile</b><p id="railProfile">Aurora Wayland Glass</p><small>Linux/Windows visual adapter</small></div>
+        </aside>
+      </main>
+
+      <nav id="dock" class="bottom-dock glass" aria-label="Desktop taskbar">
+        <button id="dockLauncher" aria-label="Launcher">⊞</button><button data-app="search">⌕</button><button data-app="files">▰</button><button data-app="browser">◉</button><button data-app="terminal">⌘</button><button data-app="code">&lt;/&gt;</button><button data-app="settings">⚙</button><button data-app="help">?</button>
+      </nav>
+
+      <section id="launcher" class="launcher glass hidden" aria-label="Application launcher">
+        <div class="launcher-sidebar"><div class="account">A<br><small>Local Account</small></div><button data-app="home">Home</button><button data-app="files">Files</button><button data-app="terminal">Terminal</button><button data-app="settings">Settings</button><button data-app="help">Help / man</button><button data-app="desktop">Desktop Profiles</button></div>
+        <div class="launcher-main"><div class="eyebrow">PINNED</div><div class="app-grid"><button data-app="files">▰<small>Files</small></button><button data-app="terminal">⌘<small>Terminal</small></button><button data-app="browser">◉<small>Browser</small></button><button data-app="code">&lt;/&gt;<small>Chimera Code</small></button><button data-app="settings">⚙<small>Settings</small></button><button data-app="help">?<small>Unified Help</small></button><button data-app="desktop">✦<small>Desktop</small></button></div><div class="eyebrow">RECOMMENDED</div><p>Project Chimera II · Aurora Wayland Guide · System Monitor</p></div>
+      </section>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
+  <script src="aurora_3d_desktop.js"></script>
+</body>
+</html>
