@@ -1,0 +1,14 @@
+{
+  "schema":"chimera-cpp-toolchain/v1",
+  "language":"C/C++",
+  "host_compilers":["gcc","g++","clang","clang++","msvc","clang-cl"],
+  "standards":["c11","c17","c23","c++11","c++14","c++17","c++20","c++23","c++26-preview"],
+  "build_systems":["cmake","ninja","make","meson"],
+  "debuggers":["gdb","cdb","chimera-debugger"],
+  "ide_profiles":["chimera-code","code-blocks-compatible","qt-creator-compatible","codelite-compatible"],
+  "chimera_targets":["chimera-cisc","chimera-risc","chimera-native","chimera-emulator"],
+  "cross_compile":true,
+  "web_ui":true,
+  "native_execution":"capability-gated",
+  "note":"Host compilers are adapters; Chimera CISC/RISC generation requires a target backend or emulator toolchain. c++26-preview denotes compiler-supported experimental features, not a finalized ISO baseline."
+}
