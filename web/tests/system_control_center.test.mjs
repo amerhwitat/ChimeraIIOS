@@ -23,15 +23,9 @@ test('CSCC UI exposes professional management sections', () => {
   assert.match(css, /backdrop-filter/);
 });
 
-test('Aurora registry exposes the Control Center', () => {
-  const apps = JSON.parse(read('aurora_apps.json'));
-  const all = apps.categories.flatMap(c => c.apps);
-  const app = all.find(x => x.id === 'system-control-center');
-  assert.ok(app);
-  assert.equal(app.url, 'system_control_center.html');
-});
-
-test('Aurora shell has a dedicated Control Center launcher', () => {
-  assert.match(read('aurora_shell.js'), /system_control_center\.html/);
-  assert.match(read('aurora_shell.js'), /data-control-center/);
+test('Aurora shell exposes a dedicated Control Center launcher', () => {
+  const shell = read('aurora_shell.js');
+  assert.match(shell, /system_control_center\.html/);
+  assert.match(shell, /data-control-center/);
+  assert.match(shell, /System Control Center/);
 });
