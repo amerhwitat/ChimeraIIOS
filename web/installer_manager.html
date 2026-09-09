@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chimera II — Installer Manager</title><link rel="stylesheet" href="installer_manager.css"></head>
+<body>
+<main class="installer-shell">
+<header><div><span class="eyebrow">CHIMERA II</span><h1>Installer Manager</h1><p>Applications, packages, and authorized platform backends.</p></div><div class="status" id="backend-state">Web catalog · dry-run</div></header>
+<section class="toolbar"><input id="search" placeholder="Search applications…"><select id="platform"><option value="">All platforms</option><option>linux</option><option>windows</option><option>chimera</option></select><select id="format"><option value="">All package formats</option></select><button id="refresh">Refresh</button></section>
+<section class="grid"><div><h2>Available</h2><div id="available" class="cards"></div></div><aside><h2>Details</h2><div id="details" class="details">Select an application.</div><div class="actions"><button id="install">Install</button><button id="dry-run">Dry Run</button><button id="remove">Remove</button><button id="update">Update</button></div><h2>Installed</h2><div id="installed" class="installed">No native inventory reported.</div></aside></section>
+<section><h2>Operation log</h2><pre id="log">Installer Manager ready. Native operations require an authorized backend.</pre></section>
+</main><script src="installer_manager.js"></script></body></html>
