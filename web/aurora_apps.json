@@ -10,6 +10,7 @@
       {"id":"kernel","title":"Koronos Kernel","icon":"K","target":"#kernel-section","mode":"native-web"},
       {"id":"health","title":"System Health & KPIs","icon":"♥","url":"health.html","mode":"native-web"},
       {"id":"network-monitor","title":"TCP/IP Network Monitor","icon":"◎","url":"network_monitor.html","mode":"native-web","note":"Interface, route, socket, DNS and packet telemetry when a native backend is connected."},
+      {"id":"crash-center","title":"Crash Center & Recovery","icon":"⚠","url":"crash_center.html","mode":"native-web","note":"Crash reports, dump inventory and Aurora recovery screen. Native dump collection requires an authorized backend."},
       {"id":"terminal","title":"Aurora Terminal","icon":"⌘","target":"#terminal-section","mode":"native-web"},
       {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"}
     ]},
