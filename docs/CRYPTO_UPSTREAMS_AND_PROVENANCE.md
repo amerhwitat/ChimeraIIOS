@@ -39,8 +39,15 @@ BIP-32 specifies secp256k1 point multiplication, serialization and extended-key 
 | [dan-da/hd-wallet-derive](https://github.com/dan-da/hd-wallet-derive) | PHP | MIT | Multi-coin HD derivation and interoperability ideas | Reference only |
 | [cryptocoinjs/hdkey](https://github.com/cryptocoinjs/hdkey) | JavaScript | MIT | HD-key API patterns | Reference only |
 | [richardkiss/pycoin](https://github.com/richardkiss/pycoin) | Python | project license must be checked before reuse | Bitcoin/Python interoperability research | Reference only until license audit |
+| [bitcoin-core-mirror/secp256k1](https://gitlab.com/bitcoin-core-mirror/secp256k1) | C | mirror of Bitcoin Core project | GitLab mirror/release tracking | Reference; GitHub remains upstream source |
+| [Unit 410/Bip32 Fuzzer](https://gitlab.com/unit410/bip32-fuzzer) | Fuzzing | license requires review | BIP-32 differential/fuzz testing idea | Reference only |
+| [Yawning Angel/secp256k1-voi](https://gitlab.com/yawning/secp256k1-voi) | Go | license requires review | High-assurance Go secp256k1 implementation | Reference only until license audit |
 
 The listed projects are independent projects. Chimera II does not imply endorsement, affiliation, authorship, or ownership.
+
+## GitLab findings requiring caution
+
+GitLab topic discovery also surfaces projects explicitly focused on private-key recovery, public-key cracking, address puzzles, vanity searching, or wallet sweeping. Those projects are useful only as security/threat-model references for this catalogue; their key-recovery/search functionality is **not** imported into Chimera II crypto repositories.
 
 ## License/provenance rules
 
@@ -53,11 +60,13 @@ The listed projects are independent projects. Chimera II does not imply endorsem
 
 ## GitHub and GitLab discovery
 
-GitHub repository/code search and GitLab blob search were used to discover comparable public implementations. GitLab's API documents `scope=blobs` for filename/content search and its semantic search facilities; GitHub documents repository and license metadata APIs. These facilities are discovery mechanisms, not permission to copy code.
+GitHub repository/code search and GitLab blob/topic search were used to discover comparable public implementations. GitLab's API documents `scope=blobs` for filename/content search and its semantic search facilities; GitHub documents repository and license metadata APIs. These facilities are discovery mechanisms, not permission to copy code.
 
 - GitHub repository API: https://docs.github.com/en/rest/repos/repos
 - GitHub license API: https://docs.github.com/en/rest/licenses/licenses
 - GitLab search API: https://docs.gitlab.com/api/search/
+- GitLab BIP-32 topic: https://gitlab.com/explore/projects/topics/bip32
+- GitLab secp256k1 topic: https://gitlab.com/explore/projects/topics/secp256k1
 
 ## Security and testing policy
 
