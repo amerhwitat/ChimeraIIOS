@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "name": "chimera-linux-command-registry",
+  "implementations": ["standalone", "aurora-webui"],
+  "execution": {
+    "default_mode": "bounded-parallel",
+    "max_workers": "cpu-aware",
+    "deterministic_mode": true,
+    "async_io": true,
+    "preserve_ordering": true
+  },
+  "sources": {
+    "coreutils": "https://www.gnu.org/software/coreutils/",
+    "util-linux": "https://github.com/util-linux/util-linux",
+    "iproute2": "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git",
+    "sudo": "https://github.com/sudo-project/sudo",
+    "toybox": "https://github.com/landley/toybox",
+    "linux": "https://github.com/torvalds/linux"
+  },
+  "groups": {
+    "filesystem": ["ls","cd","pwd","mkdir","rmdir","touch","cp","mv","rm","ln","readlink","find","locate","updatedb","which","whereis","file","stat","du","df","tree"],
+    "text": ["cat","less","more","grep","sed","awk","cut","paste","sort","uniq","tr","head","tail","wc","diff","patch","split","join","tee"],
+    "system": ["mount","umount","fdisk","lsblk","blkid","dmesg","hexdump","od","sync"],
+    "process": ["ps","top","kill","pkill","pgrep","killall","nice","renice","jobs","fg","bg","nohup"],
+    "network": ["ip","ss","tc","ping","traceroute","route","ifconfig","netstat","dig","nslookup","host","ssh","scp","curl","wget","ftp","telnet"],
+    "packages": ["apt","apt-get","dpkg","dnf","yum","rpm","pacman","zypper","emerge","snap","flatpak"],
+    "development": ["bash","sh","ksh","cc","gcc","g++","make","cmake","ninja","meson","gdb"],
+    "administration": ["sudo","su","login","passwd","chsh","chown","chmod","chgrp","getent","id","whoami"]
+  },
+  "security": {
+    "privileged_commands_require_capability": true,
+    "webui_host_shell_disabled_by_default": true,
+    "audit_events": true,
+    "session_cancellation": true
+  }
+}
