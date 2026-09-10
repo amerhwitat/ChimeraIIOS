@@ -1,0 +1,7 @@
+chimera-bootstrap
+spit-fire
+jasper
+koronos-bootstrap
+chimera-installer
+chimera-appcenter
+chimera-mobile-profile-tools
