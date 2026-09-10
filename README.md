@@ -8,8 +8,10 @@
 
 ## Public Research OS
 
-Chimera II OS is published as an open research project with Git as the portable source-history layer and GitHub as the current canonical public forge. A forge-federation plan documents GitLab, Codeberg/Forgejo and SourceHut as secondary mirror targets when user-controlled repositories are created.
+Chimera II OS is published as an open research project with Git as the portable source-history layer and GitHub as the current canonical public forge.
 
+- [Complete public repository portfolio](docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md)
+- [Publication & media distribution registry](docs/PUBLICATION_AND_MEDIA_DISTRIBUTION.md)
 - [Open-source publication & federation](docs/OPEN_SOURCE_RESEARCH_OS_PUBLICATION.md)
 - [Source-code management federation](docs/SOURCE_CODE_MANAGEMENT_FEDERATION.md)
 - [Amer Hwitat bibliography](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md)
@@ -24,17 +26,17 @@ Chimera II OS is published as an open research project with Git as the portable 
 - [CPU4096](https://github.com/amerhwitat/CPU4096)
 - [CPU4096Simulator](https://github.com/amerhwitat/CPU4096Simulator)
 - [general / mobile integration](https://github.com/amerhwitat/general)
+- [test / Python integration](https://github.com/amerhwitat/test)
+- [keygen / Java track](https://github.com/amerhwitat/keygen)
 - [nlp](https://github.com/amerhwitat/nlp)
 - [PDFreaderPY](https://github.com/amerhwitat/PDFreaderPY)
 - [bruteforce](https://github.com/amerhwitat/bruteforce)
-- [keygen](https://github.com/amerhwitat/keygen)
 - [eth-key-check](https://github.com/amerhwitat/eth-key-check)
 - [BizX](https://github.com/amerhwitat/BizX)
 - [BizXtreme](https://github.com/amerhwitat/BizXtreme)
-- [test](https://github.com/amerhwitat/test)
 - [amerhwitat.github.io](https://github.com/amerhwitat/amerhwitat.github.io)
 
-The current GitHub inventory includes one private repository, `VanG`; its visibility must be changed by the account owner before it can honestly be described as public or mirrored. No private source is copied into the public Chimera research tree.
+The current GitHub inventory includes one private repository, `VanG`; it remains excluded from public publication. No private source is copied into the public Chimera research tree.
 
 ## Search-engine discoverability
 
@@ -53,8 +55,6 @@ The Mobile Edition extends Aurora into a portrait-first interface with mobile in
 - `web/mobile-landing.svg` — repository-hosted Aurora-inspired mobile visual.
 - `mobile/` — mobile runtime and package ecosystem.
 - `docs/MOBILE_UNIVERSAL_PACKAGING_ARCHITECTURE.md` — package/target architecture.
-
-The Library mobile architecture separates Mobile UI, application API, CPU/GPU/NPU/DSP, Chimera HAL and microkernel/V-Cores.
 
 ## Architecture baseline
 
@@ -91,7 +91,7 @@ Aurora Code IDE supports GCC/G++, Clang/Clang++, MSVC/clang-cl adapters, CMake/N
 
 ## Mobile universal package ecosystem
 
-The Mobile Edition contains the Package Fabric and adapters for Debian/dpkg/apt/apt-get/aptitude, RPM/DNF/YUM, pacman, apk, Nix, Flatpak, Snap, AppImage, Git/GitHub and Android/Swift-oriented target boundaries. `.deb` packages are permitted only through the transactional/signature/sandbox policy.
+The Mobile Edition contains the Package Fabric and adapters for Debian/dpkg/apt/apt-get/aptitude, RPM/DNF/YUM, pacman, apk, Nix, Flatpak, Snap, AppImage, Git/GitHub and Android/Swift-oriented target boundaries.
 
 ## Build and test
 
@@ -117,7 +117,7 @@ See [docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md](docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.m
 
 ## Research bibliography and provenance
 
-See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md), [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md), and [docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md](docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md). The Library corpus includes the comprehensive redesign report, mobile/robotics architecture, low-level specification, developer guide, Web Runtime research, Linux/retro research and Aurora visual references.
+See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md), [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md), [docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md](docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md), and [docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md](docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md).
 
 ## License
 
