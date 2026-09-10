@@ -53,7 +53,7 @@ The Mobile Edition extends Aurora into a portrait-first interface with mobile in
 - `mobile/` — mobile runtime and package ecosystem.
 - `docs/MOBILE_UNIVERSAL_PACKAGING_ARCHITECTURE.md` — package/target architecture.
 
-The research corpus's mobile architecture separates Mobile UI, application API, CPU/GPU/NPU/DSP, Chimera HAL and microkernel/V-Cores. fileciteturn66file3L198-L219
+The Library mobile architecture separates Mobile UI, application API, CPU/GPU/NPU/DSP, Chimera HAL and microkernel/V-Cores.
 
 ## Architecture baseline
 
@@ -78,7 +78,7 @@ The repository follows the Chimera II subsystem order: Spit Fire/Jasper boot, Ko
                    AURORA / GPU / CEF / WEB
 ```
 
-The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon. The research specification explicitly separates architectural register width, instruction encoding width, execution lanes, issue width and memory bandwidth. fileciteturn66file0L20-L29
+The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon. The research specification explicitly separates architectural register width, instruction encoding width, execution lanes, issue width and memory bandwidth.
 
 ## Linux commands, terminal and source integration
 
@@ -116,7 +116,7 @@ See [docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md](docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.m
 
 ## Research bibliography and provenance
 
-See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md) and [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md). The Library corpus includes the comprehensive redesign report, mobile/robotics architecture, low-level specification, developer guide, Web Runtime research, Linux/retro research and Aurora visual references. fileciteturn66file0L31-L40
+See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md) and [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md). The Library corpus includes the comprehensive redesign report, mobile/robotics architecture, low-level specification, developer guide, Web Runtime research, Linux/retro research and Aurora visual references.
 
 ## License
 
