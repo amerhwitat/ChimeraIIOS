@@ -1,0 +1,11 @@
+youtube
+firefox
+chromium
+vlc
+telegram
+signal
+discord
+reddit
+libreoffice
+gimp
+vscode
