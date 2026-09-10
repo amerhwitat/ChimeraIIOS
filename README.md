@@ -44,10 +44,34 @@ Machine-readable references:
 - `web/aurora_terminal_profile.json`
 - `web/command_catalog.json`
 - `web/man_pages.json`
+- `config/linux-command-registry.json`
 
 `man`, `apropos` and `whatis` operate against the unified database. The database contains original concise metadata and does not wholesale vendor copyrighted manuals.
 
 Security/audit commands are restricted to authorized lab/backend adapters.
+
+## Linux command source integration — standalone + Web UI
+
+Chimera II now has a unified Linux command source catalog covering the broad LabEx command index and upstream implementation families. The LabEx site is treated as a command/usage catalog rather than as a source repository. The implementation sources are tracked by family: GNU Coreutils, util-linux, iproute2, net-tools, sudo, Bash/POSIX shells, Toybox, and Linux kernel interfaces.
+
+Canonical documents and code:
+
+- `docs/LINUX_COMMANDS_SOURCE_CATALOG.md`
+- `docs/AURORA_WEBUI_LINUX_COMMAND_API.md`
+- `config/linux-command-registry.json`
+- `standalone/LinuxCommandRegistry.hpp`
+- `standalone/LinuxCommandRegistry.cpp`
+- `webui/linux-command-console.html`
+- `tools/fetch-linux-upstreams.sh`
+
+The architecture deliberately does **not** merge unrelated upstream repositories into one opaque code dump. Upstream source is reproducibly obtainable, licenses/SPDX metadata remain attached, permissively licensed components can be vendored when appropriate, and Chimera-specific adapters preserve a clean OS boundary.
+
+Two execution targets share the same registry:
+
+1. **Standalone Chimera II:** Koronos/VFS/Spotnik/Aurora Terminal userland.
+2. **Aurora Web UI:** capability-scoped HTTP/WebSocket terminal and desktop applications.
+
+The Web UI never grants the browser unrestricted host-shell access. Privileged operations require explicit capabilities and are audited.
 
 ## Chimera Code IDE and C/C++ toolchain
 
@@ -148,11 +172,13 @@ Execution modes include `Scalar`, `Vector`, `NativeWide`, `JIT` and `QuantumHybr
 
 The project follows proven open-source design patterns including QEMU-style backend separation, LLVM ORC-compatible JIT boundaries, MLIR-style lowering, wide-integer limb arithmetic, optional x86 fast paths, capability dispatch, and browser GPU rendering separated from native Wayland/EGL.
 
+Linux command execution extends this with CPU-aware bounded worker pools, asynchronous I/O, batching, output backpressure, lock minimization, session isolation, cancellation, and deterministic serial mode. Parallelism is applied only where semantics allow it; command ordering, filesystem consistency, privilege boundaries, and UI-thread rules take precedence over speculative speedups.
+
 ## Primary source tree
 
 ```text
 /boot /kernel /include /src /net /userspace /desktop /platform
-/tools /tests /integrations /docs /web
+/tools /tests /integrations /docs /web /webui /standalone /config
 ```
 
 ## Build and test
@@ -170,6 +196,14 @@ Web explorer:
 ```bash
 python3 -m http.server 8080 --directory web
 ```
+
+Linux upstream staging:
+
+```bash
+./tools/fetch-linux-upstreams.sh
+```
+
+Web Linux command console: `webui/linux-command-console.html`.
 
 ## Live demonstrations
 
