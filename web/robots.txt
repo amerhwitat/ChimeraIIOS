@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://amerhwitat.github.io/ChimeraIIOS/sitemap.xml
