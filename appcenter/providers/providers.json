@@ -1,0 +1,13 @@
+{
+  "schema":"chimera.app.providers/v1",
+  "providers": [
+    {"id":"native","platforms":["chimera"],"formats":["chpkg"],"mode":"bundled-or-repository"},
+    {"id":"linux","platforms":["linux","chimera"],"formats":["deb","rpm","pkg.tar","apk"],"mode":"repository-adapter"},
+    {"id":"flatpak","platforms":["linux","chimera"],"formats":["flatpakref","flatpak"],"mode":"remote-adapter","official":"https://flathub.org/"},
+    {"id":"appimage","platforms":["linux","chimera"],"formats":["AppImage"],"mode":"direct-artifact"},
+    {"id":"windows","platforms":["windows","chimera"],"formats":["msix","appx","exe","msi"],"mode":"compatibility-or-external"},
+    {"id":"android","platforms":["android","chimera-mobile"],"formats":["apk","aab"],"mode":"device-or-compatibility-adapter"},
+    {"id":"apple","platforms":["macos","ios","ipados"],"formats":["app","ipa"],"mode":"catalog-or-supported-distribution-only"},
+    {"id":"web","platforms":["all"],"formats":["pwa","url"],"mode":"browser-or-webview"}
+  ]
+}
