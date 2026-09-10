@@ -5,7 +5,7 @@ REPO="$(cd "$ROOT/../.." && pwd)"
 DIST="$ROOT/dist"
 WORK="$ROOT/work"
 rm -rf "$DIST" "$WORK"
-mkdir -p "$DIST/iso/boot/grub" "$DIST/iso/chimera/appcenter" "$DIST/iso/chimera/mobile" "$DIST/iso/chimera/docs" "$WORK"
+mkdir -p "$DIST/iso/boot/grub" "$DIST/iso/chimera/appcenter" "$DIST/iso/chimera/mobile" "$DIST/iso/chimera/docs" "$DIST/iso/chimera/manifests" "$WORK"
 
 CC=${CC:-gcc}
 LD=${LD:-ld}
@@ -22,6 +22,8 @@ cp -a "$REPO/appcenter/schema" "$DIST/iso/chimera/appcenter/"
 cp -a "$REPO/appcenter/cli" "$DIST/iso/chimera/appcenter/"
 cp -a "$REPO/mobile/device-profiles" "$DIST/iso/chimera/mobile/"
 cp "$REPO/mobile/device-profile.schema.json" "$DIST/iso/chimera/mobile/"
+cp "$REPO/iso/manifests/core-packages.txt" "$DIST/iso/chimera/manifests/"
+cp "$REPO/iso/manifests/application-catalog.txt" "$DIST/iso/chimera/manifests/"
 cp "$REPO/docs/APPLICATION_ECOSYSTEM.md" "$DIST/iso/chimera/docs/"
 cp "$REPO/docs/MOBILE_PORTING_MATRIX.md" "$DIST/iso/chimera/docs/"
 cp "$REPO/docs/LEGAL_AND_PROVENANCE.md" "$DIST/iso/chimera/docs/"
