@@ -20,7 +20,7 @@ The registry currently covers Old North Arabian plus Thamudic B/C/D, Taymanitic,
 ## External research and demo targets
 
 - User-supplied Bubble prototype: https://thamudicscan.bubbleapps.io/version-test
-- User-supplied translator UI: https://thamudicsan-s3wz30.public.builtwithrocket.new/
+- User-supplied translator UI: https://thamudicscan-s3wz30.public.builtwithrocket.new/
 - User-supplied artifact database UI: https://thamudic-scanner.softr.app/
 - OCIANA: https://ociana.osu.edu/
 - OCIANA Thamudic overview: https://ociana.osu.edu/scripts_thamudic
