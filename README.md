@@ -19,6 +19,23 @@
 
 The .NET tracks target `net8.0`, `net9.0` and `net10.0`. Native boot-critical code remains independent of the managed runtime.
 
+## Unified ISO and Application Center
+
+The ISO pipeline now bundles the application catalog, provider metadata, application-manager source, mobile device profiles and ecosystem documentation alongside the bootable bootstrap image. Open-source/core components can be bundled directly. Proprietary applications such as YouTube, Discord, Telegram and Microsoft software are represented through official web/store/distribution adapters instead of unauthorized binary redistribution.
+
+Supported provider classes include native Chimera packages, Linux repositories, Flatpak, AppImage, Windows MSIX/AppX and EXE/MSI, Android APK/AAB metadata and web/PWA applications. Apple integration is intentionally a catalog/distribution adapter rather than a claim that arbitrary iOS App Store binaries can be installed on non-Apple hardware.
+
+Run the catalog locally with:
+
+```bash
+python3 appcenter/cli/chimera-appctl.py list
+python3 appcenter/cli/chimera-appctl.py install-plan youtube
+```
+
+## Mobile / Koronos Mobile
+
+`mobile/` contains the Android-class Koronos Mobile architecture, AArch64 device-profile schema, Qualcomm/MediaTek/Samsung templates, profile validation and a reproducible research-image builder. Android's GKI/KMI and vendor-module model, AVB and rollback protection are treated as first-class constraints. Exact handset support requires model-specific validation; the project does not claim one binary boots every Samsung or Chinese-manufacturer device.
+
 ## Architecture baseline
 
 ```text
@@ -31,6 +48,8 @@ CHIMERA II OS
   +-- KORONOS: ISA / MM / scheduler / IRQ / VFS / IPC / networking
   +-- SPIT FIRE + JASPER: boot and boot-manager layers
   +-- AURORA / GPU / CEF / WEB
+  +-- APP CENTER: native / Linux / Flatpak / AppImage / Windows / Android / Web
+  +-- KORONOS MOBILE: AArch64 / GKI-KMI / vendor modules / AVB
   |
   +-- LANGUAGE BRIDGES: C/C++ <-> MSVC <-> C#/.NET <-> Java <-> Node.js <-> Python
 ```
@@ -39,7 +58,7 @@ The 8192-bit processor is an architectural/emulation research target, not a clai
 
 ## Bootable ISO
 
-`boot/iso/` now contains a reproducible GRUB2/Multiboot2 bootstrap ISO pipeline. The GitHub Actions workflow builds `chimera2os-bootstrap.iso` and publishes it as an artifact. The current image is deliberately a bootstrap kernel image; full Koronos drivers/services are integrated incrementally rather than being falsely represented as bare-metal complete.
+`boot/iso/` contains a reproducible GRUB2/Multiboot2 bootstrap ISO pipeline. The GitHub Actions workflow builds `chimera2os-bootstrap.iso`, validates the application/mobile metadata and publishes the ISO plus SHA-256 checksum as an artifact. The current image remains a bootstrap kernel image; full Koronos drivers/services are integrated incrementally rather than being falsely represented as bare-metal complete.
 
 ## Windows setup
 
@@ -56,6 +75,7 @@ cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 python3 tests/installer/test_installer_plan.py
+python3 appcenter/cli/chimera-appctl.py list
 
 dotnet build src/csharp/ChimeraIIOS.Managed/ChimeraIIOS.Managed.csproj
 cd boot/iso && ./build-iso.sh
@@ -63,4 +83,4 @@ cd boot/iso && ./build-iso.sh
 
 ## Documentation
 
-See `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md`, `docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
+See `docs/APPLICATION_ECOSYSTEM.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
