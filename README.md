@@ -15,6 +15,7 @@ Chimera II OS is published as an open research project with Git as the portable 
 - [Amer Hwitat bibliography](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md)
 - [Library research archive index](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md)
 - [Public CI/CD plan](docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md)
+- [Crypto upstreams and provenance](docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md)
 - [Research OS web landing page](web/research-os.html)
 - [Search sitemap](web/sitemap.xml)
 
@@ -116,7 +117,7 @@ See [docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md](docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.m
 
 ## Research bibliography and provenance
 
-See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md) and [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md). The Library corpus includes the comprehensive redesign report, mobile/robotics architecture, low-level specification, developer guide, Web Runtime research, Linux/retro research and Aurora visual references.
+See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md), [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md), and [docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md](docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md). The Library corpus includes the comprehensive redesign report, mobile/robotics architecture, low-level specification, developer guide, Web Runtime research, Linux/retro research and Aurora visual references.
 
 ## License
 
