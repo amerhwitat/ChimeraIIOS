@@ -1,0 +1,10 @@
+{
+  "id":"mediatek-generic",
+  "architecture":"aarch64",
+  "soc":"mediatek-generic",
+  "vendor":"mediatek",
+  "boot":{"protocol":"vendor","ab":true,"recovery":true},
+  "partitions":[{"name":"boot","role":"boot","critical":true},{"name":"vendor_boot","role":"vendor-ramdisk","critical":true},{"name":"super","role":"dynamic-partitions","critical":true}],
+  "security":{"avb":true,"rollbackProtection":true,"unlockRequired":true},
+  "kernel":{"gki":true,"kmi":"device-specific","vendorModules":[]}
+}
