@@ -51,7 +51,7 @@ def cmd_plan(args):
     for app in apps():
         if app["id"] == args.id:
             provider = app["provider"]
-            if provider not in provider_ids() and provider not in {"windows-linux", "external"}:
+            if provider not in provider_ids() and provider not in {"windows-linux", "external", "web"}:
                 raise SystemExit(f"provider not registered: {provider}")
             source = app.get("homepage")
             if source and urllib.parse.urlparse(source).scheme not in {"http", "https"}:
@@ -76,4 +76,6 @@ def build_parser():
 
 
 if __name__ == "__main__":
-    raise SystemExit(build_parser().parse_args().func(build_parser().parse_args()))
+    parser = build_parser()
+    args = parser.parse_args()
+    raise SystemExit(args.func(args))
