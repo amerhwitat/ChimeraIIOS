@@ -1,0 +1,11 @@
+{
+  "schema": "chimera.installer.plan",
+  "version": 1,
+  "bootModes": ["spitfire", "grub2-multiboot2", "lilo-compat", "linux-chainload", "windows-chainload"],
+  "media": ["iso", "usb", "live-dvd", "disk"],
+  "targets": ["ssd", "nvme", "hdd"],
+  "partitionTables": ["gpt", "mbr"],
+  "ui": {"mouse": true, "keyboard": true, "rtl": true},
+  "stages": ["detect", "partition", "format", "copy", "boot", "configure", "verify", "reboot"],
+  "destructiveOperationsRequireConfirmation": true
+}
