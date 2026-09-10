@@ -72,7 +72,7 @@ At minimum:
 
 ### 4. QEMU and integration testing
 
-Use QEMU for deterministic pre-hardware validation. The research corpus explicitly recommends emulator → assembler/linker → host microkernel → x86/UEFI → ARM/embedded ports before FPGA feasibility. fileciteturn66file7L503-L519
+Use QEMU for deterministic pre-hardware validation. The Chimera mobile/robotics research report recommends the sequence emulator → assembler/linker → host microkernel → x86/UEFI → ARM/embedded ports before FPGA feasibility.
 
 ### 5. Documentation gate
 
@@ -99,7 +99,7 @@ Release artifacts should include:
 - reproducible-build notes;
 - rollback instructions.
 
-The mobile/robotics research architecture already specifies secure boot, signed artifacts, measured update state, memory permissions, capability-like IPC, encrypted management channels and watchdogs as security goals. fileciteturn66file5L394-L407
+The mobile/robotics research architecture specifies secure boot, signed artifacts, measured update state, memory permissions, capability-like IPC, encrypted management channels and watchdogs as security goals.
 
 ## Release channels
 
@@ -111,7 +111,7 @@ The mobile/robotics research architecture already specifies secure boot, signed 
 
 ## CI/CD federation
 
-GitHub Actions remains the primary CI for the canonical repository. Secondary forges should consume the same Git tag and run their native CI where possible. Codeberg provides Forgejo Actions/Pages, while SourceHut provides builds.sr.ht and repository/project infrastructure. citeturn1search16turn1search0
+GitHub Actions remains the primary CI for the canonical repository. Secondary forges should consume the same Git tag and run their native CI where possible. Codeberg provides Forgejo Actions/Pages; SourceHut provides builds.sr.ht and repository/project infrastructure.
 
 ## Branch policy
 
