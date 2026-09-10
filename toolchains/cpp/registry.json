@@ -1,0 +1,14 @@
+{
+  "schema": "chimera.cpp.toolchains",
+  "version": 1,
+  "policy": "Curated open-source toolchains; upstream licenses and notices remain authoritative.",
+  "compilers": [
+    {"id":"gcc","name":"GNU Compiler Collection","languages":["C","C++"],"upstream":"https://gcc.gnu.org/","source":"https://gcc.gnu.org/git.html","license":"GPL-3.0-or-later with GCC Runtime Library Exception"},
+    {"id":"llvm-clang","name":"LLVM/Clang","languages":["C","C++","Objective-C","Objective-C++"],"upstream":"https://clang.llvm.org/","source":"https://github.com/llvm/llvm-project","license":"Apache-2.0 WITH LLVM-exception"},
+    {"id":"mingw-w64","name":"MinGW-w64 GCC toolchain","languages":["C","C++"],"upstream":"https://www.mingw-w64.org/","source":"https://github.com/mingw-w64/mingw-w64","license":"GPL-2.0-or-later with runtime components under their respective licenses"},
+    {"id":"tinycc","name":"Tiny C Compiler (TCC)","languages":["C","C++-limited/experimental"],"upstream":"https://bellard.org/tcc/","source":"https://repo.or.cz/w/tinycc.git","license":"LGPL-2.1-or-later"},
+    {"id":"openwatcom","name":"Open Watcom","languages":["C","C++"],"upstream":"https://openwatcom.org/","source":"https://github.com/open-watcom/open-watcom-v2","license":"Sybase Open Watcom Public License"}
+  ],
+  "targets": ["x86_64","i686","aarch64","arm","riscv64","wasm32","chimera-c8192","chimera-r8192"],
+  "chimera": {"driver":"chimera-cc","backends":["gcc","llvm","c8192","r8192"],"status":"research integration; C8192/R8192 backends require Chimera target implementation"}
+}
