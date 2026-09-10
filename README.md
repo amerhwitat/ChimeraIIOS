@@ -13,9 +13,11 @@
 | C# | Managed Windows/cross-platform services and desktop tooling | `src/csharp/` |
 | F# | Functional .NET research/runtime layer | `src/dotnet/fsharp/` |
 | Visual Basic .NET | Managed Windows compatibility/tooling layer | `src/dotnet/vb/` |
-| Java | Koronos semantic/JVM interoperability | `src/java/` |
-| Node.js | Web/integration runtime | `src/node/` |
-| Python | Reference research, ML/RL and data-processing layer | `src/python/` |
+| Java | Koronos semantic/JVM interoperability and application-service bridge | `src/java/` |
+| Node.js | Web/integration runtime and BizX/BizXtreme service bridge | `src/node/` |
+| Python | Reference research, ML/RL, data-processing and BizX/BizXtreme service bridge | `src/python/` |
+
+BizX and BizXtreme now maintain language-separated Java, Node.js and Python implementations in addition to their browser/runtime implementations. See `docs/BIZX_NODEJS_INTEGRATION.md` for the cross-repository service boundary.
 
 The .NET tracks target `net8.0`, `net9.0` and `net10.0`. Native boot-critical code remains independent of the managed runtime.
 
@@ -50,8 +52,7 @@ CHIMERA II OS
   +-- AURORA / GPU / CEF / WEB
   +-- APP CENTER: native / Linux / Flatpak / AppImage / Windows / Android / Web
   +-- KORONOS MOBILE: AArch64 / GKI-KMI / vendor modules / AVB
-  |
-  +-- LANGUAGE BRIDGES: C/C++ <-> MSVC <-> C#/.NET <-> Java <-> Node.js <-> Python
+  +-- APPLICATION BRIDGES: BizX / BizXtreme / Java / Node.js / Python
 ```
 
 The 8192-bit processor is an architectural/emulation research target, not a claim of existing 8192-bit silicon. Physical performance and energy claims require measured implementations.
@@ -83,4 +84,4 @@ cd boot/iso && ./build-iso.sh
 
 ## Documentation
 
-See `docs/APPLICATION_ECOSYSTEM.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
+See `docs/APPLICATION_ECOSYSTEM.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `docs/superpowers/plans/2026-09-11-bizx-java-python.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
