@@ -5,7 +5,7 @@ REPO="$(cd "$ROOT/../.." && pwd)"
 DIST="$ROOT/dist"
 WORK="$ROOT/work"
 rm -rf "$DIST" "$WORK"
-mkdir -p "$DIST/iso/boot/grub" "$DIST/iso/chimera/appcenter" "$DIST/iso/chimera/mobile" "$DIST/iso/chimera/docs" "$DIST/iso/chimera/manifests" "$WORK"
+mkdir -p "$DIST/iso/boot/grub" "$DIST/iso/chimera/appcenter" "$DIST/iso/chimera/mobile" "$DIST/iso/chimera/docs" "$DIST/iso/chimera/manifests" "$DIST/iso/chimera/toolchains/cpp" "$WORK"
 
 CC=${CC:-gcc}
 LD=${LD:-ld}
@@ -28,8 +28,19 @@ cp "$REPO/iso/manifests/application-catalog.txt" "$DIST/iso/chimera/manifests/"
 cp "$REPO/docs/APPLICATION_ECOSYSTEM.md" "$DIST/iso/chimera/docs/"
 cp "$REPO/docs/MOBILE_PORTING_MATRIX.md" "$DIST/iso/chimera/docs/"
 cp "$REPO/docs/LEGAL_AND_PROVENANCE.md" "$DIST/iso/chimera/docs/"
+cp -a "$REPO/toolchains/cpp/." "$DIST/iso/chimera/toolchains/cpp/"
+
+cat > "$DIST/iso/chimera/toolchains/cpp/BUILD_TOOLCHAINS.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' 'Chimera II C++ toolchain bootstrap'
+printf '%s\n' 'Use the package/build recipes and upstream sources recorded in the registry.'
+printf '%s\n' 'No third-party binary is silently redistributed by this bootstrap.'
+EOF
+chmod +x "$DIST/iso/chimera/toolchains/cpp/BUILD_TOOLCHAINS.sh"
 
 printf 'Chimera II application catalog bundled into ISO.\n' > "$DIST/iso/chimera/README.txt"
+printf 'Open-source C++ compiler/IDE/debugger registries and reproducible integration metadata are bundled.\n' >> "$DIST/iso/chimera/README.txt"
 printf 'Core open-source components are bundled; proprietary applications use official distribution adapters.\n' >> "$DIST/iso/chimera/README.txt"
 
 grub-mkrescue -o "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"
