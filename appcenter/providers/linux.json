@@ -1,0 +1,1 @@
+{"id":"linux","platforms":["linux","chimera"],"formats":["deb","rpm","pkg.tar","apk"],"mode":"repository-adapter"}
