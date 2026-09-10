@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chimera II Linux Command Console</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#101318;color:#e8edf2}main{display:grid;grid-template-columns:300px 1fr;height:100vh}.side{padding:16px;border-right:1px solid #2b313a;overflow:auto}.term{display:flex;flex-direction:column}.out{flex:1;padding:18px;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,monospace}.bar{display:flex;padding:12px;border-top:1px solid #2b313a}.bar input{flex:1;background:#171b21;color:#fff;border:1px solid #38414d;padding:10px}.bar button{margin-left:8px;padding:10px 16px}.cmd{padding:7px 9px;cursor:pointer;border-radius:5px}.cmd:hover{background:#1d2430}.badge{font-size:.75rem;opacity:.7}
+</style>
+</head>
+<body>
+<main>
+<aside class="side"><h2>Chimera II</h2><div class="badge">Linux command capability registry</div><p><input id="filter" placeholder="Search commands" style="width:100%;box-sizing:border-box;padding:8px"></p><div id="commands"></div></aside>
+<section class="term"><div id="out" class="out">Chimera II Aurora terminal\nCapability-scoped WebSocket session.\n\n</div><form id="form" class="bar"><input id="input" autocomplete="off" aria-label="command"><button>Run</button></form></section>
+</main>
+<script>
+const out=document.querySelector('#out'), input=document.querySelector('#input'), commands=document.querySelector('#commands'), filter=document.querySelector('#filter');
+let registry={groups:{}}; let ws=null;
+function print(s){out.textContent+=s+'\n';out.scrollTop=out.scrollHeight}
+async function load(){try{registry=await (await fetch('../config/linux-command-registry.json')).json(); render()}catch(e){print('Registry load failed: '+e)}}
+function names(){return Object.values(registry.groups||{}).flat()}
+function render(){const q=filter.value.toLowerCase();commands.innerHTML='';names().filter(x=>x.includes(q)).sort().forEach(name=>{const d=document.createElement('div');d.className='cmd';d.textContent=name;d.onclick=()=>{input.value=name;input.focus()};commands.appendChild(d)})}
+filter.oninput=render;
+function connect(){if(ws)return;try{ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/api/v1/terminal');ws.onopen=()=>print('[websocket connected]');ws.onmessage=e=>print(e.data);ws.onclose=()=>{ws=null;print('[websocket closed]')}}catch(e){print('[websocket unavailable] '+e)}}
+document.querySelector('#form').onsubmit=e=>{e.preventDefault();const command=input.value.trim();if(!command)return;print('$ '+command);connect();if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({type:'execute',command}));else print('Execution transport is not connected. Start the Chimera II terminal service.');input.value=''};
+load();
+</script>
+</body></html>
