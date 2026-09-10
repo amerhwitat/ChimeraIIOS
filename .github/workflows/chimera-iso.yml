@@ -5,6 +5,11 @@ on:
   push:
     paths:
       - 'boot/iso/**'
+      - 'appcenter/**'
+      - 'mobile/device-profiles/**'
+      - 'docs/APPLICATION_ECOSYSTEM.md'
+      - 'docs/MOBILE_PORTING_MATRIX.md'
+      - 'docs/LEGAL_AND_PROVENANCE.md'
       - '.github/workflows/chimera-iso.yml'
 
 jobs:
@@ -13,9 +18,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install ISO toolchain
-        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common xorriso gcc gcc-multilib binutils
+        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common xorriso gcc gcc-multilib binutils python3
+      - name: Validate application metadata
+        run: |
+          python3 -m json.tool appcenter/catalog/apps.json >/dev/null
+          python3 -m json.tool appcenter/providers/providers.json >/dev/null
+          python3 -m json.tool appcenter/schema/chimera-app.schema.json >/dev/null
+          for p in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$p"; done
       - name: Build ISO
         run: chmod +x boot/iso/build-iso.sh && boot/iso/build-iso.sh
+      - name: ISO content smoke test
+        run: |
+          test -s boot/iso/dist/chimera2os-bootstrap.iso
+          test -f boot/iso/dist/iso/chimera/appcenter/catalog/apps.json
+          test -f boot/iso/dist/iso/chimera/mobile/device-profile.schema.json
+          test -f boot/iso/dist/iso/chimera/docs/APPLICATION_ECOSYSTEM.md
       - name: Hash ISO
         run: sha256sum boot/iso/dist/chimera2os-bootstrap.iso > boot/iso/dist/SHA256SUMS
       - name: Upload ISO artifact
