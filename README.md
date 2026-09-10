@@ -1,119 +1,63 @@
 # Chimera II OS
 
-**Research-grade modular operating-system, virtual-processor, desktop, networking, data, and intelligent-computing ecosystem.**
+**Research-grade modular operating-system, virtual-processor, mobile, desktop, networking, data, and intelligent-computing ecosystem.**
 
-> Status: research/engineering prototype. Host-emulated components are separated from future bare-metal firmware, kernel, driver, FPGA, and silicon targets.
+> **Status:** public research/engineering prototype. Host-emulated components are separated from future bare-metal firmware, kernel, driver, FPGA, mobile-hardware and silicon targets.
+>
+> **Author / research lead:** Amer Hwitat
+
+## Public Research OS
+
+Chimera II OS is published as an open research project with Git as the portable source-history layer and GitHub as the current canonical public forge. A forge-federation plan documents GitLab, Codeberg/Forgejo and SourceHut as secondary mirror targets when user-controlled repositories are created.
+
+- [Open-source publication & federation](docs/OPEN_SOURCE_RESEARCH_OS_PUBLICATION.md)
+- [Source-code management federation](docs/SOURCE_CODE_MANAGEMENT_FEDERATION.md)
+- [Amer Hwitat bibliography](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md)
+- [Library research archive index](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md)
+- [Public CI/CD plan](docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md)
+- [Research OS web landing page](web/research-os.html)
+- [Search sitemap](web/sitemap.xml)
+
+### Related public repositories
+
+- [CPU4096](https://github.com/amerhwitat/CPU4096)
+- [CPU4096Simulator](https://github.com/amerhwitat/CPU4096Simulator)
+- [general / mobile integration](https://github.com/amerhwitat/general)
+- [nlp](https://github.com/amerhwitat/nlp)
+- [PDFreaderPY](https://github.com/amerhwitat/PDFreaderPY)
+- [bruteforce](https://github.com/amerhwitat/bruteforce)
+- [keygen](https://github.com/amerhwitat/keygen)
+- [eth-key-check](https://github.com/amerhwitat/eth-key-check)
+- [BizX](https://github.com/amerhwitat/BizX)
+- [BizXtreme](https://github.com/amerhwitat/BizXtreme)
+- [test](https://github.com/amerhwitat/test)
+- [amerhwitat.github.io](https://github.com/amerhwitat/amerhwitat.github.io)
+
+The current GitHub inventory includes one private repository, `VanG`; its visibility must be changed by the account owner before it can honestly be described as public or mirrored. No private source is copied into the public Chimera research tree.
+
+## Search-engine discoverability
+
+The Web publication includes `robots.txt`, `sitemap.xml`, descriptive metadata, stable internal links, the public research landing page and the repository bibliography. Search engines decide when and how to crawl/index public pages; the project can improve discoverability but cannot guarantee ranking or indexing.
 
 ## Aurora Wayland Glass Desktop
 
-Aurora is now defined as a **single desktop surface** shared by the native Wayland environment and the browser Web UI. Applications are managed as windows on that surface instead of appearing as an unrelated collection of pages.
+Aurora is the shared glass desktop surface for native Wayland and the browser Web UI. The canonical visual language is a scenic mountain/lake background, translucent frosted-glass panels, rounded window chrome, blue/purple accents, top bar, docks and system widgets.
 
-The canonical visual reference is the approved **Aurora Wayland Glass Desktop** artwork in the project Library: scenic mountain/lake background, translucent frosted-glass panels, rounded window chrome, blue/purple accents, top bar, left application dock, right widget rail, bottom dock, and glass terminal presentation.
+The native stack remains **DRM/KMS → Mesa/Vulkan/OpenGL → Aurora compositor → Wayland clients**, with software rendering fallback. The Web implementation mirrors the surface/window model using managed application windows and constrained embedded pages.
 
-Web desktop contracts:
+## Aurora Mobile Edition
 
-- `web/aurora_glass_desktop.json`
-- `web/aurora_glass_desktop.css`
-- `web/aurora_desktop_surface.js`
-- `web/aurora_shell.js`
-- `web/aurora_apps.json`
-- `docs/AURORA_GLASS_DESKTOP_AND_TERMINAL.md`
+The Mobile Edition extends Aurora into a portrait-first interface with mobile interaction patterns, bilingual English/Arabic labels, telemetry cards, quick actions, application grid, terminal, files, browser, store, security and system services.
 
-The production background asset is expected at `web/assets/aurora/aurora-wallpaper.png`. The Library artwork is the visual source of truth; if that binary is absent, the deployment must report that exact-background parity is pending rather than silently claiming pixel identity.
+- `web/mobile-landing.svg` — repository-hosted Aurora-inspired mobile visual.
+- `mobile/` — mobile runtime and package ecosystem.
+- `docs/MOBILE_UNIVERSAL_PACKAGING_ARCHITECTURE.md` — package/target architecture.
 
-The native stack remains **DRM/KMS → Mesa/Vulkan/OpenGL → Aurora compositor → Wayland clients**, with software rendering fallback. The Web implementation mirrors the surface/window model using managed application windows and constrained embedded pages. External sites remain separate windows.
-
-## Aurora Terminal, commands and `man`
-
-The terminal is a first-class Aurora surface with a dark translucent glass profile:
-
-- JetBrains Mono / Cascadia Code / Fira Code
-- `aurora@chimera:~$` prompt
-- glass blur and rounded window chrome
-- command history, completion, aliases, pipes and redirection
-- POSIX/Linux/BSD/System V commands
-- Bash/Zsh
-- Windows CMD and PowerShell families
-- GCC/G++, Clang/Clang++, CMake, Ninja, Make and Meson
-- GDB/CDB/Chimera debugger commands
-- Chimera ISA assembler/disassembler/runtime commands
-- system health, networking, installer, crash and desktop commands
-
-Machine-readable references:
-
-- `web/aurora_terminal_profile.json`
-- `web/command_catalog.json`
-- `web/man_pages.json`
-- `config/linux-command-registry.json`
-
-`man`, `apropos` and `whatis` operate against the unified database. The database contains original concise metadata and does not wholesale vendor copyrighted manuals.
-
-Security/audit commands are restricted to authorized lab/backend adapters.
-
-## Linux command source integration — standalone + Web UI
-
-Chimera II now has a unified Linux command source catalog covering the broad LabEx command index and upstream implementation families. The LabEx site is treated as a command/usage catalog rather than as a source repository. The implementation sources are tracked by family: GNU Coreutils, util-linux, iproute2, net-tools, sudo, Bash/POSIX shells, Toybox, and Linux kernel interfaces.
-
-Canonical documents and code:
-
-- `docs/LINUX_COMMANDS_SOURCE_CATALOG.md`
-- `docs/AURORA_WEBUI_LINUX_COMMAND_API.md`
-- `config/linux-command-registry.json`
-- `standalone/LinuxCommandRegistry.hpp`
-- `standalone/LinuxCommandRegistry.cpp`
-- `webui/linux-command-console.html`
-- `tools/fetch-linux-upstreams.sh`
-
-The architecture deliberately does **not** merge unrelated upstream repositories into one opaque code dump. Upstream source is reproducibly obtainable, licenses/SPDX metadata remain attached, permissively licensed components can be vendored when appropriate, and Chimera-specific adapters preserve a clean OS boundary.
-
-Two execution targets share the same registry:
-
-1. **Standalone Chimera II:** Koronos/VFS/Spotnik/Aurora Terminal userland.
-2. **Aurora Web UI:** capability-scoped HTTP/WebSocket terminal and desktop applications.
-
-The Web UI never grants the browser unrestricted host-shell access. Privileged operations require explicit capabilities and are audited.
-
-## Chimera Code IDE and C/C++ toolchain
-
-The Aurora web desktop exposes **Chimera Code IDE** as an approved development application. It provides a Code::Blocks-like focused workflow while following the stronger cross-platform project/toolchain architecture of Qt Creator, with lightweight compiler-profile ideas from CodeLite.
-
-Supported host toolchains:
-
-- GCC / G++
-- Clang / Clang++
-- MSVC
-- Clang-cl
-
-Supported build systems:
-
-- CMake
-- Ninja
-- Make
-- Meson
-
-Supported debugger adapters:
-
-- GDB
-- CDB / WinDbg-compatible Windows workflow
-- Chimera debugger
-
-Supported language levels include C11/C17/C23 and C++11 through C++23. `c++26-preview` is experimental and compiler-capability-dependent; C++23 is the production baseline.
-
-Chimera targets exposed by the IDE are **Chimera CISC**, **Chimera RISC**, **Chimera Native**, and **Chimera Emulator**. Host GCC/MSVC installations are adapters and do not automatically generate Chimera ISA binaries. CISC/RISC compilation requires the corresponding Chimera frontend/IR/backend/assembler/linker pipeline.
-
-## Arch Linux Giant 🐉
-
-Arch Linux is documented as a **reference platform and engineering philosophy**, not as a dependency or requirement of Chimera II OS. Its KISS-oriented approach emphasizes simplicity, explicit configuration, user choice, and understanding of the underlying system. Its rolling-release model provides continuously updated packages, while requiring disciplined full-system upgrades and attention to project news.
-
-The Arch reference covers `pacman`, the community-maintained AUR, Linux gaming with Steam/Proton/Wine/DXVK/VKD3D-Proton and Vulkan, Windows-application compatibility, migration considerations, and comparison with Fedora, Pop!_OS, Linux Mint, and Ubuntu.
-
-For Chimera II, the transferable lesson is **control without unnecessary coupling**: expose system capabilities through stable interfaces, keep subsystems modular, make privileged operations explicit, provide transparent diagnostics, and avoid silently coupling the core OS to one distribution's assumptions.
-
-Full reference: `docs/ARCH_LINUX_GIANT.md`
+The research corpus's mobile architecture separates Mobile UI, application API, CPU/GPU/NPU/DSP, Chimera HAL and microkernel/V-Cores. fileciteturn66file3L198-L219
 
 ## Architecture baseline
 
-The repository follows the **Chimera II OS Developer Guide** subsystem order: Spit Fire/Jasper boot, Koronos kernel, RegisterN, Spotnik networking, VFS/TensorFS/Nucleus/Hive data fabric, Aurora graphics, CEF services, security/CI, ISA tooling, and QEMU-oriented tests.
+The repository follows the Chimera II subsystem order: Spit Fire/Jasper boot, Koronos kernel, RegisterN, Spotnik networking, VFS/TensorFS/Nucleus/Hive data fabric, Aurora graphics, CEF services, security/CI, ISA tooling and QEMU-oriented tests.
 
 ```text
                        CHIMERA II OS
@@ -134,52 +78,19 @@ The repository follows the **Chimera II OS Developer Guide** subsystem order: Sp
                    AURORA / GPU / CEF / WEB
 ```
 
-The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon.
+The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon. The research specification explicitly separates architectural register width, instruction encoding width, execution lanes, issue width and memory bandwidth. fileciteturn66file0L20-L29
 
-## Kernel startup and Aurora boot
+## Linux commands, terminal and source integration
 
-The supported workstation path includes the host-side Koronos startup runtime and standard Wayland session integration:
+The project maintains a unified Linux/Unix/Windows command catalog and Aurora terminal. Upstream code is tracked by provenance and license; unrelated upstream repositories are not collapsed into an opaque code dump.
 
-- `src/kernel/chimera_kernel_main.cpp`
-- `platform/systemd/chimera-kernel.service`
-- `desktop/aurora/aurora-session.sh`
-- `platform/wayland/aurora.desktop`
-- `platform/systemd/aurora-session@.service`
-- `tools/installer/enable-startup.sh`
-- `docs/CHIMERA_II_KERNEL_AURORA_STARTUP.md`
+## Toolchain and IDE
 
-Normal workstation flow: **UEFI/BIOS → existing Linux bootloader/kernel → systemd → Koronos runtime → display manager/logind → Aurora Wayland session**.
+Aurora Code IDE supports GCC/G++, Clang/Clang++, MSVC/clang-cl adapters, CMake/Ninja/Make/Meson, GDB/CDB/Chimera debugger contracts and Chimera CISC/RISC/Native/Emulator targets.
 
-## Installer and hardware compatibility
+## Mobile universal package ecosystem
 
-The repository includes a safe cross-platform installer planning layer under `tools/installer/`. Disk wiping, partitioning, formatting, bootloader replacement and driver mutation remain privileged adapter operations requiring explicit confirmation.
-
-## Expandable N-bit runtime
-
-`include/chimera/nbit_runtime.hpp` and `src/runtime/nbit_runtime.cpp` make operand width an explicit runtime property. The same API can represent 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384-bit and future widths subject to capability limits.
-
-Execution modes include `Scalar`, `Vector`, `NativeWide`, `JIT` and `QuantumHybrid`, with capability checks and safe failure.
-
-## ISA integration
-
-`include/chimera/unified_isa.hpp` provides a normalized instruction representation for Chimera-8192, RISC-V, AArch64 and x86-64. `include/chimera/isa_catalog.hpp`, `tools/isa/isa_opcodes.csv` and `tools/isa/test_vector_generator.py` provide machine-readable metadata and deterministic test-vector generation.
-
-## Cognitive node and research
-
-`tools/cognition/chimera_rnn.py` provides a dependency-free recurrent-state/provenance prototype. The node network exchanges signed evidence and summaries rather than arbitrary executable code, kernel modules or privileged commands.
-
-## Performance architecture
-
-The project follows proven open-source design patterns including QEMU-style backend separation, LLVM ORC-compatible JIT boundaries, MLIR-style lowering, wide-integer limb arithmetic, optional x86 fast paths, capability dispatch, and browser GPU rendering separated from native Wayland/EGL.
-
-Linux command execution extends this with CPU-aware bounded worker pools, asynchronous I/O, batching, output backpressure, lock minimization, session isolation, cancellation, and deterministic serial mode. Parallelism is applied only where semantics allow it; command ordering, filesystem consistency, privilege boundaries, and UI-thread rules take precedence over speculative speedups.
-
-## Primary source tree
-
-```text
-/boot /kernel /include /src /net /userspace /desktop /platform
-/tools /tests /integrations /docs /web /webui /standalone /config
-```
+The Mobile Edition contains the Package Fabric and adapters for Debian/dpkg/apt/apt-get/aptitude, RPM/DNF/YUM, pacman, apk, Nix, Flatpak, Snap, AppImage, Git/GitHub and Android/Swift-oriented target boundaries. `.deb` packages are permitted only through the transactional/signature/sandbox policy.
 
 ## Build and test
 
@@ -197,18 +108,15 @@ Web explorer:
 python3 -m http.server 8080 --directory web
 ```
 
-Linux upstream staging:
+## CI/CD and releases
 
-```bash
-./tools/fetch-linux-upstreams.sh
-```
+GitHub Actions is the canonical CI layer. The release pipeline is designed around license/provenance checks, static analysis, multi-architecture builds, ISA conformance, package tests, QEMU boot tests, Web UI tests, documentation/link/sitemap validation, SBOM/license scanning, checksums and signed release metadata.
 
-Web Linux command console: `webui/linux-command-console.html`.
+See [docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md](docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md).
 
-## Live demonstrations
+## Research bibliography and provenance
 
-- CodeWords technical showcase
-- OnHercules live demo
+See [docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md](docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md) and [docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md](docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md). The Library corpus includes the comprehensive redesign report, mobile/robotics architecture, low-level specification, developer guide, Web Runtime research, Linux/retro research and Aurora visual references. fileciteturn66file0L31-L40
 
 ## License
 
