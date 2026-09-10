@@ -1,0 +1,10 @@
+{
+  "id":"reference-aarch64",
+  "architecture":"aarch64",
+  "soc":"reference",
+  "vendor":"generic",
+  "boot":{"protocol":"research","ab":false,"recovery":true},
+  "partitions":[{"name":"boot","role":"kernel-or-boot-image","critical":true},{"name":"system","role":"rootfs","critical":true},{"name":"vendor","role":"vendor-modules","critical":true}],
+  "security":{"avb":true,"rollbackProtection":true,"unlockRequired":true},
+  "kernel":{"gki":true,"kmi":"device-specific","vendorModules":[]}
+}
