@@ -1,0 +1,1 @@
+{"id":"flatpak","platforms":["linux","chimera"],"formats":["flatpakref","flatpak"],"mode":"remote-adapter","official":"https://flathub.org/"}
