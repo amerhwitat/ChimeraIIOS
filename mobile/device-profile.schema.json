@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Chimera Mobile Device Profile",
+  "type":"object",
+  "required":["id","architecture","soc","boot","partitions","security"],
+  "properties":{
+    "id":{"type":"string"},
+    "architecture":{"type":"string","enum":["aarch64","armv7"]},
+    "soc":{"type":"string"},
+    "vendor":{"type":"string"},
+    "boot":{"type":"object","required":["protocol"],"properties":{"protocol":{"type":"string","enum":["fastboot","fastbootd","vendor","research"]},"ab":{"type":"boolean"},"recovery":{"type":"boolean"}}},
+    "partitions":{"type":"array","items":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"role":{"type":"string"},"critical":{"type":"boolean"}}}},
+    "security":{"type":"object","required":["avb"],"properties":{"avb":{"type":"boolean"},"rollbackProtection":{"type":"boolean"},"unlockRequired":{"type":"boolean"}}},
+    "kernel":{"type":"object","properties":{"gki":{"type":"boolean"},"kmi":{"type":"string"},"vendorModules":{"type":"array","items":{"type":"string"}}}}
+  },
+  "additionalProperties":true
+}
