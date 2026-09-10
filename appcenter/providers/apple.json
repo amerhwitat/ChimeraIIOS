@@ -1,0 +1,1 @@
+{"id":"apple","platforms":["macos","ios","ipados"],"formats":["app","ipa"],"mode":"catalog-or-supported-distribution-only","note":"Platform signing and App Store distribution controls are not bypassed."}
