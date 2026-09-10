@@ -1,0 +1,16 @@
+{
+  "schema": "chimera.app.catalog/v1",
+  "apps": [
+    {"id":"youtube","name":"YouTube","version":"web","category":"media","license":"proprietary","provider":"web","architectures":["x86_64","aarch64"],"homepage":"https://www.youtube.com/","sandbox":"external","install":"web"},
+    {"id":"firefox","name":"Firefox","version":"latest","category":"browser","license":"MPL-2.0","provider":"linux","architectures":["x86_64","aarch64"],"homepage":"https://www.mozilla.org/firefox/","sandbox":"native","install":"native"},
+    {"id":"chromium","name":"Chromium","version":"latest","category":"browser","license":"BSD-3-Clause","provider":"linux","architectures":["x86_64","aarch64"],"homepage":"https://www.chromium.org/","sandbox":"sandboxed","install":"flatpak"},
+    {"id":"vlc","name":"VLC","version":"latest","category":"media","license":"GPL-2.0-or-later","provider":"linux","architectures":["x86_64","aarch64"],"homepage":"https://www.videolan.org/vlc/","sandbox":"sandboxed","install":"flatpak"},
+    {"id":"telegram","name":"Telegram","version":"latest","category":"social","license":"proprietary-client","provider":"external","architectures":["x86_64","aarch64"],"homepage":"https://telegram.org/","sandbox":"external","install":"external-store"},
+    {"id":"signal","name":"Signal","version":"latest","category":"social","license":"GPL-3.0-or-later-client","provider":"external","architectures":["x86_64","aarch64","android"],"homepage":"https://signal.org/","sandbox":"external","install":"external-store"},
+    {"id":"discord","name":"Discord","version":"latest","category":"social","license":"proprietary","provider":"external","architectures":["x86_64","aarch64"],"homepage":"https://discord.com/","sandbox":"external","install":"external-store"},
+    {"id":"reddit","name":"Reddit","version":"web","category":"social","license":"proprietary","provider":"web","architectures":["x86_64","aarch64"],"homepage":"https://www.reddit.com/","sandbox":"external","install":"web"},
+    {"id":"libreoffice","name":"LibreOffice","version":"latest","category":"office","license":"MPL-2.0","provider":"linux","architectures":["x86_64","aarch64"],"homepage":"https://www.libreoffice.org/","sandbox":"native","install":"native"},
+    {"id":"gimp","name":"GIMP","version":"latest","category":"graphics","license":"GPL-3.0-or-later","provider":"linux","architectures":["x86_64","aarch64"],"homepage":"https://www.gimp.org/","sandbox":"sandboxed","install":"flatpak"},
+    {"id":"vscode","name":"Visual Studio Code","version":"latest","category":"development","license":"Microsoft-proprietary","provider":"windows-linux","architectures":["x86_64","aarch64"],"homepage":"https://code.visualstudio.com/","sandbox":"external","install":"external-store"}
+  ]
+}
