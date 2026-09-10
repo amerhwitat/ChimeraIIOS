@@ -1,0 +1,12 @@
+{
+  "schema":"chimera.source.registry/v1",
+  "repositories":[
+    {"app":"firefox","repository":"https://github.com/mozilla-firefox/firefox","upstream":"Mozilla"},
+    {"app":"chromium","repository":"https://github.com/chromium/chromium","upstream":"Chromium"},
+    {"app":"vlc","repository":"https://github.com/videolan/vlc","upstream":"VideoLAN"},
+    {"app":"vlc-android","repository":"https://github.com/videolan/vlc-android","upstream":"VideoLAN"},
+    {"app":"libreoffice","repository":"https://github.com/LibreOffice/core","upstream":"The Document Foundation / LibreOffice"},
+    {"app":"gimp","repository":"https://github.com/GNOME/gimp","upstream":"GIMP/GNOME"}
+  ],
+  "policy":"Repository URLs are source references. Chimera does not mirror or redistribute upstream code without following each project's license and source-distribution requirements."
+}
