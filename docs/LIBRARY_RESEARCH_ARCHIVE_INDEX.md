@@ -4,21 +4,21 @@ This index records the prior research corpus used to develop Chimera II OS. The 
 
 ## Primary architecture and OS research
 
-- `Chimera_II_OS_Comprehensive_Redesign_Research_Report.pdf` — comprehensive redesign and internet-research architecture blueprint. fileciteturn66file0L11-L19
-- `Chimera_II_OS_Mobile_Robotics_Architecture_Report.pdf` — mobile, robotics, edge and distributed-intelligence architecture. fileciteturn66file1L57-L67
-- `Chimera_II_Low_Level_Specification.pdf` — low-level processor, kernel, firmware and toolchain specification. fileciteturn72file6L351-L369
-- `Chimera II OS - crash dump.docx` — earlier developer and low-level technical guide. fileciteturn72file7L417-L454
+- `Chimera_II_OS_Comprehensive_Redesign_Research_Report.pdf` — comprehensive redesign and internet-research architecture blueprint.
+- `Chimera_II_OS_Mobile_Robotics_Architecture_Report.pdf` — mobile, robotics, edge and distributed-intelligence architecture.
+- `Chimera_II_Low_Level_Specification.pdf` — low-level processor, kernel, firmware and toolchain specification.
+- `Chimera II OS - crash dump.docx` — earlier developer and low-level technical guide.
 - `8192-ChimeraII-OS-Summary.docx`
 - `8192-ChimeraII-OS-Summary(1).docx`
-- `Chimera II OS Developer Guide` — consolidated developer blueprint. fileciteturn72file4L118-L158
+- `Chimera II OS Developer Guide` — consolidated developer blueprint.
 - `Source-Code.pdf` — source-oriented research archive referenced by the low-level specification.
 
 ## Web, desktop and visualization research
 
-- `Chimera II Web Runtime & Desktop Integration` — Aurora Web Runtime, desktop profiles, application registry and sandbox design. fileciteturn72file2L65-L81
-- `Integrating Linux 7.x, Retro Emulation, and Future Computing into Chimera II Web OS` — Linux, browser emulation, desktop profiles and future-computing research. fileciteturn72file0L11-L30
-- `Aurora Wayland Glass Desktop.png` — approved Aurora glass visual reference. fileciteturn67file29L151-L155
-- `Aurora Wayland Desktop Showcase.png` — Aurora visual showcase. fileciteturn67file28L144-L148
+- `Chimera II Web Runtime & Desktop Integration` — Aurora Web Runtime, desktop profiles, application registry and sandbox design.
+- `Integrating Linux 7.x, Retro Emulation, and Future Computing into Chimera II Web OS` — Linux, browser emulation, desktop profiles and future-computing research.
+- `Aurora Wayland Glass Desktop.png` — approved Aurora glass visual reference.
+- `Aurora Wayland Desktop Showcase.png` — Aurora visual showcase.
 
 ## CPU, ISA and compatibility research
 
@@ -34,9 +34,9 @@ The Library also contains source archives, historical computing references, Wind
 
 Examples include:
 
-- `all-win32-2000-code.pdf` — historical Windows/Win32 reference corpus. fileciteturn67file24L123-L127
-- `AmigaGuruBook[ENG]FullSearch.txt` and duplicate version — Amiga research reference. fileciteturn67file25L129-L136
-- `Beyond 128D Framework Infographic.png` — multidimensional research visual. fileciteturn67file35L182-L187
+- `all-win32-2000-code.pdf` — historical Windows/Win32 reference corpus.
+- `AmigaGuruBook[ENG]FullSearch.txt` and duplicate version — Amiga research reference.
+- `Beyond 128D Framework Infographic.png` — multidimensional research visual.
 
 ## Publication rule
 
