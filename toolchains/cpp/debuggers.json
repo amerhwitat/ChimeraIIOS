@@ -1,0 +1,11 @@
+{
+  "schema":"chimera.cpp.debuggers",
+  "version":1,
+  "debuggers":[
+    {"id":"gdb","name":"GNU Debugger","source":"https://sourceware.org/git/?p=binutils-gdb.git","license":"GPL-3.0-or-later","targets":["Linux","Unix","Windows","embedded","cross"]},
+    {"id":"lldb","name":"LLDB","source":"https://github.com/llvm/llvm-project/tree/main/lldb","license":"Apache-2.0 WITH LLVM-exception","targets":["Linux","Unix","Windows","macOS","embedded"]},
+    {"id":"rr","name":"rr record-and-replay debugger","source":"https://github.com/rr-debugger/rr","license":"BSD-2-Clause","targets":["Linux"]},
+    {"id":"valgrind","name":"Valgrind","source":"https://sourceware.org/git/valgrind.git","license":"GPL-2.0-or-later","targets":["Linux","Unix"]}
+  ],
+  "integration":{"primary":["gdb","lldb"],"analysis":["valgrind"],"record_replay":["rr"]}
+}
