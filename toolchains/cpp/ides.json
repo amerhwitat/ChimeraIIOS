@@ -1,0 +1,13 @@
+{
+  "schema":"chimera.cpp.ides",
+  "version":1,
+  "ides":[
+    {"id":"qt-creator","name":"Qt Creator","source":"https://github.com/qt-creator/qt-creator","license":"GPL-3.0 with Qt GPL Exception / applicable Qt terms","integration":["GCC","Clang","MinGW","CMake","Ninja","GDB","LLDB"]},
+    {"id":"codeblocks","name":"Code::Blocks","source":"https://github.com/niXman/codeblocks","license":"GPL-3.0-or-later","integration":["GCC","Clang","MinGW","GDB"]},
+    {"id":"kdevelop","name":"KDevelop","source":"https://invent.kde.org/kdevelop/kdevelop","license":"GPL-2.0-or-later","integration":["GCC","Clang","GDB","LLDB","CMake"]},
+    {"id":"codelite","name":"CodeLite","source":"https://github.com/eranif/codelite","license":"GPL-2.0-or-later","integration":["GCC","Clang","MinGW","GDB","LLDB","CMake"]},
+    {"id":"eclipse-cdt","name":"Eclipse CDT","source":"https://github.com/eclipse-cdt/cdt","license":"Eclipse Public License 2.0","integration":["GCC","Clang","GDB","LLDB"]},
+    {"id":"geany","name":"Geany","source":"https://github.com/geany/geany","license":"GPL-2.0-or-later","integration":["GCC","Clang","GDB"]}
+  ],
+  "note":"The ISO should bundle install metadata and source provenance by default; full IDE binaries are optional packages to control ISO size."
+}
