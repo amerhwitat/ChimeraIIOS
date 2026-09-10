@@ -1,0 +1,10 @@
+{
+  "id":"qualcomm-generic",
+  "architecture":"aarch64",
+  "soc":"qualcomm-generic",
+  "vendor":"qualcomm",
+  "boot":{"protocol":"fastboot","ab":true,"recovery":true},
+  "partitions":[{"name":"boot","role":"boot","critical":true},{"name":"vendor_boot","role":"vendor-ramdisk","critical":true},{"name":"super","role":"dynamic-partitions","critical":true}],
+  "security":{"avb":true,"rollbackProtection":true,"unlockRequired":true},
+  "kernel":{"gki":true,"kmi":"device-specific","vendorModules":[]}
+}
