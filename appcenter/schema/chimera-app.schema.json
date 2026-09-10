@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera Application Manifest",
+  "type": "object",
+  "required": ["id", "name", "version", "category", "license", "provider", "architectures", "install"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]+$"},
+    "name": {"type": "string"},
+    "version": {"type": "string"},
+    "category": {"type": "string"},
+    "license": {"type": "string"},
+    "provider": {"type": "string"},
+    "architectures": {"type": "array", "items": {"type": "string"}},
+    "source": {"type": "string", "format": "uri"},
+    "homepage": {"type": "string", "format": "uri"},
+    "formats": {"type": "array", "items": {"type": "string"}},
+    "sandbox": {"type": "string", "enum": ["native", "sandboxed", "compatibility", "external"]},
+    "install": {"type": "string", "enum": ["bundled", "native", "flatpak", "appimage", "msix", "exe-msi", "apk", "web", "external-store"]}
+  },
+  "additionalProperties": true
+}
