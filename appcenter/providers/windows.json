@@ -1,0 +1,1 @@
+{"id":"windows","platforms":["windows","chimera"],"formats":["msix","appx","exe","msi"],"mode":"compatibility-or-external"}
