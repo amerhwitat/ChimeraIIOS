@@ -1,0 +1,36 @@
+name: Chimera II Mobile Profiles
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/chimera-mobile.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON profiles
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          for p in pathlib.Path('mobile/device-profiles').glob('*.json'):
+              json.loads(p.read_text(encoding='utf-8'))
+              print('JSON OK', p)
+          PY
+      - name: Validate profile schema rules
+        run: |
+          for p in mobile/device-profiles/*.json; do
+            python3 mobile/build/validate-profile.py "$p"
+          done
+      - name: Build reference research layout
+        run: |
+          chmod +x mobile/build/build-mobile-image.sh
+          mobile/build/build-mobile-image.sh mobile/device-profiles/reference-aarch64.json mobile/images/dist
+      - name: Upload profile artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-mobile-reference-profile
+          path: mobile/images/dist/*
