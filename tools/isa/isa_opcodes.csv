@@ -9,19 +9,93 @@ OR;0x06;R;rd,rs,rt;user;R8192;Bitwise OR;technical-spec-v0.1
 XOR;0x07;R;rd,rs,rt;user;R8192;Bitwise XOR;technical-spec-v0.1
 SHL;0x08;R;rd,rs,imm;user;R8192;Logical left shift;technical-spec-v0.1
 SHR;0x09;R;rd,rs,imm;user;R8192;Logical right shift;technical-spec-v0.1
-LOAD;0x10;M;rd,addr;user;R8192;Wide register memory load;technical-spec-v0.1
-STORE;0x11;M;addr,rs;user;R8192;Wide register memory store;technical-spec-v0.1
+ADDI;0x0A;I;rd,rs,imm;user;R8192;Immediate add;canonical-op-extension
+SUBI;0x0B;I;rd,rs,imm;user;R8192;Immediate subtract;canonical-op-extension
+MULHI;0x0C;R;rd,rs,rt;user;R8192;High multiply;canonical-op-extension
+REM;0x0D;R;rd,rs,rt;user;R8192;Remainder;canonical-op-extension
+NEG;0x0E;R;rd,rs;user;R8192;Negate;canonical-op-extension
+NOT;0x0F;R;rd,rs;user;R8192;Complement;canonical-op-extension
+LOAD;0x10;M;rd,addr;user;R8192;Wide load;technical-spec-v0.1
+STORE;0x11;M;addr,rs;user;R8192;Wide store;technical-spec-v0.1
+SAR;0x12;R;rd,rs,imm;user;R8192;Arithmetic right shift;canonical-op-extension
+ROL;0x13;R;rd,rs,imm;user;R8192;Rotate left;canonical-op-extension
+ROR;0x14;R;rd,rs,imm;user;R8192;Rotate right;canonical-op-extension
+CMP;0x15;R;rd,rs,rt;user;R8192;Compare;canonical-op-extension
+CMPI;0x16;I;rd,rs,imm;user;R8192;Immediate compare;canonical-op-extension
+SELECT;0x17;R;rd,rs,rt,mask;user;R8192;Predicated select;canonical-op-extension
+LOAD8;0x18;M;rd,addr;user;R8192;Byte load;canonical-op-extension
+LOAD16;0x19;M;rd,addr;user;R8192;16-bit load;canonical-op-extension
+LOAD32;0x1A;M;rd,addr;user;R8192;32-bit load;canonical-op-extension
+LOAD64;0x1B;M;rd,addr;user;R8192;64-bit load;canonical-op-extension
+STORE8;0x1C;M;addr,rs;user;R8192;Byte store;canonical-op-extension
+STORE16;0x1D;M;addr,rs;user;R8192;16-bit store;canonical-op-extension
+STORE32;0x1E;M;addr,rs;user;R8192;32-bit store;canonical-op-extension
+STORE64;0x1F;M;addr,rs;user;R8192;64-bit store;canonical-op-extension
 VADD;0x20;V;vd,va,vb;user;R8192;Vector add;technical-spec-v0.1
 VMUL;0x21;V;vd,va,vb;user;R8192;Vector multiply;technical-spec-v0.1
-TCONTRACT;0x22;V;td,ta,tb;user;C8192;Research tensor contraction;technical-spec-v0.1
-NETSEND;0x30;S;addr,len,flags;user;Chimera-Hybrid;Zero-copy packet send descriptor;technical-spec-v0.1
-NETRECV;0x31;S;queue,addr,len;user;Chimera-Hybrid;Zero-copy packet receive descriptor;technical-spec-v0.1
-CACHE_SYNC;0x40;S;scope;priv;Chimera-Hybrid;Cache/coherency synchronization;technical-spec-v0.1
+TCONTRACT;0x22;V;td,ta,tb;user;C8192;Tensor contraction;technical-spec-v0.1
+VLOAD;0x23;M;vd,addr;user;R8192;Vector load;canonical-op-extension
+VSTORE;0x24;M;addr,vs;user;R8192;Vector store;canonical-op-extension
+VSUB;0x25;V;vd,va,vb;user;R8192;Vector subtract;canonical-op-extension
+VDIV;0x26;V;vd,va,vb;user;R8192;Vector divide;canonical-op-extension
+VMIN;0x27;V;vd,va,vb;user;R8192;Vector minimum;canonical-op-extension
+VMAX;0x28;V;vd,va,vb;user;R8192;Vector maximum;canonical-op-extension
+VAND;0x29;V;vd,va,vb;user;R8192;Vector AND;canonical-op-extension
+VOR;0x2A;V;vd,va,vb;user;R8192;Vector OR;canonical-op-extension
+VXOR;0x2B;V;vd,va,vb;user;R8192;Vector XOR;canonical-op-extension
+VDOT;0x2C;V;vd,va,vb;user;R8192;Vector dot product;canonical-op-extension
+MMA;0x2D;V;td,ta,tb;user;C8192;Matrix multiply accumulate;canonical-op-extension
+TLOAD;0x2E;M;td,addr;user;C8192;Tensor load;canonical-op-extension
+TSTORE;0x2F;M;addr,ts;user;C8192;Tensor store;canonical-op-extension
+NETSEND;0x30;S;addr,len,flags;user;Chimera-Hybrid;Zero-copy send descriptor;technical-spec-v0.1
+NETRECV;0x31;S;queue,addr,len;user;Chimera-Hybrid;Zero-copy receive descriptor;technical-spec-v0.1
+NETPOLL;0x32;S;queue;user;Chimera-Hybrid;Completion poll;canonical-op-extension
+NETFENCE;0x33;S;scope;priv;Chimera-Hybrid;Network ordering fence;canonical-op-extension
+CACHE_SYNC;0x40;S;scope;priv;Chimera-Hybrid;Cache coherency synchronization;technical-spec-v0.1
 FENCE;0x41;S;scope;priv;Chimera-Hybrid;Memory ordering fence;technical-spec-v0.1
+ATOMIC_ADD;0x42;A;rd,addr,rs;user;Chimera-Hybrid;Atomic fetch-add;canonical-op-extension
+ATOMIC_XCHG;0x43;A;rd,addr,rs;user;Chimera-Hybrid;Atomic exchange;canonical-op-extension
+ATOMIC_CAS;0x44;A;rd,addr,expected,desired;user;Chimera-Hybrid;Compare-and-swap;canonical-op-extension
+LR;0x45;A;rd,addr;user;Chimera-Hybrid;Load reserved;canonical-op-extension
+SC;0x46;A;rd,addr,rs;user;Chimera-Hybrid;Store conditional;canonical-op-extension
+MEMBAR;0x47;S;scope;priv;Chimera-Hybrid;Memory barrier;canonical-op-extension
 SPAWN;0x50;S;entry,arg,flags;user;Chimera-Hybrid;Create execution context;technical-spec-v0.1
 WAIT;0x51;S;event,timeout;user;Chimera-Hybrid;Wait for event/context;technical-spec-v0.1
+SPAWN_VCPU;0x52;S;entry,arg,flags;user;Chimera-Hybrid;Spawn virtual CPU;canonical-op-extension
+YIELD;0x53;S;;user;Chimera-Hybrid;Yield;canonical-op-extension
+SLEEP;0x54;S;ticks;user;Chimera-Hybrid;Timed sleep;canonical-op-extension
+JOIN;0x55;S;task,timeout;user;Chimera-Hybrid;Join context;canonical-op-extension
+SIGNAL;0x56;S;event;user;Chimera-Hybrid;Signal event;canonical-op-extension
 SYSCALL;0x60;S;num,args;user;Chimera-Hybrid;Kernel service entry;technical-spec-v0.1
-BR;0x70;S;target;user;Chimera-Hybrid;Relative/absolute branch;technical-spec-v0.1
-CALL;0x71;S;target;user;Chimera-Hybrid;Subroutine call;technical-spec-v0.1
-RET;0x72;S;;user;Chimera-Hybrid;Return from call;technical-spec-v0.1
+TRAP;0x61;S;vector;user;Chimera-Hybrid;User trap;canonical-op-extension
+SYSCALL_FAST;0x62;S;num,args;user;Chimera-Hybrid;Fast syscall;canonical-op-extension
+IRET;0x63;S;;priv;Chimera-Hybrid;Privileged trap return;canonical-op-extension
+BR;0x70;S;target;user;Chimera-Hybrid;Branch;technical-spec-v0.1
+CALL;0x71;S;target;user;Chimera-Hybrid;Call;technical-spec-v0.1
+RET;0x72;S;;user;Chimera-Hybrid;Return;technical-spec-v0.1
+JMP;0x73;S;target;user;Chimera-Hybrid;Jump;canonical-op-extension
+BEQ;0x74;S;rs,rt,target;user;Chimera-Hybrid;Branch equal;canonical-op-extension
+BNE;0x75;S;rs,rt,target;user;Chimera-Hybrid;Branch not equal;canonical-op-extension
+BLT;0x76;S;rs,rt,target;user;Chimera-Hybrid;Signed less-than;canonical-op-extension
+BGE;0x77;S;rs,rt,target;user;Chimera-Hybrid;Signed greater/equal;canonical-op-extension
+BLTU;0x78;S;rs,rt,target;user;Chimera-Hybrid;Unsigned less-than;canonical-op-extension
+BGEU;0x79;S;rs,rt,target;user;Chimera-Hybrid;Unsigned greater/equal;canonical-op-extension
+BRIND;0x7A;R;target;user;Chimera-Hybrid;Indirect branch;canonical-op-extension
+CALLR;0x7B;R;target;user;Chimera-Hybrid;Indirect call;canonical-op-extension
+CRYPTO_HASH;0x80;V;rd,rs,mode;user;C8192;Hash accelerator interface;research-extension
+CRYPTO_AES;0x81;V;rd,rs,key;user;C8192;AES accelerator interface;research-extension
+CRYPTO_SHA;0x82;V;rd,rs,mode;user;C8192;SHA accelerator interface;research-extension
+MODEXP;0x83;V;rd,base,exp,mod;user;C8192;Modular exponentiation;technical-spec-v0.1
+CRC;0x84;R;rd,rs,mode;user;Chimera-Hybrid;CRC/checksum acceleration;canonical-op-extension
+BITREV;0x85;R;rd,rs;user;R8192;Bit reversal;canonical-op-extension
+POPCNT;0x86;R;rd,rs;user;R8192;Population count;canonical-op-extension
+CLZ;0x87;R;rd,rs;user;R8192;Count leading zeros;canonical-op-extension
+CTZ;0x88;R;rd,rs;user;R8192;Count trailing zeros;canonical-op-extension
+PREFETCH;0x89;M;addr,scope;user;Chimera-Hybrid;Cache prefetch;canonical-op-extension
+CACHE_FLUSH;0x8A;S;scope;priv;Chimera-Hybrid;Cache flush;canonical-op-extension
+TLB_FLUSH;0x8B;S;scope;priv;Chimera-Hybrid;TLB invalidation;canonical-op-extension
+RNG;0x8C;R;rd;user;Chimera-Hybrid;Random-source abstraction;canonical-op-extension
+TIME;0x8D;R;rd;user;Chimera-Hybrid;Virtual time counter;canonical-op-extension
+CPU_ID;0x8E;R;rd;user;Chimera-Hybrid;Logical CPU identity;canonical-op-extension
+NODE_ID;0x8F;R;rd;user;Chimera-Hybrid;Chimera node identity;canonical-op-extension
 HALT;0xFF;S;;priv;Chimera-Hybrid;Stop virtual core;technical-spec-v0.1
