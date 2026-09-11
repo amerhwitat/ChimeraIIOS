@@ -38,7 +38,12 @@ public:
     std::string hex() const;
 
     static WideInt add(const WideInt&, const WideInt&);
+    static WideInt sub(const WideInt&, const WideInt&);
+    static WideInt bit_and(const WideInt&, const WideInt&);
+    static WideInt bit_or(const WideInt&, const WideInt&);
     static WideInt bit_xor(const WideInt&, const WideInt&);
+    static WideInt shl(const WideInt&, std::size_t bits);
+    static WideInt shr(const WideInt&, std::size_t bits);
 
 private:
     Width width_;
