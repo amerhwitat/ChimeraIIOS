@@ -1,9 +1,27 @@
 mnemonic;opcode;encoding;operands;privilege;isa_family;notes;source_ref
-ADD;0x01;R;rd,rs,rt;user;Chimera-R8192;Wide integer add;internal
-MUL;0x02;R;rd,rs,rt;user;Chimera-R8192;Wide integer multiply low result;internal
-XOR;0x03;R;rd,rs,rt;user;Chimera-R8192;Bitwise XOR;internal
-SHL;0x04;R;rd,rs,imm;user;Chimera-N;Logical left shift;internal
-TCONTRACT;0x20;V;vd,va,vb;user;Chimera-C8192;Research tensor contraction;research
-MODEXP;0x30;M;rd,rs,imm;user;Chimera-R8192;Modular exponentiation boundary;research
-NETSEND;0x50;S;addr,len,flags;user;Chimera-Hybrid;Spotnik send operation;research
-BARRIER;0x60;S;scope;priv;Chimera-N;Execution/backend barrier;internal
+NOP;0x00;S;;user;R8192;No operation;technical-spec-v0.1
+ADD;0x01;R;rd,rs,rt;user;R8192;Wide integer add;technical-spec-v0.1
+SUB;0x02;R;rd,rs,rt;user;R8192;Wide integer subtract;technical-spec-v0.1
+MUL;0x03;R;rd,rs,rt;user;R8192;Wide integer multiply;technical-spec-v0.1
+DIV;0x04;R;rd,rs,rt;user;R8192;Wide integer divide;technical-spec-v0.1
+AND;0x05;R;rd,rs,rt;user;R8192;Bitwise AND;technical-spec-v0.1
+OR;0x06;R;rd,rs,rt;user;R8192;Bitwise OR;technical-spec-v0.1
+XOR;0x07;R;rd,rs,rt;user;R8192;Bitwise XOR;technical-spec-v0.1
+SHL;0x08;R;rd,rs,imm;user;R8192;Logical left shift;technical-spec-v0.1
+SHR;0x09;R;rd,rs,imm;user;R8192;Logical right shift;technical-spec-v0.1
+LOAD;0x10;M;rd,addr;user;R8192;Wide register memory load;technical-spec-v0.1
+STORE;0x11;M;addr,rs;user;R8192;Wide register memory store;technical-spec-v0.1
+VADD;0x20;V;vd,va,vb;user;R8192;Vector add;technical-spec-v0.1
+VMUL;0x21;V;vd,va,vb;user;R8192;Vector multiply;technical-spec-v0.1
+TCONTRACT;0x22;V;td,ta,tb;user;C8192;Research tensor contraction;technical-spec-v0.1
+NETSEND;0x30;S;addr,len,flags;user;Chimera-Hybrid;Zero-copy packet send descriptor;technical-spec-v0.1
+NETRECV;0x31;S;queue,addr,len;user;Chimera-Hybrid;Zero-copy packet receive descriptor;technical-spec-v0.1
+CACHE_SYNC;0x40;S;scope;priv;Chimera-Hybrid;Cache/coherency synchronization;technical-spec-v0.1
+FENCE;0x41;S;scope;priv;Chimera-Hybrid;Memory ordering fence;technical-spec-v0.1
+SPAWN;0x50;S;entry,arg,flags;user;Chimera-Hybrid;Create execution context;technical-spec-v0.1
+WAIT;0x51;S;event,timeout;user;Chimera-Hybrid;Wait for event/context;technical-spec-v0.1
+SYSCALL;0x60;S;num,args;user;Chimera-Hybrid;Kernel service entry;technical-spec-v0.1
+BR;0x70;S;target;user;Chimera-Hybrid;Relative/absolute branch;technical-spec-v0.1
+CALL;0x71;S;target;user;Chimera-Hybrid;Subroutine call;technical-spec-v0.1
+RET;0x72;S;;user;Chimera-Hybrid;Return from call;technical-spec-v0.1
+HALT;0xFF;S;;priv;Chimera-Hybrid;Stop virtual core;technical-spec-v0.1
