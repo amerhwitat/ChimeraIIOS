@@ -8,6 +8,28 @@ The ISO-Tool integration is committed as the approved compile → link → artif
 
 The pipeline explicitly reports executable, DLL, LIB and BIN artifacts as they are discovered and added, including a final artifact count. Repository source is staged under `/src`; compiled executables/binary images under `/bin`; libraries under `/lib`; and application staging under `/applications/linux` and `/applications/windows`.
 
+## User-selected output location
+
+Before ISO mastering, the user chooses the final save directory through the GUI. ISO-Tool shows the selected path and must not silently place the final ISO in the repository.
+
+The default suggestion on Windows is:
+
+```text
+%USERPROFILE%\\Downloads\\Chimera-II-ISO-Tool
+```
+
+The selected directory is organized into `iso/`, `boot-images/`, `binaries/executables/`, `binaries/libraries/`, `logs/`, and `manifests/`. All generated executable, library and binary-image artifacts are retained independently as well as being staged into the ISO where appropriate.
+
+## Dependency downloads
+
+Dependency discovery can search trusted package-manager sources. Downloaded installers/packages are stored in:
+
+```text
+%USERPROFILE%\\Downloads\\Chimera-II-ISO-Tool\\dependencies
+```
+
+The dependency cache is independent of the final ISO destination. Before installation, the GUI displays the missing dependency, trusted source/package manager and cache destination. `Scan only` never installs; `Install missing dependencies` requires explicit authorization and never executes arbitrary remote scripts.
+
 ## ISO/media configuration
 
 - CD and DVD media profiles.
@@ -20,7 +42,9 @@ The pipeline explicitly reports executable, DLL, LIB and BIN artifacts as they a
 
 ## Spit Fire boot-image handling
 
-ISO-Tool searches the repository for an assembled Spit Fire/first-stage boot binary and exports a discovered artifact when available. If none exists, it creates a clearly identified fallback container rather than representing generated placeholder data as a real bootloader.
+ISO-Tool searches the repository for an assembled Spit Fire/first-stage boot binary and exports a discovered artifact when available. Generated `.bin`, `.img`, and `.efi` files are retained under `boot-images/` in the selected output directory. If no assembled artifact exists, the tool creates a clearly identified fallback container rather than representing generated placeholder data as a real bootloader.
+
+When QEMU/OVMF is available, boot validation can save logs/evidence next to the generated artifacts. Static image generation is not treated as proof of a successful boot.
 
 Imported boot sectors are treated as inert data and are never executed by the tooling.
 
@@ -36,7 +60,7 @@ ISO-Tool uses fail-forward isolation for recoverable independent job failures. E
 
 ## Offline and network recovery
 
-Local Chimera II OS source builds do not require Internet access. Remote source acquisition can monitor connectivity, wait for recovery, and retry network operations according to the configured retry policy. Retry activity is visible in the GUI's live operation-details pane.
+Local Chimera II OS source builds do not require Internet access. Remote source acquisition can monitor connectivity, wait for recovery, and retry network operations according to the configured retry policy. Retry activity is visible in the GUI's live operation-details pane. Dependency downloads are retained in the profile Downloads cache for repeatable offline use when the package manager supports it.
 
 ## Chimera II package/application integration
 
