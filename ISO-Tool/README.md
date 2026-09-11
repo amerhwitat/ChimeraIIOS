@@ -1,17 +1,29 @@
 # Chimera II OS ISO-Tool Integration
 
-The Chimera II OS repository can be consumed by the ISO-Tool build/image orchestrator. ISO-Tool uses a fail-forward job policy: an independent compile, assembly, documentation, or boot-artifact runtime failure is recorded in the live log and the next independent job continues.
+The Chimera II OS repository can be consumed by the ISO-Tool build/image orchestrator.
 
-## Runtime-error behavior
+## Workflow entry points
 
-- Job-level failures are caught and logged with type/message.
-- Failed/skipped jobs advance the overall progress counter.
-- Independent jobs continue.
-- Fatal image-integrity, staging, authorization, or safety failures may still stop the operation.
-- The GUI shows a live operation-details section while work is running.
+- `analyze-source` — inspect the Chimera II OS source tree.
+- `build-compiled-images` — compile/assemble authorized boot, kernel and application artifacts.
+- `import-boot-image` — inspect and stage a bounded boot sector or image artifact.
+- `build-iso` — construct the configured Live/Install ISO or IMG.
+- `validate-image` — validate the generated image and checksums.
+
+## Runtime resilience
+
+ISO-Tool uses fail-forward isolation for recoverable independent job failures. Errors are logged with type/message, progress advances, and subsequent independent jobs continue. Fatal image-integrity, staging, authorization, and safety failures may still stop publication.
+
+## Offline and network recovery
+
+Local Chimera II OS source builds do not require Internet access. Remote source acquisition can monitor connectivity, wait for recovery, and retry network operations according to the configured retry policy. Retry activity is visible in the GUI's live operation-details pane.
+
+## Boot image import
+
+The import feature treats imported boot sectors as inert data. It does not execute imported boot code. Bounded regions can be staged for an explicitly selected boot profile.
 
 ## GUI implementations
 
-ISO-Tool provides Python/Tkinter, C# WPF, and native VC++ Win32 front ends. Each exposes a cumulative progress bar, status text, and detailed live log.
+ISO-Tool provides Python/Tkinter, C# WPF, and native VC++ Win32 front ends. Each exposes cumulative progress, status text and detailed live operation logging.
 
-See the canonical implementation in `amerhwitat/nlp/ISO-Tool/` and the local Chimera II OS boot-planner definitions under `ISO-Tool/` when synchronized into this repository.
+The canonical implementation is in `amerhwitat/nlp/ISO-Tool/`.
