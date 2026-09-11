@@ -14,25 +14,45 @@
 | F# | Functional .NET research/runtime layer | `src/dotnet/fsharp/` |
 | Visual Basic .NET | Managed Windows compatibility/tooling layer | `src/dotnet/vb/` |
 | Java | Koronos semantic/JVM interoperability and application-service bridge | `src/java/` |
-| Node.js | Web/integration runtime and BizX/BizXtreme service bridge | `src/node/` |
-| Python | Reference research, ML/RL, data-processing and BizX/BizXtreme service bridge | `src/python/` |
-
-BizX and BizXtreme now maintain language-separated Java, Node.js and Python implementations in addition to their browser/runtime implementations. See `docs/BIZX_NODEJS_INTEGRATION.md` for the cross-repository service boundary.
-
-The .NET tracks target `net8.0`, `net9.0` and `net10.0`. Native boot-critical code remains independent of the managed runtime.
+| Node.js | Web/integration runtime and service bridge | `src/node/` |
+| Python | Reference research, ML/RL, data-processing and service bridge | `src/python/` |
 
 ## Unified ISO and Application Center
 
-The ISO pipeline now bundles the application catalog, provider metadata, application-manager source, mobile device profiles and ecosystem documentation alongside the bootable bootstrap image. Open-source/core components can be bundled directly. Proprietary applications such as YouTube, Discord, Telegram and Microsoft software are represented through official web/store/distribution adapters instead of unauthorized binary redistribution.
+The ISO pipeline bundles the application catalog, provider metadata, application-manager source, package-source registry, mobile profiles and ecosystem documentation alongside the bootable bootstrap image. Proprietary applications are represented through official catalog/store adapters rather than unauthorized binary redistribution.
 
-Supported provider classes include native Chimera packages, Linux repositories, Flatpak, AppImage, Windows MSIX/AppX and EXE/MSI, Android APK/AAB metadata and web/PWA applications. Apple integration is intentionally a catalog/distribution adapter rather than a claim that arbitrary iOS App Store binaries can be installed on non-Apple hardware.
+The ISO Tool integration under the companion `nlp/ISO-Tool` tree can compile/link a repository, collect generated executables and libraries, stage the complete source tree under `/src`, prepare `/applications/linux` and `/applications/windows`, export Chimera II Spit Fire boot artifacts, and master CD/DVD ISO images through configured backends.
 
-Run the catalog locally with:
+## Unified package management
+
+`package-manager/chimera-pkg.py` provides a common command surface while retaining native package managers:
+
+- Debian/Ubuntu: `apt`, `apt-get`, `dpkg` and `.deb`
+- Fedora/RHEL/Rocky: `dnf`, `yum`
+- openSUSE: `zypper`
+- Arch: `pacman`
+- Alpine: `apk`
+- Void: `xbps-install`
+- Gentoo: `emerge`
+- Homebrew: `brew`
+- Flatpak: `flatpak`
+- Snap: `snap`
+- Windows: `winget`/Microsoft Store, Chocolatey and Scoop
+- `fnd`: reserved compatibility hook for the requested Chimera command vocabulary
+
+Repository URLs and package formats are stored in `package-manager/repositories.json`. The registry is official-first, HTTPS-only by policy, provenance-aware and explicit about third-party sources. See `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`.
+
+Examples:
 
 ```bash
-python3 appcenter/cli/chimera-appctl.py list
-python3 appcenter/cli/chimera-appctl.py install-plan youtube
+python3 package-manager/chimera-pkg.py detect
+python3 package-manager/chimera-pkg.py sources
+python3 package-manager/chimera-pkg.py plan apt curl
+python3 package-manager/chimera-pkg.py plan winget Git.Git
+python3 package-manager/chimera-pkg.py install apt curl --yes
 ```
+
+The adapter never executes a plan unless `--yes` is explicitly supplied.
 
 ## Mobile / Koronos Mobile
 
@@ -50,20 +70,19 @@ CHIMERA II OS
   +-- KORONOS: ISA / MM / scheduler / IRQ / VFS / IPC / networking
   +-- SPIT FIRE + JASPER: boot and boot-manager layers
   +-- AURORA / GPU / CEF / WEB
-  +-- APP CENTER: native / Linux / Flatpak / AppImage / Windows / Android / Web
+  +-- APP CENTER + PACKAGE MANAGER: native / Linux / Flatpak / AppImage / Windows / Android / Web
   +-- KORONOS MOBILE: AArch64 / GKI-KMI / vendor modules / AVB
-  +-- APPLICATION BRIDGES: BizX / BizXtreme / Java / Node.js / Python
 ```
 
 The 8192-bit processor is an architectural/emulation research target, not a claim of existing 8192-bit silicon. Physical performance and energy claims require measured implementations.
 
 ## Bootable ISO
 
-`boot/iso/` contains a reproducible GRUB2/Multiboot2 bootstrap ISO pipeline. The GitHub Actions workflow builds `chimera2os-bootstrap.iso`, validates the application/mobile metadata and publishes the ISO plus SHA-256 checksum as an artifact. The current image remains a bootstrap kernel image; full Koronos drivers/services are integrated incrementally rather than being falsely represented as bare-metal complete.
+`boot/iso/` contains a reproducible GRUB2/Multiboot2 bootstrap ISO pipeline. The GitHub Actions workflow builds `chimera2os-bootstrap.iso`, validates application/mobile metadata and publishes the ISO plus SHA-256 checksum as an artifact. The current image remains a bootstrap kernel image; full Koronos drivers/services are integrated incrementally rather than being falsely represented as bare-metal complete.
 
 ## Windows setup
 
-`installer/windows/` contains the native bootstrap/host detection boundary. Modern .NET support follows Microsoft's OS/version matrix. Windows 7/8.1 are not claimed to support .NET 8+; legacy hosts require a separate native compatibility package if supported. The installer is an in-place host integration/setup layer, not an unsupported replacement for Windows Setup.
+`installer/windows/` contains the native bootstrap/host detection boundary. Modern .NET support follows Microsoft's OS/version matrix. Windows 7/8.1 are not claimed to support .NET 8+; legacy hosts require a separate native compatibility package if supported.
 
 ## Crypto/AI integration
 
@@ -77,6 +96,7 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 python3 tests/installer/test_installer_plan.py
 python3 appcenter/cli/chimera-appctl.py list
+python3 package-manager/chimera-pkg.py detect
 
 dotnet build src/csharp/ChimeraIIOS.Managed/ChimeraIIOS.Managed.csproj
 cd boot/iso && ./build-iso.sh
@@ -84,4 +104,4 @@ cd boot/iso && ./build-iso.sh
 
 ## Documentation
 
-See `docs/APPLICATION_ECOSYSTEM.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `docs/superpowers/plans/2026-09-11-bizx-java-python.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
+See `docs/APPLICATION_ECOSYSTEM.md`, `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
