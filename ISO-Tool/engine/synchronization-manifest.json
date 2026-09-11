@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "reference_repository": "amerhwitat/nlp",
+  "mirror_repository": "amerhwitat/ChimeraIIOS",
+  "shared_iso_tool_root": "ISO-Tool",
+  "language_frontends": ["Python", "C++", "C#/.NET"],
+  "shared_contracts": ["toolchain-detection", "dependency-preflight", "recursive-scan", "build-link", "artifact-staging", "Spit-Fire-boot", "ISO-IMG-mastering", "verification", "provenance"],
+  "repositories": ["https://github.com/amerhwitat/ChimeraIIOS", "https://github.com/amerhwitat/BizX", "https://github.com/amerhwitat/BizXtreme"],
+  "policy": "mirror behavior and schemas; preserve language-specific UI/build integration"
+}
