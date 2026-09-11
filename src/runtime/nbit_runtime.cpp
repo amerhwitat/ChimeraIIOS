@@ -63,10 +63,72 @@ WideInt WideInt::add(const WideInt& a, const WideInt& b) {
     return result;
 }
 
+WideInt WideInt::sub(const WideInt& a, const WideInt& b) {
+    require_compatible(a, b);
+    WideInt result(a.width());
+    std::uint64_t borrow = 0;
+    for (std::size_t i = 0; i < result.limb_count(); ++i) {
+        const auto x = a.limbs()[i], y = b.limbs()[i];
+        const auto xy = x - y;
+        const auto b1 = x < y;
+        const auto diff = xy - borrow;
+        const auto b2 = xy < borrow;
+        result.limbs()[i] = diff;
+        borrow = static_cast<std::uint64_t>(b1 || b2);
+    }
+    result.normalize();
+    return result;
+}
+
+WideInt WideInt::bit_and(const WideInt& a, const WideInt& b) {
+    require_compatible(a, b);
+    WideInt result(a.width());
+    for (std::size_t i = 0; i < result.limb_count(); ++i) result.limbs()[i] = a.limbs()[i] & b.limbs()[i];
+    return result;
+}
+
+WideInt WideInt::bit_or(const WideInt& a, const WideInt& b) {
+    require_compatible(a, b);
+    WideInt result(a.width());
+    for (std::size_t i = 0; i < result.limb_count(); ++i) result.limbs()[i] = a.limbs()[i] | b.limbs()[i];
+    result.normalize();
+    return result;
+}
+
 WideInt WideInt::bit_xor(const WideInt& a, const WideInt& b) {
     require_compatible(a, b);
     WideInt result(a.width());
     for (std::size_t i = 0; i < result.limb_count(); ++i) result.limbs()[i] = a.limbs()[i] ^ b.limbs()[i];
+    return result;
+}
+
+WideInt WideInt::shl(const WideInt& a, std::size_t bits) {
+    WideInt result(a.width());
+    if (bits >= a.width().bits) return result;
+    const std::size_t word_shift = bits / 64;
+    const std::size_t bit_shift = bits % 64;
+    for (std::size_t dst = a.limb_count(); dst-- > 0;) {
+        if (dst < word_shift) continue;
+        const std::size_t src = dst - word_shift;
+        result.limbs()[dst] |= a.limbs()[src] << bit_shift;
+        if (bit_shift != 0 && src > 0) result.limbs()[dst] |= a.limbs()[src - 1] >> (64 - bit_shift);
+    }
+    result.normalize();
+    return result;
+}
+
+WideInt WideInt::shr(const WideInt& a, std::size_t bits) {
+    WideInt result(a.width());
+    if (bits >= a.width().bits) return result;
+    const std::size_t word_shift = bits / 64;
+    const std::size_t bit_shift = bits % 64;
+    for (std::size_t dst = 0; dst < a.limb_count(); ++dst) {
+        const std::size_t src = dst + word_shift;
+        if (src >= a.limb_count()) break;
+        result.limbs()[dst] |= a.limbs()[src] >> bit_shift;
+        if (bit_shift != 0 && src + 1 < a.limb_count()) result.limbs()[dst] |= a.limbs()[src + 1] << (64 - bit_shift);
+    }
+    result.normalize();
     return result;
 }
 
