@@ -12,6 +12,14 @@ The ISA registry is in `isa/`, the native/foreign target model is in `include/ch
 
 This is an implementation framework and import pipeline; it does **not** claim that every instruction of every historical CPU has already been manually reimplemented. Imported targets can be native, translated/JITed or emulated depending on hardware capability.
 
+## Universal CPU toolchains and virtual memory bus
+
+`toolchains/registry.json` records assembler, disassembler, compiler, linker, object-tool, debugger and emulator capabilities for major open toolchain families including GNU Binutils/GAS/objdump, GCC, LLVM MC/Clang/LLD, NASM/YASM and QEMU. Microsoft MASM/MSVC and vendor compiler families are represented as external adapters rather than redistributed binaries. The registry is a capability catalog and does not imply that every historical instruction or proprietary tool is implemented in-tree.
+
+Koronos now has an architecture-neutral virtual memory bus in `include/chimera/memory_bus.hpp`. `memory/bus-profiles.json` records address width, transaction width, endianness, ordering, coherency, cache-line, DMA/IOMMU and inspection metadata for the principal compatibility families. `memory_bus_probe` consumes safe firmware/device-tree/ACPI/hypervisor descriptors and selects a `BusSnapshot`; it does not dereference arbitrary host physical addresses. RAM, MMIO, DMA windows and reserved regions are explicitly separated.
+
+RegisterN width is intentionally independent from physical bus width: an 8192-bit logical value can be transferred through multiple transactions or vector lanes. See `docs/architecture/memory-bus.md` and `docs/toolchains/universal-toolchains.md`.
+
 ## Database subsystem
 
 Koronos exposes a userspace database-service boundary for Nucleus/Hive and applications. Supported open-source integration targets include MariaDB Community Server, PostgreSQL, SQLite, DuckDB, RocksDB, LevelDB, Valkey, Apache Cassandra and Apache CouchDB. The repository contains original adapters/manifests rather than copying third-party source trees or binaries.
@@ -85,7 +93,7 @@ CHIMERA II OS
   +-- COGNITIVE: Koronos 128D / knowledge / reasoning research
   +-- WORLD: network / GPU / files / sensors / storage / UI
   |
-  +-- KORONOS: ISA / MM / scheduler / IRQ / VFS / IPC / networking / DB service boundary
+  +-- KORONOS: ISA / MM / virtual memory bus / scheduler / IRQ / VFS / IPC / networking / DB service boundary
   +-- SPIT FIRE + JASPER: boot and boot-manager layers
   +-- AURORA / GPU / CEF / WEB
   +-- APP CENTER + PACKAGE MANAGER: native / Linux / Flatpak / AppImage / Windows / Android / Web
@@ -96,7 +104,7 @@ The 8192-bit processor is an architectural/emulation research target, not a clai
 
 ## Bootable ISO
 
-`boot/iso/` contains the reproducible structured ISO pipeline. It stages the Spit Fire/Jasper/Koronos artifacts, application metadata, mobile profiles, documentation, toolchain registries and checksums into a deterministic tree and then creates `chimera2os-bootstrap.iso`. The existing Multiboot2 bootstrap remains the current executable kernel image; the new low-level boot sources provide the native Spit Fire implementation boundary for continued development.
+`boot/iso/` contains the reproducible structured ISO pipeline. It stages the Spit Fire/Jasper/Koronos artifacts, application metadata, mobile profiles, documentation, toolchain registries, memory-bus profiles and checksums into a deterministic tree and then creates `chimera2os-bootstrap.iso`. The existing Multiboot2 bootstrap remains the current executable kernel image; the new low-level boot sources provide the native Spit Fire implementation boundary for continued development.
 
 ## Windows setup
 
@@ -112,6 +120,7 @@ The 8192-bit processor is an architectural/emulation research target, not a clai
 cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
+python3 tools/toolchain/validate_registry.py
 python3 tests/installer/test_installer_plan.py
 python3 appcenter/cli/chimera-appctl.py list
 python3 package-manager/chimera-pkg.py detect
@@ -123,4 +132,4 @@ cd boot/iso && ./build-iso.sh
 
 ## Documentation
 
-See `docs/APPLICATION_ECOSYSTEM.md`, `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/STRUCTURED_ISO_BUILD.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `docs/UNIVERSAL_ISA_AND_CPU_ARCHITECTURE.md`, `docs/ISA_DATABASE_RESEARCH.md`, `docs/KORONOS_MICROKERNEL_2.md`, `docs/DATABASE_SUBSYSTEM.md`, `boot/iso/README.md`, `database/docs/DATABASE_BACKENDS.md` and the language-specific READMEs.
+See `docs/APPLICATION_ECOSYSTEM.md`, `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/STRUCTURED_ISO_BUILD.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `docs/UNIVERSAL_ISA_AND_CPU_ARCHITECTURE.md`, `docs/ISA_DATABASE_RESEARCH.md`, `docs/KORONOS_MICROKERNEL_2.md`, `docs/DATABASE_SUBSYSTEM.md`, `docs/architecture/memory-bus.md`, `docs/toolchains/universal-toolchains.md`, `boot/iso/README.md`, `database/docs/DATABASE_BACKENDS.md` and the language-specific READMEs.
