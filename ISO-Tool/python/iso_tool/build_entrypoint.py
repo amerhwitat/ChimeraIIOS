@@ -32,12 +32,13 @@ def _compile_systems(source:Path,output:Path,compiler:str,log):
     if not systems:raise RuntimeError(f'No registered build system detected at {source}')
     reports=[]
     for system in systems:
-        command=command_for(system,source,build_root/system)
+        command=command_for(system,source,build_root/system,compiler)
         if command is None:reports.append({'system':system,'status':'unavailable','command':None});log(f'[build] {system}: toolchain unavailable; skipped');continue
         try:
             _run(command,source,log)
             if system=='cmake':_run(['cmake','--build',str(build_root/system),'--config','Release','--parallel'],source,log)
             elif system=='meson':_run(['meson','compile','-C',str(build_root/system)],source,log)
+            elif system=='npm':_run(['npm','run','build','--if-present'],source,log)
             reports.append({'system':system,'status':'built','command':command})
         except Exception as exc:reports.append({'system':system,'status':'failed','command':command,'error':str(exc)});log(f'[build] {system}: {exc}')
     return build_root,reports
