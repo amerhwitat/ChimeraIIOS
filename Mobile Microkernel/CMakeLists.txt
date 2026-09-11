@@ -13,7 +13,6 @@ target_include_directories(chimera_mobile_kernel PUBLIC
 )
 
 target_compile_features(chimera_mobile_kernel PUBLIC cxx_std_20)
-
 target_compile_options(chimera_mobile_kernel PRIVATE
     $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/W4>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall;-Wextra;-Wpedantic>
@@ -25,4 +24,8 @@ if(CHIMERA_MOBILE_BUILD_TESTS)
     add_executable(chimera_mobile_kernel_smoke tests/smoke.cpp)
     target_link_libraries(chimera_mobile_kernel_smoke PRIVATE chimera_mobile_kernel)
     add_test(NAME chimera_mobile_kernel_smoke COMMAND chimera_mobile_kernel_smoke)
+
+    add_executable(chimera_mobile_platform_contract tests/platform_contract.cpp)
+    target_link_libraries(chimera_mobile_platform_contract PRIVATE chimera_mobile_kernel)
+    add_test(NAME chimera_mobile_platform_contract COMMAND chimera_mobile_platform_contract)
 endif()
