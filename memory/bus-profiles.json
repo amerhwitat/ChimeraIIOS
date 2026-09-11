@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "profiles": [
+    {"architecture":"x86-64","family":"x86","address_bits":64,"data_bits":[8,16,32,64,128,256,512],"endianness":["little"],"coherent":true,"iommu":"optional","dma":true,"inspection":["CPUID","ACPI","UEFI","PCI","IOMMU/VT-d-or-equivalent","hypervisor"]},
+    {"architecture":"aarch64","family":"ARM","address_bits":"implementation-defined","data_bits":[8,16,32,64,128],"endianness":["little","big-capable"],"coherent":true,"iommu":"optional","dma":true,"inspection":["ID registers","Device Tree","ACPI","UEFI","SMMU","hypervisor"]},
+    {"architecture":"riscv64","family":"RISC-V","address_bits":"implementation-defined","data_bits":[8,16,32,64,128],"endianness":["little","big-endian profiles where implemented"],"coherent":"platform-defined","iommu":"platform-defined","dma":true,"inspection":["ISA string","Device Tree","ACPI","IOMMU","firmware"]},
+    {"architecture":"power64","family":"POWER","address_bits":"implementation-defined","data_bits":[8,16,32,64,128],"endianness":["little","big"],"coherent":true,"iommu":"platform-defined","dma":true,"inspection":["firmware","device tree","PCI","IOMMU"]},
+    {"architecture":"mips64","family":"MIPS","address_bits":"implementation-defined","data_bits":[8,16,32,64],"endianness":["little","big"],"coherent":"platform-defined","iommu":"platform-defined","dma":true,"inspection":["CP0","firmware","Device Tree","PCI"]},
+    {"architecture":"sparc64","family":"SPARC","address_bits":"implementation-defined","data_bits":[8,16,32,64],"endianness":["big","implementation-defined"],"coherent":"platform-defined","iommu":"platform-defined","dma":true,"inspection":["firmware","PCI","MMU"]},
+    {"architecture":"s390x","family":"IBM Z","address_bits":"implementation-defined","data_bits":[8,16,32,64,128],"endianness":["big"],"coherent":true,"iommu":"platform-defined","dma":true,"inspection":["STSI","firmware","channel subsystem","hypervisor"]},
+    {"architecture":"loongarch64","family":"LoongArch","address_bits":"implementation-defined","data_bits":[8,16,32,64],"endianness":["little"],"coherent":"platform-defined","iommu":"platform-defined","dma":true,"inspection":["CPU configuration","firmware","Device Tree","PCI"]},
+    {"architecture":"alpha","family":"DEC Alpha","address_bits":64,"data_bits":[8,16,32,64],"endianness":["little"],"coherent":"platform-defined","iommu":"platform-defined","dma":true,"inspection":["firmware","machine descriptors"]},
+    {"architecture":"parisc64","family":"PA-RISC","address_bits":"implementation-defined","data_bits":[8,16,32,64],"endianness":["big","platform-defined"],"coherent":"platform-defined","iommu":"platform-defined","dma":true,"inspection":["firmware","IODC","machine dependent"]},
+    {"architecture":"sh4","family":"SuperH","address_bits":32,"data_bits":[8,16,32],"endianness":["little","big"],"coherent":"platform-defined","iommu":false,"dma":true,"inspection":["CPU registers","board descriptors"]},
+    {"architecture":"m68k","family":"Motorola 68k","address_bits":32,"data_bits":[8,16,32],"endianness":["big"],"coherent":"platform-defined","iommu":false,"dma":true,"inspection":["CPU model","board firmware"]},
+    {"architecture":"itanium","family":"Itanium","address_bits":"implementation-defined","data_bits":[8,16,32,64,128],"endianness":["little","big-capable profiles"],"coherent":true,"iommu":"platform-defined","dma":true,"inspection":["firmware","PAL/SAL","ACPI"]},
+    {"architecture":"avr","family":"AVR","address_bits":"device-defined","data_bits":[8],"endianness":["little"],"coherent":false,"iommu":false,"dma":"device-dependent","inspection":["device signature","MCU registers"]},
+    {"architecture":"xtensa","family":"Xtensa","address_bits":"configuration-defined","data_bits":[8,16,32,64],"endianness":["little","big"],"coherent":"SoC-defined","iommu":"SoC-defined","dma":true,"inspection":["TIE/configuration","SoC descriptors"]},
+    {"architecture":"or1k","family":"OpenRISC","address_bits":32,"data_bits":[8,16,32],"endianness":["big","little-profile"],"coherent":"SoC-defined","iommu":"SoC-defined","dma":true,"inspection":["device tree","SoC descriptors"]},
+    {"architecture":"chimera-r8192","family":"Chimera","address_bits":64,"data_bits":[8,16,32,64,128,256,512],"endianness":["little"],"coherent":true,"iommu":true,"dma":true,"inspection":["Koronos CPU probe","firmware bootinfo","virtual platform"]},
+    {"architecture":"chimera-c8192","family":"Chimera","address_bits":64,"data_bits":[8,16,32,64,128,256,512],"endianness":["little"],"coherent":true,"iommu":true,"dma":true,"inspection":["Koronos CPU probe","firmware bootinfo","virtual platform"]}
+  ]
+}
