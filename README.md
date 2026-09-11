@@ -4,6 +4,44 @@
 
 > Status: public research/engineering prototype. Host-emulated components are separated from future bare-metal firmware, kernel, driver, FPGA, mobile-hardware and silicon targets.
 
+## Universal ISA and CPU compatibility
+
+Chimera II now uses a layered universal-ISA model. Native C8192/R8192 instructions remain the canonical architecture, while x86-64, AArch64, RISC-V, MIPS64, POWER64, SPARC64, IBM Z/s390x, Motorola 68k, Alpha, PA-RISC, SuperH, Itanium, AVR, Xtensa and WebAssembly are represented as compatibility targets. Foreign instructions are decoded into canonical micro-operations and mapped to `RegisterN<N>` state instead of being flattened into one unsafe opcode namespace.
+
+The ISA registry is in `isa/`, the native/foreign target model is in `include/chimera/universal_isa.hpp`, and the generated/import pipeline is designed around LLVM TableGen-style declarative metadata. LLVM documents TableGen as the mechanism it uses to generate instruction, register, subtarget and searchable target tables. citeturn0search0turn0search2 RISC-V's specification similarly separates a base ISA from standard, reserved and custom extensions, a useful model for Chimera compatibility metadata. citeturn0search9
+
+This is an implementation framework and import pipeline; it does **not** claim that every instruction of every historical CPU has already been manually reimplemented. Imported targets can be native, translated/JITed or emulated depending on hardware capability.
+
+## Database subsystem
+
+Koronos now exposes a userspace database-service boundary for Nucleus/Hive and applications. Supported open-source integration targets include MariaDB Community Server, PostgreSQL, SQLite, DuckDB, RocksDB, LevelDB, Valkey, Apache Cassandra and Apache CouchDB. The repository contains original adapters/manifests rather than copying third-party source trees or binaries.
+
+MariaDB Community Server is GPLv2 and guaranteed open source; PostgreSQL uses the PostgreSQL License; SQLite's deliverable code and documentation are public domain; DuckDB is MIT; RocksDB offers Apache-2.0/GPLv2; Valkey is BSD; and Apache CouchDB is Apache-2.0. citeturn1search2turn1search0turn0search6turn1search1turn1search10turn1search7turn1search6 Exact release/dependency licenses are revalidated before packaging.
+
+Use `database/manifests/open-source-databases.yaml` and `docs/DATABASE_SUBSYSTEM.md` for the integration matrix.
+
+## Koronos microkernel 2
+
+The kernel now has an explicit architecture-context and service registry layer. Wide `RegisterN<8192>` state is lazy, preventing ordinary 64-bit workloads from paying a full wide-register context-switch cost. Database, networking, VFS, virtualization and compatibility execution remain userspace/service boundaries where practical; the kernel handles capabilities, IPC, scheduling, memory and privileged traps.
+
+See `docs/KORONOS_MICROKERNEL_2.md`.
+
+## Existing system architecture
+
+```text
+CHIMERA II OS
+  |
+  +-- Native ISA: R8192 / C8192 / RegisterN / Tensor / Vector
+  +-- Compatibility: x86-64 / ARM64 / RISC-V / MIPS / POWER / SPARC / IBM Z / legacy
+  +-- Koronos: scheduler / IPC / MM / IRQ / capabilities / VFS / VM / service boundary
+  +-- Spit Fire + Jasper: BIOS/UEFI boot and boot manager
+  +-- Spotnik: networking
+  +-- Nucleus + Hive: HTAP/database/registry layer
+  +-- Aurora: graphics/desktop
+  +-- CEF: emulation/compatibility framework
+  +-- ISO-Tool: source/build/package/ISO orchestration
+```
+
 ## Unified language matrix
 
 | Language / toolchain | Role | Location |
@@ -17,84 +55,15 @@
 | Node.js | Web/integration runtime and service bridge | `src/node/` |
 | Python | Reference research, ML/RL, data-processing and service bridge | `src/python/` |
 
-## Unified ISO and Application Center
-
-The ISO pipeline bundles the application catalog, provider metadata, application-manager source, package-source registry, mobile profiles and ecosystem documentation alongside the bootable bootstrap image. Proprietary applications are represented through official catalog/store adapters rather than unauthorized binary redistribution.
-
-The ISO Tool integration under the companion `nlp/ISO-Tool` tree can compile/link a repository, collect generated executables and libraries, stage the complete source tree under `/src`, prepare `/applications/linux` and `/applications/windows`, export Chimera II Spit Fire boot artifacts, and master CD/DVD ISO images through configured backends.
-
 ## Structured boot and ISO architecture
 
-`boot/spitfire/` now contains the staged SF0/SF1/SF2 BIOS implementation sources, the SFU UEFI source contract and shared boot ABI headers. `kernel/arch/x86_64/` contains the Koronos boot handoff/linker contract. `boot/iso/build-iso.sh` first creates a deterministic media tree and then masters an ISO 9660/El Torito image through GRUB2/xorriso.
+`boot/spitfire/` contains the staged SF0/SF1/SF2 BIOS implementation sources, SFU UEFI source contract and shared boot ABI headers. `kernel/arch/x86_64/` contains the Koronos boot handoff/linker contract. `boot/iso/build-iso.sh` creates the deterministic ISO 9660/El Torito media tree through GRUB2/xorriso.
 
-The staged tree contains `/boot/spitfire`, `/boot/jasper`, `/boot/koronos`, `/EFI/BOOT`, `/EFI/CHIMERA`, `/chimera`, `/src` and `/checksums`. BIOS Multiboot2 remains the current executable bootstrap; UEFI uses the standard `EFI/BOOT/BOOTX64.EFI` path when the GRUB EFI authoring environment is available. The R8192/C8192 ISA remains explicitly experimental/virtual.
-
-See `docs/STRUCTURED_ISO_BUILD.md` and `boot/iso/README.md` for the complete layout and verification contract.
+The staged tree contains `/boot/spitfire`, `/boot/jasper`, `/boot/koronos`, `/EFI/BOOT`, `/EFI/CHIMERA`, `/chimera`, `/src` and `/checksums`. BIOS Multiboot2 remains the current executable bootstrap; the native Spit Fire stages remain the continuing bare-metal implementation boundary.
 
 ## Unified package management
 
-`package-manager/chimera-pkg.py` provides a common command surface while retaining native package managers:
-
-- Debian/Ubuntu: `apt`, `apt-get`, `dpkg` and `.deb`
-- Fedora/RHEL/Rocky: `dnf`, `yum`
-- openSUSE: `zypper`
-- Arch: `pacman`
-- Alpine: `apk`
-- Void: `xbps-install`
-- Gentoo: `emerge`
-- Homebrew: `brew`
-- Flatpak: `flatpak`
-- Snap: `snap`
-- Windows: `winget`/Microsoft Store, Chocolatey and Scoop
-- `fnd`: reserved compatibility hook for the requested Chimera command vocabulary
-
-Repository URLs and package formats are stored in `package-manager/repositories.json`. The registry is official-first, HTTPS-only by policy, provenance-aware and explicit about third-party sources. See `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`.
-
-Examples:
-
-```bash
-python3 package-manager/chimera-pkg.py detect
-python3 package-manager/chimera-pkg.py sources
-python3 package-manager/chimera-pkg.py plan apt curl
-python3 package-manager/chimera-pkg.py plan winget Git.Git
-python3 package-manager/chimera-pkg.py install apt curl --yes
-```
-
-The adapter never executes a plan unless `--yes` is explicitly supplied.
-
-## Mobile / Koronos Mobile
-
-`mobile/` contains the Android-class Koronos Mobile architecture, AArch64 device-profile schema, Qualcomm/MediaTek/Samsung templates, profile validation and a reproducible research-image builder. Android's GKI/KMI and vendor-module model, AVB and rollback protection are treated as first-class constraints. Exact handset support requires model-specific validation; the project does not claim one binary boots every Samsung or Chinese-manufacturer device.
-
-## Architecture baseline
-
-```text
-CHIMERA II OS
-  |
-  +-- MACHINE: R8192 / C8192 / RegisterN / Tensor / Vector
-  +-- COGNITIVE: Koronos 128D / knowledge / reasoning research
-  +-- WORLD: network / GPU / files / sensors / storage / UI
-  |
-  +-- KORONOS: ISA / MM / scheduler / IRQ / VFS / IPC / networking
-  +-- SPIT FIRE + JASPER: boot and boot-manager layers
-  +-- AURORA / GPU / CEF / WEB
-  +-- APP CENTER + PACKAGE MANAGER: native / Linux / Flatpak / AppImage / Windows / Android / Web
-  +-- KORONOS MOBILE: AArch64 / GKI-KMI / vendor modules / AVB
-```
-
-The 8192-bit processor is an architectural/emulation research target, not a claim of existing 8192-bit silicon. Physical performance and energy claims require measured implementations.
-
-## Bootable ISO
-
-`boot/iso/` contains the reproducible structured ISO pipeline. It stages the Spit Fire/Jasper/Koronos artifacts, application metadata, mobile profiles, documentation, toolchain registries and checksums into a deterministic tree and then creates `chimera2os-bootstrap.iso`. The existing Multiboot2 bootstrap remains the current executable kernel image; the new low-level boot sources provide the native Spit Fire implementation boundary for continued development.
-
-## Windows setup
-
-`installer/windows/` contains the native bootstrap/host detection boundary. Modern .NET support follows Microsoft's OS/version matrix. Windows 7/8.1 are not claimed to support .NET 8+; legacy hosts require a separate native compatibility package if supported.
-
-## Crypto/AI integration
-
-`docs/CRYPTO_AI_SCANNER_INTEGRATION.md` defines public blockchain observation, normalized storage, AI/RL workloads and deterministic C8192/R8192 vectors. Wallet operations require operator-controlled wallets or externally signed transactions. Private-key cracking, address-targeted brute force, seed guessing and unauthorized credential access are excluded.
+`package-manager/chimera-pkg.py` provides a common command surface while retaining native package managers and provenance-aware repository metadata. The adapter never executes a plan unless `--yes` is explicitly supplied.
 
 ## Build and test
 
@@ -102,15 +71,12 @@ The 8192-bit processor is an architectural/emulation research target, not a clai
 cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-python3 tests/installer/test_installer_plan.py
-python3 appcenter/cli/chimera-appctl.py list
-python3 package-manager/chimera-pkg.py detect
-python3 -m pytest -q tests/boot tests/iso
-
-dotnet build src/csharp/ChimeraIIOS.Managed/ChimeraIIOS.Managed.csproj
+python3 -m pytest -q tests/isa/test_isa_registry.py tests/database/test_database_catalog.py
 cd boot/iso && ./build-iso.sh
 ```
 
 ## Documentation
 
-See `docs/APPLICATION_ECOSYSTEM.md`, `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/STRUCTURED_ISO_BUILD.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
+See `docs/UNIVERSAL_ISA_AND_CPU_ARCHITECTURE.md`, `docs/ISA_DATABASE_RESEARCH.md`, `docs/KORONOS_MICROKERNEL_2.md`, `docs/DATABASE_SUBSYSTEM.md`, `docs/STRUCTURED_ISO_BUILD.md`, `boot/iso/README.md`, `database/docs/DATABASE_BACKENDS.md` and the language-specific READMEs.
+
+The 8192-bit processor remains an architectural/emulation research target, not a claim of existing 8192-bit silicon. Physical performance and energy claims require measured implementations.

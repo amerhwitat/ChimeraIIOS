@@ -1,0 +1,45 @@
+schema: chimera-isa-v3
+native:
+  r8192:
+    instruction_bits: 64
+    register_type: RegisterN<8192>
+    register_count: 1024
+    predicate_bits: 256
+  c8192:
+    packet_bits: [64, 128, 256, 512, 1024, 2048, 4096]
+    register_type: RegisterN<8192>
+encoding:
+  byte_order: little
+  base_packet:
+    opcode: [0, 15]
+    dst: [16, 31]
+    src_a: [32, 47]
+    src_b: [48, 63]
+  immediate_extension: 64
+opcode_ranges:
+  integer: 0x0000-0x00ff
+  memory: 0x0100-0x01ff
+  control: 0x0200-0x02ff
+  atomic: 0x0300-0x03ff
+  vector_tensor: 0x0400-0x04ff
+  crypto: 0x0500-0x05ff
+  network: 0x0600-0x06ff
+  system: 0x0700-0x07ff
+  virtualization: 0x0800-0x08ff
+  compatibility: 0x1000-0x1fff
+canonical_microops:
+  - ALU
+  - SHIFT_ROTATE
+  - LOAD
+  - STORE
+  - BRANCH
+  - CALL_RETURN
+  - ATOMIC_RMW
+  - VECTOR
+  - TENSOR
+  - CRYPTO
+  - DMA
+  - NETWORK
+  - SYSCALL
+  - VMEXIT
+  - FENCE

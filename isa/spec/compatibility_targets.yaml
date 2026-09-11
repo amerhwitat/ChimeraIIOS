@@ -1,0 +1,27 @@
+schema: chimera-universal-isa-v1
+policy:
+  foreign_instructions: decode_to_uop
+  register_mapping: RegisterN
+  unknown_instruction: trap_or_emulate
+  proprietary_sources: metadata_only
+families:
+  - x86-64
+  - aarch64
+  - riscv64
+  - mips64
+  - power64
+  - sparc64
+  - s390x
+  - m68k
+  - alpha
+  - parisc64
+  - sh4
+  - itanium
+  - avr
+  - xtensa
+  - wasm32
+standard_extension_sources:
+  riscv: I M A F D C B V Zicsr Zifencei K H S U
+  arm64: AArch64 base + NEON/SVE/SVE2/crypto/atomics
+  x86-64: x86-64 base + SSE/SSE2/AVX/AVX2/AVX-512/AMX/crypto
+  power64: Power ISA integer/vector/VSX/crypto facilities

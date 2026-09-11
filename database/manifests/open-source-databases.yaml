@@ -1,0 +1,43 @@
+schema: chimera-database-backends-v1
+policy:
+  bundle_source: false
+  bundle_adapters: true
+  verify_license: true
+  provenance_required: true
+relational:
+  - name: MariaDB Community Server
+    license: GPL-2.0
+    role: primary server RDBMS
+  - name: PostgreSQL
+    license: PostgreSQL-License
+    role: advanced server RDBMS
+embedded:
+  - name: SQLite
+    license: Public-Domain
+    role: local embedded database
+analytical:
+  - name: DuckDB
+    license: MIT
+    role: embedded OLAP/analytics
+key_value:
+  - name: RocksDB
+    license: Apache-2.0-or-GPL-2.0
+    role: LSM storage engine
+  - name: LevelDB
+    license: BSD-3-Clause
+    role: embedded LSM storage engine
+  - name: Valkey
+    license: BSD-3-Clause
+    role: distributed cache/key-value/message broker
+wide_column:
+  - name: Apache Cassandra
+    license: Apache-2.0
+    role: distributed wide-column database
+document:
+  - name: Apache CouchDB
+    license: Apache-2.0
+    role: HTTP/JSON document database
+integration:
+  interfaces: [C, C++, ODBC, JDBC, ADBC, HTTP, native-wire, embedded]
+  kernel_boundary: userspace-service
+  zero_copy_path: IPC shared-memory rings
