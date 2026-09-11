@@ -21,12 +21,11 @@ public:
  bool add_region(MemoryRegion region, MmioHandler handler = {});
  BusResult transact(const BusTransaction& transaction) const;
  const BusSnapshot& snapshot() const noexcept { return snapshot_; }
- const std::vector<MemoryRegion>& regions() const noexcept { return regions_view_; }
+ std::size_t region_count() const noexcept { return mappings_.size(); }
  static std::optional<BusProfile> profile_for(std::string_view architecture) noexcept;
 private:
  struct Mapping { MemoryRegion region; MmioHandler handler; };
  BusSnapshot snapshot_{};
  std::vector<Mapping> mappings_{};
- mutable std::vector<MemoryRegion> regions_view_{};
 };
 }
