@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "backends": [
+    {"id":"nasm","kind":"assembler","commands":["nasm"],"targets":["x86","x86_64"],"syntax":["intel"],"policy":"download-cache-or-installed","source":"https://www.nasm.us/"},
+    {"id":"yasm","kind":"assembler","commands":["yasm"],"targets":["x86","x86_64"],"syntax":["intel"],"policy":"installed-or-package-manager"},
+    {"id":"binutils-as","kind":"assembler","commands":["as"],"targets":["x86","x86_64","arm","aarch64","riscv","mips","powerpc","sparc"],"syntax":["target-native"],"policy":"installed-or-package-manager"},
+    {"id":"binutils-objdump","kind":"disassembler","commands":["objdump"],"targets":["multi-target"],"syntax":["target-native"],"policy":"installed-or-package-manager"},
+    {"id":"llvm-mc","kind":"assembler-disassembler","commands":["llvm-mc"],"targets":["llvm-targets"],"syntax":["att","intel","target-native"],"policy":"installed-or-package-manager"},
+    {"id":"llvm-dis","kind":"disassembler","commands":["llvm-dis"],"targets":["llvm-bitcode"],"syntax":["llvm-ir"],"policy":"installed-or-package-manager"},
+    {"id":"masm","kind":"assembler","commands":["ml64","ml"],"targets":["x86","x86_64"],"syntax":["masm"],"policy":"detect-visual-studio-no-redistribution"},
+    {"id":"chimera-c8192","kind":"assembler-disassembler","commands":["chimera-as"],"targets":["chimera-c8192"],"syntax":["chimera"],"policy":"native"},
+    {"id":"chimera-r8192","kind":"assembler-disassembler","commands":["chimera-risc-as"],"targets":["chimera-r8192"],"syntax":["chimera"],"policy":"native"}
+  ]
+}
