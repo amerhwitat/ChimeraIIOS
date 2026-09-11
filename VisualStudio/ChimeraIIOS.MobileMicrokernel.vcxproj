@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations"><ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration><ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration></ItemGroup>
+  <PropertyGroup Label="Globals"><ProjectGuid>{7A4D6B03-7F1A-4C5E-9A11-2E3B5D7C9003}</ProjectGuid><Keyword>Win32Proj</Keyword><RootNamespace>ChimeraIIOSMobileMicrokernel</RootNamespace><WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion></PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration"><ConfigurationType>Utility</ConfigurationType><UseDebugLibraries>true</UseDebugLibraries><PlatformToolset>v143</PlatformToolset></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration"><ConfigurationType>Utility</ConfigurationType><UseDebugLibraries>false</UseDebugLibraries><PlatformToolset>v143</PlatformToolset></PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemGroup><ClCompile Include="..\Mobile Microkernel\tests\smoke.cpp" /><ClCompile Include="..\Mobile Microkernel\tests\hal_contract.cpp" /></ItemGroup>
+  <ItemGroup><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\mobile_kernel.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\scheduler.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\ipc.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\power.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\capabilities.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\mobile_abi.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\memory.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\interrupt.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\drivers.hpp" /><ClInclude Include="..\Mobile Microkernel\include\chimera\mobile\hal_contract.hpp" /></ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
