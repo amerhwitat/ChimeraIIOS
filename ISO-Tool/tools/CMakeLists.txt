@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+project(ISO_Tool_Toolchain NONE)
+set(ISO_TOOLCHAIN_REGISTRY "${CMAKE_CURRENT_LIST_DIR}/registry.json" CACHE FILEPATH "ISO-Tool assembler/disassembler registry")
+set(ISO_TOOLCHAIN_DISCOVERY "${CMAKE_CURRENT_LIST_DIR}/toolchain.py" CACHE FILEPATH "ISO-Tool toolchain discovery script")
+if(NOT EXISTS "${ISO_TOOLCHAIN_REGISTRY}")
+  message(FATAL_ERROR "ISO-Tool toolchain registry is missing: ${ISO_TOOLCHAIN_REGISTRY}")
+endif()
