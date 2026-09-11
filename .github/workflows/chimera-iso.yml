@@ -1,16 +1,17 @@
-name: Chimera II OS Bootstrap ISO
+name: Chimera II OS Structured ISO
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'boot/iso/**'
+      - 'boot/**'
+      - 'kernel/**'
+      - 'tests/boot/**'
+      - 'tests/iso/**'
       - 'appcenter/**'
       - 'mobile/device-profiles/**'
       - 'toolchains/cpp/**'
-      - 'docs/APPLICATION_ECOSYSTEM.md'
-      - 'docs/MOBILE_PORTING_MATRIX.md'
-      - 'docs/LEGAL_AND_PROVENANCE.md'
+      - 'docs/**'
       - '.github/workflows/chimera-iso.yml'
 
 jobs:
@@ -18,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install ISO and C++ toolchain validation tools
-        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common xorriso gcc gcc-multilib binutils python3 clang lldb gdb cmake ninja-build
+      - name: Install ISO, EFI and C++ validation tools
+        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 clang lldb gdb cmake ninja-build qemu-system-x86
       - name: Validate application metadata
         run: |
           python3 -m json.tool appcenter/catalog/apps.json >/dev/null
@@ -29,6 +30,10 @@ jobs:
           python3 -m json.tool toolchains/cpp/ides.json >/dev/null
           python3 -m json.tool toolchains/cpp/debuggers.json >/dev/null
           for p in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$p"; done
+      - name: Run boot and ISO structure tests
+        run: python3 -m pytest -q tests/boot tests/iso
+      - name: Validate Spit Fire SF0 assembly
+        run: nasm -f bin boot/spitfire/sf0_mbr.asm -o /tmp/sf0.bin && test "$(stat -c %s /tmp/sf0.bin)" = 512 && tail -c 2 /tmp/sf0.bin | od -An -tx1 | grep -qi '55 aa'
       - name: Validate compiler/debugger host integration
         run: |
           gcc --version | head -n 1
@@ -36,21 +41,25 @@ jobs:
           clang --version | head -n 1
           lldb --version | head -n 1
           gdb --version | head -n 1
-      - name: Build ISO
-        run: chmod +x boot/iso/build-iso.sh && boot/iso/build-iso.sh
+      - name: Build structured ISO
+        run: chmod +x boot/iso/build-iso.sh boot/iso/prepare-layout.sh && boot/iso/build-iso.sh
       - name: ISO content smoke test
         run: |
           test -s boot/iso/dist/chimera2os-bootstrap.iso
+          test -f boot/iso/dist/iso/boot/spitfire/sf0_mbr.asm
+          test -f boot/iso/dist/iso/boot/koronos/koronos.elf
+          test -f boot/iso/dist/iso/boot/jasper/grub.cfg
           test -f boot/iso/dist/iso/chimera/appcenter/catalog/apps.json
           test -f boot/iso/dist/iso/chimera/mobile/device-profile.schema.json
           test -f boot/iso/dist/iso/chimera/toolchains/cpp/registry.json
-          test -f boot/iso/dist/iso/chimera/toolchains/cpp/ides.json
-          test -f boot/iso/dist/iso/chimera/toolchains/cpp/debuggers.json
-          test -f boot/iso/dist/iso/chimera/docs/APPLICATION_ECOSYSTEM.md
+          test -f boot/iso/dist/iso/checksums/SHA256SUMS
+          test -f boot/iso/dist/iso/checksums/SHA256SUMS.json
+      - name: Validate ISO metadata
+        run: python3 boot/iso/validate-iso.py --tree boot/iso/dist/iso --json >/tmp/iso-manifest.json
       - name: Hash ISO
         run: sha256sum boot/iso/dist/chimera2os-bootstrap.iso > boot/iso/dist/SHA256SUMS
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
-          name: chimera2os-bootstrap-iso
+          name: chimera2os-structured-iso
           path: boot/iso/dist/*
