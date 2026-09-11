@@ -1,0 +1,7 @@
+{
+  "profiles": [
+    {"id":"gnu-cxx-ucrt64","family":"GNU C++","compiler":"g++","target":"x86_64-w64-mingw32","environment":"MSYS2 UCRT64","standard":"c++20","role":"compatibility-validation","separate_build_tree":true},
+    {"id":"msvc-x64","family":"Microsoft Visual C++","compiler":"cl.exe","target":"x64","environment":"Visual Studio 2022","standard":"c++20","role":"primary-windows","separate_build_tree":true}
+  ],
+  "missing_gnu_policy":"msys2-ucrt64-explicit-install"
+}
