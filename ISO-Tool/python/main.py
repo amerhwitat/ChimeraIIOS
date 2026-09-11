@@ -6,15 +6,16 @@ from iso_tool.boot_import import import_boot_sector, inspect_image
 from iso_tool.github_source import classify_source, is_source_reference, normalize_github_repository, prepare_source
 from iso_tool.build_entrypoint import build
 from iso_tool.build_planner import make_plan
-from iso_tool.application_discovery import discover_applications
+from iso_tool.application_discovery import discover_applications, install_authorized_packages
 from iso_tool.iso_merger import merge_staging
 from iso_tool.image import create_iso
 class App(tk.Tk):
     def __init__(self):
-        super().__init__();self.title('ISO-Tool — Git/GitHub/Archive → scan → compile → ISO/IMG');self.geometry('1220x920');self.repo=tk.StringVar(value='https://github.com/amerhwitat/ChimeraIIOS');self.out=tk.StringVar(value=str(suggested_output_dir()));self.iso_out=tk.StringVar();self.img_out=tk.StringVar();self.boot_out=tk.StringVar();self.bin_out=tk.StringVar();self.progress=tk.DoubleVar();self.status=tk.StringVar(value='Ready');self.events=queue.Queue();self.running=False
+        super().__init__();self.title('ISO-Tool — Git/GitHub/Archive → scan → compile → ISO/IMG');self.geometry('1240x980');self.repo=tk.StringVar(value='https://github.com/amerhwitat/ChimeraIIOS');self.out=tk.StringVar(value=str(suggested_output_dir()));self.iso_out=tk.StringVar();self.img_out=tk.StringVar();self.boot_out=tk.StringVar();self.bin_out=tk.StringVar();self.target=tk.StringVar(value='Chimera II OS');self.manager=tk.StringVar(value='winget');self.packages=tk.StringVar();self.progress=tk.DoubleVar();self.status=tk.StringVar(value='Ready');self.events=queue.Queue();self.running=False
         ttk.Label(self,text='Git / GitHub / ZIP / TAR / local source').pack(anchor='w',padx=12,pady=(12,2));source=ttk.Frame(self);source.pack(fill='x',padx=12);ttk.Entry(source,textvariable=self.repo).pack(side='left',fill='x',expand=True);ttk.Button(source,text='Browse Source…',command=self.select_source).pack(side='left',padx=8);ttk.Button(source,text='GitHub…',command=self.select_repo).pack(side='left')
+        ttk.Label(self,text='Intended system').pack(anchor='w',padx=12,pady=(8,2));ttk.Entry(self,textvariable=self.target).pack(fill='x',padx=12);ttk.Label(self,text='Optional applications/packages (space separated)').pack(anchor='w',padx=12,pady=(6,2));app_row=ttk.Frame(self);app_row.pack(fill='x',padx=12);ttk.Entry(app_row,textvariable=self.packages).pack(side='left',fill='x',expand=True);ttk.Combobox(app_row,textvariable=self.manager,values=('winget','apt','dnf','zypper','pacman','apk','xbps','portage','homebrew','flatpak','snap','chocolatey','scoop'),state='readonly',width=16).pack(side='left',padx=8);ttk.Label(self,text='Package installation is performed only after pressing the explicit install button.').pack(anchor='w',padx=12)
         ttk.Label(self,text='Build/output root').pack(anchor='w',padx=12,pady=(8,2));self._path_row('Build root',self.out,self.choose_output);self._path_row('ISO file',self.iso_out,self.choose_iso);self._path_row('IMG file',self.img_out,self.choose_img);self._path_row('Boot images',self.boot_out,self.choose_boot);self._path_row('Executables/libraries',self.bin_out,self.choose_bins);ttk.Label(self,text=f'Dependency cache: {dependency_cache_dir()}').pack(anchor='w',padx=12,pady=(2,6))
-        buttons=ttk.Frame(self);buttons.pack(fill='x',padx=12,pady=10);self.analyze_button=ttk.Button(buttons,text='Analyze Source + Plan',command=self.inventory);self.analyze_button.pack(side='left');self.apps_button=ttk.Button(buttons,text='Discover Applications',command=self.discover_apps);self.apps_button.pack(side='left',padx=8);self.import_button=ttk.Button(buttons,text='Import Boot/ISO',command=self.import_image);self.import_button.pack(side='left');self.build_images_button=ttk.Button(buttons,text='Compile All Recognized',command=self.build_images);self.build_images_button.pack(side='left',padx=8);self.build_button=ttk.Button(buttons,text='Build ISO + IMG',command=self.build_iso);self.build_button.pack(side='left');ttk.Button(buttons,text='Clear',command=self.clear_log).pack(side='left',padx=8)
+        buttons=ttk.Frame(self);buttons.pack(fill='x',padx=12,pady=10);self.analyze_button=ttk.Button(buttons,text='Analyze Source + Plan',command=self.inventory);self.analyze_button.pack(side='left');self.apps_button=ttk.Button(buttons,text='Discover Applications',command=self.discover_apps);self.apps_button.pack(side='left',padx=8);self.install_button=ttk.Button(buttons,text='Install Selected Packages',command=self.install_apps);self.install_button.pack(side='left');self.import_button=ttk.Button(buttons,text='Import Boot/ISO',command=self.import_image);self.import_button.pack(side='left',padx=8);self.build_images_button=ttk.Button(buttons,text='Compile All Recognized',command=self.build_images);self.build_images_button.pack(side='left',padx=8);self.build_button=ttk.Button(buttons,text='Build ISO + IMG',command=self.build_iso);self.build_button.pack(side='left');ttk.Button(buttons,text='Clear',command=self.clear_log).pack(side='left',padx=8)
         ttk.Label(self,textvariable=self.status).pack(anchor='w',padx=12);ttk.Progressbar(self,variable=self.progress,maximum=100).pack(fill='x',padx=12,pady=8);self.log=tk.Text(self,height=31,state='disabled',font=('Consolas',10));self.log.pack(fill='both',expand=True,padx=12,pady=8);self.after(75,self._drain_events)
     def _path_row(self,label,variable,command):
         ttk.Label(self,text=label).pack(anchor='w',padx=12,pady=(2,0));row=ttk.Frame(self);row.pack(fill='x',padx=12);ttk.Entry(row,textvariable=variable).pack(side='left',fill='x',expand=True);ttk.Button(row,text='Choose…',command=command).pack(side='left',padx=8)
@@ -53,7 +54,7 @@ class App(tk.Tk):
         except queue.Empty:pass
         self.after(75,self._drain_events)
     def _set_buttons(self,enabled):
-        for button in (self.analyze_button,self.apps_button,self.import_button,self.build_images_button,self.build_button):button.configure(state='normal' if enabled else 'disabled')
+        for button in (self.analyze_button,self.apps_button,self.install_button,self.import_button,self.build_images_button,self.build_button):button.configure(state='normal' if enabled else 'disabled')
     def _start(self,target):
         if self.running:return
         self.running=True;self._set_buttons(False);self.progress.set(0);threading.Thread(target=target,daemon=True).start()
@@ -69,8 +70,15 @@ class App(tk.Tk):
     def discover_apps(self):self._start(self._discover_apps_worker)
     def _discover_apps_worker(self):
         try:
-            root=self._source();result=discover_applications(root);self.events.put(('log',f'[applications] discovered {len(result["discovered"])} application/build entries'));self.events.put(('log',json.dumps(result,indent=2)));self.events.put(('done','Application discovery complete. No packages were installed.'))
+            root=self._source();result=discover_applications(root,self.target.get());self.events.put(('log',f'[applications] discovered {len(result["discovered"])} application/build entries'));self.events.put(('log',json.dumps(result,indent=2)));self.events.put(('done','Application discovery complete.'))
         except Exception as exc:self.events.put(('log',f'[error] {exc}'));self.events.put(('done','Application discovery stopped.'))
+    def install_apps(self):self._start(self._install_apps_worker)
+    def _install_apps_worker(self):
+        try:
+            packages=[p for p in self.packages.get().split() if p]
+            if not packages:raise ValueError('Enter at least one package/application identifier.')
+            root=self._source();result=discover_applications(root,self.target.get());install_authorized_packages(result,self.manager.get(),packages,yes=True,log=lambda m:self.events.put(('log',m)));self.events.put(('done',f'Installed selected packages for {self.target.get()}: '+', '.join(packages)))
+        except Exception as exc:self.events.put(('log',f'[package error] {exc}'));self.events.put(('done','Package installation stopped.'))
     def import_image(self):
         source=filedialog.askopenfilename(title='Import boot/ISO image',filetypes=[('Images','*.iso *.img *.bin'),('All','*.*')]);
         if not source:return
@@ -92,6 +100,6 @@ class App(tk.Tk):
             if not results:raise RuntimeError('No recognized build system produced artifacts.')
             if make_images:
                 staging=Path(layout['root'])/'staging';manifest=Path(layout['manifests'])/'staging-manifest.json';merge_staging(root,staging,manifest);iso=Path(self.iso_out.get()) if self.iso_out.get().strip() else Path(layout['iso'])/f'Chimera-II-{root.name}.iso';create_iso(staging,iso,label='CHIMERA_II',profile='data');self.events.put(('log',f'[iso] generated {iso}'));img=Path(self.img_out.get()) if self.img_out.get().strip() else Path(layout['root'])/'img'/f'Chimera-II-{root.name}.img';img.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(iso,img);self.events.put(('log',f'[img] generated ISO9660-compatible image copy {img}'));self.events.put(('log','[outputs] '+json.dumps({'iso':str(iso),'img':str(img),'boot_images':str(self.boot_out.get() or layout['boot_images']),'binaries':str(self.bin_out.get() or layout['executables'])},indent=2)))
-            self.events.put(('done','Source acquisition, scan, compile/link, staging, and image pipeline completed; inspect manifests and logs.'))
+            self.events.put(('done','Source acquisition, scan, application discovery/install, compile/link, staging, and image pipeline completed; inspect manifests and logs.'))
         except Exception as exc:self.events.put(('log',f'[fatal] {type(exc).__name__}: {exc}'));self.events.put(('done','Build stopped with an error.'))
 if __name__=='__main__':App().mainloop()
