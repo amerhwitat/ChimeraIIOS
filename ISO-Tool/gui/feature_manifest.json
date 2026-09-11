@@ -10,5 +10,13 @@
     {"id":"packages","title":"Packages / Applications","features":["Detect Package Managers","Install Dependencies","Application Inventory","Artifact Inventory"]},
     {"id":"diagnostics","title":"Diagnostics","features":["Validate Configuration","Dependency Errors","Runtime Errors","Build Errors","View Logs","Export Diagnostics","Verify Output"]}
   ],
-  "buttonOrder": "group-order"
+  "buttonOrder": "group-order",
+  "commandIds": {
+    "Open GitHub":"source.github", "Clone Repository":"source.clone", "Open Local Source":"source.local", "Open Archive":"source.archive", "Deep Recursive Scan":"source.scan", "Repository Tree":"source.tree", "Dependency Analysis":"source.dependencies", "Application Discovery":"source.apps",
+    "Detect Windows Toolchains":"toolchain.scan", "Detect MSVC":"toolchain.msvc", "Detect Clang":"toolchain.clang", "Detect GCC/G++":"toolchain.gcc", "Detect NASM":"toolchain.nasm", "Bootstrap NASM":"toolchain.bootstrap.nasm", "Bootstrap GCC/G++":"toolchain.bootstrap.gcc", "Built-in Spit Fire Assembler":"boot.builtin",
+    "Generate Build Plan":"build.plan", "Compile":"build.compile", "Link":"build.link", "Debug Build":"build.debug", "Release Build":"build.release", "GNU Build":"build.gnu", "MSVC Build":"build.msvc", "Build All Projects":"build.all", "Run Tests":"build.test", "Build Journal":"build.journal",
+    "Build Spit Fire Boot Sector":"iso.spitfire", "Build BIOS ISO":"iso.bios", "Build UEFI ISO":"iso.uefi", "Build BIOS + UEFI ISO":"iso.hybrid", "Build ISO Image":"iso.image", "Build IMG":"iso.img", "Merge Binaries":"iso.merge.binaries", "Merge Libraries":"iso.merge.libraries", "Generate Manifest":"iso.manifest", "Verify Boot Image":"iso.verify.boot", "Verify ISO":"iso.verify.iso",
+    "Detect Package Managers":"packages.detect", "Install Dependencies":"packages.install", "Application Inventory":"packages.apps", "Artifact Inventory":"packages.artifacts",
+    "Validate Configuration":"diagnostics.config", "Dependency Errors":"diagnostics.dependencies", "Runtime Errors":"diagnostics.runtime", "Build Errors":"diagnostics.build", "View Logs":"diagnostics.logs", "Export Diagnostics":"diagnostics.export", "Verify Output":"diagnostics.verify"
+  }
 }
