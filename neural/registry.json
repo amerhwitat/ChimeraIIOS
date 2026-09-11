@@ -1,0 +1,26 @@
+{
+  "schema": "chimera-neural-registry-v1",
+  "runtime": {
+    "architecture": "hybrid-rnn-transformer-retrieval-128d",
+    "context_memory": "Nucleus-neural",
+    "state_space": 128,
+    "wide_tensor_backend": "RegisterN",
+    "inference_policy": "local-first"
+  },
+  "modules": [
+    {"id":"perception","type":"encoder","state":"128D"},
+    {"id":"temporal","type":"GRU-LSTM-RNN","state":"persistent"},
+    {"id":"attention","type":"transformer","state":"retrieval-conditioned"},
+    {"id":"knowledge","type":"vector-graph-rag","state":"Nucleus-neural"},
+    {"id":"reasoning","type":"planner","state":"sandboxed"},
+    {"id":"consensus","type":"trusted-node-aggregation","state":"signed-only"},
+    {"id":"observer","type":"perspective-vs-geometry","state":"128D"}
+  ],
+  "safety": {
+    "internet_discovery": "signed-directories-dns-srv-mdns-only",
+    "unsolicited_port_scanning": false,
+    "remote_execution": false,
+    "model_update": "signed-and-policy-approved",
+    "node_trust": "mutual-authentication-plus-capability-attestation"
+  }
+}
