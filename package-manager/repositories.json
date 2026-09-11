@@ -1,0 +1,27 @@
+{
+  "schema": "chm.package-sources.v1",
+  "policy": {
+    "default_trust": "official-first",
+    "require_https": true,
+    "require_signature_for_remote_binary_repositories": true,
+    "third_party": "explicit-opt-in",
+    "record_provenance": true
+  },
+  "linux": [
+    {"id":"debian","manager":"apt","url":"https://deb.debian.org/debian/","security_url":"https://security.debian.org/debian-security/","formats":["deb"]},
+    {"id":"ubuntu","manager":"apt","url":"https://archive.ubuntu.com/ubuntu/","security_url":"https://security.ubuntu.com/ubuntu/","formats":["deb"]},
+    {"id":"fedora","manager":"dnf","url":"https://download.fedoraproject.org/","formats":["rpm"]},
+    {"id":"rocky","manager":"dnf","url":"https://dl.rockylinux.org/","formats":["rpm"]},
+    {"id":"opensuse","manager":"zypper","url":"https://download.opensuse.org/","formats":["rpm"]},
+    {"id":"arch","manager":"pacman","url":"https://geo.mirror.pkgbuild.com/","formats":["pkg.tar.zst"]},
+    {"id":"alpine","manager":"apk","url":"https://dl-cdn.alpinelinux.org/alpine/","formats":["apk"]},
+    {"id":"void","manager":"xbps","url":"https://repo-default.voidlinux.org/","formats":["xbps"]},
+    {"id":"gentoo","manager":"portage","url":"https://distfiles.gentoo.org/","formats":["ebuild"]}
+  ],
+  "windows": [
+    {"id":"msstore","manager":"winget","url":"https://apps.microsoft.com/","source":"msstore","formats":["msix","appx"]},
+    {"id":"winget","manager":"winget","url":"https://cdn.winget.microsoft.com/cache","source":"winget","formats":["msix","exe","msi"]},
+    {"id":"chocolatey","manager":"choco","url":"https://community.chocolatey.org/api/v2/","formats":["nupkg"]},
+    {"id":"scoop","manager":"scoop","url":"https://scoop.sh/","formats":["manifest"]}
+  ]
+}
