@@ -8,7 +8,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON
+        id: configure
+        continue-on-error: true
+        run: cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON 2>&1 | tee cmake-configure.log
+      - name: Upload CMake diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-cmake-diagnostics
+          path: |
+            cmake-configure.log
+            build/CMakeFiles/CMakeOutput.log
+            build/CMakeFiles/CMakeError.log
+          if-no-files-found: warn
+      - name: Fail on configure error
+        if: steps.configure.outcome == 'failure'
+        run: exit 1
       - name: Build
         run: cmake --build build --parallel
       - name: Test
