@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": 1,
+  "repositories": [
+    {"id": "chimera-ii-os", "name": "Chimera II OS", "url": "https://github.com/amerhwitat/ChimeraIIOS", "role": "operating-system", "required": true},
+    {"id": "bizx", "name": "BizX", "url": "https://github.com/amerhwitat/BizX", "role": "application-platform", "required": false},
+    {"id": "bizxtreme", "name": "BizXtreme", "url": "https://github.com/amerhwitat/BizXtreme", "role": "game-application", "required": false}
+  ],
+  "build_policy": {"compilers": ["gnu", "msvc"], "parallel": true, "continue_on_failure": true, "stage_executables": true, "stage_libraries": true, "stage_boot_images": true, "preserve_source_tree": true, "preserve_provenance": true}
+}
