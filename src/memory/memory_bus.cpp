@@ -1,6 +1,6 @@
 #include "chimera/memory_bus.hpp"
-#include <algorithm>
 #include <limits>
+#include <utility>
 namespace chimera::memory {
 namespace {
 constexpr uint32_t kFaultInvalid = 1;
@@ -34,7 +34,7 @@ bool VirtualMemoryBus::add_region(MemoryRegion region, MmioHandler handler) {
 }
 BusResult VirtualMemoryBus::transact(const BusTransaction& t) const {
     if (t.width_bytes == 0 || t.width_bytes > sizeof(uint64_t)) return {false, 0, kFaultInvalid};
-    const auto max_addr = snapshot_.profile.address_bits >= 64 ? std::numeric_limits<uint64_t>::max() : ((uint64_t{1} << snapshot_.profile.address_bits) - 1);
+    const uint64_t max_addr = snapshot_.profile.address_bits >= 64 ? std::numeric_limits<uint64_t>::max() : ((uint64_t{1} << snapshot_.profile.address_bits) - 1);
     const uint64_t last = t.address + static_cast<uint64_t>(t.width_bytes) - 1;
     if (last < t.address || last > max_addr) return {false, 0, kFaultAddressWidth};
     for (const auto& mapping : mappings_) {
