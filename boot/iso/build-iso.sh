@@ -1,47 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")" && pwd)"
-REPO="$(cd "$ROOT/../.." && pwd)"
-DIST="$ROOT/dist"
-WORK="$ROOT/work"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ISO_ROOT="$ROOT/boot/iso"
+DIST="$ISO_ROOT/dist"
+WORK="$ISO_ROOT/work"
 rm -rf "$DIST" "$WORK"
-mkdir -p "$DIST/iso/boot/grub" "$DIST/iso/chimera/appcenter" "$DIST/iso/chimera/mobile" "$DIST/iso/chimera/docs" "$DIST/iso/chimera/manifests" "$DIST/iso/chimera/toolchains/cpp" "$WORK"
-
-CC=${CC:-gcc}
-LD=${LD:-ld}
-
-$CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -c "$ROOT/multiboot2.S" -o "$WORK/multiboot2.o"
-$CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -c "$ROOT/boot.c" -o "$WORK/boot.o"
-$LD -m elf_i386 -T "$ROOT/linker.ld" -o "$WORK/chimera2os.elf" "$WORK/multiboot2.o" "$WORK/boot.o"
-cp "$WORK/chimera2os.elf" "$DIST/iso/boot/chimera2os.elf"
-cp "$ROOT/grub.cfg" "$DIST/iso/boot/grub/grub.cfg"
-
-cp -a "$REPO/appcenter/catalog" "$DIST/iso/chimera/appcenter/"
-cp -a "$REPO/appcenter/providers" "$DIST/iso/chimera/appcenter/"
-cp -a "$REPO/appcenter/schema" "$DIST/iso/chimera/appcenter/"
-cp -a "$REPO/appcenter/cli" "$DIST/iso/chimera/appcenter/"
-cp -a "$REPO/appcenter/sources" "$DIST/iso/chimera/appcenter/"
-cp -a "$REPO/mobile/device-profiles" "$DIST/iso/chimera/mobile/"
-cp "$REPO/mobile/device-profile.schema.json" "$DIST/iso/chimera/mobile/"
-cp "$REPO/iso/manifests/core-packages.txt" "$DIST/iso/chimera/manifests/"
-cp "$REPO/iso/manifests/application-catalog.txt" "$DIST/iso/chimera/manifests/"
-cp "$REPO/docs/APPLICATION_ECOSYSTEM.md" "$DIST/iso/chimera/docs/"
-cp "$REPO/docs/MOBILE_PORTING_MATRIX.md" "$DIST/iso/chimera/docs/"
-cp "$REPO/docs/LEGAL_AND_PROVENANCE.md" "$DIST/iso/chimera/docs/"
-cp -a "$REPO/toolchains/cpp/." "$DIST/iso/chimera/toolchains/cpp/"
-
-cat > "$DIST/iso/chimera/toolchains/cpp/BUILD_TOOLCHAINS.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-printf '%s\n' 'Chimera II C++ toolchain bootstrap'
-printf '%s\n' 'Use the package/build recipes and upstream sources recorded in the registry.'
-printf '%s\n' 'No third-party binary is silently redistributed by this bootstrap.'
-EOF
-chmod +x "$DIST/iso/chimera/toolchains/cpp/BUILD_TOOLCHAINS.sh"
-
-printf 'Chimera II application catalog bundled into ISO.\n' > "$DIST/iso/chimera/README.txt"
-printf 'Open-source C++ compiler/IDE/debugger registries and reproducible integration metadata are bundled.\n' >> "$DIST/iso/chimera/README.txt"
-printf 'Core open-source components are bundled; proprietary applications use official distribution adapters.\n' >> "$DIST/iso/chimera/README.txt"
-
-grub-mkrescue -o "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"
-printf 'ISO: %s\n' "$DIST/chimera2os-bootstrap.iso"
+mkdir -p "$DIST" "$WORK"
+CC=${CC:-gcc}; LD=${LD:-ld}
+printf '%s\n' '[1/5] Build Multiboot2 bootstrap kernel'
+$CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/multiboot2.S" -o "$WORK/multiboot2.o"
+$CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/boot.c" -o "$WORK/boot.o"
+$LD -m elf_i386 -T "$ISO_ROOT/linker.ld" -o "$DIST/chimera2os.elf" "$WORK/multiboot2.o" "$WORK/boot.o"
+printf '%s\n' '[2/5] Prepare structured media tree'
+"$ISO_ROOT/prepare-layout.sh"
+cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/koronos/koronos.elf"
+cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/chimera2os.elf"
+cp "$ISO_ROOT/iso-layout.json" "$ISO_ROOT/dist/iso/chimera/manifests/iso-layout.json"
+printf '%s\n' '[3/5] Add boot configuration'
+mkdir -p "$ISO_ROOT/dist/iso/boot/grub"
+cp "$ISO_ROOT/grub.cfg" "$ISO_ROOT/dist/iso/boot/grub.cfg"
+cp "$ISO_ROOT/grub.cfg" "$ISO_ROOT/dist/iso/boot/grub/grub.cfg"
+printf '%s\n' '[4/5] Validate final staging tree'
+python3 "$ISO_ROOT/validate-iso.py" --tree "$ISO_ROOT/dist/iso" --write-manifest "$ISO_ROOT/dist/iso/checksums/SHA256SUMS"
+printf '%s\n' '[5/5] Master ISO 9660 / El Torito image'
+if command -v grub-mkrescue >/dev/null 2>&1; then
+  grub-mkrescue -o "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"
+elif command -v xorriso >/dev/null 2>&1; then
+  echo 'xorriso found but grub-mkrescue is missing; install GRUB2 EFI/BIOS modules for hybrid authoring.' >&2
+  exit 2
+else
+  echo 'No ISO authoring backend found: install grub-mkrescue/GRUB2 and xorriso.' >&2
+  exit 2
+fi
+sha256sum "$DIST/chimera2os-bootstrap.iso" | tee "$DIST/chimera2os-bootstrap.iso.sha256"
+printf 'ISO: %s\nStructured tree: %s\n' "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"

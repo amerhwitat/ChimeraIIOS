@@ -23,6 +23,14 @@ The ISO pipeline bundles the application catalog, provider metadata, application
 
 The ISO Tool integration under the companion `nlp/ISO-Tool` tree can compile/link a repository, collect generated executables and libraries, stage the complete source tree under `/src`, prepare `/applications/linux` and `/applications/windows`, export Chimera II Spit Fire boot artifacts, and master CD/DVD ISO images through configured backends.
 
+## Structured boot and ISO architecture
+
+`boot/spitfire/` now contains the staged SF0/SF1/SF2 BIOS implementation sources, the SFU UEFI source contract and shared boot ABI headers. `kernel/arch/x86_64/` contains the Koronos boot handoff/linker contract. `boot/iso/build-iso.sh` first creates a deterministic media tree and then masters an ISO 9660/El Torito image through GRUB2/xorriso.
+
+The staged tree contains `/boot/spitfire`, `/boot/jasper`, `/boot/koronos`, `/EFI/BOOT`, `/EFI/CHIMERA`, `/chimera`, `/src` and `/checksums`. BIOS Multiboot2 remains the current executable bootstrap; UEFI uses the standard `EFI/BOOT/BOOTX64.EFI` path when the GRUB EFI authoring environment is available. The R8192/C8192 ISA remains explicitly experimental/virtual.
+
+See `docs/STRUCTURED_ISO_BUILD.md` and `boot/iso/README.md` for the complete layout and verification contract.
+
 ## Unified package management
 
 `package-manager/chimera-pkg.py` provides a common command surface while retaining native package managers:
@@ -78,7 +86,7 @@ The 8192-bit processor is an architectural/emulation research target, not a clai
 
 ## Bootable ISO
 
-`boot/iso/` contains a reproducible GRUB2/Multiboot2 bootstrap ISO pipeline. The GitHub Actions workflow builds `chimera2os-bootstrap.iso`, validates application/mobile metadata and publishes the ISO plus SHA-256 checksum as an artifact. The current image remains a bootstrap kernel image; full Koronos drivers/services are integrated incrementally rather than being falsely represented as bare-metal complete.
+`boot/iso/` contains the reproducible structured ISO pipeline. It stages the Spit Fire/Jasper/Koronos artifacts, application metadata, mobile profiles, documentation, toolchain registries and checksums into a deterministic tree and then creates `chimera2os-bootstrap.iso`. The existing Multiboot2 bootstrap remains the current executable kernel image; the new low-level boot sources provide the native Spit Fire implementation boundary for continued development.
 
 ## Windows setup
 
@@ -97,6 +105,7 @@ ctest --test-dir build --output-on-failure
 python3 tests/installer/test_installer_plan.py
 python3 appcenter/cli/chimera-appctl.py list
 python3 package-manager/chimera-pkg.py detect
+python3 -m pytest -q tests/boot tests/iso
 
 dotnet build src/csharp/ChimeraIIOS.Managed/ChimeraIIOS.Managed.csproj
 cd boot/iso && ./build-iso.sh
@@ -104,4 +113,4 @@ cd boot/iso && ./build-iso.sh
 
 ## Documentation
 
-See `docs/APPLICATION_ECOSYSTEM.md`, `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.
+See `docs/APPLICATION_ECOSYSTEM.md`, `docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md`, `docs/MOBILE_PORTING_MATRIX.md`, `docs/LEGAL_AND_PROVENANCE.md`, `docs/INSTALLATION_AND_BOOT.md`, `docs/STRUCTURED_ISO_BUILD.md`, `docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md`, `docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md`, `docs/BIZX_NODEJS_INTEGRATION.md`, `boot/iso/README.md`, `installer/windows/README.md` and the language-specific READMEs.

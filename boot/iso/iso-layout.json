@@ -1,0 +1,12 @@
+{
+  "schema": "chimera-iso-layout-v2",
+  "filesystem": "ISO9660",
+  "boot": {
+    "bios": "GRUB2/Multiboot2",
+    "uefi": "El Torito FAT EFI image when grub-mkrescue provides it",
+    "standard_efi_path": "EFI/BOOT/BOOTX64.EFI"
+  },
+  "directories": ["boot/spitfire","boot/jasper","boot/koronos","EFI/BOOT","EFI/CHIMERA","chimera","chimera/docs","chimera/manifests","chimera/toolchains","chimera/applications","chimera/knowledge","src","checksums"],
+  "research_targets": ["R8192","C8192","RegisterN","Tensor/AI"],
+  "provenance": "Every staged file is SHA-256 indexed before ISO mastering."
+}
