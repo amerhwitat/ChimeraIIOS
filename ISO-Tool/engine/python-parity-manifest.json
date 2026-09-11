@@ -1,0 +1,6 @@
+{
+  "schema":"iso-tool.python-parity.v1","reference":"ISO-Tool/python","translation_policy":"semantic-parity",
+  "features":["recursive source scan","language detection","toolchain/dependency preflight","build-system discovery","GNU/MSVC selection","parallel build planning","fail-forward execution","artifact staging","source/provenance manifests","Spit Fire BIOS/UEFI boot staging","ISO/IMG mastering","boot validation","application discovery","AI refinement hooks","dependency cache/download policy","repository workspace builds"],
+  "targets":{"cpp":"C++17 native Windows/Linux core","csharp":"C# net6.0 WPF/core","java":"Java 8+ CLI/core"},
+  "module_policy":{"python_modules":"Every .py module remains listed by the recursive parity scanner; dynamic behavior is represented by typed services and diagnostics.","tests":"Target-language contract tests mirror observable outputs and manifest schemas."}
+}

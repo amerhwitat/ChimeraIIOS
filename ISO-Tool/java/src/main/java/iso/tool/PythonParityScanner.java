@@ -1,0 +1,2 @@
+package iso.tool; import java.io.*; import java.nio.file.*; import java.util.*; import java.util.stream.Stream;
+public final class PythonParityScanner { public static List<Path> scan(Path root)throws IOException{List<Path>r=new ArrayList<>();if(!Files.exists(root))return r;try(Stream<Path>s=Files.walk(root)){s.filter(Files::isRegularFile).filter(p->p.toString().endsWith(".py")).forEach(r::add);}return r;} }

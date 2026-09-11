@@ -1,0 +1,9 @@
+{
+  "schema": "chimera.iso-tool.dependencies.v2",
+  "required": ["git","python","cmake"],
+  "recommended": ["gcc","g++","cl","nasm","ml","clang","lld","ninja","msbuild","xorriso","oscdimg","qemu-system-x86_64","7z","zip","make","node","npm","java","javac","dotnet","go","rustc"],
+  "boot": ["nasm","gcc|clang","ld|lld","xorriso|oscdimg"],
+  "source_languages": ["python","c","cpp","csharp","java","rust","go","javascript","typescript","assembly"],
+  "policy": {"detect_before_dependency_check": true, "fail_forward": true, "built_in_boot_assembler_fallback": true, "download_only_when_explicit": true, "never_overwrite_user_path_without_consent": true},
+  "generated_targets": {"cpp": "C++17", "csharp": "net6.0 (Windows WPF; portable core can target net6.0 or lower-compatible APIs)", "java": "Java 8+"}
+}
