@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": 1,
+  "policy": {
+    "mode": "capability-catalog",
+    "redistribute_proprietary": false,
+    "native_execution_claim": false,
+    "detect_only_when_uninstalled": true
+  },
+  "toolchains": [
+    {"id":"gnu-binutils","kind":["assembler","disassembler","linker","object-tools"],"tools":["as","objdump","ld","readelf","nm","ar"],"targets":["x86-64","aarch64","arm","riscv32","riscv64","power64","mips64","sparc64","s390x","m68k","alpha","parisc","sh4","avr","xtensa","loongarch64","or1k","bpf","csky","hexagon","msp430","microblaze","rx","tricore","wasm32"],"license":"GPL","detection":["as --version","objdump --version"]},
+    {"id":"gcc","kind":["compiler"],"tools":["gcc","g++"],"targets":["x86-64","aarch64","arm","riscv32","riscv64","power64","mips64","sparc64","s390x","m68k","alpha","parisc","sh4","avr","xtensa","loongarch64","or1k","bpf","csky","msp430","microblaze","rx","tricore"],"license":"GPL","detection":["gcc --version"]},
+    {"id":"llvm","kind":["compiler","assembler","disassembler","linker","object-tools","debug-info"],"tools":["clang","clang++","llvm-mc","llvm-objdump","llvm-readobj","llvm-nm","lld"],"targets":["x86-64","aarch64","arm","amdgpu","avr","bpf","csky","hexagon","lanai","loongarch64","m68k","mips64","msp430","nvptx","power64","riscv32","riscv64","sparc64","s390x","systemz","ve","wasm32"],"license":"Apache-2.0 WITH LLVM-exception","detection":["clang --version","llvm-mc --version","llvm-objdump --version"]},
+    {"id":"nasm","kind":["assembler","disassembler"],"tools":["nasm","ndisasm"],"targets":["x86-64","x86"],"license":"BSD-2-Clause","detection":["nasm -v","ndisasm -v"]},
+    {"id":"yasm","kind":["assembler","disassembler"],"tools":["yasm"],"targets":["x86-64","x86"],"license":"BSD-like","detection":["yasm --version"]},
+    {"id":"qemu","kind":["system-emulator","user-emulator","debugger-bridge"],"tools":["qemu-system-*","qemu-*"],"targets":["alpha","aarch64","arm","avr","hexagon","hppa","i386","x86-64","loongarch64","m68k","microblaze","mips64","or1k","power64","riscv32","riscv64","rx","s390x","sh4","sparc64","tricore","xtensa"],"license":"GPL-2.0-or-later","detection":["qemu-system-x86_64 --version","qemu-system-aarch64 --version"]},
+    {"id":"msvc","kind":["compiler","assembler","linker","debugger"],"tools":["cl","ml","ml64","link","dumpbin"],"targets":["x86","x86-64","arm","arm64"],"license":"proprietary-external","detection":["cl"],"redistribution":"external-installation"},
+    {"id":"masm","kind":["assembler","disassembler-adjacent"],"tools":["ml","ml64"],"targets":["x86","x86-64","arm64"],"license":"proprietary-external","detection":["ml64"],"redistribution":"external-installation"},
+    {"id":"ibm-xl-family","kind":["compiler"],"tools":["xlc","xlC"],"targets":["power64","s390x"],"license":"proprietary-external","detection":["xlc -qversion"],"redistribution":"external-installation"},
+    {"id":"arm-keil","kind":["compiler","assembler","linker","debugger"],"tools":["armclang","armasm","armlink"],"targets":["arm","aarch64"],"license":"proprietary-external","detection":["armclang --version"],"redistribution":"external-installation"},
+    {"id":"iar","kind":["compiler","assembler","linker","debugger"],"tools":["iccarm","iasm"],"targets":["arm","aarch64","avr","msp430","riscv32","riscv64","rx","sh4"],"license":"proprietary-external","detection":["iccarm --version"],"redistribution":"external-installation"},
+    {"id":"vendor-adapter","kind":["compiler","assembler","disassembler","linker"],"tools":[],"targets":["any-registered-target"],"license":"external","detection":[],"redistribution":"external-installation"}
+  ]
+}
