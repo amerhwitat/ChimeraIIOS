@@ -10,9 +10,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+        with: {python-version: '3.11'}
       - run: python -m pip install pytest
       - name: Test ISO-Tool Python implementation
         working-directory: ISO-Tool/python
         run: python -m pytest -q
+      - name: Unified GUI feature-count smoke test
+        working-directory: ISO-Tool/python
+        run: python -c "from iso_tool.unified_gui import FEATURE_GROUPS; assert sum(map(len,FEATURE_GROUPS.values())) == 48"
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17', cache: maven}
+      - name: Build Java implementation
+        working-directory: ISO-Tool/java
+        run: mvn -B -q package
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '6.0.x'}
+      - name: Build .NET desktop
+        run: dotnet build ISO-Tool/dotnet/ISO-Tool/ISO-Tool.csproj -c Release -f net6.0-windows
+      - name: Build native ISO-Tool
+        shell: pwsh
+        run: msbuild 'ISO-Tool/vcpp/ISO-Tool.vcxproj' /m /p:Configuration=Release /p:Platform=x64
+      - name: Build unified native GUI
+        shell: pwsh
+        run: msbuild 'ISO-Tool/vcpp/ISO-Tool-UnifiedGui.vcxproj' /m /p:Configuration=Release /p:Platform=x64
