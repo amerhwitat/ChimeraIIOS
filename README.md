@@ -4,6 +4,15 @@
 
 > Status: public research/engineering prototype. Host-emulated components are separated from future bare-metal firmware, kernel, driver, FPGA, mobile-hardware and silicon targets.
 
+## Editions
+
+Chimera II OS now has two explicitly separated kernel implementations:
+
+- **Computer Edition / Koronos** — general computer, workstation, server and desktop-oriented kernel implementation.
+- **Mobile Edition / Mobile Microkernel** — dedicated mobile kernel implementation under `Mobile Microkernel/`, primarily targeting AArch64 mobile SoCs with a RISC-V64 porting path.
+
+The Mobile Microkernel shares stable interfaces and concepts with the wider Chimera architecture, but does not inherit desktop/server scheduling, boot, driver or UI assumptions. It adds mobile-specific energy-aware scheduling, heterogeneous CPU support, thermal coordination, suspend/resume, mobile boot/verified-boot boundaries and capability-isolated driver services.
+
 ## Cognitive and trusted-node fabric
 
 Chimera II includes a local-first hybrid cognitive runtime: 128D state representation, RNN/GRU/LSTM temporal memory, transformer attention, retrieval-augmented generation, graph memory, planning and policy-controlled tool execution. Nucleus stores neural models, tensors, embeddings, memories, graph relations, checkpoints, trusted-node identities and synchronization events. This architecture is an engineering target, not a claim of guaranteed general intelligence.
@@ -32,13 +41,19 @@ Koronos exposes a userspace database-service boundary for Nucleus/Hive and appli
 
 ## Koronos microkernel 2
 
-The kernel has an explicit architecture-context and service registry layer. Wide `RegisterN<8192>` state is lazy. Database, networking, VFS, virtualization and compatibility execution remain userspace/service boundaries where practical; the kernel handles capabilities, IPC, scheduling, memory and privileged traps.
+The computer kernel has an explicit architecture-context and service registry layer. Wide `RegisterN<8192>` state is lazy. Database, networking, VFS, virtualization and compatibility execution remain userspace/service boundaries where practical; the kernel handles capabilities, IPC, scheduling, memory and privileged traps.
+
+## Mobile Microkernel
+
+`Mobile Microkernel/` is the dedicated mobile implementation. Its privileged core is intentionally small: boot handoff, exception/interrupt dispatch, capability enforcement, address-space primitives, IPC, preemptive scheduling, CPU idle/hotplug coordination and power/thermal hooks. Mobile drivers and policy-heavy services remain isolated behind explicit service boundaries.
+
+Primary target: AArch64. Secondary target: RISC-V64. Planned mobile driver families include display, touchscreen, GPU/accelerator, audio, camera, sensors, storage, USB, Bluetooth, Wi-Fi, cellular, power and IOMMU/DMA. See `Mobile Microkernel/docs/ARCHITECTURE.md` and `Mobile Microkernel/docs/PORTING.md`.
 
 ## Language matrix
 
 | Language / toolchain | Role |
 |---|---|
-| C / C++ | Kernel, ISA, boot, native desktop and hardware-facing implementation |
+| C / C++ | Kernel, ISA, boot, native desktop/mobile and hardware-facing implementation |
 | Visual C++ / MSVC | Windows-native bootstrap and host integration |
 | C# / F# / VB.NET | Managed services and tooling |
 | Java | JVM interoperability and service bridge |
@@ -55,23 +70,47 @@ CHIMERA II OS
   +-- TRUST FABRIC: identities + capabilities + signed synchronization
   +-- NUCLEUS: neural/model/vector/graph/HTAP database
   +-- WORLD: network / GPU / files / sensors / storage / UI
-  +-- KORONOS: ISA / MM / virtual memory bus / scheduler / IRQ / VFS / IPC
+  +-- KERNEL EDITIONS
+       |
+       +-- COMPUTER: KORONOS
+       |     +-- x86-64 / ARM64 / RISC-V
+       |     +-- desktop/server scheduling and services
+       |
+       +-- MOBILE: MOBILE MICROKERNEL
+             +-- AArch64 / RISC-V64
+             +-- energy + thermal aware scheduling
+             +-- suspend/resume + mobile power
+             +-- verified-boot + capability-isolated drivers
   +-- SPIT FIRE + JASPER: boot and boot-manager layers
   +-- AURORA / GPU / CEF / WEB
   +-- APP CENTER + PACKAGE MANAGER
-  +-- KORONOS MOBILE: AArch64 / GKI-KMI / vendor modules / AVB
 ```
 
 ## Build and test
+
+Computer edition:
 
 ```bash
 cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
+```
+
+Mobile microkernel host validation:
+
+```bash
+cmake -S "Mobile Microkernel" -B build-mobile
+cmake --build build-mobile --parallel
+ctest --test-dir build-mobile --output-on-failure
+```
+
+Additional repository validation:
+
+```bash
 python3 tools/toolchain/validate_registry.py
 python3 tools/memory/validate_profiles.py
 python3 -m pytest -q tests/boot tests/iso tests/isa tests/database
 cd boot/iso && ./build-iso.sh
 ```
 
-See `docs/NEURAL_TRUSTED_NODE_FABRIC.md`, `docs/DATABASE_SUBSYSTEM.md`, `docs/KORONOS_MICROKERNEL_2.md`, `docs/architecture/memory-bus.md`, `docs/toolchains/universal-toolchains.md`, `database/manifests/neural-network-database.yaml` and the language-specific READMEs.
+See `Mobile Microkernel/README.md`, `Mobile Microkernel/docs/ARCHITECTURE.md`, `Mobile Microkernel/docs/BOOT.md`, `Mobile Microkernel/docs/SECURITY.md`, `Mobile Microkernel/docs/POWER_MANAGEMENT.md`, `Mobile Microkernel/docs/MEMORY.md`, `Mobile Microkernel/docs/SCHEDULER.md`, `Mobile Microkernel/docs/IPC.md`, `Mobile Microkernel/docs/DRIVERS.md` and `Mobile Microkernel/docs/PORTING.md`.
