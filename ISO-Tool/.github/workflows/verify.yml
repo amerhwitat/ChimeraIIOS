@@ -17,7 +17,7 @@ jobs:
         run: python -m pytest -q
       - name: Unified GUI feature-count smoke test
         working-directory: ISO-Tool/python
-        run: python -c "from iso_tool.unified_gui import FEATURE_GROUPS; assert sum(map(len,FEATURE_GROUPS.values())) == 48"
+        run: python -c "from iso_tool.unified_gui import GROUPS; assert sum(map(len,GROUPS.values())) == 66"
   java:
     runs-on: ubuntu-latest
     steps:

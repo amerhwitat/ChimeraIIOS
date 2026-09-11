@@ -1,12 +1,5 @@
 # ISO-Tool unified GUI button reference
 
-All maintained ISO-Tool front ends use the same six feature groups and 48 feature names: Source & Repository, Toolchains, Build, ISO / Boot, Packages / Applications, and Diagnostics. The canonical list is `ISO-Tool/gui/feature_manifest.json`.
+The canonical GUI contract now exposes 66 features in seven groups. The seventh group is **Knowledge & AI**: Web Search, Crawl Website, Crawl Documentation, Crawl Repository References, Build Knowledge Base, Index Documentation, Train RNN, Train Transformer/LLM, Run AI Build Analysis, Generate Installation Plan, Generate AI Build Plan, Diagnose Build Error, Explain ISO Build, View Sources, View Learning Dataset, View Model Metrics and Offline AI Mode.
 
-Implementations:
-
-- Python/Tkinter: `python/launch_gui.py`
-- Java/Swing: `java/src/main/java/iso/tool/Main.java` with no arguments
-- C#/.NET/WPF: `dotnet/ISO-Tool/MainWindow.xaml`
-- C++/Win32: `vcpp/ISO-Tool-UnifiedGui.vcxproj`
-
-The GUIs share terminology, grouping, ordering, status reporting, and logging while retaining native platform controls. Ordinary input/runtime errors are reported in the status/log area. Missing external tools are reported rather than treated as successful operations.
+Python/Tkinter, Java/Swing, C#/.NET WPF and C++/Win32 expose the same feature vocabulary. Network/AI output is evidence or recommendation only; package installation, compiler execution and ISO generation remain controlled by the existing build pipeline.
