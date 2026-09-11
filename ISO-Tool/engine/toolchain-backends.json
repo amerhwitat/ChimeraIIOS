@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "source_registry": "../toolchains/registry.json",
+  "backend_order": ["gnu-binutils","llvm","gcc","nasm","yasm","msvc","masm","qemu","vendor-adapter"],
+  "assembler": ["gas","llvm-mc","nasm","yasm","masm","vendor-adapter"],
+  "disassembler": ["objdump","llvm-objdump","ndisasm","vendor-adapter"],
+  "compiler": ["gcc","clang","msvc","ibm-xl-family","arm-keil","iar","vendor-adapter"],
+  "linker": ["ld","lld","link","armlink","vendor-adapter"],
+  "emulator": ["qemu"],
+  "policy": "detect-installed-tools; do-not-redistribute-proprietary-binaries"
+}
