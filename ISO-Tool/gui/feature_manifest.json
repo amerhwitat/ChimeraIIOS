@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "application": "ISO-Tool",
+  "window": {"title": "ISO-Tool — Source → Build → Spit Fire → Bootable ISO", "minimumWidth": 1240, "minimumHeight": 820},
+  "groups": [
+    {"id":"source","title":"Source & Repository","features":["Open GitHub","Clone Repository","Open Local Source","Open Archive","Deep Recursive Scan","Repository Tree","Dependency Analysis","Application Discovery"]},
+    {"id":"toolchain","title":"Toolchains","features":["Detect Windows Toolchains","Detect MSVC","Detect Clang","Detect GCC/G++","Detect NASM","Bootstrap NASM","Bootstrap GCC/G++","Built-in Spit Fire Assembler"]},
+    {"id":"build","title":"Build","features":["Generate Build Plan","Compile","Link","Debug Build","Release Build","GNU Build","MSVC Build","Build All Projects","Run Tests","Build Journal"]},
+    {"id":"iso","title":"ISO / Boot","features":["Build Spit Fire Boot Sector","Build BIOS ISO","Build UEFI ISO","Build BIOS + UEFI ISO","Build ISO Image","Build IMG","Merge Binaries","Merge Libraries","Generate Manifest","Verify Boot Image","Verify ISO"]},
+    {"id":"packages","title":"Packages / Applications","features":["Detect Package Managers","Install Dependencies","Application Inventory","Artifact Inventory"]},
+    {"id":"diagnostics","title":"Diagnostics","features":["Validate Configuration","Dependency Errors","Runtime Errors","Build Errors","View Logs","Export Diagnostics","Verify Output"]}
+  ],
+  "buttonOrder": "group-order"
+}
