@@ -1,0 +1,34 @@
+schema: chimera-nucleus-neural-v1
+purpose: persistent neural-network, embedding, graph, training-state and trusted-node synchronization storage
+storage:
+  transactional: true
+  analytical: true
+  vector_index: true
+  graph_index: true
+  content_addressed: true
+  append_only_audit_log: true
+entities:
+  models:
+    fields: [model_id, architecture, version, parameter_count, tensor_schema, provenance_digest, signature]
+  tensors:
+    fields: [tensor_id, model_id, dtype, shape, shard, content_digest, compression]
+  embeddings:
+    fields: [embedding_id, namespace, dimension, vector, source_digest, created_at]
+  memories:
+    fields: [memory_id, namespace, key, value_digest, semantic_embedding, temporal_index, confidence]
+  graph_nodes:
+    fields: [node_id, type, properties_digest, trust_state]
+  graph_edges:
+    fields: [source, relation, target, weight, evidence_digest]
+  training_runs:
+    fields: [run_id, model_id, dataset_digest, seed, metrics, checkpoint_digest]
+  trusted_nodes:
+    fields: [node_id, identity_digest, endpoint, capabilities, trust_epoch, revocation_state]
+  sync_events:
+    fields: [event_id, origin, sequence, content_digest, signature, received_at, consensus_state]
+policy:
+  no_private_keys: true
+  no_unverified_remote_model_execution: true
+  signed_updates_only: true
+  deterministic_replay: true
+  retain_provenance: true
