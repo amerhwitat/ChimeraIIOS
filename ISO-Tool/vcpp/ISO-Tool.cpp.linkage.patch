@@ -1,0 +1,4 @@
+// PATCH INTENT for the existing native main translation unit:
+// #include <shlobj.h>
+// #pragma comment(lib, "comctl32.lib")
+// Apply alongside windows_linkage.h without replacing the existing GUI body.
