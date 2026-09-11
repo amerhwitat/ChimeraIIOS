@@ -1,0 +1,7 @@
+# Imported from ChatGPT Library: chimera_ii_requirements.txt
+# Reference dependencies for the Python 8192-bit emulator.
+numpy>=2.0
+
+# Optional acceleration backends:
+tensorflow>=2.21.0
+torch>=2.13.0
