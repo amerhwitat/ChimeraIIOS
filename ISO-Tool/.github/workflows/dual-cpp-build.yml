@@ -1,0 +1,40 @@
+name: ISO-Tool dual C++ build
+
+on:
+  push:
+    paths: ['ISO-Tool/**']
+  pull_request:
+    paths: ['ISO-Tool/**']
+
+jobs:
+  windows-msvc:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ISO-Tool
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure MSVC
+        shell: pwsh
+        run: cmake -S . -B build-msvc -G "Visual Studio 17 2022" -A x64
+      - name: Build MSVC
+        shell: pwsh
+        run: cmake --build build-msvc --config Release
+
+  windows-gnu:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ISO-Tool
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja
+      - name: Build GNU C++
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build-gnu -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-gnu
