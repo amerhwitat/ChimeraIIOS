@@ -1,0 +1,18 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{BCB6F5F8-2A15-4D4A-9B5D-3E5C5F0F7C11}") = "ChimeraFlashTool", "ChimeraFlashTool.vcxproj", "{CBF6F8A4-B568-4DDB-88AA-9F4D345F56E9}"
+EndProject
+Global
+ GlobalSection(SolutionConfigurationPlatforms) = preSolution
+  Debug|x64 = Debug|x64
+  Release|x64 = Release|x64
+ EndGlobalSection
+ GlobalSection(ProjectConfigurationPlatforms) = postSolution
+  {CBF6F8A4-B568-4DDB-88AA-9F4D345F56E9}.Debug|x64.ActiveCfg = Debug|x64
+  {CBF6F8A4-B568-4DDB-88AA-9F4D345F56E9}.Debug|x64.Build.0 = Debug|x64
+  {CBF6F8A4-B568-4DDB-88AA-9F4D345F56E9}.Release|x64.ActiveCfg = Release|x64
+  {CBF6F8A4-B568-4DDB-88AA-9F4D345F56E9}.Release|x64.Build.0 = Release|x64
+ EndGlobalSection
+EndGlobal
