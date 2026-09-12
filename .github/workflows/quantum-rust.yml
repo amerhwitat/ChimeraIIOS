@@ -1,0 +1,36 @@
+name: Quantum and Rust validation
+on:
+  push:
+    paths:
+      - 'quantum/**'
+      - 'rust/ChimeraIIOS/**'
+      - 'multidimensional/**'
+      - '.github/workflows/quantum-rust.yml'
+  pull_request:
+    paths:
+      - 'quantum/**'
+      - 'rust/ChimeraIIOS/**'
+      - 'multidimensional/**'
+      - '.github/workflows/quantum-rust.yml'
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust/ChimeraIIOS
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace
+
+  cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S quantum/cpp -B quantum/cpp/build
+      - name: Build
+        run: cmake --build quantum/cpp/build --parallel
+      - name: Test
+        run: ctest --test-dir quantum/cpp/build --output-on-failure
