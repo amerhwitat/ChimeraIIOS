@@ -2,15 +2,27 @@
 
 Chimera II OS was informed by public quantum software projects but uses clean-room implementations. Third-party source is not copied wholesale.
 
-## Official research sources
+## Research sources consulted
 
-- Qiskit: https://github.com/Qiskit/qiskit
-- Cirq: https://github.com/quantumlib/Cirq
-- PennyLane: https://github.com/PennyLaneAI/pennylane
-- NVIDIA CUDA-Q: https://github.com/NVIDIA/cuda-quantum
-- NVIDIA CUDA-Q documentation: https://nvidia.github.io/cuda-quantum/latest/
-- NVIDIA cuQuantum: https://github.com/NVIDIA/cuQuantum
+- Qiskit: https://github.com/Qiskit/qiskit — circuit/primitives/provider architecture.
+- Cirq: https://github.com/quantumlib/Cirq — circuit construction and simulation abstractions.
+- PennyLane: https://github.com/PennyLaneAI/pennylane — hybrid quantum-classical workflows and differentiation concepts.
+- NVIDIA CUDA-Q: https://github.com/NVIDIA/cuda-quantum — heterogeneous CPU/GPU/QPU execution architecture.
+- NVIDIA cuQuantum: https://github.com/NVIDIA/cuQuantum — accelerated quantum simulation ecosystem.
+- qsim: https://github.com/quantumlib/qsim — C++ simulation and Python binding architecture.
+- Spinoza: https://github.com/QuState/spinoza — pure-Rust high-performance state-vector simulation patterns.
 
-Qiskit is Apache-2.0; Cirq and PennyLane are Apache-2.0 projects; CUDA-Q and cuQuantum require inspection of their repository license files and component headers before redistribution. cuQuantum explicitly documents mixed licensing for some components.
+These projects are reference ecosystems, not vendored source. Their current repository licenses and individual file headers remain authoritative. In particular, CUDA-Q/cuQuantum components require license inspection before any direct redistribution, while PennyLane documents Apache-2.0 licensing and Cirq documents Apache-2.0 licensing. 
 
-Recommended adapter policy: pin versions, preserve source URLs, retain license notices, keep provider credentials outside the repository, and make external execution opt-in.
+## Chimera implementation policy
+
+1. Reimplement algorithms from mathematical specifications rather than copying implementation bodies.
+2. Preserve upstream attribution and URLs in this document when an architecture is materially informed by an upstream project.
+3. Keep provider credentials, cloud endpoints and hardware-specific secrets outside the repository.
+4. Local CPU simulation must remain usable with no external service.
+5. Optional provider/GPU integrations must be capability-gated.
+6. Third-party dependencies retain their own licenses; Chimera source remains GPLv3-or-later unless a subcomponent explicitly states otherwise.
+
+## Mathematical boundary
+
+State-vector evolution, unitary gates, Fourier transforms and Born probabilities are established mathematical/physics concepts. The Chimera 128D perspective layer is an experimental computational abstraction and must not be presented as established physical theory.
