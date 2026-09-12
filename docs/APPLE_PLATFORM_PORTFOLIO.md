@@ -9,6 +9,7 @@ Chimera II OS and related applications now expose an Apple source/build boundary
 - Device target: `iosArm64`.
 - Apple-Silicon simulator target: `iosSimulatorArm64`.
 - macOS targets are native Swift/Xcode where a desktop application is appropriate.
+- Project generation: XcodeGen `project.yml` specifications.
 - Authoritative build system: `xcodebuild`.
 - Optional open-source automation: fastlane.
 - Optional distribution boundary: Swift Package Manager/XCFramework.
@@ -35,6 +36,10 @@ Windows PowerShell/CMD and Linux shells may prepare source, validate manifests, 
 
 BizX/BizXtreme Apple clients may share the existing authenticated conversation/P2P model. Camera, microphone and speaker access is explicit, permission-gated and user initiated. No silent recording, unsolicited scanning, arbitrary remote execution or credential exchange is part of the Apple boundary.
 
+## Open-source build tools
+
+XcodeGen generates deterministic `.xcodeproj` files from reviewable YAML/JSON specifications and is MIT licensed. fastlane is MIT licensed and automates Xcode archive/export workflows. Neither tool bypasses Apple's signing or Xcode requirements.
+
 ## References
 
-Apple's `xcodebuild`/Xcode build system is the authoritative compiler/archive path. fastlane is MIT-licensed open-source automation and delegates iOS archiving/export to Xcode tooling.
+Apple's `xcodebuild`/Xcode build system is the authoritative compiler/archive path. XcodeGen and fastlane are automation layers around the Apple toolchain.
