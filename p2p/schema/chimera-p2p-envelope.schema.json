@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Chimera P2P Envelope",
+  "type":"object",
+  "required":["version","type","node_id","sequence","payload_hash","payload"],
+  "properties":{
+    "version":{"type":"integer","minimum":1},
+    "type":{"enum":["hello","request","response","publish","snapshot","delta","ack"]},
+    "node_id":{"type":"string","minLength":1},
+    "sequence":{"type":"integer","minimum":0},
+    "timestamp":{"type":"string"},
+    "capabilities":{"type":"array","items":{"type":"string"}},
+    "object_id":{"type":"string"},
+    "payload_hash":{"type":"string","pattern":"^[0-9a-fA-F]{64}$"},
+    "payload":{},
+    "signature":{"type":"string"}
+  },
+  "additionalProperties":false
+}
