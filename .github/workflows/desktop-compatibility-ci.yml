@@ -1,0 +1,19 @@
+name: Desktop Compatibility CI
+on:
+  push:
+    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml']
+  pull_request:
+    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml']
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile C++ desktop header
+        run: printf '#include "desktop/cpp/chm_desktop.hpp"\nint main(){auto p=chimera::desktop::profile(chimera::desktop::Platform::WindowsWin32); return p.menu_bar ? 0 : 1;}' | c++ -std=c++17 -I. -x c++ - -o /tmp/chm-desktop
+      - name: Compile C ABI header
+        run: printf '#include "desktop/c/desktop_event.h"\nint main(){return CHM_QUIT==22 ? 0 : 1;}' | cc -std=c11 -I. -x c - -o /tmp/chm-desktop-c
+      - name: Python syntax
+        run: python -m py_compile desktop/python/chimera_desktop.py
+      - name: Java syntax/build
+        run: javac java/chimera/desktop/*.java
