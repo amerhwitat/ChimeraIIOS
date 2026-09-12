@@ -14,6 +14,8 @@ Project("{BCB6F5F8-2A15-4D4A-9B5D-3E5C5F0F7C11}") = "ChimeraKernel", "ChimeraKer
 		{0DB39A9D-3DA5-41DF-99B0-E5B159A37AD5} = {0DB39A9D-3DA5-41DF-99B0-E5B159A37AD5}
 	EndProjectSection
 EndProject
+Project("{BCB6F5F8-2A15-4D4A-9B5D-3E5C5F0F7C11}") = "ChimeraNativeTools", "ChimeraNativeTools.vcxproj", "{B6D2D1C5-6C9E-4B2A-9F62-4A4A3A6C8D11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -32,6 +34,10 @@ Global
 		{6D57DF4C-172C-41B9-A8B3-FFF6956E73CE}.Debug|x64.Build.0 = Debug|x64
 		{6D57DF4C-172C-41B9-A8B3-FFF6956E73CE}.Release|x64.ActiveCfg = Release|x64
 		{6D57DF4C-172C-41B9-A8B3-FFF6956E73CE}.Release|x64.Build.0 = Release|x64
+		{B6D2D1C5-6C9E-4B2A-9F62-4A4A3A6C8D11}.Debug|x64.ActiveCfg = Debug|x64
+		{B6D2D1C5-6C9E-4B2A-9F62-4A4A3A6C8D11}.Debug|x64.Build.0 = Debug|x64
+		{B6D2D1C5-6C9E-4B2A-9F62-4A4A3A6C8D11}.Release|x64.ActiveCfg = Release|x64
+		{B6D2D1C5-6C9E-4B2A-9F62-4A4A3A6C8D11}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
