@@ -6,12 +6,59 @@
 
 ## Editions
 
-Chimera II OS now has two explicitly separated kernel implementations:
+Chimera II OS has two explicitly separated kernel implementations:
 
 - **Computer Edition / Koronos** — general computer, workstation, server and desktop-oriented kernel implementation.
 - **Mobile Edition / Mobile Microkernel** — dedicated mobile kernel implementation under `Mobile Microkernel/`, primarily targeting AArch64 mobile SoCs with a RISC-V64 porting path.
 
 The Mobile Microkernel shares stable interfaces and concepts with the wider Chimera architecture, but does not inherit desktop/server scheduling, boot, driver or UI assumptions. It adds mobile-specific energy-aware scheduling, heterogeneous CPU support, thermal coordination, suspend/resume, mobile boot/verified-boot boundaries and capability-isolated driver services.
+
+## Native C/C++ build separation
+
+All native C/C++ build metadata is now grouped under `cpp/`. Python, Java, Node.js, .NET and other language implementations remain in their own language-specific areas.
+
+### Visual Studio 2022 / MSVC
+
+```bat
+cpp\build-msvc.bat Release x64
+```
+
+Open `cpp/ChimeraIIOS.sln` to build the native solution directly in Visual Studio. The solution contains `ChimeraMachine`, `ChimeraServer` and `ChimeraKernel` targets. Microsoft documents MSBuild as the native Visual Studio build system for Windows-specific C++ and recommends CMake for cross-platform C++ projects. citeturn0search7turn0search0
+
+### GNU GCC / Clang
+
+```bash
+./cpp/build-gcc.sh Release
+```
+
+The repository-root `CMakeLists.txt` remains the canonical cross-platform build definition.
+
+### Code::Blocks
+
+Open `cpp/ChimeraIIOS.workspace` or use:
+
+```bat
+cpp\build-codeblocks.bat ChimeraServer.cbp Release
+```
+
+Code::Blocks project files use `.cbp` and delegate compilation/linking to the configured GCC/MinGW or other compiler toolchain. citeturn0search1
+
+## ISO-Tool and mobile Flash-Tool
+
+`ISO-Tool/` contains the multi-language ISO construction and boot-image pipeline. Its C++/MSVC solution is `ISO-Tool/vcpp/ISO-Tool-UnifiedGui.sln`; the wrapper `ISO-Tool/build-msvc.bat` automates compilation and linking.
+
+`Flash-Tool/` is the mobile image validation/packaging frontend. It provides CMake, Visual Studio and Code::Blocks builds. Its `command` operation is intentionally a dry-run: it prints the corresponding fastboot command but never performs a destructive device write automatically.
+
+```text
+Flash-Tool/
+  src/main.cpp
+  CMakeLists.txt
+  ChimeraFlashTool.sln
+  ChimeraFlashTool.vcxproj
+  ChimeraFlashTool.cbp
+  build.bat
+  build.sh
+```
 
 ## Cognitive and trusted-node fabric
 
@@ -55,36 +102,22 @@ Primary target: AArch64. Secondary target: RISC-V64. Planned mobile driver famil
 |---|---|
 | C / C++ | Kernel, ISA, boot, native desktop/mobile and hardware-facing implementation |
 | Visual C++ / MSVC | Windows-native bootstrap and host integration |
+| GCC / Clang | GNU/POSIX and cross-platform native builds |
+| Code::Blocks | IDE/build front end for configured native compilers |
 | C# / F# / VB.NET | Managed services and tooling |
 | Java | JVM interoperability and service bridge |
 | Node.js | Web/integration runtime |
 | Python | Reference research, ML/RL and data-processing |
 
-## Architecture baseline
+## Standard build sequence
 
-```text
-CHIMERA II OS
-  |
-  +-- MACHINE: R8192 / C8192 / RegisterN / Tensor / Vector
-  +-- COGNITIVE: 128D + RNN/GRU/LSTM + Attention + RAG + Graph Memory
-  +-- TRUST FABRIC: identities + capabilities + signed synchronization
-  +-- NUCLEUS: neural/model/vector/graph/HTAP database
-  +-- WORLD: network / GPU / files / sensors / storage / UI
-  +-- KERNEL EDITIONS
-       |
-       +-- COMPUTER: KORONOS
-       |     +-- x86-64 / ARM64 / RISC-V
-       |     +-- desktop/server scheduling and services
-       |
-       +-- MOBILE: MOBILE MICROKERNEL
-             +-- AArch64 / RISC-V64
-             +-- energy + thermal aware scheduling
-             +-- suspend/resume + mobile power
-             +-- verified-boot + capability-isolated drivers
-  +-- SPIT FIRE + JASPER: boot and boot-manager layers
-  +-- AURORA / GPU / CEF / WEB
-  +-- APP CENTER + PACKAGE MANAGER
-```
+1. **Dependencies:** install CMake and the required compiler/toolchain.
+2. **Native build:** use `cpp/build-msvc.bat` on Windows/MSVC or `cpp/build-gcc.sh` on GNU/Linux/macOS.
+3. **Tests:** run `ctest --test-dir <build-directory> --output-on-failure`.
+4. **ISO:** use `ISO-Tool/build-msvc.bat` or the language-specific ISO builders.
+5. **Mobile image:** build `Flash-Tool`, then run `inspect`/`verify` before generating a dry-run flash command.
+6. **Mobile kernel:** build `Mobile Microkernel` independently from the computer edition.
+7. **CI:** GitHub Actions provides multi-OS automation and live logs; matrix jobs can run independently across operating systems. citeturn0search3turn0search5
 
 ## Build and test
 
@@ -113,4 +146,4 @@ python3 -m pytest -q tests/boot tests/iso tests/isa tests/database
 cd boot/iso && ./build-iso.sh
 ```
 
-See `Mobile Microkernel/README.md`, `Mobile Microkernel/docs/ARCHITECTURE.md`, `Mobile Microkernel/docs/BOOT.md`, `Mobile Microkernel/docs/SECURITY.md`, `Mobile Microkernel/docs/POWER_MANAGEMENT.md`, `Mobile Microkernel/docs/MEMORY.md`, `Mobile Microkernel/docs/SCHEDULER.md`, `Mobile Microkernel/docs/IPC.md`, `Mobile Microkernel/docs/DRIVERS.md` and `Mobile Microkernel/docs/PORTING.md`.
+See `cpp/README.md`, `BUILD_AUTOMATION.md`, `ISO-Tool/BUILD.md`, `Mobile Microkernel/README.md` and the documentation under `docs/` for the complete build matrix.
