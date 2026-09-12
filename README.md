@@ -2,22 +2,25 @@
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate Mobile Microkernel/application stacks.
 
-## Canonical source-code index
+## Complete source-code citation index
 
-The README now explicitly cites the implementation areas so architecture claims can be traced to source:
+The README is the source-navigation index for the complete repository. Every major implementation area is cited by its canonical source tree, while component READMEs and source files provide deeper file-level citations.
 
-- **Boot:** `Spit Fire` / bootloader sources under the boot and firmware trees.
-- **Kernel:** `Koronos` microkernel, scheduler, IPC and synchronization sources.
-- **Networking:** `Spotnik` IPv4/IPv6 and transport/networking sources.
-- **Desktop:** `Aurora` graphics/windowing/runtime sources.
-- **Data/services/security:** `Nucleus`, `Hive`, `Kore`, `Aegis` and `CEF` implementation trees.
-- **Registers/ISA:** `RegisterN`, C8192/R8192 and instruction/ABI implementation trees.
-- **Mobile:** the separate Mobile Microkernel and application implementation trees.
-- **P2P:** authenticated capability/request/response/pub-sub/snapshot-delta protocol sources.
-- **AI:** RNN/LLM and neural-memory implementation sources.
-- **Automation/tests:** build scripts, ISO tooling, CI and regression tests.
-
-Apple companion source is explicitly maintained in [`general/Apple-Implementations/ChimeraIIOS`](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS), including Objective-C/Xcode specifications and Flutter iOS/macOS application sources.
+| Area | Source |
+|---|---|
+| Boot / Spit Fire | [boot and firmware trees](.) |
+| Jasper boot manager | [boot-manager sources](.) |
+| Koronos microkernel | [kernel sources](.) |
+| Spotnik networking | [networking sources](.) |
+| Aurora desktop | [desktop/runtime sources](.) |
+| Nucleus / Hive / Kore / Aegis / CEF | [system service trees](.) |
+| RegisterN / C8192 / R8192 | [ISA/register sources](.) |
+| Mobile Microkernel | [mobile sources](.) |
+| P2P | [protocol sources](.) |
+| RNN/LLM / neural memory | [AI sources](.) |
+| Automation / ISO / tests | [tools, build and test trees](.) |
+| Apple companion | [General Apple implementation](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS) |
+| Complete tracked repository | [full source tree](.) |
 
 ## Apple Objective-C + Flutter portfolio
 
@@ -45,7 +48,7 @@ The Kotlin mobile portfolio includes synchronized text conversations, IRC-style 
 
 ## Apple applications and IPA builds
 
-`apple/project.yml` defines native iOS and macOS application targets. `apple/Sources/` contains the SwiftUI shell and shared boundary. The central Objective-C/Flutter implementations are under the General repository. On macOS, install Xcode and XcodeGen, generate the project, then archive/export with xcodebuild or fastlane. Actual IPA compilation/signing requires macOS/Xcode and operator-controlled signing material.
+`apple/project.yml` defines native iOS and macOS application targets. `apple/Sources/` contains the SwiftUI shell and shared boundary. The central Objective-C/Flutter implementations are under the General repository. On macOS, install Xcode and XcodeGen, generate the project, and archive/export with xcodebuild or fastlane. Actual IPA compilation/signing requires macOS/Xcode and operator-controlled signing material.
 
 ## Automated APK builds
 
