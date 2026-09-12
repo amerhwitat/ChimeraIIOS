@@ -18,6 +18,7 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Neural reasoning | [`neural/`](neural/) |
 | Voice / speech | [`voice/`](voice/) |
 | Hardware / GPU / driver registry | [`drivers/`](drivers/) |
+| Java hardware/driver layer | [`java/`](java/) |
 | Rust implementation | [`rust/ChimeraIIOS/`](rust/ChimeraIIOS/) |
 | Mobile Microkernel | [mobile sources](.) |
 | P2P | [protocol sources](.) |
@@ -46,13 +47,21 @@ The implementation is clean-room: upstream projects are architectural and mathem
 
 ## Hardware, GPU and driver compatibility
 
-The `drivers/` layer now contains a stable hardware capability registry covering modern and legacy CPU families, GPU families (NVIDIA, AMD, Intel, Apple, ARM Mali, Qualcomm Adreno, PowerVR, 3dfx, Matrox, S3, VIA, SiS and virtual GPUs), PCI/PCIe/USB/virtio/NVMe/SATA/SCSI/I2C/SPI/GPIO/Bluetooth classes, networking, audio, cameras, input and display.
+The `drivers/` layer contains a stable hardware capability registry covering modern and legacy CPU families, GPU families (NVIDIA, AMD, Intel, Apple, ARM Mali, Qualcomm Adreno, PowerVR, 3dfx, Matrox, S3, VIA, SiS and virtual GPUs), PCI/PCIe/USB/virtio/NVMe/SATA/SCSI/I2C/SPI/GPIO/Bluetooth classes, networking, audio, cameras, input and display.
 
-It also defines protocol-level printer support including IPP Everywhere, PostScript, PCL5/PCL6, ESC/P, ESC/POS, PDF/PS and a deterministic **Ghost Printer** virtual sink. The registry is deliberately capability/family based; exhaustive device IDs can be generated from maintained PCI/USB databases rather than frozen forever in source.
+It also defines protocol-level printer support including IPP Everywhere, PostScript, PCL5/PCL6, ESC/P, ESC/POS, PDF/PS and a deterministic **Ghost Printer** virtual sink.
 
-Chimera II does not redistribute proprietary Windows or vendor driver binaries. Linux, Windows and Unix adapters are clean-room interfaces to their respective driver models. Open-source components remain subject to their original licenses and provenance.
+### Driver acquisition
 
-See `docs/DRIVER_ARCHITECTURE.md`, `docs/DRIVER_WINDOWS_LINUX_UNIX.md` and `drivers/hardware_registry.json`.
+Chimera II can now **discover, acquire, verify and stage Linux and Windows driver candidates** through a security-first broker. The flow is:
+
+`hardware probe → source discovery → hardware-ID matching → HTTPS acquisition → SHA-256 verification → signature/trust check → license/provenance → quarantine/staging → explicit installation`
+
+Linux `.ko` modules are accepted only when their declared kernel ABI matches the Koronos policy; otherwise source/package metadata is routed through the Chimera driver-port layer. Windows INF/CAT/SYS packages are treated as Driver Store candidates and final installation is delegated to the platform's trusted installation mechanism.
+
+The acquisition layer never silently loads downloaded code, never disables Secure Boot/signature enforcement, and never treats proprietary driver binaries as redistributable merely because they can be found online. Curated source metadata lives in `drivers/acquisition_sources.json`; the Java equivalent is under `java/chimera/drivers/acquisition/`.
+
+See `docs/DRIVER_ACQUISITION.md`, `docs/DRIVER_ARCHITECTURE.md`, `docs/DRIVER_WINDOWS_LINUX_UNIX.md` and `drivers/hardware_registry.json`.
 
 ## Rust implementation
 
@@ -79,4 +88,4 @@ For weighted evidence `S = sum(w_i e_i)/sum(w_i)` and a conservative spread-awar
 
 ## Licensing and provenance
 
-Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. Source provenance is documented in `docs/QUANTUM_SOURCE_PROVENANCE.md` and `docs/DRIVER_ARCHITECTURE.md`.
+Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. Source provenance is documented in `docs/QUANTUM_SOURCE_PROVENANCE.md`, `docs/DRIVER_ARCHITECTURE.md`, `docs/HARDWARE_DRIVER_SOURCE_PROVENANCE.md` and `docs/DRIVER_ACQUISITION.md`.
