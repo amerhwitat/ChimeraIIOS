@@ -1,0 +1,27 @@
+{
+  "schema": "CHM-HW-1",
+  "policy": "capability-registry; no proprietary driver binaries",
+  "architectures": ["x86_16","x86_32","x86_64","arm32","arm64","riscv32","riscv64","mips32","mips64","powerpc32","powerpc64","sparc64"],
+  "gpu_families": [
+    {"vendor":"NVIDIA","stacks":["nouveau","NVIDIA proprietary adapter","CUDA","Vulkan","OpenGL"],"eras":["TNT","GeForce","Quadro","Tesla","RTX"]},
+    {"vendor":"AMD","stacks":["amdgpu","radeon","ROCm adapter","Vulkan","OpenGL"],"eras":["Radeon","FirePro","Instinct","RX","Pro"]},
+    {"vendor":"Intel","stacks":["i915","xe","Level Zero adapter","Vulkan","OpenGL"],"eras":["i8xx","GMA","HD Graphics","Iris","Arc"]},
+    {"vendor":"Apple","stacks":["Metal adapter","OpenGL compatibility"],"eras":["PowerVR","Apple GPU"]},
+    {"vendor":"ARM","stacks":["Mali userspace adapter","Vulkan","OpenGL ES"],"eras":["Mali"]},
+    {"vendor":"Qualcomm","stacks":["Freedreno","Turnip/Vulkan adapter"],"eras":["Adreno"]},
+    {"vendor":"Imagination","stacks":["PowerVR adapter","Vulkan/OpenGL ES"],"eras":["PowerVR"]},
+    {"vendor":"3dfx","stacks":["legacy compatibility adapter"],"eras":["Voodoo"]},
+    {"vendor":"Matrox","stacks":["legacy display adapter"],"eras":["Millennium","Parhelia"]},
+    {"vendor":"S3","stacks":["legacy display adapter"],"eras":["Trio","Savage"]},
+    {"vendor":"VIA","stacks":["legacy display adapter"],"eras":["Chrome"]},
+    {"vendor":"SiS","stacks":["legacy display adapter"],"eras":["SiS"]},
+    {"vendor":"Virtual","stacks":["virtio-gpu","VMware SVGA","QXL"],"eras":["QEMU/KVM","VMware","VirtualBox"]}
+  ],
+  "device_classes": ["PCI","PCIe","USB","USB-C","Thunderbolt","NVMe","SATA","SCSI","virtio","I2C","SPI","GPIO","CAN","Bluetooth","Wi-Fi","Ethernet","audio","camera","input","storage","display"],
+  "audio": ["ALSA","PipeWire","PulseAudio compatibility","WASAPI adapter","CoreAudio adapter"],
+  "network": ["e1000/e1000e","igc","ixgbe","i40e","ice","r8169","virtio-net","USB CDC-NCM","Wi-Fi cfg80211/mac80211 adapter"],
+  "storage": ["AHCI","NVMe","SATA","SAS","SCSI","virtio-blk","USB mass storage","UFS","eMMC"],
+  "printer": ["IPP Everywhere","AirPrint/IPP","PostScript","PCL5","PCL6","ESC/P","ESC/POS","PDF","PS","raster/PNG","virtual/ghost"],
+  "input": ["HID","USB HID","Bluetooth HID","PS/2","I2C HID"],
+  "provenance": ["Linux kernel driver model","Mesa","freedesktop hwdata","Windows WDK architecture","CUPS/OpenPrinting","SANE"]
+}

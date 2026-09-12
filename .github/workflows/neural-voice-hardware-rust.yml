@@ -1,0 +1,43 @@
+name: Neural Voice Hardware Rust Validation
+
+on:
+  push:
+    paths:
+      - 'neural/**'
+      - 'voice/**'
+      - 'drivers/**'
+      - 'rust/ChimeraIIOS/**'
+      - '.github/workflows/neural-voice-hardware-rust.yml'
+  pull_request:
+    paths:
+      - 'neural/**'
+      - 'voice/**'
+      - 'drivers/**'
+      - 'rust/ChimeraIIOS/**'
+      - '.github/workflows/neural-voice-hardware-rust.yml'
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python -m pytest neural/tests
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --manifest-path rust/ChimeraIIOS/Cargo.toml --all -- --check
+      - run: cargo test --manifest-path rust/ChimeraIIOS/Cargo.toml --workspace
+      - run: cargo clippy --manifest-path rust/ChimeraIIOS/Cargo.toml --workspace --all-targets -- -D warnings
+  cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: c++ -std=c++17 -Wall -Wextra -Werror -x c++ -Ineural/cpp/include -c neural/cpp/chm_neural.hpp -o /tmp/chm_neural.o
+      - run: c++ -std=c11 -Wall -Wextra -Werror -DCHM_GHOST_PRINTER_STANDALONE drivers/printer/ghost_printer.c -o /tmp/chm-ghost-printer

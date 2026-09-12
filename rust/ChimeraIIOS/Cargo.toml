@@ -1,3 +1,3 @@
 [workspace]
-members=["crates/chm-core","crates/chm-register","crates/chm-isa","crates/chm-quantum","crates/chm-multidim","crates/chm-cli"]
+members=["crates/chm-core","crates/chm-register","crates/chm-isa","crates/chm-quantum","crates/chm-multidim","crates/chm-neural","crates/chm-voice","crates/chm-drivers","crates/chm-cli"]
 resolver="2"

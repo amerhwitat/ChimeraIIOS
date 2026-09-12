@@ -4,8 +4,6 @@ Chimera II OS is a cross-language research operating-system and application plat
 
 ## Complete source-code citation index
 
-The README is the source-navigation index for the complete repository. Every major implementation area is cited by its canonical source tree, while component READMEs and source files provide deeper file-level citations.
-
 | Area | Source |
 |---|---|
 | Boot / Spit Fire | [boot and firmware trees](.) |
@@ -17,39 +15,56 @@ The README is the source-navigation index for the complete repository. Every maj
 | RegisterN / C8192 / R8192 | [ISA/register sources](.) |
 | Quantum computing | [`quantum/`](quantum/) |
 | Multidimensional / perspective mathematics | [`multidimensional/`](multidimensional/) |
+| Neural reasoning | [`neural/`](neural/) |
+| Voice / speech | [`voice/`](voice/) |
+| Hardware / GPU / driver registry | [`drivers/`](drivers/) |
 | Rust implementation | [`rust/ChimeraIIOS/`](rust/ChimeraIIOS/) |
 | Mobile Microkernel | [mobile sources](.) |
 | P2P | [protocol sources](.) |
-| RNN/LLM / neural memory | [AI sources](.) |
 | Automation / ISO / tests | [tools, build and test trees](.) |
-| Apple companion | [General Apple implementation](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS) |
 | Complete tracked repository | [full source tree](.) |
+
+## Neural multidimensional reasoning
+
+The `neural/` layer combines weighted evidence, disagreement-aware confidence, observer/perspective transforms and multidimensional feature overlays. The intended response pipeline is **evidence → normalization → geometry → observer transform → neural reasoning → confidence → explanation → optional speech**. This makes perspective separate from geometry and keeps uncertainty explicit.
+
+The 128D profile remains an experimental computational semantic representation, not a claim about the number of physical dimensions.
+
+See `docs/NEURAL_REASONING.md` and `multidimensional/`.
+
+## Voice and speech
+
+`voice/` provides a cross-platform TTS/STT boundary. Providers can target Windows SAPI/WinRT, Linux/Unix Speech Dispatcher/PipeWire/ALSA/PulseAudio compatibility, Apple AVFoundation/CoreAudio, or explicitly configured external engines. The core does not silently upload text or audio and does not bundle proprietary speech engines.
+
+See `docs/VOICE.md`.
 
 ## Quantum computing research layer
 
 The `quantum/` tree provides a portable CPU-baseline state-vector simulator, QFT/gate primitives, C ABI, versioned `CHMQ-1` circuit IR, Python/Rust reference implementations and adapters for Java, C#, TypeScript, Kotlin, Swift and Dart. Research integration targets include Qiskit, Cirq, PennyLane, NVIDIA CUDA-Q, cuQuantum and qsim. External quantum services remain opt-in.
 
-The implementation is clean-room: upstream projects are used as architectural and mathematical references, not as copied source. See `docs/QUANTUM_SOURCE_PROVENANCE.md` for provenance and license policy.
+The implementation is clean-room: upstream projects are architectural and mathematical references, not copied source. See `docs/QUANTUM_SOURCE_PROVENANCE.md`.
 
-Research ISA metadata defines `QINIT`, `QGATE`, `QCONTROL`, `QMEASURE`, `QTENSOR` and `QSYNC`. These are research-level operation descriptors and do not change the existing boot ABI.
+## Hardware, GPU and driver compatibility
 
-See `docs/QUANTUM_COMPUTING.md`, `quantum/circuit_schema.json` and `docs/QUANTUM_SOURCE_PROVENANCE.md`.
+The `drivers/` layer now contains a stable hardware capability registry covering modern and legacy CPU families, GPU families (NVIDIA, AMD, Intel, Apple, ARM Mali, Qualcomm Adreno, PowerVR, 3dfx, Matrox, S3, VIA, SiS and virtual GPUs), PCI/PCIe/USB/virtio/NVMe/SATA/SCSI/I2C/SPI/GPIO/Bluetooth classes, networking, audio, cameras, input and display.
 
-## Perspective vs geometry and 128D mathematics
+It also defines protocol-level printer support including IPP Everywhere, PostScript, PCL5/PCL6, ESC/P, ESC/POS, PDF/PS and a deterministic **Ghost Printer** virtual sink. The registry is deliberately capability/family based; exhaustive device IDs can be generated from maintained PCI/USB databases rather than frozen forever in source.
 
-The `multidimensional/` tree separates geometry from perspective: vectors, tensor contraction and affine transformations form the geometry layer; observer origin, projection and uncertainty/perception overlays form the perspective layer. The 128D model is explicitly treated as an experimental computational semantic representation, not as an established claim that physical spacetime has 128 observable dimensions.
+Chimera II does not redistribute proprietary Windows or vendor driver binaries. Linux, Windows and Unix adapters are clean-room interfaces to their respective driver models. Open-source components remain subject to their original licenses and provenance.
 
-See `docs/MULTIDIMENSIONAL_PERSPECTIVE.md`, `multidimensional/README.md` and `multidimensional/equations.md`.
+See `docs/DRIVER_ARCHITECTURE.md`, `docs/DRIVER_WINDOWS_LINUX_UNIX.md` and `drivers/hardware_registry.json`.
 
 ## Rust implementation
 
-`rust/ChimeraIIOS/` is a separate Rust workspace with `chm-core`, `chm-register`, `chm-isa`, `chm-quantum`, `chm-multidim` and `chm-cli`. The Rust quantum crate now contains a dependency-free state-vector core with X/Y/Z/H/phase gates and normalization tests. It is currently a safe user-space/runtime research implementation; bootloader/kernel integration remains a distinct freestanding target requiring hardware/ABI validation.
+`rust/ChimeraIIOS/` is a separate Rust workspace with core, register, ISA, quantum, multidimensional, neural, voice, driver and CLI crates. It remains a safe user-space/runtime research implementation; bootloader/kernel integration is a separate freestanding target requiring hardware/ABI validation.
 
-See `docs/RUST_IMPLEMENTATION.md` and `docs/superpowers/plans/2026-09-13-quantum-rust-multidim-implementation.md`.
+## Perspective vs geometry and equations
 
-## Apple Objective-C + Flutter portfolio
+Geometry uses vectors, tensor contraction and affine transformations. Perspective uses observer origin, projection and uncertainty/perception overlays:
 
-The centralized Apple source tree is maintained in [`general/Apple-Implementations/ChimeraIIOS`](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS). It contains Objective-C/Xcode project specifications and Flutter iOS/macOS application sources. Objective-C owns Apple framework/native performance boundaries while Flutter provides the portable UI/application layer.
+`x' = A x + b`, `r = x-o`, `p = P r`, `C_ik = sum_j A_ij B_jk`.
+
+For weighted evidence `S = sum(w_i e_i)/sum(w_i)` and a conservative spread-aware confidence `C = clamp(S(1-sqrt(V)),0,1)` with `V = sum(w_i(e_i-S)^2)/sum(w_i)`.
 
 ## Core architecture
 
@@ -60,25 +75,8 @@ The centralized Apple source tree is maintained in [`general/Apple-Implementatio
 - **Aurora** — graphical desktop/runtime layer.
 - **Nucleus / Hive / Kore / Aegis / CEF** — data, state, services, security and compatibility layers.
 - **RegisterN / C8192 / R8192** — scalable register and ISA research.
-- **Mobile Microkernel + Kotlin Mobile** — isolated mobile platform and Android application boundary.
-- **Apple Platform** — Objective-C/Flutter iOS/iPadOS and macOS companion implementation with XcodeGen and xcodebuild automation.
+- **Mobile Microkernel** — isolated mobile platform boundary.
 
-## 128D and authenticated P2P
+## Licensing and provenance
 
-Applications use the canonical 128D semantic profile and an authenticated opt-in P2P contract with capability negotiation, request/response, pub/sub, snapshot/delta, content-addressed exchange, sequence numbers and payload integrity. The protocol excludes unsolicited scanning, credential/private-key exchange, arbitrary executable transfer and remote command execution.
-
-## Kotlin mobile communications
-
-The Kotlin mobile portfolio includes synchronized text conversations, IRC-style channels, presence/session metadata and a WebRTC-ready voice/video boundary. Android microphone and camera permissions are declared for mobile communication applications and must be requested only when the user starts the corresponding feature. See `docs/MOBILE_COMMUNICATIONS.md`.
-
-## Apple applications and IPA builds
-
-`apple/project.yml` defines native iOS and macOS application targets. `apple/Sources/` contains the SwiftUI shell and shared boundary. The central Objective-C/Flutter implementations are under the General repository. On macOS, install Xcode and XcodeGen, generate the project, and archive/export with xcodebuild or fastlane. Actual IPA compilation/signing requires macOS/Xcode and operator-controlled signing material.
-
-## Automated APK builds
-
-`tools/mobile/install-android-sdk.ps1` provisions the Android CLI/SDK when absent. `build-portfolio-mobile.ps1`, `.cmd` and `.sh` discover Kotlin Android projects across the related repositories and build debug/release APKs. The scripts do not embed credentials or execute arbitrary remote payloads.
-
-## Licensing
-
-Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses.
+Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. Source provenance is documented in `docs/QUANTUM_SOURCE_PROVENANCE.md` and `docs/DRIVER_ARCHITECTURE.md`.
