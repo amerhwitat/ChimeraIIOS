@@ -1,0 +1,15 @@
+{
+  "schema": "CHM-DRIVER-SOURCES-1",
+  "policy": "sources are metadata only; downloads require checksum/signature validation and explicit staging",
+  "linux": [
+    {"name": "Linux kernel", "url": "https://www.kernel.org/", "kind": "source", "license": "GPL-2.0-only"},
+    {"name": "Linux kernel GitHub mirror", "url": "https://github.com/torvalds/linux", "kind": "source", "license": "GPL-2.0-only"}
+  ],
+  "windows": [
+    {"name": "Microsoft Windows driver documentation", "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/", "kind": "documentation"},
+    {"name": "Microsoft driver downloads", "url": "https://download.microsoft.com/", "kind": "vendor-download-root"}
+  ],
+  "hardware_ids": [
+    {"name": "Linux hwdata", "url": "https://github.com/vcrhonek/hwdata", "kind": "ids", "license": "GPL-2.0-or-later"}
+  ]
+}
