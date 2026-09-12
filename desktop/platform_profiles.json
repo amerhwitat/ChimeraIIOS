@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-DESKTOP-1",
+  "principle":"behavioral compatibility profile, not proprietary binary cloning",
+  "profiles": {
+    "windows": {"eras":["classic-win32","nt-era","xp","vista-7","8-8.1","10","11","modern-windows-app-sdk"],"native_event_model":"Win32 messages / platform window events","features":["windows","menus","accelerators","focus","pointer","keyboard","touch","drag-drop","clipboard","accessibility","DPI","multi-monitor","theme"]},
+    "linux": {"eras":["X11","GTK2/3","GTK4","Qt4/5","Qt6","Wayland"],"native_event_model":"X11 or Wayland compositor events translated through GTK/Qt-style adapters","features":["windows","workspaces","menus","pointer","keyboard","touch","gestures","clipboard","drag-drop","accessibility","HiDPI","multi-monitor","theme"]},
+    "macos": {"eras":["Classic-Mac-compatible-personality","Cocoa/AppKit","modern-macos","SwiftUI-era"],"native_event_model":"AppKit responder/event model with SwiftUI presentation boundary","features":["windows","menu-bar","Dock","pointer","keyboard","trackpad","touch","gestures","drag-drop","clipboard","accessibility","Retina","multi-display","appearance"]}
+  },
+  "chimera_policy": {"single_event_schema":true,"native_backend_optional":true,"legacy_personalities_emulated":true,"proprietary_binaries_copied":false}
+}
