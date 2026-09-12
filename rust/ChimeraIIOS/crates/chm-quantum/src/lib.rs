@@ -3,7 +3,7 @@ pub struct Complex { pub re: f64, pub im: f64 }
 
 impl Complex {
     pub fn norm2(self) -> f64 { self.re * self.re + self.im * self.im }
-    pub fn scale(self, s: f64) -> Self { Self { re: self.re * s, im: self.im * s } }
+    pub fn mul(self, b: Self) -> Self { Self { re: self.re * b.re - self.im * b.im, im: self.re * b.im + self.im * b.re } }
     pub fn add(self, b: Self) -> Self { Self { re: self.re + b.re, im: self.im + b.im } }
 }
 
@@ -37,17 +37,13 @@ impl StateVector {
             let j = base | bit;
             let x = self.amplitudes[base];
             let y = self.amplitudes[j];
-            self.amplitudes[base] = a.scale(x.re).add(b.scale(y.re));
-            self.amplitudes[j] = c.scale(x.re).add(d.scale(y.re));
-            // Imaginary parts are handled explicitly below to keep Complex dependency-free.
-            self.amplitudes[base].im = a.re * x.im + b.re * y.im + a.im * x.re + b.im * y.re;
-            self.amplitudes[j].im = c.re * x.im + d.re * y.im + c.im * x.re + d.im * y.re;
+            self.amplitudes[base] = a.mul(x).add(b.mul(y));
+            self.amplitudes[j] = c.mul(x).add(d.mul(y));
         }
         Ok(())
     }
 
     pub fn probability_sum(&self) -> f64 { self.amplitudes.iter().map(|a| a.norm2()).sum() }
-
     pub fn probabilities(&self) -> Vec<f64> { self.amplitudes.iter().map(|a| a.norm2()).collect() }
 }
 
@@ -65,5 +61,9 @@ mod tests {
     #[test] fn hadamard_creates_equal_probabilities() {
         let mut s = StateVector::new(1).unwrap(); s.apply_single(Gate::H, 0).unwrap();
         let p = s.probabilities(); assert!((p[0] - 0.5).abs() < 1e-12); assert!((p[1] - 0.5).abs() < 1e-12);
+    }
+    #[test] fn phase_preserves_probability() {
+        let mut s = StateVector::new(1).unwrap(); s.apply_single(Gate::H, 0).unwrap(); let before = s.probability_sum();
+        s.apply_single(Gate::Phase(std::f64::consts::FRAC_PI_2), 0).unwrap(); assert!((before - s.probability_sum()).abs() < 1e-12);
     }
 }
