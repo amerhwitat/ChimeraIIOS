@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "msvc-x64",
+      "displayName": "Chimera II OS — Visual Studio 2022 x64",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/presets/msvc-x64",
+      "cacheVariables": {"CHIMERA_ENABLE_EXPERIMENTAL":"ON"}
+    },
+    {
+      "name": "gcc-release",
+      "displayName": "Chimera II OS — GNU GCC Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/presets/gcc-release",
+      "cacheVariables": {"CMAKE_BUILD_TYPE":"Release","CHIMERA_ENABLE_EXPERIMENTAL":"ON"}
+    }
+  ],
+  "buildPresets": [
+    {"name":"msvc-release","configurePreset":"msvc-x64","configuration":"Release"},
+    {"name":"gcc-release","configurePreset":"gcc-release"}
+  ],
+  "testPresets": [
+    {"name":"msvc-release-tests","configurePreset":"msvc-x64","configuration":"Release","output":{"outputOnFailure":true}},
+    {"name":"gcc-release-tests","configurePreset":"gcc-release","output":{"outputOnFailure":true}}
+  ]
+}
