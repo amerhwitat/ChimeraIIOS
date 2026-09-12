@@ -32,6 +32,8 @@ The canonical peer protocol is [`docs/CHIMERA_P2P_PROTOCOL.md`](docs/CHIMERA_P2P
 
 The protocol explicitly excludes unsolicited network scanning, credential/private-key exchange, arbitrary executable transfer and remote command execution. Trust policy remains under the local node/application security boundary.
 
+The new ecosystem-level contract is also documented in [`docs/CHIMERA_128D_P2P_INTEROPERABILITY.md`](docs/CHIMERA_128D_P2P_INTEROPERABILITY.md), defining transport-independent state exchange and native language mappings.
+
 ## Portfolio integration
 
 The cross-repository mapping is maintained in [`docs/CHIMERA_PORTFOLIO_INTEGRATION_MATRIX.md`](docs/CHIMERA_PORTFOLIO_INTEGRATION_MATRIX.md). Language implementations remain native to C/C++, C#, Java, Node.js, Python, JavaScript/TypeScript and assembly where appropriate, while interoperability is defined by shared schemas and conformance vectors.
