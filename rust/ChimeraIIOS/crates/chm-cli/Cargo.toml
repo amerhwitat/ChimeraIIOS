@@ -1,0 +1,10 @@
+[package]
+name="chm-cli"
+version="0.1.0"
+edition="2021"
+[[bin]]
+name="chm"
+path="src/main.rs"
+[dependencies]
+chm-core={path="../chm-core"}
+chm-quantum={path="../chm-quantum"}

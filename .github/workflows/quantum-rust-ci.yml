@@ -1,0 +1,29 @@
+name: Quantum and Rust CI
+on:
+  push:
+    paths: ['quantum/**','multidimensional/**','rust/ChimeraIIOS/**']
+  pull_request:
+    paths: ['quantum/**','multidimensional/**','rust/ChimeraIIOS/**']
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.x'}
+      - run: python -m pip install --upgrade pytest
+      - run: python -m pytest quantum/python/test_quantum.py multidimensional/python/test_chimera_md.py
+  cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S quantum/cpp -B /tmp/chimera-q-build
+      - run: cmake --build /tmp/chimera-q-build
+      - run: ctest --test-dir /tmp/chimera-q-build --output-on-failure
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path rust/ChimeraIIOS/Cargo.toml --workspace
+      - run: cargo clippy --manifest-path rust/ChimeraIIOS/Cargo.toml --workspace --all-targets --all-features

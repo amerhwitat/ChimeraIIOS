@@ -1,0 +1,6 @@
+# Native reference simulator has no third-party runtime dependency.
+# Optional adapters, installed only when required by the operator:
+# qiskit
+# cirq
+# pennylane
+# cudaq

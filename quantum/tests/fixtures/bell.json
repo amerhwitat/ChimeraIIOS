@@ -1,0 +1,1 @@
+{"version":"chm-qc-1","qubits":2,"classical_bits":2,"operations":[{"gate":"H","targets":[0]},{"gate":"CX","targets":[1],"controls":[0]}],"measurements":[0,1],"metadata":{"deterministic_seed":42}}
