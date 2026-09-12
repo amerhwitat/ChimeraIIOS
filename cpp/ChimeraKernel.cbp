@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+  <FileVersion major="1" minor="6" />
+  <Project>
+    <Option title="ChimeraKernel" />
+    <Option pch_mode="2" />
+    <Option compiler="gcc" />
+    <Build>
+      <Target title="Debug"><Option output="bin/Debug/chimera_kernel" prefix_auto="1" extension_auto="1" /><Option object_output="obj/kernel/Debug/" /><Option type="1" /><Option compiler="gcc" /><Compiler><Add option="-g" /></Compiler></Target>
+      <Target title="Release"><Option output="bin/Release/chimera_kernel" prefix_auto="1" extension_auto="1" /><Option object_output="obj/kernel/Release/" /><Option type="1" /><Option compiler="gcc" /><Compiler><Add option="-O2" /></Compiler></Target>
+    </Build>
+    <Compiler><Add option="-std=c++20" /><Add option="-Wall" /><Add option="-Wextra" /><Add option="-Wpedantic" /><Add directory="../include" /><Add directory="../database/include" /></Compiler>
+    <Unit filename="../src/kernel/chimera_kernel_main.cpp" />
+    <Unit filename="../src/isa/chimera_isa.cpp" /><Unit filename="../src/isa/unified_isa.cpp" /><Unit filename="../src/isa/isa_bitfields.cpp" /><Unit filename="../src/isa/ISA_EncoderDecoder.cpp" /><Unit filename="../src/isa/universal_isa.cpp" />
+    <Unit filename="../src/kernel/kernel_arch.cpp" /><Unit filename="../src/kernel/bootinfo.cpp" /><Unit filename="../src/kernel/arch_context.cpp" /><Unit filename="../src/kernel/microkernel_services.cpp" />
+    <Unit filename="../src/dma/dma.cpp" /><Unit filename="../src/memory/memory_bus.cpp" /><Unit filename="../src/memory/memory_bus_probe.cpp" /><Unit filename="../src/net/inet.cpp" /><Unit filename="../src/net/spotnik.cpp" /><Unit filename="../src/neural/trusted_node.cpp" /><Unit filename="../src/runtime/nbit_runtime.cpp" /><Unit filename="../database/src/db_backend.cpp" />
+    <Extensions><code_completion /><debugger /><envvars /></Extensions>
+  </Project>
+</CodeBlocks_project_file>
