@@ -1,6 +1,6 @@
-# Chimera II OS — Native C/C++ Build Layer
+# Chimera II OS — Native ASM/C/C++ Build Layer
 
-This directory is the native C/C++ build surface for Chimera II OS. It keeps Visual Studio, GNU/GCC, Clang, Code::Blocks and CMake build metadata separate from Python, Java, Node.js, .NET and other language implementations.
+This directory is the primary native build surface for Chimera II OS. It keeps Visual Studio, GNU/GCC, Clang, Code::Blocks and CMake metadata separate from Python, Java, Node.js, .NET and other language implementations.
 
 ## Start here
 
@@ -14,7 +14,7 @@ cpp\build-msvc.bat Release x64
 
 Or open `cpp\ChimeraIIOS.sln` in Visual Studio 2022 and build `Release|x64`.
 
-Visual Studio has first-class CMake support, but the checked-in `.sln`/`.vcxproj` files provide a deterministic Windows/MSBuild entry point for the native targets. Microsoft recommends MSBuild for Windows-specific projects and CMake for cross-platform C++ projects. citeturn0search7turn0search0
+The x64 MSVC path uses MASM for `asm/x86_64/chimera_fastpath.asm` where supported.
 
 ### GNU GCC / Clang / Code::Blocks
 
@@ -30,27 +30,32 @@ cmake --build build/gcc --parallel
 ctest --test-dir build/gcc --output-on-failure
 ```
 
-Code::Blocks project files are under this directory. Code::Blocks uses `.cbp` project files and delegates compilation/linking to an external compiler such as GCC/MinGW or another configured toolchain. citeturn0search1
+CMake selects architecture assembly for x86-64, AArch64 or RISC-V64. Code::Blocks projects use the configured external GCC/MinGW or other compiler.
 
 ## Native targets
 
-- `ChimeraMachine` — static library containing ISA, kernel services, memory bus, networking, neural/trust and database backend native code.
+- `ChimeraMachine` — ISA, kernel services, memory bus, networking, neural/trust and database backend native code.
 - `ChimeraServer` — host server executable.
-- `ChimeraKernel` — host-side kernel startup runtime where the selected platform supports it.
-- ISO-Tool — native C++ implementation under `ISO-Tool/vcpp`.
-- Flash-Tool — mobile image validation/packaging/flash-command frontend under `Flash-Tool`.
+- `ChimeraKernel` — host-side kernel startup runtime where supported.
+- `chimera_native_tools` — compiled metadata/toolchain/memory validation.
+- `chimera_isa_generator` — compiled ISA metadata generator.
+- ISO-Tool — native C++ implementation under `ISO-Tool/`.
+- Flash-Tool — native mobile image validation frontend under `Flash-Tool/`.
 
 ## Repository layout
 
 ```text
+asm/
+  x86_64/chimera_fastpath.asm       # MSVC/MASM
+  aarch64/chimera_fastpath.S        # GNU/Clang
+  riscv64/chimera_fastpath.S        # GNU/Clang
+
 cpp/
-  README.md
   CMakeLists.txt
   ChimeraIIOS.sln
   ChimeraMachine.vcxproj
   ChimeraServer.vcxproj
   ChimeraKernel.vcxproj
-  ChimeraMachine.cbp
   ChimeraServer.cbp
   ChimeraKernel.cbp
   ChimeraIIOS.workspace
@@ -58,8 +63,15 @@ cpp/
   build-msvc.ps1
   build-gcc.sh
   build-codeblocks.bat
-  run-chimera.bat
-  run-chimera.sh
+
+src/
+  chimera.c                         # C core/ABI layer
+  isa/ kernel/ memory/ net/ ...     # C++ native subsystems
+  tools/                             # native replacements for core Python utilities
 ```
 
-Generated files belong in `build/`, `out/`, `bin/` or CI artifacts and should not be committed.
+## Python conversion boundary
+
+Core build and metadata validation no longer depends on Python. Native C++ equivalents are under `src/tools/`. Python scripts remain as reference/research implementations where translation would add no runtime value, particularly ML/data-processing utilities.
+
+Generated binaries and intermediate files belong in `build/`, `out/`, `bin/` or CI artifacts and should not be committed.
