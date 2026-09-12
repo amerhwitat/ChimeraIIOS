@@ -6,8 +6,13 @@ installation subsystem.
 """
 from dataclasses import dataclass
 from hashlib import sha256
+import json
 from pathlib import Path
+from urllib.request import Request, urlopen
 from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_MANIFEST = ROOT / "acquisition_sources.json"
 
 
 @dataclass(frozen=True)
@@ -45,10 +50,12 @@ class AcquisitionPolicy:
         ),
         kernel_abi: str | None = None,
         require_signature: bool = True,
+        max_download_bytes: int = 512 * 1024 * 1024,
     ) -> None:
         self.allowed_hosts = allowed_hosts
         self.kernel_abi = kernel_abi
         self.require_signature = require_signature
+        self.max_download_bytes = max_download_bytes
 
     def validate(self, artifact: DriverArtifact) -> None:
         parsed = urlparse(artifact.url)
@@ -67,6 +74,14 @@ class AcquisitionPolicy:
             raise ValueError("unsupported Windows driver package type")
 
 
+def discover_sources(platform: str, query: str) -> list[dict]:
+    """Search only the curated source catalog; no arbitrary web execution."""
+    data = json.loads(SOURCE_MANIFEST.read_text(encoding="utf-8"))
+    entries = data.get(platform, [])
+    needle = query.casefold()
+    return [entry for entry in entries if needle in entry.get("name", "").casefold() or needle in entry.get("url", "").casefold()]
+
+
 def verify_sha256(path: Path, expected: str) -> bool:
     digest = sha256()
     with path.open("rb") as handle:
@@ -83,6 +98,31 @@ def match_hardware(device: HardwareId, candidates: tuple[HardwareId, ...]) -> bo
         and (item.subsystem is None or item.subsystem.lower() == (device.subsystem or "").lower())
         for item in candidates
     )
+
+
+def acquire_artifact(artifact: DriverArtifact, destination: Path, policy: AcquisitionPolicy) -> Path:
+    """Download one allowlisted artifact, enforcing a bounded response and digest."""
+    policy.validate(artifact)
+    request = Request(artifact.url, headers={"User-Agent": "ChimeraIIOS-DriverBroker/1"})
+    destination.mkdir(parents=True, exist_ok=True)
+    target = destination / Path(urlparse(artifact.url).path).name
+    if not target.name:
+        raise ValueError("artifact URL has no filename")
+    with urlopen(request, timeout=30) as response, target.open("wb") as handle:
+        total = 0
+        while True:
+            block = response.read(1024 * 1024)
+            if not block:
+                break
+            total += len(block)
+            if total > policy.max_download_bytes:
+                target.unlink(missing_ok=True)
+                raise ValueError("driver download exceeds configured size limit")
+            handle.write(block)
+    if not verify_sha256(target, artifact.sha256):
+        target.unlink(missing_ok=True)
+        raise ValueError("SHA-256 verification failed")
+    return target
 
 
 def stage_artifact(path: Path, artifact: DriverArtifact, destination: Path, policy: AcquisitionPolicy) -> Path:
