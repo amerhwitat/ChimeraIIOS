@@ -7,6 +7,7 @@ from drivers.python.driver_acquisition import (
     AcquisitionPolicy,
     DriverArtifact,
     HardwareId,
+    discover_sources,
     match_hardware,
     verify_sha256,
 )
@@ -63,3 +64,9 @@ def test_linux_kernel_module_requires_abi_match():
     )
     with pytest.raises(ValueError):
         AcquisitionPolicy(kernel_abi="6.11-chimera").validate(artifact)
+
+
+def test_discover_sources_finds_linux_kernel():
+    results = discover_sources("linux", "kernel")
+    assert results
+    assert all(item["url"].startswith("https://") for item in results)
