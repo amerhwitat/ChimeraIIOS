@@ -10,7 +10,7 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Jasper boot manager | [boot-manager sources](.) |
 | Koronos microkernel | [kernel sources](.) |
 | Spotnik networking | [networking sources](.) |
-| Aurora desktop | [desktop/runtime sources](.) |
+| Aurora desktop | [`desktop/`](desktop/) |
 | Nucleus / Hive / Kore / Aegis / CEF | [system service trees](.) |
 | RegisterN / C8192 / R8192 | [ISA/register sources](.) |
 | Quantum computing | [`quantum/`](quantum/) |
@@ -18,12 +18,24 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Neural reasoning | [`neural/`](neural/) |
 | Voice / speech | [`voice/`](voice/) |
 | Hardware / GPU / driver registry | [`drivers/`](drivers/) |
-| Java hardware/driver layer | [`java/`](java/) |
+| Java hardware/driver + desktop layer | [`java/`](java/) |
 | Rust implementation | [`rust/ChimeraIIOS/`](rust/ChimeraIIOS/) |
 | Mobile Microkernel | [mobile sources](.) |
 | P2P | [protocol sources](.) |
 | Automation / ISO / tests | [tools, build and test trees](.) |
 | Complete tracked repository | [full source tree](.) |
+
+## Aurora desktop compatibility
+
+Aurora now has a platform-neutral desktop/event layer for **Linux, Windows and macOS**, with historical interaction personalities and native backend boundaries. The canonical schema is `desktop/event_schema.json`; desktop-era profiles are in `desktop/platform_profiles.json`.
+
+Supported compatibility families include Windows Win32 through modern Windows, Linux X11/GTK/Qt/Wayland generations, and macOS AppKit through modern SwiftUI-era presentation. These are behavioral compatibility profiles: Chimera does not copy proprietary operating-system binaries.
+
+The event pipeline is:
+
+`hardware/input → native adapter → CHM event → focus/hit-test/gesture routing → window/widget → command/action`
+
+The event ABI/model is implemented in C, C++, Rust, Python, Java, C#, Kotlin, Swift and TypeScript. See `docs/DESKTOP_COMPATIBILITY.md` and the corresponding language subdirectories under `desktop/`.
 
 ## Neural multidimensional reasoning
 
@@ -47,21 +59,9 @@ The implementation is clean-room: upstream projects are architectural and mathem
 
 ## Hardware, GPU and driver compatibility
 
-The `drivers/` layer contains a stable hardware capability registry covering modern and legacy CPU families, GPU families (NVIDIA, AMD, Intel, Apple, ARM Mali, Qualcomm Adreno, PowerVR, 3dfx, Matrox, S3, VIA, SiS and virtual GPUs), PCI/PCIe/USB/virtio/NVMe/SATA/SCSI/I2C/SPI/GPIO/Bluetooth classes, networking, audio, cameras, input and display.
+The `drivers/` layer contains a stable hardware capability registry covering modern and legacy CPU families, GPU families, PCI/PCIe/USB/virtio/NVMe/SATA/SCSI/I2C/SPI/GPIO/Bluetooth classes, networking, audio, cameras, input and display. It also defines protocol-level printer support including IPP Everywhere, PostScript, PCL5/PCL6, ESC/P, ESC/POS, PDF/PS and a deterministic **Ghost Printer** virtual sink.
 
-It also defines protocol-level printer support including IPP Everywhere, PostScript, PCL5/PCL6, ESC/P, ESC/POS, PDF/PS and a deterministic **Ghost Printer** virtual sink.
-
-### Driver acquisition
-
-Chimera II can now **discover, acquire, verify and stage Linux and Windows driver candidates** through a security-first broker. The flow is:
-
-`hardware probe → source discovery → hardware-ID matching → HTTPS acquisition → SHA-256 verification → signature/trust check → license/provenance → quarantine/staging → explicit installation`
-
-Linux `.ko` modules are accepted only when their declared kernel ABI matches the Koronos policy; otherwise source/package metadata is routed through the Chimera driver-port layer. Windows INF/CAT/SYS packages are treated as Driver Store candidates and final installation is delegated to the platform's trusted installation mechanism.
-
-The acquisition layer never silently loads downloaded code, never disables Secure Boot/signature enforcement, and never treats proprietary driver binaries as redistributable merely because they can be found online. Curated source metadata lives in `drivers/acquisition_sources.json`; the Java equivalent is under `java/chimera/drivers/acquisition/`.
-
-See `docs/DRIVER_ACQUISITION.md`, `docs/DRIVER_ARCHITECTURE.md`, `docs/DRIVER_WINDOWS_LINUX_UNIX.md` and `drivers/hardware_registry.json`.
+Chimera II can discover, acquire, verify and stage Linux and Windows driver candidates through a security-first broker. It never silently loads downloaded code, bypasses Secure Boot/signature enforcement, or treats proprietary driver binaries as redistributable merely because they can be found online.
 
 ## Rust implementation
 
@@ -81,11 +81,11 @@ For weighted evidence `S = sum(w_i e_i)/sum(w_i)` and a conservative spread-awar
 - **Jasper** — boot manager.
 - **Koronos** — hybrid microkernel and scheduling/IPC platform.
 - **Spotnik** — IPv4/IPv6 networking research.
-- **Aurora** — graphical desktop/runtime layer.
+- **Aurora** — graphical desktop/runtime and cross-platform desktop personality layer.
 - **Nucleus / Hive / Kore / Aegis / CEF** — data, state, services, security and compatibility layers.
 - **RegisterN / C8192 / R8192** — scalable register and ISA research.
 - **Mobile Microkernel** — isolated mobile platform boundary.
 
 ## Licensing and provenance
 
-Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. Source provenance is documented in `docs/QUANTUM_SOURCE_PROVENANCE.md`, `docs/DRIVER_ARCHITECTURE.md`, `docs/HARDWARE_DRIVER_SOURCE_PROVENANCE.md` and `docs/DRIVER_ACQUISITION.md`.
+Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. Source provenance is documented in `docs/QUANTUM_SOURCE_PROVENANCE.md`, `docs/DRIVER_ARCHITECTURE.md`, `docs/HARDWARE_DRIVER_SOURCE_PROVENANCE.md`, `docs/DRIVER_ACQUISITION.md` and `docs/DESKTOP_COMPATIBILITY.md`.
