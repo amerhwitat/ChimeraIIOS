@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera Quantum Circuit",
+  "type": "object",
+  "required": ["version", "qubits", "operations"],
+  "properties": {
+    "version": {"type":"string", "const":"CHMQ-1"},
+    "qubits": {"type":"integer", "minimum":1},
+    "operations": {
+      "type":"array",
+      "items": {
+        "type":"object",
+        "required":["op","targets"],
+        "properties": {
+          "op":{"type":"string","enum":["X","Y","Z","H","PHASE","CNOT","MEASURE"]},
+          "targets":{"type":"array","items":{"type":"integer","minimum":0}},
+          "theta":{"type":"number"},
+          "classical_bit":{"type":"integer","minimum":0}
+        },
+        "additionalProperties":false
+      }
+    }
+  },
+  "additionalProperties":false
+}
