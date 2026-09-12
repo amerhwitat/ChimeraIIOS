@@ -2,9 +2,26 @@
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate Mobile Microkernel/application stacks.
 
+## Canonical source-code index
+
+The README now explicitly cites the implementation areas so architecture claims can be traced to source:
+
+- **Boot:** `Spit Fire` / bootloader sources under the boot and firmware trees.
+- **Kernel:** `Koronos` microkernel, scheduler, IPC and synchronization sources.
+- **Networking:** `Spotnik` IPv4/IPv6 and transport/networking sources.
+- **Desktop:** `Aurora` graphics/windowing/runtime sources.
+- **Data/services/security:** `Nucleus`, `Hive`, `Kore`, `Aegis` and `CEF` implementation trees.
+- **Registers/ISA:** `RegisterN`, C8192/R8192 and instruction/ABI implementation trees.
+- **Mobile:** the separate Mobile Microkernel and application implementation trees.
+- **P2P:** authenticated capability/request/response/pub-sub/snapshot-delta protocol sources.
+- **AI:** RNN/LLM and neural-memory implementation sources.
+- **Automation/tests:** build scripts, ISO tooling, CI and regression tests.
+
+Apple companion source is explicitly maintained in [`general/Apple-Implementations/ChimeraIIOS`](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS), including Objective-C/Xcode specifications and Flutter iOS/macOS application sources.
+
 ## Apple Objective-C + Flutter portfolio
 
-The centralized Apple source tree is maintained in [`general/Apple-Implementations/ChimeraIIOS`](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS). It contains Objective-C/Xcode project specifications and Flutter iOS/macOS application sources. Objective-C owns Apple framework/native performance boundaries while Flutter provides the portable UI/application layer. Flutter officially supports Objective-C host implementations on iOS and macOS through platform channels. citeturn0search0
+The centralized Apple source tree is maintained in [`general/Apple-Implementations/ChimeraIIOS`](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS). It contains Objective-C/Xcode project specifications and Flutter iOS/macOS application sources. Objective-C owns Apple framework/native performance boundaries while Flutter provides the portable UI/application layer.
 
 ## Core architecture
 
