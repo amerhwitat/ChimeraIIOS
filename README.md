@@ -2,6 +2,10 @@
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate Mobile Microkernel/application stacks.
 
+## Apple Objective-C + Flutter portfolio
+
+The centralized Apple source tree is maintained in [`general/Apple-Implementations/ChimeraIIOS`](https://github.com/amerhwitat/general/tree/master/Apple-Implementations/ChimeraIIOS). It contains Objective-C/Xcode project specifications and Flutter iOS/macOS application sources. Objective-C owns Apple framework/native performance boundaries while Flutter provides the portable UI/application layer. Flutter officially supports Objective-C host implementations on iOS and macOS through platform channels. citeturn0search0
+
 ## Core architecture
 
 - **Spit Fire** — BIOS/UEFI boot layer.
@@ -12,7 +16,7 @@ Chimera II OS is a cross-language research operating-system and application plat
 - **Nucleus / Hive / Kore / Aegis / CEF** — data, state, services, security and compatibility layers.
 - **RegisterN / C8192 / R8192** — scalable register and ISA research.
 - **Mobile Microkernel + Kotlin Mobile** — isolated mobile platform and Android application boundary.
-- **Apple Platform** — SwiftUI/Xcode iOS/iPadOS and macOS application boundary with XcodeGen project generation, xcodebuild archive/export, Kotlin/Native XCFramework integration and optional fastlane automation.
+- **Apple Platform** — Objective-C/Flutter iOS/iPadOS and macOS companion implementation with XcodeGen and xcodebuild automation.
 
 ## 128D and authenticated P2P
 
@@ -22,13 +26,9 @@ Applications use the canonical 128D semantic profile and an authenticated opt-in
 
 The Kotlin mobile portfolio includes synchronized text conversations, IRC-style channels, presence/session metadata and a WebRTC-ready voice/video boundary. Android microphone and camera permissions are declared for mobile communication applications and must be requested only when the user starts the corresponding feature. See `docs/MOBILE_COMMUNICATIONS.md`.
 
-BizX and BizXtreme are the primary application integrations, while the same mobile communication contract is available to CPU simulation, NLP/document, crypto-research and integration applications.
-
 ## Apple applications and IPA builds
 
-`apple/project.yml` defines native iOS and macOS application targets. `apple/Sources/` contains the SwiftUI shell and shared boundary. On macOS, install Xcode and XcodeGen, run `xcodegen generate`, then archive with `apple/scripts/archive-ios.sh` and export an IPA with `apple/scripts/export-ipa.sh`. `tools/apple/install-apple-toolchain.sh` checks Xcode/Swift and can install XcodeGen through Homebrew; fastlane is an optional open-source automation layer.
-
-Actual IPA compilation/signing requires a macOS/Xcode host. Windows/Linux scripts can prepare or dispatch the build but do not claim Apple binaries were produced locally.
+`apple/project.yml` defines native iOS and macOS application targets. `apple/Sources/` contains the SwiftUI shell and shared boundary. The central Objective-C/Flutter implementations are under the General repository. On macOS, install Xcode and XcodeGen, generate the project, then archive/export with xcodebuild or fastlane. Actual IPA compilation/signing requires macOS/Xcode and operator-controlled signing material.
 
 ## Automated APK builds
 
