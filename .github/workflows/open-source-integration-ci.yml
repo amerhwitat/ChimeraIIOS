@@ -1,9 +1,9 @@
 name: Open Source Integration CI
 on:
   push:
-    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**']
+    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
   pull_request:
-    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**']
+    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
 jobs:
   python:
     runs-on: ubuntu-latest
@@ -11,7 +11,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
-      - run: python -m pytest tests/opensource/test_integration_contracts.py -q
+      - run: python -m pip install pytest
+      - run: python -m pytest tests/opensource/test_integration_contracts.py tests/services/test_service_registry.py tests/applications/test_catalog.py -q
       - run: python tools/validate_provenance.py
       - run: python tools/validate_open_source_matrix.py
   native:
