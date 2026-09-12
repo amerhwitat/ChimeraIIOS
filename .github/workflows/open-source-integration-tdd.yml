@@ -1,0 +1,18 @@
+name: Open Source Integration TDD
+on:
+  push:
+    paths:
+      - 'tests/opensource/**'
+      - 'opensource/**'
+      - 'services/**'
+      - 'applications/**'
+      - '.github/workflows/open-source-integration-tdd.yml'
+jobs:
+  red-green:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pytest tests/opensource/test_integration_contracts.py -q
