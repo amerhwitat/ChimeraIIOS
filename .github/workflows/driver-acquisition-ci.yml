@@ -1,0 +1,45 @@
+name: Driver Acquisition and Java CI
+
+on:
+  push:
+    paths:
+      - 'drivers/**'
+      - 'java/**'
+      - 'tools/update_driver_sources.py'
+      - '.github/workflows/driver-acquisition-ci.yml'
+  pull_request:
+    paths:
+      - 'drivers/**'
+      - 'java/**'
+      - 'tools/update_driver_sources.py'
+      - '.github/workflows/driver-acquisition-ci.yml'
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/update_driver_sources.py
+      - run: python -m pytest drivers/tests/test_driver_acquisition_policy.py -q
+
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: mkdir -p build/java
+      - run: javac -d build/java $(find java/chimera -name '*.java')
+      - run: java -cp build/java chimera.drivers.acquisition.DriverAcquisitionManagerTest
+
+  native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cc -std=c11 -Wall -Wextra -Werror -I drivers/c -c drivers/linux/chimera_driver_acquisition.c -o /tmp/chm-linux-acq.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -I drivers/c -c drivers/windows/chimera_driver_acquisition.c -o /tmp/chm-windows-acq.o
