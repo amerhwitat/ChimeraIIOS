@@ -27,23 +27,25 @@ The README is the source-navigation index for the complete repository. Every maj
 
 ## Quantum computing research layer
 
-The `quantum/` tree provides a portable CPU-baseline quantum simulator, versioned circuit/result schemas, C/C++ and C ABI boundaries, Python reference tooling, Rust quantum primitives and adapters for Java, C#, TypeScript, Kotlin, Swift and Dart. Research integration targets include Qiskit, Cirq, PennyLane, NVIDIA CUDA-Q and cuQuantum. External quantum services remain opt-in.
+The `quantum/` tree provides a portable CPU-baseline state-vector simulator, QFT/gate primitives, C ABI, versioned `CHMQ-1` circuit IR, Python/Rust reference implementations and adapters for Java, C#, TypeScript, Kotlin, Swift and Dart. Research integration targets include Qiskit, Cirq, PennyLane, NVIDIA CUDA-Q, cuQuantum and qsim. External quantum services remain opt-in.
+
+The implementation is clean-room: upstream projects are used as architectural and mathematical references, not as copied source. See `docs/QUANTUM_SOURCE_PROVENANCE.md` for provenance and license policy.
 
 Research ISA metadata defines `QINIT`, `QGATE`, `QCONTROL`, `QMEASURE`, `QTENSOR` and `QSYNC`. These are research-level operation descriptors and do not change the existing boot ABI.
 
-See `docs/QUANTUM_COMPUTING.md` and `docs/QUANTUM_SOURCE_PROVENANCE.md`.
+See `docs/QUANTUM_COMPUTING.md`, `quantum/circuit_schema.json` and `docs/QUANTUM_SOURCE_PROVENANCE.md`.
 
 ## Perspective vs geometry and 128D mathematics
 
 The `multidimensional/` tree separates geometry from perspective: vectors, tensor contraction and affine transformations form the geometry layer; observer origin, projection and uncertainty/perception overlays form the perspective layer. The 128D model is explicitly treated as an experimental computational semantic representation, not as an established claim that physical spacetime has 128 observable dimensions.
 
-See `docs/MULTIDIMENSIONAL_PERSPECTIVE.md` and `multidimensional/equations.md`.
+See `docs/MULTIDIMENSIONAL_PERSPECTIVE.md`, `multidimensional/README.md` and `multidimensional/equations.md`.
 
 ## Rust implementation
 
-`rust/ChimeraIIOS/` is a separate Rust workspace with `chm-core`, `chm-register`, `chm-isa`, `chm-quantum`, `chm-multidim` and `chm-cli`. It is currently a safe user-space/runtime research implementation; bootloader/kernel integration remains a distinct freestanding target requiring hardware/ABI validation.
+`rust/ChimeraIIOS/` is a separate Rust workspace with `chm-core`, `chm-register`, `chm-isa`, `chm-quantum`, `chm-multidim` and `chm-cli`. The Rust quantum crate now contains a dependency-free state-vector core with X/Y/Z/H/phase gates and normalization tests. It is currently a safe user-space/runtime research implementation; bootloader/kernel integration remains a distinct freestanding target requiring hardware/ABI validation.
 
-See `docs/RUST_IMPLEMENTATION.md`.
+See `docs/RUST_IMPLEMENTATION.md` and `docs/superpowers/plans/2026-09-13-quantum-rust-multidim-implementation.md`.
 
 ## Apple Objective-C + Flutter portfolio
 
