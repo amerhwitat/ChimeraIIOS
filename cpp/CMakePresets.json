@@ -1,0 +1,30 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "msvc-x64-release",
+      "displayName": "MSVC 2022 x64 Release",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/../build/cmake-msvc-x64",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CHIMERA_ENABLE_EXPERIMENTAL": "ON"
+      }
+    },
+    {
+      "name": "gcc-release",
+      "displayName": "GNU GCC Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build/cmake-gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CHIMERA_ENABLE_EXPERIMENTAL": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {"name":"msvc-release","configurePreset":"msvc-x64-release","configuration":"Release"},
+    {"name":"gcc-release","configurePreset":"gcc-release"}
+  ]
+}
