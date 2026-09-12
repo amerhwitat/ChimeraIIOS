@@ -1,0 +1,4 @@
+export type DesktopPlatform='linux-gtk'|'linux-qt'|'windows-win32'|'windows-modern'|'macos-appkit'|'macos-swiftui'|'classic';
+export type DesktopEventType='window_create'|'window_close'|'window_move'|'window_resize'|'focus_in'|'focus_out'|'key_down'|'key_up'|'text_input'|'pointer_move'|'pointer_down'|'pointer_up'|'wheel'|'touch_begin'|'touch_update'|'touch_end'|'gesture'|'drag_begin'|'drag_update'|'drag_end'|'menu_command'|'display_change'|'theme_change'|'quit';
+export interface DesktopEvent { type:DesktopEventType; timestampNs:bigint; deviceId:string; windowId?:string; x?:number; y?:number; dx?:number; dy?:number; modifiers?:number; buttons?:number; key?:string; text?:string; [key:string]:unknown; }
+export class EventRouter { private handlers=new Map<DesktopEventType,(e:DesktopEvent)=>void>(); on(type:DesktopEventType,handler:(e:DesktopEvent)=>void){this.handlers.set(type,handler)} dispatch(e:DesktopEvent){this.handlers.get(e.type)?.(e)} }
