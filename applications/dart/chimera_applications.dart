@@ -1,0 +1,1 @@
+class ApplicationDescriptor { final String id, category, upstream, spdx, integration, sandbox; final List<String> platforms, languages; const ApplicationDescriptor({required this.id,required this.category,required this.upstream,required this.spdx,required this.platforms,required this.languages,required this.integration,required this.sandbox}); }

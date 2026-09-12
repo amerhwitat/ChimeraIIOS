@@ -1,0 +1,1 @@
+namespace Chimera.Applications { public sealed record ApplicationDescriptor(string Id,string Category,string Upstream,string Spdx,string[] Platforms,string[] Languages,string Integration,string Sandbox); }

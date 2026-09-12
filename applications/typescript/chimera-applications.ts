@@ -1,0 +1,1 @@
+export interface ApplicationDescriptor { id:string; category:string; upstream:string; spdx:string; platforms:string[]; languages:string[]; integration:'native'|'wrapped'|'fetched'|'reference'; sandbox:string; }

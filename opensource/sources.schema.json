@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera II Open Source Source Registry",
+  "type": "object",
+  "required": ["schema", "sources"],
+  "properties": {
+    "schema": {"const": "CHM-OSS-SOURCES-1"},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "project", "upstream", "spdx", "languages", "platforms", "integration", "source_kind", "security"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9._-]+$"},
+          "project": {"type": "string", "minLength": 1},
+          "upstream": {"type": "string", "pattern": "^https://"},
+          "version_policy": {"type": "string"},
+          "spdx": {"type": "string", "minLength": 1},
+          "languages": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "platforms": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "integration": {"enum": ["adapter", "reference", "fetched", "vendored"]},
+          "source_kind": {"enum": ["service", "desktop", "application", "library", "runtime"]},
+          "security": {"type": "object", "required": ["execute_on_fetch"], "properties": {"execute_on_fetch": {"const": false}, "signature_required": {"type": "boolean"}}},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

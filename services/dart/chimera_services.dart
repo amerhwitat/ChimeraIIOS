@@ -1,0 +1,1 @@
+class ServiceDescriptor { final String id,platform,backend; final List<String> capabilities; const ServiceDescriptor({required this.id,required this.platform,required this.backend,required this.capabilities}); }

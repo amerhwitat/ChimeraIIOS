@@ -1,0 +1,15 @@
+{
+  "schema":"CHM-SERVICE-1",
+  "services":[
+    {"id":"service-manager","lifecycle":"systemd/scm/launchd-compatible","platforms":["linux","windows","macos"],"capabilities":["start","stop","restart","status","dependencies","health"],"backends":{"linux":"systemd","windows":"scm","macos":"launchd"}},
+    {"id":"ipc","lifecycle":"managed","platforms":["linux","windows","macos","unix"],"capabilities":["bus","rpc","signals","peer-auth"],"backends":{"linux":"dbus","windows":"named-pipes-or-rpc","macos":"xpc-or-local-rpc"}},
+    {"id":"network","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["interfaces","wifi","dhcp","dns","routes","vpn"],"backends":{"linux":"networkmanager","windows":"native-networking","macos":"network-framework"}},
+    {"id":"audio-media","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["audio","video","routing","devices"],"backends":{"linux":"pipewire-alsa","windows":"wasapi","macos":"coreaudio-avfoundation"}},
+    {"id":"printing","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["ipp","cups","print-jobs","printers"],"backends":{"linux":"cups","windows":"spooler","macos":"cups-native"}},
+    {"id":"device-discovery","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["hotplug","hardware-ids","permissions"],"backends":{"linux":"udev","windows":"pnp","macos":"iokit-boundary"}},
+    {"id":"file-sharing","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["smb","shares","permissions"],"backends":{"linux":"samba","windows":"smb-server-client","macos":"smb-client"}},
+    {"id":"scheduler","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["timers","cron","tasks"],"backends":{"linux":"systemd-timers-cron","windows":"task-scheduler","macos":"launchd"}},
+    {"id":"terminal","lifecycle":"session","platforms":["linux","windows","macos"],"capabilities":["shell","pty","conpty","tabs"],"backends":{"linux":"pty","windows":"conpty-terminal","macos":"pty"}},
+    {"id":"logging","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["structured-logs","journaling","rotation"],"backends":{"linux":"journald-or-compat","windows":"eventlog","macos":"oslog"}}
+  ]
+}

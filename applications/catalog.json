@@ -1,0 +1,15 @@
+{
+ "schema":"CHM-APP-1",
+ "applications":[
+  {"id":"file-manager","category":"file-manager","upstream":"https://www.gnome.org/nautilus/","spdx":"GPL-3.0-or-later","platforms":["linux","unix"],"languages":["C"],"integration":"reference","sandbox":"desktop-policy"},
+  {"id":"terminal","category":"terminal","upstream":"https://github.com/microsoft/terminal","spdx":"MIT","platforms":["windows"],"languages":["C++","C#"],"integration":"wrapped","sandbox":"process-policy"},
+  {"id":"libreoffice","category":"office","upstream":"https://github.com/LibreOffice/core","spdx":"MPL-2.0","platforms":["linux","windows","macos"],"languages":["C++","Python","Java"],"integration":"fetched","sandbox":"document-policy"},
+  {"id":"gimp","category":"image-editor","upstream":"https://gitlab.gnome.org/GNOME/gimp","spdx":"GPL-3.0-or-later","platforms":["linux","windows","macos"],"languages":["C"],"integration":"fetched","sandbox":"file-policy"},
+  {"id":"vlc","category":"media-player","upstream":"https://code.videolan.org/videolan/vlc","spdx":"GPL-2.0-or-later","platforms":["linux","windows","macos","unix"],"languages":["C","C++"],"integration":"fetched","sandbox":"media-policy"},
+  {"id":"webkit-shell","category":"browser-engine","upstream":"https://github.com/WebKit/WebKit","spdx":"LicenseRef-WebKit-BSD-LGPL-Composite","platforms":["linux","windows","macos"],"languages":["C++","Objective-C","Swift","Python"],"integration":"wrapped","sandbox":"web-policy"},
+  {"id":"git","category":"developer","upstream":"https://github.com/git/git","spdx":"GPL-2.0-or-later","platforms":["linux","windows","macos","unix"],"languages":["C","Shell","Perl"],"integration":"native","sandbox":"process-policy"},
+  {"id":"curl","category":"network","upstream":"https://github.com/curl/curl","spdx":"curl","platforms":["linux","windows","macos","unix"],"languages":["C"],"integration":"native","sandbox":"network-policy"},
+  {"id":"archive-manager","category":"archive","upstream":"https://gitlab.gnome.org/GNOME/file-roller","spdx":"GPL-2.0-or-later","platforms":["linux"],"languages":["C","Vala"],"integration":"reference","sandbox":"file-policy"},
+  {"id":"system-monitor","category":"system-monitor","upstream":"https://gitlab.gnome.org/GNOME/gnome-system-monitor","spdx":"GPL-2.0-or-later","platforms":["linux"],"languages":["C++"],"integration":"reference","sandbox":"read-only-system"}
+ ]
+}

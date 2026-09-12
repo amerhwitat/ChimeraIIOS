@@ -11,6 +11,9 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Koronos microkernel | [kernel sources](.) |
 | Spotnik networking | [networking sources](.) |
 | Aurora desktop | [`desktop/`](desktop/) |
+| Open-source service compatibility | [`services/`](services/) |
+| Open-source application catalog | [`applications/`](applications/) |
+| Open-source provenance | [`opensource/`](opensource/) |
 | Nucleus / Hive / Kore / Aegis / CEF | [system service trees](.) |
 | RegisterN / C8192 / R8192 | [ISA/register sources](.) |
 | Quantum computing | [`quantum/`](quantum/) |
@@ -25,9 +28,21 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Automation / ISO / tests | [tools, build and test trees](.) |
 | Complete tracked repository | [full source tree](.) |
 
+## Open-source Linux / Windows / macOS services and applications
+
+Chimera II now has a provenance-first compatibility layer for open-source services, desktop technologies and free applications. The canonical source registry is `opensource/sources.json`; service capabilities are defined in `services/service_registry.json`; application compatibility records are in `applications/catalog.json`.
+
+The integration covers Linux systemd/D-Bus/NetworkManager/PipeWire/CUPS/udev/Samba families, Windows Service Control Manager/Task Scheduler/PowerShell/Windows Terminal/WSL/Windows App SDK boundaries, and macOS launchd/POSIX/CoreAudio/WebKit/printing boundaries. Aurora remains the common desktop capability layer, while platform adapters preserve each operating system's distinct semantics.
+
+Application families include file managers, terminals, office/document suites, image/PDF tools, media players, browser/WebKit shells, archives, calculators, system monitors, disk/network/developer tools, accessibility, recording, backup/synchronization and package-management interfaces.
+
+These are compatibility and provenance layers rather than a claim that the repository contains every upstream project. Large upstream projects remain external and are represented by versioned source/license metadata and explicit staging/build manifests. Proprietary platform binaries are not redistributed. Downloaded artifacts are not executed automatically.
+
+See `docs/OPEN_SOURCE_INTEGRATION.md`, `docs/SERVICES_COMPATIBILITY.md`, `docs/APPLICATION_COMPATIBILITY.md` and `docs/SOURCE_PROVENANCE.md`.
+
 ## Aurora desktop compatibility
 
-Aurora now has a platform-neutral desktop/event layer for **Linux, Windows and macOS**, with historical interaction personalities and native backend boundaries. The canonical schema is `desktop/event_schema.json`; desktop-era profiles are in `desktop/platform_profiles.json`.
+Aurora has a platform-neutral desktop/event layer for **Linux, Windows and macOS**, with historical interaction personalities and native backend boundaries. The canonical schema is `desktop/event_schema.json`; desktop-era profiles are in `desktop/platform_profiles.json`.
 
 Supported compatibility families include Windows Win32 through modern Windows, Linux X11/GTK/Qt/Wayland generations, and macOS AppKit through modern SwiftUI-era presentation. These are behavioral compatibility profiles: Chimera does not copy proprietary operating-system binaries.
 
@@ -63,29 +78,6 @@ The `drivers/` layer contains a stable hardware capability registry covering mod
 
 Chimera II can discover, acquire, verify and stage Linux and Windows driver candidates through a security-first broker. It never silently loads downloaded code, bypasses Secure Boot/signature enforcement, or treats proprietary driver binaries as redistributable merely because they can be found online.
 
-## Rust implementation
-
-`rust/ChimeraIIOS/` is a separate Rust workspace with core, register, ISA, quantum, multidimensional, neural, voice, driver and CLI crates. It remains a safe user-space/runtime research implementation; bootloader/kernel integration is a separate freestanding target requiring hardware/ABI validation.
-
-## Perspective vs geometry and equations
-
-Geometry uses vectors, tensor contraction and affine transformations. Perspective uses observer origin, projection and uncertainty/perception overlays:
-
-`x' = A x + b`, `r = x-o`, `p = P r`, `C_ik = sum_j A_ij B_jk`.
-
-For weighted evidence `S = sum(w_i e_i)/sum(w_i)` and a conservative spread-aware confidence `C = clamp(S(1-sqrt(V)),0,1)` with `V = sum(w_i(e_i-S)^2)/sum(w_i)`.
-
-## Core architecture
-
-- **Spit Fire** — BIOS/UEFI boot layer.
-- **Jasper** — boot manager.
-- **Koronos** — hybrid microkernel and scheduling/IPC platform.
-- **Spotnik** — IPv4/IPv6 networking research.
-- **Aurora** — graphical desktop/runtime and cross-platform desktop personality layer.
-- **Nucleus / Hive / Kore / Aegis / CEF** — data, state, services, security and compatibility layers.
-- **RegisterN / C8192 / R8192** — scalable register and ISA research.
-- **Mobile Microkernel** — isolated mobile platform boundary.
-
 ## Licensing and provenance
 
-Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. Source provenance is documented in `docs/QUANTUM_SOURCE_PROVENANCE.md`, `docs/DRIVER_ARCHITECTURE.md`, `docs/HARDWARE_DRIVER_SOURCE_PROVENANCE.md`, `docs/DRIVER_ACQUISITION.md` and `docs/DESKTOP_COMPATIBILITY.md`.
+Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. The new open-source compatibility layer records exact upstream provenance and license expressions instead of assuming that all upstream projects can be relicensed as GPL.

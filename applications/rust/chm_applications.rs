@@ -1,0 +1,1 @@
+pub struct ApplicationDescriptor { pub id:String, pub category:String, pub upstream:String, pub spdx:String, pub platforms:Vec<String>, pub languages:Vec<String>, pub integration:String, pub sandbox:String }

@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-OSS-BUILD-1",
+  "execution_policy":"explicit-user-or-ci-only",
+  "artifacts":[
+    {"source_id":"systemd","platform":"linux","build_system":"meson","command":"meson setup build && meson compile -C build","provenance_required":true},
+    {"source_id":"webkit","platform":"linux","build_system":"cmake","command":"Tools/Scripts/build-webkit --gtk","provenance_required":true},
+    {"source_id":"windows-terminal","platform":"windows","build_system":"Visual Studio","command":"msbuild OpenConsole.slnx","provenance_required":true},
+    {"source_id":"libreoffice","platform":"linux","build_system":"autoconf","command":"./autogen.sh && make","provenance_required":true}
+  ]
+}

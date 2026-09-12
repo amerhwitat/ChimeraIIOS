@@ -1,0 +1,27 @@
+name: Open Source Integration CI
+on:
+  push:
+    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**']
+  pull_request:
+    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**']
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pytest tests/opensource/test_integration_contracts.py -q
+      - run: python tools/validate_provenance.py
+      - run: python tools/validate_open_source_matrix.py
+  native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cc -std=c11 -Wall -Wextra -Werror -Iservices/c -c services/c/service.c -o /tmp/chm_service.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -c services/linux/chimera_linux_services.c -o /tmp/chm_linux.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -c services/windows/chimera_windows_services.c -o /tmp/chm_windows.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -c services/macos/chimera_macos_services.c -o /tmp/chm_macos.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -c applications/linux/chimera_linux_apps.c -o /tmp/chm_apps_linux.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -c applications/windows/chimera_windows_apps.c -o /tmp/chm_apps_windows.o
+      - run: cc -std=c11 -Wall -Wextra -Werror -c applications/macos/chimera_macos_apps.c -o /tmp/chm_apps_macos.o

@@ -1,0 +1,10 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Chimera II Service Descriptor",
+  "type":"object",
+  "required":["schema","services"],
+  "properties":{
+    "schema":{"const":"CHM-SERVICE-1"},
+    "services":{"type":"array","items":{"type":"object","required":["id","lifecycle","platforms","capabilities"],"properties":{"id":{"type":"string"},"lifecycle":{"type":"string"},"platforms":{"type":"array","items":{"type":"string"}},"capabilities":{"type":"array","items":{"type":"string"}},"dependencies":{"type":"array","items":{"type":"string"}},"backends":{"type":"object"}}}}
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Chimera II Application Descriptor",
+  "type":"object",
+  "required":["schema","applications"],
+  "properties":{"schema":{"const":"CHM-APP-1"},"applications":{"type":"array","items":{"type":"object","required":["id","category","upstream","spdx","platforms","languages","integration"],"properties":{"id":{"type":"string"},"category":{"type":"string"},"upstream":{"type":"string","pattern":"^https://"},"spdx":{"type":"string"},"platforms":{"type":"array","items":{"type":"string"}},"languages":{"type":"array","items":{"type":"string"}},"integration":{"enum":["native","wrapped","fetched","reference"]},"sandbox":{"type":"string"}}}}}
+}
