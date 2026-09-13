@@ -34,30 +34,23 @@ Chimera II OS is a cross-language research operating-system and application plat
 
 The repository now has a single cross-platform automation entry point: `tools/build/orchestrator.py`, with POSIX shell, Windows CMD and PowerShell wrappers under `scripts/`. Use `doctor`, `deps`, `configure`, `build`, `test`, `package`, `install`, `clean`, or `all`. The same orchestration contract is exercised by CI so local builds and CI builds do not silently diverge.
 
-The build manifest tracks C/C++/ASM, Rust, Python, Node.js/TypeScript, Java, .NET/C#, Kotlin, Swift and Dart toolchains. Dependency installation prefers project manifests/lockfiles and does not execute downloaded scripts. CMake/CTest/CPack provide native configuration, testing and packaging; packages can include portable archives and native OS installers when the host generator is available. GitHub Actions can run matrix builds across Linux, Windows and macOS. citeturn0search1turn0search4turn0search8
+The build manifest tracks C/C++/ASM, Rust, Python, Node.js/TypeScript, Java, .NET/C#, Kotlin, Swift and Dart toolchains. Dependency installation prefers project manifests/lockfiles and does not execute downloaded scripts. CMake/CTest/CPack provide native configuration, testing and packaging; packages can include portable archives and native OS installers when the host generator is available. GitHub Actions can run matrix builds across Linux, Windows and macOS.
 
-Examples:
+## Arabic-first internationalized desktop
 
-```text
-python tools/build/orchestrator.py doctor
-python tools/build/orchestrator.py all
-python tools/build/orchestrator.py build --dry-run
-scripts/chimera-build.sh all
-scripts/chimera-build.ps1 all
-scripts\\chimera-build.cmd all
-```
+Chimera II now treats Arabic (`ar`, with `ar-SA` as the reference locale) as a first-class desktop language. The Aurora compatibility layer provides an explicit RTL direction, Arabic UI resources, locale contracts in C/C++, Rust, Python, Java, C#, Kotlin, Swift, TypeScript and Dart, and a `Chimera العربية` desktop personality. The Arabic contract covers menus, settings, networking, security, storage, drivers, developer tools, diagnostics, accessibility and system actions.
 
-See `docs/BUILD_INSTALL_AUTOMATION.md`, `tools/build/build_manifest.json`, `cmake/ChimeraPackaging.cmake`, and `packaging/chimera-install.json`.
+The desktop compatibility model catalogs GNOME, KDE Plasma, Xfce, Cinnamon, MATE and LXQt on Linux, classic through modern Windows/WinUI, and Classic-Mac/Cocoa/AppKit/SwiftUI-era macOS presentation. These are behavior/appearance compatibility profiles rather than copied proprietary source or binaries. Open-source upstream projects remain subject to their own licenses and provenance requirements.
+
+Arabic UI follows Unicode logical text order and uses platform text shaping/BiDi/layout engines rather than manually reversing strings. RTL tests cover mixed Arabic/Latin text, numerals, paths/URLs, keyboard switching, accessibility, clipping, menus, panels, dialogs and clipboard round trips. Microsoft explicitly documents RTL flow and flexible layouts for Arabic, while Apple documents RTL mirroring through standard layout systems and RTL testing. GNOME, KDE Plasma, MATE and LXQt document their respective desktop architectures publicly.
+
+See `desktop/localization/ar-SA.json`, `desktop/upstream_desktop_catalog.json`, `desktop/desktop_profiles.json`, `docs/ARABIC_DESKTOP_AND_LOCALIZATION.md` and `.github/workflows/arabic-desktop-ci.yml`.
 
 ## RISC and CISC instruction-set catalog
 
 `isa/catalog.json` is the canonical machine-readable instruction catalog. It enumerates major RISC and CISC families used by real computers, records operand structure including optional operands, and stores a worked binary and hexadecimal encoding for each catalog instruction. Current families include RISC-V, AArch64, ARM32, MIPS32, OpenPOWER, SPARC, x86/Intel 64/AMD64, Motorola 68000, IBM System z and VAX.
 
 The catalog separates concrete encodings from general encoding fields so it can support future assembler/disassembler, emulator and binary-analysis work without confusing an example opcode with a complete instruction decoder. C/C++, Rust, Python, Java, C#, Kotlin, Swift, TypeScript and Dart adapters expose the same canonical dataset. See `docs/ISA_CATALOG.md`, `isa/schema.json`, `tools/validate_isa_catalog.py` and `.github/workflows/isa-catalog-ci.yml`.
-
-The external ISA data is provenance-first: normative architecture specifications are linked rather than copied. Intel's current Software Developer Manual documents IA-32/Intel 64 instruction formats and references, AMD documents variable-length AMD64 encodings, RISC-V publishes ratified opcode maps, and OpenPOWER publishes its ISA specification. citeturn0search0turn0search48turn1search1turn2search10
-
-The existing Chimera C8192/R8192 research ISA remains separate from these industry families. Chimera-specific opcodes and wide-register packet formats must never be presented as vendor-standard instructions.
 
 ## Application networking
 
@@ -73,19 +66,11 @@ Application families include file managers, terminals, office/document suites, i
 
 These are compatibility and provenance layers rather than a claim that the repository contains every upstream project. Large upstream projects remain external and are represented by versioned source/license metadata and explicit staging/build manifests. Proprietary platform binaries are not redistributed. Downloaded artifacts are not executed automatically.
 
-See `docs/OPEN_SOURCE_INTEGRATION.md`, `docs/SERVICES_COMPATIBILITY.md`, `docs/APPLICATION_COMPATIBILITY.md` and `docs/SOURCE_PROVENANCE.md`.
-
 ## Aurora desktop compatibility
 
 Aurora has a platform-neutral desktop/event layer for **Linux, Windows and macOS**, with historical interaction personalities and native backend boundaries. The canonical schema is `desktop/event_schema.json`; desktop-era profiles are in `desktop/platform_profiles.json`.
 
 Supported compatibility families include Windows Win32 through modern Windows, Linux X11/GTK/Qt/Wayland generations, and macOS AppKit through modern SwiftUI-era presentation. These are behavioral compatibility profiles: Chimera does not copy proprietary operating-system binaries.
-
-The event pipeline is:
-
-`hardware/input → native adapter → CHM event → focus/hit-test/gesture routing → window/widget → command/action`
-
-The event ABI/model is implemented in C, C++, Rust, Python, Java, C#, Kotlin, Swift and TypeScript. See `docs/DESKTOP_COMPATIBILITY.md` and the corresponding language subdirectories under `desktop/`.
 
 ## Neural multidimensional reasoning
 
@@ -93,19 +78,13 @@ The `neural/` layer combines weighted evidence, disagreement-aware confidence, o
 
 The 128D profile remains an experimental computational semantic representation, not a claim about the number of physical dimensions.
 
-See `docs/NEURAL_REASONING.md` and `multidimensional/`.
-
 ## Voice and speech
 
 `voice/` provides a cross-platform TTS/STT boundary. Providers can target Windows SAPI/WinRT, Linux/Unix Speech Dispatcher/PipeWire/ALSA/PulseAudio, Apple AVFoundation/CoreAudio, or explicitly configured external engines. The core does not silently upload text or audio and does not bundle proprietary speech engines.
 
-See `docs/VOICE.md`.
-
 ## Quantum computing research layer
 
 The `quantum/` tree provides a portable CPU-baseline state-vector simulator, QFT/gate primitives, C ABI, versioned `CHMQ-1` circuit IR, Python/Rust reference implementations and adapters for Java, C#, TypeScript, Kotlin, Swift and Dart. Research integration targets include Qiskit, Cirq, PennyLane, NVIDIA CUDA-Q, cuQuantum and qsim. External quantum services remain opt-in. The implementation is clean-room: upstream projects are architectural and mathematical references, not copied source.
-
-See `docs/QUANTUM_SOURCE_PROVENANCE.md`.
 
 ## Hardware, GPU and driver compatibility
 
