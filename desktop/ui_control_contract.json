@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera II UI Control Contract",
+  "schema_version": "CHM-UI-CONTROL-1",
+  "description": "Framework-neutral contract requiring every interactive control to resolve to an application command or an explicit no-op reason.",
+  "type": "object",
+  "required": ["control_id", "kind", "command"],
+  "properties": {
+    "control_id": {"type":"string","minLength":1},
+    "kind": {"type":"string","enum":["button","toggle","checkbox","radio","menu_item","toolbar_item","tab","slider","text_action","list_action","tree_action","shortcut"]},
+    "label": {"type":"string"},
+    "command": {"type":"string","minLength":1},
+    "enabled": {"type":"boolean"},
+    "visible": {"type":"boolean"},
+    "requires_confirmation": {"type":"boolean"},
+    "arguments": {"type":"object","additionalProperties":true},
+    "success_event": {"type":"string"},
+    "failure_event": {"type":"string"},
+    "telemetry_event": {"type":"string"}
+  },
+  "additionalProperties": false
+}
