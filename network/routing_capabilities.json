@@ -1,0 +1,7 @@
+{
+  "address_families": ["ipv4", "ipv6", "dual-stack"],
+  "transport": ["tcp", "udp", "quic"],
+  "routing": ["static", "connected", "rip", "ripng", "ospfv2", "ospfv3", "isis", "bgp4", "eigrp-adapter", "babel", "bfd", "vrrp", "pim", "openfabric", "bgp-ls"],
+  "sdn": ["openflow", "p4runtime", "netconf", "restconf", "gnmi", "envoy-xds"],
+  "policy": {"dynamic_routing_default": false, "applications_may_change_rib": false, "require_versioned_config": true, "atomic_fib_updates": true}
+}
