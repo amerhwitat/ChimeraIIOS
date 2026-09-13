@@ -1,0 +1,18 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {"major": 3, "minor": 23, "patch": 0},
+  "configurePresets": [
+    {"name":"chimera-default","displayName":"Chimera II OS default","generator":"Ninja","binaryDir":"${sourceDir}/build/cmake-default","cacheVariables":{"CMAKE_BUILD_TYPE":"Release","CHIMERA_ENABLE_EXPERIMENTAL":"ON"}},
+    {"name":"chimera-debug","displayName":"Chimera II OS debug","generator":"Ninja","binaryDir":"${sourceDir}/build/cmake-debug","cacheVariables":{"CMAKE_BUILD_TYPE":"Debug","CHIMERA_ENABLE_EXPERIMENTAL":"ON"}},
+    {"name":"chimera-msvc","displayName":"Chimera II OS Visual Studio","generator":"Visual Studio 18 2026","binaryDir":"${sourceDir}/build/vs2026","cacheVariables":{"CHIMERA_ENABLE_EXPERIMENTAL":"ON"}}
+  ],
+  "buildPresets": [
+    {"name":"chimera-release","configurePreset":"chimera-default","configuration":"Release"},
+    {"name":"chimera-debug","configurePreset":"chimera-debug","configuration":"Debug"},
+    {"name":"chimera-msvc-release","configurePreset":"chimera-msvc","configuration":"Release"}
+  ],
+  "testPresets": [
+    {"name":"chimera-release-tests","configurePreset":"chimera-default","configuration":"Release","output":{"outputOnFailure":true}},
+    {"name":"chimera-debug-tests","configurePreset":"chimera-debug","configuration":"Debug","output":{"outputOnFailure":true}}
+  ]
+}
