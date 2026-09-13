@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-DESKTOP-UPSTREAM-1",
+  "policy":"Compatibility metadata only. Do not copy proprietary assets, trademarks, binaries, or upstream source without license review.",
+  "desktops":[
+    {"id":"gnome","family":"linux","upstream":"GNOME","url":"https://www.gnome.org/","protocols":["Wayland","X11"],"features":["overview","workspaces","settings","accessibility"]},
+    {"id":"kde-plasma","family":"linux","upstream":"KDE Plasma","url":"https://kde.org/plasma-desktop/","protocols":["Wayland","X11"],"features":["panel","widgets","launcher","workspaces"]},
+    {"id":"xfce","family":"linux","upstream":"Xfce","url":"https://www.xfce.org/","protocols":["X11"],"features":["panel","window-manager","settings","lightweight"]},
+    {"id":"cinnamon","family":"linux","upstream":"Cinnamon","url":"https://cinnamon-spices.linuxmint.com/","protocols":["X11","Wayland-transition"],"features":["panel","applets","desklets","extensions"]},
+    {"id":"mate","family":"linux","upstream":"MATE","url":"https://mate-desktop.org/","protocols":["X11"],"features":["traditional-desktop","panel","accessibility"]},
+    {"id":"lxqt","family":"linux","upstream":"LXQt","url":"https://lxqt-project.org/","protocols":["X11","Wayland-compositor"],"features":["lightweight","qt","panel","file-manager"]},
+    {"id":"windows-classic","family":"windows","upstream":"Win32 desktop model","url":"https://learn.microsoft.com/en-us/windows/apps/","protocols":["Win32"],"features":["taskbar","start-menu","window-management","rtl"]},
+    {"id":"windows-modern","family":"windows","upstream":"Windows App SDK / WinUI","url":"https://github.com/microsoft/windowsappsdk","protocols":["Win32","Windows App SDK"],"features":["fluent","snap","modern-windowing","rtl"]},
+    {"id":"mac-cocoa","family":"macos","upstream":"AppKit","url":"https://developer.apple.com/documentation/appkit/","protocols":["Cocoa","AppKit"],"features":["menu-bar","dock","window-management","rtl"]},
+    {"id":"mac-swiftui","family":"macos","upstream":"SwiftUI","url":"https://developer.apple.com/swiftui/","protocols":["SwiftUI"],"features":["adaptive-layout","localization","rtl"]}
+  ]
+}
