@@ -1,0 +1,38 @@
+name: UI Control Contract
+
+on:
+  push:
+    paths:
+      - 'desktop/**'
+      - 'applications/**'
+      - 'tests/desktop/**'
+      - '.github/workflows/ui-control-contract.yml'
+  pull_request:
+    paths:
+      - 'desktop/**'
+      - 'applications/**'
+      - 'tests/desktop/**'
+      - '.github/workflows/ui-control-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  python-ui-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate JSON contracts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for p in [Path('desktop/ui_control_contract.json'), Path('desktop/ui_command_registry.json')]:
+              json.loads(p.read_text(encoding='utf-8'))
+          print('UI JSON contracts valid')
+          PY
+      - name: Run UI binding tests
+        run: python -m pytest -q tests/desktop/test_ui_control_contract.py
+      - name: Compile UI dispatcher
+        run: python -m py_compile desktop/python/chimera_ui_controls.py
