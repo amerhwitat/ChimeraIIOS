@@ -28,8 +28,15 @@ jobs:
       - name: Validate network capability JSON
         run: python -m json.tool network/routing_capabilities.json >/dev/null
 
-      - name: Validate core CMake configuration
-        run: cmake -S . -B build/ci -DCHIMERA_BUILD_TESTS=ON
+      - name: Configure core CMake build
+        run: cmake -S . -B build/ci
+
+      - name: Build core targets
+        run: cmake --build build/ci --parallel 2
+
+      - name: Run CTest suite
+        working-directory: build/ci
+        run: ctest --output-on-failure
 
       - name: Validate required architecture documents
         shell: bash
