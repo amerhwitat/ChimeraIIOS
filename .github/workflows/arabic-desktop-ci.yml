@@ -1,0 +1,18 @@
+name: Arabic desktop compatibility
+on:
+  push:
+    paths: ['desktop/**','tests/desktop/**','docs/ARABIC_DESKTOP_AND_LOCALIZATION.md']
+  pull_request:
+    paths: ['desktop/**','tests/desktop/**','docs/ARABIC_DESKTOP_AND_LOCALIZATION.md']
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate JSON locale and desktop profiles
+        run: python -m pytest -q tests/desktop/test_arabic_desktop_contract.py
+      - name: Compile C header smoke test
+        run: printf '#include "desktop/i18n/chimera_i18n.h"\nint main(void){return chm_arabic_sa().direction != CHM_RTL;}\n' | cc -x c -I. -std=c11 -Wall -Wextra -Werror -o /tmp/chm-arabic-test -
