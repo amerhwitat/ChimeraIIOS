@@ -1,0 +1,2 @@
+enum ChimeraDirection { ltr, rtl }
+class ChimeraLocale { final String id, language, script; final ChimeraDirection direction; const ChimeraLocale(this.id,this.language,this.script,this.direction); static ChimeraLocale forId(String? id) => id?.toLowerCase().startsWith('ar') == true ? const ChimeraLocale('ar-SA','ar','Arabic',ChimeraDirection.rtl) : const ChimeraLocale('en-US','en','Latin',ChimeraDirection.ltr); }
