@@ -9,33 +9,40 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-24.04, windows-2025, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Toolchain doctor
+        run: python tools/build/orchestrator.py doctor
       - name: Configure
-        run: cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON
+        run: python tools/build/orchestrator.py configure
       - name: Build
-        run: cmake --build build --parallel
+        run: python tools/build/orchestrator.py build
       - name: Test
-        run: ctest --test-dir build --output-on-failure
+        run: python tools/build/orchestrator.py test
+      - name: Install staging tree
+        run: python tools/build/orchestrator.py install
       - name: Package
-        shell: bash
-        run: cmake --install build --prefix "${{ github.workspace }}/package" || true
+        run: python tools/build/orchestrator.py package
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: chimera-${{ matrix.os }}
           path: build/
-          if-no-files-found: warn
+          if-no-files-found: error
 
   web:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Validate web assets
         run: |
           test -f web/index.html
@@ -56,7 +63,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
