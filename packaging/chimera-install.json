@@ -1,0 +1,10 @@
+{
+  "schema": "CHM-INSTALL-MANIFEST-1",
+  "product": "ChimeraIIOS",
+  "version_source": "CMakeLists.txt",
+  "install_modes": ["archive", "native-package", "windows-installer", "macos-dmg", "os-installer-plan"],
+  "artifacts": ["*.tar.gz", "*.zip", "*.deb", "*.rpm", "*.exe", "*.dmg", "*.sha256", "*.spdx.json"],
+  "privileged_operations": ["bootloader", "kernel-driver", "firmware", "partitioning", "filesystem-format", "service-enable"],
+  "privileged_default": false,
+  "verification": ["sha256", "manifest", "license-provenance", "test-results"]
+}
