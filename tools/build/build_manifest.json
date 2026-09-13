@@ -1,0 +1,29 @@
+{
+  "schema": "CHM-BUILD-MANIFEST-1",
+  "version": 1,
+  "project": "ChimeraIIOS",
+  "native": {
+    "configure": "cmake",
+    "build": "cmake --build",
+    "test": "ctest",
+    "package": "cpack"
+  },
+  "languages": {
+    "python": {"probe": "python", "deps": "pip", "build": "python", "test": "python"},
+    "rust": {"probe": "cargo", "deps": "cargo", "build": "cargo", "test": "cargo"},
+    "node": {"probe": "node", "deps": "npm", "build": "npm", "test": "npm"},
+    "java": {"probe": "java", "deps": "maven-or-gradle", "build": "maven-or-gradle", "test": "maven-or-gradle"},
+    "dotnet": {"probe": "dotnet", "deps": "dotnet", "build": "dotnet", "test": "dotnet"},
+    "kotlin": {"probe": "kotlinc", "deps": "gradle", "build": "gradle", "test": "gradle"},
+    "swift": {"probe": "swift", "deps": "swiftpm", "build": "swift", "test": "swift"},
+    "dart": {"probe": "dart", "deps": "dart", "build": "dart", "test": "dart"},
+    "asm": {"probe": "nasm", "deps": "package-manager", "build": "nasm", "test": "native"}
+  },
+  "safety": {
+    "download_allowlist_required": true,
+    "execute_downloaded_scripts": false,
+    "kernel_driver_install_default": false,
+    "firmware_install_default": false,
+    "destructive_storage_default": false
+  }
+}
