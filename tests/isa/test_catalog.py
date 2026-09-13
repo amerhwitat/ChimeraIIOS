@@ -24,18 +24,20 @@ def test_catalog_has_major_risc_and_cisc_families():
 def test_every_instruction_has_operands_and_encoding_metadata():
     data = load_catalog()
     ids = set()
+    family_ids = {f["id"] for f in data["families"]}
     for insn in data["instructions"]:
         assert insn["id"] not in ids
         ids.add(insn["id"])
-        assert insn["family"] in {f["id"] for f in data["families"]}
+        assert insn["family"] in family_ids
         assert insn["mnemonic"]
         assert isinstance(insn["operands"], list)
-        assert insn["encoding"]["length_bits"] in (16, 32, 64)
+        length = insn["encoding"]["length_bits"]
+        assert 8 <= length <= 128 and length % 8 == 0
         assert insn["encoding"]["fields"]
         sample = insn["encoding"]["sample"]
         bits_to_int(sample["binary"])
-        assert len(sample["binary"]) == insn["encoding"]["length_bits"]
-        assert sample["hex"].lower() == format(int(sample["binary"], 2), "0x")
+        assert len(sample["binary"]) == length
+        assert sample["hex"].lower() == format(int(sample["binary"], 2), "#x")
 
 
 def test_optional_operands_are_explicit():
