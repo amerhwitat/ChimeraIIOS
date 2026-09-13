@@ -1,0 +1,37 @@
+name: ISA Catalog CI
+on:
+  push:
+    paths:
+      - 'isa/**'
+      - 'tests/isa/**'
+      - 'tools/validate_isa_catalog.py'
+      - 'tools/generate_isa_bindings.py'
+      - '.github/workflows/isa-catalog-ci.yml'
+  pull_request:
+    paths:
+      - 'isa/**'
+      - 'tests/isa/**'
+      - 'tools/validate_isa_catalog.py'
+      - 'tools/generate_isa_bindings.py'
+      - '.github/workflows/isa-catalog-ci.yml'
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate catalog
+        run: python tools/validate_isa_catalog.py
+      - name: Run ISA tests
+        run: |
+          python -m pip install pytest
+          python -m pytest tests/isa/test_catalog.py -q
+      - name: Check Python adapter
+        run: python -m py_compile isa/python/chimera_isa.py
+      - name: Check C++ adapter
+        run: c++ -std=c++20 -Wall -Wextra -Werror -fsyntax-only -x c++ isa/cpp/chimera_isa.hpp
+      - name: Check C adapter
+        run: cc -std=c11 -Wall -Wextra -Werror -fsyntax-only isa/c/chimera_isa.h
