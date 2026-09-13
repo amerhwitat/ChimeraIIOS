@@ -1,0 +1,35 @@
+{
+  "schema": "CHM-DESKTOP-PROFILES-2",
+  "note": "Compatibility profiles and visual/interaction contracts; upstream desktop source remains separately licensed and is not copied here.",
+  "profiles": {
+    "linux": [
+      {"id":"gnome","display":"GNOME","protocols":["Wayland","X11"],"model":"overview-workspaces"},
+      {"id":"kde-plasma","display":"KDE Plasma","protocols":["Wayland","X11"],"model":"panel-widgets"},
+      {"id":"xfce","display":"Xfce","protocols":["X11"],"model":"traditional-lightweight"},
+      {"id":"cinnamon","display":"Cinnamon","protocols":["X11","Wayland-transition"],"model":"traditional-modern"},
+      {"id":"mate","display":"MATE","protocols":["X11"],"model":"traditional"},
+      {"id":"lxqt","display":"LXQt","protocols":["X11","Wayland-compositor"],"model":"lightweight-qt"},
+      {"id":"classic-x11","display":"Classic X11","protocols":["X11"],"model":"classic-window-manager"}
+    ],
+    "windows": [
+      {"id":"windows-classic","display":"Windows Classic","model":"classic-taskbar-start"},
+      {"id":"windows-xp","display":"Windows XP","model":"classic-taskbar-start"},
+      {"id":"windows-7","display":"Windows 7","model":"aero-taskbar-start"},
+      {"id":"windows-8","display":"Windows 8/8.1","model":"start-screen-charms"},
+      {"id":"windows-10","display":"Windows 10","model":"start-taskbar-action-center"},
+      {"id":"windows-11","display":"Windows 11","model":"centered-start-snap"},
+      {"id":"winui-modern","display":"Windows App SDK / WinUI","model":"modern-fluent"}
+    ],
+    "macos": [
+      {"id":"mac-classic","display":"Classic Mac-inspired","model":"menu-bar-desktop"},
+      {"id":"mac-cocoa","display":"Cocoa/AppKit","model":"menu-bar-dock"},
+      {"id":"mac-modern","display":"Modern macOS","model":"menu-bar-dock-control-center"},
+      {"id":"swiftui","display":"SwiftUI-era","model":"adaptive-native"}
+    ],
+    "chimera": [
+      {"id":"chimera-classic","display":"Chimera Classic","inherits":["windows-classic","mate"]},
+      {"id":"chimera-modern","display":"Chimera Modern","inherits":["windows-11","kde-plasma","mac-modern"]},
+      {"id":"chimera-arabic","display":"Chimera العربية","inherits":["chimera-modern"],"locale":"ar","direction":"rtl"}
+    ]
+  }
+}
