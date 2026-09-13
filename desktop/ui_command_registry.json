@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "CHM-UI-COMMANDS-1",
+  "commands": [
+    {"id":"app.open","description":"Open an application"},
+    {"id":"app.close","description":"Close the current application"},
+    {"id":"window.minimize","description":"Minimize a window"},
+    {"id":"window.maximize","description":"Maximize a window"},
+    {"id":"window.restore","description":"Restore a window"},
+    {"id":"window.move","description":"Move a window"},
+    {"id":"window.resize","description":"Resize a window"},
+    {"id":"file.open","description":"Open a file"},
+    {"id":"file.save","description":"Save current content"},
+    {"id":"file.save_as","description":"Save content to a new path"},
+    {"id":"file.close","description":"Close current file"},
+    {"id":"edit.undo","description":"Undo the last operation"},
+    {"id":"edit.redo","description":"Redo the last operation"},
+    {"id":"edit.copy","description":"Copy selection"},
+    {"id":"edit.cut","description":"Cut selection"},
+    {"id":"edit.paste","description":"Paste from clipboard"},
+    {"id":"system.settings","description":"Open system settings"},
+    {"id":"system.shutdown","description":"Request system shutdown"},
+    {"id":"system.restart","description":"Request system restart"},
+    {"id":"desktop.change_theme","description":"Change desktop theme"},
+    {"id":"desktop.change_locale","description":"Change UI locale"},
+    {"id":"accessibility.open","description":"Open accessibility settings"},
+    {"id":"network.open","description":"Open network configuration"},
+    {"id":"security.open","description":"Open security controls"},
+    {"id":"developer.open_terminal","description":"Open developer terminal"}
+  ]
+}
