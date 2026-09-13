@@ -1,0 +1,40 @@
+name: Chimera II repository validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reject private-key material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -n -E -- '-----BEGIN (RSA|OPENSSH|EC|DSA|PRIVATE) KEY-----'; then
+            echo 'Private-key material detected in tracked source.' >&2
+            exit 1
+          fi
+
+      - name: Validate network capability JSON
+        run: python -m json.tool network/routing_capabilities.json >/dev/null
+
+      - name: Validate core CMake configuration
+        run: cmake -S . -B build/ci -DCHIMERA_BUILD_TESTS=ON
+
+      - name: Validate required architecture documents
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s network/ApplicationNetworkModule.md
+          test -s network/RoutingAndSDN.md
+          test -s SECURITY.md
