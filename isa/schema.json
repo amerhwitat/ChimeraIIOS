@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Chimera II OS ISA Catalog",
+  "type":"object",
+  "required":["schema","generated","families","instructions","sources"],
+  "properties":{
+    "schema":{"const":"CHM-ISA-CATALOG-1"},
+    "generated":{"type":"string"},
+    "scope_note":{"type":"string"},
+    "families":{"type":"array","items":{"type":"object","required":["id","class","description","endianness"],"properties":{"id":{"type":"string"},"class":{"enum":["RISC","CISC"]},"description":{"type":"string"},"endianness":{"enum":["little","big","bi-endian"]}}}},
+    "instructions":{"type":"array","items":{"type":"object","required":["id","family","mnemonic","syntax","operands","encoding"],"properties":{"id":{"type":"string"},"family":{"type":"string"},"mnemonic":{"type":"string"},"syntax":{"type":"string"},"operands":{"type":"array"},"encoding":{"type":"object","required":["length_bits","fields","sample"],"properties":{"length_bits":{"type":"integer","minimum":8,"maximum":128,"multipleOf":8},"fields":{"type":"array","minItems":1},"sample":{"type":"object","required":["assembly","binary","hex"],"properties":{"assembly":{"type":"string"},"binary":{"type":"string","pattern":"^[01]+$"},"hex":{"type":"string","pattern":"^0x[0-9a-fA-F]+$"}}}}}}},
+    "sources":{"type":"array","items":{"type":"object","required":["id","url","scope"],"properties":{"id":{"type":"string"},"url":{"type":"string","format":"uri"},"scope":{"type":"string"}}}}
+  }
+}
