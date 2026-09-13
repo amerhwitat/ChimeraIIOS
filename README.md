@@ -30,6 +30,25 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Automation / ISO / tests | [tools, build and test trees](.) |
 | Complete tracked repository | [full source tree](.) |
 
+## Unified build, dependency, packaging and installer automation
+
+The repository now has a single cross-platform automation entry point: `tools/build/orchestrator.py`, with POSIX shell, Windows CMD and PowerShell wrappers under `scripts/`. Use `doctor`, `deps`, `configure`, `build`, `test`, `package`, `install`, `clean`, or `all`. The same orchestration contract is exercised by CI so local builds and CI builds do not silently diverge.
+
+The build manifest tracks C/C++/ASM, Rust, Python, Node.js/TypeScript, Java, .NET/C#, Kotlin, Swift and Dart toolchains. Dependency installation prefers project manifests/lockfiles and does not execute downloaded scripts. CMake/CTest/CPack provide native configuration, testing and packaging; packages can include portable archives and native OS installers when the host generator is available. GitHub Actions can run matrix builds across Linux, Windows and macOS. citeturn0search1turn0search4turn0search8
+
+Examples:
+
+```text
+python tools/build/orchestrator.py doctor
+python tools/build/orchestrator.py all
+python tools/build/orchestrator.py build --dry-run
+scripts/chimera-build.sh all
+scripts/chimera-build.ps1 all
+scripts\\chimera-build.cmd all
+```
+
+See `docs/BUILD_INSTALL_AUTOMATION.md`, `tools/build/build_manifest.json`, `cmake/ChimeraPackaging.cmake`, and `packaging/chimera-install.json`.
+
 ## RISC and CISC instruction-set catalog
 
 `isa/catalog.json` is the canonical machine-readable instruction catalog. It enumerates major RISC and CISC families used by real computers, records operand structure including optional operands, and stores a worked binary and hexadecimal encoding for each catalog instruction. Current families include RISC-V, AArch64, ARM32, MIPS32, OpenPOWER, SPARC, x86/Intel 64/AMD64, Motorola 68000, IBM System z and VAX.
