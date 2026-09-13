@@ -15,6 +15,7 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Open-source service compatibility | [`services/`](services/) |
 | Open-source application catalog | [`applications/`](applications/) |
 | Open-source provenance | [`opensource/`](opensource/) |
+| RISC/CISC ISA catalog | [`isa/`](isa/) |
 | Nucleus / Hive / Kore / Aegis / CEF | [system service trees](.) |
 | RegisterN / C8192 / R8192 | [ISA/register sources](.) |
 | Quantum computing | [`quantum/`](quantum/) |
@@ -28,6 +29,16 @@ Chimera II OS is a cross-language research operating-system and application plat
 | P2P | [protocol sources](.) |
 | Automation / ISO / tests | [tools, build and test trees](.) |
 | Complete tracked repository | [full source tree](.) |
+
+## RISC and CISC instruction-set catalog
+
+`isa/catalog.json` is the canonical machine-readable instruction catalog. It enumerates major RISC and CISC families used by real computers, records operand structure including optional operands, and stores a worked binary and hexadecimal encoding for each catalog instruction. Current families include RISC-V, AArch64, ARM32, MIPS32, OpenPOWER, SPARC, x86/Intel 64/AMD64, Motorola 68000, IBM System z and VAX.
+
+The catalog separates concrete encodings from general encoding fields so it can support future assembler/disassembler, emulator and binary-analysis work without confusing an example opcode with a complete instruction decoder. C/C++, Rust, Python, Java, C#, Kotlin, Swift, TypeScript and Dart adapters expose the same canonical dataset. See `docs/ISA_CATALOG.md`, `isa/schema.json`, `tools/validate_isa_catalog.py` and `.github/workflows/isa-catalog-ci.yml`.
+
+The external ISA data is provenance-first: normative architecture specifications are linked rather than copied. Intel's current Software Developer Manual documents IA-32/Intel 64 instruction formats and references, AMD documents variable-length AMD64 encodings, RISC-V publishes ratified opcode maps, and OpenPOWER publishes its ISA specification. citeturn0search0turn0search48turn1search1turn2search10
+
+The existing Chimera C8192/R8192 research ISA remains separate from these industry families. Chimera-specific opcodes and wide-register packet formats must never be presented as vendor-standard instructions.
 
 ## Application networking
 
@@ -85,4 +96,4 @@ Chimera II can discover, acquire, verify and stage Linux and Windows driver cand
 
 ## Licensing and provenance
 
-Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. The new open-source compatibility layer records exact upstream provenance and license expressions instead of assuming that all upstream projects can be relicensed as GPL.
+Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. The open-source compatibility and ISA layers record exact upstream provenance and license expressions instead of assuming that all upstream projects can be relicensed as GPL.
