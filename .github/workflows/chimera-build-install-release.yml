@@ -1,0 +1,86 @@
+name: Chimera II cross-platform build, test and package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            name: linux-x64
+          - os: windows-2025
+            name: windows-x64
+          - os: macos-15
+            name: macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Toolchain doctor
+        run: python tools/build/orchestrator.py doctor
+      - name: Install declared dependencies
+        run: python tools/build/orchestrator.py deps
+      - name: Configure
+        run: python tools/build/orchestrator.py configure
+      - name: Build
+        run: python tools/build/orchestrator.py build
+      - name: Test
+        run: python tools/build/orchestrator.py test
+      - name: Package
+        run: python tools/build/orchestrator.py package
+      - name: Upload native build
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-${{ matrix.name }}-build
+          path: build/
+          if-no-files-found: error
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-${{ matrix.name }}-packages
+          path: |
+            build/*.tar.gz
+            build/*.zip
+            build/*.deb
+            build/*.rpm
+            build/*.exe
+            build/*.dmg
+          if-no-files-found: warn
+
+  python-validation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip pytest
+      - run: pytest -q tests/build tests/installer
+
+  automation-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate wrappers
+        shell: bash
+        run: |
+          test -f scripts/chimera-build.sh
+          test -f scripts/chimera-build.cmd
+          test -f scripts/chimera-build.ps1
+          test -f scripts/chimera-install.sh
+          test -f scripts/chimera-install.cmd
+          test -f scripts/chimera-install.ps1
+          python tools/build/orchestrator.py doctor
+          python tools/build/orchestrator.py build --dry-run
+          python tools/build/orchestrator.py package --dry-run
