@@ -1,0 +1,26 @@
+{
+  "$schema":"CHM-PKG-REPOS-1",
+  "name":"Chimera Package Repository Registry",
+  "policy":"External repositories are metadata/remotes. Packages must satisfy Chimera signature, license, dependency and architecture checks before installation.",
+  "repositories":[
+    {"id":"debian","family":"debian","url":"https://deb.debian.org/debian/","metadata":"apt"},
+    {"id":"ubuntu","family":"ubuntu","url":"https://archive.ubuntu.com/ubuntu/","metadata":"apt"},
+    {"id":"fedora","family":"fedora","url":"https://download.fedoraproject.org/pub/fedora/linux/","metadata":"dnf/rpm"},
+    {"id":"opensuse","family":"opensuse","url":"https://download.opensuse.org/","metadata":"zypper/rpm"},
+    {"id":"arch","family":"arch","url":"https://geo.mirror.pkgbuild.com/","metadata":"pacman"},
+    {"id":"alpine","family":"alpine","url":"https://dl-cdn.alpinelinux.org/alpine/","metadata":"apk"},
+    {"id":"gentoo","family":"gentoo","url":"https://distfiles.gentoo.org/","metadata":"portage"},
+    {"id":"freebsd","family":"freebsd","url":"https://pkg.freebsd.org/","metadata":"pkg"},
+    {"id":"homebrew","family":"macos-linux","url":"https://formulae.brew.sh/","metadata":"brew"},
+    {"id":"flatpak-flathub","family":"desktop","url":"https://flathub.org/","metadata":"flatpak"}
+  ],
+  "sources":{
+    "linux-kernel":"https://git.kernel.org/",
+    "gnu":"https://www.gnu.org/",
+    "freedesktop":"https://www.freedesktop.org/",
+    "wayland":"https://wayland.freedesktop.org/",
+    "mesa":"https://gitlab.freedesktop.org/mesa/mesa",
+    "qemu":"https://www.qemu.org/",
+    "libretro":"https://www.libretro.com/"
+  }
+}
