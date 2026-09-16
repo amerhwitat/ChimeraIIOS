@@ -1,0 +1,29 @@
+{
+  "schema": "CHIMERA-AI-NETWORK-PROTOCOLS-2026-1",
+  "updated": "2026-09-16",
+  "principles": ["capability-based", "zero-trust", "observable", "edition-aware", "human-approved-mutation"],
+  "transports": [
+    {"id":"http3", "basis":"HTTP/3 over QUIC", "role":"general_web_transport", "editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"webtransport", "basis":"HTTP/3 + QUIC", "role":"multiplexed_reliable_and_datagram_transport", "editions":["desktop","server","mobile","edge","cvel"], "status":"adapter"},
+    {"id":"websocket", "basis":"RFC 6455", "role":"legacy_realtime_compatibility", "editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"wasi_http", "basis":"WASI HTTP", "role":"sandboxed_component_http", "editions":["desktop","server","mobile","edge","cvel"]}
+  ],
+  "agent_protocols": [
+    {"id":"mcp_2026_07_28", "role":"ai_tool_data_interop", "transport":["stdio","streamable_http"], "default":"adapter", "security":"capability_allowlist"},
+    {"id":"mcp_webtransport_experimental", "role":"low_latency_agent_transport", "transport":["webtransport"], "default":"experimental_adapter", "security":"capability_allowlist"},
+    {"id":"a2a", "role":"agent_to_agent_interop", "default":"adapter", "security":"identity_and_capability_gate"},
+    {"id":"webmcp_research", "role":"browser_site_tool_interop", "default":"experimental_adapter", "security":"user_gesture_and_origin_policy"}
+  ],
+  "ai_runtime": [
+    {"id":"streaming_inference", "role":"incremental_generation"},
+    {"id":"speculative_decoding", "role":"latency_reduction"},
+    {"id":"mixture_of_experts", "role":"conditional_compute"},
+    {"id":"state_space_models", "role":"long_context_streaming"},
+    {"id":"federated_learning", "role":"edge_distributed_training"},
+    {"id":"retrieval_augmented_inference", "role":"provenance_backed_context"}
+  ],
+  "browser_pipeline": [
+    "origin_policy", "dns", "tls", "http3", "content_policy", "cache", "structured_extraction", "provenance", "agent_tool_gate", "telemetry"
+  ],
+  "forbidden_defaults": ["arbitrary_remote_code_execution", "credential_exfiltration", "unbounded_crawling", "silent_network_mutation", "automatic_purchase_or_transaction"]
+}
