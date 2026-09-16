@@ -1,0 +1,25 @@
+{
+  "schema": "CHM-MOBILE-MATRIX-1",
+  "coverage_model": "capability_and_device_profile_based",
+  "os_families": {
+    "android": {
+      "versions": "API-level/device-profile matrix; current and legacy releases where the required ABI and security interfaces exist",
+      "architectures": ["arm64-v8a", "armeabi-v7a", "x86_64", "x86"],
+      "hardware_classes": ["Google_Pixel", "Samsung_Galaxy", "OnePlus", "Xiaomi", "Redmi", "POCO", "Motorola", "Sony_Xperia", "ASUS", "Nothing", "Huawei", "Honor", "Oppo", "Realme", "Vivo", "Lenovo", "Nokia", "Fairphone", "Android_Tablets", "Android_development_boards", "other_Treble_devices"],
+      "status": "profile_each_model_before_baremetal_flash"
+    },
+    "ios": {
+      "versions": "iOS/iPadOS release family and device-generation profiles",
+      "architectures": ["arm64", "arm64e"],
+      "hardware_classes": ["iPhone", "iPad", "Apple_silicon_iPad", "Apple_development_hardware_where_available"],
+      "status": "hosted_supported; baremetal only where an authorized/research-compatible boot and hardware interface exists"
+    },
+    "other_mobile_os": {
+      "families": ["HarmonyOS", "KaiOS", "Sailfish_OS", "Ubuntu_Touch", "postmarketOS", "Mobian", "Plasma_Mobile", "Firefox_OS_legacy", "Windows_Mobile_legacy", "BlackBerry_legacy"],
+      "strategy": "hosted_or_ported_adapter where the platform permits it; baremetal requires hardware-specific boot and driver support"
+    }
+  },
+  "device_profile_fields": ["manufacturer", "model", "soc", "cpu_isa", "gpu", "display", "touch", "ram", "storage", "partition_layout", "bootloader_state", "secure_boot", "avb", "treble", "gki", "device_tree_or_acpi", "modem", "wifi", "bluetooth", "camera", "audio", "sensors", "power", "recovery", "known_limitations", "tested_image", "rollback_image"],
+  "states": ["hosted_supported", "emulator_supported", "research_baremetal_supported", "device_profile_required", "unsupported"],
+  "safety": "A device is never marked baremetal_supported merely because its CPU architecture matches. Boot chain, drivers, security state and recovery must also be validated."
+}
