@@ -1,0 +1,6 @@
+{
+  "schema": "CHIMERA-AURORA-CLOUD-1",
+  "operations": ["providers", "doctor", "plan", "status", "apply"],
+  "apply": {"requires": ["validated_plan", "explicit_user_approval", "protected_environment"]},
+  "status": ["provider", "vm_state", "image", "pipeline_stage", "last_operation"]
+}
