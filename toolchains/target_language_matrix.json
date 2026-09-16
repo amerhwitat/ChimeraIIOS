@@ -1,0 +1,33 @@
+{
+  "schema":"CHM-TARGET-LANG-1",
+  "languages":{
+    "C":{"compiler":["GCC","Clang"],"assembler":["GNU as","LLVM MC","NASM"],"debugger":["GDB","LLDB"],"targets":"all supported native ABIs"},
+    "C++":{"compiler":["GCC","Clang"],"debugger":["GDB","LLDB","WinDbg"],"targets":"all supported native ABIs"},
+    "Rust":{"compiler":["rustc","cargo"],"debugger":["GDB","LLDB"],"targets":"LLVM targets"},
+    "Go":{"compiler":["go"],"debugger":["Delve","GDB"],"targets":"Go targets"},
+    "Java":{"compiler":["javac","ecj"],"runtime":["JVM"],"analysis":["JADX","JD-GUI","Bytecode Viewer"]},
+    "Kotlin":{"compiler":["kotlinc"],"runtime":["JVM","Kotlin/Native"]},
+    "C#":{"compiler":["dotnet","csc"],"debugger":["vsdbg","GDB/LLDB where applicable"],"targets":[".NET","ECMA CLI"]},
+    "F#":{"compiler":["dotnet/fsc"],"targets":[".NET","ECMA CLI"]},
+    "Swift":{"compiler":["swiftc"],"debugger":["LLDB"],"targets":["Apple","Linux","supported LLVM targets"]},
+    "Objective-C":{"compiler":["Clang"],"targets":["Apple","GNUstep"]},
+    "Fortran":{"compiler":["GFortran","Flang"],"targets":"native"},
+    "Ada":{"compiler":["GNAT"],"targets":"native"},
+    "D":{"compiler":["GDC","LDC","DMD"],"targets":"native"},
+    "Zig":{"compiler":["zig"],"targets":"Zig supported targets"},
+    "Haskell":{"compiler":["GHC"],"targets":"GHC targets"},
+    "OCaml":{"compiler":["ocamlc","ocamlopt"],"targets":"native/bytecode"},
+    "Pascal":{"compiler":["Free Pascal"],"targets":"native"},
+    "Dart":{"compiler":["dart"],"targets":"VM/native/web"},
+    "Python":{"interpreter":["CPython","PyPy"],"native_extensions":["C","C++","Rust","Cython"]},
+    "JavaScript":{"runtime":["Node.js","V8","SpiderMonkey","Bun","Deno"]},
+    "TypeScript":{"compiler":["tsc","SWC","esbuild"],"runtime":["Node.js","Deno","Bun"]},
+    "PHP":{"runtime":["PHP"],"debugger":["Xdebug"]},
+    "Ruby":{"runtime":["Ruby"],"debugger":["ruby-debug"]},
+    "Lua":{"runtime":["Lua","LuaJIT"]},
+    "R":{"runtime":["R"]},
+    "Julia":{"compiler":["Julia JIT/LLVM"]},
+    "WebAssembly":{"toolchains":["LLVM","WASI SDK","wasm-ld","wasm-tools"],"analysis":["wasm-decompile","wasm-objdump"]},
+    "Assembly":{"assemblers":["GNU as","LLVM MC","NASM","YASM","FASM","MASM","ARM assembler","RISC-V assembler","MIPS assembler","Power assembler","SPARC assembler"]}
+  }
+}
