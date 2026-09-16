@@ -1,0 +1,22 @@
+{
+  "schema":"CHM-STARTUP-PHASES-1",
+  "ui":"Aurora Wayland Glass",
+  "background":"embedded:boot/splash/aurora_boot_splash.svg",
+  "high_resolution_reference":"3840x2160",
+  "phases":[
+    {"id":"firmware","label":"Firmware / CPU mode","progress":5},
+    {"id":"bootloader","label":"Spit Fire / external bootloader handoff","progress":12},
+    {"id":"menu","label":"Jasper Boot Menu","progress":18},
+    {"id":"hardware","label":"Hardware and firmware discovery","progress":27},
+    {"id":"memory","label":"Memory manager and address spaces","progress":36},
+    {"id":"graphics","label":"Framebuffer / UEFI GOP / display adapter","progress":44},
+    {"id":"koronos","label":"Koronos microkernel","progress":56},
+    {"id":"drivers","label":"Device drivers and MHAL","progress":66},
+    {"id":"spotnik","label":"Spotnik networking","progress":74},
+    {"id":"nucleus","label":"Nucleus / Hive / Kore / Aegis","progress":82},
+    {"id":"aurora","label":"Aurora compositor and desktop services","progress":92},
+    {"id":"session","label":"User session and applications","progress":100}
+  ],
+  "application_load_list":["Kore","Aegis","Nucleus","Hive","Spotnik","Aurora Compositor","Aurora Shell","System Center","Network Center","File Manager","Terminal","Application Registry"],
+  "failure_actions":["retry_phase","safe_graphics","diagnostics","recovery","chainload_native"]
+}
