@@ -1,8 +1,8 @@
 #include "chimera/dashboard/dashboard.h"
+#include <algorithm>
 #include <fstream>
-#include <sstream>
+#include <string>
 #include <thread>
-#include <unistd.h>
 
 namespace chimera::dashboard {
 
@@ -22,18 +22,20 @@ std::string state_name(HealthState state) {
 }
 
 static double cpu_load_percent() {
-    std::ifstream f("/proc/loadavg"); double load = 0.0; f >> load;
+    std::ifstream f("/proc/loadavg");
+    double load = 0.0;
+    if (!(f >> load)) return 0.0;
     const auto cores = std::max(1u, std::thread::hardware_concurrency());
     return std::min(100.0, (load / static_cast<double>(cores)) * 100.0);
 }
 
 static double memory_percent() {
     std::ifstream f("/proc/meminfo");
-    std::string key; double value = 0.0; double total = 0.0; double available = 0.0;
-    while (f >> key >> value) {
+    std::string key, unit;
+    double value = 0.0, total = 0.0, available = 0.0;
+    while (f >> key >> value >> unit) {
         if (key == "MemTotal:") total = value;
         else if (key == "MemAvailable:") available = value;
-        std::string unit; f >> unit;
     }
     return total > 0.0 ? ((total - available) / total) * 100.0 : 0.0;
 }
@@ -43,7 +45,7 @@ Snapshot collect(const std::string& edition) {
     s.edition = edition;
 #if defined(__x86_64__) || defined(_M_X64)
     s.architecture = "x86_64";
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
     s.architecture = "arm64";
 #elif defined(__riscv) && (__riscv_xlen == 64)
     s.architecture = "riscv64";
