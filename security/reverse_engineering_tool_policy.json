@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-RE-TOOLS-1",
+  "scope":"Defensive, educational, interoperability, incident-response and authorized reverse engineering.",
+  "tool_families":["static analysis","dynamic analysis","debugging","decompilation","disassembly","firmware analysis","forensics","fuzzing","binary diffing","symbol analysis","emulation"],
+  "approved_integrations":["Ghidra","radare2","Rizin","Cutter","RetDec","Capstone","Keystone","Unicorn","QEMU","GDB","LLDB","WinDbg","EDB","binwalk","JADX","Apktool","dex2jar","JD-GUI","Bytecode Viewer"],
+  "sandboxing":true,
+  "network_isolation_default":true,
+  "provenance_logging":true,
+  "license_manifest_required":true,
+  "no_unauthorized_access_automation":true,
+  "no_credential_theft_automation":true,
+  "no_persistence_or_evasion_automation":true,
+  "plugin_execution_requires_user_consent":true
+}
