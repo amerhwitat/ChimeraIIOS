@@ -10,11 +10,33 @@ int main() {
     assert(Manager::supports_architecture(caps[0], "x86_64"));
     assert(Manager::supports_architecture(caps[0], "riscv64"));
     assert(!Manager::supports_architecture(caps[1], "riscv64"));
+
+    assert(qemu_executable_for_architecture("x86_64") == "qemu-system-x86_64");
+    assert(qemu_executable_for_architecture("x86") == "qemu-system-i386");
+    assert(qemu_executable_for_architecture("arm") == "qemu-system-arm");
+    assert(qemu_executable_for_architecture("aarch64") == "qemu-system-aarch64");
+    assert(qemu_executable_for_architecture("riscv32") == "qemu-system-riscv32");
+    assert(qemu_executable_for_architecture("riscv64") == "qemu-system-riscv64");
+    assert(qemu_executable_for_architecture("mips") == "qemu-system-mips");
+    assert(qemu_executable_for_architecture("mips64") == "qemu-system-mips64");
+    assert(qemu_executable_for_architecture("ppc") == "qemu-system-ppc");
+    assert(qemu_executable_for_architecture("ppc64") == "qemu-system-ppc64");
+    assert(qemu_executable_for_architecture("sparc") == "qemu-system-sparc");
+    assert(qemu_executable_for_architecture("chimera-c8192").empty());
+
     MachineProfile p{"chimera-test", "x86_64", "generic", 2048, "guest.img", "uefi", false, true};
     QemuBackend q;
     auto cmd = q.build_run_command(p, ExecutionMode::HardwareAssisted);
     assert(cmd.executable == "qemu-system-x86_64");
     assert(!cmd.arguments.empty());
+    assert(cmd.arguments.back() == "-nic");
+
+    MachineProfile bios{"bios-test", "x86_64", "generic", 1024, "", "bios", true, false};
+    auto bios_cmd = q.build_run_command(bios, ExecutionMode::Interpreter);
+    for (size_t i = 0; i < bios_cmd.arguments.size(); ++i) {
+        assert(bios_cmd.arguments[i] != "-bios");
+    }
+
     std::cout << "CVEL tests passed\n";
     return 0;
 }
