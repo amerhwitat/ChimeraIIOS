@@ -1,0 +1,27 @@
+{
+  "schema": "CHIMERA-DASHBOARD-KPI-1",
+  "refresh_seconds": 2,
+  "kpis": [
+    {"name":"cpu.utilization","unit":"%","warning":75,"critical":90},
+    {"name":"memory.utilization","unit":"%","warning":80,"critical":95},
+    {"name":"storage.utilization","unit":"%","warning":80,"critical":95},
+    {"name":"network.rx_rate","unit":"bytes/s"},
+    {"name":"network.tx_rate","unit":"bytes/s"},
+    {"name":"network.errors","unit":"count/s"},
+    {"name":"network.dropped","unit":"count/s"},
+    {"name":"process.count","unit":"processes"},
+    {"name":"system.uptime","unit":"s"},
+    {"name":"load.1m","unit":"ratio"},
+    {"name":"psi.cpu.some","unit":"%"},
+    {"name":"psi.memory.some","unit":"%"},
+    {"name":"psi.io.some","unit":"%"},
+    {"name":"boot.time","unit":"s"},
+    {"name":"services.failed","unit":"services"},
+    {"name":"security.advisories","unit":"advisories"},
+    {"name":"security.pending_updates","unit":"updates"},
+    {"name":"network.peer.count","unit":"peers"},
+    {"name":"network.route.count","unit":"routes"}
+  ],
+  "edition_scope":["desktop","server","mobile","edge","iot","cvel"],
+  "observability":{"opentelemetry_semantics":true,"psi_when_available":true,"privacy_local_first":true}
+}
