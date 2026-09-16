@@ -35,8 +35,8 @@ jobs:
           else
             echo "Terraform not installed; provider-specific IaC validation runs in IaC environments."
           fi
-      - name: Validate cloud CLI
-        run: python3 tools/cloud/chimera_cloud.py providers
+      - name: Validate cloud fabric
+        run: python3 tools/cloud/validate_cloud.py
   code-generation:
     runs-on: ubuntu-24.04
     steps:
