@@ -1,0 +1,13 @@
+{
+  "schema": "CHIMERA-EDITION-NETWORK-PROFILES-1",
+  "updated": "2026-09-16",
+  "editions": {
+    "desktop":{"routing":["ipv4_static","ipv6_static","policy_routing","gre"],"transports":["http3","webtransport","websocket","wasi_http"],"p2p":true,"client_server":true,"sdn":false,"fast_path":"optional"},
+    "server":{"routing":["ipv4_static","ipv6_static","ospf","ospfv3","is_is","bgp","vrrp","mpls","srv6","vxlan","ecmp","policy_routing"],"transports":["http3","webtransport","websocket","wasi_http"],"p2p":true,"client_server":true,"sdn":true,"fast_path":"ebpf_xdp_af_xdp"},
+    "mobile":{"routing":["ipv4_static","ipv6_static","policy_routing","nat64","gre"],"transports":["http3","webtransport","wasi_http"],"p2p":true,"client_server":true,"sdn":false,"fast_path":"optional"},
+    "edge":{"routing":["ipv4_static","ipv6_static","ospf","ospfv3","bgp","vrrp","srv6","vxlan","ecmp","policy_routing"],"transports":["http3","webtransport","wasi_http"],"p2p":true,"client_server":true,"sdn":true,"fast_path":"ebpf_xdp_af_xdp"},
+    "iot":{"routing":["ipv4_static","ipv6_static","policy_routing"],"transports":["http3","wasi_http"],"p2p":true,"client_server":true,"sdn":false,"fast_path":"ebpf_xdp_when_supported"},
+    "cvel":{"routing":["ipv4_static","ipv6_static","ospf","ospfv3","is_is","bgp","vrrp","mpls","srv6","vxlan","ecmp","policy_routing"],"transports":["http3","webtransport","wasi_http"],"p2p":true,"client_server":true,"sdn":true,"fast_path":"virtualized"}
+  },
+  "security_defaults":{"zero_trust":true,"capability_allowlist":true,"provenance":true,"remote_code_execution":false,"silent_network_mutation":false}
+}
