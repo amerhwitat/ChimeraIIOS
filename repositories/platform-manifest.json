@@ -1,0 +1,30 @@
+{
+  "schema": "chimera-platform-manifest-v1",
+  "edition": "universal",
+  "release_policy": {
+    "publish_only_after_ci": true,
+    "provenance_required": true,
+    "sha256_required": true,
+    "signature_optional": true,
+    "destructive_install_default": false
+  },
+  "boot": {
+    "primary_architecture": "x86_64",
+    "firmware": ["bios-mbr", "uefi-gpt"],
+    "media": ["El Torito", "USB mass storage", "optical CD/DVD"],
+    "handoffs": ["Multiboot2", "CHMBOOT1", "controlled-chainload"]
+  },
+  "directories": ["src", "opt", "install", "drivers", "filesystems", "packages", "repositories", "man", "games", "wallets", "docs"],
+  "applications": [
+    {"id":"nlp","repository":"https://github.com/amerhwitat/nlp","stage":"opt/nlp","license_review":true},
+    {"id":"bizx","repository":"https://github.com/amerhwitat/BizX","stage":"opt/BizX","license_review":true},
+    {"id":"bizxtreme","repository":"https://github.com/amerhwitat/BizXtreme","stage":"opt/BizXtreme","license_review":true},
+    {"id":"general","repository":"https://github.com/amerhwitat/general","stage":"opt/general","license_review":true}
+  ],
+  "security": {
+    "never_execute_untrusted_downloads": true,
+    "never_copy_proprietary_driver_without_redistribution_rights": true,
+    "never_bypass_secure_boot": true,
+    "never_silently_erase_disk": true
+  }
+}
