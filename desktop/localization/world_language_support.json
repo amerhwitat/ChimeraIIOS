@@ -1,0 +1,86 @@
+{
+  "schema": "chimera.world-language-support.v1",
+  "purpose": "Runtime language, script, locale, direction and input-method registry for Aurora Wayland Glass.",
+  "coverage_model": {
+    "language_identifiers": "BCP-47/ISO-639",
+    "scripts": "Unicode Script/ISO-15924",
+    "locales": "Unicode CLDR",
+    "text": "Unicode",
+    "direction": "Unicode Bidirectional Algorithm",
+    "shaping": "HarfBuzz-compatible shaping boundary",
+    "fallback": "BCP-47 language-script-region fallback"
+  },
+  "directions": ["ltr", "rtl", "ttb", "btt", "mixed"],
+  "script_policy": "Never infer direction from language name alone; resolve language+script+locale and Unicode bidi properties.",
+  "language_scope": {
+    "mode": "dynamic-complete-registry",
+    "source": "Unicode CLDR language/script data",
+    "includes": ["living", "historical", "constructed", "sign-language-identifiers", "macrolanguages", "regional-variants"],
+    "note": "Unicode encodes scripts rather than languages. Aurora therefore combines language identifiers with script and locale registries instead of claiming a finite list is every spoken language."
+  },
+  "script_families": [
+    "Latin", "Greek", "Cyrillic", "Armenian", "Hebrew", "Arabic", "Syriac", "Thaana", "N'Ko", "Adlam", "Devanagari", "Bengali", "Gurmukhi", "Gujarati", "Oriya", "Tamil", "Telugu", "Kannada", "Malayalam", "Sinhala", "Thai", "Lao", "Tibetan", "Myanmar", "Georgian", "Hangul", "Han", "Hiragana", "Katakana", "Ethiopic", "Cherokee", "Canadian Aboriginal Syllabics", "Khmer", "Mongolian", "Yi", "Tifinagh", "Vai", "Bamum", "Mandaic", "Old North Arabian", "Old South Arabian", "Cuneiform", "Egyptian Hieroglyphs", "SignWriting", "and all Unicode-supported scripts"
+  ],
+  "rtl": {
+    "enabled": true,
+    "bidi_algorithm": "Unicode UAX #9",
+    "examples": ["ar", "fa", "ur", "he", "yi", "dv", "syr", "nqo", "ku-Arab"],
+    "mixed_text": true,
+    "mirroring": true,
+    "numeric_isolation": true,
+    "url_path_isolation": true,
+    "caret_navigation": true,
+    "selection": true,
+    "clipboard": true
+  },
+  "ltr": {
+    "enabled": true,
+    "examples": ["en", "fr", "de", "es", "tr", "sw", "vi", "id", "zh", "ja", "ko", "ru", "el"]
+  },
+  "input": {
+    "utf8": true,
+    "wayland_text_input": ["text-input-v3", "input-method-v2"],
+    "ime": true,
+    "dead_keys": true,
+    "compose": true,
+    "multilingual_keyboard": true,
+    "on_screen_keyboard": true,
+    "voice_input_boundary": true,
+    "handwriting_input_boundary": true,
+    "braille_input_boundary": true,
+    "switch_without_restarting": true
+  },
+  "desktop": {
+    "all_panels": true,
+    "menus": true,
+    "dialogs": true,
+    "notifications": true,
+    "settings": true,
+    "terminal": true,
+    "file_manager": true,
+    "package_manager": true,
+    "retro_center": true,
+    "games": true,
+    "developer_tools": true,
+    "accessibility": true,
+    "lock_screen": true,
+    "login": true,
+    "window_decoration": true
+  },
+  "font_policy": {
+    "fallback_chain": true,
+    "script_aware_selection": true,
+    "emoji_fallback": true,
+    "missing_glyph_detection": true,
+    "fonts_are_external_assets": true,
+    "license_verification_required": true
+  },
+  "localization_layers": ["translation", "date_time", "number", "currency", "units", "collation", "plural_rules", "relative_time", "list_patterns", "keyboard", "font", "bidi", "input_method", "accessibility", "speech"],
+  "sources": [
+    {"name": "Unicode Standard", "url": "https://www.unicode.org/standard/standard.html"},
+    {"name": "Unicode CLDR", "url": "https://cldr.unicode.org/"},
+    {"name": "Unicode UAX #9", "url": "https://www.unicode.org/reports/tr9/"},
+    {"name": "IETF BCP 47", "url": "https://www.rfc-editor.org/rfc/rfc5646"},
+    {"name": "Wayland text-input", "url": "https://wayland.app/protocols/text-input-v3"}
+  ]
+}
