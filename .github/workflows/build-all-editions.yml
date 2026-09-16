@@ -1,0 +1,30 @@
+name: Chimera II OS - all editions build
+on:
+  workflow_dispatch:
+  push:
+    paths: ['CMakeLists.txt','cmake/**','include/**','src/**','tests/**','installer/**','tools/build/**']
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [desktop, server, mobile, edge, iot, cvel]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build python3
+      - name: Configure
+        run: cmake -S . -B "build/${{ matrix.edition }}" -G Ninja -DCHIMERA_EDITION=${{ matrix.edition }}
+      - name: Build
+        run: cmake --build "build/${{ matrix.edition }}" --parallel
+      - name: Test
+        run: ctest --test-dir "build/${{ matrix.edition }}" --output-on-failure
+      - name: Stage
+        run: cmake --install "build/${{ matrix.edition }}" --prefix "build/${{ matrix.edition }}/stage"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-${{ matrix.edition }}
+          path: build/${{ matrix.edition }}/stage
