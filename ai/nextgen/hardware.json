@@ -1,0 +1,10 @@
+{
+  "schema": "CHIMERA-NEXTGEN-HARDWARE-2026-1",
+  "compute": ["scalar_cpu","simd_cpu","riscv_vector","riscv_matrix","gpu","npu","fpga","dsp","edge_accelerator"],
+  "memory": ["local_ram","numa","cxl_memory_expansion","cxl_memory_pooling","shared_accelerator_memory"],
+  "io": ["io_uring","zero_copy_network_rx","dma","af_xdp"],
+  "scheduling": ["sched_ext","cpu_affinity","numa_affinity","heterogeneous_core_scheduling"],
+  "compiler_ir": ["mlir","llvm_ir"],
+  "deployment_runtimes": ["onnx_runtime","iree","tvm","native"],
+  "safety": {"hardware_mutation_default":false,"firmware_update_default":false}
+}
