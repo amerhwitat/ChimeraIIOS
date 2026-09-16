@@ -1,0 +1,13 @@
+{
+  "schema": "CHIMERA-AI-DISCIPLINES-1",
+  "disciplines": [
+    {"id":"ml","approach":"statistical learning","data":["tabular","structured"],"runtimes":["native","python","container"]},
+    {"id":"dl","approach":"hierarchical neural networks","data":["text","audio","image","tensor"],"runtimes":["native","python","gpu","container"]},
+    {"id":"rl","approach":"reward-driven policy learning","data":["interaction","simulation","trajectory"],"runtimes":["native","python","cvel","container"]},
+    {"id":"symbolic_ai","approach":"logic/rules/knowledge representation","data":["facts","rules","ontology","knowledge_graph"],"runtimes":["native","python","container"]},
+    {"id":"computer_vision","approach":"spatial feature and geometry processing","data":["image","video","point_cloud"],"runtimes":["native","python","gpu","cvel"]},
+    {"id":"nlp","approach":"computational linguistics and language models","data":["text","speech","corpus"],"runtimes":["native","python","gpu","container"]}
+  ],
+  "interoperability":["onnx","tvm","dlpack","mlflow","kubeflow"],
+  "governance":{"auto_download":false,"auto_execute_generated_code":false,"auto_cloud_mutation":false}
+}
