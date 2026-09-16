@@ -1,3 +1,4 @@
+# This file is intentionally kept compatible with the existing Chimera build graph.
 cmake_minimum_required(VERSION 3.16)
 project(ChimeraIIOS VERSION 2.6.0 LANGUAGES C CXX ASM)
 set(CMAKE_C_STANDARD 11)
@@ -149,3 +150,8 @@ if(Python3_Interpreter_FOUND)
   add_test(NAME chimera_toolchain_registry COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/toolchain/validate_registry.py)
   add_test(NAME chimera_memory_bus_metadata COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/memory/validate_profiles.py)
 endif()
+
+# Cloud/DevOps source and declarative assets are installed alongside the OS tools.
+install(FILES cloud/providers.json cloud/README.md devops/README.md devops/pipeline_schema.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/cloud)
+install(DIRECTORY infrastructure/kubernetes infrastructure/openshift infrastructure/openstack DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/infrastructure)
+install(PROGRAMS tools/cloud/chimera_cloud.py tools/image/chimera_image.py tools/installer/install_cloud_platforms.sh tools/installer/install_kubernetes.sh tools/installer/install_openshift_tools.sh tools/installer/install_openstack_tools.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
