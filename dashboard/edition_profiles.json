@@ -1,0 +1,18 @@
+{
+  "schema": "CHIMERA-DASHBOARD-EDITION-PROFILES-1",
+  "editions": {
+    "desktop": {"panels":["health","cpu","memory","storage","network","processes","services","routing","peers","ai_runtime"],"refresh_seconds":2,"telemetry":"local"},
+    "server": {"panels":["health","cpu","memory","storage","network","processes","services","routing","peers","security","ai_runtime"],"refresh_seconds":1,"telemetry":"local"},
+    "mobile": {"panels":["health","cpu","memory","storage","network","processes","services","security","peers"],"refresh_seconds":3,"telemetry":"local"},
+    "edge": {"panels":["health","cpu","memory","storage","network","processes","services","routing","security","peers","ai_runtime"],"refresh_seconds":2,"telemetry":"local"},
+    "iot": {"panels":["health","cpu","memory","storage","network","services","security","peers"],"refresh_seconds":5,"telemetry":"local"},
+    "cvel": {"panels":["health","cpu","memory","storage","network","processes","services","routing","security","peers","ai_runtime"],"refresh_seconds":1,"telemetry":"local"}
+  },
+  "common": {
+    "health_states":["unknown","healthy","degraded","critical"],
+    "privileged_actions":false,
+    "remote_control":false,
+    "remote_export":false,
+    "history_retention_days":30
+  }
+}
