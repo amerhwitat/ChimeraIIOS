@@ -9,41 +9,60 @@ Chimera II OS is a cross-language research operating-system and application plat
 
 ## Universal boot and startup
 
-The boot layer now has a normalized `CHMBOOT1` contract in `boot/boot_protocol.json`. Chimera can be entered through its native loader or a compatible/chainloaded loader instead of requiring one boot manager. Computer boot targets include BIOS/MBR, UEFI, Multiboot1/2, Limine-compatible handoff and chainloading. Limine documents BIOS and UEFI entry protocols and configuration options, while UEFI uses EFI applications and BIOS legacy boot begins in real mode. citeturn0search0turn0search7turn0search11
+The boot layer uses a normalized `CHMBOOT1` contract in `boot/boot_protocol.json`. Computer boot targets include BIOS/MBR, UEFI, Multiboot1/2, Limine-compatible handoff and controlled chainloading. BIOS legacy services and modern UEFI protocols/services are treated as separate firmware interfaces.
 
-On x86/x86-64, `boot/mode_matrix.json` and `boot/x86/entry/mode_switch.S` define the real16 -> protected32 -> long64 transition boundary. AMD documents real, protected and long mode in AMD64; Intel documents real-address and protected operation in IA-32/Intel 64. citeturn0search96turn0search97 Other architectures use their native privilege/exception levels rather than pretending they have x86 real mode.
+On x86/x86-64, the mode-transition boundary is real16 -> protected32 -> long64. Other architectures use their native privilege/exception levels rather than pretending they have x86 real mode.
 
-Startup is **menu first, GUI second**. Jasper/Spit Fire exposes normal, safe graphics, diagnostics, recovery and native-chainload choices. After handoff, the Aurora boot UI reports firmware, bootloader, hardware, memory, graphics, Koronos, drivers, networking, system services, Aurora and user-session phases. `boot/startup/boot_phase_manifest.json` is the machine-readable phase/application list.
+Startup is **menu first, GUI second**. Jasper/Spit Fire exposes Live, Install, Safe Graphics, Diagnostics, Recovery, Network Install/Recovery and controlled native-chainload choices. After handoff, Aurora presents the **Gates Menu** for desktop personalities, applications, games, networking, crypto/wallet tools, Thamudic, NLP, browsers, development and system administration.
 
-The boot visual is represented by `boot/splash/aurora_boot_splash.svg`, a 3840x2160 Aurora Wayland Glass artwork, with a freestanding boot UI contract in `boot/splash/aurora_boot_ui.h`. The Library already contains the approved Aurora Wayland Glass reference artwork, including the glass UI, scenic high-resolution background, launcher and system widgets. fileciteturn80file1L18-L40
+The boot visual is represented by `boot/splash/aurora_boot_splash.svg`; the requested support footer is stored in `boot/splash/support_footer.txt` and staged into the ISO.
 
-## Universal ISA, operands and binary encodings
+## Universal source-first ISO
 
-The ISA layer is split into a family index and canonical instruction database:
+The structured ISO builder stages:
 
-- `isa/world_architectures.json` — RISC, CISC, EPIC and Chimera-native families.
-- `isa/isa_database.json` — normalized instructions with operands, syntax, width, binary value and fixed-bit mask.
-- `isa/isa_database.sql` — SQLite schema.
-- `tools/validate_isa_registry.py`, `tools/load_isa_database.py`, `tools/isa_registry_report.py` — validation, loading and coverage.
+- `/src` — source needed by the distribution;
+- `/opt` — optional applications/utilities;
+- `/install` — installer contracts and future transaction tooling;
+- `/drivers` — provenance-aware driver registry;
+- `/filesystems` — filesystem capability registry;
+- `/packages` — package-manager compatibility registry;
+- `/repositories` — source/repository metadata;
+- `/man` — original/licensed command references;
+- `/games` and `/wallets` — optional application categories;
+- `/ISO` — media layout metadata.
 
-## Boot/build files
+The first release target is x86-64 with BIOS/MBR and UEFI/GPT qualification. El Torito optical boot and UEFI removable-media structures are authored through GRUB/xorriso. GNU documents `grub-mkrescue` as a bootable ISO authoring frontend, while xorriso supports El Torito BIOS/EFI boot structures and ISO mastering. citeturn0search0turn0search2turn0search4
 
-- `boot/boot_protocol.json` — firmware/bootloader/kernel handoff contract.
-- `boot/mode_matrix.json` — architectural execution-mode registry.
-- `boot/x86/entry/mode_switch.S` — x86 mode-transition boundary.
-- `boot/uefi/ChimeraLoader.c` — UEFI loader entry boundary.
-- `boot/startup/boot_phase_manifest.json` — GUI startup phases and applications.
-- `boot/splash/aurora_boot_splash.svg` — embedded-style Aurora boot artwork.
-- `tools/build/build-hosted.bat`, `.ps1`, `.sh` — hosted builds.
-- `tools/build/build-msi.ps1` + `packaging/windows/ChimeraIIOS.wxs` — Windows MSI pipeline.
-- `tools/build/build-mobile.sh` — mobile hosted orchestration.
-- `tools/build/build-baremetal.sh`, `.ps1` — bare-metal builds.
-- `tools/build/build-all.sh` — aggregate build orchestration.
+## Installer and compatibility contracts
+
+`install/installer-contract.json` defines the transaction stages for hardware detection, partition planning, filesystem planning, IPv4/IPv6 configuration, driver/package planning, explicit confirmation, verification and boot-entry registration.
+
+The registries separately describe filesystem capabilities, drivers, binary formats and package managers. A registry entry is not a claim that every target supports every operation.
+
+Windows/Linux/macOS migration is designed as discovery/import/migration rather than silent replacement. Secure Boot, vendor recovery, Android Verified Boot and Apple security mechanisms are not bypassed.
+
+## Application integrations
+
+`appcenter/catalog/external-integrations.json` defines source-first integrations for public repositories including:
+
+- `amerhwitat/nlp`
+- `amerhwitat/BizX`
+- `amerhwitat/BizXtreme`
+- `amerhwitat/general`
+
+Applications are built only when their source, license, dependencies and target compatibility can be verified. Proprietary binaries and drivers are not copied merely because they are discoverable online.
 
 ## Mobile editions
 
-Android has hosted APK/AAB and device-profiled bare-metal editions. iOS/iPadOS has a hosted Swift/Objective-C/C++ edition and research-only bare-metal targets where a lawful and technically available boot path exists. The mobile device matrix and MHAL remain the authoritative hardware qualification layer.
+Android has hosted APK/AAB and device-profiled bare-metal paths. iOS/iPadOS packaging remains separate from the computer microkernel implementation and is subject to platform security and signing requirements. Flash/recovery helpers are device-profile constrained and confirmation-gated.
+
+## CI and releases
+
+`.github/workflows/chimera-iso.yml` validates registries, boot assets, ISO contents, El Torito/system-area metadata and BIOS/UEFI QEMU smoke paths where firmware is available. `.github/workflows/chimera-release.yml` publishes a GitHub Release only for version tags after the ISO build and verification succeed. GitHub Actions artifacts are retained for inspection before/alongside release publication. citeturn0search3turn0search6
+
+**There is currently no published GitHub Release until a version-tagged release workflow has successfully generated and verified the artifacts.**
 
 ## Security and provenance
 
-Downloaded code, drivers, firmware, ROMs and applications are not automatically trusted. Secure Boot, Android AVB, vendor boot protections and Apple secure boot are respected. Bare-metal build automation does not silently flash hardware; target selection, compatibility validation, signature verification and recovery/rollback remain explicit.
+Downloaded code, drivers, firmware, ROMs and applications are not automatically trusted. Secure Boot, Android AVB, vendor boot protections and Apple secure boot are respected. Bare-metal automation does not silently flash hardware or erase disks; target selection, compatibility validation, signature/hash verification and recovery/rollback remain explicit.
