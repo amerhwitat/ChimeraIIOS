@@ -1,0 +1,19 @@
+{
+  "schema": "CHIMERA-CLOUD-1",
+  "providers": {
+    "local": {"kind": "cvel", "architectures": ["x86", "x86_64", "arm", "aarch64", "riscv32", "riscv64", "mips", "mips64", "powerpc", "powerpc64", "sparc", "chimera-c8192", "chimera-r8192"]},
+    "kubernetes": {"kind": "container-orchestrator", "commands": ["kubectl", "kubeadm"], "manifest_api": true},
+    "openshift": {"kind": "container-orchestrator", "commands": ["oc", "openshift-install"], "manifest_api": true},
+    "openstack": {"kind": "iaas", "commands": ["openstack"], "services": ["nova", "glance", "neutron", "cinder"]},
+    "aws": {"kind": "public-cloud", "commands": ["aws"], "iac": ["terraform"]},
+    "azure": {"kind": "public-cloud", "commands": ["az"], "iac": ["terraform"]},
+    "gcp": {"kind": "public-cloud", "commands": ["gcloud"], "iac": ["terraform"]}
+  },
+  "safety": {
+    "auto_apply": false,
+    "auto_destroy": false,
+    "auto_download": false,
+    "require_explicit_credentials": true,
+    "require_explicit_guest_image": true
+  }
+}
