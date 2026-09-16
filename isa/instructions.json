@@ -1,0 +1,9 @@
+{
+  "$schema":"CHM-ISA-INSTRUCTIONS-1",
+  "title":"Chimera II instruction-set export",
+  "source_database":"isa/isa_database.json",
+  "row_schema":["architecture","mnemonic","form_id","operands","syntax","length_bits","value_bits","mask_bits"],
+  "selection":"This export intentionally points to the canonical database instead of duplicating rows, preventing JSON/DB drift.",
+  "binary_rule":"mask bit 1 means fixed; mask bit 0 means operand-variable or extension-selected.",
+  "canonical_examples":"Where an instruction has register/immediate/displacement fields, value_bits contains a deterministic example rather than claiming a single universal binary value."
+}
