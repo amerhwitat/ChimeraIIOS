@@ -10,31 +10,34 @@ def load(name):
 
 def test_registry_has_required_architectures_and_instruction_forms():
     db = load("isa/isa_database.json")
-    ids = {row["id"] for row in db["architectures"]}
+    ids = {row[0] for row in db["architectures"]}
     assert {"chimera-c8192", "chimera-r8192", "x86-64", "aarch64", "riscv64", "mips32"} <= ids
     assert len(db["instructions"]) >= 100
 
 
-def test_instruction_records_have_operands_and_encoding():
+def test_instruction_rows_have_operands_and_encoding():
     db = load("isa/isa_database.json")
     for row in db["instructions"]:
-        assert row["mnemonic"]
-        assert row["operands"]
-        assert row["encoding"]["length_bits"] >= 8
-        assert row["encoding"]["value_bits"]
-        assert row["semantics"]["inputs"] is not None
+        architecture, mnemonic, form_id, operands, syntax, length_bits, value_bits, mask_bits = row
+        assert architecture
+        assert mnemonic
+        assert form_id
+        assert operands
+        assert syntax
+        assert length_bits >= 8
+        assert len(value_bits) == length_bits
+        assert len(mask_bits) == length_bits
 
 
 def test_binary_fields_are_well_formed():
     db = load("isa/isa_database.json")
     for row in db["instructions"]:
-        for key in ("value_bits", "mask_bits"):
-            bits = row["encoding"][key]
-            assert set(bits) <= {"0", "1"}
-            assert len(bits) == row["encoding"]["length_bits"]
+        value_bits, mask_bits = row[6], row[7]
+        assert set(value_bits) <= {"0", "1"}
+        assert set(mask_bits) <= {"0", "1"}
 
 
 def test_instruction_forms_are_unique():
     db = load("isa/isa_database.json")
-    keys = [(x["architecture"], x["mnemonic"], x["form_id"]) for x in db["instructions"]]
+    keys = [(x[0], x[1], x[2]) for x in db["instructions"]]
     assert len(keys) == len(set(keys))
