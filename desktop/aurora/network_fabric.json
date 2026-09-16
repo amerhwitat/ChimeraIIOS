@@ -1,0 +1,9 @@
+{
+  "schema": "AURORA-NETWORK-FABRIC-1",
+  "desktop": "Aurora Wayland Glass",
+  "modes": ["p2p","client","server","hybrid"],
+  "transports": ["http3","quic","webtransport","websocket","wasi_http"],
+  "features": ["peer_discovery","authenticated_node_registry","route_view","gateway_view","service_browser","file_transfer","ai_agent_channels","offline_peer_cache"],
+  "data_sources": ["data/network/chimera_nodes.json","data/network/peers.json","data/network/gateways.json","data/network/discovered_hosts.json"],
+  "security": {"capability_allowlist":true,"remote_code_execution":false,"silent_network_mutation":false,"user_confirmation_for_privileged_actions":true}
+}
