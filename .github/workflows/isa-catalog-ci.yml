@@ -4,14 +4,22 @@ on:
     paths:
       - 'isa/**'
       - 'tests/isa/**'
+      - 'tests/test_isa_registry.py'
       - 'tools/validate_isa_catalog.py'
+      - 'tools/validate_isa_registry.py'
+      - 'tools/load_isa_database.py'
+      - 'tools/isa_registry_report.py'
       - 'tools/generate_isa_bindings.py'
       - '.github/workflows/isa-catalog-ci.yml'
   pull_request:
     paths:
       - 'isa/**'
       - 'tests/isa/**'
+      - 'tests/test_isa_registry.py'
       - 'tools/validate_isa_catalog.py'
+      - 'tools/validate_isa_registry.py'
+      - 'tools/load_isa_database.py'
+      - 'tools/isa_registry_report.py'
       - 'tools/generate_isa_bindings.py'
       - '.github/workflows/isa-catalog-ci.yml'
 
@@ -23,12 +31,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: Validate catalog
+      - name: Validate legacy ISA catalog
         run: python tools/validate_isa_catalog.py
+      - name: Validate universal ISA database
+        run: python tools/validate_isa_registry.py
       - name: Run ISA tests
         run: |
           python -m pip install pytest
-          python -m pytest tests/isa/test_catalog.py -q
+          python -m pytest tests/isa/test_catalog.py tests/test_isa_registry.py -q
+      - name: Build SQLite ISA database
+        run: python tools/load_isa_database.py --output /tmp/chimera-isa.db
+      - name: Report ISA coverage
+        run: python tools/isa_registry_report.py
       - name: Check Python adapter
         run: python -m py_compile isa/python/chimera_isa.py
       - name: Check C++ adapter
