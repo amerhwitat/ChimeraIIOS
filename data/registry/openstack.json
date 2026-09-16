@@ -1,0 +1,15 @@
+{
+  "schema":"CHIMERA-DATA-OPENSTACK-2026-1",
+  "updated":"2026-09-16",
+  "services":[
+    {"id":"keystone","role":"identity","cli":"openstack token issue"},
+    {"id":"nova","role":"compute","cli":"openstack server list"},
+    {"id":"neutron","role":"network","cli":"openstack network list"},
+    {"id":"glance","role":"image","cli":"openstack image list"},
+    {"id":"cinder","role":"block-storage","cli":"openstack volume list"},
+    {"id":"swift","role":"object-storage","cli":"openstack container list"},
+    {"id":"ironic","role":"bare-metal","cli":"openstack baremetal node list"},
+    {"id":"manila","role":"shared-filesystem","cli":"openstack share list"},
+    {"id":"heat","role":"orchestration","cli":"openstack stack list"}
+  ]
+}
