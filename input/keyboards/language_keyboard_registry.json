@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-KEYBOARD-1",
+  "architecture":"Aurora Input → Wayland text-input/virtual-keyboard → layout engine → application",
+  "layout_families":[
+    "Arabic","English US","English UK","Hebrew","Persian","Urdu","Turkish","French","German","Spanish","Portuguese","Italian","Dutch","Polish","Czech","Slovak","Hungarian","Romanian","Greek","Russian","Ukrainian","Bulgarian","Serbian","Croatian","Slovenian","Macedonian","Georgian","Armenian","Azerbaijani","Kazakh","Kyrgyz","Uzbek","Tajik","Mongolian","Hindi","Bengali","Punjabi","Gujarati","Tamil","Telugu","Kannada","Malayalam","Marathi","Nepali","Sinhala","Thai","Lao","Khmer","Vietnamese","Indonesian","Malay","Filipino","Chinese Pinyin","Chinese Zhuyin","Japanese IME","Korean IME","Amharic","Tigrinya","Swahili","Yoruba","Igbo","Hausa","Somali","Zulu","Xhosa","Afrikaans","Esperanto"
+  ],
+  "input_methods":["dead-keys","compose","IME","candidate-window","multilingual-switching","RTL","BiDi","diacritics","Unicode normalization","emoji","compose sequences","accessibility on-screen keyboard"],
+  "standard_sources":["XKB-compatible layouts","IBus-compatible IMEs","Fcitx-compatible IMEs","Unicode CLDR keyboard data"],
+  "system_features":["per-user layout","per-application layout","hotkey switching","layout indicator","language-aware punctuation","RTL cursor behavior","virtual keyboard","touch keyboard","hardware keyboard","keymap testing tool"],
+  "installation":{
+    "minimal":"English US plus hardware-independent fallback",
+    "standard":"English + Arabic + locale selected during installer",
+    "full":"all available open-source layouts and IME metadata",
+    "offline_pack":"supported"
+  }
+}
