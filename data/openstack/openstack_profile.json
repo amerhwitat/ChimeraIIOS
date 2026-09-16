@@ -1,0 +1,7 @@
+{
+  "auth":"keystone-application-credentials-or-clouds-yaml",
+  "read_only_default":true,
+  "services":["keystone","nova","neutron","glance","cinder","swift","ironic","manila","heat"],
+  "credential_storage":"external-os-credential-store-or-openstack-client-config",
+  "network_policy":"explicit-endpoint-allowlist"
+}
