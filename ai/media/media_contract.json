@@ -1,0 +1,8 @@
+{
+  "schema": "CHIMERA-MEDIA-AI-1",
+  "capabilities": ["speech_recognition", "voice_control", "recording", "playback", "camera_capture", "computer_vision"],
+  "speech": {"providers": ["whisper", "vosk"], "offline_first": true},
+  "vision": {"providers": ["opencv", "mediapipe"], "modes": ["image", "video", "live_stream"]},
+  "safety": {"camera_default": "off", "microphone_default": "off", "network_upload_default": false, "command_confirmation": true},
+  "provenance": {"upstream_references": ["https://github.com/openai/whisper", "https://github.com/alphacep/vosk-api", "https://github.com/opencv/opencv", "https://github.com/google-ai-edge/mediapipe", "https://gstreamer.freedesktop.org/documentation/"]}
+}
