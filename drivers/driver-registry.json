@@ -1,0 +1,15 @@
+{
+  "schema": "chimera-driver-registry-v1",
+  "matching": ["PCI", "USB", "ACPI", "DMI", "device-tree", "platform-id"],
+  "record_fields": ["vendor_id", "device_id", "subsystem_id", "class", "architecture", "driver", "source_url", "binary_url", "version", "license", "sha256", "signature", "provenance", "compatibility", "install_method"],
+  "trust_states": ["native", "verified-source", "verified-binary", "metadata-only", "rejected"],
+  "policy": {
+    "native_driver_priority": true,
+    "binary_import_requires_license": true,
+    "binary_import_requires_signature_or_hash": true,
+    "proprietary_redistribution_forbidden_without_rights": true,
+    "automatic_install_requires_explicit_user_policy": true
+  },
+  "foreign_sources": ["Linux", "Unix", "Windows", "macOS"],
+  "entries": []
+}
