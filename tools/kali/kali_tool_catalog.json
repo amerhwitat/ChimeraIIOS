@@ -1,0 +1,21 @@
+{
+  "schema":"CHM-KALI-CATALOG-1",
+  "source":"Kali Linux official metapackage taxonomy",
+  "integration":"Native Chimera package manifests plus isolated compatibility environment; not a redistribution of proprietary software.",
+  "metapackages":["kali-linux-core","kali-linux-default","kali-linux-everything","kali-tools-top10","kali-tools-reverse-engineering","kali-tools-vulnerability","kali-tools-forensics","kali-tools-reporting","kali-tools-respond","kali-tools-information-gathering","kali-tools-web","kali-tools-wireless","kali-tools-passwords","kali-tools-sniffing-spoofing","kali-tools-exploitation","kali-tools-post-exploitation","kali-tools-social-engineering","kali-tools-crypto-stego","kali-tools-hardware","kali-tools-rfid","kali-tools-sdr","kali-tools-voip"],
+  "representative_tools":{
+    "information_gathering":["nmap","masscan","amass","theHarvester","recon-ng"],
+    "web":["Burp Suite","ZAP","nikto","sqlmap","wpscan"],
+    "wireless":["aircrack-ng","kismet","wifite"],
+    "sniffing":["Wireshark","tcpdump","netsniff-ng","mitmproxy"],
+    "forensics":["Autopsy","Sleuth Kit","Volatility","Guymager","ewf-tools"],
+    "reverse_engineering":["Ghidra","radare2","Rizin","Cutter","apktool","JADX","dex2jar","Bytecode Viewer","EDB"],
+    "vulnerability_analysis":["Nmap NSE","GVM","Lynis","Nikto","Nuclei"],
+    "password_auditing":["John the Ripper","Hashcat"],
+    "exploitation_frameworks":["Metasploit Framework"],
+    "hardware_and_sdr":["GNU Radio","HackRF tools","UHD","Proxmark3 tools"],
+    "reporting":["Faraday","Dradis","EyeWitness"]
+  },
+  "execution_policy":{"default":"sandbox","network_tools":"explicit authorization and isolated lab by default","credential_testing":"authorized systems only","exploit_development":"isolated test targets only"},
+  "package_strategy":["native open-source packages","compatibility packages","containerized Kali environment","tool metadata and launchers","license/provenance records"]
+}
