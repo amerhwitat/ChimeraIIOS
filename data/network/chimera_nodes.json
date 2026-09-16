@@ -1,0 +1,7 @@
+{
+  "schema": "CHIMERA-NODES-1",
+  "description": "Authenticated/observed Chimera node endpoints; records are provenance-scoped and expire unless refreshed.",
+  "updated": "2026-09-16",
+  "records": [],
+  "record_fields": ["node_id","public_key_fingerprint","addresses","transports","capabilities","source","observed_at","expires_at","authenticated","trust_state"]
+}
