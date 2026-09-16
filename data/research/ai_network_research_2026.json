@@ -1,0 +1,15 @@
+{
+  "schema": "CHIMERA-AI-NETWORK-RESEARCH-2026-1",
+  "snapshot": "2026-09-16",
+  "policy": {"auto_execute": false, "auto_merge": false, "network_mutation": false, "provenance_required": true},
+  "candidates": [
+    {"name":"Model Context Protocol 2026-07-28","category":"agent_interop","transport":["stdio","streamable_http"],"integration":"adapter","evidence":"official_spec"},
+    {"name":"WebTransport","category":"browser_networking","transport":["http3","quic"],"integration":"adapter","evidence":"web_platform_standard"},
+    {"name":"WASI 0.3","category":"wasm_runtime","integration":"runtime_adapter","editions":["mobile","edge","cvel"],"evidence":"official_release"},
+    {"name":"A2A","category":"agent_interop","integration":"adapter","evidence":"protocol_ecosystem"},
+    {"name":"WebMCP","category":"browser_agent_interop","integration":"experimental_adapter","evidence":"web_research"},
+    {"name":"EvidenceNet","category":"network_runtime_assurance","integration":"research_reference","evidence":"arxiv_2609_10181"},
+    {"name":"AI-native network runtime assurance","category":"network_ai","integration":"research_reference","evidence":"arxiv_2609_11996"},
+    {"name":"Decentralized intelligence for 6G","category":"distributed_neural_networks","integration":"research_reference","evidence":"arxiv_2609_13872"}
+  ]
+}
