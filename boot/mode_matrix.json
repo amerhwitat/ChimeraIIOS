@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-CPU-MODES-1",
+  "note":"Real/protected mode is an x86 architectural concept. Other ISAs are represented by their native privilege/exception states rather than being mislabeled as real/protected mode.",
+  "x86":{"modes":["real16","protected32","long64","compat32","virtual8086"],"boot_entry":"real16 for legacy BIOS; firmware-defined 64-bit environment for UEFI"},
+  "x86_64":{"modes":["real16","protected32","long64","compat32","virtual8086"],"boot_entry":"real16 BIOS or UEFI x64"},
+  "aarch64":{"modes":["EL3","EL2","EL1","EL0"],"boot_entry":"firmware/vendor boot protocol; EL2/EL1 depending on platform"},
+  "arm32":{"modes":["ARM","Thumb","Hyp","SVC","USR"],"boot_entry":"platform-specific firmware/bootloader"},
+  "riscv32":{"modes":["M","S","U"],"boot_entry":"firmware/OpenSBI or platform bootloader"},
+  "riscv64":{"modes":["M","S","U"],"boot_entry":"firmware/OpenSBI or platform bootloader"},
+  "mips":{"modes":["kernel","supervisor","user"],"boot_entry":"platform firmware/bootloader"},
+  "powerpc":{"modes":["hypervisor","supervisor","problem"],"boot_entry":"firmware/bootloader"},
+  "sparc":{"modes":["privileged","supervisor","user"],"boot_entry":"firmware/bootloader"}
+}
