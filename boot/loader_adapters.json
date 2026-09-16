@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-LOADER-ADAPTERS-1",
+  "principle":"Chimera accepts any bootloader that can provide the normalized CHMBOOT1 contract or can be adapted to it; it does not require or attempt to replace every vendor bootloader.",
+  "adapters":[
+    {"id":"spitfire-native","protocol":"chimera-native","firmware":["BIOS","UEFI"]},
+    {"id":"uefi-efi","protocol":"EFI_APPLICATION","firmware":["UEFI"],"handoff":["EFI_SYSTEM_TABLE","EFI_MEMORY_MAP","GOP"]},
+    {"id":"multiboot1","protocol":"MULTIBOOT1","firmware":["BIOS","UEFI"]},
+    {"id":"multiboot2","protocol":"MULTIBOOT2","firmware":["BIOS","UEFI"]},
+    {"id":"limine","protocol":"LIMINE","firmware":["BIOS","UEFI"]},
+    {"id":"bios-chainload","protocol":"BIOS_CHAINLOAD","firmware":["BIOS"]},
+    {"id":"uefi-chainload","protocol":"UEFI_CHAINLOAD","firmware":["UEFI"]},
+    {"id":"mobile-profile","protocol":"DEVICE_PROFILE_BOOT","firmware":["MOBILE"]}
+  ],
+  "adapter_rule":"A loader is accepted only after its context is normalized, validated and passed through architecture/profile checks.",
+  "unsupported_case":"An arbitrary proprietary loader with no accessible handoff contract cannot be claimed universally supported; a new adapter is required."
+}
