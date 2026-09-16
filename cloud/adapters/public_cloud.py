@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 import json
-from .common import command_path, make_plan, read_plan, run_argv
+from .common import command_path, make_plan, read_plan
 
 class PublicCloudAdapter:
     def __init__(self, provider: str, command: str):
@@ -22,9 +22,7 @@ class PublicCloudAdapter:
         plan = read_plan(plan_path)
         if plan.get("provider") != self.provider:
             raise ValueError("plan/provider mismatch")
-        if not command_path(self.command):
-            raise RuntimeError(f"{self.command} not installed")
-        raise PermissionError("provider mutation requires an explicit integration workflow")
+        raise PermissionError("provider mutation requires an explicit protected integration workflow")
 
 class AwsAdapter(PublicCloudAdapter):
     def __init__(self): super().__init__("aws", "aws")
