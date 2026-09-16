@@ -1,0 +1,14 @@
+{
+  "schema": "CHIMERA-PERFORMANCE-PROFILES-2026-1",
+  "updated": "2026-09-16",
+  "policy": {"measurement_required": true, "auto_execute_external_code": false},
+  "profiles": [
+    {"id":"cpu_host_target","scope":"compiler","guidance":"Select host CPU features when native compilation is safe; avoid generic targets for production builds.","source":"https://iree.dev/guides/deployment-configurations/cpu/","editions":["desktop","server","edge","cvel"]},
+    {"id":"iree_tuning","scope":"accelerator","guidance":"Benchmark compile-tune-compile loops and persist validated tuning specs per hardware/workload.","source":"https://iree.dev/reference/tuning/","editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"bounded_parallelism","scope":"scheduler","guidance":"Bound workers by available concurrency and workload type; prefer measured parallel plans over fixed maximums.","source":"internal","editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"zero_copy_io","scope":"io","guidance":"Prefer zero-copy buffers and asynchronous I/O where the platform backend supports them.","source":"internal","editions":["desktop","server","edge","cvel"]},
+    {"id":"telemetry_sampling","scope":"observability","guidance":"Use bounded sampling and structured traces so diagnostics do not dominate workload execution.","source":"https://opentelemetry.io/","editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"sbom_supply_chain","scope":"security","guidance":"Publish SBOM artifacts and continuously inspect dependencies before accepting updates.","source":"https://openssf.org/scorecard/","editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"embedded_analytics","scope":"database","guidance":"Use an embedded analytical provider such as DuckDB through an adapter boundary for local analytics.","source":"https://duckdb.org/","editions":["desktop","server","edge","cvel"]}
+  ]
+}
