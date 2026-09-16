@@ -1,7 +1,6 @@
 name: Chimera II OS Release
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -34,9 +33,7 @@ jobs:
           cp boot/iso/dist/chimera2os-bootstrap.iso release/Chimera-II-OS-x86_64-BareMetal.iso
           sha256sum release/Chimera-II-OS-x86_64-BareMetal.iso > release/Chimera-II-OS-x86_64-BareMetal.iso.sha256
           git archive --format=tar.gz --prefix=ChimeraIIOS-${GITHUB_REF_NAME}/ "$GITHUB_REF_NAME" > release/ChimeraIIOS-${GITHUB_REF_NAME}-source.tar.gz
-          cat > release/release-manifest.json <<EOF
-          {"schema":"chimera-release-v1","version":"${GITHUB_REF_NAME}","commit":"${GITHUB_SHA}","artifacts":["Chimera-II-OS-x86_64-BareMetal.iso","Chimera-II-OS-x86_64-BareMetal.iso.sha256","ChimeraIIOS-${GITHUB_REF_NAME}-source.tar.gz"]}
-          EOF
+          printf '%s\n' '{' '  "schema":"chimera-release-v1",' "  \"version\":\"${GITHUB_REF_NAME}\"," "  \"commit\":\"${GITHUB_SHA}\"," '  "artifacts":["Chimera-II-OS-x86_64-BareMetal.iso","Chimera-II-OS-x86_64-BareMetal.iso.sha256", "release-manifest.json"]' '}' > release/release-manifest.json
       - name: Upload release artifact bundle
         uses: actions/upload-artifact@v4
         with:
