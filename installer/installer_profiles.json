@@ -10,5 +10,6 @@
     "cvel": {"targets":["x86_64","arm64","riscv64"],"boot":["uefi","virtual-firmware"],"default_filesystem":"xfs"}
   },
   "detection": ["UEFI/BIOS","ACPI/SMBIOS","CPU/features","memory","PCI/USB","GPU/display","storage","network","TPM/Secure Boot","virtualization","existing OS/boot entries"],
-  "safety": {"dry_run_default":true,"preserve_existing_os_default":true,"automatic_disk_erase":false,"automatic_bootloader_overwrite":false,"remote_code_execution":false,"require_explicit_confirmation":true}
+  "safety": {"dry_run_default":true,"preserve_existing_os_default":true,"automatic_disk_erase":false,"automatic_bootloader_overwrite":false,"remote_code_execution":false,"require_explicit_confirmation":true},
+  "ci_verification_trigger":"2026-09-16"
 }
