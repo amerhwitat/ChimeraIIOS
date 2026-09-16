@@ -1,13 +1,16 @@
 {
-  "schema":"AURORA-GLASS-DASHBOARD-1",
+  "schema":"AURORA-GLASS-DASHBOARD-2",
   "desktop":"Aurora Wayland Glass",
   "view":"system-dashboard",
   "refresh_seconds":2,
   "layout":"adaptive-grid",
   "panels":["health","cpu","memory","storage","network","processes","boot","services","security","routing","peers","ai_runtime"],
   "edition_scope":["desktop","server","mobile","edge","iot","cvel"],
-  "interactions":["pause","resume","change_refresh","filter_edition","expand_metric","export_snapshot"],
+  "edition_profiles":"dashboard/edition_profiles.json",
+  "interactions":["pause","resume","change_refresh","filter_edition","expand_metric","export_snapshot","compare_snapshots","show_history"],
   "data_source":"dashboard/kpis.json",
+  "history":{"enabled":true,"retention_days":30,"local_only":true},
+  "alerts":{"enabled":true,"thresholds_from":"dashboard/kpis.json","notification_mode":"local"},
   "privileged_actions":{"enabled":false,"require_confirmation":true},
   "remote_control":{"enabled":false},
   "privacy":{"local_first":true,"remote_export_opt_in":true}
