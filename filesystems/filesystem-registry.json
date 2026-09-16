@@ -1,0 +1,27 @@
+{
+  "schema": "chimera-filesystem-registry-v1",
+  "capability_model": ["probe", "read", "write", "install-target", "live-root"],
+  "filesystems": [
+    {"name":"FAT12","probe":true,"read":true,"write":true},
+    {"name":"FAT16","probe":true,"read":true,"write":true},
+    {"name":"FAT32","probe":true,"read":true,"write":true},
+    {"name":"exFAT","probe":true,"read":true,"write":true},
+    {"name":"NTFS","probe":true,"read":true,"write":true},
+    {"name":"ext2","probe":true,"read":true,"write":true},
+    {"name":"ext3","probe":true,"read":true,"write":true},
+    {"name":"ext4","probe":true,"read":true,"write":true},
+    {"name":"XFS","probe":true,"read":true,"write":true},
+    {"name":"Btrfs","probe":true,"read":true,"write":true},
+    {"name":"ZFS","probe":true,"read":true,"write":false},
+    {"name":"ISO-9660","probe":true,"read":true,"write":false},
+    {"name":"Rock Ridge","probe":true,"read":true,"write":false},
+    {"name":"Joliet","probe":true,"read":true,"write":false},
+    {"name":"UDF","probe":true,"read":true,"write":false},
+    {"name":"SquashFS","probe":true,"read":true,"write":false},
+    {"name":"tmpfs","probe":true,"read":true,"write":true},
+    {"name":"proc","probe":true,"read":true,"write":false},
+    {"name":"sysfs","probe":true,"read":true,"write":false},
+    {"name":"network-filesystem","probe":true,"read":true,"write":true}
+  ],
+  "note": "Capabilities are independently qualified; listing a filesystem does not claim universal kernel or hardware support."
+}
