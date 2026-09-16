@@ -1,0 +1,7 @@
+{
+  "schema": "CHIMERA-GATEWAYS-1",
+  "description": "Observed or explicitly configured gateway records; not a global Internet host database.",
+  "updated": "2026-09-16",
+  "records": [],
+  "record_fields": ["address","family","interface","gateway_type","source","observed_at","ttl_seconds","authenticated","confidence"]
+}
