@@ -1,0 +1,26 @@
+{
+  "schema": "CHIMERA-NEXTGEN-ALGORITHMS-2026-2",
+  "research_snapshot": "2026-09",
+  "algorithms": [
+    {"id":"speculative_decoding","implementation":"planner","runtime":"native/python","status":"integrated"},
+    {"id":"self_speculative_moe","implementation":"provider_adapter","runtime":"iree/onnx","status":"integrated-boundary"},
+    {"id":"adaptive_tensor_parallelism","implementation":"topology_aware_scheduler","runtime":"native","status":"integrated-boundary"},
+    {"id":"kv_cache_optimization","implementation":"memory_policy","runtime":"native","status":"integrated-boundary"},
+    {"id":"quantization","implementation":"runtime_policy","runtime":"onnx/iree","status":"integrated-boundary"},
+    {"id":"structured_sparsity","implementation":"runtime_policy","runtime":"accelerator","status":"integrated-boundary"},
+    {"id":"edge_dnn_partitioning","implementation":"split_inference_policy","runtime":"edge/cloud","status":"integrated-boundary"},
+    {"id":"adaptive_edge_cloud_scheduling","implementation":"resource_planner","runtime":"iot/edge/cloud","status":"integrated-boundary"},
+    {"id":"heterogeneous_cpu_gpu_npu_scheduling","implementation":"device_planner","runtime":"native","status":"integrated"},
+    {"id":"work_stealing","implementation":"executor-policy","runtime":"native","status":"integrated"},
+    {"id":"zero_copy_io","implementation":"io-policy","runtime":"native","status":"integrated-boundary"},
+    {"id":"federated_learning","implementation":"orchestration-boundary","runtime":"edge","status":"integrated-boundary"}
+  ],
+  "compiler_runtimes": ["MLIR","IREE","TVM","ONNX Runtime"],
+  "hardware_targets": ["x86_64","ARM64","RISC-V","CPU","SIMD","GPU","NPU","FPGA","DSP","Edge","IoT"],
+  "sources": [
+    "https://iree.dev/",
+    "https://mlir.llvm.org/",
+    "https://onnxruntime.ai/"
+  ],
+  "policy": {"copy_upstream_code":false,"auto_execute_generated_code":false,"auto_install":false,"auto_network_mutation":false}
+}
