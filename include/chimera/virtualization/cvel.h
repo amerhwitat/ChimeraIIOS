@@ -67,6 +67,7 @@ public:
     static bool supports_architecture(const Capability&, const std::string& architecture);
 };
 
+std::string qemu_executable_for_architecture(const std::string& architecture);
 std::string command_to_string(const CommandLine&);
 
 } // namespace chimera::virtualization
