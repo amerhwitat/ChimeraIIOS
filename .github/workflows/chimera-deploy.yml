@@ -1,0 +1,33 @@
+name: Chimera Deployment Gates
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Deployment target'
+        required: true
+        type: choice
+        options: [kubernetes, openshift, openstack]
+      plan:
+        description: 'Plan file path or artifact to validate'
+        required: true
+        default: 'chimera-plan.json'
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provider tooling inventory
+        run: |
+          python3 tools/cloud/chimera_cloud.py doctor "${{ inputs.provider }}"
+      - name: Validate provider plan
+        run: |
+          python3 tools/cloud/chimera_cloud.py plan "${{ inputs.provider }}" --output /tmp/chimera-plan.json
+          python3 -m json.tool /tmp/chimera-plan.json >/dev/null
+      - name: Deployment boundary
+        run: |
+          echo "Provider: ${{ inputs.provider }}"
+          echo "Production mutation must be performed by the approved provider-specific deployment runner."
+          echo "No credentials or infrastructure mutation are embedded in this repository workflow."
