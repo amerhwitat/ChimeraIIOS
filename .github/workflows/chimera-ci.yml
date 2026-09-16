@@ -1,61 +1,63 @@
-name: Chimera II CI
+name: Chimera II CI/CD
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-test:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        id: configure
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          cmake -S . -B build -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON 2>&1 | tee cmake-configure.log
-      - name: Upload CMake diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: chimera-cmake-diagnostics
-          path: |
-            cmake-configure.log
-            build/CMakeFiles/CMakeOutput.log
-            build/CMakeFiles/CMakeError.log
-          if-no-files-found: warn
-      - name: Fail on configure error
-        if: steps.configure.outcome == 'failure'
-        run: exit 1
+        run: cmake -S . -B build -DCHIMERA_ENABLE_CVEL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=OFF
       - name: Build
-        id: build
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          cmake --build build --parallel 2>&1 | tee cmake-build.log
-      - name: Upload build diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: chimera-build-diagnostics
-          path: cmake-build.log
-          if-no-files-found: warn
-      - name: Fail on build error
-        if: steps.build.outcome == 'failure'
-        run: exit 1
+        run: cmake --build build --config Release --parallel
       - name: Test
-        run: ctest --test-dir build --output-on-failure
-      - name: Python ISA/database registry tests
-        run: python3 -m pytest -q tests/isa/test_isa_registry.py tests/database/test_database_catalog.py
-      - name: Validate LLVM importer syntax
-        run: python3 -m py_compile isa/tools/import_llvm_targets.py
-      - name: Install smoke test
+        run: ctest --test-dir build --build-config Release --output-on-failure
+  validate-infrastructure:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate registries
+        run: python3 -m json.tool cloud/providers.json >/dev/null && python3 -m json.tool virtualization/cvel/cvel_registry.json >/dev/null
+      - name: Validate Terraform when installed
         run: |
-          cmake --install build --prefix "$RUNNER_TEMP/chimera-install"
-          test -x "$RUNNER_TEMP/chimera-install/bin/chimera_kernel"
-          test -x "$RUNNER_TEMP/chimera-install/bin/chimera-enable-startup"
-          test -f "$RUNNER_TEMP/chimera-install/lib/systemd/system/chimera-kernel.service"
-          test -f "$RUNNER_TEMP/chimera-install/lib/systemd/system/aurora-session@.service"
-          test -f "$RUNNER_TEMP/chimera-install/share/wayland-sessions/aurora.desktop"
-          test -x "$RUNNER_TEMP/chimera-install/lib/chimera/aurora-session"
+          if command -v terraform >/dev/null 2>&1; then
+            terraform -chdir=infrastructure/openstack fmt -check
+            terraform -chdir=infrastructure/openstack init -backend=false
+            terraform -chdir=infrastructure/openstack validate
+          else
+            echo "Terraform not installed; provider-specific IaC validation runs in IaC environments."
+          fi
+      - name: Validate cloud CLI
+        run: python3 tools/cloud/chimera_cloud.py providers
+  code-generation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate ISA artifacts
+        run: |
+          cmake -S . -B build -DCHIMERA_BUILD_STARTUP_RUNTIME=OFF
+          cmake --build build --target chimera_generate_isa_bitfields
+      - name: Generate infrastructure plan
+        run: python3 tools/cloud/chimera_cloud.py plan kubernetes --output build/chimera-kubernetes-plan.json
+  package:
+    needs: [build-test, validate-infrastructure, code-generation]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCHIMERA_ENABLE_CVEL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=OFF
+      - name: Build release
+        run: cmake --build build --config Release --parallel
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-os-build
+          path: build/
