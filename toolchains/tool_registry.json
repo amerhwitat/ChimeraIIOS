@@ -1,0 +1,70 @@
+{
+  "schema": "CHM-TOOLCHAIN-1",
+  "purpose": "Unified compiler, assembler, linker, disassembler, debugger, decompiler, binary-analysis, reverse-engineering and language-tool registry for Chimera II OS.",
+  "policy": "Registry and integration layer; tools remain independently licensed upstream components and are installed only when their licenses permit redistribution.",
+  "tool_classes": {
+    "compilers": [
+      {"name":"GCC","languages":["C","C++","Fortran","Ada","D","Go","Objective-C","Objective-C++"],"targets":"GNU toolchain targets"},
+      {"name":"Clang/LLVM","languages":["C","C++","Objective-C","Objective-C++","Fortran","OpenMP"],"targets":"LLVM targets"},
+      {"name":"Rustc","languages":["Rust"],"targets":"LLVM targets"},
+      {"name":"Go","languages":["Go"],"targets":"Go architectures"},
+      {"name":"JVM toolchains","languages":["Java","Kotlin","Scala","Groovy"],"targets":"JVM/bytecode"},
+      {"name":".NET SDK","languages":["C#","F#","Visual Basic"],"targets":"ECMA CLI"},
+      {"name":"Swift","languages":["Swift"],"targets":"Apple/LLVM targets where supported"},
+      {"name":"GHC","languages":["Haskell"],"targets":"GHC targets"},
+      {"name":"OCaml","languages":["OCaml"],"targets":"native/bytecode"},
+      {"name":"Zig","languages":["Zig"],"targets":"Zig/LLVM targets"},
+      {"name":"Dart","languages":["Dart"],"targets":"Dart VM/native/web"},
+      {"name":"Nim","languages":["Nim"],"targets":"C/C++/JavaScript backends"},
+      {"name":"Crystal","languages":["Crystal"],"targets":"LLVM"},
+      {"name":"Julia","languages":["Julia"],"targets":"LLVM/JIT"},
+      {"name":"Fortran toolchains","languages":["Fortran"],"targets":"GFortran/LLVM"},
+      {"name":"Pascal toolchains","languages":["Pascal","Object Pascal"],"targets":"Free Pascal/LLVM"}
+    ],
+    "assemblers": [
+      {"name":"GNU as","formats":["ELF","COFF","Mach-O"],"targets":"GNU binutils targets"},
+      {"name":"LLVM integrated assembler","formats":["ELF","COFF","Mach-O"],"targets":"LLVM targets"},
+      {"name":"NASM","formats":["ELF","COFF","Mach-O","bin"],"targets":["x86","x86-64"]},
+      {"name":"YASM","formats":["ELF","COFF","Mach-O","bin"],"targets":["x86","x86-64"]},
+      {"name":"FASM","formats":["ELF","PE","bin"],"targets":["x86","x86-64"]},
+      {"name":"MASM","formats":["COFF","PE"],"targets":["x86","x86-64"]},
+      {"name":"ARM assemblers","formats":["ELF","bin"],"targets":["ARM","AArch64"]},
+      {"name":"RISC-V GNU/LLVM assemblers","formats":["ELF","bin"],"targets":["RISC-V"]},
+      {"name":"MIPS/Power/SPARC assemblers","formats":["ELF","bin"],"targets":["MIPS","Power","SPARC"]}
+    ],
+    "disassemblers": [
+      {"name":"GNU objdump","formats":["ELF","COFF","Mach-O","PE"],"targets":"binutils targets"},
+      {"name":"LLVM llvm-objdump","formats":["ELF","COFF","Mach-O","PE"],"targets":"LLVM targets"},
+      {"name":"Capstone","api":"C/Python and language bindings","targets":"multi-ISA"},
+      {"name":"LLVM MC","api":"assembler/disassembler libraries","targets":"LLVM targets"}
+    ],
+    "debuggers": [
+      {"name":"GDB","targets":"multi-architecture"},
+      {"name":"LLDB","targets":"LLVM architectures"},
+      {"name":"WinDbg","targets":["Windows"]},
+      {"name":"CDB/NTSD","targets":["Windows"]},
+      {"name":"EDB","targets":["x86","x86-64"]},
+      {"name":"rr","targets":["Linux","x86-64"]}
+    ],
+    "decompilers_and_binary_analysis": [
+      {"name":"Ghidra","features":["decompiler","disassembler","scripting","binary analysis","debugging"]},
+      {"name":"radare2","features":["analysis","debugging","disassembly","scripting"]},
+      {"name":"Rizin/Cutter","features":["analysis","disassembly","debugging","GUI"]},
+      {"name":"RetDec","features":["decompilation","binary analysis"]},
+      {"name":"JADX","features":["Android/Dex decompilation"]},
+      {"name":"Apktool","features":["Android APK resource/smali analysis"]},
+      {"name":"dex2jar","features":["DEX/JAR conversion"]},
+      {"name":"JD-GUI","features":["Java bytecode browsing/decompilation"]},
+      {"name":"Bytecode Viewer","features":["JVM bytecode analysis"]},
+      {"name":"binwalk","features":["firmware/file analysis"]},
+      {"name":"strings/file","features":["binary triage"]}
+    ],
+    "binary_formats_and_linkers": [
+      "ELF","PE/COFF","Mach-O","a.out","raw binary","Intel HEX","Motorola S-record","WebAssembly","DEX","JAR","CLI assemblies"
+    ],
+    "build_systems": ["CMake","Ninja","Make","Meson","Bazel","Cargo","Go modules","Gradle","Maven","MSBuild","Xcodebuild","SwiftPM","Autotools","configure"],
+    "debug_protocols": ["GDB remote protocol","LLDB","DAP","DWARF","CodeView/PDB","STABS"],
+    "target_abis": ["SysV AMD64","AArch64 ELF","ARM EABI","RISC-V ELF","MIPS ABI","Power ELF ABI","SPARC ABI","s390x ELF","Windows PE/COFF","Apple Mach-O","WASI/WebAssembly"],
+    "chimera_backends": ["Chimera-C8192","Chimera-R8192","x86","x86-64","AArch64","ARM32","RISC-V32","RISC-V64","MIPS","PowerPC","SPARC","m68k","s390x","LoongArch64","PA-RISC","SH4","Xtensa","AVR"]
+  }
+}
