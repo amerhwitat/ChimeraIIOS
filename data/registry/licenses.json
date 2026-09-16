@@ -1,0 +1,12 @@
+{
+  "schema":"CHIMERA-DATA-LICENSES-2026-1",
+  "projects":[
+    {"id":"postgresql","license":"PostgreSQL License","source":"https://www.postgresql.org/"},
+    {"id":"mariadb","license":"GPL-2.0","source":"https://mariadb.org/"},
+    {"id":"cassandra","license":"Apache-2.0","source":"https://cassandra.apache.org/"},
+    {"id":"hadoop","license":"Apache-2.0","source":"https://hadoop.apache.org/"},
+    {"id":"hive","license":"Apache-2.0","source":"https://hive.apache.org/"},
+    {"id":"egeria","license":"Apache-2.0","source":"https://egeria-project.org/"},
+    {"id":"openstack","license":"Apache-2.0","source":"https://www.openstack.org/"}
+  ]
+}
