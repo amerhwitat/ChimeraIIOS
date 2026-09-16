@@ -1,0 +1,30 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  name: chimera-system
+  labels:
+    app.kubernetes.io/part-of: chimera-ii-os
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chimera-control
+  namespace: chimera-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chimera-control
+  template:
+    metadata:
+      labels:
+        app: chimera-control
+    spec:
+      containers:
+        - name: chimera-control
+          image: ghcr.io/amerhwitat/chimera-ii-os:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
