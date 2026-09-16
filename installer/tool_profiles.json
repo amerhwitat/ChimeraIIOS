@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-TOOL-PROFILES-1",
+  "profiles":{
+    "minimal":{"compiler":["GCC","Clang"],"debugger":["GDB"],"assembler":["GNU as"],"binary":["objdump","readelf"]},
+    "developer":{"base":"minimal","add":["LLVM","Rust","Go","Python","Java",".NET","CMake","Ninja","Git","LLDB"]},
+    "reverse-engineering":{"base":"developer","add":["Ghidra","radare2","Rizin/Cutter","RetDec","Capstone","Keystone","Unicorn","binwalk","JADX","Apktool","dex2jar","Bytecode Viewer"]},
+    "security-lab":{"base":"reverse-engineering","add":["Kali package catalog","Nmap","Wireshark","tcpdump","Burp Suite/ZAP","John the Ripper","Hashcat","Metasploit Framework"]},
+    "forensics":{"base":"reverse-engineering","add":["Autopsy","Sleuth Kit","Volatility","Guymager","EWF tools","hash utilities"]},
+    "full":{"base":"security-lab","add":["all licensed/available language packs","all supported QEMU targets","all available open-source developer tools"]}
+  },
+  "license_rule":"Installer resolves each component from an approved repository and records package version, source, license and checksum; it does not bundle incompatible proprietary software.",
+  "offline_media":true,
+  "update_channel":"signed package metadata"
+}
