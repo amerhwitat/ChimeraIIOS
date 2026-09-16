@@ -1,0 +1,13 @@
+{
+  "schema": "CHIMERA-REPAIR-POLICIES-2026-1",
+  "updated": "2026-09-16",
+  "default_mode": "dry-run",
+  "actions": [
+    {"id":"create_build_dir","command":["cmake","-S",".","-B","build"],"risk":"low","network":false},
+    {"id":"configure_build","command":["cmake","-S",".","-B","build"],"risk":"low","network":false},
+    {"id":"build","command":["cmake","--build","build","--parallel"],"risk":"low","network":false},
+    {"id":"test","command":["ctest","--test-dir","build","--output-on-failure"],"risk":"low","network":false},
+    {"id":"clean_cache","command":["cmake","-S",".","-B","build","-U","*"],"risk":"medium","network":false,"requires_explicit_confirmation":true}
+  ],
+  "forbidden": ["shell=True", "arbitrary command strings", "remote downloads", "git push", "git merge", "generated-code execution"]
+}
