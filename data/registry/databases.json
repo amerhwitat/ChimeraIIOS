@@ -1,0 +1,13 @@
+{
+  "schema": "CHIMERA-DATA-DATABASES-2026-1",
+  "updated": "2026-09-16",
+  "engines": [
+    {"id":"sqlite","kind":"sql","role":"embedded","license":"Public Domain","binary":"sqlite3","editions":["desktop","server","mobile","edge","cvel"]},
+    {"id":"postgresql","kind":"sql","role":"server","license":"PostgreSQL License","binary":"psql","editions":["desktop","server","cvel"]},
+    {"id":"mariadb","kind":"sql","role":"server","license":"GPL-2.0","binary":"mariadb","editions":["desktop","server","cvel"]},
+    {"id":"duckdb","kind":"sql","role":"embedded-analytics","license":"MIT","binary":"duckdb","editions":["desktop","server","edge","cvel"]},
+    {"id":"cassandra","kind":"nosql-wide-column","role":"distributed-server","license":"Apache-2.0","binary":"cqlsh","editions":["server","cvel"]},
+    {"id":"egeria","kind":"mdm-metadata","role":"governance-service","license":"Apache-2.0","binary":"egeria","editions":["server","cvel"]},
+    {"id":"atlas","kind":"metadata","role":"hadoop-governance","license":"Apache-2.0","binary":"atlas","editions":["server","cvel"]}
+  ]
+}
