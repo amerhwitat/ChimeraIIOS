@@ -16,6 +16,12 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Open-source application catalog | [`applications/`](applications/) |
 | Open-source provenance | [`opensource/`](opensource/) |
 | RISC/CISC ISA catalog | [`isa/`](isa/) |
+| Universal architecture registry | [`isa/world_architectures.json`](isa/world_architectures.json) |
+| Universal execution API | [`execution/universal_execution_api.json`](execution/universal_execution_api.json) |
+| Retro computer registry | [`emulation/retro_systems.json`](emulation/retro_systems.json) |
+| Unix/Linux command registry | [`services/unix_command_registry.json`](services/unix_command_registry.json) |
+| Linux package repositories | [`packages/repositories.json`](packages/repositories.json) |
+| Aurora application registry | [`desktop/aurora_app_registry.json`](desktop/aurora_app_registry.json) |
 | Nucleus / Hive / Kore / Aegis / CEF | [system service trees](.) |
 | RegisterN / C8192 / R8192 | [ISA/register sources](.) |
 | Quantum computing | [`quantum/`](quantum/) |
@@ -30,6 +36,40 @@ Chimera II OS is a cross-language research operating-system and application plat
 | Automation / ISO / tests | [tools, build and test trees](.) |
 | Complete tracked repository | [full source tree](.) |
 
+## Universal ISA, computer and OS registry
+
+`isa/catalog.json` remains the canonical instruction catalog, while `isa/world_architectures.json` is the broader architecture/OS/emulator registry. The normalized instruction model separates architecture, mnemonic, operands, encoding, flags, memory effects, control flow and privilege. The registry is provenance-first: it indexes authoritative specifications and examples rather than copying proprietary manuals. It is designed to drive future assembler/disassembler, emulator, debugger and binary-analysis adapters.
+
+The initial research crawl cross-checks Intel's current Software Developer Manuals, RISC-V specifications, Arm architecture documentation and QEMU's architecture/emulation documentation. Intel's SDM Volume 2 is the authoritative instruction reference for IA-32/Intel 64; RISC-V and Arm publish their own architectural specifications; QEMU provides a practical multi-architecture emulation reference.
+
+## Universal execution API
+
+`execution/universal_execution_api.json` defines the common execution boundary: decoder → operand resolver → semantic engine → machine state → memory bus → device bus → OS/ABI boundary. C/C++, Rust, Python, Java, C#, Kotlin, Swift, TypeScript, Dart and Go adapters can bind to the same model. Privileged execution is sandboxed by default and downloaded code is never executed automatically.
+
+## Aurora Wayland Glass
+
+`desktop/aurora_app_registry.json` makes Aurora the common presentation layer for Settings, Package Center, Terminal, ISA Explorer, CPU Emulator, Retro Center, BizX, BizXtreme, Network Center and Developer Center. The existing event schema and Linux/Windows/macOS compatibility profiles remain the common desktop contract. Wayland is the native Linux compositor boundary; legacy personalities remain behavioral compatibility profiles rather than copied proprietary binaries.
+
+## Retro Computer Center
+
+`emulation/retro_systems.json` establishes a single Aurora registry for Amiga, Commodore, Atari, Apple, Sinclair, Acorn, Amstrad, PC/DOS, arcade and console families. Existing Amiga browser work under `nlp/Amiga` is the first integrated profile. The design uses adapter boundaries for SAE/UAE/vAmigaWeb, QEMU, MAME, libretro and other compatible projects. ROMs, BIOS images and commercial games remain user-supplied or properly licensed.
+
+The libretro ecosystem provides a portable audio/video/input API and a broad collection of emulator cores, while RetroArch acts as a reference frontend. Chimera integrates this ecosystem through adapters rather than copying every emulator into the OS repository.
+
+## Linux / Unix commands and package repositories
+
+`services/unix_command_registry.json` catalogs filesystem, text, process, shell, network, archive, storage, system, development and package utilities. Native Chimera implementations are preferred; compatibility adapters can delegate to a host/Linux environment when appropriate.
+
+`packages/repositories.json` records package repository families including Debian, Ubuntu, Fedora, openSUSE, Arch, Alpine, Gentoo, FreeBSD, Homebrew and Flathub, plus upstream Linux/kernel, GNU, freedesktop, Wayland, Mesa, QEMU and libretro references. Repository metadata does not imply that packages are trusted: Chimera package installation must enforce signatures, checksums, licenses, dependencies, architecture compatibility, permissions and rollback policy.
+
+## BizX and BizXtreme integration
+
+BizX and BizXtreme now contain `CHIMERA_INTEGRATION.json` manifests. Aurora exposes them as applications while Koronos/Chimera APIs provide networking, execution, package, settings, retro and system-service boundaries. Existing language implementations are retained as language-specific adapters; the integration does not claim that one translated codebase replaces all implementations. Each repository's licenses and provenance remain authoritative.
+
+## Cross-repository Chimera integration
+
+Relevant repositories now expose a small `CHIMERA_INTEGRATION.json` contract so the OS can discover their capabilities without copying their entire source trees into the kernel repository. This includes `BizX`, `BizXtreme`, `nlp`, `CPU4096`, `CPU4096Simulator`, `general`, `PDFreaderPY`, `eth-key-check`, `keygen`, `bruteforce`, `test`, `VanG`, and the project website. The integration contract distinguishes reusable application capabilities from repository-specific source and licensing.
+
 ## Unified build, dependency, packaging and installer automation
 
 The repository now has a single cross-platform automation entry point: `tools/build/orchestrator.py`, with POSIX shell, Windows CMD and PowerShell wrappers under `scripts/`. Use `doctor`, `deps`, `configure`, `build`, `test`, `package`, `install`, `clean`, or `all`. The same orchestration contract is exercised by CI so local builds and CI builds do not silently diverge.
@@ -42,15 +82,9 @@ Chimera II now treats Arabic (`ar`, with `ar-SA` as the reference locale) as a f
 
 The desktop compatibility model catalogs GNOME, KDE Plasma, Xfce, Cinnamon, MATE and LXQt on Linux, classic through modern Windows/WinUI, and Classic-Mac/Cocoa/AppKit/SwiftUI-era macOS presentation. These are behavior/appearance compatibility profiles rather than copied proprietary source or binaries. Open-source upstream projects remain subject to their own licenses and provenance requirements.
 
-Arabic UI follows Unicode logical text order and uses platform text shaping/BiDi/layout engines rather than manually reversing strings. RTL tests cover mixed Arabic/Latin text, numerals, paths/URLs, keyboard switching, accessibility, clipping, menus, panels, dialogs and clipboard round trips. Microsoft explicitly documents RTL flow and flexible layouts for Arabic, while Apple documents RTL mirroring through standard layout systems and RTL testing. GNOME, KDE Plasma, MATE and LXQt document their respective desktop architectures publicly.
+Arabic UI follows Unicode logical text order and uses platform text shaping/BiDi/layout engines rather than manually reversing strings. RTL tests cover mixed Arabic/Latin text, numerals, paths/URLs, keyboard switching, accessibility, clipping, menus, panels, dialogs and clipboard round trips.
 
 See `desktop/localization/ar-SA.json`, `desktop/upstream_desktop_catalog.json`, `desktop/desktop_profiles.json`, `docs/ARABIC_DESKTOP_AND_LOCALIZATION.md` and `.github/workflows/arabic-desktop-ci.yml`.
-
-## RISC and CISC instruction-set catalog
-
-`isa/catalog.json` is the canonical machine-readable instruction catalog. It enumerates major RISC and CISC families used by real computers, records operand structure including optional operands, and stores a worked binary and hexadecimal encoding for each catalog instruction. Current families include RISC-V, AArch64, ARM32, MIPS32, OpenPOWER, SPARC, x86/Intel 64/AMD64, Motorola 68000, IBM System z and VAX.
-
-The catalog separates concrete encodings from general encoding fields so it can support future assembler/disassembler, emulator and binary-analysis work without confusing an example opcode with a complete instruction decoder. C/C++, Rust, Python, Java, C#, Kotlin, Swift, TypeScript and Dart adapters expose the same canonical dataset. See `docs/ISA_CATALOG.md`, `isa/schema.json`, `tools/validate_isa_catalog.py` and `.github/workflows/isa-catalog-ci.yml`.
 
 ## Application networking
 
@@ -58,19 +92,13 @@ The catalog separates concrete encodings from general encoding fields so it can 
 
 ## Open-source Linux / Windows / macOS services and applications
 
-Chimera II now has a provenance-first compatibility layer for open-source services, desktop technologies and free applications. The canonical source registry is `opensource/sources.json`; service capabilities are defined in `services/service_registry.json`; application compatibility records are in `applications/catalog.json`.
+Chimera II has a provenance-first compatibility layer for open-source services, desktop technologies and free applications. The canonical source registry is `opensource/sources.json`; service capabilities are defined in `services/service_registry.json`; application compatibility records are in `applications/catalog.json`.
 
 The integration covers Linux systemd/D-Bus/NetworkManager/PipeWire/CUPS/udev/Samba families, Windows Service Control Manager/Task Scheduler/PowerShell/Windows Terminal/WSL/Windows App SDK boundaries, and macOS launchd/POSIX/CoreAudio/WebKit/printing boundaries. Aurora remains the common desktop capability layer, while platform adapters preserve each operating system's distinct semantics.
 
 Application families include file managers, terminals, office/document suites, image/PDF tools, media players, browser/WebKit shells, archives, calculators, system monitors, disk/network/developer tools, accessibility, recording, backup/synchronization and package-management interfaces.
 
 These are compatibility and provenance layers rather than a claim that the repository contains every upstream project. Large upstream projects remain external and are represented by versioned source/license metadata and explicit staging/build manifests. Proprietary platform binaries are not redistributed. Downloaded artifacts are not executed automatically.
-
-## Aurora desktop compatibility
-
-Aurora has a platform-neutral desktop/event layer for **Linux, Windows and macOS**, with historical interaction personalities and native backend boundaries. The canonical schema is `desktop/event_schema.json`; desktop-era profiles are in `desktop/platform_profiles.json`.
-
-Supported compatibility families include Windows Win32 through modern Windows, Linux X11/GTK/Qt/Wayland generations, and macOS AppKit through modern SwiftUI-era presentation. These are behavioral compatibility profiles: Chimera does not copy proprietary operating-system binaries.
 
 ## Neural multidimensional reasoning
 
@@ -94,4 +122,4 @@ Chimera II can discover, acquire, verify and stage Linux and Windows driver cand
 
 ## Licensing and provenance
 
-Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. The open-source compatibility and ISA layers record exact upstream provenance and license expressions instead of assuming that all upstream projects can be relicensed as GPL.
+Chimera II OS is distributed under GNU GPL v3 or later unless a subcomponent explicitly identifies a compatible third-party license. Third-party dependencies and assets retain their original licenses. The open-source compatibility, emulator and ISA layers record upstream provenance and license expressions instead of assuming that all upstream projects can be relicensed as GPL.
