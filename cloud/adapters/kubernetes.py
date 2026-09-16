@@ -32,5 +32,4 @@ class KubernetesAdapter:
         manifest = plan.get("source")
         if not manifest or not Path(manifest).is_file():
             raise FileNotFoundError(manifest or "manifest")
-        r = run_argv([self.command, "apply", "--filename", manifest, "--non-interactive"])
-        return r.returncode
+        return run_argv([self.command, "apply", "--filename", manifest]).returncode
