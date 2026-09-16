@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Chimera II OS Hosted Edition" Manufacturer="Amer Hwitat" Version="0.1.0" UpgradeCode="7C6A2E31-4A12-4A65-8F7E-2C2D2E5B1201">
+    <MajorUpgrade DowngradeErrorMessage="A newer Chimera II OS version is already installed." />
+    <MediaTemplate />
+    <Feature Id="Main" Title="Chimera II OS Hosted Edition" Level="1">
+      <ComponentGroupRef Id="HostedFiles" />
+    </Feature>
+    <Fragment>
+      <StandardDirectory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="ChimeraIIOS" />
+      </StandardDirectory>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="HostedFiles" Directory="INSTALLFOLDER">
+        <Component Id="HostedExecutable">
+          <File Source="..\..\build\hosted-windows\Release\chimera-hosted.exe" KeyPath="yes" />
+        </Component>
+      </ComponentGroup>
+    </Fragment>
+  </Package>
+</Wix>
