@@ -1,0 +1,32 @@
+{
+  "schema": "CHM-BOOT-PROTOCOL-1",
+  "name": "Chimera Universal Boot Contract",
+  "goal": "Accept kernels from native or chainloaded BIOS/MBR, UEFI, Multiboot1/2, Limine-compatible, and profile-specific mobile boot paths without assuming a particular bootloader implementation.",
+  "supported_firmware": ["BIOS", "UEFI"],
+  "supported_x86_modes": ["real16", "protected32", "long64"],
+  "supported_protocols": ["native", "bios_mbr", "uefi_efi", "multiboot1", "multiboot2", "limine", "chainload"],
+  "entry_contract": {
+    "boot_context_magic": "CHMBOOT1",
+    "kernel_format": ["ELF32", "ELF64", "PE32+_EFI", "raw_profile_image"],
+    "required_data": ["memory_map", "framebuffer_if_available", "boot_drive_if_bios", "firmware_type", "cpu_architecture"],
+    "optional_data": ["ACPI_RSDP", "SMBIOS", "EFI_SYSTEM_TABLE", "EFI_MEMORY_MAP", "DTB", "initrd", "entropy", "TPM_EVENT_LOG", "bootloader_name", "command_line"]
+  },
+  "menu_first": {
+    "enabled": true,
+    "entries": ["Chimera II OS", "Chimera II OS Safe Graphics", "Chimera II OS Diagnostics", "Chimera II OS Recovery", "Chainload Native Bootloader"],
+    "timeout_seconds": 5,
+    "keyboard": ["arrows", "enter", "escape", "function_keys"]
+  },
+  "handoff": {
+    "phase_order": ["firmware", "bootloader", "menu", "hardware_discovery", "memory", "framebuffer", "koronos", "drivers", "spotnik", "nucleus", "aurora", "session"],
+    "progress_ui": "aurora_boot_ui",
+    "failure_policy": "show_phase_error_then_offer_recovery"
+  },
+  "security": {
+    "verify_signatures_when_available": true,
+    "respect_secure_boot": true,
+    "never_bypass_firmware_security": true,
+    "require_explicit_profile_for_baremetal": true,
+    "recovery_entry_required": true
+  }
+}
