@@ -1,0 +1,6 @@
+{
+  "schema": "CHIMERA-PEERS-1",
+  "updated": "2026-09-16",
+  "records": [],
+  "record_fields": ["peer_id","node_id","addresses","transport","role","capabilities","public_key_fingerprint","last_seen","trust_state"]
+}
