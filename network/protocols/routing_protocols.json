@@ -16,11 +16,11 @@
     {"id":"vxlan","layer":2,"role":"overlay_networking","editions":["server","edge","cvel"]},
     {"id":"gre","layer":3,"role":"tunneling","editions":["desktop","server","edge","mobile","cvel"]},
     {"id":"nat64","layer":3,"role":"ipv6_ipv4_translation","editions":["server","edge","mobile"]},
-    {"id":"sdn_openflow","layer":2_3,"role":"software_defined_network_control","editions":["server","edge","cvel"]},
+    {"id":"sdn_openflow","layer":"2/3","role":"software_defined_network_control","editions":["server","edge","cvel"]},
     {"id":"ecmp","layer":3,"role":"equal_cost_multipath","editions":["server","edge","cvel"]},
     {"id":"policy_routing","layer":3,"role":"policy_based_routing","editions":["desktop","server","mobile","edge","iot","cvel"]},
-    {"id":"ebpf_xdp","layer":2_3,"role":"programmable_fast_path","editions":["server","edge","iot","cvel"]},
-    {"id":"af_xdp","layer":2_3,"role":"userspace_packet_path","editions":["server","edge","cvel"]}
+    {"id":"ebpf_xdp","layer":"2/3","role":"programmable_fast_path","editions":["server","edge","iot","cvel"]},
+    {"id":"af_xdp","layer":"2/3","role":"userspace_packet_path","editions":["server","edge","cvel"]}
   ],
   "defaults": {
     "desktop":["ipv4_static","ipv6_static","policy_routing","gre"],
