@@ -1,0 +1,15 @@
+{
+  "schema": "CHIMERA-NEXTGEN-IOT-2026-1",
+  "protocols": [
+    {"id":"mqtt5","class":"publish_subscribe","security":["tls","acl"]},
+    {"id":"opcua_pubsub","class":"industrial_pubsub","security":["application_security","signing","encryption"]},
+    {"id":"thread","class":"mesh","security":["network_security"]},
+    {"id":"matter","class":"device_application","security":["device_attestation","encrypted_transport"]},
+    {"id":"coap","class":"constrained_rest","security":["dtls","oscore"]},
+    {"id":"ble","class":"short_range","security":["pairing","encryption"]},
+    {"id":"can","class":"vehicle_control","security":["gateway_policy"]},
+    {"id":"modbus","class":"industrial_control","security":["network_segmentation","gateway_policy"]},
+    {"id":"lorawan","class":"low_power_wan","security":["device_authentication","payload_encryption"]}
+  ],
+  "defaults": {"network_connect":false,"device_write":false,"remote_command":false,"telemetry_buffering":true}
+}
