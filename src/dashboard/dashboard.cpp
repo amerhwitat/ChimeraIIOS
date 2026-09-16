@@ -21,6 +21,10 @@ std::string state_name(HealthState state) {
     }
 }
 
+std::vector<std::string> supported_editions() {
+    return {"desktop", "server", "mobile", "edge", "iot", "cvel"};
+}
+
 static double cpu_load_percent() {
     std::ifstream f("/proc/loadavg");
     double load = 0.0;
@@ -40,9 +44,17 @@ static double memory_percent() {
     return total > 0.0 ? ((total - available) / total) * 100.0 : 0.0;
 }
 
+static std::uint64_t uptime_seconds() {
+    std::ifstream f("/proc/uptime");
+    double seconds = 0.0;
+    if (!(f >> seconds) || seconds < 0.0) return 0;
+    return static_cast<std::uint64_t>(seconds);
+}
+
 Snapshot collect(const std::string& edition) {
     Snapshot s;
     s.edition = edition;
+    s.uptime_seconds = uptime_seconds();
 #if defined(__x86_64__) || defined(_M_X64)
     s.architecture = "x86_64";
 #elif defined(__aarch64__) || defined(_M_ARM64)
