@@ -1,0 +1,15 @@
+{
+  "schema":"CHIMERA-DATA-HADOOP-2026-1",
+  "updated":"2026-09-16",
+  "components":[
+    {"id":"hdfs","role":"distributed-storage","binary":"hdfs","license":"Apache-2.0"},
+    {"id":"yarn","role":"cluster-resource-management","binary":"yarn","license":"Apache-2.0"},
+    {"id":"hive","role":"sql-warehouse","binary":"hive","license":"Apache-2.0"},
+    {"id":"hbase","role":"wide-column-nosql","binary":"hbase","license":"Apache-2.0"},
+    {"id":"spark","role":"distributed-compute","binary":"spark-submit","license":"Apache-2.0"},
+    {"id":"tez","role":"dag-execution","binary":"tez","license":"Apache-2.0"},
+    {"id":"kafka","role":"event-streaming","binary":"kafka-topics","license":"Apache-2.0"},
+    {"id":"ozone","role":"object-storage","binary":"ozone","license":"Apache-2.0"},
+    {"id":"iceberg","role":"table-format","binary":"spark-sql","license":"Apache-2.0"}
+  ]
+}
