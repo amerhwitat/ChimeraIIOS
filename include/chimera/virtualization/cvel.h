@@ -15,6 +15,7 @@ struct MachineProfile {
     uint64_t memory_mib{1024};
     std::string disk_image;
     std::string firmware{"uefi"};
+    std::string firmware_path;
     bool graphics{true};
     bool networking{true};
 };
