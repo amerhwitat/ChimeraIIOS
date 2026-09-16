@@ -1,0 +1,12 @@
+{
+  "schema": "CHIMERA-SCAFFOLDS-2026-1",
+  "updated": "2026-09-16",
+  "editions": {
+    "desktop": ["kernel","drivers","apps","data","ai","observability","repair","tests"],
+    "server": ["kernel","services","network","data","ai","observability","security","repair","tests"],
+    "mobile": ["microkernel","drivers","ui","data","ai","power","observability","repair","tests"],
+    "edge": ["kernel","drivers","iot","data","ai","network","observability","repair","tests"],
+    "cvel": ["virtual-cpu","virtual-memory","devices","data","ai","network","observability","repair","tests"]
+  },
+  "common_adapters": ["compiler","data","observability","security","repair","research"]
+}
