@@ -1,12 +1,15 @@
 {
-  "schema": "chimera-iso-layout-v2",
+  "schema": "chimera-iso-layout-v3",
   "filesystem": "ISO9660",
+  "extensions": ["Rock Ridge", "Joliet where supported by authoring backend"],
   "boot": {
-    "bios": "GRUB2/Multiboot2",
-    "uefi": "El Torito FAT EFI image when grub-mkrescue provides it",
-    "standard_efi_path": "EFI/BOOT/BOOTX64.EFI"
+    "bios": "GRUB2/Multiboot2 + El Torito BIOS entry",
+    "uefi": "UEFI EFI System Partition / El Torito EFI entry",
+    "standard_efi_path": "EFI/BOOT/BOOTX64.EFI",
+    "disk_layout": ["MBR compatibility", "GPT/EFI metadata where authored"]
   },
-  "directories": ["boot/spitfire","boot/jasper","boot/koronos","EFI/BOOT","EFI/CHIMERA","chimera","chimera/docs","chimera/manifests","chimera/toolchains","chimera/applications","chimera/knowledge","src","checksums"],
+  "directories": ["boot/spitfire","boot/jasper","boot/koronos","EFI/BOOT","EFI/CHIMERA","chimera","chimera/docs","chimera/manifests","chimera/toolchains","chimera/applications","chimera/knowledge","src","opt","install","drivers","filesystems","packages","repositories","man","games","wallets","ISO","checksums"],
   "research_targets": ["R8192","C8192","RegisterN","Tensor/AI"],
-  "provenance": "Every staged file is SHA-256 indexed before ISO mastering."
+  "provenance": "Every staged file is SHA-256 indexed before ISO mastering.",
+  "qualification": "Filesystem and firmware support is validated independently; registry presence does not imply universal write or hardware support."
 }
