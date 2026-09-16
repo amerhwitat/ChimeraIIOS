@@ -1,0 +1,7 @@
+{
+  "edition":"server",
+  "endpoint_env":{"hdfs":"HDFS_NAMENODE_URI","yarn":"YARN_RESOURCEMANAGER_ADDRESS","hive":"HIVE_SERVER2_URI","hbase":"HBASE_ZK_QUORUM"},
+  "execution_backends":["mapreduce","tez","spark"],
+  "optional_components":["kafka","ozone","iceberg"],
+  "security":["kerberos","tls","service_accounts"]
+}
