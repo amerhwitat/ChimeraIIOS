@@ -1,5 +1,5 @@
 {
-  "schema": "CHIMERA-DASHBOARD-KPI-1",
+  "schema": "CHIMERA-DASHBOARD-KPI-2",
   "refresh_seconds": 2,
   "kpis": [
     {"name":"cpu.utilization","unit":"%","warning":75,"critical":90},
@@ -20,8 +20,12 @@
     {"name":"security.advisories","unit":"advisories"},
     {"name":"security.pending_updates","unit":"updates"},
     {"name":"network.peer.count","unit":"peers"},
-    {"name":"network.route.count","unit":"routes"}
+    {"name":"network.route.count","unit":"routes"},
+    {"name":"ai.runtime.active","unit":"requests/s"},
+    {"name":"ai.runtime.queue_depth","unit":"requests"}
   ],
   "edition_scope":["desktop","server","mobile","edge","iot","cvel"],
-  "observability":{"opentelemetry_semantics":true,"psi_when_available":true,"privacy_local_first":true}
+  "observability":{"opentelemetry_semantics":true,"psi_when_available":true,"privacy_local_first":true,"remote_export_opt_in":true},
+  "history":{"enabled":true,"retention_days":30},
+  "alert_policy":{"default":"threshold","critical_requires_ack":true}
 }
