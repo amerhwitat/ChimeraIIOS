@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera DevOps Pipeline",
+  "type": "object",
+  "required": ["stages"],
+  "properties": {
+    "stages": {
+      "type": "array",
+      "items": {"enum": ["generate", "validate", "build", "test", "vm_validate", "artifact", "iac_plan", "deploy_gate"]},
+      "minItems": 1
+    }
+  }
+}
