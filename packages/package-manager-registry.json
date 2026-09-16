@@ -1,0 +1,25 @@
+{
+  "schema": "chimera-package-manager-registry-v1",
+  "managers": [
+    {"name":"apt","family":"debian","formats":["deb"]},
+    {"name":"apt-get","family":"debian","formats":["deb"]},
+    {"name":"dpkg","family":"debian","formats":["deb"]},
+    {"name":"dnf","family":"rpm","formats":["rpm"]},
+    {"name":"yum","family":"rpm","formats":["rpm"]},
+    {"name":"rpm","family":"rpm","formats":["rpm"]},
+    {"name":"zypper","family":"suse","formats":["rpm"]},
+    {"name":"pacman","family":"arch","formats":["pkg.tar"]},
+    {"name":"apk","family":"alpine","formats":["apk"]},
+    {"name":"xbps","family":"void","formats":["xbps"]},
+    {"name":"emerge","family":"gentoo","formats":["ebuild"]},
+    {"name":"pkg","family":"bsd","formats":["pkg"]},
+    {"name":"pkg_add","family":"bsd","formats":["tgz","pkg"]},
+    {"name":"brew","family":"homebrew","formats":["formula","cask"]},
+    {"name":"pip","family":"python","formats":["wheel","sdist"]},
+    {"name":"npm","family":"node","formats":["npm"]},
+    {"name":"cargo","family":"rust","formats":["crate"]},
+    {"name":"dotnet","family":"dotnet","formats":["nupkg","project"]},
+    {"name":"nuget","family":"dotnet","formats":["nupkg"]}
+  ],
+  "import_policy": {"dependency_resolution_required":true,"signature_or_checksum_required":true,"sandbox_foreign_installers":true,"silent_execution_forbidden":true}
+}
