@@ -1,0 +1,24 @@
+{
+  "$schema":"CHM-EXEC-1",
+  "name":"Chimera Universal Execution API",
+  "layers":[
+    {"name":"decoder","responsibility":"bytes -> canonical instruction record"},
+    {"name":"operand_resolver","responsibility":"register/immediate/memory/implicit operands"},
+    {"name":"semantic_engine","responsibility":"architectural instruction semantics"},
+    {"name":"machine_state","responsibility":"registers, flags, PC, privilege, MMU state"},
+    {"name":"memory_bus","responsibility":"virtual/physical memory and device mappings"},
+    {"name":"device_bus","responsibility":"timer, interrupt, storage, network, graphics and emulated peripherals"},
+    {"name":"os_boundary","responsibility":"syscall/ABI/exception boundary"}
+  ],
+  "backends":[
+    {"id":"chimera-c8192","status":"native-research","language":"cpp"},
+    {"id":"chimera-r8192","status":"native-research","language":"cpp"},
+    {"id":"x86","status":"adapter","preferred_backend":"qemu-tcg-or-native"},
+    {"id":"aarch64","status":"adapter","preferred_backend":"qemu-tcg-or-native"},
+    {"id":"riscv","status":"adapter","preferred_backend":"qemu-tcg-or-spike"},
+    {"id":"m68k","status":"adapter","preferred_backend":"qemu-or-uae"},
+    {"id":"libretro","status":"retro-emulation-boundary","api":"libretro"}
+  ],
+  "language_bindings":["c","cpp","rust","python","java","csharp","kotlin","swift","typescript","dart","go"],
+  "safety": {"privileged_execution":"sandboxed-by-default","downloaded_code":"never-execute-automatically","firmware_roms":"user-supplied-or-licensed"}
+}
