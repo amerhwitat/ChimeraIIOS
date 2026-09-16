@@ -10,7 +10,6 @@ mkdir -p "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
   "$DIST/src" "$DIST/opt" "$DIST/install" "$DIST/drivers" \
   "$DIST/filesystems" "$DIST/packages" "$DIST/repositories" \
   "$DIST/man" "$DIST/games" "$DIST/wallets" "$DIST/ISO" "$DIST/checksums"
-
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sf1_longmode.asm" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
@@ -20,8 +19,8 @@ cp "$ROOT/boot/include/chimera/bootinfo.h" "$ROOT/boot/include/chimera/cpu_profi
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
+[[ -f "$ROOT/boot/splash/support_footer.txt" ]] && cp "$ROOT/boot/splash/support_footer.txt" "$DIST/boot/"
 if [[ -f "$ROOT/boot/iso/dist/chimera2os.elf" ]]; then cp "$ROOT/boot/iso/dist/chimera2os.elf" "$DIST/boot/koronos/koronos.elf"; fi
-
 for d in include src kernel boot desktop network installer tools tests ai data cmake; do
   if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
 done
@@ -31,7 +30,6 @@ done
 [[ -d "$ROOT/appcenter" ]] && cp -a "$ROOT/appcenter" "$DIST/opt/appcenter"
 [[ -d "$ROOT/games" ]] && cp -a "$ROOT/games/." "$DIST/games/"
 [[ -d "$ROOT/wallets" ]] && cp -a "$ROOT/wallets/." "$DIST/wallets/"
-
 for f in \
   "$ROOT/repositories/platform-manifest.json" \
   "$ROOT/drivers/driver-registry.json" \
