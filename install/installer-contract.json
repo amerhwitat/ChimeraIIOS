@@ -1,0 +1,11 @@
+{
+  "schema": "chimera-installer-contract-v1",
+  "transaction": ["detect","explain","target","partition-plan","filesystem-plan","network-plan","driver-plan","package-plan","dry-run","confirm","write","verify","boot-entry","reboot"],
+  "architectures":["x86_64","aarch64","riscv64"],
+  "firmware":["bios","uefi"],
+  "network":{"ipv4":["dhcp","static"],"ipv6":["slaac","dhcpv6","static"]},
+  "partitioning":["free-space","beside-existing","selected-disk","manual","recovery-only"],
+  "migration":["windows","linux","macos"],
+  "safety":{"dry_run_default":true,"explicit_disk_confirmation":true,"explicit_reboot_confirmation":true,"secure_boot_bypass":false,"silent_erase":false},
+  "file_security":["posix-permissions","acl","xattr","selinux","ntfs-acl","macos-xattr","windows-attributes"]
+}
