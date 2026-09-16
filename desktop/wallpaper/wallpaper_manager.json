@@ -1,0 +1,70 @@
+{
+  "$schema": "CHM-AURORA-WALLPAPER-1",
+  "desktop": "Aurora Wayland Glass",
+  "purpose": "High-resolution desktop background import, scheduling, multi-output placement, color-aware presentation and safe integration with compatible desktop shells.",
+  "sources": ["local-file", "folder", "library", "wallpaper-pack", "configured-provider"],
+  "formats": ["png", "jpeg", "jpg", "webp", "avif", "tiff", "bmp"],
+  "minimum_quality": {"default_long_edge_px": 3840, "allow_user_override": true, "preserve_original": true},
+  "display": {
+    "modes": ["fill", "fit", "crop", "tile", "center", "span", "per-output"],
+    "high_dpi": true,
+    "preferred_buffer_scale": true,
+    "hdr_color_management": true,
+    "icc_profile_preservation": true,
+    "multi_monitor": true,
+    "per_workspace": true,
+    "per_output": true,
+    "dark_mode_variant": true
+  },
+  "scheduler": {
+    "enabled": true,
+    "modes": ["interval", "clock", "sunrise-sunset", "login", "workspace-change", "manual"],
+    "interval_seconds": 3600,
+    "randomize": true,
+    "avoid_repeats": true,
+    "pause_on_battery": true,
+    "pause_on_metered_network": true
+  },
+  "import": {
+    "recursive_folders": true,
+    "duplicate_detection": "sha256",
+    "metadata": ["width", "height", "format", "color_profile", "orientation", "license", "source"],
+    "validate_before_install": true,
+    "quarantine_invalid_files": true,
+    "never_execute_images": true
+  },
+  "storage": {
+    "library": "user-data/wallpapers",
+    "cache": "user-cache/wallpapers",
+    "thumbnail_cache": true,
+    "originals_read_only": true,
+    "atomic_updates": true
+  },
+  "wayland": {
+    "native_compositor_surface": true,
+    "output_awareness": true,
+    "preferred_buffer_scale": true,
+    "optional_protocols": ["Treeland wallpaper manager", "Weston desktop shell"],
+    "fallback": "Aurora compositor-owned wallpaper surface"
+  },
+  "other_desktops": {
+    "linux_wayland": ["KDE Plasma", "GNOME", "Sway", "Hyprland", "Mutter", "KWin", "Weston", "Treeland", "Wayfire", "Labwc"],
+    "linux_x11": true,
+    "windows": ["Win32", "Windows 10", "Windows 11"],
+    "macos": ["AppKit", "SwiftUI-compatible integration"],
+    "compatibility_policy": "Use native desktop API when available; otherwise use Aurora adapter without replacing proprietary components."
+  },
+  "accessibility": {
+    "reduce_motion": true,
+    "reduce_transparency": true,
+    "high_contrast": true,
+    "safe_area": true,
+    "text_readability_overlay": true
+  },
+  "security": {
+    "remote_sources_opt_in": true,
+    "network_download_requires_policy": true,
+    "license_metadata_supported": true,
+    "sandbox_image_decoding": true
+  }
+}
