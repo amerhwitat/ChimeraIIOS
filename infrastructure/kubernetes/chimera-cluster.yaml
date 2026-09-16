@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chimera-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chimera-platform
+  namespace: chimera-system
+data:
+  provider: kubernetes
+  workload: chimera-ii-os
+  execution: cvel
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chimera-control
+  namespace: chimera-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: chimera-control}
+  template:
+    metadata:
+      labels: {app: chimera-control}
+    spec:
+      containers:
+        - name: chimera-control
+          image: ghcr.io/amerhwitat/chimera-ii-os:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
