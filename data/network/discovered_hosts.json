@@ -1,0 +1,7 @@
+{
+  "schema": "CHIMERA-DISCOVERED-HOSTS-1",
+  "description": "Only hosts learned from authorized discovery, DNS, routing observations, peer connections, or user-directed browsing.",
+  "updated": "2026-09-16",
+  "records": [],
+  "record_fields": ["address","family","hostname","port","protocol","source","observed_at","expires_at","content_hash","authorization_scope"]
+}
