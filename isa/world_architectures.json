@@ -1,0 +1,39 @@
+{
+  "$schema": "CHM-ISA-WORLD-1",
+  "title": "Chimera II Universal Architecture Registry",
+  "purpose": "Provenance-first catalog of computer architectures, ISA families, instruction metadata, operating-system targets and emulator backends.",
+  "note": "This registry is an index and normalized schema. It does not reproduce proprietary manuals or claim exhaustive coverage of every historical machine.",
+  "architectures": [
+    {"id":"x86-64","class":"CISC","vendor_groups":["Intel","AMD"],"os_families":["Linux","Windows","BSD","Chimera II"],"emulator_backends":["qemu","kvm","bochs"]},
+    {"id":"x86-32","class":"CISC","vendor_groups":["Intel","AMD","VIA"],"os_families":["DOS","Windows","Linux","BSD"],"emulator_backends":["qemu","bochs"]},
+    {"id":"aarch64","class":"RISC","vendor_groups":["Arm","Apple","Qualcomm","Ampere","NVIDIA"],"os_families":["Linux","Android","BSD","Chimera II"],"emulator_backends":["qemu","kvm"]},
+    {"id":"arm32","class":"RISC","vendor_groups":["Arm"],"os_families":["Linux","Android","Windows CE","RTOS"],"emulator_backends":["qemu"]},
+    {"id":"riscv32","class":"RISC","vendor_groups":["RISC-V ecosystem"],"os_families":["Linux","BSD","RTOS","Chimera II"],"emulator_backends":["qemu","spike"]},
+    {"id":"riscv64","class":"RISC","vendor_groups":["RISC-V ecosystem"],"os_families":["Linux","BSD","Chimera II"],"emulator_backends":["qemu","spike"]},
+    {"id":"mips","class":"RISC","vendor_groups":["MIPS"],"os_families":["Linux","BSD","embedded"],"emulator_backends":["qemu"]},
+    {"id":"powerpc","class":"RISC","vendor_groups":["IBM","PowerPC ecosystem"],"os_families":["AIX","Linux","BSD","AmigaOS"],"emulator_backends":["qemu"]},
+    {"id":"sparc","class":"RISC","vendor_groups":["Oracle/Sun","SPARC ecosystem"],"os_families":["Solaris","Linux","BSD"],"emulator_backends":["qemu"]},
+    {"id":"m68k","class":"CISC","vendor_groups":["Motorola","Freescale"],"os_families":["AmigaOS","Atari TOS","Linux","BSD"],"emulator_backends":["qemu","uae"]},
+    {"id":"s390x","class":"CISC","vendor_groups":["IBM"],"os_families":["z/OS","Linux","Unix"],"emulator_backends":["qemu"]},
+    {"id":"vax","class":"CISC","vendor_groups":["DEC"],"os_families":["VMS","BSD","Unix"],"emulator_backends":["simh","qemu"]},
+    {"id":"sh4","class":"RISC","vendor_groups":["Renesas"],"os_families":["Linux","embedded"],"emulator_backends":["qemu"]},
+    {"id":"loongarch64","class":"RISC","vendor_groups":["Loongson"],"os_families":["Linux"],"emulator_backends":["qemu"]},
+    {"id":"alpha","class":"RISC","vendor_groups":["DEC"],"os_families":["OpenVMS","Tru64","Linux"],"emulator_backends":["qemu"]},
+    {"id":"hppa","class":"RISC","vendor_groups":["HP"],"os_families":["HP-UX","Linux"],"emulator_backends":["qemu"]},
+    {"id":"xtensa","class":"RISC","vendor_groups":["Cadence"],"os_families":["FreeRTOS","Linux","embedded"],"emulator_backends":["qemu"]},
+    {"id":"avr","class":"RISC","vendor_groups":["Microchip"],"os_families":["bare-metal","RTOS"],"emulator_backends":["simavr"]}
+  ],
+  "os_families": ["Chimera II OS","Linux","GNU/Linux distributions","FreeBSD","OpenBSD","NetBSD","DragonFly BSD","Illumos","Solaris","AIX","HP-UX","OpenVMS","Windows","MS-DOS","AmigaOS","AROS","Atari TOS","Classic Mac OS","macOS","Android","ChromeOS","Haiku","ReactOS","DOS-compatible systems"],
+  "instruction_record": {
+    "required": ["id","architecture","mnemonic","operands","encoding","semantics"],
+    "operands": ["register","immediate","memory","branch-offset","condition","mask","vector","system-register","implicit"],
+    "encoding": ["length_bits","opcode","fields","prefixes","endianness"],
+    "semantics": ["inputs","outputs","flags_read","flags_written","memory_effect","control_flow","privilege"]
+  },
+  "sources": [
+    {"name":"Intel SDM","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"},
+    {"name":"RISC-V Specifications","url":"https://docs.riscv.org/"},
+    {"name":"Arm Architecture","url":"https://developer.arm.com/architectures"},
+    {"name":"QEMU Documentation","url":"https://www.qemu.org/docs/master/"}
+  ]
+}
