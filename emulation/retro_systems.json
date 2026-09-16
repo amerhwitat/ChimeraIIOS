@@ -1,0 +1,18 @@
+{
+  "$schema":"CHM-RETRO-1",
+  "frontend":"Aurora Retro Center",
+  "backend_policy":"adapter-based; upstream emulator projects remain separately licensed",
+  "systems":[
+    {"family":"Amiga","targets":["A1000","A500","A500+","A600","A1200","A2000","A3000","A4000"],"backends":["SAE","UAE","vAmigaWeb"]},
+    {"family":"Commodore","targets":["C64","C128","Plus/4","VIC-20","PET"],"backends":["VICE","libretro"]},
+    {"family":"Atari","targets":["2600","5200","7800","ST","Lynx","Jaguar"],"backends":["libretro","Hatari"]},
+    {"family":"Apple","targets":["Apple II","Macintosh"],"backends":["MAME","libretro","Mini vMac"]},
+    {"family":"Sinclair","targets":["ZX Spectrum"],"backends":["Fuse","libretro"]},
+    {"family":"Acorn","targets":["BBC Micro","Archimedes"],"backends":["MAME","RPCEmu"]},
+    {"family":"Amstrad","targets":["CPC"],"backends":["libretro","MAME"]},
+    {"family":"PC","targets":["8086","286","386","486","Pentium","DOS"],"backends":["QEMU","DOSBox"]},
+    {"family":"Arcade","targets":["MAME-compatible systems","FinalBurn systems"],"backends":["MAME","FinalBurn"]},
+    {"family":"Consoles","targets":["NES","SNES","Mega Drive","PlayStation","Nintendo 64","GameCube","Wii","PlayStation 2"],"backends":["libretro"]}
+  ],
+  "rom_policy":"Chimera does not distribute copyrighted ROMs or commercial game images; users supply legally obtained media/firmware."
+}
