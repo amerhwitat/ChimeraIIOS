@@ -25,7 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate registries
-        run: python3 -m json.tool cloud/providers.json >/dev/null && python3 -m json.tool virtualization/cvel/cvel_registry.json >/dev/null
+        run: python3 -m json.tool cloud/providers.json >/dev/null && python3 -m json.tool virtualization/cvel/cvel_registry.json >/dev/null && python3 -m json.tool devops/pipeline_schema.json >/dev/null
+      - name: Validate Python modules
+        run: python3 -m compileall -q cloud tools/image devops desktop/aurora
+      - name: Validate Python tests
+        run: python3 -m pytest -q tests/cloud tests/image tests/devops
       - name: Validate Terraform when installed
         run: |
           if command -v terraform >/dev/null 2>&1; then
