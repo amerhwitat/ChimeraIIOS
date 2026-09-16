@@ -1,0 +1,22 @@
+{
+  "schema": "CHIMERA-NEXTGEN-AI-2026-1",
+  "inference": [
+    {"id":"speculative_decoding","class":"autoregressive_acceleration","targets":["cpu","gpu","npu","edge"]},
+    {"id":"mixture_of_experts","class":"conditional_compute","targets":["gpu","npu","edge_cluster"]},
+    {"id":"self_speculative_moe","class":"moe_inference","targets":["edge_gpu","npu"]},
+    {"id":"kv_cache_optimization","class":"memory_optimization","targets":["cpu","gpu","npu","edge"]},
+    {"id":"quantization","class":"compression","targets":["cpu","gpu","npu","iot"]},
+    {"id":"structured_sparsity","class":"compression","targets":["gpu","npu","accelerator"]},
+    {"id":"state_space_models","class":"sequence_model","targets":["cpu","gpu","edge"]},
+    {"id":"adaptive_batching","class":"serving","targets":["cpu","gpu","edge_cluster"]},
+    {"id":"streaming_inference","class":"real_time","targets":["cpu","gpu","npu","iot"]},
+    {"id":"split_inference","class":"edge_cloud_partitioning","targets":["iot","edge","cloud"]},
+    {"id":"federated_learning","class":"distributed_learning","targets":["iot","edge"]},
+    {"id":"driven_resource_scheduling","class":"adaptive_orchestration","targets":["edge","cloud"]}
+  ],
+  "parallelism": [
+    "data_parallelism","tensor_parallelism","pipeline_parallelism","task_parallelism","graph_parallelism","heterogeneous_parallelism","distributed_inference","adaptive_tensor_parallelism","zero_copy_io","work_stealing"
+  ],
+  "compiler": ["mlir","iree","tvm","onnx_runtime"],
+  "governance": {"auto_download":false,"auto_execute_generated_code":false,"network_mutation":false}
+}
