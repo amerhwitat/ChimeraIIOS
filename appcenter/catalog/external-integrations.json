@@ -1,0 +1,11 @@
+{
+  "schema":"chimera-external-integration-v1",
+  "integrations":[
+    {"id":"nlp","repository":"https://github.com/amerhwitat/nlp","stage":"/opt/nlp","panel":"NLP","build":"repository-defined","source_required":true},
+    {"id":"bizx","repository":"https://github.com/amerhwitat/BizX","stage":"/opt/BizX","panel":"Applications","build":"repository-defined","source_required":true},
+    {"id":"bizxtreme","repository":"https://github.com/amerhwitat/BizXtreme","stage":"/opt/BizXtreme","panel":"Applications","build":"repository-defined","source_required":true},
+    {"id":"general","repository":"https://github.com/amerhwitat/general","stage":"/opt/general","panel":"Applications / Utilities","build":"repository-defined","source_required":true}
+  ],
+  "policy":{"clone_at_build_time":true,"pin_revision":true,"license_check":true,"dependency_lock_required":true,"untrusted_postinstall_forbidden":true},
+  "supported_languages":["C","C++","Python","Java","Kotlin","JavaScript","TypeScript","Node.js","WebAssembly","Perl","POSIX shell","PowerShell","Windows batch"]
+}
