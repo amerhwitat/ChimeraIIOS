@@ -1,0 +1,14 @@
+{
+  "schema": "chimera-binary-format-registry-v1",
+  "formats": [
+    {"name":"ELF","extensions":[".elf"],"loader":"native"},
+    {"name":"PE/COFF","extensions":[".exe",".dll",".sys"],"loader":"cef-compat"},
+    {"name":"PE32+ EFI","extensions":[".efi"],"loader":"uefi"},
+    {"name":"Mach-O","extensions":[".dylib",".bundle"],"loader":"cef-compat"},
+    {"name":"WebAssembly","extensions":[".wasm"],"loader":"wasm-runtime"},
+    {"name":"Java","extensions":[".class",".jar"],"loader":"jvm"},
+    {"name":".NET","extensions":[".dll",".exe"],"loader":"dotnet-runtime"},
+    {"name":"script","extensions":[".py",".pl",".sh",".bash",".bat",".ps1",".js",".mjs"],"loader":"interpreter-registry"}
+  ],
+  "policy": "Format recognition is not an assertion that a foreign binary is safe, licensed or executable on every target."
+}
