@@ -1,0 +1,17 @@
+{
+  "$schema":"CHM-UNIX-CMD-1",
+  "groups": {
+    "filesystem":["ls","cp","mv","rm","mkdir","rmdir","touch","ln","find","stat","file","chmod","chown","du","df","mount","umount"],
+    "text":["cat","head","tail","less","more","grep","sed","awk","cut","sort","uniq","tr","wc","diff","tee","xargs"],
+    "process":["ps","top","kill","pkill","pgrep","nice","renice","jobs","fg","bg","nohup","wait"],
+    "shell":["sh","bash","dash","zsh","env","export","echo","printf","read","test","true","false"],
+    "network":["ip","ss","ping","traceroute","tracepath","dig","host","nslookup","curl","wget","ssh","scp","sftp","nc"],
+    "archive":["tar","gzip","gunzip","bzip2","xz","zip","unzip","cpio"],
+    "storage":["lsblk","blkid","fdisk","parted","fsck","mkfs","dd","sync"],
+    "system":["uname","hostname","date","uptime","free","dmesg","journalctl","systemctl","loginctl","useradd","usermod","passwd","id","who","whoami"],
+    "development":["cc","gcc","g++","clang","make","cmake","ninja","ld","as","ar","nm","objdump","readelf","gdb","strace","ltrace","git","python3","node","java"],
+    "package":["chimera-pkg","apt","dnf","rpm","pacman","apk","zypper","flatpak"]
+  },
+  "implementation":"Chimera command dispatcher provides native implementations where available and compatibility adapters elsewhere.",
+  "security":"Commands execute under the calling user and Chimera capability policy; privileged operations require explicit authorization."
+}
