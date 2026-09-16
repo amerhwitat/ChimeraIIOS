@@ -1,0 +1,18 @@
+{
+  "$schema":"CHM-AURORA-APP-1",
+  "desktop":"Aurora Wayland Glass",
+  "apps":[
+    {"id":"system-settings","category":"system","entry":"packages/settings"},
+    {"id":"package-center","category":"system","entry":"packages/gui"},
+    {"id":"terminal","category":"utilities","entry":"services/shell"},
+    {"id":"isa-explorer","category":"development","entry":"isa/catalog.json"},
+    {"id":"cpu-emulator","category":"development","entry":"execution/universal_execution_api.json"},
+    {"id":"retro-center","category":"games","entry":"emulation/retro_systems.json"},
+    {"id":"bizx","category":"games","source":"https://github.com/amerhwitat/BizX","integration":"external-project-adapter"},
+    {"id":"bizxtreme","category":"games","source":"https://github.com/amerhwitat/BizXtreme","integration":"external-project-adapter"},
+    {"id":"network-center","category":"network","entry":"network/ApplicationNetworkModule.md"},
+    {"id":"developer-center","category":"development","entry":"tools/build/orchestrator.py"}
+  ],
+  "glass_shell":{"compositor":"Wayland","presentation":"Aurora Glass","window_events":"desktop/event_schema.json","platform_profiles":"desktop/platform_profiles.json"},
+  "integration":"Applications communicate with Koronos services through stable APIs and IPC; third-party applications remain separately licensed."
+}
