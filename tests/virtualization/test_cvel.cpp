@@ -29,13 +29,23 @@ int main() {
     auto cmd = q.build_run_command(p, ExecutionMode::HardwareAssisted);
     assert(cmd.executable == "qemu-system-x86_64");
     assert(!cmd.arguments.empty());
-    assert(cmd.arguments.back() == "-nic");
+    assert(cmd.arguments[cmd.arguments.size() - 2] == "-nic");
+    assert(cmd.arguments.back() == "user");
 
     MachineProfile bios{"bios-test", "x86_64", "generic", 1024, "", "bios", true, false};
     auto bios_cmd = q.build_run_command(bios, ExecutionMode::Interpreter);
-    for (size_t i = 0; i < bios_cmd.arguments.size(); ++i) {
-        assert(bios_cmd.arguments[i] != "-bios");
+    for (const auto& arg : bios_cmd.arguments) assert(arg != "-bios");
+
+    MachineProfile firmware{"firmware-test", "x86_64", "generic", 1024, "guest.img", "bios", true, false};
+    firmware.firmware_path = "firmware.bin";
+    auto firmware_cmd = q.build_run_command(firmware, ExecutionMode::Interpreter);
+    bool found_bios = false;
+    for (size_t i = 0; i + 1 < firmware_cmd.arguments.size(); ++i) {
+        if (firmware_cmd.arguments[i] == "-bios") {
+            found_bios = firmware_cmd.arguments[i + 1] == "firmware.bin";
+        }
     }
+    assert(found_bios);
 
     std::cout << "CVEL tests passed\n";
     return 0;
