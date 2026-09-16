@@ -1,35 +1,45 @@
-# ISA database and encoding layer
+# Chimera II ISA Registry
 
-`catalog.json` is the canonical, provenance-first RISC/CISC instruction database for Chimera II OS.
+This directory is the machine-readable ISA boundary for Chimera II OS.
 
-## Included families
+## Files
 
-RISC-V, AArch64, ARM32, MIPS32, OpenPOWER and SPARC are represented as RISC families. x86/IA-32/Intel 64/AMD64, Motorola 68000, IBM System z and VAX are represented as CISC families.
+- `world_architectures.json` — ISA family and target index.
+- `isa_database.json` — canonical instruction rows with operands and binary value/mask patterns.
+- `instructions.json` — export contract and schema reference.
+- `isa_database.sql` — SQLite schema.
 
-## Record model
+## Binary encoding convention
 
-Each instruction contains:
+Every instruction row stores:
 
-- stable ID and ISA family
-- mnemonic and concrete assembly syntax
-- operand list and operand kinds
-- explicit optional operands and defaults when applicable
-- instruction length
-- encoding fields/template
-- exact worked binary encoding
-- exact equivalent hexadecimal encoding
-- provenance at catalog level
+1. `length_bits` — width represented by the binary pattern.
+2. `value_bits` — a concrete encoding example or fixed opcode/control pattern.
+3. `mask_bits` — `1` means the corresponding bit is fixed; `0` means the bit is selected by an operand, displacement, register field or extension field.
 
-## Decoder/assembler roadmap
+This avoids the incorrect assumption that a parameterized instruction such as x86 `ADD r/m64,r64` has one universal binary value. Parameterized instructions have fixed opcode bytes plus operand-dependent fields.
 
-The catalog is deliberately suitable for a future generic decoder:
+## Coverage
 
-`bytes -> family selector -> length decoder -> opcode/mask -> operand-field extraction -> semantic instruction -> Chimera IR`
+The family registry covers Chimera C8192/R8192, x86/x86-64, AArch64/A32, RISC-V 32/64, MIPS 32/64, Power ISA, SPARC V9, Motorola 68000, IBM z/Architecture, VAX, SuperH, LoongArch, Alpha, PA-RISC, Xtensa, AVR, MCS-51/8051, Z80, 6502 and IA-64/Itanium.
 
-and assembler:
+The instruction corpus focuses on core forms useful to the Chimera universal decoder: integer ALU, logical operations, loads/stores, immediate forms, branches, calls/returns, system operations and Chimera-native research operations. A family with `instruction_forms: 0` is enumerated but deliberately has no invented instruction encodings.
 
-`semantic instruction + operands -> family encoder -> fields -> endian/byte serialization -> machine code`
+## Sources
 
-x86 must retain prefix/REX/VEX/EVEX/APX-aware variable-length handling; RISC-V must retain 16-bit compressed and future variable-length rules; A64/ARM/MIPS/POWER/SPARC use their respective fixed-width field models.
+Authoritative references are linked in `isa_database.json`. Current primary-source references include RISC-V International, Arm, Intel, AMD, OpenPOWER, Oracle SPARC, IBM z/Architecture, MIPS, Microchip AVR and Zilog. citeturn0search0turn0search1turn0search2turn0search4turn0search11
 
-The current catalog is a curated compatibility baseline, not a claim that every instruction, extension or microarchitectural feature has already been encoded. New entries should be added from normative specifications and checked against independent assembler/disassembler sources where possible.
+For RISC-V, the official documentation separates base integer ISAs from optional extensions and defines fields such as `funct7`, `rs2`, `rs1`, `funct3`, `rd` and `opcode`; the current ratified library includes many standard extensions beyond the base. citeturn0search6turn0search7
+
+For AArch64/A32, Arm documentation describes fixed A64 encodings and fielded A32/A64 load/store and arithmetic formats. citeturn1search0
+
+## Validation
+
+```bash
+python tools/validate_isa_registry.py
+python tools/isa_registry_report.py
+python tools/load_isa_database.py --output isa/isa.db
+pytest -q tests/test_isa_registry.py
+```
+
+The SQLite file `isa/isa.db` is generated output and should not be hand-edited; regenerate it from the canonical JSON.
