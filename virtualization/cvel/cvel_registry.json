@@ -1,0 +1,12 @@
+{
+  "schema": "CVEL-1",
+  "providers": {
+    "qemu": {"command": "qemu-system-x86_64", "architectures": ["x86","x86_64","arm","aarch64","riscv32","riscv64","mips","mips64","ppc","ppc64","sparc"]},
+    "virtualbox": {"command": "VBoxManage", "architectures": ["x86","x86_64"]},
+    "vmware": {"commands": ["vmrun","vmware-vmx"], "architectures": ["x86","x86_64"]},
+    "native": {"command": null, "architectures": ["host"]}
+  },
+  "cpu_families": ["x86","x86_64","arm","aarch64","riscv32","riscv64","mips","mips64","powerpc","powerpc64","sparc","chimera-c8192","chimera-r8192"],
+  "execution_modes": ["interpreter","jit","hardware-assisted","native"],
+  "security": {"auto_download": false, "auto_flash": false, "require_explicit_guest_image": true}
+}
