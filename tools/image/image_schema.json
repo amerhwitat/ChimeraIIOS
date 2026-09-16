@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera Image Manifest",
+  "type": "object",
+  "required": ["schema", "architecture", "path", "format", "size", "sha256"],
+  "properties": {
+    "schema": {"const": "CHIMERA-IMAGE-1"},
+    "architecture": {"type": "string", "minLength": 1},
+    "path": {"type": "string", "minLength": 1},
+    "format": {"enum": ["raw", "iso", "elf", "pe", "macho"]},
+    "size": {"type": "integer", "minimum": 0},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "bootable": {"type": "boolean"}
+  }
+}
