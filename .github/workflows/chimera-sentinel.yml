@@ -1,0 +1,30 @@
+name: Chimera Sentinel
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  advisory-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run offline-safe source checks
+        run: |
+          python3 tools/security/chimera_sentinel.py --offline-file data/research/ai_network_research_2026.json --output /tmp/sentinel-plan.json
+          python3 -m json.tool network/protocols/routing_protocols.json >/dev/null
+          python3 -m json.tool data/network/gateways.json >/dev/null
+          python3 -m json.tool data/network/chimera_nodes.json >/dev/null
+          python3 -m json.tool data/network/discovered_hosts.json >/dev/null
+          python3 -m json.tool data/network/peers.json >/dev/null
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-sentinel-plan
+          path: /tmp/sentinel-plan.json
