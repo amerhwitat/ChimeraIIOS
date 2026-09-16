@@ -1,0 +1,59 @@
+{
+  "schema": "CHM-MOBILE-EDITIONS-1",
+  "name": "Chimera II Mobile Editions",
+  "purpose": "Define shared hosted and bare-metal targets for Android and Apple mobile platforms without implying universal device bootability.",
+  "editions": {
+    "hosted": {
+      "id": "chimera-mobile-hosted",
+      "runtime": "application_and_service_layer",
+      "targets": {
+        "android": {
+          "packaging": ["APK", "AAB"],
+          "languages": ["Kotlin", "Java", "C++"],
+          "native_bridge": "Android_NDK",
+          "integration": ["Android_Activity", "Service", "Foreground_Service", "JNI", "Binder", "Intent", "ContentProvider", "SurfaceView", "Vulkan_or_OpenGL_ES", "Android_HAL_boundary"],
+          "security": ["Android_app_sandbox", "runtime_permissions", "Keystore", "SELinux_boundary"]
+        },
+        "ios": {
+          "packaging": ["IPA", "Xcode_project"],
+          "languages": ["Swift", "Objective-C", "C++"],
+          "integration": ["UIKit_or_SwiftUI", "Metal", "CoreFoundation", "Foundation", "C_Interop", "App_lifecycle"],
+          "distribution": ["App_Store", "TestFlight", "authorized_development_distribution"],
+          "security": ["App_Sandbox", "code_signing", "entitlements", "Keychain"]
+        }
+      },
+      "capabilities": ["Aurora_mobile_shell", "Koronos_hosted_runtime", "universal_execution_api", "C8192_R8192_emulation", "Spotnik_application_networking", "Nucleus", "Hive", "Kore", "Aegis", "world_language_UI", "wallpaper_media_adapter", "retro_center", "BizX", "BizXtreme"]
+    },
+    "baremetal": {
+      "id": "chimera-mobile-baremetal",
+      "runtime": "direct_hardware_os",
+      "architectures": ["aarch64", "arm32_where_supported", "riscv64_where_supported"],
+      "boot": ["device_specific_boot_rom_boundary", "UEFI_where_available", "fastboot_where_available", "vendor_boot_protocol", "device_tree", "ACPI_where_available"],
+      "hardware_adaptation": ["MHAL", "display", "touch", "GPU", "camera", "audio", "USB", "storage", "WiFi", "Bluetooth", "cellular_modem", "GPS", "sensors", "battery", "thermal", "power_management", "secure_element"],
+      "android_strategy": {
+        "mode": "device_profiled",
+        "integration": ["AOSP_interfaces", "GKI_KMI_where_device_supports_it", "vendor_modules", "AVB_aware_boot", "A_B_or_dynamic_partitions_where_present"],
+        "gsi_compatibility": "optional_reference_target_not_a_guarantee_of_Chimera_boot"
+      },
+      "ios_strategy": {
+        "mode": "research_hardware_target",
+        "supported_devices": "only hardware for which a lawful and technically available boot and hardware interface exists",
+        "apple_secure_boot": "must_not_claim_bypass",
+        "bootloader_policy": "requires_authorized_or_research-compatible_boot_path",
+        "unsupported_case": "stock_locked_iPhone_or_iPad_without_an_available_alternative_boot_path"
+      },
+      "installation_safety": ["hardware_compatibility_scan", "boot_chain_validation", "backup_or_recovery_requirement", "signed_image_verification", "rollback_plan", "explicit_partition_confirmation", "no_blind_flash"],
+      "device_matrix": "mobile/device_matrix.json"
+    }
+  },
+  "shared_architecture": {
+    "kernel": "Koronos",
+    "mobile_kernel": "Mobile_Microkernel",
+    "desktop": "Aurora",
+    "network": "Spotnik",
+    "execution": "execution/universal_execution_api.json",
+    "isa": "isa/world_architectures.json",
+    "hal": "hal/mobile/MHAL.md"
+  },
+  "principle": "Hosted builds coexist with the vendor OS; bare-metal builds replace the operating-system runtime only on hardware with an authorized, technically supported boot path."
+}
