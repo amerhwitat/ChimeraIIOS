@@ -27,4 +27,7 @@ Snapshot collect(const std::string& edition);
 HealthState classify(double value, double warning, double critical);
 std::string state_name(HealthState state);
 
+// Returns the editions supported by the common Aurora dashboard contract.
+std::vector<std::string> supported_editions();
+
 } // namespace chimera::dashboard
