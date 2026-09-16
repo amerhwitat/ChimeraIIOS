@@ -1,6 +1,7 @@
 #include "chimera/virtualization/cvel.h"
 #include <algorithm>
 #include <cstdlib>
+#include <map>
 #include <sstream>
 
 namespace chimera::virtualization {
@@ -14,18 +15,39 @@ bool command_exists(const char* cmd) {
     return std::system(probe.c_str()) == 0;
 }
 Capability capability(Provider p, const char* exe, std::vector<std::string> arch) {
-    Capability c{p, command_exists(exe), exe, {}, std::move(arch)};
-    return c;
+    return Capability{p, command_exists(exe), exe, {}, std::move(arch)};
 }
+}
+
+std::string qemu_executable_for_architecture(const std::string& architecture) {
+    static const std::map<std::string, std::string> executables{
+        {"x86", "qemu-system-i386"},
+        {"x86_64", "qemu-system-x86_64"},
+        {"arm", "qemu-system-arm"},
+        {"aarch64", "qemu-system-aarch64"},
+        {"riscv32", "qemu-system-riscv32"},
+        {"riscv64", "qemu-system-riscv64"},
+        {"mips", "qemu-system-mips"},
+        {"mips64", "qemu-system-mips64"},
+        {"ppc", "qemu-system-ppc"},
+        {"ppc64", "qemu-system-ppc64"},
+        {"sparc", "qemu-system-sparc"}
+    };
+    const auto it = executables.find(architecture);
+    return it == executables.end() ? std::string{} : it->second;
 }
 
 Capability QemuBackend::detect() const {
     return capability(Provider::Qemu, "qemu-system-x86_64", {"x86","x86_64","arm","aarch64","riscv32","riscv64","mips","mips64","ppc","ppc64","sparc"});
 }
 CommandLine QemuBackend::build_run_command(const MachineProfile& p, ExecutionMode) const {
-    CommandLine c{"qemu-system-x86_64", {"-m", std::to_string(p.memory_mib), "-name", p.name}};
+    const std::string executable = qemu_executable_for_architecture(p.architecture);
+    if (executable.empty()) return {"", {}};
+    CommandLine c{executable, {"-m", std::to_string(p.memory_mib), "-name", p.name}};
     if (!p.disk_image.empty()) c.arguments.insert(c.arguments.end(), {"-drive", "file=" + p.disk_image + ",format=raw"});
-    if (p.firmware == "bios") c.arguments.push_back("-bios");
+    if (p.firmware == "bios" && !p.disk_image.empty()) {
+        c.arguments.insert(c.arguments.end(), {"-bios", p.disk_image});
+    }
     if (!p.graphics) c.arguments.push_back("-nographic");
     if (p.networking) c.arguments.insert(c.arguments.end(), {"-nic", "user"});
     return c;
