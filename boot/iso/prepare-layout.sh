@@ -10,8 +10,7 @@ mkdir -p "$DIST/boot/grub" "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot
   "$DIST/src" "$DIST/opt" "$DIST/install" "$DIST/drivers" \
   "$DIST/filesystems" "$DIST/packages" "$DIST/repositories" \
   "$DIST/man" "$DIST/games" "$DIST/wallets" "$DIST/ISO" "$DIST/checksums"
-cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$DIST/boot/spitfire/"
-cp "$ROOT/boot/spitfire/sf1_longmode.asm" "$DIST/boot/spitfire/"
+cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/spitfire/efi/README.md" "$DIST/EFI/CHIMERA/" 2>/dev/null || true
@@ -21,12 +20,14 @@ cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/splash/support_footer.txt" ]] && cp "$ROOT/boot/splash/support_footer.txt" "$DIST/boot/"
-if [[ -f "$ROOT/boot/kernel.bin" ]]; then cp "$ROOT/boot/kernel.bin" "$DIST/boot/kernel.bin"; fi
-if [[ -f "$ROOT/boot/iso/dist/kernel.bin" ]]; then cp "$ROOT/boot/iso/dist/kernel.bin" "$DIST/boot/kernel.bin"; fi
-if [[ -f "$ROOT/boot/iso/dist/chimera2os.elf" ]]; then cp "$ROOT/boot/iso/dist/chimera2os.elf" "$DIST/boot/koronos/koronos.elf"; fi
+[[ -f "$ROOT/boot/kernel.bin" ]] && cp "$ROOT/boot/kernel.bin" "$DIST/boot/kernel.bin"
+[[ -f "$ROOT/boot/iso/dist/kernel.bin" ]] && cp "$ROOT/boot/iso/dist/kernel.bin" "$DIST/boot/kernel.bin"
+[[ -f "$ROOT/boot/iso/dist/chimera2os.elf" ]] && cp "$ROOT/boot/iso/dist/chimera2os.elf" "$DIST/boot/koronos/koronos.elf"
 for d in include src kernel boot desktop network installer tools tests ai data cmake; do
   if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
 done
+[[ -f "$ROOT/ISA.csv" ]] && cp "$ROOT/ISA.csv" "$DIST/src/ISA.csv"
+[[ -f "$ROOT/tools/isa/validate-isa.py" ]] && cp "$ROOT/tools/isa/validate-isa.py" "$DIST/src/tools/isa/"
 for d in nlp BizX BizXtreme general; do
   if [[ -d "$ROOT/opt/$d" ]]; then cp -a "$ROOT/opt/$d" "$DIST/opt/"; fi
 done
@@ -40,7 +41,8 @@ for f in \
   "$ROOT/packages/package-manager-registry.json" \
   "$ROOT/compat/binary-format-registry.json" \
   "$ROOT/install/installer-contract.json" \
-  "$ROOT/desktop/aurora/gates_menu.json"; do
+  "$ROOT/desktop/aurora/gates_menu.json" \
+  "$ROOT/appcenter/catalog/external-integrations.json"; do
   [[ -f "$f" ]] && cp "$f" "$DIST/chimera/manifests/"
 done
 [[ -d "$ROOT/toolchains/cpp" ]] && cp -a "$ROOT/toolchains/cpp/." "$DIST/chimera/toolchains/cpp/"
@@ -49,7 +51,8 @@ for f in "$ROOT/README.md" "$ROOT/docs/APPLICATION_ECOSYSTEM.md" "$ROOT/docs/MOB
 done
 cp "$ROOT/boot/iso/iso-layout.json" "$DIST/ISO/"
 printf '%s\n' 'Chimera II OS structured source-first ISO' > "$DIST/chimera/README.txt"
-printf '%s\n' 'Boot: Spit Fire / Jasper; kernel handoff: Koronos; media: ISO 9660 + El Torito.' >> "$DIST/chimera/README.txt"
-printf '%s\n' 'Foreign drivers/binaries are metadata-only unless licensing, provenance and compatibility checks permit staging.' >> "$DIST/chimera/README.txt"
+printf '%s\n' 'Boot: Spit Fire / Jasper; GRUB2 menu; kernel handoff: Koronos; media: ISO 9660 + El Torito.' >> "$DIST/chimera/README.txt"
+printf '%s\n' 'ISA catalog: /src/ISA.csv; foreign drivers/binaries are metadata-only unless licensing, provenance and compatibility checks permit staging.' >> "$DIST/chimera/README.txt"
 printf '%s\n' 'Support: created by Amer Abdullah Suleiman Hwitat | عامر الحويطات | Amman 11814/Jordan | amer.hwitat@proton.me' >> "$DIST/chimera/README.txt"
+python3 "$ROOT/tools/isa/validate-isa.py"
 python3 "$ROOT/boot/iso/validate-iso.py" --tree "$DIST" --write-manifest "$DIST/checksums/SHA256SUMS"
