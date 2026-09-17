@@ -1,0 +1,53 @@
+name: Chimera II OS Docker ISO
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docker/iso/**'
+      - 'tools/build/create-bootable-iso.sh'
+      - 'boot/iso/**'
+      - 'boot/kernel.bin'
+
+permissions:
+  contents: read
+
+jobs:
+  docker-iso:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build ISO builder image
+        run: docker build --file docker/iso/Dockerfile --tag chimera-ii-os-iso .
+
+      - name: Run ISO builder
+        run: |
+          mkdir -p docker-output
+          docker run --rm \
+            --env CHIMERA_ARCH=x86_64 \
+            --env CHIMERA_FIRMWARE=uefi \
+            --volume "$PWD/docker-output:/output" \
+            chimera-ii-os-iso
+
+      - name: Verify ISO artifact
+        run: |
+          test -s docker-output/output.iso
+          test -s docker-output/output.iso.sha256
+          sha256sum --check docker-output/output.iso.sha256
+
+      - name: Inspect ISO
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
+          xorriso -indev docker-output/output.iso -report_el_torito plain -report_system_area plain -print ''
+
+      - name: Upload Docker ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera2os-docker-iso
+          path: |
+            docker-output/output.iso
+            docker-output/output.iso.sha256
+          retention-days: 14
