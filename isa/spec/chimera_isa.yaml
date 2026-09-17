@@ -1,13 +1,49 @@
-schema: chimera-isa-v3
+schema: chimera-isa-v4
+source_alignment:
+  document: "RISC, CISC, and Assemblers"
+  author: "Hakim Weatherspoon"
+  course: "CS 3410, Spring 2012, Cornell University"
+  pages: "4-30"
+  applied_concepts:
+    - ISA defines permissible instructions
+    - RISC regularity and simplicity
+    - CISC variable-length and richer addressing
+    - fixed-width instruction formats
+    - pseudo-instructions
+    - assembler data/layout directives
+    - two-pass label resolution
+    - object/executable staging
+    - separate text and data segments
+    - calling-convention boundary
+  scope_note: "Source concepts are used as design guidance for Chimera's project-defined ISA and assembler model; no external architecture encoding is claimed as Chimera-native."
 native:
   r8192:
+    profile: RISC
     instruction_bits: 64
     register_type: RegisterN<8192>
     register_count: 1024
     predicate_bits: 256
+    addressing_model: register_plus_immediate
+    design_principles:
+      - regular_fixed_width
+      - register_operands
+      - load_store_memory
+      - pipeline_friendly
   c8192:
+    profile: CISC
     packet_bits: [64, 128, 256, 512, 1024, 2048, 4096]
     register_type: RegisterN<8192>
+    addressing_model: encoded_operand_forms
+    design_principles:
+      - variable_packet_width
+      - dense_encoding
+      - microcoded_complex_operations
+      - compatibility_and_code_density
+  common:
+    register_count: 1024
+    predicate_bits: 256
+    virtual_address_bits: 64
+    endian: little
 encoding:
   byte_order: little
   base_packet:
@@ -16,6 +52,8 @@ encoding:
     src_a: [32, 47]
     src_b: [48, 63]
   immediate_extension: 64
+  r8192_rule: "Each base instruction is one 64-bit instruction word; extensions are explicit and deterministic."
+  c8192_rule: "The first 64-bit packet contains the base selector/operand fields; larger packet forms are explicit extensions rather than implied variable byte strings."
 opcode_ranges:
   integer: 0x0000-0x00ff
   memory: 0x0100-0x01ff
@@ -43,3 +81,67 @@ canonical_microops:
   - SYSCALL
   - VMEXIT
   - FENCE
+instruction_formats:
+  r8192:
+    - R: "opcode,dst,src_a,src_b"
+    - I: "opcode,dst,src_a,immediate_extension"
+    - M: "opcode,dst,src_a,src_b,address-extension"
+    - B: "opcode,predicate,branch-target-extension"
+  c8192:
+    - compact: "64-bit base packet"
+    - extended: "128/256/512/1024/2048/4096-bit explicit packet"
+assembler_model:
+  input: "human-readable assembly source"
+  stages:
+    - lexical_parse
+    - directive_and_section_layout
+    - first_pass_symbol_table
+    - second_pass_encoding_and_relocation
+    - object_or_image_emission
+  sections:
+    - .text
+    - .rodata
+    - .data
+    - .bss
+  directives:
+    - .text
+    - .rodata
+    - .data
+    - .bss
+    - .byte
+    - .word
+    - .dword
+    - .qword
+    - .align
+    - .org
+    - .global
+    - .extern
+    - .section
+  pseudo_instructions:
+    NOP: "canonical no-operation encoding"
+    MOVE: "register-to-register copy lowered to the native move/ORR-equivalent operation"
+    LI: "materialize an immediate using one or more native immediate operations"
+    LA: "materialize a label/address using relocation-aware native operations"
+    B: "unconditional branch alias"
+    BLT: "compare-and-branch pseudo form lowered to canonical predicate/control operations"
+  label_resolution: two_pass
+  relocation: explicit
+  text_data_separation: true
+calling_convention_boundary:
+  status: defined_separately
+  return_address_register: "architecture ABI-defined"
+  argument_registers: "architecture ABI-defined"
+  note: "Assembler and linker preserve symbols/relocations; register allocation and calling conventions remain ABI/toolchain policy."
+compatibility:
+  source_families:
+    - x86-64
+    - IA-32
+    - AArch64
+    - ARM32
+    - RISC-V
+    - MIPS
+    - Power ISA
+    - SPARC
+    - Motorola 68000
+    - VAX
+  rule: "Compatibility forms translate into the common Chimera micro-op model; source architecture encodings remain distinct from Chimera-native encodings."
