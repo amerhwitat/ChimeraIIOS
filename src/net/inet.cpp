@@ -1,4 +1,4 @@
-#include <arpa/inet.h>
+#include "inet.h"
 
 #include <array>
 #include <cctype>
