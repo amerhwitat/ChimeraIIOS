@@ -10,13 +10,10 @@ OUTPUT_ISO="${CHIMERA_OUTPUT_ISO:-$OUTPUT/output.iso}"
 mkdir -p "$OUTPUT"
 
 if [[ "${CHIMERA_BUILD:-auto}" != "never" && ! -f "$KERNEL_PATH" ]]; then
-  echo "No boot/kernel.bin found; attempting the repository bare-metal build."
-  cmake -S "$ROOT" -B "$ROOT/build/docker-baremetal" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCHIMERA_EDITION=BAREMETAL \
-    -DCHIMERA_ARCH="$CHIMERA_ARCH" \
-    -DCHIMERA_FIRMWARE="$CHIMERA_FIRMWARE"
-  cmake --build "$ROOT/build/docker-baremetal" --parallel "${CMAKE_BUILD_PARALLEL_LEVEL:-2}"
+  echo "No boot/kernel.bin found; building the repository's Multiboot2 bootstrap kernel."
+  chmod +x "$ROOT/boot/iso/build-iso.sh" "$ROOT/boot/iso/prepare-layout.sh" "$ROOT/tools/build/create-bootable-iso.sh"
+  "$ROOT/boot/iso/build-iso.sh"
+  KERNEL_PATH="$ROOT/boot/iso/dist/chimera2os.elf"
 fi
 
 if [[ ! -f "$KERNEL_PATH" ]]; then
