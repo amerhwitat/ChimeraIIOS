@@ -32,17 +32,17 @@ fi
 
 "$ROOT/tools/build/create-bootable-iso.sh" "$KERNEL_PATH" "$GRUB_CFG" "$OUTPUT_ISO"
 
-cp -f "$OUTPUT_ISO" "$OUTPUT/output.iso"
-if [[ -f "$OUTPUT_ISO.sha256" ]]; then
-  cp -f "$OUTPUT_ISO.sha256" "$OUTPUT/output.iso.sha256"
+if [[ ! -s "$OUTPUT_ISO" ]]; then
+  echo "error: ISO was not produced: $OUTPUT_ISO" >&2
+  exit 1
 fi
 
 if command -v file >/dev/null 2>&1; then
-  file "$OUTPUT/output.iso"
+  file "$OUTPUT_ISO"
 fi
 
 if command -v xorriso >/dev/null 2>&1; then
-  xorriso -indev "$OUTPUT/output.iso" -report_el_torito plain -report_system_area plain -print ''
+  xorriso -indev "$OUTPUT_ISO" -report_el_torito plain -report_system_area plain -print ''
 fi
 
-echo "ISO artifact: $OUTPUT/output.iso"
+echo "ISO artifact: $OUTPUT_ISO"
