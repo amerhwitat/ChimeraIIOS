@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DIST="$ROOT/boot/iso/dist/iso"
 rm -rf "$DIST"
-mkdir -p "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
+mkdir -p "$DIST/boot/grub" "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
   "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA" "$DIST/chimera/docs" \
   "$DIST/chimera/manifests" "$DIST/chimera/toolchains/cpp" \
   "$DIST/chimera/applications" "$DIST/chimera/knowledge" \
@@ -16,10 +16,13 @@ cp "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROO
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/spitfire/efi/README.md" "$DIST/EFI/CHIMERA/" 2>/dev/null || true
 cp "$ROOT/boot/include/chimera/bootinfo.h" "$ROOT/boot/include/chimera/cpu_profile.h" "$ROOT/boot/include/chimera/boot_flags.h" "$DIST/boot/koronos/"
+cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/splash/support_footer.txt" ]] && cp "$ROOT/boot/splash/support_footer.txt" "$DIST/boot/"
+if [[ -f "$ROOT/boot/kernel.bin" ]]; then cp "$ROOT/boot/kernel.bin" "$DIST/boot/kernel.bin"; fi
+if [[ -f "$ROOT/boot/iso/dist/kernel.bin" ]]; then cp "$ROOT/boot/iso/dist/kernel.bin" "$DIST/boot/kernel.bin"; fi
 if [[ -f "$ROOT/boot/iso/dist/chimera2os.elf" ]]; then cp "$ROOT/boot/iso/dist/chimera2os.elf" "$DIST/boot/koronos/koronos.elf"; fi
 for d in include src kernel boot desktop network installer tools tests ai data cmake; do
   if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
