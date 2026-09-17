@@ -4,9 +4,12 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - 'ISA.csv'
+      - 'tools/isa/**'
       - 'docker/iso/**'
       - 'tools/build/create-bootable-iso.sh'
       - 'boot/iso/**'
+      - 'boot/spitfire/**'
       - 'boot/kernel.bin'
 
 permissions:
@@ -19,10 +22,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate ISA catalog
+        run: python3 tools/isa/validate-isa.py
+
       - name: Build ISO builder image
         run: docker build --file docker/iso/Dockerfile --tag chimera-ii-os-iso .
 
-      - name: Run ISO builder
+      - name: Run complete ISO builder
         run: |
           mkdir -p docker-output
           docker run --rm \
@@ -31,13 +37,21 @@ jobs:
             --volume "$PWD/docker-output:/output" \
             chimera-ii-os-iso
 
-      - name: Verify ISO artifact
+      - name: Verify ISO artifact and checksum
         run: |
           test -s docker-output/output.iso
           test -s docker-output/output.iso.sha256
           sha256sum --check docker-output/output.iso.sha256
 
-      - name: Inspect ISO
+      - name: Verify staged source and bootloader metadata
+        run: |
+          test -s boot/iso/dist/iso/src/ISA.csv
+          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
+          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf1-longmode.o
+          grep -q 'My AI OS' boot/iso/dist/iso/boot/grub/grub.cfg
+          grep -q '/boot/kernel.bin' boot/iso/dist/iso/boot/grub/grub.cfg
+
+      - name: Inspect ISO boot records
         run: |
           sudo apt-get update
           sudo apt-get install -y xorriso
