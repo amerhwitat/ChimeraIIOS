@@ -8,6 +8,7 @@ on:
       - 'kernel/**'
       - 'src/**'
       - 'include/**'
+      - 'cmake/**'
       - 'desktop/**'
       - 'network/**'
       - 'installer/**'
@@ -56,6 +57,17 @@ jobs:
         run: python3 -m pytest -q tests/boot tests/iso
       - name: Validate Spit Fire MBR sector
         run: nasm -f bin boot/spitfire/sf0_mbr.asm -o /tmp/sf0.bin && test "$(stat -c %s /tmp/sf0.bin)" = 512 && tail -c 2 /tmp/sf0.bin | od -An -tx1 | grep -qi '55 aa'
+      - name: Build host C/C++ targets
+        run: |
+          cmake -S . -B build -DCHIMERA_ENABLE_X86_ASM=OFF
+          cmake --build build --parallel --target chimera_kernel chimera_server
+      - name: Validate Spit Fire SF0/SF1 artifacts
+        run: |
+          chmod +x boot/spitfire/build-spitfire.sh
+          boot/spitfire/build-spitfire.sh /tmp/spitfire
+          test "$(stat -c %s /tmp/spitfire/spitfire-sf0-mbr.bin)" = 512
+          test -s /tmp/spitfire/spitfire-sf1-longmode.o
+          readelf -h /tmp/spitfire/spitfire-sf1-longmode.o | grep -q 'ELF64'
       - name: Validate host toolchain
         run: |
           gcc --version | head -n 1
@@ -63,15 +75,23 @@ jobs:
           clang --version | head -n 1
           lldb --version | head -n 1
           gdb --version | head -n 1
-      - name: Build structured ISO
-        run: chmod +x boot/iso/build-iso.sh boot/iso/prepare-layout.sh && boot/iso/build-iso.sh
+      - name: Build structured ISO with GRUB2
+        run: |
+          command -v grub-mkrescue
+          command -v xorriso
+          chmod +x boot/iso/build-iso.sh boot/iso/prepare-layout.sh
+          boot/iso/build-iso.sh
+          test -s boot/iso/dist/output.iso
       - name: Inspect ISO boot records
-        run: xorriso -indev boot/iso/dist/chimera2os-bootstrap.iso -report_el_torito plain -report_system_area plain -print ''
+        run: xorriso -indev boot/iso/dist/output.iso -report_el_torito plain -report_system_area plain -print '' | tee boot/iso/dist/ISO-BOOT-REPORT.txt
       - name: ISO content smoke test
         run: |
-          test -s boot/iso/dist/chimera2os-bootstrap.iso
+          test -s boot/iso/dist/output.iso
           test -f boot/iso/dist/iso/boot/spitfire/sf0_mbr.asm
+          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
+          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf1-longmode.o
           test -f boot/iso/dist/iso/boot/koronos/koronos.elf
+          test -f boot/iso/dist/iso/boot/kernel.bin
           test -f boot/iso/dist/iso/boot/jasper/grub.cfg
           test -f boot/iso/dist/iso/chimera/manifests/platform-manifest.json
           test -f boot/iso/dist/iso/chimera/manifests/driver-registry.json
@@ -87,19 +107,24 @@ jobs:
           test -d boot/iso/dist/iso/opt
       - name: BIOS QEMU smoke test
         timeout-minutes: 2
-        run: timeout 45s qemu-system-x86_64 -machine pc -m 256M -cdrom boot/iso/dist/chimera2os-bootstrap.iso -display none -serial stdio -no-reboot || test $? -eq 124
+        run: timeout 45s qemu-system-x86_64 -machine pc -m 256M -cdrom boot/iso/dist/output.iso -display none -serial stdio -no-reboot || test $? -eq 124
       - name: UEFI QEMU smoke test
         timeout-minutes: 2
         run: |
           OVMF_CODE=$(find /usr/share/OVMF /usr/share/edk2 -type f \( -name 'OVMF_CODE.fd' -o -name 'OVMF_CODE_4M.fd' \) 2>/dev/null | head -n 1)
-          if [[ -n "$OVMF_CODE" ]]; then timeout 45s qemu-system-x86_64 -machine q35 -m 256M -bios "$OVMF_CODE" -cdrom boot/iso/dist/chimera2os-bootstrap.iso -display none -serial stdio -no-reboot || test $? -eq 124; else echo 'OVMF firmware not installed; UEFI smoke test skipped.'; fi
+          if [[ -n "$OVMF_CODE" ]]; then timeout 45s qemu-system-x86_64 -machine q35 -m 256M -bios "$OVMF_CODE" -cdrom boot/iso/dist/output.iso -display none -serial stdio -no-reboot || test $? -eq 124; else echo 'OVMF firmware not installed; UEFI smoke test skipped.'; fi
       - name: Validate ISO metadata
         run: python3 boot/iso/validate-iso.py --tree boot/iso/dist/iso --json >/tmp/iso-manifest.json
       - name: Hash ISO
-        run: sha256sum boot/iso/dist/chimera2os-bootstrap.iso > boot/iso/dist/SHA256SUMS
-      - name: Upload ISO artifact
+        run: sha256sum boot/iso/dist/output.iso > boot/iso/dist/SHA256SUMS
+      - name: Upload ISO release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: chimera2os-structured-iso
-          path: boot/iso/dist/*
+          name: chimera2os-output-iso
+          path: |
+            boot/iso/dist/output.iso
+            boot/iso/dist/output.iso.sha256
+            boot/iso/dist/SHA256SUMS
+            boot/iso/dist/ISO-BOOT-REPORT.txt
+            boot/iso/dist/iso
           retention-days: 14
