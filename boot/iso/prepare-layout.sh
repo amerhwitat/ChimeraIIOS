@@ -26,8 +26,13 @@ cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
 for d in include src kernel boot desktop network installer tools tests ai data cmake; do
   if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
 done
-[[ -f "$ROOT/ISA.csv" ]] && cp "$ROOT/ISA.csv" "$DIST/src/ISA.csv"
-[[ -f "$ROOT/tools/isa/validate-isa.py" ]] && cp "$ROOT/tools/isa/validate-isa.py" "$DIST/src/tools/isa/"
+if [[ -f "$ROOT/ISA.csv" ]]; then
+  cp "$ROOT/ISA.csv" "$DIST/src/ISA.csv"
+fi
+if [[ -f "$ROOT/tools/isa/validate-isa.py" ]]; then
+  mkdir -p "$DIST/src/tools/isa"
+  cp "$ROOT/tools/isa/validate-isa.py" "$DIST/src/tools/isa/"
+fi
 for d in nlp BizX BizXtreme general; do
   if [[ -d "$ROOT/opt/$d" ]]; then cp -a "$ROOT/opt/$d" "$DIST/opt/"; fi
 done
@@ -46,7 +51,7 @@ for f in \
   [[ -f "$f" ]] && cp "$f" "$DIST/chimera/manifests/"
 done
 [[ -d "$ROOT/toolchains/cpp" ]] && cp -a "$ROOT/toolchains/cpp/." "$DIST/chimera/toolchains/cpp/"
-for f in "$ROOT/README.md" "$ROOT/docs/APPLICATION_ECOSYSTEM.md" "$ROOT/docs/MOBILE_PORTING_MATRIX.md" "$ROOT/docs/LEGAL_AND_PROVENANCE.md" "$ROOT/docs/INSTALLATION_AND_BOOT.md"; do
+for f in "$ROOT/README.md" "$ROOT/docs/APPLICATION_ECOSYSTEM.md" "$ROOT/docs/MOBILE_PORTING_MATRIX.md" "$ROOT/docs/LEGAL_AND_PROVENANCE.md" "$ROOT/docs/INSTALLATION_AND_BOOT.md" "$ROOT/docs/ISA_CATALOG.md"; do
   [[ -f "$f" ]] && cp "$f" "$DIST/chimera/docs/"
 done
 cp "$ROOT/boot/iso/iso-layout.json" "$DIST/ISO/"
