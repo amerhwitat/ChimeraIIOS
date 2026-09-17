@@ -1,0 +1,63 @@
+architecture,style,mnemonic,syntax,binary_encoding,hex_encoding,operands,optional_operands,notes
+x86-64/IA-32,CISC,MOV,"MOV r32,r/m32","8B /r","8B /r","r32,r/m32",,"Load GPR"
+x86-64/IA-32,CISC,ADD,"ADD r32,r/m32","03 /r","03 /r","r32,r/m32",,"Integer add"
+x86-64/IA-32,CISC,SUB,"SUB r32,r/m32","2B /r","2B /r","r32,r/m32",,"Integer subtract"
+x86-64/IA-32,CISC,AND,"AND r32,r/m32","23 /r","23 /r","r32,r/m32",,"Bitwise AND"
+x86-64/IA-32,CISC,OR,"OR r32,r/m32","0B /r","0B /r","r32,r/m32",,"Bitwise OR"
+x86-64/IA-32,CISC,XOR,"XOR r32,r/m32","33 /r","33 /r","r32,r/m32",,"Bitwise XOR"
+x86-64/IA-32,CISC,CMP,"CMP r32,r/m32","3B /r","3B /r","r32,r/m32",,"Compare"
+x86-64/IA-32,CISC,TEST,"TEST r/m32,r32","85 /r","85 /r","r/m32,r32",,"Bit test"
+x86-64/IA-32,CISC,JMP,"JMP rel32","E9 cd","E9 cd",rel32,rel8/rel16 forms exist,"Relative control transfer"
+x86-64/IA-32,CISC,CALL,"CALL rel32","E8 cd","E8 cd",rel32,far/indirect forms exist,Call
+x86-64/IA-32,CISC,RET,RET,C3,C3,none,imm16 form,Return
+x86-64/IA-32,CISC,NOP,NOP,90,90,none,none,No operation
+x86-64/IA-32,CISC,PUSH,"PUSH r32","50+rd","50+rd",r32,immediate/memory forms,Stack
+x86-64/IA-32,CISC,POP,"POP r32","58+rd","58+rd",r32,memory form,Stack
+x86-64/IA-32,CISC,INT,"INT imm8","CD ib","CD ib",imm8,INT3 short form,Software interrupt
+x86-64/IA-32,CISC,HLT,HLT,F4,F4,none,none,Halt
+AArch64,RISC,"ADD","ADD Xd,Xn,Xm","sf|10001011|Rm|000000|Rn|Rd","0x8B000000|(Rm<<16)|(Rn<<5)|Rd","Xd,Xn,Xm",shifted-register variants,A64
+AArch64,RISC,"SUB","SUB Xd,Xn,Xm","sf|11001011|Rm|000000|Rn|Rd","0xCB000000|(Rm<<16)|(Rn<<5)|Rd","Xd,Xn,Xm",shifted-register variants,A64
+AArch64,RISC,"AND","AND Xd,Xn,Xm","sf|00001010|Rm|000000|Rn|Rd","0x8A000000|(Rm<<16)|(Rn<<5)|Rd","Xd,Xn,Xm",shifted logical variants,A64
+AArch64,RISC,"ORR","ORR Xd,Xn,Xm","sf|00101010|Rm|000000|Rn|Rd","0xAA000000|(Rm<<16)|(Rn<<5)|Rd","Xd,Xn,Xm",shifted variants,A64
+AArch64,RISC,"EOR","EOR Xd,Xn,Xm","sf|01001010|Rm|000000|Rn|Rd","0xCA000000|(Rm<<16)|(Rn<<5)|Rd","Xd,Xn,Xm",shifted variants,A64
+AArch64,RISC,MOV,"MOV Xd,Xn",ORR alias,alias,Xd,Xn,MOVZ/MOVN/MOVK for immediates,A64
+AArch64,RISC,LDR,"LDR Xt,[Xn,#imm]","size|111|01|...",class encoding,"Xt,[Xn,#imm]",scaled imm12/pre/post-index variants,A64
+AArch64,RISC,STR,"STR Xt,[Xn,#imm]","size|111|01|...",class encoding,"Xt,[Xn,#imm]",scaled imm12/pre/post-index variants,A64
+AArch64,RISC,B,"B label","000101|imm26","0x14000000|imm26",label,conditional B.cond separate,A64
+AArch64,RISC,BL,"BL label","100101|imm26","0x94000000|imm26",label,none,link in X30
+AArch64,RISC,RET,RET,"1101011...",0xD65F03C0,none,RET Xn form,A64
+AArch64,RISC,NOP,NOP,HINT #0,0xD503201F,none,none,A64
+RISC-V RV32I/RV64I,RISC,ADD,"ADD rd,rs1,rs2","funct7=0000000|rs2|rs1|000|rd|0110011",variable,"rd,rs1,rs2",none,R-type
+RISC-V RV32I/RV64I,RISC,SUB,"SUB rd,rs1,rs2","funct7=0100000|rs2|rs1|000|rd|0110011",variable,"rd,rs1,rs2",none,R-type
+RISC-V RV32I/RV64I,RISC,AND,"AND rd,rs1,rs2","0000000|rs2|rs1|111|rd|0110011",variable,"rd,rs1,rs2",none,R-type
+RISC-V RV32I/RV64I,RISC,OR,"OR rd,rs1,rs2","0000000|rs2|rs1|110|rd|0110011",variable,"rd,rs1,rs2",none,R-type
+RISC-V RV32I/RV64I,RISC,XOR,"XOR rd,rs1,rs2","0000000|rs2|rs1|100|rd|0110011",variable,"rd,rs1,rs2",none,R-type
+RISC-V RV32I/RV64I,RISC,ADDI,"ADDI rd,rs1,imm","imm[11:0]|rs1|000|rd|0010011",variable,"rd,rs1,imm12",none,I-type
+RISC-V RV32I/RV64I,RISC,LW,"LW rd,imm(rs1)","imm[11:0]|rs1|010|rd|0000011",variable,"rd,rs1,imm12",none,I-type
+RISC-V RV32I/RV64I,RISC,SW,"SW rs2,imm(rs1)","imm[11:5]|rs2|rs1|010|imm[4:0]|0100011",variable,"rs1,rs2,imm12",none,S-type
+RISC-V RV32I/RV64I,RISC,BEQ,"BEQ rs1,rs2,label","imm[12|10:5]|rs2|rs1|000|imm[4:1|11]|1100011",variable,"rs1,rs2,label",none,B-type
+RISC-V RV32I/RV64I,RISC,JAL,"JAL rd,label","imm[20|10:1|11|19:12]|rd|1101111",variable,"rd,label",rd may be assembler-default,J-type
+RISC-V RV32I/RV64I,RISC,LUI,"LUI rd,imm","imm[31:12]|rd|0110111",variable,"rd,imm20",none,U-type
+RISC-V RV32I/RV64I,RISC,AUIPC,"AUIPC rd,imm","imm[31:12]|rd|0010111",variable,"rd,imm20",none,U-type
+RISC-V RV32I/RV64I,RISC,ECALL,ECALL,"000000000000|00000|00000|000|00000|1110011",0x00000073,none,none,SYSTEM
+RISC-V RV32I/RV64I,RISC,EBREAK,EBREAK,"000000000001|00000|00000|000|00000|1110011",0x00100073,none,none,SYSTEM
+MIPS32,RISC,ADD,"ADD rd,rs,rt","000000|rs|rt|rd|00000|100000","0x00000020|rs<<21|rt<<16|rd<<11","rd,rs,rt",none,R-format
+MIPS32,RISC,SUB,"SUB rd,rs,rt","000000|rs|rt|rd|00000|100010","0x00000022|rs<<21|rt<<16|rd<<11","rd,rs,rt",none,R-format
+MIPS32,RISC,AND,"AND rd,rs,rt","000000|rs|rt|rd|00000|100100","0x00000024|...","rd,rs,rt",none,R-format
+MIPS32,RISC,OR,"OR rd,rs,rt","000000|rs|rt|rd|00000|100101","0x00000025|...","rd,rs,rt",none,R-format
+MIPS32,RISC,LW,"LW rt,imm(rs)","100011|rs|rt|imm16","0x8C000000|rs<<21|rt<<16|imm","rt,rs,imm16",none,I-format
+MIPS32,RISC,SW,"SW rt,imm(rs)","101011|rs|rt|imm16","0xAC000000|rs<<21|rt<<16|imm","rt,rs,imm16",none,I-format
+MIPS32,RISC,BEQ,"BEQ rs,rt,offset","000100|rs|rt|imm16","0x10000000|rs<<21|rt<<16|imm","rs,rt,offset",none,I-format
+MIPS32,RISC,J,"J target","000010|target26","0x08000000|target",target,none,J-format
+MIPS32,RISC,NOP,"SLL $0,$0,0","000000|00000|00000|00000|00000|000000",0x00000000,none,none,canonical encoding
+Power ISA,RISC,ADD,"add rD,rA,rB","major opcode 31 + XO 266",format-dependent,"rD,rA,rB",record-form variant,integer
+Power ISA,RISC,LWZ,"lwz rD,d(rA)","major opcode 32",format D,"rD,rA,d",update/index variants,load
+Power ISA,RISC,STW,"stw rS,d(rA)","major opcode 36",format D,"rS,rA,d",update/index variants,store
+SPARC V8/V9,RISC,ADD,"add %rs1,%rs2,%rd","op=2,op3=0x00",format-3,"rs1,rs2,rd",simm13 variant,integer
+SPARC V8/V9,RISC,LD,"ld [rs1+rs2],rd","op=3,op3=0x00",format-3,"rs1,rs2,rd",simm13 address,load
+SPARC V8/V9,RISC,ST,"st rd,[rs1+rs2]","op=3,op3=0x04",format-3,"rs1,rs2,rd",simm13 address,store
+Motorola 68000,CISC,MOVE,"MOVE.W <ea>,<ea>",opcode class 0x3,variable,src/dst,size B/W/L,data movement
+Motorola 68000,CISC,ADD,"ADD.W <ea>,Dn",opcode class 0xD,variable,src/dst,direction/size,integer
+Motorola 68000,CISC,SUB,"SUB.W <ea>,Dn",opcode class 0x9,variable,src/dst,direction/size,integer
+VAX,CISC,MOVL,"MOVL src,dst","variable opcode 0xD0 + specifiers",variable,src/dst,addressing modes,32-bit move
+VAX,CISC,ADDL3,"ADDL3 src1,src2,dst","variable opcode 0xC1 + specifiers",variable,src1/src2/dst,addressing modes,3-operand add
