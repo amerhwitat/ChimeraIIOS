@@ -12,10 +12,10 @@ $CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot
 $CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/boot.c" -o "$WORK/boot.o"
 $LD -m elf_i386 -T "$ISO_ROOT/linker.ld" -o "$DIST/chimera2os.elf" "$WORK/multiboot2.o" "$WORK/boot.o"
 cp "$DIST/chimera2os.elf" "$DIST/kernel.bin"
-printf '%s\n' '[2/7] Assemble Spit Fire BIOS bootloader stages with NASM'
-"$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders"
-printf '%s\n' '[3/7] Prepare structured media tree'
+printf '%s\n' '[2/7] Prepare structured media tree'
 "$ISO_ROOT/prepare-layout.sh"
+printf '%s\n' '[3/7] Assemble Spit Fire BIOS bootloader stages with NASM'
+"$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders"
 cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/koronos/koronos.elf"
 cp "$DIST/kernel.bin" "$ISO_ROOT/dist/iso/boot/kernel.bin"
 cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/chimera2os.elf"
