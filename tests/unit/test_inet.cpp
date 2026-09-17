@@ -1,4 +1,5 @@
-#include <arpa/inet.h>
+#include "../../src/net/inet.h"
+
 #include <cassert>
 #include <cstring>
 #include <string>
@@ -13,7 +14,7 @@ int main() {
     assert(chimera_inet_ntop(AF_INET, &v4, text4, sizeof(text4)) != nullptr);
     assert(std::string(text4) == "192.0.2.1");
     assert(chimera_inet_aton("192.0.2.1", &v4) == 1);
-    assert(chimera_inet_ntohl(v4.s_addr) == 0xC0000201u);
+    assert(chimera_ntohl(v4.s_addr) == 0xC0000201u);
 
     struct in6_addr v6{};
     assert(chimera_inet_pton(AF_INET6, "2001:db8::1", &v6) == 1);
