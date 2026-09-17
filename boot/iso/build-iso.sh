@@ -7,30 +7,43 @@ WORK="$ISO_ROOT/work"
 rm -rf "$DIST" "$WORK"
 mkdir -p "$DIST" "$WORK"
 CC=${CC:-gcc}; LD=${LD:-ld}
-printf '%s\n' '[1/5] Build Multiboot2 bootstrap kernel'
+printf '%s\n' '[1/7] Build Multiboot2 bootstrap / Koronos kernel payload'
 $CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/multiboot2.S" -o "$WORK/multiboot2.o"
 $CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/boot.c" -o "$WORK/boot.o"
 $LD -m elf_i386 -T "$ISO_ROOT/linker.ld" -o "$DIST/chimera2os.elf" "$WORK/multiboot2.o" "$WORK/boot.o"
-printf '%s\n' '[2/5] Prepare structured media tree'
+cp "$DIST/chimera2os.elf" "$DIST/kernel.bin"
+printf '%s\n' '[2/7] Assemble Spit Fire BIOS bootloader stages with NASM'
+"$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders"
+printf '%s\n' '[3/7] Prepare structured media tree'
 "$ISO_ROOT/prepare-layout.sh"
 cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/koronos/koronos.elf"
+cp "$DIST/kernel.bin" "$ISO_ROOT/dist/iso/boot/kernel.bin"
 cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/chimera2os.elf"
+cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$ISO_ROOT/dist/iso/boot/spitfire/"
+cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$ISO_ROOT/dist/iso/boot/spitfire/"
 cp "$ISO_ROOT/iso-layout.json" "$ISO_ROOT/dist/iso/chimera/manifests/iso-layout.json"
-printf '%s\n' '[3/5] Add boot configuration'
+printf '%s\n' '[4/7] Add GRUB2 boot configuration'
 mkdir -p "$ISO_ROOT/dist/iso/boot/grub"
 cp "$ISO_ROOT/grub.cfg" "$ISO_ROOT/dist/iso/boot/grub.cfg"
 cp "$ISO_ROOT/grub.cfg" "$ISO_ROOT/dist/iso/boot/grub/grub.cfg"
-printf '%s\n' '[4/5] Validate final staging tree'
+printf '%s\n' '[5/7] Validate ISA and final staging tree'
+python3 "$ROOT/tools/isa/validate-isa.py"
 python3 "$ISO_ROOT/validate-iso.py" --tree "$ISO_ROOT/dist/iso" --write-manifest "$ISO_ROOT/dist/iso/checksums/SHA256SUMS"
-printf '%s\n' '[5/5] Master ISO 9660 / El Torito image'
+printf '%s\n' '[6/7] Master ISO 9660 / El Torito hybrid image'
 if command -v grub-mkrescue >/dev/null 2>&1; then
   grub-mkrescue -o "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"
 elif command -v xorriso >/dev/null 2>&1; then
-  echo 'xorriso found but grub-mkrescue is missing; install GRUB2 EFI/BIOS modules for hybrid authoring.' >&2
+  echo 'xorriso found but grub-mkrescue is missing; install GRUB2 BIOS/UEFI modules for hybrid authoring.' >&2
   exit 2
 else
   echo 'No ISO authoring backend found: install grub-mkrescue/GRUB2 and xorriso.' >&2
   exit 2
 fi
+cp "$DIST/chimera2os-bootstrap.iso" "$DIST/output.iso"
 sha256sum "$DIST/chimera2os-bootstrap.iso" | tee "$DIST/chimera2os-bootstrap.iso.sha256"
-printf 'ISO: %s\nStructured tree: %s\n' "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"
+sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
+printf '%s\n' '[7/7] ISO boot metadata inspection'
+if command -v xorriso >/dev/null 2>&1; then
+  xorriso -indev "$DIST/output.iso" -report_el_torito plain -report_system_area plain | tee "$DIST/ISO-BOOT-REPORT.txt"
+fi
+printf 'ISO: %s\nStructured tree: %s\nBootloader artifacts: %s\n' "$DIST/output.iso" "$DIST/iso" "$DIST/bootloaders"
