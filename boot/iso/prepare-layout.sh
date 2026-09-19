@@ -51,6 +51,16 @@ for f in \
   [[ -f "$f" ]] && cp "$f" "$DIST/chimera/manifests/"
 done
 [[ -d "$ROOT/toolchains/cpp" ]] && cp -a "$ROOT/toolchains/cpp/." "$DIST/chimera/toolchains/cpp/"
+[[ -f "$ROOT/repositories/portfolio-integration.json" ]] && cp "$ROOT/repositories/portfolio-integration.json" "$DIST/chimera/manifests/"
+[[ -f "$ROOT/repositories/reference-document-import.json" ]] && cp "$ROOT/repositories/reference-document-import.json" "$DIST/chimera/manifests/"
+# Optional CI/local portfolio build output. This is populated by tools/portfolio/build_portfolio.py.
+if [[ -d "$ROOT/boot/iso/portfolio-build" ]]; then
+  mkdir -p "$DIST/src/portfolio" "$DIST/bin/portfolio" "$DIST/docs/references"
+  [[ -d "$ROOT/boot/iso/portfolio-build/src" ]] && cp -a "$ROOT/boot/iso/portfolio-build/src/." "$DIST/src/portfolio/"
+  [[ -d "$ROOT/boot/iso/portfolio-build/binaries" ]] && cp -a "$ROOT/boot/iso/portfolio-build/binaries/." "$DIST/bin/portfolio/"
+  [[ -d "$ROOT/boot/iso/portfolio-build/docs/references" ]] && cp -a "$ROOT/boot/iso/portfolio-build/docs/references/." "$DIST/docs/references/"
+  [[ -f "$ROOT/boot/iso/portfolio-build/portfolio-build-report.json" ]] && cp "$ROOT/boot/iso/portfolio-build/portfolio-build-report.json" "$DIST/chimera/manifests/"
+fi
 for f in "$ROOT/README.md" "$ROOT/docs/APPLICATION_ECOSYSTEM.md" "$ROOT/docs/MOBILE_PORTING_MATRIX.md" "$ROOT/docs/LEGAL_AND_PROVENANCE.md" "$ROOT/docs/INSTALLATION_AND_BOOT.md" "$ROOT/docs/ISA_CATALOG.md"; do
   [[ -f "$f" ]] && cp "$f" "$DIST/chimera/docs/"
 done
