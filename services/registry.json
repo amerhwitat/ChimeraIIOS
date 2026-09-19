@@ -1,0 +1,9 @@
+{
+ "schema":1,"manager":"kore","services":[
+ {"name":"koronos","description":"Chimera II kernel host boundary","after":[],"enabled":true},
+ {"name":"spotnik","description":"network stack","after":["koronos"],"enabled":true},
+ {"name":"aegis","description":"security policy broker","after":["koronos"],"enabled":true},
+ {"name":"nucleus","description":"neural/HTAP data service","after":["koronos"],"enabled":true},
+ {"name":"aurora","description":"desktop/session manager","after":["koronos","aegis"],"enabled":true},
+ {"name":"driver-manager","description":"hardware and driver remediation broker","after":["koronos","aegis","spotnik"],"enabled":true}
+ ]}
