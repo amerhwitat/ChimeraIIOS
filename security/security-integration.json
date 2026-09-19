@@ -1,0 +1,45 @@
+{
+  "schema": "chimera-security-integration-v2",
+  "linux": [
+    "DAC/chmod",
+    "POSIX ACL",
+    "SELinux",
+    "AppArmor",
+    "seccomp",
+    "capabilities",
+    "namespaces",
+    "cgroups",
+    "IMA/EVM",
+    "audit"
+  ],
+  "windows": [
+    "ACL/security descriptors",
+    "tokens",
+    "integrity levels",
+    "UAC",
+    "WDAC/code integrity",
+    "BitLocker concepts",
+    "service ACLs",
+    "WMI security"
+  ],
+  "macos": [
+    "SIP",
+    "Gatekeeper",
+    "code signing",
+    "notarization",
+    "entitlements",
+    "sandbox",
+    "TCC",
+    "Endpoint Security",
+    "DriverKit entitlements",
+    "System Extensions"
+  ],
+  "koronos": {
+    "mandatory_access_control": "policy-engine with OS adapters",
+    "identity": "users/groups/roles + capability tokens",
+    "integrity": "measured boot + signed modules + hash verification",
+    "sandbox": "namespaces/cgroups/seccomp-like syscall filters",
+    "audit": "immutable event stream",
+    "default": "deny unsigned kernel modules and unverified foreign binaries"
+  }
+}
