@@ -3,6 +3,12 @@
 #define CHIMERA_NETINET_IN_H
 
 #include <stdint.h>
+#if defined(_WIN32) || defined(_WIN64)
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+
+#endif /* native Windows networking declarations */
 
 #ifdef __cplusplus
 extern "C" {
