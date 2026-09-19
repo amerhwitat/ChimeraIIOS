@@ -46,6 +46,12 @@ jobs:
           python3 -m json.tool repositories/reference-document-import.json >/dev/null
           python3 -m json.tool repositories/isa-sources.json >/dev/null
           python3 -m json.tool drivers/driver-registry.json >/dev/null
+          python3 -m json.tool drivers/manifests/driver-source-catalog.json >/dev/null
+          python3 -m json.tool hardware/compatibility-modes.json >/dev/null
+          python3 -m json.tool security/security-integration.json >/dev/null
+          python3 -m json.tool system/services/chimera-service-manager.json >/dev/null
+          python3 -m json.tool system/kore/units.json >/dev/null
+          python3 -m json.tool desktop/aurora/windows-settings-layout.json >/dev/null
           python3 -m json.tool filesystems/filesystem-registry.json >/dev/null
           python3 -m json.tool packages/package-manager-registry.json >/dev/null
           python3 -m json.tool compat/binary-format-registry.json >/dev/null
@@ -68,6 +74,14 @@ jobs:
           python3 drivers/tools/acquire_official_driver_sources.py
           python3 -m json.tool drivers/manifests/acquired-driver-sources.json >/dev/null
           test -s drivers/manifests/acquired-driver-sources.json
+      - name: Validate host hardware scanner and Kore orchestrator
+        run: |
+          python3 hardware/host_scanner.py >/tmp/hardware.json
+          python3 -m json.tool /tmp/hardware.json >/dev/null
+          python3 system/kore/kore.py system/kore/units.json >/tmp/kore.json
+          python3 -m json.tool /tmp/kore.json >/dev/null
+      - name: Build Aurora GUI container
+        run: docker build -t chimeraiios:ci .
       - name: Run boot and ISO tests
         run: python3 -m pytest -q tests/boot tests/iso
       - name: Validate Spit Fire MBR sector
