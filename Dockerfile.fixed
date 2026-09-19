@@ -21,8 +21,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SRC_DIR=/src/chimera \
     PYTHONPATH=/opt/chimera/applications:/opt/chimera/lib/python
 
+# Fix line endings for all shell scripts in the build context
+RUN apt-get update && apt-get install -y --no-install-recommends dos2unix && \
+    find / -name "*.sh" -type f -exec dos2unix {} \; 2>/dev/null || true
+
 # Install comprehensive build toolchain
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
     # Build essentials
     build-essential \
     cmake cmake-data \
