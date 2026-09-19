@@ -4,8 +4,9 @@
 # userspace/application stack; LinuxKit supplies the bootable Linux kernel,
 # init, containerd and runc needed to boot it on bare metal/VMs.
 #
-# Override the application image at build time by generating this file from
-# build-chimera-iso.sh, or update the image tag here for a pinned release.
+# ISO format is selected by the linuxkit build --format option. Do not put
+# an outputs: section here: LinuxKit v1.8.2 rejects that property in the
+# configuration schema.
 
 kernel:
   image: linuxkit/kernel:6.12.59
@@ -42,7 +43,7 @@ files:
     contents: "amerhwitat/chimera2os:latest\n"
   - path: /etc/motd
     contents: |
-      
+
       ================================================================
         CHIMERA II OS
         LinuxKit boot wrapper for amerhwitat/chimera2os:latest
@@ -50,7 +51,3 @@ files:
       The host kernel is provided by LinuxKit; the Chimera userspace
       runs as the boot service container.
       ================================================================
-
-outputs:
-  - format: iso-bios
-  - format: iso-efi
