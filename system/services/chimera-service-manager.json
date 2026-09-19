@@ -1,0 +1,41 @@
+{
+  "schema": "chimera-service-manager-v2",
+  "model": "systemd-inspired dependency graph",
+  "manager": "Kore",
+  "kernel": "Koronos",
+  "states": [
+    "masked",
+    "disabled",
+    "enabled",
+    "starting",
+    "active",
+    "stopping",
+    "failed"
+  ],
+  "unit_types": [
+    "service",
+    "socket",
+    "timer",
+    "mount",
+    "automount",
+    "target",
+    "path",
+    "device"
+  ],
+  "features": [
+    "dependency ordering",
+    "restart policies",
+    "health checks",
+    "resource limits",
+    "sandbox profiles",
+    "capabilities",
+    "journaling",
+    "boot targets",
+    "socket activation"
+  ],
+  "security": {
+    "service_identity": true,
+    "least_privilege": true,
+    "foreign_service_sandbox": true
+  }
+}
