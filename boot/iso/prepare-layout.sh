@@ -53,6 +53,7 @@ done
 [[ -d "$ROOT/toolchains/cpp" ]] && cp -a "$ROOT/toolchains/cpp/." "$DIST/chimera/toolchains/cpp/"
 [[ -f "$ROOT/repositories/portfolio-integration.json" ]] && cp "$ROOT/repositories/portfolio-integration.json" "$DIST/chimera/manifests/"
 [[ -f "$ROOT/repositories/reference-document-import.json" ]] && cp "$ROOT/repositories/reference-document-import.json" "$DIST/chimera/manifests/"
+[[ -f "$ROOT/repositories/isa-sources.json" ]] && cp "$ROOT/repositories/isa-sources.json" "$DIST/chimera/manifests/"
 # Optional CI/local portfolio build output. This is populated by tools/portfolio/build_portfolio.py.
 if [[ -d "$ROOT/boot/iso/portfolio-build" ]]; then
   mkdir -p "$DIST/src/portfolio" "$DIST/bin/portfolio" "$DIST/docs/references"
