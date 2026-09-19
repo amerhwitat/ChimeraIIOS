@@ -1,12 +1,11 @@
 # Chimera II OS LinuxKit wrapper
-# Builds a bootable LinuxKit ISO whose first userspace service is
-# amerhwitat/chimera2os:latest. The Docker image supplies the Chimera
-# userspace/application stack; LinuxKit supplies the bootable Linux kernel,
-# init, containerd and runc needed to boot it on bare metal/VMs.
+# Docker supplies the Chimera userspace; LinuxKit supplies the bootable
+# kernel, init, containerd and runc.
 #
-# ISO format is selected by the linuxkit build --format option. Do not put
-# an outputs: section here: LinuxKit v1.8.2 rejects that property in the
-# configuration schema.
+# ISO format is selected by:
+#   linuxkit build --format iso-bios ...
+#   linuxkit build --format iso-efi ...
+# Do not add an outputs: section; LinuxKit v1.8.2 rejects it.
 
 kernel:
   image: linuxkit/kernel:6.12.59
@@ -39,11 +38,12 @@ files:
       KERNEL="linuxkit/kernel:6.12.59"
       BUILD_TOOL="LinuxKit v1.8.2"
       BOOT_TARGETS="BIOS/El Torito + UEFI"
+
   - path: /etc/linuxkit/chimera2os-image
-    contents: "amerhwitat/chimera2os:latest\n"
+    contents: "amerhwitat/chimera2os:latest"
+
   - path: /etc/motd
     contents: |
-
       ================================================================
         CHIMERA II OS
         LinuxKit boot wrapper for amerhwitat/chimera2os:latest
