@@ -1,0 +1,14 @@
+{
+ "schema":1,"layout":"windows-settings",
+ "categories":[
+ {"id":"system","title":"System","pages":["display","sound","notifications","power","storage","multitasking","recovery"]},
+ {"id":"devices","title":"Devices","pages":["bluetooth","printers","mouse","keyboard","cameras","drivers","hardware"]},
+ {"id":"network","title":"Network & Internet","pages":["wifi","ethernet","vpn","proxy","advanced"]},
+ {"id":"personalization","title":"Personalization","pages":["background","colors","themes","fonts","start"]},
+ {"id":"apps","title":"Apps","pages":["installed","defaults","optional-features","startup"]},
+ {"id":"accounts","title":"Accounts","pages":["users","sign-in","family","sync"]},
+ {"id":"time-language","title":"Time & Language","pages":["date-time","language","region","typing"]},
+ {"id":"privacy-security","title":"Privacy & Security","pages":["security","permissions","firewall","updates","drivers"]},
+ {"id":"accessibility","title":"Accessibility","pages":["vision","hearing","interaction"]},
+ {"id":"update","title":"Compatibility & Updates","pages":["compatibility-modes","update-center","rollback"]}
+ ]}
