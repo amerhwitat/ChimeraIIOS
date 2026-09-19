@@ -1,0 +1,38 @@
+{
+  "schema": "chimera-reference-document-import-v1",
+  "policy": "reference-and-build-metadata; do not execute document contents",
+  "references": [
+    {
+      "name": "w2K-source.pdf",
+      "source": "Library/attached /code/w2K-source.pdf",
+      "purpose": "Windows 2000 source/architecture reference",
+      "stage": "docs/references/w2K-source.pdf",
+      "action": "local-import-if-present"
+    },
+    {
+      "name": "Win32API-x86-x64_2.docx",
+      "source": "Library /code/Win32API-x86-x64_2.docx",
+      "purpose": "Win32 x86/x64 ABI and API compatibility reference",
+      "stage": "docs/references/Win32API-x86-x64_2.docx",
+      "action": "local-import-if-present"
+    },
+    {
+      "name": "W2K-ASM.txt",
+      "source": "Library /code/W2K-ASM.txt",
+      "purpose": "Windows NT/assembly symbols and binary-format compatibility research",
+      "stage": "docs/references/W2K-ASM.txt",
+      "action": "local-import-if-present"
+    }
+  ],
+  "compatibility_targets": [
+    "Win32",
+    "Win64",
+    "PE32",
+    "PE32+",
+    "NT kernel concepts",
+    "NTFS security/ACL concepts",
+    "Windows CLI/batch",
+    "Winsock2"
+  ],
+  "note": "Library files are not directly available to GitHub Actions. The local import step accepts a supplied reference directory and records SHA-256 hashes."
+}
