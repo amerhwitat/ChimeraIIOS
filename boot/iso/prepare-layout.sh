@@ -37,6 +37,12 @@ for d in nlp BizX BizXtreme general; do
   if [[ -d "$ROOT/opt/$d" ]]; then cp -a "$ROOT/opt/$d" "$DIST/opt/"; fi
 done
 [[ -d "$ROOT/appcenter" ]] && cp -a "$ROOT/appcenter" "$DIST/opt/appcenter"
+[[ -d "$ROOT/drivers" ]] && cp -a "$ROOT/drivers/." "$DIST/drivers/"
+if [[ -f "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" ]]; then
+  mkdir -p "$DIST/boot/grub" "$DIST/usr/share/chimera/aurora"
+  cp "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" "$DIST/boot/grub/aurora-wayland-glass.png"
+  cp "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" "$DIST/usr/share/chimera/aurora/aurora-wayland-glass.png"
+fi
 [[ -d "$ROOT/games" ]] && cp -a "$ROOT/games/." "$DIST/games/"
 [[ -d "$ROOT/wallets" ]] && cp -a "$ROOT/wallets/." "$DIST/wallets/"
 for f in \
