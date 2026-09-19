@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DIST="$ROOT/boot/iso/dist/iso"
 rm -rf "$DIST"
-mkdir -p "$DIST/boot/grub" "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
+mkdir -p "$DIST/chimera/hardware" "$DIST/chimera/security" "$DIST/chimera/system" "$DIST/boot/grub" "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
   "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA" "$DIST/chimera/docs" \
   "$DIST/chimera/manifests" "$DIST/chimera/toolchains/cpp" \
   "$DIST/chimera/applications" "$DIST/chimera/knowledge" \
