@@ -1,4 +1,5 @@
 #include "chimera/kernel_arch.hpp"
+#include "chimera/linux_compat.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -46,6 +47,10 @@ int main() {
 
     chimera::kernel::Kernel kernel;
     kernel.init();
+    const auto compatibility = chimera::linux_compat::identify();
+    std::fprintf(stdout, "koronos: Linux compatibility registry: %llu features, %llu architectures\\n",
+                 static_cast<unsigned long long>(compatibility.feature_count),
+                 static_cast<unsigned long long>(compatibility.arch_count));
 
     const std::string dir = runtime_dir();
     if (!write_ready_file(dir)) {
