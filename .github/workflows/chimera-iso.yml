@@ -42,6 +42,9 @@ jobs:
       - name: Validate platform registries
         run: |
           python3 -m json.tool repositories/platform-manifest.json >/dev/null
+          python3 -m json.tool repositories/portfolio-integration.json >/dev/null
+          python3 -m json.tool repositories/reference-document-import.json >/dev/null
+          python3 -m json.tool repositories/isa-sources.json >/dev/null
           python3 -m json.tool drivers/driver-registry.json >/dev/null
           python3 -m json.tool filesystems/filesystem-registry.json >/dev/null
           python3 -m json.tool packages/package-manager-registry.json >/dev/null
@@ -107,6 +110,9 @@ jobs:
           test -f boot/iso/dist/iso/chimera/manifests/binary-format-registry.json
           test -f boot/iso/dist/iso/chimera/manifests/installer-contract.json
           test -f boot/iso/dist/iso/chimera/manifests/gates_menu.json
+          test -f boot/iso/dist/iso/chimera/manifests/portfolio-integration.json
+          test -f boot/iso/dist/iso/chimera/manifests/reference-document-import.json
+          test -f boot/iso/dist/iso/chimera/manifests/isa-sources.json
           test -f boot/iso/dist/iso/chimera/toolchains/cpp/registry.json
           test -f boot/iso/dist/iso/checksums/SHA256SUMS
           test -f boot/iso/dist/iso/ISO/iso-layout.json
