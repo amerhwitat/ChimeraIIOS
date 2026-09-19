@@ -1,0 +1,130 @@
+{
+  "schema": "chimera-portfolio-integration-v2",
+  "generated": "2026-09-19",
+  "owner": "amerhwitat",
+  "repositories": [
+    {
+      "name": "ChimeraIIOS",
+      "role": "operating-system",
+      "url": "https://github.com/amerhwitat/ChimeraIIOS",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "BizX",
+      "role": "application-platform",
+      "url": "https://github.com/amerhwitat/BizX",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "BizXtreme",
+      "role": "game-platform",
+      "url": "https://github.com/amerhwitat/BizXtreme",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "general",
+      "role": "application-integration",
+      "url": "https://github.com/amerhwitat/general",
+      "default_branch": "master",
+      "source_required": true
+    },
+    {
+      "name": "nlp",
+      "role": "NLP/Thamudic",
+      "url": "https://github.com/amerhwitat/nlp",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "CPU4096",
+      "role": "processor-research",
+      "url": "https://github.com/amerhwitat/CPU4096",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "CPU4096Simulator",
+      "role": "processor-simulator",
+      "url": "https://github.com/amerhwitat/CPU4096Simulator",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "PDFreaderPY",
+      "role": "document-tools",
+      "url": "https://github.com/amerhwitat/PDFreaderPY",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "eth-key-check",
+      "role": "crypto-utility",
+      "url": "https://github.com/amerhwitat/eth-key-check",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "keygen",
+      "role": "crypto-utility",
+      "url": "https://github.com/amerhwitat/keygen",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "bruteforce",
+      "role": "research-utility",
+      "url": "https://github.com/amerhwitat/bruteforce",
+      "default_branch": "main",
+      "source_required": true
+    },
+    {
+      "name": "test",
+      "role": "test-workspace",
+      "url": "https://github.com/amerhwitat/test",
+      "default_branch": "main",
+      "source_required": true
+    }
+  ],
+  "build": {
+    "strategy": "recursive-discovery",
+    "supported_builds": [
+      "C/C++",
+      "CMake",
+      "Make",
+      "Autotools",
+      "Meson",
+      "Rust/Cargo",
+      "Go",
+      "Java/Maven/Gradle",
+      "Kotlin/Gradle",
+      "Python",
+      "Node/npm",
+      "TypeScript",
+      "C#/.NET",
+      "Dart/Flutter",
+      "Swift/Xcode",
+      "POSIX shell",
+      "PowerShell",
+      "Windows batch",
+      "NASM/MASM/GAS"
+    ],
+    "failure_policy": "record-and-continue",
+    "foreign_binaries": "stage-only-after-provenance-license-hash-compatibility-check"
+  },
+  "staging": {
+    "source": "/src/portfolio/<repo>",
+    "executables": "/bin/portfolio/<repo>",
+    "libraries": "/lib/portfolio/<repo>",
+    "metadata": "/metadata/portfolio/<repo>",
+    "mobile": "/mobile/portfolio/<repo>"
+  },
+  "security": {
+    "execute_downloaded_code": false,
+    "proprietary_binary_redistribution": false,
+    "signature_or_sha256_required": true,
+    "secure_boot_bypass": false
+  }
+}
