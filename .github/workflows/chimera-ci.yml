@@ -28,6 +28,8 @@ jobs:
         run: python3 -m json.tool cloud/providers.json >/dev/null && python3 -m json.tool virtualization/cvel/cvel_registry.json >/dev/null && python3 -m json.tool devops/pipeline_schema.json >/dev/null
       - name: Validate Python modules
         run: python3 -m compileall -q cloud tools/image devops desktop/aurora
+      - name: Install Python test dependencies
+        run: python3 -m pip install --disable-pip-version-check --no-input pytest
       - name: Validate Python tests
         run: python3 -m pytest -q tests/cloud tests/image tests/devops
       - name: Validate Terraform when installed
