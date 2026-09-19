@@ -25,6 +25,8 @@ on:
       - 'install/**'
       - 'docs/**'
       - 'tests/**'
+      - 'repositories/**'
+      - 'tools/portfolio/**'
       - '.github/workflows/chimera-iso.yml'
 
 permissions:
@@ -36,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install ISO, EFI and validation tools
-        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pytest clang lldb gdb cmake ninja-build qemu-system-x86
+        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pytest clang lldb gdb cmake ninja-build qemu-system-x86 git nodejs npm openjdk-17-jdk golang-go rustc cargo perl
       - name: Validate platform registries
         run: |
           python3 -m json.tool repositories/platform-manifest.json >/dev/null
@@ -53,6 +55,11 @@ jobs:
           python3 -m json.tool toolchains/cpp/ides.json >/dev/null
           python3 -m json.tool toolchains/cpp/debuggers.json >/dev/null
           for p in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$p"; done
+      - name: Recursively acquire, compile and stage Amer Hwitat portfolio
+        run: |
+          rm -rf boot/iso/portfolio-build
+          python3 tools/portfolio/build_portfolio.py --output boot/iso/portfolio-build
+          test -s boot/iso/portfolio-build/portfolio-build-report.json
       - name: Run boot and ISO tests
         run: python3 -m pytest -q tests/boot tests/iso
       - name: Validate Spit Fire MBR sector
