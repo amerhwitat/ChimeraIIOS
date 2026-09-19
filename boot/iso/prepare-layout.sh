@@ -38,6 +38,9 @@ for d in nlp BizX BizXtreme general; do
 done
 [[ -d "$ROOT/appcenter" ]] && cp -a "$ROOT/appcenter" "$DIST/opt/appcenter"
 [[ -d "$ROOT/drivers" ]] && cp -a "$ROOT/drivers/." "$DIST/drivers/"
+[[ -d "$ROOT/hardware" ]] && cp -a "$ROOT/hardware/." "$DIST/chimera/hardware/"
+[[ -d "$ROOT/security" ]] && cp -a "$ROOT/security/." "$DIST/chimera/security/"
+[[ -d "$ROOT/system" ]] && cp -a "$ROOT/system/." "$DIST/chimera/system/"
 if [[ -f "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" ]]; then
   mkdir -p "$DIST/boot/grub" "$DIST/usr/share/chimera/aurora"
   cp "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" "$DIST/boot/grub/aurora-wayland-glass.png"
