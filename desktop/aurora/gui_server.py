@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
+import json,subprocess,os
+ROOT="/app"
+def scan():
+ p=subprocess.run(["python3",os.path.join(ROOT,"hardware","host_scanner.py")],capture_output=True,text=True,timeout=30)
+ try:return json.loads(p.stdout)
+ except:return {"error":p.stderr or p.stdout}
+HTML='''<!doctype html><html><head><meta charset="utf-8"><title>Chimera II OS Aurora</title><style>body{margin:0;font:14px Segoe UI,Arial;background:#07111c;color:#e7eef7}header{padding:22px 28px;background:linear-gradient(135deg,#102a42,#182033);font-size:25px}nav{width:250px;position:fixed;top:80px;bottom:0;padding:18px;background:#0b1825}button{display:block;width:100%;margin:5px 0;padding:12px;text-align:left;background:#12263a;color:white;border:1px solid #25425d;border-radius:7px}main{margin-left:285px;padding:30px}.card{background:#0e1e2d;border:1px solid #25425d;border-radius:12px;padding:20px;margin:15px 0}pre{white-space:pre-wrap;max-height:500px;overflow:auto}</style></head><body><header>◈ Chimera II OS — Aurora Wayland Glass</header><nav><button onclick="show('System')">System</button><button onclick="show('Bluetooth & devices')">Bluetooth & devices</button><button onclick="show('Network & internet')">Network & internet</button><button onclick="show('Personalization')">Personalization</button><button onclick="show('Apps')">Apps</button><button onclick="show('Privacy & security')">Privacy & security</button><button onclick="show('Drivers & hardware')">Drivers & hardware</button><button onclick="show('System & services')">System & services</button><button onclick="show('Compatibility')">Linux / Windows / macOS</button></nav><main><div class="card"><h2 id="title">Drivers & hardware</h2><button onclick="scan()">Scan present host hardware</button><button onclick="show('Available driver updates')">Check driver updates</button><pre id="out">Ready.</pre></div><div class="card"><h2>Security</h2><p>Native drivers first • signed/hash verified imports • compatibility isolation • explicit authorization • rollback metadata.</p></div><div class="card"><h2>Services</h2><p>Kore service manager • dependency graph • targets • timers • health checks • sandbox/resource limits.</p></div></main><script>function show(x){title.textContent=x}async function scan(){out.textContent='Scanning...';out.textContent=JSON.stringify(await (await fetch('/api/hardware')).json(),null,2)}</script></body></html>'''
+class H(BaseHTTPRequestHandler):
+ def do_GET(self):
+  data=json.dumps(scan()).encode() if self.path=="/api/hardware" else HTML.encode()
+  self.send_response(200);self.send_header("Content-Type","application/json" if self.path=="/api/hardware" else "text/html; charset=utf-8");self.end_headers();self.wfile.write(data)
+ThreadingHTTPServer(("0.0.0.0",8000),H).serve_forever()
