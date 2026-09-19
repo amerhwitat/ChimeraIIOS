@@ -1,17 +1,59 @@
 {
-  "schema": "aurora-gates-menu-v1",
+  "schema": "aurora-gates-menu-v2",
   "title": "Gates Menu",
+  "background": {
+    "image": "/usr/share/chimera/aurora/aurora-wayland-glass.png",
+    "source": "desktop/aurora/assets/aurora-wayland-glass.png",
+    "mode": "cover",
+    "fallback_color": "#08121e"
+  },
   "categories": [
-    {"id":"desktop","label":"Desktop Environments / Personalities"},
-    {"id":"applications","label":"Applications"},
-    {"id":"games","label":"Games"},
-    {"id":"networking","label":"Networking"},
-    {"id":"crypto","label":"Crypto / Wallet Tools"},
-    {"id":"thamudic","label":"Thamudic / North Arabian"},
-    {"id":"nlp","label":"NLP"},
-    {"id":"development","label":"Development: C/C++/Java/Python/Kotlin/Node/WebAssembly"},
-    {"id":"browsers","label":"Web Browsers"},
-    {"id":"system","label":"System / Drivers / Filesystems / Security"}
+    {
+      "id": "desktop",
+      "label": "Desktop Environments / Personalities"
+    },
+    {
+      "id": "applications",
+      "label": "Applications"
+    },
+    {
+      "id": "games",
+      "label": "Games"
+    },
+    {
+      "id": "networking",
+      "label": "Networking"
+    },
+    {
+      "id": "crypto",
+      "label": "Crypto / Wallet Tools"
+    },
+    {
+      "id": "thamudic",
+      "label": "Thamudic / North Arabian"
+    },
+    {
+      "id": "nlp",
+      "label": "NLP"
+    },
+    {
+      "id": "development",
+      "label": "Development: C/C++/Java/Python/Kotlin/Node/WebAssembly"
+    },
+    {
+      "id": "browsers",
+      "label": "Web Browsers"
+    },
+    {
+      "id": "system",
+      "label": "System / Drivers / Filesystems / Security"
+    }
   ],
-  "interaction":{"keyboard":true,"mouse":true,"double_click":true,"context_menu":true,"properties":true}
+  "interaction": {
+    "keyboard": true,
+    "mouse": true,
+    "double_click": true,
+    "context_menu": true,
+    "properties": true
+  }
 }
