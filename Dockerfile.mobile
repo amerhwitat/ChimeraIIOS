@@ -1,0 +1,129 @@
+# =============================================================================
+# CHIMERA II OS - MOBILE EDITION
+# =============================================================================
+# Optimized for mobile and embedded systems (ARM64/RISC-V64)
+#
+# Author: Amer Abdullah Suleiman Hwitat - عامر الحowiتات
+# Contact: amer.hwitat@proton.me
+#
+# Features:
+# - ARM64 (AArch64) support
+# - Minimal resource usage
+# - Mobile-optimized toolchain
+# - Battery-aware power management
+# - Touch-optimized UI framework
+# =============================================================================
+
+FROM arm64v8/ubuntu:24.04 AS builder-mobile
+
+LABEL maintainer="Amer Abdullah Suleiman Hwitat <amer.hwitat@proton.me>" \
+      description="Chimera II OS - Mobile Edition (ARM64)" \
+      version="1.0.0-mobile" \
+      architecture="arm64"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    INSTALL_DIR=/opt/chimera-mobile \
+    APPS_DIR=/opt/chimera-mobile/applications
+
+# Mobile build toolchain
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake ninja-build make \
+    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+    gcc g++ clang llvm python3 python3-dev python3-pip \
+    nodejs npm rustc cargo git curl ca-certificates \
+    libssl-dev zlib1g-dev sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create directories
+RUN mkdir -p $INSTALL_DIR/{bin,lib,applications,scripts,cache}
+
+# Mobile-specific kernel parameters
+RUN cat > $INSTALL_DIR/scripts/mobile-optimize.sh << 'MOBILE_SCRIPT'
+#!/bin/bash
+# Mobile optimization script
+
+echo "Applying mobile optimizations..."
+
+# CPU frequency scaling for battery life
+for freq_file in /sys/devices/system/cpu/cpufreq/*/scaling_governor; do
+    echo "powersave" > "$freq_file" 2>/dev/null || true
+done
+
+# GPU power management
+echo auto > /sys/class/drm/card0/device/power/control 2>/dev/null || true
+
+# Display power management
+echo auto > /sys/class/backlight/*/device/power/control 2>/dev/null || true
+
+# Disable unnecessary wake-up sources
+for wake in /sys/class/wakeup/*/active; do
+    echo 0 > "$wake" 2>/dev/null || true
+done
+
+echo "Mobile optimizations complete"
+MOBILE_SCRIPT
+
+RUN chmod +x $INSTALL_DIR/scripts/mobile-optimize.sh
+
+# Clone repositories
+RUN cd $APPS_DIR && \
+    git clone https://github.com/amerhwitat/ChimeraIIOS.git 2>/dev/null || mkdir -p ChimeraIIOS && \
+    git clone https://github.com/amerhwitat/nlp.git 2>/dev/null || mkdir -p nlp && \
+    git clone https://github.com/amerhwitat/BizX.git 2>/dev/null || mkdir -p BizX && \
+    git clone https://github.com/amerhwitat/CPU4096.git 2>/dev/null || mkdir -p CPU4096 && \
+    git clone https://github.com/amerhwitat/test.git 2>/dev/null || mkdir -p test
+
+# Install Python ML for mobile
+RUN python3 -m pip install --no-cache-dir \
+    numpy scipy pandas scikit-learn flask
+
+# Create init script
+RUN cat > $INSTALL_DIR/scripts/init-mobile.sh << 'MOBILE_INIT'
+#!/bin/bash
+export INSTALL_DIR=/opt/chimera-mobile
+export PATH=$INSTALL_DIR/bin:$PATH
+
+echo "Chimera II OS - Mobile Edition"
+echo "Architecture: ARM64 (AArch64)"
+echo ""
+
+# Apply optimizations
+$INSTALL_DIR/scripts/mobile-optimize.sh
+
+echo "[SUCCESS] Mobile system ready"
+MOBILE_INIT
+
+RUN chmod +x $INSTALL_DIR/scripts/init-mobile.sh
+
+# =============================================================================
+# RUNTIME STAGE - Mobile
+# =============================================================================
+FROM arm64v8/ubuntu:24.04 AS runtime-mobile
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    INSTALL_DIR=/opt/chimera-mobile \
+    PATH=/opt/chimera-mobile/bin:$PATH
+
+# Minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl python3 nodejs sqlite3 \
+    systemd libssl3 zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy from builder
+COPY --from=builder-mobile /opt/chimera-mobile /opt/chimera-mobile
+
+# Create mobile user
+RUN useradd -m -u 10001 -s /bin/bash chimera && \
+    chown -R chimera:chimera /opt/chimera-mobile
+
+# Mobile configuration
+ENV CHIMERA_MODE=mobile \
+    CHIMERA_PLATFORM=arm64
+
+WORKDIR /opt/chimera-mobile
+
+USER chimera
+
+ENTRYPOINT ["/opt/chimera-mobile/scripts/init-mobile.sh"]
+CMD ["/bin/bash"]

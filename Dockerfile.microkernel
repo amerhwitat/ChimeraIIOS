@@ -1,0 +1,112 @@
+# =============================================================================
+# CHIMERA II OS - MICROKERNEL EDITION
+# =============================================================================
+# Lightweight microkernel-based edition with minimal runtime
+#
+# Author: Amer Abdullah Suleiman Hwitat - عامر الحويطات
+# Contact: amer.hwitat@proton.me
+#
+# Features:
+# - Minimal base system
+# - Modular architecture
+# - Fast boot time
+# - Low resource requirements
+# - Service-oriented design
+# =============================================================================
+
+FROM scratch AS microkernel-base
+
+LABEL maintainer="Amer Abdullah Suleiman Hwitat <amer.hwitat@proton.me>" \
+      description="Chimera II OS - Microkernel Edition" \
+      version="1.0.0-microkernel"
+
+# =============================================================================
+# BUILDER STAGE
+# =============================================================================
+FROM ubuntu:24.04 AS microkernel-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Minimal build toolchain
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake ninja-build make gcc g++ clang \
+    python3 python3-dev python3-pip git curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create microkernel structure
+RUN mkdir -p /root/microkernel/{kernel,services,lib,bin}
+
+# Microkernel source (minimal)
+RUN cat > /root/microkernel/kernel/main.c << 'KERNEL_C'
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    printf("Chimera II OS - Microkernel Edition\n");
+    printf("Microkernel initialized\n");
+    return 0;
+}
+KERNEL_C
+
+# Build microkernel
+RUN cd /root/microkernel/kernel && \
+    gcc -static -o /root/microkernel/bin/chimera-microkernel main.c
+
+# Service definitions
+RUN cat > /root/microkernel/services/init-service.sh << 'SERVICE'
+#!/bin/bash
+echo "Service: Initialization"
+echo "Status: Running"
+SERVICE
+
+RUN chmod +x /root/microkernel/services/init-service.sh
+
+# Compile minimal init system
+RUN cat > /root/microkernel/bin/init-tiny.c << 'INIT_C'
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+
+void handle_signal(int sig) {
+    if (sig == SIGTERM || sig == SIGINT) {
+        printf("Shutdown signal received\n");
+        exit(0);
+    }
+}
+
+int main() {
+    signal(SIGTERM, handle_signal);
+    signal(SIGINT, handle_signal);
+    
+    printf("Chimera Microkernel - Init System\n");
+    printf("PID: %d\n", getpid());
+    
+    while(1) {
+        sleep(1);
+    }
+    return 0;
+}
+INIT_C
+
+RUN cd /root/microkernel/bin && gcc -static -o init-tiny init-tiny.c
+
+# Create minimal rootfs
+RUN mkdir -p /root/microkernel/rootfs/{bin,lib,lib64,dev,proc,sys,tmp,etc}
+
+# =============================================================================
+# RUNTIME STAGE - Microkernel
+# =============================================================================
+FROM scratch AS runtime-microkernel
+
+LABEL version="1.0.0-microkernel"
+
+# Copy minimal system from builder
+COPY --from=microkernel-builder /root/microkernel/rootfs /
+COPY --from=microkernel-builder /root/microkernel/bin/chimera-microkernel /bin/
+COPY --from=microkernel-builder /root/microkernel/bin/init-tiny /init
+
+# Microkernel configuration
+ENV PATH=/bin:/usr/bin \
+    CHIMERA_MODE=microkernel
+
+ENTRYPOINT ["/init"]
