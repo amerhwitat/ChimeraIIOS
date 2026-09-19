@@ -1,0 +1,93 @@
+{
+  "schema": "chimera-driver-source-catalog-v2",
+  "sources": [
+    {
+      "platform": "Linux",
+      "kind": "kernel-source",
+      "url": "https://github.com/torvalds/linux",
+      "license": "GPL-2.0-only",
+      "integration": "port/adapt compatible subsystems with provenance"
+    },
+    {
+      "platform": "Windows",
+      "kind": "official-driver-samples",
+      "url": "https://github.com/microsoft/Windows-driver-samples",
+      "license": "MS-PL",
+      "integration": "reference/build samples; port interfaces"
+    },
+    {
+      "platform": "Windows",
+      "kind": "WDK",
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk",
+      "license": "Microsoft SDK/WDK terms",
+      "integration": "Windows-only build/reference environment"
+    },
+    {
+      "platform": "Windows",
+      "kind": "rust-driver-samples",
+      "url": "https://github.com/microsoft/Windows-rust-driver-samples",
+      "license": "repository-specific",
+      "integration": "Rust driver architecture reference"
+    },
+    {
+      "platform": "macOS",
+      "kind": "DriverKit",
+      "url": "https://developer.apple.com/documentation/driverkit",
+      "license": "Apple SDK terms",
+      "integration": "API/reference; build/sign on supported Apple toolchains"
+    },
+    {
+      "platform": "macOS",
+      "kind": "System Extensions",
+      "url": "https://developer.apple.com/documentation/SystemExtensions",
+      "license": "Apple SDK terms",
+      "integration": "API/reference; entitlement/signing required"
+    }
+  ],
+  "families": [
+    "PCI",
+    "PCIe",
+    "USB",
+    "xHCI",
+    "EHCI",
+    "UHCI",
+    "NVMe",
+    "AHCI",
+    "SATA",
+    "SCSI",
+    "virtio",
+    "IDE",
+    "ACPI",
+    "I2C",
+    "SPI",
+    "GPIO",
+    "UART",
+    "CAN",
+    "HID",
+    "input",
+    "display",
+    "DRM",
+    "GPU",
+    "audio",
+    "network",
+    "Wi-Fi",
+    "Bluetooth",
+    "Ethernet",
+    "camera",
+    "storage",
+    "thermal",
+    "power",
+    "watchdog",
+    "TPM",
+    "random",
+    "crypto",
+    "virtualization"
+  ],
+  "policy": {
+    "source_preferred": true,
+    "binary_import_requires_license": true,
+    "binary_import_requires_signature_or_sha256": true,
+    "proprietary_redistribution_forbidden_without_rights": true,
+    "foreign_binary_execution": "compatibility-layer-only"
+  }
+}
