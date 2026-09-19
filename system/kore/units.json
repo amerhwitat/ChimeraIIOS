@@ -1,0 +1,38 @@
+{
+  "schema": "kore-units-v1",
+  "units": [
+    {
+      "name": "koronos.target",
+      "requires": [],
+      "state": "enabled"
+    },
+    {
+      "name": "network.target",
+      "requires": [
+        "koronos.target"
+      ],
+      "state": "enabled"
+    },
+    {
+      "name": "aurora.service",
+      "requires": [
+        "network.target"
+      ],
+      "state": "enabled"
+    },
+    {
+      "name": "driver-manager.service",
+      "requires": [
+        "koronos.target"
+      ],
+      "state": "enabled"
+    },
+    {
+      "name": "security-manager.service",
+      "requires": [
+        "koronos.target"
+      ],
+      "state": "enabled"
+    }
+  ]
+}
