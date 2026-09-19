@@ -44,6 +44,7 @@ bool parse_ipv4(std::string_view s, std::array<uint8_t, 4>& out) {
             if (value > 255u) return false;
         }
         out[i] = static_cast<uint8_t>(value);
+        if (i == 3) return end == s.size();
         if (i < 3) {
             if (end == s.size() || s[end] != '.') return false;
             pos = end + 1;
