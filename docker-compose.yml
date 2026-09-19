@@ -1,15 +1,184 @@
+version: '3.9'
+
 services:
-  chimera-gui:
-    build: .
-    image: amerhwitat/chimeraiios:gui
-    container_name: chimeraiios-gui
-    init: true
-    privileged: true
-    ports: ["8000:8000"]
+  # =========================================================================
+  # CHIMERA II OS - Main Application Environment
+  # =========================================================================
+  chimera-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.comprehensive
+    image: chimera2os-comprehensive:latest
+    container_name: chimera-core
+    hostname: chimera-core
+    
+    environment:
+      - CHIMERA_ENV=production
+      - INSTALL_DIR=/opt/chimera
+      - APPS_DIR=/opt/chimera/applications
+      - SRC_DIR=/src/chimera
+      - TZ=Asia/Amman
+      
     volumes:
-      - .:/app
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /dev:/host/dev:ro
-    environment: {CHIMERA_GUI: "1", CHIMERA_HOST_OS: "auto"}
+      - ./workspace:/workspace
+      - ./data:/data
+      - chimera-cache:/opt/chimera/cache
+      - ./output:/output
+      
+    ports:
+      - "8000:8000"    # Web services
+      - "8080:8080"    # Alternative web
+      - "9000:9000"    # APIs
+      - "9001:9001"    # Admin panel
+      - "5000:5000"    # Flask development
+      - "3000:3000"    # Node.js services
+      
+    networks:
+      - chimera-network
+      
     restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "ls", "-la", "/opt/chimera/applications"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =========================================================================
+  # NLP SERVICE - Natural Language Processing
+  # =========================================================================
+  nlp-service:
+    extends: chimera-core
+    container_name: nlp-service
+    hostname: nlp-service
+    
+    environment:
+      - SERVICE_NAME=nlp
+      - MODEL_CACHE=/data/nlp_models
+      
+    volumes:
+      - ./workspace/nlp:/workspace
+      - nlp-models:/data/nlp_models
+      - ./output/nlp:/output
+      
+    working_dir: /opt/chimera/applications/nlp
+    
+    ports:
+      - "8001:5000"    # NLP API
+
+  # =========================================================================
+  # BIZ SERVICE - Business Applications
+  # =========================================================================
+  bizx-service:
+    extends: chimera-core
+    container_name: bizx-service
+    hostname: bizx-service
+    
+    environment:
+      - SERVICE_NAME=bizx
+      - NODE_ENV=production
+      
+    volumes:
+      - ./workspace/bizx:/workspace
+      - bizx-data:/data/bizx
+      - ./output/bizx:/output
+      
+    working_dir: /opt/chimera/applications/BizX
+    
+    ports:
+      - "3001:3000"    # BizX UI
+      - "8002:8000"    # BizX API
+
+  # =========================================================================
+  # CPU SIMULATOR SERVICE
+  # =========================================================================
+  cpu-simulator:
+    extends: chimera-core
+    container_name: cpu-simulator
+    hostname: cpu-simulator
+    
+    environment:
+      - SERVICE_NAME=cpu
+      
+    volumes:
+      - ./workspace/cpu:/workspace
+      - cpu-sim:/data/cpu
+      - ./output/cpu:/output
+      
+    working_dir: /opt/chimera/applications/CPU4096Simulator
+    
+    ports:
+      - "3002:3000"    # CPU Simulator UI
+
+  # =========================================================================
+  # DEVELOPMENT SHELL
+  # =========================================================================
+  dev-shell:
+    extends: chimera-core
+    container_name: chimera-dev
+    hostname: chimera-dev
+    
+    environment:
+      - DEV_MODE=1
+      - PYTHONDONTWRITEBYTECODE=1
+      
+    volumes:
+      - ./workspace:/workspace
+      - ./src:/src
+      - ./config:/etc/chimera
+      - ./output:/output
+      
+    stdin_open: true
+    tty: true
+    
+    working_dir: /workspace
+    
+    command: /bin/bash
+
+networks:
+  chimera-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  chimera-cache:
+    driver: local
+  nlp-models:
+    driver: local
+  bizx-data:
+    driver: local
+  cpu-sim:
+    driver: local
+
+# ============================================================================
+# USAGE:
+# ============================================================================
+# 
+# Build the image:
+#   docker-compose build
+#
+# Start all services:
+#   docker-compose up -d
+#
+# View logs:
+#   docker-compose logs -f
+#
+# Access dev shell:
+#   docker-compose exec dev-shell bash
+#
+# Run NLP service:
+#   docker-compose up nlp-service
+#
+# Stop all:
+#   docker-compose down
+#
+# Stop and remove volumes:
+#   docker-compose down -v
+#
+# Scale services:
+#   docker-compose up -d --scale nlp-service=3
+#
+# ============================================================================

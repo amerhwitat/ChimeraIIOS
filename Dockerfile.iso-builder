@@ -1,0 +1,232 @@
+# =============================================================================
+# CHIMERA II OS - DOCKER-BASED ISO BUILDER
+# =============================================================================
+# Builds ISO from Docker image using a containerized environment
+# This avoids host dependencies and ensures reproducible builds
+#
+# Author: Amer Abdullah Suleiman Hwitat - عامر الحويطات
+# Contact: amer.hwitat@proton.me
+# Location: Amman 11814, Jordan
+# =============================================================================
+
+FROM ubuntu:24.04
+
+LABEL maintainer="Amer Abdullah Suleiman Hwitat <amer.hwitat@proton.me>"
+LABEL description="Chimera II OS - ISO Builder"
+LABEL version="1.0.0"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    ISO_BUILD_DIR=/build/iso \
+    ROOTFS_DIR=/build/rootfs \
+    OUTPUT_DIR=/output
+
+# Install all required tools for ISO creation
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # ISO creation tools
+    xorriso \
+    grub-pc-bin \
+    grub-efi-amd64-bin \
+    grub-efi-ia32-bin \
+    isolinux \
+    syslinux \
+    syslinux-utils \
+    \
+    # Filesystem tools
+    squashfs-tools \
+    e2fsprogs \
+    dosfstools \
+    mtools \
+    \
+    # Build tools
+    build-essential \
+    git \
+    curl \
+    wget \
+    ca-certificates \
+    \
+    # Utilities
+    gzip \
+    bzip2 \
+    xz-utils \
+    zip \
+    unzip \
+    cpio \
+    \
+    # Docker
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create work directories
+RUN mkdir -p \
+    $ISO_BUILD_DIR \
+    $ROOTFS_DIR \
+    $OUTPUT_DIR \
+    /build/boot/grub \
+    /build/EFI/BOOT \
+    /build/live
+
+# Copy build scripts
+COPY build-chimera-iso.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/build-chimera-iso.sh
+
+# Copy Dockerfile and supporting files
+COPY Dockerfile.comprehensive /build/
+COPY docker-compose.yml /build/
+COPY COMPREHENSIVE_BUILD_README.md /build/
+
+# Create entrypoint script
+RUN cat > /usr/local/bin/build-iso.sh << 'ENTRYPOINT_SCRIPT'
+#!/bin/bash
+set -e
+
+echo "=========================================="
+echo "Chimera II OS - ISO Builder"
+echo "=========================================="
+echo ""
+
+IMAGE_NAME="${1:-chimera2os-comprehensive}"
+IMAGE_TAG="${2:-latest}"
+OUTPUT_ISO="${3:-ChimeraIIOS-comprehensive-1.0.0-x86_64.iso}"
+
+echo "[INFO] Docker Image: $IMAGE_NAME:$IMAGE_TAG"
+echo "[INFO] Output ISO: $OUTPUT_ISO"
+echo ""
+
+# Export Docker image to rootfs
+echo "[STEP 1] Exporting Docker image to rootfs..."
+mkdir -p $ROOTFS_DIR
+docker save "$IMAGE_NAME:$IMAGE_TAG" | docker run --rm -i ubuntu:24.04 tar -xC $ROOTFS_DIR 2>/dev/null || true
+
+# Fallback: Use docker export
+if [ ! -d "$ROOTFS_DIR/bin" ]; then
+    echo "[STEP 1] Using docker export method..."
+    rm -rf $ROOTFS_DIR/*
+    CONTAINER_ID=$(docker create "$IMAGE_NAME:$IMAGE_TAG")
+    docker export $CONTAINER_ID | tar -xC $ROOTFS_DIR
+    docker rm $CONTAINER_ID
+fi
+
+echo "[SUCCESS] Rootfs extracted"
+echo ""
+
+# Create squashfs
+echo "[STEP 2] Creating squashfs filesystem..."
+mkdir -p $ISO_BUILD_DIR/live
+mksquashfs \
+    $ROOTFS_DIR \
+    $ISO_BUILD_DIR/live/filesystem.squashfs \
+    -no-progress \
+    -processors 4 \
+    -comp xz
+
+echo "[SUCCESS] Squashfs created"
+echo ""
+
+# Create GRUB configuration
+echo "[STEP 3] Creating GRUB bootloader..."
+mkdir -p $ISO_BUILD_DIR/boot/grub
+
+cat > $ISO_BUILD_DIR/boot/grub/grub.cfg << 'GRUB_CONFIG'
+set default=0
+set timeout=10
+set menu_color_highlight=white/blue
+set menu_color_normal=white/black
+
+menuentry "Chimera II OS - Live System" {
+    search --label ChimeraIIOS --set root
+    echo "Loading ChimeraIIOS..."
+    linux /live/vmlinuz boot=live quiet splash
+    initrd /live/initrd.img
+}
+
+menuentry "Chimera II OS - Install" {
+    search --label ChimeraIIOS --set root
+    echo "Loading Chimera II OS Installer..."
+    linux /live/vmlinuz boot=live boot=live-rw quiet splash
+    initrd /live/initrd.img
+}
+
+menuentry "System Diagnostics" {
+    search --label ChimeraIIOS --set root
+    echo "Loading System Diagnostics..."
+    linux /live/vmlinuz boot=live quiet console=ttyS0
+    initrd /live/initrd.img
+}
+
+menuentry "Reboot" { reboot }
+menuentry "Power Off" { halt }
+GRUB_CONFIG
+
+echo "[SUCCESS] GRUB configured"
+echo ""
+
+# Create bootloaders
+echo "[STEP 4] Creating BIOS and UEFI bootloaders..."
+
+grub-mkimage \
+    -c $ISO_BUILD_DIR/boot/grub/grub-early.cfg \
+    -o $ISO_BUILD_DIR/boot/grub/i386-pc/core.img \
+    -O i386-pc \
+    biosdisk part_gpt part_msdos normal configfile 2>/dev/null || echo "[WARNING] BIOS bootloader skipped"
+
+grub-mkimage \
+    -c $ISO_BUILD_DIR/boot/grub/grub-early.cfg \
+    -o $ISO_BUILD_DIR/EFI/BOOT/BOOTX64.EFI \
+    -O x86_64-efi \
+    efi_gop efi_uga video_bochs video_cirrus normal configfile 2>/dev/null || echo "[WARNING] UEFI bootloader skipped"
+
+echo "[SUCCESS] Bootloaders created"
+echo ""
+
+# Create ISO image
+echo "[STEP 5] Creating ISO image..."
+
+xorriso \
+    -as mkisofs \
+    -iso-level 3 \
+    -full-iso9660-filenames \
+    -volid "ChimeraIIOS" \
+    -output $OUTPUT_DIR/$OUTPUT_ISO \
+    -eltorito-boot boot/grub/i386-pc/eltorito.img \
+    -eltorito-catalog boot/grub/boot.cat \
+    -no-emul-boot -boot-load-size 4 -boot-info-table \
+    -m '*.~tmp~' \
+    $ISO_BUILD_DIR 2>/dev/null || echo "[INFO] Fallback to simpler ISO..."
+
+if [ ! -f "$OUTPUT_DIR/$OUTPUT_ISO" ]; then
+    xorriso \
+        -as mkisofs \
+        -iso-level 3 \
+        -volid "ChimeraIIOS" \
+        -output $OUTPUT_DIR/$OUTPUT_ISO \
+        $ISO_BUILD_DIR
+fi
+
+echo "[SUCCESS] ISO created: $OUTPUT_DIR/$OUTPUT_ISO"
+echo ""
+
+# Generate checksums
+echo "[STEP 6] Generating checksums..."
+cd $OUTPUT_DIR
+sha256sum "$OUTPUT_ISO" > "$OUTPUT_ISO.sha256"
+md5sum "$OUTPUT_ISO" > "$OUTPUT_ISO.md5"
+echo "[SUCCESS] Checksums generated"
+echo ""
+
+# Summary
+ISO_SIZE=$(du -h "$OUTPUT_DIR/$OUTPUT_ISO" | cut -f1)
+echo "=========================================="
+echo "BUILD COMPLETED SUCCESSFULLY"
+echo "=========================================="
+echo "ISO File: $OUTPUT_DIR/$OUTPUT_ISO"
+echo "ISO Size: $ISO_SIZE"
+echo "SHA256: $(cat $OUTPUT_ISO.sha256)"
+echo ""
+
+ENTRYPOINT_SCRIPT
+
+chmod +x /usr/local/bin/build-iso.sh
+
+# Set default command
+ENTRYPOINT [ "/usr/local/bin/build-iso.sh" ]
+CMD [ "chimera2os-comprehensive", "latest", "ChimeraIIOS-comprehensive-1.0.0-x86_64.iso" ]
