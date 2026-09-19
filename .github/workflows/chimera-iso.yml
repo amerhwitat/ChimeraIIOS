@@ -63,6 +63,11 @@ jobs:
           rm -rf boot/iso/portfolio-build
           python3 tools/portfolio/build_portfolio.py --output boot/iso/portfolio-build
           test -s boot/iso/portfolio-build/portfolio-build-report.json
+      - name: Acquire official Linux and Windows driver source catalogs
+        run: |
+          python3 drivers/tools/acquire_official_driver_sources.py
+          python3 -m json.tool drivers/manifests/acquired-driver-sources.json >/dev/null
+          test -s drivers/manifests/acquired-driver-sources.json
       - name: Run boot and ISO tests
         run: python3 -m pytest -q tests/boot tests/iso
       - name: Validate Spit Fire MBR sector
@@ -103,6 +108,10 @@ jobs:
           test -f boot/iso/dist/iso/boot/koronos/koronos.elf
           test -f boot/iso/dist/iso/boot/kernel.bin
           test -f boot/iso/dist/iso/boot/jasper/grub.cfg
+          test -f boot/iso/dist/iso/boot/grub/aurora-wayland-glass.png
+          test -f boot/iso/dist/iso/usr/share/chimera/aurora/aurora-wayland-glass.png
+          test -f boot/iso/dist/iso/drivers/driver-registry.json
+          test -f boot/iso/dist/iso/drivers/manifests/driver-source-catalog.json
           test -f boot/iso/dist/iso/chimera/manifests/platform-manifest.json
           test -f boot/iso/dist/iso/chimera/manifests/driver-registry.json
           test -f boot/iso/dist/iso/chimera/manifests/filesystem-registry.json
