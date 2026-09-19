@@ -1,41 +1,27 @@
 # Chimera II Hardware / Driver Compatibility Layer
 
-This directory is a **capability registry, driver adapter boundary, and secure acquisition layer**. It is not a redistribution channel for proprietary Windows or vendor driver binaries.
+This directory is the capability registry, driver adapter boundary, secure acquisition layer, and Aurora hardware-management backend.
 
-## Coverage model
+## Coverage
 
-- CPU/SoC: x86, ARM, RISC-V plus legacy MIPS/PowerPC/SPARC metadata.
-- GPU: NVIDIA, AMD, Intel, Apple, ARM Mali, Qualcomm Adreno, Imagination PowerVR, 3dfx, Matrox, S3, VIA, SiS and virtual GPUs.
-- buses/classes: PCI/PCIe, USB, NVMe/SATA/SCSI, virtio, I2C/SPI/GPIO, networking, audio, camera, input and display.
-- graphics APIs: OpenGL/OpenGL ES, Vulkan and optional vendor/compute adapters.
-- audio: ALSA/PipeWire/PulseAudio compatibility, WASAPI and CoreAudio adapter boundaries.
-- printing: IPP Everywhere, PostScript, PCL, ESC/P, PDF/PS and virtual/ghost output.
+CPU/SoC, GPU, PCI/PCIe, USB, NVMe/SATA/SCSI, virtio, I2C/SPI/GPIO, networking, audio, camera, input, display, printing, and virtual devices are represented through capability metadata and adapters.
 
-## Driver acquisition
+## Aurora scanner
 
-`python/driver_acquisition.py` and the native C ABI implement a secure **discover → match → acquire → verify → stage → explicitly install** model.
+Run:
+python3 drivers/aurora_hardware_scanner.py --json
 
-The acquisition broker:
+The scanner inventories Linux (/sys, /proc, PCI/USB), Windows PnP/PowerShell, and macOS system_profiler/ioreg. It creates a local remediation plan but does not silently install anything.
 
-- restricts sources to curated HTTPS allowlists;
-- validates hardware IDs before staging;
-- verifies SHA-256 digests;
-- checks signature/trust metadata;
-- records SPDX/license and provenance information;
-- keeps downloaded artifacts inert in quarantine/staging;
-- never silently loads a kernel module;
-- never disables Secure Boot or driver-signature enforcement.
+## Secure acquisition
 
-### Linux
+The lifecycle is:
+discover -> identify -> resolve official source -> verify license -> verify signature -> verify hash -> quarantine -> stage -> explicit approval -> install -> health-test -> rollback.
 
-Linux kernel modules are kernel-ABI-specific. Chimera therefore accepts a Linux `.ko` candidate only when the declared ABI matches the Koronos policy. Otherwise it acquires source/package metadata for a Chimera-specific port or adapter. This avoids pretending that an arbitrary Linux binary module is compatible with the Chimera kernel.
+Sources are restricted to declared official vendor, OS, distribution, or documented upstream locations. Arbitrary installer scripts, unsigned artifacts, hash mismatches, unknown licenses, and untrusted packages are rejected.
 
-### Windows
+## Compatibility
 
-Windows INF/CAT/SYS packages are verified and staged as candidates. On Windows, final installation is delegated to the native Driver Store/SetupAPI path and its signature policy rather than bypassing platform security.
+Linux can use a native Chimera driver ABI or signed distribution modules. Windows .sys packages and macOS kernel extensions are not directly loaded by Koronos; they are handled through native-platform, VM, Wine, WSL, or virtual-device compatibility boundaries as appropriate.
 
-### Source policy
-
-Curated acquisition sources live in `acquisition_sources.json`. The source updater manages metadata; it does not execute downloaded drivers. Open-source source is integrated only with its original compatible license and provenance retained.
-
-See `docs/DRIVER_ACQUISITION.md` for the complete flow.
+See aurora_driver_policy.json and security/koronos_security_policy.json for enforcement contracts.
