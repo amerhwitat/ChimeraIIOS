@@ -1,0 +1,42 @@
+{
+  "schema": "chimera-driver-compatibility-v2",
+  "modes": [
+    {
+      "id": "native",
+      "description": "Native Koronos driver ABI; preferred."
+    },
+    {
+      "id": "linux-abi",
+      "description": "Linux device-model compatibility adapter."
+    },
+    {
+      "id": "windows-wdm",
+      "description": "Windows WDM/WDF compatibility interface; .sys is isolated and never loaded into Koronos directly."
+    },
+    {
+      "id": "windows-user",
+      "description": "Windows user-mode driver/service adapter."
+    },
+    {
+      "id": "macos-driverkit",
+      "description": "DriverKit/System Extension user-space adapter with signing/entitlements."
+    },
+    {
+      "id": "macos-kext-legacy",
+      "description": "Legacy KEXT analysis/import compatibility only."
+    },
+    {
+      "id": "virtio",
+      "description": "Paravirtual device compatibility."
+    },
+    {
+      "id": "usb-generic",
+      "description": "Generic USB class fallback."
+    }
+  ],
+  "policy": {
+    "native_first": true,
+    "foreign_binary_execution": "compatibility-layer-only",
+    "auto_install": "download_verify_stage_user_approval"
+  }
+}
