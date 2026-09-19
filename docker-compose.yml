@@ -1,10 +1,15 @@
 services:
-  chimera-build:
+  chimera-gui:
     build: .
-    image: amerhwitat/chimeraiios:local
-    container_name: chimeraiios-build
-    volumes:
-      - chimera-build-cache:/tmp/chimera-build
+    image: amerhwitat/chimeraiios:gui
+    container_name: chimeraiios-gui
     init: true
-volumes:
-  chimera-build-cache:
+    privileged: true
+    ports: ["8000:8000"]
+    volumes:
+      - .:/app
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /dev:/host/dev:ro
+    environment: {CHIMERA_GUI: "1", CHIMERA_HOST_OS: "auto"}
+    restart: unless-stopped
