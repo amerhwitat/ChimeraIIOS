@@ -1,0 +1,40 @@
+{
+  "schema": "aurora-settings-v2",
+  "layout": "windows-settings-inspired",
+  "navigation": [
+    "System",
+    "Bluetooth & devices",
+    "Network & internet",
+    "Personalization",
+    "Apps",
+    "Accounts",
+    "Time & language",
+    "Gaming",
+    "Accessibility",
+    "Privacy & security",
+    "Windows/Linux/macOS compatibility",
+    "System & services",
+    "Drivers & hardware",
+    "Storage",
+    "Developer"
+  ],
+  "driver_page": [
+    "Hardware scan",
+    "Driver status",
+    "Available updates",
+    "Compatibility mode",
+    "Install/import",
+    "Rollback",
+    "Signatures and hashes",
+    "Hardware IDs"
+  ],
+  "service_page": [
+    "Services",
+    "Startup",
+    "Timers",
+    "Targets",
+    "Logs",
+    "Dependencies",
+    "Resource limits"
+  ]
+}
