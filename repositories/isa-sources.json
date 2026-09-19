@@ -1,0 +1,101 @@
+{
+  "schema": "chimera-isa-source-registry-v1",
+  "generated": "2026-09-19",
+  "coverage_note": "ISA.csv is a curated machine-readable catalog, not a literal enumeration of every instruction of every CPU ever made. Family-complete generation should use the vendor manuals/generator sources below and preserve version metadata.",
+  "sources": [
+    {
+      "family": "x86-64/IA-32",
+      "vendor": "Intel",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "instruction_reference": "Volume 2A-2D",
+      "updated": "2026-08-19"
+    },
+    {
+      "family": "AMD64",
+      "vendor": "AMD",
+      "url": "https://docs.amd.com/api/khub/documents/68GKiN0gMEd6bMddsmhPwg/content",
+      "instruction_reference": "AMD64 Architecture Programmer's Manual Volumes 1-5",
+      "updated": "2025-08"
+    },
+    {
+      "family": "AArch64",
+      "vendor": "Arm",
+      "url": "https://developer.arm.com/documentation/ddi0602/2026-06/",
+      "instruction_reference": "A-profile A64 ISA",
+      "updated": "2026-06"
+    },
+    {
+      "family": "RISC-V",
+      "vendor": "RISC-V International",
+      "url": "https://docs.riscv.org/reference/isa/unpriv/unpriv-index.html",
+      "instruction_reference": "Unprivileged ISA, Version 20260120",
+      "updated": "2026-01-20"
+    },
+    {
+      "family": "RISC-V privileged",
+      "vendor": "RISC-V International",
+      "url": "https://docs.riscv.org/reference/isa/priv/priv-intro.html",
+      "instruction_reference": "Privileged Architecture",
+      "updated": "2026"
+    },
+    {
+      "family": "MIPS",
+      "vendor": "MIPS",
+      "url": "https://www.mips.com/",
+      "instruction_reference": "MIPS32/MIPS64 references",
+      "updated": "vendor documentation"
+    },
+    {
+      "family": "Power ISA",
+      "vendor": "OpenPOWER",
+      "url": "https://openpowerfoundation.org/specifications/",
+      "instruction_reference": "Power ISA specifications",
+      "updated": "vendor specification"
+    },
+    {
+      "family": "SPARC",
+      "vendor": "Oracle/legacy SPARC",
+      "url": "https://docs.oracle.com/cd/E19455-01/806-3774/",
+      "instruction_reference": "SPARC architecture reference",
+      "updated": "legacy"
+    },
+    {
+      "family": "Motorola 68000",
+      "vendor": "Motorola/Freescale legacy",
+      "url": "https://www.nxp.com/docs/en/reference-manual/M68000PRM.pdf",
+      "instruction_reference": "M68000 Programmer's Reference",
+      "updated": "legacy"
+    },
+    {
+      "family": "VAX",
+      "vendor": "DEC legacy",
+      "url": "https://bitsavers.org/pdf/dec/vax/architecture/",
+      "instruction_reference": "VAX architecture references",
+      "updated": "legacy"
+    }
+  ],
+  "binary_format_sources": [
+    {
+      "format": "ELF",
+      "url": "https://man7.org/linux/man-pages/man5/elf.5.html"
+    },
+    {
+      "format": "PE/COFF",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/debug/pe-format"
+    },
+    {
+      "format": "Mach-O",
+      "url": "https://developer.apple.com/library/archive/documentation/Performance/Conceptual/CodeFootprint/Articles/MachOOverview.html"
+    }
+  ],
+  "boot_sources": [
+    {
+      "component": "GRUB/grub-mkrescue",
+      "url": "https://www.gnu.org/software/grub/manual/grub/html_node/Invoking-grub-mkrescue.html"
+    },
+    {
+      "component": "El Torito/GRUB CD boot",
+      "url": "https://www.gnu.org/software/grub/manual/grub/html_node/Making-a-GRUB-bootable-CD_002dROM.html"
+    }
+  ]
+}
