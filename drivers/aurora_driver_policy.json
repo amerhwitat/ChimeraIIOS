@@ -1,0 +1,13 @@
+{
+ "version":1,
+ "pipeline":["discover","identify","resolve_source","verify_license","verify_signature","verify_hash","quarantine","stage","explicit_approval","install","health_test","rollback"],
+ "compatibility_modes":{
+  "linux":{"native":true,"foreign_binary_loading":false,"adapter":"chimeradrv-linux"},
+  "windows":{"native":false,"adapter":"wsl/wine/virtual-device-boundary","sys_loading":false},
+  "macos":{"native":false,"adapter":"darwin-compatibility-boundary","kext_loading":false}
+ },
+ "source_priority":["hardware-vendor","distribution-signed-repository","official-os-catalog","documented-upstream"],
+ "reject":["unsigned","hash-mismatch","unknown-license","malformed-package","arbitrary-script-installer"],
+ "apply_requires":["administrator","explicit-user-confirmation","snapshot-or-rollback-point"],
+ "network_scan":{"recursive":true,"follow_only":["official-vendor","official-os","documented-upstream"],"max_depth":3}
+}

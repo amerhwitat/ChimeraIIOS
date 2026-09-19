@@ -1,0 +1,8 @@
+{
+ "schema":1,"enforcement_point":"koronos",
+ "principles":{"least_privilege":true,"secure_boot_aware":true,"signed_components_only":true,"driver_isolation":true,"network_acquisition_requires_policy":true,"foreign_kernel_modules_blocked_by_default":true,"audit_every_privileged_action":true},
+ "compatibility":{"linux":["native","container","vm"],"windows":["compatibility","vm","wine"],"macos":["compatibility","vm"]},
+ "privileged_operations":["driver_install","firmware_update","partition_write","bootloader_change","security_policy_change"],
+ "approval":{"interactive":true,"noninteractive_default":"deny"},
+ "audit":{"format":"jsonl","path":"var/audit/koronos.jsonl","include_hashes":true}
+}
