@@ -15,19 +15,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /src
 COPY . /src
 
-# Normalize repository text files before any build step.
-# This specifically prevents /usr/bin/env from seeing shebangs such as "bash\\r".
+# Normalize text files and every file with a shebang before any build step.
+# This prevents /usr/bin/env from seeing a shebang such as "bash\r".
 RUN set -eux; \
     find /src -type f \( \
       -name '*.sh' -o -name '*.bash' -o -name '*.command' -o \
       -name '*.ps1' -o -name 'Dockerfile*' -o \
       -name '*.yml' -o -name '*.yaml' \
     \) -print0 | xargs -0 -r dos2unix; \
-    for f in $(find /src -type f -print0 | xargs -0 -r grep -IlZ '^#!' || true); do \
-      dos2unix "$f"; \
-      sed -i '1s/\\r$//' "$f"; \
-    done; \
-    test -z "$(find /src -type f -name '*.sh' -exec grep -IlZ $'\\r' {} + 2>/dev/null || true)"
+    grep -RIlZ --exclude-dir=.git '^#!' /src | xargs -0 -r dos2unix; \
+    if find /src -type f \( -name '*.sh' -o -name '*.bash' -o -name '*.command' \) -print0 | \
+         xargs -0 -r grep -Il $'\r' | grep -q .; then \
+      echo 'CRLF remains in a shell script after normalization' >&2; exit 1; \
+    fi
 
 RUN cmake -S /src -B /build -G Ninja \
       -DCHIMERA_ENABLE_EXPERIMENTAL=ON \
@@ -52,8 +52,8 @@ COPY --from=builder /build/chimera_kernel /usr/local/bin/chimera_kernel
 # Final runtime safety pass for scripts copied from the source tree.
 RUN set -eux; \
     find /app -type f \( -name '*.sh' -o -name '*.bash' -o -name '*.command' \) -print0 | \
-      xargs -0 -r sed -i 's/\\r$//'; \
-    sed -i '1s/\\r$//' /app/docker/entrypoint.sh; \
+      xargs -0 -r sed -i 's/\r$//'; \
+    sed -i '1s/\r$//' /app/docker/entrypoint.sh; \
     chmod +x /app/docker/entrypoint.sh /app/hardware/host_scanner.py /app/desktop/aurora/gui_server.py; \
     useradd -m -u 10001 appuser; \
     chown -R appuser:appuser /app; \
