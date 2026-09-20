@@ -1,0 +1,503 @@
+---
+# =============================================================================
+# CHIMERA II OS - KUBERNETES DEPLOYMENT MANIFESTS
+# =============================================================================
+# Production-ready Kubernetes manifests for all Chimera II OS services
+#
+# Usage:
+#   kubectl apply -f kubernetes-deployment.yaml
+#   kubectl get deployments
+#   kubectl get pods
+#   kubectl get svc
+#
+# =============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chimera-system
+  labels:
+    name: chimera-system
+
+---
+# ConfigMap for shared configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chimera-config
+  namespace: chimera-system
+data:
+  CHIMERA_ENV: "production"
+  LOG_LEVEL: "info"
+  PYTHONUNBUFFERED: "1"
+
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: chimera-secrets
+  namespace: chimera-system
+type: Opaque
+data:
+  # Base64 encoded values - CHANGE THESE!
+  db-password: Y2hpbWVyYV9zZWN1cmU=  # chimera_secure
+  redis-password: cmVkaXNfc2VjdXJl  # redis_secure
+
+---
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: chimera-postgres
+  namespace: chimera-system
+spec:
+  serviceName: chimera-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chimera-postgres
+  template:
+    metadata:
+      labels:
+        app: chimera-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "chimera"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: chimera-secrets
+              key: db-password
+        - name: POSTGRES_DB
+          value: "chimera_db"
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: chimera-postgres
+  namespace: chimera-system
+spec:
+  clusterIP: None
+  selector:
+    app: chimera-postgres
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+
+---
+# Redis StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: chimera-redis
+  namespace: chimera-system
+spec:
+  serviceName: chimera-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chimera-redis
+  template:
+    metadata:
+      labels:
+        app: chimera-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        command: ["redis-server"]
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: chimera-secrets
+              key: redis-password
+        volumeMounts:
+        - name: redis-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
+
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: chimera-redis
+  namespace: chimera-system
+spec:
+  clusterIP: None
+  selector:
+    app: chimera-redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+
+---
+# Chimera Core Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chimera-core
+  namespace: chimera-system
+  labels:
+    app: chimera-core
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: chimera-core
+  template:
+    metadata:
+      labels:
+        app: chimera-core
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - chimera-core
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: chimera-core
+        image: amerhwitat/chimeraiios:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        - name: grpc
+          containerPort: 8001
+          protocol: TCP
+        env:
+        - name: CHIMERA_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: chimera-config
+              key: CHIMERA_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: chimera-config
+              key: LOG_LEVEL
+        - name: DATABASE_URL
+          value: "postgresql://chimera:$(DB_PASSWORD)@chimera-postgres:5432/chimera_db"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: chimera-secrets
+              key: db-password
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@chimera-redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: chimera-secrets
+              key: redis-password
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+      volumes:
+      - name: workspace
+        emptyDir: {}
+
+---
+# Chimera Core Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: chimera-core
+  namespace: chimera-system
+  labels:
+    app: chimera-core
+spec:
+  type: LoadBalancer
+  selector:
+    app: chimera-core
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8000
+    targetPort: http
+  - name: grpc
+    protocol: TCP
+    port: 8001
+    targetPort: grpc
+
+---
+# NLP Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-service
+  namespace: chimera-system
+  labels:
+    app: nlp-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nlp-service
+  template:
+    metadata:
+      labels:
+        app: nlp-service
+    spec:
+      containers:
+      - name: nlp-service
+        image: amerhwitat/nlp:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: MODELS_PATH
+          value: "/models"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+
+---
+# NLP Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlp-service
+  namespace: chimera-system
+spec:
+  selector:
+    app: nlp-service
+  ports:
+  - protocol: TCP
+    port: 8002
+    targetPort: 8000
+
+---
+# Business Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: business-service
+  namespace: chimera-system
+  labels:
+    app: business-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: business-service
+  template:
+    metadata:
+      labels:
+        app: business-service
+    spec:
+      containers:
+      - name: business-service
+        image: amerhwitat/bizx:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+---
+# Business Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: business-service
+  namespace: chimera-system
+spec:
+  type: LoadBalancer
+  selector:
+    app: business-service
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+
+---
+# HorizontalPodAutoscaler for Chimera Core
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: chimera-core-hpa
+  namespace: chimera-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: chimera-core
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# NetworkPolicy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: chimera-network-policy
+  namespace: chimera-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: chimera-system
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: chimera-system
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+
+---
+# Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chimera-ingress
+  namespace: chimera-system
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - chimera.example.com
+    secretName: chimera-tls
+  rules:
+  - host: chimera.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chimera-core
+            port:
+              number: 8000
+      - path: /business
+        pathType: Prefix
+        backend:
+          service:
+            name: business-service
+            port:
+              number: 3000

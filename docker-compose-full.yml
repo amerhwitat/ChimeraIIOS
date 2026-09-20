@@ -1,0 +1,304 @@
+version: '3.8'
+
+# =============================================================================
+# CHIMERA II OS - DOCKER COMPOSE ORCHESTRATION
+# =============================================================================
+# Complete multi-service deployment for all 13 repositories
+#
+# Usage:
+#   docker-compose up -d              # Start all services
+#   docker-compose logs -f            # View logs
+#   docker-compose down               # Stop all services
+#   docker-compose ps                 # View status
+#
+# =============================================================================
+
+services:
+  # Core OS Service
+  chimera-core:
+    image: amerhwitat/chimeraiios:latest
+    container_name: chimera-core
+    hostname: chimera-core
+    restart: unless-stopped
+    volumes:
+      - ./workspace:/workspace
+      - ./data:/data
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "5000:5000"
+    environment:
+      - CHIMERA_ENV=production
+      - LOG_LEVEL=info
+    networks:
+      - chimera-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - chimera-database
+
+  # NLP/AI Service
+  nlp-service:
+    image: amerhwitat/nlp:latest
+    container_name: nlp-service
+    restart: unless-stopped
+    volumes:
+      - ./nlp:/workspace
+      - ./models:/models
+    ports:
+      - "8002:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODELS_PATH=/models
+    networks:
+      - chimera-network
+    depends_on:
+      - chimera-core
+
+  # Business Service (BizX)
+  business-service:
+    image: amerhwitat/bizx:latest
+    container_name: business-service
+    restart: unless-stopped
+    volumes:
+      - ./business:/workspace
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - chimera-network
+    depends_on:
+      - chimera-core
+
+  # Enterprise Service (BizXtreme)
+  enterprise-service:
+    image: amerhwitat/bizxtreme:latest
+    container_name: enterprise-service
+    restart: unless-stopped
+    volumes:
+      - ./enterprise:/workspace
+    ports:
+      - "8003:8000"
+    environment:
+      - ENV=production
+    networks:
+      - chimera-network
+    depends_on:
+      - business-service
+
+  # CPU Simulator Service
+  cpu-simulator:
+    image: amerhwitat/cpu4096:latest
+    container_name: cpu-simulator
+    restart: unless-stopped
+    volumes:
+      - ./simulator:/workspace
+    ports:
+      - "8004:8000"
+    environment:
+      - CPU_CORES=4096
+    networks:
+      - chimera-network
+
+  # CPU Simulator Web Interface
+  cpu-simulator-web:
+    image: amerhwitat/cpu4096simulator:latest
+    container_name: cpu-simulator-web
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - API_URL=http://cpu-simulator:8000
+    networks:
+      - chimera-network
+    depends_on:
+      - cpu-simulator
+
+  # Cryptography Service
+  crypto-service:
+    image: amerhwitat/keygen:latest
+    container_name: crypto-service
+    restart: unless-stopped
+    volumes:
+      - ./crypto:/workspace
+      - ./keys:/keys
+    ports:
+      - "8005:8000"
+    environment:
+      - KEYS_PATH=/keys
+    networks:
+      - chimera-network
+
+  # Ethereum Service
+  ethereum-service:
+    image: amerhwitat/eth-key-check:latest
+    container_name: ethereum-service
+    restart: unless-stopped
+    volumes:
+      - ./ethereum:/workspace
+    ports:
+      - "8006:8000"
+    networks:
+      - chimera-network
+
+  # Security Service
+  security-service:
+    image: amerhwitat/bruteforce:latest
+    container_name: security-service
+    restart: unless-stopped
+    volumes:
+      - ./security:/workspace
+      - ./logs:/logs
+    ports:
+      - "8007:8000"
+    environment:
+      - LOG_PATH=/logs
+    networks:
+      - chimera-network
+
+  # PDF Service
+  pdf-service:
+    image: amerhwitat/pdfreadery:latest
+    container_name: pdf-service
+    restart: unless-stopped
+    volumes:
+      - ./pdf:/workspace
+      - ./documents:/documents
+    ports:
+      - "8008:8000"
+    environment:
+      - DOCUMENTS_PATH=/documents
+    networks:
+      - chimera-network
+
+  # General Utilities Service
+  utils-service:
+    image: amerhwitat/general:latest
+    container_name: utils-service
+    restart: unless-stopped
+    volumes:
+      - ./utils:/workspace
+    ports:
+      - "8009:8000"
+    networks:
+      - chimera-network
+
+  # Testing Service
+  test-service:
+    image: amerhwitat/test:latest
+    container_name: test-service
+    restart: unless-stopped
+    volumes:
+      - ./tests:/workspace
+    ports:
+      - "8010:8000"
+    networks:
+      - chimera-network
+
+  # Portfolio/Documentation Service
+  portfolio-service:
+    image: amerhwitat/amerhwitat.github.io:latest
+    container_name: portfolio-service
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    networks:
+      - chimera-network
+
+  # Database Service (PostgreSQL)
+  chimera-database:
+    image: postgres:16-alpine
+    container_name: chimera-database
+    restart: unless-stopped
+    volumes:
+      - chimera-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=chimera
+      - POSTGRES_PASSWORD=secure_password_change_me
+      - POSTGRES_DB=chimera_db
+    networks:
+      - chimera-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chimera"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  chimera-cache:
+    image: redis:7-alpine
+    container_name: chimera-cache
+    restart: unless-stopped
+    volumes:
+      - chimera-cache-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - chimera-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Message Queue (RabbitMQ)
+  chimera-queue:
+    image: rabbitmq:3-management-alpine
+    container_name: chimera-queue
+    restart: unless-stopped
+    volumes:
+      - chimera-queue-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=chimera
+      - RABBITMQ_DEFAULT_PASS=secure_password_change_me
+    networks:
+      - chimera-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway / Reverse Proxy (Nginx)
+  chimera-gateway:
+    image: nginx:alpine
+    container_name: chimera-gateway
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - chimera-network
+    depends_on:
+      - chimera-core
+      - business-service
+
+networks:
+  chimera-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  chimera-db-data:
+    driver: local
+  chimera-cache-data:
+    driver: local
+  chimera-queue-data:
+    driver: local
