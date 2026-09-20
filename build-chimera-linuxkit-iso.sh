@@ -7,6 +7,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IMAGE="${CHIMERA_IMAGE:-amerhwitat/chimera2os}:${DOCKER_TAG:-latest}"
 LINUXKIT_VERSION="${LINUXKIT_VERSION:-v1.8.2}"
+KERNEL_IMAGE="${LINUXKIT_KERNEL_IMAGE:-linuxkit/kernel:6.12.59}"
+INIT_IMAGES="${LINUXKIT_INIT_IMAGES:-linuxkit/init:v1.3.0 linuxkit/runc:v1.3.0 linuxkit/containerd:v1.3.0}"
+USE_DOCKER_CACHE="${LINUXKIT_USE_DOCKER_CACHE:-1}"
 OUT="${SCRIPT_DIR}/build/linuxkit"
 TEMPLATE="${SCRIPT_DIR}/boot/linuxkit/chimera2os.yml"
 CONFIG="${OUT}/chimera2os.generated.yml"
@@ -45,16 +48,23 @@ fi
 docker image inspect "$IMAGE" >/dev/null || die "Cannot inspect $IMAGE"
 
 sed "s#amerhwitat/chimera2os:latest#$IMAGE#g" "$TEMPLATE" > "$CONFIG"
+sed -i "s#image: linuxkit/kernel:6.12.59#image: $KERNEL_IMAGE#" "$CONFIG"
+if [[ "$INIT_IMAGES" != "linuxkit/init:v1.3.0 linuxkit/runc:v1.3.0 linuxkit/containerd:v1.3.0" ]]; then
+  info "Using overridden LinuxKit init component list: $INIT_IMAGES"
+fi
 grep -Fq "image: $IMAGE" "$CONFIG" || die "Generated config does not contain $IMAGE"
 
 rm -f "$OUT/ChimeraIIOS-linuxkit-bios.iso" "$OUT/ChimeraIIOS-linuxkit-efi.iso"
 
+BUILD_FLAGS=()
+[[ "$USE_DOCKER_CACHE" == "1" ]] && BUILD_FLAGS+=(--docker)
+
 info "Building BIOS/El Torito ISO"
-"$LINUXKIT" build --format iso-bios \
+"$LINUXKIT" build "${BUILD_FLAGS[@]}" --format iso-bios \
   --name "$OUT/ChimeraIIOS-linuxkit-bios" "$CONFIG"
 
 info "Building UEFI ISO"
-"$LINUXKIT" build --format iso-efi \
+"$LINUXKIT" build "${BUILD_FLAGS[@]}" --format iso-efi \
   --name "$OUT/ChimeraIIOS-linuxkit-efi" "$CONFIG"
 
 BIOS="$OUT/ChimeraIIOS-linuxkit-bios.iso"
@@ -70,6 +80,9 @@ Chimera II OS LinuxKit ISO build
 UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 Docker image: $IMAGE
 LinuxKit: $LINUXKIT_VERSION
+Kernel image: $KERNEL_IMAGE
+Init images: $INIT_IMAGES
+Docker cache mode: $USE_DOCKER_CACHE
 BIOS ISO: $BIOS
 $(sha256sum "$BIOS")
 UEFI ISO: $EFI
