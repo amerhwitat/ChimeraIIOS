@@ -20,6 +20,7 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
   return {
     {"detect","Hardware detection","Firmware, architecture, CPU, PCI/USB/ACPI devices, storage, graphics, network and firmware capabilities"},
     {"driverscan","Deep driver discovery","Enumerate device IDs and recursively search approved Linux/Unix/open-source repositories for matching modules and firmware"},
+    {"driverpolicy","Driver trust policy","Allow only signed or cryptographically verified packages; keep proprietary/unknown binaries quarantined unless explicitly enabled"},
     {"driverdownload","Driver acquisition","Download compatible driver/firmware packages, verify hashes/signatures and quarantine untrusted artifacts"},
     {"driverinstall","Driver deployment","Install selected native Koronos modules and compatibility drivers into the target rootfs and regenerate module/firmware indexes"},
     {"locale","Language / Keyboard / Accessibility","Locale, keyboard, console, screen-reader and high-contrast options"},
