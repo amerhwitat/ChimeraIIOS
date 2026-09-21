@@ -9,9 +9,9 @@ SECTIONS {
  .data : ALIGN(4096) { *(.data*) }
  .bss : ALIGN(4096) { *(COMMON) *(.bss*) }
  .koronos.modules : ALIGN(4096) {
-  __koronos_modules_start=.;
+  __koronos_modules_start = .;
   KEEP(*(.koronos.module))
-  __koronos_modules_end=.;
+  __koronos_modules_end = .;
  }
  __kernel_end = .;
 }
