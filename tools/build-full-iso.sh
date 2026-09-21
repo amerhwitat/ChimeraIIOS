@@ -11,8 +11,9 @@ cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_J
 chmod +x "$ROOT/tools/build-desktop-binaries.sh"
 chmod +x "$ROOT/tools/build-koronos-targets.sh"
 "$ROOT/tools/build-koronos-targets.sh"
-chmod +x "$ROOT/tools/fetch-foreign-runtimes.sh" "$ROOT/tools/build-mobile-edition.sh"
+chmod +x "$ROOT/tools/fetch-foreign-runtimes.sh" "$ROOT/tools/build-mobile-edition.sh" "$ROOT/tools/build-compatibility-binaries.sh"
 "$ROOT/tools/fetch-foreign-runtimes.sh"
+"$ROOT/tools/build-compatibility-binaries.sh"
 "$ROOT/tools/build-mobile-edition.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
