@@ -7,6 +7,8 @@ mkdir -p "$BUILD" "$ISO_DIR"
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
 chmod +x "$ROOT/tools/build-desktop-binaries.sh"
+chmod +x "$ROOT/tools/build-koronos-targets.sh"
+"$ROOT/tools/build-koronos-targets.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
@@ -42,6 +44,7 @@ for source_dir in kernel src include database cmake tools boot installer userlan
 done
 mkdir -p "$STAGE/build-artifacts"
 cp -a "$ROOT/build/desktop" "$STAGE/build-artifacts/" 2>/dev/null || true
+cp -a "$ROOT/build/koronos/ports" "$STAGE/build-artifacts/" 2>/dev/null || true
 cp -a "$BUILD/cmake" "$STAGE/build-artifacts/cmake" 2>/dev/null || true
 mkdir -p "$STAGE/install/sdk"
 cp -a "$ROOT/sdk/include" "$STAGE/install/sdk/"
