@@ -26,6 +26,18 @@ cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
+cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"
+mkdir -p "$STAGE/install/sdk"
+cp -a "$ROOT/sdk/include" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/python" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/csharp" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/objective-c" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/java" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/manuals" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/examples" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/toolchains" "$STAGE/install/sdk/"
+cp "$ROOT/sdk/manifest.json" "$STAGE/install/sdk/"
+if [[ -f "$ROOT/sdk/java/chimera-sdk.jar" ]]; then cp "$ROOT/sdk/java/chimera-sdk.jar" "$STAGE/install/sdk/"; fi
 if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]]; then mkdir -p "$STAGE/install/assets/aurora"; cp "$CHIMERA_AURORA_BACKGROUND" "$STAGE/install/assets/aurora/Aurora-Wayland-Glass-Desktop.png"; fi
 FINAL="$ISO_DIR/chimera-ii-os.iso"
 if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then xorriso -indev "$BASE" -outdev "$FINAL" -map "$STAGE" /chimera -commit -end; else CHIMERA_KERNEL="$KERNEL" CHIMERA_OUTPUT_ISO="$FINAL" "$ROOT/iso/chimera-live-iso.sh"; fi
