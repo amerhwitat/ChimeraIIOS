@@ -1,0 +1,22 @@
+name: Chimera Userland Shell and Aurora
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "userland/**"
+      - "desktop/aurora/**"
+      - "services/platform_service_adapters.json"
+      - "desktop/aurora_app_registry.json"
+      - ".github/workflows/chimera-userland.yml"
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build/userland -DCMAKE_BUILD_TYPE=Release
+      - name: Build shell and launcher
+        run: cmake --build build/userland --target chimera-shell aurora-launcher --parallel 2
+      - name: Shell smoke test
+        run: printf 'echo Chimera\nuname -a\npwd\nhelp\nexit\n' | build/userland/userland/chimera-shell
