@@ -21,6 +21,7 @@ mb2_header_end:
 
 section .text.boot
 extern koronos_boot
+extern __kernel_end
 global _start
 
 global __koronos_multiboot2_entry
@@ -28,7 +29,7 @@ __koronos_multiboot2_entry:
 _start:
     cli
     cld
-    mov esp, stack32_top
+    lea esp, [stack32_top]
     cmp eax, MULTIBOOT2_BOOTLOADER_MAGIC
     jne .bad_boot
     mov [multiboot_magic], eax
@@ -42,15 +43,15 @@ _start:
     rep stosd
 
     ; Materialize relocatable table addresses before applying page flags.
-    mov eax, pdpt_table
+    lea eax, [pdpt_table]
     or eax, 0x003
     mov [pml4_table], eax
-    mov eax, pd_table
+    lea eax, [pd_table]
     or eax, 0x003
     mov [pdpt_table], eax
     ; Populate 512 2 MiB PDEs at runtime.  The page-table storage is BSS,
     ; so it must not contain assembler-time initializers.
-    mov edi, pd_table
+    lea edi, [pd_table]
     mov eax, 0x00000083
     mov ecx, 512
 .fill_pd:
@@ -63,7 +64,7 @@ _start:
     mov eax, cr4
     or eax, 0x20
     mov cr4, eax
-    mov eax, pml4_table
+    lea eax, [pml4_table]
     mov cr3, eax
     mov ecx, 0xC0000080
     rdmsr
@@ -78,7 +79,7 @@ _start:
     cli
 .hang32:
     hlt
-    jmp .hang32
+    jmp near .hang32
 
 BITS 64
 long_mode_entry:
@@ -89,12 +90,11 @@ long_mode_entry:
     xor ax, ax
     mov fs, ax
     mov gs, ax
-    mov rsp, stack64_top
+    lea rsp, [rel stack64_top]
     mov r12, [multiboot_info]
 
     mov dword [boot_context + 0], KORONOS_BOOTINFO_MAGIC
     mov dword [boot_context + 4], KORONOS_ABI_VERSION
-    mov qword [boot_context + 8], 0
     mov qword [boot_context + 8], r12
     mov qword [boot_context + 16], 0x100000
     lea rax, [rel __kernel_end]
@@ -114,7 +114,7 @@ long_mode_entry:
 .hang64:
     cli
     hlt
-    jmp .hang64
+    jmp near .hang64
 
 section .rodata
 align 8
