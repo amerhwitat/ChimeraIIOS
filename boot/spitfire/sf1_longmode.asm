@@ -1,5 +1,4 @@
 [BITS 16]
-[ORG 0x7E00]
 %define CODE_SEL 0x08
 %define DATA_SEL 0x10
 
