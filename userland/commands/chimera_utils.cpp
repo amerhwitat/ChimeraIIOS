@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+extern char **environ;
 #include <chrono>
 #include <ctime>
 namespace fs=std::filesystem;
