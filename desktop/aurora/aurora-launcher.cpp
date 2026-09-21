@@ -15,3 +15,12 @@ extern "C" int aurora_launch(const char* id,const char* profile){
  }
  std::fprintf(stderr,"Aurora: application not registered: %s\n",id?id:"<null>"); return 127;
 }
+
+
+// Host-side Aurora launcher entry point. The library API above remains reusable by
+// the Wayland session while this executable provides the CMake target's main().
+int main(int argc, char** argv) {
+    const char* id = (argc > 1) ? argv[1] : "terminal";
+    const char* profile = (argc > 2) ? argv[2] : "chimera-modern";
+    return aurora_launch(id, profile);
+}
