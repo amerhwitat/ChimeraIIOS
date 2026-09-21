@@ -74,6 +74,7 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
     log<<"Driver binaries are installed only after device-ID matching and verification.\\n";
   }
   fs::path toolchains = p.source_root/"build/toolchains";
+  if(!fs::exists(toolchains)) toolchains = p.source_root/"toolchains";
   if(fs::exists(toolchains)) { fs::remove_all(p.target_root/"opt/chimera/toolchains"); if(copy_tree(toolchains,p.target_root/"opt/chimera/toolchains")!=0) return 6; }
   fs::create_directories(p.target_root/"etc/profile.d");
   { std::ofstream env(p.target_root/"etc/profile.d/chimera-toolchains.sh"); env<<"export CHIMERA_TOOLCHAIN_ROOT=/opt/chimera/toolchains\\nexport PATH=/opt/chimera/toolchains/bin:$PATH\\nexport LD_LIBRARY_PATH=/opt/chimera/toolchains/lib:/opt/chimera/toolchains/lib64:$LD_LIBRARY_PATH\\n"; }
