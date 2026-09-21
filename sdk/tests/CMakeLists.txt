@@ -1,0 +1,5 @@
+enable_testing()
+add_test(NAME chimera_sdk_config COMMAND chimera-sdk-config)
+if(Python3_Interpreter_FOUND)
+  add_test(NAME chimera_sdk_python COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/sdk_smoke.py)
+endif()
