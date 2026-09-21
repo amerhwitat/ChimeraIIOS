@@ -66,6 +66,10 @@ cp -a "$ROOT/build/toolchains" "$STAGE/toolchains/" 2>/dev/null || true
 cp -a "$ROOT/build/network-tools/." "$STAGE/opt/chimera/network-tools/" 2>/dev/null || true
 cp -a "$ROOT/build/network-tools" "$STAGE/network-tools/" 2>/dev/null || true
 cp -a "$ROOT/network" "$STAGE/system/network" 2>/dev/null || true
+cp -a "$ROOT/desktop/aurora/route-manager.desktop.json" "$STAGE/system/desktop/" 2>/dev/null || true
+cp -a "$ROOT/desktop/aurora/networking_panel.json" "$STAGE/system/desktop/" 2>/dev/null || true
+cp -a "$ROOT/desktop/aurora/wallpaper-service.json" "$STAGE/system/desktop/" 2>/dev/null || true
+cp -a "$ROOT/desktop/aurora/wallpaper-service.py" "$STAGE/system/desktop/" 2>/dev/null || true
 cp -a "$ROOT/services/learning" "$STAGE/system/services/learning" 2>/dev/null || true
 cp -a "$ROOT/services/network" "$STAGE/system/services/network" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/network-discovery.desktop.json" "$STAGE/system/desktop/" 2>/dev/null || true
