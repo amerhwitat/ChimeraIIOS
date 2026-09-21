@@ -1,4 +1,4 @@
-section .text
+.section .text
 .global chimera_live_entry
 .type chimera_live_entry,@function
 chimera_live_entry:
