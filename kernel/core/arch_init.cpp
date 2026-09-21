@@ -29,6 +29,16 @@ extern "C" void koronos_arch_init(const koronos_boot_context* ctx) {
  cpu.vendor[12]=0;
 #endif
  if(cpu.logical_cpus==0) cpu.logical_cpus=1;
+ // Compatibility mode is conservative: retain all detected cores but avoid
+ // relying on optional virtualization/vector features when the CPU lacks them.
+ // 0=native, 1=compatibility. The scheduler still uses every detected core.
+ uint32_t compat = 0;
+ if(!cpu.long_mode || !cpu.sse2) compat = 1;
+ if(ctx) {
+   // The boot context is owned by the bootstrap code and is writable here.
+   const_cast<koronos_boot_context*>(ctx)->detected_cores = cpu.logical_cpus;
+   const_cast<koronos_boot_context*>(ctx)->compatibility_mode = compat;
+ }
 }
 extern "C" const struct koronos_cpu_features* koronos_get_cpu_features(){ return &cpu; }
 extern "C" void koronos_idle_loop(void) {
