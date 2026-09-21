@@ -13,7 +13,7 @@ trap cleanup EXIT
 mkdir -p "$ISO_TMP"
 export TMPDIR="$ISO_TMP"
 export MTOOLS_SKIP_CHECK=1
-mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$(dirname "$OUT")"
+mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains" "$(dirname "$OUT")"
 copy_if_distinct() {
   local src="$1" dst="$2"
   if [[ -f "$src" && -f "$dst" ]] && [[ "$(readlink -f "$src")" == "$(readlink -f "$dst")" ]]; then
@@ -32,6 +32,7 @@ if [[ -d "$ROOT/build/desktop" ]]; then cp -a "$ROOT/build/desktop/." "$STAGE/de
 if [[ -d "$ROOT/build/foreign" ]]; then cp -a "$ROOT/build/foreign/." "$STAGE/compat/"; fi
 if [[ -d "$ROOT/build/mobile" ]]; then cp -a "$ROOT/build/mobile/." "$STAGE/mobile/"; fi
 if [[ -d "$ROOT/build/drivers" ]]; then cp -a "$ROOT/build/drivers/." "$STAGE/drivers/"; fi
+if [[ -d "$ROOT/build/toolchains" ]]; then cp -a "$ROOT/build/toolchains/." "$STAGE/toolchains/"; fi
 if [[ -d "$ROOT/services/learning" ]]; then cp -a "$ROOT/services/learning" "$STAGE/system/services/learning"; fi
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
