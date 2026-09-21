@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Resolve the repository root from this script location; never depend on the caller's working directory.
+CHIMERA_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$CHIMERA_REPO_ROOT"
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PROFILE="${1:-$ROOT/mobile/device-profiles/reference-aarch64.json}"
