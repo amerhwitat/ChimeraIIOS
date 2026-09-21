@@ -119,7 +119,7 @@ check_requirements() {
     fi
     
     # Check required tools
-    local required_tools=("docker" "curl" "mktemp" "mount" "grub-mkimage" "xorriso" "unsquashfs" "mksquashfs")
+    local required_tools=("docker" "curl" "mktemp" "mount" "grub-mkimage" "xorriso" "unsquashfs" "mksquashfs" "rsvg-convert")
     local missing_tools=()
     
     for tool in "${required_tools[@]}"; do
@@ -140,7 +140,8 @@ check_requirements() {
             grub-efi-amd64-bin \
             xorriso \
             squashfs-tools \
-            ca-certificates
+            ca-certificates \
+            librsvg2-bin
     fi
     
     # Check Docker
