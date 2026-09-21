@@ -4,7 +4,7 @@ ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
 OUT="$ROOT/build/network-tools"
 mkdir -p "$OUT"/bin "$OUT"/rootfs "$OUT"/packages "$OUT"/manifests
 packages=(arping arp-scan fping netdiscover masscan nbtscan smbclient nfs-common rpcbind avahi-utils ldap-utils dnsutils curl wget openssh-client iproute2 iputils-ping net-tools traceroute zmap unicornscan snmp frr wireguard-tools openvpn)
-if [ "$CHIMERA_NMAP_REDIStribute" = "1" ]; then packages+=(nmap); fi
+if [ "${CHIMERA_NMAP_REDIStribute:-0}" = "1" ]; then packages+=(nmap); fi
 if command -v apt-get >/dev/null 2>&1; then
   (cd "$OUT/packages"; apt-get download "${packages[@]}" >/dev/null 2>&1 || true)
   for deb in "$OUT/packages/"*.deb; do [ -f "$deb" ] || continue; dpkg-deb -x "$deb" "$OUT/rootfs" 2>/dev/null || true; done
