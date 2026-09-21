@@ -20,7 +20,7 @@ if [[ -z "$BASE" && "${CHIMERA_FETCH_RELEASE:-0}" == "1" ]] && command -v gh >/d
   [[ -z "$SPIT_IMG" ]] && SPIT_IMG="$(find "$ROOT/releases" -type f -iname "*spit*fire*.img" | head -n1 || true)"
 fi
 if [[ -z "$BASE" && -n "${CHIMERA_BASE_ISO_URL:-}" ]]; then curl -fL "$CHIMERA_BASE_ISO_URL" -o "$BUILD/base.iso"; BASE="$BUILD/base.iso"; fi
-STAGE="$BUILD/inject"; rm -rf "$STAGE"; mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system"
+STAGE="$BUILD/inject"; rm -rf "$STAGE"; mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 [[ -n "$SPIT_IMG" && -f "$SPIT_IMG" ]] && cp "$SPIT_IMG" "$STAGE/boot/spitfire.img"
 cp -a "$ROOT/installer" "$STAGE/install/"
@@ -29,6 +29,7 @@ cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"
+cp -a "$ROOT/sdk" "$STAGE/sdk"
 mkdir -p "$STAGE/install/sdk"
 cp -a "$ROOT/sdk/include" "$STAGE/install/sdk/"
 cp -a "$ROOT/sdk/python" "$STAGE/install/sdk/"
