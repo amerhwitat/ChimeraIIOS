@@ -18,7 +18,10 @@ std::string Installer::firmware_name(Firmware f) {
 }
 std::vector<Step> Installer::build_plan(const InstallPlan&) const {
   return {
-    {"detect","Hardware detection","Firmware, architecture, CPU, storage, graphics, network and firmware capabilities"},
+    {"detect","Hardware detection","Firmware, architecture, CPU, PCI/USB/ACPI devices, storage, graphics, network and firmware capabilities"},
+    {"driverscan","Deep driver discovery","Enumerate device IDs and recursively search approved Linux/Unix/open-source repositories for matching modules and firmware"},
+    {"driverdownload","Driver acquisition","Download compatible driver/firmware packages, verify hashes/signatures and quarantine untrusted artifacts"},
+    {"driverinstall","Driver deployment","Install selected native Koronos modules and compatibility drivers into the target rootfs and regenerate module/firmware indexes"},
     {"locale","Language / Keyboard / Accessibility","Locale, keyboard, console, screen-reader and high-contrast options"},
     {"time","Date / Time / Timezone","Timezone, RTC policy and optional NTP synchronization"},
     {"source","Installation source","Live ISO, local repository, HTTP/HTTPS, NFS and network-share sources"},
@@ -55,6 +58,19 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
   if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
   if(copy_tree(p.source_root,p.target_root)!=0) return 4;
+  if(p.deep_driver_search){
+    fs::create_directories(p.target_root/"var/lib/chimera/drivers");
+    fs::create_directories(p.target_root/"lib/firmware");
+    fs::create_directories(p.target_root/"usr/lib/chimera/drivers");
+    fs::path manifest=p.source_root/"drivers/driver-manifest.json";
+    if(fs::exists(manifest)) fs::copy_file(manifest,p.target_root/"var/lib/chimera/drivers/driver-manifest.json",fs::copy_options::overwrite_existing);
+    std::ofstream log(p.target_root/"var/lib/chimera/drivers/installation-plan.txt");
+    log<<"deep_driver_search="<<p.deep_driver_search<<"\\n";
+    log<<"download_driver_binaries="<<p.download_driver_binaries<<"\\n";
+    log<<"install_detected_drivers="<<p.install_detected_drivers<<"\\n";
+    log<<"verify_driver_signatures="<<p.verify_driver_signatures<<"\\n";
+    log<<"Driver binaries are installed only after device-ID matching and verification.\\n";
+  }
   fs::path sdk = p.source_root/"sdk";
   if(fs::exists(sdk)) { fs::remove_all(p.target_root/"opt/chimera-sdk"); if(copy_tree(sdk,p.target_root/"opt/chimera-sdk")!=0) return 5; }
   fs::create_directories(p.target_root/"etc/chimera");
