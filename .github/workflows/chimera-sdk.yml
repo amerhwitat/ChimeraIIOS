@@ -1,0 +1,37 @@
+name: Chimera II SDK CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "sdk/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/chimera-sdk.yml"
+
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SDK toolchains
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc g++ clang python3 openjdk-21-jdk
+      - name: Configure
+        run: cmake -S . -B build/sdk -DCMAKE_BUILD_TYPE=Release
+      - name: Build SDK
+        run: cmake --build build/sdk --target chimera_sdk chimera-sdk-config --parallel 2
+      - name: SDK smoke test
+        run: |
+          python3 sdk/tests/sdk_smoke.py
+          build/sdk/sdk/chimera-sdk-config
+      - name: Build Java SDK
+        run: bash sdk/java/build.sh
+      - name: Validate Python package
+        run: python3 -m compileall -q sdk/python/chimera_sdk
+      - name: Upload SDK source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-sdk-source
+          path: sdk/
