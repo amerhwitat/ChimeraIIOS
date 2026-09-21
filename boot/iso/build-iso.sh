@@ -11,17 +11,24 @@ WORK="$ISO_ROOT/work"
 rm -rf "$DIST" "$WORK"
 mkdir -p "$DIST" "$WORK"
 CC=${CC:-gcc}; LD=${LD:-ld}
-printf '%s\n' '[1/7] Build Multiboot2 bootstrap / Koronos kernel payload'
-$CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/multiboot2.S" -o "$WORK/multiboot2.o"
-$CC -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -I"$ROOT/boot/include" -c "$ISO_ROOT/boot.c" -o "$WORK/boot.o"
-$LD -m elf_i386 -T "$ISO_ROOT/linker.ld" -o "$DIST/chimera2os.elf" "$WORK/multiboot2.o" "$WORK/boot.o"
-cp "$DIST/chimera2os.elf" "$DIST/kernel.bin"
+printf '%s\n' '[1/7] Build Multiboot2 Koronos x86_64 kernel payload'
+"$ROOT/kernel/build-koronos.sh"
+KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
+test -s "$KORONOS_ELF"
+if command -v grub-file >/dev/null 2>&1; then
+  grub-file --is-x86-multiboot2 "$KORONOS_ELF"
+else
+  echo 'grub-file is required to validate the Multiboot2 kernel payload.' >&2
+  exit 2
+fi
+cp "$KORONOS_ELF" "$DIST/chimera2os.elf"
+cp "$KORONOS_ELF" "$DIST/kernel.bin"
 printf '%s\n' '[2/7] Prepare structured media tree'
 "$ISO_ROOT/prepare-layout.sh"
 printf '%s\n' '[3/7] Assemble Spit Fire BIOS bootloader stages with NASM'
 "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders"
-cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/koronos/koronos.elf"
-cp "$DIST/kernel.bin" "$ISO_ROOT/dist/iso/boot/kernel.bin"
+cp "$KORONOS_ELF" "$ISO_ROOT/dist/iso/boot/koronos/koronos.elf"
+cp "$KORONOS_ELF" "$ISO_ROOT/dist/iso/boot/kernel.bin"
 cp "$DIST/chimera2os.elf" "$ISO_ROOT/dist/iso/boot/chimera2os.elf"
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$ISO_ROOT/dist/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$ISO_ROOT/dist/iso/boot/spitfire/"
