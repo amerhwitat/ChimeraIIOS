@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+exec "${CHIMERA_CXX:-g++}" -DCHIMERA_OS=1 "$@"
