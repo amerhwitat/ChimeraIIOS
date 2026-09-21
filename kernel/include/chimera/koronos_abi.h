@@ -23,7 +23,7 @@ struct koronos_cpu_features {
 };
 struct koronos_boot_context {
  uint32_t magic; uint32_t version; uint64_t boot_info; uint64_t kernel_base; uint64_t kernel_end;
- uint64_t module_base; uint64_t module_size; uint32_t cpu_class; uint32_t cpu_mode; uint64_t io_base; uint64_t reserved[3];
+ uint64_t module_base; uint64_t module_size; uint32_t cpu_class; uint32_t cpu_mode; uint64_t io_base; uint32_t detected_cores; uint32_t compatibility_mode; uint64_t reserved[2];
 };
 #ifdef __cplusplus
 extern "C" {
