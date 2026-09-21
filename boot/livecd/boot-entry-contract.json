@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-BOOT-LIVE-CONTRACT-1",
+  "firmware":["BIOS","UEFI"],
+  "primary":"Spit Fire",
+  "menu":"Jasper",
+  "kernel":"Koronos",
+  "fallback":"GRUB2/Multiboot2",
+  "entry_symbol":"chimera_live_entry",
+  "modes":{"live":"boot without disk mutation","install":"launch installer transaction","safe-graphics":"software graphics profile","diagnostics":"hardware and boot tests","recovery":"repair services and filesystem","network":"network-enabled maintenance"}
+}
