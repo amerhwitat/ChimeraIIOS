@@ -1,0 +1,22 @@
+{
+  "schema":"CHM-COMMAND-COMPAT-2",
+  "aliases":{
+    "ls":{"windows":["dir"],"powershell":["Get-ChildItem"],"macos":["ls"]},
+    "cp":{"windows":["copy","xcopy"],"powershell":["Copy-Item"],"macos":["cp"]},
+    "mv":{"windows":["move"],"powershell":["Move-Item"],"macos":["mv"]},
+    "rm":{"windows":["del","erase"],"powershell":["Remove-Item"],"macos":["rm"]},
+    "cat":{"windows":["type"],"powershell":["Get-Content"],"macos":["cat"]},
+    "grep":{"windows":["findstr"],"powershell":["Select-String"],"macos":["grep"]},
+    "pwd":{"windows":["cd"],"powershell":["Get-Location"],"macos":["pwd"]},
+    "which":{"windows":["where"],"powershell":["Get-Command"],"macos":["which"]},
+    "ps":{"windows":["tasklist"],"powershell":["Get-Process"],"macos":["ps"]},
+    "kill":{"windows":["taskkill"],"powershell":["Stop-Process"],"macos":["kill"]},
+    "ip":{"windows":["ipconfig"],"powershell":["Get-NetIPConfiguration"],"macos":["ifconfig","networksetup"]},
+    "clear":{"windows":["cls"],"powershell":["Clear-Host"],"macos":["clear"]},
+    "env":{"windows":["set"],"powershell":["Get-ChildItem Env:"],"macos":["env"]},
+    "find":{"windows":["where","forfiles"],"powershell":["Get-ChildItem"],"macos":["find"]},
+    "open":{"windows":["start"],"powershell":["Start-Process"],"macos":["open"]},
+    "services":{"windows":["sc"],"powershell":["Get-Service"],"macos":["launchctl"],"linux":["systemctl"]}
+  },
+  "execution":"Aliases translate intent only; option semantics are checked by the target adapter before execution."
+}
