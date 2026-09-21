@@ -1,0 +1,11 @@
+{
+  "schema":"KORONOS-ISA-1",
+  "kernel":"Koronos",
+  "low_level_rule":"hardware-facing execution is ISA assembly first; hosted C/C++ libraries are not part of the kernel ABI",
+  "x86_64":{"class":"CISC","modes":["real16","protected32","long64","compat32","virtual8086"],"io":{"instructions":["IN","OUT"],"ports":true},"elf_machine":62},
+  "riscv64":{"class":"RISC","privilege":["M","S","U"],"io":{"instructions":["LB","LH","LW","LD","SB","SH","SW","SD"],"ports":false,"model":"MMIO"},"elf_machine":243},
+  "aarch64":{"class":"RISC","privilege":["EL3","EL2","EL1","EL0"],"io":{"instructions":["LDR","STR","LDXR","STXR"],"ports":false,"model":"MMIO"},"elf_machine":183},
+  "chimera":{"class":"research","risc":"R8192","cisc":"C8192","normalized":"micro-op boundary"},
+  "binary":{"kernel":"ELF64 ET_EXEC/ET_DYN","module":"ELF64 ET_REL/ET_DYN","legacy":"ELF32 validation scaffold"},
+  "security":["machine-match","bounds-check","W^X","signed-image-policy","relocation-validation"]
+}
