@@ -7,6 +7,9 @@ enum class Mode { Live, Install, Recovery, Compatibility };
 enum class Firmware { BIOS, UEFI, Unknown };
 struct Hardware {
   std::string architecture{"x86_64"};
+  std::string cpu_vendor{"unknown"};
+  uint32_t cpu_cores{1};
+  bool koronos_compatibility{false};
   Firmware firmware{Firmware::Unknown};
   bool nvme{false}, sata{false}, network{false}, graphics{false};
 };
