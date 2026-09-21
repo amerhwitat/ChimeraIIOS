@@ -70,10 +70,26 @@ done
 [[ -d "$ROOT/hardware" ]] && cp -a "$ROOT/hardware/." "$DIST/chimera/hardware/"
 [[ -d "$ROOT/security" ]] && cp -a "$ROOT/security/." "$DIST/chimera/security/"
 [[ -d "$ROOT/system" ]] && cp -a "$ROOT/system/." "$DIST/chimera/system/"
-if [[ -f "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" ]]; then
-  mkdir -p "$DIST/boot/grub" "$DIST/usr/share/chimera/aurora"
-  cp "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" "$DIST/boot/grub/aurora-wayland-glass.png"
-  cp "$ROOT/desktop/aurora/assets/aurora-wayland-glass.png" "$DIST/usr/share/chimera/aurora/aurora-wayland-glass.png"
+# Aurora artwork is source-controlled as SVG so the visual identity is reproducible.
+# Rasterize at build time for GRUB (which consumes PNG) and copy the source into
+# the installed Library/theme tree for Aurora and the installer.
+if [[ -f "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" ]]; then
+  mkdir -p "$DIST/boot/grub" "$DIST/usr/share/chimera/aurora" "$DIST/usr/share/chimera/library/aurora"
+  cp "$ROOT/desktop/aurora/assets/"aurora-*.svg "$DIST/usr/share/chimera/library/aurora/"
+  if command -v rsvg-convert >/dev/null 2>&1; then
+    rsvg-convert -w 1920 -h 1080 "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" -o "$DIST/boot/grub/aurora-wayland-glass.png"
+    rsvg-convert -w 1600 -h 900 "$ROOT/desktop/aurora/assets/aurora-library.svg" -o "$DIST/usr/share/chimera/aurora/aurora-library.png"
+    rsvg-convert -w 1600 -h 900 "$ROOT/desktop/aurora/assets/aurora-installer.svg" -o "$DIST/usr/share/chimera/aurora/aurora-installer.png"
+  elif command -v convert >/dev/null 2>&1; then
+    convert -background none "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" "$DIST/boot/grub/aurora-wayland-glass.png"
+    convert -background none "$ROOT/desktop/aurora/assets/aurora-library.svg" "$DIST/usr/share/chimera/aurora/aurora-library.png"
+    convert -background none "$ROOT/desktop/aurora/assets/aurora-installer.svg" "$DIST/usr/share/chimera/aurora/aurora-installer.png"
+  else
+    echo "Aurora rasterizer missing: install librsvg2-bin (rsvg-convert) or ImageMagick." >&2
+    exit 2
+  fi
+  cp "$DIST/usr/share/chimera/aurora/aurora-installer.png" "$DIST/usr/share/chimera/aurora/installer-background.png"
+  cp "$DIST/usr/share/chimera/aurora/aurora-library.png" "$DIST/usr/share/chimera/aurora/library-background.png"
 fi
 [[ -d "$ROOT/games" ]] && cp -a "$ROOT/games/." "$DIST/games/"
 [[ -d "$ROOT/wallets" ]] && cp -a "$ROOT/wallets/." "$DIST/wallets/"
