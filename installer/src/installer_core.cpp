@@ -3,11 +3,16 @@
 #include <fstream>
 #include <iostream>
 #include <sys/utsname.h>
+#include <thread>
+#include <algorithm>
 namespace fs=std::filesystem;
 namespace chimera::installer {
 Hardware Installer::detect_hardware() const {
   Hardware h; struct utsname u{};
   if(uname(&u)==0) h.architecture=u.machine;
+  h.cpu_cores=std::max(1u,std::thread::hardware_concurrency());
+  { std::ifstream f("/proc/cpuinfo"); std::string line; while(std::getline(f,line)){ if(line.rfind("vendor_id",0)==0){ auto p=line.find(":"); if(p!=std::string::npos) h.cpu_vendor=line.substr(p+2); break; } } }
+  h.koronos_compatibility = !(h.architecture=="x86_64" || h.architecture=="amd64" || h.architecture=="aarch64" || h.architecture=="riscv64");
   h.network=fs::exists("/sys/class/net"); h.nvme=fs::exists("/sys/class/nvme");
   h.sata=fs::exists("/sys/class/ata"); h.graphics=fs::exists("/dev/dri");
   h.firmware=fs::exists("/sys/firmware/efi")?Firmware::UEFI:Firmware::BIOS;
@@ -18,7 +23,8 @@ std::string Installer::firmware_name(Firmware f) {
 }
 std::vector<Step> Installer::build_plan(const InstallPlan&) const {
   return {
-    {"detect","Hardware detection","Firmware, architecture, CPU, PCI/USB/ACPI devices, storage, graphics, network and firmware capabilities"},
+    {"detect","Hardware / CPU detection","Detect architecture, CPU vendor, logical cores, firmware, PCI/USB/ACPI devices, storage, graphics and network capabilities"},
+    {"cpucompat","Koronos CPU compatibility","Select native or conservative compatibility mode from detected CPU capabilities while preserving all detected logical cores"},
     {"driverscan","Deep driver discovery","Enumerate device IDs and recursively search approved Linux/Unix/open-source repositories for matching modules and firmware"},
     {"driverpolicy","Driver trust policy","Allow only signed or cryptographically verified packages; keep proprietary/unknown binaries quarantined unless explicitly enabled"},
     {"driverdownload","Driver acquisition","Download compatible driver/firmware packages, verify hashes/signatures and quarantine untrusted artifacts"},
@@ -88,6 +94,8 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   fs::create_directories(p.target_root/"etc/chimera");
   std::ofstream f(p.target_root/"etc/chimera/install.conf");
   f<<"kernel="<<p.kernel<<"\nbootloader="<<p.bootloader<<"\nfilesystem="<<p.filesystem<<"\n";
+  Hardware hw=detect_hardware();
+  f<<"cpu_architecture="<<hw.architecture<<"\ncpu_vendor="<<hw.cpu_vendor<<"\ncpu_cores="<<hw.cpu_cores<<"\nkoronos_compatibility="<<(hw.koronos_compatibility?1:0)<<"\n";
   std::cout<<"Payload deployed. Platform-specific partition/boot operations are selected by the backend.\n";
   return 0;
 }
