@@ -169,7 +169,19 @@ build_docker_image() {
     log_info "This may take 30-45 minutes..."
     echo ""
     
+    # Always pull the Ubuntu base and bypass stale Docker build layers.  This is
+    # important after dependency changes: an older Dockerfile layer may otherwise
+    # re-run the obsolete monolithic apt-get command.
+    log_info "Using Dockerfile: $SCRIPT_DIR/Dockerfile.comprehensive"
+    if grep -q 'apt-get update && apt-get install -y --no-install-recommends' "$SCRIPT_DIR/Dockerfile.comprehensive"; then
+        log_error "Stale Dockerfile.comprehensive detected: it still contains the obsolete monolithic APT install."
+        log_error "Run: git fetch origin && git reset --hard origin/main"
+        exit 1
+    fi
+
     docker build \
+        --pull \
+        --no-cache \
         -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
         -t "$DOCKER_IMAGE:$DOCKER_TAG" \
         -t "$DOCKER_IMAGE:latest" \
