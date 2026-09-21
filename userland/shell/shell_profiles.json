@@ -1,0 +1,22 @@
+{
+  "schema":"CHM-SHELL-PROFILES-2",
+  "profiles":[
+    {"id":"sh","family":"POSIX","executable":"sh","syntax":"POSIX","startup":["/etc/profile",".profile"]},
+    {"id":"bash","family":"GNU","executable":"bash","syntax":"Bash","startup":["/etc/profile","~/.bash_profile","~/.bashrc"]},
+    {"id":"zsh","family":"Zsh","executable":"zsh","syntax":"Zsh","startup":["/etc/zshrc","~/.zshrc"]},
+    {"id":"dash","family":"POSIX","executable":"dash","syntax":"POSIX"},
+    {"id":"ksh","family":"Korn","executable":"ksh","syntax":"KornShell"},
+    {"id":"mksh","family":"MirBSD","executable":"mksh","syntax":"KornShell"},
+    {"id":"csh","family":"BSD","executable":"csh","syntax":"C shell"},
+    {"id":"tcsh","family":"BSD","executable":"tcsh","syntax":"C shell"},
+    {"id":"fish","family":"Friendly Interactive Shell","executable":"fish","syntax":"Fish"},
+    {"id":"nushell","family":"Modern structured","executable":"nu","syntax":"Nu"},
+    {"id":"elvish","family":"Modern structured","executable":"elvish","syntax":"Elvish"},
+    {"id":"xonsh","family":"Python hybrid","executable":"xonsh","syntax":"Python+shell"},
+    {"id":"yash","family":"POSIX","executable":"yash","syntax":"POSIX"},
+    {"id":"rc","family":"Plan 9","executable":"rc","syntax":"rc"},
+    {"id":"powershell","family":"Microsoft","executable":"pwsh","syntax":"PowerShell"},
+    {"id":"cmd","family":"Microsoft","executable":"cmd","syntax":"Batch/CMD"},
+    {"id":"chimera","family":"Chimera","executable":"chimera-shell","syntax":"Chimera unified"}
+  ]
+}
