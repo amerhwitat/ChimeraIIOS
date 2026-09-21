@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# Resolve the repository root from this script location; never depend on the caller's working directory.
+CHIMERA_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$CHIMERA_REPO_ROOT"
 set -eu
 
 RUNTIME_DIR="${CHIMERA_RUNTIME_DIR:-/run/chimera}"
