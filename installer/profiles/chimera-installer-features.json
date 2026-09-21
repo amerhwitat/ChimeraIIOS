@@ -1,0 +1,26 @@
+{
+  "schema":"CHIMERA-INSTALLER-FEATURES-1",
+  "workflow":"hub-and-spoke",
+  "reference_models":["Fedora Anaconda","RHEL Anaconda","Ubuntu Subiquity","Debian installer","openSUSE YaST"],
+  "steps":[
+    "welcome","language","keyboard","accessibility","timezone","date-time-ntp",
+    "network","proxy","installation-source","repository-mirror","updates",
+    "storage-discovery","storage-summary","automatic-partitioning","custom-partitioning",
+    "lvm","raid","luks-encryption","iscsi","multipath","filesystem-selection",
+    "swap","mount-points","bootloader-target","secure-boot","package-selection",
+    "desktop-selection","kernel-selection","driver-selection","user-account",
+    "root-account","ssh","firewall","security-policy","hostname","services",
+    "telemetry-choice","recovery-partition","backup","review","install",
+    "installation-log","verify","first-boot","reboot"
+  ],
+  "automation":["kickstart-like","autoinstall-like","unattended-json"],
+  "media":["live-iso","local-repository","http","https","nfs","network-share"],
+  "storage":["GPT","MBR","UEFI","BIOS","NVMe","SATA","USB","LVM","RAID","LUKS2","iSCSI","multipath"],
+  "filesystems":["qfs","xfs","zfs","ext4","btrfs","ntfs","fat32","vfat"],
+  "network":["DHCP","static IPv4","static IPv6","VLAN","bond","bridge","proxy"],
+  "security":["Secure Boot","TPM","LUKS2","firewall","SSH-key","password-policy"],
+  "desktop_profiles":["Aurora","GNOME","KDE Plasma","XFCE","LXQt","MATE","Cinnamon","headless/server"],
+  "bootloaders":["Spit Fire","Jasper","GRUB2","UEFI fallback","BIOS/MBR"],
+  "logs":["installer.log","hardware.json","storage.json","network.json","transaction.json","checksums.json"],
+  "safety":["destructive-confirmation","disk-selection-confirmation","preflight","post-install-verification","rollback-plan"]
+}
