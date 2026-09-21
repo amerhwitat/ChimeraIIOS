@@ -1,0 +1,14 @@
+{
+  "locale":"en_US.UTF-8",
+  "keyboard":"us",
+  "timezone":"UTC",
+  "network":{"mode":"dhcp"},
+  "storage":{"mode":"guided","disk":"/dev/nvme0n1","filesystem":"qfs","encrypt":true},
+  "bootloader":{"bios":"spitfire","uefi":"jasper-grub2","secure_boot":true},
+  "desktop":{"profile":"aurora","fallback":"headless"},
+  "packages":{"base":true,"development":true,"compatibility":true},
+  "security":{"firewall":true,"ssh_server":false},
+  "user":{"create":true,"username":"chimera","sudo":true},
+  "updates":{"security":true},
+  "verification":{"hashes":true,"boot_test":true}
+}
