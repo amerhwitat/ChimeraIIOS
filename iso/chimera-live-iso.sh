@@ -13,7 +13,7 @@ trap cleanup EXIT
 mkdir -p "$ISO_TMP"
 export TMPDIR="$ISO_TMP"
 export MTOOLS_SKIP_CHECK=1
-mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$(dirname "$OUT")"
+mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$STAGE/compat" "$STAGE/mobile" "$(dirname "$OUT")"
 copy_if_distinct() {
   local src="$1" dst="$2"
   if [[ -f "$src" && -f "$dst" ]] && [[ "$(readlink -f "$src")" == "$(readlink -f "$dst")" ]]; then
@@ -29,6 +29,8 @@ cp -a "$ROOT/installer" "$STAGE/install/installer-source"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 if [[ -d "$ROOT/build/desktop" ]]; then cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"; fi
+if [[ -d "$ROOT/build/foreign" ]]; then cp -a "$ROOT/build/foreign/." "$STAGE/compat/"; fi
+if [[ -d "$ROOT/build/mobile" ]]; then cp -a "$ROOT/build/mobile/." "$STAGE/mobile/"; fi
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 install_iso_dependencies() {
