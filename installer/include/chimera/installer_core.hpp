@@ -17,6 +17,10 @@ struct InstallPlan {
   std::string kernel{"koronos"};
   std::string filesystem{"qfs"};
   bool install_aurora{true}, install_kore{true}, install_compatibility{true};
+  bool deep_driver_search{true};
+  bool download_driver_binaries{true};
+  bool install_detected_drivers{true};
+  bool verify_driver_signatures{true};
   bool dry_run{true};
 };
 struct Step { std::string id, title, detail; };
