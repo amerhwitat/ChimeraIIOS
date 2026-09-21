@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 void chm_sf2_entry(chm_bootinfo_t *bootinfo);
-void sf2_entry_asm(void);
+struct koronos_boot_context *sf2_entry_asm(void);
 #ifdef __cplusplus
 }
 #endif
