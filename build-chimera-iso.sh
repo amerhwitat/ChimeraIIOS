@@ -173,9 +173,17 @@ build_docker_image() {
     # important after dependency changes: an older Dockerfile layer may otherwise
     # re-run the obsolete monolithic apt-get command.
     log_info "Using Dockerfile: $SCRIPT_DIR/Dockerfile.comprehensive"
-    if grep -q 'apt-get update && apt-get install -y --no-install-recommends' "$SCRIPT_DIR/Dockerfile.comprehensive"; then
-        log_error "Stale Dockerfile.comprehensive detected: it still contains the obsolete monolithic APT install."
-        log_error "Run: git fetch origin && git reset --hard origin/main"
+    # The runtime stage intentionally has a small apt-get install.  Only reject
+    # the obsolete monolithic builder-stage dependency list.
+    if awk '
+        /^FROM ubuntu:24\.04 AS builder/ { in_builder=1; next }
+        /^FROM ubuntu:24\.04 AS runtime/ { in_builder=0 }
+        in_builder && /apt-get update && apt-get install -y --no-install-recommends/ &&
+        /build-essential/ && /gcc-13/ && /python3\.12/ { found=1 }
+        END { exit(found ? 0 : 1) }
+    ' "$SCRIPT_DIR/Dockerfile.comprehensive"; then
+        log_error "Stale Dockerfile.comprehensive detected: obsolete monolithic builder APT install."
+        log_error "The runtime-stage APT install is valid and is not treated as stale."
         exit 1
     fi
 
