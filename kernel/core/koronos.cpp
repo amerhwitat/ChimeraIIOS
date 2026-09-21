@@ -1,7 +1,8 @@
 #include "../include/chimera/koronos_abi.h"
+extern "C" void koronos_outb(uint16_t port,uint8_t value);
 namespace {
 volatile uint32_t koronos_state=0;
-static void serial_write8(uint8_t v) { *reinterpret_cast<volatile uint8_t*>(0x3F8)=v; }
+static void serial_write8(uint8_t v) { koronos_outb(0x3F8,v); }
 static void serial_write(const char* s) { if(!s)return; while(*s)serial_write8((uint8_t)*s++); serial_write8('\r'); serial_write8('\n'); }
 }
 extern "C" void koronos_boot(const koronos_boot_context* ctx) {
