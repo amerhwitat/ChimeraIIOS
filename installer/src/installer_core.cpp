@@ -1,0 +1,55 @@
+#include "chimera/installer_core.hpp"
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <sys/utsname.h>
+namespace fs=std::filesystem;
+namespace chimera::installer {
+Hardware Installer::detect_hardware() const {
+  Hardware h; struct utsname u{};
+  if(uname(&u)==0) h.architecture=u.machine;
+  h.network=fs::exists("/sys/class/net"); h.nvme=fs::exists("/sys/class/nvme");
+  h.sata=fs::exists("/sys/class/ata"); h.graphics=fs::exists("/dev/dri");
+  h.firmware=fs::exists("/sys/firmware/efi")?Firmware::UEFI:Firmware::BIOS;
+  return h;
+}
+std::string Installer::firmware_name(Firmware f) {
+  if(f==Firmware::BIOS) return "BIOS"; if(f==Firmware::UEFI) return "UEFI"; return "Unknown";
+}
+std::vector<Step> Installer::build_plan(const InstallPlan&) const {
+  return {
+    {"detect","Hardware detection","Firmware, architecture, storage, graphics and network"},
+    {"source","Installation source","Validate Live CD payload and installer profile"},
+    {"partition","Storage layout","Prepare selected NVMe/SATA/HDD/USB target"},
+    {"format","Filesystem","Create and mount the selected filesystem backend"},
+    {"copy","System deployment","Copy Koronos, Spit Fire/Jasper, Kore, Aurora, userland and compatibility payloads"},
+    {"boot","Boot installation","Install Spit Fire and create BIOS/UEFI boot entries"},
+    {"configure","System configuration","Configure services, shells, desktops and compatibility profiles"},
+    {"verify","Verification","Check required binaries, manifests, hashes and boot configuration"},
+    {"finish","Finish","Flush, unmount and offer reboot"}
+  };
+}
+int Installer::run(const std::string& cmd,bool allow_failure) const {
+  std::cout<<"[installer] "<<cmd<<"\n"; int rc=std::system(cmd.c_str());
+  if(rc!=0&&!allow_failure) std::cerr<<"[installer] command failed: "<<rc<<"\n"; return rc;
+}
+int Installer::copy_tree(const fs::path& src,const fs::path& dst) const {
+  if(!fs::exists(src)) return 2; fs::create_directories(dst);
+  for(auto& e:fs::recursive_directory_iterator(src)){ auto out=dst/fs::relative(e.path(),src);
+    if(e.is_directory()) fs::create_directories(out);
+    else if(e.is_regular_file()){fs::create_directories(out.parent_path());fs::copy_file(e.path(),out,fs::copy_options::overwrite_existing);}
+  } return 0;
+}
+int Installer::execute(const InstallPlan& p,bool confirmed) {
+  std::cout<<"Chimera II Setup — Koronos installation transaction\n";
+  for(const auto&s:build_plan(p)) std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
+  if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
+  if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
+  if(copy_tree(p.source_root,p.target_root)!=0) return 4;
+  fs::create_directories(p.target_root/"etc/chimera");
+  std::ofstream f(p.target_root/"etc/chimera/install.conf");
+  f<<"kernel="<<p.kernel<<"\nbootloader="<<p.bootloader<<"\nfilesystem="<<p.filesystem<<"\n";
+  std::cout<<"Payload deployed. Platform-specific partition/boot operations are selected by the backend.\n";
+  return 0;
+}
+}
