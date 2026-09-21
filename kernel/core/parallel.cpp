@@ -1,0 +1,2 @@
+#include "chimera/parallel.h"
+uint32_t chimera_parallel_for(uint32_t begin,uint32_t end,uint32_t workers,void (*fn)(uint32_t,void*),void* arg){if(!fn||end<=begin)return 0;uint32_t count=end-begin;if(workers==0)workers=1;if(workers>count)workers=count;for(uint32_t w=0;w<workers;w++){uint32_t b=begin+(count*w)/workers,e=begin+(count*(w+1))/workers;for(uint32_t i=b;i<e;i++)fn(i,arg);}return count;}
