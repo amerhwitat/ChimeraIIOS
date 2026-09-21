@@ -37,6 +37,8 @@ if [[ -d "$ROOT/build/toolchains" ]]; then cp -a "$ROOT/build/toolchains/." "$ST
   cp -a "$ROOT/build/toolchains/." "$STAGE/toolchains/"; fi
 if [[ -d "$ROOT/services/learning" ]]; then cp -a "$ROOT/services/learning" "$STAGE/system/services/learning"
 if [[ -d "$ROOT/services/network" ]]; then cp -a "$ROOT/services/network" "$STAGE/system/services/network"; fi
+for x in route-manager.desktop.json networking_panel.json wallpaper-service.json wallpaper-service.py; do [[ -f "$ROOT/desktop/aurora/$x" ]] && cp "$ROOT/desktop/aurora/$x" "$STAGE/system/desktop/"; done
+[[ -d "$ROOT/network" ]] && cp -a "$ROOT/network" "$STAGE/system/network"
 if [[ -f "$ROOT/desktop/aurora/network-discovery.desktop.json" ]]; then cp "$ROOT/desktop/aurora/network-discovery.desktop.json" "$STAGE/system/desktop/"; fi; fi
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
