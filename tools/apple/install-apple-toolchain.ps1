@@ -1,3 +1,7 @@
+
+# Resolve the repository root from this script location; never depend on the caller's working directory.
+$CHIMERA_REPO_ROOT = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+Set-Location -LiteralPath $CHIMERA_REPO_ROOT
 $ErrorActionPreference = 'Stop'
 if (-not $IsMacOS) { throw 'Xcode/iOS SDK installation requires macOS. Use this script from PowerShell 7 on macOS or dispatch a macOS CI runner.' }
 if (-not (Get-Command xcodebuild -ErrorAction SilentlyContinue)) { throw 'Install Xcode from Apple before running this bootstrap.' }
