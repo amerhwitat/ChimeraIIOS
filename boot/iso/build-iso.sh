@@ -9,7 +9,9 @@ ISO_ROOT="$ROOT/boot/iso"
 DIST="$ISO_ROOT/dist"
 WORK="$ISO_ROOT/work"
 rm -rf "$DIST" "$WORK"
-mkdir -p "$DIST" "$WORK"
+mkdir -p "$DIST" "$WORK" "$WORK/tmp"
+export TMPDIR="$WORK/tmp"
+export MTOOLS_SKIP_CHECK=1
 CC=${CC:-gcc}; LD=${LD:-ld}
 printf '%s\n' '[1/7] Build Multiboot2 Koronos x86_64 kernel payload'
 "$ROOT/kernel/build-koronos.sh"
@@ -42,6 +44,9 @@ python3 "$ROOT/tools/isa/validate-isa.py"
 python3 "$ISO_ROOT/validate-iso.py" --tree "$ISO_ROOT/dist/iso" --write-manifest "$ISO_ROOT/dist/iso/checksums/SHA256SUMS"
 printf '%s\n' '[6/7] Master ISO 9660 / El Torito hybrid image'
 if command -v grub-mkrescue >/dev/null 2>&1; then
+  command -v mformat >/dev/null 2>&1 || { echo "mtools/mformat is required by grub-mkrescue for the EFI system partition." >&2; exit 2; }
+  command -v xorriso >/dev/null 2>&1 || { echo "xorriso is required by grub-mkrescue." >&2; exit 2; }
+  rm -f "$DIST/chimera2os-bootstrap.iso"
   grub-mkrescue -o "$DIST/chimera2os-bootstrap.iso" "$DIST/iso"
 elif command -v xorriso >/dev/null 2>&1; then
   echo 'xorriso found but grub-mkrescue is missing; install GRUB2 BIOS/UEFI modules for hybrid authoring.' >&2
