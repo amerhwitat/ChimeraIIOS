@@ -15,7 +15,7 @@ extern "C" void koronos_arch_init(const koronos_boot_context* ctx) {
  __builtin_memcpy(cpu.vendor+0,&b,4); __builtin_memcpy(cpu.vendor+4,&d,4); __builtin_memcpy(cpu.vendor+8,&c,4); cpu.vendor[12]=0;
  cpuid(0x80000000u,0,a,b,c,d); cpu.max_extended_leaf=a;
  if(cpu.max_basic_leaf>=1) { cpuid(1,0,a,b,c,d); cpu.family_model_stepping=a; cpu.logical_cpus=(b>>16)&0xffu; cpu.apic=(d>>9)&1u; cpu.sse2=(d>>26)&1u; cpu.vmx=(c>>5)&1u; cpu.hypervisor=(c>>31)&1u; cpu.x2apic=(c>>21)&1u; }
- if(cpu.max_extended_leaf>=0x80000001u) { cpuid(0x80000001u,0,a,b,c,d); cpu.long_mode=(d>>29)&1u; cpu.nx=(d>>20)&1u; }
+ if(cpu.max_extended_leaf>=0x80000001u) { cpuid(0x80000001u,0,a,b,c,d); cpu.long_mode=(d>>29)&1u; cpu.nx=(d>>20)&1u; cpu.svm=(c>>2)&1u; }
  if(cpu.max_extended_leaf>=0x80000007u) { cpuid(0x80000007u,0,a,b,c,d); cpu.invariant_tsc=(d>>8)&1u; }
 #else
  cpu.logical_cpus=1;
