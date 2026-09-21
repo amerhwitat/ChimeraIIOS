@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-TOOLCHAIN-MATRIX-1",
+  "compilers":["gcc","g++","clang","clang++","clang-cl","gfortran","gnat","rustc","go","swiftc","javac","kotlinc","dotnet","csc","mcs","fpc","zig","dmd","ldc2","ocamlc","ghc","nim","crystal"],
+  "assemblers":["gas","as","nasm","yasm","llvm-mc","llvm-ml","arm-none-eabi-as","aarch64-linux-gnu-as","riscv64-linux-gnu-as"],
+  "linkers":["ld","gold","lld","ld.lld","mold","link.exe-compatible"],
+  "disassemblers":["objdump","llvm-objdump","llvm-readobj","llvm-readelf","readelf","ndisasm","c++filt","addr2line"],
+  "binary_tools":["ar","ranlib","nm","strip","objcopy","elfedit","patchelf","chrpath"],
+  "jit_and_ir":["lli","LLVM ORC JIT","Clang-Repl","GCC JIT","QEMU TCG","WebAssembly runtimes","Java HotSpot JIT","JavaScript V8 JIT","JavaScript SpiderMonkey",".NET JIT","LuaJIT","PyPy JIT","GraalVM"],
+  "runtimes":["glibc","musl","libstdc++","libc++","libc++abi","libgcc","compiler-rt","libunwind","libatomic","OpenMP","OpenCL","Vulkan loader","LLVM runtimes","JVM","Node.js","Python","Ruby","Perl","PHP","Go","Rust standard library",".NET","Mono"],
+  "debuggers":["gdb","lldb","valgrind","rr","strace","ltrace"],
+  "languages":["C","C++","Objective-C","Objective-C++","Fortran","Ada","Rust","Go","Swift","Java","Kotlin","C#","F#","VB.NET","Python","Ruby","Perl","PHP","Lua","JavaScript","TypeScript","D","Zig","Nim","Haskell","OCaml","Pascal","COBOL"],
+  "cross_targets":["x86_64","i686","aarch64","armv7","riscv64","riscv32","powerpc64le","s390x","mips64","wasm32","wasm64"],
+  "policy":"Package open-source/redistributable toolchains into ISO when available; otherwise build/download during CI and record provenance and hashes."
+}
