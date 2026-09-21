@@ -1,0 +1,1 @@
+{"schema":"CHM-MOBILE-DEVICE-1","required":["codename","architecture","boot_partition","rom_partition","bootloader_mode"],"policy":{"exact_match_required":true,"generic_partition_names_forbidden":true,"unlock_required":true,"signed_images_required":true}}
