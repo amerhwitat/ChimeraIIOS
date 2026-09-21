@@ -13,6 +13,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Normalize release build line endings
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config core.autocrlf false
+          find boot tools scripts .github -type f \( -name '*.sh' -o -name 'Dockerfile*' -o -name '*.bash' \) -print0 2>/dev/null |
+            while IFS= read -r -d '' f; do
+              python3 - "$f" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+b = p.read_bytes()
+if b'\x00' not in b:
+    p.write_bytes(b.replace(b'\r\n', b'\n').replace(b'\r', b'\n'))
+PY
+            done
+          find boot tools scripts -type f -name '*.sh' -print0 2>/dev/null |
+            while IFS= read -r -d '' f; do chmod +x "$f"; done
       - name: Install release toolchain
         run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pytest qemu-system-x86
       - name: Validate registries
