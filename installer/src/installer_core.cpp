@@ -25,6 +25,7 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
     {"copy","System deployment","Copy Koronos, Spit Fire/Jasper, Kore, Aurora, userland and compatibility payloads"},
     {"boot","Boot installation","Install Spit Fire and create BIOS/UEFI boot entries"},
     {"configure","System configuration","Configure services, shells, desktops and compatibility profiles"},
+    {"sdk","Developer SDK","Install Chimera C/C++/C#/Objective-C/Java/Python SDK, source and manuals"},
     {"verify","Verification","Check required binaries, manifests, hashes and boot configuration"},
     {"finish","Finish","Flush, unmount and offer reboot"}
   };
@@ -46,6 +47,8 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
   if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
   if(copy_tree(p.source_root,p.target_root)!=0) return 4;
+  fs::path sdk = p.source_root/"sdk";
+  if(fs::exists(sdk)) { fs::remove_all(p.target_root/"opt/chimera-sdk"); if(copy_tree(sdk,p.target_root/"opt/chimera-sdk")!=0) return 5; }
   fs::create_directories(p.target_root/"etc/chimera");
   std::ofstream f(p.target_root/"etc/chimera/install.conf");
   f<<"kernel="<<p.kernel<<"\nbootloader="<<p.bootloader<<"\nfilesystem="<<p.filesystem<<"\n";
