@@ -1,12 +1,12 @@
 architecture,style,mnemonic,syntax,binary_encoding,hex_encoding,operands,optional_operands,notes
-x86-64/IA-32,CISC,MOV,"MOV r32,r/m32","8B /r","8B /r","r32,r/m32",,"Load GPR"
-x86-64/IA-32,CISC,ADD,"ADD r32,r/m32","03 /r","03 /r","r32,r/m32",,"Integer add"
-x86-64/IA-32,CISC,SUB,"SUB r32,r/m32","2B /r","2B /r","r32,r/m32",,"Integer subtract"
-x86-64/IA-32,CISC,AND,"AND r32,r/m32","23 /r","23 /r","r32,r/m32",,"Bitwise AND"
-x86-64/IA-32,CISC,OR,"OR r32,r/m32","0B /r","0B /r","r32,r/m32",,"Bitwise OR"
-x86-64/IA-32,CISC,XOR,"XOR r32,r/m32","33 /r","33 /r","r32,r/m32",,"Bitwise XOR"
-x86-64/IA-32,CISC,CMP,"CMP r32,r/m32","3B /r","3B /r","r32,r/m32",,"Compare"
-x86-64/IA-32,CISC,TEST,"TEST r/m32,r32","85 /r","85 /r","r/m32,r32",,"Bit test"
+x86-64/IA-32,CISC,MOV,"MOV r32,r/m32","8B /r","8B /r","r32,r/m32",none,"Load GPR"
+x86-64/IA-32,CISC,ADD,"ADD r32,r/m32","03 /r","03 /r","r32,r/m32",none,"Integer add"
+x86-64/IA-32,CISC,SUB,"SUB r32,r/m32","2B /r","2B /r","r32,r/m32",none,"Integer subtract"
+x86-64/IA-32,CISC,AND,"AND r32,r/m32","23 /r","23 /r","r32,r/m32",none,"Bitwise AND"
+x86-64/IA-32,CISC,OR,"OR r32,r/m32","0B /r","0B /r","r32,r/m32",none,"Bitwise OR"
+x86-64/IA-32,CISC,XOR,"XOR r32,r/m32","33 /r","33 /r","r32,r/m32",none,"Bitwise XOR"
+x86-64/IA-32,CISC,CMP,"CMP r32,r/m32","3B /r","3B /r","r32,r/m32",none,"Compare"
+x86-64/IA-32,CISC,TEST,"TEST r/m32,r32","85 /r","85 /r","r/m32,r32",none,"Bit test"
 x86-64/IA-32,CISC,JMP,"JMP rel32","E9 cd","E9 cd",rel32,rel8/rel16 forms exist,"Relative control transfer"
 x86-64/IA-32,CISC,CALL,"CALL rel32","E8 cd","E8 cd",rel32,far/indirect forms exist,Call
 x86-64/IA-32,CISC,RET,RET,C3,C3,none,imm16 form,Return
