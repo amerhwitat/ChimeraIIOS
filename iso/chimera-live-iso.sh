@@ -30,9 +30,46 @@ cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
-command -v grub-mkrescue >/dev/null 2>&1 || { echo "grub-mkrescue is required" >&2; exit 2; }
-command -v mformat >/dev/null 2>&1 || { echo "mtools/mformat is required by grub-mkrescue" >&2; exit 2; }
-command -v xorriso >/dev/null 2>&1 || { echo "xorriso is required by grub-mkrescue" >&2; exit 2; }
+install_iso_dependencies() {
+  local missing=()
+  command -v grub-mkrescue >/dev/null 2>&1 || missing+=(grub-mkrescue)
+  command -v mformat >/dev/null 2>&1 || missing+=(mtools)
+  command -v xorriso >/dev/null 2>&1 || missing+=(xorriso)
+
+  if ((${#missing[@]} == 0)); then
+    return 0
+  fi
+
+  if [[ "\${CHIMERA_AUTO_INSTALL_DEPS:-1}" != "1" ]]; then
+    echo "Missing ISO build dependencies: \${missing[*]}" >&2
+    echo "Install mtools (provides mformat), GRUB rescue tools, and xorriso, or set CHIMERA_AUTO_INSTALL_DEPS=1." >&2
+    exit 2
+  fi
+
+  if command -v apt-get >/dev/null 2>&1; then
+    local packages=(mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
+    if command -v sudo >/dev/null 2>&1; then
+      sudo apt-get update
+      sudo apt-get install -y "\${packages[@]}"
+    elif [[ "\$(id -u)" -eq 0 ]]; then
+      apt-get update
+      apt-get install -y "\${packages[@]}"
+    else
+      echo "Missing ISO build dependencies: \${missing[*]}" >&2
+      echo "Run: sudo apt-get update && sudo apt-get install -y mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin" >&2
+      exit 2
+    fi
+  else
+    echo "Missing ISO build dependencies: \${missing[*]}" >&2
+    echo "This host is not Debian/Ubuntu based; install mtools (mformat), xorriso, and GRUB rescue tools using the host package manager." >&2
+    exit 2
+  fi
+
+  command -v grub-mkrescue >/dev/null 2>&1 || { echo "grub-mkrescue is still unavailable after dependency installation" >&2; exit 2; }
+  command -v mformat >/dev/null 2>&1 || { echo "mtools/mformat is still unavailable after dependency installation" >&2; exit 2; }
+  command -v xorriso >/dev/null 2>&1 || { echo "xorriso is still unavailable after dependency installation" >&2; exit 2; }
+}
+install_iso_dependencies
 # Verify mformat can create a FAT image in the native temporary filesystem before
 # invoking GRUB. This turns a vague grub-mkrescue failure into a useful error.
 MFORMAT_TEST="$ISO_TMP/mformat-test.img"
