@@ -10,3 +10,4 @@ add_executable(chimera-installer-gui src/installer_gui.cpp)
 target_link_libraries(chimera-installer-gui PRIVATE chimera_installer_core)
 install(TARGETS chimera-installer-cli chimera-installer-gui RUNTIME DESTINATION bin)
 install(DIRECTORY profiles DESTINATION share/chimera/installer)
+# Toolchains are staged into the ISO/target root by the installer transaction.
