@@ -1,0 +1,9 @@
+{
+  "schema":"CHM-SDK-BUILD-1",
+  "version":"1.0.0",
+  "targets":["chimera-x86_64","chimera-aarch64","chimera-riscv64"],
+  "languages":["C","C++","C#","Objective-C","Java","Python"],
+  "artifacts":["native-library","sdk-config","python-package","csharp-project","objective-c-source","java-source","java-jar","examples","manuals"],
+  "iso_destination":"/opt/chimera-sdk",
+  "source_destination":"/opt/chimera-sdk/source"
+}
