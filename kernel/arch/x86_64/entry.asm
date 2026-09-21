@@ -21,6 +21,7 @@ mb2_header_end:
 
 section .text.boot
 extern koronos_boot
+extern koronos_idle_loop
 extern __kernel_end
 global _start
 
