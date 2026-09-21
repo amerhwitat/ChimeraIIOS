@@ -79,7 +79,7 @@ if ! truncate -s 1440K "$MFORMAT_TEST" || ! mformat -i "$MFORMAT_TEST" -f 1440 :
 fi
 rm -f "$MFORMAT_TEST"
 mkdir -p "$STAGE/boot/grub"
-printf "%s\n" 'set timeout=8' 'menuentry "Chimera II OS - Live" { multiboot2 /boot/koronos.elf chimera.mode=live; boot; }' 'menuentry "Chimera II OS - Install" { multiboot2 /boot/koronos.elf chimera.mode=install; boot; }' 'menuentry "Chimera II OS - Safe Graphics" { multiboot2 /boot/koronos.elf chimera.mode=safe-graphics; boot; }' 'menuentry "Chimera II OS - Diagnostics" { multiboot2 /boot/koronos.elf chimera.mode=diagnostics; boot; }' > "$STAGE/boot/grub/grub.cfg"
+cp "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 rm -f "$OUT"
 grub-mkrescue -o "$OUT" "$STAGE"
 sha256sum "$OUT" > "$OUT.sha256"
