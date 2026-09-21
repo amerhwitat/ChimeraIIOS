@@ -5,7 +5,16 @@ BUILD="$ROOT/build/chimera-live"
 STAGE="$BUILD/iso-root"
 OUT="${CHIMERA_OUTPUT_ISO:-$ROOT/build/iso/chimera-ii-os.iso}"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$(dirname "$OUT")"
-if [[ -n "${CHIMERA_KERNEL:-}" && -f "$CHIMERA_KERNEL" ]]; then cp "$CHIMERA_KERNEL" "$STAGE/boot/koronos.elf"; fi
+copy_if_distinct() {
+  local src="$1" dst="$2"
+  if [[ -f "$src" && -f "$dst" ]] && [[ "$(readlink -f "$src")" == "$(readlink -f "$dst")" ]]; then
+    return 0
+  fi
+  cp -f "$src" "$dst"
+}
+if [[ -n "${CHIMERA_KERNEL:-}" && -f "$CHIMERA_KERNEL" ]]; then
+  copy_if_distinct "$CHIMERA_KERNEL" "$STAGE/boot/koronos.elf"
+fi
 cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
 cp -a "$ROOT/installer" "$STAGE/install/installer-source"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
