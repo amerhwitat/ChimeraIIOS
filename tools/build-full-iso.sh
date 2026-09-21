@@ -11,6 +11,8 @@ cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
 chmod +x "$ROOT/tools/build-desktop-binaries.sh"
 chmod +x "$ROOT/tools/build-koronos-targets.sh"
+chmod +x "$ROOT/tools/build-toolchain-bundle.sh"
+"$ROOT/tools/build-toolchain-bundle.sh"
 chmod +x "$ROOT/tools/fetch-driver-payloads.sh"
 "$ROOT/tools/fetch-driver-payloads.sh"
 "$ROOT/tools/build-koronos-targets.sh"
@@ -51,13 +53,14 @@ for source_dir in kernel src include database cmake tools boot installer userlan
     cp -a "$ROOT/$source_dir" "$STAGE/source/"
   fi
 done
-mkdir -p "$STAGE/build-artifacts" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers"
+mkdir -p "$STAGE/build-artifacts" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains"
 cp -a "$ROOT/build/desktop" "$STAGE/build-artifacts/" 2>/dev/null || true
 cp -a "$ROOT/build/koronos/ports" "$STAGE/build-artifacts/" 2>/dev/null || true
 cp -a "$BUILD/cmake" "$STAGE/build-artifacts/cmake" 2>/dev/null || true
 cp -a "$FOREIGN" "$STAGE/compat/foreign-runtime" 2>/dev/null || true
 cp -a "$MOBILE" "$STAGE/mobile/" 2>/dev/null || true
 cp -a "$DRIVERS" "$STAGE/drivers/" 2>/dev/null || true
+cp -a "$ROOT/build/toolchains" "$STAGE/toolchains/" 2>/dev/null || true
 cp -a "$ROOT/services/learning" "$STAGE/system/services/learning" 2>/dev/null || true
 mkdir -p "$STAGE/install/sdk"
 cp -a "$ROOT/sdk/include" "$STAGE/install/sdk/"
