@@ -1,0 +1,1 @@
+{"schema":"CHM-LIVE-MEDIA-1","label":"CHIMERA_II_LIVE","entry":"koronos_live_main","modes":["Live","Install","Safe Graphics","Diagnostics","Recovery","Network"],"payloads":["koronos","spitfire","jasper","kore","aurora","installer","userland","compatibility"],"grub_fallback":"multiboot2 /boot/koronos.elf","firmware":["BIOS","UEFI"]}
