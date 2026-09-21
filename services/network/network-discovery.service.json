@@ -1,0 +1,1 @@
+{"name":"chimera-network-discovery","description":"Periodic authorized private-network discovery","exec":"python3 /usr/lib/chimera/network/network-discoveryd.py","start_after":["spotnik","network-online"],"parallel":true,"restart":"on-failure","sandbox":true,"network":"restricted","writable":["/var/lib/chimera/network","/var/log/chimera/network"]}
