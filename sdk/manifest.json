@@ -1,0 +1,8 @@
+{
+ "schema":"CHM-SDK-1",
+ "version":"1.0.0",
+ "languages":["C","C++","C#","Objective-C","Java","Python"],
+ "components":["headers","runtime","CMake","Python","C#","Objective-C","Java","examples","manuals"],
+ "external_toolchains":{"gcc":"GCC","clang":"LLVM/Clang","csharp":".NET SDK/Roslyn","objective-c":"Clang","java":"OpenJDK","python":"CPython"},
+ "iso_path":"/opt/chimera-sdk"
+}
