@@ -1,0 +1,26 @@
+#include "chimera_shell.hpp"
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <cctype>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <filesystem>
+namespace chimera::shell {
+static void out(char* b,std::size_t n,const std::string& s){if(n){std::size_t k=s.size()<n-1?s.size():n-1;std::memcpy(b,s.data(),k);b[k]=0;}}
+static int cmd_echo(const CommandContext&,int argc,const char* const* argv,char* outbuf,std::size_t n){std::string s;for(int i=1;i<argc;i++){if(i>1)s+=' ';s+=argv[i];}s+='\n';out(outbuf,n,s);return 0;}
+static int cmd_pwd(const CommandContext& c,int,char*const*,char* o,std::size_t n){out(o,n,std::string(c.cwd?c.cwd:".")+"\n");return 0;}
+static int cmd_true(const CommandContext&,int,const char*const*,char*,std::size_t){return 0;}
+static int cmd_false(const CommandContext&,int,const char*const*,char*,std::size_t){return 1;}
+static int cmd_uname(const CommandContext&,int argc,const char*const* argv,char*o,std::size_t n){bool a=argc>1&&std::strcmp(argv[1],"-a")==0;out(o,n,a?"ChimeraIIOS Koronos POSIX-compatible x86_64\n":"ChimeraIIOS\n");return 0;}
+static int cmd_help(const CommandContext&,int,char*const*,char*o,std::size_t n){out(o,n,"Core: cd pwd echo printf env export set unset alias unalias command type which\nFilesystem: ls cp mv rm mkdir rmdir touch ln find stat file chmod chown du df\nText: cat head tail less more grep sed awk cut sort uniq tr wc diff tee xargs\nProcess: ps top kill pkill pgrep jobs fg bg wait nice renice\nNetwork: ip ss ping traceroute dig host curl wget ssh scp sftp nc\nSystem: uname hostname date uptime free dmesg mount umount id who whoami\n");return 0;}
+static int cmd_cd(const CommandContext& c,int argc,const char*const* argv,char*o,std::size_t n){(void)c;(void)argc;(void)argv;out(o,n,"cd is a shell-state builtin; use the shell session dispatcher.\n");return 0;}
+static const CommandSpec specs[]={
+ {"echo",Dialect::Chimera,(CommandHandler)cmd_echo,0},{"pwd",Dialect::Chimera,(CommandHandler)cmd_pwd,0},{"true",Dialect::Chimera,(CommandHandler)cmd_true,0},{"false",Dialect::Chimera,(CommandHandler)cmd_false,0},{"uname",Dialect::Chimera,(CommandHandler)cmd_uname,0},{"help",Dialect::Chimera,(CommandHandler)cmd_help,0},{"cd",Dialect::Chimera,(CommandHandler)cmd_cd,0}
+};
+const char* dialect_name(Dialect d){switch(d){case Dialect::POSIX:return "sh";case Dialect::Bash:return "bash";case Dialect::Zsh:return "zsh";case Dialect::Dash:return "dash";case Dialect::Ksh:return "ksh";case Dialect::Csh:return "csh";case Dialect::Tcsh:return "tcsh";case Dialect::Fish:return "fish";case Dialect::PowerShell:return "powershell";case Dialect::Cmd:return "cmd";case Dialect::Nushell:return "nushell";case Dialect::Elvish:return "elvish";case Dialect::Xonsh:return "xonsh";case Dialect::Yash:return "yash";default:return "chimera";}}
+int run_command(const CommandContext& c,const char* name,int argc,const char*const*argv,char*o,std::size_t n){for(const auto&s:specs)if(std::strcmp(s.name,name)==0)return s.handler(c,argc,argv,o,n);out(o,n,std::string("chimera-shell: command not found: ")+name+"\n");return 127;}
+static std::vector<std::string> split(const char* line){std::vector<std::string> v;std::string x;bool q=false;char qc=0;for(const char*p=line;*p;p++){if((*p=='\''||*p=='\"')&&(!q||*p==qc)){if(q){q=false;qc=0;}else{q=true;qc=*p;}continue;}if(!q&&std::isspace((unsigned char)*p)){if(!x.empty()){v.push_back(x);x.clear();}}else x+=*p;}if(!x.empty())v.push_back(x);return v;}
+int execute_line(const CommandContext& c,Dialect,const char* line,char*o,std::size_t n){auto a=split(line);if(a.empty()){if(n)*o=0;return 0;}std::vector<const char*> p;for(auto&s:a)p.push_back(s.c_str());return run_command(c,p[0],(int)p.size(),p.data(),o,n);}
+}
