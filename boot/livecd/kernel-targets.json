@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-BOOT-KERNEL-TARGETS-1",
+  "native":{"name":"Koronos","mode":"native","handoff":"chimera_live_entry"},
+  "compatibility":{"linux":{"mode":"user-space-adapter","kernel_linked":false},"bsd":{"mode":"user-space-adapter","kernel_linked":false},"darwin":{"mode":"user-space-adapter","kernel_linked":false},"windows":{"mode":"user-space-compatibility","kernel_linked":false}},
+  "separate_boot_targets":{
+    "linux":"chainload or dedicated Linux image when supplied",
+    "freebsd":"chainload or dedicated FreeBSD image when supplied",
+    "netbsd":"chainload or dedicated NetBSD image when supplied",
+    "openbsd":"chainload or dedicated OpenBSD image when supplied"
+  },
+  "rule":"Foreign kernels are optional separate boot payloads; they are never linked into Koronos."
+}
