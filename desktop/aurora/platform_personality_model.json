@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-AURORA-PERSONALITIES-2",
+  "base":"Aurora Wayland Glass",
+  "personalities":{
+    "chimera":{"shell":"chimera","terminal":"aurora-terminal","window_model":"aurora","file_manager":"aurora-files"},
+    "linux":{"shells":["sh","bash","zsh","fish","ksh"],"desktop_profiles":["gnome","kde-plasma","xfce","cinnamon","mate","lxqt"],"terminal_aliases":["gnome-terminal","konsole","xfce4-terminal","xterm"]},
+    "unix":{"shells":["sh","ksh","csh","tcsh","zsh"],"desktop_profiles":["classic-x11"],"terminal_aliases":["xterm","rxvt","st"]},
+    "windows":{"shells":["cmd","powershell"],"desktop_profiles":["windows-classic","windows-7","windows-10","windows-11","winui-modern"],"terminal_aliases":["conhost","windows-terminal","powershell"]},
+    "macos":{"shells":["zsh","bash","sh"],"desktop_profiles":["mac-classic","mac-cocoa","mac-modern","swiftui"],"terminal_aliases":["Terminal.app","iTerm2"]},
+    "bsd":{"shells":["sh","csh","tcsh","ksh","zsh"],"desktop_profiles":["classic-x11","kde-plasma","xfce"],"terminal_aliases":["xterm","konsole"]}
+  },
+  "design_rule":"Personality changes user-space APIs, shell syntax, command aliases, desktop interaction and theming; it does not merge foreign kernels into Koronos."
+}
