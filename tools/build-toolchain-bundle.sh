@@ -25,8 +25,14 @@ if command -v apt-get >/dev/null 2>&1; then
   apt_download lua5.4 || echo "WARN package: lua5.4 unavailable"
   if ! apt_download qemu-user-static; then apt_download qemu-user || echo "WARN package: qemu-user-static/qemu-user unavailable"; fi
   if ! apt_download dotnet-sdk-8.0; then
-    echo "INFO package: dotnet-sdk-8.0 unavailable from configured apt sources"
-    echo "INFO package: add Microsoft's signed apt feed to stage the .NET 8 SDK package"
+    echo "INFO package: dotnet-sdk-8.0 unavailable from configured apt sources; using official .NET 8 bootstrap"
+    if command -v curl >/dev/null 2>&1; then
+      curl -fsSL --retry 3 https://dot.net/v1/dotnet-install.sh -o "$OUT/sources/dotnet-install.sh" || true
+      if [[ -s "$OUT/sources/dotnet-install.sh" ]]; then
+        chmod +x "$OUT/sources/dotnet-install.sh"
+        "$OUT/sources/dotnet-install.sh" --channel 8.0 --install-dir "$OUT/dotnet" --no-path || true
+      fi
+    fi
   fi
   for p in "${PKGS[@]}"; do apt_download "$p" || true; done
 fi
