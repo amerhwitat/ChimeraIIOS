@@ -13,7 +13,7 @@ trap cleanup EXIT
 mkdir -p "$ISO_TMP"
 export TMPDIR="$ISO_TMP"
 export MTOOLS_SKIP_CHECK=1
-mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$(dirname "$OUT")"
+mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$(dirname "$OUT")"
 copy_if_distinct() {
   local src="$1" dst="$2"
   if [[ -f "$src" && -f "$dst" ]] && [[ "$(readlink -f "$src")" == "$(readlink -f "$dst")" ]]; then
@@ -28,6 +28,7 @@ cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
 cp -a "$ROOT/installer" "$STAGE/install/installer-source"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
+if [[ -d "$ROOT/build/desktop" ]]; then cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"; fi
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 install_iso_dependencies() {
