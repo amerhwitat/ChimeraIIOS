@@ -1,0 +1,11 @@
+{
+  "name":"chimera-learningd",
+  "description":"Bounded online learning and system-action observation service",
+  "exec":"python3 /usr/lib/chimera/learning/learningd.py",
+  "start_after":["koronos","kore","spotnik","nucleus"],
+  "parallel":true,
+  "restart":"on-failure",
+  "sandbox":true,
+  "network":"none",
+  "writable":["/var/log/chimera/learning","/var/lib/chimera/learning"]
+}
