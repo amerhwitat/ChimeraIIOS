@@ -1,0 +1,17 @@
+{
+  "id":"aurora-networking-panel",
+  "title":"Network Discovery & Browsing",
+  "icon":"network-workgroup",
+  "category":"networking",
+  "desktop_icon":{"visible":true,"label":"Network Discovery","icon":"network-workgroup","launch":"chimera-network-discovery"},
+  "applications":[
+    {"id":"network-discovery","label":"Network Discovery","icon":"network-workgroup","launch":"chimera-network-discovery"},
+    {"id":"nmap","label":"Nmap Network Mapper","launch":"nmap"},
+    {"id":"smb","label":"SMB / Windows Network Browser","launch":"smbclient"},
+    {"id":"nfs","label":"NFS / RPC Browser","launch":"showmount"},
+    {"id":"dns","label":"DNS / mDNS Browser","launch":"dig"},
+    {"id":"routes","label":"Routing Table","launch":"route"}
+  ],
+  "protocols":["SMB/CIFS","NFS/RPC","DNS/mDNS","HTTP/HTTPS","FTP","SSH/SFTP","LDAP","SNMP"],
+  "scope":"authorized local/intranet networks"
+}
