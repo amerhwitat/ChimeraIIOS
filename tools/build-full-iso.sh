@@ -5,7 +5,7 @@ BUILD="$ROOT/build/full"
 ISO_DIR="$ROOT/build/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
-cmake --build "$BUILD/cmake" --parallel "${CHIMERA_JOBS:-2}"
+cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
 KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
 SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
 if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
