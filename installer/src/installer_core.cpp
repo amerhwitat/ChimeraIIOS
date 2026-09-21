@@ -73,6 +73,11 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
     log<<"verify_driver_signatures="<<p.verify_driver_signatures<<"\\n";
     log<<"Driver binaries are installed only after device-ID matching and verification.\\n";
   }
+  fs::path network_tools = p.source_root/"build/network-tools";
+  if(!fs::exists(network_tools)) network_tools = p.source_root/"network-tools";
+  if(fs::exists(network_tools)) { fs::remove_all(p.target_root/"opt/chimera/network-tools"); if(copy_tree(network_tools,p.target_root/"opt/chimera/network-tools")!=0) return 7; }
+  fs::create_directories(p.target_root/"etc/chimera");
+  if(fs::exists(p.source_root/"services/network")) copy_tree(p.source_root/"services/network",p.target_root/"usr/lib/chimera/network");
   fs::path toolchains = p.source_root/"build/toolchains";
   if(!fs::exists(toolchains)) toolchains = p.source_root/"toolchains";
   if(fs::exists(toolchains)) { fs::remove_all(p.target_root/"opt/chimera/toolchains"); if(copy_tree(toolchains,p.target_root/"opt/chimera/toolchains")!=0) return 6; }
