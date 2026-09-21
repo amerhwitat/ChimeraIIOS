@@ -42,6 +42,8 @@ cp -a "$ROOT/sdk/toolchains" "$STAGE/install/sdk/"
 cp -a "$ROOT/sdk/bin" "$STAGE/install/sdk/"
 cp "$ROOT/sdk/runtime-profiles.json" "$STAGE/install/sdk/"
 cp "$ROOT/sdk/manifest.json" "$STAGE/install/sdk/"
+cp "$ROOT/sdk/SDK_BUILD_MANIFEST.json" "$STAGE/install/sdk/"
+cp "$ROOT/sdk/manuals/TOOLCHAIN_SETUP.md" "$STAGE/install/sdk/manuals/"
 if [[ -f "$ROOT/sdk/java/chimera-sdk.jar" ]]; then cp "$ROOT/sdk/java/chimera-sdk.jar" "$STAGE/install/sdk/"; fi
 if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]]; then mkdir -p "$STAGE/install/assets/aurora"; cp "$CHIMERA_AURORA_BACKGROUND" "$STAGE/install/assets/aurora/Aurora-Wayland-Glass-Desktop.png"; fi
 FINAL="$ISO_DIR/chimera-ii-os.iso"
