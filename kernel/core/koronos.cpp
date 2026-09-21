@@ -1,5 +1,7 @@
 #include "../include/chimera/koronos_abi.h"
 #include "chimera/scheduler.h"
+#include "chimera/driver.h"
+#include "chimera/learning.h"
 extern "C" void koronos_outb(uint16_t port,uint8_t value);
 namespace {
 volatile uint32_t koronos_state=0;
@@ -15,6 +17,9 @@ static void serial_hex32(uint32_t v) {
  for(int i=7;i>=0;--i){s[i]=h[v&15u];v>>=4;} s[8]=0; serial_write(s);
 }
 }
+extern "C" void chimera_register_virtio_drivers(void);
+extern "C" void chimera_register_display_drivers(void);
+
 extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  serial_init();
  if(!ctx || ctx->magic!=KORONOS_BOOTINFO_MAGIC || ctx->version!=KORONOS_ABI_VERSION) {
