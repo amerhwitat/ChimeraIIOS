@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>Chimera.Sdk</AssemblyName><RootNamespace>Chimera.Sdk</RootNamespace><Nullable>enable</Nullable></PropertyGroup>
+</Project>
