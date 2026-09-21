@@ -40,8 +40,13 @@ _start:
     mov ecx, 4096 / 4
     rep stosd
 
-    mov dword [pml4_table], pdpt_table | 0x003
-    mov dword [pdpt_table], pd_table | 0x003
+    ; Materialize relocatable table addresses before applying page flags.
+    mov eax, pdpt_table
+    or eax, 0x003
+    mov [pml4_table], eax
+    mov eax, pd_table
+    or eax, 0x003
+    mov [pdpt_table], eax
     mov dword [pd_table], 0x00000083
     mov dword [pd_table + 8], 0x00200083
     mov dword [pd_table + 16], 0x00400083
@@ -145,7 +150,7 @@ long_mode_entry:
     mov qword [boot_context + 8], 0
     mov qword [boot_context + 8], r12
     mov qword [boot_context + 16], 0x100000
-    mov rax, __kernel_end
+    lea rax, [rel __kernel_end]
     mov [boot_context + 24], rax
     mov qword [boot_context + 32], 0
     mov qword [boot_context + 40], 0
