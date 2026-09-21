@@ -11,7 +11,7 @@ build_port_objects() {
     printf 'SKIP %-10s compiler %s not installed\n' "$name" "$cc"
     return 0
   fi
-  "$cc" -ffreestanding -fno-builtin -fno-stack-protector -nostdinc     -I"$ROOT/kernel/include" "$@" -c "$ROOT/kernel/core/arch_init.cpp"     -o "$OUT/$name-arch-init.o"
+  "$cc" -ffreestanding -fno-builtin -fno-stack-protector -nostdinc++ -I"$ROOT/kernel/include" "$@" -c "$ROOT/kernel/core/arch_init.cpp"     -o "$OUT/$name-arch-init.o"
   printf 'BUILT %-10s %s\n' "$name" "$OUT/$name-arch-init.o"
 }
 
