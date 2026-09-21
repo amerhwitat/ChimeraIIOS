@@ -8,6 +8,19 @@ def load():
     if not CFG.exists(): return {"enabled":False,"networks":[]}
     try:return json.loads(CFG.read_text())
     except Exception:return {"enabled":False,"networks":[]}
+def local_networks():
+    try:
+        p=subprocess.run(["ip","-4","route","show","scope","link"],capture_output=True,text=True,timeout=10)
+        nets=[]
+        for line in p.stdout.splitlines():
+            first=line.split()[0] if line.split() else ""
+            try:
+                n=ipaddress.ip_network(first,strict=False)
+                if n.is_private and n.prefixlen>=16 and n.prefixlen<=30: nets.append(str(n))
+            except Exception: pass
+        return sorted(set(nets))
+    except Exception:return []
+
 def scan(net):
     try:
         n=ipaddress.ip_network(net,strict=False)
