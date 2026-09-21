@@ -128,18 +128,19 @@ gdt_ptr:
 gdt64_end:
 
 section .bss
-align 4096
+alignb 4096
 page_table_base:
 pml4_table: resb 4096
 pdpt_table: resb 4096
 pd_table: resb 4096
-align 16
+alignb 16
 boot_context: resb 88
 multiboot_magic: resd 1
 multiboot_info: resq 1
-align 16
+alignb 16
 stack32_bottom: resb 8192
 stack32_top:
+alignb 16
 stack64_bottom: resb 16384
 stack64_top:
 __boot_bss_end:
