@@ -1,0 +1,46 @@
+name: Koronos VMware/QEMU Boot Matrix
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "kernel/**"
+      - "boot/iso/**"
+      - "desktop/**"
+      - "tools/build-koronos-targets.sh"
+      - "tools/build-desktop-binaries.sh"
+      - "tools/build-full-iso.sh"
+      - ".github/workflows/koronos-boot-matrix.yml"
+
+jobs:
+  x86_64-boot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Build Koronos
+        run: |
+          chmod +x kernel/build-koronos.sh tools/build-desktop-binaries.sh tools/build-koronos-targets.sh
+          ./kernel/build-koronos.sh
+          grub-file --is-x86-multiboot2 build/koronos/x86_64/koronos.elf
+          file build/koronos/x86_64/koronos.elf
+      - name: Build desktop artifacts
+        run: ./tools/build-desktop-binaries.sh
+      - name: QEMU serial boot smoke test
+        run: |
+          timeout 15s qemu-system-x86_64             -machine pc             -cpu max             -m 1024             -kernel build/koronos/x86_64/koronos.elf             -serial stdio -display none 2>&1 | tee qemu-koronos.log || true
+          grep -q "KORONOS_READY" qemu-koronos.log
+          grep -q "CPU online; entering scheduler idle loop" qemu-koronos.log
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-boot-diagnostics
+          path: |
+            qemu-koronos.log
+            build/koronos/x86_64/koronos.elf
+            build/desktop/
