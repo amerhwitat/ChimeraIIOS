@@ -6,6 +6,6 @@
   "parallel":true,
   "restart":"on-failure",
   "sandbox":true,
-  "network":"none",
-  "writable":["/var/log/chimera/learning","/var/lib/chimera/learning"]
+  "network":"restricted",
+  "writable":["/var/log/chimera/learning","/var/lib/chimera/learning","/var/lib/chimera/network"]
 }
