@@ -32,7 +32,7 @@ void koronos_boot(const struct koronos_boot_context *ctx);
 void koronos_arch_init(const struct koronos_boot_context *ctx);
 void koronos_elf64_init(void);
 void koronos_module_init(void);
-const struct koronos_cpu_features* koronos_cpu_features(void);
+const struct koronos_cpu_features* koronos_get_cpu_features(void);
 void koronos_idle_loop(void);
 #ifdef __cplusplus
 }
