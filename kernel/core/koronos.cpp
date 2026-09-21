@@ -27,7 +27,7 @@ extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  }
  serial_write("KORONOS: Multiboot2 handoff accepted");
  koronos_arch_init(ctx);
- const koronos_cpu_features* f=koronos_cpu_features();
+ const struct koronos_cpu_features* f=koronos_cpu_features();
  serial_write("KORONOS: CPU vendor"); serial_write(f->vendor);
  serial_write("KORONOS: logical CPUs"); serial_hex32(f->logical_cpus);
  serial_write("KORONOS: VMX/SVM capability"); serial_hex32((uint32_t(f->vmx)<<1u)|uint32_t(f->svm));
