@@ -1,0 +1,4 @@
+# Chimera II OS Aurora GRUB theme asset contract
+# Theme implementation is intentionally generated from grub.cfg for maximum portability.
+# Background: /boot/grub/aurora-wayland-glass.png
+# Palette: Aurora glass / high-contrast fallback.
