@@ -106,7 +106,8 @@ long_mode_entry:
     mov dword [rel boot_context + 52], KORONOS_X86_LONG64
     mov qword [rel boot_context + 56], 0x3F8
     xor eax, eax
-    mov [rel boot_context + 64], rax
+    mov dword [rel boot_context + 64], 0
+    mov dword [rel boot_context + 68], 0
     mov [rel boot_context + 72], rax
     mov [rel boot_context + 80], rax
     lea rdi, [rel boot_context]
