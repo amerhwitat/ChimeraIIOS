@@ -1,0 +1,1 @@
+{"id":"network-discovery","name":"Network Discovery","icon":"network-workgroup","category":"Network","executable":"chimera-network-discovery","panel":"Aurora Applications","capabilities":["local network discovery","SMB browser","NFS browser","DNS/mDNS browser","service inventory"],"default_scope":"configured private networks"}
