@@ -25,8 +25,27 @@ protected_mode:
     mov es, ax
     mov ss, ax
     mov esp, 0x9FC00
+    ; Identity-map the first 1 GiB using 2 MiB pages.
+    mov edi, 0x9000
+    xor eax, eax
+    mov ecx, 0x3000/4
+    rep stosd
+    mov dword [0x9000], 0xA003
+    mov dword [0xA000], 0xB003
+    mov edi, 0xB000
+    xor ebx, ebx
+.pd_fill:
+    mov eax, ebx
+    shl eax, 21
+    or eax, 0x83
+    mov [edi], eax
+    mov dword [edi+4], 0
+    add edi, 8
+    inc ebx
+    cmp ebx, 512
+    jb .pd_fill
     mov eax, cr4
-    or eax, (1 << 5) | (1 << 7)
+    or eax, (1 << 5)
     mov cr4, eax
     mov eax, 0x9000
     mov cr3, eax
@@ -42,8 +61,8 @@ protected_mode:
 align 8
 gdt:
     dq 0
-    dq 0x00AF9A000000FFFF
-    dq 0x00AF92000000FFFF
+    dq 0x00CF9A000000FFFF
+    dq 0x00CF92000000FFFF
     dq 0x00AF9A000000FFFF
 gdt_descriptor:
     dw gdt_descriptor-gdt-1
@@ -57,6 +76,7 @@ long_mode_entry:
     mov ss, ax
     extern sf2_entry_asm
     call sf2_entry_asm
-.hang:
+    mov rbx, rax
+.handoff:
     hlt
-    jmp .hang
+    jmp .handoff
