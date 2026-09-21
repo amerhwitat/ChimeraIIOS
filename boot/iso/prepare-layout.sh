@@ -45,9 +45,16 @@ if [[ -d "$ROOT/build/desktop" ]]; then
   mkdir -p "$DIST/bin/desktop"
   cp -a "$ROOT/build/desktop/." "$DIST/bin/desktop/"
 fi
-for d in include src kernel boot desktop network installer tools tests ai data cmake; do
+for d in include src kernel desktop network installer tools tests ai data cmake; do
   if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
 done
+# The ISO staging tree lives under ROOT/boot/iso/dist, so a recursive cp of
+# ROOT/boot would copy the output tree into itself. Archive the boot source
+# while excluding generated ISO output/portfolio directories instead.
+if [[ -d "$ROOT/boot" ]]; then
+  mkdir -p "$DIST/src/boot"
+  tar -C "$ROOT"     --exclude='boot/iso/dist'     --exclude='boot/iso/portfolio-build'     -cf - boot | tar -C "$DIST/src" -xf -
+fi
 if [[ -f "$ROOT/ISA.csv" ]]; then
   cp "$ROOT/ISA.csv" "$DIST/src/ISA.csv"
 fi
