@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - "kernel/**"
+      - "src/**"
+      - "include/**"
+      - "database/**"
+      - "cmake/**"
       - "boot/**"
       - "installer/**"
       - "desktop/**"
