@@ -29,18 +29,18 @@ RUN set -eux; \
     installable=""; \
     echo "[Chimera] Checking required APT candidates..."; \
     for pkg in $required; do \
-      candidate="$$(apt-cache policy "$$pkg" 2>/dev/null | awk '/Candidate:/ {print $$2; exit}')"; \
-      if [ -n "$$candidate" ] && [ "$$candidate" != "(none)" ]; then installable="$$installable $$pkg"; \
-      else echo "[Chimera][ERROR] Required package has no APT candidate: $$pkg" >&2; exit 1; fi; \
+      candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"; \
+      if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then installable="$installable $pkg"; \
+      else echo "[Chimera][ERROR] Required package has no APT candidate: $pkg" >&2; exit 1; fi; \
     done; \
     echo "[Chimera] Checking optional APT candidates..."; \
     for pkg in $optional; do \
-      candidate="$$(apt-cache policy "$$pkg" 2>/dev/null | awk '/Candidate:/ {print $$2; exit}')"; \
-      if [ -n "$$candidate" ] && [ "$$candidate" != "(none)" ]; then installable="$$installable $$pkg"; \
-      else echo "[Chimera] optional/unavailable package skipped: $$pkg"; fi; \
+      candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"; \
+      if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then installable="$installable $pkg"; \
+      else echo "[Chimera] optional/unavailable package skipped: $pkg"; fi; \
     done; \
     echo "[Chimera] Installing resolved package set"; \
-    apt-get install -y --no-install-recommends $$installable; \
+    apt-get install -y --no-install-recommends $installable; \
     rm -rf /var/lib/apt/lists/*
 
 # Optional repository-specific packages are never allowed to turn the image
@@ -49,11 +49,11 @@ RUN set -eux; \
     apt-get update -o Acquire::Retries=5; \
     optional=""; \
     for pkg in yarnpkg dotnet-sdk-8.0 git-flow; do \
-      candidate="$$(apt-cache policy "$$pkg" 2>/dev/null | awk '/Candidate:/ {print $$2; exit}')"; \
-      if [ -n "$$candidate" ] && [ "$$candidate" != "(none)" ]; then optional="$$optional $$pkg"; \
-      else echo "[Chimera] optional/unavailable package skipped: $$pkg"; fi; \
+      candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"; \
+      if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then optional="$optional $pkg"; \
+      else echo "[Chimera] optional/unavailable package skipped: $pkg"; fi; \
     done; \
-    if [ -n "$$optional" ]; then apt-get install -y --no-install-recommends $$optional; fi; \
+    if [ -n "$optional" ]; then apt-get install -y --no-install-recommends $optional; fi; \
     rm -rf /var/lib/apt/lists/*
 
 # Normalize the Yarn command name when Ubuntu supplies yarnpkg.
