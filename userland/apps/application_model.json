@@ -1,0 +1,19 @@
+{
+  "schema":"CHM-APPLICATION-MODEL-2",
+  "desktop":"Aurora",
+  "application_classes":["native","POSIX","Win32","Win64","UWP/AppX","Cocoa/AppKit","SwiftUI","Java/JVM",".NET","Web/WASM","Flatpak","Snap","AppImage","container","remote"],
+  "binary_formats":["ELF32","ELF64","PE32","PE32+","COFF","Mach-O32","Mach-O64","WASM","JAR","DEX"],
+  "launch_pipeline":["manifest","capability-check","binary-format-detect","ABI/profile-select","sandbox","environment","process-create","desktop-surface"],
+  "categories":{
+    "system":["terminal","file-manager","settings","task-manager","process-monitor","disk-manager","network-manager","archive-manager"],
+    "productivity":["text-editor","office-suite","pdf-viewer","calculator","calendar","mail","contacts","notes"],
+    "internet":["web-browser","download-manager","ssh-client","ftp-client","remote-desktop"],
+    "media":["image-viewer","image-editor","audio-player","video-player","media-center"],
+    "development":["ide","compiler","debugger","hex-editor","git-client","database-client","terminal"],
+    "science":["python","jupyter","matlab-compatible","r","octave","gnuplot","3d-viewer","128d-visualizer"],
+    "compatibility":["wine","win32-runtime","dotnet-runtime","java-runtime","wasm-runtime","linux-container","bsd-userland"],
+    "games":["retro-emulator","native-games","wine-games","dos-runtime"]
+  },
+  "desktop_integration":["desktop-file","icons","mime-types","file-associations","notifications","clipboard","drag-drop","dbus-compatible-ipc","wayland-surface","x11-compat"],
+  "security":["capabilities","sandbox","signature-policy","per-user-processes","no-kernel-driver-in-userspace"]
+}
