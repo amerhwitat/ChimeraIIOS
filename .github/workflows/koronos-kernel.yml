@@ -1,0 +1,23 @@
+name: Koronos Kernel Build
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "kernel/**"
+      - "isa/koronos/**"
+      - "tools/koronos/**"
+      - ".github/workflows/koronos-kernel.yml"
+  workflow_dispatch:
+jobs:
+  x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install freestanding toolchain
+        run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
+      - name: Build Koronos ELF64
+        run: bash kernel/build-koronos.sh
+      - name: Validate ELF64
+        run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
+      - name: Inspect undefined symbols
+        run: ! nm -u build/koronos/x86_64/koronos.elf
