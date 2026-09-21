@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-AURORA-WALLPAPER-1",
+  "enabled":true,
+  "providers":[
+    {"name":"Unsplash","mode":"API","requires_key":true,"attribution":true,"hotlink":true,"download_endpoint_required":true},
+    {"name":"Wikimedia Commons","mode":"public","license_metadata":true},
+    {"name":"NASA","mode":"public","license_metadata":true}
+  ],
+  "selection":{"quality_min":1920,"orientation":"landscape","rotate_hours":24,"cache_count":12},
+  "safety":{"allowlist_providers":true,"verify_content_type":true,"record_source_and_license":true,"no_adult":true},
+  "fallback":"/usr/share/chimera/aurora/aurora-wayland-glass.png"
+}
