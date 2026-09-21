@@ -22,6 +22,19 @@ cp "$ROOT/boot/spitfire/efi/README.md" "$DIST/EFI/CHIMERA/" 2>/dev/null || true
 cp "$ROOT/boot/include/chimera/bootinfo.h" "$ROOT/boot/include/chimera/cpu_profile.h" "$ROOT/boot/include/chimera/boot_flags.h" "$DIST/boot/koronos/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
+cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
+set timeout=5
+set default=0
+insmod normal
+insmod gfxterm
+insmod png
+if [ -f /boot/grub/aurora-wayland-glass.png ]; then background_image /boot/grub/aurora-wayland-glass.png; fi
+menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/kernel.bin chm.mode=recovery chm.recovery=1; boot }
+menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/kernel.bin chm.mode=safe-graphics; boot }
+menuentry "Jasper Recovery — GRUB Command Line" { commandline }
+menuentry "Jasper Recovery — Reboot" { reboot }
+menuentry "Jasper Recovery — Power Off" { halt }
+EOF
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/splash/support_footer.txt" ]] && cp "$ROOT/boot/splash/support_footer.txt" "$DIST/boot/"
