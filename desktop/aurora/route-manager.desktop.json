@@ -1,0 +1,9 @@
+{
+  "id":"route-manager",
+  "name":"Route Manager",
+  "icon":"network-workgroup",
+  "category":"networking",
+  "executable":"chimera-route-gui",
+  "panel":"Aurora Applications",
+  "desktop_icon":{"visible":true,"label":"Route Manager"}
+}
