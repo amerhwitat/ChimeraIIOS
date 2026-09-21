@@ -1,0 +1,8 @@
+{
+  "version":1,"refresh_seconds":5,
+  "kpis":["cpu_utilization","memory_utilization","load_average","scheduler_tasks","scheduler_latency","disk_utilization","network_rx_tx","service_health","target_health","thermal_state","gpu_utilization"],
+  "services":["koronos","kore","spotnik","aegis","aurora","nucleus"],
+  "targets":["chimera","linux","unix","bsd","windows","macos"],
+  "actions":["view","diagnose","restart_service","collect_report"],
+  "privacy":{"remote_reporting":false,"explicit_opt_in":true}
+}
