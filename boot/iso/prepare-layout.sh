@@ -7,6 +7,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DIST="$ROOT/boot/iso/dist/iso"
 rm -rf "$DIST"
+if [[ -x "$ROOT/tools/build-desktop-binaries.sh" ]]; then "$ROOT/tools/build-desktop-binaries.sh"; fi
 mkdir -p "$DIST/chimera/hardware" "$DIST/chimera/security" "$DIST/chimera/system" "$DIST/boot/grub" "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
   "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA" "$DIST/chimera/docs" \
   "$DIST/chimera/manifests" "$DIST/chimera/toolchains/cpp" \
@@ -27,6 +28,10 @@ cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
 [[ -f "$ROOT/boot/kernel.bin" ]] && cp "$ROOT/boot/kernel.bin" "$DIST/boot/kernel.bin"
 [[ -f "$ROOT/boot/iso/dist/kernel.bin" ]] && cp "$ROOT/boot/iso/dist/kernel.bin" "$DIST/boot/kernel.bin"
 [[ -f "$ROOT/boot/iso/dist/chimera2os.elf" ]] && cp "$ROOT/boot/iso/dist/chimera2os.elf" "$DIST/boot/koronos/koronos.elf"
+if [[ -d "$ROOT/build/desktop" ]]; then
+  mkdir -p "$DIST/bin/desktop"
+  cp -a "$ROOT/build/desktop/." "$DIST/bin/desktop/"
+fi
 for d in include src kernel boot desktop network installer tools tests ai data cmake; do
   if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
 done
