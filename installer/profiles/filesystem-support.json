@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-FILESYSTEMS-1",
+  "native":"qfs",
+  "installable":["qfs","ext4","xfs","btrfs","zfs","ntfs3","vfat","exfat"],
+  "boot_media":["iso9660","udf","squashfs","vfat","fat32"],
+  "network_filesystems":["nfs","nfs4","cifs","sshfs"],
+  "compatibility":["fuse","overlayfs"],
+  "operations":["probe","format","check","mount","unmount","resize","snapshot","rollback"],
+  "encryption":["luks2"],
+  "volume_management":["lvm2","mdraid","zfs-pools","btrfs-subvolumes"],
+  "policy":"backend availability is detected at installer runtime; unsupported tools are reported rather than silently selected"
+}
