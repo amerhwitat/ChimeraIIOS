@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-AURORA-SESSION-2",
+  "default":"chimera-modern",
+  "sessions":[
+    {"id":"chimera-modern","compositor":"aurora","shell":"chimera","terminal":"aurora-terminal","services":"kore"},
+    {"id":"linux-posix","compositor":"aurora","shell":"bash","terminal":"aurora-terminal","services":"kore+posix-adapter"},
+    {"id":"unix-bsd","compositor":"aurora","shell":"ksh","terminal":"aurora-terminal","services":"kore+unix-adapter"},
+    {"id":"windows","compositor":"aurora","shell":"powershell","terminal":"aurora-terminal","services":"kore+windows-adapter"},
+    {"id":"windows-cmd","compositor":"aurora","shell":"cmd","terminal":"aurora-terminal","services":"kore+windows-adapter"},
+    {"id":"macos","compositor":"aurora","shell":"zsh","terminal":"aurora-terminal","services":"kore+darwin-adapter"}
+  ],
+  "display":"Wayland-compatible Aurora surface with X11/Win32/Cocoa personality adapters in user space."
+}
