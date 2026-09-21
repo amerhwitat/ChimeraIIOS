@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Resolve the repository root from this script location; never depend on the caller's working directory.
+CHIMERA_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$CHIMERA_REPO_ROOT"
 set -euo pipefail
 if [[ "$(uname -s)" != "Darwin" ]]; then echo "Apple iOS/macOS compilation requires macOS with Xcode." >&2; exit 2; fi
 command -v xcodebuild >/dev/null || { echo "Install Xcode from Apple before continuing." >&2; exit 2; }
