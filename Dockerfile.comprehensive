@@ -16,55 +16,33 @@ ENV DEBIAN_FRONTEND=noninteractive \
     BUILD_REPOS_DIR=/build/repos \
     INSTALL_DIR=/opt/chimera \
     APPS_DIR=/opt/chimera/applications \
-    SRC_DIR=/src/chimera
+    SRC_DIR=/src/chimera \
+    PIP_BREAK_SYSTEM_PACKAGES=1
 
-# Install the base toolchain from the Ubuntu 24.04 repositories.
-# Keep this list to packages provided by the selected Ubuntu release.  In
-# particular, Ubuntu names Yarn as "yarnpkg" and .NET may require an external
-# Microsoft repository, so those are handled separately below.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential cmake cmake-data ninja-build make automake autoconf \
-    libtool pkg-config \
-    gcc g++ gcc-13 g++-13 clang llvm llvm-dev \
-    python3 python3-dev python3-pip python3-venv python3.12 python3.12-dev \
-    python3-setuptools python3-wheel \
-    nodejs npm rustc cargo \
-    openjdk-21-jdk-headless \
-    perl perl-modules \
-    git git-flow \
-    curl wget ca-certificates openssl libssl-dev \
-    libboost-all-dev \
-    libgtest-dev libc++-dev libc++abi-dev \
-    zlib1g-dev libffi-dev \
-    libreadline-dev libncurses-dev \
-    libsqlite3-dev \
-    libx11-dev libxext-dev libxrender-dev \
-    libgl1-mesa-dev mesa-common-dev \
-    python3-numpy python3-scipy python3-pandas \
-    python3-scikit-learn python3-matplotlib \
-    sqlite3 postgresql-client \
-    apt-transport-https gnupg lsb-release \
-    pciutils usbutils dmidecode \
-    iproute2 procps net-tools \
-    systemd systemd-sysv \
-    gdb valgrind strace \
-    vim nano \
-    less grep sed awk \
-    unzip tar gzip bzip2 xz-utils \
-    doxygen graphviz \
-    libsodium-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Install the comprehensive Ubuntu 24.04 build toolchain.
+# Package availability can differ between Ubuntu mirrors/architectures.  The
+# resolver below keeps the build deterministic for required tools while
+# skipping only packages that are genuinely absent from the selected release.
+RUN set -eux; \\
+    apt-get update -o Acquire::Retries=3; \\
+    required="build-essential cmake cmake-data ninja-build make automake autoconf libtool pkg-config gcc g++ gcc-13 g++-13 clang llvm llvm-dev python3 python3-dev python3-pip python3-venv python3.12 python3.12-dev python3-setuptools python3-wheel nodejs npm rustc cargo openjdk-21-jdk-headless perl perl-modules git curl wget ca-certificates openssl libssl-dev libboost-all-dev libgtest-dev libc++-dev libc++abi-dev zlib1g-dev libffi-dev libreadline-dev libncurses-dev libsqlite3-dev libx11-dev libxext-dev libxrender-dev libgl1-mesa-dev mesa-common-dev python3-numpy python3-scipy python3-pandas python3-scikit-learn python3-matplotlib sqlite3 postgresql-client apt-transport-https gnupg lsb-release pciutils usbutils dmidecode iproute2 procps net-tools systemd systemd-sysv gdb valgrind strace vim nano less grep sed awk unzip tar gzip bzip2 xz-utils doxygen graphviz libsodium-dev librsvg2-bin"; \\
+    installable=""; \\
+    for pkg in $required; do \\
+      if apt-cache show "$pkg" >/dev/null 2>&1; then installable="$installable $pkg"; else echo "[Chimera] optional/unavailable package skipped: $pkg"; fi; \\
+    done; \\
+    apt-get install -y --no-install-recommends $installable; \\
+    rm -rf /var/lib/apt/lists/*
 
-# Optional distro packages.  Do not make the complete ISO build fail merely
-# because an Ubuntu mirror/architecture does not publish one optional package.
-# Yarn is installed as yarnpkg on Ubuntu; .NET is installed only when the
-# Ubuntu repository exposes the requested SDK package.
-RUN set -eux; \
-    apt-get update; \
-    optional_packages=""; \
-    if apt-cache show yarnpkg >/dev/null 2>&1; then optional_packages="$optional_packages yarnpkg"; fi; \
-    if apt-cache show dotnet-sdk-8.0 >/dev/null 2>&1; then optional_packages="$optional_packages dotnet-sdk-8.0"; fi; \
-    if [ -n "$optional_packages" ]; then apt-get install -y --no-install-recommends $optional_packages; fi; \
+# Optional packages are never allowed to turn the complete image build into an
+# apt exit-100 failure.  Yarn is named yarnpkg on Ubuntu; .NET 8 is installed
+# only when the selected repositories publish it.
+RUN set -eux; \\
+    apt-get update -o Acquire::Retries=3; \\
+    optional=""; \\
+    for pkg in yarnpkg dotnet-sdk-8.0 git-flow; do \\
+      if apt-cache show "$pkg" >/dev/null 2>&1; then optional="$optional $pkg"; fi; \\
+    done; \\
+    if [ -n "$optional" ]; then apt-get install -y --no-install-recommends $optional; fi; \\
     rm -rf /var/lib/apt/lists/*
 
 # Normalize the Yarn command name when Ubuntu supplies yarnpkg.
