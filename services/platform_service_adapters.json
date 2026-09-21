@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-SERVICE-ADAPTERS-2",
+  "platforms":{
+    "linux":{"manager":["systemd","OpenRC","runit","s6","SysV"],"commands":["systemctl","service","rc-service","sv"]},
+    "unix":{"manager":["launchd","rc.d","SMF","systemd"],"commands":["launchctl","service","svcs","systemctl"]},
+    "windows":{"manager":["Windows Service Control Manager","Task Scheduler"],"commands":["sc","schtasks","Get-Service","Start-Service","Stop-Service"]},
+    "macos":{"manager":["launchd"],"commands":["launchctl","launchctl print","launchctl bootstrap","launchctl bootout"]}
+  },
+  "chimera":{"manager":"Kore","kernel":"Koronos","policy":"foreign service descriptions are translated into Chimera service manifests; foreign kernel services are never loaded into Koronos."}
+}
