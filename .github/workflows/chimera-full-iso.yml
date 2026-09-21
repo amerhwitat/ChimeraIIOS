@@ -1,0 +1,51 @@
+name: Build Chimera II Full ISO
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "kernel/**"
+      - "boot/**"
+      - "installer/**"
+      - "desktop/**"
+      - "services/**"
+      - "userland/**"
+      - "iso/**"
+      - "tools/build-full-iso.*"
+      - "CMakeLists.txt"
+      - ".github/workflows/chimera-full-iso.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ISO and cross-build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin mtools qemu-system-x86 gcc g++
+
+      - name: Build ASM/C/C++ and compose ISO
+        env:
+          CHIMERA_AURORA_BACKGROUND: ""
+        run: |
+          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
+          ./tools/build-full-iso.sh
+
+      - name: Validate ISO artifacts
+        run: |
+          test -f build/iso/chimera-ii-os.iso
+          test -f build/iso/chimera-ii-os.iso.sha256
+          file build/iso/chimera-ii-os.iso
+          sha256sum -c build/iso/chimera-ii-os.iso.sha256
+
+      - name: Upload ISO artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-os-live-installer
+          path: |
+            build/iso/chimera-ii-os.iso
+            build/iso/chimera-ii-os.iso.sha256
+            chimera-ii-os.iso
