@@ -1,3 +1,7 @@
+
+# Resolve the repository root from this script location; never depend on the caller's working directory.
+$CHIMERA_REPO_ROOT = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+Set-Location -LiteralPath $CHIMERA_REPO_ROOT
 $ErrorActionPreference='Stop'
 $sdk=$env:ANDROID_SDK_ROOT; if([string]::IsNullOrWhiteSpace($sdk)){$sdk=$env:ANDROID_HOME}; if([string]::IsNullOrWhiteSpace($sdk)){$sdk=Join-Path $HOME 'Android\Sdk'}
 New-Item -ItemType Directory -Force -Path $sdk | Out-Null
