@@ -1,4 +1,5 @@
 #include "../include/chimera/koronos_abi.h"
+#include "chimera/scheduler.h"
 extern "C" void koronos_outb(uint16_t port,uint8_t value);
 namespace {
 volatile uint32_t koronos_state=0;
@@ -9,6 +10,10 @@ static void serial_init() {
 }
 static void serial_write8(uint8_t v) { for(uint32_t i=0;i<100000u && !(serial_in8(0x3FD)&0x20);++i){} koronos_outb(0x3F8,v); }
 static void serial_write(const char* s) { if(!s)return; while(*s)serial_write8((uint8_t)*s++); serial_write8('\r'); serial_write8('\n'); }
+static void serial_hex32(uint32_t v) {
+ static const char h[]="0123456789ABCDEF"; char s[9];
+ for(int i=7;i>=0;--i){s[i]=h[v&15u];v>>=4;} s[8]=0; serial_write(s);
+}
 }
 extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  serial_init();
@@ -16,6 +21,14 @@ extern "C" void koronos_boot(const koronos_boot_context* ctx) {
   koronos_state=0xBAD00001u; serial_write("KORONOS: invalid boot context"); return;
  }
  serial_write("KORONOS: Multiboot2 handoff accepted");
- koronos_arch_init(ctx); koronos_elf64_init(); koronos_module_init();
+ koronos_arch_init(ctx);
+ const koronos_cpu_features* f=koronos_cpu_features();
+ serial_write("KORONOS: CPU vendor"); serial_write(f->vendor);
+ serial_write("KORONOS: logical CPUs"); serial_hex32(f->logical_cpus);
+ serial_write("KORONOS: VMX/SVM capability"); serial_hex32((uint32_t(f->vmx)<<1u)|uint32_t(f->svm));
+ serial_write("KORONOS: Hypervisor present"); serial_hex32(f->hypervisor);
+ chimera_sched_init(f->logical_cpus);
+ koronos_elf64_init(); koronos_module_init();
  koronos_state=0x4B4F524Fu; serial_write("KORONOS_READY");
+ serial_write("KORONOS: CPU online; entering scheduler idle loop");
 }
