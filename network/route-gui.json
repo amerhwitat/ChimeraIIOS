@@ -1,0 +1,11 @@
+{
+  "schema":"CHM-ROUTE-GUI-1",
+  "id":"route-manager",
+  "name":"Route Manager",
+  "icon":"network-workgroup",
+  "panel":"Aurora Applications",
+  "views":["Interfaces","Routes","Neighbors","Policy Rules","VRF","Routing Protocols","BGP","OSPF","RIP","IS-IS","Babel","Multicast","VPN/Overlay"],
+  "actions":["show","add","replace","delete","flush","export","import","validate"],
+  "confirmation_required":["add","replace","delete","flush","dynamic-protocol-enable"],
+  "backend":["route","ip route","ip rule","ip neigh","Spotnik","FRR adapter"]
+}
