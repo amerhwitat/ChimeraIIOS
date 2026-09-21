@@ -34,6 +34,7 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
     {"boot","Bootloader / Secure Boot","Install Spit Fire/Jasper/GRUB2, BIOS/UEFI fallback, Secure Boot and bootloader target"},
     {"configure","System configuration","Hostname, services, firewall, security policy, SSH, shells, desktops, drivers and compatibility profiles"},
     {"accounts","Accounts / SSH","Create administrator/user accounts, password policy and optional SSH keys/server"},
+    {"toolchain","Compiler / Assembler / JIT / Runtime","Install the staged multi-language toolchain bundle, cross-toolchains, binary utilities, debuggers and runtime libraries"},
     {"sdk","Developer SDK","Install Chimera C/C++/C#/Objective-C/Java/Python SDK, source and manuals"},
     {"recovery","Recovery / Backup","Recovery partition, rescue environment, rollback plan and backup configuration"},
     {"review","Review","Summarize every selected disk, partition, package, desktop, security and boot option before commit"},
@@ -72,6 +73,10 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
     log<<"verify_driver_signatures="<<p.verify_driver_signatures<<"\\n";
     log<<"Driver binaries are installed only after device-ID matching and verification.\\n";
   }
+  fs::path toolchains = p.source_root/"build/toolchains";
+  if(fs::exists(toolchains)) { fs::remove_all(p.target_root/"opt/chimera/toolchains"); if(copy_tree(toolchains,p.target_root/"opt/chimera/toolchains")!=0) return 6; }
+  fs::create_directories(p.target_root/"etc/profile.d");
+  { std::ofstream env(p.target_root/"etc/profile.d/chimera-toolchains.sh"); env<<"export CHIMERA_TOOLCHAIN_ROOT=/opt/chimera/toolchains\\nexport PATH=/opt/chimera/toolchains/bin:$PATH\\nexport LD_LIBRARY_PATH=/opt/chimera/toolchains/lib:/opt/chimera/toolchains/lib64:$LD_LIBRARY_PATH\\n"; }
   fs::path sdk = p.source_root/"sdk";
   if(fs::exists(sdk)) { fs::remove_all(p.target_root/"opt/chimera-sdk"); if(copy_tree(sdk,p.target_root/"opt/chimera-sdk")!=0) return 5; }
   fs::create_directories(p.target_root/"etc/chimera");
