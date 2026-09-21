@@ -6,6 +6,8 @@ ISO_DIR="$ROOT/build/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
+chmod +x "$ROOT/tools/build-desktop-binaries.sh"
+"$ROOT/tools/build-desktop-binaries.sh"
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
 KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
@@ -20,12 +22,13 @@ if [[ -z "$BASE" && "${CHIMERA_FETCH_RELEASE:-0}" == "1" ]] && command -v gh >/d
   [[ -z "$SPIT_IMG" ]] && SPIT_IMG="$(find "$ROOT/releases" -type f -iname "*spit*fire*.img" | head -n1 || true)"
 fi
 if [[ -z "$BASE" && -n "${CHIMERA_BASE_ISO_URL:-}" ]]; then curl -fL "$CHIMERA_BASE_ISO_URL" -o "$BUILD/base.iso"; BASE="$BUILD/base.iso"; fi
-STAGE="$BUILD/inject"; rm -rf "$STAGE"; mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk"
+STAGE="$BUILD/inject"; rm -rf "$STAGE"; mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 [[ -n "$SPIT_IMG" && -f "$SPIT_IMG" ]] && cp "$SPIT_IMG" "$STAGE/boot/spitfire.img"
 cp -a "$ROOT/installer" "$STAGE/install/"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
+cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"
