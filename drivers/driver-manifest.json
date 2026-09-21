@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-DRIVER-MANIFEST-1",
+  "buses":["PCI","PCIe","USB","USB4","ACPI","I2C","SPI","MMIO","VirtIO","NVMe"],
+  "classes":["storage","network","wifi","gpu","display","input","audio","usb","filesystem","sensor"],
+  "storage":["NVMe","AHCI/SATA","SCSI","USB Mass Storage","VirtIO Block","MMC/SD"],
+  "network":["Intel e1000/e1000e/igc/ixgbe/i40e","Realtek r8169/r8125","Broadcom","Marvell","Mellanox/ConnectX","virtio-net","Hyper-V","VMware vmxnet3"],
+  "wifi":["Intel iwlwifi","MediaTek mt76","Qualcomm ath","Realtek rtw88/rtw89","Broadcom brcm80211","Atheros ath9k"],
+  "graphics":["Intel i915/xe","AMD amdgpu","NVIDIA nouveau","VirtIO GPU","VMware SVGA","EFI GOP","VGA"],
+  "display":["DRM/KMS","EDID","DP","HDMI","DisplayPort","USB-C Alt Mode","Framebuffer"],
+  "input":["USB HID","PS/2","I2C HID","Bluetooth HID"],
+  "audio":["Intel HDA","USB Audio","ALSA-compatible adapters"],
+  "usb":["xHCI","EHCI","OHCI","UHCI","USB4"],
+  "filesystems":["qfs","ext4","xfs","btrfs","zfs","ntfs3","vfat","exfat","iso9660","udf","squashfs","cifs","nfs","fuse"],
+  "firmware_sources":["linux-firmware","vendor redistributable firmware where licensing permits"],
+  "runtime_policy":"detect PCI/ACPI/USB identifiers, match signed module metadata, request firmware, load only compatible ABI modules"
+}
