@@ -1,0 +1,21 @@
+{
+  "schema":"CHM-USERLAND-COMMANDS-1",
+  "resolution":["alias","function","builtin","reserved-word","compatibility-alias","PATH executable"],
+  "families":{
+    "posix_filesystem":["ls","cp","mv","rm","mkdir","rmdir","touch","ln","readlink","find","xargs","stat","file","basename","dirname","realpath","pwd","chmod","chown","chgrp","umask","du","df","sync","mount","umount"],
+    "posix_text":["cat","tac","head","tail","less","more","grep","egrep","fgrep","sed","awk","cut","paste","join","sort","uniq","tr","wc","od","printf","echo","tee","split","csplit","diff","cmp","comm"],
+    "posix_process":["ps","top","kill","pkill","pgrep","nice","renice","jobs","fg","bg","wait","nohup","sleep","timeout","watch","free","uptime"],
+    "posix_system":["uname","hostname","date","cal","id","who","whoami","groups","login","passwd","su","sudo","env","printenv","clear","reset","dmesg","sysctl"],
+    "posix_network":["ip","ifconfig","route","arp","ss","netstat","ping","traceroute","tracepath","host","dig","nslookup","curl","wget","ftp","ssh","scp","sftp","nc","telnet"],
+    "archive":["tar","cpio","gzip","gunzip","bzip2","bunzip2","xz","unxz","zstd","zip","unzip","7z"],
+    "storage":["lsblk","blkid","fdisk","sfdisk","parted","mkfs","fsck","dd","wipefs","mount","umount"],
+    "development":["cc","gcc","g++","clang","clang++","make","cmake","ninja","ld","as","ar","nm","objdump","readelf","objcopy","gdb","lldb","strace","ltrace","git","python","python3","perl","ruby","node","npm","java","javac","dotnet","cargo","go","rustc"],
+    "package":["chimera-pkg","apt","apt-get","dpkg","dnf","yum","rpm","pacman","apk","zypper","xbps-install","emerge","pkg","brew","flatpak","snap","pip","pip3","npm","cargo","gem","nuget"],
+    "windows_cmd":["dir","copy","xcopy","robocopy","move","del","erase","ren","mkdir","rmdir","type","find","findstr","where","set","setx","path","cd","pushd","popd","tree","attrib","icacls","tasklist","taskkill","sc","schtasks","shutdown","systeminfo","ipconfig","nslookup","netstat","route","arp","tracert","curl","powershell","cmd"],
+    "powershell_core":["Get-Command","Get-Help","Get-ChildItem","Set-Location","Get-Location","Copy-Item","Move-Item","Remove-Item","New-Item","Get-Content","Set-Content","Add-Content","Get-Process","Stop-Process","Start-Process","Get-Service","Start-Service","Stop-Service","Restart-Service","Get-ComputerInfo","Get-NetIPConfiguration","Test-Connection","Invoke-WebRequest","Invoke-RestMethod","Where-Object","ForEach-Object","Select-Object","Sort-Object","Measure-Object","Format-Table"],
+    "macos_darwin":["open","pbcopy","pbpaste","defaults","plutil","launchctl","diskutil","hdiutil","networksetup","scutil","system_profiler","ioreg","xattr","codesign","security","mdfind","mdls","say","osascript","sips","afplay"],
+    "shell_builtins":["cd","export","readonly","unset","set","shift","source","eval","exec","exit","return","break","continue","if","then","else","elif","fi","for","while","until","case","esac","function","alias","unalias","command","type","hash","read","printf","test","true","false","getopts"],
+    "modern_shells":["bash","zsh","sh","dash","ksh","mksh","csh","tcsh","fish","nushell","elvish","xonsh","yash","rc","es","ion","oil","powershell","pwsh","cmd"]
+  },
+  "implementation":"Native Chimera implementations first; POSIX adapters second; Windows and Darwin APIs through compatibility services; unsupported privileged operations are capability-gated."
+}
