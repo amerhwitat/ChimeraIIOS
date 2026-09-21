@@ -91,23 +91,23 @@ long_mode_entry:
     mov fs, ax
     mov gs, ax
     lea rsp, [rel stack64_top]
-    mov r12, [multiboot_info]
+    mov r12, [rel multiboot_info]
 
-    mov dword [boot_context + 0], KORONOS_BOOTINFO_MAGIC
-    mov dword [boot_context + 4], KORONOS_ABI_VERSION
-    mov qword [boot_context + 8], r12
-    mov qword [boot_context + 16], 0x100000
+    mov dword [rel boot_context + 0], KORONOS_BOOTINFO_MAGIC
+    mov dword [rel boot_context + 4], KORONOS_ABI_VERSION
+    mov qword [rel boot_context + 8], r12
+    mov qword [rel boot_context + 16], 0x100000
     lea rax, [rel __kernel_end]
-    mov [boot_context + 24], rax
-    mov qword [boot_context + 32], 0
-    mov qword [boot_context + 40], 0
-    mov dword [boot_context + 48], KORONOS_CPU_CISC
-    mov dword [boot_context + 52], KORONOS_X86_LONG64
-    mov qword [boot_context + 56], 0x3F8
+    mov [rel boot_context + 24], rax
+    mov qword [rel boot_context + 32], 0
+    mov qword [rel boot_context + 40], 0
+    mov dword [rel boot_context + 48], KORONOS_CPU_CISC
+    mov dword [rel boot_context + 52], KORONOS_X86_LONG64
+    mov qword [rel boot_context + 56], 0x3F8
     xor eax, eax
-    mov [boot_context + 64], rax
-    mov [boot_context + 72], rax
-    mov [boot_context + 80], rax
+    mov [rel boot_context + 64], rax
+    mov [rel boot_context + 72], rax
+    mov [rel boot_context + 80], rax
     lea rdi, [rel boot_context]
     call koronos_boot
 
