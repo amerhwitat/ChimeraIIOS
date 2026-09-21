@@ -11,6 +11,12 @@ SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
 if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
 BASE="${CHIMERA_BASE_ISO:-}"
 for c in "$ROOT/chimera-ii-os.iso" "$ROOT/releases/chimera-ii-os.iso"; do [[ -z "$BASE" && -f "$c" ]] && BASE="$c"; done
+if [[ -z "$BASE" && "${CHIMERA_FETCH_RELEASE:-0}" == "1" ]] && command -v gh >/dev/null 2>&1; then
+  mkdir -p "$ROOT/releases"
+  CHIMERA_RELEASE_TAG="${CHIMERA_RELEASE_TAG:-latest}" "$ROOT/tools/fetch-release-media.sh" "$ROOT/releases"
+  [[ -f "$ROOT/releases/chimera-ii-os.iso" ]] && BASE="$ROOT/releases/chimera-ii-os.iso"
+  [[ -z "$SPIT_IMG" ]] && SPIT_IMG="$(find "$ROOT/releases" -type f -iname "*spit*fire*.img" | head -n1 || true)"
+fi
 if [[ -z "$BASE" && -n "${CHIMERA_BASE_ISO_URL:-}" ]]; then curl -fL "$CHIMERA_BASE_ISO_URL" -o "$BUILD/base.iso"; BASE="$BUILD/base.iso"; fi
 STAGE="$BUILD/inject"; rm -rf "$STAGE"; mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
