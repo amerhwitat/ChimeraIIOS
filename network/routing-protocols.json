@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-ROUTING-1",
+  "protocols":{
+    "kernel":["static","connected","unicast","multicast","policy-routing","VRF","ECMP"],
+    "igp":["RIP","RIPng","OSPFv2","OSPFv3","IS-IS","EIGRP","Babel","PIM-SM","PIM-DM","PIM-SSM"],
+    "egp":["BGP-4","BGP-MP","BGP-LS"],
+    "overlay":["VXLAN","EVPN","GRE","IPIP","Geneve","WireGuard"],
+    "redundancy":["VRRP"],
+    "specialized":["LISP","OpenFabric","Segment Routing"]
+  },
+  "implementation":{"native":"Koronos/Spotnik routing ABI","userspace":"FRRouting-compatible adapter","cli":["route","ip","ip route","vtysh"]},
+  "sources":["FRRouting","Linux iproute2","open-source protocol implementations"],
+  "default_policy":"No dynamic routing daemon establishes peers until explicitly configured."
+}
