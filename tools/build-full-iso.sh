@@ -33,6 +33,16 @@ cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"
 cp -a "$ROOT/sdk" "$STAGE/sdk"
+# Preserve the complete source tree on the developer/recovery ISO.
+for source_dir in kernel src include database cmake tools boot installer userland desktop services iso; do
+  if [[ -d "$ROOT/$source_dir" ]]; then
+    mkdir -p "$STAGE/source"
+    cp -a "$ROOT/$source_dir" "$STAGE/source/"
+  fi
+done
+mkdir -p "$STAGE/build-artifacts"
+cp -a "$ROOT/build/desktop" "$STAGE/build-artifacts/" 2>/dev/null || true
+cp -a "$BUILD/cmake" "$STAGE/build-artifacts/cmake" 2>/dev/null || true
 mkdir -p "$STAGE/install/sdk"
 cp -a "$ROOT/sdk/include" "$STAGE/install/sdk/"
 cp -a "$ROOT/sdk/python" "$STAGE/install/sdk/"
