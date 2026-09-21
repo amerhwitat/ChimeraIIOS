@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-LEARNING-RUNTIME-1",
+  "start":"parallel-with-userland",
+  "observe":["scheduler","process","filesystem","network","device","desktop","installer"],
+  "actions":["record","feature_extract","inference","bounded_online_update","checkpoint"],
+  "safety":{"sandbox":true,"rate_limit":true,"no_boot_mutation":true,"no_firmware_mutation":true,"no_destructive_storage_actions":true},
+  "backends":["chimera-native","onnx-runtime","pytorch","tensorflow"],
+  "model_path":"/var/lib/chimera/learning/model",
+  "event_log":"/var/log/chimera/learning/events.jsonl"
+}
