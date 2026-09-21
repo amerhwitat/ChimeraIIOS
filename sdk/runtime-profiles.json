@@ -1,0 +1,8 @@
+{
+ "schema":"CHM-SDK-RUNTIME-1",
+ "native":{"c":["gcc","clang"],"cpp":["g++","clang++"],"objective-c":["clang"]},
+ "managed":{"csharp":["dotnet","roslyn"],"java":["javac","java"]},
+ "scripting":{"python":["python3"]},
+ "environment":{"CHIMERA_SDK_ROOT":"/opt/chimera-sdk","CHIMERA_TARGET":"chimera-x86_64"},
+ "wrappers":["chimera-cc","chimera-cxx","chimera-csc","chimera-objc","chimera-javac","chimera-java","chimera-python"]
+}
