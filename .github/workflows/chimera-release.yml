@@ -33,12 +33,40 @@ PY
           find boot tools scripts -type f -name '*.sh' -print0 2>/dev/null |
             while IFS= read -r -d '' f; do chmod +x "$f"; done
       - name: Install release toolchain
-        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pytest qemu-system-x86
+        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc g++ gcc-multilib binutils nasm python3 python3-pytest qemu-system-x86
       - name: Validate registries
         run: |
           for f in repositories/platform-manifest.json drivers/driver-registry.json filesystems/filesystem-registry.json packages/package-manager-registry.json compat/binary-format-registry.json install/installer-contract.json desktop/aurora/gates_menu.json; do python3 -m json.tool "$f" >/dev/null; done
       - name: Build ISO
         run: chmod +x boot/iso/build-iso.sh boot/iso/prepare-layout.sh && boot/iso/build-iso.sh
+      - name: Validate Multiboot2 kernel
+        run: |
+          grub-file --is-x86-multiboot2 boot/iso/dist/kernel.bin
+          file boot/iso/dist/kernel.bin
+          readelf -h boot/iso/dist/kernel.bin | grep -E 'Class:.*ELF64|Machine:.*Advanced Micro Devices X86-64'
+
+      - name: VMware/QEMU BIOS boot smoke test
+        run: |
+          set +e
+          timeout 15s qemu-system-x86_64 \
+            -accel tcg \
+            -m 512M \
+            -cdrom boot/iso/dist/chimera2os-bootstrap.iso \
+            -boot d \
+            -display none \
+            -monitor none \
+            -serial stdio \
+            -no-reboot \
+            -no-shutdown > qemu-boot.log 2>&1
+          rc=$?
+          set -e
+          cat qemu-boot.log
+          if ! grep -q 'KORONOS_READY' qemu-boot.log; then
+            echo 'Koronos did not reach KORONOS_READY; ISO boot is not releaseable.' >&2
+            exit 1
+          fi
+          echo "QEMU stopped with rc=$rc after successful kernel handoff (timeout is expected for the parked kernel)."
+
       - name: Verify release tree
         run: |
           test -s boot/iso/dist/chimera2os-bootstrap.iso
