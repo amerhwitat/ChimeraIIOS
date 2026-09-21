@@ -19,5 +19,5 @@ jobs:
         run: bash kernel/build-koronos.sh
       - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
-      - name: Inspect undefined symbols
-        run: ! nm -u build/koronos/x86_64/koronos.elf
+      - name: Assert no unresolved symbols
+        run: test -z "$(nm -u build/koronos/x86_64/koronos.elf)"
