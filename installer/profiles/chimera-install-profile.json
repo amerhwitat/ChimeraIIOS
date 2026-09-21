@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-INSTALLER-PROFILE-1",
+  "workflow":["welcome","language","keyboard","network","storage","filesystem","users","desktop","bootloader","install","verify","reboot"],
+  "modes":["live","install","recovery","compatibility"],
+  "boot":["spitfire","jasper","grub2-multiboot2"],
+  "kernels":["koronos","linux-compatible-host","bsd-userland","darwin-userland","windows-compatibility"],
+  "filesystems":["qfs","xfs","zfs","ext4","btrfs","ntfs","fat32","vfat"],
+  "storage":["NVMe","SATA SSD","HDD","USB"],
+  "desktop":["aurora-wayland-glass","gnome-profile","kde-plasma-profile","xfce-profile","windows-profile","macos-profile"],
+  "services":["kore","systemd-adapter","launchd-adapter","windows-scm-adapter"],
+  "safety":{"default_dry_run":true,"require_explicit_destructive_confirmation":true,"verify_before_reboot":true}
+}
