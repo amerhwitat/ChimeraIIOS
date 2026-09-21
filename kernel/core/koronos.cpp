@@ -33,6 +33,11 @@ extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  serial_write("KORONOS: VMX/SVM capability"); serial_hex32((uint32_t(f->vmx)<<1u)|uint32_t(f->svm));
  serial_write("KORONOS: Hypervisor present"); serial_hex32(f->hypervisor);
  chimera_sched_init(f->logical_cpus);
+ chimera_learning_init(f->logical_cpus);
+ chimera_register_virtio_drivers();
+ chimera_register_display_drivers();
+ chimera_driver_probe_all();
+ chimera_learning_record(1, f->logical_cpus);
  koronos_elf64_init(); koronos_module_init();
  koronos_state=0x4B4F524Fu; serial_write("KORONOS_READY");
  serial_write("KORONOS: CPU online; entering scheduler idle loop");
