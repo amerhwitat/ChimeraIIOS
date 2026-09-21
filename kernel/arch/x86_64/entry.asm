@@ -32,7 +32,8 @@ _start:
     cmp eax, MULTIBOOT2_BOOTLOADER_MAGIC
     jne .bad_boot
     mov [multiboot_magic], eax
-    mov [multiboot_info], ebx
+    mov dword [multiboot_info], ebx
+    mov dword [multiboot_info + 4], 0
 
     ; Build the minimal identity paging structures needed to enter long mode.
     mov edi, page_table_base
@@ -47,70 +48,16 @@ _start:
     mov eax, pd_table
     or eax, 0x003
     mov [pdpt_table], eax
-    mov dword [pd_table], 0x00000083
-    mov dword [pd_table + 8], 0x00200083
-    mov dword [pd_table + 16], 0x00400083
-    mov dword [pd_table + 24], 0x00600083
-    mov dword [pd_table + 32], 0x00800083
-    mov dword [pd_table + 40], 0x00A00083
-    mov dword [pd_table + 48], 0x00C00083
-    mov dword [pd_table + 56], 0x00E00083
-    mov dword [pd_table + 64], 0x01000083
-    mov dword [pd_table + 72], 0x01200083
-    mov dword [pd_table + 80], 0x01400083
-    mov dword [pd_table + 88], 0x01600083
-    mov dword [pd_table + 96], 0x01800083
-    mov dword [pd_table + 104], 0x01A00083
-    mov dword [pd_table + 112], 0x01C00083
-    mov dword [pd_table + 120], 0x01E00083
-    mov dword [pd_table + 128], 0x02000083
-    mov dword [pd_table + 136], 0x02200083
-    mov dword [pd_table + 144], 0x02400083
-    mov dword [pd_table + 152], 0x02600083
-    mov dword [pd_table + 160], 0x02800083
-    mov dword [pd_table + 168], 0x02A00083
-    mov dword [pd_table + 176], 0x02C00083
-    mov dword [pd_table + 184], 0x02E00083
-    mov dword [pd_table + 192], 0x03000083
-    mov dword [pd_table + 200], 0x03200083
-    mov dword [pd_table + 208], 0x03400083
-    mov dword [pd_table + 216], 0x03600083
-    mov dword [pd_table + 224], 0x03800083
-    mov dword [pd_table + 232], 0x03A00083
-    mov dword [pd_table + 240], 0x03C00083
-    mov dword [pd_table + 248], 0x03E00083
-    mov dword [pd_table + 256], 0x04000083
-    mov dword [pd_table + 264], 0x04200083
-    mov dword [pd_table + 272], 0x04400083
-    mov dword [pd_table + 280], 0x04600083
-    mov dword [pd_table + 288], 0x04800083
-    mov dword [pd_table + 296], 0x04A00083
-    mov dword [pd_table + 304], 0x04C00083
-    mov dword [pd_table + 312], 0x04E00083
-    mov dword [pd_table + 320], 0x05000083
-    mov dword [pd_table + 328], 0x05200083
-    mov dword [pd_table + 336], 0x05400083
-    mov dword [pd_table + 344], 0x05600083
-    mov dword [pd_table + 352], 0x05800083
-    mov dword [pd_table + 360], 0x05A00083
-    mov dword [pd_table + 368], 0x05C00083
-    mov dword [pd_table + 376], 0x05E00083
-    mov dword [pd_table + 384], 0x06000083
-    mov dword [pd_table + 392], 0x06200083
-    mov dword [pd_table + 400], 0x06400083
-    mov dword [pd_table + 408], 0x06600083
-    mov dword [pd_table + 416], 0x06800083
-    mov dword [pd_table + 424], 0x06A00083
-    mov dword [pd_table + 432], 0x06C00083
-    mov dword [pd_table + 440], 0x06E00083
-    mov dword [pd_table + 448], 0x07000083
-    mov dword [pd_table + 456], 0x07200083
-    mov dword [pd_table + 464], 0x07400083
-    mov dword [pd_table + 472], 0x07600083
-    mov dword [pd_table + 480], 0x07800083
-    mov dword [pd_table + 488], 0x07A00083
-    mov dword [pd_table + 496], 0x07C00083
-    mov dword [pd_table + 504], 0x07E00083
+    ; Populate 512 2 MiB PDEs at runtime.  The page-table storage is BSS,
+    ; so it must not contain assembler-time initializers.
+    mov edi, pd_table
+    mov eax, 0x00000083
+    mov ecx, 512
+.fill_pd:
+    mov [edi], eax
+    add eax, 0x00200000
+    add edi, 8
+    loop .fill_pd
 
     lgdt [gdt_ptr]
     mov eax, cr4
