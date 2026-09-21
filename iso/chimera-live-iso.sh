@@ -40,8 +40,8 @@ install_iso_dependencies() {
     return 0
   fi
 
-  if [[ "\${CHIMERA_AUTO_INSTALL_DEPS:-1}" != "1" ]]; then
-    echo "Missing ISO build dependencies: \${missing[*]}" >&2
+  if [[ "${CHIMERA_AUTO_INSTALL_DEPS:-1}" != "1" ]]; then
+    echo "Missing ISO build dependencies: ${missing[*]}" >&2
     echo "Install mtools (provides mformat), GRUB rescue tools, and xorriso, or set CHIMERA_AUTO_INSTALL_DEPS=1." >&2
     exit 2
   fi
@@ -50,17 +50,17 @@ install_iso_dependencies() {
     local packages=(mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
     if command -v sudo >/dev/null 2>&1; then
       sudo apt-get update
-      sudo apt-get install -y "\${packages[@]}"
-    elif [[ "\$(id -u)" -eq 0 ]]; then
+      sudo apt-get install -y "${packages[@]}"
+    elif [[ "$(id -u)" -eq 0 ]]; then
       apt-get update
-      apt-get install -y "\${packages[@]}"
+      apt-get install -y "${packages[@]}"
     else
-      echo "Missing ISO build dependencies: \${missing[*]}" >&2
+      echo "Missing ISO build dependencies: ${missing[*]}" >&2
       echo "Run: sudo apt-get update && sudo apt-get install -y mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin" >&2
       exit 2
     fi
   else
-    echo "Missing ISO build dependencies: \${missing[*]}" >&2
+    echo "Missing ISO build dependencies: ${missing[*]}" >&2
     echo "This host is not Debian/Ubuntu based; install mtools (mformat), xorriso, and GRUB rescue tools using the host package manager." >&2
     exit 2
   fi
