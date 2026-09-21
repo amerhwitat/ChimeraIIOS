@@ -47,6 +47,22 @@
     {
       "id": "system",
       "label": "System / Drivers / Filesystems / Security"
+    },
+    {
+      "id": "installer",
+      "label": "Chimera II Installer / Deployment"
+    },
+    {
+      "id": "recovery",
+      "label": "Recovery / Rescue / Rollback"
+    },
+    {
+      "id": "boot",
+      "label": "Boot / GRUB / Jasper / Spit Fire"
+    },
+    {
+      "id": "diagnostics",
+      "label": "Hardware / Kernel / CPU Diagnostics"
     }
   ],
   "interaction": {
