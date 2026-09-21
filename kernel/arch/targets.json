@@ -1,0 +1,19 @@
+{
+  "schema": "CHM-KORONOS-TARGETS-1",
+  "native_boot_targets": [
+    {"id":"x86_64","status":"implemented","boot":"Multiboot2","vm":"VMware/QEMU","isa":"x86-64"},
+    {"id":"aarch64","status":"port-layer","boot":"UEFI/U-Boot","isa":"AArch64"},
+    {"id":"riscv64","status":"port-layer","boot":"OpenSBI/UEFI","isa":"RISC-V RV64"}
+  ],
+  "virtual_targets": [
+    {"id":"chimera-r8192","status":"emulator","isa":"R8192"},
+    {"id":"chimera-c8192","status":"emulator","isa":"C8192"}
+  ],
+  "legacy_or_embedded": [
+    {"id":"cortex-m","status":"boot-port","isa":"ARM Cortex-M"}
+  ],
+  "cpu_policy": {
+    "x86_64": ["CPUID","APIC/x2APIC detection","SSE2 detection","NX detection","VMX detection","hypervisor detection","logical CPU detection"],
+    "wide_isa": "lazy per-thread RegisterN context ownership; do not force wide-register state into ordinary x86 context switches"
+  }
+}
