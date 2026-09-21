@@ -1,0 +1,27 @@
+{
+  "schema":"CHM-FOREIGN-RUNTIMES-1",
+  "policy":"open-source-and-redistributable-only",
+  "linux":{"packages":["bash","coreutils","util-linux","procps","iproute2","openssh-client","curl","wget","git","python3","perl","ruby","nodejs","mesa-utils","xwayland","dbus","pipewire","pulseaudio"]},
+  "windows":{"source_projects":[
+    {"name":"Wine","repository":"https://github.com/wine-mirror/wine","purpose":"Win32/Win64 compatibility"},
+    {"name":"ReactOS","repository":"https://github.com/reactos/reactos","purpose":"Windows-compatible open-source userland/kernel research"}
+  ]},
+  "macos":{"source_projects":[
+    {"name":"Darling","repository":"https://github.com/darlinghq/darling","purpose":"macOS/Darwin compatibility layer"},
+    {"name":"XNU","repository":"https://github.com/apple-oss-distributions/xnu","purpose":"Darwin kernel source reference; not redistributed as Apple proprietary binaries"}
+  ]},
+  "desktops":{"source_projects":[
+    {"name":"GNOME","repository":"https://gitlab.gnome.org/GNOME/gnome-shell"},
+    {"name":"KDE Plasma","repository":"https://invent.kde.org/plasma/plasma-workspace"},
+    {"name":"XFCE","repository":"https://gitlab.xfce.org/xfce/xfce4-session"},
+    {"name":"LXQt","repository":"https://github.com/lxqt/lxqt-session"},
+    {"name":"MATE","repository":"https://github.com/mate-desktop/mate-session-manager"},
+    {"name":"Cinnamon","repository":"https://github.com/linuxmint/cinnamon"}
+  ]},
+  "mobile":{"source_projects":[
+    {"name":"AOSP","repository":"https://android.googlesource.com/platform/manifest","purpose":"Android Open Source Project source manifest"},
+    {"name":"LineageOS","repository":"https://github.com/LineageOS/android","purpose":"Android-compatible mobile source tree"},
+    {"name":"Plasma Mobile","repository":"https://invent.kde.org/plasma/plasma-mobile","purpose":"Linux mobile shell"}
+  ]},
+  "prohibited":{"note":"Do not download or redistribute proprietary Windows or macOS binaries. Use licensed redistributable packages or build open-source compatibility layers from source."}
+}
