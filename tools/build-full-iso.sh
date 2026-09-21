@@ -6,6 +6,8 @@ ISO_DIR="$ROOT/build/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
+if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
+python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
 KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
 SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
 if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
@@ -36,6 +38,8 @@ cp -a "$ROOT/sdk/java" "$STAGE/install/sdk/"
 cp -a "$ROOT/sdk/manuals" "$STAGE/install/sdk/"
 cp -a "$ROOT/sdk/examples" "$STAGE/install/sdk/"
 cp -a "$ROOT/sdk/toolchains" "$STAGE/install/sdk/"
+cp -a "$ROOT/sdk/bin" "$STAGE/install/sdk/"
+cp "$ROOT/sdk/runtime-profiles.json" "$STAGE/install/sdk/"
 cp "$ROOT/sdk/manifest.json" "$STAGE/install/sdk/"
 if [[ -f "$ROOT/sdk/java/chimera-sdk.jar" ]]; then cp "$ROOT/sdk/java/chimera-sdk.jar" "$STAGE/install/sdk/"; fi
 if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]]; then mkdir -p "$STAGE/install/assets/aurora"; cp "$CHIMERA_AURORA_BACKGROUND" "$STAGE/install/assets/aurora/Aurora-Wayland-Glass-Desktop.png"; fi
