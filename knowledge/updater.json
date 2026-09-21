@@ -1,0 +1,12 @@
+{
+  "enabled": false,
+  "interval_minutes": 360,
+  "max_documents_per_cycle": 32,
+  "allowed_domains": [],
+  "require_tls": true,
+  "max_document_bytes": 10485760,
+  "timeout_seconds": 30,
+  "remote_code_execution": false,
+  "automatic_model_training": false,
+  "require_provenance": true
+}
