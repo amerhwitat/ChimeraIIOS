@@ -35,7 +35,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-BASE_BUILD_DIR="${1:-./build-iso-editions}"
+BASE_BUILD_DIR="${1:-$CHIMERA_REPO_ROOT/build-iso-editions}"
 LOG_FILE="$BASE_BUILD_DIR/build.log"
 
 # Define all editions
@@ -100,8 +100,8 @@ initialize_system() {
     
     # Create base build directory
     mkdir -p "$BASE_BUILD_DIR"
-    mkdir -p "$BASE_BUILD_DIR/iso-output"
-    mkdir -p "$BASE_BUILD_DIR/logs"
+    mkdir -p "$BASE_BUILD_DIR/iso-output" "$BASE_BUILD_DIR/logs"
+    touch "$LOG_FILE"
     
     log_success "Build directories created"
     log_info "Base build dir: $BASE_BUILD_DIR"
