@@ -31,4 +31,16 @@ extern "C" void koronos_arch_init(const koronos_boot_context* ctx) {
  if(cpu.logical_cpus==0) cpu.logical_cpus=1;
 }
 extern "C" const koronos_cpu_features* koronos_cpu_features(){ return &cpu; }
-extern "C" void koronos_idle_loop(void) { for(;;) { __asm__ volatile("pause" ::: "memory"); } }
+extern "C" void koronos_idle_loop(void) {
+ for(;;) {
+#if defined(__x86_64__) || defined(__i386__)
+  __asm__ volatile("pause" ::: "memory");
+#elif defined(__aarch64__)
+  __asm__ volatile("yield" ::: "memory");
+#elif defined(__riscv)
+  __asm__ volatile("nop" ::: "memory");
+#else
+  __asm__ volatile("" ::: "memory");
+#endif
+ }
+}
