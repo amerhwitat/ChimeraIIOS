@@ -1,0 +1,11 @@
+{
+  "schema":"CHM-AURORA-INSTALLER-GUI-1",
+  "renderer":"Aurora Wayland Glass",
+  "background":"assets/aurora/Aurora-Wayland-Glass-Desktop.png",
+  "library_source":"Aurora Wayland Glass Desktop.png",
+  "panels":["Welcome","Language & Keyboard","Network","Installation Source","Storage","Filesystem","Users","Desktop Personality","Bootloader","Installation Summary","Progress","Verification","Reboot"],
+  "input":["keyboard","pointer","touch"],
+  "modes":["install","live","recovery","compatibility"],
+  "accessibility":["high-contrast","large-text","keyboard-only","screen-reader-hook"],
+  "transaction":"chimera_installer_core"
+}
