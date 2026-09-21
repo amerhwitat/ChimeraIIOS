@@ -110,10 +110,11 @@ long_mode_entry:
     mov [rel boot_context + 80], rax
     lea rdi, [rel boot_context]
     call koronos_boot
+    ; Keep the bootstrap vCPU executing after kernel initialization.  The old
+    ; CLI/HLT loop made VMware report the vCPU as inactive/disabled.
+    call koronos_idle_loop
 
 .hang64:
-    cli
-    hlt
     jmp near .hang64
 
 section .rodata
