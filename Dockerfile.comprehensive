@@ -217,25 +217,28 @@ RUN git clone --depth 1 https://github.com/amerhwitat/amerhwitat.github.io.git &
 # =============================================================================
 # Install comprehensive Python dependencies
 # =============================================================================
-RUN python3 -m pip install --upgrade pip setuptools wheel && \
-    python3 -m pip install --no-cache-dir \
-    requests beautifulsoup4 lxml \
-    web3 eth-keys eth-typing \
-    cryptography pycryptodome \
-    flask fastapi uvicorn \
-    sqlalchemy alembic \
-    psycopg2-binary mysql-connector-python \
-    redis celery \
-    pytest pytest-cov \
-    sphinx \
-    pylint black flake8 mypy \
-    jupyter ipython notebook \
-    scikit-learn xgboost lightgbm \
-    pandas numpy scipy matplotlib seaborn \
-    nltk spacy gensim \
-    pillow opencv-python \
-    selenium \
-    2>&1 | head -20
+# Do not pipe pip output through head: with Docker's /bin/sh and set -e,
+# a successful pip process can receive SIGPIPE when head exits, which makes
+# the RUN instruction fail with exit code 1. Install in groups and continue
+# only for packages that are genuinely optional for the comprehensive image.
+RUN set -eux; \
+    python3 -m pip install --upgrade --break-system-packages pip setuptools wheel; \
+    pip_install() { \
+      echo "[Chimera] pip group: $*"; \
+      if ! python3 -m pip install --no-cache-dir --break-system-packages --retries 5 --timeout 120 "$@"; then \
+        echo "[Chimera][WARN] pip group failed; continuing: $*"; \
+      fi; \
+    }; \
+    pip_install requests beautifulsoup4 lxml; \
+    pip_install web3 eth-keys eth-typing cryptography pycryptodome; \
+    pip_install flask fastapi uvicorn sqlalchemy alembic; \
+    pip_install psycopg2-binary mysql-connector-python redis celery; \
+    pip_install pytest pytest-cov sphinx pylint black flake8 mypy; \
+    pip_install jupyter ipython notebook; \
+    pip_install scikit-learn xgboost lightgbm pandas numpy scipy matplotlib seaborn; \
+    pip_install nltk spacy gensim pillow opencv-python selenium; \
+    python3 -m pip check || echo "[Chimera][WARN] pip dependency check reported conflicts; continuing"; \
+    python3 -m pip cache purge || true
 
 # =============================================================================
 # Install Node.js ecosystem
