@@ -88,7 +88,17 @@ RUN mkdir -p \
     $INSTALL_DIR/lib \
     $INSTALL_DIR/include \
     $APPS_DIR \
-    $SRC_DIR
+    $SRC_DIR \
+    $INSTALL_DIR/venv
+
+# Ubuntu 24.04 enforces PEP 668 for the system Python. Create the shared
+# Chimera virtual environment before cloning repositories so every repository
+# requirements.txt installation uses the venv rather than system pip.
+RUN python3 -m venv $INSTALL_DIR/venv && \
+    $INSTALL_DIR/venv/bin/python -m pip install --upgrade --no-cache-dir --retries 5 --timeout 120 pip setuptools wheel
+
+ENV VIRTUAL_ENV=$INSTALL_DIR/venv \
+    PATH=$INSTALL_DIR/venv/bin:$PATH
 
 WORKDIR $BUILD_REPOS_DIR
 
@@ -110,7 +120,7 @@ RUN git clone --depth 1 https://github.com/amerhwitat/ChimeraIIOS.git && \
 RUN git clone --depth 1 https://github.com/amerhwitat/nlp.git && \
     cd nlp && \
     if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi && \
-    if [ -f setup.py ]; then python3 setup.py install; fi && \
+    if [ -f setup.py ]; then python -m pip install --no-cache-dir .; fi && \
     mkdir -p $APPS_DIR/nlp && \
     cp -r . $APPS_DIR/nlp && \
     cp -r . $SRC_DIR/nlp
@@ -131,7 +141,7 @@ RUN git clone --depth 1 https://github.com/amerhwitat/BizX.git && \
 RUN git clone --depth 1 https://github.com/amerhwitat/BizXtreme.git && \
     cd BizXtreme && \
     if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi && \
-    if [ -f setup.py ]; then python3 setup.py install; fi && \
+    if [ -f setup.py ]; then python -m pip install --no-cache-dir .; fi && \
     mkdir -p $APPS_DIR/BizXtreme && \
     cp -r . $APPS_DIR/BizXtreme && \
     cp -r . $SRC_DIR/BizXtreme
@@ -223,8 +233,6 @@ RUN git clone --depth 1 https://github.com/amerhwitat/amerhwitat.github.io.git &
 # Never pipe pip output through head: head can close stdout early and cause
 # pip to receive SIGPIPE, turning an otherwise successful install into exit 1.
 RUN set -eux; \
-    python3 -m venv /opt/chimera/venv; \
-    /opt/chimera/venv/bin/python -m pip install --upgrade --no-cache-dir --retries 5 --timeout 120 pip setuptools wheel; \
     pip_install() { \
       echo "[Chimera] Installing Python group: $*"; \
       /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 "$@"; \
