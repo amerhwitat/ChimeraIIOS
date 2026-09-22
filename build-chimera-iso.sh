@@ -23,7 +23,7 @@ cd "$CHIMERA_REPO_ROOT"
 #   --registry REGISTRY Push to specific registry
 # =============================================================================
 
-set -e
+set -Eeuo pipefail
 
 # Color codes
 RED='\033[0;31m'
@@ -154,6 +154,57 @@ check_requirements() {
 }
 
 # =============================================================================
+# DOCKER / STORAGE PREFLIGHT
+# =============================================================================
+
+check_docker_storage() {
+    print_header "DOCKER / STORAGE PREFLIGHT"
+
+    command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is not installed."; exit 1; }
+
+    if ! docker info >/dev/null 2>&1; then
+        log_error "Docker daemon is unavailable."
+        log_error "On Docker Desktop/WSL, restart Docker Desktop and run: wsl --shutdown"
+        exit 1
+    fi
+
+    log_info "Docker root: $(docker info --format '{{.DockerRootDir}}' 2>/dev/null || echo unknown)"
+
+    local test_log="/tmp/chimera-docker-write-test.log"
+    if ! docker run --rm ubuntu:24.04 sh -c '
+        set -eu
+        mkdir -p /tmp/chimera-write-test
+        dd if=/dev/zero of=/tmp/chimera-write-test/test.bin bs=1M count=4 status=none
+        test -s /tmp/chimera-write-test/test.bin
+    ' >"$test_log" 2>&1; then
+        log_error "Docker container storage write test failed."
+        cat "$test_log" >&2 || true
+        log_error "Docker Desktop/WSL storage is unhealthy; aborting before the long build."
+        exit 1
+    fi
+    rm -f "$test_log"
+
+    if ! docker buildx inspect --bootstrap >/tmp/chimera-buildx-bootstrap.log 2>&1; then
+        log_error "Docker BuildKit builder failed to bootstrap."
+        cat /tmp/chimera-buildx-bootstrap.log >&2 || true
+        exit 1
+    fi
+    rm -f /tmp/chimera-buildx-bootstrap.log
+
+    local avail_kb
+    avail_kb="$(df -Pk "$SCRIPT_DIR" 2>/dev/null | awk 'NR==2 {print $4}')"
+    if [[ "$avail_kb" =~ ^[0-9]+$ ]]; then
+        local avail_gb=$((avail_kb / 1024 / 1024))
+        log_info "Repository filesystem free space: ${avail_gb} GiB"
+        if (( avail_gb < 20 )); then
+            log_warning "Less than 20 GiB is available; the comprehensive build needs substantial temporary storage."
+        fi
+    fi
+
+    log_success "Docker storage preflight passed"
+}
+
+# =============================================================================
 # DOCKER IMAGE BUILD
 # =============================================================================
 
@@ -187,16 +238,27 @@ build_docker_image() {
         exit 1
     fi
 
+    if docker buildx prune -af >/tmp/chimera-buildx-prune.log 2>&1; then
+        log_info "Unused BuildKit cache pruned."
+    else
+        log_warning "BuildKit cache prune failed; continuing after storage preflight."
+        cat /tmp/chimera-buildx-prune.log >&2 || true
+    fi
+    rm -f /tmp/chimera-buildx-prune.log
+
+    set +e
     docker build \
         --pull \
         --no-cache \
+        --progress=plain \
         -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
         -t "$DOCKER_IMAGE:$DOCKER_TAG" \
         -t "$DOCKER_IMAGE:latest" \
-        --progress=plain \
         "$SCRIPT_DIR"
-    
-    if [ $? -eq 0 ]; then
+    local build_rc=$?
+    set -e
+
+    if [ $build_rc -eq 0 ]; then
         log_success "Docker image built successfully"
         
         # Get image info
@@ -211,8 +273,13 @@ build_docker_image() {
             log_success "Image pushed to $REGISTRY_NAME"
         fi
     else
-        log_error "Docker image build failed"
-        exit 1
+        log_error "Docker image build failed (exit $build_rc)."
+        log_error "errno 5 / Input/output error, read-only filesystem, SIGBUS, or"
+        log_error "metadata_v2.db errors indicate Docker Desktop/WSL storage failure."
+        log_error "Do not use apt --fix-missing to repair errno 5."
+        log_error "Recovery: wsl --shutdown, restart Docker Desktop, then inspect"
+        log_error "docker system df and docker buildx du."
+        exit "$build_rc"
     fi
 }
 
