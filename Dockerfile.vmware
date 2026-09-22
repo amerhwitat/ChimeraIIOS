@@ -52,10 +52,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python ML libraries
-RUN python3 -m pip install --no-cache-dir \
-    numpy scipy pandas scikit-learn matplotlib \
-    tensorflow keras torch flask fastapi uvicorn \
-    jupyter ipython pylint black pytest sqlalchemy
+RUN set -eux; \
+    python3 -m venv /opt/chimera/venv; \
+    /opt/chimera/venv/bin/python -m pip install --upgrade --no-cache-dir --retries 5 --timeout 120 pip setuptools wheel; \
+    /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 numpy scipy pandas scikit-learn matplotlib tensorflow keras torch flask fastapi uvicorn jupyter ipython pylint black pytest sqlalchemy; \
+    /opt/chimera/venv/bin/python -m pip check || true; \
+    /opt/chimera/venv/bin/python -m pip cache purge || true
+
+ENV VIRTUAL_ENV=/opt/chimera/venv
+ENV PATH=/opt/chimera/venv/bin:$PATH
 
 # Create directories
 RUN mkdir -p $INSTALL_DIR/{bin,lib,applications,scripts,cache} \
