@@ -12,6 +12,37 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     systemd systemd-sysv dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
+# Ubuntu 24.04 uses PEP 668. Keep Python application dependencies in an
+# isolated virtual environment and prefer prebuilt wheels for architecture safety.
+ENV VIRTUAL_ENV=/opt/chimera-venv
+RUN python3 -m venv "$VIRTUAL_ENV" && \
+    "$VIRTUAL_ENV/bin/python" -m pip install --upgrade --no-cache-dir \
+      --retries 5 --timeout 120 pip setuptools wheel
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN set -eux; \
+    pip_install() { \
+      echo "[Chimera] Installing Python group: $*"; \
+      "$VIRTUAL_ENV/bin/python" -m pip install --no-cache-dir \
+        --retries 5 --timeout 120 --prefer-binary "$@"; \
+    }; \
+    pip_install requests beautifulsoup4 lxml; \
+    pip_install web3 eth-keys eth-typing cryptography pycryptodome; \
+    pip_install flask fastapi uvicorn sqlalchemy alembic; \
+    pip_install psycopg2-binary mysql-connector-python redis celery; \
+    pip_install pytest pytest-cov sphinx pylint black flake8 mypy; \
+    pip_install jupyter ipython notebook; \
+    pip_install numpy scipy pandas matplotlib seaborn scikit-learn; \
+    pip_install nltk spacy gensim pillow opencv-python selenium; \
+    if ! "$VIRTUAL_ENV/bin/python" -m pip install --no-cache-dir --retries 5 --timeout 120 --prefer-binary xgboost; then \
+      echo "[Chimera][WARN] xgboost wheel unavailable; continuing"; \
+    fi; \
+    if ! "$VIRTUAL_ENV/bin/python" -m pip install --no-cache-dir --retries 5 --timeout 120 --prefer-binary lightgbm; then \
+      echo "[Chimera][WARN] lightgbm wheel unavailable; continuing"; \
+    fi; \
+    "$VIRTUAL_ENV/bin/python" -m pip check; \
+    "$VIRTUAL_ENV/bin/python" -m pip cache purge || true
+
 WORKDIR /src
 COPY . /src
 
