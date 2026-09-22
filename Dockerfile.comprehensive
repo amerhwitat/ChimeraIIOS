@@ -235,7 +235,7 @@ RUN git clone --depth 1 https://github.com/amerhwitat/amerhwitat.github.io.git &
 RUN set -eux; \
     pip_install() { \
       echo "[Chimera] Installing Python group: $*"; \
-      /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 "$@"; \
+      /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 --prefer-binary "$@"; \
     }; \
     pip_install requests beautifulsoup4 lxml; \
     pip_install web3 eth-keys eth-typing cryptography pycryptodome; \
@@ -243,9 +243,15 @@ RUN set -eux; \
     pip_install psycopg2-binary mysql-connector-python redis celery; \
     pip_install pytest pytest-cov sphinx pylint black flake8 mypy; \
     pip_install jupyter ipython notebook; \
-    pip_install scikit-learn xgboost lightgbm pandas numpy scipy matplotlib seaborn; \
+    pip_install numpy scipy pandas matplotlib seaborn scikit-learn; \
     pip_install nltk spacy gensim pillow opencv-python selenium; \
-    /opt/chimera/venv/bin/python -m pip check || echo "[Chimera][WARN] Python dependency conflicts detected; continuing"; \
+    if ! /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 --prefer-binary xgboost; then \
+      echo "[Chimera][WARN] xgboost wheel unavailable for this architecture; continuing without xgboost"; \
+    fi; \
+    if ! /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 --prefer-binary lightgbm; then \
+      echo "[Chimera][WARN] lightgbm wheel unavailable for this architecture; continuing without lightgbm"; \
+    fi; \
+    /opt/chimera/venv/bin/python -m pip check || { echo "[Chimera][ERROR] Python dependency check failed"; exit 1; }; \
     /opt/chimera/venv/bin/python -m pip cache purge || true
 
 ENV VIRTUAL_ENV=/opt/chimera/venv
