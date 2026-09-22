@@ -179,7 +179,7 @@ check_docker_storage() {
     ' >"$test_log" 2>&1; then
         log_error "Docker container storage write test failed."
         cat "$test_log" >&2 || true
-        log_error "Docker Desktop/WSL storage is unhealthy; aborting before the long build."
+        log_error "Docker Desktop/WSL containerd/overlayfs storage is unhealthy; aborting before the long build."
         exit 1
     fi
     rm -f "$test_log"
@@ -258,7 +258,7 @@ build_docker_image() {
     local build_rc=$?
     set -e
 
-    if [ $build_rc -eq 0 ]; then
+    if [ "$build_rc" -eq 0 ]; then
         log_success "Docker image built successfully"
         
         # Get image info
@@ -277,8 +277,9 @@ build_docker_image() {
         log_error "errno 5 / Input/output error, read-only filesystem, SIGBUS, or"
         log_error "metadata_v2.db errors indicate Docker Desktop/WSL storage failure."
         log_error "Do not use apt --fix-missing to repair errno 5."
-        log_error "Recovery: wsl --shutdown, restart Docker Desktop, then inspect"
-        log_error "docker system df and docker buildx du."
+        log_error "Recovery: stop Docker Desktop, run 'wsl --shutdown' from PowerShell, then restart Docker Desktop."
+        log_error "After restart run: docker system df; docker buildx du; and rerun this script."
+        log_error "If the write test still fails, back up Docker Desktop data before considering Reset/Reinstall."
         exit "$build_rc"
     fi
 }
@@ -312,15 +313,30 @@ export_docker_to_rootfs() {
         fi
     done
     
-    # Alternative: Use docker export if above doesn't work
-    if [ ! -d "$ROOTFS_DIR/bin" ]; then
-        log_info "Using docker export method..."
-        rm -rf "$ROOTFS_DIR"/*
-        docker create --name chimera-export "$DOCKER_IMAGE:$DOCKER_TAG" || true
-        docker export chimera-export | tar -xC "$ROOTFS_DIR"
-        docker rm chimera-export || true
+    # Always flatten the final image with docker export.  Manually unpacking
+    # containerd layer tarballs is unnecessary and is more fragile with the
+    # Docker Desktop containerd image store.
+    log_info "Flattening final image with docker export..."
+    rm -rf "$ROOTFS_DIR"/*
+    local container_name="chimera-export-$"
+    docker rm -f "$container_name" >/dev/null 2>&1 || true
+    docker create --name "$container_name" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+
+    set +e
+    docker export "$container_name" | tar -xpf - -C "$ROOTFS_DIR"
+    local export_rc=${PIPESTATUS[0]}
+    local tar_rc=${PIPESTATUS[1]}
+    set -e
+
+    docker rm -f "$container_name" >/dev/null 2>&1 || true
+
+    if [ "$export_rc" -ne 0 ] || [ "$tar_rc" -ne 0 ] || [ ! -d "$ROOTFS_DIR/bin" ]; then
+        log_error "Docker image export failed or root filesystem is incomplete."
+        log_error "If Docker reports read-only filesystem/Input/output error/SIGBUS,"
+        log_error "repair Docker Desktop/WSL storage before retrying the ISO build."
+        exit 1
     fi
-    
+
     log_success "Rootfs exported successfully"
 }
 
