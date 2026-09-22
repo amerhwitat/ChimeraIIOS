@@ -221,24 +221,7 @@ RUN git clone --depth 1 https://github.com/amerhwitat/amerhwitat.github.io.git &
 # a successful pip process can receive SIGPIPE when head exits, which makes
 # the RUN instruction fail with exit code 1. Install in groups and continue
 # only for packages that are genuinely optional for the comprehensive image.
-RUN set -eux; \
-    python3 -m pip install --upgrade --break-system-packages pip setuptools wheel; \
-    pip_install() { \
-      echo "[Chimera] pip group: $*"; \
-      if ! python3 -m pip install --no-cache-dir --break-system-packages --retries 5 --timeout 120 "$@"; then \
-        echo "[Chimera][WARN] pip group failed; continuing: $*"; \
-      fi; \
-    }; \
-    pip_install requests beautifulsoup4 lxml; \
-    pip_install web3 eth-keys eth-typing cryptography pycryptodome; \
-    pip_install flask fastapi uvicorn sqlalchemy alembic; \
-    pip_install psycopg2-binary mysql-connector-python redis celery; \
-    pip_install pytest pytest-cov sphinx pylint black flake8 mypy; \
-    pip_install jupyter ipython notebook; \
-    pip_install scikit-learn xgboost lightgbm pandas numpy scipy matplotlib seaborn; \
-    pip_install nltk spacy gensim pillow opencv-python selenium; \
-    python3 -m pip check || echo "[Chimera][WARN] pip dependency check reported conflicts; continuing"; \
-    python3 -m pip cache purge || true
+# Use an isolated virtual environment so Ubuntu's externally-managed system Python\n# remains untouched and pip never needs --break-system-packages.\nRUN set -eux; \\n    python3 -m venv /opt/chimera/venv; \\n    /opt/chimera/venv/bin/python -m pip install --upgrade pip setuptools wheel; \\n    pip_install() { \\n      echo "[Chimera] pip group: $*"; \\n      if ! /opt/chimera/venv/bin/python -m pip install --no-cache-dir --retries 5 --timeout 120 "$@"; then \\n        echo "[Chimera][WARN] pip group failed; continuing: $*"; \\n      fi; \\n    }; \\n    pip_install requests beautifulsoup4 lxml; \\n    pip_install web3 eth-keys eth-typing cryptography pycryptodome; \\n    pip_install flask fastapi uvicorn sqlalchemy alembic; \\n    pip_install psycopg2-binary mysql-connector-python redis celery; \\n    pip_install pytest pytest-cov sphinx pylint black flake8 mypy; \\n    pip_install jupyter ipython notebook; \\n    pip_install scikit-learn xgboost lightgbm pandas numpy scipy matplotlib seaborn; \\n    pip_install nltk spacy gensim pillow opencv-python selenium; \\n    /opt/chimera/venv/bin/python -m pip check || echo "[Chimera][WARN] pip dependency check reported conflicts; continuing"; \\n    /opt/chimera/venv/bin/python -m pip cache purge || true\n\nENV VIRTUAL_ENV=/opt/chimera/venv\nENV PATH=/opt/chimera/venv/bin:$PATH
 
 # =============================================================================
 # Install Node.js ecosystem
