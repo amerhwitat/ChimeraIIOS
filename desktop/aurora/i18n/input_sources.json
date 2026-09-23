@@ -1,0 +1,24 @@
+{
+  "schema":"CHM-AURORA-INPUT-SOURCES-1",
+  "switching":{"commands":["cycle-next","cycle-previous","choose"],"default":"cycle-next"},
+  "display_language_independent":true,
+  "sources":[
+    {"id":"en-US","layout":"US","direction":"ltr"},
+    {"id":"en-GB","layout":"UK","direction":"ltr"},
+    {"id":"ar","layout":"Arabic-101","direction":"rtl"},
+    {"id":"he","layout":"Hebrew","direction":"rtl"},
+    {"id":"fr","layout":"French-AZERTY","direction":"ltr"},
+    {"id":"de","layout":"German-QWERTZ","direction":"ltr"},
+    {"id":"es","layout":"Spanish","direction":"ltr"},
+    {"id":"ru","layout":"Russian","direction":"ltr"},
+    {"id":"el","layout":"Greek","direction":"ltr"},
+    {"id":"tr","layout":"Turkish-Q","direction":"ltr"},
+    {"id":"fa","layout":"Persian","direction":"rtl"},
+    {"id":"ur","layout":"Urdu","direction":"rtl"},
+    {"id":"hi","layout":"Hindi-INSCRIPT","direction":"ltr"},
+    {"id":"bn","layout":"Bangla-INSCRIPT","direction":"ltr"},
+    {"id":"zh-CN","layout":"Pinyin","direction":"ltr"},
+    {"id":"ja","layout":"Japanese","direction":"ltr"},
+    {"id":"ko","layout":"Korean","direction":"ltr"}
+  ]
+}
