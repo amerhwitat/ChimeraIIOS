@@ -1,0 +1,8 @@
+{
+  "service_class":"apache-userland",
+  "default_capabilities":["network.listen","network.connect","ipc"],
+  "denied_by_default":["kernel.modules","raw.block","raw.pci","unrestricted.filesystem"],
+  "filesystem_root":"/opt/chimera/apache",
+  "resource_controls":["cpu","memory","threads","file_descriptors","network"],
+  "process_isolation":"Koronos userland service boundary"
+}
