@@ -1,0 +1,22 @@
+{
+  "$schema":"CHM-AURORA-PERIPHERALS-1",
+  "policy":"explicit-user-request",
+  "automatic_access":false,
+  "classes":{
+    "camera":{"backends":["PipeWire","V4L2","libcamera"],"permission":"camera"},
+    "microphone":{"backends":["PipeWire","ALSA","WASAPI","CoreAudio"],"permission":"microphone"},
+    "audio":{"backends":["PipeWire","ALSA","PulseAudio"],"permission":"audio"},
+    "input":{"backends":["evdev","libinput"],"permission":"input"},
+    "hid":{"backends":["hidraw","USB HID"],"permission":"hid"},
+    "serial":{"backends":["USB-serial","USB-CDC"],"permission":"serial"},
+    "gpu":{"backends":["DRM/KMS","Vulkan","OpenGL"],"permission":"graphics"},
+    "storage":{"backends":["block","SCSI","NVMe","USB mass storage"],"permission":"storage"},
+    "bluetooth":{"backends":["BlueZ/PipeWire"],"permission":"bluetooth"},
+    "network":{"backends":["netlink","AF_XDP","Spotnik"],"permission":"network"},
+    "i2c":{"backends":["I2C"],"permission":"hardware-bus"},
+    "spi":{"backends":["SPI"],"permission":"hardware-bus"},
+    "display":{"backends":["Wayland","DRM/KMS"],"permission":"display"},
+    "printer":{"backends":["IPP/USB"],"permission":"printer"}
+  },
+  "rule":"Aurora applications request capabilities before opening peripherals; Koronos/Aegis is the final policy authority."
+}
