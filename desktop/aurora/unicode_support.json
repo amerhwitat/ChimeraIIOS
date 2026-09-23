@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-AURORA-UNICODE-1",
+  "text_encoding":"UTF-8",
+  "locale_model":"BCP-47",
+  "data_model":"Unicode scalar values",
+  "direction":["ltr","rtl","auto"],
+  "scripts":["Latin","Arabic","Hebrew","Cyrillic","Greek","Devanagari","Bengali","Han","Hiragana","Katakana","Hangul","Thai","Georgian","Armenian","Ethiopic","Tamil","Telugu","Kannada","Malayalam","Sinhala","Khmer","Lao","Myanmar","Tibetan","Cherokee","Nko","Syriac"],
+  "features":["combining-marks","variation-selectors","emoji","bidi","logical-start-end","unicode-whitespace"],
+  "terminal":{"encoding":"UTF-8","emoji":true,"rtl":true,"ltr":true},
+  "cli":{"native_command":"chm-utf8","emoji_aliases":true},
+  "icons":{"native_fallback":"hardcoded-svg","theme_independent":true},
+  "notes":"Core runtime is dependency-light; richer CLDR data may be packaged by a distribution."
+}
