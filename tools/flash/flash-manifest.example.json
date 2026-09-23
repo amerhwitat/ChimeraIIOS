@@ -1,0 +1,1 @@
+{"schema":"CHM-FLASH-1","device":{"vendor":"example","model":"example","bootloader":"fastboot"},"images":[{"name":"boot","path":"boot.img","sha256":"REPLACE_WITH_SHA256"}],"security":{"verified_boot":"required","signature_verification":"required","rollback_protection":"required","unlock":"manual-only","erase":"manual-only"}}
