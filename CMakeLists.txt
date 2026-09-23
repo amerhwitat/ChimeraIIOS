@@ -16,7 +16,11 @@ add_subdirectory(installer)
 add_subdirectory(sdk)
 add_subdirectory(tools/chimera-asm)
 
-add_library(chimera_registern STATIC arch/registern/RegisterN.cpp arch/registern/ChimeraCorePool.cpp)
+add_library(chimera_registern STATIC
+  arch/registern/RegisterN.cpp
+  arch/registern/ChimeraCorePool.cpp
+  arch/registern/HostIsaBackend.cpp
+)
 target_include_directories(chimera_registern PUBLIC ${CMAKE_SOURCE_DIR}/arch/registern)
 target_compile_features(chimera_registern PUBLIC cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -26,6 +30,7 @@ install(TARGETS chimera_registern ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY arch/registern DESTINATION share/chimera/arch)
 install(DIRECTORY tools/chimera-asm DESTINATION share/chimera/tools)
 install(FILES system/database/chimera-data-architecture.json DESTINATION share/chimera/database)
+install(FILES system/database/schema/chimera_mdm.sql DESTINATION share/chimera/database/schema)
 install(DIRECTORY services/apache DESTINATION share/chimera/services)
 install(DIRECTORY web/runtime DESTINATION share/chimera/web)
 install(PROGRAMS services/chimera-web/chimera_web.py DESTINATION share/chimera/web)
