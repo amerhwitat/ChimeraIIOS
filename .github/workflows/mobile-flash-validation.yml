@@ -1,0 +1,24 @@
+name: Mobile and Flash Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate mobile manifest
+        run: python3 mobile/tools/validate-mobile-manifest.py
+      - name: Validate flash tool shell syntax
+        run: bash -n tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh
+      - name: Validate Android project metadata
+        run: |
+          test -f mobile/android/settings.gradle
+          test -f mobile/android/build.gradle
+          test -f mobile/android/app/build.gradle
+          test -f mobile/android/app/src/main/AndroidManifest.xml
+      - name: Validate CMake mobile integration
+        run: grep -q 'tools/flash/chimera-flash' CMakeLists.txt
