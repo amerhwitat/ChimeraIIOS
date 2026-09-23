@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Chimera Knowledge Columnar Manifest",
+  "type":"object",
+  "required":["format","columns","compression","deduplication"],
+  "properties":{
+    "format":{"enum":["jsonl","parquet","native-columnar"]},
+    "columns":{"type":"array","items":{"type":"string"}},
+    "compression":{"type":"array","items":{"type":"string"}},
+    "deduplication":{"enum":["sha256","canonical-sha256","semantic"]},
+    "partitioning":{"type":"array","items":{"type":"string"}}
+  }
+}
