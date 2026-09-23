@@ -14,3 +14,4 @@ add_subdirectory(kernel)
 add_subdirectory(userland)
 add_subdirectory(installer)
 add_subdirectory(sdk)
+\n# Container and node-web integration\ninstall(PROGRAMS services/chimera-web/chimera_web.py DESTINATION share/chimera/web)\ninstall(FILES system/security/chimera_web_policy.json system/containers/podman_profile.json DESTINATION share/chimera/config)\ninstall(FILES system/containers/quadlet/chimera-web.container DESTINATION share/chimera/quadlet)\n
