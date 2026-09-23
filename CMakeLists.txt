@@ -54,3 +54,8 @@ install(PROGRAMS
   DESTINATION bin
 )
 install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera/toolchains)
+
+# Mobile edition and safety-gated device tooling.
+install(DIRECTORY mobile DESTINATION share/chimera/mobile)
+install(PROGRAMS tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh DESTINATION bin)
+install(FILES tools/flash/flash-manifest.example.json tools/flash/README.md DESTINATION share/chimera/flash)
