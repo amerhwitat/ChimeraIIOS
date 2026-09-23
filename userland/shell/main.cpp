@@ -2,7 +2,9 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <clocale>
 int main(int argc,char**argv){
+ setlocale(LC_ALL, "");
  chimera::shell::Dialect d=chimera::shell::Dialect::Chimera;
  if(argc>1&&std::strcmp(argv[1],"--bash")==0)d=chimera::shell::Dialect::Bash;
  chimera::shell::CommandContext c{std::getenv("PWD")?std::getenv("PWD"):"/","user",std::getenv("HOME")?std::getenv("HOME"):"/home/user",std::getenv("PATH")?std::getenv("PATH"):"",0,0,true,false};
