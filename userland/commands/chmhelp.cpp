@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 int main(int argc,char**argv){
- if(argc<2){std::cout<<"Chimera commands: chmctl chm-diagnostics chimera-utils aurora-settings chm-knowledge-daemon chm-resource-manager chm-reboot chm-patch chm-user-setup chm-passwd chm-groupadd chm-perms chm-ad\n";return 0;}
+ if(argc<2){std::cout<<"Chimera commands: chmctl chm-diagnostics chimera-utils aurora-settings chm-knowledge-daemon chm-resource-manager chm-reboot chm-patch chm-user-setup chm-usermod chm-groupmod chm-security-selftest chm-passwd chm-groupadd chm-perms chm-ad\n";return 0;}
  std::string n=argv[1];
  if(n=="chmctl") std::cout<<"System control gateway. See man chmctl.\n";
  else if(n=="aurora-settings") std::cout<<"Aurora Settings control surface. See man aurora-settings.\n";
