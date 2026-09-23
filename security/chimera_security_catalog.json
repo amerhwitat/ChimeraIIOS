@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-SECURITY-CATALOG-1",
+  "mode":"authorized-ethical-security",
+  "categories":{
+    "information-gathering":["asset inventory","DNS analysis","service discovery","certificate inspection","OSINT collection"],
+    "vulnerability":["configuration audit","dependency audit","CVE matching","web security testing","network vulnerability assessment"],
+    "forensics":["disk analysis","file metadata","memory-analysis integration","timeline generation"],
+    "reverse-engineering":["ELF/PE/Mach-O inspection","disassembly integration","debugging","binary metadata"],
+    "fuzzing":["protocol fuzzing","file-format fuzzing","coverage-guided test harnesses"],
+    "wireless":["authorized 802.11 inventory","Bluetooth inventory","RF diagnostics"],
+    "reporting":["JSON","SARIF","HTML","Markdown","evidence bundles"]
+  },
+  "policy":{"scope_required":true,"destructive_actions_disabled_by_default":true,"credential_attack_automation":false,"malware_generation":false,"unauthorized_access":false}
+}
