@@ -229,17 +229,34 @@ build_docker_image() {
     # Dockerfile.comprehensive now uses FROM builder AS runtime. This avoids
     # the large cross-stage /opt/chimera and /usr/local COPY operations that
     # caused Docker Desktop/containerd SIGBUS crashes.
-    set +e
     local docker_build_flags=(--progress=plain)
     [ "$DOCKER_PULL" = "1" ] && docker_build_flags+=(--pull)
     [ "$DOCKER_NO_CACHE" = "1" ] && docker_build_flags+=(--no-cache)
-    docker build "${docker_build_flags[@]}" \
-        -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
-        -t "$DOCKER_IMAGE:$DOCKER_TAG" \
-        -t "$DOCKER_IMAGE:latest" \
-        "$SCRIPT_DIR"
-    local build_rc=$?
-    set -e
+
+    local build_rc=1
+    local attempt
+    for attempt in $(seq 1 "$DOCKER_RETRIES"); do
+        log_info "Docker build attempt $attempt/$DOCKER_RETRIES"
+        set +e
+        docker build "${docker_build_flags[@]}" \
+            -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
+            -t "$DOCKER_IMAGE:$DOCKER_TAG" \
+            -t "$DOCKER_IMAGE:latest" \
+            "$SCRIPT_DIR"
+        build_rc=$?
+        set -e
+        [ "$build_rc" -eq 0 ] && break
+        if [ "$attempt" -lt "$DOCKER_RETRIES" ]; then
+            log_warning "Build failed; running a small Docker storage write test before retry."
+            if ! docker run --rm ubuntu:24.04 sh -c 'dd if=/dev/zero of=/tmp/chimera-retry.bin bs=1M count=8 status=none && test -s /tmp/chimera-retry.bin' >/tmp/chimera-storage-retry.log 2>&1; then
+                log_error "Docker storage test failed; aborting retries."
+                cat /tmp/chimera-storage-retry.log >&2 || true
+                break
+            fi
+            rm -f /tmp/chimera-storage-retry.log
+            sleep 3
+        fi
+    done
 
     if [ "$build_rc" -eq 0 ]; then
         log_success "Docker image built successfully"
