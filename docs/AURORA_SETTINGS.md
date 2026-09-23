@@ -40,4 +40,4 @@ The category model is intentionally broader than a single upstream desktop and m
 
 User preferences are persisted in `~/.config/chimera/settings.conf`. Changes that require hardware, kernel, service, firmware, security, or system-wide privileges are intended to be mediated by Koronos/Aegis rather than allowing the desktop process to bypass policy.
 
-Windows documents a unified Settings application and page-visibility controls; Aurora follows the same architectural idea while using its own native implementation and configuration model. cite_placeholder
+Windows documents a unified Settings application and page-visibility controls; Aurora follows the same architectural idea while using its own native implementation and configuration model.
