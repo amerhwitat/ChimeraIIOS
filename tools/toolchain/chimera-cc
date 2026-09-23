@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+compiler="${CHIMERA_NATIVE_COMPILER:-gcc}"
+case "$compiler" in
+  gcc|clang) ;;
+  *) echo "chimera-cc: CHIMERA_NATIVE_COMPILER must be gcc or clang" >&2; exit 2 ;;
+esac
+target_args=()
+if [[ -n "${CHIMERA_TARGET:-}" && "${CHIMERA_TARGET}" != "native" ]]; then
+  target_args+=(--target="${CHIMERA_TARGET}")
+fi
+if [[ -n "${CHIMERA_SYSROOT:-}" ]]; then target_args+=(--sysroot="${CHIMERA_SYSROOT}"); fi
+exec "$compiler" "${target_args[@]}" "$@"
