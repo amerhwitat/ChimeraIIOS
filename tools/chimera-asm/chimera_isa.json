@@ -1,0 +1,15 @@
+{
+  "format": "CHM-ISA-1",
+  "machine": "CHIMERA-BIT",
+  "register_model": "RegisterN",
+  "width_bits": "runtime-positive-integer",
+  "canonical_uop_bytes": 16,
+  "operand_endian": "little",
+  "instruction_families": [
+    "MOV","ADD","SUB","MUL","DIV","AND","OR","XOR","SHL","SHR",
+    "CMP","SELECT","LOAD","STORE","CALL","RET","JMP","CJMP",
+    "VEC","TENSOR","TCONTRACT","MODEXP","NETSEND","SYSCALL","HALT"
+  ],
+  "debug_metadata": ["symbols","line_table","register_liveness","source_map","relocations"],
+  "reverse_engineering": ["control_flow","cross_references","imports","exports","strings","memory_regions"]
+}

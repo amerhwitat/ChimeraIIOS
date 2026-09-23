@@ -66,3 +66,25 @@ Android has hosted APK/AAB and device-profiled bare-metal paths. iOS/iPadOS pack
 ## Security and provenance
 
 Downloaded code, drivers, firmware, ROMs and applications are not automatically trusted. Secure Boot, Android AVB, vendor boot protections and Apple secure boot are respected. Bare-metal automation does not silently flash hardware or erase disks; target selection, compatibility validation, signature/hash verification and recovery/rollback remain explicit.
+
+## RegisterN and Chimera Bit Mode
+
+RegisterN removes the fixed 8192-bit architectural ceiling. Register width is runtime-selected and stored as 64-bit limbs, allowing 8192-bit, 16384-bit, 32768-bit, 65536-bit and larger logical registers without changing the ISA interface. See `arch/registern/`.
+
+Logical Chimera cores/threads execute in parallel over detected physical CPU cores and hardware threads. x86-64 CISC, ARM64 and RISC-V hosts are treated as physical execution backends through a canonical Chimera micro-op boundary. This is virtualization/emulation of the logical width, not a claim that commodity CPUs possess native registers of arbitrary width.
+
+## Native assembler, disassembler and reverse engineering
+
+`tools/chimera-asm/` defines the CHIMERA-BIT instruction contract and provides native assembler/disassembler prototypes. The format is width-neutral and carries machine metadata, symbols, relocations and reverse-engineering information for control-flow and register analysis.
+
+## ER/MDM + OLTP/OLAP/HTAP data platform
+
+`system/database/` defines a Nucleus-facing enterprise data architecture combining ER modeling, master-data management, OLTP, OLAP and HTAP. It includes MVCC/WAL transaction boundaries, columnar/vectorized analytics, CDC, golden records, hierarchy management and audit history. The profile is intentionally compatible with architectural patterns found in enterprise systems such as Oracle Exadata and SAP HANA without embedding proprietary implementations.
+
+## Apache ecosystem integration
+
+`services/apache/apache-projects.json` is the source-first integration catalog for Apache ecosystem families including HTTP, data, messaging, streaming, search, big-data, integration, runtime, security and observability projects. Apache components remain optional userland services and are never linked into the freestanding Koronos kernel. Upstream version, license, checksum and build recipe are required before packaging.
+
+## PHP / HTML / CSS / JavaScript
+
+`web/runtime/` provides the web-runtime contract and example application assets. PHP is isolated behind a FastCGI-compatible process boundary; HTML/CSS are static web assets; JavaScript executes in a sandboxed runtime; HTTP services are capability controlled.
