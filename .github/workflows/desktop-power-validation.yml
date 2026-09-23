@@ -1,0 +1,22 @@
+name: Aurora Desktop Power and Interaction Validation
+
+on:
+  push:
+    paths: ["desktop/aurora/**","desktop/desktop_profiles.json"]
+  pull_request:
+    paths: ["desktop/aurora/**","desktop/desktop_profiles.json"]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON contracts
+        run: |
+          python3 -m json.tool desktop/aurora/power/power-policy.json >/dev/null
+          python3 -m json.tool desktop/aurora/screensaver/screensaver.json >/dev/null
+          python3 -m json.tool desktop/aurora/sound/desktop-sounds.json >/dev/null
+          python3 -m json.tool desktop/aurora/environment/desktop-environment.json >/dev/null
+      - name: Validate shell
+        run: bash -n desktop/aurora/aurora-session.sh
