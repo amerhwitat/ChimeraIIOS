@@ -37,7 +37,7 @@ RUN set -eux; \
           echo "[Chimera] installed: $pkg"; \
         else \
           echo "[Chimera][WARN] package install failed; continuing: $pkg"; \
-          apt-get -f install -y --no-install-recommends || true; \
+          echo "[Chimera][WARN] optional package failed; continuing without dependency repair"; \
         fi; \
       else \
         echo "[Chimera][WARN] package unavailable; skipped: $pkg"; \
