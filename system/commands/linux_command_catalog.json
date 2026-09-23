@@ -1,0 +1,38 @@
+{
+  "schema": "CHIMERA-LINUX-COMMAND-CATALOG-1",
+  "description": "Cross-platform Linux command catalog derived from the supplied Linux command taxonomy, with explicit distinction between native Chimera implementations, external compatibility commands, shell syntax, and editor shortcuts.",
+  "entries": [
+    {"name":"diskpart","category":"storage","type":"native","implementation":"chm-diskpart","platforms":["chimera","windows"],"danger":"destructive","notes":"Interactive disk/partition interpreter with explicit disk focus."},
+    {"name":"parted","category":"storage","type":"native","implementation":"chm-parted","platforms":["chimera","linux"],"danger":"destructive","notes":"Partition-table interpreter; supports image files and privileged block devices."},
+    {"name":"fdisk","category":"storage","type":"native","implementation":"chm-fdisk","platforms":["chimera","linux"],"danger":"destructive","notes":"MBR/GPT inspection and partition editing."},
+    {"name":"gdisk","category":"storage","type":"native","implementation":"chm-gdisk","platforms":["chimera","linux"],"danger":"destructive","notes":"GPT-focused partition editor with protective-MBR awareness."},
+    {"name":"regex","category":"text","type":"syntax","implementation":"chimera-regex","platforms":["chimera","posix","javascript","python","perl"],"danger":"safe","notes":"ECMAScript-style examples plus portable POSIX notes; dialect differences must be declared."},
+    {"name":"grep","category":"text","type":"external-or-native-adapter","implementation":"external","platforms":["chimera","linux","bsd"],"danger":"safe"},
+    {"name":"sed","category":"text","type":"external-or-native-adapter","implementation":"external","platforms":["chimera","linux","bsd"],"danger":"safe"},
+    {"name":"awk","category":"text","type":"external-or-native-adapter","implementation":"external","platforms":["chimera","linux","bsd"],"danger":"safe"},
+    {"name":"fdisk","category":"storage","type":"alias","implementation":"chm-fdisk","platforms":["chimera"]},
+    {"name":"tar","category":"archives","type":"external","implementation":"external","platforms":["chimera","linux","bsd"]},
+    {"name":"mount","category":"storage","type":"external-or-native-adapter","implementation":"kernel-storage","platforms":["chimera","linux"],"danger":"privileged"},
+    {"name":"systemctl","category":"services","type":"compatibility","implementation":"kore-service-manager","platforms":["chimera","linux"]},
+    {"name":"chmod","category":"permissions","type":"compatibility","implementation":"native-filesystem","platforms":["chimera","linux","bsd"]},
+    {"name":"chown","category":"permissions","type":"compatibility","implementation":"native-filesystem","platforms":["chimera","linux","bsd"]},
+    {"name":"lsblk","category":"hardware","type":"compatibility","implementation":"chm-storage","platforms":["chimera","linux"]},
+    {"name":"dmidecode","category":"hardware","type":"external","implementation":"external","platforms":["chimera","linux"],"danger":"privileged"},
+    {"name":"dmesg","category":"logging","type":"compatibility","implementation":"koronos-log"},
+    {"name":"journalctl","category":"logging","type":"compatibility","implementation":"kore-journal"},
+    {"name":"gcc","category":"development","type":"external","implementation":"toolchain"},
+    {"name":"g++","category":"development","type":"external","implementation":"toolchain"},
+    {"name":"gdb","category":"development","type":"external","implementation":"debugger"},
+    {"name":"ssh","category":"networking","type":"external-or-native-adapter","implementation":"spotnik"},
+    {"name":"curl","category":"networking","type":"external-or-native-adapter","implementation":"spotnik-http"},
+    {"name":"wget","category":"networking","type":"external-or-native-adapter","implementation":"spotnik-http"}
+  ],
+  "type_definitions": {
+    "native": "Implemented by Chimera II userland/storage code.",
+    "external": "Resolved to an installed compatible executable.",
+    "external-or-native-adapter": "Native subsystem may provide the operation; executable fallback may be used.",
+    "compatibility": "Chimera service or kernel interface provides the semantic operation.",
+    "syntax": "Shell/language syntax rather than an executable.",
+    "alias": "Compatibility name for another Chimera implementation."
+  }
+}
