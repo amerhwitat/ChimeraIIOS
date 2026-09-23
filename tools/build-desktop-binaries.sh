@@ -13,6 +13,10 @@ if [[ -f "$ROOT/desktop/aurora/aurora-launcher.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra "$ROOT/desktop/aurora/aurora-launcher.cpp" -o "$OUT/bin/aurora-launcher"
 fi
 
+if [[ -f "$ROOT/desktop/aurora/input/aurora_input.cpp" ]]; then
+  "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/desktop/aurora/input" -c "$ROOT/desktop/aurora/input/aurora_input.cpp" -o "$OUT/aurora_input.o"
+fi
+
 if [[ -f "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/neural/cpp"     "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" -o "$OUT/bin/chimera-neural-chat"
 fi
