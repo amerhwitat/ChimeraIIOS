@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-AURORA-SCREENSAVER-1",
+  "enabled":true,
+  "idle_seconds":600,
+  "lock_after_seconds":900,
+  "require_authentication":true,
+  "blank_screen_on_lock":false,
+  "modes":["aurora-glass","clock","photos","blank","custom"],
+  "activity_sources":["keyboard","mouse","touch","pen","gamepad","window-focus"],
+  "secure_transition":"Aegis session-lock",
+  "power_policy":"desktop/aurora/power/power-policy.json"
+}
