@@ -68,7 +68,7 @@ if [[ "$AUTO_CLEAN" == "1" ]] && awk -v f="$effective_free_gb" -v t="$CLEAN_THRE
 fi
 
 status="ok"
-if awk -v f="$effective_free_gb" -v need="$MIN_FREE_GB" -v exp="$EXPECTED_GB" -v r="$RESERVE_GB" 'BEGIN {exit !(f<need || f<exp+r)}'; then
+if awk -v f="$effective_free_gb" -v need="$MIN_FREE_GB" -v expected="$EXPECTED_GB" -v r="$RESERVE_GB" 'BEGIN {exit !(f<need || f<expected+r)}'; then
   status="insufficient"
 fi
 
