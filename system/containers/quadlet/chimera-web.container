@@ -1,0 +1,18 @@
+[Unit]
+Description=Chimera II OS Web Control
+After=network-online.target
+
+[Container]
+Image=localhost/chimera-web:latest
+ContainerName=chimera-web
+PublishPort=127.0.0.1:8765:8765
+Environment=CHIMERA_WEB_HOST=0.0.0.0
+Environment=CHIMERA_WEB_PORT=8765
+Environment=CHIMERA_WEB_TOKEN_FILE=/run/secrets/chimera-web-token
+Secret=chimera-web-token,target=chimera-web-token
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
