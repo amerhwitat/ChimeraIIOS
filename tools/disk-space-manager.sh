@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$CHIMERA_ROOT"
-if [[ -z "$ROOT" ]]; then ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"; fi
-REPORT="$CHIMERA_DISK_REPORT"
-[[ -n "$REPORT" ]] || REPORT="$ROOT/build/reports/disk-space.json"
-MIN_FREE_GB="$CHIMERA_MIN_FREE_GB"; [[ -n "$MIN_FREE_GB" ]] || MIN_FREE_GB=100
-EXPECTED_GB="$CHIMERA_EXPECTED_BUILD_GB"; [[ -n "$EXPECTED_GB" ]] || EXPECTED_GB=80
-RESERVE_GB="$CHIMERA_DISK_RESERVE_GB"; [[ -n "$RESERVE_GB" ]] || RESERVE_GB=20
-AUTO_CLEAN="$CHIMERA_AUTO_CLEAN_DISK"; [[ -n "$AUTO_CLEAN" ]] || AUTO_CLEAN=1
-CLEAN_THRESHOLD_GB="$CHIMERA_CLEAN_THRESHOLD_GB"
-[[ -n "$CLEAN_THRESHOLD_GB" ]] || CLEAN_THRESHOLD_GB=$((MIN_FREE_GB + RESERVE_GB))
+
+ROOT="${CHIMERA_ROOT:-}"
+if [[ -z "$ROOT" ]]; then
+  ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
+
+REPORT="${CHIMERA_DISK_REPORT:-$ROOT/build/reports/disk-space.json}"
+MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-100}"
+EXPECTED_GB="${CHIMERA_EXPECTED_BUILD_GB:-80}"
+RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-20}"
+AUTO_CLEAN="${CHIMERA_AUTO_CLEAN_DISK:-1}"
+CLEAN_THRESHOLD_GB="${CHIMERA_CLEAN_THRESHOLD_GB:-$((MIN_FREE_GB + RESERVE_GB))}"
 
 mkdir -p "$(dirname "$REPORT")"
 log(){ printf '[DISK] %s\n' "$*" >&2; }
@@ -32,7 +34,7 @@ fi
 
 wsl_detected=0
 wsl_free_gb="0.00"
-if grep -qiE '(microsoft|wsl)' /proc/version 2>/dev/null || [[ -n "$WSL_DISTRO_NAME" ]]; then
+if grep -qiE '(microsoft|wsl)' /proc/version 2>/dev/null || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
   wsl_detected=1
   wsl_free_gb="$(path_free_gb /)"
 fi
