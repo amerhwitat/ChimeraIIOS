@@ -1,0 +1,11 @@
+{
+  "schema":"CHM-AURORA-ENV-1",
+  "shell":"Aurora",
+  "compositor":"Wayland",
+  "window_manager":["tiling","stacking","snap","virtual-desktop"],
+  "desktop":["icons","wallpaper","taskbar","start-menu","system-tray","widgets","quick-settings"],
+  "interaction":["single-click","double-click","right-click","middle-click","drag-drop","context-menu","keyboard-shortcuts"],
+  "settings":["theme","appearance","sounds","notifications","power","screensaver","lock-screen","battery","display","accessibility"],
+  "profiles":["chimera-classic","chimera-modern","chimera-arabic","windows-classic","windows-modern","mac-modern","unix"],
+  "session":{"save_state":true,"restore_state":true,"idle_tracking":true}
+}
