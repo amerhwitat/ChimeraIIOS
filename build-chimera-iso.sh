@@ -21,6 +21,8 @@ cd "$CHIMERA_REPO_ROOT"
 #   --push              Push image to Docker registry after build
 #   --tag TAG           Docker image tag (default: latest)
 #   --registry REGISTRY Push to specific registry
+#   --apache-ecosystem  Include the ASF official-release package manager/catalog
+#   --skip-apache       Do not stage the ASF ecosystem integration
 # =============================================================================
 
 set -Eeuo pipefail
@@ -54,6 +56,8 @@ BUILD_DOCKER=1
 BUILD_ISO=1
 PUSH_REGISTRY=0
 REGISTRY_NAME=""
+APACHE_ECOSYSTEM=1
+APACHE_ECOSYSTEM_MODE="${CHIMERA_APACHE_ECOSYSTEM:-metadata}"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -77,6 +81,14 @@ while [[ $# -gt 0 ]]; do
         --registry)
             REGISTRY_NAME="$2"
             shift 2
+            ;;
+        --apache-ecosystem)
+            APACHE_ECOSYSTEM=1
+            shift
+            ;;
+        --skip-apache)
+            APACHE_ECOSYSTEM=0
+            shift
             ;;
         *)
             echo "Unknown option: $1"
@@ -323,6 +335,93 @@ export_docker_to_rootfs() {
     fi
 
     log_success "Rootfs exported successfully"
+}
+
+# =============================================================================
+# INTEGRATE APACHE SOFTWARE FOUNDATION ECOSYSTEM
+# =============================================================================
+
+prepare_apache_ecosystem() {
+    print_header "STEP 3: INTEGRATING APACHE SOFTWARE FOUNDATION ECOSYSTEM"
+
+    if [ "$APACHE_ECOSYSTEM" -ne 1 ]; then
+        log_info "Apache ecosystem integration disabled."
+        return 0
+    fi
+
+    local apache_src="$SCRIPT_DIR/services/apache"
+    local apache_root="$ROOTFS_DIR/opt/chimera/apache"
+    local apache_cache="$ROOTFS_DIR/var/cache/chimera/apache"
+    local apache_cfg="$ROOTFS_DIR/etc/chimera/apache-ecosystem.conf"
+
+    if [ ! -d "$apache_src" ]; then
+        log_warning "services/apache is not present; skipping Apache ecosystem integration."
+        return 0
+    fi
+
+    mkdir -p "$apache_root" "$apache_cache" "$(dirname "$apache_cfg")"
+
+    # Ship the Apache package-manager/control plane into the ISO. The ISO
+    # contains metadata and installers rather than hundreds of third-party
+    # release archives. Official source/binary artifacts are resolved at
+    # installation time and remain subject to ASF release verification.
+    for f in apache-projects.json README.md apache-sync.py; do
+        if [ -f "$apache_src/$f" ]; then
+            install -m 0644 "$apache_src/$f" "$apache_root/$f"
+        fi
+    done
+
+    for f in install-apache-ecosystem.sh verify-apache-package.sh; do
+        if [ -f "$apache_src/$f" ]; then
+            install -m 0755 "$apache_src/$f" "$ROOTFS_DIR/usr/bin/$f"
+        fi
+    done
+
+    if [ -f "$SCRIPT_DIR/system/security/apache-sandbox.json" ]; then
+        mkdir -p "$ROOTFS_DIR/usr/share/chimera/config"
+        install -m 0644 "$SCRIPT_DIR/system/security/apache-sandbox.json"             "$ROOTFS_DIR/usr/share/chimera/config/apache-sandbox.json"
+    fi
+
+    cat > "$apache_cfg" <<EOF
+# Chimera II OS Apache Software Foundation ecosystem
+CHIMERA_APACHE_PREFIX=/opt/chimera/apache
+CHIMERA_APACHE_CACHE=/var/cache/chimera/apache
+CHIMERA_APACHE_CATALOG=/opt/chimera/apache/apache-projects.json
+CHIMERA_APACHE_PROJECT_INDEX=https://projects.apache.org/json/projects/
+CHIMERA_APACHE_RELEASE_INDEX=https://downloads.apache.org/
+CHIMERA_APACHE_ARTIFACT_POLICY=official-releases-only
+CHIMERA_APACHE_VERIFY_SHA256=1
+CHIMERA_APACHE_VERIFY_PGP=1
+CHIMERA_APACHE_ALLOW_SNAPSHOT=0
+CHIMERA_APACHE_MODE=$APACHE_ECOSYSTEM_MODE
+EOF
+
+    cat > "$apache_root/ISO-INTEGRATION.json" <<EOF
+{
+  "component": "Apache Software Foundation ecosystem",
+  "mode": "$APACHE_ECOSYSTEM_MODE",
+  "catalog": "https://projects.apache.org/json/projects/",
+  "release_source": "https://downloads.apache.org/",
+  "artifact_policy": "official-releases-only",
+  "kernel_boundary": "Apache components run as userland services and libraries; never linked into Koronos"
+}
+EOF
+
+    # A network refresh is optional during ISO construction. The bundled
+    # catalog remains usable when the build host has no network access.
+    if [ "$APACHE_ECOSYSTEM_MODE" = "metadata" ] && command -v curl >/dev/null 2>&1; then
+        log_info "Refreshing ASF project catalog metadata..."
+        if curl -fsSL --retry 3 --connect-timeout 15             "https://projects.apache.org/json/projects/"             -o "$apache_root/apache-projects-index.html" 2>/tmp/chimera-apache-refresh.log; then
+            log_success "ASF project-directory index staged in ISO rootfs."
+        else
+            log_warning "ASF catalog refresh failed; bundled catalog retained."
+            cat /tmp/chimera-apache-refresh.log >&2 || true
+        fi
+        rm -f /tmp/chimera-apache-refresh.log
+    fi
+
+    log_success "Apache ecosystem integration prepared: $apache_root"
+    log_info "The ISO ships the ASF catalog/package-manager boundary; release archives are not copied wholesale."
 }
 
 # =============================================================================
@@ -769,6 +868,7 @@ main() {
         create_boot_menu
         add_branding
         create_bootloader
+        prepare_apache_ecosystem
         create_squashfs
         create_iso_image
         verify_iso
