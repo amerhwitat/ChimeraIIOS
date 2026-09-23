@@ -1,0 +1,39 @@
+name: Validate Chimera II command and build metadata
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON catalogs
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          for p in pathlib.Path("system").rglob("*.json"):
+              json.loads(p.read_text(encoding="utf-8"))
+              print("OK", p)
+          PY
+      - name: Validate shell scripts
+        run: |
+          bash -n build-chimera-iso.sh
+          find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 -n1 bash -n
+      - name: Validate AWK/sed profiles
+        run: |
+          test -f system/languages/awk.json
+          test -f system/languages/sed.json
+          test -f system/languages/chm_awk.cpp
+          test -f system/languages/chm_sed.cpp
+      - name: Validate storage command sources
+        run: |
+          test -f system/storage/chimera_partition.cpp
+          test -f system/storage/chm_partition_cli.cpp
+          test -f system/storage/chm-diskpart.cpp
+          test -f system/storage/chm-parted.cpp
+          test -f system/storage/chm-fdisk.cpp
+          test -f system/storage/chm-gdisk.cpp
