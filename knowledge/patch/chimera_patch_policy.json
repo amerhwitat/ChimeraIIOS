@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-PATCH-POLICY-1",
+  "source_only":"signed-provenance",
+  "build_isolation":"required",
+  "tests":["unit","integration","static-analysis","reproducibility"],
+  "artifact_hash":"sha256",
+  "signature":"required",
+  "deployment":["staged","health-check","rollback"],
+  "privileged_targets":["koronos","spit-fire","jasper","aegis","spotnik","kore"],
+  "privileged_requires_admin":true,
+  "automatic_kernel_replacement":false,
+  "automatic_bootloader_replacement":false,
+  "automatic_security_policy_replacement":false
+}
