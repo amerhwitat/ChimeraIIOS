@@ -8,7 +8,7 @@
     {"id":"network","pages":["Wi-Fi","Ethernet","VPN","Proxy","DNS","Firewall","Spotnik"]},
     {"id":"personalization","pages":["Appearance","Theme","Wallpaper","Colors","Start","Taskbar","Dock","Desktop"]},
     {"id":"apps","pages":["Installed apps","Defaults","Startup","Optional features","Permissions"]},
-    {"id":"accounts","pages":["Users","Groups","Sign-in","Session","Remote access"]},
+    {"id":"accounts","pages":["Users","Groups","Sign-in","Session","Remote access","Administrator","Active Directory","Kerberos","LDAP/SSSD","Winbind","Filesystem permissions","ACLs"]},
     {"id":"time-language","pages":["Date & time","Language","Region","Keyboard","Input methods","RTL/LTR"]},
     {"id":"gaming","pages":["Controllers","Game mode","Graphics","Capture"]},
     {"id":"accessibility","pages":["Screen reader","Magnification","Contrast","Pointer","Keyboard","Captions"]},
