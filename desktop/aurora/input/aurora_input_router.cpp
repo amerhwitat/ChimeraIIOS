@@ -1,53 +1,14 @@
 #include "aurora_input_router.hpp"
-#include <algorithm>
-#include <utility>
-
+#include <cmath>
 namespace aurora::input {
-
-void InputRouter::set_window_policy(uint64_t window_id, WindowPolicy policy) {
-    policies_[window_id] = policy;
+void InputRouter::set_window_policy(uint64_t id,WindowPolicy p){policies_[id]=p;}
+void InputRouter::focus_window(uint64_t id){focused_window_=id;}
+void InputRouter::register_shortcut(Shortcut s){shortcuts_.push_back(std::move(s));}
+bool InputRouter::dispatch_shortcut(uint64_t id,const Event&e)const{if(e.type!=Type::KeyDown||id!=focused_window_)return false;for(const auto&s:shortcuts_)if(s.key==e.key&&s.modifiers==e.modifiers){if(command_sink_)command_sink_(s.command,id);return true;}return false;}
+void InputRouter::route(uint64_t id,const Event&e){
+ auto p=policies_.find(id);if(p!=policies_.end()){bool mouse=e.type==Type::MouseMove||e.type==Type::MouseButtonDown||e.type==Type::MouseButtonUp||e.type==Type::MouseClick||e.type==Type::MouseDoubleClick||e.type==Type::MouseTripleClick||e.type==Type::MouseWheel;if(mouse&&!p->second.accept_mouse)return;if((e.type==Type::KeyDown||e.type==Type::KeyUp||e.type==Type::TextInput)&&!p->second.accept_keyboard)return;}
+ if(dispatch_shortcut(id,e))return;
+ if(e.type==Type::MouseButtonDown){auto&s=clicks_[id];uint64_t delta=e.timestamp_ns-s.last_ns;int dx=e.x-s.x,dy=e.y-s.y;double dist=std::sqrt(double(dx*dx+dy*dy));if(s.button==e.button&&s.last_ns&&delta<=uint64_t(click_policy_.triple_click_ms)*1000000ULL&&dist<=click_policy_.distance_px)s.count=s.count==2?3:2;else{s.button=e.button;s.count=1;}s.last_ns=e.timestamp_ns;s.x=e.x;s.y=e.y;Event click=e;click.type=s.count==3?Type::MouseTripleClick:(s.count==2?Type::MouseDoubleClick:Type::MouseClick);click.clicks=static_cast<ClickCount>(s.count);if(event_sink_)event_sink_(click);}
+ if(event_sink_)event_sink_(e);
 }
-
-void InputRouter::focus_window(uint64_t window_id) {
-    focused_window_ = window_id;
 }
-
-void InputRouter::register_shortcut(Shortcut shortcut) {
-    shortcuts_.push_back(std::move(shortcut));
-}
-
-bool InputRouter::dispatch_shortcut(uint64_t window_id, const Event& event) const {
-    if (event.type != Type::KeyDown) return false;
-    for (const auto& shortcut : shortcuts_) {
-        if (shortcut.key == event.key && shortcut.modifiers == event.modifiers) {
-            if (command_sink_) command_sink_(shortcut.command, window_id);
-            return true;
-        }
-    }
-    return false;
-}
-
-void InputRouter::route(uint64_t window_id, const Event& event) {
-    const auto it = policies_.find(window_id);
-    const WindowPolicy policy = (it == policies_.end()) ? WindowPolicy{} : it->second;
-
-    if (event.type == Type::KeyDown || event.type == Type::KeyUp || event.type == Type::TextInput) {
-        if (!policy.accept_keyboard) return;
-    }
-    if (event.type == Type::MouseMove || event.type == Type::MouseButtonDown ||
-        event.type == Type::MouseButtonUp || event.type == Type::MouseWheel ||
-        event.type == Type::Touch || event.type == Type::Gesture || event.type == Type::Tablet) {
-        if (!policy.accept_mouse) return;
-    }
-    if (event.type == Type::MouseButtonDown && event.button == MouseButton::Right && policy.context_menu) {
-        if (command_sink_) command_sink_("context-menu", window_id);
-    }
-    if (event.type == Type::KeyDown && policy.context_menu &&
-        ((event.key == 121u && (event.modifiers & 1u)) || event.key == 93u)) {
-        if (command_sink_) command_sink_("context-menu", window_id);
-    }
-    if (event.type == Type::KeyDown && dispatch_shortcut(window_id, event)) return;
-    if (event_sink_) event_sink_(event);
-}
-
-} // namespace aurora::input
