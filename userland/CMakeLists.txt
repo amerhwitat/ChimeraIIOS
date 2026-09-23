@@ -52,3 +52,13 @@ install(TARGETS chmctl chm-diagnostics chmhelp chm-utf8 chm-knowledge-daemon chm
 install(DIRECTORY ../man/ DESTINATION share/man/man1 FILES_MATCHING PATTERN "*.1")
 install(DIRECTORY ../desktop/aurora/icons DESTINATION share/chimera/aurora)
 install(DIRECTORY ../system/commands DESTINATION share/chimera/commands FILES_MATCHING PATTERN "*.json")
+
+add_library(chimera_partition STATIC ../system/storage/chimera_partition.cpp ../system/storage/chm_partition_cli.cpp)
+target_include_directories(chimera_partition PUBLIC ../system/storage)
+target_compile_features(chimera_partition PUBLIC cxx_std_20)
+foreach(storage_cmd chm-diskpart chm-parted chm-fdisk chm-gdisk)
+  add_executable(${storage_cmd} ../system/storage/${storage_cmd}.cpp)
+  target_link_libraries(${storage_cmd} PRIVATE chimera_partition)
+  target_compile_features(${storage_cmd} PRIVATE cxx_std_20)
+endforeach()
+install(TARGETS chm-diskpart chm-parted chm-fdisk chm-gdisk RUNTIME DESTINATION bin)
