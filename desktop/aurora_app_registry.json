@@ -97,8 +97,44 @@
         "wayland-glass"
       ],
       "voice": "voiceconnect"
+    },
+    {
+      "id": "aurora-peripherals",
+      "category": "system",
+      "entry": "desktop/aurora/apps/aurora_peripherals",
+      "formats": [
+        "native",
+        "wayland-glass"
+      ],
+      "policy": "explicit-user-request"
+    },
+    {
+      "id": "aurora-settings",
+      "category": "system",
+      "entry": "desktop/aurora/apps/aurora_settings",
+      "capabilities": [
+        "system-settings",
+        "device-settings",
+        "privacy-settings"
+      ],
+      "ui": "settings-sidebar-detail"
+    },
+    {
+      "id": "system-control",
+      "category": "system",
+      "entry": "userland/commands/chmctl",
+      "capabilities": [
+        "system-control"
+      ]
+    },
+    {
+      "id": "diagnostics",
+      "category": "system",
+      "entry": "userland/commands/chm-diagnostics",
+      "capabilities": [
+        "diagnostics"
+      ]
     }
-    ,{"id":"aurora-peripherals","category":"system","entry":"desktop/aurora/apps/aurora_peripherals","formats":["native","wayland-glass"],"policy":"explicit-user-request"}
   ],
   "compatibility_apps": [
     "wine",
