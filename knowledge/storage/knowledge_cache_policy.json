@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-KNOWLEDGE-CACHE-1",
+  "design":"disk-first-bounded-memory",
+  "metadata_in_memory":true,
+  "content_in_memory":false,
+  "max_entries":4096,
+  "max_memory_percent":2,
+  "eviction":"lru",
+  "dedup_index":"content-addressed-on-disk",
+  "query_cache":"bounded-lru",
+  "large_documents":"streamed",
+  "embeddings":"memory-mapped-or-disk-backed",
+  "columnar":"parquet-or-native-columnar",
+  "reclaim_on_pressure":true,
+  "never_drop_provenance":true
+}
