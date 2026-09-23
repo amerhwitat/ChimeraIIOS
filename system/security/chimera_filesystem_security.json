@@ -1,0 +1,11 @@
+{
+  "schema":"CHM-FS-SECURITY-1",
+  "mode_bits":["0400","0200","0100","0040","0020","0010","0004","0002","0001"],
+  "special_bits":["setuid","setgid","sticky"],
+  "ownership":["uid","gid"],
+  "acl":["POSIX.1e","NFSv4-compatible adapter"],
+  "mount_controls":["nodev","nosuid","noexec","ro"],
+  "security_layers":["DAC","ACL","capabilities","MAC-provider-hook"],
+  "protected_files":["/etc/shadow","/etc/gshadow","/etc/krb5.keytab","/etc/sssd/sssd.conf"],
+  "principle":"deny-by-default for privileged resources"
+}
