@@ -1,0 +1,26 @@
+{
+  "schema": "CHIMERA-LANGUAGE-AWK-1",
+  "name": "awk",
+  "family": "text-processing-language",
+  "standard": "POSIX awk",
+  "gnu_variant": "gawk",
+  "interpreter_command": "awk",
+  "chimera_command": "chm-awk",
+  "execution": "native-adapter-with-external-fallback",
+  "features": [
+    "records",
+    "fields",
+    "patterns",
+    "actions",
+    "variables",
+    "arrays",
+    "functions",
+    "regular-expressions",
+    "BEGIN",
+    "END"
+  ],
+  "notes": [
+    "AWK programs are pattern-action programs.",
+    "Dialect-specific extensions must be declared explicitly."
+  ]
+}
