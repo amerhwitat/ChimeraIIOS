@@ -1,0 +1,32 @@
+{
+  "schema":"CHIMERA-REGEX-CHEATSHEET-1",
+  "dialects":["ECMAScript","POSIX-ERE","PCRE2-compatible"],
+  "rules":[
+    {"pattern":"^hello$","meaning":"exact whole-string match"},
+    {"pattern":"^h","meaning":"starts with h"},
+    {"pattern":"ld$","meaning":"ends with ld"},
+    {"pattern":".","meaning":"one character"},
+    {"pattern":".*","meaning":"zero or more arbitrary characters"},
+    {"pattern":"?","meaning":"optional quantifier in ECMAScript/ERE contexts when applied to a preceding atom"},
+    {"pattern":"\\?","meaning":"literal question mark"},
+    {"pattern":"[ae]","meaning":"one character from the set"},
+    {"pattern":"[^GF]","meaning":"one character not in the set"},
+    {"pattern":"[A-Z]","meaning":"uppercase ASCII range"},
+    {"pattern":"[a-z]","meaning":"lowercase ASCII range"},
+    {"pattern":"[A-Za-z0-9]","meaning":"ASCII letter or digit"},
+    {"pattern":"{3}","meaning":"exactly three occurrences of the preceding atom"},
+    {"pattern":"{2,3}","meaning":"two through three occurrences"},
+    {"pattern":"{2,}","meaning":"at least two occurrences"},
+    {"pattern":"([0-9]x){3}","meaning":"group repeated three times"},
+    {"pattern":"\\w","meaning":"word character; dialect dependent"},
+    {"pattern":"\\W","meaning":"non-word character; dialect dependent"},
+    {"pattern":"\\d","meaning":"digit; dialect dependent"},
+    {"pattern":"\\D","meaning":"non-digit; dialect dependent"},
+    {"pattern":"\\d+","meaning":"one or more digits"},
+    {"pattern":"\\D+","meaning":"one or more non-digits"},
+    {"pattern":"^([A-Z]{3,4}[0-9]{3})$","meaning":"example module-code validator: three or four uppercase letters followed by three digits"},
+    {"pattern":"\\b","meaning":"word boundary where supported"}
+  ],
+  "js_operations":["RegExp.prototype.exec","RegExp.prototype.test","String.prototype.search","String.prototype.replace"],
+  "implementation_notes":["Do not assume JavaScript, POSIX ERE, PCRE2, Python, and C++ regex have identical escapes or flags.","The supplied article's \d+ and \D+ examples mean one or more characters; zero-or-more is *."]
+}
