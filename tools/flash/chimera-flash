@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+usage(){ cat <<'EOF'
+Chimera II Flash Tool
+Usage:
+  chimera-flash detect
+  chimera-flash verify <manifest>
+  chimera-flash android-list
+  chimera-flash android-flash <device-profile> <image>
+  chimera-flash recovery <device-profile>
+Safety: no automatic unlock, partition erase, AVB bypass or vendor-security bypass.
+EOF
+}
+die(){ echo "[Chimera][ERROR] $*" >&2; exit 2; }
+confirm(){ [[ "\${CHIMERA_FLASH_CONFIRM:-}" == "YES" ]] || die "Set CHIMERA_FLASH_CONFIRM=YES after validating the device profile and recovery plan."; }
+case "\${1:-}" in
+  detect) command -v adb >/dev/null && adb devices || echo "adb unavailable"; command -v fastboot >/dev/null && fastboot devices || echo "fastboot unavailable" ;;
+  verify) [[ -f "\${2:-}" ]] || die "manifest not found"; python3 - "\${2}" <<'PY'
+import json,sys
+with open(sys.argv[1],encoding="utf-8") as f: d=json.load(f)
+for k in ("schema","device","images","security"):
+    if k not in d: raise SystemExit("missing manifest field: "+k)
+print("flash manifest: valid")
+PY
+  ;;
+  android-list) command -v fastboot >/dev/null || die "fastboot is not installed"; fastboot devices ;;
+  android-flash) profile="\${2:-}"; image="\${3:-}"; [[ -n "$profile" && -f "$image" ]] || die "device profile and image are required"; confirm; echo "[Chimera] Profile: $profile"; echo "[Chimera] Image: $image"; echo "[Chimera] Generic flashing is intentionally refused until a validated device profile defines exact partitions, signatures and rollback metadata."; exit 3 ;;
+  recovery) profile="\${2:-}"; [[ -n "$profile" ]] || die "device profile required"; echo "[Chimera] Use the profile's documented vendor recovery path for $profile." ;;
+  *) usage; exit 1 ;;
+esac
