@@ -290,18 +290,18 @@ INIT_SCRIPT
 RUN chmod +x $INSTALL_DIR/scripts/init-chimera.sh
 
 # =============================================================================
-# RUNTIME IMAGE (Multi-stage)
+# RUNTIME IMAGE
 # =============================================================================
-FROM ubuntu:24.04
+# Reuse the completed builder filesystem directly. This avoids Docker
+# Desktop/containerd SIGBUS crashes caused by materializing the very large
+# /opt/chimera cross-stage COPY layer.
+FROM builder AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_ENV=runtime \
     INSTALL_DIR=/opt/chimera \
     APPS_DIR=/opt/chimera/applications \
     SRC_DIR=/src/chimera
-
-COPY --from=builder /opt/chimera /opt/chimera
-COPY --from=builder /usr/local /usr/local
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
