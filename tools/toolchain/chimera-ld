@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+linker="${CHIMERA_NATIVE_LINKER:-bfd}"
+case "$linker" in
+  bfd) exec ld "$@" ;;
+  lld)
+    if command -v ld.lld >/dev/null 2>&1; then exec ld.lld "$@"; fi
+    if command -v lld >/dev/null 2>&1; then exec lld "$@"; fi
+    echo "chimera-ld: LLVM LLD is not installed" >&2; exit 127
+    ;;
+  *) echo "chimera-ld: CHIMERA_NATIVE_LINKER must be bfd or lld" >&2; exit 2 ;;
+esac
