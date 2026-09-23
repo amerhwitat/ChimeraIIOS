@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema": "CHM-NATIVE-TOOLCHAIN-1",
+  "name": "Chimera II Native C/C++/ASM Toolchain",
+  "mode": "native-host",
+  "description": "Native development toolchain contract for Chimera II OS. GCC/Clang compile C and C++, GNU as/NASM assemble target assembly, and GNU ld/LLD link object files.",
+  "compiler_drivers": {
+    "c": ["gcc", "clang"],
+    "cxx": ["g++", "clang++"]
+  },
+  "assemblers": {
+    "gnu": "as",
+    "llvm": "llvm-mc",
+    "nasm": "nasm",
+    "chimera": "chimera-as"
+  },
+  "linkers": {
+    "gnu_bfd": "ld",
+    "llvm": "ld.lld",
+    "driver": "chimera-ld"
+  },
+  "object_tools": ["ar", "ranlib", "nm", "objcopy", "objdump", "readelf", "strip"],
+  "supported_native_hosts": ["x86_64-linux", "aarch64-linux", "riscv64-linux", "x86_64-windows", "aarch64-windows", "x86_64-darwin", "arm64-darwin"],
+  "chimera_targets": ["x86_64", "aarch64", "riscv64", "chimera-c8192", "chimera-r8192"],
+  "selection": {
+    "CHIMERA_NATIVE_COMPILER": "gcc|clang",
+    "CHIMERA_NATIVE_LINKER": "bfd|lld",
+    "CHIMERA_TARGET": "native or registered cross target",
+    "CHIMERA_SYSROOT": "optional target sysroot"
+  },
+  "native_execution": "The generated program executes as host-native code unless a cross target/sysroot is selected.",
+  "proprietary_tools": "External adapters such as MSVC/MASM are detected but not redistributed by this project."
+}
