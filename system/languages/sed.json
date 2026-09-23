@@ -1,0 +1,26 @@
+{
+  "schema": "CHIMERA-LANGUAGE-SED-1",
+  "name": "sed",
+  "family": "stream-editor-language",
+  "standard": "POSIX sed",
+  "gnu_variant": "GNU sed",
+  "interpreter_command": "sed",
+  "chimera_command": "chm-sed",
+  "execution": "native-adapter-with-external-fallback",
+  "features": [
+    "address-ranges",
+    "substitute",
+    "delete",
+    "print",
+    "append",
+    "insert",
+    "change",
+    "hold-space",
+    "pattern-space",
+    "branching"
+  ],
+  "notes": [
+    "sed programs are sequences of address/command pairs.",
+    "GNU extensions are not silently treated as portable POSIX syntax."
+  ]
+}
