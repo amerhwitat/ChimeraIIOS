@@ -1,0 +1,1 @@
+{"schema":"CHM-AURORA-POINTER-1","devices":["touchscreen","touchpad","pen-tablet","stylus"],"events":["touch-down","touch-move","touch-up","gesture","pinch","rotate","swipe","pressure","tilt","barrel-button"],"gestures":["three-finger-swipe","four-finger-swipe","pinch-to-zoom","two-finger-scroll"]}
