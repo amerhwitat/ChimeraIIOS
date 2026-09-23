@@ -1,0 +1,24 @@
+.TH CHM-USER-SETUP 1
+.SH NAME
+chm-user-setup \\- initialize and create Chimera local accounts
+.SH SYNOPSIS
+.B chm-user-setup
+.RI { init | create-root | create-user NAME | create-admin NAME | files }
+.SH DESCRIPTION
+Creates local passwd, shadow, group and gshadow databases. Passwords are entered interactively and are never supplied on the command line.
+.SH COMMANDS
+.TP
+.B init
+Initialize account databases.
+.TP
+.B create-root
+Create or reset the UID 0 root account and prompt for its password.
+.TP
+.B create-user NAME
+Create a normal local user and private group.
+.TP
+.B create-admin NAME
+Create a local user and grant the chimera-admin administrative role.
+.TP
+.B files
+Print account database paths.
