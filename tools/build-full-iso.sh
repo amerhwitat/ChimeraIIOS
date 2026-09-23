@@ -56,8 +56,11 @@ cleanup_finished
 "$ROOT/tools/build-desktop-binaries.sh"
 cleanup_finished
 # The compiler tree is finished at this point; retain only the produced kernel/binaries.
-rm -rf "$BUILD/cmake/CMakeFiles" "$BUILD/cmake/_deps" "$BUILD/cmake/Testing" 2>/dev/null || true
-find "$BUILD/cmake" -type f \( -name "*.o" -o -name "*.obj" -o -name "*.d" \) -delete 2>/dev/null || true
+# Keep the configured CMake tree for incremental/manual builds. Remove only generated compiler intermediates.
+if [[ -d "$BUILD/cmake" ]]; then
+  find "$BUILD/cmake" -type f \( -name "*.o" -o -name "*.obj" -o -name "*.d" -o -name "*.gcda" -o -name "*.gcno" \) -delete 2>/dev/null || true
+  rm -rf "$BUILD/cmake/CMakeFiles/CMakeScratch" "$BUILD/cmake/Testing" 2>/dev/null || true
+fi
 cleanup_finished
 
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
@@ -108,16 +111,14 @@ for source_dir in kernel src include database cmake tools boot installer userlan
   fi
 done
 
-mkdir -p "$STAGE/build-artifacts" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains"   "$STAGE/opt/chimera/toolchains" "$STAGE/network-tools" "$STAGE/opt/chimera/network-tools"
+mkdir -p "$STAGE/build-artifacts" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains" "$STAGE/network-tools"
 cp -a "$ROOT/build/desktop" "$STAGE/build-artifacts/" 2>/dev/null || true
 cp -a "$ROOT/build/koronos/ports" "$STAGE/build-artifacts/" 2>/dev/null || true
 cp -a "$BUILD/cmake" "$STAGE/build-artifacts/cmake" 2>/dev/null || true
 cp -a "$FOREIGN" "$STAGE/compat/foreign-runtime" 2>/dev/null || true
 cp -a "$MOBILE" "$STAGE/mobile/" 2>/dev/null || true
 cp -a "$DRIVERS" "$STAGE/drivers/" 2>/dev/null || true
-cp -a "$ROOT/build/toolchains/." "$STAGE/opt/chimera/toolchains/" 2>/dev/null || true
 cp -a "$ROOT/build/toolchains" "$STAGE/toolchains/" 2>/dev/null || true
-cp -a "$ROOT/build/network-tools/." "$STAGE/opt/chimera/network-tools/" 2>/dev/null || true
 cp -a "$ROOT/build/network-tools" "$STAGE/network-tools/" 2>/dev/null || true
 cp -a "$ROOT/network" "$STAGE/system/network" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/route-manager.desktop.json" "$STAGE/system/desktop/" 2>/dev/null || true
@@ -143,7 +144,7 @@ if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]];
 fi
 
 FINAL="$ISO_DIR/chimera-ii-os.iso"
-if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-100}" "$DISK_MANAGER"; fi
+if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" "$DISK_MANAGER"; fi
 if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
   # xorriso refuses a non-empty existing outdev when indev and outdev differ.
   # Delete the previous output before opening the base image. If BASE happens
@@ -159,7 +160,12 @@ else
 fi
 
 [[ -s "$FINAL" ]] || { echo "ERROR: ISO was not produced: $FINAL" >&2; exit 1; }
-rm -rf "$STAGE" "$BUILD/cmake" "$BUILD/inject" "$BUILD/base-for-inject.iso" "$BUILD/base.iso" 2>/dev/null || true
+rm -rf "$STAGE" "$BUILD/inject" "$BUILD/base-for-inject.iso" "$BUILD/base.iso" 2>/dev/null || true
+# Preserve build/full/cmake for incremental/manual CMake builds.
+if [[ -d "$BUILD/cmake" ]]; then
+  find "$BUILD/cmake" -type f \( -name "*.o" -o -name "*.obj" -o -name "*.d" -o -name "*.gcda" -o -name "*.gcno" \) -delete 2>/dev/null || true
+  rm -rf "$BUILD/cmake/CMakeFiles/CMakeScratch" "$BUILD/cmake/Testing" 2>/dev/null || true
+fi
 cp "$FINAL" "$ROOT/chimera-ii-os.iso"
 sha256sum "$FINAL" | tee "$FINAL.sha256"
 echo "Built $FINAL"
