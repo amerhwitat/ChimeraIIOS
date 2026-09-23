@@ -1,0 +1,7 @@
+{
+  "schema":"CHIMERA-SCRIPTING-1",
+  "languages":["bash","sh","zsh","ksh","fish","csh","tcsh","powershell","cmd","python","perl","ruby","php","lua","tcl","javascript","typescript","nushell","elvish","xonsh"],
+  "features":{"shell_expansion":["tilde","parameter","command-substitution","arithmetic","brace","word-splitting","pathname-globbing","process-substitution","quote-removal"],"wildcards":["*","?","[]","[[:class:]]","**","extglob"],"regex":["POSIX-basic","POSIX-extended","PCRE-compatible","Python-re","Perl-regex"],"redirection":["stdin","stdout","stderr","append","heredoc","herestring","fd-duplication","pipes"],"control":["if","case","for","while","until","select","functions","trap","return","exit","subshell"],"scripting":["shebang","environment","arguments","exit-status","pipelines","command-search","aliases"]},
+  "policy":"native-runtime-first; compatibility adapter when runtime is installed; privileged operations remain policy controlled",
+  "arabic":true,"english":true
+}
