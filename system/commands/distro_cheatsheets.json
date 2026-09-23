@@ -1,0 +1,21 @@
+{
+  "schema":"CHIMERA-DISTRO-CHEATSHEETS-1",
+  "operations":{
+    "update":["apt update","dnf check-update","zypper refresh","pacman -Sy","apk update","xbps-install -S","emerge --sync","nix-channel --update"],
+    "install":["apt install <pkg>","dnf install <pkg>","zypper install <pkg>","pacman -S <pkg>","apk add <pkg>","xbps-install <pkg>","emerge <pkg>","nix profile install <pkg>"],
+    "remove":["apt remove <pkg>","dnf remove <pkg>","zypper remove <pkg>","pacman -R <pkg>","apk del <pkg>","xbps-remove <pkg>","emerge --unmerge <pkg>"],
+    "search":["apt search <q>","dnf search <q>","zypper search <q>","pacman -Ss <q>","apk search <q>","xbps-query -Rs <q>","emerge --search <q>"]
+  },
+  "families":{
+    "debian":["Debian","Ubuntu","Linux Mint","Kali"],
+    "redhat":["RHEL","Fedora","CentOS","Rocky","AlmaLinux","Oracle Linux"],
+    "suse":["SUSE","openSUSE"],
+    "arch":["Arch Linux","Manjaro"],
+    "gentoo":["Gentoo"],
+    "alpine":["Alpine"],
+    "void":["Void"],
+    "nix":["NixOS"],
+    "rpm":["Mageia"],
+    "bsd":["FreeBSD","OpenBSD","NetBSD"]
+  }
+}
