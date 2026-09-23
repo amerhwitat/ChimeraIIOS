@@ -20,8 +20,44 @@ void RegisterN::set_bit(std::size_t i,bool v) { if(i>=bits_) throw std::out_of_r
 bool RegisterN::get_bit(std::size_t i) const { if(i>=bits_) throw std::out_of_range("bit"); return (limbs_[i/64]>>(i%64))&1ULL; }
 void RegisterN::mask_top(){ const auto r=bits_%64; if(r) limbs_.back() &= ((1ULL<<r)-1); }
 void RegisterN::require_compatible(const RegisterN& r) const { if(bits_!=r.bits_) throw std::invalid_argument("RegisterN width mismatch"); }
-RegisterN& RegisterN::add(const RegisterN& r){ require_compatible(r); unsigned __int128 c=0; for(size_t i=0;i<limbs_.size();++i){auto s=(unsigned __int128)limbs_[i]+r.limbs_[i]+c;limbs_[i]=(uint64_t)s;c=s>>64;} mask_top();return *this;}
-RegisterN& RegisterN::sub(const RegisterN& r){ require_compatible(r); unsigned __int128 b=0; for(size_t i=0;i<limbs_.size();++i){auto a=(unsigned __int128)limbs_[i];auto d=a-r.limbs_[i]-b;limbs_[i]=(uint64_t)d;b=(a < (unsigned __int128)r.limbs_[i]+b); } mask_top();return *this;}
+RegisterN& RegisterN::add(const RegisterN& r) {
+    require_compatible(r);
+    std::uint64_t carry = 0;
+    for (std::size_t i = 0; i < limbs_.size(); ++i) {
+        const std::uint64_t a = limbs_[i];
+        const std::uint64_t b = r.limbs_[i];
+
+        const std::uint64_t sum = a + b;
+        const std::uint64_t carry_ab = sum < a ? 1U : 0U;
+
+        const std::uint64_t result = sum + carry;
+        const std::uint64_t carry_result = result < sum ? 1U : 0U;
+
+        limbs_[i] = result;
+        carry = (carry_ab | carry_result);
+    }
+    mask_top();
+    return *this;
+}
+
+RegisterN& RegisterN::sub(const RegisterN& r) {
+    require_compatible(r);
+    std::uint64_t borrow = 0;
+    for (std::size_t i = 0; i < limbs_.size(); ++i) {
+        const std::uint64_t a = limbs_[i];
+        const std::uint64_t b = r.limbs_[i];
+
+        const std::uint64_t result = a - b - borrow;
+        const std::uint64_t borrow_ab = a < b ? 1U : 0U;
+        const std::uint64_t borrow_result =
+            (borrow != 0 && a == b) ? 1U : 0U;
+
+        limbs_[i] = result;
+        borrow = (borrow_ab | borrow_result);
+    }
+    mask_top();
+    return *this;
+}
 RegisterN& RegisterN::bit_and(const RegisterN&r){require_compatible(r);for(size_t i=0;i<limbs_.size();++i)limbs_[i]&=r.limbs_[i];return *this;}
 RegisterN& RegisterN::bit_or(const RegisterN&r){require_compatible(r);for(size_t i=0;i<limbs_.size();++i)limbs_[i]|=r.limbs_[i];mask_top();return *this;}
 RegisterN& RegisterN::bit_xor(const RegisterN&r){require_compatible(r);for(size_t i=0;i<limbs_.size();++i)limbs_[i]^=r.limbs_[i];mask_top();return *this;}
