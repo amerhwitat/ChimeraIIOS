@@ -286,9 +286,14 @@ export_docker_to_rootfs() {
     docker create --name "$container_name" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
 
     set +e
-    docker export "$container_name" | tar -xpf - -C "$ROOTFS_DIR"
-    local export_rc=${PIPESTATUS[0]}
-    local tar_rc=${PIPESTATUS[1]}
+    docker export "$container_name" > "$BUILD_DIR/chimera-rootfs.tar"
+    local export_rc=$?
+    local tar_rc=1
+    if [ "$export_rc" -eq 0 ]; then
+        tar -xpf "$BUILD_DIR/chimera-rootfs.tar" -C "$ROOTFS_DIR"
+        tar_rc=$?
+    fi
+    rm -f "$BUILD_DIR/chimera-rootfs.tar"
     set -e
 
     docker rm -f "$container_name" >/dev/null 2>&1 || true
