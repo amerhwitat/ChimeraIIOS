@@ -1,0 +1,62 @@
+name: Validate Apache Ecosystem Integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'build-chimera-iso.sh'
+      - 'services/apache/**'
+      - 'system/security/apache-sandbox.json'
+      - '.github/workflows/apache-ecosystem.yml'
+  pull_request:
+    paths:
+      - 'build-chimera-iso.sh'
+      - 'services/apache/**'
+      - 'system/security/apache-sandbox.json'
+      - '.github/workflows/apache-ecosystem.yml'
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: |
+          set -euo pipefail
+          bash -n build-chimera-iso.sh
+          bash -n services/apache/install-apache-ecosystem.sh
+          bash -n services/apache/verify-apache-package.sh
+
+      - name: Validate Python resolver
+        run: |
+          set -euo pipefail
+          python3 -m py_compile services/apache/apache-sync.py
+
+      - name: Validate Apache metadata
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path("services/apache/apache-projects.json").read_text())
+          assert data["all_projects_mode"]["enabled"] is True
+          assert data["release_source"].startswith("https://downloads.apache.org/")
+          assert "official-releases-only" in data["all_projects_mode"]["artifact_policy"]
+          print("Apache ecosystem metadata OK")
+          PY
+
+      - name: Check ISO Apache integration hooks
+        run: |
+          set -euo pipefail
+          grep -q 'prepare_apache_ecosystem' build-chimera-iso.sh
+          grep -q 'apache-sync.py' build-chimera-iso.sh
+          grep -q 'CHIMERA_APACHE_VERIFY_PGP=1' build-chimera-iso.sh
+          echo "ISO Apache integration hooks OK"
