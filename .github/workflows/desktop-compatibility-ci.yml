@@ -25,6 +25,17 @@ jobs:
           python3 -m json.tool desktop/aurora/i18n/input_sources.json >/dev/null
           python3 -m json.tool desktop/aurora/i18n/language_catalog.json >/dev/null
           python3 -m json.tool desktop/aurora/window_manager_policy.json >/dev/null
+      - name: Build native userland shell and system utilities
+        run: |
+          cmake -S . -B /tmp/chimera-build -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/chimera-build --target chimera-shell chimera-utils chmctl chm-diagnostics chmhelp aurora-settings -j2
+      - name: Validate man pages
+        run: |
+          test -s man/chimera-shell.1
+          test -s man/chimera-utils.1
+          test -s man/chmctl.1
+          test -s man/aurora-settings.1
+          test -s man/chm-diagnostics.1
       - name: Python syntax
         run: python -m py_compile desktop/python/chimera_desktop.py
       - name: Java syntax/build
