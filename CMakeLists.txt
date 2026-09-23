@@ -53,5 +53,4 @@ install(PROGRAMS
   tools/toolchain/install-native-toolchain.sh
   DESTINATION bin
 )
-install(PROGRAMS tools/build/build-native-toolchain.sh DESTINATION share/chimera/toolchains)
 install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera/toolchains)
