@@ -1,0 +1,15 @@
+{
+  "version":"1.0",
+  "dialects":{
+    "TSQL":{"lexer":"tsql","parser":"tsql","procedural":"T-SQL","compatibility":["SQL Server"]},
+    "PLSQL":{"lexer":"plsql","parser":"plsql","procedural":"PL/SQL","compatibility":["Oracle"]},
+    "SQL":{"lexer":"ansi","parser":"ansi","procedural":"chimera","compatibility":["ANSI SQL"]}
+  },
+  "common_ast":["SELECT","INSERT","UPDATE","DELETE","MERGE","CREATE","ALTER","DROP","CALL","TRANSACTION","PROCEDURE","FUNCTION","TRIGGER"],
+  "translation":{
+    "TSQL->Chimera":["TOP","IDENTITY","TRY_CONVERT","OUTPUT","CROSS APPLY"],
+    "PLSQL->Chimera":["PACKAGE","%TYPE","%ROWTYPE","EXCEPTION","CURSOR","BULK COLLECT"],
+    "Chimera->TSQL":["LIMIT","RETURNING","standardized catalog metadata"],
+    "Chimera->PLSQL":["standardized catalog metadata","portable transaction constructs"]
+  }
+}
