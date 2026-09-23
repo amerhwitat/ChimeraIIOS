@@ -6,7 +6,7 @@ FROM ubuntu:${UBUNTU_VERSION} AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ make cmake ninja-build \
+    bash ca-certificates git gcc g++ binutils clang llvm lld nasm make cmake ninja-build \
     python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless \
     rustc cargo perl pciutils usbutils dmidecode iproute2 procps \
     systemd systemd-sysv dos2unix \
