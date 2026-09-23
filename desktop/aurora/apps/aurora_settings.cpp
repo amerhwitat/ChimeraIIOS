@@ -29,7 +29,10 @@ static std::vector<Setting> defaults() {
       {"network.mode","Network mode","managed","managed/manual"},
       {"services.policy","Service policy","managed","managed/manual"},
       {"updates.policy","Updates","notify","notify/automatic/manual"},
-      {"developer.mode","Developer mode","false","Developer facilities"}
+      {"developer.mode","Developer mode","false","Developer facilities"},
+      {"performance.background","Background resource mode","opportunistic","Use idle CPU/RAM/I/O without starving interactive work"},
+      {"performance.knowledge_cache","Knowledge cache","disk-first","Keep content on disk; bound metadata cache in RAM"},
+      {"updates.reboot_policy","Reboot policy","ask","ask/later/now; patches never reboot silently"}
     };
 }
 static std::vector<Setting> load() {
