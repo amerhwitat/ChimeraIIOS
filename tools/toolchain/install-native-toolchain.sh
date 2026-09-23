@@ -32,13 +32,14 @@ for tool in clang clang++ lld nasm; do
   command -v "$tool" >/dev/null 2>&1 || echo "[WARN] optional tool unavailable: $tool"
 done
 
-for wrapper in chimera-cc chimera-cxx chimera-as chimera-ld; do
-  install -m 0755 "${ROOT}/tools/toolchain/${wrapper}" "${BIN}/${wrapper}"
-done
+install -m 0755 "${ROOT}/tools/toolchain/chimera-cc" "${BIN}/chimera-cc"
+install -m 0755 "${ROOT}/tools/toolchain/chimera-cxx" "${BIN}/chimera-cxx"
+install -m 0755 "${ROOT}/tools/toolchain/chimera-as" "${BIN}/chimera-gas"
+install -m 0755 "${ROOT}/tools/toolchain/chimera-ld" "${BIN}/chimera-ld"
 install -m 0644 "${ROOT}/toolchains/chimera-native-toolchain.json" "${MANIFEST}"
 
 "${BIN}/chimera-cc" --version | head -n 1
 "${BIN}/chimera-cxx" --version | head -n 1
-"${BIN}/chimera-as" --version | head -n 1
+"${BIN}/chimera-gas" --version | head -n 1
 "${BIN}/chimera-ld" --version | head -n 1
 echo "Chimera native C/C++/ASM toolchain installed under ${PREFIX}"
