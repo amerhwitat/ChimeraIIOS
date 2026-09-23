@@ -1,0 +1,9 @@
+{
+  "schema":"CHM-KNOWLEDGE-COLUMNAR-1",
+  "format":"parquet",
+  "partitioning":["subject","retrieved_date","language"],
+  "columns":["id","source","retrieved_at","subject","language","classification","content_hash","canonical_hash","content","confidence","tags"],
+  "compression":["zstd","dictionary"],
+  "page_index":true,
+  "json_audit_sidecar":true
+}
