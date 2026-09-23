@@ -27,7 +27,7 @@ static std::string hashpw(const std::string&pw){char salt[64];std::snprintf(salt
 static int create_user(const std::string&name,bool root_account){
  if(!superuser()){std::cerr<<"chm-user: root privileges required\n";return 77;} init_db();
  if(name.empty()||name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")!=std::string::npos){std::cerr<<"invalid account name\n";return 2;}
- int uid=root_account?0:next_id(p("etc/passwd"),999);int gid=root_account?0:next_id(p("etc/group"),999);
+ int uid=root_account?0:next_id(p("etc/passwd"),1000);int gid=root_account?0:next_id(p("etc/group"),1000);
  std::string pw=prompt("New password: ");std::string pw2=prompt("Retype new password: ");if(pw.empty()||pw!=pw2){std::cerr<<"password mismatch or empty password\n";return 2;}
  std::string h=hashpw(pw);if(h.empty()){std::cerr<<"password hashing failed\n";return 2;}
  if(!root_account){
@@ -46,6 +46,7 @@ int main(int argc,char**argv){
  std::string op=argv[1];if(op=="init"){if(!superuser())return 77;init_db();std::cout<<"account database initialized\n";return 0;}
  if(op=="create-root")return create_user("root",true);
  if(op=="create-user"&&argc>=3)return create_user(argv[2],false);
+ if(op=="create-admin"&&argc>=3){int rc=create_user(argv[2],false);if(rc)return rc;std::ofstream g(p("etc/group"),std::ios::app);g<<"chimera-admin:x:998:"<<argv[2]<<"\\n";std::cout<<"administrator role granted through chimera-admin group\\n";return 0;}
  if(op=="files"){std::cout<<p("etc/passwd")<<"\n"<<p("etc/shadow")<<"\n"<<p("etc/group")<<"\n"<<p("etc/gshadow")<<"\n";return 0;}
  return 2;
 }
