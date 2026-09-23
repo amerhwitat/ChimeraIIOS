@@ -1,0 +1,14 @@
+{
+  "schema":"CHM-AURORA-SOUNDS-1",
+  "enabled":true,
+  "volume_percent":70,
+  "events":{
+    "startup":"startup","shutdown":"shutdown","login":"login","logout":"logout",
+    "lock":"lock","unlock":"unlock","notification":"notification",
+    "error":"error","warning":"warning","success":"success","device-connect":"device-connect",
+    "device-disconnect":"device-disconnect","click":"click","double-click":"double-click",
+    "context-menu":"context-menu","trash":"trash","screenshot":"screenshot"
+  },
+  "policy":{"respect_mute":true,"respect_app_volume":true,"allow_user_disable":true,"avoid_continuous_click_sounds":true},
+  "backend":"Aurora Sound Service"
+}
