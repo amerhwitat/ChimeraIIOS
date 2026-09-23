@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-SERVICE-1",
+  "name":"chimera-identity",
+  "manager":"Kore",
+  "phase":"early-userspace",
+  "exec":["chm-security-selftest"],
+  "dependencies":["chimera-filesystem","chimera-logging"],
+  "privileges":["root"],
+  "restart":"on-failure",
+  "security":{"remote_root_login":false,"shadow_mode":"0600","passwd_mode":"0644","group_mode":"0644","gshadow_mode":"0600"},
+  "directory_providers":["local-files","sssd","winbind"],
+  "domain_join":"explicit-administrator-action"
+}
