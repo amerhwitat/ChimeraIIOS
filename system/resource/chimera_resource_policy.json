@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-RESOURCE-POLICY-1",
+  "mode":"opportunistic-background",
+  "interactive_reserve":{"cpu_percent":20,"memory_percent":20,"io_percent":20},
+  "background":{"cpu_percent_max":80,"memory_percent_max":70,"io_percent_max":80},
+  "pressure":{"cpu_some_percent":15,"memory_some_percent":10,"io_some_percent":10},
+  "idle_window_seconds":30,
+  "memory_cache":{"max_percent_of_ram":2,"max_entries":4096,"metadata_only":true,"content_on_disk":true},
+  "reclaim":{"drop_caches":false,"use_madvise":true},
+  "thermal_guard":true,
+  "battery_guard":true,
+  "pause_on_interactive_pressure":true
+}
