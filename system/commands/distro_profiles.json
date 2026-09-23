@@ -1,0 +1,32 @@
+{
+  "schema":"CHIMERA-DISTRO-PROFILES-1",
+  "default_profile":"chimera",
+  "selection":"explicit",
+  "profiles":{
+    "ubuntu":{"family":"debian","manager":"apt","package_format":"deb","service":"systemd"},
+    "debian":{"family":"debian","manager":"apt","package_format":"deb","service":"systemd"},
+    "kali":{"family":"debian","manager":"apt","package_format":"deb","service":"systemd","security_profile":"authorized-lab-only"},
+    "mint":{"family":"debian","manager":"apt","package_format":"deb","service":"systemd"},
+    "rhel":{"family":"redhat","manager":"dnf","package_format":"rpm","service":"systemd"},
+    "fedora":{"family":"redhat","manager":"dnf","package_format":"rpm","service":"systemd"},
+    "centos":{"family":"redhat","manager":"dnf","package_format":"rpm","service":"systemd"},
+    "rocky":{"family":"redhat","manager":"dnf","package_format":"rpm","service":"systemd"},
+    "almalinux":{"family":"redhat","manager":"dnf","package_format":"rpm","service":"systemd"},
+    "oracle_linux":{"family":"redhat","manager":"dnf","package_format":"rpm","service":"systemd"},
+    "suse":{"family":"suse","manager":"zypper","package_format":"rpm","service":"systemd"},
+    "opensuse":{"family":"suse","manager":"zypper","package_format":"rpm","service":"systemd"},
+    "arch":{"family":"arch","manager":"pacman","package_format":"pkg.tar","service":"systemd"},
+    "manjaro":{"family":"arch","manager":"pacman","package_format":"pkg.tar","service":"systemd"},
+    "gentoo":{"family":"gentoo","manager":"emerge","package_format":"ebuild","service":"openrc-or-systemd"},
+    "alpine":{"family":"alpine","manager":"apk","package_format":"apk","service":"openrc"},
+    "void":{"family":"void","manager":"xbps","package_format":"xbps","service":"runit"},
+    "nixos":{"family":"nix","manager":"nix","package_format":"nix-store","service":"systemd"},
+    "mageia":{"family":"rpm","manager":"urpmi","package_format":"rpm","service":"systemd"},
+    "freebsd":{"family":"bsd","manager":"pkg","package_format":"pkg","service":"rc.d"},
+    "openbsd":{"family":"bsd","manager":"pkg_add","package_format":"pkg","service":"rc.d"},
+    "netbsd":{"family":"bsd","manager":"pkgin","package_format":"pkg","service":"rc.d"},
+    "solaris":{"family":"unix","manager":"pkg","package_format":"pkg","service":"smf"},
+    "chimera":{"family":"chimera","manager":"chm-pkg","package_format":"chm","service":"kore"}
+  },
+  "policy":"profile changes are explicit; package repositories are profile-scoped; never mix repositories across distributions automatically"
+}
