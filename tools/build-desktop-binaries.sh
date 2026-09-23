@@ -23,6 +23,10 @@ fi
 if [[ -f "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/neural/cpp"     "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" -o "$OUT/bin/chimera-neural-chat"
 fi
+if [[ -f "$ROOT/desktop/aurora/apps/aurora_settings.cpp" ]]; then
+  "$CXX" -std=c++20 -O2 -Wall -Wextra "$ROOT/desktop/aurora/apps/aurora_settings.cpp" -o "$OUT/bin/aurora-settings"
+fi
+
 if [[ -f "$ROOT/desktop/aurora/apps/aurora_peripherals.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra "$ROOT/desktop/aurora/apps/aurora_peripherals.cpp" -o "$OUT/bin/aurora-peripherals"
 fi
@@ -42,7 +46,7 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
 {
   "schema": "CHM-DESKTOP-BUILD-2",
   "aurora": "Wayland Glass",
-  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals","bin/aurora-input-selftest"],
+  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals","bin/aurora-settings","bin/aurora-input-selftest"],
   "native_objects": ["aurora_input.o","aurora_input_router.o","aurora_locale.o"],
   "source_tree": "aurora-source",
   "personalities": ["chimera","linux","unix","windows","macos","bsd"],
