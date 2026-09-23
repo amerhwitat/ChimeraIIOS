@@ -36,6 +36,9 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCKER_IMAGE="chimera2os-comprehensive"
 DOCKER_TAG="${DOCKER_TAG:-latest}"
+DOCKER_PULL="${CHIMERA_DOCKER_PULL:-0}"
+DOCKER_NO_CACHE="${CHIMERA_DOCKER_NO_CACHE:-0}"
+DOCKER_RETRIES="${CHIMERA_DOCKER_RETRIES:-2}"
 ISO_NAME="ChimeraIIOS-comprehensive"
 ISO_VERSION="1.0.0"
 BUILD_DIR="${SCRIPT_DIR}/build"
@@ -112,11 +115,6 @@ print_header() {
 
 check_requirements() {
     log_info "Checking system requirements..."
-    
-    if [ "$EUID" -ne 0 ]; then
-        log_error "This script must be run as root (use sudo)"
-        exit 1
-    fi
     
     # Check required tools
     local required_tools=("docker" "curl" "mktemp" "mount" "grub-mkimage" "xorriso" "unsquashfs" "mksquashfs" "rsvg-convert")
@@ -220,7 +218,7 @@ build_docker_image() {
     log_info "This may take 30-45 minutes..."
     echo ""
 
-    if docker buildx prune -af >/tmp/chimera-buildx-prune.log 2>&1; then
+    if [ "${CHIMERA_PRUNE:-0}" = "1" ] && docker buildx prune -af >/tmp/chimera-buildx-prune.log 2>&1; then
         log_info "Unused BuildKit cache pruned."
     else
         log_warning "BuildKit cache prune failed; continuing."
@@ -233,8 +231,8 @@ build_docker_image() {
     # caused Docker Desktop/containerd SIGBUS crashes.
     set +e
     docker build \
-        --pull \
-        --no-cache \
+        ${DOCKER_PULL:+--pull} \
+        ${DOCKER_NO_CACHE:+--no-cache} \
         --progress=plain \
         -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
         -t "$DOCKER_IMAGE:$DOCKER_TAG" \
@@ -260,8 +258,8 @@ build_docker_image() {
         log_error "Docker image build failed (exit $build_rc)."
         log_error "errno 5 / Input/output error, read-only filesystem, or SIGBUS"
         log_error "indicates Docker Desktop/WSL storage failure."
-        log_error "Do not use apt --fix-missing to repair errno 5."
-        log_error "Recovery: stop Docker Desktop, run 'wsl --shutdown' from PowerShell, then restart Docker Desktop."
+        log_error "Do not use apt --fix-missing or apt-get -f install to repair Docker storage errors."
+        log_error "Recovery: quit Docker Desktop, run 'wsl --shutdown' from PowerShell, then restart Docker Desktop."
         exit "$build_rc"
     fi
 }
@@ -277,24 +275,6 @@ export_docker_to_rootfs() {
     mkdir -p "$ROOTFS_DIR"
     
     log_info "Exporting Docker image to tar..."
-    docker save "$DOCKER_IMAGE:$DOCKER_TAG" | tar -xC "$ROOTFS_DIR"
-    
-    log_info "Extracting layers from exported image..."
-    
-    # Find and extract the largest layer (contains the filesystem)
-    local layer_dirs
-    mapfile -t layer_dirs < <(find "$ROOTFS_DIR" -maxdepth 4 -type d -path "*/layer" -print)
-    for layer_dir in "${layer_dirs[@]}"; do
-        if [ -f "$layer_dir/tar" ] || [ -f "$layer_dir/tar.gz" ]; then
-            log_info "Extracting layer: $layer_dir"
-            if [ -f "$layer_dir/tar" ]; then
-                tar -xf "$layer_dir/tar" -C "$ROOTFS_DIR" 2>/dev/null || true
-            fi
-            if [ -f "$layer_dir/tar.gz" ]; then
-                tar -xzf "$layer_dir/tar.gz" -C "$ROOTFS_DIR" 2>/dev/null || true
-            fi
-        fi
-    done
     
     # Always flatten the final image with docker export.  Manually unpacking
     # containerd layer tarballs is unnecessary and is more fragile with the
