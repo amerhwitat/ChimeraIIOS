@@ -1,0 +1,23 @@
+{
+  "schema":"CHIMERA-COMMAND-COMPAT-1",
+  "purpose":"Cross-platform command namespace for Chimera II OS",
+  "dialects":["POSIX","Linux","BSD","macOS","Unix","Bash","Zsh","Dash","Ksh","Csh","Tcsh","Fish","PowerShell","CMD"],
+  "policy":"native-when-present; compatibility-shim-when-absent; never silently emulate privileged operations",
+  "families":{
+    "filesystem":["ls","dir","tree","cp","copy","mv","move","rm","del","erase","rmdir","rd","mkdir","md","touch","ln","readlink","realpath","stat","file","attrib","icacls","chmod","chown","chgrp","getfacl","setfacl","find","where","which","command","type"],
+    "text":["cat","more","less","head","tail","grep","egrep","fgrep","sed","awk","cut","paste","sort","uniq","tr","wc","tee","xargs","diff","cmp","comm","split","join","strings","printf","print","echo"],
+    "process":["ps","tasklist","top","htop","kill","taskkill","pkill","pgrep","nice","renice","jobs","fg","bg","wait","nohup"],
+    "services":["service","systemctl","sc","launchctl","cron","crontab","at","schtasks"],
+    "accounts":["id","who","whoami","users","w","last","login","logout","su","sudo","runas","passwd","useradd","usermod","userdel","groupadd","groupmod","groupdel","groups","net"],
+    "network":["ip","ifconfig","route","arp","ss","netstat","ping","traceroute","tracepath","pathping","nslookup","dig","host","curl","wget","ftp","tftp","ssh","scp","sftp","rsync","nc","telnet"],
+    "storage":["df","du","lsblk","blkid","mount","umount","diskpart","format","fsutil","fdisk","dd","diskutil","hdiutil"],
+    "archives":["tar","gzip","gunzip","bzip2","bunzip2","xz","unxz","zip","unzip","7z","ar","cpio"],
+    "security":["openssl","gpg","certutil","security","codesign"],
+    "development":["make","cmake","ninja","gcc","g++","clang","clang++","ld","as","objdump","readelf","nm","strip","git","svn","python","python3","perl","ruby","java","javac","dotnet","node","npm","cargo","go","rustc","xcodebuild","xcrun"],
+    "windows":["cmd","powershell","pwsh","reg","regedit","robocopy","xcopy","wevtutil","wmic","systeminfo","ver"],
+    "macos":["sw_vers","defaults","open","osascript","xcodebuild","xcrun","codesign","security","plutil","networksetup","diskutil","hdiutil","sips","pbcopy","pbpaste","qlmanage"],
+    "chimera":["chmctl","chmhelp","chm-diagnostics","chm-reboot","chm-user-setup","chm-passwd","chm-groupadd","chm-usermod","chm-groupmod","chm-perms","chm-ad","chm-security-selftest","chm-utf8","chm-resource-manager","aurora-settings"]
+  },
+  "execution":"Only installed native programs are executed. Missing platform-specific programs report unavailable.",
+  "arabic":"Arabic aliases map to canonical commands; English command names remain valid."
+}
