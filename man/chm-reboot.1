@@ -1,0 +1,21 @@
+.TH CHM-REBOOT 1
+.SH NAME
+chm-reboot \\- manage a user-approved Chimera II OS reboot request
+.SH SYNOPSIS
+.B chm-reboot
+.RI [ status | now | later | cancel ]
+.SH DESCRIPTION
+Reports and manages reboot requests created by staged system patches. A patch that requires reboot records a pending request and does not reboot silently.
+.SH COMMANDS
+.TP
+.B status
+Show the pending reboot reason and artifact.
+.TP
+.B now
+Record that the user approved reboot. Actual platform reboot remains under Koronos/Aegis policy.
+.TP
+.B later
+Defer the reboot while keeping the request pending.
+.TP
+.B cancel
+Clear the pending request.
