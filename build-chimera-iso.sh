@@ -220,68 +220,28 @@ build_docker_image() {
     log_info "This may take 30-45 minutes..."
     echo ""
 
-    log_info "Using Dockerfile: $SCRIPT_DIR/Dockerfile.comprehensive"
-
-    if awk '
-        /^FROM ubuntu:24\.04 AS builder/ { in_builder=1; next }
-        /^FROM ubuntu:24\.04 AS runtime/ { in_builder=0 }
-        in_builder && /apt-get update && apt-get install -y --no-install-recommends/ &&
-        /build-essential/ && /gcc-13/ && /python3\.12/ { found=1 }
-        END { exit(found ? 0 : 1) }
-    ' "$SCRIPT_DIR/Dockerfile.comprehensive"; then
-        log_error "Stale Dockerfile.comprehensive detected: obsolete monolithic builder APT install."
-        log_error "The runtime-stage APT install is valid and is not treated as stale."
-        exit 1
-    fi
-
     if docker buildx prune -af >/tmp/chimera-buildx-prune.log 2>&1; then
         log_info "Unused BuildKit cache pruned."
     else
-        log_warning "BuildKit cache prune failed; continuing after storage preflight."
+        log_warning "BuildKit cache prune failed; continuing."
         cat /tmp/chimera-buildx-prune.log >&2 || true
     fi
     rm -f /tmp/chimera-buildx-prune.log
 
-    # Docker Desktop previously failed while materializing the huge
-    # COPY --from=builder /usr/local /usr/local layer.  The final runtime
-    # stage already installs its runtime packages, so this full /usr/local
-    # copy is redundant and is omitted from a temporary Dockerfile variant.
-    local runtime_dockerfile="/tmp/Dockerfile.chimera-iso-runtime"
-    cp "$SCRIPT_DIR/Dockerfile.comprehensive" "$runtime_dockerfile"
-    # Do not copy the enormous builder filesystem into the runtime stage.
-    # The runtime image only needs /opt/chimera; copying the full /usr/local
-    # tree can trigger Docker Desktop/containerd SIGBUS while materializing
-    # the multi-stage layer.
-    sed -i '/^COPY --from=builder \/usr\/local \/usr\/local$/d' "$runtime_dockerfile"
-    # The builder also contains source/build trees that make /opt/chimera
-    # unnecessarily large. Remove only transient caches and build artifacts
-    # from the temporary runtime Dockerfile by adding a cleanup layer before
-    # the COPY into the final stage.
-    sed -i '/^# RUNTIME IMAGE (Multi-stage)$/i RUN rm -rf \\
-    /opt/chimera/venv/lib/python*/site-packages/*/__pycache__ \\
-    /opt/chimera/venv/lib/python*/site-packages/*/.pytest_cache 2>/dev/null || true' "$runtime_dockerfile"
-
-    if grep -q '^COPY --from=builder /usr/local /usr/local$' "$runtime_dockerfile"; then
-        log_error "Failed to prepare reduced runtime Dockerfile."
-        rm -f "$runtime_dockerfile"
-        exit 1
-    fi
-
-    log_info "Using reduced runtime Dockerfile: removes redundant /usr/local COPY layer."
-
+    # Dockerfile.comprehensive now uses FROM builder AS runtime. This avoids
+    # the large cross-stage /opt/chimera and /usr/local COPY operations that
+    # caused Docker Desktop/containerd SIGBUS crashes.
     set +e
     docker build \
         --pull \
         --no-cache \
         --progress=plain \
-        -f "$runtime_dockerfile" \
+        -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
         -t "$DOCKER_IMAGE:$DOCKER_TAG" \
         -t "$DOCKER_IMAGE:latest" \
         "$SCRIPT_DIR"
     local build_rc=$?
     set -e
-
-    rm -f "$runtime_dockerfile"
 
     if [ "$build_rc" -eq 0 ]; then
         log_success "Docker image built successfully"
@@ -298,12 +258,10 @@ build_docker_image() {
         fi
     else
         log_error "Docker image build failed (exit $build_rc)."
-        log_error "errno 5 / Input/output error, read-only filesystem, SIGBUS, or"
-        log_error "metadata_v2.db errors indicate Docker Desktop/WSL storage failure."
+        log_error "errno 5 / Input/output error, read-only filesystem, or SIGBUS"
+        log_error "indicates Docker Desktop/WSL storage failure."
         log_error "Do not use apt --fix-missing to repair errno 5."
         log_error "Recovery: stop Docker Desktop, run 'wsl --shutdown' from PowerShell, then restart Docker Desktop."
-        log_error "After restart run: docker system df; docker buildx du; and rerun this script."
-        log_error "If the write test still fails, back up Docker Desktop data before considering Reset/Reinstall."
         exit "$build_rc"
     fi
 }
