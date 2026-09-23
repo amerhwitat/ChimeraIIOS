@@ -1,0 +1,23 @@
+{
+  "catalog": "Apache ecosystem integration registry",
+  "policy": "source-first; license and dependency verification required; projects are optional services/libraries, not silently copied into the kernel",
+  "families": {
+    "http_web": ["httpd","Traffic Server"],
+    "data_sql": ["Cassandra","Drill","Hive","Impala","Kylin","Calcite","Arrow","Spark"],
+    "messaging": ["Kafka","Pulsar","ActiveMQ","Qpid"],
+    "streaming": ["Flink","Beam","Storm"],
+    "search": ["Lucene","Solr","OpenSearch"],
+    "big_data": ["Hadoop","HBase","Ozone","Parquet","ORC"],
+    "integration": ["Camel","NiFi","Airflow"],
+    "build_runtime": ["Maven","Ant","Tomcat","Karaf"],
+    "security_identity": ["Shiro","Ranger"],
+    "web_ui": ["Wicket","Cordova"],
+    "observability": ["Log4j","SkyWalking","OpenTelemetry Java agent integrations"]
+  },
+  "integration_contract": {
+    "kernel": "no third-party Apache runtime linked into Koronos",
+    "userland": "sandboxed services with IPC, capabilities and resource quotas",
+    "source": "upstream source URL, version, license, checksum and build recipe required",
+    "database": "adapters expose SQL/CDC/object/event interfaces to Nucleus"
+  }
+}
