@@ -44,9 +44,9 @@ done
 cat > "$OUT/manifests/toolchain-build.json" <<EOF
 {"schema":"CHM-TOOLCHAIN-BUILD-2","matrix":"toolchains/toolchain-matrix.json","packages_attempted":${#PKGS[@]},"aliases":{"ninja":"ninja-build","lua":"lua5.4","qemu-user-static":"qemu-user-static|qemu-user"},"cross":{"aarch64":["gcc-aarch64-linux-gnu","g++-aarch64-linux-gnu"],"riscv64":["gcc-riscv64-linux-gnu","g++-riscv64-linux-gnu"]},"dotnet":"dotnet-sdk-8.0","purpose":"offline development, cross compilation and ISO bootstrap","provenance":"distribution package repositories plus verified host binaries"}
 EOF
-find "$OUT" -type f -print0 | sort -z | xargs -0r sha256sum > "$OUT/manifests/SHA256SUMS"
 for wrapper in chimera-cc chimera-cxx chimera-gas chimera-ld; do
   install -m 0755 "$ROOT/tools/toolchain/$wrapper" "$OUT/bin/$wrapper"
 done
 install -m 0644 "$ROOT/toolchains/chimera-native-toolchain.json" "$OUT/manifests/chimera-native-toolchain.json"
+find "$OUT" -type f ! -path "$OUT/manifests/SHA256SUMS" -print0 | sort -z | xargs -0r sha256sum > "$OUT/manifests/SHA256SUMS"
 echo "Toolchain staging complete: $OUT"
