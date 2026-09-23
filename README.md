@@ -88,3 +88,11 @@ Logical Chimera cores/threads execute in parallel over detected physical CPU cor
 ## PHP / HTML / CSS / JavaScript
 
 `web/runtime/` provides the web-runtime contract and example application assets. PHP is isolated behind a FastCGI-compatible process boundary; HTML/CSS are static web assets; JavaScript executes in a sandboxed runtime; HTTP services are capability controlled.
+
+## Mobile edition and flash tool
+
+The mobile edition now shares the same source-first contracts as the desktop/bare-metal editions through `mobile/mobile-sync.json`. Android packaging targets hosted APK/AAB delivery and device-profiled recovery integration; iOS/iPadOS remains an Apple-hosted target using Xcode and platform signing. The native C/C++/ASM toolchain contracts are reused rather than forked.
+
+`tools/flash/chimera-flash` provides detection, manifest validation and a confirmation-gated Android flashing boundary. It intentionally refuses generic partition writes until a validated device profile supplies exact partitions, image hashes/signatures, AVB and rollback metadata. Android Platform-Tools provides `adb` and `fastboot`, with `fastboot` used for system-image flashing. citeturn0search2
+
+Mobile security follows the same provenance model as the ISO: Secure Boot, Android Verified Boot, Apple security/signing, recovery protections and vendor controls are respected; the tooling does not silently unlock, erase or bypass them.
