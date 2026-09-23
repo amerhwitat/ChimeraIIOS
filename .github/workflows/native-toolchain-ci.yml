@@ -1,0 +1,52 @@
+name: Native C C++ ASM Toolchain CI
+
+on:
+  push:
+    paths:
+      - 'tools/toolchain/**'
+      - 'tools/build-toolchain-bundle.sh'
+      - 'toolchains/**'
+      - 'tests/toolchain/test_native_toolchain.sh'
+      - 'CMakeLists.txt'
+      - 'Dockerfile'
+      - 'Dockerfile.comprehensive'
+      - '.github/workflows/native-toolchain-ci.yml'
+  pull_request:
+    paths:
+      - 'tools/toolchain/**'
+      - 'tools/build-toolchain-bundle.sh'
+      - 'toolchains/**'
+      - 'tests/toolchain/test_native_toolchain.sh'
+      - 'CMakeLists.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-toolchain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native compiler and linker stack
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc g++ binutils clang llvm lld nasm cmake
+      - name: Validate registry
+        run: python3 tools/toolchain/validate_registry.py
+      - name: Validate shell scripts
+        run: |
+          bash -n tools/toolchain/chimera-cc
+          bash -n tools/toolchain/chimera-cxx
+          bash -n tools/toolchain/chimera-as
+          bash -n tools/toolchain/chimera-gas
+          bash -n tools/toolchain/chimera-ld
+          bash -n tools/toolchain/install-native-toolchain.sh
+          bash -n tools/build/build-native-toolchain.sh
+          bash -n tests/toolchain/test_native_toolchain.sh
+      - name: Native C C++ ASM linker conformance
+        run: tests/toolchain/test_native_toolchain.sh
+      - name: CMake configure and native build
+        run: cmake -S . -B build-native -DCMAKE_BUILD_TYPE=Release -DCHIMERA_ENABLE_X86_ASM=ON
+      - name: Build compiler-facing targets
+        run: cmake --build build-native --parallel --target chimera-as chimera-dis chimera-re
