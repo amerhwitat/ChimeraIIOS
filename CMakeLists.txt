@@ -48,7 +48,7 @@ install(FILES system/security/apache-sandbox.json DESTINATION share/chimera/conf
 install(PROGRAMS
   tools/toolchain/chimera-cc
   tools/toolchain/chimera-cxx
-  tools/toolchain/chimera-as
+  tools/toolchain/chimera-gas
   tools/toolchain/chimera-ld
   tools/toolchain/install-native-toolchain.sh
   DESTINATION bin
