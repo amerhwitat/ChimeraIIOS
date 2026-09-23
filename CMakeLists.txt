@@ -43,3 +43,15 @@ install(PROGRAMS services/apache/install-apache-ecosystem.sh services/apache/ver
 install(PROGRAMS services/apache/apache-sync.py DESTINATION bin)
 install(FILES services/apache/apache-projects.json services/apache/README.md DESTINATION share/chimera/apache)
 install(FILES system/security/apache-sandbox.json DESTINATION share/chimera/config)
+
+# Native C/C++/ASM compiler and linker drivers.
+install(PROGRAMS
+  tools/toolchain/chimera-cc
+  tools/toolchain/chimera-cxx
+  tools/toolchain/chimera-as
+  tools/toolchain/chimera-ld
+  tools/toolchain/install-native-toolchain.sh
+  DESTINATION bin
+)
+install(PROGRAMS tools/build/build-native-toolchain.sh DESTINATION share/chimera/toolchains)
+install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera/toolchains)
