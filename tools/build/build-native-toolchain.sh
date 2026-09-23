@@ -12,6 +12,7 @@ export CHIMERA_SDK_ROOT="${PREFIX}"
 export PATH="${PREFIX}/bin:\$PATH"
 export CHIMERA_NATIVE_COMPILER="${CHIMERA_NATIVE_COMPILER:-gcc}"
 export CHIMERA_NATIVE_LINKER="${CHIMERA_NATIVE_LINKER:-bfd}"
+export CHIMERA_ASSEMBLER="${CHIMERA_ASSEMBLER:-gnu}"
 EOF
 
 echo "Native Chimera toolchain staging complete: ${PREFIX}"
