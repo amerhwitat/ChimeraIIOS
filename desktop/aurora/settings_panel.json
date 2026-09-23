@@ -1,0 +1,22 @@
+{
+  "schema":"CHM-AURORA-SETTINGS-1",
+  "application":"aurora-settings",
+  "layout":"settings-sidebar-detail",
+  "categories":[
+    {"id":"system","pages":["Display","Sound","Notifications","Power","Storage","Multitasking","About"]},
+    {"id":"devices","pages":["Bluetooth","Mouse","Touchpad","Keyboard","Pen","Printers","USB","Cameras","Audio"]},
+    {"id":"network","pages":["Wi-Fi","Ethernet","VPN","Proxy","DNS","Firewall","Spotnik"]},
+    {"id":"personalization","pages":["Appearance","Theme","Wallpaper","Colors","Start","Taskbar","Dock","Desktop"]},
+    {"id":"apps","pages":["Installed apps","Defaults","Startup","Optional features","Permissions"]},
+    {"id":"accounts","pages":["Users","Groups","Sign-in","Session","Remote access"]},
+    {"id":"time-language","pages":["Date & time","Language","Region","Keyboard","Input methods","RTL/LTR"]},
+    {"id":"gaming","pages":["Controllers","Game mode","Graphics","Capture"]},
+    {"id":"accessibility","pages":["Screen reader","Magnification","Contrast","Pointer","Keyboard","Captions"]},
+    {"id":"privacy-security","pages":["Permissions","Camera","Microphone","Location","Sandbox","Aegis","Encryption"]},
+    {"id":"compatibility","pages":["Windows","macOS","Linux","BSD","Wine/Win32","POSIX","CEF"]},
+    {"id":"system-services","pages":["Koronos","Kore","Spit Fire","Jasper","Spotnik","Nucleus","Hive","Aegis","Logs"]},
+    {"id":"drivers-hardware","pages":["Hardware scan","Drivers","Firmware","Compatibility","Devices"]},
+    {"id":"developer","pages":["Toolchains","Debugging","Kernel","Modules","Shell","Environment","Diagnostics"]}
+  ],
+  "policy":{"changes":"apply-immediately-when-safe","privileged_changes":"request-Koronos-Aegis-policy","page_visibility":"configurable"}
+}
