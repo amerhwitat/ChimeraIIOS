@@ -1,0 +1,7 @@
+.TH CHM-RESOURCE-MANAGER 1
+.SH NAME
+chm-resource-manager \\- opportunistic background resource governor
+.SH DESCRIPTION
+Monitors CPU, memory and I/O pressure and reduces background work when interactive workloads are under pressure. When pressure is low, background jobs may use additional capacity. It does not reserve or consume all resources continuously.
+.SH STATE
+Writes resource state to /run/chimera/resource.state by default.
