@@ -1,9 +1,9 @@
 name: Desktop Compatibility CI
 on:
   push:
-    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml']
+    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
   pull_request:
-    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml']
+    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
 jobs:
   portable:
     runs-on: ubuntu-latest
@@ -13,6 +13,18 @@ jobs:
         run: printf '#include "desktop/cpp/chm_desktop.hpp"\nint main(){auto p=chimera::desktop::profile(chimera::desktop::Platform::WindowsWin32); return p.menu_bar ? 0 : 1;}' | c++ -std=c++17 -I. -x c++ - -o /tmp/chm-desktop
       - name: Compile C ABI header
         run: printf '#include "desktop/c/desktop_event.h"\nint main(){return CHM_QUIT==23 ? 0 : 1;}' | cc -std=c11 -I. -x c - -o /tmp/chm-desktop-c
+      - name: Build Aurora input and locale runtime
+        run: |
+          chmod +x tools/build-desktop-binaries.sh
+          CHIMERA_DESKTOP_BUILD_DIR=/tmp/chimera-desktop-build ./tools/build-desktop-binaries.sh
+          test -s /tmp/chimera-desktop-build/aurora_input.o
+          test -s /tmp/chimera-desktop-build/aurora_input_router.o
+          test -s /tmp/chimera-desktop-build/aurora_locale.o
+      - name: Validate Aurora locale and input manifests
+        run: |
+          python3 -m json.tool desktop/aurora/i18n/input_sources.json >/dev/null
+          python3 -m json.tool desktop/aurora/i18n/language_catalog.json >/dev/null
+          python3 -m json.tool desktop/aurora/window_manager_policy.json >/dev/null
       - name: Python syntax
         run: python -m py_compile desktop/python/chimera_desktop.py
       - name: Java syntax/build
