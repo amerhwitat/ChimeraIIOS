@@ -1,7 +1,7 @@
 name: Desktop Compatibility CI
 on:
   push:
-    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
+    paths: ['desktop/**','userland/**','man/**','docs/CHIMERA_UNICODE.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
   pull_request:
     paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
 jobs:
@@ -20,6 +20,11 @@ jobs:
           test -s /tmp/chimera-desktop-build/aurora_input.o
           test -s /tmp/chimera-desktop-build/aurora_input_router.o
           test -s /tmp/chimera-desktop-build/aurora_locale.o
+          test -s /tmp/chimera-desktop-build/aurora_utf.o
+          test -s /tmp/chimera-desktop-build/aurora_emoji.o
+          test -s /tmp/chimera-desktop-build/chimera_icons.o
+          test -x /tmp/chimera-desktop-build/bin/chm-utf8
+          test -x /tmp/chimera-desktop-build/bin/aurora-utf-selftest
       - name: Validate Aurora locale and input manifests
         run: |
           python3 -m json.tool desktop/aurora/i18n/input_sources.json >/dev/null
@@ -28,7 +33,8 @@ jobs:
       - name: Build native userland shell and system utilities
         run: |
           cmake -S . -B /tmp/chimera-build -DCMAKE_BUILD_TYPE=Release
-          cmake --build /tmp/chimera-build --target chimera-shell chimera-utils chmctl chm-diagnostics chmhelp aurora-settings -j2
+          cmake --build /tmp/chimera-build --target chimera-shell chimera-utils chmctl chm-diagnostics chmhelp chm-utf8 aurora-settings aurora-utf-selftest -j2
+          /tmp/chimera-build/userland/aurora-utf-selftest
       - name: Validate man pages
         run: |
           test -s man/chimera-shell.1
@@ -36,6 +42,8 @@ jobs:
           test -s man/chmctl.1
           test -s man/aurora-settings.1
           test -s man/chm-diagnostics.1
+          test -s man/chm-utf8.1
+          test -s man/aurora-terminal.1
       - name: Python syntax
         run: python -m py_compile desktop/python/chimera_desktop.py
       - name: Java syntax/build
