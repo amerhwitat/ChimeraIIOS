@@ -5,8 +5,29 @@ BUILD="$ROOT/build/full"
 ISO_DIR="$ROOT/build/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
 DISK_MANAGER="$ROOT/tools/disk-space-manager.sh"
+# Keep the working tree bounded for low-storage hosts.
+MAX_BUILD_GB="${CHIMERA_MAX_BUILD_GB:-30}"
+CLEAN_FREE_GB="${CHIMERA_CLEAN_FREE_GB:-6}"
+cleanup_finished() {
+  local free_gb
+  free_gb="$(df -Pk "$ROOT" | awk 'NR==2 {printf "%.2f", ($4*1024)/1073741824}')"
+  if awk -v f="$free_gb" -v t="$CLEAN_FREE_GB" 'BEGIN {exit !(f<t)}'; then
+    echo "[CLEAN] Only ${free_gb} GiB free; removing completed/intermediate build files." >&2
+    rm -rf "$BUILD/cmake/CMakeFiles" "$BUILD/cmake/_deps" "$BUILD/cmake/Testing" 2>/dev/null || true
+    find "$BUILD/cmake" -type f \( -name '*.o' -o -name '*.obj' -o -name '*.d' -o -name '*.gcda' -o -name '*.gcno' \) -delete 2>/dev/null || true
+    rm -rf "$ROOT/build/tmp" "$ROOT/build/cache" "$ROOT/build/logs" 2>/dev/null || true
+    rm -rf "$ROOT/.cache" 2>/dev/null || true
+    find "$ROOT" -type d -name '__pycache__' -prune -exec rm -rf {} + 2>/dev/null || true
+    find "$ROOT" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
+  fi
+  free_gb="$(df -Pk "$ROOT" | awk 'NR==2 {printf "%.2f", ($4*1024)/1073741824}')"
+  if awk -v f="$free_gb" 'BEGIN {exit !(f<1)}'; then
+    echo "[CLEAN][ERROR] Less than 1 GiB free on the build filesystem." >&2
+    exit 2
+  fi
+}
 if [[ -x "$DISK_MANAGER" ]]; then
-  CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-80}" CHIMERA_MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-100}" CHIMERA_DISK_RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-20}" "$DISK_MANAGER"
+  CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" CHIMERA_MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-30}" CHIMERA_DISK_RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-0}" "$DISK_MANAGER"
 fi
 FOREIGN="$ROOT/build/foreign"
 MOBILE="$ROOT/build/mobile"
@@ -19,13 +40,21 @@ for tool in build-desktop-binaries.sh build-koronos-targets.sh build-toolchain-b
   chmod +x "$ROOT/tools/$tool"
 done
 "$ROOT/tools/build-network-toolkit.sh"
+cleanup_finished
 "$ROOT/tools/build-toolchain-bundle.sh"
+cleanup_finished
 "$ROOT/tools/fetch-driver-payloads.sh"
+cleanup_finished
 "$ROOT/tools/build-koronos-targets.sh"
+cleanup_finished
 "$ROOT/tools/fetch-foreign-runtimes.sh"
+cleanup_finished
 "$ROOT/tools/build-compatibility-binaries.sh"
+cleanup_finished
 "$ROOT/tools/build-mobile-edition.sh"
+cleanup_finished
 "$ROOT/tools/build-desktop-binaries.sh"
+cleanup_finished
 
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
@@ -51,7 +80,8 @@ if [[ -z "$BASE" && -n "${CHIMERA_BASE_ISO_URL:-}" ]]; then
 fi
 
 STAGE="$BUILD/inject"
-if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-100}" "$DISK_MANAGER"; fi
+if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" "$DISK_MANAGER"; fi
+cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
@@ -125,6 +155,7 @@ else
 fi
 
 [[ -s "$FINAL" ]] || { echo "ERROR: ISO was not produced: $FINAL" >&2; exit 1; }
+rm -rf "$STAGE" "$BUILD/cmake" "$BUILD/inject" "$BUILD/base-for-inject.iso" "$BUILD/base.iso" 2>/dev/null || true
 cp "$FINAL" "$ROOT/chimera-ii-os.iso"
 sha256sum "$FINAL" | tee "$FINAL.sha256"
 echo "Built $FINAL"
