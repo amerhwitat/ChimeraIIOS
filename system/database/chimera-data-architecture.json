@@ -1,0 +1,20 @@
+{
+  "name": "Chimera Data Architecture",
+  "version": "1.0",
+  "model": ["ER","MDM","OLTP","OLAP","HTAP"],
+  "design": {
+    "transaction_engine": "MVCC + WAL + two-phase commit boundary",
+    "analytics_engine": "columnar/vectorized execution + partition pruning",
+    "semantic_layer": "MDM canonical entities, identity resolution, survivorship rules",
+    "integration": ["SQL","REST","JDBC","ODBC","CDC","Kafka-compatible event streams"],
+    "storage": ["row","column","object","LSM"],
+    "deployment": ["single-node","cluster","NUMA","distributed"]
+  },
+  "reference_profiles": [
+    {"name":"Oracle-style enterprise profile","features":["partitioning","parallel query","MVCC","materialized views","CDC"]},
+    {"name":"SAP-HANA-style in-memory profile","features":["column store","vectorized execution","in-memory OLAP","HTAP"]},
+    {"name":"Chimera native profile","features":["RegisterN vectors","zero-copy IPC","Koronos scheduling","Nucleus integration"]}
+  ],
+  "entities": ["Party","Organization","Account","Asset","Product","Location","Event","Document","Device","User","Role","Permission"],
+  "mdm": ["golden-record","cross-reference","duplicate-resolution","hierarchy","stewardship","audit-history"]
+}
