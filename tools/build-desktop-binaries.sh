@@ -42,7 +42,7 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
 {
   "schema": "CHM-DESKTOP-BUILD-2",
   "aurora": "Wayland Glass",
-  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals"],
+  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals","bin/aurora-input-selftest"],
   "native_objects": ["aurora_input.o","aurora_input_router.o","aurora_locale.o"],
   "source_tree": "aurora-source",
   "personalities": ["chimera","linux","unix","windows","macos","bsd"],
