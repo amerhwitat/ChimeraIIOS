@@ -1,0 +1,43 @@
+name: Chimera Identity Security CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'system/security/**'
+      - 'userland/CMakeLists.txt'
+      - 'userland/shell/**'
+      - 'tools/initialize-accounts.sh'
+      - 'desktop/aurora/settings_panel.json'
+      - '.github/workflows/identity-security-ci.yml'
+  pull_request:
+    paths:
+      - 'system/security/**'
+      - 'userland/CMakeLists.txt'
+      - 'userland/shell/**'
+      - 'tools/initialize-accounts.sh'
+      - 'desktop/aurora/settings_panel.json'
+
+jobs:
+  identity-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libcrypt-dev
+      - name: Configure
+        run: cmake -S . -B build/identity-ci -DCMAKE_BUILD_TYPE=Release
+      - name: Build identity targets
+        run: |
+          cmake --build build/identity-ci --target chm-user-setup chm-ad chm-passwd chm-groupadd chm-perms chm-usermod chm-groupmod chm-security-selftest --parallel 2
+      - name: Initialize isolated identity sysroot
+        run: |
+          sudo env CHIMERA_SYSROOT="$GITHUB_WORKSPACE/build/identity-sysroot"             build/identity-ci/userland/chm-user-setup init
+      - name: Run identity security self-test
+        run: |
+          sudo env CHIMERA_SYSROOT="$GITHUB_WORKSPACE/build/identity-sysroot"             build/identity-ci/userland/chm-security-selftest
+      - name: Validate protected modes
+        run: |
+          sudo stat -c '%a %n' build/identity-sysroot/etc/shadow build/identity-sysroot/etc/gshadow
