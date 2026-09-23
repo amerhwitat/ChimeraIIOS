@@ -1,0 +1,19 @@
+{
+  "schema":"CHM-AURORA-POWER-1",
+  "service":"aurora-power",
+  "defaults":{
+    "ac":{"profile":"balanced","idle_dim_seconds":600,"display_off_seconds":900,"sleep_seconds":1800,"lock_seconds":600},
+    "battery":{"profile":"power-saver","idle_dim_seconds":300,"display_off_seconds":600,"sleep_seconds":1200,"lock_seconds":300},
+    "critical_battery_percent":5,
+    "auto_lock":true,
+    "lock_requires_authentication":true
+  },
+  "profiles":{
+    "balanced":{"cpu_policy":"balanced","display_brightness_limit":100,"background_activity":"normal","animations":true},
+    "power-saver":{"cpu_policy":"powersave","display_brightness_limit":70,"background_activity":"reduced","animations":false},
+    "performance":{"cpu_policy":"performance","display_brightness_limit":100,"background_activity":"normal","animations":true}
+  },
+  "events":["idle","activity","ac-connected","ac-disconnected","battery-low","battery-critical","suspend","resume","lock","unlock"],
+  "integration":["Koronos","Kore","Aegis","Aurora","Hive"],
+  "safety":{"never_disable_security_updates":true,"never_force_shutdown_on_battery":true}
+}
