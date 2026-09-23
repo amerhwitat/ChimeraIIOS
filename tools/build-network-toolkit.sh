@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
 OUT="$ROOT/build/network-tools"
 mkdir -p "$OUT/bin" "$OUT/rootfs" "$OUT/packages" "$OUT/manifests"
+APT_CACHE="$OUT/.apt-cache"
+APT_LISTS="$OUT/.apt-lists"
+mkdir -p "$APT_CACHE/archives/partial" "$APT_LISTS/partial"
 
 packages=(arping arp-scan fping netdiscover masscan nbtscan smbclient nfs-common rpcbind avahi-utils ldap-utils dnsutils curl wget openssh-client iproute2 iputils-ping net-tools traceroute zmap unicornscan snmp frr wireguard-tools openvpn)
 if [ "${CHIMERA_NMAP_REDIStribute:-0}" = "1" ]; then
@@ -11,29 +14,31 @@ if [ "${CHIMERA_NMAP_REDIStribute:-0}" = "1" ]; then
 fi
 
 download_packages() {
-  local apt_opts=()
-  # "apt-get download" is intentionally a non-root operation, but some apt
-  # configurations still try to lock/update cache metadata. Disable locking
-  # for this staging-only operation so ISO builds work from normal user shells.
-  apt_opts+=("-o" "Debug::NoLocking=true")
+  # Never modify or lock the host APT state/cache.  The package indexes remain
+  # read-only under /var/lib/apt/lists; all writable APT state is redirected
+  # into the build tree so this script works from an ordinary user shell.
+  local apt_opts=(
+    "-o" "Debug::NoLocking=true"
+    "-o" "Dir::Cache=$APT_CACHE"
+    "-o" "Dir::Cache::archives=$OUT/packages"
+    "-o" "Dir::Cache::pkgcache=$APT_CACHE/pkgcache.bin"
+    "-o" "Dir::Cache::srcpkgcache=$APT_CACHE/srcpkgcache.bin"
+    "-o" "Dir::State::lists=/var/lib/apt/lists"
+  )
 
-  if apt-get download "${apt_opts[@]}" "${packages[@]}" >/dev/null 2>&1; then
-    return 0
-  fi
-
-  # Some apt versions require the output directory to be the current working
-  # directory and can leave partial downloads. Retry quietly; package staging
-  # is best-effort because the host may not provide every package.
-  return 1
+  # Options must precede the apt command.  Putting them after "download" makes
+  # apt-get parse them as package arguments on some apt versions.
+  apt-get "${apt_opts[@]}" download "${packages[@]}"
 }
 
 if command -v apt-get >/dev/null 2>&1; then
   (
     cd "$OUT/packages"
-    if ! download_packages; then
+    if ! download_packages >/dev/null 2>&1; then
       echo "INFO package staging: apt download unavailable or some packages are not configured; continuing with host tools." >&2
     fi
   )
+
   for deb in "$OUT/packages/"*.deb; do
     [ -f "$deb" ] || continue
     dpkg-deb -x "$deb" "$OUT/rootfs" 2>/dev/null || true
