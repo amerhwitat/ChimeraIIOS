@@ -1,0 +1,7 @@
+FROM python:3.12-alpine
+WORKDIR /opt/chimera-web
+COPY chimera_web.py /opt/chimera-web/chimera_web.py
+RUN chmod 0555 /opt/chimera-web/chimera_web.py
+USER 65532:65532
+EXPOSE 8765
+ENTRYPOINT ["python3","/opt/chimera-web/chimera_web.py"]
