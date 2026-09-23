@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-AD-CLIENT-1",
+  "enabled":false,
+  "providers":{
+    "sssd":{"config":"/etc/sssd/sssd.conf","identity":"ldap","authentication":"kerberos"},
+    "winbind":{"service":"winbindd","config":"/etc/samba/smb.conf","identity":"winbind"}
+  },
+  "kerberos":{"config":"/etc/krb5.conf","realm_source":"DNS_or_explicit"},
+  "ldap":{"tls_required_for_password_operations":true,"signing_required":true},
+  "dns":{"required":true},"time_sync":{"required":true},
+  "nss":{"passwd":["files","sss","winbind"],"group":["files","sss","winbind"]},
+  "pam":{"local_first":true,"domain_provider":"configured_provider"},
+  "domain_join":{"interactive_only":true,"credentials_never_stored_in_repo":true},
+  "home_directory":{"template":"/home/%u"},
+  "id_mapping":{"strategy":"provider-managed","avoid_uid_gid_collisions":true}
+}
