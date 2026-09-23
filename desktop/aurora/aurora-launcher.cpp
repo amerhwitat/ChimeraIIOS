@@ -7,7 +7,7 @@ static const App apps[]={
  {"settings","desktop/aurora/settings"},{"browser","desktop/aurora/browser"},
  {"process-monitor","desktop/aurora/process-monitor"},{"network-manager","desktop/aurora/network-manager"},
  {"package-center","desktop/aurora/package-center"},{"help-man","tools/help/chimera-help"},
- {"chimera-neural-chat","desktop/aurora/apps/chimera_neural_chat"},{"aurora-peripherals","desktop/aurora/apps/aurora_peripherals"}
+ {"chimera-neural-chat","desktop/aurora/apps/chimera_neural_chat"},{"aurora-peripherals","desktop/aurora/apps/aurora_peripherals"},{"aurora-settings","desktop/aurora/apps/aurora_settings"},{"terminal","userland/shell/chimera-shell"},{"system-control","userland/commands/chmctl"},{"diagnostics","userland/commands/chm-diagnostics"}
 };
 }
 extern "C" int aurora_launch(const char* id,const char* profile){
