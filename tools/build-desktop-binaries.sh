@@ -35,6 +35,10 @@ fi
 if [[ -f "$ROOT/userland/commands/chm-utf8.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/desktop/aurora/i18n" "$ROOT/userland/commands/chm-utf8.cpp" "$ROOT/desktop/aurora/i18n/aurora_utf.cpp" "$ROOT/desktop/aurora/i18n/aurora_emoji.cpp" -o "$OUT/bin/chm-utf8"
 fi
+if [[ -f "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" ]]; then
+  "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/desktop/aurora/i18n" "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" "$ROOT/desktop/aurora/i18n/aurora_utf.cpp" "$ROOT/desktop/aurora/i18n/aurora_emoji.cpp" -o "$OUT/bin/aurora-utf-selftest"
+  "$OUT/bin/aurora-utf-selftest"
+fi
 while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
 cp -a "$ROOT/desktop/aurora/gates_menu.json" "$OUT/manifests/" 2>/dev/null || true
