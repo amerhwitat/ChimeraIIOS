@@ -1,23 +1,11 @@
 {
-  "catalog": "Apache ecosystem integration registry",
-  "policy": "source-first; license and dependency verification required; projects are optional services/libraries, not silently copied into the kernel",
-  "families": {
-    "http_web": ["httpd","Traffic Server"],
-    "data_sql": ["Cassandra","Drill","Hive","Impala","Kylin","Calcite","Arrow","Spark"],
-    "messaging": ["Kafka","Pulsar","ActiveMQ","Qpid"],
-    "streaming": ["Flink","Beam","Storm"],
-    "search": ["Lucene","Solr","OpenSearch"],
-    "big_data": ["Hadoop","HBase","Ozone","Parquet","ORC"],
-    "integration": ["Camel","NiFi","Airflow"],
-    "build_runtime": ["Maven","Ant","Tomcat","Karaf"],
-    "security_identity": ["Shiro","Ranger"],
-    "web_ui": ["Wicket","Cordova"],
-    "observability": ["Log4j","SkyWalking","OpenTelemetry Java agent integrations"]
-  },
-  "integration_contract": {
-    "kernel": "no third-party Apache runtime linked into Koronos",
-    "userland": "sandboxed services with IPC, capabilities and resource quotas",
-    "source": "upstream source URL, version, license, checksum and build recipe required",
-    "database": "adapters expose SQL/CDC/object/event interfaces to Nucleus"
-  }
+  "catalog":"Apache Software Foundation ecosystem integration",
+  "catalog_source":"https://projects.apache.org/json/projects/",
+  "release_source":"https://downloads.apache.org/",
+  "last_catalog_refresh":"2026-09-23",
+  "scope":"all projects listed by the ASF project directory; retired and archived projects tracked separately",
+  "installation_model":{"source":"official signed source release","binary":"official matching convenience binary when published","build":"build verified source when no suitable binary exists","kernel":"never link Apache runtimes into Koronos","userland":"capability-scoped services, libraries and applications"},
+  "verification":{"required":["official ASF release URL","version","SHA-256","PGP signature when published","LICENSE","NOTICE"],"reject":["nightly","snapshot","unapproved build","unknown checksum","unsigned release"]},
+  "families":{"web":["httpd","trafficserver","apisix","tomcat","jetty","httpcomponents"],"data":["arrow","cassandra","couchdb","derby","doris","drill","druid","hadoop","hbase","hive","impala","iceberg","hudi","ignite","kudu","kylin","lucene","solr"],"streaming":["kafka","pulsar","flink","beam","storm","flume"],"messaging":["activemq","artemis","qpid","rocketmq","eventmesh","iggy"],"integration":["camel","nifi","airflow","syncope","servicecomb"],"build":["ant","maven","gump","buildr"],"runtime":["felix","karaf","geronimo","openwebbeans"],"security":["shiro","ranger","directory","santuario"],"observability":["logging","skywalking","hertzbeat"],"ai_ml":["mahout","mxnet","opennlp","singa","submarine"],"cloud":["cloudstack","libcloud","openwhisk","openserverless"],"storage":["ozone","parquet","orc","celeborn"],"ui":["netbeans","superset","echarts","wicket","cordova"],"enterprise":["ofbiz","fineract","causeway","syncope"],"geospatial":["sedona","sis","geode"]},
+  "all_projects_mode":{"enabled":true,"source_of_truth":"ASF generated project catalog","refresh":"daily at package-manager metadata refresh","artifact_policy":"official releases only"}
 }
