@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+add_executable(chimera-dis chimera_tool.cpp)
+target_compile_features(chimera-dis PRIVATE cxx_std_20)
+install(TARGETS chimera-dis RUNTIME DESTINATION bin)
+install(FILES chimera_isa.json README.md DESTINATION share/chimera/tools/chimera-asm)
