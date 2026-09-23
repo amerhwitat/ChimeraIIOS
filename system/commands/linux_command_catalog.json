@@ -35,4 +35,39 @@
     "syntax": "Shell/language syntax rather than an executable.",
     "alias": "Compatibility name for another Chimera implementation."
   }
+,
+  "taxonomy": {
+    "file_operations":["access","basename","cat","cksum","cmp","compress","cp","cpio","csplit","cut","diff","diff3","echo","expand","file","fold","head","join","less","ln","locate","look","more","mv","od","paste","readlink","rename","rev","rm","shred","sort","split","tac","tail","tar","tee","touch","unexpand","uniq","wc"],
+    "directories":["cd","dir","dirname","dirs","du","find","lsblk","mkdir","mount","pwd","rmdir","tree"],
+    "permissions":["chmod","chattr","chown","chgrp"],
+    "users":["chage","chfn","chsh","chpasswd","finger","id","passwd","pinky","username","useradd","userdel","usermod","users","who","whoami"],
+    "groups":["groupadd","groupdel","groupmod","groups","gpasswd","grpck","grpconv"],
+    "processes":["accton","bg","chrt","fg","kill","mpstat","pidof","pmap","ps","top","htop","strace","time","watch","vmstat","uptime","w"],
+    "networking":["arp","curl","host","hostid","hostname","hostnamectl","ifconfig","iftop","ifup","ip","ipcrm","ipcs","iptables","iptables-save","iwconfig","nc","netstat","nmcli","nslookup","ping","rcp","route","rsync","scp","ssh","tracepath","traceroute","vnstat","wget"],
+    "packages":["apt","apt-get","aptitude"],
+    "scheduling":["atd","atrm","atq","batch","cron","crontab"],
+    "disk":["cfdisk","df","dosfsck","dump","dumpe2fs","fdisk","gdisk","diskpart","parted","mount","restore","sync"],
+    "hardware":["acpi","acpi_available","acpid","arch","dmesg","dmidecode","dstat","free","hdparm","hwclock","iostat","iotop","lsusb","lshw","uname"],
+    "compression":["ar","bzcmp","bzdiff","bzgrep","bzip2","bzless","bzmore","gunzip","gzip","gzexe","zip","zdiff","zgrep"],
+    "text":["awk","aspell","banner","bc","col","colcrt","colrm","column","dc","egrep","fgrep","fmt","grep","sdiff","sed","tr","unix2dos"],
+    "kernel_modules":["depmod","insmod","lsmod","modinfo","rmmod","systemctl"],
+    "power":["halt","poweroff","reboot","shutdown"],
+    "logging":["journalctl","last","history","sar","script","scriptreplay"],
+    "integrity":["md5sum","cksum","sum"],
+    "datetime":["cal","date","uptime"],
+    "mail_communication":["biff","mailq","write","wall"],
+    "media_printing":["amixer","aplay","aplaymidi","cupsd","eject","import"],
+    "shell_scripting":["alias","bind","break","builtin","case","continue","declare","enable","env","eval","exec","exit","expect","export","expr","factor","fc","function","for","if","let","printf","read","return","select","seq","setsid","shift","source","type","until","while","yes","sudo","sleep"],
+    "development":["aclocal","addr2line","autoconf","autoheader","automake","autoreconf","autoupdate","bison","cc","cpp","ctags","g++","gcc","gdb","ranlib","readelf"],
+    "terminal":["agetty","chvt","reset","screen","showkey","stty","tty","xdg-open"],
+    "help":["apropos","help","info","man","whatis","which"],
+    "editors":["nano","vi","vim","ed","emacs"],
+    "regex":["^","$",".","*","?","\\","[]","[^]","{}","()","\\w","\\W","\\d","\\D","+"],
+    "storage_native":["diskpart","parted","fdisk","gdisk"]
+  },
+  "notes": [
+    "Entries describe compatibility targets; they do not imply redistribution of proprietary software.",
+    "Commands absent on a target distribution may be represented as external, adapter, unavailable, or syntax entries.",
+    "Regex syntax is dialect-sensitive."
+  ]
 }
