@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PREFIX="${CHIMERA_TOOLCHAIN_PREFIX:-/opt/chimera-sdk}"
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 BIN="${PREFIX}/bin"
 MANIFEST="${PREFIX}/share/chimera/toolchains/chimera-native-toolchain.json"
 mkdir -p "${BIN}" "${PREFIX}/share/chimera/toolchains"
@@ -32,11 +32,16 @@ for tool in clang clang++ lld nasm; do
   command -v "$tool" >/dev/null 2>&1 || echo "[WARN] optional tool unavailable: $tool"
 done
 
-install -m 0755 "${ROOT}/tools/toolchain/chimera-cc" "${BIN}/chimera-cc"
-install -m 0755 "${ROOT}/tools/toolchain/chimera-cxx" "${BIN}/chimera-cxx"
-install -m 0755 "${ROOT}/tools/toolchain/chimera-as" "${BIN}/chimera-gas"
-install -m 0755 "${ROOT}/tools/toolchain/chimera-ld" "${BIN}/chimera-ld"
-install -m 0644 "${ROOT}/toolchains/chimera-native-toolchain.json" "${MANIFEST}"
+install -m 0755 "${SCRIPT_DIR}/chimera-cc" "${BIN}/chimera-cc"
+install -m 0755 "${SCRIPT_DIR}/chimera-cxx" "${BIN}/chimera-cxx"
+install -m 0755 "${SCRIPT_DIR}/chimera-gas" "${BIN}/chimera-gas"
+install -m 0755 "${SCRIPT_DIR}/chimera-ld" "${BIN}/chimera-ld"
+if [[ -f "${SCRIPT_DIR}/../../toolchains/chimera-native-toolchain.json" ]]; then
+  install -m 0644 "${SCRIPT_DIR}/../../toolchains/chimera-native-toolchain.json" "${MANIFEST}"
+elif [[ ! -f "${MANIFEST}" ]]; then
+  echo "Missing Chimera native toolchain manifest" >&2
+  exit 1
+fi
 
 "${BIN}/chimera-cc" --version | head -n 1
 "${BIN}/chimera-cxx" --version | head -n 1
