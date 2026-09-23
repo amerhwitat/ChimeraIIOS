@@ -37,3 +37,9 @@ install(DIRECTORY web/runtime DESTINATION share/chimera/web)
 install(PROGRAMS services/chimera-web/chimera_web.py DESTINATION share/chimera/web)
 install(FILES system/security/chimera_web_policy.json system/containers/podman_profile.json DESTINATION share/chimera/config)
 install(FILES system/containers/quadlet/chimera-web.container DESTINATION share/chimera/quadlet)
+
+# Apache ecosystem package ingestion and verification tools
+install(PROGRAMS services/apache/install-apache-ecosystem.sh services/apache/verify-apache-package.sh DESTINATION bin)
+install(PROGRAMS services/apache/apache-sync.py DESTINATION bin)
+install(FILES services/apache/apache-projects.json services/apache/README.md DESTINATION share/chimera/apache)
+install(FILES system/security/apache-sandbox.json DESTINATION share/chimera/config)
