@@ -17,6 +17,10 @@ if [[ -f "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/neural/cpp"     "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" -o "$OUT/bin/chimera-neural-chat"
 fi
 
+if [[ -f "$ROOT/desktop/aurora/apps/aurora_peripherals.cpp" ]]; then
+  "$CXX" -std=c++20 -O2 -Wall -Wextra "$ROOT/desktop/aurora/apps/aurora_peripherals.cpp" -o "$OUT/bin/aurora-peripherals"
+fi
+
 if [[ -f "$ROOT/voice/cpp/src/voiceconnect.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra     "$ROOT/voice/cpp/src/voiceconnect.cpp" -o "$OUT/bin/voiceconnect"
 fi
@@ -35,7 +39,7 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
 {
   "schema": "CHM-DESKTOP-BUILD-1",
   "aurora": "Wayland Glass",
-  "native_binaries": ["bin/aurora-launcher"],
+  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals"],
   "source_tree": "aurora-source",
   "personalities": ["chimera","linux","unix","windows","macos","bsd"],
   "note": "Desktop personality profiles are packaged implementations/configuration layers; unsupported native GUI backends are not fabricated as completed binaries."
