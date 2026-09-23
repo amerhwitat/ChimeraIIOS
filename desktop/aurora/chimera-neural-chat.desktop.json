@@ -1,0 +1,11 @@
+{
+  "$schema":"CHM-AURORA-APP-2",
+  "id":"chimera-neural-chat",
+  "name":"Chimera Neural Chat",
+  "category":"ai",
+  "entry":"desktop/aurora/apps/chimera_neural_chat",
+  "surface":"Aurora Wayland Glass",
+  "capabilities":["neural-inference","trusted-node-ipc","conversation","optional-voice"],
+  "ipc":"Koronos stable IPC",
+  "voice":"chm-voice / VoiceConnect"
+}
