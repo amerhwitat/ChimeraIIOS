@@ -1,0 +1,14 @@
+{
+  "$schema":"CHM-VOICECONNECT-1",
+  "name":"Chimera VoiceConnect",
+  "compatibility":"DirectPlay Voice concept, not binary-compatible",
+  "transport":"UDP",
+  "codec":"PCM16",
+  "sample_rate":48000,
+  "channels":1,
+  "frame_samples":960,
+  "default_port":43000,
+  "audio_backends":["PipeWire","ALSA","WASAPI","CoreAudio","external"],
+  "directx_dependency":false,
+  "directplay_dependency":false
+}
