@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-AURORA-TERMINAL-UTF8-1",
+  "encoding":"UTF-8",
+  "input":"UTF-8",
+  "output":"UTF-8",
+  "emoji":true,
+  "combining_marks":true,
+  "variation_selectors":true,
+  "bidirectional_text":true,
+  "rtl":true,
+  "ltr":true,
+  "fallback_policy":"replacement-character",
+  "aliases":":name:",
+  "width_model":"unicode-conservative",
+  "shell_dialects":["chimera","posix","bash","zsh","fish","powershell","cmd","nushell","elvish","xonsh"]
+}
