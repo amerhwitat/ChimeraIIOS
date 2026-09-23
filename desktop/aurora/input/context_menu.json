@@ -1,0 +1,1 @@
+{"schema":"CHM-AURORA-CONTEXT-MENU-1","triggers":["mouse-right-button","keyboard-context-key","shift-f10","touch-long-press"],"features":["open","open-with","copy","cut","paste","rename","delete","properties","send-to","share","create","sort","view","refresh"],"accessibility":["keyboard-navigation","mnemonics","high-contrast"]}
