@@ -98,6 +98,7 @@
       ],
       "voice": "voiceconnect"
     }
+    ,{"id":"aurora-peripherals","category":"system","entry":"desktop/aurora/apps/aurora_peripherals","formats":["native","wayland-glass"],"policy":"explicit-user-request"}
   ],
   "compatibility_apps": [
     "wine",
