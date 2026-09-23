@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdlib>
+#include <cerrno>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
