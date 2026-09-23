@@ -180,7 +180,10 @@ def unpack(artifact: Path, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     if tarfile.is_tarfile(artifact):
         with tarfile.open(artifact, "r:*") as archive:
-            archive.extractall(destination, filter="data" if sys.version_info >= (3, 12) else None)
+            if sys.version_info >= (3, 12):
+                archive.extractall(destination, filter="data")
+            else:
+                archive.extractall(destination)
         return
     if zipfile.is_zipfile(artifact):
         with zipfile.ZipFile(artifact) as archive:
