@@ -1,0 +1,10 @@
+{
+  "version":"1.0",
+  "languages":["PHP","HTML5","CSS3","JavaScript","ECMAScript"],
+  "php":{"execution":"isolated-FastCGI-compatible-process","extensions":["PDO-compatible database API","session","JSON"]},
+  "html":{"standards":["HTML5","DOM"]},
+  "css":{"standards":["CSS3","media queries","flexbox","grid"]},
+  "javascript":{"execution":"sandboxed-userland-runtime","modules":["ESM","Web APIs"]},
+  "security":{"filesystem":"capability-gated","network":"capability-gated","database":"credential/capability-gated"},
+  "database_bindings":["SQL","T-SQL compatibility","PL/SQL compatibility","REST","CDC"]
+}
