@@ -1,20 +1,219 @@
 {
   "name": "Chimera Data Architecture",
-  "version": "1.0",
-  "model": ["ER","MDM","OLTP","OLAP","HTAP"],
+  "version": "2.0",
+  "model": [
+    "ER",
+    "MDM",
+    "OLTP",
+    "OLAP",
+    "HTAP"
+  ],
   "design": {
     "transaction_engine": "MVCC + WAL + two-phase commit boundary",
     "analytics_engine": "columnar/vectorized execution + partition pruning",
     "semantic_layer": "MDM canonical entities, identity resolution, survivorship rules",
-    "integration": ["SQL","REST","JDBC","ODBC","CDC","Kafka-compatible event streams"],
-    "storage": ["row","column","object","LSM"],
-    "deployment": ["single-node","cluster","NUMA","distributed"]
+    "integration": [
+      "SQL",
+      "REST",
+      "JDBC",
+      "ODBC",
+      "CDC",
+      "Kafka-compatible event streams"
+    ],
+    "storage": [
+      "row",
+      "column",
+      "object",
+      "LSM"
+    ],
+    "deployment": [
+      "single-node",
+      "cluster",
+      "NUMA",
+      "distributed"
+    ]
   },
   "reference_profiles": [
-    {"name":"Oracle-style enterprise profile","features":["partitioning","parallel query","MVCC","materialized views","CDC"]},
-    {"name":"SAP-HANA-style in-memory profile","features":["column store","vectorized execution","in-memory OLAP","HTAP"]},
-    {"name":"Chimera native profile","features":["RegisterN vectors","zero-copy IPC","Koronos scheduling","Nucleus integration"]}
+    {
+      "name": "Oracle-style enterprise profile",
+      "features": [
+        "partitioning",
+        "parallel query",
+        "MVCC",
+        "materialized views",
+        "CDC"
+      ]
+    },
+    {
+      "name": "SAP-HANA-style in-memory profile",
+      "features": [
+        "column store",
+        "vectorized execution",
+        "in-memory OLAP",
+        "HTAP"
+      ]
+    },
+    {
+      "name": "Chimera native profile",
+      "features": [
+        "RegisterN vectors",
+        "zero-copy IPC",
+        "Koronos scheduling",
+        "Nucleus integration"
+      ]
+    },
+    {
+      "name": "SQL Server/T-SQL compatibility profile",
+      "features": [
+        "T-SQL parser",
+        "stored procedures",
+        "transactions",
+        "window functions",
+        "SQL Server-style metadata adapter"
+      ]
+    },
+    {
+      "name": "Oracle PL/SQL compatibility profile",
+      "features": [
+        "PL/SQL parser",
+        "packages",
+        "procedures",
+        "functions",
+        "triggers",
+        "exception handling",
+        "Oracle-style metadata adapter"
+      ]
+    }
   ],
-  "entities": ["Party","Organization","Account","Asset","Product","Location","Event","Document","Device","User","Role","Permission"],
-  "mdm": ["golden-record","cross-reference","duplicate-resolution","hierarchy","stewardship","audit-history"]
+  "entities": [
+    "Party",
+    "Organization",
+    "Account",
+    "Asset",
+    "Product",
+    "Location",
+    "Event",
+    "Document",
+    "Device",
+    "User",
+    "Role",
+    "Permission"
+  ],
+  "mdm": [
+    "golden-record",
+    "cross-reference",
+    "duplicate-resolution",
+    "hierarchy",
+    "stewardship",
+    "audit-history"
+  ],
+  "sql_dialects": {
+    "T-SQL": {
+      "family": "Microsoft SQL Server",
+      "support": [
+        "DDL",
+        "DML",
+        "DCL",
+        "T-SQL procedural batches",
+        "transactions",
+        "CTE",
+        "window functions",
+        "MERGE",
+        "stored procedures",
+        "triggers"
+      ]
+    },
+    "PL/SQL": {
+      "family": "Oracle",
+      "support": [
+        "DDL",
+        "DML",
+        "DCL",
+        "procedures",
+        "functions",
+        "packages",
+        "triggers",
+        "cursors",
+        "exception handling",
+        "collections"
+      ]
+    },
+    "SQL/Chimera": {
+      "family": "Chimera native",
+      "support": [
+        "ANSI SQL core",
+        "parameterized queries",
+        "prepared statements",
+        "MVCC transactions",
+        "CDC",
+        "OLTP/OLAP routing"
+      ]
+    }
+  },
+  "sql_engine": {
+    "parser": "dialect-aware SQL front end",
+    "planner": [
+      "cost-based optimization",
+      "partition pruning",
+      "join reordering",
+      "vectorized execution"
+    ],
+    "execution": [
+      "row",
+      "columnar",
+      "hybrid",
+      "parallel"
+    ],
+    "procedural_runtime": [
+      "T-SQL compatible profile",
+      "PL/SQL compatible profile",
+      "sandboxed stored-procedure execution"
+    ],
+    "compatibility": "Dialect compatibility is implemented as a translation/execution layer; proprietary vendor internals are not copied."
+  },
+  "erp_mdm": [
+    "party",
+    "organization",
+    "account",
+    "product",
+    "asset",
+    "location",
+    "document",
+    "device",
+    "user",
+    "role",
+    "permission",
+    "event",
+    "relationship"
+  ],
+  "oltp": [
+    "ACID",
+    "MVCC",
+    "WAL",
+    "row locks",
+    "optimistic concurrency",
+    "indexes",
+    "constraints",
+    "triggers",
+    "stored procedures",
+    "CDC"
+  ],
+  "olap": [
+    "columnar storage",
+    "compression",
+    "vectorized execution",
+    "materialized views",
+    "star/snowflake schemas",
+    "partitioning",
+    "parallel query",
+    "window analytics"
+  ],
+  "htap": [
+    "shared logical model",
+    "row/column projections",
+    "workload isolation",
+    "incremental aggregates",
+    "CDC",
+    "transactional/analytical consistency boundaries"
+  ]
 }
