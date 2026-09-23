@@ -248,7 +248,18 @@ build_docker_image() {
     # copy is redundant and is omitted from a temporary Dockerfile variant.
     local runtime_dockerfile="/tmp/Dockerfile.chimera-iso-runtime"
     cp "$SCRIPT_DIR/Dockerfile.comprehensive" "$runtime_dockerfile"
+    # Do not copy the enormous builder filesystem into the runtime stage.
+    # The runtime image only needs /opt/chimera; copying the full /usr/local
+    # tree can trigger Docker Desktop/containerd SIGBUS while materializing
+    # the multi-stage layer.
     sed -i '/^COPY --from=builder \/usr\/local \/usr\/local$/d' "$runtime_dockerfile"
+    # The builder also contains source/build trees that make /opt/chimera
+    # unnecessarily large. Remove only transient caches and build artifacts
+    # from the temporary runtime Dockerfile by adding a cleanup layer before
+    # the COPY into the final stage.
+    sed -i '/^# RUNTIME IMAGE (Multi-stage)$/i RUN rm -rf \\
+    /opt/chimera/venv/lib/python*/site-packages/*/__pycache__ \\
+    /opt/chimera/venv/lib/python*/site-packages/*/.pytest_cache 2>/dev/null || true' "$runtime_dockerfile"
 
     if grep -q '^COPY --from=builder /usr/local /usr/local$' "$runtime_dockerfile"; then
         log_error "Failed to prepare reduced runtime Dockerfile."
