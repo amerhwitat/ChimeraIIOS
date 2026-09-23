@@ -8,8 +8,8 @@
     {"name":"gdisk","category":"storage","type":"native","implementation":"chm-gdisk","platforms":["chimera","linux"],"danger":"destructive","notes":"GPT-focused partition editor with protective-MBR awareness."},
     {"name":"regex","category":"text","type":"syntax","implementation":"chimera-regex","platforms":["chimera","posix","javascript","python","perl"],"danger":"safe","notes":"ECMAScript-style examples plus portable POSIX notes; dialect differences must be declared."},
     {"name":"grep","category":"text","type":"external-or-native-adapter","implementation":"external","platforms":["chimera","linux","bsd"],"danger":"safe"},
-    {"name":"sed","category":"text","type":"external-or-native-adapter","implementation":"external","platforms":["chimera","linux","bsd"],"danger":"safe"},
-    {"name":"awk","category":"text","type":"external-or-native-adapter","implementation":"external","platforms":["chimera","linux","bsd"],"danger":"safe"},
+    {"name":"sed","category":"text","type":"native-language-command","implementation":"chm-sed","platforms":["chimera","linux","bsd"],"danger":"safe"},
+    {"name":"awk","category":"text","type":"native-language-command","implementation":"chm-awk","platforms":["chimera","linux","bsd"],"danger":"safe"},
     {"name":"fdisk","category":"storage","type":"alias","implementation":"chm-fdisk","platforms":["chimera"]},
     {"name":"tar","category":"archives","type":"external","implementation":"external","platforms":["chimera","linux","bsd"]},
     {"name":"mount","category":"storage","type":"external-or-native-adapter","implementation":"kernel-storage","platforms":["chimera","linux"],"danger":"privileged"},
@@ -63,7 +63,9 @@
     "help":["apropos","help","info","man","whatis","which"],
     "editors":["nano","vi","vim","ed","emacs"],
     "regex":["^","$",".","*","?","\\","[]","[^]","{}","()","\\w","\\W","\\d","\\D","+"],
-    "storage_native":["diskpart","parted","fdisk","gdisk"]
+    "storage_native":["diskpart","parted","fdisk","gdisk"],
+    "programming_languages":["awk","sed"],
+    "regex_programming":["awk","sed","grep"]
   },
   "notes": [
     "Entries describe compatibility targets; they do not imply redistribution of proprietary software.",
