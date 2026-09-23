@@ -4,6 +4,10 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/full"
 ISO_DIR="$ROOT/build/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
+DISK_MANAGER="$ROOT/tools/disk-space-manager.sh"
+if [[ -x "$DISK_MANAGER" ]]; then
+  CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-80}" CHIMERA_MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-100}" CHIMERA_DISK_RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-20}" "$DISK_MANAGER"
+fi
 FOREIGN="$ROOT/build/foreign"
 MOBILE="$ROOT/build/mobile"
 DRIVERS="$ROOT/build/drivers"
@@ -25,6 +29,7 @@ done
 
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
+if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" "$DISK_MANAGER"; fi
 
 KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
 SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
@@ -46,6 +51,7 @@ if [[ -z "$BASE" && -n "${CHIMERA_BASE_ISO_URL:-}" ]]; then
 fi
 
 STAGE="$BUILD/inject"
+if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-100}" "$DISK_MANAGER"; fi
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
@@ -103,6 +109,7 @@ if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]];
 fi
 
 FINAL="$ISO_DIR/chimera-ii-os.iso"
+if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-100}" "$DISK_MANAGER"; fi
 if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
   # xorriso refuses a non-empty existing outdev when indev and outdev differ.
   # Delete the previous output before opening the base image. If BASE happens
