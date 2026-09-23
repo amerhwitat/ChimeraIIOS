@@ -310,7 +310,7 @@ export_docker_to_rootfs() {
     # Docker Desktop containerd image store.
     log_info "Flattening final image with docker export..."
     rm -rf "$ROOTFS_DIR"/*
-    local container_name="chimera-export-$"
+    local container_name="chimera-export-${BASHPID}"
     docker rm -f "$container_name" >/dev/null 2>&1 || true
     docker create --name "$container_name" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
 
@@ -407,17 +407,19 @@ EOF
 }
 EOF
 
-    # A network refresh is optional during ISO construction. The bundled
-    # catalog remains usable when the build host has no network access.
-    if [ "$APACHE_ECOSYSTEM_MODE" = "metadata" ] && command -v curl >/dev/null 2>&1; then
-        log_info "Refreshing ASF project catalog metadata..."
-        if curl -fsSL --retry 3 --connect-timeout 15             "https://projects.apache.org/json/projects/"             -o "$apache_root/apache-projects-index.html" 2>/tmp/chimera-apache-refresh.log; then
-            log_success "ASF project-directory index staged in ISO rootfs."
+    # Refresh the complete generated ASF project catalog when Python is
+    # available. The bundled metadata remains usable for offline builds.
+    if [ "$APACHE_ECOSYSTEM_MODE" = "metadata" ] && command -v python3 >/dev/null 2>&1; then
+        log_info "Refreshing complete ASF project catalog metadata..."
+        if CHIMERA_APACHE_PREFIX="$apache_root"            CHIMERA_APACHE_CACHE="$apache_cache"            CHIMERA_APACHE_PROJECT_INDEX="https://projects.apache.org/json/projects/"            CHIMERA_APACHE_RELEASE_INDEX="https://downloads.apache.org/"            python3 "$apache_src/apache-sync.py" catalog            >/tmp/chimera-apache-refresh.log 2>&1; then
+            log_success "Complete ASF project catalog staged in ISO rootfs."
         else
             log_warning "ASF catalog refresh failed; bundled catalog retained."
             cat /tmp/chimera-apache-refresh.log >&2 || true
         fi
         rm -f /tmp/chimera-apache-refresh.log
+    else
+        log_warning "python3 unavailable; using bundled Apache project catalog."
     fi
 
     log_success "Apache ecosystem integration prepared: $apache_root"
