@@ -5,6 +5,6 @@ case "$assembler" in
   gnu) exec as "$@" ;;
   llvm) exec llvm-mc -filetype=obj "$@" ;;
   nasm) exec nasm "$@" ;;
-  chimera) exec chimera-as "$@" ;;
-  *) echo "chimera-as: CHIMERA_ASSEMBLER must be gnu, llvm, nasm, or chimera" >&2; exit 2 ;;
+  chimera) echo "chimera-as is the native Chimera ISA assembler; invoke it directly." >&2; exec chimera-as "$@" ;;
+  *) echo "chimera-gas: CHIMERA_ASSEMBLER must be gnu, llvm, nasm, or chimera" >&2; exit 2 ;;
 esac
