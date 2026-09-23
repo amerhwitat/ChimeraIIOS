@@ -1,8 +1,8 @@
 .TH CHM-PASSWD 1
 .SH NAME
-chm-passwd \\- change a Chimera local account password
+chm-passwd - change a Chimera local account password
 .SH SYNOPSIS
 .B chm-passwd
-.I USER
+USER
 .SH DESCRIPTION
-Prompts interactively for a new password and updates the shadow-compatible password hash. Root privileges are required.
+Prompts for a new password twice and updates the shadow entry atomically. Root privileges are required.
