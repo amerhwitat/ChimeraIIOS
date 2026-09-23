@@ -1,0 +1,8 @@
+{
+  "schema":"CHM-AURORA-LANGUAGE-CATALOG-1",
+  "source_model":"BCP-47/Unicode/CLDR compatible",
+  "policy":"Runtime locale discovery is preferred; bundled translations are optional resources.",
+  "directions":{"rtl":["ar","arc","dv","fa","he","khw","nqo","ps","syr","ug","ur","yi"]},
+  "script_families":["Latin","Arabic","Hebrew","Syriac","Thaana","NKo","Cyrillic","Greek","Armenian","Georgian","Devanagari","Bengali","Gurmukhi","Gujarati","Oriya","Tamil","Telugu","Kannada","Malayalam","Sinhala","Thai","Lao","Khmer","Myanmar","Ethiopic","Han","Hiragana","Katakana","Hangul","Mongolian","Tibetan"],
+  "fallback_chain":["user-locale","language","script","region","en-US"]
+}
