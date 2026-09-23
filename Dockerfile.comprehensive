@@ -52,7 +52,7 @@ RUN set -eux; \
           echo "[Chimera] installed optional: $pkg"; \
         else \
           echo "[Chimera][WARN] optional package failed; continuing: $pkg"; \
-          apt-get -f install -y --no-install-recommends || true; \
+          echo "[Chimera][WARN] optional package failure; no dependency repair attempted"; \
         fi; \
       else \
         echo "[Chimera] optional/unavailable package skipped: $pkg"; \
@@ -73,7 +73,7 @@ RUN set -eux; \
     if [ -n "$optional" ]; then \
       if ! apt-get install -y --no-install-recommends $optional; then \
         echo "[Chimera][WARN] optional repository package set failed; continuing"; \
-        apt-get -f install -y --no-install-recommends || true; \
+        echo "[Chimera][WARN] optional package failure; no dependency repair attempted"; \
       fi; \
     fi; \
     rm -rf /var/lib/apt/lists/*
