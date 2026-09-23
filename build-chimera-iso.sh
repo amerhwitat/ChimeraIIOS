@@ -230,10 +230,10 @@ build_docker_image() {
     # the large cross-stage /opt/chimera and /usr/local COPY operations that
     # caused Docker Desktop/containerd SIGBUS crashes.
     set +e
-    docker build \
-        ${DOCKER_PULL:+--pull} \
-        ${DOCKER_NO_CACHE:+--no-cache} \
-        --progress=plain \
+    local docker_build_flags=(--progress=plain)
+    [ "$DOCKER_PULL" = "1" ] && docker_build_flags+=(--pull)
+    [ "$DOCKER_NO_CACHE" = "1" ] && docker_build_flags+=(--no-cache)
+    docker build "${docker_build_flags[@]}" \
         -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
         -t "$DOCKER_IMAGE:$DOCKER_TAG" \
         -t "$DOCKER_IMAGE:latest" \
