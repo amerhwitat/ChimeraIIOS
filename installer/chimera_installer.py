@@ -92,7 +92,7 @@ def plan(inv, choice):
         "boot":"UEFI-first; legacy fallback only when explicitly supported",
         "disk_policy":"never auto-partition or erase in unattended mode",
         "secure_boot_policy":"detect and report; signing/enrollment is an explicit step"},
-        "recommendation":rec}
+        "recommendation":rec,"identity_security":{"root_uid":0,"local_databases":["/etc/passwd","/etc/shadow","/etc/group","/etc/gshadow"],"root_password":"interactive-at-install","remote_root_login":False,"ad_providers":["sssd","winbind"],"domain_join":"explicit-administrator-action"}}
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--edition",choices=EDITIONS); ap.add_argument("--output",default="chimera-install-plan.json"); ap.add_argument("--apply",action="store_true"); ap.add_argument("--confirm-destructive",action="store_true")
