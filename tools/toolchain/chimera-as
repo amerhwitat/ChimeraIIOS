@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+assembler="${CHIMERA_ASSEMBLER:-gnu}"
+case "$assembler" in
+  gnu) exec as "$@" ;;
+  llvm) exec llvm-mc -filetype=obj "$@" ;;
+  nasm) exec nasm "$@" ;;
+  chimera) exec chimera-as "$@" ;;
+  *) echo "chimera-as: CHIMERA_ASSEMBLER must be gnu, llvm, nasm, or chimera" >&2; exit 2 ;;
+esac
