@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-AUTH-POLICY-1",
+  "local_accounts":{"passwd":"/etc/passwd","shadow":"/etc/shadow","group":"/etc/group","gshadow":"/etc/gshadow"},
+  "root":{"uid":0,"gid":0,"create_during_install":true,"password_prompt":true,"remote_login":false},
+  "password_hash":"crypt-shadow-compatible",
+  "shadow_permissions":"0600","passwd_permissions":"0644","group_permissions":"0644","gshadow_permissions":"0600",
+  "filesystem":{"unix_mode_bits":true,"ownership":true,"acl":true,"setuid":true,"setgid":true,"sticky_bit":true},
+  "ad":{"enabled":false,"providers":["sssd","winbind"],"protocols":["LDAP","Kerberos","SMB"],"require_dns":true,"require_time_sync":true,"require_explicit_join":true},
+  "principle":"least-privilege"
+}
