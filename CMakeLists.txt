@@ -14,12 +14,9 @@ add_subdirectory(kernel)
 add_subdirectory(userland)
 add_subdirectory(installer)
 add_subdirectory(sdk)
+add_subdirectory(tools/chimera-asm)
 
-# RegisterN / Chimera Bit Mode architecture
-add_library(chimera_registern STATIC
-  arch/registern/RegisterN.cpp
-  arch/registern/ChimeraCorePool.cpp
-)
+add_library(chimera_registern STATIC arch/registern/RegisterN.cpp arch/registern/ChimeraCorePool.cpp)
 target_include_directories(chimera_registern PUBLIC ${CMAKE_SOURCE_DIR}/arch/registern)
 target_compile_features(chimera_registern PUBLIC cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -27,16 +24,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 install(TARGETS chimera_registern ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY arch/registern DESTINATION share/chimera/arch)
-
-# Native assembler/disassembler ISA contract
 install(DIRECTORY tools/chimera-asm DESTINATION share/chimera/tools)
-
-# Data architecture and Apache/web integration manifests
 install(FILES system/database/chimera-data-architecture.json DESTINATION share/chimera/database)
 install(DIRECTORY services/apache DESTINATION share/chimera/services)
 install(DIRECTORY web/runtime DESTINATION share/chimera/web)
-
-# Container and node-web integration
 install(PROGRAMS services/chimera-web/chimera_web.py DESTINATION share/chimera/web)
 install(FILES system/security/chimera_web_policy.json system/containers/podman_profile.json DESTINATION share/chimera/config)
 install(FILES system/containers/quadlet/chimera-web.container DESTINATION share/chimera/quadlet)
