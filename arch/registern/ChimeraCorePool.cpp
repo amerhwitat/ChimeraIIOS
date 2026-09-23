@@ -11,12 +11,12 @@ CoreTopology detect_host_topology() {
  return t;
 }
 ChimeraCorePool::ChimeraCorePool(std::size_t n):state_(std::make_shared<State>()) {
- if(!n)n=detect_host_topology().logical_threads; if(!n)n=1;
+ if (!n) {\n  n = detect_host_topology().logical_threads;\n }\n if (!n) {\n  n = 1;\n }
  workers_.reserve(n);
  for(std::size_t i=0;i<n;++i) workers_.emplace_back([this,i]{
   for(;;){std::function<void(std::size_t)> job;
    {std::unique_lock lk(state_->m);state_->cv.wait(lk,[this]{return stopping_.load()||!state_->q.empty();});
-    if(stopping_&&state_->q.empty())return; job=std::move(state_->q.front());state_->q.pop();}
+    if (stopping_ && state_->q.empty()) {\n     return;\n    }\n    job = std::move(state_->q.front());\n    state_->q.pop();}
    if(job)job(i);
   }
  });
