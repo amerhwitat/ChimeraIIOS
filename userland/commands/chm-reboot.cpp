@@ -1,0 +1,4 @@
+#include "../../knowledge/patch/reboot_manager.hpp"
+#include <iostream>
+#include <string>
+int main(int argc,char**argv){auto r=chm::reboot::load();if(argc<2||std::string(argv[1])=="status"){if(!r.required){std::cout<<"reboot: none pending\n";return 0;}std::cout<<"reboot: required\nreason="<<r.reason<<"\nartifact="<<r.artifact<<"\nThe system will wait for user approval; use 'chm-reboot now' or 'chm-reboot later'.\n";return 0;}std::string op=argv[1];if(op=="later"){if(chm::reboot::mark_later()){std::cout<<"reboot deferred. Chimera II OS will continue running until the user chooses reboot.\n";return 0;}return 1;}if(op=="cancel"){if(chm::reboot::clear()){std::cout<<"pending reboot cleared.\n";return 0;}return 1;}if(op=="now"){std::cerr<<"reboot approval recorded. Actual platform reboot remains delegated to Koronos/Aegis policy.\n";return 0;}std::cerr<<"usage: chm-reboot [status|now|later|cancel]\n";return 2;}
