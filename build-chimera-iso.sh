@@ -282,8 +282,9 @@ export_docker_to_rootfs() {
     log_info "Extracting layers from exported image..."
     
     # Find and extract the largest layer (contains the filesystem)
-    local layer_dirs=$(find "$ROOTFS_DIR" -maxdepth 1 -type d -name "*/layer")
-    for layer_dir in $layer_dirs; do
+    local layer_dirs
+    mapfile -t layer_dirs < <(find "$ROOTFS_DIR" -maxdepth 4 -type d -path "*/layer" -print)
+    for layer_dir in "${layer_dirs[@]}"; do
         if [ -f "$layer_dir/tar" ] || [ -f "$layer_dir/tar.gz" ]; then
             log_info "Extracting layer: $layer_dir"
             if [ -f "$layer_dir/tar" ]; then
