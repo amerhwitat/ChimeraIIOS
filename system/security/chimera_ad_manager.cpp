@@ -1,16 +1,16 @@
-#include <cstdlib>
+#include "chimera_identity_store.hpp"
+#include <cctype>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
-#include <filesystem>
-namespace fs=std::filesystem;
-static fs::path root(){const char*p=std::getenv("CHIMERA_SYSROOT");return(p&&*p)?fs::path(p):fs::path("");}
-int main(int argc,char**argv){
- if(argc<2){std::cout<<"usage: chm-ad status|config|join|leave|users|groups\n";return 2;}
- std::string op=argv[1];
- if(op=="status"){std::cout<<"AD client: SSSD/winbind provider architecture; domain join is administrator-controlled.\n";return 0;}
- if(op=="config"){std::cout<<"providers: sssd, winbind\nprotocols: LDAP, Kerberos, SMB\nconfig root: "<<root()/"etc/chimera/ad.conf"<<"\n";return 0;}
- if(op=="join"){std::cerr<<"AD join requires administrator-supplied domain, controller discovery, join credentials and explicit confirmation. Credentials are not accepted as command-line arguments.\n";return 78;}
- if(op=="leave"){std::cerr<<"AD leave requires administrator confirmation and provider-specific cleanup.\n";return 78;}
- if(op=="users"||op=="groups"){std::cout<<"Directory enumeration is delegated to the configured SSSD/winbind provider.\n";return 0;}
- return 2;
-}
+#include <vector>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <netdb.h>
+using namespace chimera_identity;
+static bool command_exists(const char* n){const char* p=getenv("PATH");if(!p)return false;std::stringstream s(p);std::string d;while(std::getline(s,d,':'))if(access((d+"/"+n).c_str(),X_OK)==0)return true;return false;}
+static int run_tool(const char* p,const std::vector<std::string>& a){pid_t pid=fork();if(pid<0)return 1;if(pid==0){std::vector<char*> v;v.push_back(const_cast<char*>(p));for(auto&x:a)v.push_back(x.data());v.push_back(nullptr);execvp(p,v.data());_exit(127);}int st=0;waitpid(pid,&st,0);return WIFEXITED(st)?WEXITSTATUS(st):1;}
+static int configure(){if(!privileged()||!ensure_db())return 77;std::string domain,realm,dc,provider;std::cerr<<"AD DNS domain: ";std::getline(std::cin,domain);if(!valid_name(domain)&&domain.find('.')==std::string::npos)return 2;std::cerr<<"Kerberos realm [uppercase domain]: ";std::getline(std::cin,realm);if(realm.empty()){realm=domain;for(char&c:realm)c=static_cast<char>(std::toupper(static_cast<unsigned char>(c)));}std::cerr<<"Domain controller (optional): ";std::getline(std::cin,dc);std::cerr<<"Provider [sssd/winbind]: ";std::getline(std::cin,provider);if(provider.empty())provider="sssd";if(provider!="sssd"&&provider!="winbind")return 2;std::string krb="[libdefaults]\n default_realm = "+realm+"\n rdns = false\n dns_lookup_kdc = true\n\n[realms]\n "+realm+" = {\n  kdc = "+(dc.empty()?domain:dc)+"\n }\n";std::string nss="passwd: files "+(provider=="sssd"?"sss":"winbind")+"\ngroup: files "+(provider=="sssd"?"sss":"winbind")+"\nshadow: files\n";std::string pam="# Chimera II domain authentication\nauth required "+(provider=="sssd"?"pam_sss.so":"pam_winbind.so")+"\naccount required "+(provider=="sssd"?"pam_sss.so":"pam_winbind.so")+"\n";std::string summary="{\n  \"enabled\": true,\n  \"domain\": \""+domain+"\",\n  \"realm\": \""+realm+"\",\n  \"provider\": \""+provider+"\",\n  \"controller\": \""+dc+"\",\n  \"credentials\": \"never stored\"\n}\n";if(!atomic_write(root()/"etc/krb5.conf",krb,0644)||!atomic_write(root()/"etc/nsswitch.conf",nss,0644)||!atomic_write(root()/"etc/pam.d/chimera-domain",pam,0644)||!atomic_write(root()/"etc/chimera/ad.conf",summary,0640))return 1;std::cout<<"AD configuration staged for "<<domain<<" using "<<provider<<"\n";return 0;}
+static int join(){if(!privileged())return 77;std::string domain,user,provider;std::cerr<<"AD DNS domain: ";std::getline(std::cin,domain);std::cerr<<"Join user: ";std::getline(std::cin,user);std::cerr<<"Provider [sssd/winbind]: ";std::getline(std::cin,provider);if(provider.empty())provider="sssd";std::cerr<<"Credentials will be collected by the provider; continue? [yes/no]: ";std::string c;std::getline(std::cin,c);if(c!="yes")return 1;if(provider=="sssd"&&command_exists("realm"))return run_tool("realm",{"join","--user="+user,domain});if(provider=="winbind"&&command_exists("net"))return run_tool("net",{"ads","join","-U",user});std::cerr<<"No supported AD join provider is installed.\n";return 78;}
+int main(int argc,char**argv){if(argc<2){std::cout<<"usage: chm-ad status|config|configure|join|leave|test|users|groups\n";return 2;}std::string op=argv[1];if(op=="status"){std::cout<<"Providers: "<<(command_exists("realm")?"realmd ":"")<<(command_exists("sssd")?"sssd ":"")<<(command_exists("winbindd")?"winbind ":"")<<"\n";return 0;}if(op=="config"){std::ifstream f(root()/"etc/chimera/ad.conf");std::cout<<f.rdbuf();return f?0:1;}if(op=="configure")return configure();if(op=="join")return join();if(op=="leave"){std::cerr<<"Use realm leave or net ads leave after explicit administrator confirmation.\n";return 78;}if(op=="test"){std::string d;std::cerr<<"DNS name: ";std::getline(std::cin,d);addrinfo*res=nullptr;int rc=getaddrinfo(d.c_str(),nullptr,nullptr,&res);if(res)freeaddrinfo(res);return rc?1:0;}if(op=="users"||op=="groups"){std::cout<<"Enumeration is provided through configured NSS/SSSD/winbind integration.\n";return 0;}return 2;}
