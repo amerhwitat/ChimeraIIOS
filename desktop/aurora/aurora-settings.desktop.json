@@ -1,0 +1,1 @@
+{"id":"aurora-settings","name":"Aurora Settings","category":"system","entry":"desktop/aurora/apps/aurora_settings","layout":"windows-settings-inspired","rtl":true,"ltr":true,"permissions":["system-settings","device-settings","privacy-settings"]}
