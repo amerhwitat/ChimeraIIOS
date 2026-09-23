@@ -55,6 +55,10 @@ cleanup_finished
 cleanup_finished
 "$ROOT/tools/build-desktop-binaries.sh"
 cleanup_finished
+# The compiler tree is finished at this point; retain only the produced kernel/binaries.
+rm -rf "$BUILD/cmake/CMakeFiles" "$BUILD/cmake/_deps" "$BUILD/cmake/Testing" 2>/dev/null || true
+find "$BUILD/cmake" -type f \( -name "*.o" -o -name "*.obj" -o -name "*.d" \) -delete 2>/dev/null || true
+cleanup_finished
 
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash "$ROOT/sdk/java/build.sh"; fi
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
