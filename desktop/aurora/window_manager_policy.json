@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-AURORA-WM-2",
+  "focus":{"model":"click-to-focus","keyboard_focus_follows_pointer":false},
+  "pointer":{"capture":true,"raise_on_click":true,"edge_constraints":true},
+  "windows":{"move":true,"resize":true,"minimize":true,"maximize":true,"restore":true,"close":true,"snap":true,"always_on_top":true,"fullscreen":true},
+  "switching":{"alt-tab":true,"meta-tab":true,"taskbar":true,"dock":true},
+  "workspaces":{"virtual_desktops":true,"per_monitor":true},
+  "menus":{"context":true,"keyboard_context":true,"touch_long_press":true,"properties":true},
+  "decorations":{"titlebar":true,"system_menu":true,"minimize":true,"maximize":true,"close":true},
+  "rtl":{"logical_start_end":true,"mirror_navigation_controls":true,"preserve_physical_direction_controls":true},
+  "accessibility":{"keyboard_navigation":true,"mnemonics":true,"high_contrast":true,"screen_reader_hooks":true,"magnification_hooks":true}
+}
