@@ -1,0 +1,26 @@
+[Default Applications]
+text/plain=aurora-editor.desktop;
+text/markdown=aurora-editor.desktop;
+text/html=aurora-browser.desktop;
+application/pdf=aurora-files.desktop;
+image/jpeg=aurora-media-player.desktop;
+image/png=aurora-media-player.desktop;
+image/gif=aurora-media-player.desktop;
+image/webp=aurora-media-player.desktop;
+audio/mpeg=aurora-media-player.desktop;
+audio/ogg=aurora-media-player.desktop;
+audio/wav=aurora-media-player.desktop;
+audio/flac=aurora-media-player.desktop;
+video/mp4=aurora-video-player.desktop;
+video/webm=aurora-video-player.desktop;
+video/x-matroska=aurora-video-player.desktop;
+video/quicktime=aurora-video-player.desktop;
+
+[Added Associations]
+image/jpeg=aurora-media-player.desktop;
+image/png=aurora-media-player.desktop;
+audio/mpeg=aurora-media-player.desktop;
+audio/ogg=aurora-media-player.desktop;
+video/mp4=aurora-video-player.desktop;
+video/webm=aurora-video-player.desktop;
+video/x-matroska=aurora-video-player.desktop;
