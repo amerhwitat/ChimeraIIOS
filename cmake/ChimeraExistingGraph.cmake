@@ -144,6 +144,8 @@ install(FILES desktop/aurora/aurora-files.desktop desktop/aurora/aurora-media-pl
 add_executable(chimera_media_ai_test tests/ai/test_media.cpp)
 target_link_libraries(chimera_media_ai_test PRIVATE chimera_machine)
 target_include_directories(chimera_media_ai_test PRIVATE include)
+if(Python3_Interpreter_FOUND)
+endif()
 enable_testing()
 add_test(NAME chimera_linux_compatibility COMMAND chimera_linux_compatibility_test)
 add_test(NAME chimera_unit COMMAND chimera_unit)
@@ -155,8 +157,11 @@ add_test(NAME chimera_memory_bus_probe COMMAND chimera_memory_bus_probe_test)
 add_test(NAME chimera_isa_catalog COMMAND chimera_isa_catalog_test)
 add_test(NAME chimera_r8192_isa COMMAND chimera_r8192_isa_test)
 add_test(NAME chimera_isa_bitfields COMMAND chimera_isa_bitfields_test)
-add_test(NAME chimera_isa_encoder_decoder COMMAND chimera_isa_encoder_decoder_test ${CHIMERA_ISA_JSON})
-  set_tests_properties(chimera_isa_encoder_decoder PROPERTIES REQUIRED_FILES "${CHIMERA_ISA_JSON}" WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+add_test(NAME chimera_isa_encoder_decoder
+  COMMAND chimera_isa_encoder_decoder_test "${CHIMERA_ISA_JSON}")
+set_tests_properties(chimera_isa_encoder_decoder PROPERTIES
+  REQUIRED_FILES "${CHIMERA_ISA_JSON}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 add_test(NAME chimera_universal_isa COMMAND chimera_universal_isa_test)
 add_test(NAME chimera_microkernel_services COMMAND chimera_microkernel_services_test)
 add_test(NAME chimera_database_backend COMMAND chimera_database_backend_test)
