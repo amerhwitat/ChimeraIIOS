@@ -273,7 +273,29 @@
     "ios-development",
     "bootable-media-creator",
     "flash-tool",
-    "installer-media-creator"
+    "installer-media-creator",
+    "crypto-center",
+    "wallet-manager",
+    "hardware-wallet-support",
+    "wallet-backup",
+    "seed-backup-guidance",
+    "transaction-viewer",
+    "address-book",
+    "qr-payment",
+    "coin-control",
+    "multisig",
+    "mainnet-node-manager",
+    "blockchain-sync-manager",
+    "rpc-manager",
+    "peer-manager",
+    "chain-data-directory-manager",
+    "block-explorer-links",
+    "fee-estimation",
+    "network-selection",
+    "testnet-isolation",
+    "signing-device-integration",
+    "air-gapped-signing",
+    "watch-only-wallets"
   ],
   "input": [
     "mouse",
@@ -331,5 +353,12 @@
     "boot_manager": "Jasper",
     "fallback": "GRUB2",
     "gates": "Aurora Gates"
+  },
+  "crypto": {
+    "registry": "applications/crypto/crypto_ecosystem_registry.json",
+    "mainnet_only_by_default": true,
+    "testnets_require_explicit_selection": true,
+    "open_source_clients": true,
+    "wallet_secrets_local_only": true
   }
 }
