@@ -11,3 +11,5 @@ target_link_libraries(chimera-installer-gui PRIVATE chimera_installer_core)
 install(TARGETS chimera-installer-cli chimera-installer-gui RUNTIME DESTINATION bin)
 install(DIRECTORY profiles DESTINATION share/chimera/installer)
 # Toolchains are staged into the ISO/target root by the installer transaction.
+install(FILES installation_phases.json installer_profiles.json chimera-installer-plan.json DESTINATION share/chimera/installer)
+install(FILES ../desktop/aurora/assets/aurora-installer.svg ../desktop/aurora/assets/aurora-library.svg ../desktop/aurora/assets/aurora-desktop.svg DESTINATION share/chimera/installer/artwork)
