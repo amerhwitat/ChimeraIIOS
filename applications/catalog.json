@@ -435,6 +435,90 @@
       "name": "Gates System Control Center",
       "category": "System",
       "binary": "gates"
+    },
+    {
+      "id": "cpu4096",
+      "name": "CPU4096",
+      "source": "CPU4096",
+      "category": "Development;Hardware",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "cpu4096simulator",
+      "name": "CPU4096Simulator",
+      "source": "CPU4096Simulator",
+      "category": "Development;Simulation;Web",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "general",
+      "name": "general",
+      "source": "general",
+      "category": "Development;Integration;Mobile",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "test",
+      "name": "test",
+      "source": "test",
+      "category": "Development;Testing;Integration",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "keygen",
+      "name": "keygen",
+      "source": "keygen",
+      "category": "Security;Development;Java",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "eth-key-check",
+      "name": "eth-key-check",
+      "source": "eth-key-check",
+      "category": "Security;Crypto",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "bruteforce",
+      "name": "bruteforce",
+      "source": "bruteforce",
+      "category": "Security;Research",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "nlp",
+      "name": "nlp",
+      "source": "nlp",
+      "category": "AI;NLP;Research",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "pdfreaderpy",
+      "name": "PDFreaderPY",
+      "source": "PDFreaderPY",
+      "category": "Documents;PDF",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "bizx",
+      "name": "BizX",
+      "source": "BizX",
+      "category": "Business;Development",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "bizxtreme",
+      "name": "BizXtreme",
+      "source": "BizXtreme",
+      "category": "Games;Business;WebGL",
+      "integration": "repository-application-center"
+    },
+    {
+      "id": "web-portal",
+      "name": "amerhwitat.github.io",
+      "source": "amerhwitat.github.io",
+      "category": "Internet;Documentation",
+      "integration": "repository-application-center"
     }
   ]
 }
