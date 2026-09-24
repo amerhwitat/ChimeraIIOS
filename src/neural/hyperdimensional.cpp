@@ -3,6 +3,8 @@
 #include <cmath>
 #include <numeric>
 #include <stdexcept>
+#include <functional>
+#include <utility>
 
 namespace chimera::neural {
 
