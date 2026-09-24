@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Aurora Biometric Login
+Comment=Chimera II OS biometric and password login
+Exec=chimera-biometric-auth.py status
+Terminal=false
+Type=Application
+Categories=Settings;Security;
