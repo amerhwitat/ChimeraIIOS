@@ -119,6 +119,8 @@ target_include_directories(chimera_ai_discipline_test PRIVATE include)
 # Aurora file/media integration applications
 add_executable(aurora_media_player desktop/aurora/apps/aurora_media.cpp)
 add_executable(aurora_video_player desktop/aurora/apps/aurora_video.cpp)
+set_target_properties(aurora_media_player PROPERTIES OUTPUT_NAME "aurora-media-player")
+set_target_properties(aurora_video_player PROPERTIES OUTPUT_NAME "aurora-video-player")
 chimera_warnings(aurora_media_player)
 chimera_warnings(aurora_video_player)
 install(TARGETS aurora_media_player aurora_video_player RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
