@@ -43,7 +43,8 @@ declare -a BUILD_PACKAGES=(
 declare -a OPTIONAL_PACKAGES=(
   clang llvm lld gdb lldb yasm valgrind strace
   nodejs npm ruby perl php lua5.4 golang-go rustc cargo
-  openjdk-21-jdk qemu-system-x86 qemu-user qemu-user-static
+  openjdk-21-jdk default-jdk openjdk-17-jdk qemu-system-x86 qemu-user qemu-user-static
+  dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
   gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
   gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
 )
@@ -86,6 +87,57 @@ fi
 
 (( ${#missing[@]} == 0 )) || die "Mandatory dependencies remain missing: ${missing[*]}"
 
+install_optional_toolchains() {
+  [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]] || return 0
+
+  say DEPS "Installing optional application toolchains and compatibility runtimes."
+  if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
+    say DEPS "Non-Debian host detected; optional toolchain auto-install is skipped."
+    return 0
+  fi
+
+  local apt_prefix=()
+  [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+  "${apt_prefix[@]}" apt-get update -qq || {
+    echo "[WARN] Optional toolchain APT refresh failed; continuing." >&2
+    return 0
+  }
+
+  apt_install_candidates() {
+    local command_name="$1"; shift
+    command -v "$command_name" >/dev/null 2>&1 && return 0
+    local candidates=("$@") available=() p
+    for p in "${candidates[@]}"; do
+      apt-cache show "$p" >/dev/null 2>&1 && available+=("$p")
+    done
+    if (( ${#available[@]} == 0 )); then
+      echo "[WARN] No APT package candidate available for $command_name: ${candidates[*]}" >&2
+      return 0
+    fi
+    echo "[DEPS] Installing $command_name from: ${available[*]}"
+    "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${available[@]}" ||
+      echo "[WARN] Could not install optional $command_name; continuing." >&2
+  }
+
+  apt_install_candidates javac openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates java openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates rustc rustc
+  apt_install_candidates cargo cargo
+  apt_install_candidates node nodejs
+  apt_install_candidates npm npm
+  apt_install_candidates dotnet dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
+
+  local optional_missing=() c
+  for c in javac java rustc cargo node npm dotnet; do
+    command -v "$c" >/dev/null 2>&1 || optional_missing+=("$c")
+  done
+  if (( ${#optional_missing[@]} > 0 )); then
+    echo "[INFO] Optional toolchains still unavailable after installation: ${optional_missing[*]}"
+    echo "[INFO] The ISO build remains allowed to continue; affected applications will be marked unavailable."
+  else
+    say DEPS "All optional application toolchains are installed and discoverable."
+  fi
+}
 say DEPS "Mandatory dependency verification passed."
 if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
   if command -v apt-get >/dev/null 2>&1 && [[ -f /etc/debian_version ]]; then
@@ -101,11 +153,13 @@ if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
     done
     if (( ${#optional_available[@]} > 0 )); then
       "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${optional_available[@]}" || {
-        echo "[WARN] Some optional cross-platform/application packages could not be installed; continuing with host fallbacks." >&2
+        echo "[WARN] Some optional packages could not be installed in one transaction; targeted toolchain installation will retry them." >&2
       }
     fi
   fi
 fi
+
+install_optional_toolchains
 
 # Validate the repository scripts that are part of the ISO pipeline.
 declare -a PIPELINE_SCRIPTS=(
