@@ -58,7 +58,7 @@
     },
     {
       "id": "boot",
-      "label": "Boot / GRUB / Jasper / Spit Fire"
+      "label": "Boot / Koronos / Jasper / Spit Fire / GRUB2 / Gates"
     },
     {
       "id": "diagnostics",
@@ -71,5 +71,16 @@
     "double_click": true,
     "context_menu": true,
     "properties": true
+  },
+  "boot_contract": {
+    "kernel": "Koronos",
+    "native_bootloader": "Spit Fire",
+    "boot_manager": "Jasper",
+    "firmware_fallback": "GRUB2",
+    "live_entry": "multiboot2 /boot/koronos/koronos.elf",
+    "installation_entry": "/boot/installation/menu.cfg",
+    "recovery_entry": "/boot/jasper/recovery.cfg",
+    "diagnostics_entry": "/boot/jasper/diagnostics.cfg",
+    "vmlinuz": false
   }
 }
