@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora Flash Tool
+Comment=Write verified Chimera II OS ISO/IMG images to removable media
+Exec=python3 /usr/share/chimera/aurora/aurora_flash_tool.py
+Icon=drive-removable-media
+Terminal=true
+Categories=System;Utility;
