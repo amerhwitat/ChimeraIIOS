@@ -9,4 +9,4 @@ $args=@("-m",$Memory,"-smp",$CPUs,"-name","Chimera-II-OS","-drive","file=$Disk,i
 if($Accelerator -eq "auto") { if(Get-Command qemu-system-x86_64.exe -ErrorAction SilentlyContinue){$Accelerator="whpx"}else{$Accelerator="tcg"} }
 if($Accelerator -ne "none"){$args+=@("-accel",$Accelerator)}
 if($UEFI){$args+=@("-bios","$env:ProgramFiles\qemu\share\edk2-x86_64-code.fd")}
-& $qemu @args @args[0..-1] | Out-Host
+& $qemu @args | Out-Host
