@@ -32,7 +32,10 @@ static std::vector<Setting> defaults() {
       {"developer.mode","Developer mode","false","Developer facilities"},
       {"performance.background","Background resource mode","opportunistic","Use idle CPU/RAM/I/O without starving interactive work"},
       {"performance.knowledge_cache","Knowledge cache","disk-first","Keep content on disk; bound metadata cache in RAM"},
-      {"updates.reboot_policy","Reboot policy","ask","ask/later/now; patches never reboot silently"}
+      {"updates.reboot_policy","Reboot policy","ask","ask/later/now; patches never reboot silently"},
+      {"isa.nbit.width","N-bit ISA width","8192","Live Chimera ISA register width; changes do not reboot services"},
+      {"isa.nbit.style","N-bit ISA style","RISC","RISC/CISC/HYBRID live execution profile"},
+      {"isa.execution.mode","ISA execution mode","NativeWide","Scalar/Vector/NativeWide/JIT/QuantumHybrid"}
     };
 }
 static std::vector<Setting> load() {
