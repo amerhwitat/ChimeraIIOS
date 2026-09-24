@@ -1,0 +1,59 @@
+{
+  "schema": "CHM-AURORA-MEDIA-ECOSYSTEM-1",
+  "policy": "open-source integration by packaging, native ports, wrappers or file/protocol interoperability; upstream licenses remain authoritative",
+  "players": [
+    {"id":"vlc","name":"VLC","license":"GPL-2.0-or-later","capabilities":["audio","video","streaming","transcoding","disc","network","subtitle"],"upstream":"https://code.videolan.org/videolan/vlc"},
+    {"id":"mpv","name":"mpv","license":"GPL-2.0-or-later","capabilities":["audio","video","gpu-rendering","scriptable","subtitle"],"upstream":"https://github.com/mpv-player/mpv"},
+    {"id":"celluloid","name":"Celluloid","license":"GPL-3.0-or-later","capabilities":["video","audio","mpv-frontend","playlists"],"upstream":"https://github.com/celluloid-player/celluloid"},
+    {"id":"smplayer","name":"SMPlayer","license":"GPL-2.0-or-later","capabilities":["video","audio","playlists","subtitle"],"upstream":"https://github.com/smplayer-dev/smplayer"},
+    {"id":"haruna","name":"Haruna","license":"GPL-3.0-or-later","capabilities":["video","audio","mpv-frontend","subtitle"],"upstream":"https://invent.kde.org/multimedia/haruna"},
+    {"id":"audacious","name":"Audacious","license":"GPL-3.0-or-later","capabilities":["audio","playlist","plugins"],"upstream":"https://github.com/audacious-media-player/audacious"},
+    {"id":"quodlibet","name":"Quod Libet","license":"GPL-2.0-or-later","capabilities":["audio","library","tags","playlists"],"upstream":"https://github.com/quodlibet/quodlibet"},
+    {"id":"rhythmbox","name":"Rhythmbox","license":"GPL-2.0-or-later","capabilities":["audio","library","podcasts","radio"],"upstream":"https://gitlab.gnome.org/GNOME/rhythmbox"},
+    {"id":"strawberry","name":"Strawberry","license":"GPL-3.0-or-later","capabilities":["audio","library","tags","streaming"],"upstream":"https://github.com/strawberrymusicplayer/strawberry"}
+  ],
+  "recorders_streamers": [
+    {"id":"obs-studio","name":"OBS Studio","license":"GPL-2.0-or-later","capabilities":["screen-capture","camera","audio-mixer","scenes","streaming","recording","plugins"],"upstream":"https://github.com/obsproject/obs-studio"},
+    {"id":"simplescreenrecorder","name":"SimpleScreenRecorder","license":"GPL-3.0-or-later","capabilities":["screen-recording","audio","video"],"upstream":"https://github.com/MaartenBaert/ssr"},
+    {"id":"kdenlive-capture","name":"Kdenlive Capture Integration","license":"GPL-2.0-or-later","capabilities":["capture","editing","screen-capture"],"upstream":"https://invent.kde.org/multimedia/kdenlive"},
+    {"id":"ffmpeg","name":"FFmpeg","license":"LGPL-2.1-or-later","capabilities":["capture","decode","encode","transcode","filter","stream"],"upstream":"https://git.ffmpeg.org/ffmpeg.git"}
+  ],
+  "mixers_daw": [
+    {"id":"ardour","name":"Ardour","license":"GPL-2.0-or-later","capabilities":["record","edit","mix","master","midi","plugin-host","control-surfaces"],"upstream":"https://github.com/Ardour/ardour"},
+    {"id":"audacity","name":"Audacity","license":"GPL-3.0-or-later","capabilities":["record","edit","effects","spectral","analysis"],"upstream":"https://github.com/audacity/audacity"},
+    {"id":"lmms","name":"LMMS","license":"GPL-2.0-or-later","capabilities":["composition","midi","synth","effects","sequencer"],"upstream":"https://github.com/LMMS/lmms"},
+    {"id":"qtractor","name":"Qtractor","license":"GPL-2.0-or-later","capabilities":["audio","midi","record","mix","plugins"],"upstream":"https://github.com/rncbc/qtractor"},
+    {"id":"hydrogen","name":"Hydrogen","license":"GPL-2.0-or-later","capabilities":["drum-machine","sequencing","recording"],"upstream":"https://github.com/hydrogen-music/hydrogen"},
+    {"id":"helvum","name":"Helvum","license":"GPL-3.0-or-later","capabilities":["pipewire-routing","patchbay","audio-routing"],"upstream":"https://github.com/helvum/helvum"},
+    {"id":"qpwgraph","name":"qpwgraph","license":"GPL-2.0-or-later","capabilities":["pipewire-routing","patchbay"],"upstream":"https://github.com/rncbc/qpwgraph"}
+  ],
+  "vfx_video_editing": [
+    {"id":"blender","name":"Blender","license":"GPL-2.0-or-later","capabilities":["3d","animation","vfx","compositing","rendering","video-editing","motion-tracking"],"upstream":"https://github.com/blender/blender"},
+    {"id":"kdenlive","name":"Kdenlive","license":"GPL-2.0-or-later","capabilities":["video-editing","effects","color","audio","proxy-media"],"upstream":"https://invent.kde.org/multimedia/kdenlive"},
+    {"id":"shotcut","name":"Shotcut","license":"GPL-3.0-or-later","capabilities":["video-editing","filters","color","audio","capture"],"upstream":"https://github.com/mltframework/shotcut"},
+    {"id":"olive","name":"Olive","license":"GPL-3.0-or-later","capabilities":["nonlinear-editing","compositing","effects"],"upstream":"https://github.com/olive-editor/olive"},
+    {"id":"natron","name":"Natron","license":"GPL-2.0-or-later","capabilities":["compositing","vfx","node-graph","roto","keying"],"upstream":"https://github.com/NatronGitHub/Natron"},
+    {"id":"flowblade","name":"Flowblade","license":"GPL-3.0-or-later","capabilities":["video-editing","compositing","effects"],"upstream":"https://github.com/jliljebl/flowblade"},
+    {"id":"synfig","name":"Synfig Studio","license":"GPL-3.0-or-later","capabilities":["2d-animation","vector-animation","effects"],"upstream":"https://github.com/synfig/synfig"},
+    {"id":"opentoonz","name":"OpenToonz","license":"BSD-3-Clause","capabilities":["2d-animation","compositing","effects","ink-paint"],"upstream":"https://github.com/opentoonz/opentoonz"},
+    {"id":"krita","name":"Krita","license":"GPL-3.0-or-later","capabilities":["painting","animation","compositing","color"],"upstream":"https://invent.kde.org/graphics/krita"}
+  ],
+  "common_integration": {
+    "file_associations": true,
+    "context_menus": true,
+    "open_with": true,
+    "send_to": true,
+    "metadata": true,
+    "drag_drop": true,
+    "clipboard": true,
+    "project_files": true,
+    "thumbnailers": true,
+    "hardware_acceleration": true,
+    "audio_backend": ["PipeWire","JACK","ALSA"],
+    "video_backend": ["FFmpeg","VA-API","VDPAU","Vulkan","OpenGL"],
+    "camera_backend": ["V4L2","Media Foundation compatibility","AVFoundation compatibility"],
+    "midi": ["ALSA MIDI","JACK MIDI"],
+    "plugins": ["VST2","VST3","LV2","CLAP","LADSPA","OpenFX","OpenColorIO"],
+    "render_queue": true
+  }
+}
