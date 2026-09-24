@@ -1,0 +1,22 @@
+{
+  "$schema": "CHM-FILE-PROPERTIES-1",
+  "version": 1,
+  "scope": "file-and-directory",
+  "properties": {
+    "identity": ["path","name","display_name","extension","basename","relative_path","parent","uri"],
+    "type": ["kind","mime_type","mime_description","media_type","is_regular","is_directory","is_symlink","is_mountpoint","is_hidden"],
+    "storage": ["size_bytes","allocated_bytes","block_size","inode","device","filesystem","compression","sparse","link_count"],
+    "timestamps": ["created","modified","accessed","metadata_changed"],
+    "security": ["owner","owner_uid","group","group_gid","mode","permissions","acl","capabilities","security_context","immutable","append_only"],
+    "content": ["sha256","sha512","magic","encoding","line_count","child_count"],
+    "media": ["duration_ms","width","height","video_codec","audio_codec","container","bitrate","sample_rate","channels","framerate","orientation","tags"],
+    "associations": ["desktop_ids","preferred_desktop_id","open_with","actions"],
+    "directory": ["recursive_size_bytes","recursive_file_count","recursive_directory_count","symlink_count"],
+    "ui": ["icon","thumbnail","color_label","rating","tags","favorite"]
+  },
+  "privacy": {
+    "hashes": "optional",
+    "media_metadata": "local-only-by-default",
+    "xattrs_and_acl": "read-only unless an explicit user action requests changes"
+  }
+}
