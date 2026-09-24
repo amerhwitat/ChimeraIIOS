@@ -1,0 +1,42 @@
+{
+  "$schema": "CHM-FILE-ASSOCIATIONS-1",
+  "version": 1,
+  "default_policy": "prefer-explicit-user-choice",
+  "applications": {
+    "aurora-files": {"desktop_id":"aurora-files.desktop","capabilities":["browse","properties","rename","copy","move","delete","permissions","open-with"]},
+    "aurora-media-player": {"desktop_id":"aurora-media-player.desktop","capabilities":["audio","image","playlist","metadata"]},
+    "aurora-video-player": {"desktop_id":"aurora-video-player.desktop","capabilities":["video","audio","subtitles","playlist","metadata"]},
+    "aurora-editor": {"desktop_id":"aurora-editor.desktop","capabilities":["text","source","markup"]},
+    "aurora-browser": {"desktop_id":"aurora-browser.desktop","capabilities":["html","http","https"]}
+  },
+  "mime_types": {
+    "text/plain":["aurora-editor.desktop"],
+    "text/markdown":["aurora-editor.desktop"],
+    "text/html":["aurora-browser.desktop","aurora-editor.desktop"],
+    "application/pdf":["aurora-files.desktop"],
+    "image/jpeg":["aurora-media-player.desktop"],
+    "image/png":["aurora-media-player.desktop"],
+    "image/gif":["aurora-media-player.desktop"],
+    "image/webp":["aurora-media-player.desktop"],
+    "audio/mpeg":["aurora-media-player.desktop"],
+    "audio/ogg":["aurora-media-player.desktop"],
+    "audio/wav":["aurora-media-player.desktop"],
+    "audio/flac":["aurora-media-player.desktop"],
+    "video/mp4":["aurora-video-player.desktop"],
+    "video/webm":["aurora-video-player.desktop"],
+    "video/x-matroska":["aurora-video-player.desktop"],
+    "video/quicktime":["aurora-video-player.desktop"],
+    "application/ogg":["aurora-video-player.desktop","aurora-media-player.desktop"]
+  },
+  "extensions": {
+    ".txt":"text/plain",".md":"text/markdown",".html":"text/html",".htm":"text/html",
+    ".pdf":"application/pdf",".jpg":"image/jpeg",".jpeg":"image/jpeg",".png":"image/png",".gif":"image/gif",".webp":"image/webp",
+    ".mp3":"audio/mpeg",".ogg":"audio/ogg",".wav":"audio/wav",".flac":"audio/flac",
+    ".mp4":"video/mp4",".webm":"video/webm",".mkv":"video/x-matroska",".mov":"video/quicktime"
+  },
+  "actions": {
+    "open":["default","open-with","new-window"],
+    "media":["play","enqueue","add-to-library","properties"],
+    "video":["play","enqueue","add-to-library","subtitle-track","properties"]
+  }
+}
