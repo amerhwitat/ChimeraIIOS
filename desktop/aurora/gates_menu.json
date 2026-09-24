@@ -82,5 +82,47 @@
     "recovery_entry": "/boot/jasper/recovery.cfg",
     "diagnostics_entry": "/boot/jasper/diagnostics.cfg",
     "vmlinuz": false
+  },
+  "actions": {
+    "live": {
+      "label": "Boot Live Aurora / Koronos",
+      "command": "grub-reboot aurora-live",
+      "requires": "bootloader"
+    },
+    "install": {
+      "label": "Install Chimera II OS",
+      "command": "grub-reboot install",
+      "requires": "bootloader"
+    },
+    "recovery": {
+      "label": "Recovery",
+      "command": "grub-reboot recovery",
+      "requires": "bootloader"
+    },
+    "diagnostics": {
+      "label": "Diagnostics",
+      "command": "grub-reboot diagnostics",
+      "requires": "bootloader"
+    },
+    "jasper": {
+      "label": "Jasper Boot Manager",
+      "command": "grub-reboot jasper",
+      "requires": "bootloader"
+    },
+    "spitfire": {
+      "label": "Spit Fire Native Boot",
+      "command": "grub-reboot spitfire",
+      "requires": "bootloader"
+    },
+    "firmware": {
+      "label": "UEFI Firmware Setup",
+      "command": "systemctl reboot --firmware",
+      "requires": "uefi"
+    },
+    "flash": {
+      "label": "Aurora Flash Tool",
+      "command": "aurora-flash-tool",
+      "requires": "desktop"
+    }
   }
 }
