@@ -403,6 +403,38 @@
         "roto",
         "keying"
       ]
+    },
+    {
+      "id": "aurora-flash-tool",
+      "name": "Aurora Flash Tool",
+      "category": "System",
+      "desktop": "aurora-flash-tool.desktop",
+      "binary": "aurora_flash_tool_gui.py"
+    },
+    {
+      "id": "repository-portfolio",
+      "name": "Repository Application Center",
+      "category": "Development",
+      "desktop": "repository-application-center.desktop",
+      "binary": "repository_application_center.py"
+    },
+    {
+      "id": "chimera-installer",
+      "name": "Chimera II Installer",
+      "category": "System",
+      "binary": "installer"
+    },
+    {
+      "id": "chimera-boot-manager",
+      "name": "Jasper Boot Manager",
+      "category": "System",
+      "binary": "jasper"
+    },
+    {
+      "id": "gates",
+      "name": "Gates System Control Center",
+      "category": "System",
+      "binary": "gates"
     }
   ]
 }
