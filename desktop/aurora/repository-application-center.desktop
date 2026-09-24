@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Repository Application Center
+Comment=Launch and manage applications from the Chimera II OS repository portfolio
+Exec=python3 /usr/share/chimera/aurora/repository_application_center.py
+Icon=applications-development
+Terminal=false
+Categories=Development;Utility;
