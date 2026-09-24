@@ -29,6 +29,8 @@ def main():
     for w in widths:
         profiles.append({"name":f"chimera-risc-n{w}","source":"chimera-local","style":"RISC","register_bits":w,"min_register_bits":8,"max_register_bits":max(widths),"hardware_native":w in native,
                          "format":{"opcode_bits":16,"register_index_bits":16,"immediate_bits":w,"min_instruction_bytes":16,"max_instruction_bytes":16,"variable_length":False}})
+        profiles.append({"name":f"chimera-cisc-n{w}","source":"chimera-local","style":"CISC","register_bits":w,"min_register_bits":8,"max_register_bits":max(widths),"hardware_native":w in native,
+                         "format":{"opcode_bits":16,"register_index_bits":16,"immediate_bits":w,"min_instruction_bytes":1,"max_instruction_bytes":32,"variable_length":True}})
     for name,style,ws in FOREIGN:
         for w in ws:
             profiles.append({"name":f"{name}-import-n{w}","source":name,"style":style,"register_bits":w,"min_register_bits":min(ws),"max_register_bits":max(ws),"hardware_native":True,
