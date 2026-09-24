@@ -51,7 +51,7 @@ private:
 };
 
 struct RuntimeCapabilities {
-    Width max_width{8192};
+    Width max_width{65536};
     bool vector{true};
     bool jit{false};
     bool quantum_backend{false};
