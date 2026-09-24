@@ -9,7 +9,6 @@ apt_has() { command -v apt-cache >/dev/null 2>&1 && apt-cache show "$1" >/dev/nu
 download() { local p="$1"; (cd "$OUT/packages" && apt-get download "$p" >/dev/null 2>&1); }
 
 if command -v apt-get >/dev/null 2>&1; then
-  apt-get update -qq || true
   staged=0
   for p in linux-firmware firmware-iwlwifi firmware-amd-graphics firmware-atheros firmware-brcm80211; do
     if apt_has "$p" && download "$p"; then
