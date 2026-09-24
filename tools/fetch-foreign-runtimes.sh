@@ -19,7 +19,7 @@ PY
 # Linux binaries are acquired from the host's signed package repositories.
 # Never scrape arbitrary binaries: repository metadata and package signatures
 # remain the trust boundary.
-if command -v apt-get >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+if command -v apt-get >/dev/null 2>&1 && command -v apt-cache >/dev/null 2>&1; then
   mkdir -p "$BIN/deb"
   mapfile -t packages < <(python3 - "$MANIFEST" <<'PY'
 import json,sys
@@ -27,7 +27,7 @@ print("\n".join(json.load(open(sys.argv[1]))["linux"]["packages"]))
 PY
 )
   for p in "${packages[@]}"; do
-    (cd "$BIN/deb" && apt-get download "$p" >/dev/null 2>&1) || echo "SKIP package: $p"
+    if apt-cache show "$p" >/dev/null 2>&1; then\n      (cd "$BIN/deb" && apt-get download "$p" >/dev/null 2>&1) || echo "SKIP package: $p"\n    else\n      echo "SKIP package unavailable in configured indexes: $p"\n    fi
   done
 fi
 
