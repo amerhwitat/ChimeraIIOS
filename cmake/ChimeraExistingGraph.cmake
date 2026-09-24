@@ -193,3 +193,5 @@ install(FILES cloud/providers.json cloud/README.md devops/README.md devops/pipel
 install(FILES include/chimera/ai/discipline.h include/chimera/ai/media.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/chimera/ai)
 install(DIRECTORY infrastructure/kubernetes infrastructure/openshift infrastructure/openstack DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/infrastructure)
 install(PROGRAMS tools/cloud/chimera_cloud.py tools/image/chimera_image.py tools/media/chimera_media.py tools/media/playback.py tools/media/vision_mediapipe.py tools/installer/install_cloud_platforms.sh tools/installer/install_kubernetes.sh tools/installer/install_openshift_tools.sh tools/installer/install_openstack_tools.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(FILES applications/catalog.json applications/ecosystem/repos.json applications/ecosystem/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/applications)
