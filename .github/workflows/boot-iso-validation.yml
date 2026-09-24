@@ -1,0 +1,73 @@
+name: Boot and ISO validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'boot/**'
+      - 'kernel/**'
+      - 'installer/**'
+      - 'desktop/aurora/assets/**'
+      - 'build-chimera-iso.sh'
+      - '.github/workflows/boot-iso-validation.yml'
+  pull_request:
+    paths:
+      - 'boot/**'
+      - 'kernel/**'
+      - 'installer/**'
+      - 'desktop/aurora/assets/**'
+      - 'build-chimera-iso.sh'
+      - '.github/workflows/boot-iso-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install boot validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin
+      - name: Shell syntax
+        run: |
+          bash -n build-chimera-iso.sh
+          bash -n boot/iso/build-iso.sh
+          bash -n boot/iso/prepare-layout.sh
+          bash -n boot/spitfire/build-spitfire.sh
+          bash -n kernel/build-koronos.sh
+      - name: Validate artwork XML and manifests
+        run: |
+          python3 - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          for p in Path("desktop/aurora/assets").glob("*.svg"):
+              ET.parse(p)
+          for p in [
+              Path("boot/splash/aurora_boot_splash.svg"),
+              Path("boot/splash/jasper_background.svg"),
+              Path("boot/splash/spitfire_background.svg"),
+          ]:
+              ET.parse(p)
+          for p in [
+              Path("boot/boot_protocol.json"),
+              Path("boot/boot-artwork-manifest.json"),
+              Path("installer/installation_phases.json"),
+          ]:
+              json.loads(p.read_text())
+          print("boot artwork and manifests are syntactically valid")
+          PY
+      - name: Validate GRUB linkage contract
+        run: |
+          grep -q 'multiboot2 /boot/kernel.bin' boot/iso/grub.cfg
+          grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          test -f kernel/arch/x86_64/entry.asm
+          test -f kernel/arch/x86_64/koronos.ld
+          test -f boot/spitfire/sf0_mbr.asm
+          test -f boot/spitfire/sf1_longmode.asm
+          test -f boot/spitfire/sf2_loader.cpp
+      - name: Build Koronos and Spit Fire artifacts
+        run: |
+          ./kernel/build-koronos.sh
+          ./boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
