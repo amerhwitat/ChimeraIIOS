@@ -9,14 +9,25 @@ mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/usr/share/chimera
 # Canonical kernel payload: the exact ELF validated by grub-file and loaded by GRUB's multiboot2 command.
 KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
 [[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
-cp "$KERNEL" "$DIST/boot/kernel.bin"
 cp "$KERNEL" "$DIST/boot/koronos/koronos.elf"
 
 # Bootloader source/artifacts and Jasper recovery configuration.
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
-cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/grub.cfg"
+cp "$ROOT/boot/jasper/jasper.cfg" "$DIST/boot/jasper/jasper.cfg"
+cp "$ROOT/boot/jasper/live.cfg" "$DIST/boot/jasper/live.cfg"
+cp "$ROOT/boot/jasper/install.cfg" "$DIST/boot/jasper/install.cfg"
+cp "$ROOT/boot/jasper/diagnostics.cfg" "$DIST/boot/jasper/diagnostics.cfg"
+cp "$ROOT/boot/spitfire/spitfire-menu.cfg" "$DIST/boot/spitfire/spitfire-menu.cfg"
+mkdir -p "$DIST/boot/installation" "$DIST/boot/recovery" "$DIST/boot/diagnostics"
+cp "$ROOT/boot/installation/menu.cfg" "$DIST/boot/installation/menu.cfg"
+cp "$ROOT/boot/recovery/recovery-manifest.json" "$DIST/boot/recovery/recovery-manifest.json"
+cp "$ROOT/boot/diagnostics/diagnostics-manifest.json" "$DIST/boot/diagnostics/diagnostics-manifest.json"
+cp "$ROOT/boot/boot-menu-contract.json" "$DIST/boot/boot-menu-contract.json"
+cp "$ROOT/boot/livecd/live-manifest.json" "$DIST/boot/live-manifest.json"
+if [[ -d "$ROOT/build/live-boot/boot/live" ]]; then cp -a "$ROOT/build/live-boot/boot/live" "$DIST/boot/"; fi
+
 cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
 set timeout=5
 set default=0
@@ -25,8 +36,9 @@ insmod gfxterm
 insmod png
 insmod search
 if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/background.png; fi
-menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/kernel.bin chm.mode=recovery chm.recovery=1; boot }
-menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/kernel.bin chm.mode=safe-graphics; boot }
+menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/koronos/koronos.elf
+  module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest }
+menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/koronos/koronos.elf }
 menuentry "Jasper Recovery — GRUB Command Line" { commandline }
 menuentry "Jasper Recovery — Reboot" { reboot }
 menuentry "Jasper Recovery — Power Off" { halt }
