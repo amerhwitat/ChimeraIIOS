@@ -13,7 +13,7 @@ trap cleanup EXIT
 mkdir -p "$ISO_TMP"
 export TMPDIR="$ISO_TMP"
 export MTOOLS_SKIP_CHECK=1
-mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains" "$STAGE/opt/chimera/toolchains" "$STAGE/network-tools" "$STAGE/opt/chimera/network-tools" "$(dirname "$OUT")"
+mkdir -p "$STAGE/boot/koronos" "$STAGE/boot/live" "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics" "$STAGE/install" "$STAGE/system" "$STAGE/desktop" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains" "$STAGE/opt/chimera/toolchains" "$STAGE/network-tools" "$STAGE/opt/chimera/network-tools" "$(dirname "$OUT")"
 copy_if_distinct() {
   local src="$1" dst="$2"
   if [[ -f "$src" && -f "$dst" ]] && [[ "$(readlink -f "$src")" == "$(readlink -f "$dst")" ]]; then
@@ -22,7 +22,7 @@ copy_if_distinct() {
   cp -f "$src" "$dst"
 }
 if [[ -n "${CHIMERA_KERNEL:-}" && -f "$CHIMERA_KERNEL" ]]; then
-  copy_if_distinct "$CHIMERA_KERNEL" "$STAGE/boot/koronos.elf"
+  copy_if_distinct "$CHIMERA_KERNEL" "$STAGE/boot/koronos/koronos.elf"
 fi
 cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
 cp -a "$ROOT/installer" "$STAGE/install/installer-source"
@@ -42,6 +42,12 @@ if [[ -f "$ROOT/desktop/aurora/network-discovery.desktop.json" ]]; then cp "$ROO
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
+cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
+cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
+cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
+cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
+cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
 install_iso_dependencies() {
   local missing=()
