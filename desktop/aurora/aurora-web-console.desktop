@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera II Web Console
+Name[ar]=وحدة تحكم Chimera II على الويب
+Comment=Open the local Chimera II OS administration console
+Comment[ar]=فتح وحدة إدارة Chimera II OS المحلية
+Exec=xdg-open http://127.0.0.1:8765/
+Icon=applications-system
+Terminal=false
+Categories=System;Settings;Network;
