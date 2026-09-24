@@ -88,6 +88,31 @@ install_iso_dependencies() {
   command -v mformat >/dev/null 2>&1 || { echo "mtools/mformat is still unavailable after dependency installation" >&2; exit 2; }
   command -v xorriso >/dev/null 2>&1 || { echo "xorriso is still unavailable after dependency installation" >&2; exit 2; }
 }
+# Build the live-boot artifacts before staging the ISO. The previous pipeline
+# only copied build/live-boot when it already existed, which made the GRUB
+# entries reference files that were absent from the ISO.
+if [[ -x "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+  echo "[INFO] Building Chimera II OS live-boot artifacts..."
+  "$ROOT/tools/build-live-boot-binaries.sh"
+else
+  echo "ERROR: tools/build-live-boot-binaries.sh is missing or not executable." >&2
+  exit 2
+fi
+
+LIVE_BOOT="$ROOT/build/live-boot"
+for required in \
+  "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
+  "$LIVE_BOOT/boot/live/live-manifest.json" \
+  "$LIVE_BOOT/boot/koronos/koronos.elf"; do
+  [[ -s "$required" ]] || { echo "ERROR: missing live-boot artifact: $required" >&2; exit 2; }
+done
+
+# Stage the live artifacts explicitly at the paths consumed by Jasper/GRUB.
+mkdir -p "$STAGE/boot/live" "$STAGE/boot/koronos"
+cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
+cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
+cp -f "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
+
 install_iso_dependencies
 # Verify mformat can create a FAT image in the native temporary filesystem before
 # invoking GRUB. This turns a vague grub-mkrescue failure into a useful error.
@@ -100,5 +125,21 @@ rm -f "$MFORMAT_TEST"
 mkdir -p "$STAGE/boot/grub"
 cp "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 rm -f "$OUT"
-grub-mkrescue -o "$OUT" "$STAGE"
+# Use ISO9660 level 3 and large-file/Rock-Ridge/Joliet capable mastering.
+# "DVD" here means a large filesystem image suitable for DVD/USB media; an
+# ISO itself has no 4.7 GiB ceiling. The destination filesystem must still
+# have enough free space for the resulting image.
+ISO_XORRISO_OPTS=(
+  -iso-level 3
+  -joliet
+  -rockridge
+  -volid "CHIMERA_II_OS"
+)
+echo "[INFO] Mastering large-capacity BIOS+UEFI ISO (ISO9660 level 3)..."
+grub-mkrescue -o "$OUT" "$STAGE" -- "${ISO_XORRISO_OPTS[@]}"
+test -s "$OUT"
+
+# Fail with an actionable message rather than a late xorriso media-space error.
+ISO_BYTES="$(stat -c%s "$OUT" 2>/dev/null || stat -f%z "$OUT")"
+echo "[INFO] ISO size: $(numfmt --to=iec "$ISO_BYTES" 2>/dev/null || echo "$ISO_BYTES bytes")"
 sha256sum "$OUT" > "$OUT.sha256"
