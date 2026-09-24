@@ -122,7 +122,7 @@ add_executable(aurora_video_player desktop/aurora/apps/aurora_video.cpp)
 chimera_warnings(aurora_media_player)
 chimera_warnings(aurora_video_player)
 install(TARGETS aurora_media_player aurora_video_player RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(PROGRAMS tools/media/file_metadata.py tools/media/file_associations.py tools/media/chimera_media.py tools/media/playback.py DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(PROGRAMS tools/media/file_metadata.py tools/media/file_associations.py tools/media/chimera_media.py tools/media/playback.py tools/media/aurora_media_player.py tools/media/aurora_video_player.py DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES desktop/file_associations/file_property_schema.json desktop/file_associations/file_association_registry.json desktop/file_associations/mimeapps.list DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/file-associations)
 install(FILES desktop/aurora/aurora-files.desktop desktop/aurora/aurora-media-player.desktop desktop/aurora/aurora-video-player.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 
