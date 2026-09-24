@@ -1,0 +1,13 @@
+{
+ "schema":"CHM-DUALBOOT-1",
+ "purpose":"Non-destructive installation beside an existing OS",
+ "modes":{
+  "uefi_x86_64":{"status":"planner+staging","preserve_esp":true},
+  "uefi_aarch64":{"status":"planner","platform_firmware_constraints":true},
+  "bios_x86":{"status":"planner","mbr_backup_required":true}
+ },
+ "hosts":{"linux":"native-uefi-planner","unix":"uefi-planner","windows":"uefi-planner","macos":"planner-only"},
+ "defaults":{"dry_run":true,"preserve_existing_os":true,"erase_disk":false,"modify_partition_table":false,"modify_efi_boot_order":false,"overwrite_bootloader":false},
+ "confirmations":["target disk","free-space reduction","partition changes","EFI changes","boot order","reboot"],
+ "recovery":{"backup_esp":true,"backup_partition_table":true,"recovery_media_recommended":true}
+}
