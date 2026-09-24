@@ -146,12 +146,18 @@ check_requirements() {
             docker.io \
             curl \
             coreutils \
+            grub-common \
             grub-pc-bin \
             grub-efi-amd64-bin \
+            mtools \
             xorriso \
             squashfs-tools \
             ca-certificates \
-            librsvg2-bin
+            librsvg2-bin \
+            nasm \
+            gcc \
+            g++ \
+            binutils
     fi
     
     # Check Docker
