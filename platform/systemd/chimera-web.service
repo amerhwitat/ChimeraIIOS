@@ -1,0 +1,26 @@
+[Unit]
+Description=Chimera II OS Web Administration Console
+Documentation=https://github.com/amerhwitat/ChimeraIIOS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/share/chimera/web/chimera_web.py
+Restart=on-failure
+RestartSec=2
+User=root
+Group=root
+Environment=CHIMERA_WEB_HOST=127.0.0.1
+Environment=CHIMERA_WEB_PORT=8765
+Environment=CHIMERA_WEB_TOKEN_FILE=/etc/chimera/web.token
+Environment=CHIMERA_WEB_AUDIT_FILE=/var/log/chimera/web-audit.log
+NoNewPrivileges=no
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/log/chimera /run/chimera
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
