@@ -43,7 +43,7 @@ declare -a BUILD_PACKAGES=(
 declare -a OPTIONAL_PACKAGES=(
   clang llvm lld gdb lldb yasm valgrind strace
   nodejs npm ruby perl php lua5.4 golang-go rustc cargo
-  openjdk-21-jdk default-jdk openjdk-17-jdk qemu-system-x86 qemu-user qemu-user-static
+  openjdk-21-jdk default-jdk openjdk-17-jdk qemu-system-x86 qemu-user qemu-user-binfmt qemu-user-binfmt-hwe
   dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
   gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
   gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
@@ -152,9 +152,34 @@ if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
       fi
     done
     if (( ${#optional_available[@]} > 0 )); then
-      "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${optional_available[@]}" || {
-        echo "[WARN] Some optional packages could not be installed in one transaction; targeted toolchain installation will retry them." >&2
-      }
+      # Never pass virtual packages such as qemu-user-static directly to apt.
+      # Ubuntu 26.04/Resolute exposes qemu-user-static as a virtual package
+      # provided by qemu-user-binfmt or qemu-user-binfmt-hwe.
+      local optional_install=()
+      local p
+      for p in "${optional_available[@]}"; do
+        case "$p" in
+          qemu-user-static)
+            if apt-cache show qemu-user-binfmt-hwe >/dev/null 2>&1; then
+              optional_install+=(qemu-user-binfmt-hwe)
+            elif apt-cache show qemu-user-binfmt >/dev/null 2>&1; then
+              optional_install+=(qemu-user-binfmt)
+            elif apt-cache show qemu-user-hwe >/dev/null 2>&1; then
+              optional_install+=(qemu-user-hwe)
+            elif apt-cache show qemu-user >/dev/null 2>&1; then
+              optional_install+=(qemu-user)
+            else
+              echo "[INFO] No concrete QEMU user-mode package is available; skipping qemu-user-static." >&2
+            fi
+            ;;
+          *) optional_install+=("$p") ;;
+        esac
+      done
+      if (( ${#optional_install[@]} > 0 )); then
+        "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${optional_install[@]}" || {
+          echo "[WARN] Some optional packages could not be installed in one transaction; targeted toolchain installation will retry them." >&2
+        }
+      fi
     fi
   fi
 fi
