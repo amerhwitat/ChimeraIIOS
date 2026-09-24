@@ -24,7 +24,7 @@ for dev in /dev/sr0 /dev/cdrom /dev/vda /dev/sda /dev/sdb /dev/mmcblk0; do
   [ -e "$dev" ] || continue
   mount -o ro "$dev" /mnt/chimera 2>/dev/null && break
 done
-if [ -f /mnt/chimera/boot/live-manifest.json ]; then
+if [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
   echo "Chimera II OS Live Media"
   echo "Koronos kernel selected by Jasper/GRUB Multiboot2."
   echo "Koronos kernel: /mnt/chimera/boot/koronos/koronos.elf"
@@ -35,7 +35,7 @@ exec /bin/sh
 EOF
 chmod +x "$INIT/init"
 (cd "$INIT" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
-sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/chimera-live-initramfs.img.sha256"
+sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
 for arch in arm64 armv7 x86_64; do
   mkdir -p "$OUT/mobile/$arch"
   [[ -f "$KORONOS" ]] && cp -f "$KORONOS" "$OUT/mobile/$arch/koronos-runtime.elf"
