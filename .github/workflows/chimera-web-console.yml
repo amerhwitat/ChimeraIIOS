@@ -1,0 +1,47 @@
+name: Chimera Web Console Validation
+
+on:
+  push:
+    paths:
+      - 'services/chimera-web/**'
+      - 'system/security/chimera_web_policy.json'
+      - 'platform/systemd/chimera-web.service'
+      - 'tools/web/**'
+      - 'CMakeLists.txt'
+  pull_request:
+    paths:
+      - 'services/chimera-web/**'
+      - 'system/security/chimera_web_policy.json'
+      - 'platform/systemd/chimera-web.service'
+      - 'tools/web/**'
+      - 'CMakeLists.txt'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python web service
+        run: python3 -m py_compile services/chimera-web/chimera_web.py
+      - name: Validate JSON policy
+        run: python3 -m json.tool system/security/chimera_web_policy.json >/dev/null
+      - name: Validate shell tools
+        run: |
+          bash -n tools/web/init-chimera-web-token.sh
+          bash -n tools/build-chimera-iso.sh
+      - name: Validate systemd unit
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends systemd
+          systemd-analyze verify platform/systemd/chimera-web.service
+      - name: Smoke test unauthenticated endpoint
+        run: |
+          mkdir -p /tmp/chimera-web
+          printf '%s\n' test-token > /tmp/chimera-web/token
+          CHIMERA_WEB_TOKEN_FILE=/tmp/chimera-web/token           CHIMERA_WEB_HOST=127.0.0.1           CHIMERA_WEB_PORT=18765           python3 services/chimera-web/chimera_web.py >/tmp/chimera-web/server.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:18765/api/health && exit 0; sleep 0.25; done
+          cat /tmp/chimera-web/server.log
+          exit 1
