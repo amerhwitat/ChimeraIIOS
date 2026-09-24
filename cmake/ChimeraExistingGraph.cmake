@@ -14,7 +14,7 @@ endfunction()
 add_library(chimera_core STATIC src/chimera.c)
 target_include_directories(chimera_core PUBLIC include)
 chimera_warnings(chimera_core)
-add_library(chimera_machine STATIC src/isa/chimera_isa.cpp src/isa/unified_isa.cpp src/isa/isa_bitfields.cpp src/isa/ISA_EncoderDecoder.cpp src/isa/universal_isa.cpp src/kernel/kernel_arch.cpp src/kernel/linux_compat.cpp src/kernel/bootinfo.cpp src/kernel/arch_context.cpp src/kernel/microkernel_services.cpp src/dma/dma.cpp src/memory/memory_bus.cpp src/memory/memory_bus_probe.cpp src/net/inet.cpp src/net/spotnik.cpp src/neural/trusted_node.cpp src/runtime/nbit_runtime.cpp src/ai/media.cpp database/src/db_backend.cpp)
+add_library(chimera_machine STATIC src/isa/chimera_isa.cpp src/isa/unified_isa.cpp src/isa/isa_bitfields.cpp src/isa/ISA_EncoderDecoder.cpp src/isa/universal_isa.cpp src/isa/nbit_isa.cpp src/kernel/kernel_arch.cpp src/kernel/linux_compat.cpp src/kernel/bootinfo.cpp src/kernel/arch_context.cpp src/kernel/microkernel_services.cpp src/dma/dma.cpp src/memory/memory_bus.cpp src/memory/memory_bus_probe.cpp src/net/inet.cpp src/net/spotnik.cpp src/neural/trusted_node.cpp src/runtime/nbit_runtime.cpp src/ai/media.cpp database/src/db_backend.cpp)
 target_include_directories(chimera_machine PUBLIC include database/include)
 target_link_libraries(chimera_machine PUBLIC Threads::Threads)
 chimera_warnings(chimera_machine)
@@ -95,6 +95,9 @@ target_include_directories(chimera_isa_encoder_decoder_test PRIVATE include)
 add_executable(chimera_universal_isa_test tests/unit/test_universal_isa.cpp)
 target_link_libraries(chimera_universal_isa_test PRIVATE chimera_machine)
 target_include_directories(chimera_universal_isa_test PRIVATE include)
+add_executable(chimera_nbit_isa_test tests/unit/test_nbit_isa.cpp)
+target_link_libraries(chimera_nbit_isa_test PRIVATE chimera_machine)
+target_include_directories(chimera_nbit_isa_test PRIVATE include)
 add_executable(chimera_microkernel_services_test tests/unit/test_microkernel_services.cpp)
 target_link_libraries(chimera_microkernel_services_test PRIVATE chimera_machine)
 target_include_directories(chimera_microkernel_services_test PRIVATE include)
@@ -163,6 +166,7 @@ set_tests_properties(chimera_isa_encoder_decoder PROPERTIES
   REQUIRED_FILES "${CHIMERA_ISA_JSON}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 add_test(NAME chimera_universal_isa COMMAND chimera_universal_isa_test)
+add_test(NAME chimera_nbit_isa COMMAND chimera_nbit_isa_test)
 add_test(NAME chimera_microkernel_services COMMAND chimera_microkernel_services_test)
 add_test(NAME chimera_database_backend COMMAND chimera_database_backend_test)
 add_test(NAME chimera_inet COMMAND chimera_inet_test)
@@ -195,6 +199,20 @@ if(Python3_Interpreter_FOUND)
       ${CMAKE_SOURCE_DIR}/src/isa/chimera_isa.cpp)
   add_dependencies(chimera_isa_bitfields_test chimera_generate_isa_bitfields)
   add_dependencies(chimera_isa_encoder_decoder_test chimera_generate_isa_bitfields)
+  # CTest does not build targets itself. Regenerate metadata post-build too,
+  # preventing an already-configured tree from executing stale ISA JSON.
+  add_custom_command(TARGET chimera_isa_encoder_decoder_test POST_BUILD
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
+            --output ${CHIMERA_ISA_JSON}
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py
+            ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    VERBATIM)
+  add_custom_command(TARGET chimera_nbit_isa_test POST_BUILD
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_local_nbit_isa.py
+            --output ${CMAKE_BINARY_DIR}/local_nbit_isa.json
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    VERBATIM)
   add_test(NAME chimera_isa_bitfield_reader COMMAND chimera_isa_bitfields_test ${CHIMERA_ISA_JSON})
   add_test(NAME chimera_isa_bitfield_generation_and_conformance COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/test_isa_toolchain.py --root ${CMAKE_SOURCE_DIR})
   add_test(NAME chimera_isa_encoder_decoder_sample COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON} --count 30)
@@ -206,6 +224,7 @@ if(Python3_Interpreter_FOUND)
   add_test(NAME chimera_toolchain_registry COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/toolchain/validate_registry.py)
   add_test(NAME chimera_memory_bus_metadata COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/memory/validate_profiles.py)
 endif()
+install(FILES tools/isa/local_isa_catalog.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/isa)
 install(FILES cloud/providers.json cloud/README.md devops/README.md devops/pipeline_schema.json ai/README.md ai/registry.json ai/media/media_contract.json docs/ai/AI_DISCIPLINES.md docs/kernel/LINUX_7_2_2_COMPATIBILITY.md docs/kernel/linux_feature_matrix.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera)
 install(FILES include/chimera/ai/discipline.h include/chimera/ai/media.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/chimera/ai)
 install(DIRECTORY infrastructure/kubernetes infrastructure/openshift infrastructure/openstack DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/infrastructure)
