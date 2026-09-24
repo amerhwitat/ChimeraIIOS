@@ -1,128 +1,90 @@
 #!/usr/bin/env bash
-
-# Resolve the repository root from this script location; never depend on the caller's working directory.
-CHIMERA_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$CHIMERA_REPO_ROOT"
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DIST="$ROOT/boot/iso/dist/iso"
 rm -rf "$DIST"
-if [[ -x "$ROOT/tools/build-desktop-binaries.sh" ]]; then "$ROOT/tools/build-desktop-binaries.sh"; fi
-mkdir -p "$DIST/chimera/hardware" "$DIST/chimera/security" "$DIST/chimera/system" "$DIST/boot/grub" "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/koronos" \
-  "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA" "$DIST/chimera/docs" \
-  "$DIST/chimera/manifests" "$DIST/chimera/toolchains/cpp" \
-  "$DIST/chimera/applications" "$DIST/chimera/knowledge" \
-  "$DIST/src" "$DIST/opt" "$DIST/install" "$DIST/drivers" \
-  "$DIST/filesystems" "$DIST/packages" "$DIST/repositories" \
-  "$DIST/man" "$DIST/games" "$DIST/wallets" "$DIST/ISO" "$DIST/checksums"
-cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$DIST/boot/spitfire/"
-cp "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
+mkdir -p "$DIST/boot/grub" "$DIST/boot/jasper" "$DIST/boot/spitfire" "$DIST/boot/koronos" "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA"
+mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
+
+# Canonical kernel payload: the exact ELF validated by grub-file and loaded by GRUB's multiboot2 command.
+KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
+[[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
+cp "$KERNEL" "$DIST/boot/kernel.bin"
+cp "$KERNEL" "$DIST/boot/koronos/koronos.elf"
+
+# Bootloader source/artifacts and Jasper recovery configuration.
+cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
-cp "$ROOT/boot/spitfire/efi/README.md" "$DIST/EFI/CHIMERA/" 2>/dev/null || true
-cp "$ROOT/boot/include/chimera/bootinfo.h" "$ROOT/boot/include/chimera/cpu_profile.h" "$ROOT/boot/include/chimera/boot_flags.h" "$DIST/boot/koronos/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
-cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/"
+cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/grub.cfg"
 cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
 set timeout=5
 set default=0
 insmod normal
 insmod gfxterm
 insmod png
-if [ -f /boot/grub/aurora-wayland-glass.png ]; then background_image /boot/grub/aurora-wayland-glass.png; fi
+insmod search
+if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/background.png; fi
 menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/kernel.bin chm.mode=recovery chm.recovery=1; boot }
 menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/kernel.bin chm.mode=safe-graphics; boot }
 menuentry "Jasper Recovery — GRUB Command Line" { commandline }
 menuentry "Jasper Recovery — Reboot" { reboot }
 menuentry "Jasper Recovery — Power Off" { halt }
 EOF
+
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
-[[ -f "$ROOT/boot/splash/support_footer.txt" ]] && cp "$ROOT/boot/splash/support_footer.txt" "$DIST/boot/"
-[[ -f "$ROOT/boot/kernel.bin" ]] && cp "$ROOT/boot/kernel.bin" "$DIST/boot/kernel.bin"
-[[ -f "$ROOT/boot/iso/dist/kernel.bin" ]] && cp "$ROOT/boot/iso/dist/kernel.bin" "$DIST/boot/kernel.bin"
-[[ -f "$ROOT/boot/iso/dist/chimera2os.elf" ]] && cp "$ROOT/boot/iso/dist/chimera2os.elf" "$DIST/boot/koronos/koronos.elf"
-if [[ -d "$ROOT/build/desktop" ]]; then
-  mkdir -p "$DIST/bin/desktop"
-  cp -a "$ROOT/build/desktop/." "$DIST/bin/desktop/"
+
+# Aurora source artwork is kept in the ISO; raster PNGs are generated for GRUB and installer windows.
+RASTERIZER=""
+if command -v rsvg-convert >/dev/null 2>&1; then RASTERIZER=rsvg-convert
+elif command -v convert >/dev/null 2>&1; then RASTERIZER=convert
+else echo "Aurora artwork requires rsvg-convert or ImageMagick." >&2; exit 2
 fi
-for d in include src kernel desktop network installer tools tests ai data cmake; do
-  if [[ -d "$ROOT/$d" ]]; then mkdir -p "$DIST/src/$d"; cp -a "$ROOT/$d/." "$DIST/src/$d/"; fi
-done
-# The ISO staging tree lives under ROOT/boot/iso/dist, so a recursive cp of
-# ROOT/boot would copy the output tree into itself. Archive the boot source
-# while excluding generated ISO output/portfolio directories instead.
-if [[ -d "$ROOT/boot" ]]; then
-  mkdir -p "$DIST/src/boot"
-  tar -C "$ROOT"     --exclude='boot/iso/dist'     --exclude='boot/iso/portfolio-build'     -cf - boot | tar -C "$DIST/src" -xf -
+
+if [[ "$RASTERIZER" == "rsvg-convert" ]]; then
+  rsvg-convert -w 1920 -h 1080 "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" -o "$DIST/boot/grub/aurora-wayland-glass.png"
+  rsvg-convert -w 1920 -h 1080 "$ROOT/desktop/aurora/assets/aurora-installer.svg" -o "$DIST/install/installer-background.png"
+  rsvg-convert -w 1920 -h 1080 "$ROOT/desktop/aurora/assets/aurora-library.svg" -o "$DIST/usr/share/chimera/aurora/library-background.png"
+  rsvg-convert -w 1920 -h 1080 "$ROOT/desktop/aurora/assets/aurora-desktop.svg" -o "$DIST/usr/share/chimera/aurora/desktop-background.png"
+  rsvg-convert -w 1920 -h 1080 "$ROOT/boot/splash/jasper_background.svg" -o "$DIST/boot/jasper/background.png"
+  rsvg-convert -w 1920 -h 1080 "$ROOT/boot/splash/spitfire_background.svg" -o "$DIST/boot/spitfire/background.png"
+else
+  convert -background none "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" "$DIST/boot/grub/aurora-wayland-glass.png"
+  convert -background none "$ROOT/desktop/aurora/assets/aurora-installer.svg" "$DIST/install/installer-background.png"
+  convert -background none "$ROOT/desktop/aurora/assets/aurora-library.svg" "$DIST/usr/share/chimera/aurora/library-background.png"
+  convert -background none "$ROOT/desktop/aurora/assets/aurora-desktop.svg" "$DIST/usr/share/chimera/aurora/desktop-background.png"
+  convert -background none "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/jasper/background.png"
+  convert -background none "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/spitfire/background.png"
 fi
-if [[ -f "$ROOT/ISA.csv" ]]; then
-  cp "$ROOT/ISA.csv" "$DIST/src/ISA.csv"
-fi
-if [[ -f "$ROOT/tools/isa/validate-isa.py" ]]; then
-  mkdir -p "$DIST/src/tools/isa"
-  cp "$ROOT/tools/isa/validate-isa.py" "$DIST/src/tools/isa/"
-fi
-for d in nlp BizX BizXtreme general; do
-  if [[ -d "$ROOT/opt/$d" ]]; then cp -a "$ROOT/opt/$d" "$DIST/opt/"; fi
-done
-[[ -d "$ROOT/appcenter" ]] && cp -a "$ROOT/appcenter" "$DIST/opt/appcenter"
-[[ -d "$ROOT/drivers" ]] && cp -a "$ROOT/drivers/." "$DIST/drivers/"
-[[ -d "$ROOT/hardware" ]] && cp -a "$ROOT/hardware/." "$DIST/chimera/hardware/"
-[[ -d "$ROOT/security" ]] && cp -a "$ROOT/security/." "$DIST/chimera/security/"
-[[ -d "$ROOT/system" ]] && cp -a "$ROOT/system/." "$DIST/chimera/system/"
-# Aurora artwork is source-controlled as SVG so the visual identity is reproducible.
-# Rasterize at build time for GRUB (which consumes PNG) and copy the source into
-# the installed Library/theme tree for Aurora and the installer.
-if [[ -f "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" ]]; then
-  mkdir -p "$DIST/boot/grub" "$DIST/usr/share/chimera/aurora" "$DIST/usr/share/chimera/library/aurora"
-  cp "$ROOT/desktop/aurora/assets/"aurora-*.svg "$DIST/usr/share/chimera/library/aurora/"
-  if command -v rsvg-convert >/dev/null 2>&1; then
-    rsvg-convert -w 1920 -h 1080 "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" -o "$DIST/boot/grub/aurora-wayland-glass.png"
-    rsvg-convert -w 1600 -h 900 "$ROOT/desktop/aurora/assets/aurora-library.svg" -o "$DIST/usr/share/chimera/aurora/aurora-library.png"
-    rsvg-convert -w 1600 -h 900 "$ROOT/desktop/aurora/assets/aurora-installer.svg" -o "$DIST/usr/share/chimera/aurora/aurora-installer.png"
-  elif command -v convert >/dev/null 2>&1; then
-    convert -background none "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" "$DIST/boot/grub/aurora-wayland-glass.png"
-    convert -background none "$ROOT/desktop/aurora/assets/aurora-library.svg" "$DIST/usr/share/chimera/aurora/aurora-library.png"
-    convert -background none "$ROOT/desktop/aurora/assets/aurora-installer.svg" "$DIST/usr/share/chimera/aurora/aurora-installer.png"
-  else
-    echo "Aurora rasterizer missing: install librsvg2-bin (rsvg-convert) or ImageMagick." >&2
-    exit 2
-  fi
-  cp "$DIST/usr/share/chimera/aurora/aurora-installer.png" "$DIST/usr/share/chimera/aurora/installer-background.png"
-  cp "$DIST/usr/share/chimera/aurora/aurora-library.png" "$DIST/usr/share/chimera/aurora/library-background.png"
-fi
-[[ -d "$ROOT/games" ]] && cp -a "$ROOT/games/." "$DIST/games/"
-[[ -d "$ROOT/wallets" ]] && cp -a "$ROOT/wallets/." "$DIST/wallets/"
-for f in \
-  "$ROOT/repositories/platform-manifest.json" \
-  "$ROOT/drivers/driver-registry.json" \
-  "$ROOT/filesystems/filesystem-registry.json" \
-  "$ROOT/packages/package-manager-registry.json" \
-  "$ROOT/compat/binary-format-registry.json" \
-  "$ROOT/install/installer-contract.json" \
-  "$ROOT/desktop/aurora/gates_menu.json" \
-  "$ROOT/appcenter/catalog/external-integrations.json"; do
-  [[ -f "$f" ]] && cp "$f" "$DIST/chimera/manifests/"
-done
-[[ -d "$ROOT/toolchains/cpp" ]] && cp -a "$ROOT/toolchains/cpp/." "$DIST/chimera/toolchains/cpp/"
-[[ -f "$ROOT/repositories/portfolio-integration.json" ]] && cp "$ROOT/repositories/portfolio-integration.json" "$DIST/chimera/manifests/"
-[[ -f "$ROOT/repositories/reference-document-import.json" ]] && cp "$ROOT/repositories/reference-document-import.json" "$DIST/chimera/manifests/"
-[[ -f "$ROOT/repositories/isa-sources.json" ]] && cp "$ROOT/repositories/isa-sources.json" "$DIST/chimera/manifests/"
-# Optional CI/local portfolio build output. This is populated by tools/portfolio/build_portfolio.py.
-if [[ -d "$ROOT/boot/iso/portfolio-build" ]]; then
-  mkdir -p "$DIST/src/portfolio" "$DIST/bin/portfolio" "$DIST/docs/references"
-  [[ -d "$ROOT/boot/iso/portfolio-build/src" ]] && cp -a "$ROOT/boot/iso/portfolio-build/src/." "$DIST/src/portfolio/"
-  [[ -d "$ROOT/boot/iso/portfolio-build/binaries" ]] && cp -a "$ROOT/boot/iso/portfolio-build/binaries/." "$DIST/bin/portfolio/"
-  [[ -d "$ROOT/boot/iso/portfolio-build/docs/references" ]] && cp -a "$ROOT/boot/iso/portfolio-build/docs/references/." "$DIST/docs/references/"
-  [[ -f "$ROOT/boot/iso/portfolio-build/portfolio-build-report.json" ]] && cp "$ROOT/boot/iso/portfolio-build/portfolio-build-report.json" "$DIST/chimera/manifests/"
-fi
-for f in "$ROOT/README.md" "$ROOT/docs/APPLICATION_ECOSYSTEM.md" "$ROOT/docs/MOBILE_PORTING_MATRIX.md" "$ROOT/docs/LEGAL_AND_PROVENANCE.md" "$ROOT/docs/INSTALLATION_AND_BOOT.md" "$ROOT/docs/ISA_CATALOG.md"; do
-  [[ -f "$f" ]] && cp "$f" "$DIST/chimera/docs/"
-done
-cp "$ROOT/boot/iso/iso-layout.json" "$DIST/ISO/"
-printf '%s\n' 'Chimera II OS structured source-first ISO' > "$DIST/chimera/README.txt"
-printf '%s\n' 'Boot: Spit Fire / Jasper; GRUB2 menu; kernel handoff: Koronos; media: ISO 9660 + El Torito.' >> "$DIST/chimera/README.txt"
-printf '%s\n' 'ISA catalog: /src/ISA.csv; foreign drivers/binaries are metadata-only unless licensing, provenance and compatibility checks permit staging.' >> "$DIST/chimera/README.txt"
-printf '%s\n' 'Support: created by Amer Abdullah Suleiman Hwitat | عامر الحويطات | Amman 11814/Jordan | amer.hwitat@proton.me' >> "$DIST/chimera/README.txt"
-python3 "$ROOT/tools/isa/validate-isa.py"
+cp "$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg" "$ROOT/desktop/aurora/assets/aurora-installer.svg" "$ROOT/desktop/aurora/assets/aurora-library.svg" "$ROOT/desktop/aurora/assets/aurora-desktop.svg" "$DIST/usr/share/chimera/aurora/"
+
+# Installer/desktop background manifest gives every installer window a deterministic visual asset.
+cat > "$DIST/install/background-manifest.json" <<'EOF'
+{
+  "schema": "CHM-INSTALL-BACKGROUNDS-1",
+  "default": "/install/installer-background.png",
+  "steps": {
+    "welcome": "/install/installer-background.png",
+    "hardware": "/usr/share/chimera/aurora/library-background.png",
+    "mode": "/usr/share/chimera/aurora/desktop-background.png",
+    "target": "/usr/share/chimera/aurora/desktop-background.png",
+    "storage": "/usr/share/chimera/aurora/desktop-background.png",
+    "boot": "/boot/spitfire/background.png",
+    "software": "/usr/share/chimera/aurora/library-background.png",
+    "security": "/boot/jasper/background.png",
+    "tools": "/usr/share/chimera/aurora/library-background.png",
+    "users": "/usr/share/chimera/aurora/desktop-background.png",
+    "install": "/install/installer-background.png",
+    "validate": "/boot/jasper/background.png",
+    "reboot": "/boot/grub/aurora-wayland-glass.png"
+  }
+}
+EOF
+
+[[ -f "$ROOT/installer/installation_phases.json" ]] && cp "$ROOT/installer/installation_phases.json" "$DIST/chimera/manifests/"
+[[ -f "$ROOT/installer/installer_profiles.json" ]] && cp "$ROOT/installer/installer_profiles.json" "$DIST/chimera/manifests/"
+[[ -f "$ROOT/installer/chimera-installer-plan.json" ]] && cp "$ROOT/installer/chimera-installer-plan.json" "$DIST/chimera/manifests/"
+[[ -f "$ROOT/README.md" ]] && cp "$ROOT/README.md" "$DIST/chimera/docs/"
+
 python3 "$ROOT/boot/iso/validate-iso.py" --tree "$DIST" --write-manifest "$DIST/checksums/SHA256SUMS"
