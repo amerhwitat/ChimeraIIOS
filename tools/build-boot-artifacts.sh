@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-$ROOT/build/boot-artifacts}"
 rm -rf "$OUT"
-mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/all-elf" "$OUT/all-bin" "$OUT/manifests"
+mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
 KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
 test -s "$KORONOS" || "$ROOT/kernel/build-koronos.sh"
 test -s "$KORONOS"
@@ -33,6 +33,16 @@ cp -f "$OUT/spitfire"/* "$OUT/all-bin/" 2>/dev/null || true
 cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
+# Collect compiled ELF executables/shared objects from the complete build tree.
+find "$ROOT/build" -type f -not -path "$ROOT/build/iso/*" -not -path "$ROOT/build/boot-artifacts/*" -print0 2>/dev/null |
+while IFS= read -r -d "" f; do
+  kind="$(file -b "$f" 2>/dev/null || true)"
+  if [[ "$kind" == *"ELF"* ]]; then
+    cp -f "$f" "$OUT/runtime/$(basename "$f")" 2>/dev/null || true
+  fi
+done
+cp -f "$OUT/runtime"/* "$OUT/all-elf/" 2>/dev/null || true
+
 sha256sum "$OUT"/all-elf/* "$OUT"/all-bin/* > "$OUT/SHA256SUMS" 2>/dev/null || true
 cat > "$OUT/manifests/boot-execution-order.json" <<EOF
 {
