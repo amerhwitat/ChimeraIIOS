@@ -1,1 +1,68 @@
-{"schema":"CHIMERA-WEB-CONTROL-1","bind_default":"127.0.0.1","port":8765,"authentication":"bearer-token-file","token_file":"/etc/chimera/web.token","remote_exposure":"disabled-by-default","allowed_actions":["podman-read","podman-start","podman-stop","podman-restart","podman-pause","podman-unpause","chimera-status","chimera-diagnostics"],"privilege":"never elevate through web API","audit":"Kore/Aegis integration required for privileged future actions"}
+{
+  "schema": "CHIMERA-WEB-CONTROL-2",
+  "bind_default": "127.0.0.1",
+  "port": 8765,
+  "transport": "HTTP by default; HTTPS when CHIMERA_WEB_CERT and CHIMERA_WEB_KEY are configured",
+  "authentication": "bearer-token-file",
+  "token_file": "/etc/chimera/web.token",
+  "remote_exposure": "disabled-by-default",
+  "api": {
+    "overview": [
+      "host",
+      "kernel",
+      "uptime",
+      "load"
+    ],
+    "services": [
+      "list",
+      "start",
+      "stop",
+      "restart",
+      "reload",
+      "enable",
+      "disable"
+    ],
+    "users": [
+      "list"
+    ],
+    "network": [
+      "interfaces",
+      "routes",
+      "network-manager-status"
+    ],
+    "storage": [
+      "block-devices",
+      "filesystems"
+    ],
+    "logs": [
+      "journal"
+    ],
+    "diagnostics": [
+      "host",
+      "memory",
+      "disk",
+      "failed-services"
+    ],
+    "podman": [
+      "list",
+      "images",
+      "pods",
+      "start",
+      "stop",
+      "restart",
+      "pause",
+      "unpause"
+    ],
+    "power": [
+      "reboot",
+      "poweroff"
+    ]
+  },
+  "security": {
+    "arbitrary_shell": false,
+    "command_allowlist": true,
+    "request_size_limit": 16384,
+    "audit_file": "/var/log/chimera/web-audit.log",
+    "privileged_actions": "subject to OS permissions of chimera-web service account"
+  }
+}
