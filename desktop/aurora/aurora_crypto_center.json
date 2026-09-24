@@ -1,0 +1,45 @@
+{
+  "schema": "CHM-AURORA-CRYPTO-CENTER-1",
+  "title": "Aurora Crypto Center",
+  "registry": "applications/crypto/crypto_ecosystem_registry.json",
+  "sections": [
+    "Wallets",
+    "Full Nodes",
+    "Validators",
+    "Network/RPC",
+    "Hardware Wallets",
+    "Watch-Only",
+    "Transaction Signing",
+    "Backups",
+    "Security"
+  ],
+  "defaults": {
+    "network": "mainnet",
+    "private_key_export": "disabled_by_default",
+    "seed_display": "never_without_explicit_confirmation",
+    "testnet": "hidden_until_enabled"
+  },
+  "actions": [
+    "create_wallet",
+    "import_wallet",
+    "watch_only",
+    "backup_wallet",
+    "restore_wallet",
+    "connect_hardware_wallet",
+    "run_full_node",
+    "manage_rpc",
+    "view_transactions",
+    "verify_addresses",
+    "sign_transaction",
+    "broadcast_transaction"
+  ],
+  "security": [
+    "never_store_seed_in_catalog",
+    "encrypted_local_wallet_storage",
+    "file_permission_hardening",
+    "checksum_and_signature_verification",
+    "separate_mainnet_and_testnet_data_directories",
+    "explicit_confirmation_for_broadcast"
+  ],
+  "note": "Aurora provides software integration and local wallet/node management; it does not recommend assets or investments."
+}
