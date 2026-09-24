@@ -135,6 +135,26 @@ check_requirements() {
         CHIMERA_AUTO_INSTALL_DEPS=0 \
             "$SCRIPT_DIR/tools/check-build-dependencies.sh"
     fi
+    # Optional application toolchains are non-fatal, but the comprehensive
+    # ISO should install every toolchain available in the configured host
+    # repositories before catalog/CMake validation. The dependency helper
+    # performs targeted fallbacks for Java, Rust, Node/npm, and .NET.
+    if [ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-1}" = "1" ]; then
+        local optional_toolchains=(javac java rustc cargo node npm dotnet)
+        local unavailable_toolchains=()
+        local tool
+        for tool in "${optional_toolchains[@]}"; do
+            if ! command -v "$tool" >/dev/null 2>&1; then
+                unavailable_toolchains+=("$tool")
+            fi
+        done
+        if [ "${#unavailable_toolchains[@]}" -gt 0 ]; then
+            log_warning "Optional toolchains still unavailable after dependency installation: ${unavailable_toolchains[*]}"
+            log_info "Affected catalog applications remain source-integrated and use runtime/provider fallbacks."
+        else
+            log_success "Optional application toolchains ready: Java/Rust/Node/npm/.NET"
+        fi
+    fi
 
     # Docker is the only host-specific dependency outside the generic ISO
     # toolchain. On Debian/Ubuntu it can be installed automatically; Docker
