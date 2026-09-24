@@ -1,4 +1,9 @@
 # Chimera II OS Aurora GRUB theme asset contract
-# Theme implementation is intentionally generated from grub.cfg for maximum portability.
-# Background: /boot/grub/aurora-wayland-glass.png
-# Palette: Aurora glass / high-contrast fallback.
+# The ISO builder rasterizes the source SVG artwork to PNG because GRUB's
+# gfxterm background_image accepts PNG/JPEG/TGA-compatible assets.
+background=/boot/grub/aurora-wayland-glass.png
+jasper_background=/boot/jasper/background.png
+spitfire_background=/boot/spitfire/background.png
+installer_background=/install/installer-background.png
+aurora_desktop_background=/usr/share/chimera/aurora/desktop-background.png
+aurora_library_background=/usr/share/chimera/aurora/library-background.png
