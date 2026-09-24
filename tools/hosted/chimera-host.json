@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-HOSTED-EXECUTION-1",
+  "guest":"Chimera II OS",
+  "host_families":["linux","unix","windows","macos"],
+  "execution_modes":{"emulator":"qemu-system","linux":"qemu-system","unix":"qemu-system","windows":"qemu-system","macos":"qemu-system"},
+  "accelerators":{"linux":["kvm"],"windows":["whpx"],"macos":["hvf"],"fallback":["tcg"]},
+  "architectures":["x86_64","aarch64","riscv64","arm","x86"],
+  "disk_format":"qcow2",
+  "default_memory_mib":4096,
+  "default_cpus":2,
+  "network":"user",
+  "security":{"host_filesystem_passthrough_default":false,"raw_disk_access_default":false,"require_explicit_confirmation_for_raw_disks":true}
+}
