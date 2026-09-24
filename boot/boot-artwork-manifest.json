@@ -1,0 +1,23 @@
+{
+  "schema": "CHM-BOOT-ARTWORK-1",
+  "canonical_grub_background": "boot/grub/aurora-wayland-glass.png",
+  "sources": [
+    "boot/splash/aurora_boot_splash.svg",
+    "boot/splash/jasper_background.svg",
+    "boot/splash/spitfire_background.svg",
+    "desktop/aurora/assets/aurora-wayland-glass.svg",
+    "desktop/aurora/assets/aurora-installer.svg",
+    "desktop/aurora/assets/aurora-library.svg",
+    "desktop/aurora/assets/aurora-desktop.svg"
+  ],
+  "runtime_targets": {
+    "grub": "Aurora Wayland Glass",
+    "jasper": "Jasper recovery",
+    "spitfire": "Spit Fire native stage",
+    "installer": "Aurora installer",
+    "desktop": "Aurora Wayland desktop",
+    "library": "Aurora Library"
+  },
+  "raster_policy": "Generate PNGs during ISO build; do not commit generated binaries.",
+  "fallback": "installer-background.png"
+}
