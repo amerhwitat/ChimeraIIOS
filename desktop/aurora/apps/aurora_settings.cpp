@@ -38,7 +38,11 @@ static std::vector<Setting> defaults() {
       {"isa.execution.mode","ISA execution mode","NativeWide","Scalar/Vector/NativeWide/JIT/QuantumHybrid"},
       {"neural.dimensions","Neural representation dimensions","1024","Live deep-learning dimensionality; 128D baseline, higher dimensions enabled"},
       {"neural.representation","Neural representation","HyperDimensional","HyperDimensional/Tensor/Hybrid"},
-      {"neural.learning","Neural learning mode","AdaptiveTensor","Adaptive multidimensional tensor representation"}
+      {"neural.learning","Neural learning mode","AdaptiveTensor","Adaptive multidimensional tensor representation"},
+      {"security.biometric.enabled","Biometric login","true","Offer enrolled biometric methods alongside username/password"},
+      {"security.biometric.password_fallback","Password fallback","true","Keep username/password available for recovery"},
+      {"security.biometric.remote","Remote biometric login","false","Disabled by default; biometrics remain local"},
+      {"security.biometric.liveness","Require liveness","true","Require provider liveness for face/iris/palm/voice/vein"}
     };
 }
 static std::vector<Setting> load() {
