@@ -39,6 +39,9 @@ install(FILES system/security/chimera_web_policy.json system/containers/podman_p
 install(FILES system/containers/quadlet/chimera-web.container DESTINATION share/chimera/quadlet)
 
 # Apache ecosystem package ingestion and verification tools
+install(FILES platform/systemd/chimera-web.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+install(PROGRAMS tools/web/init-chimera-web-token.sh DESTINATION bin)
+install(FILES services/chimera-web/README.md DESTINATION share/chimera/web)
 install(PROGRAMS services/apache/install-apache-ecosystem.sh services/apache/verify-apache-package.sh DESTINATION bin)
 install(PROGRAMS services/apache/apache-sync.py DESTINATION bin)
 install(FILES services/apache/apache-projects.json services/apache/README.md DESTINATION share/chimera/apache)
