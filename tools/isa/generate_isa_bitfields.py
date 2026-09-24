@@ -13,17 +13,27 @@ def load_cpp_names(path:Path):
     if not m:raise RuntimeError(f"cannot locate ISA name table string in {path}")
     return{i+1:empty_row(name,i+1) for i,name in enumerate(m.group(1).split()) if name}
 def load_rows(paths,cpp):
-    merged=load_cpp_names(cpp);priorities={op:0 for op in merged}
+    # CSV ISA catalogs are authoritative for opcode/name identity.  The C++
+    # opcode-name table is only a compatibility fallback for slots that are
+    # not described by the catalog inputs.  This prevents a stale/generated
+    # name table from hiding canonical instructions such as ADD.
+    merged={};priorities={}
     for source_index,path in enumerate(paths,1):
         with path.open(newline="",encoding="utf-8") as fh:
             for row in csv.DictReader(fh,delimiter=";"):
                 if not row.get("opcode") or not row.get("mnemonic"):continue
                 op=int(row["opcode"],16);item={k:row.get(k,"") for k in HEADER}
-                if op not in merged:merged[op]=item;priorities[op]=source_index
-                elif source_index>=priorities.get(op,0):
+                if op not in merged or source_index>=priorities.get(op,0):
+                    if op not in merged: merged[op]={k:"" for k in HEADER}
                     for key,value in item.items():
-                        if value:merged[op][key]=value
+                        if value: merged[op][key]=value
                     priorities[op]=source_index
+    # Fill only genuinely missing opcode slots from the executable opcode table.
+    for op,item in load_cpp_names(cpp).items():
+        if op not in merged:
+            merged[op]=item;priorities[op]=0
+    if not any(row.get("mnemonic")=="ADD" for row in merged.values()):
+        raise RuntimeError("canonical ISA metadata is missing required mnemonic ADD")
     by_name={}
     for op in sorted(merged):
         name=merged[op].get("mnemonic","")
