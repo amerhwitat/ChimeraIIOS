@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Aurora Video Player
+GenericName=Video Player
+Exec=aurora-video-player %U
+Icon=video-x-generic
+Terminal=false
+Categories=AudioVideo;Video;Player;
+MimeType=video/mp4;video/webm;video/x-matroska;video/quicktime;application/ogg;
+Actions=play;enqueue;properties;
