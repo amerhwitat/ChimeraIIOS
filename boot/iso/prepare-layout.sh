@@ -17,6 +17,29 @@ if [[ -d "$BOOT_ART/jasper" ]]; then cp -a "$BOOT_ART/jasper/." "$DIST/boot/chim
 if [[ -d "$BOOT_ART/grub" ]]; then cp -a "$BOOT_ART/grub/." "$DIST/boot/chimera/grub/"; fi
 if [[ -d "$BOOT_ART/manifests" ]]; then cp -a "$BOOT_ART/manifests/." "$DIST/boot/chimera/manifests/"; fi
 mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
+# Build and stage the live-boot payload explicitly. Jasper/GRUB references
+# /boot/live/chimera-live-initramfs.img and /boot/live/live-manifest.json;
+# relying on an optional pre-existing build/live-boot directory caused
+# boot-time "file not found" failures.
+if [[ -x "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+  bash "$ROOT/tools/build-live-boot-binaries.sh"
+else
+  echo "Live boot builder missing: $ROOT/tools/build-live-boot-binaries.sh" >&2
+  exit 2
+fi
+LIVE_BOOT="$ROOT/build/live-boot"
+for required in \
+  "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
+  "$LIVE_BOOT/boot/live/live-manifest.json"; do
+  [[ -s "$required" ]] || { echo "Required live artifact missing: $required" >&2; exit 2; }
+done
+mkdir -p "$DIST/boot/live"
+cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$DIST/boot/live/"
+cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$DIST/boot/live/"
+if [[ -s "$LIVE_BOOT/boot/vmlinuz" ]]; then
+  cp -f "$LIVE_BOOT/boot/vmlinuz" "$DIST/boot/live/vmlinuz"
+fi
+
 
 # Canonical kernel payload: the exact ELF validated by grub-file and loaded by GRUB's multiboot2 command.
 KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
