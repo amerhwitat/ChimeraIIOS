@@ -1,0 +1,6 @@
+{
+  "schema":"CHM-AURORA-FLASH-UI-1",
+  "application_id":"aurora-flash-tool",
+  "workflow":["select-image","verify-sha256","enumerate-removable-media","select-target","unmount-target","final-confirmation","write","sync","verify","eject"],
+  "safety":["show-device-path-size-model-transport","require-removable-target-by-default","never-select-root-or-boot-device-implicitly","require-explicit-final-confirmation","verify-image-before-write","offer-post-write-readback"]
+}
