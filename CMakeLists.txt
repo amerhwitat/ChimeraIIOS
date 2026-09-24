@@ -42,6 +42,8 @@ install(FILES system/containers/quadlet/chimera-web.container DESTINATION share/
 install(FILES platform/systemd/chimera-web.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
 install(PROGRAMS tools/web/init-chimera-web-token.sh DESTINATION bin)
 install(FILES services/chimera-web/README.md DESTINATION share/chimera/web)
+install(PROGRAMS tools/build-boot-artifacts.sh DESTINATION bin)
+install(FILES boot/jasper/jasper_entry.asm boot/jasper/jasper_main.cpp boot/jasper/jasper.ld DESTINATION share/chimera/boot/jasper)
 install(PROGRAMS services/apache/install-apache-ecosystem.sh services/apache/verify-apache-package.sh DESTINATION bin)
 install(PROGRAMS services/apache/apache-sync.py DESTINATION bin)
 install(FILES services/apache/apache-projects.json services/apache/README.md DESTINATION share/chimera/apache)
