@@ -18,7 +18,7 @@
     "keyboard": ["arrows", "enter", "escape", "function_keys"]
   },
   "handoff": {
-    "phase_order": ["firmware", "bootloader", "menu", "hardware_discovery", "memory", "framebuffer", "koronos", "drivers", "spotnik", "nucleus", "aurora", "session"],
+    "phase_order": ["firmware", "spitfire", "jasper", "grub", "menu", "hardware_discovery", "memory", "framebuffer", "koronos", "drivers", "spotnik", "nucleus", "aurora", "session"],
     "progress_ui": "aurora_boot_ui",
     "failure_policy": "show_phase_error_then_offer_recovery"
   },
