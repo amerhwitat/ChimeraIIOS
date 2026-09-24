@@ -155,8 +155,7 @@ if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
       # Never pass virtual packages such as qemu-user-static directly to apt.
       # Ubuntu 26.04/Resolute exposes qemu-user-static as a virtual package
       # provided by qemu-user-binfmt or qemu-user-binfmt-hwe.
-      local optional_install=()
-      local p
+      optional_install=()
       for p in "${optional_available[@]}"; do
         case "$p" in
           qemu-user-static)
