@@ -136,6 +136,21 @@ check_requirements() {
             "$SCRIPT_DIR/tools/check-build-dependencies.sh"
     fi
 
+    # Docker is the only host-specific dependency outside the generic ISO
+    # toolchain. On Debian/Ubuntu it can be installed automatically; Docker
+    # Desktop/WSL remains supported when the Docker CLI is already present.
+    if ! command -v docker >/dev/null 2>&1 && [ "${CHIMERA_INSTALL_DOCKER:-1}" = "1" ] \
+       && command -v apt-get >/dev/null 2>&1 && [ -f /etc/debian_version ]; then
+        local apt_prefix=()
+        [ "$(id -u)" -eq 0 ] || {
+            command -v sudo >/dev/null 2>&1 || { log_error "sudo is required to install docker.io"; exit 2; }
+            apt_prefix=(sudo)
+        }
+        log_info "Docker CLI missing; installing docker.io automatically..."
+        "${apt_prefix[@]}" apt-get update
+        "${apt_prefix[@]}" apt-get install -y --no-install-recommends docker.io docker-buildx
+    fi
+
     # Dependencies specific to the comprehensive Docker/rootfs workflow.
     local required_tools=("docker" "mktemp" "mount" "unsquashfs" "mksquashfs")
     local missing_tools=()
