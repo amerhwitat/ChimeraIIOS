@@ -27,20 +27,12 @@ for line in s.splitlines(keepends=True):
 if changed: p.write_text("".join(out),encoding="utf-8"); print("[FIX] repaired",p)
 PY
 }
-MISSING=()
-say CHECK "Checking host dependencies and ISO generators"
-for c in bash python3 cmake gcc g++ ld as make pkg-config git curl file cpio gzip xorriso grub-mkrescue grub-file busybox awk sed grep sha256sum; do require_cmd "$c"; done
-MISSING_COUNT="$(printf '%s\n' "${MISSING[@]}" | sed '/^$/d' | wc -l)"
-if [ "$MISSING_COUNT" -gt 0 ] && [ "$AUTO_DEPS" = "1" ] && [ "$(id -u)" -eq 0 ] && [ -f /etc/debian_version ] && command -v apt-get >/dev/null 2>&1; then
-  say DEPS "Installing missing Debian/Ubuntu build dependencies"
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update
-  apt-get install -y --no-install-recommends build-essential gcc g++ binutils make cmake ninja-build pkg-config python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev libncurses-dev libboost-dev gawk sed grep coreutils util-linux
-  MISSING=()
-  for c in bash python3 cmake gcc g++ ld as make pkg-config git curl file cpio gzip xorriso grub-mkrescue grub-file busybox awk sed grep sha256sum; do require_cmd "$c"; done
+say CHECK "Checking and automatically installing the complete ISO build dependency set"
+if [ "$AUTO_DEPS" = "1" ]; then
+  CHIMERA_INSTALL_OPTIONAL_DEPS="${CHIMERA_INSTALL_OPTIONAL_DEPS:-1}" "$ROOT/tools/check-build-dependencies.sh"
+else
+  CHIMERA_AUTO_INSTALL_DEPS=0 "$ROOT/tools/check-build-dependencies.sh"
 fi
-MISSING_COUNT="$(printf '%s\n' "${MISSING[@]}" | sed '/^$/d' | wc -l)"
-[ "$MISSING_COUNT" -eq 0 ] || die "Missing required dependencies: ${MISSING[*]}"
 say CHECK "Checking compiler/toolchain versions"
 cmake --version | head -n1
 gcc --version | head -n1
