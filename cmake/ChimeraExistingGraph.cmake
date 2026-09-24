@@ -177,9 +177,22 @@ if(CHIMERA_ENABLE_CVEL)
 endif()
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
-  add_custom_command(OUTPUT ${CHIMERA_ISA_JSON} COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py --output ${CHIMERA_ISA_JSON} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} DEPENDS ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py ${CMAKE_SOURCE_DIR}/tools/isa/chimera_r8192_opcode_index.csv ${CMAKE_SOURCE_DIR}/tools/isa/isa_opcodes_expanded_with_encodings.csv ${CMAKE_SOURCE_DIR}/tools/isa/isa_extension_0092_011c.csv ${CMAKE_SOURCE_DIR}/src/isa/chimera_isa.cpp)
-  add_custom_command(OUTPUT ${CHIMERA_ISA_SAMPLE_JSON} COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON} DEPENDS ${CHIMERA_ISA_JSON} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py)
-  add_custom_target(chimera_generate_isa_bitfields DEPENDS ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON})
+  # Regenerate metadata whenever the generator target is requested so stale
+  # build-tree ISA JSON cannot shadow the canonical CSV/CPP metadata.
+  add_custom_target(chimera_generate_isa_bitfields
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
+            --output ${CHIMERA_ISA_JSON}
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py
+            ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    BYPRODUCTS ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON}
+    DEPENDS
+      ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
+      ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py
+      ${CMAKE_SOURCE_DIR}/tools/isa/chimera_r8192_opcode_index.csv
+      ${CMAKE_SOURCE_DIR}/tools/isa/isa_opcodes_expanded_with_encodings.csv
+      ${CMAKE_SOURCE_DIR}/tools/isa/isa_extension_0092_011c.csv
+      ${CMAKE_SOURCE_DIR}/src/isa/chimera_isa.cpp)
   add_dependencies(chimera_isa_bitfields_test chimera_generate_isa_bitfields)
   add_dependencies(chimera_isa_encoder_decoder_test chimera_generate_isa_bitfields)
   add_test(NAME chimera_isa_bitfield_reader COMMAND chimera_isa_bitfields_test ${CHIMERA_ISA_JSON})
