@@ -1,0 +1,332 @@
+{
+  "schema": "CHM-CRYPTO-ECOSYSTEM-1",
+  "purpose": "Aurora open-source cryptocurrency wallet/node catalog with explicit mainnet network profiles",
+  "policy": "No investment recommendation. Wallets/nodes are integrated as software options; users remain responsible for keys, backups, network fees, and verification.",
+  "verification": {
+    "require_signatures_or_checksums": true,
+    "never_embed_private_keys": true,
+    "never_generate_seed_on_behalf_of_user": true
+  },
+  "mainnet_networks": [
+    {
+      "id": "bitcoin",
+      "symbol": "BTC",
+      "mainnet": true,
+      "node": "Bitcoin Core",
+      "wallets": [
+        "Bitcoin Core"
+      ],
+      "upstream": "https://github.com/bitcoin/bitcoin",
+      "license": "MIT",
+      "launcher": "bitcoin-qt",
+      "data_dir": "~/.bitcoin"
+    },
+    {
+      "id": "ethereum",
+      "symbol": "ETH",
+      "mainnet": true,
+      "execution_clients": [
+        "Geth",
+        "Nethermind",
+        "Besu",
+        "Erigon",
+        "Reth",
+        "ethrex"
+      ],
+      "wallets": [
+        "Geth account/JSON-RPC",
+        "MetaMask integration via browser/runtime"
+      ],
+      "upstream": [
+        "https://github.com/ethereum/go-ethereum",
+        "https://github.com/NethermindEth/nethermind",
+        "https://github.com/hyperledger/besu",
+        "https://github.com/erigontech/erigon",
+        "https://github.com/paradigmxyz/reth",
+        "https://github.com/lambdaclass/ethrex"
+      ],
+      "license": "mixed",
+      "launcher": "geth"
+    },
+    {
+      "id": "monero",
+      "symbol": "XMR",
+      "mainnet": true,
+      "node": "Monero",
+      "wallets": [
+        "Monero GUI",
+        "Monero CLI"
+      ],
+      "upstream": "https://github.com/monero-project/monero",
+      "license": "BSD-3-Clause",
+      "launcher": "monero-wallet-gui"
+    },
+    {
+      "id": "litecoin",
+      "symbol": "LTC",
+      "mainnet": true,
+      "node": "Litecoin Core",
+      "wallets": [
+        "Litecoin Core"
+      ],
+      "upstream": "https://github.com/litecoin-project/litecoin",
+      "license": "MIT",
+      "launcher": "litecoin-qt"
+    },
+    {
+      "id": "dogecoin",
+      "symbol": "DOGE",
+      "mainnet": true,
+      "node": "Dogecoin Core",
+      "wallets": [
+        "Dogecoin Core"
+      ],
+      "upstream": "https://github.com/dogecoin/dogecoin",
+      "license": "MIT",
+      "launcher": "dogecoin-qt"
+    },
+    {
+      "id": "bitcoin-cash",
+      "symbol": "BCH",
+      "mainnet": true,
+      "node": "Bitcoin Cash Node",
+      "wallets": [
+        "Electron Cash"
+      ],
+      "upstream": [
+        "https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node",
+        "https://github.com/Electron-Cash/Electron-Cash"
+      ],
+      "license": "mixed",
+      "launcher": "electron-cash"
+    },
+    {
+      "id": "zcash",
+      "symbol": "ZEC",
+      "mainnet": true,
+      "node": "Zcash",
+      "wallets": [
+        "Zcash wallet ecosystem"
+      ],
+      "upstream": "https://github.com/zcash/zcash",
+      "license": "MIT/Apache-2.0",
+      "launcher": "zcashd"
+    },
+    {
+      "id": "dash",
+      "symbol": "DASH",
+      "mainnet": true,
+      "node": "Dash Core",
+      "wallets": [
+        "Dash Core"
+      ],
+      "upstream": "https://github.com/dashpay/dash",
+      "license": "MIT",
+      "launcher": "dash-qt"
+    },
+    {
+      "id": "decred",
+      "symbol": "DCR",
+      "mainnet": true,
+      "node": "Decred",
+      "wallets": [
+        "Decrediton"
+      ],
+      "upstream": "https://github.com/decred/decred-binaries",
+      "license": "ISC",
+      "launcher": "decrediton"
+    },
+    {
+      "id": "digibyte",
+      "symbol": "DGB",
+      "mainnet": true,
+      "node": "DigiByte Core",
+      "wallets": [
+        "DigiByte Core"
+      ],
+      "upstream": "https://github.com/digibyte/digibyte",
+      "license": "MIT",
+      "launcher": "digibyte-qt"
+    },
+    {
+      "id": "solana",
+      "symbol": "SOL",
+      "mainnet": true,
+      "node": "Agave",
+      "wallets": [
+        "Solana-compatible wallets via Aurora Web3"
+      ],
+      "upstream": "https://github.com/anza-xyz/agave",
+      "license": "Apache-2.0",
+      "launcher": "agave-validator"
+    },
+    {
+      "id": "cardano",
+      "symbol": "ADA",
+      "mainnet": true,
+      "node": "cardano-node",
+      "wallets": [
+        "cardano-wallet ecosystem"
+      ],
+      "upstream": "https://github.com/IntersectMBO/cardano-node",
+      "license": "Apache-2.0",
+      "launcher": "cardano-node"
+    },
+    {
+      "id": "polkadot",
+      "symbol": "DOT",
+      "mainnet": true,
+      "node": "Polkadot SDK",
+      "wallets": [
+        "Polkadot-JS compatible wallets"
+      ],
+      "upstream": "https://github.com/paritytech/polkadot-sdk",
+      "license": "GPL-3.0-or-later",
+      "launcher": "polkadot"
+    },
+    {
+      "id": "cosmos",
+      "symbol": "ATOM",
+      "mainnet": true,
+      "node": "Cosmos SDK/Tendermint ecosystem",
+      "wallets": [
+        "Cosmos ecosystem wallets"
+      ],
+      "upstream": "https://github.com/cosmos/cosmos-sdk",
+      "license": "Apache-2.0",
+      "launcher": "cosmovisor"
+    },
+    {
+      "id": "xrp",
+      "symbol": "XRP",
+      "mainnet": true,
+      "node": "XRPL",
+      "wallets": [
+        "XRPL ecosystem wallets"
+      ],
+      "upstream": "https://github.com/XRPLF/rippled",
+      "license": "ISC",
+      "launcher": "rippled"
+    },
+    {
+      "id": "stellar",
+      "symbol": "XLM",
+      "mainnet": true,
+      "node": "Stellar Core",
+      "wallets": [
+        "Stellar ecosystem wallets"
+      ],
+      "upstream": "https://github.com/stellar/stellar-core",
+      "license": "Apache-2.0",
+      "launcher": "stellar-core"
+    },
+    {
+      "id": "tezos",
+      "symbol": "XTZ",
+      "mainnet": true,
+      "node": "Tezos node",
+      "wallets": [
+        "Tezos ecosystem wallets"
+      ],
+      "upstream": "https://gitlab.com/tezos/tezos",
+      "license": "MIT",
+      "launcher": "octez-node"
+    },
+    {
+      "id": "tron",
+      "symbol": "TRX",
+      "mainnet": true,
+      "node": "TRON node",
+      "wallets": [
+        "TRON ecosystem wallets"
+      ],
+      "upstream": "https://github.com/tronprotocol/java-tron",
+      "license": "LGPL-3.0",
+      "launcher": "java-tron"
+    },
+    {
+      "id": "near",
+      "symbol": "NEAR",
+      "mainnet": true,
+      "node": "NEAR core",
+      "wallets": [
+        "NEAR ecosystem wallets"
+      ],
+      "upstream": "https://github.com/near/nearcore",
+      "license": "GPL-3.0",
+      "launcher": "neard"
+    },
+    {
+      "id": "avalanche",
+      "symbol": "AVAX",
+      "mainnet": true,
+      "node": "AvalancheGo",
+      "wallets": [
+        "EVM-compatible wallets"
+      ],
+      "upstream": "https://github.com/ava-labs/avalanchego",
+      "license": "BSD-3-Clause",
+      "launcher": "avalanchego"
+    },
+    {
+      "id": "aptos",
+      "symbol": "APT",
+      "mainnet": true,
+      "node": "Aptos Core",
+      "wallets": [
+        "Aptos ecosystem wallets"
+      ],
+      "upstream": "https://github.com/aptos-labs/aptos-core",
+      "license": "Apache-2.0",
+      "launcher": "aptos-node"
+    },
+    {
+      "id": "sui",
+      "symbol": "SUI",
+      "mainnet": true,
+      "node": "Sui",
+      "wallets": [
+        "Sui ecosystem wallets"
+      ],
+      "upstream": "https://github.com/MystenLabs/sui",
+      "license": "Apache-2.0",
+      "launcher": "sui-node"
+    },
+    {
+      "id": "algorand",
+      "symbol": "ALGO",
+      "mainnet": true,
+      "node": "go-algorand",
+      "wallets": [
+        "Algorand ecosystem wallets"
+      ],
+      "upstream": "https://github.com/algorand/go-algorand",
+      "license": "MIT",
+      "launcher": "algod"
+    },
+    {
+      "id": "kaspa",
+      "symbol": "KAS",
+      "mainnet": true,
+      "node": "Kaspa",
+      "wallets": [
+        "Kaspa ecosystem wallets"
+      ],
+      "upstream": "https://github.com/kaspanet/rusty-kaspa",
+      "license": "ISC",
+      "launcher": "kaspad"
+    },
+    {
+      "id": "ravencoin",
+      "symbol": "RVN",
+      "mainnet": true,
+      "node": "Ravencoin Core",
+      "wallets": [
+        "Ravencoin Core"
+      ],
+      "upstream": "https://github.com/RavenProject/Ravencoin",
+      "license": "MIT",
+      "launcher": "raven-qt"
+    }
+  ]
+}
