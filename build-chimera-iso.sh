@@ -488,6 +488,22 @@ create_squashfs() {
     if [ $? -eq 0 ]; then
         local squashfs_size=$(du -h "$ISO_DIR/live/filesystem.squashfs" | cut -f1)
         log_success "Squashfs created: $squashfs_size"
+
+        # IMPORTANT: ROOTFS is only the staging tree used to create the
+        # compressed live filesystem. Never leave it inside the ISO tree.
+        # Leaving it here duplicates the entire uncompressed OS inside the
+        # ISO, can add hundreds of thousands of files, and can exhaust the
+        # host filesystem while xorriso is mastering the image.
+        log_info "Removing uncompressed rootfs staging tree from ISO payload..."
+        rm -rf "$ROOTFS_DIR"
+        if [ -e "$ROOTFS_DIR" ]; then
+            log_error "Failed to remove uncompressed rootfs staging tree: $ROOTFS_DIR"
+            exit 1
+        fi
+
+        local iso_payload_bytes
+        iso_payload_bytes="$(du -sb "$ISO_DIR" | awk '{print $1}')"
+        log_info "Final ISO staging payload after rootfs removal: $(numfmt --to=iec "$iso_payload_bytes" 2>/dev/null || echo "$iso_payload_bytes bytes")"
     else
         log_error "Squashfs creation failed"
         exit 1
@@ -579,6 +595,23 @@ create_iso_image() {
     local iso_file="${SCRIPT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
     command -v grub-mkrescue >/dev/null || { log_error "grub-mkrescue is required."; exit 1; }
     command -v xorriso >/dev/null || { log_error "xorriso is required."; exit 1; }
+
+    # xorriso writes the ISO to the same filesystem as SCRIPT_DIR. A build
+    # can have "10 GB free" and still fail if the staging tree is larger than
+    # that. Check this before spending time mastering the image.
+    local payload_bytes free_bytes required_bytes
+    payload_bytes="$(du -sb "$ISO_DIR" | awk '{print $1}')"
+    free_bytes="$(df -PB1 "$SCRIPT_DIR" | awk 'NR==2 {print $4}')"
+    required_bytes=$((payload_bytes + 256*1024*1024))
+    log_info "ISO payload: $(numfmt --to=iec "$payload_bytes" 2>/dev/null || echo "$payload_bytes bytes")"
+    log_info "Filesystem free: $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")"
+    if [ "$free_bytes" -lt "$required_bytes" ]; then
+        log_error "Insufficient filesystem space for ISO mastering."
+        log_error "Need at least $(numfmt --to=iec "$required_bytes" 2>/dev/null || echo "$required_bytes bytes"), have $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")."
+        log_error "The ISO must be built on a filesystem with more free space or the payload must be reduced."
+        exit 1
+    fi
+
     test -s "$ISO_DIR/boot/kernel.bin" || { log_error "ISO kernel linkage missing: /boot/kernel.bin"; exit 1; }
     test -s "$ISO_DIR/boot/koronos/koronos.elf" || { log_error "ISO Koronos payload missing."; exit 1; }
     test -s "$ISO_DIR/boot/spitfire/spitfire-stage2.bin" || { log_error "ISO Spit Fire stage2 missing."; exit 1; }
