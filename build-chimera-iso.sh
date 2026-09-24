@@ -656,7 +656,6 @@ menuentry "Jasper Recovery — Reboot" { reboot }
 menuentry "Jasper Recovery — Power Off" { halt }
 EOF
 
-    "$SCRIPT_DIR/boot/iso/prepare-layout.sh" >/tmp/chimera-prepare-layout.log 2>&1 || { cat /tmp/chimera-prepare-layout.log >&2; exit 1; }
     cp "$kernel" "$ISO_DIR/boot/kernel.bin"
     cp "$kernel" "$ISO_DIR/boot/koronos/koronos.elf"
     cp "$BUILD_DIR/bootloaders/spitfire-sf0-mbr.bin" "$ISO_DIR/boot/spitfire/"
