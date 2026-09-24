@@ -148,7 +148,10 @@ check_requirements() {
         }
         log_info "Docker CLI missing; installing docker.io automatically..."
         "${apt_prefix[@]}" apt-get update
-        "${apt_prefix[@]}" apt-get install -y --no-install-recommends docker.io docker-buildx
+        "${apt_prefix[@]}" apt-get install -y --no-install-recommends docker.io || {
+            log_error "docker.io installation failed."; exit 2;
+        }
+        "${apt_prefix[@]}" apt-get install -y --no-install-recommends docker-buildx-plugin docker-buildx 2>/dev/null || true
     fi
 
     # Dependencies specific to the comprehensive Docker/rootfs workflow.
