@@ -9,7 +9,13 @@
         "select_language",
         "select_keyboard",
         "accessibility"
-      ]
+      ],
+      "background": {
+        "default": "/install/installer-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "hardware",
@@ -25,7 +31,13 @@
         "secure_boot",
         "tpm",
         "mobile_profile"
-      ]
+      ],
+      "background": {
+        "default": "/install/library-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "mode",
@@ -35,7 +47,13 @@
         "baremetal",
         "recovery",
         "emulator"
-      ]
+      ],
+      "background": {
+        "default": "/usr/share/chimera/aurora/desktop-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "target",
@@ -54,7 +72,13 @@
         "s390x",
         "loongarch64",
         "profile_specific"
-      ]
+      ],
+      "background": {
+        "default": "/usr/share/chimera/aurora/desktop-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "storage",
@@ -68,7 +92,13 @@
         "data",
         "encryption",
         "filesystem_selection"
-      ]
+      ],
+      "background": {
+        "default": "/usr/share/chimera/aurora/desktop-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "boot",
@@ -81,7 +111,13 @@
         "limine_compatible",
         "chainload",
         "recovery_entry"
-      ]
+      ],
+      "background": {
+        "default": "/boot/spitfire/background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "software",
@@ -95,7 +131,13 @@
         "language_packs",
         "keyboard_layouts",
         "Aurora"
-      ]
+      ],
+      "background": {
+        "default": "/install/library-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "security",
@@ -108,7 +150,13 @@
         "permissions",
         "firewall_defaults",
         "audit_log"
-      ]
+      ],
+      "background": {
+        "default": "/boot/jasper/background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "tools",
@@ -121,7 +169,13 @@
         "decompilers",
         "binary_analysis",
         "emulators"
-      ]
+      ],
+      "background": {
+        "default": "/install/library-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "users",
@@ -133,7 +187,13 @@
         "keyboard",
         "language",
         "network"
-      ]
+      ],
+      "background": {
+        "default": "/usr/share/chimera/aurora/desktop-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "install",
@@ -146,7 +206,13 @@
         "install_drivers",
         "install_services",
         "install_Aurora"
-      ]
+      ],
+      "background": {
+        "default": "/install/installer-background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "validate",
@@ -160,7 +226,13 @@
         "keyboard_check",
         "toolchain_check",
         "recovery_check"
-      ]
+      ],
+      "background": {
+        "default": "/boot/jasper/background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "reboot",
@@ -170,7 +242,13 @@
         "boot_menu",
         "kernel_progress_ui",
         "first_run_setup"
-      ]
+      ],
+      "background": {
+        "default": "/boot/grub/aurora-wayland-glass.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     },
     {
       "id": "identity-security",
@@ -184,7 +262,13 @@
         "optionally stage SSSD/winbind/Kerberos AD configuration"
       ],
       "requires_root": true,
-      "reboot": false
+      "reboot": false,
+      "background": {
+        "default": "/boot/jasper/background.png",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
     }
   ],
   "profiles": [
@@ -207,5 +291,11 @@
     "locked_bootloader_is_not_bypassed": true,
     "secure_boot_is_not_bypassed": true,
     "recovery_media_recommended": true
+  },
+  "backgrounds": {
+    "schema": "CHM-INSTALL-BACKGROUNDS-1",
+    "default": "/install/installer-background.png",
+    "source": "desktop/aurora/assets and boot/splash",
+    "fallback": "/install/installer-background.png"
   }
 }
