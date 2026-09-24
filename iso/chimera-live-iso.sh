@@ -33,15 +33,16 @@ if [[ -d "$ROOT/build/foreign" ]]; then cp -a "$ROOT/build/foreign/." "$STAGE/co
 if [[ -d "$ROOT/build/mobile" ]]; then cp -a "$ROOT/build/mobile/." "$STAGE/mobile/"; fi
 if [[ -d "$ROOT/build/drivers" ]]; then cp -a "$ROOT/build/drivers/." "$STAGE/drivers/"; fi
 if [[ -d "$ROOT/build/network-tools" ]]; then cp -a "$ROOT/build/network-tools/." "$STAGE/opt/chimera/network-tools/"; cp -a "$ROOT/build/network-tools" "$STAGE/network-tools/"; fi
-if [[ -d "$ROOT/build/toolchains" ]]; then cp -a "$ROOT/build/toolchains/." "$STAGE/opt/chimera/toolchains/"
-  cp -a "$ROOT/build/toolchains/." "$STAGE/toolchains/"; fi
-if [[ -d "$ROOT/services/learning" ]]; then cp -a "$ROOT/services/learning" "$STAGE/system/services/learning"
+if [[ -d "$ROOT/build/toolchains" ]]; then cp -a "$ROOT/build/toolchains/." "$STAGE/opt/chimera/toolchains/"; cp -a "$ROOT/build/toolchains/." "$STAGE/toolchains/"; fi
+if [[ -d "$ROOT/services/learning" ]]; then cp -a "$ROOT/services/learning" "$STAGE/system/services/learning"; fi
 if [[ -d "$ROOT/services/network" ]]; then cp -a "$ROOT/services/network" "$STAGE/system/services/network"; fi
 for x in route-manager.desktop.json networking_panel.json wallpaper-service.json wallpaper-service.py; do [[ -f "$ROOT/desktop/aurora/$x" ]] && cp "$ROOT/desktop/aurora/$x" "$STAGE/system/desktop/"; done
 [[ -d "$ROOT/network" ]] && cp -a "$ROOT/network" "$STAGE/system/network"
-if [[ -f "$ROOT/desktop/aurora/network-discovery.desktop.json" ]]; then cp "$ROOT/desktop/aurora/network-discovery.desktop.json" "$STAGE/system/desktop/"; fi; fi
+if [[ -f "$ROOT/desktop/aurora/network-discovery.desktop.json" ]]; then cp "$ROOT/desktop/aurora/network-discovery.desktop.json" "$STAGE/system/desktop/"; fi
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
+if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+
 install_iso_dependencies() {
   local missing=()
   command -v grub-mkrescue >/dev/null 2>&1 || missing+=(grub-mkrescue)
