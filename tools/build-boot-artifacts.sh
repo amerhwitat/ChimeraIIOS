@@ -33,19 +33,41 @@ cp -f "$OUT/spitfire"/* "$OUT/all-bin/" 2>/dev/null || true
 cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
-# Collect compiled ELF executables/shared objects from the complete build tree.
-find "$ROOT/build" -type f -not -path "$ROOT/build/iso/*" -not -path "$ROOT/build/boot-artifacts/*" -print0 2>/dev/null |
+# Collect only runnable ELF executables and shared objects from the
+# complete build tree. Do NOT stage relocatable .o files, static archives,
+# CMake internals, compiler intermediates, or test/build metadata. The old
+# broad "ELF" test treated every relocatable object as a boot/runtime ELF,
+# producing huge ISO trees with unnecessary files.
+find "$ROOT/build" -type f \
+  -not -path "$ROOT/build/iso/*" \
+  -not -path "$ROOT/build/boot-artifacts/*" \
+  -not -path "$ROOT/build/full/cmake/*" \
+  -not -path "$ROOT/build/*/CMakeFiles/*" \
+  -print0 2>/dev/null |
 while IFS= read -r -d "" f; do
   kind="$(file -b "$f" 2>/dev/null || true)"
-  if [[ "$kind" == *"ELF"* ]]; then
-    rel="${f#"$ROOT/build/"}"
-    dest="$OUT/runtime/$rel"
-    mkdir -p "$(dirname "$dest")"
-    cp -f "$f" "$dest"
-  fi
+  case "$kind" in
+    *"ELF"*"executable"*|*"ELF"*"shared object"*)
+      rel="${f#"$ROOT/build/"}"
+      dest="$OUT/runtime/$rel"
+      mkdir -p "$(dirname "$dest")"
+      cp -f "$f" "$dest"
+      ;;
+    *)
+      continue
+      ;;
+  esac
 done
-cp -a "$OUT/runtime/." "$OUT/all-elf/" 2>/dev/null || true
 
+# Preserve the runtime directory hierarchy. Flattening all runtime files into
+# all-elf can overwrite same-named binaries from different build targets.
+if [[ -d "$OUT/runtime" ]]; then
+  cp -a "$OUT/runtime/." "$OUT/all-elf/"
+fi
+
+RUNTIME_COUNT="$(find "$OUT/runtime" -type f 2>/dev/null | wc -l | tr -d ' ')"
+RUNTIME_BYTES="$(du -sb "$OUT/runtime" 2>/dev/null | awk '{print $1}')"
+echo "Runtime ELF payload staged: ${RUNTIME_COUNT} files, ${RUNTIME_BYTES} bytes"
 sha256sum "$OUT"/all-elf/* "$OUT"/all-bin/* > "$OUT/SHA256SUMS" 2>/dev/null || true
 cat > "$OUT/manifests/boot-execution-order.json" <<EOF
 {
