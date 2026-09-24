@@ -117,6 +117,11 @@ target_include_directories(chimera_nbit_extended_ops_test PRIVATE include)
 add_executable(chimera_ai_discipline_test tests/ai/test_ai_discipline.cpp)
 target_include_directories(chimera_ai_discipline_test PRIVATE include)
 # Aurora file/media integration applications
+add_executable(aurora_context_menu desktop/aurora/aurora_context_menu.cpp)
+chimera_warnings(aurora_context_menu)
+install(TARGETS aurora_context_menu RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES desktop/file_associations/context_menu_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/file-associations)
+
 add_executable(aurora_media_player desktop/aurora/apps/aurora_media.cpp)
 add_executable(aurora_video_player desktop/aurora/apps/aurora_video.cpp)
 set_target_properties(aurora_media_player PROPERTIES OUTPUT_NAME "aurora-media-player")
