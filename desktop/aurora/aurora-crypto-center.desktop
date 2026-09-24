@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora Crypto Center
+Comment=Open-source cryptocurrency wallets, nodes, mainnet management and transaction tools
+Exec=python3 /usr/share/chimera/aurora/aurora_crypto_center.py
+Icon=security-high
+Terminal=false
+Categories=Finance;Security;System;
