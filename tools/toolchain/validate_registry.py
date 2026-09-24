@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / 'toolchains' / 'registry.json'
-ALLOWED_KINDS = {'assembler','disassembler','compiler','linker','object-tools','debug-info','debugger','system-emulator','user-emulator','debugger-bridge','disassembler-adjacent'}
+ALLOWED_KINDS = {'assembler','disassembler','compiler','linker','object-tools','debug-info','debugger','system-emulator','user-emulator','debugger-bridge','disassembler-adjacent','linker-driver'}
 def load():
     return json.loads(REGISTRY.read_text(encoding='utf-8'))
 def validate(data):
