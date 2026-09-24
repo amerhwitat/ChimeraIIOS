@@ -1,0 +1,6 @@
+{
+  "schema":"CHM-BOOT-MENU-3","kernel":"Koronos","primary_loader":"Spit Fire","menu_manager":"Jasper","firmware_menu":"Gates","fallback_loader":"GRUB2","installation_menu":"/boot/installation/menu.cfg",
+  "entries":["live","safe-graphics","install","recovery","diagnostics","spitfire","firmware","reboot","poweroff"],
+  "kernel_policy":{"live":"multiboot2 /boot/koronos/koronos.elf","install":"multiboot2 /boot/koronos/koronos.elf","recovery":"multiboot2 /boot/koronos/koronos.elf","diagnostics":"multiboot2 /boot/koronos/koronos.elf"},
+  "linux_vmlinuz":false
+}
