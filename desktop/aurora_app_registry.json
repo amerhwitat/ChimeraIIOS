@@ -1,149 +1,38 @@
 {
-  "$schema": "CHM-AURORA-APP-2",
+  "$schema": "CHM-AURORA-APP-3",
   "desktop": "Aurora Wayland Glass",
+  "file_integration": {
+    "property_provider": "tools/media/file_metadata.py",
+    "association_provider": "tools/media/file_associations.py",
+    "registry": "desktop/file_associations/file_association_registry.json",
+    "mimeapps": "desktop/file_associations/mimeapps.list",
+    "properties": "desktop/file_associations/file_property_schema.json"
+  },
   "apps": [
-    {
-      "id": "terminal",
-      "category": "utilities",
-      "entry": "userland/shell/chimera-shell",
-      "formats": [
-        "native",
-        "POSIX",
-        "cmd",
-        "powershell"
-      ]
-    },
-    {
-      "id": "files",
-      "category": "system",
-      "entry": "desktop/aurora/files"
-    },
-    {
-      "id": "settings",
-      "category": "system",
-      "entry": "desktop/aurora/settings"
-    },
-    {
-      "id": "process-monitor",
-      "category": "system",
-      "entry": "desktop/aurora/process-monitor"
-    },
-    {
-      "id": "network-manager",
-      "category": "network",
-      "entry": "desktop/aurora/network-manager"
-    },
-    {
-      "id": "disk-manager",
-      "category": "system",
-      "entry": "desktop/aurora/disk-manager"
-    },
-    {
-      "id": "package-center",
-      "category": "system",
-      "entry": "desktop/aurora/package-center"
-    },
-    {
-      "id": "browser",
-      "category": "internet",
-      "entry": "desktop/aurora/browser"
-    },
-    {
-      "id": "editor",
-      "category": "productivity",
-      "entry": "desktop/aurora/editor"
-    },
-    {
-      "id": "developer-center",
-      "category": "development",
-      "entry": "tools/build/orchestrator.py"
-    },
-    {
-      "id": "ide",
-      "category": "development",
-      "entry": "desktop/aurora/ide"
-    },
-    {
-      "id": "system-monitor",
-      "category": "system",
-      "entry": "desktop/aurora/system-monitor"
-    },
-    {
-      "id": "help-man",
-      "category": "help",
-      "entry": "tools/help/chimera-help"
-    },
-    {
-      "id": "isa-explorer",
-      "category": "development",
-      "entry": "isa/catalog.json"
-    },
-    {
-      "id": "128d-visualizer",
-      "category": "science",
-      "entry": "desktop/aurora/visualization/128d"
-    },
-    {
-      "id": "retro-center",
-      "category": "games",
-      "entry": "emulation/retro_systems.json"
-    },
-    {
-      "id": "chimera-neural-chat",
-      "category": "ai",
-      "entry": "desktop/aurora/apps/chimera_neural_chat",
-      "formats": [
-        "native",
-        "wayland-glass"
-      ],
-      "voice": "voiceconnect"
-    },
-    {
-      "id": "aurora-peripherals",
-      "category": "system",
-      "entry": "desktop/aurora/apps/aurora_peripherals",
-      "formats": [
-        "native",
-        "wayland-glass"
-      ],
-      "policy": "explicit-user-request"
-    },
-    {
-      "id": "aurora-settings",
-      "category": "system",
-      "entry": "desktop/aurora/apps/aurora_settings",
-      "capabilities": [
-        "system-settings",
-        "device-settings",
-        "privacy-settings"
-      ],
-      "ui": "settings-sidebar-detail"
-    },
-    {
-      "id": "system-control",
-      "category": "system",
-      "entry": "userland/commands/chmctl",
-      "capabilities": [
-        "system-control"
-      ]
-    },
-    {
-      "id": "diagnostics",
-      "category": "system",
-      "entry": "userland/commands/chm-diagnostics",
-      "capabilities": [
-        "diagnostics"
-      ]
-    }
+    {"id":"terminal","category":"utilities","entry":"userland/shell/chimera-shell","formats":["native","POSIX","cmd","powershell"]},
+    {"id":"files","category":"system","entry":"desktop/aurora/files","capabilities":["browse","properties","open-with","permissions","directory-summary"],"desktop_id":"aurora-files.desktop"},
+    {"id":"settings","category":"system","entry":"desktop/aurora/settings"},
+    {"id":"process-monitor","category":"system","entry":"desktop/aurora/process-monitor"},
+    {"id":"network-manager","category":"network","entry":"desktop/aurora/network-manager"},
+    {"id":"disk-manager","category":"system","entry":"desktop/aurora/disk-manager"},
+    {"id":"package-center","category":"system","entry":"desktop/aurora/package-center"},
+    {"id":"browser","category":"internet","entry":"desktop/aurora/browser"},
+    {"id":"editor","category":"productivity","entry":"desktop/aurora/editor"},
+    {"id":"developer-center","category":"development","entry":"tools/build/orchestrator.py"},
+    {"id":"ide","category":"development","entry":"desktop/aurora/ide"},
+    {"id":"system-monitor","category":"system","entry":"desktop/aurora/system-monitor"},
+    {"id":"help-man","category":"help","entry":"tools/help/chimera-help"},
+    {"id":"isa-explorer","category":"development","entry":"isa/catalog.json"},
+    {"id":"128d-visualizer","category":"science","entry":"desktop/aurora/visualization/128d"},
+    {"id":"retro-center","category":"games","entry":"emulation/retro_systems.json"},
+    {"id":"chimera-neural-chat","category":"ai","entry":"desktop/aurora/apps/chimera_neural_chat","formats":["native","wayland-glass"],"voice":"voiceconnect"},
+    {"id":"aurora-peripherals","category":"system","entry":"desktop/aurora/apps/aurora_peripherals","formats":["native","wayland-glass"],"policy":"explicit-user-request"},
+    {"id":"aurora-settings","category":"system","entry":"desktop/aurora/apps/aurora_settings","capabilities":["system-settings","device-settings","privacy-settings"],"ui":"settings-sidebar-detail"},
+    {"id":"aurora-media-player","category":"media","entry":"desktop/aurora/apps/aurora_media","desktop_id":"aurora-media-player.desktop","capabilities":["audio","image","playlist","metadata","file-properties","associations"]},
+    {"id":"aurora-video-player","category":"media","entry":"desktop/aurora/apps/aurora_video","desktop_id":"aurora-video-player.desktop","capabilities":["video","audio","subtitles","playlist","metadata","file-properties","associations"]},
+    {"id":"system-control","category":"system","entry":"userland/commands/chmctl","capabilities":["system-control"]},
+    {"id":"diagnostics","category":"system","entry":"userland/commands/chm-diagnostics","capabilities":["diagnostics"]}
   ],
-  "compatibility_apps": [
-    "wine",
-    "win32-runtime",
-    "dotnet-runtime",
-    "java-runtime",
-    "wasm-runtime",
-    "linux-container",
-    "bsd-userland"
-  ],
-  "integration": "All applications are user-space processes/services and communicate with Koronos through stable IPC."
+  "compatibility_apps":["wine","win32-runtime","dotnet-runtime","java-runtime","wasm-runtime","linux-container","bsd-userland"],
+  "integration":"All applications are user-space processes/services and communicate with Koronos through stable IPC."
 }
