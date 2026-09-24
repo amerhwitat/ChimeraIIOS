@@ -5,8 +5,10 @@
   "high_resolution_reference":"3840x2160",
   "phases":[
     {"id":"firmware","label":"Firmware / CPU mode","progress":5},
-    {"id":"bootloader","label":"Spit Fire / external bootloader handoff","progress":12},
-    {"id":"menu","label":"Jasper Boot Menu","progress":18},
+    {"id":"spitfire","label":"Spit Fire native bootstrap","progress":10},
+    {"id":"jasper","label":"Jasper boot policy manager","progress":16},
+    {"id":"grub","label":"GRUB filesystem boot adapter","progress":22},
+    {"id":"menu","label":"Jasper/GRUB boot menu","progress":26},
     {"id":"hardware","label":"Hardware and firmware discovery","progress":27},
     {"id":"memory","label":"Memory manager and address spaces","progress":36},
     {"id":"graphics","label":"Framebuffer / UEFI GOP / display adapter","progress":44},
