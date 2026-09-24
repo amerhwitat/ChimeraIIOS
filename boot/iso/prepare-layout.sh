@@ -10,6 +10,7 @@ mkdir -p "$DIST/boot/chimera/elf" "$DIST/boot/chimera/bin" "$DIST/boot/chimera/m
 if [[ -x "$ROOT/tools/build-boot-artifacts.sh" ]]; then "$ROOT/tools/build-boot-artifacts.sh"; fi
 BOOT_ART="$ROOT/build/boot-artifacts"
 if [[ -d "$BOOT_ART/all-elf" ]]; then cp -a "$BOOT_ART/all-elf/." "$DIST/boot/chimera/elf/"; fi
+if [[ -d "$BOOT_ART/runtime" ]]; then cp -a "$BOOT_ART/runtime/." "$DIST/boot/chimera/elf/"; fi
 if [[ -d "$BOOT_ART/all-bin" ]]; then cp -a "$BOOT_ART/all-bin/." "$DIST/boot/chimera/bin/"; fi
 if [[ -d "$BOOT_ART/spitfire" ]]; then cp -a "$BOOT_ART/spitfire/." "$DIST/boot/chimera/spitfire/"; fi
 if [[ -d "$BOOT_ART/jasper" ]]; then cp -a "$BOOT_ART/jasper/." "$DIST/boot/chimera/jasper/"; fi
