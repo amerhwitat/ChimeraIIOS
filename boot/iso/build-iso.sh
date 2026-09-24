@@ -34,6 +34,7 @@ test -s "$DIST/iso/boot/spitfire/background.png"
 test -s "$DIST/iso/install/installer-background.png"
 grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
 grep -q 'background_image /boot/grub/aurora-wayland-glass.png' "$ROOT/boot/iso/grub.cfg"
+grep -q '"native_execution_order"' "$DIST/iso/boot/chimera/manifests/boot-execution-order.json"
 python3 "$ISO_ROOT/validate-iso.py" --tree "$DIST/iso" --write-manifest "$DIST/iso/checksums/SHA256SUMS"
 
 printf '%s\n' '[5/6] Master BIOS + UEFI hybrid ISO'
