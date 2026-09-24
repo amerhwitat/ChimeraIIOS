@@ -195,3 +195,7 @@ install(DIRECTORY infrastructure/kubernetes infrastructure/openshift infrastruct
 install(PROGRAMS tools/cloud/chimera_cloud.py tools/image/chimera_image.py tools/media/chimera_media.py tools/media/playback.py tools/media/vision_mediapipe.py tools/installer/install_cloud_platforms.sh tools/installer/install_kubernetes.sh tools/installer/install_openshift_tools.sh tools/installer/install_openstack_tools.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(FILES applications/catalog.json applications/ecosystem/repos.json applications/ecosystem/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/applications)
+
+install(PROGRAMS desktop/aurora/aurora_crypto_center.py DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/aurora)
+install(FILES desktop/aurora/aurora-crypto-center.desktop desktop/aurora/aurora_crypto_center.json DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES applications/crypto/crypto_ecosystem_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/crypto)
