@@ -8,4 +8,20 @@ Icon=system-file-manager
 Terminal=false
 Categories=System;FileManager;
 MimeType=inode/directory;
-Actions=properties;
+Actions=new-folder;new-document;terminal;properties;
+
+[Desktop Action new-folder]
+Name=New Folder
+Exec=aurora-files --new-folder %U
+
+[Desktop Action new-document]
+Name=New Document
+Exec=aurora-files --new-document %U
+
+[Desktop Action terminal]
+Name=Open in Terminal
+Exec=aurora-files --terminal %U
+
+[Desktop Action properties]
+Name=Properties
+Exec=aurora-files --properties %U
