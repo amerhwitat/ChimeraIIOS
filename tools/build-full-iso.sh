@@ -36,7 +36,7 @@ DRIVERS="$ROOT/build/drivers"
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
 
-for tool in build-desktop-binaries.sh build-koronos-targets.sh build-toolchain-bundle.sh build-network-toolkit.sh fetch-driver-payloads.sh fetch-foreign-runtimes.sh build-mobile-edition.sh build-compatibility-binaries.sh; do
+for tool in build-desktop-binaries.sh build-koronos-targets.sh build-toolchain-bundle.sh build-network-toolkit.sh fetch-driver-payloads.sh fetch-foreign-runtimes.sh build-mobile-edition.sh build-compatibility-binaries.sh build-live-boot-binaries.sh; do
   chmod +x "$ROOT/tools/$tool"
 done
 "$ROOT/tools/build-network-toolkit.sh"
@@ -54,6 +54,8 @@ cleanup_finished
 "$ROOT/tools/build-mobile-edition.sh"
 cleanup_finished
 "$ROOT/tools/build-desktop-binaries.sh"
+cleanup_finished
+"$ROOT/tools/build-live-boot-binaries.sh"
 cleanup_finished
 # The compiler tree is finished at this point; retain only the produced kernel/binaries.
 # Keep the configured CMake tree for incremental/manual builds. Remove only generated compiler intermediates.
@@ -92,6 +94,8 @@ cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
+if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+[[ -f "$ROOT/boot/livecd/live-manifest.json" ]] && cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
 [[ -n "$SPIT_IMG" && -f "$SPIT_IMG" ]] && cp "$SPIT_IMG" "$STAGE/boot/spitfire.img"
 cp -a "$ROOT/installer" "$STAGE/install/"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
