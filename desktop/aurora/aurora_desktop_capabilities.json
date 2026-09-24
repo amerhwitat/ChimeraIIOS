@@ -92,7 +92,27 @@
     "properties-context-menu",
     "custom-context-menu",
     "context-menu-keyboard-navigation",
-    "context-menu-touch-long-press"
+    "context-menu-touch-long-press",
+    "windows-settings-compatibility",
+    "control-panel-compatibility",
+    "settings-search",
+    "settings-profiles",
+    "settings-export-import",
+    "settings-change-audit",
+    "hardware-driver-settings",
+    "user-account-settings",
+    "active-directory-settings",
+    "developer-settings",
+    "backup-recovery-settings",
+    "media-creation-settings",
+    "audio-routing-settings",
+    "recording-settings",
+    "streaming-settings",
+    "vfx-settings",
+    "color-management-settings",
+    "codec-settings",
+    "plugin-settings",
+    "render-queue-settings"
   ],
   "input": [
     "mouse",
@@ -130,5 +150,18 @@
       "Change Owner",
       "Change Permissions"
     ]
+  },
+  "settings_registry": "desktop/aurora/aurora_settings_registry.json",
+  "media_ecosystem_registry": "desktop/aurora/aurora_media_ecosystem.json",
+  "media_ecosystem": {
+    "players": true,
+    "recorders": true,
+    "mixers": true,
+    "daw": true,
+    "video_editors": true,
+    "vfx": true,
+    "animation": true,
+    "compositing": true,
+    "open_source": true
   }
 }
