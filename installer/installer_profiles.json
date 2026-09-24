@@ -89,7 +89,8 @@
     "automatic_disk_erase": false,
     "automatic_bootloader_overwrite": false,
     "remote_code_execution": false,
-    "require_explicit_confirmation": true
+    "require_explicit_confirmation": true,
+    "hosted_install_is_non_destructive": true
   },
   "ci_verification_trigger": "2026-09-16",
   "ui_backgrounds": {
@@ -101,5 +102,51 @@
     "desktop": "/usr/share/chimera/aurora/desktop-background.png",
     "library": "/usr/share/chimera/aurora/library-background.png",
     "grub": "/boot/grub/aurora-wayland-glass.png"
+  },
+  "execution_modes": {
+    "hosted": {
+      "hosts": [
+        "linux",
+        "unix",
+        "windows",
+        "macos"
+      ],
+      "backend": "qemu-system",
+      "accelerated": [
+        "kvm",
+        "whpx",
+        "hvf"
+      ],
+      "fallback": "tcg"
+    },
+    "baremetal": {
+      "hosts": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ],
+      "boot": [
+        "uefi",
+        "bios-where-supported"
+      ]
+    },
+    "dual_boot": {
+      "hosts": [
+        "linux",
+        "unix",
+        "windows",
+        "macos"
+      ],
+      "default_policy": "preserve-existing-os"
+    },
+    "emulator": {
+      "hosts": [
+        "linux",
+        "unix",
+        "windows",
+        "macos"
+      ],
+      "backend": "qemu-system"
+    }
   }
 }
