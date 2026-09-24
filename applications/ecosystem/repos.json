@@ -1,0 +1,20 @@
+{
+  "schema":"CHM-REPO-APPLICATION-CATALOG-1",
+  "canonical_repository":"amerhwitat/ChimeraIIOS",
+  "source_repositories":[
+    {"name":"general","url":"https://github.com/amerhwitat/general","integration":"native-app-catalog","applications":["email-extractor","BizX","BizXtreme","Jira/Azure/OpenShift/Kubernetes/ITIL tools","3d-4d modeling"]},
+    {"name":"CPU4096","url":"https://github.com/amerhwitat/CPU4096","integration":"Chimera CPU/accelerator tools"},
+    {"name":"CPU4096Simulator","url":"https://github.com/amerhwitat/CPU4096Simulator","integration":"Aurora simulator application"},
+    {"name":"nlp","url":"https://github.com/amerhwitat/nlp","integration":"Nucleus/NLP/AI tools"},
+    {"name":"PDFreaderPY","url":"https://github.com/amerhwitat/PDFreaderPY","integration":"Aurora document/PDF application"},
+    {"name":"BizX","url":"https://github.com/amerhwitat/BizX","integration":"Aurora business application"},
+    {"name":"BizXtreme","url":"https://github.com/amerhwitat/BizXtreme","integration":"Aurora WebGL/game/business application"},
+    {"name":"eth-key-check","url":"https://github.com/amerhwitat/eth-key-check","integration":"Aurora security/research application"},
+    {"name":"keygen","url":"https://github.com/amerhwitat/keygen","integration":"Aurora security/key-management utility; explicit user confirmation required"},
+    {"name":"bruteforce","url":"https://github.com/amerhwitat/bruteforce","integration":"Aurora Security Lab; isolated authorized research only"},
+    {"name":"test","url":"https://github.com/amerhwitat/test","integration":"Aurora development/test suite"},
+    {"name":"amerhwitat.github.io","url":"https://github.com/amerhwitat/amerhwitat.github.io","integration":"Aurora Web Portal"}
+  ],
+  "policy":"Applications are registered and integrated through controlled launchers. Source repositories are not copied into the OS image unless the build profile explicitly requests them.",
+  "network":"Repository metadata is fetched only through configured package/source operations."
+}
