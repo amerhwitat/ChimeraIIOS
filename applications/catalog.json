@@ -519,6 +519,193 @@
       "source": "amerhwitat.github.io",
       "category": "Internet;Documentation",
       "integration": "repository-application-center"
+    },
+    {
+      "id": "bitcoin-core",
+      "name": "Bitcoin Core",
+      "category": "Crypto;Wallet;Full Node",
+      "upstream": "https://github.com/bitcoin/bitcoin",
+      "license": "MIT",
+      "network": "Bitcoin Mainnet",
+      "launcher": "bitcoin-qt",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "geth",
+      "name": "Go Ethereum (Geth)",
+      "category": "Crypto;Ethereum;Full Node",
+      "upstream": "https://github.com/ethereum/go-ethereum",
+      "license": "LGPL-3.0",
+      "network": "Ethereum Mainnet",
+      "launcher": "geth",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "monero",
+      "name": "Monero",
+      "category": "Crypto;Wallet;Full Node",
+      "upstream": "https://github.com/monero-project/monero",
+      "license": "BSD-3-Clause",
+      "network": "Monero Mainnet",
+      "launcher": "monero-wallet-gui",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "litecoin-core",
+      "name": "Litecoin Core",
+      "category": "Crypto;Wallet;Full Node",
+      "upstream": "https://github.com/litecoin-project/litecoin",
+      "license": "MIT",
+      "network": "Litecoin Mainnet",
+      "launcher": "litecoin-qt",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "dogecoin-core",
+      "name": "Dogecoin Core",
+      "category": "Crypto;Wallet;Full Node",
+      "upstream": "https://github.com/dogecoin/dogecoin",
+      "license": "MIT",
+      "network": "Dogecoin Mainnet",
+      "launcher": "dogecoin-qt",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "zcash",
+      "name": "Zcash",
+      "category": "Crypto;Wallet;Full Node",
+      "upstream": "https://github.com/zcash/zcash",
+      "license": "MIT/Apache-2.0",
+      "network": "Zcash Mainnet",
+      "launcher": "zcashd",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "dash-core",
+      "name": "Dash Core",
+      "category": "Crypto;Wallet;Full Node",
+      "upstream": "https://github.com/dashpay/dash",
+      "license": "MIT",
+      "network": "Dash Mainnet",
+      "launcher": "dash-qt",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "solana-agave",
+      "name": "Solana Agave",
+      "category": "Crypto;Validator;Node",
+      "upstream": "https://github.com/anza-xyz/agave",
+      "license": "Apache-2.0",
+      "network": "Solana Mainnet",
+      "launcher": "agave-validator",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "cardano-node",
+      "name": "Cardano Node",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/IntersectMBO/cardano-node",
+      "license": "Apache-2.0",
+      "network": "Cardano Mainnet",
+      "launcher": "cardano-node",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "xrpl-rippled",
+      "name": "XRPL rippled",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/XRPLF/rippled",
+      "license": "ISC",
+      "network": "XRP Ledger Mainnet",
+      "launcher": "rippled",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "stellar-core",
+      "name": "Stellar Core",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/stellar/stellar-core",
+      "license": "Apache-2.0",
+      "network": "Stellar Mainnet",
+      "launcher": "stellar-core",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "avalanchego",
+      "name": "AvalancheGo",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/ava-labs/avalanchego",
+      "license": "BSD-3-Clause",
+      "network": "Avalanche Mainnet",
+      "launcher": "avalanchego",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "nearcore",
+      "name": "NEAR Core",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/near/nearcore",
+      "license": "GPL-3.0",
+      "network": "NEAR Mainnet",
+      "launcher": "neard",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "aptos-core",
+      "name": "Aptos Core",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/aptos-labs/aptos-core",
+      "license": "Apache-2.0",
+      "network": "Aptos Mainnet",
+      "launcher": "aptos-node",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "sui",
+      "name": "Sui",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/MystenLabs/sui",
+      "license": "Apache-2.0",
+      "network": "Sui Mainnet",
+      "launcher": "sui-node",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "algorand",
+      "name": "go-algorand",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/algorand/go-algorand",
+      "license": "MIT",
+      "network": "Algorand Mainnet",
+      "launcher": "algod",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
+    },
+    {
+      "id": "kaspa",
+      "name": "Rusty Kaspa",
+      "category": "Crypto;Node",
+      "upstream": "https://github.com/kaspanet/rusty-kaspa",
+      "license": "ISC",
+      "network": "Kaspa Mainnet",
+      "launcher": "kaspad",
+      "integration": "Aurora Crypto Center",
+      "mainnet": true
     }
   ]
 }
