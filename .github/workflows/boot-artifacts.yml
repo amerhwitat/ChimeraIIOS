@@ -1,0 +1,46 @@
+name: Chimera Boot Artifact Validation
+
+on:
+  push:
+    paths:
+      - 'boot/**'
+      - 'kernel/**'
+      - 'tools/build-boot-artifacts.sh'
+      - 'boot/iso/**'
+  pull_request:
+    paths:
+      - 'boot/**'
+      - 'kernel/**'
+      - 'tools/build-boot-artifacts.sh'
+      - 'boot/iso/**'
+  workflow_dispatch:
+
+jobs:
+  boot-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install boot build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends             build-essential binutils nasm file grub-common grub-pc-bin             grub-efi-amd64-bin xorriso mtools python3
+      - name: Build Koronos, Spit Fire, Jasper and GRUB artifacts
+        run: |
+          chmod +x kernel/build-koronos.sh boot/spitfire/build-spitfire.sh tools/build-boot-artifacts.sh
+          bash tools/build-boot-artifacts.sh
+      - name: Validate ELF artifacts
+        run: |
+          test -s build/boot-artifacts/koronos/koronos.elf
+          test -s build/boot-artifacts/jasper/jasper.elf
+          test -s build/boot-artifacts/spitfire/spitfire-stage2.bin
+          file build/boot-artifacts/koronos/koronos.elf
+          file build/boot-artifacts/jasper/jasper.elf
+      - name: Validate execution-order manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          p=json.load(open("build/boot-artifacts/manifests/boot-execution-order.json"))
+          assert [x["id"] for x in p["native_execution_order"]] == ["spitfire","jasper","grub","koronos"]
+          PY
+      - name: Validate Koronos Multiboot2 header
+        run: grub-file --is-x86-multiboot2 build/boot-artifacts/koronos/koronos.elf
