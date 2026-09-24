@@ -61,7 +61,7 @@
       "id": "gcc",
       "kind": [
         "compiler",
-        "linker-driver"
+        "linker"
       ],
       "tools": [
         "gcc",
