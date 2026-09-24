@@ -1,0 +1,18 @@
+services:
+  chimera:
+    build:
+      context: .
+      dockerfile: Dockerfile.hosted
+    image: chimera-ii-os:hosted
+    privileged: false
+    devices:
+      - /dev/kvm:/dev/kvm
+    volumes:
+      - chimera-vm:/opt/chimera/build/hosted
+    environment:
+      CHIMERA_GUEST_ARCH: x86_64
+      CHIMERA_VM_MEMORY: 4096
+      CHIMERA_VM_CPUS: 2
+      CHIMERA_VM_GRAPHICS: "1"
+volumes:
+  chimera-vm:
