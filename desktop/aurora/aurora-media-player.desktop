@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Aurora Media Player
+GenericName=Audio and Image Player
+Exec=aurora-media-player %U
+Icon=multimedia-player
+Terminal=false
+Categories=AudioVideo;Player;
+MimeType=image/jpeg;image/png;image/gif;image/webp;audio/mpeg;audio/ogg;audio/wav;audio/flac;application/ogg;
+Actions=play;properties;
