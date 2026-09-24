@@ -61,6 +61,7 @@ install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera
 # Boot/ISO assets: keep source artwork and boot contracts available to the installed system.
 install(DIRECTORY boot/splash DESTINATION share/chimera/boot)
 install(DIRECTORY desktop/aurora/assets DESTINATION share/chimera/aurora)
+install(FILES desktop/aurora/aurora-web-console.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/iso/grub-theme.txt DESTINATION share/chimera/boot)
 install(FILES installer/installation_phases.json installer/installer_profiles.json installer/chimera-installer-plan.json DESTINATION share/chimera/installer)
 
