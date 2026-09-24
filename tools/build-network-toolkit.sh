@@ -33,7 +33,8 @@ prepare_apt_sandbox() {
   fi
 }
 
-download_packages() {
+download_package() {
+  local package="$1"
   local apt_opts=(
     "-o" "Debug::NoLocking=true"
     "-o" "Dir::State=$APT_STATE"
@@ -48,15 +49,25 @@ download_packages() {
     "-o" "Acquire::Languages=none"
   )
 
-  apt-get "${apt_opts[@]}" download "${packages[@]}"
+  apt-cache show "$package" >/dev/null 2>&1 || return 2
+  apt-get "${apt_opts[@]}" download "$package" >/dev/null 2>&1
 }
 
-if command -v apt-get >/dev/null 2>&1; then
+if command -v apt-get >/dev/null 2>&1 && command -v apt-cache >/dev/null 2>&1; then
   prepare_apt_sandbox
   (
     cd "$OUT/packages"
-    if ! download_packages >/dev/null 2>&1; then
-      echo "INFO package staging: sandboxed APT download unavailable or some packages are not configured; continuing with host tools." >&2
+    downloaded=0
+    unavailable=0
+    for package in "${packages[@]}"; do
+      if download_package "$package"; then
+        downloaded=$((downloaded + 1))
+      else
+        unavailable=$((unavailable + 1))
+      fi
+    done
+    if (( unavailable > 0 )); then
+      echo "[INFO] Network toolkit: $downloaded package(s) staged from the local APT indexes; $unavailable unavailable from the configured repositories. Host-tool fallback remains enabled." >&2
     fi
   )
 
