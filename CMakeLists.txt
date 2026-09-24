@@ -55,6 +55,12 @@ install(PROGRAMS
 )
 install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera/toolchains)
 
+# Boot/ISO assets: keep source artwork and boot contracts available to the installed system.
+install(DIRECTORY boot/splash DESTINATION share/chimera/boot)
+install(DIRECTORY desktop/aurora/assets DESTINATION share/chimera/aurora)
+install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/iso/grub-theme.txt DESTINATION share/chimera/boot)
+install(FILES installer/installation_phases.json installer/installer_profiles.json installer/chimera-installer-plan.json DESTINATION share/chimera/installer)
+
 # Mobile edition and safety-gated device tooling.
 install(DIRECTORY mobile DESTINATION share/chimera/mobile)
 install(PROGRAMS tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh DESTINATION bin)
