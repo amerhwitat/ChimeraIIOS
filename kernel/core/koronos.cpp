@@ -20,12 +20,38 @@ static void serial_hex32(uint32_t v) {
 extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 
+static void koronos_report_multiboot_modules(const koronos_boot_context* ctx) {
+ if(!ctx || !ctx->boot_info) return;
+ const uint8_t* base=(const uint8_t*)(uintptr_t)ctx->boot_info;
+ const uint32_t total=*(const uint32_t*)base;
+ if(total < 16 || total > 16u*1024u*1024u) return;
+ uint64_t first_base=0, first_size=0;
+ for(uint32_t off=8; off+8<=total;) {
+  const uint32_t type=*(const uint32_t*)(base+off);
+  const uint32_t size=*(const uint32_t*)(base+off+4);
+  if(size<8 || off+size>total) break;
+  if(type==3 && size>=16 && first_size==0) {
+   first_base=*(const uint32_t*)(base+off+8);
+   first_size=*(const uint32_t*)(base+off+12)-first_base;
+   serial_write("KORONOS: Multiboot2 module attached");
+  }
+  if(type==0) break;
+  off=(off+size+7u)&~7u;
+ }
+ if(first_size) {
+  koronos_boot_context* writable=const_cast<koronos_boot_context*>(ctx);
+  writable->module_base=first_base;
+  writable->module_size=first_size;
+ }
+}
+
 extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  serial_init();
  if(!ctx || ctx->magic!=KORONOS_BOOTINFO_MAGIC || ctx->version!=KORONOS_ABI_VERSION) {
   koronos_state=0xBAD00001u; serial_write("KORONOS: invalid boot context"); return;
  }
  serial_write("KORONOS: Multiboot2 handoff accepted");
+ koronos_report_multiboot_modules(ctx);
  koronos_arch_init(ctx);
  const struct koronos_cpu_features* f=koronos_get_cpu_features();
  serial_write("KORONOS: CPU vendor"); serial_write(f->vendor);
