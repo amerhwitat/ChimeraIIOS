@@ -35,7 +35,10 @@ static std::vector<Setting> defaults() {
       {"updates.reboot_policy","Reboot policy","ask","ask/later/now; patches never reboot silently"},
       {"isa.nbit.width","N-bit ISA width","8192","Live Chimera ISA register width; changes do not reboot services"},
       {"isa.nbit.style","N-bit ISA style","RISC","RISC/CISC/HYBRID live execution profile"},
-      {"isa.execution.mode","ISA execution mode","NativeWide","Scalar/Vector/NativeWide/JIT/QuantumHybrid"}
+      {"isa.execution.mode","ISA execution mode","NativeWide","Scalar/Vector/NativeWide/JIT/QuantumHybrid"},
+      {"neural.dimensions","Neural representation dimensions","1024","Live deep-learning dimensionality; 128D baseline, higher dimensions enabled"},
+      {"neural.representation","Neural representation","HyperDimensional","HyperDimensional/Tensor/Hybrid"},
+      {"neural.learning","Neural learning mode","AdaptiveTensor","Adaptive multidimensional tensor representation"}
     };
 }
 static std::vector<Setting> load() {
