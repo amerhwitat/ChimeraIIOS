@@ -35,7 +35,7 @@ if [ "$MISSING_COUNT" -gt 0 ] && [ "$AUTO_DEPS" = "1" ] && [ "$(id -u)" -eq 0 ] 
   say DEPS "Installing missing Debian/Ubuntu build dependencies"
   export DEBIAN_FRONTEND=noninteractive
   apt-get update
-  apt-get install -y --no-install-recommends build-essential gcc g++ binutils make cmake ninja-build pkg-config python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common grub-file openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev libncurses-dev libboost-dev gawk sed grep coreutils util-linux
+  apt-get install -y --no-install-recommends build-essential gcc g++ binutils make cmake ninja-build pkg-config python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev libncurses-dev libboost-dev gawk sed grep coreutils util-linux
   MISSING=()
   for c in bash python3 cmake gcc g++ ld as make pkg-config git curl file cpio gzip xorriso grub-mkrescue grub-file busybox awk sed grep sha256sum; do require_cmd "$c"; done
 fi
