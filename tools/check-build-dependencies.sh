@@ -91,9 +91,19 @@ if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
   if command -v apt-get >/dev/null 2>&1 && [[ -f /etc/debian_version ]]; then
     apt_prefix=()
     [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
-    "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${OPTIONAL_PACKAGES[@]}" || {
-      echo "[WARN] Some optional cross-platform/application packages were unavailable; continuing with host fallbacks." >&2
-    }
+    optional_available=()
+    for p in "${OPTIONAL_PACKAGES[@]}"; do
+      if apt-cache show "$p" >/dev/null 2>&1; then
+        optional_available+=("$p")
+      else
+        echo "[INFO] Optional package unavailable in configured repositories: $p"
+      fi
+    done
+    if (( ${#optional_available[@]} > 0 )); then
+      "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${optional_available[@]}" || {
+        echo "[WARN] Some optional cross-platform/application packages could not be installed; continuing with host fallbacks." >&2
+      }
+    fi
   fi
 fi
 
