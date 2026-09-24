@@ -7,11 +7,14 @@ if [[ -z "$ROOT" ]]; then
 fi
 
 REPORT="${CHIMERA_DISK_REPORT:-$ROOT/build/reports/disk-space.json}"
-MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-100}"
-EXPECTED_GB="${CHIMERA_EXPECTED_BUILD_GB:-80}"
-RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-20}"
+# Chimera II OS builds are intentionally bounded around a 30 GiB working-space
+# target. Keep these defaults consistent even when callers invoke this helper
+# without explicitly exporting CHIMERA_MIN_FREE_GB.
+MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-30}"
+EXPECTED_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}"
+RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-0}"
 AUTO_CLEAN="${CHIMERA_AUTO_CLEAN_DISK:-1}"
-CLEAN_THRESHOLD_GB="${CHIMERA_CLEAN_THRESHOLD_GB:-$((MIN_FREE_GB + RESERVE_GB))}"
+CLEAN_THRESHOLD_GB="${CHIMERA_CLEAN_THRESHOLD_GB:-6}"
 
 mkdir -p "$(dirname "$REPORT")"
 log(){ printf '[DISK] %s\n' "$*" >&2; }
