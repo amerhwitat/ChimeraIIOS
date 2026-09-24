@@ -3,6 +3,7 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${CHIMERA_MOBILE_BUILD_DIR:-$ROOT/build/mobile}"
 mkdir -p "$OUT/bin" "$OUT/source" "$OUT/manifests" "$OUT/apps" "$OUT/flash"
+if [[ -x "$ROOT/tools/build-mobile-binaries.sh" ]]; then "$ROOT/tools/build-mobile-binaries.sh"; fi
 cp "$ROOT/config/mobile-os-sources.json" "$OUT/manifests/mobile-os-sources.json"
 cp "$ROOT/mobile/flash/mobile-flash-tool.sh" "$OUT/flash/mobile-flash-tool.sh"
 cp "$ROOT/mobile/flash/device-manifest.schema.json" "$OUT/manifests/device-manifest.schema.json"
