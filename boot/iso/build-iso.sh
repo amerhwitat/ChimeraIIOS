@@ -26,14 +26,13 @@ cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 
 printf '%s\n' '[4/6] Validate kernel-to-GRUB linkage and artwork'
-test -s "$DIST/iso/boot/kernel.bin"
 test -s "$DIST/iso/boot/koronos/koronos.elf"
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
 test -s "$DIST/iso/boot/grub/aurora-wayland-glass.png"
 test -s "$DIST/iso/boot/jasper/background.png"
 test -s "$DIST/iso/boot/spitfire/background.png"
 test -s "$DIST/iso/install/installer-background.png"
-grep -q 'multiboot2 /boot/kernel.bin' "$ROOT/boot/iso/grub.cfg"
+grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
 grep -q 'background_image /boot/grub/aurora-wayland-glass.png' "$ROOT/boot/iso/grub.cfg"
 python3 "$ISO_ROOT/validate-iso.py" --tree "$DIST/iso" --write-manifest "$DIST/iso/checksums/SHA256SUMS"
 
