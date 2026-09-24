@@ -1,18 +1,153 @@
 {
-  "schema":"CHIMERA-AI-DISCIPLINES-2",
-  "disciplines":[
-    {"id":"ml","approach":"statistical learning","runtimes":["native","python","container"]},
-    {"id":"dl","approach":"hierarchical neural networks","runtimes":["native","python","gpu","container"]},
-    {"id":"rl","approach":"reward-driven policy learning","runtimes":["native","python","cvel","container"]},
-    {"id":"symbolic_ai","approach":"logic/rules/knowledge representation","runtimes":["native","python","container"]},
-    {"id":"computer_vision","approach":"spatial feature and geometry processing","runtimes":["native","python","gpu","cvel"]},
-    {"id":"nlp","approach":"computational linguistics and language models","runtimes":["native","python","gpu","container"]},
-    {"id":"edge_ai","approach":"on-device and cooperative edge inference","runtimes":["native","python","npu","iot","edge"]},
-    {"id":"multimodal_ai","approach":"audio-video-language integration","runtimes":["native","python","gpu","npu"]}
+  "schema": "CHIMERA-AI-DISCIPLINES-2",
+  "disciplines": [
+    {
+      "id": "ml",
+      "approach": "statistical learning",
+      "runtimes": [
+        "native",
+        "python",
+        "container"
+      ]
+    },
+    {
+      "id": "dl",
+      "approach": "hierarchical neural networks",
+      "runtimes": [
+        "native",
+        "python",
+        "gpu",
+        "container"
+      ]
+    },
+    {
+      "id": "rl",
+      "approach": "reward-driven policy learning",
+      "runtimes": [
+        "native",
+        "python",
+        "cvel",
+        "container"
+      ]
+    },
+    {
+      "id": "symbolic_ai",
+      "approach": "logic/rules/knowledge representation",
+      "runtimes": [
+        "native",
+        "python",
+        "container"
+      ]
+    },
+    {
+      "id": "computer_vision",
+      "approach": "spatial feature and geometry processing",
+      "runtimes": [
+        "native",
+        "python",
+        "gpu",
+        "cvel"
+      ]
+    },
+    {
+      "id": "nlp",
+      "approach": "computational linguistics and language models",
+      "runtimes": [
+        "native",
+        "python",
+        "gpu",
+        "container"
+      ]
+    },
+    {
+      "id": "edge_ai",
+      "approach": "on-device and cooperative edge inference",
+      "runtimes": [
+        "native",
+        "python",
+        "npu",
+        "iot",
+        "edge"
+      ]
+    },
+    {
+      "id": "multimodal_ai",
+      "approach": "audio-video-language integration",
+      "runtimes": [
+        "native",
+        "python",
+        "gpu",
+        "npu"
+      ]
+    },
+    {
+      "id": "hyperdimensional_deep_learning",
+      "approach": "adaptive high-dimensional tensor and hypervector representation beyond 128D",
+      "runtimes": [
+        "native",
+        "python",
+        "gpu",
+        "npu",
+        "chimera-nbit"
+      ]
+    }
   ],
-  "nextgen_strategies":["speculative_decoding","mixture_of_experts","self_speculative_moe","kv_cache_optimization","quantization","structured_sparsity","state_space_models","adaptive_batching","streaming_inference","split_inference","federated_learning","adaptive_resource_scheduling"],
-  "parallelism":["task","data","tensor","pipeline","graph","heterogeneous","distributed","adaptive_tensor"],
-  "hardware":["cpu","simd","riscv_vector","riscv_matrix","gpu","npu","fpga","dsp","cxl_memory","io_uring","sched_ext"],
-  "interoperability":["onnx","tvm","iree","mlir","dlpack","mlflow","kubeflow","mqtt5","opcua_pubsub"],
-  "governance":{"auto_download":false,"auto_execute_generated_code":false,"auto_cloud_mutation":false,"auto_iot_write":false,"auto_hardware_mutation":false}
+  "nextgen_strategies": [
+    "speculative_decoding",
+    "mixture_of_experts",
+    "self_speculative_moe",
+    "kv_cache_optimization",
+    "quantization",
+    "structured_sparsity",
+    "state_space_models",
+    "adaptive_batching",
+    "streaming_inference",
+    "split_inference",
+    "federated_learning",
+    "adaptive_resource_scheduling",
+    "adaptive_dimensionality",
+    "hypervector_binding",
+    "tensor_projection"
+  ],
+  "parallelism": [
+    "task",
+    "data",
+    "tensor",
+    "pipeline",
+    "graph",
+    "heterogeneous",
+    "distributed",
+    "adaptive_tensor"
+  ],
+  "hardware": [
+    "cpu",
+    "simd",
+    "riscv_vector",
+    "riscv_matrix",
+    "gpu",
+    "npu",
+    "fpga",
+    "dsp",
+    "cxl_memory",
+    "io_uring",
+    "sched_ext"
+  ],
+  "interoperability": [
+    "onnx",
+    "tvm",
+    "iree",
+    "mlir",
+    "dlpack",
+    "mlflow",
+    "kubeflow",
+    "mqtt5",
+    "opcua_pubsub"
+  ],
+  "governance": {
+    "auto_download": false,
+    "auto_execute_generated_code": false,
+    "auto_cloud_mutation": false,
+    "auto_iot_write": false,
+    "auto_hardware_mutation": false
+  }
 }
