@@ -32,8 +32,11 @@ private:
     char take(){ if(i_>=s_.size()) throw std::runtime_error("unexpected end"); return s_[i_++]; }
     void expect(char c){ if(take()!=c) throw std::runtime_error("unexpected JSON token"); }
     J value(){
-        ws(); if(i_>=s_.size()) throw std::runtime_error("missing JSON value");
-        if(s_[i_]=='{') return object(); if(s_[i_]=='[') return array(); if(s_[i_]=='"'){J x;x.kind=J::Kind::String;x.s=string();return x;}
+        ws();
+        if(i_>=s_.size()) throw std::runtime_error("missing JSON value");
+        if(s_[i_]=='{') return object();
+        if(s_[i_]=='[') return array();
+        if(s_[i_]=='"'){ J x; x.kind=J::Kind::String; x.s=string(); return x; }
         if(s_.substr(i_,4)=="true"){i_+=4;J x;x.kind=J::Kind::Bool;x.b=true;return x;}
         if(s_.substr(i_,5)=="false"){i_+=5;J x;x.kind=J::Kind::Bool;return x;}
         if(s_[i_]=='n'){i_+=4;J x;return x;}
@@ -41,7 +44,7 @@ private:
     }
     std::string string(){
         expect('"'); std::string out;
-        while(i_<s_.size()){char c=take(); if(c=='"') return out; if(c!='\\'){out+=c;continue;} char e=take(); switch(e){case '"':out+='"';break;case '\\\\':out+='\\';break;case 'n':out+='\n';break;case 'r':out+='\r';break;case 't':out+='\t';break;default:throw std::runtime_error("unsupported JSON escape");}}
+        while(i_<s_.size()){char c=take(); if(c=='"') return out; if(c!='\\'){out+=c;continue;} char e=take(); switch(e){case '"':out+='"';break;case '\\':out+='\\';break;case 'n':out+='\n';break;case 'r':out+='\r';break;case 't':out+='\t';break;default:throw std::runtime_error("unsupported JSON escape");}}
         throw std::runtime_error("unterminated JSON string");
     }
     double number(){std::size_t b=i_; while(i_<s_.size() && (std::isdigit(static_cast<unsigned char>(s_[i_]))||s_[i_]=='-'||s_[i_]=='+'||s_[i_]=='.'||s_[i_]=='e'||s_[i_]=='E'))++i_; return std::stod(std::string(s_.substr(b,i_-b))); }
