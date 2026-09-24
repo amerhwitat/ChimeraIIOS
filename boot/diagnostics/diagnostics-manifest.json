@@ -1,0 +1,4 @@
+{
+  "schema":"CHM-DIAGNOSTICS-BOOT-1","kernel":"Koronos","loader":"Jasper","native_loader":"Spit Fire",
+  "operations":["cpu","memory","firmware","storage","gpu","network","kernel","boot-media"]
+}
