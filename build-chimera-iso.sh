@@ -126,47 +126,44 @@ print_header() {
 }
 
 check_requirements() {
-    log_info "Checking system requirements..."
-    
-    # Check required tools
-    local required_tools=("docker" "curl" "mktemp" "mount" "grub-mkrescue" "grub-file" "xorriso" "unsquashfs" "mksquashfs" "rsvg-convert" "nasm" "gcc" "g++" "ld")
+    log_info "Checking and automatically installing all ISO/Docker build dependencies..."
+
+    if [ "${CHIMERA_AUTO_INSTALL_DEPS:-1}" = "1" ]; then
+        CHIMERA_INSTALL_OPTIONAL_DEPS="${CHIMERA_INSTALL_OPTIONAL_DEPS:-1}" \
+            "$SCRIPT_DIR/tools/check-build-dependencies.sh"
+    else
+        CHIMERA_AUTO_INSTALL_DEPS=0 \
+            "$SCRIPT_DIR/tools/check-build-dependencies.sh"
+    fi
+
+    # Dependencies specific to the comprehensive Docker/rootfs workflow.
+    local required_tools=("docker" "mktemp" "mount" "unsquashfs" "mksquashfs")
     local missing_tools=()
-    
     for tool in "${required_tools[@]}"; do
-        if ! command -v "$tool" &> /dev/null; then
-            missing_tools+=("$tool")
-        fi
+        command -v "$tool" >/dev/null 2>&1 || missing_tools+=("$tool")
     done
-    
-    if [ ${#missing_tools[@]} -gt 0 ]; then
-        log_warning "Missing tools: ${missing_tools[*]}"
-        log_info "Installing required packages..."
-        apt-get update
-        apt-get install -y \
-            docker.io \
-            curl \
-            coreutils \
-            grub-common \
-            grub-pc-bin \
-            grub-efi-amd64-bin \
-            mtools \
-            xorriso \
-            squashfs-tools \
-            ca-certificates \
-            librsvg2-bin \
-            nasm \
-            gcc \
-            g++ \
-            binutils
+
+    if [ "${#missing_tools[@]}" -gt 0 ]; then
+        log_error "Docker/comprehensive-build tools are still missing: ${missing_tools[*]}"
+        log_error "Install Docker Engine/Docker Desktop and ensure the daemon is running."
+        exit 2
     fi
-    
-    # Check Docker
-    if ! systemctl is-active --quiet docker; then
-        log_info "Starting Docker daemon..."
-        systemctl start docker
+
+    # Docker is intentionally not installed by the generic ISO dependency
+    # helper because Docker Engine/Desktop is host/platform specific.
+    if ! systemctl is-active --quiet docker 2>/dev/null; then
+        log_info "Docker daemon is not active; attempting to start it..."
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl start docker 2>/dev/null || true
+        fi
     fi
-    
-    log_success "All requirements met"
+
+    if ! docker info >/dev/null 2>&1; then
+        log_error "Docker daemon is unavailable. Start Docker Engine/Docker Desktop before continuing."
+        exit 2
+    fi
+
+    log_success "All mandatory ISO and comprehensive-build dependencies are available"
 }
 
 # =============================================================================
