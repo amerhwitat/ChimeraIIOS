@@ -12,7 +12,7 @@ die(){ echo "[ERROR] $*" >&2; exit 2; }
 declare -a REQUIRED_COMMANDS=(
   bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
-  xorriso grub-mkrescue grub-file mtools grub-mkimage
+  xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
   unsquashfs mksquashfs rsvg-convert nasm
 )
 
@@ -24,7 +24,7 @@ declare -A COMMAND_PACKAGE=(
   [awk]=gawk [sed]=sed [grep]=grep [sha256sum]=coreutils [numfmt]=coreutils
   [stat]=coreutils [find]=findutils [sort]=coreutils
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
-  [mtools]=mtools [grub-mkimage]=grub-common
+  [mcopy]=mtools [mformat]=mtools [grub-mkimage]=grub-common
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
 )
