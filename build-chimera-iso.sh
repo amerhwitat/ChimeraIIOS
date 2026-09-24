@@ -129,7 +129,7 @@ check_requirements() {
     log_info "Checking system requirements..."
     
     # Check required tools
-    local required_tools=("docker" "curl" "mktemp" "mount" "grub-mkimage" "xorriso" "unsquashfs" "mksquashfs" "rsvg-convert")
+    local required_tools=("docker" "curl" "mktemp" "mount" "grub-mkrescue" "grub-file" "xorriso" "unsquashfs" "mksquashfs" "rsvg-convert" "nasm" "gcc" "g++" "ld")
     local missing_tools=()
     
     for tool in "${required_tools[@]}"; do
@@ -534,58 +534,19 @@ GRUB_CFG
 # =============================================================================
 
 create_iso_image() {
-    print_header "STEP 5: CREATING ISO IMAGE"
-    
+    print_header "STEP 5: CREATING BIOS + UEFI ISO"
     local iso_file="${SCRIPT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
-    
-    log_info "Creating bootable ISO image..."
-    log_info "Output: $iso_file"
-    
-    # Create ISO with both BIOS and UEFI support
-    xorriso \
-        -as mkisofs \
-        -iso-level 3 \
-        -full-iso9660-filenames \
-        -volid "ChimeraIIOS" \
-        -output "$iso_file" \
-        -eltorito-boot boot/grub/i386-pc/eltorito.img \
-        -eltorito-catalog boot/grub/boot.cat \
-        -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -eltorito-alt-boot \
-        -efi-boot EFI/BOOT/efiboot.img \
-        -no-emul-boot \
-        -append_partition 2 0xef "$ISO_DIR/EFI/BOOT/efiboot.img" \
-        -m '*.~tmp~' \
-        "$ISO_DIR" 2>/dev/null || {
-        
-        # Fallback: Create simpler ISO
-        log_warning "Creating fallback ISO without EFI..."
-        xorriso \
-            -as mkisofs \
-            -iso-level 3 \
-            -full-iso9660-filenames \
-            -volid "ChimeraIIOS" \
-            -output "$iso_file" \
-            -m '*.~tmp~' \
-            "$ISO_DIR"
-    }
-    
-    if [ -f "$iso_file" ]; then
-        local iso_size=$(du -h "$iso_file" | cut -f1)
-        log_success "ISO image created: $iso_file ($iso_size)"
-        
-        # Create checksums
-        log_info "Creating checksums..."
-        cd "$(dirname "$iso_file")"
-        sha256sum "$(basename "$iso_file")" > "${iso_file}.sha256"
-        md5sum "$(basename "$iso_file")" > "${iso_file}.md5"
-        log_success "Checksums created"
-        
-        cd - > /dev/null
-    else
-        log_error "ISO image creation failed"
-        exit 1
-    fi
+    command -v grub-mkrescue >/dev/null || { log_error "grub-mkrescue is required."; exit 1; }
+    command -v xorriso >/dev/null || { log_error "xorriso is required."; exit 1; }
+    test -s "$ISO_DIR/boot/kernel.bin" || { log_error "ISO kernel linkage missing: /boot/kernel.bin"; exit 1; }
+    test -s "$ISO_DIR/boot/koronos/koronos.elf" || { log_error "ISO Koronos payload missing."; exit 1; }
+    test -s "$ISO_DIR/boot/spitfire/spitfire-stage2.bin" || { log_error "ISO Spit Fire stage2 missing."; exit 1; }
+    grep -q "multiboot2 /boot/kernel.bin" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB is not linked to the kernel stub."; exit 1; }
+    grep -q "background_image /boot/grub/aurora-wayland-glass.png" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "Aurora GRUB background is not configured."; exit 1; }
+    grub-mkrescue -o "$iso_file" "$ISO_DIR"
+    test -s "$iso_file"
+    sha256sum "$iso_file" > "${iso_file}.sha256"
+    log_success "BIOS + UEFI ISO created: $iso_file"
 }
 
 # =============================================================================
@@ -650,15 +611,63 @@ verify_iso() {
 # =============================================================================
 
 create_boot_menu() {
-    print_header "CREATING BOOT MENU"
-    
-    # Create boot menu script
-    cat > "$ISO_DIR/boot/grub/grub-early.cfg" << 'BOOT_MENU'
-search --label ChimeraIIOS --set root
+    print_header "CREATING BOOT MENU, KERNEL HANDOFF AND BOOT ARTWORK"
+    mkdir -p "$ISO_DIR/boot/grub" "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/EFI/BOOT" "$ISO_DIR/install"
+
+    log_info "Building Koronos Multiboot2 kernel payload..."
+    "$SCRIPT_DIR/kernel/build-koronos.sh"
+    local kernel="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"
+    test -s "$kernel" || { log_error "Koronos kernel ELF was not produced."; exit 1; }
+    grub-file --is-x86-multiboot2 "$kernel"
+    cp "$kernel" "$ISO_DIR/boot/kernel.bin"
+    cp "$kernel" "$ISO_DIR/boot/koronos/koronos.elf"
+
+    log_info "Building linked Spit Fire BIOS stages..."
+    "$SCRIPT_DIR/boot/spitfire/build-spitfire.sh" "$BUILD_DIR/bootloaders" "$kernel"
+    for f in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o; do
+        test -s "$BUILD_DIR/bootloaders/$f" || { log_error "Missing Spit Fire artifact: $f"; exit 1; }
+        cp "$BUILD_DIR/bootloaders/$f" "$ISO_DIR/boot/spitfire/"
+    done
+
+    cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$GRUB_DIR/grub.cfg"
+    cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/grub.cfg"
+    cat > "$GRUB_DIR/grub-early.cfg" <<EOF
+insmod all_video
+insmod gfxterm
+insmod png
+insmod normal
+insmod search
+insmod search_fs_file
+insmod multiboot2
 configfile /boot/grub/grub.cfg
-BOOT_MENU
-    
-    log_info "Boot menu configuration created"
+EOF
+    cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/jasper/grub.cfg"
+    cat > "$ISO_DIR/boot/jasper/recovery.cfg" <<EOF
+set timeout=5
+set default=0
+insmod normal
+insmod gfxterm
+insmod png
+if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/background.png; fi
+menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/kernel.bin chm.mode=recovery chm.recovery=1; boot }
+menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/kernel.bin chm.mode=safe-graphics; boot }
+menuentry "Jasper Recovery — GRUB Command Line" { commandline }
+menuentry "Jasper Recovery — Reboot" { reboot }
+menuentry "Jasper Recovery — Power Off" { halt }
+EOF
+
+    "$SCRIPT_DIR/boot/iso/prepare-layout.sh" >/tmp/chimera-prepare-layout.log 2>&1 || { cat /tmp/chimera-prepare-layout.log >&2; exit 1; }
+    cp "$kernel" "$ISO_DIR/boot/kernel.bin"
+    cp "$kernel" "$ISO_DIR/boot/koronos/koronos.elf"
+    cp "$BUILD_DIR/bootloaders/spitfire-sf0-mbr.bin" "$ISO_DIR/boot/spitfire/"
+    cp "$BUILD_DIR/bootloaders/spitfire-stage2.bin" "$ISO_DIR/boot/spitfire/"
+
+    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" -o "$ISO_DIR/boot/grub/aurora-wayland-glass.png"
+    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/jasper_background.svg" -o "$ISO_DIR/boot/jasper/background.png"
+    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/spitfire_background.svg" -o "$ISO_DIR/boot/spitfire/background.png"
+    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/desktop/aurora/assets/aurora-installer.svg" -o "$ISO_DIR/install/installer-background.png"
+    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/desktop/aurora/assets/aurora-library.svg" -o "$ISO_DIR/install/library-background.png"
+    log_success "Kernel, Spit Fire, Jasper and Aurora artwork staged."
 }
 
 # =============================================================================
@@ -869,7 +878,6 @@ main() {
         export_docker_to_rootfs
         create_boot_menu
         add_branding
-        create_bootloader
         prepare_apache_ecosystem
         create_squashfs
         create_iso_image
