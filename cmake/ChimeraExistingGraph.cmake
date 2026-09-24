@@ -203,6 +203,7 @@ install(FILES applications/crypto/crypto_ecosystem_registry.json DESTINATION ${C
 # Cross-host execution and non-destructive dual-boot tooling.
 install(PROGRAMS
   tools/hosted/chimera-host-run.sh
+  tools/vmware/chimera-vmware.sh
   tools/hosted/chimera-host-detect.sh
   tools/hosted/install-chimera-host.sh
   tools/dualboot/chimera-dualboot-linux.sh
@@ -214,4 +215,5 @@ install(FILES
   tools/dualboot/chimera-dualboot-plan.json
   DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted
 )
-install(PROGRAMS tools/hosted/chimera-host-run.ps1 tools/dualboot/chimera-dualboot-windows.ps1 DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted)
+install(PROGRAMS tools/hosted/chimera-host-run.ps1 tools/dualboot/chimera-dualboot-windows.ps1 tools/hyperv/chimera-hyperv.ps1 DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted)
+install(FILES tools/hyperv/README.md tools/vmware/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hypervisors)
