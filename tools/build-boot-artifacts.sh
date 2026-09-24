@@ -44,7 +44,7 @@ while IFS= read -r -d "" f; do
     cp -f "$f" "$dest"
   fi
 done
-cp -f "$OUT/runtime"/* "$OUT/all-elf/" 2>/dev/null || true
+cp -a "$OUT/runtime/." "$OUT/all-elf/" 2>/dev/null || true
 
 sha256sum "$OUT"/all-elf/* "$OUT"/all-bin/* > "$OUT/SHA256SUMS" 2>/dev/null || true
 cat > "$OUT/manifests/boot-execution-order.json" <<EOF
