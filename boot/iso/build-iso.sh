@@ -45,4 +45,4 @@ sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
 printf '%s\n' '[6/6] Inspect El Torito boot records'
 xorriso -indev "$DIST/output.iso" -report_el_torito plain -report_system_area plain | tee "$DIST/ISO-BOOT-REPORT.txt"
-printf 'ISO: %s\nKernel: %s\nSpit Fire: %s\n' "$DIST/output.iso" "$DIST/iso/boot/kernel.bin" "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
+printf 'ISO: %s\nKoronos: %s\nSpit Fire: %s\n' "$DIST/output.iso" "$DIST/iso/boot/koronos/koronos.elf" "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
