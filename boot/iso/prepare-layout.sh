@@ -28,6 +28,9 @@ cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$RO
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
 cp "$ROOT/boot/jasper/jasper.cfg" "$DIST/boot/jasper/jasper.cfg"
+[[ -s "$BOOT_ART/jasper/jasper.elf" ]] || { echo "Jasper ELF missing from boot artifact stage." >&2; exit 2; }
+cp "$BOOT_ART/jasper/jasper.elf" "$DIST/boot/jasper/jasper.elf"
+if [[ -s "$BOOT_ART/grub/grub-core.img" ]]; then cp "$BOOT_ART/grub/grub-core.img" "$DIST/boot/chimera/grub/grub-core.img"; fi
 cp "$ROOT/boot/jasper/live.cfg" "$DIST/boot/jasper/live.cfg"
 cp "$ROOT/boot/jasper/install.cfg" "$DIST/boot/jasper/install.cfg"
 cp "$ROOT/boot/jasper/diagnostics.cfg" "$DIST/boot/jasper/diagnostics.cfg"
