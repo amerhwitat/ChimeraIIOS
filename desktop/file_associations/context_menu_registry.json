@@ -1,0 +1,56 @@
+{
+  "$schema":"CHM-CONTEXT-MENUS-1",
+  "version":1,
+  "surfaces":{
+    "file":{
+      "common":["Open","Open With","Open in New Window","Cut","Copy","Paste","Rename","Move to","Copy to","Create Shortcut","Send to","Add to Favorites","Tags","Properties","Delete"],
+      "selection":["Select All","Invert Selection"],
+      "security":["Permissions","Owner and Group","ACL","Extended Attributes","Security Context"],
+      "content":["Calculate Size","Hash","Open Containing Folder"]
+    },
+    "folder":{
+      "common":["Open","Open in New Window","Open in Terminal","Cut","Copy","Paste","Rename","Move to","Copy to","Create Shortcut","Send to","Add to Favorites","Tags","Properties","Delete"],
+      "selection":["Select All","Invert Selection"],
+      "content":["Calculate Recursive Size","Count Files","Count Directories","Open in New Window"],
+      "security":["Permissions","Owner and Group","ACL","Extended Attributes","Security Context"]
+    },
+    "multi_selection":{
+      "common":["Open","Open With","Cut","Copy","Paste","Move to","Copy to","Send to","Add to Favorites","Delete","Properties"],
+      "conditional":["Compress","Create Archive","Share","Compare","Hash"],
+      "selection":["Select All","Invert Selection"]
+    },
+    "empty_space":{
+      "common":["New Folder","New Document","New Text File","Paste","Paste Shortcut","Undo","Redo","Select All","Refresh","Open in Terminal"],
+      "view":["View","Sort By","Group By","Show Hidden Files","Show File Extensions","Show Thumbnails","Arrange Icons"],
+      "layout":["Icon Size","Auto Arrange","Snap to Grid","New Window"],
+      "system":["Display Settings","Personalization","Folder Options","Properties"]
+    },
+    "desktop_empty_space":{
+      "common":["New Folder","New Document","Paste","Refresh","Open in Terminal"],
+      "view":["View","Sort By","Group By","Show Desktop Icons","Show Hidden Files","Show File Extensions","Show Thumbnails","Arrange Icons"],
+      "layout":["Icon Size","Auto Arrange","Snap to Grid","New Window"],
+      "system":["Display Settings","Personalization","Desktop Settings","System Settings"]
+    },
+    "window_chrome":{
+      "common":["Restore","Move","Size","Minimize","Maximize","Close"],
+      "layout":["Always on Top","Center Window","Move to Workspace","Snap Left","Snap Right","Snap Top","Snap Bottom","Fullscreen"]
+    }
+  },
+  "behavior":{
+    "keyboard_navigation":true,
+    "escape_closes":true,
+    "submenu_delay_ms":180,
+    "right_click_empty_space":true,
+    "multi_selection":true,
+    "touch_long_press":true,
+    "rtl_aware":true,
+    "accessibility_labels":true,
+    "user_customizable":true,
+    "dangerous_actions_require_confirmation":["Delete","Move to Trash","Permanently Delete","Format","Change Owner","Change Permissions"]
+  },
+  "integration":{
+    "properties":"desktop/file_associations/file_property_schema.json",
+    "associations":"desktop/file_associations/file_association_registry.json",
+    "preferences":"desktop/file_associations/mimeapps.list"
+  }
+}
