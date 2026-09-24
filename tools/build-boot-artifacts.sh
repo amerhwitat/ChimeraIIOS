@@ -38,7 +38,10 @@ find "$ROOT/build" -type f -not -path "$ROOT/build/iso/*" -not -path "$ROOT/buil
 while IFS= read -r -d "" f; do
   kind="$(file -b "$f" 2>/dev/null || true)"
   if [[ "$kind" == *"ELF"* ]]; then
-    cp -f "$f" "$OUT/runtime/$(basename "$f")" 2>/dev/null || true
+    rel="${f#"$ROOT/build/"}"
+    dest="$OUT/runtime/$rel"
+    mkdir -p "$(dirname "$dest")"
+    cp -f "$f" "$dest"
   fi
 done
 cp -f "$OUT/runtime"/* "$OUT/all-elf/" 2>/dev/null || true
