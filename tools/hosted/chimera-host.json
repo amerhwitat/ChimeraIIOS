@@ -1,13 +1,97 @@
 {
-  "schema":"CHM-HOSTED-EXECUTION-1",
-  "guest":"Chimera II OS",
-  "host_families":["linux","unix","windows","macos"],
-  "execution_modes":{"emulator":"qemu-system","linux":"qemu-system","unix":"qemu-system","windows":"qemu-system","macos":"qemu-system"},
-  "accelerators":{"linux":["kvm"],"windows":["whpx"],"macos":["hvf"],"fallback":["tcg"]},
-  "architectures":["x86_64","aarch64","riscv64","arm","x86"],
-  "disk_format":"qcow2",
-  "default_memory_mib":4096,
-  "default_cpus":2,
-  "network":"user",
-  "security":{"host_filesystem_passthrough_default":false,"raw_disk_access_default":false,"require_explicit_confirmation_for_raw_disks":true}
+  "schema": "CHM-HOSTED-EXECUTION-2",
+  "guest": "Chimera II OS",
+  "host_families": [
+    "linux",
+    "unix",
+    "windows",
+    "macos"
+  ],
+  "hypervisors": {
+    "qemu": {
+      "mode": "system-emulation",
+      "accelerators": {
+        "linux": [
+          "kvm"
+        ],
+        "windows": [
+          "whpx"
+        ],
+        "macos": [
+          "hvf"
+        ],
+        "fallback": [
+          "tcg"
+        ]
+      }
+    },
+    "hyperv": {
+      "mode": "generation-2",
+      "firmware": "UEFI",
+      "storage": [
+        "VHDX",
+        "virtual-SCSI"
+      ],
+      "network": [
+        "synthetic-NIC"
+      ],
+      "secure_boot_templates": [
+        "MicrosoftUEFICertificateAuthority",
+        "MicrosoftWindows"
+      ]
+    },
+    "vmware": {
+      "mode": "virtual-machine",
+      "firmware": "UEFI",
+      "storage": [
+        "VMDK",
+        "SATA",
+        "SCSI"
+      ],
+      "network": [
+        "vmxnet3"
+      ],
+      "usb": [
+        "xHCI"
+      ],
+      "graphics": [
+        "SVGA"
+      ]
+    }
+  },
+  "architectures": [
+    "x86_64",
+    "aarch64",
+    "riscv64",
+    "arm",
+    "x86"
+  ],
+  "disk_formats": [
+    "qcow2",
+    "vhdx",
+    "vmdk"
+  ],
+  "default_memory_mib": 4096,
+  "default_cpus": 2,
+  "boot_contract": {
+    "native_kernel": "Koronos",
+    "kernel_format": "ELF64",
+    "iso_boot": "UEFI+BIOS",
+    "legacy_linux_vmlinuz_required": false
+  },
+  "resources": {
+    "cpu": "configurable virtual CPUs",
+    "memory": "configurable guest RAM",
+    "storage": "virtual block devices",
+    "network": "virtual NIC",
+    "usb": "virtual xHCI; passthrough explicit",
+    "gpu": "virtual GPU; passthrough explicit",
+    "host_filesystem": "explicit sharing only"
+  },
+  "security": {
+    "host_filesystem_passthrough_default": false,
+    "raw_disk_access_default": false,
+    "physical_device_passthrough_default": false,
+    "require_explicit_confirmation_for_raw_disks": true
+  }
 }
