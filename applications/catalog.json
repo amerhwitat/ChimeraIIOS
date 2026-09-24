@@ -1,18 +1,408 @@
 {
-  "schema":"CHM-APP-2",
-  "applications":[
-    {"id":"file-manager","category":"file-manager","upstream":"https://www.gnome.org/nautilus/","spdx":"GPL-3.0-or-later","platforms":["linux","unix"],"languages":["C"],"integration":"reference","sandbox":"desktop-policy"},
-    {"id":"aurora-files","category":"file-manager","upstream":"https://github.com/amerhwitat/ChimeraIIOS","spdx":"GPL-3.0-or-later","platforms":["chimera","linux"],"languages":["C++","Python"],"integration":"native","sandbox":"file-policy","features":["properties","mime-associations","open-with","permissions","directory-summary"]},
-    {"id":"aurora-media-player","category":"media-player","upstream":"https://github.com/amerhwitat/ChimeraIIOS","spdx":"GPL-3.0-or-later","platforms":["chimera","linux"],"languages":["C++","Python"],"integration":"native","sandbox":"media-policy","features":["audio","images","playlists","metadata","file-properties"]},
-    {"id":"aurora-video-player","category":"video-player","upstream":"https://github.com/amerhwitat/ChimeraIIOS","spdx":"GPL-3.0-or-later","platforms":["chimera","linux"],"languages":["C++","Python"],"integration":"native","sandbox":"media-policy","features":["video","audio","subtitles","playlists","metadata","file-properties"]},
-    {"id":"terminal","category":"terminal","upstream":"https://github.com/microsoft/terminal","spdx":"MIT","platforms":["windows"],"languages":["C++","C#"],"integration":"wrapped","sandbox":"process-policy"},
-    {"id":"libreoffice","category":"office","upstream":"https://github.com/LibreOffice/core","spdx":"MPL-2.0","platforms":["linux","windows","macos"],"languages":["C++","Python","Java"],"integration":"fetched","sandbox":"document-policy"},
-    {"id":"gimp","category":"image-editor","upstream":"https://gitlab.gnome.org/GNOME/gimp","spdx":"GPL-3.0-or-later","platforms":["linux","windows","macos"],"languages":["C"],"integration":"fetched","sandbox":"file-policy"},
-    {"id":"vlc","category":"media-player","upstream":"https://code.videolan.org/videolan/vlc","spdx":"GPL-2.0-or-later","platforms":["linux","windows","macos","unix"],"languages":["C","C++"],"integration":"fetched","sandbox":"media-policy"},
-    {"id":"webkit-shell","category":"browser-engine","upstream":"https://github.com/WebKit/WebKit","spdx":"LicenseRef-WebKit-BSD-LGPL-Composite","platforms":["linux","windows","macos"],"languages":["C++","Objective-C","Swift","Python"],"integration":"wrapped","sandbox":"web-policy"},
-    {"id":"git","category":"developer","upstream":"https://github.com/git/git","spdx":"GPL-2.0-or-later","platforms":["linux","windows","macos","unix"],"languages":["C","Shell","Perl"],"integration":"native","sandbox":"process-policy"},
-    {"id":"curl","category":"network","upstream":"https://github.com/curl/curl","spdx":"curl","platforms":["linux","windows","macos","unix"],"languages":["C"],"integration":"native","sandbox":"network-policy"},
-    {"id":"archive-manager","category":"archive","upstream":"https://gitlab.gnome.org/GNOME/file-roller","spdx":"GPL-2.0-or-later","platforms":["linux"],"languages":["C","Vala"],"integration":"reference","sandbox":"file-policy"},
-    {"id":"system-monitor","category":"system-monitor","upstream":"https://gitlab.gnome.org/GNOME/gnome-system-monitor","spdx":"GPL-2.0-or-later","platforms":["linux"],"languages":["C++"],"integration":"reference","sandbox":"read-only-system"}
+  "schema": "CHM-APP-2",
+  "applications": [
+    {
+      "id": "file-manager",
+      "category": "file-manager",
+      "upstream": "https://www.gnome.org/nautilus/",
+      "spdx": "GPL-3.0-or-later",
+      "platforms": [
+        "linux",
+        "unix"
+      ],
+      "languages": [
+        "C"
+      ],
+      "integration": "reference",
+      "sandbox": "desktop-policy"
+    },
+    {
+      "id": "aurora-files",
+      "category": "file-manager",
+      "upstream": "https://github.com/amerhwitat/ChimeraIIOS",
+      "spdx": "GPL-3.0-or-later",
+      "platforms": [
+        "chimera",
+        "linux"
+      ],
+      "languages": [
+        "C++",
+        "Python"
+      ],
+      "integration": "native",
+      "sandbox": "file-policy",
+      "features": [
+        "properties",
+        "mime-associations",
+        "open-with",
+        "permissions",
+        "directory-summary"
+      ]
+    },
+    {
+      "id": "aurora-media-player",
+      "category": "media-player",
+      "upstream": "https://github.com/amerhwitat/ChimeraIIOS",
+      "spdx": "GPL-3.0-or-later",
+      "platforms": [
+        "chimera",
+        "linux"
+      ],
+      "languages": [
+        "C++",
+        "Python"
+      ],
+      "integration": "native",
+      "sandbox": "media-policy",
+      "features": [
+        "audio",
+        "images",
+        "playlists",
+        "metadata",
+        "file-properties"
+      ]
+    },
+    {
+      "id": "aurora-video-player",
+      "category": "video-player",
+      "upstream": "https://github.com/amerhwitat/ChimeraIIOS",
+      "spdx": "GPL-3.0-or-later",
+      "platforms": [
+        "chimera",
+        "linux"
+      ],
+      "languages": [
+        "C++",
+        "Python"
+      ],
+      "integration": "native",
+      "sandbox": "media-policy",
+      "features": [
+        "video",
+        "audio",
+        "subtitles",
+        "playlists",
+        "metadata",
+        "file-properties"
+      ]
+    },
+    {
+      "id": "terminal",
+      "category": "terminal",
+      "upstream": "https://github.com/microsoft/terminal",
+      "spdx": "MIT",
+      "platforms": [
+        "windows"
+      ],
+      "languages": [
+        "C++",
+        "C#"
+      ],
+      "integration": "wrapped",
+      "sandbox": "process-policy"
+    },
+    {
+      "id": "libreoffice",
+      "category": "office",
+      "upstream": "https://github.com/LibreOffice/core",
+      "spdx": "MPL-2.0",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C++",
+        "Python",
+        "Java"
+      ],
+      "integration": "fetched",
+      "sandbox": "document-policy"
+    },
+    {
+      "id": "gimp",
+      "category": "image-editor",
+      "upstream": "https://gitlab.gnome.org/GNOME/gimp",
+      "spdx": "GPL-3.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C"
+      ],
+      "integration": "fetched",
+      "sandbox": "file-policy"
+    },
+    {
+      "id": "vlc",
+      "category": "media-player",
+      "upstream": "https://code.videolan.org/videolan/vlc",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos",
+        "unix"
+      ],
+      "languages": [
+        "C",
+        "C++"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy"
+    },
+    {
+      "id": "webkit-shell",
+      "category": "browser-engine",
+      "upstream": "https://github.com/WebKit/WebKit",
+      "spdx": "LicenseRef-WebKit-BSD-LGPL-Composite",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C++",
+        "Objective-C",
+        "Swift",
+        "Python"
+      ],
+      "integration": "wrapped",
+      "sandbox": "web-policy"
+    },
+    {
+      "id": "git",
+      "category": "developer",
+      "upstream": "https://github.com/git/git",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos",
+        "unix"
+      ],
+      "languages": [
+        "C",
+        "Shell",
+        "Perl"
+      ],
+      "integration": "native",
+      "sandbox": "process-policy"
+    },
+    {
+      "id": "curl",
+      "category": "network",
+      "upstream": "https://github.com/curl/curl",
+      "spdx": "curl",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos",
+        "unix"
+      ],
+      "languages": [
+        "C"
+      ],
+      "integration": "native",
+      "sandbox": "network-policy"
+    },
+    {
+      "id": "archive-manager",
+      "category": "archive",
+      "upstream": "https://gitlab.gnome.org/GNOME/file-roller",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux"
+      ],
+      "languages": [
+        "C",
+        "Vala"
+      ],
+      "integration": "reference",
+      "sandbox": "file-policy"
+    },
+    {
+      "id": "system-monitor",
+      "category": "system-monitor",
+      "upstream": "https://gitlab.gnome.org/GNOME/gnome-system-monitor",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux"
+      ],
+      "languages": [
+        "C++"
+      ],
+      "integration": "reference",
+      "sandbox": "read-only-system"
+    },
+    {
+      "id": "obs-studio",
+      "category": "screen-recorder-streamer",
+      "upstream": "https://github.com/obsproject/obs-studio",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C",
+        "C++"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "recording",
+        "streaming",
+        "scenes",
+        "audio-mixer",
+        "plugins"
+      ]
+    },
+    {
+      "id": "mpv",
+      "category": "media-player",
+      "upstream": "https://github.com/mpv-player/mpv",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos",
+        "unix"
+      ],
+      "languages": [
+        "C",
+        "C++"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "video",
+        "audio",
+        "gpu-rendering",
+        "subtitle"
+      ]
+    },
+    {
+      "id": "ardour",
+      "category": "digital-audio-workstation",
+      "upstream": "https://github.com/Ardour/ardour",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C++"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "record",
+        "edit",
+        "mix",
+        "midi",
+        "plugins"
+      ]
+    },
+    {
+      "id": "audacity",
+      "category": "audio-editor",
+      "upstream": "https://github.com/audacity/audacity",
+      "spdx": "GPL-3.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C++"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "record",
+        "edit",
+        "effects",
+        "analysis"
+      ]
+    },
+    {
+      "id": "blender",
+      "category": "vfx-3d",
+      "upstream": "https://github.com/blender/blender",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C",
+        "C++",
+        "Python"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "3d",
+        "animation",
+        "vfx",
+        "compositing",
+        "rendering",
+        "video-editing"
+      ]
+    },
+    {
+      "id": "kdenlive",
+      "category": "video-editor",
+      "upstream": "https://invent.kde.org/multimedia/kdenlive",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C++",
+        "QML"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "video-editing",
+        "effects",
+        "color",
+        "audio",
+        "proxy-media"
+      ]
+    },
+    {
+      "id": "natron",
+      "category": "vfx-compositor",
+      "upstream": "https://github.com/NatronGitHub/Natron",
+      "spdx": "GPL-2.0-or-later",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "languages": [
+        "C++",
+        "Python"
+      ],
+      "integration": "fetched",
+      "sandbox": "media-policy",
+      "features": [
+        "compositing",
+        "vfx",
+        "node-graph",
+        "roto",
+        "keying"
+      ]
+    }
   ]
 }
