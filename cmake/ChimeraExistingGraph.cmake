@@ -199,3 +199,19 @@ install(FILES applications/catalog.json applications/ecosystem/repos.json applic
 install(PROGRAMS desktop/aurora/aurora_crypto_center.py DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/aurora)
 install(FILES desktop/aurora/aurora-crypto-center.desktop desktop/aurora/aurora_crypto_center.json DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES applications/crypto/crypto_ecosystem_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/crypto)
+
+# Cross-host execution and non-destructive dual-boot tooling.
+install(PROGRAMS
+  tools/hosted/chimera-host-run.sh
+  tools/hosted/chimera-host-detect.sh
+  tools/hosted/install-chimera-host.sh
+  tools/dualboot/chimera-dualboot-linux.sh
+  tools/dualboot/chimera-dualboot-macos.sh
+  DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(FILES
+  tools/hosted/chimera-host.json
+  tools/dualboot/chimera-dualboot-plan.json
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted
+)
+install(PROGRAMS tools/hosted/chimera-host-run.ps1 tools/dualboot/chimera-dualboot-windows.ps1 DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted)
