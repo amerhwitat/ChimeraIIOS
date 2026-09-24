@@ -1,0 +1,205 @@
+{
+  "schema": "CHM-REGEX-COMPAT-1",
+  "source": "learnbyexample GNU BRE/ERE cheatsheet",
+  "source_url": "https://learnbyexample.github.io/gnu-bre-ere-cheatsheet/",
+  "license_note": "This registry summarizes syntax and compatibility concepts from the cited reference; it does not reproduce the site's prose or artwork.",
+  "engines": {
+    "grep": {
+      "bre": true,
+      "ere": true,
+      "pcRE": true,
+      "notes": [
+        "BRE by default",
+        "-E enables ERE",
+        "-P enables PCRE where GNU grep provides it"
+      ]
+    },
+    "sed": {
+      "bre": true,
+      "ere": true,
+      "notes": [
+        "BRE by default",
+        "-E enables ERE"
+      ]
+    },
+    "awk": {
+      "bre": false,
+      "ere": true,
+      "notes": [
+        "ERE syntax"
+      ]
+    },
+    "chimera_regex": {
+      "bre": true,
+      "ere": true,
+      "notes": [
+        "Chimera compatibility layer should preserve engine-specific semantics rather than silently treating all flavors as identical"
+      ]
+    }
+  },
+  "categories": [
+    {
+      "id": "anchors",
+      "patterns": [
+        "^",
+        "$",
+        "\\<",
+        "\\>",
+        "\\b",
+        "\\y",
+        "\\B"
+      ],
+      "notes": [
+        "grep -x corresponds to whole-line matching",
+        "grep -w provides word matching with GNU-specific semantics"
+      ]
+    },
+    {
+      "id": "alternation_grouping",
+      "patterns": [
+        "pat1|pat2|pat3",
+        "\\|",
+        "()",
+        "\\(\\)"
+      ]
+    },
+    {
+      "id": "escaping",
+      "patterns": [
+        "\\",
+        "\\\\"
+      ]
+    },
+    {
+      "id": "dot_quantifiers",
+      "patterns": [
+        ".",
+        "?",
+        "\\?",
+        "*",
+        "+",
+        "\\+",
+        "{m,n}",
+        "{m,}",
+        "{,n}",
+        "{n}",
+        "\\{m,n\\}"
+      ]
+    },
+    {
+      "id": "character_classes",
+      "patterns": [
+        "[set123]",
+        "[^set123]",
+        "[3-7AM-X]",
+        "[.]",
+        "[.]",
+        "[=]",
+        "[a-z-]",
+        "[+^]",
+        "[]=]",
+        "\\w",
+        "\\s",
+        "\\W",
+        "\\S"
+      ]
+    },
+    {
+      "id": "escape_sequences",
+      "patterns": [
+        "\\a",
+        "\\b",
+        "\\f",
+        "\\n",
+        "\\r",
+        "\\t",
+        "\\v",
+        "\\cx",
+        "\\xNN",
+        "\\NNN",
+        "\\oNNN",
+        "\\dNNN"
+      ]
+    },
+    {
+      "id": "named_character_sets",
+      "patterns": [
+        "[[:digit:]]",
+        "[[:lower:]]",
+        "[[:upper:]]",
+        "[[:alpha:]]",
+        "[[:alnum:]]",
+        "[[:xdigit:]]",
+        "[[:cntrl:]]",
+        "[[:punct:]]",
+        "[[:graph:]]",
+        "[[:print:]]",
+        "[[:blank:]]",
+        "[[:space:]]"
+      ]
+    },
+    {
+      "id": "backreferences",
+      "patterns": [
+        "\\1",
+        "\\2",
+        "\\3",
+        "\\4",
+        "\\5",
+        "\\6",
+        "\\7",
+        "\\8",
+        "\\9",
+        "&",
+        "\\0"
+      ],
+      "notes": [
+        "awk regexp search does not support backreferences; replacement behavior differs by sub/gsub/gensub"
+      ]
+    },
+    {
+      "id": "sed_flags",
+      "patterns": [
+        "I",
+        "i",
+        "g",
+        "N",
+        "Ng",
+        "m",
+        "M",
+        "\\`",
+        "\\'"
+      ]
+    },
+    {
+      "id": "sed_case_conversion",
+      "patterns": [
+        "\\E",
+        "\\l",
+        "\\u",
+        "\\L",
+        "\\U"
+      ]
+    },
+    {
+      "id": "sed_delimiters",
+      "patterns": [
+        "s/regexp/replacement/",
+        "s#regexp#replacement#",
+        "\\;/regexp/;p"
+      ]
+    }
+  ],
+  "compatibility": {
+    "locale_aware": true,
+    "newline_behavior": "engine and mode dependent",
+    "fixed_strings": [
+      "grep -F"
+    ],
+    "warnings": [
+      "\\d and \\D are not GNU BRE/ERE digit/non-digit escapes",
+      "escape behavior inside character classes differs between grep/sed and awk",
+      "do not assume PCRE features are available in BRE/ERE"
+    ]
+  }
+}
