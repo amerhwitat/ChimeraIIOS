@@ -158,7 +158,18 @@ if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
     BASE="$BUILD/base-for-inject.iso"
   fi
   rm -f "$FINAL"
-  xorriso -indev "$BASE" -outdev "$FINAL" -map "$STAGE" /chimera -commit -end
+  xorriso -indev "$BASE" -outdev "$FINAL" \
+    -map "$STAGE/boot" /boot \
+    -map "$STAGE/install" /install \
+    -map "$STAGE/system" /system \
+    -map "$STAGE/desktop" /desktop \
+    -map "$STAGE/mobile" /mobile \
+    -map "$STAGE/drivers" /drivers \
+    -map "$STAGE/toolchains" /toolchains \
+    -map "$STAGE/network-tools" /network-tools \
+    -map "$STAGE/compat" /compat \
+    -map "$STAGE/build-artifacts" /build-artifacts \
+    -commit -end
 else
   CHIMERA_KERNEL="$KERNEL" CHIMERA_OUTPUT_ISO="$FINAL" "$ROOT/iso/chimera-live-iso.sh"
 fi
