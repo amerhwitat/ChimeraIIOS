@@ -2,14 +2,104 @@
   "schema": "CHIMERA-INSTALLER-PROFILES-1",
   "strategy": "inventory -> compatibility -> edition selection -> review -> install backend",
   "editions": {
-    "desktop": {"targets":["x86_64","arm64"],"boot":["uefi"],"default_filesystem":"xfs","ui":"Aurora Wayland Glass"},
-    "server": {"targets":["x86_64","arm64","riscv64"],"boot":["uefi","legacy-where-supported"],"default_filesystem":"xfs"},
-    "mobile": {"targets":["arm64"],"boot":["uefi","platform-specific"],"default_filesystem":"f2fs"},
-    "edge": {"targets":["x86_64","arm64","riscv64"],"boot":["uefi","platform-specific"],"default_filesystem":"xfs"},
-    "iot": {"targets":["arm64","riscv64"],"boot":["platform-specific"],"default_filesystem":"ext4"},
-    "cvel": {"targets":["x86_64","arm64","riscv64"],"boot":["uefi","virtual-firmware"],"default_filesystem":"xfs"}
+    "desktop": {
+      "targets": [
+        "x86_64",
+        "arm64"
+      ],
+      "boot": [
+        "uefi"
+      ],
+      "default_filesystem": "xfs",
+      "ui": "Aurora Wayland Glass"
+    },
+    "server": {
+      "targets": [
+        "x86_64",
+        "arm64",
+        "riscv64"
+      ],
+      "boot": [
+        "uefi",
+        "legacy-where-supported"
+      ],
+      "default_filesystem": "xfs"
+    },
+    "mobile": {
+      "targets": [
+        "arm64"
+      ],
+      "boot": [
+        "uefi",
+        "platform-specific"
+      ],
+      "default_filesystem": "f2fs"
+    },
+    "edge": {
+      "targets": [
+        "x86_64",
+        "arm64",
+        "riscv64"
+      ],
+      "boot": [
+        "uefi",
+        "platform-specific"
+      ],
+      "default_filesystem": "xfs"
+    },
+    "iot": {
+      "targets": [
+        "arm64",
+        "riscv64"
+      ],
+      "boot": [
+        "platform-specific"
+      ],
+      "default_filesystem": "ext4"
+    },
+    "cvel": {
+      "targets": [
+        "x86_64",
+        "arm64",
+        "riscv64"
+      ],
+      "boot": [
+        "uefi",
+        "virtual-firmware"
+      ],
+      "default_filesystem": "xfs"
+    }
   },
-  "detection": ["UEFI/BIOS","ACPI/SMBIOS","CPU/features","memory","PCI/USB","GPU/display","storage","network","TPM/Secure Boot","virtualization","existing OS/boot entries"],
-  "safety": {"dry_run_default":true,"preserve_existing_os_default":true,"automatic_disk_erase":false,"automatic_bootloader_overwrite":false,"remote_code_execution":false,"require_explicit_confirmation":true},
-  "ci_verification_trigger":"2026-09-16"
+  "detection": [
+    "UEFI/BIOS",
+    "ACPI/SMBIOS",
+    "CPU/features",
+    "memory",
+    "PCI/USB",
+    "GPU/display",
+    "storage",
+    "network",
+    "TPM/Secure Boot",
+    "virtualization",
+    "existing OS/boot entries"
+  ],
+  "safety": {
+    "dry_run_default": true,
+    "preserve_existing_os_default": true,
+    "automatic_disk_erase": false,
+    "automatic_bootloader_overwrite": false,
+    "remote_code_execution": false,
+    "require_explicit_confirmation": true
+  },
+  "ci_verification_trigger": "2026-09-16",
+  "ui_backgrounds": {
+    "default": "/install/installer-background.png",
+    "welcome": "/install/installer-background.png",
+    "hardware": "/usr/share/chimera/aurora/library-background.png",
+    "boot": "/boot/spitfire/background.png",
+    "security": "/boot/jasper/background.png",
+    "desktop": "/usr/share/chimera/aurora/desktop-background.png",
+    "library": "/usr/share/chimera/aurora/library-background.png",
+    "grub": "/boot/grub/aurora-wayland-glass.png"
+  }
 }
