@@ -346,6 +346,10 @@ RUN mkdir -p /opt/chimera/share/chimera/display /usr/bin && \
     install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-display /opt/chimera/share/chimera/display/chimera-display && \
     install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-display-settings.py /opt/chimera/share/chimera/display/chimera-display-settings.py && \
     install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-gpu-driver-manager /opt/chimera/share/chimera/display/chimera-gpu-driver-manager
+RUN ln -sf /opt/chimera/share/chimera/display/chimera-display /usr/local/bin/chimera-display && \
+    ln -sf /opt/chimera/share/chimera/display/chimera-display-settings.py /usr/local/bin/chimera-display-settings.py && \
+    ln -sf /opt/chimera/share/chimera/display/chimera-gpu-driver-manager /usr/local/bin/chimera-gpu-driver-manager && \
+    if [ -f /build/repos/ChimeraIIOS/tools/display/chimera-desktop-action ]; then install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-desktop-action /usr/local/bin/chimera-desktop-action; fi
 
 # Arabic Chimera shell integration and localized command catalog.
 RUN mkdir -p /etc/profile.d /opt/chimera/share/chimera/commands && \
