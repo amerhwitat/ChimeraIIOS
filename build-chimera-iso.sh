@@ -66,6 +66,9 @@ PUSH_REGISTRY=0
 REGISTRY_NAME=""
 APACHE_ECOSYSTEM=1
 APACHE_ECOSYSTEM_MODE="${CHIMERA_APACHE_ECOSYSTEM:-metadata}"
+BUILD_STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-${BUILD_DIR}/.chimera-build-state}"
+RESUME_BUILD="${CHIMERA_RESUME:-0}"
+CLEAN_BUILD_STATE=0
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -96,6 +99,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-apache)
             APACHE_ECOSYSTEM=0
+            shift
+            ;;
+        --resume)
+            RESUME_BUILD=1
+            shift
+            ;;
+        --clean-state)
+            CLEAN_BUILD_STATE=1
             shift
             ;;
         *)
@@ -131,6 +142,45 @@ print_header() {
     echo "$*"
     echo "=================================================================="
     echo ""
+}
+
+# =============================================================================
+# RESUMABLE BUILD STATE
+# =============================================================================
+
+build_state_get() {
+    [[ -f "$BUILD_STATE_FILE" ]] || return 0
+    sed -n "s/^completed=//p" "$BUILD_STATE_FILE" | tail -n 1
+}
+
+build_state_mark() {
+    local stage="$1"
+    mkdir -p "$(dirname "$BUILD_STATE_FILE")"
+    cat > "$BUILD_STATE_FILE" <<EOF
+schema=1
+completed=$stage
+updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+    log_info "Build checkpoint saved: $stage"
+}
+
+build_state_reset() { rm -f "$BUILD_STATE_FILE"; }
+
+build_state_done() {
+    local completed="${1:-}" target="$2"
+    case "$target" in
+        docker) [[ "$completed" == "docker" || "$completed" == "rootfs" || "$completed" == "boot" || "$completed" == "branding" || "$completed" == "apache" || "$completed" == "features" || "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        rootfs) [[ "$completed" == "rootfs" || "$completed" == "boot" || "$completed" == "branding" || "$completed" == "apache" || "$completed" == "features" || "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        boot) [[ "$completed" == "boot" || "$completed" == "branding" || "$completed" == "apache" || "$completed" == "features" || "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        branding) [[ "$completed" == "branding" || "$completed" == "apache" || "$completed" == "features" || "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        apache) [[ "$completed" == "apache" || "$completed" == "features" || "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        features) [[ "$completed" == "features" || "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        squashfs) [[ "$completed" == "squashfs" || "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        iso) [[ "$completed" == "iso" || "$completed" == "verify" || "$completed" == "report" ]] ;;
+        verify) [[ "$completed" == "verify" || "$completed" == "report" ]] ;;
+        report) [[ "$completed" == "report" ]] ;;
+        *) return 1 ;;
+    esac
 }
 
 check_requirements() {
@@ -525,6 +575,32 @@ stage_comprehensive_features() {
     copy_tree_if_present "$BUILD_DIR/toolchains" "$ISO_DIR/toolchains"
     copy_tree_if_present "$BUILD_DIR/network-tools" "$ISO_DIR/network-tools"
     copy_tree_if_present "$SCRIPT_DIR/system/security" "$ISO_DIR/boot/chimera/security"
+    # Install the Linux/Bash compatibility catalog and native Chimera command list.
+    # SS64 is used as a compatibility reference; its prose is not redistributed.
+    local cmd_catalog="$SCRIPT_DIR/system/commands/chimera-command-list.json"
+    local cmd_tool="$SCRIPT_DIR/tools/runtime/chimera-command.py"
+    if [[ -f "$cmd_catalog" && -f "$cmd_tool" ]]; then
+        mkdir -p "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin" "$ISO_DIR/system/commands"
+        install -m 0644 "$cmd_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-command-list.json"
+        install -m 0755 "$cmd_tool" "$ROOTFS_DIR/usr/bin/chimera"
+        install -m 0644 "$cmd_catalog" "$ISO_DIR/system/commands/chimera-command-list.json"
+        install -m 0755 "$cmd_tool" "$ISO_DIR/system/commands/chimera-command"
+        cat > "$ROOTFS_DIR/usr/share/chimera/commands/README.md" <<CMDREADME
+# Chimera II OS command catalog
+
+`chimera commands` lists the Linux/Bash compatibility catalog.
+`chimera native` lists native Chimera II OS control-plane commands.
+`chimera search TERM` searches both catalogs.
+`chimera help COMMAND` shows command classification.
+`chimera exec COMMAND ...` explicitly executes a command available in PATH.
+
+The Linux catalog is based on the public SS64 Bash/Linux command index and
+is maintained as command names/categories rather than copied SS64 prose.
+CMDREADME
+        log_success "Linux/Bash compatibility and native Chimera command catalog staged."
+    else
+        log_warning "Chimera command catalog source files are missing; skipping command integration."
+    fi
 
     # Canonical boot-manager configuration and recovery contracts.
     mkdir -p "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/installation" "$ISO_DIR/boot/recovery" "$ISO_DIR/boot/diagnostics"
@@ -1102,38 +1178,61 @@ main() {
     echo "Contact: amer.hwitat@proton.me"
     echo ""
     
-    # Check requirements
+    # Create build directories before state handling so --resume can continue
+    # without rebuilding completed Docker/rootfs/boot stages.
+    mkdir -p "$BUILD_DIR" "$DOCKER_DIR" "$ISO_DIR" "$ISO_DIR/live" "$ISO_DIR/boot"
+    if [ "$CLEAN_BUILD_STATE" -eq 1 ]; then
+        log_info "Removing resumable Chimera build state."
+        build_state_reset
+    fi
+    local completed_stage=""
+    if [ "$RESUME_BUILD" -eq 1 ]; then
+        completed_stage="$(build_state_get || true)"
+        if [ -n "$completed_stage" ]; then
+            log_info "Resuming after completed stage: $completed_stage"
+        else
+            log_info "No prior checkpoint found; starting at the first stage."
+        fi
+    fi
+
     check_requirements
-    
-    # Create build directories
-    mkdir -p "$BUILD_DIR" "$DOCKER_DIR" "$ISO_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ROOTFS_DIR"
-    
-    # Build Docker image
-    if [ "$BUILD_DOCKER" -eq 1 ]; then
+
+    if [ "$BUILD_ISO" -eq 0 ]; then
         check_docker_storage
-        build_docker_image
-    else
-        # ISO-only still needs a healthy Docker daemon because the rootfs is
-        # exported from the existing comprehensive image.
-        check_docker_storage
+        if ! build_state_done "$completed_stage" docker; then
+            build_docker_image
+            build_state_mark docker
+        else
+            log_info "Docker stage already completed; skipping."
+        fi
+        cleanup
+        print_header "DOCKER BUILD COMPLETED SUCCESSFULLY"
+        return 0
     fi
-    
-    # Build ISO
-    if [ "$BUILD_ISO" -eq 1 ]; then
+
+    if ! build_state_done "$completed_stage" rootfs; then
+        check_docker_storage
+        if ! build_state_done "$completed_stage" docker; then
+            build_docker_image
+            build_state_mark docker
+        else
+            log_info "Docker image stage already completed; skipping."
+        fi
         export_docker_to_rootfs
-        create_boot_menu
-        add_branding
-        prepare_apache_ecosystem
-        stage_comprehensive_features
-        create_squashfs
-        create_iso_image
-        verify_iso
-        generate_report
+        build_state_mark rootfs
     fi
-    
-    # Cleanup
+
+    if ! build_state_done "$completed_stage" boot; then create_boot_menu; build_state_mark boot; fi
+    if ! build_state_done "$completed_stage" branding; then add_branding; build_state_mark branding; fi
+    if ! build_state_done "$completed_stage" apache; then prepare_apache_ecosystem; build_state_mark apache; fi
+    if ! build_state_done "$completed_stage" features; then stage_comprehensive_features; build_state_mark features; fi
+    if ! build_state_done "$completed_stage" squashfs; then create_squashfs; build_state_mark squashfs; fi
+    if ! build_state_done "$completed_stage" iso; then create_iso_image; build_state_mark iso; fi
+    if ! build_state_done "$completed_stage" verify; then verify_iso; build_state_mark verify; fi
+    if ! build_state_done "$completed_stage" report; then generate_report; build_state_mark report; fi
+
     cleanup
-    
+    build_state_reset
     print_header "BUILD COMPLETED SUCCESSFULLY"
     log_success "ISO file ready at: ${SCRIPT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
     log_info "Build report: ${SCRIPT_DIR}/build-report.txt"
