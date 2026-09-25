@@ -50,6 +50,14 @@ SQUASHFS_DIR="${BUILD_DIR}/squashfs"
 BOOT_DIR="${ISO_DIR}/boot"
 GRUB_DIR="${BOOT_DIR}/grub"
 ROOTFS_DIR="${ISO_DIR}/rootfs"
+# Keep GRUB/mtools/xorriso scratch files on a native Linux filesystem (critical
+# for WSL /mnt/c builds). The final ISO can be redirected to a larger filesystem
+# with CHIMERA_ISO_OUTPUT_DIR when the repository drive is space constrained.
+ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
+ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-/tmp/chimera-iso-build}"
+mkdir -p "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
+export TMPDIR="$ISO_TMP_DIR"
+export MTOOLS_SKIP_CHECK=1
 
 # Flags
 BUILD_DOCKER=1
@@ -678,7 +686,7 @@ GRUB_CFG
 
 create_iso_image() {
     print_header "STEP 5: CREATING BIOS + UEFI ISO"
-    local iso_file="${SCRIPT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
+    local iso_file="${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
     command -v grub-mkrescue >/dev/null || { log_error "grub-mkrescue is required."; exit 1; }
     command -v xorriso >/dev/null || { log_error "xorriso is required."; exit 1; }
 
@@ -687,14 +695,14 @@ create_iso_image() {
     # that. Check this before spending time mastering the image.
     local payload_bytes free_bytes required_bytes
     payload_bytes="$(du -sb "$ISO_DIR" | awk '{print $1}')"
-    free_bytes="$(df -PB1 "$SCRIPT_DIR" | awk 'NR==2 {print $4}')"
+    free_bytes="$(df -PB1 "$ISO_OUTPUT_DIR" | awk 'NR==2 {print $4}')"
     required_bytes=$((payload_bytes + 256*1024*1024))
     log_info "ISO payload: $(numfmt --to=iec "$payload_bytes" 2>/dev/null || echo "$payload_bytes bytes")"
     log_info "Filesystem free: $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")"
     if [ "$free_bytes" -lt "$required_bytes" ]; then
         log_error "Insufficient filesystem space for ISO mastering."
         log_error "Need at least $(numfmt --to=iec "$required_bytes" 2>/dev/null || echo "$required_bytes bytes"), have $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")."
-        log_error "The ISO must be built on a filesystem with more free space or the payload must be reduced."
+        log_error "Use CHIMERA_ISO_OUTPUT_DIR=/path/to/a/larger/filesystem or reduce the ISO payload."
         exit 1
     fi
 
