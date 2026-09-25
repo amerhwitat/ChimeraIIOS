@@ -306,7 +306,9 @@ RUN set -eux; \
 # individual package failures and apt-cache SIGPIPE (141); keep this final
 # guard as a defense against future revisions of the script.
 RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh ]; then \
-      if ! bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
+      if bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
+        echo "[Chimera][COMMANDS] provider installer completed."; \
+      else \
         status=$?; \
         echo "[Chimera][COMMANDS][WARN] provider installer returned $status; continuing comprehensive image build."; \
       fi; \
