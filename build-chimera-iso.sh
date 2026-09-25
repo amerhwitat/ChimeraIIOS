@@ -614,7 +614,7 @@ stage_comprehensive_features() {
         for f in "$SCRIPT_DIR"/desktop/aurora/*.desktop; do
             [[ -f "$f" ]] && install -m 0644 "$f" "$ROOTFS_DIR/usr/share/applications/"
         done
-        for f in display_settings.json gpu_driver_settings.json; do
+        for f in display_settings.json gpu_driver_settings.json context_actions.json; do
             [[ -f "$SCRIPT_DIR/desktop/aurora/$f" ]] && install -m 0644 "$SCRIPT_DIR/desktop/aurora/$f" "$ROOTFS_DIR/usr/share/chimera/"
         done
     fi
@@ -635,6 +635,7 @@ stage_comprehensive_features() {
     local display_tool="$SCRIPT_DIR/tools/display/chimera-display"
     local display_gui="$SCRIPT_DIR/tools/display/chimera-display-settings.py"
     local gpu_driver_tool="$SCRIPT_DIR/tools/display/chimera-gpu-driver-manager"
+    local desktop_action="$SCRIPT_DIR/tools/display/chimera-desktop-action"
     if [[ -f "$cmd_catalog" && -f "$cmd_tool" ]]; then
         mkdir -p "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/etc/profile.d" "$ISO_DIR/system/commands" "$ISO_DIR/system/shell"
         install -m 0644 "$cmd_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-command-list.json"
@@ -667,10 +668,12 @@ stage_comprehensive_features() {
             install -m 0755 "$display_tool" "$ROOTFS_DIR/usr/bin/chimera-display"
             install -m 0755 "$display_gui" "$ROOTFS_DIR/usr/bin/chimera-display-settings.py"
             install -m 0755 "$gpu_driver_tool" "$ROOTFS_DIR/usr/bin/chimera-gpu-driver-manager"
+            [[ -f "$desktop_action" ]] && install -m 0755 "$desktop_action" "$ROOTFS_DIR/usr/bin/chimera-desktop-action"
             mkdir -p "$ISO_DIR/system/display"
             install -m 0755 "$display_tool" "$ISO_DIR/system/display/chimera-display"
             install -m 0755 "$display_gui" "$ISO_DIR/system/display/chimera-display-settings.py"
             install -m 0755 "$gpu_driver_tool" "$ISO_DIR/system/display/chimera-gpu-driver-manager"
+            [[ -f "$desktop_action" ]] && install -m 0755 "$desktop_action" "$ISO_DIR/system/display/chimera-desktop-action"
         fi
         cat > "$ROOTFS_DIR/usr/share/chimera/commands/README.md" <<CMDREADME
 # Chimera II OS command catalog
