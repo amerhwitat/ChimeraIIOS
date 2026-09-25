@@ -1,0 +1,10 @@
+{
+  "schema":"CHM-AURORA-CONTEXT-ACTIONS-1",
+  "desktop_empty_space":{
+    "Display / الشاشة":"display",
+    "Display Settings / إعدادات الشاشة":"display-settings",
+    "Resolution / الدقة":"display-resolution",
+    "Graphics Drivers / تعريفات الرسومات":"gpu-drivers"
+  },
+  "dispatcher":"/usr/bin/chimera-desktop-action"
+}
