@@ -202,5 +202,11 @@
     "audio_driver_manifest": "/usr/share/chimera/drivers/audio-driver-manifest.json",
     "hardware_catalog": "/usr/share/chimera/drivers/hardware-driver-catalog.json",
     "policy": "/usr/share/chimera/drivers/hardware-driver-policy.json"
+  },
+  "audio_drivers": {
+    "page": "Sound",
+    "manager": "/usr/bin/chimera-driver-panel.py",
+    "manifest": "/usr/share/chimera/drivers/audio-driver-manifest.json",
+    "automatic_detection": true
   }
 }
