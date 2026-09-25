@@ -9,14 +9,6 @@ def run(cmd):
 def parse():
     rows=[]
     if os.environ.get("WAYLAND_DISPLAY"):
-        if shutil.which("kscreen-doctor"):
-            out=run(["kscreen-doctor","-o"]); current=None
-            for line in out.splitlines():
-                m=re.search(r"Output: (\S+)",line)
-                if m: current=m.group(1)
-                m=re.search(r"Mode: (\d+x\d+)",line)
-                if current and m: rows.append((current,m.group(1)))
-            if rows: return rows,"kscreen"
         if shutil.which("wlr-randr"):
             out=run(["wlr-randr"]); current=None
             for line in out.splitlines():
