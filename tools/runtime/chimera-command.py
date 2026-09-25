@@ -4,6 +4,7 @@ import json, os, shutil, subprocess, sys
 
 CATALOG = os.environ.get("CHIMERA_COMMAND_CATALOG", "/usr/share/chimera/commands/chimera-command-list.json")
 ARABIC = os.environ.get("CHIMERA_ARABIC_CATALOG", "/usr/share/chimera/commands/chimera-arabic.json")
+SS64 = os.environ.get("CHIMERA_SS64_CATALOG", "/usr/share/chimera/commands/ss64-command-catalog.json")
 
 def load(path, default):
     try:
@@ -23,6 +24,17 @@ def commands(c):
 def native(c):
     n=c.get("native_chimera", [])
     return n.get("commands", []) if isinstance(n, dict) else n
+
+def ss64():
+    return load(SS64, {"platforms":{}}).get("platforms", {})
+
+def ss64_commands():
+    out=[]
+    for platform,data in ss64().items():
+        for item in data.get("commands", []):
+            if isinstance(item, dict) and item.get("name"):
+                out.append((platform, item["name"], item.get("url","")))
+    return out
 
 def amap():
     return load(ARABIC, {"aliases":{}}).get("aliases", {})
@@ -56,6 +68,8 @@ def main(argv):
         print("  chimera which CMD      تحديد مسار الأمر" if ar else "  chimera which CMD      Resolve command in PATH")
         print("  chimera help CMD       مساعدة الأمر" if ar else "  chimera help CMD       Show command classification")
         print("  chimera exec CMD ...   تنفيذ أمر PATH" if ar else "  chimera exec CMD ...   Execute a PATH command")
+        print("  chimera ss64            فهرس أوامر SS64 العميق" if ar else "  chimera ss64            Deep SS64 command index")
+        print("  chimera run CMD ...     تنفيذ أي أمر مفهرس" if ar else "  chimera run CMD ...     Run any indexed command")
         print("  chimera info           معلومات النظام" if ar else "  chimera info           System information")
         print("  chimera doctor         تشخيص البيئة" if ar else "  chimera doctor         Diagnose shell environment")
         return 0
@@ -71,7 +85,19 @@ def main(argv):
         for x in sorted(set(cmds+natives)):
             if q in x.lower() or q in amap().get(x,"").lower():
                 print(name(x,ar)+"  ["+x+"]" if ar and name(x,ar)!=x else x)
+        for platform,x,url in ss64_commands():
+            if q in x.lower() or q in platform.lower():
+                print((name(x,ar)+"  ["+x+"]" if ar else x)+"  <"+platform+">")
         return 0
+    if op in ("ss64","ss64-commands","سس64","أوامر_سس64"):
+        q=" ".join(args[1:]).lower()
+        for platform,x,url in ss64_commands():
+            if q and q not in x.lower() and q not in platform.lower(): continue
+            print((name(x,ar)+"  ["+x+"]" if ar and name(x,ar)!=x else x)+"  <"+platform+">")
+        return 0
+    if op in ("run","نفذ","نفّذ","شغل","شغّل"):
+        if len(args)<2: return 2
+        return subprocess.call(args[1:])
     if op=="which":
         if len(args)<2: return 2
         p=shutil.which(args[1])
