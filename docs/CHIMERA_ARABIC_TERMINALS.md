@@ -98,3 +98,40 @@ The existing SVG backgrounds remain as deterministic fallbacks for unattended bu
 ## Important packaging rule
 
 Chimera records upstream terminal source repositories and licenses but does not copy third-party source code into the repository merely to create the application-panel entries. This keeps the ISO build auditable and allows future source-build profiles to fetch the selected upstream project under its own license.
+
+## Deep SS64 integration
+
+The comprehensive image now runs the deep SS64 indexer during the Docker build. It recursively follows same-site command-reference pages for Linux/Bash, macOS, Windows CMD, PowerShell, VBScript, SQL Server, Access and SS64 Tools, storing command names and source URLs in ss64-command-catalog.json. The SS64 root currently links Linux, macOS, CMD, PowerShell, ASCII, VBScript, Tools and Passwords; Passwords/ASCII are reference material rather than executable command namespaces. citeturn1search5turn1search2
+
+The Chimera shell exposes the result with:
+
+```bash
+chimera ss64
+chimera ss64 grep
+أوامر_سس64
+نفّذ grep pattern file
+شغّل ip addr
+```
+
+Linux commands are backed by Ubuntu/Debian binaries where packages are available. The provider installer is intentionally package-by-package and non-fatal for unavailable packages. Platform-specific CMD/PowerShell/macOS/VBScript commands are registered for compatibility and dispatch; Chimera does not falsely claim that a Windows-only executable or macOS-only system service is natively implemented on Linux. PowerShell itself can invoke standard external CMD commands, while VBScript is normally hosted by Windows Script Host on Windows. citeturn0search1turn1search0
+
+## Background image
+
+A compact offline copy of the supplied Aurora artwork is embedded in the repository as system/branding/aurora-default.jpg.base64. The build uses it whenever CHIMERA_AURORA_ASSET is not supplied, so the ISO remains reproducible without requiring the original upload to be present.
+
+The default is applied to GRUB, Jasper, Spit Fire, installer/library and Aurora desktop surfaces. GRUB supports a background_image command for its active terminal. citeturn2search12
+
+Change at build time:
+
+```bash
+export CHIMERA_AURORA_ASSET=/path/to/new-background.png
+sudo bash ./build-chimera-iso.sh --clean-state
+```
+
+Change after installation:
+
+```bash
+sudo chimera-background set /path/to/new-background.jpg
+chimera-background show
+sudo chimera-background reset
+```
