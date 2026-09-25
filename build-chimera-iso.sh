@@ -130,9 +130,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         --storage)
             [[ -n "${2:-}" ]] || { echo "--storage requires a path"; exit 1; }
-            ROOTFS_DIR="$2/chimera-rootfs"
-            ISO_OUTPUT_DIR="$2/chimera-output"
-            export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
+            CHIMERA_BUILD_STORAGE_ROOT="$2"
+            export CHIMERA_BUILD_STORAGE_ROOT
             shift 2
             ;;
         --no-storage-prompt)
@@ -145,6 +144,19 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Apply an explicitly requested storage root before any build directories are created.
+if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
+    BUILD_DIR="${CHIMERA_BUILD_STORAGE_ROOT%/}/chimera-build"
+    DOCKER_DIR="$BUILD_DIR/docker"
+    ISO_DIR="$BUILD_DIR/iso"
+    SQUASHFS_DIR="$BUILD_DIR/squashfs"
+    BOOT_DIR="$ISO_DIR/boot"
+    GRUB_DIR="$BOOT_DIR/grub"
+    ROOTFS_DIR="$BUILD_DIR/rootfs"
+    ISO_OUTPUT_DIR="${CHIMERA_BUILD_STORAGE_ROOT%/}/chimera-output"
+    export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
+fi
 
 # =============================================================================
 # UTILITY FUNCTIONS
