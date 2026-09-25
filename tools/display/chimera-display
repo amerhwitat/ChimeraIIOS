@@ -4,7 +4,6 @@ STATE="${CHIMERA_DISPLAY_STATE:-${XDG_CONFIG_HOME:-$HOME/.config}/chimera/displa
 SYSTEM_STATE="${CHIMERA_SYSTEM_DISPLAY_STATE:-/etc/chimera/display.conf}"
 mkdir -p "$(dirname "$STATE")"
 backend() {
-  if command -v kscreen-doctor >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then echo kscreen; return; fi
   if command -v wlr-randr >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then echo wlr; return; fi
   if command -v xrandr >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then echo xrandr; return; fi
   echo none
@@ -20,8 +19,6 @@ list_outputs() {
 apply_mode() {
   local output="$1" mode="$2" rate="${3:-}"
   case "$(backend)" in
-    kscreen)
-      if [[ -n "$rate" ]]; then kscreen-doctor output."$output".mode."$mode"@"$rate"; else kscreen-doctor output."$output".mode."$mode"; fi ;;
     wlr)
       if [[ -n "$rate" ]]; then wlr-randr --output "$output" --mode "$mode@$rate"Hz; else wlr-randr --output "$output" --mode "$mode"; fi ;;
     xrandr)
