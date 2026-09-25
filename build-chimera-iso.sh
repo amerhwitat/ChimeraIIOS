@@ -174,17 +174,11 @@ build_state_mark() {
     mkdir -p "$(dirname "$BUILD_STATE_FILE")"
     cat > "$BUILD_STATE_FILE" <<EOF
 schema=1
-build_state_mark() {
-    local stage="$1"
-    mkdir -p "$(dirname "$BUILD_STATE_FILE")"
-    cat > "$BUILD_STATE_FILE" <<EOF
-schema=1
 completed=$stage
 updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
     log_info "Build checkpoint saved: $stage"
 }
-
 build_state_reset() { rm -f "$BUILD_STATE_FILE"; }
 
 build_state_done() {
