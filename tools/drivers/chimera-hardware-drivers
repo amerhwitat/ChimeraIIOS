@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT=/var/lib/chimera/drivers
+STATE="$ROOT/state.json"
+MANIFEST="${CHIMERA_DRIVER_MANIFEST:-/usr/share/chimera/drivers/hardware-driver-policy.json}"
+AUDIO="${CHIMERA_AUDIO_MANIFEST:-/usr/share/chimera/drivers/audio-driver-manifest.json}"
+mkdir -p "$ROOT"
+log(){ printf '[Chimera Drivers] %s\n' "$*"; }
+have(){ command -v "$1" >/dev/null 2>&1; }
+json_escape(){ python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'; }
+scan(){
+  log "=== PCI ==="; have lspci && lspci -Dnnk || true
+  log "=== USB ==="; have lsusb && lsusb -nn || true
+  log "=== DRM ==="; ls -la /dev/dri 2>/dev/null || true
+  log "=== SOUND ==="; ls -la /dev/snd 2>/dev/null || true
+  have aplay && aplay -l || true
+  log "=== NETWORK ==="; ip -br link 2>/dev/null || true
+  log "=== BLOCK ==="; lsblk -o NAME,MODEL,SERIAL,TRAN,TYPE,FSTYPE,MOUNTPOINT 2>/dev/null || true
+  log "=== FIRMWARE ==="; have fwupdmgr && fwupdmgr get-devices 2>/dev/null || true
+  log "=== LOADED DRIVER MODULES ==="
+  for m in snd_hda_intel snd_usb_audio amdgpu i915 xe nouveau nvidia e1000e igc r8169 ath9k ath10k_pci ath11k_pci iwlwifi btusb xhci_pci nvme ahci uas; do
+    lsmod 2>/dev/null | awk '{print $1}' | grep -qx "$m" && echo "$m"
+  done
+}
+module(){ modprobe "$1" 2>/dev/null || log "module unavailable/not loadable: $1"; }
+audio(){
+  log "Installing signed ALSA/PipeWire audio support..."
+  apt-get update -o Acquire::Retries=5
+  local pkgs=(alsa-utils alsa-ucm-conf pipewire wireplumber pipewire-alsa pipewire-pulse libasound2-plugins pavucontrol linux-firmware firmware-sof-signed)
+  for p in "${pkgs[@]}"; do
+    if apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/ && $2!="(none)"{ok=1} END{exit !ok}'; then apt-get install -y --no-install-recommends "$p" || log "skipped: $p"; fi
+  done
+  for m in snd_hda_intel snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_conexant snd_hda_codec_cirrus snd_hda_codec_ca0132 snd_hda_codec_analog snd_hda_codec_sigmatel snd_usb_audio snd_rawmidi snd_sof snd_sof_pci snd_sof_intel_hda; do module "$m"; done
+}
+common(){
+  apt-get update -o Acquire::Retries=5
+  local pkgs=(pciutils usbutils udev hwdata lshw dmidecode kmod linux-firmware fwupd)
+  for p in "${pkgs[@]}"; do
+    if apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/ && $2!="(none)"{ok=1} END{exit !ok}'; then apt-get install -y --no-install-recommends "$p" || log "skipped: $p"; fi
+  done
+}
+firmware(){
+  if have fwupdmgr; then
+    fwupdmgr refresh --force || true
+    fwupdmgr get-updates || true
+  fi
+}
+status(){
+  scan
+  echo "--- DRIVER STATE ---"
+  [[ -f "$STATE" ]] && cat "$STATE" || echo '{"status":"not-yet-recorded"}'
+}
+install_all(){
+  [[ "$(id -u)" -eq 0 ]] || { echo "root required" >&2; exit 1; }
+  common
+  audio
+  firmware
+  local now; now="$(date -Is)"
+  printf '{"schema":"CHM-DRIVER-STATE-1","last_scan":"%s","policy":"signed-repositories-and-in-tree-drivers","audio":"ALSA+PipeWire","firmware":"fwupd+linux-firmware"}\n' "$now" > "$STATE"
+  log "Hardware driver baseline installed. Reboot if kernel modules or firmware require it."
+}
+case "${1:-status}" in
+  scan|detect) scan ;;
+  audio|sound) audio ;;
+  firmware) firmware ;;
+  install|repair|auto) install_all; status ;;
+  status) status ;;
+  *) echo "Usage: chimera-hardware-drivers {scan|audio|firmware|install|repair|auto|status}"; exit 2 ;;
+esac
