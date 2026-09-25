@@ -305,6 +305,24 @@ RUN set -eux; \
     npm cache clean --force
 
 # =============================================================================
+# Deep SS64 command catalog and Linux binary providers
+# =============================================================================
+RUN set -eux; \
+    mkdir -p /opt/chimera/share/chimera/commands; \
+    if [ -f /build/repos/ChimeraIIOS/tools/commands/crawl_ss64.py ]; then \
+      python3 /build/repos/ChimeraIIOS/tools/commands/crawl_ss64.py \
+        --output /opt/chimera/share/chimera/commands/ss64-command-catalog.json \
+        --max-pages 3000 || echo "[Chimera][WARN] SS64 network crawl failed; retained static command catalog."; \
+    fi; \
+    if [ ! -s /opt/chimera/share/chimera/commands/ss64-command-catalog.json ]; then \
+      printf '%s\\n' '{"schema_version":"3.0","product":"Chimera II OS","source":"SS64","platforms":{}}' > /opt/chimera/share/chimera/commands/ss64-command-catalog.json; \
+    fi
+
+RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh ]; then \
+      bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; \
+    fi
+
+# =============================================================================
 # Free/open-source terminal emulators + Aurora application-panel entries
 # =============================================================================
 RUN if [ -f /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh ]; then \
