@@ -1216,6 +1216,7 @@ main() {
         if ! build_state_done "$completed_stage" docker; then
             build_docker_image
             build_state_mark docker
+            completed_stage="docker"
         else
             log_info "Docker image stage already completed; skipping."
         fi
