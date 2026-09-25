@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+LOG="${CHIMERA_GPU_DRIVER_LOG:-/var/log/chimera-gpu-driver-manager.log}"
+mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
+exec 3> >(tee -a "$LOG" >&2); exec 2>&3
+log(){ echo "[Chimera GPU] $*"; }
+die(){ log "ERROR: $*"; exit 1; }
+[[ "$(id -u)" -eq 0 ]] || die "Run as root: sudo chimera-gpu-driver-manager [scan|install|repair|status]"
+command -v apt-get >/dev/null || die "APT is required."
+command -v lspci >/dev/null || die "pciutils/lspci is required."
+scan_gpu(){ lspci -nnk | awk '/VGA compatible controller|3D controller|Display controller/{p=1} p{print} /^$/{p=0}'; }
+status(){
+  log "Hardware:"; scan_gpu || true; echo
+  log "DRM devices:"; ls -l /dev/dri 2>/dev/null || true; echo
+  for m in amdgpu i915 xe nouveau nvidia; do lsmod 2>/dev/null | awk '{print $1}' | grep -qx "$m" && log "Kernel module active: $m" || true; done
+  command -v glxinfo >/dev/null && glxinfo -B 2>/dev/null || true
+  command -v vulkaninfo >/dev/null && vulkaninfo --summary 2>/dev/null || true
+}
+apt_refresh(){ log "Refreshing signed Ubuntu package indexes..."; apt-get update -o Acquire::Retries=5; }
+candidate(){ apt-cache policy "$1" 2>/dev/null | awk '$1=="Candidate:" && $2!="(none)"{ok=1} END{exit !ok}'; }
+install_common(){
+  for p in linux-firmware mesa-vulkan-drivers mesa-utils libgl1-mesa-dri libglx-mesa0 libdrm2 vulkan-tools; do
+    candidate "$p" && apt-get install -y --no-install-recommends "$p" || log "Skipped/unavailable: $p"
+  done
+}
+install_gpu(){
+  local gpu; gpu="$(scan_gpu || true)"; install_common
+  if echo "$gpu" | grep -qi 'NVIDIA'; then
+    apt-get install -y --no-install-recommends ubuntu-drivers-common
+    log "NVIDIA detected; selecting the Ubuntu recommended signed driver."
+    ubuntu-drivers list || true
+    ubuntu-drivers install
+  elif echo "$gpu" | grep -qi 'AMD\|ATI'; then
+    apt-get install -y --no-install-recommends xserver-xorg-video-amdgpu libdrm-amdgpu1
+    log "AMD support uses the kernel amdgpu DRM driver plus Mesa/firmware userspace."
+  elif echo "$gpu" | grep -qi 'Intel'; then
+    apt-get install -y --no-install-recommends intel-media-va-driver mesa-va-drivers
+    log "Intel support uses the kernel i915/xe DRM driver plus Mesa/media userspace."
+  else
+    log "Unknown GPU vendor; generic Mesa/firmware support installed."
+  fi
+  log "Driver installation completed. A reboot may be required."
+}
+case "${1:-status}" in
+  scan) scan_gpu ;;
+  status) status ;;
+  install|repair) apt_refresh; install_gpu; status ;;
+  *) echo "Usage: chimera-gpu-driver-manager {scan|status|install|repair}"; exit 2 ;;
+esac
