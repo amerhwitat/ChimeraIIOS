@@ -746,9 +746,12 @@ create_iso_image() {
     test -s "$ISO_DIR/boot/live/live-manifest.json" || { log_error "Live manifest missing."; exit 1; }
     grep -q "/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB live initramfs linkage missing."; exit 1; }
     grep -q "/boot/live/live-manifest.json" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB live manifest linkage missing."; exit 1; }
+    # grub-mkrescue passes ordinary unrecognized arguments to xorriso's
+    # mkisofs-emulation mode. Do NOT place these after --: that switches
+    # xorriso to native command mode, where -iso-level is not a command.
     local xorriso_opts=(-iso-level 3 -joliet -rockridge -volid "CHIMERA_II_OS")
     log_info "Mastering large-capacity BIOS + UEFI ISO with ISO9660 Level 3..."
-    grub-mkrescue -o "$iso_file" "$ISO_DIR" -- "${xorriso_opts[@]}"
+    grub-mkrescue -o "$iso_file" "$ISO_DIR" "${xorriso_opts[@]}"
     test -s "$iso_file"
     sha256sum "$iso_file" > "${iso_file}.sha256"
     log_success "BIOS + UEFI ISO created: $iso_file"
