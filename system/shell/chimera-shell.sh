@@ -52,7 +52,7 @@ alias جافا='java'
 alias نود='node'
 alias دوكر='docker'
 
-alias أوامر_سس64='chimera ss64 --lang ar'
+alias أوامر_سس64='chimera --lang ar ss64'
 alias مساعدة_سس64='chimera --lang ar help'
 نفّذ() { command chimera --lang ar run "$@"; }
 شغّل() { command chimera --lang ar run "$@"; }
