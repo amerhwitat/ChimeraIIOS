@@ -160,5 +160,11 @@
     "chimera-terminals": "الطرفيات_المتاحة",
     "chimera-shell-ar": "طرفية_عربية",
     "chimera-locale": "لغة_شيميرا"
-  }
+  },
+  "chimera-display": "إعداد_الشاشة",
+  "chimera-gpu-driver-manager": "مدير_تعريفات_الرسومات",
+  "display": "الشاشة",
+  "resolution": "الدقة",
+  "gpu": "معالج_الرسومات",
+  "driver": "التعريف"
 }
