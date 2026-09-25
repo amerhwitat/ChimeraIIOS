@@ -1,0 +1,21 @@
+{
+  "schema":"CHM-AUDIO-DRIVERS-1",
+  "description":"Common Linux audio hardware families and supported kernel/userspace driver packages.",
+  "policy":{"prefer":"in-tree-kernel-driver","firmware":"signed-linux-firmware-or-fwupd","proprietary_downloads":false},
+  "families":[
+    {"id":"intel-hda","match":["8086:","HDA Intel"],"modules":["snd_hda_intel","snd_hda_codec_hdmi","snd_hda_codec_realtek","snd_hda_codec_conexant","snd_hda_codec_cirrus","snd_hda_codec_ca0132","snd_hda_codec_analog","snd_hda_codec_sigmatel"],"packages":["linux-modules-extra-$(uname -r)","alsa-utils","alsa-ucm-conf"],"priority":100},
+    {"id":"amd-hda","match":["1002:","HDA ATI","AMD"],"modules":["snd_hda_intel","snd_hda_codec_hdmi"],"packages":["linux-modules-extra-$(uname -r)","alsa-utils","alsa-ucm-conf"],"priority":100},
+    {"id":"nvidia-hdmi-audio","match":["10de:","NVIDIA"],"modules":["snd_hda_intel","snd_hda_codec_hdmi"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":90},
+    {"id":"usb-audio","match":["USB Audio","Audio"],"modules":["snd_usb_audio"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":100},
+    {"id":"creative-xfi","match":["1102:"],"modules":["snd_hda_intel","snd_emu10k1","snd_emu10k1x"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":80},
+    {"id":"via","match":["1106:"],"modules":["snd_hda_intel","snd_via82xx"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":70},
+    {"id":"cmedia","match":["13f6:"],"modules":["snd_hda_intel","snd_cmipci"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":70},
+    {"id":"ice1712","match":["1412:"],"modules":["snd_ice1712","snd_ice1724"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":70},
+    {"id":"professional-usb","match":["USB Audio"],"modules":["snd_usb_audio","snd_rawmidi"],"packages":["alsa-utils","alsa-ucm-conf"],"priority":80},
+    {"id":"intel-sof","match":["SOF","Intel"],"modules":["snd_sof","snd_sof_pci","snd_sof_pci_intel_tgl","snd_sof_pci_intel_mtl","snd_sof_intel_hda"],"packages":["firmware-sof-signed","alsa-ucm-conf","alsa-utils"],"priority":110},
+    {"id":"amd-acp","match":["ACP","AMD"],"modules":["snd_pci_acp3x","snd_pci_acp5x","snd_pci_acp6x","snd_rn_pci_acp3x"],"packages":["linux-firmware","alsa-ucm-conf","alsa-utils"],"priority":100},
+    {"id":"generic-alsa","match":["sound","audio"],"modules":["snd_hda_intel","snd_usb_audio","snd_dummy"],"packages":["alsa-utils","alsa-ucm-conf","linux-firmware"],"priority":10}
+  ],
+  "userspace":{"preferred_stack":["pipewire","wireplumber","pipewire-pulse"],"packages":["pipewire","wireplumber","pipewire-alsa","pipewire-pulse","alsa-utils","alsa-ucm-conf","libasound2-plugins","pavucontrol"]},
+  "firmware":{"preferred":["linux-firmware","firmware-sof-signed","fwupd"],"service":"fwupd"}
+}
