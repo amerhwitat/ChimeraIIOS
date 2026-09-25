@@ -944,9 +944,32 @@ stage_comprehensive_features() {
     copy_tree_if_present "$BUILD_DIR/toolchains" "$ISO_DIR/toolchains"
     copy_tree_if_present "$BUILD_DIR/network-tools" "$ISO_DIR/network-tools"
     copy_tree_if_present "$SCRIPT_DIR/system/security" "$ISO_DIR/boot/chimera/security"
+
+    # Refresh the SS64 command-name catalog before staging it. The crawler stores
+    # command names, platform/category, and source URLs only; it does not copy
+    # SS64 prose. A network failure never destroys an existing checked-in catalog.
+    local cmd_catalog="$SCRIPT_DIR/system/commands/chimera-command-list.json"
+    local ss64_catalog="$SCRIPT_DIR/system/commands/ss64-command-catalog.json"
+    local ss64_tool="$SCRIPT_DIR/tools/commands/crawl_ss64.py"
+    if command -v python3 >/dev/null 2>&1 && [[ -f "$ss64_tool" ]]; then
+        log_info "Refreshing SS64 command catalog..."
+        if python3 "$ss64_tool" \
+            --output "$ss64_catalog" \
+            --max-pages "${CHIMERA_SS64_MAX_PAGES:-3000}" \
+            --timeout "${CHIMERA_SS64_TIMEOUT:-30}" \
+            --retries "${CHIMERA_SS64_RETRIES:-2}" \
+            --delay "${CHIMERA_SS64_DELAY:-0.05}" \
+            >"$ISO_TMP_DIR/ss64-crawl.log" 2>&1; then
+            log_success "SS64 command catalog refreshed: $ss64_catalog"
+        else
+            log_warning "SS64 catalog refresh failed; retaining the existing catalog."
+            cat "$ISO_TMP_DIR/ss64-crawl.log" >&2 || true
+        fi
+        rm -f "$ISO_TMP_DIR/ss64-crawl.log"
+    fi
+
     # Install the Linux/Bash compatibility catalog and native Chimera command list.
     # SS64 is used as a compatibility reference; its prose is not redistributed.
-    local cmd_catalog="$SCRIPT_DIR/system/commands/chimera-command-list.json"
     local arabic_catalog="$SCRIPT_DIR/system/commands/chimera-arabic.json"
     local cmd_tool="$SCRIPT_DIR/tools/runtime/chimera-command.py"
     local shell_integration="$SCRIPT_DIR/system/shell/chimera-shell.sh"
