@@ -1,1 +1,18 @@
-{"schema":"CHM-AURORA-DISPLAY-1","title":"Display / الشاشة","entry":"/usr/bin/chimera-display-settings.py","cli":"/usr/bin/chimera-display","features":["resolution","refresh-rate","multi-monitor","persistent-user-profile"],"backends":["kscreen-doctor","wlr-randr","xrandr"],"fallback":"show driver diagnostics and offer graphics-driver repair"}
+{
+  "schema": "CHM-AURORA-DISPLAY-1",
+  "title": "Display / الشاشة",
+  "entry": "/usr/bin/chimera-display-settings.py",
+  "cli": "/usr/bin/chimera-display",
+  "features": [
+    "resolution",
+    "refresh-rate",
+    "multi-monitor",
+    "persistent-user-profile"
+  ],
+  "backends": [
+    "wlr-randr",
+    "xrandr"
+  ],
+  "fallback": "show driver diagnostics and offer graphics-driver repair",
+  "note": "Wayland requires a compositor implementing wlr-output-management; X11 uses RandR."
+}
