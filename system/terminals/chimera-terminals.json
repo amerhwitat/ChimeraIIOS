@@ -1,17 +1,187 @@
 {
-  "schema_version":"1.0",
-  "product":"Chimera II OS",
-  "purpose":"Free/open-source terminal emulator registry for Aurora/Wayland and compatible desktop sessions.",
-  "terminals":[
-    {"id":"foot","binary":"foot","package":"foot","license":"MIT","upstream":"https://github.com/yonasBSD/foot","wayland_native":true,"description_en":"Fast lightweight Wayland terminal","description_ar":"طرفية وايلاند سريعة وخفيفة"},
-    {"id":"alacritty","binary":"alacritty","package":"alacritty","license":"Apache-2.0","upstream":"https://github.com/alacritty/alacritty","wayland_native":true,"description_en":"GPU accelerated cross-platform terminal","description_ar":"طرفية متعددة المنصات بتسريع GPU"},
-    {"id":"kitty","binary":"kitty","package":"kitty","license":"GPL-3.0","upstream":"https://github.com/kovidgoyal/kitty","wayland_native":true,"description_en":"GPU based feature-rich terminal","description_ar":"طرفية غنية بالميزات ومدعومة بتسريع GPU"},
-    {"id":"wezterm","binary":"wezterm","package":"wezterm","license":"MIT","upstream":"https://github.com/wez/wezterm","wayland_native":true,"description_en":"GPU terminal and multiplexer","description_ar":"طرفية GPU ومضاعف جلسات"},
-    {"id":"ptyxis","binary":"ptyxis","package":"ptyxis","license":"GPL-3.0-or-later","upstream":"https://gitlab.gnome.org/chergert/ptyxis","wayland_native":true,"description_en":"GTK4/VTE container-oriented terminal","description_ar":"طرفية حديثة مبنية على GTK4 وVTE"},
-    {"id":"gnome-terminal","binary":"gnome-terminal","package":"gnome-terminal","license":"GPL-3.0-or-later","upstream":"https://gitlab.gnome.org/GNOME/gnome-terminal","wayland_native":true,"description_en":"GNOME VTE terminal","description_ar":"طرفية GNOME المعتمدة على VTE"},
-    {"id":"konsole","binary":"konsole","package":"konsole","license":"GPL-2.0-or-later","upstream":"https://invent.kde.org/utilities/konsole","wayland_native":true,"description_en":"KDE terminal emulator","description_ar":"طرفية KDE"},
-    {"id":"xfce4-terminal","binary":"xfce4-terminal","package":"xfce4-terminal","license":"GPL-2.0-or-later","upstream":"https://gitlab.xfce.org/apps/xfce4-terminal","wayland_native":true,"description_en":"Lightweight GTK terminal","description_ar":"طرفية GTK خفيفة"},
-    {"id":"terminator","binary":"terminator","package":"terminator","license":"GPL-2.0-or-later","upstream":"https://github.com/gnome-terminator/terminator","wayland_native":false,"description_en":"Tiling/multi-pane terminal","description_ar":"طرفية متعددة الألواح"},
-    {"id":"xterm","binary":"xterm","package":"xterm","license":"MIT/X11","upstream":"https://invisible-island.net/xterm/","wayland_native":false,"description_en":"Classic X terminal emulator","description_ar":"طرفية X كلاسيكية"}
+  "schema_version": "1.0",
+  "product": "Chimera II OS",
+  "purpose": "Free/open-source terminal emulator registry for Aurora/Wayland and compatible desktop sessions.",
+  "terminals": [
+    {
+      "id": "foot",
+      "binary": "foot",
+      "package": "foot",
+      "license": "MIT",
+      "upstream": "https://github.com/yonasBSD/foot",
+      "wayland_native": true,
+      "description_en": "Fast lightweight Wayland terminal",
+      "description_ar": "طرفية وايلاند سريعة وخفيفة"
+    },
+    {
+      "id": "alacritty",
+      "binary": "alacritty",
+      "package": "alacritty",
+      "license": "Apache-2.0",
+      "upstream": "https://github.com/alacritty/alacritty",
+      "wayland_native": true,
+      "description_en": "GPU accelerated cross-platform terminal",
+      "description_ar": "طرفية متعددة المنصات بتسريع GPU"
+    },
+    {
+      "id": "kitty",
+      "binary": "kitty",
+      "package": "kitty",
+      "license": "GPL-3.0",
+      "upstream": "https://github.com/kovidgoyal/kitty",
+      "wayland_native": true,
+      "description_en": "GPU based feature-rich terminal",
+      "description_ar": "طرفية غنية بالميزات ومدعومة بتسريع GPU"
+    },
+    {
+      "id": "wezterm",
+      "binary": "wezterm",
+      "package": "wezterm",
+      "license": "MIT",
+      "upstream": "https://github.com/wez/wezterm",
+      "wayland_native": true,
+      "description_en": "GPU terminal and multiplexer",
+      "description_ar": "طرفية GPU ومضاعف جلسات"
+    },
+    {
+      "id": "ptyxis",
+      "binary": "ptyxis",
+      "package": "ptyxis",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://gitlab.gnome.org/chergert/ptyxis",
+      "wayland_native": true,
+      "description_en": "GTK4/VTE container-oriented terminal",
+      "description_ar": "طرفية حديثة مبنية على GTK4 وVTE"
+    },
+    {
+      "id": "gnome-terminal",
+      "binary": "gnome-terminal",
+      "package": "gnome-terminal",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/gnome-terminal",
+      "wayland_native": true,
+      "description_en": "GNOME VTE terminal",
+      "description_ar": "طرفية GNOME المعتمدة على VTE"
+    },
+    {
+      "id": "konsole",
+      "binary": "konsole",
+      "package": "konsole",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://invent.kde.org/utilities/konsole",
+      "wayland_native": true,
+      "description_en": "KDE terminal emulator",
+      "description_ar": "طرفية KDE"
+    },
+    {
+      "id": "xfce4-terminal",
+      "binary": "xfce4-terminal",
+      "package": "xfce4-terminal",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://gitlab.xfce.org/apps/xfce4-terminal",
+      "wayland_native": true,
+      "description_en": "Lightweight GTK terminal",
+      "description_ar": "طرفية GTK خفيفة"
+    },
+    {
+      "id": "terminator",
+      "binary": "terminator",
+      "package": "terminator",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/gnome-terminator/terminator",
+      "wayland_native": false,
+      "description_en": "Tiling/multi-pane terminal",
+      "description_ar": "طرفية متعددة الألواح"
+    },
+    {
+      "id": "xterm",
+      "binary": "xterm",
+      "package": "xterm",
+      "license": "MIT/X11",
+      "upstream": "https://invisible-island.net/xterm/",
+      "wayland_native": false,
+      "description_en": "Classic X terminal emulator",
+      "description_ar": "طرفية X كلاسيكية"
+    },
+    {
+      "id": "gnome-console",
+      "binary": "kgx",
+      "package": "gnome-console",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/gnome-console",
+      "wayland_native": true,
+      "description_en": "GNOME Console",
+      "description_ar": "طرفية GNOME Console"
+    },
+    {
+      "id": "tilix",
+      "binary": "tilix",
+      "package": "tilix",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/gnunn1/tilix",
+      "wayland_native": true,
+      "description_en": "Tiling terminal for GNOME",
+      "description_ar": "طرفية GNOME متعددة الألواح"
+    },
+    {
+      "id": "mate-terminal",
+      "binary": "mate-terminal",
+      "package": "mate-terminal",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/mate-desktop/mate-terminal",
+      "wayland_native": false,
+      "description_en": "MATE terminal",
+      "description_ar": "طرفية MATE"
+    },
+    {
+      "id": "qterminal",
+      "binary": "qterminal",
+      "package": "qterminal",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/lxqt/qterminal",
+      "wayland_native": true,
+      "description_en": "Lightweight Qt terminal",
+      "description_ar": "طرفية Qt خفيفة"
+    },
+    {
+      "id": "sakura",
+      "binary": "sakura",
+      "package": "sakura",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/doncram/sakura",
+      "wayland_native": false,
+      "description_en": "VTE terminal",
+      "description_ar": "طرفية VTE"
+    },
+    {
+      "id": "terminology",
+      "binary": "terminology",
+      "package": "terminology",
+      "license": "BSD-2-Clause",
+      "upstream": "https://git.enlightenment.org/enlightenment/terminology",
+      "wayland_native": true,
+      "description_en": "Enlightenment terminal",
+      "description_ar": "طرفية Enlightenment"
+    },
+    {
+      "id": "lxterminal",
+      "binary": "lxterminal",
+      "package": "lxterminal",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/lxde/lxterminal",
+      "wayland_native": false,
+      "description_en": "LXDE terminal",
+      "description_ar": "طرفية LXDE"
+    },
+    {
+      "id": "blackbox-terminal",
+      "binary": "blackbox",
+      "package": "blackbox-terminal",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://gitlab.gnome.org/haecker-felix/blackbox",
+      "wayland_native": true,
+      "description_en": "Modern GTK terminal",
+      "description_ar": "طرفية GTK حديثة"
+    }
   ]
 }
