@@ -175,7 +175,7 @@ check_requirements() {
     fi
 
     # Dependencies specific to the comprehensive Docker/rootfs workflow.
-    local required_tools=("docker" "mktemp" "mount" "unsquashfs" "mksquashfs" "xorriso" "grub-mkrescue" "grub-file" "cpio" "file")
+    local required_tools=("docker" "mktemp" "mount" "unsquashfs" "mksquashfs" "xorriso" "grub-mkrescue" "grub-file" "cpio" "file" "busybox" "numfmt" "nasm" "g++" "ld")
     local missing_tools=()
     for tool in "${required_tools[@]}"; do
         command -v "$tool" >/dev/null 2>&1 || missing_tools+=("$tool")
@@ -1068,7 +1068,12 @@ main() {
     
     # Build Docker image
     if [ "$BUILD_DOCKER" -eq 1 ]; then
+        check_docker_storage
         build_docker_image
+    else
+        # ISO-only still needs a healthy Docker daemon because the rootfs is
+        # exported from the existing comprehensive image.
+        check_docker_storage
     fi
     
     # Build ISO
