@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Drivers & Hardware
+Name[ar]=التعريفات والأجهزة
+Comment=Detect hardware, audio drivers, firmware and supported repairs
+Comment[ar]=اكتشاف الأجهزة وتعريفات الصوت والبرامج الثابتة والإصلاح
+Exec=/usr/bin/chimera-driver-panel.py
+Icon=preferences-system
+Categories=Settings;HardwareSettings;System;
+Terminal=false
