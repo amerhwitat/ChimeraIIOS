@@ -609,6 +609,12 @@ stage_comprehensive_features() {
     copy_tree_if_present "$SCRIPT_DIR/services" "$ISO_DIR/system/services"
     copy_tree_if_present "$SCRIPT_DIR/userland" "$ISO_DIR/system/userland"
     copy_tree_if_present "$SCRIPT_DIR/desktop" "$ISO_DIR/desktop"
+    if [[ -f "$SCRIPT_DIR/system/services/chimera-gpu-driver-autoscan.service" ]]; then
+        mkdir -p "$ROOTFS_DIR/etc/systemd/system"
+        install -m 0644 "$SCRIPT_DIR/system/services/chimera-gpu-driver-autoscan.service" "$ROOTFS_DIR/etc/systemd/system/"
+        mkdir -p "$ROOTFS_DIR/etc/systemd/system/multi-user.target.wants"
+        ln -sf ../chimera-gpu-driver-autoscan.service "$ROOTFS_DIR/etc/systemd/system/multi-user.target.wants/chimera-gpu-driver-autoscan.service"
+    fi
     if [[ -d "$SCRIPT_DIR/desktop/aurora" ]]; then
         mkdir -p "$ROOTFS_DIR/usr/share/applications"
         for f in "$SCRIPT_DIR"/desktop/aurora/*.desktop; do
