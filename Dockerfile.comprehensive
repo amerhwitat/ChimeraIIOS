@@ -303,6 +303,22 @@ RUN set -eux; \
     npm cache clean --force
 
 # =============================================================================
+# Free/open-source terminal emulators + Aurora application-panel entries
+# =============================================================================
+RUN if [ -f /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh ]; then \
+      bash /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh; \
+    fi
+
+# Arabic Chimera shell integration and localized command catalog.
+RUN mkdir -p /etc/profile.d /opt/chimera/share/chimera/commands && \
+    if [ -f /build/repos/ChimeraIIOS/system/commands/chimera-arabic.json ]; then \
+      install -m 0644 /build/repos/ChimeraIIOS/system/commands/chimera-arabic.json /opt/chimera/share/chimera/commands/chimera-arabic.json; \
+    fi && \
+    if [ -f /build/repos/ChimeraIIOS/system/shell/chimera-shell.sh ]; then \
+      install -m 0644 /build/repos/ChimeraIIOS/system/shell/chimera-shell.sh /etc/profile.d/chimera-shell.sh; \
+    fi
+
+# =============================================================================
 # Create initialization and startup scripts
 # =============================================================================
 RUN mkdir -p $INSTALL_DIR/scripts && \
