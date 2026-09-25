@@ -843,14 +843,28 @@ EOF
 
     cp "$kernel" "$ISO_DIR/boot/kernel.bin"
     cp "$kernel" "$ISO_DIR/boot/koronos/koronos.elf"
-    cp "$BUILD_DIR/bootloaders/spitfire-sf0-mbr.bin" "$ISO_DIR/boot/spitfire/"
-    cp "$BUILD_DIR/bootloaders/spitfire-stage2.bin" "$ISO_DIR/boot/spitfire/"
-
-    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" -o "$ISO_DIR/boot/grub/aurora-wayland-glass.png"
-    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/jasper_background.svg" -o "$ISO_DIR/boot/jasper/background.png"
-    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/spitfire_background.svg" -o "$ISO_DIR/boot/spitfire/background.png"
-    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/desktop/aurora/assets/aurora-installer.svg" -o "$ISO_DIR/install/installer-background.png"
-    rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/desktop/aurora/assets/aurora-library.svg" -o "$ISO_DIR/install/library-background.png"
+    local rasterizer=""
+    if command -v rsvg-convert >/dev/null 2>&1; then
+        rasterizer="rsvg-convert"
+    elif command -v convert >/dev/null 2>&1; then
+        rasterizer="convert"
+    else
+        log_error "Aurora artwork requires rsvg-convert or ImageMagick convert."
+        exit 2
+    fi
+    if [[ "$rasterizer" == "rsvg-convert" ]]; then
+        rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" -o "$ISO_DIR/boot/grub/aurora-wayland-glass.png"
+        rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/jasper_background.svg" -o "$ISO_DIR/boot/jasper/background.png"
+        rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/boot/splash/spitfire_background.svg" -o "$ISO_DIR/boot/spitfire/background.png"
+        rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/desktop/aurora/assets/aurora-installer.svg" -o "$ISO_DIR/install/installer-background.png"
+        rsvg-convert -w 1920 -h 1080 "$SCRIPT_DIR/desktop/aurora/assets/aurora-library.svg" -o "$ISO_DIR/install/library-background.png"
+    else
+        convert -background none "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" "$ISO_DIR/boot/grub/aurora-wayland-glass.png"
+        convert -background none "$SCRIPT_DIR/boot/splash/jasper_background.svg" "$ISO_DIR/boot/jasper/background.png"
+        convert -background none "$SCRIPT_DIR/boot/splash/spitfire_background.svg" "$ISO_DIR/boot/spitfire/background.png"
+        convert -background none "$SCRIPT_DIR/desktop/aurora/assets/aurora-installer.svg" "$ISO_DIR/install/installer-background.png"
+        convert -background none "$SCRIPT_DIR/desktop/aurora/assets/aurora-library.svg" "$ISO_DIR/install/library-background.png"
+    fi
     log_success "Kernel, Spit Fire, Jasper and Aurora artwork staged."
 }
 
