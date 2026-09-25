@@ -629,6 +629,11 @@ stage_comprehensive_features() {
         local ss64_catalog="$SCRIPT_DIR/system/commands/ss64-command-catalog.json"
         if [[ -f "$ss64_catalog" ]]; then
             install -m 0644 "$ss64_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/ss64-command-catalog.json"
+        elif [[ -s "$ROOTFS_DIR/opt/chimera/share/chimera/commands/ss64-command-catalog.json" ]]; then
+            install -m 0644 "$ROOTFS_DIR/opt/chimera/share/chimera/commands/ss64-command-catalog.json" "$ROOTFS_DIR/usr/share/chimera/commands/ss64-command-catalog.json"
+            ss64_catalog="$ROOTFS_DIR/usr/share/chimera/commands/ss64-command-catalog.json"
+        fi
+        if [[ -f "$ss64_catalog" ]]; then
             install -m 0644 "$ss64_catalog" "$ISO_DIR/system/commands/ss64-command-catalog.json"
         fi
         if [[ -f "$shell_integration" ]]; then
