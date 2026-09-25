@@ -73,7 +73,7 @@ APACHE_ECOSYSTEM_MODE="${CHIMERA_APACHE_ECOSYSTEM:-metadata}"
 BUILD_STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-${BUILD_DIR}/.chimera-build-state}"
 RESUME_BUILD="${CHIMERA_RESUME:-0}"
 CLEAN_BUILD_STATE=0
-STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-1}"
+STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 LARGE_ISO_BUILD="${CHIMERA_LARGE_ISO_BUILD:-1}"
 STORAGE_MIN_FREE_GIB="${CHIMERA_STORAGE_MIN_FREE_GIB:-20}"
@@ -330,6 +330,12 @@ detect_docker_storage_pressure() {
     if docker info 2>&1 | grep -Eqi 'no space left on device|read-only|input/output error|SIGBUS'; then
         log_error "Docker reports a storage-layer failure."
         log_error "Docker Desktop stores its WSL engine data in its configured disk image location; move/expand that disk in Docker Desktop rather than copying its VHDX manually."
+        if [[ "$STORAGE_PROMPT" = "1" && -t 0 ]]; then
+            echo "A larger build drive can be selected now, but Docker Desktop own disk image may also need to be moved/expanded."
+            if ! choose_larger_storage "Docker engine storage is unhealthy or full."; then
+                return 1
+            fi
+        fi
         return 1
     fi
     [[ -n "$usage" ]] && log_info "Docker storage usage summary available."
