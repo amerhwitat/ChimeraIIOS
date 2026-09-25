@@ -155,6 +155,7 @@ if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
     GRUB_DIR="$BOOT_DIR/grub"
     ROOTFS_DIR="$BUILD_DIR/rootfs"
     ISO_OUTPUT_DIR="${CHIMERA_BUILD_STORAGE_ROOT%/}/chimera-output"
+    BUILD_STATE_FILE="$BUILD_DIR/.chimera-build-state"
     export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
 fi
 
@@ -218,6 +219,7 @@ apply_storage_root() {
     GRUB_DIR="$BOOT_DIR/grub"
     ROOTFS_DIR="$BUILD_DIR/rootfs"
     ISO_OUTPUT_DIR="$root/chimera-output"
+    BUILD_STATE_FILE="$BUILD_DIR/.chimera-build-state"
     export CHIMERA_BUILD_DIR="$BUILD_DIR"
     export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR"
     export CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
@@ -338,15 +340,18 @@ preflight_large_build_storage() {
     print_header "LARGE ISO / DOCKER / WSL STORAGE PREFLIGHT"
     show_storage_inventory
 
+    mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
     local root_free iso_free
     root_free="$(path_free_gib "$ROOTFS_DIR")"
     iso_free="$(path_free_gib "$ISO_OUTPUT_DIR")"
 
     if (( root_free < STORAGE_MIN_FREE_GIB )); then
-        choose_larger_storage "Rootfs staging filesystem has only $root_free GiB free."
+        choose_larger_storage "Rootfs staging filesystem has only $root_free GiB free." || return 1
+        root_free="$(path_free_gib "$ROOTFS_DIR")"
     fi
     if (( iso_free < STORAGE_MIN_FREE_GIB )); then
-        choose_larger_storage "ISO output filesystem has only $iso_free GiB free."
+        choose_larger_storage "ISO output filesystem has only $iso_free GiB free." || return 1
+        iso_free="$(path_free_gib "$ISO_OUTPUT_DIR")"
     fi
 
     if is_wsl; then
@@ -1126,10 +1131,17 @@ create_iso_image() {
     log_info "ISO payload: $(numfmt --to=iec "$payload_bytes" 2>/dev/null || echo "$payload_bytes bytes")"
     log_info "Filesystem free: $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")"
     if [ "$free_bytes" -lt "$required_bytes" ]; then
-        log_error "Insufficient filesystem space for ISO mastering."
-        log_error "Need at least $(numfmt --to=iec "$required_bytes" 2>/dev/null || echo "$required_bytes bytes"), have $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")."
-        log_error "Use CHIMERA_ISO_OUTPUT_DIR=/path/to/a/larger/filesystem or reduce the ISO payload."
-        exit 1
+        log_warning "Insufficient filesystem space for ISO mastering."
+        log_warning "Need at least $(numfmt --to=iec "$required_bytes" 2>/dev/null || echo "$required_bytes bytes"), have $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")."
+        if ! choose_larger_storage "ISO mastering filesystem is full or too small."; then
+            log_error "Use --storage /mnt/d or CHIMERA_ISO_OUTPUT_DIR=/path/to/a/larger/filesystem."
+            exit 1
+        fi
+        free_bytes="$(df --output=avail -B1 "$ISO_OUTPUT_DIR" | tail -n 1 | tr -d "[:space:]")"
+        if [ "$free_bytes" -lt "$required_bytes" ]; then
+            log_error "Selected ISO output filesystem is still too small."
+            exit 1
+        fi
     fi
 
     test -s "$ISO_DIR/boot/kernel.bin" || { log_error "ISO kernel linkage missing: /boot/kernel.bin"; exit 1; }
