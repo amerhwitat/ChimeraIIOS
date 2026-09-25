@@ -270,14 +270,37 @@ ENV PATH=/opt/chimera/venv/bin:$PATH
 # =============================================================================
 # Install Node.js ecosystem
 # =============================================================================
-RUN npm install -g \
-    typescript \
-    webpack webpack-cli \
-    babel @babel/cli \
-    eslint prettier \
-    jest \
-    pm2 \
-    && npm cache clean --force
+# npm registry access can be transient during large Docker builds. Configure
+# bounded retries/timeouts and disable non-essential audit/funding network
+# requests. Keep proxy settings supplied by the build environment intact.
+# The legacy "babel" package is intentionally not installed; modern Babel CLI
+# uses @babel/core + @babel/cli.
+RUN set -eux; \
+    npm config set registry https://registry.npmjs.org/; \
+    npm config set fetch-retries 6; \
+    npm config set fetch-retry-factor 2; \
+    npm config set fetch-retry-mintimeout 10000; \
+    npm config set fetch-retry-maxtimeout 120000; \
+    npm config set fetch-timeout 300000; \
+    npm config set maxsockets 4; \
+    npm_config_audit=false npm_config_fund=false npm_config_update_notifier=false \
+      npm view typescript version --fetch-retries=6 --fetch-timeout=300000 >/dev/null; \
+    node_packages="typescript webpack webpack-cli @babel/core @babel/cli eslint prettier jest pm2"; \
+    for attempt in 1 2 3; do \
+      echo "[Chimera] npm global toolchain install attempt $attempt/3"; \
+      if npm install -g --no-audit --no-fund --prefer-offline \
+          --fetch-retries=6 --fetch-retry-factor=2 \
+          --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=120000 \
+          --fetch-timeout=300000 --maxsockets=4 $node_packages; then \
+        break; \
+      fi; \
+      if [ "$attempt" -eq 3 ]; then \
+        echo "[Chimera][ERROR] npm global toolchain installation failed after retries." >&2; \
+        exit 1; \
+      fi; \
+      sleep $((attempt * 10)); \
+    done; \
+    npm cache clean --force
 
 # =============================================================================
 # Create initialization and startup scripts
