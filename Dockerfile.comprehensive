@@ -58,16 +58,16 @@ RUN set -eux; \
         echo "[Chimera] optional/unavailable package skipped: $pkg"; \
       fi; \
     done; \
-    # Keep valgrind outside the extended transaction: its libc6-dbg
-    # dependency must exactly match libc6 and can be unavailable on mixed
-    # Ubuntu mirrors. A failure here must not poison the complete image.
-    if apt-cache policy valgrind 2>/dev/null | grep -q 'Candidate:'; then
-      if apt-get install -y --no-install-recommends valgrind; then
-        echo "[Chimera] installed: valgrind"
-      else
-        echo "[Chimera][WARN] valgrind/libc6-dbg is not resolvable; skipped."
-      fi
-    fi
+    # Keep valgrind outside the extended transaction. This is still one
+    # Docker RUN shell command; every line must remain part of the RUN
+    # instruction through the continuation backslashes.
+    if apt-cache policy valgrind 2>/dev/null | grep -q 'Candidate:'; then \
+      if apt-get install -y --no-install-recommends valgrind; then \
+        echo "[Chimera] installed: valgrind"; \
+      else \
+        echo "[Chimera][WARN] valgrind/libc6-dbg is not resolvable; skipped."; \
+      fi; \
+    fi; \
     rm -rf /var/lib/apt/lists/*
 
 # Optional repository-specific packages are never allowed to turn the image
