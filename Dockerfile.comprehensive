@@ -329,6 +329,24 @@ RUN if [ -f /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh ]
       bash /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh; \
     fi
 
+# Display/GPU runtime stack. Use distro-signed components; never curl arbitrary
+# vendor installers into the image. ubuntu-drivers selects signed NVIDIA
+# packages, while AMD/Intel use the kernel DRM drivers plus Mesa/firmware.
+RUN set -eux; \
+    apt-get update -o Acquire::Retries=5; \
+    for pkg in wlr-randr x11-xserver-utils xrandr python3-tk mesa-utils mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libdrm2 vulkan-tools ubuntu-drivers-common linux-firmware xserver-xorg-video-amdgpu intel-media-va-driver mesa-va-drivers policykit-1; do \
+      candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"; \
+      if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then \
+        apt-get install -y --no-install-recommends "$pkg" || echo "[Chimera][WARN] display/GPU package failed: $pkg"; \
+      else echo "[Chimera] display/GPU package unavailable: $pkg"; fi; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /opt/chimera/share/chimera/display /usr/bin && \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-display /opt/chimera/share/chimera/display/chimera-display && \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-display-settings.py /opt/chimera/share/chimera/display/chimera-display-settings.py && \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/display/chimera-gpu-driver-manager /opt/chimera/share/chimera/display/chimera-gpu-driver-manager
+
 # Arabic Chimera shell integration and localized command catalog.
 RUN mkdir -p /etc/profile.d /opt/chimera/share/chimera/commands && \
     if [ -f /build/repos/ChimeraIIOS/system/commands/chimera-arabic.json ]; then \
