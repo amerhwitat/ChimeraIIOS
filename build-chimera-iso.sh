@@ -609,6 +609,15 @@ stage_comprehensive_features() {
     copy_tree_if_present "$SCRIPT_DIR/services" "$ISO_DIR/system/services"
     copy_tree_if_present "$SCRIPT_DIR/userland" "$ISO_DIR/system/userland"
     copy_tree_if_present "$SCRIPT_DIR/desktop" "$ISO_DIR/desktop"
+    if [[ -d "$SCRIPT_DIR/desktop/aurora" ]]; then
+        mkdir -p "$ROOTFS_DIR/usr/share/applications"
+        for f in "$SCRIPT_DIR"/desktop/aurora/*.desktop; do
+            [[ -f "$f" ]] && install -m 0644 "$f" "$ROOTFS_DIR/usr/share/applications/"
+        done
+        for f in display_settings.json gpu_driver_settings.json; do
+            [[ -f "$SCRIPT_DIR/desktop/aurora/$f" ]] && install -m 0644 "$SCRIPT_DIR/desktop/aurora/$f" "$ROOTFS_DIR/usr/share/chimera/"
+        done
+    fi
     copy_tree_if_present "$SCRIPT_DIR/network" "$ISO_DIR/network"
     copy_tree_if_present "$SCRIPT_DIR/installer" "$ISO_DIR/install/installer-source"
     copy_tree_if_present "$BUILD_DIR/mobile" "$ISO_DIR/mobile"
@@ -623,6 +632,9 @@ stage_comprehensive_features() {
     local cmd_tool="$SCRIPT_DIR/tools/runtime/chimera-command.py"
     local shell_integration="$SCRIPT_DIR/system/shell/chimera-shell.sh"
     local background_tool="$SCRIPT_DIR/tools/branding/chimera-background"
+    local display_tool="$SCRIPT_DIR/tools/display/chimera-display"
+    local display_gui="$SCRIPT_DIR/tools/display/chimera-display-settings.py"
+    local gpu_driver_tool="$SCRIPT_DIR/tools/display/chimera-gpu-driver-manager"
     if [[ -f "$cmd_catalog" && -f "$cmd_tool" ]]; then
         mkdir -p "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/etc/profile.d" "$ISO_DIR/system/commands" "$ISO_DIR/system/shell"
         install -m 0644 "$cmd_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-command-list.json"
@@ -650,6 +662,15 @@ stage_comprehensive_features() {
         if [[ -f "$background_tool" ]]; then
             install -m 0755 "$background_tool" "$ROOTFS_DIR/usr/bin/chimera-background"
             install -m 0755 "$background_tool" "$ISO_DIR/system/branding/chimera-background"
+        fi
+        if [[ -f "$display_tool" && -f "$display_gui" && -f "$gpu_driver_tool" ]]; then
+            install -m 0755 "$display_tool" "$ROOTFS_DIR/usr/bin/chimera-display"
+            install -m 0755 "$display_gui" "$ROOTFS_DIR/usr/bin/chimera-display-settings.py"
+            install -m 0755 "$gpu_driver_tool" "$ROOTFS_DIR/usr/bin/chimera-gpu-driver-manager"
+            mkdir -p "$ISO_DIR/system/display"
+            install -m 0755 "$display_tool" "$ISO_DIR/system/display/chimera-display"
+            install -m 0755 "$display_gui" "$ISO_DIR/system/display/chimera-display-settings.py"
+            install -m 0755 "$gpu_driver_tool" "$ISO_DIR/system/display/chimera-gpu-driver-manager"
         fi
         cat > "$ROOTFS_DIR/usr/share/chimera/commands/README.md" <<CMDREADME
 # Chimera II OS command catalog
