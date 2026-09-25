@@ -1,0 +1,9 @@
+{
+  "schema":"CHM-HARDWARE-DRIVER-POLICY-2",
+  "detection":{"pci":"lspci -Dnnk","usb":"lsusb -nn","udev":"udevadm","dmi":"dmidecode","storage":"lsblk -o NAME,MODEL,SERIAL,TRAN,TYPE,FSTYPE,MOUNTPOINT","firmware":"fwupdmgr get-devices"},
+  "priority":["in-tree-kernel-driver","Ubuntu-signed-package","signed-firmware","fwupd-LVFS","vendor-repository-with-signature"],
+  "never_execute":["unsigned-vendor-installer","arbitrary-curl-pipe-shell","unknown-kernel-module"],
+  "families":["display","audio","network","storage","usb","bluetooth","camera","input","printer","serial","thunderbolt","firmware","virtualization"],
+  "automatic_repair":{"enabled":true,"reboot_after_kernel_change":true,"create_restore_point":true},
+  "provenance":{"record":true,"path":"/var/lib/chimera/drivers/state.json"}
+}
