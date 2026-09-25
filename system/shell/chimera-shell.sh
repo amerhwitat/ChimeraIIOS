@@ -7,14 +7,14 @@ export LANG="${LANG:-C.UTF-8}"
 export LC_CTYPE="${LC_CTYPE:-C.UTF-8}"
 
 if command -v chimera >/dev/null 2>&1; then
-  alias مساعدة='chimera help --lang ar'
-  alias الأوامر='chimera commands --lang ar'
-  alias الأوامر_الأصلية='chimera native --lang ar'
-  alias ابحث='chimera search --lang ar'
-  alias أين='chimera which --lang ar'
-  alias معلومات_شيميرا='chimera info --lang ar'
-  alias تشخيص_شيميرا='chimera doctor --lang ar'
-  alias طرفية_شيميرا='chimera shell --lang ar'
+  alias مساعدة='chimera --lang ar help'
+  alias الأوامر='chimera --lang ar commands'
+  alias الأوامر_الأصلية='chimera --lang ar native'
+  alias ابحث='chimera --lang ar search'
+  alias أين='chimera --lang ar which'
+  alias معلومات_شيميرا='chimera --lang ar info'
+  alias تشخيص_شيميرا='chimera --lang ar doctor'
+  alias طرفية_شيميرا='chimera --lang ar shell'
 fi
 alias قائمة='ls'
 alias مجلد='ls'
@@ -53,7 +53,7 @@ alias نود='node'
 alias دوكر='docker'
 
 alias أوامر_سس64='chimera ss64 --lang ar'
-alias مساعدة_سس64='chimera help --lang ar'
-نفّذ() { command chimera run --lang ar "$@"; }
-شغّل() { command chimera run --lang ar "$@"; }
-شغل() { command chimera run --lang ar "$@"; }
+alias مساعدة_سس64='chimera --lang ar help'
+نفّذ() { command chimera --lang ar run "$@"; }
+شغّل() { command chimera --lang ar run "$@"; }
+شغل() { command chimera --lang ar run "$@"; }
