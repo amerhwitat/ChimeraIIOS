@@ -83,6 +83,14 @@ std::vector<Item> build(Surface surface) {
     return {};
 }
 
+const char* action_command(const std::string& action) {
+    if (action=="display" || action=="display-settings" || action=="display-resolution")
+        return "chimera-desktop-action display";
+    if (action=="gpu-drivers")
+        return "chimera-desktop-action gpu-drivers";
+    return "";
+}
+
 const char* surface_name(Surface surface) {
     switch (surface) {
     case Surface::File: return "file";
@@ -98,8 +106,9 @@ const char* surface_name(Surface surface) {
 void print(Surface surface) {
     std::printf("Aurora context menu: %s\n", surface_name(surface));
     for (const auto& entry : build(surface))
-        std::printf("  %s [%s]%s\n", entry.label.c_str(), entry.action.c_str(),
-                    entry.submenu ? " >" : "");
+        const char* command = action_command(entry.action);
+        std::printf("  %s [%s]%s%s%s\n", entry.label.c_str(), entry.action.c_str(),
+                    entry.submenu ? " >" : "", command[0] ? " -> " : "", command);
 }
 }
 
