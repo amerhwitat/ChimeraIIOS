@@ -1,0 +1,164 @@
+{
+  "schema": "CHM-HARDWARE-CATALOG-2",
+  "selection_rule": "prefer signed in-tree Linux kernel driver; then Ubuntu-supported userspace/firmware; use fwupd for signed device firmware",
+  "classes": {
+    "audio": {
+      "best": [
+        "snd_hda_intel",
+        "snd_usb_audio",
+        "snd_sof"
+      ],
+      "userspace": [
+        "pipewire",
+        "wireplumber",
+        "alsa-utils",
+        "alsa-ucm-conf"
+      ]
+    },
+    "display": {
+      "best": [
+        "amdgpu",
+        "i915",
+        "xe",
+        "nouveau"
+      ],
+      "proprietary": [
+        "nvidia-driver-*"
+      ],
+      "userspace": [
+        "mesa-vulkan-drivers",
+        "libgl1-mesa-dri",
+        "linux-firmware"
+      ]
+    },
+    "ethernet": {
+      "best": [
+        "e1000e",
+        "igc",
+        "igb",
+        "r8169",
+        "atlantic",
+        "tg3",
+        "bnx2",
+        "ixgbe",
+        "i40e",
+        "ice"
+      ]
+    },
+    "wifi": {
+      "best": [
+        "iwlwifi",
+        "ath9k",
+        "ath9k_htc",
+        "ath10k_pci",
+        "ath11k_pci",
+        "ath12k",
+        "mt76",
+        "brcmfmac",
+        "rtw88",
+        "rtw89"
+      ]
+    },
+    "bluetooth": {
+      "best": [
+        "btusb",
+        "btintel",
+        "btbcm",
+        "btrtl",
+        "btmtk"
+      ],
+      "userspace": [
+        "bluez"
+      ]
+    },
+    "storage": {
+      "best": [
+        "nvme",
+        "ahci",
+        "megaraid_sas",
+        "mpt3sas",
+        "virtio_blk",
+        "virtio_scsi",
+        "uas",
+        "usb_storage"
+      ]
+    },
+    "usb": {
+      "best": [
+        "xhci_pci",
+        "xhci_hcd",
+        "ehci_pci",
+        "ohci_pci",
+        "uhci_hcd",
+        "usb_storage",
+        "uas"
+      ]
+    },
+    "camera": {
+      "best": [
+        "uvcvideo"
+      ],
+      "userspace": [
+        "v4l-utils"
+      ]
+    },
+    "input": {
+      "best": [
+        "hid_generic",
+        "usbhid",
+        "i2c_hid_acpi",
+        "hid_multitouch"
+      ]
+    },
+    "printer": {
+      "best": [
+        "usblp"
+      ],
+      "userspace": [
+        "cups",
+        "cups-filters",
+        "printer-driver-all"
+      ]
+    },
+    "thunderbolt": {
+      "best": [
+        "thunderbolt"
+      ]
+    },
+    "serial": {
+      "best": [
+        "8250_pci",
+        "ftdi_sio",
+        "cp210x",
+        "ch341"
+      ]
+    },
+    "virtualization": {
+      "best": [
+        "virtio_pci",
+        "virtio_net",
+        "virtio_blk",
+        "virtio_scsi"
+      ]
+    },
+    "firmware": {
+      "best": [
+        "fwupd",
+        "linux-firmware",
+        "firmware-sof-signed"
+      ]
+    }
+  },
+  "diagnostics": [
+    "lspci -Dnnk",
+    "lsusb -nn",
+    "udevadm info",
+    "lshw -json",
+    "lsblk",
+    "aplay -l",
+    "arecord -l",
+    "ip -br link",
+    "rfkill list",
+    "fwupdmgr get-devices"
+  ]
+}
