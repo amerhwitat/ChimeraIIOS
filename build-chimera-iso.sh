@@ -24,6 +24,9 @@ cd "$CHIMERA_REPO_ROOT"
 #   --apache-ecosystem  Include the ASF official-release package manager/catalog
 #   --skip-apache       Do not stage the ASF ecosystem integration
 #   --background FILE   Use FILE as the boot/installer/desktop background
+#   --storage-auto      Automatically select a larger mounted drive when space is insufficient
+#   --storage PATH      Use PATH as the large-build storage/output root
+#   --no-storage-prompt Never prompt; fail with actionable storage diagnostics
 # =============================================================================
 
 set -Eeuo pipefail
@@ -70,6 +73,11 @@ APACHE_ECOSYSTEM_MODE="${CHIMERA_APACHE_ECOSYSTEM:-metadata}"
 BUILD_STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-${BUILD_DIR}/.chimera-build-state}"
 RESUME_BUILD="${CHIMERA_RESUME:-0}"
 CLEAN_BUILD_STATE=0
+STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-1}"
+STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
+LARGE_ISO_BUILD="${CHIMERA_LARGE_ISO_BUILD:-1}"
+STORAGE_MIN_FREE_GIB="${CHIMERA_STORAGE_MIN_FREE_GIB:-20}"
+ISO_RESERVE_GIB="${CHIMERA_ISO_RESERVE_GIB:-4}"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -116,6 +124,21 @@ while [[ $# -gt 0 ]]; do
             CLEAN_BUILD_STATE=1
             shift
             ;;
+        --storage-auto)
+            STORAGE_AUTO=1
+            shift
+            ;;
+        --storage)
+            [[ -n "${2:-}" ]] || { echo "--storage requires a path"; exit 1; }
+            ROOTFS_DIR="$2/chimera-rootfs"
+            ISO_OUTPUT_DIR="$2/chimera-output"
+            export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
+            shift 2
+            ;;
+        --no-storage-prompt)
+            STORAGE_PROMPT=0
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             exit 1
@@ -149,6 +172,166 @@ print_header() {
     echo "$*"
     echo "=================================================================="
     echo ""
+}
+
+# =============================================================================
+# LARGE-BUILD STORAGE / DOCKER / WSL DISCOVERY
+# =============================================================================
+
+is_wsl() {
+    grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null || [[ -n "${WSL_INTEROP:-}" ]] || [[ -d /mnt/wsl ]]
+}
+
+human_bytes() {
+    numfmt --to=iec "$1" 2>/dev/null || echo "$1 bytes"
+}
+
+path_free_bytes() {
+    df -PB1 "$1" 2>/dev/null | awk 'NR==2 {print $4}'
+}
+
+path_free_gib() {
+    local b="$(path_free_bytes "$1")"
+    [[ "$b" =~ ^[0-9]+$ ]] && echo $((b / 1024 / 1024 / 1024)) || echo 0
+}
+
+discover_wsl_drives() {
+    is_wsl || return 0
+    for d in /mnt/*; do
+        [[ -d "$d" ]] || continue
+        local name="${d#/mnt/}"
+        [[ "$name" =~ ^[a-zA-Z0-9._-]+$ ]] || continue
+        local free="$(path_free_gib "$d")"
+        (( free > 0 )) && printf '%s|%s\n' "$free" "$d"
+    done | sort -t'|' -nr
+}
+
+discover_native_mounts() {
+    local mounts
+    mounts="$(findmnt -rn -o TARGET,FSTYPE 2>/dev/null || true)"
+    while IFS=' ' read -r target fstype; do
+        [[ -n "$target" && "$target" != /proc* && "$target" != /sys* && "$target" != /dev* && "$target" != /run* ]] || continue
+        case "$fstype" in
+            ext4|ext3|xfs|btrfs|zfs|ntfs|ntfs3|exfat|fuseblk) ;;
+            *) continue ;;
+        esac
+        local free="$(path_free_gib "$target")"
+        (( free > 0 )) && printf '%s|%s\n' "$free" "$target"
+    done <<< "$mounts" | sort -t'|' -nr -u
+}
+
+show_storage_inventory() {
+    print_header "CHIMERA LARGE-BUILD STORAGE INVENTORY"
+    log_info "WSL detected: $(is_wsl && echo yes || echo no)"
+    log_info "Repository: $SCRIPT_DIR ($(path_free_gib "$SCRIPT_DIR") GiB free)"
+    log_info "Rootfs: $ROOTFS_DIR ($(path_free_gib "$ROOTFS_DIR") GiB free)"
+    log_info "ISO output: $ISO_OUTPUT_DIR ($(path_free_gib "$ISO_OUTPUT_DIR") GiB free)"
+    if command -v docker >/dev/null 2>&1; then
+        log_info "Docker root: $(docker info --format '{{.DockerRootDir}}' 2>/dev/null || echo unavailable)"
+        docker system df 2>/dev/null || true
+    fi
+    if is_wsl; then
+        log_info "Mounted WSL/Windows drives with free space:"
+        discover_wsl_drives | while IFS='|' read -r free path; do
+            printf '  %6s GiB  %s\n' "$free" "$path"
+        done
+    else
+        log_info "Candidate native build mounts:"
+        discover_native_mounts | while IFS='|' read -r free path; do
+            printf '  %6s GiB  %s\n' "$free" "$path"
+        done
+    fi
+}
+
+choose_larger_storage() {
+    local reason="${1:-insufficient build storage}"
+    show_storage_inventory
+    local candidates=""
+    if is_wsl; then
+        candidates="$(discover_wsl_drives || true)"
+    else
+        candidates="$(discover_native_mounts || true)"
+    fi
+
+    local best=""
+    while IFS='|' read -r free path; do
+        [[ "$free" =~ ^[0-9]+$ ]] || continue
+        (( free >= STORAGE_MIN_FREE_GIB )) || continue
+        [[ "$path" != "/" && "$path" != "$SCRIPT_DIR" ]] || continue
+        if [[ -z "$best" ]]; then best="$path"; fi
+    done <<< "$candidates"
+
+    if [[ "$STORAGE_AUTO" = "1" && -n "$best" ]]; then
+        log_warning "$reason"
+        log_info "Automatically selecting larger build drive: $best"
+        ROOTFS_DIR="$best/chimera-rootfs"
+        ISO_OUTPUT_DIR="$best/chimera-output"
+        export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
+        mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
+        log_success "Large-build storage switched to $best"
+        return 0
+    fi
+
+    if [[ "$STORAGE_PROMPT" = "1" && -t 0 ]]; then
+        echo ""
+        log_warning "Chimera needs more storage for the large ISO build."
+        echo "Enter another mounted drive/path, or press Enter to abort."
+        read -r -p "Storage path: " answer
+        if [[ -n "$answer" && -d "$answer" ]]; then
+            local free
+            free="$(path_free_gib "$answer")"
+            if (( free >= STORAGE_MIN_FREE_GIB )); then
+                ROOTFS_DIR="$answer/chimera-rootfs"
+                ISO_OUTPUT_DIR="$answer/chimera-output"
+                export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
+                mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
+                log_success "Using user-selected storage: $answer"
+                return 0
+            fi
+            log_error "Selected path has only $free GiB free; need at least $STORAGE_MIN_FREE_GIB GiB."
+        fi
+    fi
+
+    log_error "No sufficiently large storage location was selected."
+    log_error "Use --storage /mnt/d or CHIMERA_ROOTFS_DIR/CHIMERA_ISO_OUTPUT_DIR."
+    return 1
+}
+
+detect_docker_storage_pressure() {
+    command -v docker >/dev/null 2>&1 || return 0
+    local root usage
+    root="$(docker info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+    usage="$(docker system df --format '{{.Size}}' 2>/dev/null | head -n 20 || true)"
+    [[ -n "$root" ]] && log_info "Docker storage root: $root"
+    if docker info 2>&1 | grep -Eqi 'no space left on device|read-only|input/output error|SIGBUS'; then
+        log_error "Docker reports a storage-layer failure."
+        log_error "Docker Desktop stores its WSL engine data in its configured disk image location; move/expand that disk in Docker Desktop rather than copying its VHDX manually."
+        return 1
+    fi
+    [[ -n "$usage" ]] && log_info "Docker storage usage summary available."
+    return 0
+}
+
+preflight_large_build_storage() {
+    print_header "LARGE ISO / DOCKER / WSL STORAGE PREFLIGHT"
+    show_storage_inventory
+
+    local root_free iso_free
+    root_free="$(path_free_gib "$ROOTFS_DIR")"
+    iso_free="$(path_free_gib "$ISO_OUTPUT_DIR")"
+
+    if (( root_free < STORAGE_MIN_FREE_GIB )); then
+        choose_larger_storage "Rootfs staging filesystem has only $root_free GiB free."
+    fi
+    if (( iso_free < STORAGE_MIN_FREE_GIB )); then
+        choose_larger_storage "ISO output filesystem has only $iso_free GiB free."
+    fi
+
+    if is_wsl; then
+        log_info "WSL2 storage detected. Native Linux staging/output is preferred over /mnt/c for heavy filesystem operations."
+    fi
+    detect_docker_storage_pressure || return 1
+    mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
 }
 
 # =============================================================================
