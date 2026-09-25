@@ -7,6 +7,9 @@
       "id": "system",
       "pages": [
         "Display",
+        "Resolution & Refresh Rate",
+        "Multi-monitor",
+        "Graphics Drivers",
         "Sound",
         "Notifications",
         "Power",
@@ -182,5 +185,15 @@
     "changes": "apply-immediately-when-safe",
     "privileged_changes": "request-Koronos-Aegis-policy",
     "page_visibility": "configurable"
+  },
+  "display_control": {
+    "resolution_backends": [
+      "kscreen-doctor",
+      "wlr-randr",
+      "xrandr"
+    ],
+    "persistent_state": "$XDG_CONFIG_HOME/chimera/display.conf",
+    "driver_manager": "/usr/bin/chimera-gpu-driver-manager",
+    "network_policy": "signed Ubuntu package repositories only"
   }
 }
