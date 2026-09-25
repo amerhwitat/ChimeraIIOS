@@ -78,6 +78,9 @@ STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 LARGE_ISO_BUILD="${CHIMERA_LARGE_ISO_BUILD:-1}"
 STORAGE_MIN_FREE_GIB="${CHIMERA_STORAGE_MIN_FREE_GIB:-20}"
 ISO_RESERVE_GIB="${CHIMERA_ISO_RESERVE_GIB:-4}"
+STORAGE_REQUIRED_BYTES=0
+DOCKER_STORAGE_ROOT=""
+DOCKER_STORAGE_FREE_BYTES=0
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -338,6 +341,8 @@ show_storage_inventory() {
 
 choose_larger_storage() {
     local reason="${1:-insufficient build storage}"
+    local required_bytes="${2:-$STORAGE_REQUIRED_BYTES}"
+    [[ "$required_bytes" =~ ^[0-9]+$ ]] || required_bytes=0
     show_storage_inventory
     local candidates=""
     if is_wsl; then
