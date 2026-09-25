@@ -195,5 +195,12 @@
     "persistent_state": "$XDG_CONFIG_HOME/chimera/display.conf",
     "driver_manager": "/usr/bin/chimera-gpu-driver-manager",
     "network_policy": "signed Ubuntu package repositories only"
+  },
+  "driver_hardware": {
+    "entry": "/usr/bin/chimera-driver-panel.py",
+    "automatic_detection": true,
+    "audio_driver_manifest": "/usr/share/chimera/drivers/audio-driver-manifest.json",
+    "hardware_catalog": "/usr/share/chimera/drivers/hardware-driver-catalog.json",
+    "policy": "/usr/share/chimera/drivers/hardware-driver-policy.json"
   }
 }
