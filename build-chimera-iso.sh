@@ -23,6 +23,7 @@ cd "$CHIMERA_REPO_ROOT"
 #   --registry REGISTRY Push to specific registry
 #   --apache-ecosystem  Include the ASF official-release package manager/catalog
 #   --skip-apache       Do not stage the ASF ecosystem integration
+#   --background FILE   Use FILE as the boot/installer/desktop background
 # =============================================================================
 
 set -Eeuo pipefail
@@ -100,6 +101,12 @@ while [[ $# -gt 0 ]]; do
         --skip-apache)
             APACHE_ECOSYSTEM=0
             shift
+            ;;
+        --background)
+            [[ -n "${2:-}" ]] || { echo "--background requires an image path"; exit 1; }
+            CHIMERA_AURORA_ASSET="$2"
+            export CHIMERA_AURORA_ASSET
+            shift 2
             ;;
         --resume)
             RESUME_BUILD=1
