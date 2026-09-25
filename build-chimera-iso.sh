@@ -631,6 +631,11 @@ stage_comprehensive_features() {
             install -m 0644 "$arabic_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-arabic.json"
             install -m 0644 "$arabic_catalog" "$ISO_DIR/system/commands/chimera-arabic.json"
         fi
+        local ss64_catalog="$SCRIPT_DIR/system/commands/ss64-command-catalog.json"
+        if [[ -f "$ss64_catalog" ]]; then
+            install -m 0644 "$ss64_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/ss64-command-catalog.json"
+            install -m 0644 "$ss64_catalog" "$ISO_DIR/system/commands/ss64-command-catalog.json"
+        fi
         if [[ -f "$shell_integration" ]]; then
             install -m 0644 "$shell_integration" "$ROOTFS_DIR/etc/profile.d/chimera-shell.sh"
             install -m 0644 "$shell_integration" "$ISO_DIR/system/shell/chimera-shell.sh"
