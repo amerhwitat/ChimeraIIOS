@@ -63,7 +63,10 @@ std::vector<Item> build(Surface surface) {
             item("Show Thumbnails","toggle-thumbnails"), item("Arrange Icons","arrange",true),
             item("Icon Size","icon-size",true), item("Auto Arrange","auto-arrange"),
             item("Snap to Grid","snap-grid"), item("New Window","new-window"),
-            item("Display Settings","display-settings"),
+            item("Display / الشاشة","display",true),
+            item("Display Settings / إعدادات الشاشة","display-settings"),
+            item("Resolution / الدقة","display-resolution"),
+            item("Graphics Drivers / تعريفات الرسومات","gpu-drivers"),
             item("Personalization","personalization"),
             item("Folder Options","folder-options"), item("Properties","properties")
         };
