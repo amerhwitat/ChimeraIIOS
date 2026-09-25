@@ -47,7 +47,7 @@ DOCKER_NO_CACHE="${CHIMERA_DOCKER_NO_CACHE:-0}"
 DOCKER_RETRIES="${CHIMERA_DOCKER_RETRIES:-2}"
 ISO_NAME="ChimeraIIOS-comprehensive"
 ISO_VERSION="1.0.0"
-BUILD_DIR="${SCRIPT_DIR}/build"
+BUILD_DIR="${CHIMERA_BUILD_DIR:-${SCRIPT_DIR}/build}"
 DOCKER_DIR="${BUILD_DIR}/docker"
 ISO_DIR="${BUILD_DIR}/iso"
 SQUASHFS_DIR="${BUILD_DIR}/squashfs"
@@ -195,6 +195,22 @@ path_free_gib() {
     [[ "$b" =~ ^[0-9]+$ ]] && echo $((b / 1024 / 1024 / 1024)) || echo 0
 }
 
+apply_storage_root() {
+    local root="$1"
+    [[ -d "$root" ]] || { log_error "Storage root does not exist: $root"; return 1; }
+    BUILD_DIR="$root/chimera-build"
+    DOCKER_DIR="$BUILD_DIR/docker"
+    ISO_DIR="$BUILD_DIR/iso"
+    SQUASHFS_DIR="$BUILD_DIR/squashfs"
+    BOOT_DIR="$ISO_DIR/boot"
+    GRUB_DIR="$BOOT_DIR/grub"
+    ROOTFS_DIR="$BUILD_DIR/rootfs"
+    ISO_OUTPUT_DIR="$root/chimera-output"
+    export CHIMERA_BUILD_DIR="$BUILD_DIR"
+    export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR"
+    export CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
+    mkdir -p "$BUILD_DIR" "$DOCKER_DIR" "$ISO_DIR" "$SQUASHFS_DIR" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
+}
 discover_wsl_drives() {
     is_wsl || return 0
     for d in /mnt/*; do
@@ -264,10 +280,7 @@ choose_larger_storage() {
     if [[ "$STORAGE_AUTO" = "1" && -n "$best" ]]; then
         log_warning "$reason"
         log_info "Automatically selecting larger build drive: $best"
-        ROOTFS_DIR="$best/chimera-rootfs"
-        ISO_OUTPUT_DIR="$best/chimera-output"
-        export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
-        mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
+        apply_storage_root "$best"
         log_success "Large-build storage switched to $best"
         return 0
     fi
@@ -281,10 +294,7 @@ choose_larger_storage() {
             local free
             free="$(path_free_gib "$answer")"
             if (( free >= STORAGE_MIN_FREE_GIB )); then
-                ROOTFS_DIR="$answer/chimera-rootfs"
-                ISO_OUTPUT_DIR="$answer/chimera-output"
-                export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
-                mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR"
+                apply_storage_root "$answer"
                 log_success "Using user-selected storage: $answer"
                 return 0
             fi
@@ -1498,6 +1508,8 @@ main() {
             log_info "No prior checkpoint found; starting at the first stage."
         fi
     fi
+
+    preflight_large_build_storage
 
     check_requirements
 
