@@ -618,13 +618,23 @@ stage_comprehensive_features() {
     # Install the Linux/Bash compatibility catalog and native Chimera command list.
     # SS64 is used as a compatibility reference; its prose is not redistributed.
     local cmd_catalog="$SCRIPT_DIR/system/commands/chimera-command-list.json"
+    local arabic_catalog="$SCRIPT_DIR/system/commands/chimera-arabic.json"
     local cmd_tool="$SCRIPT_DIR/tools/runtime/chimera-command.py"
+    local shell_integration="$SCRIPT_DIR/system/shell/chimera-shell.sh"
     if [[ -f "$cmd_catalog" && -f "$cmd_tool" ]]; then
-        mkdir -p "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin" "$ISO_DIR/system/commands"
+        mkdir -p "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/etc/profile.d" "$ISO_DIR/system/commands" "$ISO_DIR/system/shell"
         install -m 0644 "$cmd_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-command-list.json"
         install -m 0755 "$cmd_tool" "$ROOTFS_DIR/usr/bin/chimera"
         install -m 0644 "$cmd_catalog" "$ISO_DIR/system/commands/chimera-command-list.json"
         install -m 0755 "$cmd_tool" "$ISO_DIR/system/commands/chimera-command"
+        if [[ -f "$arabic_catalog" ]]; then
+            install -m 0644 "$arabic_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-arabic.json"
+            install -m 0644 "$arabic_catalog" "$ISO_DIR/system/commands/chimera-arabic.json"
+        fi
+        if [[ -f "$shell_integration" ]]; then
+            install -m 0644 "$shell_integration" "$ROOTFS_DIR/etc/profile.d/chimera-shell.sh"
+            install -m 0644 "$shell_integration" "$ISO_DIR/system/shell/chimera-shell.sh"
+        fi
         cat > "$ROOTFS_DIR/usr/share/chimera/commands/README.md" <<CMDREADME
 # Chimera II OS command catalog
 
@@ -1022,6 +1032,13 @@ EOF
         convert -background none "$SCRIPT_DIR/boot/splash/spitfire_background.svg" "$ISO_DIR/boot/spitfire/background.png"
         convert -background none "$SCRIPT_DIR/desktop/aurora/assets/aurora-installer.svg" "$ISO_DIR/install/installer-background.png"
         convert -background none "$SCRIPT_DIR/desktop/aurora/assets/aurora-library.svg" "$ISO_DIR/install/library-background.png"
+    fi
+
+    # If the user supplies the Aurora-Wayland-Glass desktop image, use that
+    # exact artwork across every boot/installer surface. Repository SVGs remain
+    # deterministic fallbacks for unattended builds.
+    if [[ -x "$SCRIPT_DIR/tools/branding/stage-aurora-image.sh" ]]; then
+        "$SCRIPT_DIR/tools/branding/stage-aurora-image.sh" "$ISO_DIR" || log_warning "Supplied Aurora artwork could not be staged; keeping SVG backgrounds."
     fi
     log_success "Kernel, Spit Fire, Jasper and Aurora artwork staged."
 }
