@@ -15,21 +15,44 @@ for x in sh mount switch_root echo; do ln -sf busybox "$INIT/bin/$x"; done
 cat > "$INIT/init" <<'EOF'
 #!/bin/sh
 set -eu
-mount -t proc proc /proc || true
-mount -t sysfs sysfs /sys || true
-mount -t devtmpfs devtmpfs /dev || true
-mount -t tmpfs tmpfs /run || true
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t tmpfs tmpfs /run 2>/dev/null || true
 mkdir -p /mnt/chimera
-for dev in /dev/sr0 /dev/cdrom /dev/vda /dev/sda /dev/sdb /dev/mmcblk0; do
-  [ -e "$dev" ] || continue
-  mount -o ro "$dev" /mnt/chimera 2>/dev/null && break
+
+# Optical/USB devices can appear after the Multiboot2 module is handed to the
+# kernel. Retry long enough for BIOS/UEFI CD/DVD controllers and USB media to
+# settle instead of failing immediately with "live-manifest.json not found".
+mounted=0
+i=0
+while [ "$i" -lt 30 ]; do
+  for dev in /dev/sr0 /dev/cdrom /dev/vda /dev/sda /dev/sdb /dev/mmcblk0; do
+    [ -b "$dev" ] || continue
+    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then
+      mounted=1
+      break 2
+    fi
+    # Some VM/USB paths expose a filesystem without the ISO9660 type.
+    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then
+      mounted=1
+      break 2
+    fi
+  done
+  i=$((i + 1))
+  sleep 1
 done
-if [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
+
+if [ "$mounted" -eq 1 ] && [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
   echo "Chimera II OS Live Media"
   echo "Koronos kernel selected by Jasper/GRUB Multiboot2."
   echo "Koronos kernel: /mnt/chimera/boot/koronos/koronos.elf"
+  echo "Live manifest: /mnt/chimera/boot/live/live-manifest.json"
+  echo "Live initramfs: /mnt/chimera/boot/live/chimera-live-initramfs.img"
 else
-  echo "Chimera II OS: live media not found."
+  echo "Chimera II OS: live media not found after 30 seconds."
+  echo "Available block devices:"
+  ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
 fi
 exec /bin/sh
 EOF
