@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="${CHIMERA_BACKGROUND_ROOT:-/usr/share/chimera/artwork}"
+STATE="${CHIMERA_BACKGROUND_STATE:-/etc/chimera/background.conf}"
+cmd="${1:-show}"
+file="${2:-}"
+case "$cmd" in
+  set)
+    [[ -f "$file" ]] || { echo "Background file not found: $file" >&2; exit 2; }
+    mkdir -p "$ROOT" "$(dirname "$STATE")"
+    install -m 0644 "$file" "$ROOT/aurora-current.jpg"
+    printf 'background=%s\n' "$ROOT/aurora-current.jpg" > "$STATE"
+    for dst in /usr/share/chimera/artwork/desktop-background.jpg /usr/share/chimera/artwork/installer-background.jpg /usr/share/chimera/artwork/jasper-background.jpg /usr/share/chimera/artwork/spitfire-background.jpg; do
+      mkdir -p "$(dirname "$dst")"; cp "$ROOT/aurora-current.jpg" "$dst" 2>/dev/null || true
+    done
+    echo "Chimera background updated: $ROOT/aurora-current.jpg"
+    ;;
+  reset)
+    rm -f "$STATE" "$ROOT/aurora-current.jpg"
+    echo "Chimera background reset to build-time default."
+    ;;
+  show)
+    if [[ -f "$STATE" ]]; then cat "$STATE"; else echo "background=build-time-default"; fi
+    ;;
+  *) echo "Usage: chimera-background {set|show|reset} [IMAGE]" >&2; exit 2;;
+esac
