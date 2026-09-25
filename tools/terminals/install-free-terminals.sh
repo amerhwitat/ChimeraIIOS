@@ -8,7 +8,7 @@ mkdir -p "$META_DIR" "$APP_DIR"
 if command -v apt-get >/dev/null 2>&1; then
   apt-get update -o Acquire::Retries=5
   candidates=()
-  for p in foot alacritty kitty wezterm ptyxis gnome-terminal konsole xfce4-terminal terminator xterm; do
+  for p in foot alacritty kitty wezterm ptyxis gnome-terminal gnome-console konsole xfce4-terminal terminator tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal xterm; do
     if apt-cache policy "$p" 2>/dev/null | grep -q 'Candidate:'; then candidates+=("$p"); else echo "[Chimera][TERMINALS] package unavailable: $p"; fi
   done
   for p in "${candidates[@]}"; do
@@ -42,7 +42,15 @@ desktop_for kitty kitty "Kitty Terminal" "طرفية Kitty"
 desktop_for wezterm wezterm "WezTerm" "طرفية WezTerm"
 desktop_for ptyxis ptyxis "Ptyxis Terminal" "طرفية Ptyxis"
 desktop_for gnome-terminal gnome-terminal "GNOME Terminal" "طرفية GNOME"
+desktop_for gnome-console kgx "GNOME Console" "طرفية GNOME Console"
 desktop_for konsole konsole "Konsole Terminal" "طرفية Konsole"
 desktop_for xfce4-terminal xfce4-terminal "XFCE Terminal" "طرفية XFCE"
 desktop_for terminator terminator "Terminator" "طرفية Terminator"
+desktop_for tilix tilix "Tilix Terminal" "طرفية Tilix"
+desktop_for mate-terminal mate-terminal "MATE Terminal" "طرفية MATE"
+desktop_for qterminal qterminal "QTerminal" "طرفية QTerminal"
+desktop_for sakura sakura "Sakura Terminal" "طرفية Sakura"
+desktop_for terminology terminology "Terminology" "طرفية Terminology"
+desktop_for lxterminal lxterminal "LXTerminal" "طرفية LX"
+desktop_for blackbox-terminal blackbox "Black Box Terminal" "طرفية Black Box"
 desktop_for xterm xterm "XTerm" "طرفية XTerm"
