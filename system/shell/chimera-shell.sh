@@ -51,3 +51,9 @@ alias بايثون='python3'
 alias جافا='java'
 alias نود='node'
 alias دوكر='docker'
+
+alias أوامر_سس64='chimera ss64 --lang ar'
+alias مساعدة_سس64='chimera help --lang ar'
+نفّذ() { command chimera run --lang ar "$@"; }
+شغّل() { command chimera run --lang ar "$@"; }
+شغل() { command chimera run --lang ar "$@"; }
