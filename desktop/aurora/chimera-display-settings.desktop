@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Display Settings
+Name[ar]=إعدادات الشاشة
+Comment=Change resolution and refresh rate
+Comment[ar]=تغيير دقة الشاشة ومعدل التحديث
+Exec=/usr/bin/chimera-display-settings.py
+Icon=video-display
+Categories=Settings;HardwareSettings;
+Terminal=false
