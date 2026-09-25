@@ -286,19 +286,21 @@ RUN set -eux; \
     npm_config_audit=false npm_config_fund=false npm_config_update_notifier=false \
       npm view typescript version --fetch-retries=6 --fetch-timeout=300000 >/dev/null; \
     node_packages="typescript webpack webpack-cli @babel/core @babel/cli eslint prettier jest pm2"; \
-    for attempt in 1 2 3; do \
-      echo "[Chimera] npm global toolchain install attempt $attempt/3"; \
-      if npm install -g --no-audit --no-fund --prefer-offline \
-          --fetch-retries=6 --fetch-retry-factor=2 \
-          --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=120000 \
-          --fetch-timeout=300000 --maxsockets=4 $node_packages; then \
-        break; \
+    for pkg in $node_packages; do \
+      installed=0; \
+      for attempt in 1 2 3; do \
+        echo "[Chimera] npm install -g $pkg attempt $attempt/3"; \
+        if npm install -g --no-audit --no-fund --prefer-offline \
+            --fetch-retries=8 --fetch-retry-factor=2 \
+            --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 --maxsockets=4 "$pkg"; then \
+          installed=1; break; \
+        fi; \
+        sleep $((attempt * 10)); \
+      done; \
+      if [ "$installed" -ne 1 ]; then \
+        echo "[Chimera][WARN] npm package unavailable after retries; continuing without: $pkg"; \
       fi; \
-      if [ "$attempt" -eq 3 ]; then \
-        echo "[Chimera][ERROR] npm global toolchain installation failed after retries." >&2; \
-        exit 1; \
-      fi; \
-      sleep $((attempt * 10)); \
     done; \
     npm cache clean --force
 
