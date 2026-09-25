@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+STATE="${CHIMERA_DISPLAY_STATE:-${XDG_CONFIG_HOME:-$HOME/.config}/chimera/display.conf}"
+SYSTEM_STATE="${CHIMERA_SYSTEM_DISPLAY_STATE:-/etc/chimera/display.conf}"
+mkdir -p "$(dirname "$STATE")"
+backend() {
+  if command -v kscreen-doctor >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then echo kscreen; return; fi
+  if command -v wlr-randr >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then echo wlr; return; fi
+  if command -v xrandr >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then echo xrandr; return; fi
+  echo none
+}
+list_outputs() {
+  case "$(backend)" in
+    kscreen) kscreen-doctor -o ;;
+    wlr) wlr-randr ;;
+    xrandr) xrandr --query ;;
+    *) echo "No supported display control backend found (kscreen-doctor/wlr-randr/xrandr)." >&2; return 2;;
+  esac
+}
+apply_mode() {
+  local output="$1" mode="$2" rate="${3:-}"
+  case "$(backend)" in
+    kscreen)
+      if [[ -n "$rate" ]]; then kscreen-doctor output."$output".mode."$mode"@"$rate"; else kscreen-doctor output."$output".mode."$mode"; fi ;;
+    wlr)
+      if [[ -n "$rate" ]]; then wlr-randr --output "$output" --mode "$mode@$rate"Hz; else wlr-randr --output "$output" --mode "$mode"; fi ;;
+    xrandr)
+      if [[ -n "$rate" ]]; then xrandr --output "$output" --mode "$mode" --rate "$rate"; else xrandr --output "$output" --mode "$mode"; fi ;;
+    *) echo "No supported display backend." >&2; return 2;;
+  esac
+}
+save_mode() {
+  printf 'output=%q\nmode=%q\nrate=%q\n' "$1" "$2" "${3:-}" > "$STATE"
+}
+apply_saved() {
+  local file="$STATE"
+  [[ -f "$file" ]] || file="$SYSTEM_STATE"
+  [[ -f "$file" ]] || { echo "No saved display configuration."; return 0; }
+  local output="" mode="" rate=""
+  source "$file"
+  [[ -n "$output" && -n "$mode" ]] || { echo "Invalid display configuration: $file" >&2; return 2; }
+  apply_mode "$output" "$mode" "$rate"
+}
+case "${1:-list}" in
+  list|outputs|modes) list_outputs ;;
+  backend) backend ;;
+  set)
+    [[ -n "${2:-}" && -n "${3:-}" ]] || { echo "Usage: chimera-display set OUTPUT MODE [REFRESH_HZ]"; exit 2; }
+    apply_mode "$2" "$3" "${4:-}"
+    save_mode "$2" "$3" "${4:-}"
+    ;;
+  apply-saved) apply_saved ;;
+  reset) rm -f "$STATE"; echo "Saved per-user display configuration removed." ;;
+  *) echo "Usage: chimera-display {list|backend|set OUTPUT MODE [HZ]|apply-saved|reset}"; exit 2 ;;
+esac
