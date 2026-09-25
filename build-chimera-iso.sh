@@ -148,6 +148,7 @@ print_header() {
 # RESUMABLE BUILD STATE
 # =============================================================================
 
+
 build_state_get() {
     if [[ -f "$BUILD_STATE_FILE" ]]; then
         sed -n "s/^completed=//p" "$BUILD_STATE_FILE" | tail -n 1
@@ -156,18 +157,23 @@ build_state_get() {
     # Backward-compatible recovery: builds performed before checkpoints were
     # introduced can still resume from the artifacts left by a failed stage.
     if [[ -s "$ISO_DIR/live/filesystem.squashfs" && -s "$ISO_DIR/boot/kernel.bin" && -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" && -s "$ISO_DIR/boot/live/live-manifest.json" ]]; then
-        log_info "No checkpoint file found; detected completed SquashFS stage from existing artifacts."
+        log_info "No checkpoint file found; detected completed SquashFS stage from existing artifacts." >&2
         echo "squashfs"
         return 0
     fi
     if [[ -d "$ROOTFS_DIR" && -e "$ROOTFS_DIR/etc/os-release" ]]; then
-        log_info "No checkpoint file found; detected completed rootfs export from existing staging tree."
+        log_info "No checkpoint file found; detected completed rootfs export from existing staging tree." >&2
         echo "rootfs"
         return 0
     fi
     return 0
 }
 
+build_state_mark() {
+    local stage="$1"
+    mkdir -p "$(dirname "$BUILD_STATE_FILE")"
+    cat > "$BUILD_STATE_FILE" <<EOF
+schema=1
 build_state_mark() {
     local stage="$1"
     mkdir -p "$(dirname "$BUILD_STATE_FILE")"
