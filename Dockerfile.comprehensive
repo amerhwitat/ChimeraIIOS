@@ -372,6 +372,9 @@ RUN ln -sf /opt/chimera/share/chimera/display/chimera-display /usr/local/bin/chi
 RUN if [ -f /build/repos/ChimeraIIOS/system/services/chimera-gpu-driver-autoscan.service ]; then \
       install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-gpu-driver-autoscan.service /etc/systemd/system/chimera-gpu-driver-autoscan.service; \
     fi
+RUN if [ -f /build/repos/ChimeraIIOS/system/services/chimera-hardware-driver-autoscan.service ]; then \
+      install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-hardware-driver-autoscan.service /etc/systemd/system/chimera-hardware-driver-autoscan.service; \
+    fi
 
 # Arabic Chimera shell integration and localized command catalog.
 RUN mkdir -p /etc/profile.d /opt/chimera/share/chimera/commands && \
