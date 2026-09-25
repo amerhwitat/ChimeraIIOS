@@ -1018,7 +1018,8 @@
     "chimera-shell-ar",
     "chimera-locale",
     "chimera-ss64",
-    "chimera-background"
+    "chimera-background",
+    "chimera-gpu-driver-manager"
   ],
   "universal_aliases": {
     "dir": [
@@ -1092,6 +1093,9 @@
     "terminal_catalog": "system/terminals/chimera-terminals.json",
     "shell_integration": "system/shell/chimera-shell.sh",
     "deep_catalog": "system/commands/ss64-command-catalog.json",
-    "binary_provider": "tools/commands/install-command-providers.sh"
+    "binary_provider": "tools/commands/install-command-providers.sh",
+    "display_control": "tools/display/chimera-display",
+    "display_gui": "tools/display/chimera-display-settings.py",
+    "gpu_driver_manager": "tools/display/chimera-gpu-driver-manager"
   }
 }
