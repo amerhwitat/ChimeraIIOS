@@ -1,0 +1,11 @@
+{
+  "schema":"CHM-AURORA-DRIVERS-PANEL-2",
+  "title":"Drivers & Hardware / التعريفات والأجهزة",
+  "pages":["Hardware scan","Drivers","Audio","Firmware","Compatibility","Devices"],
+  "audio_manifest":"/usr/share/chimera/drivers/audio-driver-manifest.json",
+  "hardware_policy":"/usr/share/chimera/drivers/hardware-driver-policy.json",
+  "automatic_detection":true,
+  "automatic_repair":"signed-packages-and-in-tree-modules",
+  "firmware":"fwupd",
+  "binary_policy":"kernel modules and firmware are supplied by Ubuntu/Linux packages; proprietary vendor binaries are not redistributed in the Chimera source tree"
+}
