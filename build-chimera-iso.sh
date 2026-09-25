@@ -615,6 +615,7 @@ stage_comprehensive_features() {
     local arabic_catalog="$SCRIPT_DIR/system/commands/chimera-arabic.json"
     local cmd_tool="$SCRIPT_DIR/tools/runtime/chimera-command.py"
     local shell_integration="$SCRIPT_DIR/system/shell/chimera-shell.sh"
+    local background_tool="$SCRIPT_DIR/tools/branding/chimera-background"
     if [[ -f "$cmd_catalog" && -f "$cmd_tool" ]]; then
         mkdir -p "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/etc/profile.d" "$ISO_DIR/system/commands" "$ISO_DIR/system/shell"
         install -m 0644 "$cmd_catalog" "$ROOTFS_DIR/usr/share/chimera/commands/chimera-command-list.json"
@@ -633,6 +634,10 @@ stage_comprehensive_features() {
         if [[ -f "$shell_integration" ]]; then
             install -m 0644 "$shell_integration" "$ROOTFS_DIR/etc/profile.d/chimera-shell.sh"
             install -m 0644 "$shell_integration" "$ISO_DIR/system/shell/chimera-shell.sh"
+        fi
+        if [[ -f "$background_tool" ]]; then
+            install -m 0755 "$background_tool" "$ROOTFS_DIR/usr/bin/chimera-background"
+            install -m 0755 "$background_tool" "$ISO_DIR/system/branding/chimera-background"
         fi
         cat > "$ROOTFS_DIR/usr/share/chimera/commands/README.md" <<CMDREADME
 # Chimera II OS command catalog
