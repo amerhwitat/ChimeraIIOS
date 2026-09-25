@@ -18,8 +18,8 @@ STATUS="$("$ROOT/tools/runtime/chimera-nbit-mode.py" get 2>/dev/null || printf '
 NEURAL_STATUS="$("$ROOT/tools/runtime/chimera-neural-dim.py" get 2>/dev/null || printf '{"dimensions":1024,"representation":"HyperDimensional","learning":"AdaptiveTensor"}')"
 printf 'Aurora Wayland Glass: profile=%s shell=%s | CHIMERA II ISA %s | NEURAL %s\n' "$PROFILE" "$SHELL_ID" "$STATUS" "$NEURAL_STATUS"
 # Restore the user's last display mode when the compositor is ready.
-if [ "${CHIMERA_DISPLAY_RESTORE:-1}" = "1" ] && [ -x "$ROOT/tools/display/chimera-display" ]; then
-  "$ROOT/tools/display/chimera-display" apply-saved >/tmp/chimera-display-restore.log 2>&1 || true
+if [ "${CHIMERA_DISPLAY_RESTORE:-1}" = "1" ] && command -v chimera-display >/dev/null 2>&1; then
+  chimera-display apply-saved >/tmp/chimera-display-restore.log 2>&1 || true
 fi
 if [ "${CHIMERA_AURORA_NBIT_PANEL:-1}" = "1" ] && [ -x "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" ]; then
   "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" >/tmp/chimera-aurora-nbit-panel.log 2>&1 &
