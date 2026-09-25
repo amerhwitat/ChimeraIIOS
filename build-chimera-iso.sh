@@ -675,10 +675,17 @@ export_docker_to_rootfs() {
     log_info "Rootfs staging safety requirement: $(numfmt --to=iec "$rootfs_required_bytes" 2>/dev/null || echo "$rootfs_required_bytes bytes")"
 
     if [ "$rootfs_free_bytes" -lt "$rootfs_required_bytes" ]; then
-        log_error "Insufficient space for Docker rootfs extraction."
-        log_error "Free space on the rootfs filesystem or set CHIMERA_ROOTFS_DIR to a larger filesystem."
-        log_error "Example: CHIMERA_ROOTFS_DIR=/mnt/d/chimera-rootfs sudo bash ./build-chimera-iso.sh"
-        exit 1
+        log_warning "Insufficient space for Docker rootfs extraction."
+        log_warning "Required: $(numfmt --to=iec "$rootfs_required_bytes" 2>/dev/null || echo "$rootfs_required_bytes bytes"); available: $(numfmt --to=iec "$rootfs_free_bytes" 2>/dev/null || echo "$rootfs_free_bytes bytes")."
+        if ! choose_larger_storage "Docker rootfs staging filesystem is too small."; then
+            log_error "Set CHIMERA_ROOTFS_DIR=/path/on/a/larger-drive and retry."
+            exit 1
+        fi
+        rootfs_free_bytes="$(df --output=avail -B1 "$ROOTFS_DIR" | tail -n 1 | tr -d "[:space:]")"
+        if [ "$rootfs_free_bytes" -lt "$rootfs_required_bytes" ]; then
+            log_error "Selected rootfs filesystem is still too small."
+            exit 1
+        fi
     fi
 
     rm -rf "$ROOTFS_DIR"/*
