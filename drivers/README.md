@@ -39,3 +39,18 @@ Windows INF/CAT/SYS packages are verified and staged as candidates. On Windows, 
 Curated acquisition sources live in `acquisition_sources.json`. The source updater manages metadata; it does not execute downloaded drivers. Open-source source is integrated only with its original compatible license and provenance retained.
 
 See `docs/DRIVER_ACQUISITION.md` for the complete flow.
+
+
+## Universal hardware and audio drivers
+
+The Chimera driver layer now includes:
+
+- ALSA/HDA, USB Audio, Intel SOF, AMD ACP and common PCI sound-card families.
+- PipeWire/WirePlumber audio userspace.
+- Linux firmware and signed SOF firmware.
+- fwupd/LVFS firmware detection.
+- PCI, USB, udev, DMI, DRM, storage, network, camera, input, printer, Bluetooth and Thunderbolt detection.
+- A hardware/driver catalog describing preferred in-tree drivers and supported userspace packages.
+- Aurora Drivers & Hardware panel and automatic detection/repair service.
+
+The ISO stages the distribution-provided kernel modules, firmware and userland binaries that are available in the selected Ubuntu packages. Proprietary vendor binaries are not redistributed in the source tree; supported vendor packages are acquired only from authenticated repositories.
