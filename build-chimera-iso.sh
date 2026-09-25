@@ -49,7 +49,7 @@ ISO_DIR="${BUILD_DIR}/iso"
 SQUASHFS_DIR="${BUILD_DIR}/squashfs"
 BOOT_DIR="${ISO_DIR}/boot"
 GRUB_DIR="${BOOT_DIR}/grub"
-ROOTFS_DIR="${ISO_DIR}/rootfs"
+ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-${ISO_DIR}/rootfs}"
 # Keep GRUB/mtools/xorriso scratch files on a native Linux filesystem (critical
 # for WSL /mnt/c builds). The final ISO can be redirected to a larger filesystem
 # with CHIMERA_ISO_OUTPUT_DIR when the repository drive is space constrained.
@@ -351,39 +351,62 @@ export_docker_to_rootfs() {
     
     log_info "Creating temporary directory for rootfs..."
     mkdir -p "$ROOTFS_DIR"
-    
-    log_info "Exporting Docker image to tar..."
-    
-    # Always flatten the final image with docker export.  Manually unpacking
-    # containerd layer tarballs is unnecessary and is more fragile with the
-    # Docker Desktop containerd image store.
-    log_info "Flattening final image with docker export..."
+
+    # Stream docker export directly into tar. The old implementation first
+    # created a complete chimera-rootfs.tar and then extracted it, temporarily
+    # requiring space for BOTH the archive and the uncompressed rootfs.
+    # That caused "tar: var/tmp: Cannot mkdir: No space left on device" on
+    # large Chimera images.
+    log_info "Preparing streamed Docker rootfs export..."
+
+    local image_size_bytes
+    image_size_bytes="$(docker image inspect --format='{{.Size}}' "$DOCKER_IMAGE:$DOCKER_TAG" 2>/dev/null || echo 0)"
+    if [[ ! "$image_size_bytes" =~ ^[0-9]+$ ]] || [ "$image_size_bytes" -le 0 ]; then
+        log_error "Unable to determine Docker image size for rootfs storage preflight."
+        exit 1
+    fi
+
+    local rootfs_free_bytes
+    rootfs_free_bytes="$(df -PB1 "$ROOTFS_DIR" | awk 'NR==2 {print $4}')"
+    local rootfs_required_bytes=$((image_size_bytes + image_size_bytes / 4 + 2*1024*1024*1024))
+    log_info "Docker image filesystem size: $(numfmt --to=iec "$image_size_bytes" 2>/dev/null || echo "$image_size_bytes bytes")"
+    log_info "Rootfs staging free space: $(numfmt --to=iec "$rootfs_free_bytes" 2>/dev/null || echo "$rootfs_free_bytes bytes")"
+    log_info "Rootfs staging safety requirement: $(numfmt --to=iec "$rootfs_required_bytes" 2>/dev/null || echo "$rootfs_required_bytes bytes")"
+
+    if [ "$rootfs_free_bytes" -lt "$rootfs_required_bytes" ]; then
+        log_error "Insufficient space for Docker rootfs extraction."
+        log_error "Free space on the rootfs filesystem or set CHIMERA_ROOTFS_DIR to a larger filesystem."
+        log_error "Example: CHIMERA_ROOTFS_DIR=/mnt/d/chimera-rootfs sudo bash ./build-chimera-iso.sh"
+        exit 1
+    fi
+
     rm -rf "$ROOTFS_DIR"/*
     local container_name="chimera-export-${BASHPID}"
     docker rm -f "$container_name" >/dev/null 2>&1 || true
     docker create --name "$container_name" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
 
     set +e
-    docker export "$container_name" > "$BUILD_DIR/chimera-rootfs.tar"
-    local export_rc=$?
-    local tar_rc=1
-    if [ "$export_rc" -eq 0 ]; then
-        tar -xpf "$BUILD_DIR/chimera-rootfs.tar" -C "$ROOTFS_DIR"
-        tar_rc=$?
-    fi
-    rm -f "$BUILD_DIR/chimera-rootfs.tar"
+    docker export "$container_name" | tar -xpf - -C "$ROOTFS_DIR"
+    local pipe_status=( "${PIPESTATUS[@]}" )
+    local export_rc="${pipe_status[0]:-1}"
+    local tar_rc="${pipe_status[1]:-1}"
     set -e
 
     docker rm -f "$container_name" >/dev/null 2>&1 || true
 
     if [ "$export_rc" -ne 0 ] || [ "$tar_rc" -ne 0 ] || [ ! -d "$ROOTFS_DIR/bin" ]; then
-        log_error "Docker image export failed or root filesystem is incomplete."
-        log_error "If Docker reports read-only filesystem/Input/output error/SIGBUS,"
-        log_error "repair Docker Desktop/WSL storage before retrying the ISO build."
+        log_error "Docker image export or rootfs extraction failed."
+        log_error "docker export status: $export_rc; tar extraction status: $tar_rc"
+        log_error "The rootfs staging filesystem filled or Docker export failed."
+        local remaining_bytes
+        remaining_bytes="$(df -PB1 "$ROOTFS_DIR" | awk 'NR==2 {print $4}')"
+        log_error "Rootfs staging free space after failure: $(numfmt --to=iec "$remaining_bytes" 2>/dev/null || echo "$remaining_bytes bytes")"
+        rm -rf "$ROOTFS_DIR"/*
+        log_error "If Docker also reports read-only filesystem/Input/output error/SIGBUS, repair Docker Desktop/WSL storage before retrying."
         exit 1
     fi
 
-    log_success "Rootfs exported successfully"
+    log_success "Rootfs exported successfully (streamed; no intermediate rootfs tar created)"
 }
 
 # =============================================================================
