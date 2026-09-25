@@ -1019,7 +1019,10 @@
     "chimera-locale",
     "chimera-ss64",
     "chimera-background",
-    "chimera-gpu-driver-manager"
+    "chimera-gpu-driver-manager",
+    "chimera-hardware-drivers",
+    "chimera-driver-panel",
+    "chimera-audio-drivers"
   ],
   "universal_aliases": {
     "dir": [
@@ -1097,5 +1100,10 @@
     "display_control": "tools/display/chimera-display",
     "display_gui": "tools/display/chimera-display-settings.py",
     "gpu_driver_manager": "tools/display/chimera-gpu-driver-manager"
+  },
+  "driver_hardware_catalog": {
+    "manifest": "drivers/hardware-driver-catalog.json",
+    "audio_manifest": "drivers/audio-driver-manifest.json",
+    "policy": "drivers/hardware-driver-policy.json"
   }
 }
