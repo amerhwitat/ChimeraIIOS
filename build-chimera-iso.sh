@@ -1037,8 +1037,8 @@ EOF
     # If the user supplies the Aurora-Wayland-Glass desktop image, use that
     # exact artwork across every boot/installer surface. Repository SVGs remain
     # deterministic fallbacks for unattended builds.
-    if [[ -x "$SCRIPT_DIR/tools/branding/stage-aurora-image.sh" ]]; then
-        "$SCRIPT_DIR/tools/branding/stage-aurora-image.sh" "$ISO_DIR" || log_warning "Supplied Aurora artwork could not be staged; keeping SVG backgrounds."
+    if [[ -f "$SCRIPT_DIR/tools/branding/stage-aurora-image.sh" ]]; then
+        bash "$SCRIPT_DIR/tools/branding/stage-aurora-image.sh" "$ISO_DIR" || log_warning "Supplied Aurora artwork could not be staged; keeping SVG backgrounds."
     fi
     log_success "Kernel, Spit Fire, Jasper and Aurora artwork staged."
 }
