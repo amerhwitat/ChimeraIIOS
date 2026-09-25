@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "product": "Chimera II OS",
   "purpose": "Unified native command and compatibility catalog derived from the public SS64 command-reference indexes.",
   "sources": [
@@ -1010,7 +1010,11 @@
     "chimera-vector",
     "chimera-tensor",
     "chimera-128d",
-    "chimera-hdc"
+    "chimera-hdc",
+    "chimera-terminal",
+    "chimera-terminals",
+    "chimera-shell-ar",
+    "chimera-locale"
   ],
   "universal_aliases": {
     "dir": [
@@ -1078,5 +1082,10 @@
       "where",
       "Get-Command"
     ]
+  },
+  "metadata": {
+    "arabic_catalog": "system/commands/chimera-arabic.json",
+    "terminal_catalog": "system/terminals/chimera-terminals.json",
+    "shell_integration": "system/shell/chimera-shell.sh"
   }
 }
