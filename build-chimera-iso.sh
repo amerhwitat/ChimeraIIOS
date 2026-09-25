@@ -757,7 +757,7 @@ CMDREADME
     "passwd-shadow", "filesystem-permissions", "Linux-security",
     "Cockpit-style-web-administration", "Spotnik-networking",
     "Nucleus-Hive-Kore-Aegis", "Apache-ecosystem",
-    "mobile-editions", "toolchains", "compatibility-layers"
+    "mobile-editions", "toolchains", "compatibility-layers", "display-resolution", "multi-monitor", "gpu-driver-auto-detection", "signed-driver-repositories"
   ]
 }
 EOF
