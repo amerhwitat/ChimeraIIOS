@@ -53,7 +53,8 @@ def clean(s):
 def classify(label,url,platform):
     name=clean(label)
     if not name or len(name)>160: return None
-    if name in {"Home","Search","Contact","About","Donate","Examples","Syntax","Related"}: return None
+    if len(name)==1 and name.isalpha(): return None
+    if name in {"Home","Search","Contact","About","Donate","Examples","Syntax","Related","Next","Previous","Back","Top","Index"}: return None
     if name.startswith(("http://","https://","mailto:")): return None
     if not re.search(r"[A-Za-z0-9_$?&./+-]",name): return None
     return {"name":name,"url":url,"platform":platform}
