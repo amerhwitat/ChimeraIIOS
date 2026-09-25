@@ -74,7 +74,13 @@ def main(argv):
         print("  chimera doctor         تشخيص البيئة" if ar else "  chimera doctor         Diagnose shell environment")
         return 0
     if op=="commands":
-        for x in cmds: print(name(x,ar)+"  ["+x+"]" if ar and name(x,ar)!=x else x)
+        seen=set()
+        for x in cmds:
+            seen.add(x.lower())
+            print(name(x,ar)+"  ["+x+"]" if ar and name(x,ar)!=x else x)
+        for platform,x,url in ss64_commands():
+            if x.lower() in seen: continue
+            print((name(x,ar)+"  ["+x+"]" if ar and name(x,ar)!=x else x)+"  <"+platform+">")
         return 0
     if op=="native":
         for x in natives: print(name(x,ar)+"  ["+x+"]" if ar and name(x,ar)!=x else x)
