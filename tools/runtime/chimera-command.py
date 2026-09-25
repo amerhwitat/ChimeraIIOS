@@ -114,7 +114,7 @@ def main(argv):
         return subprocess.call(args[1:])
     if op=="info":
         print("شيميرا II OS — فهرس أوامر موحّد" if ar else "Chimera II OS — unified command catalog")
-        print(("أوامر التوافق: %d | الأوامر الأصلية: %d" if ar else "Compatibility commands: %d | Native commands: %d") % (len(cmds),len(natives)))
+        print(("أوامر التوافق: %d | الأوامر الأصلية: %d | فهرس SS64: %d" if ar else "Compatibility commands: %d | Native commands: %d | Deep SS64 index: %d") % (len(cmds),len(natives),len(ss64_commands())))
         return 0
     if op=="doctor":
         checks=[("catalog",os.path.exists(CATALOG)),("arabic",os.path.exists(ARABIC)),("shell",bool(os.environ.get("SHELL")))]
