@@ -889,8 +889,9 @@ EOF
 
 stage_comprehensive_features() {
     print_header "STAGING COMPREHENSIVE CHIMERA II OS FEATURES"
-    mkdir -p "$ISO_DIR/boot/chimera" "$ISO_DIR/system" "$ISO_DIR/opt/chimera" \
-             "$ISO_DIR/desktop" "$ISO_DIR/network" "$ISO_DIR/mobile" \
+    mkdir -p "$ISO_DIR/boot/chimera" "$ISO_DIR/system" "$ISO_DIR/system/branding" \
+             "$ISO_DIR/system/commands" "$ISO_DIR/system/shell" "$ISO_DIR/system/display" \
+             "$ISO_DIR/opt/chimera" "$ISO_DIR/desktop" "$ISO_DIR/network" "$ISO_DIR/mobile" \
              "$ISO_DIR/drivers" "$ISO_DIR/toolchains" "$ISO_DIR/install"
 
     copy_tree_if_present() {
