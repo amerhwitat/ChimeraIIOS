@@ -503,6 +503,14 @@ stage_comprehensive_features() {
     copy_tree_if_present "$BUILD_DIR/network-tools" "$ISO_DIR/network-tools"
     copy_tree_if_present "$SCRIPT_DIR/system/security" "$ISO_DIR/boot/chimera/security"
 
+    # Canonical boot-manager configuration and recovery contracts.
+    mkdir -p "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/installation" "$ISO_DIR/boot/recovery" "$ISO_DIR/boot/diagnostics"
+    for f in "$SCRIPT_DIR"/boot/jasper/*.cfg; do [[ -f "$f" ]] && cp -f "$f" "$ISO_DIR/boot/jasper/"; done
+    [[ -f "$SCRIPT_DIR/boot/spitfire/spitfire-menu.cfg" ]] && cp -f "$SCRIPT_DIR/boot/spitfire/spitfire-menu.cfg" "$ISO_DIR/boot/spitfire/"
+    [[ -f "$SCRIPT_DIR/boot/installation/menu.cfg" ]] && cp -f "$SCRIPT_DIR/boot/installation/menu.cfg" "$ISO_DIR/boot/installation/"
+    [[ -f "$SCRIPT_DIR/boot/recovery/recovery-manifest.json" ]] && cp -f "$SCRIPT_DIR/boot/recovery/recovery-manifest.json" "$ISO_DIR/boot/recovery/"
+    [[ -f "$SCRIPT_DIR/boot/diagnostics/diagnostics-manifest.json" ]] && cp -f "$SCRIPT_DIR/boot/diagnostics/diagnostics-manifest.json" "$ISO_DIR/boot/diagnostics/"
+
     for f in \
         boot/boot_protocol.json boot/boot-menu-contract.json \
         boot/startup/boot_phase_manifest.json \
