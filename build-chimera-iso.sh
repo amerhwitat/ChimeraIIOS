@@ -367,6 +367,8 @@ build_docker_image() {
 
     local build_rc=1
     local attempt
+    local build_log="/tmp/chimera-docker-build.log"
+    : > "$build_log"
     for attempt in $(seq 1 "$DOCKER_RETRIES"); do
         log_info "Docker build attempt $attempt/$DOCKER_RETRIES"
         set +e
@@ -374,12 +376,24 @@ build_docker_image() {
             -f "$SCRIPT_DIR/Dockerfile.comprehensive" \
             -t "$DOCKER_IMAGE:$DOCKER_TAG" \
             -t "$DOCKER_IMAGE:latest" \
-            "$SCRIPT_DIR"
-        build_rc=$?
+            "$SCRIPT_DIR" 2>&1 | tee "$build_log"
+        build_rc="${PIPESTATUS[0]}"
         set -e
         [ "$build_rc" -eq 0 ] && break
+
+        # Only classify a failure as Docker/WSL storage corruption when the
+        # actual build log contains storage-specific signatures. npm/HTTP/DNS
+        # failures are application-network failures and must not be mislabeled
+        # as errno 5/SIGBUS.
+        if grep -Eqi 'input/output error|read-only file system|read-only filesystem|SIGBUS|no space left on device|failed to mount|overlay.*(error|fail)' "$build_log"; then
+            log_error "Docker build log contains a storage/overlayfs failure signature."
+            log_error "Check Docker Desktop/WSL storage before retrying."
+        elif grep -Eqi 'npm ERR!.*network|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed' "$build_log"; then
+            log_warning "Docker build failed in npm/network access; storage preflight is not being blamed."
+        fi
+
         if [ "$attempt" -lt "$DOCKER_RETRIES" ]; then
-            log_warning "Build failed; running a small Docker storage write test before retry."
+            log_warning "Build failed; running a Docker storage write test before retry."
             if ! docker run --rm ubuntu:24.04 sh -c 'dd if=/dev/zero of=/tmp/chimera-retry.bin bs=1M count=8 status=none && test -s /tmp/chimera-retry.bin' >/tmp/chimera-storage-retry.log 2>&1; then
                 log_error "Docker storage test failed; aborting retries."
                 cat /tmp/chimera-storage-retry.log >&2 || true
@@ -405,10 +419,15 @@ build_docker_image() {
         fi
     else
         log_error "Docker image build failed (exit $build_rc)."
-        log_error "errno 5 / Input/output error, read-only filesystem, or SIGBUS"
-        log_error "indicates Docker Desktop/WSL storage failure."
-        log_error "Do not use apt --fix-missing or apt-get -f install to repair Docker storage errors."
-        log_error "Recovery: quit Docker Desktop, run 'wsl --shutdown' from PowerShell, then restart Docker Desktop."
+        if grep -Eqi 'input/output error|read-only file system|read-only filesystem|SIGBUS|no space left on device|failed to mount|overlay.*(error|fail)' "$build_log"; then
+            log_error "Detected Docker Desktop/WSL storage or overlayfs failure."
+            log_error "Do not use apt --fix-missing or apt-get -f install to repair Docker storage."
+            log_error "Recovery: quit Docker Desktop, run 'wsl --shutdown' from PowerShell, then restart Docker Desktop."
+        elif grep -Eqi 'npm ERR!.*network|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed' "$build_log"; then
+            log_error "Detected npm/network failure. Check DNS/proxy/registry connectivity from Docker."
+        else
+            log_error "Build failure was not identified as a Docker storage failure; inspect: $build_log"
+        fi
         exit "$build_rc"
     fi
 }
