@@ -166,5 +166,13 @@
   "display": "الشاشة",
   "resolution": "الدقة",
   "gpu": "معالج_الرسومات",
-  "driver": "التعريف"
+  "driver": "التعريف",
+  "chimera-hardware-drivers": "تعريفات_الأجهزة",
+  "chimera-driver-panel.py": "لوحة_التعريفات",
+  "hardware-drivers": "تعريفات_الأجهزة",
+  "drivers": "التعريفات",
+  "sound-drivers": "تعريفات_الصوت",
+  "audio-drivers": "تعريفات_الصوت",
+  "hardware-scan": "فحص_الأجهزة",
+  "firmware": "البرامج_الثابتة"
 }
