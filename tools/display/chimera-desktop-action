@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+case "${1:-}" in
+  display|display-settings|display-resolution)
+    exec /usr/bin/chimera-display-settings.py ;;
+  gpu-drivers|graphics-drivers)
+    exec pkexec /usr/bin/chimera-gpu-driver-manager install ;;
+  *)
+    echo "Usage: chimera-desktop-action {display|display-settings|display-resolution|gpu-drivers}" >&2
+    exit 2 ;;
+esac
