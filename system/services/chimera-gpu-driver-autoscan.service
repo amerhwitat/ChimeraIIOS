@@ -1,0 +1,12 @@
+[Unit]
+Description=Chimera II OS automatic graphics driver detection
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/chimera-gpu-driver-manager auto
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
