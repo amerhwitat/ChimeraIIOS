@@ -175,7 +175,7 @@ check_requirements() {
     fi
 
     # Dependencies specific to the comprehensive Docker/rootfs workflow.
-    local required_tools=("docker" "mktemp" "mount" "unsquashfs" "mksquashfs")
+    local required_tools=("docker" "mktemp" "mount" "unsquashfs" "mksquashfs" "xorriso" "grub-mkrescue" "grub-file" "cpio" "file")
     local missing_tools=()
     for tool in "${required_tools[@]}"; do
         command -v "$tool" >/dev/null 2>&1 || missing_tools+=("$tool")
@@ -468,6 +468,92 @@ EOF
 }
 
 # =============================================================================
+# STAGE COMPREHENSIVE CHIMERA II OS FEATURES
+# =============================================================================
+
+stage_comprehensive_features() {
+    print_header "STAGING COMPREHENSIVE CHIMERA II OS FEATURES"
+    mkdir -p "$ISO_DIR/boot/chimera" "$ISO_DIR/system" "$ISO_DIR/opt/chimera" \
+             "$ISO_DIR/desktop" "$ISO_DIR/network" "$ISO_DIR/mobile" \
+             "$ISO_DIR/drivers" "$ISO_DIR/toolchains" "$ISO_DIR/install"
+
+    copy_tree_if_present() {
+        local src="$1" dst="$2"
+        [[ -d "$src" ]] || return 0
+        mkdir -p "$dst"
+        cp -a "$src/." "$dst/"
+    }
+
+    copy_tree_if_present "$SCRIPT_DIR/services" "$ISO_DIR/system/services"
+    copy_tree_if_present "$SCRIPT_DIR/userland" "$ISO_DIR/system/userland"
+    copy_tree_if_present "$SCRIPT_DIR/desktop" "$ISO_DIR/desktop"
+    copy_tree_if_present "$SCRIPT_DIR/network" "$ISO_DIR/network"
+    copy_tree_if_present "$SCRIPT_DIR/installer" "$ISO_DIR/install/installer-source"
+    copy_tree_if_present "$BUILD_DIR/mobile" "$ISO_DIR/mobile"
+    copy_tree_if_present "$BUILD_DIR/drivers" "$ISO_DIR/drivers"
+    copy_tree_if_present "$BUILD_DIR/toolchains" "$ISO_DIR/toolchains"
+    copy_tree_if_present "$BUILD_DIR/network-tools" "$ISO_DIR/network-tools"
+    copy_tree_if_present "$SCRIPT_DIR/system/security" "$ISO_DIR/boot/chimera/security"
+
+    for f in \
+        boot/boot_protocol.json boot/boot-menu-contract.json \
+        boot/startup/boot_phase_manifest.json \
+        installer/installation_phases.json installer/installer_profiles.json \
+        installer/chimera-installer-plan.json; do
+        [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/boot/chimera/"
+    done
+
+    if [[ -d "$BUILD_DIR/boot-artifacts/runtime" ]]; then
+        cp -a "$BUILD_DIR/boot-artifacts/runtime/." "$ISO_DIR/opt/chimera/"
+    fi
+
+    for f in \
+        desktop/aurora/assets/aurora-wayland-glass.svg \
+        desktop/aurora/assets/aurora-installer.svg \
+        desktop/aurora/assets/aurora-library.svg \
+        desktop/aurora/assets/aurora-desktop.svg \
+        boot/splash/aurora_boot_splash.svg \
+        boot/splash/jasper_background.svg \
+        boot/splash/spitfire_background.svg; do
+        [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/boot/chimera/"
+    done
+
+    for f in \
+        "$ISO_DIR/boot/grub/aurora-wayland-glass.png" \
+        "$ISO_DIR/boot/jasper/background.png" \
+        "$ISO_DIR/boot/spitfire/background.png" \
+        "$ISO_DIR/install/installer-background.png" \
+        "$ISO_DIR/install/library-background.png"; do
+        test -s "$f" || { log_error "Required Aurora artwork missing: $f"; exit 1; }
+    done
+
+    cat > "$ISO_DIR/boot/chimera/feature-manifest.json" <<EOF
+{
+  "schema": "CHM-ISO-FEATURES-2026-1",
+  "kernel": "/boot/koronos/koronos.elf",
+  "kernel_protocol": "Multiboot2",
+  "native_boot_chain": ["Spit Fire", "Jasper", "GRUB2", "Koronos"],
+  "firmware": ["BIOS", "UEFI"],
+  "boot_artifacts": ["/boot/chimera/elf", "/boot/chimera/bin"],
+  "live": {
+    "initramfs": "/boot/live/chimera-live-initramfs.img",
+    "manifest": "/boot/live/live-manifest.json"
+  },
+  "desktop": "Aurora Wayland",
+  "features": [
+    "screen-saver", "auto-lock", "battery-optimizer",
+    "Active-Directory", "local-users", "root-superuser",
+    "passwd-shadow", "filesystem-permissions", "Linux-security",
+    "Cockpit-style-web-administration", "Spotnik-networking",
+    "Nucleus-Hive-Kore-Aegis", "Apache-ecosystem",
+    "mobile-editions", "toolchains", "compatibility-layers"
+  ]
+}
+EOF
+    log_success "Comprehensive feature payload and Aurora artwork staged."
+}
+
+# =============================================================================
 # CREATE SQUASHFS FILESYSTEM
 # =============================================================================
 
@@ -615,9 +701,15 @@ create_iso_image() {
     test -s "$ISO_DIR/boot/kernel.bin" || { log_error "ISO kernel linkage missing: /boot/kernel.bin"; exit 1; }
     test -s "$ISO_DIR/boot/koronos/koronos.elf" || { log_error "ISO Koronos payload missing."; exit 1; }
     test -s "$ISO_DIR/boot/spitfire/spitfire-stage2.bin" || { log_error "ISO Spit Fire stage2 missing."; exit 1; }
-    grep -q "multiboot2 /boot/kernel.bin" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB is not linked to the kernel stub."; exit 1; }
+    grep -Eq "multiboot2 /boot/(koronos/koronos\\.elf|kernel\\.bin)" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB is not linked to the Koronos Multiboot2 kernel."; exit 1; }
     grep -q "background_image /boot/grub/aurora-wayland-glass.png" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "Aurora GRUB background is not configured."; exit 1; }
-    grub-mkrescue -o "$iso_file" "$ISO_DIR"
+    test -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" || { log_error "Live initramfs missing."; exit 1; }
+    test -s "$ISO_DIR/boot/live/live-manifest.json" || { log_error "Live manifest missing."; exit 1; }
+    grep -q "/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB live initramfs linkage missing."; exit 1; }
+    grep -q "/boot/live/live-manifest.json" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB live manifest linkage missing."; exit 1; }
+    local xorriso_opts=(-iso-level 3 -joliet -rockridge -volid "CHIMERA_II_OS")
+    log_info "Mastering large-capacity BIOS + UEFI ISO with ISO9660 Level 3..."
+    grub-mkrescue -o "$iso_file" "$ISO_DIR" -- "${xorriso_opts[@]}"
     test -s "$iso_file"
     sha256sum "$iso_file" > "${iso_file}.sha256"
     log_success "BIOS + UEFI ISO created: $iso_file"
@@ -696,15 +788,34 @@ create_boot_menu() {
     cp "$kernel" "$ISO_DIR/boot/kernel.bin"
     cp "$kernel" "$ISO_DIR/boot/koronos/koronos.elf"
 
-    log_info "Building linked Spit Fire BIOS stages..."
-    "$SCRIPT_DIR/boot/spitfire/build-spitfire.sh" "$BUILD_DIR/bootloaders" "$kernel"
+    log_info "Building complete native boot artifact set (Spit Fire + Jasper + GRUB + Koronos)..."
+    bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
+    local boot_art="$BUILD_DIR/boot-artifacts"
+    test -s "$boot_art/jasper/jasper.elf" || { log_error "Jasper ELF was not produced."; exit 1; }
+    mkdir -p "$ISO_DIR/boot/chimera/elf" "$ISO_DIR/boot/chimera/bin" "$ISO_DIR/boot/chimera/manifests"
+    cp -a "$boot_art/all-elf/." "$ISO_DIR/boot/chimera/elf/" 2>/dev/null || true
+    cp -a "$boot_art/all-bin/." "$ISO_DIR/boot/chimera/bin/" 2>/dev/null || true
+    cp -a "$boot_art/manifests/." "$ISO_DIR/boot/chimera/manifests/" 2>/dev/null || true
+    cp "$boot_art/jasper/jasper.elf" "$ISO_DIR/boot/jasper/jasper.elf"
     for f in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o; do
-        test -s "$BUILD_DIR/bootloaders/$f" || { log_error "Missing Spit Fire artifact: $f"; exit 1; }
-        cp "$BUILD_DIR/bootloaders/$f" "$ISO_DIR/boot/spitfire/"
+        test -s "$boot_art/spitfire/$f" || { log_error "Missing Spit Fire artifact: $f"; exit 1; }
+        cp "$boot_art/spitfire/$f" "$ISO_DIR/boot/spitfire/"
     done
 
     cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$GRUB_DIR/grub.cfg"
     cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/grub.cfg"
+
+    log_info "Building live-boot payload..."
+    bash "$SCRIPT_DIR/tools/build-live-boot-binaries.sh"
+    local live_boot="$BUILD_DIR/live-boot"
+    for f in "$live_boot/boot/live/chimera-live-initramfs.img" "$live_boot/boot/live/live-manifest.json" "$live_boot/boot/koronos/koronos.elf"; do
+        test -s "$f" || { log_error "Missing live boot artifact: $f"; exit 1; }
+    done
+    mkdir -p "$ISO_DIR/boot/live"
+    cp "$live_boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/"
+    cp "$live_boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/"
+    cp "$live_boot/boot/koronos/koronos.elf" "$ISO_DIR/boot/koronos/koronos.elf"
+    [[ -s "$live_boot/boot/vmlinuz" ]] && cp "$live_boot/boot/vmlinuz" "$ISO_DIR/boot/live/vmlinuz" || true
     cat > "$GRUB_DIR/grub-early.cfg" <<EOF
 insmod all_video
 insmod gfxterm
@@ -952,6 +1063,7 @@ main() {
         create_boot_menu
         add_branding
         prepare_apache_ecosystem
+        stage_comprehensive_features
         create_squashfs
         create_iso_image
         verify_iso
