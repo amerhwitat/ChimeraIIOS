@@ -329,6 +329,25 @@ RUN if [ -f /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh ]
       bash /build/repos/ChimeraIIOS/tools/terminals/install-free-terminals.sh; \
     fi
 
+# Universal hardware/audio driver runtime. Kernel modules and firmware come from
+# Ubuntu/Linux packages; proprietary binaries are never embedded from untrusted URLs.
+RUN set -eux; \
+    apt-get update -o Acquire::Retries=5; \
+    for pkg in linux-modules-extra-generic linux-firmware firmware-sof-signed pciutils usbutils hwdata lshw dmidecode kmod fwupd alsa-utils alsa-ucm-conf alsa-topology-conf alsa-tools pipewire wireplumber pipewire-alsa pipewire-pulse libasound2-plugins pavucontrol bluez v4l-utils cups cups-filters printer-driver-all rfkill network-manager; do \
+      candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"; \
+      if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then \
+        apt-get install -y --no-install-recommends "$pkg" || echo "[Chimera][WARN] hardware/audio package failed: $pkg"; \
+      else echo "[Chimera][WARN] hardware/audio package unavailable: $pkg"; fi; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /opt/chimera/share/chimera/drivers /usr/local/bin && \
+    install -m 0644 /build/repos/ChimeraIIOS/drivers/audio-driver-manifest.json /opt/chimera/share/chimera/drivers/ && \
+    install -m 0644 /build/repos/ChimeraIIOS/drivers/hardware-driver-policy.json /opt/chimera/share/chimera/drivers/ && \
+    install -m 0644 /build/repos/ChimeraIIOS/drivers/hardware-driver-catalog.json /opt/chimera/share/chimera/drivers/ && \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/drivers/chimera-hardware-drivers /usr/local/bin/chimera-hardware-drivers && \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/drivers/chimera-driver-panel.py /usr/local/bin/chimera-driver-panel.py
+
 # Display/GPU runtime stack. Use distro-signed components; never curl arbitrary
 # vendor installers into the image. ubuntu-drivers selects signed NVIDIA
 # packages, while AMD/Intel use the kernel DRM drivers plus Mesa/firmware.
