@@ -26,7 +26,7 @@ module(){ modprobe "$1" 2>/dev/null || log "module unavailable/not loadable: $1"
 audio(){
   log "Installing signed ALSA/PipeWire audio support..."
   apt-get update -o Acquire::Retries=5
-  local pkgs=(alsa-utils alsa-ucm-conf pipewire wireplumber pipewire-alsa pipewire-pulse libasound2-plugins pavucontrol linux-firmware firmware-sof-signed)
+  local pkgs=(alsa-utils alsa-ucm-conf pipewire wireplumber pipewire-alsa pipewire-pulse libasound2-plugins pavucontrol linux-firmware firmware-sof-signed alsa-topology-conf alsa-tools)
   for p in "${pkgs[@]}"; do
     if apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/ && $2!="(none)"{ok=1} END{exit !ok}'; then apt-get install -y --no-install-recommends "$p" || log "skipped: $p"; fi
   done
@@ -34,7 +34,7 @@ audio(){
 }
 common(){
   apt-get update -o Acquire::Retries=5
-  local pkgs=(pciutils usbutils udev hwdata lshw dmidecode kmod linux-firmware fwupd)
+  local pkgs=(pciutils usbutils udev hwdata lshw dmidecode kmod linux-firmware fwupd linux-modules-extra-generic bluez v4l-utils cups cups-filters printer-driver-all rfkill network-manager)
   for p in "${pkgs[@]}"; do
     if apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/ && $2!="(none)"{ok=1} END{exit !ok}'; then apt-get install -y --no-install-recommends "$p" || log "skipped: $p"; fi
   done
@@ -59,11 +59,30 @@ install_all(){
   printf '{"schema":"CHM-DRIVER-STATE-1","last_scan":"%s","policy":"signed-repositories-and-in-tree-drivers","audio":"ALSA+PipeWire","firmware":"fwupd+linux-firmware"}\n' "$now" > "$STATE"
   log "Hardware driver baseline installed. Reboot if kernel modules or firmware require it."
 }
+auto(){
+  local marker="$ROOT/auto-complete"
+  if [[ -f "$marker" ]]; then
+    scan > "$ROOT/last-scan.txt" 2>&1 || true
+    return 0
+  fi
+  if [[ "$(id -u)" -ne 0 ]]; then
+    scan > "$ROOT/last-scan.txt" 2>&1 || true
+    return 0
+  fi
+  if install_all > "$ROOT/last-auto-install.log" 2>&1; then
+    date -Is > "$marker"
+  else
+    log "Automatic package repair could not complete; retaining hardware scan and will retry later."
+    scan > "$ROOT/last-scan.txt" 2>&1 || true
+  fi
+}
+
 case "${1:-status}" in
   scan|detect) scan ;;
   audio|sound) audio ;;
   firmware) firmware ;;
-  install|repair|auto) install_all; status ;;
+  install|repair) install_all; status ;;
+  auto) auto; status ;;
   status) status ;;
   *) echo "Usage: chimera-hardware-drivers {scan|audio|firmware|install|repair|auto|status}"; exit 2 ;;
 esac
