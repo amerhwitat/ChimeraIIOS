@@ -208,6 +208,61 @@ path_free_gib() {
     [[ "$b" =~ ^[0-9]+$ ]] && echo $((b / 1024 / 1024 / 1024)) || echo 0
 }
 
+path_size_bytes() {
+    local p="$1"
+    if [[ -f "$p" ]]; then
+        stat -c%s "$p" 2>/dev/null || stat -f%z "$p" 2>/dev/null || echo 0
+    else
+        du -sb "$p" 2>/dev/null | awk '{print $1}'
+    fi
+}
+
+detect_docker_desktop_vhdx() {
+    is_wsl || return 0
+    local user_dir vhdx
+    for user_dir in /mnt/c/Users/*; do
+        [[ -d "$user_dir" ]] || continue
+        vhdx="$user_dir/AppData/Local/Docker/wsl/disk/docker_data.vhdx"
+        [[ -f "$vhdx" ]] || continue
+        printf '%s|%s|%s\n' "$vhdx" "$(path_free_bytes "$user_dir")" "$(path_size_bytes "$vhdx")"
+    done
+}
+
+detect_wsl_distro_vhdx() {
+    is_wsl || return 0
+    local user_dir vhdx
+    for user_dir in /mnt/c/Users/*; do
+        [[ -d "$user_dir" ]] || continue
+        for vhdx in "$user_dir"/AppData/Local/Packages/*/LocalState/ext4.vhdx; do
+            [[ -f "$vhdx" ]] || continue
+            printf '%s|%s|%s\n' "$vhdx" "$(path_free_bytes "$user_dir")" "$(path_size_bytes "$vhdx")"
+        done
+    done
+}
+
+detect_docker_storage() {
+    DOCKER_STORAGE_ROOT=""
+    DOCKER_STORAGE_FREE_BYTES=0
+    command -v docker >/dev/null 2>&1 || return 0
+    DOCKER_STORAGE_ROOT="$(docker info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+    if [[ -n "$DOCKER_STORAGE_ROOT" ]]; then
+        DOCKER_STORAGE_FREE_BYTES="$(path_free_bytes "$DOCKER_STORAGE_ROOT")"
+        log_info "Docker engine root: $DOCKER_STORAGE_ROOT"
+        [[ "$DOCKER_STORAGE_FREE_BYTES" =~ ^[0-9]+$ ]] &&
+            log_info "Docker engine filesystem free: $(human_bytes "$DOCKER_STORAGE_FREE_BYTES")"
+    fi
+    if is_wsl; then
+        local rows
+        rows="$(detect_docker_desktop_vhdx || true)"
+        if [[ -n "$rows" ]]; then
+            log_info "Docker Desktop WSL VHDX:"
+            while IFS='|' read -r path host_free vhdx_size; do
+                printf '  %s  host-free=%s  vhdx-size=%s\n' "$path" "$(human_bytes "$host_free")" "$(human_bytes "$vhdx_size")"
+            done <<< "$rows"
+        fi
+    fi
+}
+
 apply_storage_root() {
     local root="$1"
     [[ -d "$root" ]] || { log_error "Storage root does not exist: $root"; return 1; }
@@ -256,8 +311,8 @@ show_storage_inventory() {
     log_info "Repository: $SCRIPT_DIR ($(path_free_gib "$SCRIPT_DIR") GiB free)"
     log_info "Rootfs: $ROOTFS_DIR ($(path_free_gib "$ROOTFS_DIR") GiB free)"
     log_info "ISO output: $ISO_OUTPUT_DIR ($(path_free_gib "$ISO_OUTPUT_DIR") GiB free)"
+    detect_docker_storage
     if command -v docker >/dev/null 2>&1; then
-        log_info "Docker root: $(docker info --format '{{.DockerRootDir}}' 2>/dev/null || echo unavailable)"
         docker system df 2>/dev/null || true
     fi
     if is_wsl; then
@@ -265,6 +320,14 @@ show_storage_inventory() {
         discover_wsl_drives | while IFS='|' read -r free path; do
             printf '  %6s GiB  %s\n' "$free" "$path"
         done
+        local wsl_vhdx
+        wsl_vhdx="$(detect_wsl_distro_vhdx || true)"
+        if [[ -n "$wsl_vhdx" ]]; then
+            log_info "WSL distro virtual disks:"
+            while IFS='|' read -r path host_free vhdx_size; do
+                printf '  %s  host-free=%s  vhdx-size=%s\n' "$path" "$(human_bytes "$host_free")" "$(human_bytes "$vhdx_size")"
+            done <<< "$wsl_vhdx"
+        fi
     else
         log_info "Candidate native build mounts:"
         discover_native_mounts | while IFS='|' read -r free path; do
@@ -287,6 +350,7 @@ choose_larger_storage() {
     while IFS='|' read -r free path; do
         [[ "$free" =~ ^[0-9]+$ ]] || continue
         (( free >= STORAGE_MIN_FREE_GIB )) || continue
+        if (( required_bytes > 0 && free * 1024 * 1024 * 1024 < required_bytes )); then continue; fi
         [[ "$path" != "/" && "$path" != "$SCRIPT_DIR" ]] || continue
         if [[ -z "$best" ]]; then best="$path"; fi
     done <<< "$candidates"
@@ -305,9 +369,10 @@ choose_larger_storage() {
         echo "Enter another mounted drive/path, or press Enter to abort."
         read -r -p "Storage path: " answer
         if [[ -n "$answer" && -d "$answer" ]]; then
-            local free
+            local free free_bytes
             free="$(path_free_gib "$answer")"
-            if (( free >= STORAGE_MIN_FREE_GIB )); then
+            free_bytes="$(path_free_bytes "$answer")"
+            if [[ "$free_bytes" =~ ^[0-9]+$ ]] && (( free >= STORAGE_MIN_FREE_GIB )) && (( required_bytes == 0 || free_bytes >= required_bytes )); then
                 apply_storage_root "$answer"
                 log_success "Using user-selected storage: $answer"
                 return 0
@@ -683,7 +748,8 @@ export_docker_to_rootfs() {
     if [ "$rootfs_free_bytes" -lt "$rootfs_required_bytes" ]; then
         log_warning "Insufficient space for Docker rootfs extraction."
         log_warning "Required: $(numfmt --to=iec "$rootfs_required_bytes" 2>/dev/null || echo "$rootfs_required_bytes bytes"); available: $(numfmt --to=iec "$rootfs_free_bytes" 2>/dev/null || echo "$rootfs_free_bytes bytes")."
-        if ! choose_larger_storage "Docker rootfs staging filesystem is too small."; then
+        STORAGE_REQUIRED_BYTES="$rootfs_required_bytes"
+        if ! choose_larger_storage "Docker rootfs staging filesystem is too small." "$rootfs_required_bytes"; then
             log_error "Set CHIMERA_ROOTFS_DIR=/path/on/a/larger-drive and retry."
             exit 1
         fi
@@ -1146,7 +1212,8 @@ create_iso_image() {
     if [ "$free_bytes" -lt "$required_bytes" ]; then
         log_warning "Insufficient filesystem space for ISO mastering."
         log_warning "Need at least $(numfmt --to=iec "$required_bytes" 2>/dev/null || echo "$required_bytes bytes"), have $(numfmt --to=iec "$free_bytes" 2>/dev/null || echo "$free_bytes bytes")."
-        if ! choose_larger_storage "ISO mastering filesystem is full or too small."; then
+        STORAGE_REQUIRED_BYTES="$required_bytes"
+        if ! choose_larger_storage "ISO mastering filesystem is full or too small." "$required_bytes"; then
             log_error "Use --storage /mnt/d or CHIMERA_ISO_OUTPUT_DIR=/path/to/a/larger/filesystem."
             exit 1
         fi
