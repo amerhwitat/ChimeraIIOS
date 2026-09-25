@@ -23,6 +23,30 @@ install_common(){
     candidate "$p" && apt-get install -y --no-install-recommends "$p" || log "Skipped/unavailable: $p"
   done
 }
+needs_driver(){
+  local gpu; gpu="$(scan_gpu || true)"
+  if echo "$gpu" | grep -qi 'NVIDIA'; then
+    ! command -v nvidia-smi >/dev/null 2>&1 || ! nvidia-smi >/dev/null 2>&1
+  elif echo "$gpu" | grep -qi 'AMD\|ATI'; then
+    ! echo "$gpu" | grep -qi 'Kernel driver in use: amdgpu'
+  elif echo "$gpu" | grep -qi 'Intel'; then
+    ! echo "$gpu" | grep -Eq 'Kernel driver in use: (i915|xe)'
+  else
+    ! echo "$gpu" | grep -q 'Kernel driver in use:'
+  fi
+}
+auto(){
+  local marker_file=/var/lib/chimera/gpu-driver-manager/auto-complete
+  if [[ -f "$marker_file" ]]; then log "Automatic GPU check already completed."; return 0; fi
+  if needs_driver; then
+    log "GPU driver appears missing; searching configured Ubuntu repositories and installing supported driver set."
+    apt_refresh
+    install_gpu
+  else
+    log "A suitable kernel GPU driver is already active."
+  fi
+  mkdir -p "$(dirname "$marker_file")"; date -Is > "$marker_file"
+}
 install_gpu(){
   local gpu; gpu="$(scan_gpu || true)"; install_common
   if echo "$gpu" | grep -qi 'NVIDIA'; then
@@ -45,5 +69,6 @@ case "${1:-status}" in
   scan) scan_gpu ;;
   status) status ;;
   install|repair) apt_refresh; install_gpu; status ;;
+  auto) auto; status ;;
   *) echo "Usage: chimera-gpu-driver-manager {scan|status|install|repair}"; exit 2 ;;
 esac
