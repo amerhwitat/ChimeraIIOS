@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Graphics Drivers
+Name[ar]=تعريفات الرسومات
+Comment=Detect, search and install supported GPU drivers
+Comment[ar]=اكتشاف والبحث عن تعريفات معالج الرسومات وتثبيتها
+Exec=pkexec /usr/bin/chimera-gpu-driver-manager install
+Icon=video-display
+Categories=Settings;HardwareSettings;System;
+Terminal=false
