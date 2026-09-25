@@ -860,7 +860,7 @@ cleanup() {
 verify_iso() {
     print_header "VERIFICATION"
     
-    local iso_file="${SCRIPT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
+    local iso_file="${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
     
     if [ ! -f "$iso_file" ]; then
         log_error "ISO file not found: $iso_file"
@@ -1202,6 +1202,7 @@ main() {
         if ! build_state_done "$completed_stage" docker; then
             build_docker_image
             build_state_mark docker
+            completed_stage="docker"
         else
             log_info "Docker stage already completed; skipping."
         fi
@@ -1220,21 +1221,22 @@ main() {
         fi
         export_docker_to_rootfs
         build_state_mark rootfs
+        completed_stage="rootfs"
     fi
 
-    if ! build_state_done "$completed_stage" boot; then create_boot_menu; build_state_mark boot; fi
-    if ! build_state_done "$completed_stage" branding; then add_branding; build_state_mark branding; fi
-    if ! build_state_done "$completed_stage" apache; then prepare_apache_ecosystem; build_state_mark apache; fi
-    if ! build_state_done "$completed_stage" features; then stage_comprehensive_features; build_state_mark features; fi
-    if ! build_state_done "$completed_stage" squashfs; then create_squashfs; build_state_mark squashfs; fi
-    if ! build_state_done "$completed_stage" iso; then create_iso_image; build_state_mark iso; fi
-    if ! build_state_done "$completed_stage" verify; then verify_iso; build_state_mark verify; fi
-    if ! build_state_done "$completed_stage" report; then generate_report; build_state_mark report; fi
+    if ! build_state_done "$completed_stage" boot; then create_boot_menu; build_state_mark boot; completed_stage="boot"; fi
+    if ! build_state_done "$completed_stage" branding; then add_branding; build_state_mark branding; completed_stage="branding"; fi
+    if ! build_state_done "$completed_stage" apache; then prepare_apache_ecosystem; build_state_mark apache; completed_stage="apache"; fi
+    if ! build_state_done "$completed_stage" features; then stage_comprehensive_features; build_state_mark features; completed_stage="features"; fi
+    if ! build_state_done "$completed_stage" squashfs; then create_squashfs; build_state_mark squashfs; completed_stage="squashfs"; fi
+    if ! build_state_done "$completed_stage" iso; then create_iso_image; build_state_mark iso; completed_stage="iso"; fi
+    if ! build_state_done "$completed_stage" verify; then verify_iso; build_state_mark verify; completed_stage="verify"; fi
+    if ! build_state_done "$completed_stage" report; then generate_report; build_state_mark report; completed_stage="report"; fi
 
     cleanup
     build_state_reset
     print_header "BUILD COMPLETED SUCCESSFULLY"
-    log_success "ISO file ready at: ${SCRIPT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
+    log_success "ISO file ready at: ${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
     log_info "Build report: ${SCRIPT_DIR}/build-report.txt"
     echo ""
 }
