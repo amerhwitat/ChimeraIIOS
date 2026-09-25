@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.1",
+  "schema_version": "3.0",
   "product": "Chimera II OS",
   "purpose": "Unified native command and compatibility catalog derived from the public SS64 command-reference indexes.",
   "sources": [
@@ -9,7 +9,9 @@
     "https://ss64.com/nt/",
     "https://ss64.com/ps/",
     "https://ss64.com/vb/",
-    "https://ss64.com/sql/"
+    "https://ss64.com/sql/",
+    "https://ss64.com/access/",
+    "https://ss64.com/tools/"
   ],
   "policy": "Store command names, namespaces, classifications and source URLs. Do not redistribute SS64 page prose.",
   "platforms": {
@@ -1014,7 +1016,9 @@
     "chimera-terminal",
     "chimera-terminals",
     "chimera-shell-ar",
-    "chimera-locale"
+    "chimera-locale",
+    "chimera-ss64",
+    "chimera-background"
   ],
   "universal_aliases": {
     "dir": [
@@ -1086,6 +1090,8 @@
   "metadata": {
     "arabic_catalog": "system/commands/chimera-arabic.json",
     "terminal_catalog": "system/terminals/chimera-terminals.json",
-    "shell_integration": "system/shell/chimera-shell.sh"
+    "shell_integration": "system/shell/chimera-shell.sh",
+    "deep_catalog": "system/commands/ss64-command-catalog.json",
+    "binary_provider": "tools/commands/install-command-providers.sh"
   }
 }
