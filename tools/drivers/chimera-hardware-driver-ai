@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+OUT="/var/lib/chimera/drivers/ai-recommendations.json"
+mkdir -p "$(dirname "$OUT")"
+python3 "$ROOT/tools/cognition/chimera_hardware_recommender.py" --output "$OUT"
