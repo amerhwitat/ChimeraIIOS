@@ -1,6 +1,7 @@
 {
-  "schema":"CHM-FILESYSTEMS-1",
+  "schema":"CHM-FILESYSTEMS-2",
   "native":"qfs",
+  "native_block_policy":{"default_bytes":4096,"allowed_bytes":[4096,8192,16384,32768,65536],"minimum_bytes":4096,"maximum_bytes":65536,"require_kernel_page_size_at_least_block":true,"sector_default_bytes":512},
   "installable":["qfs","ext4","xfs","btrfs","zfs","ntfs3","vfat","exfat"],
   "boot_media":["iso9660","udf","squashfs","vfat","fat32"],
   "network_filesystems":["nfs","nfs4","cifs","sshfs"],
@@ -8,5 +9,5 @@
   "operations":["probe","format","check","mount","unmount","resize","snapshot","rollback"],
   "encryption":["luks2"],
   "volume_management":["lvm2","mdraid","zfs-pools","btrfs-subvolumes"],
-  "policy":"backend availability is detected at installer runtime; unsupported tools are reported rather than silently selected"
+  "policy":"QFS is the native Chimera target. Backend availability is detected at installer runtime; unsupported tools are reported rather than silently selected."
 }
