@@ -24,7 +24,7 @@ copy_if_distinct() {
 if [[ -n "${CHIMERA_KERNEL:-}" && -f "$CHIMERA_KERNEL" ]]; then
   copy_if_distinct "$CHIMERA_KERNEL" "$STAGE/boot/koronos/koronos.elf"
 fi
-cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
+cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/live/live-manifest.json"
 cp -a "$ROOT/installer" "$STAGE/install/installer-source"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
@@ -132,7 +132,7 @@ rm -f "$OUT"
 ISO_XORRISO_OPTS=(
   -iso-level 3
   -joliet
-  -rockridge
+  -R
   -volid "CHIMERA_II_OS"
 )
 echo "[INFO] Mastering large-capacity BIOS+UEFI ISO (ISO9660 level 3)..."
