@@ -67,6 +67,30 @@ Android has hosted APK/AAB and device-profiled bare-metal paths. iOS/iPadOS pack
 
 Downloaded code, drivers, firmware, ROMs and applications are not automatically trusted. Secure Boot, Android AVB, vendor boot protections and Apple secure boot are respected. Bare-metal automation does not silently flash hardware or erase disks; target selection, compatibility validation, signature/hash verification and recovery/rollback remain explicit.
 
+## Aurora Wayland Glass desktop and menu background
+
+The attached **Aurora-Wayland-Glass-Desktop** artwork is the canonical Chimera II OS visual background. The ISO staging layer applies it to GRUB, Jasper, Spit Fire, installation/recovery/diagnostics menus, Aurora Gates, installer/library surfaces, and the runtime desktop background. The boot menus use the PNG artwork through GRUB's background_image facility; grub-mkrescue passes its ISO-mastering arguments to xorriso in mkisofs emulation mode. citeturn0search0turn0search9
+
+The runtime default is:
+
+/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png
+
+and is configurable through:
+
+/etc/chimera/desktop-background.conf
+
+To change the wallpaper later without rebuilding the ISO:
+
+sudo tools/branding/chimera-set-desktop-background.sh /path/to/new-background.png
+
+The original attached asset is also recognized automatically when the build is run in an environment containing /mnt/data/Aurora-Wayland-Glass-Desktop.png.png; the repository contains a compact embedded PNG fallback for offline builds.
+
+## Resumable ISO builds
+
+build-chimera-iso.sh now retains checkpoints and a failure record. If a build stops after Docker, rootfs, boot, branding, Apache, features, SquashFS, ISO, verification, or report completion, the next invocation automatically resumes from the last completed checkpoint. --resume remains available explicitly, while --clean-state discards the checkpoint and starts over.
+
+Failure metadata is stored under the build directory as .chimera-failed-stage. This makes expensive Docker/rootfs/boot/ISO stages recoverable without intentionally discarding completed work.
+
 ## RegisterN and Chimera Bit Mode
 
 RegisterN removes the fixed 8192-bit architectural ceiling. Register width is runtime-selected and stored as 64-bit limbs, allowing 8192-bit, 16384-bit, 32768-bit, 65536-bit and larger logical registers without changing the ISA interface. See `arch/registern/`.
