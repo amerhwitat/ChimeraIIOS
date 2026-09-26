@@ -8,6 +8,8 @@ on:
       - 'kernel/**'
       - 'installer/**'
       - 'desktop/aurora/assets/**'
+      - 'tools/branding/**'
+      - 'tests/boot/**'
       - 'build-chimera-iso.sh'
       - '.github/workflows/boot-iso-validation.yml'
   pull_request:
@@ -16,6 +18,8 @@ on:
       - 'kernel/**'
       - 'installer/**'
       - 'desktop/aurora/assets/**'
+      - 'tools/branding/**'
+      - 'tests/boot/**'
       - 'build-chimera-iso.sh'
       - '.github/workflows/boot-iso-validation.yml'
   workflow_dispatch:
@@ -29,11 +33,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin
-      - name: Shell syntax
+      - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
           bash -n tools/branding/stage-aurora-image.sh
           bash -n tools/branding/chimera-set-desktop-background.sh
+          bash tests/boot/test-boot-artifact-regressions.sh
           bash tools/tests/test-iso-resume-and-aurora.sh
           bash -n boot/iso/build-iso.sh
           bash -n boot/iso/prepare-layout.sh
@@ -80,7 +85,6 @@ jobs:
           grep -q 'background_image' boot/spitfire/spitfire-menu.cfg
           grep -q 'desktop-background.conf' desktop/aurora/gates_menu.json
           test -s system/branding/aurora-default.png.base64
-
       - name: Validate GRUB linkage contract
         run: |
           grep -q 'multiboot2 /boot/kernel.bin' boot/iso/grub.cfg
@@ -94,3 +98,5 @@ jobs:
         run: |
           ./kernel/build-koronos.sh
           ./boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
+          nm -a build/bootloaders/spitfire-stage2.bin 2>/dev/null || true
+          test -s build/bootloaders/spitfire-stage2.bin
