@@ -40,8 +40,10 @@ def recommend(inv):
 ap=argparse.ArgumentParser(); ap.add_argument("--inventory",default=""); ap.add_argument("--output",default="/var/lib/chimera/drivers/ai-recommendations.json"); a=ap.parse_args()
 if a.inventory: inv=json.loads(Path(a.inventory).read_text())
 else:
-    root=Path(__file__).resolve().parents[2]
-    inv=json.loads(subprocess.run(["python3",str(root/"hardware/host_scanner.py")],capture_output=True,text=True,check=True).stdout)
+    candidates=[Path("/usr/share/chimera/hardware/host_scanner.py"),Path(__file__).resolve().parents[2]/"hardware/host_scanner.py"]
+    scanner=next((p for p in candidates if p.exists()),None)
+    if scanner is None: raise SystemExit("hardware host scanner is not installed")
+    inv=json.loads(subprocess.run(["python3",str(scanner)],capture_output=True,text=True,check=True).stdout)
 result=recommend(inv)
 Path(a.output).parent.mkdir(parents=True,exist_ok=True); Path(a.output).write_text(json.dumps(result,indent=2))
 print(json.dumps(result,indent=2))
