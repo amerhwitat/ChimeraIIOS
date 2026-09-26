@@ -1074,6 +1074,62 @@ CMDREADME
         log_warning "Chimera command catalog source files are missing; skipping command integration."
     fi
 
+    # Native Chimera storage policy + QFS formatter.
+    mkdir -p "$ROOTFS_DIR/etc/chimera/storage" "$ROOTFS_DIR/usr/share/chimera/filesystems" "$ROOTFS_DIR/usr/bin"
+    if [[ -f "$SCRIPT_DIR/system/storage/chimera-storage.conf" ]]; then
+        install -m 0644 "$SCRIPT_DIR/system/storage/chimera-storage.conf" "$ROOTFS_DIR/etc/chimera/storage/chimera-storage.conf"
+        install -m 0644 "$SCRIPT_DIR/system/storage/chimera-storage.conf" "$ISO_DIR/system/chimera-storage.conf"
+    fi
+    if [[ -f "$SCRIPT_DIR/filesystems/qfs/qfs_mkfs.py" ]]; then
+        install -m 0755 "$SCRIPT_DIR/filesystems/qfs/qfs_mkfs.py" "$ROOTFS_DIR/usr/share/chimera/filesystems/qfs_mkfs.py"
+        install -m 0755 "$SCRIPT_DIR/filesystems/qfs/qfs_mkfs.py" "$ROOTFS_DIR/usr/bin/chimera-qfs-mkfs"
+        install -m 0755 "$SCRIPT_DIR/filesystems/qfs/qfs_mkfs.py" "$ISO_DIR/system/chimera-qfs-mkfs"
+    fi
+    if [[ -f "$SCRIPT_DIR/filesystems/qfs/qfs_format.h" ]]; then
+        install -m 0644 "$SCRIPT_DIR/filesystems/qfs/qfs_format.h" "$ROOTFS_DIR/usr/share/chimera/filesystems/qfs_format.h"
+    fi
+    cat > "$ROOTFS_DIR/etc/chimera/storage/qfs-policy.json" <<EOF
+{"schema":"CHM-QFS-POLICY-1","default_block_size":4096,"allowed_block_sizes":[4096,8192,16384,32768,65536],"maximum_block_size":65536,"require_page_size_at_least_block":true}
+EOF
+
+    # Hardware inventory + RNN/LLM-compatible driver recommendation engine.
+    # Recommendations are evidence-backed and do not silently install drivers.
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/cognition" "$ROOTFS_DIR/usr/share/chimera/hardware" "$ROOTFS_DIR/usr/bin"
+    if [[ -f "$SCRIPT_DIR/hardware/host_scanner.py" ]]; then
+        install -m 0755 "$SCRIPT_DIR/hardware/host_scanner.py" "$ROOTFS_DIR/usr/share/chimera/hardware/host_scanner.py"
+        install -m 0755 "$SCRIPT_DIR/hardware/host_scanner.py" "$ISO_DIR/system/host_scanner.py"
+    fi
+    if [[ -f "$SCRIPT_DIR/tools/cognition/chimera_hardware_recommender.py" ]]; then
+        install -m 0755 "$SCRIPT_DIR/tools/cognition/chimera_hardware_recommender.py" "$ROOTFS_DIR/usr/share/chimera/cognition/chimera_hardware_recommender.py"
+        install -m 0755 "$SCRIPT_DIR/tools/cognition/chimera_hardware_recommender.py" "$ROOTFS_DIR/usr/bin/chimera-hardware-driver-ai"
+        install -m 0755 "$SCRIPT_DIR/tools/cognition/chimera_hardware_recommender.py" "$ISO_DIR/system/chimera-hardware-driver-ai.py"
+    fi
+    if [[ -f "$SCRIPT_DIR/tools/drivers/chimera-hardware-driver-ai" ]]; then
+        install -m 0755 "$SCRIPT_DIR/tools/drivers/chimera-hardware-driver-ai" "$ROOTFS_DIR/usr/bin/chimera-hardware-driver-ai-run"
+    fi
+    if [[ -f "$SCRIPT_DIR/tools/drivers/chimera-hardware-drivers" ]]; then
+        install -m 0755 "$SCRIPT_DIR/tools/drivers/chimera-hardware-drivers" "$ROOTFS_DIR/usr/bin/chimera-hardware-drivers"
+        install -m 0755 "$SCRIPT_DIR/tools/drivers/chimera-hardware-drivers" "$ISO_DIR/system/chimera-hardware-drivers"
+    fi
+    if [[ -f "$SCRIPT_DIR/drivers/hardware-driver-policy.json" ]]; then
+        install -m 0644 "$SCRIPT_DIR/drivers/hardware-driver-policy.json" "$ROOTFS_DIR/usr/share/chimera/cognition/hardware-driver-policy.json"
+        install -m 0644 "$SCRIPT_DIR/drivers/hardware-driver-policy.json" "$ISO_DIR/system/hardware-driver-policy.json"
+    fi
+    if [[ -f "$SCRIPT_DIR/system/services/chimera-hardware-driver-ai.service" ]]; then
+        install -m 0644 "$SCRIPT_DIR/system/services/chimera-hardware-driver-ai.service" "$ROOTFS_DIR/usr/lib/systemd/system/chimera-hardware-driver-ai.service"
+    fi
+    if [[ -f "$SCRIPT_DIR/system/services/chimera-hardware-driver-autoscan.service" ]]; then
+        install -m 0644 "$SCRIPT_DIR/system/services/chimera-hardware-driver-autoscan.service" "$ROOTFS_DIR/usr/lib/systemd/system/chimera-hardware-driver-autoscan.service"
+    fi
+    mkdir -p "$ROOTFS_DIR/var/lib/chimera/drivers"
+    cat > "$ROOTFS_DIR/etc/chimera/hardware-ai.conf" <<EOF
+CHIMERA_HARDWARE_AI_ENABLED=1
+CHIMERA_HARDWARE_AI_MODE=recommend
+CHIMERA_HARDWARE_AI_OUTPUT=/var/lib/chimera/drivers/ai-recommendations.json
+CHIMERA_HARDWARE_AI_AUTO_INSTALL=0
+CHIMERA_DRIVER_POLICY=/usr/share/chimera/cognition/hardware-driver-policy.json
+EOF
+
     # Canonical boot-manager configuration and recovery contracts.
     mkdir -p "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/installation" "$ISO_DIR/boot/recovery" "$ISO_DIR/boot/diagnostics"
     for f in "$SCRIPT_DIR"/boot/jasper/*.cfg; do [[ -f "$f" ]] && cp -f "$f" "$ISO_DIR/boot/jasper/"; done
