@@ -61,6 +61,9 @@ jobs:
               json.loads(p.read_text())
           print("boot artwork and manifests are syntactically valid")
           PY
+      - name: Validate installation media contract
+        run: bash tests/image/test_installation_media_contract.sh
+
       - name: Validate native QFS and hardware AI contracts
         run: |
           python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
