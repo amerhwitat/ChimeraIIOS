@@ -1,0 +1,12 @@
+[Unit]
+Description=Chimera II OS hardware study and RNN driver recommendation
+After=chimera-hardware-driver-autoscan.service
+Wants=chimera-hardware-driver-autoscan.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/chimera-hardware-driver-ai
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
