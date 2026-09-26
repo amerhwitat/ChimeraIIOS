@@ -33,7 +33,7 @@ if [ -z "$OUT" ] || [ ! -f "$OUT" ]; then
   fi
 fi
 ISO="${1:?ISO staging directory required}"
-mkdir -p "$ISO/boot/grub" "$ISO/boot/jasper" "$ISO/boot/spitfire" "$ISO/install" "$ISO/desktop/aurora" "$ISO/desktop/aurora/backgrounds" "$ISO/system/branding" "$ISO/usr/share/backgrounds/chimera" "$ISO/etc/chimera"
+mkdir -p "$ISO/boot/grub" "$ISO/boot/jasper" "$ISO/boot/spitfire" "$ISO/install" "$ISO/desktop/aurora" "$ISO/desktop/aurora/backgrounds" "$ISO/system/branding" "$ISO/usr/share/backgrounds/chimera" "$ISO/usr/share/chimera/aurora" "$ISO/etc/chimera" "$ROOTFS_DIR/usr/share/backgrounds/chimera" "$ROOTFS_DIR/usr/share/chimera/aurora" "$ROOTFS_DIR/etc/chimera"
 for dst in \
   "$ISO/boot/grub/aurora-wayland-glass.png" \
   "$ISO/boot/jasper/background.png" \
@@ -42,12 +42,24 @@ for dst in \
   "$ISO/install/library-background.png" \
   "$ISO/desktop/aurora/aurora-wayland-glass.png" \
   "$ISO/desktop/aurora/backgrounds/Aurora-Wayland-Glass-Desktop.png" \
-  "$ISO/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png"; do
+  "$ISO/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png" \
+  "$ISO/usr/share/chimera/aurora/aurora-wayland-glass.png"; do
   cp "$OUT" "$dst"
 done
 
+# Mirror the canonical asset into the live/root filesystem as well as the ISO
+# control tree, so Aurora can consume it after Koronos hands off to userland.
+cp "$OUT" "$ROOTFS_DIR/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png"
+cp "$OUT" "$ROOTFS_DIR/usr/share/chimera/aurora/aurora-wayland-glass.png"
+
 # The background is a default, not a hard-coded runtime lock. Users/compositors
 # can replace the path later through the system or per-user Chimera setting.
+cat > "$ROOTFS_DIR/etc/chimera/desktop-background.conf" <<'EOF'
+# Chimera II OS Aurora desktop background.
+# Replace this path to change the desktop wallpaper without rebuilding the ISO.
+CHIMERA_DESKTOP_BACKGROUND=/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png
+CHIMERA_LOCKSCREEN_BACKGROUND=/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png
+EOF
 cat > "$ISO/etc/chimera/desktop-background.conf" <<'EOF'
 # Chimera II OS Aurora desktop background.
 # Replace this path to change the desktop wallpaper without rebuilding the ISO.
