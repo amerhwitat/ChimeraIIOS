@@ -71,7 +71,10 @@ REGISTRY_NAME=""
 APACHE_ECOSYSTEM=1
 APACHE_ECOSYSTEM_MODE="${CHIMERA_APACHE_ECOSYSTEM:-metadata}"
 BUILD_STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-${BUILD_DIR}/.chimera-build-state}"
+FAILED_STAGE_FILE="${CHIMERA_FAILED_STAGE_FILE:-${BUILD_DIR}/.chimera-failed-stage}"
 RESUME_BUILD="${CHIMERA_RESUME:-0}"
+CURRENT_STAGE=""
+BUILD_SUCCEEDED=0
 CLEAN_BUILD_STATE=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
@@ -472,7 +475,44 @@ updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
     log_info "Build checkpoint saved: $stage"
 }
-build_state_reset() { rm -f "$BUILD_STATE_FILE"; }
+build_state_reset() {
+    rm -f "$BUILD_STATE_FILE" "$FAILED_STAGE_FILE"
+}
+
+build_state_failure_record() {
+    local rc="$1"
+    local failed_stage="${CURRENT_STAGE:-unknown}"
+    mkdir -p "$(dirname "$FAILED_STAGE_FILE")"
+    cat > "$FAILED_STAGE_FILE" <<EOF
+schema=1
+failed_stage=$failed_stage
+exit_code=$rc
+updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+completed=$(build_state_get 2>/dev/null || true)
+EOF
+}
+
+build_failure_trap() {
+    local rc="$?"
+    if (( rc != 0 )) && (( BUILD_SUCCEEDED == 0 )); then
+        build_state_failure_record "$rc" || true
+        log_error "Build stopped during stage: ${CURRENT_STAGE:-preflight}"
+        log_error "Checkpoint retained at: $BUILD_STATE_FILE"
+        log_error "Failure record: $FAILED_STAGE_FILE"
+        log_error "Re-run with --resume to continue from the last completed checkpoint."
+    fi
+    return "$rc"
+}
+
+run_checkpointed_stage() {
+    local stage="$1"
+    local fn="$2"
+    CURRENT_STAGE="$stage"
+    log_info "Starting resumable stage: $stage"
+    "$fn"
+    build_state_mark "$stage"
+    CURRENT_STAGE=""
+}
 
 build_state_done() {
     local completed="${1:-}" target="$2"
@@ -1631,6 +1671,11 @@ main() {
     if [ "$CLEAN_BUILD_STATE" -eq 1 ]; then
         log_info "Removing resumable Chimera build state."
         build_state_reset
+    elif [[ -f "$BUILD_STATE_FILE" ]]; then
+        # A previous failed invocation leaves its checkpoint intact. Resume by
+        # default so a simple re-run continues instead of rebuilding everything.
+        RESUME_BUILD=1
+        log_info "Existing Chimera checkpoint detected; automatic resume enabled."
     fi
     local completed_stage=""
     if [ "$RESUME_BUILD" -eq 1 ]; then
@@ -1674,22 +1719,27 @@ main() {
         completed_stage="rootfs"
     fi
 
-    if ! build_state_done "$completed_stage" boot; then create_boot_menu; build_state_mark boot; completed_stage="boot"; fi
-    if ! build_state_done "$completed_stage" branding; then add_branding; build_state_mark branding; completed_stage="branding"; fi
-    if ! build_state_done "$completed_stage" apache; then prepare_apache_ecosystem; build_state_mark apache; completed_stage="apache"; fi
-    if ! build_state_done "$completed_stage" features; then stage_comprehensive_features; build_state_mark features; completed_stage="features"; fi
-    if ! build_state_done "$completed_stage" squashfs; then create_squashfs; build_state_mark squashfs; completed_stage="squashfs"; fi
-    if ! build_state_done "$completed_stage" iso; then create_iso_image; build_state_mark iso; completed_stage="iso"; fi
-    if ! build_state_done "$completed_stage" verify; then verify_iso; build_state_mark verify; completed_stage="verify"; fi
-    if ! build_state_done "$completed_stage" report; then generate_report; build_state_mark report; completed_stage="report"; fi
+    if ! build_state_done "$completed_stage" boot; then run_checkpointed_stage boot create_boot_menu; completed_stage="boot"; fi
+    if ! build_state_done "$completed_stage" branding; then run_checkpointed_stage branding add_branding; completed_stage="branding"; fi
+    if ! build_state_done "$completed_stage" apache; then run_checkpointed_stage apache prepare_apache_ecosystem; completed_stage="apache"; fi
+    if ! build_state_done "$completed_stage" features; then run_checkpointed_stage features stage_comprehensive_features; completed_stage="features"; fi
+    if ! build_state_done "$completed_stage" squashfs; then run_checkpointed_stage squashfs create_squashfs; completed_stage="squashfs"; fi
+    if ! build_state_done "$completed_stage" iso; then run_checkpointed_stage iso create_iso_image; completed_stage="iso"; fi
+    if ! build_state_done "$completed_stage" verify; then run_checkpointed_stage verify verify_iso; completed_stage="verify"; fi
+    if ! build_state_done "$completed_stage" report; then run_checkpointed_stage report generate_report; completed_stage="report"; fi
 
     cleanup
+    BUILD_SUCCEEDED=1
     build_state_reset
     print_header "BUILD COMPLETED SUCCESSFULLY"
     log_success "ISO file ready at: ${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
     log_info "Build report: ${SCRIPT_DIR}/build-report.txt"
     echo ""
 }
+
+# Preserve checkpoints across failures. A later invocation automatically resumes
+# when a valid build-state file exists, while --clean-state explicitly starts over.
+trap build_failure_trap EXIT
 
 # Execute main
 main
