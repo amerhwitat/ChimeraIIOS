@@ -966,6 +966,107 @@ stage_comprehensive_features() {
     fi
     copy_tree_if_present "$SCRIPT_DIR/network" "$ISO_DIR/network"
     copy_tree_if_present "$SCRIPT_DIR/installer" "$ISO_DIR/install/installer-source"
+
+    # Build the self-contained native installation image consumed by Jasper.
+    # The previous ISO staged installer source/JSON contracts but did not always
+    # create /install/installer/installer-initrd.img, causing runtime "image not
+    # found" failures even though the menu entries existed.
+    mkdir -p "$ISO_DIR/install/installer" "$ISO_DIR/install/manifests"
+    local installer_payload="$ISO_TMP_DIR/chimera-installer-initrd-root"
+    rm -rf "$installer_payload"
+    mkdir -p "$installer_payload"/{bin,sbin,dev,proc,sys,run,tmp,mnt,target,etc,chimera}
+    local busybox_bin=""
+    if command -v busybox >/dev/null 2>&1; then
+        busybox_bin="$(command -v busybox)"
+    elif [[ -x "$ROOTFS_DIR/usr/bin/busybox" ]]; then
+        busybox_bin="$ROOTFS_DIR/usr/bin/busybox"
+    elif [[ -x "$ROOTFS_DIR/bin/busybox" ]]; then
+        busybox_bin="$ROOTFS_DIR/bin/busybox"
+    fi
+    if [[ -n "$busybox_bin" && -f "$busybox_bin" ]]; then
+        install -m 0755 "$busybox_bin" "$installer_payload/bin/busybox"
+        for app in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync; do
+            ln -sf busybox "$installer_payload/bin/$app"
+        done
+    else
+        log_warning "busybox not found while building installation image; creating contract-only installation payload."
+    fi
+
+    mkdir -p "$installer_payload/chimera/installer"
+    for f in         "$SCRIPT_DIR/install/installer-contract.json"         "$SCRIPT_DIR/installer/installation_phases.json"         "$SCRIPT_DIR/installer/installer_profiles.json"         "$SCRIPT_DIR/installer/chimera-installer-plan.json"         "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json"         "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do
+        [[ -f "$f" ]] && cp -f "$f" "$installer_payload/chimera/installer/"
+    done
+    [[ -f "$SCRIPT_DIR/installer/chimera_installer.py" ]] && cp -f "$SCRIPT_DIR/installer/chimera_installer.py" "$installer_payload/chimera/installer/"
+    [[ -f "$SCRIPT_DIR/installer/README.md" ]] && cp -f "$SCRIPT_DIR/installer/README.md" "$installer_payload/chimera/installer/"
+
+    cat > "$installer_payload/init" <<'INSTALL_INIT'
+#!/bin/sh
+set -eu
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t tmpfs tmpfs /run 2>/dev/null || true
+echo "Chimera II OS Native Installation Environment"
+echo "Jasper -> Koronos -> installation image"
+if [ -f /chimera/installer/installation_phases.json ]; then
+    echo "Installation phases: available"
+fi
+if [ -f /chimera/installer/installer-contract.json ]; then
+    echo "Installer contract: available"
+fi
+if [ -f /chimera/installer/chimera_installer.py ]; then
+    echo "Adaptive installer planner: available"
+fi
+exec /bin/sh
+INSTALL_INIT
+    chmod +x "$installer_payload/init"
+
+    if command -v cpio >/dev/null 2>&1; then
+        (
+            cd "$installer_payload"
+            find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9
+        ) > "$ISO_DIR/install/installer/installation.img"
+    else
+        log_error "cpio is required to create the native installation image."
+        exit 1
+    fi
+    cp -f "$ISO_DIR/install/installer/installation.img" "$ISO_DIR/install/installer/installer-initrd.img"
+    sha256sum "$ISO_DIR/install/installer/installation.img" > "$ISO_DIR/install/installer/installation.img.sha256"
+    sha256sum "$ISO_DIR/install/installer/installer-initrd.img" > "$ISO_DIR/install/installer/installer-initrd.img.sha256"
+
+    cat > "$ISO_DIR/install/installer/installation-manifest.json" <<EOF
+{
+  "schema":"CHM-INSTALLATION-MEDIA-2",
+  "image":"/install/installer/installation.img",
+  "legacy_image":"/install/installer/installer-initrd.img",
+  "image_format":"gzip-compressed-cpio-newc",
+  "kernel":"/boot/koronos/koronos.elf",
+  "kernel_protocol":"Multiboot2",
+  "boot_manager":"Jasper",
+  "contract":"/install/installer/installer-contract.json",
+  "phases":"/install/installer/installation_phases.json",
+  "profiles":"/install/installer/installer_profiles.json",
+  "features":"/install/installer/chimera-installer-features.json",
+  "filesystem_support":"/install/installer/filesystem-support.json",
+  "checksums":["/install/installer/installation.img.sha256","/install/installer/installer-initrd.img.sha256"],
+  "bootable":true
+}
+EOF
+
+    # Keep the related JSON contracts at the exact runtime paths referenced by
+    # Jasper and also provide the canonical installation manifest.
+    for f in installer-contract.json installation_phases.json installer_profiles.json chimera-installer-features.json filesystem-support.json installation-manifest.json; do
+        case "$f" in
+            installer-contract.json) src="$SCRIPT_DIR/install/installer-contract.json" ;;
+            installation_phases.json) src="$SCRIPT_DIR/installer/installation_phases.json" ;;
+            installer_profiles.json) src="$SCRIPT_DIR/installer/installer_profiles.json" ;;
+            chimera-installer-features.json) src="$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" ;;
+            filesystem-support.json) src="$SCRIPT_DIR/installer/profiles/filesystem-support.json" ;;
+            installation-manifest.json) src="$ISO_DIR/install/installer/installation-manifest.json" ;;
+        esac
+        [[ -f "$src" ]] && install -m 0644 "$src" "$ISO_DIR/install/installer/$f"
+    done
+    log_success "Native installation image and JSON contracts staged under /install/installer/."
     copy_tree_if_present "$BUILD_DIR/mobile" "$ISO_DIR/mobile"
     copy_tree_if_present "$BUILD_DIR/drivers" "$ISO_DIR/drivers"
     if [[ -f "$SCRIPT_DIR/drivers/audio-driver-manifest.json" && -f "$SCRIPT_DIR/drivers/hardware-driver-policy.json" && -f "$SCRIPT_DIR/drivers/hardware-driver-catalog.json" ]]; then
