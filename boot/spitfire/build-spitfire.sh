@@ -7,11 +7,19 @@ mkdir -p "$OUT"
 command -v nasm >/dev/null || { echo "error: nasm is required" >&2; exit 1; }
 command -v g++ >/dev/null || { echo "error: g++ is required" >&2; exit 1; }
 command -v ld >/dev/null || { echo "error: ld is required" >&2; exit 1; }
+command -v nm >/dev/null || { echo "error: nm is required" >&2; exit 1; }
 
 nasm -f bin "$ROOT/boot/spitfire/sf0_mbr.asm" -o "$OUT/spitfire-sf0-mbr.bin"
 [[ "$(stat -c%s "$OUT/spitfire-sf0-mbr.bin")" -eq 512 ]] || { echo "error: SF0 MBR is not 512 bytes" >&2; exit 1; }
 
 nasm -f elf64 "$ROOT/boot/spitfire/sf1_longmode.asm" -o "$OUT/spitfire-sf1-longmode.o"
+# sf1_longmode.asm is linked with ENTRY(start); verify that NASM exported
+# start instead of leaving it local. Without this check ld.bfd silently falls
+# back to the default address and emits "cannot find entry symbol start".
+nm -g "$OUT/spitfire-sf1-longmode.o" | grep -Eq '[[:space:]]T[[:space:]]start$' || {
+  echo "error: Spit Fire SF1 does not export global start entry symbol" >&2
+  exit 1
+}
 g++ -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -I"$ROOT/kernel/include" -c "$ROOT/boot/spitfire/sf2_loader.cpp" -o "$OUT/spitfire-sf2-loader.o"
 ld -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/boot/spitfire/spitfire.ld" "$OUT/spitfire-sf1-longmode.o" "$OUT/spitfire-sf2-loader.o" -o "$OUT/spitfire-stage2.bin"
 
