@@ -1265,7 +1265,7 @@ create_iso_image() {
     # grub-mkrescue passes ordinary unrecognized arguments to xorriso's
     # mkisofs-emulation mode. Do NOT place these after --: that switches
     # xorriso to native command mode, where -iso-level is not a command.
-    local xorriso_opts=(-iso-level 3 -joliet -rockridge -volid "CHIMERA_II_OS")
+    local xorriso_opts=(-iso-level 3 -J -R -V "CHIMERA_II_OS")
     log_info "Mastering large-capacity BIOS + UEFI ISO with ISO9660 Level 3..."
     grub-mkrescue -o "$iso_file" "$ISO_DIR" "${xorriso_opts[@]}"
     test -s "$iso_file"
