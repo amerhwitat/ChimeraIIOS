@@ -15,32 +15,52 @@ done
 EMBEDDED="$ROOT/system/branding/aurora-default.jpg.base64"
 EMBEDDED_PNG="$ROOT/system/branding/aurora-default.png.base64"
 
-# Decode an embedded artwork without letting transport noise (CR/LF/BOM or
-# other non-base64 characters) turn into the GNU base64 "invalid input" error.
+# Decode an embedded artwork defensively. In addition to CR/LF/BOM and other
+# transport noise, older/generated assets can contain exactly one stray base64
+# character. Python's b64decode reports that as "number of data characters ...
+# cannot be 1 more than a multiple of 4". We only attempt recovery when the
+# decoded bytes have the expected image signature; arbitrary payloads are not
+# silently accepted.
 decode_embedded() {
   local src="$1" dst="$2" magic="$3"
   [[ -s "$src" ]] || return 1
   mkdir -p "$(dirname "$dst")"
+
   if command -v python3 >/dev/null 2>&1; then
     if python3 - "$src" "$dst" "$magic" <<'PY'
 import base64
 import pathlib
 import re
 import sys
+
 src, dst, magic = sys.argv[1], sys.argv[2], sys.argv[3]
 raw = pathlib.Path(src).read_bytes().lstrip(b"\xef\xbb\xbf")
 clean = re.sub(rb"[^A-Za-z0-9+/=]", b"", raw)
-if len(clean) % 4 == 1:
-    raise SystemExit("invalid base64 payload length")
-clean += b"=" * ((-len(clean)) % 4)
-data = base64.b64decode(clean, validate=False)
 expected = bytes.fromhex(magic)
-if not data.startswith(expected):
-    raise SystemExit("decoded artwork has unexpected file signature")
-pathlib.Path(dst).write_bytes(data)
+
+# First try the canonical payload. If its length is 1 (mod 4), try removing
+# one suspicious base64 character from the tail. The exact failure reported by
+# Python is otherwise fatal; recovery is accepted only when the image magic is
+# correct and the decoded stream is non-empty.
+candidates = [clean]
+if len(clean) % 4 == 1:
+    candidates.extend(clean[:len(clean)-1-i] + clean[len(clean)-i:] for i in range(min(16, len(clean))))
+
+for candidate in candidates:
+    candidate += b"=" * ((-len(candidate)) % 4)
+    try:
+        data = base64.b64decode(candidate, validate=False)
+    except Exception:
+        continue
+    if data.startswith(expected) and len(data) > len(expected):
+        pathlib.Path(dst).write_bytes(data)
+        raise SystemExit(0)
+
+raise SystemExit("invalid base64 artwork payload")
 PY
-      then return 0; fi
+    then return 0; fi
   fi
+
   if base64 --help 2>&1 | grep -q -- '--ignore-garbage'; then
     if base64 --ignore-garbage -d "$src" > "$dst" 2>/dev/null; then
       local got
@@ -52,8 +72,6 @@ PY
   return 1
 }
 
-# Normalize any user/repository artwork to a PNG because all ISO boot/installer
-# surfaces deliberately have a .png contract.
 normalize_to_png() {
   local src="$1" dst="$2"
   if [[ "$(file -b "$src" 2>/dev/null || true)" == *"PNG image data"* ]]; then
