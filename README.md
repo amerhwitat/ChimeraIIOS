@@ -67,6 +67,18 @@ Android has hosted APK/AAB and device-profiled bare-metal paths. iOS/iPadOS pack
 
 Downloaded code, drivers, firmware, ROMs and applications are not automatically trusted. Secure Boot, Android AVB, vendor boot protections and Apple secure boot are respected. Bare-metal automation does not silently flash hardware or erase disks; target selection, compatibility validation, signature/hash verification and recovery/rollback remain explicit.
 
+## Native QFS storage and hardware-learning driver recommendations
+
+Chimera II OS now declares **QFS** as its native block filesystem. The default allocation block is **4 KiB**, with explicit installer choices of 8, 16, 32, or 64 KiB. Native installation rejects a block size larger than the running kernel page size; the format records block and sector geometry in its superblock. The current repository implementation is the QFS format/formatter and installer contract; the complete kernel VFS/journal/snapshot implementation remains an active development track. citeturn0search0turn0search2turn0search3
+
+The installer exposes the geometry with:
+
+`python3 installer/chimera_installer.py --qfs-block-size 4096`
+
+or a larger supported value such as `16384` when the target kernel page-size policy permits it.
+
+Chimera also inventories PCI/USB/sysfs/DMI/storage geometry and runs an auditable recurrent hardware-study engine. Recommendations are written to `/var/lib/chimera/drivers/ai-recommendations.json`; the model recommends driver families but does not silently install arbitrary drivers. Driver trust remains based on in-tree drivers, signed packages/firmware, fwupd/LVFS, and verified vendor sources.
+
 ## Aurora Wayland Glass desktop and menu background
 
 The attached **Aurora-Wayland-Glass-Desktop** artwork is the canonical Chimera II OS visual background. The ISO staging layer applies it to GRUB, Jasper, Spit Fire, installation/recovery/diagnostics menus, Aurora Gates, installer/library surfaces, and the runtime desktop background. The boot menus use the PNG artwork through GRUB's background_image facility; grub-mkrescue passes its ISO-mastering arguments to xorriso in mkisofs emulation mode. citeturn0search0turn0search9
