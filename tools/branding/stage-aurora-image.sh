@@ -3,7 +3,6 @@ set -euo pipefail
 ROOT="${CHIMERA_REPO_ROOT:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)}"
 OUT="${CHIMERA_AURORA_ASSET:-}"
 
-# Search order deliberately keeps the user-provided artwork as the canonical default.
 for candidate in \
   "${OUT:-}" \
   "/mnt/data/Aurora-Wayland-Glass-Desktop.png.png" \
@@ -16,78 +15,70 @@ done
 EMBEDDED="$ROOT/system/branding/aurora-default.jpg.base64"
 EMBEDDED_PNG="$ROOT/system/branding/aurora-default.png.base64"
 
-# Decode a repository-embedded artwork defensively. Git/Windows transport can
-# introduce CR/LF/BOM/other harmless characters into a text-encoded asset; GNU
-# base64 otherwise reports "invalid input" and aborts the staging step. We
-# sanitize only the base64 alphabet, decode, and then verify the PNG signature.
-decode_embedded_png() {
-  local src="$1" dst="$2"
+# Decode an embedded artwork without letting transport noise (CR/LF/BOM or
+# other non-base64 characters) turn into the GNU base64 "invalid input" error.
+decode_embedded() {
+  local src="$1" dst="$2" magic="$3"
   [[ -s "$src" ]] || return 1
   mkdir -p "$(dirname "$dst")"
-
   if command -v python3 >/dev/null 2>&1; then
-    if python3 - "$src" "$dst" <<'PY'
+    if python3 - "$src" "$dst" "$magic" <<'PY'
 import base64
 import pathlib
 import re
 import sys
-
-src, dst = sys.argv[1], sys.argv[2]
-raw = pathlib.Path(src).read_bytes()
-# Remove UTF-8 BOM and every non-base64 transport character.
-raw = raw.lstrip(b"\xef\xbb\xbf")
+src, dst, magic = sys.argv[1], sys.argv[2], sys.argv[3]
+raw = pathlib.Path(src).read_bytes().lstrip(b"\xef\xbb\xbf")
 clean = re.sub(rb"[^A-Za-z0-9+/=]", b"", raw)
-# Normalize missing terminal padding without accepting an impossible length.
 if len(clean) % 4 == 1:
     raise SystemExit("invalid base64 payload length")
 clean += b"=" * ((-len(clean)) % 4)
 data = base64.b64decode(clean, validate=False)
-if data[:8] != b"\x89PNG\r\n\x1a\n":
-    raise SystemExit("decoded payload is not a PNG")
+expected = bytes.fromhex(magic)
+if not data.startswith(expected):
+    raise SystemExit("decoded artwork has unexpected file signature")
 pathlib.Path(dst).write_bytes(data)
 PY
-    then
-      return 0
-    fi
+      then return 0; fi
   fi
-
-  # GNU coreutils fallback. --ignore-garbage handles CR/LF/BOM/transport noise.
   if base64 --help 2>&1 | grep -q -- '--ignore-garbage'; then
     if base64 --ignore-garbage -d "$src" > "$dst" 2>/dev/null; then
-      if [[ "$(od -An -tx1 -N8 "$dst" 2>/dev/null | tr -d ' \n')" == "89504e470d0a1a0a" ]]; then
-        return 0
-      fi
+      local got
+      got="$(od -An -tx1 -N8 "$dst" 2>/dev/null | tr -d ' \n')"
+      [[ "$got" == "$magic" ]] && return 0
     fi
   fi
-
   rm -f "$dst"
+  return 1
+}
+
+# Normalize any user/repository artwork to a PNG because all ISO boot/installer
+# surfaces deliberately have a .png contract.
+normalize_to_png() {
+  local src="$1" dst="$2"
+  if [[ "$(file -b "$src" 2>/dev/null || true)" == *"PNG image data"* ]]; then
+    cp "$src" "$dst"
+    return 0
+  fi
+  if command -v convert >/dev/null 2>&1; then
+    convert "$src" "$dst"
+    return 0
+  fi
+  if command -v magick >/dev/null 2>&1; then
+    magick "$src" "$dst"
+    return 0
+  fi
   return 1
 }
 
 if [ -z "$OUT" ] || [ ! -f "$OUT" ]; then
   mkdir -p "$ROOT/build/branding"
-  if command -v base64 >/dev/null 2>&1 && decode_embedded_png "$EMBEDDED_PNG" "$ROOT/build/branding/aurora-default.png"; then
+  if decode_embedded "$EMBEDDED_PNG" "$ROOT/build/branding/aurora-default.png" "89504e470d0a1a0a"; then
     OUT="$ROOT/build/branding/aurora-default.png"
     echo "[Chimera][AURORA] Using embedded offline Aurora PNG artwork."
-  elif command -v base64 >/dev/null 2>&1 && [[ -s "$EMBEDDED" ]]; then
-    # JPEG fallback remains supported, but validate the decode before using it.
-    if command -v python3 >/dev/null 2>&1 && python3 - "$EMBEDDED" "$ROOT/build/branding/aurora-default.jpg" <<'PY'
-import base64, pathlib, re, sys
-src, dst = sys.argv[1], sys.argv[2]
-raw = pathlib.Path(src).read_bytes().lstrip(b"\xef\xbb\xbf")
-clean = re.sub(rb"[^A-Za-z0-9+/=]", b"", raw)
-clean += b"=" * ((-len(clean)) % 4)
-data = base64.b64decode(clean, validate=False)
-if not data.startswith(b"\xff\xd8\xff"):
-    raise SystemExit("decoded payload is not a JPEG")
-pathlib.Path(dst).write_bytes(data)
-PY
-    then
-      OUT="$ROOT/build/branding/aurora-default.jpg"
-      echo "[Chimera][AURORA] Using embedded offline Aurora JPEG fallback artwork."
-    else
-      rm -f "$ROOT/build/branding/aurora-default.jpg"
-    fi
+  elif decode_embedded "$EMBEDDED" "$ROOT/build/branding/aurora-default.jpg" "ffd8ff"; then
+    OUT="$ROOT/build/branding/aurora-default.jpg"
+    echo "[Chimera][AURORA] Using embedded offline Aurora JPEG fallback artwork."
   fi
 fi
 
@@ -99,6 +90,14 @@ fi
 ISO="${1:?ISO staging directory required}"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$(cd "$(dirname "$ISO")/.." 2>/dev/null && pwd)/rootfs}"
 mkdir -p "$ISO/boot/grub" "$ISO/boot/jasper" "$ISO/boot/spitfire" "$ISO/install" "$ISO/desktop/aurora" "$ISO/desktop/aurora/backgrounds" "$ISO/system/branding" "$ISO/usr/share/backgrounds/chimera" "$ISO/usr/share/chimera/aurora" "$ISO/etc/chimera" "$ROOTFS_DIR/usr/share/backgrounds/chimera" "$ROOTFS_DIR/usr/share/chimera/aurora" "$ROOTFS_DIR/etc/chimera"
+
+NORMALIZED="$ROOT/build/branding/aurora-staged.png"
+if ! normalize_to_png "$OUT" "$NORMALIZED"; then
+  echo "[Chimera][AURORA] Cannot normalize artwork to PNG; SVG fallback remains active."
+  exit 0
+fi
+OUT="$NORMALIZED"
+
 for dst in \
   "$ISO/boot/grub/aurora-wayland-glass.png" \
   "$ISO/boot/jasper/background.png" \
