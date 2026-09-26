@@ -15,12 +15,6 @@ done
 EMBEDDED="$ROOT/system/branding/aurora-default.jpg.base64"
 EMBEDDED_PNG="$ROOT/system/branding/aurora-default.png.base64"
 
-# Decode an embedded artwork defensively. In addition to CR/LF/BOM and other
-# transport noise, older/generated assets can contain exactly one stray base64
-# character. Python's b64decode reports that as "number of data characters ...
-# cannot be 1 more than a multiple of 4". We only attempt recovery when the
-# decoded bytes have the expected image signature; arbitrary payloads are not
-# silently accepted.
 decode_embedded() {
   local src="$1" dst="$2" magic="$3"
   [[ -s "$src" ]] || return 1
@@ -38,13 +32,14 @@ raw = pathlib.Path(src).read_bytes().lstrip(b"\xef\xbb\xbf")
 clean = re.sub(rb"[^A-Za-z0-9+/=]", b"", raw)
 expected = bytes.fromhex(magic)
 
-# First try the canonical payload. If its length is 1 (mod 4), try removing
-# one suspicious base64 character from the tail. The exact failure reported by
-# Python is otherwise fatal; recovery is accepted only when the image magic is
-# correct and the decoded stream is non-empty.
 candidates = [clean]
 if len(clean) % 4 == 1:
-    candidates.extend(clean[:len(clean)-1-i] + clean[len(clean)-i:] for i in range(min(16, len(clean))))
+    # A one-character surplus is the exact failure mode emitted by Python's
+    # base64 decoder. Try removing only a small tail window, and accept a
+    # candidate only if it decodes to the expected image format.
+    start = max(0, len(clean) - 16)
+    for pos in range(start, len(clean)):
+        candidates.append(clean[:pos] + clean[pos + 1:])
 
 for candidate in candidates:
     candidate += b"=" * ((-len(candidate)) % 4)
