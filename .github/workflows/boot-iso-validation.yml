@@ -32,6 +32,9 @@ jobs:
       - name: Shell syntax
         run: |
           bash -n build-chimera-iso.sh
+          bash -n tools/branding/stage-aurora-image.sh
+          bash -n tools/branding/chimera-set-desktop-background.sh
+          bash tools/tests/test-iso-resume-and-aurora.sh
           bash -n boot/iso/build-iso.sh
           bash -n boot/iso/prepare-layout.sh
           bash -n boot/spitfire/build-spitfire.sh
@@ -58,6 +61,19 @@ jobs:
               json.loads(p.read_text())
           print("boot artwork and manifests are syntactically valid")
           PY
+      - name: Validate Aurora background contracts
+        run: |
+          grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'background_image' boot/installation/menu.cfg
+          grep -q 'background_image' boot/jasper/jasper.cfg
+          grep -q 'background_image' boot/jasper/diagnostics.cfg
+          grep -q 'background_image' boot/jasper/install.cfg
+          grep -q 'background_image' boot/jasper/live.cfg
+          grep -q 'background_image' boot/jasper/recovery.cfg
+          grep -q 'background_image' boot/spitfire/spitfire-menu.cfg
+          grep -q 'desktop-background.conf' desktop/aurora/gates_menu.json
+          test -s system/branding/aurora-default.png.base64
+
       - name: Validate GRUB linkage contract
         run: |
           grep -q 'multiboot2 /boot/kernel.bin' boot/iso/grub.cfg
