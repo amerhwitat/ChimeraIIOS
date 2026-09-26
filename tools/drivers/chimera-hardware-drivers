@@ -45,6 +45,17 @@ firmware(){
     fwupdmgr get-updates || true
   fi
 }
+recommend(){
+  local root="$(cd "$(dirname "$0")/../.." && pwd)"
+  local out="${CHIMERA_DRIVER_AI_OUTPUT:-/var/lib/chimera/drivers/ai-recommendations.json}"
+  mkdir -p "$(dirname "$out")"
+  if [[ -f "$root/tools/cognition/chimera_hardware_recommender.py" ]]; then
+    python3 "$root/tools/cognition/chimera_hardware_recommender.py" --output "$out"
+  else
+    log "AI recommender is not staged in this environment."
+    return 2
+  fi
+}
 status(){
   scan
   echo "--- DRIVER STATE ---"
@@ -82,6 +93,8 @@ case "${1:-status}" in
   audio|sound) audio ;;
   firmware) firmware ;;
   install|repair) install_all; status ;;
+  recommend|ai) recommend ;;
+
   auto) auto; status ;;
   status) status ;;
   *) echo "Usage: chimera-hardware-drivers {scan|audio|firmware|install|repair|auto|status}"; exit 2 ;;
