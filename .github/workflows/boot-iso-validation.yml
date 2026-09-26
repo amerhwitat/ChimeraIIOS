@@ -61,6 +61,10 @@ jobs:
               json.loads(p.read_text())
           print("boot artwork and manifests are syntactically valid")
           PY
+      - name: Validate native QFS and hardware AI contracts
+        run: |
+          python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
+
       - name: Validate Aurora background contracts
         run: |
           grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
