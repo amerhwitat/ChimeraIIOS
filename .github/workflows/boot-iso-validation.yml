@@ -68,11 +68,9 @@ jobs:
           PY
       - name: Validate installation media contract
         run: bash tests/image/test_installation_media_contract.sh
-
       - name: Validate native QFS and hardware AI contracts
         run: |
           python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
-
       - name: Validate Aurora background contracts
         run: |
           grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
@@ -98,5 +96,5 @@ jobs:
         run: |
           ./kernel/build-koronos.sh
           ./boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
-          nm -a build/bootloaders/spitfire-stage2.bin 2>/dev/null || true
+          nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start$'
           test -s build/bootloaders/spitfire-stage2.bin
