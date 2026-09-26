@@ -1283,6 +1283,14 @@ EOF
     "initramfs": "/boot/live/chimera-live-initramfs.img",
     "manifest": "/boot/live/live-manifest.json"
   },
+  "installation": {
+    "image": "/install/installer/installation.img",
+    "legacy_image": "/install/installer/installer-initrd.img",
+    "manifest": "/install/installer/installation-manifest.json",
+    "contract": "/install/installer/installer-contract.json",
+    "phases": "/install/installer/installation_phases.json",
+    "profiles": "/install/installer/installer_profiles.json"
+  },
   "desktop": "Aurora Wayland",
   "features": [
     "screen-saver", "auto-lock", "battery-optimizer",
