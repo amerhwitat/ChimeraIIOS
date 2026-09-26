@@ -5,6 +5,8 @@ int main() {
     using namespace chimera::filesystem;
     const auto &m = filesystem_matrix;
 
+    assert(m.has("qfs"));
+    assert(m.at("qfs").mode == SupportMode::NativeReadWrite);
     assert(m.has("ext4"));
     assert(m.has("xfs"));
     assert(m.has("btrfs"));
