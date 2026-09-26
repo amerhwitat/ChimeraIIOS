@@ -1,0 +1,15 @@
+{
+  "schema":"CHM-INSTALLATION-MEDIA-2",
+  "image":"/install/installer/installation.img",
+  "legacy_image":"/install/installer/installer-initrd.img",
+  "image_format":"gzip-compressed-cpio-newc",
+  "kernel":"/boot/koronos/koronos.elf",
+  "kernel_protocol":"Multiboot2",
+  "boot_manager":"Jasper",
+  "contract":"/install/installer/installer-contract.json",
+  "phases":"/install/installer/installation_phases.json",
+  "profiles":"/install/installer/installer_profiles.json",
+  "features":"/install/installer/chimera-installer-features.json",
+  "filesystem_support":"/install/installer/filesystem-support.json",
+  "bootable":true
+}
