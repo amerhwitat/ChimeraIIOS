@@ -1189,7 +1189,7 @@ EOF
     "passwd-shadow", "filesystem-permissions", "Linux-security",
     "Cockpit-style-web-administration", "Spotnik-networking",
     "Nucleus-Hive-Kore-Aegis", "Apache-ecosystem",
-    "mobile-editions", "toolchains", "compatibility-layers", "display-resolution", "multi-monitor", "gpu-driver-auto-detection", "signed-driver-repositories"
+    "mobile-editions", "toolchains", "compatibility-layers", "display-resolution", "multi-monitor", "gpu-driver-auto-detection", "signed-driver-repositories", "native-qfs-4k-default", "qfs-configurable-8k-64k", "hardware-rnn-driver-recommendations"
   ]
 }
 EOF
