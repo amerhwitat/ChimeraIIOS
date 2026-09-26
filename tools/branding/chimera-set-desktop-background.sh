@@ -8,7 +8,7 @@ ROOT="$CHIMERA_ROOTFS"
 [[ -n "$ROOT" ]] || ROOT=/
 CONFIG="$ROOT/etc/chimera/desktop-background.conf"
 TARGET_DIR="$ROOT/usr/share/backgrounds/chimera"
-IMAGE="$1"
+IMAGE="${1-}"
 
 if [[ -z "$IMAGE" || ! -f "$IMAGE" ]]; then
   echo "Usage: $0 /path/to/background.png" >&2
