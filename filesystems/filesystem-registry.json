@@ -1,6 +1,7 @@
 {
   "schema": "chimera-filesystem-registry-v1",
   "capability_model": ["probe", "read", "write", "install-target", "live-root"],
+  "native": {"name":"qfs","block_size_default":4096,"block_size_allowed":[4096,8192,16384,32768,65536],"require_page_size_at_least_block":true},
   "filesystems": [
     {"name":"FAT12","probe":true,"read":true,"write":true},
     {"name":"FAT16","probe":true,"read":true,"write":true},
@@ -9,6 +10,7 @@
     {"name":"NTFS","probe":true,"read":true,"write":true},
     {"name":"ext2","probe":true,"read":true,"write":true},
     {"name":"ext3","probe":true,"read":true,"write":true},
+    {"name":"qfs","probe":true,"read":true,"write":true,"native":true,"block_size_default":4096,"block_size_allowed":[4096,8192,16384,32768,65536]},
     {"name":"ext4","probe":true,"read":true,"write":true},
     {"name":"XFS","probe":true,"read":true,"write":true},
     {"name":"Btrfs","probe":true,"read":true,"write":true},
