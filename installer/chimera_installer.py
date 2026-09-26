@@ -82,7 +82,7 @@ def recommend(inv):
     return {"recommended_edition":edition,"target_arch":arch,"compatible_editions":compatible,
             "reason":"Hardware/firmware inventory heuristic; user selection remains authoritative."}
 
-def plan(inv, choice):
+def plan(inv, choice, qfs_block_size=4096):
     rec=recommend(inv)
     edition=choice or rec["recommended_edition"]
     if edition not in EDITIONS: raise SystemExit(f"Unknown edition: {edition}")
@@ -91,12 +91,13 @@ def plan(inv, choice):
         "edition":edition,"architecture":rec["target_arch"],"mode":"preserve-existing-os",
         "boot":"UEFI-first; legacy fallback only when explicitly supported",
         "disk_policy":"never auto-partition or erase in unattended mode",
-        "secure_boot_policy":"detect and report; signing/enrollment is an explicit step"},
+        "secure_boot_policy":"detect and report; signing/enrollment is an explicit step",
+        "filesystem":{"native":"qfs","block_size_bytes":qfs_block_size,"sector_size_bytes":512}},
         "recommendation":rec,"identity_security":{"root_uid":0,"local_databases":["/etc/passwd","/etc/shadow","/etc/group","/etc/gshadow"],"root_password":"interactive-at-install","remote_root_login":False,"ad_providers":["sssd","winbind"],"domain_join":"explicit-administrator-action"}}
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("--edition",choices=EDITIONS); ap.add_argument("--output",default="chimera-install-plan.json"); ap.add_argument("--apply",action="store_true"); ap.add_argument("--confirm-destructive",action="store_true")
-    args=ap.parse_args(); inv=inventory(); p=plan(inv,args.edition)
+    ap=argparse.ArgumentParser(); ap.add_argument("--edition",choices=EDITIONS); ap.add_argument("--qfs-block-size",type=int,default=4096); ap.add_argument("--output",default="chimera-install-plan.json"); ap.add_argument("--apply",action="store_true"); ap.add_argument("--confirm-destructive",action="store_true")
+    args=ap.parse_args(); inv=inventory(); p=plan(inv,args.edition,args.qfs_block_size)
     if args.apply and not args.confirm_destructive:
         raise SystemExit("--apply requires --confirm-destructive; this installer never silently erases disks")
     if args.apply:
