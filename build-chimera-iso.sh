@@ -1694,7 +1694,9 @@ main() {
     if [ "$BUILD_ISO" -eq 0 ]; then
         check_docker_storage
         if ! build_state_done "$completed_stage" docker; then
+            CURRENT_STAGE="docker"
             build_docker_image
+            CURRENT_STAGE=""
             build_state_mark docker
             completed_stage="docker"
         else
@@ -1708,13 +1710,17 @@ main() {
     if ! build_state_done "$completed_stage" rootfs; then
         check_docker_storage
         if ! build_state_done "$completed_stage" docker; then
+            CURRENT_STAGE="docker"
             build_docker_image
             build_state_mark docker
+            CURRENT_STAGE=""
             completed_stage="docker"
         else
             log_info "Docker image stage already completed; skipping."
         fi
+        CURRENT_STAGE="rootfs"
         export_docker_to_rootfs
+        CURRENT_STAGE=""
         build_state_mark rootfs
         completed_stage="rootfs"
     fi
