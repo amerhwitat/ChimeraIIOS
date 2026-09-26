@@ -12,7 +12,7 @@ TMP_ROOT="${CHIMERA_ISO_TMPDIR:-/tmp/chimera-iso-build}"
 PATCHED="$TMP_ROOT/build-chimera-iso-source-compressed.$$"
 
 [[ -f "$BASE" ]] || { echo "Missing base builder: $BASE" >&2; exit 2; }
-[[ -x "$COMPRESSOR" ]] || { echo "Missing source compressor: $COMPRESSOR" >&2; exit 2; }
+[[ -f "$COMPRESSOR" ]] || { echo "Missing source compressor: $COMPRESSOR" >&2; exit 2; }
 mkdir -p "$TMP_ROOT"
 trap 'rm -f "$PATCHED"' EXIT
 
@@ -26,7 +26,7 @@ BEGIN { inserted=0 }
   if (!inserted && $0 ~ /if \[ \! build_state_done "\$completed_stage" squashfs \]/) {
     print "    if [[ \"${CHIMERA_COMPRESS_SOURCE:-1}\" = \"1\" ]]; then"
     print "        CURRENT_STAGE=source-compression"
-    print "        \"$compressor\" \"$ISO_DIR\" \"$SCRIPT_DIR\""
+    print "        bash \"" compressor "\" \"$ISO_DIR\" \"$SCRIPT_DIR\""
     print "        CURRENT_STAGE=\"\""
     print "        build_state_mark source-compression"
     print "    fi"
