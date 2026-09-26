@@ -1,69 +1,30 @@
 {
-  "schema": "aurora-gates-menu-v2",
+  "schema": "aurora-gates-menu-v3",
   "title": "Gates Menu",
   "background": {
-    "image": "/usr/share/chimera/aurora/aurora-wayland-glass.png",
+    "image": "/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png",
+    "legacy_image": "/usr/share/chimera/aurora/aurora-wayland-glass.png",
     "source": "desktop/aurora/assets/aurora-wayland-glass.png",
     "mode": "cover",
-    "fallback_color": "#08121e"
+    "fallback_color": "#08121e",
+    "changeable": true,
+    "configuration": "/etc/chimera/desktop-background.conf"
   },
   "categories": [
-    {
-      "id": "desktop",
-      "label": "Desktop Environments / Personalities"
-    },
-    {
-      "id": "applications",
-      "label": "Applications"
-    },
-    {
-      "id": "games",
-      "label": "Games"
-    },
-    {
-      "id": "networking",
-      "label": "Networking / Network Discovery / Route Manager"
-    },
-    {
-      "id": "crypto",
-      "label": "Crypto / Wallet Tools"
-    },
-    {
-      "id": "thamudic",
-      "label": "Thamudic / North Arabian"
-    },
-    {
-      "id": "nlp",
-      "label": "NLP"
-    },
-    {
-      "id": "development",
-      "label": "Development: C/C++/Java/Python/Kotlin/Node/WebAssembly"
-    },
-    {
-      "id": "browsers",
-      "label": "Web Browsers"
-    },
-    {
-      "id": "system",
-      "label": "System / Drivers / Filesystems / Security"
-    },
-    {
-      "id": "installer",
-      "label": "Chimera II Installer / Deployment"
-    },
-    {
-      "id": "recovery",
-      "label": "Recovery / Rescue / Rollback"
-    },
-    {
-      "id": "boot",
-      "label": "Boot / Koronos / Jasper / Spit Fire / GRUB2 / Gates"
-    },
-    {
-      "id": "diagnostics",
-      "label": "Hardware / Kernel / CPU Diagnostics"
-    }
+    {"id":"desktop","label":"Desktop Environments / Personalities"},
+    {"id":"applications","label":"Applications"},
+    {"id":"games","label":"Games"},
+    {"id":"networking","label":"Networking / Network Discovery / Route Manager"},
+    {"id":"crypto","label":"Crypto / Wallet Tools"},
+    {"id":"thamudic","label":"Thamudic / North Arabian"},
+    {"id":"nlp","label":"NLP"},
+    {"id":"development","label":"Development: C/C++/Java/Python/Kotlin/Node/WebAssembly"},
+    {"id":"browsers","label":"Web Browsers"},
+    {"id":"system","label":"System / Drivers / Filesystems / Security"},
+    {"id":"installer","label":"Chimera II Installer / Deployment"},
+    {"id":"recovery","label":"Recovery / Rescue / Rollback"},
+    {"id":"boot","label":"Boot / Koronos / Jasper / Spit Fire / GRUB2 / Gates"},
+    {"id":"diagnostics","label":"Hardware / Kernel / CPU Diagnostics"}
   ],
   "interaction": {
     "keyboard": true,
@@ -84,45 +45,13 @@
     "vmlinuz": false
   },
   "actions": {
-    "live": {
-      "label": "Boot Live Aurora / Koronos",
-      "command": "grub-reboot aurora-live",
-      "requires": "bootloader"
-    },
-    "install": {
-      "label": "Install Chimera II OS",
-      "command": "grub-reboot install",
-      "requires": "bootloader"
-    },
-    "recovery": {
-      "label": "Recovery",
-      "command": "grub-reboot recovery",
-      "requires": "bootloader"
-    },
-    "diagnostics": {
-      "label": "Diagnostics",
-      "command": "grub-reboot diagnostics",
-      "requires": "bootloader"
-    },
-    "jasper": {
-      "label": "Jasper Boot Manager",
-      "command": "grub-reboot jasper",
-      "requires": "bootloader"
-    },
-    "spitfire": {
-      "label": "Spit Fire Native Boot",
-      "command": "grub-reboot spitfire",
-      "requires": "bootloader"
-    },
-    "firmware": {
-      "label": "UEFI Firmware Setup",
-      "command": "systemctl reboot --firmware",
-      "requires": "uefi"
-    },
-    "flash": {
-      "label": "Aurora Flash Tool",
-      "command": "aurora-flash-tool",
-      "requires": "desktop"
-    }
+    "live":{"label":"Boot Live Aurora / Koronos","command":"grub-reboot aurora-live","requires":"bootloader"},
+    "install":{"label":"Install Chimera II OS","command":"grub-reboot install","requires":"bootloader"},
+    "recovery":{"label":"Recovery","command":"grub-reboot recovery","requires":"bootloader"},
+    "diagnostics":{"label":"Diagnostics","command":"grub-reboot diagnostics","requires":"bootloader"},
+    "jasper":{"label":"Jasper Boot Manager","command":"grub-reboot jasper","requires":"bootloader"},
+    "spitfire":{"label":"Spit Fire Native Boot","command":"grub-reboot spitfire","requires":"bootloader"},
+    "firmware":{"label":"UEFI Firmware Setup","command":"systemctl reboot --firmware","requires":"uefi"},
+    "flash":{"label":"Aurora Flash Tool","command":"aurora-flash-tool","requires":"desktop"}
   }
 }
