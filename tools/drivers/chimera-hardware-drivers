@@ -47,14 +47,12 @@ firmware(){
 }
 recommend(){
   local root="$(cd "$(dirname "$0")/../.." && pwd)"
+  local engine="/usr/share/chimera/cognition/chimera_hardware_recommender.py"
+  [[ -f "$engine" ]] || engine="$root/tools/cognition/chimera_hardware_recommender.py"
   local out="${CHIMERA_DRIVER_AI_OUTPUT:-/var/lib/chimera/drivers/ai-recommendations.json}"
   mkdir -p "$(dirname "$out")"
-  if [[ -f "$root/tools/cognition/chimera_hardware_recommender.py" ]]; then
-    python3 "$root/tools/cognition/chimera_hardware_recommender.py" --output "$out"
-  else
-    log "AI recommender is not staged in this environment."
-    return 2
-  fi
+  [[ -f "$engine" ]] || { log "AI recommender is not staged."; return 2; }
+  python3 "$engine" --output "$out"
 }
 status(){
   scan
