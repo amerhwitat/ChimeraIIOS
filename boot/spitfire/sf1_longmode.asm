@@ -2,6 +2,7 @@
 %define CODE_SEL 0x08
 %define DATA_SEL 0x10
 
+global start
 start:
     cli
     call enable_a20
