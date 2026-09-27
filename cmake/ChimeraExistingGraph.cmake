@@ -170,7 +170,7 @@ add_test(NAME chimera_isa_catalog COMMAND chimera_isa_catalog_test)
 add_test(NAME chimera_r8192_isa COMMAND chimera_r8192_isa_test)
 add_test(NAME chimera_isa_bitfields COMMAND chimera_isa_bitfields_test)
 add_test(NAME chimera_isa_encoder_decoder
-  COMMAND chimera_isa_encoder_decoder_test "${CHIMERA_ISA_JSON}")
+  COMMAND ${CMAKE_COMMAND} -DCHIMERA_ISA_JSON="${CHIMERA_ISA_JSON}" -DCHIMERA_ISA_SAMPLE_JSON="${CHIMERA_ISA_SAMPLE_JSON}" -DCHIMERA_SOURCE_DIR="${CMAKE_SOURCE_DIR}" -DCHIMERA_ENCODER_TEST="$<TARGET_FILE:chimera_isa_encoder_decoder_test>" -P "${CMAKE_SOURCE_DIR}/cmake/RunIsaEncoderDecoderTest.cmake")
 set_tests_properties(chimera_isa_encoder_decoder PROPERTIES
   REQUIRED_FILES "${CHIMERA_ISA_JSON}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
