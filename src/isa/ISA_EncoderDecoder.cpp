@@ -1,6 +1,7 @@
 #include "chimera/ISA_EncoderDecoder.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <limits>
 #include <stdexcept>
 
@@ -25,11 +26,41 @@ bool ISAEncoderDecoder::supported_for_template_encoding(const BitfieldInstructio
 }
 
 std::uint64_t ISAEncoderDecoder::parse_mask64(const BitField& field) {
-    // The registry stores masks as canonical hexadecimal strings. For fields
-    // crossing bit 63, the public uint64_t operand API cannot represent the
-    // entire value; reject those through the width check above.
-    if (field.mask_hex.empty()) throw std::runtime_error("empty bitfield mask: " + field.name);
-    return std::stoull(field.mask_hex, nullptr, 16);
+    // Generated ISA metadata may represent a 64-bit mask in a zero-extended
+    // 128-bit hexadecimal form. std::stoull() throws on such strings even when
+    // all significant bits fit in uint64_t, which used to abort the CTest
+    // encoder/decoder subprocess. Parse explicitly and reject only non-zero
+    // bits above bit 63.
+    if (field.mask_hex.empty())
+        throw std::runtime_error("empty bitfield mask: " + field.name);
+
+    std::string hex = field.mask_hex;
+    if (hex.size() >= 2 && hex[0] == '0' && (hex[1] == 'x' || hex[1] == 'X'))
+        hex.erase(0, 2);
+    if (hex.empty())
+        throw std::runtime_error("empty bitfield mask: " + field.name);
+
+    // Ignore leading zeroes so canonical 128-bit masks remain accepted.
+    const auto first_nonzero = hex.find_first_not_of('0');
+    if (first_nonzero == std::string::npos)
+        return 0;
+    hex.erase(0, first_nonzero);
+
+    // More than 16 significant hexadecimal digits means at least one bit
+    // above uint64_t. Such a mask is incompatible with this public API.
+    if (hex.size() > 16)
+        throw std::runtime_error("bitfield mask exceeds uint64_t: " + field.name);
+
+    std::uint64_t value = 0;
+    for (const char c : hex) {
+        unsigned digit = 0;
+        if (c >= '0' && c <= '9') digit = static_cast<unsigned>(c - '0');
+        else if (c >= 'a' && c <= 'f') digit = static_cast<unsigned>(c - 'a') + 10;
+        else if (c >= 'A' && c <= 'F') digit = static_cast<unsigned>(c - 'A') + 10;
+        else throw std::runtime_error("invalid hexadecimal bitfield mask: " + field.name);
+        value = (value << 4) | digit;
+    }
+    return value;
 }
 
 std::uint64_t ISAEncoderDecoder::get_field(const InstructionWord128& word,
@@ -92,8 +123,8 @@ InstructionWord128 ISAEncoderDecoder::encode(
         const auto value = it->second;
         if (field.width < 64 && (value >> field.width) != 0)
             throw std::runtime_error("Operand does not fit field: " + field.name);
-        // Validate the declared mask when it fits the public API. This catches
-        // malformed generated metadata without silently changing its meaning.
+        // Validate the declared mask without rejecting zero-extended 128-bit
+        // representations of masks whose significant value fits uint64_t.
         (void)parse_mask64(field);
         put_field(word, value, field.start, field.width);
     }
