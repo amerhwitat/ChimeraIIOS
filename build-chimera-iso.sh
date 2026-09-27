@@ -972,8 +972,13 @@ stage_comprehensive_features() {
     # create /install/installer/installer-initrd.img, causing runtime "image not
     # found" failures even though the menu entries existed.
     mkdir -p "$ISO_DIR/install/installer" "$ISO_DIR/install/manifests"
-    local installer_payload="$ISO_TMP_DIR/chimera-installer-initrd-root"
-    rm -rf "$installer_payload"
+    # Never reuse the fixed installer-initrd workspace. Previous builds may
+    # have created it as root (for example when the build was run with sudo),
+    # which makes a later unprivileged rm -rf fail with EACCES.
+    # Use a unique, build-owned directory instead and never delete an
+    # unrelated/root-owned workspace.
+    local installer_payload
+    installer_payload="$(mktemp -d "$ISO_TMP_DIR/chimera-installer-initrd-root.XXXXXX")"
     mkdir -p "$installer_payload"/{bin,sbin,dev,proc,sys,run,tmp,mnt,target,etc,chimera}
     local busybox_bin=""
     if command -v busybox >/dev/null 2>&1; then
