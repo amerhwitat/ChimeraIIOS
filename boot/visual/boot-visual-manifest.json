@@ -1,0 +1,29 @@
+{
+  "schema": "chimera.boot.visual.v1",
+  "background": {
+    "source": "Aurora Wayland Desktop Showcase.png",
+    "generated": "aurora-background.jpg",
+    "embedded": "aurora-background.jpg.b64",
+    "mode": "cover"
+  },
+  "video": {
+    "source": "Chimera II OS Neural Simulator Execution Cycle(1).mp4",
+    "staged": "chimera-intro.mp4",
+    "autostart": true,
+    "loop": false,
+    "provider_order": ["gstreamer", "mpv"]
+  },
+  "overlay": {
+    "boot_log": "/run/chimera/boot.log",
+    "show_services": true,
+    "show_processes": true,
+    "transition_to_desktop": true
+  },
+  "contracts": [
+    "/install/installer/installation.img",
+    "/install/installer/installation-manifest.json",
+    "/install/installer/installer-contract.json",
+    "/install/installer/installation_phases.json",
+    "/install/installer/installer_profiles.json"
+  ]
+}
