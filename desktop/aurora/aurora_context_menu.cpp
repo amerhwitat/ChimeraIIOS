@@ -105,10 +105,11 @@ const char* surface_name(Surface surface) {
 
 void print(Surface surface) {
     std::printf("Aurora context menu: %s\n", surface_name(surface));
-    for (const auto& entry : build(surface))
+    for (const auto& entry : build(surface)) {
         const char* command = action_command(entry.action);
         std::printf("  %s [%s]%s%s%s\n", entry.label.c_str(), entry.action.c_str(),
                     entry.submenu ? " >" : "", command[0] ? " -> " : "", command);
+    }
 }
 }
 
