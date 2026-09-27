@@ -27,8 +27,8 @@ execute_process(
 
 if(NOT GENERATE_RESULT EQUAL 0)
   message(FATAL_ERROR
-    "ISA metadata generation failed (exit ${GENERATE_RESULT})\\n"
-    "${GENERATE_OUTPUT}\\n${GENERATE_ERROR}")
+    "ISA metadata generation failed (exit ${GENERATE_RESULT})\n"
+    "${GENERATE_OUTPUT}\n${GENERATE_ERROR}")
 endif()
 
 execute_process(
@@ -41,8 +41,8 @@ execute_process(
 
 if(NOT TEST_RESULT EQUAL 0)
   message(FATAL_ERROR
-    "chimera_isa_encoder_decoder failed (exit ${TEST_RESULT})\\n"
-    "${TEST_OUTPUT}\\n${TEST_ERROR}")
+    "chimera_isa_encoder_decoder failed (exit ${TEST_RESULT})\n"
+    "${TEST_OUTPUT}\n${TEST_ERROR}")
 endif()
 
 message(STATUS "${TEST_OUTPUT}")
