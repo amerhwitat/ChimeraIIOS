@@ -1,6 +1,5 @@
 name: One-time repair Docker build logs
 
-# Triggered by the follow-up commit so GitHub loads the newly-added workflow.
 on:
   push:
     branches: [main]
@@ -10,8 +9,8 @@ permissions:
 
 jobs:
   repair:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,8 +18,9 @@ jobs:
           fetch-depth: 0
 
       - name: Patch build script
-        shell: python
+        shell: bash
         run: |
+          python3 <<'PY'
           from pathlib import Path
           import subprocess
 
@@ -37,12 +37,11 @@ jobs:
 
     # Dockerfile.comprehensive now uses FROM builder AS runtime. This avoids
 '''
-          new = '''    # Never use fixed /tmp log names: a previous sudo build can leave root-owned
-    # files there, causing an otherwise healthy Docker build to fail with
-    # "Permission denied" before docker is even invoked.
+          new = '''    # Keep Docker build logs inside the selected Chimera build storage. Fixed
+    # /tmp names can become root-owned after a sudo build and make the next
+    # unprivileged build fail before Docker is invoked.
     local log_dir="${BUILD_DIR}/logs"
     mkdir -p "$log_dir"
-    chmod u+rwx "$log_dir" 2>/dev/null || true
     local prune_log
     prune_log="$(mktemp "$log_dir/buildx-prune.XXXXXX.log")"
 
@@ -60,7 +59,7 @@ jobs:
     # Dockerfile.comprehensive now uses FROM builder AS runtime. This avoids
 '''
           if old not in text:
-              raise SystemExit('expected BuildKit prune block was not found')
+              raise SystemExit('BuildKit prune block not found')
           text = text.replace(old, new, 1)
 
           old = '''    local build_rc=1
@@ -74,7 +73,7 @@ jobs:
     build_log="$(mktemp "$log_dir/docker-build.XXXXXX.log")"
 '''
           if old not in text:
-              raise SystemExit('expected Docker build log block was not found')
+              raise SystemExit('Docker build log block not found')
           text = text.replace(old, new, 1)
 
           old = '''                docker run --rm ubuntu:24.04 sh -c 'dd if=/dev/zero of=/tmp/chimera-retry.bin bs=1M count=8 status=none && test -s /tmp/chimera-retry.bin' >/tmp/chimera-storage-retry.log 2>&1; then
@@ -88,8 +87,9 @@ jobs:
 
           path.write_text(text)
           subprocess.run(['bash', '-n', str(path)], check=True)
+          PY
 
-      - name: Commit and remove one-time repair workflow
+      - name: Commit repair and remove temporary workflow
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
