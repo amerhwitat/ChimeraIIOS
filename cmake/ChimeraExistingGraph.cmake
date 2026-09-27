@@ -156,6 +156,8 @@ install(FILES desktop/aurora/aurora-files.desktop desktop/aurora/aurora-media-pl
 add_executable(chimera_media_ai_test tests/ai/test_media.cpp)
 target_link_libraries(chimera_media_ai_test PRIVATE chimera_machine)
 target_include_directories(chimera_media_ai_test PRIVATE include)
+find_package(Python3 COMPONENTS Interpreter QUIET)
+
 set(CHIMERA_ISA_JSON ${CMAKE_BINARY_DIR}/isa_bitfields.json)
 set(CHIMERA_ISA_SAMPLE_JSON ${CMAKE_BINARY_DIR}/isa_encoder_decoder_sample.json)
 enable_testing()
@@ -190,7 +192,6 @@ add_test(NAME chimera_media_ai COMMAND chimera_media_ai_test)
 if(CHIMERA_ENABLE_CVEL)
   add_test(NAME chimera_cvel COMMAND chimera_cvel_test)
 endif()
-find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
   # Regenerate metadata whenever the generator target is requested so stale
   # build-tree ISA JSON cannot shadow the canonical CSV/CPP metadata.
