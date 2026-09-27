@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """Prepare Aurora boot artwork/video resources for the ISO and runtime.
 
-The source artwork can be a PNG/JPEG.  The build always creates a JPEG and a
-Base64 copy so early/native components do not need the original source file.
-The video is copied into the boot resource directory and can alternatively be
-supplied as a pre-encoded Base64 file.  The script deliberately performs all
-asset generation at build time; GRUB itself is never asked to decode/play MP4.
+The source artwork may be PNG/JPEG or SVG. The build always creates a JPEG
+and a Base64 copy so early/native components do not need the original source
+file. SVG artwork is rasterized at build time with CairoSVG when available,
+with ImageMagick as a fallback. The video is copied into the boot resource
+directory and can alternatively be supplied as a pre-encoded Base64 file.
+GRUB itself is never asked to decode/play MP4.
 """
 from __future__ import annotations
-import argparse, base64, hashlib, json, shutil, subprocess
+
+import argparse
+import base64
+import hashlib
+import json
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 
@@ -24,15 +32,63 @@ def write_b64(path: Path, out: Path) -> None:
     out.write_text(base64.b64encode(path.read_bytes()).decode("ascii"), encoding="ascii")
 
 
+def rasterize_svg(source: Path, output_png: Path) -> None:
+    """Rasterize SVG to PNG using CairoSVG, then ImageMagick as fallback."""
+    output_png.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        import cairosvg  # type: ignore
+    except ImportError:
+        cairosvg = None
+
+    if cairosvg is not None:
+        try:
+            cairosvg.svg2png(url=str(source), write_to=str(output_png))
+            return
+        except Exception as exc:
+            cairo_error = str(exc)
+    else:
+        cairo_error = "CairoSVG is not installed"
+
+    convert = shutil.which("magick") or shutil.which("convert")
+    if convert:
+        result = subprocess.run(
+            [convert, "-background", "none", str(source), str(output_png)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode == 0 and output_png.is_file() and output_png.stat().st_size:
+            return
+        imagemagick_error = result.stderr.strip() or result.stdout.strip()
+    else:
+        imagemagick_error = "ImageMagick (magick/convert) is not installed"
+
+    raise SystemExit(
+        "Unable to rasterize Aurora SVG. Install python3-cairosvg or ImageMagick. "
+        f"CairoSVG: {cairo_error}; ImageMagick: {imagemagick_error}"
+    )
+
+
 def make_jpeg(source: Path, output: Path) -> None:
     try:
         from PIL import Image
     except ImportError as exc:
         raise SystemExit("Pillow is required to convert Aurora artwork to JPEG") from exc
-    image = Image.open(source).convert("RGB")
-    image.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
+
     output.parent.mkdir(parents=True, exist_ok=True)
-    image.save(output, "JPEG", quality=82, optimize=True, progressive=True)
+
+    if source.suffix.lower() == ".svg":
+        with tempfile.TemporaryDirectory(prefix="chimera-aurora-") as tmp:
+            png = Path(tmp) / "aurora-rasterized.png"
+            rasterize_svg(source, png)
+            image = Image.open(png).convert("RGB")
+            image.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
+            image.save(output, "JPEG", quality=82, optimize=True, progressive=True)
+    else:
+        image = Image.open(source).convert("RGB")
+        image.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
+        image.save(output, "JPEG", quality=82, optimize=True, progressive=True)
 
 
 def materialize_video(video: Path | None, embedded: Path | None, output: Path) -> None:
@@ -86,7 +142,12 @@ def main() -> int:
 
     manifest = {
         "schema": "chimera.boot.visual.v1",
-        "background": {"path": str(jpg.name), "sha256": sha256(jpg), "base64": "aurora-background.jpg.b64"},
+        "background": {
+            "source": str(background),
+            "path": str(jpg.name),
+            "sha256": sha256(jpg),
+            "base64": "aurora-background.jpg.b64",
+        },
         "video": {"path": str(video.name), "sha256": sha256(video), "autostart": True},
         "runtime_log": "/run/chimera/boot.log",
     }
