@@ -7,6 +7,20 @@ if(NOT DEFINED CHIMERA_ISA_JSON OR NOT DEFINED CHIMERA_SOURCE_DIR OR
   message(FATAL_ERROR "Missing ISA encoder test wrapper arguments")
 endif()
 
+# CMake may preserve literal quotes when -D arguments are assembled by
+# CTest generators. Normalize them before execute_process() so the executable
+# path is never interpreted as '"/usr/bin/python3"'.
+foreach(_chimera_arg
+    CHIMERA_ISA_JSON
+    CHIMERA_ISA_SAMPLE_JSON
+    CHIMERA_SOURCE_DIR
+    CHIMERA_ENCODER_TEST
+    CHIMERA_PYTHON_EXECUTABLE)
+  if(DEFINED ${_chimera_arg})
+    string(REGEX REPLACE "^\\\"(.*)\\\"$" "\\1" ${_chimera_arg} "${${_chimera_arg}}")
+  endif()
+endforeach()
+
 if(NOT DEFINED CHIMERA_PYTHON_EXECUTABLE OR
    CHIMERA_PYTHON_EXECUTABLE STREQUAL "")
   find_program(CHIMERA_PYTHON_EXECUTABLE NAMES python3 python)
