@@ -1,5 +1,6 @@
 name: One-time repair Docker build logs
 
+# Triggered by the follow-up commit so GitHub loads the newly-added workflow.
 on:
   push:
     branches: [main]
@@ -21,6 +22,7 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import subprocess
 
           path = Path('build-chimera-iso.sh')
           text = path.read_text()
@@ -35,7 +37,6 @@ jobs:
 
     # Dockerfile.comprehensive now uses FROM builder AS runtime. This avoids
 '''
-
           new = '''    # Never use fixed /tmp log names: a previous sudo build can leave root-owned
     # files there, causing an otherwise healthy Docker build to fail with
     # "Permission denied" before docker is even invoked.
@@ -58,7 +59,6 @@ jobs:
 
     # Dockerfile.comprehensive now uses FROM builder AS runtime. This avoids
 '''
-
           if old not in text:
               raise SystemExit('expected BuildKit prune block was not found')
           text = text.replace(old, new, 1)
@@ -68,13 +68,11 @@ jobs:
     local build_log="/tmp/chimera-docker-build.log"
     : > "$build_log"
 '''
-
           new = '''    local build_rc=1
     local attempt
     local build_log
     build_log="$(mktemp "$log_dir/docker-build.XXXXXX.log")"
 '''
-
           if old not in text:
               raise SystemExit('expected Docker build log block was not found')
           text = text.replace(old, new, 1)
@@ -89,9 +87,6 @@ jobs:
               text = text.replace('            rm -f /tmp/chimera-storage-retry.log\n', '            rm -f "$log_dir/storage-retry.log"\n', 1)
 
           path.write_text(text)
-
-          # Validate the shell syntax before committing.
-          import subprocess
           subprocess.run(['bash', '-n', str(path)], check=True)
 
       - name: Commit and remove one-time repair workflow
