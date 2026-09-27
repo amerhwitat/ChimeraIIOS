@@ -1060,17 +1060,21 @@ EOF
 
     # Keep the related JSON contracts at the exact runtime paths referenced by
     # Jasper and also provide the canonical installation manifest.
-    for f in installer-contract.json installation_phases.json installer_profiles.json chimera-installer-features.json filesystem-support.json installation-manifest.json; do
+    for f in installer-contract.json installation_phases.json installer_profiles.json chimera-installer-features.json filesystem-support.json; do
         case "$f" in
             installer-contract.json) src="$SCRIPT_DIR/install/installer-contract.json" ;;
             installation_phases.json) src="$SCRIPT_DIR/installer/installation_phases.json" ;;
             installer_profiles.json) src="$SCRIPT_DIR/installer/installer_profiles.json" ;;
             chimera-installer-features.json) src="$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" ;;
             filesystem-support.json) src="$SCRIPT_DIR/installer/profiles/filesystem-support.json" ;;
-            installation-manifest.json) src="$ISO_DIR/install/installer/installation-manifest.json" ;;
         esac
-        [[ -f "$src" ]] && install -m 0644 "$src" "$ISO_DIR/install/installer/$f"
+        if [[ -f "$src" ]];then 
+	   install -m 0644 "$src" "$ISO_DIR/install/installer/$f"
+	fi
     done
+    test -s "$ISO_DIR/install/installer/installation-manifest.json" || {
+	log_error "Generated installation mainfest is missing."
+    }
     log_success "Native installation image and JSON contracts staged under /install/installer/."
     copy_tree_if_present "$BUILD_DIR/mobile" "$ISO_DIR/mobile"
     copy_tree_if_present "$BUILD_DIR/drivers" "$ISO_DIR/drivers"
@@ -1814,7 +1818,7 @@ HOW TO USE THE ISO
 AUTHOR & SUPPORT
 ================================================================================
 
-Created by: Amer Abdullah Suleiman Hwitat - عامر الحويطات
+Created by: Amer Abdullah Suleiman Hwitat 
 Location:   Amman 11814, Jordan
 Email:      amer.hwitat@proton.me
 GitHub:     https://github.com/amerhwitat
