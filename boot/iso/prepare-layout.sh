@@ -16,7 +16,37 @@ if [[ -d "$BOOT_ART/spitfire" ]]; then cp -a "$BOOT_ART/spitfire/." "$DIST/boot/
 if [[ -d "$BOOT_ART/jasper" ]]; then cp -a "$BOOT_ART/jasper/." "$DIST/boot/chimera/jasper/"; fi
 if [[ -d "$BOOT_ART/grub" ]]; then cp -a "$BOOT_ART/grub/." "$DIST/boot/chimera/grub/"; fi
 if [[ -d "$BOOT_ART/manifests" ]]; then cp -a "$BOOT_ART/manifests/." "$DIST/boot/chimera/manifests/"; fi
-mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
+mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/src" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
+
+# Compatibility layout required by the ISO contract.  The source tree is kept
+# as a compressed archive under /src so the ISO remains source-first without
+# expanding thousands of source files into the ISO root.
+SOURCE_ARCHIVE="$DIST/src/chimera-source.tar.zst"
+if command -v zstd >/dev/null 2>&1; then
+  tar -C "$ROOT" \
+    --exclude=.git --exclude=build --exclude=boot/iso/dist --exclude=boot/iso/work \
+    --exclude='*.iso' --exclude='*.img' --exclude='*.o' --exclude='*.a' \
+    --exclude='node_modules' --exclude='__pycache__' \
+    -cf - . | zstd -T0 -q -o "$SOURCE_ARCHIVE"
+elif command -v gzip >/dev/null 2>&1; then
+  SOURCE_ARCHIVE="$DIST/src/chimera-source.tar.gz"
+  tar -C "$ROOT" \
+    --exclude=.git --exclude=build --exclude=boot/iso/dist --exclude=boot/iso/work \
+    --exclude='*.iso' --exclude='*.img' --exclude='*.o' --exclude='*.a' \
+    --exclude='node_modules' --exclude='__pycache__' \
+    -czf "$SOURCE_ARCHIVE" .
+else
+  echo "Neither zstd nor gzip is available for the source archive." >&2
+  exit 2
+fi
+cat > "$DIST/src/README.txt" <<'EOF'
+Chimera II OS source archive
+============================
+The source-first ISO stores the repository source in compressed form under
+/src/chimera-source.tar.zst (or chimera-source.tar.gz when zstd is unavailable).
+The archive excludes the Git metadata and generated build/output trees.
+EOF
+
 # Build and stage the live-boot payload explicitly. Jasper/GRUB references
 # /boot/live/chimera-live-initramfs.img and /boot/live/live-manifest.json;
 # relying on an optional pre-existing build/live-boot directory caused
@@ -40,7 +70,6 @@ if [[ -s "$LIVE_BOOT/boot/vmlinuz" ]]; then
   cp -f "$LIVE_BOOT/boot/vmlinuz" "$DIST/boot/live/vmlinuz"
 fi
 
-
 # Canonical kernel payload: the exact ELF validated by grub-file and loaded by GRUB's multiboot2 command.
 KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
 [[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
@@ -51,6 +80,9 @@ cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$RO
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
 cp "$ROOT/boot/jasper/jasper.cfg" "$DIST/boot/jasper/jasper.cfg"
+# Legacy Jasper contract: older installers and recovery tooling look for
+# /boot/jasper/grub.cfg. Keep it synchronized with the canonical GRUB entry.
+cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/grub.cfg"
 [[ -s "$BOOT_ART/jasper/jasper.elf" ]] || { echo "Jasper ELF missing from boot artifact stage." >&2; exit 2; }
 cp "$BOOT_ART/jasper/jasper.elf" "$DIST/boot/jasper/jasper.elf"
 if [[ -s "$BOOT_ART/grub/grub-core.img" ]]; then cp "$BOOT_ART/grub/grub-core.img" "$DIST/boot/chimera/grub/grub-core.img"; fi
@@ -135,6 +167,15 @@ EOF
 [[ -f "$ROOT/installer/installation_phases.json" ]] && cp "$ROOT/installer/installation_phases.json" "$DIST/chimera/manifests/"
 [[ -f "$ROOT/installer/installer_profiles.json" ]] && cp "$ROOT/installer/installer_profiles.json" "$DIST/chimera/manifests/"
 [[ -f "$ROOT/installer/chimera-installer-plan.json" ]] && cp "$ROOT/installer/chimera-installer-plan.json" "$DIST/chimera/manifests/"
-[[ -f "$ROOT/README.md" ]] && cp "$ROOT/README.md" "$DIST/chimera/docs/"
+[[ -f "$ROOT/README.md" ]] && cp "$ROOT/README.md" "$DIST/chimera/docs/README.md"
+cat > "$DIST/chimera/README.txt" <<'EOF'
+Chimera II OS ISO
+=================
+This media contains the Koronos kernel, Spit Fire/Jasper boot chain,
+Aurora graphical resources, live boot environment, installer contracts,
+and the compressed source archive under /src.
+
+The canonical project documentation is staged as /chimera/docs/README.md.
+EOF
 
 python3 "$ROOT/boot/iso/validate-iso.py" --tree "$DIST" --write-manifest "$DIST/checksums/SHA256SUMS"
