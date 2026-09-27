@@ -1,0 +1,62 @@
+name: One-time repair installer initrd temp workspace
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Patch installer temporary workspace handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("build-chimera-iso.sh")
+          text = path.read_text(encoding="utf-8")
+          pattern = re.compile(
+              r'    local installer_payload="\$ISO_TMP_DIR/chimera-installer-initrd-root"\n'
+              r'    rm -rf "\$installer_payload"\n'
+              r'    mkdir -p "\$installer_payload"/\{bin,sbin,dev,proc,sys,run,tmp,mnt,target,etc,chimera\}\n'
+          )
+          replacement = (
+              '    # Never reuse the fixed installer-initrd workspace. Previous builds may\n'
+              '    # have created it as root (for example when the build was run with sudo),\n'
+              '    # which makes a later unprivileged rm -rf fail with EACCES.\n'
+              '    # Use a unique, build-owned directory instead and never delete an\n'
+              '    # unrelated/root-owned workspace.\n'
+              '    local installer_payload\n'
+              '    installer_payload="$(mktemp -d "$ISO_TMP_DIR/chimera-installer-initrd-root.XXXXXX")"\n'
+              '    mkdir -p "$installer_payload"/{bin,sbin,dev,proc,sys,run,tmp,mnt,target,etc,chimera}\n'
+          )
+          if not pattern.search(text):
+              raise SystemExit("expected installer payload cleanup block was not found")
+          path.write_text(pattern.sub(replacement, text, count=1), encoding="utf-8")
+          PY
+
+      - name: Verify shell syntax
+        run: bash -n build-chimera-iso.sh
+
+      - name: Commit repair and remove one-time workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add build-chimera-iso.sh
+          git rm .github/workflows/one-time-fix-installer-tmp-permissions.yml
+          git commit -m "fix: isolate installer initrd temp workspace"
+          git push origin HEAD:main
