@@ -171,7 +171,15 @@ add_test(NAME chimera_memory_bus_probe COMMAND chimera_memory_bus_probe_test)
 add_test(NAME chimera_isa_catalog COMMAND chimera_isa_catalog_test)
 add_test(NAME chimera_r8192_isa COMMAND chimera_r8192_isa_test)
 add_test(NAME chimera_isa_bitfields COMMAND chimera_isa_bitfields_test)
-add_test(NAME chimera_isa_encoder_decoder\n  COMMAND ${CMAKE_COMMAND}\n    -DCHIMERA_ISA_JSON=${CHIMERA_ISA_JSON}\n    -DCHIMERA_ISA_SAMPLE_JSON=${CHIMERA_ISA_SAMPLE_JSON}\n    -DCHIMERA_SOURCE_DIR=${CMAKE_SOURCE_DIR}\n    -DCHIMERA_ENCODER_TEST=$<TARGET_FILE:chimera_isa_encoder_decoder_test>\n    -DCHIMERA_PYTHON_EXECUTABLE=${Python3_EXECUTABLE}\n    -P ${CMAKE_SOURCE_DIR}/cmake/RunIsaEncoderDecoderTest.cmake\n  VERBATIM)
+add_test(NAME chimera_isa_encoder_decoder
+  COMMAND ${CMAKE_COMMAND}
+    -DCHIMERA_ISA_JSON=${CHIMERA_ISA_JSON}
+    -DCHIMERA_ISA_SAMPLE_JSON=${CHIMERA_ISA_SAMPLE_JSON}
+    -DCHIMERA_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -DCHIMERA_ENCODER_TEST=$<TARGET_FILE:chimera_isa_encoder_decoder_test>
+    -DCHIMERA_PYTHON_EXECUTABLE=${Python3_EXECUTABLE}
+    -P ${CMAKE_SOURCE_DIR}/cmake/RunIsaEncoderDecoderTest.cmake
+  VERBATIM)
 set_tests_properties(chimera_isa_encoder_decoder PROPERTIES
   REQUIRED_FILES "${CHIMERA_ISA_JSON}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
