@@ -20,17 +20,12 @@ bool ISAEncoderDecoder::supported_for_template_encoding(const BitfieldInstructio
     if (instruction.encoding_status != "template") return false;
     for (const auto& field : instruction.bitfields) {
         if (field.width == 0 || field.end < field.start || field.end >= 128) return false;
-        if (field.width > 64) return false; // current public operand API is uint64_t
+        if (field.width > 64) return false;
     }
     return true;
 }
 
 std::uint64_t ISAEncoderDecoder::parse_mask64(const BitField& field) {
-    // Generated ISA metadata may represent a 64-bit mask in a zero-extended
-    // 128-bit hexadecimal form. std::stoull() throws on such strings even when
-    // all significant bits fit in uint64_t, which used to abort the CTest
-    // encoder/decoder subprocess. Parse explicitly and reject only non-zero
-    // bits above bit 63.
     if (field.mask_hex.empty())
         throw std::runtime_error("empty bitfield mask: " + field.name);
 
@@ -40,14 +35,11 @@ std::uint64_t ISAEncoderDecoder::parse_mask64(const BitField& field) {
     if (hex.empty())
         throw std::runtime_error("empty bitfield mask: " + field.name);
 
-    // Ignore leading zeroes so canonical 128-bit masks remain accepted.
     const auto first_nonzero = hex.find_first_not_of('0');
     if (first_nonzero == std::string::npos)
         return 0;
     hex.erase(0, first_nonzero);
 
-    // More than 16 significant hexadecimal digits means at least one bit
-    // above uint64_t. Such a mask is incompatible with this public API.
     if (hex.size() > 16)
         throw std::runtime_error("bitfield mask exceeds uint64_t: " + field.name);
 
@@ -123,8 +115,6 @@ InstructionWord128 ISAEncoderDecoder::encode(
         const auto value = it->second;
         if (field.width < 64 && (value >> field.width) != 0)
             throw std::runtime_error("Operand does not fit field: " + field.name);
-        // Validate the declared mask without rejecting zero-extended 128-bit
-        // representations of masks whose significant value fits uint64_t.
         (void)parse_mask64(field);
         put_field(word, value, field.start, field.width);
     }
