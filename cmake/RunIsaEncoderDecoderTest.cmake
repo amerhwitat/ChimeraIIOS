@@ -7,7 +7,10 @@ if(NOT DEFINED CHIMERA_ISA_JSON OR NOT DEFINED CHIMERA_SOURCE_DIR OR
   message(FATAL_ERROR "Missing ISA encoder test wrapper arguments")
 endif()
 
-find_program(CHIMERA_PYTHON_EXECUTABLE NAMES python3 python)
+if(NOT DEFINED CHIMERA_PYTHON_EXECUTABLE OR
+   CHIMERA_PYTHON_EXECUTABLE STREQUAL "")
+  find_program(CHIMERA_PYTHON_EXECUTABLE NAMES python3 python)
+endif()
 if(NOT CHIMERA_PYTHON_EXECUTABLE)
   message(FATAL_ERROR "Python 3 is required to regenerate ISA metadata")
 endif()
