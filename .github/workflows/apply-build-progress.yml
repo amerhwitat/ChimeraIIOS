@@ -3,6 +3,9 @@ name: Apply build progress instrumentation
 on:
   push:
     branches: [main]
+    paths:
+      - 'build-chimera-iso.sh'
+      - '.github/workflows/apply-build-progress.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,20 +23,23 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
+
           p = Path('build-chimera-iso.sh')
           s = p.read_text()
-          anchor = '''print_header() {\n    echo ""\n    echo "=================================================================="\n    echo "$*"\n    echo "=================================================================="\n    echo ""\n}\n'''
-          insert = r'''
+
+          framework = r'''
 
 # =============================================================================
 # LIVE BUILD PROGRESS
 # =============================================================================
-# Every build stage exposes a common START -> RUNNING -> DONE/FAILED lifecycle.
-# Progress is printed to the terminal and retained in a build-local log.
+# Progress is emitted for every resumable stage and every CURRENT_STAGE
+# transition. The log lives under BUILD_DIR so resumed builds retain history.
 PROGRESS_STAGE_INDEX=0
 PROGRESS_TOTAL_STAGES=13
 PROGRESS_STAGE_STARTED_AT=0
 PROGRESS_STAGE_NAME=""
+PROGRESS_LAST_CURRENT_STAGE=""
 PROGRESS_LOG=""
 
 progress_init() {
@@ -43,30 +49,34 @@ progress_init() {
 }
 
 progress_elapsed() {
-    local now
+    local now elapsed
     now=$(date +%s)
     if [[ "$PROGRESS_STAGE_STARTED_AT" =~ ^[0-9]+$ ]] && (( PROGRESS_STAGE_STARTED_AT > 0 )); then
-        printf '%02dm:%02ds' $(((now-PROGRESS_STAGE_STARTED_AT)/60)) $(((now-PROGRESS_STAGE_STARTED_AT)%60))
+        elapsed=$((now - PROGRESS_STAGE_STARTED_AT))
+        printf '%02dm:%02ds' $((elapsed / 60)) $((elapsed % 60))
     else
         printf '00m:00s'
     fi
 }
 
 progress_render() {
-    local state="$1" detail="${2:-}" pct=0 width=28 filled=0 bar=""
+    local state="$1" detail="${2:-}" pct=0 width=28 filled bar
     if (( PROGRESS_TOTAL_STAGES > 0 )); then
         pct=$((PROGRESS_STAGE_INDEX * 100 / PROGRESS_TOTAL_STAGES))
     fi
     (( pct > 100 )) && pct=100
     filled=$((width * pct / 100))
     bar=$(printf '%*s' "$filled" '' | tr ' ' '#')
-    bar="$(printf '%-*s' "$width" "$bar")"
-    printf '\r\033[2K%s[%02d/%02d] [%s] %3d%% %-10s %-32s elapsed=%s' \
-        "$BLUE" "$PROGRESS_STAGE_INDEX" "$PROGRESS_TOTAL_STAGES" "$bar" "$pct" "$state" "${PROGRESS_STAGE_NAME:0:32}" "$(progress_elapsed)" >&2
+    bar=$(printf '%-*s' "$width" "$bar")
+    printf '%s[%02d/%02d] [%s] %3d%% %-8s %-36s elapsed=%s' \
+        "$BLUE" "$PROGRESS_STAGE_INDEX" "$PROGRESS_TOTAL_STAGES" "$bar" "$pct" "$state" \
+        "${PROGRESS_STAGE_NAME:0:36}" "$(progress_elapsed)" >&2
     [[ -n "$detail" ]] && printf ' | %s' "$detail" >&2
     printf '\n' >&2
     if [[ -n "$PROGRESS_LOG" ]]; then
-        printf '[%02d/%02d] %s %s elapsed=%s %s\n' "$PROGRESS_STAGE_INDEX" "$PROGRESS_TOTAL_STAGES" "$state" "$PROGRESS_STAGE_NAME" "$(progress_elapsed)" "$detail" >> "$PROGRESS_LOG" 2>/dev/null || true
+        printf '[%02d/%02d] %s %s elapsed=%s %s\n' \
+            "$PROGRESS_STAGE_INDEX" "$PROGRESS_TOTAL_STAGES" "$state" "$PROGRESS_STAGE_NAME" \
+            "$(progress_elapsed)" "$detail" >> "$PROGRESS_LOG" 2>/dev/null || true
     fi
 }
 
@@ -77,59 +87,138 @@ progress_start() {
     progress_render "RUNNING" "${2:-}"
 }
 
-progress_update() { progress_render "RUNNING" "${1:-}"; }
 progress_done() { progress_render "DONE" "${1:-}"; }
 progress_skipped() { progress_render "SKIPPED" "${1:-}"; }
 progress_failed() { progress_render "FAILED" "${1:-}"; }
 
+progress_label_for_stage() {
+    case "$1" in
+        docker) echo "Docker image build" ;;
+        rootfs) echo "Docker export / rootfs staging" ;;
+        boot) echo "Boot / GRUB / Spit Fire / Jasper" ;;
+        branding) echo "Aurora branding / backgrounds" ;;
+        apache) echo "Apache ecosystem integration" ;;
+        features) echo "Comprehensive feature staging" ;;
+        squashfs) echo "SquashFS filesystem creation" ;;
+        iso) echo "Bootable ISO image creation" ;;
+        verify) echo "ISO verification / integrity checks" ;;
+        report) echo "Build report / finalization" ;;
+        *) echo "Build stage: $1" ;;
+    esac
+}
+
+progress_track_current_stage() {
+    local current="${CURRENT_STAGE:-}"
+    if [[ "$current" != "$PROGRESS_LAST_CURRENT_STAGE" ]]; then
+        if [[ -n "$PROGRESS_LAST_CURRENT_STAGE" ]]; then
+            progress_done "Stage completed: $PROGRESS_LAST_CURRENT_STAGE"
+        fi
+        if [[ -n "$current" ]]; then
+            PROGRESS_LAST_CURRENT_STAGE="$current"
+            progress_start "$(progress_label_for_stage "$current")"
+        else
+            PROGRESS_LAST_CURRENT_STAGE=""
+        fi
+    fi
+}
+
+progress_debug_trap() {
+    progress_track_current_stage
+}
+
 progress_summary() {
+    local status="${1:-0}"
+    if [[ -n "$PROGRESS_LAST_CURRENT_STAGE" ]]; then
+        if (( status == 0 )); then
+            progress_done "Final stage completed: $PROGRESS_LAST_CURRENT_STAGE"
+        else
+            progress_failed "Build exited with status $status during $PROGRESS_LAST_CURRENT_STAGE"
+        fi
+        PROGRESS_LAST_CURRENT_STAGE=""
+    fi
     echo "" >&2
     log_info "Build progress log: ${PROGRESS_LOG:-${BUILD_DIR}/chimera-progress.log}"
-    log_success "Build progress: ${PROGRESS_STAGE_INDEX}/${PROGRESS_TOTAL_STAGES} stages reached"
 }
 '''
+
           if 'LIVE BUILD PROGRESS' not in s:
-              if anchor not in s: raise SystemExit('print_header anchor not found')
-              s = s.replace(anchor, anchor + insert, 1)
-          old = '    mkdir -p "$BUILD_DIR" "$DOCKER_DIR" "$ISO_DIR" "$ISO_DIR/live" "$ISO_DIR/boot"\n'
-          new = old + '    progress_init\n    progress_start "Preflight / storage detection"\n'
-          if 'progress_start "Preflight / storage detection"' not in s:
-              if old not in s: raise SystemExit('main directory anchor not found')
-              s = s.replace(old, new, 1)
-          old = '''    preflight_large_build_storage\n\n    check_requirements\n'''
-          new = '''    preflight_large_build_storage\n    progress_done "Storage, Docker/WSL and output paths checked"\n\n    progress_start "Dependency / tool checks"\n    check_requirements\n    progress_done "Required build tools and dependencies checked"\n'''
-          if old not in s: raise SystemExit('preflight/check_requirements anchor not found')
-          s = s.replace(old, new, 1)
-          old = '''run_checkpointed_stage() {\n    local stage="$1"\n    local fn="$2"\n    CURRENT_STAGE="$stage"\n    log_info "Starting resumable stage: $stage"\n    "$fn"\n    build_state_mark "$stage"\n    CURRENT_STAGE=""\n}\n'''
-          new = '''run_checkpointed_stage() {\n    local stage="$1"\n    local fn="$2"\n    local label\n    case "$stage" in\n        boot) label="Boot / GRUB / Spit Fire / Jasper" ;;\n        branding) label="Aurora branding / backgrounds" ;;\n        apache) label="Apache ecosystem integration" ;;\n        features) label="Comprehensive feature staging" ;;\n        squashfs) label="SquashFS filesystem creation" ;;\n        iso) label="Bootable ISO image creation" ;;\n        verify) label="ISO verification / integrity checks" ;;\n        report) label="Build report / finalization" ;;\n        *) label="Build stage: $stage" ;;\n    esac\n    CURRENT_STAGE="$stage"\n    log_info "Starting resumable stage: $stage"\n    progress_start "$label"\n    if "$fn"; then\n        build_state_mark "$stage"\n        progress_done "Checkpoint saved: $stage"\n    else\n        progress_failed "Stage $stage failed; checkpoint retained"\n        return 1\n    fi\n    CURRENT_STAGE=""\n}\n'''
-          if old not in s: raise SystemExit('run_checkpointed_stage block not found')
-          s = s.replace(old, new, 1)
-          old = '''        CURRENT_STAGE="rootfs"\n        export_docker_to_rootfs\n        CURRENT_STAGE=""\n'''
-          new = '''        CURRENT_STAGE="rootfs"\n        progress_start "Docker export / rootfs staging"\n        export_docker_to_rootfs\n        progress_done "Root filesystem staged"\n        CURRENT_STAGE=""\n'''
-          if old not in s: raise SystemExit('rootfs stage anchor not found')
-          s = s.replace(old, new, 1)
-          old = '''            CURRENT_STAGE="docker"\n            build_docker_image\n            build_state_mark docker\n            CURRENT_STAGE=""\n            completed_stage="docker"\n'''
-          new = '''            CURRENT_STAGE="docker"\n            progress_start "Docker image build"\n            build_docker_image\n            progress_done "Docker image ${DOCKER_IMAGE}:${DOCKER_TAG} ready"\n            build_state_mark docker\n            CURRENT_STAGE=""\n            completed_stage="docker"\n'''
-          if old not in s: raise SystemExit('docker ISO build anchor not found')
-          s = s.replace(old, new, 1)
-          old = '''            CURRENT_STAGE="docker"\n            build_docker_image\n            CURRENT_STAGE=""\n            build_state_mark docker\n            completed_stage="docker"\n'''
-          new = '''            CURRENT_STAGE="docker"\n            progress_start "Docker image build"\n            build_docker_image\n            progress_done "Docker image ${DOCKER_IMAGE}:${DOCKER_TAG} ready"\n            CURRENT_STAGE=""\n            build_state_mark docker\n            completed_stage="docker"\n'''
-          if old in s: s = s.replace(old, new, 1)
-          old = '''    cleanup\n    BUILD_SUCCEEDED=1\n    build_state_reset\n    print_header "BUILD COMPLETED SUCCESSFULLY"\n'''
-          new = '''    progress_summary\n    cleanup\n    BUILD_SUCCEEDED=1\n    build_state_reset\n    print_header "BUILD COMPLETED SUCCESSFULLY"\n'''
-          if old not in s: raise SystemExit('completion anchor not found')
-          s = s.replace(old, new, 1)
+              marker = 'print_header() {\n    echo ""\n    echo "=================================================================="\n    echo "$*"\n    echo "=================================================================="\n    echo ""\n}\n'
+              if marker not in s:
+                  raise SystemExit('print_header marker not found')
+              s = s.replace(marker, marker + framework, 1)
+
+          # Initialize after command-line/storage configuration is finalized.
+          if 'progress_init\n' not in s:
+              marker = 'chmod u+rwx "$DOCKER_LOG_DIR" 2>/dev/null || true\n# =============================================================================\n# UTILITY FUNCTIONS'
+              replacement = 'chmod u+rwx "$DOCKER_LOG_DIR" 2>/dev/null || true\nprogress_init\n# =============================================================================\n# UTILITY FUNCTIONS'
+              if marker not in s:
+                  raise SystemExit('post-storage initialization marker not found')
+              s = s.replace(marker, replacement, 1)
+
+          # Automatically observe all existing CURRENT_STAGE assignments. This
+          # avoids hard-coding the implementation of every build phase.
+          if 'trap progress_debug_trap DEBUG' not in s:
+              marker = 'progress_init\n# =============================================================================\n# UTILITY FUNCTIONS'
+              replacement = 'progress_init\ntrap progress_debug_trap DEBUG\ntrap \'progress_summary "$?"\' EXIT\n# =============================================================================\n# UTILITY FUNCTIONS'
+              if marker not in s:
+                  raise SystemExit('progress trap insertion marker not found')
+              s = s.replace(marker, replacement, 1)
+
+          # Add a named initialization stage immediately before the first main
+          # build operation when the existing function uses the known storage
+          # preflight call. If the exact layout differs, the DEBUG tracker still
+          # reports every CURRENT_STAGE-based phase.
+          if 'Preflight / dependency checks' not in s:
+              s = s.replace('preflight_large_build_storage\n',
+                            'progress_start "Preflight / dependency checks"\n    preflight_large_build_storage\n    progress_done "Storage preflight complete"\n', 1)
+
+          # Wrap the existing resumable-stage implementation without parsing its
+          # nested shell body. Function renaming is safe and preserves behavior.
+          if 'run_checkpointed_stage_impl()' not in s and 'run_checkpointed_stage() {' in s:
+              s = s.replace('run_checkpointed_stage() {',
+                            'run_checkpointed_stage_impl() {', 1)
+              wrapper = r'''
+run_checkpointed_stage() {
+    local stage="$1"
+    local fn="$2"
+    CURRENT_STAGE="$stage"
+    progress_track_current_stage
+    if run_checkpointed_stage_impl "$stage" "$fn"; then
+        progress_done "Checkpoint saved: $stage"
+        CURRENT_STAGE=""
+        progress_track_current_stage
+        return 0
+    fi
+    progress_failed "Stage $stage failed; checkpoint retained"
+    return 1
+}
+
+'''
+              marker = 'run_checkpointed_stage_impl() {'
+              s = s.replace(marker, wrapper + marker, 1)
+
           p.write_text(s)
-          print('Instrumentation applied')
+          print('Instrumentation applied to build-chimera-iso.sh')
 
       - name: Validate shell syntax
         run: bash -n build-chimera-iso.sh
+
+      - name: Verify instrumentation
+        run: |
+          grep -q 'LIVE BUILD PROGRESS' build-chimera-iso.sh
+          grep -q 'progress_debug_trap' build-chimera-iso.sh
+          grep -q 'run_checkpointed_stage_impl' build-chimera-iso.sh
+          bash -n build-chimera-iso.sh
+          echo 'Progress instrumentation and shell syntax verified.'
 
       - name: Commit instrumentation
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add build-chimera-iso.sh
-          if git diff --cached --quiet; then echo 'No changes required.'; exit 0; fi
-          git commit -m 'build: show progress for all ISO stages'
+          git add build-chimera-iso.sh .github/workflows/apply-build-progress.yml
+          if git diff --cached --quiet; then
+            echo 'No changes required.'
+            exit 0
+          fi
+          git commit -m 'build: instrument ISO builder progress reporting'
           git push
