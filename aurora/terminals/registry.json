@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "panel": "Aurora Terminals",
+  "entries": [
+    {"id":"xterm","name":"XTerm","kind":"terminal","source":"https://invisible-island.net/xterm/","build":"system-package-or-source","binary":"xterm","display":"x11"},
+    {"id":"gnome-terminal","name":"GNOME Terminal","kind":"terminal","source":"https://gitlab.gnome.org/GNOME/gnome-terminal","build":"system-package-or-source","binary":"gnome-terminal","display":"wayland-x11"},
+    {"id":"konsole","name":"Konsole","kind":"terminal","source":"https://invent.kde.org/utilities/konsole","build":"system-package-or-source","binary":"konsole","display":"wayland-x11"},
+    {"id":"xfce4-terminal","name":"XFCE Terminal","kind":"terminal","source":"https://gitlab.xfce.org/apps/xfce4-terminal","build":"system-package-or-source","binary":"xfce4-terminal","display":"wayland-x11"},
+    {"id":"foot","name":"Foot","kind":"terminal","source":"https://codeberg.org/dnkl/foot","build":"meson-source","binary":"foot","display":"wayland"},
+    {"id":"kitty","name":"Kitty","kind":"terminal","source":"https://github.com/kovidgoyal/kitty","build":"source-or-upstream-binary","binary":"kitty","display":"wayland-x11"},
+    {"id":"alacritty","name":"Alacritty","kind":"terminal","source":"https://github.com/alacritty/alacritty","build":"cargo-source","binary":"alacritty","display":"wayland-x11"},
+    {"id":"wezterm","name":"WezTerm","kind":"terminal","source":"https://github.com/wezterm/wezterm","build":"cargo-source","binary":"wezterm","display":"wayland-x11"},
+    {"id":"ghostty","name":"Ghostty","kind":"terminal","source":"https://github.com/ghostty-org/ghostty","build":"zig-source-or-package","binary":"ghostty","display":"wayland-x11"},
+    {"id":"contour","name":"Contour","kind":"terminal","source":"https://github.com/contour-terminal/contour","build":"cmake-source","binary":"contour","display":"wayland-x11"}
+  ],
+  "policy":"Source-first when a supported build recipe exists; otherwise use a verified distribution binary/package. Never execute an unverified download."
+}
