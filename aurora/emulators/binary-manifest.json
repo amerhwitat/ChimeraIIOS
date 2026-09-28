@@ -1,18 +1,12 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_repository": "amerhwitat/BizX",
   "source_path": "emulators/sakhr",
-  "panel_runtime": {
-    "AX-170": {
-      "launcher": "aurora/emulators/bin/launch-sakhr-ax170.sh",
-      "runtime_candidates": ["openmsx", "mame"],
-      "rom_material": ["ax170arab.rom", "ax170bios.rom"]
-    },
-    "AX-230": {
-      "launcher": "aurora/emulators/bin/launch-sakhr-ax230.sh",
-      "runtime_candidates": ["openmsx", "mame"],
-      "rom_material": ["IC125.BIN", "IC127.BIN"]
-    }
-  },
-  "firmware_policy": "ROM binaries are user-provisioned and SHA-1 verified; they are not committed to public source control."
+  "panel": "Aurora Emulators",
+  "runtime": {"preferred":["openmsx","mame"],"rom_validation":"sha1+size"},
+  "entries": [
+    {"id":"sakhr-ax170","launcher":"aurora/emulators/bin/launch-sakhr-ax170.sh","rom_material":[{"file":"ax170arab.rom","sha1":"0287b2ec897b9196788cd9f10c99e1487d7adbbb","size":32768},{"file":"ax170bios.rom","sha1":"5e094fca95ab8e91873ee372a3f1239b9a48a48d","size":32768}]},
+    {"id":"sakhr-ax230","launcher":"aurora/emulators/bin/launch-sakhr-ax230.sh","rom_material":[{"file":"IC125.BIN","sha1":"0340707c5de2310dcf5e569b7db4c6a6a5590cb7","size":131072},{"file":"IC127.BIN","sha1":"620a209bdfdb65a22380031fce654bd1df61def2","size":1048576}]}
+  ],
+  "firmware_policy":"ROM binaries are user-provisioned and SHA-1 verified; they are not committed to public source control."
 }
