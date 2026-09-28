@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "architecture_policy": ["linux-amd64","linux-arm64","linux-armhf","linux-riscv64"],
+  "acquisition": "source-first; verified upstream release/package fallback",
+  "shells": {
+    "bash":{"source":"https://git.savannah.gnu.org/git/bash.git/","build":"autotools","license":"GPL-3.0-or-later"},
+    "zsh":{"source":"https://github.com/zsh-users/zsh","build":"autotools","license":"Zsh-license-with-GPL-components"},
+    "fish":{"source":"https://github.com/fish-shell/fish-shell","build":"cmake/cargo","license":"GPL/LGPL/MIT/PSF"},
+    "dash":{"source":"https://git.kernel.org/pub/scm/utils/dash/dash.git/","build":"autotools","license":"BSD-3-Clause"},
+    "mksh":{"source":"https://github.com/MirBSD/mksh","build":"make","license":"MirOS"},
+    "yash":{"source":"https://github.com/magicant/yash","build":"configure/make","license":"GPL-2.0-or-later"},
+    "elvish":{"source":"https://github.com/elves/elvish","build":"go","license":"BSD-2-Clause-with-component-exceptions"},
+    "nushell":{"source":"https://github.com/nushell/nushell","build":"cargo-or-release","license":"MIT"}
+  },
+  "note":"For release binaries, the importer must obtain an upstream checksum/signature and verify it before staging the executable."
+}
