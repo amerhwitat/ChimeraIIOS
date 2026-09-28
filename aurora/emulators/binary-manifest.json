@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source_repository": "amerhwitat/BizX",
+  "source_path": "emulators/sakhr",
+  "panel_runtime": {
+    "AX-170": {
+      "launcher": "aurora/emulators/bin/launch-sakhr-ax170.sh",
+      "runtime_candidates": ["openmsx", "mame"],
+      "rom_material": ["ax170arab.rom", "ax170bios.rom"]
+    },
+    "AX-230": {
+      "launcher": "aurora/emulators/bin/launch-sakhr-ax230.sh",
+      "runtime_candidates": ["openmsx", "mame"],
+      "rom_material": ["IC125.BIN", "IC127.BIN"]
+    }
+  },
+  "firmware_policy": "ROM binaries are user-provisioned and SHA-1 verified; they are not committed to public source control."
+}
