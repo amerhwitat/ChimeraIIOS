@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "architecture_policy": ["linux-amd64","linux-arm64","linux-armhf","linux-riscv64"],
+  "acquisition": "source-first; verified upstream release/package fallback",
+  "terminals": {
+    "alacritty":{"repo":"https://github.com/alacritty/alacritty","build":"cargo","license":"Apache-2.0/MIT"},
+    "kitty":{"repo":"https://github.com/kovidgoyal/kitty","build":"source/package","license":"GPL-3.0"},
+    "wezterm":{"repo":"https://github.com/wezterm/wezterm","build":"cargo","license":"MIT"},
+    "ghostty":{"repo":"https://github.com/ghostty-org/ghostty","build":"zig","license":"MIT"},
+    "foot":{"repo":"https://codeberg.org/dnkl/foot","build":"meson","license":"MIT"},
+    "contour":{"repo":"https://github.com/contour-terminal/contour","build":"cmake","license":"Apache-2.0"},
+    "xterm":{"source":"https://invisible-island.net/xterm/","build":"autotools-or-package"},
+    "gnome-terminal":{"source":"https://gitlab.gnome.org/GNOME/gnome-terminal","build":"meson-or-package"},
+    "konsole":{"source":"https://invent.kde.org/utilities/konsole","build":"cmake-or-package"},
+    "xfce4-terminal":{"source":"https://gitlab.xfce.org/apps/xfce4-terminal","build":"meson-or-package"}
+  },
+  "note":"Exact release asset URLs and SHA-256 values are resolved at build time from upstream release metadata; the build must refuse a downloaded artifact when checksum verification is unavailable."
+}
