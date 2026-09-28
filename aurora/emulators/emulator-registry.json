@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "panel": "Aurora Emulators",
+  "category": "Sakhr / Arabic MSX",
+  "entries": [
+    {
+      "id": "sakhr-ax170",
+      "name": "Sakhr AX-170",
+      "vendor": "Sakhr / Al Alamiah",
+      "system": "MSX1",
+      "year": 1986,
+      "architecture": "Z80",
+      "roms": [
+        {"name":"Arabic firmware","file":"emulators/sakhr/roms/binary/ax170arab.rom","sha1":"0287b2ec897b9196788cd9f10c99e1487d7adbbb"},
+        {"name":"BIOS","file":"emulators/sakhr/roms/binary/ax170bios.rom","sha1":"5e094fca95ab8e91873ee372a3f1239b9a48a48d"}
+      ],
+      "launch": "aurora/emulators/bin/launch-sakhr-ax170.sh",
+      "status": "requires-user-roms"
+    },
+    {
+      "id": "sakhr-ax230",
+      "name": "Sakhr AX-230",
+      "vendor": "Sakhr / Al Alamiah",
+      "system": "MSX1",
+      "year": 1986,
+      "architecture": "Z80",
+      "roms": [
+        {"name":"IC125 Arabic/main firmware","file":"emulators/sakhr/roms/binary/IC125.BIN","sha1":"0340707c5de2310dcf5e569b7db4c6a6a5590cb7"},
+        {"name":"IC127 games ROM","file":"emulators/sakhr/roms/binary/IC127.BIN","sha1":"620a209bdfdb65a22380031fce654bd1df61def2"}
+      ],
+      "launch": "aurora/emulators/bin/launch-sakhr-ax230.sh",
+      "status": "requires-user-roms"
+    }
+  ]
+}
