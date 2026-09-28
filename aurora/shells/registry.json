@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "panel": "Aurora Shells",
+  "entries": [
+    {"id":"bash","name":"GNU Bash","kind":"shell","source":"https://git.savannah.gnu.org/cgit/bash.git/","build":"autotools-source","binary":"bash","license":"GPL-3.0-or-later"},
+    {"id":"zsh","name":"Z Shell","kind":"shell","source":"https://github.com/zsh-users/zsh","build":"autotools-source","binary":"zsh","license":"Zsh-license"},
+    {"id":"fish","name":"fish","kind":"shell","source":"https://github.com/fish-shell/fish-shell","build":"cmake-or-cargo-source","binary":"fish","license":"GPL-2.0-only/LGPL-2.0-or-later/MIT/PSF-2.0"},
+    {"id":"dash","name":"Debian Almquist Shell","kind":"shell","source":"https://git.kernel.org/pub/scm/utils/dash/dash.git/","build":"autotools-source","binary":"dash","license":"BSD-3-Clause"},
+    {"id":"mksh","name":"MirBSD Korn Shell","kind":"shell","source":"https://github.com/MirBSD/mksh","build":"make-source","binary":"mksh","license":"MirOS"},
+    {"id":"yash","name":"Yet Another Shell","kind":"shell","source":"https://magicant.github.io/yash/","build":"configure-make-source","binary":"yash","license":"GPL-2.0-or-later"},
+    {"id":"elvish","name":"Elvish","kind":"shell","source":"https://github.com/elves/elvish","build":"go-source-or-binary","binary":"elvish","license":"BSD-2-Clause-with-component-exceptions"},
+    {"id":"nushell","name":"Nushell","kind":"shell","source":"https://github.com/nushell/nushell","build":"cargo-source-or-release-binary","binary":"nu","license":"MIT"}
+  ],
+  "default":"bash",
+  "policy":"Keep POSIX/Bourne compatibility available through Bash/Dash; expose alternative shells without replacing the system shell."
+}
