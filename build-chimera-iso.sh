@@ -189,7 +189,14 @@ if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
     BUILD_STATE_FILE="$BUILD_DIR/.chimera-build-state"
     export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR"
 fi
+DOCKER_LOG_DIR="${BUILD_DIR}/logs"
+DOCKER_BUILD_LOG="${DOCKER_LOG_DIR}/docker-build.log"
+BUILDX_PRUNE_LOG="${DOCKER_LOG_DIR}/buildx-prune.log"
+BUILDX_BOOTSTRAP_LOG="${DOCKER_LOG_DIR}/buildx-bootstrap.log"
+DOCKER_STORAGE_LOG="${DOCKER_LOG_DIR}/docker-storage.log"
 
+mkdir -p "$DOCKER_LOG_DIR"
+chmod u+rwx "$DOCKER_LOG_DIR" 2>/dev/null || true
 # =============================================================================
 # UTILITY FUNCTIONS
 # =============================================================================
@@ -671,24 +678,22 @@ check_docker_storage() {
     fi
     rm -f "$test_log"
 
-    if [ "${CHIMERA_PRUNE:-0}" = "1" ]; then
+if [ "${CHIMERA_PRUNE:-0}" = "1" ]; then
     if docker buildx prune -af >"$BUILDX_PRUNE_LOG" 2>&1; then
         log_info "BuildKit cache prune completed."
     else
         log_warning "BuildKit cache prune failed; continuing."
-        if [ -s "$BUILDX_PRUNE_LOG" ] && cat "$BUILDX_PRUNE_LOG" >&2 || true
-        fi
+        [ -s "$BUILDX_PRUNE_LOG" ] && cat "$BUILDX_PRUNE_LOG" >&2 || true
     fi
 else
     log_info "BuildKit cache prune skipped."
 fi
-if ! docker buildx inspect --bootstrap >"$DOCKER_LOG_DIR/chimera-buildx-bootstrap.log" 2>&1; then
-        log_error "Docker BuildKit builder failed to bootstrap."
-        cat "$DOCKER_LOG_DIR/chimera-buildx-bootstrap.log" >&2 || true
-        exit 1
-    fi
-    rm -f "$DOCKER_LOG_DIR/chimera-buildx-bootstrap.log"
-
+if ! docker buildx inspect --bootstrap >"$BUILDX_BOOTSTRAP_LOG" 2>&1; then
+    log_error "Docker BuildKit builder failed to bootstrap."
+    cat "$BUILDX_BOOTSTRAP_LOG" >&2 || true
+    exit 1
+fi
+rm -f "$BUILDX_BOOTSTRAP_LOG"
     local avail_kb
     avail_kb="$(df -Pk "$SCRIPT_DIR" 2>/dev/null | awk 'NR==2 {print $4}')"
     if [[ "$avail_kb" =~ ^[0-9]+$ ]]; then
@@ -762,11 +767,23 @@ build_docker_image() {
 
         if [ "$attempt" -lt "$DOCKER_RETRIES" ]; then
             log_warning "Build failed; running a Docker storage write test before retry."
-            if ! docker run --rm ubuntu:24.04 sh -c 'dd if=/dev/zero of="$DOCKER_LOG_DIR/chimera"-retry.bin bs=1M count=8 status=none && test -s "$DOCKER_LOG_DIR/chimera"-retry.bin' >"$DOCKER_LOG_DIR/chimera"-storage-retry.log 2>&1; then
-                log_error "Docker storage test failed; aborting retries."
-                cat "$DOCKER_LOG_DIR/chimera"-storage-retry.log >&2 || true
-                break
-            fi
+            local test_log="${DOCKER_LOG_DIR}/chimera-docker-write-test.log"
+
+if ! docker run --rm ubuntu:24.04 sh -c '
+    set -eu
+    TEST_DIR=/tmp/chimera-write-test
+    mkdir -p "$TEST_DIR"
+    dd if=/dev/zero of="$TEST_DIR/test.bin" bs=1M count=4 status=none
+    test -s "$TEST_DIR/test.bin"
+    rm -rf "$TEST_DIR"
+' >"$test_log" 2>&1; then
+    log_error "Docker container storage write test failed."
+    cat "$test_log" >&2 || true
+    log_error "Docker Desktop/WSL containerd/overlayfs storage is unhealthy; aborting before the long build."
+    exit 1
+fi
+
+rm -f "$test_log"
             rm -f "$DOCKER_LOG_DIR/chimera"-storage-retry.log
             sleep 3
         fi
