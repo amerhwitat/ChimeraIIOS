@@ -3,6 +3,7 @@
 #include "chimera/driver.h"
 #include "chimera/learning.h"
 extern "C" void koronos_outb(uint16_t port,uint8_t value);
+
 namespace {
 volatile uint32_t koronos_state=0;
 static uint8_t serial_in8(uint16_t port) { uint8_t v; __asm__ volatile("inb %1,%0" : "=a"(v) : "Nd"(port)); return v; }
@@ -12,9 +13,27 @@ static void serial_init() {
 }
 static void serial_write8(uint8_t v) { for(uint32_t i=0;i<100000u && !(serial_in8(0x3FD)&0x20);++i){} koronos_outb(0x3F8,v); }
 static void serial_write(const char* s) { if(!s)return; while(*s)serial_write8((uint8_t)*s++); serial_write8('\r'); serial_write8('\n'); }
-static void serial_hex32(uint32_t v) {
+static void vga_clear() {
+ volatile uint16_t* v=(volatile uint16_t*)0xB8000;
+ for(uint32_t i=0;i<80u*25u;i++) v[i]=0x0720;
+}
+static void vga_write(const char* s) {
+ volatile uint16_t* v=(volatile uint16_t*)0xB8000;
+ static uint32_t row=0,col=0;
+ if(row==0 && col==0) vga_clear();
+ if(!s)return;
+ while(*s) {
+  char c=*s++;
+  if(c=='\r') { col=0; continue; }
+  if(c=='\n') { col=0; if(++row>=25) row=24; continue; }
+  if(col>=80) { col=0; if(++row>=25) row=24; }
+  v[row*80+col++]=(uint16_t)(0x0F00u | (uint8_t)c);
+ }
+}
+static void console_write(const char* s) { serial_write(s); vga_write(s); }
+static void console_hex32(uint32_t v) {
  static const char h[]="0123456789ABCDEF"; char s[9];
- for(int i=7;i>=0;--i){s[i]=h[v&15u];v>>=4;} s[8]=0; serial_write(s);
+ for(int i=7;i>=0;--i){s[i]=h[v&15u];v>>=4;} s[8]=0; console_write(s);
 }
 }
 extern "C" void chimera_register_virtio_drivers(void);
@@ -33,7 +52,7 @@ static void koronos_report_multiboot_modules(const koronos_boot_context* ctx) {
   if(type==3 && size>=16 && first_size==0) {
    first_base=*(const uint32_t*)(base+off+8);
    first_size=*(const uint32_t*)(base+off+12)-first_base;
-   serial_write("KORONOS: Multiboot2 module attached");
+   console_write("KORONOS: Multiboot2 module attached");
   }
   if(type==0) break;
   off=(off+size+7u)&~7u;
@@ -47,24 +66,32 @@ static void koronos_report_multiboot_modules(const koronos_boot_context* ctx) {
 
 extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  serial_init();
+ console_write("\nCHIMERA II OS / KORONOS\n");
+ console_write("Boot handoff: ");
  if(!ctx || ctx->magic!=KORONOS_BOOTINFO_MAGIC || ctx->version!=KORONOS_ABI_VERSION) {
-  koronos_state=0xBAD00001u; serial_write("KORONOS: invalid boot context"); return;
+  koronos_state=0xBAD00001u; console_write("INVALID BOOT CONTEXT"); return;
  }
- serial_write("KORONOS: Multiboot2 handoff accepted");
+ console_write("OK");
+ console_write("Initializing hardware...");
  koronos_report_multiboot_modules(ctx);
  koronos_arch_init(ctx);
  const struct koronos_cpu_features* f=koronos_get_cpu_features();
- serial_write("KORONOS: CPU vendor"); serial_write(f->vendor);
- serial_write("KORONOS: logical CPUs"); serial_hex32(f->logical_cpus);
- serial_write("KORONOS: VMX/SVM capability"); serial_hex32((uint32_t(f->vmx)<<1u)|uint32_t(f->svm));
- serial_write("KORONOS: Hypervisor present"); serial_hex32(f->hypervisor);
+ console_write("CPU: "); console_write(f->vendor);
+ console_write("Logical CPUs: "); console_hex32(f->logical_cpus);
+ console_write("Hypervisor detected: "); console_hex32(f->hypervisor);
+ console_write("Initializing scheduler...");
  chimera_sched_init(f->logical_cpus);
  chimera_learning_init(f->logical_cpus);
+ console_write("Initializing virtual I/O drivers...");
  chimera_register_virtio_drivers();
  chimera_register_display_drivers();
  chimera_driver_probe_all();
  chimera_learning_record(1, f->logical_cpus);
  koronos_elf64_init(); koronos_module_init();
- koronos_state=0x4B4F524Fu; serial_write("KORONOS_READY");
- serial_write("KORONOS: CPU online; entering scheduler idle loop");
+ koronos_state=0x4B4F524Fu;
+ console_write("KORONOS READY");
+ console_write("Console fallback: VGA text + COM1");
+ console_write("If this screen is visible in VMware, kernel handoff succeeded.");
+ console_write("Aurora/installer services continue from the selected boot payload.");
+ console_write("Entering scheduler...");
 }
