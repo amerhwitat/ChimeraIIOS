@@ -3,8 +3,6 @@ name: Apply build progress instrumentation
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/apply-build-progress.yml'
   workflow_dispatch:
 
 permissions:
@@ -91,52 +89,36 @@ progress_summary() {
 }
 '''
           if 'LIVE BUILD PROGRESS' not in s:
-              if anchor not in s:
-                  raise SystemExit('print_header anchor not found')
+              if anchor not in s: raise SystemExit('print_header anchor not found')
               s = s.replace(anchor, anchor + insert, 1)
-
           old = '    mkdir -p "$BUILD_DIR" "$DOCKER_DIR" "$ISO_DIR" "$ISO_DIR/live" "$ISO_DIR/boot"\n'
           new = old + '    progress_init\n    progress_start "Preflight / storage detection"\n'
           if 'progress_start "Preflight / storage detection"' not in s:
-              if old not in s:
-                  raise SystemExit('main directory anchor not found')
+              if old not in s: raise SystemExit('main directory anchor not found')
               s = s.replace(old, new, 1)
-
           old = '''    preflight_large_build_storage\n\n    check_requirements\n'''
           new = '''    preflight_large_build_storage\n    progress_done "Storage, Docker/WSL and output paths checked"\n\n    progress_start "Dependency / tool checks"\n    check_requirements\n    progress_done "Required build tools and dependencies checked"\n'''
-          if old not in s:
-              raise SystemExit('preflight/check_requirements anchor not found')
+          if old not in s: raise SystemExit('preflight/check_requirements anchor not found')
           s = s.replace(old, new, 1)
-
           old = '''run_checkpointed_stage() {\n    local stage="$1"\n    local fn="$2"\n    CURRENT_STAGE="$stage"\n    log_info "Starting resumable stage: $stage"\n    "$fn"\n    build_state_mark "$stage"\n    CURRENT_STAGE=""\n}\n'''
           new = '''run_checkpointed_stage() {\n    local stage="$1"\n    local fn="$2"\n    local label\n    case "$stage" in\n        boot) label="Boot / GRUB / Spit Fire / Jasper" ;;\n        branding) label="Aurora branding / backgrounds" ;;\n        apache) label="Apache ecosystem integration" ;;\n        features) label="Comprehensive feature staging" ;;\n        squashfs) label="SquashFS filesystem creation" ;;\n        iso) label="Bootable ISO image creation" ;;\n        verify) label="ISO verification / integrity checks" ;;\n        report) label="Build report / finalization" ;;\n        *) label="Build stage: $stage" ;;\n    esac\n    CURRENT_STAGE="$stage"\n    log_info "Starting resumable stage: $stage"\n    progress_start "$label"\n    if "$fn"; then\n        build_state_mark "$stage"\n        progress_done "Checkpoint saved: $stage"\n    else\n        progress_failed "Stage $stage failed; checkpoint retained"\n        return 1\n    fi\n    CURRENT_STAGE=""\n}\n'''
-          if old not in s:
-              raise SystemExit('run_checkpointed_stage block not found')
+          if old not in s: raise SystemExit('run_checkpointed_stage block not found')
           s = s.replace(old, new, 1)
-
           old = '''        CURRENT_STAGE="rootfs"\n        export_docker_to_rootfs\n        CURRENT_STAGE=""\n'''
           new = '''        CURRENT_STAGE="rootfs"\n        progress_start "Docker export / rootfs staging"\n        export_docker_to_rootfs\n        progress_done "Root filesystem staged"\n        CURRENT_STAGE=""\n'''
-          if old not in s:
-              raise SystemExit('rootfs stage anchor not found')
+          if old not in s: raise SystemExit('rootfs stage anchor not found')
           s = s.replace(old, new, 1)
-
           old = '''            CURRENT_STAGE="docker"\n            build_docker_image\n            build_state_mark docker\n            CURRENT_STAGE=""\n            completed_stage="docker"\n'''
           new = '''            CURRENT_STAGE="docker"\n            progress_start "Docker image build"\n            build_docker_image\n            progress_done "Docker image ${DOCKER_IMAGE}:${DOCKER_TAG} ready"\n            build_state_mark docker\n            CURRENT_STAGE=""\n            completed_stage="docker"\n'''
-          if old not in s:
-              raise SystemExit('docker ISO build anchor not found')
+          if old not in s: raise SystemExit('docker ISO build anchor not found')
           s = s.replace(old, new, 1)
-
           old = '''            CURRENT_STAGE="docker"\n            build_docker_image\n            CURRENT_STAGE=""\n            build_state_mark docker\n            completed_stage="docker"\n'''
           new = '''            CURRENT_STAGE="docker"\n            progress_start "Docker image build"\n            build_docker_image\n            progress_done "Docker image ${DOCKER_IMAGE}:${DOCKER_TAG} ready"\n            CURRENT_STAGE=""\n            build_state_mark docker\n            completed_stage="docker"\n'''
-          if old in s:
-              s = s.replace(old, new, 1)
-
+          if old in s: s = s.replace(old, new, 1)
           old = '''    cleanup\n    BUILD_SUCCEEDED=1\n    build_state_reset\n    print_header "BUILD COMPLETED SUCCESSFULLY"\n'''
           new = '''    progress_summary\n    cleanup\n    BUILD_SUCCEEDED=1\n    build_state_reset\n    print_header "BUILD COMPLETED SUCCESSFULLY"\n'''
-          if old not in s:
-              raise SystemExit('completion anchor not found')
+          if old not in s: raise SystemExit('completion anchor not found')
           s = s.replace(old, new, 1)
-
           p.write_text(s)
           print('Instrumentation applied')
 
@@ -148,9 +130,6 @@ progress_summary() {
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add build-chimera-iso.sh
-          if git diff --cached --quiet; then
-            echo 'No changes required.'
-            exit 0
-          fi
+          if git diff --cached --quiet; then echo 'No changes required.'; exit 0; fi
           git commit -m 'build: show progress for all ISO stages'
           git push
