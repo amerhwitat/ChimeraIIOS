@@ -1,18 +1,22 @@
 {
-  "$schema":"CHM-RETRO-1",
+  "$schema":"CHM-RETRO-2",
   "frontend":"Aurora Retro Center",
+  "architecture_policy":"emulator adapters execute as userland applications; they do not replace Koronos or host CPU architecture support",
   "backend_policy":"adapter-based; upstream emulator projects remain separately licensed",
   "systems":[
-    {"family":"Amiga","targets":["A1000","A500","A500+","A600","A1200","A2000","A3000","A4000"],"backends":["SAE","UAE","vAmigaWeb"]},
-    {"family":"Commodore","targets":["C64","C128","Plus/4","VIC-20","PET"],"backends":["VICE","libretro"]},
-    {"family":"Atari","targets":["2600","5200","7800","ST","Lynx","Jaguar"],"backends":["libretro","Hatari"]},
-    {"family":"Apple","targets":["Apple II","Macintosh"],"backends":["MAME","libretro","Mini vMac"]},
-    {"family":"Sinclair","targets":["ZX Spectrum"],"backends":["Fuse","libretro"]},
-    {"family":"Acorn","targets":["BBC Micro","Archimedes"],"backends":["MAME","RPCEmu"]},
-    {"family":"Amstrad","targets":["CPC"],"backends":["libretro","MAME"]},
-    {"family":"PC","targets":["8086","286","386","486","Pentium","DOS"],"backends":["QEMU","DOSBox"]},
-    {"family":"Arcade","targets":["MAME-compatible systems","FinalBurn systems"],"backends":["MAME","FinalBurn"]},
-    {"family":"Consoles","targets":["NES","SNES","Mega Drive","PlayStation","Nintendo 64","GameCube","Wii","PlayStation 2"],"backends":["libretro"]}
+    {"family":"Sinclair","targets":["ZX80","ZX81","ZX Spectrum 16K","ZX Spectrum 48K","ZX Spectrum 128K","+2","+2A","+3","SAM Coupé"],"cpu":["Z80"],"backends":["Fuse","zx_go","libretro"]},
+    {"family":"Atari","targets":["2600","5200","7800","400/800","ST","STFM","STE","TT030","Falcon030","Lynx","Jaguar"],"cpu":["6507","6502","68000","68030"],"backends":["Hatari","libretro","MAME"]},
+    {"family":"Amiga","targets":["A1000","A500","A500+","A600","A1200","A2000","A3000","A4000"],"cpu":["68000","68020","68030","68040"],"backends":["UAE","SAE","vAmigaWeb"]},
+    {"family":"Commodore","targets":["PET","VIC-20","C64","C128","Plus/4"],"cpu":["6502","8502"],"backends":["VICE","libretro"]},
+    {"family":"Apple","targets":["Apple II","Apple IIe","Apple IIgs","Macintosh 68k"],"cpu":["6502","65816","68000"],"backends":["MAME","libretro","Mini vMac"]},
+    {"family":"Acorn","targets":["BBC Micro","Electron","Archimedes"],"cpu":["6502","ARM"],"backends":["MAME","RPCEmu"]},
+    {"family":"Amstrad","targets":["CPC464","CPC664","CPC6128"],"cpu":["Z80"],"backends":["MAME","libretro"]},
+    {"family":"MSX","targets":["MSX1","MSX2","MSX2+"],"cpu":["Z80"],"backends":["openMSX","MAME","libretro"]},
+    {"family":"Dragon/Tandy","targets":["Dragon 32/64","TRS-80"],"cpu":["6809","Z80"],"backends":["MAME","libretro"]},
+    {"family":"PC","targets":["8086","8088","286","386","486","Pentium","DOS","Windows 9x"],"cpu":["8086","x86"],"backends":["QEMU","DOSBox"]},
+    {"family":"Arcade","targets":["MAME-compatible systems","FinalBurn systems"],"cpu":["multi"],"backends":["MAME","FinalBurn"]},
+    {"family":"Consoles","targets":["NES","SNES","Master System","Mega Drive","PC Engine","PlayStation","Nintendo 64","GameCube","Wii","PlayStation 2"],"cpu":["multi"],"backends":["libretro","MAME"] }
   ],
-  "rom_policy":"Chimera does not distribute copyrighted ROMs or commercial game images; users supply legally obtained media/firmware."
+  "rom_policy":"Chimera does not distribute copyrighted ROMs, Kickstart/TOS firmware, commercial games, or proprietary media; users supply legally obtained media/firmware.",
+  "verification":{"require_backend_manifest":true,"require_license_metadata":true,"require_sha256_for_downloaded_binaries":true}
 }
