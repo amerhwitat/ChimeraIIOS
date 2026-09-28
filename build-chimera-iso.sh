@@ -850,6 +850,11 @@ prepare_apache_ecosystem() {
     local apache_root="$ROOTFS_DIR/opt/chimera/apache"
     local apache_cache="$ROOTFS_DIR/var/cache/chimera/apache"
     local apache_cfg="$ROOTFS_DIR/etc/chimera/apache-ecosystem.conf"
+    mkdir -p \
+    "$ROOTFS_DIR/usr/bin" \
+    "$ROOTFS_DIR/opt/chimera/apache" \
+    "$ROOTFS_DIR/var/cache/chimera/apache" \
+    "$ROOTFS_DIR/etc/chimera"
 
     if [ ! -d "$apache_src" ]; then
         log_warning "services/apache is not present; skipping Apache ecosystem integration."
@@ -1225,10 +1230,25 @@ EOF
         install -m 0644 "$SCRIPT_DIR/drivers/hardware-driver-policy.json" "$ROOTFS_DIR/usr/share/chimera/cognition/hardware-driver-policy.json"
         install -m 0644 "$SCRIPT_DIR/drivers/hardware-driver-policy.json" "$ISO_DIR/system/hardware-driver-policy.json"
     fi
+    # Minimal/Docker-exported rootfs images may not contain systemd paths.
+    # Create all feature-service destinations before install(1).
+    mkdir -p \
+        "$ROOTFS_DIR/usr/lib/systemd/system" \
+        "$ROOTFS_DIR/etc/systemd/system" \
+        "$ROOTFS_DIR/usr/libexec/chimera" \
+        "$ROOTFS_DIR/usr/share/chimera" \
+        "$ROOTFS_DIR/etc/chimera"
+
     if [[ -f "$SCRIPT_DIR/system/services/chimera-hardware-driver-ai.service" ]]; then
         install -m 0644 "$SCRIPT_DIR/system/services/chimera-hardware-driver-ai.service" "$ROOTFS_DIR/usr/lib/systemd/system/chimera-hardware-driver-ai.service"
     fi
     if [[ -f "$SCRIPT_DIR/system/services/chimera-hardware-driver-autoscan.service" ]]; then
+        mkdir -p \
+    "$ROOTFS_DIR/usr/lib/systemd/system" \
+    "$ROOTFS_DIR/etc/systemd/system" \
+    "$ROOTFS_DIR/usr/libexec/chimera" \
+    "$ROOTFS_DIR/usr/share/chimera" \
+    "$ROOTFS_DIR/etc/chimera"
         install -m 0644 "$SCRIPT_DIR/system/services/chimera-hardware-driver-autoscan.service" "$ROOTFS_DIR/usr/lib/systemd/system/chimera-hardware-driver-autoscan.service"
     fi
     mkdir -p "$ROOTFS_DIR/var/lib/chimera/drivers"
