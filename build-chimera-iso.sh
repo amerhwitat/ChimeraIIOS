@@ -50,6 +50,14 @@ DOCKER_RETRIES="${CHIMERA_DOCKER_RETRIES:-2}"
 ISO_NAME="ChimeraIIOS-comprehensive"
 ISO_VERSION="1.0.0"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-${SCRIPT_DIR}/build}"
+DOCKER_LOG_DIR="${BUILD_DIR}/logs"
+DOCKER_BUILD_LOG="${DOCKER_LOG_DIR}/docker-build.log"
+BUILDX_PRUNE_LOG="${DOCKER_LOG_DIR}/buildx-prune.log"
+BUILDX_BOOTSTRAP_LOG="${DOCKER_LOG_DIR}/buildx-bootstrap.log"
+DOCKER_STORAGE_LOG="${DOCKER_LOG_DIR}/docker-storage.log"
+
+mkdir -p "$DOCKER_LOG_DIR"
+chmod u+rwx "$DOCKER_LOG_DIR" 2>/dev/null || true
 DOCKER_DIR="${BUILD_DIR}/docker"
 # ---------------------------------------------------------------------------
 # Build-owned logging
@@ -668,8 +676,7 @@ check_docker_storage() {
         log_info "BuildKit cache prune completed."
     else
         log_warning "BuildKit cache prune failed; continuing."
-        if [ -s "$BUILDX_PRUNE_LOG" ]; then
-            cat "$BUILDX_PRUNE_LOG" >&2
+        if [ -s "$BUILDX_PRUNE_LOG" ] && cat "$BUILDX_PRUNE_LOG" >&2 || true
         fi
     fi
 else
