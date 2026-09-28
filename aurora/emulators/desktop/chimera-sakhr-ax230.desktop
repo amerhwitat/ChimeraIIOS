@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Sakhr AX-230
+GenericName=Arabic MSX Emulator
+Comment=Run Sakhr AX-230 Arabic MSX firmware through the Chimera II OS Aurora Emulators panel
+Exec=aurora/emulators/bin/launch-sakhr-ax230.sh
+Terminal=true
+Categories=Emulator;Game;System;MSX;
+Keywords=Sakhr;AX-230;Arabic;MSX;Al Alamiah;
+X-Chimera-Emulator=true
+X-Chimera-Emulator-ID=sakhr-ax230
