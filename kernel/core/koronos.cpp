@@ -92,6 +92,6 @@ extern "C" void koronos_boot(const koronos_boot_context* ctx) {
  console_write("KORONOS READY");
  console_write("Console fallback: VGA text + COM1");
  console_write("If this screen is visible in VMware, kernel handoff succeeded.");
- console_write("Aurora/installer services continue from the selected boot payload.");
- console_write("Entering scheduler...");
+ console_write("Starting cooperative scheduler runtime...");
+ console_write("Scheduler heartbeat will appear on VGA row 25.");
 }
