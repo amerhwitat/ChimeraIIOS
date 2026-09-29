@@ -2,8 +2,10 @@
 #include "chimera/nbit.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <fstream>
 
-static const char *arch_name(chimera_architecture a) {
+static const char *policy_path() {\n    if (const char *p = getenv("CHIMERA_NBIT_POLICY"); p && *p) return p;\n    return "/etc/chimera/nbit-policy.conf";\n}\n\nstatic const char *arch_name(chimera_architecture a) {
     switch (a) {
         case CHIMERA_ARCH_X86_64: return "x86-64";
         case CHIMERA_ARCH_AARCH64: return "aarch64";
@@ -29,6 +31,6 @@ int main(int argc, char **argv) {
         printf("set-default=%u rc=%d\n", bits, rc);
         return rc ? 1 : 0;
     }
-    fprintf(stderr, "usage: %s [show|set N]\n", argv[0]);
+    fprintf(stderr, "usage: %s [show|best|set N|set auto]\n", argv[0]);
     return 2;
 }
