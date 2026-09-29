@@ -20,6 +20,8 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/dpc.cpp" -o "$BUILD/dpc.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/hardware.cpp" -o "$BUILD/hardware.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/nbit.cpp" -o "$BUILD/nbit.o"
+"$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/hardware.cpp" -o "$BUILD/hardware.o"
+"$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/nbit.cpp" -o "$BUILD/nbit.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/multiboot_modules.cpp" -o "$BUILD/multiboot_modules.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/parallel.cpp" -o "$BUILD/parallel.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/driver.cpp" -o "$BUILD/driver.o"
@@ -51,7 +53,7 @@ printf "Koronos runtime check: scheduler + threads + synchronization + timers + 
 grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
+printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + hardware probe + N-bit runtime + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
  || { echo "ERROR: hardware probe is not linked" >&2; exit 1; }
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_nbit_initfi
 grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
