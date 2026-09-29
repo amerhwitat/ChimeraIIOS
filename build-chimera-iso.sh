@@ -1687,6 +1687,12 @@ create_boot_menu() {
     grub-file --is-x86-multiboot2 "$kernel"
     cp "$kernel" "$ISO_DIR/boot/kernel.bin"
     cp "$kernel" "$ISO_DIR/boot/koronos/koronos.elf"
+    mkdir -p "$ISO_DIR/boot/koronos/nbit"
+    for nbit_kernel in "$SCRIPT_DIR/build/koronos/x86_64/nbit/"*.elf; do
+        [[ -s "$nbit_kernel" ]] && cp "$nbit_kernel" "$ISO_DIR/boot/koronos/nbit/"
+    done
+    cp "$SCRIPT_DIR/build/koronos/x86_64/koronos.elf64" "$ISO_DIR/boot/koronos/koronos.elf64"
+    cp "$SCRIPT_DIR/build/koronos/x86_64/koronos.elf" "$ISO_DIR/boot/koronos/koronos-generic.elf"
 
     log_info "Building complete native boot artifact set (Spit Fire + Jasper + GRUB + Koronos)..."
     bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
