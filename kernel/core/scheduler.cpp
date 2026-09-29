@@ -15,7 +15,8 @@ extern "C" void chimera_sched_init(uint32_t n){
 }
 extern "C" uint32_t chimera_sched_cpu_count(){return cpus;}
 extern "C" int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priority){
- if(!fn)return -1; lock();
+ if(!fn) return -1;
+ lock();
  if(count>=MAX_TASKS){unlock();return -2;}
  uint32_t i=count++; tasks[i].fn=fn; tasks[i].arg=arg;
  tasks[i].info={next_id++,0,CHIMERA_TASK_READY,priority,0,0};
