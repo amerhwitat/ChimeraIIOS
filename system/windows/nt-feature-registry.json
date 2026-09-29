@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "nt": {
+    "objects": ["process","thread","event","mutex","semaphore","timer","section","file","device","job","token"],
+    "execution": ["handles","waits","alertable-waits","apc","dpc","tls","seh-unwind-boundary","io-completion"],
+    "memory": ["virtual-memory","mapped-sections","copy-on-write","shared-memory"],
+    "io": ["overlapped-io","named-pipes","async-files","device-interfaces"],
+    "security": ["sid","acl","security-descriptor","token","privilege","audit"],
+    "services": ["parallel-targets","dependency-graph","health-state","restart-policy","structured-boot-log"],
+    "registry": ["hive","keys","values","change-notifications"],
+    "network": ["winsock-bridge","iocp","socket-events"]
+  },
+  "implementation": "Kore-object-manager-over-Koronos",
+  "isolation": "user-space-compatibility-must-not-bypass-native-security-policy"
+}
