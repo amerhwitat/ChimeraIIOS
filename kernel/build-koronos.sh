@@ -21,6 +21,7 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/dpc.cpp" -o "$BUILD/dpc.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/hardware.cpp" -o "$BUILD/hardware.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/nbit.cpp" -o "$BUILD/nbit.o"
+"$CXX" "${CXXFLAGS[@]}" -DCHIMERA_NBIT_IMAGE_BITS=64 -c "$ROOT/kernel/core/nbit_note.cpp" -o "$BUILD/nbit-note-64.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/firmware.cpp" -o "$BUILD/firmware.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/device.cpp" -o "$BUILD/device.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/multiboot_modules.cpp" -o "$BUILD/multiboot_modules.o"
@@ -63,6 +64,20 @@ grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/nu
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
 printf "Koronos ELF64: %s\\n" "$BUILD/koronos.elf"
+mkdir -p "$BUILD/nbit"
+for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
+  "$CXX" "${CXXFLAGS[@]}" -DCHIMERA_NBIT_IMAGE_BITS="$bits" -c "$ROOT/kernel/core/nbit_note.cpp" -o "$BUILD/nbit-note-$bits.o"
+  "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" \
+    "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o" \
+    "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o" \
+    "$BUILD/scheduler.o" "$BUILD/thread.o" "$BUILD/sync.o" "$BUILD/timer.o" "$BUILD/apc.o" "$BUILD/dpc.o" \
+    "$BUILD/hardware.o" "$BUILD/nbit.o" "$BUILD/firmware.o" "$BUILD/device.o" "$BUILD/multiboot_modules.o" "$BUILD/parallel.o" "$BUILD/driver.o" \
+    "$BUILD/learning.o" "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/pci-generic-driver.o" "$BUILD/module-test.o" "$BUILD/nbit-note-$bits.o" \
+    -o "$BUILD/nbit/koronos-nbit-$bits.elf"
+done
+cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
+cp "$BUILD/koronos.elf" "$BUILD/koronos.elf"
+printf "Koronos ELF64 + generic ELF + N-bit ELF metadata variants generated under %s/nbit\\n" "$BUILD"
 printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + firmware probe + hardware/device enumeration + N-bit runtime + driver probe manager + Multiboot2 registry + installer bootstrap linked and ELF64 verified\\n"
  || { echo "ERROR: N-bit runtime is not linked" >&2; exit 1; }
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_firmware_probe
