@@ -18,6 +18,8 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/timer.cpp" -o "$BUILD/timer.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/apc.cpp" -o "$BUILD/apc.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/dpc.cpp" -o "$BUILD/dpc.o"
+"$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/hardware.cpp" -o "$BUILD/hardware.o"
+"$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/nbit.cpp" -o "$BUILD/nbit.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/multiboot_modules.cpp" -o "$BUILD/multiboot_modules.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/parallel.cpp" -o "$BUILD/parallel.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/driver.cpp" -o "$BUILD/driver.o"
@@ -28,7 +30,7 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/io.asm" -o "$BUILD/io.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/mode_switch.asm" -o "$BUILD/mode_switch.o"
 "$NASM" -f elf64 "$ROOT/kernel/modules/koronos_test_module.asm" -o "$BUILD/module-test.o"
-"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld"   "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o"   "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o"   "$BUILD/scheduler.o" "$BUILD/thread.o" "$BUILD/sync.o" "$BUILD/timer.o" "$BUILD/apc.o" "$BUILD/dpc.o"   "$BUILD/multiboot_modules.o" "$BUILD/parallel.o" "$BUILD/driver.o" "$BUILD/learning.o"   "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/module-test.o" -o "$BUILD/koronos.elf"
+"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld"   "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o"   "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o"   "$BUILD/scheduler.o" "$BUILD/thread.o" "$BUILD/sync.o" "$BUILD/timer.o" "$BUILD/apc.o" "$BUILD/dpc.o" "$BUILD/hardware.o" "$BUILD/nbit.o"   "$BUILD/multiboot_modules.o" "$BUILD/parallel.o" "$BUILD/driver.o" "$BUILD/learning.o"   "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/module-test.o" -o "$BUILD/koronos.elf"
 if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not an ELF64 image" >&2; exit 1; }
 fi
@@ -39,7 +41,24 @@ if command -v nm >/dev/null 2>&1; then
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_wait_one$' || { echo "ERROR: synchronization wait foundation is not linked" >&2; exit 1; }
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_timer_tick$' || { echo "ERROR: timer foundation is not linked" >&2; exit 1; }
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_apc_deliver$' || { echo "ERROR: APC foundation is not linked" >&2; exit 1; }
-  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_dpc_run$' || { echo "ERROR: DPC foundation is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_dpc_runfi
+grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
+printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
+printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + hardware probe + N-bit runtime + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
+ || { echo "ERROR: DPC foundation is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_hardware_probefi
+grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
+printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
+printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
+ || { echo "ERROR: hardware probe is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_nbit_initfi
+grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
+printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
+printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
+ || { echo "ERROR: N-bit runtime is not linked" >&2; exit 1; }
 fi
 grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
