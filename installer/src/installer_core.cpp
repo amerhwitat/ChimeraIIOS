@@ -16,6 +16,7 @@ Hardware Installer::detect_hardware() const {
   h.network=fs::exists("/sys/class/net"); h.nvme=fs::exists("/sys/class/nvme");
   h.sata=fs::exists("/sys/class/ata"); h.graphics=fs::exists("/dev/dri");
   h.firmware=fs::exists("/sys/firmware/efi")?Firmware::UEFI:Firmware::BIOS;
+  if(fs::exists("/sys/class/drm")) h.graphics=true;
   return h;
 }
 std::string Installer::firmware_name(Firmware f) {
@@ -25,7 +26,8 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
   return {
     {"detect","Hardware / CPU detection","Detect architecture, CPU vendor, logical cores, firmware, PCI/USB/ACPI devices, storage, graphics and network capabilities"},
     {"cpucompat","Koronos CPU compatibility","Select native or conservative compatibility mode from detected CPU capabilities while preserving all detected logical cores"},
-    {"driverscan","Deep driver discovery","Enumerate device IDs and recursively search approved Linux/Unix/open-source repositories for matching modules and firmware"},
+    {"driverscan","Deep driver discovery","Enumerate PCI/USB/ACPI/SMBIOS device IDs and match the staged Koronos driver registry and approved Linux/Unix driver catalog"},
+    {"driverrecommend","Driver recommendation","Recommend native Koronos drivers first, then verified Linux/Windows/macOS compatibility adapters, with evidence, provenance, fallback and unresolved-device warnings"},
     {"driverpolicy","Driver trust policy","Allow only signed or cryptographically verified packages; keep proprietary/unknown binaries quarantined unless explicitly enabled"},
     {"driverdownload","Driver acquisition","Download compatible driver/firmware packages, verify hashes/signatures and quarantine untrusted artifacts"},
     {"driverinstall","Driver deployment","Install selected native Koronos modules and compatibility drivers into the target rootfs and regenerate module/firmware indexes"},
@@ -96,6 +98,27 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   f<<"kernel="<<p.kernel<<"\nbootloader="<<p.bootloader<<"\nfilesystem="<<p.filesystem<<"\n";
   Hardware hw=detect_hardware();
   f<<"cpu_architecture="<<hw.architecture<<"\ncpu_vendor="<<hw.cpu_vendor<<"\ncpu_cores="<<hw.cpu_cores<<"\nkoronos_compatibility="<<(hw.koronos_compatibility?1:0)<<"\n";
+  f<<"firmware="<<firmware_name(hw.firmware)<<"\n";
+  f<<"driver_selection_order=native-koronos,linux-compatible,windows-compatible,macos-compatible,generic\n";
+  f<<"storage_driver_required_before_install=1\n";
+  f<<"foreign_driver_execution=adapter-only\n";
+  fs::create_directories(p.target_root/"var/lib/chimera/drivers");
+  std::ofstream rec(p.target_root/"var/lib/chimera/drivers/installer-recommendations.json");
+  rec<<"{\n  \"firmware\": \""<<firmware_name(hw.firmware)<<"\",\n";
+  rec<<"  \"storage\": \""<<(hw.nvme||hw.sata?"detected-native-or-catalog-match":"unresolved")<<"\",\n";
+  rec<<"  \"network\": \""<<(hw.network?"detected":"unresolved")<<"\",\n";
+  rec<<"  \"graphics\": \""<<(hw.graphics?"detected":"unresolved")<<"\",\n";
+  rec<<"  \"policy\": \"native-first-with-verified-compatibility-adapters\"\n}\n";
+  if(p.deep_driver_search){
+    const std::string pci=run("lspci -Dnnk 2>/dev/null",true);
+    const std::string usb=run("lsusb -nn 2>/dev/null",true);
+    std::ofstream evidence(p.target_root/"var/lib/chimera/drivers/hardware-evidence.txt");
+    evidence<<"=== PCI / driver bindings ===\n"<<pci<<"\n=== USB ===\n"<<usb<<"\n";
+    if(fs::exists("/sys/class/dmi/id")){
+      const char* keys[]={"sys_vendor","product_name","board_vendor","board_name","bios_vendor","bios_version"};
+      for(const char* key:keys){std::ifstream in(std::string("/sys/class/dmi/id/")+key);std::string v;std::getline(in,v);evidence<<key<<"="<<v<<"\n";}
+    }
+  }
   std::cout<<"Payload deployed. Platform-specific partition/boot operations are selected by the backend.\n";
   return 0;
 }
