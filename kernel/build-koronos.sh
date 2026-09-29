@@ -12,6 +12,7 @@ CXXFLAGS=(-ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/arch_init.cpp" -o "$BUILD/arch_init.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/runtime_loop.cpp" -o "$BUILD/runtime_loop.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/scheduler.cpp" -o "$BUILD/scheduler.o"
+"$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/multiboot_modules.cpp" -o "$BUILD/multiboot_modules.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/parallel.cpp" -o "$BUILD/parallel.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/driver.cpp" -o "$BUILD/driver.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/learning.cpp" -o "$BUILD/learning.o"
@@ -21,15 +22,13 @@ CXXFLAGS=(-ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/io.asm" -o "$BUILD/io.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/mode_switch.asm" -o "$BUILD/mode_switch.o"
 "$NASM" -f elf64 "$ROOT/kernel/modules/koronos_test_module.asm" -o "$BUILD/module-test.o"
-"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o" "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o" "$BUILD/scheduler.o" "$BUILD/parallel.o" "$BUILD/driver.o" "$BUILD/learning.o" "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/module-test.o" -o "$BUILD/koronos.elf"
-
-# Fail the kernel build if the post-bootstrap runtime entry is missing or if
-# the linker did not produce the expected 64-bit executable image.
+"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o" "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o" "$BUILD/scheduler.o" "$BUILD/multiboot_modules.o" "$BUILD/parallel.o" "$BUILD/driver.o" "$BUILD/learning.o" "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/module-test.o" -o "$BUILD/koronos.elf"
 if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not an ELF64 image" >&2; exit 1; }
 fi
 if command -v nm >/dev/null 2>&1; then
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]koronos_idle_loop$' || { echo "ERROR: koronos_idle_loop is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_multiboot_scan$' || { echo "ERROR: Multiboot2 module scanner is not linked" >&2; exit 1; }
 fi
 printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler loop linked and ELF64 verified\n"
+printf "Koronos runtime check: scheduler + Multiboot2 module registry linked and ELF64 verified\n"
