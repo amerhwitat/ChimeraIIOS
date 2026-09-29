@@ -28,45 +28,20 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/io.asm" -o "$BUILD/io.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/mode_switch.asm" -o "$BUILD/mode_switch.o"
 "$NASM" -f elf64 "$ROOT/kernel/modules/koronos_test_module.asm" -o "$BUILD/module-test.o"
-"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o" "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o" "$BUILD/scheduler.o" "$BUILD/thread.o" "$BUILD/sync.o" "$BUILD/timer.o" "$BUILD/apc.o" "$BUILD/dpc.o" "$BUILD/multiboot_modules.o" "$BUILD/parallel.o" "$BUILD/driver.o" "$BUILD/learning.o" "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/module-test.o" -o "$BUILD/koronos.elf"
+"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld"   "$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/koronos.o" "$BUILD/elf64.o"   "$BUILD/module.o" "$BUILD/relocate.o" "$BUILD/arch_init.o" "$BUILD/runtime_loop.o"   "$BUILD/scheduler.o" "$BUILD/thread.o" "$BUILD/sync.o" "$BUILD/timer.o" "$BUILD/apc.o" "$BUILD/dpc.o"   "$BUILD/multiboot_modules.o" "$BUILD/parallel.o" "$BUILD/driver.o" "$BUILD/learning.o"   "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/module-test.o" -o "$BUILD/koronos.elf"
 if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not an ELF64 image" >&2; exit 1; }
 fi
 if command -v nm >/dev/null 2>&1; then
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]koronos_idle_loop$' || { echo "ERROR: koronos_idle_loop is not linked" >&2; exit 1; }
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_multiboot_scan$' || { echo "ERROR: Multiboot2 module scanner is not linked" >&2; exit 1; }
-  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_thread_createfi
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
- || { echo "ERROR: thread facade is not linked" >&2; exit 1; }
-  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_wait_onefi
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
- || { echo "ERROR: synchronization wait foundation is not linked" >&2; exit 1; }
-  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_timer_tickfi
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
- || { echo "ERROR: timer foundation is not linked" >&2; exit 1; }
-  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_apc_deliverfi
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
- || { echo "ERROR: APC foundation is not linked" >&2; exit 1; }
-  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_dpc_runfi
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
- || { echo "ERROR: DPC foundation is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_thread_create$' || { echo "ERROR: thread facade is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_wait_one$' || { echo "ERROR: synchronization wait foundation is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_timer_tick$' || { echo "ERROR: timer foundation is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_apc_deliver$' || { echo "ERROR: APC foundation is not linked" >&2; exit 1; }
+  nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_dpc_run$' || { echo "ERROR: DPC foundation is not linked" >&2; exit 1; }
 fi
 grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + threads + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
+printf "Koronos runtime check: scheduler + threads + synchronization + timers + APC/DPC + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
