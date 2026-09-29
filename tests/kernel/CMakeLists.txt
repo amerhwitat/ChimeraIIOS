@@ -32,3 +32,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_hardware_nbit_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_hardware_nbit COMMAND chimera_hardware_nbit_test)
+
+add_executable(chimera_firmware_device_test
+  firmware_device_test.cpp
+  ../../kernel/core/firmware.cpp
+  ../../kernel/core/hardware.cpp
+  ../../kernel/core/device.cpp
+)
+target_include_directories(chimera_firmware_device_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_firmware_device_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_firmware_device_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_firmware_device COMMAND chimera_firmware_device_test)
