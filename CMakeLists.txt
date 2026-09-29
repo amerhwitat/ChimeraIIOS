@@ -74,3 +74,5 @@ install(FILES installer/installation_phases.json installer/installer_profiles.js
 install(DIRECTORY mobile DESTINATION share/chimera/mobile)
 install(PROGRAMS tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh DESTINATION bin)
 install(FILES tools/flash/flash-manifest.example.json tools/flash/README.md DESTINATION share/chimera/flash)
+
+add_subdirectory(tests/kernel)
