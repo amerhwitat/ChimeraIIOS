@@ -1,0 +1,58 @@
+{
+  "name": "Chimera II Windows Compatibility",
+  "version": "0.2",
+  "native_kernel": "Koronos",
+  "service_manager": "Kore",
+  "execution": {
+    "pe32": true,
+    "pe32_plus": true,
+    "exe_process_loader": true,
+    "dll_image_loader": true,
+    "section_mapping": true,
+    "base_relocations": true,
+    "import_table": true,
+    "export_table": true,
+    "tls_directory": "planned",
+    "seh_unwind": "planned",
+    "delay_load": "planned",
+    "api_set_schema": "planned",
+    "native_execution_entrypoint": "planned",
+    "wow64_x86_on_x64": "planned"
+  },
+  "architecture_rules": {
+    "x86_process": ["x86_pe32"],
+    "x64_process": ["x64_pe32_plus"],
+    "arm64_process": ["arm64_pe32_plus"],
+    "cross_architecture": "requires_translation_or_wow64_boundary",
+    "dll_must_match_process_architecture": true
+  },
+  "win32": {
+    "kernel32": ["CreateProcess", "ExitProcess", "GetLastError", "SetLastError", "VirtualAlloc", "VirtualFree", "VirtualProtect", "CreateFile", "ReadFile", "WriteFile", "CloseHandle", "GetModuleHandle", "LoadLibrary", "LoadLibraryEx", "FreeLibrary", "GetProcAddress"],
+    "ntdll": ["PEB/TEB abstraction", "NT object handles", "NT process/thread boundary", "section mapping", "waits", "APC/DPC bridge"],
+    "user32": ["window classes", "HWND", "message queues", "GetMessage", "PeekMessage", "TranslateMessage", "DispatchMessage", "SendMessage", "PostMessage", "input", "menus", "dialogs", "clipboard"],
+    "gdi32": ["HDC", "bitmaps", "fonts", "pens", "brushes", "BitBlt", "StretchBlt", "TextOut", "DrawText", "regions"],
+    "advapi32": ["registry", "security tokens", "services", "events", "semaphores", "mutexes"],
+    "ws2_32": ["socket", "bind", "connect", "listen", "accept", "send", "recv", "overlapped I/O", "IOCP bridge"],
+    "shell32": ["shell namespace", "file associations", "SHChangeNotify", "common shell operations"],
+    "ole32_com": ["COM apartments", "IUnknown", "class factories", "RPC boundary"],
+    "comctl32": ["common controls", "toolbar", "list view", "tree view", "status bar"],
+    "winmm": ["timer", "basic multimedia compatibility"],
+    "dxgi_d3d": ["DXGI/D3D compatibility boundary", "GPU HAL translation"]
+  },
+  "runtime": {
+    "message_loop": "Koronos wait/wake + per-thread queue",
+    "threading": "Koronos scheduler",
+    "handles": "Kore/NT object table",
+    "memory": "Chimera virtual memory manager",
+    "filesystem": "Unified VFS with NTFS compatibility",
+    "registry": "Hive registry database",
+    "services": "Kore with systemd-compatible control surface",
+    "desktop": "Aurora Win32-compatible shell/compositor"
+  },
+  "execution_policy": {
+    "windows_system_dlls": "do_not_copy_proprietary_binaries",
+    "native_shims": "clean_room_api_compatible",
+    "third_party_windows_binaries": "load_only_when_user_supplies_and_architecture_matches",
+    "unsafe_unknown_pe": "validate_before_mapping_and_execute_in_isolated_process"
+  }
+}
