@@ -11,10 +11,18 @@ static chimera_waitable event_obj;
 static uint32_t task_runs;
 static chimera_wait_result last_wait;
 static uint32_t timer_hits, apc_hits, dpc_hits;
+static chimera_waitable mutex_obj;
 
 static void wait_task(void*) {
     ++task_runs;
     last_wait = chimera_wait_one(&event_obj, task_runs == 1 ? 1u : 0u, 1u);
+    if (task_runs == 2) {
+        assert(chimera_mutex_init(&mutex_obj) == 0);
+        assert(chimera_wait_one(&mutex_obj, 0, 0) == CHIMERA_WAIT_SIGNALED);
+        assert(chimera_wait_one(&mutex_obj, 0, 0) == CHIMERA_WAIT_SIGNALED);
+        assert(chimera_mutex_release(&mutex_obj) == 0);
+        assert(chimera_mutex_release(&mutex_obj) == 0);
+    }
 }
 
 static void timer_cb(chimera_timer_id, void*) { ++timer_hits; }
