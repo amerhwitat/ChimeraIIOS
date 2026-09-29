@@ -105,11 +105,12 @@ extern "C" int chimera_semaphore_release(chimera_waitable *s, uint32_t n, uint32
 }
 extern "C" chimera_wait_result chimera_wait_one(chimera_waitable *o, uint32_t timeout, uint32_t alertable) {
     if (!o) return CHIMERA_WAIT_FAILED;
-    chimera_thread_id tid; if (current_id(&tid) != 0) return CHIMERA_WAIT_FAILED;
+    chimera_thread_id tid = 0;
+    if (o->type == CHIMERA_WAITABLE_MUTEX && current_id(&tid) != 0) return CHIMERA_WAIT_FAILED;
     lock();
     if (consume(o, tid)) { unlock(); return CHIMERA_WAIT_SIGNALED; }
     if (timeout == 0) { unlock(); return CHIMERA_WAIT_TIMEOUT; }
-    if (register_waiter(o, tid) != 0) { unlock(); return CHIMERA_WAIT_FAILED; }
+    if (tid == 0 || register_waiter(o, tid) != 0) { unlock(); return CHIMERA_WAIT_FAILED; }
     unlock();
     chimera_thread_block();
     (void)alertable;
