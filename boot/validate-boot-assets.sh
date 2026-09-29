@@ -29,7 +29,7 @@ magic="$(head -c 3 "$TMP" | od -An -tx1 | tr -d ' \n')"
 
 if command -v sha256sum >/dev/null 2>&1; then
   actual="$(sha256sum "$TMP" | awk '{print $1}')"
-  expected="1d319000d45d24f99ca708b38f776922eccbee9e48d53425ec0b47469c23a2fb"
+  expected="461825073f35b7c49ee741584db822f1ae6204424db18c2fe867825a7ee366ae"
   [[ "$actual" == "$expected" ]] || fail "Aurora artwork checksum mismatch"
 fi
 
