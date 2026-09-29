@@ -39,7 +39,7 @@ extern "C" int chimera_driver_probe_all(){
        *d={KORONOS_DRIVER_ABI,CHM_BUS_PCI,(x->device_class==CHM_DEV_NETWORK)?CHM_DRV_NET:
           (x->device_class==CHM_DEV_STORAGE)?CHM_DRV_STORAGE:
           (x->device_class==CHM_DEV_DISPLAY)?CHM_DRV_DISPLAY:
-          (x->device_class==CHM_DEV_GPU)?CHM_DRV_GPU:CHM_DRV_USB,
+          (x->device_class==CHM_DEV_GPU)?CHM_DRV_GPU:(x->device_class==CHM_DEV_MOTHERBOARD)?CHM_DRV_PLATFORM:CHM_DRV_USB,
           0,x->vendor_id,x->device_id,0,"compatibility-adapter","linux/windows catalog","1",
           x->class_code,x->subclass,x->prog_if,1,"compatibility-layer",0};
        chimera_driver_register(d);
