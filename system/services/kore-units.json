@@ -1,0 +1,16 @@
+{
+  "schema": "CHM-KORE-UNITS-1",
+  "units": {
+    "kore.service": {"description":"Native Chimera Kore manager","enabled":true,"state":"stopped","exec_start":"/usr/libexec/chimera/kore-manager"},
+    "console.service": {"description":"Koronos console service","enabled":true,"state":"stopped"},
+    "timer.service": {"description":"Koronos timer service","enabled":true,"state":"stopped"},
+    "module-manager.service": {"description":"Multiboot2 module manager","enabled":true,"state":"stopped"},
+    "storage.service": {"description":"Storage discovery service","enabled":true,"state":"stopped"},
+    "security.service": {"description":"Chimera security service","enabled":true,"state":"stopped"},
+    "live-initramfs.service": {"description":"Live initramfs runtime","enabled":false,"state":"stopped","requires":["module-manager.service"]},
+    "aurora.service": {"description":"Aurora graphical runtime","enabled":false,"state":"stopped","requires":["live-initramfs.service"]},
+    "installer-image.service": {"description":"Installer image runtime","enabled":false,"state":"stopped","requires":["module-manager.service"]},
+    "installer-storage.service": {"description":"Installer storage discovery","enabled":false,"state":"stopped","requires":["storage.service"]},
+    "installer-ui.service": {"description":"Chimera installer UI","enabled":false,"state":"stopped","requires":["installer-image.service","installer-storage.service"]}
+  }
+}
