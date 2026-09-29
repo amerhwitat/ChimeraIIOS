@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "targets": {
+    "native": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "native-or-emulated"},
+    "windows": {"architectures": ["x86_64", "aarch64"], "execution": "win32-nt-abi"},
+    "linux": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "posix-linux-abi"},
+    "bsd": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "posix-bsd-abi"},
+    "darwin": {"architectures": ["x86_64", "aarch64"], "execution": "darwin-abi"},
+    "android": {"architectures": ["aarch64", "x86_64"], "execution": "android-abi"},
+    "ios": {"architectures": ["aarch64"], "execution": "ios-abi"}
+  }
+}
