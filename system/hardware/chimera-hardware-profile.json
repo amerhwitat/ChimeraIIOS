@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "policy": "hardware-aware-nbit",
+  "native_mode_selection": "probe-native-pointer-width",
+  "emulated_modes": [128, 256, 512, 1024, 2048, 4096, 8192],
+  "process_mode": true,
+  "ipc": {
+    "transport": "canonical-width-neutral",
+    "max_payload_bytes": 16777216,
+    "mixed_mode": true
+  },
+  "compatibility_targets": ["native", "windows", "linux", "bsd", "darwin", "android", "ios"],
+  "desktop_switch": {
+    "scope": "new-process-default",
+    "persistent": true,
+    "requires_reboot": false
+  }
+}
