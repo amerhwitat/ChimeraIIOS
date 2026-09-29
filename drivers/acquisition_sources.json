@@ -48,6 +48,11 @@
       "kind": "vendor-download-root"
     }
   ],
+  "other_unix": [
+    {"name":"FreeBSD source","url":"https://www.freebsd.org/","kind":"source","license":"BSD-2-Clause-and-mixed"},
+    {"name":"OpenBSD source","url":"https://www.openbsd.org/","kind":"source","license":"BSD-licensed-and-mixed"},
+    {"name":"NetBSD source","url":"https://www.netbsd.org/","kind":"source","license":"BSD-licensed-and-mixed"}
+  ],
   "hardware_ids": [
     {
       "name": "Linux hwdata",
