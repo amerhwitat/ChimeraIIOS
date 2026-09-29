@@ -1,7 +1,7 @@
 {
   "schema":"CHM-DRIVER-MANIFEST-1",
-  "buses":["PCI","PCIe","USB","USB4","ACPI","I2C","SPI","MMIO","VirtIO","NVMe"],
-  "classes":["storage","network","wifi","gpu","display","input","audio","usb","filesystem","sensor"],
+  "buses":["PCI","PCIe","USB","USB4","ACPI","I2C","SPI","MMIO","VirtIO","NVMe","SMBIOS","UEFI"],
+  "classes":["storage","network","wifi","gpu","display","platform","input","audio","usb","filesystem","sensor"],
   "storage":["NVMe","AHCI/SATA","SCSI","USB Mass Storage","VirtIO Block","MMC/SD"],
   "network":["Intel e1000/e1000e/igc/ixgbe/i40e","Realtek r8169/r8125","Broadcom","Marvell","Mellanox/ConnectX","virtio-net","Hyper-V","VMware vmxnet3"],
   "wifi":["Intel iwlwifi","MediaTek mt76","Qualcomm ath","Realtek rtw88/rtw89","Broadcom brcm80211","Atheros ath9k"],
