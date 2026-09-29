@@ -1,0 +1,47 @@
+name: Koronos Microkernel and Mobile Validation
+
+on:
+  push:
+    paths:
+      - 'kernel/**'
+      - 'mobile/**'
+      - '.github/workflows/microkernel-mobile-validation.yml'
+  pull_request:
+    paths:
+      - 'kernel/**'
+      - 'mobile/**'
+  workflow_dispatch:
+
+jobs:
+  source-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell scripts
+        run: |
+          set -euo pipefail
+          bash -n kernel/build-koronos.sh
+          bash -n mobile/build-mobile-edition.sh
+          bash -n mobile/flash/mobile-flash-tool.sh
+      - name: Validate JSON manifests
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          for p in ['boot/boot_protocol.json','mobile/mobile-sync.json','mobile/flash/device-manifest-v2.schema.json']:
+              with open(p, encoding='utf-8') as f: json.load(f)
+              print('OK', p)
+          PY
+      - name: Validate microkernel source contract
+        run: |
+          set -euo pipefail
+          grep -q 'chimera_mk_init' kernel/include/chimera/microkernel.h
+          grep -q 'chimera_mk_syscall' kernel/core/microkernel.cpp
+          grep -q 'microkernel' kernel/build-koronos.sh
+          grep -q 'microkernel' kernel/CMakeLists.txt
+      - name: Validate mobile safety contract
+        run: |
+          set -euo pipefail
+          grep -q 'generic_partition_flash.*false' mobile/build-mobile-edition.sh
+          grep -q 'exact_device' mobile/flash/mobile-flash-tool.sh
+          grep -q 'sha256' mobile/flash/mobile-flash-tool.sh
