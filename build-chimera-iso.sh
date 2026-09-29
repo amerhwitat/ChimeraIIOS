@@ -1409,6 +1409,13 @@ EOF
     "profiles": "/install/installer/installer_profiles.json"
   },
   "desktop": "Aurora Wayland",
+  "hardware_nbit": {
+    "profile": "/system/hardware/chimera-hardware-profile.json",
+    "compatibility": "/system/hardware/compatibility-modes.json",
+    "policy": "/system/hardware/nbit-policy.conf",
+    "native_mode": "hardware-probed",
+    "mixed_width_ipc": true
+  },
   "features": [
     "screen-saver", "auto-lock", "battery-optimizer",
     "Active-Directory", "local-users", "root-superuser",
