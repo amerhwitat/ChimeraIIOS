@@ -1,0 +1,20 @@
+{
+  "schema": "CHM-INSTALLER-2",
+  "kernel": "/boot/koronos/koronos.elf",
+  "initrd": "/boot/installer/installer-initrd.img",
+  "boot_protocol": "multiboot2",
+  "desktop": "Aurora Wayland Glass",
+  "background": "/boot/visual/aurora-wayland-glass.jpg",
+  "background_system": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+  "hardware_discovery": true,
+  "driver_recommendations": true,
+  "firmware_detection": true,
+  "safe_graphics": true,
+  "required_artifacts": [
+    "/boot/koronos/koronos.elf",
+    "/boot/visual/aurora-wayland-glass.jpg",
+    "/boot/installer/installer-initrd.img",
+    "/boot/installer/installer-manifest.json"
+  ],
+  "post_install_background": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg"
+}
