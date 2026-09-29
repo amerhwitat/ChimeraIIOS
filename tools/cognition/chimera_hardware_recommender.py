@@ -20,8 +20,7 @@ def modules():
     except Exception:return ""
 
 def recommend(inv):
-    blob=json.dumps(inv,sort_keys=True).lower()+"
-"+"\n".join(str(x.get("raw","")) for x in inv.get("devices",[])).lower()
+    blob=json.dumps(inv,sort_keys=True).lower()+"\\n"+"\\n".join(str(x.get("raw","")) for x in inv.get("devices",[])).lower()
     loaded=modules(); out=[]
     for cls,vendors in FAMILIES.items():
         for vendor,drivers in vendors:
