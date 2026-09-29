@@ -1,0 +1,12 @@
+[Unit]
+Description=Chimera II OS native Kore service manager compatibility boundary
+After=local-fs.target
+Wants=hardware.target runtime.target
+
+[Service]
+Type=notify
+ExecStart=/usr/libexec/chimera/kore-manager
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
