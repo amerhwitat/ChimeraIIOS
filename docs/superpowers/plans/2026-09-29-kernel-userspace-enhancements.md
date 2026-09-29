@@ -61,11 +61,12 @@
 **Interfaces:**
 - Events, mutexes, semaphores, wait sets, timers, alertable waits, APC queues and deferred kernel work.
 
-- [ ] Add failing tests for event/mutex/semaphore semantics and wait wakeups.
-- [ ] Implement synchronization objects using Koronos scheduler blocking/wakeup.
-- [ ] Add timer and deferred-work queues.
-- [ ] Add APC/DPC dispatch tests and verify no busy-spin behavior.
-- [ ] Commit the synchronization milestone.
+- [x] Add tests for event/mutex/semaphore semantics and wait wakeups.
+- [x] Implement synchronization objects using Koronos scheduler blocking/wakeup.
+- [x] Add timer and deferred-work queues.
+- [x] Add APC/DPC dispatch tests and verify no busy-spin behavior.
+- [x] Implement timer-driven wait timeout registration/wakeup.
+- [x] Commit the synchronization milestone.
 
 ### Task 3: NT object/process/handle/security foundation
 
