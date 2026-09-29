@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "architecture": ["x86", "x64", "arm64"],
+  "modules": {
+    "ntdll.dll": {"provider": "chimera-ntdll", "layer": "nt"},
+    "kernel32.dll": {"provider": "chimera-kernel32", "layer": "win32"},
+    "kernelbase.dll": {"provider": "chimera-kernel32", "layer": "win32"},
+    "user32.dll": {"provider": "chimera-user32", "layer": "user"},
+    "gdi32.dll": {"provider": "chimera-gdi32", "layer": "gdi"},
+    "advapi32.dll": {"provider": "chimera-advapi32", "layer": "security-services"},
+    "ole32.dll": {"provider": "chimera-ole32", "layer": "com"},
+    "oleaut32.dll": {"provider": "chimera-oleaut32", "layer": "com"},
+    "shell32.dll": {"provider": "chimera-shell32", "layer": "shell"},
+    "comctl32.dll": {"provider": "chimera-comctl32", "layer": "controls"},
+    "ws2_32.dll": {"provider": "chimera-ws2_32", "layer": "network"},
+    "winmm.dll": {"provider": "chimera-winmm", "layer": "multimedia"},
+    "dxgi.dll": {"provider": "chimera-dxgi", "layer": "graphics"},
+    "d3d9.dll": {"provider": "chimera-d3d9", "layer": "graphics"},
+    "d3d11.dll": {"provider": "chimera-d3d11", "layer": "graphics"}
+  },
+  "resolution": {
+    "order": ["already-loaded", "api-set-contract", "application-directory", "system-windows-compat", "configured-dll-paths"],
+    "case_insensitive_module_names": true,
+    "architecture_match_required": true,
+    "delay_imports_supported_by_policy": true
+  }
+}
