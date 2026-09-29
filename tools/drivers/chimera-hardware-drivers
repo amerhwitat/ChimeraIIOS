@@ -39,6 +39,9 @@ common(){
     if apt-cache policy "$p" 2>/dev/null | awk '/Candidate:/ && $2!="(none)"{ok=1} END{exit !ok}'; then apt-get install -y --no-install-recommends "$p" || log "skipped: $p"; fi
   done
 }
+core_devices(){
+  for m in nvme ahci e1000e igc r8169 tg3 ixgbe i40e ice iwlwifi ath10k_pci ath11k_pci rtw88 rtw89 amdgpu i915 xe nouveau virtio_net virtio_blk virtio_scsi xhci_pci; do module "$m"; done
+}
 firmware(){
   if have fwupdmgr; then
     fwupdmgr refresh --force || true
@@ -61,7 +64,9 @@ status(){
 }
 install_all(){
   [[ "$(id -u)" -eq 0 ]] || { echo "root required" >&2; exit 1; }
+  recommend || true
   common
+  core_devices
   audio
   firmware
   local now; now="$(date -Is)"
