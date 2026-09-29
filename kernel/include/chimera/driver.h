@@ -10,6 +10,8 @@ struct chimera_driver_descriptor {
   uint32_t abi_version; uint32_t bus; uint32_t device_class; uint32_t flags;
   uint16_t vendor_id; uint16_t device_id; uint32_t subsystem_id;
   const char* name; const char* firmware; const char* version;
+  uint8_t match_class; uint8_t match_subclass; uint8_t match_prog_if; uint8_t state;
+  const char* source; int (*probe)(const void* device);
 };
 struct chimera_driver_registry {
   uint32_t count; uint32_t capacity; const chimera_driver_descriptor* entries;
