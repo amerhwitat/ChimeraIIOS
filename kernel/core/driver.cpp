@@ -20,6 +20,7 @@ extern "C" int chimera_driver_register(const chimera_driver_descriptor* d){
 extern "C" const chimera_driver_registry* chimera_driver_registry_snapshot(){
  static chimera_driver_registry r{0,256,g_drivers}; r.count=g_count; return &r;
 }
+extern "C" int chimera_driver_start_all(){ int started=0; for(uint32_t i=0;i<g_count;i++){ chimera_driver_descriptor *d=&g_drivers[i]; if(d->state==2 || d->state==1){ if(d->probe && d->probe(0)!=0){d->state=5;continue;} d->state=3; started++; }} return started; }
 extern "C" int chimera_driver_probe_all(){
  chimera_device_inventory inv{}; int n=chimera_hardware_enumerate_devices(&inv); if(n<0)return n;
  g_last_probe_count=0;
