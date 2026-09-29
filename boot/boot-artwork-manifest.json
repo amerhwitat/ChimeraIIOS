@@ -1,7 +1,12 @@
 {
-  "schema": "CHM-BOOT-ARTWORK-1",
-  "canonical_grub_background": "boot/grub/aurora-wayland-glass.png",
+  "schema": "CHM-BOOT-ARTWORK-2",
+  "canonical_grub_background": "boot/visual/aurora-wayland-glass.jpg",
+  "embedded_source": "boot/visual/aurora-wayland-glass.jpg.b64",
+  "embedded_source_sha256": "1d319000d45d24f99ca708b38f776922eccbee9e48d53425ec0b47469c23a2fb",
+  "embedded_source_dimensions": "480x268",
+  "source_image": "Aurora-Wayland-Glass-Desktop.png.jpg",
   "sources": [
+    "boot/visual/aurora-wayland-glass.jpg",
     "boot/splash/aurora_boot_splash.svg",
     "boot/splash/jasper_background.svg",
     "boot/splash/spitfire_background.svg",
@@ -11,13 +16,13 @@
     "desktop/aurora/assets/aurora-desktop.svg"
   ],
   "runtime_targets": {
-    "grub": "Aurora Wayland Glass",
-    "jasper": "Jasper recovery",
-    "spitfire": "Spit Fire native stage",
-    "installer": "Aurora installer",
-    "desktop": "Aurora Wayland desktop",
-    "library": "Aurora Library"
+    "grub": "/boot/visual/aurora-wayland-glass.jpg",
+    "jasper": "/boot/visual/aurora-wayland-glass.jpg",
+    "spitfire": "/boot/visual/aurora-wayland-glass.jpg",
+    "installer": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+    "desktop": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+    "library": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg"
   },
-  "raster_policy": "Generate PNGs during ISO build; do not commit generated binaries.",
-  "fallback": "installer-background.png"
+  "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
+  "fallback": "desktop/aurora/assets/aurora-desktop.svg"
 }
