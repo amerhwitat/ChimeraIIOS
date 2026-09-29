@@ -12,6 +12,9 @@ static uint32_t task_runs;
 static chimera_wait_result last_wait;
 static uint32_t timer_hits, apc_hits, dpc_hits;
 static chimera_waitable mutex_obj;
+static chimera_waitable timeout_event;
+static uint32_t timeout_runs;
+static chimera_wait_result timeout_result;
 
 static void wait_task(void*) {
     ++task_runs;
@@ -26,6 +29,10 @@ static void wait_task(void*) {
 }
 
 static void timer_cb(chimera_timer_id, void*) { ++timer_hits; }
+static void timeout_task(void*) {
+    ++timeout_runs;
+    timeout_result = chimera_wait_one(&timeout_event, timeout_runs == 1 ? 2u : 0u, 0);
+}
 static void apc_cb(chimera_thread_id, void*) { ++apc_hits; }
 static void dpc_cb(chimera_dpc_id, void*) { ++dpc_hits; }
 
@@ -55,6 +62,16 @@ int main() {
     assert(chimera_timer_create(2, 0, timer_cb, nullptr, &timer) == 0);
     assert(chimera_timer_tick(1) == 0);
     assert(timer_hits == 0);
+
+    chimera_event_init(&timeout_event, 0, 0);
+    chimera_thread_id timeout_tid = 0;
+    assert(chimera_thread_create(timeout_task, nullptr, 8, 1, &timeout_tid) == 0);
+    assert(chimera_sched_run_once(0) == 1);
+    assert(timeout_result == CHIMERA_WAIT_BLOCKED);
+    assert(chimera_timer_tick(1) == 0);
+    assert(chimera_timer_tick(1) == 1);
+    assert(chimera_sched_run_once(0) >= 1);
+    assert(timeout_result == CHIMERA_WAIT_TIMEOUT);
     assert(chimera_timer_tick(1) == 1);
     assert(timer_hits == 1);
     assert(chimera_timer_active_count() == 0);
