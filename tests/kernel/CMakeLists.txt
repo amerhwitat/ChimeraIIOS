@@ -25,7 +25,7 @@ add_executable(chimera_hardware_nbit_test
   ../../kernel/core/nbit.cpp
 )
 target_include_directories(chimera_hardware_nbit_test PRIVATE
-  \${CMAKE_SOURCE_DIR}/kernel/include
+  ${CMAKE_SOURCE_DIR}/kernel/include
 )
 target_compile_features(chimera_hardware_nbit_test PRIVATE cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
