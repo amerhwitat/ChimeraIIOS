@@ -6,5 +6,15 @@
   "families":["display","audio","network","storage","usb","bluetooth","camera","input","printer","serial","thunderbolt","firmware","virtualization"],
   "automatic_repair":{"enabled":true,"reboot_after_kernel_change":true,"create_restore_point":true},
   "ai_recommendation":{"enabled":true,"engine":"auditable-recurrent-evidence-scorer","auto_install":false,"requires_explicit_install_policy":true,"output":"/var/lib/chimera/drivers/ai-recommendations.json"},
-  "provenance":{"record":true,"path":"/var/lib/chimera/drivers/state.json"}
+  "provenance":{"record":true,"path":"/var/lib/chimera/drivers/state.json"},
+  "installer_recommendation": {
+    "decision_order": ["firmware_and_boot","motherboard_chipset_and_bus","storage","network","display_gpu","compatibility_fallback"],
+    "require_storage_driver_before_install": true,
+    "prefer_native_koronos": true,
+    "fallbacks": ["linux-abi","windows-wdm","macos-driverkit","generic-bus"],
+    "foreign_binary_execution": "adapter-only",
+    "show_evidence_and_provenance": true,
+    "explicit_confirmation_for_foreign_or_proprietary": true,
+    "output": "/var/lib/chimera/drivers/installer-recommendations.json"
+  }
 }
