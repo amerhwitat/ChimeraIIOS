@@ -30,7 +30,11 @@
         "network",
         "secure_boot",
         "tpm",
-        "mobile_profile"
+        "mobile_profile",
+        "hardware_nbit_probe",
+        "best_native_mode",
+        "wide_mode_emulation_capability",
+        "mixed_width_ipc_capability"
       ],
       "background": {
         "default": "/install/library-background.png",
@@ -46,7 +50,10 @@
         "hosted",
         "baremetal",
         "recovery",
-        "emulator"
+        "emulator",
+        "auto_native_nbit",
+        "manual_nbit_selection",
+        "compatibility_profile"
       ],
       "background": {
         "default": "/usr/share/chimera/aurora/desktop-background.png",
@@ -124,6 +131,7 @@
       "name": "System Software",
       "actions": [
         "kernel",
+        "hardware_nbit_policy",
         "drivers",
         "network",
         "services",
@@ -241,7 +249,9 @@
         "remove_install_media",
         "boot_menu",
         "kernel_progress_ui",
-        "first_run_setup"
+        "first_run_setup",
+        "apply_hardware_nbit_policy",
+        "initialize_mixed_width_ipc"
       ],
       "background": {
         "default": "/boot/grub/aurora-wayland-glass.png",
