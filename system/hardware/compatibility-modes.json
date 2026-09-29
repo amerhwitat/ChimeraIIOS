@@ -1,12 +1,19 @@
 {
-  "version": 1,
+  "version": 2,
+  "policy": "native-abi-over-koronos",
   "targets": {
-    "native": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "native-or-emulated"},
-    "windows": {"architectures": ["x86_64", "aarch64"], "execution": "win32-nt-abi"},
-    "linux": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "posix-linux-abi"},
-    "bsd": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "posix-bsd-abi"},
-    "darwin": {"architectures": ["x86_64", "aarch64"], "execution": "darwin-abi"},
-    "android": {"architectures": ["aarch64", "x86_64"], "execution": "android-abi"},
-    "ios": {"architectures": ["aarch64"], "execution": "ios-abi"}
+    "native": {"architectures": ["x86_64", "aarch64", "riscv64"], "execution": "native-or-emulated", "preferred_nbit": "hardware-best", "ipc": "mixed-width"},
+    "windows": {"architectures": ["x86", "x86_64", "aarch64"], "execution": "win32-nt-abi", "preferred_nbit": [32, 64], "ipc": "mixed-width"},
+    "linux": {"architectures": ["x86", "x86_64", "aarch64", "riscv64"], "execution": "posix-linux-abi", "preferred_nbit": [32, 64], "ipc": "mixed-width"},
+    "bsd": {"architectures": ["x86", "x86_64", "aarch64", "riscv64"], "execution": "posix-bsd-abi", "preferred_nbit": [32, 64], "ipc": "mixed-width"},
+    "darwin": {"architectures": ["x86_64", "aarch64"], "execution": "darwin-abi", "preferred_nbit": [64], "ipc": "mixed-width"},
+    "android": {"architectures": ["aarch64", "x86_64"], "execution": "android-abi", "preferred_nbit": [64], "ipc": "mixed-width"},
+    "ios": {"architectures": ["aarch64"], "execution": "ios-abi", "preferred_nbit": [64], "ipc": "mixed-width"}
+  },
+  "wide_chimera_modes": [128, 256, 512, 1024, 2048, 4096, 8192],
+  "communication": {
+    "rule": "all-processes-use-width-neutral-ipc",
+    "endianness": "canonical-little-endian",
+    "payload_limit_bytes": 16777216
   }
 }
