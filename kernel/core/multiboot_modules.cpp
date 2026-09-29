@@ -19,13 +19,13 @@ static bool has(const char* s,const char* needle){
  return false;
 }
 static uint32_t classify(const char* s){
- if(has(s,"chimera-live-initramfs"))return CHIMERA_MODULE_LIVE_INITRAMFS;
- if(has(s,"chimera-live-manifest"))return CHIMERA_MODULE_LIVE_MANIFEST;
- if(has(s,"chimera-installation-image"))return CHIMERA_MODULE_INSTALL_IMAGE;
- if(has(s,"chimera-installation-manifest"))return CHIMERA_MODULE_INSTALL_MANIFEST;
- if(has(s,"chimera-installer-contract"))return CHIMERA_MODULE_INSTALL_CONTRACT;
- if(has(s,"chimera-install-phases"))return CHIMERA_MODULE_INSTALL_PHASES;
- if(has(s,"chimera-installer-profiles"))return CHIMERA_MODULE_INSTALL_PROFILES;
+ if(has(s,"chimera-live-initramfs")||has(s,"live-initramfs")||has(s,"live-initramfs.img"))return CHIMERA_MODULE_LIVE_INITRAMFS;
+ if(has(s,"chimera-live-manifest")||has(s,"live-manifest.json"))return CHIMERA_MODULE_LIVE_MANIFEST;
+ if(has(s,"chimera-installation-image")||has(s,"installation.img")||has(s,"install-image"))return CHIMERA_MODULE_INSTALL_IMAGE;
+ if(has(s,"chimera-installation-manifest")||has(s,"installation-manifest.json")||has(s,"install-manifest"))return CHIMERA_MODULE_INSTALL_MANIFEST;
+ if(has(s,"chimera-installer-contract")||has(s,"installer-contract.json")||has(s,"install-contract"))return CHIMERA_MODULE_INSTALL_CONTRACT;
+ if(has(s,"chimera-install-phases")||has(s,"install-phases.json"))return CHIMERA_MODULE_INSTALL_PHASES;
+ if(has(s,"chimera-installer-profiles")||has(s,"installer-profiles.json"))return CHIMERA_MODULE_INSTALL_PROFILES;
  return CHIMERA_MODULE_OTHER;
 }
 }
