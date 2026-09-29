@@ -9,7 +9,8 @@
     "boot_context_magic": "CHMBOOT1",
     "kernel_format": ["ELF32", "ELF64", "PE32+_EFI", "raw_profile_image"],
     "required_data": ["memory_map", "framebuffer_if_available", "boot_drive_if_bios", "firmware_type", "cpu_architecture"],
-    "optional_data": ["ACPI_RSDP", "SMBIOS", "EFI_SYSTEM_TABLE", "EFI_MEMORY_MAP", "DTB", "initrd", "entropy", "TPM_EVENT_LOG", "bootloader_name", "command_line"]
+    "nbit_policy": {"probe": "Koronos hardware HAL", "default": "native-best", "wide_modes": [128, 256, 512, 1024, 2048, 4096, 8192], "mixed_width_ipc": true},
+  "optional_data": ["ACPI_RSDP", "SMBIOS", "EFI_SYSTEM_TABLE", "EFI_MEMORY_MAP", "DTB", "initrd", "entropy", "TPM_EVENT_LOG", "bootloader_name", "command_line"]
   },
   "menu_first": {
     "enabled": true,
@@ -18,7 +19,7 @@
     "keyboard": ["arrows", "enter", "escape", "function_keys"]
   },
   "handoff": {
-    "phase_order": ["firmware", "spitfire", "jasper", "grub", "menu", "hardware_discovery", "memory", "framebuffer", "koronos", "drivers", "spotnik", "nucleus", "aurora", "session"],
+    "phase_order": ["firmware", "spitfire", "jasper", "grub", "menu", "hardware_discovery", "nbit_policy", "memory", "framebuffer", "koronos", "drivers", "spotnik", "nucleus", "aurora", "session"],
     "progress_ui": "aurora_boot_ui",
     "failure_policy": "show_phase_error_then_offer_recovery"
   },
