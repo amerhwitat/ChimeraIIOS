@@ -40,6 +40,19 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     if (c & (1u<<5)) out->feature_bits |= CHIMERA_HW_VMX;
     if (c & (1u<<28)) out->feature_bits |= CHIMERA_HW_AVX;
     uint32_t max_leaf=a;
+    if(max_leaf>=0x80000008u){
+        cpuid(0x80000008u,0,&a,&b,&c,&d);
+        out->physical_address_bits=a&0xffu;
+        out->virtual_address_bits=(a>>8)&0xffu;
+    }
+    cpuid(0x80000000u,0,&a,&b,&c,&d);
+    if(a>=0x80000004u){
+        uint32_t *m=(uint32_t*)out->model;
+        cpuid(0x80000002u,0,&m[0],&m[1],&m[2],&m[3]);
+        cpuid(0x80000003u,0,&m[4],&m[5],&m[6],&m[7]);
+        cpuid(0x80000004u,0,&m[8],&m[9],&m[10],&m[11]);
+        out->model[95]=0;
+    }
     if (max_leaf >= 7) {
         cpuid(7,0,&a,&b,&c,&d);
         if (b & (1u<<5)) out->feature_bits |= CHIMERA_HW_AVX2;
