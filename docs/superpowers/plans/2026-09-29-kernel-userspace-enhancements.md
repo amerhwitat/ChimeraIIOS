@@ -68,6 +68,29 @@
 - [x] Implement timer-driven wait timeout registration/wakeup.
 - [x] Commit the synchronization milestone.
 
+### Task 2.5: Hardware-aware N-bit execution and compatibility policy
+
+**Files:**
+- Create/modify: `kernel/core/hardware.cpp`, `kernel/core/nbit.cpp`
+- Create/modify: `kernel/include/chimera/hardware.h`, `kernel/include/chimera/nbit.h`
+- Create/modify: `services/hardware/chimera-hwmode.cpp`
+- Modify: Aurora settings, ISO/installer/boot manifests
+- Test: `tests/kernel/hardware_nbit_test.cpp`
+
+**Interfaces:**
+- Probe underlying architecture/features and select a hardware-native default mode.
+- Support 8/16/32/64/128/256/512/1024/2048/4096/8192-bit execution contexts.
+- Treat N-bit width as a per-process property so processes with different widths coexist.
+- Use width-neutral IPC metadata so lower-width and wider Chimera/compatibility processes communicate through one boundary.
+- Map Windows/Linux/BSD/Darwin/Android/iOS compatibility profiles to their native ABI widths while retaining wider Chimera execution modes.
+
+- [x] Add hardware profile probing and native-best N-bit selection.
+- [x] Add per-process N-bit context and mixed-width IPC validation.
+- [x] Add Aurora desktop policy control with persistent auto/manual selection.
+- [x] Stage hardware/N-bit policy into Live/installer ISO media.
+- [x] Add boot/installer execution phases for hardware discovery and N-bit policy.
+- [ ] Run host and bare-metal/QEMU verification of the hardware mode handoff.
+
 ### Task 3: NT object/process/handle/security foundation
 
 **Files:**
