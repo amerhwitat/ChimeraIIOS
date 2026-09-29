@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "desktop": {
+    "window_manager": ["z-order","focus","capture","owner","parent-child","minimize","maximize","restore","snap","multi-monitor","dpi"],
+    "shell": ["start-launcher","taskbar","notification-area","alt-tab","task-view","virtual-desktops","quick-access","search","context-menus","drag-drop","clipboard","clipboard-history","notifications","file-manager","settings"],
+    "input": ["keyboard","mouse","wheel","touch","pen","hotkeys","accessibility"],
+    "graphics": ["gdi","compositor","surfaces","damage-tracking","occlusion","vsync","scaling","screenshots"],
+    "runtime": ["per-thread-message-queues","message-loop","timers","wait-wake","worker-threads","async-io","io-completion"],
+    "compatibility": ["win32","kernel32","user32","gdi32","advapi32","shell32","ws2_32","com","ole","pe32","pe32plus","wow64-boundary"]
+  },
+  "implementation_policy": "native-chimera-services-with-windows-compatible-abi",
+  "unsupported_features_must": "return-explicit-status-and-log",
+  "security": {"shell_actions_require_policy_check":true,"kernel_access_never_from_ui":true}
+}
