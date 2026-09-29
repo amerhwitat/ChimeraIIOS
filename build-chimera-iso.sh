@@ -1265,6 +1265,36 @@ CMDREADME
 {"schema":"CHM-QFS-POLICY-1","default_block_size":4096,"allowed_block_sizes":[4096,8192,16384,32768,65536],"maximum_block_size":65536,"require_page_size_at_least_block":true}
 EOF
 
+    # Hardware-aware N-bit runtime and mixed-width compatibility policy.
+    # Koronos probes the real CPU at boot; the userland utility exposes the
+    # same policy to Aurora and installer environments. "auto" selects the
+    # native hardware width while wider Chimera modes remain available through
+    # the execution/emulation layer.
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/hardware" "$ROOTFS_DIR/usr/bin"              "$ROOTFS_DIR/etc/chimera" "$ISO_DIR/system/hardware"
+    if [[ -f "$SCRIPT_DIR/system/hardware/chimera-hardware-profile.json" ]]; then
+        install -m 0644 "$SCRIPT_DIR/system/hardware/chimera-hardware-profile.json"             "$ROOTFS_DIR/usr/share/chimera/hardware/chimera-hardware-profile.json"
+        install -m 0644 "$SCRIPT_DIR/system/hardware/chimera-hardware-profile.json"             "$ISO_DIR/system/hardware/chimera-hardware-profile.json"
+    fi
+    if [[ -f "$SCRIPT_DIR/system/hardware/compatibility-modes.json" ]]; then
+        install -m 0644 "$SCRIPT_DIR/system/hardware/compatibility-modes.json"             "$ROOTFS_DIR/usr/share/chimera/hardware/compatibility-modes.json"
+        install -m 0644 "$SCRIPT_DIR/system/hardware/compatibility-modes.json"             "$ISO_DIR/system/hardware/compatibility-modes.json"
+    fi
+    if [[ -f "$SCRIPT_DIR/services/hardware/chimera-hwmode.cpp" && -f "$SCRIPT_DIR/kernel/core/hardware.cpp" && -f "$SCRIPT_DIR/kernel/core/nbit.cpp" ]]; then
+        log_info "Compiling hardware-aware N-bit control utility for the target rootfs..."
+        local hwmode_cxx="${CXX:-g++}"
+        "$hwmode_cxx" -std=c++20 -O2 -pipe             -I"$SCRIPT_DIR/kernel/include"             "$SCRIPT_DIR/services/hardware/chimera-hwmode.cpp"             "$SCRIPT_DIR/kernel/core/hardware.cpp"             "$SCRIPT_DIR/kernel/core/nbit.cpp"             -o "$ROOTFS_DIR/usr/bin/chimera-hwmode"
+        install -m 0755 "$ROOTFS_DIR/usr/bin/chimera-hwmode" "$ISO_DIR/system/hardware/chimera-hwmode"
+    fi
+    cat > "$ROOTFS_DIR/etc/chimera/nbit-policy.conf" <<'EOF_NBIT'
+# Chimera II OS hardware-aware N-bit execution policy.
+# auto = native hardware mode; larger widths use the Chimera execution layer.
+mode=auto
+selection=auto
+ipc=mixed-width
+compatibility=native,windows,linux,bsd,darwin,android,ios
+EOF_NBIT
+    install -m 0644 "$ROOTFS_DIR/etc/chimera/nbit-policy.conf" "$ISO_DIR/system/hardware/nbit-policy.conf"
+
     # Hardware inventory + RNN/LLM-compatible driver recommendation engine.
     # Recommendations are evidence-backed and do not silently install drivers.
     mkdir -p "$ROOTFS_DIR/usr/share/chimera/cognition" "$ROOTFS_DIR/usr/share/chimera/hardware" "$ROOTFS_DIR/usr/bin"
