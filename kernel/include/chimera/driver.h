@@ -19,6 +19,7 @@ struct chimera_driver_registry {
 int chimera_driver_register(const chimera_driver_descriptor*);
 const chimera_driver_registry* chimera_driver_registry_snapshot();
 int chimera_driver_probe_all();
+int chimera_driver_start_all();
 #ifdef __cplusplus
 }
 #endif
