@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chimera II Mobile Device Manifest v2",
+  "type": "object",
+  "required": ["schema", "codename", "architecture", "bootloader_mode", "partitions", "policy"],
+  "properties": {
+    "schema": {"const": "CHM-MOBILE-DEVICE-2"},
+    "codename": {"type": "string", "minLength": 1},
+    "architecture": {"enum": ["aarch64", "armv7", "x86_64"]},
+    "bootloader_mode": {"enum": ["fastboot", "fastbootd", "recovery", "dfu", "vendor-signed"]},
+    "partitions": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "image", "sha256", "required"], "properties": {"name": {"type": "string", "pattern": "^[a-zA-Z0-9_.-]+$"}, "image": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"}, "required": {"type": "boolean"}, "slot": {"enum": ["a", "b", "both", "none"]}}, "additionalProperties": false}},
+    "policy": {"type": "object", "required": ["exact_match_required", "signed_images_required", "confirmation_required"], "properties": {"exact_match_required": {"const": true}, "generic_partition_names_forbidden": {"const": true}, "unlock_required": {"type": "boolean"}, "signed_images_required": {"const": true}, "confirmation_required": {"const": true}, "rollback_metadata_required": {"const": true}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}
