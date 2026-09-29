@@ -1,0 +1,19 @@
+{
+  "schema": "CHM-LIVE-2",
+  "kernel": "/boot/koronos/koronos.elf",
+  "initrd": "/boot/live/chimera-live-initramfs.img",
+  "boot_protocol": "multiboot2",
+  "desktop": "Aurora Wayland Glass",
+  "background": "/boot/visual/aurora-wayland-glass.jpg",
+  "background_system": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+  "hardware_discovery": true,
+  "driver_selection": true,
+  "safe_graphics": true,
+  "recovery_fallback": "/boot/recovery/chimera-recovery.elf",
+  "required_artifacts": [
+    "/boot/koronos/koronos.elf",
+    "/boot/visual/aurora-wayland-glass.jpg",
+    "/boot/live/chimera-live-initramfs.img",
+    "/boot/live/live-manifest.json"
+  ]
+}
