@@ -5,6 +5,8 @@ BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
+# Never reuse a partially linked kernel after a failed/resumed build.
+rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/koronos.cpp" -o "$BUILD/koronos.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/elf64.cpp" -o "$BUILD/elf64.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/module.cpp" -o "$BUILD/module.o"
@@ -30,5 +32,8 @@ if command -v nm >/dev/null 2>&1; then
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]koronos_idle_loop$' || { echo "ERROR: koronos_idle_loop is not linked" >&2; exit 1; }
   nm -g "$BUILD/koronos.elf" | grep -Eq '[[:space:]]chimera_multiboot_scan$' || { echo "ERROR: Multiboot2 module scanner is not linked" >&2; exit 1; }
 fi
+# Verify the actual ELF contains the new installer bootstrap before the ISO builder copies it.
+grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 printf "Koronos ELF64: %s\n" "$BUILD/koronos.elf"
-printf "Koronos runtime check: scheduler + Multiboot2 module registry linked and ELF64 verified\n"
+printf "Koronos runtime check: scheduler + Multiboot2 registry + installer bootstrap linked and ELF64 verified\n"
