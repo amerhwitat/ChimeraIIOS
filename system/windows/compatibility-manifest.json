@@ -39,6 +39,14 @@
     "winmm": ["timer", "basic multimedia compatibility"],
     "dxgi_d3d": ["DXGI/D3D compatibility boundary", "GPU HAL translation"]
   },
+  "nbit": {
+    "supported_process_widths": [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192],
+    "x86_compatibility_width": 32,
+    "x64_compatibility_width": 64,
+    "arm64_compatibility_width": 64,
+    "mixed_width_ipc": true,
+    "ipc_boundary": "canonical-width-neutral"
+  },
   "runtime": {
     "message_loop": "Koronos wait/wake + per-thread queue",
     "threading": "Koronos scheduler",
