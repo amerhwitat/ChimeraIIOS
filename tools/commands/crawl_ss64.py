@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse, html.parser, json, os, re, shutil, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 INDEXES={"linux_bash":"https://ss64.com/bash/","macos":"https://ss64.com/mac/","windows_cmd":"https://ss64.com/nt/","powershell":"https://ss64.com/ps/","vbscript":"https://ss64.com/vb/","sql_server":"https://ss64.com/sql/","access":"https://ss64.com/access/","tools":"https://ss64.com/tools/"}
-UA="ChimeraIIOS-SS64-Catalog/4.1 (+https://github.com/amerhwitat/ChimeraIIOS)"
+UA="ChimeraIIOS-SS64-Catalog/4.2 (+https://github.com/amerhwitat/ChimeraIIOS)"
 class P(html.parser.HTMLParser):
     def __init__(self): super().__init__(convert_charrefs=True); self.links=[]; self.a=False; self.h=""; self.t=[]
     def handle_starttag(self,tag,attrs):
@@ -60,10 +60,10 @@ def rootfs_provider(rootfs,name):
         if p.is_file() and os.access(p,os.X_OK):return p
     return None
 
-def install_source(repo_root,rootfs,src,dst):
+def install_source(repo_root,rootfs,src,dst,mode=0o755):
     s=repo_root/src;d=rootfs/dst
     if not s.exists():return False
-    d.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(s,d);d.chmod(0o755);return True
+    d.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(s,d);d.chmod(mode);return True
 
 def reconcile(catalog,rootfs,repo_root):
     cmdlist=repo_root/"system/commands/chimera-command-list.json"
@@ -88,11 +88,15 @@ def reconcile(catalog,rootfs,repo_root):
         manifest["commands"][name]=item
     for src_name,dst_name in (("tools/runtime/chimera-korectl.py","korectl"),("tools/runtime/chimera-systemctl.py","systemctl"),("tools/runtime/chimera-service.py","service"),("tools/runtime/chimera-compat.py","chimera-compat"),("tools/runtime/kore-manager.py","kore-manager")):
         install_source(repo_root,rootfs,src_name,"usr/bin/"+dst_name)
-    # kore-manager is also placed at the systemd-style ExecStart path used by kore.service.
     install_source(repo_root,rootfs,"tools/runtime/kore-manager.py","usr/libexec/chimera/kore-manager")
     units=repo_root/"system/services/kore-units.json"
-    if units.exists():
-        d=rootfs/"etc/chimera/kore-units.json";d.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(units,d)
+    if units.exists():install_source(repo_root,rootfs,"system/services/kore-units.json","etc/chimera/kore-units.json",0o644)
+    unit=repo_root/"system/services/kore.service"
+    if unit.exists():
+        install_source(repo_root,rootfs,"system/services/kore.service","usr/lib/systemd/system/kore.service",0o644)
+        w=rootfs/"etc/systemd/system/multi-user.target.wants/kore.service";w.parent.mkdir(parents=True,exist_ok=True)
+        try:w.symlink_to("/usr/lib/systemd/system/kore.service")
+        except FileExistsError:pass
     for name in sorted(native):
         shim=rootfs/"usr/bin"/name
         if shim.exists():continue
@@ -110,7 +114,7 @@ def reconcile(catalog,rootfs,repo_root):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--output",default="system/commands/ss64-command-catalog.json");ap.add_argument("--max-pages",type=int,default=3000);ap.add_argument("--timeout",type=float,default=30);ap.add_argument("--retries",type=int,default=2);ap.add_argument("--delay",type=float,default=.05);ap.add_argument("--platforms",nargs="*",choices=sorted(INDEXES));args=ap.parse_args()
-    root=Path(__file__).resolve().parents[2];selected=args.platforms or list(INDEXES);catalog={"schema_version":"4.1","product":"Chimera II OS","source":"SS64","source_index":"https://ss64.com/","generated_at_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"policy":"Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.","platforms":{}}
+    root=Path(__file__).resolve().parents[2];selected=args.platforms or list(INDEXES);catalog={"schema_version":"4.2","product":"Chimera II OS","source":"SS64","source_index":"https://ss64.com/","generated_at_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"policy":"Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.","platforms":{}}
     for platform in selected:
         items,pages,failures=crawl(INDEXES[platform],platform,max(1,args.max_pages),args.timeout,max(0,args.retries),max(0,args.delay));catalog["platforms"][platform]={"index":INDEXES[platform],"pages_crawled":pages,"fetch_failures":failures,"command_count":len(items),"commands":items};print(f"{platform}: {len(items)} commands across {pages} pages ({failures} failures)")
     out=Path(args.output);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
