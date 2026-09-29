@@ -11,14 +11,18 @@ PE_TOOL=Path(os.environ.get("CHIMERA_PE_TOOL", "/usr/bin/chimera-pe.py"))
 def main(argv):
     if not argv:
         return 2
-    target=Path(argv[0])
-    # A PE image supplied directly to the compatibility dispatcher is handed
-    # to the Windows compatibility boundary. DLLs are loadable modules and
-    # are intentionally not treated as directly executable processes.
+    # Support both direct invocation (chimera-compat COMMAND ...) and the
+    # symlinked command-provider form used by the SS64 compatibility catalog.
+    if Path(argv[0]).name == "chimera-compat.py":
+        if len(argv)<2:
+            return 2
+        target=Path(argv[1]); args=argv[2:]
+    else:
+        target=Path(argv[0]); args=argv[1:]
     if target.suffix.lower() in {".exe", ".dll"} and target.is_file():
         if target.suffix.lower()==".dll":
             return subprocess.call([sys.executable,str(PE_TOOL),"inspect",str(target)])
-        return subprocess.call([sys.executable,str(PE_TOOL),"run",str(target),*argv[1:]])
+        return subprocess.call([sys.executable,str(PE_TOOL),"run",str(target),*args])
     name=target.name
     try:
         data=json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -26,10 +30,10 @@ def main(argv):
         data={"commands":{}}
     item=data.get("commands",{}).get(name,{})
     provider=item.get("provider")
-    if provider and Path(provider).exists() and provider != argv[0]:
-        return subprocess.call([provider]+argv[1:])
+    if provider and Path(provider).exists() and provider != str(target):
+        return subprocess.call([provider]+args)
     print(f"chimera-compat: {name}: command registered for compatibility, but no runnable provider is staged.", file=sys.stderr)
     print("Use 'chimera search %s' or install the provider package named in the compatibility manifest." % name, file=sys.stderr)
     return 127
 
-if __name__=="__main__": raise SystemExit(main(sys.argv[1:]))
+if __name__=="__main__": raise SystemExit(main(sys.argv))
