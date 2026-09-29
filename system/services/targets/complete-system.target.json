@@ -1,0 +1,27 @@
+{
+  "target": "complete-system",
+  "version": 1,
+  "mode": "parallel-dependency-graph",
+  "failure_policy": "isolate-dependent-subgraph",
+  "boot_progress": true,
+  "branches": [
+    {"target":"hardware","after":["koronos"],"critical":true},
+    {"target":"storage","after":["hardware"],"critical":true},
+    {"target":"network","after":["hardware"],"critical":false},
+    {"target":"security","after":["koronos"],"critical":true},
+    {"target":"nt-compat","after":["security","storage"],"critical":false},
+    {"target":"win32","after":["nt-compat","graphics"],"critical":false},
+    {"target":"graphics","after":["hardware"],"critical":false},
+    {"target":"desktop","after":["graphics","win32","storage"],"critical":false},
+    {"target":"installer","after":["storage","security"],"critical":false},
+    {"target":"live","after":["storage","network","graphics"],"critical":false}
+  ],
+  "health_states": ["pending","starting","ready","degraded","failed","stopped"],
+  "parallelism": "max-ready-branches",
+  "diagnostics": {
+    "serial": true,
+    "vga": true,
+    "structured_log": true,
+    "heartbeat": true
+  }
+}
