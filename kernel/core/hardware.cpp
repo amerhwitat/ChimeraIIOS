@@ -24,9 +24,13 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->virtual_address_bits = 48;
     uint32_t a,b,c,d;
     cpuid(0,0,&a,&b,&c,&d);
-    char vendor[13] = {0};
-    ((uint32_t*)vendor)[0]=b; ((uint32_t*)vendor)[1]=d; ((uint32_t*)vendor)[2]=c;
-    for (size_t i=0;i<12 && vendor[i];++i) out->vendor[i]=vendor[i];
+    uint32_t vendor_words[3] = {b, d, c};
+    for (size_t word = 0; word < 3; ++word) {
+        for (size_t byte = 0; byte < 4; ++byte) {
+            size_t i = word * 4 + byte;
+            out->vendor[i] = (char)((vendor_words[word] >> (byte * 8)) & 0xffu);
+        }
+    }
     cpuid(1,0,&a,&b,&c,&d);
     out->logical_cpus = (b >> 16) & 0xffu;
     if (!out->logical_cpus) out->logical_cpus = 1;
