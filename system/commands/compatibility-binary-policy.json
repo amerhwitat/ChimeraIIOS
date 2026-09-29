@@ -1,0 +1,27 @@
+{
+  "schema": "CHM-COMPAT-BINARY-POLICY-1",
+  "ss64": {
+    "role": "reference index",
+    "allowed": ["command names", "categories", "source URLs"],
+    "prohibited": ["redistributing SS64 prose", "treating SS64 as a binary repository"]
+  },
+  "native_resolution_order": [
+    "Chimera native implementation",
+    "binary already present in the target rootfs",
+    "official distribution/package provider staged by the build or installer",
+    "compatibility shim with explicit provider-missing status"
+  ],
+  "binary_staging": {
+    "source": "target rootfs or official package provider",
+    "destination": "/usr/lib/chimera/compat/bin",
+    "preserve_executable_mode": true,
+    "never_copy_from_ss64": true
+  },
+  "systemd_compatibility": {
+    "manager": "Kore",
+    "frontends": ["systemctl", "service", "korectl"],
+    "unit_state": "/run/kore/state.json",
+    "requests": "/run/kore/requests",
+    "native_targets": ["koronos.target", "hardware.target", "runtime.target", "live.target", "installer.target", "complete.target"]
+  }
+}
