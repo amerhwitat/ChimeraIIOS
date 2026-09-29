@@ -29,6 +29,9 @@
     "rtl": true
   },
   "stages": [
+    "hardware-profile",
+    "nbit-policy",
+    "compatibility-policy",
     "detect",
     "partition",
     "format",
@@ -39,6 +42,8 @@
     "reboot"
   ],
   "destructiveOperationsRequireConfirmation": true,
+  "executionModes": ["auto-native", "manual-nbit", "wide-emulated", "compatibility"],
+  "mixedWidthIPC": {"enabled": true, "canonicalTransport": "width-neutral"},
   "installationModes": [
     "hosted",
     "emulator",
