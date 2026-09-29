@@ -10,6 +10,7 @@
     {"id":"grub","label":"GRUB filesystem boot adapter","progress":22},
     {"id":"menu","label":"Jasper/GRUB boot menu","progress":26},
     {"id":"hardware","label":"Hardware and firmware discovery","progress":27},
+    {"id":"nbit_policy","label":"N-bit mode and compatibility policy","progress":32},
     {"id":"memory","label":"Memory manager and address spaces","progress":36},
     {"id":"graphics","label":"Framebuffer / UEFI GOP / display adapter","progress":44},
     {"id":"koronos","label":"Koronos microkernel","progress":56},
