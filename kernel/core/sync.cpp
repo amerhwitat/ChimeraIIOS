@@ -3,6 +3,7 @@
 
 namespace {
 volatile uint32_t global_lock = 0;
+chimera_waitable *wait_objects[1024] = {};
 static void lock() { while (__sync_lock_test_and_set(&global_lock, 1u)) {} }
 static void unlock() { __sync_lock_release(&global_lock); }
 
@@ -49,6 +50,10 @@ static int consume(chimera_waitable *o, chimera_thread_id tid) {
     return 0;
 }
 static int register_waiter(chimera_waitable *o, chimera_thread_id tid, uint64_t deadline) {
+    for (uint32_t i=0;i<1024;++i) {
+        if (wait_objects[i] == o) break;
+        if (wait_objects[i] == 0) { wait_objects[i] = o; break; }
+    }
     for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i)
         if (o->waiters[i].active && o->waiters[i].thread_id == tid) return 0;
     for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i) {
@@ -139,7 +144,15 @@ extern "C" uint32_t chimera_waiter_count(const chimera_waitable *o) {
 extern "C" void chimera_wait_tick(uint64_t now_tick) {
     lock();
     for (uint32_t i = 0; i < 1024; ++i) {
-        (void)i;
+        chimera_waitable *o = wait_objects[i];
+        if (!o) continue;
+        for (uint32_t w = 0; w < CHIMERA_SYNC_MAX_WAITERS; ++w) {
+            if (o->waiters[w].active && o->waiters[w].deadline_tick != UINT64_MAX &&
+                o->waiters[w].deadline_tick <= now_tick) {
+                chimera_thread_wake(o->waiters[w].thread_id);
+                o->waiters[w].active = 0;
+            }
+        }
     }
     unlock();
 }
