@@ -15,6 +15,7 @@ add_subdirectory(userland)
 add_subdirectory(installer)
 add_subdirectory(sdk)
 add_subdirectory(tools/chimera-asm)
+add_subdirectory(compat/windows)
 
 add_library(chimera_registern STATIC
   arch/registern/RegisterN.cpp
