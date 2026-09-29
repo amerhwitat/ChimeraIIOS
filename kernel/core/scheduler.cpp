@@ -37,20 +37,38 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
  return ran;
 }
 extern "C" void chimera_sched_yield(void){
- lock(); if(current_index>=0) tasks[(uint32_t)current_index].info.state=CHIMERA_TASK_READY; unlock();
+ lock();
+ if(current_index>=0) tasks[(uint32_t)current_index].info.state=CHIMERA_TASK_READY;
+ unlock();
 }
 extern "C" void chimera_sched_block(void){
- lock(); if(current_index>=0) tasks[(uint32_t)current_index].info.state=CHIMERA_TASK_BLOCKED; unlock();
+ lock();
+ if(current_index>=0) tasks[(uint32_t)current_index].info.state=CHIMERA_TASK_BLOCKED;
+ unlock();
 }
 extern "C" void chimera_sched_wake(uint32_t task_id){
- lock(); for(uint32_t i=0;i<count;i++) if(tasks[i].info.id==task_id && tasks[i].info.state==CHIMERA_TASK_BLOCKED) tasks[i].info.state=CHIMERA_TASK_READY; unlock();
+ lock();
+ for(uint32_t i=0;i<count;i++) {
+  if(tasks[i].info.id==task_id && tasks[i].info.state==CHIMERA_TASK_BLOCKED)
+   tasks[i].info.state=CHIMERA_TASK_READY;
+ }
+ unlock();
 }
 extern "C" void chimera_sched_exit(void){
- lock(); if(current_index>=0) tasks[(uint32_t)current_index].info.state=CHIMERA_TASK_EXITED; unlock();
+ lock();
+ if(current_index>=0) tasks[(uint32_t)current_index].info.state=CHIMERA_TASK_EXITED;
+ unlock();
 }
 extern "C" uint32_t chimera_sched_runnable_count(void){
- uint32_t n=0; lock(); for(uint32_t i=0;i<count;i++) if(tasks[i].info.state==CHIMERA_TASK_READY) ++n; unlock(); return n;
+ uint32_t n=0; lock();
+ for(uint32_t i=0;i<count;i++) if(tasks[i].info.state==CHIMERA_TASK_READY) ++n;
+ unlock(); return n;
 }
 extern "C" uint32_t chimera_sched_snapshot(chimera_task_info* out,uint32_t cap){
- if(!out)return 0; lock(); uint32_t n=count<cap?count:cap; for(uint32_t i=0;i<n;i++)out[i]=tasks[i].info; unlock(); return n;
+ if(!out) return 0;
+ lock();
+ uint32_t n=count<cap?count:cap;
+ for(uint32_t i=0;i<n;i++) out[i]=tasks[i].info;
+ unlock();
+ return n;
 }
