@@ -8,7 +8,7 @@ static uint32_t pci_read(uint8_t bus,uint8_t dev,uint8_t fn,uint8_t off){
  uint32_t a=0x80000000u|((uint32_t)bus<<16)|((uint32_t)dev<<11)|((uint32_t)fn<<8)|(off&0xfcu); outl(0xCF8,a); return inl(0xCFC);
 }
 #endif
-static chimera_device_class classify(uint8_t base,uint8_t sub){if(base==1)return CHM_DEV_STORAGE;if(base==2)return CHM_DEV_NETWORK;if(base==3)return sub==0x00?CHM_DEV_DISPLAY:CHM_DEV_GPU;if(base==6)return CHM_DEV_MOTHERBOARD; if(base==0C&&sub==3)return CHM_DEV_USB;return CHM_DEV_OTHER;}
+static chimera_device_class classify(uint8_t base,uint8_t sub){if(base==1)return CHM_DEV_STORAGE;if(base==2)return CHM_DEV_NETWORK;if(base==3)return sub==0x00?CHM_DEV_DISPLAY:CHM_DEV_GPU;if(base==6)return CHM_DEV_MOTHERBOARD; if(base==0x0C&&sub==3)return CHM_DEV_USB;return CHM_DEV_OTHER;}
 extern "C" int chimera_hardware_device_class(uint8_t base,uint8_t sub){return (int)classify(base,sub);}
 extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out){
  if(!out)return -1; for(size_t i=0;i<sizeof(*out);++i)((uint8_t*)out)[i]=0;
