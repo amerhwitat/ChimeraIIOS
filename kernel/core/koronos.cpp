@@ -11,7 +11,7 @@ static void serial_init(){koronos_outb(0x3F9,0);koronos_outb(0x3FB,0x80);koronos
 static void serial_write8(uint8_t v){for(uint32_t i=0;i<100000u&&!(serial_in8(0x3FD)&0x20);++i){}koronos_outb(0x3F8,v);}
 static void serial_write(const char*s){if(!s)return;while(*s)serial_write8((uint8_t)*s++);serial_write8('\r');serial_write8('\n');}
 static void vga_clear(){volatile uint16_t*v=(volatile uint16_t*)0xB8000;for(uint32_t i=0;i<80u*25u;i++)v[i]=0x0720;}
-static void vga_write(const char*s){volatile uint16_t*v=(volatile uint16_t*)0xB8000;static uint32_t row=0,col=0;if(row==0&&col==0)vga_clear();if(!s)return;while(*s){char c=*s++;if(c=='\r'){col=0;continue;}if(c=='\n'){col=0;if(++row>=25)row=24;continue;}if(col>=80){col=0;if(++row>=25)row=24;}v[row*80+col++]=(uint16_t)(0x0F00u|(uint8_t)c);}}
+static void vga_write(const char*s){volatile uint16_t*v=(volatile uint16_t*)0xB8000;static uint32_t row=0,col=0;if(row==0&&col==0){vga_clear();}if(!s)return;while(*s){char c=*s++;if(c=='\r'){col=0;continue;}if(c=='\n'){col=0;if(++row>=25)row=24;continue;}if(col>=80){col=0;if(++row>=25)row=24;}v[row*80+col++]=(uint16_t)(0x0F00u|(uint8_t)c);}}
 static void console_write(const char*s){serial_write(s);vga_write(s);vga_write("\r\n");}
 static void console_u32(uint32_t v){char s[11];uint32_t i=10;s[i]=0;if(v==0){console_write("0");return;}while(v&&i){s[--i]=(char)('0'+v%10u);v/=10u;}console_write(&s[i]);}
 static void console_hex32(uint32_t v){static const char h[]="0123456789ABCDEF";char s[9];for(int i=7;i>=0;--i){s[i]=h[v&15u];v>>=4;}s[8]=0;console_write(s);}
