@@ -4,7 +4,6 @@
 
 static chimera_hardware_profile g_profile;
 static uint32_t g_default_mode = CHIMERA_NBIT_64;
-static uint64_t g_sequence = 1;
 
 static int valid_mode(uint32_t bits) {
     switch (bits) {
