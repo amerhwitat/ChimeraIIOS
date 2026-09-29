@@ -1,4 +1,5 @@
 #include "chimera/sync.h"
+#include "chimera/timer.h"
 
 namespace {
 volatile uint32_t global_lock = 0;
@@ -47,13 +48,14 @@ static int consume(chimera_waitable *o, chimera_thread_id tid) {
     }
     return 0;
 }
-static int register_waiter(chimera_waitable *o, chimera_thread_id tid) {
+static int register_waiter(chimera_waitable *o, chimera_thread_id tid, uint64_t deadline) {
     for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i)
         if (o->waiters[i].active && o->waiters[i].thread_id == tid) return 0;
     for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i) {
         if (!o->waiters[i].active) {
             o->waiters[i].thread_id = tid;
             o->waiters[i].active = 1;
+            o->waiters[i].deadline_tick = deadline;
             return 0;
         }
     }
@@ -110,7 +112,7 @@ extern "C" chimera_wait_result chimera_wait_one(chimera_waitable *o, uint32_t ti
     lock();
     if (consume(o, tid)) { unlock(); return CHIMERA_WAIT_SIGNALED; }
     if (timeout == 0) { unlock(); return CHIMERA_WAIT_TIMEOUT; }
-    if (tid == 0 || register_waiter(o, tid) != 0) { unlock(); return CHIMERA_WAIT_FAILED; }
+    if (tid == 0 || register_waiter(o, tid, timeout == CHIMERA_WAIT_INFINITE ? UINT64_MAX : chimera_timer_now() + timeout) != 0) { unlock(); return CHIMERA_WAIT_FAILED; }
     unlock();
     chimera_thread_block();
     (void)alertable;
@@ -132,4 +134,12 @@ extern "C" uint32_t chimera_waiter_count(const chimera_waitable *o) {
     if (!o) return 0; uint32_t n=0;
     for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i) n += o->waiters[i].active ? 1u : 0u;
     return n;
+}
+
+extern "C" void chimera_wait_tick(uint64_t now_tick) {
+    lock();
+    for (uint32_t i = 0; i < 1024; ++i) {
+        (void)i;
+    }
+    unlock();
 }
