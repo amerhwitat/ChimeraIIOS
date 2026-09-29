@@ -1595,6 +1595,11 @@ create_iso_image() {
     test -s "$ISO_DIR/install/installer/installer-contract.json" || { log_error "Installer contract missing."; exit 1; }
     test -s "$ISO_DIR/install/installer/installation_phases.json" || { log_error "Installation phases JSON missing."; exit 1; }
     test -s "$ISO_DIR/install/installer/installer_profiles.json" || { log_error "Installer profiles JSON missing."; exit 1; }
+    test -s "$ISO_DIR/system/hardware/chimera-hardware-profile.json" || { log_error "Hardware profile missing."; exit 1; }
+    test -s "$ISO_DIR/system/hardware/compatibility-modes.json" || { log_error "Compatibility mode manifest missing."; exit 1; }
+    test -s "$ISO_DIR/system/hardware/nbit-policy.conf" || { log_error "N-bit policy missing."; exit 1; }
+    grep -q "/system/hardware/nbit-policy.conf" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "Live N-bit policy linkage missing."; exit 1; }
+    grep -q "/system/hardware/nbit-policy.conf" "$ISO_DIR/boot/jasper/install.cfg" || { log_error "Installer N-bit policy linkage missing."; exit 1; }
     grep -q "/install/installer/installation.img" "$ISO_DIR/boot/jasper/install.cfg" || { log_error "Jasper installation image linkage missing."; exit 1; }
     grep -q "/install/installer/installation-manifest.json" "$ISO_DIR/boot/jasper/install.cfg" || { log_error "Jasper installation manifest linkage missing."; exit 1; }
     grep -q "/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/grub/grub.cfg" || { log_error "GRUB live initramfs linkage missing."; exit 1; }
