@@ -26,6 +26,7 @@ typedef enum {
 typedef struct {
     uint32_t thread_id;
     uint8_t active;
+    uint64_t deadline_tick;
 } chimera_waiter;
 
 typedef struct {
@@ -52,6 +53,7 @@ chimera_wait_result chimera_wait_one(chimera_waitable *object, uint32_t timeout_
 chimera_wait_result chimera_wait_register(chimera_waitable *object, uint32_t timeout_ticks, uint32_t alertable);
 int chimera_wait_cancel(chimera_waitable *object, chimera_thread_id thread_id);
 uint32_t chimera_waiter_count(const chimera_waitable *object);
+void chimera_wait_tick(uint64_t now_tick);
 
 #ifdef __cplusplus
 }
