@@ -1,0 +1,66 @@
+name: Hypervisor Boot Compatibility Validation
+
+on:
+  push:
+    paths:
+      - 'boot/iso/grub.cfg'
+      - 'tools/hyperv/**'
+      - 'tools/vmware/**'
+      - 'tools/hypervisor/**'
+      - 'docs/HYPERVISOR_BOOT_COMPATIBILITY.md'
+      - 'build-chimera-iso.sh'
+  pull_request:
+    paths:
+      - 'boot/iso/grub.cfg'
+      - 'tools/hyperv/**'
+      - 'tools/vmware/**'
+      - 'tools/hypervisor/**'
+      - 'docs/HYPERVISOR_BOOT_COMPATIBILITY.md'
+      - 'build-chimera-iso.sh'
+  workflow_dispatch:
+
+jobs:
+  linux-script-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate VMware and ISO helper shell syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n tools/vmware/chimera-vmware.sh
+          bash -n tools/hypervisor/validate-chimera-iso.sh
+      - name: Validate common GRUB boot contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s boot/iso/grub.cfg
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
+          grep -q 'set gfxpayload=keep' boot/iso/grub.cfg
+          grep -q 'efi_gop' boot/iso/grub.cfg
+          grep -q 'module2 /boot/live/chimera-live-initramfs.img' boot/iso/grub.cfg
+          grep -q 'module2 /boot/live/live-manifest.json' boot/iso/grub.cfg
+
+  windows-hyperv-helper-validation:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse Hyper-V PowerShell helper
+        shell: pwsh
+        run: |
+          $errors = $null
+          $tokens = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'tools/hyperv/chimera-hyperv.ps1'),
+            [ref]$tokens,
+            [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | Format-List | Out-String | Write-Error
+            exit 1
+          }
+          Write-Host 'Hyper-V helper PowerShell syntax: PASS'
+      - name: Verify Hyper-V generation paths exist
+        shell: pwsh
+        run: |
+          Select-String -Path tools/hyperv/chimera-hyperv.ps1 -Pattern 'Generation=2','Set-VMFirmware','Set-VMBios','Add-VMDvdDrive' -SimpleMatch | Out-Null
+          Write-Host 'Hyper-V BIOS/UEFI helper paths: PASS'
