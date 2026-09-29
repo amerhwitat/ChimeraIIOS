@@ -6,8 +6,10 @@ extern "C" int chimera_thread_create(chimera_task_fn entry, void *argument,
     if (!entry || !out_id) return -1;
     int id = chimera_sched_submit(entry, argument, priority);
     if (id < 0) return id;
+    if (affinity_mask != 0 && chimera_sched_set_affinity((uint32_t)id, affinity_mask) != 0) {
+        return -3;
+    }
     *out_id = (chimera_thread_id)id;
-    (void)affinity_mask;
     return 0;
 }
 
@@ -55,7 +57,7 @@ extern "C" uint32_t chimera_thread_snapshot(chimera_thread_info *out,
         out[i].priority = snapshot[i].priority;
         out[i].cpu = snapshot[i].cpu;
         out[i].state = snapshot[i].state;
-        out[i].affinity_mask = 0;
+        out[i].affinity_mask = snapshot[i].affinity_mask;
         out[i].runs = snapshot[i].runs;
         out[i].ticks = snapshot[i].ticks;
         out[i].argument = 0;
