@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "abi": "CHIMERA_PLATFORM_FEATURE_ABI",
+  "implementation": "native",
+  "feature_groups": {
+    "kernel": ["objects", "processes", "threads", "vmem", "pagecache", "vfs", "block_io", "dma_iommu", "pnp", "hotplug", "network", "security", "tpm", "graphics", "input", "audio", "power", "virtualization", "diagnostics"],
+    "desktop": ["session", "compositor", "window_manager", "shell", "input", "graphics", "compatibility", "internationalization", "media", "emulation", "security"]
+  },
+  "provider_policy": {
+    "native_first": true,
+    "standards_first": true,
+    "hardware_probe_required": true,
+    "fallback_required": true,
+    "no_proprietary_source_copy": true,
+    "user_space_driver_preference": true
+  },
+  "compatibility_facades": {
+    "posix": "native syscall/VFS adapter",
+    "nt": "native object/I/O adapter",
+    "darwin": "native Mach/BSD adapter",
+    "dos": "native DOS process/device adapter"
+  }
+}
