@@ -6,8 +6,8 @@ The utility queries public search engines and prioritizes public-domain, open-so
 
 Examples:
 
-    chimera-rom-search.sh PSX public domain homebrew
-    chimera-rom-search.sh PS2 open source demo
+    CHIMERA_ROM_PLATFORM=PSX chimera-rom-search.sh public domain homebrew
+    CHIMERA_ROM_PLATFORM=PS2 chimera-rom-search.sh open source demo
     CHIMERA_ROM_PLATFORM=PS4 chimera-rom-search.sh SDK sample
     CHIMERA_ROM_SEARCH_MAX=100 CHIMERA_ROM_SEARCH_OUT=/tmp/ps-search.tsv chimera-rom-search.sh PSX PS2 PS3 homebrew
 
