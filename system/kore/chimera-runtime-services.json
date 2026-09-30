@@ -1,9 +1,36 @@
 {
-  "schema":"CHM-KORE-RUNTIME-SERVICES-1",
-  "services":[
-    {"name":"chimera-kmsg-forwarder","exec":"/usr/bin/chimera-kmsg-forwarder.sh","restart":"always"},
-    {"name":"chimera-logd","exec":"/usr/bin/chimera-logd.sh","restart":"always"},
-    {"name":"chimera-driver-manager","exec":"/usr/bin/chimera-driver-manager.sh daemon","restart":"always","network":"required"},
-    {"name":"chimera-logrotate","exec":"/usr/bin/chimera-logrotate.sh","schedule":"configured"}
+  "schema": "CHM-KORE-RUNTIME-SERVICES-1",
+  "services": [
+    {
+      "name": "chimera-kmsg-forwarder",
+      "exec": "/usr/bin/chimera-kmsg-forwarder.sh",
+      "restart": "always"
+    },
+    {
+      "name": "chimera-logd",
+      "exec": "/usr/bin/chimera-logd.sh",
+      "restart": "always"
+    },
+    {
+      "name": "chimera-driver-manager",
+      "exec": "/usr/bin/chimera-driver-manager.sh daemon",
+      "restart": "always",
+      "network": "required"
+    },
+    {
+      "name": "chimera-logrotate",
+      "exec": "/usr/bin/chimera-logrotate.sh",
+      "schedule": "configured"
+    },
+    {
+      "name": "chimera-crash-dump",
+      "exec": "/usr/bin/chimera-crash-dump.sh",
+      "restart": "never"
+    },
+    {
+      "name": "chimera-screen-of-death",
+      "exec": "/usr/bin/chimera-screen-of-death.sh",
+      "trigger": "kernel-fatal"
+    }
   ]
 }
