@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "encoding": {
+    "default": "UTF-8",
+    "normalization": ["NFC","NFD"],
+    "invalid_sequence_policy": "replace-with-U+FFFD",
+    "bom": "accept-and-strip-at-stream-start"
+  },
+  "locale": {
+    "format": "BCP-47",
+    "user_override": true,
+    "fallback": ["user-locale","language-script-region","language-script","language","und"]
+  },
+  "capabilities": {
+    "input": ["keyboard","compose","dead-key","IME","candidate-window","touch-keyboard","voice-provider"],
+    "display": ["bidi","shaping","script-fallback","font-fallback","emoji","combining-marks"],
+    "output": ["UTF-8","UTF-16","UTF-32","locale-formatting"],
+    "accessibility": ["screen-reader","braille-provider","text-to-speech","speech-to-text"]
+  },
+  "policy": {
+    "no_hardcoded-language-limit": true,
+    "unknown-bcp47-tags-accepted": true,
+    "font-and-input-provider-discovery-at-runtime": true,
+    "translation-packs-are-modular": true
+  }
+}
