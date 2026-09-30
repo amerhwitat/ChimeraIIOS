@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "default_fallback": ["Noto Sans","DejaVu Sans","GNU Unifont"],
+  "locales": {
+    "ar": ["Noto Sans Arabic","Noto Naskh Arabic","Noto Kufi Arabic","DejaVu Sans"],
+    "fa": ["Noto Sans Arabic","Noto Naskh Arabic"],
+    "ur": ["Noto Nastaliq Urdu","Noto Naskh Arabic"],
+    "he": ["Noto Sans Hebrew","Noto Serif Hebrew","DejaVu Sans"],
+    "ps": ["Noto Naskh Arabic","Noto Sans Arabic"],
+    "sd": ["Noto Naskh Arabic"],
+    "yi": ["Noto Sans Hebrew"],
+    "en": ["Noto Sans","DejaVu Sans","Liberation Sans"],
+    "fr": ["Noto Sans","Liberation Sans","DejaVu Sans"],
+    "de": ["Noto Sans","Liberation Sans","DejaVu Sans"],
+    "ru": ["Noto Sans","DejaVu Sans"],
+    "el": ["Noto Sans","DejaVu Sans"],
+    "hi": ["Noto Sans Devanagari"],
+    "bn": ["Noto Sans Bengali"],
+    "th": ["Noto Sans Thai"],
+    "am": ["Noto Sans Ethiopic"],
+    "ja": ["Noto Sans CJK JP"],
+    "ko": ["Noto Sans CJK KR"],
+    "zh-Hans": ["Noto Sans CJK SC"],
+    "zh-Hant": ["Noto Sans CJK TC"]
+  }
+}
