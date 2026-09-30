@@ -76,6 +76,7 @@ install(FILES config/chimera/kernel-desktop-parity.json config/chimera/platform-
 install(FILES config/drivers/driver-repositories.json config/drivers/driver-policy.json DESTINATION share/chimera/drivers)
 install(FILES config/drivers/driver-repositories.json config/drivers/driver-policy.json DESTINATION etc/chimera/drivers)
 install(FILES config/logging/chimera-logging.json DESTINATION etc/chimera)
+install(FILES system/kore/chimera-runtime-services.json DESTINATION share/chimera/kore)
 install(FILES system/boot/chimera-logging.conf DESTINATION etc/chimera)
 install(FILES config/logging/chimera-logging.json DESTINATION share/chimera/logging)
 install(PROGRAMS tools/chimera-driver-manager.sh tools/chimera-driver-center.sh tools/chimera-logd.sh tools/chimera-logrotate.sh tools/chimera-kmsg-forwarder.sh DESTINATION bin)
