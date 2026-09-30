@@ -352,7 +352,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         console_write("[FW  ] ACPI present: ");
         console_write(fw.acpi_rsdp ? "yes" : "no");
         console_write("[FW  ] SMBIOS present: ");
-        console_write(fw.smbios_entry ? "present" : "absent");
+        console_write(fw.smbios_entry ? "yes" : "no");
         console_write("[FW  ] UEFI system table: ");
         console_write(fw.efi_system_table ? "present" : "absent");
     }
