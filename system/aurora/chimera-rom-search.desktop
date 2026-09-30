@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera II Deep ROM/ISO Search
+Comment=Search the public web for legal PlayStation ROM/ISO and homebrew resources
+Exec=/usr/bin/chimera-rom-search.sh
+Terminal=true
+Categories=Game;Emulator;System;
