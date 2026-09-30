@@ -13,5 +13,5 @@ elif [ -r /proc/kmsg ]; then
   done < /proc/kmsg
 else
   printf '%s [KLOG] Kernel message device unavailable; console logging remains active.\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$LOG"
-  sleep infinity
+  while :; do sleep 3600; done
 fi
