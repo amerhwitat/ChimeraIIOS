@@ -110,7 +110,9 @@ const chimera_compat_profile *chimera_compat_profile_at(uint32_t index);
 int chimera_compat_recognize_syscall(uint32_t entry, uint32_t bitness, uint32_t number, chimera_syscall_identity *out);
 int chimera_compat_recognize_interrupt(uint32_t vector, chimera_interrupt_identity *out);
 int chimera_compat_memory_profile(uint32_t os, chimera_memory_model *model, uint64_t *user_high, uint64_t *kernel_low);
+int chimera_compat_validate_address(uint32_t os, uint64_t address, uint32_t kernel_space);
 int chimera_compat_hal_profile(uint32_t os, uint64_t *hal_abi, uint64_t *driver_abi);
+const char *chimera_compat_driver_model(uint32_t os);
 const char *chimera_compat_os_name(uint32_t os);
 const char *chimera_compat_entry_name(uint32_t entry);
 
