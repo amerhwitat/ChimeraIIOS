@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "runtimes": [
+    {"id":"compat.dos","family":"DOS","windowed":true,"isolated_memory":true,"virtual_devices":true,"profiles":["dos-3.x","dos-5.x","dos-6.x","dos-7.x"]},
+    {"id":"compat.win31","family":"Windows 3.1","windowed":true,"permissive_os":true,"preemptive_native_process":false,"requires_user_media":true},
+    {"id":"compat.win9x","family":"Windows 9x","windowed":true,"requires_user_media":true,"profiles":["95","98","98se","me"]},
+    {"id":"compat.pe","family":"Windows NT/PE","windowed":true,"profiles":["nt4","2000","xp","later"],"requires_runtime_components":true}
+  ],
+  "isolation": {
+    "deny_arbitrary_physical_memory": true,
+    "deny_native_kernel_ipc": true,
+    "virtualize_legacy_mmio": true,
+    "virtualize_interrupts": true,
+    "virtualize_dma": true,
+    "shared_folders_explicit": true
+  },
+  "menu": {
+    "path": "Aurora/Emulators/Permissive OS",
+    "windows_31_label": "Windows 3.1 (Permissive OS Emulator)",
+    "dos_label": "DOS Programs"
+  }
+}
