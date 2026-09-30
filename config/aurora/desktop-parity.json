@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "desktop": "Aurora",
+  "native_stack": {
+    "session": ["login", "seat", "session", "environment"],
+    "compositor": ["Wayland-native", "DRM/KMS", "multi-GPU", "HiDPI", "variable-refresh"],
+    "window_manager": ["tiling", "stacking", "workspaces", "focus", "snap", "fullscreen"],
+    "shell": ["launcher", "taskbar", "dock", "notifications", "clipboard", "drag-drop", "file-open"],
+    "input": ["keyboard", "pointer", "touch", "tablet", "IME", "hotkeys", "accessibility"],
+    "graphics": ["OpenGL adapter", "Vulkan adapter", "software raster fallback", "color management"],
+    "compatibility": ["POSIX", "NT/Win32", "Darwin/Mach", "DOS", "X11"],
+    "internationalization": ["UTF-8", "BiDi", "RTL/LTR", "font fallback", "locale", "IME"],
+    "media": ["audio", "video", "camera", "capture", "streaming"],
+    "emulation": ["RetroArch/Libretro", "MAME", "DOSBox", "ScummVM", "EightyOne", "VICE", "FCEUX", "mGBA", "Dolphin", "PPSSPP", "PCSX2", "SameBoy"],
+    "security": ["portal boundaries", "sandbox", "capability prompts", "secure desktop", "screen lock"]
+  },
+  "policy": "Native Chimera implementation using documented interfaces and compatible open standards; no proprietary OS source is copied."
+}
