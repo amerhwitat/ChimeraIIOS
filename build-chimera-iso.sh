@@ -202,7 +202,7 @@ EOF
 }
 
 add_branding(){
-  mkdir -p "$ROOTFS_DIR/etc" "$ROOTFS_DIR/var/log/chimera" "$ROOTFS_DIR/usr/share/chimera/aurora"
+  mkdir -p "$ROOTFS_DIR/etc" "$ROOTFS_DIR/var/log/chimera" "$ROOTFS_DIR/usr/share/chimera/aurora" "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/etc/systemd/system"
   if [[ -f "$SCRIPT_DIR/tools/chimera-process-monitor.sh" ]]; then cp -f "$SCRIPT_DIR/tools/chimera-process-monitor.sh" "$ROOTFS_DIR/usr/bin/chimera-process-monitor"; chmod +x "$ROOTFS_DIR/usr/bin/chimera-process-monitor"; fi
   if [[ -f "$SCRIPT_DIR/tools/chimera-boot-log-window.sh" ]]; then cp -f "$SCRIPT_DIR/tools/chimera-boot-log-window.sh" "$ROOTFS_DIR/usr/bin/chimera-boot-log-window"; chmod +x "$ROOTFS_DIR/usr/bin/chimera-boot-log-window"; fi
   [[ -f "$SCRIPT_DIR/system/aurora/chimera-log-window.json" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-log-window.json" "$ROOTFS_DIR/usr/share/chimera/aurora/" || true
