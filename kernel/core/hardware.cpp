@@ -81,7 +81,9 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->logical_cpus = 1;
 #endif
 
-    out->best_nbit_mode = (out->native_nbit_mode >= 64) ? CHIMERA_NBIT_64 : out->native_nbit_mode;
+    out->best_nbit_mode = (out->native_nbit_mode >= 64)
+        ? static_cast<uint32_t>(CHIMERA_NBIT_64)
+        : out->native_nbit_mode;
     out->compatibility_mask = CHIMERA_COMPAT_NATIVE |
         CHIMERA_COMPAT_WINDOWS | CHIMERA_COMPAT_LINUX | CHIMERA_COMPAT_BSD |
         CHIMERA_COMPAT_DARWIN | CHIMERA_COMPAT_ANDROID | CHIMERA_COMPAT_IOS;
