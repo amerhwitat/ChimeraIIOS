@@ -1,0 +1,20 @@
+name: Chimera Game Vault Integration
+on:
+  push:
+    paths: ["appcenter/catalog/game-*.json","games/**","build-chimera-iso.sh",".github/workflows/game-vault-integration.yml"]
+  pull_request:
+    paths: ["appcenter/catalog/game-*.json","games/**","build-chimera-iso.sh",".github/workflows/game-vault-integration.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.12"}
+      - run: |
+          python3 -m json.tool appcenter/catalog/game-registry.json >/dev/null
+          python3 -m json.tool appcenter/catalog/game-capability-policy.json >/dev/null
+      - run: bash -n build-chimera-iso.sh
