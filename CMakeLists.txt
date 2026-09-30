@@ -64,6 +64,9 @@ install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera
 # Boot/ISO assets: keep source artwork and boot contracts available to the installed system.
 install(DIRECTORY boot/splash DESTINATION share/chimera/boot)
 install(DIRECTORY desktop/aurora/assets DESTINATION share/chimera/aurora)
+install(FILES config/aurora/font-packages.json config/aurora/text-layout.json config/aurora/language-font-map.json DESTINATION share/chimera/aurora/config)
+install(FILES fonts/README.md docs/aurora-rtl-ltr.md DESTINATION share/chimera/aurora/docs)
+install(PROGRAMS tools/build-font-pack.sh DESTINATION bin)
 install(FILES config/aurora/media-players.json config/aurora/media-associations.json config/aurora/languages.json config/aurora/font-fallback.json DESTINATION share/chimera/aurora/config)
 install(FILES media/README.md docs/aurora-multilingual-media.md DESTINATION share/chimera/aurora/docs)
 install(PROGRAMS tools/build-media-stack.sh DESTINATION bin)
