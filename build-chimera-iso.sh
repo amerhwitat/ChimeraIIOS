@@ -224,6 +224,7 @@ prepare_apache(){
 }
 
 stage_features(){
+  [[ -x "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" ]] && bash "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" "$ROOTFS_DIR" "$SCRIPT_DIR"
   mkdir -p "$ISO_DIR/system" "$ISO_DIR/desktop" "$ISO_DIR/network" "$ISO_DIR/drivers" "$ISO_DIR/install"
   for d in services userland desktop network installer system/security; do [[ -d "$SCRIPT_DIR/$d" ]] && cp -a "$SCRIPT_DIR/$d" "$ISO_DIR/system/" 2>/dev/null || true; done
   [[ -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" ]] && true
@@ -251,6 +252,7 @@ create_installer(){
   local p; mkdir -p "$ISO_DIR/install/installer"; p="$(mktemp -d "$ISO_TMP_DIR/installer.XXXXXX")"
   mkdir -p "$p"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer} "$p/run/chimera" "$p/var/log/chimera"
   local bb="$(command -v busybox || true)"; [[ -n "$bb" ]] && { cp "$bb" "$p/bin/busybox"; for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head; do ln -sf busybox "$p/bin/$x"; done; }
+  [[ -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" ]] && cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh" && chmod +x "$p/bin/chimera-installer-runtime.sh"
   for f in "$SCRIPT_DIR/install/installer-contract.json" "$SCRIPT_DIR/installer/installation_phases.json" "$SCRIPT_DIR/installer/installer_profiles.json" "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$p/chimera/installer/"; done
   cat > "$p/bin/chimera-installer-monitor" <<'EOF'
 #!/bin/sh
@@ -275,6 +277,7 @@ mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 echo 'Chimera II OS Native Installation Environment'
 mkdir -p /run/chimera /var/log/chimera
 printf '[INST] Installer environment started\\n' >> /run/chimera/installer.log
+if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh / || true; fi
 ( /bin/chimera-installer-monitor > /dev/console 2>&1 ) &
 exec /bin/sh
 EOF
