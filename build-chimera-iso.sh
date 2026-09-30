@@ -1461,15 +1461,25 @@ create_squashfs() {
     
     mkdir -p "$SQUASHFS_DIR"
     
-    mksquashfs \
+    # mksquashfs appends to an existing SquashFS image unless -noappend is
+    # supplied. During resumable Chimera builds this is particularly dangerous:
+    # the previous filesystem.squashfs is treated as an existing root tree and
+    # every rootfs entry (.dockerenv, bin, boot, etc.) gets renamed to *_1,
+    # *_2, ... instead of replacing the image. Build into a fresh temporary
+    # image and atomically replace the previous image only after success.
+    local squashfs_output="$ISO_DIR/live/filesystem.squashfs"
+    local squashfs_tmp="$ISO_DIR/live/filesystem.squashfs.building"
+    rm -f "$squashfs_tmp"
+    log_info "Creating a fresh SquashFS image (no append mode)..."
+    if mksquashfs \
         "$ROOTFS_DIR" \
-        "$ISO_DIR/live/filesystem.squashfs" \
+        "$squashfs_tmp" \
+        -noappend \
         -no-progress \
         -processors 4 \
-        -comp xz
-    
-    if [ $? -eq 0 ]; then
-        local squashfs_size=$(du -h "$ISO_DIR/live/filesystem.squashfs" | cut -f1)
+        -comp xz; then
+        mv -f "$squashfs_tmp" "$squashfs_output"
+        local squashfs_size=$(du -h "$squashfs_output" | cut -f1)
         log_success "Squashfs created: $squashfs_size"
 
         # IMPORTANT: ROOTFS is only the staging tree used to create the
