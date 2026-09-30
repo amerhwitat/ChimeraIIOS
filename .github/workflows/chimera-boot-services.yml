@@ -1,25 +1,9 @@
 name: Chimera Boot and Enterprise Services
 on:
   push:
-    paths:
-      - 'boot/**'
-      - 'config/services/**'
-      - 'installer/services/**'
-      - 'kernel/core/service.cpp'
-      - 'kernel/include/chimera/service.h'
-      - 'kernel/build-koronos.sh'
-      - 'tools/tests/**'
-      - '.github/workflows/chimera-boot-services.yml'
+    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   pull_request:
-    paths:
-      - 'boot/**'
-      - 'config/services/**'
-      - 'installer/services/**'
-      - 'kernel/core/service.cpp'
-      - 'kernel/include/chimera/service.h'
-      - 'kernel/build-koronos.sh'
-      - 'tools/tests/**'
-      - '.github/workflows/chimera-boot-services.yml'
+    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,22 +13,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
-        with: {python-version: '3.12'}
+        with:
+          python-version: '3.12'
       - name: Validate JSON contracts
         run: |
-          python3 -m json.tool config/services/service-registry.json >/dev/null
-          python3 -m json.tool config/services/service-profiles.json >/dev/null
-          python3 -m json.tool config/services/hardware-requirements.json >/dev/null
-          python3 -m json.tool config/services/security-policies.json >/dev/null
-          python3 -m json.tool config/services/dependency-graph.json >/dev/null
-          python3 -m json.tool boot/chimera-boot-modes.json >/dev/null
-          python3 -m json.tool installer/services/service-selection.json >/dev/null
+          set -e
+          for f in config/services/*.json boot/chimera-boot-modes.json boot/chimera-measurement-policy.json installer/services/service-selection.json; do python3 -m json.tool "$f" >/dev/null; done
       - name: Run registry tests
         run: python3 tools/tests/test_service_registry.py
+      - name: Run installer profile tests
+        run: python3 tools/tests/test_installer_service_selection.py
       - name: Run boot-mode tests
         run: python3 tools/tests/test_boot_modes.py
+      - name: Run measurement tests
+        run: python3 tools/tests/test_boot_measurements.py
+      - name: Run hardware fallback tests
+        run: python3 tools/tests/test_hardware_profile.py
       - name: Validate service-plan resolver
-        run: python3 tools/chimera_service_plan.py minimal-desktop
+        run: |
+          python3 tools/chimera_service_plan.py minimal-desktop
+          python3 tools/chimera_service_plan.py enterprise-server
       - name: Shell syntax
         run: bash -n kernel/build-koronos.sh
   koronos:
