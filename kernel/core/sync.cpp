@@ -50,13 +50,13 @@ static int consume(chimera_waitable *o, chimera_thread_id tid) {
     return 0;
 }
 static int register_waiter(chimera_waitable *o, chimera_thread_id tid, uint64_t deadline) {
-    for (uint32_t i=0;i<1024;++i) {
+    for (uint32_t i = 0; i < 1024; ++i) {
         if (wait_objects[i] == o) break;
         if (wait_objects[i] == 0) { wait_objects[i] = o; break; }
     }
-    for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i)
+    for (uint32_t i = 0; i < CHIMERA_SYNC_MAX_WAITERS; ++i)
         if (o->waiters[i].active && o->waiters[i].thread_id == tid) return 0;
-    for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i) {
+    for (uint32_t i = 0; i < CHIMERA_SYNC_MAX_WAITERS; ++i) {
         if (!o->waiters[i].active) {
             o->waiters[i].thread_id = tid;
             o->waiters[i].active = 1;
@@ -86,7 +86,10 @@ extern "C" int chimera_event_reset(chimera_waitable *e) {
     lock(); e->signaled = 0; unlock(); return 0;
 }
 extern "C" int chimera_mutex_init(chimera_waitable *m) {
-    if (!m) return -1; *m = {}; m->type = CHIMERA_WAITABLE_MUTEX; return 0;
+    if (!m) return -1;
+    *m = {};
+    m->type = CHIMERA_WAITABLE_MUTEX;
+    return 0;
 }
 extern "C" int chimera_mutex_release(chimera_waitable *m) {
     if (!m || m->type != CHIMERA_WAITABLE_MUTEX) return -1;
@@ -136,7 +139,8 @@ extern "C" int chimera_wait_cancel(chimera_waitable *o, chimera_thread_id tid) {
     unlock(); return -2;
 }
 extern "C" uint32_t chimera_waiter_count(const chimera_waitable *o) {
-    if (!o) return 0; uint32_t n=0;
+    if (!o) return 0;
+    uint32_t n = 0;
     for (uint32_t i=0;i<CHIMERA_SYNC_MAX_WAITERS;++i) n += o->waiters[i].active ? 1u : 0u;
     return n;
 }
