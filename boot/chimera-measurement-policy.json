@@ -1,0 +1,16 @@
+{
+  "schema":"chimera-measurement-policy-v1",
+  "mode":"capability-gated",
+  "stages":[
+    {"id":"spitfire","artifact":"spitfire","required":true},
+    {"id":"jasper","artifact":"jasper","required":true},
+    {"id":"koronos","artifact":"koronos.elf","required":true},
+    {"id":"boot-modules","artifact":"boot-modules-manifest","required":true},
+    {"id":"rootfs","artifact":"rootfs-manifest","required":true},
+    {"id":"critical-services","artifact":"service-registry","required":true}
+  ],
+  "verification":"sha256-or-platform-trust",
+  "tpm":"optional-if-present",
+  "failure_action":"jasper-recovery",
+  "development_mode":{"allow_unsigned":true,"visible_warning":true,"never_silent":true}
+}
