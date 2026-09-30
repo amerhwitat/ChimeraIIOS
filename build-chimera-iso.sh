@@ -263,7 +263,7 @@ while :; do
   ps 2>/dev/null || true
   echo
   echo "INSTALLER LOG"
-  tail -n 22 /run/chimera/installer.log 2>/dev/null || true
+  tail -n 22 /var/log/mesgs 2>/dev/null || tail -n 22 /run/chimera/installer.log 2>/dev/null || true
   sleep 1
 done
 EOF
@@ -275,7 +275,10 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 echo 'Chimera II OS Native Installation Environment'
-mkdir -p /run/chimera /var/log/chimera
+mkdir -p /run/chimera /var/log/mesgs/archive
+ln -sfn /var/log/mesgs /var/log/chimera 2>/dev/null || true
+ln -sfn mesgs /var/log/messages 2>/dev/null || true
+printf '[INST] Installer environment started\\n' >> /var/log/mesgs
 printf '[INST] Installer environment started\\n' >> /run/chimera/installer.log
 if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh / || true; fi
 ( /bin/chimera-installer-monitor > /dev/console 2>&1 ) &
