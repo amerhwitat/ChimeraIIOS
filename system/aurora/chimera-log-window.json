@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "window_class": "Aurora.SystemMonitor",
+  "title": "Chimera II OS — System Logs & Processes",
+  "always_on_top": true,
+  "resizable": true,
+  "min_width": 900,
+  "min_height": 520,
+  "refresh_hz": 2,
+  "panels": [
+    {"id":"boot","title":"Boot / Installer / Runtime Log","source":"/var/log/chimera/chimera.log","tail_lines":28},
+    {"id":"processes","title":"Running Processes / Threads","source":"/proc","refresh_hz":2},
+    {"id":"hardware","title":"Hardware / Drivers","source":"/var/log/chimera/hardware.log","tail_lines":16},
+    {"id":"services","title":"Services","source":"/var/log/chimera/services.log","tail_lines":16}
+  ],
+  "keys":{"toggle":"F10","pause":"F11","clear":"Ctrl+L","close":"Esc"},
+  "fallback":"tools/chimera-process-monitor.sh"
+}
