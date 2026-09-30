@@ -1,0 +1,20 @@
+{
+  "schema":"chimera-service-profile-v1",
+  "profiles": [
+    {"id":"minimal-desktop","services":["chimera.device","chimera.storage","chimera.security","chimera.logging","chimera.kore","aurora.session","aurora.desktop"]},
+    {"id":"developer-workstation","services":["developer.toolchain"]},
+    {"id":"enterprise-workstation","services":["enterprise.ssh"]},
+    {"id":"enterprise-server","services":["enterprise.ssh","enterprise.fileserver","enterprise.web"]},
+    {"id":"database-server","services":["enterprise.database","enterprise.ssh"]},
+    {"id":"web-application-server","services":["enterprise.web","enterprise.ssh"]},
+    {"id":"file-server","services":["enterprise.fileserver","enterprise.ssh"]},
+    {"id":"network-server","services":["enterprise.ssh","enterprise.web"]},
+    {"id":"virtualization-host","services":["enterprise.ssh"]},
+    {"id":"container-host","services":["enterprise.container","enterprise.ssh"]},
+    {"id":"ai-ml-workstation","services":["enterprise.ai","developer.toolchain"]},
+    {"id":"security-workstation","services":["enterprise.ssh"]},
+    {"id":"multimedia-workstation","services":["aurora.desktop"]},
+    {"id":"gaming","services":["aurora.desktop"]},
+    {"id":"full-chimera-enterprise","services":["enterprise.ssh","enterprise.web","enterprise.database","enterprise.fileserver","enterprise.container","enterprise.ai","developer.toolchain"]}
+  ]
+}
