@@ -45,7 +45,7 @@ process_snapshot(){
   {
     echo "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) PROCESS SNAPSHOT ====="
     echo "-- host processes --"
-    ps -eo pid,ppid,stat,%cpu,%mem,etime,cmd --sort=-%cpu 2>/dev/null | head -n 35 || true
+    ps -eo pid,ppid,stat,%cpu,%mem,etime,cmd --sort=-%cpu 2>/dev/null || true
     echo "-- process tree --"
     pstree -ap $ 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
