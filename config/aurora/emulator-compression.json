@@ -1,0 +1,1 @@
+{"schema":1,"format":"CHM-XEXEC","compression":["zstd","xz","gzip"],"runtime":"decompress-to-private-exec-cache","read_only_payload":true,"never_execute_compressed_bytes":true,"integrity":"sha256","isolation":"sandbox","cleanup":"on-exit","iso_images":{"default":"squashfs-or-zstd","read_only":true}}
