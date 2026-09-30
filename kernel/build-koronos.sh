@@ -37,11 +37,13 @@ for obj in "${link_objects[@]}"; do
   [[ -f "$obj" ]] || { echo "ERROR: required Koronos link object is missing: $obj" >&2; exit 1; }
 done
 
-# Verify the Multiboot scanner at the object level as well. This distinguishes
-# a compile/source omission from a post-link symbol-table inspection issue.
+# Verify the Multiboot scanner at the object level. Use awk on the final
+# whitespace-delimited nm field rather than a grep regular expression: this
+# works with GNU nm output regardless of symbol type/visibility formatting.
 if command -v nm >/dev/null 2>&1; then
-  nm -a "$BUILD/multiboot_modules.o" | grep -Eq '[[:space:]]chimera_multiboot_scan$' || {
+  nm -a --defined-only "$BUILD/multiboot_modules.o" | awk '$NF == "chimera_multiboot_scan" { found=1 } END { exit !found }' || {
     echo "ERROR: chimera_multiboot_scan is absent from multiboot_modules.o" >&2
+    nm -a "$BUILD/multiboot_modules.o" >&2 || true
     exit 1
   }
 fi
@@ -54,7 +56,12 @@ fi
 if command -v nm >/dev/null 2>&1; then
   required_symbols=(koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall memset memcpy memmove)
   for symbol in "${required_symbols[@]}"; do
-    nm -a "$BUILD/koronos.elf" | grep -Eq '[[:space:]]'"$symbol"'$' || { echo "ERROR: $symbol is not linked" >&2; exit 1; }
+    nm -a --defined-only "$BUILD/koronos.elf" | awk -v sym="$symbol" '$NF == sym { found=1 } END { exit !found }' || {
+      echo "ERROR: $symbol is not linked" >&2
+      echo "Defined-symbol lookup for $symbol:" >&2
+      nm -a "$BUILD/koronos.elf" 2>/dev/null | awk -v sym="$symbol" '$NF == sym || index($0,sym)' >&2 || true
+      exit 1
+    }
   done
 fi
 
