@@ -993,6 +993,24 @@ EOF
 # STAGE COMPREHENSIVE CHIMERA II OS FEATURES
 # =============================================================================
 
+stage_game_vault() {
+    print_header "STAGING BIZX GAME VAULT REGISTRY"
+    local vault_dir="$ISO_DIR/games"
+    mkdir -p "$vault_dir"
+    cp "$SCRIPT_DIR/appcenter/catalog/game-registry.json" "$vault_dir/game-registry.json"
+    cp "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" "$vault_dir/game-capability-policy.json"
+    if [[ -d "$SCRIPT_DIR/games" ]]; then
+        cp -a "$SCRIPT_DIR/games/." "$vault_dir/" 2>/dev/null || true
+    fi
+    cat > "$vault_dir/README.txt" <<'EOF'
+Chimera II OS Game Vault integration.
+Third-party games remain source/provenance gated. A package may be installed
+only after license, asset-license, checksum and hardware compatibility checks.
+Original Chimera games are staged from BizX when their build state is BUILT.
+EOF
+    log_success "Game registry and policy staged into ISO."
+}
+
 stage_comprehensive_features() {
     print_header "STAGING COMPREHENSIVE CHIMERA II OS FEATURES"
     mkdir -p "$ISO_DIR/boot/chimera" "$ISO_DIR/system" "$ISO_DIR/system/branding" \
@@ -2040,6 +2058,7 @@ main() {
     if ! build_state_done "$completed_stage" branding; then run_checkpointed_stage branding add_branding; completed_stage="branding"; fi
     if ! build_state_done "$completed_stage" apache; then run_checkpointed_stage apache prepare_apache_ecosystem; completed_stage="apache"; fi
     if ! build_state_done "$completed_stage" features; then run_checkpointed_stage features stage_comprehensive_features; completed_stage="features"; fi
+    if ! build_state_done "$completed_stage" games; then run_checkpointed_stage games stage_game_vault; completed_stage="games"; fi
     if ! build_state_done "$completed_stage" squashfs; then run_checkpointed_stage squashfs create_squashfs; completed_stage="squashfs"; fi
     if ! build_state_done "$completed_stage" iso; then run_checkpointed_stage iso create_iso_image; completed_stage="iso"; fi
     if ! build_state_done "$completed_stage" verify; then run_checkpointed_stage verify verify_iso; completed_stage="verify"; fi
