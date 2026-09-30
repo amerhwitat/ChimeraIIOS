@@ -14,7 +14,8 @@ struct chimera_service_manifest {
   uint32_t abi_version; const char* id; uint32_t state; uint32_t restart;
   uint8_t critical; uint8_t dependency_count; const char* const* dependencies;
 };
-struct chimera_service_plan { uint32_t count; uint32_t capacity; const char* const* ordered_ids; };
+/* The array slots are writable; the strings they point to remain immutable. */
+struct chimera_service_plan { uint32_t count; uint32_t capacity; const char** ordered_ids; };
 int chimera_service_validate(const chimera_service_manifest* services, uint32_t count);
 int chimera_service_resolve(const chimera_service_manifest* services, uint32_t count, chimera_service_plan* plan);
 int chimera_service_set_state(const char* id, uint32_t state);
