@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-CONFIG=\${CHIMERA_DRIVER_REPOSITORIES:-/etc/chimera/drivers/driver-repositories.json}
+CONFIG=${CHIMERA_DRIVER_REPOSITORIES:-/etc/chimera/drivers/driver-repositories.json}
 DB=/var/lib/chimera/drivers
 LOG=/var/log/mesgs
 CACHE="$DB/repository-cache"
@@ -57,10 +57,10 @@ install_candidate(){
     *) cp -f "$file" "$QUARANTINE/"; log "Unknown driver artifact quarantined: $file";;
   esac
 }
-case "\${1:-search}" in
+case "${1:-search}" in
   inventory) inventory;;
   search|update) search;;
-  install) install_candidate "\${2:-}";;
-  daemon) while :; do search || true; sleep "\${CHIMERA_DRIVER_REFRESH_SECONDS:-21600}"; done;;
+  install) install_candidate "${2:-}";;
+  daemon) while :; do search || true; sleep "${CHIMERA_DRIVER_REFRESH_SECONDS:-21600}"; done;;
   *) echo 'usage: chimera-driver-manager {inventory|search|update|install FILE|daemon}'; exit 2;;
 esac
