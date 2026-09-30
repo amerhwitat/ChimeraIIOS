@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora Game Center
+Comment=Console and classic-computer emulator center
+Exec=/usr/bin/chimera-game-center.sh
+Terminal=true
+Categories=Game;Emulator;
