@@ -54,7 +54,7 @@ extern "C" uint64_t chimera_platform_features(void) { return g_features; }
 extern "C" uint32_t chimera_platform_state(void) { return g_state; }
 extern "C" int chimera_platform_has(uint64_t feature) { return (g_features & feature) == feature; }
 
-extern "C" int chimera_platform_snapshot(chimera_platform_snapshot *out) {
+extern "C" int chimera_platform_get_snapshot(chimera_platform_snapshot *out) {
     if (!out) return -1;
     zero(out, sizeof(*out));
     out->abi = CHIMERA_PLATFORM_FEATURE_ABI;
