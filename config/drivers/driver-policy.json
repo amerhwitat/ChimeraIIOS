@@ -1,0 +1,12 @@
+{
+  "schema":"CHM-DRIVER-POLICY-1",
+  "native_install":["chimera-native","chimera-source","firmware"],
+  "compatibility_only":["linux-module","windows-inf","windows-sys","macos-kext","macos-dext"],
+  "require_https":true,"verify_sha256":true,"require_signed_metadata":false,
+  "allow_user_override":true,"quarantine_unverified":true,
+  "quarantine_dir":"/var/lib/chimera/drivers/quarantine",
+  "download_dir":"/var/lib/chimera/drivers/downloads",
+  "installed_dir":"/lib/chimera/drivers","firmware_dir":"/lib/firmware",
+  "build_dir":"/var/lib/chimera/drivers/build","max_download_bytes":2147483648,
+  "never_execute_untrusted":true
+}
