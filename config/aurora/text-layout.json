@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "direction": {
+    "modes": ["auto","ltr","rtl","inherit"],
+    "auto_detection": "Unicode_Bidi_Class",
+    "base_direction": "first-strong",
+    "override": true
+  },
+  "scripts": {
+    "rtl": ["Arabic","Hebrew","Syriac","Thaana","NKo","Adlam"],
+    "mixed": true,
+    "numeric_isolation": true
+  },
+  "layout_pipeline": [
+    "UTF-8 decode",
+    "Unicode normalization",
+    "grapheme segmentation",
+    "bidi paragraph resolution",
+    "script itemization",
+    "font fallback",
+    "OpenType shaping",
+    "line breaking",
+    "glyph rasterization"
+  ],
+  "compatibility": {
+    "legacy_8bit_encodings": "convert-at-boundary",
+    "logical-text-storage": true,
+    "visual-order-storage": false
+  }
+}
