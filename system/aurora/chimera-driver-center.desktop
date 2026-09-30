@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera II Driver Center
+Comment=Search, download and update compatible drivers and firmware
+Exec=/usr/bin/chimera-driver-center search
+Terminal=true
+Categories=System;Settings;
+X-Chimera-Autostart=false
