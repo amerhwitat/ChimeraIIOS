@@ -1,10 +1,14 @@
 #include "chimera/platform_features.h"
+#include "chimera/compat.h"
+#include "chimera/interrupt.h"
+#include "chimera/syscall.h"
 #include <stddef.h>
 
 namespace {
 static uint64_t g_requested = 0;
 static uint64_t g_features = 0;
 static uint32_t g_state = CHM_PLATFORM_OFFLINE;
+static uint32_t g_abi_ready = 0;
 
 static chimera_memory_region g_memory[CHIMERA_MAX_PLATFORM_OBJECTS];
 static uint32_t g_memory_count = 0;
@@ -35,12 +39,38 @@ static uint64_t native_features() {
            CHM_FEAT_AURORA_ACCESS | CHM_FEAT_COMPAT_POSIX |
            CHM_FEAT_COMPAT_NT | CHM_FEAT_COMPAT_DARWIN | CHM_FEAT_COMPAT_DOS;
 }
+
+static void early_log(const char *s) {
+    if (!s) return;
+    volatile uint16_t *v = (volatile uint16_t *)0xB8000;
+    static uint32_t row = 22, col = 0;
+    while (*s) {
+        char c = *s++;
+        if (c == '\n' || col >= 80u) { col = 0; if (++row >= 25u) row = 22u; }
+        if (c != '\n') v[row * 80u + col++] = (uint16_t)(0x0F00u | (uint8_t)c);
+    }
+}
 }
 
 extern "C" int chimera_platform_init(uint64_t requested_features) {
     g_requested = requested_features;
     g_features = native_features() & (requested_features ? requested_features : native_features());
     g_state = CHM_PLATFORM_DISCOVERING;
+
+    /* Establish the common ABI before any installer/user-space component is
+     * allowed to make an OS-compatibility request.  The compatibility layer
+     * describes Linux/POSIX, Windows NT/9x, DOS, Darwin/Mach, BSD, Android and
+     * iOS entry conventions; the IDT is installed but hardware interrupts stay
+     * masked until a real IRQ controller/TSS path is ready. */
+    int c = chimera_compat_init(1u, 64u);
+    int i = chimera_interrupt_init();
+    int s = chimera_syscall_init();
+    if (c == 0 && i == 0 && s == 0) {
+        chimera_compat_probe();
+        g_abi_ready = 1;
+        early_log("[ABI ] Compatibility syscall/interrupt registry ready\n");
+        early_log("[ABI ] User/kernel ABI boundary installed; IRQs remain masked\n");
+    }
     return 0;
 }
 
