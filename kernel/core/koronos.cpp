@@ -7,6 +7,7 @@
 #include "chimera/device.h"
 #include "chimera/firmware.h"
 #include "chimera/service.h"
+#include "chimera/platform_features.h"
 extern "C" void koronos_outb(uint16_t port,uint8_t value);
 namespace {
 volatile uint32_t koronos_state=0;
@@ -37,4 +38,5 @@ chimera_hardware_profile hw{}; if(chimera_hardware_probe(&hw)==0){console_write(
 chimera_firmware_profile fw{}; if(chimera_firmware_probe(ctx,&fw)==0){console_write("[FW  ] Firmware: ");console_write(fw.type==CHIMERA_FW_UEFI?"UEFI":fw.type==CHIMERA_FW_BIOS?"BIOS":"UNKNOWN");console_write("[FW  ] ACPI present: ");console_write(fw.acpi_rsdp?"yes":"no");console_write("[FW  ] SMBIOS present: ");console_write(fw.smbios_entry?"yes":"no");console_write("[FW  ] UEFI system table: ");console_write(fw.efi_system_table?"present":"absent");}
 chimera_device_inventory inv{}; int devices=chimera_hardware_enumerate_devices(&inv); console_write("[PCI ] Enumerated devices: "); console_u32(devices<0?0:(uint32_t)devices);
 int bound=chimera_driver_probe_all(); console_write("[DRV ] Native/compatible bindings: "); console_u32(bound); int running=chimera_driver_start_all(); console_write("[DRV ] Active driver set: "); console_u32(running);
-chimera_learning_record(1,f->logical_cpus);koronos_elf64_init();koronos_module_init();koronos_state=0x4B4F524Fu;console_write("[KRN ] KORONOS READY");console_write("[IO  ] Console: VGA text + COM1");koronos_submit_bootstrap_tasks();console_write("[RUN ] Starting cooperative scheduler runtime...");console_write("[RUN ] Scheduler now has runnable bootstrap tasks");}
+chimera_platform_init(0); chimera_platform_probe(); chimera_platform_snapshot(nullptr);
+chimera_learning_record(1,f->logical_cpus);koronos_elf64_init();koronos_module_init();koronos_state=0x4B4F524Fu;console_write("[PLT ] Native platform feature registry ready");console_write("[KRN ] KORONOS READY");console_write("[IO  ] Console: VGA text + COM1");koronos_submit_bootstrap_tasks();console_write("[RUN ] Starting cooperative scheduler runtime...");console_write("[RUN ] Scheduler now has runnable bootstrap tasks");}
