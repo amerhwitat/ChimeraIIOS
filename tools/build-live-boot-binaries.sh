@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_LIVE_BOOT_DIR:-$ROOT/build/live-boot}"
+# Always inherit the canonical build directory selected by build-chimera-iso.sh.
+# CHIMERA_LIVE_BOOT_DIR remains an explicit override for standalone builds.
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+OUT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
 mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/initramfs/root"/{bin,sbin,dev,proc,sys,run,tmp,mnt/chimera,etc,var/log/mesgs/archive,var/lib/chimera/drivers,etc/chimera/drivers,lib/chimera/drivers,lib/firmware} "$OUT/mobile"/{arm64,armv7,x86_64} "$OUT/manifests"
 KERNEL="${CHIMERA_LINUX_KERNEL:-}"
 if [[ -z "$KERNEL" ]]; then KERNEL="$(find /boot -maxdepth 1 -type f \( -name 'vmlinuz-*' -o -name 'vmlinuz' \) 2>/dev/null | sort -V | tail -n1 || true)"; fi
 if [[ -n "$KERNEL" && -f "$KERNEL" ]]; then cp -f "$KERNEL" "$OUT/boot/vmlinuz"; sha256sum "$OUT/boot/vmlinuz" > "$OUT/boot/vmlinuz.sha256"; fi
-KORONOS="${CHIMERA_KORONOS_KERNEL:-$ROOT/build/koronos/x86_64/koronos.elf}"
-[[ -f "$KORONOS" ]] || KORONOS="$(find "$ROOT/build" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
+KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
+[[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then cp -f "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
 INIT="$OUT/initramfs/root"
 cp "$(command -v busybox)" "$INIT/bin/busybox"
@@ -39,7 +42,6 @@ while [ "$i" -lt 30 ]; do
       mounted=1
       break 2
     fi
-    # Some VM/USB paths expose a filesystem without the ISO9660 type.
     if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then
       mounted=1
       break 2
