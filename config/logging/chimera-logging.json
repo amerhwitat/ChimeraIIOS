@@ -1,0 +1,8 @@
+{
+  "schema":"CHM-LOGGING-2","primary":"/var/log/mesgs","compatibility_alias":"/var/log/messages",
+  "archive_dir":"/var/log/mesgs/archive","max_bytes":52428800,"rotate_period_seconds":86400,
+  "keep_archives":30,"compress":true,"user_configurable":true,
+  "config_file":"/etc/chimera/logging.conf","manual_command":"chimera-logrotate",
+  "runtime_command":"chimera-logd",
+  "categories":["boot","kernel","hardware","drivers","network","installer","services","aurora","security","updates"]
+}
