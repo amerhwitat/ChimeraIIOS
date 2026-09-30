@@ -664,12 +664,14 @@ check_docker_storage() {
 
     log_info "Docker root: $(docker info --format '{{.DockerRootDir}}' 2>/dev/null || echo unknown)"
 
-    local test_log=""$DOCKER_LOG_DIR/chimera"-docker-write-test.log"
-    if ! docker run --rm ubuntu:24.04 sh -c '
+    local test_log="${DOCKER_LOG_DIR}/chimera-docker-write-test.log"
+    local container_test_dir="${DOCKER_LOG_DIR}/chimera-docker-test"
+    mkdir -p "$container_test_dir"
+    if ! docker run --rm -v "$container_test_dir:/chimera-docker-test" ubuntu:24.04 sh -c '
         set -eu
-        mkdir -p "$DOCKER_LOG_DIR/chimera"-write-test
-        dd if=/dev/zero of="$DOCKER_LOG_DIR/chimera"-write-test/test.bin bs=1M count=4 status=none
-        test -s "$DOCKER_LOG_DIR/chimera"-write-test/test.bin
+        mkdir -p /chimera-docker-test
+        dd if=/dev/zero of=/chimera-docker-test/test.bin bs=1M count=4 status=none
+        test -s /chimera-docker-test/test.bin
     ' >"$test_log" 2>&1; then
         log_error "Docker container storage write test failed."
         cat "$test_log" >&2 || true
@@ -677,6 +679,7 @@ check_docker_storage() {
         exit 1
     fi
     rm -f "$test_log"
+    rm -rf "$container_test_dir"
 
 if [ "${CHIMERA_PRUNE:-0}" = "1" ]; then
     if docker buildx prune -af >"$BUILDX_PRUNE_LOG" 2>&1; then
