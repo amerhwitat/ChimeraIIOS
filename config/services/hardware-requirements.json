@@ -1,0 +1,10 @@
+{
+  "schema":"chimera-service-hardware-v1",
+  "requirements": {
+    "enterprise.network": {"requires":["network"]},
+    "enterprise.container": {"requires":["virtualization_or_software_fallback"]},
+    "enterprise.ai": {"requires":["cpu"]},
+    "aurora.desktop": {"requires":["display"]}
+  },
+  "fallbacks": {"network":"offline-mode","display":"generic-framebuffer","audio":"no-audio-device","gpu":"software-renderer"}
+}
