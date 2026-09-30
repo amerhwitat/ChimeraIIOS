@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${CHIMERA_LIVE_BOOT_DIR:-$ROOT/build/live-boot}"
-mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/initramfs/root"/{bin,sbin,dev,proc,sys,run,tmp,mnt/chimera,etc} "$OUT/mobile"/{arm64,armv7,x86_64} "$OUT/manifests"
+mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/initramfs/root"/{bin,sbin,dev,proc,sys,run,tmp,mnt/chimera,etc,var/log/mesgs/archive,var/lib/chimera/drivers,etc/chimera/drivers,lib/chimera/drivers,lib/firmware} "$OUT/mobile"/{arm64,armv7,x86_64} "$OUT/manifests"
 KERNEL="${CHIMERA_LINUX_KERNEL:-}"
 if [[ -z "$KERNEL" ]]; then KERNEL="$(find /boot -maxdepth 1 -type f \( -name 'vmlinuz-*' -o -name 'vmlinuz' \) 2>/dev/null | sort -V | tail -n1 || true)"; fi
 if [[ -n "$KERNEL" && -f "$KERNEL" ]]; then cp -f "$KERNEL" "$OUT/boot/vmlinuz"; sha256sum "$OUT/boot/vmlinuz" > "$OUT/boot/vmlinuz.sha256"; fi
@@ -11,7 +11,10 @@ KORONOS="${CHIMERA_KORONOS_KERNEL:-$ROOT/build/koronos/x86_64/koronos.elf}"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then cp -f "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
 INIT="$OUT/initramfs/root"
 cp "$(command -v busybox)" "$INIT/bin/busybox"
-for x in sh mount switch_root echo; do ln -sf busybox "$INIT/bin/$x"; done
+for x in sh mount switch_root echo ps top tail date clear sed awk head wget ip udhcpc nslookup gzip; do ln -sf busybox "$INIT/bin/$x"; done
+for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
+[[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
+[[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
 cat > "$INIT/init" <<'EOF'
 #!/bin/sh
 set -eu
@@ -19,7 +22,10 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
-mkdir -p /mnt/chimera
+mkdir -p /mnt/chimera /var/log/mesgs/archive /var/lib/chimera/drivers
+ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
+printf "[LIVE] Initramfs started\\n" >> /var/log/mesgs
+if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
 
 # Optical/USB devices can appear after the Multiboot2 module is handed to the
 # kernel. Retry long enough for BIOS/UEFI CD/DVD controllers and USB media to
@@ -44,13 +50,15 @@ while [ "$i" -lt 30 ]; do
 done
 
 if [ "$mounted" -eq 1 ] && [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
-  echo "Chimera II OS Live Media"
+  printf "[LIVE] Media mounted\\n" >> /var/log/mesgs
+echo "Chimera II OS Live Media"
   echo "Koronos kernel selected by Jasper/GRUB Multiboot2."
   echo "Koronos kernel: /mnt/chimera/boot/koronos/koronos.elf"
   echo "Live manifest: /mnt/chimera/boot/live/live-manifest.json"
   echo "Live initramfs: /mnt/chimera/boot/live/chimera-live-initramfs.img"
 else
-  echo "Chimera II OS: live media not found after 30 seconds."
+  printf "[LIVE] Media not found after 30 seconds\\n" >> /var/log/mesgs
+echo "Chimera II OS: live media not found after 30 seconds."
   echo "Available block devices:"
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
 fi
