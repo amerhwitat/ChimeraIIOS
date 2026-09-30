@@ -7,11 +7,187 @@
     "no_proprietary_fonts": true
   },
   "families": [
-    {"id":"dejavu","name":"DejaVu","license":"Bitstream Vera / Arev / public-domain components","source":"https://github.com/dejavu-fonts/dejavu-fonts","scripts":["Latin","Greek","Cyrillic","Arabic","Hebrew"],"role":["sans","serif","mono","math"]},
-    {"id":"noto","name":"Noto","license":"SIL Open Font License 1.1 for applicable font files","source":"https://github.com/notofonts","scripts":["Latin","Greek","Cyrillic","Arabic","Hebrew","Armenian","Georgian","Indic","CJK","Southeast Asian","emoji"],"role":["ui","fallback","emoji"]},
-    {"id":"liberation","name":"Liberation","license":"SIL Open Font License 1.1","source":"https://github.com/liberationfonts","scripts":["Latin","Greek","Cyrillic"],"role":["sans","serif","mono"]},
-    {"id":"freefont","name":"GNU FreeFont","license":"GNU GPL with font exception","source":"https://www.gnu.org/software/freefont/","scripts":["Latin","Greek","Cyrillic","Arabic","Hebrew"],"role":["serif","sans","mono"]},
-    {"id":"unifont","name":"GNU Unifont","license":"GNU GPL with font exception","source":"https://unifoundry.com/unifont/","scripts":["Unicode broad fallback"],"role":["last-resort","bitmap"]},
-    {"id":"texgyre","name":"TeX Gyre","license":"GUST Font License","source":"https://www.gust.org.pl/projects/e-foundry/tex-gyre","scripts":["Latin","Greek","Cyrillic","math"],"role":["serif","math"]}
+    {
+      "id": "dejavu",
+      "name": "DejaVu",
+      "license": "Bitstream Vera / Arev / public-domain components",
+      "source": "https://github.com/dejavu-fonts/dejavu-fonts",
+      "scripts": [
+        "Latin",
+        "Greek",
+        "Cyrillic",
+        "Arabic",
+        "Hebrew"
+      ],
+      "role": [
+        "sans",
+        "serif",
+        "mono",
+        "math"
+      ]
+    },
+    {
+      "id": "noto",
+      "name": "Noto",
+      "license": "SIL Open Font License 1.1 for applicable font files",
+      "source": "https://github.com/notofonts",
+      "scripts": [
+        "Latin",
+        "Greek",
+        "Cyrillic",
+        "Arabic",
+        "Hebrew",
+        "Armenian",
+        "Georgian",
+        "Indic",
+        "CJK",
+        "Southeast Asian",
+        "emoji"
+      ],
+      "role": [
+        "ui",
+        "fallback",
+        "emoji"
+      ]
+    },
+    {
+      "id": "liberation",
+      "name": "Liberation",
+      "license": "SIL Open Font License 1.1",
+      "source": "https://github.com/liberationfonts",
+      "scripts": [
+        "Latin",
+        "Greek",
+        "Cyrillic"
+      ],
+      "role": [
+        "sans",
+        "serif",
+        "mono"
+      ]
+    },
+    {
+      "id": "freefont",
+      "name": "GNU FreeFont",
+      "license": "GNU GPL with font exception",
+      "source": "https://www.gnu.org/software/freefont/",
+      "scripts": [
+        "Latin",
+        "Greek",
+        "Cyrillic",
+        "Arabic",
+        "Hebrew"
+      ],
+      "role": [
+        "serif",
+        "sans",
+        "mono"
+      ]
+    },
+    {
+      "id": "unifont",
+      "name": "GNU Unifont",
+      "license": "GNU GPL with font exception",
+      "source": "https://unifoundry.com/unifont/",
+      "scripts": [
+        "Unicode broad fallback"
+      ],
+      "role": [
+        "last-resort",
+        "bitmap"
+      ]
+    },
+    {
+      "id": "texgyre",
+      "name": "TeX Gyre",
+      "license": "GUST Font License",
+      "source": "https://www.gust.org.pl/projects/e-foundry/tex-gyre",
+      "scripts": [
+        "Latin",
+        "Greek",
+        "Cyrillic",
+        "math"
+      ],
+      "role": [
+        "serif",
+        "math"
+      ]
+    },
+    {
+      "id": "noto-arabic",
+      "name": "Noto Arabic",
+      "license": "SIL Open Font License 1.1",
+      "source": "https://github.com/notofonts/arabic",
+      "scripts": [
+        "Arabic"
+      ],
+      "role": [
+        "rtl",
+        "ui",
+        "text"
+      ]
+    },
+    {
+      "id": "noto-hebrew",
+      "name": "Noto Hebrew",
+      "license": "SIL Open Font License 1.1",
+      "source": "https://github.com/notofonts/hebrew",
+      "scripts": [
+        "Hebrew"
+      ],
+      "role": [
+        "rtl",
+        "ui",
+        "text"
+      ]
+    },
+    {
+      "id": "noto-indic",
+      "name": "Noto Indic",
+      "license": "SIL Open Font License 1.1",
+      "source": "https://github.com/notofonts/indic",
+      "scripts": [
+        "Devanagari",
+        "Bengali",
+        "Gujarati",
+        "Gurmukhi",
+        "Kannada",
+        "Malayalam",
+        "Odia",
+        "Tamil",
+        "Telugu"
+      ],
+      "role": [
+        "complex-script",
+        "text"
+      ]
+    },
+    {
+      "id": "noto-cjk",
+      "name": "Noto CJK",
+      "license": "SIL Open Font License 1.1",
+      "source": "https://github.com/notofonts/noto-cjk",
+      "scripts": [
+        "Han",
+        "Japanese",
+        "Korean"
+      ],
+      "role": [
+        "cjk",
+        "fallback"
+      ]
+    },
+    {
+      "id": "noto-emoji",
+      "name": "Noto Emoji",
+      "license": "SIL Open Font License 1.1",
+      "source": "https://github.com/googlefonts/noto-emoji",
+      "scripts": [
+        "Emoji"
+      ],
+      "role": [
+        "emoji"
+      ]
+    }
   ]
 }
