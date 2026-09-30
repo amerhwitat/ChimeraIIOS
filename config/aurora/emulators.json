@@ -1,154 +1,32 @@
 {
-  "schema": 1,
+  "schema": 2,
   "frontend": "aurora.emulation",
   "policy": {
     "software": "free-open-source-only",
     "roms": "public-domain-CC0-redistributable-CC-or-open-source-homebrew-only",
+    "commercial_games": "never-bundled",
     "proprietary_bios": "never-bundled",
-    "commercial_roms": "never-bundled",
+    "user_owned_dumps": "supported",
     "license_manifest": true,
     "sha256_manifest": true
   },
   "families": [
-    {
-      "id": "libretro",
-      "name": "Libretro/RetroArch",
-      "binary": "retroarch",
-      "license": "GPL-3.0-or-later",
-      "display": [
-        "OpenGL",
-        "Vulkan",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "mame",
-      "name": "MAME",
-      "binary": "mame",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "Vulkan",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "dosbox",
-      "name": "DOSBox",
-      "binary": "dosbox",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "scummvm",
-      "name": "ScummVM",
-      "binary": "scummvm",
-      "license": "GPL-3.0-or-later",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "eightyone",
-      "name": "EightyOne",
-      "binary": "eightyone",
-      "license": "GPL-3.0-or-later",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "vice",
-      "name": "VICE",
-      "binary": "x64sc",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "fceux",
-      "name": "FCEUX",
-      "binary": "fceux",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "mgba",
-      "name": "mGBA",
-      "binary": "mgba",
-      "license": "MPL-2.0",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "dolphin",
-      "name": "Dolphin",
-      "binary": "dolphin-emu",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "Vulkan"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "ppsspp",
-      "name": "PPSSPP",
-      "binary": "ppsspp",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "Vulkan"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "pcsx2",
-      "name": "PCSX2",
-      "binary": "pcsx2",
-      "license": "GPL-2.0-or-later",
-      "display": [
-        "OpenGL",
-        "Vulkan"
-      ],
-      "window": "Aurora.Emulator"
-    },
-    {
-      "id": "sameboy",
-      "name": "SameBoy",
-      "binary": "sameboy",
-      "license": "MIT",
-      "display": [
-        "OpenGL",
-        "software"
-      ],
-      "window": "Aurora.Emulator"
-    }
+    {"id":"psx","name":"PlayStation / PSX","binary":"chimera-psx","source":"https://github.com/grumpycoders/pcsx-redux","license":"MIT","bios":"user-owned-or-openbios","display":["OpenGL","Vulkan","software"]},
+    {"id":"ps2","name":"PlayStation 2","binary":"pcsx2","source":"https://github.com/PCSX2/pcsx2","license":"GPL-3.0-or-later","bios":"user-owned","display":["OpenGL","Vulkan","software"]},
+    {"id":"ps3","name":"PlayStation 3","binary":"rpcs3","source":"https://github.com/RPCS3/rpcs3","license":"GPL-2.0-only","bios":"firmware-required","display":["Vulkan","OpenGL"]},
+    {"id":"ps4","name":"PlayStation 4","binary":"chimera-ps4","source":"https://github.com/shadps4-emu/shadPS4","license":"GPL-2.0-or-later","bios":"user-supplied-system-software","display":["Vulkan","OpenGL"]},
+    {"id":"ps5","name":"PlayStation 5","binary":"chimera-ps5","source":"https://github.com/red-prig/fpps5","license":"GPL-3.0","bios":"user-supplied-system-software","display":["Vulkan","OpenGL"]},
+    {"id":"libretro","name":"Libretro/RetroArch","binary":"retroarch","license":"GPL-3.0-or-later","display":["OpenGL","Vulkan","software"]},
+    {"id":"mame","name":"MAME","binary":"mame","license":"GPL-2.0-or-later","display":["OpenGL","Vulkan","software"]},
+    {"id":"dosbox","name":"DOSBox","binary":"dosbox","license":"GPL-2.0-or-later","display":["OpenGL","software"]},
+    {"id":"scummvm","name":"ScummVM","binary":"scummvm","license":"GPL-3.0-or-later","display":["OpenGL","software"]},
+    {"id":"eightyone","name":"EightyOne","binary":"eightyone","license":"GPL-3.0-or-later","display":["OpenGL","software"]},
+    {"id":"vice","name":"VICE","binary":"x64sc","license":"GPL-2.0-or-later","display":["OpenGL","software"]},
+    {"id":"fceux","name":"FCEUX","binary":"fceux","license":"GPL-2.0-or-later","display":["OpenGL","software"]},
+    {"id":"mgba","name":"mGBA","binary":"mgba","license":"MPL-2.0","display":["OpenGL","software"]},
+    {"id":"dolphin","name":"Dolphin","binary":"dolphin-emu","license":"GPL-2.0-or-later","display":["OpenGL","Vulkan"]},
+    {"id":"ppsspp","name":"PPSSPP","binary":"ppsspp","license":"GPL-2.0-or-later","display":["OpenGL","Vulkan"]},
+    {"id":"sameboy","name":"SameBoy","binary":"sameboy","license":"MIT","display":["OpenGL","software"]}
   ],
-  "launch_rules": {
-    "verify_hash": true,
-    "verify_license": true,
-    "mount_read_only": true,
-    "sandbox": true
-  }
+  "launch_rules":{"verify_hash":true,"verify_license":true,"mount_read_only":true,"sandbox":true,"native_wrapper_required":true}
 }
