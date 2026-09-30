@@ -338,6 +338,12 @@ Chimera II OS Comprehensive ISO
 Build date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 ISO: ${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso
 SquashFS: ${ISO_DIR}/live/filesystem.squashfs
+Build log: ${LOG_DIR}/chimera-build.log
+Process snapshots: ${LOG_DIR}/process-snapshots.log
+Docker build log: ${LOG_DIR}/docker-build.log
+Docker export progress: ${LOG_DIR}/docker-export.progress
+Runtime monitor: /usr/bin/chimera-process-monitor
+Aurora monitor window: /usr/share/applications/chimera-log-window.desktop
 EOF
 }
 
