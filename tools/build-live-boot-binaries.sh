@@ -5,7 +5,7 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 # CHIMERA_LIVE_BOOT_DIR remains an explicit override for standalone builds.
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
 OUT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
-mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/initramfs/root"/{bin,sbin,dev,proc,sys,run,tmp,mnt/chimera,etc,var/log/mesgs/archive,var/lib/chimera/drivers,etc/chimera/drivers,lib/chimera/drivers,lib/firmware} "$OUT/mobile"/{arm64,armv7,x86_64} "$OUT/manifests"
+mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initramfs/root"/{bin,sbin,dev,proc,sys,run,tmp,mnt/chimera,etc,var/log/mesgs/archive,var/lib/chimera/drivers,etc/chimera/drivers,lib/chimera/drivers,lib/firmware} "$OUT/mobile"/{arm64,armv7,x86_64} "$OUT/manifests"
 KERNEL="${CHIMERA_LINUX_KERNEL:-}"
 if [[ -z "$KERNEL" ]]; then KERNEL="$(find /boot -maxdepth 1 -type f \( -name 'vmlinuz-*' -o -name 'vmlinuz' \) 2>/dev/null | sort -V | tail -n1 || true)"; fi
 if [[ -n "$KERNEL" && -f "$KERNEL" ]]; then cp -f "$KERNEL" "$OUT/boot/vmlinuz"; sha256sum "$OUT/boot/vmlinuz" > "$OUT/boot/vmlinuz.sha256"; fi
@@ -13,9 +13,11 @@ KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then cp -f "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
 INIT="$OUT/initramfs/root"
-cp "$(command -v busybox)" "$INIT/bin/busybox"
-for x in sh mount switch_root echo ps top tail date clear sed awk head wget ip udhcpc nslookup gzip; do ln -sf busybox "$INIT/bin/$x"; done
-for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
+BUSYBOX="$(command -v busybox || true)"
+[[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
+cp -f "$BUSYBOX" "$INIT/bin/busybox"
+for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip; do ln -sf busybox "$INIT/bin/$x"; done
+for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
 cat > "$INIT/init" <<'EOF'
@@ -30,45 +32,61 @@ ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
 printf "[LIVE] Initramfs started\\n" >> /var/log/mesgs
 if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
 
-# Optical/USB devices can appear after the Multiboot2 module is handed to the
-# kernel. Retry long enough for BIOS/UEFI CD/DVD controllers and USB media to
-# settle instead of failing immediately with "live-manifest.json not found".
 mounted=0
 i=0
 while [ "$i" -lt 30 ]; do
   for dev in /dev/sr0 /dev/cdrom /dev/vda /dev/sda /dev/sdb /dev/mmcblk0; do
     [ -b "$dev" ] || continue
-    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then
-      mounted=1
-      break 2
-    fi
-    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then
-      mounted=1
-      break 2
-    fi
+    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; break 2; fi
+    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; break 2; fi
   done
-  i=$((i + 1))
-  sleep 1
+  i=$((i + 1)); sleep 1
 done
 
 if [ "$mounted" -eq 1 ] && [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
   printf "[LIVE] Media mounted\\n" >> /var/log/mesgs
-echo "Chimera II OS Live Media"
+  echo "Chimera II OS Live Media"
   echo "Koronos kernel selected by Jasper/GRUB Multiboot2."
   echo "Koronos kernel: /mnt/chimera/boot/koronos/koronos.elf"
   echo "Live manifest: /mnt/chimera/boot/live/live-manifest.json"
   echo "Live initramfs: /mnt/chimera/boot/live/chimera-live-initramfs.img"
 else
   printf "[LIVE] Media not found after 30 seconds\\n" >> /var/log/mesgs
-echo "Chimera II OS: live media not found after 30 seconds."
+  echo "Chimera II OS: live media not found after 30 seconds."
   echo "Available block devices:"
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
 fi
 exec /bin/sh
 EOF
-chmod +x "$INIT/init"
+chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
 (cd "$INIT" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
 sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
+
+# Dedicated recovery image: same hardware/filesystem utilities as Live, but
+# the init process immediately opens the repair console instead of attempting
+# to mount optical media. This makes Jasper Recovery deterministic.
+REC="$OUT/initramfs/recovery"
+rm -rf "$REC"
+mkdir -p "$REC"
+cp -a "$INIT/." "$REC/"
+cat > "$REC/init" <<'EOF'
+#!/bin/sh
+set -eu
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t tmpfs tmpfs /run 2>/dev/null || true
+mkdir -p /mnt/chimera-root /var/log/mesgs/archive /var/lib/chimera/drivers
+ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
+printf '%s\\n' '[RECOVERY] Jasper/Koronos recovery initramfs started' >> /var/log/mesgs
+export CHIMERA_RECOVERY_INITRAMFS=1
+if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
+exec /bin/chimera-recovery-console.sh
+EOF
+chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
+(cd "$REC" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
+sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recovery/chimera-recovery-initramfs.img.sha256"
+
 for arch in arm64 armv7 x86_64; do
   mkdir -p "$OUT/mobile/$arch"
   [[ -f "$KORONOS" ]] && cp -f "$KORONOS" "$OUT/mobile/$arch/koronos-runtime.elf"
@@ -77,5 +95,10 @@ done
 cat > "$OUT/boot/live/live-manifest.json" <<EOF
 {"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.img","linux_vmlinuz_required":false,"architectures":["x86_64"]}
 EOF
+cat > "$OUT/boot/recovery/recovery-manifest.json" <<EOF
+{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.img","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mount-root","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"]}
+EOF
 cp "$OUT/boot/live/live-manifest.json" "$OUT/manifests/live-boot.json"
+cp "$OUT/boot/recovery/recovery-manifest.json" "$OUT/manifests/recovery-boot.json"
 echo "Koronos Live boot artifacts generated in $OUT"
+echo "Jasper Recovery initramfs generated in $OUT/boot/recovery"
