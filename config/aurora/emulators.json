@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "frontend": "aurora.emulation",
+  "policy": {
+    "software": "free-open-source-only",
+    "roms": "public-domain-CC0-redistributable-CC-or-open-source-homebrew-only",
+    "proprietary_bios": "never-bundled",
+    "commercial_roms": "never-bundled",
+    "license_manifest": true,
+    "sha256_manifest": true
+  },
+  "families": [
+    {
+      "id": "libretro",
+      "name": "Libretro/RetroArch",
+      "binary": "retroarch",
+      "license": "GPL-3.0-or-later",
+      "display": [
+        "OpenGL",
+        "Vulkan",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "mame",
+      "name": "MAME",
+      "binary": "mame",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "Vulkan",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "dosbox",
+      "name": "DOSBox",
+      "binary": "dosbox",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "scummvm",
+      "name": "ScummVM",
+      "binary": "scummvm",
+      "license": "GPL-3.0-or-later",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "eightyone",
+      "name": "EightyOne",
+      "binary": "eightyone",
+      "license": "GPL-3.0-or-later",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "vice",
+      "name": "VICE",
+      "binary": "x64sc",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "fceux",
+      "name": "FCEUX",
+      "binary": "fceux",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "mgba",
+      "name": "mGBA",
+      "binary": "mgba",
+      "license": "MPL-2.0",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "dolphin",
+      "name": "Dolphin",
+      "binary": "dolphin-emu",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "Vulkan"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "ppsspp",
+      "name": "PPSSPP",
+      "binary": "ppsspp",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "Vulkan"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "pcsx2",
+      "name": "PCSX2",
+      "binary": "pcsx2",
+      "license": "GPL-2.0-or-later",
+      "display": [
+        "OpenGL",
+        "Vulkan"
+      ],
+      "window": "Aurora.Emulator"
+    },
+    {
+      "id": "sameboy",
+      "name": "SameBoy",
+      "binary": "sameboy",
+      "license": "MIT",
+      "display": [
+        "OpenGL",
+        "software"
+      ],
+      "window": "Aurora.Emulator"
+    }
+  ],
+  "launch_rules": {
+    "verify_hash": true,
+    "verify_license": true,
+    "mount_read_only": true,
+    "sandbox": true
+  }
+}
