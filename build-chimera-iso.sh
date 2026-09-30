@@ -312,6 +312,9 @@ verify_iso(){
   [[ -f "$ISO_DIR/boot/live/live-manifest.json" ]] || { log_error 'live manifest missing'; exit 1; }
   [[ -s "$ISO_DIR/boot/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing from ISO'; exit 1; }
   [[ -s "$ISO_DIR/boot/koronos/koronos.elf" ]] || { log_error 'Koronos ELF missing from ISO'; exit 1; }
+  [[ -s "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img" ]] || { log_error 'Recovery initramfs missing from ISO'; exit 1; }
+  [[ -f "$ISO_DIR/boot/recovery/recovery-manifest.json" ]] || { log_error 'Recovery manifest missing from ISO'; exit 1; }
+  [[ -f "$ISO_DIR/recovery/chimera-recovery-targets.json" ]] || { log_error 'Recovery target matrix missing from ISO'; exit 1; }
 }
 
 build_iso(){
