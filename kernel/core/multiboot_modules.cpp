@@ -29,7 +29,7 @@ static uint32_t classify(const char* s){
  return CHIMERA_MODULE_OTHER;
 }
 }
-extern "C" uint32_t chimera_multiboot_scan(uint64_t boot_info){
+extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64_t boot_info){
  module_count=0;
  if(!boot_info)return 0;
  const uint8_t* base=(const uint8_t*)(uintptr_t)boot_info;
