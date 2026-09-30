@@ -1,17 +1,116 @@
 {
-  "schema":"CHM-DRIVER-REPOSITORIES-1",
-  "policy":"search-and-verify",
-  "user_agent":"ChimeraIIOS-DriverManager/1.0",
-  "sources":[
-    {"id":"linux-firmware","kind":"firmware","os":"linux","url":"https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git","enabled":true},
-    {"id":"debian-firmware","kind":"package","os":"debian","url":"https://deb.debian.org/debian","enabled":true},
-    {"id":"ubuntu","kind":"package","os":"ubuntu","url":"https://archive.ubuntu.com/ubuntu","enabled":true},
-    {"id":"fedora","kind":"package","os":"fedora","url":"https://download.fedoraproject.org/pub/fedora/linux","enabled":true},
-    {"id":"arch","kind":"package","os":"arch","url":"https://geo.mirror.pkgbuild.com","enabled":true},
-    {"id":"opensuse","kind":"package","os":"opensuse","url":"https://download.opensuse.org","enabled":true},
-    {"id":"freebsd","kind":"source","os":"freebsd","url":"https://cgit.freebsd.org/src/","enabled":true},
-    {"id":"fwupd-lvfs","kind":"firmware-update","os":"multi","url":"https://fwupd.org","enabled":true},
-    {"id":"pci-ids","kind":"hardware-id","os":"multi","url":"https://pci-ids.ucw.cz","enabled":true}
+  "schema": "CHM-DRIVER-REPOSITORIES-1",
+  "policy": "search-and-verify",
+  "user_agent": "ChimeraIIOS-DriverManager/1.0",
+  "sources": [
+    {
+      "id": "linux-firmware",
+      "kind": "firmware",
+      "os": "linux",
+      "url": "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git",
+      "enabled": true
+    },
+    {
+      "id": "debian-firmware",
+      "kind": "package",
+      "os": "debian",
+      "url": "https://deb.debian.org/debian",
+      "enabled": true
+    },
+    {
+      "id": "ubuntu",
+      "kind": "package",
+      "os": "ubuntu",
+      "url": "https://archive.ubuntu.com/ubuntu",
+      "enabled": true
+    },
+    {
+      "id": "fedora",
+      "kind": "package",
+      "os": "fedora",
+      "url": "https://download.fedoraproject.org/pub/fedora/linux",
+      "enabled": true
+    },
+    {
+      "id": "arch",
+      "kind": "package",
+      "os": "arch",
+      "url": "https://geo.mirror.pkgbuild.com",
+      "enabled": true
+    },
+    {
+      "id": "opensuse",
+      "kind": "package",
+      "os": "opensuse",
+      "url": "https://download.opensuse.org",
+      "enabled": true
+    },
+    {
+      "id": "freebsd",
+      "kind": "source",
+      "os": "freebsd",
+      "url": "https://cgit.freebsd.org/src/",
+      "enabled": true
+    },
+    {
+      "id": "fwupd-lvfs",
+      "kind": "firmware-update",
+      "os": "multi",
+      "url": "https://fwupd.org",
+      "enabled": true
+    },
+    {
+      "id": "pci-ids",
+      "kind": "hardware-id",
+      "os": "multi",
+      "url": "https://pci-ids.ucw.cz",
+      "enabled": true
+    },
+    {
+      "id": "netbsd",
+      "kind": "source",
+      "os": "netbsd",
+      "url": "https://cdn.netbsd.org/pub/NetBSD/",
+      "enabled": true
+    },
+    {
+      "id": "openbsd",
+      "kind": "source",
+      "os": "openbsd",
+      "url": "https://cdn.openbsd.org/pub/OpenBSD/",
+      "enabled": true
+    },
+    {
+      "id": "illumos",
+      "kind": "source",
+      "os": "illumos",
+      "url": "https://github.com/illumos/illumos-gate",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-update-catalog",
+      "kind": "package",
+      "os": "windows",
+      "url": "https://www.catalog.update.microsoft.com/",
+      "enabled": true
+    },
+    {
+      "id": "apple-support",
+      "kind": "package",
+      "os": "macos",
+      "url": "https://support.apple.com/downloads",
+      "enabled": true
+    },
+    {
+      "id": "reactos",
+      "kind": "source",
+      "os": "windows-compatible",
+      "url": "https://github.com/reactos/reactos",
+      "enabled": true
+    }
   ],
-  "extension":{"vendor_repositories":"/etc/chimera/drivers.d/*.json","local_mirror":"/var/lib/chimera/drivers/repository-cache"}
+  "extension": {
+    "vendor_repositories": "/etc/chimera/drivers.d/*.json",
+    "local_mirror": "/var/lib/chimera/drivers/repository-cache"
+  }
 }
