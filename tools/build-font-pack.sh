@@ -47,7 +47,8 @@ for spec in \
   "noto-emoji|https://github.com/googlefonts/noto-emoji|CHIMERA_FONT_NOTO_EMOJI_REV" \
   "liberation|https://github.com/liberationfonts/liberation-fonts|CHIMERA_FONT_LIBERATION_REV" \
   "freefont|https://git.savannah.gnu.org/git/freefont.git|CHIMERA_FONT_FREEFONT_REV" \
-  "unifont|https://github.com/gnu-unifont/unifont|CHIMERA_FONT_UNIFONT_REV"; do
+  "unifont|https://github.com/gnu-unifont/unifont|CHIMERA_FONT_UNIFONT_REV" \
+  "texgyre|https://github.com/Font-Repository/tex-gyre|CHIMERA_FONT_TEXGYRE_REV"; do
   IFS='|' read -r id url var <<< "$spec"
   if [[ -n "${!var:-}" ]]; then
     src="$(fetch "$id" "$url" "$var")"
