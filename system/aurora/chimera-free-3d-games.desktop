@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Free 3D Games
+Comment=Browse free and open-source 3D games for Chimera II OS
+Exec=/usr/bin/chimera-free-3d-games.sh
+Terminal=true
+Categories=Game;
