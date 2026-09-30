@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "name": "Chimera Free 3D Games Catalog",
+  "policy": {
+    "scope": "free-open-source-or-redistributable-3d-games",
+    "source_code": "only-license-compatible-projects",
+    "assets": "only-redistributable-assets",
+    "commercial_assets": "never-bundled",
+    "web_discovery": true,
+    "automatic_unverified_download": false
+  },
+  "install_root": "/opt/chimera/games/3d",
+  "games": [
+    {"id":"supertuxkart","title":"SuperTuxKart","genre":"3D kart racing","engine":"Irrlicht/Custom","license":"GPL-3.0-or-later","source":"https://github.com/supertuxkart/stk-code","status":"buildable"},
+    {"id":"luanti","title":"Luanti","genre":"3D voxel sandbox","engine":"Custom","license":"LGPL-2.1-or-later","source":"https://github.com/luanti-org/luanti","status":"buildable"},
+    {"id":"minetest-game","title":"Minetest Game","genre":"3D voxel sandbox content","engine":"Luanti","license":"See upstream LICENSE.txt","source":"https://github.com/luanti-org/minetest_game","status":"content-pack"},
+    {"id":"xonotic","title":"Xonotic","genre":"3D arena FPS","engine":"DarkPlaces fork","license":"GPL-2.0-or-later","source":"https://gitlab.com/xonotic/xonotic","status":"buildable"},
+    {"id":"red-eclipse","title":"Red Eclipse","genre":"3D arena FPS","engine":"Cube Engine","license":"Zlib/GPL components; see upstream","source":"https://github.com/red-eclipse/base","status":"buildable"},
+    {"id":"sauerbraten","title":"Cube 2: Sauerbraten","genre":"3D FPS","engine":"Cube 2","license":"Zlib/GPL components; see upstream","source":"https://github.com/assaultcube/AC","status":"external-upstream-check"},
+    {"id":"unvanquished","title":"Unvanquished","genre":"3D strategy/FPS","engine":"Daemon","license":"GPL-2.0-or-later / asset-specific licenses","source":"https://github.com/Unvanquished/Unvanquished","status":"buildable"},
+    {"id":"the-dark-mod","title":"The Dark Mod","genre":"3D stealth","engine":"idTech 4","license":"GPL-3.0-or-later; assets see upstream","source":"https://github.com/d3ad3l1t3/TheDarkMod","status":"buildable"},
+    {"id":"veloren","title":"Veloren","genre":"3D voxel RPG","engine":"Veloren","license":"GPL-3.0-or-later","source":"https://gitlab.com/veloren/veloren","status":"buildable"},
+    {"id":"rigs-of-rods","title":"Rigs of Rods","genre":"3D vehicle simulation","engine":"OGRE","license":"GPL-3.0-or-later","source":"https://github.com/RigsOfRods/rigs-of-rods","status":"buildable"},
+    {"id":"flightgear","title":"FlightGear","genre":"3D flight simulator","engine":"Custom","license":"GPL-2.0-or-later","source":"https://gitlab.com/flightgear/flightgear","status":"buildable"},
+    {"id":"stunt-rally","title":"Stunt Rally","genre":"3D rally racing","engine":"OGRE","license":"GPL-3.0-or-later; see assets","source":"https://github.com/stuntrally/stuntrally","status":"buildable"},
+    {"id":"torcs","title":"TORCS","genre":"3D racing simulator","engine":"PLIB/OpenGL","license":"GPL-2.0-or-later","source":"https://sourceforge.net/projects/torcs/","status":"legacy-build"},
+    {"id":"lugaru","title":"Lugaru","genre":"3D action/fighting","engine":"OpenGL","license":"GPL-2.0-or-later; CC BY-SA assets","source":"https://github.com/WolfireGames/lugaru","status":"buildable"},
+    {"id":"supertuxworld","title":"SuperTuxWorld","genre":"3D platformer","engine":"Godot 4","license":"GPL-3.0","source":"https://github.com/studiobool/SuperTuxWorld","status":"community-project"},
+    {"id":"cubyz","title":"Cubyz","genre":"3D voxel sandbox","engine":"Zig","license":"GPL-3.0","source":"https://github.com/PixelGuys/Cubyz","status":"community-project"}
+  ]
+}
