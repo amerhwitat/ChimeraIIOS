@@ -1,0 +1,13 @@
+[Unit]
+Description=Chimera II OS Driver and Firmware Manager
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/chimera-driver-manager daemon
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
