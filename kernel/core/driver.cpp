@@ -31,8 +31,6 @@ extern "C" int chimera_driver_probe_all(){
      if(match(d,x)){ d->state=2; bound=1; g_last_probe_count++; if(d->probe)d->probe(x); break; }
    }
    if(!bound){
-     // No native driver: keep the device visible for the compatibility manager.
-     // Foreign .sys/.ko/.kext payloads are never executed in the Koronos ABI.
      static chimera_driver_descriptor compat[256]; static uint32_t cc=0;
      if(cc<256){
        chimera_driver_descriptor *d=&compat[cc++];
@@ -41,7 +39,7 @@ extern "C" int chimera_driver_probe_all(){
           (x->device_class==CHM_DEV_DISPLAY)?CHM_DRV_DISPLAY:
           (x->device_class==CHM_DEV_GPU)?CHM_DRV_GPU:(x->device_class==CHM_DEV_MOTHERBOARD)?CHM_DRV_PLATFORM:CHM_DRV_USB,
           0,x->vendor_id,x->device_id,0,"compatibility-adapter","linux/windows catalog","1",
-          x->class_code,x->subclass,x->prog_if,1,"compatibility-layer",0};
+          static_cast<uint8_t>(x->class_code),static_cast<uint8_t>(x->subclass),static_cast<uint8_t>(x->prog_if),1,"compatibility-layer",0};
        chimera_driver_register(d);
      }
    }
