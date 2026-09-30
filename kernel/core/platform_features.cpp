@@ -4,7 +4,7 @@
 namespace {
 static uint64_t g_requested = 0;
 static uint64_t g_features = 0;
-static uint32_t g_state = CHM_PLATFORM_COLD;
+static uint32_t g_state = CHM_PLATFORM_OFFLINE;
 
 static chimera_memory_region g_memory[CHIMERA_MAX_PLATFORM_OBJECTS];
 static uint32_t g_memory_count = 0;
@@ -45,13 +45,13 @@ extern "C" int chimera_platform_init(uint64_t requested_features) {
 }
 
 extern "C" int chimera_platform_probe(void) {
-    if (g_state == CHM_PLATFORM_COLD) chimera_platform_init(0);
+    if (g_state == CHM_PLATFORM_OFFLINE) chimera_platform_init(0);
     g_state = CHM_PLATFORM_READY;
     return 0;
 }
 
 extern "C" uint64_t chimera_platform_features(void) { return g_features; }
-extern "C" uint32_t chimera_platform_state(void) { return g_state; }
+extern "C" uint32_t chimera_platform_state_get(void) { return g_state; }
 extern "C" int chimera_platform_has(uint64_t feature) { return (g_features & feature) == feature; }
 
 extern "C" int chimera_platform_get_snapshot(chimera_platform_snapshot *out) {
@@ -76,7 +76,7 @@ extern "C" int chimera_memory_register_region(uint64_t base, uint64_t length, ui
     return 0;
 }
 extern "C" uint32_t chimera_memory_region_count(void) { return g_memory_count; }
-extern "C" const chimera_memory_region *chimera_memory_region(uint32_t index) {
+extern "C" const chimera_memory_region *chimera_memory_region_at(uint32_t index) {
     return index < g_memory_count ? &g_memory[index] : 0;
 }
 
@@ -91,15 +91,19 @@ extern "C" int chimera_io_submit(chimera_io_request *request) {
     return 0;
 }
 extern "C" int chimera_io_complete(uint64_t request_id, int32_t status) {
-    for (uint32_t i = 0; i < g_io_count; ++i) if (g_io[i].id == request_id) {
-        g_io[i].status = status;
-        return 0;
+    for (uint32_t i = 0; i < g_io_count; ++i) {
+        if (g_io[i].id == request_id) {
+            g_io[i].status = status;
+            return 0;
+        }
     }
     return -1;
 }
 extern "C" uint32_t chimera_io_pending(void) {
     uint32_t n = 0;
-    for (uint32_t i = 0; i < g_io_count; ++i) if (g_io[i].status == -115) ++n;
+    for (uint32_t i = 0; i < g_io_count; ++i) {
+        if (g_io[i].status == -115) ++n;
+    }
     return n;
 }
 
@@ -109,8 +113,11 @@ extern "C" int chimera_security_check(const chimera_security_subject *subject, u
 }
 extern "C" int chimera_security_set_subject(const chimera_security_subject *subject) {
     if (!subject || !subject->subject_id) return -1;
-    for (uint32_t i = 0; i < g_subject_count; ++i) if (g_subjects[i].subject_id == subject->subject_id) {
-        g_subjects[i] = *subject; return 0;
+    for (uint32_t i = 0; i < g_subject_count; ++i) {
+        if (g_subjects[i].subject_id == subject->subject_id) {
+            g_subjects[i] = *subject;
+            return 0;
+        }
     }
     if (g_subject_count >= CHIMERA_MAX_PLATFORM_OBJECTS) return -1;
     g_subjects[g_subject_count++] = *subject;
@@ -118,8 +125,11 @@ extern "C" int chimera_security_set_subject(const chimera_security_subject *subj
 }
 extern "C" int chimera_security_get_subject(uint64_t subject_id, chimera_security_subject *out) {
     if (!out) return -1;
-    for (uint32_t i = 0; i < g_subject_count; ++i) if (g_subjects[i].subject_id == subject_id) {
-        *out = g_subjects[i]; return 0;
+    for (uint32_t i = 0; i < g_subject_count; ++i) {
+        if (g_subjects[i].subject_id == subject_id) {
+            *out = g_subjects[i];
+            return 0;
+        }
     }
     return -1;
 }
@@ -130,8 +140,11 @@ extern "C" int chimera_net_register_endpoint(const chimera_net_endpoint *endpoin
     return 0;
 }
 extern "C" int chimera_net_remove_endpoint(uint16_t family, uint16_t port) {
-    for (uint32_t i = 0; i < g_endpoint_count; ++i) if (g_endpoints[i].family == family && g_endpoints[i].port == port) {
-        g_endpoints[i] = g_endpoints[--g_endpoint_count]; return 0;
+    for (uint32_t i = 0; i < g_endpoint_count; ++i) {
+        if (g_endpoints[i].family == family && g_endpoints[i].port == port) {
+            g_endpoints[i] = g_endpoints[--g_endpoint_count];
+            return 0;
+        }
     }
     return -1;
 }
