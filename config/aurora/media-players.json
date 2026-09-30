@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "purpose": "Open-source media playback stack for Aurora",
+  "players": [
+    {"id":"vlc","name":"VLC media player","kind":"audio-video","license":"GPL-2.0-or-later; libVLC LGPL-2.1-or-later","source":"https://github.com/videolan/vlc","build":"meson/ninja","aurora_handler":"aurora.media.vlc"},
+    {"id":"mpv","name":"mpv","kind":"audio-video","license":"GPL-2.0-or-later by default; LGPL-2.1-or-later when configured without GPL","source":"https://github.com/mpv-player/mpv","build":"meson/ninja","aurora_handler":"aurora.media.mpv"},
+    {"id":"audacious","name":"Audacious","kind":"audio","license":"BSD-2-Clause plus component-specific licenses","source":"https://github.com/audacious-media-player/audacious","build":"meson/ninja","aurora_handler":"aurora.media.audacious"},
+    {"id":"mplayer","name":"MPlayer","kind":"audio-video","license":"GPL-family; verify bundled component licenses per release","source":"https://github.com/mplayerhq/mplayer","build":"configure/make","aurora_handler":"aurora.media.mplayer"},
+    {"id":"ffplay","name":"FFplay","kind":"audio-video-reference-player","license":"FFmpeg project license; verify component licenses","source":"https://github.com/FFmpeg/FFmpeg","build":"configure/make","aurora_handler":"aurora.media.ffplay"},
+    {"id":"kodi","name":"Kodi","kind":"media-center","license":"GPL-family with component-specific licenses","source":"https://github.com/xbmc/xbmc","build":"CMake","aurora_handler":"aurora.media.kodi"}
+  ],
+  "policy": {
+    "source_required": true,
+    "pinned_revision_required": true,
+    "license_manifest_required": true,
+    "binary_sha256_required": true,
+    "third_party_binary_blobs_not_committed_by_default": true,
+    "build_from_source_in_ci": true,
+    "external_codecs_require_separate_license_review": true
+  }
+}
