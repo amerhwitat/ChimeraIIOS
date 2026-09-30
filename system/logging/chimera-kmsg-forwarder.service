@@ -1,0 +1,13 @@
+[Unit]
+Description=Chimera II OS kernel log forwarder
+After=local-fs.target
+Before=chimera-logd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/chimera-kmsg-forwarder
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
