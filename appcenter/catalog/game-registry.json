@@ -1,0 +1,16 @@
+{
+  "schema":"chimera-game-registry-v1",
+  "trust":{"source_required":true,"license_verified":true,"sha256_required":true,"untrusted_postinstall_forbidden":true},
+  "capability_classes":["Ultra","High","Medium","Low","Compatibility","Software Rendering"],
+  "execution_layers":["native-elf","windows-pe","godot","o3de","armory","wine-proton","emulated"],
+  "games":[
+    {"id":"xonotic","provider":"BizX Game Vault","status":"CATALOGED","source":"https://github.com/xonotic/xonotic","layer":"native-elf","platforms":["linux","windows","macos"]},
+    {"id":"veloren","provider":"BizX Game Vault","status":"CATALOGED","source":"https://github.com/veloren/veloren","layer":"native-elf","platforms":["linux","windows","macos"]},
+    {"id":"super-tux-kart","provider":"BizX Game Vault","status":"CATALOGED","source":"https://github.com/supertuxkart/stk-code","layer":"native-elf","platforms":["linux","windows","macos"]},
+    {"id":"chimera-frontier","provider":"BizX Originals","status":"PLANNED","layer":"native-elf","platforms":["chimera-linux-x86_64","chimera-linux-arm64"]}
+  ],
+  "hardware_profile":{
+    "cpu":true,"gpu":true,"vram":true,"ram":true,"storage":true,"display":true,"audio":true,"input":true,
+    "vulkan":true,"opengl":true,"ray_tracing":true,"shader_model":true,"threads":true,"architecture":true
+  }
+}
