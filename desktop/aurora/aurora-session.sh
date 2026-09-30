@@ -45,6 +45,28 @@ if [ "${CHIMERA_AURORA_NBIT_PANEL:-1}" = "1" ] && [ -x "$ROOT/desktop/aurora/aur
   "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" >/tmp/chimera-aurora-nbit-panel.log 2>&1 &
 fi
 
+# Carry a Jasper emulator choice into userspace. Multiboot2 exposes the boot
+# command line to the OS; Linux-hosted builds expose it as /proc/cmdline.
+queue_boot_cmdline_emulator() {
+  local cmd id q
+  q="${CHIMERA_EMULATOR_QUEUE_DIR:-$XDG_RUNTIME_DIR/chimera/emulators}"
+  [ -s "$q/pending" ] && return 0
+  [ -r /proc/cmdline ] || return 0
+  cmd="$(cat /proc/cmdline 2>/dev/null || true)"
+  id=""
+  for token in $cmd; do
+    case "$token" in
+      chm.emulator=retro-spectrum|chm.emulator=retro-atari-st|chm.emulator=retro-amiga|chm.emulator=retro-commodore|chm.emulator=retro-apple|chm.emulator=retro-acorn|chm.emulator=retro-amstrad|chm.emulator=retro-pc|chm.emulator=retro-arcade|chm.emulator=sakhr-ax170|chm.emulator=sakhr-ax230)
+        id="${token#chm.emulator=}"; break ;;
+    esac
+  done
+  [ -n "$id" ] || return 0
+  mkdir -p "$q"
+  printf '%s\n' "$id" > "$q/pending"
+  printf '%s\n' "$id" > "$q/title"
+}
+queue_boot_cmdline_emulator
+
 # Jasper may select an emulator before Aurora has a graphical display. The
 # native launcher queues that selection; consume it only after X11/Wayland is
 # available so SDL/OpenGL emulators create real application windows.
