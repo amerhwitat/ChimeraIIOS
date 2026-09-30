@@ -1,0 +1,11 @@
+[Unit]
+Description=Chimera II OS periodic log rotation
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=24h
+Persistent=true
+Unit=chimera-logrotate.service
+
+[Install]
+WantedBy=timers.target
