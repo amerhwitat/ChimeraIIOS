@@ -57,6 +57,8 @@ process_snapshot(){
   } >> "$LOG_DIR/process-snapshots.log" 2>&1
 }
 start_watchdog(){
+  LOG_DIR="$BUILD_DIR/logs"
+  mkdir -p "$LOG_DIR"
   stop_watchdog || true
   local label="$1" interval="${CHIMERA_BUILD_WATCHDOG_INTERVAL:-5}"
   (while :; do log_both "[WATCHDOG] $label still active"; process_snapshot; sleep "$interval"; done) &
