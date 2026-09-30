@@ -264,7 +264,8 @@ create_installer(){
   [[ -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" ]] && cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh" && chmod +x "$p/bin/chimera-installer-runtime.sh"
   for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$p/bin/"; done
   [[ -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" ]] && mkdir -p "$p/etc/chimera/drivers" && cp -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" "$p/etc/chimera/drivers/"
-  [[ -f "$SCRIPT_DIR/config/drivers/driver-policy.json" ]] && cp -f "$SCRIPT_DIR/config/drivers/driver-policy.json" "$p/etc/chimera/drivers/"  for f in "$SCRIPT_DIR/install/installer-contract.json" "$SCRIPT_DIR/installer/installation_phases.json" "$SCRIPT_DIR/installer/installer_profiles.json" "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$p/chimera/installer/"; done
+  [[ -f "$SCRIPT_DIR/config/drivers/driver-policy.json" ]] && cp -f "$SCRIPT_DIR/config/drivers/driver-policy.json" "$p/etc/chimera/drivers/"
+  for f in "$SCRIPT_DIR/install/installer-contract.json" "$SCRIPT_DIR/installer/installation_phases.json" "$SCRIPT_DIR/installer/installer_profiles.json" "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$p/chimera/installer/"; done
   cat > "$p/bin/chimera-installer-monitor" <<'EOF'
 #!/bin/sh
 while :; do
