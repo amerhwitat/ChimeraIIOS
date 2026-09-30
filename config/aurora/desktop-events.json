@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "pointer": ["move", "enter", "leave", "down", "up", "click", "double_click", "context_click", "middle_click", "wheel", "horizontal_wheel", "drag_start", "drag_over", "drop", "capture_lost"],
+  "keyboard": ["key_down", "key_up", "text_input", "shortcut", "accelerator"],
+  "window": ["create", "destroy", "show", "hide", "focus", "activate", "deactivate", "move", "resize", "minimize", "maximize", "restore", "close", "paint", "expose"],
+  "shell": ["desktop_click", "desktop_context_menu", "icon_select", "icon_open", "icon_arrange", "desktop_zoom", "taskbar_action", "menu_open", "menu_select"],
+  "filesystem": ["select", "open", "rename", "copy", "cut", "paste", "delete", "properties", "preview", "thumbnail_ready", "association_changed"],
+  "clipboard": ["offer", "request", "data", "ownership_lost"],
+  "drag_drop": ["enter", "motion", "accept", "reject", "leave", "drop"],
+  "application": ["launch", "suspend", "resume", "terminate", "crash", "permission_request"],
+  "device": ["connect", "disconnect", "display_change", "audio_change", "input_change"],
+  "default_shortcuts": {
+    "alt_tab": "window_switcher",
+    "alt_f4": "window_close",
+    "alt_space": "window_menu",
+    "super_d": "desktop_show",
+    "super_e": "file_manager",
+    "super_r": "run_dialog",
+    "super_l": "lock_screen",
+    "ctrl_c": "copy",
+    "ctrl_x": "cut",
+    "ctrl_v": "paste",
+    "ctrl_z": "undo",
+    "ctrl_a": "select_all",
+    "f2": "rename",
+    "f5": "refresh",
+    "delete": "delete",
+    "shift_delete": "delete_permanently",
+    "ctrl_plus": "zoom_in",
+    "ctrl_minus": "zoom_out",
+    "ctrl_0": "zoom_reset"
+  }
+}
