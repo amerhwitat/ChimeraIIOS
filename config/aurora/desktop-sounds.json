@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "default_theme": "aurora",
+  "themes": ["aurora", "classic", "windows_inspired", "mac_inspired", "linux_inspired", "silent"],
+  "events": [
+    "startup", "shutdown", "login", "logout", "window.open", "window.close", "window.minimize", "window.maximize",
+    "notification", "error", "warning", "menu.open", "menu.select", "file.copy", "file.move", "file.delete",
+    "device.connect", "device.disconnect", "dialog.open", "dialog.close"
+  ],
+  "provenance_policy": "original_or_redistributable_only",
+  "missing_asset_behavior": "silent"
+}
