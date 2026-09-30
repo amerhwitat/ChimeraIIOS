@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera II PlayStation Emulator Center
+Comment=PSX through PS5 emulator management and user-owned game imports
+Exec=/usr/bin/chimera-playstation-center
+Terminal=false
+Categories=Game;Emulator;
