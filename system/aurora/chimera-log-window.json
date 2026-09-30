@@ -8,10 +8,10 @@
   "min_height": 520,
   "refresh_hz": 2,
   "panels": [
-    {"id":"boot","title":"Boot / Installer / Runtime Log","source":"/var/log/chimera/chimera.log","tail_lines":28},
+    {"id":"boot","title":"Boot / Installer / Runtime Log","source":"/var/log/mesgs","tail_lines":28},
     {"id":"processes","title":"Running Processes / Threads","source":"/proc","refresh_hz":2},
-    {"id":"hardware","title":"Hardware / Drivers","source":"/var/log/chimera/hardware.log","tail_lines":16},
-    {"id":"services","title":"Services","source":"/var/log/chimera/services.log","tail_lines":16}
+    {"id":"hardware","title":"Hardware / Drivers","source":"/var/log/mesgs","tail_lines":16},
+    {"id":"services","title":"Services / Updates","source":"/var/log/mesgs","tail_lines":16},{"id":"drivers","title":"Driver Search / Firmware Updates","source":"/var/lib/chimera/drivers/state/hardware.inventory","tail_lines":24,"actions":["/usr/bin/chimera-driver-center search","/usr/bin/chimera-driver-center update"]}
   ],
   "keys":{"toggle":"F10","pause":"F11","clear":"Ctrl+L","close":"Esc"},
   "fallback":"tools/chimera-process-monitor.sh"
