@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "name": "Chimera II Deep ROM/ISO Search",
+  "purpose": "Search the public web for PlayStation software and preservation resources without bundling or automatically downloading copyrighted commercial games.",
+  "targets": ["PSX", "PS2", "PS3", "PS4", "PS5"],
+  "default_engines": ["duckduckgo", "bing"],
+  "allowed_resource_classes": ["public-domain", "CC0", "Creative-Commons-redistributable", "open-source-homebrew", "official-demo", "user-owned-dump-reference"],
+  "blocked_terms": ["pirated", "warez", "crack", "torrent-commercial-games", "bios-download", "commercial-rom-download"],
+  "blocked_automatic_download": true,
+  "requires_rights_confirmation": true,
+  "download_policy": "Discovery only. Do not automatically download commercial ROMs, ISOs, proprietary BIOS, firmware, or copyrighted game assets.",
+  "archive_rights_warning": "Internet Archive does not guarantee the copyright status of uploaded items; verify the item license/rights before importing."
+}
