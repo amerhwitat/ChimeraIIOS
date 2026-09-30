@@ -116,7 +116,7 @@ int chimera_platform_probe(void);
 uint64_t chimera_platform_features(void);
 uint32_t chimera_platform_state(void);
 int chimera_platform_has(uint64_t feature);
-int chimera_platform_snapshot(chimera_platform_snapshot *out);
+int chimera_platform_get_snapshot(chimera_platform_snapshot *out);
 
 int chimera_memory_register_region(uint64_t base, uint64_t length, uint32_t type, uint32_t flags);
 uint32_t chimera_memory_region_count(void);
