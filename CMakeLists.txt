@@ -103,7 +103,7 @@ install(FILES aurora/emulators/desktop/chimera-sakhr-ax170.desktop aurora/emulat
 
 install(DIRECTORY boot/visual DESTINATION share/chimera/boot)
 install(PROGRAMS tools/boot/chimera-boot-visual.sh tools/boot/prepare-visual-assets.py DESTINATION bin)
-install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/grub-theme.txt boot/visual/boot-visual-manifest.json DESTINATION share/chimera/boot)
+install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/iso/grub-theme.txt boot/visual/boot-visual-manifest.json DESTINATION share/chimera/boot)
 install(FILES desktop/aurora/aurora-web-console.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES installer/installation_phases.json installer/installer_profiles.json installer/chimera-installer-plan.json DESTINATION share/chimera/installer)
 
