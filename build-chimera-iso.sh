@@ -198,7 +198,10 @@ EOF
 }
 
 add_branding(){
-  mkdir -p "$ROOTFS_DIR/etc"
+  mkdir -p "$ROOTFS_DIR/etc" "$ROOTFS_DIR/var/log/chimera" "$ROOTFS_DIR/usr/share/chimera/aurora"
+  if [[ -f "$SCRIPT_DIR/tools/chimera-process-monitor.sh" ]]; then cp -f "$SCRIPT_DIR/tools/chimera-process-monitor.sh" "$ROOTFS_DIR/usr/bin/chimera-process-monitor"; chmod +x "$ROOTFS_DIR/usr/bin/chimera-process-monitor"; fi
+  if [[ -f "$SCRIPT_DIR/tools/chimera-boot-log-window.sh" ]]; then cp -f "$SCRIPT_DIR/tools/chimera-boot-log-window.sh" "$ROOTFS_DIR/usr/bin/chimera-boot-log-window"; chmod +x "$ROOTFS_DIR/usr/bin/chimera-boot-log-window"; fi
+  [[ -f "$SCRIPT_DIR/system/aurora/chimera-log-window.json" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-log-window.json" "$ROOTFS_DIR/usr/share/chimera/aurora/" || true
   cat > "$ROOTFS_DIR/etc/os-release" <<'EOF'
 NAME="Chimera II OS"
 VERSION="1.0.0"
@@ -227,6 +230,7 @@ stage_features(){
     [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/aurora/config/"
   done
   [[ -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" ]] && cp -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" "$ROOTFS_DIR/usr/share/chimera/docs/"
+  [[ -f "$SCRIPT_DIR/system/boot/chimera-log.conf" ]] && cp -f "$SCRIPT_DIR/system/boot/chimera-log.conf" "$ROOTFS_DIR/etc/chimera/" || true
 }
 
 stage_games(){
@@ -314,7 +318,7 @@ SquashFS: ${ISO_DIR}/live/filesystem.squashfs
 EOF
 }
 
-failure(){ local rc=$?; if ((rc!=0 && BUILD_SUCCEEDED==0)); then printf 'schema=2\nfailed_stage=%s\nexit_code=%s\n' "$CURRENT_STAGE" "$rc" > "$FAILED_FILE"; log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Checkpoint retained: $STATE_FILE"; fi; return $rc; }
+failure(){ local rc=$?; stop_watchdog || true; if ((rc!=0 && BUILD_SUCCEEDED==0)); then printf 'schema=2\nfailed_stage=%s\nexit_code=%s\n' "$CURRENT_STAGE" "$rc" > "$FAILED_FILE"; log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Checkpoint retained: $STATE_FILE"; fi; return $rc; }
 trap failure EXIT
 
 main(){
