@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-INTERVAL="\${CHIMERA_MONITOR_INTERVAL:-1}"
-LOG="\${CHIMERA_LOG_FILE:-/var/log/chimera/chimera.log}"
+INTERVAL="${CHIMERA_MONITOR_INTERVAL:-1}"
+LOG="${CHIMERA_LOG_FILE:-/var/log/mesgs}"
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 echo "CHIMERA II OS — REAL-TIME PROCESS / LOG MONITOR"
 while :; do
