@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "precedence": ["user", "desktop_environment", "system"],
+  "associations": [
+    {"match":{"extension":".txt"},"handler":"aurora.text","verb":"open"},
+    {"match":{"mime":"text/plain"},"handler":"aurora.text","verb":"open"},
+    {"match":{"mime":"image/*"},"handler":"aurora.image","verb":"open"},
+    {"match":{"mime":"audio/*"},"handler":"aurora.media","verb":"open"},
+    {"match":{"mime":"video/*"},"handler":"aurora.media","verb":"open"},
+    {"match":{"mime":"application/pdf"},"handler":"aurora.document","verb":"open"},
+    {"match":{"extension":".exe"},"handler":"compat.pe","verb":"run"},
+    {"match":{"extension":".com"},"handler":"compat.dos","verb":"run"},
+    {"match":{"extension":".bat"},"handler":"compat.dos","verb":"run"},
+    {"match":{"extension":".cmd"},"handler":"compat.dos","verb":"run"}
+  ]
+}
