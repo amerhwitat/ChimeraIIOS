@@ -19,6 +19,8 @@ ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
+LOG_DIR="$BUILD_DIR/logs"
+WATCHDOG_PID=""
 STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
@@ -35,6 +37,39 @@ log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
 log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
 log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
 log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
+
+log_file(){ mkdir -p "$LOG_DIR"; printf "[%s] %s\\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log"; }
+log_both(){ log_info "$*"; log_file "$*"; }
+process_snapshot(){
+  mkdir -p "$LOG_DIR"
+  {
+    echo "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) PROCESS SNAPSHOT ====="
+    echo "-- host processes --"
+    ps -eo pid,ppid,stat,%cpu,%mem,etime,cmd --sort=-%cpu 2>/dev/null | head -n 35 || true
+    echo "-- docker containers --"
+    docker ps -a --no-trunc 2>/dev/null || true
+    echo "-- docker disk usage --"
+    docker system df 2>/dev/null || true
+    echo "-- storage --"
+    df -h "$BUILD_DIR" "$ISO_OUTPUT_DIR" 2>/dev/null || true
+    echo "-- build directories --"
+    du -sh "$BUILD_DIR"/* "$ISO_DIR"/* 2>/dev/null | sort -h | tail -n 20 || true
+  } >> "$LOG_DIR/process-snapshots.log" 2>&1
+}
+start_watchdog(){
+  stop_watchdog || true
+  local label="$1" interval="${CHIMERA_BUILD_WATCHDOG_INTERVAL:-5}"
+  (while :; do log_both "[WATCHDOG] $label still active"; process_snapshot; sleep "$interval"; done) &
+  WATCHDOG_PID=$!
+}
+stop_watchdog(){
+  if [[ -n "$WATCHDOG_PID" ]]; then
+    kill "$WATCHDOG_PID" 2>/dev/null || true
+    wait "$WATCHDOG_PID" 2>/dev/null || true
+    WATCHDOG_PID=""
+  fi
+}
+
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
 while [[ $# -gt 0 ]]; do
@@ -117,7 +152,10 @@ check_deps(){
 build_docker(){
   header 'STEP 1: BUILD DOCKER IMAGE'
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
-  docker build --progress=plain -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR"
+  start_watchdog "Docker BuildKit image build"; set +e
+  BUILDKIT_PROGRESS=plain docker build --progress=plain -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog
+  ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
 
 export_rootfs(){
@@ -127,9 +165,13 @@ export_rootfs(){
   local cname="chimera-export-$BASHPID"
   docker rm -f "$cname" >/dev/null 2>&1 || true
   docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
-  set +e
-  docker export "$cname" | tar -xpf - -C "$ROOTFS_DIR"
-  local s=("${PIPESTATUS[@]}"); set -e
+  start_watchdog "Docker rootfs export / tar extraction"; set +e
+  if command -v pv >/dev/null 2>&1; then
+    docker export "$cname" | pv -brt 2> >(tee -a "$LOG_DIR/docker-export.progress" >&2) | tar -xpf - -C "$ROOTFS_DIR" --checkpoint=10000 --checkpoint-action="echo=[ROOTFS] extracted %T"
+  else
+    docker export "$cname" | tar -xpf - -C "$ROOTFS_DIR" --checkpoint=10000 --checkpoint-action="echo=[ROOTFS] extracted %T"
+  fi
+  local s=("${PIPESTATUS[@]}"); set -e; stop_watchdog
   docker rm -f "$cname" >/dev/null 2>&1 || true
   (( ${s[0]:-1}==0 && ${s[1]:-1}==0 )) || { log_error 'Docker rootfs export failed'; exit 1; }
   [[ -d "$ROOTFS_DIR/bin" || -d "$ROOTFS_DIR/usr/bin" ]] || { log_error 'Rootfs export is incomplete'; exit 1; }
