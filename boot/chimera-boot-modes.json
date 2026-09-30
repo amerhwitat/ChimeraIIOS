@@ -1,0 +1,15 @@
+{
+  "schema":"chimera-boot-modes-v1",
+  "default":"normal",
+  "modes":[
+    {"id":"normal","entry":"chimera","recovery":false,"requires":["koronos.elf","initramfs"]},
+    {"id":"recovery","entry":"recovery","recovery":true,"requires":["koronos.elf"]},
+    {"id":"safe-mode","entry":"chimera","recovery":true,"services":"minimal","requires":["koronos.elf"]},
+    {"id":"last-known-good","entry":"chimera","recovery":true,"services":"last-known-good","requires":["koronos.elf"]},
+    {"id":"live-aurora","entry":"live","recovery":false,"requires":["koronos.elf","live-initramfs","live-manifest"]},
+    {"id":"installer","entry":"installer","recovery":false,"requires":["koronos.elf","install-image","install-manifest","install-contract"]},
+    {"id":"diagnostics","entry":"diagnostics","recovery":true,"services":"diagnostics","requires":["koronos.elf"]},
+    {"id":"chainloader","entry":"other-os","recovery":false,"requires":["efi-chainloader"]}
+  ],
+  "last_known_good":{"write_after":"aurora-healthcheck","failure_action":"recovery"}
+}
