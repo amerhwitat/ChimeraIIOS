@@ -2,6 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export CHIMERA_REPO_ROOT="$ROOT"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 SYSTEM_AURORA_BACKGROUND="/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg"
 BOOT_AURORA_BACKGROUND="/boot/visual/aurora-wayland-glass.jpg"
 if [ -r "$SYSTEM_AURORA_BACKGROUND" ]; then
@@ -38,6 +39,39 @@ fi
 if [ "${CHIMERA_AURORA_NBIT_PANEL:-1}" = "1" ] && [ -x "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" ]; then
   "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" >/tmp/chimera-aurora-nbit-panel.log 2>&1 &
 fi
+
+# Consume emulator requests selected before Aurora was graphical. Jasper/boot
+# entries are allowed to queue a selection; this watcher launches it only after
+# Wayland/X11 is available, so native SDL/OpenGL windows become real Aurora
+# application windows instead of headless/background processes.
+launch_queued_emulator() {
+  local q="${CHIMERA_EMULATOR_QUEUE_DIR:-$XDG_RUNTIME_DIR/chimera/emulators}"
+  local id launcher
+  [ -s "$q/pending" ] || return 0
+  id="$(cat "$q/pending")"
+  case "$id" in
+    sakhr-ax170) launcher="$ROOT/aurora/emulators/bin/launch-sakhr-ax170.sh" ;;
+    sakhr-ax230) launcher="$ROOT/aurora/emulators/bin/launch-sakhr-ax230.sh" ;;
+    retro-*) launcher="$ROOT/aurora/emulators/bin/launch-retro.sh" ;;
+    *) printf '[AURORA] Unknown queued emulator: %s\n' "$id" >> /tmp/chimera-aurora-emulator.log; return 0 ;;
+  esac
+  if [ -x "$launcher" ]; then
+    mv "$q/pending" "$q/active" 2>/dev/null || return 0
+    ("$launcher" "$([ "$id" != "sakhr-ax170" ] && [ "$id" != "sakhr-ax230" ] && printf '%s' "$id")" >>/tmp/chimera-aurora-emulator.log 2>&1 || true)
+    rm -f "$q/active" "$q/title" "$q/args"
+  fi
+}
+(
+  q="${CHIMERA_EMULATOR_QUEUE_DIR:-$XDG_RUNTIME_DIR/chimera/emulators}"
+  for _ in $(seq 1 60); do
+    if [ -s "$q/pending" ] && { [ -n "${DISPLAY:-}" ] || { [ -n "${WAYLAND_DISPLAY:-}" ] && [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; }; }; then
+      launch_queued_emulator
+      break
+    fi
+    sleep 1
+  done
+) &
+
 if [ -x "$ROOT/userland/shell/chimera-shell" ]; then
   exec "$ROOT/userland/shell/chimera-shell" -i
 fi
