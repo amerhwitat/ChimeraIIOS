@@ -1,0 +1,14 @@
+{
+  "schema":"chimera-game-capability-policy-v1",
+  "classification":{
+    "Ultra":{"requirements":["native_gpu","high_vram","vulkan_or_d3d12","multithreaded_cpu"]},
+    "High":{"requirements":["native_gpu","vulkan_or_opengl","multithreaded_cpu"]},
+    "Medium":{"requirements":["native_gpu","opengl_or_vulkan"]},
+    "Low":{"requirements":["basic_gpu_or_accelerated_software"]},
+    "Compatibility":{"requirements":["supported_execution_layer"]},
+    "Software Rendering":{"requirements":["software_renderer"]}
+  },
+  "selection_order":["Ultra","High","Medium","Low","Compatibility","Software Rendering"],
+  "policy":"recommendation_only",
+  "driver_policy":"Koronos hardware/driver inventory is authoritative; the game selector never installs or substitutes drivers silently."
+}
