@@ -1,0 +1,5 @@
+[Unit]
+Description=Chimera II crash dump helper
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/chimera-screen-of-death.sh
