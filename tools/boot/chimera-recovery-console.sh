@@ -16,7 +16,7 @@ find_root() {
 
 mount_root() {
     dev="${1:-}"
-    mode="${2:-rw}"
+    mode="${2:-ro}"
     [ -n "$dev" ] || dev="$(find_root)"
     [ -n "$dev" ] || { say "[RECOVERY] No candidate root device found."; return 1; }
     mkdir -p /mnt/chimera-root
@@ -50,6 +50,10 @@ Information:
   dmesg                Show kernel messages when available
   drivers              Run the Chimera driver inventory
   network              Show network interfaces/routes
+  targets              Show Linux/Windows/macOS/Chimera runtime targets
+  target-detect        Detect filesystems and encrypted/platform volumes
+  mount-fs <dev> <fs> [ro|rw]  Explicit filesystem mount
+  mount-target <target>  Select target family and scan
 
 Filesystem:
   mount-root [dev] [rw|ro]  Mount installed root at /mnt/chimera-root
