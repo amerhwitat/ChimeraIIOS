@@ -11,7 +11,7 @@ shift
 TITLE=${CHIMERA_EMULATOR_TITLE:-$ID}
 RUNDIR=${XDG_RUNTIME_DIR:-/run/chimera}
 QUEUE_DIR=${CHIMERA_EMULATOR_QUEUE_DIR:-$RUNDIR/chimera/emulators}
-LOG_DIR=${CHIMERA_EMULATOR_LOG_DIR:-/run/chimera/emulators}
+LOG_DIR=${CHIMERA_EMULATOR_LOG_DIR:-$RUNDIR/chimera/emulators/log}
 mkdir -p "$QUEUE_DIR" "$LOG_DIR"
 
 has_gui=0
