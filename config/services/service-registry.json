@@ -1,0 +1,21 @@
+{
+  "schema": "chimera-service-registry-v1",
+  "version": 1,
+  "services": [
+    {"id":"chimera.device","type":"system","state":"implemented","dependencies":[],"restart":"on-failure","critical":true},
+    {"id":"chimera.storage","type":"system","state":"implemented","dependencies":["chimera.device"],"restart":"on-failure","critical":true},
+    {"id":"chimera.security","type":"system","state":"implemented","dependencies":["chimera.device"],"restart":"on-failure","critical":true},
+    {"id":"chimera.network","type":"system","state":"implemented","dependencies":["chimera.device"],"restart":"on-failure","critical":false},
+    {"id":"chimera.logging","type":"system","state":"implemented","dependencies":["chimera.storage"],"restart":"on-failure","critical":true},
+    {"id":"chimera.kore","type":"system","state":"implemented","dependencies":["chimera.storage","chimera.security","chimera.logging"],"restart":"on-failure","critical":true},
+    {"id":"aurora.session","type":"system","state":"implemented","dependencies":["chimera.kore","chimera.device"],"restart":"on-failure","critical":true},
+    {"id":"aurora.desktop","type":"user","state":"implemented","dependencies":["aurora.session"],"restart":"on-failure","critical":false},
+    {"id":"enterprise.ssh","type":"enterprise","state":"optional","dependencies":["chimera.network","chimera.security"],"restart":"on-failure","critical":false},
+    {"id":"enterprise.web","type":"enterprise","state":"optional","dependencies":["chimera.network","chimera.security"],"restart":"on-failure","critical":false},
+    {"id":"enterprise.database","type":"enterprise","state":"optional","dependencies":["chimera.storage","chimera.security"],"restart":"on-failure","critical":false},
+    {"id":"enterprise.fileserver","type":"enterprise","state":"optional","dependencies":["chimera.storage","chimera.network","chimera.security"],"restart":"on-failure","critical":false},
+    {"id":"enterprise.container","type":"enterprise","state":"optional","dependencies":["chimera.storage","chimera.network"],"restart":"on-failure","critical":false},
+    {"id":"enterprise.ai","type":"enterprise","state":"optional","dependencies":["chimera.storage","chimera.device"],"restart":"on-failure","critical":false},
+    {"id":"developer.toolchain","type":"developer","state":"optional","dependencies":["chimera.storage"],"restart":"never","critical":false}
+  ]
+}
