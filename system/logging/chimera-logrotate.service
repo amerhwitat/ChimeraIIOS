@@ -1,0 +1,7 @@
+[Unit]
+Description=Chimera II OS log rotation
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/chimera-logrotate
