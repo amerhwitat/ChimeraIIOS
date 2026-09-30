@@ -30,9 +30,20 @@ static void serial_init() {
     koronos_outb(0x3FC, 3);
 }
 
+/*
+ * COM1 is a diagnostic sink, never a boot/runtime dependency.  Some VMs and
+ * physical machines expose the UART but do not drain THR.  The old 100000
+ * iteration wait therefore made every kernel log line capable of stalling the
+ * cooperative scheduler for a long time.  Bound the poll and drop the byte if
+ * the UART is not ready; VGA remains the authoritative early-console path.
+ */
 static void serial_write8(uint8_t v) {
-    for (uint32_t i = 0; i < 100000u && !(serial_in8(0x3FD) & 0x20); ++i) {}
-    koronos_outb(0x3F8, v);
+    for (uint32_t i = 0; i < 1024u; ++i) {
+        if (serial_in8(0x3FD) & 0x20) {
+            koronos_outb(0x3F8, v);
+            return;
+        }
+    }
 }
 
 static void serial_write(const char *s) {
@@ -85,9 +96,10 @@ static void vga_write(const char *s) {
 }
 
 static void console_write(const char *s) {
-    serial_write(s);
+    /* Never let a diagnostic UART hold up the visible kernel console. */
     vga_write(s);
     vga_write("\r\n");
+    serial_write(s);
 }
 
 static void console_u32(uint32_t v) {
@@ -136,6 +148,7 @@ static void console_modules() {
     console_write(" module(s)");
     for (uint32_t i = 0; i < n; ++i) {
         const chimera_boot_module *m = chimera_multiboot_module(i);
+        if (!m) continue;
         console_write("[MB2 ] type=");
         console_write(module_kind_name(m->kind));
         console_write("[MB2 ] cmdline=");
@@ -371,4 +384,5 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_submit_bootstrap_tasks();
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
+    console_write("[RUN ] Entering Koronos scheduler loop");
 }
