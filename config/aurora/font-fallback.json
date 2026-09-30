@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "algorithm": ["requested-family","language-script","script-capable-font","emoji-font","last-resort"],
+  "features": ["glyph-fallback","variation-selectors","combining-marks","bidi","vertical-text-when-provider-supports-it"],
+  "font_sources": ["system","user","licensed-package"],
+  "missing_glyph": "U+25A1",
+  "security": {"font-parser-sandbox": true}
+}
