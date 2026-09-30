@@ -72,6 +72,8 @@ install(FILES media/README.md docs/aurora-multilingual-media.md DESTINATION shar
 install(PROGRAMS tools/build-media-stack.sh DESTINATION bin)
 install(FILES config/aurora/emulators.json config/aurora/free-roms.json config/aurora/emulator-windows.json config/aurora/emulator-associations.json DESTINATION share/chimera/aurora/config)
 install(FILES docs/aurora-emulation.md DESTINATION share/chimera/aurora/docs)
+install(FILES system/emulators/README.md DESTINATION share/chimera/emulators)
+install(PROGRAMS tools/build-emulator-stack.sh DESTINATION bin)
 install(DIRECTORY boot/visual DESTINATION share/chimera/boot)
 install(PROGRAMS tools/boot/chimera-boot-visual.sh tools/boot/prepare-visual-assets.py DESTINATION bin)
 install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/iso/grub-theme.txt boot/visual/boot-visual-manifest.json DESTINATION share/chimera/boot)
