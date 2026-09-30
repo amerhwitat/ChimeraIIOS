@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "panel": "Game Center",
+  "desktop": "Aurora",
+  "config": "/usr/share/chimera/aurora/config/game-center.json",
+  "library_roots": [
+    "/home/$USER/Games",
+    "/home/$USER/Games/PlayStation",
+    "/var/lib/chimera/emulation"
+  ],
+  "metadata": [".cue",".gdi",".chd",".iso",".bin",".img",".pbp",".cso",".nds",".3ds",".n64",".z64",".v64",".gb",".gbc",".gba",".nes",".smc",".sfc",".md",".gen",".sms",".gg",".pce",".m3u",".zip"],
+  "security": {
+    "read_only_mount": true,
+    "hash_before_launch": true,
+    "sandbox_emulator": true,
+    "compressed_payloads": "CHM-XEXEC"
+  }
+}
