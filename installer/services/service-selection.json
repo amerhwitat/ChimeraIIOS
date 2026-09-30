@@ -1,0 +1,7 @@
+{
+  "schema":"chimera-installer-services-v1",
+  "registry":"/etc/chimera/services/service-registry.json",
+  "profiles":"/etc/chimera/services/service-profiles.json",
+  "security_policy":"/etc/chimera/services/security-policies.json",
+  "confirmation_required_for":["enterprise.web","enterprise.database","enterprise.fileserver","enterprise.container","enterprise.ai"]
+}
