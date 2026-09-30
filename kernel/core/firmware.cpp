@@ -4,7 +4,9 @@
 struct mb2_tag { uint32_t type,size; };
 static uint64_t read64(const void *p){return *(const uint64_t*)p;}
 extern "C" int chimera_firmware_probe(const void *boot_context, chimera_firmware_profile *out){
- if(!out)return -1; for(size_t i=0;i<sizeof(*out);++i)((uint8_t*)out)[i]=0; out->version=CHIMERA_FIRMWARE_VERSION;
+ if(!out)return -1;
+ for(size_t i=0;i<sizeof(*out);++i)((uint8_t*)out)[i]=0;
+ out->version=CHIMERA_FIRMWARE_VERSION;
  const koronos_boot_context *ctx=(const koronos_boot_context*)boot_context;
  if(!ctx||ctx->magic!=KORONOS_BOOTINFO_MAGIC||ctx->version!=KORONOS_ABI_VERSION)return -2;
  const uint8_t *base=(const uint8_t*)(uintptr_t)ctx->boot_info;
