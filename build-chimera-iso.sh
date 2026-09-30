@@ -138,7 +138,7 @@ state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE"; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
   local order='docker rootfs boot branding apache features games squashfs iso verify report'; local ci ti
-  ci=$(awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}' <<< "$order"); ti=$(awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}' <<< "$order")
+  ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
 run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark "$1"; CURRENT_STAGE=""; }
