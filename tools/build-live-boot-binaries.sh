@@ -17,9 +17,10 @@ BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip; do ln -sf busybox "$INIT/bin/$x"; done
-for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
+for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
+[[ -f "$ROOT/config/recovery/chimera-recovery-targets.json" ]] && cp -f "$ROOT/config/recovery/chimera-recovery-targets.json" "$INIT/etc/chimera/"
 cat > "$INIT/init" <<'EOF'
 #!/bin/sh
 set -eu
@@ -96,7 +97,7 @@ cat > "$OUT/boot/live/live-manifest.json" <<EOF
 {"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.img","linux_vmlinuz_required":false,"architectures":["x86_64"]}
 EOF
 cat > "$OUT/boot/recovery/recovery-manifest.json" <<EOF
-{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.img","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mount-root","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"]}
+{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.img","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mounts","mount-root","umount-root","targets","target-detect","mount-target","mount-fs","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"],"runtime_levels":["L0-firmware","L1-koronos","L2-linux","L2-windows","L2-macos","L3-hosted"],"targets":["linux","windows","macos","chimera"]}
 EOF
 cp "$OUT/boot/live/live-manifest.json" "$OUT/manifests/live-boot.json"
 cp "$OUT/boot/recovery/recovery-manifest.json" "$OUT/manifests/recovery-boot.json"
