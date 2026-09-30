@@ -43,6 +43,18 @@ search(){
   log "Native candidates: Chimera-native packages, Chimera source builds, and firmware."
   log "Foreign driver formats are quarantined until a Chimera compatibility provider validates them."
 }
+download_candidate(){
+  url="$1"; expected="${2:-}"; name="${3:-$(basename "$url")}"
+  case "$url" in https://*) ;; *) log "Refusing non-HTTPS driver URL: $url"; return 2;; esac
+  out="$DB/downloads/$name"
+  fetch "$url" "$out" || { log "Download failed: $url"; return 1; }
+  if [ -n "$expected" ] && command -v sha256sum >/dev/null 2>&1; then
+    actual=$(sha256sum "$out" | awk '{print $1}')
+    [ "$actual" = "$expected" ] || { log "SHA-256 mismatch for $name"; cp -f "$out" "$QUARANTINE/"; return 1; }
+  fi
+  log "Downloaded verified driver candidate: $out"
+  printf '%s\n' "$out"
+}
 install_candidate(){
   file="$1"
   [ -f "$file" ] || { log "Candidate not found: $file"; return 1; }
@@ -60,7 +72,8 @@ install_candidate(){
 case "${1:-search}" in
   inventory) inventory;;
   search|update) search;;
+  download) download_candidate "${2:-}" "${3:-}" "${4:-}";;
   install) install_candidate "${2:-}";;
   daemon) while :; do search || true; sleep "${CHIMERA_DRIVER_REFRESH_SECONDS:-21600}"; done;;
-  *) echo 'usage: chimera-driver-manager {inventory|search|update|install FILE|daemon}'; exit 2;;
+  *) echo 'usage: chimera-driver-manager {inventory|search|update|download URL [SHA256] [NAME]|install FILE|daemon}'; exit 2;;
 esac
