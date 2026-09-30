@@ -12,7 +12,18 @@ static void unlock(){__sync_lock_release(&lock_word);}
 }
 extern "C" int chimera_timer_init(void){ lock(); for(uint32_t i=0;i<CHIMERA_TIMER_MAX;++i) timers[i]={}; now_tick=0; next_id=1; unlock(); return 0; }
 extern "C" int chimera_timer_create(uint64_t due,uint64_t period,chimera_timer_callback cb,void*ctx,chimera_timer_id*out){
- if(!cb||!out)return-1; lock(); for(uint32_t i=0;i<CHIMERA_TIMER_MAX;++i) if(!timers[i].active){ timers[i]={due,period,cb,ctx,1}; *out=(chimera_timer_id)(i+1); unlock(); return 0;} unlock(); return-2;
+ if(!cb||!out)return-1;
+ lock();
+ for(uint32_t i=0;i<CHIMERA_TIMER_MAX;++i){
+  if(!timers[i].active){
+   timers[i]={due,period,cb,ctx,1};
+   *out=(chimera_timer_id)(i+1);
+   unlock();
+   return 0;
+  }
+ }
+ unlock();
+ return-2;
 }
 extern "C" int chimera_timer_cancel(chimera_timer_id id){ if(id==0||id>CHIMERA_TIMER_MAX)return-1; lock(); timers[id-1].active=0; unlock(); return 0; }
 extern "C" uint64_t chimera_timer_now(void){return now_tick;}
