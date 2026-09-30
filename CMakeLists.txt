@@ -86,9 +86,24 @@ install(FILES system/drivers/chimera-driver-manager.service system/logging/chime
 install(FILES kernel/include/chimera/platform_features.h DESTINATION share/chimera/kernel/include/chimera)
 install(FILES system/emulators/README.md docs/aurora-game-center.md DESTINATION share/chimera/emulators)
 install(PROGRAMS tools/build-emulator-stack.sh DESTINATION bin)
+
+# Aurora native emulator window runtime. These launchers are installed into the
+# same userspace tree consumed by aurora-session.sh so Jasper-selected emulators
+# cannot fall back to headless/background execution.
+install(PROGRAMS desktop/aurora/aurora-session.sh DESTINATION share/chimera/aurora)
+install(PROGRAMS
+  aurora/emulators/bin/aurora-emulator-window.sh
+  aurora/emulators/bin/launch-retro.sh
+  aurora/emulators/bin/launch-sakhr-ax170.sh
+  aurora/emulators/bin/launch-sakhr-ax230.sh
+  DESTINATION share/chimera/aurora/emulators/bin
+)
+install(FILES aurora/emulators/emulator-registry.json aurora/emulators/binary-manifest.json aurora/emulators/README.md DESTINATION share/chimera/aurora/emulators)
+install(FILES aurora/emulators/desktop/chimera-sakhr-ax170.desktop aurora/emulators/desktop/chimera-sakhr-ax230.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+
 install(DIRECTORY boot/visual DESTINATION share/chimera/boot)
 install(PROGRAMS tools/boot/chimera-boot-visual.sh tools/boot/prepare-visual-assets.py DESTINATION bin)
-install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/iso/grub-theme.txt boot/visual/boot-visual-manifest.json DESTINATION share/chimera/boot)
+install(FILES boot/boot_protocol.json boot/boot-artwork-manifest.json boot/iso/grub.cfg boot/grub-theme.txt boot/visual/boot-visual-manifest.json DESTINATION share/chimera/boot)
 install(FILES desktop/aurora/aurora-web-console.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES installer/installation_phases.json installer/installer_profiles.json installer/chimera-installer-plan.json DESTINATION share/chimera/installer)
 
