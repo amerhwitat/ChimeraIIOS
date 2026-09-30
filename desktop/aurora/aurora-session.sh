@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d /usr/share/chimera/aurora ]; then
+  ROOT=/usr/share/chimera
+else
+  ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+fi
 export CHIMERA_REPO_ROOT="$ROOT"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 SYSTEM_AURORA_BACKGROUND="/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg"
@@ -40,26 +45,28 @@ if [ "${CHIMERA_AURORA_NBIT_PANEL:-1}" = "1" ] && [ -x "$ROOT/desktop/aurora/aur
   "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" >/tmp/chimera-aurora-nbit-panel.log 2>&1 &
 fi
 
-# Consume emulator requests selected before Aurora was graphical. Jasper/boot
-# entries are allowed to queue a selection; this watcher launches it only after
-# Wayland/X11 is available, so native SDL/OpenGL windows become real Aurora
-# application windows instead of headless/background processes.
+# Jasper may select an emulator before Aurora has a graphical display. The
+# native launcher queues that selection; consume it only after X11/Wayland is
+# available so SDL/OpenGL emulators create real application windows.
 launch_queued_emulator() {
   local q="${CHIMERA_EMULATOR_QUEUE_DIR:-$XDG_RUNTIME_DIR/chimera/emulators}"
-  local id launcher
+  local id launcher arg=""
   [ -s "$q/pending" ] || return 0
   id="$(cat "$q/pending")"
   case "$id" in
     sakhr-ax170) launcher="$ROOT/aurora/emulators/bin/launch-sakhr-ax170.sh" ;;
     sakhr-ax230) launcher="$ROOT/aurora/emulators/bin/launch-sakhr-ax230.sh" ;;
-    retro-*) launcher="$ROOT/aurora/emulators/bin/launch-retro.sh" ;;
+    retro-*) launcher="$ROOT/aurora/emulators/bin/launch-retro.sh"; arg="$id" ;;
     *) printf '[AURORA] Unknown queued emulator: %s\n' "$id" >> /tmp/chimera-aurora-emulator.log; return 0 ;;
   esac
-  if [ -x "$launcher" ]; then
-    mv "$q/pending" "$q/active" 2>/dev/null || return 0
-    ("$launcher" "$([ "$id" != "sakhr-ax170" ] && [ "$id" != "sakhr-ax230" ] && printf '%s' "$id")" >>/tmp/chimera-aurora-emulator.log 2>&1 || true)
-    rm -f "$q/active" "$q/title" "$q/args"
+  [ -x "$launcher" ] || { printf '[AURORA] Emulator launcher missing: %s\n' "$launcher" >> /tmp/chimera-aurora-emulator.log; return 0; }
+  mv "$q/pending" "$q/active" 2>/dev/null || return 0
+  if [ -n "$arg" ]; then
+    "$launcher" "$arg" >>/tmp/chimera-aurora-emulator.log 2>&1 &
+  else
+    "$launcher" >>/tmp/chimera-aurora-emulator.log 2>&1 &
   fi
+  rm -f "$q/active" "$q/title" "$q/args"
 }
 (
   q="${CHIMERA_EMULATOR_QUEUE_DIR:-$XDG_RUNTIME_DIR/chimera/emulators}"
