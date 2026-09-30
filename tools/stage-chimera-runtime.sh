@@ -10,7 +10,10 @@ for f in chimera-logd.sh chimera-logrotate.sh chimera-driver-manager.sh chimera-
 done
 [ -f "$SRC/tools/chimera-driver-center.sh" ] && cp -f "$SRC/tools/chimera-driver-center.sh" "$DEST/usr/bin/chimera-driver-center" && chmod +x "$DEST/usr/bin/chimera-driver-center"
 [ -f "$SRC/system/aurora/chimera-driver-center.desktop" ] && cp -f "$SRC/system/aurora/chimera-driver-center.desktop" "$DEST/usr/share/applications/"
-[ -f "$SRC/system/aurora/chimera-playstation.desktop" ] && cp -f "$SRC/system/aurora/chimera-playstation.desktop" "$DEST/usr/share/applications/"\n[ -f "$SRC/system/aurora/chimera-rom-search.desktop" ] && cp -f "$SRC/system/aurora/chimera-rom-search.desktop" "$DEST/usr/share/applications/"\nmkdir -p "$DEST/usr/share/chimera/aurora/config"\n[ -f "$SRC/config/aurora/rom-search.json" ] && cp -f "$SRC/config/aurora/rom-search.json" "$DEST/usr/share/chimera/aurora/config/"
+[ -f "$SRC/system/aurora/chimera-playstation.desktop" ] && cp -f "$SRC/system/aurora/chimera-playstation.desktop" "$DEST/usr/share/applications/"
+[ -f "$SRC/system/aurora/chimera-rom-search.desktop" ] && cp -f "$SRC/system/aurora/chimera-rom-search.desktop" "$DEST/usr/share/applications/"
+mkdir -p "$DEST/usr/share/chimera/aurora/config"
+[ -f "$SRC/config/aurora/rom-search.json" ] && cp -f "$SRC/config/aurora/rom-search.json" "$DEST/usr/share/chimera/aurora/config/"
 [ -f "$SRC/system/kore/chimera-runtime-services.json" ] && cp -f "$SRC/system/kore/chimera-runtime-services.json" "$DEST/usr/share/chimera/kore/"
 [ -f "$SRC/system/aurora/chimera-crash-screen.json" ] && cp -f "$SRC/system/aurora/chimera-crash-screen.json" "$DEST/usr/share/chimera/aurora/"
 [ -f "$SRC/config/crash/chimera-crash-policy.json" ] && mkdir -p "$DEST/etc/chimera" && cp -f "$SRC/config/crash/chimera-crash-policy.json" "$DEST/etc/chimera/"
