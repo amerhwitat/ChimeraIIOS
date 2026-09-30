@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-$ROOT/build/boot-artifacts}"
+# Keep boot-artifact output aligned with the ISO builder's selected build root.
+# CHIMERA_BOOT_ARTIFACT_DIR has highest priority; otherwise CHIMERA_BUILD_DIR
+# is used for alternate-storage/resume builds, then the repository build dir.
+OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-${CHIMERA_BUILD_DIR:-$ROOT/build}/boot-artifacts}"
 rm -rf "$OUT"
 mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
 KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
@@ -33,11 +36,6 @@ cp -f "$OUT/spitfire"/* "$OUT/all-bin/" 2>/dev/null || true
 cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
-# Collect only runnable ELF executables and shared objects from the
-# complete build tree. Do NOT stage relocatable .o files, static archives,
-# CMake internals, compiler intermediates, or test/build metadata. The old
-# broad "ELF" test treated every relocatable object as a boot/runtime ELF,
-# producing huge ISO trees with unnecessary files.
 find "$ROOT/build" -type f \
   -not -path "$ROOT/build/iso/*" \
   -not -path "$ROOT/build/boot-artifacts/*" \
@@ -53,18 +51,10 @@ while IFS= read -r -d "" f; do
       mkdir -p "$(dirname "$dest")"
       cp -f "$f" "$dest"
       ;;
-    *)
-      continue
-      ;;
+    *) continue ;;
   esac
 done
-
-# Preserve the runtime directory hierarchy. Flattening all runtime files into
-# all-elf can overwrite same-named binaries from different build targets.
-if [[ -d "$OUT/runtime" ]]; then
-  cp -a "$OUT/runtime/." "$OUT/all-elf/"
-fi
-
+if [[ -d "$OUT/runtime" ]]; then cp -a "$OUT/runtime/." "$OUT/all-elf/"; fi
 RUNTIME_COUNT="$(find "$OUT/runtime" -type f 2>/dev/null | wc -l | tr -d ' ')"
 RUNTIME_BYTES="$(du -sb "$OUT/runtime" 2>/dev/null | awk '{print $1}')"
 echo "Runtime ELF payload staged: ${RUNTIME_COUNT} files, ${RUNTIME_BYTES} bytes"
