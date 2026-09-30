@@ -1,52 +1,19 @@
-#pragma once
+#ifndef CHIMERA_PLATFORM_FEATURES_H
+#define CHIMERA_PLATFORM_FEATURES_H
+
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define CHIMERA_PLATFORM_FEATURE_ABI 0x00020000u
-#define CHIMERA_MAX_PLATFORM_OBJECTS 128u
-
-enum chimera_platform_feature : uint64_t {
-    CHM_FEAT_OBJECTS       = 1ull << 0,
-    CHM_FEAT_PROCESSES     = 1ull << 1,
-    CHM_FEAT_THREADS       = 1ull << 2,
-    CHM_FEAT_VMEM          = 1ull << 3,
-    CHM_FEAT_PAGECACHE     = 1ull << 4,
-    CHM_FEAT_VFS           = 1ull << 5,
-    CHM_FEAT_BLOCK_IO      = 1ull << 6,
-    CHM_FEAT_DMA_IOMMU     = 1ull << 7,
-    CHM_FEAT_PNP           = 1ull << 8,
-    CHM_FEAT_HOTPLUG       = 1ull << 9,
-    CHM_FEAT_NET_IP        = 1ull << 10,
-    CHM_FEAT_NET_SOCKETS   = 1ull << 11,
-    CHM_FEAT_NET_ZEROCOPY  = 1ull << 12,
-    CHM_FEAT_SECURITY      = 1ull << 13,
-    CHM_FEAT_TPM           = 1ull << 14,
-    CHM_FEAT_DRM_KMS       = 1ull << 15,
-    CHM_FEAT_USB_HID       = 1ull << 16,
-    CHM_FEAT_AUDIO         = 1ull << 17,
-    CHM_FEAT_POWER         = 1ull << 18,
-    CHM_FEAT_VIRTUALIZATION= 1ull << 19,
-    CHM_FEAT_DIAGNOSTICS   = 1ull << 20,
-    CHM_FEAT_AURORA_COMP   = 1ull << 21,
-    CHM_FEAT_AURORA_WM     = 1ull << 22,
-    CHM_FEAT_AURORA_CLIP   = 1ull << 23,
-    CHM_FEAT_AURORA_ACCESS = 1ull << 24,
-    CHM_FEAT_COMPAT_POSIX  = 1ull << 25,
-    CHM_FEAT_COMPAT_NT     = 1ull << 26,
-    CHM_FEAT_COMPAT_DARWIN = 1ull << 27,
-    CHM_FEAT_COMPAT_DOS    = 1ull << 28
-};
-
-enum chimera_platform_state : uint32_t {
-    CHM_PLATFORM_COLD = 0,
+typedef enum chimera_platform_state {
+    CHM_PLATFORM_OFFLINE = 0,
     CHM_PLATFORM_DISCOVERING = 1,
     CHM_PLATFORM_READY = 2,
     CHM_PLATFORM_DEGRADED = 3,
     CHM_PLATFORM_PANIC = 4
-};
+} chimera_platform_state;
 
 typedef struct chimera_memory_region {
     uint64_t base;
@@ -120,7 +87,7 @@ int chimera_platform_get_snapshot(chimera_platform_snapshot *out);
 
 int chimera_memory_register_region(uint64_t base, uint64_t length, uint32_t type, uint32_t flags);
 uint32_t chimera_memory_region_count(void);
-const chimera_memory_region *chimera_memory_region(uint32_t index);
+const chimera_memory_region *chimera_memory_region_at(uint32_t index);
 
 int chimera_io_submit(chimera_io_request *request);
 int chimera_io_complete(uint64_t request_id, int32_t status);
@@ -134,13 +101,8 @@ int chimera_net_register_endpoint(const chimera_net_endpoint *endpoint);
 int chimera_net_remove_endpoint(uint16_t family, uint16_t port);
 uint32_t chimera_net_endpoint_count(void);
 
-int chimera_display_register(const chimera_display_target *target);
-uint32_t chimera_display_count(void);
-const chimera_display_target *chimera_display_target_at(uint32_t index);
-
-int chimera_power_update(const chimera_power_state *state);
-int chimera_power_snapshot(chimera_power_state *out);
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
