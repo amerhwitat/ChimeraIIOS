@@ -95,34 +95,34 @@ static void build_profiles() {
 static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
     if (bits == 32u) {
         switch (n) {
-            case 1: return 1;   /* exit */
-            case 3: return 8;   /* read */
-            case 4: return 9;   /* write */
-            case 5: return 5;   /* open */
-            case 6: return 6;   /* close */
-            case 20: return 2;  /* getpid */
-            case 45: return 12; /* brk */
-            case 90: return 10; /* mmap */
-            case 91: return 11; /* munmap */
-            case 162: return 13;/* nanosleep */
+            case 1: return 1;
+            case 3: return 8;
+            case 4: return 9;
+            case 5: return 5;
+            case 6: return 6;
+            case 20: return 2;
+            case 45: return 12;
+            case 90: return 10;
+            case 91: return 11;
+            case 162: return 13;
             default: return 0xFFFFFFFFu;
         }
     }
     switch (n) {
-        case 0: return 8;   /* read */
-        case 1: return 9;   /* write */
-        case 2: return 5;   /* open */
-        case 3: return 6;   /* close */
-        case 9: return 10;  /* mmap */
-        case 11: return 11; /* munmap */
-        case 12: return 12; /* brk */
-        case 16: return 11; /* ioctl */
-        case 35: return 13; /* nanosleep */
-        case 39: return 2;  /* getpid */
-        case 60: return 1;  /* exit */
-        case 61: return 14; /* wait */
-        case 158: return 15;/* arch_prctl */
-        case 231: return 16;/* exit_group */
+        case 0: return 8;
+        case 1: return 9;
+        case 2: return 5;
+        case 3: return 6;
+        case 9: return 10;
+        case 11: return 11;
+        case 12: return 12;
+        case 16: return 11;
+        case 35: return 13;
+        case 39: return 2;
+        case 60: return 1;
+        case 61: return 14;
+        case 158: return 15;
+        case 231: return 16;
         default: return 0xFFFFFFFFu;
     }
 }
@@ -226,6 +226,16 @@ extern "C" int chimera_compat_memory_profile(uint32_t os, chimera_memory_model *
     return -1;
 }
 
+extern "C" int chimera_compat_validate_address(uint32_t os, uint64_t address, uint32_t kernel_space) {
+    for (uint32_t i = 0; i < g_profile_count; ++i) {
+        const chimera_compat_profile &p = g_profiles[i];
+        if (p.os != os) continue;
+        if (kernel_space) return (address >= p.kernel_low && address <= p.kernel_high) ? 0 : -1;
+        return (address >= p.user_low && address <= p.user_high) ? 0 : -1;
+    }
+    return -1;
+}
+
 extern "C" int chimera_compat_hal_profile(uint32_t os, uint64_t *hal_abi, uint64_t *driver_abi) {
     if (!hal_abi || !driver_abi) return -1;
     for (uint32_t i = 0; i < g_profile_count; ++i) {
@@ -236,6 +246,21 @@ extern "C" int chimera_compat_hal_profile(uint32_t os, uint64_t *hal_abi, uint64
         }
     }
     return -1;
+}
+
+extern "C" const char *chimera_compat_driver_model(uint32_t os) {
+    switch (os) {
+        case CHM_OS_WINDOWS_NT: return "NT Object/IO Manager + HAL + WDM/UMDF";
+        case CHM_OS_WINDOWS_9X: return "VMM + VxD + Win16/Win32 thunking";
+        case CHM_OS_DOS: return "BIOS/DOS INT 21h + real/protected-mode device hooks";
+        case CHM_OS_LINUX: return "POSIX + VFS + device/ioctl + DMA/IOMMU";
+        case CHM_OS_DARWIN: return "Darwin IOKit + BSD + Mach";
+        case CHM_OS_MACH: return "Mach ports/traps + task/thread VM";
+        case CHM_OS_BSD: return "BSD syscall + device + kqueue style interfaces";
+        case CHM_OS_ANDROID: return "Linux kernel + Android userspace/HAL";
+        case CHM_OS_IOS: return "Darwin/Mach + IOKit + iOS userspace";
+        default: return "Chimera native object/driver ABI";
+    }
 }
 
 extern "C" const char *chimera_compat_os_name(uint32_t os) {
