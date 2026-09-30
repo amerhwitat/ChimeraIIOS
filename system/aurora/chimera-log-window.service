@@ -1,0 +1,13 @@
+[Unit]
+Description=Chimera II OS real-time log/process monitor
+After=basic.target
+ConditionPathExists=/usr/bin/chimera-process-monitor
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/chimera-process-monitor
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
