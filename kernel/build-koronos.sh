@@ -37,6 +37,15 @@ for obj in "${link_objects[@]}"; do
   [[ -f "$obj" ]] || { echo "ERROR: required Koronos link object is missing: $obj" >&2; exit 1; }
 done
 
+# Verify the Multiboot scanner at the object level as well. This distinguishes
+# a compile/source omission from a post-link symbol-table inspection issue.
+if command -v nm >/dev/null 2>&1; then
+  nm -a "$BUILD/multiboot_modules.o" | grep -Eq '[[:space:]]chimera_multiboot_scan$' || {
+    echo "ERROR: chimera_multiboot_scan is absent from multiboot_modules.o" >&2
+    exit 1
+  }
+fi
+
 "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" -o "$BUILD/koronos.elf"
 
 if command -v readelf >/dev/null 2>&1; then
@@ -45,7 +54,7 @@ fi
 if command -v nm >/dev/null 2>&1; then
   required_symbols=(koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall memset memcpy memmove)
   for symbol in "${required_symbols[@]}"; do
-    nm -g "$BUILD/koronos.elf" | grep -Eq "[[:space:]]${symbol}$" || { echo "ERROR: $symbol is not linked" >&2; exit 1; }
+    nm -a "$BUILD/koronos.elf" | grep -Eq '[[:space:]]'"$symbol"'$' || { echo "ERROR: $symbol is not linked" >&2; exit 1; }
   done
 fi
 
