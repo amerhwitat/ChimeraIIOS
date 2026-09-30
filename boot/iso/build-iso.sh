@@ -25,6 +25,19 @@ cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 
+# Jasper recovery is a real early-userspace terminal, not only a menu label.
+# Stage its dedicated initramfs and the canonical recovery menu after
+# prepare-layout, whose legacy recovery.cfg generation is intentionally kept
+# compatible with older installations.
+RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
+test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
+test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
+mkdir -p "$DIST/iso/boot/recovery"
+cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img" "$DIST/iso/boot/recovery/"
+cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/recovery/" 2>/dev/null || true
+cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
+cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
+
 printf '%s\n' '[4/7] Stage Aurora background, embedded JPEG and boot video'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
@@ -61,8 +74,12 @@ grep -q '"native_execution_order"' "$DIST/iso/boot/chimera/manifests/boot-execut
 
 test -s "$DIST/iso/boot/live/chimera-live-initramfs.img" || { echo "Live initramfs missing from ISO staging tree." >&2; exit 1; }
 test -s "$DIST/iso/boot/live/live-manifest.json" || { echo "Live manifest missing from ISO staging tree." >&2; exit 1; }
+test -s "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img" || { echo "Recovery initramfs missing from ISO staging tree." >&2; exit 1; }
+test -s "$DIST/iso/boot/recovery/recovery-manifest.json" || { echo "Recovery manifest missing from ISO staging tree." >&2; exit 1; }
 grep -q '/boot/live/chimera-live-initramfs.img' "$ROOT/boot/jasper/live.cfg"
 grep -q '/boot/live/live-manifest.json' "$ROOT/boot/jasper/live.cfg"
+grep -q '/boot/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recovery.cfg"
+grep -q 'Recovery Terminal' "$ROOT/boot/jasper/recovery.cfg"
 
 for contract in \
   "$DIST/iso/install/installer/installation.img" \
@@ -94,6 +111,7 @@ sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
 printf '%s\n' '[7/7] Inspect El Torito boot records'
 xorriso -indev "$DIST/output.iso" -report_el_torito plain -report_system_area plain | tee "$DIST/ISO-BOOT-REPORT.txt"
-printf 'ISO: %s\nKoronos: %s\nSpit Fire: %s\nAurora background: %s\nBoot video: %s\n' \
+printf 'ISO: %s\nKoronos: %s\nSpit Fire: %s\nAurora background: %s\nBoot video: %s\nRecovery terminal: %s\n' \
   "$DIST/output.iso" "$DIST/iso/boot/koronos/koronos.elf" "$DIST/iso/boot/spitfire/spitfire-stage2.bin" \
-  "$DIST/iso/boot/visual/aurora-background.jpg" "$DIST/iso/boot/visual/chimera-intro.mp4"
+  "$DIST/iso/boot/visual/aurora-background.jpg" "$DIST/iso/boot/visual/chimera-intro.mp4" \
+  "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img"
