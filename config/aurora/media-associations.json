@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "handlers": [
+    {"mime":"audio/*","handler":"aurora.media"},
+    {"mime":"video/*","handler":"aurora.media"},
+    {"mime":"application/ogg","handler":"aurora.media"},
+    {"mime":"application/vnd.apple.mpegurl","handler":"aurora.media"},
+    {"mime":"application/x-mpegurl","handler":"aurora.media"}
+  ],
+  "selection": {
+    "order":["user-default","installed-aurora-player","compatible-player","safe-preview"],
+    "fallback":"aurora.media"
+  }
+}
