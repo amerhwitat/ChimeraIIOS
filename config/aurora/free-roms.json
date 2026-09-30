@@ -4,13 +4,43 @@
   "final_fantasy": {
     "commercial_series": "not bundled",
     "source_code": "not bundled unless legally redistributable",
-    "user_owned_dumps": ["Final Fantasy PSX/PS1 disc images"],
-    "homebrew_alternatives": ["Open-source PSX homebrew", "public-domain PSX demos"],
+    "user_owned_dumps": [
+      "Final Fantasy PSX/PS1 disc images"
+    ],
+    "homebrew_alternatives": [
+      "Open-source PSX homebrew",
+      "public-domain PSX demos"
+    ],
     "bios": "user-dumped or legally redistributable OpenBIOS only"
   },
   "rom_sources": [
-    {"name":"Internet Archive software collections","type":"archive","requires_rights_check":true},
-    {"name":"PD Roms","type":"public-domain","requires_rights_check":true},
-    {"name":"Homebrew repositories","type":"open-source","requires_rights_check":true}
-  ]
+    {
+      "name": "Internet Archive software collections",
+      "type": "archive",
+      "requires_rights_check": true
+    },
+    {
+      "name": "PD Roms",
+      "type": "public-domain",
+      "requires_rights_check": true
+    },
+    {
+      "name": "Homebrew repositories",
+      "type": "open-source",
+      "requires_rights_check": true
+    }
+  ],
+  "search": {
+    "tool": "chimera-rom-search.sh",
+    "platforms": [
+      "PSX",
+      "PS2",
+      "PS3",
+      "PS4",
+      "PS5"
+    ],
+    "mode": "discovery-only",
+    "automatic_download": false,
+    "rights_verification_required": true
+  }
 }
