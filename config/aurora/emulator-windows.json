@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "window_class": "Aurora.Emulator",
+  "features": {
+    "multi_window": true,
+    "tabbed_sessions": true,
+    "integer_scaling": true,
+    "aspect_ratio_lock": true,
+    "fullscreen": true,
+    "borderless": true,
+    "vsync": true,
+    "shader_pipeline": true,
+    "frame_pacing": true,
+    "input_overlay": true,
+    "controller_hotplug": true,
+    "save_states": true,
+    "screenshot": true,
+    "recording": true,
+    "rtl_ui": true,
+    "ltr_ui": true
+  },
+  "display_backends": [
+    "wayland",
+    "x11-compat",
+    "drm-kms",
+    "headless"
+  ],
+  "pixel_formats": [
+    "RGB565",
+    "XRGB8888",
+    "ARGB8888",
+    "XBGR8888",
+    "ABGR8888",
+    "RGBA16F"
+  ],
+  "scaling": [
+    "nearest",
+    "bilinear",
+    "integer",
+    "fit",
+    "stretch"
+  ],
+  "default": {
+    "backend": "wayland",
+    "scale": "integer",
+    "vsync": true
+  }
+}
