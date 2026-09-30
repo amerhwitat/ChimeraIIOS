@@ -1,0 +1,1 @@
+{"schema":1,"window_class":"Aurora.SystemCrash","title":"Chimera II OS — System Failure","fullscreen":true,"panels":["crash-summary","registers","stack","processes","services","memory-dump","mesgs"],"actions":["dump-memory","archive-logs","reboot","shutdown","shell"],"dump_root":"/var/crash/chimera","log_root":"/var/log/mesgs"}
