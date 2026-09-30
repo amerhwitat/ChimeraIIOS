@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "handlers": [
+    {
+      "extension": ".nes",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".fds",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".gb",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".gbc",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".gba",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".sfc",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".smc",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".md",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".gen",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".pce",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".a26",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".a78",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".lnx",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".d64",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".crt",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".dsk",
+      "handler": "aurora.emulation"
+    },
+    {
+      "extension": ".chd",
+      "handler": "aurora.emulation"
+    }
+  ],
+  "fallback": "aurora.emulation"
+}
