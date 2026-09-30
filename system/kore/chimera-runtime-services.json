@@ -1,0 +1,9 @@
+{
+  "schema":"CHM-KORE-RUNTIME-SERVICES-1",
+  "services":[
+    {"name":"chimera-kmsg-forwarder","exec":"/usr/bin/chimera-kmsg-forwarder.sh","restart":"always"},
+    {"name":"chimera-logd","exec":"/usr/bin/chimera-logd.sh","restart":"always"},
+    {"name":"chimera-driver-manager","exec":"/usr/bin/chimera-driver-manager.sh daemon","restart":"always","network":"required"},
+    {"name":"chimera-logrotate","exec":"/usr/bin/chimera-logrotate.sh","schedule":"configured"}
+  ]
+}
