@@ -1,0 +1,9 @@
+# Chimera II OS Aurora GRUB theme asset contract
+# Compatibility alias for packaging paths that expect the theme at boot/grub-theme.txt.
+# Canonical source remains boot/iso/grub-theme.txt.
+background=/boot/grub/aurora-wayland-glass.png
+jasper_background=/boot/jasper/background.png
+spitfire_background=/boot/spitfire/background.png
+installer_background=/install/installer-background.png
+aurora_desktop_background=/usr/share/chimera/aurora/desktop-background.png
+aurora_library_background=/usr/share/chimera/aurora/library-background.png
