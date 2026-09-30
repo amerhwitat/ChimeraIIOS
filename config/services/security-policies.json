@@ -1,0 +1,14 @@
+{
+  "schema":"chimera-service-security-v1",
+  "default":{"sandbox":true,"network":false,"filesystem":"declared","devices":[]},
+  "overrides": {
+    "chimera.network":{"network":true},
+    "enterprise.ssh":{"network":true},
+    "enterprise.web":{"network":true},
+    "enterprise.database":{"filesystem":"service-data"},
+    "enterprise.fileserver":{"network":true,"filesystem":"declared-shares"},
+    "enterprise.container":{"network":true,"devices":["virtualization"]},
+    "enterprise.ai":{"devices":["accelerator-if-licensed"]}
+  },
+  "privileged_mutation":"kore-only"
+}
