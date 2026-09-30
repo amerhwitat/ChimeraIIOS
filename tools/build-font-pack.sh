@@ -37,7 +37,17 @@ copy_fonts() {
     done
 }
 
-for spec in   "dejavu|https://github.com/dejavu-fonts/dejavu-fonts|CHIMERA_FONT_DEJAVU_REV"   "noto|https://github.com/notofonts/latin|CHIMERA_FONT_NOTO_REV"   "liberation|https://github.com/liberationfonts/liberation-fonts|CHIMERA_FONT_LIBERATION_REV"   "freefont|https://git.savannah.gnu.org/git/freefont.git|CHIMERA_FONT_FREEFONT_REV"   "unifont|https://github.com/gnu-unifont/unifont|CHIMERA_FONT_UNIFONT_REV"; do
+for spec in \
+  "dejavu|https://github.com/dejavu-fonts/dejavu-fonts|CHIMERA_FONT_DEJAVU_REV" \
+  "noto-latin|https://github.com/notofonts/latin|CHIMERA_FONT_NOTO_LATIN_REV" \
+  "noto-arabic|https://github.com/notofonts/arabic|CHIMERA_FONT_NOTO_ARABIC_REV" \
+  "noto-hebrew|https://github.com/notofonts/hebrew|CHIMERA_FONT_NOTO_HEBREW_REV" \
+  "noto-indic|https://github.com/notofonts/indic|CHIMERA_FONT_NOTO_INDIC_REV" \
+  "noto-cjk|https://github.com/notofonts/noto-cjk|CHIMERA_FONT_NOTO_CJK_REV" \
+  "noto-emoji|https://github.com/googlefonts/noto-emoji|CHIMERA_FONT_NOTO_EMOJI_REV" \
+  "liberation|https://github.com/liberationfonts/liberation-fonts|CHIMERA_FONT_LIBERATION_REV" \
+  "freefont|https://git.savannah.gnu.org/git/freefont.git|CHIMERA_FONT_FREEFONT_REV" \
+  "unifont|https://github.com/gnu-unifont/unifont|CHIMERA_FONT_UNIFONT_REV"; do
   IFS='|' read -r id url var <<< "$spec"
   if [[ -n "${!var:-}" ]]; then
     src="$(fetch "$id" "$url" "$var")"
