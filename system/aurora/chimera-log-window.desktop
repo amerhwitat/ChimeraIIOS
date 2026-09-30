@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera II OS — System Logs & Processes
+Comment=Real-time boot, installer, hardware, services and process monitor
+Exec=/usr/bin/chimera-process-monitor
+Terminal=true
+Categories=System;Monitor;
+X-Chimera-Autostart=true
