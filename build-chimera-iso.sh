@@ -242,9 +242,23 @@ stage_games(){
 
 create_installer(){
   local p; mkdir -p "$ISO_DIR/install/installer"; p="$(mktemp -d "$ISO_TMP_DIR/installer.XXXXXX")"
-  mkdir -p "$p"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer}
-  local bb="$(command -v busybox || true)"; [[ -n "$bb" ]] && { cp "$bb" "$p/bin/busybox"; for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync; do ln -sf busybox "$p/bin/$x"; done; }
+  mkdir -p "$p"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer} "$p/run/chimera" "$p/var/log/chimera"
+  local bb="$(command -v busybox || true)"; [[ -n "$bb" ]] && { cp "$bb" "$p/bin/busybox"; for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head; do ln -sf busybox "$p/bin/$x"; done; }
   for f in "$SCRIPT_DIR/install/installer-contract.json" "$SCRIPT_DIR/installer/installation_phases.json" "$SCRIPT_DIR/installer/installer_profiles.json" "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$p/chimera/installer/"; done
+  cat > "$p/bin/chimera-installer-monitor" <<'EOF'
+#!/bin/sh
+while :; do
+  clear
+  echo "CHIMERA II OS — INSTALLER LOG / PROCESSES"
+  echo "------------------------------------------"
+  ps 2>/dev/null || true
+  echo
+  echo "INSTALLER LOG"
+  tail -n 22 /run/chimera/installer.log 2>/dev/null || true
+  sleep 1
+done
+EOF
+  chmod +x "$p/bin/chimera-installer-monitor"
   cat > "$p/init" <<'EOF'
 #!/bin/sh
 set -eu
@@ -252,6 +266,9 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 echo 'Chimera II OS Native Installation Environment'
+mkdir -p /run/chimera /var/log/chimera
+printf '[INST] Installer environment started\\n' >> /run/chimera/installer.log
+( /bin/chimera-installer-monitor > /dev/console 2>&1 ) &
 exec /bin/sh
 EOF
   chmod +x "$p/init"
