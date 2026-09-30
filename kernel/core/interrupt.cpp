@@ -1,6 +1,11 @@
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
 
+/* Defined by kernel/arch/x86_64/interrupts.asm.  Keep this declaration at
+ * global scope: placing it inside the anonymous namespace gives the symbol
+ * internal linkage and produces an undefined reference at link time. */
+extern "C" void *chimera_isr_table[CHIMERA_IDT_ENTRIES];
+
 namespace {
 
 struct idt_gate64 {
@@ -27,8 +32,6 @@ static volatile uint32_t g_irqs = 0;
 static volatile uint32_t g_soft = 0;
 static volatile uint32_t g_syscalls = 0;
 static volatile uint32_t g_last = 0;
-
-extern "C" void *chimera_isr_table[CHIMERA_IDT_ENTRIES];
 
 static void lidt(const idt_ptr64 *p) {
     __asm__ volatile("lidt (%0)" : : "r"(p) : "memory");
