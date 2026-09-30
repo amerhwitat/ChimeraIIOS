@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "policy": "Only redistribute ROM images whose copyright/license explicitly permits redistribution.",
+  "allowed_sources": [
+    {
+      "class": "public-domain",
+      "description": "Public-domain software and ROM images"
+    },
+    {
+      "class": "cc0",
+      "description": "CC0 releases"
+    },
+    {
+      "class": "creative-commons",
+      "description": "CC-licensed releases permitting redistribution"
+    },
+    {
+      "class": "open-source",
+      "description": "Open-source/homebrew software with redistribution terms"
+    },
+    {
+      "class": "user-owned",
+      "description": "User-supplied dumps; never redistributed by Chimera"
+    }
+  ],
+  "blocked": [
+    "commercial-copyrighted-roms",
+    "commercial-bios",
+    "unlicensed-dumps"
+  ],
+  "manifest_fields": [
+    "system",
+    "title",
+    "version",
+    "source",
+    "license",
+    "sha256",
+    "files"
+  ],
+  "install_root": "share/chimera/roms",
+  "user_root": "~/Games/ROMs",
+  "bios_root": "~/Games/BIOS"
+}
