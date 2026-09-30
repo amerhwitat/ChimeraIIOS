@@ -1,0 +1,5 @@
+{
+  "schema":"chimera-service-graph-v1",
+  "order":["chimera.device","chimera.storage","chimera.security","chimera.logging","chimera.network","chimera.kore","aurora.session","aurora.desktop","enterprise.ssh","enterprise.web","enterprise.database","enterprise.fileserver","enterprise.container","enterprise.ai","developer.toolchain"],
+  "failure_policy":{"critical":"enter-recovery","optional":"isolate-and-log"}
+}
