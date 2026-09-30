@@ -92,6 +92,10 @@ logs() {
     done
 }
 
+target_helpers() {
+    if [ -x /bin/chimera-recovery-targets.sh ]; then /bin/chimera-recovery-targets.sh "$@"; else say "[RECOVERY] Target helper unavailable."; fi
+}
+
 drivers() {
     if [ -x /bin/chimera-driver-manager.sh ]; then
         /bin/chimera-driver-manager.sh inventory || true
@@ -168,6 +172,10 @@ while :; do
         dmesg) dmesg 2>/dev/null || true ;;
         drivers) drivers ;;
         network|net) network ;;
+        targets) target_helpers targets ;;
+        target-detect) target_helpers detect ;;
+        mount-fs) target_helpers mount-fs "$arg1" "$arg2" "${rest:-ro}" ;;
+        mount-target) target_helpers targets; target_helpers detect ;;
         mount-root) mount_root "$arg1" "$arg2" ;;
         umount-root) unmount_root ;;
         check-root) check_root "$arg1" ;;
