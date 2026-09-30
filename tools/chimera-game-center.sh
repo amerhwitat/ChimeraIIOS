@@ -19,3 +19,15 @@ else
 fi
 echo
 echo "Use Aurora Game Center to scan/import user-owned or legally redistributable game content."
+
+G3D=/usr/share/chimera/aurora/config/free-3d-games.json
+[ -r "$G3D" ] || G3D=./config/aurora/free-3d-games.json
+if [ -r "$G3D" ] && command -v python3 >/dev/null 2>&1; then
+ echo
+ echo "[Free 3D Games]"
+ python3 - "$G3D" <<'PY3'
+import json,sys
+for g in json.load(open(sys.argv[1],encoding="utf-8"))["games"]:
+ print("  %-18s %-24s %s" % (g["id"],g["title"],g["genre"]))
+PY3
+fi
