@@ -81,7 +81,7 @@ typedef struct chimera_platform_snapshot {
 int chimera_platform_init(uint64_t requested_features);
 int chimera_platform_probe(void);
 uint64_t chimera_platform_features(void);
-uint32_t chimera_platform_state(void);
+uint32_t chimera_platform_state_get(void);
 int chimera_platform_has(uint64_t feature);
 int chimera_platform_get_snapshot(chimera_platform_snapshot *out);
 
