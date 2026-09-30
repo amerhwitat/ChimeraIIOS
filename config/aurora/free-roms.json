@@ -1,43 +1,16 @@
 {
-  "schema": 1,
-  "policy": "Only redistribute ROM images whose copyright/license explicitly permits redistribution.",
-  "allowed_sources": [
-    {
-      "class": "public-domain",
-      "description": "Public-domain software and ROM images"
-    },
-    {
-      "class": "cc0",
-      "description": "CC0 releases"
-    },
-    {
-      "class": "creative-commons",
-      "description": "CC-licensed releases permitting redistribution"
-    },
-    {
-      "class": "open-source",
-      "description": "Open-source/homebrew software with redistribution terms"
-    },
-    {
-      "class": "user-owned",
-      "description": "User-supplied dumps; never redistributed by Chimera"
-    }
-  ],
-  "blocked": [
-    "commercial-copyrighted-roms",
-    "commercial-bios",
-    "unlicensed-dumps"
-  ],
-  "manifest_fields": [
-    "system",
-    "title",
-    "version",
-    "source",
-    "license",
-    "sha256",
-    "files"
-  ],
-  "install_root": "share/chimera/roms",
-  "user_root": "~/Games/ROMs",
-  "bios_root": "~/Games/BIOS"
+  "schema": 2,
+  "policy": "Only legally redistributable software is bundled.",
+  "final_fantasy": {
+    "commercial_series": "not bundled",
+    "source_code": "not bundled unless legally redistributable",
+    "user_owned_dumps": ["Final Fantasy PSX/PS1 disc images"],
+    "homebrew_alternatives": ["Open-source PSX homebrew", "public-domain PSX demos"],
+    "bios": "user-dumped or legally redistributable OpenBIOS only"
+  },
+  "rom_sources": [
+    {"name":"Internet Archive software collections","type":"archive","requires_rights_check":true},
+    {"name":"PD Roms","type":"public-domain","requires_rights_check":true},
+    {"name":"Homebrew repositories","type":"open-source","requires_rights_check":true}
+  ]
 }
