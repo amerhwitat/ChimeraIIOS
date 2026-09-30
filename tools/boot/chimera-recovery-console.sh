@@ -97,7 +97,7 @@ logs() {
 }
 
 target_helpers() {
-    if [ -x /bin/chimera-recovery-targets.sh ]; then /bin/chimera-recovery-targets.sh "$@"; else say "[RECOVERY] Target helper unavailable."; fi
+    if [ -f /bin/chimera-recovery-targets.sh ]; then sh /bin/chimera-recovery-targets.sh "$@"; else say "[RECOVERY] Target helper unavailable."; fi
 }
 
 drivers() {
