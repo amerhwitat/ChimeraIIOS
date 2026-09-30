@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-CONFIG=\${CHIMERA_LOG_CONFIG:-/etc/chimera/logging.conf}
+CONFIG=${CHIMERA_LOG_CONFIG:-/etc/chimera/logging.conf}
 LOG_DIR=/var/log/mesgs
 LOG_FILE="$LOG_DIR/mesgs"
 ARCHIVE_DIR="$LOG_DIR/archive"
