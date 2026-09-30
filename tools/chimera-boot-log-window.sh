@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-LOG="\${CHIMERA_LOG_FILE:-/run/chimera/boot.log}"
+LOG="${CHIMERA_LOG_FILE:-/var/log/mesgs}"
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 : > "$LOG" 2>/dev/null || true
 printf '\033[2J\033[H'
