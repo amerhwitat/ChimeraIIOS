@@ -194,6 +194,12 @@ create_boot_menu(){
   bash "$SCRIPT_DIR/tools/build-live-boot-binaries.sh"
   cp "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/"
   cp "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/"
+  mkdir -p "$ISO_DIR/boot/recovery" "$ISO_DIR/recovery"
+  cp "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img" "$ISO_DIR/boot/recovery/"
+  cp "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img.sha256" "$ISO_DIR/boot/recovery/"
+  cp "$BUILD_DIR/live-boot/boot/recovery/recovery-manifest.json" "$ISO_DIR/boot/recovery/"
+  cp "$SCRIPT_DIR/config/recovery/chimera-recovery-targets.json" "$ISO_DIR/recovery/"
+  cp "$SCRIPT_DIR/docs/recovery-runtime-levels.md" "$ISO_DIR/recovery/"
   [[ -s "$BUILD_DIR/live-boot/boot/vmlinuz" ]] && cp "$BUILD_DIR/live-boot/boot/vmlinuz" "$ISO_DIR/boot/live/" || true
   [[ -f "$SCRIPT_DIR/boot/iso/grub.cfg" ]] && cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/grub/grub.cfg" || cat > "$ISO_DIR/boot/grub/grub.cfg" <<'EOF'
 set timeout=5
