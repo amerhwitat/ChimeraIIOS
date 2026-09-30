@@ -1,0 +1,13 @@
+{
+  "schema": "CHM-RECOVERY-TARGETS-1",
+  "purpose": "Offline recovery and filesystem-mount target matrix",
+  "runtime_levels": [
+    {"id":"L0-firmware","name":"Firmware / Pre-OS","targets":["BIOS","UEFI","EFI System Partition"]},
+    {"id":"L1-koronos","name":"Koronos native recovery","targets":["Chimera II OS","QFS","ext4","XFS","Btrfs","ZFS","VFAT","exFAT","NTFS3","ISO9660","UDF","SquashFS"]},
+    {"id":"L2-linux","name":"Linux offline target","targets":["ext4","XFS","Btrfs","ZFS","VFAT","exFAT","NTFS3","LUKS2","LVM","mdraid"]},
+    {"id":"L2-windows","name":"Windows offline target","targets":["NTFS3","VFAT","exFAT","BitLocker-detected","EFI System Partition"]},
+    {"id":"L2-macos","name":"macOS / OS X offline target","targets":["APFS-detected","HFS+","HFS","VFAT","exFAT","EFI System Partition"]},
+    {"id":"L3-hosted","name":"Hosted runtime","targets":["Linux host","Windows host","macOS host"]}
+  ],
+  "filesystem_policy": {"default_mount":"read-only","read_write_requires_explicit_mode":true,"repair_requires_unmount":true,"proprietary_or_encrypted_volumes":"detect and report; do not bypass encryption or platform security"}
+}
