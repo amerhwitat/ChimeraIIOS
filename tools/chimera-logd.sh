@@ -23,6 +23,7 @@ rotate_now() {
 }
 last_rotate=$(date +%s)
 while :; do
+  [ -f "$CONFIG" ] && . "$CONFIG" || true
   now=$(date +%s)
   size=$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)
   if [ "$size" -ge "$MAX_BYTES" ] || [ $((now-last_rotate)) -ge "$ROTATE_SECONDS" ]; then
