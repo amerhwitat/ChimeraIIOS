@@ -8,11 +8,70 @@
     "/home/$USER/Games/PlayStation",
     "/var/lib/chimera/emulation"
   ],
-  "metadata": [".cue",".gdi",".chd",".iso",".bin",".img",".pbp",".cso",".nds",".3ds",".n64",".z64",".v64",".gb",".gbc",".gba",".nes",".smc",".sfc",".md",".gen",".sms",".gg",".pce",".m3u",".zip"],
+  "metadata": [
+    ".cue",
+    ".gdi",
+    ".chd",
+    ".iso",
+    ".bin",
+    ".img",
+    ".pbp",
+    ".cso",
+    ".nds",
+    ".3ds",
+    ".n64",
+    ".z64",
+    ".v64",
+    ".gb",
+    ".gbc",
+    ".gba",
+    ".nes",
+    ".smc",
+    ".sfc",
+    ".md",
+    ".gen",
+    ".sms",
+    ".gg",
+    ".pce",
+    ".m3u",
+    ".zip"
+  ],
   "security": {
     "read_only_mount": true,
     "hash_before_launch": true,
     "sandbox_emulator": true,
     "compressed_payloads": "CHM-XEXEC"
+  },
+  "views": [
+    "All Systems",
+    "Free 3D Games",
+    "Favorites",
+    "Recently Played",
+    "Installed Cores",
+    "Console Families",
+    "Arcade",
+    "PC Classics"
+  ],
+  "actions": [
+    "Scan Library",
+    "Scan Free 3D Games",
+    "Detect Core",
+    "Launch",
+    "Install Free 3D Game",
+    "Import User-Owned Dump",
+    "Verify Hash",
+    "Open System Files",
+    "Core Manager"
+  ],
+  "free_3d_games_config": "/usr/share/chimera/aurora/config/free-3d-games.json",
+  "game_roots": [
+    "/opt/chimera/games/3d",
+    "/home/$USER/Games/3D"
+  ],
+  "discovery": {
+    "enabled": true,
+    "catalog": "free-3d-games.json",
+    "web_refresh": true,
+    "automatic_unverified_download": false
   }
 }
