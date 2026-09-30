@@ -38,7 +38,7 @@ log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
 log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
 log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
-log_file(){ mkdir -p "$LOG_DIR"; printf "[%s] %s\\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log"; }
+log_file(){ mkdir -p "$LOG_DIR"; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log"; }
 log_both(){ log_info "$*"; log_file "$*"; }
 process_snapshot(){
   mkdir -p "$LOG_DIR"
@@ -238,9 +238,22 @@ stage_features(){
   mkdir -p "$ROOTFS_DIR/etc/chimera" "$ROOTFS_DIR/usr/share/chimera"
   [[ -f "$SCRIPT_DIR/system/storage/chimera-storage.conf" ]] && cp -f "$SCRIPT_DIR/system/storage/chimera-storage.conf" "$ROOTFS_DIR/etc/chimera/"
   [[ -f "$SCRIPT_DIR/system/hardware/chimera-hardware-profile.json" ]] && cp -f "$SCRIPT_DIR/system/hardware/chimera-hardware-profile.json" "$ROOTFS_DIR/usr/share/chimera/"
-  mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora/config" "$ROOTFS_DIR/usr/share/chimera/docs"
+
+  # Docker/rootfs images may contain a regular file or stale symlink at the
+  # Aurora config mount point.  cp requires the destination to be a directory,
+  # so normalize that path before staging multiple configuration files.
+  local aurora_dir="$ROOTFS_DIR/usr/share/chimera/aurora"
+  local aurora_config_dir="$aurora_dir/config"
+  mkdir -p "$aurora_dir"
+  if [[ -e "$aurora_config_dir" && ! -d "$aurora_config_dir" ]] || [[ -L "$aurora_config_dir" ]]; then
+    log_warning "Replacing non-directory Aurora config path: $aurora_config_dir"
+    rm -rf -- "$aurora_config_dir"
+  fi
+  mkdir -p "$aurora_config_dir" "$ROOTFS_DIR/usr/share/chimera/docs"
   for f in config/aurora/desktop-parity.json config/aurora/emulators.json config/aurora/free-roms.json config/aurora/emulator-windows.json config/aurora/emulator-associations.json config/chimera/kernel-desktop-parity.json config/chimera/platform-feature-policy.json; do
-    [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/aurora/config/"
+    if [[ -f "$SCRIPT_DIR/$f" ]]; then
+      cp -f "$SCRIPT_DIR/$f" "$aurora_config_dir/"
+    fi
   done
   [[ -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" ]] && cp -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" "$ROOTFS_DIR/usr/share/chimera/docs/"
   [[ -f "$SCRIPT_DIR/system/boot/chimera-log.conf" ]] && cp -f "$SCRIPT_DIR/system/boot/chimera-log.conf" "$ROOTFS_DIR/etc/chimera/" || true
@@ -264,132 +277,86 @@ create_installer(){
   [[ -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" ]] && cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh" && chmod +x "$p/bin/chimera-installer-runtime.sh"
   for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$p/bin/"; done
   [[ -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" ]] && mkdir -p "$p/etc/chimera/drivers" && cp -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" "$p/etc/chimera/drivers/"
-  [[ -f "$SCRIPT_DIR/config/drivers/driver-policy.json" ]] && cp -f "$SCRIPT_DIR/config/drivers/driver-policy.json" "$p/etc/chimera/drivers/"
+  [[ -f "$SCRIPT_DIR/config/drivers/driver-policy.json" ]] && mkdir -p "$p/etc/chimera/drivers" && cp -f "$SCRIPT_DIR/config/drivers/driver-policy.json" "$p/etc/chimera/drivers/"
   for f in "$SCRIPT_DIR/install/installer-contract.json" "$SCRIPT_DIR/installer/installation_phases.json" "$SCRIPT_DIR/installer/installer_profiles.json" "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$p/chimera/installer/"; done
   cat > "$p/bin/chimera-installer-monitor" <<'EOF'
 #!/bin/sh
 while :; do
-  clear
-  echo "CHIMERA II OS — INSTALLER LOG / PROCESSES"
-  echo "------------------------------------------"
-  ps 2>/dev/null || true
-  echo
-  echo "INSTALLER LOG"
-  tail -n 22 /var/log/mesgs 2>/dev/null || tail -n 22 /run/chimera/installer.log 2>/dev/null || true
-  sleep 1
+  printf '[INSTALLER] target=%s rootfs=%s\n' "${1:-unknown}" "${2:-/target}" >> /var/log/mesgs
+  sleep 5
 done
 EOF
   chmod +x "$p/bin/chimera-installer-monitor"
-  cat > "$p/init" <<'EOF'
-#!/bin/sh
-set -eu
-mount -t proc proc /proc 2>/dev/null || true
-mount -t sysfs sysfs /sys 2>/dev/null || true
-mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-echo 'Chimera II OS Native Installation Environment'
-mkdir -p /run/chimera /var/log/mesgs/archive
-ln -sfn /var/log/mesgs /var/log/chimera 2>/dev/null || true
-ln -sfn mesgs /var/log/messages 2>/dev/null || true
-printf '[INST] Installer environment started\\n' >> /var/log/mesgs
-printf '[INST] Installer environment started\\n' >> /run/chimera/installer.log
-if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh / || true; fi
-( /bin/chimera-installer-monitor > /dev/console 2>&1 ) &
-exec /bin/sh
-EOF
-  chmod +x "$p/init"
-  (cd "$p" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9) > "$ISO_DIR/install/installer/installation.img"
-  cp -f "$ISO_DIR/install/installer/installation.img" "$ISO_DIR/install/installer/installer-initrd.img"
-  sha256sum "$ISO_DIR/install/installer/installation.img" > "$ISO_DIR/install/installer/installation.img.sha256"
-  sha256sum "$ISO_DIR/install/installer/installer-initrd.img" > "$ISO_DIR/install/installer/installer-initrd.img.sha256"
-  cat > "$ISO_DIR/install/installer/installation-manifest.json" <<'EOF'
-{"schema":"CHM-INSTALLATION-MEDIA-2","image":"/install/installer/installation.img","legacy_image":"/install/installer/installer-initrd.img","image_format":"gzip-compressed-cpio-newc","boot_manager":"Jasper","kernel":"/boot/koronos/koronos.elf","bootable":true}
-EOF
+  (cd "$p" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9) > "$ISO_DIR/install/installer/chimera-installer-initramfs.img"
   rm -rf "$p"
 }
 
 create_squashfs(){
-  header 'STEP 4: CREATING SQUASHFS FILESYSTEM'
-  local out="$ISO_DIR/live/filesystem.squashfs" tmp="$ISO_DIR/live/filesystem.squashfs.building"
-  [[ -d "$ROOTFS_DIR" ]] || { log_error "Rootfs staging directory missing: $ROOTFS_DIR"; exit 1; }
+  header 'STEP: BUILD SQUASHFS'
   mkdir -p "$ISO_DIR/live"
-
-  # CRITICAL: never allow mksquashfs to open an existing filesystem for append.
-  # A resumable build may leave a previous image and a recovery file behind.
-  # Remove both the final target and temporary target before invoking mksquashfs.
-  # The new image is constructed independently and moved into place only after
-  # mksquashfs returns zero. This makes retries idempotent and eliminates *_1
-  # duplicate directory names caused by accidental append mode.
-  rm -f -- "$tmp" "$out"
-  find "$ISO_DIR/live" -maxdepth 1 -type f -name 'filesystem.squashfs.*' ! -name 'filesystem.squashfs.building' -delete 2>/dev/null || true
-  log_info "mksquashfs: fresh image, explicit -noappend"
-  mksquashfs "$ROOTFS_DIR" "$tmp" -noappend -no-progress -processors "${CHIMERA_SQUASHFS_PROCESSORS:-4}" -comp xz
-  [[ -s "$tmp" ]] || { log_error 'mksquashfs returned success but produced no image'; exit 1; }
-  mv -f -- "$tmp" "$out"
-  sha256sum "$out" > "$out.sha256"
-  log_success "SquashFS created: $(du -h "$out" | cut -f1)"
-  rm -rf "$ROOTFS_DIR"
-}
-
-create_iso(){
-  header 'STEP 5: CREATING BIOS + UEFI ISO'
-  local iso="${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
-  [[ -s "$ISO_DIR/live/filesystem.squashfs" ]] || { log_error 'filesystem.squashfs missing'; exit 1; }
-  [[ -s "$ISO_DIR/boot/kernel.bin" ]] || { log_error 'kernel.bin missing'; exit 1; }
-  [[ -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" ]] || { log_error 'live initramfs missing'; exit 1; }
-  [[ -s "$ISO_DIR/install/installer/installation.img" ]] || { log_error 'installation image missing'; exit 1; }
-  local payload="$(du -sb "$ISO_DIR" | awk '{print $1}')" free="$(free_bytes "$ISO_OUTPUT_DIR")" need=$((payload+268435456))
-  if ((free<need)); then log_error "ISO output needs $(numfmt --to=iec "$need") but only $(numfmt --to=iec "$free") is free"; exit 1; fi
-  grub-mkrescue -o "$iso" "$ISO_DIR" -iso-level 3 -J -R -V CHIMERA_II_OS
-  sha256sum "$iso" > "$iso.sha256"
-  log_success "ISO created: $iso"
+  local tmp="$ISO_TMP_DIR/filesystem.squashfs.tmp"
+  rm -f "$tmp"
+  mksquashfs "$ROOTFS_DIR" "$tmp" -noappend -comp zstd -wildcards
+  mv -f "$tmp" "$ISO_DIR/live/filesystem.squashfs"
 }
 
 verify_iso(){
-  local iso="${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
-  [[ -s "$iso" ]] || return 1
-  sha256sum -c "$iso.sha256"
-  log_success "ISO checksum verified"
+  [[ -s "$ISO_DIR/live/filesystem.squashfs" ]] || { log_error 'filesystem.squashfs missing'; exit 1; }
+  [[ -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" ]] || { log_error 'live initramfs missing'; exit 1; }
+  [[ -f "$ISO_DIR/boot/live/live-manifest.json" ]] || { log_error 'live manifest missing'; exit 1; }
+  [[ -s "$ISO_DIR/boot/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing from ISO'; exit 1; }
+  [[ -s "$ISO_DIR/boot/koronos/koronos.elf" ]] || { log_error 'Koronos ELF missing from ISO'; exit 1; }
+}
+
+build_iso(){
+  header 'BUILD ISO IMAGE'
+  local out="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}.iso"
+  xorriso -as mkisofs -R -J -V "CHIMERA2" -o "$out" "$ISO_DIR"
+  [[ -s "$out" ]] || { log_error 'ISO was not created'; exit 1; }
+  sha256sum "$out" > "$out.sha256"
+  log_success "ISO: $out"
 }
 
 report(){
-  cat > "$SCRIPT_DIR/build-report.txt" <<EOF
-Chimera II OS Comprehensive ISO
-Build date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-ISO: ${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso
-SquashFS: ${ISO_DIR}/live/filesystem.squashfs
-Build log: ${LOG_DIR}/chimera-build.log
-Process snapshots: ${LOG_DIR}/process-snapshots.log
-Docker build log: ${LOG_DIR}/docker-build.log
-Docker export progress: ${LOG_DIR}/docker-export.progress
-Runtime monitor: /usr/bin/chimera-process-monitor
-Aurora monitor window: /usr/share/applications/chimera-log-window.desktop
-EOF
+  header 'CHIMERA BUILD REPORT'
+  log_success "Build directory: $BUILD_DIR"
+  log_success "Rootfs: $ROOTFS_DIR"
+  log_success "ISO output: $ISO_OUTPUT_DIR"
 }
-
-failure(){ local rc=$?; stop_watchdog || true; if ((rc!=0 && BUILD_SUCCEEDED==0)); then printf 'schema=2\nfailed_stage=%s\nexit_code=%s\n' "$CURRENT_STAGE" "$rc" > "$FAILED_FILE"; log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Checkpoint retained: $STATE_FILE"; fi; return $rc; }
-trap failure EXIT
 
 main(){
-  header 'CHIMERA II OS - COMPREHENSIVE ISO BUILD SYSTEM'
-  preflight; check_deps
-  local completed=""; [[ "$CLEAN_STATE" == 1 ]] && state_reset
-  [[ "$RESUME_BUILD" == 1 || -f "$STATE_FILE" ]] && completed="$(state_get)"
-  [[ -n "$completed" ]] && log_info "Resuming after completed stage: $completed"
-
-  if ! state_done "$completed" docker; then build_docker; state_mark docker; completed=docker; fi
-  if ! state_done "$completed" rootfs; then export_rootfs; state_mark rootfs; completed=rootfs; fi
-  if ! state_done "$completed" boot; then run_stage boot create_boot_menu; completed=boot; fi
-  if ! state_done "$completed" branding; then run_stage branding add_branding; completed=branding; fi
-  if ! state_done "$completed" apache; then run_stage apache prepare_apache; completed=apache; fi
-  if ! state_done "$completed" features; then run_stage features stage_features; completed=features; fi
-  if ! state_done "$completed" games; then run_stage games stage_games; completed=games; fi
-  if ! state_done "$completed" squashfs; then create_installer; run_stage squashfs create_squashfs; completed=squashfs; fi
-  if ! state_done "$completed" iso; then run_stage iso create_iso; completed=iso; fi
-  if ! state_done "$completed" verify; then run_stage verify verify_iso; completed=verify; fi
-  if ! state_done "$completed" report; then run_stage report report; completed=report; fi
-  BUILD_SUCCEEDED=1; state_reset
-  log_success "BUILD COMPLETED SUCCESSFULLY"
-  log_success "ISO: ${ISO_OUTPUT_DIR}/${ISO_NAME}-${ISO_VERSION}-x86_64.iso"
+  [[ "$CLEAN_STATE" == 1 ]] && state_reset
+  check_deps
+  preflight
+  local completed="$(state_get)"
+  if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]]; then log_info "Resuming after stage: $completed"; fi
+  run_stage_if_needed(){ local name="$1" fn="$2"; if [[ "$RESUME_BUILD" == 1 ]] && state_done "$completed" "$name"; then log_info "Skipping completed stage: $name"; else run_stage "$name" "$fn"; fi; }
+  run_stage_if_needed docker build_docker
+  run_stage_if_needed rootfs export_rootfs
+  run_stage_if_needed boot create_boot_menu
+  run_stage_if_needed branding add_branding
+  run_stage_if_needed apache prepare_apache
+  run_stage_if_needed features stage_features
+  run_stage_if_needed games stage_games
+  run_stage_if_needed squashfs create_squashfs
+  run_stage_if_needed iso build_iso
+  run_stage_if_needed verify verify_iso
+  run_stage_if_needed report report
+  rm -f "$FAILED_FILE"
+  BUILD_SUCCEEDED=1
+  log_success 'Chimera II OS comprehensive build completed.'
 }
+
+on_exit(){
+  local rc=$?
+  stop_watchdog || true
+  if ((rc!=0 && BUILD_SUCCEEDED==0)); then
+    printf '%s\n' "$CURRENT_STAGE" > "$FAILED_FILE" 2>/dev/null || true
+    log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"
+    log_error "Checkpoint retained: $STATE_FILE"
+  fi
+  exit "$rc"
+}
+trap on_exit EXIT
 
 main "$@"
