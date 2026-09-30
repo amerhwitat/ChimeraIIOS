@@ -16,7 +16,7 @@
     {"id":"minetest-game","title":"Minetest Game","genre":"3D voxel sandbox content","engine":"Luanti","license":"See upstream LICENSE.txt","source":"https://github.com/luanti-org/minetest_game","status":"content-pack"},
     {"id":"xonotic","title":"Xonotic","genre":"3D arena FPS","engine":"DarkPlaces fork","license":"GPL-2.0-or-later","source":"https://gitlab.com/xonotic/xonotic","status":"buildable"},
     {"id":"red-eclipse","title":"Red Eclipse","genre":"3D arena FPS","engine":"Cube Engine","license":"Zlib/GPL components; see upstream","source":"https://github.com/red-eclipse/base","status":"buildable"},
-    {"id":"sauerbraten","title":"Cube 2: Sauerbraten","genre":"3D FPS","engine":"Cube 2","license":"Zlib/GPL components; see upstream","source":"https://github.com/assaultcube/AC","status":"external-upstream-check"},
+    {"id":"sauerbraten","title":"Cube 2: Sauerbraten","genre":"3D FPS","engine":"Cube 2","license":"Zlib/GPL components; see upstream","source":"https://github.com/kripken/Cube-2","status":"external-upstream-check"},
     {"id":"unvanquished","title":"Unvanquished","genre":"3D strategy/FPS","engine":"Daemon","license":"GPL-2.0-or-later / asset-specific licenses","source":"https://github.com/Unvanquished/Unvanquished","status":"buildable"},
     {"id":"the-dark-mod","title":"The Dark Mod","genre":"3D stealth","engine":"idTech 4","license":"GPL-3.0-or-later; assets see upstream","source":"https://github.com/d3ad3l1t3/TheDarkMod","status":"buildable"},
     {"id":"veloren","title":"Veloren","genre":"3D voxel RPG","engine":"Veloren","license":"GPL-3.0-or-later","source":"https://gitlab.com/veloren/veloren","status":"buildable"},
