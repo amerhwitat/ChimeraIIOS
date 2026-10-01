@@ -31,7 +31,7 @@ STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
 
-mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
+mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
 log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
@@ -91,7 +91,7 @@ done
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
-  mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
+  mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
   export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
 fi
 
@@ -107,7 +107,7 @@ choose_storage(){
   fi
   [[ -n "$best" ]] || return 1
   BUILD_DIR="$best/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$best/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
-  mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
+  mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
   export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
   log_success "Build storage switched to $best"
 }
@@ -120,7 +120,7 @@ preflight(){
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
-      export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+      export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
   fi
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
@@ -168,7 +168,7 @@ create_boot_menu(){
   header 'STEP 3: BUILD BOOT ARTIFACTS'
   "$SCRIPT_DIR/kernel/build-koronos.sh"
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
-  mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/EFI/BOOT"
+  mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   cp "$k" "$ISO_DIR/boot/kernel.bin"; cp "$k" "$ISO_DIR/boot/koronos/koronos.elf"
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
@@ -277,16 +277,51 @@ build_squashfs(){
 
 build_iso(){
   header 'STEP 9: BUILD BOOTABLE ISO'
+
   local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}.iso"
+  local source_bytes=0
+  local free_bytes_now=0
+  local required_bytes=0
+  local safety_bytes=$((2 * 1024 * 1024 * 1024))
+
   rm -f "$iso" "$iso.sha256"
+
   rm -rf "$ISO_DIR/EFI/BOOT"
   mkdir -p "$ISO_DIR/EFI/BOOT"
-  grub-mkrescue -o "$iso" "$ISO_DIR" 2>&1 | tee "$LOG_DIR/grub-mkrescue.log"
-  [[ -s "$iso" ]] || { log_error 'ISO generation produced no file'; exit 1; }
+
+  source_bytes="$(du -sB1 "$ISO_DIR" 2>/dev/null | awk '{print $1}')"
+  free_bytes_now="$(free_bytes "$ISO_OUTPUT_DIR")"
+
+  # Allow room for ISO metadata, GRUB structures, temporary xorriso
+  # allocation and filesystem overhead.
+  required_bytes=$((source_bytes + safety_bytes))
+
+  log_info "ISO staging size: $((source_bytes / 1024 / 1024 / 1024)) GiB"
+  log_info "Current output free space: $((free_bytes_now / 1024 / 1024 / 1024)) GiB"
+  log_info "Required output space: $((required_bytes / 1024 / 1024 / 1024)) GiB"
+
+  if (( free_bytes_now < required_bytes )); then
+    log_error "Insufficient space for final ISO."
+    log_error "Required: $((required_bytes / 1024 / 1024 / 1024)) GiB"
+    log_error "Available: $((free_bytes_now / 1024 / 1024 / 1024)) GiB"
+    log_error "Use --storage /mnt/<larger-drive> or --storage-auto."
+    exit 1
+  fi
+
+  grub-mkrescue \
+      -o "$iso" \
+      "$ISO_DIR" \
+      2>&1 | tee "$LOG_DIR/grub-mkrescue.log"
+
+  [[ -s "$iso" ]] || {
+    log_error 'ISO generation produced no file'
+    exit 1
+  }
+
   sha256sum "$iso" > "$iso.sha256"
+
   log_success "ISO: $iso"
 }
-
 verify_iso(){
   header 'STEP 10: VERIFY ISO BOOT STRUCTURE'
   local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}.iso"
