@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+command -v zig >/dev/null 2>&1 || { echo 'chimera-zig: zig not installed' >&2; exit 127; }
+if [[ -n "${CHIMERA_TARGET:-}" && "${CHIMERA_TARGET}" != native ]]; then exec zig build-exe -target "$CHIMERA_TARGET" "$@"; fi
+exec zig "$@"
