@@ -1,0 +1,67 @@
+name: Deduplicate Runtime Assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'installer/**'
+      - 'recovery/**'
+      - 'mobile/**'
+      - 'boot/**'
+      - 'live/**'
+      - 'assets/**'
+      - 'tools/deduplicate-assets.sh'
+      - '.github/workflows/deduplicate-runtime-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chimera-runtime-asset-dedup
+  cancel-in-progress: false
+
+jobs:
+  deduplicate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Normalize and deduplicate runtime assets
+        shell: bash
+        run: |
+          chmod +x tools/deduplicate-assets.sh
+          tools/deduplicate-assets.sh --runtime
+
+      - name: Validate links
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          broken=0
+          while IFS= read -r -d '' link; do
+            if [[ ! -e "$link" ]]; then
+              echo "BROKEN_SYMLINK: $link"
+              broken=1
+            fi
+          done < <(find desktop installer recovery mobile boot live assets -type l -print0 2>/dev/null || true)
+          (( broken == 0 )) || exit 1
+          git diff --check
+
+      - name: Commit canonical links
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet --ignore-submodules -- .; then
+            echo "No duplicate runtime files required aliasing."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'build: replace duplicate runtime assets with canonical links'
+          git push origin HEAD:main
