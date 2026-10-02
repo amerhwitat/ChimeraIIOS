@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
+BITS="${CHIMERA_BITS:-8192}"
+TARGET="${CHIMERA_TARGET:-}"
+command -v rustc >/dev/null 2>&1 || { echo 'chimera-rustc: rustc not installed' >&2; exit 127; }
+# Keep arbitrary-width semantics in the shared N-bit runtime while letting rustc
+# perform target-specific lowering for real physical architectures.
+export RUSTFLAGS="${RUSTFLAGS:-} --cfg chimera_nbit --cfg chimera_logical_bits_${BITS}"
+if [[ -n "$TARGET" && "$TARGET" != native ]]; then exec rustc --target "$TARGET" "$@"; fi
+exec rustc "$@"
