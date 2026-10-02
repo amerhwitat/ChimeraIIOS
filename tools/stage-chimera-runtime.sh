@@ -24,7 +24,6 @@ done
 [ -f "$SRC/config/drivers/driver-repositories.json" ] && cp -f "$SRC/config/drivers/driver-repositories.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/config/drivers/driver-policy.json" ] && cp -f "$SRC/config/drivers/driver-policy.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/system/boot/chimera-logging.conf" ] && cp -f "$SRC/system/boot/chimera-logging.conf" "$DEST/etc/chimera/logging.conf"
-
 for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh aurora-event-sound.sh aurora-init-splash.sh; do
   if [ -f "$SRC/desktop/aurora/$f" ]; then
     cp -f "$SRC/desktop/aurora/$f" "$DEST/usr/share/chimera/aurora/$f"
@@ -39,8 +38,8 @@ done
 [ -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" ] && cp -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" "$DEST/etc/xdg/xdg-desktop-portal/aurora-portals.conf"
 
 # Generate optional Aurora initialization media and menu sounds at build time.
-if [ -x "$SRC/tools/generate-aurora-media.sh" ]; then
-  "$SRC/tools/generate-aurora-media.sh" "$SRC/desktop/aurora/assets" || true
+if [ -f "$SRC/tools/generate-aurora-media.sh" ]; then
+  sh "$SRC/tools/generate-aurora-media.sh" "$SRC/desktop/aurora/assets" || true
 fi
 
 # Hard-code repository-side Aurora artwork and generated media into the installed rootfs.
@@ -62,10 +61,8 @@ for bg in "$SRC/desktop/aurora/assets/aurora-wayland-glass.png" "$SRC/desktop/au
     break
   fi
 done
-
 [ -f "$SRC/mobile/mobile-progress.json" ] && cp -f "$SRC/mobile/mobile-progress.json" "$DEST/usr/share/chimera/mobile/"
 [ -f "$SRC/mobile/README.md" ] && cp -f "$SRC/mobile/README.md" "$DEST/usr/share/chimera/mobile/"
-
 for f in aurora-emulator-window.sh launch-retro.sh launch-sakhr-ax170.sh launch-sakhr-ax230.sh; do
   if [ -f "$SRC/aurora/emulators/bin/$f" ]; then
     cp -f "$SRC/aurora/emulators/bin/$f" "$DEST/usr/share/chimera/aurora/emulators/bin/$f"
@@ -77,16 +74,13 @@ for f in "$SRC/aurora/emulators/desktop"/*.desktop; do
   cp -f "$f" "$DEST/usr/share/chimera/aurora/emulators/desktop/"
   cp -f "$f" "$DEST/usr/share/applications/"
 done
-
 for f in system/logging/chimera-logd.service system/logging/chimera-logrotate.service system/logging/chimera-logrotate.timer system/drivers/chimera-driver-manager.service system/logging/chimera-kmsg-forwarder.service system/crash/chimera-crash.service; do
   [ -f "$SRC/$f" ] && cp -f "$SRC/$f" "$DEST/etc/systemd/system/"
 done
-
 if [ -x "$SRC/tools/provision-aurora-rootfs.sh" ]; then
   AURORA_PROVISION_LOG="${AURORA_PROVISION_LOG:-$DEST/var/log/aurora-provision.log}" \
     "$SRC/tools/provision-aurora-rootfs.sh" "$DEST"
 fi
-
 mkdir -p "$DEST/etc/systemd/system/getty@tty1.service.d"
 cat > "$DEST/etc/systemd/system/getty@tty1.service.d/aurora-autologin.conf" <<'EOF'
 [Service]
@@ -105,7 +99,6 @@ cat > "$DEST/home/chimera/.profile" <<'EOF'
 EOF
 chroot "$DEST" /bin/chown -R chimera:chimera /home/chimera 2>/dev/null || true
 chmod 0644 "$DEST/home/chimera/.bash_profile" "$DEST/home/chimera/.profile"
-
 mkdir -p "$DEST/usr/share/wayland-sessions"
 cat > "$DEST/usr/share/wayland-sessions/aurora.desktop" <<'EOF'
 [Desktop Entry]
