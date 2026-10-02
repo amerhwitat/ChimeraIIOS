@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <keyboard>
+    <default />
+    <keybind key="W-r">
+      <action name="Execute" command="sh -lc 'wofi --show drun 2>/dev/null || labwc-menu-generator -b -I -t foot 2>/dev/null || true'" />
+    </keybind>
+    <keybind key="W-Return">
+      <action name="Execute" command="foot --app-id=aurora-terminal" />
+    </keybind>
+    <keybind key="W-e">
+      <action name="Execute" command="pcmanfm-qt" />
+    </keybind>
+    <keybind key="W-i">
+      <action name="Execute" command="sh -lc 'command -v aurora-settings >/dev/null 2>&1 && aurora-settings || foot -e sh -lc \"echo Aurora Settings; exec bash\"'" />
+    </keybind>
+    <keybind key="W-l">
+      <action name="Execute" command="loginctl lock-session" />
+    </keybind>
+    <keybind key="W-q">
+      <action name="Exit" />
+    </keybind>
+  </keyboard>
+  <desktops>
+    <number>4</number>
+    <names>
+      <name>Aurora</name>
+      <name>Research</name>
+      <name>Development</name>
+      <name>Emulation</name>
+    </names>
+  </desktops>
+  <theme>
+    <titlebar>
+      <layout>menu:iconify,max,close</layout>
+    </titlebar>
+  </theme>
+  <core>
+    <decoration>yes</decoration>
+  </core>
+</labwc_config>
