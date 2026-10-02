@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+command -v gfortran >/dev/null 2>&1 || { echo 'chimera-fortran: gfortran not installed' >&2; exit 127; }
+exec gfortran "$@"
