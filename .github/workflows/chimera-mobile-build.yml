@@ -1,0 +1,56 @@
+name: Chimera Mobile Build
+
+on:
+  push:
+    paths:
+      - 'mobile/**'
+      - 'kernel/**'
+      - 'arch/**'
+      - 'tools/mobile/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/chimera-mobile-build.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - 'kernel/**'
+      - 'arch/**'
+      - 'tools/mobile/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/chimera-mobile-build.yml'
+  workflow_dispatch:
+
+jobs:
+  mobile-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64, arm32, x86_64, x86]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build gcc g++ python3
+      - name: Configure
+        run: |
+          cmake -S . -B build/mobile/${{ matrix.arch }} \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCHIMERA_MOBILE=ON \
+            -DCHIMERA_TARGET_ARCH=${{ matrix.arch }}
+      - name: Build
+        run: cmake --build build/mobile/${{ matrix.arch }} --parallel
+      - name: Package build manifest
+        run: |
+          mkdir -p artifacts/${{ matrix.arch }}
+          find build/mobile/${{ matrix.arch }} -type f \
+            \( -name '*.img' -o -name '*.bin' -o -name '*.dtb' -o -name '*.elf' -o -name '*.zip' \) \
+            -exec cp --parents {} artifacts/${{ matrix.arch }}/ \;
+          sha256sum $(find artifacts/${{ matrix.arch }} -type f) > artifacts/${{ matrix.arch }}/SHA256SUMS 2>/dev/null || true
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-mobile-${{ matrix.arch }}
+          path: artifacts/${{ matrix.arch }}
