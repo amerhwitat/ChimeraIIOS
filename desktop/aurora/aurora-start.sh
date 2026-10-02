@@ -34,18 +34,18 @@ chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
 
 # dbus-run-session gives desktop portals, settings services and media/session
 # clients a real per-login D-Bus bus when the user session is not already
-# providing one. labwc -S owns the graphical session and terminates when the
-# session client exits.
+# providing one. labwc itself owns the display server; its autostart file
+# launches Aurora's panel, wallpaper and session clients.
 if command -v labwc >/dev/null 2>&1; then
   if command -v dbus-run-session >/dev/null 2>&1 && [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
-    exec dbus-run-session -- labwc -C "$USER_CONFIG" -S "$AURORA/aurora-desktop-init.sh"
+    exec dbus-run-session -- labwc -C "$USER_CONFIG"
   fi
-  exec labwc -C "$USER_CONFIG" -S "$AURORA/aurora-desktop-init.sh"
+  exec labwc -C "$USER_CONFIG"
 fi
 
 printf '%s\n' '[Aurora][ERROR] No Wayland compositor (labwc) is installed.' >&2
 printf '%s\n' '[Aurora][INFO] Falling back to the Chimera interactive shell.' >&2
-if [[ -x "$ROOT/../userland/shell/chimera-shell" ]]; then
-  exec "$ROOT/../userland/shell/chimera-shell" -i
+if [[ -x "$ROOT/userland/shell/chimera-shell" ]]; then
+  exec "$ROOT/userland/shell/chimera-shell" -i
 fi
 exec "${SHELL:-/bin/bash}" -i
