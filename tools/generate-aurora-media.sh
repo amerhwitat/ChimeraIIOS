@@ -8,7 +8,7 @@ if [[ -z "$BG" ]]; then
   for candidate in "$ROOT/boot/jasper/background.jpg" "$ROOT/boot/jasper/background.png" "$ROOT/desktop/aurora/assets/Aurora-Wayland-Glass-Desktop.png(1).jpg"; do
     if [[ -f "$candidate" ]]; then BG="$candidate"; break; fi
   done
-afi
+fi
 
 if [[ -n "$BG" && -f "$BG" ]] && command -v ffmpeg >/dev/null 2>&1; then
   ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 1.5 \
