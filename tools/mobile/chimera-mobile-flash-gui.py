@@ -43,7 +43,11 @@ class App(tk.Tk):
   self.work(run)
  def detect(self):
   def run():
-   p=subprocess.run([PYTHON,str(BUILDER),"--detect"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info",p.stdout)); self.q.put(("log","Phone detection completed." if p.returncode==0 else "Detection diagnostics:\n"+p.stdout))
+   scan=subprocess.run([PYTHON,str(BUILDER),"--usb-scan"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+   self.q.put(("info","USB CONNECTION SCAN\\n"+scan.stdout))
+   detect=subprocess.run([PYTHON,str(BUILDER),"--detect"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+   self.q.put(("info","PHONE DETECTION\\n"+detect.stdout))
+   self.q.put(("log","Phone detection completed." if detect.returncode==0 else "Detection diagnostics:\\n"+detect.stdout))
   self.work(run)
  def build(self):
   def run():
