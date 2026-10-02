@@ -24,7 +24,7 @@ fi
 if [ -n "$BG" ] && [ -f "$BG" ] && command -v ffmpeg >/dev/null 2>&1; then
   ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 1.5 \
     -vf "scale=320:180:force_original_aspect_ratio=increase,crop=320:180,format=yuv420p,drawtext=fontcolor=white:fontsize=18:text='CHIMERA II OS':x=(w-text_w)/2:y=72,drawtext=fontcolor=white:fontsize=10:text='AURORA INITIALIZING':x=(w-text_w)/2:y=100" \
-    -r 15 -c:v libx264 -preset ultrafast -crf 45 -movflags +faststart "$OUT/init.mp4"
+    -r 15 -c:v libx264 -preset ultrafast -crf 45 -movflags +faststart "$OUT/Init.mp4"
 fi
 
 if command -v ffmpeg >/dev/null 2>&1; then
@@ -57,6 +57,6 @@ shutdown:440:220
 EOF
 fi
 
-if [ ! -s "$OUT/init.mp4" ]; then
-  printf '%s\n' '[WARN] init.mp4 could not be generated; static fallback remains valid.' >&2
+if [ ! -s "$OUT/Init.mp4" ]; then
+  printf '%s\n' '[WARN] Init.mp4 could not be generated; static fallback remains valid.' >&2
 fi
