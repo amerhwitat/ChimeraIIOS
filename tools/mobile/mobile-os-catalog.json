@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {"name":"Android Platform Tools","type":"official-tools","url":"https://developer.android.com/tools/releases/platform-tools"},
+    {"name":"Google Pixel Factory Images","type":"official-firmware","url":"https://developers.google.com/android/images"},
+    {"name":"GrapheneOS","type":"alternative-os","url":"https://grapheneos.org/install/","scope":"supported Pixel devices only"},
+    {"name":"LineageOS","type":"alternative-os","url":"https://wiki.lineageos.org/devices/","scope":"listed devices only"},
+    {"name":"Ubuntu Touch / UBports","type":"alternative-os","url":"https://devices.ubuntu-touch.io/","scope":"listed devices only"},
+    {"name":"Samsung Smart Switch","type":"official-recovery","url":"https://www.samsung.com/levant/apps/smart-switch/"}
+  ],
+  "policy": {
+    "download_only_from_documented_sources": true,
+    "verify_checksums_or_signatures": true,
+    "never_bypass_frp_activation_lock_mdm_or_oem_authorization": true,
+    "never_flash_unmatched_device_images": true,
+    "require_explicit_confirmation_before_write": true,
+    "backup_before_destructive_operation": true
+  }
+}
