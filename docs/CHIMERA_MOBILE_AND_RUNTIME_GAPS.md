@@ -68,7 +68,7 @@ This register is an implementation checklist, not a claim that every item is alr
 
 ## Update model
 
-For mobile production updates, use a verified update chain rather than replacing a live system in place. Android's documented A/B flow is a useful interoperability reference: an updated slot is only marked successful after a successful boot, with rollback protection considered separately. citeturn0search6
+For mobile production updates, use a verified update chain rather than replacing a live system in place. Android's documented A/B flow is a useful interoperability reference: an updated slot is only marked successful after a successful boot, with rollback protection considered separately.
 
 ## Architecture principle
 
