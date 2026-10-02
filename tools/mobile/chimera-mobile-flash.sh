@@ -1,73 +1,26 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-
-# Chimera Mobile Flash: owner-authorized recovery/flashing helper.
-# GUI mode is the default when no command is supplied. This tool does not
-# bypass FRP, iCloud/Activation Lock, MDM, carrier restrictions, OEM
-# authorization, or vendor security controls.
-
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-GUI="$SCRIPT_DIR/chimera-mobile-flash-gui.py"
-
-usage() {
-  cat <<'EOF'
-Usage:
-  chimera-mobile-flash.sh                 # launch GUI
-  chimera-mobile-flash.sh --gui           # launch GUI
-  chimera-mobile-flash.sh detect
-  chimera-mobile-flash.sh backup-info
-  chimera-mobile-flash.sh android-info
-  chimera-mobile-flash.sh android-unlock
-  chimera-mobile-flash.sh android-flash IMAGE PARTITION
-  chimera-mobile-flash.sh android-reboot MODE
-  chimera-mobile-flash.sh ios-info
-  chimera-mobile-flash.sh ios-recovery
-
-The GUI automatically discovers a Chimera ISO and connected devices, shows
-hardware/boot state, validates artifacts, and requires explicit confirmation
-before destructive owner-authorized operations. It never bypasses device
-security controls.
-EOF
-}
-
-launch_gui() {
-  command -v python3 >/dev/null 2>&1 || { echo "ERROR: missing dependency: python3" >&2; exit 127; }
-  [[ -f "$GUI" ]] || { echo "ERROR: GUI not found: $GUI" >&2; exit 2; }
-  exec python3 "$GUI" "$@"
-}
-
-need() { command -v "$1" >/dev/null 2>&1 || { echo "ERROR: missing dependency: $1" >&2; exit 127; }; }
-
-android_unlock() {
-  need adb; need fastboot
-  echo "Checking Android device authorization state..."
-  adb get-state >/dev/null 2>&1 || true
-  echo "Rebooting to bootloader; complete OEM unlocking on the device if supported."
-  adb reboot bootloader
-  echo "Device must explicitly confirm the OEM unlock operation."
-  echo "No FRP, Google-account, enterprise, carrier, or other lock bypass is attempted."
-}
-
-android_flash() {
-  need fastboot
-  local image="$1" partition="${2:-}"
-  [[ -f "$image" ]] || { echo "ERROR: image not found: $image" >&2; exit 2; }
-  [[ -n "$partition" ]] || { echo "ERROR: partition is required; refusing ambiguous flashing." >&2; exit 2; }
-  echo "fastboot device:"; fastboot devices
-  echo "Flashing $image to explicitly requested partition '$partition'."
-  fastboot flash "$partition" "$image"
-}
-
-case "${1:-gui}" in
-  gui|--gui) shift || true; launch_gui "$@" ;;
-  detect) command -v adb >/dev/null 2>&1 && adb devices -l || true; command -v fastboot >/dev/null 2>&1 && fastboot devices || true;;
-  backup-info) echo "Backup before unlocking/flashing. Android OEM unlock normally wipes user data.";;
-  android-info) need adb; adb shell getprop ro.product.manufacturer; adb shell getprop ro.product.model; adb shell getprop ro.boot.verifiedbootstate;;
-  android-unlock) android_unlock;;
-  android-flash) shift; android_flash "$@";;
-  android-reboot) need adb; adb reboot "${2:-bootloader}";;
-  ios-info) need idevice_id; idevice_id -l || true; command -v ideviceinfo >/dev/null 2>&1 && ideviceinfo -s || true;;
-  ios-recovery) echo "Use Apple's supported recovery/restore workflow. No Activation Lock bypass is attempted.";;
-  -h|--help|help) usage;;
-  *) usage; exit 2;;
+D="$(cd "$(dirname "\${BASH_SOURCE[0]}")" && pwd)"; ROOT="$(cd "$D/../.." && pwd)"
+GUI="$D/chimera-mobile-flash-gui.py"; BUILDER="$D/chimera-mobile-build.py"
+need(){ command -v "$1" >/dev/null 2>&1 || { echo "[ERROR] missing dependency: $1"; exit 127; }; }
+case "\${1:-gui}" in
+ gui|--gui) need python3; exec python3 "$GUI";;
+ detect) need adb; need python3; python3 "$BUILDER" --detect;;
+ build) need adb; need python3; python3 "$BUILDER" --build;;
+ flash) need adb; need fastboot; need python3; python3 "$BUILDER" --build; read -r -p 'Type FLASH CHIMERA to continue: ' A; [[ "$A" == "FLASH CHIMERA" ]] || exit 0
+  python3 - "$ROOT/build/mobile/last-build.json" <<'PY'
+import json,subprocess,sys,hashlib,os
+r=json.load(open(sys.argv[1])); p=r["profile"]; t=r["target"]; f=p.get("flash",{})
+if f.get("method")!="fastboot-profiled": raise SystemExit("No verified flash adapter for this exact profile.")
+for x in f["partitions"]:
+ path=x["image"]
+ if not os.path.isfile(path): raise SystemExit("Missing mapped image: "+path)
+ if hashlib.sha256(open(path,"rb").read()).hexdigest().lower()!=x["sha256"].lower(): raise SystemExit("SHA-256 mismatch: "+path)
+ subprocess.run(["fastboot","-s",t["serial"],"flash",x["name"],path],check=True)
+print("CHIMERA FLASH COMPLETE")
+PY
+ ;;
+ --dry-run) need adb; need python3; python3 "$BUILDER" --build; echo "[DRY-RUN] no phone partitions written";;
+ -h|--help|help) echo "chimera-mobile-flash.sh [detect|build|flash|--dry-run|--gui]";;
+ *) echo "unknown command"; exit 2;;
 esac
