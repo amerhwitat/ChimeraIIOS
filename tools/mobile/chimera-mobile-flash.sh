@@ -2,25 +2,38 @@
 set -Eeuo pipefail
 
 # Chimera Mobile Flash: owner-authorized recovery/flashing helper.
-# This tool intentionally does NOT bypass FRP, iCloud/Activation Lock, MDM,
-# carrier restrictions, OEM authorization, or vendor security controls.
+# GUI mode is the default when no command is supplied. This tool does not
+# bypass FRP, iCloud/Activation Lock, MDM, carrier restrictions, OEM
+# authorization, or vendor security controls.
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+GUI="$SCRIPT_DIR/chimera-mobile-flash-gui.py"
 
 usage() {
   cat <<'EOF'
 Usage:
+  chimera-mobile-flash.sh                 # launch GUI
+  chimera-mobile-flash.sh --gui           # launch GUI
   chimera-mobile-flash.sh detect
   chimera-mobile-flash.sh backup-info
   chimera-mobile-flash.sh android-info
   chimera-mobile-flash.sh android-unlock
-  chimera-mobile-flash.sh android-flash IMAGE [PARTITION]
+  chimera-mobile-flash.sh android-flash IMAGE PARTITION
   chimera-mobile-flash.sh android-reboot MODE
   chimera-mobile-flash.sh ios-info
   chimera-mobile-flash.sh ios-recovery
 
-Android unlock requires the device's normal OEM-supported unlock path and
-explicit confirmation on the device. Flashing requires an image supplied by
-the owner and an explicitly specified partition.
+The GUI automatically discovers a Chimera ISO and connected devices, shows
+hardware/boot state, validates artifacts, and requires explicit confirmation
+before destructive owner-authorized operations. It never bypasses device
+security controls.
 EOF
+}
+
+launch_gui() {
+  command -v python3 >/dev/null 2>&1 || { echo "ERROR: missing dependency: python3" >&2; exit 127; }
+  [[ -f "$GUI" ]] || { echo "ERROR: GUI not found: $GUI" >&2; exit 2; }
+  exec python3 "$GUI" "$@"
 }
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "ERROR: missing dependency: $1" >&2; exit 127; }; }
@@ -45,7 +58,8 @@ android_flash() {
   fastboot flash "$partition" "$image"
 }
 
-case "${1:-}" in
+case "${1:-gui}" in
+  gui|--gui) shift || true; launch_gui "$@" ;;
   detect) command -v adb >/dev/null 2>&1 && adb devices -l || true; command -v fastboot >/dev/null 2>&1 && fastboot devices || true;;
   backup-info) echo "Backup before unlocking/flashing. Android OEM unlock normally wipes user data.";;
   android-info) need adb; adb shell getprop ro.product.manufacturer; adb shell getprop ro.product.model; adb shell getprop ro.boot.verifiedbootstate;;
@@ -54,5 +68,6 @@ case "${1:-}" in
   android-reboot) need adb; adb reboot "${2:-bootloader}";;
   ios-info) need idevice_id; idevice_id -l || true; command -v ideviceinfo >/dev/null 2>&1 && ideviceinfo -s || true;;
   ios-recovery) echo "Use Apple's supported recovery/restore workflow. No Activation Lock bypass is attempted.";;
+  -h|--help|help) usage;;
   *) usage; exit 2;;
 esac
