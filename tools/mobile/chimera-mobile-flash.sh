@@ -26,9 +26,12 @@ case "$COMMAND" in
     exec python3 "$GUI"
     ;;
 
-  detect|inspect)
-    need adb
+  usb|usb-scan|detect|inspect)
     need python3
+    if [[ "$COMMAND" == "usb" || "$COMMAND" == "usb-scan" ]]; then
+      exec python3 "$BUILDER" --usb-scan
+    fi
+    need adb
     exec python3 "$BUILDER" --detect
     ;;
   power-on|wake)
@@ -105,6 +108,7 @@ Chimera II OS Mobile Edition Flash Tool
 Usage:
   tools/mobile/chimera-mobile-flash.sh
   tools/mobile/chimera-mobile-flash.sh --gui
+  tools/mobile/chimera-mobile-flash.sh usb-scan
   tools/mobile/chimera-mobile-flash.sh detect
   tools/mobile/chimera-mobile-flash.sh inspect
   tools/mobile/chimera-mobile-flash.sh power-on
