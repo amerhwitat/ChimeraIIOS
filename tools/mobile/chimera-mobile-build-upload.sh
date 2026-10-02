@@ -26,14 +26,14 @@ Usage: chimera-mobile-build-upload.sh [options]
   --stage PATH    remote user-accessible staging path (default /sdcard/ChimeraMobile)
 EOF
 }
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run) DRY_RUN=1;;
-    --skip-build) SKIP_BUILD=1;;
-    --discover) DISCOVER=1;;
-    --stage) shift; STAGE=${1:?missing stage path};;
+while (($#)); do
+  case "$1" in
+    --dry-run) DRY_RUN=1; shift;;
+    --skip-build) SKIP_BUILD=1; shift;;
+    --discover) DISCOVER=1; shift;;
+    --stage) [[ $# -ge 2 ]] || { echo '[ERROR] --stage requires a path'; exit 2; }; STAGE=$2; shift 2;;
     -h|--help) usage; exit 0;;
-    *) echo "[ERROR] Unknown option: $arg"; usage; exit 2;;
+    *) echo "[ERROR] Unknown option: $1"; usage; exit 2;;
   esac
 done
 
@@ -103,8 +103,8 @@ items=[]
 for line in open(lst,encoding='utf-8'):
     p=line.strip()
     if not p: continue
-    h=hashlib.sha256(open(p,'rb').read()).hexdigest()
-    items.append({'path':os.path.abspath(p),'name':os.path.basename(p),'bytes':os.path.getsize(p),'sha256':h,'target_arch':arch})
+    with open(p,'rb') as f: data=f.read()
+    items.append({'path':os.path.abspath(p),'name':os.path.basename(p),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'target_arch':arch})
 json.dump({'schema':1,'target_arch':arch,'artifacts':items},open(out,'w',encoding='utf-8'),indent=2)
 print(f'{len(items)} artifact(s) validated')
 PY
