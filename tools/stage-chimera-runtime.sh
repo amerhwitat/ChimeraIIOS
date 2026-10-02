@@ -2,7 +2,7 @@
 set -eu
 DEST=${1:?destination root required}
 SRC=${2:-$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)}
-mkdir -p "$DEST/etc/chimera/drivers" "$DEST/var/log/mesgs/archive" "$DEST/var/log/chimera" "$DEST/usr/bin" "$DEST/usr/share/applications" "$DEST/usr/share/chimera/kore" "$DEST/usr/share/chimera/aurora" "$DEST/usr/share/chimera/aurora/config" "$DEST/usr/share/chimera/aurora/emulators/bin" "$DEST/usr/share/chimera/aurora/emulators/desktop" "$DEST/usr/share/chimera/aurora/labwc" "$DEST/usr/share/chimera/aurora/waybar" "$DEST/etc/systemd/system" "$DEST/etc/xdg/xdg-desktop-portal"
+mkdir -p "$DEST/etc/chimera/drivers" "$DEST/var/log/mesgs/archive" "$DEST/var/log/chimera" "$DEST/usr/bin" "$DEST/usr/share/applications" "$DEST/usr/share/chimera/kore" "$DEST/usr/share/chimera/aurora" "$DEST/usr/share/chimera/aurora/assets" "$DEST/usr/share/chimera/aurora/config" "$DEST/usr/share/chimera/aurora/emulators/bin" "$DEST/usr/share/chimera/aurora/emulators/desktop" "$DEST/usr/share/chimera/aurora/labwc" "$DEST/usr/share/chimera/aurora/waybar" "$DEST/etc/systemd/system" "$DEST/etc/xdg/xdg-desktop-portal"
 ln -sfn /var/log/mesgs "$DEST/var/log/chimera/mesgs" 2>/dev/null || true
 ln -sfn mesgs "$DEST/var/log/messages" 2>/dev/null || true
 for f in chimera-logd.sh chimera-logrotate.sh chimera-driver-manager.sh chimera-kmsg-forwarder.sh chimera-xexec.sh chimera-playstation-center.sh chimera-crash-dump.sh chimera-screen-of-death.sh chimera-memory-dump.sh chimera-rom-search.sh chimera-game-center.sh chimera-free-3d-games.sh; do
@@ -27,7 +27,7 @@ done
 
 # Aurora graphical runtime: install the compositor-independent session bridge,
 # labwc configuration, Waybar configuration, and the glass desktop bootstrap.
-for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh; do
+for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh; do
   if [ -f "$SRC/desktop/aurora/$f" ]; then
     cp -f "$SRC/desktop/aurora/$f" "$DEST/usr/share/chimera/aurora/$f"
     chmod +x "$DEST/usr/share/chimera/aurora/$f"
@@ -40,9 +40,17 @@ done
 [ -f "$SRC/desktop/aurora/waybar/style.css" ] && cp -f "$SRC/desktop/aurora/waybar/style.css" "$DEST/usr/share/chimera/aurora/waybar/"
 [ -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" ] && cp -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" "$DEST/etc/xdg/xdg-desktop-portal/aurora-portals.conf"
 
-# Make the requested Aurora background available at runtime as well as in the
-# ISO boot visual area. Prefer the exact supplied Aurora artwork when present.
-for bg in "$SRC/desktop/aurora/assets/ChimeraIIOS-Aurora-Wayland-Glass.jpg" "$SRC/desktop/aurora/assets/aurora-desktop.svg"; do
+# Hard-code every repository-side Aurora visual asset into the installed
+# rootfs. The small SVG assets remain the offline-safe fallback for systems
+# where a full photographic background is unavailable.
+for f in "$SRC/desktop/aurora/assets"/*; do
+  [ -f "$f" ] || continue
+  cp -f "$f" "$DEST/usr/share/chimera/aurora/assets/"
+done
+[ -f "$SRC/desktop/aurora/assets/library-artwork-manifest.json" ] && cp -f "$SRC/desktop/aurora/assets/library-artwork-manifest.json" "$DEST/usr/share/chimera/aurora/"
+
+# Prefer the canonical glass artwork, then the Aurora desktop vector.
+for bg in "$SRC/desktop/aurora/assets/aurora-wayland-glass.png" "$SRC/desktop/aurora/assets/aurora-wayland-glass.svg" "$SRC/desktop/aurora/assets/aurora-desktop.svg"; do
   if [ -f "$bg" ]; then
     cp -f "$bg" "$DEST/usr/share/chimera/aurora/$(basename "$bg")"
     break
@@ -69,8 +77,6 @@ for f in system/logging/chimera-logd.service system/logging/chimera-logrotate.se
 done
 
 # Provision the actual graphical runtime into the exported Ubuntu rootfs.
-# This closes the former gap where Aurora contained research files but no
-# compositor/session packages in the booted ISO.
 if [ -x "$SRC/tools/provision-aurora-rootfs.sh" ]; then
   AURORA_PROVISION_LOG="${AURORA_PROVISION_LOG:-$DEST/var/log/aurora-provision.log}" \
     "$SRC/tools/provision-aurora-rootfs.sh" "$DEST"
@@ -99,7 +105,6 @@ EOF
 chroot "$DEST" /bin/chown -R chimera:chimera /home/chimera 2>/dev/null || true
 chmod 0644 "$DEST/home/chimera/.bash_profile" "$DEST/home/chimera/.profile"
 
-# Make Aurora the default graphical session descriptor for display managers.
 mkdir -p "$DEST/usr/share/wayland-sessions"
 cat > "$DEST/usr/share/wayland-sessions/aurora.desktop" <<'EOF'
 [Desktop Entry]
