@@ -1,11 +1,17 @@
 {
+  "schema": 1,
   "sources": [
-    {"name":"Android Platform Tools","type":"official-tools","url":"https://developer.android.com/tools/releases/platform-tools"},
+    {"name":"Android Open Source Project","type":"os-source","url":"https://source.android.com/"},
+    {"name":"Android SDK Platform Tools","type":"official-tools","url":"https://developer.android.com/tools/releases/platform-tools"},
     {"name":"Google Pixel Factory Images","type":"official-firmware","url":"https://developers.google.com/android/images"},
+    {"name":"Google Android Flash Tool","type":"official-flasher","url":"https://flash.android.com/"},
+    {"name":"Android Open Source Recovery","type":"recovery-source","url":"https://android.googlesource.com/platform/bootable/recovery/"},
     {"name":"GrapheneOS","type":"alternative-os","url":"https://grapheneos.org/install/","scope":"supported Pixel devices only"},
     {"name":"LineageOS","type":"alternative-os","url":"https://wiki.lineageos.org/devices/","scope":"listed devices only"},
     {"name":"Ubuntu Touch / UBports","type":"alternative-os","url":"https://devices.ubuntu-touch.io/","scope":"listed devices only"},
-    {"name":"Samsung Smart Switch","type":"official-recovery","url":"https://www.samsung.com/levant/apps/smart-switch/"}
+    {"name":"Samsung Smart Switch","type":"official-recovery","url":"https://www.samsung.com/levant/apps/smart-switch/"},
+    {"name":"Apple iPhone Recovery and Restore","type":"official-recovery","url":"https://support.apple.com/en-us/118106"},
+    {"name":"Apple Developer","type":"platform-documentation","url":"https://developer.apple.com/"}
   ],
   "policy": {
     "download_only_from_documented_sources": true,
@@ -13,6 +19,7 @@
     "never_bypass_frp_activation_lock_mdm_or_oem_authorization": true,
     "never_flash_unmatched_device_images": true,
     "require_explicit_confirmation_before_write": true,
-    "backup_before_destructive_operation": true
+    "backup_before_destructive_operation": true,
+    "metadata_discovery_may_check_source_reachability": true
   }
 }
