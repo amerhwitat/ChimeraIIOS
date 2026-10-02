@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "project": "Chimera II OS",
+  "policy": {
+    "linux": "redistribute-open-source-packages-or-build-from-source",
+    "windows": "compatibility-personality-and-Wine-only; do-not-redistribute-Microsoft-binaries",
+    "macos": "compatibility-personality-and-open-source-equivalents-only; do-not-redistribute-Apple-binaries-or-assets",
+    "boot_critical": false
+  },
+  "profiles": [
+    {"id":"aurora","family":"chimera","protocol":"wayland","default":true,"packages":["labwc","waybar","wofi","mako"]},
+    {"id":"gnome","family":"linux","protocol":"wayland","packages":["gnome-shell","gdm3"]},
+    {"id":"kde-plasma","family":"linux","protocol":"wayland","packages":["plasma-desktop","sddm"]},
+    {"id":"xfce","family":"linux","protocol":"x11","packages":["xfce4","lightdm"]},
+    {"id":"cinnamon","family":"linux","protocol":"x11","packages":["cinnamon-desktop-environment","lightdm"]},
+    {"id":"mate","family":"linux","protocol":"x11","packages":["mate-desktop-environment","lightdm"]},
+    {"id":"lxqt","family":"linux","protocol":"wayland-or-x11","packages":["lxqt","sddm"]},
+    {"id":"lxde","family":"linux","protocol":"x11","packages":["lxde","lightdm"]},
+    {"id":"budgie","family":"linux","protocol":"wayland-or-x11","packages":["budgie-desktop","lightdm"]},
+    {"id":"cosmic","family":"linux","protocol":"wayland","packages":["cosmic-desktop"]},
+    {"id":"deepin","family":"linux","protocol":"wayland-or-x11","packages":["dde"]},
+    {"id":"pantheon","family":"linux","protocol":"wayland-or-x11","packages":["pantheon"]},
+    {"id":"enlightenment","family":"linux","protocol":"wayland-or-x11","packages":["enlightenment"]},
+    {"id":"ukui","family":"linux","protocol":"wayland-or-x11","packages":["ukui-desktop-environment"]},
+    {"id":"trinity","family":"linux","protocol":"x11","packages":["tdebase"]},
+    {"id":"lumina","family":"linux","protocol":"x11","packages":["lumina-desktop"]},
+    {"id":"moksha","family":"linux","protocol":"x11","packages":["moksha-desktop"]},
+    {"id":"sway","family":"linux","protocol":"wayland","packages":["sway","waybar"]},
+    {"id":"i3","family":"linux","protocol":"x11","packages":["i3-wm","i3status"]},
+    {"id":"hyprland","family":"linux","protocol":"wayland","packages":["hyprland"]},
+    {"id":"openbox","family":"linux","protocol":"x11","packages":["openbox"]},
+    {"id":"icewm","family":"linux","protocol":"x11","packages":["icewm"]},
+    {"id":"fluxbox","family":"linux","protocol":"x11","packages":["fluxbox"]},
+    {"id":"windows-classic","family":"windows-personality","protocol":"chimera","packages":["wine","winetricks"]},
+    {"id":"windows-modern","family":"windows-personality","protocol":"chimera","packages":["wine","winetricks"]},
+    {"id":"macos-inspired","family":"macos-personality","protocol":"chimera","packages":[]},
+    {"id":"posix-generic","family":"unix","protocol":"wayland-or-x11","packages":[]}
+  ]
+}
