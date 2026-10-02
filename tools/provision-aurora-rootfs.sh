@@ -14,9 +14,6 @@ echo "[Aurora] Provisioning Wayland desktop runtime into $DEST"
   exit 1
 }
 
-# Docker export does not preserve bind-mounted volume contents. Recreate a
-# usable resolver for chrooted apt when the exported /etc/resolv.conf points at
-# a host-only loopback resolver (common with systemd-resolved/WSL).
 HOST_RESOLV=/etc/resolv.conf
 ROOT_RESOLV="$DEST/etc/resolv.conf"
 RESOLV_BACKUP="$DEST/etc/resolv.conf.chimera-backup"
@@ -53,9 +50,6 @@ install_if_available() {
   fi
 }
 
-# Core compositor/session path. labwc is the Aurora compositor layer; it is
-# deliberately used instead of pretending the current research launcher is a
-# compositor. Ubuntu 24.04 ships labwc for amd64/arm64 and it uses wlroots.
 required_failed=0
 for pkg in \
   labwc waybar xwayland dbus-user-session \
@@ -72,21 +66,16 @@ if [ "$required_failed" -ne 0 ]; then
   exit 1
 fi
 
-# GTK is a useful fallback portal backend for file chooser/settings surfaces.
-# These are optional because wlroots provides the Wayland-specific ScreenCast
-# and Screenshot interfaces used by Aurora.
-for pkg in xdg-desktop-portal-gtk alacritty kitty terminator; do
+# These improve the modern desktop without becoming a hard dependency for
+# the compositor/session path.
+for pkg in xdg-desktop-portal-gtk alacritty kitty terminator wofi slurp; do
   install_if_available "$pkg" || true
 done
 
-# Useful desktop clients. Missing optional packages must not prevent the ISO
-# from booting into the compositor.
 for pkg in firefox pcmanfm-qt gnome-text-editor pavucontrol btop; do
   install_if_available "$pkg" || echo "[Aurora][WARN] optional client unavailable: $pkg"
 done
 
-# Dedicated non-root desktop account. The tty1 autologin below creates a real
-# PAM/logind session, which is important for DRM/input access and XDG_RUNTIME_DIR.
 if ! chroot "$DEST" /usr/bin/id -u chimera >/dev/null 2>&1; then
   chroot "$DEST" /usr/sbin/useradd -m -s /bin/bash -U chimera
 fi
@@ -96,8 +85,6 @@ for group in audio video render input plugdev netdev; do
   fi
 done
 
-# Do not leave apt metadata in the ISO rootfs. Restore the exported resolver
-# exactly when it was replaced for build-time DNS.
 chroot "$DEST" /usr/bin/apt-get clean
 rm -rf "$DEST/var/lib/apt/lists/"*
 if [ -e "$RESOLV_BACKUP" ] || [ -L "$RESOLV_BACKUP" ]; then
