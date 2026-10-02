@@ -13,9 +13,15 @@ REPORT="$(mktemp)"
 trap 'rm -f "$REPORT"' EXIT
 xorriso -indev "$ISO" -report_el_torito plain -report_system_area plain 2>&1 | tee "$REPORT"
 
-# The ISO must expose both a BIOS El Torito path and an EFI El Torito image.
 grep -Eqi 'BIOS|i386-pc|no-emulation' "$REPORT" || fail "BIOS El Torito boot entry not detected"
 grep -Eqi 'UEFI|EFI|x86_64-efi' "$REPORT" || fail "UEFI El Torito boot entry not detected"
+ok "BIOS + UEFI El Torito entries detected"
+
+EFI_LIST="$(mktemp)"
+trap 'rm -f "$REPORT" "$EFI_LIST"' EXIT
+xorriso -indev "$ISO" -find /EFI/BOOT -type f -print 2>&1 | tee "$EFI_LIST"
+grep -Eqi '/EFI/BOOT/BOOTX64\.EFI$' "$EFI_LIST" || fail "UEFI fallback /EFI/BOOT/BOOTX64.EFI is missing"
+ok "UEFI fallback BOOTX64.EFI present"
 
 if command -v grub-file >/dev/null 2>&1; then
   if [[ -f "$ROOT/build/iso/boot/koronos/koronos.elf" ]]; then
@@ -25,7 +31,8 @@ if command -v grub-file >/dev/null 2>&1; then
 fi
 
 if command -v isoinfo >/dev/null 2>&1; then
-  isoinfo -i "$ISO" -f 2>/dev/null | grep -q '/BOOTX64.EFI' && ok "UEFI BOOTX64.EFI visible in ISO" || echo "[WARN] BOOTX64.EFI path not reported by isoinfo"
+  isoinfo -i "$ISO" -f 2>/dev/null | grep -Eqi '/BOOTX64\.EFI$' || fail "isoinfo cannot see /BOOTX64.EFI in ISO"
+  ok "isoinfo sees UEFI BOOTX64.EFI"
 fi
 
 file "$ISO"
