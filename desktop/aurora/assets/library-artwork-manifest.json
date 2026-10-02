@@ -1,0 +1,46 @@
+{
+  "schema": "CHM-AURORA-LIBRARY-ART-1",
+  "purpose": "Canonical artwork catalog for Aurora Desktop, installer, Live CD, recovery and mobile UI.",
+  "runtime_policy": {
+    "hardcoded_theme": true,
+    "offline_first": true,
+    "fallback_to_svg": true,
+    "never_require_network_for_boot_art": true
+  },
+  "library_sources": [
+    {
+      "name": "Aurora Wayland Glass Desktop",
+      "library_file": "Aurora-Wayland-Glass-Desktop.png(1).jpg",
+      "role": ["desktop-background", "login", "first-boot", "live-cd", "installer"]
+    },
+    {
+      "name": "Aurora / Chimera II OS 8192-bit Research Framework",
+      "library_file": "Gemini_Generated_Image_d8d6d8d6d8d6d8d6.jpg",
+      "role": ["desktop-background", "research-dashboard", "developer", "mobile-research"]
+    },
+    {
+      "name": "Chimera II OS Architecture Blueprint",
+      "library_file": "Chimera II OS Architecture Blueprint.png",
+      "role": ["research-gallery", "kernel-dashboard", "documentation"]
+    },
+    {
+      "name": "Chimera II OS Robotics Blueprint",
+      "library_file": "Chimera II OS Robotics Blueprint.png",
+      "role": ["research-gallery", "mobile-robotics", "hardware-dashboard"]
+    }
+  ],
+  "repository_assets": {
+    "primary": "/usr/share/chimera/aurora/assets/aurora-wayland-glass.png",
+    "desktop_svg": "/usr/share/chimera/aurora/assets/aurora-desktop.svg",
+    "installer_svg": "/usr/share/chimera/aurora/assets/aurora-installer.svg",
+    "library_svg": "/usr/share/chimera/aurora/assets/aurora-library.svg"
+  },
+  "screens": {
+    "desktop": "primary",
+    "installer": "installer_svg",
+    "live": "desktop_svg",
+    "recovery": "desktop_svg",
+    "mobile": "desktop_svg",
+    "research": "library_svg"
+  }
+}
