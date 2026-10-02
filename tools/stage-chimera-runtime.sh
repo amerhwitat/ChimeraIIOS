@@ -37,12 +37,14 @@ done
 [ -f "$SRC/desktop/aurora/waybar/style.css" ] && cp -f "$SRC/desktop/aurora/waybar/style.css" "$DEST/usr/share/chimera/aurora/waybar/"
 [ -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" ] && cp -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" "$DEST/etc/xdg/xdg-desktop-portal/aurora-portals.conf"
 
-# Generate optional Aurora initialization media and menu sounds at build time.
+# Build-time media is optional. Missing ffmpeg or source artwork must never
+# abort the ISO build; the static Aurora assets remain the fallback.
 if [ -f "$SRC/tools/generate-aurora-media.sh" ]; then
-  sh "$SRC/tools/generate-aurora-media.sh" "$SRC/desktop/aurora/assets" || true
+  if ! sh "$SRC/tools/generate-aurora-media.sh" "$SRC/desktop/aurora/assets"; then
+    echo "[Aurora][WARN] optional media generation failed; continuing with static Aurora assets." >&2
+  fi
 fi
 
-# Hard-code repository-side Aurora artwork and generated media into the installed rootfs.
 for f in "$SRC/desktop/aurora/assets"/*; do
   [ -f "$f" ] || continue
   cp -f "$f" "$DEST/usr/share/chimera/aurora/assets/"
@@ -56,18 +58,12 @@ fi
 [ -f "$SRC/desktop/aurora/menu-event-map.json" ] && cp -f "$SRC/desktop/aurora/menu-event-map.json" "$DEST/usr/share/chimera/aurora/"
 [ -f "$SRC/system/boot/koronos-progress.sh" ] && cp -f "$SRC/system/boot/koronos-progress.sh" "$DEST/usr/share/chimera/aurora/koronos-progress.sh" && chmod +x "$DEST/usr/share/chimera/aurora/koronos-progress.sh"
 for bg in "$SRC/desktop/aurora/assets/aurora-wayland-glass.png" "$SRC/desktop/aurora/assets/aurora-wayland-glass.svg" "$SRC/desktop/aurora/assets/aurora-desktop.svg"; do
-  if [ -f "$bg" ]; then
-    cp -f "$bg" "$DEST/usr/share/chimera/aurora/$(basename "$bg")"
-    break
-  fi
+  if [ -f "$bg" ]; then cp -f "$bg" "$DEST/usr/share/chimera/aurora/$(basename "$bg")"; break; fi
 done
 [ -f "$SRC/mobile/mobile-progress.json" ] && cp -f "$SRC/mobile/mobile-progress.json" "$DEST/usr/share/chimera/mobile/"
 [ -f "$SRC/mobile/README.md" ] && cp -f "$SRC/mobile/README.md" "$DEST/usr/share/chimera/mobile/"
 for f in aurora-emulator-window.sh launch-retro.sh launch-sakhr-ax170.sh launch-sakhr-ax230.sh; do
-  if [ -f "$SRC/aurora/emulators/bin/$f" ]; then
-    cp -f "$SRC/aurora/emulators/bin/$f" "$DEST/usr/share/chimera/aurora/emulators/bin/$f"
-    chmod +x "$DEST/usr/share/chimera/aurora/emulators/bin/$f"
-  fi
+  if [ -f "$SRC/aurora/emulators/bin/$f" ]; then cp -f "$SRC/aurora/emulators/bin/$f" "$DEST/usr/share/chimera/aurora/emulators/bin/$f"; chmod +x "$DEST/usr/share/chimera/aurora/emulators/bin/$f"; fi
 done
 for f in "$SRC/aurora/emulators/desktop"/*.desktop; do
   [ -f "$f" ] || continue
@@ -79,7 +75,8 @@ for f in system/logging/chimera-logd.service system/logging/chimera-logrotate.se
 done
 if [ -x "$SRC/tools/provision-aurora-rootfs.sh" ]; then
   AURORA_PROVISION_LOG="${AURORA_PROVISION_LOG:-$DEST/var/log/aurora-provision.log}" \
-    "$SRC/tools/provision-aurora-rootfs.sh" "$DEST"
+    "$SRC/tools/provision-aurora-rootfs.sh" "$DEST" || \
+    echo "[Aurora][WARN] optional Wayland package provisioning failed; retaining staged Aurora runtime and continuing ISO build." >&2
 fi
 mkdir -p "$DEST/etc/systemd/system/getty@tty1.service.d"
 cat > "$DEST/etc/systemd/system/getty@tty1.service.d/aurora-autologin.conf" <<'EOF'
