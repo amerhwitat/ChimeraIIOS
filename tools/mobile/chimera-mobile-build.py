@@ -4,7 +4,7 @@ import argparse,hashlib,json,shutil,subprocess,zipfile,time
 from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; PROFILES=ROOT/"mobile/device-profiles"; OUT=ROOT/"build/mobile"
-def run(c): return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+def run(c, timeout=None): return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
 def detect(power_on=False, timeout=20):
     run(["adb","start-server"])
     if power_on:
@@ -14,7 +14,8 @@ def detect(power_on=False, timeout=20):
         fp=run(["fastboot","devices"]) if shutil.which("fastboot") else subprocess.CompletedProcess([],0,"")
         if fp.stdout.strip():
             serial=fp.stdout.split()[0]
-            run(["fastboot","-s",serial,"reboot"])
+            run(["fastboot","-s",serial,"reboot"],timeout=timeout)
+            run(["adb","wait-for-device"],timeout=timeout)
         else:
             run(["adb","wait-for-device"],timeout=timeout)
     p=run(["adb","devices"])
@@ -24,7 +25,7 @@ def detect(power_on=False, timeout=20):
     props={k:run(["adb","-s",s,"shell","getprop",v]).stdout.strip() for k,v in mp.items()}
     a=props["abi"].lower(); arch="aarch64" if "arm64" in a or "aarch64" in a else "armv7" if "armeabi" in a or "armv7" in a else "x86_64" if "x86_64" in a else "unknown"
     rom={k:props[k] for k in ("android","fingerprint","build_id","build_display","security_patch","incremental","slot","vbmeta_device_state")}
-    return {"serial":s,"architecture":arch,"properties":props,"software":rom,"mode":"adb"}
+    return {"serial":s,"architecture":arch,"properties":props,"software":rom,"mode":"adb","power_wake_attempted":power_on}
 def load(t):
     for f in sorted(PROFILES.glob("*.json")):
         try:p=json.loads(f.read_text())
