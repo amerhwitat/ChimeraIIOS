@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
 <openbox_menu>
   <menu id="root-menu" label="Aurora">
-    <item label="Terminal"><action name="Execute" command="foot --app-id=aurora-terminal" /></item>
-    <item label="Files"><action name="Execute" command="pcmanfm-qt" /></item>
-    <item label="Browser"><action name="Execute" command="firefox" /></item>
-    <item label="Settings"><action name="Execute" command="sh -lc 'command -v aurora-settings >/dev/null 2>&1 && aurora-settings || foot -e sh -lc \"echo Aurora Settings; exec bash\"'" /></item>
-    <item label="System Monitor"><action name="Execute" command="foot -e sh -lc 'command -v btop >/dev/null 2>&1 && btop || top'" /></item>
+    <item label="Terminal"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot --app-id=aurora-terminal'" /></item>
+    <item label="Files"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec pcmanfm-qt'" /></item>
+    <item label="Browser"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec firefox'" /></item>
+    <item label="Settings"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v aurora-settings >/dev/null 2>&1 && exec aurora-settings || exec foot -e sh -lc \"echo Aurora Settings; exec bash\"'" /></item>
+    <item label="System Monitor"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot -e sh -lc \"command -v btop >/dev/null 2>&1 && btop || top\"'" /></item>
     <separator />
     <menu id="chimera-progress" label="Chimera Progress">
-      <item label="Installation Progress"><action name="Execute" command="foot -e /usr/share/chimera/aurora/aurora-progress.sh text" /></item>
-      <item label="Live CD Progress"><action name="Execute" command="foot -e sh -lc 'printf \"Chimera II OS Live CD\\n\\n\"; exec /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
-      <item label="Recovery Progress"><action name="Execute" command="foot -e sh -lc 'printf \"Jasper Recovery / Koronos Diagnostics\\n\\n\"; exec /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
-      <item label="First Boot / Hardware Progress"><action name="Execute" command="foot -e sh -lc 'printf \"Hardware discovery / driver activation\\n\\n\"; exec /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
-      <item label="Mobile Flash / OTA Progress"><action name="Execute" command="foot -e sh -lc 'printf \"Chimera Mobile update / flash monitor\\n\\n\"; exec /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
+      <item label="Installation Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh install_step; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
+      <item label="Live CD Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh install_step; printf \"Chimera II OS Live CD\\n\\n\"; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
+      <item label="Recovery Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh recovery; printf \"Jasper Recovery / Koronos Diagnostics\\n\\n\"; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
+      <item label="First Boot / Hardware Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh device_connect; printf \"Hardware discovery / driver activation\\n\\n\"; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
+      <item label="Mobile Flash / OTA Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh install_step; printf \"Chimera Mobile update / flash monitor\\n\\n\"; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
     </menu>
     <menu id="chimera-tools" label="Chimera II OS">
-      <item label="Driver Center"><action name="Execute" command="sh -lc 'command -v chimera-driver-center >/dev/null 2>&1 && chimera-driver-center || foot -e sh -lc \"echo Driver Center unavailable; exec bash\"'" /></item>
-      <item label="Kernel / Koronos Logs"><action name="Execute" command="foot -e sh -lc 'journalctl -b -k -f'" /></item>
-      <item label="Boot / Recovery Logs"><action name="Execute" command="foot -e sh -lc 'journalctl -b -f'" /></item>
-      <item label="Research / 8192-bit Framework"><action name="Execute" command="sh -lc 'xdg-open /usr/share/chimera/aurora/assets/library-artwork-manifest.json 2>/dev/null || foot -e sh -lc \"cat /usr/share/chimera/aurora/assets/library-artwork-manifest.json; exec bash\"'" /></item>
+      <item label="Driver Center"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v chimera-driver-center >/dev/null 2>&1 && exec chimera-driver-center || exec foot -e sh -lc \"echo Driver Center unavailable; exec bash\"'" /></item>
+      <item label="Kernel / Koronos Logs"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot -e sh -lc \"journalctl -b -k -f\"'" /></item>
+      <item label="Boot / Recovery Logs"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh recovery; exec foot -e sh -lc \"journalctl -b -f\"'" /></item>
+      <item label="Research / 8192-bit Framework"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; xdg-open /usr/share/chimera/aurora/assets/library-artwork-manifest.json 2>/dev/null || exec foot -e sh -lc \"cat /usr/share/chimera/aurora/assets/library-artwork-manifest.json; exec bash\"'" /></item>
     </menu>
     <separator />
-    <item label="Reconfigure"><action name="Reconfigure" /></item>
-    <item label="Exit Aurora"><action name="Exit" /></item>
+    <item label="Reconfigure"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; labwc -r'" /></item>
+    <item label="Exit Aurora"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh shutdown; exit 0'" /></item>
   </menu>
 </openbox_menu>
