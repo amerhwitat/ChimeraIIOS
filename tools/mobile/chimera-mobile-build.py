@@ -5,6 +5,21 @@ from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; PROFILES=ROOT/"mobile/device-profiles"; OUT=ROOT/"build/mobile"
 def run(c, timeout=None): return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
+def usb_scan():
+    out={"usb":{"lsusb":None,"adb_server":None,"adb_devices":[],"fastboot_devices":[]}}
+    if shutil.which("lsusb"):
+        q=run(["lsusb"]); out["usb"]["lsusb"]=q.stdout.strip()
+    if shutil.which("adb"):
+        run(["adb","start-server"])
+        q=run(["adb","devices","-l"])
+        out["usb"]["adb_server"]="running"
+        lines=q.stdout.splitlines()
+        out["usb"]["adb_devices"]=[x.strip() for x in lines[1:] if x.strip()]
+    if shutil.which("fastboot"):
+        q=run(["fastboot","devices","-l"])
+        out["usb"]["fastboot_devices"]=[x.strip() for x in q.stdout.splitlines() if x.strip()]
+    return out
+
 def detect(power_on=False, timeout=20):
     run(["adb","start-server"])
     if power_on:
@@ -55,5 +70,8 @@ def build(t,p,pf):
     if q.returncode: raise SystemExit(q.stdout)
     r={"profile":p,"target":t,"rom":str(rom),"iso":str(iso),"rom_sha256":sha(rom),"iso_sha256":sha(iso),"profile_file":str(pf)}
     (OUT/"last-build.json").write_text(json.dumps(r,indent=2)+"\n"); return r
-a=argparse.ArgumentParser(); a.add_argument("--detect",action="store_true"); a.add_argument("--build",action="store_true"); a.add_argument("--power-on",action="store_true"); x=a.parse_args()
+a=argparse.ArgumentParser(); a.add_argument("--detect",action="store_true"); a.add_argument("--usb-scan",action="store_true"); a.add_argument("--build",action="store_true"); a.add_argument("--power-on",action="store_true"); x=a.parse_args()
+if x.usb_scan:
+    print(json.dumps(usb_scan(),indent=2))
+    raise SystemExit(0)
 t=detect(power_on=x.power_on); p,pf=load(t); print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)} if not x.build else build(t,p,pf),indent=2))
