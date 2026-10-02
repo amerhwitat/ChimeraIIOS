@@ -4,14 +4,20 @@ on:
   push:
     paths:
       - 'desktop/aurora/**'
+      - 'mobile/**'
       - 'tools/provision-aurora-rootfs.sh'
       - 'tools/stage-chimera-runtime.sh'
+      - 'docs/CHIMERA_MOBILE_AND_RUNTIME_GAPS.md'
+      - 'boot/iso/grub.cfg'
       - '.github/workflows/aurora-runtime-ci.yml'
   pull_request:
     paths:
       - 'desktop/aurora/**'
+      - 'mobile/**'
       - 'tools/provision-aurora-rootfs.sh'
       - 'tools/stage-chimera-runtime.sh'
+      - 'docs/CHIMERA_MOBILE_AND_RUNTIME_GAPS.md'
+      - 'boot/iso/grub.cfg'
       - '.github/workflows/aurora-runtime-ci.yml'
 
 jobs:
@@ -28,13 +34,19 @@ jobs:
           bash -n desktop/aurora/aurora-start.sh
           bash -n desktop/aurora/aurora-session.sh
           bash -n desktop/aurora/aurora-desktop-init.sh
+          bash -n desktop/aurora/aurora-progress.sh
           sh -n tools/provision-aurora-rootfs.sh
           sh -n tools/stage-chimera-runtime.sh
+          sh -n tools/chimera-installer-runtime.sh
           sh -n desktop/aurora/labwc/autostart
       - name: Shellcheck Aurora scripts
         run: |
-          shellcheck -x desktop/aurora/aurora-start.sh desktop/aurora/aurora-session.sh desktop/aurora/aurora-desktop-init.sh || true
-          shellcheck -x tools/provision-aurora-rootfs.sh tools/stage-chimera-runtime.sh || true
+          shellcheck -x desktop/aurora/aurora-start.sh desktop/aurora/aurora-session.sh desktop/aurora/aurora-desktop-init.sh desktop/aurora/aurora-progress.sh || true
+          shellcheck -x tools/provision-aurora-rootfs.sh tools/stage-chimera-runtime.sh tools/chimera-installer-runtime.sh || true
+      - name: Validate JSON contracts
+        run: |
+          jq empty desktop/aurora/assets/library-artwork-manifest.json
+          jq empty mobile/mobile-progress.json
       - name: Validate Waybar JSON
         run: jq empty desktop/aurora/waybar/config.jsonc
       - name: Validate portal and session descriptors
@@ -45,3 +57,14 @@ jobs:
           test -s desktop/aurora/labwc/environment
           test -s desktop/aurora/labwc/autostart
           test -s desktop/aurora/waybar/style.css
+          test -s desktop/aurora/assets/aurora-wayland-glass.png
+          test -s desktop/aurora/assets/aurora-desktop.svg
+      - name: Validate mobile and gap documentation
+        run: |
+          test -s mobile/README.md
+          test -s docs/CHIMERA_MOBILE_AND_RUNTIME_GAPS.md
+      - name: Validate GRUB progress/menu syntax markers
+        run: |
+          grep -q 'Live CD Hardware / Driver Progress' boot/iso/grub.cfg
+          grep -q 'Mobile / ARM64 Research Runtime' boot/iso/grub.cfg
+          grep -q 'Repair Terminal / Recovery' boot/iso/grub.cfg
