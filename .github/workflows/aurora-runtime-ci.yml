@@ -1,0 +1,47 @@
+name: Aurora Runtime Validation
+
+on:
+  push:
+    paths:
+      - 'desktop/aurora/**'
+      - 'tools/provision-aurora-rootfs.sh'
+      - 'tools/stage-chimera-runtime.sh'
+      - '.github/workflows/aurora-runtime-ci.yml'
+  pull_request:
+    paths:
+      - 'desktop/aurora/**'
+      - 'tools/provision-aurora-rootfs.sh'
+      - 'tools/stage-chimera-runtime.sh'
+      - '.github/workflows/aurora-runtime-ci.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install validation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck jq
+      - name: Shell syntax
+        run: |
+          bash -n desktop/aurora/aurora-start.sh
+          bash -n desktop/aurora/aurora-session.sh
+          bash -n desktop/aurora/aurora-desktop-init.sh
+          sh -n tools/provision-aurora-rootfs.sh
+          sh -n tools/stage-chimera-runtime.sh
+          sh -n desktop/aurora/labwc/autostart
+      - name: Shellcheck Aurora scripts
+        run: |
+          shellcheck -x desktop/aurora/aurora-start.sh desktop/aurora/aurora-session.sh desktop/aurora/aurora-desktop-init.sh || true
+          shellcheck -x tools/provision-aurora-rootfs.sh tools/stage-chimera-runtime.sh || true
+      - name: Validate Waybar JSON
+        run: jq empty desktop/aurora/waybar/config.jsonc
+      - name: Validate portal and session descriptors
+        run: |
+          test -s desktop/aurora/xdg-desktop-portal/aurora-portals.conf
+          test -s desktop/aurora/labwc/rc.xml
+          test -s desktop/aurora/labwc/menu.xml
+          test -s desktop/aurora/labwc/environment
+          test -s desktop/aurora/labwc/autostart
+          test -s desktop/aurora/waybar/style.css
