@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
+BITS="${CHIMERA_BITS:-8192}"
+PY=${CHIMERA_PYTHON:-python3}
+command -v "$PY" >/dev/null 2>&1 || { echo "chimera-python: $PY not installed" >&2; exit 127; }
+export CHIMERA_ROOT="$ROOT" CHIMERA_LOGICAL_BITS="$BITS"
+export PYTHONPATH="$ROOT/lib/python:$ROOT/sdk/python${PYTHONPATH:+:$PYTHONPATH}"
+exec "$PY" "$@"
