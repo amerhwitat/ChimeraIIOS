@@ -1,0 +1,20 @@
+* {
+  font-family: "Noto Sans", "Noto Sans Arabic", sans-serif;
+  font-size: 13px;
+}
+window#waybar {
+  background: rgba(10, 18, 32, 0.72);
+  color: #f4f7ff;
+  border-bottom: 1px solid rgba(130, 220, 255, 0.42);
+}
+#custom-aurora, #workspaces, #clock, #network, #pulseaudio, #memory, #cpu, #battery, #tray {
+  margin: 5px 3px;
+  padding: 5px 11px;
+  border-radius: 10px;
+  background: rgba(40, 65, 92, 0.55);
+  border: 1px solid rgba(160, 225, 255, 0.22);
+}
+#custom-aurora { font-weight: 700; }
+#workspaces button { color: #d8e7ff; padding: 0 7px; }
+#workspaces button.active { background: rgba(80, 190, 255, 0.38); border-radius: 8px; }
+#clock { font-weight: 600; }
