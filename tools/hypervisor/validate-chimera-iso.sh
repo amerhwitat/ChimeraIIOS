@@ -19,7 +19,9 @@ ok "BIOS + UEFI El Torito entries detected"
 
 EFI_LIST="$(mktemp)"
 trap 'rm -f "$REPORT" "$EFI_LIST"' EXIT
-xorriso -indev "$ISO" -find /EFI/BOOT -type f -print 2>&1 | tee "$EFI_LIST"
+# xorriso -find does not accept GNU find's -print action. Its default
+# action is to report matching ISO paths, so use -type f only.
+xorriso -indev "$ISO" -find /EFI/BOOT -type f 2>&1 | tee "$EFI_LIST"
 grep -Eqi '/EFI/BOOT/BOOTX64\.EFI$' "$EFI_LIST" || fail "UEFI fallback /EFI/BOOT/BOOTX64.EFI is missing"
 ok "UEFI fallback BOOTX64.EFI present"
 
