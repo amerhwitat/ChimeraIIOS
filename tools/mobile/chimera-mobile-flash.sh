@@ -26,10 +26,19 @@ case "$COMMAND" in
     exec python3 "$GUI"
     ;;
 
-  detect)
+  detect|inspect)
     need adb
     need python3
     exec python3 "$BUILDER" --detect
+    ;;
+  power-on|wake)
+    need adb
+    need python3
+    if command -v fastboot >/dev/null 2>&1; then
+      exec python3 "$BUILDER" --detect --power-on
+    else
+      die "fastboot is required for safe bootloader-to-system wake; install Android platform-tools."
+    fi
     ;;
 
   build)
@@ -97,6 +106,8 @@ Usage:
   tools/mobile/chimera-mobile-flash.sh
   tools/mobile/chimera-mobile-flash.sh --gui
   tools/mobile/chimera-mobile-flash.sh detect
+  tools/mobile/chimera-mobile-flash.sh inspect
+  tools/mobile/chimera-mobile-flash.sh power-on
   tools/mobile/chimera-mobile-flash.sh build
   tools/mobile/chimera-mobile-flash.sh --dry-run
   tools/mobile/chimera-mobile-flash.sh flash
