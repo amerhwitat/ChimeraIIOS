@@ -7,11 +7,33 @@ Chimera II Mobile is the mobile delivery layer for Chimera II OS. It shares the 
 - iOS/iPadOS: hosted application/runtime integration using Apple-supported APIs and signing.
 - Common mobile core: versioned manifests, capability negotiation, updates, diagnostics and recovery contracts.
 
+## Boot pipeline
+
+`UEFI/vendor boot ROM -> Spit Fire/Jasper -> verified artifacts -> Koronos -> mobile initramfs -> hardware probe -> display/input/audio/network/power services -> Aurora Mobile shell`
+
+The mobile boot path must expose visible progress states for firmware, verification, kernel bring-up, hardware discovery and shell startup. Recovery remains independently bootable.
+
 ## Synchronization
 mobile/mobile-sync.json maps desktop/ISO components to mobile equivalents. The mobile build consumes the same source tree and registries rather than maintaining a divergent implementation.
 
 ## Native toolchain
 The mobile SDK exposes chimera-cc, chimera-cxx, chimera-gas and chimera-ld. Android selects the Android NDK/Clang toolchain; Apple targets select Apple Clang/Xcode on macOS.
 
+## Hardware contracts
+
+The production mobile HAL set is expected to cover ARM64 SoC discovery, DRM/KMS or platform display composition, touch and sensors, audio, Wi-Fi, Bluetooth, modem/SIM/eSIM, USB-C/PD, camera, battery/fuel gauge, thermal management and suspend/resume.
+
+## Updates and recovery
+
+Use A/B-style update slots where the device architecture permits it. The updated slot must be marked successful only after a verified successful boot; failed updates return to the previous known-good slot. Recovery and rollback metadata must be authenticated.
+
+## Aurora Mobile
+
+The touch-first shell should share the Aurora visual language and artwork catalog with the desktop edition while adding a launcher, notification shade, quick settings, lock screen, gesture navigation, safe-area handling and dynamic scaling.
+
 ## Security
 Mobile flashing is confirmation-gated and device-profile constrained. The tooling does not bypass bootloader locks, Android Verified Boot, Apple secure boot, signing, recovery protections or vendor security controls.
+
+## Status
+
+The common contracts and roadmap are present; production device support remains profile-specific and requires hardware validation before a device is declared supported.
