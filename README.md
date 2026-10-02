@@ -7,6 +7,25 @@ Chimera II OS is a cross-language research operating-system and application plat
 - **Hosted Edition** — runs on Windows, Linux/Unix, macOS, Android or iOS/iPadOS as an application/runtime environment.
 - **BareMetal Edition** — boots directly on a validated computer/mobile hardware profile through BIOS/MBR, UEFI or a platform-specific mobile boot path.
 
+## Native C / C++ / ASM and N-bit toolchain
+
+Chimera II OS now includes a source-first native toolchain under `tools/chimera-toolchain/` and the reusable arbitrary-width integer runtime under `lib/chimera-nbit/`. The toolchain is designed around the same separation used by LLVM: logical arbitrary-precision values are represented independently from physical target instruction selection. LLVM's `APInt` explicitly supports non-byte-width and values larger than 64 bits, making it an appropriate reference implementation pattern for Chimera's N-bit layer. citeturn0search1turn0search15
+
+The native target registry covers x86/i386/x86-64, ARM/AArch64, RISC-V 32/64, MIPS64, PowerPC64LE, s390x and WebAssembly 32/64, plus an explicitly experimental `chimera8192` backend contract. LLVM's RISC-V target documentation confirms target-specific code generation and extension handling, while QEMU documents broad guest coverage including x86, Arm, RISC-V and other architectures. citeturn0search17turn0search3
+
+`tools/chimera-toolchain/chimera-ncc` accepts `--chimera-bits=N` or `CHIMERA_BITS=N`. This defines the logical arithmetic width; it does **not** falsely claim that an ordinary CPU has an N-bit physical register. Wide values are lowered into the selected physical target's machine-word operations or handled by the runtime. A true Chimera machine-code backend remains a separate experimental compiler-backend track.
+
+Examples:
+
+```sh
+CHIMERA_BITS=8192 tools/chimera-toolchain/chimera-ncc -std=c17 -O2 -c kernel.c -o kernel.o
+CHIMERA_BITS=16384 tools/chimera-toolchain/chimera-ncc -x=c++ -std=c++20 -O2 -c app.cpp -o app.o
+```
+
+GCC's documented backend model remains the reference for adding a real physical Chimera target: a target backend supplies machine descriptions, target headers/source, options and related configuration. citeturn0search14
+
+The architecture manifest is `tools/chimera-toolchain/architectures.json`; CMake integration is provided by `tools/chimera-toolchain/CMakeLists.txt`. The existing `tools/chimera-asm/` assembler/disassembler remains the Chimera-Bit assembly boundary.
+
 ## Universal boot and startup
 
 The boot layer uses a normalized `CHMBOOT1` contract in `boot/boot_protocol.json`. Computer boot targets include BIOS/MBR, UEFI, Multiboot1/2, Limine-compatible handoff and controlled chainloading. BIOS legacy services and modern UEFI protocols/services are treated as separate firmware interfaces.
@@ -19,20 +38,9 @@ The boot visual is represented by `boot/splash/aurora_boot_splash.svg`; the requ
 
 ## Universal source-first ISO
 
-The structured ISO builder stages:
+The structured ISO builder stages `/src`, `/opt`, `/install`, `/drivers`, `/filesystems`, `/packages`, `/repositories`, `/man`, `/games`, `/wallets` and `/ISO` as documented distribution contracts.
 
-- `/src` — source needed by the distribution;
-- `/opt` — optional applications/utilities;
-- `/install` — installer contracts and future transaction tooling;
-- `/drivers` — provenance-aware driver registry;
-- `/filesystems` — filesystem capability registry;
-- `/packages` — package-manager compatibility registry;
-- `/repositories` — source/repository metadata;
-- `/man` — original/licensed command references;
-- `/games` and `/wallets` — optional application categories;
-- `/ISO` — media layout metadata.
-
-The first release target is x86-64 with BIOS/MBR and UEFI/GPT qualification. El Torito optical boot and UEFI removable-media structures are authored through GRUB/xorriso. GNU documents `grub-mkrescue` as a bootable ISO authoring frontend, while xorriso supports El Torito BIOS/EFI boot structures and ISO mastering. citeturn0search0turn0search2turn0search4
+The first release target is x86-64 with BIOS/MBR and UEFI/GPT qualification. El Torito optical boot and UEFI removable-media structures are authored through GRUB/xorriso.
 
 ## Installer and compatibility contracts
 
@@ -44,14 +52,7 @@ Windows/Linux/macOS migration is designed as discovery/import/migration rather t
 
 ## Application integrations
 
-`appcenter/catalog/external-integrations.json` defines source-first integrations for public repositories including:
-
-- `amerhwitat/nlp`
-- `amerhwitat/BizX`
-- `amerhwitat/BizXtreme`
-- `amerhwitat/general`
-
-Applications are built only when their source, license, dependencies and target compatibility can be verified. Proprietary binaries and drivers are not copied merely because they are discoverable online.
+`appcenter/catalog/external-integrations.json` defines source-first integrations for public repositories including `amerhwitat/nlp`, `amerhwitat/BizX`, `amerhwitat/BizXtreme` and `amerhwitat/general`. Applications are built only when their source, license, dependencies and target compatibility can be verified. Proprietary binaries and drivers are not copied merely because they are discoverable online.
 
 ## Mobile editions
 
@@ -59,9 +60,7 @@ Android has hosted APK/AAB and device-profiled bare-metal paths. iOS/iPadOS pack
 
 ## CI and releases
 
-`.github/workflows/chimera-iso.yml` validates registries, boot assets, ISO contents, El Torito/system-area metadata and BIOS/UEFI QEMU smoke paths where firmware is available. `.github/workflows/chimera-release.yml` publishes a GitHub Release only for version tags after the ISO build and verification succeed. GitHub Actions artifacts are retained for inspection before/alongside release publication. citeturn0search3turn0search6
-
-**There is currently no published GitHub Release until a version-tagged release workflow has successfully generated and verified the artifacts.**
+`.github/workflows/chimera-iso.yml` validates registries, boot assets, ISO contents, El Torito/system-area metadata and BIOS/UEFI QEMU smoke paths where firmware is available. `.github/workflows/chimera-release.yml` publishes a GitHub Release only for version tags after the ISO build and verification succeed.
 
 ## Security and provenance
 
@@ -69,45 +68,19 @@ Downloaded code, drivers, firmware, ROMs and applications are not automatically 
 
 ## Native QFS storage and hardware-learning driver recommendations
 
-Chimera II OS now declares **QFS** as its native block filesystem. The default allocation block is **4 KiB**, with explicit installer choices of 8, 16, 32, or 64 KiB. Native installation rejects a block size larger than the running kernel page size; the format records block and sector geometry in its superblock. The current repository implementation is the QFS format/formatter and installer contract; the complete kernel VFS/journal/snapshot implementation remains an active development track. citeturn0search0turn0search2turn0search3
-
-The installer exposes the geometry with:
-
-`python3 installer/chimera_installer.py --qfs-block-size 4096`
-
-or a larger supported value such as `16384` when the target kernel page-size policy permits it.
-
-Chimera also inventories PCI/USB/sysfs/DMI/storage geometry and runs an auditable recurrent hardware-study engine. Recommendations are written to `/var/lib/chimera/drivers/ai-recommendations.json`; the model recommends driver families but does not silently install arbitrary drivers. Driver trust remains based on in-tree drivers, signed packages/firmware, fwupd/LVFS, and verified vendor sources.
+Chimera II OS declares **QFS** as its native block filesystem. The default allocation block is **4 KiB**, with explicit installer choices of 8, 16, 32, or 64 KiB. Native installation rejects a block size larger than the running kernel page size.
 
 ## Aurora Wayland Glass desktop and menu background
 
-The attached **Aurora-Wayland-Glass-Desktop** artwork is the canonical Chimera II OS visual background. The ISO staging layer applies it to GRUB, Jasper, Spit Fire, installation/recovery/diagnostics menus, Aurora Gates, installer/library surfaces, and the runtime desktop background. The boot menus use the PNG artwork through GRUB's background_image facility; grub-mkrescue passes its ISO-mastering arguments to xorriso in mkisofs emulation mode. citeturn0search0turn0search9
-
-The runtime default is:
-
-/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png
-
-and is configurable through:
-
-/etc/chimera/desktop-background.conf
-
-To change the wallpaper later without rebuilding the ISO:
-
-sudo tools/branding/chimera-set-desktop-background.sh /path/to/new-background.png
-
-The original attached asset is also recognized automatically when the build is run in an environment containing /mnt/data/Aurora-Wayland-Glass-Desktop.png.png; the repository contains a compact embedded PNG fallback for offline builds.
+The Aurora Wayland Glass artwork is the canonical Chimera II OS visual background for GRUB, Jasper, Spit Fire, installation/recovery/diagnostics menus, Aurora Gates and the runtime desktop.
 
 ## Resumable ISO builds
 
-build-chimera-iso.sh now retains checkpoints and a failure record. If a build stops after Docker, rootfs, boot, branding, Apache, features, SquashFS, ISO, verification, or report completion, the next invocation automatically resumes from the last completed checkpoint. --resume remains available explicitly, while --clean-state discards the checkpoint and starts over.
-
-Failure metadata is stored under the build directory as .chimera-failed-stage. This makes expensive Docker/rootfs/boot/ISO stages recoverable without intentionally discarding completed work.
+`build-chimera-iso.sh` retains checkpoints and failure metadata so expensive Docker/rootfs/boot/branding/SquashFS/ISO stages can resume without intentionally discarding completed work.
 
 ## RegisterN and Chimera Bit Mode
 
-RegisterN removes the fixed 8192-bit architectural ceiling. Register width is runtime-selected and stored as 64-bit limbs, allowing 8192-bit, 16384-bit, 32768-bit, 65536-bit and larger logical registers without changing the ISA interface. See `arch/registern/`.
-
-Logical Chimera cores/threads execute in parallel over detected physical CPU cores and hardware threads. x86-64 CISC, ARM64 and RISC-V hosts are treated as physical execution backends through a canonical Chimera micro-op boundary. This is virtualization/emulation of the logical width, not a claim that commodity CPUs possess native registers of arbitrary width.
+RegisterN removes the fixed 8192-bit architectural ceiling. Register width is runtime-selected and stored as 64-bit limbs, allowing 8192-bit, 16384-bit, 32768-bit, 65536-bit and larger logical registers without changing the ISA interface. Logical Chimera cores/threads execute in parallel over detected physical CPU cores and hardware threads. x86-64 CISC, ARM64 and RISC-V hosts are treated as physical execution backends through a canonical Chimera micro-op boundary.
 
 ## Native assembler, disassembler and reverse engineering
 
@@ -115,20 +88,18 @@ Logical Chimera cores/threads execute in parallel over detected physical CPU cor
 
 ## ER/MDM + OLTP/OLAP/HTAP data platform
 
-`system/database/` defines a Nucleus-facing enterprise data architecture combining ER modeling, master-data management, OLTP, OLAP and HTAP. It includes MVCC/WAL transaction boundaries, columnar/vectorized analytics, CDC, golden records, hierarchy management and audit history. The profile is intentionally compatible with architectural patterns found in enterprise systems such as Oracle Exadata and SAP HANA without embedding proprietary implementations.
+`system/database/` defines a Nucleus-facing enterprise data architecture combining ER modeling, master-data management, OLTP, OLAP and HTAP.
 
 ## Apache ecosystem integration
 
-`services/apache/apache-projects.json` is the source-first integration catalog for Apache ecosystem families including HTTP, data, messaging, streaming, search, big-data, integration, runtime, security and observability projects. Apache components remain optional userland services and are never linked into the freestanding Koronos kernel. Upstream version, license, checksum and build recipe are required before packaging.
+`services/apache/apache-projects.json` is the source-first integration catalog for Apache ecosystem families. Apache components remain optional userland services and are never linked into the freestanding Koronos kernel.
 
 ## PHP / HTML / CSS / JavaScript
 
-`web/runtime/` provides the web-runtime contract and example application assets. PHP is isolated behind a FastCGI-compatible process boundary; HTML/CSS are static web assets; JavaScript executes in a sandboxed runtime; HTTP services are capability controlled.
+`web/runtime/` provides the web-runtime contract and example application assets. PHP is isolated behind a FastCGI-compatible process boundary; HTML/CSS are static web assets; JavaScript executes in a sandboxed runtime.
 
 ## Mobile edition and flash tool
 
-The mobile edition now shares the same source-first contracts as the desktop/bare-metal editions through `mobile/mobile-sync.json`. Android packaging targets hosted APK/AAB delivery and device-profiled recovery integration; iOS/iPadOS remains an Apple-hosted target using Xcode and platform signing. The native C/C++/ASM toolchain contracts are reused rather than forked.
+The mobile edition shares the same source-first contracts through `mobile/mobile-sync.json`. Android packaging targets hosted APK/AAB delivery and device-profiled recovery integration; iOS/iPadOS remains an Apple-hosted target using Xcode and platform signing. The native C/C++/ASM toolchain contracts are reused rather than forked.
 
-`tools/flash/chimera-flash` provides detection, manifest validation and a confirmation-gated Android flashing boundary. It intentionally refuses generic partition writes until a validated device profile supplies exact partitions, image hashes/signatures, AVB and rollback metadata. Android Platform-Tools provides `adb` and `fastboot`, with `fastboot` used for system-image flashing. citeturn0search2
-
-Mobile security follows the same provenance model as the ISO: Secure Boot, Android Verified Boot, Apple security/signing, recovery protections and vendor controls are respected; the tooling does not silently unlock, erase or bypass them.
+`tools/flash/chimera-flash` provides detection, manifest validation and a confirmation-gated Android flashing boundary. It intentionally refuses generic partition writes until a validated device profile supplies exact partitions, image hashes/signatures, AVB and rollback metadata.
