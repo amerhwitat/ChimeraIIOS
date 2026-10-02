@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "optional": true,
+  "disabled_env": "CHIMERA_SOUND_ENABLED=0",
+  "events": {
+    "startup": "startup.wav",
+    "menu_open": "menu-open.wav",
+    "menu_focus": "menu-focus.wav",
+    "menu_select": "menu-select.wav",
+    "menu_back": "menu-back.wav",
+    "cancel": "cancel.wav",
+    "warning": "warning.wav",
+    "error": "error.wav",
+    "success": "success.wav",
+    "device_connect": "device-connect.wav",
+    "device_disconnect": "device-disconnect.wav",
+    "install_step": "install-step.wav",
+    "recovery": "recovery.wav",
+    "shutdown": "shutdown.wav"
+  }
+}
