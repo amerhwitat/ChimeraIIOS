@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Chimera II OS Mobile Edition Flash Tool GUI."""
-import json,queue,subprocess,threading
+import json,queue,subprocess,threading,sys
 from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox,ttk
-ROOT=Path(__file__).resolve().parents[2]; BUILDER=Path(__file__).with_name("chimera-mobile-build.py"); CLI=Path(__file__).with_name("chimera-mobile-flash.sh")
+ROOT=Path(__file__).resolve().parents[2]; BUILDER=Path(__file__).with_name("chimera-mobile-build.py"); CLI=Path(__file__).with_name("chimera-mobile-flash.sh"); PYTHON=sys.executable
 class App(tk.Tk):
  def __init__(self):
   super().__init__(); self.title("Chimera II OS — Mobile Edition Flash Tool"); self.geometry("1200x780"); self.q=queue.Queue(); self._ui(); self.after(100,self._drain); self.detect()
@@ -33,11 +33,11 @@ class App(tk.Tk):
   threading.Thread(target=worker,daemon=True).start()
  def detect(self):
   def run():
-   p=subprocess.run(["python3",str(BUILDER),"--detect"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info",p.stdout)); self.q.put(("log","Exact device-profile detection completed." if p.returncode==0 else p.stdout))
+   p=subprocess.run([PYTHON,str(BUILDER),"--detect"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info",p.stdout)); self.q.put(("log","Exact device-profile detection completed." if p.returncode==0 else p.stdout))
   self.work(run)
  def build(self):
   def run():
-   p=subprocess.run(["python3",str(BUILDER),"--build"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("log",p.stdout)); self.q.put(("info",p.stdout))
+   p=subprocess.run([PYTHON,str(BUILDER),"--build"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("log",p.stdout)); self.q.put(("info",p.stdout))
   self.work(run)
  def validate(self):
   p=ROOT/"build/mobile/last-build.json"
