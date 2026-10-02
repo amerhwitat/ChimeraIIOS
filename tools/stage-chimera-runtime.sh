@@ -25,7 +25,7 @@ done
 [ -f "$SRC/config/drivers/driver-policy.json" ] && cp -f "$SRC/config/drivers/driver-policy.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/system/boot/chimera-logging.conf" ] && cp -f "$SRC/system/boot/chimera-logging.conf" "$DEST/etc/chimera/logging.conf"
 
-for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh; do
+for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh aurora-event-sound.sh aurora-init-splash.sh; do
   if [ -f "$SRC/desktop/aurora/$f" ]; then
     cp -f "$SRC/desktop/aurora/$f" "$DEST/usr/share/chimera/aurora/$f"
     chmod +x "$DEST/usr/share/chimera/aurora/$f"
@@ -38,12 +38,24 @@ done
 [ -f "$SRC/desktop/aurora/waybar/style.css" ] && cp -f "$SRC/desktop/aurora/waybar/style.css" "$DEST/usr/share/chimera/aurora/waybar/"
 [ -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" ] && cp -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" "$DEST/etc/xdg/xdg-desktop-portal/aurora-portals.conf"
 
-# Hard-code repository-side Aurora artwork into the installed rootfs.
+# Generate optional Aurora initialization media and menu sounds at build time.
+if [ -x "$SRC/tools/generate-aurora-media.sh" ]; then
+  "$SRC/tools/generate-aurora-media.sh" "$SRC/desktop/aurora/assets" || true
+fi
+
+# Hard-code repository-side Aurora artwork and generated media into the installed rootfs.
 for f in "$SRC/desktop/aurora/assets"/*; do
   [ -f "$f" ] || continue
   cp -f "$f" "$DEST/usr/share/chimera/aurora/assets/"
 done
+if [ -d "$SRC/desktop/aurora/assets/sounds" ]; then
+  mkdir -p "$DEST/usr/share/chimera/aurora/assets/sounds"
+  for f in "$SRC/desktop/aurora/assets/sounds"/*; do [ -f "$f" ] && cp -f "$f" "$DEST/usr/share/chimera/aurora/assets/sounds/"; done
+fi
+[ -f "$SRC/desktop/aurora/assets/sounds/manifest.json" ] && cp -f "$SRC/desktop/aurora/assets/sounds/manifest.json" "$DEST/usr/share/chimera/aurora/assets/sounds/"
 [ -f "$SRC/desktop/aurora/assets/library-artwork-manifest.json" ] && cp -f "$SRC/desktop/aurora/assets/library-artwork-manifest.json" "$DEST/usr/share/chimera/aurora/"
+[ -f "$SRC/desktop/aurora/menu-event-map.json" ] && cp -f "$SRC/desktop/aurora/menu-event-map.json" "$DEST/usr/share/chimera/aurora/"
+[ -f "$SRC/system/boot/koronos-progress.sh" ] && cp -f "$SRC/system/boot/koronos-progress.sh" "$DEST/usr/share/chimera/aurora/koronos-progress.sh" && chmod +x "$DEST/usr/share/chimera/aurora/koronos-progress.sh"
 for bg in "$SRC/desktop/aurora/assets/aurora-wayland-glass.png" "$SRC/desktop/aurora/assets/aurora-wayland-glass.svg" "$SRC/desktop/aurora/assets/aurora-desktop.svg"; do
   if [ -f "$bg" ]; then
     cp -f "$bg" "$DEST/usr/share/chimera/aurora/$(basename "$bg")"
@@ -51,8 +63,6 @@ for bg in "$SRC/desktop/aurora/assets/aurora-wayland-glass.png" "$SRC/desktop/au
   fi
 done
 
-# Mobile progress and update contracts are installed alongside Aurora so the
-# same visual progress monitor can be used for boot, flashing and OTA work.
 [ -f "$SRC/mobile/mobile-progress.json" ] && cp -f "$SRC/mobile/mobile-progress.json" "$DEST/usr/share/chimera/mobile/"
 [ -f "$SRC/mobile/README.md" ] && cp -f "$SRC/mobile/README.md" "$DEST/usr/share/chimera/mobile/"
 
