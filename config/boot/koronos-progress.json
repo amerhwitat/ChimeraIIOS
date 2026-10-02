@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "state_file": "/run/chimera/koronos-progress.state",
+  "phases": [
+    {"id":"cpu", "start":0, "end":10, "label":"CPU / architecture discovery"},
+    {"id":"memory", "start":10, "end":20, "label":"Memory initialization"},
+    {"id":"interrupts", "start":20, "end":30, "label":"Interrupt/APIC initialization"},
+    {"id":"scheduler", "start":30, "end":40, "label":"Scheduler initialization"},
+    {"id":"ipc", "start":40, "end":50, "label":"IPC initialization"},
+    {"id":"devices", "start":50, "end":60, "label":"Device and driver discovery"},
+    {"id":"storage", "start":60, "end":70, "label":"Storage and filesystem initialization"},
+    {"id":"network", "start":70, "end":80, "label":"Network initialization"},
+    {"id":"services", "start":80, "end":90, "label":"Jasper and boot services"},
+    {"id":"aurora", "start":90, "end":100, "label":"Aurora Wayland initialization"}
+  ]
+}
