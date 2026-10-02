@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Chimera native compiler driver. It delegates physical ISA code generation to
+# LLVM/GCC and preserves arbitrary logical integer width through a generated
+# configuration header. Custom Chimera machine-code generation is intentionally
+# gated behind the experimental backend and never masquerades as x86/ARM code.
+ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
+BITS="${CHIMERA_BITS:-8192}"
+TARGET="${CHIMERA_TARGET:-native}"
+MODE=c
+ARGS=()
+for a in "$@"; do
+  case "$a" in
+    --chimera-bits=*) BITS=${a#*=} ;;
+    --target=*) TARGET=${a#*=} ;;
+    -x=c++|--cxx) MODE=cxx ;;
+    -x=c) MODE=c ;;
+    *) ARGS+=("$a") ;;
+  esac
+done
+[[ "$BITS" =~ ^[1-9][0-9]*$ ]] || { echo "chimera-ncc: invalid N-bit width: $BITS" >&2; exit 2; }
+CC=${CHIMERA_CLANG:-clang}
+if ! command -v "$CC" >/dev/null 2>&1; then CC=${CHIMERA_GCC:-gcc}; fi
+command -v "$CC" >/dev/null 2>&1 || { echo "chimera-ncc: install clang or gcc" >&2; exit 127; }
+TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+cat > "$TMP/chimera_nbit_config.h" <<EOF
+#pragma once
+#define CHIMERA_LOGICAL_BITS $BITS
+#define CHIMERA_TARGET_NAME "$TARGET"
+#include "${ROOT}/lib/chimera-nbit/chimera_nint.hpp"
+EOF
+# The include is made available to user code through the generated header.
+exec "$CC" -DCHIMERA_LOGICAL_BITS="$BITS" -include "$TMP/chimera_nbit_config.h" "${ARGS[@]}"
