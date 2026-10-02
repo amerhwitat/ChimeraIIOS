@@ -1,18 +1,30 @@
 #!/usr/bin/env python3
 """Device-aware Chimera II Mobile ROM/ISO builder."""
-import argparse,hashlib,json,shutil,subprocess,zipfile
+import argparse,hashlib,json,shutil,subprocess,zipfile,time
 from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; PROFILES=ROOT/"mobile/device-profiles"; OUT=ROOT/"build/mobile"
 def run(c): return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-def detect():
-    run(["adb","start-server"]); p=run(["adb","devices"])
+def detect(power_on=False, timeout=20):
+    run(["adb","start-server"])
+    if power_on:
+        # Software can wake/restart a reachable device. A completely powered-off
+        # handset still requires its hardware power path/button or OEM-specific
+        # service; we never emulate a physical power press.
+        fp=run(["fastboot","devices"]) if shutil.which("fastboot") else subprocess.CompletedProcess([],0,"")
+        if fp.stdout.strip():
+            serial=fp.stdout.split()[0]
+            run(["fastboot","-s",serial,"reboot"])
+        else:
+            run(["adb","wait-for-device"],timeout=timeout)
+    p=run(["adb","devices"])
     ids=[x.split()[0] for x in p.stdout.splitlines()[1:] if len(x.split())>=2 and x.split()[1]=="device"]
     if len(ids)!=1: raise SystemExit(f"expected exactly one authorized Android device, found {len(ids)}")
-    s=ids[0]; mp={"manufacturer":"ro.product.manufacturer","model":"ro.product.model","device":"ro.product.device","product":"ro.product.name","board":"ro.product.board","platform":"ro.board.platform","soc":"ro.soc.model","abi":"ro.product.cpu.abilist","android":"ro.build.version.release","bootloader":"ro.bootloader","locked":"ro.boot.flash.locked","verifiedboot":"ro.boot.verifiedbootstate"}
+    s=ids[0]; mp={"manufacturer":"ro.product.manufacturer","model":"ro.product.model","device":"ro.product.device","product":"ro.product.name","board":"ro.product.board","platform":"ro.board.platform","soc":"ro.soc.model","abi":"ro.product.cpu.abilist","android":"ro.build.version.release","bootloader":"ro.bootloader","locked":"ro.boot.flash.locked","verifiedboot":"ro.boot.verifiedbootstate","fingerprint":"ro.build.fingerprint","build_id":"ro.build.id","build_display":"ro.build.display.id","security_patch":"ro.build.version.security_patch","incremental":"ro.build.version.incremental","slot":"ro.boot.slot_suffix","vbmeta_device_state":"ro.boot.vbmeta.device_state"}
     props={k:run(["adb","-s",s,"shell","getprop",v]).stdout.strip() for k,v in mp.items()}
     a=props["abi"].lower(); arch="aarch64" if "arm64" in a or "aarch64" in a else "armv7" if "armeabi" in a or "armv7" in a else "x86_64" if "x86_64" in a else "unknown"
-    return {"serial":s,"architecture":arch,"properties":props}
+    rom={k:props[k] for k in ("android","fingerprint","build_id","build_display","security_patch","incremental","slot","vbmeta_device_state")}
+    return {"serial":s,"architecture":arch,"properties":props,"software":rom,"mode":"adb"}
 def load(t):
     for f in sorted(PROFILES.glob("*.json")):
         try:p=json.loads(f.read_text())
@@ -42,5 +54,5 @@ def build(t,p,pf):
     if q.returncode: raise SystemExit(q.stdout)
     r={"profile":p,"target":t,"rom":str(rom),"iso":str(iso),"rom_sha256":sha(rom),"iso_sha256":sha(iso),"profile_file":str(pf)}
     (OUT/"last-build.json").write_text(json.dumps(r,indent=2)+"\n"); return r
-a=argparse.ArgumentParser(); a.add_argument("--detect",action="store_true"); a.add_argument("--build",action="store_true"); x=a.parse_args()
-t=detect(); p,pf=load(t); print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)} if not x.build else build(t,p,pf),indent=2))
+a=argparse.ArgumentParser(); a.add_argument("--detect",action="store_true"); a.add_argument("--build",action="store_true"); a.add_argument("--power-on",action="store_true"); x=a.parse_args()
+t=detect(power_on=x.power_on); p,pf=load(t); print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)} if not x.build else build(t,p,pf),indent=2))
