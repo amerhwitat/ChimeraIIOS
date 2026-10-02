@@ -2,7 +2,7 @@
 set -eu
 DEST=${1:?destination root required}
 SRC=${2:-$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)}
-mkdir -p "$DEST/etc/chimera/drivers" "$DEST/var/log/mesgs/archive" "$DEST/var/log/chimera" "$DEST/usr/bin" "$DEST/usr/share/applications" "$DEST/usr/share/chimera/kore" "$DEST/usr/share/chimera/aurora" "$DEST/usr/share/chimera/aurora/config" "$DEST/usr/share/chimera/aurora/emulators/bin" "$DEST/usr/share/chimera/aurora/emulators/desktop" "$DEST/usr/share/chimera/aurora/labwc" "$DEST/usr/share/chimera/aurora/waybar" "$DEST/etc/systemd/system"
+mkdir -p "$DEST/etc/chimera/drivers" "$DEST/var/log/mesgs/archive" "$DEST/var/log/chimera" "$DEST/usr/bin" "$DEST/usr/share/applications" "$DEST/usr/share/chimera/kore" "$DEST/usr/share/chimera/aurora" "$DEST/usr/share/chimera/aurora/config" "$DEST/usr/share/chimera/aurora/emulators/bin" "$DEST/usr/share/chimera/aurora/emulators/desktop" "$DEST/usr/share/chimera/aurora/labwc" "$DEST/usr/share/chimera/aurora/waybar" "$DEST/etc/systemd/system" "$DEST/etc/xdg/xdg-desktop-portal"
 ln -sfn /var/log/mesgs "$DEST/var/log/chimera/mesgs" 2>/dev/null || true
 ln -sfn mesgs "$DEST/var/log/messages" 2>/dev/null || true
 for f in chimera-logd.sh chimera-logrotate.sh chimera-driver-manager.sh chimera-kmsg-forwarder.sh chimera-xexec.sh chimera-playstation-center.sh chimera-crash-dump.sh chimera-screen-of-death.sh chimera-memory-dump.sh chimera-rom-search.sh chimera-game-center.sh chimera-free-3d-games.sh; do
@@ -38,6 +38,16 @@ for f in rc.xml menu.xml environment autostart; do
 done
 [ -f "$SRC/desktop/aurora/waybar/config.jsonc" ] && cp -f "$SRC/desktop/aurora/waybar/config.jsonc" "$DEST/usr/share/chimera/aurora/waybar/"
 [ -f "$SRC/desktop/aurora/waybar/style.css" ] && cp -f "$SRC/desktop/aurora/waybar/style.css" "$DEST/usr/share/chimera/aurora/waybar/"
+[ -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" ] && cp -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" "$DEST/etc/xdg/xdg-desktop-portal/aurora-portals.conf"
+
+# Make the requested Aurora background available at runtime as well as in the
+# ISO boot visual area. Prefer the exact supplied Aurora artwork when present.
+for bg in "$SRC/desktop/aurora/assets/ChimeraIIOS-Aurora-Wayland-Glass.jpg" "$SRC/desktop/aurora/assets/aurora-desktop.svg"; do
+  if [ -f "$bg" ]; then
+    cp -f "$bg" "$DEST/usr/share/chimera/aurora/$(basename "$bg")"
+    break
+  fi
+done
 
 # Install Aurora's native emulator launch bridge and launchers into the
 # userspace rootfs. They must be present in the installed environment, not
