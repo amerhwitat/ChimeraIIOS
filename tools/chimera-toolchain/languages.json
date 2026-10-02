@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "purpose": "Native language integration registry for Chimera II OS",
+  "ir": ["LLVM-IR", "MLIR", "CHIMERA-IR"],
+  "languages": {
+    "c": {"driver":"chimera-ncc","frontend":"clang","standards":["c11","c17","c23"],"native":true},
+    "cpp": {"driver":"chimera-ncc","frontend":"clang","standards":["c++17","c++20","c++23"],"native":true},
+    "asm": {"driver":"chimera-as","frontend":"chimera-asm","native":true},
+    "rust": {"driver":"chimera-rustc","frontend":"rustc","build":"cargo","native":true,"ffi":["C","C++"]},
+    "python": {"driver":"chimera-python","runtime":"python3","extensions":["CPython Limited API","abi3","abi3t"],"native":true},
+    "java": {"driver":"chimera-javac","frontend":"javac","runtime":"JVM","native_interop":["JNI","Foreign Function & Memory API"],"native":true},
+    "zig": {"driver":"chimera-zig","frontend":"zig","native":true},
+    "go": {"driver":"chimera-go","frontend":"go","native":true},
+    "fortran": {"driver":"chimera-fortran","frontend":"gfortran","native":true},
+    "swift": {"driver":"chimera-swift","frontend":"swiftc","native":true}
+  },
+  "common_libraries": ["chimera_nbit","chimera_kernel","chimera_fs","chimera_net","chimera_graphics","chimera_tensor","chimera_runtime","chimera_ffi"],
+  "targets": ["x86_64","i386","aarch64","armv7","riscv32","riscv64","mips64","ppc64le","s390x","wasm32","wasm64","chimera8192"]
+}
