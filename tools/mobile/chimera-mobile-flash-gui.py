@@ -9,9 +9,9 @@ class App(tk.Tk):
  def __init__(self):
   super().__init__(); self.title("Chimera II OS — Mobile Edition Flash Tool"); self.geometry("1200x780"); self.q=queue.Queue(); self._ui(); self.after(100,self._drain); self.detect()
  def _ui(self):
-  r=ttk.Frame(self,padding=18); r.pack(fill="both",expand=True); ttk.Label(r,text="Chimera II OS Mobile Edition",font=("TkDefaultFont",22,"bold")).pack(anchor="w"); ttk.Label(r,text="Detect → exact profile → compile → ROM + ISO → verify → flash").pack(anchor="w",pady=(3,12))
+  r=ttk.Frame(self,padding=18); r.pack(fill="both",expand=True); ttk.Label(r,text="Chimera II OS Mobile Edition",font=("TkDefaultFont",22,"bold")).pack(anchor="w"); ttk.Label(r,text="Wake → detect hardware/software/ROM → exact profile → compile → verify → flash").pack(anchor="w",pady=(3,12))
   b=ttk.Frame(r); b.pack(fill="x")
-  for label,fn in [("Detect",self.detect),("Compile ROM + ISO",self.build),("Validate artifacts",self.validate),("Flash ROM",self.flash)]: ttk.Button(b,text=label,command=fn).pack(side="left",padx=4)
+  for label,fn in [("Wake / Power-On",self.wake),("Detect / Inspect",self.detect),("Compile ROM + ISO",self.build),("Validate artifacts",self.validate),("Flash ROM",self.flash)]: ttk.Button(b,text=label,command=fn).pack(side="left",padx=4)
   p=ttk.Panedwindow(r,orient="horizontal"); p.pack(fill="both",expand=True,pady=12); a=ttk.LabelFrame(p,text="Phone / profile",padding=10); z=ttk.LabelFrame(p,text="Build / flash log",padding=10); p.add(a,weight=1); p.add(z,weight=2)
   self.info=tk.Text(a,state="disabled",wrap="word"); self.info.pack(fill="both",expand=True); self.log=tk.Text(z,state="disabled",wrap="word"); self.log.pack(fill="both",expand=True); self.status=tk.StringVar(value="Ready"); ttk.Label(r,textvariable=self.status).pack(anchor="w")
  def put(self,w,s):
@@ -31,6 +31,11 @@ class App(tk.Tk):
    except Exception as e: self.q.put(("log","ERROR: "+str(e)))
    finally: self.q.put(("status","Ready"))
   threading.Thread(target=worker,daemon=True).start()
+ def wake(self):
+  def run():
+   p=subprocess.run([PYTHON,str(BUILDER),"--detect","--power-on"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+   self.q.put(("info",p.stdout)); self.q.put(("log",p.stdout))
+  self.work(run)
  def detect(self):
   def run():
    p=subprocess.run([PYTHON,str(BUILDER),"--detect"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info",p.stdout)); self.q.put(("log","Exact device-profile detection completed." if p.returncode==0 else p.stdout))
