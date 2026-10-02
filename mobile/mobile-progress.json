@@ -1,0 +1,16 @@
+{
+  "schema": "CHM-MOBILE-PROGRESS-1",
+  "state_file": "/run/chimera/progress.state",
+  "phases": [
+    {"id":"firmware","start":0,"end":10,"label":"Firmware / boot ROM"},
+    {"id":"verify","start":10,"end":25,"label":"Verified boot / artifact validation"},
+    {"id":"kernel","start":25,"end":40,"label":"Koronos / SMP / IPC"},
+    {"id":"hardware","start":40,"end":60,"label":"Display / touch / sensors / storage"},
+    {"id":"connectivity","start":60,"end":72,"label":"Wi-Fi / Bluetooth / modem"},
+    {"id":"power","start":72,"end":82,"label":"Battery / thermal / suspend"},
+    {"id":"aurora","start":82,"end":95,"label":"Aurora Mobile shell"},
+    {"id":"ready","start":95,"end":100,"label":"Ready"}
+  ],
+  "failure_policy": "recovery",
+  "update_policy": "verified-staged-rollback"
+}
