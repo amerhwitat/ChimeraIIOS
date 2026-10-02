@@ -14,9 +14,23 @@ echo "[Aurora] Provisioning Wayland desktop runtime into $DEST"
   exit 1
 }
 
-# Docker export intentionally removes apt lists. Recreate them inside the
-# target rootfs so Aurora is built into the ISO rather than installed at first
-# boot. DNS is inherited from the exported Ubuntu container when available.
+# Docker export does not preserve bind-mounted volume contents. Recreate a
+# usable resolver for chrooted apt when the exported /etc/resolv.conf points at
+# a host-only loopback resolver (common with systemd-resolved/WSL).
+HOST_RESOLV=/etc/resolv.conf
+ROOT_RESOLV="$DEST/etc/resolv.conf"
+RESOLV_BACKUP="$DEST/etc/resolv.conf.chimera-backup"
+if [ -r "$HOST_RESOLV" ]; then
+  if ! grep -Eq '^nameserver[[:space:]]+[^[:space:]]+$' "$ROOT_RESOLV" 2>/dev/null || \
+     grep -Eq '^nameserver[[:space:]]+(127\\.|::1$)' "$ROOT_RESOLV" 2>/dev/null; then
+    cp -a "$ROOT_RESOLV" "$RESOLV_BACKUP" 2>/dev/null || true
+    awk '/^nameserver[[:space:]]+/ && $2 !~ /^(127\\.|::1$)/ {print}' "$HOST_RESOLV" > "$ROOT_RESOLV" || true
+    if ! grep -q '^nameserver' "$ROOT_RESOLV" 2>/dev/null; then
+      printf '%s\n' 'nameserver 1.1.1.1' 'nameserver 8.8.8.8' > "$ROOT_RESOLV"
+    fi
+  fi
+fi
+
 if ! chroot "$DEST" /usr/bin/apt-get update -o Acquire::Retries=5; then
   echo "[Aurora][ERROR] apt-get update failed inside rootfs"
   exit 1
@@ -78,8 +92,14 @@ for group in audio video render input plugdev netdev; do
   fi
 done
 
-# Do not leave apt metadata in the ISO rootfs.
+# Do not leave apt metadata in the ISO rootfs. Keep the generated resolver
+# only if the target originally needed a synthetic resolver; otherwise restore
+# the exported file so runtime systemd-resolved/network management owns it.
 chroot "$DEST" /usr/bin/apt-get clean
 rm -rf "$DEST/var/lib/apt/lists/"*
+if [ -f "$RESOLV_BACKUP" ]; then
+  rm -f "$ROOT_RESOLV"
+  mv -f "$RESOLV_BACKUP" "$ROOT_RESOLV"
+fi
 
 echo "[Aurora] Provisioning complete"
