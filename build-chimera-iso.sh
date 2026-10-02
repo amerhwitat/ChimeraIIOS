@@ -328,10 +328,10 @@ verify_iso(){
   [[ -s "$iso" ]] || { log_error 'ISO missing'; exit 1; }
   xorriso -indev "$iso" -report_el_torito plain | tee "$LOG_DIR/iso-el-torito.log"
   grep -qi 'El Torito' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no El Torito boot catalog'; exit 1; }
-  xorriso -indev "$iso" -find /boot/grub/grub.cfg -print | tee "$LOG_DIR/iso-grub-files.log"
-  xorriso -indev "$iso" -find /boot/koronos/koronos.elf -print | tee -a "$LOG_DIR/iso-grub-files.log"
-  xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -print | tee -a "$LOG_DIR/iso-grub-files.log"
-  if ! xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -print | tee "$LOG_DIR/iso-uefi-files.log"; then
+  xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
+  xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
+  xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
+  if ! xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"; then
     log_warning 'UEFI BOOTX64.EFI lookup failed; inspect ISO El Torito report before deployment.'
   fi
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
