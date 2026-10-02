@@ -66,9 +66,10 @@ if [ "$required_failed" -ne 0 ]; then
   exit 1
 fi
 
-# These improve the modern desktop without becoming a hard dependency for
-# the compositor/session path.
-for pkg in xdg-desktop-portal-gtk alacritty kitty terminator wofi slurp; do
+# Professional terminal and desktop utilities are optional so a reduced image
+# can still boot Aurora. zenity provides the GUI progress dialog; the progress
+# script automatically falls back to its terminal renderer if it is absent.
+for pkg in xdg-desktop-portal-gtk alacritty kitty terminator wofi slurp zenity; do
   install_if_available "$pkg" || true
 done
 
