@@ -1,0 +1,10 @@
+/* Aurora pointer pressed-state contract. The compositor/input layer should
+   toggle .pressed on the pointer root for the active button. */
+#aurora-pointer { transition: transform 70ms ease, opacity 70ms ease; }
+#aurora-pointer.pressed { transform: scale(.88); opacity: .82; }
+#aurora-pointer.pressed.left { cursor: pointer; }
+#aurora-pointer.pressed.right { cursor: context-menu; }
+#aurora-pointer.pressed.middle { cursor: grabbing; }
+@media (prefers-reduced-motion: reduce) {
+  #aurora-pointer { transition: none; }
+}
