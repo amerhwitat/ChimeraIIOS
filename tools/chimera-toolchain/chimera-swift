@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+command -v swiftc >/dev/null 2>&1 || { echo 'chimera-swift: swiftc not installed' >&2; exit 127; }
+exec swiftc "$@"
