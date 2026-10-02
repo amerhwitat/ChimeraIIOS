@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "events": {
+    "boot": {"startup": "startup"},
+    "main_menu": {"open": "menu_open", "focus": "menu_focus", "select": "menu_select", "back": "menu_back"},
+    "installer": {"start": "startup", "step": "install_step", "success": "success", "warning": "warning", "error": "error", "cancel": "cancel"},
+    "live_cd": {"open": "menu_open", "select": "menu_select", "back": "menu_back", "error": "error"},
+    "recovery": {"open": "recovery", "select": "menu_select", "back": "menu_back", "warning": "warning", "error": "error", "success": "success"},
+    "diagnostics": {"open": "menu_open", "device_connect": "device_connect", "device_disconnect": "device_disconnect", "warning": "warning", "error": "error", "success": "success"},
+    "network": {"open": "menu_open", "connect": "device_connect", "disconnect": "device_disconnect", "warning": "warning", "error": "error", "success": "success"},
+    "storage": {"open": "menu_open", "select": "menu_select", "warning": "warning", "error": "error", "success": "success"},
+    "drivers": {"open": "menu_open", "select": "menu_select", "device_connect": "device_connect", "device_disconnect": "device_disconnect", "error": "error", "success": "success"},
+    "settings": {"open": "menu_open", "focus": "menu_focus", "select": "menu_select", "back": "menu_back", "cancel": "cancel"},
+    "power": {"open": "menu_open", "cancel": "cancel", "shutdown": "shutdown"},
+    "mobile": {"open": "menu_open", "select": "menu_select", "install_step": "install_step", "success": "success", "error": "error"}
+  }
+}
