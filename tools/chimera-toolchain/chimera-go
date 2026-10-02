@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+command -v go >/dev/null 2>&1 || { echo 'chimera-go: go not installed' >&2; exit 127; }
+exec go "$@"
