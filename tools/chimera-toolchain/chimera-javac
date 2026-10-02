@@ -3,6 +3,9 @@ set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
 BITS="${CHIMERA_BITS:-8192}"
 command -v javac >/dev/null 2>&1 || { echo 'chimera-javac: javac not installed' >&2; exit 127; }
-# Java bytecode is portable; native Chimera integration is supplied through the
-# SDK module path and FFM/JNI bridge rather than pretending javac emits Chimera ISA.
-exec javac -d "${CHIMERA_JAVA_OUT:-$ROOT/build/java}" -cp "${CHIMERA_JAVA_CP:-$ROOT/sdk/java}" -Dchimera.logical.bits="$BITS" "$@"
+# javac emits portable JVM bytecode. Native Chimera integration is supplied
+# through JNI/FFM and the SDK; logical width is exported as a compile environment
+# value for annotation processors/build plugins rather than passed as a javac flag.
+export CHIMERA_LOGICAL_BITS="$BITS"
+mkdir -p "${CHIMERA_JAVA_OUT:-$ROOT/build/java}"
+exec javac -d "${CHIMERA_JAVA_OUT:-$ROOT/build/java}" -cp "${CHIMERA_JAVA_CP:-$ROOT/sdk/java}" "$@"
