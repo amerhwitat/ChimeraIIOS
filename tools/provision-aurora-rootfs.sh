@@ -23,7 +23,11 @@ RESOLV_BACKUP="$DEST/etc/resolv.conf.chimera-backup"
 if [ -r "$HOST_RESOLV" ]; then
   if ! grep -Eq '^nameserver[[:space:]]+[^[:space:]]+$' "$ROOT_RESOLV" 2>/dev/null || \
      grep -Eq '^nameserver[[:space:]]+(127\\.|::1$)' "$ROOT_RESOLV" 2>/dev/null; then
-    cp -a "$ROOT_RESOLV" "$RESOLV_BACKUP" 2>/dev/null || true
+    rm -f "$RESOLV_BACKUP"
+    if [ -e "$ROOT_RESOLV" ] || [ -L "$ROOT_RESOLV" ]; then
+      cp -a "$ROOT_RESOLV" "$RESOLV_BACKUP" 2>/dev/null || true
+      rm -f "$ROOT_RESOLV"
+    fi
     awk '/^nameserver[[:space:]]+/ && $2 !~ /^(127\\.|::1$)/ {print}' "$HOST_RESOLV" > "$ROOT_RESOLV" || true
     if ! grep -q '^nameserver' "$ROOT_RESOLV" 2>/dev/null; then
       printf '%s\n' 'nameserver 1.1.1.1' 'nameserver 8.8.8.8' > "$ROOT_RESOLV"
@@ -92,12 +96,11 @@ for group in audio video render input plugdev netdev; do
   fi
 done
 
-# Do not leave apt metadata in the ISO rootfs. Keep the generated resolver
-# only if the target originally needed a synthetic resolver; otherwise restore
-# the exported file so runtime systemd-resolved/network management owns it.
+# Do not leave apt metadata in the ISO rootfs. Restore the exported resolver
+# exactly when it was replaced for build-time DNS.
 chroot "$DEST" /usr/bin/apt-get clean
 rm -rf "$DEST/var/lib/apt/lists/"*
-if [ -f "$RESOLV_BACKUP" ]; then
+if [ -e "$RESOLV_BACKUP" ] || [ -L "$RESOLV_BACKUP" ]; then
   rm -f "$ROOT_RESOLV"
   mv -f "$RESOLV_BACKUP" "$ROOT_RESOLV"
 fi
