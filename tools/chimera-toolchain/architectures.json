@@ -1,0 +1,19 @@
+{
+  "schema": "chimera-toolchain-v1",
+  "logical_integer_widths": {"minimum": 1, "default": 8192, "maximum": "unbounded-by-ISA; limited by host memory"},
+  "native_targets": {
+    "x86_64": {"triple": "x86_64-pc-linux-gnu", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as", "nasm"]},
+    "i386": {"triple": "i386-pc-linux-gnu", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as", "nasm"]},
+    "aarch64": {"triple": "aarch64-linux-gnu", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as"]},
+    "armv7": {"triple": "arm-linux-gnueabihf", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as"]},
+    "riscv64": {"triple": "riscv64-linux-gnu", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as"]},
+    "riscv32": {"triple": "riscv32-unknown-elf", "compiler": ["clang", "riscv32-unknown-elf-gcc"], "assembler": ["llvm-mc", "riscv32-unknown-elf-as"]},
+    "mips64": {"triple": "mips64-linux-gnuabi64", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as"]},
+    "ppc64le": {"triple": "powerpc64le-linux-gnu", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as"]},
+    "s390x": {"triple": "s390x-linux-gnu", "compiler": ["clang", "gcc"], "assembler": ["llvm-mc", "as"]},
+    "wasm32": {"triple": "wasm32-unknown-unknown", "compiler": ["clang"], "assembler": ["llvm-mc"]},
+    "wasm64": {"triple": "wasm64-unknown-unknown", "compiler": ["clang"], "assembler": ["llvm-mc"]},
+    "chimera8192": {"triple": "chimera8192-unknown-chimera", "compiler": ["chimera-ncc"], "assembler": ["chimera-as"], "status": "experimental-custom-backend"}
+  },
+  "policy": "Physical code generation uses the selected target backend. Logical N-bit arithmetic uses the Chimera N-bit runtime or LLVM arbitrary-precision IR facilities; an N-bit logical type is not represented as a native CPU register unless the selected target actually provides it."
+}
