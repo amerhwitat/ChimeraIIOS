@@ -1,0 +1,3 @@
+#!/bin/sh
+# labwc executes this after the Wayland display is ready.
+exec /usr/share/chimera/aurora/aurora-desktop-init.sh
