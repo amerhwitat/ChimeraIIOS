@@ -24,18 +24,21 @@ fi
 
 install_if_available() {
   pkg=$1
-  if chroot "$DEST" /usr/bin/apt-cache policy "$pkg" 2>/dev/null | grep -q '^  Candidate:'; then
+  candidate=$(chroot "$DEST" /usr/bin/apt-cache policy "$pkg" 2>/dev/null | awk '$1=="Candidate:" {print $2; exit}')
+  if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then
     echo "[Aurora] installing $pkg"
     chroot "$DEST" /usr/bin/env DEBIAN_FRONTEND=noninteractive \
       /usr/bin/apt-get install -y --no-install-recommends "$pkg"
   else
     echo "[Aurora][WARN] package unavailable: $pkg"
+    return 1
   fi
 }
 
 # Core compositor/session path. labwc is the Aurora compositor layer; it is
 # deliberately used instead of pretending the current research launcher is a
 # compositor. Ubuntu 24.04 ships labwc for amd64/arm64 and it uses wlroots.
+required_failed=0
 for pkg in \
   labwc waybar xwayland dbus-user-session \
   pipewire wireplumber pipewire-pulse \
@@ -43,13 +46,25 @@ for pkg in \
   swaybg swayidle mako-notifier wl-clipboard wlr-randr \
   foot fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji \
   network-manager policykit-1; do
-  install_if_available "$pkg"
+  install_if_available "$pkg" || required_failed=1
+done
+
+if [ "$required_failed" -ne 0 ]; then
+  echo "[Aurora][ERROR] one or more required graphical runtime packages are unavailable"
+  exit 1
+fi
+
+# GTK is a useful fallback portal backend for file chooser/settings surfaces.
+# These are optional because wlroots provides the Wayland-specific ScreenCast
+# and Screenshot interfaces used by Aurora.
+for pkg in xdg-desktop-portal-gtk alacritty kitty terminator; do
+  install_if_available "$pkg" || true
 done
 
 # Useful desktop clients. Missing optional packages must not prevent the ISO
 # from booting into the compositor.
-for pkg in firefox pcmanfm-qt gnome-text-editor pavucontrol; do
-  install_if_available "$pkg" || echo "[Aurora][WARN] optional client failed: $pkg"
+for pkg in firefox pcmanfm-qt gnome-text-editor pavucontrol btop; do
+  install_if_available "$pkg" || echo "[Aurora][WARN] optional client unavailable: $pkg"
 done
 
 # Dedicated non-root desktop account. The tty1 autologin below creates a real
