@@ -6,7 +6,10 @@ VM_DIR="${CHIMERA_VMWARE_DIR:-$ROOT/build/vmware}"
 VMX="${CHIMERA_VMX:-$VM_DIR/chimera-ii-os.vmx}"
 DISK="${CHIMERA_VMDK:-$VM_DIR/chimera-ii-os.vmdk}"
 NVRAM="${CHIMERA_NVRAM:-$VM_DIR/chimera-ii-os.nvram}"
-MEM="${CHIMERA_VM_MEMORY_MB:-4096}"
+# 3 GiB is a safer default for Windows hosts while validating the low-level
+# kernel. Override with CHIMERA_VM_MEMORY_MB=4096 when the host has sufficient
+# RAM and a sufficiently large Windows pagefile.
+MEM="${CHIMERA_VM_MEMORY_MB:-3072}"
 # Workstation 16 is more reliable with a single virtual CPU while validating
 # a new low-level kernel. Override with CHIMERA_VM_CPUS=2+ after first boot.
 CPUS="${CHIMERA_VM_CPUS:-1}"
@@ -14,6 +17,8 @@ FIRMWARE="${CHIMERA_VM_FIRMWARE:-efi}"
 HW_VERSION="${CHIMERA_VM_HW_VERSION:-18}"
 
 case "$FIRMWARE" in efi|bios) ;; *) echo "FIRMWARE must be efi or bios" >&2; exit 2 ;; esac
+[[ "$MEM" =~ ^[0-9]+$ ]] || { echo "CHIMERA_VM_MEMORY_MB must be an integer" >&2; exit 2; }
+(( MEM >= 1024 && MEM % 4 == 0 )) || { echo "VM memory must be >=1024 MB and a multiple of 4 MB" >&2; exit 2; }
 [[ -s "$ISO" ]] || { echo "ISO not found: $ISO" >&2; exit 1; }
 mkdir -p "$VM_DIR"
 
@@ -29,6 +34,11 @@ numvcpus = "$CPUS"
 cpuid.coresPerSocket = "1"
 guestOS = "otherlinux-64"
 firmware = "$FIRMWARE"
+
+# Workstation memory allocation: prefer a named VM memory file rather than
+# relying solely on anonymous host paging. This is a recovery-friendly setting
+# for the 'Could not create anonymous paging file' failure seen on Windows.
+mainmem.useNamedFile = "TRUE"
 
 sata0.present = "TRUE"
 sata0:0.present = "TRUE"
@@ -68,7 +78,8 @@ if command -v vmware-vdiskmanager >/dev/null 2>&1 && [[ ! -e "$DISK" ]]; then
 fi
 
 printf '%s\n' "Generated VMware VMX: $VMX"
-printf '%s\n' "Firmware: $FIRMWARE; hardware: v$HW_VERSION; vCPUs: $CPUS; ISO: $ISO"
+printf '%s\n' "Firmware: $FIRMWARE; hardware: v$HW_VERSION; memory: ${MEM}MB; vCPUs: $CPUS; ISO: $ISO"
 printf '%s\n' "UEFI NVRAM: $NVRAM; NIC: e1000e; USB: xHCI; graphics: SVGA"
-printf '%s\n' "For VMware Workstation 16, start with one vCPU. Increase CHIMERA_VM_CPUS after a successful boot."
-printf '%s\n' "If VMware itself crashes with vcpu-1/access violation, check the Windows Hyper-V/VBS state; that is a host-side issue, not a Chimera ISO boot-menu failure."
+printf '%s\n' "VM memory uses a named VMware memory file; Windows still needs sufficient host RAM and disk/pagefile resources."
+printf '%s\n' "For VMware Workstation 16, start with 3072MB/one vCPU. Increase CHIMERA_VM_MEMORY_MB only after the host preflight passes."
+printf '%s\n' "On Windows, run tools/vmware/chimera-vmware-preflight.ps1 against this VMX before starting it."
