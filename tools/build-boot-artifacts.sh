@@ -27,7 +27,6 @@ if command -v grub-mkimage >/dev/null 2>&1; then
 fi
 
 # Build the standard x86_64 UEFI removable-media loader. Do not request
-# efi_uga: modern GRUB x86_64-efi installations normally provide efi_gop
 # and may intentionally omit the obsolete EFI UGA module. Requesting a
 # missing module makes grub-mkstandalone abort before creating BOOTX64.EFI.
 if command -v grub-mkstandalone >/dev/null 2>&1; then
