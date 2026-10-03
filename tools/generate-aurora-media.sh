@@ -9,16 +9,14 @@ INIT_VIDEO="${CHIMERA_AURORA_INIT_VIDEO:-}"
 
 mkdir -p "$OUT/sounds" "$OUT/progress"
 
-# Prefer an existing Init.mp4 supplied by the Aurora/Library asset pipeline.
-# The ChatGPT Library itself is not mounted into the shell; import it into one
-# of these repository paths or pass CHIMERA_AURORA_INIT_VIDEO explicitly.
 if [[ -z "$INIT_VIDEO" ]]; then
   for candidate in \
     "$ROOT/desktop/aurora/assets/library/Init.mp4" \
     "$ROOT/desktop/aurora/assets/Init.mp4" \
     "$ROOT/build/aurora-media/Init.mp4" \
     "$ROOT/build/iso/usr/share/chimera/aurora/Init.mp4" \
-    "$ROOT/boot/jasper/Init.mp4"; do
+    "$ROOT/boot/jasper/Init.mp4" \
+    "$ROOT/Init.mp4"; do
     if [[ -s "$candidate" ]]; then
       INIT_VIDEO="$candidate"
       break
@@ -26,7 +24,19 @@ if [[ -z "$INIT_VIDEO" ]]; then
   done
 fi
 
-if [[ -n "$INIT_VIDEO" && -s "$INIT_VIDEO" ]]; then
+if [[ -n "$INIT_VIDEO" ]]; then
+  if [[ ! -f "$INIT_VIDEO" ]]; then
+    printf '%s\n' "[ERROR] CHIMERA_AURORA_INIT_VIDEO does not exist: $INIT_VIDEO" >&2
+    exit 1
+  fi
+  if [[ ! -s "$INIT_VIDEO" ]]; then
+    printf '%s\n' "[ERROR] CHIMERA_AURORA_INIT_VIDEO is empty: $INIT_VIDEO" >&2
+    exit 1
+  fi
+  if command -v ffprobe >/dev/null 2>&1 && ! ffprobe -v error -select_streams v:0 -show_entries stream=codec_type -of csv=p=0 "$INIT_VIDEO" >/dev/null; then
+    printf '%s\n' "[ERROR] Supplied Init.mp4 is not a readable video: $INIT_VIDEO" >&2
+    exit 1
+  fi
   if [[ "$(realpath -m "$INIT_VIDEO")" != "$(realpath -m "$OUT/Init.mp4")" ]]; then
     cp -f "$INIT_VIDEO" "$OUT/Init.mp4"
   fi
@@ -46,7 +56,6 @@ if [[ -z "$BG" ]]; then
   done
 fi
 
-# Generate Init.mp4 only when a Library/imported video was not supplied.
 if [[ ! -s "$OUT/Init.mp4" && -n "$BG" && -f "$BG" ]] && command -v ffmpeg >/dev/null 2>&1; then
   echo "[INFO] Generating Aurora Init.mp4 from: $BG"
   ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 12 \
@@ -57,11 +66,7 @@ fi
 if command -v ffmpeg >/dev/null 2>&1; then
   while IFS=: read -r n f1 f2; do
     [[ -s "$OUT/sounds/$n.wav" ]] && continue
-    ffmpeg -y -loglevel error \
-      -f lavfi -i "sine=frequency=$f1:duration=0.18" \
-      -f lavfi -i "sine=frequency=$f2:duration=0.18" \
-      -filter_complex '[0:a][1:a]amix=inputs=2:duration=longest,afade=t=out:st=0.12:d=0.06,volume=0.18' \
-      -c:a pcm_s16le "$OUT/sounds/$n.wav"
+    ffmpeg -y -loglevel error -f lavfi -i "sine=frequency=$f1:duration=0.18" -f lavfi -i "sine=frequency=$f2:duration=0.18" -filter_complex '[0:a][1:a]amix=inputs=2:duration=longest,afade=t=out:st=0.12:d=0.06,volume=0.18' -c:a pcm_s16le "$OUT/sounds/$n.wav"
   done <<'EOF'
 startup:440:660
 menu-open:520:780
