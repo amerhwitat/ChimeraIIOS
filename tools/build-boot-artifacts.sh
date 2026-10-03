@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-# Keep boot-artifact output aligned with the ISO builder's selected build root.
-# CHIMERA_BOOT_ARTIFACT_DIR has highest priority; otherwise CHIMERA_BUILD_DIR
-# is used for alternate-storage/resume builds, then the repository build dir.
 OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-${CHIMERA_BUILD_DIR:-$ROOT/build}/boot-artifacts}"
 rm -rf "$OUT"
 mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/uefi" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
@@ -29,22 +26,40 @@ if command -v grub-mkimage >/dev/null 2>&1; then
   fi
 fi
 
-# Explicitly build the UEFI removable-media loader. grub-mkrescue normally
-# creates this itself, but making BOOTX64.EFI in the staging tree guarantees
-# that the final ISO contains the standard /EFI/BOOT/BOOTX64.EFI path and
-# makes missing grub-efi-amd64 installations fail early instead of silently
-# producing a BIOS-only ISO.
+# Build the standard x86_64 UEFI removable-media loader. Do not request
+# efi_uga: modern GRUB x86_64-efi installations normally provide efi_gop
+# and may intentionally omit the obsolete EFI UGA module. Requesting a
+# missing module makes grub-mkstandalone abort before creating BOOTX64.EFI.
 if command -v grub-mkstandalone >/dev/null 2>&1; then
   EFIMODDIR=""
   for d in /usr/lib/grub/x86_64-efi /usr/lib/grub/x86_64-efi-signed; do
-    [[ -d "$d" ]] && { EFIMODDIR="$d"; break; }
+    if [[ -f "$d/normal.mod" && -f "$d/efi_gop.mod" ]]; then
+      EFIMODDIR="$d"
+      break
+    fi
   done
   if [[ -n "$EFIMODDIR" ]]; then
+    UEFI_MODULES=()
+    for module in efi_gop video video_bochs video_cirrus normal configfile search search_fs_file iso9660 multiboot2 png gfxterm all_video reboot halt; do
+      if [[ -f "$EFIMODDIR/$module.mod" ]]; then
+        UEFI_MODULES+=("$module")
+      else
+        echo "[WARN] Optional GRUB UEFI module unavailable: $module" >&2
+      fi
+    done
+    # normal/configfile/search/iso9660/multiboot2 are required by the
+    # Chimera boot configuration; fail clearly if a required module is absent.
+    for required in normal configfile search iso9660 multiboot2; do
+      [[ -f "$EFIMODDIR/$required.mod" ]] || {
+        echo "ERROR: required GRUB UEFI module missing: $EFIMODDIR/$required.mod" >&2
+        exit 2
+      }
+    done
     grub-mkstandalone \
       -O x86_64-efi \
       -d "$EFIMODDIR" \
       -o "$OUT/uefi/BOOTX64.EFI" \
-      --modules="efi_gop efi_uga video video_bochs video_cirrus normal configfile search search_fs_file iso9660 multiboot2 png gfxterm all_video reboot halt" \
+      --modules="$(IFS=' '; echo "${UEFI_MODULES[*]}")" \
       "boot/grub/grub.cfg=$ROOT/boot/iso/grub.cfg"
     test -s "$OUT/uefi/BOOTX64.EFI"
     ISO_STAGE="${CHIMERA_BUILD_DIR:-$ROOT/build}/iso"
@@ -54,13 +69,14 @@ if command -v grub-mkstandalone >/dev/null 2>&1; then
       echo "UEFI removable-media loader staged: $ISO_STAGE/EFI/BOOT/BOOTX64.EFI"
     fi
   else
-    echo "ERROR: grub-mkstandalone is installed but x86_64-efi GRUB modules were not found." >&2
-    echo "Install the GRUB UEFI package (for Debian/Ubuntu: grub-efi-amd64-bin) and rebuild." >&2
+    echo "ERROR: grub-mkstandalone is installed but a usable x86_64-efi GRUB module directory was not found." >&2
+    echo "Expected normal.mod and efi_gop.mod under /usr/lib/grub/x86_64-efi." >&2
+    echo "Install/update the GRUB UEFI package (Debian/Ubuntu: grub-efi-amd64-bin) and rebuild." >&2
     exit 2
   fi
 else
   echo "ERROR: grub-mkstandalone is required to generate UEFI BOOTX64.EFI." >&2
-  echo "Install the GRUB UEFI package (for Debian/Ubuntu: grub-efi-amd64-bin) and rebuild." >&2
+  echo "Install the GRUB UEFI package (Debian/Ubuntu: grub-efi-amd64-bin) and rebuild." >&2
   exit 2
 fi
 
@@ -73,12 +89,7 @@ cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
 cp -f "$OUT/uefi/BOOTX64.EFI" "$OUT/all-bin/BOOTX64.EFI"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
-find "$ROOT/build" -type f \
-  -not -path "$ROOT/build/iso/*" \
-  -not -path "$ROOT/build/boot-artifacts/*" \
-  -not -path "$ROOT/build/full/cmake/*" \
-  -not -path "$ROOT/build/*/CMakeFiles/*" \
-  -print0 2>/dev/null |
+find "$ROOT/build" -type f -not -path "$ROOT/build/iso/*" -not -path "$ROOT/build/boot-artifacts/*" -not -path "$ROOT/build/full/cmake/*" -not -path "$ROOT/build/*/CMakeFiles/*" -print0 2>/dev/null |
 while IFS= read -r -d "" f; do
   kind="$(file -b "$f" 2>/dev/null || true)"
   case "$kind" in
