@@ -5,8 +5,33 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 OUT="${1:-$ROOT/desktop/aurora/assets}"
 BG="${CHIMERA_AURORA_SOURCE_IMAGE:-}"
+INIT_VIDEO="${CHIMERA_AURORA_INIT_VIDEO:-}"
 
 mkdir -p "$OUT/sounds" "$OUT/progress"
+
+# Prefer an existing Init.mp4 supplied by the Aurora/Library asset pipeline.
+# The ChatGPT Library itself is not mounted into the shell; import it into one
+# of these repository paths or pass CHIMERA_AURORA_INIT_VIDEO explicitly.
+if [[ -z "$INIT_VIDEO" ]]; then
+  for candidate in \
+    "$ROOT/desktop/aurora/assets/library/Init.mp4" \
+    "$ROOT/desktop/aurora/assets/Init.mp4" \
+    "$ROOT/build/aurora-media/Init.mp4" \
+    "$ROOT/build/iso/usr/share/chimera/aurora/Init.mp4" \
+    "$ROOT/boot/jasper/Init.mp4"; do
+    if [[ -s "$candidate" ]]; then
+      INIT_VIDEO="$candidate"
+      break
+    fi
+  done
+fi
+
+if [[ -n "$INIT_VIDEO" && -s "$INIT_VIDEO" ]]; then
+  if [[ "$(realpath -m "$INIT_VIDEO")" != "$(realpath -m "$OUT/Init.mp4")" ]]; then
+    cp -f "$INIT_VIDEO" "$OUT/Init.mp4"
+  fi
+  echo "[INFO] Using Aurora Init.mp4: $INIT_VIDEO"
+fi
 
 if [[ -z "$BG" ]]; then
   for candidate in \
@@ -21,7 +46,9 @@ if [[ -z "$BG" ]]; then
   done
 fi
 
-if [[ -n "$BG" && -f "$BG" ]] && command -v ffmpeg >/dev/null 2>&1; then
+# Generate Init.mp4 only when a Library/imported video was not supplied.
+if [[ ! -s "$OUT/Init.mp4" && -n "$BG" && -f "$BG" ]] && command -v ffmpeg >/dev/null 2>&1; then
+  echo "[INFO] Generating Aurora Init.mp4 from: $BG"
   ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 12 \
     -vf "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,format=yuv420p,drawtext=fontcolor=white:fontsize=42:text='CHIMERA II OS':x=(w-text_w)/2:y=270,drawtext=fontcolor=white:fontsize=22:text='AURORA INITIALIZING':x=(w-text_w)/2:y=325,drawbox=x=340:y=390:w=600:h=12:color=white@0.22:t=fill,drawbox=x=340:y=390:w='600*t/12':h=12:color=white@0.9:t=fill" \
     -r 30 -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p -movflags +faststart "$OUT/Init.mp4"
@@ -57,4 +84,10 @@ cat > "$OUT/progress/state.json" <<'EOF'
 {"percent":0,"stage":"firmware","message_en":"Starting Chimera II OS","message_ar":"بدء تشغيل Chimera II OS"}
 EOF
 
-[[ -s "$OUT/Init.mp4" ]] || printf '%s\n' '[WARN] Init.mp4 could not be generated; static fallback remains valid.' >&2
+if [[ ! -s "$OUT/Init.mp4" ]]; then
+  printf '%s\n' '[ERROR] Aurora Init.mp4 is unavailable.' >&2
+  printf '%s\n' '[ERROR] Import the Library Init.mp4 into desktop/aurora/assets/library/ or set CHIMERA_AURORA_INIT_VIDEO=/path/to/Init.mp4.' >&2
+  exit 1
+fi
+
+echo "[INFO] Aurora Init.mp4 ready: $OUT/Init.mp4"
