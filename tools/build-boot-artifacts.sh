@@ -6,7 +6,7 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 # is used for alternate-storage/resume builds, then the repository build dir.
 OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-${CHIMERA_BUILD_DIR:-$ROOT/build}/boot-artifacts}"
 rm -rf "$OUT"
-mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
+mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/uefi" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
 KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
 test -s "$KORONOS" || "$ROOT/kernel/build-koronos.sh"
 test -s "$KORONOS"
@@ -28,6 +28,42 @@ if command -v grub-mkimage >/dev/null 2>&1; then
     grub-mkimage -O i386-pc-eltorito -d "$MODDIR" -p /boot/grub -c "$ROOT/boot/iso/grub.cfg" -o "$OUT/grub/grub-core.img" biosdisk iso9660 normal configfile search search_fs_file multiboot2 png gfxterm all_video reboot halt
   fi
 fi
+
+# Explicitly build the UEFI removable-media loader. grub-mkrescue normally
+# creates this itself, but making BOOTX64.EFI in the staging tree guarantees
+# that the final ISO contains the standard /EFI/BOOT/BOOTX64.EFI path and
+# makes missing grub-efi-amd64 installations fail early instead of silently
+# producing a BIOS-only ISO.
+if command -v grub-mkstandalone >/dev/null 2>&1; then
+  EFIMODDIR=""
+  for d in /usr/lib/grub/x86_64-efi /usr/lib/grub/x86_64-efi-signed; do
+    [[ -d "$d" ]] && { EFIMODDIR="$d"; break; }
+  done
+  if [[ -n "$EFIMODDIR" ]]; then
+    grub-mkstandalone \
+      -O x86_64-efi \
+      -d "$EFIMODDIR" \
+      -o "$OUT/uefi/BOOTX64.EFI" \
+      --modules="efi_gop efi_uga video video_bochs video_cirrus normal configfile search search_fs_file iso9660 multiboot2 png gfxterm all_video reboot halt" \
+      "boot/grub/grub.cfg=$ROOT/boot/iso/grub.cfg"
+    test -s "$OUT/uefi/BOOTX64.EFI"
+    ISO_STAGE="${CHIMERA_BUILD_DIR:-$ROOT/build}/iso"
+    if [[ -d "$ISO_STAGE" ]]; then
+      mkdir -p "$ISO_STAGE/EFI/BOOT"
+      cp -f "$OUT/uefi/BOOTX64.EFI" "$ISO_STAGE/EFI/BOOT/BOOTX64.EFI"
+      echo "UEFI removable-media loader staged: $ISO_STAGE/EFI/BOOT/BOOTX64.EFI"
+    fi
+  else
+    echo "ERROR: grub-mkstandalone is installed but x86_64-efi GRUB modules were not found." >&2
+    echo "Install the GRUB UEFI package (for Debian/Ubuntu: grub-efi-amd64-bin) and rebuild." >&2
+    exit 2
+  fi
+else
+  echo "ERROR: grub-mkstandalone is required to generate UEFI BOOTX64.EFI." >&2
+  echo "Install the GRUB UEFI package (for Debian/Ubuntu: grub-efi-amd64-bin) and rebuild." >&2
+  exit 2
+fi
+
 find "$ROOT/build" -type f \( -name "*.elf" -o -name "*.bin" -o -name "*.efi" -o -name "*.img" \) -not -path "$ROOT/build/iso/*" -not -path "$ROOT/build/boot-artifacts/*" -print0 2>/dev/null | while IFS= read -r -d "" f; do
   base="$(basename "$f")"
   case "$f" in *.elf) cp -f "$f" "$OUT/all-elf/$base";; *) cp -f "$f" "$OUT/all-bin/$base";; esac
@@ -35,6 +71,7 @@ done
 cp -f "$OUT/spitfire"/* "$OUT/all-bin/" 2>/dev/null || true
 cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
+cp -f "$OUT/uefi/BOOTX64.EFI" "$OUT/all-bin/BOOTX64.EFI"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
 find "$ROOT/build" -type f \
   -not -path "$ROOT/build/iso/*" \
@@ -61,13 +98,14 @@ echo "Runtime ELF payload staged: ${RUNTIME_COUNT} files, ${RUNTIME_BYTES} bytes
 sha256sum "$OUT"/all-elf/* "$OUT"/all-bin/* > "$OUT/SHA256SUMS" 2>/dev/null || true
 cat > "$OUT/manifests/boot-execution-order.json" <<EOF
 {
-  "schema": "CHM-BOOT-EXECUTION-3",
+  "schema": "CHM-BOOT-EXECUTION-4",
   "native_execution_order": [
     {"sequence":1,"id":"spitfire","role":"BIOS/MBR native bootstrap"},
     {"sequence":2,"id":"jasper","role":"boot policy and stage selection"},
     {"sequence":3,"id":"grub","role":"filesystem-aware final boot manager and Multiboot2 loader"},
     {"sequence":4,"id":"koronos","role":"Chimera II OS kernel"}
   ],
+  "uefi_removable_media": {"path":"/EFI/BOOT/BOOTX64.EFI","architecture":"x86_64","format":"PE/COFF GRUB EFI application"},
   "iso_fallback": {"sequence":["firmware","grub","jasper-menu","koronos"],"reason":"El Torito firmware selects the ISO boot image; GRUB remains the standards-compatible ISO fallback."},
   "kernel_protocol":"Multiboot2",
   "elf_policy":"Every generated runtime/boot ELF is staged and checksummed; relocatable .o files remain build inputs and are not treated as executable boot payloads."
