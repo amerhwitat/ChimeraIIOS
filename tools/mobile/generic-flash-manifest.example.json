@@ -1,0 +1,10 @@
+{
+  "schema": "CHM-GENERIC-FLASH-1",
+  "partitions": [
+    {
+      "name": "boot",
+      "image": "/absolute/path/to/boot.img",
+      "sha256": "PUT_REAL_SHA256_HERE"
+    }
+  ]
+}
