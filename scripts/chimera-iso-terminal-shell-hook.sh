@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+
+# --- Chimera II OS standard help ---
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  cat <<'CHIMERA_HELP'
+Chimera II OS script: scripts/chimera-iso-terminal-shell-hook.sh
+
+Usage:
+  scripts/chimera-iso-terminal-shell-hook.sh [options] [arguments]
+
+Options:
+  -h, --help    Show this help and exit successfully.
+
+Notes:
+  This help entry is provided consistently across Chimera II OS shell tools.
+  The script's existing command-line interface and environment variables remain unchanged.
+CHIMERA_HELP
+  exit 0
+fi
 # ISO-build hook for build-chimera-iso.sh.
 # Source this hook immediately before the rootfs is packaged into squashfs/ISO.
 set -Eeuo pipefail
