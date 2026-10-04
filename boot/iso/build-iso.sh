@@ -63,14 +63,14 @@ cp -f "$MEDIA/Init.mp4" "$VISUAL_OUT/Init.mp4"
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
-test -s "$DIST/iso/boot/visual/aurora-background.jpg"
-test -s "$DIST/iso/boot/visual/aurora-background.jpg.b64"
-test -s "$DIST/iso/boot/visual/chimera-intro.mp4"
-test -s "$DIST/iso/boot/visual/boot-visual-manifest.json"
-test -s "$DIST/iso/boot/grub/aurora-wayland-glass.png"
-test -s "$DIST/iso/boot/jasper/background.png"
-test -s "$DIST/iso/boot/spitfire/background.png"
-test -s "$DIST/iso/install/installer-background.png"
+for visual in \
+  aurora-boot.png aurora-menu.png aurora-splash.png aurora-installer.png \
+  aurora-recovery.png aurora-diagnostics.png aurora-live.png aurora-mobile.png \
+  aurora-desktop.png Init.mp4 aurora-manifest.json state.json stages.json style.json; do
+  test -s "$DIST/iso/boot/visual/$visual" || { echo "ERROR: Aurora visual asset missing: $visual" >&2; exit 2; }
+done
+test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
+
 grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
 grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$ROOT/boot/iso/grub.cfg"
 grep -q '"native_execution_order"' "$DIST/iso/boot/chimera/manifests/boot-execution-order.json"
@@ -116,5 +116,5 @@ printf '%s\n' '[7/7] Inspect El Torito boot records'
 xorriso -indev "$DIST/output.iso" -report_el_torito plain -report_system_area plain | tee "$DIST/ISO-BOOT-REPORT.txt"
 printf 'ISO: %s\nKoronos: %s\nSpit Fire: %s\nAurora background: %s\nBoot video: %s\nRecovery terminal: %s\n' \
   "$DIST/output.iso" "$DIST/iso/boot/koronos/koronos.elf" "$DIST/iso/boot/spitfire/spitfire-stage2.bin" \
-  "$DIST/iso/boot/visual/aurora-background.jpg" "$DIST/iso/boot/visual/chimera-intro.mp4" \
+  "$DIST/iso/boot/visual/aurora-boot.png" "$DIST/iso/boot/visual/Init.mp4" \
   "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img"
