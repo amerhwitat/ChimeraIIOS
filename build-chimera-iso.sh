@@ -155,13 +155,51 @@ build_docker(){
 }
 
 export_rootfs(){
-  header 'STEP 2: EXPORT DOCKER ROOTFS'; mkdir -p "$ROOTFS_DIR"; rm -rf "$ROOTFS_DIR"/*
-  local cname="chimera-export-$BASHPID"; docker rm -f "$cname" >/dev/null 2>&1 || true; docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
-  start_watchdog "Docker rootfs export / tar extraction"; set +e
-  if command -v pv >/dev/null 2>&1; then docker export "$cname" | pv -brt 2> >(tee -a "$LOG_DIR/docker-export.progress" >&2) | tar -xpf - -C "$ROOTFS_DIR" --checkpoint=10000 --checkpoint-action="echo=[ROOTFS] extracted %T"; else docker export "$cname" | tar -xpf - -C "$ROOTFS_DIR" --checkpoint=10000 --checkpoint-action="echo=[ROOTFS] extracted %T"; fi
-  local s=("${PIPESTATUS[@]}"); set -e; stop_watchdog; docker rm -f "$cname" >/dev/null 2>&1 || true
-  (( ${s[0]:-1}==0 && ${s[1]:-1}==0 )) || { log_error 'Docker rootfs export failed'; exit 1; }
-  [[ -d "$ROOTFS_DIR/bin" || -d "$ROOTFS_DIR/usr/bin" ]] || { log_error 'Rootfs export is incomplete'; exit 1; }
+  header 'STEP 2: EXPORT DOCKER ROOTFS'
+  mkdir -p "$ROOTFS_DIR"
+  rm -rf "$ROOTFS_DIR"/*
+  local cname="chimera-export-$BASHPID"
+  local tar_rc=1
+  docker rm -f "$cname" >/dev/null 2>&1 || true
+  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  start_watchdog "Docker rootfs export / tar extraction"
+  set +e
+
+  # docker export produces a container filesystem tar, not a Docker image
+  # archive.  Extract it with delayed directory metadata restoration so
+  # usr/local and deeply nested package trees are created before tar applies
+  # their final permissions/timestamps.  This also avoids failures on WSL
+  # and other filesystems that reject directory metadata during creation.
+  local tar_args=(-xpf - -C "$ROOTFS_DIR"
+                  --no-same-owner --no-same-permissions
+                  --delay-directory-restore
+                  --checkpoint=10000
+                  --checkpoint-action="echo=[ROOTFS] extracted %T")
+  if command -v pv >/dev/null 2>&1; then
+    docker export "$cname" |
+      pv -brt 2> >(tee -a "$LOG_DIR/docker-export.progress" >&2) |
+      tar "${tar_args[@]}"
+    local s=("${PIPESTATUS[@]}")
+    tar_rc="${s[2]:-1}"
+    [[ "${s[0]:-1}" == 0 && "${s[1]:-1}" == 0 ]] || tar_rc=1
+  else
+    docker export "$cname" | tar "${tar_args[@]}"
+    local s=("${PIPESTATUS[@]}")
+    tar_rc="${s[1]:-1}"
+    [[ "${s[0]:-1}" == 0 ]] || tar_rc=1
+  fi
+  set -e
+  stop_watchdog
+  docker rm -f "$cname" >/dev/null 2>&1 || true
+
+  (( tar_rc==0 )) || {
+    log_error "Docker rootfs export failed (tar exit $tar_rc)"
+    exit 1
+  }
+  [[ -d "$ROOTFS_DIR/bin" || -d "$ROOTFS_DIR/usr/bin" ]] || {
+    log_error 'Rootfs export is incomplete'
+    exit 1
+  }
 }
 
 create_boot_menu(){
