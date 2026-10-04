@@ -117,7 +117,7 @@ grub-mkrescue \
   -o "$DIST/output.iso" \
   -iso-level 3 \
   -joliet \
-  -rockridge \
+  -R \
   "$DIST/iso"
 test -s "$DIST/output.iso"
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
