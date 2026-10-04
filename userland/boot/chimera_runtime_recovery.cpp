@@ -47,11 +47,25 @@ static int safe_fix(const std::string&type){
   std::error_code ec;
   if(type=="storage"){
     fs::create_directories(r/"quarantine",ec);
-    return ec?1:0;
+    if(ec)return 1;
+    // Safe bounded cleanup: retain the newest telemetry/error data.
+    for(const auto &p:{r/"events.jsonl",r/"errors.log"}){
+      std::error_code se;
+      if(fs::exists(p,se)&&fs::file_size(p,se)>2*1024*1024){
+        const auto tmp=p.string()+".trim";
+        std::ifstream in(p,std::ios::binary);
+        in.seekg(-static_cast<std::streamoff>(1024*1024),std::ios::end);
+        std::ofstream out(tmp,std::ios::binary);
+        if(in&&out){ out<<in.rdbuf(); out.close(); in.close(); fs::rename(tmp,p,se); }
+      }
+    }
+    return 0;
   }
   if(type=="memory"){
     fs::create_directories(r/"deferred",ec);
-    return ec?1:0;
+    if(ec)return 1;
+    std::ofstream(r/"deferred"/"noncritical-services.flag")<<"pressure=memory\naction=defer-noncritical\n";
+    return 0;
   }
   if(type=="permission"){
     fs::create_directories(r,ec);
@@ -63,11 +77,15 @@ static int safe_fix(const std::string&type){
   }
   if(type=="driver"){
     fs::create_directories(r/"driver-retry",ec);
-    return ec?1:0;
+    if(ec)return 1;
+    std::ofstream(r/"driver-retry"/"retry.pending")<<"action=retry-driver-initialization\n";
+    return 0;
   }
   if(type=="network"||type=="timeout"){
     fs::create_directories(r/"retry",ec);
-    return ec?1:0;
+    if(ec)return 1;
+    std::ofstream(r/"retry"/"network.pending")<<"action=retry-noncritical-network-init\n";
+    return 0;
   }
   return 0;
 }
