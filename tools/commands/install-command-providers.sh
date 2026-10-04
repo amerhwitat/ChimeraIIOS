@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+
+# --- Chimera II OS standard help ---
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  cat <<'CHIMERA_HELP'
+Chimera II OS script: tools/commands/install-command-providers.sh
+
+Usage:
+  tools/commands/install-command-providers.sh [options] [arguments]
+
+Options:
+  -h, --help    Show this help and exit successfully.
+
+Notes:
+  This help entry is provided consistently across Chimera II OS shell tools.
+  The script's existing command-line interface and environment variables remain unchanged.
+CHIMERA_HELP
+  exit 0
+fi
 # Install a broad, auditable Linux command-provider set corresponding to the
 # SS64 Linux/Bash catalog. Package-by-package installation is intentional:
 # unavailable packages and individual apt failures do not abort the

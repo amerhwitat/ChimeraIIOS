@@ -1,4 +1,22 @@
 #!/bin/sh
+
+# --- Chimera II OS standard help ---
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  cat <<'CHIMERA_HELP'
+Chimera II OS script: tools/chimera-screen-of-death.sh
+
+Usage:
+  tools/chimera-screen-of-death.sh [options] [arguments]
+
+Options:
+  -h, --help    Show this help and exit successfully.
+
+Notes:
+  This help entry is provided consistently across Chimera II OS shell tools.
+  The script's existing command-line interface and environment variables remain unchanged.
+CHIMERA_HELP
+  exit 0
+fi
 set -eu
 mkdir -p /var/crash/chimera /var/log/mesgs
 printf '%s [CRASH] Chimera II OS entered failure handler\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /var/log/mesgs
