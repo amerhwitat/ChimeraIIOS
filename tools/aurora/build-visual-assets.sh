@@ -28,6 +28,26 @@ copy_first backgrounds/desktop.png   "$LIB/Aurora Wayland Glass Desktop.png"   "
 copy_first backgrounds/showcase.png   "$LIB/Aurora Wayland Desktop Showcase.png" || convert_svg "$DEFAULTS/aurora-splash.svg" "$OUT/backgrounds/showcase.png"
 copy_first menus/default.png   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg"   "$LIB/Aurora Wayland Glass Desktop.png" || convert_svg "$DEFAULTS/aurora-menu.svg" "$OUT/menus/default.png"
 
+# Normalize supplied raster artwork to real PNG data.
+normalize_png() {
+  local dest="$1" src="$2" tmp
+  [[ -s "$src" ]] || return 0
+  tmp="$(mktemp --suffix=.png "${dest}.XXXXXX")"
+  if convert "$src" -resize 1920x1080^ -gravity center -extent 1920x1080 PNG32:"$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+    mv -f "$tmp" "$dest"
+  else
+    rm -f "$tmp"
+    return 1
+  fi
+}
+if [[ -s "$OUT/backgrounds/boot.jpg" ]]; then
+  normalize_png "$OUT/backgrounds/boot.png" "$OUT/backgrounds/boot.jpg"
+  rm -f "$OUT/backgrounds/boot.jpg"
+fi
+normalize_png "$OUT/backgrounds/desktop.png" "$OUT/backgrounds/desktop.png"
+normalize_png "$OUT/backgrounds/showcase.png" "$OUT/backgrounds/showcase.png"
+normalize_png "$OUT/menus/default.png" "$OUT/menus/default.png"
+
 for spec in   "splash/aurora-splash.png aurora-splash.svg"   "installer/aurora-installer.png aurora-installer.svg"   "recovery/aurora-recovery.png aurora-recovery.svg"   "diagnostics/aurora-diagnostics.png aurora-diagnostics.svg"   "live/aurora-live.png aurora-live.svg"   "mobile/aurora-mobile.png aurora-mobile.svg"; do
   set -- $spec
   convert_svg "$DEFAULTS/$2" "$OUT/$1"
