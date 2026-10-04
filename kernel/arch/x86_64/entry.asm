@@ -141,9 +141,9 @@ boot_context: resb 88
 multiboot_magic: resd 1
 multiboot_info: resq 1
 alignb 16
-stack32_bottom: resb 8192
+stack32_bottom: resb 65536
 stack32_top:
 alignb 16
-stack64_bottom: resb 16384
+stack64_bottom: resb 262144
 stack64_top:
 __boot_bss_end:
