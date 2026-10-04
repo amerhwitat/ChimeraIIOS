@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -119,10 +120,13 @@ static int once(const fs::path&dir){
 int main(int argc,char**argv){
   const fs::path d=root(); fs::create_directories(d);
   if(argc>1&&std::string(argv[1])=="once") return once(d);
+  if(argc>1&&std::string(argv[1])=="daemon"){
+    for(;;){ once(d); std::this_thread::sleep_for(std::chrono::seconds(30)); }
+  }
   if(argc>1&&std::string(argv[1])=="status"){
     Model m{}; bool ok=load(m,d/"model.bin");
     std::cout<<"enabled="<<(ok?"true":"false")<<" samples="<<m.samples<<" successful="<<m.successful<<" failed="<<m.failed<<"\n";
     return 0;
   }
-  std::cerr<<"usage: "<<argv[0]<<" [once|status]\n"; return 2;
+  std::cerr<<"usage: "<<argv[0]<<" [once|daemon|status]\n"; return 2;
 }
