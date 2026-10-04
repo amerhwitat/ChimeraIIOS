@@ -9,17 +9,17 @@ mkdir -p "$DIST" "$WORK/tmp"
 export TMPDIR="$WORK/tmp"
 
 printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
-"$ROOT/kernel/build-koronos.sh"
+bash "$ROOT/kernel/build-koronos.sh"
 KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
 command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
 grub-file --is-x86-multiboot2 "$KORONOS_ELF"
 
 printf '%s\n' '[2/7] Build and link Spit Fire native stages'
-"$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
+bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 
 printf '%s\n' '[3/7] Prepare ISO tree'
-"$ISO_ROOT/prepare-layout.sh"
+bash "$ISO_ROOT/prepare-layout.sh"
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
@@ -41,7 +41,7 @@ cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
-"$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
+bash "$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
 MEDIA="$ROOT/build/aurora-media"
 test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/visual/aurora-media"
@@ -77,6 +77,9 @@ for visual in \
   test -s "$DIST/iso/boot/visual/$visual" || { echo "ERROR: Aurora visual asset missing: $visual" >&2; exit 2; }
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
+
+# Stage a real installer initramfs and the canonical installer JSON contracts.
+bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
 
 grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
 grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$ROOT/boot/iso/grub.cfg"
