@@ -39,7 +39,7 @@ if command -v grub-mkstandalone >/dev/null 2>&1; then
   done
   if [[ -n "$EFIMODDIR" ]]; then
     UEFI_MODULES=()
-    for module in efi_gop video video_bochs video_cirrus normal configfile search search_fs_file iso9660 multiboot2 png gfxterm all_video reboot halt; do
+    for module in efi_gop efifwsetup all_video video video_bochs video_cirrus gfxterm jpeg png font normal configfile search search_fs_file iso9660 multiboot2 chain reboot halt echo; do
       if [[ -f "$EFIMODDIR/$module.mod" ]]; then
         UEFI_MODULES+=("$module")
       else
