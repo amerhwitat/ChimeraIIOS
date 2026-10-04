@@ -1,3 +1,21 @@
+
+chimera_copy_if_distinct() {
+    local src="$1"
+    local dst="$2"
+
+    mkdir -p "$(dirname "$dst")"
+
+    local src_real dst_real
+    src_real="$(realpath -m "$src")"
+    dst_real="$(realpath -m "$dst")"
+
+    if [[ "$src_real" == "$dst_real" ]]; then
+        echo "[CHIMERA] SKIP self-copy: $src_real"
+        return 0
+    fi
+
+    cp -f -- "$src" "$dst"
+}
 #!/usr/bin/env bash
 
 # --- Chimera II OS standard help ---

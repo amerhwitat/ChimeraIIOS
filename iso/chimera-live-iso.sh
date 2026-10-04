@@ -18,6 +18,25 @@ CHIMERA_HELP
   exit 0
 fi
 set -euo pipefail
+
+chimera_copy_if_distinct() {
+    local src="$1"
+    local dst="$2"
+
+    mkdir -p "$(dirname "$dst")"
+
+    local src_real dst_real
+    src_real="$(realpath -m "$src")"
+    dst_real="$(realpath -m "$dst")"
+
+    if [[ "$src_real" == "$dst_real" ]]; then
+        echo "[CHIMERA] SKIP self-copy: $src_real"
+        return 0
+    fi
+
+    cp -f -- "$src" "$dst"
+}
+
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/chimera-live"
 STAGE="$BUILD/iso-root"
@@ -129,7 +148,7 @@ done
 mkdir -p "$STAGE/boot/live" "$STAGE/boot/koronos"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
-cp -f "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
+    chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
 install_iso_dependencies
 # Verify mformat can create a FAT image in the native temporary filesystem before

@@ -45,7 +45,11 @@ print("\n".join(json.load(open(sys.argv[1]))["linux"]["packages"]))
 PY
 )
   for p in "${packages[@]}"; do
-    if apt-cache show "$p" >/dev/null 2>&1; then\n      (cd "$BIN/deb" && apt-get download "$p" >/dev/null 2>&1) || echo "SKIP package: $p"\n    else\n      echo "SKIP package unavailable in configured indexes: $p"\n    fi
+    if apt-cache show "$p" >/dev/null 2>&1; then
+      (cd "$BIN/deb" && apt-get download "$p" >/dev/null 2>&1) || echo "SKIP package: $p"
+    else
+      echo "SKIP package unavailable in configured indexes: $p"
+    fi
   done
 fi
 
