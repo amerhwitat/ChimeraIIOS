@@ -92,19 +92,4 @@ install(FILES
 install(DIRECTORY ../services/hardware/ DESTINATION share/chimera/hardware FILES_MATCHING PATTERN "*.md")
 
 
-add_library(chimera_hardware_runtime STATIC
-  ../kernel/core/hardware.cpp
-  ../kernel/core/nbit.cpp
-)
-target_include_directories(chimera_hardware_runtime PUBLIC ../kernel/include)
-target_compile_features(chimera_hardware_runtime PUBLIC cxx_std_20)
 
-add_executable(chimera-hwmode ../services/hardware/chimera-hwmode.cpp)
-target_link_libraries(chimera-hwmode PRIVATE chimera_hardware_runtime)
-target_compile_features(chimera-hwmode PRIVATE cxx_std_20)
-install(TARGETS chimera-hwmode RUNTIME DESTINATION bin)
-install(FILES
-  ../system/hardware/chimera-hardware-profile.json
-  ../system/hardware/compatibility-modes.json
-  DESTINATION share/chimera/hardware)
-install(DIRECTORY ../services/hardware/ DESTINATION share/chimera/hardware FILES_MATCHING PATTERN "*.md")
