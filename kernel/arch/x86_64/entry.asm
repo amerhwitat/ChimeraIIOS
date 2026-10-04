@@ -40,7 +40,7 @@ _start:
     ; Build the minimal identity paging structures needed to enter long mode.
     mov edi, page_table_base
     xor eax, eax
-    mov ecx, 4096 / 4
+    mov ecx, 6 * 4096 / 4
     rep stosd
 
     ; Materialize relocatable table addresses before applying page flags.
@@ -50,11 +50,11 @@ _start:
     lea eax, [pd_table]
     or eax, 0x003
     mov [pdpt_table], eax
-    ; Populate 512 2 MiB PDEs at runtime.  The page-table storage is BSS,
+    ; Populate 2048 2 MiB PDEs at runtime.  The page-table storage is BSS,
     ; so it must not contain assembler-time initializers.
     lea edi, [pd_table]
     mov eax, 0x00000083
-    mov ecx, 512
+    mov ecx, 2048
 .fill_pd:
     mov [edi], eax
     add eax, 0x00200000
@@ -135,7 +135,7 @@ alignb 4096
 page_table_base:
 pml4_table: resb 4096
 pdpt_table: resb 4096
-pd_table: resb 4096
+pd_table: resb 16384
 alignb 16
 boot_context: resb 88
 multiboot_magic: resd 1
