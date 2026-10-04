@@ -50,7 +50,7 @@ def build(t,p,pf):
     q=run([str(AURORA_BUILDER),str(aurora)])
     if q.returncode: raise SystemExit(q.stdout)
     progress(62,"splash","Embedding Init.mp4 and splash assets","دمج Init.mp4 ووسائط شاشة البدء")
-    manifest={"schema":"CHM-MOBILE-ROM-2","profile":p["id"],"codename":p["codename"],"target":t,"generated_utc":datetime.now(timezone.utc).isoformat(),"policy":p["policy"],"aurora":{"init_video":"aurora/Init.mp4","progress_state":"aurora/progress/state.json","progress_stages":"aurora/progress/stages.json","embedded":True}}
+    manifest={"schema":"CHM-MOBILE-ROM-2","profile":p["id"],"codename":p["codename"],"target":t,"generated_utc":datetime.now(timezone.utc).isoformat(),"policy":p["policy"],"aurora":{"init_video":"aurora/Init.mp4","progress_state":"aurora/progress/state.json","progress_stages":"aurora/progress/stages.json","progress_style":"aurora/progress/style.json","artwork":{"boot":"aurora/backgrounds/boot.png","desktop":"aurora/backgrounds/desktop.png","menu":"aurora/menus/default.png","splash":"aurora/splash/aurora-splash.png","installer":"aurora/installer/aurora-installer.png","recovery":"aurora/recovery/aurora-recovery.png","diagnostics":"aurora/diagnostics/aurora-diagnostics.png","live":"aurora/live/aurora-live.png","mobile":"aurora/mobile/aurora-mobile.png"},"embedded":True}}
     (s/"manifest.json").write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+"\n"); stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"); rom=OUT/"artifacts"/f"chimera-mobile-{p['id']}-{stamp}.zip"; iso=OUT/"artifacts"/f"chimera-mobile-{p['id']}-{stamp}.iso"
     progress(76,"package","Packaging device-specific ROM","تغليف ROM الخاص بالجهاز")
     with zipfile.ZipFile(rom,"w",zipfile.ZIP_DEFLATED) as z:
