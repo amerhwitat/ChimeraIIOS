@@ -1,0 +1,28 @@
+{
+  "schema": "CHIMERA-BOOT-LEARNING-1",
+  "component": "chimera-boot-learning",
+  "model": "recurrent-hidden-state",
+  "hidden_units": 16,
+  "features": ["stage_percent","stage_duration_ms","cpu_signal","memory_available","io_pressure","bias"],
+  "learning_rate": 0.0025,
+  "runtime_mode": "daemon",
+  "poll_seconds": 30,
+  "telemetry": {
+    "source": "Aurora progress state transitions",
+    "format": "CSV/JSONL",
+    "retention": "bounded-by-service-policy"
+  },
+  "policy": {
+    "advisory_only": true,
+    "may_reorder_noncritical_services": false,
+    "may_modify_kernel": false,
+    "may_replace_drivers": false,
+    "requires_admin_approval_for_actions": true
+  },
+  "objectives": [
+    "learn successful boot-stage transitions",
+    "detect recurring resource pressure",
+    "rank future boot optimization proposals",
+    "improve Aurora progress estimates from observed runtime behavior"
+  ]
+}
