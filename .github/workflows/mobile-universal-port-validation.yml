@@ -1,0 +1,35 @@
+name: Chimera Mobile Universal Port Validation
+on:
+  push:
+    paths:
+      - "tools/mobile/**"
+      - "mobile/device-profiles/**"
+  pull_request:
+    paths:
+      - "tools/mobile/**"
+      - "mobile/device-profiles/**"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: python3 -m py_compile tools/mobile/chimera-device-port-scan.py tools/mobile/chimera-mobile-build.py tools/mobile/chimera-mobile-flash-gui.py tools/mobile/chimera-mobile-rom-discovery.py
+      - name: Shell syntax
+        run: bash -n tools/mobile/chimera-mobile-flash.sh tools/mobile/chimera-mobile-probe.sh mobile/flash/mobile-flash-tool.sh
+      - name: Scanner smoke test
+        run: |
+          python3 tools/mobile/chimera-device-port-scan.py --json > /tmp/chimera-port-inventory.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/chimera-port-inventory.json'))
+          assert d['schema']=='CHM-HOST-PORT-INVENTORY-1'
+          for k in ('usb_devices','udev_usb_devices','android_adb','android_fastboot','apple_usbmux','mtp_or_gphoto2','serial_ports','thunderbolt_usb4'):
+              assert k in d
+          PY
+      - name: Flash safety contract
+        run: |
+          grep -q "Live device set changed" tools/mobile/chimera-mobile-flash.sh
+          grep -q "FLASH CHIMERA" tools/mobile/chimera-mobile-flash.sh
+          grep -q "fastboot-profiled" tools/mobile/chimera-mobile-flash.sh
+          ! grep -q "oem unlock" tools/mobile/chimera-mobile-flash.sh
