@@ -13,7 +13,8 @@ class App(tk.Tk):
   try: style.theme_use("clam")
   except tk.TclError: pass
   style.configure("Aurora.Horizontal.TProgressbar",thickness=18,troughcolor="#101a2b",background="#62e8ff",lightcolor="#a9f3ff",darkcolor="#2cb9df",bordercolor="#263b55")
-\n def _ui(self):
+
+ def _ui(self):
   r=ttk.Frame(self,padding=18); r.pack(fill="both",expand=True); ttk.Label(r,text="Chimera II OS Mobile Edition",font=("TkDefaultFont",22,"bold")).pack(anchor="w"); ttk.Label(r,text="Aurora: animated Init.mp4 + live device-specific build/flash progress").pack(anchor="w",pady=(3,8))
   self.progressbar=ttk.Progressbar(r,style="Aurora.Horizontal.TProgressbar",orient="horizontal",mode="determinate",maximum=100); self.progressbar.pack(fill="x",pady=(0,4)); self.progress_text=tk.StringVar(value="0% — Ready"); ttk.Label(r,textvariable=self.progress_text).pack(anchor="w",pady=(0,8))
   b=ttk.Frame(r); b.pack(fill="x")
