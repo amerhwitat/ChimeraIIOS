@@ -98,3 +98,7 @@ add_executable(chimera-boot-learning boot/chimera_boot_learning.cpp)
 target_compile_features(chimera-boot-learning PRIVATE cxx_std_20)
 install(TARGETS chimera-boot-learning RUNTIME DESTINATION bin)
 install(FILES ../system/learning/chimera-boot-learning.json DESTINATION share/chimera/learning)
+
+add_executable(chimera-runtime-recovery boot/chimera_runtime_recovery.cpp)
+target_compile_features(chimera-runtime-recovery PRIVATE cxx_std_20)
+install(TARGETS chimera-runtime-recovery RUNTIME DESTINATION bin)
