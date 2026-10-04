@@ -13,11 +13,12 @@ class App(tk.Tk):
   try: style.theme_use("clam")
   except tk.TclError: pass
   style.configure("Aurora.Horizontal.TProgressbar",thickness=18,troughcolor="#101a2b",background="#62e8ff",lightcolor="#a9f3ff",darkcolor="#2cb9df",bordercolor="#263b55")
-\n def _ui(self):
+
+ def _ui(self):
   r=ttk.Frame(self,padding=18); r.pack(fill="both",expand=True); ttk.Label(r,text="Chimera II OS Mobile Edition",font=("TkDefaultFont",22,"bold")).pack(anchor="w"); ttk.Label(r,text="Aurora: animated Init.mp4 + live device-specific build/flash progress").pack(anchor="w",pady=(3,8))
   self.progressbar=ttk.Progressbar(r,style="Aurora.Horizontal.TProgressbar",orient="horizontal",mode="determinate",maximum=100); self.progressbar.pack(fill="x",pady=(0,4)); self.progress_text=tk.StringVar(value="0% — Ready"); ttk.Label(r,textvariable=self.progress_text).pack(anchor="w",pady=(0,8))
   b=ttk.Frame(r); b.pack(fill="x")
-  for label,fn in [("Scan USB",self.usb_scan),("Wake / Power-On",self.wake),("Detect / Inspect",self.detect),("Compile ROM + ISO",self.build),("Validate artifacts",self.validate),("Flash ROM",self.flash)]: ttk.Button(b,text=label,command=fn).pack(side="left",padx=4)
+  for label,fn in [("Scan USB",self.usb_scan),("Wake / Power-On",self.wake),("Detect / Inspect",self.detect),("Find ROMs + Security",self.discover_roms),("Compile ROM + ISO",self.build),("Validate artifacts",self.validate),("Flash ROM",self.flash)]: ttk.Button(b,text=label,command=fn).pack(side="left",padx=4)
   p=ttk.Panedwindow(r,orient="horizontal"); p.pack(fill="both",expand=True,pady=12); a=ttk.LabelFrame(p,text="Phone / profile",padding=10); z=ttk.LabelFrame(p,text="Build / flash log",padding=10); p.add(a,weight=1); p.add(z,weight=2)
   self.info=tk.Text(a,state="disabled",wrap="word"); self.info.pack(fill="both",expand=True); self.log=tk.Text(z,state="disabled",wrap="word"); self.log.pack(fill="both",expand=True); self.status=tk.StringVar(value="Ready"); ttk.Label(r,textvariable=self.status).pack(anchor="w")
  def put(self,w,s):
@@ -55,6 +56,10 @@ class App(tk.Tk):
  def detect(self):
   def run():
    scan=subprocess.run([PYTHON,str(BUILDER),"--usb-scan"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info","USB CONNECTION SCAN\n"+scan.stdout)); detect=subprocess.run([PYTHON,str(BUILDER),"--detect"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info","PHONE DETECTION\n"+detect.stdout)); self.q.put(("log","Phone detection completed." if detect.returncode==0 else "Detection diagnostics:\n"+detect.stdout))
+  self.work(run)
+ def discover_roms(self):
+  def run():
+   p=subprocess.run([PYTHON,str(BUILDER),"--discover-roms"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("log",p.stdout)); self.q.put(("info","ROM / SECURITY DISCOVERY\n"+p.stdout))
   self.work(run)
  def build(self):
   def run():
