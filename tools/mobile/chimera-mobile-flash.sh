@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 GUI="$SCRIPT_DIR/chimera-mobile-flash-gui.py"
 BUILDER="$SCRIPT_DIR/chimera-mobile-build.py"
+DISCOVERY="$SCRIPT_DIR/chimera-mobile-rom-discovery.py"
 
 die(){ echo "[ERROR] $*" >&2; exit 1; }
 need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
@@ -42,6 +43,13 @@ case "$COMMAND" in
     else
       die "fastboot is required for safe bootloader-to-system wake; install Android platform-tools."
     fi
+    ;;
+
+  rom-discover|discover-roms)
+    need adb
+    need python3
+    [[ -f "$DISCOVERY" ]] || die "ROM discovery engine not found: $DISCOVERY"
+    exec python3 "$BUILDER" --discover-roms
     ;;
 
   build)
@@ -113,6 +121,7 @@ Usage:
   tools/mobile/chimera-mobile-flash.sh inspect
   tools/mobile/chimera-mobile-flash.sh power-on
   tools/mobile/chimera-mobile-flash.sh build
+  tools/mobile/chimera-mobile-flash.sh rom-discover
   tools/mobile/chimera-mobile-flash.sh --dry-run
   tools/mobile/chimera-mobile-flash.sh flash
 
