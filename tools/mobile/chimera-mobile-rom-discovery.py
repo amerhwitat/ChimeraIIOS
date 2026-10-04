@@ -29,7 +29,7 @@ DEFAULT_ALLOWLIST={
     "oneplus.com","asus.com","sony.com","fairphone.com","nothing.tech",
     "xiaomi.com","mi.com","huawei.com"
 }
-SECURITY_NAMES=re.compile(r"(vbmeta(?:_[^/]+)?\\.(?:img|bin)|.*avb.*\\.(?:pem|pub|pubkey|bin)|.*(?:signature|signed|checksum|sha256|metadata).*|.*rollback.*)",re.I)
+SECURITY_NAMES=re.compile(r"(vbmeta(?:_[^/]+)?\.(?:img|bin)|.*avb.*\.(?:pem|pub|pubkey|bin)|.*(?:signature|signed|checksum|sha256|metadata).*|.*rollback.*)",re.I)
 
 def run(cmd, timeout=30):
     return subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
