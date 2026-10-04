@@ -5,6 +5,7 @@
 #include <sys/utsname.h>
 #include <thread>
 #include <algorithm>
+#include <cstdio>
 namespace fs=std::filesystem;
 namespace chimera::installer {
 Hardware Installer::detect_hardware() const {
@@ -54,6 +55,15 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
 int Installer::run(const std::string& cmd,bool allow_failure) const {
   std::cout<<"[installer] "<<cmd<<"\n"; int rc=std::system(cmd.c_str());
   if(rc!=0&&!allow_failure) std::cerr<<"[installer] command failed: "<<rc<<"\n"; return rc;
+}
+static std::string capture_command(const std::string& cmd) {
+  std::string out;
+  FILE* pipe=popen(cmd.c_str(),"r");
+  if(!pipe) return out;
+  char buf[4096];
+  while(fgets(buf,sizeof(buf),pipe)) out+=buf;
+  pclose(pipe);
+  return out;
 }
 int Installer::copy_tree(const fs::path& src,const fs::path& dst) const {
   if(!fs::exists(src)) return 2; fs::create_directories(dst);
@@ -110,8 +120,8 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   rec<<"  \"graphics\": \""<<(hw.graphics?"detected":"unresolved")<<"\",\n";
   rec<<"  \"policy\": \"native-first-with-verified-compatibility-adapters\"\n}\n";
   if(p.deep_driver_search){
-    const std::string pci=run("lspci -Dnnk 2>/dev/null",true);
-    const std::string usb=run("lsusb -nn 2>/dev/null",true);
+    const std::string pci=capture_command("lspci -Dnnk 2>/dev/null");
+    const std::string usb=capture_command("lsusb -nn 2>/dev/null");
     std::ofstream evidence(p.target_root/"var/lib/chimera/drivers/hardware-evidence.txt");
     evidence<<"=== PCI / driver bindings ===\n"<<pci<<"\n=== USB ===\n"<<usb<<"\n";
     if(fs::exists("/sys/class/dmi/id")){
