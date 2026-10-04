@@ -7,10 +7,15 @@ from tkinter import messagebox,ttk
 ROOT=Path(__file__).resolve().parents[2]; BUILDER=Path(__file__).with_name("chimera-mobile-build.py"); CLI=Path(__file__).with_name("chimera-mobile-flash.sh"); PYTHON=sys.executable
 class App(tk.Tk):
  def __init__(self):
-  super().__init__(); self.title("Chimera II OS — Mobile Edition Flash Tool"); self.geometry("1200x820"); self.q=queue.Queue(); self._ui(); self.after(100,self._drain); self.after(250,self._poll_progress); self.detect()
- def _ui(self):
+  super().__init__(); self.title("Chimera II OS — Mobile Edition Flash Tool"); self.geometry("1200x820"); self.q=queue.Queue(); self._aurora_style(); self._ui(); self.after(100,self._drain); self.after(250,self._poll_progress); self.detect()
+ def _aurora_style(self):
+  style=ttk.Style(self)
+  try: style.theme_use("clam")
+  except tk.TclError: pass
+  style.configure("Aurora.Horizontal.TProgressbar",thickness=18,troughcolor="#101a2b",background="#62e8ff",lightcolor="#a9f3ff",darkcolor="#2cb9df",bordercolor="#263b55")
+\n def _ui(self):
   r=ttk.Frame(self,padding=18); r.pack(fill="both",expand=True); ttk.Label(r,text="Chimera II OS Mobile Edition",font=("TkDefaultFont",22,"bold")).pack(anchor="w"); ttk.Label(r,text="Aurora: animated Init.mp4 + live device-specific build/flash progress").pack(anchor="w",pady=(3,8))
-  self.progressbar=ttk.Progressbar(r,orient="horizontal",mode="determinate",maximum=100); self.progressbar.pack(fill="x",pady=(0,4)); self.progress_text=tk.StringVar(value="0% — Ready"); ttk.Label(r,textvariable=self.progress_text).pack(anchor="w",pady=(0,8))
+  self.progressbar=ttk.Progressbar(r,style="Aurora.Horizontal.TProgressbar",orient="horizontal",mode="determinate",maximum=100); self.progressbar.pack(fill="x",pady=(0,4)); self.progress_text=tk.StringVar(value="0% — Ready"); ttk.Label(r,textvariable=self.progress_text).pack(anchor="w",pady=(0,8))
   b=ttk.Frame(r); b.pack(fill="x")
   for label,fn in [("Scan USB",self.usb_scan),("Wake / Power-On",self.wake),("Detect / Inspect",self.detect),("Compile ROM + ISO",self.build),("Validate artifacts",self.validate),("Flash ROM",self.flash)]: ttk.Button(b,text=label,command=fn).pack(side="left",padx=4)
   p=ttk.Panedwindow(r,orient="horizontal"); p.pack(fill="both",expand=True,pady=12); a=ttk.LabelFrame(p,text="Phone / profile",padding=10); z=ttk.LabelFrame(p,text="Build / flash log",padding=10); p.add(a,weight=1); p.add(z,weight=2)
