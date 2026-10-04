@@ -93,3 +93,7 @@ install(DIRECTORY ../services/hardware/ DESTINATION share/chimera/hardware FILES
 
 
 
+
+add_executable(chimera-boot-learning boot/chimera_boot_learning.cpp)
+target_compile_features(chimera-boot-learning PRIVATE cxx_std_20)
+install(TARGETS chimera-boot-learning RUNTIME DESTINATION bin)
