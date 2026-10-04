@@ -77,4 +77,5 @@ def build(t,p,pf):
     (OUT/"last-build.json").write_text(json.dumps(r,indent=2,ensure_ascii=False)+"\n"); progress(100,"ready","Mobile ROM + ISO ready","ROM وISO المحمول جاهزان"); return r
 a=argparse.ArgumentParser(); a.add_argument("--detect",action="store_true"); a.add_argument("--usb-scan",action="store_true"); a.add_argument("--build",action="store_true"); a.add_argument("--discover-roms",action="store_true"); a.add_argument("--power-on",action="store_true"); x=a.parse_args()
 if x.usb_scan: print(json.dumps(usb_scan(),indent=2)); raise SystemExit(0)
-t=detect(power_on=x.power_on); p,pf=load(t);\nif x.discover_roms:\n    print(json.dumps({"target":t,"profile":p,"profile_file":str(pf),"rom_discovery":discover_roms(t,download=True)},indent=2,ensure_ascii=False))\nelif x.build:\n    print(json.dumps(build(t,p,pf),indent=2,ensure_ascii=False))\nelse:\n    print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)},indent=2,ensure_ascii=False))
+t=detect(power_on=x.power_on); p,pf=load(t);
+if x.discover_roms:\n    print(json.dumps({"target":t,"profile":p,"profile_file":str(pf),"rom_discovery":discover_roms(t,download=True)},indent=2,ensure_ascii=False))\nelif x.build:\n    print(json.dumps(build(t,p,pf),indent=2,ensure_ascii=False))\nelse:\n    print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)},indent=2,ensure_ascii=False))
