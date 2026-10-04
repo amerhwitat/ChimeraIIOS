@@ -2,7 +2,7 @@
 namespace {
 constexpr uint32_t MAX_CPUS=256,MAX_TASKS=1024;
 struct Task { chimera_task_fn fn; void* arg; chimera_task_info info; };
-Task tasks[MAX_TASKS]; volatile uint32_t count=0,next_id=1,rr=0,cpus=1,lock_word=0;
+Task tasks[MAX_TASKS]; uint32_t count=0,next_id=1,rr=0,cpus=1,lock_word=0;
 volatile int32_t current_index[MAX_CPUS];
 static void lock(){while(__sync_lock_test_and_set(&lock_word,1u)){} }
 static void unlock(){__sync_lock_release(&lock_word);}
