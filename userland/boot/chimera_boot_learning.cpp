@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
@@ -84,7 +85,9 @@ static void step(Model&m,const std::array<float,F>&x,float target,float lr){
 }
 
 static std::string json_string(const std::string&s){
-  std::string o="""; for(char c:s){if(c=='"'||c=='\\')o+='\\';o+=c;} return o+""";
+  std::string o="\"";
+  for(char c:s){if(c=='\"'||c=='\\')o+='\\';o+=c;}
+  return o+"\"";
 }
 
 static int once(const fs::path&dir){
