@@ -38,25 +38,28 @@ cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/rec
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
 cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 
-printf '%s\n' '[4/7] Stage Aurora background, embedded JPEG and boot video'
+printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
-AURORA_SOURCE="${CHIMERA_AURORA_SOURCE:-$ROOT/desktop/aurora/assets/aurora-wayland-glass.svg}"
-VIDEO_SOURCE="${CHIMERA_BOOT_VIDEO_SOURCE:-$ROOT/assets/boot/chimera-intro.mp4}"
-EMBEDDED_VIDEO="${CHIMERA_BOOT_VIDEO_B64:-$ROOT/assets/boot/chimera-intro.mp4.b64}"
-if [[ ! -f "$VIDEO_SOURCE" && ! -f "$EMBEDDED_VIDEO" ]]; then
-  echo "ERROR: Chimera boot MP4 is not staged." >&2
-  echo "Set CHIMERA_BOOT_VIDEO_SOURCE=/path/to/Chimera-intro.mp4 or provide assets/boot/chimera-intro.mp4.b64." >&2
-  exit 2
-fi
-python3 "$ROOT/tools/boot/prepare-visual-assets.py" \
-  --background "$AURORA_SOURCE" \
-  --video "$VIDEO_SOURCE" \
-  --embedded-video "$EMBEDDED_VIDEO" \
-  --output-dir "$VISUAL_OUT" \
-  --manifest "$VISUAL_OUT/boot-visual-manifest.json"
-cp "$ROOT/boot/visual/boot-visual-manifest.json" "$VISUAL_OUT/source-contract.json"
-
+"$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
+MEDIA="$ROOT/build/aurora-media"
+test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
+cp -a "$MEDIA/." "$DIST/iso/boot/visual/aurora-media/"
+for f in   backgrounds/boot.png   backgrounds/desktop.png   menus/default.png   splash/aurora-splash.png   installer/aurora-installer.png   recovery/aurora-recovery.png   diagnostics/aurora-diagnostics.png   live/aurora-live.png   mobile/aurora-mobile.png   manifest.json   progress/state.json   progress/stages.json   progress/style.json   Init.mp4; do
+  test -s "$MEDIA/$f" || { echo "ERROR: Aurora asset missing: $MEDIA/$f" >&2; exit 2; }
+done
+cp -f "$MEDIA/backgrounds/boot.png" "$VISUAL_OUT/aurora-boot.png"
+cp -f "$MEDIA/backgrounds/desktop.png" "$VISUAL_OUT/aurora-desktop.png"
+cp -f "$MEDIA/menus/default.png" "$VISUAL_OUT/aurora-menu.png"
+cp -f "$MEDIA/splash/aurora-splash.png" "$VISUAL_OUT/aurora-splash.png"
+cp -f "$MEDIA/installer/aurora-installer.png" "$VISUAL_OUT/aurora-installer.png"
+cp -f "$MEDIA/recovery/aurora-recovery.png" "$VISUAL_OUT/aurora-recovery.png"
+cp -f "$MEDIA/diagnostics/aurora-diagnostics.png" "$VISUAL_OUT/aurora-diagnostics.png"
+cp -f "$MEDIA/live/aurora-live.png" "$VISUAL_OUT/aurora-live.png"
+cp -f "$MEDIA/mobile/aurora-mobile.png" "$VISUAL_OUT/aurora-mobile.png"
+cp -f "$MEDIA/manifest.json" "$VISUAL_OUT/aurora-manifest.json"
+cp -f "$MEDIA/progress/"*.json "$VISUAL_OUT/"
+cp -f "$MEDIA/Init.mp4" "$VISUAL_OUT/Init.mp4"
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
@@ -69,7 +72,7 @@ test -s "$DIST/iso/boot/jasper/background.png"
 test -s "$DIST/iso/boot/spitfire/background.png"
 test -s "$DIST/iso/install/installer-background.png"
 grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
-grep -q 'background_image --mode stretch /boot/visual/aurora-background.jpg' "$ROOT/boot/iso/grub.cfg"
+grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$ROOT/boot/iso/grub.cfg"
 grep -q '"native_execution_order"' "$DIST/iso/boot/chimera/manifests/boot-execution-order.json"
 
 test -s "$DIST/iso/boot/live/chimera-live-initramfs.img" || { echo "Live initramfs missing from ISO staging tree." >&2; exit 1; }
