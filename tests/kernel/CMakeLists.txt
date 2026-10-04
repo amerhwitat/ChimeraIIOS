@@ -50,7 +50,9 @@ add_test(NAME chimera_firmware_device COMMAND chimera_firmware_device_test)
 
 add_executable(chimera_platform_features_test
   platform_features_test.cpp
+  platform_features_abi_stubs.cpp
   ../../kernel/core/platform_features.cpp
+  ../../kernel/core/compat.cpp
 )
 target_include_directories(chimera_platform_features_test PRIVATE
   ${CMAKE_SOURCE_DIR}/kernel/include
