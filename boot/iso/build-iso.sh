@@ -60,6 +60,12 @@ cp -f "$MEDIA/mobile/aurora-mobile.png" "$VISUAL_OUT/aurora-mobile.png"
 cp -f "$MEDIA/manifest.json" "$VISUAL_OUT/aurora-manifest.json"
 cp -f "$MEDIA/progress/"*.json "$VISUAL_OUT/"
 cp -f "$MEDIA/Init.mp4" "$VISUAL_OUT/Init.mp4"
+# Mirror the same contract into the installed/live Aurora runtime when a rootfs is present.
+RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera/aurora"
+if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
+  mkdir -p "$RUNTIME_AURORA_ROOT"
+  cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
+fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
