@@ -11,6 +11,7 @@ mkdir -p "$OUT/sounds" "$OUT/progress"
 
 if [[ -z "$INIT_VIDEO" ]]; then
   for candidate in \
+    "$OUT/Init.mp4" \
     "$ROOT/desktop/aurora/assets/library/Init.mp4" \
     "$ROOT/desktop/aurora/assets/Init.mp4" \
     "$ROOT/build/aurora-media/Init.mp4" \
@@ -45,6 +46,8 @@ fi
 
 if [[ -z "$BG" ]]; then
   for candidate in \
+    "$OUT/backgrounds/boot.jpg" \
+    "$OUT/backgrounds/boot.png" \
     "$ROOT/boot/jasper/background.jpg" \
     "$ROOT/boot/jasper/background.png" \
     "$ROOT/desktop/aurora/assets/Aurora-Wayland-Glass-Desktop.png(1).jpg" \
