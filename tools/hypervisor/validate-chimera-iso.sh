@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+
+# --- Chimera II OS standard help ---
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  cat <<'CHIMERA_HELP'
+Chimera II OS script: tools/hypervisor/validate-chimera-iso.sh
+
+Usage:
+  tools/hypervisor/validate-chimera-iso.sh [options] [arguments]
+
+Options:
+  -h, --help    Show this help and exit successfully.
+
+Notes:
+  This help entry is provided consistently across Chimera II OS shell tools.
+  The script's existing command-line interface and environment variables remain unchanged.
+CHIMERA_HELP
+  exit 0
+fi
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ISO="${1:-$ROOT/build/ChimeraIIOS-comprehensive-1.0.0-x86_64.iso}"
