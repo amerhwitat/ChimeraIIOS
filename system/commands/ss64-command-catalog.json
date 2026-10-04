@@ -1,16 +1,16 @@
 {
-  "schema_version": "3.1",
+  "schema_version": "4.3",
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-09-28T06:05:45Z",
-  "policy": "Command names, classifications and source URLs only; SS64 page prose is not redistributed.",
+  "generated_at_utc": "2026-10-04T18:34:12Z",
+  "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
       "index": "https://ss64.com/bash/",
       "pages_crawled": 326,
       "fetch_failures": 0,
-      "command_count": 492,
+      "command_count": 491,
       "commands": [
         {
           "name": "$$",
@@ -33,11 +33,6 @@
           "source": "https://ss64.com/bash/syntax-prompt.html"
         },
         {
-          "name": "&",
-          "platform": "linux_bash",
-          "source": "https://ss64.com/bash/bg.html"
-        },
-        {
           "name": "-f",
           "platform": "linux_bash",
           "source": "https://ss64.com/bash/syntax-file-operators.html"
@@ -46,11 +41,6 @@
           "name": "-s -s",
           "platform": "linux_bash",
           "source": "https://ss64.com/bash/ip.html"
-        },
-        {
-          "name": ".",
-          "platform": "linux_bash",
-          "source": "https://ss64.com/bash/source.html"
         },
         {
           "name": ". builtin",
@@ -361,6 +351,11 @@
           "name": "caller",
           "platform": "linux_bash",
           "source": "https://ss64.com/bash/caller.html"
+        },
+        {
+          "name": "cards.txt",
+          "platform": "linux_bash",
+          "source": "https://ss64.com/bash/cards.txt"
         },
         {
           "name": "case",
@@ -2478,7 +2473,7 @@
       "index": "https://ss64.com/mac/",
       "pages_crawled": 401,
       "fetch_failures": 0,
-      "command_count": 601,
+      "command_count": 603,
       "commands": [
         {
           "name": "$$",
@@ -4806,6 +4801,11 @@
           "source": "https://ss64.com/mac/shortcuts.html"
         },
         {
+          "name": "Show hidden files.scpt",
+          "platform": "macos",
+          "source": "https://ss64.com/mac/defaults-show-hidden_scpt.txt"
+        },
+        {
           "name": "show-keychain-info",
           "platform": "macos",
           "source": "https://ss64.com/mac/security-keychain-settings.html"
@@ -5428,6 +5428,11 @@
         {
           "name": "zip",
           "platform": "macos",
+          "source": "https://ss64.com/mac/datemod.zip"
+        },
+        {
+          "name": "zip",
+          "platform": "macos",
           "source": "https://ss64.com/mac/zip.html"
         },
         {
@@ -5491,7 +5496,7 @@
       "index": "https://ss64.com/nt/",
       "pages_crawled": 463,
       "fetch_failures": 0,
-      "command_count": 943,
+      "command_count": 961,
       "commands": [
         {
           "name": "% vs %%",
@@ -5559,6 +5564,11 @@
           "source": "https://ss64.com/nt/syntax-variables.html"
         },
         {
+          "name": "%TIME%",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/time.txt"
+        },
+        {
           "name": "%UserProfile%",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-variables.html"
@@ -5572,11 +5582,6 @@
           "name": "%~dp0",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-args.html"
-        },
-        {
-          "name": "&",
-          "platform": "windows_cmd",
-          "source": "https://ss64.com/nt/syntax-redirection.html"
         },
         {
           "name": "&&",
@@ -5604,11 +5609,6 @@
           "source": "https://ss64.com/nt/winrm-remote.html"
         },
         {
-          "name": ".",
-          "platform": "windows_cmd",
-          "source": "https://ss64.com/nt/con2prt.html"
-        },
-        {
           "name": ". FOR /D",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/for_d.html"
@@ -5617,6 +5617,11 @@
           "name": "..",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/cd.html"
+        },
+        {
+          "name": ".zip",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/adprintx.zip"
         },
         {
           "name": "/FORMAT: stylesheet_name",
@@ -5762,6 +5767,11 @@
           "name": "ANSI colours",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-ansi.html"
+        },
+        {
+          "name": "application associated",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/fassoc.txt"
         },
         {
           "name": "argument",
@@ -6449,6 +6459,11 @@
           "source": "https://ss64.com/nt/syntax-datemath.html"
         },
         {
+          "name": "Default 96 DPI",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/dpi-default-96.txt"
+        },
+        {
           "name": "Default User & Group accounts",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-security_groups.html"
@@ -6507,6 +6522,11 @@
           "name": "DelOlder",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-delolder.html"
+        },
+        {
+          "name": "DelOlder.cmd",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/delolder.txt"
         },
         {
           "name": "DelOlder.cmd",
@@ -6912,6 +6932,16 @@
           "name": "ECHO:",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/echo.html"
+        },
+        {
+          "name": "EchoANSI.cmd",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/echoansi.txt"
+        },
+        {
+          "name": "EchoANSI2.cmd",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/echoansi2.txt"
         },
         {
           "name": "Elevate",
@@ -7564,6 +7594,11 @@
           "source": "https://ss64.com/nt/help.html"
         },
         {
+          "name": "here",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/datemath.txt"
+        },
+        {
           "name": "hidden",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/attrib.html"
@@ -7697,6 +7732,11 @@
           "name": "LAN Mgr auth",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-ntlm.html"
+        },
+        {
+          "name": "Large 144 DPI",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/dpi-large-144.txt"
         },
         {
           "name": "LDIFDE",
@@ -7862,6 +7902,11 @@
           "name": "MD",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/md.html"
+        },
+        {
+          "name": "Medium 120 DPI",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/dpi-medium-120.txt"
         },
         {
           "name": "MKLINK",
@@ -8559,6 +8604,11 @@
           "source": "https://ss64.com/nt/powercfg.html"
         },
         {
+          "name": "PowerShell",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/shell-folders-ps.txt"
+        },
+        {
           "name": "Prevent Automatic Restarts",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/wuauclt.html"
@@ -8929,6 +8979,11 @@
           "source": "https://ss64.com/nt/reg-types.html"
         },
         {
+          "name": "registry fix",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/thumbsdb.txt"
+        },
+        {
           "name": "REGSVR32",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/regsvr32.html"
@@ -9039,9 +9094,19 @@
           "source": "https://ss64.com/nt/robocopy-exit.html"
         },
         {
+          "name": "Robocopy.docx",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/robocopy.docx"
+        },
+        {
           "name": "ROUTE",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/route.html"
+        },
+        {
+          "name": "RSAT tools",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/rsat.txt"
         },
         {
           "name": "RUN",
@@ -9137,6 +9202,11 @@
           "name": "SCHTASKS",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/schtasks.html"
+        },
+        {
+          "name": "script",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/spack.txt"
         },
         {
           "name": "ScriptRunner",
@@ -9364,6 +9434,11 @@
           "source": "https://ss64.com/nt/slow_browsing.html"
         },
         {
+          "name": "Small 96 DPI",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/dpi-small-96.txt"
+        },
+        {
           "name": "SORT",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/sort.html"
@@ -9579,9 +9654,19 @@
           "source": "https://ss64.com/nt/syntax-elevate.html"
         },
         {
+          "name": "this",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/installed.txt"
+        },
+        {
           "name": "this variant of the FOR command",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/for_cmd.html"
+        },
+        {
+          "name": "Thumbs.db",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/thumbsdb.txt"
         },
         {
           "name": "TIME",
@@ -9799,6 +9884,11 @@
           "source": "https://ss64.com/nt/vbc.html"
         },
         {
+          "name": "VBScript",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/shell-folders-vbs.txt"
+        },
+        {
           "name": "VER",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/ver.html"
@@ -9872,6 +9962,11 @@
           "name": "WHERE",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/where.html"
+        },
+        {
+          "name": "Whereami.cmd",
+          "platform": "windows_cmd",
+          "source": "https://ss64.com/nt/whereami.txt"
         },
         {
           "name": "Whereis.cmd",
@@ -10214,7 +10309,7 @@
       "index": "https://ss64.com/ps/",
       "pages_crawled": 613,
       "fetch_failures": 0,
-      "command_count": 962,
+      "command_count": 964,
       "commands": [
         {
           "name": "\"n2\"",
@@ -10310,11 +10405,6 @@
           "name": "$WarningPreference",
           "platform": "powershell",
           "source": "https://ss64.com/ps/syntax-preference.html"
-        },
-        {
-          "name": "&",
-          "platform": "powershell",
-          "source": "https://ss64.com/ps/call.html"
         },
         {
           "name": "& (CALL)",
@@ -10447,21 +10537,6 @@
           "source": "https://ss64.com/ps/common.html"
         },
         {
-          "name": ".",
-          "platform": "powershell",
-          "source": "https://ss64.com/ps/get-adfinegrainedpasswordpolicysubject.html"
-        },
-        {
-          "name": ".",
-          "platform": "powershell",
-          "source": "https://ss64.com/ps/set-addomain.html"
-        },
-        {
-          "name": ".",
-          "platform": "powershell",
-          "source": "https://ss64.com/ps/source.html"
-        },
-        {
           "name": ". (source)",
           "platform": "powershell",
           "source": "https://ss64.com/ps/source.html"
@@ -10590,11 +10665,6 @@
           "name": "; command Separator",
           "platform": "powershell",
           "source": "https://ss64.com/ps/syntax-esc.html"
-        },
-        {
-          "name": "?",
-          "platform": "powershell",
-          "source": "https://ss64.com/ps/where-object.html"
         },
         {
           "name": "@(...)",
@@ -11117,6 +11187,11 @@
           "source": "https://ss64.com/ps/clear-variable.html"
         },
         {
+          "name": "ClearIconCache.ps1",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/cleariconcache.txt"
+        },
+        {
           "name": "Colours",
           "platform": "powershell",
           "source": "https://ss64.com/ps/syntax-colour.html"
@@ -11515,6 +11590,16 @@
           "name": "Echo",
           "platform": "powershell",
           "source": "https://ss64.com/ps/write-output.html"
+        },
+        {
+          "name": "EchoANSI",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/echoansi.txt"
+        },
+        {
+          "name": "EchoArgs.exe",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/echoargs.exe"
         },
         {
           "name": "elevate",
@@ -13632,6 +13717,11 @@
           "source": "https://ss64.com/ps/syntax-osversion.html"
         },
         {
+          "name": "Remove Default Apps",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/removedefaultapps.txt"
+        },
+        {
           "name": "Remove-ADComputer",
           "platform": "powershell",
           "source": "https://ss64.com/ps/remove-adcomputer.html"
@@ -14607,6 +14697,11 @@
           "source": "https://ss64.com/ps/syntax-tab-completion.html"
         },
         {
+          "name": "tabex.txt",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/tabex.txt"
+        },
+        {
           "name": "Task Scheduler",
           "platform": "powershell",
           "source": "https://ss64.com/ps/scheduler.html"
@@ -14657,6 +14752,11 @@
           "source": "https://ss64.com/ps/test-path.html"
         },
         {
+          "name": "Test-PendingReboot.ps1",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/test-pendingreboot.txt"
+        },
+        {
           "name": "Test-WSMan",
           "platform": "powershell",
           "source": "https://ss64.com/ps/test-wsman.html"
@@ -14665,6 +14765,11 @@
           "name": "The call operator",
           "platform": "powershell",
           "source": "https://ss64.com/ps/call.html"
+        },
+        {
+          "name": "this zip file",
+          "platform": "powershell",
+          "source": "https://ss64.com/ps/videoconverter.zip"
         },
         {
           "name": "Throw",
@@ -16415,7 +16520,7 @@
       "index": "https://ss64.com/sql/",
       "pages_crawled": 210,
       "fetch_failures": 1,
-      "command_count": 237,
+      "command_count": 240,
       "commands": [
         {
           "name": "ADD SIGNATURE",
@@ -16821,6 +16926,11 @@
           "name": "CREATE TABLE",
           "platform": "sql_server",
           "source": "https://ss64.com/sql/table_c.html"
+        },
+        {
+          "name": "Create Table script",
+          "platform": "sql_server",
+          "source": "https://ss64.com/sql/dimtimes_create_table.txt"
         },
         {
           "name": "Create Table script",
@@ -17373,6 +17483,11 @@
           "source": "https://ss64.com/sql/restore_partial.html"
         },
         {
+          "name": "Postcode",
+          "platform": "sql_server",
+          "source": "https://ss64.com/sql/ukpostcodes.txt"
+        },
+        {
           "name": "Query Hint",
           "platform": "sql_server",
           "source": "https://ss64.com/sql/clause_query_hint.html"
@@ -17441,6 +17556,11 @@
           "name": "ROLLBACK",
           "platform": "sql_server",
           "source": "https://ss64.com/sql/rollback.html"
+        },
+        {
+          "name": "script to grant",
+          "platform": "sql_server",
+          "source": "https://ss64.com/sql/backuprole.txt"
         },
         {
           "name": "SELECT",
@@ -17610,16 +17730,6 @@
       "fetch_failures": 0,
       "command_count": 329,
       "commands": [
-        {
-          "name": ".",
-          "platform": "access",
-          "source": "https://ss64.com/access/addmenu.html"
-        },
-        {
-          "name": ".",
-          "platform": "access",
-          "source": "https://ss64.com/access/clearmacroerror.html"
-        },
         {
           "name": ".AddNew",
           "platform": "access",
@@ -19066,6 +19176,11 @@
           "source": "https://ss64.com/access/sqr.html"
         },
         {
+          "name": "standard named CSS colours",
+          "platform": "access",
+          "source": "https://ss64.com/access/css-colours.txt"
+        },
+        {
           "name": "Str",
           "platform": "access",
           "source": "https://ss64.com/access/str.html"
@@ -19254,6 +19369,11 @@
           "name": "Year",
           "platform": "access",
           "source": "https://ss64.com/access/year.html"
+        },
+        {
+          "name": "zip file containing the above macro",
+          "platform": "access",
+          "source": "https://ss64.com/access/publisher.zip"
         }
       ]
     },
@@ -19261,7 +19381,7 @@
       "index": "https://ss64.com/tools/",
       "pages_crawled": 21,
       "fetch_failures": 0,
-      "command_count": 26,
+      "command_count": 28,
       "commands": [
         {
           "name": "Colour Mixer",
@@ -19324,6 +19444,11 @@
           "source": "https://ss64.com/tools/greek.html"
         },
         {
+          "name": "icons.zip",
+          "platform": "tools",
+          "source": "https://ss64.com/tools/icons.zip"
+        },
+        {
           "name": "Latitude",
           "platform": "tools",
           "source": "https://ss64.com/tools/latitude.html"
@@ -19382,6 +19507,11 @@
           "name": "Tools",
           "platform": "tools",
           "source": "https://ss64.com/tools/"
+        },
+        {
+          "name": "userChrome.css",
+          "platform": "tools",
+          "source": "https://ss64.com/tools/userchrome.css"
         },
         {
           "name": "Windows Locales",
