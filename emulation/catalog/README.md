@@ -1,28 +1,30 @@
-# Emulator & ROM Inventory
+# ChimeraIIOS Emulator Catalog
 
-This directory defines the ChimeraIIOS emulation asset model.
+The catalog separates **detected media**, **detected emulator binaries**, **BIOS candidates**, and **compatibility mappings**.
 
-## Files
+## Local scan
 
-- `known-emulators.json` — normalized emulator/system capability mapping.
-- `../README.md` — subsystem architecture and publication policy.
+Default Windows source:
 
-## Local catalog
+`C:\\tmp\\ChimeraIIOS\\ROMs`
 
 Run:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\emulation\scan-roms.ps1 -Root "C:\tmp\ChimeraIIOS\ROMs"
-```
+`powershell -ExecutionPolicy Bypass -File .\\tools\\emulation\\scan-roms.ps1`
 
-The command recursively scans the Windows directory and creates local catalogs containing filenames, sizes, timestamps, SHA-256 hashes, detected systems, and likely emulator candidates.
+Generated local-only files:
 
-## Matching
+- `roms.local.json`
+- `emulators.local.json`
+- `bios.local.json`
+- `compatibility.local.json`
 
-The scanner performs deterministic extension/system detection first. The compatibility manager then maps systems to known emulator capabilities. Exact version compatibility, BIOS requirements, CPU architecture, and license/provenance must be verified before a binary is published or launched.
+The scanner is recursive and records SHA-256, size, relative path, extension, detected system and provenance. Emulator matching is resolved against `known-emulators.json`, not just executable filenames.
 
-## Publishing
+BIOS classification is deliberately marked heuristic unless a content-signature database is available.
 
-Generated `*.local.json` catalogs are ignored by Git. They can safely describe a local collection without redistributing its contents.
+## Publication
 
-Only assets for which redistribution is authorized should enter `emulation/roms/authorized/` or `emulation/emulators/`. Those paths are configured for Git LFS.
+Do not commit or publish commercial/copyrighted ROMs, BIOS images, keys, firmware, or other material without redistribution rights. Unknown material remains metadata-only.
+
+Authorized large binaries belong under the repository's Git LFS policy. Emulator binaries must comply with their licenses.
