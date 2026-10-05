@@ -28,9 +28,6 @@ try {
   $compat = Get-Content (Join-Path $catalog "compatibility.local.json") -Raw | ConvertFrom-Json
   $emulators = Get-Content (Join-Path $catalog "emulators.local.json") -Raw | ConvertFrom-Json
   if (-not ($roms.roms | Where-Object { $_.name -eq "game.nes" })) { throw "NES ROM fixture was not indexed" }
-  if (-not ($compat.compatibility | Where-Object { $_.rom_path -eq "game.nes" -and $_.emulator_candidates -contains "mame" -eq $false })) {
-    # MAME is intentionally not an NES candidate; RetroArch/NES-native emulators are.
-  }
   $nes = $compat.compatibility | Where-Object { $_.rom_path -eq "game.nes" }
   if (-not ($nes.emulator_candidates -contains "retroarch")) { throw "Canonical emulator mapping missing for NES" }
   if (-not ($emulators.emulators | Where-Object { $_.name -eq "mame.exe" -and $_.likely_emulator_ids -contains "mame" })) {
