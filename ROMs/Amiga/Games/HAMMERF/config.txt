@@ -1,1 +1,0 @@
-use ecs13 with more compatibility and match a500 speed
