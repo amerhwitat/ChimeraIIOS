@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+REGISTRY="${CHIMERA_COMMAND_REGISTRY:-/usr/share/chimera/commands/chimera-arabic.json}"
+SELF="$(basename -- "${0}")"
+CANONICAL="${1:-}"
+if [[ "$CANONICAL" == "--canonical" ]]; then shift; CANONICAL="${1:-}"; shift || true; fi
+if [[ -z "$CANONICAL" && -f "$REGISTRY" ]] && command -v python3 >/dev/null 2>&1; then
+  CANONICAL="$(python3 - "$REGISTRY" "$SELF" <<'PY'
+import json,sys
+d=json.load(open(sys.argv[1],encoding="utf-8")); n=sys.argv[2]
+print(d.get("arabic_to_canonical",{}).get(n,""))
+PY
+)"
+fi
+[[ -n "$CANONICAL" ]] || { echo "chimera-cmd: unknown command alias: $SELF" >&2; exit 127; }
+[[ "$CANONICAL" != "chimera-cmd" && "$CANONICAL" != "$SELF" ]] || { echo "chimera-cmd: recursive mapping: $CANONICAL" >&2; exit 126; }
+command -v "$CANONICAL" >/dev/null 2>&1 || { echo "chimera-cmd: canonical provider not installed: $CANONICAL" >&2; exit 127; }
+exec "$CANONICAL" "$@"

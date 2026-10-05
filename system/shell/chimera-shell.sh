@@ -35,6 +35,9 @@ if command -v chimera >/dev/null 2>&1; then
   alias طرفية_شيميرا='chimera --lang ar shell'
 fi
 alias قائمة='ls'
+alias عرض='ls'
+alias اقرأ='cat'
+alias اعرض='cat'
 alias مجلد='ls'
 alias انتقل='cd'
 alias المسار='pwd'

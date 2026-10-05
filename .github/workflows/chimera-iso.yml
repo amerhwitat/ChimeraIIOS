@@ -27,6 +27,8 @@ on:
       - 'tests/**'
       - 'tools/portfolio/**'
       - 'tools/boot/**'
+      - 'tools/commands/**'
+      - 'system/**'
       - 'assets/boot/**'
       - '.github/workflows/chimera-iso.yml'
 
@@ -81,6 +83,12 @@ jobs:
           python3 -m json.tool /tmp/hardware.json >/dev/null
           python3 system/kore/kore.py system/kore/units.json >/tmp/kore.json
           python3 -m json.tool /tmp/kore.json >/dev/null
+      - name: Validate unified command registry and runtime model
+        run: |
+          python3 -m json.tool system/commands/chimera-arabic.json >/dev/null
+          python3 -m json.tool system/commands/chimera-command-list.json >/dev/null
+          python3 -m json.tool system/kore/chimera-unified-runtime-model.json >/dev/null
+          bash tools/commands/test-chimera-command-resolution.sh
       - name: Validate Aurora boot visual contract
         run: |
           python3 -m json.tool boot/visual/boot-visual-manifest.json >/dev/null
