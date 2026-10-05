@@ -11,7 +11,7 @@ if (-not (Test-Path $Root -PathType Container)) {
 }
 & $script -Root $Root
 $catalog = Join-Path (Resolve-Path "$PSScriptRoot\..\..").Path "emulation\catalog"
-foreach ($name in @("roms.local.json","emulators.local.json","compatibility.local.json")) {
+foreach ($name in @("roms.local.json","emulators.local.json","bios.local.json","compatibility.local.json")) {
   $path = Join-Path $catalog $name
   if (-not (Test-Path $path)) { throw "Missing generated catalog: $path" }
   Get-Content $path -Raw | ConvertFrom-Json | Out-Null
