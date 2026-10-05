@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "emulators": {
     "retroarch": ["Nintendo Entertainment System","Super Nintendo Entertainment System","Game Boy","Game Boy Color","Game Boy Advance","Nintendo 64","Sega Mega Drive / Genesis","Sega Master System","Arcade"],
-    "mame": ["Arcade"],
+    "mame": ["Arcade","MAME/CHD disk image"],
     "mednafen": ["PlayStation","PC Engine / TurboGrafx-16","Game Boy","Game Boy Advance","Sega Saturn"],
     "dolphin": ["Nintendo GameCube","Nintendo Wii"],
     "pcsx2": ["PlayStation 2"],
@@ -29,6 +29,11 @@
     "dosbox-x": ["DOS"],
     "qemu": ["Virtual machine"],
     "bochs": ["Virtual machine"],
-    "86box": ["IBM PC compatible"]
+    "86box": ["IBM PC compatible"],
+    "vice": ["Commodore"],
+    "fs-uae": ["Amiga"],
+    "aethersx2": ["PlayStation 2"],
+    "azahar": ["Nintendo 3DS"],
+    "lime3ds": ["Nintendo 3DS"]
   }
 }
