@@ -78,3 +78,7 @@ alias مساعدة_سس64='chimera --lang ar help'
 نفّذ() { command chimera --lang ar run "$@"; }
 شغّل() { command chimera --lang ar run "$@"; }
 شغل() { command chimera --lang ar run "$@"; }
+
+alias محاكي_شيميرا='chimera-emulator'
+alias روم_شيميرا='chimera-rom'
+alias فحص_روم_شيميرا='chimera-rom-scan'

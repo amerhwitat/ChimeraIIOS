@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "name": "chimera-emulation-runtime",
   "owner": "Koronos",
   "layers": {
@@ -9,9 +9,9 @@
     "presentation": "Aurora consumes emulator/media metadata and exposes launchable entries."
   },
   "resolution": [
-    "scan media and compute SHA-256",
-    "identify format/system",
-    "resolve compatible emulator candidates",
+    "recursively scan media and compute SHA-256",
+    "classify BIOS/ROM/media using extension plus optional content signature",
+    "resolve compatible emulator candidates from the canonical known-emulators catalog",
     "verify emulator provenance/license",
     "authorize media and emulator capabilities",
     "launch through the emulator manager"
@@ -19,6 +19,7 @@
   "safety": {
     "unknown_roms": "local_metadata_only",
     "authorized_roms": "eligible_for_lfs_or_release_assets",
-    "commercial_roms": "do_not_publish_without_redistribution_rights"
+    "commercial_roms": "do_not_publish_without_redistribution_rights",
+    "bios": "do_not_publish_without_redistribution_rights"
   }
 }

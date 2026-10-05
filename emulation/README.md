@@ -14,10 +14,11 @@ Run from the ChimeraIIOS repository:
 powershell -ExecutionPolicy Bypass -File .\\tools\\emulation\\scan-roms.ps1
 ```
 
-The scanner recursively inventories files, calculates SHA-256 hashes, detects common ROM/media formats, identifies likely emulator executables, and produces:
+The scanner recursively inventories files, calculates SHA-256 hashes, detects common ROM/media formats, identifies likely emulator executables, classifies BIOS candidates heuristically, resolves emulator candidates from `known-emulators.json`, and produces:
 
 - `emulation/catalog/roms.local.json`
 - `emulation/catalog/emulators.local.json`
+- `emulation/catalog/bios.local.json`
 - `emulation/catalog/compatibility.local.json`
 
 These generated local catalogs are intentionally ignored by Git by default because they may describe proprietary ROMs.

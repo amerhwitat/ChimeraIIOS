@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOT="${CHIMERA_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+SCANNER="$ROOT/tools/emulation/scan-roms.ps1"
+ROM_ROOT="${CHIMERA_ROM_ROOT:-C:\\tmp\\ChimeraIIOS\\ROMs}"
+if ! command -v pwsh >/dev/null 2>&1; then
+  echo "chimera-rom-scan: PowerShell (pwsh) is required" >&2
+  exit 127
+fi
+exec pwsh -NoProfile -File "$SCANNER" -Root "$ROM_ROOT" "$@"
