@@ -1,8 +1,8 @@
 #include "chimera/scheduler.h"
 #include <assert.h>
 #include <stdio.h>
-static int trace[16],trace_count,blocker_runs; static uint32_t blocked_id;
-static void high_task(void*){trace[trace_count++]=2;}
+static int trace[16],trace_count,blocker_runs; static uint32_t blocked_id,high_runs;
+static void high_task(void*){trace[trace_count++]=2;++high_runs;if(high_runs==1)chimera_sched_block();}
 static void low_task(void*){trace[trace_count++]=1;}
 static void blocker_task(void*){++blocker_runs;if(blocker_runs==1)chimera_sched_block();}
 int main(){
@@ -12,8 +12,9 @@ int main(){
     assert(low>0&&high>0);
     assert(chimera_sched_run_once(0)==1);
     assert(trace_count==1&&trace[0]==2);
+    assert(chimera_sched_runnable_count()==1);
     assert(chimera_sched_run_once(0)==1);
-    assert(trace_count==2&&trace[1]==2);
+    assert(trace_count==2&&trace[1]==1);
     chimera_sched_init(1); trace_count=0; blocker_runs=0;
     blocked_id=(uint32_t)chimera_sched_submit(blocker_task,nullptr,50);
     assert(blocked_id>0);
