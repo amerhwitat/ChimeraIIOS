@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 chimera_copy_if_distinct() {
     local src="$1"
