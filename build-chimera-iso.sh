@@ -55,6 +55,7 @@ ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 LOG_DIR="$BUILD_DIR/logs"
+LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-${TMPDIR:-/tmp}/chimera-build-logs-${UID:-$(id -u)}}"
 WATCHDOG_PID=""
 STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
@@ -65,17 +66,28 @@ STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
 
-mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
+mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
+
+# WSL/DrvFs can expose a drive as read-only even when it reports ample free space.
+# Never let logging/state writes turn the real Docker error into a secondary failure.
+ensure_log_dir(){
+  if ! mkdir -p "$LOG_DIR" 2>/dev/null || ! test -w "$LOG_DIR"; then
+    LOG_DIR="$LOG_FALLBACK_DIR"
+    mkdir -p "$LOG_DIR" 2>/dev/null || { echo "[ERROR] No writable build log directory; check WSL storage mounts." >&2; return 1; }
+    echo "[CHIMERA] Build logs redirected to $LOG_DIR because the selected storage is not writable." >&2
+  fi
+}
+ensure_log_dir
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
 log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
 log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
 log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
 log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
-log_file(){ mkdir -p "$LOG_DIR"; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log"; }
+log_file(){ ensure_log_dir || return 0; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log" 2>/dev/null || true; }
 log_both(){ log_info "$*"; log_file "$*"; }
 process_snapshot(){
-  mkdir -p "$LOG_DIR"
+  ensure_log_dir || return 0
   {
     echo "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) PROCESS SNAPSHOT ====="
     echo "-- host processes --"
@@ -93,7 +105,8 @@ process_snapshot(){
   } >> "$LOG_DIR/process-snapshots.log" 2>&1
 }
 start_watchdog(){
-  LOG_DIR="$BUILD_DIR/logs"; mkdir -p "$LOG_DIR"; stop_watchdog || true
+  stop_watchdog || true
+  ensure_log_dir || return 0
   local label="$1" interval="${CHIMERA_BUILD_WATCHDOG_INTERVAL:-5}"
   (while :; do log_both "[WATCHDOG] $label still active"; process_snapshot; sleep "$interval"; done) &
   WATCHDOG_PID=$!
@@ -131,17 +144,42 @@ fi
 
 free_bytes(){ df -PB1 "$1" 2>/dev/null | awk 'NR==2{print $4}'; }
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
+is_writable_dir(){
+  local dir="$1" probe
+  [[ -d "$dir" && -w "$dir" ]] || return 1
+  probe="$(mktemp "$dir/.chimera-write-test.XXXXXX" 2>/dev/null)" || return 1
+  rm -f "$probe" 2>/dev/null || return 1
+  return 0
+}
 is_wsl(){ grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null || [[ -n "${WSL_INTEROP:-}" ]] || [[ -d /mnt/wsl ]]; }
 choose_storage(){
   local need="${1:-20}"; local best="" free path
   if is_wsl; then
-    for path in /mnt/*; do [[ -d "$path" ]] || continue; free="$(free_gib "$path")"; ((free>=need)) && [[ "$path" != /mnt/c ]] && { best="$path"; break; }; done
+    for path in /mnt/*; do
+      [[ -d "$path" ]] || continue
+      free="$(free_gib "$path")"
+      ((free>=need)) || continue
+      is_writable_dir "$path" || { log_warning "Skipping non-writable storage candidate: $path"; continue; }
+      [[ "$path" != /mnt/c ]] || continue
+      best="$path"; break
+    done
   else
-    while read -r path; do free="$(free_gib "$path")"; ((free>=need)) && { best="$path"; break; }; done < <(findmnt -rn -o TARGET 2>/dev/null | grep -Ev '^/(proc|sys|dev|run)(/|$)')
+    while read -r path; do
+      free="$(free_gib "$path")"
+      ((free>=need)) || continue
+      is_writable_dir "$path" || { log_warning "Skipping non-writable storage candidate: $path"; continue; }
+      best="$path"; break
+    done < <(findmnt -rn -o TARGET 2>/dev/null | grep -Ev '^/(proc|sys|dev|run)(/|$)')
+  fi
+  if [[ -z "$best" ]] && is_writable_dir "$HOME"; then
+    free="$(free_gib "$HOME")"
+    ((free>=need)) && best="$HOME"
   fi
   [[ -n "$best" ]] || return 1
   BUILD_DIR="$best/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$best/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
-  mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
+  mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" || return 1
+  LOG_DIR="$BUILD_DIR/logs"
+  ensure_log_dir || return 1
   export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
   log_success "Build storage switched to $best"
 }
@@ -150,7 +188,7 @@ preflight(){
   local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
   if ((rg<20 || og<20)); then
-    if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable larger storage found'; exit 1; }
+    if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable writable storage with enough free space found'; log_error 'A read-only /mnt drive is never selected automatically.'; exit 1; }
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
@@ -160,8 +198,8 @@ preflight(){
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
 }
 state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
-state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE"; }
-state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE"; }
+state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."; }
+state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
   local order='docker rootfs boot branding apache features games squashfs iso verify report'; local ci ti
@@ -453,5 +491,5 @@ main(){
   done
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE"; fi; exit "$rc"' EXIT
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
