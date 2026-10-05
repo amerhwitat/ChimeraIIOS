@@ -122,3 +122,6 @@ desktop.ini
 build.log
 cmake.log
 docker-build.log
+
+# ChimeraIIOS emulator inventories (local-only)
+emulation/catalog/*.local.json
