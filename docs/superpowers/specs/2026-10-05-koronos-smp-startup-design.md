@@ -12,6 +12,8 @@ The current source detects logical CPU count but brings only CPU 0 online. The r
 
 The repository also contains `Mobile Microkernel` (ARM64 and RISC-V contracts), a Mobile Edition runtime, and mobile sync/validation manifests. Shared scheduler and service-graph behavior must be reflected in those targets; x86_64 AP startup code cannot be copied into a different architecture and described as working.
 
+The related boot-menu/firmware-to-kernel artifact contract is specified separately in `2026-10-05-graphical-boot-menus-and-kernel-handoff-design.md`; implement and validate that handoff before using framebuffer-based boot-stage measurements.
+
 ## Proposed boot model
 
 ### CPU discovery and bring-up
