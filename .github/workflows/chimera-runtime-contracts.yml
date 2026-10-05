@@ -1,0 +1,47 @@
+name: Chimera Runtime Contracts
+on:
+  push:
+    paths:
+      - "system/kore/**"
+      - "mobile/microkernel-mobile-edition.json"
+      - "mobile/device-profile.schema.json"
+      - "kernel/include/chimera/process.h"
+      - "kernel/core/process.cpp"
+      - "kernel/tests/process_admission.cpp"
+      - "desktop/aurora/aurora-launcher.cpp"
+      - ".github/workflows/chimera-runtime-contracts.yml"
+  pull_request:
+    paths:
+      - "system/kore/**"
+      - "mobile/**"
+      - "kernel/include/chimera/process.h"
+      - "kernel/core/process.cpp"
+      - "kernel/tests/process_admission.cpp"
+      - "desktop/aurora/aurora-launcher.cpp"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate runtime JSON contracts
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          files=[
+            "system/kore/chimera-process-runtime.json",
+            "system/kore/chimera-boot-to-aurora-runtime.json",
+            "mobile/microkernel-mobile-edition.json",
+            "mobile/device-profile.schema.json",
+          ]
+          for f in files:
+            json.loads(pathlib.Path(f).read_text())
+            print("[PASS]",f)
+          PY
+      - name: Compile process admission regression
+        run: |
+          g++ -std=c++17 -I kernel/include             kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp             -o /tmp/chimera-process-admission
+          /tmp/chimera-process-admission
+      - name: Compile Aurora launcher
+        run: |
+          g++ -std=c++17 -Wall -Wextra desktop/aurora/aurora-launcher.cpp -o /tmp/aurora-launcher
+          /tmp/aurora-launcher missing-app >/tmp/aurora-launcher.log 2>&1 && exit 1 || true
