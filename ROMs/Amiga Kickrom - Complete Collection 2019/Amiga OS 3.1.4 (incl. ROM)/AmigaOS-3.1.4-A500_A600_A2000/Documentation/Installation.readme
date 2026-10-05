@@ -1,0 +1,297 @@
+Installing Os 3.1.4
+--------------------
+
+The version 3.1.4 of the Amiga operating system comes in two packaging options:
+- with a Kickstart ROM chip included, and additional disks
+- disk based only.
+Please review carefully which option you purchased. Note further that the ROM
+is model-specific, and ROMs cannot be changed between models.
+
+If you bought a package including a ROM chip, it is advisable to first upgrade
+the ROM to the newer version, and then install the operating system from disk.
+Otherwise, a lot of extra data will be copied that is not strictly necessary.
+
+As a preparation, ensure that you have the following:
+
+*) the new ROM chip or chips, for the right machine you want to upgrade,
+   if the ROM upgrade had been purchased.
+   
+*) a wooden or plastic pry tool for ROM upgrades
+
+*) the new Os installation disks. This set should consist of the following
+   disks:
+	- Install3.1.4
+	- Workbench3.1.4
+	- Extras3.1.4
+	- Storage3.1.4
+	- Fonts
+	- Locale
+	
+*) for a disk-based only installation, *one* of the following additional
+   disks are required:
+   	- ModulesA500_3.1.4
+	- ModulesA600_3.1.4
+	- ModulesA1200_3.1.4
+	- ModulesA2000_3.1.4
+	- ModulesA3000_3.1.4
+	- ModulesA4000D_3.1.4
+	- ModulesA4000T_3.1.4
+   Note that the modules disk contain model-specific data that replace
+   modules in the legacy ROM. The modules disk need to fit to the
+   Amiga model you want to upgrade.
+   
+*) in case your system is equipped with a 68030, 68040 or 68060 CPU,
+   additional support software is likely required. This support
+   software typically came with your turbo board on a disk. This disk
+   is required for completing the installation as well as it contains
+   an important system component, namely a CPU library. Unfortunately,
+   most if not all 68030 turbo boards do not provide such a support
+   library, a third-party library then becomes necessary.
+
+   Some boards include the 68040.library and/or 68060.library in their
+   firmware ROM. For such boards, no additional installation step is
+   necessary. Consult the manual of your turbo board for further details.
+
+   In case you lost the original installation disk, or you own a 68030
+   based board, a generic third party library is necessary. The Aminet
+   contains such support libraries in the following package:
+
+   http://aminet.net/package/util/libs/MMULib.lha
+
+   In case you no longer have the original installation disks of your
+   board, download this package, and unpack its contents to a disk
+   *before* attempting the installation.
+
+
+A) ROM chip installation:
+--------------------------
+
+Turn off your Amiga computer, and separate it from the power
+supply. Loosen the screws. Remember where each screw goes, and put
+them aside. Locate the ROMs.  Depending on your model, the ROMs may be
+under the drive bay, so some further disassembly may be required. On
+some models, two ROM chips are required. These are marked on the
+motherboard as "A" and "B" ROMs. If there are two ROMs, check
+carefully which ROM goes in which location. Also, the ROM chips have a
+tiny notch on one side. The replacement ROMs need to go into the same
+position, with the notch at the same side. Carefully check where the
+notch is. Also, on some systems, the ROM socket may be larger than the
+ROM chip itself, i.e.  some contacts remain empty. In such a case,
+check carefully which contacts of the socket are empty. The new ROM
+needs to go into exactly the same contacts, with exactly the same
+orientation. Finally, take a picture of the ROM assembly for later
+reference.
+
+After disassembly of the system, the old ROM chips have to be
+removed. This is ideally done with a plastic or wooden stick. Avoid
+using metal tools as this may scratch and damage the motherboard. Pry
+out the ROM chips by inserting the stick under one side of the ROM,
+apply some force, then remove the stick, insert it again at the other
+side, apply some force again. Avoid forcing the ROMs too much at once
+as this may bend or damage their pins. By repeating this procedure two
+or three times, the old ROMs should come loose. Put the old chips
+aside.
+
+Before inserting the new chips, check whether they fit into the socket
+and the pins align nicely into the holes of the socket. Do not yet
+force the ROM chip in!  It is rather typical that the pins have to be
+bend a little bit to the inside to make them fit. For that, lay the
+ROM sideways on a flat table such that the pins of one side align with
+the surface, then carefully bend the pins inwards. Turn the chip over,
+apply the same procedure again. Check again whether the pins now fit into
+the socket, and re-apply the procedure if necessary.
+
+Before inserting the ROM chips, review again their orientation and
+alignment. Consult the photo taken before removing the old chips. The
+notch on the chip needs to go into the place where the old notch of
+the old ROM chip pointed to, and in case your machine uses a pair of
+ROMs, note where the A and where the B chip goes. Also, if the socket
+has more contacts than the ROM chips have pins, consult the photo into
+which contacts the pins have to go.
+
+If you are sure each ROM is in the right place, and has the right
+orientation, push the chip down by applying force on both sides of it,
+and check carefully that all pins fit into the socket. If not, bend
+the pins as described above. The ROM should snap in nicely without too
+much force.
+
+Once done, review again whether the chips are in right place in right
+orientation by comparing the new assembly with the photo taken before
+the installation, then re-assemble the machine. If you turn the
+machine on, it should, depending on the existing installation, either
+come up with the magenta boot screen showing the white and red "Boing
+Ball", or should boot to an empty screen saying "Please insert a disk
+containing Libs/workbench.library in any drive". If so, installation
+of the ROMs is successful and you can continue with step B)
+below. Note that it is normal that the machine does not boot to
+workbench at this point.
+
+If you only see a black, white or single-colored screen instead, turn
+off the machine again, remove the power supply, and re-open it. Then
+check carefully if the ROMs are located in the right place, in the right
+position, and that all pins make contact in the socket. If not so,
+remove them again with the procedure described above.
+
+B) Workbench installation
+--------------------------
+
+To install the new workbench, regardless of whether you have a new ROM
+or not, turn the machine off first. Then locate the disk labeled
+"Install_3.1.4". Put this disk into a disk-drive, then turn the machine on.
+It should now boot to a workbench.
+
+Double-click on the "Install_3.1.4" icon, in the newly opened window
+then click on the "Install" drawer, then double-click on "English" for
+an English installation, or "Deutsch" for the German installation.
+
+The installer will guide you through the installation process. It will
+also copy the binaries from the current installation to a directory
+named "Old" (or "Alt" for German) on the hard disk. Please follow the
+installation process, and insert disks as requested.
+
+
+C) Installation of CPU support libraries
+----------------------------------------
+
+If your system is equipped with a turbo-card equipped with a 68030,
+68040 or 68060 CPU, the installation will not reboot the machine, but
+will stop with a warning. THIS IS NORMAL. These CPUs require
+additional support by a vendor-specific library that needs to go into
+the "LIBS" directory of the installation target. This library is
+vendor-specific, which is why no such library is included in the
+distribution. Beware, even the 68030 requires some support.
+
+If you received installation disks with your turbo card, insert them
+now and follow the instructions of the manual to copy the support
+library to the right place. If there are no instructions, the following
+steps *may* typically be sufficient:
+
+*) If the support disks of your board include an installation script,
+   double click on the installation icon on this disk and follow the
+   instructions on the screen. In particular, the generic package
+   described in D) comes with such an installation script that should
+   be used instead of manual installation.
+   
+*) If no installation script is available, try the following steps:
+-  Insert the support disk that came with your board into the first
+   disk drive.
+-  From the workbench menu, select "Execute command"
+-  Enter the following:
+   copy df0:libs/680?0.library to DH0:Libs
+-  Then press the Execute button.
+
+Note that this assumes that your your installation target is denoted
+"DH0:". This may require substitution if your target hard disk is
+called differently. Also, only the 68040 or the 68060 library is
+required, depending on the type of the CPU on your board. Installing
+both does not harm the installation, though.
+
+NOTE: Previous versions of the workbench may have required the
+installation of a "68040 dummy library". This is no longer the case
+for this release of the operating system.
+
+
+D) Installation of generic CPU support libraries
+-------------------------------------------------
+
+68030 boards typically do not come with a CPU library, even though it
+is advisable to install one to work around some CPU errata. If you
+have an 68030, or do not have access to the installation disk of your
+turbo board any more, follow the instructions in this section.  Note
+that this requires that you have Internet access, and a method to
+transfer files to either an Amiga floppy or to the installation
+target. Providing tools to download files from the Internet is beyond
+this manual.
+
+The Aminet contains generic CPU library support in the following
+package:
+
+http://aminet.net/util/libs/MMULib.lha
+
+Download this package, and unpack it. Copy the contents of the
+"MMULib" directory to a disk, and carry this disk over to the machine
+to install it on. Double-click on the disk icon, then double-click on
+the "Install" drawer, then double-click again on "Install". Then
+follow the instructions on the screen.
+
+Expert users: As the result of this installation, the following files
+should have been copied to the target machine:
+
+- The CPU library (68030.library, 68040.library or 68060.library)
+- The generic CPU support code (680x0.library)
+- The MMU support code (mmu.library)
+- The MMU configuration (ENVARC:MMU-Configuration)
+
+
+E) Rebooting
+------------
+
+Once all data is installed, reboot the machine. It should now come up
+with the new workbench. You may have to re-arrange icons to your liking,
+and may have to adjust the preferences.
+
+
+F) Additional features
+----------------------
+
+The modules disk contain an optional extension of the intuition system
+library that is responsible for the graphical user interface. Enabling
+this extension will allow you to drag windows partially off the screen.
+
+Unfortunately, this new version of the library is incompatible with the
+CyberGraphics system, and is therefore disabled by default. It is compatible
+to the P96 graphics system.
+
+To install and enable this feature in case you do not use CyberGraphics,
+perform the following steps:
+
+*) For the ROM-based installation process, you first need to copy the
+   new system component to your system. For that, insert any of the
+   modules disks into the first disk drive, then select "Execute command"
+   from the workbench menu, and enter the following command:
+
+   copy df0:libs/intuition-v45.library to LIBS:intuition.library clone
+
+*) For the ROM-based installation, the startup-sequence of your system
+   requires a modification. To perform this installation, select again
+   "Execute command" from the workbench menu, and enter the following
+   command:
+
+   Ed S:Startup-Sequence
+
+   A window containing the startup script of your system will open.
+   The first lines on the screen should read as follows:
+
+   If Exists C:LoadModule
+      C:Version exec.library version 45 >NIL:
+      If Warn
+      	 C:LoadModule ROMUPDATE
+      EndIf
+   EndIf
+
+   Replace them by the following:
+
+   C:LoadModule ROMUPDATE
+
+   Then save the result back to disk by pressing the ESC key, then
+   the x key, then press return. Then reboot.
+
+*) For the disk-based installation, the system component is installed
+   already, but need to be renamed. For that, select "Execute command"
+   from the workbench menu, and enter the following:
+
+   rename LIBS:intuition-v45.library LIBS:intuition.library
+
+   Then select "Execute command" from the same menu again, and enter
+   the following:
+
+   LoadModule remove
+
+   This will reboot the machine and load the new system component.
+
+
+G) Troubleshooting
+------------------
+
+You find answers to frequently asked questions in the FAQ.
+

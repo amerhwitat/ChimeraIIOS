@@ -1,0 +1,428 @@
+; Now we start asking for 3.1.4 floppies and copying files to SYS:
+
+; Floppy swapping and copying.
+
+echo ""
+echo "Please insert the floppy labeled 'INSTALL3.1.4' and wait a few minutes..."
+lab repeatin
+failat 21
+if exists Install3.1.4:
+
+; We need to have copytooltype in memory
+
+     Resident Install3.1.4:c/copytooltypes PURE 
+  
+; Lets start file copying
+
+     copy Install3.1.4:HDTools/HDToolBox sys:Tools clone buf 10
+     copytooltypes Install3.1.4:HDTools/HDToolBox sys:Tools/HDToolBox 
+     copy Install3.1.4:Installer sys:system clone buf 10 all
+     copy Install3.1.4:libs/workbench.library sys:libs clone buf 10
+     copy Install3.1.4:libs/icon.library sys:libs clone buf 10
+     copy Install3.1.4:Update/Startup-HardDrive sys:s/Startup-Sequence clone buf 10
+     copy Install3.1.4:L/FastFileSystem sys:L clone buf 10
+     skip indone
+endif
+skip repeatin back
+lab indone
+
+; We need the modules disk
+
+echo ""
+echo "Please insert in DF0: the floppy labeled 'MODULES' that matches your machine model"
+lab repeatmo
+if exists df0:devs/audio.device
+   copy df0: sys: clone buf 10 all
+   skip modone
+endif
+skip repeatmo back
+
+lab modone
+
+echo ""
+echo "Please insert the floppy labeled 'WORKBENCH3.1.4' and wait a few minutes..."
+lab repeatwb
+if exists Workbench3.1.4:
+        
+        copy Workbench3.1.4:c/#? sys:c clone buf 10 all
+        copy Workbench3.1.4:classes/#? sys:classes clone buf 10 all
+        copy Workbench3.1.4:Libs/#? sys:Libs clone buf 10 all
+        copy Workbench3.1.4:Rexxc/#? sys:Rexxc clone buf 10 all
+        copy Workbench3.1.4:s/shell-startup sys:s clone buf 10
+        copy Workbench3.1.4:devs/clipboard.device sys:devs clone buf 10
+        copy Workbench3.1.4:devs/mfm.device sys:devs clone buf 10
+        copy Workbench3.1.4:devs/parallel.device sys:devs clone buf 10
+        copy Workbench3.1.4:devs/postscript_init.ps sys:devs clone buf 10
+        copy Workbench3.1.4:devs/printer.device sys:devs clone buf 10
+        copy Workbench3.1.4:devs/serial.device sys:devs clone buf 10
+        copy Workbench3.1.4:devs/system-configuration sys:devs clone buf 10
+        copy Workbench3.1.4:devs/datatypes/8svx sys:devs/datatypes clone buf 10
+        copytooltypes Workbench3.1.4:Devs/Datatypes/8svx sys:Devs/Datatypes/8svx
+        copy Workbench3.1.4:devs/datatypes/amigaguide sys:devs/datatypes clone buf 10
+        copytooltypes Workbench3.1.4:Devs/Datatypes/amigaguide sys:Devs/Datatypes/amigaguide
+        copy Workbench3.1.4:devs/datatypes/anim sys:devs/datatypes clone buf 10 
+        copytooltypes Workbench3.1.4:Devs/Datatypes/anim sys:Devs/Datatypes/anim
+        copy Workbench3.1.4:devs/datatypes/cdxl sys:devs/datatypes clone buf 10 
+        copytooltypes Workbench3.1.4:Devs/Datatypes/cdxl sys:Devs/Datatypes/cdxl
+        copy Workbench3.1.4:devs/datatypes/ftxt sys:devs/datatypes clone buf 10 
+        copytooltypes Workbench3.1.4:Devs/Datatypes/ftxt sys:Devs/Datatypes/ftxt
+        copy Workbench3.1.4:devs/datatypes/ilbm sys:devs/datatypes clone buf 10 
+        copytooltypes Workbench3.1.4:Devs/Datatypes/ilbm sys:Devs/Datatypes/ilbm
+        copy Workbench3.1.4:Devs/Dosdrivers/pipe sys:Devs/dosdrivers/pipe clone buf 10
+        copytooltypes Workbench3.1.4:Devs/dosdrivers/pipe sys:Devs/Dosdrivers/pipe
+        copy Workbench3.1.4:Devs/printers/generic sys:storage/printers clone buf 10
+        copytooltypes Workbench3.1.4:Devs/printers/generic sys:storage/printers/generic
+        copy Workbench3.1.4:prefs/env-archive/sys/wbconfig.prefs sys:prefs/env-archive/sys clone buf 10
+        copy Workbench3.1.4:system/cli sys:system/ clone buf 10
+        copy Workbench3.1.4:system/diskcopy sys:system/ clone buf 10
+        copy Workbench3.1.4:system/fixfonts sys:system/ clone buf 10
+        copytooltypes Workbench3.1.4:system/fixfonts sys:system/fixfonts
+        copy Workbench3.1.4:system/format sys:system/ clone buf 10
+        copytooltypes Workbench3.1.4:system/format sys:system/format
+        copy Workbench3.1.4:system/rexxmast sys:system/ clone buf 10
+        copytooltypes Workbench3.1.4:system/rexxmast sys:system/rexxmast
+        copytooltypes Workbench3.1.4:system/shell sys:system/shell
+        copy Workbench3.1.4:utilities/clock sys:utilities clone buf 10
+        copytooltypes Workbench3.1.4:utilities/clock sys:utilities/clock
+        copy Workbench3.1.4:utilities/more sys:utilities clone buf 10
+        copy Workbench3.1.4:utilities/multiview sys:utilities clone buf 10
+        copytooltypes Workbench3.1.4:utilities/multiview sys:utilities/multiview    
+ skip wbdone
+endif
+skip repeatwb back
+lab wbdone
+
+echo ""
+echo "Please insert the floppy labeled 'EXTRAS3.1.4' and wait a few minutes..."
+lab repeatex
+if exists Extras3.1.4:
+        copy Extras3.1.4:c/#? sys:c clone buf 10 All
+        copy Extras3.1.4:l/#? sys:l clone buf 10 All
+        copy Extras3.1.4:libs/#? sys:libs clone buf 10 All
+        copy Extras3.1.4:s/#? sys:s clone buf 10 All
+        copy Extras3.1.4:system/intellifont sys:system clone buf 10
+        copytooltypes Extras3.1.4:system/intellifont sys:system/intellifont
+        copy Extras3.1.4:system/nofastmem sys:system clone buf 10
+        copytooltypes Extras3.1.4:system/nofastmem sys:system/nofastmem
+        copy Extras3.1.4:prefs/workbench sys:prefs clone buf 10
+        copytooltypes Extras3.1.4:prefs/workbench sys:prefs/workbench
+        copy Extras3.1.4:tools/calculator sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/calculator sys:tools/calculator
+        copy Extras3.1.4:tools/cmd sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/cmd sys:tools/cmd
+        copy Extras3.1.4:tools/graphicdump sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/graphicdump sys:tools/graphicdump
+        copy Extras3.1.4:tools/initprinter sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/initprinter sys:tools/initprinter
+        copy Extras3.1.4:tools/keyshow sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/keyshow sys:tools/keyshow
+        copy Extras3.1.4:tools/prepcard sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/prepcard sys:tools/prepcard
+        copy Extras3.1.4:tools/printfiles sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/printfiles sys:tools/printfiles
+        copy Extras3.1.4:tools/showconfig sys:tools clone buf 10
+        copytooltypes Extras3.1.4:tools/showconfig sys:tools/showconfig
+        copy Extras3.1.4:tools/commodities/autopoint sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/autopoint sys:tools/commodities/autopoint
+        copy Extras3.1.4:tools/commodities/blanker sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/blanker sys:tools/commodities/blanker
+        copy Extras3.1.4:tools/commodities/clicktofront sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/clicktofront sys:tools/commodities/clicktofront
+        copy Extras3.1.4:tools/commodities/crossdos sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/crossdos sys:tools/commodities/crossdos
+        copy Extras3.1.4:tools/commodities/exchange sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/exchange sys:tools/commodities/exchange
+        copy Extras3.1.4:tools/commodities/fkey sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/fkey sys:tools/commodities/fkey
+        copy Extras3.1.4:tools/commodities/mouseblanker sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/mouseblanker sys:tools/commodities/mouseblanker
+        copy Extras3.1.4:tools/commodities/nocapslock sys:tools/commodities clone buf 10
+        copytooltypes Extras3.1.4:tools/commodities/nocapslock sys:tools/commodities/nocapslock
+
+;--------------------------This section is exclusively for AmigaOS 3.1---------------------
+
+copy Extras3.1.4:tools/iconedit sys:tools clone buf 10
+copytooltypes Extras3.1.4:tools/iconedit sys:tools/IconEdit
+copy Extras3.1.4:prefs/Asl sys:prefs clone buf 10
+copy Extras3.1.4:prefs/Font sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Font sys:prefs/Font
+copy Extras3.1.4:prefs/Icontrol sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Icontrol sys:prefs/Icontrol
+copy Extras3.1.4:prefs/Input sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Input sys:prefs/Input
+copy Extras3.1.4:prefs/Locale sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Locale sys:prefs/Locale
+copy Extras3.1.4:prefs/Overscan sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Overscan sys:prefs/Overscan
+copy Extras3.1.4:prefs/Palette sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Palette sys:prefs/Palette
+copy Extras3.1.4:prefs/Pointer sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Pointer sys:prefs/Pointer
+copy Extras3.1.4:prefs/Printer sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Printer sys:prefs/Printer
+copy Extras3.1.4:prefs/PrinterGfx sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/PrinterGfx sys:prefs/PrinterGfx
+copy Extras3.1.4:prefs/PrinterPS sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/PrinterPS sys:prefs/PrinterPS
+copy Extras3.1.4:prefs/ScreenMode sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/ScreenMode sys:prefs/ScreenMode
+copy Extras3.1.4:prefs/Serial sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Serial sys:prefs/Serial
+copy Extras3.1.4:prefs/Sound sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/Sound sys:prefs/Sound
+copy Extras3.1.4:prefs/Time sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/time sys:prefs/Time
+copy Extras3.1.4:prefs/WBPattern sys:prefs clone buf 10
+copytooltypes Extras3.1.4:prefs/WBPattern sys:prefs/WBPattern
+copy Extras3.1.4:prefs/Workbench.info sys:prefs clone buf 10
+copy Extras3.1.4:prefs/Asl.info sys:prefs clone buf 10
+
+;------------------------------End of AmigaOS 3.1 exclusive section------------------------
+
+ skip exdone
+endif
+skip repeatex back
+lab exdone
+
+echo ""
+echo "Please insert the floppy labeled 'STORAGE3.1.4' and wait a few minutes..."
+lab repeatst
+if exists Storage3.1.4:
+
+; Copy dosdrivers which are going to reside in the storage drawer
+
+      copy Storage3.1.4:DOSDrivers/AUX sys:Storage/DOSDrivers clone buf 10
+      copytooltypes Storage3.1.4:DOSDrivers/AUX sys:Storage/DOSDrivers/AUX
+      copy Storage3.1.4:DOSDrivers/CD0 sys:Storage/DOSDrivers clone buf 10
+      copytooltypes Storage3.1.4:DOSDrivers/CD0 sys:Storage/DOSDrivers/CD0
+      copy Storage3.1.4:DOSDrivers/PC0 sys:Storage/DOSDrivers clone buf 10
+      copytooltypes Storage3.1.4:DOSDrivers/PC0 sys:Storage/DOSDrivers/PC0
+      copy Storage3.1.4:DOSDrivers/PC1 sys:Storage/DOSDrivers clone buf 10 
+      copytooltypes Storage3.1.4:DOSDrivers/PC1 sys:Storage/DOSDrivers/PC1
+      copy Storage3.1.4:DOSDrivers/RAD sys:Storage/DOSDrivers clone buf 10
+      copytooltypes Storage3.1.4:DOSDrivers/RAD sys:Storage/DOSDrivers/RAD
+
+; Copy the new glowicons
+      
+      makedir sys:Storage/glowicons
+      copy Storage3.1.4:glowicons sys:Storage/glowicons clone buf 10 all
+
+; Consolidate keymaps
+      
+      copy sys:storage/keymaps/#? sys:Devs/keymaps clone buf 10 all
+      delete sys:storage/keymaps/#? force
+
+; Copy new keymaps
+      
+      copy Storage3.1.4:Keymaps/cdn sys:Devs/keymaps clone buf 10 
+      copytooltypes Storage3.1.4:Keymaps/cdn sys:Devs/keymaps/cdn
+      copy Storage3.1.4:Keymaps/ch1 sys:Devs/keymaps clone buf 10 
+      copytooltypes Storage3.1.4:Keymaps/ch1 sys:Devs/keymaps/ch1
+      copy Storage3.1.4:Keymaps/ch2 sys:Devs/keymaps clone buf 10 
+      copytooltypes Storage3.1.4:Keymaps/ch2 sys:Devs/keymaps/ch2
+      copy Storage3.1.4:Keymaps/d sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/d sys:Devs/keymaps/d
+      copy Storage3.1.4:Keymaps/dk sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/dk sys:Devs/keymaps/dk
+      copy Storage3.1.4:Keymaps/e sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/e sys:Devs/keymaps/e
+      copy Storage3.1.4:Keymaps/f sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/f sys:Devs/keymaps/f
+      copy Storage3.1.4:Keymaps/gb sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/gb sys:Devs/keymaps/gb
+      copy Storage3.1.4:Keymaps/i sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/i sys:Devs/keymaps/i
+      copy Storage3.1.4:Keymaps/n sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/n sys:Devs/keymap/n
+      copy Storage3.1.4:Keymaps/po sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/po sys:Devs/keymaps/po
+      copy Storage3.1.4:Keymaps/s sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/s sys:Devs/keymaps/s
+      copy Storage3.1.4:Keymaps/usa2 sys:Devs/keymaps clone buf 10
+      copytooltypes Storage3.1.4:Keymaps/usa2 sys:Devs/keymaps/usa2
+      
+; Copy new monitors
+      
+      copy Storage3.1.4:Monitors/A2024 sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/A2024 sys:Storage/Monitors/A2024
+      copy Storage3.1.4:Monitors/DblNTSC sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/DblNTSC sys:Storage/Monitors/DblNTSC
+      copy Storage3.1.4:Monitors/DblPAL sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/DblPAL sys:Storage/Monitors/DblPAL
+      copy Storage3.1.4:Monitors/Euro36 sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/Euro36 sys:Storage/Monitors/Euro36
+      copy Storage3.1.4:Monitors/Euro72 sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/Euro72 sys:Storage/Monitors/Euro72
+      copy Storage3.1.4:Monitors/Multiscan sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/Multiscan sys:Storage/Monitors/Multiscan
+      copy Storage3.1.4:Monitors/NTSC sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/NTSC sys:Storage/Monitors/NTSC
+      copy Storage3.1.4:Monitors/PAL sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/PAL sys:Storage/Monitors/PAL 
+      copy Storage3.1.4:Monitors/Super72 sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/Super72 sys:Storage/Monitors/Super72
+      copy Storage3.1.4:Monitors/VGAOnly sys:Storage/Monitors clone buf 10
+      copytooltypes Storage3.1.4:Monitors/VGAOnly sys:Storage/Monitors/VGAOnly
+      
+; Check which is the existing monitor being used and copy it to devs:monitors
+      
+      if exists sys:devs/Monitors/a2024
+         copy sys:storage/monitors/a2024(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/a2024(|.info) force
+      endif
+      if exists sys:devs/Monitors/DblNTSC
+         copy sys:storage/monitors/DblNTSC(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/DblNTSC(|.info) force
+      endif
+      if exists sys:devs/Monitors/DblPAL
+         copy sys:storage/monitors/DblPAL(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/DblPAL(|.info) force
+      endif
+      if exists sys:devs/Monitors/Euro36
+         copy sys:storage/monitors/Euro36(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/Euro36(|.info) force
+      endif
+      if exists sys:devs/Monitors/Euro72
+         copy sys:storage/monitors/Euro72(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/Euro72(|.info) force
+      endif
+      if exists sys:devs/Monitors/Multiscan
+         copy sys:storage/monitors/Multiscan(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/Multiscan(|.info) force
+      endif
+      if exists sys:devs/Monitors/NTSC
+         copy sys:storage/monitors/NTSC(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/NTSC(|.info) force
+      endif
+      if exists sys:devs/Monitors/PAL
+         copy sys:storage/monitors/PAL(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/PAL(|.info) force
+      endif
+      if exists sys:devs/Monitors/Super72
+         copy sys:storage/monitors/Super72(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/Super72(|.info) force
+      endif
+      if exists sys:devs/Monitors/VGAOnly
+         copy sys:storage/monitors/VGAOnly(|.info) sys:devs/monitors clone buf 10
+         delete sys:storage/monitors/VGAOnly(|.info) force
+      endif
+; Printer drivers section
+        
+; Consolidate printer drivers 
+       
+        copy sys:storage/printers/#? sys:devs/printers clone buf 10
+        delete sys:storage/printers/#? force
+
+; Delete unneeded drivers (drivers which are incorporated now into new ones)
+               
+        delete sys:devs/printers/hp_deskjet_200c(|.info) force
+        delete sys:devs/printers/hp_deskjet_310(|.info) force
+        delete sys:devs/printers/hp_deskjet_320(|.info) force
+        delete sys:devs/printers/hp_deskjet_400l(|.info) force
+        delete sys:devs/printers/hp_deskjet_420(|.info) force
+        delete sys:devs/printers/hp_deskjet_420c(|.info) force
+        delete sys:devs/printers/hp_deskjet_500(|.info) force
+        delete sys:devs/printers/hp_deskjet_500c(|.info) force
+        delete sys:devs/printers/hp_deskjet_510(|.info) force
+        delete sys:devs/printers/hp_deskjet_520(|.info) force
+        delete sys:devs/printers/hp_deskjet_540c(|.info) force
+        delete sys:devs/printers/hp_deskjet_550c(|.info) force
+        delete sys:devs/printers/hp_deskjet_560c(|.info) force
+        delete sys:devs/printers/hp_deskjet_610c(|.info) force
+        delete sys:devs/printers/hp_deskjet_612c(|.info) force
+        delete sys:devs/printers/hp_deskjet_660c(|.info) force
+        delete sys:devs/printers/hp_deskjet_670c(|.info) force
+        delete sys:devs/printers/hp_deskjet_672c(|.info) force
+        delete sys:devs/printers/hp_deskjet_680c(|.info) force
+        delete sys:devs/printers/hp_deskjet_682c(|.info) force
+        delete sys:devs/printers/hp_deskjet_690c(|.info) force
+        delete sys:devs/printers/hp_deskjet_692c(|.info) force
+        delete sys:devs/printers/hp_deskjet_693c(|.info) force
+        delete sys:devs/printers/hp_deskjet_694c(|.info) force
+        delete sys:devs/printers/hp_deskjet_695c(|.info) force
+        delete sys:devs/printers/hp_deskjet_697c(|.info) force
+        delete sys:devs/printers/hp_deskjet_810c(|.info) force
+        delete sys:devs/printers/hp_deskjet_812c(|.info) force
+        delete sys:devs/printers/hp_deskjet_815c(|.info) force
+        delete sys:devs/printers/hp_deskjet_830c(|.info) force
+        delete sys:devs/printers/hp_deskjet_832c(|.info) force
+        delete sys:devs/printers/hp_deskjet_850c(|.info) force
+        delete sys:devs/printers/hp_deskjet_855c(|.info) force
+        delete sys:devs/printers/hp_deskjet_870c(|.info) force
+        delete sys:devs/printers/hp_deskjet_880c(|.info) force
+        delete sys:devs/printers/hp_deskjet_882c(|.info) force
+        delete sys:devs/printers/hp_deskjet_890c(|.info) force
+        delete sys:devs/printers/hp_deskjet_970c(|.info) force
+        delete sys:devs/printers/hp_deskjet_1100c(|.info) force
+        delete sys:devs/printers/hp_deskjet_1120c(|.info) force
+        delete sys:devs/printers/hp_deskjet_1200c(|.info) force
+        delete sys:devs/printers/hp_deskjet_1600(|.info) force
+        delete sys:devs/printers/hp_deskjet_1600c(|.info) force
+        delete sys:devs/printers/hp_deskjet+(|.info) force
+        delete sys:devs/printers/hp_deskjetOld(|.info) force
+        delete sys:devs/printers/hp_laserjet_5(|.info) force
+        delete sys:devs/printers/hp_laserjet_6(|.info) force
+        delete sys:devs/printers/hp_laserjet_500(|.info) force
+        delete sys:devs/printers/hp_laserjet_1100(|.info) force
+        delete sys:devs/printers/hp_laserjet_2000(|.info) force
+        delete sys:devs/printers/hp_laserjet_3100(|.info) force
+        delete sys:devs/printers/hp_laserjet_4000(|.info) force
+        delete sys:devs/printers/hp_laserjet_5000(|.info) force
+        delete sys:devs/printers/hp_laserjet_8000(|.info) force
+        delete sys:devs/printers/hp_laserjet_II(|.info) force
+        delete sys:devs/printers/hp_laserjet_IIp(|.info) force
+        delete sys:devs/printers/hp_laserjet+(|.info) force
+
+; Now copy the new printer drivers         
+          
+        copy Storage3.1.4:Printers/#? sys:devs/printers clone buf 10 all
+
+; End of printer drivers section
+       
+       skip stdone
+endif
+skip repeatst back
+lab stdone
+
+echo ""
+echo "Please insert the floppy labeled 'LOCALE' in DF0: and wait a few minutes..."
+lab repeatlo
+if exists df0:Catalogs
+        
+; We save 3.1/3.5/3.9 catalogs in case someone might find them handy       
+        makedir sys:locale/OldCatalogs
+        copy sys:locale/catalogs/#? sys:locale/OldCatalogs clone buf 10 all
+        
+        copy df0: sys:Locale clone buf 10 all
+ skip lodone
+endif
+skip repeatlo back
+lab lodone
+
+echo ""
+echo "Please insert the floppy labeled 'FONTS' in DF0: and wait a few minutes..."
+lab repeatfo
+if exists df0:topaz.font
+        copy df0: sys:Fonts clone buf 10 all
+        sys:system/fixfonts
+ skip fodone
+endif
+skip repeatfo back
+lab fodone
+
+; We now make sure file attributes are set properly. Some non Amiga systems tend to 
+; remove amiga file attributes. The next line whilst not nice and dandy, 
+; fixes the system and makes it bootable in those situations.
+
+protect SYS:#? +rwe all
+
+; This is the end of the journey.
+
+echo ""
+echo ""
+echo "Installation complete."
+echo "Remove all floppies, reboot your Amiga, and enjoy!"
+echo ""
+echo "Goodbye"
+wait 5 sec
+quit

@@ -1,0 +1,1388 @@
+AmigaOS 3.1.4  FAQ
+Revision 1.6
+Copyright 2018 Hyperion-Entertainment
+
+
+Please note: This file contains a list of frequently asked questions along with 
+answers, sorted by topics.
+
+Before trying to contact support, read through this FAQ and check whether or 
+not it already contains help for your problem.
+
+
+
+
+Installation
+_____________
+
+
+
+
+* What are the hardware requirement for AmigaOS 3.1.4?
+
+1. Kickstart ROM 3.1.4 (desirable), or a an old 3.1 Kickstart ROM. We
+recommend the former as it will boot faster, will require less RAM,
+and also includes fixes in the hardware configuration process - and
+the latter cannot be replaced by code loaded from disk.
+
+2. 2 MB of total memory. Total memory is calculated by adding up
+ChipMem and FastMem altogether.
+
+3. 5 MB of free hard disk space.
+
+And of course, an Amiga is needed. We cannot ensure that Os 3.1.4
+operates correctly under emulation since we cannot control these
+environments. We tried, however, our best to keep it as compatible as
+possible.
+
+
+* Why won't AmigaOS 3.1.4 boot with 512 KB of ram?
+
+Well, we all heard the dummy phrase "512 KB ought to be enough for
+anyone", but today is 2018 not 1985.
+
+Along with all the relevant OS core improvements we made, especially
+to Workbench, it is not reasonable to have the expectation of running
+it in such a bare bones system. In other words, big changes require
+more ram. It is the price of progress, embrace it!
+
+
+
+* Ok, I get it, 512 KB is not enough anymore, but can I get my way
+  with less than 2 MB of RAM?
+
+This is how we break down memory usage. We have rounded up the numbers
+to be on the safe side, and also because after all, this is a round
+update. ;)
+
+0.6 MB just to boot + 0.5 MB for loading ROM modules + 0.9 MB for free
+memory.
+
+Of course, a system with a physical Kickstart ROM, 3.1.4 will work
+nicely with just 1.5 MB of RAM, but as said before, we needed a blank
+statement that will work under all systems, so 2 MB is a good bet to
+stay on the safe side.
+
+The most intense OS memory hungry process is when you run the 3.1.4
+installation; the installer script compilation procedure is what
+requires most RAM.
+
+Taking it to the extreme, a system which has been installed using UAE
+can be transferred to an Amiga where it could even work with just 1MB
+of RAM, provided the Amiga has a physical Kickstart 3.1.4 ROM chip
+installed.
+
+
+
+* I get a "Please insert a volume containing workbench.library..." during 
+  start-up. What is going on?
+
+You installed manually, right? Just do as requested. The Install3.1.4
+disk contains the requested library, so just put that in place. And
+for next time, please use the installer. Or at least, copy both
+workbench.library and icon.library from the Install3.1.4 disk to
+LIBS:, such as follows:
+
+copy df0:libs/workbench.library to LIBS: clone
+copy df0:libs/icon.library to LIBS: clone
+
+
+
+* Why are workbench.library and icon.library no longer in ROM?
+
+Because these components became much larger than before, and they
+simply do not fit. So we had to find some other place. The nice file
+requester you see is the ROM looking for its missing sources.
+
+
+
+* But why didn't you make the ROM larger then?
+
+Because not all models support larger ROMs, and even those that do may
+fail to identify a larger ROM. It is just too risky. We couldn't come
+up with a better solution this time.
+
+
+
+* I purchased the disk-based installation, and installed all the files
+  in the right places, but the OS does not seem to pick them
+  up. Instead, I just get the OS 3.1 Workbench back. What's wrong?
+
+You installed manually, right? Well, in that case, chances are that
+the file permissions are wrong. It is important that the files
+containing the replacement ROM components have their "p" bit set,
+which stands for "pure".
+
+You can now do the following two things:
+
+1. Copy all the files from the modules disk fitting to your Amiga
+model again, making sure that the "P" bit is set this time, for
+example by using:
+
+copy ... TO ... CLONE
+
+instead of just "COPY", or, as a workaround,
+
+1. Edit the Startup-sequence of your installation and replace
+
+C:LoadModule ROMUPDATE
+
+with
+
+C:LoadModule AUTO
+
+which will ignore the "P" bit. As a side effect, it may probably pull
+some modules into RAM that you wouldn't expect.
+
+
+
+* Some file permissions on my installation look really weird. Is that
+  normal?
+
+You mean, as in "p-r---"?
+
+Yes, that is normal, and intentional for all ROM module
+replacements. "p" stands for "pure" and is required for LoadModule as
+it otherwise does not pick up the file. "r" means that the file is
+readable, because LoadModule needs to read it.
+
+The files are intentionally not writable, executable or deletable as
+removing or altering these files may and will damage your
+installation.
+
+
+
+* Why doesn't Shell or Workbench respect the "h" protection bit
+  and hide the files away whose "h" bit is set?
+
+Because "h" does not stand for "hide", but "hold". An executable file
+whose "h" bit is set is automatically made resident by the Shell on
+its first use.  So you save all the "Resident" commands in the
+Startup-sequence.
+
+
+
+
+Hard Disks and file systems
+___________________________
+
+
+
+
+* Can I use partitions beyond the 4GB boundary?
+
+Typically yes, but... this limitation still applies if you:
+
+1. Did not install a physical 3.1.4 ROM but use a disk-based upgrade
+   only and boot from an old ROM.
+   
+2. Or if you boot from a legacy third-party host-adapter that does not
+   support any 64-bit extension. Note that the file system that comes
+   with OS 3.1.4 is smart enough to detect multiple 64-bit extensions
+   and uses them if available. Hence, the limitation may already be
+   gone for you. In particular, NSDPatch is not required anymore to
+   enable such extensions.
+  
+In either case, this limitation can be worked around in multiple ways:
+
+1. If you boot from an old ROM:
+   1. Consider a ROM-upgrade.
+   2. Or create a small (<1GB) boot partition as for OS 3.9 which loads
+      the upgraded operating system. All extended partitions will then
+      become available after the first reboot.
+
+2. If none of the above is feasible, or you boot from a third-party
+   host-adapter that does not support any 64-bit addressing, the
+   following procedure will also allow you to use partitions beyond
+   the barrier described above:
+
+    1. Insert the "Install3.1.4" disk into any drive.
+    2. Double click on the disk icon.
+    3. Double click on "HDTools". This drawer contains a program named "HDToolbox". 
+    4. If you are using a third-party host-adapter, HDToolBox needs to
+       know the name of the host-adapter. For that,
+       4.1 Remove the disk again and slide the drive-protection notch
+           in the closed position, enabling writing to the disk.
+       4.2 Re-insert the disk.
+       4.3 Click on the icon ONLY once.
+       4.4 Select "Information" in the Workbench menu by clicking the
+           icon with the right mouse button.
+       4.5 In the Information window, identify the line saying
+           "SCSI_DEVICE_NAME=scsi.device"
+       4.6 Edit this line according to the host adapter you are
+           using. The information on the correct device name can be
+           found in the documentation that came with your host
+           adapter.
+       4.7 Save the changes back.
+    5. Now double-click on HDToolBox to start the program.
+    6. Identify your installation drive, and click on it.
+    7. Click on "Partition Drive".
+    8. On the new window, select the first partition, then click on
+       the "Advanced Options" check box.
+    9. A new check box labeled "Direct SCSI Transfer" appears.
+       Ensure this check box is CHECKED. Enable it if not.
+   10. Repeat this procedure for all other partitions on the drive.
+   11. Click on "Add/Update". A list of currently-installed file
+       systems appears on the screen. This list may be empty.
+   12. If there is already a file system on the list, click on
+       "Update". Accept the default choice and click on "OK".
+   13. If not, click on "Add New File System", then accept the default
+       choice for the file system, and click on "OK".
+      13.1 A list of file system options is now shown. Ensure that the
+           version says "46". If not, you did not boot from an
+	   OS 3.1.4 disk.
+      13.2 Accept or modify the file system type accordingly. For most
+           installations, the default type shown as 0x444f5303 is fine.
+      13.3 Click on "OK" to go back to the list of file systems.
+   14. Click on "OK" to go back to the partition list.
+   15. Click on "OK" to go back to the drive list.
+   16. Click on "Save changes to drive".
+   17. These changes will not erase any data on your drive, do not
+       worry about the requester. This will reboot your machine.
+   18. Open a Shell window.
+   19. Type "version DH0:" (assuming that your boot drive is DH0:).
+   20. Verify that the version is 46. If not, go through the procedure
+       above again, carefully verifying that you follow the steps
+       precisely.
+
+* How do I setup a new drive with HDToolBox? I do not see the
+  drive in the selection box at all, what is wrong?
+
+HDToolBox is a little bit old-fashioned, we know. To configure a new drive,
+
+   1. Click on "Change Drive Type"
+   2. A list of known drive types appears.
+      Here click on "Define New".
+   3. Now click on "Read Configuration",
+   4. Click on "Continue",
+   5. then click on "OK".
+
+Now you are ready to partition the drive.
+
+
+
+* Long file-names - I was promised long file-names! How do I use them?
+
+Yes, indeed; you can get them, though you need to reformat your hard
+disk.  Select "DOS\7" as the file system. The identifier for this is
+0x444f5307 in HDToolBox. Or, just select the button for "long file-name
+support". A similar check mark will also appear in the Format program.
+
+This will allow you to use file-names as long as 106 characters. And
+no, it will not work without re-installation.
+
+
+
+
+* But Workbench still limits my file-names to 30 characters!
+
+Please check the Workbench preferences, in SYS:Prefs. You can set a
+limit there. Of course, in the end, it's the file system that decides
+whether to refuse or accept a file-name.
+
+
+
+* I read something about a setting called "Max Transfer", which is a
+  value which I need to manually adjust according to my system. How do I
+  set it up?
+
+We decided to make things simpler for you, with AmigaOS 3.1.4 you
+don't need to touch this setting for the built-in scsi.device. No
+guarantees for third-party firmware, of course.
+
+
+
+* When mounting the CD file system on an XSurfIDE device, reading
+  large DVDs results in an error -3 being shown.
+
+Unfortunately, the XSurfIDE neither speaks TD64 nor NSD64, and hence
+cannot access files beyond the 2GB barrier without a bit of help. For
+this little help, open the mount list of the CDFS, and add the
+following tool type to the CD0 icon:
+
+SCSIDirect = 1
+
+Then reboot the machine. This instructs the CD file system to use SCSI
+commands rather than trackdisk commands to address the disk, and with
+that, the XSurfIDE can access data beyond the barrier.
+
+
+
+* What is a "superfloppy"?
+
+It is a removable medium like a floppy, but just larger. Examples are
+the ZIP disk, the Jaz drive and the LS-120 superdisk. Like floppies,
+superfloppies do not use partitions, the entire medium stores
+data. They do not make use of the "RDB", the rigid disk block. They
+may also come in variable sizes. And like floppies, the Amiga file
+systems, when we use the ones we prepared, are smart enough to adapt
+themselves to the size of the medium.
+
+
+
+* How do I mount a superfloppy?
+
+You need to use a mount list. In particular, the following entries
+need to be set:
+
+LowCyl         = 0          ; there is no RDB
+Device         = <name of the exec device, e.g. scsi.device>
+Unit           = <unit number, e.g. the SCSI ID>
+Flags          = 0          ; typically, depends on the device
+SuperFloppy    = 1          ; This turns on superfloppy support
+DosType        = 0x444f5303 ; for FFS INTL
+FileSystem     = L:FastFileSystem
+Mount          = 1
+Activate       = 1
+
+The file system will figure out all remaining parameters from the
+device.
+
+
+
+
+CPU Support / ROM Modules / SetPatch
+____________________________________
+
+
+
+
+* I manually installed, and now get a warning from SetPatch on unknown
+  options.
+
+The OS 3.9 SetPatch included additional functionality that is no
+longer present in OS 3.1.4 and have been outsourced to other
+programs. The line in the Startup-sequence calling SetPatch should
+only read as follows:
+
+SetPatch >NIL:
+
+You need to fix your Startup-sequence accordingly. In particular,
+NOROMUPDATES, NONSDPATCH are no longer options SetPatch supports.
+
+
+
+* Where did the extended functionality of SetPatch go?
+
+OS 3.9 SetPatch included a ROM-Updates functionality to install new
+ROM modules on top of the old ones. This functionality is now
+implemented by a separate program, namely "LoadModule". It is included
+in the C directory of the Modules disk, or available from Aminet:
+
+http://aminet.net/util/boot/LoadModule.lha
+
+You also need this tool to load Intuition V45 (see below).
+
+
+OS 3.9 SetPatch also included "NSDPatch," a feature to patch-in a
+Commodore-only command set for addressing large devices, while most
+third-party devices supported the earlier TD64 specification. This
+extension is no longer necessary; see above.
+
+If you want continue to use the NSDPatch approach, you find the
+NSDPatch program in the C: directory of the Install3.1.4 disk. Copy
+the program to the C directory of your boot disk, and insert NSDPatch
+into your Startup-sequence right after SetPatch.
+
+However, as stated above, this step is (typically) no longer
+necessary.
+
+
+
+* Does my 68060 work out-of-the-box now or do I still have to hack
+  the ROM?
+
+You don't have to hack the ROM, but you still need to install a proper
+CPU library. See below.
+
+
+
+* When booting the system, the Startup-sequence stops and gives me an
+  error on an incomplete installation. What is missing?
+
+The CPU support library is missing. In particular, 68040- and
+68060-based systems need to have the 68040.library or the
+68060.library in LIBS: Without them, the system cannot work
+correctly. Some systems have the 68040.library or 68060.library in
+their accelerator ROM. On such systems, no installation is necessary,
+and you will not get any warning then either.
+
+For 68030 based systems, we recommend a 68030.library as well, as
+otherwise the system can deadlock in a couple of situations. This is
+due to a hardware errata/specification change of Motorola. Installing
+this library will also allow you to enable the data cache when using
+bridge boards.
+
+
+
+* Where do I find the CPU libraries, and how do I install them?
+
+They came with the support disk from your accelerator card vendor. The
+installation procedure is depending on the vendor, but typically
+requires you to copy the CPU library from the install disk to LIBS:
+with a command such as the following:
+
+
+copy df0:libs/680?0.library to LIBS:
+
+
+We also suggest to check the FAQ of your vendor. In particular, we
+include a FAQ for GVP boards in the distribution.
+
+
+* ...but I lost my original support disk of my turbo board!
+
+Oh well. There is a generic replacement in Aminet that works, in
+general, quite well. You'll find it here:
+
+http://aminet.net/util/libs/MMULib.lha
+
+Simply install it via the installation script that comes with it.
+
+
+
+* Where do I find a 68030.library? My board did not come with one.
+
+See above for where to find one. Boards didn't usually come with one
+because the errata was only found years after the introduction of the
+68030.
+
+
+
+* Couldn't you just package the CPU libraries with the OS?
+
+We would love to, but the libraries are in general vendor specific,
+and most vendors are out of business today. While the generic
+replacement mentioned above works fine in general, it may not work for
+your particular board.
+
+And note that we do not have CPU libraries for all vendors on file,
+let alone the permission to redistribute them. However, a web search
+can often help in locating missing CPU libraries, as well as notable
+Amiga hardware reference websites. Also check the vendors' or
+3rd-party FAQs.
+
+
+
+* Couldn't you just ship the Commodore 68040.library?
+
+See above. It may not work for your board, and we don't want to damage
+your installation. However, for the boards that were originally
+delivered with it, the generic replacement available from Aminet works
+fine without any further tweaks.
+
+
+
+* What about the dummy 68040.library? My old turbo board manual mentions
+  that I have to install it, and rename it.
+
+Disregard this. OS 3.1.4 does not require any dummy 68040.library.  It detects 
+the right CPU library itself and does not require a dummy.
+
+In particular, for a 68060 processor, the 68060.library is sufficient (plus, 
+the mmu.library if you use a MuLib-based processor library).
+
+
+
+* I get a note from the CPU command on CPU errata. What should I do?
+
+Erratas are known defects in the CPU, typically found after
+introduction to market. Unfortunately, not all CPU libraries are able
+to work around all errata. You did install a CPU library, didn't you?
+
+For the 68030: Install a 68030.library. This will avoid the "CIIN
+disabled on write" errata.
+
+For the 68060: If you cannot use the generic 68060.library mentioned
+above, add the following command to the Startup-sequence:
+
+CPU DISABLELOADSTOREBUFFERBYPASS
+
+
+
+
+Performance and compatibility
+_____________________________
+
+
+
+
+* Pointer preferences renders incorrectly on my screen.
+
+Yes, we do test programs before delivering them. What you see here is
+not a bug in the pointer preference program, but a bug in CyberGraphX
+not implementing the "minterms" correctly. The same program works
+nicely on a native or Picasso96 screen.
+
+
+
+* The Locale preferences renders incorrectly on my screen.
+
+See above. This is a known bug in CyberGraphX, so if you depend on
+this RTG screen format, you'll have to live with it or request a fix
+of CyberGraphX from their vendors. The same program works nicely on a
+native or Picasso96 screen.
+
+
+
+* OS 3.1.4 is terribly slow!
+
+You are using a disk-based installation, right? Well, LoadModule needs
+to load the updated ROM modules into some reset-resident memory. In a
+worst-case scenario, this is Chip RAM, and yes, access to Chip RAM is
+slow.
+
+However, you can do the following:
+
+1. Buy a physical ROM and install it, thus eliminating the need for
+   replacing ROM modules by RAM modules
+
+Or, in case your system is equipped with a MMU:
+
+2. Install the MMUlib archive from Aminet and add the following
+   command below SetPatch in the S:Startup-sequence:
+
+MuProtectModules ON REMAP
+
+This will remap the ROM modules from their current location to the
+fastest available RAM and give you some extra speed. Keep in mind,
+that using this option will occupy ram which you won't be able to
+free.
+
+
+
+* But why doesn't LoadModule load the modules into FastRAM in first
+  place?
+
+Because the available Fast RAM may not be reset-resident, i.e. the
+modules would go away after a reset. LoadModule can only use what is
+available to the system. What MuProtectModules does is create a mirror
+of this memory via the MMU, but this mirror disappears after a reset,
+unlike the original module image.
+
+
+
+* The system crashes as soon as I play a stereo 8SVX audio file.
+
+Please check whether you have the svx.datatype (yes, really "svx", not
+"8svx") installed. Unfortunately, this datatype is not compatible with
+the way how the 3.1.4 and also Os 3.9 sound datatype handles stereo
+data. Just remove it. 8svx will play stereo data perfectly fine now.
+
+
+
+* What about all those widely used system patches, Can I use them?
+
+AmigaOS 3.1.4 is a bug-fix update, this means that we focused on fixing
+the vast majority of bugs that have been known for decades and even
+then some more that were hiding for many years despite our prying
+eyes. :-)
+
+So at the time of this writing, we are proud to tell you that they are
+not necessary anymore!
+
+Among these patches are: RamLibFix, PatchRAM, StackAttack, AmberRAM,
+PrepareEmul, RsrvWarm, MuMove4K, SwazInfo, RomFixes, etc.
+
+Of course, many of this programs also contained hacks to do things the
+OS was not programmed to do in the first place (Like MCP, SystemPatch,
+MultiCX, etc).
+
+We did not implement most of these hacks, because they do not follow
+proper Amiga coding rules and do their stuff in a "dirty" way causing
+potential harm to the system. You are welcome to try them, but don't
+complain to us if they end up crashing your machine. And also be
+extremely careful not to activate a patch for a fix, because most
+patches don't do proper checking and will probably end up putting your
+system in an unstable condition. Being cautious and conservative is
+always a wise choice.
+
+
+
+* I tried to install a Demo/Game which uses WHDLoad and the Installer 
+  warns me that it is outdated!
+
+The install scripts depends on new features introduced in the
+Installer delivered with OS 3.5. While the version delivered with Os
+3.1.4 is 45.6, it is derived from OS 3.1 and therefore misses the
+extensions of the OS 3.5 release. The version of the Installer
+reported to scripts is 43.xx.
+
+You may either ignore this warning: the installation will still work
+without using the features of the OS 3.5 Installer, or you may get the
+Installer from OS 3.5 which will work on the OS 3.1.4 system too -
+though it still includes some bugs we were able to address in 3.1.4.
+The missing features of the Installer may appear in a future release
+of the OS.
+
+
+
+
+Intuition Library V45
+______________________
+
+
+
+
+* What is the V45 intuition.library?
+
+It is an update to the system library responsible for the GUI that
+includes a couple of new features. Among them is a feature to allow
+you to drag windows out of the screen.
+
+
+
+* Why isn't the V45 intuition.library enabled by default?
+
+Because it is incompatible with the cybergraphics.library which
+depends on the precise layout of undocumented intuition
+internals. Unfortunately, we do not know the details and we did not
+want to break existing CyberGraphX installations.
+
+
+If you do not use CyberGraphX, or run Picasso96 instead, then no such
+incompatibility exists.
+
+
+
+* How do I install the V45 intuition.library?
+
+1. For the ROM-based installation process, you first need to copy the
+   new system component to your system. For that, insert any of the
+   modules disks into the first disk drive, then select "Execute
+   command" from the Workbench menu, and enter the following command:
+
+copy df0:libs/intuition-v45.library to LIBS:intuition.library clone
+
+2. In case you installed from a physical 3.1.4. ROM, LoadModule
+   has to be installed manually. For that, download the archive
+
+http://aminet.net/util/boot/LoadModule.lha
+
+   from Aminet and copy the LoadModule command from this archive into
+   the C directory of your boot disk.
+
+3. The Startup-sequence of your system requires a modification. To
+   perform this installation, select "Execute command" once more from
+   the Workbench menu, and enter the following command:
+
+Ed S:Startup-sequence
+
+A window containing the startup script of your system will open. The
+first lines on the screen should read as follows:
+
+If Exists C:LoadModule
+   C:Version exec.library version 46 >NIL:
+   If Warn
+      C:LoadModule ROMUPDATE
+   EndIf
+EndIf
+
+Replace them with the following:
+
+C:LoadModule ROMUPDATE
+
+Then save the result back to disk by pressing the ESC key, then the X
+key, then press return. Then reboot.
+
+
+
+* I purchased a ROM upgrade option, but I still need to reboot twice
+  to get the new V45 intuition library. Why is that?
+
+We decided not to include the V45 intuition.library in ROM because it
+is not compatible with CyberGraphX. Please try to contact the
+CyberGraphX authors for a fix so we can (hopefully) include it in ROM
+in the next release.
+
+
+
+* How can I load icons into Fast RAM? There's no program or Preference
+  setting for it.
+
+Because it's not needed. In fact, please do not use WBCtrl anymore.
+Workbench is smart enough to detect cases where it can put icons into
+fast, and it will do so automatically whenever it is able to.
+
+
+
+* I have now 28K of Chip RAM less, where did the RAM go?
+
+It's reserved. Actually, the lower 32K is reserved now for Mac
+emulators.  The benefit of this is that you no longer need MuMove4k or
+PrepareEmul. Just start Mac emulations right away.
+
+
+* But I need the 28K back - really!
+
+Watch Aminet. We will supply a program that will, through a second
+reset, deliver the missing RAM. It's kind of "MoMuve4k backwards".
+
+But, seriously - what's 28K among friends?
+
+
+
+
+Printers
+_________
+
+
+
+
+* Which printer drivers do I need, and which driver supports which
+printer?
+
+The following printer drivers are part of 3.1.4:
+
+NEC_Pinwriter:        NEC P5,P6,P7,P9 and P2200
+
+EpsonX_Old:           Epson EX,FX,JX,LX,MX and RX
+
+    This driver is deprecated. Try only if the regular driver does not
+    work.  Recommended for the old MPS 1230 made by C=.
+                      
+EpsonX:                Epson EX,FX,JX,LX,MX and RX
+
+    This is the preferred driver. Try the "old" variant only if this
+    one does not work.
+
+EpsonQ:                Epson LQ-800,LQ-850,LQ-1000,LQ-1050,
+                       LQ-1500 and LQ-2500
+
+Postscript:            Any postscript printer should work with this.
+
+HP_LaserJet:           HP LaserJet, HP LaserJet+, HP LaserJet II, 
+                       HP LaserJet 500 and HP LaserJet 2000
+                       This printer driver supports resolutions up
+                       300x300 dpi, in gray scale only.
+
+HP_LaserJet_III:       HP LaserJet II+ and HP LaserJet III
+                       This printer driver also supports resolutions
+                       up to 300x300 dpi in gray scale, but enables
+                       compression of graphics for faster printing.
+
+HP_LaserJet_4:         HP LaserJet 4, HP LaserJet 5, HP LaserJet 6, 
+                       HP LaserJet 1100 and HP LaserJet 3100
+                       This printer driver supports resolutions up
+                       to 600x600 dpi in gray scale with compression
+                       enabled.
+
+HP_LaserJet_2100:      HP LaserJet 2100, HP LaserJet 4000,
+                       HP LaserJet 5000 and HP LaserJet 8000
+                       This printer driver supports resolutions up to
+                       1200x1200 dpi in gray scale with compression
+                       enabled.
+
+Newer HP LaserJet printers supporting PCL might work as
+well. Available at the time of writing is the HP LaserJet Pro M402
+series, which prints fine using the HP_LaserJet driver and probably
+other driver variants as well. You'll need a USB expansion or a
+network card plus lpr.device from Aminet to connect to these modern
+printers. Make sure to redirect parallel.device to either
+usbparallel.device or lpr.device. While the printer.device supports
+printing to other devices, our current preferences program does not
+allow to select another target. The Os 3.9 prefs program does, and the
+printer.device supports it. Alternatively, use the tool
+"OpenDevicePatch", see lpr-dev package on Aminet for instructions:
+
+     http://aminet.net/comm/tcp/lpr-dev.lha
+
+
+
+HP_DeskJet:            HP Deskjet, HP Deskjet+, HP DeskJet 310, 
+                       HP DeskJet 320, HP_DeskJet_500,
+                       HP_DeskJet_510, HP_DeskJet_520
+                       Resolutions up to 300x300 dpi gray scale
+                       with compression.
+
+HP_DeskJet_340:        HP Deskjet 340/340CM/340CBi, HP_DeskJet_550C,
+                       and HP_DeskJet_560C
+                       Resolutions up to 300x300 dpi in color or
+                       gray-scale with compression. These printers
+                       print with four types of inks (CMYK).
+
+HP_DeskJet_400:        HP_DeskJet_200C, HP_DeskJet_400, HP_DeskJet_400L,
+                       HP_DeskJet_420C, HP_DeskJet_500C, HP DeskJet 540C,
+                       HP_DeskJet_550C, HP_DeskJet_560C, HP_DeskJet_670C,
+                       HP DeskJet 672C, HP_DeskJet_1200C
+                       Resolutions up to 300x300 dpi in color with
+                       compression. These printers print with three
+                       types of ink and use color ink to mix up black.
+
+HP_DeskJet_600:        HP Deskjet 600, HP DeskJet 610C/610CL, HP DeskJet 612C,
+                       HP_DeskJet_660C, HP DeskJet 680C, HP DeskJet 682C,
+                       HP DeskJet 690C, HP DeskJet 692C,HP DeskJet 693C,
+                       HP DeskJet 694C, HP_DeskJet_695C, HP DeskJet 697C,
+                       HP DeskJet 810C, HP_DeskJet_812C, HP_DeskJet_815C, 
+                       HP_DeskJet_830C, HP_DeskJet_832C, HP_DeskJet_850C,
+                       HP_DeskJet_855C, HP_DeskJet_870C, HP_DeskJet_880C,
+                       HP_DeskJet_882C, HP_DeskJet_890C, HP_DeskJet_1600,
+                       HP_DeskJet_1600C and HP_DeskJet_1600CM
+                       Resolutions up to 600x600 dpi in gray scale and
+                       300x300 dpi in color, with compression. These printers
+                       use four ink types.
+
+HP_DeskJet_895C:       HP_DeskJet_895C,HP_DeskJet_970C,HP_DeskJet_1100C and 
+                       HP_DeskJet_1120C
+                       Resolutions up to 600x600 dpi in color or gray-scale.
+                       These printers print with four ink types.
+
+Generic:               An ASCII only, text only printer without graphics 
+                       support you may try if everything else fails.
+
+
+
+* I have a printer that is not listed, but was supported with OS
+  3.1. What should I do?
+
+Just copy the printer driver from OS 3.1 to DEVS:Printers, and select it from 
+the preferences editor. OS 3.1 drivers will continue to work fine with OS 3.1.4.
+
+
+
+* My OS 3.5/OS 3.9 printer drivers refuse to work with OS 3.1.4. Where
+  is the problem?
+
+The problem is a common bug in the OS 3.5/3.9 drivers that stops them
+from working in OS 3.1.4. In particular, the drivers return an
+incorrect result code from their initialization function, and the 3.9
+printer.device never cared about whether initialization succeeded or
+not. This had been fixed in 3.1.4, with the side effect of OS 3.9
+drivers no longer working. Note, however, that all models supported in
+3.9 are also supported by native 3.1.4 drivers, so no harm done.
+
+
+
+* I have an unsupported printer. What can I do?
+
+Well. Write a printer driver, for example. (-: Or, at least, try to
+get a technical description from its vendor, and forward it to
+us. Unfortunately, most consumer printers today are GDI-printers that
+use a closed, proprietary protocol to communicate with the operating
+system of a large US company only, so good luck. And no, we do not
+have better access to technical manuals either.
+
+Note, however, that most printers nowadays fall into four categories:
+
+PCL-based printers, mostly from HP. These should work fine with one of
+the HP printer drivers.
+
+Postscript-based printers. These work fine with the postscript driver.
+
+EscP-based printers. They work fine with the Epson or EpsonQ drivers.
+
+GDI printers. They don't work on anything but Windows, and their vendors
+do not care about niche products like AmigaOs anyhow.
+
+
+
+* Where is the "print to file" printer driver?
+
+We don't have one, but none is needed either. Just run the "CMD"
+program which you can find in Sys:Utilities. It will redirect printer
+output to a file. It will now also give you a file requester as soon
+as you start printing.
+
+
+
+* Do I still need TurboPrint?
+
+No, at least not for the printers supported by 3.1.4. But, if you have
+it, you can surely use it. The print system did not change. Except for
+the bugs we fixed.
+
+
+
+
+CLI/Shell and Tools
+____________________
+
+
+
+
+* Where is the PIPE program? I want to use pipes in my Shell.
+
+Nowhere. You no longer need it. The V46 Shell supports pipes natively.
+The | symbol pipes the output of the left program into the input of
+the right program, || merges the output of two programs together, and
+( ) group programs.
+
+
+
+* I cannot interrupt pipes from the Shell, or programs continue to run
+  if I interrupt a piped command sequence.
+
+Make sure the OS 3.1.4 Queue-Handler is in L:. Many third-party
+variants do not operate correctly, or cannot interrupt pipes.  The
+3.1.4. Shell depends on the features of the 3.1.4 Queue-Handler.
+
+
+
+* The menus of the Ed editor look all white on black. Why didn't you
+  adapt this to the black-on-white style?
+
+Essentially, because the console the editor runs in did not set the
+right flag for that, and Ed just cannot do anything about it. We
+haven't had the manpower to update the console this time.
+
+However, there are alternatives in Aminet that, among other things,
+will also correct Ed's menu colors.
+
+
+
+* ShowConfig is missing hardware expansion details and even then, my
+  MMU is not detected.
+
+ShowConfig shows the basic board config information for
+troubleshooting efforts. The ever-changing and expanding board and CPU
+detail is outsourced to 3rd parties like MMULib and BoardsLib.
+
+You can get ShowConfig to display them, if you include the publicly
+available boards.library in your Libs drawer. And speaking about MMU,
+we did the same as we can detect it with the aid of mmu.library which
+is also publicly available. Both libraries can be downloaded from
+
+http://aminet.net/util/libs/MMULib.lha and
+http://aminet.net/util/libs/BoardsLib.lha .
+
+
+
+* What does this new WBLoad command located in C: actually do?
+
+It is a sort of replacement for the more known WBRun command. It loads
+Workbench programs from the CLI/Shell. However, it does not require
+the Workbench. Hence, it is safe to use in the Startup-sequence before
+LoadWB, and it operates synchronously, i.e. it does not return until
+the started program returns. If this bothers you, place an "&" as last
+argument to the program.
+
+
+
+* Are there any new command line arguments I should know of?
+
+Yes, there are plenty. What follows is the list, with a brief
+description of each. This list not complete, though, and to some
+commands, we added features without adding options.
+
+ADDDATATYPES LIST
+This will list all DataTypes descriptors currently in 
+memory by descriptor name.
+
+CMD DEVICE
+The user can now specify a concrete device name.
+
+CPU CHECKINSTALL
+Tests for the presence of a CPU library on affected CPU models.
+
+CPU CPUTYPE
+Prints only the CPU information for scripting purposes.
+
+CPU FPUTYPE
+Prints only the FPU information for scripting purposes.
+
+CPU MMUTYPE
+Prints only the MMU information for scripting purposes if it
+can. The mmu.library is required for this to work.
+
+CPU TO
+Switch to redirect the output of the CPU command.
+
+There are plenty other switches of the CPU command to fiddle
+with some of the internals of the CPU. You don't need them, unless
+we tell so. Really. They can only make your system go slower, or
+less stable. And we don't what this to happen, right?
+
+HDTOOLBOX LIMIT_4GBYTE
+which can be ON/TRUE or OFF/FALSE. Artificially
+recreates the 4 GB limit.
+
+HDTOOLBOX MIN_SECTOR_SIZE
+Overrides minimum sector size. Value must be
+a multiple of 512 bytes, and it must be a power of two.
+
+HDTOOLBOX MAX_SECTOR_SIZE
+Overrides maximum sector size. value must be a 
+multiple of 512 bytes, and it must be a power of two.
+
+HDTOOLBOX MASK
+Overrides the default values used by the RDB settings written to
+disk. They must all be in hexadecimal notation, just as you would in a
+mount file.
+
+HDTOOLBOX BUFMEMTYPE
+Overrides the default values used by the RDB settings written to
+disk. They must all be in hexadecimal notation, just as you would in a
+mount file.
+
+HDTOOLBOX MAXTRANSFER
+Overrides the default values used by the RDB settings written to
+disk. They must all be in hexadecimal notation, just as you would in a
+mount file.
+
+LOADWB LEGACY
+Allows to start older Workbench versions.
+
+LOADWB SIMPLEGELS
+Uses simpler shapes for dragging icons on the Workbench.
+
+LOADWB SKIP
+Skips starting programs in the WBStartup drawer.
+
+MAKEDIR ALL
+Creates directories recursively.
+
+MAKELINK SOFT
+Creates soft links.
+
+MULTIVIEW REPEAT
+Indicates whether the animation/audio should loop. Defaults is to
+"don't loop".
+
+MULTIVIEW IMMEDIATE
+Indicates whether the animation/audio should immediately begin playing
+after calling Multiview. Default is to "don't start immediately".
+
+MULTIVIEW PRTUNIT
+Configures the printer.device unit used for printer
+dumps.
+
+MULTIVIEW WINDOWLEFT
+Defines the horizontal coordinate of MultiView's window.
+
+MULTIVIEW WINDOWTOP
+Defines the vertical coordinate of MultiView's window.
+
+MULTIVIEW WINDOWWIDTH
+Describes the complete width size of the window instead 
+of the inner dimensions (without border).
+
+MULTIVIEW WINDOWHEIGHT
+Describes the complete height size of the window 
+instead of the inner dimensions (without border).
+
+MULTIVIEW AUTORESIZE
+Causes MultiView to resize its window when you open a 
+new image.
+
+REQUESTCHOICE SET
+Copies the selected choice into a shell variable.
+
+REQUESTFILE SET
+Copies the selected file or files to a shell variable.
+
+RX SCRIPT=NAME/K
+Defines the script to be executed. This must be explicitly given if
+the script name is enclosed in quotes, as otherwise RX attempts to
+interpret the enclosed string as series of REXX commands to be
+executed directly.
+
+RX CMD
+Explicitly requests a command (not a script) to be executed. For this
+option, Shell quoting rules (and not Rexx quoting rules) apply, so
+"rx cmd" can be used also in shell scripts where the shell (or
+execute) applies its escape mechanism. That is, a quote must
+be escaped with an asterisk if the CMD argument is given.
+
+RX "..."
+Defines an ARexx command or ARexx file to be executed. If in double
+quotes, a direct command is assumed, otherwise a file. This is
+backwards compatible to the V36 release of RX.
+
+In addition, the RX command can also be invoked from the workbench
+and then accepts the following additional ToolTypes:
+
+    CONSOLE=<pathname> or WINDOW=<pathname>
+    Defines a pathname where output should go to. The 
+    default is a console.
+
+    STARTUP="cmd"
+    Defines an AmigaDos command to startup the Rexx host in 
+    case it is not running. This is by default "RexxMast".
+
+SEARCH CASE
+Case-sensitive searching.  Note that this switch is INACTIVE when
+searching for files.
+
+SORT DESCENDING
+Reverses the sort order.
+
+SORT SKIPBLANKS
+Ignores leading blanks.
+
+SORT NUMERIC
+Sorts numerically, not lexicographically.
+
+WAIT FILE
+Waits for the existence of a given file.
+
+There are a couple of hidden features and improvements, such as DIR
+being able to adjust its output to the size of the console, LIST
+showing hard- and soft-links and COPY copying them correctly. We will
+report on them later and will provide examples of use.
+
+
+
+* Where are Lacer, MEmacs, HDBackup, Bru and MagTape?
+
+For good reasons we decided to phase them out. Hyperion will be
+offering a free of charge download option for registered AmigaOS 3.1.4
+customers who feel emotionally attached to these archaic components.
+However, "these belong into a museum", as Indy would put it.
+
+
+
+
+OS 3.1.4 and OS 3.9
+____________________
+
+
+
+
+* Can I mix OS 3.9 components with OS 3.1.4?
+
+Typically, yes. There are a couple of caveats, though. In particular,
+if you use the OS 3.9 "Printer preferences" dialog, ensure that you
+delete ENVARC:sys/printergfx.prefs or the printer system will use the
+preferences from the OS 3.1.4 preferences editor.
+
+You also need to ensure that you use the OS 3.9 "prefs.catalog"
+instead of the one that comes with OS 3.1.4. But please bear in mind -
+and this goes to all programs within AmigaOS - 3.9 catalogs are
+somewhat incompatible with both 3.1 and 3.1.4. Mixing components
+requires careful consideration when using languages other than
+English, or you will end up with misleading translations.
+
+Also, if you decide to use long file-names, beware that RAWBInfo does
+not properly behave with them, so better remove it from the WBStartup
+drawer.
+
+AmigaOS 3.9 mount files will be overwritten by 3.1.4 default
+counterparts, so some of them may need to be readjusted to meet your
+needs. This is clearly the case in CD0 (your cdrom device), as AmigaOS
+3.1.4 has its own new cd-rom filesystem, which by the way, won't work
+with previous 3.9 cd prefs program called CacheCDFS.
+
+Be warned that if you customized the ToolTypes of some 3.9 programs,
+when installed, AmigaOS 3.1.4 will overwrite them with its default new
+settings.
+
+
+
+* I prefer the nice OS 3.9 reaction GUI, but now my printer ignores
+  the printer graphics settings in the OS 3.9 dialog.
+
+OS 3.9 expects the printer settings in a different location that is
+not compatible with the OS 3.1.4 location. To work around this
+problem, open up a Shell and type in the following command:
+
+DELETE ENVARC:sys/printergfx.prefs
+
+Then, do not use the OS 3.1.4 PrinterGfx preferences anymore.
+
+
+
+* WBPattern prefs does not include a "Layout" cycle gadget for Tile,
+  Center, Scale, and Scale Well functions.
+
+This feature is not so simple to implement as it involves enhancing
+IPrefs. We decided to leave it for a future update as there were more
+important things to resolve first. Priorities are a must when there is
+such a big to-do list and limited manpower.
+
+In the meantime, users should just resize their desktop wallpaper to
+the resolution they need using third party programs, which exist even
+on AmigaOS. Between many others, we can safely recommend dtscale24 by
+Thomas Rapp:
+
+https://thomas-rapp.homepage.t-online.de/download.html
+
+A pre-scaled background will also decrease loading time a lot and in
+all cases is the fastest solution..
+
+
+
+* The new preferences editors ignore my font settings!
+
+The preference editors are based on the sources of OS 3.1, they use
+topaz.8 as a fixed font setting. We neither have ReAction at this
+time, which the OS 3.9 prefs require, nor the source code of the
+latter. That's also why we had to rewrite the editors for ASL and
+Workbench preferences from scratch. Font sensitivity will return to
+the prefs in a later release, don't worry. Just be reminded: There
+was little man-power, and so much to do.
+
+
+
+* I'm using the OS 3.9 reaction GUI for preferences, but the GUI
+  contains unreadable strings.
+
+Unfortunately, OS 3.9 did not simply extend the OS 3.1 catalogs, but
+instead populated the catalog in an incompatible way. If you want to
+continue to use OS 3.9, ensure that the following file comes from an
+OS 3.9 installation:
+
+LOCALE:Catalogs/<your language goes here>/sys/prefs.catalog
+
+Copy the OS 3.9 catalog on top of the OS 3.1.4 catalog to get a
+working OS 3.9 GUI back.
+
+While OS 3.1.4. tries to be compatible with OS 3.1 and extended its
+catalogs in a backwards-compatible way, OS 3.9 unfortunately selected
+another route and picked incompatible IDs for its translation.
+
+Sorry, but we cannot fix this.
+
+
+
+* IControl preferences of OS 3.9 had a setting to render windows
+  gadgets in 1:1 aspect. Where is it?
+
+It's currently not available. The code is lost and it was a hack. We
+haven't figured out how to implement this properly; there are
+prototypes, but they have compatibility issues with some software.
+
+If you have found a working solution without side effects, contact us!
+
+
+
+* The background image of my workbench now uses dithering, even
+  though I'm using a true-color screen mode. What's wrong?
+
+The syntax of the picture.datatype settings have changed, and if you
+had custom settings there, the new picture datatype will likely
+misinterpret them to enable dithering for many applications. The
+easiest remedy is to simply delete the old settings of the picture
+datatype, see the next point.
+
+
+
+* How do I set/change picture.datatypes settings?
+
+AmigaOS 3.9 came with SYS:Prefs/PictDT. With it, you could explicitly
+set which application supports the V43 mode of the datatype. This
+mode offers support for screens with more than 256 colors. In
+addition, you can specify whether pictures should be dithered on high
+color screens (65536 colors) or not. Disabling dithering decreases
+image quality on these screens, but improves the speed of the datatype
+considerably.
+
+In AmigaOS 3.1.4 the env variable "classes/datatypes/picture/ForceV43"
+holds a list of all programs that should be forced to v43 mode. In
+particular, this list should contain the string
+
+« IPrefs »
+
+including the double angle brackets to avoid dithering on the
+Workbench. If you leave the environment variable empty, it means that
+there is a list of programs to be promoted, and this list is empty.
+If the environment variable does not exist, however, the known
+well-working Os components receive full truecolor images. So it is
+easiest just to delete ENVARC:classes/datatypes/picture/ForceV43.
+
+Dithering of the picture.datatype can be set or unset by the env
+variable "Classes/DataTypes/picture/DitherHiColour" which can hold
+either a 0 or 1 value (0 = off and 1 = on).
+
+
+
+* Why didn't you base your work on OS 3.9 and instead used OS 3.1 as a
+  basis?
+
+We would have loved to. Because we do not have sufficient rights, let
+alone all the sources of OS 3.9.  Many components you get with 3.1.4
+are re-implementations of 3.9 components.  For example, the
+printer.device is "all new", but despite its version number, not based
+on the V44 printer.device from OS 3.9.
+
+We did not have anything as backup for the OS 3.9 HDToolBox, so we did
+use the old one and fixed (at least) its most obvious bugs.
+
+
+
+
+* Will there be more updates? I'm sick of waiting almost 20 years for OS
+  updates!
+
+Well, you can count on bug-fix releases fixing bugs of this bug-fix
+release. And after that? There's so much to do... the future of this
+product also depends on you.
+
+
+
+
+Miscellaneous
+_____________
+
+
+
+
+* Why didn't you support feature XYZ ...as in "TAB Expansion", "Magic Menus"... 
+  you name it.
+
+Note the revision number. This is a clean-up and bug-fix release of OS
+3.1. We had more than enough to do to get all its bugs fixed (and
+possibly added a couple of new ones, for your entertainment and our
+embarrassment.)
+
+
+
+* Why is the "Find..." entry shadowed in the Window item of the
+  Workbench menu?
+
+This is done on purpose, and only occurs if Workbench doesn't detect a
+Find program in the System folder. So if you put one there, and name
+it appropriately, you will get that menu item enabled automatically.
+
+
+
+* Can I use the modules from the modules disk to build my own custom 
+  Kickstart ROM?
+
+At this point in time we are only able to support a limited number of
+Kickstart ROMs (only the ones that are advertised), and this due to
+the unlimited amount of combinations that custom ROMs may lead to.  So
+yes, sure go ahead, but don't ask us for support from us if you follow
+this route.
+
+
+
+* Can I get the guru back?
+
+Sure; crash a program. We're certain we left a couple of bugs for you
+to find.
+
+Oh, you mean, instead of "Software Failure"? No, you cannot. See the
+next point.
+
+
+
+* Talking of support - where can I get any for this product?
+
+Official support will be provided on the forums at: 
+
+http://forum.hyperion-entertainment.biz
+
+
+
+* Will there be more updates? I'm sick of waiting almost 20 years for
+  OS updates!
+
+Well, you can count on bug fix releases fixing bugs from this bug fix
+release. And after that? There's so much to do... the future of this
+product also depends on you.
+
+
+
+* Are there any Easter Eggs in OS 3.1.4?
+
+No, there are no traces of humor in us that we're aware of.
+No, seriously, no Easter Eggs this time. It's not Easter anyway.
+
+
+
+* Will there be more updates? I'm sick of waiting almost 20 years for OS updates!
+
+Well, you can count on bug fix releases fixing bugs from this bug fix
+release. And after that? There's so much to do and the future of this
+product also depends on you, of course: Tell us about your wishes and
+preferences concerning an even further updated classic AmigaOS.

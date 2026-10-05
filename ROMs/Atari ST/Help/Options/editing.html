@@ -1,0 +1,100 @@
+<!winston atari st emulator>
+<HTML><HEAD><TITLE>WinSTon Help</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<META content="WinSTon" name=description>
+<META content="winston atari st emulator" name=keywords>
+</HEAD>
+<BODY aLink=#000080 bgColor=#ffffff link=#ff0000 text=#00033 vLink=#0000ff>
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD align=left vAlign=top>
+      <IMG width="298" height="75" border=0 src="..\graphics\winston.gif">
+    </TD>
+    <TD align=right vAlign=middle>
+      <IMG width="65" height="60" border=0 src="..\graphics\atarilogo.gif">
+    </TD>
+  </TR>
+  <TR>
+    <TD align=middle vAlign=top>
+      <A href="..\contents.html"><IMG width="78" height="19" border=0 src="../graphics/contents_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\gettingstarted\guide.html"><IMG width="99" height="19" border=0 src="../graphics/guide_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\troubleshooting\trouble.html"><IMG width="137" height="19" border=0 src="../graphics/trouble_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\credits\credits.html"><IMG width="61" height="19" border=0 src="../graphics/credits_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\links\links.html"><IMG width="40" height="19" border=0 src="../graphics/links_link.gif"></A>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD width="100%" height="19" bgcolor="#DCBB74" valign="top" align="center"></TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<CENTER>
+
+<!-------Back Forward------>
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD align=middle vAlign=middle>
+      <A href="..\options\favourites.html"><IMG width="71" height="20" border=0 src="..\graphics\back.gif"></A>
+      <A href="..\gettingstarted\guide.html"><IMG width="100" height="20" border=0 src="..\graphics\forward.gif"></A>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Manually Editing The Favourites File</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    WinSTon will look for the Favourites description file in the directory where the application was installed. The filename it scans for is 'favourites.txt'. This file is a simple text file which can be loaded into any text editor and modified.
+		This is sometimes easier than using the Favourites Dialog buttons to change each disc image individually.
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>General Format</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    The file consists of two main 'blocks'. One is a FOLDER and the other is a game TITLE. WinSTon identifies blocks in the file by markers. Such markers are [FOLDER] and [ENDFOLDER], and also [TITLE] and [ENDTITLE]. Between these two markers we have
+		additional markers which are taken as local identifiers. TITLE markers which can be used are [DISC1], [DISC2], [TOS], and [URL]. The can be used to store any discs needed, TOS version or a web address to direct the user to if the image fails to be found.<BR>
+		Here is a small example of a favourites file:<BR><BR>
+		[FOLDER]Medway<BR>
+		[TITLE]Paradroid<BR>
+		[DISC1]discs\medway\med_091<BR>
+		[TOS]tos100<BR>
+		[ENDTITLE]<BR>
+		[ENDFOLDER]<BR><BR>
+		This will create a single folder(discs MUST be stored inside a folder), called Medway. The folder contains a single disc image called 'Paradroid'. The disc to insert into drive A is 'discs\medway\med_091' and it will use the TOS image 'tos100'.
+		NOTE the use of a relative filename for the disc image and a lack of a file extension. Names without an absolute drive path will add this to the current directory setting in the <A href="discimages.html">Disc Images</A> dialog. The lack of a file extension will cause WinSTon to scan for
+		any useable files, eg .ST, .MSA and .ZIP. The TOS image also has a relative path and no extension so this will also scan in the TOS image directory set in the <A href="tosgem.html">TOS/GEM</A> dialog and valid file extensions are .ROM, .IMG and .TOS.<BR><BR>
+		You may specify a [FOLDER] from within another [FOLDER] marker to create sub-directories for your files. Note that each must end with an [ENDFOLDER]. You do not have to enter all markers for each [TITLE] as the others are assumed to be blank - but there must be at least
+		a [DISC1] marker. If you add a [URL] to a [TITLE] WinSTon will pass the address to Microsofts web browser if it fails to find the image on the hard-drive and the user clicks on the 'Download' button in the error message that will appear.<BR><BR>
+		As many discs URL's will be similiar you can also specify a [URLBASE] identifier which is added to the beginning of any [URL] address not starting with 'http://'. The URLBASE can be global, or added inside the [FOLDER] markers. These local URL addresses are only local to that
+		folder and not sub-folders, allowing for you to change the base address accordingly. Note that only one URLBASE may be global.<BR><BR>
+		For users who wish to modify this file remember to make a copy of the existing one and look through it to get a more in-depth idea of how the file is made up. While every step is taken to check for errors in the file and report them to the user it may be possible for WinSTon to fail
+		to run if the file is incorrect. If this happens just delete or rename the favourites file and try again.
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>

@@ -1,0 +1,5 @@
+QWAK:
+    
+        During a one player game when you die and have no more credits,
+        press fire on the joystick in the mouse port to restart the game on
+        the level you last died on.

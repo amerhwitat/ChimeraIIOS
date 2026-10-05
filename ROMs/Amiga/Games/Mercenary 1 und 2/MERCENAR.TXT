@@ -1,0 +1,86 @@
+                               MERCENARY
+
+Typed in by GONZO. Edited by PARASTE.
+
+
+GAME PLAY:
+The object of the game is to search the tunnels and collect items that you
+need to get off the planet. These items have names like Photon device. You
+will be able to tell which are the technical items. There are some
+geometric shapes that are actually keys. If you have a certain shape on you,
+you will be able to go through doors that were locked to you before. When
+you pick "keys" up the game does not tell you it a key. In order to enter
+the tunnels you must find an elevator. I have found several and will tell
+you where one is just to get you started and to show you what they look like.
+(An elevator is located at 09-05 on the grid.) When you go down in an
+elevator you will always end up in an underground hanger. You will save a
+hell of alot of time if you map the tunnels underground using door locations
+and room colors to identify the different rooms and how they interconnect.
+While underground you will run across three types of doors in addition to
+the different shaped doors. A door with an "X" on it is some kind of
+teleportation device. (I never could figure out a pattern to were it took
+me.) If the elevator turns black it is will only go between two locations,
+if it turns blue it can go to several different places. A door with an "/"
+on it will take you to the same place every time. Be warned there is no way
+back from this place (at least that I have found) and I spent along time
+walking the surface to get back to my space craft. The third type of door is
+simply a blank door that will take you into the next room. When you think
+you have everything you need enter your craft and fly to the white dot in
+the sky. You will find an orbiting station, NOW, I don't know what to do when
+you get to the orbiting station because I didn't save the game and I
+accidently walked off the platform (try this after you save the game...its a
+great fall), so I haven't escaped from the planet yet. But this is
+the basic idea. Also, as you collect items your craft will fly faster and
+faster until you have the ability to get to the orbiting platform. The
+ground speed of your craft will also increase. Well, I just that's enough
+about the game except the controls.
+
+CONTROLS:
+E : operate elevators
+B : Board craft
+L : Leave craft
+W : Walking speed
+R : Running speed
+<space bar> : Freeze location
+<up arrow> : Get object
+<down arrow> : Drop object
+1 - 0 : Throttle
+F1 - F10 : Reverse throttle
+<left arrow> : Fine tune throttle decrease
+<right arrow> : Fine tune throttle increase
+HELP : Start over (scatters what you have found over the ground)
+ESC : Save game
+Numeric keypad <return> : Load game
+Numeric keypad <del> : Abort "saved game" load
+
+COMPASS DIRECTIONS:          | A - B  |
+                             |--------|
+                             |LOCATION|
+                             |--------|
+
+                       (-B)
+                        00
+                         |
+             (-A) 270 ---|--- 90 (+A)
+                         |
+                        180
+                        (+B)
+
+ALL NUMBERS ARE DEGREES
+In other words, if you wanted to reduce the number in the "A" position, you
+would change your compass heading to 270 degrees. Likewise to increase the
+number in the "B" position you would change the compass to a 180 degree
+heading. Of course changing the heading to lets say 45 degrees would
+increase the "A" number while decreasing the "B" number. The whole map is
+one giant grid so you should soon be able to go exactly where you want to go.
+
+COMBAT:
+If you start shooting up the buildings on the surface you will soon be
+attacked by either or both sides in the war (depends on whose buildings you
+are shooting up). The best combat strategy I have found is, as soon as the
+red light above your COMPASS comes on (indicating an attack) press the
+spacebar to freeze your craft. Start rotating around and look for a moving
+white dot, this will be the attacking ship. Try to pick him off as he goes
+by. They are very good and don't often miss, so don't miss on the first
+shot. If you do miss, try hitting "0"  which will quickly move you. Then hit
+the space bar again and rotate to get another shot at the attacking craft.

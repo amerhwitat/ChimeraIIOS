@@ -1,0 +1,1325 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${CHIMERA_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
+BUILD="$ROOT/build"
+SRC="$ROOT/src/chimera-command-compat"
+OUT="$ROOT/rootfs"
+BIN="$OUT/usr/bin"
+SBIN="$OUT/usr/sbin"
+LIB="$OUT/usr/lib/chimera"
+ETC="$OUT/etc/chimera"
+CMDROOT="$ETC/commands"
+SHARE="$OUT/usr/share/chimera/commands"
+BACKUP="$ROOT/.chimera-fix-backups/command-compat"
+
+JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
+
+mkdir -p \
+    "$SRC" \
+    "$BIN" \
+    "$SBIN" \
+    "$LIB" \
+    "$ETC" \
+    "$CMDROOT" \
+    "$SHARE" \
+    "$BACKUP" \
+    "$BUILD"
+
+log() {
+    printf '[CHIMERA-CMD] %s\n' "$*"
+}
+
+warn() {
+    printf '[CHIMERA-CMD][WARNING] %s\n' "$*" >&2
+}
+
+die() {
+    printf '[CHIMERA-CMD][ERROR] %s\n' "$*" >&2
+    exit 1
+}
+
+backup_once() {
+    local src="$1"
+    local rel
+    local dst
+
+    [[ -e "$src" ]] || return 0
+
+    rel="${src#$ROOT/}"
+    rel="${rel//\//__}"
+    dst="$BACKUP/$rel"
+
+    if [[ ! -e "$dst" ]]; then
+        cp -p -- "$src" "$dst"
+        log "Backup: $dst"
+    fi
+}
+
+###############################################################################
+# 1. Native multicall command implementation
+###############################################################################
+
+cat > "$SRC/chimera-cmd.c" <<'C_SOURCE'
+#define _GNU_SOURCE
+
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <time.h>
+
+static const char *progname(const char *s)
+{
+    const char *p = strrchr(s, '/');
+    return p ? p + 1 : s;
+}
+
+static int cmd_pwd(void)
+{
+    char buf[PATH_MAX];
+
+    if (!getcwd(buf, sizeof(buf))) {
+        perror("pwd");
+        return 1;
+    }
+
+    puts(buf);
+    return 0;
+}
+
+static int cmd_echo(int argc, char **argv)
+{
+    for (int i = 1; i < argc; ++i) {
+        if (i > 1)
+            putchar(' ');
+        fputs(argv[i], stdout);
+    }
+
+    putchar('\n');
+    return 0;
+}
+
+static int cmd_ls(int argc, char **argv)
+{
+    const char *path = argc > 1 ? argv[1] : ".";
+
+    DIR *d = opendir(path);
+    if (!d) {
+        perror(path);
+        return 1;
+    }
+
+    struct dirent *e;
+
+    while ((e = readdir(d)) != NULL) {
+        if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, ".."))
+            continue;
+
+        printf("%s\n", e->d_name);
+    }
+
+    closedir(d);
+    return 0;
+}
+
+static int copy_file(const char *src, const char *dst)
+{
+    int in = open(src, O_RDONLY);
+    if (in < 0) {
+        perror(src);
+        return 1;
+    }
+
+    struct stat st;
+
+    if (fstat(in, &st) < 0) {
+        perror(src);
+        close(in);
+        return 1;
+    }
+
+    int out = open(
+        dst,
+        O_WRONLY | O_CREAT | O_TRUNC,
+        st.st_mode & 0777
+    );
+
+    if (out < 0) {
+        perror(dst);
+        close(in);
+        return 1;
+    }
+
+    char buf[65536];
+    ssize_t n;
+
+    while ((n = read(in, buf, sizeof(buf))) > 0) {
+        ssize_t off = 0;
+
+        while (off < n) {
+            ssize_t w = write(out, buf + off, (size_t)(n - off));
+
+            if (w < 0) {
+                perror(dst);
+                close(in);
+                close(out);
+                return 1;
+            }
+
+            off += w;
+        }
+    }
+
+    if (n < 0) {
+        perror(src);
+        close(in);
+        close(out);
+        return 1;
+    }
+
+    close(in);
+    close(out);
+
+    return 0;
+}
+
+static int cmd_cp(int argc, char **argv)
+{
+    if (argc != 3) {
+        fprintf(stderr, "usage: cp SOURCE DEST\n");
+        return 2;
+    }
+
+    if (!strcmp(argv[1], argv[2])) {
+        fprintf(stderr, "cp: source and destination are the same file\n");
+        return 1;
+    }
+
+    return copy_file(argv[1], argv[2]);
+}
+
+static int cmd_touch(int argc, char **argv)
+{
+    if (argc < 2) {
+        fprintf(stderr, "usage: touch FILE...\n");
+        return 2;
+    }
+
+    int rc = 0;
+
+    for (int i = 1; i < argc; ++i) {
+        int fd = open(
+            argv[i],
+            O_WRONLY | O_CREAT,
+            0666
+        );
+
+        if (fd < 0) {
+            perror(argv[i]);
+            rc = 1;
+            continue;
+        }
+
+        close(fd);
+
+        if (utimensat(
+                AT_FDCWD,
+                argv[i],
+                NULL,
+                0) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
+    }
+
+    return rc;
+}
+
+static int cmd_mkdir(int argc, char **argv)
+{
+    if (argc < 2) {
+        fprintf(stderr, "usage: mkdir DIRECTORY...\n");
+        return 2;
+    }
+
+    int rc = 0;
+
+    for (int i = 1; i < argc; ++i) {
+        if (mkdir(argv[i], 0777) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
+    }
+
+    return rc;
+}
+
+static int cmd_rm(int argc, char **argv)
+{
+    if (argc < 2) {
+        fprintf(stderr, "usage: rm FILE...\n");
+        return 2;
+    }
+
+    int rc = 0;
+
+    for (int i = 1; i < argc; ++i) {
+        if (unlink(argv[i]) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
+    }
+
+    return rc;
+}
+
+static int cmd_cat(int argc, char **argv)
+{
+    if (argc < 2) {
+        char buf[65536];
+        ssize_t n;
+
+        while ((n = read(STDIN_FILENO, buf, sizeof(buf))) > 0)
+            write(STDOUT_FILENO, buf, (size_t)n);
+
+        return n < 0 ? 1 : 0;
+    }
+
+    int rc = 0;
+
+    for (int i = 1; i < argc; ++i) {
+        int fd = open(argv[i], O_RDONLY);
+
+        if (fd < 0) {
+            perror(argv[i]);
+            rc = 1;
+            continue;
+        }
+
+        char buf[65536];
+        ssize_t n;
+
+        while ((n = read(fd, buf, sizeof(buf))) > 0)
+            write(STDOUT_FILENO, buf, (size_t)n);
+
+        if (n < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
+
+        close(fd);
+    }
+
+    return rc;
+}
+
+static int cmd_clear(void)
+{
+    fputs("\033[2J\033[H", stdout);
+    return 0;
+}
+
+static int cmd_whoami(void)
+{
+    const char *u = getenv("USER");
+
+    if (u) {
+        puts(u);
+        return 0;
+    }
+
+    return system("id -un");
+}
+
+static int cmd_hostname(void)
+{
+    char buf[256];
+
+    if (gethostname(buf, sizeof(buf)) < 0) {
+        perror("hostname");
+        return 1;
+    }
+
+    buf[sizeof(buf) - 1] = '\0';
+    puts(buf);
+
+    return 0;
+}
+
+static int cmd_date(void)
+{
+    time_t now = time(NULL);
+    struct tm tmv;
+
+    if (!localtime_r(&now, &tmv)) {
+        perror("date");
+        return 1;
+    }
+
+    char buf[128];
+
+    if (!strftime(
+            buf,
+            sizeof(buf),
+            "%a %b %d %H:%M:%S %Z %Y",
+            &tmv)) {
+        return 1;
+    }
+
+    puts(buf);
+    return 0;
+}
+
+static int cmd_true(void)
+{
+    return 0;
+}
+
+static int cmd_false(void)
+{
+    return 1;
+}
+
+static int cmd_chimera_native(void)
+{
+    puts("Chimera II native command runtime");
+    puts("ABI: native");
+    puts("Status: operational");
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    const char *cmd = progname(argv[0]);
+
+    if (!strcmp(cmd, "chimera-cmd"))
+        return cmd_chimera_native();
+
+    if (!strcmp(cmd, "pwd"))
+        return cmd_pwd();
+
+    if (!strcmp(cmd, "echo"))
+        return cmd_echo(argc, argv);
+
+    if (!strcmp(cmd, "ls"))
+        return cmd_ls(argc, argv);
+
+    if (!strcmp(cmd, "cp"))
+        return cmd_cp(argc, argv);
+
+    if (!strcmp(cmd, "touch"))
+        return cmd_touch(argc, argv);
+
+    if (!strcmp(cmd, "mkdir"))
+        return cmd_mkdir(argc, argv);
+
+    if (!strcmp(cmd, "rm"))
+        return cmd_rm(argc, argv);
+
+    if (!strcmp(cmd, "cat"))
+        return cmd_cat(argc, argv);
+
+    if (!strcmp(cmd, "clear"))
+        return cmd_clear();
+
+    if (!strcmp(cmd, "whoami"))
+        return cmd_whoami();
+
+    if (!strcmp(cmd, "hostname"))
+        return cmd_hostname();
+
+    if (!strcmp(cmd, "date"))
+        return cmd_date();
+
+    if (!strcmp(cmd, "true"))
+        return cmd_true();
+
+    if (!strcmp(cmd, "false"))
+        return cmd_false();
+
+    fprintf(
+        stderr,
+        "chimera-cmd: native implementation unavailable for '%s'\n",
+        cmd
+    );
+
+    return 127;
+}
+C_SOURCE
+
+###############################################################################
+# 2. Build native binary
+###############################################################################
+
+CC="${CC:-cc}"
+
+command -v "$CC" >/dev/null 2>&1 || die \
+    "C compiler '$CC' not found. Install GCC/Clang in the build environment."
+
+log "Compiling Chimera native command runtime..."
+
+"$CC" \
+    -O2 \
+    -Wall \
+    -Wextra \
+    -D_GNU_SOURCE \
+    "$SRC/chimera-cmd.c" \
+    -o "$BIN/chimera-cmd"
+
+chmod 0755 "$BIN/chimera-cmd"
+
+###############################################################################
+# 3. Install native command names
+###############################################################################
+
+NATIVE_COMMANDS=(
+    pwd
+    echo
+    ls
+    cp
+    mv
+    touch
+    mkdir
+    rm
+    cat
+    clear
+    whoami
+    hostname
+    date
+    true
+    false
+)
+
+for command in "${NATIVE_COMMANDS[@]}"; do
+    target="$BIN/$command"
+
+    if [[ -e "$target" && ! -L "$target" ]]; then
+        backup_once "$target"
+        rm -f -- "$target"
+    fi
+
+    ln -sfn "chimera-cmd" "$target"
+done
+
+###############################################################################
+# 4. Arabic aliases
+###############################################################################
+
+cat > "$CMDROOT/aliases.ar.json" <<'JSON'
+{
+  "عرض": "ls",
+  "دخول": "cd",
+  "موقعي": "pwd",
+  "نسخ": "cp",
+  "نقل": "mv",
+  "حذف": "rm",
+  "مجلد": "mkdir",
+  "ملف": "touch",
+  "اقرأ": "cat",
+  "مسح": "clear",
+  "ابحث": "find",
+  "فتش": "grep",
+  "عمليات": "ps",
+  "انهاء": "kill",
+  "اربط": "mount",
+  "افصل": "umount",
+  "إعادة_تشغيل": "reboot",
+  "إيقاف": "shutdown",
+  "مساعدة": "help",
+  "السجل": "history",
+  "دليل": "man",
+  "صلاحيات": "chmod",
+  "مالك": "chown",
+  "مساحة": "df",
+  "حجم": "du",
+  "مراقبة": "top",
+  "هوية": "whoami",
+  "اسم_الجهاز": "hostname",
+  "تاريخ": "date",
+  "نسخة": "uname",
+  "حالة": "status",
+  "تشغيل": "start",
+  "إيقاف_خدمة": "stop",
+  "إعادة_تشغيل_خدمة": "restart",
+  "شبكة": "ip",
+  "اتصال": "ping",
+  "مسارات": "route",
+  "منافذ": "ss",
+  "ملفات_مفتوحة": "lsof",
+  "ذاكرة": "free",
+  "قرص": "lsblk",
+  "أرشفة": "tar",
+  "ضغط": "gzip",
+  "فك_الضغط": "gunzip",
+  "اتصال_آمن": "ssh",
+  "نسخ_آمن": "scp",
+  "مقارنة": "diff",
+  "فرز": "sort",
+  "رأس": "head",
+  "ذيل": "tail",
+  "قص": "cut",
+  "استبدال": "sed",
+  "تحويل": "awk"
+}
+JSON
+
+###############################################################################
+# 5. Command registry
+###############################################################################
+
+cat > "$CMDROOT/registry.tsv" <<'REGISTRY'
+# command	arabic	mode	implementation	source
+ls	عرض	native	chimera-cmd	SS64/Linux
+cd	دخول	shell	cd	SS64/Linux
+pwd	موقعي	native	chimera-cmd	SS64/Linux
+cp	نسخ	native	chimera-cmd	SS64/Linux
+mv	نقل	native	chimera-cmd	SS64/Linux
+rm	حذف	native	chimera-cmd	SS64/Linux
+mkdir	مجلد	native	chimera-cmd	SS64/Linux
+touch	ملف	native	chimera-cmd	SS64/Linux
+cat	اقرأ	native	chimera-cmd	SS64/Linux
+clear	مسح	native	chimera-cmd	SS64/Linux
+find	ابحث	compat	find	SS64/Linux
+grep	فتش	compat	grep	SS64/Linux
+ps	عمليات	compat	ps	SS64/Linux
+kill	انهاء	compat	kill	SS64/Linux
+mount	اربط	compat	mount	SS64/Linux
+umount	افصل	compat	umount	SS64/Linux
+chmod	صلاحيات	compat	chmod	SS64/Linux
+chown	مالك	compat	chown	SS64/Linux
+df	مساحة	compat	df	SS64/Linux
+du	حجم	compat	du	SS64/Linux
+top	مراقبة	compat	top	SS64/Linux
+tar	أرشفة	compat	tar	SS64/Linux
+gzip	ضغط	compat	gzip	SS64/Linux
+ssh	اتصال_آمن	compat	ssh	SS64/Linux
+scp	نسخ_آمن	compat	scp	SS64/Linux
+dir	عرض	windows	cmd:dir	SS64/Windows
+copy	نسخ	windows	cmd:copy	SS64/Windows
+del	حذف	windows	cmd:del	SS64/Windows
+move	نقل	windows	cmd:move	SS64/Windows
+cls	مسح	windows	cmd:cls	SS64/Windows
+ipconfig	شبكة_ويندوز	windows	ipconfig.exe	SS64/Windows
+tasklist	قائمة_المهام	windows	tasklist.exe	SS64/Windows
+taskkill	إنهاء_مهمة	windows	taskkill.exe	SS64/Windows
+systeminfo	معلومات_النظام	windows	systeminfo.exe	SS64/Windows
+where	أين	windows	where.exe	SS64/Windows
+Get-Command	احصل_على_الأوامر	powershell	powershell:Get-Command	SS64/PowerShell
+Get-ChildItem	استعرض_العناصر	powershell	powershell:Get-ChildItem	SS64/PowerShell
+Get-Process	احصل_على_العمليات	powershell	powershell:Get-Process	SS64/PowerShell
+Get-Service	احصل_على_الخدمات	powershell	powershell:Get-Service	SS64/PowerShell
+Get-Location	احصل_على_الموقع	powershell	powershell:Get-Location	SS64/PowerShell
+brew	حزم_ماك	macos	brew	SS64/macOS
+xattr	خصائص_ماك	macos	xattr	SS64/macOS
+xcrun	أدوات_ماك	macos	xcrun	SS64/macOS
+xcode-select	اختيار_إكس_كود	macos	xcode-select	SS64/macOS
+open	فتح	macos	open	SS64/macOS
+REGISTRY
+
+###############################################################################
+# 6. Native/compatibility modes
+###############################################################################
+
+cat > "$CMDROOT/modes.conf" <<'MODES'
+# Chimera II Command Compatibility Framework
+
+CHIMERA_MODE=native
+
+# Valid values:
+#
+# native
+# linux
+# posix
+# bash
+# zsh
+# macos
+# windows
+# cmd
+# powershell
+#
+# Explicit mode has priority over automatic detection.
+
+AUTO_DETECT=1
+
+LINUX_RUNTIME=
+MACOS_RUNTIME=
+WINDOWS_RUNTIME=
+POWERSHELL_RUNTIME=
+CMD_RUNTIME=
+MODES
+
+###############################################################################
+# 7. Executable-format detector
+###############################################################################
+
+cat > "$BIN/chimera-exec" <<'EXEC'
+#!/usr/bin/env bash
+set -euo pipefail
+
+file="${1:-}"
+
+if [[ -z "$file" ]]; then
+    echo "usage: chimera-exec PROGRAM [ARGS...]" >&2
+    exit 2
+fi
+
+if [[ ! -e "$file" ]]; then
+    command -v "$file" >/dev/null 2>&1 || {
+        echo "chimera-exec: command not found: $file" >&2
+        exit 127
+    }
+
+    file="$(command -v "$file")"
+fi
+
+detect_format() {
+    local f="$1"
+    local magic
+
+    magic="$(dd if="$f" bs=1 count=4 2>/dev/null | od -An -tx1 | tr -d ' \n')"
+
+    case "$magic" in
+        7f454c46)
+            echo ELF
+            ;;
+        4d5a*)
+            echo PE
+            ;;
+        cffaedfe|cffaedfe)
+            echo MACHO64
+            ;;
+        feedface|feedfacf|cefaedfe|cffaedfe)
+            echo MACHO
+            ;;
+        2321*)
+            echo SCRIPT
+            ;;
+        *)
+            if head -c 2 "$f" 2>/dev/null | grep -q '^#!'; then
+                echo SCRIPT
+            else
+                echo UNKNOWN
+            fi
+            ;;
+    esac
+}
+
+format="$(detect_format "$file")"
+
+case "$format" in
+
+    ELF)
+        exec "$file" "${@:2}"
+        ;;
+
+    SCRIPT)
+        exec "$file" "${@:2}"
+        ;;
+
+    PE)
+        if [[ -n "${CHIMERA_WINDOWS_RUNTIME:-}" ]] &&
+           command -v "${CHIMERA_WINDOWS_RUNTIME}" >/dev/null 2>&1; then
+            exec "${CHIMERA_WINDOWS_RUNTIME}" "$file" "${@:2}"
+        fi
+
+        echo "Chimera II: PE/Windows executable detected." >&2
+        echo "No Windows compatibility runtime is configured." >&2
+        echo "Set CHIMERA_WINDOWS_RUNTIME to a supported runtime." >&2
+        exit 126
+        ;;
+
+    MACHO|MACHO64)
+        if [[ -n "${CHIMERA_MACOS_RUNTIME:-}" ]] &&
+           command -v "${CHIMERA_MACOS_RUNTIME}" >/dev/null 2>&1; then
+            exec "${CHIMERA_MACOS_RUNTIME}" "$file" "${@:2}"
+        fi
+
+        echo "Chimera II: Mach-O/macOS executable detected." >&2
+        echo "No macOS compatibility runtime is configured." >&2
+        exit 126
+        ;;
+
+    *)
+        echo "Chimera II: unsupported executable format: $file" >&2
+        exit 126
+        ;;
+
+esac
+EXEC
+
+chmod 0755 "$BIN/chimera-exec"
+
+###############################################################################
+# 8. Main command dispatcher
+###############################################################################
+
+cat > "$BIN/chimera" <<'DISPATCH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+# CHIMERA_COMMAND_ROOT may point to the staged rootfs during build tests.
+# Installed systems normally use /etc/chimera/commands.
+CONF="${CHIMERA_COMMAND_ROOT:-/etc/chimera/commands}"
+REGISTRY="$CONF/registry.tsv"
+
+usage() {
+    cat <<'EOF'
+Chimera II Command Framework
+
+Usage:
+  chimera <command> [arguments...]
+  chimera --mode MODE <command> [arguments...]
+  chimera help <command>
+  chimera native <command> [arguments...]
+  chimera compat MODE <command> [arguments...]
+  chimera exec PROGRAM [arguments...]
+
+Modes:
+  native
+  linux
+  posix
+  bash
+  zsh
+  macos
+  windows
+  cmd
+  powershell
+EOF
+}
+
+find_alias() {
+    local name="$1"
+
+    [[ -f "$CONF/aliases.ar.json" ]] || return 1
+
+    python3 - "$CONF/aliases.ar.json" "$name" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as f:
+    data = json.load(f)
+
+name = sys.argv[2]
+
+for ar, command in data.items():
+    if ar == name:
+        print(command)
+        raise SystemExit(0)
+
+raise SystemExit(1)
+PY
+}
+
+lookup_mode() {
+    local command="$1"
+
+    awk -F '\t' -v c="$command" '
+        $0 !~ /^#/ && $1 == c {
+            print $3
+            exit
+        }
+    ' "$REGISTRY" 2>/dev/null || true
+}
+
+lookup_impl() {
+    local command="$1"
+
+    awk -F '\t' -v c="$command" '
+        $0 !~ /^#/ && $1 == c {
+            print $4
+            exit
+        }
+    ' "$REGISTRY" 2>/dev/null || true
+}
+
+run_native() {
+    local command="$1"
+    shift
+
+    case "$command" in
+        cd)
+            builtin cd -- "$@"
+            ;;
+        *)
+            local root_prefix="${CHIMERA_ROOT_PREFIX:-}"
+
+            if [[ -x "${root_prefix}/usr/bin/$command" ]]; then
+                exec "${root_prefix}/usr/bin/$command" "$@"
+            fi
+
+            if command -v "$command" >/dev/null 2>&1; then
+                exec "$command" "$@"
+            fi
+
+            echo "chimera: native command unavailable: $command" >&2
+            return 127
+            ;;
+    esac
+}
+
+run_compat() {
+    local mode="$1"
+    local command="$2"
+    shift 2
+
+    case "$mode" in
+
+        linux|posix|bash|zsh)
+            exec "$command" "$@"
+            ;;
+
+        macos)
+            if command -v "$command" >/dev/null 2>&1; then
+                exec "$command" "$@"
+            fi
+
+            echo "chimera: macOS command unavailable: $command" >&2
+            echo "Install/configure a macOS compatibility runtime." >&2
+            return 126
+            ;;
+
+        windows|cmd)
+            if [[ -n "${CHIMERA_CMD_RUNTIME:-}" ]] &&
+               command -v "${CHIMERA_CMD_RUNTIME}" >/dev/null 2>&1; then
+                exec "${CHIMERA_CMD_RUNTIME}" /c "$command" "$@"
+            fi
+
+            echo "chimera: Windows CMD runtime unavailable." >&2
+            return 126
+            ;;
+
+        powershell)
+            if [[ -n "${CHIMERA_POWERSHELL_RUNTIME:-}" ]] &&
+               command -v "${CHIMERA_POWERSHELL_RUNTIME}" >/dev/null 2>&1; then
+
+                local joined
+                printf -v joined '%q ' "$command" "$@"
+
+                exec "${CHIMERA_POWERSHELL_RUNTIME}" \
+                    -NoLogo \
+                    -NoProfile \
+                    -Command \
+                    "$joined"
+            fi
+
+            echo "chimera: PowerShell runtime unavailable." >&2
+            return 126
+            ;;
+
+        *)
+            echo "chimera: unknown mode: $mode" >&2
+            return 2
+            ;;
+    esac
+}
+
+if [[ $# -eq 0 ]]; then
+    usage
+    exit 0
+fi
+
+mode="${CHIMERA_MODE:-auto}"
+
+if [[ "$1" == "--mode" ]]; then
+    [[ $# -ge 3 ]] || {
+        usage
+        exit 2
+    }
+
+    mode="$2"
+    shift 2
+fi
+
+case "$1" in
+
+    help)
+        if [[ $# -eq 1 ]]; then
+            usage
+            exit 0
+        fi
+
+        command="$2"
+
+        if ar="$(find_alias "$command" 2>/dev/null)"; then
+            echo "$command -> $ar"
+        fi
+
+        echo
+        echo "Command: $command"
+        echo "Mode: $(lookup_mode "$command")"
+        echo "Implementation: $(lookup_impl "$command")"
+        echo "Reference: SS64 command registry"
+        exit 0
+        ;;
+
+    native)
+        shift
+        [[ $# -gt 0 ]] || {
+            echo "usage: chimera native COMMAND [ARGS...]" >&2
+            exit 2
+        }
+        run_native "$@"
+        ;;
+
+    compat)
+        [[ $# -ge 3 ]] || {
+            echo "usage: chimera compat MODE COMMAND [ARGS...]" >&2
+            exit 2
+        }
+
+        compat_mode="$2"
+        command="$3"
+        shift 3
+
+        run_compat "$compat_mode" "$command" "$@"
+        ;;
+
+    exec)
+        shift
+        exec /usr/bin/chimera-exec "$@"
+        ;;
+
+    *)
+        ;;
+esac
+
+command="$1"
+shift
+
+# Arabic command → canonical command.
+if ar="$(find_alias "$command" 2>/dev/null)"; then
+    command="$ar"
+fi
+
+declared_mode="$(lookup_mode "$command")"
+
+if [[ "$mode" == "auto" ]]; then
+    mode="$declared_mode"
+
+    [[ -n "$mode" ]] || mode="native"
+fi
+
+case "$mode" in
+    native)
+        run_native "$command" "$@"
+        ;;
+
+    shell)
+        exec "$command" "$@"
+        ;;
+
+    linux|posix|bash|zsh|macos|windows|cmd|powershell)
+        run_compat "$mode" "$command" "$@"
+        ;;
+
+    *)
+        echo "chimera: unsupported execution mode: $mode" >&2
+        exit 2
+        ;;
+esac
+DISPATCH
+
+chmod 0755 "$BIN/chimera"
+
+###############################################################################
+# 9. Shell integration
+###############################################################################
+
+mkdir -p "$OUT/etc/profile.d"
+
+cat > "$OUT/etc/profile.d/chimera-command-compat.sh" <<'PROFILE'
+# Chimera II Command Compatibility Framework
+
+export CHIMERA_COMMAND_ROOT="/etc/chimera/commands"
+export CHIMERA_MODE="${CHIMERA_MODE:-native}"
+
+chimera-mode() {
+    export CHIMERA_MODE="$1"
+    printf 'CHIMERA_MODE=%s\n' "$CHIMERA_MODE"
+}
+
+chimera-native() {
+    CHIMERA_MODE=native /usr/bin/chimera "$@"
+}
+
+chimera-linux() {
+    CHIMERA_MODE=linux /usr/bin/chimera "$@"
+}
+
+chimera-macos() {
+    CHIMERA_MODE=macos /usr/bin/chimera "$@"
+}
+
+chimera-windows() {
+    CHIMERA_MODE=windows /usr/bin/chimera "$@"
+}
+
+chimera-powershell() {
+    CHIMERA_MODE=powershell /usr/bin/chimera "$@"
+}
+
+chimera-exec() {
+    /usr/bin/chimera-exec "$@"
+}
+
+# Arabic shell functions.
+عرض()       { /usr/bin/chimera ls "$@"; }
+دخول()      { builtin cd "$@"; }
+موقعي()     { /usr/bin/chimera pwd "$@"; }
+نسخ()       { /usr/bin/chimera cp "$@"; }
+نقل()       { /usr/bin/chimera mv "$@"; }
+حذف()       { /usr/bin/chimera rm "$@"; }
+مجلد()      { /usr/bin/chimera mkdir "$@"; }
+ملف()       { /usr/bin/chimera touch "$@"; }
+اقرأ()      { /usr/bin/chimera cat "$@"; }
+مسح()       { /usr/bin/chimera clear "$@"; }
+هوية()      { /usr/bin/chimera whoami "$@"; }
+اسم_الجهاز(){ /usr/bin/chimera hostname "$@"; }
+تاريخ()     { /usr/bin/chimera date "$@"; }
+مساعدة()    { /usr/bin/chimera help "$@"; }
+دليل()      { /usr/bin/chimera help "$@"; }
+شبكة()      { /usr/bin/chimera ip "$@"; }
+اتصال()     { /usr/bin/chimera ping "$@"; }
+مساحة()     { /usr/bin/chimera df "$@"; }
+حجم()       { /usr/bin/chimera du "$@"; }
+مراقبة()    { /usr/bin/chimera top "$@"; }
+فتش()       { /usr/bin/chimera grep "$@"; }
+ابحث()      { /usr/bin/chimera find "$@"; }
+عمليات()    { /usr/bin/chimera ps "$@"; }
+انهاء()     { /usr/bin/chimera kill "$@"; }
+صلاحيات()   { /usr/bin/chimera chmod "$@"; }
+مالك()      { /usr/bin/chimera chown "$@"; }
+أرشفة()     { /usr/bin/chimera tar "$@"; }
+ضغط()       { /usr/bin/chimera gzip "$@"; }
+اتصال_آمن() { /usr/bin/chimera ssh "$@"; }
+نسخ_آمن()   { /usr/bin/chimera scp "$@"; }
+مقارنة()    { /usr/bin/chimera diff "$@"; }
+فرز()       { /usr/bin/chimera sort "$@"; }
+رأس()       { /usr/bin/chimera head "$@"; }
+ذيل()       { /usr/bin/chimera tail "$@"; }
+قص()        { /usr/bin/chimera cut "$@"; }
+استبدال()   { /usr/bin/chimera sed "$@"; }
+تحويل()     { /usr/bin/chimera awk "$@"; }
+PROFILE
+
+###############################################################################
+# 10. Documentation / runtime contract
+###############################################################################
+
+cat > "$SHARE/README.md" <<'DOC'
+# Chimera II Command Compatibility Framework
+
+Chimera provides four layers:
+
+1. Chimera-native commands
+2. POSIX/Linux command compatibility
+3. Windows CMD/PowerShell compatibility
+4. macOS command compatibility
+
+SS64 is treated as a command-reference source, not as a binary distribution.
+
+Native binaries are compiled by the Chimera builder.
+
+Foreign executable formats are detected before execution:
+
+ELF   -> native/Linux runtime
+PE    -> Windows compatibility runtime
+Mach-O -> macOS compatibility runtime
+script -> interpreter from shebang
+
+A missing compatibility runtime is a controlled error and never silently
+pretends that the foreign executable is a native Chimera executable.
+
+Arabic command names are exposed through `/etc/profile.d/chimera-command-compat.sh`.
+
+Examples:
+
+    عرض
+    موقعي
+    نسخ file1 file2
+    حذف file
+    مجلد test
+    دليل ls
+
+Explicit modes:
+
+    CHIMERA_MODE=native chimera ls
+    CHIMERA_MODE=linux chimera grep foo file
+    CHIMERA_MODE=macos chimera open .
+    CHIMERA_MODE=windows chimera dir
+    CHIMERA_MODE=powershell chimera Get-Process
+
+Executable dispatch:
+
+    chimera exec ./program
+
+This layer is intentionally independent from Koronos.
+DOC
+
+###############################################################################
+# 11. Runtime environment configuration
+###############################################################################
+
+cat > "$ETC/runtime.conf" <<'RUNTIME'
+# Chimera II external compatibility runtimes.
+#
+# Leave empty until the corresponding runtime is installed.
+
+CHIMERA_LINUX_RUNTIME=""
+CHIMERA_MACOS_RUNTIME=""
+CHIMERA_WINDOWS_RUNTIME=""
+CHIMERA_CMD_RUNTIME=""
+CHIMERA_POWERSHELL_RUNTIME=""
+RUNTIME
+
+###############################################################################
+# 12. Validation
+###############################################################################
+
+log "Validating generated shell files..."
+
+bash -n "$BIN/chimera"
+bash -n "$BIN/chimera-exec"
+bash -n "$OUT/etc/profile.d/chimera-command-compat.sh"
+
+log "Testing native command binary..."
+
+"$BIN/chimera-cmd"
+
+for command in "${NATIVE_COMMANDS[@]}"; do
+    [[ -x "$BIN/$command" ]] || die \
+        "Native command missing: $command"
+done
+
+log "Testing command dispatcher against staged rootfs..."
+
+CHIMERA_COMMAND_ROOT="$CMDROOT" \
+CHIMERA_ROOT_PREFIX="$OUT" \
+    "$BIN/chimera" help ls
+
+CHIMERA_COMMAND_ROOT="$CMDROOT" \
+CHIMERA_ROOT_PREFIX="$OUT" \
+    "$BIN/chimera" help عرض
+
+###############################################################################
+# Verify registry resolution
+###############################################################################
+
+log "Verifying registry resolution..."
+
+registry_mode="$(
+    CHIMERA_COMMAND_ROOT="$CMDROOT" \
+    CHIMERA_ROOT_PREFIX="$OUT" \
+        "$BIN/chimera" help ls |
+        awk -F': ' '/^Mode:/ {print $2}'
+)"
+
+registry_impl="$(
+    CHIMERA_COMMAND_ROOT="$CMDROOT" \
+    CHIMERA_ROOT_PREFIX="$OUT" \
+        "$BIN/chimera" help ls |
+        awk -F': ' '/^Implementation:/ {print $2}'
+)"
+
+[[ -n "$registry_mode" ]] || {
+    die "Registry mode lookup returned empty result."
+}
+
+[[ -n "$registry_impl" ]] || {
+    die "Registry implementation lookup returned empty result."
+}
+
+[[ "$registry_mode" == "native" ]] || {
+    die "ls must resolve to native mode, got: $registry_mode"
+}
+
+log "Registry resolution: ls -> $registry_mode / $registry_impl"
+
+###############################################################################
+# Verify Arabic resolution
+###############################################################################
+
+arabic_resolution="$(
+    CHIMERA_COMMAND_ROOT="$CMDROOT" \
+    CHIMERA_ROOT_PREFIX="$OUT" \
+        "$BIN/chimera" help عرض
+)"
+
+grep -q '^عرض -> ls$' <<<"$arabic_resolution" || {
+    die "Arabic alias resolution failed for عرض -> ls"
+}
+
+log "Arabic resolution: عرض -> ls"
+
+log "Testing Arabic registry..."
+
+python3 - "$CMDROOT/aliases.ar.json" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as f:
+    data = json.load(f)
+
+required = {
+    "عرض",
+    "دخول",
+    "موقعي",
+    "نسخ",
+    "نقل",
+    "حذف",
+    "مجلد",
+    "ملف",
+    "اقرأ",
+    "مسح",
+    "مساعدة",
+}
+
+missing = required - set(data)
+
+if missing:
+    print("Missing Arabic aliases:", ", ".join(sorted(missing)))
+    raise SystemExit(1)
+
+print("Arabic aliases:", len(data))
+PY
+
+###############################################################################
+# 13. Build manifest
+###############################################################################
+
+cat > "$BUILD/chimera-command-compat.manifest" <<EOF
+CHIMERA_COMMAND_COMPAT=1
+NATIVE_BINARY=$BIN/chimera-cmd
+DISPATCHER=$BIN/chimera
+EXEC_FORMAT_DISPATCHER=$BIN/chimera-exec
+REGISTRY=$CMDROOT/registry.tsv
+ARABIC_ALIASES=$CMDROOT/aliases.ar.json
+MODE_CONFIG=$CMDROOT/modes.conf
+RUNTIME_CONFIG=$ETC/runtime.conf
+EOF
+
+log "Command compatibility subsystem installed."
+
+printf '\n'
+printf '%s\n' '============================================================'
+printf '%s\n' ' Chimera II Command Compatibility Framework'
+printf '%s\n' '============================================================'
+printf 'Native commands : %d\n' "${#NATIVE_COMMANDS[@]}"
+printf 'Arabic aliases   : '
+python3 - "$CMDROOT/aliases.ar.json" <<'PY'
+import json,sys
+print(len(json.load(open(sys.argv[1],encoding="utf-8"))))
+PY
+printf 'Registry         : %s\n' "$CMDROOT/registry.tsv"
+printf 'Dispatcher       : %s\n' "$BIN/chimera"
+printf 'Exec dispatcher  : %s\n' "$BIN/chimera-exec"
+printf 'Manifest         : %s\n' "$BUILD/chimera-command-compat.manifest"
+printf '%s\n' '============================================================'

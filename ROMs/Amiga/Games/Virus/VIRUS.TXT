@@ -1,0 +1,11 @@
+VIRUS:
+
+        Hold down 'ENTER' (Keypad) and 'P', keep holding 'ENTER' then press
+        'O'.  Now use the following keys:
+
+                    'F'_______________________________Refuel.
+                    'O'___________________Activate demo mode.
+                    'L'___________________________More lives.
+                    'N'______________________Resume the game.
+                    'C'______________Special effect on & off.
+                    'D'__________________________Demo on/off.

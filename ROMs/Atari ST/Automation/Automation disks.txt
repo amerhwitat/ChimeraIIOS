@@ -1,0 +1,4041 @@
+Automation Compact Disk Catalog
+A_001.ST - A_512.ST
+
+
+NOTES:
+
+
+EXPLANATION: This is an updated listing of all available Atari ST "compact disks" released by Automation. When I first found them, I was excited to find all the old games out there, but the inaccuracy of the list that accompanied them was deplorable. So, here is a 100% (or at least 99%) accurate list. I have gone through each and every one of these and tested them to some degree with STEEM Atari STE emulator.
+
+DISK IMAGE SOURCES: All testing was done on images obtained from either ftp.megafile.com or ftp.mindbomb.com. The links on this page will download the disks from ftp://ftp.cs.tu-berlin.de/pub/atari/ so there may be some slight variations.
+
+DEFECTIVE DISK IMAGES: Those images found to be defective have been annotated as "AVAILABLE IMAGE IS DAMAGED" or "AVAILABLE IMAGE IS POSSIBLY DAMAGED."
+
+OFFENSIVE MATERIAL: Many of these disks contain offensive material, in both the menus and some of the games. Where I have found such content, I have marked either the game itself or the menu with an asterisk [*] . For those disk images for which the menu is obscene, the first line (directly below the image's filename) is marked with a lone asterisk. I have not caught all instances of profanity, sexual content, etc. -- there is most certainly some that I didn't notice, so caveat emptor.
+
+UPDATES: If you find information on this listing which is inaccurate or incomplete, and certainly if you find/have good images of the disks I have marked as DAMAGED, please e-mail me, and I will be sure the list is updated and gets posted somewhere.
+
+Enjoy!
+Chris Edgar
+chrisnstacywelikemilkshakes@hotmail.com
+
+Revised:
+Jul. 4, 2002
+
+
+THE CATALOG:
+A_000
+(STE v.2)
+# Sinbad and the Throne of the Falcon
+
+# Myth
+
+A_001
+(STE v.2)
+# Crystal Castles
+
+# Star Wars: The Empire Strikes Back
+
+# Northstar w/ docs
+
+# Star Raiders
+
+# Robotron: 2084
+
+# Trail Blazer
+
+# Football Manager: World Cup Edition
+
+A_002
+# Into the Eagle's Nest
+
+# Trantor: The Last Stormtrooper
+
+# Extensor
+
+# Knightmare
+
+# Plutos
+
+# Virus
+
+# Joe Blade
+
+# Trifide II
+
+A_003
+# Mercenary: Return to Targ
+
+# Mercenary: The Second City
+
+# Football Manager
+
+# Titus Arcade Classics Vol. 1
+
+# Rolling Thunder
+
+# Arkanoid II: Revenge of Doh
+
+# Delta Patrol
+
+# Super Huey
+
+A_004
+# Mission Genocide
+
+# Computer Scrabble
+
+# Moon Patrol
+
+# Eden Blues
+
+# Xevious
+
+# Airball
+
+# Starquake
+
+# Missile Command (v1.0)
+
+A_005
+# Typhoon Thompson in: Search for the Sea Child
+
+# Street Gang (1 meg)
+
+# Deathstrike
+
+A_006
+# Better Dead Than Alien
+
+# Missile Command (v2.0)
+
+# Pinball Factory
+
+# Thundercats
+
+# Army Moves
+
+# Rockford
+
+# Joust
+
+A_007
+# Asteriods Deluxe
+
+# Karate Kid II (1 meg)
+
+# Diablo
+
+# Battleships
+
+# [*] Vampire's Empire
+
+# Overlander
+
+A_008
+# Backlash
+
+# Ninja
+
+# Goldrunner
+
+# Major Motion
+
+# Super Breakout
+
+# Revenge of the Mutant Camels II
+
+# QBall
+
+# Spook
+
+A_009
+# [*] (STE v.2)
+
+# Nebulus
+
+# Eliminator
+
+# Blue Angels
+
+# Enduro Racer
+
+# Chubby Gristle
+
+A_010
+# Tournament Leader Board
+
+# Leader Board
+
+# Pengy
+
+# Veteran
+
+# Black Lamp
+
+# Whirligig
+
+A_011
+# Championship Cricket (1 meg)
+
+# Soccer Supremo
+
+# Tennis
+
+# Quadralien
+
+# The Lands of Havoc
+
+# Mudpies
+
+# Hotshot
+
+# Thrust
+
+# 8 Ball
+
+A_012
+# Beyond the Ice Palace
+
+# Space Killer
+
+# Time Bandit v2.1
+
+# Sky Chase
+
+# Deflektor
+
+# Shackled
+
+A_013
+# Super Hang-On
+
+# Super Sprint
+
+# ST Karate
+
+# Pool (Microdeal)
+
+A_014
+(STE v.2)
+# Elite
+
+# Vixen
+
+# Star Goose!
+
+# Helter Skelter
+
+# Championship Baseball
+
+A_015
+# Starray (1 meg)
+
+# Return to Genesis (1 meg)
+
+A_016
+# Federation of Free Traders
+
+# Football Manager II
+
+# Screaming Wings
+
+# Mousetrap
+
+# Bombjack
+
+A_017
+# Magnetic Tank
+
+# Indiana Jones and the Temple of Doom
+
+# Spy vs. Spy
+
+# Tetra Quest
+
+# Garfield
+
+# Cybernoid: The Fighting Machine
+
+# Tetris
+
+A_018
+(STE v.2)
+# Buggy Boy
+
+# Floyd the Droid: "On the Run"
+
+# Wizball
+
+# Eco: A Game of Survival
+
+# Phantasm
+
+# Dragon Lord
+
+A_019
+# Where Time Stood Still
+
+# Battle Probe
+
+# Sorcery+
+
+# XOR
+
+A_020
+# Artura
+
+# Garfield
+
+# Moonbase
+
+# Galax 3D
+
+A_021
+# Nigel Mansell's Grand Prix
+
+# Fernandez Must Die
+
+# Battlezone
+
+# The Enforcer
+
+# Uridium
+
+# Altair
+
+A_022
+# 1943: Battle of Midway
+
+# Rampage
+
+# Captain America Defies the Doom Tube
+
+# Slap Fight
+
+# Leathernecks
+
+A_023
+(STE v.2)
+# Turbo Cup
+
+# [*] Strip Poker 3
+
+# [*] Snafux
+
+# Flying Shark
+
+A_024
+# Return of the Jedi
+
+# Off Shore Warrior
+
+# Bank Buster
+
+# Two Game (Box the Dragon and Mastermind)
+
+A_025
+# Pac-Mania
+
+# Solomon's Key
+
+# International Karate +
+
+# Mad Mix Game (Pepsi)
+
+# Harrier Strike Mission w/ docs
+
+# Metro-Cross
+
+# Hellfire
+
+A_026
+# Millipede
+
+# Driller (Space Station Oblivion)
+
+# Mach 3
+
+# Truck
+
+A_027
+# James Bond 007: Live and Let Die
+
+# Foundation's Waste
+
+# ST-Protector
+
+# Pandora
+
+A_028
+# Fireblaster
+
+# Stormbringer ST
+
+# Netherworld
+
+# Frost Byte
+
+# Xenon
+
+A_029
+# Alien Syndrome
+
+# Space Station Part I
+
+# Barbarian (Death Sword)
+
+# Fuzzball
+
+A_030
+# Haunted House
+
+# Speedball I
+
+# Exolon
+
+# ATAX
+
+# Crack'ed
+
+# Time Blast
+
+A_031
+# Daley Thompson's Olympic Challenge (1 meg)
+
+# Growth
+
+A_032
+# Star Battle (French)
+
+# SDI (Cinemaware)
+
+# Bionic Commando
+
+A_033
+(STE v.2)
+# Predator
+
+# Bounce Out
+
+# Chuckie Egg
+
+# Soldier of Light
+
+A_034
+# Bubble Bobble
+
+# Hyperdrome
+
+# Hell Bent
+
+# Gary Lineker's Super Skills
+
+# Money
+
+A_035
+# Falcon 1.0
+
+# Bombuzal
+
+A_036
+# Joe Blade II
+
+# Pool
+
+# Flip Side
+
+# Wanted
+
+A_037
+# Operation Wolf
+
+# Top Gun
+
+A_038
+# Mission Elevator
+
+# Ikari Warriors
+
+# The Flintstones
+
+# The Munsters
+
+# ST Checkers 1.0
+
+A_039
+# Terramex
+
+# Metropolis
+
+# Super Ski (French)
+
+# ST Poker Royale
+
+A_040
+# Iron Trackers (French)
+
+# Victory Road
+
+# Megaroids
+
+A_041
+# Street Fighter
+
+# Space Racer (French)
+
+# Ripcord
+
+A_042
+# Galactic Conquerer
+
+# Trauma
+
+# Chopper-X
+
+# Monkey Business
+
+A_043
+# Thunder Blade (1 meg)
+
+# Spidertronic
+
+# Boulder Dash
+
+A_044
+# [*]
+
+# Desolator (1 meg)
+
+# SDI (SEGA/Activision) (1 meg)
+
+A_045
+# [*]
+
+# Vectorball
+
+# Double Dragon
+
+A_046
+# Menace (1 meg)
+
+# R-Type (1 meg)
+
+A_047
+# Rambo III
+
+# Transputor
+
+# Free Climbing (Spanish)
+
+# Yahtzee
+
+# ZXYM
+
+A_048
+# Captain Fizz
+
+# Tracksuit Manager
+
+# Advanced Rugby Simulator
+
+# Elf
+
+# Pyramino w/ docs
+
+A_049
+# Crazy Cars 2 (1 meg)
+
+# Baal (1 meg)
+
+A_050
+# Batman: The Caped Crusader (Part 1)
+
+# Batman: The Caped Crusader (Part 2)
+
+# Breakanoid w/ docs
+
+# Addictaball
+
+# Warhawk
+
+# Brickyard!
+
+# (Automation Games Listing 1-50 and Information)
+
+A_051
+# Peter Beardsley's International Football
+
+# Impact
+
+# Prohibition
+
+# Tau Ceti
+
+# I, Ball
+
+# ST Krak w/ editor
+
+A_052
+# Zany Golf
+
+# Karateka
+
+A_053
+# [*]
+
+# Question of Sport
+
+# Space Baller
+
+# Turbo GT
+
+# Sky Rider
+
+# Erebus
+
+A_054
+# LED Storm
+
+# Thunder Wing
+
+# Chase
+
+# Mafdet and the Book of the Dead
+
+# Hades Nebula
+
+A_055
+# Custodian
+
+# Andes Attack
+
+# Brattacus
+
+# Sidearms
+
+A_056
+# Bermuda Project
+
+# Trap
+
+A_057
+# [*]
+
+# I, Ludicrus
+
+# Luxor
+
+# Hustler
+
+A_058
+# Wizard Royal w/ Symbol Editor and Output Program (German)
+
+# Cards v2.0
+
+# Dame (German)
+
+A_059
+# Golden Path
+
+# Road Wars
+
+A_060
+# [*]
+
+# Livingston I Presume
+
+# Starglider
+
+# Labyrinth
+
+# Blast
+
+A_061
+# Catch 23
+
+# 10th Frame: Pro Bowling Simulator
+
+# Road Runner
+
+A_062
+# Technocop (1 meg)
+
+# Powerdrome (1 meg)
+
+A_063
+# Stone-Breaker
+
+# [*] Strip Breakout
+
+# Arkanoid
+
+# BMX Simulator
+
+# Hacker II: The Doomsday Papers
+
+# Transylvania I
+
+A_064
+# Barbarian (Psygnosis) (1 meg)
+
+# OutRun (1 meg)
+
+A_065
+# Galdregon's Domain
+
+A_066
+# ISS (Incredible Shrinking Sphere)
+
+# Mad Flunky
+
+# Bomb Fusion
+
+# Terra Nova
+
+A_067
+# [*]
+
+# Fire & Forget
+
+# Crafton & Xunk
+
+# The Eye w/ docs
+
+# The Hunt for Red October (The Software Toolworks)
+
+A_068
+# Raffles
+
+# Terestrial Encounter
+
+# Ringside
+
+A_069_1
+# President Elect '88
+
+# Stellar Crusade
+
+# Winter Games
+
+# Ultima III: Exodus
+
+A_069_2
+# Barbarian II: The Dungeon of Drax (Axe of Rage)
+
+# Last Duel: Inter Planet War 2012
+
+A_069_3
+# Afterburner (1 meg)
+
+# Microprose Soccer (1 meg)
+
+A_069_4
+# Buffalo Bill's Wild West Show
+
+# TECH: The Race Against the Targanoids
+
+A_069_5
+(STE)
+# Kick Off 2
+
+# Pro Tennis Simulator
+
+# Ghosts 'n Goblins
+
+# STOS Slippery Sid
+
+# Pompey Puffs Packer v1.5 (utility)
+
+A_070
+# Ballistix
+
+# The Real Ghostbusters
+
+# Warlock's Quest
+
+# (Automation Games Listing 1-70, Information and Cheats)
+
+A_071
+# [*]
+
+# [*] Teenage Queen
+
+# Karting Grand Prix
+
+# Sam & Ed (1 meg)
+
+# Knickerbockers
+
+A_072
+# Bob Morane (Prohibition II)
+
+# Seconds Out..!
+
+# A Question of Scruples: The Computer Edition
+
+# Football Director
+
+A_073
+(STE v.2)
+# Gauntlet (1 meg)
+
+# Arctic Fox (1 meg)
+
+# Wizard Warz (1 meg)
+
+# Battle for the Throne (1 meg)
+
+A_074
+# Mini Golf (Part 1)
+
+# Billiards Simulator
+
+# Borodino Battlescapes
+
+# Hangman
+
+A_075
+# [*] Maria's Xmas Box
+
+# Game Over II (1 meg)
+
+# Pac-Man
+
+# Mini Golf (Part 2)
+
+A_076
+# Kick Off
+
+# No Excuses
+
+# Great Battles 1789-1865
+
+# Rugby League Boss
+
+A_077
+# Captain Blood
+
+# Arkanoid III (1.8 TOS only)
+
+# TNT (non-STE compatible)
+
+# Hex
+
+A_078
+# Trivial Pursuit Genus I
+
+# Roadwar Europa
+
+# Trivial Pursuit Genus II: A New Beginning
+
+A_079
+# Pac-Land
+
+# Zynaps
+
+# Sapiens (French/English)
+
+# Rogue: The Adventure Game (Epyx)
+
+A_080
+# Computer Maniac's Diary 1989
+
+# Blasteroids
+
+# Grid Runner
+
+# Wrangler
+
+# Skweek
+
+# (Automation Games Listing 1-80, Information and Cheats)
+
+A_081
+# Populous w/ Promised Lands
+
+# Wall Street
+
+A_082
+# Defender of The Crown
+
+# Pink Panther
+
+# Super League Soccer
+
+A_083
+# Krypton Egg
+
+# Chuckie Egg II
+
+# Skulldiggery
+
+# Illusion (1 meg)
+
+A_084
+# Dragonscape
+
+# Human Killing Machine
+
+# Road Blasters
+
+# The Last Trooper
+
+A_085
+# [*]
+
+# The Games: Winter Edition
+
+# Cybernoid II: The Revenge
+
+# Academy (Tau Ceti II)
+
+A_086
+# [*]
+
+# Steve Davis World Snooker
+
+# Bobo
+
+A_087
+# Tiger Road
+
+# Motor Massacre
+
+A_088
+# [*] Voyager
+
+# Action Fighter
+
+# Warzone
+
+# Skyfox
+
+# Trivia Challenge!
+
+A_089
+# Star Trek: The Rebel Universe
+
+# Liberator
+
+# Alpine Games
+
+# Sorceror Lord
+
+A_090
+# Masters of the Universe (He-Man)
+
+# International Karate
+
+# Final Legacy
+
+# (Automation Games Listing 1-90, Information and Cheats)
+
+A_091
+# Clever & Smart (1 meg)
+
+# Vindicators (1 meg)
+
+A_092
+# Superman: The Man of Steel (1 meg)
+
+# Dugger (1 meg)
+
+# Dragon Force (1 meg)
+
+A_093
+# Spaceball (1 meg)
+
+# A320
+
+A_094
+# [*] Mata Hari
+
+# Carrier Command
+
+# Operation Hormuz
+
+A_095
+# Cosmic Pirates
+
+# Hostages
+
+A_096
+# Robocop
+
+# Renegade
+
+# Shanghai
+
+A_097
+# Dungeon Master
+
+# Oids
+
+# 3D Pool
+
+A_098
+# F-15 Strike Eagle
+
+# Millenium: Return to Earth v2.2
+
+# Space Shuttle
+
+# Alphamax
+
+# Warship
+
+A_099
+# Joan of Arc: The Siege and the Sword
+
+# Marble Madness
+
+A_100
+# Chicago 30s
+
+# Puffy's Saga
+
+# Savage games 1-3
+
+# (Automation Games Listing 1-100, Information and Cheats)
+
+A_101
+# Jungle Book (French)
+
+# Prime Time
+
+# StarTrash (German) (1 meg on TOS 1.9 only)
+
+# Dominoes
+
+A_102
+# [*]
+
+# Total Eclipse
+
+# Red Alert USA
+
+# Red Alert Europe
+
+# Skateball (French)
+
+# Roadwar 2000
+
+# Empire w/ docs
+
+# Video Vegas
+
+A_103
+# Jug (1 meg)
+
+# Silkworm (1 meg)
+
+# Skrull (1 meg)
+
+A_104
+# Space Harrier
+
+# Butcher Hill
+
+A_105
+# Xybots
+
+# Super Stuntman
+
+# Hyper Bowl
+
+# GBA Championship Basketball: Two on Two
+
+A_106
+# Honda RVF750
+
+# Tom & Jerry
+
+A_107
+# Airborne Ranger
+
+# Numero 10 (French)
+
+# Wicked
+
+A_108
+# [*]
+
+# Tetris
+
+# [*] Sex Vixens from Space
+
+A_109
+# Circus Attractions (1 meg)
+
+# Vulcan
+
+# Face Off
+
+A_110
+Infocom Adventures CD 1
+# Ballyhoo
+
+# Deadline
+
+# Lurking Horror
+
+# Seastalker
+
+# Zork I: The Great Underground Empire
+
+# Zork II: The Wizard of Frobozz
+
+# Zork III: The Dungeon Master (doesn't work?)
+
+# Plundered Hearts
+
+A_111
+Infocom Adventures CD 2
+# Spellbreaker
+
+# Wishbringer
+
+# Enchanter
+
+# Suspended
+
+# Moonmist
+
+# Infidel (doesn't work?)
+
+# The Witness
+
+# Sorceror
+
+A_112
+Infocom Adventures CD 3
+# The Hitchhiker's Guide to the Galaxy
+
+# Leather Goddesses of Phobos
+
+# Hollywood Hijinx
+
+# Stationfall
+
+# Cutthroats
+
+# Planetfall
+
+# Starcross
+
+# Suspect
+
+A_113
+# Jinks
+
+# Leviathan
+
+# ST Soccer
+
+A_114
+# Jaws
+
+# Phobia
+
+A_115
+# 007: Licence to Kill
+
+# Chariots of Wrath
+
+A_116
+# Sundog: Frozen Legacy w/ docs (1 meg)
+
+# Bubble Ghost (1 meg)
+
+# XTron (1 meg)
+
+A_117
+# Blood Money (demo)
+
+# Hawkeye
+
+# Super Cycle
+
+# Stunt Car Racer
+
+A_118
+# Championship Wrestling
+
+# Garfield: Winter's Tail
+
+# Bob Morane: Chevalerie 1 (French)
+
+A_119
+# Weird Dreams
+
+# Bootiful Babe
+
+# Grand Prix 500cc (French)
+
+A_120
+# Thunderbirds
+
+# Beam
+
+# Rick Dangerous
+
+A_121
+# [*] Astaroth + (1 meg)
+
+# Stormtrooper (1 meg)
+
+A_122
+# Winter Olympiad
+
+# Bloodwych
+
+A_123
+# [*]
+
+# Time Scanner
+
+# Roll-out
+
+# Renegade
+
+# Strike Force Harrier
+
+A_124
+# Indiana Jones and the Last Crusade: The Action Game
+
+# Castle Warrior
+
+A_125
+# Lombard RAC Rally (1 meg)
+
+# Bubble Trouble (1 meg)
+
+A_126
+# Sidewinder
+
+# War Machine
+
+A_127
+# Murders in Venice
+
+# Spaceport
+
+# 8 Ball
+
+A_128
+# Times of Lore
+
+# Dark Side
+
+# Overlord (World War II)
+
+A_129
+# Red Heat (1 meg)
+
+# Gemini Wing (1 meg)
+
+# Blood Fever
+
+A_130
+# Sky Fighter
+
+# The Pursuit to Earth
+
+# Jupiter Probe
+
+A_131
+# Summer Olympiad
+
+# Passing Shot
+
+A_132
+# Dark Fusion
+
+# Jet
+
+# [*] Rosemary Raccoon
+
+# The Armageddon Man
+
+A_133
+# Xenon II: Megablast
+
+# Bumpy
+
+# High & Low
+
+A_134
+# [*]
+
+# Dynamite Dux
+
+# Psycho
+
+A_135
+# Makin' Whoopee!
+
+# Waterloo
+
+A_136
+# The Great Giana Sisters (1 meg)
+
+# Kennedy Approach (1 meg)
+
+# APB (All Points Bulletin) (1 meg)
+
+# Blaster
+
+# Missions en Rafaele
+
+A_137
+# [*] Dream Zone
+
+# Blue War III
+
+# Ammotrax
+
+A_138
+# 5th Gear
+
+# Slayer
+
+# Saint & Greavsie
+
+# Tracker
+
+A_139
+# Mr. Heli
+
+# High Steel
+
+# Maniax
+
+# Ship Combat
+
+A_140
+# Night Hunter (1 meg)
+
+# Monster Grand Slam (1 meg) (non-STE-compatible)
+
+A_141
+# TV Sports: Football
+
+# Chessmaster 2000
+
+# Temple of Apshai Trilogy
+
+A_142
+# Moebius: The Celestial Orb of Harmony
+
+# Nightdawn
+
+# Sub Battle Simulator w/ docs
+
+A_143
+# Steel
+
+# Dark Century (demo)
+
+# Future Sport
+
+# Grand Prix Master
+
+# Megaform v2.1 (utility)
+
+A_144
+# Forgotten Worlds (1 meg)
+
+# Hard 'N' Heavy (1 meg)
+
+A_145
+# Time Runner
+
+# Mad
+
+# Spitfire 40
+
+# Buzzword
+
+A_146
+# Zero Gravity
+
+# H.A.T.E.
+
+# Recoil
+
+# ST Invaders
+
+# Bridge-it!
+
+A_147
+# Altered Beast
+
+# Gold of the Realm
+
+# Razrats
+
+A_148_a
+# The Games: Summer Edition (a)
+
+A_148_b
+# The Games: Summer Edition (b)
+
+# Bio Challenge
+
+# Jump Jet
+
+A_149
+# Albedo (1 meg)
+
+# Mindfighter
+
+# Trip-a-Tron
+
+A_150
+# Paperboy
+
+# Spherical
+
+# Star Wars
+
+A_151
+# [*] Liesure Suit Larry
+
+# King's Quest I
+
+# Sargon III (1 meg)
+
+A_152
+# Circus Games
+
+# Silent Service
+
+A_153
+# Zombi
+
+# Battleships
+
+# Pirates of the Barbary Coast w/ docs
+
+A_154
+# SuperStar Ice Hockey
+
+# Crash Garrett
+
+# Onslaught
+
+# Fast Copy 2.00 (utility)
+
+# Michtron Utilities v1.1 (utility)
+
+A_155
+# Phantasie III: The Wrath of Nikademus
+
+# Bangkok Knights
+
+A_156
+# Battletech: The Crescent Hawk's Inception
+
+# Action Service
+
+A_157
+# [*]
+
+# Strider
+
+# Tanglewood
+
+A_158
+# Starglider 2
+
+# Night Walk
+
+A_159
+# Bob Morane: Ocean
+
+# Indy 500
+
+A_160
+# Fish
+
+# Guild of Thieves
+
+# The Last Shoot 'Em Up
+
+A_161
+# Falcon Mission Disk Vol. I
+
+# Hardball
+
+A_162
+# Ultima IV: Quest of the Avatar
+
+# Postman Pat
+
+# Super Scramble Simulator
+
+A_163
+# Chicago 90 (French)
+
+# Lancaster
+
+A_164
+# Tin Tin on the Moon
+
+# Cybermind: Planet of Riddle
+
+# ST Shuffleboard!
+
+A_165
+# [*]
+
+# Indian Mission (French)
+
+# 1986 Space Pilot ST
+
+# Bomber Command
+
+# Pickpocket
+
+# Professor Craps
+
+A_166
+# Rock 'n Roll
+
+# Darius +
+
+A_167
+# Laser Squad
+
+# Elemental
+
+A_168
+# Platoon (1 meg)
+
+# Operation Cleanstreets (1 meg)
+
+A_169
+# Fusion
+
+# Quartz
+
+# Space Invaders
+
+# Elite Saved Game Editor/Cheat
+
+A_170
+# Battlehawks 1942
+
+# Rana Rama
+
+# Passengers on the Wind (Les Passagers du Vent)
+
+A_171
+# Ferrari Formula One
+
+# Make a Break: A Trivial Game of Snooker
+
+# Passengers on the Wind II (Les Passagers du Vent II)
+
+A_172
+# [*]
+
+# [*] Hollywood Poker Pro
+
+# Motorbike Madness
+
+A_173
+# Snoopy and Peanuts
+
+# Toobin'
+
+# Indoor Sports
+
+# Shutdown
+
+# Jitterbugs
+
+A_174
+# Space Quest II: Vohaul's Revenge (1 meg)
+
+# World Darts (1 meg)
+
+# Rookie (1 meg)
+
+A_175
+# Kosmic Krieg
+
+# Overlord
+
+# Turbo GT II (French)
+
+# Crazy Cars
+
+# Bob Winner
+
+# (Automation Games Listing 001-175)
+
+A_176
+# [*]
+
+# Red Lightning
+
+# Freddy Hardest in South Manhattan (Spanish)
+
+# [*] Anco Strip Poker
+
+A_177
+# Western Games
+
+# Phantasie II: Nikademus's Revenge
+
+A_178
+# Forbidden Quest
+
+# Star Fleet I: The War Begins!
+
+# ST Hack v1.0.3
+
+# Strike!
+
+# Artificial Dreams
+
+A_179
+# Maniac Mansion
+
+# Superbike Challenge
+
+# Speedboat Assassin
+
+A_180
+# Navy Moves
+
+# Fast Lane: The Spice Engineering Challenge
+
+A_181
+# Commando
+
+# Verminator
+
+# Switchblade
+
+A_182
+# Wheel of Fortune 2.0 w/ docs
+
+# Gateway
+
+# Top Secret
+
+# Sun Computer Crosswords Vol. 1
+
+# Times Computer Crosswords Vol. 1
+
+A_183
+# [*]
+
+# Dive Bomber
+
+# Demon's Winter
+
+A_184
+# Flight Simulator II
+
+# Rocket Ranger w/ docs
+
+A_185
+# Pharaoh
+
+# Miami Vice
+
+A_186
+# [*]
+
+# UMS (Universal Military Simulator)
+
+# Little Computer People
+
+# Pothole Pete
+
+# Pictionary
+
+# The Atari Planetarium
+
+A_187
+# Gunship w/ docs
+
+# Killdozers
+
+# [*] School Yard Slaughter
+
+A_188
+# Breach w/ Scenario Editor
+
+# Hard Drivin'
+
+# A Mind Forever Voyaging
+
+# Trivia Trove
+
+# Spectrum 512
+
+# Spectrum Slide Show
+
+A_189
+# Red Storm Rising
+
+# Auto Duel
+
+A_190
+# Interphase
+
+# Axel's Magic Hammer
+
+# Bad Company
+
+# First Person Pinball
+
+A_191
+# Hell Raisers (Liberators)
+
+# Fist of Fury
+
+# Hole in One Golf
+
+# Cube Maze
+
+A_192
+# [*]
+
+# Dungeon Master Expansion: Chaos Strikes Back
+
+A_193
+# Zak MacKracken and the Alien Mindbenders
+
+A_194
+# Safari Guns
+
+# Shoot the Moon
+
+# Kenny Dalglish Soccer Match
+
+A_195
+# Powerplay: The Game of the Gods
+
+# Space-Flight
+
+# Bellum
+
+A_196
+# [*]
+
+# Chase H.Q.
+
+# Balance of Power 1990
+
+# Monkeys and Balloons
+
+A_197
+# Sherman M4
+
+# Roller Coaster Rumbler
+
+A_198
+# Mindbender
+
+# Ayatolla Invaders
+
+# Starblaze
+
+# Gilbert: Escape from Drill
+
+# Terry's Big Adventure
+
+A_199
+# Ghouls 'n Ghosts
+
+# Mot (French)
+
+# Colourspace
+
+A_200
+# Skidoo
+
+# Pipe Dream
+
+# Great Courts
+
+A_201
+# Dragons of Flame
+
+# African Raiders
+
+A_202
+# Magic Alpha
+
+# Magic Bille
+
+# Magic Cases
+
+# Hacker
+
+# OGRE
+
+# ST-Pool v1.3
+
+# Casino Roulette
+
+# Peggammon
+
+# TechMate Chess v1.1
+
+# Trump Castle
+
+A_203
+# Brainbox
+
+# Werner ST (German)
+
+A_204
+# Conflict Europe
+
+# Armada
+
+A_205
+# Legend of Djel
+
+# Patrice Martin Waterskiing
+
+A_206
+# Cluedo: Master Detective
+
+# Kayden Garth ("any key" = key)
+
+# Colonial Conquest
+
+# STOS Target Range
+
+A_207
+# North & South
+
+# Leonardo
+
+A_208
+# Tonic Tile w/ Construction Set
+
+# Kelly X
+
+# Tolteka
+
+# Bob Morane: Jungle 1
+
+# ST Backgammon
+
+# Trivia Master w/ docs
+
+# CrosSTword
+
+A_209
+# [*]
+
+# Ultima II: Revenge of the Enchantress
+
+# Phantasie I: Tholie's Tale
+
+# Jumpster
+
+# Monopoly
+
+# Final Assault
+
+A_210
+# [*]
+
+# Auto Route: The Intelligent Map (Great Britain)
+
+A_211
+# Day of the Viper
+
+# Crazy Shot
+
+A_212
+# Police Quest 1: In Pursuit of the Death Angel
+
+# Enterprise
+
+A_213
+# Eye of Horus
+
+# Footballer of Year 2
+
+# Who Framed Roger Rabbit
+
+A_214
+# Seven Gates of Jambala
+
+# Wonderboy in Monsterland
+
+A_215
+# Under the Ice w/ docs
+
+# Full Metal Planete
+
+A_216
+# Treasure Island Dizzy
+
+# Quartet (MIDI sequencer)
+
+# Triton III
+
+# Daily Double Horse Racing
+
+A_217
+# Gone Fish'n (needs to be in both drive A and B)
+
+# Bismarck
+
+# Formula 1 Grand Prix
+
+# Who Maimed Roger Rabbit
+
+A_218
+# [*]
+
+# Corruption
+
+# Wizard's Crown
+
+# Brian Clough's Football Fortunes
+
+A_219
+# Double Dragon II: The Revenge
+
+# Alf: The First Adventure
+
+A_220
+# Dogs of War
+
+# Galaxy Force II
+
+# Tempest
+
+A_221
+# Ultima V: Warriors of Destiny
+
+# Star Breaker
+
+A_222
+# Breach 2
+
+# Deep Space
+
+# Dizzy Wizard
+
+A_223
+# [*]
+
+# World Trophy Soccer
+
+# The Untouchables
+
+A_224
+# Batman
+
+# Spy vs Spy II: The Island Caper
+
+# Bloodwych Expansion: The Extended Levels
+
+A_225
+# Bad Company (release version)
+
+# [*] Stormlord
+
+# The Gambler
+
+A_226
+# Windwalker
+
+# Wizmo
+
+# Wargame Construction Kit
+
+A_227
+# Highway Patrol II
+
+# Companion
+
+# Check-Mate
+
+# Solitaire
+
+# Blackjack
+
+A_228
+# Crossbow: The Legend of William Tell
+
+# Archipelagos
+
+# Spitting Image
+
+A_229
+# Super Cars
+
+# Wayne Gretsky Hockey
+
+A_230
+# [*]
+
+# Iznogoud
+
+# Turbo Outrun
+
+A_231
+# Rainbow Islands: The Story of Bubble Bobble 2 (1 meg)
+
+# Hillsfar (1 meg)
+
+A_232
+# AAAARGH!
+
+# X-Out
+
+A_233
+# Wildlife
+
+# The Man from the Council
+
+A_234
+# Sporting Triangles
+
+# Mike Read's Computer Pop Quiz
+
+# The Lost Kingdom of Zkul
+
+# West
+
+A_235
+# Hunter Killer
+
+# The Amazing Spider Man and Captain America in Dr. Doom's
+
+# Revenge!
+
+A_236
+# Photon Storm
+
+# SAS Combat Simulator
+
+# Kid Gloves
+
+# Gladiators
+
+A_237
+# F-16 Combat Pilot w/ Editor
+
+# [*] Blue Angels 69
+
+A_238
+# Legend
+
+# Questron II
+
+A_239
+# Jumping Jack Son
+
+# Soccer King
+
+A_240a
+# Rotor
+
+# Operation Thunderbolt (a)
+
+# Black Tiger
+
+A_240b
+# Brick Busta
+
+# Operation Thunderbolt (b)
+
+A_241
+# [*]
+
+# [*] Centerfold Squares
+
+# The Rush
+
+A_242
+# Xenophobe
+
+# Shoot 'Em Up Construction Kit (SEUCK)
+
+# A Rock Star Ate My Hampster
+
+A_243a
+# Indiana Jones and the Last Crusade (a)
+
+# The President is Missing
+
+A_243b
+# Indiana Jones and the Last Crusade (b)
+
+A_244
+# Jack Nicklaus Greatest 18 Holes of Championship Golf w/ Extra Courses
+
+A_245
+# Oliver and Company
+
+# Kick Off Expansion Disk: Extra Time
+
+# Austerlitz
+
+A_246
+# Dominator
+
+# European Space Simulator (ESS)
+
+A_247
+# Stryx
+
+# Castle Master
+
+A_248
+# The Scott Adams Adventures
+
+# Spiderman
+
+# Human Torch and The Thing
+
+# Sorceror of Claymorgue Castle
+
+# The Secret of Steel
+
+# MIDI-Maze
+
+# Azarian
+
+A_249
+# Space Harrier (w/ extra levels)
+
+# Rally Cross
+
+# Pinball Magic
+
+A_250
+# Necron
+
+# Boulderdash Construction Kit
+
+A_251
+# Spy vs. Spy III: Arctic Antics
+
+# Paris Dakar 1990
+
+# Mean 18 w/ Course Architect
+
+A_252
+# Warhead
+
+# Tom and Jerry
+
+A_253
+# World Championship Boxing Manager
+
+# Bridge Player 2000
+
+A_254
+# Peter Pan (French)
+
+# Impossible Mission II
+
+A_255
+# Risk
+
+# Mouth Trap
+
+# Jigsaw Puzzle Mania
+
+A_256
+(STE v.2)
+# Shufflepuck Cafe
+
+# League Challenge
+
+A_257
+# Terrorpods
+
+# Shinobi
+
+# Clown-o-Mania
+
+A_258
+# STOS Skate Tribe
+
+# STOS Skystrike
+
+# Explode Game
+
+# Virus
+
+# Fruit Machine
+
+# STOS The Rush
+
+# Dungeons Amethysts Alchemists 'n Everythin'
+
+A_259
+# Rainbow Warrior
+
+A_260
+# Legend Of The Sword
+
+# The Toyottes
+
+A_261
+# Impossamole
+
+# Ninja Spirit
+
+# Wanderer 3D (needs 3D glasses)
+
+A_262
+# Leavin' Teramis
+
+# P47 Mustang
+
+A_263
+# Midwinter
+
+# Greg Norman's Ultimate Golf
+
+A_264
+(STE v.2)
+# War in Middle Earth
+
+A_265
+# Astate: Le Malediction des Templiers (French)
+
+# STOS Yahtzy
+
+# Winnie the Pooh in the Hundred Acre Wood
+
+A_266
+# Pirates! w/ docs
+
+A_267
+# Twilight's Ransom
+
+A_268
+(STE v.2)
+# The Grail
+
+# Fire Brigade w/ docs
+
+A_269
+# E-Motion
+
+# Cloud Kingdoms
+
+# Infestation w/ docs
+
+# Zener w/ docs
+
+A_270
+# Microleague Baseball
+
+# King of Chicago
+
+A_271
+# Starflight
+
+# Demon's Tomb: The Awakening
+
+A_272
+# Mixed Up Mother Goose
+
+# 221B Baker Street
+
+# Tunnel Vision
+
+# ST Wars
+
+A_273
+# Eskimo Games
+
+# Conqueror
+
+# Santa Paravia and Fiumaccio
+
+# Score Four
+
+A_274
+# Protector
+
+# Arena
+
+# [*] Beach Volley
+
+A_275
+# Crack Down
+
+A_276
+# Soldier 2000
+
+# Atomix
+
+# Aquanaut w/ docs
+
+# Castle Master 2: The Crypt
+
+# Espionage
+
+A_277
+# World Games
+
+# Course Winner v3
+
+# The Election Programme
+
+# Deathstar
+
+# Chaos Strikes Back Editor
+
+# Bloodwych Character Editor
+
+A_278
+# Battle Chess
+
+# [*] Deluxe Strip Poker 2
+
+A_279
+# Corsarios
+
+# Macadam Bumper
+
+# Livingstone II
+
+# Milestone
+
+A_280a
+# After the War (a)
+
+# STOS Crystal Caverns
+
+A_280b
+# After the War (b)
+
+# Dan Dare III: The Escape
+
+A_281
+# Hot Rod
+
+# Manchester United
+
+A_282
+# Time
+
+A_283
+# (Doc Disc - Game Solutions and Codes)
+
+# Kings Quest III: To Heir is Human
+
+# Cheetah File Copy System v1.1 (utility)
+
+A_284a
+# Manhunter: New York (a)
+
+A_284b
+# Manhunter: San Francisco (a)
+
+A_284c
+# Manhunter: New York (b)
+
+# Manhunter: San Francisco (b)
+
+A_285
+# Warp
+
+# Italy 1990
+
+# Chaos Strikes Back Maps
+
+A_286
+# Heavy Metal
+
+# Cyberball
+
+# [*] Sliding Block Puzzle
+
+A_287
+# Xenomorph
+
+A_288
+# Continental Circus
+
+# Bubble Ghost +
+
+# Twylyte
+
+A_289
+# Count Duckula
+
+# STOS Cartoon Capers
+
+A_290
+# Oil Imperium (needs to be in both drives)
+
+# Donald Duck's Playground
+
+# [*] Hollywood Poker
+
+# Stone-Age Deluxe
+
+# Stone-Age
+
+# (Docs for Conqueror)
+
+A_291
+# Klax
+
+# Tin Tin on the Moon (release version)
+
+# Strikey
+
+# Dr. Zock
+
+A_292
+# Skidz
+
+# Sim City
+
+A_293
+# Resolution 101
+
+# [*] Planet of Lust
+
+A_294a
+# [*] Leisure Suit Larry 2 (a)
+
+A_294b
+# Damocles: Mercenary II
+
+# [*] Leisure Suit Larry 2 (b)
+
+A_295a
+# Gold Rush! (a)
+
+A_295b
+# Time-Wanderer
+
+# Gold Rush! (b)
+
+A_296
+# Hammerfist (parts 1 and 2)
+
+# Graffiti Man
+
+A_297a
+# Tennis Cup
+
+# Prophecy I: The Viking Child (a) (boot/intro)
+
+A_297b
+# Prophecy I: The Viking Child (b) (game data)
+
+A_298
+# In Eighty Days Around the World
+
+# Slaygon
+
+A_299
+# The Persian Gulf Inferno
+
+# The Third Courier
+
+A_300
+# Dragons Breath
+
+A_301
+# Fighting Soccer
+
+# Treble Champions
+
+# Emlyn Hughes International Soccer (w/ Editor)
+
+# Bank-It
+
+# The Toxic Formatter v2.0
+
+A_302
+# Test Drive
+
+# Exterminate
+
+# Onyx
+
+# SEUCK Zog
+
+# Warlock
+
+A_303
+# Motorway Death
+
+# The Three Musketeers
+
+A_304
+# Star Trek The Next Generation: Encounter at Arcturus
+
+# Space Harrier II
+
+# The Final Frontier
+
+A_305
+# Uninvited
+
+# Rorke's Drift
+
+# Nova
+
+# Space Blob
+
+A_306
+# To Be On Top
+
+# Dynasty Wars
+
+# Ace Invaders
+
+A_307
+# Iron Lord
+
+A_308
+# Run The Gauntlet
+
+# Tower of Babel
+
+A_309
+# Pub Trivia Simulator
+
+# Deja Vu: A Nightmare Comes True
+
+# Power Struggle
+
+# STOS Bumber Jacker
+
+# STOS Fia (German or Dutch or Finnish?)
+
+A_310
+# [*]
+
+# Hoyle Official Book of Games Vol. 1
+
+# Animal Kingdom
+
+A_311
+# [*]
+
+# Power Drift
+
+# STOS Mr. Dig
+
+# Dogfight
+
+# Solutions Disk
+
+A_312
+# Phoenix (French)
+
+# Logo
+
+# Pyramax
+
+A_313
+# Flood
+
+# Thunderstrike
+
+A_314a
+# Police Quest II: The Vengeance (a)
+
+# Imperium
+
+A_314b
+# Police Quest II: The Vengeance (b)
+
+A_315a
+# Space Quest III: The Pirates of Pestulon (a)
+
+# STOS Tank Battle
+
+# Light Cycles
+
+A_315b
+# Space Quest III: The Pirates of Pestulon (b)
+
+A_316
+# The Lift: Anglais Pratique
+
+# 20,000 Leagues Under the Sea
+
+# Parabellum
+
+A_317
+# Anarchy (fixed for 1 Meg)
+
+# Exodus
+
+A_318
+# Fire and Brimstone
+
+# Robotz
+
+# Match
+
+A_319a
+# The Ninja Warriors (a)
+
+A_319b
+# The Ninja Warriors (b)
+
+A_319c
+# The Ninja Warriors (c)
+
+A_320
+# Domination
+
+# Block Out
+
+# Defenders of the Earth
+
+# Italy 1990 Winners Edition
+
+A_321
+# James Pond: Underwater Agent +
+
+# Warlock: the Avenger
+
+# International Ice Hockey
+
+A_322
+# Sim City extra cities
+
+# Le Margoulin
+
+# [*] Deluxe Strip Poker
+
+A_323a
+# Chrono Quest (Explora) (a)
+
+# Zenith
+
+# Rocket Racer
+
+A_323b
+# Bolo
+
+# TechMate Chess v1.13
+
+# Chrono Quest (Explora) (b)
+
+A_324
+# Journey to the Center of the Earth
+
+# Cascade Disk 15
+
+A_325
+# Tass Times in Tonetown
+
+# Football Crazy v1.07
+
+A_326
+# Combo Racer
+
+# The Punisher
+
+A_327
+# Never Mind
+
+# Bureaucracy
+
+A_328
+# Colorado
+
+# Drivin' Force
+
+A_329
+# TCB Tracker Sound Utilities (Soundtracker Menu)
+
+A_330
+# [*] Cobra 2
+
+# Magic Lines
+
+A_331
+# Starblade
+
+# Player Manager
+
+# SID-68K for GEMDOS
+
+A_332
+# Venus: The Flytrap
+
+# Pukadu
+
+A_333
+# Deja Vu II: Lost in Las Vegas
+
+# Victory
+
+A_334
+# Psion Chess v2.0
+
+# Chess Player 2150
+
+# Colossus Chess
+
+A_335a
+# Shadow Warriors (a)
+
+# Scramble Spirits
+
+A_335b
+# Shadow Warriors (b)
+
+A_336
+# Midnight Resistance
+
+# Lin Wu's Challenge
+
+# Everton FC Intelligensia
+
+A_337a
+# [*] Leisure Suit Larry III (a)
+
+A_337b
+# [*] Leisure Suit Larry III (b) (no menu)
+
+A_338
+# [*] Mad Show
+
+# Solo
+
+# Tiny Stuff 3.4/Tiny View 4.21
+
+# PIECE for Pack-Ice v1.11
+
+# Andelos 68000 Assembler SEKA v2.3
+
+A_339
+# Satan Game 1 and 2
+
+# Do! Run Run
+
+# Yogi's Great Escape
+
+# Card Addict
+
+# Where is It?
+
+# Atoms
+
+A_340
+# The New Zealand Story
+
+# Dragon Ninja
+
+A_341
+# Oriental Games
+
+# Blinky's Scary School
+
+A_342
+# World Soccer
+
+# Back To The Future Part II
+
+# Hyperforce
+
+A_343
+# Prison
+
+# Mad Professor Mariarti
+
+# Turtle Table Tennis Simulation (German)
+
+A_344
+# Secret Agent
+
+# Days of Thunder
+
+# TurtleGrooves
+
+# Fourfit
+
+# The Mill
+
+A_345
+# Fred
+
+# STOS Skiing Contest
+
+# Flight Simulator 2 Scenery Disk: Japan
+
+A_346
+# Powerboat
+
+# Perry Mason: The Case of the Mandarin Murder
+
+# SEUCK Spacewolf
+
+# SEUCK Striker
+
+# Miami Mice
+
+A_347
+# [*]
+
+# Dark-Sat
+
+# Beverly Hills Cop
+
+A_348
+# Rings of Medusa
+
+# S.T.A.G.
+
+A_349
+# The Fool's Errand
+
+# GATO Class Submarine
+
+A_350
+# Future Bike
+
+# Escape from the Planet of the Robot Monsters
+
+# Realistic Video Poker 3.0
+
+A_351
+# Rotox
+
+# Dragon Spirit
+
+A_352
+# [*]
+
+# Shadowgate
+
+# Monopoly
+
+# Plotting (demo)
+
+# Fantasia (demo)
+
+A_353
+# Roy of the Rovers
+
+# Volleyball Simulator
+
+# Sinclair ZX81 Emulator
+
+A_354
+# Space Rogue
+
+# Bounty Hunter
+
+# Balance of Power: Geopolitics in the Nuclear Age
+
+# Rotatus w/ docs
+
+A_355
+(AVAILABLE IMAGE IS POSSIBLY DAMAGED)
+# The Spy Who Loved Me
+
+# Subbuteo
+
+# Stock Market
+
+A_356
+# Shadow of the Beast
+
+A_357
+# Plotting
+
+# Theme Park Mystery
+
+# Falcon Mission Disk Vol. II
+
+A_358
+# Khalaan
+
+# Tark Simmons Priestess of the First Church in Her Battle Against the Demon of Dark Desire
+
+A_359
+# [*]
+
+# Sonic Boom
+
+# Pro Powerboat Simulator
+
+# Invasion Typing Tutor
+
+A_360
+# Fireball
+
+# Cricket Captain
+
+A_361
+# STOS Xalaracx
+
+# May 1940
+
+# Blitzkrieg
+
+# Freedom: Rebels in the Darkness w/docs
+
+# Everton FC Intelligensia w/ docs
+
+A_362
+# Magic Fly
+
+# Rick Dangerous 2
+
+# [*] Yolanda
+
+A_363
+# The Last Ninja 2: Back With a Vengeance
+
+# The Light Corridor
+
+# Mission Deadzone
+
+A_364
+# Astro Marine Corps
+
+# Steigar
+
+# Ruff and Reddy in the "Space Adventure"
+
+A_365
+# Gremlins 2: The New Batch
+
+# Extase
+
+# (Docs for Operation Stealth)
+
+A_366
+# Team Yankee w/ docs
+
+# [*] Sophelite
+
+A_367
+# The Bard's Tale I: Tales of the Unknown
+
+# Perplexia: The Original Hybrid v3.6 w/ docs
+
+A_368
+# Jinxter
+
+# Hoyle's Book of Games Vol. 2: Solitaire
+
+# Tetris (Shareware version)
+
+# Lazerball
+
+A_369
+# Their Finest Hour: The Battle of Britain w/ editor
+
+# Quest for Galaxia
+
+A_370
+(SEE A_376.ST)
+# Darkland (French)
+
+# Col-Tris
+
+A_371a
+# [*]
+
+# The Final Battle (a)
+
+# Snowstrike
+
+# Jockey Wilson's Darts Challenge
+
+# (Docs for Federation Quest 1: BSS Jane Seymour)
+
+A_371b
+(AVAILABLE IMAGE IS DAMAGED)
+# Federation Quest 1: BSS Jane Seymour (a)
+
+# The Final Battle (b)
+
+A_371c
+(AVAILABLE IMAGE IS DAMAGED)
+# Federation Quest 1: BSS Jane Seymour (b)
+
+A_372a
+# Time Machine
+
+# Night Breed (a)
+
+# Rogue II: Return to the Dungeon
+
+A_372b
+# Night Breed (b)
+
+A_373
+# Dragon Breed
+
+# International 3D Tennis
+
+A_374a
+# Gold of the Aztecs (a)
+
+# Mike Read's Computer Pop Quiz
+
+# Renaissance 1
+
+A_374b
+(AVAILABLE IMAGE IS DAMAGED)
+# Gold of the Aztecs (b)
+
+A_375
+# Grimblood
+
+# The Teller
+
+# Chess Simulator
+
+A_376
+(THIS DISK IS LABELED A370 AS WELL - MAY BE A MIXUP)
+# Dweaby's Quest
+
+# 9 Lives
+
+# No Exit
+
+A_377
+(AVAILABLE IMAGE IS DAMAGED)
+# Nitro
+
+# Murder
+
+A_378
+# Hong Kong Phooey
+
+# Moon Blaster
+
+# The Final Conflict
+
+A_379
+# Atomic Robo-Kid
+
+A_380
+# Tusker
+
+# Skatewars
+
+A_381
+# Dragonlord
+
+# Fire Rescue (French)
+
+A_382
+# [*] Legend of the Lost
+
+# [*] Windsurf Willy
+
+A_383a
+# Murders in Space (a)
+
+# Lotus Esprit Turbo Challenge
+
+# STOS Caves of Rigel (a)
+
+A_383b
+# Murders in Space (b)
+
+# STOS Caves of Rigel (b)
+
+A_384
+# Torvak the Warrior w/ docs
+
+# STOS Gran Prix
+
+A_385
+# M1 Tank Platoon
+
+# Vaxine
+
+# TOS v2.0
+
+A_386
+# Simulcra
+
+# Turn It
+
+# Body Shop: The Human Anatomy Tutor
+
+A_387
+# Ra
+
+# Mig-29 Soviet Fighter
+
+# Pop Music Challenge
+
+A_388a
+# Panza Kick Boxing (a)
+
+# Llamatron 512k
+
+A_388b
+# Panza Kick Boxing (b)
+
+# Llamatron 1 meg w/ docs
+
+A_389
+# Prince of Persia
+
+A_390
+# Paradroid 90
+
+# ATF II (Advanced Tactical Fighter II)
+
+A_391
+# Saint Dragon
+
+# Championship Run
+
+# Dragon's Tower
+
+A_392
+# Teenage Mutant Hero Turtles
+
+# Badlands
+
+A_393a
+# Mean Streets (a)
+
+# Strider II w/ docs
+
+A_393b
+# Mean Streets (b) docs
+
+A_394
+# Mystical
+
+# Welltris
+
+A_395
+# The Amazing Spiderman
+
+# Sliders (French)
+
+# Location Crisslefridge w/ docs
+
+A_396
+# RoboCop 2
+
+# Cabal
+
+A_397
+# Narco Police
+
+# Puzznic
+
+# Loopz
+
+# STOS Forest Fire
+
+A_398
+# Corporation
+
+A_399
+# Golden Axe
+
+# Edd the Duck!
+
+# (Docs for Corporation)
+
+A_400
+# Speedball 2: Brutal Deluxe
+
+# Spindizzy Worlds
+
+# Cadenza Bog v1.2 w/ docs
+
+# ST Poker Royale v1.1
+
+A_401
+(AVAILABLE IMAGE IS POSSIBLY DAMAGED)
+# Battlemaster
+
+A_402
+# Flip-it & Magnose: Water-Carriers from Mars
+
+# Manix 1990
+
+# Twixt Phonelink Game w/ docs
+
+A_403
+# Time Race (French)
+
+# Web of Terror
+
+# 3 Card Brag w/ docs
+
+A_404
+# Gazza II
+
+# Striker
+
+# International Soccer Challenge
+
+A_405
+# Battle Command
+
+# Dizzy: Fantasy Worlds
+
+# (Docs to Nitro, M1 Tank Platoon, and Oriental Games)
+
+A_406
+# UN Squadron
+
+# Future Basketball w/ docs
+
+A_407
+# The Sword & the Rose (Ghosts 'N' Goblins clone)
+
+# Builderland: The Story of Melba
+
+# Heat Wave: Offshore Superboat Racing w/ docs
+
+A_408
+# The Magician
+
+# Botics
+
+# (Map & cheats for Simulcra)
+
+# (Cheat for Spiderman)
+
+A_409
+(AVAILABLE IMAGE IS DAMAGED)
+# Badlands Pete
+
+A_410
+# S.T.U.N. Runner
+
+# Advanced Ski Simulator
+
+A_411
+# VooDoo Nightmare
+
+# Spellfire the Scorcerer
+
+# (Docs for Super Cars, Teenage Mutant Hero Turtles)
+
+A_412
+# The Chronicles of Omega
+
+# Defender II (Yak version - includes Defender and Stargate)
+
+# Fast Food
+
+A_413
+# Advanced Destroyer Simulator
+
+# Hac Man II (1 meg) w/ docs
+
+# JAWS (Just Another War In Space)
+
+A_414
+# Ranx
+
+A_415a
+# Horror Zombies from the Crypt
+
+# European Soccer Challenge
+
+# Cadaver (a) (Intro)
+
+A_415b
+(AVAILABLE IMAGE IS DAMAGED)
+# Cadaver (b) (Game)
+
+A_416
+# E-SWAT
+
+A_417
+# Xiphos
+
+# Get Dexter 2
+
+# (Docs for Crossbow: The Legend of William Tell, Cleudo: Master Detective, Around the World in Eighty Days, Sherman M4, and Italy 1990)
+
+# (Cheats for Afterburner, Archipelagos, Arkanoid II: Revenge of Doh, Blood Money, Double Dragon, Dragonscape, Falcon, Forgotten Worlds, Giganoid, Gridrunner, Ikari Warriors, LED Storm, Maria's Christmas Box, Mickey Mouse, Navy Moves, The New Zealand Story, OutRun, Platoon, Populous, R-Type, Rambo III, Return of the Jedi, Return to Genesis, Rick Dangerous, Roadblasters, Robocop, Rolling Thunder, SDI, Shackled, Starglider 2, Stargoose, Street Fighter, Thunderbirds, Voyager, and World Games)
+
+A_418a
+# Test Drive II: The Duel (a) (Master)
+
+# World Championship Soccer
+
+A_418b
+# Test Drive II: The Duel (b) (Expansion disk: Super Cars and California Challenge extra scenery disk)
+
+A_419
+# Car-V-Up
+
+# Toyota Celica GT Rally
+
+A_420a
+# Fiendish Freddy's Big Top o' Fun (a)
+
+# STOS Mix'n'Match (a)
+
+# (Codes/cheats for Enchanted Lands and Builderland)
+
+A_420b
+# Fiendish Freddy's Big Top o' Fun (b)
+
+# STOS Mix'n'Match (b)
+
+A_421
+# MiG-29 Fulcrum w/ docs
+
+# ProFlight Simulator v1.2 w/ docs
+
+# (Docs for Test Drive II: The Duel, Fiendish Freddy's Big Top o' Fun)
+
+A_422
+# The Ultimate Ride
+
+A_423
+# Jupiter's Masterdrive
+
+# Ironman Ivan Stewart's Super Off Road
+
+# (Docs for Judge Dredd, Vector Championship Run, Black Tiger)
+
+A_424
+# F-19 Stealth Fighter w/ key reference
+
+# Kamikaze
+
+A_425a
+# Supremacy (a)
+
+# Judge Dredd
+
+# (Docs for Klax, Escape from the Planet of the Robot Monsters)
+
+A_425b
+# Supremacy (b) w/ docs
+
+A_426
+# Mortville Manor
+
+# Gettysburg
+
+# (Docs for Toyota Celica GT Rally)
+
+A_427a
+# Wings of Death (a)
+
+# Mighty Bombjack
+
+# (Docs for Jack Nicklaus's Unlimited Golf and Lotus Esprit)
+
+A_427b
+# Wings of Death (b) w/ docs
+
+# Pang (Buster Bros.)
+
+# (Docs for Airborne Ranger and P-47)
+
+A_428
+# Curse of the Azure Bonds
+
+A_429
+# Ivanhoe
+
+# Atomino
+
+A_430
+# [*] Emmanuelle (1 meg)
+
+# Recovery (1 meg)
+
+A_431
+# NARC
+
+# Hard Drivin' II: Drive Harder...
+
+A_432
+# Super Grand Prix
+
+# Mickey Mouse: The Computer Game
+
+# (Docs for Pang, Lombard RAC Rally, World Championship Soccer)
+
+A_433
+# Tournament Golf
+
+# STOS Poker Dice
+
+A_434
+# Pop-up
+
+# Advanced Fruit Machine Simulator
+
+# ESION XLII Tracker (STE/ST) w/ docs
+
+# (Docs for Curse of the Azure Bonds)
+
+A_435
+# Fire & Forget II: The Death Convoy
+
+# The Hunt for Red October II
+
+# Solitaire Game Pack
+
+# (Docs for Wrath of the Demon)
+
+A_436
+# UMS (Universal Military Simulator) II: Nations at War
+
+# STrabble (1 meg) w/ docs
+
+A_437
+(STE v.2)
+# Revelation
+
+# Crime Does Not Pay
+
+# (Docs for Badlands Pete, Defender II)
+
+A_438
+# Metal Masters
+
+# Sorry! v1.8
+
+A_439
+# Masterblazer
+
+# Tee Off!
+
+# [*] Snoball in Hell
+
+A_440
+# Line of Fire
+
+# [*] Insects in Space
+
+A_441
+# Aquanaut
+
+# Helter Skelter 1990
+
+A_442a
+# Ghostbusters II (a) w/ docs
+
+A_442b
+# Ghostbusters II (b)
+
+# Test Drive II Muscle Cars Data Disk
+
+# Little Puff in Dragonland
+
+# (Docs for Powermonger, Winter Olympiad, Dungeon Master, Falcon F-16 Mission Disk 1)
+
+A_443
+# Ascot w/ Editor
+
+# STOS Boxing Champ
+
+# Dizzy Lizzy w/ docs
+
+A_444
+# The Pawn
+
+# STOS A Froggy Day in London Town
+
+# STOS Red War
+
+# (Docs for E-Motion, Jumping Jackson)
+
+A_445
+# Frontline w/ docs
+
+# Blockbuster w/ Editor
+
+A_446
+# Total Recall w/ docs
+
+# Team Suzuki
+
+# (Docs for Leonardo, Flip-It & Magnose, Dragon Breed)
+
+A_447
+# Operation Harrier
+
+# Angel Nieto Pole 500
+
+# (Docs for Secret of Steel, The Lost Patrol, Chase H.Q. II: Special Criminal Investigation)
+
+A_448
+# Turrican
+
+# Chips Challenge
+
+A_449
+# Turrican II
+
+A_450
+# Chambers of Shaolin
+
+# Yogi Bear & Friends in The Greed Monster
+
+# (Docs to Murders in Space, Vaxine)
+
+A_451
+# Operation Neptune (US version)
+
+# Merchant Colony
+
+# Super League Soccer
+
+A_452
+# Feudal Lords
+
+# Billy Bounce
+
+# Locomotion
+
+# Sol Negro - Male
+
+# Sol Negro - Female
+
+A_453
+# [*] Viz
+
+# T-Bird
+
+# Douglas Rockmoor
+
+A_454
+# Night Shift w/ docs
+
+# Matrix Marauders
+
+A_455a
+# [*] Elvira (a)
+
+# A_455b[*] Elvira (b)
+
+# A_455c[*] Elvira (c)
+
+# A_455d[*] Elvira (d)
+
+# A_455e[*] Elvira (e)
+
+A_456a
+# Ice and Fire: The Wizards (a) (Loader, Disks B & C)
+
+A_456b
+# Ice and Fire: The Wizards (b) (Disk A)
+
+# Lost Dutchman Mine
+
+A_457
+# Fighter Bomber w/ docs
+
+# Damocles Mission Disk 1
+
+# (Docs for Spectrum 512)
+
+A_458
+# [*] Purple Saturn Day
+
+# Lords of Conquest
+
+A_459a
+# The Killing Game Show (a)
+
+# Blazing Thunder
+
+A_459b
+# The Killing Game Show (b) w/ docs
+
+A_460
+# Emlyn Hughes Arcade Quiz
+
+# Cohort: Fighting for Rome
+
+# [*] STOS Bert the Squirt
+
+# Go Player
+
+A_461
+# Omnicron Conspiracy
+
+# Backgammon Royale
+
+# STOS Guided Missile
+
+A_462
+# Great Courts 2
+
+# Sim City Terrain Editor
+
+# Autorama
+
+A_463a
+# Loom (a) (disks 1 & 2)
+
+A_463b
+# Loom (b) (disks 2 & 3)
+
+# Flight Simulator II Scenery Disk 7 w/ docs
+
+A_464a
+# Targhan
+
+# [*] Personal Nightmare (Elvira) (a)
+
+A_464b
+# Compendium
+
+# [*] Personal Nightmare (Elvira) (b)
+
+A_464c
+# Sidewalk
+
+# [*] Personal Nightmare (Elvira) (c)
+
+A_465
+# Hill Street Blues (1 meg)
+
+# Penguin
+
+# Football Genius
+
+A_466a
+# Legend of Faerghail (a) w/ docs
+
+# Top Cat
+
+A_466b
+# Legend of Faerghail (b)
+
+# Paladin
+
+A_467a
+# Brat (a)
+
+# Ninja Rabbits
+
+# Afrika Corps
+
+# Super Game
+
+A_467b
+# Brat (b)
+
+A_468
+# Nam 1965-1975 w/ docs
+
+# Triple Yahtzee
+
+A_469a
+# Moonshine Racers (a)
+
+# Super Cars II
+
+A_469b
+# Moonshine Racers (b)
+
+A_470
+# Z-Out
+
+# Flight Simulator II Scenery Disk 11: Lake Huron & Detroit w/ docs
+
+A_471
+# Ooze: Creepy Nights
+
+# Tangram w/ docs
+
+A_472
+# Kickoff 2: Final Whistle
+
+# IPlay 3-D Soccer
+
+# (Docs for Targhan, Paladin)
+
+A_473
+# Chase H.Q. II: Special Criminal Investigation
+
+# Italy 1990 (Codemasters)
+
+A_474
+# Back to the Future Part III
+
+# Empire Builder
+
+# (Docs for Forgotten Worlds, Beach Volley, The Fool's Errand, Mad Professor Mariarti, Millennium 2.2)
+
+A_475
+# California Games
+
+# Skull and Crossbones
+
+A_476a
+# Gods (a) w/ docs
+
+# Navy SEALs
+
+# Creepy, You Will Never Escape My Friend
+
+# (Docs to Rorke's Drift)
+
+A_476b
+# Gods (b)
+
+# (Docs to Fast Lane, Virus, Thunderbirds, Wicked, Sky Chase, Tecno Cop)
+
+A_477a
+# Predator 2 (a)
+
+A_477b
+# Predator 2 (b)
+
+# Shadow Dancer
+
+A_478a
+# Awesome (a)
+
+# Car-VUP: The Final Frontier
+
+# Blockbuster
+
+A_478b
+# Awesome (b) w/ docs
+
+A_479
+# Heroes of the Lance
+
+A_480
+# Toki
+
+# Kickoff 2: Final Whistle Winning Tactics data disk
+
+A_481
+# Gem Stone Legend
+
+# Colony
+
+A_482
+# Gold of the Americas
+
+# STOS Spaced Weller
+
+A_483a
+# The Final Day
+
+# The Secret of Monkey Island (a)
+
+A_483b
+# Lords of Chaos
+
+# The Secret of Monkey Island (b)
+
+A_483c
+# Oilmania
+
+# The Secret of Monkey Island (c)
+
+A_483d
+# STOS Soccer Glory
+
+# The Secret of Monkey Island (d)
+
+A_484a
+# Hero's Quest: So You Want to Be a Hero (a)
+
+# The Search: A Computer Aided Historical Investigation
+
+A_484b
+# Hero's Quest: So You Want to Be a Hero (b)
+
+A_484c
+# Hero's Quest: So You Want to Be a Hero (c)
+
+A_485
+# Frenetic
+
+# Logical
+
+A_486
+# STOS Hypnotic Land (Italian)
+
+# STOS Fatal Error
+
+# (Solution for Monkey Island)
+
+A_487
+# STOS Hockey Pista (Italian)
+
+# Nautilus (non-English -- some kind of Scandinavian?)
+
+A_488
+# Lode Runner
+
+# Stormball
+
+# (Various different packing utilities)
+
+A_489
+# Hydra
+
+# The Ball Game
+
+# (Automation Boot Sector Examiner utility)
+
+A_490
+# Hero Quest
+
+# A Prehistoric Tale
+
+A_491
+# England Champs
+
+# Super Soccer Challenge
+
+# STOS Trainset w/ docs
+
+A_492
+# Metal Mutant
+
+# STOS Soko ST
+
+A_493
+# Fire Mission
+
+# The 3D Construction Kit Featuring Freescape II
+
+# Pacman ST
+
+A_494
+# Teenage Mutant Ninja Turtle Coloring Book
+
+# Mickey's Runaway Zoo
+
+# Goofy's Railway Express
+
+# Pools v3.02 (betting)
+
+A_495
+# Powermonger
+
+# (Cheat for Conflict: Middle East Political Simulator)
+
+# (Docs for Manhunter 2: San Francisco, Oil Imperium, Tin Tin on the Moon, Sky Chase, Buffalo Bill's Rodeo Games, Proflight Simulator)
+
+A_496
+# Violator
+
+# Super Monaco Grand Prix
+
+# (Docs for Fast Lane, Times of Lore)
+
+A_497
+# RBI Baseball 2
+
+# Interchange
+
+# (Docs for Thunderbirds, Wicked, Sidewinder, Vampire's Empire, Stunt Car Racer, [*] Sex Vixens from Space)
+
+A_498
+# Manchester United: Europe
+
+# Sharkey's Moll
+
+# Radio Controlled Racers
+
+A_499a
+# [*] Geisha (a)
+
+# Derrick The Droid
+
+A_499b
+# Oil Imperium v2.0
+
+# Puzzmania
+
+# Avina Blue
+
+# [*] Geisha (b)
+
+A_500b
+# Booly
+
+# F-15 Strike Eagle II
+
+A_500c
+# Gravity
+
+# Cadaver Extra Level
+
+A_500d
+# Apprentice
+
+# Arcade Trivia Quiz
+
+A_500e
+# Conquest w/ docs
+
+# [*] Playhouse Strip Poker
+
+A_500e2
+# Chuck Yeager's Advanced Flight Trainer
+
+Level 9 Adventures
+# Colossal Adventure
+
+# Dungeon Adventure
+
+# Adventure Quest
+
+# Snowball
+
+# Return to Eden
+
+# Worm in Paradise
+
+A_500f
+# Traders (German)
+
+# Kubysimus (German)
+
+A_500g
+# Baby Jo
+
+# Crash 2000
+
+# Fort Apache
+
+A_500h
+# Dr. Fox's Pools Tool w/ docs
+
+# [*] Pop Eyed/Talespin
+
+A_500i
+# Exterminator
+
+# International Championship Athletics
+
+A_500j
+# Talespin
+
+# Lee Enfield: Space Ace
+
+# The Exorcist II antivirus utility
+
+A_500k
+# Cold Revenge w/ docs
+
+# Daze Aster
+
+A_500la
+# Prehistorik (a) (must be in drive A)
+
+# Swiftar
+
+A_500lb
+# Prehistorik (b) (must be in drive B)
+
+# Sky Strike w/ docs
+
+# The Power
+
+A_500m
+# Full Count Baseball
+
+# [*] Erica Jigsaw
+
+# SlowTrek w/ docs
+
+# STOS Startrek w/ docs
+
+# Xebec
+
+A_501
+# Big Game Fishing (Italian)
+
+# CJ's Elephant Antics w/ docs
+
+# Burger Man
+
+A_502
+# Hero! (1 meg) w/ docs
+
+# 3-D Soccer Link Pack
+
+# Missile Alert w/ docs
+
+A_503
+# MegaTraveller I: The Zhodani Conspiracy
+
+A_504
+# Monster Business
+
+# Crystals of Arborea
+
+A_505
+# Fallen Angel w/ docs
+
+# The Blues Brothers
+
+# System-4: Mister
+
+# Tengu's Adventure
+
+# (Docs for Stack-Up)
+
+A_506
+# Rod-Land
+
+# Scooby & Scrappy Doo
+
+A_507
+# Chuck Rock
+
+A_508
+# Monty Python's Flying Circus
+
+# Life and Death
+
+A_509
+# Time Soldiers
+
+# Titantic Blinky
+
+A_510
+# Harley Davidson Motorcycles
+
+# Head Over Heels
+
+A_511
+# Mercs
+
+# Chuck Rock One-Stage Demo
+
+A_512
+# England Championship Special
+
+# Challenge Golf
+
+
+
+It was rumored that there were some disks after A_512, but I have heard that they were either fake or never existed. In addition, there were supposedly some Automation STE Fixes disks (1 through 3), but I have no further information on these either. There is no disk 500A. If anyone has any other solid information, please feel free to e-mail me about it.

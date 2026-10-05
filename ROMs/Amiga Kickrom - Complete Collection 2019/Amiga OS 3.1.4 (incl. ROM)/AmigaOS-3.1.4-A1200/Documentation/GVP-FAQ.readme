@@ -1,0 +1,778 @@
+GVP FAQ for AmigaDOS 3.1.4 Update
+
+Written by: Robert Miranda, fmr. GVP Tech Support 1989-1993, & Amiga
+OS 3.1.4 beta tester
+
+Date: 9/28/2018
+
+Rev 1.0a
+
+Disclaimer: All information is provided as-is, with no guarantee that
+25+yr old hardware will still perform exactly as it was intended.  Not
+all hardware was available to test all software configurations, but a
+good effort with available hardware, combined with known behavior of
+many products, was applied where actual hardware was not in hand.
+
+Because of the many accelerator products and configurations GVP made
+and sold during the active years of Commodore, there are a diverse set
+of answers to even some seemingly simple questions.  This document
+hopes to answer the most common questions, although the latter portion
+of this document is more of a guide than a simple FAQ list.
+
+In addition to accelerators, GVP made stand-alone disk controller
+products that were also incorporated into many Accelerator products.
+The Accelerator products are addressed first.  The SCSI products are
+discussed further down.
+
+All other 3rd-party products mentioned here are copyright of their 
+respective owners, including products once made by Commodore (C=), of
+whom the ownership of the various copyrights at this point in time are
+nearly impossible to identify without a sports scorecard and a law-based 
+forensics degree.
+
+Classic GVP products are owned by GVP-M, who purchased the IP when the
+original Great Valley Products ceased business in 1994.  The owner of
+the GVP-M IP did not respond attempts at contact, so this FAQ is not
+an officially sanctioned document.  
+
+------------------------------------------------------------------------
+
+This FAQ covers GVP Accelerators Disk, & I/O Interfaces
+
+Other products are believed to be functional, but no resources were 
+available properly test the remainder.  That may change, and this FAQ
+will be updated if additional information is obtained and verified.
+
+------------------------------------------------------------------------
+
+Initial Q/A Section
+
+Q. Should I get the ROM update? or go with the soft-loaded OS update.
+A. You will need the ROM if your Kickstart is still 1.3, 2.0x., or 3.0
+If you have a v3.1 or a 3.x ROM, the decision is yours, but the ROM 
+update is recommended.  The items of consideration are as follows:
+1. If you have a 68000 CPU system, and plenty of AutoConfig FastRAM 
+on memory boards/expansion, the ROM can be upgraded later.
+2. If you have an accelerator product on a classic 68K system, and all
+FastRAM is mapped >16MB, the soft-load solution will consume most of
+the ChipRAM to survive the required load and reboot, so the OS ROM 
+update is effectively required.
+3. If you have some FastRAM that is AutoConfig (16 or 32-bit) in the 
+system, and an accelerator, this may be enough to load the modules 
+and not consume ChipRAM to function.  
+
+
+SCSI & IDE Interfaces
+
+Q. I have an original Impact SCSI or SCSI+RAM product.  Any concerns?
+A. Some.  The v1.0 and v2.x dual-ROM scsidev.device and atdev.device
+drivers in ROM on those products were written before the SCSI_Direct 
+standard appeared @ OS 2.0+.  This means that you must use the classic
+tools for prep and format, and large disk support is not possible.  The
+solution is to obtain a v3.x FastROM driver update.  The code image is
+available on babel.de/amiga.html, and needs to be burned to a 27C128 or
+27C256 PROM/EPROM.  The current version is v3.15.
+
+Q. I have a v3.x ROM on my current Impact or Series II SCSI controller.
+Do I need to update the ROM? 
+A. No.  All v3.x ROM versions support SCSI_Direct, the main concern on
+most user's minds for larger disk support and support with HDToolBox.
+
+Q. What is different between v3.x and 3.15, and v4.x/4.15?
+A. The driver was given more products to function with, and minor a few
+updates to functionality, for the most part.  The main highlights are:
+3.7 (3.07) - Initial Impact (Series I) and Series II HC/HC8/HD8 release.
+3.12 - Support for Combo030 Rev 3; boot SCSI bus scan algorithm changed
+to reduce missing device 0 wait time, GVPSCSICtrl added functions to 
+complement the boot time scan changes.
+3.14 - Support for Combo030 Rev 4, and software fix for Combo030 Rev 3
+DMA address wrap logic flaw.
+3.15 - Support for new product revisions; Last version to support the
+Impact (Series I) SCSI controller line (code removed to make space).
+4.3 - Initial version for G-Force 030 Rev 3.
+Later 4.x versions added support for the G-Force 030 Rev 4, A530, and the 
+G-Force 040.  The first shipping version was v4.13 or 4.14.  Ralph Babel
+has posted v4.15 of the driver on his website for personal use - a minor
+update that is not required in most cases.  
+
+Around v3.12/v3.14, the GVPPatch, and the first 68K accelerator with 
+cache functional hacks were implemented for Series II DMA products.  They 
+were later refined in the early 4.x revisions with updated GVPSCSICtrl 
+options.
+
+Q. What is GuruROM?
+A. GuruROM is a 3rd-party driver written by the author of the GVP v3/v4
+SCSI driver to support additional functionality and potentially higher 
+performance on both the GVP Series II SCSI interfaces and the C= A2091
+and A590 SCSI controllers.  More information is available on-line about
+this option.
+
+Q. I have an early A30xx dual-card accelerator with an AT hard disk.
+Are there any concerns?
+A. None that are new.  The v1.0 and 2.x drivers in ROM have the same
+prep-utility limitations as the SCSI 1.0/2.x versions.  The v3.x
+ROM version will work with HDToolBox, but due to the interface 
+timing limitations, most modern IDE/AT drives will not work.  Use
+the older FastPrep tool provided with the card if you need to change
+the partitioning on your existing disk.  If you are not dual-booting
+into another older OS, you can safely update the L:FastFileSystem from
+the v3.1.4 Update media onto a copy of your prep floppy disk.
+
+
+Accelerators
+
+Q. I have GVP accelerator product.  Are there any concerns?
+A. There are some details that should be addressed below, but the 
+general answer is 'no'.  All 68030 products will get an errata message 
+with the CPU command.  All 68040 products will need a 68040.library, as 
+will 68060.  A means to address the various issues are provided below.
+Also, the products that have 32-bit RAM, and that memory is located
+above 16MB in address range will not be available for soft-loading
+of Kickstart modules.
+
+Q. I get an errata message on startup about longword writes being 
+cached on my GVP 68030 product.  What is this?
+A. All 68030 products from all makers will get this message when the 
+data cache of the 68030 is on, and the I/O spaces of the system are
+able to be cached.  This is known as the 68030 CIIN errata.  The 
+problem with the 68030 caching longword writes when hardware indicates
+it should not (but is ignored) is a known bug.  There are two solutions
+to the problem (well, 3).  #1 is to disable the data cache.  Not good
+for performance.  #2 is to use the TTx register(s) to disable data
+caching in I/O regions of the address space.  The problem is that the 
+smallest granularity of the regions is 16MB, and data caching needs to 
+be off for ChipRAM ($000000-$1FFFFF) and much of the I/O space from 
+$A00000-$F7FFFF.  This means that AutoConfig FastRAM also gets marked 
+this way (and everything on the motherboard).  If you have a 68EC030, 
+these two are your solutions without upgrading to a full 68030 CPU 
+with MMU.  See MuLibs below for more information on your options with 
+current hardware.  #3 is to use the MMU to correct the CIIN errata.  
+Your options are to make use of the MuLibs package, or to use SetCPU 
+FastROM, which also corrects the flaw.  More info is below on those 
+solutions.
+
+Q. I have GVP or TekMagic 68040 product.  Are there any concerns?
+A. Generally no, but the 68040.library is needed, and you may want to
+update from the original v37.4 release on the first installation disks.
+More information is below on the options known to work.
+
+Q. I have a TekMagic 68060 product.  Are there any concerns?
+A. A 68060.library will be needed.  An update was posted by Ralph Babel
+on his website and is v2.3 68060.library.  The v2.2 version that has
+been available for some time can also be used, but see below for the
+additional settings needed for Rev 5 68060 Mask CPUs.
+
+------------------------------------------------------------------------
+
+Hard Disks, Prep/Format, Large Media, etc.
+
+For users of the v1.0/2.x drivers (SCSI or IDE), you must use the tools
+provided with the cards, and heed the <2GB partition, and <4GB device/
+media limits.  The classic TD_ functions of the original OS design are
+the only options for these drivers, and they impose these limits.  These
+are the limits of 32-bit signed and unsigned longword integers.  
+
+Users that plan to dual-boot OS versions should read the section below
+to understand some pitfalls of the dual environment.
+
+Users that make use of 3rd-party file systems should consult their 
+documentation and have an understanding of how partitioning works
+already.  Generally, no changes need to be made.
+
+MaxTransfer (Mountlist or RDB/Boot block) - Changing this value from
+the default maximum value can only inhibit performance.  The GVP driver 
+handles all possible values up to the device's maximum. 0x7FFFFFFF
+is the default.
+
+Mask - (Mountlist or RDB/BootBlock) - A DMA Mask has no use on the
+Impact (Series I) cards, as the CPU moves data between the on-board 
+SRAM buffer and system RAM.  For Series II SCSI interfaces, the DMA 
+Mask value should be set to maximum (default), as the driver handles 
+all instances of >24-bit address space memory transfers more 
+efficiently than the FastFileSystem.  Most Combo030 and all G-Force 
+accelerators support direct to >16MB address 32-bit RAM and the driver
+knows of this feature.  0xFFFFFFFE is the default.
+
+Buffers - Default 32.  Can be increased if desired with AddBuffers
+command.  Keep it low for lower/default for low memory situations.
+Add in the startup-sequence if you run apps that benefit from 
+additional directory buffering and enhances your configuration only.  
+
+Memory Type - Any/Either - FastRAM (32-bit, if applicable) will be 
+selected first, if available.  Any other setting is reducing 
+flexibility or wasting ChipRAM.
+
+Disconnect - Enable unless a device is completely unsupportable at
+boot time with this flag.  GVPSCSICtrl (or OMNISCSICTRL) can alter
+this setting on an individual SCSI-device basis.
+
+Last Disk.  Desirable to set on some versions of the SCSI driver.
+Ignored on others.  Enable on the highest SCSI ID in the system to
+potentially reduce boot scan time.
+
+Last LUN - set this unless you have a SCSI device that supports LUNS.
+
+Sync - some versions of FastPrep have this flag.  Only supported
+the omniscsi.device of the GuruROM.  OmniSCSICtrl can override the
+communications setting on an individual device basis.  Not applicable
+to FastROM/gvpscsi.device drivers.
+
+BootPri - defines order of boot.  Set to -128 if not a bootable 
+partition.  Set to various -xx values to prioritize boot order.
+Setting higher than the floppy disk BootPri of 0 will override the 
+ability to boot from floppy without the Early Startup Menu.  This
+is not recommended.  
+
+FileSys - FFS - Use of OFS is not recommended.  The FastPrep tool
+does not support any other file systems.
+
+
+HD Prep Tools
+
+It is highly advisable to only use one prep tool on each target device.
+Mixing tools between makers risks data because programmers chose 
+different solutions to the older Heads/Sectors/Cylinders geometry 
+format, and modern hard disks (and particularly SCSI) use block 
+numbering, leaving geometry settings up to the prep tool programmer.  
+As the technology changed during the Amiga era, the old method is 
+still around, and causes problems, because some used the suggested
+drive values, others optimized for best space use.
+
+The GVP FastPrep tools will work for <2GB partitions on <4GB disk 
+media.  The HdToolBox utility can be used in place of FastPrep for 
+new partitioning layouts.  Save your data fore making changes.
+
+FastPrep is designed to store the current L:FastFileSystem into the
+boot block of the drive when the Write function is selected.  Keep
+this in mind if you make use of multi-OS environments.  FastPrep
+should not be used for 3rd party file system partitioning.
+
+
+Dual OS Environment
+
+The concerns over dual or multi-OS version boot environments are as 
+follows:
+
+The 3.1.4 OS version you are upgrading to supports large disks (>4GB 
+media) when the disk controller driver supports it via at least one 
+of 3 ways (TD_64, NSD, or SCSI_Direct).  While the GVP 3.x/4.x driver 
+supports SCSI_Direct, and GuruROM also adds TD_64, keep this in mind 
+when connecting a large disk to an older system or another controller
+that lacks this support.  The older v1.0 and 2.x GVP driver ROMs do 
+not support larger disk media (>4GB) or the SCSI_Direct command set.
+
+The 3.1.4 Fast File System (FFS) supports >2GB partition sizes on
+partitions that are formatted under that OS.  If the DosType used
+(there are several values) matches a value compatible with an older
+FFS under an older OS, it will try to mount it.  If it's >2GB, 
+corruption is likely.  Also, if it's located on media >4GB, it may 
+destroy other partitions as data writes wrap around.
+
+(Note: Third-party file systems have their own rules regarding 
+earlier OS compatibility, and file system limits).
+
+Users of the 3.x (OS 3.5/3.9) releases may have a mixture of older 
+32-bit patch/enhancements to drivers and FFS depending on the 
+implementation.  Soft-loading patches from legacy FFS-sized 
+partitions, and then rebooting to activate and access larger 
+partitions was popular.  The complexity of the possibilities is 
+beyond the scope of this FAQ.  
+
+Users of Kickstart 2.0x-3.1 era have a Kickstart OS with a an FFS that
+has a 32-bit integer limit.  Confirm the compatibility of an updated 
+3.1.4 FFS in the boot block, placed there by the prep tool of choice, 
+prior to committing important data to the storage.  At the time of
+writing this FAQ, OS 1.3/2.x/3.0 and 3.1.4 FFS with >2GB partitions
+is not well tested, and compatibility is not confirmed.  Refer to the
+OS documentation regarding OS 3.1/3.x compatibility which issued for
+soft-booting the updated OS modules.
+
+Users with Kickstart 1.3 OS-era hard disks would be required to have 
+FFS installed in the boot block by the prep tool.  If this is 
+encountered on later versions of the OS, the older boot block FFS 
+version is ignored.  Depending on the driver, and FFS version, if
+newer, it may be loaded.
+
+Users of TekMagic SCSI interfaces will know of a bug that will not
+load (via the driver) alternate FFS or file systems from the boot 
+block.  This should not bother OS 3.1.4 as the latest FFS is in ROM
+already.  A third-party has provided a driver patch on-line, but it 
+requires removal of a soldered-on EPROM, patching, and programming, 
+then re-soldering the EPROM on.  This would only affect 3rd-party 
+file-system use.
+
+
+FileSystem Summary/General Rule: 
+
+It is best to use Legacy FFS <2GB limits for partitions on media of  
+<4GB with DosType values that are compatible with all OS FFS.  Use
+the more advanced file system features (and corresponding DosType) in 
+Amiga OS 3.1.4 for partitions only needed in that OS.  They will not 
+be mounted in the older OS.  For 3rd-party file systems, follow their 
+documentation.
+
+------------------------------------------------------------------------
+
+Amiga OS Soft-loading vs ROM-based modules.
+
+Memory on all GVP accelerators located >16M address range is mapped via 
+driver-ROM software after AutoConfig is done.  Therefore, it is not 
+available to make use of for the LoadModule feature.  Some RAM needs to 
+be able to be configured at AutoConfig time in order to avoid the use of
+ChipRAM for the modules.  A single 2MB 16-bit RAM card will do the job.
+
+All* GVP products with 16-bit RAM expansion will AutoConfigure their RAM.
+
+All GVP accelerators, excluding one, have an AutoConfig memory option.
+The G-Force 68040/33 is the only accelerator that only maps all 32-bit
+RAM >16MB.
+
+* The Impact SCSI+RAM8 has a special 6MB setting that leaves one 2MB RAM
+bank not configured, and requires AddMem to include in the memory pool.
+
+
+------------------------------------------------------------------------
+
+FastROM Kickstart Re-mapping
+
+
+The remap of Kickstart to the fastest 32-bit RAM is not a simple solution
+because of the different configurations and OS upgrade options.  Your 
+system may also have a configuration that was not considered by this FAQ
+at the time.  Knowledge of your system hardware and configuration is 
+needed to optimize it for your needs.  These are the general guidelines:
+
+- The Combo/G-Force accelerator products came with a tool called 
+GVPCPUCtrl v1.x.  This will remap a physical Kickstart up to 512K via on-
+board memory controller logic to on-accelerator 32-bit RAM.  This includes
+the A530.  The latest version is v1.19.
+
+- The A1230 JAWS/JAWS II accelerators were provided with Kickstart remap 
+tools, and they can still be used for that function.
+
+- The GuruROM v6 upgrade has a v2.x GVPCPUCtrl tool that replaces the 
+v1.x GVPCPUCtrl tool.  It's latest version is v2.6, but earlier versions 
+are functional.
+
+- The TekMagic 68040 boards will have support tool on the distribution 
+floppy that will handle Kickstart remap.  Alternatively, use a 3rd-party
+68040.library solution like MuLibs.
+
+The TekMagic 68060 boards utilize the Babel 68060.library to remap the 
+Kickstart at library initialization via an ENVARC: variable that is 
+defined.  This is the preferred solution.  Details are described below.
+MuLibs is also an alternative solution.
+
+The original A30xx dual-card accelerator products relied upon SetCPU for
+Kickstart Remap.  SetCPU is still available to use if a third-party 
+68030.library solution is not of interest.  
+
+SetCPU can be used on any GVP 68030 product that does not have a
+68EC030 CPU.  It will address the CIIN errata when FastROM is called.
+Do not use any other options of the tool, as the results/effect upon 
+the OS is undefined.
+
+The MuLibs 68030.library and support tools/libraries are a compatible 
+solution to the above remap tools.  It is the only solution to address 
+the CIIN errata issue for this CPU version.  MuLibs also provides users 
+with a CPU that has an MMU the ability to run development testing 
+tools similar to the classic Enforcer and others. 
+
+Be aware that the OS will perform a MergeMem of all AutoConfig RAM.  If 
+you have a 16-bit RAM card and 32-bit RAM that AutoConfigures, they may
+get merged.  This results in the MuFastROM or SetCPU MMU tools to place 
+the remap in the slower 16-bit FastRAM (at the end of the memory pool).
+Review the documentation option for remap to a 'Head' memory position 
+to address this.  The largest available contiguous RAM block may not be 
+optimal as a result later in the system boot process, so call the tool 
+with that option early.
+
+------------------------------------------------------------------------
+
+CPU Command / CPU Errata Information / CPU Library Information
+
+The 68030 CPU suffers from the CIIN bug.  This bug permits the CPU to 
+ignore the Cache Inhibit hardware signal from the memory bus when it
+writes a 32-bit longword to RAM.  The result is a cache entry is
+allocated for the write, and if (usually compiled) software attempts to
+read the written location soon after, a cache hit could occur, resulting
+in bad (stale) data if the written location is shared RAM or an I/O
+register.  The MMU can mitigate this bug (SetCPU FastROM, or MuLibs 
+68030.library), however the latter option is the only option for the
+68EC030.  This results in the <16MB range to not be Data Cached.  For
+this reason, G-Force 68030 boards with 68EC030 CPUs should consider 
+placing most/all of the 32-bit RAM in the high-mapped address range. if 
+possible.  Replacing the PGA 68EC030 CPU with a full 68030 is also an 
+option.
+
+The 68040 has many mask revisions, with many errata addressed, too many
+to list here.  The C= v37.4 68040.library was shipped on the early
+support disks, later replaced with the v37.30 library.  The latter is
+preferred and available on disks hosted at GVP-M.com.  Users of the 
+V3.5/3.9 BoingBag updates will know of a v44.2 update to the library.
+This version is preferred over the previous two, if an option.  The 
+3rd-party MuLibs package provides a fully updated and currently 
+supported generic 68040.library that is compatible.  The MuLibs 
+package will have a larger memory footprint (nearly 2x of the V44
+library) due to it's feature-rich offering.  If you have developer,
+plans, virtual memory interests, and (definitely) plenty of 32-bit 
+RAM to spare, this is the preferred solution.  Use of other 3rd-party
+68040.library files are not recommended.  Most are no longer supported
+by the authors, and contain bugs that were previously unknown at the
+time.
+
+The 68060 has 4 significant mask revisions in the field.  The Rev 1,
+and the Rev 5, which covers all types (Full, LC, EC) have errata 
+associated with them.  Both have the Load/Store Buffer Bypass (L/SBB)
+issue.  The Rev 1 has a SuperScalar bug that most 68060.libraries know
+about and disable the feature to address.  The Rev 5 was released 
+after most 68060.libraries were written, and support from vendors 
+ceased.  The CPU command will report the errata as a result if the 
+feature is enabled.  To resolve the errata, the CPU command can be
+called to disable L/SBB.  The v2.3 Babel 68060.library, and the
+latest release of the MuLibs 68060.library, both detect and 
+mitigate the currently known bugs of the 68060 CPU masks.  Both are
+releases from the second half of calendar 2018.
+
+If you choose to ignore the CPU errata message as you find your system
+is stable and not in need of the fixes (some configurations are optimal
+and also don't encounter the issue), you can add >nil: to startup
+and ignore the message.
+
+
+For TekMagic 68060 systems, the previously provided Ralph Babel v2.2* 
+68060.library will address all basic system library needs.  In an 
+AmigaShell, type: 
+
+ECHO >ENVARC:Babel68060.config "FastROM"
+
+and reboot, and the Kickstart will be remapped via the 68060.library.
+If an Errata is displayed during startup, there is a CPU command
+parameter to address the issue.  Or:
+
+*As of September 2018, Ralph Babel has released 68060.library v2.3, 
+which is his library for the TekMagic 68060 accelerator boards.  The 
+only change from v2.2 is the awareness of the Rev 5 mask still having
+the Load/Store Buffer Bypass errata, and sets the feature off at 
+library initialization time.  His website, mentioned in this FAQ 
+elsewhere, has the download link.
+
+------------------------------------------------------------------------
+
+Fallback To 68000 Mode
+
+If the accelerator cards supported it, the utility to invoke the fall 
+back to native 68000 (or 68030) mode will still work.  
+
+------------------------------------------------------------------------
+
+Burst Mode - Enable/Disable?
+
+The use of Burst memory access on most accelerator boards required a
+specific memory configuration to make use of it.  
+
+The 680x0 libraries will typically enable Burst mode, and the 
+accelerator memory subsystem will have a jumper that overrides the
+CPU setting (and the MMU/TTx registers can also override the memory
+burst access function depending on programming).  If you use a memory
+configuration that supports burst, it is generally a benefit.  In all 
+other configurations, it is disabled despite the setting on the CPU
+cache.
+
+Copyback mode is considered the more efficient setting of the 68040 and
+the 68060 CPU,  The only time it may be beneficial to disable the 
+Copyback setting, and use normal (near-68030-like) standard cache mode
+is if your system is performing heavy I/O most of the time.  For a CPU-
+intensive system, Copyback mode is the best choice.
+
+------------------------------------------------------------------------
+
+AdSpeed / Supra28 68000 Socket Accelerators
+
+The GVPSCSICtrl tool still supports the 68KCache option under the new 
+OS. Remember to add the setting in your startup-sequence prior to 
+enabling the accelerated mode,
+
+------------------------------------------------------------------------ 
+
+GVP SCSI Controller gvpscsi.device And gvpat.device Updates.
+
+Ralph Babel maintains the legacy driver versions on his website:
+
+babel.de/amiga.html
+
+You will need to obtain a suitable EPROM, and access to a programmer
+unit to program the updated code.  Instruction are provided if you 
+choose to get the updated code.  In most cases, they are not necessary.
+
+Updated support tools are also provided in some cases.
+
+The gvp-m.com website provides legacy support disk images, although the
+owner of the GVP-M IP does not currently respond to support requests.
+
+------------------------------------------------------------------------ 
+
+Some Known Flaws in Products to be Aware Of
+
+- GVP Series II drivers will not DMA directly into A3000/A4000 ChipRAM
+  due to some known conflicts involving some Buster revisions in
+  combination with some CPU cards.  Having some 16-bit FastRAM in the
+  Zorro II configuration space is highly recommended for best overall
+  performance from the Series II controllers.  The 3rd party GuruROM
+  upgrade can accept an override with one of it's tools to revert this
+  ChipRAM behavior if testing is desired, and the problem is
+  discovered to be not present.
+
+- The A2000-Combo030 Rev 3 (Surface mount CPU/FPU) should have at
+  least some 32-bit memory as AutoConfig Zorro II due to a DMA address
+  wrap flaw in the on-board logic.  It must have v3.14 or higher
+  driver ROM (v3.12 needs to be updated) if the board has any >16MB
+  addressed 32-bit memory configured.  Combo 68030 Rev 4 and later
+  G-Force (PGA CPU) boards are unaffected.
+
+- Early HC8 Series II cards (without the J14 jumper for a 2x module
+  4MBx8 SIMM configuration) should use 80ns or faster SIMMs in all
+  slots if the card is to be filled completely with 8MB of 8-chip
+  30-pin SIMMs.  The load of that many memory chips could produce a
+  marginal timing situation if the memory is slower.  Alternatively,
+  use lower-chip count SIMMs with 2x 1MBx4 on them and 100ns is okay
+  to use.  The later revision cards with the jumper gain the U8 chip
+  which buffers some address lines and addresses the chip load issue.
+
+- The GVPInfo tool, Chips sub-menu, will crash the system if a read
+  of the MMU registers is attempted with a 68060 CPU.  This tool was 
+  written before 68060 products were sold, and an update is not 
+  available.
+  
+- The Zorro expansion systems may not like some Zorro II cards  when 
+  very fast 68060 cards are running in the CPU slot.  Compatibility
+  with faster 68040 and 68060 CPUs, and older ZII expansion cards, was 
+  improved with the v3.1.4 update.  However, at present time, some of
+  the older GVP Impact (Series I) cards, and other maker's Z2 expansion,
+  may have problems with faster (and overclocked) CPUs.  All boards 
+  tested typically worked fine with native 68030 CPUs, so research into 
+  race conditions and unexpected bus behavior goes on.  Updates to the
+  expansion.library will depend on future Amiga OS development activity.
+
+
+------------------------------------------------------------------------ 
+  
+
+Quick How-To For New Media Partitioning (with HDToolBox):
+
+To use HDToolBox (Icon) with GVP SCSI v3.x/4.x or GuruROM v6:
+
+Right-click the HDToolBox icon, select Information from the menu bar.
+
+Revise the tooltype for v3 or v4 gvpscsi.device (FastROM) driver:
+SCSI_DEVICE_NAME=gvpscsi.device
+
+Revise the tooltype for v6 omnicsi.device (GuruROM) driver:
+SCSI_DEVICE_NAME=omniscsi.device
+
+Both drivers, optional setting for devices with no LUNs: 
+SCSI_MAX_LUN=0
+
+If the r/w device you have supports LUNs, leave it set to default.
+
+
+For using HDToolBox on a command line, provide the driver name 
+(in lowercase):
+
+HDToolBox gvpscsi.device
+
+or 
+
+HDToolBox omniscsi.device
+
+Warning: It is not advisable to modify an existing boot block with another
+3rd party RDB tool.  Have backups, or risk data loss.
+
+  ------------------------------------------------------------------------
+
+  Additional System Performance Options
+
+The GVPCPUCtrl tool has a MoveSSP option.  It is compatible with any GVP
+CPU Accelerator.  It moves the System Stack Pointer table to 32-bit RAM.
+
+3rd-party tools also exist to move the CPU Vector Table (VBR) to a non-
+zero memory address range.  These tools may introduce some 
+incompatibility with some software, but can also improves OS efficiency.
+Use them as you determine their compatibility with your software mix.
+
+  ------------------------------------------------------------------------
+  
+
+Other Support Tool Errata
+
+Although the native GVP and GuruROM support tools share the same name
+in many cases, using a tool with the driver it was not released for
+will either have no effect, or may produce an error with little
+explanation.  
+
+GVPCPUCtrl v2.3 from the original GuruROM support tool package may 
+produce a 'returncode 20' in s:startup-sequence if called on a system 
+with a GVP Series II accelerator that has the standard v3/v4 
+gvpscsi.device ROM active.  It is expecting the communications 
+resource that omniscsi.device sets up and not finding it.  Use 
+the v1.x GVPCPUCtrl with an active gvpscsi.device driver.
+
+The v1.19 GVPCPUCtrl tool with the G-Force 68040/33 and any of the
+available 68040.library solutions may hang the system when the FastROM
+option is called.  This is an intermittent bug with no known cause and
+no hardware solution.  Move the GVPCPUCtrl FastROM command before the
+SetPatch command to work around the issue if you encounter it.
+
+The GuruROM v6 (and matching GVPCPUCtrl v2.x) does not exhibit this kind
+of behavior with the FastROM option.
+
+------------------------------------------------------------------------
+  
+  Tool/Command Placement & Troubleshooting
+
+Many configurations are possible, and what is best for you may not apply
+to someone else's configuration.
+
+Users of GVP G-Force 68030 accelerators with 68EC030 CPUs are encouraged
+to use the MuLibs package, as it will adjust the TTx registers to avoid
+the CIIN bug in the 68030 CPU.  Best performance will come from high-
+mapped 32-bit RAM as a result of the necessary cache-control settings.
+Kickstart remap will be handled with 'GVPCPUCtrl FastROM' in the 
+startup-sequence.  Using the MoveSSP option is suggested.  An 
+alternative solution is to upgrade the CPU to a full 68030 so the MMU
+can better handle data cache granularity.
+
+The GVPCPUCtrl command will generally go after SetPatch, and before 
+the CPU command in s:Startup-Sequence.  
+  
+MuLibs: If you are using the MuLibs package, follow the guidance in
+their documentation as to the placement of any commands once the
+libraries load (with SetPatch).  If your CPU has an MMU, it is your
+choice whether you want to use GVPCPUCtrl or the MuFastROM tool for
+Kickstart remap.  Other features of MuLibs are still available.
+
+If you are running a 68030 with an MMU, and using SetCPU, with no
+Bridgecard or RTG graphics boards, you can place "SetCPU >nil:
+FastROM" somewhere after SetPatch, and just before the C:CPU command.
+Optionally, enable Burst on the C:CPU command, and optionally on
+Combo/G-Force 68030 & A530, insert GVPCPUCtrl MoveSSP for a minor
+performance optimization.  The original A30xx accelerator boards will
+need to use the SetCPU solution, as the GVPCPUCtrl FastROM option is
+not available.
+
+If you are running a 68030 with an MMU, and a Bridgecard or RTG video
+product, the general rule with SetCPU to allow everything to run
+properly is: set the Data Cache OFF with the CPU command, load the 
+board driver(s) (i.e - Binddrivers w/the driver in SYS:Expansion for 
+Bridgecards, other boards init tools may be different), then call 
+SetCPU FastROM, which sets up the MMU.  The data cache, and (if 
+desired) burst mode, can also be turned on at that point.
+
+With MuLibs, if you are running a Bridgecard or RTG video product, you 
+may need to make additional startup adjustments to allow those boards to 
+properly initialize.  Check with the MuLibs provided documentation.
+  
+The C= 68040.library v37.30 (classic) or v44.2 (Boing Bag updates) are 
+the more stable releases of the library.  The v37.4 version is known 
+to have significant bugs, and it is advisable to avoid it.  The MuLibs 
+package also has a stable 68040.library that is compatible.
+
+If you are running a TekMagic 68060, the library plus the one-time 
+ECHO command noted above handles all typical needs.  If the Errata 
+message appears on the CPU command, use the C:CPU option to disable 
+Load/Store Buffer Bypass, or update to the v2.3 68060.library from 
+Ralph Babel's website.  
+
+If using the MuLibs package with TekMagic 680x0 boards, use the guidance 
+in the provided documentation for Kickstart remap and other system 
+optimizations.
+
+If you are running any 68030/68040/68060, and are having problems with
+any Bridgecard-like board and/or RTG product, do your troubleshooting
+without the data cache on.  These products reside in memory ranges which
+are normally for Zorro II FastRAM.  In most cases, an MMU configuration
+must be in place to properly keep the data cache from being active in
+this shared memory or special I/O space.
+
+------------------------------------------------------------------------
+
+
+GVP I/O Extender
+
+The drivers of the GVP I/O Extender, and the similar interface on the
+68040 G-Force board, are expected to work as intended.  Due to changes
+within the printing subsystem, and a lack of available parallel
+printer hardware, the status of the Preferences redirection for PAR:,
+SER: and PRT: functionality is unknown.  If problems are encountered,
+do all testing on the native Amiga parallel or serial interface first.
+At time of writing, there are no resources to repair or test this
+higher-level Preferences-based redirection software.
+
+The GVP I/O extender driver (with companion .info icon) is placed in
+SYS:Expansion.  The ToolTypes function/values remains the same.
+
+------------------------------------------------------------------------
+
+
+GVP Spectrum 28/24 
+
+Minimally tested, but believed functional with the Picasso96 driver
+set that operates on other similar products.  EGS drivers remain 
+untested due to a lack of resources to test.    
+
+------------------------------------------------------------------------
+
+
+Tested GVP hardware for this document:
+
+GVP A500-HD8/8MB
+GVP A2000 HC (Rev 3 / Impact) 
+GVP HC2/2MB Series I (Impact)
+GVP HC & HC8/8MB Series II (HC8 Rev 2 & 4)
+GVP A1230+ JAWS II 68030/50/32MB
+GVP G-Force 68030/882/16MB/50Mhz Rev 3
+GVP TekMagic 68060/64MB/60Mhz (ultrasound) similar to the last A4060
+GVP I/O Extender Rev 4 (pre-release)
+
+GVP Drivers used: GVP FastROM 3.7, 3.15, 4.15, GuruROM v6.16
+
+Amiga Hardware:
+A500 Rev 6a/2MB ChipRAM on motherboard
+A2000 Rev 6.2/MegAChip 2MB
+A4000T of Amiga Technologies make
+A3000D (AutoConfig Testing)
+
+Additional 3rd-party hardware involved in GVP and OS 3.1.4 testing:
+
+Hydra Systems Ethernet (former GVP resale product - functional)
+A2065 C= Ethernet
+A2091/2MB
+PP&S A2000 68040/28/32MB
+A2620/4MB
+A2630/2MB
+A3640 Rev 3.1 (unmodified)
+X-Surf 100 Ethernet
+BigRAM+ 256MB
+GoldenGate 386 (for AutoConfig testing only)
+Golem A2000 IDE/SCSI (AutoConfig Testing only)
+GuruROM v6.16 by Ralph Babel
+
+HC533 68000 Accelerator
+68000/68010 CPUs
+
+Gotek USB Floppy with both HxC and FlashFloppy firmware
+Quantum, Fujitsu, Maxtor, MaxOptix, Syquest, and Conner hard disks.
+SCSI2SD v5 & v6
+Aztek Monster CF and SATA adapter/CF media devices
+Sony SCSI CD/DVD units
+
+
+This document may be updated in the future with additional hardware
+testing, and placed upon one or more of the historical Amiga websites.
+
+babel.de/amiga.html
+www.bigbookofamigahardware.com
+www.gregdonner.org
+
+
+

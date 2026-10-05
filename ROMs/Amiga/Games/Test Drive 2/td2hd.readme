@@ -1,0 +1,42 @@
+Short: HD Installer for Test Drive II & patch V1.1
+Author:   jffabre@ensica.fr (Jean-Francois Fabre)
+Uploader: jffabre@ensica.fr
+Type:     game/patch
+
+
+This installer requires the Test Drive II original disk. You can also install level
+disks and car disks.
+
+PATCHES DONE:
+
+- No need to disable the caches. This is done at bootup. 040/060 support.
+- Installer script which avoids some read/write errors due to the protection
+- GFX bugs removed by using Nofastmem
+- Disk protection removed (done by anonymous)
+
+
+Follow the installation procedure with the installer script provided.
+After that, click on the TD2 icon in your game directory to run the game.
+No need to disable caches/VBR or assign anything here. All is done by the program.
+The script also uses the "NoFastmem" program (sys:system/ drawer).
+
+With fast memory used, the game suffers from GFX bugs for me. Using NoFastmem
+corrects the bugs.
+First try without it to see if you've got some bugs (no need to slow down the game
+if it works OK).
+Anyway, at the end of the program, NoFastmem is called again, and fast memory becomes
+available again.
+
+You can edit the startup script to see/change the assigns and add/remove some
+degrade commands.
+This can be useful if you
+want to use different car disks or scenery disks (if it exists).
+
+
+I'm looking for people who could send me original disks for me to patch them
+for 680x0 or write HD-Installers (not for cracked versions. Please don't ask)
+E-mail me if you're interested, or if you simply like this patch.
+
+Enjoy!
+
+Jeff

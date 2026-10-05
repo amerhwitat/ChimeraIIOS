@@ -1,0 +1,1460 @@
+           __      __ ___ ______ ______ __   __ _______ ____     ________
+          / /     / // _ \\__  // ____// /  / // _____// __ \   / ______/
+         / /     / // /_\ \ / // /    / /__/ // /_    / /__\ \ / /___
+        / / /\  / // ___  // // /    / ___  // __/   / __  __//____  \
+       / /_/ /_/ // /  / // // /___ / /  / // /____ / /  \ \ ______/ /
+       \________/ \/  / // / \____/ \/  / / \_____/ \/   / //_______/ 
+                      \/ \/             \/               \/
+
+                       * P * R * E * S * E * N * T * S *
+
+
+    D E A T H   K N I G H T S   O F   K R Y N N   C L U E B O O K   1 0 0 %
+
+
+special note from [RYGAR] : one of the pics is missing.. namely the APIC
+                            but you can do without it i hope? eh?
+
+                                  INTRODUCTION
+                                  ------------
+
+  DEATH KNIGHTS OF KRYNN is Strategic Simulations,Inc's sequal to CHAMPIONS OF
+KRYNN and is the second ADVANCED DUNGEONS & DRAGONS computer roleplaying game
+set in the DRAGONLANCE universe.It takes the awardwinning system first used in
+POOL OF RADIANCE and applies it to the world of Krynn.The group of adventures
+you create in DEATH KNIGHTS OF KRYNN or transfer from CHAMPIONS OF KRYNN, will
+be responsible for destroying Lord Soth and the pockets of evil he has created
+throughout the countryside. Your characters must untangle an intricate web of
+intrigue as they discover the range of Soth's influence and exactly how he may
+be destroyed.
+
+Getting Help
+------------
+
+  In the section MONSTERS: How to Deal With Them is a description of all the
+monsters in the game. Information provided here tells what the monsters can do
+and how to most effectively fight them. Following the section The Story and
+Events are descriptions of the encounters.These include specific suggestions
+on the best way to get through the most difficult parts of the game.
+  If you find the combats too easy or too difficult, you can adjust them by
+using the LEVEL command found under the'Alter'menu. Instructions on how to use
+the LEVEL feature are found in the rule book that came with the game.
+
+The Story and Events
+--------------------
+
+  The characters begin by attending a commemoration of the Battle of Kernen at
+the end of CHAMPIONS OF KRYNN. During the celebration, Sir Karl - now an
+undead - attacks. He spirits away the dragonlance on display and leaves a pile
+of cursed weapons. Maya, the silver dragon, flies off in pursuit.
+  Throughout the game, the party will run across people who have taken these
+cursed items. They will act throughly evil, despite their previous natures. If
+the characters can wrestle the item away,then the victim will return to normal
+  Everyone retreats to Gargath Outpost as more evil forces advance.The outpost
+is besieged and characters meet an old knight who claims to have seen the
+battle occur in his dreams. He gives the party a Sleepstone in which he has
+trapped the dream and tells them to seek the Dream Merchant in Kalaman who
+might interpret it for more information.
+  The siege is raised and the characters head to Kalaman. They meet the local
+Knight Commander, Daine,and his consort Ariela. Daine suspects that the undead
+were summoned by Lord Soth and his servant cleric,Sebas Astmoor.The characters
+seek the Dream Merchant, only to find him kidnapped. They agree to a midnight
+meeting with the kidnappers, which goes wrong. In the confusion, the Dream
+Merchant teleports away to Vingaard Keep.
+  Tracking down the merchant leads the characters to Crook Street in Vingaard
+Keep.They enter the dream and gain enigmatic clues.They find Sebas Astmoor and
+learn that he has renounced Soth.He seeks a force of good strong enough to
+hold the powerful Rod of Omniscience, which in the wrong hands could allow the
+evil goddess Takhisis to lay waste to Krynn.
+ Before he'll reveal the rod's location, Sebas requires the party to go to the
+High Clerist's Tower and protect the crypts from Lord Soth.The characters rush
+to the tower as the undead attack. They meet an old knight,Sir Durfey, holding
+out alone against a horde of monsters. Once rescued, he joins the party.
+  The party is too late. Soth's forces have stolen the bodies of many knights,
+including the famous hero Strum Brightblade, and released an imprisoned red
+dragon. The characters pursue the marauders into tunnels below the tower. They
+learn that the evil forces are directed by Sir Garren, a good knight enchanted
+by a cursed sword Sir Karl left at Gargath. As they chase down the retreating
+undead, they defeat the red dragon, rescue Sir Garren and recover many of the
+bodies. Lord Soth escapes with some bodies, including Strum Brightblade's.Lord
+Sothplans to convert the bodies into new death knights. With this powerful new
+army he can crush the forces of good.
+  Returning to Vingaard, Sebas sends the characters to the Dragon Pit, an
+ancient temple of Takhisis.Sebas suspects that Sir Karl is there.At the Dragon
+Pit, they meet Maya who also seeks Sir Karl. Sir Karl ambushes Maya, plunging
+the dragonlance into her. Badly wounded, Maya lifts off with the dragonlance
+still embedded. Sir Karl holds on and the two disappear into the clouds. Soon,
+the party sees the dragonlance crash to the ground.
+  Having completed Sebas'quests,the characters return to Vingaard Keep only to
+find that Sebas has been abducted and clues point to Kalaman and Ariela. Going
+there, they inform Sir Daine, who is later slain when he confronts his former
+consort. The characters avenge Daine's death and learn that Ariela is a red
+dragon in the employ of Kitiara - Lord Soth's consort. Sebas is spirited away,
+but the party rescues a kight to whom Sebas revealed the location of the rod
+in Voice Wood.
+  Clues in Kalaman indicate that Ariela often went to Cerberus to contact
+Kitiara. Going there,the characters find that the mayor has been assassinated.
+When they attend the funeral,the entire graveyard erupts, disgorging a mass of
+undead. The cemetary had been protected by mystical wards, but a gravedigger
+corrupted by Soth stole them. The party locates and replaces the wards to end
+the threat.
+  A key found on Ariela opens a secret tunnel into Dargaard Keep, Lord Soth's
+castle. There the characters meet Lenore, a thief raiding the keep. She guides
+them past some traps,but soon must return home.Sir Durfey offers to escort her
+and the two depart.
+  Returning to Cerberus, they find more undead laying siege to the town. The
+local fortune teller is allied with Lord Soth and leads the attack.He captures
+the town's cleric Zakarie,the only person capable of opening the towns armory.
+They rescue Zakarie and slay the fortune teller.The armed peasants overwhelm
+the undead and peace is restored.
+  To penetrate deeper into Dargaard Keep, the party heads to Voice Wood to
+recover the Rod of Omniscience. Before the characters can reach the wood, they
+pass through Dulcimer,a twist mirror image of Cerberus created by a lich with
+fond memories of that town.Dulcimer is populated with undead who now stagger
+through a parody of life in Cerberus. The lich has no quarrel with the party,
+but has sworn to Soth that it will allow no one entrance to Voice Wood. The
+party slays the lich and destroys its phylactery,the jar housing its soul.Then
+the party proceeds into Voice Wood.
+  Voice Wood is a faerie glen, one of the few places of good near Dargaard
+Keep. The party convinces the sprites and the spirit of the wood to release
+the rod.
+  The party proceeds through the top two levels of the keep. Along the way,the
+characters reunite with Lenore, find the dying Sebas Astmoor, rescue Strum's
+body and discover that Sir Durfey has been converted into an undead. They put
+Durfey to rest and proceed to their final meeting with Lord Soth.
+  Lord Soth proves impossible to defeat in physical combat. The party strikes
+Lord Soth with the Rod of Omniscience sending him to another dimension. Lenore
+revleas herself as Kitiara and tries to take the rod. She fails and gets
+transported to another dimension. The rod is destroyed and the party is
+transported to the High Clerist's Tower.
+
+
+
+
+                                      MAPS
+                               ------------------
+
+A. The Overland -NOTE FROM [RYGAR] this is the picture thats missing! sorry!!
+---------------
+
+  The overland map is used to travel from place to place in the game. This map
+shows the area of Anslaon covered in the game and shows many of the major
+points of interest as symbols on the terrain.
+ Overland travel is filled with many monsters and other travellers.They may be
+friendly or hostile and thus many help or hinder your progress during the game
+ Your location and its terrain affects the kinds of encounters you have.As you
+get closer to Dargaard Keep or Gargath Outpost, the characters ancounter a
+higher percentage of undead monsters.They may meet hatori in the plains region
+or wyndlass in the forest regions. They are also more likely to battle dragons
+in the regions near the Dragon Pit.
+  Once Lord Soth has been defeated, the chance of encountering undead monsters
+is greatly reduced and the number of friendly travellers increases.
+  Wandering the overland is a good way to discover some of the unmarked
+encounters in the game. Fighting monsters gains valuable experience points for
+the party. This is especially useful if a party member is close to gaining
+another level.
+
+B. Gargath Outpost
+------------------
+
+  SYNOPSIS:After meeting the undead Sir Karl,the characters bring survivors to
+the Gargath Outpost. They meet and old knight who sends them to find the Dream
+Merchant in Kalaman.
+ The party may have to fight a besieging force of sivaks to enter or leave the
+outpost. If the party aids in healing, it recieves a Ring of Protection +1. On
+later trips, the outpost may be besieged. For relieving the siege, the party
+recieves a Wand of Fireballs.
+  WANDERING MONSTERS: Monsters are most frequently met outside the outpost
+walls. The party fights blue dragons, sivaks, evil mages and fighter
+mercenaries.
+  RESTING: The best place is the room assigned by the innkeeper.
+
+  MAP LOCATIONS:
+
+   1. Main gates, the primary entrance to Gargath Outpost. The party leaves by
+      moving away from outside the walls.
+   2. The ouposts's postern, or rear exit.
+   3. Stairs lead to the upper level of towers and battlements.
+   4. Main entry to the keep. Spiral stairs lead to the upper floor.
+   5. On the lower level, this door leads outside the oupost walls, on the
+      upper level, it opens onto the parapet walk.
+   6. On the lower level, the keep's well, on the upper level, the Commander's
+      Office.The party recieves work assignments and information here.Sir Thom
+      may be met here.
+   7. The alcove containing Sir Karl's empty grave. The party meets the Dread
+      Wolf here. Players should have a Charm Snakes spell memorized to hadle
+      the swarm of carrion snakes that pur from the empty grave.
+   8. The inn.
+   9. The knights of Solamnia operate a bank here. Note: this is the only such
+      bank in the game.
+  10. A general store with weapons at fair prices.
+  11. The temple.
+  12. A training hall open only during the day.
+  13. The oupost tavern. The party should come here often to listen for
+      interesting tales. Ayn and Sir Thom may be met here.
+  14. The party may elect to perform guard duties at one or moew of these
+      stations.
+  15. When patrolling, the party encounters invaders at these locations. At
+      night, the party finds a rope here, indicating that a spy is in the
+      outpost. The spy is in the oupost. The spy can be captured in the
+      Commander's Office.
+  16. If besieging sivaks force the frontgates,the party must defeat them here
+      to save the outpost.
+  17. Front gates. While besieging, knights prevent all parties from leaving.
+  18. Parties on patrol are eventually relieved here.If besieged by
+      draconians, blue dragons may attack.
+
+C. Kalaman
+----------
+
+  SYNOPSIS: Following Sir Thom's advice, the characters travel to Kalaman.They
+meet the city commander, Daine. His consort, Ariela, is a red dragon in human
+form. The party learns of the hunt for Sebas Astmoor. The Dream Merchant is
+spirited away by Ariela's sivaks, and a midnight parley with Ariela in dragon
+form is broken up by Soth's undead. The Dream Merchant escapes to Vingaard and
+the characters follow.
+  The Party returns to Kalaman with an earing implicating Ariela. Daine
+confronts Ariela, and she kills him. The party slays Ariela, but sivaks escape
+with Sebas. The party rescues another prisoner who relays a message from Sebas
+about the Rod of Omniscience in Voice Wood. He also gives the party a Dart of
+the Hornet's Nest and Bandmail +2.
+  WANDERING MONSTERS: The party encounters evil gangs, especially in the alley
+far from the bazaar gates. Once defeated a few times, they learn to leave the
+party alone.
+  RESTING: The best place is the inn. Other places are patrolled by knights by
+day and thugs by night. After confronting Ariela, the party may only rest
+briefly before cornering the fleeing sivaks in the bazaar.
+
+  MAP LOCATIONS:
+
+   1. Entrance and exit for Kalaman.
+   2. Main gates into and out of the bazaard square. Closed at night.
+   3. The Whistling Whale Inn, the only safe place to rest. After the Dream
+      Merchant is kidnapped, a ransom note is left here.
+   4. Guardhouse cell. The party is imprisoned if arrested.
+   5. Temple of Kal. Healing services available during the day.
+   6. Bout Hall. Training services available during the day.
+   7. A warehouse during the day, at night a bar. Brawls and useful rumors are
+      found here.
+   8. The house of the City Commander where the charcaters meet Daine, Ariela,
+      and Major Tems. They hear a biased account of the activities of Sebas
+      Astmoor. After the Dream Merchant escapes, Ariela lets slip that he has
+      a shop in Vingaard.
+      After Sebas is kidnapped by Ariela, the party returns here with the
+      earring proving Ariela's complicity.
+   9. The entrance to the Dream Pavilion.Ariela's men revleal themselves to be
+      sivaks and fight a holding action while the Dream Merchant is kidnapped.
+  10. Apprentices point to a ripped wall, the beggining of a trail of torn
+      fabric walls. One trail leads to the Commander's house. The other, a
+      diversion, leads to the back door of the inn.
+  11. Patrolling knights.
+  12. A store during the day. This is where the party meets the merchant's
+      kidnappers. Keeping the truce earns the party experience points. The
+      parley is broken by Soth's forces, directed by the Dread Wolf. After
+      defeating the forces, the party receives a clerical scroll. It is wisest
+      to do what the blue dragons ask.Otherwise,you must battle the dragons as
+      well.
+  13. This is the only way to enter the bazaar at night.
+  14. When Daine confronts Ariela with the earring, she kills him. Knights and
+      the party then fight her sivaks. The party is left to guard Ariela who
+      reveals herself to be a red dragon.The party receives an Elixir of Youth
+      for defeating her.
+  15. The cell where Sebas was imprisoned.
+  16. The party fights sivaks. From here, a trail of slashed walls leads west,
+      then north and south.
+   X. After defeating Ariela,the party rescues a knight who tells them that
+      the rod is in the Voice Wood and tells them the appropriate chant to
+      enter the wood.
+
+D. Vingaard Keep
+----------------
+
+  SYNOPSIS: In Vingaard, the party seeks the Dream Merchant. The Sleepstone
+revleas that the key to defeating Lord Soth is held by Sebas Astmoor.The party
+finds Sebas by following a winding route marked with red doors. Before Sebas
+will trust the characters,he sends them to stop Lord Soth at the High Clerists
+Tower and to destroy Sir Karl at the Dragon Pit.
+  Upon returning from the Dragon Pit, the party finds that someone has seized
+Sebas. Evidence in his hideaway incriminates Ariela of Kalaman.
+  WANDERING MONSTERS: Gangs of theives wander the streets,especially at night.
+They leave the party alone after a few defeats.The dark forces working for
+Lord Soth often slip away if confonted.
+  RESTING: The party's room in the Inn is the only safe place. After visiting
+the Dream Merchant, bad dreams plauge the characters until they complete his
+bidding.
+
+  MAP LOCATIONS:
+
+   1. Entance.exits to Vingaard.
+   2. Entrances to Crook Street.
+   3. Shops.
+   4. A fletcher's shop, with good prices.
+   5. An armorer's shop. Expensive, but will buy surplus weapons.
+   6. The Inn.
+   7. The party's room in the inn. Rest here is undisturbed except by bad
+      dreams.
+   8. Taverns.
+   9. Training Halls.
+  10. The Temple.
+  11. Back rooms.The party learns of the widespread manhunt for Sebas Astmoor.
+  12. Various evil parties wait here.
+  13. Speakeasy. Bodyguards control entry to the rooms beyond. They are easily
+      fooled.
+  14. The party finds sivak spies searching for Sebas. The party will likely
+      fight both the bosses and their bodyguards.
+  15. The Dream Merchant's shop. After the Merchant leaves Kalaman, the party
+      meets him here. If the party members broke truce in Kalaman, they must
+      fight a dream battle before he'll decipher the Sleepstone. They may also
+      fight a dream battle to earn a elixir ridding them of bad dreams.Once in
+      a dream battle, the characters should try to complete all three steps.If
+      damaged, you should wake. However,you will have to fight all the battles
+      over again.
+      The Dream Merchant shows the characters the dream in the Sleepstone,
+      bidding them to find Sebas Astmoor by starting at the entrance to the
+      Candle Shop and opening only red doors.
+  16. Entrance to the Candle Shop.
+  17. The Candle Shop.
+  18. The party members first discover Sebas. If they gain his trust, he sends
+      the party to the Dragon Pit, giving it a map that shows how to enter the
+      evil place.
+  19. After the party explores the Dragon Pit, the red doors lead to a sivak
+      ambush. Re-entering the room after the battle, the party discovers
+      Ariela's earring, implicating her.
+
+E. Throtl Keep
+--------------
+
+  SYNOPSIS:The party learns that Throtl Keep has been overun by an evil priest
+named Lessiter and his followers.They are using the keep as a haven,where they
+can create undead to help fill the undead legions of Lord Soth.
+  WANDERING MONSTERS: There are no wandering monsters.
+  RESTING: No place is entirely safe from interruptions.
+
+  MAP LOCATIONS:
+
+   1. Entrance and exit for the keep. The party is met be Lessiter, a high
+      priest of Takhisis. If it stays, it is attacked by skeleton warriors and
+      wights while Lessiter retreats.
+   2. The party is ambushed by undead dragons.
+   3. Lessiter flees while skeleton warriors and zombie minotaurs attack the
+      party.
+   4. Skeleton warriors and zombie minotaurs attack.
+   5. This is a vault requiring a Knock spell cast by a 10th level mage or
+      above to open. Inside is a Composite Long Bow +2, 10 Arrows +2, as well
+      as money.
+   6. The party is attacked by skeleton warriors and zombie minotaurs.
+   7. Evil priests and undead minotaurs guard this corridor.
+   8. The party meets wights, ghouls and ghasts led by an evil priest.
+   9. Dead bodies rise and attack the party. The monsters include priests of
+      Takhisis, wights, ghouls and skeleton warriors.
+  10. If the party enters this room, it is attacked by red dragons.
+  11. Nightmares and skeleton warriors attack from this stable.
+  12. Skeleton warriors and wights are alerted by the party's approach.
+  13. The party defeats the evil priests and wights to gain booty.
+  14. This door is trapped, but can be disarmed by a thief. The party is then
+      ambushed by priests of Takhisis carrying a Wand of Ice Storm.
+  15. A priestess of Mishakal asks the party to save her love, Sir Michael,who
+      was dragged northward by evil priests.
+  16. Undead dragons occupy this room.
+  17. Skeleton warriors and zombie minotaurs attack the party.
+  18. The walls are scorched and the party finds two piles of charred bodies,
+      one marked 'yes' and the other marked 'no'. The 'yes' pile has been
+      prepared for conversion into undead.
+  19. The party fights a large patrol of evil priests and wights.
+  20. Lessiter awaits the party with a force of priests, skeleton warriors,
+      wights and ghasts. After defeating the evil forces,the party rescues Sir
+      Michael and reunites him with his love.
+
+F. Cekos
+--------
+
+  SYNOPSIS: Evil blue dragons in Cekos have set up a hierachy of sivak guards,
+forbade magic in the town and turned the townspeople into servants. Magic is
+only practiced behind closed doors,and both the townspeople and the dragons
+are wary of visitors.
+  WANDERING MONSTERS: None.
+  RESTING: Some chance of interruption everywhere.
+
+  MAP LOCATIONS:
+
+   1. Entrance/exit.
+   2. An old woman approach and asks for help in locating her daughter.If the
+      characters agree to help,she gives them a Quarterstaff +2 and an amulet.
+      If they have the amulet while in the dragon's lair, the princess joins
+      them. If they return after this, the old woman rewards them with gems.
+   3. Igorf, a copper dragon, asks to joing the party. He can be helpful in
+      battles, nt some townspeople won't let the party rest in their homes
+      if he is present.
+   4. A kitchen. During the day the party may see a servant carrying a tray of
+      food. A successful 'move silently' skill roll allows the party to follow
+      her to the entrance of the dragon's lair.
+   5. The mayor is a sivak in disguise who suggests that the party leave
+      Cekos. If talked to again or attacked, he attacks.
+   6. The party receives information if it waits in this tavern without buying a
+      drink.
+   7. The innkeeper asks the characters to leave.If they refuse,sivaks attack.
+   8. A vagabond will tell the characters about Cekos if they offer him two
+      steel pieces. Disguised sivaks attack before he can finish. If the
+      characters kill the vagabond, the town cleric is outraged.
+   9. If this magic statue is approached at night, it asks the characters to
+      save the town and gives them a white mage scroll.
+  10. If the prisoners in this jail are spoken to before being freed,they tell
+      why they were imprisoned. The party gains experience points for freeing
+      them.
+  11. The clerk suggests speaking to the vagabond at location 8.
+  12. Town hall. If the party tries to sneak past or join in the fight amongst
+      sivaks, the sivaks attack.
+  13. The party finds a key that opens the secret door of the dragons' lair
+      after defeating the sivaks.
+  14. The characters may be offered food or drink. They are damaged by poison
+      if they accept.
+  15. This is the passage to the dragons' lair. The party must first have the
+      Key from encounter 13 to pass through the secret door.
+  16. A wizard tells the party about the Cekos tradition of magic.If attacked,
+      he casts a fireball spell and disappears.
+  17. A cleric lets the characters rest if they are without Igorf and haven't
+      killed the vagabond.
+  18. This is the entrance to the dragons' lair.
+  19. This is the blue dragons' lair. If the characters defeat the dragons,
+      they receive a great deal of treasure and a Wand of Paralyzation.
+  20. This is a sivak guard post.
+
+G. Turef
+--------
+
+  SYNOPSIS: As the characters enter the village, they see crazed hill dwarves
+attacking skomp, a mountain dwarf. The party helps Skomp find his wild boar,
+which fled into the village.The party then recovers the book,Ambush Made Easy.
+Finally,the party passes an ambush to reach the center of the village,where it
+ends the brainwashing of the dwarves by evil mages.
+  WANDERING MONSTERS: Creatures include wraiths, wights, vampires, ghouls,
+ghasts,crazed dwarves,black robe mages, priests of Takhisis and evil warriors.
+(Note:The random encounters vary radically in difficulty.Save the game often.)
+  RESTING: The characters may rest freely at location 11. Otherwise, they risk
+interruption. Resting indoors is safer than outdoors.
+
+  MAP LOCATIONS:
+
+   1. Entrance/exit. Crazed dwarves attack Skomp, a mountain dwarf. The party
+      should come to his aid and agree to help him recover his wild boar.
+   2. A scholar says that a book called Ambush Made Easy fell into evil hands
+      and must be recovered. If the party returns the book, he tells how the
+      ambush might be avoided through the secret door in the tavern.
+   3. The party spots a waiting ambush as it enters the square. The party
+      shoudl retreat, for the ambush would overwhelm them.
+   4. A mother seeks her captured son. If the characters return after sparing
+      the son, (the dwarf with a purple hat at location 6,) the mother gives
+      them a Cloak of Displacement.
+   5. If the characters bring the boar carcass to this cook, they are rewarded
+      with a Short Sword +2.
+   6. A dwarf with a purple hat attacks. The party should WRESTLE him to the
+      ground. Evil soldiers then attack. When the dwarf regains consciousness,
+      he tells of seeing a book hidden in a shield.
+   7. The secret door in the back corner can't be opened without a magic key
+      from location 10.
+   8. After location 12, the Dread Wolf slaughters Skomp's boar. Skomp leaves,
+      and the party should take the boar carcass to location 5.
+   9. Mages and clerics attack the party.
+  10. The locksmith will sell keys to the party (100 S.P.) if it knows which
+      key it wants. Key number 88 opens the secret door at location 7.
+      If the party takes more than one key, the keys rattle and increase the
+      chances of random encounters. The locksmith buys back all of the keys
+      for 10 steel each.
+  11. The party finds gems if it searches in this storeroom.The party may rest
+      safely here.
+  12. Evil mages use Sir Karl's cursed relics to brainwash the dwarves here.
+      Soldiers toss sacks of relics onto blue dragons, preparing to leave. The
+      party must defeat the soldiers and prevent the dragons' escape.
+  13. Exit from Turef. If the party has the wild boar carcass, it must be
+      dropped before leaving.
+  14. The party encounters a patrol just as Skomp spots his boar and gives
+      chase. If the party doesn't follow Skomp, it later finds him badly
+      injured.
+  15. This barracks is full of sleeping soldiers, and a blue dragon sleeps in
+      the back corner. Propped against it is a Shield +4. Taking the shield
+      reveals the book, Ambush Made Easy, hidden in its straps.
+      If the soldiers awaken before the characters get the shield, they must
+      leave the barracks and have another encounter before the soldiers fall
+      back to sleep.
+  16. If the party members have several drinks with Milo, he tells of the
+      secret door in the back wall. If they've returned Ambush Made Easy to
+      the scholar, Milo says that the key they seek is #88.
+  17. The village magistrate is being tortured here. The party fights to free
+      her, after which she rewards it with gems.
+  18. The party surprises soldiers and spell casters.
+  19. The party surprises sentries and a fight ensues.
+  20. This building is full of traps. If the party searches,it can avoid them.
+  21. Same as location 20.
+  22. More sentries attack.
+
+H. Gnome Village
+----------------
+
+  SYNOPSIS: A mad gnome in this village once invented a picture making device.
+The sage gnomes saw this as a threat and asked the mechanical engineering
+gnomes to create a deviceto block the new invention. However,they created such
+dangerous devices that soon the town was up in arms, fearing it was under
+attack.An evil mage saw this as an opportunity to increase his power.He killed
+the mad gnome, put poisonous clouds outside his workshop and sent out undead
+beats to continue the confusion.
+ HINT: There are a limited number of undead beasts in the town.Wander the town
+until you find no more beasts. Then go to the battle at location 3. This makes
+that battle much easier.
+  WANDERING MONSTERS: Undead beasts.
+  RESTING: There is no safe place to rest until all the undead beasts are
+destroyed.
+
+  MAP LOCATIONS:
+
+   1. Entrance/exit. As soon as the characters enter, the Foreign Relations
+      guild takes them to the Hall of Technological Innovation (location 2.)
+      They must escape or risk being bored to death. The characters may be
+      pulled back later, in which case the must escape again.
+   2. Hall of Technological Innovation. This building is filled with
+      technological devices invented by the gnomes.
+   3. The door can be opened by a Knock spell cast by a mage of 11th level or
+      better, otherwise, bash the door or pick the lock. The evil mage waits
+      here with his remaining undead beasts. His treasure includes Eyes of
+      Charming, a Potion of Speed and a Potion of Healing.
+   4. Each poisonous cloud damages the party. Th best way to get through the
+      clouds is to to the wizard's lair through the Mechanical Engineering
+      Gnomes' guild.
+   5. Sage Gnome guild. The sage gnomes explain the recent history of the
+      village.
+   6. A gnome spy sent by the Militray Planning guild is here.
+   7. Grand Council of Bureaucracy.
+   8. If a cleric is in the party, he may help the wounded gnome soldiers.
+      Casting a healing spell gives the party experience points. If a kender
+      is in the party, he may pick up a weapon lying on the floor. It is best
+      to leave the weapons, because they sometimes malfunction is spectacular
+      ways.
+   9. Education guild.
+  10. Militray Planning and Weapons guild.
+  11. Mechanical Engineering guild.The party should destroy the machines here.
+
+I. Kuo-Toa Slave Ship
+---------------------
+
+  SPECIAL NOTE: The characters enter this map automatically while walking near
+the river on the overland map.
+  SYNOPSIS:The characters spy Kuo-Toa warriors herding peasants aboard a ship.
+They dare not attack directly for fear that the slaves might be slaughtered.
+The characters disguise themselves to be led aboard.
+  WANDERING MONSTERS: Random patrols only appear after the party raises the
+alarm in locations 8 or 11. Then the party faces Kuo-Toa fighters,monitors and
+clerics, as well as vodyanoi.
+  RESTING: The slave cells are the only safe places to rest. (Warning: It is
+impossible to return to the cells after location 11. Make sure the party is
+fully rested before that event.)
+
+  MAP LOCATIONS:
+
+   1. The characters are led to this cell. This is a safe place to rest.
+   2. Other slave cells. Also safe places to rest.
+   3. A group of slaves tells of its plan to burn the boat and win freedom
+      from the Kuo-Toa.The meeting is interrupted by guards oredring the party to
+      report to work in the galley.
+   4. A group of Kuo-Toa orders the characters to leave. If they disobey, the
+      Kuo-Toa attack. The party hides the bodies after the fight, so no alarm
+      is raised.
+   5. Kuo-Toa attack. The party receives a Long Bow +3, Chain Mail +4 and 10
+      Arrows +3. Again, no alarm is raised.
+   6. This is the galley of the slave ship. A slave asks the party to meet him
+      in the pantry, out of sight of the guards.
+   7. This is the pantry. The slave gives the party directions to the temple,
+      where the attack against the Kuo-Toa will begin.
+   8. The Kuo-Toa in this dining room hurl insults at the party. Only by
+      ignoring all of the insults can the characters pass.If they take offense
+      and attack, the alarm is raised and it becomes much harder to reach the
+      temple.
+   9. If the party members passed safely through the dining room, the Kuo-Toa
+      monitors the attack.
+  10. These are the sleeping quarters of the Kuo-Toa monitors.
+  11. A human is about to be sacrificed. If the party attacks, the Kuo-Toa are
+      surprised and only a few Kuo-Toa monitors and clerics attack.
+      If the party hides, it is discovered. The ensuing fight is much more
+      difficult than if it attacked initially. During the fight, torches are
+      knocked from the walls and the boat begins to burn.
+      After the battle, the walls are ablaze and it is impossible to go back
+      the way the party entered.
+  12. These doors are aflame and impassible after location 11.
+  13. Kuo-Toa search the room.After defeating them,the party is unable to find
+      what they were searching for.
+  14. This is the captains's room. The party is still unable to find what they
+      were searching for.
+  15. If the party members choose to search this burning closet, they are
+      burned. While they retreat, they find a Mace +4.
+  16. Once the party has entered and left through this door once, the flames
+      around it grow so intense that the characters are unable to re-enter the
+      room.
+  17. A large group of Kuo-Toa are preparing to jump from the bow of the ship.
+      Combat ensues if the party tries to pass.
+  18. The characters meet the slaves and are awarded experience points for
+      their role in the uprising. The party and the slaves dive from the ship
+      and swim to freedom.
+
+J. High Clerist's Tower
+-----------------------
+
+  SYNOPSIS:Until Sebas Astmoor warns the party of Lord Soth's imminent attack,
+the tower is merely a safe place to rest.The party will be confined to the top
+level.
+ After the warning,the party is escorted down to the crypts where it discovers
+Sir Durfey holding out against the undead horde. With the aid of the tower's
+knights, the party discovers the theft of Strum Brightblade's body and the
+escape of the red dragon. The characters descend into the tunnels dug by the
+undead.
+  WANDERING MONSTERS: When the undead invade, patrols of skeleton warriors and
+wights will confront the party.
+  RESTING:Except when the undead are attacking,the tower is completely safe to
+rest in. During the attack it is possible to rest, but there is no guarantee
+that teh party won't be disturbed by an undead patrol.
+
+  MAP LOCATIONS:
+
+   1. The netrance to the tower.
+   2. This is where the party is taken to rest.It's also where the party meets
+      a council knight when they learn of Lord Soth's attack. He escourts them
+      to location 5.
+   3. This is as far into the tower as the party may go until the attack is
+      underway.
+   4. During the attack, the party iwll not be allowed to climb higher in the
+      tower.
+   5. The party finds Sir Durfey surronded by undead. When rescued, Furfey
+      should be allowed to join the party.
+ 6-8. The party confronts undead and discoveres that the tombs have been
+      looted. Knights aid the party in battle.
+   9. Durfey warns the party that a dragon was held due west (location 13.) He
+      sldo points out Strum's tomb (location 14.)
+  10. The party finds slain bodies here, after it has been to locations 11 or
+      13.
+  11. When the party enters here or location 13, it has a battle with undead
+      skeletons and wights. After the battle, it hears the enemy forces
+      retreating through location 10.
+  12. Evil forces are holding this room.
+  13. See location 11.
+  14. The empty tomb of Strum Brightblade.
+  15. The entrance into the tunnels.
+
+K. Tunnels Beneath Tower
+------------------------
+
+  SYNOPSIS: The party descends into these tunnels in pursuit of the undead who
+have looted the crypts.The characters also seek an escaped red dragon. As they
+proceed along the main corridor, they discover that the undead were lead by a
+knight who is under the influence of a cursed sword. Finally, after defeating
+the dragon, rescuing the knight and recovering many of the bodies, the party
+meets Lord Soth. He is not prepared to do battle and escapes atop a nightmare.
+  WANDERING MONSTERS:Various undead wander the tunnels and attack the party on
+sight.
+  RESTING: No place is completely safe to rest. Undead seek the characters'
+lives.
+
+  MAP LOCATIONS:
+
+   1. The party descends from the tower here.
+   2. The party meets Sir Garren and the red dragon. Dragon tosses a boulder
+      at the party which collapse the tunnel.The evil forces retreat south and
+      east.
+   3. Skeleton warriors attack, attempting to delay the party.
+   4. Zombie giants are digging away at the tower's supports, trying to
+      undermine it. They turn and attack if approached.
+   5. A rear guard of skeleton warriors tries to stop the party.
+   6. The red dragon turns and attempts to slay the party. Sir Garren and the
+      undead continue to retreat.
+   7. Another delaying action by skeleton warriors. The party finds some loot
+      dropped by the fleeing undead: a Short Sword +4 and a Staff Sling +3.
+   8. Another delaying action. The party finds a Hoopak +3.
+   9. The party confronts Sir Garren. The characters should take the cursed
+      sword away from him.They may take damage, but they will free the knight.
+      Once Sir Garren is freed, Lord Soth approaches and attempts to slay him.
+      Some members of the party should throw themselves in the way.
+  10. The corpses looted from the tombs are being loaded onto nightmares and
+      flown away. The party shoudl attack immediately in order to rescue as
+      many bodies as possible. Lord Soth will battle the party, but is not
+      destroyed even if he is defeated. After one battle he will get up and
+      leave. 
+
+L. Dragon Pit
+-------------
+
+  SYNOPSIS: This is where Lord Soth has hidden one of his attack forces. Sir
+Karl has been put in charge. Until Sebas has revealed the secret door at
+location 3, the party can't advance past that point.
+  WANDERING MONSTERS: The main section of the temple is patrolled by skeleton
+warriors. The large corridors along the west and south edges of the temple
+contain undead dragons who may also attck.
+  RESTING: No place is absoluetly safe from wandering patrols.
+
+  MAP LOCATIONS:
+
+   1. This is the only entrance that the party can reach. When the characters
+      know about the secret door, Mata arrives and joins them.
+   2. This is next to a deep chasm. The party cannot cross before locating the
+      rope bridge at location 16. If Maya is with the party,she crosses to the
+      other side to seek Sir Karl.
+   3. The secret entrance to the temple cant be opened without the information
+      provided by Sebas. If Maya is with the party, she turns back and crosses
+      the chasm at location 2.
+   4. Wights have drained a knight and await his transformation into one of
+      them. It occurs as the party arrives, and the wights attack.
+   5. This is the mainaltar room.The Dread Wolf harasses the party if he still
+      lives. Under a stone next to the latar the party finds Plate Mail +3, a
+      Shield +2, a white mage scroll and a cleric scroll.
+   6. This long corridor is filled with undead dragons. Since few of them have
+      been given specific directions,they merely lay around in decaying lumps.
+      Occasionally, one recognizes the party as an enemy and attacks.
+   7. This is a secondary altar to Takhisis. Undead dragons protect the room.
+   8. A red dragon is chained here.He gives directions to find Sir Karl.If the
+      party frees him, he flies off, only to be slain by the wards at location
+      9. If he is left, the Dread Wolf slays him.
+   9. This is the entrance used by the evil forces. It is warded to kill
+      anything living that passes through it.
+  10. This is the stable where the nightmares are kept.
+  11. This is the barracks for the skeleton warriors.
+  12. The party confronts Sir Karl. He retreats out the north door.
+  13. Sir Karl continues to retreat down the corridor. He calls on the Dread
+      Wolf to slay the party. The party finally has the chance to battle and
+      defeat the creature.
+  14. This area is open to the sky. Maya arrives when the party enters. As she
+      approaches, Sir Karl strikes her with the dragonlance from hiding.Though
+      wounded, Maya lifts off with Sir Karl.The two disappear into the clouds.
+      Before the characters can do anything, they are confronted by the death
+      dragon. After the dragon is slain,the dragonlance falls from the clouds.
+  15. This is the lair of the death dragon. The treasure includes a Short Bow
+      +3, Leather Armor +3 and Plate Mail +2.
+  16. A rope bridge lies next to a deep chasm. The party can string the bridge
+      and go across.
+
+M. Cerberus
+-----------
+
+  SYNOPSIS: After the party completes the Dragon Pit, it finds the citizens of
+Cerberus outraged by the assassination of the mayor.They urge the party to the
+graveyard to attend the mayor's funeral.
+  After the attack in the graveyard, Cerberus is raided by undead forces. The
+party must reach the townspeople barricaded in the town hall, then rescue the
+town cleric, Zakarie. Before this, the townspeople can't enter the armory and
+equip themselves to fight off the invaders.
+  RANDOM ENCOUNTERS:The party only encounters monsters during the undead raid.
+  RESTING: Before and after the raid, the party may only restat the inn.During
+the raid, the party can rest anywhere, but there is a danger of wandering
+monsters.
+
+  MAP LOCATIONS:
+
+   1. The entrance to the Farmer's Market.
+   2. The fortune teller's tent. Before the raid, the fortune teller gives the
+      party a grim fortune if asked.
+      During the raid, if the party comes before talking to the townspeople in
+      location 4,the fortune teller rushes away.If the characters have been to
+      location 4, they fight the fortune teller here and free Zakarie.
+      Afterward, the party should return to location 4.
+   3. During the raid, giant zombies guard the entrance to the town hall and
+      must be battled before the party can enter.
+   4. Before the raid,the town hall is abandoned while the townspeople prepare
+      for the mayor's funeral.
+      During the raid,townspeople barricade themselves here.They say that only
+      the town cleric, Zakarie, can dispel the magic gateway guarding the
+      armory.
+      After the characters rescue Zakarie,when they return here, he sends them
+      to the armory (location 9) to claim a reward. The party earns experience
+      points for bringing him here.
+   5. The party may sleep at this inn free of charge before th raid.During the
+      raid, spectres lurk here.
+   6. Before the raid,this tavernkeeper tells the party about the assasination
+      of the mayor and the impending funeral in the graveyard.
+   7. Before the raid, the characters talk to the town cleric, Zakaries. He
+      tells them of the assassination of the mayor and also of the citizens
+      being forced to work as servants in Dargaard Keep.
+      During the raid, when the party arrives, it finds that Zakarie has been
+      kidnapped by undead forces.
+   8. A magical barricade protects the armory. The party can only enter after
+      freeing Zakarie from the fortune teller's tent.
+   9. After Zakarie gives the party permission in location 4, the treasure
+      includes a Mace of Disruption, Chain Mail +2, a Ring of Protection +3
+      and Guantlets of Ogre Strength.
+  10. A vendor of oddities and artifacts will buy one rug from the party for
+      1000 silver pieces.
+  11. This is the town's common garden.
+  12. These small houses are destroyed during the raid.
+
+N. Graveyard
+------------
+
+  SYNOPSIS: After completing the Dragon Pit and visiting Cerberus, the party
+finds the funeral of the assassinated mayor of Cerberus taking place. (Before
+completing Dragon Pit,the graveyard is empty.) The funeral is interupted by an
+undead assault, which the party must repel.
+  The magic wards placed around the graveyard fence have been stolen and
+replaced by evil wards. The party must recover the good wards and replace them
+around the fence, where their power destroys all evil within the graveyard.
+  NOTE: Cleric's turning ability is diminished in the graveyard.
+
+  MAP LOCATIONS:
+
+   1. The first evil ward.The party must replace it with one of the good wards
+      from location 10. If the party is first entering the graveyard, a man
+      gives directions to the funeral at location 5.
+   2. After the undead attack begins,this gate is guarded.The party must fight
+      to leave this way.
+   3. If the characters are kind to the do here,it follows them throughout the
+      graveyard. The chances of being able to rest during the attack are
+      improved by having the dog.
+   4. A diary describes the odd behavior of the gravedigger and that something
+      is wrong with the wards protecting the graveyard.
+   5. The funeral for the mayor of Cerberus.The characters see the body twitch
+      but the townspeople refuse to heed any warnings. The attack on the
+      graveyard commences, beggining with a fight as the undead mayor attacks.
+   6. Empty coffins.
+   7. Coffins swarming with spiders.
+   8. If the attack has not yet begun, entering this square causes it to
+      commence. Undead creatures attack the party.
+   9. The insane gravedigger. If the party takes his ruby, he's freed from its
+      influence. He says that he killed the graveyard's cleric and stole the
+      good wards from around the fence.
+      The party obtains a shovel no matter what they do to the gravedigger.
+  10. The party uses the shovel from location 9 to uncover the four good wards
+      buried here.
+  11. If the attack on the graveyard has not yet begun, stepping through this
+      door (in either direction) initiates it. A group of undead attacks.
+  12. Inside this coffin, a tunnel leads to Dargaard Keep. The party can only
+      unlock the coffin with the iron key obtained from Ariela's body in
+      Kalaman.
+  13. The second evil ward.The party must replace it with one of the good
+      wards from location 10.
+  14. The third evil ward.The party must replace it with one of the good wards
+      from location 10.
+  15. The fourth evil ward.The party must replace it with one of the good
+      wards from location 10.
+  16. After the graveyard attacks begin, the characters find a young woman
+      buried alive. If they have the shovel of the dog, they can save her and
+      earn experience points.
+  17. Undead creatures hold a mourner captive.The party must fight to save him
+      and earn experience points.
+
+O. Dulcimer
+-----------
+
+  SYNOPSIS: (Note: the map for Dulcimer is identical to the Cerberus map.) To
+reach Voice Wood the party must pass through Dulcimer,a twisted mirror image
+of Cerberus created by a lich with fond memories of that town. Dulcimer is
+populated with undead who now stagger through a parody of life.
+  The party must slay the lich then destroy its phylactery,the jar housing its
+soul. With the lich destroyed, the party proceeds into Voice Wood.
+  WANDERING MONSTERS: Most of the undead ignore the party, but there still are
+infrequent attacks. After battling the lich, it regenerates and attacks at
+regular intervals until the phylactery is destroyed.
+  RESTING: No place is immune from attacks.
+  NOTE: Cleric's turning ability is diminished while in Dulcimer.
+
+  MAP LOCATIONS:
+
+   1. The entrance/exit to Dulcimer. Soon after entering, the mayor, a lich,
+      greets the party. He admonishes it to stay away from his personal
+      chambers and from the entrance to Voice Wood.
+   2. The physlactery containing the lich's sould is buried here. The party
+      must smash it to defeat the lich. The party won't be able to find the
+      phylactery before attacking the lich in location 7.
+      After the phylactery is destroyed, all the undead creatures in Dulcimer
+      fall to dust. The party may then pass into Voice Wood at location 9.
+   3. A zombie tavernkeeper offers the party a drink. It is poison and damaged
+      whoever drinks.
+   4. The zombie innkeeper welcomes the party, but the atmosphere is
+      unappealing.
+   5. The lich's guards attack the characters. If they enter the room again,
+      more guards attack. After the second combat, the lich's entire guard
+      is gone and the party faces none when it fights the lich.
+   6. If the party hasn't met the spectre at location 9, he appears before the
+      party passes through this door.
+   7. The lich's quarters. The lich attacks when the party enters. After the
+      battle, the party should go to location 2 before the lich regenerates.
+   8. A coop full of undead chickens.
+   9. The passage to Voice Wood.The party can't pass until the Lich is dead.If
+      they try before then, a spectre appears and tells the party how to
+      destroy the lich.
+  10. A living man is confined in these stocks.If the party frees him,he gives
+      them information.
+  11. The Dulcimer town hall.
+  12. A garden of rotted vegetables.
+  13. The farmers market is a grim parody of the market in Cerberus. It is
+      unlikely that the party will want any of the goods being offered.
+  14. After the party battles zombies, it finds a Scroll of Protection against
+      Dragon's Breath,a Potion of Invisibility,4 Darts +3 and a Long Sword +4.
+
+P. Voice Wood
+-------------
+
+  SYNOPSIS: After learning the chant from the young knight in Kalaman and
+destroying the lich of Dulcimer,the party may enter VoiceWood to claim the Rod
+of Omniscience.The party must find the Hall of the Voice and agree to its
+terms before recovering the rod.
+  WANDERING MONSTERS: There are no wandering monsters.
+  RESTING: The sprites won't allow anyone to rest in Voice Wood.
+  HINT: use the area map if you have trouble finding location 8.
+
+  MAP LOCATIONS:
+
+   1. The first encounter at one of these clearings reveals that the Rod of
+      Omniscience is in Voice Wood, protected by the sprites. After the first
+      encounter see location 2.
+   2. The party enters a clearing and sprites flee. They shout different
+      messages at the party.
+   3. Alat to Paladine. If the characters leave an offering,they are helped in
+      their next combats at locations 6 and 7.
+   4. Damaged area of Voice Wood.The party determines that evil creatures were
+      destroyed here.They must have used a Protection from Good spell to enter
+      Voice Wood, but the spell expired before they could escape.
+   5. The party is damaged by limbs and vines.
+   6. The party enters a large clearing and confront a band of evil creatures.
+      The evil ones are worried that their Protection spell is running out.
+   7. The party fights a small army of black wizards, wights and giant undead.
+   8. SpriteWarriors say that the Rod of Omniscience must remain in VoiceWood.
+      The party may attack or push forward without hurting the sprites. If the
+      party attacks, it is transported to location 14.
+   9. This is the Hall of VoiceWood.A voice coming from all the trees explains
+      that it has the Rod of Omniscience.If the characters swear to use it
+      only against a foe they can't defeat, they can take it.
+  10. Through this arch, the party sees Throtl.
+  11. Through this arch, the party sees the forest north of Dulcimer.
+  12. Through this arch, the party sees the land west of Turef.
+  13. Through this arch, the party sees Turef.
+  14. This leads back into Dulcimer.
+  15. Whisper spiders attack the party.
+  16. A fiery rock rests in this glade. Fire minions leap from the rock to
+      battle the party.
+
+Q. Dargaard Keep - First Floor
+------------------------------
+
+  SYNOPSIS: The characters finally enter the home of Lord Soth. On the first
+floor,they meet servants of the keep,young men and women kidnapped from nearby
+Cerberus and bound to serve at the keep by a powerful geas. By destroying a
+magical orb and killing the servant's captors, the party may life the geas and
+allow the servants to return home.
+  WANDERING MONSTERS: Other than the four patrols, there are no wandering
+monsters.
+  RESTING: It is never completely safe to rest.
+  NOTE: Cleric's turning ability is diminished throughout Dargaard Keep.
+
+  MAP LOCATIONS:
+
+   1. This drawbridge is the main entrance to Dargaard Keep. The party can't
+      enter before recovering an iron key from Ariela's body in Kalaman. The
+      password inscribed on the key is 'DENISSA.'
+      If the party lingers here for too long, archers fire from nearby towers.
+   2. The party smashes the drawbridge controls here. The characters may enter
+      and exit the keep freely thereafter.
+   3. Guards ambush the party from both sides. After the battle,the characters
+      meet Lenore (unless they met her in the throne room.) Lenore asks to
+      follow the characters. If they refuse, she leaves. If Durfey is with the
+      party, he leaves to escort her home. If the party allows Lenore to join,
+      she soon leaves with Durfey.
+      If Durfey is in the party but dead,his body siappears during the battle.
+   4. These doors are welded shut.The party must find another way around them.
+   5. If the characters talk to this maid, she gives them a key and instructs
+      them to look fr the locked door on the east side of the Keep. If they
+      ignore her, she gives the key but no explanation.
+   6. This locked door leads to the servants' quarters. The characters can't
+      enter unless they have the key from location 5.
+   7. The servants here are under a geas to serve in the keep. They beg the
+      party to lift the geas by slaying four patrols and smashing the
+      commander's magical orb. The door at the far side of the room leads to
+      the commander's closet (location 8,) avoiding the guards outside his
+      chamber.
+      The four patrols appear randomly on this level of the keep.
+      After the party smashes the orb and kills the patrols, the servants give
+      it a skull stolen from the commander. The skull can be used at location
+      10. The party is also awarded experience points.
+   8. This is the commander's closet. The party finds the magical ord and
+      destroys it.
+   9. If the party approaches the commander's chamber directly, a group of
+      guards intercepts it.The party must defeat two groups of guards to pass.
+  10. Soth's throne. A panel beneath it leads to a secret tunnel in the
+      graveyard, but the panel can only be opened with the skull obtained in
+      encounter 7.
+      If the party enters the keep through the graveyard tunnel, it emerges
+      here. It can't re-enter the tunnel without the skull.
+  11. The characters hear chanting through the door. If they wait and listen,
+      the chanting eventually stops and they may enter safely. If the party
+      enters before the chanting stops, it has a fight at location 12.
+  12. If the party didn't wait at location 11, clerics attack.
+  13. If the party fought the clerics at location 12,this altar has a 2-Handed
+      Sword +2 resting on it.
+  14. The party hears cries for help from within a coffin at location 15.
+  15. Someone locked inside this coffin pleads for help.If the party opens the
+      coffin, it is ambushed by many vampires.
+  16. The first time the party enters one of these rooms, it finds evidence of a
+      makeshift prison. Whether it searches or leaves, it finds an amulet
+      engraved with the initials S.A.
+  17. Without the Rod of Omniscience,the party is unable to climb these stairs
+      to the second floor of the keep.
+
+R. Dargaard Keep - Second Floor
+-------------------------------
+
+  SYNOPSIS:A group of guards rushes its prisoners away from the party as they
+enter the second floor of the keep.A chase ensues, and the party frees some of
+the prisoners.They are clerics from the High Clerst Tower who came to the keep
+to recover the body of Strum Brightblade. The rest of the prisoners are
+townspeople from Cerebrus who are transformed into rats for the amusement of
+the guards. The party must restore the townspeople and recover Strum before
+his body is corrupted by Soth's evil power.
+  WANDERING MONSTERS: There are no wandering monsters.
+  RESTING: Only the cells (location 10) are completely safe.
+
+  MAP LOCATIONS:
+
+   1. Stairs to first floor.If the clerics from location 6 accompany the
+      party, they ask the party not to leave until Strum's body is recovered.
+      If the party leaves, the clerics wait here for its return.
+   2. A group of guards flees from the party, shoving prisoners ahead of them.
+      If the party returns to this spot after sneaking past the vampires in
+      location 4, the vampires see them and attack.
+   3. The party can't pass this closed portcullis before pushing the lever at
+      location 5.
+   4. A group of vampires is distracted by something outside. The party can
+      attack or sneak past, the vampires leave when the party reaches the next
+      room.
+   5. This lever raises the portcullis in location 3.
+   6. A group of guards, including black mages, vampires and a death knight,
+      attacks. Its prisoners, clerics from the High Clerists Tower, tell the
+      party that they seek the stolen body of Strum Brightblade.They prevail
+      on the party to help.
+   7. Flesh golems guard this room.
+   8. This prtcullis can only be passed by pulling the lever at location 9.
+   9. This lever raises the portcullis at location 8.
+  10. These empty cells are safe places for the party to rest undisturbed.
+  11. Spectres, flesh golems and vampire mages are posted here.
+  12. Sebas Astmoor is confined in this cell. He warns the party to beware of
+      Kitiara, Soth's companion. Kitiara plots to obtain the Rod of Omnscience
+      and begin her own evil rule.She tortured Sebas for information about the
+      Rod. Before the party can question Sebas, he dies.
+  13. A magical tome lies open to a circled incantation.If the party reads the
+      incantation before location 14, nothing happens. If they've been to
+      location 14, the incantation transforms the townspeople back into human
+      form and the party gets experience points for saving them.
+      If the characters have not yet saved Cerberus from the invaders, the
+      townspeople tell them of the undead invasion.
+  14. Captive townspeople are being transformed into rats by evil clerics. The
+      party can't prevent this, but if it tries to interrupt,the fight is much
+      easier than if it waits until the clerics spot it.
+  15. A Necklace of Missles, a Potion of Extra Healing, a Wand of Lightning,
+      Plate Mail +4 and a red mage scroll are hidden in this cleric's chamber.
+  16. Evil mages and clerics are attempting to raise Strum Brightblade from
+      the dead. After a fight,the body is recovered by the clerics and the
+      party is awarded experience points.
+
+S. Dargaard Keep - Third Floor
+------------------------------
+
+  SYNOPSIS: On the final floor of Dargaard Keep the characters find Durfey who
+has been slain and made undead by Soth. They also encounter Lenore who
+accompanies them to their final battle with Soth under the premise that she
+needs their 'protection.' Soth is banished from Krynn.
+  WANDERING MONSTERS: There are no wandering monsters.
+  RESTING: No place is completely safe.
+
+  MAP LOCATIONS:
+
+   1. A voice mocks the party in this small room, admonishing that tow of the
+      three doors ahead lead to death.
+   2. These 'doors' are actually magical barriers that do severe damage when
+      touched.
+   3. Weretigers lie in ait in these rooms.
+   4. Once the characters pass through these doors, they are magically sealed
+      behind them.
+   5. Lenore awaits the party.She says that SirDurfey has been killed and made
+      undead by Soth's death knights, and that more death knights are pursuing
+      her. She joins the party, pleading for its protection.
+   6. This door is protected with deadly pikes and razors.It damages any party
+      member attempting to open it. It is safer to follow the secret passge
+      around this door.
+   7. Statues (iron golem) on either side of this door warn the party not to
+      enter. If the party attacks, a combat ensues. Otherwise, the statues
+      refuse to speak further.
+   8. Sir Durfey is here. He has been slain and turned into an evil undead. He
+      attacks the party, forcing them to put him to his final rest.
+      If the party didn't fight the statues (iron golems) ate location 7, they
+      lumber in and attack alongside Durfey.
+   9. Wraiths trap the party in this dead end.
+  10. Soth awaits a final confrontation with the party. A very tough battle
+      ensues with Soth, death knights and iron golems.If Soth is defeated, his
+      body regenerates after the fight. He informs the party that as long as
+      Dargaard Keep remains standing, he can't be destroyed.
+      The party should immediately strike LordSoth with the Rod of Omniscience
+      sending him to another dimension. Lenore will now reveal herself as
+      Kitiara as she tries to take the rod herself.She activate the rod hoping
+      to cast the party into another dimension. Unfortunately for her, Sebas
+      gave her false instructions for operating the device. The rod explodes,
+      sending her into another dimension and the party to the High Clerist's
+      Tower.
+
+      CONGRATULATIONS!
+
+T. Shipwreck
+------------
+
+  SYNOPSIS: The party finds the ruins of an old cursed pirate ship. The party
+recovers great treasure by battling the pirate and his undead crewmembers.
+  WANDERING MONSTERS: The party faces giant zombies, wraiths and giant undead
+rats.
+  RESTING: There is no safe place to rest.
+  SPECIAL NOTE: Clerics' turning ability is diminished while on this ship.
+
+  MAP LOCATIONS:
+ 
+   1. The gangway onto the ship. The deck has rotted away, so the party should
+      use ropes to descend to the level below.
+   2. The party is attacked by some of the giant zombie crewmembers of the
+      ship.
+   3. The ship's officers, wraiths, attack when you enter their quarters.
+   4. The party is surprised by an attack by the spectre captain and some of
+      his wraith officers. The party will find a Mace +4.
+   5. This hold is filled with undead giant rats.
+   6. A crossbow fires on the party unless they detect and disarm the trap
+      first. The treasure includes Banded Mail +3 and a Long Sword +3.
+
+U. Cursed Village
+-----------------
+
+  SYNOPSIS: Good and evil forces battle for possession of a magical meteorite
+that crashed in this village.The party must rescue the good sorcerer, kill his
+evil imposter and destroy the meteorite.
+  WANDERING MONSTERS: Wights, wraiths and spectres.
+  RESTING: There is no safe place to rest until the meteorite has been
+destroyed.
+
+  MAP LOCATIONS:
+
+   1. Entrance/exit. A boy sends the party to the sorcerer imposter.
+   2. The shopkeeper gives information about the village.
+   3. The party battles a group of black mages to save the real sorcerer.
+      Without doing this, the party can't approach the meteroite.
+   4. Herbalist.
+   5. Village sorcerer's house. An imposter sorcerer claims the meteorite is
+      harmless. When the party returns with the real sorcerer,the imposter and
+      his minions attack.
+   6. A tavern.The party fights the undead remains of the former tavern
+      patrons (wights, wraiths and spectres)When the real sorcerer is present, he
+      destroys the meteorite and rewards the party with a Ring of Protection
+      +2, a white mage scroll and Olin's Quarterstaff.
+
+V. Fun House
+------------
+
+  SYNOPSIS: The characters discover a 'training' maze of riddles and monsters.
+When they complete the guantlet, they are awarded experience points.
+  WANDERING MONSTERS: None.
+  RESTING: No interruptions.
+
+  MAP LOCATIONS:
+
+   1. The party meets the maze's proprietor, a dwarf named Gluten.
+   2. If the party give the answer 'WATER' to this riddle, it teleports to
+      location 3. Otherwise ot teleports to location 4.
+   3. If the party give the answer 'HANDS' to this riddle, it teleports to
+      location 5. Otherwise it teleports to location 6.
+   4. After a battle consisting of zombie giants and spectres, the party
+      teleports to location 5.
+   5. If the party give the answer'RING' to this riddle,it receives experience
+      points.
+      Correct or not, the party teleports to location 6.
+   6. The party is attacked by wraiths and spectres.
+   7. The party teleports to location 6.
+   8. A lich and wights attack the party. The party finds a Mace +4.
+   9. The party teleports to location 1 and is rewarded by Gluetn. The reward
+      consists of a red mage scroll and the Girdle of Frost Giant Strength.
+
+W. Father of Trees
+------------------
+
+  SYNOPSIS: The party ventures inside the heart of the Father of Trees to
+recover the wand of tree healing and free a captured faerie warrior. With the
+wand, the party can heal the tree and save the forest.
+  WANDERING MONSTERS: The party faces wraiths.
+  RESTING: There is no safe place to rest until the tree is healed.
+  SPECIAL NOTE: Magic does not work in the tree.
+  HINT: Use Paladins to heal injured characters.
+ 
+  MAP LOCATIONS:
+
+   1. This is the entrance to the tree. After completing the adventure, the
+      party is awarded experience points here.
+   2. The party is ambushed by a group of wights.
+   3. A group of wraiths is trying to smash the tree from the inside.
+   4. Wyndlass attack the party.
+   5. A black mage is using fire minions to burn the core of the great tree.
+      The party must defeat the made and his followers to free the faerie
+      warrior and the Wand of Tree Healing.The characters also recover a
+      Periapt Proof vs. Poison and Boots of Speed.
+   6. The party encounters a group of whisper spiders.
+
+X. Challenge
+------------
+
+  Congratulations! You've completed the quest and Lord Soth has been banished
+from Krynn.But there's one more challenge to undertake. In the upper left hand
+corner of the map, a path has opened through the mountains...
+  One of SSI's game authors has earned a reputation for designing'killer'mazes
+and encounters. Do you remember the brain parasites in Buck Rogers, or the
+rescue of the nomad princess in Pool of Radiance? Customarily,we've toned down
+these encounters before the publication of the games.
+  This time is different.
+  This time we encouraged him to go ahead and do his worst. Good luck.
+
+HINTS:
+  
+  A party without a thief will have difficulty surviving.
+  There is only one honest spirit within the temple.
+  Do not enter the altar room without the necklace.
+  Curiosity is profitable, but dangerous.
+
+
+ 
+
+                        MONSTERS: HOW TO DEAL WITH THEM
+                        -------------------------------
+
+  Below is a listing of all the monsters in DEATH KNIGHTS OF KRYNN, a short
+description of each, and suggestions on how it can best be defeated.You should
+follow these guidelines when developing tactics to combat these monsters.
+
+  Nightmare: These swift beasts carry other evil creatures from the Lower
+Planes. Give them a wide berth, as their hot smokey breath can blind you,
+reducing your ability to attack.
+
+  Skeleton Warrior: These powerful undead fighters are extrememly resistant to
+all magic attacks,and they only take half damage from edge or pointed weapons.
+The Mace of Disruption does twice normal damage against these creatures.
+  Another strategy useful against any creature with a high magic resistance is
+to cast spells on your own party.Good spells to use on your own party include:
+Haste, Enlarge, Prayer, Bless and Strength.
+
+  Dragons: Fearsome opponents with devastating attacks, they still have an
+Achilles heel.All but the undead and spectral dragons may be incapacitated wit
+a stinking cloud. The Mace of Disruption is the best attack against the undead
+dragon. The spectral dragon is completely magic resistant,so all you can do is
+hack until he dies (have lots of healing spells ready).
+  Cast Prayer and Haste before attacking any dragons, spread the party out and
+concentrate on killing one at a time.
+
+  Undead Beast: The size of a small dragon, this mound of rotting flesh and
+bones is resistant to fire and takes half damage from edge or pointed weapons.
+It can be turned by high-level clerics with some trouble.A Slow spell would be
+useful against a pack of these.
+
+  Undead Roc: This evil avian is immune to Fear, Sleep and Charm. Unlike the
+undead beast,the roc is damaged by fire and takes full damage edged or pointed
+weapons.
+
+  Zombies: These monsters are easy turned and should provide little challenge.
+
+  Skeletal Giant: Immune to non-magic weapons, it also takes half damage from
+edged or pointed weapons.
+
+  Lich: A powerful spell caster,it is immune to Sleep, Charm and Death spells,
+and cold and electric based attacks have no effect. Stay out of reach of this
+monster, as its touch can cause paralysis for the duration of the battle. Use
+ranged attacks and fire-based magic for best results.
+
+  Spectral Minion: Don't worry.
+
+  Wraith, Wight, Spectre: These undead are easily easily turned, but beware of
+their touch. The spectre can drain two levels from any player it touches,while
+the wraith and wight drain one level per touch.
+  Beware, certain regions in the game make turning more difficult. If turning
+fails, quickly eliminate these creatures with fire-based spells.
+
+  Vampires: Formidable opponents, their gaze has the effect of a Charm spell,
+their touch can drain two levels,and they regenrate theirHP at a rate of three
+HP per round of combat. They are immune to non-magic weapons, Sleep, Charm and
+Hold spells. Some of them can also cast spells, so make sure to check for
+vampire mages and clerics at the start of combat.
+
+  Ghoul, Ghoast: The party should have little trouble. These monsters can be
+easily turned.
+
+  Fire Minion:From the elmental plane of fire, these'living flames' are immune
+to all fire-based attacks. In fact, Fireballs heal them.Cold attacks do double
+dammage, and they can be dispelled, albeit not easily. Players adjacent to the
+monster take one to sixHP damage per round from the aura of fire surrunding it
+
+  Death Knight: This fearsome enemy throws a 20-120 hit point Fireball as his
+first attack,so cast ResistFire on as many players as possible before engaging
+this monster in battle. Three out of four times, any magic attack him will
+fail - ten percent of the time, the spell is reflected back on the user, so be
+careful not to kill your mages or clerics.He generates an aura of Fear,causing
+your characters to run if they fail to save against it. Rush forward and kill
+him as quickly as possible before this happens. Kender will be immune to fear.
+
+  Whisper Spider: The poison bite of this monster is the only real threat.
+
+  Flesh Golem:A patchwork of body parts animated by arcane magics,it is immune
+to all forms of magic attacks. Fire and cold based attacks slow it for awhile,
+and electricty-based attacks actually heal any damage it may have suffered.
+
+  Iron Golem: Magically animated by powerful mages, the iron golem is three
+times stronger than the flsh golem and requires magic weapons with a +3 or
+better to do damage.Electric-based attacks slow it for three rounds.Fire-based
+attacks heal it, and cold based attacks do normal damage.
+
+  Lycanthrpe (Wereboar, Weretiger): The only notable limitation when attacking
+these monsters is their immunity to non-magic weapons.
+
+  Sivak: The characters should have little trouble.
+
+  Fire Lizard: No special defenses.
+
+  Rhino Beetle:    "        "
+
+  Wyndlass:        "        "
+
+  Vodyanoi:        "        "
+
+  Hatori:          "        "
+
+  Kuo-Toa: These'men fish' have an intense hatred of the other humanoid races.
+They are immune to spells which affect other humanoids (Sleep, Charm, Hold,
+etc.) and are unaffected by poison or paralysis attacks (Stinking Clouds won't
+work). Magic Missles have no effect, so hit their spell casters with normal
+weapons.
+
+  Dread Wolf:This vile servant of Takjisis is immune to all forms of magic.His
+low armor class combined with six attacks per round makes him a formidable
+opponent. For spellcasters,the best strategy would be to cast a Haste spell as
+soon as possible(or before combat),surrond the beast and whittle him away with
+the best magical weapons you have (keep in mind that the dread wolf is larger
+than a man when choosing your weapon.)
+
+
+
+
+                               JOURNAL ENTRIES  
+                               ---------------
+
+ The following journal entries are TRUE: 1, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16,
+18, 19, 20, 21, 22, 23, 25, 27, 28, 29, 31, 32, 33, 36, 37 (map), 38, 39, 40,
+41, 42, 44 (map), 45, 46, 47, 48, 49, 51, 52, 54, 55, 57, 58, 59, 66.
+   
+
+
+
+                        MAGIC ITEMS: WHERE TO FIND THEM
+                        -------------------------------
+
+Weapons
+---------------------------------------------------------
+Darts+3 (x4)                  Dulcimer
+Darts of the Hornet's Nest    Kalaman
+Mace+2                        Gargath Outpost
+Mace+4                        Kuo-Toa
+Mace+4                        Fun House
+Mace+4                        Shipwreck
+Mace of Disruption            Cerberus
+Scimitar+3                    Shipwreck
+Long Sword+3                  Vingaard Keep
+Long Sword+4                  Dulcimer
+Short Sword+2                 Turef
+Short Sword+4                 Tunnels Beneath Crypt
+2-H Sword+3                   Dargaard level 1
+Quarterstaff+2                Cekos
+Olin's Quartestaff            Cursed Village
+Dragonlance                   Dragon Pit
+Composite Long Bow+2          Throtl Keep
+Long Bow+3                    Kuo-Toa
+Short Bow+3                   Dragon Pit
+Arrow+2 (x10)                 Throtl Keep
+Arrow+3 (x10)                 Kuo-Toa
+Staff Sling+3                 Tunnels Beneath Crypt
+Hoopak+3                      Tunnels Beneath Crypt
+
+Armor
+---------------------------------------------------------
+Leather+3                     Dragon Pit
+Chain Mail+2                  Cerberus
+Chain Mail+4                  Kuo-Toa
+Banded Mail+2                 Kalaman
+Banded Mail+3                 Shipwreck
+Plate Mail+2                  Dragon Pit
+Plate Mail+3                  Dragon Pit
+Plate Mail+4                  Dargaard level 2
+Shield+2                      Dragon Pit
+Shield+4                      Turef
+
+Scrolls
+---------------------------------------------------------
+Protection from Dragon Breath Dulcimer
+Red Mage Scroll
+ (Fire Shield, Iron Skin,
+  Disintegrate)               Vingaard Keep
+Red Mage Scroll
+ (Iron Skin, Stone to Flesh,
+  Stun)                       Fun House
+Red Mage Scroll
+ (Mass Invisibility, Blind,
+  Flesh to Stone)             Dulcimer
+White Mage Scroll
+ (Ol Dance, Mind Blank,
+  Mass Charm)                 Cekos
+White Mage Scroll
+ (Death Spell, Fireball,
+  Invulnerability)            Cursed Village
+White Mage Scroll
+ (Cloudkill, Cone of Cold,
+  Hold Monster)               Dragon Pit
+Clerical Scroll
+ (Resurrection, Restoration
+  x2)                         Dragon Pit
+Clerical Scroll
+ (Heal, Raise Dead,
+  Restoration)                Kalaman
+
+Potions
+---------------------------------------------------------
+Speed                         Gnome Village
+Healing                       Gnome Village
+Extra Healing                 Dargaard level 2
+Invisibility                  Dulcimer
+Elixir of Youth               Kalaman
+
+Wands
+---------------------------------------------------------
+Ice Storm                     Throtl Keep
+Fireball                      Gargath Outpost
+Lightning                     Dulcimer
+Paralyzation                  Cekos
+
+Rings
+---------------------------------------------------------
+Protection+1                  Gargath Outpost
+Protection+2                  Cursed Village
+Protection+3                  Cerberus
+
+Miscellaneous
+---------------------------------------------------------
+Necklace of Missles           Dargaard level 3
+Periapt of Proof Vs. Poison   Father of Trees
+Girdle of Frost Giant
+ Strength                     Fun House
+Gauntlets of Ogre Power       Cerberus
+Boots of Speed                Father of Trees
+Eyes of Charming              Gnome Village
+Cloak of Displacement         Turef
+
+
+
+
+
+                              *** *** *  * *** ***
+                              *    *  ** *  *  *
+                              ***  *  * **  *  ***
+                              *    *  *  *  *    *
+                              *   *** *  * *** ***
+
+    all typing and map drawing done by Watchers and ripped from the cluebook
+
+
+
+
+Heavily edited and fixed from 81 to 79 columns by the one and ONLY...[RYGAR] !

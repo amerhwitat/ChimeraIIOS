@@ -1,0 +1,163 @@
+<!winston atari st emulator>
+<HTML><HEAD><TITLE>WinSTon Help</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<META content="WinSTon" name=description>
+<META content="winston atari st emulator" name=keywords>
+</HEAD>
+<BODY aLink=#000080 bgColor=#ffffff link=#ff0000 text=#00033 vLink=#0000ff>
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD align=left vAlign=top>
+      <IMG width="298" height="75" border=0 src="..\graphics\winston.gif">
+    </TD>
+    <TD align=right vAlign=middle>
+      <IMG width="65" height="60" border=0 src="..\graphics\atarilogo.gif">
+    </TD>
+  </TR>
+  <TR>
+    <TD align=middle vAlign=top>
+      <A href="..\contents.html"><IMG width="78" height="19" border=0 src="../graphics/contents_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\gettingstarted\guide.html"><IMG width="99" height="19" border=0 src="../graphics/guide_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\troubleshooting\trouble.html"><IMG width="137" height="19" border=0 src="../graphics/trouble_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\credits\credits.html"><IMG width="61" height="19" border=0 src="../graphics/credits_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\links\links.html"><IMG width="40" height="19" border=0 src="../graphics/links_link.gif"></A>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD width="100%" height="19" bgcolor="#DCBB74" valign="top" align="center"></TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<CENTER>
+
+<!-------Back Forward------>
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD align=middle vAlign=middle>
+      <A href="..\options\keyboard.html"><IMG width="71" height="20" border=0 src="..\graphics\back.gif"></A>
+      <A href="..\options\sound.html"><IMG width="100" height="20" border=0 src="..\graphics\forward.gif"></A>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Keyboard Mapping File</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    You can use the Keyboard Mapping Files to change how the emulator interprets keys on your PC keyboard. Each key on your keyboard has a 'scan code' which is a means of identifying each key. The ST also has a 'scan code' for each key. WinSTon uses a built-in remapping table to convert from a PC
+		scan codes to the ST equivalent code. Most of these are exact matches but some are changed due to the differencies between the PC and ST keyboard.<BR><BR>
+		Foreign keyboards may have different scan codes as the PC keyboard differs from the default English keyboard that WinSTon has been set up with. This page describes the method of creating additional keyboard mapping files to suit your key layout.<BR>
+		<b>NOTE - As some keys combine more than one character it may not be possible to map the PC keyboard exactly to that of the ST.</b>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Creating a Mapping File</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    <b>An example of the default mapping file can be found in the directory where you installed WinSTon(usually '\Program File\WinSTon').</b> The file is called 'keyboard.map'. You can load this into any text editor and modify the values to change the scan code WinSTon uses for each PC key pressed.<BR>
+		To modify the file simply make a copy of the 'keyboard.map' file and load this into a text editor. Now, run WinSTon and go to the Keyboard dialog page. The keyboard mapping file can be selected by clicking on the Browse button. You will also notice that there is a 'Test Key' button on this page.
+		By clicking on the 'Test Key' button you will see this dialog:<BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <TD align="center">
+      <IMG width="476" height="240" border=0 src="..\graphics\keytest.gif">
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Assigning New Key Scan Codes</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    By pressing keys on the keyboard you can see the 'scan code' of that key and also which scan code is sent to the emulator.<BR>
+		The keyboard mapping file lists each ST scan code followed by the assigned PC code so by changing the PC code(the second number on each line) you can modify how WinSTon sees the keyboard. Experiment with different values - remember you can always delete the file and start again. This idea of this feature is that people will create mapping files for different keyboards and then make them available for download on the Internet or even allow them to be added into future versions of WinSTon.<BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>ST Keyboard Layout</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    This is a diagram of the standard ST keyboard to help you assign the different keys.<BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <TD align="center">
+      <IMG width="736" height="152" border=0 src="..\graphics\stkeymap.gif">
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    And this shows you the ST scan codes which are used for each key.<BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <TD align="center">
+      <IMG width="736" height="152" border=0 src="..\graphics\stscancode.gif">
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+

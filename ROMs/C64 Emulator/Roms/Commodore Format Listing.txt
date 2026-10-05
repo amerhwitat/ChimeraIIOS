@@ -1,0 +1,326 @@
+commodore format 4
+------------------
+robocop2 demo           000-051
+forbidden forest        051-190
+bounder			190-255
+lotus demo		255-309
+
+
+commodore format 6
+------------------
+10th frame              000-086
+shadow dancer demo      086-169
+chameleon               169-220
+star control demo       220-265
+chips demo              265-297 
+
+
+commodore format 8
+------------------
+mean streak             000-072
+predator 2 demo         072-131
+top duck                131-186
+elvira demo             187-228
+
+
+commodore format 9
+------------------
+zamzara                 000-076
+hero quest demo         076-137
+bulldog                 137-203
+firepower               203-247
+
+commodore format 11
+===================
+pitfall 2               000-050
+switchblade             050-124
+light force             124-197
+over the net demo       197-230
+
+
+commodore format 12
+-------------------
+spindizzy               000-048
+3d kit demo             048-094
+commodore format show   094-135
+p p hammer              135-168
+speedball 2 demo        168-266
+rodland demo            266-297
+
+
+commodore format 13
+-------------------
+turbo charge demo       000-136
+sunburst                136-169
+hacker2                 169-202
+rolling ronny demo      202-253
+
+
+commodore format 14
+-------------------
+aliens                  000-068
+tilt demo               068-100
+turtles 2 demo          100-159
+terror of the deep      159-200
+
+
+commodore format 15
+-------------------
+elvira demo             000-075
+equinox                 075-137
+dandy                   137-200
+world class rugby       200-234
+
+
+commodore format 16 tape 1
+--------------------------
+gr adventure creator    000-052
+
+
+commodore format 16 tape 2
+--------------------------
+ransom                  000-073
+
+
+commodore format 17
+-------------------
+cyberdyne               000-068
+sensitive               068-097
+battle valley           097-148
+indy heat demo          148-181
+
+
+commodore format 18
+-------------------
+spinx                   000-056
+demon blues             056-125
+firelord                125-188
+fast                    188-225
+
+
+commodore format 19
+-------------------
+sheep in space          000-042
+amc cammels             042-066
+light preview           066-103
+aquablasta              103-151
+udg system              151-170
+
+
+commodore format 20
+-------------------
+catalpse demo           000-060
+mazemania               060-121
+bod squad demo          121-213
+ant attack              214-244
+
+
+commodore format 21
+-------------------
+addams family           000-079
+football champ demo	079-151
+arnie demo      	151-184
+ancipital		184-231
+southern belle		231-261
+
+
+commdodore format 22
+--------------------
+robocod demo            000-069
+robocod part 2          069-138
+hover bovver            138-171
+dj puff demo            171-215
+agent orange            215-266
+
+
+commodore format 23
+-------------------
+bug blaster             000-057
+biff demo               057-108
+nobby the hardvark demo 018-149
+defenders of the earth  149-215
+johnny rebel		215-253
+
+
+commodore format 24
+-------------------
+fuzzball		000-068
+cool croc               068-128
+famous five             128-177
+match of the day demo	177-237
+ugh!			237-285
+catalog			285-314
+header			314-323
+
+
+commodore format 25
+-------------------
+darts game1             000-052
+darts game2             052-104
+slicks demo		104-171
+hagar demo		171-225
+club light		225-256
+
+
+commodore format 25 sp1
+-----------------------
+saracen paint           000-043
+
+
+commodore format 26
+-------------------
+stuntman seymour demo 	000-071
+doc croc demo		071-120
+twin tigers		120-170
+bomber			170-199
+cosmic causeway		199-236
+
+
+commodore format 27 tape 1
+--------------------------
+deflektor		000-061
+sceptre			061-120
+muncher			120-210
+
+
+commodore format 27 tape 2
+--------------------------
+masterload		000-027
+
+
+commodore format 27 ag1
+-----------------------
+world games             000-
+
+
+commodore format 27 ag2
+-----------------------
+?????
+
+commodore format 28
+-------------------
+reckless rufus demo	000-064
+first strike		064-116
+faldo golf		116-175
+locomotion		175-219
+5th gear		219-262
+xmas demo		262-285
+
+
+commodore format 29
+-------------------
+carnage demo 		000-049
+herobotix		049-104
+battleships		104-137
+highway encounter	137-180
+
+
+commodore format 42
+-------------------
+deliverance		000-127
+deliverance part 2	127-244
+chrome brothers		244-276
+deliverence part 3	276-361
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+
+  
+
+
+
+
+

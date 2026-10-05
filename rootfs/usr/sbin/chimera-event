@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+LOG="/var/log/events/events.log"
+JSON="/var/log/events/events.jsonl"
+
+SEVERITY="${CHIMERA_SEVERITY:-INFO}"
+SOURCE="${CHIMERA_SOURCE:-system}"
+EVENT="${CHIMERA_EVENT:-EVENT}"
+MESSAGE="${*:-}"
+
+TS="$(date -u '+%Y-%m-%dT%H:%M:%S.%3NZ')"
+PID="$$"
+
+mkdir -p "$(dirname "$LOG")"
+
+printf '%s severity=%s source=%s event=%s pid=%s message=%s\n' \
+    "$TS" "$SEVERITY" "$SOURCE" "$EVENT" "$PID" "$MESSAGE" \
+    >> "$LOG"
+
+# JSONL representation.
+python3 - "$TS" "$SEVERITY" "$SOURCE" "$EVENT" "$PID" "$MESSAGE" "$JSON" <<'PY'
+import json
+import sys
+
+ts, severity, source, event, pid, message, output = sys.argv[1:]
+
+record = {
+    "timestamp": ts,
+    "severity": severity,
+    "source": source,
+    "event": event,
+    "pid": int(pid),
+    "message": message,
+}
+
+with open(output, "a", encoding="utf-8") as f:
+    f.write(json.dumps(record, separators=(",", ":")) + "\n")
+PY

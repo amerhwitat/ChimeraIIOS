@@ -1,0 +1,133 @@
+<!winston atari st emulator>
+<HTML><HEAD><TITLE>WinSTon Help</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<META content="WinSTon" name=description>
+<META content="winston atari st emulator" name=keywords>
+</HEAD>
+<BODY aLink=#000080 bgColor=#ffffff link=#ff0000 text=#00033 vLink=#0000ff>
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD align=left vAlign=top>
+      <IMG width="298" height="75" border=0 src="..\graphics\winston.gif">
+    </TD>
+    <TD align=right vAlign=middle>
+      <IMG width="65" height="60" border=0 src="..\graphics\atarilogo.gif">
+    </TD>
+  </TR>
+  <TR>
+    <TD align=middle vAlign=top>
+      <A href="..\contents.html"><IMG width="78" height="19" border=0 src="../graphics/contents_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\gettingstarted\guide.html"><IMG width="99" height="19" border=0 src="../graphics/guide_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\troubleshooting\trouble.html"><IMG width="137" height="19" border=0 src="../graphics/trouble_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\credits\credits.html"><IMG width="61" height="19" border=0 src="../graphics/credits_link.gif"></A>
+      <IMG width="11" height="19" border=0 src="../graphics/separator_link.gif">
+      <A href="..\links\links.html"><IMG width="40" height="19" border=0 src="../graphics/links_link.gif"></A>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD width="100%" height="19" bgcolor="#DCBB74" valign="top" align="center"></TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<CENTER>
+
+<!-------Back Forward------>
+<TABLE border=0 width="100%">
+  <TBODY>
+  <TR>
+    <TD align=middle vAlign=middle>
+      <A href="..\options\keyboard.html"><IMG width="71" height="20" border=0 src="..\graphics\back.gif"></A>
+      <A href="..\options\memory.html"><IMG width="100" height="20" border=0 src="..\graphics\forward.gif"></A>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Sound</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    WinSTon plays back the emulated sound of the Atari ST using DirectSound which is part of Microsofts DirectX library. You can change the quality and performance of the sound or even turn it off.<BR>
+		You can also save off sound from games or applications and transfer them to your hard-drive in YM or WAV format. These can be played back through utilities such as <A href="http://www.multimania.com/leonard/">ST Sound</A>.<BR><BR>
+		<b>NOTE - WinSTon requires access to the real-time mixing functions of DirectSound and these are sometimes not supported on certain cards/drivers. If this is the case you will not be able
+		to play the emulated sound on your machine.</b>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <TD align="center">
+      <IMG width="370" height="409" border=0 src="..\graphics\sound.gif">
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Enable Sound</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    You can turn the sound on/off at any time. This can also be set from a keyboard short-cut.<BR>
+		<b>You may wish to turn off the sound if you hear constant crackling or audio pops. If the emulator cannot acheive 50 frames per second, and update the sound data quickly enough, this will also cause audio artifacts. To improve the performance of the emulator, see the <A href="..\troubleshooting\trouble.html">Trouble Shooting</A> section.</b><BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Playback Quality</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    WinSTon can play audio in three levels of quality. The lowest is 11Khz, and the highest is 44Khz. There are performance penalties associated with using a higher quality playback frequency so it is recommended you select a value according to your machines performance - the default is set to the highest(slowest) playback rate which is 44Khz.<BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+
+<!-------------------->
+<TABLE border=0 width="90%">
+  <TBODY>
+  <TR>
+    <font color="#003399" face="Verdana, Arial, Helvetica"><h4><font size=-1>Capture YM/WAV</font></h4></font>
+    <TD>
+      <FONT face=arial,helvetica,verdana size=-1>
+	    Sound can be saved out to your PC in YM or WAV format.<BR><BR>
+		YM file can be recorded and then played back through applications such as <A href="http://www.multimania.com/leonard/">ST Sound</A>. The YM data format is simply a 'snapshot' of the sound chip registers taken on each display frame. These are then used to play back the audio sound.<BR>
+		To start recording the sound simply enter a filename or select browse and then click on the Record button. When you continue to run the emulator the sound will be stored to an internal buffer which is saved when you go back into this dialog and click on the Stop button.
+		The internal buffer can hold up to 8 minutes of data which will be automatically saved when full.<BR>
+		<b>YM tunes cannot store some forms of sound sample data and as a result will sound incorrect(or silent) when played back.</b><BR><BR>
+		You can specify to save out a WAV output of the sound playback by simply ending the capture filename with '.WAV', rather than '.YM'. This will cause WinSTon to save out WAV file data at the current output rate which the emulator is set to. These files can then be played back by simply
+		double-clicking on the WAV file from the Windows desktop. As these files are directly output from WinSTon's sound generator these will store all sampled sounds.<BR>
+		<b>WAV files can be very large in size(Mb's) and, unlike YM output, is not limited in length.</b><BR><BR>
+      </font>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE><BR>
+

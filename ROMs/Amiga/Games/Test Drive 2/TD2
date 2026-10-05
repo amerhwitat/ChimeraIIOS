@@ -1,0 +1,19 @@
+; creates assigns needed or convenient for the game
+
+assign tdboot: ""
+assign sc1: tdboot:scen1	
+assign sc2: tdboot:scen2
+assign f0: tdboot:cars1
+assign f1: tdboot:cars2
+run nofastmem			; disable fast memory during game
+wait 1				; waits for completion of the command
+DuelHD				; run the patch
+run nofastmem			; enable fast memory again
+
+; removes the assigns
+
+assign tdboot: dismount
+assign f0: dismount
+assign f1: dismount
+assign sc1: dismount
+assign sc2: dismount

@@ -1,0 +1,172 @@
+Typed in by Dave Rees (rees@cs.bu.edu) from instruction manual
+accompanying the Infocom game "Shogun".
+-----------------------------------------------------------------------------
+Sample Transcript
+
+This transcript is not from Shogun, but will give you a good feeling
+for how Infocom's interactive fiction works.  It contains some simple
+puzzles and their solutions.  The player's commands appear in capital
+letters after each prompt (>).
+
+>LOOK
+You are at the helm of the tradeship Dek Twintig, about to make port in Goro.
+
+>LOOK AT THE SEA
+The sea is as calm as the day is beautiful.  The sails are full and the brisk
+wind moves the ship along at a quick and steady pace.  Directly to port lies
+the barrier reef which makes Goro an ideal harbor, sheltered from the
+relentless battering of the sea and safe from easy enemy attack.
+
+>LOOK AT THE REEF
+The reef is to port, marked by a line of churning surf and broken two
+hundred yards ahead by the mouth of the winding channel that leads to the
+anchorage in Goro Harbor.  The Dek Twintig is running before the
+wind parallel to the reef.
+
+>LOOK AT THE CHANNEL
+The channel is ahead and to port, marked by red and green buoys; red buoys
+mark the channel's left side and green buoys mark the right side.
+
+>WAIT
+Time passess...
+>From atop the mainsail in the crow's nest you hear the lookout yell, "Coming
+up on the channel now."
+
+>TURN THE WHEEL TO PORT
+You turn the wheel to port and the Dek Twintig slips into the channel.
+
+>LOOK AT THE CHANNEL
+The channel surrounds you on both sides about twice as wide as your ship, with
+red and green buoys marking its boundaries.  Beyond the buoys lie shallow
+water, rocks, and disaster.  The channel bends to starboard about three
+hundred yards ahead.
+
+>WAIT
+Time passes...
+The ship moves deeper into the channel propelled by the stiff winds.
+
+>WAIT
+Time passes...
+The ship moves deeper into the channel propelled by the stiff winds.  The ship
+seems to be moving away from the center towards the left side of the channel.
+You hear the lookout yell excitedly, "Approaching red buoy dead ahead!"
+Startled, you look to the left for the buoy but it's too late because
+you've just left the channel and run aground.  Luckily, you're on a sand
+bar and not the rocks.
+
+>UNDO
+[UNDO done.]
+
+>TURN WHEEL TO STARBOARD
+You quickly turn the helm to starboard just avoiding the red buoy.  The
+Dek Twintig responds, veering back towards the center of the channel.
+
+>LOOK AT THE CHANNEL
+The channel surrounds you on both sides about twice as wide as your ship.
+The ship seems to be veering off to the right side of the channel.
+You remember your recent close call as you hear the lookout yell,
+"Green buoy sighted, Captain!"
+
+>STRAIGHTEN WHEEL
+You quickly straighten the wheel and the ship immediately centers herself
+in the channel.
+
+>LOOK AT THE CHANNEL
+The channel surrounds you on both sides, about twice as wide as your
+ship.  The lookout yells, "Channel turning starboard, Captain."
+
+>TURN THE WHEEL STARBOARD
+You turn the wheel to starboard, expertly following the center of the
+channel.
+
+>STRAIGHTEN THE WHEEL
+You straighten the wheel holding the Dek Twintig to the center of the
+channel.  The lookout yells, "Anchorage dead ahead, Captain."
+
+>LOOK AT THE CHANNEL
+The channel surrounds you, about twice as wide as your ship.  The channel
+opens up into Goro bay about two hundred yards ahead.
+
+>WAIT
+Time passes...
+You enter the harbor under full sail, a tribute to English seamanship.  The
+anchorage is just a hundred yards away now.
+
+>CREW, LOWER THE SAILS
+The crewmen, who had been taking in the first sight of Goro, snap to and
+scurry up the riggings and smartly lower the sails and the Dek Twintig
+coasts majestically to the anchorage.  You notice a small boat being
+launched from the shore and heading your way.
+
+>TELL THE FIRST MATE TO LOWER THE ANCHOR
+Seersucker orders three men forward to lower the anchor.  Presently, you
+hear a splash and the first part of your voyage is complete.  The small
+boat is getting closer.
+
+>LOOK AT THE BOAT
+The small boat, now coming up beside the Dek Twintig, is manned by a crew
+of twelve.  They are dressed in strange but beautifully wrought clothing.
+Some of the men look like warriors.
+
+>SEERSUCKER, LOWER THE LADDER
+With the help of Hornung and Shalle, Seersucker lowers the ladder over the
+side.
+
+>WAIT
+Time passes...
+Four heavily armed men board the ship and position themselves around the top
+of the ladder.  After a few moments a fifth man climbs the ladder.  His
+manner and dress set him apart from the others; he is obviously their
+superior.
+
+>INVENTORY
+You are carrying official letters of introduction from the Dutch government,
+a sword, an a box containing a present to the people of Goro from Prince
+William of Orange,  You step forward to address the leader.  Immediately
+the four armed men jump forward, drawing their swords.  You quickly step
+back.
+
+>BOW TO THE LEADER
+The leader takes a much more relaxed stance.  His guards relax but eye you
+warily.
+
+>GIVE THE LETTERS TO THE LEADER
+You hand the letters of introduction to the leader.  He looks at them but
+doesn't comprehend their meaning.
+
+>GIVE THE BOX TO THE LEADER
+The leader takes the box and opens it.  Inside is a globe with Europe and
+Japan outlined in precious stones.  The leader runs his hand over the
+European portion of the globe letting it come to rest on the purposely
+unadorned county of Spain.  You feel uncomfortable his choice of resting
+place.
+
+>WAIT
+Time passes...
+The leader closes the box and speaks to one of the guards.  The guard
+goes to the side of the ship and yells down to the men remaining in the
+small boat.  Another man, obviously of Spanish descent, climbs the
+ladder and boards the ship.  Eyeing you suspiciously, he approaches and
+introduces himself.  "I am Dario Glaz.  This man," he points to the leader,
+"is Admiral Sukata, commmander of the port of Goro.  He wishes to know who you
+are?"
+
+>I AM CAPTAIN WICKS
+Upon hearing your name, Glaz becomes livid with rage, turns to Admiral Sukata
+and anxiously says something to Sukata.  Instantly, Sukata yells something
+to his men and then to Glaz.  The guards on deck come to a fighting posture
+while those remaining in the small boat begin to scurry up the ladder.
+Glaz faces you and says, "Captain Jeremiah Wicks, I hereby place you under
+arrest in the name of Admiral Sukata for the crime of piracy."  As he speaks
+the guards move towards you.
+
+>I AM NOT A PIRATE
+The guards continue their advance.  Your crew is not sure what to do.
+
+>I AM CAPTAIN ALEXANDER WICKS
+You hurriedly explain to Glaz that Jeremiah Wicks is your half-brother, a
+scourge to your family and an enemy of England and all nations.  Glaz looks
+at you, now unsure of his charge.  He turns an speaks once more to Sukata.
+Sukata listens intently then orders his men to stop.
+
+

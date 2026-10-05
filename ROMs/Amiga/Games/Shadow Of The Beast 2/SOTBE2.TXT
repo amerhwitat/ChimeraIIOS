@@ -1,0 +1,232 @@
+                     SHADOW OF THE BEAST II
+
+Typed in by SKID ROW. Edited by PARASITE. The complete docs this time!
+
+
+If you thought Shadow of the Beast was mind blowing wait 'till you get a
+load of Beast II!  Conflict with the Beast Mage's subordinates was tough
+enough when you had the powers of the beast to help you.  Now you have
+to face them in an unfamiliar hostile environment as a puny humanoid.
+The compeling need to find and save your baby sister from the evils of
+the Beast Lord spurs you on against seemingly insurmountable odds.  Have
+Lord you the strength and cunning to survive?
+
+THE GAME
+You were once the pawn of Maletoth, the Beast Lord, your humanoid body
+changed and your will sapped by years of subjection to the dark arts
+of his evil mages.  Then one fateful day you looked upon the face of
+your father as he was dragged forward for execution, seeing his image
+opened your clouded mind to the truth about your past.  As the
+sacrificial blade tore into his body and he screamed his last breath
+you vowed to take revenge on your masters for his slaughter and for
+what they'd done to you.
+
+Using your beast-like powers you scoured the land in search of the
+Beast Lord and vengeance.  Fighting your way through a seemingly endless
+barrage of adversaries you struggled valiantly towards a confrontation
+with Zelek, the Beast Mage.  A terrific battle ensued from which you
+eventually emerged the victor.
+
+Your prize was the return of your humanoid body in which you now stand
+proud and free, elated to be rid of the evil dominance of the Beast
+Lord ... but your elation doesn't last long!
+
+Dire news reaches you of the capture of your sister by the Beast Mage.
+She's been taken to Kara-Moon, a far-off hostile place where she is to
+be subjected to years of forced cultivation until eventually taking
+your place as warrior messenger to the Beast Lord.  This must not
+happen.
+
+Following a journey fraught with peril, you eventually reach Kara-Moon
+and, armed only with a mace, prepare for battle.  But ironically, without
+the benefit of the beast powers you fought so hard to shed, will you be
+strong enough to succeed?
+
+THE SHADOW DEEPENDS
+The blanket of pitch black that drapes over the land blending shapes
+into a mass of indefinable darkness is only intruded upon by the
+occasional shaft of brilliant lightning.
+
+In the brief but manic dancing of the diamond-white tongues of energy,
+one shape stands out from the rest: A tower; so tall its pinnacle
+seems to look down on the very source of the storm.  The single window
+near its top is almost as black as the surroundings, but closer study
+reveals a faint glow from within...
+
+Darkness is Zelek's ally, the only place in which he finds solace, yet
+the increasingly frequent bolts of dazzling lightning do nothing more
+than fleetingly interrupt his lonely musings.  As he sits, deep in
+thought, his chair seems less comfortable with the burden he now has to
+bear:
+
+His recent clash with the warrior messenger was, at the time, more an
+annoyance than painful.  If the messenger hadn't had incredible luck
+on his side Zelek feels sure he would have emerged victorious from
+the conflict.  Unfortunately, his master, Maletoth the Beast Lord,
+takes a very different view.  He's disappointed in him and has let it
+be known that should Zelek be unable to put right the wrongs of his
+defeat there are many other mages waiting to take the place of
+honour at his side.
+
+Knowing to what extent Maletoth dislikes failures - and how he deals
+with them - Zelek must quickly make amends for losing his master's
+prize warrior messenger or feel his dreadful wrath.
+
+Any humanoid child would suffice to provide the mages of darkness with
+another puppet on which to perform their macabre arts to mould it into
+another warrior messenger.  But Zelek's recent defeat at the hands of
+the now-free warrior messenger sticks in his craw and he craves revenge,
+he NEEDS revenge.  His lackies are even now searching the land in an
+effort to find a suitable candidate but time marches on and Maletoth
+is not renowned for his patience.
+
+As he contemplates entering the search himself, one of Zelek's many
+underlings crawls into his presence and, grovelling on the floor in
+a pathetic attempt at homage, tells him of the birth of a child many
+leagues to the north... "On the outskirts of Deadwood Forest there's
+a small cottage nestling beneath a ridge of granite, she lies within".
+
+Doubting the suitability of a female for the role of warrior messenger,
+Zelek enters a shallow trance of peregrination and sends his thoughts
+to the areas described by the whimpering subordinate.
+
+Transporting his mind into the cottage via the narrow chimney he looks
+down on the baby from the darkness of his storm-torn tower.  A burst
+of knowing suddenly hits him as he examines the child and with a speed
+greater than that of the lightning exploding about his lair he reunites
+his thoughts and physical self.
+
+Standing, he pushes the servant aside, strides to the window and falls
+through to plummet down to the river far below...
+
+Long before he hits the broiling, dark waters Zelek effortlessly
+metamorphoses into his beast persona.  Beating huge leathery wings
+against the howling wind, he quickly gains height to be amidst the
+thunder and lightning that spurs him north.
+
+Landing on a high ridge he resumes his more humanoid form to look down
+on the cottage, confirming his thoughts on the child and feeling very
+good about the pain he's going to inflict on a certain ex warrior
+messenger.
+
+An angry bolt of lightning hails another transformation to his beast
+form and wings spread wide, he glides down to the roof of the cottage,
+screaming against the thunder.
+
+Pausing for but a brief moment in glorious feelings of retribution,
+he smashes a clenched talon through the fragile roof, reaches past the
+terrified mother into the crib and grabs the baby.  The mother can only
+scream in terror and beg for him not to take her child, she may as well
+plead mercy from the raging storm.
+
+Holding the baby roughly in his talons, Zelek launches himself into the
+night.  Reverse tasting very sweet on his flickering tongue...
+
+YOUR OBJECTIVE
+To save your sister you must fight your way across danger-fraught
+Kara-Moon to reach the Beast Mage and once again defeat him in battle.
+
+You will confront many creatures on your journey, some of whom may have
+information for you while others merely crave your death.  Physical
+contact with enemies depletes your energy.
+
+Collectable weapons are scattered throughout Kara-Moon as are other
+useful objects and gold.
+
+Gold can be used to purchase weapons or food to restore lost energy.
+It may also gain you access to otherwise unattainable places.
+
+Some of the puzzles and obstacles you encounter may require help from
+other characters - voluntary or otherwise - to overcome.
+
+CONTROLLING THE WARRIOR
+You may use joystick or arrow keys to control the warrior, but we
+recommend joystick.
+
+                            JUMP/ASCEND
+                                 |
+                                 |
+                     MOVE LEFT--- ---MOVE RIGHT
+                                 |
+                                 |
+                           CROUCH/DESCEND
+
+FIRE, SHIFT OR ENTER: Use highlighted weapon/object
+
+Keys: F1-F4: Highlight weapon/object carried.
+
+O: Offer highlighted object.
+A: Ask nearest character about object or character.
+ESCAPE: Abandon text input.
+S: Display score/gold collected.
+HELP: Pause (DELETE to restart).
+F-10: Quit game.
+
+Pressing the space bar during the intro displays an option screen from
+which you may select to dispense with the game-over sequence (after
+you've admired it at least once of course!)
+
+REFLECTIONS OF A SHADOW
+
+PROUD MOMENTS
+We at Psygnosis are very pleased that SHADOW OF THE BEAST (BEAST I)
+was the proud winner of 6 international awards, including Best
+Graphics, Best Sound, Best Overall Presentation and Best Entertainment
+Program of 1989.  REFLECTIONS, the programmers, while being far too
+modest to be seen smiling in public, are rumoured to be pleased also.
+Unfortunately, with all the work they've had to put in creating BEAST II
+they haven't had much opportunity for self-congratulation.  They did
+however find time to provide a little insight into the making of BEAST II.
+
+BEAST I's method of scrolling, while looking very impressive, imposed
+technical limitations on what we could do with the monsters within the
+game.  We needed a completely different approach if we were to extend
+and enhance in the way we wanted.
+
+As was its prequal, BEAST II was created on an Amiga 2000 using
+hardware scrolling, dualplay field, hardware sprites and the blitter.
+To get a game to run smoothly at 50 frames per second hardware scrolling
+has to be used since the blitter is not fast enough to move the whole
+screen in parallax.  However, the problem with hardware scrolling
+is it eats large amounts of memory which in turn means increased disk
+access and loading time.  Unfortunately, with the amount of graphics
+and music in our games, and only half-meg machines as standard, long
+disk loads are inevitable.  So to reduce 'waiting time' to a minimum
+we've included Patience Options in BEAST II to mimimise the problem.
+
+Scrolling in BEAST II is very different to that of I in that it
+parallaxes in virtually every direction around the player.
+
+The other main area in which we've improved gameplay is the style and
+performance of monsters: they act and react to your actions; some are
+intelligent, some not, while others are there to help you.  Characters
+in BEAST II suit their locations and they all have a job to do.  This
+feature, we feel, greatly increases depth of play.
+
+EQUIPMENT NECESSARY FOR PRODUCING STATE-OF-THE-ART GAMES.
+The BEAST II program was developed on a 25 megaherts PC running PDS 2.
+
+Graphics were created on an Amiga 2000 running a 25 megaherts 68030
+processor board.
+
+A range of coffees helped keep us at the keyboard.
+
+Out next project, on which we've been working alongside Beast 2, is
+AWESOME, a shoot-'em-up that should really space you out.  And after
+that?  Beast 3 the FINAL encounter??
+
+FACT BOX
+Total Memory Used: 3.5 megabytes
+
+Graphics Data: 2 Megabytes
+
+Music & Sound Rate: 20 kilohertz
+
+Screen Update: 50 time a second
+
+Project Duration: 12 months
+
+Cheat:  When the game first begins; go to the right, when you see the
+first warrior press the "A" key.  You will be asked what you want?  Type
+in "TEN PINTS".  Response you will see: "This is for you Roger, Cheat
+Mode activated."

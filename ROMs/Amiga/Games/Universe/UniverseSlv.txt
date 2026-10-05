@@ -1,0 +1,148 @@
+
+
+                            UNiVERSE / CORE DESiGN
+
+                                FULL SOLUTiON
+                                ^^^^^^^^^^^^^
+                             Solved by Mok & Bob
+                                Typed by Mok
+
+Go West, South, South, PICKUP bent metal bar, North, North, East, East,
+PICKUP piece of circuit board, East, stay in the middle of the place and
+wait till the spinning asteroid will show up and JUMP on it (if you fail
+the first time, just wait and try again :), Go East (wait), JUMP on the duct
+and you should be back in the place you started the game. Here stand near
+the satellite dish and INSERT bent metal bar into panel, INSERT circuit board
+into panel, USE panel, the terminal menu will show up, select CONNECT CHANNEL
+option and GAVRIC HOMEWORLD, USE panel again, select SET FILTRATION SYSTEM
+and GAVRIC HOMEWORLD (should be OFF, if its ON, try again), Go North, Stand
+near the ventilation shaft to the left of the screen and PUSH/PULL it. You
+should come out at the same planetoid as in the beginning of the game,
+PICKUP mirror, repeat all the steps with the spinning asteroid and go to
+the room with the ventilation shaft again. Go North-West to another place,
+Here on the right of the screen is the doorway with 2 lasers over it, THROW
+mirror at the doorway and the lasers should get burned (You can do it only
+if the robot that is moving on the screen is outside), the Alien will tell
+you to go and see Silphinaa, USE door console at the northern doorway, talk
+with Silphinaa until she will allow you inside, enter, say that you don't
+know where you are, read the rest of conversiation until she will tell you
+to go upstairs, ATTACK keypad (on the door) with bent metal bar, OPEN
+wardrobe, WEAR suit (its inside the wardrobe), USE arm computer on
+the console over the bed, USE console, select WINDOW SHUTTER option, JUMP
+through the window, USE arm computer on the car, JUMP into car, INSERT
+key-card into console to the left of the screen, USE anti-theft keypad
+to the right of the screen, enter 87764 or anything if you have cracked
+version. Ok, now you are in space, you'll have some kind of vision where
+you'll see your soon-to-be pursuer Baron Kaleev, then you'll meet with
+Snorglat galactic trader, talk with him using options 1, 1, he will leave,
+now you	can use your PTV car by clicking on the console in the middle of the
+screen.	Select NAVIGATE COURSE, check the position of the planet Balkamos 7
+(to the left of your actual position), use LAY IN COURSE icon and select
+Balkanos 7 as a destination, select DESCEND TO PLANET option and SELECT
+QUADRANT, choose north-eastern quadrant, go north, PICKUP droid, go east,
+south, south, PICKUP canister, COMBINE droid + canister, go west, west,
+north, here is your car with some nasty aliens on it, USE droid on alien,
+JUMP into car, use ASCEND FROM PLANET option, use NAVIGATE COURSE option,
+use LAY IN COURSE icon to Jor-Slev 4 planet, use DESCEND TO PLANET option,
+SELECT QUADRANT, and choose N-W part of the planet, go east, PICKUP rock,
+THROW rock at Alien, USE droid on blob, you should now have Blobs in your
+inventory, go back to car, JUMP into car, use SELECT QUADRANT option,
+choose S-E part of the planet, go west, west, talk with the alien until
+you'll have the chance to offer him blobs, select this option, he will
+give you carvite in exchange, go east, east, JUMP into car, ASCEND FROM
+PLANET, NAVIGATE COURSE, LAY IN COURSE to Pfenellop Asteroid Cluster,
+You'll meet Snorglat again, offer him carvite, he will agree to take you
+to WheelWorld, now its a simple arcade part where you have to dock to
+Snorglat's spaceship using left mouse button to move your car and right
+mouse button to catch it. Nothing hard anyway. When you arrive at WheelWorld
+choose any dialog with Snorglat he will paralyse you anyway and take carvite.
+JUMP into car, LAY IN COURSE to Landing Bay - REF.40e. Here you'll find
+working droid, PUSH droid, PICKUP cable, JUMP into car, LAY IN COURSE to
+Landing Bay - REF.1h, go east through the open portal, go east, north,
+go near dispenser, INSERT i.d card into dispenser, select ORDER option,
+you'll have now synthetic carvite in your inventory, go west, enter through
+the door into the bar, you can use console to the right to play
+SPACE INVADERS !!! :), talk with the guy who sit alone, select dialog:
+2, 2, 2, you'll go and buy a bottle of Gh'Narhl brandy, COMBINE brandy with
+syntetic carvite, SAVE here because the game is a little bit buggy and when
+you try now to talk with the guy again, sometimes it gives you again the
+1st conversation and you lose your carvite. So talk with the same guy again
+and in case its the same conversation as the one you already had, load your
+saved position and it should be fine then, he will drink brandy with carvite
+and fall asleep, you'll get the badge. Exit the bar, go south, you'll find
+here healer being attacked by some jet-packers. While talking select dialog
+3, 3, and you'll follow jet-packers then. Here is another arcade part of the
+game, also quite easy to pass. After combat, you'll find injuried jet-packer.
+Select dialog: 1, 2, 1, you'll have the healer's hand now, go east, north,
+and east again, talk with the healer, follow him west, here you'll get
+attacked by baron Kaleev and his droids, your character will run to the room
+with the elevator, stand on the elevator, it will start to go down but then
+blow up, USE cable on the elevator to go down, go beetween the buildings
+to the east, stand on the bridge above the rails, JUMP on the train when
+it will show up, in the next screen fastly JUMP on the anchion to the right of
+you, JUMP to the lower entrance (on the left of the screen), go near the door,
+USE droid on the air duct to the left of the door, he will open the door for
+you, USE I.D card on the ordering terminal, select MEKANTHALLOR GALAXY as
+the destination route to obtain a ticket, USE door to the left, USE ticket
+on the terminal, go east, use keypad on the door to enter the ship.
+You'll find yourself in the lounge of big spaceship. USE lift to go to
+level 1, here are 2 guys speaking about healer aboard the ship. Talk to them.
+Select dialog: 3, 1. Go left, USE door console, watch the transmission
+for you, USE communicator, select LEVEL 3, MYRELL, exit your room, go east,
+USE lift to reach level 3, go east, north, east, east, north, east, east,
+USE doorconsole, use dialog: 1, 1, 1, exit the room, here you'll meet
+the assasin sent to kill you, select dialog: 1, 2, and the explosion on
+the ship will knock her unconsious, PICKUP key-card from the assasin, go
+back to lift, select LAUNCH BAY, JUMP into blue car 3rd from the right side,
+watch Emperor King's fleet, NAVIGATE COURSE, LAY IN COURSE to ANKARLON 5,
+DESCEND TO PLANET, SELECT QUADRANT, choose N-W part, go west, PULL junk to
+the left of the screen to get straight metal bar, COMBINE both parts of
+starchart, COMBINE starchart with straight metal bar, go east, JUMP into car,
+fly to the mekanthallor galaxy again and then to Daarlor-Korv. Land on the
+S-E part of the planet, go east, east, INSERT starchart+spindle into recess,
+you'll get teleported to some weird place, go east, PICKUP the rock, LOOK
+at the plaque, it will show you some kind of diagram with 6 stones. Now,
+you have to run through all of these stones (each disables one of the laser
+beams) ending at the one in the entrance to this room. Standing on it,
+fastly throw a rock at the power gem. PICKUP the gem and run to the exit!
+In the next room, JUMP over the hole and run to the teleport, try again
+if you get caught by demons. Go west, west, JUMP into car. Fly to Ankarlon 5
+again, land on N-W part, go west, LOOK at various places on the giant ship
+until you'll find a terminal. INSERT metal bar into it, USE power gem on
+terminal, USE arm computer on terminal, choose 2nd option, transporter beam
+will show up, go there, you'll have an interesting talk with an Alien of
+the Mekalien race, select dialog: 2, 3, 2. He will give you cloaking device.
+Go east, JUMP into car, ascend from planet, fly to mekanthallor galaxy
+again, here you'll get on board of the rebellion ship, select dialog:
+2, 1, 2, 1. Use transporter pad to land on Coros. Here you'll meet 2
+smugglers who will stole your car. Select dialog: 2, 2, 3 to get with it
+fastly, go north, TALK to waiting man, Select dialog: 2, 1. He will lead
+you to the room with droids, wait till he leaves, go west too, go south,
+speak for a while with sentinels, dialog: 2, 1. Go back, talk to the
+robot, choose dialog: 1, 2 (about the sentinels), wait till he comes back,
+choose dialog 2 and wait till he get blasted, go south, PICKUP batteries,
+COMBINE power gem with cloaking device, COMBINE power gem with batteries,
+USE arm computer on power gem, go west, Baron will wait for you and try
+to kill you, unfortunately power gem defends you and you can get I.D pass
+out Keelev. USE arm computer on power gem, go back to the room with the
+4 droids, talk to the rightmost one, he will recognise you now as Baron
+Keelev, select dialog: 2, 1, 1. He will blast a hole in the wall, you'll
+enter it. SAVE here! This is another arcade part, you'll have to run
+EAST, UP, EAST, EAST, UP (room with the rock, but don't kill the droid with
+it coz the game likes to stop sending droids after you when you kill 1 with
+the rock, so just keep running. Also if you save while running, most of the
+time after loading such version you'll get automatically killed, another
+bug in the game), EAST, SOUTH, EAST, UP, EAST. You should be now in the room
+with giant lizard. Quickly, THROW I.D chip into lizard's head and JUMP on
+lizard's tail. Wait for the droid to come after you, he will get killed
+by the lizard, PICKUP batteries, COMBINE power gem with batteries, USE
+arm computer on power gem to turn invicible again, go up, west, you should
+be in the room with security droids, PUSH the one that got his back to
+you, go north-west, TALK to man-brute, select dialog: 2, 1. He will give
+you his armoured glove, go west, watch Emperor King's silly talk, select
+dialog: 1, 1. Baron will get terminated by the king, select dialog:
+1, 1, 1, 1... 
+
+
+THE END!
+

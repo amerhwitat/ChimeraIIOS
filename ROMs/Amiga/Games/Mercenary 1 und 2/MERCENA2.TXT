@@ -1,0 +1,212 @@
+MERCENARY - THE SECOND CITY:
+
+        Fly the Dominion Dart as usual, fly to above 350 meters, level off
+        (your speed should be 1,781 kph) and fire a missile.  Pick the
+        missile up once you get close to it and then land.  Go to 08,08,
+        and take the crashed intergalactic craft and go to 08,06.  Go
+        underground exit your ship and walk through the triangular door.
+        You now have access to the authors cheat room where you'll get keys
+        to every door, passes out of prison and the ability to carry lots of
+        goodies in your pockets.
+
+
+                                DAMOCLES.
+
+Typed in by FLUX of MIRAGE UK. Edited by PARASITE.
+
+
+GAME DESCRIPTION
+Damocles is a game of exploration and discovery in which you are a 21st
+century soldier of fortune - a mercenary. Your fight should you choose to
+take on the challenge, is against the forces of nature. Your objective, in
+any event, is to gain a fortune in return for your endeavour.
+You have been invited by the State President, to the planet Eris for work
+which offers a rich reward, if you succeed. The comat Damocles, in its
+present trajectory, is on a collision course with Eris and will destroy the
+planet. You will be asked to prevent this catastrophe.
+When those originally charged with finding a solution were seen to be
+failing, the President called for your assistance. Unfortunaetly, you were
+unexpectedly delayed en-route and now, on your arrival, there are only a
+few hours remaining before the comet hits!
+And so the game begins - with you having landed at Eris Capital City
+Spaceport. Your car awaites. The key, which you need to pick up, is in the
+spaceport building. Board your car and drive along the exit road. The State
+Office is the first building along this road that you can see. For a full
+briefing, walk in. It's up to you. In Damocles you choose the action!
+
+GAMEPLAY
+In Damocles, the player is never 'killed'. Your ability to play the game
+never ends, even if the comet hits Eris or, through your own doing,
+something worse happens! Although you could conceivably be left with
+nothing to play with - or you could possess everthing worth playing for, you
+choose your end of game.
+
+PLAYFIELD
+The Damocles playfield is the Gamma solar system of nine planets and there
+nineteen moons in orbit around the star Dialis. All of the planets and
+moons are accessible to you by flying to them in a suitable spacecraft.
+Some have seas and islands, others are barren but are cratered or have
+other features, some are featureless and there are two gas giants on which
+you are not allowed to land.
+
+TRANSPORT
+You arrive in the game able to walk from your interstellar craft, which is
+not refitted for further flight. A car awaits you, which you can only use
+after you have collected the key from the spaceport building. All transport
+in the game requires you to be holding its matching key for you to be able
+to use the vehicle.
+There are three types of craft:
+1) Cars and other ground based vehicles.
+2) Aircraft, which are restricted to the planet or moon that they are on
+3) Spacecraft for interplanetary flight.
+All craft have varying capabilities, some are good, some not so good.
+
+OBJECTS
+Your interaction with the game is principally through the objects that are
+to be found. Many of these have a use. You can pick up and hold objects tp
+relocate or use at any time by taking these into your inventory. You can
+generally hold upto a maximum of ten objects at a time.
+(please note that there is no limit to the number of objects that you can
+drop in any one place, but an excessive concentration of objects will
+significantly slow down the game graphics)
+
+CLUES
+Following from the 'State Office' briefing, there is a straight forward
+'trail' that leads to a solution, for which you are suitably rewarded. It
+is rewarding to play and affords a useful insight and experiance of some of
+the gameplay availble, but occupies only about 20% of the full gameplay
+installed. There are a number of interlinked ways to varying solutions and
+rembering that your objective is to maximise your fortune, the experianced
+player will want to investigate these other options.
+
+EXPLORATION
+The Damocles playfield is vast. You can of course explore everywhere, and
+might eventually find all that there is to find. However, this approach is
+not recommended: for example, there are over 16 million individually
+numbered but identical pyramids on Midas. Even the most ardent adventurer
+would find a simple search of these somewhat tedius.
+In exploring, look for diffrences. Certainly significant buildings are well
+worth a look inside, but also a structure that may be commonplace
+elsewhere, if sited individually, could also be intresting. Similarly, one
+pink building among many of the same type in green would have a purpose.
+
+TRADING
+An important feature of the gameplay is the value of mant of the objects
+that you can find. You must sell an object to be credited with its value.
+This can be accomplished at any of the Trading Posts that you can find that
+do not already have an object for sale in the window. You can of course buy
+the displayed object, if you can afford it. The price is shown on the wall
+panel. Where you can sell, the money shown on the panel is that offered at
+these premises for the object currently selected in your inventory. Drop
+the object and leave the room for the transaction to be complete.
+
+TIME
+Your panel clock is tuned to the time countdown to Damocle's impact with
+Eris. If Eris continues to exist when this clock reaches zero you'll have
+succeeded.
+Your space travel around the system is at speeds near to the speed of
+light. Very quick and convenient, but note the rapid decay of your Eris
+based time clock!
+Compared to the speeds that you can attain, the planet and moon rotations
+and even the comet, appear to move at a leisurely pace. But Beware! This
+can be misleading. The comet is moving relentlessly on.
+
+IN-FLIGHT EFFECTS
+In space flight, an ecliptic plane lock operates to encourage your flight
+to remain within the plane of the system. During rapid space flight,
+Benson, your in helmet PC, affords a playable view by compensating for the
+effects of acceleration and for relativistic distortions.
+Similarly to provide you with simple flight controls, in space your engine
+speed and direction are regulated to take account of gravitational fields
+and appropriate deceleration is applied for you to enter above the planets
+and moons. Above there surfaces, you will move faster at high altitudes. A
+red panel light shows with ground proximity.
+
+CONTROLS
+
+COMMUNICATION
+With Benson in communication mode, you may be asked to respond. This is
+indicated by a question mark (?) following text. Press 'O' to respond "OK -
+YES", otherwise "NO" is assumed.
+
+WALKING
+Walking is initated by joystick movement in all eight directions. You are
+able to RUN by pressing 'R'. To return to walking pace press 'R' again. A
+white panel light indicates RUN mode.
+
+TRANSPORT
+To BOARD a vehicle or craft, walk near to it and press 'B'
+To LEAVE parked transport (walk away) press 'L'
+POWER forward is selected by pressing a number key on the main keyboard
+(not the keypad) from 1 through 9 with 0=max. For REVERSE, select a
+Function key F1-F10. For fine adjustment to selected speed press keypad ')'
+or '(' keys. To stop or to hover in flight press <SPACE>.
+
+GROUND VEHICLES are controled with the joystick left/right.
+
+AIRCRAFT need sufficent speed to take off. Landing to heavily will result
+in a crash! On the ground they behave as ground vehicles. Flight is
+controlled by joystick movement in eight directions.
+
+SPACECRAFT are flown as for aircraft, but can attain escape velocity. To
+activate escape sequence, in flight, press <ESC>.
+
+ELEVATORS
+Elevators (lifts) in building are generally indicated by a floor number
+being shown. Stand centrally and select a floor number on main keyboard
+keys 1-9, 'B' for a basement and 'G' to return to ground level. If the
+number selected does not exist as a floor number the lift will not operate.
+
+OBJECTS AND INVENTORY
+All object and inventory controls are through the keypad and cursor control
+keys.
+To pick up an object, stand near to it and press the cursor up key.
+Provided you have inventory capicity available, its name will be shown on
+the inventory display panel. To review names of objects held, toggle the
+cursor left/right keys. To drop an object select its name to be shown in
+the inventory display panel and press the cursor down key.
+Where an object has a player controlable use, it can be activated if it as
+shown selected in the inventory display window and the <ENTER> key is
+pressed. An auxiliary central 'use panel' will scroll on giving
+instructions to operate the object via the keypad keys. This use panel will
+remain activated unless the object is dropped, or an alternative object is
+activated.
+
+COMBAT
+Craft have a defensive missile capability. In general play, you do not have
+an enemy, but if you do provoke an attack, this is relentless. Unless you
+can destroy the enemy ship, it will ultimately find you and home in for the
+kill. Depress the joystick 'fire' button missile.
+
+QUIT SITUATION
+In all events, bar one untenable situation, you can extricate yourself from
+any difficulty (eg the loss of a craft) by quitting. You will be re-located
+near to Dialis in a craft.
+
+Press <HELP> key
+Benson Response: "F1=SAVE F2=LOAD F10=QUIT OTHER=RETURN TO GAME"
+Press FUNCTION KEY F10.
+
+SAVE/LOAD GAME FACILITY
+You can save out a current gameplay status to pick up later from where you
+left off. At any point in the game.
+
+Insert your 'SAVES DISK'
+Press <HELP> key
+Benson response: "F1=SAVE F2=LOAD F10=QUIT OTHER=RETURN TO GAME"
+Press FUNCTION KEY F1/F2
+Benson response: "SAVE/LOAD NUMBER 0-9"
+Press a single number to identify the file.
+Benson Response: "PRESS RETURN WHEN READY"
+Press <RETURN> any other key aborts.
+
+'MERCENARY' GAMESAVES
+If you have a winning gamesave from 'Mercenary - Escape from Targ' that is
+in the same computer format, this can be loaded into Damocles. Your
+inventory holdings will then reflect your previous inventory, and the
+author will know a thing or two about you.
+You can only load your Mercenary save before your Damocles gameplay is
+commenced. On arrival at Capital City Spaceport, BEFORE you pick up the
+carkey: Follow the reload game procedure as above but instead of selecting
+F2, press function key F3 for an 'Escape from Targ' save and F4 for a
+'Second City' save.

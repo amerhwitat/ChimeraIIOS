@@ -1,0 +1,1 @@
+Managed to run well with WinFellow Alpha 0.4.1
