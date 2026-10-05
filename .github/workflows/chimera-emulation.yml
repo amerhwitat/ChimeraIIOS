@@ -12,13 +12,12 @@ on:
       - "tools/emulation/**"
       - "system/kore/chimera-emulation-runtime.json"
       - ".github/workflows/chimera-emulation.yml"
-
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate JSON catalogs
+      - name: Validate JSON schemas and catalogs
         shell: bash
         run: |
           set -euo pipefail
@@ -26,21 +25,30 @@ jobs:
           import json, pathlib
           files = [
               "emulation/catalog/known-emulators.json",
+              "emulation/catalog/bios-rules.json",
               "system/kore/chimera-emulation-runtime.json",
           ]
           for p in files:
               json.loads(pathlib.Path(p).read_text())
               print("[PASS]", p)
           PY
-      - name: Validate PowerShell scanner syntax
+      - name: Validate PowerShell scripts
         shell: pwsh
         run: |
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
+          $files = @(
             "tools/emulation/scan-roms.ps1",
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
-          Write-Host "[PASS] scan-roms.ps1 syntax"
+            "tools/emulation/chimera-emulator-manager.ps1",
+            "tools/emulation/test-scan-roms.ps1"
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $file, [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count) {
+              $errors | Format-List | Out-String | Write-Error
+              exit 1
+            }
+            Write-Host "[PASS] $file syntax"
+          }
