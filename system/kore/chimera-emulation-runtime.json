@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "name": "chimera-emulation-runtime",
+  "owner": "Koronos",
+  "layers": {
+    "persistent_media": "ROMs, disk images and firmware are represented as file-backed media.",
+    "runtime_emulator": "An emulator is an object-backed runtime service with lifecycle state.",
+    "authorization": "Koronos capabilities authorize access to media, emulator processes and host resources.",
+    "presentation": "Aurora consumes emulator/media metadata and exposes launchable entries."
+  },
+  "resolution": [
+    "scan media and compute SHA-256",
+    "identify format/system",
+    "resolve compatible emulator candidates",
+    "verify emulator provenance/license",
+    "authorize media and emulator capabilities",
+    "launch through the emulator manager"
+  ],
+  "safety": {
+    "unknown_roms": "local_metadata_only",
+    "authorized_roms": "eligible_for_lfs_or_release_assets",
+    "commercial_roms": "do_not_publish_without_redistribution_rights"
+  }
+}
