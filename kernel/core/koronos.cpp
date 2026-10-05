@@ -8,6 +8,7 @@
 #include "chimera/firmware.h"
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
+#include "chimera/process.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -376,6 +377,8 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     chimera_learning_record(1, f->logical_cpus);
     koronos_elf64_init();
+    chimera_process_init();
+    console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
