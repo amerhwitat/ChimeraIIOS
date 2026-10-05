@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "name": "chimera-process-runtime",
+  "owner": "Koronos",
+  "status": "admission-and-load-plan-stage",
+  "required_next_stage": [
+    "architecture-specific page-table/VSpace creation",
+    "ELF PT_LOAD mapping into an isolated user address space",
+    "user stack and auxiliary-vector construction",
+    "ring-3/TSS/context-switch entry",
+    "fault endpoint delivery",
+    "capability-space installation and transfer",
+    "process teardown and resource reclamation"
+  ],
+  "policy": {
+    "elf_validation": "mandatory",
+    "segment_bounds": "mandatory",
+    "w_x": "forbidden",
+    "user_stack_below": "mandatory",
+    "kernel_image": "never admitted as user process"
+  },
+  "reference_patterns": [
+    "seL4 capDL/loader",
+    "Zircon process/thread + VMAR/VMO + userboot",
+    "Redox userspace schemes"
+  ]
+}
