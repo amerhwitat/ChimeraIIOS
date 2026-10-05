@@ -19,6 +19,51 @@ CHIMERA_HELP
 fi
 set -Eeuo pipefail
 
+# CHIMERA_ROOTFS_EXPORT_V3
+chimera_export_docker_rootfs() {
+    local image="${1:-${CHIMERA_DOCKER_IMAGE:-${DOCKER_IMAGE:-}}}"
+    local dest="${2:-${CHIMERA_ROOTFS_DIR:-${ROOTFS_DIR:-${ROOTFS:-}}}}"
+    local work="${CHIMERA_ROOTFS_WORK:-/tmp/chimera-rootfs-work}"
+    local cid='' tarball='' avail required=0 stage
+    [[ -n "$image" ]] || { log_error "Docker image is not set for rootfs export."; return 1; }
+    [[ -n "$dest" ]] || { log_error "Rootfs destination is not set; use CHIMERA_ROOTFS_DIR."; return 1; }
+    command -v docker >/dev/null || { log_error "Docker CLI not found."; return 1; }
+    command -v tar >/dev/null || { log_error "tar not found."; return 1; }
+    docker image inspect "$image" >/dev/null 2>&1 || { log_error "Docker image does not exist: $image"; return 1; }
+    mkdir -p "$work" "$dest"; chmod 0700 "$work"
+    [[ -w "$dest" ]] || { log_error "Rootfs destination is not writable: $dest"; return 1; }
+    required="$(docker image inspect -f '{{.Size}}' "$image" 2>/dev/null || echo 0)"; [[ "$required" =~ ^[0-9]+$ ]] || required=0
+    required=$((required + 1073741824))
+    avail="$(df -Pk "$work" | awk 'NR==2 {print $4*1024}')"; [[ "$avail" =~ ^[0-9]+$ ]] || avail=0
+    (( required == 0 || avail >= required )) || { log_error "Insufficient WSL /tmp space: need about $required bytes, have $avail."; return 1; }
+    rm -rf -- "$work/export" "$work/rootfs"
+    mkdir -p "$work/export" "$work/rootfs"
+    while read -r old; do [[ -z "$old" ]] || docker rm -f "$old" >/dev/null 2>&1 || true; done < <(docker ps -aq --filter 'label=chimera.rootfs.export=true')
+    cid="$(docker create --label chimera.rootfs.export=true "$image")" || { log_error "docker create failed: $image"; return 1; }
+    tarball="$work/export/rootfs.tar"
+    log_info "Exporting $image -> $tarball"
+    if ! docker export "$cid" -o "$tarball"; then
+        docker logs "$cid" 2>&1 || true; docker rm -f "$cid" >/dev/null 2>&1 || true
+        log_error "docker export failed"; return 1
+    fi
+    docker rm -f "$cid" >/dev/null 2>&1 || true; cid=''
+    [[ -s "$tarball" ]] || { log_error "Docker export archive is empty: $tarball"; return 1; }
+    log_info "Extracting rootfs on Linux-native WSL storage"
+    tar --numeric-owner --xattrs --xattrs-include='*' --acls --same-permissions -xf "$tarball" -C "$work/rootfs" || { log_error "tar extraction failed; archive retained at $tarball"; return 1; }
+    [[ -d "$work/rootfs/etc" ]] || { log_error "Invalid exported rootfs: /etc missing"; return 1; }
+    stage="${dest}.chimera-new.$$"; rm -rf -- "$stage"; mkdir -p "$stage"
+    cp -a -- "$work/rootfs/." "$stage/"
+    rm -rf -- "$dest"; mv -- "$stage" "$dest"
+    [[ -d "$dest/etc" ]] || { log_error "Final rootfs validation failed"; return 1; }
+    rm -rf -- "$work/export" "$work/rootfs"
+    log_info "Rootfs export completed: $dest"
+}
+type log_info >/dev/null 2>&1 || log_info(){ printf '[INFO] %s\n' "$*"; }
+type log_error >/dev/null 2>&1 || log_error(){ printf '[ERROR] %s\n' "$*" >&2; }
+# CHIMERA_ROOTFS_DIAGNOSTICS_V1
+chimera_rootfs_err_report(){ local rc=$?; printf '[ERROR] rootfs command failed (rc=%s): %s\n' "$rc" "$BASH_COMMAND" >&2; return "$rc"; }
+
+
 # Copy only when source and destination are different filesystem objects.
 # This is intentionally used at every boot-artifact boundary so a build/output
 # directory alias cannot trigger cp's "same file" failure.
@@ -261,7 +306,9 @@ export_rootfs(){
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
-  # docker export produces a container filesystem tar, not a Docker image
+
+    log_info "STEP 2: exporting Docker rootfs"
+    chimera_export_docker_rootfs "$DOCKER_IMAGE:$DOCKER_TAG" "${ROOTFS_DIR}"
   # archive.  Extract it with delayed directory metadata restoration so
   # usr/local and deeply nested package trees are created before tar applies
   # their final permissions/timestamps.  This also avoids failures on WSL
