@@ -78,10 +78,9 @@ extern "C" int chimera_mk_endpoint_send(chimera_endpoint_t endpoint, chimera_cap
     uint32_t slot = (e.head + e.count) % QUEUE_DEPTH;
     e.queue[slot] = *msg;
     ++e.count;
-    if (e.handler) {
-        chimera_mk_message_t reply{};
-        (void)e.handler(msg, &reply);
-    }
+    /* Endpoint send only enqueues. Service code must execute in its own
+       schedulable context; invoking a handler here would run service logic
+       inside the sender's kernel call path and defeats isolation. */
     return CHIMERA_MK_OK;
 }
 
