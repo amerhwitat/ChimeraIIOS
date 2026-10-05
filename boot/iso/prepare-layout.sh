@@ -110,7 +110,7 @@ fi
 # Canonical kernel payload: the exact ELF validated by grub-file and loaded by GRUB's multiboot2 command.
 KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
 [[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
-cp "$KERNEL" "$DIST/boot/koronos/koronos.elf"
+chimera_copy_if_distinct "$KERNEL" "$DIST/boot/koronos/koronos.elf"
 
 # Bootloader source/artifacts and Jasper recovery configuration.
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
