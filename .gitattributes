@@ -6,3 +6,7 @@ Dockerfile text eol=lf
 Dockerfile.* text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+
+# Authorized large emulator/media assets
+emulation/emulators/** filter=lfs diff=lfs merge=lfs -text
+emulation/roms/authorized/** filter=lfs diff=lfs merge=lfs -text
