@@ -17,7 +17,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
       - name: Build Koronos ELF64
         run: bash kernel/build-koronos.sh
-      - name: Validate ELF64
+      - name: Test protected-process admission\n        run: |\n          g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission\n          /tmp/chimera-process-admission\n      - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
       - name: Assert no unresolved symbols
         run: test -z "$(nm -u build/koronos/x86_64/koronos.elf)"
