@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "bios_rules": {
+    "PlayStation": {"extensions": [".bin"], "required_for": ["duckstation","mednafen"], "classification": "heuristic"},
+    "PlayStation 2": {"extensions": [".bin"], "required_for": ["pcsx2","aethersx2"], "classification": "heuristic"},
+    "Sega Saturn": {"extensions": [".bin"], "required_for": ["mednafen","kronos"], "classification": "heuristic"},
+    "Sega Mega CD": {"extensions": [".bin"], "required_for": ["retroarch","mednafen"], "classification": "heuristic"},
+    "Neo Geo": {"extensions": [".bin",".rom"], "required_for": ["mame","retroarch"], "classification": "heuristic"},
+    "3DO": {"extensions": [".bin",".rom"], "required_for": ["retroarch","mednafen"], "classification": "heuristic"},
+    "Super Game Boy": {"extensions": [".sfc",".smc"], "required_for": ["retroarch","mednafen"], "classification": "heuristic"}
+  },
+  "note": "Filename and extension alone cannot prove BIOS identity. Exact BIOS recognition requires signature/database verification and provenance."
+}
