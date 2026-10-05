@@ -114,14 +114,5 @@ extern "C" uint32_t chimera_sched_snapshot(chimera_task_info* out,uint32_t cap){
     return n;
 }
 
-// ---------------------------------------------------------------------------
-// Koronos process bootstrap ABI
-// ---------------------------------------------------------------------------
-// koronos.cpp calls this C-ABI hook during early boot. scheduler.cpp is already
-// a linked Koronos translation unit, so defining the hook here guarantees the
-// symbol is emitted without relying on an additional CMake source entry.
-extern "C" void chimera_process_init()
-{
-    // Process bootstrap is intentionally idempotent. Scheduler task state is
-    // initialized by the scheduler subsystem itself.
-}
+
+
