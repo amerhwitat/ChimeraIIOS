@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOT="${CHIMERA_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+CATALOG="$ROOT/emulation/catalog/roms.local.json"
+if [[ ! -f "$CATALOG" ]]; then
+  echo "chimera-rom: local ROM catalog not found; run chimera-rom-scan first" >&2
+  exit 1
+fi
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 - "$CATALOG" <<'PY'
+import json,sys
+d=json.load(open(sys.argv[1],encoding="utf-8"))
+for r in d.get("roms",[]):
+    print(f"{r['path']} :: {', '.join(r.get('emulator_candidates',[]))}")
+PY
+fi
+cat "$CATALOG"
