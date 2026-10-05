@@ -1,0 +1,46 @@
+name: ChimeraIIOS Emulator Catalog Validation
+on:
+  push:
+    paths:
+      - "emulation/**"
+      - "tools/emulation/**"
+      - "system/kore/chimera-emulation-runtime.json"
+      - ".github/workflows/chimera-emulation.yml"
+  pull_request:
+    paths:
+      - "emulation/**"
+      - "tools/emulation/**"
+      - "system/kore/chimera-emulation-runtime.json"
+      - ".github/workflows/chimera-emulation.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON catalogs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib
+          files = [
+              "emulation/catalog/known-emulators.json",
+              "system/kore/chimera-emulation-runtime.json",
+          ]
+          for p in files:
+              json.loads(pathlib.Path(p).read_text())
+              print("[PASS]", p)
+          PY
+      - name: Validate PowerShell scanner syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            "tools/emulation/scan-roms.ps1",
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+          Write-Host "[PASS] scan-roms.ps1 syntax"
