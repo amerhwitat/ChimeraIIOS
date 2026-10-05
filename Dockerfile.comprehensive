@@ -422,6 +422,16 @@ RUN useradd -m -u 10001 chimera && \
     mkdir -p /workspace && \
     chown -R chimera:chimera /workspace
 
+# Keep the exported runtime image deterministic and free of host/package-manager
+# state that has no value inside an immutable Chimera ISO.
+RUN set -eux; \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/* /var/log/.* 2>/dev/null || true; \
+    rm -rf /var/tmp/* /tmp/* /run/* /root/.cache/*; \
+    find /opt/chimera /src/chimera -type d -name .git -prune -exec rm -rf {} + 2>/dev/null || true; \
+    find /opt/chimera /src/chimera -type d \( -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache \) -prune -exec rm -rf {} + 2>/dev/null || true; \
+    mkdir -p /var/log /var/tmp /tmp /run; \
+    chmod 1777 /tmp /var/tmp
+
 WORKDIR /workspace
 
 EXPOSE 8000 8080 9000 9001 5000 3000
