@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "name": "chimera-boot-to-aurora-runtime",
+  "stages": [
+    {
+      "id": "firmware",
+      "owner": "firmware"
+    },
+    {
+      "id": "bootloader",
+      "owner": "Spit Fire/Jasper"
+    },
+    {
+      "id": "koronos",
+      "owner": "Koronos"
+    },
+    {
+      "id": "hardware",
+      "owner": "Koronos+drivers"
+    },
+    {
+      "id": "userspace-init",
+      "owner": "Kore"
+    },
+    {
+      "id": "services",
+      "owner": "Kore/Nucleus/Hive/Aegis/Spotnik"
+    },
+    {
+      "id": "graphics",
+      "owner": "Aurora graphics service"
+    },
+    {
+      "id": "desktop",
+      "owner": "Aurora"
+    },
+    {
+      "id": "emulation",
+      "owner": "Aurora+Koronos"
+    },
+    {
+      "id": "mobile",
+      "owner": "Mobile Edition"
+    }
+  ],
+  "known_gaps": [
+    "protected user process execution is not yet complete",
+    "native compositor/display/input service ownership is not yet complete",
+    "mobile init is a bootstrap wrapper rather than a full service supervisor",
+    "filesystem/device/network services need explicit IPC contracts and restart/fault policy"
+  ]
+}
