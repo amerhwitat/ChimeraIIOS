@@ -159,7 +159,10 @@
     "chimera-terminal": "طرفية_شيميرا",
     "chimera-terminals": "الطرفيات_المتاحة",
     "chimera-shell-ar": "طرفية_عربية",
-    "chimera-locale": "لغة_شيميرا"
+    "chimera-locale": "لغة_شيميرا",
+    "chimera-emulator": "محاكي_شيميرا",
+    "chimera-rom": "روم_شيميرا",
+    "chimera-rom-scan": "فحص_روم_شيميرا"
   },
   "chimera-display": "إعداد_الشاشة",
   "chimera-gpu-driver-manager": "مدير_تعريفات_الرسومات",
@@ -333,6 +336,9 @@
     "طرفية_عربية": "chimera-shell-ar",
     "لغة_شيميرا": "chimera-locale",
     "عرض": "ls",
-    "اقرأ": "cat"
+    "اقرأ": "cat",
+    "محاكي_شيميرا": "chimera-emulator",
+    "روم_شيميرا": "chimera-rom",
+    "فحص_روم_شيميرا": "chimera-rom-scan"
   }
 }
