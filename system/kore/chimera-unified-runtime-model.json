@@ -1,0 +1,30 @@
+{
+  "schema":"CHM-UNIFIED-RUNTIME-MODEL-1",
+  "name":"Koronos Unified Resource Model",
+  "policy":"file, object and capability models coexist and may reference the same runtime resource without collapsing their security semantics",
+  "abi":{"owner":"Koronos","version":"1.0","header":"kernel/include/chimera/koronos_abi.h"},
+  "models":{
+    "file":{"role":"path-oriented persistent namespace","security":"capability checked","examples":["regular-file","directory","device-node","socket"]},
+    "object":{"role":"typed in-memory lifecycle resource","implementation":"kernel/include/chimera/object.h","examples":["Runnable","ServiceObject","DeviceObject"]},
+    "capability":{"role":"unforgeable authorization reference","policy":"privileged operations require capability","registry":"config/linux-command-registry.json"}
+  },
+  "resolution":{
+    "command":"argv0 -> Arabic/canonical registry -> canonical provider -> capability policy",
+    "boot":"firmware -> Spit Fire/Jasper/GRUB -> canonical Koronos ELF -> runtime services",
+    "media":"manifest -> file/object metadata -> Aurora association/player/service"
+  },
+  "media":{
+    "catalog":"desktop/aurora/aurora_media_ecosystem.json",
+    "source_first":true,
+    "file_associations":true,
+    "metadata":true,
+    "thumbnailers":true,
+    "hardware_acceleration":true
+  },
+  "artifacts":{
+    "canonical_kernel":"/boot/koronos/koronos.elf",
+    "live_initramfs":"/boot/live/chimera-live-initramfs.img",
+    "recovery_initramfs":"/boot/recovery/chimera-recovery-initramfs.img",
+    "uefi_loader":"/EFI/BOOT/BOOTX64.EFI"
+  }
+}
