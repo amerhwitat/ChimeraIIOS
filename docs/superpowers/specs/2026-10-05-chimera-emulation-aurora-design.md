@@ -62,6 +62,16 @@ MAME's documented `-version`, `-listfull`, `-listmedia`, `-listsoftware`, and `-
 - Keep ROM/media access in an isolated user-space emulator service. The microkernel receives capability-scoped requests and must not scan ROM folders or handle media contents as part of startup.
 - Mirror relevant registry, policy, UI, and tests into the existing Mobile Edition/Aurora Mobile surfaces in the same reviewed change set. Do not copy desktop-only binaries or the user's local catalog into `Mobile Microkernel` or mobile packages.
 
+## ISO staging and optional redistributable media
+
+The root `build-chimera-iso.sh` already has a `games` staging phase that copies the game registry and content under `ISO_DIR/games`. Extend that phase to stage the Aurora emulation registry, system/media metadata, and an empty `games/roms` directory so the generated image exposes the emulator section without requiring a library copy.
+
+ROM payload inclusion is opt-in and allowlist-based. Accept a local `CHIMERA_ROM_ROOT` (including a Windows path translated for a WSL build) and a separately supplied redistribution manifest. Copy a file into `ISO_DIR/games/roms` only when the manifest identifies that exact relative path, SHA-256, license, and explicit redistribution permission; reject path traversal, symlink escapes, changed hashes, missing license data, and any unlisted file. The user's collection has not had per-file redistribution rights verified, so the default ISO build must not copy it. A local catalog is not an ISO distribution manifest.
+
+Stage only the emulator binaries produced by the trusted source build/release flow and their license notices. Do not include the unverified emulator archive from the local collection. Track the allowlist/source fingerprint as part of the `games` stage resume state so changes cannot leave stale media in a resumed ISO. Report payload file count and bytes in the build report and account for them in the free-space estimate.
+
+When an image contains approved media, expose its `games/roms` directory read-only to Aurora/MAME at runtime and keep installed user media separate. When the image contains no approved ROMs, the same emulator panel still opens against the user's configured local media root.
+
 ## Acceptance criteria
 
 - Inventory is deterministic and reports partial/read errors without dropping prior catalog entries silently.
@@ -73,6 +83,8 @@ MAME's documented `-version`, `-listfull`, `-listmedia`, `-listsoftware`, and `-
 - A real MAME smoke check is reported separately from fake-MAME unit tests. Do not claim support for any local file unless the installed target MAME build confirms it.
 - Mobile sync validation confirms the portable registry/policy is consistent with Mobile Edition; platform-specific backend availability remains capability-reported.
 - Repository changes contain no local ROM/BIOS files or unverified emulator archives; any separately proposed redistributable asset has an explicit license/provenance record and repository-size review.
+- Default ISO staging creates the emulator section but copies no ROM payload; an allowlisted test fixture is staged, while unlisted, modified, unlicensed, or path-escaping files are rejected.
+- ISO build resume invalidates the games stage when its registry, allowlist, or payload fingerprint changes; the report records approved payload count/size.
 
 ## Out of scope
 
