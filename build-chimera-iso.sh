@@ -144,6 +144,15 @@ fi
 
 free_bytes(){ df -PB1 "$1" 2>/dev/null | awk 'NR==2{print $4}'; }
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
+docker_image_bytes(){ docker image inspect "$1" --format '{{.Size}}' 2>/dev/null | awk 'NR==1{print $1+0}'; }
+cleanup_generated_build_artifacts(){
+  # Only remove artifacts produced by previous Chimera builds. Repository source,
+  # ROM catalogs, authorized media and OS assets are never touched.
+  rm -rf -- "$ISO_DIR/rootfs" "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" 2>/dev/null || true
+  find "$BUILD_DIR" -maxdepth 2 -type f \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' \) -delete 2>/dev/null || true
+  docker container prune -f >/dev/null 2>&1 || true
+  docker image prune -f >/dev/null 2>&1 || true
+}
 is_writable_dir(){
   local dir="$1" probe
   [[ -d "$dir" && -w "$dir" ]] || return 1
@@ -228,10 +237,25 @@ build_docker(){
 
 export_rootfs(){
   header 'STEP 2: EXPORT DOCKER ROOTFS'
+  cleanup_generated_build_artifacts
   mkdir -p "$ROOTFS_DIR"
   rm -rf "$ROOTFS_DIR"/*
   local cname="chimera-export-$BASHPID"
   local tar_rc=1
+  local image_bytes=0 free_now=0 required_bytes=0
+  local safety_bytes=$((4 * 1024 * 1024 * 1024))
+  image_bytes="$(docker_image_bytes "$DOCKER_IMAGE:$DOCKER_TAG")"
+  free_now="$(free_bytes "$ROOTFS_DIR")"
+  required_bytes=$((image_bytes + safety_bytes))
+  log_info "Docker image virtual size: $((image_bytes / 1024 / 1024 / 1024)) GiB"
+  log_info "Rootfs target free space: $((free_now / 1024 / 1024 / 1024)) GiB"
+  log_info "Rootfs export safety requirement: $((required_bytes / 1024 / 1024 / 1024)) GiB"
+  if (( free_now < required_bytes )); then
+    log_error "Insufficient free space for Docker rootfs export."
+    log_error "Required: $((required_bytes / 1024 / 1024 / 1024)) GiB; available: $((free_now / 1024 / 1024 / 1024)) GiB"
+    log_error "Use --storage-auto or --storage /path/to/a-writable-large-filesystem."
+    exit 1
+  fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
   docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
@@ -242,9 +266,24 @@ export_rootfs(){
   # usr/local and deeply nested package trees are created before tar applies
   # their final permissions/timestamps.  This also avoids failures on WSL
   # and other filesystems that reject directory metadata during creation.
+  # Exclude volatile host/package-manager state from the immutable ISO rootfs.
   local tar_args=(-xpf - -C "$ROOTFS_DIR"
                   --no-same-owner --no-same-permissions
                   --delay-directory-restore
+                  --exclude=./var/log/*
+                  --exclude=./var/cache/*
+                  --exclude=./var/tmp/*
+                  --exclude=./var/lib/apt/lists/*
+                  --exclude=./var/lib/dpkg/updates/*
+                  --exclude=./var/lib/systemd/coredump/*
+                  --exclude=./var/lib/systemd/random-seed
+                  --exclude=./var/lib/NetworkManager/*
+                  --exclude=./var/spool/*
+                  --exclude=./var/run/*
+                  --exclude=./run/*
+                  --exclude=./tmp/*
+                  --exclude=./root/.cache/*
+                  --exclude=./home/*/.cache/*
                   --checkpoint=10000
                   --checkpoint-action="echo=[ROOTFS] extracted %T")
   if command -v pv >/dev/null 2>&1; then
@@ -266,8 +305,13 @@ export_rootfs(){
 
   (( tar_rc==0 )) || {
     log_error "Docker rootfs export failed (tar exit $tar_rc)"
+    log_error "Target filesystem after failure: $(df -h "$ROOTFS_DIR" 2>/dev/null | tail -1 || true)"
+    log_error "Generated rootfs usage: $(du -sh "$ROOTFS_DIR" 2>/dev/null | tail -1 || true)"
     exit 1
   }
+  mkdir -p "$ROOTFS_DIR"/{run,tmp,var/log,var/cache,var/tmp,var/spool}
+  chmod 1777 "$ROOTFS_DIR/tmp" "$ROOTFS_DIR/var/tmp" 2>/dev/null || true
+  rm -rf -- "$ROOTFS_DIR/var/lib/apt/lists/"* "$ROOTFS_DIR/root/.cache" 2>/dev/null || true
   [[ -d "$ROOTFS_DIR/bin" || -d "$ROOTFS_DIR/usr/bin" ]] || {
     log_error 'Rootfs export is incomplete'
     exit 1
