@@ -1,24 +1,5 @@
 #!/usr/bin/env bash
 
-chimera_copy_if_distinct() {
-    local src="$1"
-    local dst="$2"
-
-    mkdir -p "$(dirname "$dst")"
-
-    local src_real dst_real
-    src_real="$(realpath -m "$src")"
-    dst_real="$(realpath -m "$dst")"
-
-    if [[ "$src_real" == "$dst_real" ]]; then
-        echo "[CHIMERA] SKIP self-copy: $src_real"
-        return 0
-    fi
-
-    cp -f -- "$src" "$dst"
-}
-#!/usr/bin/env bash
-
 # --- Chimera II OS standard help ---
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
@@ -37,6 +18,22 @@ CHIMERA_HELP
   exit 0
 fi
 set -Eeuo pipefail
+
+# Copy only when source and destination are different filesystem objects.
+# This is intentionally used at every boot-artifact boundary so a build/output
+# directory alias cannot trigger cp's "same file" failure.
+chimera_copy_if_distinct() {
+  local src="$1" dst="$2"
+  mkdir -p "$(dirname "$dst")"
+  local src_real dst_real
+  src_real="$(realpath -m "$src")"
+  dst_real="$(realpath -m "$dst")"
+  if [[ "$src_real" == "$dst_real" ]]; then
+    echo "[CHIMERA] SKIP self-copy: $src_real"
+    return 0
+  fi
+  cp -f -- "$src" "$dst"
+}
 
 # Chimera II OS comprehensive ISO builder.
 # The SquashFS stage is deliberately non-append and transactionally replaces
@@ -244,21 +241,21 @@ create_boot_menu(){
   "$SCRIPT_DIR/kernel/build-koronos.sh"
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
-  cp "$k" "$ISO_DIR/boot/kernel.bin"; cp "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
   for f in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o; do [[ -s "$b/spitfire/$f" ]] || { log_error "Missing Spit Fire artifact: $f"; exit 1; }; cp "$b/spitfire/$f" "$ISO_DIR/boot/spitfire/"; done
   bash "$SCRIPT_DIR/tools/build-live-boot-binaries.sh"
-  cp "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/"
-  cp "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/chimera-live-initramfs.img"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/live-manifest.json"
   mkdir -p "$ISO_DIR/boot/recovery" "$ISO_DIR/recovery"
-  cp "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img" "$ISO_DIR/boot/recovery/"
-  cp "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img.sha256" "$ISO_DIR/boot/recovery/"
-  cp "$BUILD_DIR/live-boot/boot/recovery/recovery-manifest.json" "$ISO_DIR/boot/recovery/"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img.sha256"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/recovery-manifest.json" "$ISO_DIR/boot/recovery/recovery-manifest.json"
   cp "$SCRIPT_DIR/config/recovery/chimera-recovery-targets.json" "$ISO_DIR/recovery/"
   cp "$SCRIPT_DIR/docs/recovery-runtime-levels.md" "$ISO_DIR/recovery/"
-  [[ -s "$BUILD_DIR/live-boot/boot/vmlinuz" ]] && cp "$BUILD_DIR/live-boot/boot/vmlinuz" "$ISO_DIR/boot/live/" || true
+  [[ -s "$BUILD_DIR/live-boot/boot/vmlinuz" ]] && chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/vmlinuz" "$ISO_DIR/boot/live/vmlinuz" || true
   [[ -f "$SCRIPT_DIR/boot/iso/grub.cfg" ]] && cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/grub/grub.cfg"
   [[ -f "$SCRIPT_DIR/boot/jasper/recovery.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/recovery.cfg" "$ISO_DIR/boot/jasper/recovery.cfg"
   [[ -f "$SCRIPT_DIR/boot/jasper/live.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/live.cfg" "$ISO_DIR/boot/jasper/live.cfg"
