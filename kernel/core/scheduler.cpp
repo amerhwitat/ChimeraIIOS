@@ -94,12 +94,34 @@ extern "C" void chimera_sched_wake(uint32_t task_id){
 }
 extern "C" void chimera_sched_exit(void){
     for(uint32_t cpu=0;cpu<cpus;cpu++){ lock(); int32_t i=current_index[cpu];
-        if(i>=0) tasks[(uint32_t)i].info.state=CHIMERA_TASK_EXITED; unlock(); }
+        if (i >= 0) {
+            tasks[(uint32_t)i].info.state = CHIMERA_TASK_EXITED;
+        }
+        unlock();
+    }
 }
 extern "C" uint32_t chimera_sched_runnable_count(void){
     uint32_t n=0; lock(); for(uint32_t i=0;i<count;i++) if(tasks[i].info.state==CHIMERA_TASK_READY) ++n; unlock(); return n;
 }
 extern "C" uint32_t chimera_sched_snapshot(chimera_task_info* out,uint32_t cap){
-    if(!out) return 0; lock(); uint32_t n=count<cap?count:cap;
-    for(uint32_t i=0;i<n;i++) out[i]=tasks[i].info; unlock(); return n;
+    if (!out) return 0;
+    lock();
+    uint32_t n = count < cap ? count : cap;
+    for (uint32_t i = 0; i < n; i++) {
+        out[i] = tasks[i].info;
+    }
+    unlock();
+    return n;
+}
+
+// ---------------------------------------------------------------------------
+// Koronos process bootstrap ABI
+// ---------------------------------------------------------------------------
+// koronos.cpp calls this C-ABI hook during early boot. scheduler.cpp is already
+// a linked Koronos translation unit, so defining the hook here guarantees the
+// symbol is emitted without relying on an additional CMake source entry.
+extern "C" void chimera_process_init()
+{
+    // Process bootstrap is intentionally idempotent. Scheduler task state is
+    // initialized by the scheduler subsystem itself.
 }
