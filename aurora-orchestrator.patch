@@ -1,0 +1,14 @@
+*** Begin Patch
+*** Update File: koronos-build-orchestrator.sh
+@@
++# ------------------------------------------------------------
++# Stage 4a: Aurora Applications/menu generation. This runs after the
++# application/rootfs payload exists and before ISO mastering so all
++# discovered terminal applications are captured in Aurora.
++# ------------------------------------------------------------
++if [[ -x "$ROOT/tools/aurora/generate-applications-menu.sh" ]]; then
++    run_step "aurora-applications-menu" bash "$ROOT/tools/aurora/generate-applications-menu.sh" \
++        || die "Aurora Applications/menu generation failed."
++fi
++
+*** End Patch
