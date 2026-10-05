@@ -52,3 +52,4 @@ jobs:
             }
             Write-Host "[PASS] $file syntax"
           }
+          & .\tools\emulation\test-scan-roms.ps1
