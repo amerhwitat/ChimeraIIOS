@@ -54,7 +54,7 @@ g++ -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-
 nasm -f elf64 "$ROOT/boot/jasper/jasper_entry.asm" -o "$JASPER_BUILD/jasper_entry.o"
 ld -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/boot/jasper/jasper.ld" "$JASPER_BUILD/jasper_entry.o" "$JASPER_BUILD/jasper_main.o" -o "$JASPER_BUILD/jasper.elf"
 cp "$JASPER_BUILD/jasper.elf" "$OUT/jasper/jasper.elf"
-cp "$KORONOS" "$OUT/koronos/koronos.elf"
+chimera_copy_if_distinct "$KORONOS" "$OUT/koronos/koronos.elf"
 if command -v grub-mkimage >/dev/null 2>&1; then
   MODDIR=""
   for d in /usr/lib/grub/i386-pc /usr/lib/grub/i386-pc-eltorito; do [[ -d "$d" ]] && { MODDIR="$d"; break; }; done
