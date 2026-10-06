@@ -57,7 +57,7 @@ done < <(find . -type f -name '*.json' -not -path './.git/*' -print0)
       - name: Upload compiled artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-koronos-\${{ github.sha }}
+          name: chimera-koronos-artifacts
           if-no-files-found: error
           retention-days: 14
           path: |
