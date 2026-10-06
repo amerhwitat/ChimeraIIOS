@@ -1,0 +1,27 @@
+name: Web UI integrity and glue audit
+on:
+  push:
+    branches: [main]
+    paths: ['web/**','tools/network/**','.github/workflows/web-ui-integrity.yml']
+  pull_request:
+    paths: ['web/**','tools/network/**','.github/workflows/web-ui-integrity.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit local links, fragments and JavaScript
+        run: python3 tools/web-ui/audit.py
+      - name: Validate JSON
+        run: |
+          python3 -m json.tool web/manifest.json >/dev/null
+          python3 -m json.tool web/desktop_profiles.json >/dev/null
+          python3 -m json.tool web/game-center-manifest.json >/dev/null
+      - name: Validate signaling package
+        run: node --check tools/network/signaling-server.mjs
