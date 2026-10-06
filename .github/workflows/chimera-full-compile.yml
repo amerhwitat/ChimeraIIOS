@@ -1,0 +1,63 @@
+name: Chimera II OS — Full Compile and Validation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install build toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential cmake ninja-build nasm binutils python3 python3-pip python3-venv jq shellcheck grub-pc-bin grub-efi-amd64-bin xorriso squashfs-tools mtools qemu-system-x86 ovmf
+      - name: Validate shell scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' f; do bash -n "$f"; done < <(find . -type f \( -name '*.sh' -o -name '*.bash' \) -not -path './.git/*' -print0)
+      - name: Validate JSON manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' f; do jq empty "$f" >/dev/null; done < <(find . -type f -name '*.json' -not -path './.git/*' -print0)
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build/ci -G Ninja -DCHIMERA_ENABLE_EXPERIMENTAL=ON -DCHIMERA_ENABLE_CVEL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=ON -DCHIMERA_ENABLE_X86_ASM=ON
+      - name: Compile complete CMake graph
+        run: cmake --build build/ci --parallel 2
+      - name: Compile Koronos kernel and N-bit artifacts
+        run: |
+          chmod +x kernel/build-koronos.sh
+          ./kernel/build-koronos.sh
+      - name: Validate Koronos artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s build/koronos/x86_64/koronos.elf
+          readelf -h build/koronos/x86_64/koronos.elf | grep -Eq 'Class:[[:space:]]+ELF64'
+          test -s build/koronos/x86_64/koronos.elf64
+          for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do test -s "build/koronos/x86_64/nbit/koronos-nbit-$bits.elf"; done
+      - name: Validate ISO builder
+        run: |
+          chmod +x build-chimera-iso.sh
+          bash -n build-chimera-iso.sh
+          ./build-chimera-iso.sh --help
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-koronos-\${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/koronos/x86_64/koronos.elf
+            build/koronos/x86_64/koronos.elf64
+            build/koronos/x86_64/nbit/*.elf
