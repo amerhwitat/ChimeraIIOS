@@ -1,0 +1,36 @@
+{
+  "version":1,
+  "policy":"Curated free/open-source catalog. Native binaries and original game data remain local; GitHub Pages contains metadata only.",
+  "games":[
+    ["supertuxkart","SuperTuxKart","3D Racing","GPL-3.0",true,"native-elf","https://github.com/supertuxkart/stk-code","https://supertuxkart.net/"],
+    ["luanti","Luanti","3D Voxel","LGPL-2.1",true,"native-elf","https://github.com/luanti-org/luanti","https://www.luanti.org/"],
+    ["xonotic","Xonotic","3D Arena FPS","GPL-2.0+",true,"native-elf","https://gitlab.com/xonotic/xonotic","https://www.xonotic.org/"],
+    ["red-eclipse","Red Eclipse","3D Arena FPS","Zlib/GPL",true,"native-elf","https://github.com/red-eclipse/base","https://www.redeclipse.net/"],
+    ["veloren","Veloren","3D RPG","GPL-3.0",true,"native-elf","https://gitlab.com/veloren/veloren","https://veloren.net/"],
+    ["unvanquished","Unvanquished","3D Strategy/FPS","GPL-2.0+",true,"native-elf","https://github.com/Unvanquished/Unvanquished","https://www.unvanquished.net/"],
+    ["flightgear","FlightGear","3D Flight Simulator","GPL-2.0+",true,"native-elf","https://gitlab.com/flightgear/flightgear","https://www.flightgear.org/"],
+    ["stunt-rally","Stunt Rally","3D Rally","GPL-3.0",false,"native-elf","https://github.com/stuntrally/stuntrally","https://stuntrally.tuxfamily.org/"],
+    ["0ad","0 A.D.","RTS","GPL-2.0+",true,"native-elf","https://github.com/0ad/0ad","https://play0ad.com/"],
+    ["openra","OpenRA","RTS","GPL-3.0",true,"native-elf","https://github.com/OpenRA/OpenRA","https://www.openra.net/"],
+    ["endless-sky","Endless Sky","2D Space","GPL-3.0",false,"native-elf","https://github.com/endless-sky/endless-sky","https://endless-sky.github.io/"],
+    ["hedgewars","Hedgewars","2D Strategy","GPL-2.0+",true,"native-elf","https://github.com/hedgewars/hw","https://www.hedgewars.org/"],
+    ["wesnoth","Battle for Wesnoth","Turn-based Strategy","GPL-2.0+",true,"native-elf","https://github.com/wesnoth/wesnoth","https://www.wesnoth.org/"],
+    ["super-tux","SuperTux","2D Platformer","GPL-3.0",false,"native-elf","https://github.com/SuperTux/supertux","https://supertux.github.io/"],
+    ["openmw","OpenMW","RPG Engine","GPL-3.0",false,"native-elf","https://gitlab.com/OpenMW/openmw","https://openmw.org/"],
+    ["lugaru","LUGARU HD","3D Action","GPL-2.0",false,"native-elf","https://github.com/osslugaru/lugaru","https://osslugaru.org/"],
+    ["openjk","OpenJK","3D Action","GPL-2.0",true,"native-elf","https://github.com/JACoders/OpenJK","https://github.com/JACoders/OpenJK"],
+    ["freeciv","Freeciv","Strategy","GPL-2.0+",true,"native-elf","https://github.com/freeciv/freeciv","https://www.freeciv.org/"],
+    ["the-dark-mod","The Dark Mod","3D Stealth","GPL-3.0",false,"native-elf","https://www.thedarkmod.com/","https://www.thedarkmod.com/"],
+    ["luanti-games","Luanti Game Collection","Voxel Games","Open-source",true,"native-elf","https://content.luanti.org/","https://www.luanti.org/"]
+  ],
+  "assetSources":[
+    ["kenney-3d","Kenney 3D / UI","CC0-1.0","https://kenney.nl/assets"],
+    ["quaternius","Quaternius 3D","CC0","https://quaternius.com/"],
+    ["kaykit","KayKit","CC0","https://kaylousberg.com/game-assets"],
+    ["polyhaven","Poly Haven","CC0","https://polyhaven.com/"],
+    ["ambientcg","ambientCG","CC0","https://ambientcg.com/"],
+    ["opengameart","OpenGameArt","Mixed; verify each item","https://opengameart.org/"]
+  ],
+  "featuredAssetProfiles":{"3D Racing":["kenney-3d","polyhaven"],"3D Voxel":["kenney-3d","quaternius","opengameart"],"3D Arena FPS":["kenney-3d","ambientcg"],"3D RPG":["quaternius","kenney-3d","polyhaven"],"3D Strategy/FPS":["kenney-3d","ambientcg"],"3D Flight Simulator":["polyhaven","ambientcg"],"3D Rally":["kenney-3d","polyhaven"],"RTS":["kenney-3d","opengameart"],"2D Space":["opengameart"],"2D Strategy":["opengameart"],"Turn-based Strategy":["opengameart"],"2D Platformer":["opengameart","kenney-3d"],"3D Action":["kenney-3d","quaternius"],"Strategy":["opengameart"],"RPG Engine":["kenney-3d","polyhaven"],"3D Stealth":["kenney-3d","ambientcg"]},
+  "artworkPolicy":{"hero":"desktop/aurora/assets/library/Aurora-Wayland-Glass-Desktop.png(1).jpg","fallback":"SVG/CSS Aurora Glass","rule":"Only verified free/open-source external art may be imported; retain license and attribution metadata."}
+}
