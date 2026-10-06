@@ -532,32 +532,96 @@ stage_features(){
   [[ -f "$SCRIPT_DIR/system/boot/chimera-log.conf" ]] && cp -f "$SCRIPT_DIR/system/boot/chimera-log.conf" "$ROOTFS_DIR/etc/chimera/" || true
   [[ -f "$SCRIPT_DIR/system/aurora/chimera-log-window.desktop" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-log-window.desktop" "$ROOTFS_DIR/usr/share/applications/" 2>/dev/null || true
   [[ -f "$SCRIPT_DIR/system/aurora/chimera-log-window.service" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-log-window.service" "$ROOTFS_DIR/etc/systemd/system/" 2>/dev/null || true
+
+  # Native Aurora installer UI + hardware-aware installation planner.
+  mkdir -p "$ROOTFS_DIR/usr/share/chimera/installer"
+  for f in installer/chimera_installer.py installer/installer-manifest.json installer/installation_phases.json installer/installer_profiles.json installer/tool_profiles.json; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/installer/"
+  done
+  if [[ -f "$SCRIPT_DIR/installer/gui/aurora-installer.sh" ]]; then
+    cp -f "$SCRIPT_DIR/installer/gui/aurora-installer.sh" "$ROOTFS_DIR/usr/share/chimera/installer/aurora-installer.sh"
+    chmod +x "$ROOTFS_DIR/usr/share/chimera/installer/aurora-installer.sh"
+  fi
+  [[ -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" "$ROOTFS_DIR/usr/share/applications/"
 }
 
 stage_games(){ local d="$ISO_DIR/games"; mkdir -p "$d"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" "$d/"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" "$d/"; [[ -d "$SCRIPT_DIR/games" ]] && cp -a "$SCRIPT_DIR/games/." "$d/" 2>/dev/null || true; }
 
 create_installer(){
-  local p; mkdir -p "$ISO_DIR/install/installer"; p="$(mktemp -d "$ISO_TMP_DIR/installer.XXXXXX")"
+  header 'STEP 7: BUILD NATIVE INSTALLER MEDIA'
+  local p
+  mkdir -p "$ISO_DIR/install/installer"
+  p="$(mktemp -d "$ISO_TMP_DIR/installer.XXXXXX")"
+
   mkdir -p "$p"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer,lib,lib/firmware,lib/chimera/drivers} "$p/run/chimera" "$p/var/log/mesgs/archive"
-  ln -sfn /var/log/mesgs "$p/var/log/chimera"; ln -sfn mesgs "$p/var/log/messages"
-  local bb="$(command -v busybox || true)"; [[ -n "$bb" ]] && { cp "$bb" "$p/bin/busybox"; for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head wget ip udhcpc nslookup gzip; do ln -sf busybox "$p/bin/$x"; done; }
-  [[ -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" ]] && cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh" && chmod +x "$p/bin/chimera-installer-runtime.sh"
-  for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$p/bin/"; done
-  [[ -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" ]] && mkdir -p "$p/etc/chimera/drivers" && cp -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" "$p/etc/chimera/drivers/"
-  [[ -f "$SCRIPT_DIR/config/drivers/driver-policy.json" ]] && mkdir -p "$p/etc/chimera/drivers" && cp -f "$SCRIPT_DIR/config/drivers/driver-policy.json" "$p/etc/chimera/drivers/"
-  for f in "$SCRIPT_DIR/install/installer-contract.json" "$SCRIPT_DIR/installer/installation_phases.json" "$SCRIPT_DIR/installer/installer_profiles.json" "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$p/chimera/installer/"; done
-  cat > "$p/bin/chimera-installer-monitor" <<'EOF'
+  ln -sfn /var/log/mesgs "$p/run/chimera/mesgs"
+  ln -sfn mesgs "$p/var/log/messages"
+
+  local bb="$(command -v busybox || true)"
+  [[ -n "$bb" ]] || { log_error "busybox is required to build the native installer initramfs"; rm -rf "$p"; exit 1; }
+  cp -f "$bb" "$p/bin/busybox"
+  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio; do
+    ln -sf busybox "$p/bin/$x"
+  done
+
+  if [[ -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" ]]; then
+    cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh"
+    chmod +x "$p/bin/chimera-installer-runtime.sh"
+  fi
+
+  for f in \
+    "$SCRIPT_DIR/install/installer-contract.json" \
+    "$SCRIPT_DIR/install/installation-manifest.json" \
+    "$SCRIPT_DIR/installer/installation_phases.json" \
+    "$SCRIPT_DIR/installer/installer_profiles.json" \
+    "$SCRIPT_DIR/installer/profiles/chimera-installer-features.json" \
+    "$SCRIPT_DIR/installer/profiles/filesystem-support.json"; do
+    [[ -f "$f" ]] || continue
+    cp -f "$f" "$p/chimera/installer/"
+  done
+
+  if [[ -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" ]]; then
+    mkdir -p "$p/etc/chimera/drivers"
+    cp -f "$SCRIPT_DIR/config/drivers/driver-repositories.json" "$p/etc/chimera/drivers/"
+  fi
+  if [[ -f "$SCRIPT_DIR/config/drivers/driver-policy.json" ]]; then
+    mkdir -p "$p/etc/chimera/drivers"
+    cp -f "$SCRIPT_DIR/config/drivers/driver-policy.json" "$p/etc/chimera/drivers/"
+  fi
+
+  cat > "$p/init" <<'EOF'
 #!/bin/sh
-while :; do date; sleep 5; done
+set -eu
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+mkdir -p /proc /sys /dev /run /tmp /mnt /target
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+echo "CHIMERA II OS — NATIVE INSTALLER"
+echo "[INST] Koronos installer environment online"
+echo "[INST] Aurora installation contracts loaded"
+if [ -x /bin/chimera-installer-runtime.sh ]; then
+  /bin/chimera-installer-runtime.sh /
+fi
+echo "[INST] Installation environment ready"
+exec /bin/sh
 EOF
-  chmod +x "$p/bin/chimera-installer-monitor"
-  if [[ -x "$SCRIPT_DIR/tools/build-installation-media.sh" ]]; then bash "$SCRIPT_DIR/tools/build-installation-media.sh" "$p"; fi
-  if [[ -f "$p/installation.img" ]]; then cp -f "$p/installation.img" "$ISO_DIR/install/installer/installation.img"; else dd if=/dev/zero of="$ISO_DIR/install/installer/installation.img" bs=1M count=8 status=none; fi
-  [[ -f "$SCRIPT_DIR/install/installation-manifest.json" ]] && cp -f "$SCRIPT_DIR/install/installation-manifest.json" "$ISO_DIR/install/installer/"
-  [[ -f "$SCRIPT_DIR/install/installer-contract.json" ]] && cp -f "$SCRIPT_DIR/install/installer-contract.json" "$ISO_DIR/install/installer/"
-  [[ -f "$SCRIPT_DIR/installer/installation_phases.json" ]] && cp -f "$SCRIPT_DIR/installer/installation_phases.json" "$ISO_DIR/install/installer/"
-  [[ -f "$SCRIPT_DIR/installer/installer_profiles.json" ]] && cp -f "$SCRIPT_DIR/installer/installer_profiles.json" "$ISO_DIR/install/installer/"
+  chmod +x "$p/init"
+
+  (
+    cd "$p"
+    find . -print0 | cpio --null --format=newc --create --quiet
+  ) | gzip -9 > "$ISO_DIR/install/installer/installation.img"
+
+  cp -f "$SCRIPT_DIR/install/installation-manifest.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
+  cp -f "$SCRIPT_DIR/install/installer-contract.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
+  cp -f "$SCRIPT_DIR/installer/installation_phases.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
+  cp -f "$SCRIPT_DIR/installer/installer_profiles.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
+  cp -f "$ISO_DIR/install/installer/installation.img" "$ISO_DIR/install/installer/installer-initrd.img"
+
   rm -rf "$p"
+  [[ -s "$ISO_DIR/install/installer/installation.img" ]] || { log_error "Installer initramfs is empty"; exit 1; }
+  log_success "Native installer initramfs created: $ISO_DIR/install/installer/installation.img"
 }
 
 build_squashfs(){
@@ -654,12 +718,13 @@ main(){
   preflight
   check_deps
   local completed="$(state_get)"
-  for stage in docker rootfs boot branding apache features games squashfs iso verify report; do
+  for stage in docker rootfs boot installer branding apache features games squashfs iso verify report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
       rootfs) run_stage rootfs export_rootfs;;
       boot) run_stage boot create_boot_menu;;
+      installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
       apache) run_stage apache prepare_apache;;
       features) run_stage features stage_features;;
