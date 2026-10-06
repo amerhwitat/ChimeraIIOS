@@ -101,7 +101,7 @@ async function checkBridge(){
  catch(e){$('#bridgeDot').className='dot bad';$('#bridgeText').textContent='Local bridge: offline';if($('#mameRuntimeStatus'))$('#mameRuntimeStatus').textContent='Core: browser core optional · native bridge offline · ROMs: user-supplied · storage: IndexedDB';if($('#mameCoreBadge'))$('#mameCoreBadge').textContent=mameCore.loaded?'Browser core: staged':'Browser core: not loaded';$('#amigaStatus').textContent='Bridge offline. Install/start tools/amiga-local-core/bridge.py locally to launch the Amiga core.';return false}
 }
 function show(view){$$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));$$('.hub-nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));location.hash=view}
-function setupNav(){$$('.hub-nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));const h=location.hash.slice(1);if(h&&$('#view-'+h))show(h)}
+function setupNav(){$('.hub-nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));const h=location.hash.slice(1);if(h&&($('#view-'+h)||h==='thamudic'))show(h);window.addEventListener('hashchange',()=>{const x=location.hash.slice(1);if(x&&($('#view-'+x)||x==='thamudic'))show(x)})}
 function overview(){metrics('#overviewMetrics',[['Systems',systems.length],['Games',gameCatalog.length],['BizX modules',bizxModules.length],['BizXtreme events',bx.events.length],['Input actions',Object.keys(controls).length],['DB schema','v3']])}
 function renderMame(){
  const q=($('#mameSearch').value||'').toLowerCase(), f=$('#mameFilter').value;
