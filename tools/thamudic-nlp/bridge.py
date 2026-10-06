@@ -65,6 +65,14 @@ class H(BaseHTTPRequestHandler):
         try: data=req_json(self)
         except Exception as e:return j(self,400,{"error":str(e)})
         try:
+          if self.path=="/ocr/capabilities":
+            langs=tesseract_languages()
+            return j(self,200,{"engine":"tesseract" if langs else "browser-fallback","installed":langs,"ancientLanguages":{k:v for k,v in OCR_LANGS.items() if v in langs},"thamudic":{"segmentation":True,"customModel":(DATA/"model.json").exists()}})
+          if self.path=="/ocr/scan":
+            raw=base64.b64decode(str(data.get("image","")).split(",",1)[-1])
+            result=run_tesseract(raw,str(data.get("language","auto")),int(data.get("psm",6)))
+            result["script"]=data.get("script","auto"); result["automatic"]=data.get("language","auto")=="auto"
+            return j(self,200,result)
           if self.path=="/thamudic/search": return j(self,200,{"results":wikimedia_search(str(data.get("query","Thamudic inscription")),int(data.get("limit",20)))})
           if self.path=="/thamudic/crawl":
             results=[]
@@ -82,7 +90,7 @@ class H(BaseHTTPRequestHandler):
             # Do not invent historical readings. Return existing labels or uncertainty.
             for g in glyphs:
               g.setdefault("glyph","□");g.setdefault("translit","?");g.setdefault("confidence",0)
-            return j(self,200,{"glyphs":glyphs,"transliteration":"".join(g.get("translit","?") for g in glyphs),"translation":"","warning":"Research hypothesis only; no OCR and no unsupported historical translation generated."})
+            return j(self,200,{"glyphs":glyphs,"transliteration":"".join(g.get("translit","?") for g in glyphs),"translation":"","warning":"Research hypothesis only; confidence and provenance remain attached; no unsupported historical translation generated."})
           j(self,404,{"error":"not-found"})
         except Exception as e:j(self,500,{"error":str(e)})
     def log_message(self,*a): pass

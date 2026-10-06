@@ -25,7 +25,7 @@
       {"id":"retro-emulators","title":"Retro Computer Emulators","icon":"🕹","url":"retro_emulators.html","mode":"embedded"},
       {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"embedded"},
       {"id":"terminal","title":"Aurora Terminal","icon":"⌘","url":"aurora_terminal.html","mode":"embedded","profile":"aurora_terminal_profile.json","database":"man_pages.json"},
-      {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"}
+      {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"},{"id":"ancient-ocr","title":"Ancient OCR Laboratory","icon":"OCR","url":"ancient-ocr.html","mode":"embedded","automatic":true},{"id":"thamudic-nlp","title":"Thamudic NLP / Epigraphy","icon":"𐪀","target":"#thamudic","mode":"native-web","automaticScan":true}
     ]},
     {"id":"desktop","title":"Desktop Environments","apps":[
       {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"embedded"},
