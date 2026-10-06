@@ -28,10 +28,10 @@ jobs:
           python3 -m json.tool web/retro_emulators.json >/dev/null
           test -s web/retro_emulators.html
           test -s web/retro_emulators.css
-            node --check web/portfolio.js
-            test -s web/portfolio.html
-            test -s web/portfolio.css
-            python3 -m json.tool web/portfolio-manifest.json >/dev/null
+          node --check web/portfolio.js
+          test -s web/portfolio.html
+          test -s web/portfolio.css
+          python3 -m json.tool web/portfolio-manifest.json >/dev/null
       - name: Validate WebGL desktop catalog
         run: |
           node --check web/aurora_webgl_desktops.js
