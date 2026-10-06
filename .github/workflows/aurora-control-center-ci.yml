@@ -8,7 +8,6 @@ on:
       - 'web/chimera-hub.css'
       - 'tools/amiga-local-core/**'
       - 'tools/thamudic-nlp/**'
-      - 'tools/thamudic-nlp/**'
       - '.github/workflows/aurora-control-center-ci.yml'
   pull_request:
     paths:
@@ -16,6 +15,7 @@ on:
       - 'web/chimera-hub.js'
       - 'web/chimera-hub.css'
       - 'tools/amiga-local-core/**'
+      - 'tools/thamudic-nlp/**'
       - '.github/workflows/aurora-control-center-ci.yml'
   workflow_dispatch:
 permissions:
@@ -34,6 +34,30 @@ jobs:
         run: |
           bash -n tools/amiga-local-core/build-local-core.sh
           python3 -m py_compile tools/amiga-local-core/bridge.py tools/thamudic-nlp/bridge.py
+      - name: Smoke-test local Thamudic NLP backend
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, time, urllib.request
+          p=subprocess.Popen(['python3','tools/thamudic-nlp/bridge.py'])
+          try:
+              for _ in range(30):
+                  try:
+                      with urllib.request.urlopen('http://127.0.0.1:8766/health', timeout=1) as r:
+                          data=json.load(r)
+                      assert data['nlp']['configured'] is True
+                      assert data['nlp']['backend'] == 'local-reviewed-corpus'
+                      with urllib.request.urlopen('http://127.0.0.1:8766/nlp/capabilities', timeout=1) as r:
+                          caps=json.load(r)
+                      assert 'transliterate' in caps['features']
+                      break
+                  except Exception:
+                      time.sleep(.2)
+              else:
+                  raise SystemExit('Thamudic NLP backend did not start')
+          finally:
+              p.terminate()
+              p.wait(timeout=5)
+          PY
       - name: Validate Pages boundary
         run: |
           test -s web/index.html
