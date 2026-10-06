@@ -34,6 +34,9 @@ jobs:
         run: |
           bash -n tools/amiga-local-core/build-local-core.sh
           python3 -m py_compile tools/amiga-local-core/bridge.py tools/thamudic-nlp/bridge.py
+          python3 -m py_compile tools/game-center/bridge.py
+          python3 -m json.tool web/game-center-manifest.json >/dev/null
+          bash -n tools/game-center/build-open-games.sh tools/game-center/fetch-free-assets.sh
       - name: Smoke-test local Thamudic NLP backend
         run: |
           python3 - <<'PY'
