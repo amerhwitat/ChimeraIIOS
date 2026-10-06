@@ -400,15 +400,106 @@ create_boot_menu(){
 
 prepare_branding(){
   header 'STEP 4: BRANDING / AURORA'
-  mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora" "$ISO_DIR/boot/visual"
+  mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora" \
+           "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library" \
+           "$ROOTFS_DIR/usr/share/backgrounds/chimera" \
+           "$ISO_DIR/boot/visual" \
+           "$ISO_DIR/boot/grub"
+
+  # Build the complete deterministic Aurora visual set. Supplied Library artwork
+  # wins; generated SVG artwork remains the offline fallback.
+  local visual="$BUILD_DIR/aurora-media"
+  rm -rf -- "$visual"
+  if [[ -x "$SCRIPT_DIR/tools/aurora/build-visual-assets.sh" ]]; then
+    bash "$SCRIPT_DIR/tools/aurora/build-visual-assets.sh" "$visual"
+  fi
+
+  # Stage every boot/menu screen explicitly. GRUB/Jasper/Spit Fire only consume
+  # raster images; the original SVGs remain available to the graphical runtime.
+  for f in \
+    boot.png desktop.png showcase.png menus/default.png \
+    splash/aurora-splash.png installer/aurora-installer.png \
+    recovery/aurora-recovery.png diagnostics/aurora-diagnostics.png \
+    live/aurora-live.png mobile/aurora-mobile.png; do
+    [[ -s "$visual/$f" ]] || continue
+    cp -f "$visual/$f" "$ISO_DIR/boot/visual/$(basename "$f")"
+  done
+
+  # Canonical GRUB/Jasper background: materialize the repository's embedded
+  # artwork when available, otherwise use the generated Aurora boot artwork.
+  if [[ -s "$SCRIPT_DIR/boot/visual/aurora-wayland-glass.jpg.b64" ]]; then
+    base64 -d "$SCRIPT_DIR/boot/visual/aurora-wayland-glass.jpg.b64" \
+      > "$ISO_DIR/boot/visual/aurora-wayland-glass.jpg"
+  elif [[ -s "$visual/backgrounds/boot.png" && $(command -v convert) ]]; then
+    convert "$visual/backgrounds/boot.png" -quality 90 \
+      "$ISO_DIR/boot/visual/aurora-wayland-glass.jpg"
+  fi
+
+  # Init.mp4 is a hardcoded offline splash asset. GRUB does not decode MP4;
+  # Aurora starts it after Wayland is ready.
+  local init_video=""
+  for candidate in \
+    "$SCRIPT_DIR/desktop/aurora/assets/Init.mp4" \
+    "$SCRIPT_DIR/desktop/aurora/assets/library/Init.mp4"; do
+    if [[ -s "$candidate" ]]; then init_video="$candidate"; break; fi
+  done
+  if [[ -n "$init_video" ]]; then
+    cp -f "$init_video" "$ISO_DIR/boot/visual/Init.mp4"
+    cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/init.mp4"
+  fi
+
+  # Keep the complete artwork library inside the installed system and on the
+  # ISO so every Aurora screen can use the hardcoded artwork offline.
+  if [[ -d "$SCRIPT_DIR/desktop/aurora/assets/library" ]]; then
+    cp -a "$SCRIPT_DIR/desktop/aurora/assets/library/." \
+      "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/"
+  fi
+  if [[ -f "$SCRIPT_DIR/desktop/aurora/assets/library-artwork-manifest.json" ]]; then
+    cp -f "$SCRIPT_DIR/desktop/aurora/assets/library-artwork-manifest.json" \
+      "$ROOTFS_DIR/usr/share/chimera/aurora/assets/"
+  fi
+
+  # Install the same visual aliases used by desktop, installer, recovery and
+  # mobile components so there is one deterministic offline artwork contract.
+  if [[ -s "$visual/backgrounds/desktop.png" ]]; then
+    cp -f "$visual/backgrounds/desktop.png" \
+      "$ROOTFS_DIR/usr/share/chimera/aurora/aurora-wayland-glass.png"
+    cp -f "$visual/backgrounds/desktop.png" \
+      "$ROOTFS_DIR/usr/share/backgrounds/chimera/Aurora-Wayland-Glass-Desktop.png"
+  fi
+  if [[ -s "$visual/backgrounds/boot.png" ]]; then
+    cp -f "$visual/backgrounds/boot.png" \
+      "$ROOTFS_DIR/usr/share/backgrounds/chimera/Aurora-Boot.png"
+  fi
+  if [[ -s "$visual/installer/aurora-installer.png" ]]; then
+    cp -f "$visual/installer/aurora-installer.png" \
+      "$ROOTFS_DIR/usr/share/backgrounds/chimera/Aurora-Installer.png"
+  fi
+  if [[ -s "$visual/recovery/aurora-recovery.png" ]]; then
+    cp -f "$visual/recovery/aurora-recovery.png" \
+      "$ROOTFS_DIR/usr/share/backgrounds/chimera/Aurora-Recovery.png"
+  fi
+  if [[ -s "$visual/live/aurora-live.png" ]]; then
+    cp -f "$visual/live/aurora-live.png" \
+      "$ROOTFS_DIR/usr/share/backgrounds/chimera/Aurora-Live.png"
+  fi
+
+  # Make the real GRUB theme contract part of the ISO.
+  if [[ -s "$SCRIPT_DIR/boot/iso/aurora-theme.txt" ]]; then
+    cp -f "$SCRIPT_DIR/boot/iso/aurora-theme.txt" "$ISO_DIR/boot/grub/aurora-theme.txt"
+  fi
+
+  # Preserve an explicitly supplied background as the highest-priority
+  # desktop artwork while still staging the complete generated asset set.
   local bg="${CHIMERA_AURORA_ASSET:-}"
   if [[ -n "$bg" && -f "$bg" ]]; then
-    cp -f "$bg" "$ISO_DIR/boot/visual/aurora-background.jpg"
-  elif [[ -f "$SCRIPT_DIR/boot/jasper/background.jpg" ]]; then
-    cp -f "$SCRIPT_DIR/boot/jasper/background.jpg" "$ISO_DIR/boot/visual/aurora-background.jpg"
-  elif [[ -f "$SCRIPT_DIR/boot/jasper/background.png" ]]; then
-    cp -f "$SCRIPT_DIR/boot/jasper/background.png" "$ISO_DIR/boot/visual/aurora-background.png"
+    cp -f "$bg" "$ROOTFS_DIR/usr/share/chimera/aurora/aurora-wayland-glass.png"
   fi
+
+  [[ -s "$ISO_DIR/boot/visual/aurora-boot.png" ]] || \
+    cp -f "$visual/backgrounds/boot.png" "$ISO_DIR/boot/visual/aurora-boot.png" 2>/dev/null || true
+  [[ -s "$ISO_DIR/boot/visual/aurora-menu.png" ]] || \
+    cp -f "$visual/menus/default.png" "$ISO_DIR/boot/visual/aurora-menu.png" 2>/dev/null || true
 }
 
 prepare_apache(){ [[ "${APACHE_ECOSYSTEM:-1}" == 0 ]] && return 0; local src="$SCRIPT_DIR/services/apache" dst="$ROOTFS_DIR/opt/chimera/apache"; [[ -d "$src" ]] || return 0; mkdir -p "$dst"; for f in apache-projects.json README.md apache-sync.py; do [[ -f "$src/$f" ]] && cp -f "$src/$f" "$dst/"; done; }
