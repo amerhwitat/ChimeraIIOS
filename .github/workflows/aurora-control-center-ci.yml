@@ -1,0 +1,42 @@
+name: Aurora Control Center validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/index.html'
+      - 'web/chimera-hub.js'
+      - 'web/chimera-hub.css'
+      - 'tools/amiga-local-core/**'
+      - '.github/workflows/aurora-control-center-ci.yml'
+  pull_request:
+    paths:
+      - 'web/index.html'
+      - 'web/chimera-hub.js'
+      - 'web/chimera-hub.css'
+      - 'tools/amiga-local-core/**'
+      - '.github/workflows/aurora-control-center-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript
+        run: node --check web/chimera-hub.js
+      - name: Validate shell scripts
+        run: |
+          bash -n tools/amiga-local-core/build-local-core.sh
+          python3 -m py_compile tools/amiga-local-core/bridge.py
+      - name: Validate Pages boundary
+        run: |
+          test -s web/index.html
+          test -s web/chimera-hub.js
+          test -s web/chimera-hub.css
+          test ! -e web/amiga-core
+          test ! -e web/local-core
+          ! grep -R -E 'puae_libretro|\.so|\.dll|\.dylib' web --include='*.html' --include='*.js' --include='*.css'
