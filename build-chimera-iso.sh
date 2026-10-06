@@ -707,6 +707,34 @@ verify_iso(){
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
+
+  # Verify the complete graphical boot/installer contract, not only the kernel.
+  local required_iso_paths=(
+    /boot/grub/grub.cfg
+    /boot/grub/aurora-theme.txt
+    /boot/visual/aurora-boot.png
+    /boot/visual/aurora-menu.png
+    /boot/visual/aurora-installer.png
+    /boot/visual/aurora-recovery.png
+    /boot/visual/aurora-live.png
+    /boot/visual/Init.mp4
+    /boot/jasper/jasper.cfg
+    /boot/jasper/install.cfg
+    /boot/jasper/retro.cfg
+    /boot/installation/menu.cfg
+    /boot/spitfire/spitfire-menu.cfg
+    /install/installer/installation.img
+    /install/installer/installation-manifest.json
+    /install/installer/installer-contract.json
+  )
+  local required_path
+  for required_path in "${required_iso_paths[@]}"; do
+    if ! xorriso -indev "$iso" -find "$required_path" -type f | grep -q .; then
+      log_error "ISO is missing required boot/runtime asset: $required_path"
+      exit 1
+    fi
+  done
+  log_success "Complete graphical boot, installer and Aurora asset contract verified."
   if ! xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"; then
     log_warning 'UEFI BOOTX64.EFI lookup failed; inspect ISO El Torito report before deployment.'
   fi
