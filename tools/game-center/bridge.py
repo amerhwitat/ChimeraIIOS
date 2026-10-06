@@ -18,6 +18,12 @@ class H(BaseHTTPRequestHandler):
    gid=str(d.get("id","")); item=load().get(gid)
    if not item:return send(self,404,{"error":"game-not-in-allowlist"})
    exe=BINROOT/gid
+   if not exe.exists():
+    p=BINROOT/(gid+".path")
+    if p.exists():
+     base=Path(p.read_text().strip())
+     for z in [base/gid,base/"build"/gid,base/"build"/"bin"/gid,base/"bin"/gid]:
+      if z.exists() and os.access(z,os.X_OK): exe=z; break
    if not exe.exists():return send(self,409,{"error":"game-not-built-locally","game":gid,"build":"tools/game-center/build-open-games.sh"})
    if not os.access(exe,os.X_OK):return send(self,409,{"error":"game-binary-not-executable","path":str(exe)})
    args=d.get("args") or []
