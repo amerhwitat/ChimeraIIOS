@@ -456,7 +456,9 @@ prepare_branding(){
   done
   if [[ -n "$init_video" ]]; then
     cp -f "$init_video" "$ISO_DIR/boot/visual/Init.mp4"
+    cp -f "$init_video" "$ISO_DIR/boot/visual/chimera-intro.mp4"
     cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/init.mp4"
+    cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/Init.mp4"
   fi
 
   # Keep the complete artwork library inside the installed system and on the
