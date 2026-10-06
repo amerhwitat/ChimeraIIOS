@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Install Chimera II OS
+GenericName=Chimera II OS Installer
+Comment=Aurora graphical installer and hardware-aware installation planner
+Exec=/usr/share/chimera/installer/aurora-installer.sh
+Icon=system-software-install
+Terminal=false
+Type=Application
+Categories=System;Settings;
+StartupNotify=true
