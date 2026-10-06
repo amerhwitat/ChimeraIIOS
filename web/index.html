@@ -1,1 +1,81 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Chimera II OS Aurora Wayland Glass architecture and Web UI"><meta name="theme-color" content="#07111f"><title>Chimera II OS — Aurora Wayland Glass</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="aurora_shell.css"><script src="app.js" defer></script></head><body><a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="shell header-inner"><div><p class="eyebrow">AURORA WAYLAND GLASS DESKTOP</p><h1>CHIMERA II OS</h1><p>8192-bit ISA · deterministic kernel · zero-copy I/O · 128D research plane</p></div><nav aria-label="Primary navigation"><a href="aurora_3d_desktop.html">3D Desktop</a><a href="desktop_switcher.html">Desktop Profiles</a><a href="#architecture">Architecture</a><a href="#isa-section">ISA</a><a href="#kernel-section">Kernel</a><a href="#terminal-section">Terminal</a><a href="#standards-section">Standards</a></nav></div></header><main id="main" class="shell"><section id="architecture" class="hero" aria-labelledby="hero-title"><div><p class="eyebrow">CHIMERA ARCHITECTURE EXPLORER</p><h2 id="hero-title">A unified view of the machine, kernel, I/O, graphics, and research layers.</h2><p>Explore the native R8192 machine model, compatibility frontends, Koronos kernel boundaries, DMA/IOMMU ownership, Aurora presentation stack, and 128D research plane.</p><p><a class="status-pill" href="aurora_3d_desktop.html">Launch Aurora 3D Web Desktop</a></p></div><div class="badge" aria-label="Architecture depth: 12 layers">DEPTH 12 MODEL</div></section><section aria-labelledby="cards-title"><div class="section-heading"><div><p class="eyebrow">SYSTEM MAP</p><h2 id="cards-title">Core domains</h2></div><span id="card-count" class="status-pill" aria-live="polite">Loading…</span></div><div class="grid" id="cards" aria-live="polite"></div></section><section id="isa-section" aria-labelledby="isa-title"><div class="section-heading"><div><p class="eyebrow">INSTRUCTION SET</p><h2 id="isa-title">ISA Matrix</h2></div><span class="status-pill">284 native opcodes</span></div><div class="table-wrap"><table><caption>Chimera II native and compatibility instruction-set families</caption><thead><tr><th>Family</th><th>Style</th><th>Width</th><th>Role</th><th>Status</th></tr></thead><tbody id="isa"></tbody></table></div></section><section id="kernel-section" aria-labelledby="kernel-title"><div class="section-heading"><div><p class="eyebrow">KORONOS</p><h2 id="kernel-title">Kernel and I/O layers</h2></div><span id="layer-count" class="status-pill" aria-live="polite">Loading…</span></div><div id="kernel" class="layers" aria-live="polite"></div></section><section id="terminal-section" aria-labelledby="terminal-title"><div class="section-heading"><div><p class="eyebrow">AURORA WEB TERMINAL</p><h2 id="terminal-title">Cross-platform CLI</h2></div><span class="status-pill">SANDBOXED</span></div><div class="cli-terminal" id="chimeraTerminal"><div id="chimeraTerminalOutput" aria-live="polite"><div>Chimera II Web Terminal</div><div>Linux/POSIX + Bash/Zsh + Windows CMD + PowerShell + Windows Coreutils</div><div>Type <b>help</b> or <b>man</b> for the catalog.</div></div><form id="chimeraTerminalForm" autocomplete="off"><label for="chimeraTerminalInput">chimera@aurora:~$</label><input id="chimeraTerminalInput" autocomplete="off" spellcheck="false" aria-label="Chimera CLI command"><button type="submit">Run</button></form></div></section><section id="standards-section" aria-labelledby="standards-title"><div class="section-heading"><div><p class="eyebrow">2026 BASELINE</p><h2 id="standards-title">Standards matrix</h2></div><span class="status-pill">Interoperability targets</span></div><div class="table-wrap"><table><caption>External standards used as protocol and interoperability contracts</caption><thead><tr><th>Standard</th><th>Version</th><th>Role</th></tr></thead><tbody id="standards"></tbody></table></div></section></main><footer><div class="shell footer-inner"><span>ChimeraIIOS · experimental research architecture · <span id="year"></span></span><span><span id="data-status" class="status-pill">Loading</span> <a href="https://github.com/amerhwitat/ChimeraIIOS">Source on GitHub</a></span></div></footer><script src="cli_terminal.js"></script><script src="aurora_shell.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Chimera II OS Aurora Control Center — MAME, Amiga local core, Games, BizX and BizXtreme">
+<meta name="theme-color" content="#07111f"><title>Chimera II OS — Aurora Control Center</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="aurora_shell.css">
+<link rel="stylesheet" href="chimera-hub.css"><script src="chimera-hub.js" defer></script>
+</head>
+<body>
+<header class="hub-header">
+ <div class="hub-brand"><span class="eyebrow">AURORA WAYLAND GLASS · CHIMERA II OS</span><h1>Control Center</h1><p>Emulation · Games · BizX · BizXtreme · Databases · Local runtime</p></div>
+ <div class="hub-status"><span id="bridgeDot" class="dot"></span><span id="bridgeText">Local bridge: checking…</span></div>
+</header>
+<nav class="hub-nav" aria-label="Control Center">
+ <button data-view="overview" class="active">Aurora</button><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button>
+</nav>
+<main class="hub-main">
+<section id="view-overview" class="view active">
+ <div class="hero-card"><div><span class="eyebrow">AURORA FRONTIER</span><h2>One dynamic Web UI for the whole Chimera II runtime.</h2><p>Local-first controls, catalog-backed game discovery, MAME configuration, Amiga core bridging and persistent browser databases.</p></div><div class="art-badge">AURORA</div></div>
+ <div class="metric-grid" id="overviewMetrics"></div>
+ <div class="panel-grid">
+  <article class="panel"><h3>Runtime boundary</h3><p>GitHub Pages hosts the UI and catalogs only. Emulator binaries, ROMs, Kickstarts and native cores stay local.</p><div class="chips"><span>Pages-safe</span><span>Offline catalog</span><span>Local core</span></div></article>
+  <article class="panel"><h3>Persistent state</h3><p>IndexedDB stores favorites, input profiles, MAME machines, game saves and UI settings. Import/export keeps the database portable.</p><div class="chips"><span>IndexedDB</span><span>JSON backup</span><span>Versioned</span></div></article>
+  <article class="panel"><h3>Artwork</h3><p>Uses the canonical Aurora Wayland Glass library artwork already selected by the Aurora artwork manifest.</p><div class="chips"><span>Hardcoded theme</span><span>Offline-first</span><span>SVG fallback</span></div></article>
+ </div>
+</section>
+
+<section id="view-mame" class="view">
+ <div class="section-head"><div><span class="eyebrow">MAME GUI</span><h2>Arcade & computer emulation cockpit</h2></div><div class="toolbar"><input id="mameSearch" placeholder="Search machines…"><button id="mameImport">Import listxml</button></div></div>
+ <div class="mame-layout">
+  <aside class="panel machine-list"><div class="mini-row"><span id="mameCount">0 machines</span><select id="mameFilter"><option value="all">All</option><option value="favorite">Favorites</option><option value="arcade">Arcade</option><option value="computer">Computer</option></select></div><div id="machineList"></div></aside>
+  <div class="mame-main">
+   <article class="panel" id="machineDetail"><div class="empty">Select a machine.</div></article>
+   <div class="tabbar"><button class="tab active" data-mtab="launch">Launch</button><button class="tab" data-mtab="video">Video</button><button class="tab" data-mtab="audio">Audio</button><button class="tab" data-mtab="input">Input</button><button class="tab" data-mtab="state">State / Record</button><button class="tab" data-mtab="debug">Debugger</button><button class="tab" data-mtab="media">Media / Slots</button></div>
+   <article class="panel mtab active" data-mtab-panel="launch"><div class="form-grid"><label>ROM path<input id="mameRomPath" placeholder="/roms"></label><label>Video<select id="mameVideo"><option>auto</option><option>bgfx</option><option>opengl</option><option>soft</option></select></label><label>Window<select id="mameWindow"><option>windowed</option><option>fullscreen</option></select></label><label>Speed<input id="mameSpeed" type="number" value="1" step=".1" min=".1"></label></div><div class="actions"><button class="primary" id="mameLaunch">Launch local MAME</button><button id="mameValidate">Validate ROMs</button><button id="mameCopy">Copy command</button></div><pre id="mameCommand">mame</pre></article>
+   <article class="panel mtab" data-mtab-panel="video"><div class="form-grid"><label>Aspect<select id="videoAspect"><option>auto</option><option>4:3</option><option>5:4</option><option>16:9</option><option>1:1</option></select></label><label>Filter<select id="videoFilter"><option>on</option><option>off</option></select></label><label>VSync<select id="videoVsync"><option>on</option><option>off</option></select></label><label>Prescale<select id="videoPrescale"><option>1</option><option>2</option><option>3</option><option>4</option></select></label><label>Rotation<select id="videoRotation"><option>auto</option><option>0</option><option>90</option><option>180</option><option>270</option></select></label><label>Artwork<select id="videoArtwork"><option>on</option><option>off</option></select></label></div></article>
+   <article class="panel mtab" data-mtab-panel="audio"><div class="form-grid"><label>Sound<select id="audioBackend"><option>auto</option><option>pipewire</option><option>pulse</option><option>wasapi</option><option>coreaudio</option><option>sdl</option></select></label><label>Sample rate<input id="audioRate" type="number" value="48000"></label><label>Latency<input id="audioLatency" type="number" value="0" step=".1"></label><label>Volume<input id="audioVolume" type="number" value="0" min="-32" max="0"></label></div></article>
+   <article class="panel mtab" data-mtab-panel="input"><div id="mameInputPanel"></div></article>
+   <article class="panel mtab" data-mtab-panel="state"><div class="form-grid"><label>Autosave<select id="autosave"><option>on</option><option>off</option></select></label><label>Rewind<select id="rewind"><option>on</option><option>off</option></select></label><label>Rewind MB<input id="rewindCap" type="number" value="30"></label><label>State slot<input id="stateSlot" type="number" min="1" value="1"></label></div><div class="actions"><button id="stateSave">Save state</button><button id="stateLoad">Load state</button><button id="record">Record input</button><button id="snapshot">Snapshot</button></div></article>
+   <article class="panel mtab" data-mtab-panel="debug"><div class="form-grid"><label>Debugger<select id="debugger"><option>imgui</option><option>qt</option><option>windows</option><option>osx</option><option>gdbstub</option></select></label><label>Verbose<select id="verbose"><option>on</option><option>off</option></select></label><label>Debug host<input id="debugHost" value="127.0.0.1"></label><label>Debug port<input id="debugPort" value="23946"></label></div><div class="actions"><button id="debugLaunch">Launch debugger</button><a href="https://docs.mamedev.org/debugger/" target="_blank" rel="noopener">MAME debugger docs</a></div></article>
+   <article class="panel mtab" data-mtab-panel="media"><div class="form-grid"><label>Media<input id="mediaPath" placeholder="disk/cart/cd image"></label><label>Slot<input id="mediaSlot" placeholder="flop1 / cart / cdrom"></label></div><div class="actions"><button id="mediaMount">Mount via local bridge</button><button id="mediaEject">Eject</button></div></article>
+  </div>
+ </div>
+</section>
+
+<section id="view-amiga" class="view">
+ <div class="section-head"><div><span class="eyebrow">AMIGA LOCAL CORE</span><h2>PUAE / Amiga runtime</h2></div><span class="warning">Core is never packaged on GitHub Pages</span></div>
+ <div class="panel-grid"><article class="panel"><h3>Local runtime</h3><p id="amigaStatus">Checking local core bridge…</p><div class="form-grid"><label>Model<select id="amigaModel"><option>auto</option><option>A500</option><option>A500PLUS</option><option>A600</option><option>A1200</option><option>A2000</option><option>A4030</option><option>A4040</option><option>CDTV</option><option>CD32</option></select></label><label>Video<select id="amigaVideo"><option>automatic</option><option>low</option><option>high</option><option>super-high</option></select></label><label>Line mode<select id="amigaLine"><option>automatic</option><option>single</option><option>double</option></select></label><label>Content path<input id="amigaContent" placeholder="/home/user/amiga/game.adf"></label></div><div class="actions"><button class="primary" id="amigaLaunch">Launch local Amiga core</button><button id="amigaDetect">Detect core</button></div></article>
+ <article class="panel"><h3>Supported content</h3><div class="chips"><span>ADF</span><span>ADZ</span><span>DMS</span><span>FDI</span><span>IPF</span><span>HDF</span><span>HDZ</span><span>LHA / WHDLoad</span><span>M3U</span><span>ISO / CUE / CHD</span><span>ZIP / 7Z</span></div><p class="muted">Kickstart/firmware remains user-supplied. The browser UI never requests or stores private firmware material.</p></article>
+ <article class="panel"><h3>Game control</h3><div id="amigaControls" class="control-grid"></div><p class="muted">D-pad/left stick can be joystick or mouse; right stick is mouse; virtual keyboard and status bar use remappable actions.</p></article>
+ </div>
+</section>
+
+<section id="view-games" class="view">
+ <div class="section-head"><div><span class="eyebrow">GAME CENTER</span><h2>Games & systems database</h2></div><div class="toolbar"><input id="gameSearch" placeholder="Search games / systems"><select id="gameFamily"><option value="all">All families</option></select></div></div>
+ <div class="chips" id="gameStats"></div><div id="gamesGrid" class="catalog-grid"></div>
+</section>
+
+<section id="view-bizx" class="view">
+ <div class="section-head"><div><span class="eyebrow">BIZX</span><h2>Commerce, services & game platform</h2></div><span class="badge2">provider-neutral</span></div>
+ <div id="bizxKpis" class="metric-grid"></div><div id="bizxModules" class="panel-grid"></div>
+</section>
+
+<section id="view-bizxtreme" class="view">
+ <div class="section-head"><div><span class="eyebrow">BIZXTREME</span><h2>The Living Frontier</h2></div><div class="toolbar"><button id="starterPack">Claim free starter pack</button><button id="newSave">New local save</button></div></div>
+ <div id="bxKpis" class="metric-grid"></div><div class="bx-layout"><article class="panel"><h3>Campaign</h3><div id="chapters"></div></article><article class="panel"><h3>Live events</h3><div id="events"></div></article><article class="panel"><h3>Inventory</h3><div id="inventory"></div></article><article class="panel"><h3>Marketplace</h3><div id="market"></div></article></div>
+</section>
+
+<section id="view-controls" class="view">
+ <div class="section-head"><div><span class="eyebrow">INPUT SYSTEM</span><h2>Keyboard / mouse / gamepad</h2></div><button id="resetControls">Reset profile</button></div>
+ <article class="panel"><p>Click an action, then press a key or gamepad button. The profile is stored locally and reused by MAME, Amiga and compatible games.</p><div id="controlEditor" class="control-editor"></div></article>
+</section>
+
+<section id="view-database" class="view">
+ <div class="section-head"><div><span class="eyebrow">LOCAL DATABASE</span><h2>Chimera runtime data</h2></div><div class="toolbar"><button id="exportDb">Export JSON</button><button id="importDb">Import JSON</button><input id="dbFile" type="file" accept=".json" hidden></div></div>
+ <div class="panel"><div id="dbSummary"></div><pre id="dbLog"></pre></div>
+</section>
+</main>
+<footer class="hub-footer"><span>ChimeraIIOS · Aurora Control Center</span><span>Local runtime boundary: emulator binaries and firmware remain outside Pages.</span></footer>
+</body></html>

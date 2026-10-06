@@ -19,6 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Pages boundary
+        run: |
+          test -f web/index.html
+          test -f web/chimera-hub.js
+          test -f web/chimera-hub.css
+          test ! -e web/amiga-core
+          test ! -e web/local-core
+          echo "GitHub Pages bundle contains UI/catalogs only; native emulator cores remain local."
       - name: Detect GitHub Pages availability
         id: pages
         env:
