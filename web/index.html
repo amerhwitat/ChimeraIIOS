@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Chimera II OS Aurora Control Center — MAME, Amiga local core, Games, BizX and BizXtreme">
 <meta name="theme-color" content="#07111f"><title>Chimera II OS — Aurora Control Center</title>
-<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="aurora_shell.css">
+<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="aurora_shell.css">
 <link rel="stylesheet" href="chimera-hub.css"><script src="chimera-hub.js" defer></script>
 </head>
 <body>
@@ -113,4 +113,4 @@
 </section>
 </main>
 <footer class="hub-footer"><span>ChimeraIIOS · Aurora Control Center</span><span>Local runtime boundary: emulator binaries and firmware remain outside Pages.</span></footer>
-</body></html>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}));}</script></body></html>
