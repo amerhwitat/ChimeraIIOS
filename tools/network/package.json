@@ -1,0 +1,9 @@
+{
+  "name":"chimera-network-signaling",
+  "private":true,
+  "type":"module",
+  "version":"1.0.0",
+  "description":"Opt-in WebSocket signaling relay for Chimera II Network Hub and Game Center.",
+  "scripts":{"start":"node signaling-server.mjs"},
+  "dependencies":{"ws":"^8.22.0"}
+}
