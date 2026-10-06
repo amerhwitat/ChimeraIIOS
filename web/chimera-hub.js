@@ -97,8 +97,8 @@ async function bridge(path,body){
  try{const r=await fetch(BRIDGE+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});if(!r.ok)throw Error(r.status);return await r.json()}catch(e){throw e}
 }
 async function checkBridge(){
- try{const r=await bridge('/health');$('#bridgeDot').className='dot ok';$('#bridgeText').textContent='Local bridge: '+(r.version||'online');$('#amigaStatus').textContent='Bridge online. Local cores are available to launch outside Pages.';return true}
- catch(e){$('#bridgeDot').className='dot bad';$('#bridgeText').textContent='Local bridge: offline';$('#amigaStatus').textContent='Bridge offline. Install/start tools/amiga-local-core/bridge.py locally to launch the Amiga core.';return false}
+ try{const r=await bridge('/health');$('#bridgeDot').className='dot ok';$('#bridgeText').textContent='Local bridge: '+(r.version||'online');if($('#mameRuntimeStatus'))$('#mameRuntimeStatus').textContent='Core: native MAME bridge available · ROMs: user-supplied · storage: IndexedDB';if($('#mameCoreBadge'))$('#mameCoreBadge').textContent='Native core: available';$('#amigaStatus').textContent='Bridge online. Local cores are available to launch outside Pages.';return true}
+ catch(e){$('#bridgeDot').className='dot bad';$('#bridgeText').textContent='Local bridge: offline';if($('#mameRuntimeStatus'))$('#mameRuntimeStatus').textContent='Core: browser core optional · native bridge offline · ROMs: user-supplied · storage: IndexedDB';if($('#mameCoreBadge'))$('#mameCoreBadge').textContent=mameCore.loaded?'Browser core: staged':'Browser core: not loaded';$('#amigaStatus').textContent='Bridge offline. Install/start tools/amiga-local-core/bridge.py locally to launch the Amiga core.';return false}
 }
 function show(view){$$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));$$('.hub-nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));location.hash=view}
 function setupNav(){$$('.hub-nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));const h=location.hash.slice(1);if(h&&$('#view-'+h))show(h)}
