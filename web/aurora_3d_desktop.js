@@ -3,7 +3,7 @@
   const $ = id => document.getElementById(id);
   const profileKey = 'chimera.desktop.profile';
   const profilesUrl = 'desktop_profiles.json';
-  const state = { profile: localStorage.getItem(profileKey) || 'aurora-native', profiles: [], maximized: false };
+  const state = { profile: localStorage.getItem(profileKey) || 'aurora-native', profiles: [], maximized: false, runtime: { manifest:null, phase:'firmware', started:Date.now(), targets:new Map(), services:new Map(), userspace:new Map(), kernel:new Map() } };
   let scene, camera, renderer, world, aurora, stars;
 
   // Input + system sound layer. Keep the UI interactive even if WebGL, CDN assets, or audio are unavailable.
@@ -74,6 +74,133 @@
     ).join('') : '<p>No profile catalog loaded; Aurora Native remains active.</p>';
     showWindow('Desktop Profiles', `<p>Visual Web adapters for Linux and Windows families. A real host session/VM/RDP is only used when an authorized backend is configured.</p><div class="profile-list">${cards}</div>`);
   }
+  function esc(v) { return String(v).replace(/[&<>\"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[ch])); }
+
+  function runtimeStateLabel(s) {
+    return ({pending:'pending',starting:'starting',ready:'ready',degraded:'degraded',failed:'failed',stopped:'stopped'})[s] || s;
+  }
+
+  function renderRuntime() {
+    const rt = state.runtime;
+    const m = rt.manifest;
+    if (!m) return;
+    const targets = [...rt.targets.entries()];
+    const services = [...rt.services.entries()];
+    const userspace = [...rt.userspace.entries()];
+    const readyTargets = targets.filter(([,x])=>x.state==='ready').length;
+    const activeServices = services.filter(([,x])=>x.state==='active').length;
+    const activeUsers = userspace.filter(([,x])=>x.state==='active').length;
+    const kernelReady = [...rt.kernel.values()].filter(x=>x.state==='ready').length;
+    const progress = Math.round((readyTargets + activeServices + activeUsers + kernelReady) /
+      Math.max(1, (m.targets.length + m.services.length + m.userspace.length + m.kernel.stages.length)) * 100);
+    const bar = $('bootProgress'); if (bar) bar.style.width = Math.min(100,progress)+'%';
+    const rs = $('runtimeState'); if (rs) rs.textContent = progress >= 100 ? 'Running' : 'Booting';
+    const ks = $('kernelStatus'); if (ks) ks.textContent = `Koronos · ${kernelReady}/${m.kernel.stages.length} stages`;
+    const kd = $('kernelDetail'); if (kd) kd.textContent = `${m.kernel.mode} · ${activeUsers} userspace processes`;
+    const ts = $('targetStatus'); if (ts) ts.textContent = `${readyTargets} / ${m.targets.length} ready`;
+    const ss = $('serviceStatus'); if (ss) ss.textContent = `${activeServices} / ${m.services.length} active`;
+    const sd = $('serviceDetail'); if (sd) sd.textContent = `Kore dependency manager · ${activeUsers} userspace active`;
+    const mini = $('targetMini'); if (mini) mini.innerHTML = targets.slice(-6).map(([id,x]) => `<span class="runtime-pill ${x.state}">${esc(id)}</span>`).join('');
+    const msg = $('bootMessage');
+    if (msg) msg.textContent = progress >= 100 ? 'Koronos + Kore + services + userspace ready · Aurora session live' : `${rt.phase} · loading dependency graph`;
+    const mode = $('modeLabel');
+    if (mode) mode.textContent = progress >= 100 ? 'Koronos kernel · Kore services · Aurora userspace live' : `Loading ${rt.phase}…`;
+    const welcome = $('welcome');
+    if (welcome) welcome.classList.toggle('runtime-live', progress >= 100);
+  }
+
+  function runtimeWindow() {
+    const m = state.runtime.manifest;
+    if (!m) { showWindow('System Runtime','<p>Runtime manifest is still loading.</p>'); return; }
+    const row = (label,state,kind) => `<div class="runtime-row"><span><b>${esc(label)}</b><small>${esc(kind)}</small></span><em class="${state}">${esc(runtimeStateLabel(state))}</em></div>`;
+    const kernel = [...state.runtime.kernel.values()].map(x=>row(x.label,x.state,x.kind)).join('');
+    const targets = [...state.runtime.targets.values()].map(x=>row(x.label,x.state,'target')).join('');
+    const services = [...state.runtime.services.values()].map(x=>row(x.label,x.state,x.kind)).join('');
+    const users = [...state.runtime.userspace.values()].map(x=>row(x.label,x.state,x.kind)).join('');
+    showWindow('Chimera II System Runtime', `
+      <div class="runtime-header"><b>Koronos / Kore live dependency graph</b><span>simulation + optional host bridge</span></div>
+      <h3>Kernel space</h3><div class="runtime-list">${kernel}</div>
+      <h3>Targets</h3><div class="runtime-list">${targets}</div>
+      <h3>Services</h3><div class="runtime-list">${services}</div>
+      <h3>User space</h3><div class="runtime-list">${users}</div>
+    `);
+  }
+
+  async function loadKernelRuntime() {
+    try {
+      const res = await fetch('aurora_kernel_runtime.json',{cache:'no-store'});
+      if (!res.ok) throw new Error('runtime manifest '+res.status);
+      const m = await res.json();
+      state.runtime.manifest = m;
+      m.kernel.stages.forEach(x=>state.runtime.kernel.set(x.id,{...x,state:'pending'}));
+      m.targets.forEach(x=>state.runtime.targets.set(x.id,{...x,state:'pending'}));
+      m.services.forEach(x=>state.runtime.services.set(x.id,{...x,state:'pending'}));
+      m.userspace.forEach(x=>state.runtime.userspace.set(x.id,{...x,state:'pending'}));
+      renderRuntime();
+      bootRuntime();
+    } catch (err) {
+      console.warn('Aurora runtime manifest unavailable:',err);
+      $('runtimeState').textContent='Fallback';
+      $('modeLabel').textContent='Aurora UI fallback · host runtime unavailable';
+      $('bootMessage').textContent='Kernel runtime manifest unavailable; desktop controls remain active';
+    }
+  }
+
+  function bootRuntime() {
+    const rt=state.runtime, m=rt.manifest;
+    const phases=[
+      ['firmware',()=>['firmware']],
+      ['koronos',()=>['koronos','mm','scheduler','ipc']],
+      ['hardware',()=>['drivers']],
+      ['init',()=>['init']],
+    ];
+    let i=0;
+    const tick=()=>{
+      if(i<phases.length){
+        const [phase,ids]=phases[i++];
+        rt.phase=phase;
+        ids().forEach(id=>{if(rt.kernel.has(id))rt.kernel.get(id).state='starting';});
+        renderRuntime();
+        setTimeout(()=>{ids().forEach(id=>{if(rt.kernel.has(id))rt.kernel.get(id).state='ready';});renderRuntime();tick();},180);
+        return;
+      }
+      const targets=m.targets.slice();
+      const advanceTargets=()=>{
+        const pending=targets.find(t=>rt.targets.get(t.id).state==='pending' && t.after.every(a=>!rt.targets.has(a)||rt.targets.get(a).state==='ready'));
+        if(pending){
+          rt.phase=pending.id;
+          rt.targets.get(pending.id).state='starting';
+          renderRuntime();
+          setTimeout(()=>{rt.targets.get(pending.id).state='ready';renderRuntime();advanceTargets();},160);
+        } else {
+          const left=targets.find(t=>rt.targets.get(t.id).state==='pending');
+          if(left){setTimeout(advanceTargets,120);return;}
+          bootServices(0);
+        }
+      };
+      advanceTargets();
+    };
+    tick();
+  }
+
+  function bootServices(index) {
+    const m=state.runtime.manifest, list=m.services;
+    if(index>=list.length){bootUserspace(0);return;}
+    const s=list[index], entry=state.runtime.services.get(s.id);
+    const deps=(s.after||[]).every(id=>!state.runtime.services.has(id)||state.runtime.services.get(id).state==='active');
+    if(!deps){setTimeout(()=>bootServices(index),100);return;}
+    state.runtime.phase=s.id; entry.state='starting'; renderRuntime();
+    setTimeout(()=>{entry.state='active';renderRuntime();bootServices(index+1);},110);
+  }
+
+  function bootUserspace(index) {
+    const m=state.runtime.manifest, list=m.userspace;
+    if(index>=list.length){state.runtime.phase='desktop';renderRuntime();return;}
+    const u=list[index], entry=state.runtime.userspace.get(u.id);
+    entry.state='starting'; state.runtime.phase=u.id; renderRuntime();
+    setTimeout(()=>{entry.state='active';renderRuntime();bootUserspace(index+1);},95);
+  }
+
   function app(name) {
     systemSound('click');
     if (name === 'launcher') { toggleLauncher(); return; }
@@ -84,6 +211,7 @@
     else if (name === 'settings') showWindow('Settings', '<h2>Desktop Settings</h2><p>Glass effects · accessibility · renderer · profile selection</p><p><button type="button" class="profile-card" id="rendererToggle">Toggle 3D renderer</button></p>');
     else if (name === 'help') showWindow('Unified Help', '<h2>man / help</h2><p>Use <b>man PAGE</b>, <b>man SECTION PAGE</b>, or <b>man NAMESPACE:PAGE</b>.</p><h3>Input</h3><p>Mouse, pointer, touch, wheel, drag, right-click and keyboard shortcuts are supported.</p>');
     else if (name === 'desktop') showDesktopProfiles();
+    else if (name === 'runtime') runtimeWindow();
     else if (name === 'search') { $('desktopSearch').focus(); $('desktopSearch').select(); }
     else if (name === 'home') { toggleLauncher(false); closeWindow(); }
   }
@@ -213,10 +341,10 @@
       $('modeLabel').textContent = '3D renderer unavailable · UI fallback active';
     }
   }
-  function clock(){const d=new Date();$('clock').textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});$('timeLarge').textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});$('dateText').textContent=d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+  function clock(){const d=new Date();$('clock').textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});$('timeLarge').textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});$('dateText').textContent=d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric',year:'numeric'}); const n=Date.now(); const cpu=12+Math.round((Math.sin(n/1800)+1)*13), mem=24+Math.round((Math.sin(n/4200)+1)*8), disk=11+Math.round((Math.sin(n/9000)+1)*2); [['cpu',cpu],['memory',mem],['disk',disk]].forEach(([k,v])=>{const bar=$(k+'Meter'), val=$(k+'Value'); if(bar)bar.style.width=v+'%'; if(val)val.textContent=v+'%';});}
   function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
   addEventListener('resize',resize);
   addEventListener('pointermove',e=>{if(world){world.rotation.y=((e.clientX/innerWidth)-.5)*.03;world.rotation.x=((e.clientY/innerHeight)-.5)*-.025;}});
   fetch(profilesUrl,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()).then(c=>{state.profiles=c.profiles||[];applyProfile(state.profile);}).catch(()=>applyProfile(state.profile));
-  setInterval(clock,1000); clock(); init3D();
+  setInterval(clock,1000); clock(); init3D(); loadKernelRuntime();
 })();
