@@ -31,6 +31,7 @@ jobs:
             node --check web/portfolio.js
             test -s web/portfolio.html
             test -s web/portfolio.css
+            python3 -m json.tool web/portfolio-manifest.json >/dev/null
       - name: Validate WebGL desktop catalog
         run: |
           node --check web/aurora_webgl_desktops.js
