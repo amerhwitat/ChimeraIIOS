@@ -54,14 +54,36 @@ function setupThamudic(){thamudicLoadState();if(!thamudicState.lexicon.length)th
 
 up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight',fire1:'KeyZ',fire2:'KeyX',start:'Enter',select:'ShiftLeft',menu:'Tab',pause:'Escape',virtualKeyboard:'F12',save:'F5',load:'F7'
 };
-let db,selectedMachine=null,listenAction=null;
+let db,selectedMachine=null,listenAction=null, mameCore={js:null,wasm:null,loaded:false};
+async function mameStoreFiles(){
+ const files=[...($('#mameRomFile')?.files||[])]; if(!files.length){log('No ROM/software files selected.');return;}
+ for(const f of files){await put('mame-roms',{id:'rom:'+f.name,size:f.size,name:f.name,type:f.type||'application/octet-stream',blob:f,lastModified:f.lastModified});}
+ await renderMameRomInventory(); log('Stored '+files.length+' user-supplied ROM/software file(s) in IndexedDB.');
+}
+async function renderMameRomInventory(){
+ const el=$('#mameRomInventory'); if(!el)return;
+ try{const a=await all('mame-roms');el.innerHTML=a.length?a.map(x=>'<span>'+esc(x.name)+' · '+Math.round(x.size/1024)+' KB</span>').join(''):'<span>No ROMs stored</span>';
+ const st=$('#mameRuntimeStatus'); if(st)st.textContent='Core: '+(mameCore.loaded?'loaded locally':'not loaded')+' · ROMs: user-supplied ('+a.length+') · storage: IndexedDB';
+ }catch(e){if(el)el.innerHTML='<span>ROM storage unavailable</span>'}
+}
+async function mameLoadCore(){
+ const jsFile=$('#mameCoreJs')?.files?.[0], wasmFile=$('#mameCoreWasm')?.files?.[0];
+ if(!jsFile&&!wasmFile){alert('Select the MAME WebAssembly JavaScript and/or WASM runtime first.');return;}
+ if(wasmFile)await put('mame-core',{id:'wasm',name:wasmFile.name,size:wasmFile.size,blob:wasmFile});
+ if(jsFile)await put('mame-core',{id:'js',name:jsFile.name,size:jsFile.size,blob:jsFile});
+ mameCore={js:jsFile?.name||null,wasm:wasmFile?.name||null,loaded:true};
+ $('#mameCoreBadge').textContent='Browser core: staged';
+ $('#mameCoreBadge').title='Core assets stored locally. The MAME build must expose its Emscripten runtime/Module interface before emulation can start.';
+ await renderMameRomInventory(); log('MAME WebAssembly core staged in IndexedDB.');}
+async function mameResetCore(){mameCore={js:null,wasm:null,loaded:false};try{for(const x of await all('mame-core'))await new Promise((res,rej)=>{const t=db.transaction('mame-core','readwrite');t.objectStore('mame-core').delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)})}catch{}$('#mameCoreBadge').textContent='Browser core: not loaded';await renderMameRomInventory();}
+
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function log(s){const el=$('#dbLog');if(el){el.textContent+=(el.textContent?'\n':'')+s;el.scrollTop=el.scrollHeight}}
 function metrics(el,rows){$(el).innerHTML=rows.map(x=>'<div class="metric"><span>'+esc(x[0])+'</span><strong>'+esc(x[1])+'</strong></div>').join('')}
 function rows(el,arr){$(el).innerHTML=arr.map(x=>'<div class="list-row"><strong>'+esc(x[0])+'</strong><span class="muted">'+esc(x[1])+'</span></div>').join('')}
 function openDB(){
- return new Promise((resolve,reject)=>{const r=indexedDB.open('chimera-ii-control',3);r.onupgradeneeded=()=>{const d=r.result;['settings','machines','games','controls','saves'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:'id'})})};r.onsuccess=()=>{db=r.result;resolve(db)};r.onerror=()=>reject(r.error)})
+ return new Promise((resolve,reject)=>{const r=indexedDB.open('chimera-ii-control',3);r.onupgradeneeded=()=>{const d=r.result;['settings','machines','games','controls','saves','mame-roms','mame-core'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:'id'})})};r.onsuccess=()=>{db=r.result;resolve(db)};r.onerror=()=>reject(r.error)})
 }
 function put(store,obj){return new Promise((res,rej)=>{const t=db.transaction(store,'readwrite');t.objectStore(store).put(obj);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
 function all(store){return new Promise((res,rej)=>{const t=db.transaction(store);const r=t.objectStore(store).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
@@ -92,6 +114,8 @@ function renderMachineDetail(){if(!selectedMachine){$('#machineDetail').innerHTM
 function mameCommand(extra=[]){if(!selectedMachine)return 'mame';const path=$('#mameRomPath').value.trim()||'roms';let c=['mame',selectedMachine[0],'-rompath',path,'-video',$('#mameVideo').value];if($('#mameWindow').value==='fullscreen')c.push('-maximize');const sp=Number($('#mameSpeed').value||1);if(sp!==1)c.push('-speed',sp);if($('#autosave').value==='on')c.push('-autosave');if($('#rewind').value==='on')c.push('-rewind','-rewind_capacity',$('#rewindCap').value);if($('#debugger').value)c.push(...extra);return c.join(' ')}
 function updateMameCommand(){if($('#mameCommand'))$('#mameCommand').textContent=mameCommand()}
 function setupMame(){
+ $('#mameLoadCore').onclick=mameLoadCore;$('#mameStoreRoms').onclick=mameStoreFiles;$('#mameCoreReset').onclick=mameResetCore;$('#mameClearRoms').onclick=async()=>{for(const x of await all('mame-roms'))await new Promise((res,rej)=>{const t=db.transaction('mame-roms','readwrite');t.objectStore('mame-roms').delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)});await renderMameRomInventory();log('Stored MAME ROM/software cache cleared.');};
+ renderMameRomInventory();
  $('#mameSearch').oninput=renderMame;$('#mameFilter').onchange=renderMame;
  $$('#view-mame input,#view-mame select').forEach(x=>x.addEventListener('change',updateMameCommand));
  $$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.mtab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector('[data-mtab-panel="'+b.dataset.mtab+'"]').classList.add('active')});
