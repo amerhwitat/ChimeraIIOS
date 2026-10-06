@@ -1,0 +1,59 @@
+{
+  "schema": "CHM-AURORA-RUNTIME-1",
+  "name": "Chimera II Aurora Live OS Runtime",
+  "kernel": {
+    "name": "Koronos",
+    "mode": "freestanding",
+    "architectures": ["x86_64", "x86", "aarch64", "riscv64", "r8192", "c8192"],
+    "stages": [
+      {"id":"firmware","label":"Firmware / Boot","kind":"kernel-space"},
+      {"id":"koronos","label":"Koronos Kernel","kind":"kernel-space"},
+      {"id":"mm","label":"Memory Manager","kind":"kernel-space"},
+      {"id":"scheduler","label":"Scheduler","kind":"kernel-space"},
+      {"id":"ipc","label":"IPC / Capability Bus","kind":"kernel-space"},
+      {"id":"drivers","label":"Drivers / Hardware","kind":"kernel-space"},
+      {"id":"init","label":"Kore Init / Service Manager","kind":"system-space"}
+    ]
+  },
+  "targets": [
+    {"id":"hardware","label":"hardware.target","after":["koronos"],"critical":true},
+    {"id":"storage","label":"storage.target","after":["hardware"],"critical":true},
+    {"id":"network","label":"network.target","after":["hardware"],"critical":false},
+    {"id":"security","label":"security.target","after":["koronos"],"critical":true},
+    {"id":"graphics","label":"graphics.target","after":["hardware"],"critical":false},
+    {"id":"nt-compat","label":"nt-compat.target","after":["security","storage"],"critical":false},
+    {"id":"win32","label":"win32.target","after":["nt-compat","graphics"],"critical":false},
+    {"id":"desktop","label":"desktop.target","after":["graphics","win32","storage"],"critical":false},
+    {"id":"live","label":"live.target","after":["storage","network","graphics"],"critical":false},
+    {"id":"multi-user","label":"multi-user.target","after":["desktop","network","security"],"critical":false}
+  ],
+  "services": [
+    {"id":"kore","label":"Kore Service Manager","target":"security","kind":"system-service","critical":true},
+    {"id":"console","label":"Koronos Console","target":"hardware","kind":"kernel-service","critical":true},
+    {"id":"timer","label":"Kernel Timer","target":"hardware","kind":"kernel-service","critical":true},
+    {"id":"module-manager","label":"Module Manager","target":"storage","kind":"system-service","critical":true},
+    {"id":"storage","label":"Storage Discovery","target":"storage","kind":"system-service","critical":true},
+    {"id":"security-service","label":"Chimera Security","target":"security","kind":"system-service","critical":true},
+    {"id":"network-service","label":"Network Manager","target":"network","kind":"system-service","critical":false},
+    {"id":"audio","label":"Audio / Media","target":"desktop","kind":"system-service","critical":false},
+    {"id":"gpu","label":"GPU / Display","target":"graphics","kind":"system-service","critical":false},
+    {"id":"wayland","label":"Aurora Wayland","target":"desktop","kind":"user-service","critical":false},
+    {"id":"desktop-shell","label":"Aurora Desktop Shell","target":"desktop","kind":"user-service","critical":false},
+    {"id":"terminal","label":"Terminal Session","target":"multi-user","kind":"user-service","critical":false},
+    {"id":"browser","label":"Web Workspace","target":"multi-user","kind":"user-service","critical":false},
+    {"id":"ipc-bus","label":"User IPC Bus","target":"multi-user","kind":"user-service","critical":false}
+  ],
+  "userspace": [
+    {"id":"init","label":"PID 1 / Kore","kind":"system"},
+    {"id":"system-manager","label":"Service Manager","kind":"system"},
+    {"id":"device-manager","label":"Device Manager","kind":"system"},
+    {"id":"networkd","label":"Network Userland","kind":"system"},
+    {"id":"aurora-shell","label":"Aurora Shell","kind":"user"},
+    {"id":"desktop-compositor","label":"Wayland Compositor","kind":"user"},
+    {"id":"panel","label":"Aurora Panel","kind":"user"},
+    {"id":"launcher","label":"Application Launcher","kind":"user"},
+    {"id":"file-manager","label":"File Manager","kind":"user"},
+    {"id":"terminal-session","label":"Terminal Session","kind":"user"},
+    {"id":"browser-session","label":"Browser Session","kind":"user"}
+  ]
+}
