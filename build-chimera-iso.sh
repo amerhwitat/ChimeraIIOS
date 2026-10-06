@@ -726,6 +726,7 @@ verify_iso(){
     /boot/visual/aurora-recovery.png
     /boot/visual/aurora-live.png
     /boot/visual/Init.mp4
+    /boot/visual/chimera-intro.mp4
     /boot/jasper/jasper.cfg
     /boot/jasper/install.cfg
     /boot/jasper/retro.cfg
