@@ -12,3 +12,4 @@
     "sources":{"type":"array","items":{"type":"object","required":["id","url","scope"],"properties":{"id":{"type":"string"},"url":{"type":"string","format":"uri"},"scope":{"type":"string"}}}}
   }
 }
+}
