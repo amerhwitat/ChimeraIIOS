@@ -1,0 +1,53 @@
+# Chimera II OS Aurora GRUB graphical theme
+# The background and menu layout are deliberately self-contained so the ISO
+# remains fully offline and bootable without a Linux userspace.
+
+title-text: "CHIMERA II OS"
+title-color: "#F4FDFF"
+desktop-image: "/boot/visual/aurora-menu.png"
+desktop-image-scale-method: "crop"
+desktop-image-h-align: "center"
+desktop-image-v-align: "center"
+desktop-color: "#030914"
+
++ label {
+  top = 6%
+  left = 8%
+  width = 84%
+  height = 6%
+  text = "AURORA BOOT MANAGER"
+  color = "#62E8FF"
+  align = "center"
+}
+
++ boot_menu {
+  left = 8%
+  top = 17%
+  width = 84%
+  height = 65%
+  item_color = "#E8FBFF"
+  selected_item_color = "#030914"
+  item_height = 42
+  item_padding = 8
+  item_spacing = 5
+}
+
++ progress_bar {
+  id = "__timeout__"
+  left = 25%
+  top = 88%
+  width = 50%
+  height = 10
+  fg_color = "#62E8FF"
+  bg_color = "#193247"
+}
+
++ label {
+  top = 92%
+  left = 10%
+  width = 80%
+  height = 4%
+  text = "↑ ↓ Select   Enter Boot   E Edit   C Command Line"
+  color = "#BDEFFF"
+  align = "center"
+}
