@@ -105,11 +105,11 @@ function setupMame(){
 let gameManifest=null;
 const gameLobby={ws:null,peers:new Map(),id:(crypto.randomUUID?crypto.randomUUID():String(Date.now()))};
 async function loadGameManifest(){try{const r=await fetch('game-center-manifest.json',{cache:'no-store'});if(!r.ok)throw Error('manifest '+r.status);gameManifest=await r.json();gameCatalog=gameManifest.games.map(x=>[x[0],x[1],x[2],x[3],x[5],x[4],x[6],x[7]]);return true}catch(e){log('Game manifest fallback: '+e.message);return false}}
-function gameLaunchHint(x){return x[5]==='native-elf'?'Local build/runtime required':'Browser runtime'}
+function gameLaunchHint(x){return x[4]==='native-elf'?'Local build/runtime required':'Browser runtime'}
 function renderGames(){
  const q=($('#gameSearch').value||'').toLowerCase(), fam=$('#gameFamily').value;
  const rows=gameCatalog.filter(x=>(fam==='all'||x[2]===fam)&&(x.join(' ').toLowerCase().includes(q)));
- $('#gamesGrid').innerHTML=rows.map(x=>'<article class="game-card"><h3>'+esc(x[1])+'</h3><p>'+esc(x[2])+' · '+esc(x[3])+'</p><div class="chips"><span>'+esc(x[4])+'</span><span>'+(x[5]?'🌐 Multiplayer':'Solo')+'</span><span>'+esc(gameLaunchHint(x))+'</span></div><div class="actions"><button data-game="'+esc(x[0])+'">Favorite</button><button data-source="'+esc(x[0])+'">Source</button>'+(x[5]?'<button data-lobby="'+esc(x[0])+'>Lobby</button>':'')+'</div><small class="muted">'+esc(x[7]||'')+'</small></article>').join('');
+ $('#gamesGrid').innerHTML=rows.map(x=>'<article class="game-card"><h3>'+esc(x[1])+'</h3><p>'+esc(x[2])+' · '+esc(x[3])+'</p><div class="chips"><span>'+esc(x[4])+'</span><span>'+(x[5]?'🌐 Multiplayer':'Solo')+'</span><span>'+esc(gameLaunchHint(x))+'</span></div><div class="actions"><button data-game="'+esc(x[0])+'">Favorite</button><button data-source="'+esc(x[0])+'">Source</button>'+(x[5]?'<button data-lobby="'+esc(x[0])+'">Lobby</button>':'')+'</div><small class="muted">'+esc(x[7]||'')+'</small></article>').join('');
  $('#gamesGrid [data-game]').forEach(b=>b.onclick=()=>{const x=gameCatalog.find(g=>g[0]===b.dataset.game);put('games',{id:x[0],title:x[1],genre:x[2],provider:x[3],layer:x[4],multiplayer:!!x[5],source:x[6],site:x[7],favorite:true});b.textContent='Favorited';log('Game favorite: '+x[1])});
  $('#gamesGrid [data-source]').forEach(b=>b.onclick=()=>{const x=gameCatalog.find(g=>g[0]===b.dataset.source);window.open(x[6]||x[7],'_blank','noopener')});
  $('#gamesGrid [data-lobby]').forEach(b=>b.onclick=()=>joinGameLobby(b.dataset.lobby));
