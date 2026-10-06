@@ -105,9 +105,11 @@ def segment_text(text):
 
 def corpus_lookup(text, translit):
     norm = re.sub(r"\s+", " ", translit.strip())
+    norm = norm.replace("s¹", "s1").replace("s²", "s2").replace("s³", "s3").replace("ʾ", "ʼ").replace("ʿ", "ʽ")
     hits = []
     for entry in LOCAL_CORPUS:
         pattern = entry.get("pattern","")
+        pattern = re.sub(r"\s+", " ", pattern).replace("s¹", "s1").replace("s²", "s2").replace("s³", "s3").replace("ʾ", "ʼ").replace("ʿ", "ʽ")
         if pattern and pattern in norm:
             hits.append(dict(entry))
     return hits
