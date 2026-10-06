@@ -256,7 +256,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs boot branding apache features games squashfs iso verify report'; local ci ti
+  local order='docker rootfs boot installer branding apache features games squashfs iso verify report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -386,12 +386,23 @@ create_boot_menu(){
   cp "$SCRIPT_DIR/docs/recovery-runtime-levels.md" "$ISO_DIR/recovery/"
   [[ -s "$BUILD_DIR/live-boot/boot/vmlinuz" ]] && chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/vmlinuz" "$ISO_DIR/boot/live/vmlinuz" || true
   [[ -f "$SCRIPT_DIR/boot/iso/grub.cfg" ]] && cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/grub/grub.cfg"
-  [[ -f "$SCRIPT_DIR/boot/jasper/recovery.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/recovery.cfg" "$ISO_DIR/boot/jasper/recovery.cfg"
-  [[ -f "$SCRIPT_DIR/boot/jasper/live.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/live.cfg" "$ISO_DIR/boot/jasper/live.cfg"
-  [[ -f "$SCRIPT_DIR/boot/jasper/jasper.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/jasper.cfg" "$ISO_DIR/boot/jasper/jasper.cfg"
-  [[ -f "$SCRIPT_DIR/boot/jasper/safe-mode.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/safe-mode.cfg" "$ISO_DIR/boot/jasper/safe-mode.cfg"
-  [[ -f "$SCRIPT_DIR/boot/jasper/diagnostics.cfg" ]] && cp "$SCRIPT_DIR/boot/jasper/diagnostics.cfg" "$ISO_DIR/boot/jasper/diagnostics.cfg"
-  [[ -f "$SCRIPT_DIR/boot/spitfire/spitfire-menu.cfg" ]] && cp "$SCRIPT_DIR/boot/spitfire/spitfire-menu.cfg" "$ISO_DIR/boot/spitfire/spitfire-menu.cfg"
+  # Stage every canonical Jasper, installation and Spit Fire menu contract.
+  for f in "$SCRIPT_DIR/boot/jasper/"*.cfg; do
+    [[ -f "$f" ]] || continue
+    cp -f "$f" "$ISO_DIR/boot/jasper/$(basename "$f")"
+  done
+  for f in "$SCRIPT_DIR/boot/installation/"*.cfg; do
+    [[ -f "$f" ]] || continue
+    mkdir -p "$ISO_DIR/boot/installation"
+    cp -f "$f" "$ISO_DIR/boot/installation/$(basename "$f")"
+  done
+  for f in "$SCRIPT_DIR/boot/spitfire/"*.cfg; do
+    [[ -f "$f" ]] || continue
+    cp -f "$f" "$ISO_DIR/boot/spitfire/$(basename "$f")"
+  done
+  [[ -f "$SCRIPT_DIR/boot/loader-menu.cfg" ]] && cp -f "$SCRIPT_DIR/boot/loader-menu.cfg" "$ISO_DIR/boot/loader-menu.cfg"
+  [[ -f "$SCRIPT_DIR/boot/boot-menu-contract.json" ]] && cp -f "$SCRIPT_DIR/boot/boot-menu-contract.json" "$ISO_DIR/boot/boot-menu-contract.json"
+  [[ -f "$SCRIPT_DIR/boot/boot-artwork-manifest.json" ]] && cp -f "$SCRIPT_DIR/boot/boot-artwork-manifest.json" "$ISO_DIR/boot/boot-artwork-manifest.json"
   [[ -f "$SCRIPT_DIR/boot/iso/grub.cfg" ]] || { log_error 'GRUB configuration missing'; exit 1; }
   [[ -s "$ISO_DIR/boot/grub/grub.cfg" ]] || { log_error 'Staged GRUB configuration is empty'; exit 1; }
   [[ -s "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img" ]] || { log_error 'Recovery initramfs missing'; exit 1; }
@@ -430,7 +441,7 @@ prepare_branding(){
   if [[ -s "$SCRIPT_DIR/boot/visual/aurora-wayland-glass.jpg.b64" ]]; then
     base64 -d "$SCRIPT_DIR/boot/visual/aurora-wayland-glass.jpg.b64" \
       > "$ISO_DIR/boot/visual/aurora-wayland-glass.jpg"
-  elif [[ -s "$visual/backgrounds/boot.png" && $(command -v convert) ]]; then
+  elif [[ -s "$visual/backgrounds/boot.png" ]] && command -v convert >/dev/null 2>&1; then
     convert "$visual/backgrounds/boot.png" -quality 90 \
       "$ISO_DIR/boot/visual/aurora-wayland-glass.jpg"
   fi
