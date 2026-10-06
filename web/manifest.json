@@ -1,0 +1,11 @@
+{
+  "name":"Chimera II OS Aurora Control Center",
+  "short_name":"Chimera II",
+  "start_url":"./index.html",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#050b14",
+  "theme_color":"#07111f",
+  "description":"Aurora Control Center for the Chimera II OS web runtime.",
+  "icons":[]
+}
