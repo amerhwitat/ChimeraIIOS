@@ -571,7 +571,7 @@ create_installer(){
   local bb="$(command -v busybox || true)"
   [[ -n "$bb" ]] || { log_error "busybox is required to build the native installer initramfs"; rm -rf "$p"; exit 1; }
   cp -f "$bb" "$p/bin/busybox"
-  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio; do
+  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio ip udhcpc nslookup; do
     ln -sf busybox "$p/bin/$x"
   done
 
@@ -579,6 +579,12 @@ create_installer(){
     cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh"
     chmod +x "$p/bin/chimera-installer-runtime.sh"
   fi
+  for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do
+    if [[ -f "$SCRIPT_DIR/$f" ]]; then
+      cp -f "$SCRIPT_DIR/$f" "$p/bin/"
+      chmod +x "$p/bin/$(basename "$f")"
+    fi
+  done
 
   for f in \
     "$SCRIPT_DIR/install/installer-contract.json" \
