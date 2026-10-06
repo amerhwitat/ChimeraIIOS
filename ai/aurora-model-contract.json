@@ -1,0 +1,1 @@
+{"schema":"chimera-ai-model/v1","providers":["browser-rnn","transformers-js","authorized-chimera-backend"],"learning_event_schema":"chimera-user-learning/v1","kernel_boundary":"AI remains an advisory service boundary; no untrusted model output becomes kernel code","isa_registry":"data/isa/isa-registry.json.gz.b64","advisory_only":true}
