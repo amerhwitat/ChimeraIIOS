@@ -132,6 +132,18 @@ def main() -> int:
     if background is None or not background.is_file():
         raise SystemExit("Aurora background source is required (--background/--source-png)")
 
+    # Repository-native splash video is the default when no external video was
+    # supplied. This keeps boot media deterministic and offline.
+    if a.video is None and a.embedded_video is None:
+        root = Path(__file__).resolve().parents[2]
+        for candidate in (
+            root / "desktop/aurora/assets/Init.mp4",
+            root / "desktop/aurora/assets/library/Init.mp4",
+        ):
+            if candidate.is_file() and candidate.stat().st_size:
+                a.video = candidate
+                break
+
     jpg = out / "aurora-background.jpg"
     make_jpeg(background, jpg)
     write_b64(jpg, out / "aurora-background.jpg.b64")
