@@ -1,0 +1,186 @@
+{
+  "version": 2,
+  "generated_at": "2026-10-06",
+  "apps": [
+    {
+      "id": "chimera",
+      "name": "ChimeraIIOS",
+      "repository": "amerhwitat/ChimeraIIOS",
+      "category": "Core OS",
+      "description": "Canonical OS, Aurora Control Center, emulation, games, networking, NLP, PDF and runtime integration.",
+      "tags": [
+        "Aurora",
+        "MAME",
+        "Amiga",
+        "WebGL",
+        "PWA"
+      ],
+      "portal": "index.html",
+      "source": "https://github.com/amerhwitat/ChimeraIIOS"
+    },
+    {
+      "id": "bizx",
+      "name": "BizX",
+      "repository": "amerhwitat/BizX",
+      "category": "Games & Business",
+      "description": "Business simulation, RPG/strategy, networking, wallets, rendering and cross-language game systems.",
+      "tags": [
+        "WebGL",
+        "Three.js",
+        "Unity",
+        "Unreal",
+        "NetworkUnified"
+      ],
+      "portal": "game-center.html",
+      "source": "https://github.com/amerhwitat/BizX"
+    },
+    {
+      "id": "bizxtreme",
+      "name": "BizXtreme",
+      "repository": "amerhwitat/BizXtreme",
+      "category": "Games & Business",
+      "description": "Extended game platform with UnifiedGame, AssetBrowser, NetworkUnified, economy, P2P and mobile tracks.",
+      "tags": [
+        "WebGL",
+        "P2P",
+        "Assets",
+        "Mobile"
+      ],
+      "portal": "game-center.html",
+      "source": "https://github.com/amerhwitat/BizXtreme"
+    },
+    {
+      "id": "cpu4096",
+      "name": "CPU4096",
+      "repository": "amerhwitat/CPU4096",
+      "category": "CPU & Simulation",
+      "description": "4096/8192-bit wide-register research implementation with deterministic workloads and cross-language tracks.",
+      "tags": [
+        "C++",
+        "Java",
+        "Node",
+        "Python",
+        "8192-bit"
+      ],
+      "portal": "aurora_webgl_desktops.html",
+      "source": "https://github.com/amerhwitat/CPU4096"
+    },
+    {
+      "id": "cpu4096sim",
+      "name": "CPU4096Simulator",
+      "repository": "amerhwitat/CPU4096Simulator",
+      "category": "CPU & Simulation",
+      "description": "Chimera II web/runtime simulator covering ISA, memory/MMIO, kernel/runtime, networking and robotics HAL.",
+      "tags": [
+        "JavaScript",
+        "Node",
+        "ISA",
+        "Web"
+      ],
+      "portal": "aurora_webgl_desktops.html",
+      "source": "https://github.com/amerhwitat/CPU4096Simulator"
+    },
+    {
+      "id": "nlp",
+      "name": "Ancient Language NLP",
+      "repository": "amerhwitat/nlp",
+      "category": "Language & Documents",
+      "description": "Ancient-script scanning, OCR/media pipeline, transliteration, translation, reports and provenance-aware research.",
+      "tags": [
+        "OCR",
+        "NLP",
+        "PDF",
+        "Thamudic"
+      ],
+      "portal": "index.html#ocr",
+      "source": "https://github.com/amerhwitat/nlp"
+    },
+    {
+      "id": "pdf",
+      "name": "PDFreaderPY",
+      "repository": "amerhwitat/PDFreaderPY",
+      "category": "Language & Documents",
+      "description": "Python PDF/document reader track integrated into the Chimera document workflow.",
+      "tags": [
+        "Python",
+        "PDF",
+        "Documents"
+      ],
+      "portal": "index.html#pdf",
+      "source": "https://github.com/amerhwitat/PDFreaderPY"
+    },
+    {
+      "id": "general",
+      "name": "General Integration",
+      "repository": "amerhwitat/general",
+      "category": "Integration",
+      "description": "Shared network, AI, workflow, research, mobile, Apple and web integration material.",
+      "tags": [
+        "Network",
+        "AI",
+        "Workflow",
+        "Mobile"
+      ],
+      "portal": "network.html",
+      "source": "https://github.com/amerhwitat/general"
+    },
+    {
+      "id": "keygen",
+      "name": "Koronos Java Track",
+      "repository": "amerhwitat/keygen",
+      "category": "Runtime & Crypto",
+      "description": "Java/Koronos 128D research runtime, services, concurrency and trusted-node federation.",
+      "tags": [
+        "Java",
+        "Koronos",
+        "128D"
+      ],
+      "portal": "aurora_3d_desktop.html",
+      "source": "https://github.com/amerhwitat/keygen"
+    },
+    {
+      "id": "eth",
+      "name": "Ethereum Key Check",
+      "repository": "amerhwitat/eth-key-check",
+      "category": "Runtime & Crypto",
+      "description": "Owner-authorized cryptographic verification and cross-language research utilities.",
+      "tags": [
+        "Crypto",
+        "Python",
+        "Node",
+        "Java",
+        "C++"
+      ],
+      "portal": "wallet-center.html",
+      "source": "https://github.com/amerhwitat/eth-key-check"
+    },
+    {
+      "id": "bruteforce",
+      "name": "Crypto Research",
+      "repository": "amerhwitat/bruteforce",
+      "category": "Runtime & Crypto",
+      "description": "Safe cryptographic research, restore-and-verify and synthetic benchmarking; no private-key recovery.",
+      "tags": [
+        "Crypto",
+        "AI",
+        "Benchmarks"
+      ],
+      "portal": "wallet-center.html",
+      "source": "https://github.com/amerhwitat/bruteforce"
+    },
+    {
+      "id": "pages",
+      "name": "Chimera Pages Host",
+      "repository": "amerhwitat/amerhwitat.github.io",
+      "category": "Hosting & Deployment",
+      "description": "Public GitHub Pages hosting surface for the portfolio and deployed web applications.",
+      "tags": [
+        "GitHub Pages",
+        "Hosting",
+        "Deployment"
+      ],
+      "portal": "index.html",
+      "source": "https://github.com/amerhwitat/amerhwitat.github.io"
+    }
+  ]
+}
