@@ -1,0 +1,58 @@
+name: Deploy Chimera II OS to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Retro Emulator Lab
+        run: |
+          node --check web/retro_emulators.js
+          python3 -m json.tool web/retro_emulators.json >/dev/null
+          test -s web/retro_emulators.html
+          test -s web/retro_emulators.css
+      - name: Validate WebGL desktop catalog
+        run: |
+          node --check web/aurora_webgl_desktops.js
+          python3 -m json.tool web/desktop_profiles.json >/dev/null
+      - name: Validate core Pages boundary
+        run: |
+          test -s web/index.html
+          test ! -e web/amiga-core
+          test ! -e web/local-core
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
