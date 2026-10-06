@@ -59,7 +59,6 @@ foreach(chm_target IN LISTS CHIMERA_COMMON_TARGETS)
   target_compile_features(${chm_target} PRIVATE cxx_std_20)
 endforeach()
 install(TARGETS ${CHIMERA_COMMON_TARGETS} RUNTIME DESTINATION bin)
-install(TARGETS chm-diskpart chm-parted chm-fdisk chm-gdisk RUNTIME DESTINATION bin)
 
 add_executable(chm-sed ../system/languages/chm_sed.cpp)
 target_compile_features(chm-sed PRIVATE cxx_std_20)

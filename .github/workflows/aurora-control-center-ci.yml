@@ -7,6 +7,8 @@ on:
       - 'web/chimera-hub.js'
       - 'web/chimera-hub.css'
       - 'tools/amiga-local-core/**'
+      - 'tools/thamudic-nlp/**'
+      - 'tools/thamudic-nlp/**'
       - '.github/workflows/aurora-control-center-ci.yml'
   pull_request:
     paths:

@@ -24,7 +24,6 @@ events:[['Frontier Weekend','Weekly · bonus progression and free daily claims']
 inventory:[['Frontier Outfit','Cosmetic ×1'],['Explorer Tool','Equipment ×1'],['Rookie Runner Skin','Cosmetic ×1'],['Frontier Map','Content ×1'],['Starter Supply Crate','Consumable ×3'],['Inventory Expansion','Utility ×5']],
 market:[['30-Day Access','Time'],['7-Day XP Boost','Boost'],['10 Inventory Slots','Utility'],['Aurora Skin','Cosmetic'],['Explorer Map Pack','Content'],['Expedition Kit','Equipment'],['Frontier Resource Cache','Consumable'],['Hardware Wallet Case','Accessory']]
 };
-const THAMUDIC_RE=/[\\u{10A80}-\\u{10A9F}]/u;
 const thamudicState={image:null,boxes:[],selected:-1,records:[],research:[],lexicon:[],model:null};
 const THAMUDIC_BRIDGE='http://127.0.0.1:8766';
 const thamudicDefaultLexicon=[
