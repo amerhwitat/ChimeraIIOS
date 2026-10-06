@@ -19,7 +19,9 @@ for x in json.load(open(manifest,encoding="utf-8"))["games"]:
  for cmd in cmds:
   print("+"," ".join(cmd))
   if subprocess.run(cmd).returncode: ok=False; break
- if ok: open(os.path.join(binroot,gid+".path"),"w").write(d+"\n"); print("BUILT:",gid)
+ if ok:
+  open(os.path.join(binroot,gid+".path"),"w").write(d+"\n")
+  print("BUILT:",gid,"source:",d)
  else: print("BUILD FAILED:",gid)
 print("\nBuild pass complete. Native binaries remain local.")
 PY
