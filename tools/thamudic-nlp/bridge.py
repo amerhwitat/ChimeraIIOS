@@ -118,6 +118,12 @@ class H(BaseHTTPRequestHandler):
             job={"status":"queued","model":data.get("model","vision-glyph-cnn"),"epochs":data.get("epochs",20),"batch":data.get("batch",16),"lr":data.get("lr",.001),"ocr":False,"note":"Training uses reviewed glyph samples; install optional torch stack for actual CNN training."}
             (DATA/"training.json").write_text(json.dumps(job,ensure_ascii=False,indent=2),encoding="utf-8"); return j(self,200,job)
           if self.path=="/thamudic/evaluate": return j(self,200,{"status":"ready","metric_policy":"per-glyph confidence + reviewed accuracy","ocr":False})
+          if self.path=="/thamudic/ocr":
+            raw=base64.b64decode(str(data.get("image","")).split(",",1)[-1])
+            result={"engine":"thamudic-vision","automatic":True,"modelAvailable":(DATA/"model.json").exists(),"warning":"No standard Tesseract Thamudic model; recognition is emitted only by a reviewed local vision model.","boxes":[]}
+            if data.get("width") and data.get("height"):
+                result["boxes"]=connected_components_gray(raw,int(data["width"]),int(data["height"]),int(data.get("threshold",128)))
+            return j(self,200,result)
           if self.path=="/thamudic/predict":
             glyphs=data.get("boxes",[])
             # Do not invent historical readings. Return existing labels or uncertainty.
