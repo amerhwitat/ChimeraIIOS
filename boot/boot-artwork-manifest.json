@@ -21,8 +21,16 @@
     "spitfire": "/boot/visual/aurora-wayland-glass.jpg",
     "installer": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "desktop": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
-    "library": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg"
+    "library": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+    "splash_video": "/usr/share/chimera/aurora/assets/init.mp4"
   },
   "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
-  "fallback": "desktop/aurora/assets/aurora-desktop.svg"
+  "fallback": "desktop/aurora/assets/aurora-desktop.svg",
+  "splash_video": {
+    "source": "desktop/aurora/assets/Init.mp4",
+    "runtime": "/usr/share/chimera/aurora/assets/init.mp4",
+    "boot_staging": "/boot/visual/Init.mp4",
+    "autostart": "desktop/aurora/aurora-init-splash.sh",
+    "grub_support": false
+  }
 }
