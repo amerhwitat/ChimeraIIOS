@@ -90,7 +90,9 @@ def connected_components_gray(raw,w,h,threshold=128):
 class H(BaseHTTPRequestHandler):
     def do_OPTIONS(self): j(self,204,{})
     def do_GET(self):
-        if self.path=="/health": return j(self,200,{"ok":True,"version":"chimera-thamudic-nlp/1","ocr":False,"tesseract":False,"data":str(DATA)})
+        if self.path=="/health":
+            langs=tesseract_languages()
+            return j(self,200,{"ok":True,"version":"chimera-thamudic-nlp/2","ocr":bool(langs),"tesseract":bool(langs),"tesseractLanguages":langs,"thamudicVision":True,"data":str(DATA)})
         j(self,404,{"error":"not-found"})
     def do_POST(self):
         try: data=req_json(self)
