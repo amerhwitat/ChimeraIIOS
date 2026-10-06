@@ -31,7 +31,7 @@ jobs:
       - name: Validate shell scripts
         run: |
           bash -n tools/amiga-local-core/build-local-core.sh
-          python3 -m py_compile tools/amiga-local-core/bridge.py
+          python3 -m py_compile tools/amiga-local-core/bridge.py tools/thamudic-nlp/bridge.py
       - name: Validate Pages boundary
         run: |
           test -s web/index.html

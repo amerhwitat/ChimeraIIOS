@@ -26,7 +26,7 @@ market:[['30-Day Access','Time'],['7-Day XP Boost','Boost'],['10 Inventory Slots
 };
 const THAMUDIC_RE=/[\\u{10A80}-\\u{10A9F}]/u;
 const thamudicState={image:null,boxes:[],selected:-1,records:[],research:[],lexicon:[],model:null};
-const THAMUDIC_BRIDGE='http://127.0.0.1:8765';
+const THAMUDIC_BRIDGE='http://127.0.0.1:8766';
 const thamudicDefaultLexicon=[
  ['𐪀','ʾ','aleph-like / uncertain','research baseline'],['𐪁','b','b','research baseline'],['𐪂','g','g','research baseline'],['𐪃','d','d','research baseline'],['𐪄','h','h','research baseline'],['𐪅','w','w','research baseline'],['𐪆','z','z','research baseline'],['𐪇','ḥ','ḥ','research baseline'],['𐪈','ṭ','ṭ','research baseline'],['𐪉','y','y','research baseline'],['𐪊','k','k','research baseline'],['𐪋','l','l','research baseline'],['𐪌','m','m','research baseline'],['𐪍','n','n','research baseline'],['𐪎','s','s','research baseline'],['𐪏','ʿ','ʿ','research baseline']
 ];

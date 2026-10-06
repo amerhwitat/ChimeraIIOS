@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 DATA=ROOT/".local"/"thamudic"
 DATA.mkdir(parents=True,exist_ok=True)
-PORT=8765
+PORT=8766
 THAMUDIC_RE=re.compile(r"[\U00010A80-\U00010A9F]")
 UA="ChimeraIIOS-ThamudicResearch/1.0"
 
