@@ -13,7 +13,7 @@
  <div class="hub-status"><span id="bridgeDot" class="dot"></span><span id="bridgeText">Local bridge: checking…</span></div>
 </header>
 <nav class="hub-nav" aria-label="Control Center">
- <button data-view="overview" class="active">Aurora</button><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button>
+ <button data-view="overview" class="active">Aurora</button><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="thamudic">Thamudic NLP</button>
 </nav>
 <main class="hub-main">
 <section id="view-overview" class="view active">
@@ -67,6 +67,39 @@
  <div id="bxKpis" class="metric-grid"></div><div class="bx-layout"><article class="panel"><h3>Campaign</h3><div id="chapters"></div></article><article class="panel"><h3>Live events</h3><div id="events"></div></article><article class="panel"><h3>Inventory</h3><div id="inventory"></div></article><article class="panel"><h3>Marketplace</h3><div id="market"></div></article></div>
 </section>
 
+<section id="view-thamudic" class="view">
+ <div class="section-head"><div><span class="eyebrow">THAMUDIC · ANCIENT NORTH ARABIAN</span><h2>Epigraphy & NLP Laboratory</h2></div><div class="toolbar"><span id="thamudicBridgeBadge" class="badge2">Local NLP bridge: checking…</span></div></div>
+ <div class="hero-card thamudic-hero"><div><span class="eyebrow">VISION-FIRST · NO OCR</span><h2>Scan, segment, label, transliterate and research inscriptions.</h2><p>UTF-8 Ancient North Arabian glyphs, reading-order analysis, provenance-aware web research, manual correction and local model inference. OCR/Tesseract is deliberately excluded.</p></div><div class="thamudic-glyph">𐪀 𐪁 𐪂</div></div>
+ <div class="metric-grid" id="thamudicMetrics"></div>
+ <div class="tabbar thamudic-tabs"><button class="tab active" data-ttab="scan">Scan</button><button class="tab" data-ttab="research">Research</button><button class="tab" data-ttab="dataset">Dataset</button><button class="tab" data-ttab="model">Model / NLP</button><button class="tab" data-ttab="lexicon">Lexicon</button><button class="tab" data-ttab="export">Academic Export</button></div>
+ <article class="panel ttab active" data-ttab-panel="scan">
+  <div class="form-grid"><label>Image<input id="thamudicFile" type="file" accept="image/*"></label><label>Reading order<select id="thamudicOrder"><option>auto</option><option>ltr</option><option>rtl</option><option>ttb</option><option>btt</option><option>reversed</option><option>spiral</option><option>boustrophedon</option></select></label><label>Deskew<select id="thamudicDeskew"><option>on</option><option>off</option></select></label><label>Threshold<input id="thamudicThreshold" type="number" value="128" min="1" max="254"></label></div>
+  <div class="actions"><button class="primary" id="thamudicScan">Scan inscription</button><button id="thamudicClear">Clear</button><button id="thamudicPredict">Predict glyphs locally</button><button id="thamudicSave">Save research record</button></div>
+  <div class="thamudic-workspace"><div class="panel inset"><canvas id="thamudicCanvas" width="900" height="520"></canvas></div><div class="panel inset"><h3>Glyph sequence</h3><div id="thamudicGlyphs" class="glyph-strip"></div><h3>Transliteration</h3><div id="thamudicTranslit" class="result-box" dir="auto">—</div><h3>Translation / interpretation</h3><textarea id="thamudicTranslation" rows="6" placeholder="Researcher's translation or model-assisted interpretation…"></textarea><div id="thamudicConfidence" class="chips"></div></div></div>
+  <div class="panel annotation-panel"><h3>Selected glyph</h3><div class="form-grid"><label>Unicode glyph<input id="glyphUnicode" placeholder="𐪀"></label><label>Code point<input id="glyphCodepoint" placeholder="U+10A80"></label><label>Transliteration<input id="glyphTranslit" placeholder="ʾ / b / ..."></label><label>Reading note<input id="glyphNote" placeholder="shape, uncertainty, damage…"></label></div><div class="actions"><button id="assignGlyph">Assign to selected box</button><button id="nextGlyph">Next glyph</button><button id="addLexicon">Add to lexicon</button></div></div>
+ </article>
+ <article class="panel ttab" data-ttab-panel="research">
+  <div class="form-grid"><label>Search query<input id="thamudicQuery" value="Thamudic inscription Qaryat al-Faw"></label><label>Source<select id="thamudicSource"><option>Wikimedia Commons</option><option>Web pages</option></select></label><label>Limit<input id="thamudicLimit" type="number" value="20" min="1" max="100"></label></div>
+  <div class="actions"><button class="primary" id="thamudicSearch">Search research sources</button><button id="thamudicCrawl">Crawl metadata + translations</button><button id="thamudicDownload">Download selected images locally</button></div>
+  <div id="thamudicResults" class="research-grid"></div>
+ </article>
+ <article class="panel ttab" data-ttab-panel="dataset">
+  <div class="form-grid"><label>Dataset name<input id="datasetName" value="thamudic-research"></label><label>License filter<select id="datasetLicense"><option>CC / public domain first</option><option>All with provenance</option></select></label><label>Minimum confidence<input id="datasetConfidence" type="number" value="0.75" min="0" max="1" step=".05"></label></div>
+  <div class="actions"><button id="buildDataset">Build dataset from reviewed records</button><button id="exportDataset">Export dataset manifest</button></div><div id="datasetSummary"></div>
+ </article>
+ <article class="panel ttab" data-ttab-panel="model">
+  <div class="form-grid"><label>Model<select id="thamudicModel"><option>vision-glyph-cnn</option><option>vision-transformer-local</option><option>geometry-baseline</option></select></label><label>Epochs<input id="thamudicEpochs" type="number" value="20" min="1" max="500"></label><label>Batch<input id="thamudicBatch" type="number" value="16" min="1" max="256"></label><label>Learning rate<input id="thamudicLR" type="number" value="0.001" step=".0001"></label></div>
+  <div class="actions"><button class="primary" id="trainThamudic">Train local model</button><button id="evaluateThamudic">Evaluate</button><button id="importModel">Import model metadata</button></div><pre id="thamudicModelLog">No model job submitted.</pre>
+  <div class="panel-grid"><article class="panel"><h3>Prediction pipeline</h3><p>Image → preprocessing → connected components → reading-order inference → glyph prediction → transliteration → lexicon lookup → researcher-reviewed translation.</p></article><article class="panel"><h3>Research guardrails</h3><p>Predictions are confidence-ranked hypotheses, not authoritative translations. Provenance and human correction remain attached to every result.</p></article></div>
+ </article>
+ <article class="panel ttab" data-ttab-panel="lexicon">
+  <div class="form-grid"><label>Thamudic / Unicode<input id="lexGlyph" placeholder="𐪀"></label><label>Transliteration<input id="lexTranslit" placeholder="ʾ"></label><label>Meaning<input id="lexMeaning" placeholder="research meaning"></label><label>Source<input id="lexSource" placeholder="URL / publication"></label></div><div class="actions"><button id="lexAdd">Add entry</button><button id="lexExport">Export lexicon</button></div><div id="lexiconTable" class="lexicon-table"></div>
+ </article>
+ <article class="panel ttab" data-ttab-panel="export">
+  <div class="chips"><span>CSV</span><span>JSON</span><span>JSON-LD</span><span>TEI-XML</span><span>SVG annotation</span><span>provenance</span><span>confidence</span></div>
+  <div class="actions"><button id="exportThamudicCSV">Export CSV</button><button id="exportThamudicJSON">Export JSON-LD</button><button id="exportThamudicTEI">Export TEI</button></div><pre id="thamudicExportPreview">No research record yet.</pre>
+ </article>
+</section>
 <section id="view-controls" class="view">
  <div class="section-head"><div><span class="eyebrow">INPUT SYSTEM</span><h2>Keyboard / mouse / gamepad</h2></div><button id="resetControls">Reset profile</button></div>
  <article class="panel"><p>Click an action, then press a key or gamepad button. The profile is stored locally and reused by MAME, Amiga and compatible games.</p><div id="controlEditor" class="control-editor"></div></article>
