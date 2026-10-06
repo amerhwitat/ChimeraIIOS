@@ -43,17 +43,19 @@ OCR_CANDIDATES = ["grc","syr","ara","heb","cop","lat","eng"]
 # uncertain characters as ?. This table is not presented as a historical
 # dictionary.
 TRANSLIT = {
-    "𐪀":"ʾ","𐪁":"b","𐪂":"g","𐪃":"d","𐪄":"h","𐪅":"w","𐪆":"z",
-    "𐪇":"ḥ","𐪈":"ṭ","𐪉":"y","𐪊":"k","𐪋":"l","𐪌":"m","𐪍":"n",
-    "𐪎":"s","𐪏":"ʿ","𐪐":"f","𐪑":"ṣ","𐪒":"q","𐪓":"r","𐪔":"š",
-    "𐪕":"t","𐪖":"ḏ","𐪗":"ḍ","𐪘":"ʾ","𐪙":"ġ","𐪚":"ṯ","𐪛":"ẓ",
-    "𐪜":"ḫ",
+    "𐪀":"h","𐪁":"l","𐪂":"ḥ","𐪃":"m","𐪄":"q","𐪅":"w","𐪆":"s2","𐪇":"r",
+    "𐪈":"b","𐪉":"t","𐪊":"s1","𐪋":"k","𐪌":"n","𐪍":"ḫ","𐪎":"ṣ","𐪏":"s3",
+    "𐪐":"f","𐪑":"ʼ","𐪒":"ʽ","𐪓":"ḍ","𐪔":"g","𐪕":"d","𐪖":"ġ","𐪗":"ṭ",
+    "𐪘":"z","𐪙":"ḏ","𐪚":"y","𐪛":"ṯ","𐪜":"ẓ","𐪝":"1","𐪞":"10","𐪟":"20",
 }
 
 # Only high-confidence UI-facing corpus glosses belong here. Entries are
 # structured so users can replace/extend them with reviewed scholarship.
 LOCAL_CORPUS = [
-    {"id":"thm-generic-inscription","pattern":"", "english":"[research translation required]", "arabic":"[تحتاج إلى ترجمة بحثية]", "confidence":0.0, "source":"local-safe-default"},
+    {"id":"TIJ 503","script":"Safaitic","pattern":"ytm bn ʿbny w wgm ʿl- ḫll -h","english":"Ytm son ʿbny and he grieved for his friend","arabic":"يتم بن عبني وحزن على صديقه","confidence":1.0,"source":"https://ociana.osu.edu/inscriptions/2400"},
+    {"id":"AH 311","script":"Dadanitic","pattern":"bḏkrh wdd ḏ{h}k","english":"Bḏkrh loves {Ḏhk}","arabic":"بذَكرَه يحب {ذهك}","confidence":1.0,"source":"https://ociana.osu.edu/inscriptions/13954"},
+    {"id":"Is.H 806","script":"Thamudic B","pattern":"l ḍtm h- s¹fr w h- frs¹","english":"By Ḍtm are the inscription and the horse","arabic":"لِضَتم النقش والحصان","confidence":1.0,"source":"https://ociana.osu.edu/inscriptions/5826"},
+    {"id":"GETham 2","script":"Thamudic B","pattern":"l (l)hn wdd ns²l ḏ ʿtq","english":"By Ḏ son of . (Llhn) greets Ns²l who was freed","arabic":"من Ḏ بن . (للهن) يحيّي نس²ل الذي أُعتق","confidence":1.0,"source":"https://ociana.osu.edu/inscriptions/44105"}
 ]
 
 def now():
