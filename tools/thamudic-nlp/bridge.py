@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Chimera II Thamudic NLP local bridge. Vision-first; no OCR/Tesseract."""
-import base64, json, os, re, subprocess, threading, urllib.parse, urllib.request
+import base64, json, os, re, shutil, subprocess, tempfile, threading, urllib.parse, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -10,7 +10,9 @@ DATA=ROOT/".local"/"thamudic"
 DATA.mkdir(parents=True,exist_ok=True)
 PORT=8766
 THAMUDIC_RE=re.compile(r"[\U00010A80-\U00010A9F]")
-UA="ChimeraIIOS-ThamudicResearch/1.0"
+UA="ChimeraIIOS-ThamudicResearch/2.0"
+OCR_LANGS={"ancient-greek":"grc","greek":"ell","arabic":"ara","syriac":"syr","hebrew":"heb","coptic":"cop","latin":"lat","english":"eng"}
+OCR_CANDIDATES=["grc","syr","ara","heb","cop","lat","eng"]
 
 def j(h,code,obj):
     raw=json.dumps(obj,ensure_ascii=False).encode()
@@ -31,6 +33,35 @@ def wikimedia_search(q,limit):
         ii=(p.get("imageinfo") or [{}])[0]; meta=ii.get("extmetadata") or {}
         out.append({"title":p.get("title",""),"url":ii.get("url",""),"thumbnail":ii.get("thumburl") or ii.get("url",""),"source":"Wikimedia Commons","license":meta.get("LicenseShortName",{}).get("value",""),"description":meta.get("ImageDescription",{}).get("value",""),"author":meta.get("Artist",{}).get("value","")})
     return out
+
+def tesseract_languages():
+    exe=shutil.which("tesseract")
+    if not exe: return []
+    try:
+        p=subprocess.run([exe,"--list-langs"],capture_output=True,text=True,timeout=10)
+        return [x.strip() for x in p.stdout.splitlines()[1:] if x.strip()]
+    except Exception:
+        return []
+
+def run_tesseract(image_bytes,lang="auto",psm=6):
+    exe=shutil.which("tesseract")
+    if not exe: return {"ok":False,"engine":"tesseract","error":"tesseract-not-installed","text":"","confidence":0}
+    installed=tesseract_languages()
+    requested=[OCR_LANGS.get(lang,lang)] if lang!="auto" else OCR_CANDIDATES
+    requested=[x for x in requested if x in installed]
+    if not requested: return {"ok":False,"engine":"tesseract","error":"no-requested-language-data","installed":installed,"text":"","confidence":0}
+    best={"ok":False,"engine":"tesseract","text":"","confidence":0,"language":None}
+    with tempfile.TemporaryDirectory(prefix="chimera-ocr-") as td:
+        src=Path(td)/"input.png"; src.write_bytes(image_bytes)
+        for code in requested:
+            try:
+                p=subprocess.run([exe,str(src),"stdout","--psm",str(psm),"-l",code],capture_output=True,text=True,timeout=90)
+                text=(p.stdout or "").strip()
+                if p.returncode==0 and len(text)>len(best["text"]):
+                    best={"ok":True,"engine":"tesseract","language":code,"text":text,"confidence":0}
+            except Exception:
+                pass
+    return best
 
 def connected_components_gray(raw,w,h,threshold=128):
     # raw = RGB bytes. Return coarse boxes; detailed segmentation can be upgraded locally with numpy/OpenCV-free PIL.
