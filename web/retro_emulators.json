@@ -411,5 +411,18 @@
         "bios": false
       }
     ]
+  },
+  "playstation_hub": {
+    "title": "Aurora PlayStation Emulator Hub",
+    "manifest": "playstation_emulators.json",
+    "url": "playstation_emulators.html",
+    "generations": [
+      "PSX",
+      "PS2",
+      "PS3",
+      "PS4",
+      "PS5"
+    ],
+    "policy": "catalog-and-adapter-only"
   }
 }
