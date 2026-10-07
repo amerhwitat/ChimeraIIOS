@@ -1,11 +1,24 @@
 #include "chimera/nbit_isa.hpp"
 #include <cassert>
 #include <iostream>
+#include <fstream>
 
 int main(){
     chimera::isa::NBitISACatalog c;
     std::string error;
-    assert(c.load_file("tools/isa/local_isa_catalog.json",&error));
+    const char* candidates[] = {
+        "tools/isa/local_isa_catalog.json",
+        "../tools/isa/local_isa_catalog.json"
+    };
+    bool loaded = false;
+    for (const char* path : candidates) {
+        if (std::ifstream(path).good()) {
+            loaded = c.load_file(path, &error);
+            if (loaded) break;
+            error.clear();
+        }
+    }
+    assert(loaded);
     assert(error.empty());
     assert(c.find_width(64));
     assert(c.find_width(8192));
