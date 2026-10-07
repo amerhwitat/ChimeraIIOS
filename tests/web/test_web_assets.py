@@ -8,7 +8,7 @@ WEB = ROOT / 'web'
 
 class WebAssetsTest(unittest.TestCase):
     def test_required_assets_exist(self):
-        for name in ('index.html', 'app.js', 'style.css', 'data/chimera.json'):
+        for name in ('index.html', 'app.js', 'style.css', 'data/chimera.json', 'aurora-interaction-hub.html', 'aurora-interaction-hub.js'):
             self.assertTrue((WEB / name).is_file(), name)
 
     def test_html_references_local_assets(self):
@@ -18,6 +18,14 @@ class WebAssetsTest(unittest.TestCase):
         self.assertIn('id="cards"', html)
         self.assertIn('id="isa"', html)
         self.assertIn('id="kernel"', html)
+
+    def test_interaction_hub_links(self):
+        html = (WEB / 'aurora-interaction-hub.html').read_text(encoding='utf-8')
+        js = (WEB / 'aurora-interaction-hub.js').read_text(encoding='utf-8')
+        self.assertIn('aurora-interaction-hub.js', html)
+        self.assertIn('wallet-center.html', js)
+        self.assertIn('system_control_center.html', js)
+        self.assertIn('playstation_emulators.html', js)
 
     def test_manifest_schema_and_counts(self):
         data = json.loads((WEB / 'data/chimera.json').read_text(encoding='utf-8'))
