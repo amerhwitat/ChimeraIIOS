@@ -25,17 +25,43 @@ PID_FILE="${XDG_RUNTIME_DIR:-/run}/chimera-aurora-splash.pid"
 MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-15}"
 
 read_percent(){
-  [[ -f "$PROGRESS" ]] && sed -n 's/^percent=//p' "$PROGRESS" | tail -1 || printf '%s' '-1'
+  [[ -r "$PROGRESS" ]] || { printf '%s' '-1'; return 0; }
+
+  local line
+  line="$(tail -n 1 "$PROGRESS" 2>/dev/null || true)"
+
+  # Kernel boot progress uses key=value: percent=96
+  # Aurora progress helper uses: 96|Aurora|Starting desktop
+  if [[ "$line" =~ ^percent=([0-9]+) ]]; then
+    printf '%s' "\${BASH_REMATCH[1]}"
+    return 0
+  fi
+
+  if [[ "$line" =~ ^([0-9]+)\| ]]; then
+    printf '%s' "\${BASH_REMATCH[1]}"
+    return 0
+  fi
+
+  printf '%s' '-1'
 }
 
 play_video(){
   [[ -s "$VIDEO" ]] || return 2
+
   if command -v mpv >/dev/null 2>&1; then
-    mpv --fs --no-terminal --really-quiet --keep-open=no "$VIDEO" >/dev/null 2>&1 & echo $! > "$PID_FILE"; return 0
+    mpv --fs --no-terminal --really-quiet --keep-open=no \
+      --title='Chimera II OS — Aurora' "$VIDEO" >/dev/null 2>&1 &
+    echo $! > "$PID_FILE"
+    return 0
   fi
+
   if command -v ffplay >/dev/null 2>&1; then
-    ffplay -fs -autoexit -loglevel quiet "$VIDEO" >/dev/null 2>&1 & echo $! > "$PID_FILE"; return 0
+    ffplay -fs -autoexit -loglevel quiet \
+      -window_title 'Chimera II OS — Aurora' "$VIDEO" >/dev/null 2>&1 &
+    echo $! > "$PID_FILE"
+    return 0
   fi
+
   return 2
 }
 
