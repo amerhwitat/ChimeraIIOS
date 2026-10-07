@@ -6,48 +6,98 @@
     "offline_first": true,
     "fallback_to_svg": true,
     "never_require_network_for_boot_art": true,
-    "binary_import_directory": "/usr/share/chimera/aurora/assets/library"
+    "binary_import_directory": "/usr/share/chimera/aurora/assets/library",
+    "media_offline_first": true
   },
   "library_sources": [
     {
       "name": "Aurora Wayland Glass Desktop",
       "library_file": "Aurora-Wayland-Glass-Desktop.png(1).jpg",
-      "role": ["desktop-background", "login", "first-boot", "live-cd", "installer"]
+      "role": [
+        "desktop-background",
+        "login",
+        "first-boot",
+        "live-cd",
+        "installer"
+      ]
     },
     {
       "name": "Aurora 8192-bit Research Framework",
       "library_file": "Gemini_Generated_Image_d8d6d8d6d8d6d8d6.jpg",
-      "role": ["desktop-background", "research-dashboard", "developer", "mobile-research"]
+      "role": [
+        "desktop-background",
+        "research-dashboard",
+        "developer",
+        "mobile-research"
+      ]
     },
     {
       "name": "Aurora Wayland Desktop Showcase",
       "library_file": "Aurora Wayland Desktop Showcase.png",
-      "role": ["desktop-preview", "theme-reference", "GUI-showcase"]
+      "role": [
+        "desktop-preview",
+        "theme-reference",
+        "GUI-showcase"
+      ]
     },
     {
       "name": "Aurora Wayland Desktop Boot Background",
       "library_file": "Aurora Wayland Desktop - boot background.jpg",
-      "role": ["boot-background", "login", "live-cd", "installer"]
+      "role": [
+        "boot-background",
+        "login",
+        "live-cd",
+        "installer"
+      ]
     },
     {
       "name": "Chimera II OS Mountain Dashboard",
       "library_file": "Chimera II OS Mountain Dashboard.png",
-      "role": ["mobile-home", "touch-dashboard", "hardware-status", "battery-network"]
+      "role": [
+        "mobile-home",
+        "touch-dashboard",
+        "hardware-status",
+        "battery-network"
+      ]
     },
     {
       "name": "Chimera II OS Architecture Blueprint",
       "library_file": "Chimera II OS Architecture Blueprint.png",
-      "role": ["research-gallery", "kernel-dashboard", "documentation"]
+      "role": [
+        "research-gallery",
+        "kernel-dashboard",
+        "documentation"
+      ]
     },
     {
       "name": "Chimera II OS Robotics Blueprint",
       "library_file": "Chimera II OS Robotics Blueprint.png",
-      "role": ["research-gallery", "mobile-robotics", "hardware-dashboard"]
+      "role": [
+        "research-gallery",
+        "mobile-robotics",
+        "hardware-dashboard"
+      ]
     },
     {
       "name": "Chimera II OS Technical Standards Poster",
       "library_file": "Chimera II OS Technical Standards Poster.png",
-      "role": ["standards-dashboard", "networking", "microkernel", "toolchain", "research"]
+      "role": [
+        "standards-dashboard",
+        "networking",
+        "microkernel",
+        "toolchain",
+        "research"
+      ]
+    },
+    {
+      "name": "Chimera II OS Aurora Init",
+      "library_file": "Init.mp4",
+      "role": [
+        "aurora-boot-splash",
+        "desktop-splash",
+        "installer-splash",
+        "boot-progress"
+      ]
     }
   ],
   "repository_assets": {
@@ -62,7 +112,10 @@
     "live": "desktop_svg",
     "recovery": "desktop_svg",
     "mobile": "desktop_svg",
-    "research": "library_svg"
+    "research": "library_svg",
+    "splash_video": "Init.mp4",
+    "installer_splash_video": "Init.mp4",
+    "boot_progress": "Init.mp4"
   },
   "import_note": "Full-resolution Library binaries are kept in the supplied artwork archive when the GitHub text-only write connector cannot upload binary blobs. The runtime already contains repository-native SVG/PNG fallbacks and this manifest maps the full-resolution artwork to its intended screens."
 }
