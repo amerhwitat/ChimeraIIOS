@@ -1,10 +1,106 @@
 {
   "schema_version": 2,
   "panel": "Aurora Emulators",
-  "category": "Sakhr / Arabic MSX",
-  "integration": {"panel_entrypoint":"aurora/emulators/install-sakhr-emulators.sh","rom_policy":"user-provisioned-and-sha1-verified"},
+  "category": "PlayStation / Retro",
+  "integration": {
+    "panel_entrypoint": "web/playstation_emulators.html",
+    "native_launcher": "tools/emulation/playstation-launcher.sh",
+    "rom_policy": "user-provisioned",
+    "firmware_policy": "user-provisioned-and-verified"
+  },
   "entries": [
-    {"id":"sakhr-ax170","name":"Sakhr AX-170","vendor":"Sakhr / Al Alamiah","system":"MSX1","year":1986,"architecture":"Z80","launcher":"aurora/emulators/bin/launch-sakhr-ax170.sh","status":"requires-user-roms","roms":[{"name":"Arabic firmware","file":"ax170arab.rom","sha1":"0287b2ec897b9196788cd9f10c99e1487d7adbbb","size":32768},{"name":"BIOS","file":"ax170bios.rom","sha1":"5e094fca95ab8e91873ee372a3f1239b9a48a48d","size":32768}]},
-    {"id":"sakhr-ax230","name":"Sakhr AX-230","vendor":"Sakhr / Al Alamiah","system":"MSX1","year":1986,"architecture":"Z80","launcher":"aurora/emulators/bin/launch-sakhr-ax230.sh","status":"requires-user-roms","roms":[{"name":"IC125 Arabic/main firmware","file":"IC125.BIN","sha1":"0340707c5de2310dcf5e569b7db4c6a6a5590cb7","size":131072},{"name":"IC127 games ROM","file":"IC127.BIN","sha1":"620a209bdfdb65a22380031fce654bd1df61def2","size":1048576}]}
+    {
+      "id": "sakhr-ax170",
+      "name": "Sakhr AX-170",
+      "vendor": "Sakhr / Al Alamiah",
+      "system": "MSX1",
+      "year": 1986,
+      "architecture": "Z80",
+      "launcher": "aurora/emulators/bin/launch-sakhr-ax170.sh",
+      "status": "requires-user-roms",
+      "roms": [
+        {
+          "name": "Arabic firmware",
+          "file": "ax170arab.rom",
+          "sha1": "0287b2ec897b9196788cd9f10c99e1487d7adbbb",
+          "size": 32768
+        },
+        {
+          "name": "BIOS",
+          "file": "ax170bios.rom",
+          "sha1": "5e094fca95ab8e91873ee372a3f1239b9a48a48d",
+          "size": 32768
+        }
+      ]
+    },
+    {
+      "id": "sakhr-ax230",
+      "name": "Sakhr AX-230",
+      "vendor": "Sakhr / Al Alamiah",
+      "system": "MSX1",
+      "year": 1986,
+      "architecture": "Z80",
+      "launcher": "aurora/emulators/bin/launch-sakhr-ax230.sh",
+      "status": "requires-user-roms",
+      "roms": [
+        {
+          "name": "IC125 Arabic/main firmware",
+          "file": "IC125.BIN",
+          "sha1": "0340707c5de2310dcf5e569b7db4c6a6a5590cb7",
+          "size": 131072
+        },
+        {
+          "name": "IC127 games ROM",
+          "file": "IC127.BIN",
+          "sha1": "620a209bdfdb65a22380031fce654bd1df61def2",
+          "size": 1048576
+        }
+      ]
+    },
+    {
+      "id": "psx-duckstation",
+      "name": "DuckStation",
+      "vendor": "Open-source community",
+      "system": "PlayStation / PSX",
+      "launcher": "tools/emulation/playstation-launcher.sh",
+      "status": "requires-user-bios",
+      "manifest": "web/playstation_emulators.json"
+    },
+    {
+      "id": "ps2-pcsx2",
+      "name": "PCSX2",
+      "vendor": "Open-source community",
+      "system": "PlayStation 2",
+      "launcher": "tools/emulation/playstation-launcher.sh",
+      "status": "requires-user-bios",
+      "manifest": "web/playstation_emulators.json"
+    },
+    {
+      "id": "ps3-rpcs3",
+      "name": "RPCS3",
+      "vendor": "Open-source community",
+      "system": "PlayStation 3",
+      "launcher": "tools/emulation/playstation-launcher.sh",
+      "status": "requires-user-firmware",
+      "manifest": "web/playstation_emulators.json"
+    },
+    {
+      "id": "ps4-shadps4",
+      "name": "shadPS4",
+      "vendor": "Open-source community",
+      "system": "PlayStation 4",
+      "launcher": "tools/emulation/playstation-launcher.sh",
+      "status": "experimental",
+      "manifest": "web/playstation_emulators.json"
+    },
+    {
+      "id": "ps5-kytyps5",
+      "name": "KytyPS5",
+      "vendor": "Open-source community",
+      "system": "PlayStation 5",
+      "launcher": "tools/emulation/playstation-launcher.sh",
+      "status": "experimental",
+      "manifest": "web/playstation_emulators.json"
+    }
   ]
 }
