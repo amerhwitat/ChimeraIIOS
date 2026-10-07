@@ -22,7 +22,9 @@ choose_edition() {
 
 show_plan() {
   local edition="$1"
+  installer_progress 35 "Installer" "Building installation plan"
   python3 "$INSTALLER" --edition "$edition" --output "$PLAN" >"$PLAN_DIR/inventory.json"
+  installer_progress 55 "Installer" "Installation plan ready"
   if command -v zenity >/dev/null 2>&1; then
     zenity --text-info --title="Chimera II OS Installation Plan"       --filename="$PLAN" --width=1000 --height=700
   else
@@ -39,7 +41,34 @@ confirm_apply() {
   fi
 }
 
-edition="$(choose_edition)" || exit 0
+# Aurora installer splash: reuse the same hardcoded Init.mp4 and progress
+# contract as the desktop. Playback is non-blocking and optional.
+PROGRESS_FILE="${CHIMERA_INSTALLER_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
+mkdir -p "$(dirname "$PROGRESS_FILE")"
+if [[ ! -s "$PROGRESS_FILE" ]]; then
+  printf '0|Installer|Starting Aurora Installer\n' > "$PROGRESS_FILE"
+fi
+
+if [[ -x "$ROOT/aurora/aurora-init-splash.sh" ]]; then
+  CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$ROOT/aurora/assets/init.mp4}" \
+    CHIMERA_PROGRESS_FILE="$PROGRESS_FILE" \
+    CHIMERA_SPLASH_MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-15}" \
+    bash "$ROOT/aurora/aurora-init-splash.sh" >/tmp/aurora-installer-splash.log 2>&1 &
+  SPLASH_PID=$!
+else
+  SPLASH_PID=""
+fi
+
+installer_progress(){
+  local pct="$1" phase="$2" msg="$3"
+  printf '%s|%s|%s\n' "$pct" "$phase" "$msg" > "$PROGRESS_FILE"
+}
+
+installer_progress 8 "Installer" "Detecting hardware"
+edition="$(choose_edition)" || {
+  [[ -n "${SPLASH_PID:-}" ]] && kill "$SPLASH_PID" 2>/dev/null || true
+  exit 0
+}
 [[ -n "$edition" ]] || exit 0
 
 show_plan "$edition" || {
@@ -50,9 +79,17 @@ show_plan "$edition" || {
 }
 
 if confirm_apply; then
+  installer_progress 82 "Installer" "Reviewed plan confirmed"
   if command -v zenity >/dev/null 2>&1; then
     zenity --info --title="Chimera II OS Installer"       --text="Installation plan saved to:\n$PLAN\n\nNo disk is erased by this step. The reviewed plan is ready for the signed platform installer backend."
   else
     printf '\nPlan saved: %s\nNo disk was modified.\n' "$PLAN"
   fi
+fi
+
+
+installer_progress 100 "Installer" "Aurora Installer ready"
+if [[ -n "${SPLASH_PID:-}" ]]; then
+  kill "$SPLASH_PID" 2>/dev/null || true
+  wait "$SPLASH_PID" 2>/dev/null || true
 fi
