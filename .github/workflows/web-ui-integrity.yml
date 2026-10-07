@@ -35,3 +35,4 @@ jobs:
           node --check web/portfolio.js
       - name: Validate signaling package
         run: node --check tools/network/signaling-server.mjs
+          python3 -m py_compile tools/runtime/chimera-local-bridge.py
