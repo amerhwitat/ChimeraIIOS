@@ -109,6 +109,40 @@ class H(BaseHTTPRequestHandler):
                 if not runnable:return send(self,400,{"error":"python-file-is-not-a-runnable-entrypoint"})
                 p=subprocess.run(["python3",str(script)],cwd=str(script.parent),capture_output=True,text=True,timeout=20,env={**os.environ,"PYTHONUNBUFFERED":"1"})
                 return send(self,200 if p.returncode==0 else 409,{"status":"completed" if p.returncode==0 else "failed","repo":repo,"path":rel,"returncode":p.returncode,"stdout":p.stdout[-12000:],"stderr":p.stderr[-12000:]})
+            if path=="/iso/info" or path=="/iso/verify":
+                iso=safe_path(d.get("iso"))
+                if not iso.is_file(): return send(self,404,{"error":"iso-not-found"})
+                tool=ROOT/"iso-tool.sh"
+                if not tool.exists(): return send(self,503,{"error":"iso-tool-missing"})
+                op="info" if path=="/iso/info" else "verify"
+                p=subprocess.run([str(tool),op,str(iso)],capture_output=True,text=True,timeout=60,cwd=str(ROOT))
+                return send(self,200 if p.returncode==0 else 409,{"status":"completed" if p.returncode==0 else "failed","operation":op,"iso":str(iso),"returncode":p.returncode,"stdout":p.stdout[-12000:],"stderr":p.stderr[-12000:]})
+            if path=="/flash/detect":
+                tool=ROOT/"desktop/aurora/aurora_flash_tool.py"
+                if not tool.exists(): return send(self,503,{"error":"flash-tool-missing"})
+                p=subprocess.run(["python3",str(tool),"--list"],capture_output=True,text=True,timeout=20,cwd=str(ROOT))
+                return send(self,200 if p.returncode==0 else 409,{"status":"completed" if p.returncode==0 else "failed","returncode":p.returncode,"stdout":p.stdout[-12000:],"stderr":p.stderr[-12000:]})
+            if path=="/flash/verify-image":
+                image=safe_path(d.get("image")); expected=str(d.get("sha256","")).strip().lower()
+                if not image.is_file(): return send(self,404,{"error":"image-not-found"})
+                import hashlib
+                h=hashlib.sha256()
+                with image.open("rb") as f:
+                    for chunk in iter(lambda:f.read(1024*1024),b""): h.update(chunk)
+                actual=h.hexdigest()
+                return send(self,200,{"status":"match" if expected and actual==expected else "computed","image":str(image),"sha256":actual,"matches":bool(expected and actual==expected)})
+            if path=="/flash/execute":
+                image=safe_path(d.get("image")); device=str(d.get("device","")).strip()
+                expected=str(d.get("sha256","")).strip()
+                if not image.is_file(): return send(self,404,{"error":"image-not-found"})
+                if not device.startswith("/dev/"): return send(self,400,{"error":"device-must-be-/dev-path"})
+                tool=ROOT/"desktop/aurora/aurora_flash_tool.py"
+                if not tool.exists(): return send(self,503,{"error":"flash-tool-missing"})
+                if os.environ.get("CHIMERA_FLASH_CONFIRM")!="YES": return send(self,409,{"error":"flash-confirmation-required","hint":"Set CHIMERA_FLASH_CONFIRM=YES only after verifying the removable target."})
+                args=["python3",str(tool),"--image",str(image),"--device",device]
+                if expected: args += ["--sha256",expected]
+                p=subprocess.run(args,capture_output=True,text=True,timeout=1800,cwd=str(ROOT))
+                return send(self,200 if p.returncode==0 else 409,{"status":"completed" if p.returncode==0 else "failed","returncode":p.returncode,"stdout":p.stdout[-12000:],"stderr":p.stderr[-12000:]})
             if path=="/launch/mame":
                 machine=str(d.get("machine","")).strip()
                 if not machine:return send(self,400,{"error":"machine-required"})
