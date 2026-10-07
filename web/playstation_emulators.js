@@ -8,9 +8,12 @@ async function detect(id,el){
  catch{el.textContent="local bridge offline";el.dataset.state="offline"}
 }
 async function launch(id,el){
+ const media=prompt("Enter the local game/disc path you are entitled to use:",localStorage.getItem("chimera-ps-media-"+id)||"");
+ if(!media)return;
+ localStorage.setItem("chimera-ps-media-"+id,media);
  el.disabled=true;const old=el.textContent;el.textContent="Launching…";
- try{await bridge("/launch/emulator",{id});el.textContent="Launch requested";el.dataset.state="ready"}
- catch(e){el.textContent="Adapter unavailable";el.title=e.message}
+ try{await bridge("/launch/emulator",{id,media});el.textContent="Launch requested";el.dataset.state="ready"}
+ catch(e){el.textContent="Adapter unavailable";el.title=e.message;alert("PlayStation adapter: "+e.message)}
  finally{setTimeout(()=>{el.disabled=false;el.textContent=old},2200)}
 }
 function render(){
