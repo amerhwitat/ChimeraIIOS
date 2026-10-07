@@ -41,7 +41,14 @@ bar(){
 read_state(){
   local line pct phase msg
   [[ -r "$STATE_FILE" ]] || return 1
-  IFS='|' read -r pct phase msg < "$STATE_FILE" || return 1
+  line="$(head -n 1 "$STATE_FILE" 2>/dev/null || true)"
+  if [[ "$line" =~ ^percent= ]]; then
+    pct="$(awk -F= '$1=="percent"{print $2; exit}' "$STATE_FILE")"
+    phase="$(awk -F= '$1=="phase"{print $2; exit}' "$STATE_FILE")"
+    msg="$(awk -F= '$1=="message"{print $2; exit}' "$STATE_FILE")"
+  else
+    IFS='|' read -r pct phase msg <<< "$line" || return 1
+  fi
   [[ "$pct" =~ ^[0-9]+$ ]] || pct=0
   printf '%s\n%s\n%s\n' "$pct" "${phase:-Chimera II OS}" "${msg:-Working...}"
 }

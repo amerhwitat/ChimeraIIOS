@@ -39,7 +39,7 @@ read_percent(){
   fi
 
   if [[ "$line" =~ ^([0-9]+)\| ]]; then
-    printf '%s' "\${BASH_REMATCH[1]}"
+    printf '%s' "${BASH_REMATCH[1]}"
     return 0
   fi
 

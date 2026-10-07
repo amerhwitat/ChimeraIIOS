@@ -78,6 +78,9 @@ import base64, pathlib, sys
 pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(pathlib.Path(sys.argv[1]).read_text()))
 PY
 fi
+cp -f "$DIST/boot/visual/aurora-wayland-glass.jpg" "$DIST/boot/spitfire/aurora-wayland-glass.jpg"
+cp -f "$DIST/boot/visual/aurora-wayland-glass.jpg" "$DIST/boot/jasper/aurora-wayland-glass.jpg"
+cp -f "$DIST/boot/visual/aurora-wayland-glass.jpg" "$DIST/boot/grub/aurora-wayland-glass.jpg"
 [[ "$(head -c 3 "$DIST/boot/visual/aurora-wayland-glass.jpg" | od -An -tx1 | tr -d ' 
 ')" == "ffd8ff" ]] || { echo "Aurora JPEG artwork decode failed." >&2; exit 2; }
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/visual/Init.mp4"
