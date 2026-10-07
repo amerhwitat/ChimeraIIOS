@@ -2,7 +2,7 @@
 'use strict';
 const ART='desktop/aurora/assets/library/Aurora-Wayland-Glass-Desktop.png(1).jpg';
 const BRIDGE='http://127.0.0.1:8765';
-const GAME_BRIDGE='http://127.0.0.1:8769';
+const GAME_BRIDGE=BRIDGE;
 const systems=[
 ['pacman','Pac-Man','Arcade','Namco'],['galaga','Galaga','Arcade','Namco'],['galaxian','Galaxian','Arcade','Namco'],['dkong','Donkey Kong','Arcade','Nintendo'],['mspacman','Ms. Pac-Man','Arcade','Midway'],['sf2','Street Fighter II','Arcade','Capcom'],['1942','1942','Arcade','Capcom'],['outrun','Out Run','Arcade','Sega'],['neogeo','Neo Geo','Arcade','SNK'],['c64','Commodore 64','Computer','Commodore'],['apple2','Apple II','Computer','Apple'],['a2600','Atari 2600','Console','Atari'],['a5200','Atari 5200','Console','Atari'],['a7800','Atari 7800','Console','Atari'],['nes','NES/Famicom','Console','Nintendo'],['snes','SNES','Console','Nintendo'],['sms','Master System','Console','Sega'],['genesis','Mega Drive/Genesis','Console','Sega'],['msx','MSX/MSX2','Computer','Microsoft'],['spectrum','ZX Spectrum','Computer','Sinclair'],['amiga','Amiga','Computer','Commodore'],['arcade','Arcade machines','Arcade','MAME']];
 let gameCatalog=[
