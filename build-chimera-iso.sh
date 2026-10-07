@@ -446,20 +446,63 @@ prepare_branding(){
       "$ISO_DIR/boot/visual/aurora-wayland-glass.jpg"
   fi
 
-  # Init.mp4 is a hardcoded offline splash asset. GRUB does not decode MP4;
-  # Aurora starts it after Wayland is ready.
+  # Init.mp4 is a hardcoded offline Aurora splash asset. GRUB does not
+  # decode MP4; Jasper/Wayland hands it to Aurora after the graphical session
+  # is ready. The same binary is deliberately staged for installer + desktop
+  # so all entry paths share one deterministic video.
   local init_video=""
   for candidate in \
     "$SCRIPT_DIR/desktop/aurora/assets/Init.mp4" \
-    "$SCRIPT_DIR/desktop/aurora/assets/library/Init.mp4"; do
+    "$SCRIPT_DIR/desktop/aurora/assets/library/Init.mp4" \
+    "$SCRIPT_DIR/build/aurora-media/Init.mp4" \
+    "$SCRIPT_DIR/Init.mp4"; do
     if [[ -s "$candidate" ]]; then init_video="$candidate"; break; fi
   done
-  if [[ -n "$init_video" ]]; then
-    cp -f "$init_video" "$ISO_DIR/boot/visual/Init.mp4"
-    cp -f "$init_video" "$ISO_DIR/boot/visual/chimera-intro.mp4"
-    cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/init.mp4"
-    cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/Init.mp4"
+
+  [[ -n "$init_video" ]] || {
+    log_error "Required Aurora Init.mp4 is missing."
+    log_error "Expected desktop/aurora/assets/Init.mp4 or desktop/aurora/assets/library/Init.mp4."
+    return 1
+  }
+
+  if command -v ffprobe >/dev/null 2>&1; then
+    ffprobe -v error -select_streams v:0 -show_entries stream=codec_type \
+      -of csv=p=0 "$init_video" >/dev/null || {
+        log_error "Aurora Init.mp4 failed ffprobe validation: $init_video"
+        return 1
+      }
   fi
+
+  mkdir -p \
+    "$ISO_DIR/boot/visual" \
+    "$ROOTFS_DIR/usr/share/chimera/aurora/assets" \
+    "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library" \
+    "$ROOTFS_DIR/usr/share/chimera/installer/assets" \
+    "$ROOTFS_DIR/usr/share/chimera/installer"
+
+  cp -f "$init_video" "$ISO_DIR/boot/visual/Init.mp4"
+  cp -f "$init_video" "$ISO_DIR/boot/visual/chimera-intro.mp4"
+  cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/init.mp4"
+  cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/Init.mp4"
+  cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/installer/assets/Init.mp4"
+  cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/installer/assets/installer-splash.mp4"
+
+  # One machine-readable contract consumed by Aurora desktop, installer and
+  # boot-progress UI. Progress remains independent of the media player.
+  cat > "$ROOTFS_DIR/usr/share/chimera/aurora/assets/init-video.json" <<'EOF_INIT_VIDEO'
+{
+  "schema": "CHIMERA-AURORA-INIT-VIDEO-1",
+  "file": "/usr/share/chimera/aurora/assets/Init.mp4",
+  "installer_file": "/usr/share/chimera/installer/assets/Init.mp4",
+  "boot_file": "/boot/visual/Init.mp4",
+  "desktop": true,
+  "installer": true,
+  "aurora_boot": true,
+  "offline": true,
+  "progress_state": "/run/chimera/koronos-progress.state",
+  "progress_ui": "/usr/share/chimera/aurora/aurora-progress.sh"
+}
+EOF_INIT_VIDEO
 
   # Keep the complete artwork library inside the installed system and on the
   # ISO so every Aurora screen can use the hardcoded artwork offline.
@@ -513,6 +556,19 @@ prepare_branding(){
     cp -f "$visual/backgrounds/boot.png" "$ISO_DIR/boot/visual/aurora-boot.png" 2>/dev/null || true
   [[ -s "$ISO_DIR/boot/visual/aurora-menu.png" ]] || \
     cp -f "$visual/menus/default.png" "$ISO_DIR/boot/visual/aurora-menu.png" 2>/dev/null || true
+
+  [[ -s "$ISO_DIR/boot/visual/Init.mp4" ]] || {
+    log_error "Aurora Init.mp4 was not staged into the ISO."
+    return 1
+  }
+  [[ -s "$ROOTFS_DIR/usr/share/chimera/installer/assets/Init.mp4" ]] || {
+    log_error "Aurora Init.mp4 was not staged into the installer."
+    return 1
+  }
+  [[ -s "$ROOTFS_DIR/usr/share/chimera/aurora/assets/Init.mp4" ]] || {
+    log_error "Aurora Init.mp4 was not staged into the desktop."
+    return 1
+  }
 }
 
 prepare_apache(){ [[ "${APACHE_ECOSYSTEM:-1}" == 0 ]] && return 0; local src="$SCRIPT_DIR/services/apache" dst="$ROOTFS_DIR/opt/chimera/apache"; [[ -d "$src" ]] || return 0; mkdir -p "$dst"; for f in apache-projects.json README.md apache-sync.py; do [[ -f "$src/$f" ]] && cp -f "$src/$f" "$dst/"; done; }
