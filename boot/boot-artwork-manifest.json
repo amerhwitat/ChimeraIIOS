@@ -22,7 +22,14 @@
     "installer": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "desktop": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "library": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
-    "splash_video": "/usr/share/chimera/aurora/assets/init.mp4"
+    "splash_video": "/usr/share/chimera/aurora/assets/init.mp4",
+    "spitfire_background": "/boot/visual/spitfire_background.svg",
+    "jasper_background": "/boot/visual/jasper_background.svg",
+    "grub_background": "/boot/visual/aurora-wayland-glass.jpg",
+    "all_menus_background": "/boot/visual/aurora-wayland-glass.jpg",
+    "boot_splash": "/boot/visual/aurora_boot_splash.svg",
+    "init_video": "/boot/visual/Init.mp4",
+    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4"
   },
   "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
   "fallback": "desktop/aurora/assets/aurora-desktop.svg",
@@ -32,5 +39,37 @@
     "boot_staging": "/boot/visual/Init.mp4",
     "autostart": "desktop/aurora/aurora-init-splash.sh",
     "grub_support": false
+  },
+  "boot_chain": {
+    "spitfire": {
+      "artwork": "/boot/visual/spitfire_background.svg",
+      "progress": "0-25%",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "jasper": {
+      "artwork": "/boot/visual/jasper_background.svg",
+      "progress": "25-40%",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "grub": {
+      "artwork": "/boot/visual/aurora-wayland-glass.jpg",
+      "progress": "40-60%",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "menus": {
+      "artwork": "/boot/visual/aurora-wayland-glass.jpg",
+      "progress": "menu-dependent",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "koronos": {
+      "artwork": "/boot/visual/aurora_boot_splash.svg",
+      "progress": "60-90%",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "aurora": {
+      "artwork": "/usr/share/chimera/aurora/desktop-background.png",
+      "progress": "90-100%",
+      "video": "/usr/share/chimera/aurora/assets/Init.mp4"
+    }
   }
 }
