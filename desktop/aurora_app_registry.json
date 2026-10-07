@@ -239,6 +239,12 @@
         "simplescreenrecorder",
         "ffmpeg"
       ]
+    },
+    {
+      "id": "aurora-playstation-emulators",
+      "name": "Aurora PlayStation Emulator Hub",
+      "desktop": "desktop/aurora/aurora-playstation-emulators.desktop",
+      "category": "games"
     }
   ],
   "compatibility_apps": [
