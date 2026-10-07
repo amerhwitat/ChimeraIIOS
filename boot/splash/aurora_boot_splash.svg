@@ -17,6 +17,7 @@
  <text x="600" y="190" font-family="sans-serif" font-size="112" letter-spacing="10" fill="#f4fbff">CHIMERA II OS</text>
  <text x="605" y="300" font-family="sans-serif" font-size="52" letter-spacing="7" fill="#a9c8ff">AURORA WAYLAND GLASS</text>
 </g>
+<g transform="translate(3230 1480)"><circle cx="0" cy="0" r="86" fill="none" stroke="#172945" stroke-width="18"/><path d="M0 -86 A86 86 0 0 1 61 61" fill="none" stroke="#4fe8ff" stroke-width="18" stroke-linecap="round"/><circle cx="0" cy="0" r="16" fill="#bdefff"/></g>
 <g transform="translate(250 1570)"><rect width="3340" height="330" rx="55" fill="url(#glass)" stroke="#9fe8ff" stroke-opacity=".22"/>
  <text x="90" y="105" font-family="sans-serif" font-size="44" fill="#d9f6ff">KORONOS BOOT • UNIVERSAL EXECUTION • AURORA</text>
  <text x="90" y="180" font-family="sans-serif" font-size="34" fill="#9eb7d6">Hardware discovery and secure kernel handoff</text>
