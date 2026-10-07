@@ -61,6 +61,17 @@ mkdir -p "$DIST/boot/visual" "$DIST/usr/share/chimera/aurora/assets" "$DIST/desk
 cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/visual/spitfire_background.svg"
 cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/visual/jasper_background.svg"
 cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/boot/visual/aurora_boot_splash.svg"
+# Materialize the canonical offline Aurora JPEG for legacy GRUB/Jasper contracts.
+if command -v base64 >/dev/null 2>&1; then
+  base64 -d "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" > "$DIST/boot/visual/aurora-wayland-glass.jpg"
+else
+  python3 - "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" "$DIST/boot/visual/aurora-wayland-glass.jpg" <<'PY'
+import base64, pathlib, sys
+pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(pathlib.Path(sys.argv[1]).read_text()))
+PY
+fi
+[[ "$(head -c 3 "$DIST/boot/visual/aurora-wayland-glass.jpg" | od -An -tx1 | tr -d ' 
+')" == "ffd8ff" ]] || { echo "Aurora JPEG artwork decode failed." >&2; exit 2; }
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/visual/Init.mp4"
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/usr/share/chimera/aurora/assets/Init.mp4"
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/desktop/aurora/Init.mp4"
