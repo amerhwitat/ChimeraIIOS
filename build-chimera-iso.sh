@@ -593,6 +593,40 @@ prepare_branding(){
   cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/installer/assets/Init.mp4"
   cp -f "$init_video" "$ROOTFS_DIR/usr/share/chimera/installer/assets/installer-splash.mp4"
 
+  # Hard-stage the same offline artwork/media at every native handoff boundary.
+  # Spit Fire/Jasper/GRUB must be able to find the assets without depending on
+  # the later Aurora rootfs mount. GRUB itself only uses the raster/SVG assets;
+  # Init.mp4 is carried forward for Jasper/Aurora handoff.
+  mkdir -p "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/koronos"
+  for stage in spitfire jasper grub koronos; do
+    cp -f "$init_video" "$ISO_DIR/boot/$stage/Init.mp4"
+    cp -f "$SCRIPT_DIR/boot/boot-artwork-manifest.json" "$ISO_DIR/boot/$stage/boot-artwork-manifest.json"
+  done
+
+  [[ -s "$SCRIPT_DIR/boot/splash/spitfire_background.svg" ]] || { log_error "Spit Fire background is missing"; return 1; }
+  [[ -s "$SCRIPT_DIR/boot/splash/jasper_background.svg" ]] || { log_error "Jasper background is missing"; return 1; }
+  [[ -s "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" ]] || { log_error "Koronos splash artwork is missing"; return 1; }
+
+  cp -f "$SCRIPT_DIR/boot/splash/spitfire_background.svg" "$ISO_DIR/boot/spitfire/spitfire_background.svg"
+  cp -f "$SCRIPT_DIR/boot/splash/jasper_background.svg" "$ISO_DIR/boot/jasper/jasper_background.svg"
+  cp -f "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" "$ISO_DIR/boot/koronos/aurora_boot_splash.svg"
+  cp -f "$SCRIPT_DIR/boot/splash/aurora_boot_splash.svg" "$ISO_DIR/boot/grub/aurora_boot_splash.svg"
+
+  # The canonical raster background is also copied into every bootloader
+  # namespace so a stage can render it without reaching across directories.
+  if [[ -s "$embedded_out" ]]; then
+    cp -f "$embedded_out" "$ISO_DIR/boot/spitfire/aurora-wayland-glass.jpg"
+    cp -f "$embedded_out" "$ISO_DIR/boot/jasper/aurora-wayland-glass.jpg"
+    cp -f "$embedded_out" "$ISO_DIR/boot/grub/aurora-wayland-glass.jpg"
+    cp -f "$embedded_out" "$ISO_DIR/boot/koronos/aurora-wayland-glass.jpg"
+  fi
+  if [[ -s "$visual/backgrounds/boot.png" ]]; then
+    cp -f "$visual/backgrounds/boot.png" "$ISO_DIR/boot/spitfire/aurora-boot.png"
+    cp -f "$visual/backgrounds/boot.png" "$ISO_DIR/boot/jasper/aurora-boot.png"
+    cp -f "$visual/backgrounds/boot.png" "$ISO_DIR/boot/grub/aurora-boot.png"
+    cp -f "$visual/backgrounds/boot.png" "$ISO_DIR/boot/koronos/aurora-boot.png"
+  fi
+
   # One machine-readable contract consumed by Aurora desktop, installer and
   # boot-progress UI. Progress remains independent of the media player.
   cat > "$ROOTFS_DIR/usr/share/chimera/aurora/assets/init-video.json" <<'EOF_INIT_VIDEO'
@@ -667,6 +701,16 @@ EOF_INIT_VIDEO
     log_error "Aurora Init.mp4 was not staged into the ISO."
     return 1
   }
+  for stage in spitfire jasper grub koronos; do
+    [[ -s "$ISO_DIR/boot/$stage/Init.mp4" ]] || {
+      log_error "Aurora Init.mp4 missing from $stage boot stage."
+      return 1
+    }
+    [[ -s "$ISO_DIR/boot/$stage/boot-artwork-manifest.json" ]] || {
+      log_error "Boot artwork manifest missing from $stage boot stage."
+      return 1
+    }
+  done
   [[ -s "$ROOTFS_DIR/usr/share/chimera/installer/assets/Init.mp4" ]] || {
     log_error "Aurora Init.mp4 was not staged into the installer."
     return 1
