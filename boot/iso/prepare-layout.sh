@@ -55,6 +55,17 @@ if [[ -d "$BOOT_ART/grub" ]]; then cp -a "$BOOT_ART/grub/." "$DIST/boot/chimera/
 if [[ -d "$BOOT_ART/manifests" ]]; then cp -a "$BOOT_ART/manifests/." "$DIST/boot/chimera/manifests/"; fi
 mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/src" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
 
+# Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
+# the same offline assets without depending on network access or a desktop session.
+mkdir -p "$DIST/boot/visual" "$DIST/usr/share/chimera/aurora/assets" "$DIST/desktop/aurora"
+cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/visual/spitfire_background.svg"
+cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/visual/jasper_background.svg"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/boot/visual/aurora_boot_splash.svg"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/visual/Init.mp4"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/usr/share/chimera/aurora/assets/Init.mp4"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/desktop/aurora/Init.mp4"
+[[ -s "$DIST/boot/visual/Init.mp4" ]] || { echo "Init.mp4 boot asset missing." >&2; exit 2; }
+
 # Compatibility layout required by the ISO contract.  The source tree is kept
 # as a compressed archive under /src so the ISO remains source-first without
 # expanding thousands of source files into the ISO root.
