@@ -74,6 +74,7 @@ fi
 ')" == "ffd8ff" ]] || { echo "Aurora JPEG artwork decode failed." >&2; exit 2; }
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/visual/Init.mp4"
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/usr/share/chimera/aurora/assets/Init.mp4"
+install -m 0755 "$ROOT/desktop/aurora/aurora-progress.sh" "$DIST/usr/share/chimera/aurora-progress.sh"
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/desktop/aurora/Init.mp4"
 [[ -s "$DIST/boot/visual/Init.mp4" ]] || { echo "Init.mp4 boot asset missing." >&2; exit 2; }
 
