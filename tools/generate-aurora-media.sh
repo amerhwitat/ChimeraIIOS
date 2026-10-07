@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# IMPORTANT: this script uses Bash arrays/parameter expansion and [[ ]].
+# Always execute it with Bash; never invoke it through /bin/sh.
+
 # --- Chimera II OS standard help ---
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
@@ -18,6 +21,11 @@ CHIMERA_HELP
   exit 0
 fi
 set -Eeuo pipefail
+
+if [[ -z "${BASH_VERSION:-}" ]]; then
+  printf "%s\n" "[ERROR] generate-aurora-media.sh must be executed with Bash, not sh." >&2
+  exit 2
+fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
