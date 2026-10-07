@@ -1,6 +1,7 @@
+#!/bin/sh
+# POSIX-compatible: safe when invoked by either sh or bash.
 #!/usr/bin/env bash
 
-# IMPORTANT: this script uses Bash arrays/parameter expansion and [[ ]].
 # Always execute it with Bash; never invoke it through /bin/sh.
 
 # --- Chimera II OS standard help ---
@@ -20,22 +21,17 @@ Notes:
 CHIMERA_HELP
   exit 0
 fi
-set -Eeuo pipefail
+set -eu
 
-if [[ -z "${BASH_VERSION:-}" ]]; then
-  printf "%s\n" "[ERROR] generate-aurora-media.sh must be executed with Bash, not sh." >&2
-  exit 2
-fi
-
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+ROOT="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
 OUT="${1:-$ROOT/desktop/aurora/assets}"
 BG="${CHIMERA_AURORA_SOURCE_IMAGE:-}"
 INIT_VIDEO="${CHIMERA_AURORA_INIT_VIDEO:-}"
 
 mkdir -p "$OUT/sounds" "$OUT/progress"
 
-if [[ -z "$INIT_VIDEO" ]]; then
+if [ -z "$INIT_VIDEO" ]; then
   for candidate in \
     "$OUT/Init.mp4" \
     "$ROOT/desktop/aurora/assets/library/Init.mp4" \
@@ -44,19 +40,19 @@ if [[ -z "$INIT_VIDEO" ]]; then
     "$ROOT/build/iso/usr/share/chimera/aurora/Init.mp4" \
     "$ROOT/boot/jasper/Init.mp4" \
     "$ROOT/Init.mp4"; do
-    if [[ -s "$candidate" ]]; then
+    if [ -s "$candidate" ]; then
       INIT_VIDEO="$candidate"
       break
     fi
   done
 fi
 
-if [[ -n "$INIT_VIDEO" ]]; then
-  if [[ ! -f "$INIT_VIDEO" ]]; then
+if [ -n "$INIT_VIDEO" ]; then
+  if [ ! -f "$INIT_VIDEO" ]; then
     printf '%s\n' "[ERROR] CHIMERA_AURORA_INIT_VIDEO does not exist: $INIT_VIDEO" >&2
     exit 1
   fi
-  if [[ ! -s "$INIT_VIDEO" ]]; then
+  if [ ! -s "$INIT_VIDEO" ]; then
     printf '%s\n' "[ERROR] CHIMERA_AURORA_INIT_VIDEO is empty: $INIT_VIDEO" >&2
     exit 1
   fi
@@ -64,13 +60,13 @@ if [[ -n "$INIT_VIDEO" ]]; then
     printf '%s\n' "[ERROR] Supplied Init.mp4 is not a readable video: $INIT_VIDEO" >&2
     exit 1
   fi
-  if [[ "$(realpath -m "$INIT_VIDEO")" != "$(realpath -m "$OUT/Init.mp4")" ]]; then
+  if [ "$(realpath -m "$INIT_VIDEO")" != "$(realpath -m "$OUT/Init.mp4")" ]; then
     cp -f "$INIT_VIDEO" "$OUT/Init.mp4"
   fi
   echo "[INFO] Using Aurora Init.mp4: $INIT_VIDEO"
 fi
 
-if [[ -z "$BG" ]]; then
+if [ -z "$BG" ]; then
   for candidate in \
     "$OUT/backgrounds/boot.jpg" \
     "$OUT/backgrounds/boot.png" \
@@ -78,14 +74,14 @@ if [[ -z "$BG" ]]; then
     "$ROOT/boot/jasper/background.png" \
     "$ROOT/desktop/aurora/assets/Aurora-Wayland-Glass-Desktop.png(1).jpg" \
     "$ROOT/desktop/aurora/assets/library/Aurora Wayland Desktop - boot background.jpg"; do
-    if [[ -f "$candidate" ]]; then
+    if [ -f "$candidate" ]; then
       BG="$candidate"
       break
     fi
   done
 fi
 
-if [[ ! -s "$OUT/Init.mp4" && -n "$BG" && -f "$BG" ]] && command -v ffmpeg >/dev/null 2>&1; then
+if [ ! -s "$OUT/Init.mp4" ] && [ -n "$BG" ] && [ -f "$BG" ] && command -v ffmpeg >/dev/null 2>&1; then
   echo "[INFO] Generating Aurora Init.mp4 from: $BG"
   ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 12 \
     -vf "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,format=yuv420p,drawtext=fontcolor=white:fontsize=42:text='CHIMERA II OS':x=(w-text_w)/2:y=270,drawtext=fontcolor=white:fontsize=22:text='AURORA INITIALIZING':x=(w-text_w)/2:y=325,drawbox=x=340:y=390:w=600:h=12:color=white@0.22:t=fill,drawbox=x=340:y=390:w='600*t/12':h=12:color=white@0.9:t=fill" \
@@ -94,7 +90,7 @@ fi
 
 if command -v ffmpeg >/dev/null 2>&1; then
   while IFS=: read -r n f1 f2; do
-    [[ -s "$OUT/sounds/$n.wav" ]] && continue
+    [ -s "$OUT/sounds/$n.wav" ] && continue
     ffmpeg -y -loglevel error -f lavfi -i "sine=frequency=$f1:duration=0.18" -f lavfi -i "sine=frequency=$f2:duration=0.18" -filter_complex '[0:a][1:a]amix=inputs=2:duration=longest,afade=t=out:st=0.12:d=0.06,volume=0.18' -c:a pcm_s16le "$OUT/sounds/$n.wav"
   done <<'EOF'
 startup:440:660
@@ -118,7 +114,7 @@ cat > "$OUT/progress/state.json" <<'EOF'
 {"percent":0,"stage":"firmware","message_en":"Starting Chimera II OS","message_ar":"بدء تشغيل Chimera II OS"}
 EOF
 
-if [[ ! -s "$OUT/Init.mp4" ]]; then
+if [ ! -s "$OUT/Init.mp4" ]; then
   printf '%s\n' '[ERROR] Aurora Init.mp4 is unavailable.' >&2
   printf '%s\n' '[ERROR] Import the Library Init.mp4 into desktop/aurora/assets/library/ or set CHIMERA_AURORA_INIT_VIDEO=/path/to/Init.mp4.' >&2
   exit 1
