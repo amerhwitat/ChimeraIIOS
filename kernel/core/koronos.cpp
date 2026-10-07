@@ -103,6 +103,33 @@ static void console_write(const char *s) {
     serial_write(s);
 }
 
+static void console_raw(const char *s) {
+    if (!s) return;
+    vga_write(s);
+    while (*s) serial_write8((uint8_t)*s++);
+}
+
+static void console_endline() {
+    vga_write("\r\n");
+    serial_write8('\r');
+    serial_write8('\n');
+}
+
+static void console_u32_raw(uint32_t v) {
+    char s[11];
+    uint32_t i = 10;
+    s[i] = 0;
+    if (v == 0) {
+        console_raw("0");
+        return;
+    }
+    while (v && i) {
+        s[--i] = (char)('0' + v % 10u);
+        v /= 10u;
+    }
+    console_raw(&s[i]);
+}
+
 static void console_u32(uint32_t v) {
     char s[11];
     uint32_t i = 10;
@@ -260,16 +287,20 @@ static void task_monitor(void *) {
     console_write("[MON ] Runnable: ");
     console_u32(chimera_sched_runnable_count());
     for (uint32_t i = 0; i < n; ++i) {
-        console_write("[PROC] id=");
-        console_u32(info[i].id);
-        console_write("[PROC] cpu=");
-        console_u32(info[i].cpu);
-        console_write("[PROC] state=");
-        console_write(task_state_name(info[i].state));
-        console_write("[PROC] priority=");
-        console_u32(info[i].priority);
-        console_write("[PROC] runs=");
-        console_u32((uint32_t)info[i].runs);
+        // Keep each process record on one VGA/serial line. The previous
+        // label/value-per-line format made the monitor look corrupted once
+        // the 25-row VGA console started scrolling.
+        console_raw("[PROC] id=");
+        console_u32_raw(info[i].id);
+        console_raw(" cpu=");
+        console_u32_raw(info[i].cpu);
+        console_raw(" state=");
+        console_raw(task_state_name(info[i].state));
+        console_raw(" priority=");
+        console_u32_raw(info[i].priority);
+        console_raw(" runs=");
+        console_u32_raw((uint32_t)info[i].runs);
+        console_endline();
     }
 }
 
@@ -289,7 +320,7 @@ static void koronos_submit_bootstrap_tasks() {
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
-    int m = chimera_sched_submit(task_monitor, 0, 110);
+    int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
     console_write("[SCH ] console/module/live/installer/Kore services registered");
     if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0)
