@@ -328,7 +328,15 @@
     "portal-screen-capture-permissions",
     "accessibility-reduced-motion",
     "accessibility-ocr",
-    "accessibility-remote-support"
+    "accessibility-remote-support",
+    "playstation-emulator-hub",
+    "playstation-psx-emulation",
+    "playstation-ps2-emulation",
+    "playstation-ps3-emulation",
+    "playstation-ps4-emulation",
+    "playstation-ps5-emulation",
+    "native-emulator-detection",
+    "user-supplied-firmware-boundary"
   ],
   "input": [
     "mouse",
@@ -427,5 +435,21 @@
       "hardware-accelerated-video",
       "hdr-screen-sharing"
     ]
+  },
+  "emulation_ecosystem": {
+    "playstation_manifest": "web/playstation_emulators.json",
+    "hub": "web/playstation_emulators.html",
+    "launcher": "tools/emulation/playstation-launcher.sh",
+    "generations": [
+      "PSX",
+      "PS2",
+      "PS3",
+      "PS4",
+      "PS5"
+    ],
+    "policy": "catalog-and-adapter-only",
+    "firmware": "user-supplied-only",
+    "games": "user-supplied-and-lawfully-dumped",
+    "detection": "capability-detected"
   }
 }
