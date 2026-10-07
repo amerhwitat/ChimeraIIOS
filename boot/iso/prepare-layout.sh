@@ -174,6 +174,7 @@ menuentry "Jasper Recovery — Reboot" { reboot }
 menuentry "Jasper Recovery — Power Off" { halt }
 EOF
 
+[[ -f "$ROOT/boot/boot-artwork-manifest.json" ]] && cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
 
