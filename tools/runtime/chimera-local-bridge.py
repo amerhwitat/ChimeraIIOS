@@ -76,6 +76,24 @@ class H(BaseHTTPRequestHandler):
                 r=subprocess.run([str(PS_LAUNCHER),"run",e["id"],str(p)],capture_output=True,text=True,timeout=10)
                 if r.returncode:return send(self,409,{"error":r.stderr.strip() or "emulator-not-installed"})
                 return send(self,200,{"status":"launch-requested","id":e["id"]})
+            if path=="/python/run":
+                repo=str(d.get("repo","")).strip()
+                rel=str(d.get("path","")).strip()
+                allowed={"BizXtreme","amerhwitat.github.io","keygen","PDFreaderPY","bruteforce","general","CPU4096","test","VanG","CPU4096Simulator","eth-key-check","BizX","ChimeraIIOS","nlp"}
+                if repo not in allowed:return send(self,403,{"error":"repository-not-allowlisted"})
+                if not rel or rel.startswith("/") or ".." in Path(rel).parts or not rel.lower().endswith(".py"):
+                    return send(self,400,{"error":"invalid-python-path"})
+                workspace=Path(os.environ.get("CHIMERA_PYTHON_WORKSPACE",str(ROOT.parent))).resolve()
+                script=(workspace/repo/rel).resolve()
+                try:script.relative_to((workspace/repo).resolve())
+                except ValueError:return send(self,403,{"error":"path-outside-repository"})
+                if not script.exists():return send(self,404,{"error":"python-file-not-found"})
+                # Only catalogued entry-point paths should be executed by the UI.
+                base=script.name.lower()
+                runnable=base in {"app.py","main.py","server.py","cli.py","run.py","launcher.py"} or base=="__main__.py"
+                if not runnable:return send(self,400,{"error":"python-file-is-not-a-runnable-entrypoint"})
+                p=subprocess.run(["python3",str(script)],cwd=str(script.parent),capture_output=True,text=True,timeout=20,env={**os.environ,"PYTHONUNBUFFERED":"1"})
+                return send(self,200 if p.returncode==0 else 409,{"status":"completed" if p.returncode==0 else "failed","repo":repo,"path":rel,"returncode":p.returncode,"stdout":p.stdout[-12000:],"stderr":p.stderr[-12000:]})
             if path=="/launch/mame":
                 machine=str(d.get("machine","")).strip()
                 if not machine:return send(self,400,{"error":"machine-required"})
