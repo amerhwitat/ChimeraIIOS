@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora PlayStation Emulator Hub
+Comment=PSX, PS2, PS3, PS4 and PS5 emulator management
+Exec=sh -c 'xdg-open /usr/share/chimera/web/playstation_emulators.html 2>/dev/null || xdg-open /web/playstation_emulators.html 2>/dev/null'
+Icon=applications-games
+Terminal=false
+Categories=Game;Emulator;System;
