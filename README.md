@@ -121,3 +121,10 @@ RegisterN removes the fixed 8192-bit architectural ceiling. Register width is ru
 The mobile edition shares the same source-first contracts through `mobile/mobile-sync.json`. Android packaging targets hosted APK/AAB delivery and device-profiled recovery integration; iOS/iPadOS remains an Apple-hosted target using Xcode and platform signing. The native C/C++/ASM toolchain contracts are reused rather than forked.
 
 `tools/flash/chimera-flash` provides detection, manifest validation and a confirmation-gated Android flashing boundary. It intentionally refuses generic partition writes until a validated device profile supplies exact partitions, image hashes/signatures, AVB and rollback metadata.
+
+
+## Aurora PlayStation Emulator Hub
+
+Aurora now includes a unified PlayStation emulator catalog covering PSX/PS1, PS2, PS3, PS4 and PS5. The hub uses capability detection and native adapters rather than pretending that every emulator is bundled or compatible with every machine. Current integrations include DuckStation/Mednafen/Beetle PSX/PCSX ReARMed/SwanStation for PSX, PCSX2 and Play! for PS2, RPCS3 for PS3, shadPS4/RPCSX/fpPS4 for PS4, and KytyPS5/RPCSX for PS5.
+
+The catalog and UI are web/playstation_emulators.json, web/playstation_emulators.html, web/playstation_emulators.js, and web/playstation_emulators.css. The native adapter is tools/emulation/playstation-launcher.sh. Aurora intentionally does not redistribute games, BIOS, encryption keys, or proprietary PlayStation firmware; those remain user-supplied and subject to applicable rights. PS4/PS5 entries are explicitly marked experimental where appropriate.
