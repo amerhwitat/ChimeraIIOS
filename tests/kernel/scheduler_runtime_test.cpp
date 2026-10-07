@@ -1,10 +1,13 @@
 #include "chimera/scheduler.h"
 #include <assert.h>
 #include <stdio.h>
-static int trace[16],trace_count,blocker_runs; static uint32_t blocked_id,high_runs;
+static int trace[16],trace_count,blocker_runs; static uint32_t blocked_id,high_runs; static int fair_runs[3];
 static void high_task(void*){trace[trace_count++]=2;++high_runs;if(high_runs==1)chimera_sched_block();}
 static void low_task(void*){trace[trace_count++]=1;}
 static void blocker_task(void*){++blocker_runs;if(blocker_runs==1)chimera_sched_block();}
+static void fair_high(void*){++fair_runs[0];}
+static void fair_mid(void*){++fair_runs[1];}
+static void fair_low(void*){++fair_runs[2];}
 int main(){
     chimera_sched_init(1);
     int low=chimera_sched_submit(low_task,nullptr,10);
@@ -25,5 +28,16 @@ int main(){
     assert(chimera_sched_run_once(0)==1&&blocker_runs==2);
     chimera_task_info info[8]={}; uint32_t n=chimera_sched_snapshot(info,8);
     assert(n==1&&info[0].id==blocked_id&&info[0].runs==2);
+
+    // Regression test for the ISO monitor starvation seen on real VGA output:
+    // a permanently READY high-priority task must not prevent lower-priority
+    // READY tasks from receiving dispatches.
+    chimera_sched_init(1); fair_runs[0]=fair_runs[1]=fair_runs[2]=0;
+    assert(chimera_sched_submit(fair_high,nullptr,110)>0);
+    assert(chimera_sched_submit(fair_mid,nullptr,90)>0);
+    assert(chimera_sched_submit(fair_low,nullptr,80)>0);
+    for(int i=0;i<6;i++) assert(chimera_sched_run_once(0)==1);
+    assert(fair_runs[0]>=2&&fair_runs[1]>=2&&fair_runs[2]>=2);
+
     puts("Koronos scheduler runtime: PASS"); return 0;
 }
