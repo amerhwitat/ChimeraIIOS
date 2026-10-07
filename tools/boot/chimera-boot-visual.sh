@@ -29,7 +29,7 @@ VIDEO="${CHIMERA_BOOT_VIDEO:-$ASSET_DIR/Init.mp4}"
 mkdir -p "$RUN_DIR"
 : > "$LOG"
 log(){ printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" | tee -a "$LOG"; }
-PROGRESS="${CHIMERA_PROGRESS_HELPER:-$ROOT/desktop/aurora/aurora-progress.sh}"
+PROGRESS="${CHIMERA_PROGRESS_HELPER:-/usr/share/chimera/aurora-progress.sh}"
 progress(){ [[ -x "$PROGRESS" ]] && "$PROGRESS" set "$1" "$2" "$3" >/dev/null 2>&1 || true; }
 log "Chimera II visual boot runtime starting"
 progress 0 "Firmware" "Starting Chimera II visual boot"
