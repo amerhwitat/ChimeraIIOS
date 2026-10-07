@@ -334,7 +334,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker docker-publish rootfs boot installer branding apache features games squashfs iso verify report'; local ci ti
+  local order='docker rootfs docker-publish boot installer branding apache features games squashfs iso verify report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -930,7 +930,7 @@ main(){
   preflight
   check_deps
   local completed="$(state_get)"
-  for stage in docker docker-publish rootfs boot installer branding apache features games squashfs iso verify report; do
+  for stage in docker rootfs docker-publish boot installer branding apache features games squashfs iso verify report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
