@@ -35,8 +35,22 @@ copy_first() {
 }
 convert_svg() {
   local src="$1" dest="$2"
-  command -v rsvg-convert >/dev/null 2>&1 || return 1
-  rsvg-convert -w 1920 -h 1080 "$src" -o "$dest"
+  [[ -s "$src" ]] || return 1
+
+  if command -v rsvg-convert >/dev/null 2>&1; then
+    rsvg-convert -w 1920 -h 1080 "$src" -o "$dest"
+    return $?
+  fi
+
+  # ImageMagick is the second supported offline converter. Do not let a
+  # missing optional converter abort the entire branding stage.
+  if command -v convert >/dev/null 2>&1; then
+    convert -background none "$src" -resize 1920x1080 "$dest" 2>/dev/null
+    return $?
+  fi
+
+  printf '[WARN] No SVG rasterizer available; retaining SVG fallback: %s\\n' "$src" >&2
+  return 1
 }
 "$ROOT/tools/aurora/generate-default-artwork.sh" "$DEFAULTS"
 
@@ -66,9 +80,16 @@ normalize_png "$OUT/backgrounds/desktop.png" "$OUT/backgrounds/desktop.png"
 normalize_png "$OUT/backgrounds/showcase.png" "$OUT/backgrounds/showcase.png"
 normalize_png "$OUT/menus/default.png" "$OUT/menus/default.png"
 
-for spec in   "splash/aurora-splash.png aurora-splash.svg"   "installer/aurora-installer.png aurora-installer.svg"   "recovery/aurora-recovery.png aurora-recovery.svg"   "diagnostics/aurora-diagnostics.png aurora-diagnostics.svg"   "live/aurora-live.png aurora-live.svg"   "mobile/aurora-mobile.png aurora-mobile.svg"; do
+for spec in \
+  "splash/aurora-splash.png aurora-splash.svg" \
+  "installer/aurora-installer.png aurora-installer.svg" \
+  "recovery/aurora-recovery.png aurora-recovery.svg" \
+  "diagnostics/aurora-diagnostics.png aurora-diagnostics.svg" \
+  "live/aurora-live.png aurora-live.svg" \
+  "mobile/aurora-mobile.png aurora-mobile.svg"; do
   set -- $spec
-  convert_svg "$DEFAULTS/$2" "$OUT/$1"
+  convert_svg "$DEFAULTS/$2" "$OUT/$1" || \
+    printf '[WARN] Raster fallback unavailable for %s; SVG remains authoritative.\\n' "$2" >&2
 done
 
 "$ROOT/tools/generate-aurora-media.sh" "$OUT"
