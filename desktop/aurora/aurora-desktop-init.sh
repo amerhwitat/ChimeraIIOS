@@ -44,7 +44,8 @@ fi
 # Optional initialization video. It is launched only after Wayland is ready and
 # never blocks the desktop if video playback is unavailable.
 if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then
-  CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/init.mp4}" \
+  CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
+  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4" \
     CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
     bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
 fi

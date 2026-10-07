@@ -19,7 +19,8 @@ CHIMERA_HELP
 fi
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VIDEO="${CHIMERA_INIT_VIDEO:-$ROOT/assets/init.mp4}"
+VIDEO="${CHIMERA_INIT_VIDEO:-$ROOT/assets/Init.mp4}"
+[[ -s "$VIDEO" ]] || VIDEO="$ROOT/assets/init.mp4"
 PROGRESS="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
 PID_FILE="${XDG_RUNTIME_DIR:-/run}/chimera-aurora-splash.pid"
 MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-15}"
@@ -33,7 +34,7 @@ read_percent(){
   # Kernel boot progress uses key=value: percent=96
   # Aurora progress helper uses: 96|Aurora|Starting desktop
   if [[ "$line" =~ ^percent=([0-9]+) ]]; then
-    printf '%s' "\${BASH_REMATCH[1]}"
+    printf '%s' "${BASH_REMATCH[1]}"
     return 0
   fi
 

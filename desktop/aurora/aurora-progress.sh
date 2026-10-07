@@ -50,7 +50,9 @@ render_text(){
   local pct phase msg
   mapfile -t v < <(read_state || printf '0\nAurora\nWaiting for progress state\n')
   pct="${v[0]}"; phase="${v[1]}"; msg="${v[2]}"
-  printf '\rAurora | %-24s ' "$phase"
+  local frames=('|' '/' '-' '\\')
+  local frame="${frames[$(( $(date +%s) % 4 ))]}"
+  printf '\rAurora %s | %-24s ' "$frame" "$phase"
   bar "$pct"
   printf ' | %s' "$msg"
 }

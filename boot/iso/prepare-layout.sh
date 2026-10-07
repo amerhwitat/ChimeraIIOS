@@ -61,9 +61,17 @@ mkdir -p "$DIST/boot/visual" "$DIST/usr/share/chimera/aurora/assets" "$DIST/desk
 cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/visual/spitfire_background.svg"
 cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/visual/jasper_background.svg"
 cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/boot/visual/aurora_boot_splash.svg"
+mkdir -p "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/grub"
+cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/spitfire/spitfire_background.svg"
+cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/jasper/jasper_background.svg"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/boot/spitfire/aurora_boot_splash.svg"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/boot/jasper/aurora_boot_splash.svg"
 # Materialize the canonical offline Aurora JPEG for legacy GRUB/Jasper contracts.
 if command -v base64 >/dev/null 2>&1; then
   base64 -d "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" > "$DIST/boot/visual/aurora-wayland-glass.jpg"
+cp -f "$DIST/boot/visual/aurora-wayland-glass.jpg" "$DIST/boot/spitfire/aurora-wayland-glass.jpg"
+cp -f "$DIST/boot/visual/aurora-wayland-glass.jpg" "$DIST/boot/jasper/aurora-wayland-glass.jpg"
+cp -f "$DIST/boot/visual/aurora-wayland-glass.jpg" "$DIST/boot/grub/aurora-wayland-glass.jpg"
 else
   python3 - "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" "$DIST/boot/visual/aurora-wayland-glass.jpg" <<'PY'
 import base64, pathlib, sys
@@ -73,6 +81,10 @@ fi
 [[ "$(head -c 3 "$DIST/boot/visual/aurora-wayland-glass.jpg" | od -An -tx1 | tr -d ' 
 ')" == "ffd8ff" ]] || { echo "Aurora JPEG artwork decode failed." >&2; exit 2; }
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/visual/Init.mp4"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/visual/init.mp4"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/spitfire/Init.mp4"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/jasper/Init.mp4"
+cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/boot/grub/Init.mp4"
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/usr/share/chimera/aurora/assets/Init.mp4"
 install -m 0755 "$ROOT/desktop/aurora/aurora-progress.sh" "$DIST/usr/share/chimera/aurora-progress.sh"
 cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$DIST/desktop/aurora/Init.mp4"
@@ -175,6 +187,9 @@ menuentry "Jasper Recovery — Power Off" { halt }
 EOF
 
 [[ -f "$ROOT/boot/boot-artwork-manifest.json" ]] && cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/"
+cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/spitfire/"
+cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/jasper/"
+cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/grub/"
 [[ -f "$ROOT/boot/boot_protocol.json" ]] && cp "$ROOT/boot/boot_protocol.json" "$DIST/boot/"
 [[ -f "$ROOT/boot/startup/boot_phase_manifest.json" ]] && cp "$ROOT/boot/startup/boot_phase_manifest.json" "$DIST/boot/"
 

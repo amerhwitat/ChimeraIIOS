@@ -1,5 +1,5 @@
 {
-  "schema": "CHM-BOOT-ARTWORK-2",
+  "schema": "CHM-BOOT-ARTWORK-3",
   "canonical_grub_background": "boot/visual/aurora-wayland-glass.jpg",
   "embedded_source": "boot/visual/aurora-wayland-glass.jpg.b64",
   "embedded_source_sha256": "461825073f35b7c49ee741584db822f1ae6204424db18c2fe867825a7ee366ae",
@@ -16,9 +16,9 @@
     "desktop/aurora/assets/aurora-desktop.svg"
   ],
   "runtime_targets": {
-    "grub": "/boot/visual/aurora-wayland-glass.jpg",
-    "jasper": "/boot/visual/aurora-wayland-glass.jpg",
-    "spitfire": "/boot/visual/aurora-wayland-glass.jpg",
+    "grub": "/boot/grub/aurora-wayland-glass.jpg",
+    "jasper": "/boot/jasper/aurora-wayland-glass.jpg",
+    "spitfire": "/boot/spitfire/aurora-wayland-glass.jpg",
     "installer": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "desktop": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "library": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
@@ -28,7 +28,12 @@
     "grub_background": "/boot/visual/aurora-wayland-glass.jpg",
     "all_menus_background": "/boot/visual/aurora-wayland-glass.jpg",
     "boot_splash": "/boot/visual/aurora_boot_splash.svg",
+    "spitfire_splash": "/boot/spitfire/aurora_boot_splash.svg",
+    "jasper_splash": "/boot/jasper/aurora_boot_splash.svg",
     "init_video": "/boot/visual/Init.mp4",
+    "spitfire_init_video": "/boot/spitfire/Init.mp4",
+    "jasper_init_video": "/boot/jasper/Init.mp4",
+    "grub_init_video": "/boot/grub/Init.mp4",
     "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4"
   },
   "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
