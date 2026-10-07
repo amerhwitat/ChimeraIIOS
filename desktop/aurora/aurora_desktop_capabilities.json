@@ -295,7 +295,40 @@
     "testnet-isolation",
     "signing-device-integration",
     "air-gapped-signing",
-    "watch-only-wallets"
+    "watch-only-wallets",
+    "per-screen-virtual-desktops",
+    "improved-wayland-remote-desktop",
+    "gpu-accelerated-remote-desktop",
+    "hdr-screen-sharing",
+    "vrr-low-latency-cursor",
+    "wayland-color-management-v2",
+    "fractional-scale-v1",
+    "tearing-control-v1",
+    "reduced-motion",
+    "ocr-screenshot-text",
+    "webcam-redirection",
+    "remote-session-headless",
+    "landlock-app-sandbox",
+    "landlock-network-sandbox",
+    "sealed-uki",
+    "composefs-fs-verity",
+    "secure-boot-measured-boot",
+    "automatic-boot-rollback",
+    "tpm-sealed-home",
+    "home-directory-suspend-lock",
+    "hardware-accelerated-video",
+    "vulkan-accelerated-remote-desktop",
+    "virtio-gpu-multi-output",
+    "confidential-vm-profile",
+    "qemu-11-profile",
+    "mame-modern-profile",
+    "arcade-netplay-runahead-rewind",
+    "portal-device-permissions",
+    "portal-camera-permissions",
+    "portal-screen-capture-permissions",
+    "accessibility-reduced-motion",
+    "accessibility-ocr",
+    "accessibility-remote-support"
   ],
   "input": [
     "mouse",
@@ -360,5 +393,39 @@
     "testnets_require_explicit_selection": true,
     "open_source_clients": true,
     "wallet_secrets_local_only": true
+  },
+  "modern_platform_baseline": {
+    "research_date": "2026-10-07",
+    "wayland": [
+      "fractional-scale-v1",
+      "color-management-v1",
+      "tearing-control-v1"
+    ],
+    "desktop": [
+      "per-screen-virtual-desktops",
+      "reduced-motion",
+      "ocr-screenshot-text",
+      "gpu-accelerated-remote-desktop"
+    ],
+    "security": [
+      "landlock-app-sandbox",
+      "landlock-network-sandbox",
+      "sealed-uki",
+      "composefs-fs-verity",
+      "secure-boot-measured-boot"
+    ],
+    "virtualization": [
+      "qemu-11-profile",
+      "virtio-gpu-multi-output",
+      "confidential-vm-profile"
+    ],
+    "emulation": [
+      "mame-modern-profile",
+      "arcade-netplay-runahead-rewind"
+    ],
+    "media": [
+      "hardware-accelerated-video",
+      "hdr-screen-sharing"
+    ]
   }
 }
