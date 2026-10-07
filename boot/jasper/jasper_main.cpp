@@ -1,7 +1,15 @@
 #include <stdint.h>
 #include "../../kernel/include/chimera/koronos_abi.h"
 
+static void jasper_progress(){
+    volatile uint16_t *v=(volatile uint16_t*)0xB8000;
+    const char *label="JASPER  [##########----------]  35%  Boot policy manager";
+    for(uint32_t i=0;i<80;i++) v[160+i]=0x0700|' ';
+    for(uint32_t i=0;label[i] && i<80;i++) v[160+i]=0x0F00|(uint8_t)label[i];
+}
+
 extern "C" void jasper_main() {
+    jasper_progress();
     // Jasper is the deterministic boot-policy stage. The native chain is:
     // Spit Fire -> Jasper -> GRUB -> Koronos.
     // The GRUB stage is selected by the boot medium adapter; Koronos receives
