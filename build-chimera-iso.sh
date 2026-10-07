@@ -209,8 +209,8 @@ cleanup_generated_build_artifacts(){
     "$BUILD_DIR/live-boot" \
     "$BUILD_DIR/emulators" \
     "$ISO_TMP_DIR" 2>/dev/null || true
-  find "$BUILD_DIR" -maxdepth 3 -type f \\
-    \\( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \\) \\
+  find "$BUILD_DIR" -maxdepth 3 -type f \
+    \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
