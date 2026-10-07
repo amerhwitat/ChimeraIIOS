@@ -70,6 +70,24 @@ Downloaded code, drivers, firmware, ROMs and applications are not automatically 
 
 Chimera II OS declares **QFS** as its native block filesystem. The default allocation block is **4 KiB**, with explicit installer choices of 8, 16, 32, or 64 KiB. Native installation rejects a block size larger than the running kernel page size.
 
+## 2026 Aurora platform enhancements
+
+Aurora now tracks a capability-detected modern Wayland baseline including fractional
+scaling, color management/HDR, tearing control, VRR-oriented low-latency behavior,
+GPU-accelerated remote desktop, OCR, reduced-motion accessibility and per-screen
+virtual desktops. These are exposed as capabilities rather than unconditional
+claims, so unsupported hardware or compositors fall back safely.
+
+The security baseline now includes optional Landlock filesystem/network/IPC
+sandboxing profiles, while the boot roadmap includes sealed UKIs, Secure Boot,
+composefs/fs-verity integrity and automatic rollback. Virtualization profiles
+track current QEMU capabilities including virtio-GPU multi-output and confidential
+VM support. MAME integration tracks current controller, latency, netplay, rewind
+and runahead capabilities where the selected emulator/core supports them.
+
+See `docs/CHIMERA_AURORA_2026_ENHANCEMENT_RESEARCH.md` and
+`system/security/aurora-landlock-profiles.json`.
+
 ## Aurora Wayland Glass desktop and menu background
 
 The Aurora Wayland Glass artwork is the canonical Chimera II OS visual background for GRUB, Jasper, Spit Fire, installation/recovery/diagnostics menus, Aurora Gates and the runtime desktop.
