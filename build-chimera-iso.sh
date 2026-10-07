@@ -110,6 +110,7 @@ STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
+CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
 
 mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
 
@@ -175,6 +176,7 @@ while [[ $# -gt 0 ]]; do
     --skip-apache) export APACHE_ECOSYSTEM=0; shift;;
     --apache-ecosystem) export APACHE_ECOSYSTEM=1; shift;;
     --push) export CHIMERA_PUSH=1; shift;;
+    --no-push) export CHIMERA_PUSH=0; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
