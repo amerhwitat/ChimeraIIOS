@@ -1,0 +1,37 @@
+{
+  "schema": "CHM-AURORA-SANDBOX-1",
+  "policy": "capability-detected-opt-in",
+  "landlock": {
+    "enabled_when_available": true,
+    "network_restrictions": true,
+    "ipc_scope_restrictions": true,
+    "fallback": "portal-and-process-isolation"
+  },
+  "profiles": {
+    "browser": {
+      "filesystem": "private-cache-plus-user-selected-portals",
+      "network": "allow",
+      "devices": "deny-by-default"
+    },
+    "document-viewer": {
+      "filesystem": "read-only-user-selected",
+      "network": "deny",
+      "devices": "deny"
+    },
+    "media-player": {
+      "filesystem": "read-only-user-selected",
+      "network": "deny-by-default",
+      "devices": "portal"
+    },
+    "downloaded-tool": {
+      "filesystem": "private-runtime",
+      "network": "deny",
+      "devices": "deny"
+    }
+  },
+  "audit": {
+    "log_policy_changes": true,
+    "show_effective_policy_in_aurora": true,
+    "require_confirmation_for_network_escalation": true
+  }
+}
