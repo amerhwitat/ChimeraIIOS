@@ -24,9 +24,14 @@ jobs:
           python3 -m json.tool web/desktop_profiles.json >/dev/null
           python3 -m json.tool web/game-center-manifest.json >/dev/null
           python3 -m json.tool web/retro_emulators.json >/dev/null
+          python3 -m json.tool web/playstation_emulators.json >/dev/null
+          test -s web/playstation_emulators.html
+          test -s web/playstation_emulators.css
+          test ! -e web/playstation_status.php
       - name: Validate Retro and Portfolio JavaScript
         run: |
           node --check web/retro_emulators.js
+          node --check web/playstation_emulators.js
           node --check web/portfolio.js
       - name: Validate signaling package
         run: node --check tools/network/signaling-server.mjs
