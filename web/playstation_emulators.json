@@ -1,0 +1,32 @@
+{
+  "schema": "chimera-playstation-emulators/v1",
+  "policy": "catalog-adapter-only",
+  "title": "Aurora PlayStation Emulator Hub",
+  "description": "Unified PlayStation emulator catalog for PSX/PS1 through PS5. Games, BIOS, keys and proprietary system software are never bundled.",
+  "media_policy": {"games":"user-supplied-and-lawfully-dumped","bios":"user-supplied-where-required","firmware":"user-supplied-and-verified","keys":"never-bundled"},
+  "generations": [
+    {"id":"psx","title":"PlayStation / PSX","status":"mature","emulators":[
+      {"id":"duckstation","title":"DuckStation","kind":"native","license":"GPL-3.0-or-later","platforms":["linux","windows","macos"],"executable_candidates":["duckstation","duckstation-qt"],"media":["iso","bin/cue","chd","ecm","pbp"],"bios_required":true,"status":"recommended","source":"https://github.com/stenzek/duckstation","website":"https://www.duckstation.org/"},
+      {"id":"mednafen","title":"Mednafen","kind":"native","license":"GPL-2.0-or-later","platforms":["linux","windows"],"executable_candidates":["mednafen"],"media":["cue/bin","iso","chd"],"bios_required":true,"status":"alternative","source":"https://mednafen.github.io/","website":"https://mednafen.github.io/"},
+      {"id":"beetle-psx","title":"Beetle PSX / Beetle PSX HW","kind":"libretro-core","license":"GPL-2.0-or-later","platforms":["linux","windows","macos","libretro"],"executable_candidates":["retroarch"],"media":["cue/bin","chd"],"bios_required":true,"status":"alternative","source":"https://github.com/libretro/beetle-psx-libretro","website":"https://www.libretro.com/"},
+      {"id":"pcsx-rearmed","title":"PCSX ReARMed","kind":"libretro-core","license":"GPL-2.0-or-later","platforms":["linux","windows","arm","libretro"],"executable_candidates":["retroarch"],"media":["cue/bin","chd"],"bios_required":true,"status":"lightweight","source":"https://github.com/libretro/pcsx_rearmed","website":"https://www.libretro.com/"},
+      {"id":"swanstation","title":"SwanStation","kind":"libretro-core","license":"GPL-2.0-or-later","platforms":["linux","windows","macos","libretro"],"executable_candidates":["retroarch"],"media":["cue/bin","chd"],"bios_required":true,"status":"alternative","source":"https://github.com/libretro/swanstation","website":"https://www.libretro.com/"}
+    ]},
+    {"id":"ps2","title":"PlayStation 2","status":"mature","emulators":[
+      {"id":"pcsx2","title":"PCSX2","kind":"native","license":"GPL-2.0-or-later","platforms":["linux","windows","macos"],"executable_candidates":["pcsx2","pcsx2-qt","PCSX2"],"media":["iso","chd","bin/cue"],"bios_required":true,"status":"recommended","source":"https://github.com/PCSX2/pcsx2","website":"https://pcsx2.net/"},
+      {"id":"play","title":"Play!","kind":"native","license":"GPL-3.0-or-later","platforms":["linux","windows","macos","android","ios","web"],"executable_candidates":["play","Play"],"media":["iso","bin/cue"],"bios_required":false,"status":"alternative","source":"https://github.com/jpd002/Play-","website":"https://purei.org/"}
+    ]},
+    {"id":"ps3","title":"PlayStation 3","status":"advanced","emulators":[
+      {"id":"rpcs3","title":"RPCS3","kind":"native","license":"GPL-2.0-or-later","platforms":["linux","windows"],"executable_candidates":["rpcs3"],"media":["folder","iso","pkg"],"bios_required":false,"firmware_required":true,"status":"recommended","source":"https://github.com/RPCS3/rpcs3","website":"https://rpcs3.net/"}
+    ]},
+    {"id":"ps4","title":"PlayStation 4","status":"experimental","emulators":[
+      {"id":"shadps4","title":"shadPS4","kind":"native","license":"GPL-2.0-or-later","platforms":["linux","windows","macos","freebsd"],"executable_candidates":["shadps4","shadPS4","shadps4-qt"],"media":["game-directory","elf","pkg"],"bios_required":false,"firmware_required":true,"status":"recommended","requirements":["x86-64-v3","Vulkan-1.3"],"source":"https://github.com/shadps4-emu/shadPS4","website":"https://shadps4.net/"},
+      {"id":"rpcsx","title":"RPCSX","kind":"native","license":"GPL-2.0-or-later","platforms":["linux"],"executable_candidates":["rpcsx"],"media":["game-directory","elf"],"bios_required":false,"firmware_required":true,"status":"experimental","requirements":["Vulkan"],"source":"https://github.com/RPCSX/rpcsx","website":"https://rpcsx.github.io/"},
+      {"id":"fpps4","title":"fpPS4","kind":"native","license":"LGPL-2.1","platforms":["x86-64"],"executable_candidates":["fpPS4","fpps4"],"media":["game-directory","elf"],"bios_required":false,"status":"experimental","requirements":["AVX2","Vulkan"],"source":"https://github.com/red-prig/fpPS4","website":"https://fpps4.net/"}
+    ]},
+    {"id":"ps5","title":"PlayStation 5","status":"experimental","emulators":[
+      {"id":"kytyps5","title":"KytyPS5","kind":"native","license":"GPL-2.0-only","platforms":["linux","windows","macos"],"executable_candidates":["kyty_emulator","KytyPS5"],"media":["game-directory"],"bios_required":false,"firmware_required":true,"status":"recommended","requirements":["Vulkan"],"source":"https://github.com/KytyPS5/KytyPS5","website":"https://kytyps5.github.io/"},
+      {"id":"rpcsx-ps5","title":"RPCSX","kind":"native","license":"GPL-2.0-or-later","platforms":["linux"],"executable_candidates":["rpcsx"],"media":["game-directory","elf"],"bios_required":false,"firmware_required":true,"status":"experimental","requirements":["Vulkan"],"source":"https://github.com/RPCSX/rpcsx","website":"https://rpcsx.github.io/"}
+    ]}
+  ]
+}
