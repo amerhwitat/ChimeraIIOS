@@ -14,7 +14,15 @@
     "/boot/koronos/koronos.elf",
     "/boot/visual/aurora-wayland-glass.jpg",
     "/boot/installer/installer-initrd.img",
-    "/boot/installer/installer-manifest.json"
+    "/boot/installer/installer-manifest.json",
+    "/boot/visual/Init.mp4",
+    "/usr/share/chimera/installer/assets/Init.mp4",
+    "/usr/share/chimera/aurora/assets/Init.mp4"
   ],
-  "post_install_background": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg"
+  "post_install_background": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+  "aurora_init_video": "/usr/share/chimera/installer/assets/Init.mp4",
+  "aurora_desktop_video": "/usr/share/chimera/aurora/assets/Init.mp4",
+  "aurora_boot_video": "/boot/visual/Init.mp4",
+  "aurora_progress": "/usr/share/chimera/aurora/aurora-progress.sh",
+  "aurora_progress_state": "/run/chimera/koronos-progress.state"
 }
