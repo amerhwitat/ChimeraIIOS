@@ -98,6 +98,22 @@ cp -f "$MEDIA/mobile/aurora-mobile.png" "$VISUAL_OUT/aurora-mobile.png"
 cp -f "$MEDIA/manifest.json" "$VISUAL_OUT/aurora-manifest.json"
 cp -f "$MEDIA/progress/"*.json "$VISUAL_OUT/"
 cp -f "$MEDIA/Init.mp4" "$VISUAL_OUT/Init.mp4"
+
+# Hard-stage the same deterministic artwork/media in every native boot namespace.
+# This prevents Spit Fire/Jasper/GRUB from depending on a later rootfs mount.
+for stage in spitfire jasper grub koronos; do
+  mkdir -p "$DIST/iso/boot/$stage"
+  cp -f "$MEDIA/Init.mp4" "$DIST/iso/boot/$stage/Init.mp4"
+  cp -f "$MEDIA/backgrounds/boot.png" "$DIST/iso/boot/$stage/aurora-boot.png"
+done
+cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/iso/boot/spitfire/"
+cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/iso/boot/jasper/"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/iso/boot/grub/"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/iso/boot/koronos/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/spitfire/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/jasper/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/grub/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/koronos/"
 # Mirror the same contract into the installed/live Aurora runtime when a rootfs is present.
 RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera/aurora"
 if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
@@ -114,6 +130,11 @@ for visual in \
   test -s "$DIST/iso/boot/visual/$visual" || { echo "ERROR: Aurora visual asset missing: $visual" >&2; exit 2; }
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
+for stage in spitfire jasper grub koronos; do
+  test -s "$DIST/iso/boot/$stage/Init.mp4" || { echo "ERROR: Init.mp4 missing from $stage stage." >&2; exit 2; }
+  test -s "$DIST/iso/boot/$stage/aurora-boot.png" || { echo "ERROR: Aurora artwork missing from $stage stage." >&2; exit 2; }
+  test -s "$DIST/iso/boot/$stage/boot-artwork-manifest.json" || { echo "ERROR: artwork manifest missing from $stage stage." >&2; exit 2; }
+done
 
 # Stage a real installer initramfs and the canonical installer JSON contracts.
 bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
