@@ -41,6 +41,40 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-${CHIMERA_BUILD_DIR:-$ROOT/build}/boot-artifacts}"
 rm -rf "$OUT"
 mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/uefi" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
+
+# Keep the visual boot contract inside the boot-artifact bundle itself. These
+# files are data consumed by the native/GRUB/Jasper stages; GRUB never decodes
+# MP4, but Jasper/Aurora can hand the same deterministic media forward.
+BOOT_VIDEO=""
+for candidate in \
+  "$ROOT/desktop/aurora/assets/Init.mp4" \
+  "$ROOT/desktop/aurora/assets/library/Init.mp4" \
+  "$ROOT/build/aurora-media/Init.mp4" \
+  "$ROOT/Init.mp4"; do
+  if [[ -s "$candidate" ]]; then BOOT_VIDEO="$candidate"; break; fi
+done
+[[ -n "$BOOT_VIDEO" ]] || {
+  echo "ERROR: required Aurora Init.mp4 is missing from the repository." >&2
+  exit 1
+}
+for stage in spitfire jasper grub koronos; do
+  cp -f "$BOOT_VIDEO" "$OUT/$stage/Init.mp4"
+done
+for asset in \
+  "$ROOT/boot/splash/spitfire_background.svg" \
+  "$ROOT/boot/splash/jasper_background.svg" \
+  "$ROOT/boot/splash/aurora_boot_splash.svg" \
+  "$ROOT/boot/boot-artwork-manifest.json"; do
+  [[ -s "$asset" ]] || { echo "ERROR: required boot artwork is missing: $asset" >&2; exit 1; }
+done
+cp -f "$ROOT/boot/splash/spitfire_background.svg" "$OUT/spitfire/"
+cp -f "$ROOT/boot/splash/jasper_background.svg" "$OUT/jasper/"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$OUT/koronos/"
+cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$OUT/grub/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/spitfire/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/jasper/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/koronos/"
+cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/grub/"
 KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
 test -s "$KORONOS" || "$ROOT/kernel/build-koronos.sh"
 test -s "$KORONOS"
