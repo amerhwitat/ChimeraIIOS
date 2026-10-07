@@ -76,6 +76,21 @@ class H(BaseHTTPRequestHandler):
                 r=subprocess.run([str(PS_LAUNCHER),"run",e["id"],str(p)],capture_output=True,text=True,timeout=10)
                 if r.returncode:return send(self,409,{"error":r.stderr.strip() or "emulator-not-installed"})
                 return send(self,200,{"status":"launch-requested","id":e["id"]})
+            if path=="/python/build-all":
+                allowed={"BizXtreme","amerhwitat.github.io","keygen","PDFreaderPY","bruteforce","general","CPU4096","test","VanG","CPU4096Simulator","eth-key-check","BizX","ChimeraIIOS","nlp"}
+                workspace=Path(os.environ.get("CHIMERA_PYTHON_WORKSPACE",str(ROOT.parent))).resolve()
+                results=[]; total=0; failed=0
+                for repo in sorted(allowed):
+                    base=(workspace/repo).resolve()
+                    if not base.exists(): results.append({"repo":repo,"status":"workspace-missing"}); continue
+                    for script in base.rglob("*.py"):
+                        total+=1
+                        try:
+                            p=subprocess.run(["python3","-m","py_compile",str(script)],cwd=str(base),capture_output=True,text=True,timeout=20)
+                            if p.returncode: failed+=1; results.append({"repo":repo,"path":str(script.relative_to(base)),"status":"failed","stderr":p.stderr[-2000:]})
+                        except Exception as e:
+                            failed+=1; results.append({"repo":repo,"path":str(script.relative_to(base)),"status":"error","error":str(e)})
+                return send(self,200 if failed==0 else 409,{"status":"pass" if failed==0 else "completed-with-errors","total":total,"failed":failed,"failures":results[:200]})
             if path=="/python/run":
                 repo=str(d.get("repo","")).strip()
                 rel=str(d.get("path","")).strip()
