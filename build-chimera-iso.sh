@@ -191,13 +191,89 @@ free_bytes(){ df -PB1 "$1" 2>/dev/null | awk 'NR==2{print $4}'; }
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
 docker_image_bytes(){ docker image inspect "$1" --format '{{.Size}}' 2>/dev/null | awk 'NR==1{print $1+0}'; }
 cleanup_generated_build_artifacts(){
-  # Only remove artifacts produced by previous Chimera builds. Repository source,
-  # ROM catalogs, authorized media and OS assets are never touched.
-  rm -rf -- "$ISO_DIR/rootfs" "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" 2>/dev/null || true
-  find "$BUILD_DIR" -maxdepth 2 -type f \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' \) -delete 2>/dev/null || true
+  # Remove only build-owned intermediate artifacts. Never touch repository
+  # source/assets, the final ISO/checksum, or explicitly supplied media.
+  rm -rf -- \
+    "$ISO_DIR/rootfs" \
+    "$ISO_DIR/live" \
+    "$ISO_DIR/boot" \
+    "$ISO_DIR/install" \
+    "$ISO_DIR/system" \
+    "$ISO_DIR/desktop" \
+    "$ISO_DIR/network" \
+    "$ISO_DIR/drivers" \
+    "$ISO_DIR/games" \
+    "$BUILD_DIR/boot-artifacts" \
+    "$BUILD_DIR/live-boot" \
+    "$BUILD_DIR/emulators" \
+    "$ISO_TMP_DIR" 2>/dev/null || true
+  find "$BUILD_DIR" -maxdepth 3 -type f \\
+    \\( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \\) \\
+    -delete 2>/dev/null || true
+  # Remove empty build-owned directories left after the sweep.
+  find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
   docker container prune -f >/dev/null 2>&1 || true
-  docker image prune -f >/dev/null 2>&1 || true
 }
+cleanup_final_success_artifacts(){
+  [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
+  log_info "Cleaning unused generated ISO build intermediates..."
+  cleanup_generated_build_artifacts
+  # Resume/failure state is no longer useful after a complete verified build.
+  rm -f -- "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true
+  log_success "Unused generated build artifacts removed; final ISO/checksum retained."
+}
+docker_image_in_use(){
+  local image="$1"
+  docker ps -aq --filter "ancestor=$image" | grep -q .
+}
+cleanup_generated_docker_image(){
+  local image="$1" image_id="$2" tagged=""
+  [[ -n "$image_id" ]] || return 0
+  if docker_image_in_use "$image"; then
+    log_warning "Keeping Docker image $image because a container still references it."
+    return 0
+  fi
+  # Remove every local tag that points at the image created by this build.
+  while read -r tagged; do
+    [[ -n "$tagged" ]] || continue
+    docker image rm -f "$tagged" >/dev/null 2>&1 || true
+  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
+  if docker image inspect "$image_id" >/dev/null 2>&1; then
+    log_warning "Docker image layers remain because another local reference uses $image_id."
+  else
+    log_success "Unused generated Docker image removed: $image_id"
+  fi
+}
+push_docker_image(){
+  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
+  local source="$DOCKER_IMAGE:$DOCKER_TAG"
+  local target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
+  local target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
+  local image_id
+  image_id="$(docker image inspect -f '{{.Id}}' "$source" 2>/dev/null || true)"
+  [[ -n "$image_id" ]] || { log_error "Cannot push missing Docker image: $source"; return 1; }
+  command -v docker >/dev/null || { log_error "Docker CLI not found"; return 1; }
+
+  if [[ -n "${DOCKERHUB_USERNAME:-}" && -n "${DOCKERHUB_TOKEN:-}" ]]; then
+    printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin
+  elif [[ -n "${CHIMERA_DOCKERHUB_USERNAME:-}" && -n "${CHIMERA_DOCKERHUB_TOKEN:-}" ]]; then
+    printf '%s' "$CHIMERA_DOCKERHUB_TOKEN" | docker login docker.io --username "$CHIMERA_DOCKERHUB_USERNAME" --password-stdin
+  elif ! docker info 2>/dev/null | grep -q 'Username:'; then
+    log_error "Docker Hub credentials are required. Set DOCKERHUB_USERNAME/DOCKERHUB_TOKEN or CHIMERA_DOCKERHUB_USERNAME/CHIMERA_DOCKERHUB_TOKEN."
+    return 1
+  fi
+
+  log_info "Publishing generated Docker image: $source -> $target:$target_tag"
+  docker tag "$source" "$target:$target_tag"
+  docker push "$target:$target_tag"
+  if [[ "$target_tag" != "latest" && "${CHIMERA_DOCKERHUB_PUSH_LATEST:-0}" == 1 ]]; then
+    docker tag "$source" "$target:latest"
+    docker push "$target:latest"
+  fi
+  log_success "Docker Hub push completed: $target:$target_tag"
+  cleanup_generated_docker_image "$source" "$image_id"
+}
+
 is_writable_dir(){
   local dir="$1" probe
   [[ -d "$dir" && -w "$dir" ]] || return 1
@@ -843,6 +919,8 @@ report_build(){
   log_success "Rootfs: $ROOTFS_DIR"
   log_success "ISO output: $ISO_OUTPUT_DIR"
   log_success "Chimera II OS comprehensive build completed."
+  BUILD_SUCCEEDED=1
+  cleanup_final_success_artifacts
 }
 
 main(){
@@ -853,7 +931,7 @@ main(){
   for stage in docker rootfs boot installer branding apache features games squashfs iso verify report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
-      docker) run_stage docker build_docker;;
+      docker) run_stage docker build_docker; push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
