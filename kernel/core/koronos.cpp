@@ -198,7 +198,8 @@ static volatile uint32_t installer_phase = 0;
 
 static void task_console(void *) {
     chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
-    if (console_task_runs++ == 0) console_write("[TASK] Console service online");\n    chimera_sched_block();
+    if (console_task_runs++ == 0) console_write("[TASK] Console service online");
+    chimera_sched_block();
 }
 
 static void task_modules(void *) {
@@ -206,6 +207,7 @@ static void task_modules(void *) {
         console_write("[TASK] Module manager online");
         console_modules();
     }
+    chimera_sched_block();
 }
 
 static void task_live(void *) {
@@ -282,7 +284,7 @@ static const char *task_state_name(uint32_t state) {
 
 static void task_monitor(void *) {
     static uint32_t ticks = 0;
-    chimera_watchdog_heartbeat(WDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
+    chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
     if (++ticks != 1u) { chimera_sched_block(); return; }
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
@@ -307,6 +309,7 @@ static void task_monitor(void *) {
         console_u32_raw((uint32_t)info[i].runs);
         console_endline();
     }
+    chimera_sched_block();
 }
 
 static void task_kore(void *) {
