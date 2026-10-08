@@ -188,11 +188,19 @@ extern "C" int chimera_inet_aton(const char* cp, struct in_addr* inp) {
     uint32_t value = (static_cast<uint32_t>(bytes[0]) << 24) |
                      (static_cast<uint32_t>(bytes[1]) << 16) |
                      (static_cast<uint32_t>(bytes[2]) << 8) | bytes[3];
-    inp->s_addr = host_to_net32(value);
+    const uint32_t network_value = host_to_net32(value);
+    // Treat the destination as the four-byte POSIX in_addr payload. This also
+    // works with Windows SDKs where struct in_addr is intentionally opaque here.
+    std::memcpy(static_cast<void*>(inp), &network_value, sizeof(network_value));
     return 1;
 }
 
 extern "C" uint32_t chimera_inet_addr(const char* cp) {
-    struct in_addr addr{};
-    return chimera_inet_aton(cp, &addr) ? addr.s_addr : INADDR_NONE;
+    if (!cp) return INADDR_NONE;
+    std::array<uint8_t, 4> bytes{};
+    if (!parse_ipv4(cp, bytes)) return INADDR_NONE;
+    uint32_t value = (static_cast<uint32_t>(bytes[0]) << 24) |
+                     (static_cast<uint32_t>(bytes[1]) << 16) |
+                     (static_cast<uint32_t>(bytes[2]) << 8) | bytes[3];
+    return host_to_net32(value);
 }
