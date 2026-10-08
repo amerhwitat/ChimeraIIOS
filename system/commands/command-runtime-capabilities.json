@@ -5,8 +5,8 @@
   "command_count": 3337,
   "mode_counts": {
     "compatibility-provider-required": 3269,
-    "shell-builtin": 53,
-    "native": 15
+    "native": 15,
+    "shell-builtin": 53
   },
   "commands": [
     {
