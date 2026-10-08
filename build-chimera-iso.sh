@@ -448,13 +448,17 @@ create_boot_menu(){
   # Refresh advisory ISA/kernel/driver/mobile-OS research before producing boot artifacts.
   # Set CHIMERA_ISA_RESEARCH=0 to skip network discovery; offline indexing remains available.
   if [[ "${CHIMERA_ISA_RESEARCH:-1}" != "0" ]]; then
-    if command -v python3 >/dev/null 2>&1; then
+    if [[ ! -f "$SCRIPT_DIR/tools/isa/research_catalog.py" ]]; then
+      log_warn "ISA research script is missing; skipping optional research refresh. Update the checkout or restore tools/isa/research_catalog.py."
+    elif command -v python3 >/dev/null 2>&1; then
       python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" 2>&1 | tee -a "$LOG_DIR/isa-research.log" || {
         log_warn "Online ISA research failed; continuing boot build with existing registries."
       }
     else
       log_warn "python3 unavailable; skipping ISA research refresh."
     fi
+  else
+    log_info "ISA research refresh skipped by CHIMERA_ISA_RESEARCH=0."
   fi
   "$SCRIPT_DIR/kernel/build-koronos.sh"
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
