@@ -103,7 +103,7 @@ class H(BaseHTTPRequestHandler):
                 if profile["backend"]=="chimera-nbit":return send(self,409,{"error":"native-nbit-not-bootable","hint":"Reference interpreter exists; QEMU machine backend and guest boot ABI are not integrated."})
                 args=["python3",str(HV_LAUNCHER),"run","--backend",profile["backend"],"--profile",profile["id"],"--vcpus",str(vcpus),"--accel",str(d.get("accel","auto")),"--memory",str(memory)+"M"]
                 if d.get("accel","auto") not in ("auto","kvm","tcg"):return send(self,400,{"error":"invalid-accelerator"})
-                for key,value in (("disk",d.get("disk")),("cdrom",d.get("cdrom")),("kernel",d.get("kernel"))):
+                for key,value in (("disk",d.get("disk")),("cdrom",d.get("cdrom")),("kernel",d.get("kernel")),("bios",d.get("bios"))):
                     if value:
                         p=safe_path(value)
                         if not p.is_file():return send(self,404,{"error":key+"-not-found"})
