@@ -151,7 +151,9 @@ for visual in \
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
 test -s "$DIST/iso/boot/chimera/manifests/boot-pipeline-contract.json"
-! grep -R -F 'aurora-background.jpg' "$DIST/iso" >/dev/null || { echo "ERROR: obsolete aurora-background.jpg artwork contract leaked into ISO." >&2; exit 2; }
+# validate-iso.py rejects obsolete artwork filenames and GRUB references; do not
+# grep the entire ISO because the canonical contract intentionally documents
+# the forbidden legacy name.
 for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/Init.mp4" || { echo "ERROR: Init.mp4 missing from $stage stage." >&2; exit 2; }
   test -s "$DIST/iso/boot/$stage/aurora-boot.png" || { echo "ERROR: Aurora artwork missing from $stage stage." >&2; exit 2; }
