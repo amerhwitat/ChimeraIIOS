@@ -968,7 +968,37 @@ report_build(){
   BUILD_SUCCEEDED=1
 }
 
+scan_isa_and_commands_before_network_crawl(){
+  local isa_header="$SCRIPT_DIR/kernel/generated/chimera_isa_registry.generated.h"
+  local isa_db="$SCRIPT_DIR/isa/isa_database.json"
+  log_info "Scanning local ISA registry before any SS64 network crawl"
+  if [[ -f "$isa_header" ]]; then
+    log_info "Local generated ISA header found: $isa_header"
+    grep -E 'CHIMERA_ISA|ISA_REGISTRY|instruction|mnemonic' "$isa_header" | head -n 3 || true
+  else
+    log_warning "Generated ISA header missing; regenerating from the canonical ISA database"
+    python3 "$SCRIPT_DIR/tools/isa/generate_registry.py"
+  fi
+  [[ -s "$isa_header" ]] || { log_error "ISA registry header unavailable after generation"; return 1; }
+  [[ -s "$isa_db" ]] || { log_error "Canonical ISA database missing: $isa_db"; return 1; }
+  python3 - "$isa_db" "$isa_header" <<'PYISA'
+import json,sys
+from pathlib import Path
+db=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+arches=db.get("architectures",[]); rows=db.get("instructions",[])
+print(f"[ISA] canonical architectures={len(arches)} instruction forms={len(rows)}")
+if not arches or not rows: raise SystemExit("Canonical ISA database is empty")
+PYISA
+  log_info "Scanning cached command catalogs before crawling SS64"
+  [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
+  if [[ "${CHIMERA_SKIP_SS64_CRAWL:-0}" != 1 ]]; then
+    python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-3000}" --timeout "${CHIMERA_SS64_TIMEOUT:-12}" --retries "${CHIMERA_SS64_RETRIES:-1}"
+  else
+    log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
+  fi
+}
 main(){
+  scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
   preflight
   check_deps
