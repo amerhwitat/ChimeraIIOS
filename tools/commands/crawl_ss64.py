@@ -228,7 +228,7 @@ def attach_arabic_labels(catalog, root):
             row["arabic_search"]=list(dict.fromkeys([label,name,"أمر "+name]))
             merged.setdefault(name.casefold(),{"name":name,"label":label,"arabic_status":status,"platforms":[]})
             merged[name.casefold()]["platforms"].append(row.get("platform",""))
-    desktop={"schema":"CHIMERA-AR-CMD-3","locale":"ar","direction":"rtl","commands":{k:{"label":v["label"],"translation_status":v["arabic_status"]} for k,v in sorted(merged.items())}}
+    desktop={"schema":"CHIMERA-AR-CMD-4","locale":"ar","direction":"rtl","commands":{k:v["label"] for k,v in sorted(merged.items())},"translation_status":{k:v["arabic_status"] for k,v in sorted(merged.items())}}
     system={"schema":"CHIMERA-SS64-AR-2","locale":"ar","commands":{k:{"name":v["name"],"label":v["label"],"translation_status":v["arabic_status"],"platforms":sorted(set(v["platforms"]))} for k,v in sorted(merged.items())}}
     desktop_path=root/"desktop/aurora/arabic_command_catalog.json"
     system_path=root/"system/commands/ss64-command-catalog.ar.json"
