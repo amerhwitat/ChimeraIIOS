@@ -60,6 +60,13 @@ class MachineTests(unittest.TestCase):
         self.assertEqual(out['mcause'],2)
         self.assertEqual(out['mtval'],0x0000100f)
 
+    def test_trapping_instructions_count_toward_step_limit(self):
+        m=self.machine([0x00100073, 0xffffffff])
+        m.mtvec=4
+        out=m.run(max_steps=5)
+        self.assertEqual(out['steps'],5)
+        self.assertFalse(out['halted'])
+
     def test_x0_is_hardwired(self):
         m=self.machine([enc_i(7,0,0,0),0x00100073])
         self.assertEqual(m.run()['registers'][0],0)
