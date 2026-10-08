@@ -1,0 +1,436 @@
+{
+  "schema": "CHM-RV32I-COVERAGE-1",
+  "architecture": "RISC-V RV32I",
+  "scope": "RV32I base integer ISA only; extensions and privileged architecture are tracked separately.",
+  "conformance_policy": "No instruction or backend is conformant until official architectural tests and local directed tests pass for that scope.",
+  "official_architectural_tests": {
+    "suite": "riscv-arch-test",
+    "integrated": false,
+    "status": "not-run",
+    "conformance_claim": false
+  },
+  "instructions": [
+    {
+      "mnemonic": "LUI",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "AUIPC",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "JAL",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "JALR",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "BEQ",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "BNE",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "BLT",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "BGE",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "BLTU",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "BGEU",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "LB",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "LH",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "LW",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "LBU",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "LHU",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SB",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SH",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SW",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "ADDI",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SLTI",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SLTIU",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "XORI",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "ORI",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "ANDI",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SLLI",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SRLI",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SRAI",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "ADD",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SUB",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SLL",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SLT",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SLTU",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "XOR",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SRL",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "SRA",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "OR",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "AND",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "FENCE",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "ECALL",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    },
+    {
+      "mnemonic": "EBREAK",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false
+    }
+  ],
+  "machine_features": {
+    "memory_model": {
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Little-endian bounded bytearray; misalignment and access faults; not virtual memory."
+    },
+    "synchronous_traps": {
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Minimal trap registers only; not privileged-spec complete."
+    },
+    "interrupt_delivery": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "csr_semantics": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "privilege_transitions": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "virtual_memory": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "pmp": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "hardware_devices": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  },
+  "architecture_backends": [
+    {
+      "architecture": "AArch64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "architecture": "x86-64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "architecture": "ARM32",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "architecture": "MIPS",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "architecture": "Power ISA",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  ]
+}
