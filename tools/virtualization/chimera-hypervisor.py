@@ -49,7 +49,7 @@ def probe(registry=None, which=shutil.which, kvm_path=Path("/dev/kvm")):
 
 def build_command(backend_id, accelerator="auto", memory="512M", disk=None,
                   cdrom=None, firmware_kernel=None, headless=True, registry=None,
-                  which=shutil.which, kvm_path=Path("/dev/kvm"), profile=None, vcpus=1,
+                  which=shutil.which, kvm_path=Path("/dev/kvm"), profile=None, vcpus=1, bios=None,
                   profiles_path=ROOT / "tools/virtualization/machine-profiles.json"):
     if accelerator not in ACCELERATORS:
         raise ValueError("accelerator must be auto, tcg, or kvm")
@@ -93,7 +93,12 @@ def build_command(backend_id, accelerator="auto", memory="512M", disk=None,
         for device in chosen.get("devices", []):
             args += ["-device", device]
         firmware = chosen.get("firmware")
-        if firmware:
+        if bios:
+            firmware_path = Path(bios).expanduser().resolve()
+            if not firmware_path.is_file():
+                raise FileNotFoundError("firmware image not found")
+            args += ["-bios", str(firmware_path)]
+        elif firmware:
             found = which(firmware)
             if found:
                 args += ["-bios", found]
@@ -125,6 +130,7 @@ def main(argv=None):
     parser.add_argument("--disk")
     parser.add_argument("--cdrom")
     parser.add_argument("--kernel")
+    parser.add_argument("--bios")
     parser.add_argument("--profile")
     parser.add_argument("--vcpus", type=int, default=1)
     parser.add_argument("--gui", action="store_true")
@@ -138,7 +144,7 @@ def main(argv=None):
             parser.error("run requires --backend")
         args = build_command(ns.backend, ns.accel, ns.memory, ns.disk,
                              ns.cdrom, ns.kernel, not ns.gui, profile=ns.profile,
-                             vcpus=ns.vcpus)
+                             vcpus=ns.vcpus, bios=ns.bios)
         if ns.dry_run:
             print(json.dumps({"command": args, "shell": False}, indent=2))
             return 0
