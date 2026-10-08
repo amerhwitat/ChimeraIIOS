@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include "../include/chimera/scheduler.h"
-#include "../include/chimera/multiboot_modules.h"\n#include "../include/chimera/timer.h"\n#include "../include/chimera/watchdog.h"
+#include "../include/chimera/multiboot_modules.h"
+#include "../include/chimera/timer.h"
+#include "../include/chimera/watchdog.h"
 namespace {
 static void vga_text(uint32_t row,uint32_t col,const char*text){volatile uint16_t*v=(volatile uint16_t*)0xB8000;for(uint32_t i=0;text[i]&&col+i<80;++i)v[row*80+col+i]=(uint16_t)(0x0F00u|(uint8_t)text[i]);}
 static void vga_hex(uint32_t row,uint32_t col,uint32_t value){static const char h[]="0123456789ABCDEF";volatile uint16_t*v=(volatile uint16_t*)0xB8000;for(uint32_t i=0;i<8&&col+i<80;++i)v[row*80+col+i]=(uint16_t)(0x0F00u|(uint8_t)h[(value>>(28-4*i))&15u]);}
@@ -11,7 +13,8 @@ extern "C" void koronos_idle_loop(void){
     uint32_t spin=0;
     for(;;){
         const uint32_t dispatched=chimera_sched_run_once(0);
-        ++spin;\n        chimera_watchdog_heartbeat(1u, chimera_timer_now() * 1000000ull);
+        ++spin;
+        chimera_watchdog_heartbeat(1u, chimera_timer_now() * 1000000ull);
         if((spin&0x0000FFFFu)==0)vga_heartbeat(spin,dispatched,chimera_sched_runnable_count());
 #if defined(__x86_64__)||defined(__i386__)
         __asm__ volatile("pause" ::: "memory");
