@@ -1,7 +1,7 @@
 {
   "schema": "CHM-ISA-SAMPLES-1",
   "scope": "Worked sample encodings only; not an exhaustive ISA or a complete encoder/decoder.",
-  "count": 51,
+  "count": 54,
   "samples": [
     {
       "id": "riscv_add",
@@ -805,6 +805,48 @@
       "fields": [
         "opcode 11",
         "disp8"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_nop",
+      "family": "arm32-thumb",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 16,
+      "binary": "1011111100000000",
+      "hex": "0xbf00",
+      "fields": [
+        "fixed opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_movs_imm",
+      "family": "arm32-thumb",
+      "mnemonic": "MOVS",
+      "syntax": "movs r0, #0",
+      "bits": 16,
+      "binary": "0010000000000000",
+      "hex": "0x2000",
+      "fields": [
+        "opcode[15:11]",
+        "Rd[10:8]",
+        "imm8[7:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_bx_lr",
+      "family": "arm32-thumb",
+      "mnemonic": "BX",
+      "syntax": "bx lr",
+      "bits": 16,
+      "binary": "0100011101110000",
+      "hex": "0x4770",
+      "fields": [
+        "fixed opcode",
+        "Rm[6:3]"
       ],
       "source_urls": []
     }
