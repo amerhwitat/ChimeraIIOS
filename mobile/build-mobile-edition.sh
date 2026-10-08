@@ -33,11 +33,13 @@ test -f "$ROOT/build/koronos/x86_64/koronos.elf" || {
 # runtime payload and a device-specific boot/adaptation bundle. This prevents
 # an x86_64 desktop kernel from being flashed onto an ARM phone.
 cp -f "$ROOT/build/koronos/x86_64/koronos.elf" "$OUT/images/koronos-reference-host.elf"
+cp -f "$ROOT/mobile/watchdog-policy.json" "$OUT/manifests/watchdog-policy.json"
 cat > "$OUT/manifests/mobile-edition.json" <<EOF
 {
   "schema": "CHM-MOBILE-EDITION-2",
   "architecture": "$ARCH",
   "profile": "$PROFILE",
+  "watchdog_policy": "watchdog-policy.json",
   "runtime": {
     "shared": ["Koronos IPC/capability ABI", "N-bit execution policy", "security policy", "database/runtime services"],
     "requires_device_boot_bundle": true,
