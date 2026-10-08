@@ -9,7 +9,7 @@ class BinaryTests(unittest.TestCase):
   self.assertEqual(identify(b"\0asm\x01\0\0\0")["format"],"WebAssembly");self.assertEqual(identify(b"#!/bin/sh\n")["kind"],"script");self.assertEqual(identify(b"junk","x.exe")["format"],"unknown/data")
  def test_ncb_header_sections(self):
   name=b".text\0".ljust(16,b"\0");code=b"abcd";table=NCB_HEADER.size;off=table+NCB_SECTION.size
-  h=NCB_HEADER.pack(b"NCB1",1,NCB_HEADER_SIZE,0,7,8192,1,off,table,off+4,65536,1<<20,0x10000,0)
+  h=NCB_HEADER.pack(b"NCB1",1,NCB_HEADER.size,0,7,8192,1,off,table,off+4,65536,1<<20,0x10000,0)
   s=NCB_SECTION.pack(name,1,off,4,4,4);v=validate_ncb(h+s+code);self.assertEqual(v["word_bits"],8192);self.assertEqual(v["sections"][0]["name"],".text")
  def test_writer_roundtrip(self):
   import json,os,tempfile
@@ -19,7 +19,7 @@ class BinaryTests(unittest.TestCase):
    mp=os.path.join(d,"m.json");op=os.path.join(d,"app.ncb")
    with open(mp,"w") as f:json.dump(m,f)
    result=build(mp,op);self.assertEqual(result["word_bits"],8192)
-   self.assertEqual(validate_ncb(open(op,"rb").read())["sections"][1]["memory_size"],128)
+   with open(op,"rb") as image:self.assertEqual(validate_ncb(image.read())["sections"][1]["memory_size"],128)
  def test_bad_ncb_rejected(self):
   with self.assertRaises(ValueError):validate_ncb(b"NCB1")
 if __name__=="__main__":unittest.main()
