@@ -1,0 +1,194 @@
+{
+  "schema": "CHM-EXECUTION-COVERAGE-1",
+  "policy": "Coverage labels are independent. Catalog presence or a profile definition does not imply decoding, execution, guest boot, or architectural conformance.",
+  "dimensions": [
+    "documented",
+    "encoded",
+    "decoded",
+    "executed",
+    "guest_boot_tested",
+    "official_conformance_tested"
+  ],
+  "targets": [
+    {
+      "id": "riscv-rv32i",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "tools/isa/rv32i-coverage.json",
+        "tools/isa/test_riscv_codec.py",
+        "tools/isa/test_rv32_machine.py"
+      ]
+    },
+    {
+      "id": "x86-ia32",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "tools/isa/cisc-coverage.json",
+        "QEMU backend profile only"
+      ]
+    },
+    {
+      "id": "x86-64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "tools/isa/cisc-coverage.json",
+        "QEMU backend profile only"
+      ]
+    },
+    {
+      "id": "arm32",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile; host-dependent smoke check"
+      ]
+    },
+    {
+      "id": "aarch64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile; host-dependent smoke check"
+      ]
+    },
+    {
+      "id": "riscv-rv64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile; host-dependent smoke check"
+      ]
+    },
+    {
+      "id": "riscv-rv32-system",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile; host-dependent smoke check"
+      ]
+    },
+    {
+      "id": "mips",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile"
+      ]
+    },
+    {
+      "id": "power-isa",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile"
+      ]
+    },
+    {
+      "id": "sparc",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile"
+      ]
+    },
+    {
+      "id": "motorola-68000",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile"
+      ]
+    },
+    {
+      "id": "ibm-system-z",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "QEMU candidate profile"
+      ]
+    },
+    {
+      "id": "chimera-nbit-v0.1",
+      "documented": true,
+      "encoded": true,
+      "decoded": true,
+      "executed": true,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "docs/virtualization/chimera-nbit-v0.1.md",
+        "tools/virtualization/chimera_nbit.py",
+        "tools/virtualization/test_chimera_nbit.py"
+      ],
+      "notes": "Experimental reference interpreter only; no OS boot ABI, MMU, privilege separation, production device model, or QEMU system target."
+    },
+    {
+      "id": "dec-vax",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "guest_boot_tested": false,
+      "official_conformance_tested": false,
+      "evidence": [
+        "catalog-only; no enabled system backend"
+      ]
+    }
+  ],
+  "official_suites": {
+    "riscv": "RISC-V ACT/ACT4 integration not run in this change; configure target-specific DUT and suite before any conformance claim.",
+    "cisc": "No x86 architectural conformance suite integrated or run.",
+    "chimera_nbit": "No ratified external suite exists for this experimental ISA; maintain internal golden tests and version the specification."
+  }
+}
