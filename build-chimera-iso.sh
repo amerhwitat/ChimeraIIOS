@@ -999,6 +999,9 @@ PYISA
   else
     log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
   fi
+  log_info "Reconciling native, shell-builtin, and compatibility-provider command inventory"
+  python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py" || { log_error "Command capability manifest generation failed"; return 1; }
+  [[ -s "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" ]] || { log_error "Command capability manifest missing"; return 1; }
 }
 build_command_runtime(){
   log_info "Compiling and staging native command multicall binary and compatibility registry"
