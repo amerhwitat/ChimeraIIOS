@@ -866,18 +866,36 @@ EOF
 
 build_squashfs(){
   header 'STEP 8: BUILD ROOTFS SQUASHFS'
-  mkdir -p "$ISO_DIR/live"
+  [[ -d "$ROOTFS_DIR" ]] || { log_error "SquashFS source rootfs is missing: $ROOTFS_DIR"; exit 1; }
+  mkdir -p "$ISO_DIR/live" "$ISO_TMP_DIR" "$LOG_DIR"
   local tmp="$ISO_TMP_DIR/filesystem.squashfs.tmp" out="$ISO_DIR/live/filesystem.squashfs"
+  local root_bytes free_bytes_now processors rc
+  root_bytes="$(du -sB1 "$ROOTFS_DIR" 2>/dev/null | awk '{print $1+0}')"
+  free_bytes_now="$(free_bytes "$ISO_TMP_DIR")"
+  processors="${CHIMERA_SQUASHFS_PROCESSORS:-2}"
+  [[ "$processors" =~ ^[1-9][0-9]*$ ]] || processors=2
+  log_info "SquashFS source: $ROOTFS_DIR ($(numfmt --to=iec --suffix=B "$root_bytes" 2>/dev/null || printf '%s bytes' "$root_bytes"))"
+  log_info "SquashFS temp: $tmp; free space on temp filesystem: $(numfmt --to=iec --suffix=B "$free_bytes_now" 2>/dev/null || printf '%s bytes' "$free_bytes_now")"
+  log_info "SquashFS compression: zstd; processors: $processors"
+  if [[ ! "$free_bytes_now" =~ ^[0-9]+$ ]] || (( free_bytes_now < 1073741824 )); then
+    log_error "Less than 1 GiB free on the SquashFS temporary filesystem; free space or choose another build storage with --storage."
+    exit 1
+  fi
   rm -f "$tmp"
   start_watchdog "mksquashfs root filesystem"
   set +e
-  mksquashfs "$ROOTFS_DIR" "$tmp" -comp zstd -noappend -progress 2>&1 | tee "$LOG_DIR/mksquashfs.log"
-  local rc="${PIPESTATUS[0]}"
+  mksquashfs "$ROOTFS_DIR" "$tmp" -comp zstd -noappend -processors "$processors" -progress 2>&1 | tee "$LOG_DIR/mksquashfs.log"
+  rc="${PIPESTATUS[0]}"
   set -e
   stop_watchdog
-  ((rc==0)) || { log_error 'mksquashfs failed'; exit "$rc"; }
-  [[ -s "$tmp" ]] || { log_error 'SquashFS output is empty'; exit 1; }
+  if ((rc!=0)); then
+    log_error "mksquashfs failed with exit code $rc; recent diagnostics:"
+    tail -n 60 "$LOG_DIR/mksquashfs.log" 2>/dev/null || true
+    exit "$rc"
+  fi
+  [[ -s "$tmp" ]] || { log_error "SquashFS output is empty: $tmp"; exit 1; }
   mv -f "$tmp" "$out"
+  log_success "SquashFS image created: $out ($(du -h "$out" | awk '{print $1}'))"
 }
 
 build_iso(){
