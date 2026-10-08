@@ -987,6 +987,11 @@ arches=db.get("architectures",[]); rows=db.get("instructions",[])
 print(f"[ISA] canonical architectures={len(arches)} instruction forms={len(rows)}")
 if not arches or not rows: raise SystemExit("Canonical ISA database is empty")
 PYISA
+  log_info "Validating and generating binary/hex ISA sample artifacts"
+  python3 "$SCRIPT_DIR/tools/validate_isa_catalog.py" || { log_error "ISA sample validation failed"; return 1; }
+  python3 "$SCRIPT_DIR/tools/isa/generate_encoding_artifacts.py" || { log_error "ISA encoding artifact generation failed"; return 1; }
+  [[ -s "$SCRIPT_DIR/isa/generated/isa-encoding-samples.json" ]] || { log_error "ISA sample JSON missing"; return 1; }
+  [[ -s "$SCRIPT_DIR/kernel/generated/chimera_isa_encoding_samples.generated.h" ]] || { log_error "ISA sample header missing"; return 1; }
   log_info "Scanning cached command catalogs before crawling SS64"
   [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
   if [[ "${CHIMERA_SKIP_SS64_CRAWL:-0}" != 1 ]]; then
@@ -995,18 +1000,26 @@ PYISA
     log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
   fi
 }
+build_command_runtime(){
+  log_info "Compiling and staging native command multicall binary and compatibility registry"
+  bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
+  [[ -x "$SCRIPT_DIR/rootfs/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
+  log_info "Native command binary staged at rootfs/usr/bin/chimera-cmd"
+}
+
 main(){
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
   preflight
   check_deps
   local completed="$(state_get)"
-  for stage in docker rootfs docker-publish boot installer branding apache features games squashfs iso verify report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features games squashfs iso verify report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
       docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
+      commands) run_stage commands build_command_runtime;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
