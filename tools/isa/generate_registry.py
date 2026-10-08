@@ -204,7 +204,13 @@ def recover_from_git():
 
 
 def load_registry():
-    # 1. Try the working-tree payload.
+    # The canonical JSON database is authoritative. Never silently compile a stale
+    # compressed snapshot when the database is available and valid.
+    canonical_rows = registry_rows_from_canonical_database()
+    if canonical_rows is not None:
+        return write_canonical_payload(canonical_rows)
+
+    # Recovery fallback for source archives that omit the canonical database.
     try:
         return decode_registry(
             src.read_text(encoding="utf-8")
