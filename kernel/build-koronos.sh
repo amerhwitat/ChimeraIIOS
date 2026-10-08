@@ -26,7 +26,7 @@ CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model watchdog)
+sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model watchdog watchdog)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
@@ -72,7 +72,7 @@ grep -aF '[KORE] Service orchestration online' "$BUILD/koronos.elf" >/dev/null |
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
 auto_banner=''
-grep -aF '[WDOG] Watchdog ABI online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: watchdog bootstrap is missing from Koronos ELF" >&2; exit 1; }\n\nprintf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
+grep -aF '[WDOG] Watchdog ABI online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: watchdog bootstrap is missing from Koronos ELF" >&2; exit 1; }\n\ngrep -aF '[WDOG] Watchdog ABI online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: watchdog bootstrap is missing from Koronos ELF" >&2; exit 1; }\n\nprintf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
 cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
 mkdir -p "$BUILD/nbit"
 for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
