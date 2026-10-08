@@ -53,7 +53,7 @@ jobs:
         run: |
           python3 tools/validate_isa_catalog.py
           python3 tools/isa/generate_encoding_artifacts.py
-          git diff --exit-code -- isa/generated/isa-encoding-samples.json kernel/generated/chimera_isa_encoding_samples.generated.h
+          git diff --exit-code -- isa/generated/isa-encoding-samples.json isa/generated/isa-encoding-registry.json kernel/generated/chimera_isa_encoding_samples.generated.h
       - name: Validate generated command capability manifest
         run: |
           python3 tools/commands/generate_runtime_manifest.py
@@ -74,6 +74,8 @@ jobs:
           #include "chimera/isa_registry.h"
           int main() {
             if (chimera_isa_sample_count() == 0) return 1;
+            if (chimera_isa_encoding_template_count() < 100) return 3;
+            if (!chimera_isa_find_encoding_template("riscv64", "ADD")) return 4;
             if (!chimera_isa_find_sample("riscv", "ADD")) return 2;
             return 0;
           }
