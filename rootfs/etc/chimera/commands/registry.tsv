@@ -9,6 +9,11 @@ mkdir	مجلد	native	chimera-cmd	SS64/Linux
 touch	ملف	native	chimera-cmd	SS64/Linux
 cat	اقرأ	native	chimera-cmd	SS64/Linux
 clear	مسح	native	chimera-cmd	SS64/Linux
+sql	استعلام	native	chimera-sql	Chimera/SQLite
+sqlite	قاعدة_بيانات	native	chimera-sql	Chimera/SQLite
+sqlite3	قاعدة_بيانات_3	native	chimera-sql	Chimera/SQLite
+terminal	طرفية	native	chimera-terminal	Chimera/PTY
+terminald	خدمة_الطرفية	native	chimera_terminald.py	Chimera/PTY
 find	ابحث	compat	find	SS64/Linux
 grep	فتش	compat	grep	SS64/Linux
 ps	عمليات	compat	ps	SS64/Linux
