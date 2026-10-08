@@ -17,10 +17,10 @@ class WebAssetsTest(unittest.TestCase):
     def test_html_references_local_assets(self):
         html = (WEB / "index.html").read_text(encoding="utf-8")
         self.assertIn('href="style.css"', html)
-        self.assertIn('src="app.js"', html)
-        self.assertIn('id="cards"', html)
-        self.assertIn('id="isa"', html)
-        self.assertIn('id="kernel"', html)
+        self.assertIn('src="chimera-hub.js"', html)
+        self.assertIn('id="overviewMetrics"', html)
+        self.assertIn('id="view-games"', html)
+        self.assertIn('id="view-controls"', html)
 
     def test_native_ide_file_associations_and_toolchain_boundary(self):
         html = (WEB / "chimera_code_ide.html").read_text(encoding="utf-8")
