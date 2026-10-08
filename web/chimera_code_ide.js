@@ -4,7 +4,7 @@
   const compiler=$('compiler'), standard=$('standard'), build=$('build'), output=$('output'), editor=$('editor');
   const language=$('language'), fileInput=$('fileInput'), fileStatus=$('fileStatus');
   let currentName='main.cpp', dirty=false;
-  const extensions={'.c':'c','.h':'c','.cc':'cpp','.cpp':'cpp','.cxx':'cpp','.hpp':'cpp','.asm':'asm','.s':'gas','.S':'gas','.json':'ncb','.ncb':'ncb','.txt':'text'};
+  const extensions={'.c':'c','.h':'c','.cc':'cpp','.cpp':'cpp','.cxx':'cpp','.hpp':'cpp','.asm':'asm','.s':'gas','.S':'gas','.json':'ncb','.txt':'text'};
   const targetList=[['chimera-cisc','Chimera CISC','Prototype ISA profile'],['chimera-risc','Chimera RISC','Prototype ISA profile'],['chimera-native','Chimera Native','Koronos target contract'],['host-native','Host C/C++','GCC / Clang / MSVC'],['chimera-emulator','Chimera Emulator','Reference simulation']];
   const targets=$('targets');
   targetList.forEach(([id,title,note])=>{const b=document.createElement('button');b.className='target-card';b.dataset.target=id;const strong=document.createElement('strong'),small=document.createElement('small');strong.textContent=title;small.textContent=note;b.append(strong,small);b.addEventListener('click',()=>{targets.querySelectorAll('.target-card').forEach(x=>x.classList.remove('active'));b.classList.add('active');});targets.appendChild(b);});
