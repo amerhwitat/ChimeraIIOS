@@ -26,7 +26,7 @@ class NBitTests(unittest.TestCase):
         c=ChimeraNBit(); c.load_program([c.encode(OP_LI,1,imm=0),c.encode(OP_JZ,ra=1,imm=2),c.encode(OP_LI,2,imm=4),c.encode(OP_LI,2,imm=5),c.encode(OP_HALT)])
         c.run(); self.assertEqual(c.regs[2],5)
     def test_rejects_invalid_width(self):
-        with self.assertRaises(ValueError): ChimeraNBit(24)
+        with self.assertRaises(ValueError): ChimeraNBit(7)
         with self.assertRaises(ValueError): ChimeraNBit(0)
 
     def test_register_width_beyond_8192_bits(self):
