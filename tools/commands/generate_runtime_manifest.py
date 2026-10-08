@@ -49,14 +49,26 @@ def main():
             arabic=json.loads(ARABIC.read_text(encoding="utf-8")).get("commands",{})
         except (OSError,json.JSONDecodeError):
             pass
+    # Preserve the full previously Arabized name inventory even if the raw crawl
+    # cache is absent or temporarily empty. Unknown platform ownership stays explicit.
+    for key, value in arabic.items():
+        name = str(value.get("name", key)) if isinstance(value, dict) else str(key)
+        norm = name.casefold()
+        row = rows.setdefault(norm, {"name": name, "platforms": [], "source_urls": []})
+        if not row["platforms"]:
+            row["platforms"].append("ss64-catalog")
     commands=[]
     for key,row in sorted(rows.items()):
         if key in NATIVE: mode="native"; provider="chimera-cmd"
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
         else:
             mode="compatibility-provider-required"
-            provider=("windows-compat-runtime" if any(p in row["platforms"] for p in ("windows_cmd","powershell","vbscript"))
-                      else "darwin-or-posix-provider")
+            if any(p in row["platforms"] for p in ("windows_cmd","powershell","vbscript")):
+                provider="windows-compat-runtime"
+            elif any(p in row["platforms"] for p in ("linux_bash","macos")):
+                provider="darwin-or-posix-provider"
+            else:
+                provider="platform-runtime-not-selected"
         label=arabic.get(key)
         if isinstance(label,dict): label=label.get("label")
         commands.append({
