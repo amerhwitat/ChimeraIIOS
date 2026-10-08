@@ -26,6 +26,10 @@ class QemuProfileSmokeTests(unittest.TestCase):
             args=[binary,"-machine",p["machine"],"-cpu",p["cpu"],"-m","128M",
                   "-display","none","-nodefaults","-S","-monitor","none",
                   "-serial","none","-no-reboot"]
+            # Don't require a separately packaged OpenSBI firmware just to test
+            # board/CPU initialization; actual guest boot tests must supply it.
+            if p["backend"] in ("qemu-riscv32","qemu-riscv64"):
+                args += ["-bios","none"]
             proc=subprocess.Popen(args,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True)
             try:
                 code=proc.wait(timeout=1.5)
@@ -35,6 +39,8 @@ class QemuProfileSmokeTests(unittest.TestCase):
                 proc.terminate()
                 try:proc.wait(timeout=3)
                 except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=3)
+            finally:
+                if proc.stderr: proc.stderr.close()
         if checked==0:self.skipTest("No configured QEMU system binaries installed on this runner")
 
 if __name__=="__main__": unittest.main()
