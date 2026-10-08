@@ -29,6 +29,28 @@ class CodecTests(unittest.TestCase):
         self.assertEqual(state["registers"][3], 12)
         self.assertEqual(state["registers"][0], 0)
 
+    def test_all_base_instruction_families_roundtrip(self):
+        cases = ("LUI x1, 0x12345", "AUIPC x2, 0xABCDE", "JALR x1, 4(x2)",
+                 "SLLI x1, x2, 31", "SRLI x1, x2, 3", "SRAI x1, x2, 4",
+                 "ORI x1, x2, 255", "FENCE 15, 3")
+        for asm in cases:
+            with self.subTest(asm=asm):
+                self.assertEqual(codec.encode(codec.decode(codec.encode(asm))), codec.encode(asm))
+
+    def test_reserved_shift_encoding_rejected(self):
+        # SLLI with a non-zero funct7 is reserved in RV32I.
+        with self.assertRaises(ValueError):
+            codec.decode(0xFE009093)
+        with self.assertRaises(ValueError):
+            codec.encode("SLLI x1, x2, 32")
+
+    def test_execution_uses_shared_machine(self):
+        state = codec.execute([codec.encode("ADDI x1, x0, 7"),
+                               codec.encode("ORI x2, x1, 16"),
+                               codec.encode("EBREAK")])
+        self.assertEqual(state["engine"], "RV32Machine")
+        self.assertEqual(state["registers"][2], 23)
+
     def test_reject_bad_register_and_range(self):
         with self.assertRaises(ValueError):
             codec.encode("ADD x32, x1, x2")
