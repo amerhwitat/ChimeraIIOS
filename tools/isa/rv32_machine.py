@@ -93,7 +93,7 @@ class RV32Machine:
                 elif f3==2: val=int(self.sx(x,32)<imm_i)
                 elif f3==3: val=int(x<(imm_i&MASK))
                 elif f3==4: val=x^(imm_i&MASK)
-                elif f3==6: val=x^(0) | (imm_i&MASK)
+                elif f3==6: val=x | (imm_i&MASK)
                 elif f3==7: val=x & (imm_i&MASK)
                 elif f3==1 and (w>>25)==0: val=x<<sh
                 elif f3==5 and (w>>25)==0: val=x>>sh
@@ -104,8 +104,13 @@ class RV32Machine:
                 fn=table.get((f7,f3))
                 if fn is None: raise Trap(2,here,w,"illegal OP encoding")
                 val=fn()
-            elif op==0x0f: # FENCE/FENCE.I base behavior is ordering handled by host model
-                if f3 not in (0,1) or rd or a: raise Trap(2,here,w,"illegal FENCE encoding")
+            elif op==0x0f: # RV32I FENCE; single-hart execution preserves program order.
+                # FENCE.I belongs to Zifencei, not the RV32I base.
+                fm=(w>>28)&0xf; pred=(w>>24)&0xf; succ=(w>>20)&0xf
+                if f3 != 0 or rd or a or (fm not in (0,8)) or (fm==8 and (pred or succ)):
+                    raise Trap(2,here,w,"illegal FENCE encoding")
+                # There are no asynchronous memory observers in this model, so
+                # sequential execution is already stronger than the requested ordering.
             elif op==0x73:
                 if w==0x00000073: raise Trap(8 if self.privilege=="U" else 11,here,0,"ECALL")
                 if w==0x00100073: raise Trap(3,here,here,"EBREAK")
