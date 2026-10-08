@@ -1,0 +1,3216 @@
+{
+  "schema": "CHM-ISA-ENCODING-REGISTRY-2",
+  "scope": "Encoding templates are canonical bit patterns with masks; worked samples are exact operand examples. Neither list implies exhaustive ISA/backend support.",
+  "template_count": 142,
+  "sample_count": 51,
+  "encoding_templates": [
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "ADD",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ADD x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010000000010110011",
+      "hex": "0x003100B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SUB",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SUB x1,x2,x3",
+      "bits": 32,
+      "binary": "01000000001100010000000010110011",
+      "hex": "0x403100B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "AND",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "AND x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010111000010110011",
+      "hex": "0x003170B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "OR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "OR x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010110000010110011",
+      "hex": "0x003160B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "XOR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "XOR x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010100000010110011",
+      "hex": "0x003140B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SLL",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SLL x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010001000010110011",
+      "hex": "0x003110B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SRL",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SRL x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010101000010110011",
+      "hex": "0x003150B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SRA",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SRA x1,x2,x3",
+      "bits": 32,
+      "binary": "01000000001100010101000010110011",
+      "hex": "0x403150B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SLT",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SLT x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010010000010110011",
+      "hex": "0x003120B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SLTU",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SLTU x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010011000010110011",
+      "hex": "0x003130B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "ADDI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADDI x1,x2,5",
+      "bits": 32,
+      "binary": "00000000010100010000000010010011",
+      "hex": "0x00510093",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "LUI",
+      "form": "u",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "LUI x1,0x1",
+      "bits": 32,
+      "binary": "00000000000000000001000010110111",
+      "hex": "0x000010B7",
+      "mask_binary": "00000000000000000000000001111111",
+      "mask_hex": "0x0000007F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "AUIPC",
+      "form": "u",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "AUIPC x1,0x1",
+      "bits": 32,
+      "binary": "00000000000000000001000010010111",
+      "hex": "0x00001097",
+      "mask_binary": "00000000000000000000000001111111",
+      "mask_hex": "0x0000007F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "LW",
+      "form": "load",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LW x1,8(x2)",
+      "bits": 32,
+      "binary": "00000000100000010010000010000011",
+      "hex": "0x00812083",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SW",
+      "form": "store",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "SW x3,8(x2)",
+      "bits": 32,
+      "binary": "00000000001100010010010000100011",
+      "hex": "0x00312423",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "JAL",
+      "form": "jal",
+      "operands": [
+        "register",
+        "branch-offset"
+      ],
+      "syntax": "JAL x1,8",
+      "bits": 32,
+      "binary": "00000000100000000000000011101111",
+      "hex": "0x008000EF",
+      "mask_binary": "00000000000000000000000001111111",
+      "mask_hex": "0x0000007F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "JALR",
+      "form": "jalr",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "JALR x1,0(x2)",
+      "bits": 32,
+      "binary": "00000000000000010000000011100111",
+      "hex": "0x000100E7",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "BEQ",
+      "form": "branch",
+      "operands": [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "syntax": "BEQ x1,x2,8",
+      "bits": 32,
+      "binary": "00000000001000001000010001100011",
+      "hex": "0x00208463",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "FENCE",
+      "form": "fence",
+      "operands": [
+        "memory"
+      ],
+      "syntax": "FENCE",
+      "bits": 32,
+      "binary": "00000000000000000000000000001111",
+      "hex": "0x0000000F",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "ECALL",
+      "form": "system",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "ECALL",
+      "bits": 32,
+      "binary": "00000000000000000000000001110011",
+      "hex": "0x00000073",
+      "mask_binary": "11111111111111111111111111111111",
+      "mask_hex": "0xFFFFFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "EBREAK",
+      "form": "system",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "EBREAK",
+      "bits": 32,
+      "binary": "00000000000100000000000001110011",
+      "hex": "0x00100073",
+      "mask_binary": "11111111111111111111111111111111",
+      "mask_hex": "0xFFFFFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "ADD",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ADD X0,X1,X2",
+      "bits": 32,
+      "binary": "10001011000000100000000000100000",
+      "hex": "0x8B020020",
+      "mask_binary": "11111111111000001111110000000000",
+      "mask_hex": "0xFFE0FC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "SUB",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SUB X0,X1,X2",
+      "bits": 32,
+      "binary": "11001011000000100000000000100000",
+      "hex": "0xCB020020",
+      "mask_binary": "11111111111000001111110000000000",
+      "mask_hex": "0xFFE0FC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "AND",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "AND X0,X1,X2",
+      "bits": 32,
+      "binary": "10001010000000100000000000100000",
+      "hex": "0x8A020020",
+      "mask_binary": "11111111111000001111110000000000",
+      "mask_hex": "0xFFE0FC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "ORR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ORR X0,X1,X2",
+      "bits": 32,
+      "binary": "10101010000000100000000000100000",
+      "hex": "0xAA020020",
+      "mask_binary": "11111111111000001111110000000000",
+      "mask_hex": "0xFFE0FC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "EOR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "EOR X0,X1,X2",
+      "bits": 32,
+      "binary": "11001010000000100000000000100000",
+      "hex": "0xCA020020",
+      "mask_binary": "11111111111000001111110000000000",
+      "mask_hex": "0xFFE0FC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "ADD",
+      "form": "imm",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADD X0,X1,#1",
+      "bits": 32,
+      "binary": "10010001000000000000010000100000",
+      "hex": "0x91000420",
+      "mask_binary": "11111111000000000000000000000000",
+      "mask_hex": "0xFF000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "SUB",
+      "form": "imm",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "SUB X0,X1,#1",
+      "bits": 32,
+      "binary": "11010001000000000000010000100000",
+      "hex": "0xD1000420",
+      "mask_binary": "11111111000000000000000000000000",
+      "mask_hex": "0xFF000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "LDR",
+      "form": "unsigned",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LDR X0,[X1,#0]",
+      "bits": 32,
+      "binary": "11111001010000000000000000100000",
+      "hex": "0xF9400020",
+      "mask_binary": "11111111110000000000000000000000",
+      "mask_hex": "0xFFC00000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "STR",
+      "form": "unsigned",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "STR X0,[X1,#0]",
+      "bits": 32,
+      "binary": "11111001000000000000000000100000",
+      "hex": "0xF9000020",
+      "mask_binary": "11111111110000000000000000000000",
+      "mask_hex": "0xFFC00000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "B",
+      "form": "imm",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "B 0",
+      "bits": 32,
+      "binary": "00010100000000000000000000000000",
+      "hex": "0x14000000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "BL",
+      "form": "imm",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "BL 0",
+      "bits": 32,
+      "binary": "10010100000000000000000000000000",
+      "hex": "0x94000000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "BR",
+      "form": "reg",
+      "operands": [
+        "register"
+      ],
+      "syntax": "BR X0",
+      "bits": 32,
+      "binary": "11010110000111110000000000000000",
+      "hex": "0xD61F0000",
+      "mask_binary": "11111111111111111111110000011111",
+      "mask_hex": "0xFFFFFC1F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "BLR",
+      "form": "reg",
+      "operands": [
+        "register"
+      ],
+      "syntax": "BLR X0",
+      "bits": 32,
+      "binary": "11010110001111110000000000000000",
+      "hex": "0xD63F0000",
+      "mask_binary": "11111111111111111111110000011111",
+      "mask_hex": "0xFFFFFC1F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "RET",
+      "form": "reg",
+      "operands": [
+        "register"
+      ],
+      "syntax": "RET X30",
+      "bits": 32,
+      "binary": "11010110010111110000001111000000",
+      "hex": "0xD65F03C0",
+      "mask_binary": "11111111111111111111110000011111",
+      "mask_hex": "0xFFFFFC1F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "SVC",
+      "form": "imm",
+      "operands": [
+        "immediate"
+      ],
+      "syntax": "SVC #0",
+      "bits": 32,
+      "binary": "11010100000000000000000000000001",
+      "hex": "0xD4000001",
+      "mask_binary": "11111111111000000000000000011111",
+      "mask_hex": "0xFFE0001F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "aarch64",
+      "family": "AArch64",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 32,
+      "binary": "11010101000000110010000000011111",
+      "hex": "0xD503201F",
+      "mask_binary": "11111111111111111111111111111111",
+      "mask_hex": "0xFFFFFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "MOV",
+      "form": "reg",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "MOV r0,r1",
+      "bits": 32,
+      "binary": "11100001101000000000000000000001",
+      "hex": "0xE1A00001",
+      "mask_binary": "00001111111000001111111111110000",
+      "mask_hex": "0x0FE0FFF0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "ADD",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ADD r0,r1,r2",
+      "bits": 32,
+      "binary": "11100000100000010000000000000010",
+      "hex": "0xE0810002",
+      "mask_binary": "00001111111000001111111111110000",
+      "mask_hex": "0x0FE0FFF0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "SUB",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SUB r0,r1,r2",
+      "bits": 32,
+      "binary": "11100000010000010000000000000010",
+      "hex": "0xE0410002",
+      "mask_binary": "00001111111000001111111111110000",
+      "mask_hex": "0x0FE0FFF0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "AND",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "AND r0,r1,r2",
+      "bits": 32,
+      "binary": "11100000000000010000000000000010",
+      "hex": "0xE0010002",
+      "mask_binary": "00001111111000001111111111110000",
+      "mask_hex": "0x0FE0FFF0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "ORR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ORR r0,r1,r2",
+      "bits": 32,
+      "binary": "11100001100000010000000000000010",
+      "hex": "0xE1810002",
+      "mask_binary": "00001111111000001111111111110000",
+      "mask_hex": "0x0FE0FFF0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "LDR",
+      "form": "imm",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LDR r0,[r1,#0]",
+      "bits": 32,
+      "binary": "11100101100100010000000000000000",
+      "hex": "0xE5910000",
+      "mask_binary": "00001111111111110000000000000000",
+      "mask_hex": "0x0FFF0000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "STR",
+      "form": "imm",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "STR r0,[r1,#0]",
+      "bits": 32,
+      "binary": "11100101100000010000000000000000",
+      "hex": "0xE5810000",
+      "mask_binary": "00001111111111110000000000000000",
+      "mask_hex": "0x0FFF0000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "B",
+      "form": "imm",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "B 0",
+      "bits": 32,
+      "binary": "11101010000000000000000000000000",
+      "hex": "0xEA000000",
+      "mask_binary": "00001111000000000000000000000000",
+      "mask_hex": "0x0F000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "BL",
+      "form": "imm",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "BL 0",
+      "bits": 32,
+      "binary": "11101011000000000000000000000000",
+      "hex": "0xEB000000",
+      "mask_binary": "00001111000000000000000000000000",
+      "mask_hex": "0x0F000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32",
+      "family": "A32/T32",
+      "mnemonic": "BX",
+      "form": "reg",
+      "operands": [
+        "register"
+      ],
+      "syntax": "BX lr",
+      "bits": 32,
+      "binary": "11100001001011111111111100011110",
+      "hex": "0xE12FFF1E",
+      "mask_binary": "00001111111111111111111111110000",
+      "mask_hex": "0x0FFFFFF0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "ADD",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ADD $t0,$t1,$t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100000",
+      "hex": "0x012A4020",
+      "mask_binary": "11111100000000000000011111111111",
+      "mask_hex": "0xFC0007FF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "SUB",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SUB $t0,$t1,$t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100010",
+      "hex": "0x012A4022",
+      "mask_binary": "11111100000000000000011111111111",
+      "mask_hex": "0xFC0007FF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "AND",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "AND $t0,$t1,$t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100100",
+      "hex": "0x012A4024",
+      "mask_binary": "11111100000000000000011111111111",
+      "mask_hex": "0xFC0007FF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "OR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "OR $t0,$t1,$t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100101",
+      "hex": "0x012A4025",
+      "mask_binary": "11111100000000000000011111111111",
+      "mask_hex": "0xFC0007FF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "XOR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "XOR $t0,$t1,$t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100110",
+      "hex": "0x012A4026",
+      "mask_binary": "11111100000000000000011111111111",
+      "mask_hex": "0xFC0007FF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "SLT",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "SLT $t0,$t1,$t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000101010",
+      "hex": "0x012A402A",
+      "mask_binary": "11111100000000000000011111111111",
+      "mask_hex": "0xFC0007FF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "ADDI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADDI $t0,$t1,1",
+      "bits": 32,
+      "binary": "00100001001010000000000000000001",
+      "hex": "0x21280001",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "LW",
+      "form": "mem",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LW $t0,0($t1)",
+      "bits": 32,
+      "binary": "10001101001010000000000000000000",
+      "hex": "0x8D280000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "SW",
+      "form": "mem",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "SW $t0,0($t1)",
+      "bits": 32,
+      "binary": "10101101001010000000000000000000",
+      "hex": "0xAD280000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "BEQ",
+      "form": "branch",
+      "operands": [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "syntax": "BEQ $t0,$t1,1",
+      "bits": 32,
+      "binary": "00010001000010010000000000000001",
+      "hex": "0x11090001",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "J",
+      "form": "jump",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "J 0",
+      "bits": 32,
+      "binary": "00001000000000000000000000000000",
+      "hex": "0x08000000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "JAL",
+      "form": "jump",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "JAL 0",
+      "bits": 32,
+      "binary": "00001100000000000000000000000000",
+      "hex": "0x0C000000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "mips32",
+      "family": "MIPS",
+      "mnemonic": "JR",
+      "form": "reg",
+      "operands": [
+        "register"
+      ],
+      "syntax": "JR $ra",
+      "bits": 32,
+      "binary": "00000011111000000000000000001000",
+      "hex": "0x03E00008",
+      "mask_binary": "11111100000111111111111111111111",
+      "mask_hex": "0xFC1FFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "ADD",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "add r3,r4,r5",
+      "bits": 32,
+      "binary": "01111100011001000010101000010100",
+      "hex": "0x7C642A14",
+      "mask_binary": "11111100000000000000011111111110",
+      "mask_hex": "0xFC0007FE",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "SUBF",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "subf r3,r4,r5",
+      "bits": 32,
+      "binary": "01111100011001000010100001010000",
+      "hex": "0x7C642850",
+      "mask_binary": "11111100000000000000011111111110",
+      "mask_hex": "0xFC0007FE",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "OR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "or r3,r4,r5",
+      "bits": 32,
+      "binary": "01111100011001000010101101111000",
+      "hex": "0x7C642B78",
+      "mask_binary": "11111100000000000000011111111110",
+      "mask_hex": "0xFC0007FE",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "XOR",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "xor r3,r4,r5",
+      "bits": 32,
+      "binary": "01111100011001000010001001111000",
+      "hex": "0x7C642278",
+      "mask_binary": "11111100000000000000011111111110",
+      "mask_hex": "0xFC0007FE",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "ADDI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "addi r3,r4,1",
+      "bits": 32,
+      "binary": "00111000100000110000000000000001",
+      "hex": "0x38830001",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "LWZ",
+      "form": "mem",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "lwz r3,0(r4)",
+      "bits": 32,
+      "binary": "10000000011001000000000000000000",
+      "hex": "0x80640000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "STW",
+      "form": "mem",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "stw r3,0(r4)",
+      "bits": 32,
+      "binary": "10010000011001000000000000000000",
+      "hex": "0x90640000",
+      "mask_binary": "11111100000000000000000000000000",
+      "mask_hex": "0xFC000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "B",
+      "form": "imm",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "b 0",
+      "bits": 32,
+      "binary": "01001000000000000000000000000000",
+      "hex": "0x48000000",
+      "mask_binary": "11111100000000000000000000000011",
+      "mask_hex": "0xFC000003",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "BL",
+      "form": "imm",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "bl 0",
+      "bits": 32,
+      "binary": "01001000000000000000000000000001",
+      "hex": "0x48000001",
+      "mask_binary": "11111100000000000000000000000011",
+      "mask_hex": "0xFC000003",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "BLR",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "blr",
+      "bits": 32,
+      "binary": "01001110100000000000000000100000",
+      "hex": "0x4E800020",
+      "mask_binary": "11111111111111111111111111111111",
+      "mask_hex": "0xFFFFFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "powerpc",
+      "family": "Power ISA",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "nop",
+      "bits": 32,
+      "binary": "01100000000000000000000000000000",
+      "hex": "0x60000000",
+      "mask_binary": "11111111111111111111111111111111",
+      "mask_hex": "0xFFFFFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 16,
+      "binary": "0100111001110001",
+      "hex": "0x4E71",
+      "mask_binary": "1111111111111111",
+      "mask_hex": "0xFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "RTS",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "RTS",
+      "bits": 16,
+      "binary": "0100111001110101",
+      "hex": "0x4E75",
+      "mask_binary": "1111111111111111",
+      "mask_hex": "0xFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "MOVEQ",
+      "form": "imm",
+      "operands": [
+        "immediate",
+        "register"
+      ],
+      "syntax": "MOVEQ #0,D0",
+      "bits": 16,
+      "binary": "0111000000000000",
+      "hex": "0x7000",
+      "mask_binary": "1111000100000000",
+      "mask_hex": "0xF100",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "ADDQ",
+      "form": "imm",
+      "operands": [
+        "immediate",
+        "register"
+      ],
+      "syntax": "ADDQ #1,D0",
+      "bits": 16,
+      "binary": "0101001000000000",
+      "hex": "0x5200",
+      "mask_binary": "1111000111000000",
+      "mask_hex": "0xF1C0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "SUBQ",
+      "form": "imm",
+      "operands": [
+        "immediate",
+        "register"
+      ],
+      "syntax": "SUBQ #1,D0",
+      "bits": 16,
+      "binary": "0101001100000000",
+      "hex": "0x5300",
+      "mask_binary": "1111000111000000",
+      "mask_hex": "0xF1C0",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "BRA",
+      "form": "disp",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "BRA 0",
+      "bits": 16,
+      "binary": "0110000000000000",
+      "hex": "0x6000",
+      "mask_binary": "1111111100000000",
+      "mask_hex": "0xFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "BSR",
+      "form": "disp",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "BSR 0",
+      "bits": 16,
+      "binary": "0110000100000000",
+      "hex": "0x6100",
+      "mask_binary": "1111111100000000",
+      "mask_hex": "0xFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "JMP",
+      "form": "indirect",
+      "operands": [
+        "memory"
+      ],
+      "syntax": "JMP (A0)",
+      "bits": 16,
+      "binary": "0100111011010000",
+      "hex": "0x4ED0",
+      "mask_binary": "1111111111111000",
+      "mask_hex": "0xFFF8",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "m68k",
+      "family": "Motorola 68000",
+      "mnemonic": "JSR",
+      "form": "indirect",
+      "operands": [
+        "memory"
+      ],
+      "syntax": "JSR (A0)",
+      "bits": 16,
+      "binary": "0100111010010000",
+      "hex": "0x4E90",
+      "mask_binary": "1111111111111000",
+      "mask_hex": "0xFFF8",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 16,
+      "binary": "0000000000000000",
+      "hex": "0x0000",
+      "mask_binary": "1111111111111111",
+      "mask_hex": "0xFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "ADD",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "ADD r16,r17",
+      "bits": 16,
+      "binary": "0000111100000001",
+      "hex": "0x0F01",
+      "mask_binary": "1111110000000000",
+      "mask_hex": "0xFC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "SUB",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "SUB r16,r17",
+      "bits": 16,
+      "binary": "0001100000000001",
+      "hex": "0x1801",
+      "mask_binary": "1111110000000000",
+      "mask_hex": "0xFC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "AND",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "AND r16,r17",
+      "bits": 16,
+      "binary": "0010001100000001",
+      "hex": "0x2301",
+      "mask_binary": "1111110000000000",
+      "mask_hex": "0xFC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "EOR",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "EOR r16,r17",
+      "bits": 16,
+      "binary": "0010010000000001",
+      "hex": "0x2401",
+      "mask_binary": "1111110000000000",
+      "mask_hex": "0xFC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "OR",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "OR r16,r17",
+      "bits": 16,
+      "binary": "0010011000000001",
+      "hex": "0x2601",
+      "mask_binary": "1111110000000000",
+      "mask_hex": "0xFC00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "RJMP",
+      "form": "rel",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "RJMP 0",
+      "bits": 16,
+      "binary": "1100000000000000",
+      "hex": "0xC000",
+      "mask_binary": "1111000000000000",
+      "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "RET",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "RET",
+      "bits": 16,
+      "binary": "1001010100001000",
+      "hex": "0x9508",
+      "mask_binary": "1111111111111111",
+      "mask_hex": "0xFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "avr",
+      "family": "AVR",
+      "mnemonic": "CALL",
+      "form": "abs",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "CALL 0",
+      "bits": 32,
+      "binary": "10010100000011100000000000000000",
+      "hex": "0x940E0000",
+      "mask_binary": "11111110000011100000000000000000",
+      "mask_hex": "0xFE0E0000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 8,
+      "binary": "00000000",
+      "hex": "0x00",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "LD",
+      "form": "imm8",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "LD A,0",
+      "bits": 8,
+      "binary": "00111110",
+      "hex": "0x3E",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "LD",
+      "form": "abs_store",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "LD (0),A",
+      "bits": 8,
+      "binary": "00110010",
+      "hex": "0x32",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "LD",
+      "form": "abs_load",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LD A,(0)",
+      "bits": 8,
+      "binary": "00111010",
+      "hex": "0x3A",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "ADD",
+      "form": "imm8",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADD A,0",
+      "bits": 16,
+      "binary": "1100011000000000",
+      "hex": "0xC600",
+      "mask_binary": "1111111100000000",
+      "mask_hex": "0xFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "SUB",
+      "form": "imm8",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "SUB 0",
+      "bits": 16,
+      "binary": "1101011000000000",
+      "hex": "0xD600",
+      "mask_binary": "1111111100000000",
+      "mask_hex": "0xFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "XOR",
+      "form": "a",
+      "operands": [
+        "register"
+      ],
+      "syntax": "XOR A",
+      "bits": 8,
+      "binary": "10101111",
+      "hex": "0xAF",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "JP",
+      "form": "abs",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "JP 0",
+      "bits": 8,
+      "binary": "11000011",
+      "hex": "0xC3",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "CALL",
+      "form": "abs",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "CALL 0",
+      "bits": 8,
+      "binary": "11001101",
+      "hex": "0xCD",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "RET",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "RET",
+      "bits": 8,
+      "binary": "11001001",
+      "hex": "0xC9",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 8,
+      "binary": "11101010",
+      "hex": "0xEA",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "LDA",
+      "form": "imm",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "LDA #0",
+      "bits": 8,
+      "binary": "10101001",
+      "hex": "0xA9",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "STA",
+      "form": "abs",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "STA $0000",
+      "bits": 8,
+      "binary": "10001101",
+      "hex": "0x8D",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "ADC",
+      "form": "imm",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADC #0",
+      "bits": 8,
+      "binary": "01101001",
+      "hex": "0x69",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "SBC",
+      "form": "imm",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "SBC #0",
+      "bits": 8,
+      "binary": "11101001",
+      "hex": "0xE9",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "BEQ",
+      "form": "rel",
+      "operands": [
+        "branch-offset",
+        "condition"
+      ],
+      "syntax": "BEQ 0",
+      "bits": 8,
+      "binary": "11110000",
+      "hex": "0xF0",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "BNE",
+      "form": "rel",
+      "operands": [
+        "branch-offset",
+        "condition"
+      ],
+      "syntax": "BNE 0",
+      "bits": 8,
+      "binary": "11010000",
+      "hex": "0xD0",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "JSR",
+      "form": "abs",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "JSR $0000",
+      "bits": 8,
+      "binary": "00100000",
+      "hex": "0x20",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "JMP",
+      "form": "abs",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "JMP $0000",
+      "bits": 8,
+      "binary": "01001100",
+      "hex": "0x4C",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "RTS",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "RTS",
+      "bits": 8,
+      "binary": "01100000",
+      "hex": "0x60",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "TAX",
+      "form": "none",
+      "operands": [
+        "register"
+      ],
+      "syntax": "TAX",
+      "bits": 8,
+      "binary": "10101010",
+      "hex": "0xAA",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "6502",
+      "family": "MOS 6502",
+      "mnemonic": "INX",
+      "form": "none",
+      "operands": [
+        "register"
+      ],
+      "syntax": "INX",
+      "bits": 8,
+      "binary": "11101000",
+      "hex": "0xE8",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "NOP",
+      "form": "none",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 8,
+      "binary": "00000000",
+      "hex": "0x00",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "MOV",
+      "form": "imm",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "MOV A,#0",
+      "bits": 8,
+      "binary": "01110100",
+      "hex": "0x74",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "MOV",
+      "form": "direct",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "MOV direct,A",
+      "bits": 8,
+      "binary": "11110101",
+      "hex": "0xF5",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "ADD",
+      "form": "imm",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADD A,#0",
+      "bits": 8,
+      "binary": "00100100",
+      "hex": "0x24",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "SUBB",
+      "form": "imm",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "SUBB A,#0",
+      "bits": 8,
+      "binary": "10010100",
+      "hex": "0x94",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "INC",
+      "form": "a",
+      "operands": [
+        "register"
+      ],
+      "syntax": "INC A",
+      "bits": 8,
+      "binary": "00000100",
+      "hex": "0x04",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "LJMP",
+      "form": "abs",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "LJMP 0",
+      "bits": 8,
+      "binary": "00000010",
+      "hex": "0x02",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "SJMP",
+      "form": "rel",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "SJMP 0",
+      "bits": 8,
+      "binary": "10000000",
+      "hex": "0x80",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "8051",
+      "family": "MCS-51",
+      "mnemonic": "DJNZ",
+      "form": "rel",
+      "operands": [
+        "memory",
+        "branch-offset"
+      ],
+      "syntax": "DJNZ direct,rel",
+      "bits": 8,
+      "binary": "11010101",
+      "hex": "0xD5",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "s390x",
+      "family": "IBM z/Architecture",
+      "mnemonic": "AR",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "AR R1,R2",
+      "bits": 16,
+      "binary": "0010011000010010",
+      "hex": "0x2612",
+      "mask_binary": "1111111111111111",
+      "mask_hex": "0xFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "s390x",
+      "family": "IBM z/Architecture",
+      "mnemonic": "A",
+      "form": "rxy",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "A R1,D2(X2,B2)",
+      "bits": 32,
+      "binary": "01011010000100000000000000000000",
+      "hex": "0x5A100000",
+      "mask_binary": "11111111000000000000000000000000",
+      "mask_hex": "0xFF000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "s390x",
+      "family": "IBM z/Architecture",
+      "mnemonic": "AG",
+      "form": "rxy",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "AG R1,D2(X2,B2)",
+      "bits": 48,
+      "binary": "111000110001000000000000000000000000000000001000",
+      "hex": "0xE31000000008",
+      "mask_binary": "111111110000000000000000000000000000000000000000",
+      "mask_hex": "0xFF0000000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "s390x",
+      "family": "IBM z/Architecture",
+      "mnemonic": "BAL",
+      "form": "rx",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "BAL R1,D2(X2,B2)",
+      "bits": 32,
+      "binary": "01000101000100000000000000000000",
+      "hex": "0x45100000",
+      "mask_binary": "11111111000000000000000000000000",
+      "mask_hex": "0xFF000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "NOP",
+      "form": "fixed",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 8,
+      "binary": "10010000",
+      "hex": "0x90",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "RET",
+      "form": "fixed",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "RET",
+      "bits": 8,
+      "binary": "11000011",
+      "hex": "0xC3",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "ADD",
+      "form": "rm64_r64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "ADD r/m64,r64",
+      "bits": 24,
+      "binary": "010010000000000100000000",
+      "hex": "0x480100",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "SUB",
+      "form": "rm64_r64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "SUB r/m64,r64",
+      "bits": 24,
+      "binary": "010010000010100100000000",
+      "hex": "0x482900",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "XOR",
+      "form": "rm64_r64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "XOR r/m64,r64",
+      "bits": 24,
+      "binary": "010010000011000100000000",
+      "hex": "0x483100",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "AND",
+      "form": "rm64_r64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "AND r/m64,r64",
+      "bits": 24,
+      "binary": "010010000010000100000000",
+      "hex": "0x482100",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "OR",
+      "form": "rm64_r64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "OR r/m64,r64",
+      "bits": 24,
+      "binary": "010010000000100100000000",
+      "hex": "0x480900",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "MOV",
+      "form": "rm64_r64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "MOV r/m64,r64",
+      "bits": 24,
+      "binary": "010010001000100100000000",
+      "hex": "0x488900",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "MOV",
+      "form": "r64_rm64",
+      "operands": [
+        "memory",
+        "register"
+      ],
+      "syntax": "MOV r64,r/m64",
+      "bits": 24,
+      "binary": "010010001000101100000000",
+      "hex": "0x488B00",
+      "mask_binary": "111111111111111100000000",
+      "mask_hex": "0xFFFF00",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "JMP",
+      "form": "rel32",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "JMP rel32",
+      "bits": 40,
+      "binary": "1110100100000000000000000000000000000000",
+      "hex": "0xE900000000",
+      "mask_binary": "1111111100000000000000000000000000000000",
+      "mask_hex": "0xFF00000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "CALL",
+      "form": "rel32",
+      "operands": [
+        "branch-offset"
+      ],
+      "syntax": "CALL rel32",
+      "bits": 40,
+      "binary": "1110100000000000000000000000000000000000",
+      "hex": "0xE800000000",
+      "mask_binary": "1111111100000000000000000000000000000000",
+      "mask_hex": "0xFF00000000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "PUSH",
+      "form": "r64",
+      "operands": [
+        "register"
+      ],
+      "syntax": "PUSH r64",
+      "bits": 8,
+      "binary": "01010000",
+      "hex": "0x50",
+      "mask_binary": "11111000",
+      "mask_hex": "0xF8",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "x86-64",
+      "family": "x86",
+      "mnemonic": "POP",
+      "form": "r64",
+      "operands": [
+        "register"
+      ],
+      "syntax": "POP r64",
+      "bits": 8,
+      "binary": "01011000",
+      "hex": "0x58",
+      "mask_binary": "11111000",
+      "mask_hex": "0xF8",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "chimera-c8192",
+      "family": "Chimera",
+      "mnemonic": "ADD",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "ADD Z0,Z1",
+      "bits": 16,
+      "binary": "0001000000000000",
+      "hex": "0x1000",
+      "mask_binary": "1111000000000000",
+      "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "chimera-c8192",
+      "family": "Chimera",
+      "mnemonic": "MUL",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "MUL Z0,Z1",
+      "bits": 16,
+      "binary": "0010000000000000",
+      "hex": "0x2000",
+      "mask_binary": "1111000000000000",
+      "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "chimera-c8192",
+      "family": "Chimera",
+      "mnemonic": "TCONTRACT",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "TCONTRACT Z0,Z1,Z2",
+      "bits": 16,
+      "binary": "0011000000000000",
+      "hex": "0x3000",
+      "mask_binary": "1111000000000000",
+      "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "chimera-c8192",
+      "family": "Chimera",
+      "mnemonic": "MODEXP",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "MODEXP Z0,Z1,Z2",
+      "bits": 16,
+      "binary": "0100000000000000",
+      "hex": "0x4000",
+      "mask_binary": "1111000000000000",
+      "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "chimera-c8192",
+      "family": "Chimera",
+      "mnemonic": "NETSEND",
+      "form": "rp",
+      "operands": [
+        "register",
+        "mask"
+      ],
+      "syntax": "NETSEND Z0,P0",
+      "bits": 16,
+      "binary": "0101000000000000",
+      "hex": "0x5000",
+      "mask_binary": "1111000000000000",
+      "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    }
+  ],
+  "worked_samples": [
+    {
+      "id": "riscv_add",
+      "family": "riscv",
+      "mnemonic": "ADD",
+      "syntax": "add x0, x0, x0",
+      "bits": 32,
+      "binary": "00000000000000000000000000110011",
+      "hex": "0x33",
+      "fields": [
+        "funct7[31:25]",
+        "rs2[24:20]",
+        "rs1[19:15]",
+        "funct3[14:12]",
+        "rd[11:7]",
+        "opcode[6:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "riscv_sub",
+      "family": "riscv",
+      "mnemonic": "SUB",
+      "syntax": "sub x0, x0, x0",
+      "bits": 32,
+      "binary": "01000000000000000000000000110011",
+      "hex": "0x40000033",
+      "fields": [
+        "funct7[31:25]",
+        "rs2[24:20]",
+        "rs1[19:15]",
+        "funct3[14:12]",
+        "rd[11:7]",
+        "opcode[6:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "riscv_addi",
+      "family": "riscv",
+      "mnemonic": "ADDI",
+      "syntax": "addi x0, x0, 0",
+      "bits": 32,
+      "binary": "00000000000000000000000000010011",
+      "hex": "0x13",
+      "fields": [
+        "imm[11:0]",
+        "rs1[19:15]",
+        "funct3[14:12]",
+        "rd[11:7]",
+        "opcode[6:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "riscv_lw",
+      "family": "riscv",
+      "mnemonic": "LW",
+      "syntax": "lw x0, 0(x0)",
+      "bits": 32,
+      "binary": "00000000000000000010000000000011",
+      "hex": "0x2003",
+      "fields": [
+        "imm[11:0]",
+        "rs1[19:15]",
+        "funct3[14:12]",
+        "rd[11:7]",
+        "opcode[6:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "riscv_sw",
+      "family": "riscv",
+      "mnemonic": "SW",
+      "syntax": "sw x0, 0(x0)",
+      "bits": 32,
+      "binary": "00000000000000000010000000100011",
+      "hex": "0x2023",
+      "fields": [
+        "imm[11:5]",
+        "rs2[24:20]",
+        "rs1[19:15]",
+        "funct3[14:12]",
+        "imm[4:0]",
+        "opcode[6:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "a64_nop",
+      "family": "aarch64",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 32,
+      "binary": "11010101000000110010000000011111",
+      "hex": "0xd503201f",
+      "fields": [
+        "fixed opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "a64_ret",
+      "family": "aarch64",
+      "mnemonic": "RET",
+      "syntax": "ret",
+      "bits": 32,
+      "binary": "11010110010111110000001111000000",
+      "hex": "0xd65f03c0",
+      "fields": [
+        "fixed opcode",
+        "Rn[9:5]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "a64_add",
+      "family": "aarch64",
+      "mnemonic": "ADD",
+      "syntax": "add x0, x0, x0",
+      "bits": 32,
+      "binary": "10001011000000000000000000000000",
+      "hex": "0x8b000000",
+      "fields": [
+        "sf",
+        "fixed opcode",
+        "Rm",
+        "shamt",
+        "Rn",
+        "Rd"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "a64_ldr",
+      "family": "aarch64",
+      "mnemonic": "LDR",
+      "syntax": "ldr x0, [x0]",
+      "bits": 32,
+      "binary": "11111001010000000000000000000000",
+      "hex": "0xf9400000",
+      "fields": [
+        "size/opcode",
+        "imm12",
+        "Rn",
+        "Rt"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "a64_str",
+      "family": "aarch64",
+      "mnemonic": "STR",
+      "syntax": "str x0, [x0]",
+      "bits": 32,
+      "binary": "11111001000000000000000000000000",
+      "hex": "0xf9000000",
+      "fields": [
+        "size/opcode",
+        "imm12",
+        "Rn",
+        "Rt"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "a64_b",
+      "family": "aarch64",
+      "mnemonic": "B",
+      "syntax": "b 0",
+      "bits": 32,
+      "binary": "00010100000000000000000000000000",
+      "hex": "0x14000000",
+      "fields": [
+        "fixed opcode",
+        "imm26"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "arm_mov",
+      "family": "arm32",
+      "mnemonic": "MOV",
+      "syntax": "mov r0, r0",
+      "bits": 32,
+      "binary": "11100001101000000000000000000000",
+      "hex": "0xe1a00000",
+      "fields": [
+        "cond",
+        "I",
+        "opcode",
+        "S",
+        "Rn",
+        "Rd",
+        "operand2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "arm_add",
+      "family": "arm32",
+      "mnemonic": "ADD",
+      "syntax": "add r0, r0, r0",
+      "bits": 32,
+      "binary": "11100000100000000000000000000000",
+      "hex": "0xe0800000",
+      "fields": [
+        "cond",
+        "I",
+        "opcode",
+        "S",
+        "Rn",
+        "Rd",
+        "operand2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "arm_ldr",
+      "family": "arm32",
+      "mnemonic": "LDR",
+      "syntax": "ldr r0, [r0]",
+      "bits": 32,
+      "binary": "11100101100100000000000000000000",
+      "hex": "0xe5900000",
+      "fields": [
+        "cond",
+        "01",
+        "I",
+        "P",
+        "U",
+        "B",
+        "W",
+        "L",
+        "Rn",
+        "Rd",
+        "offset"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "arm_b",
+      "family": "arm32",
+      "mnemonic": "B",
+      "syntax": "b 0",
+      "bits": 32,
+      "binary": "11101010000000000000000000000000",
+      "hex": "0xea000000",
+      "fields": [
+        "cond",
+        "101",
+        "L",
+        "imm24"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "arm_bx",
+      "family": "arm32",
+      "mnemonic": "BX",
+      "syntax": "bx r14",
+      "bits": 32,
+      "binary": "11100001001011111111111100011110",
+      "hex": "0xe12fff1e",
+      "fields": [
+        "fixed opcode",
+        "Rm"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "mips_add",
+      "family": "mips32",
+      "mnemonic": "ADD",
+      "syntax": "add $t0, $t1, $t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100000",
+      "hex": "0x012a4020",
+      "fields": [
+        "op",
+        "rs",
+        "rt",
+        "rd",
+        "shamt",
+        "funct"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "mips_sub",
+      "family": "mips32",
+      "mnemonic": "SUB",
+      "syntax": "sub $t0, $t1, $t2",
+      "bits": 32,
+      "binary": "00000001001010100100000000100010",
+      "hex": "0x012a4022",
+      "fields": [
+        "op",
+        "rs",
+        "rt",
+        "rd",
+        "shamt",
+        "funct"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "mips_lw",
+      "family": "mips32",
+      "mnemonic": "LW",
+      "syntax": "lw $t0, 0($t1)",
+      "bits": 32,
+      "binary": "10001101001010000000000000000000",
+      "hex": "0x8d280000",
+      "fields": [
+        "op",
+        "base",
+        "rt",
+        "offset"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "mips_sw",
+      "family": "mips32",
+      "mnemonic": "SW",
+      "syntax": "sw $t0, 0($t1)",
+      "bits": 32,
+      "binary": "10101101001010000000000000000000",
+      "hex": "0xad280000",
+      "fields": [
+        "op",
+        "base",
+        "rt",
+        "offset"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "mips_jr",
+      "family": "mips32",
+      "mnemonic": "JR",
+      "syntax": "jr $ra",
+      "bits": 32,
+      "binary": "00000011111000000000000000001000",
+      "hex": "0x03e00008",
+      "fields": [
+        "op",
+        "rs",
+        "unused",
+        "funct"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "power_add",
+      "family": "power",
+      "mnemonic": "ADD",
+      "syntax": "add r3, r4, r5",
+      "bits": 32,
+      "binary": "01111100011001000010101000010100",
+      "hex": "0x7c642a14",
+      "fields": [
+        "opcode",
+        "RT",
+        "RA",
+        "OE",
+        "XO",
+        "RB",
+        "Rc"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "power_subf",
+      "family": "power",
+      "mnemonic": "SUBF",
+      "syntax": "subf r3, r4, r5",
+      "bits": 32,
+      "binary": "01111100011001000010100001010000",
+      "hex": "0x7c642850",
+      "fields": [
+        "opcode",
+        "RT",
+        "RA",
+        "OE",
+        "XO",
+        "RB",
+        "Rc"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "power_blr",
+      "family": "power",
+      "mnemonic": "BLR",
+      "syntax": "blr",
+      "bits": 32,
+      "binary": "01001110100000000000000000100000",
+      "hex": "0x4e800020",
+      "fields": [
+        "opcode",
+        "BO",
+        "BI",
+        "reserved",
+        "BH",
+        "XO",
+        "LK"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "power_b",
+      "family": "power",
+      "mnemonic": "B",
+      "syntax": "b 0",
+      "bits": 32,
+      "binary": "01001000000000000000000000000000",
+      "hex": "0x48000000",
+      "fields": [
+        "opcode",
+        "LI",
+        "AA",
+        "LK"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "power_or",
+      "family": "power",
+      "mnemonic": "OR",
+      "syntax": "or r3, r4, r5",
+      "bits": 32,
+      "binary": "01111100100000110010101101111000",
+      "hex": "0x7c832b78",
+      "fields": [
+        "opcode",
+        "RS",
+        "RA",
+        "RB",
+        "XO",
+        "Rc"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "sparc_nop",
+      "family": "sparc",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 32,
+      "binary": "00000001000000000000000000000000",
+      "hex": "0x01000000",
+      "fields": [
+        "sethi g0,0"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "sparc_add",
+      "family": "sparc",
+      "mnemonic": "ADD",
+      "syntax": "add %o0, %o1, %o2",
+      "bits": 32,
+      "binary": "10010100000000100000000000001001",
+      "hex": "0x94020009",
+      "fields": [
+        "op",
+        "rd",
+        "op3",
+        "rs1",
+        "i",
+        "asi/simm13/rs2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "sparc_ld",
+      "family": "sparc",
+      "mnemonic": "LD",
+      "syntax": "ld [%o0], %o1",
+      "bits": 32,
+      "binary": "11000010000000100000000000000000",
+      "hex": "0xc2020000",
+      "fields": [
+        "op",
+        "rd",
+        "op3",
+        "rs1",
+        "i",
+        "simm13/rs2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "sparc_retl",
+      "family": "sparc",
+      "mnemonic": "RETL",
+      "syntax": "retl",
+      "bits": 32,
+      "binary": "10000001110000111110000000001000",
+      "hex": "0x81c3e008",
+      "fields": [
+        "jmpl %o7+8,%g0"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "sparc_call",
+      "family": "sparc",
+      "mnemonic": "CALL",
+      "syntax": "call 0",
+      "bits": 32,
+      "binary": "01000000000000000000000000000000",
+      "hex": "0x40000000",
+      "fields": [
+        "op=01",
+        "disp30"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "x86_nop",
+      "family": "x86",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 8,
+      "binary": "10010000",
+      "hex": "0x90",
+      "fields": [
+        "opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "x86_ret",
+      "family": "x86",
+      "mnemonic": "RET",
+      "syntax": "ret",
+      "bits": 8,
+      "binary": "11000011",
+      "hex": "0xc3",
+      "fields": [
+        "opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "x86_mov",
+      "family": "x86",
+      "mnemonic": "MOV",
+      "syntax": "mov eax, ebx",
+      "bits": 16,
+      "binary": "1000100111011000",
+      "hex": "0x89d8",
+      "fields": [
+        "opcode 89",
+        "ModR/M"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "x86_add",
+      "family": "x86",
+      "mnemonic": "ADD",
+      "syntax": "add eax, ebx",
+      "bits": 16,
+      "binary": "0000000111011000",
+      "hex": "0x01d8",
+      "fields": [
+        "opcode 01",
+        "ModR/M"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "x86_jmp8",
+      "family": "x86",
+      "mnemonic": "JMP",
+      "syntax": "jmp 0",
+      "bits": 16,
+      "binary": "1110101100000000",
+      "hex": "0xeb00",
+      "fields": [
+        "opcode EB",
+        "rel8"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "m68k_moveq",
+      "family": "m68k",
+      "mnemonic": "MOVEQ",
+      "syntax": "moveq #1, d0",
+      "bits": 16,
+      "binary": "0111000000000001",
+      "hex": "0x7001",
+      "fields": [
+        "0111",
+        "data register",
+        "imm8"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "m68k_move",
+      "family": "m68k",
+      "mnemonic": "MOVE.L",
+      "syntax": "move.l d1, d0",
+      "bits": 16,
+      "binary": "0010000000000001",
+      "hex": "0x2001",
+      "fields": [
+        "MOVE primary opcode",
+        "destination EA",
+        "source EA"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "m68k_add",
+      "family": "m68k",
+      "mnemonic": "ADD.L",
+      "syntax": "add.l d1, d0",
+      "bits": 16,
+      "binary": "1101000010000001",
+      "hex": "0xd081",
+      "fields": [
+        "ADD opcode",
+        "Dn",
+        "opmode",
+        "EA"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "m68k_rts",
+      "family": "m68k",
+      "mnemonic": "RTS",
+      "syntax": "rts",
+      "bits": 16,
+      "binary": "0100111001110101",
+      "hex": "0x4e75",
+      "fields": [
+        "fixed opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "m68k_bra",
+      "family": "m68k",
+      "mnemonic": "BRA",
+      "syntax": "bra.s 0",
+      "bits": 16,
+      "binary": "0110000000000000",
+      "hex": "0x6000",
+      "fields": [
+        "BRA opcode",
+        "disp8; 0 selects extension word"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "systemz_lr",
+      "family": "systemz",
+      "mnemonic": "LR",
+      "syntax": "lr r1,r2",
+      "bits": 16,
+      "binary": "0001100000010010",
+      "hex": "0x1812",
+      "fields": [
+        "opcode 18",
+        "r1",
+        "r2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "systemz_ar",
+      "family": "systemz",
+      "mnemonic": "AR",
+      "syntax": "ar r1,r2",
+      "bits": 16,
+      "binary": "0001101000010010",
+      "hex": "0x1a12",
+      "fields": [
+        "opcode 1A",
+        "r1",
+        "r2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "systemz_sr",
+      "family": "systemz",
+      "mnemonic": "SR",
+      "syntax": "sr r1,r2",
+      "bits": 16,
+      "binary": "0001101100010010",
+      "hex": "0x1b12",
+      "fields": [
+        "opcode 1B",
+        "r1",
+        "r2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "systemz_bcr",
+      "family": "systemz",
+      "mnemonic": "BCR",
+      "syntax": "bcr 15,r14",
+      "bits": 16,
+      "binary": "0000011111111110",
+      "hex": "0x07fe",
+      "fields": [
+        "opcode 07",
+        "m1",
+        "r2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "systemz_l",
+      "family": "systemz",
+      "mnemonic": "L",
+      "syntax": "l r1,0(r2)",
+      "bits": 32,
+      "binary": "01011000000100000010000000000000",
+      "hex": "0x58102000",
+      "fields": [
+        "opcode 58",
+        "r1",
+        "x2",
+        "b2",
+        "d2"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "vax_halt",
+      "family": "vax",
+      "mnemonic": "HALT",
+      "syntax": "halt",
+      "bits": 8,
+      "binary": "00000000",
+      "hex": "0x00",
+      "fields": [
+        "opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "vax_nop",
+      "family": "vax",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 8,
+      "binary": "00000001",
+      "hex": "0x01",
+      "fields": [
+        "opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "vax_ret",
+      "family": "vax",
+      "mnemonic": "RET",
+      "syntax": "ret",
+      "bits": 8,
+      "binary": "00000100",
+      "hex": "0x04",
+      "fields": [
+        "opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "vax_rsb",
+      "family": "vax",
+      "mnemonic": "RSB",
+      "syntax": "rsb",
+      "bits": 8,
+      "binary": "00000101",
+      "hex": "0x05",
+      "fields": [
+        "opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "vax_brb",
+      "family": "vax",
+      "mnemonic": "BRB",
+      "syntax": "brb 0",
+      "bits": 16,
+      "binary": "0001000100000000",
+      "hex": "0x1100",
+      "fields": [
+        "opcode 11",
+        "disp8"
+      ],
+      "source_urls": []
+    }
+  ]
+}
