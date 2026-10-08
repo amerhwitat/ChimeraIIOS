@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import importlib.util, json, tempfile
+import importlib.util, json, tempfile, sys
 from pathlib import Path
 p=Path(__file__).resolve().parents[1]/"tools/math/chimera_toolchain.py"
-s=importlib.util.spec_from_file_location("ct",p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+s=importlib.util.spec_from_file_location("ct",p); m=importlib.util.module_from_spec(s); sys.modules[s.name]=m; s.loader.exec_module(m)
 assert m.parse_type("u8193").width==8193
 assert m.parse_type("i257").signed
 assert m.parse_type("q128.32").frac==32
