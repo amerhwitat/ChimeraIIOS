@@ -41,7 +41,14 @@ class SwapArea:
   self.file.seek(self.offset(slot));self.file.write(META.pack(0,0,0)+bytes(PAGE));self.file.flush()
  def close(self):self.file.close()
 def main():
- p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest="cmd",required=True);c=s.add_parser("create");c.add_argument("path");c.add_argument("--slots",type=int,required=True);i=s.add_parser("info");i.add_argument("path");a=p.parse_args()
- if a.cmd=="create":x=SwapArea.create(a.path,a.slots);x.close();print(json.dumps({"status":"created","slots":a.slots,"page_bytes":PAGE,"capacity_bytes":a.slots*PAGE}))
+ p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest="cmd",required=True);c=s.add_parser("create");c.add_argument("path");c.add_argument("--slots",type=int,required=True);c.add_argument("--force",action="store_true",help="replace an existing regular swap file");i=s.add_parser("info");i.add_argument("path");a=p.parse_args()
+ if a.cmd=="create":
+  path=Path(a.path)
+  if a.force and path.exists():
+   if path.is_dir():raise SwapError(f"cannot replace directory with swap file: {path}")
+   path.unlink()
+  try:x=SwapArea.create(path,a.slots)
+  except FileExistsError as exc:raise SwapError(f"swap file already exists: {path}; use --force to recreate it") from exc
+  x.close();print(json.dumps({"status":"created","slots":a.slots,"page_bytes":PAGE,"capacity_bytes":a.slots*PAGE}) )
  else:x=SwapArea(a.path);print(json.dumps({"status":"valid","slots":x.slots,"page_bytes":PAGE,"capacity_bytes":x.slots*PAGE}));x.close()
 if __name__=="__main__":main()
