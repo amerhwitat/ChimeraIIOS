@@ -10,6 +10,12 @@ on:
       - 'tools/load_isa_database.py'
       - 'tools/isa_registry_report.py'
       - 'tools/generate_isa_bindings.py'
+      - 'tools/binary/**'
+      - 'tools/memory/chimera_swap.py'
+      - 'tools/memory/test_chimera_swap.py'
+      - 'docs/architecture/chimera-native-binary-format.md'
+      - 'docs/architecture/chimera-virtual-memory-swap.md'
+      - 'compat/binary-format-registry.json'
       - '.github/workflows/isa-catalog-ci.yml'
   pull_request:
     paths:
@@ -21,6 +27,13 @@ on:
       - 'tools/load_isa_database.py'
       - 'tools/isa_registry_report.py'
       - 'tools/generate_isa_bindings.py'
+      - 'tools/binary/**'
+      - 'tools/memory/chimera_swap.py'
+      - 'tools/memory/test_chimera_swap.py'
+      - 'docs/architecture/chimera-native-binary-format.md'
+      - 'docs/architecture/chimera-virtual-memory-swap.md'
+      - 'docs/architecture/chimera-nbit-native-isa.md'
+      - 'compat/binary-format-registry.json'
       - '.github/workflows/isa-catalog-ci.yml'
 
 concurrency:
@@ -43,6 +56,10 @@ jobs:
         run: |
           python -m pip install pytest
           python -m pytest tests/isa/test_catalog.py tests/test_isa_registry.py -q
+      - name: Test binary identification and swap reference backends
+        run: |
+          PYTHONPATH=tools/binary python -m unittest discover -s tools/binary -p 'test_*.py' -v
+          python -m unittest discover -s tools/memory -p 'test_chimera_swap.py' -v
       - name: Build SQLite ISA database
         run: python tools/load_isa_database.py --output /tmp/chimera-isa.db
       - name: Report ISA coverage
