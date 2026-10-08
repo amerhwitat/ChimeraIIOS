@@ -68,6 +68,16 @@ class H(BaseHTTPRequestHandler):
         try:
             d=body(self); path=self.path
 
+
+            if path=="/hypervisor/nbit/demo":
+                import sys
+                sys.path.insert(0,str(ROOT/"tools/virtualization"))
+                from chimera_nbit import ChimeraNBit, OP_LI, OP_ADD, OP_HALT
+                nbits=d.get("nbits",32)
+                if type(nbits) is not int or nbits not in (32,64,128):return send(self,400,{"error":"nbits-must-be-32-64-or-128"})
+                cpu=ChimeraNBit(nbits=nbits,memory_size=65536)
+                cpu.load_program([cpu.encode(OP_LI,1,imm=7),cpu.encode(OP_LI,2,imm=9),cpu.encode(OP_ADD,3,1,2),cpu.encode(OP_HALT)])
+                return send(self,200,{"status":"reference-interpreter-pass" if cpu.run()["registers"][3]==16 else "failed","bootable_vm":False,"architecture":"Chimera N-bit experimental v0.1","result":cpu.run()})
             if path=="/hypervisor/profiles":
                 if not HV_PROFILES.is_file(): return send(self,503,{"error":"hypervisor-profiles-missing"})
                 profiles=json.loads(HV_PROFILES.read_text(encoding="utf-8"))
