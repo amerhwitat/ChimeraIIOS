@@ -138,22 +138,26 @@ if command -v grub-mkstandalone >/dev/null 2>&1; then
       mkdir -p "$GRUB_TMP_BASE"
       GRUB_TMP_DIR="$(mktemp -d "$GRUB_TMP_BASE/chimera-grub.XXXXXX")"
     fi
-    OLD_TMPDIR="${TMPDIR:-}"
+    HAD_TMPDIR=0
+    [[ "${TMPDIR+x}" == x ]] && HAD_TMPDIR=1
+    OLD_TMPDIR="${TMPDIR-}"
     export TMPDIR="$GRUB_TMP_DIR"
-    if ! grub-mkstandalone \
+    if grub-mkstandalone \
       -O x86_64-efi \
       -d "$EFIMODDIR" \
       -o "$OUT/uefi/BOOTX64.EFI" \
       --modules="$(IFS=' '; echo "${UEFI_MODULES[*]}")" \
       "boot/grub/grub.cfg=$ROOT/boot/iso/grub.cfg"; then
-      rc=$?
-      export TMPDIR="$OLD_TMPDIR"
-      rm -rf -- "$GRUB_TMP_DIR"
-      echo "ERROR: grub-mkstandalone failed; temporary directory was: $GRUB_TMP_DIR" >&2
-      exit "${rc:-1}"
+      grub_rc=0
+    else
+      grub_rc=$?
     fi
-    export TMPDIR="$OLD_TMPDIR"
+    if [[ "$HAD_TMPDIR" == 1 ]]; then export TMPDIR="$OLD_TMPDIR"; else unset TMPDIR; fi
     rm -rf -- "$GRUB_TMP_DIR"
+    if (( grub_rc != 0 )); then
+      echo "ERROR: grub-mkstandalone failed (exit $grub_rc); temporary directory was: $GRUB_TMP_DIR" >&2
+      exit "$grub_rc"
+    fi
     test -s "$OUT/uefi/BOOTX64.EFI"
     ISO_STAGE="${CHIMERA_BUILD_DIR:-$ROOT/build}/iso"
     if [[ -d "$ISO_STAGE" ]]; then
