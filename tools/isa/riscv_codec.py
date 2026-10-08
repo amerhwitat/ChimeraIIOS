@@ -128,6 +128,108 @@ def execute(program, max_steps=10000):
     return {"pc":pc*4,"steps":steps,"registers":regs,"halted":pc<0 or pc>=len(program) or (steps and decode(program[min(max(pc-1,0),len(program)-1)]) in ("ECALL","EBREAK"))}
 
 
+def encode(line):
+    """Strict RV32I base encoder (extensions intentionally excluded)."""
+    line = line.split("#", 1)[0].strip()
+    if not line:
+        raise ValueError("empty instruction")
+    parts = line.replace(",", " ").replace("(", " ").replace(")", "").split()
+    op, a = parts[0].upper(), parts[1:]
+    def imm(v, lo, hi, what):
+        n = int(v, 0)
+        if not lo <= n <= hi: raise ValueError(f"{what} out of range")
+        return n
+    r = {"ADD":(0,0),"SUB":(32,0),"SLL":(0,1),"SLT":(0,2),"SLTU":(0,3),"XOR":(0,4),"SRL":(0,5),"SRA":(32,5),"OR":(0,6),"AND":(0,7)}
+    ii = {"ADDI":0,"SLTI":2,"SLTIU":3,"XORI":4,"ORI":6,"ANDI":7}
+    loads={"LB":(0,1),"LH":(1,2),"LW":(2,4),"LBU":(4,1),"LHU":(5,2)}
+    stores={"SB":0,"SH":1,"SW":2}
+    branches={"BEQ":0,"BNE":1,"BLT":4,"BGE":5,"BLTU":6,"BGEU":7}
+    if op in r and len(a)==3:
+        rd,rs1,rs2=map(reg,a); f7,f3=r[op]
+        return (f7<<25)|(rs2<<20)|(rs1<<15)|(f3<<12)|(rd<<7)|0x33
+    if op in ii and len(a)==3:
+        rd,rs1=reg(a[0]),reg(a[1]); n=imm(a[2],-2048,2047,"12-bit immediate")
+        return ((n&0xfff)<<20)|(rs1<<15)|(ii[op]<<12)|(rd<<7)|0x13
+    if op in ("SLLI","SRLI","SRAI") and len(a)==3:
+        rd,rs1=reg(a[0]),reg(a[1]); sh=imm(a[2],0,31,"shift amount")
+        f3={"SLLI":1,"SRLI":5,"SRAI":5}[op]; f7=32 if op=="SRAI" else 0
+        return (f7<<25)|(sh<<20)|(rs1<<15)|(f3<<12)|(rd<<7)|0x13
+    if op in loads and len(a)==3:
+        rd,off,rs1=reg(a[0]),imm(a[1],-2048,2047,"load offset"),reg(a[2]); f3,_=loads[op]
+        return ((off&0xfff)<<20)|(rs1<<15)|(f3<<12)|(rd<<7)|3
+    if op in stores and len(a)==3:
+        rs2,off,rs1=reg(a[0]),imm(a[1],-2048,2047,"store offset"),reg(a[2]); u=off&0xfff; f3=stores[op]
+        return ((u>>5)<<25)|(rs2<<20)|(rs1<<15)|(f3<<12)|((u&31)<<7)|0x23
+    if op in branches and len(a)==3:
+        rs1,rs2=reg(a[0]),reg(a[1]); off=imm(a[2],-4096,4094,"branch offset")
+        if off&1: raise ValueError("branch offset must be even")
+        u=off&0x1fff
+        return (((u>>12)&1)<<31)|(((u>>5)&63)<<25)|(rs2<<20)|(rs1<<15)|(branches[op]<<12)|(((u>>1)&15)<<8)|(((u>>11)&1)<<7)|0x63
+    if op in ("LUI","AUIPC") and len(a)==2:
+        rd=reg(a[0]); n=imm(a[1],-(1<<19),(1<<20)-1,"U-immediate")
+        return ((n&0xfffff)<<12)|(rd<<7)|(0x37 if op=="LUI" else 0x17)
+    if op=="JALR" and len(a)==3:
+        rd,rs1=reg(a[0]),reg(a[2]); n=imm(a[1],-2048,2047,"JALR immediate")
+        return ((n&0xfff)<<20)|(rs1<<15)|(rd<<7)|0x67
+    if op=="JAL" and len(a) in (1,2):
+        rd,off=(reg(a[0]),imm(a[1],-(1<<20),(1<<20)-2,"JAL offset")) if len(a)==2 else (1,imm(a[0],-(1<<20),(1<<20)-2,"JAL offset"))
+        if off&1: raise ValueError("JAL offset must be even")
+        u=off&0x1fffff
+        return (((u>>20)&1)<<31)|(((u>>1)&0x3ff)<<21)|(((u>>11)&1)<<20)|(((u>>12)&0xff)<<12)|(rd<<7)|0x6f
+    if op=="FENCE" and len(a) in (0,2):
+        # Base FENCE supports predecessor/successor sets; rd and rs1 are zero.
+        pred,succ=(int(a[0],0),int(a[1],0)) if a else (15,15)
+        if pred<0 or pred>15 or succ<0 or succ>15: raise ValueError("FENCE sets must be 4-bit masks")
+        return (pred<<24)|(succ<<20)|0x0f
+    if op in ("ECALL","EBREAK") and not a: return 0x73 if op=="ECALL" else 0x00100073
+    raise ValueError("unsupported instruction or operand shape: "+line)
+
+
+def decode(word):
+    """Strict RV32I decoder; reserved funct fields and extension opcodes trap."""
+    w = int(word,0) if isinstance(word,str) else int(word)
+    if not 0 <= w <= MASK32: raise ValueError("instruction must be a 32-bit word")
+    op,rd,f3,rs1,rs2,f7=w&127,(w>>7)&31,(w>>12)&7,(w>>15)&31,(w>>20)&31,w>>25
+    si=lambda v,b:signed(v,b)
+    if w==0x73:return "ECALL"
+    if w==0x00100073:return "EBREAK"
+    if op in (0x37,0x17): return f"{'LUI' if op==0x37 else 'AUIPC'} x{rd}, 0x{(w>>12):05X}"
+    if op==0x33:
+        names={(0,0):"ADD",(32,0):"SUB",(0,1):"SLL",(0,2):"SLT",(0,3):"SLTU",(0,4):"XOR",(0,5):"SRL",(32,5):"SRA",(0,6):"OR",(0,7):"AND"}
+        if (f7,f3) not in names: raise ValueError("reserved R-type encoding")
+        return f"{names[f7,f3]} x{rd}, x{rs1}, x{rs2}"
+    if op==0x13:
+        if f3 in (1,5):
+            if f3==1 and f7==0: name="SLLI"
+            elif f3==5 and f7==0: name="SRLI"
+            elif f3==5 and f7==32: name="SRAI"
+            else: raise ValueError("reserved shift-immediate encoding")
+            return f"{name} x{rd}, x{rs1}, {rs2}"
+        names={0:"ADDI",2:"SLTI",3:"SLTIU",4:"XORI",6:"ORI",7:"ANDI"}
+        if f3 not in names: raise ValueError("reserved OP-IMM encoding")
+        return f"{names[f3]} x{rd}, x{rs1}, {si(w>>20,12)}"
+    if op==3:
+        names={0:"LB",1:"LH",2:"LW",4:"LBU",5:"LHU"}
+        if f3 not in names: raise ValueError("reserved load encoding")
+        return f"{names[f3]} x{rd}, {si(w>>20,12)}(x{rs1})"
+    if op==0x23:
+        names={0:"SB",1:"SH",2:"SW"}
+        if f3 not in names: raise ValueError("reserved store encoding")
+        return f"{names[f3]} x{rs2}, {si(((w>>25)<<5)|((w>>7)&31),12)}(x{rs1})"
+    if op==0x63:
+        names={0:"BEQ",1:"BNE",4:"BLT",5:"BGE",6:"BLTU",7:"BGEU"}
+        if f3 not in names: raise ValueError("reserved branch encoding")
+        n=si((((w>>31)&1)<<12)|(((w>>7)&1)<<11)|(((w>>25)&63)<<5)|(((w>>8)&15)<<1),13)
+        return f"{names[f3]} x{rs1}, x{rs2}, {n}"
+    if op==0x6f:
+        n=si((((w>>31)&1)<<20)|(((w>>12)&255)<<12)|(((w>>20)&1)<<11)|(((w>>21)&1023)<<1),21)
+        return f"JAL x{rd}, {n}"
+    if op==0x67 and f3==0: return f"JALR x{rd}, {si(w>>20,12)}(x{rs1})"
+    if op==0x0f and f3==0 and rd==0 and rs1==0 and ((w>>28)&15)==0:
+        return f"FENCE {(w>>24)&15}, {(w>>20)&15}"
+    raise ValueError("unsupported/illegal RV32I encoding")
+
+
 def execute(program, max_steps=10000):
     """Execute through the shared RV32Machine, not a second interpreter."""
     from rv32_machine import RV32Machine
