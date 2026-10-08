@@ -121,6 +121,10 @@ class RV32Machine:
             if val is not None and rd: self.regs[rd]=val&MASK
             self.pc=nxt; self.regs[0]=0; self.steps+=1
         except Trap as t:
+            # Trapping instructions still consume a step; otherwise a handler
+            # that repeatedly faults could evade run(max_steps=...) forever.
+            self.steps+=1
+            self.regs[0]=0
             self.trap(t.cause,t.pc,t.tval)
     def run(self,max_steps=100000):
         start=self.steps
