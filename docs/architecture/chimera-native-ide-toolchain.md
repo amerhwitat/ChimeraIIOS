@@ -1,7 +1,7 @@
 # Native toolchain and Aurora IDE integration
 
 ## What is wired up
-- The browser IDE associates common .c, .h, .cc, .cpp, .cxx, .hpp, .asm, .s, .S, .json, .ncb, and .txt files with editor modes.
+- The browser IDE associates common .c, .h, .cc, .cpp, .cxx, .hpp, .asm, .s, .S, .json, and .txt files with editor modes.
 - Open Source reads a user-selected local file. Save Source downloads the current buffer under its source filename. This is browser-local file handling, not unrestricted filesystem access.
 - Build/Run/Debug send an explicit request to /api/chimera/toolchain. When no configured adapter is available, the UI reports the failure instead of pretending a build ran.
 - web/aurora-ide-catalog.json links to official IDE download pages. The OS package manager should verify signatures/checksums and honor each package's license. The browser UI does not install applications silently.
