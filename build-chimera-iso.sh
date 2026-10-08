@@ -979,13 +979,18 @@ scan_isa_and_commands_before_network_crawl(){
   grep -E 'CHIMERA_ISA|ISA_REGISTRY|instruction|mnemonic' "$isa_header" | head -n 3 || true
   [[ -s "$isa_header" ]] || { log_error "ISA registry header unavailable after generation"; return 1; }
   [[ -s "$isa_db" ]] || { log_error "Canonical ISA database missing: $isa_db"; return 1; }
-  python3 - "$isa_db" "$isa_header" <<'PYISA'
+  python3 - "$isa_db" "$isa_header" "$SCRIPT_DIR/isa/world_architectures.json" <<'PYISA'
 import json,sys
 from pathlib import Path
 db=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+world=json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
 arches=db.get("architectures",[]); rows=db.get("instructions",[])
-print(f"[ISA] canonical architectures={len(arches)} instruction forms={len(rows)}")
+hierarchy=world.get("processor_hierarchy",{}).get("families",[])
 if not arches or not rows: raise SystemExit("Canonical ISA database is empty")
+if not hierarchy: raise SystemExit("Processor/chip hierarchy metadata is missing")
+if any(not x.get("vendor") or not x.get("family") or not x.get("source") for x in hierarchy):
+    raise SystemExit("Processor hierarchy entry missing vendor/family/source")
+print(f"[ISA] architectures={len(arches)} encoding templates={len(rows)} processor families={len(hierarchy)}")
 PYISA
   log_info "Validating and generating binary/hex ISA sample artifacts"
   python3 "$SCRIPT_DIR/tools/validate_isa_catalog.py" || { log_error "ISA sample validation failed"; return 1; }
@@ -1003,6 +1008,17 @@ PYISA
   log_info "Reconciling native, shell-builtin, and compatibility-provider command inventory"
   python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py" || { log_error "Command capability manifest generation failed"; return 1; }
   [[ -s "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" ]] || { log_error "Command capability manifest missing"; return 1; }
+  python3 - "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" <<'PYCOMMANDS'
+import json,sys
+from pathlib import Path
+d=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+rows=d.get("commands",[])
+names=[str(x.get("name","")).casefold() for x in rows]
+if not rows or len(names)!=len(set(names)): raise SystemExit("Command manifest empty or contains duplicate names")
+if any(not x.get("mode") or not x.get("provider") for x in rows): raise SystemExit("Command missing runtime/provider classification")
+if d.get("mode_counts",{}).get("native") != 15: raise SystemExit("Native command count differs from compiled multicall contract")
+print(f"[COMMANDS] catalogued={len(rows)} native={d['mode_counts'].get('native',0)} compatibility={d['mode_counts'].get('compatibility-provider-required',0)}")
+PYCOMMANDS
 }
 build_command_runtime(){
   log_info "Compiling and staging native command multicall binary and compatibility registry"
