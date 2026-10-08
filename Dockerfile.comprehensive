@@ -142,13 +142,48 @@ RUN git clone --depth 1 https://github.com/amerhwitat/BizX.git && \
 # =============================================================================
 # CLONE AND BUILD: BizXtreme (Enterprise Business Platform)
 # =============================================================================
-RUN git clone --depth 1 https://github.com/amerhwitat/BizXtreme.git && \
-    cd BizXtreme && \
-    if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi && \
-    if [ -f setup.py ]; then python -m pip install --no-cache-dir .; fi && \
-    mkdir -p $APPS_DIR/BizXtreme && \
-    cp -r . $APPS_DIR/BizXtreme && \
-    cp -r . $SRC_DIR/BizXtreme
+# BizXtreme is fetched defensively because GitHub smart-HTTP pack streams can be\n# interrupted by BuildKit/proxy HTTP2 CANCELs. Prefer HTTP/1.1 shallow clone,\n# then fall back to GitHub codeload tarball, which avoids the Git pack protocol.\nRUN set -eux; \
+    rm -rf BizXtreme /tmp/BizXtreme.tar.gz /tmp/BizXtreme-src; \
+    export GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=HTTP/1.1; \
+    git config --global http.version HTTP/1.1; \
+    git config --global http.lowSpeedLimit 1; \
+    git config --global http.lowSpeedTime 600; \
+    cloned=0; \
+    for attempt in 1 2 3 4 5; do \
+      echo "[Chimera] BizXtreme git clone attempt $attempt/5 (HTTP/1.1)"; \
+      rm -rf BizXtreme; \
+      if git -c http.version=HTTP/1.1 clone --depth 1 --single-branch \
+          --config http.lowSpeedLimit=1 --config http.lowSpeedTime=600 \
+          https://github.com/amerhwitat/BizXtreme.git BizXtreme; then \
+        cloned=1; break; \
+      fi; \
+      sleep $((attempt * 5)); \
+    done; \
+    if [ "$cloned" -ne 1 ]; then \
+      echo "[Chimera][WARN] Git smart-HTTP clone failed; using GitHub codeload fallback."; \
+      rm -rf BizXtreme /tmp/BizXtreme-src; \
+      mkdir -p /tmp/BizXtreme-src; \
+      for attempt in 1 2 3 4 5; do \
+        echo "[Chimera] BizXtreme codeload attempt $attempt/5"; \
+        rm -f /tmp/BizXtreme.tar.gz; \
+        if curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 30 --max-time 900 \
+            -o /tmp/BizXtreme.tar.gz \
+            https://codeload.github.com/amerhwitat/BizXtreme/tar.gz/refs/heads/main; then \
+          tar -xzf /tmp/BizXtreme.tar.gz -C /tmp/BizXtreme-src; \
+          src="$(find /tmp/BizXtreme-src -mindepth 1 -maxdepth 1 -type d -print -quit)"; \
+          if [ -n "$src" ]; then mv "$src" BizXtreme; cloned=1; break; fi; \
+        fi; \
+        sleep $((attempt * 5)); \
+      done; \
+    fi; \
+    if [ "$cloned" -ne 1 ]; then echo "[Chimera][ERROR] Unable to fetch BizXtreme after Git and codeload retries."; exit 1; fi; \
+    cd BizXtreme; \
+    if [ -f requirements.txt ]; then pip3 install --no-cache-dir --retries 5 --timeout 120 -r requirements.txt; fi; \
+    if [ -f setup.py ]; then python -m pip install --no-cache-dir --retries 5 --timeout 120 .; fi; \
+    mkdir -p "$APPS_DIR/BizXtreme" "$SRC_DIR/BizXtreme"; \
+    cp -a . "$APPS_DIR/BizXtreme/"; \
+    cp -a . "$SRC_DIR/BizXtreme/"
 
 # =============================================================================
 # CLONE AND BUILD: CPU4096 (4096-bit CPU Simulator)
