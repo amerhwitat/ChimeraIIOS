@@ -1,0 +1,20 @@
+[Unit]
+Description=Chimera II OS sandboxed native PTY service
+After=local-fs.target
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/chimera/chimera_terminald.py --config /etc/chimera/terminal/terminal-service.json
+User=chimera-terminal
+Group=chimera-terminal
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/run/chimera /var/lib/chimera/sandboxes
+RestrictAddressFamilies=AF_UNIX
+LockPersonality=yes
+RestrictSUIDSGID=yes
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

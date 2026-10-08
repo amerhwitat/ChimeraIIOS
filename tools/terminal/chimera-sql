@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+import argparse,sqlite3,sys
+def authorize(action,arg1,arg2,dbname,source):
+    if action in (sqlite3.SQLITE_ATTACH,sqlite3.SQLITE_DETACH): return sqlite3.SQLITE_DENY
+    if action==sqlite3.SQLITE_PRAGMA and str(arg1).lower() in {"writable_schema","load_extension"}: return sqlite3.SQLITE_DENY
+    return sqlite3.SQLITE_OK
+def main():
+    p=argparse.ArgumentParser(); p.add_argument("--db",default="/data/chimera.sqlite3"); p.add_argument("-c","--command"); a=p.parse_args()
+    con=sqlite3.connect(a.db); con.set_authorizer(authorize); con.execute("PRAGMA foreign_keys=ON"); con.execute("PRAGMA trusted_schema=OFF")
+    def run(sql):
+        cur=con.execute(sql)
+        if cur.description:
+            print("\t".join(d[0] for d in cur.description))
+            for row in cur: print("\t".join("" if v is None else str(v) for v in row))
+        con.commit()
+    try:
+        if a.command: run(a.command); return 0
+        print("Chimera SQL"); buf=[]
+        while True:
+            try: line=input("sql> " if not buf else "...> ")
+            except EOFError: break
+            if line.strip().lower() in {".quit",".exit"}: break
+            if line.strip().lower()==".tables": run("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"); continue
+            buf.append(line)
+            if sqlite3.complete_statement("\n".join(buf)):
+                try: run("\n".join(buf))
+                except sqlite3.Error as e: print("SQL error: "+str(e),file=sys.stderr)
+                buf=[]
+    finally: con.close()
+    return 0
+if __name__=="__main__": raise SystemExit(main())

@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+import argparse,base64,json,os,socket,sys
+def call(path,obj):
+ s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.connect(path); s.sendall((json.dumps(obj,separators=(',',':'))+'\n').encode()); r=json.loads(s.makefile('rb').readline()); s.close(); return r
+def main():
+ p=argparse.ArgumentParser(); p.add_argument('--socket',default=os.environ.get('CHIMERA_TERMINAL_SOCKET','/run/chimera/terminald.sock')); p.add_argument('--token',default=os.environ.get('CHIMERA_TERMINAL_TOKEN')); p.add_argument('--role',default=os.environ.get('CHIMERA_TERMINAL_ROLE','terminal-user')); p.add_argument('--shell',default=os.environ.get('CHIMERA_SHELL','bash')); a=p.parse_args()
+ if not a.token: print('CHIMERA_TERMINAL_TOKEN is required',file=sys.stderr); return 2
+ r=call(a.socket,{'action':'create','token':a.token,'role':a.role,'shell':a.shell})
+ if not r.get('ok'): print(r.get('error'),file=sys.stderr); return 1
+ sid=r['session']; print('session='+sid+' backend='+r['backend'],file=sys.stderr)
+ try:
+  while True:
+   data=os.read(0,4096)
+   if not data: break
+   call(a.socket,{'action':'write','token':a.token,'role':a.role,'session':sid,'data':base64.b64encode(data).decode()})
+   out=call(a.socket,{'action':'read','token':a.token,'role':a.role,'session':sid})
+   if out.get('data'): os.write(1,base64.b64decode(out['data']))
+ finally: call(a.socket,{'action':'close','token':a.token,'role':a.role,'session':sid})
+ return 0
+if __name__=='__main__': raise SystemExit(main())
