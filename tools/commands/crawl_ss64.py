@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse, html.parser, json, os, re, shutil, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 INDEXES={"linux_bash":"https://ss64.com/bash/","macos":"https://ss64.com/mac/","windows_cmd":"https://ss64.com/nt/","powershell":"https://ss64.com/ps/","vbscript":"https://ss64.com/vb/","sql_server":"https://ss64.com/sql/","access":"https://ss64.com/access/","tools":"https://ss64.com/tools/"}
-UA="ChimeraIIOS-SS64-Catalog/4.3 (+https://github.com/amerhwitat/ChimeraIIOS)"
+UA="ChimeraIIOS-SS64-Catalog/4.4 (+https://github.com/amerhwitat/ChimeraIIOS)"
 class P(html.parser.HTMLParser):
     def __init__(self): super().__init__(convert_charrefs=True); self.links=[]; self.a=False; self.h=""; self.t=[]
     def handle_starttag(self,tag,attrs):
@@ -116,10 +116,14 @@ def reconcile(catalog,rootfs,repo_root):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--output",default="system/commands/ss64-command-catalog.json");ap.add_argument("--max-pages",type=int,default=3000);ap.add_argument("--timeout",type=float,default=30);ap.add_argument("--retries",type=int,default=2);ap.add_argument("--delay",type=float,default=.05);ap.add_argument("--platforms",nargs="*",choices=sorted(INDEXES));args=ap.parse_args()
-    root=Path(__file__).resolve().parents[2];selected=args.platforms or list(INDEXES);catalog={"schema_version":"4.3","product":"Chimera II OS","source":"SS64","source_index":"https://ss64.com/","generated_at_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"policy":"Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.","platforms":{}}
+    root=Path(__file__).resolve().parents[2];selected=args.platforms or list(INDEXES);out=Path(args.output);catalog={"schema_version":"4.4","product":"Chimera II OS","source":"SS64","source_index":"https://ss64.com/","generated_at_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"policy":"Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.","platforms":{}}
+    if out.exists():
+        try:
+            previous=json.loads(out.read_text(encoding="utf-8")); catalog["platforms"].update(previous.get("platforms",{})); print("[CACHE] Loaded existing command catalog before network crawl")
+        except (OSError,json.JSONDecodeError) as exc: print(f"[WARN] Existing catalog ignored: {exc}")
     for platform in selected:
-        items,pages,failures=crawl(INDEXES[platform],platform,max(1,args.max_pages),args.timeout,max(0,args.retries),max(0,args.delay));catalog["platforms"][platform]={"index":INDEXES[platform],"pages_crawled":pages,"fetch_failures":failures,"command_count":len(items),"commands":items};print(f"{platform}: {len(items)} commands across {pages} pages ({failures} failures)")
-    out=Path(args.output);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        items,pages,failures=crawl(INDEXES[platform],platform,max(1,args.max_pages),args.timeout,max(0,args.retries),max(0,args.delay)); previous=catalog["platforms"].get(platform,{}).get("commands",[]); merged={(x.get("name","").casefold(),x.get("source","")):x for x in previous}; merged.update({(x.get("name","").casefold(),x.get("source","")):x for x in items}); items=sorted(merged.values(),key=lambda x:(x.get("name","").casefold(),x.get("source",""))); catalog["platforms"][platform]={"index":INDEXES[platform],"pages_crawled":pages,"fetch_failures":failures,"command_count":len(items),"commands":items};print(f"{platform}: {len(items)} merged commands across {pages} pages ({failures} failures)")
+    out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     rootfs=Path(os.environ.get("CHIMERA_ROOTFS_DIR",str(root/"build/iso/rootfs")))
     if rootfs.exists():m=reconcile(catalog,rootfs,root);print(f"Reconciled {len(m['commands'])} Linux/Bash commands; Kore/systemd compatibility staged into {rootfs}")
     return 0
