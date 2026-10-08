@@ -83,6 +83,13 @@ jobs:
           python3 -m py_compile tools/virtualization/chimera-hypervisor.py
           python3 -m unittest tools/virtualization/test_chimera_hypervisor.py -v
           python3 -m json.tool tools/virtualization/hypervisor-backends.json >/dev/null
+      - name: Test hypervisor profiles and Chimera N-bit reference CPU
+        run: |
+          python3 -m py_compile tools/virtualization/chimera-hypervisor.py tools/virtualization/chimera_nbit.py tools/virtualization/validate_profiles.py tools/runtime/chimera-local-bridge.py
+          python3 -m json.tool tools/virtualization/hypervisor-backends.json >/dev/null
+          python3 -m json.tool tools/virtualization/machine-profiles.json >/dev/null
+          python3 tools/virtualization/validate_profiles.py
+          python3 -m unittest discover -s tools/virtualization -p 'test_*.py' -v
       - name: Validate explicit ISA coverage and conformance claims
         run: |
           python3 tools/isa/validate_rv32i_coverage.py
