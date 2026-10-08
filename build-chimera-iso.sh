@@ -993,7 +993,7 @@ build_iso(){
 }
 verify_iso(){
   header 'STEP 10: VERIFY ISO BOOT STRUCTURE'
-  local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}.iso"
+  local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso"
   [[ -s "$iso" ]] || { log_error 'ISO missing'; exit 1; }
   xorriso -indev "$iso" -report_el_torito plain | tee "$LOG_DIR/iso-el-torito.log"
   grep -qi 'El Torito' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no El Torito boot catalog'; exit 1; }
