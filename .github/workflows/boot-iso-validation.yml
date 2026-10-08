@@ -23,6 +23,7 @@ on:
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'build-chimera-iso.sh'
+      - 'tests/build/**'
       - '.github/workflows/boot-iso-validation.yml'
   workflow_dispatch:
 
@@ -39,9 +40,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin
+          python3 -m pip install --user pytest
       - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
+          bash tests/build/test_cpu_aware_iso.sh
           bash -n tools/branding/stage-aurora-image.sh
           bash -n tools/branding/chimera-set-desktop-background.sh
           bash tests/boot/test-boot-artifact-regressions.sh
