@@ -8,6 +8,7 @@ payload executable on the host or prove ABI/runtime compatibility.
 
 ```sh
 python3 tools/memory/chimera_swap.py create /tmp/chimera.swap --slots 16
+# If rerunning against an existing test file, add: --force
 python3 tools/memory/chimera_swap.py info /tmp/chimera.swap
 ```
 
