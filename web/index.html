@@ -115,7 +115,7 @@
    <label>vCPUs<select id="hvVcpus"><option selected>1</option><option>2</option></select></label>
    <label>Guest disk path on host<input id="hvDisk" placeholder="/path/to/disk.qcow2"></label>
    <label>ISO/CD-ROM path on host<input id="hvCdrom" placeholder="/path/to/installer.iso"></label>
-   <label>Kernel path on host<input id="hvKernel" placeholder="/path/to/kernel (optional)"></label>
+   <label>Kernel path on host<input id="hvKernel" placeholder="/path/to/kernel (optional)"></label>\n   <label>Firmware / BIOS path on host<input id="hvBios" placeholder="/path/to/firmware.bin (optional)"></label>
   </div>
   <div class="actions"><button class="primary" id="hvStart">Start guest</button><button id="hvStopAllRefresh">Refresh status</button></div>
   <div id="hvStatus" class="result-box" role="status">Waiting for the localhost bridge at 127.0.0.1:8765.</div>
@@ -162,7 +162,7 @@
  $("hvStart")?.addEventListener("click",async()=>{
   try{
    const payload={profile:$("hvProfile").value,accel:$("hvAccel").value,memory_mib:Number($("hvMemory").value),vcpus:Number($("hvVcpus").value)};
-   for(const [id,key] of [["hvDisk","disk"],["hvCdrom","cdrom"],["hvKernel","kernel"]])if($(id).value.trim())payload[key]=$(id).value.trim();
+   for(const [id,key] of [["hvDisk","disk"],["hvCdrom","cdrom"],["hvKernel","kernel"],["hvBios","bios"]])if($(id).value.trim())payload[key]=$(id).value.trim();
    const r=await api("/hypervisor/guests/start",payload);status("Guest start requested: "+r.id+" (PID "+r.pid+"). "+r.note);await refresh();
   }catch(e){status("Could not start guest: "+e.message);}
  });
