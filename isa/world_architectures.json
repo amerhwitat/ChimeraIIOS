@@ -6,47 +6,403 @@
   "instruction_export": "isa/instructions.json",
   "sqlite_schema": "isa/isa_database.sql",
   "architecture_families": [
-    {"id":"chimera-c8192","class":"custom","family":"Chimera","word_bits":8192,"status":"project-defined","instruction_forms":5},
-    {"id":"chimera-r8192","class":"custom","family":"Chimera","word_bits":8192,"status":"project-defined","instruction_forms":0},
-    {"id":"x86-64","class":"CISC","family":"x86","word_bits":64,"status":"standard","instruction_forms":12},
-    {"id":"x86-32","class":"CISC","family":"x86","word_bits":32,"status":"standard","instruction_forms":0},
-    {"id":"aarch64","class":"RISC","family":"AArch64","word_bits":64,"status":"standard","instruction_forms":16},
-    {"id":"arm32","class":"RISC","family":"A32/T32","word_bits":32,"status":"standard","instruction_forms":10},
-    {"id":"riscv32","class":"RISC","family":"RISC-V","word_bits":32,"status":"standard","instruction_forms":0},
-    {"id":"riscv64","class":"RISC","family":"RISC-V","word_bits":64,"status":"standard","instruction_forms":21},
-    {"id":"mips32","class":"RISC","family":"MIPS","word_bits":32,"status":"standard","instruction_forms":13},
-    {"id":"mips64","class":"RISC","family":"MIPS","word_bits":64,"status":"standard","instruction_forms":0},
-    {"id":"powerpc","class":"RISC","family":"Power ISA","word_bits":32,"status":"standard","instruction_forms":11},
-    {"id":"ppc64","class":"RISC","family":"Power ISA","word_bits":64,"status":"standard","instruction_forms":0},
-    {"id":"sparc-v9","class":"RISC","family":"SPARC","word_bits":64,"status":"standard","instruction_forms":0},
-    {"id":"m68k","class":"CISC","family":"Motorola 68000","word_bits":32,"status":"legacy/standard","instruction_forms":9},
-    {"id":"s390x","class":"CISC","family":"IBM z/Architecture","word_bits":64,"status":"standard","instruction_forms":4},
-    {"id":"vax","class":"CISC","family":"VAX","word_bits":32,"status":"legacy","instruction_forms":0},
-    {"id":"sh4","class":"RISC","family":"SuperH","word_bits":32,"status":"legacy/standard","instruction_forms":0},
-    {"id":"loongarch64","class":"RISC","family":"LoongArch","word_bits":64,"status":"standard","instruction_forms":0},
-    {"id":"alpha","class":"RISC","family":"DEC Alpha","word_bits":64,"status":"legacy","instruction_forms":0},
-    {"id":"hppa","class":"RISC","family":"PA-RISC","word_bits":64,"status":"legacy/standard","instruction_forms":0},
-    {"id":"xtensa","class":"RISC","family":"Xtensa","word_bits":32,"status":"configurable","instruction_forms":0},
-    {"id":"avr","class":"RISC","family":"AVR","word_bits":8,"status":"standard","instruction_forms":9},
-    {"id":"8051","class":"CISC","family":"MCS-51","word_bits":8,"status":"legacy/standard","instruction_forms":9},
-    {"id":"z80","class":"CISC","family":"Z80","word_bits":8,"status":"legacy","instruction_forms":10},
-    {"id":"6502","class":"CISC","family":"MOS 6502","word_bits":8,"status":"legacy","instruction_forms":12},
-    {"id":"ia64","class":"EPIC","family":"Itanium","word_bits":64,"status":"legacy","instruction_forms":0}
+    {
+      "id": "chimera-c8192",
+      "class": "custom",
+      "family": "Chimera",
+      "word_bits": 8192,
+      "status": "project-defined",
+      "instruction_forms": 5
+    },
+    {
+      "id": "chimera-r8192",
+      "class": "custom",
+      "family": "Chimera",
+      "word_bits": 8192,
+      "status": "project-defined",
+      "instruction_forms": 0
+    },
+    {
+      "id": "x86-64",
+      "class": "CISC",
+      "family": "x86",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 12
+    },
+    {
+      "id": "x86-32",
+      "class": "CISC",
+      "family": "x86",
+      "word_bits": 32,
+      "status": "standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "aarch64",
+      "class": "RISC",
+      "family": "AArch64",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 16
+    },
+    {
+      "id": "arm32",
+      "class": "RISC",
+      "family": "A32/T32",
+      "word_bits": 32,
+      "status": "standard",
+      "instruction_forms": 10
+    },
+    {
+      "id": "riscv32",
+      "class": "RISC",
+      "family": "RISC-V",
+      "word_bits": 32,
+      "status": "standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "riscv64",
+      "class": "RISC",
+      "family": "RISC-V",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 21
+    },
+    {
+      "id": "mips32",
+      "class": "RISC",
+      "family": "MIPS",
+      "word_bits": 32,
+      "status": "standard",
+      "instruction_forms": 13
+    },
+    {
+      "id": "mips64",
+      "class": "RISC",
+      "family": "MIPS",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "powerpc",
+      "class": "RISC",
+      "family": "Power ISA",
+      "word_bits": 32,
+      "status": "standard",
+      "instruction_forms": 11
+    },
+    {
+      "id": "ppc64",
+      "class": "RISC",
+      "family": "Power ISA",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "sparc-v9",
+      "class": "RISC",
+      "family": "SPARC",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "m68k",
+      "class": "CISC",
+      "family": "Motorola 68000",
+      "word_bits": 32,
+      "status": "legacy/standard",
+      "instruction_forms": 9
+    },
+    {
+      "id": "s390x",
+      "class": "CISC",
+      "family": "IBM z/Architecture",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 4
+    },
+    {
+      "id": "vax",
+      "class": "CISC",
+      "family": "VAX",
+      "word_bits": 32,
+      "status": "legacy",
+      "instruction_forms": 0
+    },
+    {
+      "id": "sh4",
+      "class": "RISC",
+      "family": "SuperH",
+      "word_bits": 32,
+      "status": "legacy/standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "loongarch64",
+      "class": "RISC",
+      "family": "LoongArch",
+      "word_bits": 64,
+      "status": "standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "alpha",
+      "class": "RISC",
+      "family": "DEC Alpha",
+      "word_bits": 64,
+      "status": "legacy",
+      "instruction_forms": 0
+    },
+    {
+      "id": "hppa",
+      "class": "RISC",
+      "family": "PA-RISC",
+      "word_bits": 64,
+      "status": "legacy/standard",
+      "instruction_forms": 0
+    },
+    {
+      "id": "xtensa",
+      "class": "RISC",
+      "family": "Xtensa",
+      "word_bits": 32,
+      "status": "configurable",
+      "instruction_forms": 0
+    },
+    {
+      "id": "avr",
+      "class": "RISC",
+      "family": "AVR",
+      "word_bits": 8,
+      "status": "standard",
+      "instruction_forms": 9
+    },
+    {
+      "id": "8051",
+      "class": "CISC",
+      "family": "MCS-51",
+      "word_bits": 8,
+      "status": "legacy/standard",
+      "instruction_forms": 9
+    },
+    {
+      "id": "z80",
+      "class": "CISC",
+      "family": "Z80",
+      "word_bits": 8,
+      "status": "legacy",
+      "instruction_forms": 10
+    },
+    {
+      "id": "6502",
+      "class": "CISC",
+      "family": "MOS 6502",
+      "word_bits": 8,
+      "status": "legacy",
+      "instruction_forms": 12
+    },
+    {
+      "id": "ia64",
+      "class": "EPIC",
+      "family": "Itanium",
+      "word_bits": 64,
+      "status": "legacy",
+      "instruction_forms": 0
+    },
+    {
+      "id": "amd-gcn",
+      "class": "GPU",
+      "family": "AMD GCN/RDNA/CDNA",
+      "word_bits": 32,
+      "status": "catalog-only",
+      "instruction_forms": 0
+    },
+    {
+      "id": "msp430",
+      "class": "RISC",
+      "family": "TI MSP430",
+      "word_bits": 16,
+      "status": "catalog-only",
+      "instruction_forms": 0
+    },
+    {
+      "id": "pic24-dspic",
+      "class": "RISC",
+      "family": "Microchip PIC24/dsPIC",
+      "word_bits": 24,
+      "status": "catalog-only",
+      "instruction_forms": 0
+    },
+    {
+      "id": "c6000",
+      "class": "VLIW",
+      "family": "TI C6000 DSP",
+      "word_bits": 32,
+      "status": "catalog-only",
+      "instruction_forms": 0
+    }
   ],
-  "os_families": ["Chimera II OS","Linux","FreeBSD","OpenBSD","NetBSD","DragonFly BSD","Illumos","Solaris","AIX","HP-UX","OpenVMS","Windows","MS-DOS","AmigaOS","AROS","Atari TOS","Classic Mac OS","macOS","Android","ChromeOS","Haiku","ReactOS","RTOS","bare-metal"],
-  "instruction_record": {"required":["architecture","mnemonic","form_id","operands","syntax","length_bits","value_bits","mask_bits"],"operands":["register","immediate","memory","branch-offset","condition","mask","vector","system-register","implicit"],"encoding":{"length_bits":"instruction width represented by the pattern","value_bits":"canonical binary value/pattern","mask_bits":"1=fixed opcode/control bit; 0=operand-variable bit"}},
-  "classes":{"RISC":["aarch64","arm32","riscv32","riscv64","mips32","mips64","powerpc","ppc64","sparc-v9","sh4","loongarch64","alpha","hppa","xtensa","avr"],"CISC":["x86-64","x86-32","m68k","s390x","vax","8051","z80","6502"],"EPIC":["ia64"],"custom":["chimera-c8192","chimera-r8192"]},
-  "sources":[
-    {"name":"Intel Software Developer Manuals","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"},
-    {"name":"AMD64 Architecture Programmer's Manual","url":"https://www.amd.com/en/support/tech-docs"},
-    {"name":"RISC-V Ratified Specifications","url":"https://docs.riscv.org/reference/isa/"},
-    {"name":"Arm Architecture","url":"https://developer.arm.com/architectures"},
-    {"name":"OpenPOWER ISA","url":"https://openpowerfoundation.org/specifications/isa/"},
-    {"name":"Oracle SPARC V9 documentation","url":"https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html"},
-    {"name":"IBM z/Architecture documentation","url":"https://www.ibm.com/docs/en/zos"},
-    {"name":"MIPS Architecture documentation","url":"https://www.mips.com/technical-documents/"},
-    {"name":"Microchip AVR Instruction Set Manual","url":"https://onlinedocs.microchip.com/"},
-    {"name":"Zilog Z80 documentation","url":"https://www.zilog.com/docs/z80/"},
-    {"name":"Chimera II OS project ISA","url":"https://github.com/amerhwitat/ChimeraIIOS"}
+  "os_families": [
+    "Chimera II OS",
+    "Linux",
+    "FreeBSD",
+    "OpenBSD",
+    "NetBSD",
+    "DragonFly BSD",
+    "Illumos",
+    "Solaris",
+    "AIX",
+    "HP-UX",
+    "OpenVMS",
+    "Windows",
+    "MS-DOS",
+    "AmigaOS",
+    "AROS",
+    "Atari TOS",
+    "Classic Mac OS",
+    "macOS",
+    "Android",
+    "ChromeOS",
+    "Haiku",
+    "ReactOS",
+    "RTOS",
+    "bare-metal"
+  ],
+  "instruction_record": {
+    "required": [
+      "architecture",
+      "mnemonic",
+      "form_id",
+      "operands",
+      "syntax",
+      "length_bits",
+      "value_bits",
+      "mask_bits"
+    ],
+    "operands": [
+      "register",
+      "immediate",
+      "memory",
+      "branch-offset",
+      "condition",
+      "mask",
+      "vector",
+      "system-register",
+      "implicit"
+    ],
+    "encoding": {
+      "length_bits": "instruction width represented by the pattern",
+      "value_bits": "canonical binary value/pattern",
+      "mask_bits": "1=fixed opcode/control bit; 0=operand-variable bit"
+    }
+  },
+  "classes": {
+    "RISC": [
+      "aarch64",
+      "arm32",
+      "riscv32",
+      "riscv64",
+      "mips32",
+      "mips64",
+      "powerpc",
+      "ppc64",
+      "sparc-v9",
+      "sh4",
+      "loongarch64",
+      "alpha",
+      "hppa",
+      "xtensa",
+      "avr"
+    ],
+    "CISC": [
+      "x86-64",
+      "x86-32",
+      "m68k",
+      "s390x",
+      "vax",
+      "8051",
+      "z80",
+      "6502"
+    ],
+    "EPIC": [
+      "ia64"
+    ],
+    "custom": [
+      "chimera-c8192",
+      "chimera-r8192"
+    ],
+    "GPU": [
+      "amd-gcn"
+    ],
+    "VLIW": [
+      "c6000"
+    ]
+  },
+  "sources": [
+    {
+      "name": "Intel Software Developer Manuals",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
+    },
+    {
+      "name": "AMD64 Architecture Programmer's Manual",
+      "url": "https://www.amd.com/en/support/tech-docs"
+    },
+    {
+      "name": "RISC-V Ratified Specifications",
+      "url": "https://docs.riscv.org/reference/isa/"
+    },
+    {
+      "name": "Arm Architecture",
+      "url": "https://developer.arm.com/architectures"
+    },
+    {
+      "name": "OpenPOWER ISA",
+      "url": "https://openpowerfoundation.org/specifications/isa/"
+    },
+    {
+      "name": "Oracle SPARC V9 documentation",
+      "url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html"
+    },
+    {
+      "name": "IBM z/Architecture documentation",
+      "url": "https://www.ibm.com/docs/en/zos"
+    },
+    {
+      "name": "MIPS Architecture documentation",
+      "url": "https://www.mips.com/technical-documents/"
+    },
+    {
+      "name": "Microchip AVR Instruction Set Manual",
+      "url": "https://onlinedocs.microchip.com/"
+    },
+    {
+      "name": "Zilog Z80 documentation",
+      "url": "https://www.zilog.com/docs/z80/"
+    },
+    {
+      "name": "Chimera II OS project ISA",
+      "url": "https://github.com/amerhwitat/ChimeraIIOS"
+    },
+    {
+      "name": "AMD GPU architecture documentation (GCN, RDNA, CDNA)",
+      "url": "https://rocm.docs.amd.com/en/latest/reference/gpu-arch/index.html"
+    },
+    {
+      "name": "Texas Instruments MSP430 Assembly Language Tools User Guide",
+      "url": "https://downloads.ti.com/docs/esd/SLAU131R/Content/SLAU131R_HTML/abstract.html"
+    },
+    {
+      "name": "Microchip dsPIC33/PIC24 Family Reference Manual",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU16/ProductDocuments/ReferenceManuals/dsPIC33-PIC24-Family-Reference-Manual-Introduction-DS70000573.pdf"
+    },
+    {
+      "name": "Texas Instruments C6000 Code Generation Tools documentation",
+      "url": "https://www.ti.com/tool/TI-CGT"
+    }
   ]
 }
