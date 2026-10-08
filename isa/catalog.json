@@ -1,7 +1,7 @@
 {
   "schema": "CHM-ISA-CATALOG-1",
-  "generated": "2026-09-13",
-  "scope_note": "Machine-readable reference catalog of common public ISA encodings. Worked binary/hex samples are exact encodings for the shown operands; fields describe the general operand structure. This is not a substitute for the normative architecture manuals.",
+  "generated": "2026-10-08",
+  "scope_note": "Machine-readable reference catalog of common public ISA encodings. Worked binary/hex samples are exact encodings for the shown operands; fields describe the general operand structure. This is not a substitute for the normative architecture manuals. Updated 2026-10-08 with official Intel/Arm/RISC-V/OpenPOWER source metadata and a distinct AArch32 Thumb/T32 encoding family. Partial catalog only; not complete ISA or executable-support claim.",
   "families": [
     {
       "id": "riscv",
@@ -61,6 +61,12 @@
       "id": "vax",
       "class": "CISC",
       "description": "DEC VAX instruction family",
+      "endianness": "little"
+    },
+    {
+      "id": "arm32-thumb",
+      "class": "RISC",
+      "description": "Arm AArch32 T32/Thumb-2 mixed 16/32-bit encodings; profile/version dependent",
       "endianness": "little"
     }
   ],
@@ -1538,6 +1544,77 @@
           "hex": "0x1100"
         }
       }
+    },
+    {
+      "id": "armt_nop",
+      "family": "arm32-thumb",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "operands": [],
+      "encoding": {
+        "length_bits": 16,
+        "fields": [
+          "fixed opcode"
+        ],
+        "sample": {
+          "assembly": "nop",
+          "binary": "1011111100000000",
+          "hex": "0xbf00"
+        }
+      }
+    },
+    {
+      "id": "armt_movs_imm",
+      "family": "arm32-thumb",
+      "mnemonic": "MOVS",
+      "syntax": "movs r0, #0",
+      "operands": [
+        {
+          "name": "Rd",
+          "kind": "register"
+        },
+        {
+          "name": "imm8",
+          "kind": "immediate"
+        }
+      ],
+      "encoding": {
+        "length_bits": 16,
+        "fields": [
+          "opcode[15:11]",
+          "Rd[10:8]",
+          "imm8[7:0]"
+        ],
+        "sample": {
+          "assembly": "movs r0, #0",
+          "binary": "0010000000000000",
+          "hex": "0x2000"
+        }
+      }
+    },
+    {
+      "id": "armt_bx_lr",
+      "family": "arm32-thumb",
+      "mnemonic": "BX",
+      "syntax": "bx lr",
+      "operands": [
+        {
+          "name": "Rm",
+          "kind": "register"
+        }
+      ],
+      "encoding": {
+        "length_bits": 16,
+        "fields": [
+          "fixed opcode",
+          "Rm[6:3]"
+        ],
+        "sample": {
+          "assembly": "bx lr",
+          "binary": "0100011101110000",
+          "hex": "0x4770"
+        }
+      }
     }
   ],
   "sources": [
@@ -1657,5 +1734,36 @@
     "decoded",
     "executed",
     "conformance-tested"
-  ]
+  ],
+  "research_metadata": {
+    "reviewed_on": "2026-10-08",
+    "source_review": [
+      {
+        "name": "Intel 64 and IA-32 Software Developer Manuals",
+        "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "notes": "Volume 1 architecture, Volume 2 A–Z instruction reference, Volume 3 system programming, Volume 4 MSRs; SDM collection also links AVX10.2 specification."
+      },
+      {
+        "name": "Arm ISA Glossary",
+        "url": "https://www.arm.com/glossary/isa",
+        "notes": "ISA scope includes instructions, formats, registers, data types, memory model, privilege and exceptions."
+      },
+      {
+        "name": "Arm Architecture resources",
+        "url": "https://developer.arm.com/architectures",
+        "notes": "Use reference manuals and profile/version-specific feature definitions for AArch32/AArch64."
+      },
+      {
+        "name": "RISC-V Ratified Specifications Library",
+        "url": "https://docs.riscv.org/reference/isa/",
+        "notes": "Versioned unprivileged and privileged specifications; extensions have explicit status and version."
+      },
+      {
+        "name": "OpenPOWER Power ISA",
+        "url": "https://openpower.foundation/specifications/isa/",
+        "notes": "Version 3.1c; separate user, virtual-environment, and operating-environment books."
+      }
+    ],
+    "coverage_policy": "Documented, cataloged, encoded, decoded, executed, and conformance-tested are distinct states. These additions are reference data only unless implementation and tests explicitly say otherwise."
+  }
 }
