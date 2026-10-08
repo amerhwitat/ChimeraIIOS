@@ -1,0 +1,11 @@
+#include "../include/chimera/watchdog.h"
+namespace { struct Slot { chimera_watchdog_slot value{}; bool used=false; }; Slot slots[CHIMERA_WATCHDOG_MAX]; uint32_t expired_count=0;
+static Slot* find(uint32_t id){ if(!id)return nullptr; for(uint32_t i=0;i<CHIMERA_WATCHDOG_MAX;i++)if(slots[i].used&&slots[i].value.id==id)return &slots[i]; return nullptr; } }
+extern "C" int chimera_watchdog_init(uint64_t now_ns){ for(uint32_t i=0;i<CHIMERA_WATCHDOG_MAX;i++)slots[i]={}; expired_count=0; (void)now_ns; return 0; }
+extern "C" int chimera_watchdog_register(uint32_t id,uint64_t timeout_ns,uint64_t now_ns){ if(!id||!timeout_ns)return -1; Slot* e=find(id); if(e){e->value.timeout_ns=timeout_ns;e->value.last_heartbeat_ns=now_ns;e->value.state=CHIMERA_WATCHDOG_HEALTHY;return 0;} for(uint32_t i=0;i<CHIMERA_WATCHDOG_MAX;i++)if(!slots[i].used){slots[i].used=true;slots[i].value={};slots[i].value.id=id;slots[i].value.state=CHIMERA_WATCHDOG_HEALTHY;slots[i].value.timeout_ns=timeout_ns;slots[i].value.last_heartbeat_ns=now_ns;return 0;} return -2; }
+extern "C" int chimera_watchdog_heartbeat(uint32_t id,uint64_t now_ns){Slot* s=find(id);if(!s)return -1;s->value.last_heartbeat_ns=now_ns;s->value.state=CHIMERA_WATCHDOG_HEALTHY;return 0;}
+extern "C" int chimera_watchdog_tick(uint64_t now_ns){uint32_t n=0;for(uint32_t i=0;i<CHIMERA_WATCHDOG_MAX;i++){if(!slots[i].used)continue;auto&s=slots[i];if(s.value.state==CHIMERA_WATCHDOG_RECOVERING)continue;if(now_ns>=s.value.last_heartbeat_ns&&now_ns-s.value.last_heartbeat_ns>=s.value.timeout_ns&&s.value.state!=CHIMERA_WATCHDOG_EXPIRED){s.value.state=CHIMERA_WATCHDOG_EXPIRED;++expired_count;++n;}}return (int)n;}
+extern "C" int chimera_watchdog_mark_recovering(uint32_t id,uint64_t now_ns){Slot*s=find(id);if(!s)return -1;s->value.state=CHIMERA_WATCHDOG_RECOVERING;s->value.last_heartbeat_ns=now_ns;++s->value.restart_count;return 0;}
+extern "C" int chimera_watchdog_get(uint32_t id,chimera_watchdog_slot*out){if(!out)return -1;Slot*s=find(id);if(!s)return -2;*out=s->value;return 0;}
+extern "C" uint32_t chimera_watchdog_expired_count(void){return expired_count;}
+extern "C" uint32_t chimera_watchdog_restart_count(uint32_t id){Slot*s=find(id);return s?s->value.restart_count:0;}
