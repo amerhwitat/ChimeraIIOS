@@ -282,7 +282,8 @@ static const char *task_state_name(uint32_t state) {
 
 static void task_monitor(void *) {
     static uint32_t ticks = 0;
-    chimera_watchdog_heartbeat(WDOG_MICROKERNEL, chimera_timer_now()*1000000ull);\n    if (++ticks != 1u) { chimera_sched_block(); return; }
+    chimera_watchdog_heartbeat(WDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
+    if (++ticks != 1u) { chimera_sched_block(); return; }
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
