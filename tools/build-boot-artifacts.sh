@@ -125,12 +125,35 @@ if command -v grub-mkstandalone >/dev/null 2>&1; then
         exit 2
       }
     done
-    grub-mkstandalone \
+    # grub-mkstandalone creates intermediate files through TMPDIR. The ISO
+    # builder may point TMPDIR at a removed, unwritable, or DrvFs-backed path;
+    # provision a fresh writable Linux temp directory for this invocation.
+    GRUB_TMP_BASE="${TMPDIR:-/tmp}"
+    if ! mkdir -p "$GRUB_TMP_BASE" 2>/dev/null || [[ ! -d "$GRUB_TMP_BASE" || ! -w "$GRUB_TMP_BASE" ]]; then
+      GRUB_TMP_BASE="/tmp"
+    fi
+    GRUB_TMP_DIR="$(mktemp -d "$GRUB_TMP_BASE/chimera-grub.XXXXXX" 2>/dev/null || true)"
+    if [[ -z "$GRUB_TMP_DIR" || ! -d "$GRUB_TMP_DIR" || ! -w "$GRUB_TMP_DIR" ]]; then
+      GRUB_TMP_BASE="/tmp"
+      mkdir -p "$GRUB_TMP_BASE"
+      GRUB_TMP_DIR="$(mktemp -d "$GRUB_TMP_BASE/chimera-grub.XXXXXX")"
+    fi
+    OLD_TMPDIR="${TMPDIR:-}"
+    export TMPDIR="$GRUB_TMP_DIR"
+    if ! grub-mkstandalone \
       -O x86_64-efi \
       -d "$EFIMODDIR" \
       -o "$OUT/uefi/BOOTX64.EFI" \
       --modules="$(IFS=' '; echo "${UEFI_MODULES[*]}")" \
-      "boot/grub/grub.cfg=$ROOT/boot/iso/grub.cfg"
+      "boot/grub/grub.cfg=$ROOT/boot/iso/grub.cfg"; then
+      rc=$?
+      export TMPDIR="$OLD_TMPDIR"
+      rm -rf -- "$GRUB_TMP_DIR"
+      echo "ERROR: grub-mkstandalone failed; temporary directory was: $GRUB_TMP_DIR" >&2
+      exit "${rc:-1}"
+    fi
+    export TMPDIR="$OLD_TMPDIR"
+    rm -rf -- "$GRUB_TMP_DIR"
     test -s "$OUT/uefi/BOOTX64.EFI"
     ISO_STAGE="${CHIMERA_BUILD_DIR:-$ROOT/build}/iso"
     if [[ -d "$ISO_STAGE" ]]; then
