@@ -2,7 +2,9 @@
 import argparse, hashlib, json, pathlib, sys
 
 REQUIRED_DIRS = ('boot/spitfire','boot/jasper','boot/koronos','EFI/BOOT','EFI/CHIMERA','chimera','src','checksums')
-REQUIRED_FILES = ('boot/spitfire/sf0_mbr.asm','boot/spitfire/sf1_longmode.asm','boot/spitfire/sf2_loader.cpp','boot/jasper/grub.cfg','chimera/README.txt')
+REQUIRED_FILES = ('boot/spitfire/sf0_mbr.asm','boot/spitfire/sf1_longmode.asm','boot/spitfire/sf2_loader.cpp','boot/jasper/grub.cfg','chimera/README.txt','boot/chimera/manifests/boot-pipeline-contract.json')
+CANONICAL_STAGES = ('Spit Fire','Jasper/GRUB','Koronos ELF','hardware/driver initialization','scheduler/runtime loop','live/recovery/installer userspace','Aurora')
+OBSOLETE_ARTWORK = ('aurora-background.jpg',)
 
 def sha256(path: pathlib.Path) -> str:
     h=hashlib.sha256()
