@@ -91,7 +91,7 @@ def build(manifest_path, output_path):
     out = bytearray(cursor)
     for i, record in enumerate(records):
         NCB_SECTION.pack_into(out, table + i * NCB_SECTION.size,
-                              record[0].ljust(16, b"\\0"), *record[1:])
+                              record[0].ljust(16, b"\0"), *record[1:])
     for offset, data in payloads:
         out[offset:offset + len(data)] = data
     NCB_HEADER.pack_into(out, 0, NCB_MAGIC, 1, NCB_HEADER.size, flags, isa,
