@@ -1,47 +1,13 @@
 {
-  "schema_version": "1.0",
-  "name": "Chimera II Microkernel Mobile Edition",
-  "architecture": "shared Koronos ABI with ARM64-first device adaptation",
-  "boot": {
-    "boundary": "device-specific boot adapter",
-    "never_flash_desktop_x86_64_kernel": true,
-    "required_inputs": [
-      "exact-device-profile",
-      "ARM64-Koronos-ELF",
-      "device-tree-or-ACPI-data",
-      "driver-bundle",
-      "verified-boot-policy"
-    ]
+  "schema_version":"1.1",
+  "name":"Chimera II Microkernel Mobile Edition",
+  "architecture":"shared Koronos ABI with ARM64-first device adaptation",
+  "boot":{"boundary":"device-specific boot adapter","never_flash_desktop_x86_64_kernel":true,"required_inputs":["exact-device-profile","ARM64-Koronos-ELF","device-tree-or-ACPI-data","driver-bundle","verified-boot-policy"]},
+  "runtime":{
+    "kernel":["scheduler","IPC","capabilities","VM/process-loader","interrupts","watchdog-heartbeat-and-timeout-ABI"],
+    "userspace":["mobile-init","service-manager","watchdog-supervisor","graphics/input","storage","network","power","telephony-adapter"],
+    "watchdog":{"policy":"mobile/watchdog-policy.json","supervisor":"mobile-init","recovery":"service-restart-request-only","heartbeat_protocol":"CHIMERA_WATCHDOG_ABI"},
+    "desktop_parity":["Aurora application model","Arabic command registry","media/emulator services"]
   },
-  "runtime": {
-    "kernel": [
-      "scheduler",
-      "IPC",
-      "capabilities",
-      "VM/process-loader",
-      "interrupts"
-    ],
-    "userspace": [
-      "mobile-init",
-      "service-manager",
-      "graphics/input",
-      "storage",
-      "network",
-      "power",
-      "telephony-adapter"
-    ],
-    "desktop_parity": [
-      "Aurora application model",
-      "Arabic command registry",
-      "media/emulator services"
-    ]
-  },
-  "security": {
-    "generic_device_flash": "forbidden",
-    "unlock_bypass": "forbidden",
-    "exact_profile_required": true,
-    "image_hash_required": true,
-    "signature_required": true,
-    "rollback_protection": "required"
-  }
+  "security":{"generic_device_flash":"forbidden","unlock_bypass":"forbidden","exact_profile_required":true,"image_hash_required":true,"signature_required":true,"rollback_protection":"required"}
 }

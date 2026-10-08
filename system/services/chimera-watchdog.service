@@ -1,0 +1,15 @@
+[Unit]
+Description=Chimera II OS watchdog supervisor
+After=kore.service
+Wants=kore.service
+[Service]
+Type=simple
+ExecStart=/usr/libexec/chimera/chimera-watchdog --config /etc/chimera/watchdog.conf
+Restart=always
+RestartSec=1s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/run/chimera/watchdog
+[Install]
+WantedBy=multi-user.target

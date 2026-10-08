@@ -1,0 +1,3 @@
+#include <cassert>
+#include "../../kernel/include/chimera/watchdog.h"
+int main(){assert(chimera_watchdog_init(100)==0);assert(chimera_watchdog_register(1,1000,100)==0);assert(chimera_watchdog_tick(1099)==0);assert(chimera_watchdog_heartbeat(1,1100)==0);assert(chimera_watchdog_tick(2099)==0);assert(chimera_watchdog_tick(2100)==1);chimera_watchdog_slot s{};assert(chimera_watchdog_get(1,&s)==0);assert(s.state==CHIMERA_WATCHDOG_EXPIRED);assert(chimera_watchdog_mark_recovering(1,2200)==0);assert(chimera_watchdog_restart_count(1)==1);assert(chimera_watchdog_heartbeat(1,2300)==0);assert(chimera_watchdog_get(1,&s)==0);assert(s.state==CHIMERA_WATCHDOG_HEALTHY);return 0;}

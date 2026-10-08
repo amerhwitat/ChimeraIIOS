@@ -1,0 +1,61 @@
+{
+  "format": "chimera-canonical-build-pipeline-v1",
+  "pipeline": [
+    {
+      "stage": "Spit Fire",
+      "role": "native bootstrap",
+      "handoff": "Jasper/GRUB"
+    },
+    {
+      "stage": "Jasper/GRUB",
+      "role": "boot manager and mode selection",
+      "handoff": "Koronos ELF"
+    },
+    {
+      "stage": "Koronos ELF",
+      "role": "Multiboot2 kernel entry",
+      "handoff": "hardware/driver initialization"
+    },
+    {
+      "stage": "hardware/driver initialization",
+      "role": "firmware, hardware, interrupts and builtin drivers",
+      "handoff": "scheduler/runtime loop"
+    },
+    {
+      "stage": "scheduler/runtime loop",
+      "role": "Koronos cooperative runtime and watchdog heartbeat",
+      "handoff": "live/recovery/installer userspace"
+    },
+    {
+      "stage": "live/recovery/installer userspace",
+      "role": "early userspace environments",
+      "handoff": "Aurora"
+    },
+    {
+      "stage": "Aurora",
+      "role": "userspace desktop/runtime"
+    }
+  ],
+  "kernel_entry": "/boot/koronos/koronos.elf",
+  "artwork_contract": {
+    "canonical_boot_background": "/boot/visual/aurora-boot.png",
+    "canonical_menu_background": "/boot/visual/aurora-menu.png",
+    "canonical_desktop_background": "/boot/visual/aurora-desktop.png",
+    "boot_video": "/boot/visual/Init.mp4",
+    "stage_manifest": "/boot/<stage>/boot-artwork-manifest.json",
+    "offline_stage_artifacts": [
+      "/boot/spitfire",
+      "/boot/jasper",
+      "/boot/grub",
+      "/boot/koronos"
+    ],
+    "forbidden_obsolete_paths": [
+      "/boot/visual/aurora-background.jpg",
+      "/boot/aurora-background.jpg"
+    ]
+  },
+  "stack_policy": {
+    "preserve_current_koronos_boot_stack": true,
+    "do_not_import_legacy_1mib_stack_change": true
+  }
+}

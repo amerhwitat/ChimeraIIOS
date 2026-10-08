@@ -9,6 +9,8 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/timer.h"
+#include "chimera/watchdog.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -193,8 +195,11 @@ static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
 static volatile uint32_t installer_phase = 0;
 
+
 static void task_console(void *) {
+    chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
+    chimera_sched_block();
 }
 
 static void task_modules(void *) {
@@ -202,6 +207,7 @@ static void task_modules(void *) {
         console_write("[TASK] Module manager online");
         console_modules();
     }
+    chimera_sched_block();
 }
 
 static void task_live(void *) {
@@ -278,7 +284,8 @@ static const char *task_state_name(uint32_t state) {
 
 static void task_monitor(void *) {
     static uint32_t ticks = 0;
-    if ((++ticks % 10u) != 0) return;
+    chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
+    if (++ticks != 1u) { chimera_sched_block(); return; }
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
@@ -302,14 +309,17 @@ static void task_monitor(void *) {
         console_u32_raw((uint32_t)info[i].runs);
         console_endline();
     }
+    chimera_sched_block();
 }
 
 static void task_kore(void *) {
+    chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_KORE, chimera_timer_now()*1000000ull);
     static bool started = false;
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
         console_write("[KORE] Service orchestration online");
+        console_write("[WDOG] Watchdog ABI online");
         console_write("[KORE] Core storage/security/logging services active");
     }
 }
@@ -360,6 +370,11 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
+    chimera_timer_init();
+    chimera_watchdog_register(CHIMERA_WATCHDOG_KORONOS, 5000000000ull, 0);
+    chimera_watchdog_register(WDOG_MICROKERNEL, 5000000000ull, 0);
+    chimera_watchdog_register(WDOG_KORE, 5000000000ull, 0);
+    console_write("[WDOG] Kernel watchdog initialized (5s core-service timeout)");
     chimera_learning_init(f->logical_cpus);
 
     console_write("[IO  ] Initializing virtual I/O drivers...");

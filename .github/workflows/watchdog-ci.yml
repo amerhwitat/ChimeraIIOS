@@ -1,0 +1,62 @@
+name: Chimera Watchdog CI
+
+on:
+  push:
+    branches:
+      - main
+      - feat/watchdog-koronos-mobile
+  pull_request:
+    paths:
+      - "kernel/**"
+      - "services/watchdog/**"
+      - "mobile/**"
+      - "config/watchdog/**"
+      - "system/services/chimera-watchdog.service"
+      - "tests/kernel/watchdog_test.cpp"
+      - "tests/services/test_watchdog_config.py"
+      - ".github/workflows/watchdog-ci.yml"
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON watchdog contracts
+        run: |
+          python3 - <<'PY'
+          import json
+          for path in [
+              "services/service_registry.json",
+              "services/platform_service_adapters.json",
+              "mobile/microkernel-mobile-edition.json",
+              "mobile/watchdog-policy.json",
+          ]:
+              with open(path, encoding="utf-8") as f:
+                  json.load(f)
+              print("JSON PASS:", path)
+          PY
+
+      - name: Validate shell build script
+        run: bash -n kernel/build-koronos.sh mobile/build-mobile-edition.sh
+
+      - name: Build and run kernel watchdog unit test
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic             tests/kernel/watchdog_test.cpp kernel/core/watchdog.cpp             -Ikernel/include -o /tmp/chimera-watchdog-test
+          /tmp/chimera-watchdog-test
+
+      - name: Build userspace watchdog
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic             services/watchdog/chimera_watchdog.cpp             -o /tmp/chimera-watchdog
+
+      - name: Validate watchdog policy
+        run: |
+          python3 tests/services/test_watchdog_config.py
+
+      - name: Verify Koronos watchdog linkage contract
+        run: |
+          grep -q "watchdog" kernel/build-koronos.sh
+          grep -q "chimera_watchdog_tick" kernel/build-koronos.sh
+          grep -q "chimera_watchdog_register" kernel/build-koronos.sh
+          grep -q "CHIMERA_WATCHDOG_ABI" kernel/include/chimera/watchdog.h
+          grep -q "watchdog" mobile/microkernel-mobile-edition.json

@@ -1,0 +1,16 @@
+{
+  "schema":"CHM-WATCHDOG-1",
+  "edition":"mobile",
+  "architecture":"ARM64-first",
+  "heartbeat_root":"/run/chimera/watchdog/heartbeats",
+  "recovery_root":"/run/chimera/watchdog/recovery",
+  "supervisor":"mobile-init",
+  "kernel_abi":"CHIMERA_WATCHDOG_ABI",
+  "services":[
+    {"id":"mobile-init","timeout_ms":5000,"action":"restart-service"},
+    {"id":"mobile-power","timeout_ms":5000,"action":"restart-service"},
+    {"id":"mobile-graphics","timeout_ms":5000,"action":"restart-service"},
+    {"id":"mobile-network","timeout_ms":10000,"action":"restart-service"}
+  ],
+  "boot_safety":{"exact_device_profile_required":true,"verified_image_required":true,"rollback_protection_required":true,"desktop_x86_64_kernel_flash":false}
+}
