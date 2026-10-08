@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-08T17:09:14Z",
+  "generated_at_utc": "2026-10-08T17:41:36Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
