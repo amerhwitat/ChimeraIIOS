@@ -309,7 +309,7 @@ static void task_kore(void *) {
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
-        console_write("[KORE] Service orchestration online\n[WDOG] Watchdog ABI online");
+        console_write("[KORE] Service orchestration online\n[WDOG] Watchdog ABI online\n[WDOG] Watchdog ABI online");
         console_write("[KORE] Core storage/security/logging services active");
     }
 }
