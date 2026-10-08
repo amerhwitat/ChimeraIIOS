@@ -101,3 +101,9 @@ jobs:
           test "$("$tmp/cat" "$tmp/to")" = "move-test"
           "$tmp/cp" "$tmp/to" "$tmp/copy"
           test "$("$tmp/cat" "$tmp/copy")" = "move-test"
+      - name: Exercise full native command compatibility builder
+        run: |
+          CHIMERA_ROOTFS_DIR=/tmp/chimera-command-rootfs CC=cc bash tools/build-chimera-command-compat.sh
+          test -x /tmp/chimera-command-rootfs/usr/bin/chimera-cmd
+          test -L /tmp/chimera-command-rootfs/usr/bin/mv
+          test -s /tmp/chimera-command-rootfs/etc/chimera/commands/registry.tsv
