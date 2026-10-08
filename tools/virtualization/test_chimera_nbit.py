@@ -2,7 +2,7 @@ import unittest
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
-from chimera_nbit import ChimeraNBit, NBitTrap, OP_LI, OP_ADD, OP_STORE, OP_LOAD, OP_HALT, OP_JZ
+from chimera_nbit import ChimeraNBit, NBitTrap, OP_LI, OP_ADD, OP_STORE, OP_LOAD, OP_HALT, OP_JZ, OP_JMP
 
 class NBitTests(unittest.TestCase):
     def test_arithmetic_and_zero_register(self):
