@@ -1,1 +1,23 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chimera Code IDE</title><link rel="stylesheet" href="chimera_code_ide.css"></head><body><main><header><h1>Chimera Code IDE</h1><p>C/C++ workspace for Linux, Windows and Chimera CISC/RISC targets.</p></header><section class="toolbar"><select id="compiler"><option>GCC</option><option>G++</option><option>Clang</option><option>Clang++</option><option>MSVC</option><option>Clang-cl</option><option>Chimera CISC</option><option>Chimera RISC</option></select><select id="standard"><option>C++23</option><option>C++20</option><option>C++17</option><option>C++14</option><option>C++11</option><option>C++26-preview</option><option>C23</option><option>C17</option></select><select id="build"><option>CMake</option><option>Ninja</option><option>Make</option><option>Meson</option></select><button id="buildBtn">Build</button><button id="runBtn">Run</button><button id="debugBtn">Debug</button></section><section class="workspace"><textarea id="editor" spellcheck="false">#include <iostream>\n\nint main() {\n    std::cout << "Hello, Chimera II!\\n";\n    return 0;\n}\n</textarea><pre id="output">Ready. Native compilation requires an authorized Chimera toolchain adapter.</pre></section><section class="target"><h2>Targets</h2><div id="targets"></div></section></main><script src="chimera_code_ide.js"></script></body></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chimera Native IDE</title><link rel="stylesheet" href="chimera_code_ide.css"></head>
+<body><main>
+<header><h1>Chimera Native IDE</h1><p>Workspace for C, C++, assembly, binary inspection, and documented compiler toolchains.</p></header>
+<section class="toolbar" aria-label="Workspace controls">
+<label>Language <select id="language"><option value="cpp">C++</option><option value="c">C</option><option value="asm">Chimera ASM</option><option value="gas">GNU ASM</option><option value="ncb">NCB1 manifest</option><option value="text">Text</option></select></label>
+<label>Compiler <select id="compiler"><option>GCC</option><option>G++</option><option>Clang</option><option>Clang++</option><option>MSVC</option><option>Clang-cl</option><option>Chimera CISC (prototype)</option><option>Chimera RISC (prototype)</option></select></label>
+<label>Standard <select id="standard"><option>C++23</option><option>C++20</option><option>C++17</option><option>C++14</option><option>C++11</option><option>C23</option><option>C17</option><option>ASM</option></select></label>
+<label>Build system <select id="build"><option>CMake</option><option>Ninja</option><option>Make</option><option>Meson</option><option>Single file</option></select></label>
+<button id="openBtn" type="button">Open source</button><button id="saveBtn" type="button">Save source</button><button id="buildBtn" type="button">Build</button><button id="runBtn" type="button">Run</button><button id="debugBtn" type="button">Debug</button>
+<input id="fileInput" type="file" hidden accept=".c,.h,.cc,.cpp,.cxx,.hpp,.asm,.s,.S,.ncb,.json,.txt">
+</section>
+<p id="fileStatus" class="status">Unsaved workspace · choose Open source or start typing.</p>
+<section class="workspace"><textarea id="editor" spellcheck="false" aria-label="Source editor">#include <iostream>
+
+int main() {
+    std::cout << "Hello, Chimera II!\\n";
+    return 0;
+}
+</textarea><pre id="output" aria-live="polite">Ready. Browser-only editing and downloads work offline. Compile/run requires a configured native toolchain service.</pre></section>
+<section class="target"><h2>Target profile</h2><div id="targets"></div></section>
+<section class="ide-catalog"><h2>Install or open an external IDE</h2><p>Official vendor downloads only. The browser IDE does not silently install software or execute downloaded binaries.</p><div id="ideCatalog" class="ide-grid">Loading IDE catalog…</div></section>
+</main><script src="chimera_code_ide.js"></script></body></html>
