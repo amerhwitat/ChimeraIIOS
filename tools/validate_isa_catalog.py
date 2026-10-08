@@ -23,7 +23,9 @@ def main() -> int:
         h = e["sample"]["hex"]
         assert len(b) == e["length_bits"]
         assert re.fullmatch(r"[01]+", b)
-        assert h.lower() == format(int(b, 2), "#x"), (insn["id"], h)
+        assert re.fullmatch(r"0x[0-9a-fA-F]+", h), (insn["id"], h)
+        # Hexadecimal samples may include leading zeroes for fixed-width encodings.
+        assert int(h, 16) == int(b, 2), (insn["id"], h, b)
         assert e["fields"]
     assert any(any(o.get("optional") for o in i["operands"]) for i in data["instructions"])
     assert len(data["sources"]) >= 5
