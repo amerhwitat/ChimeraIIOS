@@ -232,6 +232,9 @@ def decode(word):
 
 def execute(program, max_steps=10000):
     """Execute through the shared RV32Machine, not a second interpreter."""
+    import os
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from rv32_machine import RV32Machine
     if max_steps < 1:
         raise ValueError("max_steps must be positive")
