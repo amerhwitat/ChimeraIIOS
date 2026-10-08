@@ -107,7 +107,7 @@ class RV32Machine:
             elif op==0x0f: # RV32I FENCE; single-hart execution preserves program order.
                 # FENCE.I belongs to Zifencei, not the RV32I base.
                 fm=(w>>28)&0xf; pred=(w>>24)&0xf; succ=(w>>20)&0xf
-                if f3 != 0 or rd or a or (fm not in (0,8)) or (fm==8 and (pred or succ)):
+                if f3 != 0 or rd or a or fm != 0:
                     raise Trap(2,here,w,"illegal FENCE encoding")
                 # There are no asynchronous memory observers in this model, so
                 # sequential execution is already stronger than the requested ordering.
