@@ -77,6 +77,22 @@ class MachineTests(unittest.TestCase):
         self.assertEqual(out['registers'][2],7)
         self.assertEqual(m.mscratch,7)
 
+    def test_read_only_cycle_csr_write_traps(self):
+        m=self.machine([enc_csr(0xC00,1,1,2)])
+        out=m.run()
+        self.assertEqual(out['mcause'],2)
+        self.assertEqual(out['mtval'],0xC00)
+
+    def test_disabled_interrupt_is_not_delivered(self):
+        m=self.machine([0x00100073])
+        m.mtvec=0x40
+        m.mip |= 1 << 7
+        m.mie |= 1 << 7
+        # Global MIE remains clear while already in M-mode.
+        m.step()
+        self.assertEqual(m.mcause,3)  # EBREAK is synchronous, not an interrupt.
+        self.assertEqual(m.pc,0x40)
+
     def test_machine_timer_interrupt_enters_vectored_handler(self):
         m=self.machine([0x00100073, 0x00100073, 0x00100073, 0x00100073])
         m.mtvec=0x41  # vectored mode, base 0x40
