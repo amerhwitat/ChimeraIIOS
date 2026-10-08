@@ -300,5 +300,64 @@
       "executed": false,
       "conformance-tested": false
     }
+  ],
+  "research_sources": [
+    {
+      "title": "Intel 64 and IA-32 Architectures Software Developer Manuals",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "scope": "Normative Intel instruction reference, system programming, memory management, interrupts/exceptions, VMX, SGX, MSRs; page reports latest update 2026-09-21."
+    },
+    {
+      "title": "AMD64 Architecture Programmer's Manual, Volume 3",
+      "url": "https://docs.amd.com/api/khub/documents/j44LvPXzuuXgM0WyHKQfeQ/content",
+      "scope": "General-purpose and system instruction semantics, opcode and exception details; Rev. 3.37 July 2025."
+    },
+    {
+      "title": "QEMU emulation documentation",
+      "url": "https://www.qemu.org/docs/master/about/emulation.html",
+      "scope": "Cross-check of established architecture families supported by a production emulator; not a normative ISA specification."
+    }
+  ],
+  "architecture_families": [
+    {
+      "name": "x86 / IA-32",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "little",
+      "status": "inventory-only",
+      "tracked": true
+    },
+    {
+      "name": "x86-64 / AMD64",
+      "class": "CISC",
+      "instruction_encoding": "variable length with REX/VEX/EVEX families",
+      "endianness": "little",
+      "status": "inventory-only",
+      "tracked": true
+    },
+    {
+      "name": "Motorola 68000 family",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "big",
+      "status": "catalog-only",
+      "tracked": false
+    },
+    {
+      "name": "IBM System z / z-Architecture",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "big",
+      "status": "catalog-only",
+      "tracked": false
+    },
+    {
+      "name": "DEC VAX",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "little",
+      "status": "catalog-only",
+      "tracked": false
+    }
   ]
 }
