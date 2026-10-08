@@ -1,0 +1,148 @@
+{
+  "schema": "CHM-HYPERVISOR-BACKENDS-1",
+  "purpose": "Capability-gated guest backend registry. A catalog entry is not a claim that the backend or guest OS is implemented.",
+  "policy": {
+    "acceleration": "Use KVM only when the selected QEMU binary and host expose it; otherwise permit TCG only for a QEMU system target that exists.",
+    "crossArchitecture": "KVM accelerates compatible host/guest architectures; cross-ISA guests require a software emulator such as QEMU TCG.",
+    "nativeChimera": "Native N-bit execution remains unavailable until a separately tested CPU/machine model and executable backend are registered.",
+    "conformance": "Never infer bootability or ISA conformance from target-name presence."
+  },
+  "backends": [
+    {
+      "id": "qemu-x86_64",
+      "family": "x86-64",
+      "binary": "qemu-system-x86_64",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-i386",
+      "family": "IA-32",
+      "binary": "qemu-system-i386",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-aarch64",
+      "family": "AArch64",
+      "binary": "qemu-system-aarch64",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-arm",
+      "family": "ARM32",
+      "binary": "qemu-system-arm",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-riscv64",
+      "family": "RISC-V RV64",
+      "binary": "qemu-system-riscv64",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-riscv32",
+      "family": "RISC-V RV32",
+      "binary": "qemu-system-riscv32",
+      "accelerators": [
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-mips",
+      "family": "MIPS",
+      "binary": "qemu-system-mips",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-ppc64",
+      "family": "Power ISA",
+      "binary": "qemu-system-ppc64",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-sparc",
+      "family": "SPARC",
+      "binary": "qemu-system-sparc",
+      "accelerators": [
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-m68k",
+      "family": "Motorola 68000",
+      "binary": "qemu-system-m68k",
+      "accelerators": [
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "qemu-s390x",
+      "family": "IBM System z",
+      "binary": "qemu-system-s390x",
+      "accelerators": [
+        "kvm",
+        "tcg"
+      ],
+      "system_emulation": true,
+      "enabled": true
+    },
+    {
+      "id": "chimera-nbit",
+      "family": "Native Chimera N-bit",
+      "binary": null,
+      "accelerators": [],
+      "system_emulation": false,
+      "enabled": false,
+      "reason": "Requires a defined and tested N-bit machine model, CPU execution backend, memory/trap semantics, and boot contract."
+    },
+    {
+      "id": "dec-vax",
+      "family": "DEC VAX",
+      "binary": null,
+      "accelerators": [],
+      "system_emulation": false,
+      "enabled": false,
+      "reason": "No QEMU system target is assumed here; enable only after a verified backend is integrated."
+    }
+  ]
+}
