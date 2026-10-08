@@ -91,7 +91,7 @@ class H(BaseHTTPRequestHandler):
                 if type(memory) is not int or memory<128 or memory>HV_MEMORY_LIMIT_MIB:return send(self,400,{"error":"memory-limit","max_mib":HV_MEMORY_LIMIT_MIB,"min_mib":128})
                 if type(vcpus) is not int or vcpus<1 or vcpus>HV_VCPU_LIMIT:return send(self,400,{"error":"vcpu-limit","max_vcpus":HV_VCPU_LIMIT})
                 if profile["backend"]=="chimera-nbit":return send(self,409,{"error":"native-nbit-not-bootable","hint":"Reference interpreter exists; QEMU machine backend and guest boot ABI are not integrated."})
-                args=["python3",str(HV_LAUNCHER),"run","--backend",profile["backend"],"--accel",str(d.get("accel","auto")),"--memory",str(memory)+"M"]
+                args=["python3",str(HV_LAUNCHER),"run","--backend",profile["backend"],"--profile",profile["id"],"--vcpus",str(vcpus),"--accel",str(d.get("accel","auto")),"--memory",str(memory)+"M"]
                 if d.get("accel","auto") not in ("auto","kvm","tcg"):return send(self,400,{"error":"invalid-accelerator"})
                 for key,value in (("disk",d.get("disk")),("cdrom",d.get("cdrom")),("kernel",d.get("kernel"))):
                     if value:
