@@ -1,7 +1,7 @@
 {
   "schema": "CHM-ISA-SAMPLES-1",
   "scope": "Worked sample encodings only; not an exhaustive ISA or a complete encoder/decoder.",
-  "count": 51,
+  "count": 54,
   "samples": [
     {
       "id": "riscv_add",
@@ -280,7 +280,7 @@
       "syntax": "add $t0, $t1, $t2",
       "bits": 32,
       "binary": "00000001001010100100000000100000",
-      "hex": "0x012a4020",
+      "hex": "0x12a4020",
       "fields": [
         "op",
         "rs",
@@ -298,7 +298,7 @@
       "syntax": "sub $t0, $t1, $t2",
       "bits": 32,
       "binary": "00000001001010100100000000100010",
-      "hex": "0x012a4022",
+      "hex": "0x12a4022",
       "fields": [
         "op",
         "rs",
@@ -348,7 +348,7 @@
       "syntax": "jr $ra",
       "bits": 32,
       "binary": "00000011111000000000000000001000",
-      "hex": "0x03e00008",
+      "hex": "0x3e00008",
       "fields": [
         "op",
         "rs",
@@ -455,7 +455,7 @@
       "syntax": "nop",
       "bits": 32,
       "binary": "00000001000000000000000000000000",
-      "hex": "0x01000000",
+      "hex": "0x1000000",
       "fields": [
         "sethi g0,0"
       ],
@@ -571,7 +571,7 @@
       "syntax": "add eax, ebx",
       "bits": 16,
       "binary": "0000000111011000",
-      "hex": "0x01d8",
+      "hex": "0x1d8",
       "fields": [
         "opcode 01",
         "ModR/M"
@@ -717,7 +717,7 @@
       "syntax": "bcr 15,r14",
       "bits": 16,
       "binary": "0000011111111110",
-      "hex": "0x07fe",
+      "hex": "0x7fe",
       "fields": [
         "opcode 07",
         "m1",
@@ -749,7 +749,7 @@
       "syntax": "halt",
       "bits": 8,
       "binary": "00000000",
-      "hex": "0x00",
+      "hex": "0x0",
       "fields": [
         "opcode"
       ],
@@ -762,7 +762,7 @@
       "syntax": "nop",
       "bits": 8,
       "binary": "00000001",
-      "hex": "0x01",
+      "hex": "0x1",
       "fields": [
         "opcode"
       ],
@@ -775,7 +775,7 @@
       "syntax": "ret",
       "bits": 8,
       "binary": "00000100",
-      "hex": "0x04",
+      "hex": "0x4",
       "fields": [
         "opcode"
       ],
@@ -788,7 +788,7 @@
       "syntax": "rsb",
       "bits": 8,
       "binary": "00000101",
-      "hex": "0x05",
+      "hex": "0x5",
       "fields": [
         "opcode"
       ],
@@ -805,6 +805,48 @@
       "fields": [
         "opcode 11",
         "disp8"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_nop",
+      "family": "arm32-thumb",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 16,
+      "binary": "1011111100000000",
+      "hex": "0xbf00",
+      "fields": [
+        "fixed opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_movs_imm",
+      "family": "arm32-thumb",
+      "mnemonic": "MOVS",
+      "syntax": "movs r0, #0",
+      "bits": 16,
+      "binary": "0010000000000000",
+      "hex": "0x2000",
+      "fields": [
+        "opcode[15:11]",
+        "Rd[10:8]",
+        "imm8[7:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_bx_lr",
+      "family": "arm32-thumb",
+      "mnemonic": "BX",
+      "syntax": "bx lr",
+      "bits": 16,
+      "binary": "0100011101110000",
+      "hex": "0x4770",
+      "fields": [
+        "fixed opcode",
+        "Rm[6:3]"
       ],
       "source_urls": []
     }
