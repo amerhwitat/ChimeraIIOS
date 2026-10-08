@@ -16,6 +16,8 @@ on:
       - 'tools/isa/validate_rv32i_coverage.py'
       - 'tools/isa/cisc-coverage.json'
       - 'tools/isa/validate_isa_coverage.py'
+      - 'tools/virtualization/**'
+      - 'docs/virtualization/**'
       - 'tools/isa/cisc-coverage.json'
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
@@ -76,6 +78,11 @@ jobs:
       - name: Test RV32 machine memory, traps, ORI, and FENCE constraints
         run: |
           python3 -m unittest tools/isa/test_rv32_machine.py -v
+      - name: Test capability-gated multi-ISA hypervisor launcher
+        run: |
+          python3 -m py_compile tools/virtualization/chimera-hypervisor.py
+          python3 -m unittest tools/virtualization/test_chimera_hypervisor.py -v
+          python3 -m json.tool tools/virtualization/hypervisor-backends.json >/dev/null
       - name: Validate explicit ISA coverage and conformance claims
         run: |
           python3 tools/isa/validate_rv32i_coverage.py
