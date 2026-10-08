@@ -352,22 +352,25 @@
       "documented": true,
       "encoded": false,
       "decoded": false,
-      "executed": false,
-      "conformance-tested": false
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Implemented for modeled machine software/timer/external pending bits via mip/mie, M-mode global enable, mcause interrupt flag, and mtvec direct/vectored entry. No device-driven lines, delegation, S-mode, or full platform interrupt controller."
     },
     "csr_semantics": {
       "documented": true,
       "encoded": false,
       "decoded": false,
-      "executed": false,
-      "conformance-tested": false
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Partial implemented CSR read/write/set/clear and immediate forms for selected machine CSRs plus cycle/instret counters. Not full privileged-spec CSR set; S-mode and delegation CSRs are absent."
     },
     "privilege_transitions": {
       "documented": true,
       "encoded": false,
       "decoded": false,
-      "executed": false,
-      "conformance-tested": false
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Partial U/M privilege state and MRET status restoration. No S-mode implementation, delegation, or complete architectural edge-case coverage."
     },
     "virtual_memory": {
       "documented": true,
