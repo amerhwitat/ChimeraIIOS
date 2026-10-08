@@ -169,6 +169,51 @@ def arabic_command_label(name):
     for prefixes,label in rules:
         if key.startswith(prefixes):
             return label+" — "+name, "rule-translated"
+    # Translate recognizable English components of compound command names while
+    # preserving the exact upstream identifier for safe lookup and execution.
+    terms={
+        "file":"ملف","files":"الملفات","directory":"مجلد","directories":"المجلدات",
+        "folder":"مجلد","folders":"المجلدات","path":"مسار","paths":"المسارات",
+        "child":"فرعي","item":"عنصر","items":"العناصر","content":"محتوى",
+        "location":"موقع","date":"تاريخ","time":"وقت","event":"حدث","events":"الأحداث",
+        "log":"سجل","logs":"السجلات","error":"خطأ","errors":"الأخطاء","warning":"تحذير",
+        "config":"إعداد","configuration":"تهيئة","settings":"الإعدادات","feature":"ميزة",
+        "package":"حزمة","packages":"الحزم","module":"وحدة","modules":"الوحدات",
+        "command":"أمر","commands":"الأوامر","help":"مساعدة","policy":"سياسة",
+        "permission":"إذن","permissions":"الأذونات","access":"وصول","control":"تحكم",
+        "security":"أمان","certificate":"شهادة","certificates":"الشهادات","key":"مفتاح",
+        "credential":"بيانات اعتماد","credentials":"بيانات الاعتماد","group":"مجموعة",
+        "groups":"المجموعات","job":"مهمة","jobs":"المهام","task":"مهمة","tasks":"المهام",
+        "scheduled":"مجدول","trigger":"مشغّل","variable":"متغير","environment":"بيئة",
+        "session":"جلسة","remote":"بعيد","local":"محلي","computer":"حاسوب",
+        "server":"خادم","client":"عميل","port":"منفذ","firewall":"جدار ناري","rule":"قاعدة",
+        "queue":"طابور","process":"عملية","processes":"العمليات","performance":"أداء",
+        "memory":"ذاكرة","cpu":"معالج","service":"خدمة","services":"الخدمات",
+        "startup":"بدء التشغيل","shutdown":"إيقاف التشغيل","restart":"إعادة التشغيل",
+        "install":"تثبيت","uninstall":"إزالة التثبيت","enable":"تفعيل","disable":"تعطيل",
+        "add":"إضافة","remove":"إزالة","new":"جديد","get":"جلب","set":"ضبط","test":"اختبار",
+        "check":"فحص","clear":"مسح","start":"بدء","stop":"إيقاف","open":"فتح","close":"إغلاق",
+        "copy":"نسخ","move":"نقل","import":"استيراد","export":"تصدير","convert":"تحويل",
+        "format":"تنسيق","read":"قراءة","write":"كتابة","find":"بحث","search":"بحث",
+        "show":"عرض","display":"عرض","update":"تحديث","upgrade":"ترقية","backup":"نسخ احتياطي",
+        "restore":"استعادة","repair":"إصلاح","scan":"فحص","mount":"ربط","unmount":"فصل",
+        "attach":"إرفاق","detach":"إلغاء الإرفاق","connect":"اتصال","disconnect":"قطع الاتصال",
+        "invoke":"تنفيذ","enter":"دخول","exit":"خروج","push":"دفع","pop":"سحب",
+        "send":"إرسال","receive":"استقبال","sync":"مزامنة","compare":"مقارنة",
+        "measure":"قياس","resolve":"حل","register":"تسجيل","unregister":"إلغاء التسجيل",
+        "network":"شبكة","address":"عنوان","connection":"اتصال","adapter":"مهايئ",
+        "disk":"قرص","drive":"محرك","volume":"وحدة تخزين","user":"مستخدم","users":"المستخدمون",
+        "account":"حساب","accounts":"الحسابات","system":"النظام","computername":"اسم الحاسوب",
+        "printer":"طابعة","print":"طباعة","servicecontroller":"متحكم الخدمات",
+        "certificateauthority":"سلطة الشهادات","scheduledtask":"مهمة مجدولة",
+        "history":"سجل","result":"نتيجة","results":"النتائج","itemproperty":"خاصية العنصر",
+        "childitem":"عنصر فرعي","content":"محتوى","webrequest":"طلب ويب","websession":"جلسة ويب",
+        "processmitigation":"تخفيف مخاطر العمليات","eventlog":"سجل الأحداث"
+    }
+    tokens=re.findall(r"[A-Za-z]+|[0-9]+",re.sub(r"([a-z0-9])([A-Z])",r"\\1 \\2",name))
+    translated=[terms[t.casefold()] for t in tokens if t.casefold() in terms]
+    if translated:
+        return " ".join(translated)+" ("+name+")", "token-translated"
     return "أمر نظام — "+name, "identifier-preserved"
 
 
