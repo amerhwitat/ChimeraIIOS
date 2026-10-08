@@ -153,6 +153,9 @@ static const chimera_isa_template_entry CHIMERA_ISA_ENCODING_TEMPLATES[] = {
   {"riscv64","RISC-V","LH","load","LH x1,8(x2)","00000000100000010001000010000011","0x00811083","00000000000000000111000001111111","0x0000707F",32},
   {"riscv64","RISC-V","LBU","load","LBU x1,8(x2)","00000000100000010100000010000011","0x00814083","00000000000000000111000001111111","0x0000707F",32},
   {"riscv64","RISC-V","MRET","system","MRET","00110000001000000000000001110011","0x30200073","11111111111111111111111111111111","0xFFFFFFFF",32},
+  {"arm32-thumb","AArch32/T32","NOP","thumb16","NOP","1011111100000000","0xBF00","1111111111111111","0xFFFF",16},
+  {"arm32-thumb","AArch32/T32","MOVS","thumb16-imm8","MOVS r0,#0","0010000000000000","0x2000","1111100000000000","0xF800",16},
+  {"arm32-thumb","AArch32/T32","BX","thumb16-reg","BX r14","0100011101110000","0x4770","1111111110000111","0xFF87",16},
 };
 static const uint32_t CHIMERA_ISA_ENCODING_TEMPLATE_COUNT = sizeof(CHIMERA_ISA_ENCODING_TEMPLATES)/sizeof(CHIMERA_ISA_ENCODING_TEMPLATES[0]);
 struct chimera_isa_sample_entry { const char* family; const char* mnemonic; const char* syntax; const char* binary; const char* hex; uint16_t bits; };
@@ -208,5 +211,8 @@ static const chimera_isa_sample_entry CHIMERA_ISA_SAMPLES[] = {
   {"vax","RET","ret","00000100","0x04",8},
   {"vax","RSB","rsb","00000101","0x05",8},
   {"vax","BRB","brb 0","0001000100000000","0x1100",16},
+  {"arm32-thumb","NOP","nop","1011111100000000","0xbf00",16},
+  {"arm32-thumb","MOVS","movs r0, #0","0010000000000000","0x2000",16},
+  {"arm32-thumb","BX","bx lr","0100011101110000","0x4770",16},
 };
 static const uint32_t CHIMERA_ISA_SAMPLE_COUNT = sizeof(CHIMERA_ISA_SAMPLES)/sizeof(CHIMERA_ISA_SAMPLES[0]);
