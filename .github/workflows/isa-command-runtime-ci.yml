@@ -17,6 +17,10 @@ on:
       - 'tools/isa/cisc-coverage.json'
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/virtualization/**'
+      - 'tools/storage/**'
+      - 'web/aurora-file-manager.html'
+      - 'docs/architecture/**'
+      - 'docs/storage/**'
       - 'docs/virtualization/**'
       - 'tools/isa/cisc-coverage.json'
       - 'tools/isa/validate_isa_coverage.py'
@@ -83,6 +87,22 @@ jobs:
           python3 -m py_compile tools/virtualization/chimera-hypervisor.py
           python3 -m unittest tools/virtualization/test_chimera_hypervisor.py -v
           python3 -m json.tool tools/virtualization/hypervisor-backends.json >/dev/null
+      - name: Install QEMU system targets for machine-profile smoke tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 qemu-system-arm qemu-system-misc
+      - name: Test hypervisor profiles and Chimera N-bit reference CPU
+        run: |
+          python3 -m py_compile tools/virtualization/chimera-hypervisor.py tools/virtualization/chimera_nbit.py tools/virtualization/validate_profiles.py tools/runtime/chimera-local-bridge.py
+          python3 -m json.tool tools/virtualization/hypervisor-backends.json >/dev/null
+          python3 -m json.tool tools/virtualization/machine-profiles.json >/dev/null
+          python3 tools/virtualization/validate_profiles.py
+          python3 -m unittest discover -s tools/virtualization -p 'test_*.py' -v
+          python3 -m unittest discover -s tools/storage -p 'test_*.py' -v
+          test -s web/aurora-file-manager.html
+          grep -q 'No default association found' web/aurora-file-manager.html
+          grep -q 'FPU semantics required before conformance' docs/architecture/registern-nbit-register-file.md
+          grep -q 'Software RAID' docs/storage/filesystems-raid-compression.md
       - name: Validate explicit ISA coverage and conformance claims
         run: |
           python3 tools/isa/validate_rv32i_coverage.py

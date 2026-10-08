@@ -14,7 +14,7 @@
 </header>
 <nav class="hub-nav" aria-label="Control Center">
  <button data-view="overview" class="active">Aurora</button><a class="network-nav-link" href="aurora_webgl_desktops.html">WebGL Desktops</a><a class="network-nav-link" href="retro_emulators.html">Retro Emulators</a><a class="network-nav-link" href="playstation_emulators.html">PlayStation</a><a class="network-nav-link" href="network.html">Network Hub</a>
-<a class="network-nav-link" href="portfolio.html">Portfolio Apps</a><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="pdf">PDF Reader</button><button data-view="ocr">Ancient OCR</button><button data-view="thamudic">Thamudic NLP</button>
+<a class="network-nav-link" href="portfolio.html">Portfolio Apps</a><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="hypervisor">Hypervisor</button><a class="network-nav-link" href="aurora-file-manager.html">File Manager</a><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="pdf">PDF Reader</button><button data-view="ocr">Ancient OCR</button><button data-view="thamudic">Thamudic NLP</button>
 </nav>
 <main class="hub-main">
 <section id="view-overview" class="view active">
@@ -23,7 +23,9 @@
  <div class="panel-grid">
   <article class="panel"><h3>Runtime boundary</h3><p>GitHub Pages hosts the UI and catalogs only. Emulator binaries, ROMs, Kickstarts and native cores stay local.</p><div class="chips"><span>Pages-safe</span><span>Offline catalog</span><span>Local core</span></div></article>
   <article class="panel"><h3>Persistent state</h3><p>IndexedDB stores favorites, input profiles, MAME machines, game saves and UI settings. Import/export keeps the database portable.</p><div class="chips"><span>IndexedDB</span><span>JSON backup</span><span>Versioned</span></div></article>
-  <article class="panel"><h3>PlayStation Emulator Hub</h3><p>PSX, PS2, PS3, PS4 and PS5 emulator catalog with local capability detection boundaries.</p><div class="actions"><a href="playstation_emulators.html">Open PlayStation Hub</a></div></article><article class="panel"><h3>Retro Computer WebGL Lab</h3><p>Launch browser-native WebAssembly retro computers inside a Three.js/WebGL workstation shell.</p><div class="actions"><a href="retro_emulators.html">Open Retro Emulator Lab</a></div></article>\n  <article class="panel"><h3>WebGL Desktop Engine</h3><p>Launch the GPU-accelerated WebGL 2 desktop gallery for Aurora and every desktop profile in the Chimera II catalog.</p><div class="actions"><a href="aurora_webgl_desktops.html">Open WebGL Desktops</a><a href="aurora_3d_desktop.html">Open Aurora Desktop</a></div></article>\n  <article class="panel"><h3>Artwork</h3><p>Uses the canonical Aurora Wayland Glass library artwork already selected by the Aurora artwork manifest.</p><div class="chips"><span>Hardcoded theme</span><span>Offline-first</span><span>SVG fallback</span></div></article>
+  <article class="panel"><h3>PlayStation Emulator Hub</h3><p>PSX, PS2, PS3, PS4 and PS5 emulator catalog with local capability detection boundaries.</p><div class="actions"><a href="playstation_emulators.html">Open PlayStation Hub</a></div></article><article class="panel"><h3>Retro Computer WebGL Lab</h3><p>Launch browser-native WebAssembly retro computers inside a Three.js/WebGL workstation shell.</p><div class="actions"><a href="retro_emulators.html">Open Retro Emulator Lab</a></div></article>
+  <article class="panel"><h3>WebGL Desktop Engine</h3><p>Launch the GPU-accelerated WebGL 2 desktop gallery for Aurora and every desktop profile in the Chimera II catalog.</p><div class="actions"><a href="aurora_webgl_desktops.html">Open WebGL Desktops</a><a href="aurora_3d_desktop.html">Open Aurora Desktop</a></div></article>
+  <article class="panel"><h3>Artwork</h3><p>Uses the canonical Aurora Wayland Glass library artwork already selected by the Aurora artwork manifest.</p><div class="chips"><span>Hardcoded theme</span><span>Offline-first</span><span>SVG fallback</span></div></article>
  <article class="panel"><h3>Unified Portfolio</h3><p>Browse the integrated BizX, BizXtreme, CPU4096, CPU4096Simulator, NLP, PDF, network, crypto-research and general application surfaces from one Web UI.</p><div class="actions"><a href="portfolio.html">Open Portfolio Apps</a></div></article></div>
 </section>
 
@@ -103,6 +105,29 @@
   <div class="actions"><button id="exportThamudicCSV">Export CSV</button><button id="exportThamudicJSON">Export JSON-LD</button><button id="exportThamudicTEI">Export TEI</button></div><pre id="thamudicExportPreview">No research record yet.</pre>
  </article>
 </section>
+
+<section id="view-hypervisor" class="view">
+ <div class="section-head"><div><span class="eyebrow">MULTI-ISA VIRTUALIZATION</span><h2>Chimera Hypervisor Manager</h2></div><button id="hvRefresh">Refresh hosts / guests</button></div>
+ <article class="panel">
+  <p>Uses the local Chimera runtime bridge. QEMU profiles are target-specific; guests require compatible firmware or boot media. Native N-bit is a reference CPU preview and is not bootable as a virtual machine yet.</p>
+  <div class="form-grid">
+   <label>Machine profile<select id="hvProfile"><option value="">Connect to local bridge…</option></select></label>
+   <label>Acceleration<select id="hvAccel"><option value="auto">Auto (KVM if available, else TCG)</option><option value="tcg">TCG software emulation</option><option value="kvm">KVM (compatible host only)</option></select></label>
+   <label>Memory MiB<select id="hvMemory"><option>128</option><option>256</option><option selected>512</option><option>768</option><option>1024</option></select></label>
+   <label>vCPUs<select id="hvVcpus"><option selected>1</option><option>2</option></select></label>
+   <label>Guest disk path on host<input id="hvDisk" placeholder="/path/to/disk.qcow2"></label>
+   <label>ISO/CD-ROM path on host<input id="hvCdrom" placeholder="/path/to/installer.iso"></label>
+   <label>Kernel path on host<input id="hvKernel" placeholder="/path/to/kernel (optional)"></label>
+   <label>Firmware / BIOS path on host<input id="hvBios" placeholder="/path/to/firmware.bin (optional)"></label>
+  </div>
+  <div class="actions"><button class="primary" id="hvStart">Start guest</button><button id="hvStopAllRefresh">Refresh status</button></div>
+  <div id="hvStatus" class="result-box" role="status">Waiting for the localhost bridge at 127.0.0.1:8765.</div>
+ </article>
+ <article class="panel"><h3>Native Chimera N-bit reference CPU</h3><p>Experimental interpreter v0.1 self-test only; this does not boot a guest OS.</p><div class="form-grid"><label>Register width<select id="hvNbitWidth"><option value="32">32-bit</option><option value="64">64-bit</option><option value="128">128-bit</option></select></label></div><div class="actions"><button id="hvNbitDemo">Run N-bit CPU self-test</button></div><pre id="hvNbitResult">Not run.</pre></article>
+ <article class="panel"><h3>Detected profiles</h3><div id="hvProfiles" class="table-wrap">Not connected.</div></article>
+ <article class="panel"><h3>Guest processes</h3><div id="hvGuests" class="table-wrap">No guest status yet.</div></article>
+</section>
+
 <section id="view-controls" class="view">
  <div class="section-head"><div><span class="eyebrow">INPUT SYSTEM</span><h2>Keyboard / mouse / gamepad</h2></div><button id="resetControls">Reset profile</button></div>
  <article class="panel"><p>Click an action, then press a key or gamepad button. The profile is stored locally and reused by MAME, Amiga and compatible games.</p><div id="controlEditor" class="control-editor"></div></article>
@@ -114,4 +139,41 @@
 </section>
 </main>
 <footer class="hub-footer"><span>ChimeraIIOS · Aurora Control Center</span><span>Local runtime boundary: emulator binaries and firmware remain outside Pages.</span></footer>
+
+<script>
+(()=> {
+ const base="http://127.0.0.1:8765";
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ async function api(path,data={}) {
+  const r=await fetch(base+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+  const d=await r.json(); if(!r.ok)throw Error(d.error||("HTTP "+r.status)); return d;
+ }
+ function status(s){$("hvStatus").textContent=s;}
+ async function refresh(){
+  try{
+   const d=await api("/hypervisor/profiles");
+   const select=$("hvProfile"), old=select.value;
+   select.innerHTML=d.profiles.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.id)+' — '+(p.available?"available":"unavailable")+'</option>').join("");
+   if([...select.options].some(o=>o.value===old))select.value=old;
+   $("hvProfiles").innerHTML='<table><thead><tr><th>Profile</th><th>Backend</th><th>Machine / CPU</th><th>Status</th></tr></thead><tbody>'+d.profiles.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.backend)+'</td><td>'+esc(p.machine)+' / '+esc(p.cpu)+'</td><td>'+esc(p.available?"available":(p.reason||"not installed"))+'</td></tr>').join("")+'</tbody></table>';
+   const g=await api("/hypervisor/guests");
+   $("hvGuests").innerHTML=g.guests.length?'<table><thead><tr><th>ID</th><th>Profile</th><th>PID</th><th>RAM</th><th>vCPU</th><th>State</th><th></th></tr></thead><tbody>'+g.guests.map(x=>'<tr><td>'+esc(x.id)+'</td><td>'+esc(x.profile)+'</td><td>'+esc(x.pid)+'</td><td>'+esc(x.memory_mib)+' MiB</td><td>'+esc(x.vcpus)+'</td><td>'+esc(x.running?"running":"exited")+'</td><td><button data-hv-stop="'+esc(x.id)+'">Stop</button></td></tr>').join("")+'</tbody></table>':'No guest processes registered.';
+   status("Bridge online. Limits: "+d.limits.memory_mib_max+" MiB RAM, "+d.limits.vcpus_max+" vCPUs per guest.");
+  }catch(e){status("Local bridge unavailable: "+e.message+". Start tools/runtime/chimera-local-bridge.py on this machine.");}
+ }
+ $("hvRefresh")?.addEventListener("click",refresh); $("hvStopAllRefresh")?.addEventListener("click",refresh);
+ $("hvNbitDemo")?.addEventListener("click",async()=>{try{const r=await api("/hypervisor/nbit/demo",{nbits:Number($("hvNbitWidth").value)});$("hvNbitResult").textContent=JSON.stringify(r,null,2);}catch(e){$("hvNbitResult").textContent="N-bit self-test failed: "+e.message;}});
+ $("hvStart")?.addEventListener("click",async()=>{
+  try{
+   const payload={profile:$("hvProfile").value,accel:$("hvAccel").value,memory_mib:Number($("hvMemory").value),vcpus:Number($("hvVcpus").value)};
+   for(const [id,key] of [["hvDisk","disk"],["hvCdrom","cdrom"],["hvKernel","kernel"],["hvBios","bios"]])if($(id).value.trim())payload[key]=$(id).value.trim();
+   const r=await api("/hypervisor/guests/start",payload);status("Guest start requested: "+r.id+" (PID "+r.pid+"). "+r.note);await refresh();
+  }catch(e){status("Could not start guest: "+e.message);}
+ });
+ $("hvGuests")?.addEventListener("click",async e=>{const b=e.target.closest("[data-hv-stop]");if(!b)return;try{const r=await api("/hypervisor/guests/stop",{id:b.dataset.hvStop});status("Guest "+r.id+" stopped.");await refresh();}catch(err){status("Stop failed: "+err.message);}});
+ if($("hvProfile"))refresh();
+})();
+</script>
+
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}));}</script></body></html>

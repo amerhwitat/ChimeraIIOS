@@ -50,3 +50,23 @@ Remove `--dry-run` only when the selected QEMU binary, machine model, boot media
 Run untrusted guests as an unprivileged user, avoid host-device passthrough by default, use isolated networking, and do not expose the host bridge as a guest control plane. A real sandbox policy, resource quotas, disk formats and networking options should be hardened before this is used for hostile guest workloads.
 
 Tests: `python3 -m unittest tools/virtualization/test_chimera_hypervisor.py`. QEMU execution and guest boot tests require the corresponding binaries and images and are not implied by unit tests.
+
+
+## Machine profiles, Aurora and local bridge
+
+Machine/CPU/firmware/device candidates are listed in `tools/virtualization/machine-profiles.json`. The launcher now accepts `--profile` and `--vcpus`; profile options are only candidates until tested against the exact installed QEMU version. QEMU's own machine help is authoritative for what a build actually supports. Some profile firmware names are optional lookups and may require an explicit firmware path or distro package.
+
+Aurora's Hypervisor view uses the localhost bridge endpoints:
+- `POST /hypervisor/profiles` — enumerate profiles and detected QEMU targets.
+- `POST /hypervisor/guests` — show tracked guest processes.
+- `POST /hypervisor/guests/start` — start a selected profile, with RAM limited to 128–1024 MiB and vCPUs limited to 1–2 at the UI bridge.
+- `POST /hypervisor/guests/stop` — terminate a tracked process.
+- `POST /hypervisor/nbit/demo` — run a bounded interpreter self-test, not a guest OS.
+
+These are local orchestration limits, not a hardened resource sandbox: QEMU's process overhead is not capped by these values, and the current bridge keeps process state in memory (restart loses the list). Do not expose the bridge to untrusted networks. The existing bridge binds to loopback; production isolation should add OS-level cgroups/job objects, an origin allow-list, authenticated local control, timeouts, and an unprivileged account.
+
+## CI and guest boot evidence
+
+The virtualization CI validates profile schema, runs the reference CPU tests, and checks machine names for QEMU targets installed on the runner. That is not the same as booting a guest OS. No per-architecture guest images/firmware artifacts were supplied as part of this change, so successful guest boot cannot be claimed yet. To enable boot tests, add redistributable minimal test images or build reproducible kernel/initramfs artifacts per architecture, pin their hashes and firmware versions, and run each under a time limit with serial-console assertions and exit status checks. Architecture profiles must be narrowed to targets that pass those tests.
+
+Coverage is tracked separately in `tools/virtualization/execution-coverage.json`: catalog, execution, guest-boot and official-conformance are distinct fields. RISC-V ACT and x86 vendor architectural conformance suites are not run by this CI.

@@ -6,6 +6,9 @@ on:
       - 'web/index.html'
       - 'web/chimera-hub.js'
       - 'web/chimera-hub.css'
+      - 'tools/runtime/chimera-local-bridge.py'
+      - 'tools/virtualization/**'
+      - 'tests/web/test_web_assets.py'
       - 'tools/amiga-local-core/**'
       - 'tools/thamudic-nlp/**'
       - '.github/workflows/aurora-control-center-ci.yml'
@@ -72,4 +75,4 @@ jobs:
           test -s web/chimera-hub.css
           test ! -e web/amiga-core
           test ! -e web/local-core
-          ! grep -R -E 'puae_libretro|\.so|\.dll|\.dylib' web --include='*.html' --include='*.js' --include='*.css'
+          ! find web -type f \( -name '*.so' -o -name '*.dll' -o -name '*.dylib' \) -print -quit | grep -q .

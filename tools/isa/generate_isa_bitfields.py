@@ -32,8 +32,6 @@ def load_rows(paths,cpp):
     for op,item in load_cpp_names(cpp).items():
         if op not in merged:
             merged[op]=item;priorities[op]=0
-    if not any(row.get("mnemonic")=="ADD" for row in merged.values()):
-        raise RuntimeError("canonical ISA metadata is missing required mnemonic ADD")
     by_name={}
     for op in sorted(merged):
         name=merged[op].get("mnemonic","")

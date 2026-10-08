@@ -6,7 +6,7 @@ static Aurora UI; it never accepts arbitrary shell commands.
 """
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-import json, os, shutil, subprocess, time
+import json, os, shutil, subprocess, time, threading, uuid
 
 HOST="127.0.0.1"
 PORT=int(os.environ.get("CHIMERA_BRIDGE_PORT","8765"))
@@ -14,6 +14,12 @@ ROOT=Path(__file__).resolve().parents[2]
 PS_LAUNCHER=ROOT/"tools/emulation/playstation-launcher.sh"
 PS_MANIFEST=ROOT/"web/playstation_emulators.json"
 GAME_MANIFEST=ROOT/"web/game-center-manifest.json"
+HV_LAUNCHER=ROOT/"tools/virtualization/chimera-hypervisor.py"
+HV_PROFILES=ROOT/"tools/virtualization/machine-profiles.json"
+HV_LOCK=threading.Lock()
+HV_GUESTS={}
+HV_MEMORY_LIMIT_MIB=1024
+HV_VCPU_LIMIT=2
 
 def send(h, code, obj):
     raw=json.dumps(obj).encode()
@@ -61,6 +67,66 @@ class H(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             d=body(self); path=self.path
+
+
+            if path=="/hypervisor/nbit/demo":
+                import sys
+                sys.path.insert(0,str(ROOT/"tools/virtualization"))
+                from chimera_nbit import ChimeraNBit, OP_LI, OP_ADD, OP_HALT
+                nbits=d.get("nbits",32)
+                if type(nbits) is not int or nbits not in (32,64,128):return send(self,400,{"error":"nbits-must-be-32-64-or-128"})
+                cpu=ChimeraNBit(nbits=nbits,memory_size=65536)
+                cpu.load_program([cpu.encode(OP_LI,1,imm=7),cpu.encode(OP_LI,2,imm=9),cpu.encode(OP_ADD,3,1,2),cpu.encode(OP_HALT)])
+                result=cpu.run()
+                return send(self,200,{"status":"reference-interpreter-pass" if result["registers"][3]==16 else "failed","bootable_vm":False,"architecture":"Chimera N-bit experimental v0.1","result":result})
+            if path=="/hypervisor/profiles":
+                if not HV_PROFILES.is_file(): return send(self,503,{"error":"hypervisor-profiles-missing"})
+                profiles=json.loads(HV_PROFILES.read_text(encoding="utf-8"))
+                available=json.loads(subprocess.run(["python3",str(HV_LAUNCHER),"list"],capture_output=True,text=True,timeout=10,cwd=str(ROOT)).stdout)
+                available={x["id"]:x for x in available}
+                rows=[]
+                for p in profiles["profiles"]:
+                    b=available.get(p["backend"],{})
+                    rows.append({"id":p["id"],"backend":p["backend"],"machine":p["machine"],"cpu":p["cpu"],"devices":p["devices"],"available":bool(b.get("available")),"reason":b.get("reason")})
+                return send(self,200,{"profiles":rows,"limits":{"memory_mib_max":HV_MEMORY_LIMIT_MIB,"vcpus_max":HV_VCPU_LIMIT}})
+            if path=="/hypervisor/guests":
+                with HV_LOCK:
+                    rows=[{"id":gid,"profile":g["profile"],"pid":g["process"].pid,"running":g["process"].poll() is None,"memory_mib":g["memory_mib"],"vcpus":g["vcpus"],"started_at":g["started_at"]} for gid,g in HV_GUESTS.items()]
+                return send(self,200,{"guests":rows,"limits":{"memory_mib_max":HV_MEMORY_LIMIT_MIB,"vcpus_max":HV_VCPU_LIMIT}})
+            if path=="/hypervisor/guests/start":
+                if not HV_LAUNCHER.is_file() or not HV_PROFILES.is_file(): return send(self,503,{"error":"hypervisor-runtime-missing"})
+                profiles=json.loads(HV_PROFILES.read_text(encoding="utf-8"))["profiles"]
+                profile=next((p for p in profiles if p["id"]==d.get("profile")),None)
+                if not profile:return send(self,404,{"error":"unknown-profile"})
+                memory=d.get("memory_mib",512); vcpus=d.get("vcpus",1)
+                if type(memory) is not int or memory<128 or memory>HV_MEMORY_LIMIT_MIB:return send(self,400,{"error":"memory-limit","max_mib":HV_MEMORY_LIMIT_MIB,"min_mib":128})
+                if type(vcpus) is not int or vcpus<1 or vcpus>HV_VCPU_LIMIT:return send(self,400,{"error":"vcpu-limit","max_vcpus":HV_VCPU_LIMIT})
+                if profile["backend"]=="chimera-nbit":return send(self,409,{"error":"native-nbit-not-bootable","hint":"Reference interpreter exists; QEMU machine backend and guest boot ABI are not integrated."})
+                args=["python3",str(HV_LAUNCHER),"run","--backend",profile["backend"],"--profile",profile["id"],"--vcpus",str(vcpus),"--accel",str(d.get("accel","auto")),"--memory",str(memory)+"M"]
+                if d.get("accel","auto") not in ("auto","kvm","tcg"):return send(self,400,{"error":"invalid-accelerator"})
+                for key,value in (("disk",d.get("disk")),("cdrom",d.get("cdrom")),("kernel",d.get("kernel")),("bios",d.get("bios"))):
+                    if value:
+                        p=safe_path(value)
+                        if not p.is_file():return send(self,404,{"error":key+"-not-found"})
+                        args += ["--"+key,str(p)]
+                args += ["--gui"]
+                try:
+                    process=subprocess.Popen(args,cwd=str(ROOT),stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True,close_fds=True)
+                except OSError as e:return send(self,503,{"error":"launch-failed","detail":str(e)})
+                gid=uuid.uuid4().hex[:12]
+                with HV_LOCK: HV_GUESTS[gid]={"process":process,"profile":profile["id"],"memory_mib":memory,"vcpus":vcpus,"started_at":time.time()}
+                return send(self,202,{"status":"starting","id":gid,"pid":process.pid,"profile":profile["id"],"limits":{"memory_mib_max":HV_MEMORY_LIMIT_MIB,"vcpus_max":HV_VCPU_LIMIT},"note":"Guest process requested; check the guest console and supplied firmware/boot media. Host OS resource isolation remains limited."})
+            if path=="/hypervisor/guests/stop":
+                gid=str(d.get("id",""))
+                with HV_LOCK: guest=HV_GUESTS.get(gid)
+                if not guest:return send(self,404,{"error":"unknown-guest"})
+                proc=guest["process"]
+                if proc.poll() is None:
+                    proc.terminate()
+                    try:proc.wait(timeout=5)
+                    except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=5)
+                with HV_LOCK: HV_GUESTS.pop(gid,None)
+                return send(self,200,{"status":"stopped","id":gid})
             if path=="/emulators/status":
                 e=ps_item(d.get("id",""))
                 if not e:return send(self,404,{"error":"unknown-emulator"})

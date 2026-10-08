@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -48,7 +49,8 @@ def probe(registry=None, which=shutil.which, kvm_path=Path("/dev/kvm")):
 
 def build_command(backend_id, accelerator="auto", memory="512M", disk=None,
                   cdrom=None, firmware_kernel=None, headless=True, registry=None,
-                  which=shutil.which, kvm_path=Path("/dev/kvm")):
+                  which=shutil.which, kvm_path=Path("/dev/kvm"), profile=None, vcpus=1, bios=None,
+                  profiles_path=ROOT / "tools/virtualization/machine-profiles.json"):
     if accelerator not in ACCELERATORS:
         raise ValueError("accelerator must be auto, tcg, or kvm")
     registry = registry or load_registry()
@@ -73,7 +75,34 @@ def build_command(backend_id, accelerator="auto", memory="512M", disk=None,
         selected = "kvm" if "kvm" in supported and kvm_path.exists() else "tcg"
         if selected not in supported:
             raise RuntimeError("no supported accelerator is available for this backend")
-    args = [binary, "-accel", selected, "-m", memory, "-display", "none" if headless else "gtk"]
+    if type(vcpus) is not int or not 1 <= vcpus <= 4:
+        raise ValueError("vcpus must be between 1 and 4")
+    match = re.fullmatch(r"([0-9]+)([Mm]?)", str(memory))
+    if not match or not 128 <= int(match.group(1)) <= 1024:
+        raise ValueError("memory must be between 128M and 1024M")
+    memory = match.group(1) + "M"
+    args = [binary, "-accel", selected, "-m", memory, "-smp", str(vcpus),
+            "-audiodev", "none,id=audio0",
+            "-display", "none" if headless else "gtk"]
+    if profile:
+        profile_data = json.loads(Path(profiles_path).read_text(encoding="utf-8"))
+        chosen = next((p for p in profile_data.get("profiles", [])
+                       if p.get("id") == profile and p.get("backend") == backend_id), None)
+        if chosen is None:
+            raise ValueError("unknown or mismatched machine profile")
+        args += ["-machine", chosen["machine"], "-cpu", chosen["cpu"]]
+        for device in chosen.get("devices", []):
+            args += ["-device", device]
+        firmware = chosen.get("firmware")
+        if bios:
+            firmware_path = Path(bios).expanduser().resolve()
+            if not firmware_path.is_file():
+                raise FileNotFoundError("firmware image not found")
+            args += ["-bios", str(firmware_path)]
+        elif firmware:
+            found = which(firmware)
+            if found:
+                args += ["-bios", found]
     if disk:
         p = Path(disk).expanduser().resolve()
         if not p.is_file():
@@ -102,6 +131,9 @@ def main(argv=None):
     parser.add_argument("--disk")
     parser.add_argument("--cdrom")
     parser.add_argument("--kernel")
+    parser.add_argument("--bios")
+    parser.add_argument("--profile")
+    parser.add_argument("--vcpus", type=int, default=1)
     parser.add_argument("--gui", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     ns = parser.parse_args(argv)
@@ -112,7 +144,8 @@ def main(argv=None):
         if not ns.backend:
             parser.error("run requires --backend")
         args = build_command(ns.backend, ns.accel, ns.memory, ns.disk,
-                             ns.cdrom, ns.kernel, not ns.gui)
+                             ns.cdrom, ns.kernel, not ns.gui, profile=ns.profile,
+                             vcpus=ns.vcpus, bios=ns.bios)
         if ns.dry_run:
             print(json.dumps({"command": args, "shell": False}, indent=2))
             return 0

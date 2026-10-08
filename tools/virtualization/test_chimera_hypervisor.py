@@ -59,6 +59,21 @@ class HypervisorTests(unittest.TestCase):
         self.assertIsInstance(args, list)
         self.assertNotIn("shell", args)
 
+    def test_memory_limit_rejects_oversized_request(self):
+        with self.assertRaisesRegex(ValueError, "memory must be"):
+            hv.build_command("x86", memory="4096M", registry=self.registry,
+                             which=self.which, kvm_path=Path("/definitely/missing"))
+
+    def test_profile_applies_machine_cpu_and_devices(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/"profiles.json"
+            path.write_text(json.dumps({"profiles":[{"id":"test-profile","backend":"x86","machine":"q35","cpu":"max","devices":["virtio-net-pci"],"firmware":None}]}))
+            args=hv.build_command("x86", registry=self.registry, which=self.which,
+                                  kvm_path=Path("/definitely/missing"),
+                                  profile="test-profile", profiles_path=path, vcpus=2)
+            self.assertIn("q35",args); self.assertIn("max",args)
+            self.assertIn("virtio-net-pci",args); self.assertIn("2",args)
+
     def test_registry_has_unique_ids_and_native_nbit_gated(self):
         ids = [b["id"] for b in self.registry["backends"]]
         self.assertEqual(len(ids), len(set(ids)))

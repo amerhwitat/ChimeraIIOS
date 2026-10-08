@@ -1,0 +1,160 @@
+{
+  "schema": "CHM-MACHINE-PROFILES-1",
+  "note": "Profiles are explicit launch recipes, not proof of guest bootability. Firmware paths are optional and must exist when supplied. QEMU options vary by version and target.",
+  "defaults": {
+    "memory_mib": 512,
+    "vcpus": 1,
+    "max_vcpus": 4,
+    "timeout_seconds": 120,
+    "network": "user,restrict=on",
+    "disk_format": "qcow2",
+    "no_host_device_passthrough": true
+  },
+  "profiles": [
+    {
+      "id": "x86_64-q35",
+      "backend": "qemu-x86_64",
+      "machine": "q35",
+      "cpu": "max",
+      "firmware": "OVMF_CODE.fd",
+      "devices": [
+        "virtio-net-pci",
+        "virtio-blk-pci"
+      ],
+      "firmware_kind": "UEFI"
+    },
+    {
+      "id": "i386-pc",
+      "backend": "qemu-i386",
+      "machine": "pc",
+      "cpu": "qemu32",
+      "firmware": null,
+      "devices": [
+        "e1000",
+        "virtio-blk-pci"
+      ],
+      "firmware_kind": "BIOS"
+    },
+    {
+      "id": "aarch64-virt",
+      "backend": "qemu-aarch64",
+      "machine": "virt",
+      "cpu": "cortex-a57",
+      "firmware": "QEMU_EFI.fd",
+      "devices": [
+        "virtio-net-device",
+        "virtio-blk-device"
+      ],
+      "firmware_kind": "AArch64 UEFI"
+    },
+    {
+      "id": "arm-virt",
+      "backend": "qemu-arm",
+      "machine": "virt",
+      "cpu": "cortex-a15",
+      "firmware": null,
+      "devices": [
+        "virtio-net-device",
+        "virtio-blk-device"
+      ],
+      "firmware_kind": "board firmware or direct kernel"
+    },
+    {
+      "id": "riscv64-virt",
+      "backend": "qemu-riscv64",
+      "machine": "virt",
+      "cpu": "rv64",
+      "firmware": "opensbi-riscv64-generic-fw_dynamic.bin",
+      "devices": [
+        "virtio-net-device",
+        "virtio-blk-device"
+      ],
+      "firmware_kind": "OpenSBI"
+    },
+    {
+      "id": "riscv32-virt",
+      "backend": "qemu-riscv32",
+      "machine": "virt",
+      "cpu": "rv32",
+      "firmware": "opensbi-riscv32-generic-fw_dynamic.bin",
+      "devices": [
+        "virtio-net-device",
+        "virtio-blk-device"
+      ],
+      "firmware_kind": "OpenSBI"
+    },
+    {
+      "id": "mips-mal ta",
+      "backend": "qemu-mips",
+      "machine": "malta",
+      "cpu": "24Kf",
+      "firmware": null,
+      "devices": [
+        "e1000",
+        "ide-hd"
+      ],
+      "firmware_kind": "BIOS"
+    },
+    {
+      "id": "ppc64-pseries",
+      "backend": "qemu-ppc64",
+      "machine": "pseries",
+      "cpu": "POWER9",
+      "firmware": "slof.bin",
+      "devices": [
+        "virtio-net-pci",
+        "virtio-blk-pci"
+      ],
+      "firmware_kind": "SLOF"
+    },
+    {
+      "id": "sparc-sun4m",
+      "backend": "qemu-sparc",
+      "machine": "SS-5",
+      "cpu": "TI SuperSparc",
+      "firmware": null,
+      "devices": [
+        "le",
+        "esp"
+      ],
+      "firmware_kind": "OpenBIOS"
+    },
+    {
+      "id": "m68k-q800",
+      "backend": "qemu-m68k",
+      "machine": "q800",
+      "cpu": "m68040",
+      "firmware": null,
+      "devices": [
+        "dp83932",
+        "scsi-hd"
+      ],
+      "firmware_kind": "OpenBIOS"
+    },
+    {
+      "id": "s390x-virtio",
+      "backend": "qemu-s390x",
+      "machine": "s390-ccw-virtio",
+      "cpu": "max",
+      "firmware": null,
+      "devices": [
+        "virtio-net-ccw",
+        "virtio-blk-ccw"
+      ],
+      "firmware_kind": "CCW boot"
+    },
+    {
+      "id": "chimera-nbit-v0",
+      "backend": "chimera-nbit",
+      "machine": "chimera-virt-v0",
+      "cpu": "chimera-nbit-v0",
+      "firmware": null,
+      "devices": [
+        "chimera-console-v0",
+        "chimera-timer-v0",
+        "chimera-block-v0"
+      ],
+      "firmware_kind": "Chimera N-bit boot ABI v0"
+    }
+  ]
+}
