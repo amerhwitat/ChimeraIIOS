@@ -352,22 +352,25 @@
       "documented": true,
       "encoded": false,
       "decoded": false,
-      "executed": false,
-      "conformance-tested": false
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Implemented for modeled machine software/timer/external pending bits via mip/mie, M-mode global enable, mcause interrupt flag, and mtvec direct/vectored entry. No device-driven lines, delegation, S-mode, or full platform interrupt controller."
     },
     "csr_semantics": {
       "documented": true,
       "encoded": false,
       "decoded": false,
-      "executed": false,
-      "conformance-tested": false
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Partial implemented CSR read/write/set/clear and immediate forms for selected machine CSRs plus cycle/instret counters. Not full privileged-spec CSR set; S-mode and delegation CSRs are absent."
     },
     "privilege_transitions": {
       "documented": true,
       "encoded": false,
       "decoded": false,
-      "executed": false,
-      "conformance-tested": false
+      "executed": true,
+      "conformance-tested": false,
+      "notes": "Partial U/M privilege state and MRET status restoration. No S-mode implementation, delegation, or complete architectural edge-case coverage."
     },
     "virtual_memory": {
       "documented": true,
@@ -431,6 +434,108 @@
       "decoded": false,
       "executed": false,
       "conformance-tested": false
+    }
+  ],
+  "research_sources": [
+    {
+      "title": "RISC-V Ratified Specifications Library",
+      "url": "https://docs.riscv.org/",
+      "scope": "Normative index for ratified unprivileged and privileged specifications; latest library lists v20260120."
+    },
+    {
+      "title": "RISC-V RV32I Base Integer Instruction Set, Version 2.1",
+      "url": "https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html",
+      "scope": "Base instruction semantics, encoding, programmer model."
+    },
+    {
+      "title": "RISC-V Privileged Architecture, Machine-Level ISA",
+      "url": "https://docs.riscv.org/reference/isa/priv/machine.html",
+      "scope": "Machine CSRs, traps, interrupt state, optional PMP."
+    },
+    {
+      "title": "RISC-V Unprivileged ISA module status (versioned reference)",
+      "url": "https://docs.riscv.org/reference/isa/v20250508/unpriv/colophon.html",
+      "scope": "Ratified extension inventory and version/status distinctions."
+    },
+    {
+      "title": "RISC-V Architectural Certification Tests (ACT4)",
+      "url": "https://github.com/riscv/riscv-arch-test",
+      "scope": "Official RISC-V architectural certification test framework; requires DUT-specific configuration and test execution."
+    },
+    {
+      "title": "RISC-V Certification Test Plan",
+      "url": "https://riscv.github.io/riscv-arch-test/ctp.html",
+      "scope": "Certification scope and coverpoints; draft status must be respected."
+    }
+  ],
+  "architecture_extensions": [
+    {
+      "name": "RV32I",
+      "kind": "base",
+      "status": "ratified",
+      "version": "2.1",
+      "tracked": true
+    },
+    {
+      "name": "Zicsr",
+      "kind": "csr instructions",
+      "status": "ratified",
+      "version": "2.0",
+      "tracked": true
+    },
+    {
+      "name": "Zifencei",
+      "kind": "instruction-fetch fence",
+      "status": "ratified",
+      "version": "2.0",
+      "tracked": true
+    },
+    {
+      "name": "M",
+      "kind": "integer multiply/divide",
+      "status": "ratified",
+      "version": "2.0",
+      "tracked": false
+    },
+    {
+      "name": "A",
+      "kind": "atomics",
+      "status": "ratified",
+      "version": "2.1",
+      "tracked": false
+    },
+    {
+      "name": "C",
+      "kind": "compressed instructions",
+      "status": "ratified",
+      "version": "2.0",
+      "tracked": false
+    },
+    {
+      "name": "F/D",
+      "kind": "floating point",
+      "status": "ratified",
+      "version": "2.2",
+      "tracked": false
+    },
+    {
+      "name": "V",
+      "kind": "vector",
+      "status": "ratified",
+      "version": "1.0",
+      "tracked": false
+    },
+    {
+      "name": "Sv32",
+      "kind": "virtual memory",
+      "status": "privileged-spec",
+      "tracked": false
+    },
+    {
+      "name": "PMP",
+      "kind": "physical memory protection",
+      "status": "optional-privileged-feature",
+      "tracked": false
     }
   ]
 }

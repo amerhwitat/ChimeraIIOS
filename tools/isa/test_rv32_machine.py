@@ -13,6 +13,9 @@ def enc_s(imm, rs2, rs1, f3=2):
     u=imm&0xfff
     return ((u>>5)<<25)|(rs2<<20)|(rs1<<15)|(f3<<12)|((u&31)<<7)|0x23
 
+def enc_csr(csr, rs1, funct3, rd):
+    return (csr << 20) | (rs1 << 15) | (funct3 << 12) | (rd << 7) | 0x73
+
 
 class MachineTests(unittest.TestCase):
     def machine(self, words):
@@ -66,6 +69,51 @@ class MachineTests(unittest.TestCase):
         out=m.run(max_steps=5)
         self.assertEqual(out['steps'],5)
         self.assertFalse(out['halted'])
+
+    def test_csr_write_read_and_mret_round_trip(self):
+        # CSRRWI mscratch, 7; CSRRS x2, mscratch, x0; then halt.
+        m=self.machine([enc_csr(0x340,7,5,1), enc_csr(0x340,0,2,2), 0x00100073])
+        out=m.run()
+        self.assertEqual(out['registers'][2],7)
+        self.assertEqual(m.mscratch,7)
+
+    def test_read_only_cycle_csr_write_traps(self):
+        m=self.machine([enc_csr(0xC00,1,1,2)])
+        out=m.run()
+        self.assertEqual(out['mcause'],2)
+        self.assertEqual(out['mtval'],0xC00)
+
+    def test_disabled_interrupt_is_not_delivered(self):
+        m=self.machine([0x00100073])
+        m.mtvec=0x40
+        m.mip |= 1 << 7
+        m.mie |= 1 << 7
+        # Global MIE remains clear while already in M-mode.
+        m.step()
+        self.assertEqual(m.mcause,3)  # EBREAK is synchronous, not an interrupt.
+        self.assertEqual(m.pc,0x40)
+
+    def test_machine_timer_interrupt_enters_vectored_handler(self):
+        m=self.machine([0x00100073, 0x00100073, 0x00100073, 0x00100073])
+        m.mtvec=0x41  # vectored mode, base 0x40
+        m.mstatus |= 1 << 3
+        m.mie |= 1 << 7
+        m.mip |= 1 << 7
+        m.step()
+        self.assertEqual(m.pc,0x5c)  # base + 4 * cause(7)
+        self.assertEqual(m.mcause,0x80000007)
+        self.assertEqual(m.privilege,"M")
+        self.assertEqual((m.mstatus >> 7) & 1,1)
+        self.assertEqual((m.mstatus >> 3) & 1,0)
+
+    def test_mret_restores_privilege_and_interrupt_enable(self):
+        m=self.machine([0x30200073])
+        m.mepc=4
+        m.mstatus=(1 << 7) | (0 << 11)
+        out=m.run(max_steps=1)
+        self.assertEqual(m.pc,4)
+        self.assertEqual(m.privilege,"U")
+        self.assertEqual((m.mstatus >> 3) & 1,1)
 
     def test_x0_is_hardwired(self):
         m=self.machine([enc_i(7,0,0,0),0x00100073])

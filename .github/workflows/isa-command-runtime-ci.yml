@@ -14,6 +14,10 @@ on:
       - 'tools/isa/test_rv32_machine.py'
       - 'tools/isa/rv32i-coverage.json'
       - 'tools/isa/validate_rv32i_coverage.py'
+      - 'tools/isa/cisc-coverage.json'
+      - 'tools/isa/validate_isa_coverage.py'
+      - 'tools/isa/cisc-coverage.json'
+      - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
       - 'system/commands/chimera-command-list.json'
@@ -37,6 +41,8 @@ on:
       - 'tools/isa/test_rv32_machine.py'
       - 'tools/isa/rv32i-coverage.json'
       - 'tools/isa/validate_rv32i_coverage.py'
+      - 'tools/isa/cisc-coverage.json'
+      - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
       - 'system/commands/chimera-command-list.json'
@@ -73,6 +79,7 @@ jobs:
       - name: Validate explicit ISA coverage and conformance claims
         run: |
           python3 tools/isa/validate_rv32i_coverage.py
+          python3 tools/isa/validate_isa_coverage.py
       - name: Validate exact binary and hexadecimal samples
         run: |
           python3 tools/validate_isa_catalog.py

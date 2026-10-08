@@ -1,0 +1,368 @@
+{
+  "schema": "CHM-CISC-COVERAGE-1",
+  "architecture_family": "CISC",
+  "primary_targets": [
+    "Intel 8086/8088 (16-bit x86 baseline)",
+    "IA-32 / i386 (32-bit x86)",
+    "x86-64 / AMD64 (64-bit x86)"
+  ],
+  "scope": "Capability inventory and implementation gate for CISC-family work. This manifest does not imply an emulator exists or that an ISA extension is supported.",
+  "conformance_policy": "A CPU generation, instruction, or backend may be marked conformance-tested only after a named architectural test suite is integrated and passes. Syntax/catalog presence is not execution support.",
+  "official_architectural_tests": {
+    "suite": "Intel/AMD architecture-specific tests plus applicable x86 test corpus",
+    "integrated": false,
+    "status": "not-run",
+    "conformance_claim": false
+  },
+  "instruction_groups": [
+    {
+      "name": "Integer/data movement baseline",
+      "examples": [
+        "MOV",
+        "LEA",
+        "XCHG",
+        "PUSH",
+        "POP",
+        "ADD",
+        "ADC",
+        "SUB",
+        "SBB",
+        "CMP",
+        "INC",
+        "DEC",
+        "NEG",
+        "MUL",
+        "IMUL",
+        "DIV",
+        "IDIV",
+        "AND",
+        "OR",
+        "XOR",
+        "NOT",
+        "TEST"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Control flow and flags",
+      "examples": [
+        "Jcc",
+        "JMP",
+        "CALL",
+        "RET",
+        "LOOP",
+        "JCXZ/JECXZ/JRCXZ",
+        "CLC",
+        "STC",
+        "CMC",
+        "CLD",
+        "STD",
+        "LAHF",
+        "SAHF",
+        "PUSHF/POPF"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "String and port I/O",
+      "examples": [
+        "MOVS",
+        "CMPS",
+        "SCAS",
+        "LODS",
+        "STOS",
+        "INS",
+        "OUTS",
+        "IN",
+        "OUT",
+        "REP/REPE/REPNE"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Segmentation and system control",
+      "examples": [
+        "segment overrides",
+        "descriptor tables",
+        "control registers",
+        "debug registers",
+        "privileged instructions",
+        "interrupt/exception delivery",
+        "IRET"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Paging and memory protection",
+      "examples": [
+        "legacy paging",
+        "PAE",
+        "long-mode paging",
+        "page faults",
+        "protection checks",
+        "NX",
+        "SMEP/SMAP where supported"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Floating point and vector extensions",
+      "examples": [
+        "x87",
+        "MMX",
+        "SSE/SSE2",
+        "AVX/AVX2",
+        "AVX-512"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Atomic and synchronization operations",
+      "examples": [
+        "LOCK prefix",
+        "CMPXCHG",
+        "XADD",
+        "fences",
+        "atomic memory ordering"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Virtualization and advanced extensions",
+      "examples": [
+        "VMX",
+        "SVM",
+        "SGX",
+        "CET",
+        "AMX and vendor-specific extensions"
+      ],
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  ],
+  "cpu_profiles": [
+    {
+      "name": "8086/8088",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "IA-32 / i386",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "x86-64 / AMD64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  ],
+  "machine_features": {
+    "interrupt_and_exception_delivery": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "privilege_rings_and_transitions": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "paging_and_tlb": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "segmentation_and_descriptor_tables": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "memory_mapped_and_port_io_devices": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    "precise_exceptions_and_debug_state": {
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  },
+  "backends": [
+    {
+      "name": "x86-64 interpreter",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "IA-32 interpreter",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "x86-64 dynamic recompiler",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  ],
+  "non_cisc_backends": [
+    {
+      "name": "AArch64",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "ARM32",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "MIPS",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    },
+    {
+      "name": "Power ISA",
+      "documented": true,
+      "encoded": false,
+      "decoded": false,
+      "executed": false,
+      "conformance-tested": false
+    }
+  ],
+  "research_sources": [
+    {
+      "title": "Intel 64 and IA-32 Architectures Software Developer Manuals",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "scope": "Normative Intel instruction reference, system programming, memory management, interrupts/exceptions, VMX, SGX, MSRs; page reports latest update 2026-09-21."
+    },
+    {
+      "title": "AMD64 Architecture Programmer's Manual, Volume 3",
+      "url": "https://docs.amd.com/api/khub/documents/j44LvPXzuuXgM0WyHKQfeQ/content",
+      "scope": "General-purpose and system instruction semantics, opcode and exception details; Rev. 3.37 July 2025."
+    },
+    {
+      "title": "QEMU emulation documentation",
+      "url": "https://www.qemu.org/docs/master/about/emulation.html",
+      "scope": "Cross-check of established architecture families supported by a production emulator; not a normative ISA specification."
+    },
+    {
+      "title": "Intel X86 Encoder Decoder (XED)",
+      "url": "https://github.com/intelxed/xed",
+      "scope": "Reference implementation/library for x86 instruction encoding and decoding; not an execution engine."
+    }
+  ],
+  "architecture_families": [
+    {
+      "name": "x86 / IA-32",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "little",
+      "status": "inventory-only",
+      "tracked": true
+    },
+    {
+      "name": "x86-64 / AMD64",
+      "class": "CISC",
+      "instruction_encoding": "variable length with REX/VEX/EVEX families",
+      "endianness": "little",
+      "status": "inventory-only",
+      "tracked": true
+    },
+    {
+      "name": "Motorola 68000 family",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "big",
+      "status": "catalog-only",
+      "tracked": false
+    },
+    {
+      "name": "IBM System z / z-Architecture",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "big",
+      "status": "catalog-only",
+      "tracked": false
+    },
+    {
+      "name": "DEC VAX",
+      "class": "CISC",
+      "instruction_encoding": "variable length",
+      "endianness": "little",
+      "status": "catalog-only",
+      "tracked": false
+    }
+  ]
+}
