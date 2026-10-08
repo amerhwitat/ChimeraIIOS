@@ -1596,5 +1596,51 @@
       "url": "https://www.bitsavers.org/pdf/dec/vax/",
       "scope": "Historical VAX architecture references"
     }
+  ],
+  "research_policy": "Architecture-specific coverage must distinguish documented, encoded, decoded, executed, and conformance-tested. Catalog entries and worked encoding samples do not imply executable backend support.",
+  "normative_sources": [
+    {
+      "family": "RISC-V",
+      "title": "RISC-V Ratified Specifications Library",
+      "url": "https://docs.riscv.org/",
+      "scope": "Normative specifications and ratification status."
+    },
+    {
+      "family": "RISC-V",
+      "title": "RV32I Base Integer ISA v2.1",
+      "url": "https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html",
+      "scope": "Base integer instructions and encoding rules."
+    },
+    {
+      "family": "RISC-V",
+      "title": "Privileged Architecture, Machine-Level ISA",
+      "url": "https://docs.riscv.org/reference/isa/priv/machine.html",
+      "scope": "Privilege, CSR, trap, interrupt, PMP behavior."
+    },
+    {
+      "family": "x86",
+      "title": "Intel 64 and IA-32 Software Developer Manuals",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "scope": "Normative Intel instruction and system programming reference."
+    },
+    {
+      "family": "x86",
+      "title": "AMD64 Architecture Programmer's Manual",
+      "url": "https://docs.amd.com/api/khub/documents/j44LvPXzuuXgM0WyHKQfeQ/content",
+      "scope": "AMD64 instruction, opcode, flag, and exception reference."
+    },
+    {
+      "family": "Cross-architecture",
+      "title": "QEMU emulation documentation",
+      "url": "https://www.qemu.org/docs/master/about/emulation.html",
+      "scope": "Non-normative comparison for architecture and emulator coverage."
+    }
+  ],
+  "coverage_dimensions": [
+    "documented",
+    "encoded",
+    "decoded",
+    "executed",
+    "conformance-tested"
   ]
 }
