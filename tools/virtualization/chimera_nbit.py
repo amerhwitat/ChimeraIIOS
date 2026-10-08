@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Reference interpreter for the experimental Chimera N-bit ISA v0.1.
 
-This is a deterministic reference model, not a production hypervisor. N is
-selectable (32/64/128-bit GPRs); instruction words are fixed 32-bit little-endian.
+This is a deterministic reference model, not a production hypervisor. Register
+width N is configurable (positive byte multiples); Python integers model wide
+registers. Instruction words remain fixed 32-bit little-endian. Width is finite
+per instance and constrained by host memory, not mathematically infinite.
 """
 from dataclasses import dataclass, field
 
@@ -31,7 +33,10 @@ class ChimeraNBit:
     device_log:list=field(default_factory=list)
 
     def __post_init__(self):
-        if self.nbits not in (32,64,128): raise ValueError("N must be 32, 64, or 128")
+        if not isinstance(self.nbits, int) or isinstance(self.nbits, bool) or self.nbits < 8 or self.nbits % 8:
+            raise ValueError("N must be a positive byte-aligned width of at least 8 bits")
+        if self.nbits > 1_048_576:
+            raise ValueError("N exceeds the reference interpreter safety limit (1,048,576 bits)")
         if self.memory_size<4096 or self.memory_size%4: raise ValueError("memory size must be >=4096 and 4-byte aligned")
         if not self.memory: self.memory=bytearray(self.memory_size)
         if len(self.memory)!=self.memory_size: raise ValueError("memory length mismatch")
