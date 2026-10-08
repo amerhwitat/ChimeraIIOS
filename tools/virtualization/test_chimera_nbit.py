@@ -27,6 +27,26 @@ class NBitTests(unittest.TestCase):
         c.run(); self.assertEqual(c.regs[2],5)
     def test_rejects_invalid_width(self):
         with self.assertRaises(ValueError): ChimeraNBit(24)
+        with self.assertRaises(ValueError): ChimeraNBit(0)
+
+    def test_register_width_beyond_8192_bits(self):
+        width = 16384
+        c = ChimeraNBit(width)
+        value = (1 << (width - 1)) | 0xA5
+        c.regs[1] = value
+        c.load_program([c.encode(OP_ADD, 2, 1, 1), c.encode(OP_HALT)])
+        c.run()
+        self.assertEqual(c.regs[2], (value * 2) & ((1 << width) - 1))
+        self.assertEqual(c.nbits, width)
+
+    def test_arbitrary_width_masks_results(self):
+        width = 32768
+        c = ChimeraNBit(width)
+        c.regs[1] = (1 << width) - 1
+        c.regs[2] = 1
+        c.load_program([c.encode(OP_ADD, 3, 1, 2), c.encode(OP_HALT)])
+        c.run()
+        self.assertEqual(c.regs[3], 0)
     def test_step_limit(self):
         c=ChimeraNBit(); c.load_program([c.encode(OP_JMP,imm=0)])
         r=c.run(max_steps=5); self.assertEqual(r["steps"],5); self.assertFalse(r["halted"])
