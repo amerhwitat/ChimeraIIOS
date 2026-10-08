@@ -991,6 +991,7 @@ PYISA
   python3 "$SCRIPT_DIR/tools/validate_isa_catalog.py" || { log_error "ISA sample validation failed"; return 1; }
   python3 "$SCRIPT_DIR/tools/isa/generate_encoding_artifacts.py" || { log_error "ISA encoding artifact generation failed"; return 1; }
   [[ -s "$SCRIPT_DIR/isa/generated/isa-encoding-samples.json" ]] || { log_error "ISA sample JSON missing"; return 1; }
+  [[ -s "$SCRIPT_DIR/isa/generated/isa-encoding-registry.json" ]] || { log_error "ISA encoding registry JSON missing"; return 1; }
   [[ -s "$SCRIPT_DIR/kernel/generated/chimera_isa_encoding_samples.generated.h" ]] || { log_error "ISA sample header missing"; return 1; }
   log_info "Scanning cached command catalogs before crawling SS64"
   [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
