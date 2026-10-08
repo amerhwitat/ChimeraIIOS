@@ -21,6 +21,20 @@ class QemuProfileSmokeTests(unittest.TestCase):
             self.assertEqual(result.returncode,0,f"{binary} -machine help failed: {result.stderr}")
             listing=result.stdout+result.stderr
             self.assertIn(p["machine"],listing,f"machine {p['machine']} not listed by {binary}")
+            # Start the selected machine with vCPUs paused. This validates that QEMU
+            # can initialize the configured machine/CPU; it does not boot a guest OS.
+            args=[binary,"-machine",p["machine"],"-cpu",p["cpu"],"-m","128M",
+                  "-display","none","-nodefaults","-S","-monitor","none",
+                  "-serial","none","-no-reboot"]
+            proc=subprocess.Popen(args,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True)
+            try:
+                code=proc.wait(timeout=1.5)
+                stderr=proc.stderr.read() if proc.stderr else ""
+                self.assertEqual(code,0,f"profile startup exited for {p['id']}: {stderr}")
+            except subprocess.TimeoutExpired:
+                proc.terminate()
+                try:proc.wait(timeout=3)
+                except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=3)
         if checked==0:self.skipTest("No configured QEMU system binaries installed on this runner")
 
 if __name__=="__main__": unittest.main()
