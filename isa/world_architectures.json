@@ -404,5 +404,108 @@
       "name": "Texas Instruments C6000 Code Generation Tools documentation",
       "url": "https://www.ti.com/tool/TI-CGT"
     }
-  ]
+  ],
+  "processor_hierarchy": {
+    "schema": "CHM-PROCESSOR-HIERARCHY-1",
+    "layers": [
+      "vendor",
+      "product family",
+      "microarchitecture/core generation",
+      "processor SKU or SoC",
+      "CPU core/cluster",
+      "ISA profile and extensions",
+      "execution backend status"
+    ],
+    "policy": "This is a sourced hierarchy index, not an exhaustive SKU database. A family listing does not imply that every model, extension, ABI, peripheral, or accelerator is supported or executable by Chimera II OS.",
+    "families": [
+      {
+        "vendor": "Intel",
+        "family": "Core / Xeon / Atom",
+        "generations": "Generation-specific Core, server, and efficiency-core designs",
+        "isa": "IA-32 / Intel 64; optional ISA extensions vary by model",
+        "source": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "backend_status": "catalog-and-toolchain-dependent"
+      },
+      {
+        "vendor": "AMD",
+        "family": "Ryzen / EPYC / embedded x86",
+        "generations": "Zen-family generations and product-specific features",
+        "isa": "x86-64 / IA-32; optional ISA extensions vary by model",
+        "source": "https://www.amd.com/en/search/documentation/hub.html",
+        "backend_status": "catalog-and-toolchain-dependent"
+      },
+      {
+        "vendor": "Arm ecosystem",
+        "family": "Cortex-A / Cortex-R / Cortex-M / Neoverse",
+        "generations": "Application, real-time, microcontroller, and infrastructure core profiles",
+        "isa": "AArch64 / AArch32 / Thumb; profile-specific",
+        "source": "https://developer.arm.com/documentation",
+        "backend_status": "profile-and-extension-specific"
+      },
+      {
+        "vendor": "Apple",
+        "family": "A-series / M-series Apple silicon",
+        "generations": "SoC-specific CPU clusters and implementation features",
+        "isa": "AArch64 with implementation-specific features",
+        "source": "https://developer.apple.com/documentation/",
+        "backend_status": "catalog-only-unless-backend-enabled"
+      },
+      {
+        "vendor": "Qualcomm",
+        "family": "Snapdragon / Oryon / mobile and PC SoCs",
+        "generations": "SoC-specific CPU clusters and accelerator blocks",
+        "isa": "AArch64 or separate accelerator ISAs",
+        "source": "https://developer.qualcomm.com/",
+        "backend_status": "catalog-only-unless-backend-enabled"
+      },
+      {
+        "vendor": "RISC-V ecosystem",
+        "family": "SiFive / Andes / T-Head and other implementations",
+        "generations": "Core-specific profiles, extensions, CSRs, and optional vector/crypto features",
+        "isa": "RISC-V base ISA plus advertised extensions",
+        "source": "https://docs.riscv.org/",
+        "backend_status": "profile-and-extension-specific"
+      },
+      {
+        "vendor": "IBM / OpenPOWER",
+        "family": "POWER server processors",
+        "generations": "POWER generation and implementation-specific features",
+        "isa": "Power ISA",
+        "source": "https://openpower.foundation/specifications/isa/",
+        "backend_status": "catalog-only-unless-backend-enabled"
+      },
+      {
+        "vendor": "NVIDIA",
+        "family": "GeForce / RTX / data-center GPUs",
+        "generations": "GPU compute-capability generations",
+        "isa": "GPU machine ISA and PTX toolchain layers",
+        "source": "https://docs.nvidia.com/cuda/",
+        "backend_status": "requires GPU compiler/runtime backend"
+      },
+      {
+        "vendor": "AMD",
+        "family": "Radeon / Instinct GPUs",
+        "generations": "GCN / RDNA / CDNA families and generations",
+        "isa": "GPU generation-specific instruction sets",
+        "source": "https://rocm.docs.amd.com/en/latest/reference/gpu-arch/index.html",
+        "backend_status": "requires GPU compiler/runtime backend"
+      },
+      {
+        "vendor": "Texas Instruments",
+        "family": "MSP430 / C6000 DSP",
+        "generations": "MCU and DSP family variants",
+        "isa": "MSP430 and C6000-specific instruction forms",
+        "source": "https://www.ti.com/tool/TI-CGT",
+        "backend_status": "catalog-only-unless-backend-enabled"
+      },
+      {
+        "vendor": "Microchip",
+        "family": "PIC24 / dsPIC",
+        "generations": "Device-family-specific 16-bit MCU/DSP variants",
+        "isa": "PIC24/dsPIC instruction forms",
+        "source": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/16-bit-mcus",
+        "backend_status": "catalog-only-unless-backend-enabled"
+      }
+    ]
+  }
 }
