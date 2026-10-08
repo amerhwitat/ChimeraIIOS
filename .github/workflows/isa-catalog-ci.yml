@@ -51,7 +51,7 @@ jobs:
           python -m pytest tests/isa/test_catalog.py tests/test_isa_registry.py -q
       - name: Test binary identification and swap reference backends
         run: |
-          python -m unittest discover -s tools/binary -p 'test_*.py' -v
+          PYTHONPATH=tools/binary python -m unittest discover -s tools/binary -p 'test_*.py' -v
           python -m unittest discover -s tools/memory -p 'test_chimera_swap.py' -v
       - name: Build SQLite ISA database
         run: python tools/load_isa_database.py --output /tmp/chimera-isa.db
