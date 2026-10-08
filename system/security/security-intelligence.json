@@ -1,0 +1,25 @@
+{
+  "schema": "CHM-SEC-INTEL-1",
+  "version": 1,
+  "update_policy": {
+    "enabled": true,
+    "require_sha256": true,
+    "require_signature": true,
+    "atomic_activation": true,
+    "rollback_on_invalid": true,
+    "check_interval_hours": 6,
+    "offline_grace_hours": 168
+  },
+  "engines": {
+    "hash": true,
+    "heuristic": true,
+    "yara": "optional",
+    "clamav": "optional",
+    "rnn": "optional-local-model"
+  },
+  "response": {
+    "quarantine_directory": "/var/lib/chimera/security/quarantine",
+    "deny_execution_on_malicious": true,
+    "log_path": "/var/log/chimera/security.log"
+  }
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=Chimera II OS native malware and spyware protection
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/chimera/tools/security/chimera_securityd.py scan-tree /home
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/chimera/security /var/log/chimera
+
+[Install]
+WantedBy=multi-user.target

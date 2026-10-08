@@ -1,0 +1,13 @@
+{
+  "schema":"CHM-FIREWALL-1",
+  "backend":"nftables",
+  "default_profile":"public",
+  "profiles":{
+    "private":{"default_input":"drop","default_output":"accept","default_forward":"drop","allow_established":true,"allow_icmp":true,"allow_mdns":true},
+    "public":{"default_input":"drop","default_output":"accept","default_forward":"drop","allow_established":true,"allow_icmp":false,"allow_mdns":false},
+    "wide-area":{"default_input":"drop","default_output":"accept","default_forward":"drop","allow_established":true,"allow_icmp":false,"allow_mdns":false},
+    "domain":{"default_input":"drop","default_output":"accept","default_forward":"drop","allow_established":true,"allow_icmp":true,"allow_dns":true,"allow_kerberos":true}
+  },
+  "safe_defaults":{"loopback":"accept","invalid":"drop","forwarding":"disabled"},
+  "management":{"require_root":true,"audit_changes":true,"fail_closed":true}
+}
