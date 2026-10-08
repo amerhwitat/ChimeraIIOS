@@ -49,7 +49,7 @@ class HypervisorTests(unittest.TestCase):
             hv.build_command("made-up", registry=self.registry, which=self.which)
 
     def test_rejects_unsupported_accelerator(self):
-        with self.assertRaisesRegex(RuntimeError, "not declared"):
+        with self.assertRaisesRegex(RuntimeError, "KVM unavailable"):
             hv.build_command("riscv32", accelerator="kvm", registry=self.registry,
                              which=self.which, kvm_path=Path("/dev/null"))
 
