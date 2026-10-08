@@ -47,6 +47,19 @@ class MachineTests(unittest.TestCase):
         self.assertEqual(out['mcause'],4)
         self.assertEqual(out['mepc'],4)
 
+    def test_ori_uses_bitwise_or(self):
+        m=self.machine([enc_i(0x100,0,0,1), enc_i(0x10,1,6,2), 0x00100073])
+        out=m.run()
+        self.assertEqual(out['registers'][2],0x110)
+
+    def test_fence_base_encoding_and_illegal_fence_i(self):
+        m=self.machine([0x0ff0000f, 0x00100073])
+        self.assertTrue(m.run()['halted'])
+        bad=self.machine([0x0000100f])
+        out=bad.run()
+        self.assertEqual(out['mcause'],2)
+        self.assertEqual(out['mtval'],0x0000100f)
+
     def test_x0_is_hardwired(self):
         m=self.machine([enc_i(7,0,0,0),0x00100073])
         self.assertEqual(m.run()['registers'][0],0)
