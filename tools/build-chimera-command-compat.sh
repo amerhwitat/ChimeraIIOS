@@ -45,7 +45,7 @@ set -euo pipefail
 # C compiler automatically.
 #
 if [[ -n "${CC:-}" ]]; then
-    CHIMERA_CC="$CHIMERA_CC"
+    CHIMERA_CC="$CC"
 elif command -v cc >/dev/null 2>&1; then
     CHIMERA_CC="$(command -v cc)"
 elif command -v gcc >/dev/null 2>&1; then
@@ -59,10 +59,7 @@ else
 fi
 
 echo "[CHIMERA-CMD] C compiler: $CHIMERA_CC"
-# --- END CHIMERA COMPILER SELECTION ---
-
 ROOT="${CHIMERA_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
 BUILD="$ROOT/build"
 SRC="$ROOT/src/chimera-command-compat"
 OUT="$ROOT/rootfs"
@@ -73,68 +70,12 @@ ETC="$OUT/etc/chimera"
 CMDROOT="$ETC/commands"
 SHARE="$OUT/usr/share/chimera/commands"
 BACKUP="$ROOT/.chimera-fix-backups/command-compat"
-
 JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
+mkdir -p "$BIN" "$SBIN" "$LIB" "$ETC" "$CMDROOT" "$SHARE" "$BACKUP" "$BUILD"
 
-mkdir -p \
-    "$SRC" \
-    "$BIN" \
-    "$SBIN" \
-    "$LIB" \
-    "$ETC" \
-    "$CMDROOT" \
-    "$SHARE" \
-    "$BACKUP" \
-    "$BUILD"
-
-log() {
-    printf '[CHIMERA-CMD] %s\n' "$*"
-}
-
-warn() {
-    printf '[CHIMERA-CMD][WARNING] %s\n' "$*" >&2
-}
-
-die() {
-    printf '[CHIMERA-CMD][ERROR] %s\n' "$*" >&2
-    exit 1
-}
-
-backup_once() {
-    local src="$1"
-    local rel
-    local dst
-
-    [[ -e "$src" ]] || return 0
-
-    rel="${src#$ROOT/}"
-    rel="${rel//\//__}"
-    dst="$BACKUP/$rel"
-
-    if [[ ! -e "$dst" ]]; then
-        cp -p -- "$src" "$dst"
-        log "Backup: $dst"
-    fi
-}
-
-###############################################################################
-# 1. Native multicall command implementation
-###############################################################################
-
-"$CHIMERA_CC" \
-    -std=c11 \
-    -O2 \
-    -Wall \
-    -Wextra \
-    -Werror \
-    "$CC" \
-        -std=c11 \
-        -O2 \
-        -Wall \
-        -Wextra \
-        -Werror \
-        "$SRC/chimera-cmd.c" \
-        -o "$BIN/chimera-cmd"
+# Compile one real multicall executable. Command names are symlinks to this
+# binary; unimplemented names remain compatibility-provider lookups.
+"$CHIMERA_CC" -std=c11 -O2 -Wall -Wextra -Werror "$SRC/chimera-cmd.c" -o "$BIN/chimera-cmd"
 
 chmod 0755 "$BIN/chimera-cmd"
 
