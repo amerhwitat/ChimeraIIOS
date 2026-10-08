@@ -57,6 +57,7 @@ extern "C" void __cxa_pure_virtual() {
 
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
+#include "chimera/watchdog.h"
 
 extern "C" [[noreturn]] void koronos_idle_loop() {
     /*
