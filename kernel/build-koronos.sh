@@ -74,8 +74,6 @@ grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos
 auto_banner=''
 grep -aF '[WDOG] Watchdog ABI online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: watchdog bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
-grep -aF '[WDOG] Watchdog ABI online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: watchdog bootstrap is missing from Koronos ELF" >&2; exit 1; }
-
 printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
 cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
 mkdir -p "$BUILD/nbit"
