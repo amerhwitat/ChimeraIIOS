@@ -24,7 +24,7 @@ class QemuProfileSmokeTests(unittest.TestCase):
             # Start the selected machine with vCPUs paused. This validates that QEMU
             # can initialize the configured machine/CPU; it does not boot a guest OS.
             args=[binary,"-machine",p["machine"],"-cpu",p["cpu"],"-m","128M",
-                  "-display","none","-nodefaults","-S","-monitor","none",
+                  "-audiodev","none,id=audio0","-display","none","-nodefaults","-S","-monitor","none",
                   "-serial","none","-no-reboot"]
             # Don't require a separately packaged OpenSBI firmware just to test
             # board/CPU initialization; actual guest boot tests must supply it.
