@@ -309,6 +309,7 @@ static void task_monitor(void *) {
 }
 
 static void task_kore(void *) {
+    chimera_watchdog_heartbeat(WDOG_KORE, chimera_timer_now()*1000000ull);
     static bool started = false;
     if (!started) {
         started = true;
@@ -365,6 +366,11 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
+    chimera_timer_init();
+    chimera_watchdog_register(WDOG_KORONOS, 5000000000ull, 0);
+    chimera_watchdog_register(WDOG_MICROKERNEL, 5000000000ull, 0);
+    chimera_watchdog_register(WDOG_KORE, 5000000000ull, 0);
+    console_write("[WDOG] Kernel watchdog initialized (5s core-service timeout)");
     chimera_learning_init(f->logical_cpus);
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
