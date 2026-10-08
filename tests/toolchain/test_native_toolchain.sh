@@ -43,4 +43,12 @@ EOF
 CHIMERA_ASSEMBLER=gnu bash "$ROOT/tools/toolchain/chimera-gas" -o "$TMP/native.o" "$TMP/native.s"
 test -s "$TMP/native.o"
 CHIMERA_NATIVE_LINKER=bfd bash "$ROOT/tools/toolchain/chimera-ld" --version >/dev/null
+cat > "$TMP/chimera.asm" <<'EOF'
+ADD r1, r2, r3
+HALT
+EOF
+bash "$ROOT/tools/chimera-asm/chimera-ncb-as.sh" "$TMP/chimera.asm" "$TMP/chimera.ncb" 8192 1
+python3 "$ROOT/tools/chimera-asm/chimera-ncb-dis.py" "$TMP/chimera.ncb" > "$TMP/chimera.dis"
+grep -q 'ADD r1, r2, r3' "$TMP/chimera.dis"
+grep -q 'HALT r0, r0, r0' "$TMP/chimera.dis"
 echo "native C/C++/ASM/linker toolchain conformance passed"
