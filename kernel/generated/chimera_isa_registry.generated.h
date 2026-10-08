@@ -153,5 +153,8 @@ static const chimera_isa_entry CHIMERA_ISA_REGISTRY[] = {
   {"RISC-V","riscv64","LH","0x00811083","00000000000000000111000001111111","register, memory","LH x1,8(x2) [load]",32},
   {"RISC-V","riscv64","LBU","0x00814083","00000000000000000111000001111111","register, memory","LBU x1,8(x2) [load]",32},
   {"RISC-V","riscv64","MRET","0x30200073","11111111111111111111111111111111","implicit","MRET [system]",32},
+  {"AArch32/T32","arm32-thumb","NOP","0xBF00","1111111111111111","implicit","NOP [thumb16]",16},
+  {"AArch32/T32","arm32-thumb","MOVS","0x2000","1111100000000000","register, immediate","MOVS r0,#0 [thumb16-imm8]",16},
+  {"AArch32/T32","arm32-thumb","BX","0x4770","1111111110000111","register","BX r14 [thumb16-reg]",16},
 };
 static const uint32_t CHIMERA_ISA_REGISTRY_COUNT = sizeof(CHIMERA_ISA_REGISTRY)/sizeof(CHIMERA_ISA_REGISTRY[0]);
