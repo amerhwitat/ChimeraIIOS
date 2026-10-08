@@ -1,0 +1,76 @@
+name: ISA and Native Command Runtime CI
+on:
+  push:
+    paths:
+      - 'isa/**'
+      - 'kernel/core/isa_registry.cpp'
+      - 'kernel/include/chimera/isa_registry.h'
+      - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
+      - 'tools/isa/generate_encoding_artifacts.py'
+      - 'tools/validate_isa_catalog.py'
+      - 'src/chimera-command-compat/**'
+      - 'tools/build-chimera-command-compat.sh'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/isa-command-runtime-ci.yml'
+  pull_request:
+    paths:
+      - 'isa/**'
+      - 'kernel/core/isa_registry.cpp'
+      - 'kernel/include/chimera/isa_registry.h'
+      - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
+      - 'tools/isa/generate_encoding_artifacts.py'
+      - 'tools/validate_isa_catalog.py'
+      - 'src/chimera-command-compat/**'
+      - 'tools/build-chimera-command-compat.sh'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/isa-command-runtime-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-and-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate exact binary and hexadecimal samples
+        run: |
+          python3 tools/validate_isa_catalog.py
+          python3 tools/isa/generate_encoding_artifacts.py
+          git diff --exit-code -- isa/generated/isa-encoding-samples.json kernel/generated/chimera_isa_encoding_samples.generated.h
+      - name: Compile kernel ISA lookup registry
+        run: |
+          c++ -std=c++17 -Wall -Wextra -Werror -I kernel/include -c kernel/core/isa_registry.cpp -o /tmp/chimera-isa-registry.o
+          cat > /tmp/chimera-isa-registry-test.cpp <<'CPP'
+          #include <cstdint>
+          #include "chimera/isa_registry.h"
+          int main() {
+            if (chimera_isa_sample_count() == 0) return 1;
+            if (!chimera_isa_find_sample("riscv", "ADD")) return 2;
+            return 0;
+          }
+          CPP
+          c++ -std=c++17 -Wall -Wextra -Werror -I kernel/include /tmp/chimera-isa-registry-test.cpp kernel/core/isa_registry.cpp -o /tmp/chimera-isa-registry-test
+          /tmp/chimera-isa-registry-test
+      - name: Compile and smoke-test native command multicall binary
+        run: |
+          cc -std=c11 -O2 -Wall -Wextra -Werror src/chimera-command-compat/chimera-cmd.c -o /tmp/chimera-cmd
+          test "$(/tmp/chimera-cmd echo Chimera-native-ok)" = "Chimera-native-ok"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          ln -s /tmp/chimera-cmd "$tmp/pwd"
+          ln -s /tmp/chimera-cmd "$tmp/true"
+          ln -s /tmp/chimera-cmd "$tmp/false"
+          ln -s /tmp/chimera-cmd "$tmp/mv"
+          ln -s /tmp/chimera-cmd "$tmp/cp"
+          ln -s /tmp/chimera-cmd "$tmp/cat"
+          "$tmp/true"
+          if "$tmp/false"; then echo 'false command returned success' >&2; exit 1; fi
+          printf 'move-test\n' > "$tmp/from"
+          "$tmp/mv" "$tmp/from" "$tmp/to"
+          test ! -e "$tmp/from"
+          test "$("$tmp/cat" "$tmp/to")" = "move-test"
+          "$tmp/cp" "$tmp/to" "$tmp/copy"
+          test "$("$tmp/cat" "$tmp/copy")" = "move-test"
