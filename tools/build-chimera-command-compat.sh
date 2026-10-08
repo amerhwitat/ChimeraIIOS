@@ -73,6 +73,18 @@ BACKUP="$ROOT/.chimera-fix-backups/command-compat"
 JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
 mkdir -p "$BIN" "$SBIN" "$LIB" "$ETC" "$CMDROOT" "$SHARE" "$BACKUP" "$BUILD"
 
+log() { printf '[CHIMERA-CMD] %s\n' "$*"; }
+warn() { printf '[CHIMERA-CMD][WARNING] %s\n' "$*" >&2; }
+die() { printf '[CHIMERA-CMD][ERROR] %s\n' "$*" >&2; exit 1; }
+backup_once() {
+    local src="$1" rel dst
+    [[ -e "$src" ]] || return 0
+    rel="${src#$ROOT/}"
+    rel="${rel//\//__}"
+    dst="$BACKUP/$rel"
+    if [[ ! -e "$dst" ]]; then cp -p -- "$src" "$dst"; log "Backup: $dst"; fi
+}
+
 # Compile one real multicall executable. Command names are symlinks to this
 # binary; unimplemented names remain compatibility-provider lookups.
 "$CHIMERA_CC" -std=c11 -O2 -Wall -Wextra -Werror "$SRC/chimera-cmd.c" -o "$BIN/chimera-cmd"
