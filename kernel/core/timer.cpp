@@ -1,6 +1,7 @@
 #include "chimera/timer.h"
 #include "chimera/thread.h"
 #include "chimera/sync.h"
+#include "chimera/watchdog.h"
 
 namespace {
 struct Timer { uint64_t due, period; chimera_timer_callback callback; void *context; uint8_t active; };
@@ -10,7 +11,7 @@ uint64_t now_tick=0, next_id=1;
 static void lock(){while(__sync_lock_test_and_set(&lock_word,1u)){}}
 static void unlock(){__sync_lock_release(&lock_word);}
 }
-extern "C" int chimera_timer_init(void){ lock(); for(uint32_t i=0;i<CHIMERA_TIMER_MAX;++i) timers[i]={}; now_tick=0; next_id=1; unlock(); return 0; }
+extern "C" int chimera_timer_init(void){ lock(); for(uint32_t i=0;i<CHIMERA_TIMER_MAX;++i) timers[i]={}; now_tick=0; next_id=1; unlock(); return chimera_watchdog_init(0); }
 extern "C" int chimera_timer_create(uint64_t due,uint64_t period,chimera_timer_callback cb,void*ctx,chimera_timer_id*out){
  if(!cb||!out)return-1;
  lock();
