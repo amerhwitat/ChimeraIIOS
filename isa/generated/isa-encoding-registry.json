@@ -1,7 +1,7 @@
 {
   "schema": "CHM-ISA-ENCODING-REGISTRY-2",
   "scope": "Encoding templates are canonical bit patterns with masks; worked samples are exact operand examples. Neither list implies exhaustive ISA/backend support.",
-  "template_count": 142,
+  "template_count": 151,
   "sample_count": 51,
   "encoding_templates": [
     {
@@ -2403,6 +2403,162 @@
       "hex": "0x5000",
       "mask_binary": "1111000000000000",
       "mask_hex": "0xF000",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SLTI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "SLTI x1,x2,1",
+      "bits": 32,
+      "binary": "00000000000100010010000010010011",
+      "hex": "0x00112093",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "XORI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "XORI x1,x2,1",
+      "bits": 32,
+      "binary": "00000000000100010100000010010011",
+      "hex": "0x00114093",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "ORI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "ORI x1,x2,1",
+      "bits": 32,
+      "binary": "00000000000100010110000010010011",
+      "hex": "0x00116093",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "ANDI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "ANDI x1,x2,1",
+      "bits": 32,
+      "binary": "00000000000100010111000010010011",
+      "hex": "0x00117093",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SB",
+      "form": "store",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "SB x3,8(x2)",
+      "bits": 32,
+      "binary": "00000000001100010000010000100011",
+      "hex": "0x00310423",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "SH",
+      "form": "store",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "SH x3,8(x2)",
+      "bits": 32,
+      "binary": "00000000001100010001010000100011",
+      "hex": "0x00311423",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "LH",
+      "form": "load",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LH x1,8(x2)",
+      "bits": 32,
+      "binary": "00000000100000010001000010000011",
+      "hex": "0x00811083",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "LBU",
+      "form": "load",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LBU x1,8(x2)",
+      "bits": 32,
+      "binary": "00000000100000010100000010000011",
+      "hex": "0x00814083",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv64",
+      "family": "RISC-V",
+      "mnemonic": "MRET",
+      "form": "system",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "MRET",
+      "bits": 32,
+      "binary": "00110000001000000000000001110011",
+      "hex": "0x30200073",
+      "mask_binary": "11111111111111111111111111111111",
+      "mask_hex": "0xFFFFFFFF",
       "encoding_kind": "canonical-pattern-with-variable-fields"
     }
   ],
