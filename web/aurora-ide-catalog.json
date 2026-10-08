@@ -1,0 +1,53 @@
+{
+  "schema": "chimera-ide-catalog-v1",
+  "policy": {
+    "official_downloads_only": true,
+    "automatic_installation": false,
+    "redistribute_proprietary": false,
+    "verify_signatures": true
+  },
+  "ides": [
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code",
+      "description": "Microsoft source-code editor with extensions and integrated debugging.",
+      "license": "Microsoft product license; redistribution restrictions apply",
+      "download": "https://code.visualstudio.com/download"
+    },
+    {
+      "id": "vscodium",
+      "name": "VSCodium",
+      "description": "Community-built binaries of VS Code without Microsoft branding/telemetry defaults.",
+      "license": "MIT source project; bundled components retain their licenses",
+      "download": "https://vscodium.com/"
+    },
+    {
+      "id": "qt-creator",
+      "name": "Qt Creator",
+      "description": "Cross-platform C/C++ IDE supporting CMake, Ninja, GCC and Clang.",
+      "license": "Qt Creator open-source and commercial licensing terms",
+      "download": "https://www.qt.io/product/development-tools"
+    },
+    {
+      "id": "codeblocks",
+      "name": "Code::Blocks",
+      "description": "Extensible C/C++ IDE with GCC and other toolchain integrations.",
+      "license": "GPL-3.0-or-later; verify upstream package terms",
+      "download": "https://www.codeblocks.org/downloads/"
+    },
+    {
+      "id": "geany",
+      "name": "Geany",
+      "description": "Lightweight editor and IDE for C/C++ and assembly workflows.",
+      "license": "GPL-2.0-or-later",
+      "download": "https://www.geany.org/download/releases/"
+    },
+    {
+      "id": "kdevelop",
+      "name": "KDevelop",
+      "description": "C/C++ IDE with language services and debugger integrations.",
+      "license": "GPL-2.0-or-later",
+      "download": "https://www.kdevelop.org/download"
+    }
+  ]
+}

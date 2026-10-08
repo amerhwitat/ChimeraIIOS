@@ -2,7 +2,7 @@
   "schema": "CHM-BOOT-ARTWORK-3",
   "canonical_grub_background": "boot/visual/aurora-wayland-glass.jpg",
   "embedded_source": "boot/visual/aurora-wayland-glass.jpg.b64",
-  "embedded_source_sha256": "461825073f35b7c49ee741584db822f1ae6204424db18c2fe867825a7ee366ae",
+  "embedded_source_sha256": "fc8dd5f003acb69e1c4d9512ce04eefe00f35c525582c133babddeb8bbc78873",
   "embedded_source_dimensions": "480x268",
   "source_image": "Aurora-Wayland-Glass-Desktop.png.jpg",
   "sources": [
