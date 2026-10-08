@@ -194,10 +194,10 @@ static volatile uint32_t console_task_runs = 0;
 static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
 static volatile uint32_t installer_phase = 0;
-static constexpr uint32_t WDOG_KORONOS=1u, WDOG_MICROKERNEL=2u, WDOG_KORE=3u;
+
 
 static void task_console(void *) {
-    chimera_watchdog_heartbeat(WDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
+    chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_MICROKERNEL, chimera_timer_now()*1000000ull);
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");\n    chimera_sched_block();
 }
 
@@ -310,7 +310,7 @@ static void task_monitor(void *) {
 }
 
 static void task_kore(void *) {
-    chimera_watchdog_heartbeat(WDOG_KORE, chimera_timer_now()*1000000ull);
+    chimera_watchdog_heartbeat(CHIMERA_WATCHDOG_KORE, chimera_timer_now()*1000000ull);
     static bool started = false;
     if (!started) {
         started = true;
@@ -368,7 +368,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
     chimera_timer_init();
-    chimera_watchdog_register(WDOG_KORONOS, 5000000000ull, 0);
+    chimera_watchdog_register(CHIMERA_WATCHDOG_KORONOS, 5000000000ull, 0);
     chimera_watchdog_register(WDOG_MICROKERNEL, 5000000000ull, 0);
     chimera_watchdog_register(WDOG_KORE, 5000000000ull, 0);
     console_write("[WDOG] Kernel watchdog initialized (5s core-service timeout)");
