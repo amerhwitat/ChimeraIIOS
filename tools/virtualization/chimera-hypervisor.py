@@ -82,6 +82,7 @@ def build_command(backend_id, accelerator="auto", memory="512M", disk=None,
         raise ValueError("memory must be between 128M and 1024M")
     memory = match.group(1) + "M"
     args = [binary, "-accel", selected, "-m", memory, "-smp", str(vcpus),
+            "-audiodev", "none,id=audio0",
             "-display", "none" if headless else "gtk"]
     if profile:
         profile_data = json.loads(Path(profiles_path).read_text(encoding="utf-8"))
