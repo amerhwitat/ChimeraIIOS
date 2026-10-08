@@ -3,6 +3,7 @@ set -euo pipefail
 if [[ $# -lt 2 ]]; then echo "usage: chimera-ncb-as.sh input.asm output.ncb [word-bits] [isa-id]" >&2; exit 2; fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SRC="$(realpath "$1")"; OUT="$(realpath -m "$2")"; WORD="${3:-8192}"; ISA="${4:-1}"
+mkdir -p "$(dirname "$OUT")"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 "${CXX:-c++}" -std=c++20 -O2 "$ROOT/tools/chimera-asm/chimera-as.cpp" -o "$TMP/chimera-as"
 "$TMP/chimera-as" "$SRC" "$TMP/text.bin"
