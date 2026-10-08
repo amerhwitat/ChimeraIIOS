@@ -972,13 +972,11 @@ scan_isa_and_commands_before_network_crawl(){
   local isa_header="$SCRIPT_DIR/kernel/generated/chimera_isa_registry.generated.h"
   local isa_db="$SCRIPT_DIR/isa/isa_database.json"
   log_info "Scanning local ISA registry before any SS64 network crawl"
-  if [[ -f "$isa_header" ]]; then
-    log_info "Local generated ISA header found: $isa_header"
-    grep -E 'CHIMERA_ISA|ISA_REGISTRY|instruction|mnemonic' "$isa_header" | head -n 3 || true
-  else
-    log_warning "Generated ISA header missing; regenerating from the canonical ISA database"
-    python3 "$SCRIPT_DIR/tools/isa/generate_registry.py"
-  fi
+  [[ -s "$isa_db" ]] || { log_error "Canonical ISA database missing: $isa_db"; return 1; }
+  log_info "Regenerating the kernel ISA header from the canonical database before network access"
+  python3 "$SCRIPT_DIR/tools/isa/generate_registry.py" || { log_error "ISA registry generation failed"; return 1; }
+  log_info "Generated ISA header: $isa_header"
+  grep -E 'CHIMERA_ISA|ISA_REGISTRY|instruction|mnemonic' "$isa_header" | head -n 3 || true
   [[ -s "$isa_header" ]] || { log_error "ISA registry header unavailable after generation"; return 1; }
   [[ -s "$isa_db" ]] || { log_error "Canonical ISA database missing: $isa_db"; return 1; }
   python3 - "$isa_db" "$isa_header" <<'PYISA'
