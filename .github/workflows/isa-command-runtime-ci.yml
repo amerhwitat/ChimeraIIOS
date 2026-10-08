@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'isa/**'
+      - 'build-chimera-iso.sh'
       - 'kernel/core/isa_registry.cpp'
       - 'kernel/include/chimera/isa_registry.h'
       - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
