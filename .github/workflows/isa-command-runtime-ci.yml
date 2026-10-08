@@ -8,6 +8,11 @@ on:
       - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
       - 'tools/isa/generate_encoding_artifacts.py'
       - 'tools/validate_isa_catalog.py'
+      - 'tools/commands/generate_runtime_manifest.py'
+      - 'system/commands/chimera-command-list.json'
+      - 'system/commands/ss64-command-catalog.ar.json'
+      - 'system/commands/ss64-command-catalog.json'
+      - 'system/commands/command-runtime-capabilities.json'
       - 'src/chimera-command-compat/**'
       - 'tools/build-chimera-command-compat.sh'
       - 'system/commands/compatibility-binary-policy.json'
@@ -40,6 +45,10 @@ jobs:
           python3 tools/validate_isa_catalog.py
           python3 tools/isa/generate_encoding_artifacts.py
           git diff --exit-code -- isa/generated/isa-encoding-samples.json kernel/generated/chimera_isa_encoding_samples.generated.h
+      - name: Validate command capability manifest is reproducible
+        run: |
+          python3 tools/commands/generate_runtime_manifest.py
+          git diff --exit-code -- system/commands/command-runtime-capabilities.json
       - name: Compile kernel ISA lookup registry
         run: |
           c++ -std=c++17 -Wall -Wextra -Werror -I kernel/include -c kernel/core/isa_registry.cpp -o /tmp/chimera-isa-registry.o
