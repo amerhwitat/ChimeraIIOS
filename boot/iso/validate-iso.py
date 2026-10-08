@@ -16,6 +16,27 @@ def validate(tree: pathlib.Path):
     missing=[d for d in REQUIRED_DIRS if not (tree/d).is_dir()]
     missing += [f for f in REQUIRED_FILES if not (tree/f).is_file()]
     if missing: raise SystemExit('missing required ISO layout entries: '+', '.join(missing))
+    contract_path = tree/'boot/chimera/manifests/boot-pipeline-contract.json'
+    try:
+        contract = json.loads(contract_path.read_text())
+    except Exception as exc:
+        raise SystemExit(f'cannot read canonical boot pipeline contract: {exc}')
+    stages = tuple(item.get('stage') for item in contract.get('pipeline', []))
+    if stages != CANONICAL_STAGES:
+        raise SystemExit(f'canonical boot stage order mismatch: {stages!r}')
+    if contract.get('kernel_entry') != '/boot/koronos/koronos.elf':
+        raise SystemExit('canonical kernel entry must be /boot/koronos/koronos.elf')
+    grub = tree/'boot/grub/grub.cfg'
+    if grub.is_file():
+        grub_text = grub.read_text(errors='replace')
+        if 'multiboot2 /boot/koronos/koronos.elf' not in grub_text:
+            raise SystemExit('GRUB does not contain the canonical Koronos ELF handoff')
+        for obsolete in OBSOLETE_ARTWORK:
+            if obsolete in grub_text:
+                raise SystemExit(f'obsolete artwork reference in GRUB: {obsolete}')
+    for p in tree.rglob('*'):
+        if p.is_file() and any(name in p.name for name in OBSOLETE_ARTWORK):
+            raise SystemExit(f'obsolete artwork artifact present in ISO: {p.relative_to(tree)}')
     files=[]
     for p in sorted(tree.rglob('*')):
         if p.is_file() and 'checksums' not in p.parts:
