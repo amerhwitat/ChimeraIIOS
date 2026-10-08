@@ -192,6 +192,26 @@ static int cmd_cp(int argc, char **argv)
     return copy_file(argv[1], argv[2]);
 }
 
+static int cmd_mv(int argc, char **argv)
+{
+    if (argc != 3) {
+        fprintf(stderr, "usage: mv SOURCE DEST\n");
+        return 2;
+    }
+    if (!strcmp(argv[1], argv[2])) {
+        fprintf(stderr, "mv: source and destination are the same path\n");
+        return 1;
+    }
+    if (rename(argv[1], argv[2]) == 0)
+        return 0;
+    if (errno == EXDEV) {
+        if (copy_file(argv[1], argv[2]) == 0 && unlink(argv[1]) == 0)
+            return 0;
+    }
+    fprintf(stderr, "mv: %s: %s\n", argv[1], strerror(errno));
+    return 1;
+}
+
 static int cmd_touch(int argc, char **argv)
 {
     if (argc < 2) {
@@ -413,6 +433,9 @@ int main(int argc, char **argv)
 
     if (!strcmp(cmd, "cp"))
         return cmd_cp(argc, argv);
+
+    if (!strcmp(cmd, "mv"))
+        return cmd_mv(argc, argv);
 
     if (!strcmp(cmd, "touch"))
         return cmd_touch(argc, argv);
