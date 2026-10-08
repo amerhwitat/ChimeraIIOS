@@ -9,6 +9,7 @@ add_executable(chimera_kernel_sync_test
   ../../kernel/core/dpc.cpp
   ../../kernel/core/hardware.cpp
   ../../kernel/core/nbit.cpp
+  ../../kernel/core/watchdog.cpp
 )
 target_include_directories(chimera_kernel_sync_test PRIVATE
   ${CMAKE_SOURCE_DIR}/kernel/include
