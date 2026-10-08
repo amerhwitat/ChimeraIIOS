@@ -445,6 +445,17 @@ export_rootfs(){
 
 create_boot_menu(){
   header 'STEP 3: BUILD BOOT ARTIFACTS'
+  # Refresh advisory ISA/kernel/driver/mobile-OS research before producing boot artifacts.
+  # Set CHIMERA_ISA_RESEARCH=0 to skip network discovery; offline indexing remains available.
+  if [[ "${CHIMERA_ISA_RESEARCH:-1}" != "0" ]]; then
+    if command -v python3 >/dev/null 2>&1; then
+      python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" 2>&1 | tee -a "$LOG_DIR/isa-research.log" || {
+        log_warn "Online ISA research failed; continuing boot build with existing registries."
+      }
+    else
+      log_warn "python3 unavailable; skipping ISA research refresh."
+    fi
+  fi
   "$SCRIPT_DIR/kernel/build-koronos.sh"
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
