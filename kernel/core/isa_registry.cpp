@@ -9,3 +9,6 @@ extern "C" const void* chimera_isa_find_opcode(const char* architecture,const ch
 
 extern "C" uint32_t chimera_isa_sample_count(void){return CHIMERA_ISA_SAMPLE_COUNT;}
 extern "C" const void* chimera_isa_find_sample(const char* family,const char* mnemonic){for(uint32_t i=0;i<CHIMERA_ISA_SAMPLE_COUNT;i++)if(eq(CHIMERA_ISA_SAMPLES[i].family,family)&&eq(CHIMERA_ISA_SAMPLES[i].mnemonic,mnemonic))return &CHIMERA_ISA_SAMPLES[i];return (const void*)0;}
+
+extern "C" uint32_t chimera_isa_encoding_template_count(void){return CHIMERA_ISA_ENCODING_TEMPLATE_COUNT;}
+extern "C" const void* chimera_isa_find_encoding_template(const char* architecture,const char* mnemonic){for(uint32_t i=0;i<CHIMERA_ISA_ENCODING_TEMPLATE_COUNT;i++)if(eq(CHIMERA_ISA_ENCODING_TEMPLATES[i].architecture,architecture)&&eq(CHIMERA_ISA_ENCODING_TEMPLATES[i].mnemonic,mnemonic))return &CHIMERA_ISA_ENCODING_TEMPLATES[i];return (const void*)0;}
