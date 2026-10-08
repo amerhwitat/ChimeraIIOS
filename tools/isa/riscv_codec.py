@@ -128,6 +128,21 @@ def execute(program, max_steps=10000):
     return {"pc":pc*4,"steps":steps,"registers":regs,"halted":pc<0 or pc>=len(program) or (steps and decode(program[min(max(pc-1,0),len(program)-1)]) in ("ECALL","EBREAK"))}
 
 
+def execute(program, max_steps=10000):
+    """Execute through the shared RV32Machine, not a second interpreter."""
+    from rv32_machine import RV32Machine
+    if max_steps < 1:
+        raise ValueError("max_steps must be positive")
+    if any(not isinstance(word, int) or not 0 <= word <= MASK32 for word in program):
+        raise ValueError("program words must be unsigned 32-bit integers")
+    machine = RV32Machine(memory_size=max(65536, len(program) * 4 + 16))
+    machine.load(0, b"".join(word.to_bytes(4, "little") for word in program))
+    result = machine.run(max_steps=max_steps)
+    result["halted"] = bool(result["halted"])
+    result["engine"] = "RV32Machine"
+    return result
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__); sub=p.add_subparsers(dest="cmd",required=True)
     e=sub.add_parser("encode"); e.add_argument("instruction")
