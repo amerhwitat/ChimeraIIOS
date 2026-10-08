@@ -103,7 +103,27 @@
   <div class="actions"><button id="exportThamudicCSV">Export CSV</button><button id="exportThamudicJSON">Export JSON-LD</button><button id="exportThamudicTEI">Export TEI</button></div><pre id="thamudicExportPreview">No research record yet.</pre>
  </article>
 </section>
-<section id="view-controls" class="view">
+
+<section id="view-hypervisor" class="view">
+ <div class="section-head"><div><span class="eyebrow">MULTI-ISA VIRTUALIZATION</span><h2>Chimera Hypervisor Manager</h2></div><button id="hvRefresh">Refresh hosts / guests</button></div>
+ <article class="panel">
+  <p>Uses the local Chimera runtime bridge. QEMU profiles are target-specific; guests require compatible firmware or boot media. Native N-bit is a reference CPU preview and is not bootable as a virtual machine yet.</p>
+  <div class="form-grid">
+   <label>Machine profile<select id="hvProfile"><option value="">Connect to local bridge…</option></select></label>
+   <label>Acceleration<select id="hvAccel"><option value="auto">Auto (KVM if available, else TCG)</option><option value="tcg">TCG software emulation</option><option value="kvm">KVM (compatible host only)</option></select></label>
+   <label>Memory MiB<select id="hvMemory"><option>128</option><option>256</option><option selected>512</option><option>768</option><option>1024</option></select></label>
+   <label>vCPUs<select id="hvVcpus"><option selected>1</option><option>2</option></select></label>
+   <label>Guest disk path on host<input id="hvDisk" placeholder="/path/to/disk.qcow2"></label>
+   <label>ISO/CD-ROM path on host<input id="hvCdrom" placeholder="/path/to/installer.iso"></label>
+   <label>Kernel path on host<input id="hvKernel" placeholder="/path/to/kernel (optional)"></label>
+  </div>
+  <div class="actions"><button class="primary" id="hvStart">Start guest</button><button id="hvStopAllRefresh">Refresh status</button></div>
+  <div id="hvStatus" class="result-box" role="status">Waiting for the localhost bridge at 127.0.0.1:8765.</div>
+ </article>
+ <article class="panel"><h3>Detected profiles</h3><div id="hvProfiles" class="table-wrap">Not connected.</div></article>
+ <article class="panel"><h3>Guest processes</h3><div id="hvGuests" class="table-wrap">No guest status yet.</div></article>
+</section>
+\n<section id="view-controls" class="view">
  <div class="section-head"><div><span class="eyebrow">INPUT SYSTEM</span><h2>Keyboard / mouse / gamepad</h2></div><button id="resetControls">Reset profile</button></div>
  <article class="panel"><p>Click an action, then press a key or gamepad button. The profile is stored locally and reused by MAME, Amiga and compatible games.</p><div id="controlEditor" class="control-editor"></div></article>
 </section>
@@ -114,4 +134,39 @@
 </section>
 </main>
 <footer class="hub-footer"><span>ChimeraIIOS · Aurora Control Center</span><span>Local runtime boundary: emulator binaries and firmware remain outside Pages.</span></footer>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}));}</script></body></html>
+
+<script>
+(()=> {
+ const base="http://127.0.0.1:8765";
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ async function api(path,data={}) {
+  const r=await fetch(base+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+  const d=await r.json(); if(!r.ok)throw Error(d.error||("HTTP "+r.status)); return d;
+ }
+ function status(s){$("hvStatus").textContent=s;}
+ async function refresh(){
+  try{
+   const d=await api("/hypervisor/profiles");
+   const select=$("hvProfile"), old=select.value;
+   select.innerHTML=d.profiles.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.id)+' — '+(p.available?"available":"unavailable")+'</option>').join("");
+   if([...select.options].some(o=>o.value===old))select.value=old;
+   $("hvProfiles").innerHTML='<table><thead><tr><th>Profile</th><th>Backend</th><th>Machine / CPU</th><th>Status</th></tr></thead><tbody>'+d.profiles.map(p=>'<tr><td>'+esc(p.id)+'</td><td>'+esc(p.backend)+'</td><td>'+esc(p.machine)+' / '+esc(p.cpu)+'</td><td>'+esc(p.available?"available":(p.reason||"not installed"))+'</td></tr>').join("")+'</tbody></table>';
+   const g=await api("/hypervisor/guests");
+   $("hvGuests").innerHTML=g.guests.length?'<table><thead><tr><th>ID</th><th>Profile</th><th>PID</th><th>RAM</th><th>vCPU</th><th>State</th><th></th></tr></thead><tbody>'+g.guests.map(x=>'<tr><td>'+esc(x.id)+'</td><td>'+esc(x.profile)+'</td><td>'+esc(x.pid)+'</td><td>'+esc(x.memory_mib)+' MiB</td><td>'+esc(x.vcpus)+'</td><td>'+esc(x.running?"running":"exited")+'</td><td><button data-hv-stop="'+esc(x.id)+'">Stop</button></td></tr>').join("")+'</tbody></table>':'No guest processes registered.';
+   status("Bridge online. Limits: "+d.limits.memory_mib_max+" MiB RAM, "+d.limits.vcpus_max+" vCPUs per guest.");
+  }catch(e){status("Local bridge unavailable: "+e.message+". Start tools/runtime/chimera-local-bridge.py on this machine.");}
+ }
+ $("hvRefresh")?.addEventListener("click",refresh); $("hvStopAllRefresh")?.addEventListener("click",refresh);
+ $("hvStart")?.addEventListener("click",async()=>{
+  try{
+   const payload={profile:$("hvProfile").value,accel:$("hvAccel").value,memory_mib:Number($("hvMemory").value),vcpus:Number($("hvVcpus").value)};
+   for(const [id,key] of [["hvDisk","disk"],["hvCdrom","cdrom"],["hvKernel","kernel"]])if($(id).value.trim())payload[key]=$(id).value.trim();
+   const r=await api("/hypervisor/guests/start",payload);status("Guest start requested: "+r.id+" (PID "+r.pid+"). "+r.note);await refresh();
+  }catch(e){status("Could not start guest: "+e.message);}
+ });
+ $("hvGuests")?.addEventListener("click",async e=>{const b=e.target.closest("[data-hv-stop]");if(!b)return;try{const r=await api("/hypervisor/guests/stop",{id:b.dataset.hvStop});status("Guest "+r.id+" stopped.");await refresh();}catch(err){status("Stop failed: "+err.message);}});
+ if($("hvProfile"))refresh();
+})();
+</script>
+\n<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}));}</script></body></html>
