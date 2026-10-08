@@ -12,6 +12,12 @@ on:
       - 'tools/isa/test_riscv_codec.py'
       - 'tools/isa/rv32_machine.py'
       - 'tools/isa/test_rv32_machine.py'
+      - 'tools/binary/**'
+      - 'tools/memory/chimera_swap.py'
+      - 'tools/memory/test_chimera_swap.py'
+      - 'tools/binary/**'
+      - 'tools/memory/chimera_swap.py'
+      - 'tools/memory/test_chimera_swap.py'
       - 'tools/isa/rv32i-coverage.json'
       - 'tools/isa/validate_rv32i_coverage.py'
       - 'tools/isa/cisc-coverage.json'
@@ -76,6 +82,14 @@ jobs:
       - name: Test RV32 machine memory, traps, ORI, and FENCE constraints
         run: |
           python3 -m unittest tools/isa/test_rv32_machine.py -v
+      - name: Test swap and NCB binary tooling
+        run: |
+          python3 -m unittest tools/memory/test_chimera_swap.py -v
+          python3 -m unittest tools/binary/test_build_ncb.py -v
+          python3 tools/memory/chimera_swap.py create /tmp/chimera-ci.swap --slots 16
+          python3 tools/memory/chimera_swap.py info /tmp/chimera-ci.swap
+          python3 tools/binary/build_ncb.py tools/binary/manifest.example.json /tmp/chimera-ci.ncb
+          python3 tools/binary/chimera_binary.py --json /tmp/chimera-ci.ncb
       - name: Validate explicit ISA coverage and conformance claims
         run: |
           python3 tools/isa/validate_rv32i_coverage.py
