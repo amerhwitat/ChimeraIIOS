@@ -13,16 +13,16 @@
     {
       "mnemonic": "LUI",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
     {
       "mnemonic": "AUIPC",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
@@ -37,8 +37,8 @@
     {
       "mnemonic": "JALR",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
@@ -205,24 +205,24 @@
     {
       "mnemonic": "SLLI",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
     {
       "mnemonic": "SRLI",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
     {
       "mnemonic": "SRAI",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
@@ -309,8 +309,8 @@
     {
       "mnemonic": "FENCE",
       "documented": true,
-      "encoded": false,
-      "decoded": false,
+      "encoded": true,
+      "decoded": true,
       "executed": true,
       "conformance-tested": false
     },
