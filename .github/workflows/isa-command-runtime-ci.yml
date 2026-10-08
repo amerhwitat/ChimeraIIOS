@@ -57,9 +57,10 @@ jobs:
       - name: Compile and smoke-test native command multicall binary
         run: |
           cc -std=c11 -O2 -Wall -Wextra -Werror src/chimera-command-compat/chimera-cmd.c -o /tmp/chimera-cmd
-          test "$(/tmp/chimera-cmd echo Chimera-native-ok)" = "Chimera-native-ok"
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
+          ln -s /tmp/chimera-cmd "$tmp/echo"
+          test "$("$tmp/echo" Chimera-native-ok)" = "Chimera-native-ok"
           ln -s /tmp/chimera-cmd "$tmp/pwd"
           ln -s /tmp/chimera-cmd "$tmp/true"
           ln -s /tmp/chimera-cmd "$tmp/false"
