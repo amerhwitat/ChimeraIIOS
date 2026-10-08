@@ -8,7 +8,7 @@
 #include "chimera/firmware.h"
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
-#include "chimera/process.h"
+#include "chimera/process.h"\n#include "chimera/timer.h"\n#include "chimera/watchdog.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -191,10 +191,10 @@ static void console_modules() {
 static volatile uint32_t console_task_runs = 0;
 static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
-static volatile uint32_t installer_phase = 0;
+static volatile uint32_t installer_phase = 0;\nstatic constexpr uint32_t WDOG_KORONOS=1u, WDOG_MICROKERNEL=2u, WDOG_KORE=3u;
 
 static void task_console(void *) {
-    if (console_task_runs++ == 0) console_write("[TASK] Console service online");
+    chimera_watchdog_heartbeat(WDOG_MICROKERNEL, chimera_timer_now()*1000000ull);\n    if (console_task_runs++ == 0) console_write("[TASK] Console service online");
 }
 
 static void task_modules(void *) {
@@ -278,7 +278,7 @@ static const char *task_state_name(uint32_t state) {
 
 static void task_monitor(void *) {
     static uint32_t ticks = 0;
-    if ((++ticks % 10u) != 0) return;
+    chimera_watchdog_heartbeat(WDOG_MICROKERNEL, chimera_timer_now()*1000000ull);\n    if ((++ticks % 10u) != 0) return;
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
