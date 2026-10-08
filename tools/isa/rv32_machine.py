@@ -94,7 +94,8 @@ class RV32Machine:
         elif address == 0x342: self.mcause = value
         elif address == 0x343: self.mtval = value
         elif address == 0x344:
-            self.mip = (self.mip & ~((1 << 3) | (1 << 7) | (1 << 11))) | (value & ((1 << 3) | (1 << 7) | (1 << 11)))
+            # Only MSIP is software-writable here; MTIP/MEIP are platform inputs.
+            self.mip = (self.mip & ~(1 << 3)) | (value & (1 << 3))
         else:
             raise Trap(2, self.pc, address, "unsupported or read-only CSR")
 
