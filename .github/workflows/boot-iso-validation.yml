@@ -39,8 +39,7 @@ jobs:
       - name: Install boot validation tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin
-          python3 -m pip install --user pytest
+          sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin python3-pytest
       - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
