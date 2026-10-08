@@ -316,6 +316,11 @@
       "title": "QEMU emulation documentation",
       "url": "https://www.qemu.org/docs/master/about/emulation.html",
       "scope": "Cross-check of established architecture families supported by a production emulator; not a normative ISA specification."
+    },
+    {
+      "title": "Intel X86 Encoder Decoder (XED)",
+      "url": "https://github.com/intelxed/xed",
+      "scope": "Reference implementation/library for x86 instruction encoding and decoding; not an execution engine."
     }
   ],
   "architecture_families": [
