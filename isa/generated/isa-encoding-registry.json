@@ -1,8 +1,8 @@
 {
   "schema": "CHM-ISA-ENCODING-REGISTRY-2",
   "scope": "Encoding templates are canonical bit patterns with masks; worked samples are exact operand examples. Neither list implies exhaustive ISA/backend support.",
-  "template_count": 151,
-  "sample_count": 51,
+  "template_count": 154,
+  "sample_count": 54,
   "encoding_templates": [
     {
       "architecture": "riscv64",
@@ -2560,6 +2560,55 @@
       "mask_binary": "11111111111111111111111111111111",
       "mask_hex": "0xFFFFFFFF",
       "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32-thumb",
+      "family": "AArch32/T32",
+      "mnemonic": "NOP",
+      "form": "thumb16",
+      "operands": [
+        "implicit"
+      ],
+      "syntax": "NOP",
+      "bits": 16,
+      "binary": "1011111100000000",
+      "hex": "0xBF00",
+      "mask_binary": "1111111111111111",
+      "mask_hex": "0xFFFF",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32-thumb",
+      "family": "AArch32/T32",
+      "mnemonic": "MOVS",
+      "form": "thumb16-imm8",
+      "operands": [
+        "register",
+        "immediate"
+      ],
+      "syntax": "MOVS r0,#0",
+      "bits": 16,
+      "binary": "0010000000000000",
+      "hex": "0x2000",
+      "mask_binary": "1111100000000000",
+      "mask_hex": "0xF800",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "arm32-thumb",
+      "family": "AArch32/T32",
+      "mnemonic": "BX",
+      "form": "thumb16-reg",
+      "operands": [
+        "register"
+      ],
+      "syntax": "BX r14",
+      "bits": 16,
+      "binary": "0100011101110000",
+      "hex": "0x4770",
+      "mask_binary": "1111111110000111",
+      "mask_hex": "0xFF87",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
     }
   ],
   "worked_samples": [
@@ -3365,6 +3414,48 @@
       "fields": [
         "opcode 11",
         "disp8"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_nop",
+      "family": "arm32-thumb",
+      "mnemonic": "NOP",
+      "syntax": "nop",
+      "bits": 16,
+      "binary": "1011111100000000",
+      "hex": "0xbf00",
+      "fields": [
+        "fixed opcode"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_movs_imm",
+      "family": "arm32-thumb",
+      "mnemonic": "MOVS",
+      "syntax": "movs r0, #0",
+      "bits": 16,
+      "binary": "0010000000000000",
+      "hex": "0x2000",
+      "fields": [
+        "opcode[15:11]",
+        "Rd[10:8]",
+        "imm8[7:0]"
+      ],
+      "source_urls": []
+    },
+    {
+      "id": "armt_bx_lr",
+      "family": "arm32-thumb",
+      "mnemonic": "BX",
+      "syntax": "bx lr",
+      "bits": 16,
+      "binary": "0100011101110000",
+      "hex": "0x4770",
+      "fields": [
+        "fixed opcode",
+        "Rm[6:3]"
       ],
       "source_urls": []
     }
