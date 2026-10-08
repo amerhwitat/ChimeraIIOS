@@ -1,0 +1,37 @@
+name: Chimera Native Security
+on:
+  push:
+    paths:
+      - 'tools/security/**'
+      - 'system/security/**'
+      - 'system/services/chimera-*.service'
+      - 'system/services/chimera-*.timer'
+      - 'tests/security/**'
+      - 'Dockerfile.comprehensive'
+  pull_request:
+    paths:
+      - 'tools/security/**'
+      - 'system/security/**'
+      - 'system/services/chimera-*.service'
+      - 'system/services/chimera-*.timer'
+      - 'tests/security/**'
+      - 'Dockerfile.comprehensive'
+jobs:
+  security-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile security modules
+        run: python3 -m compileall -q tools/security
+      - name: Run security regression tests
+        run: python3 -m pytest -q tests/security/test_security_modules.py
+      - name: Validate firewall policy and nft syntax
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nftables
+          python3 tools/security/chimera_firewall.py public --print | sudo nft -c -f -
+      - name: Validate security manifests
+        run: |
+          python3 -m json.tool system/security/security-intelligence.json >/dev/null
+          python3 -m json.tool system/security/firewall-policy.json >/dev/null
+          python3 -m json.tool system/security/security-update.json >/dev/null
