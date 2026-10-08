@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse, html.parser, json, os, re, shutil, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 INDEXES={"linux_bash":"https://ss64.com/bash/","macos":"https://ss64.com/mac/","windows_cmd":"https://ss64.com/nt/","powershell":"https://ss64.com/ps/","vbscript":"https://ss64.com/vb/","sql_server":"https://ss64.com/sql/","access":"https://ss64.com/access/","tools":"https://ss64.com/tools/"}
-UA="ChimeraIIOS-SS64-Catalog/4.4 (+https://github.com/amerhwitat/ChimeraIIOS)"
+UA="ChimeraIIOS-SS64-Catalog/4.5 (+https://github.com/amerhwitat/ChimeraIIOS)"
 class P(html.parser.HTMLParser):
     def __init__(self): super().__init__(convert_charrefs=True); self.links=[]; self.a=False; self.h=""; self.t=[]
     def handle_starttag(self,tag,attrs):
@@ -84,7 +84,7 @@ def reconcile(catalog,rootfs,repo_root):
                 try:shutil.copy2(p,dst);dst.chmod(0o755)
                 except OSError:pass
             item["provider"]=str(dst);item["mode"]="rootfs-binary"
-        else:item["mode"]="native-compat-shim";native.add(name)
+        else:item["mode"]="compatibility-shim";item["provider"]="chimera-compat (runtime provider lookup)"
         manifest["commands"][name]=item
     for src_name,dst_name in (("tools/runtime/chimera-korectl.py","korectl"),("tools/runtime/chimera-systemctl.py","systemctl"),("tools/runtime/chimera-service.py","service"),("tools/runtime/chimera-compat.py","chimera-compat"),("tools/runtime/kore-manager.py","kore-manager")):
         install_source(repo_root,rootfs,src_name,"usr/bin/"+dst_name)
@@ -99,7 +99,7 @@ def reconcile(catalog,rootfs,repo_root):
         except FileExistsError:pass
     policy=repo_root/"system/commands/compatibility-binary-policy.json"
     if policy.exists():install_source(repo_root,rootfs,"system/commands/compatibility-binary-policy.json","usr/share/chimera/commands/compatibility-binary-policy.json",0o644)
-    for name in sorted(native):
+    for name in sorted(native | set(manifest["commands"])):
         shim=rootfs/"usr/bin"/name
         if shim.exists():continue
         if re.match(r"^[A-Za-z0-9_.+-]+$",name):
@@ -111,6 +111,7 @@ def reconcile(catalog,rootfs,repo_root):
         native_doc["native_chimera"]["commands"]=sorted(native)
         native_doc["native_chimera"]["compatibility_policy"]="Missing SS64-indexed commands are registered as native compatibility entries; runnable binaries are staged only from the Chimera rootfs or official package providers."
         native_doc["native_chimera"]["systemd_compatibility"]=["systemctl","service","korectl","kore.service","systemd target names mapped to Kore targets/services"]
+    native_doc["compatibility_commands"] = sorted(set(native_doc.get("compatibility_commands", [])) | set(manifest["commands"]))
     cmdlist.write_text(json.dumps(native_doc,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     return manifest
 
@@ -148,8 +149,12 @@ def attach_arabic_labels(catalog, root):
             merged[name.casefold()]["platforms"].append(row.get("platform",""))
     desktop={"schema":"CHIMERA-AR-CMD-2","locale":"ar","direction":"rtl","commands":{k:v["label"] for k,v in sorted(merged.items())}}
     system={"schema":"CHIMERA-SS64-AR-1","locale":"ar","commands":{k:{"name":v["name"],"label":v["label"],"platforms":sorted(set(v["platforms"]))} for k,v in sorted(merged.items())}}
-    (root/"desktop/aurora/arabic_command_catalog.json").write_text(json.dumps(desktop,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
-    (root/"system/commands/ss64-command-catalog.ar.json").write_text(json.dumps(system,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    desktop_path=root/"desktop/aurora/arabic_command_catalog.json"
+    system_path=root/"system/commands/ss64-command-catalog.ar.json"
+    desktop_path.parent.mkdir(parents=True,exist_ok=True)
+    system_path.parent.mkdir(parents=True,exist_ok=True)
+    desktop_path.write_text(json.dumps(desktop,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    system_path.write_text(json.dumps(system,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(f"Arabic labels generated for {len(merged)} unique command names")
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--output",default="system/commands/ss64-command-catalog.json");ap.add_argument("--max-pages",type=int,default=3000);ap.add_argument("--timeout",type=float,default=30);ap.add_argument("--retries",type=int,default=2);ap.add_argument("--delay",type=float,default=.05);ap.add_argument("--platforms",nargs="*",choices=sorted(INDEXES));args=ap.parse_args()
