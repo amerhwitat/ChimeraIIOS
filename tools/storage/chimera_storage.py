@@ -35,10 +35,13 @@ def unpack_block(frame: bytes, *, max_output: int = 16 * 1024 * 1024) -> bytes:
         raw = payload
     else:
         dec = zlib.decompressobj()
-        raw = dec.decompress(payload, max_output + 1)
-        if len(raw) > max_output or dec.unconsumed_tail:
-            raise ValueError("decompressed block exceeds configured output limit")
-        raw += dec.flush(max_output + 1 - len(raw))
+        try:
+            raw = dec.decompress(payload, max_output + 1)
+            if len(raw) > max_output or dec.unconsumed_tail:
+                raise ValueError("decompressed block exceeds configured output limit")
+            raw += dec.flush(max_output + 1 - len(raw))
+        except zlib.error as exc:
+            raise ValueError("compressed block is corrupt") from exc
         if not dec.eof or dec.unused_data:
             raise ValueError("compressed block stream is incomplete or has trailing data")
     if len(raw) != raw_len:
