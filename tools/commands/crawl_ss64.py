@@ -210,7 +210,7 @@ def arabic_command_label(name):
         "childitem":"عنصر فرعي","content":"محتوى","webrequest":"طلب ويب","websession":"جلسة ويب",
         "processmitigation":"تخفيف مخاطر العمليات","eventlog":"سجل الأحداث"
     }
-    tokens=re.findall(r"[A-Za-z]+|[0-9]+",re.sub(r"([a-z0-9])([A-Z])",r"\\1 \\2",name))
+    tokens=re.findall(r"[A-Za-z]+|[0-9]+",re.sub(r"([a-z0-9])([A-Z])",r"\1 \2",name))
     translated=[terms[t.casefold()] for t in tokens if t.casefold() in terms]
     if translated:
         return " ".join(translated)+" ("+name+")", "token-translated"
