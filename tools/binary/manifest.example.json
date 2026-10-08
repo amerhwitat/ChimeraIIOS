@@ -1,0 +1,15 @@
+{
+  "word_bits": 32,
+  "isa_id": 1,
+  "stack_bytes": 1048576,
+  "heap_limit_bytes": 16777216,
+  "entry_section": ".text",
+  "sections": [
+    {
+      "name": ".text",
+      "flags": 1,
+      "alignment": 4,
+      "hex": "73001000"
+    }
+  ]
+}
