@@ -45,7 +45,7 @@ def validate_ncb(data):
     sections=[]
     for i in range(count):
         name,fl,off,filesz,memsz,align=NCB_SECTION.unpack_from(data,sto+i*NCB_SECTION.size)
-        if filesz>memsz or off>len(data) or filesz>len(data)-off:raise ValueError(f"section {i} range invalid")
+        if off<sto+count*NCB_SECTION.size or filesz>memsz or off>len(data) or filesz>len(data)-off:raise ValueError(f"section {i} range invalid")
         if align and (align&(align-1) or off%align):raise ValueError(f"section {i} alignment invalid")
         sections.append({"name":name.split(b"\0",1)[0].decode("ascii","replace"),"flags":fl,"file_offset":off,"file_size":filesz,"memory_size":memsz,"alignment":align})
     if entry and not any(s["flags"]&1 and s["file_offset"]<=entry<s["file_offset"]+s["file_size"] for s in sections):raise ValueError("entry must be in a file-backed executable section")
