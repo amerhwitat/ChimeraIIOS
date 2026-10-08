@@ -54,3 +54,22 @@ extern "C" void __cxa_pure_virtual() {
         __asm__ volatile("cli; hlt");
     }
 }
+
+#include "chimera/scheduler.h"
+#include "chimera/timer.h"
+
+extern "C" [[noreturn]] void koronos_idle_loop() {
+    /*
+     * Koronos has no hosted runtime to return to after koronos_boot().
+     * The bootstrap vCPU therefore owns an explicit cooperative dispatch loop.
+     * Advance the kernel timer from the same path so watchdogs and timers keep
+     * progressing even before hardware timer IRQs are enabled.
+     */
+    for (;;) {
+        const uint32_t ran = chimera_sched_run_parallel(0, 1);
+        chimera_timer_tick(1);
+        if (!ran) {
+            __asm__ volatile("pause" ::: "memory");
+        }
+    }
+}
