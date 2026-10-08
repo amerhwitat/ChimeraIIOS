@@ -142,7 +142,9 @@ RUN git clone --depth 1 https://github.com/amerhwitat/BizX.git && \
 # =============================================================================
 # CLONE AND BUILD: BizXtreme (Enterprise Business Platform)
 # =============================================================================
-# BizXtreme is fetched defensively because GitHub smart-HTTP pack streams can be\n# interrupted by BuildKit/proxy HTTP2 CANCELs. Prefer HTTP/1.1 shallow clone,\n# then fall back to GitHub codeload tarball, which avoids the Git pack protocol.\nRUN set -eux; \
+# BizXtreme is fetched defensively because GitHub smart-HTTP pack streams can be interrupted by BuildKit/proxy HTTP2 CANCELs.
+# Prefer an HTTP/1.1 shallow clone, then fall back to GitHub codeload tarball.
+RUN set -eux; \
     rm -rf BizXtreme /tmp/BizXtreme.tar.gz /tmp/BizXtreme-src; \
     export GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=HTTP/1.1; \
     git config --global http.version HTTP/1.1; \
@@ -166,7 +168,7 @@ RUN git clone --depth 1 https://github.com/amerhwitat/BizX.git && \
       for attempt in 1 2 3 4 5; do \
         echo "[Chimera] BizXtreme codeload attempt $attempt/5"; \
         rm -f /tmp/BizXtreme.tar.gz; \
-        if curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 \
+        if curl --fail --location --retry 5 --retry-delay 5 \
             --connect-timeout 30 --max-time 900 \
             -o /tmp/BizXtreme.tar.gz \
             https://codeload.github.com/amerhwitat/BizXtreme/tar.gz/refs/heads/main; then \
