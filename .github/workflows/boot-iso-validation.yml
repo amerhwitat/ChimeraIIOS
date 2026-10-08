@@ -39,6 +39,7 @@ jobs:
           bash -n tools/branding/stage-aurora-image.sh
           bash -n tools/branding/chimera-set-desktop-background.sh
           bash tests/boot/test-boot-artifact-regressions.sh
+          bash tests/boot/test-koronos-runtime-loop.sh
           bash tools/tests/test-iso-resume-and-aurora.sh
           bash -n boot/iso/build-iso.sh
           bash -n boot/iso/prepare-layout.sh
