@@ -23,7 +23,13 @@ class RV32Machine:
     mcause: int = 0
     mepc: int = 0
     mtval: int = 0
+    mstatus: int = 0
+    mie: int = 0
+    mip: int = 0
+    mscratch: int = 0
     privilege: str = "M"
+    mcycle: int = 0
+    minstret: int = 0
     halted: bool = False
     steps: int = 0
 
@@ -50,12 +56,86 @@ class RV32Machine:
     def sx(v,bits):
         v &= (1<<bits)-1
         return v-(1<<bits) if v&(1<<(bits-1)) else v
+    def _csr_read(self, address):
+        values = {
+            0x300: self.mstatus, 0x301: 0x40000100, 0x304: self.mie,
+            0x305: self.mtvec, 0x340: self.mscratch, 0x341: self.mepc,
+            0x342: self.mcause, 0x343: self.mtval, 0x344: self.mip,
+            0xC00: self.mcycle & MASK, 0xC02: self.minstret & MASK,
+            0xC80: (self.mcycle >> 32) & MASK, 0xC82: (self.minstret >> 32) & MASK,
+        }
+        if address not in values:
+            raise Trap(2, self.pc, address, "unsupported CSR")
+        required = (address >> 8) & 3
+        if {"U": 0, "S": 1, "M": 3}.get(self.privilege, 3) < required:
+            raise Trap(2, self.pc, address, "CSR privilege violation")
+        return values[address] & MASK
+
+    def _csr_write(self, address, value):
+        value &= MASK
+        required = (address >> 8) & 3
+        if {"U": 0, "S": 1, "M": 3}.get(self.privilege, 3) < required:
+            raise Trap(2, self.pc, address, "CSR privilege violation")
+        if (address >> 10) & 3 == 3:
+            raise Trap(2, self.pc, address, "write to read-only CSR")
+        if address == 0x300:
+            # RV32I machine-level status fields used here: MIE, MPIE, MPP.
+            allowed = (1 << 3) | (1 << 7) | (3 << 11)
+            self.mstatus = (self.mstatus & ~allowed) | (value & allowed)
+            if ((self.mstatus >> 11) & 3) == 2:
+                self.mstatus &= ~(3 << 11)  # reserved MPP encodings read as U
+        elif address == 0x304:
+            self.mie = value & ((1 << 3) | (1 << 7) | (1 << 11))
+        elif address == 0x305:
+            mode = value & 3
+            self.mtvec = (value & ~3) | (mode if mode in (0, 1) else 0)
+        elif address == 0x340: self.mscratch = value
+        elif address == 0x341: self.mepc = value & ~3
+        elif address == 0x342: self.mcause = value
+        elif address == 0x343: self.mtval = value
+        elif address == 0x344:
+            self.mip = (self.mip & ~((1 << 3) | (1 << 7) | (1 << 11))) | (value & ((1 << 3) | (1 << 7) | (1 << 11)))
+        else:
+            raise Trap(2, self.pc, address, "unsupported or read-only CSR")
+
+    def _take_trap(self, cause, pc, tval=0):
+        self.mepc = pc & ~3 & MASK
+        self.mtval = tval & MASK
+        old_priv = {"U": 0, "S": 1, "M": 3}.get(self.privilege, 3)
+        self.mstatus = (self.mstatus & ~((1 << 3) | (1 << 7) | (3 << 11))) | (((self.mstatus >> 3) & 1) << 7) | (old_priv << 11)
+        self.mstatus &= ~(1 << 3)
+        self.privilege = "M"
+        self.mcause = cause & MASK
+        base = self.mtvec & ~3
+        if (cause & 0x80000000) and (self.mtvec & 3) == 1:
+            self.pc = (base + 4 * (cause & 0x7fffffff)) & MASK
+        elif self.mtvec:
+            self.pc = base
+        else:
+            self.halted = True
+
     def trap(self,cause,pc,tval=0):
-        self.mcause=cause; self.mepc=pc&MASK; self.mtval=tval&MASK
-        if self.mtvec: self.pc=self.mtvec & ~3
-        else: self.halted=True
+        self._take_trap(cause, pc, tval)
+
+    def _pending_interrupt(self):
+        pending = self.mip & self.mie & ((1 << 3) | (1 << 7) | (1 << 11))
+        if not pending:
+            return None
+        # Standard machine interrupt priority for the modeled software/timer/external set.
+        for cause in (11, 3, 7):
+            if pending & (1 << cause):
+                global_enable = self.privilege != "M" or bool(self.mstatus & (1 << 3))
+                if global_enable:
+                    return cause
+        return None
     def step(self):
         if self.halted: return
+        self.mcycle += 1
+        pending = self._pending_interrupt()
+        if pending is not None:
+            self.steps += 1
+            self._take_trap(0x80000000 | pending, self.pc, 0)
+            return
         here=self.pc
         try:
             if here%4: raise Trap(0,here,here,"instruction address misaligned")
@@ -112,14 +192,40 @@ class RV32Machine:
                 # There are no asynchronous memory observers in this model, so
                 # sequential execution is already stronger than the requested ordering.
             elif op==0x73:
-                if w==0x00000073: raise Trap(8 if self.privilege=="U" else 11,here,0,"ECALL")
-                if w==0x00100073: raise Trap(3,here,here,"EBREAK")
-                if w==0x30200073 and self.privilege=="M":
-                    nxt=self.mepc
-                else: raise Trap(2,here,w,"unsupported or illegal SYSTEM/CSR instruction")
+                if f3 == 0:
+                    if w == 0x00000073:
+                        raise Trap(8 if self.privilege == "U" else 11, here, 0, "ECALL")
+                    if w == 0x00100073:
+                        raise Trap(3, here, here, "EBREAK")
+                    if w == 0x30200073 and self.privilege == "M":
+                        mpp = (self.mstatus >> 11) & 3
+                        self.privilege = "U" if mpp == 0 else ("S" if mpp == 1 else "M")
+                        mpie = (self.mstatus >> 7) & 1
+                        self.mstatus = (self.mstatus & ~((1 << 3) | (1 << 7) | (3 << 11))) | (mpie << 3) | (1 << 7)
+                        nxt = self.mepc & ~3
+                    else:
+                        raise Trap(2, here, w, "illegal privileged SYSTEM instruction")
+                elif f3 in (1, 2, 3, 5, 6, 7):
+                    csr = (w >> 20) & 0xfff
+                    immediate = f3 >= 5
+                    source = a if immediate else x
+                    old = self._csr_read(csr)
+                    write = True
+                    if f3 in (1, 5): new = source
+                    elif f3 in (2, 6):
+                        new = old | source
+                        write = source != 0
+                    else:
+                        new = old & ~source
+                        write = source != 0
+                    if write:
+                        self._csr_write(csr, new)
+                    val = old
+                else:
+                    raise Trap(2, here, w, "illegal SYSTEM/CSR funct3")
             else: raise Trap(2,here,w,"illegal instruction")
             if val is not None and rd: self.regs[rd]=val&MASK
-            self.pc=nxt; self.regs[0]=0; self.steps+=1
+            self.pc=nxt; self.regs[0]=0; self.steps+=1; self.minstret+=1
         except Trap as t:
             # Trapping instructions still consume a step; otherwise a handler
             # that repeatedly faults could evade run(max_steps=...) forever.
@@ -130,4 +236,4 @@ class RV32Machine:
         start=self.steps
         while not self.halted and self.steps-start<max_steps: self.step()
         return {"pc":self.pc,"steps":self.steps-start,"halted":self.halted,"registers":self.regs[:],
-                "mcause":self.mcause,"mepc":self.mepc,"mtval":self.mtval,"privilege":self.privilege}
+                "mcause":self.mcause,"mepc":self.mepc,"mtval":self.mtval,"mstatus":self.mstatus,"mie":self.mie,"mip":self.mip,"privilege":self.privilege}
