@@ -456,6 +456,16 @@
       "title": "RISC-V Unprivileged ISA module status (versioned reference)",
       "url": "https://docs.riscv.org/reference/isa/v20250508/unpriv/colophon.html",
       "scope": "Ratified extension inventory and version/status distinctions."
+    },
+    {
+      "title": "RISC-V Architectural Certification Tests (ACT4)",
+      "url": "https://github.com/riscv/riscv-arch-test",
+      "scope": "Official RISC-V architectural certification test framework; requires DUT-specific configuration and test execution."
+    },
+    {
+      "title": "RISC-V Certification Test Plan",
+      "url": "https://riscv.github.io/riscv-arch-test/ctp.html",
+      "scope": "Certification scope and coverpoints; draft status must be respected."
     }
   ],
   "architecture_extensions": [
