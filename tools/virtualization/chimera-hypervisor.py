@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -76,6 +77,10 @@ def build_command(backend_id, accelerator="auto", memory="512M", disk=None,
             raise RuntimeError("no supported accelerator is available for this backend")
     if type(vcpus) is not int or not 1 <= vcpus <= 4:
         raise ValueError("vcpus must be between 1 and 4")
+    match = re.fullmatch(r"([0-9]+)([Mm]?)", str(memory))
+    if not match or not 128 <= int(match.group(1)) <= 1024:
+        raise ValueError("memory must be between 128M and 1024M")
+    memory = match.group(1) + "M"
     args = [binary, "-accel", selected, "-m", memory, "-smp", str(vcpus),
             "-display", "none" if headless else "gtk"]
     if profile:
