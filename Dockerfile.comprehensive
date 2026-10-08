@@ -25,7 +25,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # conflict does not abort the whole Docker build.
 RUN set -eux; \
     apt-get update -o Acquire::Retries=5; \
-    core_required="build-essential binutils clang llvm lld nasm cmake cmake-data ninja-build make automake autoconf libtool pkg-config gcc g++ clang llvm llvm-dev python3 python3-dev python3-pip python3-venv python3-setuptools python3-wheel nodejs npm rustc cargo openjdk-21-jdk-headless perl perl-modules git curl wget ca-certificates openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev sqlite3 pciutils usbutils dmidecode iproute2 procps net-tools busybox"; \
+    core_required="build-essential binutils clang llvm lld nasm cmake cmake-data ninja-build make automake autoconf libtool pkg-config gcc g++ clang llvm llvm-dev python3 python3-dev python3-pip python3-venv python3-setuptools python3-wheel nodejs npm rustc cargo openjdk-21-jdk-headless perl perl-modules git curl wget ca-certificates openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev sqlite3 pciutils usbutils dmidecode iproute2 procps net-tools busybox clamav clamav-daemon yara nftables"; \
     echo "[Chimera] Installing core build packages..."; \
     apt-get install -y --no-install-recommends $core_required; \
     extras="libboost-all-dev libgtest-dev libc++-dev libc++abi-dev libncurses-dev libx11-dev libxext-dev libxrender-dev libgl1-mesa-dev mesa-common-dev python3-numpy python3-scipy python3-pandas python3-scikit-learn python3-matplotlib postgresql-client apt-transport-https gnupg lsb-release systemd systemd-sysv gdb strace vim nano less grep sed awk unzip tar gzip bzip2 xz-utils doxygen graphviz libsodium-dev librsvg2-bin"; \
@@ -413,6 +413,27 @@ RUN mkdir -p /etc/profile.d /opt/chimera/share/chimera/commands && \
     if [ -f /build/repos/ChimeraIIOS/system/shell/chimera-shell.sh ]; then \
       install -m 0644 /build/repos/ChimeraIIOS/system/shell/chimera-shell.sh /etc/profile.d/chimera-shell.sh; \
     fi
+
+# =============================================================================
+# Native security stack: malware/spyware detection, signed intelligence and firewall
+# =============================================================================
+RUN set -eux; \
+    mkdir -p /opt/chimera/tools/security /opt/chimera/share/chimera/security /etc/chimera /var/lib/chimera/security /var/log/chimera; \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/security/chimera_securityd.py /opt/chimera/tools/security/chimera_securityd.py; \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/security/chimera_security_update.py /opt/chimera/tools/security/chimera_security_update.py; \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/security/chimera_rnn_security.py /opt/chimera/tools/security/chimera_rnn_security.py; \
+    install -m 0755 /build/repos/ChimeraIIOS/tools/security/chimera_firewall.py /opt/chimera/tools/security/chimera_firewall.py; \
+    install -m 0644 /build/repos/ChimeraIIOS/system/security/security-intelligence.json /opt/chimera/share/chimera/security/security-intelligence.json; \
+    install -m 0644 /build/repos/ChimeraIIOS/system/security/firewall-policy.json /opt/chimera/share/chimera/security/firewall-policy.json; \
+    install -m 0644 /build/repos/ChimeraIIOS/system/security/security-update.json /etc/chimera/security-update.json; \
+    ln -sf /opt/chimera/share/chimera/security/firewall-policy.json /etc/chimera/firewall-policy.json; \
+    ln -sf /opt/chimera/tools/security/chimera_securityd.py /usr/local/bin/chimera-security; \
+    ln -sf /opt/chimera/tools/security/chimera_firewall.py /usr/local/bin/chimera-firewall; \
+    python3 -m py_compile /opt/chimera/tools/security/*.py
+RUN install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-securityd.service /etc/systemd/system/chimera-securityd.service; \
+    install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-security-update.service /etc/systemd/system/chimera-security-update.service; \
+    install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-security-update.timer /etc/systemd/system/chimera-security-update.timer; \
+    install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-firewall.service /etc/systemd/system/chimera-firewall.service
 
 # =============================================================================
 # Create initialization and startup scripts
