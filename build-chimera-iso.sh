@@ -909,8 +909,22 @@ build_iso(){
 
   rm -f "$iso" "$iso.sha256"
 
-  rm -rf "$ISO_DIR/EFI/BOOT"
-  mkdir -p "$ISO_DIR/EFI/BOOT"
+  # build-boot-artifacts.sh creates the removable-media UEFI loader in the
+  # ISO staging tree. Never delete EFI/BOOT here: doing so silently discarded
+  # BOOTX64.EFI immediately before grub-mkrescue packaged the tree.
+  local uefi_loader="$ISO_DIR/EFI/BOOT/BOOTX64.EFI"
+  local generated_uefi_loader="$BUILD_DIR/boot-artifacts/uefi/BOOTX64.EFI"
+  if [[ ! -s "$uefi_loader" && -s "$generated_uefi_loader" ]]; then
+    mkdir -p "$ISO_DIR/EFI/BOOT"
+    cp -f "$generated_uefi_loader" "$uefi_loader"
+    log_info "Restored staged UEFI loader from boot-artifact cache."
+  fi
+  if [[ ! -s "$uefi_loader" ]]; then
+    log_error "UEFI loader is missing: $uefi_loader"
+    log_error "Expected tools/build-boot-artifacts.sh to create $generated_uefi_loader."
+    exit 1
+  fi
+  log_info "UEFI removable-media loader ready: $uefi_loader"
 
   source_bytes="$(du -sB1 "$ISO_DIR" 2>/dev/null | awk '{print $1}')"
   free_bytes_now="$(free_bytes "$ISO_OUTPUT_DIR")"
@@ -971,6 +985,7 @@ verify_iso(){
     /boot/jasper/retro.cfg
     /boot/installation/menu.cfg
     /boot/spitfire/spitfire-menu.cfg
+    /EFI/BOOT/BOOTX64.EFI
     /install/installer/installation.img
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
@@ -982,10 +997,8 @@ verify_iso(){
       exit 1
     fi
   done
-  log_success "Complete graphical boot, installer and Aurora asset contract verified."
-  if ! xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"; then
-    log_warning 'UEFI BOOTX64.EFI lookup failed; inspect ISO El Torito report before deployment.'
-  fi
+  xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
+  log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
     log_info 'QEMU BIOS boot probe available; launching headless firmware probe.'
     timeout "${CHIMERA_QEMU_BOOT_TIMEOUT:-20}" qemu-system-x86_64 -accel tcg -m 512 -cdrom "$iso" -display none -serial none -monitor none -no-reboot -no-shutdown >/dev/null 2>&1 || true
