@@ -3,6 +3,10 @@ on:
   workflow_dispatch:
   push:
     paths: ['apple/**','kotlin/apple/**','tools/apple/**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: macos-latest

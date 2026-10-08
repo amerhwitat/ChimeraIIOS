@@ -6,8 +6,23 @@ on:
       - main
     tags:
       - 'v*'
+    paths:
+      - 'Dockerfile'
+      - 'Dockerfile.*'
+      - 'docker/**'
+      - '.dockerignore'
+      - 'docker-compose.yml'
   pull_request:
+    paths:
+      - 'Dockerfile'
+      - 'Dockerfile.*'
+      - 'docker/**'
+      - '.dockerignore'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

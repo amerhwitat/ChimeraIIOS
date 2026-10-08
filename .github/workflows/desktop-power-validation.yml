@@ -7,6 +7,10 @@ on:
     paths: ["desktop/aurora/**","desktop/desktop_profiles.json"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest

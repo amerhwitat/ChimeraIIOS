@@ -15,6 +15,10 @@ on:
       - 'boot/iso/**'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   boot-artifacts:
     runs-on: ubuntu-latest

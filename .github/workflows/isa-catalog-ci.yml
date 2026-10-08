@@ -23,6 +23,10 @@ on:
       - 'tools/generate_isa_bindings.py'
       - '.github/workflows/isa-catalog-ci.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   catalog:
     runs-on: ubuntu-latest

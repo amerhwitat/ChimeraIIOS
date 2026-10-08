@@ -3,8 +3,21 @@ name: Validate Chimera II command and build metadata
 on:
   push:
     branches: [main]
+    paths:
+      - 'system/**'
+      - 'build-chimera-iso.sh'
+      - 'tools/**'
+      - '.github/workflows/validate.yml'
   pull_request:
+    paths:
+      - 'system/**'
+      - 'build-chimera-iso.sh'
+      - 'tools/**'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:

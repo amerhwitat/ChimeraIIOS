@@ -12,6 +12,10 @@ on:
       - "tools/emulation/**"
       - "system/kore/chimera-emulation-runtime.json"
       - ".github/workflows/chimera-emulation.yml"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest

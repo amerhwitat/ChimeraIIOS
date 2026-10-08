@@ -20,6 +20,10 @@ on:
       - 'boot/iso/grub.cfg'
       - '.github/workflows/aurora-runtime-ci.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-24.04

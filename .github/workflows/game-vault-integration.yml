@@ -5,6 +5,10 @@ on:
   pull_request:
     paths: ["appcenter/catalog/game-*.json","games/**","build-chimera-iso.sh",".github/workflows/game-vault-integration.yml"]
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:

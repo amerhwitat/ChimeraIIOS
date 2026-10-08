@@ -13,6 +13,10 @@ on:
       - 'multidimensional/**'
       - '.github/workflows/quantum-rust.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   rust:
     runs-on: ubuntu-latest

@@ -3,7 +3,21 @@ name: Mobile and Flash Validation
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'mobile/**'
+      - 'tools/flash/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/mobile-flash-validation.yml'
   pull_request:
+    paths:
+      - 'mobile/**'
+      - 'tools/flash/**'
+      - 'CMakeLists.txt'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:

@@ -2,9 +2,12 @@ name: Chimera II OS Docker Hub publish
 
 on:
   push:
-    branches: [main]
     tags: ['v*']
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

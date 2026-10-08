@@ -18,6 +18,10 @@ on:
       - 'tools/initialize-accounts.sh'
       - 'desktop/aurora/settings_panel.json'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   identity-security:
     runs-on: ubuntu-latest

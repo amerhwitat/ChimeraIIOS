@@ -2,7 +2,27 @@ name: Chimera II ISA, installer and command conformance
 
 on:
   push:
+    branches: [main]
+    paths:
+      - 'tools/isa/**'
+      - 'tools/shell/**'
+      - 'tests/**'
+      - 'src/**'
+      - 'include/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/isa-toolchain.yml'
   pull_request:
+    paths:
+      - 'tools/**'
+      - 'tests/**'
+      - 'src/**'
+      - 'include/**'
+      - 'CMakeLists.txt'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   isa-toolchain:

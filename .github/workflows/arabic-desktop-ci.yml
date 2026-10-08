@@ -4,6 +4,10 @@ on:
     paths: ['desktop/**','tests/desktop/**','docs/ARABIC_DESKTOP_AND_LOCALIZATION.md']
   pull_request:
     paths: ['desktop/**','tests/desktop/**','docs/ARABIC_DESKTOP_AND_LOCALIZATION.md']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   contract:
     runs-on: ubuntu-latest

@@ -2,9 +2,6 @@ name: Chimera II cross-platform build artifacts
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
 
 jobs:
   linux:

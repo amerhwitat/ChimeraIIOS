@@ -13,6 +13,10 @@ on:
       - "tools/build-full-iso.sh"
       - ".github/workflows/koronos-boot-matrix.yml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   x86_64-boot:
     runs-on: ubuntu-latest

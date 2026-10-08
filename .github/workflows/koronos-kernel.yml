@@ -8,6 +8,10 @@ on:
       - "tools/koronos/**"
       - ".github/workflows/koronos-kernel.yml"
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   x86_64:
     runs-on: ubuntu-latest

@@ -21,6 +21,10 @@ on:
       - "CMakeLists.txt"
       - ".github/workflows/chimera-full-iso.yml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CHIMERA_FETCH_SOURCES: "0"
 

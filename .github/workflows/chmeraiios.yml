@@ -1,9 +1,7 @@
 name: Build and Push with Docker Build Cloud
 
 on:
-  push:
-    branches:
-      - main  # Triggers the build every time you push to the main branch
+  workflow_dispatch:
 
 jobs:
   build-cloud:

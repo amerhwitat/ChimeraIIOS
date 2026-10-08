@@ -3,6 +3,10 @@ on:
   workflow_dispatch:
   push:
     paths: ['CMakeLists.txt','cmake/**','include/**','src/**','tests/**','installer/**','tools/build/**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:

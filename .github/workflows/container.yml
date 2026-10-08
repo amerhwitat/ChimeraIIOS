@@ -7,6 +7,10 @@ on:
     paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml']
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   attestations: write

@@ -1,9 +1,6 @@
 name: Chimera II cross-platform build, test and package
 
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:

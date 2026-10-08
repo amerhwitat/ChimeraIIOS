@@ -9,6 +9,10 @@ on:
       - "CMakeLists.txt"
       - ".github/workflows/chimera-sdk.yml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   sdk:
     runs-on: ubuntu-latest

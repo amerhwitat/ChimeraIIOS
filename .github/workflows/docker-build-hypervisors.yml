@@ -3,7 +3,15 @@ name: Build Hypervisor Images
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'Dockerfile*'
+      - 'docker/**'
+      - '.dockerignore'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   docker:

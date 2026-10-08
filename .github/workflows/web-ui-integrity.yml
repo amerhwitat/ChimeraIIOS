@@ -6,6 +6,10 @@ on:
   pull_request:
     paths: ['web/**','tools/network/**','.github/workflows/web-ui-integrity.yml']
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:

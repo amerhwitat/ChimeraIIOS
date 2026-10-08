@@ -5,6 +5,10 @@ on:
   pull_request:
     paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:

@@ -14,6 +14,10 @@ on:
       - 'tools/update_driver_sources.py'
       - '.github/workflows/driver-acquisition-ci.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python:
     runs-on: ubuntu-latest

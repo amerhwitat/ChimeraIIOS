@@ -2,9 +2,16 @@ name: Build and Push Chimera II OS Docker Hub Fixed Image
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - 'Dockerfile*'
+      - 'docker/**'
+      - '.dockerignore'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

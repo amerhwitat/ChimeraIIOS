@@ -4,6 +4,10 @@ on:
     paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
   pull_request:
     paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python:
     runs-on: ubuntu-latest

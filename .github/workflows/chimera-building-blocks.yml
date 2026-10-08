@@ -2,8 +2,18 @@ name: Chimera II Building Blocks CI
 
 on:
   push:
+    branches: [main]
+    paths:
+      - 'building_blocks/**'
+      - '.github/workflows/chimera-building-blocks.yml'
   pull_request:
+    paths:
+      - 'building_blocks/**'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

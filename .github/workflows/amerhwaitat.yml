@@ -1,8 +1,6 @@
 name: Build Chimera II container images
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

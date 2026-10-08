@@ -18,6 +18,10 @@ on:
       - "kernel/core/process.cpp"
       - "kernel/tests/process_admission.cpp"
       - "desktop/aurora/aurora-launcher.cpp"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest

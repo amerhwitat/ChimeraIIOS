@@ -3,7 +3,22 @@ name: Chimera II OS - Full Compile and Validation
 on:
   push:
     branches: [main]
+    paths:
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'src/**'
+      - 'include/**'
+      - 'kernel/**'
+      - 'building_blocks/**'
+      - 'system/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/chimera-full-compile.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

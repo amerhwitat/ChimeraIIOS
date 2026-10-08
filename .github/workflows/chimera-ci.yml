@@ -4,14 +4,15 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:
   build-test:
-    strategy:
-      matrix:
-        os: [ubuntu-24.04, windows-2025]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Configure
@@ -20,6 +21,19 @@ jobs:
         run: cmake --build build --config Release --parallel
       - name: Test
         run: ctest --test-dir build --build-config Release --output-on-failure
+  build-test-windows:
+    # Windows leg (billed at 2x) runs on pull requests and manual dispatch only.
+    if: github.event_name != 'push'
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCHIMERA_ENABLE_CVEL=ON -DCHIMERA_BUILD_STARTUP_RUNTIME=OFF
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: Test
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
   validate-infrastructure:
     runs-on: ubuntu-24.04
     steps:
