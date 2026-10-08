@@ -77,7 +77,8 @@ class H(BaseHTTPRequestHandler):
                 if type(nbits) is not int or nbits not in (32,64,128):return send(self,400,{"error":"nbits-must-be-32-64-or-128"})
                 cpu=ChimeraNBit(nbits=nbits,memory_size=65536)
                 cpu.load_program([cpu.encode(OP_LI,1,imm=7),cpu.encode(OP_LI,2,imm=9),cpu.encode(OP_ADD,3,1,2),cpu.encode(OP_HALT)])
-                return send(self,200,{"status":"reference-interpreter-pass" if cpu.run()["registers"][3]==16 else "failed","bootable_vm":False,"architecture":"Chimera N-bit experimental v0.1","result":cpu.run()})
+                result=cpu.run()
+                return send(self,200,{"status":"reference-interpreter-pass" if result["registers"][3]==16 else "failed","bootable_vm":False,"architecture":"Chimera N-bit experimental v0.1","result":result})
             if path=="/hypervisor/profiles":
                 if not HV_PROFILES.is_file(): return send(self,503,{"error":"hypervisor-profiles-missing"})
                 profiles=json.loads(HV_PROFILES.read_text(encoding="utf-8"))
@@ -114,7 +115,7 @@ class H(BaseHTTPRequestHandler):
                 except OSError as e:return send(self,503,{"error":"launch-failed","detail":str(e)})
                 gid=uuid.uuid4().hex[:12]
                 with HV_LOCK: HV_GUESTS[gid]={"process":process,"profile":profile["id"],"memory_mib":memory,"vcpus":vcpus,"started_at":time.time()}
-                return send(self,202,{"status":"starting","id":gid,"pid":process.pid,"profile":profile["id"],"limits":{"memory_mib_max":HV_MEMORY_LIMIT_MIB,"vcpus_max":HV_VCPU_LIMIT},"note":"The current generic launcher does not yet apply profile-specific machine/CPU/device flags or the requested vCPU count."})
+                return send(self,202,{"status":"starting","id":gid,"pid":process.pid,"profile":profile["id"],"limits":{"memory_mib_max":HV_MEMORY_LIMIT_MIB,"vcpus_max":HV_VCPU_LIMIT},"note":"Guest process requested; check the guest console and supplied firmware/boot media. Host OS resource isolation remains limited."})
             if path=="/hypervisor/guests/stop":
                 gid=str(d.get("id",""))
                 with HV_LOCK: guest=HV_GUESTS.get(gid)
