@@ -55,8 +55,12 @@ grub-file --is-x86-multiboot2 "$KORONOS_ELF"
 printf '%s\n' '[2/7] Build and link Spit Fire native stages'
 bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 
-printf '%s\n' '[3/7] Prepare ISO tree'
+printf '%s\n' '[3/7] Prepare ISO tree — canonical Spit Fire → Jasper/GRUB → Koronos pipeline'
 bash "$ISO_ROOT/prepare-layout.sh"
+# The build is intentionally anchored to the canonical native handoff order.
+# Do not substitute the obsolete aurora-background.jpg contract or bypass
+# Koronos in order to start Aurora directly from ISO boot.
+test -s "$ROOT/boot/boot-pipeline-contract.json" || { echo "ERROR: canonical boot pipeline contract missing." >&2; exit 2; }
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
@@ -114,13 +118,29 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/spitfire/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/grub/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/koronos/"
+cp -f "$ROOT/boot/boot-pipeline-contract.json" "$DIST/iso/boot/chimera/manifests/boot-pipeline-contract.json"
 # Mirror the same contract into the installed/live Aurora runtime when a rootfs is present.
 RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera/aurora"
 if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
   mkdir -p "$RUNTIME_AURORA_ROOT"
   cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
 fi
-printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
+printf '%s\n' '[5/7] Validate canonical Spit Fire → Jasper/GRUB → Koronos → userspace → Aurora contracts'
+python3 - "$ROOT/boot/boot-pipeline-contract.json" "$ROOT/boot/iso/grub.cfg" <<'PY'
+import json, pathlib, sys
+contract = json.loads(pathlib.Path(sys.argv[1]).read_text())
+grub = pathlib.Path(sys.argv[2]).read_text()
+stages = [x["stage"] for x in contract["pipeline"]]
+expected = ["Spit Fire", "Jasper/GRUB", "Koronos ELF", "hardware/driver initialization", "scheduler/runtime loop", "live/recovery/installer userspace", "Aurora"]
+if stages != expected:
+    raise SystemExit(f"ERROR: canonical boot stage order changed: {stages}")
+if "multiboot2 /boot/koronos/koronos.elf" not in grub:
+    raise SystemExit("ERROR: GRUB does not hand off through the canonical Koronos ELF.")
+for obsolete in contract["artwork_contract"]["forbidden_obsolete_paths"]:
+    if obsolete in grub:
+        raise SystemExit(f"ERROR: obsolete artwork path referenced by GRUB: {obsolete}")
+PY
+
 test -s "$DIST/iso/boot/koronos/koronos.elf"
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
 for visual in \
@@ -130,6 +150,8 @@ for visual in \
   test -s "$DIST/iso/boot/visual/$visual" || { echo "ERROR: Aurora visual asset missing: $visual" >&2; exit 2; }
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
+test -s "$DIST/iso/boot/chimera/manifests/boot-pipeline-contract.json"
+! grep -R -F 'aurora-background.jpg' "$DIST/iso" >/dev/null || { echo "ERROR: obsolete aurora-background.jpg artwork contract leaked into ISO." >&2; exit 2; }
 for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/Init.mp4" || { echo "ERROR: Init.mp4 missing from $stage stage." >&2; exit 2; }
   test -s "$DIST/iso/boot/$stage/aurora-boot.png" || { echo "ERROR: Aurora artwork missing from $stage stage." >&2; exit 2; }
