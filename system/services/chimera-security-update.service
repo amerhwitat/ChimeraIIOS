@@ -1,0 +1,14 @@
+[Unit]
+Description=Chimera II OS signed security intelligence update
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/chimera/tools/security/chimera_security_update.py --config /etc/chimera/security-update.json
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target
