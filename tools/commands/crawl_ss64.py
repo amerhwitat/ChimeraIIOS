@@ -137,18 +137,54 @@ ARABIC_COMMAND_LABELS = {
 "open":"افتح ملفاً أو تطبيقاً","defaults":"إعدادات macOS","pbcopy":"انسخ إلى الحافظة",
 "pbpaste":"اقرأ الحافظة","launchctl":"إدارة خدمات macOS","diskutil":"إدارة الأقراص"
 }
+def arabic_command_label(name):
+    key=name.casefold()
+    if key in ARABIC_COMMAND_LABELS:
+        return ARABIC_COMMAND_LABELS[key], "translated"
+    rules=(
+        (("get-","get_"),"استعلم عن"),
+        (("set-","set_"),"اضبط"),
+        (("new-","new_","create-"),"أنشئ"),
+        (("remove-","delete-","del-","clear-","uninstall-"),"أزل أو احذف"),
+        (("add-","install-","enable-"),"أضف أو فعّل"),
+        (("start-","open-","launch-"),"ابدأ أو افتح"),
+        (("stop-","disable-","close-"),"أوقف أو عطّل"),
+        (("test-","check-","verify-"),"اختبر أو تحقّق من"),
+        (("update-","upgrade-"),"حدّث"),
+        (("convert-","format-"),"حوّل أو نسّق"),
+        (("export-","save-","write-"),"صدّر أو احفظ"),
+        (("import-","load-","read-"),"استورد أو اقرأ"),
+        (("copy-","copy_","cp"),"انسخ"),
+        (("move-","move_","mv"),"انقل"),
+        (("find-","search-","grep"),"ابحث عن"),
+        (("list-","show-","display-","dir","ls"),"اعرض"),
+        (("remove","delete","erase","rm"),"احذف"),
+        (("mount","attach"),"اربط"),
+        (("unmount","detach"),"افصل"),
+        (("service","daemon"),"خدمة النظام"),
+        (("network","net-","ipconfig","ifconfig"),"الشبكة"),
+        (("disk","drive","volume"),"الأقراص ووحدات التخزين"),
+        (("user","group","account"),"المستخدمون والحسابات"),
+    )
+    for prefixes,label in rules:
+        if key.startswith(prefixes):
+            return label+" — "+name, "rule-translated"
+    return "أمر نظام — "+name, "identifier-preserved"
+
+
 def attach_arabic_labels(catalog, root):
     merged={}
     for platform_data in catalog.get("platforms",{}).values():
         for row in platform_data.get("commands",[]):
             name=row.get("name","")
-            label=ARABIC_COMMAND_LABELS.get(name.casefold(),"أمر نظام: "+name)
+            label,status=arabic_command_label(name)
             row["arabic_label"]=label
+            row["arabic_status"]=status
             row["arabic_search"]=list(dict.fromkeys([label,name,"أمر "+name]))
-            merged.setdefault(name.casefold(),{"name":name,"label":label,"platforms":[]})
+            merged.setdefault(name.casefold(),{"name":name,"label":label,"arabic_status":status,"platforms":[]})
             merged[name.casefold()]["platforms"].append(row.get("platform",""))
-    desktop={"schema":"CHIMERA-AR-CMD-2","locale":"ar","direction":"rtl","commands":{k:v["label"] for k,v in sorted(merged.items())}}
-    system={"schema":"CHIMERA-SS64-AR-1","locale":"ar","commands":{k:{"name":v["name"],"label":v["label"],"platforms":sorted(set(v["platforms"]))} for k,v in sorted(merged.items())}}
+    desktop={"schema":"CHIMERA-AR-CMD-3","locale":"ar","direction":"rtl","commands":{k:{"label":v["label"],"translation_status":v["arabic_status"]} for k,v in sorted(merged.items())}}
+    system={"schema":"CHIMERA-SS64-AR-2","locale":"ar","commands":{k:{"name":v["name"],"label":v["label"],"translation_status":v["arabic_status"],"platforms":sorted(set(v["platforms"]))} for k,v in sorted(merged.items())}}
     desktop_path=root/"desktop/aurora/arabic_command_catalog.json"
     system_path=root/"system/commands/ss64-command-catalog.ar.json"
     desktop_path.parent.mkdir(parents=True,exist_ok=True)
