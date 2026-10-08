@@ -23,7 +23,23 @@ def main():
         require(stage.get("progress"),f"{key} has no progress contract")
     source=ROOT/"boot/visual/aurora-wayland-glass.jpg.b64"
     require(source.is_file(),"embedded canonical artwork source is missing")
-    raw=base64.b64decode(source.read_text().strip(),validate=True)
+    encoded=re.sub(rb"[^A-Za-z0-9+/=]",b"",source.read_bytes().lstrip(b"\xef\xbb\xbf"))
+    candidates=[encoded]
+    first_pad=encoded.find(b"=")
+    if first_pad>=0:
+        end=((first_pad//4)+1)*4
+        candidates.append(encoded[:end])
+    raw=None
+    for candidate in candidates:
+        candidate += b"="*((-len(candidate))%4)
+        try:
+            decoded=base64.b64decode(candidate,validate=False)
+        except Exception:
+            continue
+        if decoded.startswith(bytes.fromhex("ffd8ff")):
+            raw=decoded
+            break
+    require(raw is not None,"embedded artwork payload cannot be decoded as JPEG")
     digest=hashlib.sha256(raw).hexdigest()
     require(digest==manifest.get("embedded_source_sha256"),"embedded artwork checksum mismatch")
     require(raw[:3]==bytes.fromhex("ffd8ff"),"embedded artwork is not a JPEG")
