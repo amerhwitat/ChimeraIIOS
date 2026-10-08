@@ -41,6 +41,6 @@ done
 
 grep -q 'desktop-background.conf' "$ROOT/desktop/aurora/gates_menu.json"
 grep -q 'changeable' "$ROOT/desktop/aurora/gates_menu.json"
-test -s "$ROOT/system/branding/aurora-default.png.base64"
+test -s "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64"
 
 echo "PASS: Chimera ISO resumability, xorriso flags, and Aurora menu background contracts"
