@@ -14,7 +14,7 @@ add_custom_target(koronos-validate
   DEPENDS koronos-x86_64
   COMMENT "Validate Koronos ELF64 image and microkernel foundation"
 )
-\nadd_library(chimera_watchdog_core STATIC core/watchdog.cpp)\ntarget_include_directories(chimera_watchdog_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)\ntarget_compile_features(chimera_watchdog_core PRIVATE cxx_std_20)\n
+
 add_library(chimera_watchdog_core STATIC core/watchdog.cpp)
 target_include_directories(chimera_watchdog_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(chimera_watchdog_core PRIVATE cxx_std_20)
