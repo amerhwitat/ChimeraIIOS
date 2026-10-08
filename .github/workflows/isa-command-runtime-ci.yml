@@ -8,6 +8,8 @@ on:
       - 'kernel/include/chimera/isa_registry.h'
       - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
       - 'tools/isa/generate_encoding_artifacts.py'
+      - 'tools/isa/riscv_codec.py'
+      - 'tools/isa/test_riscv_codec.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
       - 'system/commands/chimera-command-list.json'
@@ -50,6 +52,11 @@ jobs:
         run: |
           bash -n build-chimera-iso.sh
           bash -n tools/build-chimera-command-compat.sh
+      - name: Test RV32I encoder, decoder, and interpreter subset
+        run: |
+          python3 -m unittest tools/isa/test_riscv_codec.py -v
+          python3 tools/isa/riscv_codec.py encode "ADD x1, x2, x3" | grep -qx '0x003100B3'
+          python3 tools/isa/riscv_codec.py decode 0x003100B3 | grep -qx 'ADD x1, x2, x3'
       - name: Validate exact binary and hexadecimal samples
         run: |
           python3 tools/validate_isa_catalog.py
