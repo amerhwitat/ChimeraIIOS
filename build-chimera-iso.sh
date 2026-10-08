@@ -1005,9 +1005,9 @@ PYISA
 }
 build_command_runtime(){
   log_info "Compiling and staging native command multicall binary and compatibility registry"
-  bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
-  [[ -x "$SCRIPT_DIR/rootfs/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
-  log_info "Native command binary staged at rootfs/usr/bin/chimera-cmd"
+  CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
+  [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
+  log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
 }
 
 main(){
