@@ -15,7 +15,7 @@ OP_JMP=0x20; OP_JZ=0x21; OP_TRAP=0x30; OP_HALT=0xff
 
 class NBitTrap(Exception):
     def __init__(self,cause,pc,detail=""):
-        super().__init__(detail or cause); self.cause=cause; self.pc=pc
+        super().__init__(f"{cause}: {detail}" if detail else cause); self.cause=cause; self.pc=pc
 
 @dataclass
 class ChimeraNBit:
