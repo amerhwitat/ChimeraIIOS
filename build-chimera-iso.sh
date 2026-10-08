@@ -112,6 +112,33 @@ CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
 
+# Architecture-aware media profile. Current boot artifacts are x86_64-only.
+detect_cpu_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64) printf "x86_64\n" ;;
+    aarch64|arm64) printf "aarch64\n" ;;
+    i?86) printf "i386\n" ;;
+    riscv64) printf "riscv64\n" ;;
+    *) uname -m ;;
+  esac
+}
+HOST_ARCH="$(detect_cpu_arch)"
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$HOST_ARCH}"
+case "$TARGET_ARCH" in x86_64|aarch64|riscv64|i386) ;; *) log_error "Unsupported target CPU architecture: $TARGET_ARCH"; exit 2 ;; esac
+MEDIA_FS_PROFILE="${CHIMERA_MEDIA_FS_PROFILE:-auto}"
+case "$MEDIA_FS_PROFILE" in
+  auto) MEDIA_FS_PROFILE="iso9660+squashfs" ;;
+  iso9660+squashfs) ;;
+  *) log_error "Unsupported media filesystem profile: $MEDIA_FS_PROFILE"; exit 2 ;;
+esac
+if [[ "$TARGET_ARCH" != "x86_64" ]]; then
+  log_error "Target $TARGET_ARCH detected, but the current ISO boot pipeline supports x86_64 only."
+  log_error "ARM64/mobile and RISC-V require matching Koronos, Jasper/Spit Fire, GRUB EFI, and boot verification before an ISO can be emitted."
+  log_error "No mislabeled cross-architecture ISO will be produced."
+  exit 2
+fi
+export CHIMERA_TARGET_ARCH="$TARGET_ARCH" CHIMERA_HOST_ARCH="$HOST_ARCH" CHIMERA_MEDIA_FS_PROFILE="$MEDIA_FS_PROFILE"
+
 mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
 
 # WSL/DrvFs can expose a drive as read-only even when it reports ample free space.
@@ -316,6 +343,11 @@ choose_storage(){
   log_success "Build storage switched to $best"
 }
 preflight(){
+  header 'CPU / MEDIA PROFILE'
+  log_info "Detected build-host CPU: $HOST_ARCH"
+  log_info "Selected ISO target CPU: $TARGET_ARCH"
+  log_info "Media filesystem profile: $MEDIA_FS_PROFILE (ISO9660/El Torito + SquashFS rootfs)"
+  log_info "SquashFS worker count: ${CHIMERA_SQUASHFS_PROCESSORS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2)}"
   header 'LARGE ISO / STORAGE PREFLIGHT'
   local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
@@ -872,7 +904,7 @@ build_squashfs(){
   local root_bytes free_bytes_now processors rc
   root_bytes="$(du -sB1 "$ROOTFS_DIR" 2>/dev/null | awk '{print $1+0}')"
   free_bytes_now="$(free_bytes "$ISO_TMP_DIR")"
-  processors="${CHIMERA_SQUASHFS_PROCESSORS:-2}"
+  processors="${CHIMERA_SQUASHFS_PROCESSORS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2)}"
   [[ "$processors" =~ ^[1-9][0-9]*$ ]] || processors=2
   log_info "SquashFS source: $ROOTFS_DIR ($(numfmt --to=iec --suffix=B "$root_bytes" 2>/dev/null || printf '%s bytes' "$root_bytes"))"
   log_info "SquashFS temp: $tmp; free space on temp filesystem: $(numfmt --to=iec --suffix=B "$free_bytes_now" 2>/dev/null || printf '%s bytes' "$free_bytes_now")"
@@ -901,7 +933,7 @@ build_squashfs(){
 build_iso(){
   header 'STEP 9: BUILD BOOTABLE ISO'
 
-  local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}.iso"
+  local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso"
   local source_bytes=0
   local free_bytes_now=0
   local required_bytes=0
