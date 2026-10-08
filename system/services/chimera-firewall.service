@@ -1,0 +1,14 @@
+[Unit]
+Description=Chimera II OS nftables firewall
+After=network-pre.target
+Before=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/python3 /opt/chimera/tools/security/chimera_firewall.py public
+ExecReload=/usr/bin/python3 /opt/chimera/tools/security/chimera_firewall.py public
+ExecStop=/usr/sbin/nft flush table inet chimera
+
+[Install]
+WantedBy=multi-user.target
