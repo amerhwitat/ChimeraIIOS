@@ -27,6 +27,13 @@ on:
       - 'tools/load_isa_database.py'
       - 'tools/isa_registry_report.py'
       - 'tools/generate_isa_bindings.py'
+      - 'tools/binary/**'
+      - 'tools/memory/chimera_swap.py'
+      - 'tools/memory/test_chimera_swap.py'
+      - 'docs/architecture/chimera-native-binary-format.md'
+      - 'docs/architecture/chimera-virtual-memory-swap.md'
+      - 'docs/architecture/chimera-nbit-native-isa.md'
+      - 'compat/binary-format-registry.json'
       - '.github/workflows/isa-catalog-ci.yml'
 
 concurrency:
