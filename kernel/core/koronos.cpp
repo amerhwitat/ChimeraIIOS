@@ -278,7 +278,10 @@ static const char *task_state_name(uint32_t state) {
 
 static void task_monitor(void *) {
     static uint32_t ticks = 0;
-    if ((++ticks % 10u) != 0) return;
+    // The scheduler is a tight cooperative loop; sampling every 10 dispatches
+    // floods VGA/serial output and makes a healthy kernel look hung. Keep the
+    // monitor live, but emit a full snapshot only once per 1000 monitor runs.
+    if ((++ticks % 1000u) != 0) return;
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
