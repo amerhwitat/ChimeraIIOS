@@ -21,6 +21,10 @@ class QemuProfileSmokeTests(unittest.TestCase):
             self.assertEqual(result.returncode,0,f"{binary} -machine help failed: {result.stderr}")
             listing=result.stdout+result.stderr
             self.assertIn(p["machine"],listing,f"machine {p['machine']} not listed by {binary}")
+            # The q800 Macintosh board requires a proprietary MacROM not shipped by QEMU.
+            # It cannot be part of a redistributable machine-init smoke test.
+            if p["machine"] == "q800":
+                continue
             # Start the selected machine with vCPUs paused. This validates that QEMU
             # can initialize the configured machine/CPU; it does not boot a guest OS.
             args=[binary,"-machine",p["machine"],"-cpu",p["cpu"],"-m","128M",
