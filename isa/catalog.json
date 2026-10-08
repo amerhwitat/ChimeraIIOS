@@ -1634,6 +1634,21 @@
       "title": "QEMU emulation documentation",
       "url": "https://www.qemu.org/docs/master/about/emulation.html",
       "scope": "Non-normative comparison for architecture and emulator coverage."
+    },
+    {
+      "title": "RISC-V Architectural Certification Tests (ACT4)",
+      "url": "https://github.com/riscv/riscv-arch-test",
+      "scope": "Official RISC-V architectural certification test framework; requires DUT-specific configuration and test execution."
+    },
+    {
+      "title": "RISC-V Certification Test Plan",
+      "url": "https://riscv.github.io/riscv-arch-test/ctp.html",
+      "scope": "Certification scope and coverpoints; draft status must be respected."
+    },
+    {
+      "title": "Intel X86 Encoder Decoder (XED)",
+      "url": "https://github.com/intelxed/xed",
+      "scope": "Reference implementation/library for x86 instruction encoding and decoding; not an execution engine."
     }
   ],
   "coverage_dimensions": [
