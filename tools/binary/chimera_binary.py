@@ -52,7 +52,8 @@ def validate_ncb(data):
     return {"format":"Chimera NCB1","version":ver,"isa_id":isa,"word_bits":word,"entry_offset":entry,"file_size":fs,"stack_bytes":stack,"heap_limit_bytes":heap,"image_base":base,"sections":sections}
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument("file");p.add_argument("--json",action="store_true");a=p.parse_args();path=Path(a.file)
-    if not path.is_file():p.error("input must be a regular file")
+    if not path.exists():p.error(f"input does not exist: {path}")
+    if not path.is_file():p.error(f"input must be a regular file, not a directory or special file: {path}")
     if path.stat().st_size>1<<34:p.error("file exceeds safe inspection limit")
     data=path.read_bytes();r=identify(data,str(path))
     if r["format"]=="Chimera NCB1":
