@@ -144,5 +144,16 @@ static const chimera_isa_entry CHIMERA_ISA_REGISTRY[] = {
   {"Chimera","chimera-c8192","TCONTRACT","0x3000","1111000000000000","register, register, register","TCONTRACT Z0,Z1,Z2 [rrr]",16},
   {"Chimera","chimera-c8192","MODEXP","0x4000","1111000000000000","register, register, register","MODEXP Z0,Z1,Z2 [rrr]",16},
   {"Chimera","chimera-c8192","NETSEND","0x5000","1111000000000000","register, mask","NETSEND Z0,P0 [rp]",16},
+  {"RISC-V","riscv64","SLTI","0x00112093","00000000000000000111000001111111","register, register, immediate","SLTI x1,x2,1 [ri]",32},
+  {"RISC-V","riscv64","XORI","0x00114093","00000000000000000111000001111111","register, register, immediate","XORI x1,x2,1 [ri]",32},
+  {"RISC-V","riscv64","ORI","0x00116093","00000000000000000111000001111111","register, register, immediate","ORI x1,x2,1 [ri]",32},
+  {"RISC-V","riscv64","ANDI","0x00117093","00000000000000000111000001111111","register, register, immediate","ANDI x1,x2,1 [ri]",32},
+  {"RISC-V","riscv64","SB","0x00310423","00000000000000000111000001111111","register, memory","SB x3,8(x2) [store]",32},
+  {"RISC-V","riscv64","SH","0x00311423","00000000000000000111000001111111","register, memory","SH x3,8(x2) [store]",32},
+  {"RISC-V","riscv64","LH","0x00811083","00000000000000000111000001111111","register, memory","LH x1,8(x2) [load]",32},
+  {"RISC-V","riscv64","LBU","0x00814083","00000000000000000111000001111111","register, memory","LBU x1,8(x2) [load]",32},
+  {"RISC-V","riscv64","MRET","0x30200073","11111111111111111111111111111111","implicit","MRET [system]",32},
+  {"LoongArch","loongarch64","ADD.W","0x00141000","11111111111000000111110000000000","register, register, register","add.w $r4,$r5,$r6 [rrr]",32},
+  {"LoongArch","loongarch64","SUB.W","0x00141400","11111111111000000111110000000000","register, register, register","sub.w $r4,$r5,$r6 [rrr]",32},
 };
 static const uint32_t CHIMERA_ISA_REGISTRY_COUNT = sizeof(CHIMERA_ISA_REGISTRY)/sizeof(CHIMERA_ISA_REGISTRY[0]);
