@@ -2,22 +2,46 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <sys/utsname.h>
 #include <thread>
 #include <algorithm>
 #include <cstdio>
+#ifdef _WIN32
+#include <windows.h>
+#include <process.h>
+#define CHIMERA_POPEN _popen
+#define CHIMERA_PCLOSE _pclose
+#else
+#include <sys/utsname.h>
+#define CHIMERA_POPEN popen
+#define CHIMERA_PCLOSE pclose
+#endif
 namespace fs=std::filesystem;
 namespace chimera::installer {
 Hardware Installer::detect_hardware() const {
-  Hardware h; struct utsname u{};
+  Hardware h;
+#ifdef _WIN32
+  SYSTEM_INFO info{}; GetNativeSystemInfo(&info);
+  const char* arch=std::getenv("PROCESSOR_ARCHITECTURE");
+  h.architecture=arch?arch:(info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64?"x86_64":"unknown");
+#else
+  struct utsname u{};
   if(uname(&u)==0) h.architecture=u.machine;
+#endif
   h.cpu_cores=std::max(1u,std::thread::hardware_concurrency());
+  #ifndef _WIN32
   { std::ifstream f("/proc/cpuinfo"); std::string line; while(std::getline(f,line)){ if(line.rfind("vendor_id",0)==0){ auto p=line.find(":"); if(p!=std::string::npos) h.cpu_vendor=line.substr(p+2); break; } } }
+#else
+  if(const char* vendor=std::getenv("PROCESSOR_IDENTIFIER")) h.cpu_vendor=vendor;
+#endif
   h.koronos_compatibility = !(h.architecture=="x86_64" || h.architecture=="amd64" || h.architecture=="aarch64" || h.architecture=="riscv64");
+  #ifdef _WIN32
+  h.network=false; h.nvme=false; h.sata=false; h.graphics=false; h.firmware=Firmware::Unknown;
+#else
   h.network=fs::exists("/sys/class/net"); h.nvme=fs::exists("/sys/class/nvme");
   h.sata=fs::exists("/sys/class/ata"); h.graphics=fs::exists("/dev/dri");
   h.firmware=fs::exists("/sys/firmware/efi")?Firmware::UEFI:Firmware::BIOS;
   if(fs::exists("/sys/class/drm")) h.graphics=true;
+#endif
   return h;
 }
 std::string Installer::firmware_name(Firmware f) {
@@ -58,11 +82,11 @@ int Installer::run(const std::string& cmd,bool allow_failure) const {
 }
 static std::string capture_command(const std::string& cmd) {
   std::string out;
-  FILE* pipe=popen(cmd.c_str(),"r");
+  FILE* pipe=CHIMERA_POPEN(cmd.c_str(),"r");
   if(!pipe) return out;
   char buf[4096];
   while(fgets(buf,sizeof(buf),pipe)) out+=buf;
-  pclose(pipe);
+  CHIMERA_PCLOSE(pipe);
   return out;
 }
 int Installer::copy_tree(const fs::path& src,const fs::path& dst) const {
