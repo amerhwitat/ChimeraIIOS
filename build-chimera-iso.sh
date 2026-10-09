@@ -10,6 +10,7 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
+  --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -189,8 +190,11 @@ stop_watchdog(){
 }
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
+REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
@@ -1114,6 +1118,10 @@ build_command_runtime(){
 }
 
 main(){
+  if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
+    log_info "Refreshing official ISA and OS-command indexes from the internet"
+    python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+  fi
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
   preflight
