@@ -69,3 +69,11 @@ The Java page-ingestion module now includes JUnit tests for a generated two-page
 - [ ] Add repository-local CI gates and record commit SHA + test result for each completed component.
 - [ ] Audit Java dependency licenses, supply-chain posture, and supported JDK versions.
 - [ ] Keep bare-metal boot and kernel paths native until a JVM runtime can actually be launched.
+
+## Acceptance gate status — 2026-10-09
+
+- PDFreaderPY Java module: implementation and JUnit tests are committed; Java 17 Maven verification is **pending**, not yet marked passing.
+- Acceptance-test PR: [PDFreaderPY #1](https://github.com/amerhwitat/PDFreaderPY/pull/1) adds coverage for quotes in evidence paths. Keep it open until a successful `Java PDF ingestion` workflow result is visible.
+- Current execution limitation: the available execution environment has Java 21 but no Maven executable, and the project checkout/dependency cache is not mounted here. A real PDFBox 3.0.5 build cannot honestly be reported from this environment. The committed CI workflow is the required reproducible build gate; if it does not start automatically, run the workflow from GitHub Actions or push a follow-up commit to trigger it.
+- Do not merge the acceptance PR or mark the Java module `build-passing` until `mvn --batch-mode --no-transfer-progress clean verify` succeeds. Fix compilation, dependency, fixture, or test failures before proceeding.
+- Do not start broad new language ports until the first component passes this gate. Afterward, select one component with a stable API, add language-neutral fixtures, port it, and require build + parity tests before the next component.
