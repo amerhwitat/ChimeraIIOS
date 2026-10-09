@@ -136,6 +136,11 @@ def candidate_name(label: str) -> str:
     return re.sub(r"\s+", " ", label)
 
 
+def extract_definition_identifiers(text: str) -> list[str]:
+    """Extract candidate TableGen definition IDs, not architectural mnemonics."""
+    return sorted(set(re.findall(r"(?m)^\s*def\s+([A-Za-z_][A-Za-z0-9_]*)\b", text)))
+
+
 def update_arabic_registry(existing: dict[str, Any], commands: list[dict[str, Any]]) -> dict[str, Any]:
     aliases = existing.setdefault("aliases", {})
     reverse = existing.setdefault("arabic_to_canonical", {})
@@ -172,7 +177,7 @@ def refresh() -> int:
             text = raw.decode("utf-8", errors="replace")
             # TableGen 'def' identifiers are useful source-discovery hints, not
             # asserted architectural mnemonics or proof of decoder/executor support.
-            defs = sorted(set(re.findall(r"(?m)^\s*def\s+([A-Za-z_][A-Za-z0-9_]*)\b", text))) if "tablegen" in source["kind"] else []
+            defs = extract_definition_identifiers(text) if "tablegen" in source["id"] else []
             row.update({
                 "status": "ok",
                 "http_content_type": content_type,
