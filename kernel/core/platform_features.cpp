@@ -41,6 +41,14 @@ static uint64_t native_features() {
 }
 
 static void early_log(const char *s) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__
+    /*
+     * Hosted unit tests run as ordinary processes and cannot access the
+     * physical VGA text buffer at 0xB8000. Keep logging side-effect-free in
+     * hosted builds; the freestanding kernel retains its early console path.
+     */
+    (void)s;
+#else
     if (!s) return;
     volatile uint16_t *v = (volatile uint16_t *)0xB8000;
     static uint32_t row = 22, col = 0;
@@ -49,6 +57,7 @@ static void early_log(const char *s) {
         if (c == '\n' || col >= 80u) { col = 0; if (++row >= 25u) row = 22u; }
         if (c != '\n') v[row * 80u + col++] = (uint16_t)(0x0F00u | (uint8_t)c);
     }
+#endif
 }
 }
 
