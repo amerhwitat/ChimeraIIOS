@@ -1,4 +1,7 @@
 DATABASES = [
+ {'name':'MySQL Community Server','model':'relational','license':'GPLv2'},
+ {'name':'Firebird','model':'relational','license':'IPL-1.0/IDPL-1.0'},
+ {'name':'Apache Cassandra','model':'wide-column','license':'Apache-2.0'},
  {'name':'MariaDB Community Server','model':'relational','license':'GPLv2'},
  {'name':'PostgreSQL','model':'relational','license':'PostgreSQL License'},
  {'name':'SQLite','model':'embedded-relational','license':'Public Domain'},
@@ -8,4 +11,5 @@ DATABASES = [
  {'name':'Valkey','model':'key-value','license':'BSD-3-Clause'},
  {'name':'Apache Cassandra','model':'wide-column','license':'Apache-2.0'},
  {'name':'Apache CouchDB','model':'document','license':'Apache-2.0'},
+ {'name':'MongoDB Community Server','model':'document-source-available','license':'SSPL (not OSI-approved)'},
 ]
