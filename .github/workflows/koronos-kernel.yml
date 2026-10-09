@@ -7,6 +7,12 @@ on:
       - "isa/koronos/**"
       - "tools/koronos/**"
       - ".github/workflows/koronos-kernel.yml"
+  pull_request:
+    paths:
+      - "kernel/**"
+      - "isa/koronos/**"
+      - "tools/koronos/**"
+      - ".github/workflows/koronos-kernel.yml"
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
