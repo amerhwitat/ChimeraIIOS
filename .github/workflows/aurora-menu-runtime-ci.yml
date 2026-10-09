@@ -51,4 +51,4 @@ jobs:
           src=$(find . -type f \( -iname '*.jpg' -o -iname '*.png' \) | head -n 1)
           test -n "$src"
           CHIMERA_AURORA_SOURCE_IMAGE="$src" bash tools/generate-aurora-media.sh /tmp/aurora-media
-          ffprobe -v error -show_entries format=duration -of default=nw=1 /tmp/aurora-media/init.mp4
+          ffprobe -v error -show_entries format=duration -of default=nw=1 /tmp/aurora-media/Init.mp4
