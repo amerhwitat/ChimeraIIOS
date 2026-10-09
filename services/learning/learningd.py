@@ -55,7 +55,8 @@ def main():
                 e=safe_event(json.loads(line))
                 if not e: continue
                 counts[e["action"]]+=1; seen+=1
-                observe_network(counts)\n                model["events"]=min(seen,MAX_EVENTS)
+                observe_network(counts)
+                model["events"]=min(seen,MAX_EVENTS)
                 model["actions"]=dict(counts.most_common(256))
                 if seen % 32 == 0:
                     tmp=MODEL.with_suffix(".tmp")
