@@ -815,6 +815,52 @@ stage_features(){
   [[ -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" "$ROOTFS_DIR/usr/share/applications/"
 }
 
+
+stage_package_managers(){
+  header 'STEP 6: STAGE AURORA PACKAGE MANAGER CENTER'
+  local cli="$SCRIPT_DIR/tools/chimera-package-manager.sh"
+  local panel="$SCRIPT_DIR/desktop/aurora/package_manager_panel.py"
+  local desktop="$SCRIPT_DIR/desktop/aurora/aurora-package-managers.desktop"
+  local catalog="$SCRIPT_DIR/appcenter/catalog/package-managers.json"
+  for f in "$cli" "$panel" "$desktop" "$catalog"; do
+    [[ -s "$f" ]] || { log_error "Package manager payload missing: $f"; return 1; }
+  done
+  mkdir -p "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/share/chimera/aurora" \
+    "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/usr/share/chimera/appcenter" \
+    "$ISO_DIR/system/package-managers" "$ISO_DIR/system/desktop/aurora" \
+    "$ISO_DIR/system/appcenter/catalog"
+  install -m 0755 "$cli" "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  install -m 0644 "$panel" "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
+  install -m 0644 "$desktop" "$ROOTFS_DIR/usr/share/applications/aurora-package-managers.desktop"
+  install -m 0644 "$catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json"
+  cp -f "$cli" "$ISO_DIR/system/package-managers/chimera-package-manager.sh"
+  cp -f "$panel" "$ISO_DIR/system/desktop/aurora/package_manager_panel.py"
+  cp -f "$desktop" "$ISO_DIR/system/desktop/aurora/aurora-package-managers.desktop"
+  cp -f "$catalog" "$ISO_DIR/system/appcenter/catalog/package-managers.json"
+  chmod +x "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
+  python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
+  log_info "Aurora Package Manager Center staged (APT, DNF, Pacman, Zypper, APK, Snap, Flatpak, Homebrew/brew and Nix adapters)."
+  log_info "Providers remain optional and are detected at runtime; the ISO build will not run remote package-manager installer scripts."
+}
+
+build_native_iso_pipeline(){
+  if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" == 0 ]]; then
+    log_info "Native boot/iso/build-iso.sh pipeline skipped by CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0"
+    return 0
+  fi
+  header 'STEP 11: RUN CANONICAL NATIVE ISO PIPELINE'
+  local native_script="$SCRIPT_DIR/boot/iso/build-iso.sh"
+  local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
+  [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
+  bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
+  [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
+  (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
+  log_success "Canonical native ISO and checksum verified: $native_iso"
+}
+
+
 stage_games(){ local d="$ISO_DIR/games"; mkdir -p "$d"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" "$d/"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" "$d/"; [[ -d "$SCRIPT_DIR/games" ]] && cp -a "$SCRIPT_DIR/games/." "$d/" 2>/dev/null || true; }
 
 create_installer(){
@@ -1127,7 +1173,7 @@ main(){
   preflight
   check_deps
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features games squashfs iso verify report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
@@ -1139,10 +1185,12 @@ main(){
       branding) run_stage branding prepare_branding;;
       apache) run_stage apache prepare_apache;;
       features) run_stage features stage_features;;
+      package-managers) run_stage package-managers stage_package_managers;;
       games) run_stage games stage_games;;
       squashfs) run_stage squashfs build_squashfs;;
       iso) run_stage iso build_iso;;
       verify) run_stage verify verify_iso;;
+      native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
     esac
     completed="$stage"
