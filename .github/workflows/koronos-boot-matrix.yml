@@ -34,11 +34,37 @@ jobs:
           file build/koronos/x86_64/koronos.elf
       - name: Build desktop artifacts
         run: ./tools/build-desktop-binaries.sh
+      - name: Build minimal Multiboot2 test ISO
+        run: |
+          set -euo pipefail
+          mkdir -p build/qemu-iso/boot/grub
+          install -m 0644 build/koronos/x86_64/koronos.elf build/qemu-iso/boot/koronos.elf
+          cat > build/qemu-iso/boot/grub/grub.cfg <<'GRUB'
+          set timeout=0
+          set default=0
+          insmod serial
+          serial --unit=0 --speed=115200
+          terminal_input console serial
+          terminal_output console serial
+          menuentry "Koronos Multiboot2 smoke test" {
+            multiboot2 /boot/koronos.elf
+            boot
+          }
+          GRUB
+          grub-mkrescue -o build/koronos-qemu-smoke.iso build/qemu-iso
       - name: QEMU serial boot smoke test
         run: |
-          timeout 15s qemu-system-x86_64             -machine pc             -cpu max             -m 1024             -kernel build/koronos/x86_64/koronos.elf             -serial stdio -display none 2>&1 | tee qemu-koronos.log || true
-          grep -q "KORONOS_READY" qemu-koronos.log
-          grep -q "CPU online; entering scheduler idle loop" qemu-koronos.log
+          set -euo pipefail
+          set +e
+          timeout 15s qemu-system-x86_64 -machine pc -cpu max -m 1024 \
+            -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
+            -display none -no-reboot 2>&1 | tee qemu-koronos.log
+          qemu_rc=${PIPESTATUS[0]}
+          set -e
+          # timeout (124) is expected after the kernel enters its idle loop.
+          [[ "$qemu_rc" -eq 0 || "$qemu_rc" -eq 124 ]]
+          grep -q "\[KRN \] KORONOS READY" qemu-koronos.log
+          grep -q "\[RUN \] Entering Koronos scheduler loop" qemu-koronos.log
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
