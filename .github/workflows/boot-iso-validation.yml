@@ -33,6 +33,7 @@ on:
       - 'tests/build/**'
       - 'tools/catalogs/**'
       - 'data/isa/online-source-catalog.json'
+      - 'isa/isa_database.json'
       - 'tests/catalogs/**'
       - 'system/commands/chimera-arabic.json'
       - 'system/commands/online-command-catalog.json'
