@@ -56,7 +56,7 @@ ARABIC_ALIASES = {
     "lspci":"أجهزة_PCI", "lsusb":"أجهزة_USB", "dmesg":"رسائل_النواة",
     "journalctl":"سجل_النظام", "systemd-analyze":"تحليل_الإقلاع",
     "sqlite3":"قاعدة_SQLite", "psql":"قاعدة_PostgreSQL", "mysql":"قاعدة_MySQL",
-    "sqlite":"قاعدة_SQLite", "sql":"استعلام_SQL",
+    "sqlite":"عميل_SQLite", "sql":"استعلام_SQL",
     "dig":"استعلام_DNS", "nslookup":"بحث_DNS",
     "chimera-shell":"طرفية_شيميرا", "chimera-terminal":"محطة_شيميرا",
 }
