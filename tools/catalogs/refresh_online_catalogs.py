@@ -172,7 +172,7 @@ def refresh() -> int:
             text = raw.decode("utf-8", errors="replace")
             # TableGen 'def' identifiers are useful source-discovery hints, not
             # asserted architectural mnemonics or proof of decoder/executor support.
-            defs = sorted(set(re.findall(r"(?m)^\\s*def\\s+([A-Za-z_][A-Za-z0-9_]*)\\b", text))) if "tablegen" in source["kind"] else []
+            defs = sorted(set(re.findall(r"(?m)^\s*def\s+([A-Za-z_][A-Za-z0-9_]*)\b", text))) if "tablegen" in source["kind"] else []
             row.update({
                 "status": "ok",
                 "http_content_type": content_type,
@@ -235,6 +235,12 @@ def refresh() -> int:
 
     entries = sorted(merged.values(), key=lambda item: (item["platform"], item["name"].casefold()))
     previous = read_json(COMMANDS_OUT, {})
+    successful_isa = sum(1 for item in isa_results if item["status"] == "ok")
+    successful_commands = sum(1 for item in command_results.values() if item["status"] == "ok")
+    if successful_isa == 0:
+        print("Warning: no ISA sources reachable; preserving any existing ISA index.", file=sys.stderr)
+    if successful_commands == 0:
+        print("Warning: no command indexes reachable; preserving existing command catalog and Arabic registry.", file=sys.stderr)
     command_doc = {
         "schema_version": "1.0",
         "generated_utc": timestamp,
@@ -255,9 +261,11 @@ def refresh() -> int:
         "candidate_definition_count": sum(item.get("definition_identifier_count", 0) for item in isa_results)
     }
     arabic = update_arabic_registry(read_json(ARABIC_FILE, {}), entries)
-    write_json(ISA_OUT, isa_doc)
-    write_json(COMMANDS_OUT, command_doc)
-    write_json(ARABIC_FILE, arabic)
+    if successful_isa:
+        write_json(ISA_OUT, isa_doc)
+    if successful_commands:
+        write_json(COMMANDS_OUT, command_doc)
+        write_json(ARABIC_FILE, arabic)
     print(f"ISA sources: {isa_doc['successful_source_count']}/{len(isa_results)} fetched; candidate TableGen definitions={isa_doc['candidate_definition_count']}")
     print(f"Command catalog: {len(entries)} names; curated Arabic aliases={command_doc['curated_arabic_alias_count']}; untranslated={command_doc['untranslated_count']}")
     if failures:
