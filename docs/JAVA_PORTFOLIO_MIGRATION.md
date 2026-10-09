@@ -21,7 +21,7 @@ This first survey inspected repository metadata, root README files, Java README 
 | `amerhwitat/bruteforce` | Java 21 research/GUI layer documented | Preserve safe crypto research boundary; only public/synthetic vectors and restore-and-verify workflows |
 | `amerhwitat/eth-key-check` | README identifies a Java implementation directory | Audit cross-language validation and public-address verification parity |
 | `amerhwitat/nlp` | Python, C++, .NET, desktop and web implementations documented; no `java/README.md` found in this pass | Add a Java text-processing API against shared, licensed test fixtures and Unicode normalization contracts |
-| `amerhwitat/PDFreaderPY` | Python/PyMuPDF ingestion; Apple/Flutter companion documented; no `java/README.md` found in this pass | Add a Java document-ingestion module with explicit PDF dependency and page/evidence provenance parity |
+| `amerhwitat/PDFreaderPY` | Python/PyMuPDF reference; a new Java 17+/PDFBox page-rendering and evidence-provenance module now exists in `java/` | Build it and add PDF fixture parity tests; OCR remains an explicit separate adapter |
 | `amerhwitat/amerhwitat.github.io` | Public browser/web surface; no `java/README.md` found in this pass | Keep browser UI in web-native code; add Java only for server-side services where needed |
 | `amerhwitat/general` | Integration workspace with multiple projects; no root `java/README.md` found in this pass | Inventory each subproject independently rather than flattening unrelated applications into one Java program |
 | `amerhwitat/test` | Python research/integration and conformance target; no `java/README.md` found in this pass | Port stable host-side contracts first and reuse shared fixtures |
@@ -54,4 +54,4 @@ javac -d build $(find java/chimera -name '*.java')
 java -cp build chimera.drivers.acquisition.DriverAcquisitionManagerTest
 ```
 
-This command must be run in a JDK-equipped environment before this Java change is marked build-passing. The broader portfolio conversion remains in progress.
+This command must be run in a JDK-equipped environment before this Java change is marked build-passing. The PDFreaderPY Java page-ingestion port is also committed in `amerhwitat/PDFreaderPY/java/`; it deliberately marks scanner execution as `not-run` until a Java scanner adapter is configured. The broader portfolio conversion remains in progress.
