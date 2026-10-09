@@ -71,8 +71,6 @@ if [[ -d "$ROOT/build/mobile" ]]; then cp -a "$ROOT/build/mobile/." "$STAGE/mobi
 if [[ -d "$ROOT/build/drivers" ]]; then cp -a "$ROOT/build/drivers/." "$STAGE/drivers/"; fi
 if [[ -d "$ROOT/build/network-tools" ]]; then cp -a "$ROOT/build/network-tools/." "$STAGE/opt/chimera/network-tools/"; cp -a "$ROOT/build/network-tools" "$STAGE/network-tools/"; fi
 if [[ -d "$ROOT/build/toolchains" ]]; then cp -a "$ROOT/build/toolchains/." "$STAGE/opt/chimera/toolchains/"; cp -a "$ROOT/build/toolchains/." "$STAGE/toolchains/"; fi
-if [[ -d "$ROOT/services/learning" ]]; then cp -a "$ROOT/services/learning" "$STAGE/system/services/learning"; fi
-if [[ -d "$ROOT/services/network" ]]; then cp -a "$ROOT/services/network" "$STAGE/system/services/network"; fi
 for x in route-manager.desktop.json networking_panel.json wallpaper-service.json wallpaper-service.py; do [[ -f "$ROOT/desktop/aurora/$x" ]] && cp "$ROOT/desktop/aurora/$x" "$STAGE/system/desktop/"; done
 [[ -d "$ROOT/network" ]] && cp -a "$ROOT/network" "$STAGE/system/network"
 if [[ -f "$ROOT/desktop/aurora/network-discovery.desktop.json" ]]; then cp "$ROOT/desktop/aurora/network-discovery.desktop.json" "$STAGE/system/desktop/"; fi
@@ -91,6 +89,8 @@ install_iso_dependencies() {
   command -v grub-mkrescue >/dev/null 2>&1 || missing+=(grub-mkrescue)
   command -v mformat >/dev/null 2>&1 || missing+=(mtools)
   command -v xorriso >/dev/null 2>&1 || missing+=(xorriso)
+  command -v busybox >/dev/null 2>&1 || missing+=(busybox)
+  command -v cpio >/dev/null 2>&1 || missing+=(cpio)
 
   if ((${#missing[@]} == 0)); then
     return 0
@@ -103,7 +103,7 @@ install_iso_dependencies() {
   fi
 
   if command -v apt-get >/dev/null 2>&1; then
-    local packages=(mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
+    local packages=(busybox cpio mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
     if command -v sudo >/dev/null 2>&1; then
       sudo apt-get update
       sudo apt-get install -y "${packages[@]}"
@@ -128,9 +128,9 @@ install_iso_dependencies() {
 # Build the live-boot artifacts before staging the ISO. The previous pipeline
 # only copied build/live-boot when it already existed, which made the GRUB
 # entries reference files that were absent from the ISO.
-if [[ -x "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+if [[ -f "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
   echo "[INFO] Building Chimera II OS live-boot artifacts..."
-  "$ROOT/tools/build-live-boot-binaries.sh"
+  bash "$ROOT/tools/build-live-boot-binaries.sh"
 else
   echo "ERROR: tools/build-live-boot-binaries.sh is missing or not executable." >&2
   exit 2
@@ -151,6 +151,20 @@ cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
 install_iso_dependencies
+if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
+  echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2
+  exit 2
+fi
+bash "$ROOT/tools/chimera-stage-installer-media.sh" "$STAGE"
+for required in \
+  "$STAGE/install/installer/installation.img" \
+  "$STAGE/install/installer/installation-manifest.json" \
+  "$STAGE/install/installer/installer-contract.json" \
+  "$STAGE/install/installer/installation_phases.json" \
+  "$STAGE/install/installer/installer_profiles.json"; do
+  [[ -s "$required" ]] || { echo "ERROR: missing installer media artifact: $required" >&2; exit 2; }
+done
+
 # Verify mformat can create a FAT image in the native temporary filesystem before
 # invoking GRUB. This turns a vague grub-mkrescue failure into a useful error.
 MFORMAT_TEST="$ISO_TMP/mformat-test.img"

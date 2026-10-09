@@ -8,7 +8,10 @@ int main(){
     std::string error;
     const char* candidates[] = {
         "tools/isa/local_isa_catalog.json",
-        "../tools/isa/local_isa_catalog.json"
+        "../tools/isa/local_isa_catalog.json",
+        "../../tools/isa/local_isa_catalog.json",
+        "../../../tools/isa/local_isa_catalog.json",
+        "../../../../tools/isa/local_isa_catalog.json"
     };
     bool loaded = false;
     for (const char* path : candidates) {

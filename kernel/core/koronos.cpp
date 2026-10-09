@@ -38,7 +38,22 @@ static void serial_init() {
  * cooperative scheduler for a long time.  Bound the poll and drop the byte if
  * the UART is not ready; VGA remains the authoritative early-console path.
  */
+static void debugcon_write8(uint8_t v) {
+    // Use inline port I/O so early diagnostics do not depend on an outb
+    // wrapper, UART readiness, or a platform console being initialized.
+    __asm__ volatile("outb %0, $0xE9" : : "a"(v));
+}
+
+static void debugcon_write(const char *s) {
+    if (!s) return;
+    while (*s) debugcon_write8((uint8_t)*s++);
+    debugcon_write8('\n');
+}
+
 static void serial_write8(uint8_t v) {
+    // QEMU/Bochs debugcon (I/O port 0xE9) gives CI a deterministic early-boot
+    // trace even when the virtual UART is not configured as a serial sink.
+    debugcon_write8(v);
     for (uint32_t i = 0; i < 1024u; ++i) {
         if (serial_in8(0x3FD) & 0x20) {
             koronos_outb(0x3F8, v);
@@ -195,6 +210,8 @@ static volatile uint32_t installer_phase = 0;
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
+    // Registration is a one-shot bootstrap action, not a continuously runnable task.
+    chimera_sched_block();
 }
 
 static void task_modules(void *) {
@@ -202,6 +219,8 @@ static void task_modules(void *) {
         console_write("[TASK] Module manager online");
         console_modules();
     }
+    // Module discovery completes during bootstrap; do not spin in READY forever.
+    chimera_sched_block();
 }
 
 static void task_live(void *) {
@@ -213,6 +232,11 @@ static void task_live(void *) {
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
+            chimera_sched_block();
+        } else {
+            // Installer media is handled by task_installer. There is no live
+            // payload to poll for, so the live service must block as well.
+            console_write("[LIVE] Installer target detected; live service idle");
             chimera_sched_block();
         }
     }
@@ -281,7 +305,10 @@ static void task_monitor(void *) {
     // The scheduler is a tight cooperative loop; sampling every 10 dispatches
     // floods VGA/serial output and makes a healthy kernel look hung. Keep the
     // monitor live, but emit a full snapshot only once per 1000 monitor runs.
-    if ((++ticks % 1000u) != 0) return;
+    // This is currently a diagnostic snapshot, not a timer-driven service.
+    // Emit it once; repeated polling here floods VGA/serial and obscures the
+    // actual handoff state. A timer/event source can wake a periodic monitor later.
+    if (++ticks > 1u) { chimera_sched_block(); return; }
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
@@ -315,6 +342,9 @@ static void task_kore(void *) {
         console_write("[KORE] Service orchestration online");
         console_write("[KORE] Core storage/security/logging services active");
     }
+    // Bootstrap orchestration is complete; a service worker must block until
+    // an event source wakes it rather than consume every scheduler dispatch.
+    chimera_sched_block();
 }
 
 static void koronos_submit_bootstrap_tasks() {
@@ -336,6 +366,7 @@ extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
+    debugcon_write("[KRN ] koronos_boot entered");
     serial_init();
     console_write("CHIMERA II OS / KORONOS");
     console_write("[BOOT] Boot handoff: ");
@@ -416,6 +447,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
+    debugcon_write("[KRN ] KORONOS READY");
     console_write("[KRN ] KORONOS READY");
     console_write("[IO  ] Console: VGA text + COM1");
     koronos_submit_bootstrap_tasks();

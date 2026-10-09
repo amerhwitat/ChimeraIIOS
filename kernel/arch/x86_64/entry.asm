@@ -36,6 +36,10 @@ _start:
     mov [multiboot_magic], eax
     mov dword [multiboot_info], ebx
     mov dword [multiboot_info + 4], 0
+    ; Preserve Multiboot EAX/EBX before emitting the CI-visible entry marker.
+    mov dx, 0x00E9
+    mov al, 'E'
+    out dx, al
 
     ; Build the minimal identity paging structures needed to enter long mode.
     mov edi, page_table_base
@@ -84,6 +88,9 @@ _start:
 
 BITS 64
 long_mode_entry:
+    mov dx, 0x00E9
+    mov al, 'L'
+    out dx, al
     mov ax, 0x10
     mov ds, ax
     mov es, ax
@@ -110,8 +117,14 @@ long_mode_entry:
     mov dword [rel boot_context + 68], 0
     mov [rel boot_context + 72], rax
     mov [rel boot_context + 80], rax
+    mov dx, 0x00E9
+    mov al, 'B'
+    out dx, al
     lea rdi, [rel boot_context]
     call koronos_boot
+    mov dx, 0x00E9
+    mov al, 'C'
+    out dx, al
     ; Keep the bootstrap vCPU executing after kernel initialization.  The old
     ; CLI/HLT loop made VMware report the vCPU as inactive/disabled.
     call koronos_idle_loop
