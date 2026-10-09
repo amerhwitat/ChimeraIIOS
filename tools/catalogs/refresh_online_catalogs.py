@@ -60,6 +60,16 @@ ARABIC_ALIASES = {
     "dig":"استعلام_DNS", "nslookup":"بحث_DNS",
     "chimera-shell":"طرفية_شيميرا", "chimera-terminal":"محطة_شيميرا",
 }
+ARABIC_ISA_FAMILIES = {
+    "x86":"معمارية إكس 86", "x86-64":"إكس 86-64", "ARM32":"آرم 32 بت",
+    "AArch64":"آرم 64 بت", "RISC-V":"ريسك-في", "MIPS":"معمارية ميبس",
+    "Power ISA":"معمارية باور", "IBM Z / SystemZ":"آي بي إم زد",
+    "SPARC":"معمارية سبارك", "AVR":"معمارية إيه في آر",
+    "LoongArch":"لونغ آرتش", "Hexagon":"هيكساغون", "MSP430":"إم إس بي 430",
+    "AMD GPU":"معالجات الرسوميات من إيه إم دي", "NVIDIA PTX":"إنفيديا بي تي إكس",
+    "WebAssembly":"ويب أسمبلي", "eBPF":"إي بي بي إف", "XCore":"إكس كور",
+    "NEC Vector Engine":"محرك المتجهات من إن إي سي"
+}
 ARABIC_GLOSSARY = {
     "add":"جمع", "subtract":"طرح", "multiply":"ضرب", "divide":"قسمة",
     "load":"تحميل", "store":"تخزين", "branch":"قفز_شرطي", "jump":"قفز",
@@ -173,7 +183,7 @@ def refresh() -> int:
 
     for source in source_doc.get("isa_sources", []):
         url = source["url"]
-        row: dict[str, Any] = {**source, "checked_utc": timestamp, "status": "unavailable"}
+        row: dict[str, Any] = {**source, "family_arabic": ARABIC_ISA_FAMILIES.get(source.get("family", ""), "غير مترجم"), "checked_utc": timestamp, "status": "unavailable"}
         try:
             raw, content_type = fetch(url)
             text = raw.decode("utf-8", errors="replace")
@@ -266,7 +276,8 @@ def refresh() -> int:
         "successful_source_count": sum(1 for item in isa_results if item["status"] == "ok"),
         "unavailable_source_count": sum(1 for item in isa_results if item["status"] != "ok"),
         "candidate_definition_count": sum(item.get("definition_identifier_count", 0) for item in isa_results),
-        "arabic_technical_glossary": ARABIC_GLOSSARY
+        "arabic_technical_glossary": ARABIC_GLOSSARY,
+        "arabic_family_names": ARABIC_ISA_FAMILIES
     }
     arabic = update_arabic_registry(read_json(ARABIC_FILE, {}), entries)
     if successful_isa:
