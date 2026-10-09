@@ -29,8 +29,9 @@ def format_qfs(path,size,block,sector,force,allow_unsafe):
 
 def inspect(path):
     with open(path,"rb") as f: raw=f.read(4096)
-    if len(raw)<56: raise SystemExit("not a QFS image")
-    magic,version,block,sector,blocks,meta,data,root,uid=struct.unpack("<IIIIQQQQ16s",raw[:56])
+    header_size=struct.calcsize("<IIIIQQQQ16s")
+    if len(raw)<header_size: raise SystemExit("not a QFS image")
+    magic,version,block,sector,blocks,meta,data,root,uid=struct.unpack("<IIIIQQQQ16s",raw[:header_size])
     if magic!=MAGIC: raise SystemExit("invalid QFS magic")
     print({"version":version,"block_size":block,"sector_size":sector,"total_blocks":blocks,"metadata_start":meta,"data_start":data,"root_inode":root,"uuid":str(uuid.UUID(bytes=uid))})
 

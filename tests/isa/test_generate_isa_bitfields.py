@@ -30,7 +30,7 @@ def test_csv_authority_reconciles_stale_cpp_name(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     canonical = tmp_path / "canonical.csv"
-    write_csv(canonical, [("AUDIT_EXPORT", "0x0001"), ("OTHER", "0x0002")])
+    write_csv(canonical, [("AUDIT_EXPORT", "0x0001"), ("OTHER", "0x0002"), ("ADD", "0x0003")])
     output = tmp_path / "isa.json"
 
     subprocess.run(
