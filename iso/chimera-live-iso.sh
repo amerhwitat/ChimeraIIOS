@@ -127,9 +127,9 @@ install_iso_dependencies() {
 # Build the live-boot artifacts before staging the ISO. The previous pipeline
 # only copied build/live-boot when it already existed, which made the GRUB
 # entries reference files that were absent from the ISO.
-if [[ -x "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+if [[ -f "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
   echo "[INFO] Building Chimera II OS live-boot artifacts..."
-  "$ROOT/tools/build-live-boot-binaries.sh"
+  bash "$ROOT/tools/build-live-boot-binaries.sh"
 else
   echo "ERROR: tools/build-live-boot-binaries.sh is missing or not executable." >&2
   exit 2
@@ -149,11 +149,11 @@ cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
-if [[ ! -x "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
+if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
   echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2
   exit 2
 fi
-"$ROOT/tools/chimera-stage-installer-media.sh" "$STAGE"
+bash "$ROOT/tools/chimera-stage-installer-media.sh" "$STAGE"
 for required in \
   "$STAGE/install/installer/installation.img" \
   "$STAGE/install/installer/installation-manifest.json" \
