@@ -180,8 +180,8 @@ rm -f "$OUT"
 # "-iso-level" is a genisoimage/mkisofs compatibility option, not a native
 # xorriso command; native xorriso mastering handles large files by default.
 ISO_XORRISO_OPTS=(
-  -joliet
-  -R
+  -joliet on
+  -rockridge on
   -volid "CHIMERA_II_OS"
 )
 echo "[INFO] Mastering large-capacity BIOS+UEFI ISO (ISO9660 level 3)..."
