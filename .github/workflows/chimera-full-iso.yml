@@ -2,6 +2,18 @@ name: Build Chimera II Full ISO
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "kernel/**"
+      - "boot/**"
+      - "installer/**"
+      - "desktop/**"
+      - "iso/**"
+      - "tools/build-live-boot-binaries.sh"
+      - "tools/build-full-iso.sh"
+      - "tools/build-full-iso.*"
+      - "CMakeLists.txt"
+      - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
     paths:
