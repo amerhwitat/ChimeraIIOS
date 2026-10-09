@@ -55,3 +55,17 @@ java -cp build chimera.drivers.acquisition.DriverAcquisitionManagerTest
 ```
 
 This command must be run in a JDK-equipped environment before this Java change is marked build-passing. The PDFreaderPY Java page-ingestion port is also committed in `amerhwitat/PDFreaderPY/java/`; it deliberately marks scanner execution as `not-run` until a Java scanner adapter is configured. The broader portfolio conversion remains in progress.
+
+### PDFreaderPY Java verification gate
+
+The Java page-ingestion module now includes JUnit tests for a generated two-page PDF, selected-page rendering, evidence provenance, out-of-range page rejection, and missing input rejection. A repository-local GitHub Actions workflow runs `mvn --batch-mode --no-transfer-progress clean verify` on Java changes and pull requests. The workflow has been committed but its first run must finish successfully before this module is marked `build-passing`; this document does not claim that tests have already passed.
+
+### Portfolio-wide next gates
+
+- [ ] Discover exact source trees and build entry points for every repository (GitHub code search may omit unindexed files).
+- [ ] Run each existing Java build and record JDK/toolchain requirements.
+- [ ] Add language-neutral fixtures for each stable public contract before porting behavior.
+- [ ] Port one dependency-consistent component at a time; keep the original implementation until parity tests pass.
+- [ ] Add repository-local CI gates and record commit SHA + test result for each completed component.
+- [ ] Audit Java dependency licenses, supply-chain posture, and supported JDK versions.
+- [ ] Keep bare-metal boot and kernel paths native until a JVM runtime can actually be launched.
