@@ -9,7 +9,7 @@ DATABASES = [
  {'name':'RocksDB','model':'key-value','license':'Apache-2.0/GPLv2'},
  {'name':'LevelDB','model':'key-value','license':'BSD-3-Clause'},
  {'name':'Valkey','model':'key-value','license':'BSD-3-Clause'},
- {'name':'Apache Cassandra','model':'wide-column','license':'Apache-2.0'},
+
  {'name':'Apache CouchDB','model':'document','license':'Apache-2.0'},
  {'name':'MongoDB Community Server','model':'document-source-available','license':'SSPL (not OSI-approved)'},
 ]
