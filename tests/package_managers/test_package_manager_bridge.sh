@@ -16,6 +16,7 @@ python3 -m py_compile "$ROOT/desktop/aurora/package_manager_panel.py"
 python3 -m json.tool "$ROOT/appcenter/catalog/package-managers.json" >/dev/null
 python3 -m json.tool "$ROOT/data/registry/databases.json" >/dev/null
 bash -n "$ROOT/tools/chimera-build-deps.sh"
+if CHIMERA_INSTALL_BUILD_DEPS=0 bash "$ROOT/tools/chimera-build-deps.sh" >/dev/null 2>&1; then echo "Build dependency bootstrap must require explicit opt-in" >&2; exit 1; fi
 python3 -m json.tool "$ROOT/desktop/aurora/waybar/config.jsonc" >/dev/null
 python3 - "$ROOT/desktop/aurora/labwc/menu.xml" <<'PYXML'
 import sys
