@@ -2,6 +2,37 @@ name: Chimera II OS Structured ISO
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'boot/**'
+      - 'kernel/**'
+      - 'src/**'
+      - 'include/**'
+      - 'cmake/**'
+      - 'desktop/**'
+      - 'network/**'
+      - 'installer/**'
+      - 'appcenter/**'
+      - 'mobile/**'
+      - 'toolchains/**'
+      - 'drivers/**'
+      - 'filesystems/**'
+      - 'packages/**'
+      - 'compat/**'
+      - 'repositories/**'
+      - 'games/**'
+      - 'wallets/**'
+      - 'install/**'
+      - 'docs/**'
+      - 'tests/**'
+      - 'tools/portfolio/**'
+      - 'tools/boot/**'
+      - 'tools/commands/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'iso/chimera-live-iso.sh'
+      - 'system/**'
+      - 'assets/boot/**'
+      - '.github/workflows/chimera-iso.yml'
   push:
     paths:
       - 'boot/**'
