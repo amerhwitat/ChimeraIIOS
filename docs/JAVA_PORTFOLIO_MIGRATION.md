@@ -140,3 +140,9 @@ Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm 
 - `amerhwitat/CPU4096` documents a Java 21 register-model visualization/benchmark layer; no `java/pom.xml` was found at the documented root path during this pass.
 - `amerhwitat/CPU4096Simulator` documents a JavaFX trace/dashboard layer and shared deterministic JSON/JSONL vectors; no `java/pom.xml` was found at the documented root path during this pass.
 - Next, inventory the actual tracked Java source/build layout before creating fixtures. Define vectors for fixed-width wraparound, shifts, register snapshots, deterministic trace ordering, and metadata reproducibility only after confirming the implementations' actual public APIs. Do not claim ISA conformance from an opcode catalog alone.
+
+
+### BizX follow-up gate update
+
+- [BizX PR #6](https://github.com/amerhwitat/BizX/pull/6) is now merged as [`80564f3`](https://github.com/amerhwitat/BizX/commit/80564f3e86e5df0edb822fd626d93912fd15b8b8). Its dedicated InternetScanner Node validation [run 19](https://github.com/amerhwitat/BizX/actions/runs/37883577441) passed after aligning test imports with the actual exports and handling expected TCP fixture teardown errors.
+- The aggregate cross-platform matrix [run 327](https://github.com/amerhwitat/BizX/actions/runs/37883577410) was still running on Linux, Windows, and macOS at this check. The Java gate, Python repository validation, gameplay resource checks, email sender validation, and InternetScanner Node contract checks have passed in their dedicated runs, but the aggregate matrix remains **unverified** until run 327 completes.
