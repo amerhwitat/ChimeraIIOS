@@ -36,6 +36,8 @@ jobs:
               json.loads(p.read_text(encoding='utf-8'))
           print('UI JSON contracts valid')
           PY
+      - name: Install test dependencies
+        run: python -m pip install pytest
       - name: Run UI binding tests
         run: python -m pytest -q tests/desktop/test_ui_control_contract.py
       - name: Compile UI dispatcher
