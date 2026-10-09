@@ -80,6 +80,8 @@ jobs:
         run: bash tests/image/test_installation_media_contract.sh
       - name: Validate native QFS and hardware AI contracts
         run: |
+          python3 tools/catalogs/refresh_online_catalogs.py --self-test
+          python3 -m unittest discover -s tests/catalogs -p 'test_*.py' -v
           python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
       - name: Validate Aurora background contracts
         run: |
