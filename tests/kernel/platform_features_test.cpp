@@ -2,6 +2,7 @@
 #include <assert.h>
 
 int main() {
+    /* Regression: hosted initialization must not write to physical VGA memory. */
     assert(chimera_platform_init(0) == 0);
     assert(chimera_platform_probe() == 0);
     assert(chimera_platform_state() == CHM_PLATFORM_READY);
