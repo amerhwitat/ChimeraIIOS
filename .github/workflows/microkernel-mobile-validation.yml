@@ -47,5 +47,5 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq '"generic_partition_flash": false' mobile/build-mobile-edition.sh
-          grep -q 'exact_device' mobile/flash/mobile-flash-tool.sh
+          grep -q 'exact_match_required' mobile/flash/mobile-flash-tool.sh
           grep -q 'sha256' mobile/flash/mobile-flash-tool.sh
