@@ -1,7 +1,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#ifdef _WIN32
+#include <io.h>
+#include <process.h>
+#define CHIMERA_ACCESS _access
+#define CHIMERA_EXEC _execv
+#define CHIMERA_X_OK 0
+#else
 #include <unistd.h>
+#define CHIMERA_ACCESS access
+#define CHIMERA_EXEC execv
+#define CHIMERA_X_OK X_OK
+#endif
 
 namespace {
 struct App { const char* id; const char* entry; };
@@ -19,8 +30,8 @@ static const App apps[]={
 };
 static const char* resolve(const char* entry,char* buf,size_t n){
   const char* root=std::getenv("CHIMERA_AURORA_EXEC_ROOT");
-  if(root && *root){ std::snprintf(buf,n,"%s/%s",root,entry); if(access(buf,X_OK)==0)return buf; }
-  if(access(entry,X_OK)==0)return entry;
+  if(root && *root){ std::snprintf(buf,n,"%s/%s",root,entry); if(CHIMERA_ACCESS(buf,CHIMERA_X_OK)==0)return buf; }
+  if(CHIMERA_ACCESS(entry,CHIMERA_X_OK)==0)return entry;
   return nullptr;
 }
 }
@@ -33,7 +44,7 @@ extern "C" int aurora_launch(const char* id,const char* profile){
    char* const argv[]={const_cast<char*>(exe),nullptr};
    std::printf("Aurora: exec %s (%s) profile=%s\n",a.id,exe,profile?profile:"chimera-modern");
    std::fflush(stdout);
-   ::execv(exe,argv);
+   CHIMERA_EXEC(exe,argv);
    std::perror("Aurora: execv");
    return 126;
  }
