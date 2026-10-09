@@ -11,6 +11,7 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
+  --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
