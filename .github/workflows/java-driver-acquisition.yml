@@ -1,0 +1,37 @@
+name: Java driver acquisition
+
+on:
+  push:
+    paths:
+      - "java/chimera/**"
+      - ".github/workflows/java-driver-acquisition.yml"
+  pull_request:
+    paths:
+      - "java/chimera/**"
+      - ".github/workflows/java-driver-acquisition.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Compile Chimera Java sources and regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$(find java/chimera -name '*.java' -print -quit)"
+          mkdir -p build/java-chimera
+          mapfile -t sources < <(find java/chimera -name '*.java' -print | sort)
+          javac -Xlint:all -Werror -d build/java-chimera "${sources[@]}"
+      - name: Run driver acquisition regression tests
+        run: java -cp build/java-chimera chimera.drivers.acquisition.DriverAcquisitionManagerTest
