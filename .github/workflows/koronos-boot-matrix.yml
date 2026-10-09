@@ -73,8 +73,8 @@ jobs:
           set -e
           # timeout (124) is expected after the kernel enters its idle loop.
           [[ "$qemu_rc" -eq 0 || "$qemu_rc" -eq 124 ]]
-          grep -q "\\[KRN \\] KORONOS READY" qemu-debug.log
-          grep -q "\\[RUN \\] Entering Koronos scheduler loop" qemu-debug.log
+          grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
+          grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
