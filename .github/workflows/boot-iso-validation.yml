@@ -83,7 +83,7 @@ jobs:
           python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
       - name: Validate Aurora background contracts
         run: |
-          grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
           grep -q 'background_image' boot/installation/menu.cfg
           grep -q 'background_image' boot/jasper/jasper.cfg
           grep -q 'background_image' boot/jasper/diagnostics.cfg
@@ -96,7 +96,7 @@ jobs:
       - name: Validate GRUB linkage contract
         run: |
           grep -q 'multiboot2 /boot/kernel.bin' boot/iso/grub.cfg
-          grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
           test -f kernel/arch/x86_64/entry.asm
           test -f kernel/arch/x86_64/koronos.ld
           test -f boot/spitfire/sf0_mbr.asm
