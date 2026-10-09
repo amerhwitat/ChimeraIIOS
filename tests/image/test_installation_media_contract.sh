@@ -29,6 +29,8 @@ grep -q 'installation.img' "$BUILD"
 grep -q 'installation-manifest.json' "$BUILD"
 grep -q 'installer-initrd.img' "$BUILD"
 grep -q 'live-manifest.json' "$ISO"
+grep -q 'chimera-stage-installer-media.sh' "$ISO"
+grep -q 'installation.img' "$ISO"
 grep -q '  -R' "$ISO"
 
 bash -n "$BUILD"
