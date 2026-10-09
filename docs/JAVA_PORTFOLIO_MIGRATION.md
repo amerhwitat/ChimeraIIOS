@@ -119,3 +119,24 @@ Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm 
 2. **CPU4096:** compare Java arithmetic/register model and benchmark behavior against shared vectors and existing non-Java implementations.
 3. **CPU4096Simulator:** validate simulator trace/register-state parity and its JavaFX runtime separately from the CPU core.
 4. Merge each stage only when its dedicated build and parity tests pass. Keep the original implementations and mark only the verified scope as complete.
+
+
+### Follow-up cross-platform validation findings — BizX
+
+- The Java acceptance gate remains green at [BizX Java workflow run 13](https://github.com/amerhwitat/BizX/actions/runs/37883057958); Python repository validation and gameplay resource checks passed on the corresponding acceptance commits.
+- The aggregate build exposed two pre-existing non-Java test/contract issues. [BizX PR #5](https://github.com/amerhwitat/BizX/pull/5) corrected an email-extraction assertion that incorrectly dropped a distinct address at the same domain; it merged as [`ae0d2ea`](https://github.com/amerhwitat/BizX/commit/ae0d2eac1b70d09c4684ed0ef136b36c3c2c5f1b).
+- The next aggregate run exposed InternetScanner test issues: a local TCP fixture's expected teardown reset was unhandled, and one test imported obsolete export names (`classify`/`authorized`) instead of the current public names (`classifyIp`/`authorizedTarget`). [BizX PR #6](https://github.com/amerhwitat/BizX/pull/6) addresses both test-contract problems; its CI is pending at the time of this update. Do not mark the BizX aggregate cross-platform build green until its latest matrix finishes successfully.
+
+### BizXtreme Java acceptance gate — merged
+
+- Audited the Java launcher, `BizXtremeApi`, and `BizXtremeCore`. The documented launcher instantiated `new BizXtremeApi()`, but the class only exposed a constructor requiring a core. Added a safe default constructor using the default `BizXtremeCore`, with null-core rejection.
+- Added shared health-contract vectors at `amerhwitat/BizXtreme/contracts/fixtures/bizxtreme-runtime-v1.tsv`, a JUnit fixture-driven test, and a Java 17 Maven workflow.
+- Fixed the pre-existing Java resource test to use `PlayerResources.Checkpoint` and to exhaust reserve ammo according to actual reload semantics. Fixed the Node.js survival-resource test's incorrect expectations for ammo return values and health-prompt priority.
+- [BizXtreme PR #3](https://github.com/amerhwitat/BizXtreme/pull/3) merged as [`fe1a9bd`](https://github.com/amerhwitat/BizXtreme/commit/fe1a9bde75561b837d80d88f249400dda36c57f4).
+- Java 17 Maven verification passed in [BizXtreme Java workflow run 5](https://github.com/amerhwitat/BizXtreme/actions/runs/37883415454). Cross-language gameplay resource checks passed in [run 184](https://github.com/amerhwitat/BizXtreme/actions/runs/37883415451). This verifies the API/core health contract and resource state machine only, not complete wallet/WebGL/Three.js parity.
+
+### CPU simulator repositories — next audit
+
+- `amerhwitat/CPU4096` documents a Java 21 register-model visualization/benchmark layer; no `java/pom.xml` was found at the documented root path during this pass.
+- `amerhwitat/CPU4096Simulator` documents a JavaFX trace/dashboard layer and shared deterministic JSON/JSONL vectors; no `java/pom.xml` was found at the documented root path during this pass.
+- Next, inventory the actual tracked Java source/build layout before creating fixtures. Define vectors for fixed-width wraparound, shifts, register snapshots, deterministic trace ordering, and metadata reproducibility only after confirming the implementations' actual public APIs. Do not claim ISA conformance from an opcode catalog alone.
