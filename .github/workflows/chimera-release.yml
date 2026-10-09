@@ -22,13 +22,7 @@ jobs:
           git config core.autocrlf false
           find boot tools scripts .github -type f \( -name '*.sh' -o -name 'Dockerfile*' -o -name '*.bash' \) -print0 2>/dev/null |
             while IFS= read -r -d '' f; do
-              python3 - "$f" <<'PY'
-import pathlib, sys
-p = pathlib.Path(sys.argv[1])
-b = p.read_bytes()
-if b'\x00' not in b:
-    p.write_bytes(b.replace(b'\r\n', b'\n').replace(b'\r', b'\n'))
-PY
+              python3 -c 'import pathlib,sys; p=pathlib.Path(sys.argv[1]); b=p.read_bytes(); p.write_bytes(b.replace(bytes([13,10]),bytes([10])).replace(bytes([13]),bytes([10]))) if bytes([0]) not in b else None' "$f"
             done
           find boot tools scripts -type f -name '*.sh' -print0 2>/dev/null |
             while IFS= read -r -d '' f; do chmod +x "$f"; done
