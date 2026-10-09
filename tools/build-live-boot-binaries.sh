@@ -43,9 +43,9 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
 OUT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
 mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initramfs/root"/{bin,sbin,dev,proc,sys,run,tmp,mnt/chimera,etc,var/log/mesgs/archive,var/lib/chimera/drivers,etc/chimera/drivers,lib/chimera/drivers,lib/firmware} "$OUT/mobile"/{arm64,armv7,x86_64} "$OUT/manifests"
-KERNEL="${CHIMERA_LINUX_KERNEL:-}"
-if [[ -z "$KERNEL" ]]; then KERNEL="$(find /boot -maxdepth 1 -type f \( -name 'vmlinuz-*' -o -name 'vmlinuz' \) 2>/dev/null | sort -V | tail -n1 || true)"; fi
-if [[ -n "$KERNEL" && -f "$KERNEL" ]]; then cp -f "$KERNEL" "$OUT/boot/vmlinuz"; sha256sum "$OUT/boot/vmlinuz" > "$OUT/boot/vmlinuz.sha256"; fi
+# This ISO boots the native Koronos Multiboot2 ELF; it must not scrape the
+# build host's protected /boot/vmlinuz into the guest media. The live manifest
+# explicitly declares linux_vmlinuz_required=false.
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
