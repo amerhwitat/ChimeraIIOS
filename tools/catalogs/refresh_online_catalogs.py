@@ -34,7 +34,7 @@ MAX_BYTES = 4 * 1024 * 1024
 ARABIC_ALIASES = {
     "ls":"عرض", "dir":"مجلد", "cd":"انتقل", "pwd":"المسار",
     "cp":"نسخ", "copy":"انسخ", "mv":"نقل", "move":"انقل",
-    "rm":"احذف", "del":"احذف", "mkdir":"أنشئ_مجلد", "rmdir":"احذف_مجلد",
+    "rm":"احذف", "del":"امسح_ملف", "mkdir":"أنشئ_مجلد", "rmdir":"احذف_مجلد",
     "cat":"اقرأ", "less":"تصفح", "more":"المزيد", "head":"بداية",
     "tail":"نهاية", "grep":"ابحث_نصي", "find":"ابحث", "locate":"اعثر",
     "sort":"رتب", "uniq":"أزل_التكرار", "wc":"عد", "echo":"اطبع",
@@ -51,12 +51,14 @@ ARABIC_ALIASES = {
     "tar":"أرشفة", "gzip":"ضغط", "unzip":"فك_الضغط", "nano":"محرر_نانو",
     "git":"جيت", "make":"ابنِ", "cmake":"هيّئ_البناء", "python3":"بايثون",
     "gcc":"مترجم_C", "g++":"مترجم_C++", "docker":"دوكر", "apt":"الحزم",
-    "apt-get":"إدارة_الحزم", "dnf":"إدارة_الحزم", "pacman":"مدير_الحزم",
+    "apt-get":"أداة_الحزم", "dnf":"مدير_DNF", "pacman":"مدير_الحزم",
     "mountpoint":"نقطة_الضم", "lsblk":"الأقراص_والكتل", "lscpu":"معلومات_المعالج",
     "lspci":"أجهزة_PCI", "lsusb":"أجهزة_USB", "dmesg":"رسائل_النواة",
     "journalctl":"سجل_النظام", "systemd-analyze":"تحليل_الإقلاع",
     "sqlite3":"قاعدة_SQLite", "psql":"قاعدة_PostgreSQL", "mysql":"قاعدة_MySQL",
     "sqlite":"قاعدة_SQLite", "sql":"استعلام_SQL",
+    "dig":"استعلام_DNS", "nslookup":"بحث_DNS",
+    "chimera-shell":"طرفية_شيميرا", "chimera-terminal":"محطة_شيميرا",
 }
 ARABIC_GLOSSARY = {
     "add":"جمع", "subtract":"طرح", "multiply":"ضرب", "divide":"قسمة",
