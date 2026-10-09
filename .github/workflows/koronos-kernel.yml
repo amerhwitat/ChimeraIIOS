@@ -30,7 +30,8 @@ jobs:
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
-          /tmp/chimera-process-admission\n      - name: Validate ELF64
+          /tmp/chimera-process-admission
+      - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
       - name: Assert no unresolved symbols
         run: test -z "$(nm -u build/koronos/x86_64/koronos.elf)"
