@@ -32,7 +32,7 @@ def test_application_catalog_contract():
         if x.get('spdx'):
             assert isinstance(x['spdx'], str) and x['spdx']
         if x.get('integration'):
-            assert x['integration'] in {'native','wrapped','fetched','reference','repository-application-center'}
+            assert x['integration'] in {'native','wrapped','fetched','reference','repository-application-center','Aurora Crypto Center'}
 
 def test_python_adapters():
     import sys; sys.path.insert(0,str(ROOT))
