@@ -94,3 +94,9 @@ The Java page-ingestion module now includes JUnit tests for a generated two-page
 ### Next dependency-consistent component
 
 Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm its actual tracked source paths, run the documented `javac`/test command in CI, and add contract tests for allowlisting, redirect refusal, download-size limits, SHA-256 verification, and atomic staging. Do not mark the driver layer passing until that job succeeds. Afterward, audit the next repository independently rather than converting unrelated applications into a single Java program.
+
+### ChimeraIIOS driver-acquisition gate result
+
+- Dedicated Java workflow [run 2](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/37882484035) passed on Java 21: all tracked `java/chimera/**/*.java` sources compiled with `javac -Xlint:all -Werror`, and `chimera.drivers.acquisition.DriverAcquisitionManagerTest` completed successfully.
+- CI gate PR [#56](https://github.com/amerhwitat/ChimeraIIOS/pull/56) was merged as [`f285d76`](https://github.com/amerhwitat/ChimeraIIOS/commit/f285d76d75c4902cc6f241374a707b2dc663fa74).
+- The broader Chimera II CI/CD run [3940](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/37882484039) was still running at the time of this update; its native build/test jobs are tracked separately from the dedicated Java gate and should be checked before claiming the entire OS pipeline is green.
