@@ -28,10 +28,6 @@ global _start
 global __koronos_multiboot2_entry
 __koronos_multiboot2_entry:
 _start:
-    ; Earliest CI-visible marker: distinguish GRUB/Multiboot entry from a later C++ stall.
-    mov dx, 0x00E9
-    mov al, 'E'
-    out dx, al
     cli
     cld
     lea esp, [stack32_top]
@@ -40,6 +36,10 @@ _start:
     mov [multiboot_magic], eax
     mov dword [multiboot_info], ebx
     mov dword [multiboot_info + 4], 0
+    ; Preserve Multiboot EAX/EBX before emitting the CI-visible entry marker.
+    mov dx, 0x00E9
+    mov al, 'E'
+    out dx, al
 
     ; Build the minimal identity paging structures needed to enter long mode.
     mov edi, page_table_base
