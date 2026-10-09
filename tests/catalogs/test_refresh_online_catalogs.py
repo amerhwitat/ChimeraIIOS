@@ -26,9 +26,10 @@ class CatalogRefreshTests(unittest.TestCase):
             "https://example.org/grep",
         )
 
-    def test_tablegen_candidates_are_not_claimed_as_conformance(self):
+    def test_tablegen_definitions_are_discovery_candidates_only(self):
+        candidates = mod.extract_definition_identifiers("def ADD : Inst;\ndef SUB : Inst;\ndef ADD : Inst;")
+        self.assertEqual(candidates, ["ADD", "SUB"])
         source = MODULE.read_text(encoding="utf-8")
-        self.assertIn("discovery candidates only", source)
         self.assertIn("do not establish ISA conformance", source)
         registry = mod.update_arabic_registry({}, [])
         self.assertEqual(registry["arabic_to_canonical"]["عرض"], "ls")
