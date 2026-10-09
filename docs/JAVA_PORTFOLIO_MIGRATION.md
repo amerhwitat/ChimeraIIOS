@@ -83,3 +83,14 @@ The Java page-ingestion module now includes JUnit tests for a generated two-page
 - **Java PDF ingestion workflow:** run [37882326158](https://github.com/amerhwitat/PDFreaderPY/actions/runs/37882326158) completed successfully. Java 17 setup and `mvn --batch-mode --no-transfer-progress clean verify` both passed, including the original JUnit tests.
 - **Python repository workflow:** run [37882326186](https://github.com/amerhwitat/PDFreaderPY/actions/runs/37882326186) failed because `tests/test_parallel_search.py` imported a missing root-level `performance` module (`ModuleNotFoundError: No module named 'performance'`). Added `performance.py` with deterministic, case-insensitive parallel page search and source-order results in commit `a50408f9598d5901928e73a0a38c369ce295ccb6`.
 - **Final combined acceptance PR:** [PDFreaderPY #2](https://github.com/amerhwitat/PDFreaderPY/pull/2) is open to rerun Java and Python CI together against the fixed main branch. Do not merge until both checks have fresh successful results. Latest workflow lookup has not yet returned runs for this new PR, so the combined gate is still pending.
+
+### Acceptance gate completed — PDFreaderPY
+
+- Python repository workflow [run 85](https://github.com/amerhwitat/PDFreaderPY/actions/runs/37882418056) passed after restoring `performance.py` and deterministic parallel search behavior.
+- Java PDF ingestion workflow [run 7](https://github.com/amerhwitat/PDFreaderPY/actions/runs/37882418098) passed: Java 17 setup and Maven `clean verify`, including PDFBox rendering, provenance, invalid-page/input handling, and quoted-path JSON escaping.
+- Acceptance PR [#2](https://github.com/amerhwitat/PDFreaderPY/pull/2) was merged successfully as commit [`f17f33f`](https://github.com/amerhwitat/PDFreaderPY/commit/f17f33fe169a1154f32a4615ca5878327e0ceac3).
+- Status: PDFreaderPY Java ingestion is **build-passing and regression-tested for the current scope**. This does not claim OCR parity; scanner integration remains explicitly `not-run` until a scanner adapter is implemented.
+
+### Next dependency-consistent component
+
+Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm its actual tracked source paths, run the documented `javac`/test command in CI, and add contract tests for allowlisting, redirect refusal, download-size limits, SHA-256 verification, and atomic staging. Do not mark the driver layer passing until that job succeeds. Afterward, audit the next repository independently rather than converting unrelated applications into a single Java program.
