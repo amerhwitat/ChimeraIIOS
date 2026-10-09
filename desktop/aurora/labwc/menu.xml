@@ -15,6 +15,7 @@
       <item label="Mobile Flash / OTA Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh install_step; printf \"Chimera Mobile update / flash monitor\\n\\n\"; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
     </menu>
     <menu id="chimera-tools" label="Chimera II OS">
+      <item label="Package Manager Center"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec /usr/bin/python3 /usr/share/chimera/aurora/package_manager_panel.py'" /></item>
       <item label="Driver Center"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v chimera-driver-center >/dev/null 2>&1 && exec chimera-driver-center || exec foot -e sh -lc \"echo Driver Center unavailable; exec bash\"'" /></item>
       <item label="Kernel / Koronos Logs"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot -e sh -lc \"journalctl -b -k -f\"'" /></item>
       <item label="Boot / Recovery Logs"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh recovery; exec foot -e sh -lc \"journalctl -b -f\"'" /></item>
