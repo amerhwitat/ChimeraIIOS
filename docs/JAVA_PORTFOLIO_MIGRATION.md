@@ -146,3 +146,20 @@ Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm 
 
 - [BizX PR #6](https://github.com/amerhwitat/BizX/pull/6) is now merged as [`80564f3`](https://github.com/amerhwitat/BizX/commit/80564f3e86e5df0edb822fd626d93912fd15b8b8). Its dedicated InternetScanner Node validation [run 19](https://github.com/amerhwitat/BizX/actions/runs/37883577441) passed after aligning test imports with the actual exports and handling expected TCP fixture teardown errors.
 - The aggregate cross-platform matrix [run 327](https://github.com/amerhwitat/BizX/actions/runs/37883577410) was still running on Linux, Windows, and macOS at this check. The Java gate, Python repository validation, gameplay resource checks, email sender validation, and InternetScanner Node contract checks have passed in their dedicated runs, but the aggregate matrix remains **unverified** until run 327 completes.
+
+
+### CPU4096 source audit and Java register acceptance gate
+
+- Used the recursive Git tree, not guessed paths. `CPU4096/java/` contained only `README.md`; the real native register contract is `RegisterN<Bits>` in `RegisterN.hpp`, and the Node snapshot contract is `registerSnapshot()` in `node/src/index.js`.
+- [CPU4096 PR #2](https://github.com/amerhwitat/CPU4096/pull/2) adds a Java 21 `RegisterN` model, Maven/JUnit acceptance gate, and shared vectors for addition, modulo wraparound, subtraction wraparound, shifts, and least-significant-word-first snapshots. The Node test also consumes the snapshot vector.
+- This implements a tested register semantic subset; it does not mean the documented Java GUI/benchmark layer already existed or is now implemented. PR CI is pending at this tracker update.
+
+### CPU4096Simulator source audit and Java core acceptance gate
+
+- The recursive Git tree showed `CPU4096Simulator/java/` contained only `README.md`. The real simulator API is `WideWord`/`CpuCore` in `src/chimera.js`; the existing public tests are in `test/core.test.mjs`. There was no JavaFX source or Java build file to test.
+- [CPU4096Simulator PR #2](https://github.com/amerhwitat/CPU4096Simulator/pull/2) adds a Java 21 headless `WideWord` and `CpuCore`, Maven/JUnit CI, and shared vectors for modular arithmetic, shifts, snapshots, instruction trace order/PC advancement, and stable workload-envelope metadata. Java and Node tests consume the same TSV fixtures.
+- This verifies only the explicitly implemented opcode subset (ADD, SUB, MOV, SHL, SHR) and 16-byte little-endian encoding. It does not claim a JavaFX dashboard, full opcode parity, or ISA conformance. PR CI is pending at this tracker update.
+
+### BizX aggregate matrix follow-up
+
+- The previous aggregate run [331](https://github.com/amerhwitat/BizX/actions/runs/37892479111) is executing after [PR #8](https://github.com/amerhwitat/BizX/pull/8) addressed the observed Linux script permission failure, Jest-vs-Node test runner mismatch, and AGP 9.4 redundant Kotlin plugin error. Repository validation [run 501](https://github.com/amerhwitat/BizX/actions/runs/37892479099) and gameplay resource checks [run 431](https://github.com/amerhwitat/BizX/actions/runs/37892479187) passed. Do not merge PR #8 or mark the cross-platform aggregate green until run 331 completes successfully.
