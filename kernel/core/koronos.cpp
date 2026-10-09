@@ -38,10 +38,22 @@ static void serial_init() {
  * cooperative scheduler for a long time.  Bound the poll and drop the byte if
  * the UART is not ready; VGA remains the authoritative early-console path.
  */
+static void debugcon_write8(uint8_t v) {
+    // Use inline port I/O so early diagnostics do not depend on an outb
+    // wrapper, UART readiness, or a platform console being initialized.
+    __asm__ volatile("outb %0, $0xE9" : : "a"(v));
+}
+
+static void debugcon_write(const char *s) {
+    if (!s) return;
+    while (*s) debugcon_write8((uint8_t)*s++);
+    debugcon_write8('\n');
+}
+
 static void serial_write8(uint8_t v) {
     // QEMU/Bochs debugcon (I/O port 0xE9) gives CI a deterministic early-boot
     // trace even when the virtual UART is not configured as a serial sink.
-    koronos_outb(0x00E9, v);
+    debugcon_write8(v);
     for (uint32_t i = 0; i < 1024u; ++i) {
         if (serial_in8(0x3FD) & 0x20) {
             koronos_outb(0x3F8, v);
@@ -354,6 +366,7 @@ extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
+    debugcon_write("[KRN ] koronos_boot entered");
     serial_init();
     console_write("CHIMERA II OS / KORONOS");
     console_write("[BOOT] Boot handoff: ");
@@ -434,6 +447,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
+    debugcon_write("[KRN ] KORONOS READY");
     console_write("[KRN ] KORONOS READY");
     console_write("[IO  ] Console: VGA text + COM1");
     koronos_submit_bootstrap_tasks();
