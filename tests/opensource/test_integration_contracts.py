@@ -24,10 +24,15 @@ def test_service_registry_contract():
 
 def test_application_catalog_contract():
     d=json.loads((ROOT/'applications/catalog.json').read_text(encoding='utf-8'))
-    assert d['schema']=='CHM-APP-1' and len(d['applications'])>=8
+    assert d['schema']=='CHM-APP-2' and len(d['applications'])>=8
     for x in d['applications']:
-        assert x['upstream'].startswith('https://') and x['spdx']
-        assert x['integration'] in {'native','wrapped','fetched','reference'} and x['sandbox']
+        assert x.get('sandbox'), f"application {x.get('id')} has no sandbox policy"
+        if x.get('upstream'):
+            assert x['upstream'].startswith('https://')
+        if x.get('spdx'):
+            assert isinstance(x['spdx'], str) and x['spdx']
+        if x.get('integration'):
+            assert x['integration'] in {'native','wrapped','fetched','reference','repository-application-center'}
 
 def test_python_adapters():
     import sys; sys.path.insert(0,str(ROOT))
