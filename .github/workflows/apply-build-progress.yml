@@ -139,7 +139,7 @@ jobs:
               echo "" >&2
               log_info "Build progress log: ${PROGRESS_LOG:-${BUILD_DIR}/chimera-progress.log}"
           }
-'''
+          '''
 
           if 'LIVE BUILD PROGRESS' not in s:
               marker = 'print_header() {\n    echo ""\n    echo "=================================================================="\n    echo "$*"\n    echo "=================================================================="\n    echo ""\n}\n'
@@ -178,22 +178,22 @@ jobs:
               s = s.replace('run_checkpointed_stage() {',
                             'run_checkpointed_stage_impl() {', 1)
               wrapper = r'''
-run_checkpointed_stage() {
-    local stage="$1"
-    local fn="$2"
-    CURRENT_STAGE="$stage"
-    progress_track_current_stage
-    if run_checkpointed_stage_impl "$stage" "$fn"; then
-        progress_done "Checkpoint saved: $stage"
-        CURRENT_STAGE=""
-        progress_track_current_stage
-        return 0
-    fi
-    progress_failed "Stage $stage failed; checkpoint retained"
-    return 1
-}
+          run_checkpointed_stage() {
+              local stage="$1"
+              local fn="$2"
+              CURRENT_STAGE="$stage"
+              progress_track_current_stage
+              if run_checkpointed_stage_impl "$stage" "$fn"; then
+                  progress_done "Checkpoint saved: $stage"
+                  CURRENT_STAGE=""
+                  progress_track_current_stage
+                  return 0
+              fi
+              progress_failed "Stage $stage failed; checkpoint retained"
+              return 1
+          }
 
-'''
+          '''
               marker = 'run_checkpointed_stage_impl() {'
               s = s.replace(marker, wrapper + marker, 1)
 
