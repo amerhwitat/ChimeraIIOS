@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora Package Manager Center
+Name[ar]=مركز إدارة الحزم في أورورا
+Comment=Manage packages through available Chimera providers
+Exec=/usr/bin/python3 /usr/share/chimera/aurora/package_manager_panel.py
+Icon=system-software-install
+Terminal=false
+Categories=System;Settings;
+StartupNotify=true
