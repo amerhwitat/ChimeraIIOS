@@ -380,10 +380,19 @@ run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
+  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
+    if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
+      bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
+    else
+      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso and mksquashfs; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
+      exit 2
+    fi
+  fi
   command -v docker >/dev/null || { log_error 'Docker is required'; exit 2; }
   command -v cpio >/dev/null || { log_error 'cpio is required'; exit 2; }
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
   command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
+  command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
   command -v busybox >/dev/null || log_warning 'busybox unavailable on host; Docker rootfs copy may provide it'
   docker info >/dev/null 2>&1 || { log_error 'Docker daemon unavailable'; exit 2; }
 }
@@ -837,17 +846,20 @@ stage_package_managers(){
   local panel="$SCRIPT_DIR/desktop/aurora/package_manager_panel.py"
   local desktop="$SCRIPT_DIR/desktop/aurora/aurora-package-managers.desktop"
   local catalog="$SCRIPT_DIR/appcenter/catalog/package-managers.json"
-  for f in "$cli" "$panel" "$desktop" "$catalog"; do
+  local database_catalog="$SCRIPT_DIR/data/registry/databases.json"
+  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog"; do
     [[ -s "$f" ]] || { log_error "Package manager payload missing: $f"; return 1; }
   done
   mkdir -p "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/share/chimera/aurora" \
-    "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/usr/share/chimera/appcenter" \
+    "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/usr/share/chimera/appcenter" "$ROOTFS_DIR/usr/share/chimera/database" \
     "$ISO_DIR/system/package-managers" "$ISO_DIR/system/desktop/aurora" \
-    "$ISO_DIR/system/appcenter/catalog"
+    "$ISO_DIR/system/appcenter/catalog" "$ISO_DIR/system/database"
   install -m 0755 "$cli" "$ROOTFS_DIR/usr/bin/chimera-pkg"
   install -m 0644 "$panel" "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   install -m 0644 "$desktop" "$ROOTFS_DIR/usr/share/applications/aurora-package-managers.desktop"
   install -m 0644 "$catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json"
+  install -m 0644 "$database_catalog" "$ROOTFS_DIR/usr/share/chimera/database/databases.json"
+  cp -f "$database_catalog" "$ISO_DIR/system/database/databases.json"
   cp -f "$cli" "$ISO_DIR/system/package-managers/chimera-package-manager.sh"
   cp -f "$panel" "$ISO_DIR/system/desktop/aurora/package_manager_panel.py"
   cp -f "$desktop" "$ISO_DIR/system/desktop/aurora/aurora-package-managers.desktop"
@@ -856,9 +868,11 @@ stage_package_managers(){
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
+  python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/database/databases.json" >/dev/null
   python3 -m json.tool "$SCRIPT_DIR/desktop/aurora/waybar/config.jsonc" >/dev/null
   python3 -c 'import sys, xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$SCRIPT_DIR/desktop/aurora/labwc/menu.xml"
-  log_info "Aurora Package Manager Center staged (APT, DNF, Pacman, Zypper, APK, Snap, Flatpak, Homebrew/brew and Nix adapters)."
+  log_info "Aurora Package Manager Center staged (APT, DNF, Pacman, Zypper, APK, Snap, Flatpak, Homebrew, Nix, npm, Yarn, pnpm and Corepack)."
+  log_info "Free/open-source SQL and NoSQL database catalog staged into Aurora and the ISO payload."
   log_info "Providers remain optional and are detected at runtime; the ISO build will not run remote package-manager installer scripts."
 }
 
