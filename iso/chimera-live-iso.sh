@@ -176,12 +176,10 @@ rm -f "$MFORMAT_TEST"
 mkdir -p "$STAGE/boot/grub"
 cp "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 rm -f "$OUT"
-# Use ISO9660 level 3 and large-file/Rock-Ridge/Joliet capable mastering.
-# "DVD" here means a large filesystem image suitable for DVD/USB media; an
-# ISO itself has no 4.7 GiB ceiling. The destination filesystem must still
-# have enough free space for the resulting image.
+# Pass only xorriso-native options after grub-mkrescue's "--" separator.
+# "-iso-level" is a genisoimage/mkisofs compatibility option, not a native
+# xorriso command; native xorriso mastering handles large files by default.
 ISO_XORRISO_OPTS=(
-  -iso-level 3
   -joliet
   -R
   -volid "CHIMERA_II_OS"
