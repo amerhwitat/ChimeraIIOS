@@ -27,8 +27,11 @@ class CatalogRefreshTests(unittest.TestCase):
         )
 
     def test_tablegen_candidates_are_not_claimed_as_conformance(self):
-        self.assertIn("discovery candidates", mod.__doc__ or "discovery candidates")
-        self.assertEqual(mod.ARABIC_ALIASES["ls"], "عرض")
+        source = MODULE.read_text(encoding="utf-8")
+        self.assertIn("discovery candidates only", source)
+        self.assertIn("do not establish ISA conformance", source)
+        registry = mod.update_arabic_registry({}, [])
+        self.assertEqual(registry["arabic_to_canonical"]["عرض"], "ls")
 
 
 if __name__ == "__main__":
