@@ -997,6 +997,10 @@ verify_iso(){
   [[ -s "$iso" ]] || { log_error 'ISO missing'; exit 1; }
   xorriso -indev "$iso" -report_el_torito plain | tee "$LOG_DIR/iso-el-torito.log"
   grep -qi 'El Torito' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no El Torito boot catalog'; exit 1; }
+  grep -qi 'BIOS' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no BIOS El Torito boot entry'; exit 1; }
+  grep -qi 'UEFI' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no UEFI El Torito boot entry'; exit 1; }
+  grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB does not load the staged Koronos ELF through Multiboot2'; exit 1; }
+  grep -q 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
@@ -1004,6 +1008,9 @@ verify_iso(){
   # Verify the complete graphical boot/installer contract, not only the kernel.
   local required_iso_paths=(
     /boot/grub/grub.cfg
+    /boot/koronos/koronos.elf
+    /boot/live/chimera-live-initramfs.img
+    /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt
     /boot/visual/aurora-boot.png
     /boot/visual/aurora-menu.png
