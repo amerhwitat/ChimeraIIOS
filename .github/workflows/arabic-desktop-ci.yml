@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Install test dependencies
+        run: python -m pip install pytest
       - name: Validate JSON locale and desktop profiles
         run: python -m pytest -q tests/desktop/test_arabic_desktop_contract.py
       - name: Compile C header smoke test
