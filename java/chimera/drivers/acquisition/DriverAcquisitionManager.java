@@ -40,13 +40,13 @@ public final class DriverAcquisitionManager {
             throw new IOException("artifact URL has no safe filename");
         }
 
-        Files.createDirectories(destination);
-        Path target = destination.resolve(fileName.toString()).normalize();
-        if (!target.getParent().equals(destination.toAbsolutePath().normalize())
-                && !target.getParent().equals(destination.normalize())) {
+        Path root = destination.toAbsolutePath().normalize();
+        Files.createDirectories(root);
+        Path target = root.resolve(fileName.toString()).normalize();
+        if (!root.equals(target.getParent())) {
             throw new IOException("artifact filename escaped destination directory");
         }
-        Path temporary = Files.createTempFile(destination, ".chimera-download-", ".part");
+        Path temporary = Files.createTempFile(root, ".chimera-download-", ".part");
         boolean moved = false;
         try {
             HttpRequest request = HttpRequest.newBuilder(uri)
