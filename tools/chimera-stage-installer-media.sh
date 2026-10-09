@@ -33,10 +33,15 @@ if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/
 for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
 cat > "$P/init" <<'EOF'
 #!/bin/sh
-mount -t proc none /proc 2>/dev/null || true
-mount -t sysfs none /sys 2>/dev/null || true
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t proc proc /proc 2>/dev/null || true
+mount -t sysfs sysfs /sys 2>/dev/null || true
+mount -t tmpfs tmpfs /run 2>/dev/null || true
+mount -t tmpfs tmpfs /tmp 2>/dev/null || true
 echo "[INSTALL] Chimera II OS installer environment"
-if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh; else exec sh; fi
+if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh || echo "[INSTALL] Runtime initialization returned a nonzero status"; fi
+echo "[INSTALL] Interactive recovery shell ready; disk operations remain disabled until an explicit install backend is configured."
+exec /bin/sh
 EOF
 chmod +x "$P/init"
 ( cd "$P" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installation.img"
