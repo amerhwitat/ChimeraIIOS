@@ -15,6 +15,7 @@ class CatalogRefreshTests(unittest.TestCase):
         self.assertEqual(mod.ARABIC_ALIASES["ls"], "عرض")
         self.assertEqual(mod.ARABIC_ALIASES["cat"], "اقرأ")
         self.assertEqual(mod.ARABIC_ALIASES["git"], "جيت")
+        self.assertEqual(mod.ARABIC_ISA_FAMILIES["RISC-V"], "ريسك-في")
 
     def test_aliases_are_unambiguous_for_reverse_lookup(self):
         registry = mod.read_json(mod.ARABIC_FILE, {})
