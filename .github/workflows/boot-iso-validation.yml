@@ -95,7 +95,7 @@ jobs:
           test -s system/branding/aurora-default.png.base64
       - name: Validate GRUB linkage contract
         run: |
-          grep -q 'multiboot2 /boot/kernel.bin' boot/iso/grub.cfg
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
           grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
           test -f kernel/arch/x86_64/entry.asm
           test -f kernel/arch/x86_64/koronos.ld
