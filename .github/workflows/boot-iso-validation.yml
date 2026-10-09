@@ -11,6 +11,12 @@ on:
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'tools/boot/**'
+      - 'tools/catalogs/**'
+      - 'data/isa/online-source-catalog.json'
+      - 'tests/catalogs/**'
+      - 'system/commands/chimera-arabic.json'
+      - 'system/commands/online-command-catalog.json'
+      - 'data/isa/online-isa-index.json'
       - 'tools/tests/test-iso-resume-and-aurora.sh'
       - 'build-chimera-iso.sh'
       - '.github/workflows/boot-iso-validation.yml'
@@ -24,6 +30,12 @@ on:
       - 'tests/boot/**'
       - 'build-chimera-iso.sh'
       - 'tests/build/**'
+      - 'tools/catalogs/**'
+      - 'data/isa/online-source-catalog.json'
+      - 'tests/catalogs/**'
+      - 'system/commands/chimera-arabic.json'
+      - 'system/commands/online-command-catalog.json'
+      - 'data/isa/online-isa-index.json'
       - '.github/workflows/boot-iso-validation.yml'
   workflow_dispatch:
 
@@ -78,7 +90,7 @@ jobs:
           PY
       - name: Validate installation media contract
         run: bash tests/image/test_installation_media_contract.sh
-      - name: Validate native QFS and hardware AI contracts
+      - name: Validate catalogs, native QFS and hardware AI contracts
         run: |
           python3 tools/catalogs/refresh_online_catalogs.py --self-test
           python3 -m unittest discover -s tests/catalogs -p 'test_*.py' -v
