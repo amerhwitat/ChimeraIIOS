@@ -53,8 +53,8 @@ jobs:
           set default=0
           insmod serial
           serial --unit=0 --speed=115200
-          terminal_input console serial
-          terminal_output console serial
+          terminal_input serial
+          terminal_output serial
           menuentry "Koronos Multiboot2 smoke test" {
             multiboot2 /boot/koronos.elf
             boot
@@ -73,6 +73,10 @@ jobs:
           set -e
           # timeout (124) is expected after the kernel enters its idle loop.
           [[ "$qemu_rc" -eq 0 || "$qemu_rc" -eq 124 ]]
+          echo "=== QEMU serial log ==="
+          cat qemu-koronos.log
+          echo "=== QEMU debugcon log ==="
+          cat qemu-debug.log
           grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
       - name: Upload diagnostics
