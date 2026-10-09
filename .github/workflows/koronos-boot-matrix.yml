@@ -81,5 +81,6 @@ jobs:
           name: koronos-boot-diagnostics
           path: |
             qemu-koronos.log
+            qemu-debug.log
             build/koronos/x86_64/koronos.elf
             build/desktop/
