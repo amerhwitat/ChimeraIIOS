@@ -39,6 +39,9 @@ static void serial_init() {
  * the UART is not ready; VGA remains the authoritative early-console path.
  */
 static void serial_write8(uint8_t v) {
+    // QEMU/Bochs debugcon (I/O port 0xE9) gives CI a deterministic early-boot
+    // trace even when the virtual UART is not configured as a serial sink.
+    koronos_outb(0x00E9, v);
     for (uint32_t i = 0; i < 1024u; ++i) {
         if (serial_in8(0x3FD) & 0x20) {
             koronos_outb(0x3F8, v);
