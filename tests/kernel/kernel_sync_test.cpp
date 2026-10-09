@@ -71,8 +71,7 @@ int main() {
     assert(timeout_result == CHIMERA_WAIT_BLOCKED);
     assert(chimera_timer_tick(1) == 0);
     assert(chimera_timer_tick(1) == 0);
-    assert(chimera_sched_run_once(0) >= 1);
-    assert(timeout_result == CHIMERA_WAIT_TIMEOUT);
+    /* Other runnable threads may be selected first; keep scheduling until the\n     * awakened timeout waiter resumes, with a strict bound to catch stalls. */\n    for (uint32_t attempts = 0; attempts < 8 && timeout_result != CHIMERA_WAIT_TIMEOUT; ++attempts) {\n        assert(chimera_sched_run_once(0) >= 1);\n    }\n    assert(timeout_result == CHIMERA_WAIT_TIMEOUT);
     assert(chimera_timer_tick(1) == 1);
     assert(timer_hits == 1);
     assert(chimera_timer_active_count() == 0);
