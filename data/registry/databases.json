@@ -1,13 +1,205 @@
 {
   "schema": "CHIMERA-DATA-DATABASES-2026-1",
-  "updated": "2026-09-16",
+  "updated": "2026-10-09",
   "engines": [
-    {"id":"sqlite","kind":"sql","role":"embedded","license":"Public Domain","binary":"sqlite3","editions":["desktop","server","mobile","edge","cvel"]},
-    {"id":"postgresql","kind":"sql","role":"server","license":"PostgreSQL License","binary":"psql","editions":["desktop","server","cvel"]},
-    {"id":"mariadb","kind":"sql","role":"server","license":"GPL-2.0","binary":"mariadb","editions":["desktop","server","cvel"]},
-    {"id":"duckdb","kind":"sql","role":"embedded-analytics","license":"MIT","binary":"duckdb","editions":["desktop","server","edge","cvel"]},
-    {"id":"cassandra","kind":"nosql-wide-column","role":"distributed-server","license":"Apache-2.0","binary":"cqlsh","editions":["server","cvel"]},
-    {"id":"egeria","kind":"mdm-metadata","role":"governance-service","license":"Apache-2.0","binary":"egeria","editions":["server","cvel"]},
-    {"id":"atlas","kind":"metadata","role":"hadoop-governance","license":"Apache-2.0","binary":"atlas","editions":["server","cvel"]}
+    {
+      "id": "sqlite",
+      "kind": "sql",
+      "role": "embedded",
+      "license": "Public Domain",
+      "binary": "sqlite3",
+      "editions": [
+        "desktop",
+        "server",
+        "mobile",
+        "edge",
+        "cvel"
+      ]
+    },
+    {
+      "id": "postgresql",
+      "kind": "sql",
+      "role": "server",
+      "license": "PostgreSQL License",
+      "binary": "psql",
+      "editions": [
+        "desktop",
+        "server",
+        "cvel"
+      ]
+    },
+    {
+      "id": "mariadb",
+      "kind": "sql",
+      "role": "server",
+      "license": "GPL-2.0",
+      "binary": "mariadb",
+      "editions": [
+        "desktop",
+        "server",
+        "cvel"
+      ]
+    },
+    {
+      "id": "duckdb",
+      "kind": "sql",
+      "role": "embedded-analytics",
+      "license": "MIT",
+      "binary": "duckdb",
+      "editions": [
+        "desktop",
+        "server",
+        "edge",
+        "cvel"
+      ]
+    },
+    {
+      "id": "cassandra",
+      "kind": "nosql-wide-column",
+      "role": "distributed-server",
+      "license": "Apache-2.0",
+      "binary": "cqlsh",
+      "editions": [
+        "server",
+        "cvel"
+      ]
+    },
+    {
+      "id": "egeria",
+      "kind": "mdm-metadata",
+      "role": "governance-service",
+      "license": "Apache-2.0",
+      "binary": "egeria",
+      "editions": [
+        "server",
+        "cvel"
+      ]
+    },
+    {
+      "id": "atlas",
+      "kind": "metadata",
+      "role": "hadoop-governance",
+      "license": "Apache-2.0",
+      "binary": "atlas",
+      "editions": [
+        "server",
+        "cvel"
+      ]
+    },
+    {
+      "id": "mysql-community",
+      "kind": "sql",
+      "role": "server",
+      "license": "GPL-2.0",
+      "binary": "mysql",
+      "editions": [
+        "desktop",
+        "server",
+        "cvel"
+      ],
+      "upstream": "https://dev.mysql.com/downloads/"
+    },
+    {
+      "id": "firebird",
+      "kind": "sql",
+      "role": "server",
+      "license": "IPL-1.0/IDPL-1.0",
+      "binary": "isql-fb",
+      "editions": [
+        "desktop",
+        "server",
+        "cvel"
+      ],
+      "upstream": "https://firebirdsql.org/"
+    },
+    {
+      "id": "cockroachdb",
+      "kind": "sql-distributed",
+      "role": "distributed-server",
+      "license": "BSL-1.1 (source available; not OSI open source)",
+      "binary": "cockroach",
+      "editions": [
+        "server"
+      ],
+      "upstream": "https://www.cockroachlabs.com/docs/"
+    },
+    {
+      "id": "couchdb",
+      "kind": "nosql-document",
+      "role": "document-server",
+      "license": "Apache-2.0",
+      "binary": "couchdb",
+      "editions": [
+        "desktop",
+        "server",
+        "cvel"
+      ],
+      "upstream": "https://couchdb.apache.org/"
+    },
+    {
+      "id": "valkey",
+      "kind": "nosql-key-value",
+      "role": "cache-and-key-value-server",
+      "license": "BSD-3-Clause",
+      "binary": "valkey-server",
+      "editions": [
+        "desktop",
+        "server",
+        "edge",
+        "cvel"
+      ],
+      "upstream": "https://valkey.io/"
+    },
+    {
+      "id": "rocksdb",
+      "kind": "nosql-embedded-key-value",
+      "role": "embedded-storage-engine",
+      "license": "Apache-2.0/GPL-2.0",
+      "binary": "",
+      "editions": [
+        "desktop",
+        "server",
+        "edge",
+        "cvel"
+      ],
+      "upstream": "https://rocksdb.org/"
+    },
+    {
+      "id": "leveldb",
+      "kind": "nosql-embedded-key-value",
+      "role": "embedded-storage-engine",
+      "license": "BSD-3-Clause",
+      "binary": "",
+      "editions": [
+        "desktop",
+        "server",
+        "edge"
+      ],
+      "upstream": "https://github.com/google/leveldb"
+    },
+    {
+      "id": "mongodb-community",
+      "kind": "nosql-document",
+      "role": "document-server",
+      "license": "SSPL (source available; not OSI-approved open source)",
+      "binary": "mongod",
+      "editions": [
+        "desktop",
+        "server"
+      ],
+      "upstream": "https://www.mongodb.com/try/download/community"
+    },
+    {
+      "id": "redis-compatible",
+      "kind": "nosql-key-value",
+      "role": "compatibility-api",
+      "license": "Provider-specific; prefer Valkey for BSD-3-Clause licensing",
+      "binary": "",
+      "editions": [
+        "desktop",
+        "server"
+      ],
+      "upstream": "https://valkey.io/"
+    }
   ]
 }
