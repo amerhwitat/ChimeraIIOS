@@ -856,6 +856,8 @@ stage_package_managers(){
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
+  python3 -m json.tool "$SCRIPT_DIR/desktop/aurora/waybar/config.jsonc" >/dev/null
+  python3 -c 'import sys, xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$SCRIPT_DIR/desktop/aurora/labwc/menu.xml"
   log_info "Aurora Package Manager Center staged (APT, DNF, Pacman, Zypper, APK, Snap, Flatpak, Homebrew/brew and Nix adapters)."
   log_info "Providers remain optional and are detected at runtime; the ISO build will not run remote package-manager installer scripts."
 }
