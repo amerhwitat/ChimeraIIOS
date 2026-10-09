@@ -28,6 +28,10 @@ global _start
 global __koronos_multiboot2_entry
 __koronos_multiboot2_entry:
 _start:
+    ; Earliest CI-visible marker: distinguish GRUB/Multiboot entry from a later C++ stall.
+    mov dx, 0x00E9
+    mov al, 'E'
+    out dx, al
     cli
     cld
     lea esp, [stack32_top]
