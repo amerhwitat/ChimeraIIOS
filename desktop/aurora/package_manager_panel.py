@@ -34,8 +34,19 @@ class PackageManagerPanel(tk.Tk):
         bridge=self.bridge()
         if not os.path.exists(bridge) and not shutil.which(bridge):
             self.write("Package manager bridge is missing. Rebuild the ISO or install tools/chimera-package-manager.sh as /usr/bin/chimera-pkg."); return
+        cmd=[bridge]+args
+        mutating = bool(args and args[0] in ("install", "remove", "update"))
+        privileged_provider = self.provider.get() in ("apt", "dnf", "pacman", "zypper", "apk", "snap")
+        if mutating and privileged_provider and os.geteuid() != 0:
+            pkexec = shutil.which("pkexec")
+            if pkexec:
+                cmd = [pkexec] + cmd
+            else:
+                self.write("This provider requires administrator privileges. Run the same chimera-pkg command from an administrator terminal; no password is collected by this panel.")
+                self.status_line.set("Administrator authorization required")
+                return
         try:
-            result=subprocess.run([bridge]+args,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180,check=False)
+            result=subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180,check=False)
             self.write(result.stdout or ("Completed." if result.returncode==0 else "Command failed."))
             self.status_line.set("Completed" if result.returncode==0 else f"Command exited with status {result.returncode}")
         except subprocess.TimeoutExpired:
