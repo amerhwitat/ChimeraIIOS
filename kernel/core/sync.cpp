@@ -116,15 +116,16 @@ extern "C" int chimera_semaphore_release(chimera_waitable *s, uint32_t n, uint32
 extern "C" chimera_wait_result chimera_wait_one(chimera_waitable *o, uint32_t timeout, uint32_t alertable) {
     if (!o) return CHIMERA_WAIT_FAILED;
     chimera_thread_id tid = 0;
-    // Every blocking wait must be associated with the currently running task.
-    // The old implementation only resolved the thread id for mutex waits,
-    // causing event/semaphore waits to return CHIMERA_WAIT_FAILED instead of
-    // CHIMERA_WAIT_BLOCKED (the runtime trace showed READY tasks with zero runs).
-    if (current_id(&tid) != 0 || tid == 0) return CHIMERA_WAIT_FAILED;
+    // Already-signaled events and available semaphore permits can be consumed
+    // by non-scheduler callers too. Only mutex ownership and blocking waits
+    // require a current scheduled thread.
+    if (o->type == CHIMERA_WAITABLE_MUTEX &&
+        (current_id(&tid) != 0 || tid == 0)) return CHIMERA_WAIT_FAILED;
     lock();
     if (consume(o, tid)) { unlock(); return CHIMERA_WAIT_SIGNALED; }
     if (timeout == 0) { unlock(); return CHIMERA_WAIT_TIMEOUT; }
-    if (tid == 0 || register_waiter(o, tid, timeout == CHIMERA_WAIT_INFINITE ? UINT64_MAX : chimera_timer_now() + timeout) != 0) { unlock(); return CHIMERA_WAIT_FAILED; }
+    if (tid == 0 && (current_id(&tid) != 0 || tid == 0)) { unlock(); return CHIMERA_WAIT_FAILED; }
+    if (register_waiter(o, tid, timeout == CHIMERA_WAIT_INFINITE ? UINT64_MAX : chimera_timer_now() + timeout) != 0) { unlock(); return CHIMERA_WAIT_FAILED; }
     unlock();
     chimera_thread_block();
     (void)alertable;
