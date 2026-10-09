@@ -6,6 +6,13 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#ifdef _WIN32
+#define CHIMERA_POPEN _popen
+#define CHIMERA_PCLOSE _pclose
+#else
+#define CHIMERA_POPEN popen
+#define CHIMERA_PCLOSE pclose
+#endif
 
 namespace chimera::shell {
 
@@ -43,11 +50,11 @@ static int invoke(const char* tool,int argc,const char*const* argv,char*o,std::s
         s+="\"";
     }
     s+=" 2>&1";
-    FILE*p=::popen(s.c_str(),"r");
+    FILE*p=CHIMERA_POPEN(s.c_str(),"r");
     if(!p){out(o,n,std::string(tool)+": unavailable\n");return 127;}
     std::string r; char b[512];
     while(std::fgets(b,sizeof(b),p))r+=b;
-    int rc=::pclose(p);
+    int rc=CHIMERA_PCLOSE(p);
     out(o,n,r);
     return rc==0?0:1;
 }
