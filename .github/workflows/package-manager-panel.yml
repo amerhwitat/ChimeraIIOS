@@ -1,0 +1,30 @@
+name: Aurora package manager panel
+on:
+  push:
+    branches: [main, feature/aurora-package-managers]
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/chimera-package-manager.sh"
+      - "desktop/aurora/package_manager_panel.py"
+      - "desktop/aurora/aurora-package-managers.desktop"
+      - "appcenter/catalog/package-managers.json"
+      - "tests/package_managers/**"
+      - "build-chimera-iso.sh"
+      - ".github/workflows/package-manager-panel.yml"
+jobs:
+  package-manager-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate shell and provider catalog
+        run: bash tests/package_managers/test_package_manager_bridge.sh
+      - name: Validate builder integration markers
+        run: |
+          bash -n build-chimera-iso.sh
+          grep -q 'stage_package_managers' build-chimera-iso.sh
+          grep -q 'build_native_iso_pipeline' build-chimera-iso.sh
+          grep -q 'CHIMERA_BUILD_NATIVE_ISO_PIPELINE' build-chimera-iso.sh
