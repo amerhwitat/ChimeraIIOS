@@ -12,6 +12,7 @@ Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
+  --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -210,6 +211,7 @@ while [[ $# -gt 0 ]]; do
     --push) export CHIMERA_PUSH=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
+    --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
