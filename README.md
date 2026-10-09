@@ -1,3 +1,7 @@
+## Java portfolio migration
+
+The initial cross-repository Java audit, parity rules, and phased conversion plan are tracked in [docs/JAVA_PORTFOLIO_MIGRATION.md](docs/JAVA_PORTFOLIO_MIGRATION.md). The migration preserves freestanding boot/kernel boundaries and does not claim untested ports are complete.
+
 # Chimera II OS
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
