@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "generated_by": "tools/catalogs/refresh_online_catalogs.py",
-  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose.",
+  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage.",
   "isa_sources": [
     {
       "id": "intel-sdm",
@@ -156,6 +156,55 @@
       "kind": "machine-readable-instruction-definitions",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/VE/VEInstrInfo.td",
       "authority": "LLVM Project"
+    },
+    {
+      "id": "llvm-openrisc-tablegen",
+      "family": "OpenRISC",
+      "kind": "machine-readable-instruction-definitions",
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/OR1K/OR1KInstrInfo.td",
+      "authority": "LLVM Project"
+    },
+    {
+      "id": "official-loongarch-reference",
+      "family": "LoongArch",
+      "kind": "official-architecture-reference",
+      "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+      "authority": "Loongson"
+    },
+    {
+      "id": "official-webassembly-core",
+      "family": "WebAssembly",
+      "kind": "official-virtual-isa-specification",
+      "url": "https://webassembly.github.io/spec/core/",
+      "authority": "WebAssembly Community Group"
+    },
+    {
+      "id": "linux-ebpf-instruction-set",
+      "family": "eBPF",
+      "kind": "official-kernel-documentation",
+      "url": "https://docs.kernel.org/bpf/instruction-set.html",
+      "authority": "Linux kernel documentation"
+    },
+    {
+      "id": "nvidia-ptx-isa",
+      "family": "NVIDIA PTX",
+      "kind": "official-virtual-isa-reference",
+      "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/",
+      "authority": "NVIDIA"
+    },
+    {
+      "id": "openrisc-architecture",
+      "family": "OpenRISC",
+      "kind": "official-architecture-reference",
+      "url": "https://openrisc.io/",
+      "authority": "OpenRISC"
+    },
+    {
+      "id": "amd-microblaze-reference",
+      "family": "MicroBlaze",
+      "kind": "official-architecture-reference",
+      "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref",
+      "authority": "AMD"
     }
   ],
   "command_sources": [
