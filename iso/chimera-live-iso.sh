@@ -90,6 +90,7 @@ install_iso_dependencies() {
   command -v mformat >/dev/null 2>&1 || missing+=(mtools)
   command -v xorriso >/dev/null 2>&1 || missing+=(xorriso)
   command -v busybox >/dev/null 2>&1 || missing+=(busybox)
+  command -v cpio >/dev/null 2>&1 || missing+=(cpio)
 
   if ((${#missing[@]} == 0)); then
     return 0
@@ -102,7 +103,7 @@ install_iso_dependencies() {
   fi
 
   if command -v apt-get >/dev/null 2>&1; then
-    local packages=(busybox mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
+    local packages=(busybox cpio mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
     if command -v sudo >/dev/null 2>&1; then
       sudo apt-get update
       sudo apt-get install -y "${packages[@]}"
@@ -149,6 +150,7 @@ cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
+install_iso_dependencies
 if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
   echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2
   exit 2
@@ -163,7 +165,6 @@ for required in \
   [[ -s "$required" ]] || { echo "ERROR: missing installer media artifact: $required" >&2; exit 2; }
 done
 
-install_iso_dependencies
 # Verify mformat can create a FAT image in the native temporary filesystem before
 # invoking GRUB. This turns a vague grub-mkrescue failure into a useful error.
 MFORMAT_TEST="$ISO_TMP/mformat-test.img"
