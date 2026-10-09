@@ -1,3 +1,10 @@
+#if defined(_MSC_VER)
+#include <intrin.h>
+#ifndef __sync_lock_test_and_set
+#define __sync_lock_test_and_set(ptr, value) _InterlockedExchange(reinterpret_cast<volatile long *>(ptr), static_cast<long>(value))
+#define __sync_lock_release(ptr) ((void)_InterlockedExchange(reinterpret_cast<volatile long *>(ptr), 0L))
+#endif
+#endif
 #include "chimera/scheduler.h"
 namespace {
 constexpr uint32_t MAX_CPUS=256,MAX_TASKS=1024;
