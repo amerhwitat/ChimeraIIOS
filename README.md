@@ -2,6 +2,13 @@
 
 The initial cross-repository Java audit, parity rules, and phased conversion plan are tracked in [docs/JAVA_PORTFOLIO_MIGRATION.md](docs/JAVA_PORTFOLIO_MIGRATION.md). The migration preserves freestanding boot/kernel boundaries and does not claim untested ports are complete.
 
+## Public web ecosystem and deployment map
+
+- **Static hub:** [amerhwitat.github.io](https://amerhwitat.github.io/) — APPS catalog, REPOS index, Thamudic script families, and `search-index.json` full-text search.
+- **Hosted Aurora desktop:** [chimera-iios-120143.onhercules.app](https://chimera-iios-120143.onhercules.app/) — browser-hosted React desktop surface; not proof of a bare-metal boot.
+- **ThamudicScan:** the static hub links the in-repository scanner entry at [apps/thamudic-scanner](https://amerhwitat.github.io/apps/thamudic-scanner/index.html). The separately supplied BuiltWithRocket hostname was abbreviated, so the exact external URL remains to be confirmed.
+- **Deployment/inventory boundaries:** see [docs/ECOSYSTEM_DEPLOYMENT_MAP.md](docs/ECOSYSTEM_DEPLOYMENT_MAP.md).
+
 # Chimera II OS
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
