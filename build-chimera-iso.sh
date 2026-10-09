@@ -10,6 +10,7 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
+  --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -189,8 +190,11 @@ stop_watchdog(){
 }
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
+REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
@@ -997,6 +1001,10 @@ verify_iso(){
   [[ -s "$iso" ]] || { log_error 'ISO missing'; exit 1; }
   xorriso -indev "$iso" -report_el_torito plain | tee "$LOG_DIR/iso-el-torito.log"
   grep -qi 'El Torito' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no El Torito boot catalog'; exit 1; }
+  grep -qi 'BIOS' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no BIOS El Torito boot entry'; exit 1; }
+  grep -qi 'UEFI' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no UEFI El Torito boot entry'; exit 1; }
+  grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB does not load the staged Koronos ELF through Multiboot2'; exit 1; }
+  grep -q 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
@@ -1004,6 +1012,9 @@ verify_iso(){
   # Verify the complete graphical boot/installer contract, not only the kernel.
   local required_iso_paths=(
     /boot/grub/grub.cfg
+    /boot/koronos/koronos.elf
+    /boot/live/chimera-live-initramfs.img
+    /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt
     /boot/visual/aurora-boot.png
     /boot/visual/aurora-menu.png
@@ -1107,6 +1118,10 @@ build_command_runtime(){
 }
 
 main(){
+  if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
+    log_info "Refreshing official ISA and OS-command indexes from the internet"
+    python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+  fi
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
   preflight

@@ -11,6 +11,12 @@ on:
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'tools/boot/**'
+      - 'tools/catalogs/**'
+      - 'data/isa/online-source-catalog.json'
+      - 'tests/catalogs/**'
+      - 'system/commands/chimera-arabic.json'
+      - 'system/commands/online-command-catalog.json'
+      - 'data/isa/online-isa-index.json'
       - 'tools/tests/test-iso-resume-and-aurora.sh'
       - 'build-chimera-iso.sh'
       - '.github/workflows/boot-iso-validation.yml'
@@ -24,6 +30,12 @@ on:
       - 'tests/boot/**'
       - 'build-chimera-iso.sh'
       - 'tests/build/**'
+      - 'tools/catalogs/**'
+      - 'data/isa/online-source-catalog.json'
+      - 'tests/catalogs/**'
+      - 'system/commands/chimera-arabic.json'
+      - 'system/commands/online-command-catalog.json'
+      - 'data/isa/online-isa-index.json'
       - '.github/workflows/boot-iso-validation.yml'
   workflow_dispatch:
 
@@ -78,12 +90,14 @@ jobs:
           PY
       - name: Validate installation media contract
         run: bash tests/image/test_installation_media_contract.sh
-      - name: Validate native QFS and hardware AI contracts
+      - name: Validate catalogs, native QFS and hardware AI contracts
         run: |
+          python3 tools/catalogs/refresh_online_catalogs.py --self-test
+          python3 -m unittest discover -s tests/catalogs -p 'test_*.py' -v
           python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
       - name: Validate Aurora background contracts
         run: |
-          grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
           grep -q 'background_image' boot/installation/menu.cfg
           grep -q 'background_image' boot/jasper/jasper.cfg
           grep -q 'background_image' boot/jasper/diagnostics.cfg
@@ -95,8 +109,8 @@ jobs:
           test -s system/branding/aurora-default.png.base64
       - name: Validate GRUB linkage contract
         run: |
-          grep -q 'multiboot2 /boot/kernel.bin' boot/iso/grub.cfg
-          grep -q 'background_image /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
+          grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
           test -f kernel/arch/x86_64/entry.asm
           test -f kernel/arch/x86_64/koronos.ld
           test -f boot/spitfire/sf0_mbr.asm
@@ -104,7 +118,7 @@ jobs:
           test -f boot/spitfire/sf2_loader.cpp
       - name: Build Koronos and Spit Fire artifacts
         run: |
-          ./kernel/build-koronos.sh
-          ./boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
+          bash kernel/build-koronos.sh
+          bash boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
           nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start$'
           test -s build/bootloaders/spitfire-stage2.bin

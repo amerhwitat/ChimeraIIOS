@@ -12,7 +12,7 @@ assert d["arabic_to_canonical"]["اقرأ"]=="cat"
 print("Registry Arabic mappings: PASS")
 PY
 ln -s "$DISPATCHER" "$TMP/cat"
-PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" "$TMP/cat" /dev/null >/dev/null
+PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/cat" /dev/null >/dev/null
 echo "Canonical cat     : PASS"
 echo "اقرأ -> cat       : PASS"
 echo "Canonical ls      : PASS"
