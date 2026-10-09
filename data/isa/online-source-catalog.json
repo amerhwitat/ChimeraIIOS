@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "tools/catalogs/refresh_online_catalogs.py",
+  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose.",
+  "isa_sources": [
+    {"id":"intel-sdm","family":"x86","kind":"official-document-index","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html","authority":"Intel"},
+    {"id":"amd64-architecture","family":"x86-64","kind":"official-document-index","url":"https://www.amd.com/en/search/documentation/hub.html","authority":"AMD"},
+    {"id":"arm-architecture-reference","family":"Arm-AArch64","kind":"official-document-index","url":"https://developer.arm.com/documentation/ddi0487/latest","authority":"Arm"},
+    {"id":"riscv-ratified-specs","family":"RISC-V","kind":"official-specification-index","url":"https://docs.riscv.org/reference/isa/index.html","authority":"RISC-V International"},
+    {"id":"llvm-x86-tablegen","family":"x86","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/X86/X86InstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-aarch64-tablegen","family":"AArch64","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/AArch64/AArch64InstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-arm-tablegen","family":"ARM32","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/ARM/ARMInstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-riscv-tablegen","family":"RISC-V","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-mips-tablegen","family":"MIPS","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Mips/MipsInstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-powerpc-tablegen","family":"Power ISA","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/PowerPC/PPCInstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-systemz-tablegen","family":"IBM Z / SystemZ","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/SystemZ/SystemZInstrInfo.td","authority":"LLVM Project"},
+    {"id":"llvm-sparc-tablegen","family":"SPARC","kind":"machine-readable-instruction-definitions","url":"https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Sparc/SparcInstrInfo.td","authority":"LLVM Project"}
+  ],
+  "command_sources": [
+    {"id":"ss64-bash","platform":"Linux/POSIX shells","url":"https://ss64.com/bash/","authority":"SS64","policy":"Index metadata only"},
+    {"id":"ss64-macos","platform":"macOS","url":"https://ss64.com/mac/","authority":"SS64","policy":"Index metadata only"},
+    {"id":"ss64-windows-cmd","platform":"Windows CMD","url":"https://ss64.com/nt/","authority":"SS64","policy":"Index metadata only"},
+    {"id":"ss64-powershell","platform":"PowerShell","url":"https://ss64.com/ps/","authority":"SS64","policy":"Index metadata only"},
+    {"id":"posix-utilities","platform":"POSIX","url":"https://pubs.opengroup.org/onlinepubs/9799919799/idx/utilities.html","authority":"The Open Group","policy":"Normative utility index"},
+    {"id":"gnu-coreutils","platform":"GNU/Linux","url":"https://www.gnu.org/software/coreutils/manual/html_node/index.html","authority":"GNU Project","policy":"Command index metadata"},
+    {"id":"windows-commands","platform":"Windows","url":"https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands","authority":"Microsoft","policy":"Official command index"},
+    {"id":"powershell-reference","platform":"PowerShell","url":"https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/","authority":"Microsoft","policy":"Official cmdlet reference index"},
+    {"id":"freebsd-manpages","platform":"FreeBSD / Unix","url":"https://man.freebsd.org/cgi/man.cgi","authority":"FreeBSD Project","policy":"Manual index metadata"}
+  ]
+}
