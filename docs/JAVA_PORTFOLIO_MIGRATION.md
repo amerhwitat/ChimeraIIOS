@@ -163,3 +163,15 @@ Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm 
 ### BizX aggregate matrix follow-up
 
 - The previous aggregate run [331](https://github.com/amerhwitat/BizX/actions/runs/37892479111) is executing after [PR #8](https://github.com/amerhwitat/BizX/pull/8) addressed the observed Linux script permission failure, Jest-vs-Node test runner mismatch, and AGP 9.4 redundant Kotlin plugin error. Repository validation [run 501](https://github.com/amerhwitat/BizX/actions/runs/37892479099) and gameplay resource checks [run 431](https://github.com/amerhwitat/BizX/actions/runs/37892479187) passed. Do not merge PR #8 or mark the cross-platform aggregate green until run 331 completes successfully.
+
+
+### CPU acceptance gates — merged and green
+
+- **CPU4096:** [PR #2](https://github.com/amerhwitat/CPU4096/pull/2) merged as [`3607a94`](https://github.com/amerhwitat/CPU4096/commit/3607a945630fa222c6822cae4301699db7964d47). Java 21 Maven/JUnit register vectors passed in [run 1](https://github.com/amerhwitat/CPU4096/actions/runs/37892784901), including the Node snapshot-fixture parity job. The gate covers modulo arithmetic, shifts, and little-endian word snapshots.
+- **CPU4096Simulator:** [PR #2](https://github.com/amerhwitat/CPU4096Simulator/pull/2) merged as [`7c4863d`](https://github.com/amerhwitat/CPU4096Simulator/commit/7c4863d2f9eebdf2971c26c6018829033f3880a7). Java 21 Maven/JUnit vectors passed in [run 1](https://github.com/amerhwitat/CPU4096Simulator/actions/runs/37892736926), and the existing Node web CI passed on the same PR head in [run 335](https://github.com/amerhwitat/CPU4096Simulator/actions/runs/37892736795). Shared fixtures cover arithmetic wraparound, shifts, snapshot formatting, trace order/PC advancement, and stable workload metadata.
+- Both audits confirmed that the original `java/` directories contained only README files; the new headless Java register/core implementations are real new implementations, not a conversion of previously existing JavaFX code. Full JavaFX visualization, the complete opcode set, and architectural/ISA conformance remain separate work.
+
+### BizX aggregate build — latest retry pending
+
+- [PR #8](https://github.com/amerhwitat/BizX/pull/8) now also fixes the web test import path, adds an explicit microphone-permission guard, and makes the aggregate runner report unsupported SDK/platform work as skipped instead of failing on Linux/macOS for Windows-only WPF/.NET Framework/Visual C++ targets or an absent Dart SDK.
+- The latest aggregate run is [run 335](https://github.com/amerhwitat/BizX/actions/runs/37892956578); it was queued when checked. The repository validation [run 505](https://github.com/amerhwitat/BizX/actions/runs/37892956532) passed. Do not merge PR #8 until the latest aggregate Linux/Windows/macOS matrix passes. Skipped platform-specific work remains unverified rather than being reported as tested.
