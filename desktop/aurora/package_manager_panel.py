@@ -3,7 +3,7 @@
 import os, shutil, subprocess, tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 BRIDGE = os.environ.get("CHIMERA_PKG_BRIDGE", "/usr/bin/chimera-pkg")
-MANAGERS = ("auto", "apt", "dnf", "pacman", "zypper", "apk", "snap", "flatpak", "brew", "nix")
+MANAGERS = ("auto", "apt", "dnf", "pacman", "zypper", "apk", "snap", "flatpak", "brew", "nix", "npm", "yarn", "pnpm", "corepack")
 class PackageManagerPanel(tk.Tk):
     def __init__(self):
         super().__init__(); self.title("Aurora · Package Managers"); self.geometry("880x560"); self.minsize(700,440); self.configure(bg="#101827")
@@ -14,6 +14,7 @@ class PackageManagerPanel(tk.Tk):
         self.provider=tk.StringVar(value=os.environ.get("CHIMERA_PKG_MANAGER","auto"))
         ttk.Combobox(controls,textvariable=self.provider,values=MANAGERS,state="readonly",width=14).pack(side="left",padx=8)
         ttk.Button(controls,text="Detect",command=self.status).pack(side="left",padx=3)
+        ttk.Button(controls,text="Databases",command=lambda:self.invoke(["databases"])).pack(side="left",padx=3)
         ttk.Button(controls,text="Installed",command=lambda:self.run_action("list")).pack(side="left",padx=3)
         ttk.Button(controls,text="Refresh / Update",command=lambda:self.run_action("update",confirm=True)).pack(side="left",padx=3)
         ttk.Button(controls,text="Search",command=self.search).pack(side="left",padx=3)
