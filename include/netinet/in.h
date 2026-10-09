@@ -3,24 +3,20 @@
 #define CHIMERA_NETINET_IN_H
 
 #include <stdint.h>
+
 #if defined(_WIN32) || defined(_WIN64)
+/* Winsock owns these structures and constants on Windows. Do not redeclare
+ * them here: doing so makes in_addr incomplete/redefined under MSVC. */
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
-
-#endif /* native Windows networking declarations */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef __sa_family_t_defined
-#ifndef _SA_FAMILY_T
-#ifndef _SA_FAMILY_T_DEFINED
-    typedef uint16_t sa_family_t;
+typedef uint16_t sa_family_t;
 #define __sa_family_t_defined 1
-#endif
-#endif
 #endif
 
 typedef uint16_t in_port_t;
@@ -77,12 +73,12 @@ struct ipv6_mreq {
 #define INADDR_NONE      ((in_addr_t)0xFFFFFFFFU)
 #define INET_ADDRSTRLEN  16
 #define INET6_ADDRSTRLEN 46
-
 #define IN6ADDR_ANY_INIT      { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } }
 #define IN6ADDR_LOOPBACK_INIT { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } }
 
 #ifdef __cplusplus
 }
 #endif
+#endif /* non-Windows networking ABI */
 
-#endif
+#endif /* CHIMERA_NETINET_IN_H */
