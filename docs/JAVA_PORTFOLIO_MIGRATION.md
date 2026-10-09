@@ -100,3 +100,22 @@ Proceed to the existing ChimeraIIOS Java driver-acquisition layer next. Confirm 
 - Dedicated Java workflow [run 2](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/37882484035) passed on Java 21: all tracked `java/chimera/**/*.java` sources compiled with `javac -Xlint:all -Werror`, and `chimera.drivers.acquisition.DriverAcquisitionManagerTest` completed successfully.
 - CI gate PR [#56](https://github.com/amerhwitat/ChimeraIIOS/pull/56) was merged as [`f285d76`](https://github.com/amerhwitat/ChimeraIIOS/commit/f285d76d75c4902cc6f241374a707b2dc663fa74).
 - The broader Chimera II CI/CD run [3940](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/37882484039) was still running at the time of this update; its native build/test jobs are tracked separately from the dedicated Java gate and should be checked before claiming the entire OS pipeline is green.
+
+
+### BizX Java runtime contract gate — merged
+
+- Audited `java/src/main/java/io/amerhwitat/bizx/UnifiedBizXRuntime.java`, `GameLauncher.java`, the Maven build, and the existing chess/strategy, crypto-wallet, and AAA system contracts. The audited Java facade's current public surface includes an ordered feature list, UTF-8 SHA-256, and game-mode normalization; this is not evidence of complete Java parity for all BizX subsystems.
+- Added shared language-neutral vectors at `amerhwitat/BizX/contracts/fixtures/bizx-runtime-v1.tsv`, consumed by a JUnit test. Added Java 17 Maven CI in `amerhwitat/BizX/.github/workflows/java-runtime-contracts.yml`.
+- Fixed an existing Java test compile failure by using `PlayerResources.Checkpoint`, and corrected the test flow to reflect health-prompt priority and the magazine/reserve-ammo state machine.
+- Repository validation exposed missing Python compatibility imports. Restored `python/bizx/modules/crypto.py` and `network.py`; crypto intents are unsigned and provider-bound, and loopback classification is covered by the existing Python tests.
+- Fixed root `build.sh` to invoke `scripts/build.sh` through Bash instead of depending on its executable bit.
+- [BizX PR #4](https://github.com/amerhwitat/BizX/pull/4) merged as [`d90e16d`](https://github.com/amerhwitat/BizX/commit/d90e16dd81731c1e779ae1b35d53acd81c37b98a).
+- Dedicated Java 17 Maven `clean verify` passed in [workflow run 13](https://github.com/amerhwitat/BizX/actions/runs/37883057958). Python repository validation passed in [run 492](https://github.com/amerhwitat/BizX/actions/runs/37883057918). The gameplay resource checks also passed in [run 421](https://github.com/amerhwitat/BizX/actions/runs/37883054076).
+- **Cross-platform aggregate build remains pending**: [Build all applications run 322](https://github.com/amerhwitat/BizX/actions/runs/37883057891) was still running on Windows/Linux/macOS when this update was written. The prior matrix exposed a non-executable `scripts/build.sh`; the wrapper was fixed in the merged change, but the full matrix must finish before its status can be called green.
+
+### Next Java portfolio gates
+
+1. **BizXtreme:** inspect its actual Java source tree, public contracts, JDK baseline, and current tests; add shared deterministic fixtures before expanding behavior.
+2. **CPU4096:** compare Java arithmetic/register model and benchmark behavior against shared vectors and existing non-Java implementations.
+3. **CPU4096Simulator:** validate simulator trace/register-state parity and its JavaFX runtime separately from the CPU core.
+4. Merge each stage only when its dedicated build and parity tests pass. Keep the original implementations and mark only the verified scope as complete.
