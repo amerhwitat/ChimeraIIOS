@@ -46,6 +46,6 @@ jobs:
       - name: Validate mobile safety contract
         run: |
           set -euo pipefail
-          grep -Eq '"generic_partition_flash"[[:space:]]*:[[:space:]]*false' mobile/build-mobile-edition.sh
+          grep -Fq '"generic_partition_flash": false' mobile/build-mobile-edition.sh
           grep -q 'exact_device' mobile/flash/mobile-flash-tool.sh
           grep -q 'sha256' mobile/flash/mobile-flash-tool.sh
