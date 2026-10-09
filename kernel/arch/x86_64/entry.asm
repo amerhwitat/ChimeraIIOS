@@ -88,6 +88,9 @@ _start:
 
 BITS 64
 long_mode_entry:
+    mov dx, 0x00E9
+    mov al, 'L'
+    out dx, al
     mov ax, 0x10
     mov ds, ax
     mov es, ax
