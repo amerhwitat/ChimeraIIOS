@@ -9,8 +9,14 @@
 #include <string>
 #include <thread>
 #include <vector>
+#ifdef _WIN32
+#include <process.h>
+#define chimera_getpid _getpid
+#else
 #include <sys/types.h>
 #include <unistd.h>
+#define chimera_getpid getpid
+#endif
 
 namespace fs = std::filesystem;
 
@@ -110,7 +116,7 @@ static int once(){
     if(line.empty())continue;
     const auto type=classify(line);
     const int rc=safe_fix(type);
-    actions<<"pid="<<static_cast<long>(::getpid())<<" type="<<type
+    actions<<"pid="<<static_cast<long>(chimera_getpid())<<" type="<<type
            <<" result="<<(rc==0?"prepared":"failed")<<" error="<<line<<"\n";
     ++count;
   }
