@@ -21,3 +21,18 @@ python3 appcenter/cli/chimera-appctl.py install-plan youtube
 ```
 
 `install-plan` is deliberately non-executing. An installer UI or privileged package backend must review and authorize an actual installation.
+
+## Aurora package manager providers
+
+Aurora's Package Manager Center calls `/usr/bin/chimera-pkg`. It detects optional system providers (APT, DNF, Pacman, Zypper, APK, Snap, Flatpak, Homebrew and Nix) and JavaScript providers (npm, Yarn, pnpm and Corepack). Yarn global commands vary by Yarn major version; Corepack is preferred for project-pinned Yarn/pnpm versions.
+
+Useful commands:
+
+```sh
+chimera-pkg status
+chimera-pkg search sqlite apt
+chimera-pkg databases
+```
+
+When provider is `auto`, failed read-only package searches may retry another installed provider. Install, remove and update operations never silently switch providers. Build dependency installation is disabled by default; explicitly opt in with `./build-chimera-iso.sh --install-build-deps` to let the builder try available host package managers when required build tools are missing. This may install system packages and therefore requires root or sudo. It does not bypass Docker daemon readiness checks or run remote installer scripts.
+
