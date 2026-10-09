@@ -4,8 +4,8 @@
     <item label="Terminal"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot --app-id=aurora-terminal'" /></item>
     <item label="Files"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec pcmanfm-qt'" /></item>
     <item label="Browser"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec firefox'" /></item>
-    <item label="Settings"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v aurora-settings >/dev/null 2>&1 && exec aurora-settings || exec foot -e sh -lc \"echo Aurora Settings; exec bash\"'" /></item>
-    <item label="System Monitor"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot -e sh -lc \"command -v btop >/dev/null 2>&1 && btop || top\"'" /></item>
+    <item label="Settings"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v aurora-settings >/dev/null 2>&1 &amp;&amp; exec aurora-settings || exec foot -e sh -lc \"echo Aurora Settings; exec bash\"'" /></item>
+    <item label="System Monitor"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot -e sh -lc \"command -v btop >/dev/null 2>&1 &amp;&amp; btop || top\"'" /></item>
     <separator />
     <menu id="chimera-progress" label="Chimera Progress">
       <item label="Installation Progress"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh install_step; exec foot -e /usr/share/chimera/aurora/aurora-progress.sh text'" /></item>
@@ -16,7 +16,7 @@
     </menu>
     <menu id="chimera-tools" label="Chimera II OS">
       <item label="Package Manager Center"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec /usr/bin/python3 /usr/share/chimera/aurora/package_manager_panel.py'" /></item>
-      <item label="Driver Center"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v chimera-driver-center >/dev/null 2>&1 && exec chimera-driver-center || exec foot -e sh -lc \"echo Driver Center unavailable; exec bash\"'" /></item>
+      <item label="Driver Center"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; command -v chimera-driver-center >/dev/null 2>&1 &amp;&amp; exec chimera-driver-center || exec foot -e sh -lc \"echo Driver Center unavailable; exec bash\"'" /></item>
       <item label="Kernel / Koronos Logs"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; exec foot -e sh -lc \"journalctl -b -k -f\"'" /></item>
       <item label="Boot / Recovery Logs"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh recovery; exec foot -e sh -lc \"journalctl -b -f\"'" /></item>
       <item label="Research / 8192-bit Framework"><action name="Execute" command="sh -lc '/usr/share/chimera/aurora/aurora-event-sound.sh menu_select; xdg-open /usr/share/chimera/aurora/assets/library-artwork-manifest.json 2>/dev/null || exec foot -e sh -lc \"cat /usr/share/chimera/aurora/assets/library-artwork-manifest.json; exec bash\"'" /></item>
