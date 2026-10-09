@@ -67,13 +67,14 @@ jobs:
           set +e
           timeout 15s qemu-system-x86_64 -machine pc -cpu max -m 1024 \
             -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
+            -debugcon file:qemu-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-koronos.log
           qemu_rc=${PIPESTATUS[0]}
           set -e
           # timeout (124) is expected after the kernel enters its idle loop.
           [[ "$qemu_rc" -eq 0 || "$qemu_rc" -eq 124 ]]
-          grep -q "\[KRN \] KORONOS READY" qemu-koronos.log
-          grep -q "\[RUN \] Entering Koronos scheduler loop" qemu-koronos.log
+          grep -q "\\[KRN \\] KORONOS READY" qemu-debug.log
+          grep -q "\\[RUN \\] Entering Koronos scheduler loop" qemu-debug.log
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -81,6 +82,7 @@ jobs:
           name: koronos-boot-diagnostics
           path: |
             qemu-koronos.log
+            qemu-debug.log
             qemu-debug.log
             build/koronos/x86_64/koronos.elf
             build/desktop/
