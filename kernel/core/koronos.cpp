@@ -195,6 +195,8 @@ static volatile uint32_t installer_phase = 0;
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
+    // Registration is a one-shot bootstrap action, not a continuously runnable task.
+    chimera_sched_block();
 }
 
 static void task_modules(void *) {
@@ -202,6 +204,8 @@ static void task_modules(void *) {
         console_write("[TASK] Module manager online");
         console_modules();
     }
+    // Module discovery completes during bootstrap; do not spin in READY forever.
+    chimera_sched_block();
 }
 
 static void task_live(void *) {
@@ -281,7 +285,10 @@ static void task_monitor(void *) {
     // The scheduler is a tight cooperative loop; sampling every 10 dispatches
     // floods VGA/serial output and makes a healthy kernel look hung. Keep the
     // monitor live, but emit a full snapshot only once per 1000 monitor runs.
-    if ((++ticks % 1000u) != 0) return;
+    // This is currently a diagnostic snapshot, not a timer-driven service.
+    // Emit it once; repeated polling here floods VGA/serial and obscures the
+    // actual handoff state. A timer/event source can wake a periodic monitor later.
+    if (++ticks > 1u) { chimera_sched_block(); return; }
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
@@ -315,6 +322,9 @@ static void task_kore(void *) {
         console_write("[KORE] Service orchestration online");
         console_write("[KORE] Core storage/security/logging services active");
     }
+    // Bootstrap orchestration is complete; a service worker must block until
+    // an event source wakes it rather than consume every scheduler dispatch.
+    chimera_sched_block();
 }
 
 static void koronos_submit_bootstrap_tasks() {
