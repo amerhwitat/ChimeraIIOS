@@ -68,7 +68,14 @@ ARABIC_ISA_FAMILIES = {
     "LoongArch":"لونغ آرتش", "Hexagon":"هيكساغون", "MSP430":"إم إس بي 430",
     "AMD GPU":"معالجات الرسوميات من إيه إم دي", "NVIDIA PTX":"إنفيديا بي تي إكس",
     "WebAssembly":"ويب أسمبلي", "eBPF":"إي بي بي إف", "XCore":"إكس كور",
-    "NEC Vector Engine":"محرك المتجهات من إن إي سي"
+    "NEC Vector Engine":"محرك المتجهات من إن إي سي",
+    "OpenRISC":"أوبن ريسك", "MicroBlaze":"مايكروبليز", "WebAssembly":"ويب أسمبلي",
+    "eBPF":"إي بي بي إف", "NVIDIA PTX":"إنفيديا بي تي إكس", "Intel GPU":"معالج الرسوميات من إنتل",
+    "Motorola 68000":"موتورولا 68000", "Zilog Z80":"زيلوغ زد 80", "MOS 6502":"موس 6502",
+    "PA-RISC":"بي إيه ريسك", "DEC Alpha":"ديك ألفا", "IBM z/Architecture":"آي بي إم زد",
+    "Xtensa":"إكستينسا", "Synopsys ARC":"سينوبسيس آرك", "Andes NDS32":"أنديز إن دي إس 32",
+    "TriCore":"ترايكور", "Blackfin":"بلاكفين", "Renesas RX":"رينيساس آر إكس",
+    "Microchip PIC":"مايكروشيب بيك", "Elbrus E2K":"إلبروس إي 2 كيه"
 }
 ARABIC_GLOSSARY = {
     "add":"جمع", "subtract":"طرح", "multiply":"ضرب", "divide":"قسمة",

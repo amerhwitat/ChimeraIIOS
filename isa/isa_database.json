@@ -1,1 +1,3473 @@
-{"$schema":"CHM-ISA-DB-4","version":"2026.10.08","title":"Chimera II OS Universal ISA Database","architecture_row":["id","class","family","word_bits","status","encoding_model","source_ref","instruction_forms"],"instruction_row":["architecture","mnemonic","form_id","operands","syntax","length_bits","value_bits","mask_bits"],"accuracy_note":"value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder.","architectures":[["chimera-c8192","custom","Chimera",8192,"project-defined","16-bit research opcode selector plus operand subfields","chimera",5],["chimera-r8192","custom","Chimera",8192,"project-defined","16-bit research opcode selector plus operand subfields","chimera",0],["x86-64","CISC","x86",64,"standard","variable-length prefixes/opcode/ModR-M/SIB/displacement/immediate","intel-sdm",12],["x86-32","CISC","x86",32,"standard","variable-length x86 encoding","intel-sdm",0],["aarch64","RISC","AArch64",64,"standard","fixed 32-bit fielded instructions","arm",16],["arm32","RISC","A32/T32",32,"standard","32-bit A32 plus 16/32-bit Thumb","arm",10],["riscv32","RISC","RISC-V",32,"standard","16/32-bit base plus extensions","riscv",0],["riscv64","RISC","RISC-V",64,"standard","16/32-bit base plus extensions","riscv",21],["mips32","RISC","MIPS",32,"standard","fixed 32-bit R/I/J","mips",13],["mips64","RISC","MIPS",64,"standard","fixed 32-bit R/I/J","mips",0],["powerpc","RISC","Power ISA",32,"standard","fixed 32-bit forms","openpower",11],["ppc64","RISC","Power ISA",64,"standard","32-bit forms plus prefixed extensions","openpower",0],["sparc-v9","RISC","SPARC",64,"standard","fixed 32-bit forms","sparc",0],["m68k","CISC","Motorola 68000",32,"legacy/standard","variable 16-bit-word encoding","chimera",9],["s390x","CISC","IBM z/Architecture",64,"standard","2/4/6-byte formats","ibm-z",4],["vax","CISC","VAX",32,"legacy","variable byte-oriented encoding","chimera",0],["sh4","RISC","SuperH",32,"legacy/standard","fixed 16-bit","chimera",0],["loongarch64","RISC","LoongArch",64,"standard","fixed 32-bit","loongarch",0],["alpha","RISC","DEC Alpha",64,"legacy","fixed 32-bit","chimera",0],["hppa","RISC","PA-RISC",64,"legacy/standard","fixed 32-bit","chimera",0],["xtensa","RISC","Xtensa",32,"configurable","16/24/32-bit configurable","chimera",0],["avr","RISC","AVR",8,"standard","16/32-bit","microchip-avr",9],["8051","CISC","MCS-51",8,"legacy/standard","1/2/3-byte","chimera",9],["z80","CISC","Z80",8,"legacy","prefix plus 1/2/3-byte","zilog",10],["6502","CISC","MOS 6502",8,"legacy","1/2/3-byte","chimera",12],["ia64","EPIC","Itanium",64,"legacy","128-bit bundles","chimera",0],["amd-gcn","GPU","AMD GCN/RDNA/CDNA",32,"catalog-only","32/64-bit GPU instruction encodings with generation-specific variants","amd-gpu",0],["msp430","RISC","TI MSP430",16,"catalog-only","16-bit instruction words with extension-word forms","ti-msp430",0],["pic24-dspic","RISC","Microchip PIC24/dsPIC",24,"catalog-only","24-bit instruction words with multiword variants","microchip-pic24",0],["c6000","VLIW","TI C6000 DSP",32,"catalog-only","32-bit instruction slots and packetized VLIW execution","ti-c6000",0],["arm32-thumb","RISC","AArch32/T32",32,"standard","Thumb/T32 mixed 16/32-bit instruction encodings","arm",3]],"sources":[{"id":"riscv","name":"RISC-V Ratified Specifications Library","url":"https://docs.riscv.org/reference/isa/","supports":["riscv32","riscv64"]},{"id":"arm","name":"Arm Architecture","url":"https://developer.arm.com/architectures","supports":["aarch64","arm32"]},{"id":"intel-sdm","name":"Intel Software Developer Manuals","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html","supports":["x86-64","x86-32"]},{"id":"amd","name":"AMD64 Architecture Programmer's Manual","url":"https://www.amd.com/en/support/tech-docs","supports":["x86-64","x86-32"]},{"id":"openpower","name":"OpenPOWER ISA","url":"https://openpowerfoundation.org/specifications/isa/","supports":["powerpc","ppc64"]},{"id":"sparc","name":"Oracle SPARC V9 documentation","url":"https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html","supports":["sparc-v9"]},{"id":"ibm-z","name":"IBM z/Architecture documentation","url":"https://www.ibm.com/docs/en/zos","supports":["s390x"]},{"id":"mips","name":"MIPS Architecture documentation","url":"https://www.mips.com/technical-documents/","supports":["mips32","mips64"]},{"id":"microchip-avr","name":"Microchip AVR Instruction Set Manual","url":"https://onlinedocs.microchip.com/","supports":["avr"]},{"id":"zilog","name":"Zilog Z80 documentation","url":"https://www.zilog.com/docs/z80/","supports":["z80"]},{"id":"chimera","name":"Chimera II OS project ISA specification","url":"https://github.com/amerhwitat/ChimeraIIOS","supports":["chimera-c8192","chimera-r8192"]},{"id":"loongarch","name":"LoongArch Reference Manual, Volume 1: Basic Architecture","url":"https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html","supports":["loongarch64"]},{"id":"amd-gpu","name":"AMD GPU architecture documentation (GCN, RDNA, CDNA)","url":"https://rocm.docs.amd.com/en/latest/reference/gpu-arch/index.html","supports":["amd-gcn"]},{"id":"ti-msp430","name":"Texas Instruments MSP430 Assembly Language Tools User Guide","url":"https://downloads.ti.com/docs/esd/SLAU131R/Content/SLAU131R_HTML/abstract.html","supports":["msp430"]},{"id":"microchip-pic24","name":"Microchip dsPIC33/PIC24 Family Reference Manual","url":"https://ww1.microchip.com/downloads/aemDocuments/documents/MCU16/ProductDocuments/ReferenceManuals/dsPIC33-PIC24-Family-Reference-Manual-Introduction-DS70000573.pdf","supports":["pic24-dspic"]},{"id":"ti-c6000","name":"Texas Instruments C6000 Code Generation Tools documentation","url":"https://www.ti.com/tool/TI-CGT","supports":["c6000"]},{"id":"arm-isa-glossary","name":"Arm ISA Glossary","url":"https://www.arm.com/glossary/isa","supports":["aarch64","arm32","arm32-thumb"]},{"id":"intel-avx10","name":"Intel AVX10.2 Architecture Specification and SDM collection","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html","supports":["x86-64","x86-32"]},{"id":"riscv-ratified","name":"RISC-V Ratified Specifications Library (current unprivileged and privileged)","url":"https://docs.riscv.org/reference/isa/","supports":["riscv32","riscv64"]}],"instructions":[["riscv64","ADD","rrr",["register","register","register"],"ADD x1,x2,x3",32,"00000000001100010000000010110011","11111110000000000111000001111111"],["riscv64","SUB","rrr",["register","register","register"],"SUB x1,x2,x3",32,"01000000001100010000000010110011","11111110000000000111000001111111"],["riscv64","AND","rrr",["register","register","register"],"AND x1,x2,x3",32,"00000000001100010111000010110011","11111110000000000111000001111111"],["riscv64","OR","rrr",["register","register","register"],"OR x1,x2,x3",32,"00000000001100010110000010110011","11111110000000000111000001111111"],["riscv64","XOR","rrr",["register","register","register"],"XOR x1,x2,x3",32,"00000000001100010100000010110011","11111110000000000111000001111111"],["riscv64","SLL","rrr",["register","register","register"],"SLL x1,x2,x3",32,"00000000001100010001000010110011","11111110000000000111000001111111"],["riscv64","SRL","rrr",["register","register","register"],"SRL x1,x2,x3",32,"00000000001100010101000010110011","11111110000000000111000001111111"],["riscv64","SRA","rrr",["register","register","register"],"SRA x1,x2,x3",32,"01000000001100010101000010110011","11111110000000000111000001111111"],["riscv64","SLT","rrr",["register","register","register"],"SLT x1,x2,x3",32,"00000000001100010010000010110011","11111110000000000111000001111111"],["riscv64","SLTU","rrr",["register","register","register"],"SLTU x1,x2,x3",32,"00000000001100010011000010110011","11111110000000000111000001111111"],["riscv64","ADDI","ri",["register","register","immediate"],"ADDI x1,x2,5",32,"00000000010100010000000010010011","00000000000000000111000001111111"],["riscv64","LUI","u",["register","immediate"],"LUI x1,0x1",32,"00000000000000000001000010110111","00000000000000000000000001111111"],["riscv64","AUIPC","u",["register","immediate"],"AUIPC x1,0x1",32,"00000000000000000001000010010111","00000000000000000000000001111111"],["riscv64","LW","load",["register","memory"],"LW x1,8(x2)",32,"00000000100000010010000010000011","00000000000000000111000001111111"],["riscv64","SW","store",["register","memory"],"SW x3,8(x2)",32,"00000000001100010010010000100011","00000000000000000111000001111111"],["riscv64","JAL","jal",["register","branch-offset"],"JAL x1,8",32,"00000000100000000000000011101111","00000000000000000000000001111111"],["riscv64","JALR","jalr",["register","memory"],"JALR x1,0(x2)",32,"00000000000000010000000011100111","00000000000000000111000001111111"],["riscv64","BEQ","branch",["register","register","branch-offset"],"BEQ x1,x2,8",32,"00000000001000001000010001100011","00000000000000000111000001111111"],["riscv64","FENCE","fence",["memory"],"FENCE",32,"00000000000000000000000000001111","00000000000000000111000001111111"],["riscv64","ECALL","system",["implicit"],"ECALL",32,"00000000000000000000000001110011","11111111111111111111111111111111"],["riscv64","EBREAK","system",["implicit"],"EBREAK",32,"00000000000100000000000001110011","11111111111111111111111111111111"],["aarch64","ADD","rrr",["register","register","register"],"ADD X0,X1,X2",32,"10001011000000100000000000100000","11111111111000001111110000000000"],["aarch64","SUB","rrr",["register","register","register"],"SUB X0,X1,X2",32,"11001011000000100000000000100000","11111111111000001111110000000000"],["aarch64","AND","rrr",["register","register","register"],"AND X0,X1,X2",32,"10001010000000100000000000100000","11111111111000001111110000000000"],["aarch64","ORR","rrr",["register","register","register"],"ORR X0,X1,X2",32,"10101010000000100000000000100000","11111111111000001111110000000000"],["aarch64","EOR","rrr",["register","register","register"],"EOR X0,X1,X2",32,"11001010000000100000000000100000","11111111111000001111110000000000"],["aarch64","ADD","imm",["register","register","immediate"],"ADD X0,X1,#1",32,"10010001000000000000010000100000","11111111000000000000000000000000"],["aarch64","SUB","imm",["register","register","immediate"],"SUB X0,X1,#1",32,"11010001000000000000010000100000","11111111000000000000000000000000"],["aarch64","LDR","unsigned",["register","memory"],"LDR X0,[X1,#0]",32,"11111001010000000000000000100000","11111111110000000000000000000000"],["aarch64","STR","unsigned",["register","memory"],"STR X0,[X1,#0]",32,"11111001000000000000000000100000","11111111110000000000000000000000"],["aarch64","B","imm",["branch-offset"],"B 0",32,"00010100000000000000000000000000","11111100000000000000000000000000"],["aarch64","BL","imm",["branch-offset"],"BL 0",32,"10010100000000000000000000000000","11111100000000000000000000000000"],["aarch64","BR","reg",["register"],"BR X0",32,"11010110000111110000000000000000","11111111111111111111110000011111"],["aarch64","BLR","reg",["register"],"BLR X0",32,"11010110001111110000000000000000","11111111111111111111110000011111"],["aarch64","RET","reg",["register"],"RET X30",32,"11010110010111110000001111000000","11111111111111111111110000011111"],["aarch64","SVC","imm",["immediate"],"SVC #0",32,"11010100000000000000000000000001","11111111111000000000000000011111"],["aarch64","NOP","none",["implicit"],"NOP",32,"11010101000000110010000000011111","11111111111111111111111111111111"],["arm32","MOV","reg",["register","register"],"MOV r0,r1",32,"11100001101000000000000000000001","00001111111000001111111111110000"],["arm32","ADD","rrr",["register","register","register"],"ADD r0,r1,r2",32,"11100000100000010000000000000010","00001111111000001111111111110000"],["arm32","SUB","rrr",["register","register","register"],"SUB r0,r1,r2",32,"11100000010000010000000000000010","00001111111000001111111111110000"],["arm32","AND","rrr",["register","register","register"],"AND r0,r1,r2",32,"11100000000000010000000000000010","00001111111000001111111111110000"],["arm32","ORR","rrr",["register","register","register"],"ORR r0,r1,r2",32,"11100001100000010000000000000010","00001111111000001111111111110000"],["arm32","LDR","imm",["register","memory"],"LDR r0,[r1,#0]",32,"11100101100100010000000000000000","00001111111111110000000000000000"],["arm32","STR","imm",["register","memory"],"STR r0,[r1,#0]",32,"11100101100000010000000000000000","00001111111111110000000000000000"],["arm32","B","imm",["branch-offset"],"B 0",32,"11101010000000000000000000000000","00001111000000000000000000000000"],["arm32","BL","imm",["branch-offset"],"BL 0",32,"11101011000000000000000000000000","00001111000000000000000000000000"],["arm32","BX","reg",["register"],"BX lr",32,"11100001001011111111111100011110","00001111111111111111111111110000"],["mips32","ADD","rrr",["register","register","register"],"ADD $t0,$t1,$t2",32,"00000001001010100100000000100000","11111100000000000000011111111111"],["mips32","SUB","rrr",["register","register","register"],"SUB $t0,$t1,$t2",32,"00000001001010100100000000100010","11111100000000000000011111111111"],["mips32","AND","rrr",["register","register","register"],"AND $t0,$t1,$t2",32,"00000001001010100100000000100100","11111100000000000000011111111111"],["mips32","OR","rrr",["register","register","register"],"OR $t0,$t1,$t2",32,"00000001001010100100000000100101","11111100000000000000011111111111"],["mips32","XOR","rrr",["register","register","register"],"XOR $t0,$t1,$t2",32,"00000001001010100100000000100110","11111100000000000000011111111111"],["mips32","SLT","rrr",["register","register","register"],"SLT $t0,$t1,$t2",32,"00000001001010100100000000101010","11111100000000000000011111111111"],["mips32","ADDI","ri",["register","register","immediate"],"ADDI $t0,$t1,1",32,"00100001001010000000000000000001","11111100000000000000000000000000"],["mips32","LW","mem",["register","memory"],"LW $t0,0($t1)",32,"10001101001010000000000000000000","11111100000000000000000000000000"],["mips32","SW","mem",["register","memory"],"SW $t0,0($t1)",32,"10101101001010000000000000000000","11111100000000000000000000000000"],["mips32","BEQ","branch",["register","register","branch-offset"],"BEQ $t0,$t1,1",32,"00010001000010010000000000000001","11111100000000000000000000000000"],["mips32","J","jump",["branch-offset"],"J 0",32,"00001000000000000000000000000000","11111100000000000000000000000000"],["mips32","JAL","jump",["branch-offset"],"JAL 0",32,"00001100000000000000000000000000","11111100000000000000000000000000"],["mips32","JR","reg",["register"],"JR $ra",32,"00000011111000000000000000001000","11111100000111111111111111111111"],["powerpc","ADD","rrr",["register","register","register"],"add r3,r4,r5",32,"01111100011001000010101000010100","11111100000000000000011111111110"],["powerpc","SUBF","rrr",["register","register","register"],"subf r3,r4,r5",32,"01111100011001000010100001010000","11111100000000000000011111111110"],["powerpc","OR","rrr",["register","register","register"],"or r3,r4,r5",32,"01111100011001000010101101111000","11111100000000000000011111111110"],["powerpc","XOR","rrr",["register","register","register"],"xor r3,r4,r5",32,"01111100011001000010001001111000","11111100000000000000011111111110"],["powerpc","ADDI","ri",["register","register","immediate"],"addi r3,r4,1",32,"00111000100000110000000000000001","11111100000000000000000000000000"],["powerpc","LWZ","mem",["register","memory"],"lwz r3,0(r4)",32,"10000000011001000000000000000000","11111100000000000000000000000000"],["powerpc","STW","mem",["register","memory"],"stw r3,0(r4)",32,"10010000011001000000000000000000","11111100000000000000000000000000"],["powerpc","B","imm",["branch-offset"],"b 0",32,"01001000000000000000000000000000","11111100000000000000000000000011"],["powerpc","BL","imm",["branch-offset"],"bl 0",32,"01001000000000000000000000000001","11111100000000000000000000000011"],["powerpc","BLR","none",["implicit"],"blr",32,"01001110100000000000000000100000","11111111111111111111111111111111"],["powerpc","NOP","none",["implicit"],"nop",32,"01100000000000000000000000000000","11111111111111111111111111111111"],["m68k","NOP","none",["implicit"],"NOP",16,"0100111001110001","1111111111111111"],["m68k","RTS","none",["implicit"],"RTS",16,"0100111001110101","1111111111111111"],["m68k","MOVEQ","imm",["immediate","register"],"MOVEQ #0,D0",16,"0111000000000000","1111000100000000"],["m68k","ADDQ","imm",["immediate","register"],"ADDQ #1,D0",16,"0101001000000000","1111000111000000"],["m68k","SUBQ","imm",["immediate","register"],"SUBQ #1,D0",16,"0101001100000000","1111000111000000"],["m68k","BRA","disp",["branch-offset"],"BRA 0",16,"0110000000000000","1111111100000000"],["m68k","BSR","disp",["branch-offset"],"BSR 0",16,"0110000100000000","1111111100000000"],["m68k","JMP","indirect",["memory"],"JMP (A0)",16,"0100111011010000","1111111111111000"],["m68k","JSR","indirect",["memory"],"JSR (A0)",16,"0100111010010000","1111111111111000"],["avr","NOP","none",["implicit"],"NOP",16,"0000000000000000","1111111111111111"],["avr","ADD","rr",["register","register"],"ADD r16,r17",16,"0000111100000001","1111110000000000"],["avr","SUB","rr",["register","register"],"SUB r16,r17",16,"0001100000000001","1111110000000000"],["avr","AND","rr",["register","register"],"AND r16,r17",16,"0010001100000001","1111110000000000"],["avr","EOR","rr",["register","register"],"EOR r16,r17",16,"0010010000000001","1111110000000000"],["avr","OR","rr",["register","register"],"OR r16,r17",16,"0010011000000001","1111110000000000"],["avr","RJMP","rel",["branch-offset"],"RJMP 0",16,"1100000000000000","1111000000000000"],["avr","RET","none",["implicit"],"RET",16,"1001010100001000","1111111111111111"],["avr","CALL","abs",["branch-offset"],"CALL 0",32,"10010100000011100000000000000000","11111110000011100000000000000000"],["z80","NOP","none",["implicit"],"NOP",8,"00000000","11111111"],["z80","LD","imm8",["register","immediate"],"LD A,0",8,"00111110","11111111"],["z80","LD","abs_store",["memory","register"],"LD (0),A",8,"00110010","11111111"],["z80","LD","abs_load",["register","memory"],"LD A,(0)",8,"00111010","11111111"],["z80","ADD","imm8",["register","immediate"],"ADD A,0",16,"1100011000000000","1111111100000000"],["z80","SUB","imm8",["register","immediate"],"SUB 0",16,"1101011000000000","1111111100000000"],["z80","XOR","a",["register"],"XOR A",8,"10101111","11111111"],["z80","JP","abs",["branch-offset"],"JP 0",8,"11000011","11111111"],["z80","CALL","abs",["branch-offset"],"CALL 0",8,"11001101","11111111"],["z80","RET","none",["implicit"],"RET",8,"11001001","11111111"],["6502","NOP","none",["implicit"],"NOP",8,"11101010","11111111"],["6502","LDA","imm",["register","immediate"],"LDA #0",8,"10101001","11111111"],["6502","STA","abs",["memory","register"],"STA $0000",8,"10001101","11111111"],["6502","ADC","imm",["register","immediate"],"ADC #0",8,"01101001","11111111"],["6502","SBC","imm",["register","immediate"],"SBC #0",8,"11101001","11111111"],["6502","BEQ","rel",["branch-offset","condition"],"BEQ 0",8,"11110000","11111111"],["6502","BNE","rel",["branch-offset","condition"],"BNE 0",8,"11010000","11111111"],["6502","JSR","abs",["branch-offset"],"JSR $0000",8,"00100000","11111111"],["6502","JMP","abs",["branch-offset"],"JMP $0000",8,"01001100","11111111"],["6502","RTS","none",["implicit"],"RTS",8,"01100000","11111111"],["6502","TAX","none",["register"],"TAX",8,"10101010","11111111"],["6502","INX","none",["register"],"INX",8,"11101000","11111111"],["8051","NOP","none",["implicit"],"NOP",8,"00000000","11111111"],["8051","MOV","imm",["register","immediate"],"MOV A,#0",8,"01110100","11111111"],["8051","MOV","direct",["memory","register"],"MOV direct,A",8,"11110101","11111111"],["8051","ADD","imm",["register","immediate"],"ADD A,#0",8,"00100100","11111111"],["8051","SUBB","imm",["register","immediate"],"SUBB A,#0",8,"10010100","11111111"],["8051","INC","a",["register"],"INC A",8,"00000100","11111111"],["8051","LJMP","abs",["branch-offset"],"LJMP 0",8,"00000010","11111111"],["8051","SJMP","rel",["branch-offset"],"SJMP 0",8,"10000000","11111111"],["8051","DJNZ","rel",["memory","branch-offset"],"DJNZ direct,rel",8,"11010101","11111111"],["s390x","AR","rr",["register","register"],"AR R1,R2",16,"0010011000010010","1111111111111111"],["s390x","A","rxy",["register","memory"],"A R1,D2(X2,B2)",32,"01011010000100000000000000000000","11111111000000000000000000000000"],["s390x","AG","rxy",["register","memory"],"AG R1,D2(X2,B2)",48,"111000110001000000000000000000000000000000001000","111111110000000000000000000000000000000000000000"],["s390x","BAL","rx",["register","memory"],"BAL R1,D2(X2,B2)",32,"01000101000100000000000000000000","11111111000000000000000000000000"],["x86-64","NOP","fixed",["implicit"],"NOP",8,"10010000","11111111"],["x86-64","RET","fixed",["implicit"],"RET",8,"11000011","11111111"],["x86-64","ADD","rm64_r64",["memory","register"],"ADD r/m64,r64",24,"010010000000000100000000","111111111111111100000000"],["x86-64","SUB","rm64_r64",["memory","register"],"SUB r/m64,r64",24,"010010000010100100000000","111111111111111100000000"],["x86-64","XOR","rm64_r64",["memory","register"],"XOR r/m64,r64",24,"010010000011000100000000","111111111111111100000000"],["x86-64","AND","rm64_r64",["memory","register"],"AND r/m64,r64",24,"010010000010000100000000","111111111111111100000000"],["x86-64","OR","rm64_r64",["memory","register"],"OR r/m64,r64",24,"010010000000100100000000","111111111111111100000000"],["x86-64","MOV","rm64_r64",["memory","register"],"MOV r/m64,r64",24,"010010001000100100000000","111111111111111100000000"],["x86-64","MOV","r64_rm64",["memory","register"],"MOV r64,r/m64",24,"010010001000101100000000","111111111111111100000000"],["x86-64","JMP","rel32",["branch-offset"],"JMP rel32",40,"1110100100000000000000000000000000000000","1111111100000000000000000000000000000000"],["x86-64","CALL","rel32",["branch-offset"],"CALL rel32",40,"1110100000000000000000000000000000000000","1111111100000000000000000000000000000000"],["x86-64","PUSH","r64",["register"],"PUSH r64",8,"01010000","11111000"],["x86-64","POP","r64",["register"],"POP r64",8,"01011000","11111000"],["chimera-c8192","ADD","rr",["register","register"],"ADD Z0,Z1",16,"0001000000000000","1111000000000000"],["chimera-c8192","MUL","rr",["register","register"],"MUL Z0,Z1",16,"0010000000000000","1111000000000000"],["chimera-c8192","TCONTRACT","rrr",["register","register","register"],"TCONTRACT Z0,Z1,Z2",16,"0011000000000000","1111000000000000"],["chimera-c8192","MODEXP","rrr",["register","register","register"],"MODEXP Z0,Z1,Z2",16,"0100000000000000","1111000000000000"],["chimera-c8192","NETSEND","rp",["register","mask"],"NETSEND Z0,P0",16,"0101000000000000","1111000000000000"],["riscv64","SLTI","ri",["register","register","immediate"],"SLTI x1,x2,1",32,"00000000000100010010000010010011","00000000000000000111000001111111"],["riscv64","XORI","ri",["register","register","immediate"],"XORI x1,x2,1",32,"00000000000100010100000010010011","00000000000000000111000001111111"],["riscv64","ORI","ri",["register","register","immediate"],"ORI x1,x2,1",32,"00000000000100010110000010010011","00000000000000000111000001111111"],["riscv64","ANDI","ri",["register","register","immediate"],"ANDI x1,x2,1",32,"00000000000100010111000010010011","00000000000000000111000001111111"],["riscv64","SB","store",["register","memory"],"SB x3,8(x2)",32,"00000000001100010000010000100011","00000000000000000111000001111111"],["riscv64","SH","store",["register","memory"],"SH x3,8(x2)",32,"00000000001100010001010000100011","00000000000000000111000001111111"],["riscv64","LH","load",["register","memory"],"LH x1,8(x2)",32,"00000000100000010001000010000011","00000000000000000111000001111111"],["riscv64","LBU","load",["register","memory"],"LBU x1,8(x2)",32,"00000000100000010100000010000011","00000000000000000111000001111111"],["riscv64","MRET","system",["implicit"],"MRET",32,"00110000001000000000000001110011","11111111111111111111111111111111"],["arm32-thumb","NOP","thumb16",["implicit"],"NOP",16,"1011111100000000","1111111111111111"],["arm32-thumb","MOVS","thumb16-imm8",["register","immediate"],"MOVS r0,#0",16,"0010000000000000","1111100000000000"],["arm32-thumb","BX","thumb16-reg",["register"],"BX r14",16,"0100011101110000","1111111110000111"]],"research_update":{"reviewed_on":"2026-10-08","method":"Official vendor and standards documentation reviewed for architecture scope, instruction reference organization, and extension/version status. Curated reference supplement; not exhaustive.","source_findings":[{"source":"intel-sdm","finding":"Intel SDM separates basic architecture, the full A–Z instruction reference, system programming (memory management, protection, interrupts/exceptions, multiprocessor, VMX/VT, SGX), and model-specific registers. Track extension and processor feature availability separately."},{"source":"arm-isa-glossary","finding":"An ISA specifies programmer-visible instructions, formats, registers, data types, memory model, privilege, and exceptions; distinguish ISA from microarchitecture."},{"source":"arm","finding":"Track AArch64/A64 separately from AArch32 A32 and T32 (Thumb/Thumb-2); A64 is fixed 32-bit while T32 uses 16- and 32-bit encodings. Feature availability depends on architecture profile/version and implemented extensions."},{"source":"riscv","finding":"RISC-V is modular: record base ISA, extensions, privileged architecture, and ratification status independently. Compressed C instructions use 16-bit encodings; base instructions commonly use 32 bits. The ratified library contains extensions beyond M/A/F/D/C/V."},{"source":"openpower","finding":"Power ISA 3.1c defines user, virtual-environment, and operating-environment architecture in separate books; distinguish ISA instructions from platform requirements."}],"architecture_profiles":[{"id":"arm-aarch64-a64","architecture":"aarch64","profile":"A-profile","execution_state":"AArch64","instruction_set":"A64","instruction_length_bits":[32],"register_model":"64-bit general-purpose X0-X30 plus SP/PC and architectural SIMD/FP registers","features_to_track":["base integer","load/store","branch/control flow","SIMD/FP Advanced SIMD","atomics/ordering","system registers/exceptions","virtualization","cryptography","SVE/SVE2","SME","pointer authentication","memory tagging"],"support_status":"catalog-partial","note":"Feature list is taxonomy, not a claim each extension is implemented or present on every CPU."},{"id":"arm-aarch32-a32","architecture":"arm32","profile":"A/R profile where applicable","execution_state":"AArch32","instruction_set":"A32/ARM","instruction_length_bits":[32],"register_model":"32-bit R0-R15 plus status/system state and profile-specific FP/SIMD registers","features_to_track":["conditional execution","integer/data processing","load/store","branch/exchange","coprocessor and system instructions","VFP/Advanced SIMD where supported"],"support_status":"catalog-partial","note":"Availability varies by architecture version and profile."},{"id":"arm-aarch32-t32","architecture":"arm32-thumb","profile":"A/R/M profile availability varies by version","execution_state":"AArch32","instruction_set":"T32/Thumb-2","instruction_length_bits":[16,32],"register_model":"AArch32 registers with Thumb encoding and execution-state rules","features_to_track":["16-bit Thumb encodings","32-bit Thumb-2 encodings","IT/conditional execution where supported","branch/exchange","load/store","system instructions by profile"],"support_status":"catalog-partial","note":"Decode length is encoding-dependent; Thumb is not uniformly 32-bit."},{"id":"riscv-modular","architecture":"riscv64","profile":"unprivileged and privileged specifications","instruction_set":"RV32I/RV64I plus separately versioned extensions","instruction_length_bits":[16,32,48,64,80],"support_status":"inventory-only","features_to_track":["I/E base","M","A","F","D","Q","C","B","V","Zicsr","Zifencei","counters","cryptography","cache-management","hypervisor","machine/supervisor privilege","Sv* virtual memory extensions"],"note":"Encoding-length classes are not a claim that the current Chimera decoder supports these lengths or extensions; use the selected specification release for status."},{"id":"intel-x86-extensions","architecture":"x86-64","profile":"Intel 64 and IA-32","instruction_set":"x86 variable-length encodings","support_status":"inventory-only","features_to_track":["legacy integer/x87","SSE family","AVX/AVX2","AVX-512","AVX10.1/10.2","AES and SHA extensions","BMI","FMA","virtualization VMX","SGX","CET","AMX"],"note":"Mnemonic catalog does not imply CPU support; gate by CPUID, execution mode, OS state, and processor generation."}]}}
+{
+  "$schema": "CHM-ISA-DB-4",
+  "version": "2026.10.09",
+  "title": "Chimera II OS Universal ISA Database",
+  "architecture_row": [
+    "id",
+    "class",
+    "family",
+    "word_bits",
+    "status",
+    "encoding_model",
+    "source_ref",
+    "instruction_forms"
+  ],
+  "instruction_row": [
+    "architecture",
+    "mnemonic",
+    "form_id",
+    "operands",
+    "syntax",
+    "length_bits",
+    "value_bits",
+    "mask_bits"
+  ],
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs.",
+  "architectures": [
+    [
+      "chimera-c8192",
+      "custom",
+      "Chimera",
+      8192,
+      "project-defined",
+      "16-bit research opcode selector plus operand subfields",
+      "chimera",
+      5
+    ],
+    [
+      "chimera-r8192",
+      "custom",
+      "Chimera",
+      8192,
+      "project-defined",
+      "16-bit research opcode selector plus operand subfields",
+      "chimera",
+      0
+    ],
+    [
+      "x86-64",
+      "CISC",
+      "x86",
+      64,
+      "standard",
+      "variable-length prefixes/opcode/ModR-M/SIB/displacement/immediate",
+      "intel-sdm",
+      12
+    ],
+    [
+      "x86-32",
+      "CISC",
+      "x86",
+      32,
+      "standard",
+      "variable-length x86 encoding",
+      "intel-sdm",
+      0
+    ],
+    [
+      "aarch64",
+      "RISC",
+      "AArch64",
+      64,
+      "standard",
+      "fixed 32-bit fielded instructions",
+      "arm",
+      16
+    ],
+    [
+      "arm32",
+      "RISC",
+      "A32/T32",
+      32,
+      "standard",
+      "32-bit A32 plus 16/32-bit Thumb",
+      "arm",
+      10
+    ],
+    [
+      "riscv32",
+      "RISC",
+      "RISC-V",
+      32,
+      "standard",
+      "16/32-bit base plus extensions",
+      "riscv",
+      0
+    ],
+    [
+      "riscv64",
+      "RISC",
+      "RISC-V",
+      64,
+      "standard",
+      "16/32-bit base plus extensions",
+      "riscv",
+      21
+    ],
+    [
+      "mips32",
+      "RISC",
+      "MIPS",
+      32,
+      "standard",
+      "fixed 32-bit R/I/J",
+      "mips",
+      13
+    ],
+    [
+      "mips64",
+      "RISC",
+      "MIPS",
+      64,
+      "standard",
+      "fixed 32-bit R/I/J",
+      "mips",
+      0
+    ],
+    [
+      "powerpc",
+      "RISC",
+      "Power ISA",
+      32,
+      "standard",
+      "fixed 32-bit forms",
+      "openpower",
+      11
+    ],
+    [
+      "ppc64",
+      "RISC",
+      "Power ISA",
+      64,
+      "standard",
+      "32-bit forms plus prefixed extensions",
+      "openpower",
+      0
+    ],
+    [
+      "sparc-v9",
+      "RISC",
+      "SPARC",
+      64,
+      "standard",
+      "fixed 32-bit forms",
+      "sparc",
+      0
+    ],
+    [
+      "m68k",
+      "CISC",
+      "Motorola 68000",
+      32,
+      "legacy/standard",
+      "variable 16-bit-word encoding",
+      "chimera",
+      9
+    ],
+    [
+      "s390x",
+      "CISC",
+      "IBM z/Architecture",
+      64,
+      "standard",
+      "2/4/6-byte formats",
+      "ibm-z",
+      4
+    ],
+    [
+      "vax",
+      "CISC",
+      "VAX",
+      32,
+      "legacy",
+      "variable byte-oriented encoding",
+      "chimera",
+      0
+    ],
+    [
+      "sh4",
+      "RISC",
+      "SuperH",
+      32,
+      "legacy/standard",
+      "fixed 16-bit",
+      "chimera",
+      0
+    ],
+    [
+      "loongarch64",
+      "RISC",
+      "LoongArch",
+      64,
+      "standard",
+      "fixed 32-bit",
+      "loongarch",
+      0
+    ],
+    [
+      "alpha",
+      "RISC",
+      "DEC Alpha",
+      64,
+      "legacy",
+      "fixed 32-bit",
+      "chimera",
+      0
+    ],
+    [
+      "hppa",
+      "RISC",
+      "PA-RISC",
+      64,
+      "legacy/standard",
+      "fixed 32-bit",
+      "chimera",
+      0
+    ],
+    [
+      "xtensa",
+      "RISC",
+      "Xtensa",
+      32,
+      "configurable",
+      "16/24/32-bit configurable",
+      "chimera",
+      0
+    ],
+    [
+      "avr",
+      "RISC",
+      "AVR",
+      8,
+      "standard",
+      "16/32-bit",
+      "microchip-avr",
+      9
+    ],
+    [
+      "8051",
+      "CISC",
+      "MCS-51",
+      8,
+      "legacy/standard",
+      "1/2/3-byte",
+      "chimera",
+      9
+    ],
+    [
+      "z80",
+      "CISC",
+      "Z80",
+      8,
+      "legacy",
+      "prefix plus 1/2/3-byte",
+      "zilog",
+      10
+    ],
+    [
+      "6502",
+      "CISC",
+      "MOS 6502",
+      8,
+      "legacy",
+      "1/2/3-byte",
+      "chimera",
+      12
+    ],
+    [
+      "ia64",
+      "EPIC",
+      "Itanium",
+      64,
+      "legacy",
+      "128-bit bundles",
+      "chimera",
+      0
+    ],
+    [
+      "amd-gcn",
+      "GPU",
+      "AMD GCN/RDNA/CDNA",
+      32,
+      "catalog-only",
+      "32/64-bit GPU instruction encodings with generation-specific variants",
+      "amd-gpu",
+      0
+    ],
+    [
+      "msp430",
+      "RISC",
+      "TI MSP430",
+      16,
+      "catalog-only",
+      "16-bit instruction words with extension-word forms",
+      "ti-msp430",
+      0
+    ],
+    [
+      "pic24-dspic",
+      "RISC",
+      "Microchip PIC24/dsPIC",
+      24,
+      "catalog-only",
+      "24-bit instruction words with multiword variants",
+      "microchip-pic24",
+      0
+    ],
+    [
+      "c6000",
+      "VLIW",
+      "TI C6000 DSP",
+      32,
+      "catalog-only",
+      "32-bit instruction slots and packetized VLIW execution",
+      "ti-c6000",
+      0
+    ],
+    [
+      "arm32-thumb",
+      "RISC",
+      "AArch32/T32",
+      32,
+      "standard",
+      "Thumb/T32 mixed 16/32-bit instruction encodings",
+      "arm",
+      3
+    ],
+    [
+      "x86-16",
+      "CISC",
+      "x86 real mode",
+      16,
+      "catalog-only",
+      "variable-length prefixes/opcodes/ModR-M/immediates",
+      "intel-sdm",
+      0
+    ],
+    [
+      "i8080",
+      "CISC",
+      "Intel 8080/8085",
+      8,
+      "catalog-only",
+      "1-3 byte instruction encodings",
+      "intel-8080",
+      0
+    ],
+    [
+      "pdp11",
+      "CISC",
+      "DEC PDP-11",
+      16,
+      "catalog-only",
+      "variable-length operands and addressing modes",
+      "pdp11",
+      0
+    ],
+    [
+      "motorola-6809",
+      "CISC",
+      "Motorola 6809",
+      8,
+      "catalog-only",
+      "1-5 byte prefixed instruction forms",
+      "motorola-6809",
+      0
+    ],
+    [
+      "m68000",
+      "CISC",
+      "Motorola 68000 family",
+      32,
+      "catalog-only",
+      "variable-length word-oriented encodings",
+      "motorola-68000",
+      0
+    ],
+    [
+      "m68k-coldfire",
+      "CISC",
+      "Motorola ColdFire",
+      32,
+      "catalog-only",
+      "variable-length 68k-derived encodings with subset differences",
+      "motorola-68000",
+      0
+    ],
+    [
+      "mos6502",
+      "CISC",
+      "MOS 6502 family",
+      8,
+      "catalog-only",
+      "1-3 byte opcodes and addressing modes",
+      "mos-6502",
+      0
+    ],
+    [
+      "wdc65c816",
+      "CISC",
+      "WDC 65C816",
+      16,
+      "catalog-only",
+      "8/16-bit accumulator modes and variable operand widths",
+      "wdc-65c816",
+      0
+    ],
+    [
+      "mcs51",
+      "CISC",
+      "Intel MCS-51 / 8051",
+      8,
+      "catalog-only",
+      "1-3 byte instruction forms",
+      "intel-8051",
+      0
+    ],
+    [
+      "m680x",
+      "CISC",
+      "Motorola 6800/6801/6803",
+      8,
+      "catalog-only",
+      "variable 1-5 byte instruction forms",
+      "motorola-6800",
+      0
+    ],
+    [
+      "ibm-s360",
+      "CISC",
+      "IBM System/360",
+      32,
+      "catalog-only",
+      "2/4/6-byte instruction formats",
+      "ibm-architecture",
+      0
+    ],
+    [
+      "ibm-z",
+      "CISC",
+      "IBM z/Architecture",
+      64,
+      "catalog-only",
+      "2/4/6-byte instruction formats and extensions",
+      "ibm-z",
+      0
+    ],
+    [
+      "e2k",
+      "VLIW",
+      "Elbrus E2K",
+      64,
+      "catalog-only",
+      "VLIW bundles and predicated operations",
+      "elbrus-e2k",
+      0
+    ],
+    [
+      "armv7-risc",
+      "RISC",
+      "ARMv7-A/R",
+      32,
+      "catalog-only",
+      "A32 32-bit and T32 16/32-bit encodings",
+      "arm",
+      0
+    ],
+    [
+      "armv7-m",
+      "RISC",
+      "ARMv7-M",
+      32,
+      "catalog-only",
+      "Thumb-2 mixed-width encodings and system instructions",
+      "arm",
+      0
+    ],
+    [
+      "armv8-a32",
+      "RISC",
+      "ARMv8-A AArch32",
+      32,
+      "catalog-only",
+      "A32/T32 encodings with architecture-version extensions",
+      "arm",
+      0
+    ],
+    [
+      "armv9-a64",
+      "RISC",
+      "Armv9-A AArch64",
+      64,
+      "catalog-only",
+      "fixed 32-bit encodings with architecture extensions",
+      "arm",
+      0
+    ],
+    [
+      "riscv32e",
+      "RISC",
+      "RISC-V RV32E",
+      32,
+      "catalog-only",
+      "RV32 base with embedded register subset and optional extensions",
+      "riscv",
+      0
+    ],
+    [
+      "riscv64e",
+      "RISC",
+      "RISC-V RV64E",
+      64,
+      "catalog-only",
+      "RV64 embedded register subset where specified",
+      "riscv",
+      0
+    ],
+    [
+      "riscv128",
+      "RISC",
+      "RISC-V RV128I proposal",
+      128,
+      "catalog-only",
+      "specification/proposal-dependent; not general deployed baseline",
+      "riscv",
+      0
+    ],
+    [
+      "openrisc",
+      "RISC",
+      "OpenRISC 1000",
+      32,
+      "catalog-only",
+      "fixed-width 32-bit instruction formats",
+      "openrisc",
+      0
+    ],
+    [
+      "or1k",
+      "RISC",
+      "OpenRISC ORBIS",
+      32,
+      "catalog-only",
+      "fixed-width 32-bit instruction formats",
+      "openrisc",
+      0
+    ],
+    [
+      "arc-compact",
+      "RISC",
+      "Synopsys ARC",
+      32,
+      "catalog-only",
+      "configurable compact and extension encodings",
+      "synopsys-arc",
+      0
+    ],
+    [
+      "andes-nds32",
+      "RISC",
+      "Andes NDS32",
+      32,
+      "catalog-only",
+      "fixed and optional compressed forms by generation",
+      "andes-nds32",
+      0
+    ],
+    [
+      "xtensa-lx",
+      "RISC",
+      "Tensilica Xtensa LX",
+      32,
+      "catalog-only",
+      "configurable 16/24-bit and optional extension instructions",
+      "xtensa",
+      0
+    ],
+    [
+      "nios2",
+      "RISC",
+      "Intel/Altera Nios II",
+      32,
+      "catalog-only",
+      "fixed 32-bit instruction formats",
+      "intel-nios2",
+      0
+    ],
+    [
+      "microblaze",
+      "RISC",
+      "AMD/Xilinx MicroBlaze",
+      32,
+      "catalog-only",
+      "fixed 32-bit instruction formats and optional extensions",
+      "amd-microblaze",
+      0
+    ],
+    [
+      "blackfin",
+      "RISC",
+      "Analog Devices Blackfin",
+      32,
+      "catalog-only",
+      "16/32-bit instruction words with DSP operations",
+      "analog-devices-blackfin",
+      0
+    ],
+    [
+      "tricore",
+      "RISC",
+      "Infineon TriCore",
+      32,
+      "catalog-only",
+      "16/32-bit instruction formats and DSP extensions",
+      "infineon-tricore",
+      0
+    ],
+    [
+      "superh-sh2",
+      "RISC",
+      "SuperH SH-2",
+      32,
+      "catalog-only",
+      "fixed 16-bit instruction encoding",
+      "renesas-superh",
+      0
+    ],
+    [
+      "superh-sh4a",
+      "RISC",
+      "SuperH SH-4A",
+      32,
+      "catalog-only",
+      "16-bit base with 32-bit instruction extensions",
+      "renesas-superh",
+      0
+    ],
+    [
+      "mips16",
+      "RISC",
+      "MIPS16",
+      32,
+      "catalog-only",
+      "compressed 16-bit instruction subset",
+      "mips",
+      0
+    ],
+    [
+      "microchip-pic16",
+      "RISC",
+      "Microchip PIC16",
+      14,
+      "catalog-only",
+      "14-bit instruction words; device-family-specific extensions",
+      "microchip-pic",
+      0
+    ],
+    [
+      "microchip-pic18",
+      "RISC",
+      "Microchip PIC18",
+      16,
+      "catalog-only",
+      "16-bit instruction words with multiword forms",
+      "microchip-pic",
+      0
+    ],
+    [
+      "microchip-pic24",
+      "RISC",
+      "Microchip PIC24",
+      24,
+      "catalog-only",
+      "24-bit instruction words and family-specific forms",
+      "microchip-pic24",
+      0
+    ],
+    [
+      "dspic33",
+      "RISC",
+      "Microchip dsPIC33",
+      24,
+      "catalog-only",
+      "24-bit instruction words with DSP-specific operations",
+      "microchip-pic24",
+      0
+    ],
+    [
+      "msp430x",
+      "RISC",
+      "TI MSP430X",
+      20,
+      "catalog-only",
+      "16-bit words with extended 20-bit addressing forms",
+      "ti-msp430",
+      0
+    ],
+    [
+      "renesas-rx",
+      "CISC",
+      "Renesas RX",
+      32,
+      "catalog-only",
+      "variable-length instruction encoding",
+      "renesas-rx",
+      0
+    ],
+    [
+      "renesas-v850",
+      "RISC",
+      "Renesas V850",
+      32,
+      "catalog-only",
+      "16/32-bit instruction forms",
+      "renesas-v850",
+      0
+    ],
+    [
+      "fr-v",
+      "RISC",
+      "Fujitsu FR-V",
+      32,
+      "catalog-only",
+      "VLIW/parallel instruction grouping by implementation",
+      "fujitsu-frv",
+      0
+    ],
+    [
+      "alpha-ev6",
+      "RISC",
+      "DEC Alpha EV6",
+      64,
+      "catalog-only",
+      "fixed 32-bit instruction format; implementation extensions",
+      "dec-alpha",
+      0
+    ],
+    [
+      "hppa-2",
+      "RISC",
+      "PA-RISC 2.0",
+      64,
+      "catalog-only",
+      "fixed-width instruction encodings",
+      "hp-parisc",
+      0
+    ],
+    [
+      "sparc-v8",
+      "RISC",
+      "SPARC V8",
+      32,
+      "catalog-only",
+      "fixed 32-bit instruction format",
+      "sparc",
+      0
+    ],
+    [
+      "power10",
+      "RISC",
+      "IBM POWER10 / Power ISA",
+      64,
+      "catalog-only",
+      "fixed-width and prefixed instruction forms",
+      "openpower",
+      0
+    ],
+    [
+      "mips64r6",
+      "RISC",
+      "MIPS64 Release 6",
+      64,
+      "catalog-only",
+      "fixed 32-bit forms with revision-specific encoding changes",
+      "mips",
+      0
+    ],
+    [
+      "loongarch32",
+      "RISC",
+      "LoongArch32",
+      32,
+      "catalog-only",
+      "fixed 32-bit instruction format",
+      "loongarch",
+      0
+    ],
+    [
+      "riscv64gc",
+      "RISC",
+      "RISC-V RV64GC profile",
+      64,
+      "catalog-only",
+      "RV64I plus G and C extension family",
+      "riscv",
+      0
+    ],
+    [
+      "wasm32",
+      "VM",
+      "WebAssembly 32-bit virtual ISA",
+      32,
+      "catalog-only",
+      "stack-machine bytecode; not a physical CPU ISA",
+      "webassembly",
+      0
+    ],
+    [
+      "wasm64",
+      "VM",
+      "WebAssembly 64-bit virtual ISA",
+      64,
+      "catalog-only",
+      "stack-machine bytecode; not a physical CPU ISA",
+      "webassembly",
+      0
+    ],
+    [
+      "ebpf",
+      "VM",
+      "Linux eBPF virtual ISA",
+      64,
+      "catalog-only",
+      "register-based bytecode; kernel verifier constraints apply",
+      "ebpf",
+      0
+    ],
+    [
+      "nvidia-ptx",
+      "GPU-VM",
+      "NVIDIA PTX virtual ISA",
+      32,
+      "catalog-only",
+      "GPU virtual ISA compiled to target-specific machine code",
+      "nvidia-ptx",
+      0
+    ],
+    [
+      "amd-gcn-rdna",
+      "GPU",
+      "AMD GCN/RDNA/CDNA families",
+      32,
+      "catalog-only",
+      "generation-specific GPU machine encodings",
+      "amd-gpu",
+      0
+    ],
+    [
+      "intel-xe-gpu",
+      "GPU",
+      "Intel Xe GPU ISA",
+      32,
+      "catalog-only",
+      "generation-specific GPU instruction encodings",
+      "intel-gpu",
+      0
+    ],
+    [
+      "arm-sme",
+      "RISC-extension",
+      "Arm Scalable Matrix Extension",
+      128,
+      "catalog-only",
+      "AArch64 extension; vector/matrix state and instructions",
+      "arm",
+      0
+    ],
+    [
+      "arm-sve",
+      "RISC-extension",
+      "Arm Scalable Vector Extension",
+      128,
+      "catalog-only",
+      "AArch64 scalable vector extension; vector length implementation-defined",
+      "arm",
+      0
+    ],
+    [
+      "riscv-vector",
+      "RISC-extension",
+      "RISC-V Vector Extension",
+      64,
+      "catalog-only",
+      "RVV vector extension with implementation-defined VLEN",
+      "riscv",
+      0
+    ]
+  ],
+  "sources": [
+    {
+      "id": "riscv",
+      "name": "RISC-V Ratified Specifications Library",
+      "url": "https://docs.riscv.org/reference/isa/",
+      "supports": [
+        "riscv32",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "arm",
+      "name": "Arm Architecture",
+      "url": "https://developer.arm.com/architectures",
+      "supports": [
+        "aarch64",
+        "arm32"
+      ]
+    },
+    {
+      "id": "intel-sdm",
+      "name": "Intel Software Developer Manuals",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "supports": [
+        "x86-64",
+        "x86-32"
+      ]
+    },
+    {
+      "id": "amd",
+      "name": "AMD64 Architecture Programmer's Manual",
+      "url": "https://www.amd.com/en/support/tech-docs",
+      "supports": [
+        "x86-64",
+        "x86-32"
+      ]
+    },
+    {
+      "id": "openpower",
+      "name": "OpenPOWER ISA",
+      "url": "https://openpowerfoundation.org/specifications/isa/",
+      "supports": [
+        "powerpc",
+        "ppc64"
+      ]
+    },
+    {
+      "id": "sparc",
+      "name": "Oracle SPARC V9 documentation",
+      "url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html",
+      "supports": [
+        "sparc-v9"
+      ]
+    },
+    {
+      "id": "ibm-z",
+      "name": "IBM z/Architecture documentation",
+      "url": "https://www.ibm.com/docs/en/zos",
+      "supports": [
+        "s390x"
+      ]
+    },
+    {
+      "id": "mips",
+      "name": "MIPS Architecture documentation",
+      "url": "https://www.mips.com/technical-documents/",
+      "supports": [
+        "mips32",
+        "mips64"
+      ]
+    },
+    {
+      "id": "microchip-avr",
+      "name": "Microchip AVR Instruction Set Manual",
+      "url": "https://onlinedocs.microchip.com/",
+      "supports": [
+        "avr"
+      ]
+    },
+    {
+      "id": "zilog",
+      "name": "Zilog Z80 documentation",
+      "url": "https://www.zilog.com/docs/z80/",
+      "supports": [
+        "z80"
+      ]
+    },
+    {
+      "id": "chimera",
+      "name": "Chimera II OS project ISA specification",
+      "url": "https://github.com/amerhwitat/ChimeraIIOS",
+      "supports": [
+        "chimera-c8192",
+        "chimera-r8192"
+      ]
+    },
+    {
+      "id": "loongarch",
+      "name": "LoongArch Reference Manual, Volume 1: Basic Architecture",
+      "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+      "supports": [
+        "loongarch64"
+      ]
+    },
+    {
+      "id": "amd-gpu",
+      "name": "AMD GPU architecture documentation (GCN, RDNA, CDNA)",
+      "url": "https://rocm.docs.amd.com/en/latest/reference/gpu-arch/index.html",
+      "supports": [
+        "amd-gcn"
+      ]
+    },
+    {
+      "id": "ti-msp430",
+      "name": "Texas Instruments MSP430 Assembly Language Tools User Guide",
+      "url": "https://downloads.ti.com/docs/esd/SLAU131R/Content/SLAU131R_HTML/abstract.html",
+      "supports": [
+        "msp430"
+      ]
+    },
+    {
+      "id": "microchip-pic24",
+      "name": "Microchip dsPIC33/PIC24 Family Reference Manual",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU16/ProductDocuments/ReferenceManuals/dsPIC33-PIC24-Family-Reference-Manual-Introduction-DS70000573.pdf",
+      "supports": [
+        "pic24-dspic"
+      ]
+    },
+    {
+      "id": "ti-c6000",
+      "name": "Texas Instruments C6000 Code Generation Tools documentation",
+      "url": "https://www.ti.com/tool/TI-CGT",
+      "supports": [
+        "c6000"
+      ]
+    },
+    {
+      "id": "arm-isa-glossary",
+      "name": "Arm ISA Glossary",
+      "url": "https://www.arm.com/glossary/isa",
+      "supports": [
+        "aarch64",
+        "arm32",
+        "arm32-thumb"
+      ]
+    },
+    {
+      "id": "intel-avx10",
+      "name": "Intel AVX10.2 Architecture Specification and SDM collection",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "supports": [
+        "x86-64",
+        "x86-32"
+      ]
+    },
+    {
+      "id": "riscv-ratified",
+      "name": "RISC-V Ratified Specifications Library (current unprivileged and privileged)",
+      "url": "https://docs.riscv.org/reference/isa/",
+      "supports": [
+        "riscv32",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "intel-8080",
+      "name": "Intel 8080/8085 documentation and MCS-80/85 assembly references",
+      "url": "https://www.intel.com/",
+      "supports": [
+        "i8080"
+      ]
+    },
+    {
+      "id": "pdp11",
+      "name": "DEC PDP-11 processor handbooks archive",
+      "url": "https://bitsavers.org/pdf/dec/pdp11/",
+      "supports": [
+        "pdp11"
+      ]
+    },
+    {
+      "id": "motorola-6809",
+      "name": "Motorola 6809 programming reference archive",
+      "url": "https://www.nxp.com/",
+      "supports": [
+        "motorola-6809"
+      ]
+    },
+    {
+      "id": "motorola-68000",
+      "name": "Motorola/Freescale 68000 family programmer references",
+      "url": "https://www.nxp.com/",
+      "supports": [
+        "m68000",
+        "m68k-coldfire"
+      ]
+    },
+    {
+      "id": "dec-vax",
+      "name": "DEC VAX Architecture Reference Manual archive",
+      "url": "https://bitsavers.org/pdf/dec/vax/",
+      "supports": [
+        "vax"
+      ]
+    },
+    {
+      "id": "zilog-z80",
+      "name": "Zilog Z80 CPU User Manual",
+      "url": "https://www.zilog.com/docs/z80/UM0080.pdf",
+      "supports": [
+        "z80"
+      ]
+    },
+    {
+      "id": "mos-6502",
+      "name": "MOS Technology 6502 programming references",
+      "url": "https://www.6502.org/",
+      "supports": [
+        "mos6502"
+      ]
+    },
+    {
+      "id": "wdc-65c816",
+      "name": "Western Design Center W65C816S data sheet and programming references",
+      "url": "https://www.westerndesigncenter.com/wdc/documentation.cfm",
+      "supports": [
+        "wdc65c816"
+      ]
+    },
+    {
+      "id": "intel-8051",
+      "name": "Intel MCS-51 Microcontroller Family User's Manual archive",
+      "url": "https://www.keil.com/dd/docs/datashts/atmel/8051.pdf",
+      "supports": [
+        "mcs51"
+      ]
+    },
+    {
+      "id": "motorola-6800",
+      "name": "Motorola 6800 family programming references",
+      "url": "https://www.nxp.com/",
+      "supports": [
+        "m680x"
+      ]
+    },
+    {
+      "id": "ibm-architecture",
+      "name": "IBM System/360 Principles of Operation archive",
+      "url": "https://bitsavers.org/pdf/ibm/360/",
+      "supports": [
+        "ibm-s360"
+      ]
+    },
+    {
+      "id": "elbrus-e2k",
+      "name": "MCST Elbrus architecture and programmer documentation",
+      "url": "https://www.mcst.ru/",
+      "supports": [
+        "e2k"
+      ]
+    },
+    {
+      "id": "openrisc",
+      "name": "OpenRISC 1000 architecture manual",
+      "url": "https://openrisc.io/",
+      "supports": [
+        "openrisc",
+        "or1k"
+      ]
+    },
+    {
+      "id": "synopsys-arc",
+      "name": "Synopsys ARC ISA programmer documentation",
+      "url": "https://www.synopsys.com/designware-ip/processor-solutions.html",
+      "supports": [
+        "arc-compact"
+      ]
+    },
+    {
+      "id": "andes-nds32",
+      "name": "Andes NDS32 architecture documentation",
+      "url": "https://www.andestech.com/en/products-solutions/andescore-processors/",
+      "supports": [
+        "andes-nds32"
+      ]
+    },
+    {
+      "id": "xtensa",
+      "name": "Cadence Xtensa ISA and processor documentation",
+      "url": "https://www.cadence.com/en_US/home/tools/silicon-solutions/compute-ip/xtensa.html",
+      "supports": [
+        "xtensa-lx"
+      ]
+    },
+    {
+      "id": "intel-nios2",
+      "name": "Intel/Altera Nios II Processor Reference Handbook",
+      "url": "https://www.intel.com/content/www/us/en/docs/programmable/683836/current/nios-ii-processor-reference-handbook.html",
+      "supports": [
+        "nios2"
+      ]
+    },
+    {
+      "id": "amd-microblaze",
+      "name": "AMD MicroBlaze Processor Reference Guide",
+      "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref",
+      "supports": [
+        "microblaze"
+      ]
+    },
+    {
+      "id": "analog-devices-blackfin",
+      "name": "Analog Devices Blackfin Processor Programming Reference",
+      "url": "https://www.analog.com/en/resources/technical-documentation.html",
+      "supports": [
+        "blackfin"
+      ]
+    },
+    {
+      "id": "infineon-tricore",
+      "name": "Infineon TriCore architecture documentation",
+      "url": "https://www.infineon.com/cms/en/product/microcontroller/32-bit-tricore-microcontroller/",
+      "supports": [
+        "tricore"
+      ]
+    },
+    {
+      "id": "renesas-superh",
+      "name": "Renesas SuperH SH-2/SH-4 architecture documentation",
+      "url": "https://www.renesas.com/en/document",
+      "supports": [
+        "superh-sh2",
+        "superh-sh4a"
+      ]
+    },
+    {
+      "id": "microchip-pic",
+      "name": "Microchip PIC16/PIC18 instruction set references",
+      "url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus",
+      "supports": [
+        "microchip-pic16",
+        "microchip-pic18"
+      ]
+    },
+    {
+      "id": "renesas-rx",
+      "name": "Renesas RX Family User's Manual: Software",
+      "url": "https://www.renesas.com/en/document",
+      "supports": [
+        "renesas-rx"
+      ]
+    },
+    {
+      "id": "renesas-v850",
+      "name": "Renesas V850 architecture references",
+      "url": "https://www.renesas.com/en/document",
+      "supports": [
+        "renesas-v850"
+      ]
+    },
+    {
+      "id": "fujitsu-frv",
+      "name": "Fujitsu FR-V architecture documentation archive",
+      "url": "https://www.fujitsu.com/",
+      "supports": [
+        "fr-v"
+      ]
+    },
+    {
+      "id": "dec-alpha",
+      "name": "DEC Alpha Architecture Reference Manual archive",
+      "url": "https://bitsavers.org/pdf/dec/alpha/",
+      "supports": [
+        "alpha-ev6"
+      ]
+    },
+    {
+      "id": "hp-parisc",
+      "name": "HP PA-RISC 2.0 architecture documentation",
+      "url": "https://parisc.wiki.kernel.org/",
+      "supports": [
+        "hppa-2"
+      ]
+    },
+    {
+      "id": "webassembly",
+      "name": "WebAssembly Core Specification",
+      "url": "https://webassembly.github.io/spec/core/",
+      "supports": [
+        "wasm32",
+        "wasm64"
+      ]
+    },
+    {
+      "id": "ebpf",
+      "name": "Linux kernel eBPF instruction set documentation",
+      "url": "https://docs.kernel.org/bpf/instruction-set.html",
+      "supports": [
+        "ebpf"
+      ]
+    },
+    {
+      "id": "nvidia-ptx",
+      "name": "NVIDIA PTX ISA documentation",
+      "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/",
+      "supports": [
+        "nvidia-ptx"
+      ]
+    },
+    {
+      "id": "intel-gpu",
+      "name": "Intel Graphics ISA documentation",
+      "url": "https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/",
+      "supports": [
+        "intel-xe-gpu"
+      ]
+    }
+  ],
+  "instructions": [
+    [
+      "riscv64",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD x1,x2,x3",
+      32,
+      "00000000001100010000000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SUB",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SUB x1,x2,x3",
+      32,
+      "01000000001100010000000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "AND",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "AND x1,x2,x3",
+      32,
+      "00000000001100010111000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "OR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "OR x1,x2,x3",
+      32,
+      "00000000001100010110000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "XOR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "XOR x1,x2,x3",
+      32,
+      "00000000001100010100000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SLL",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SLL x1,x2,x3",
+      32,
+      "00000000001100010001000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SRL",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SRL x1,x2,x3",
+      32,
+      "00000000001100010101000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SRA",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SRA x1,x2,x3",
+      32,
+      "01000000001100010101000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SLT",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SLT x1,x2,x3",
+      32,
+      "00000000001100010010000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SLTU",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SLTU x1,x2,x3",
+      32,
+      "00000000001100010011000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "ADDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ADDI x1,x2,5",
+      32,
+      "00000000010100010000000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "LUI",
+      "u",
+      [
+        "register",
+        "immediate"
+      ],
+      "LUI x1,0x1",
+      32,
+      "00000000000000000001000010110111",
+      "00000000000000000000000001111111"
+    ],
+    [
+      "riscv64",
+      "AUIPC",
+      "u",
+      [
+        "register",
+        "immediate"
+      ],
+      "AUIPC x1,0x1",
+      32,
+      "00000000000000000001000010010111",
+      "00000000000000000000000001111111"
+    ],
+    [
+      "riscv64",
+      "LW",
+      "load",
+      [
+        "register",
+        "memory"
+      ],
+      "LW x1,8(x2)",
+      32,
+      "00000000100000010010000010000011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SW",
+      "store",
+      [
+        "register",
+        "memory"
+      ],
+      "SW x3,8(x2)",
+      32,
+      "00000000001100010010010000100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "JAL",
+      "jal",
+      [
+        "register",
+        "branch-offset"
+      ],
+      "JAL x1,8",
+      32,
+      "00000000100000000000000011101111",
+      "00000000000000000000000001111111"
+    ],
+    [
+      "riscv64",
+      "JALR",
+      "jalr",
+      [
+        "register",
+        "memory"
+      ],
+      "JALR x1,0(x2)",
+      32,
+      "00000000000000010000000011100111",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "BEQ",
+      "branch",
+      [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "BEQ x1,x2,8",
+      32,
+      "00000000001000001000010001100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "FENCE",
+      "fence",
+      [
+        "memory"
+      ],
+      "FENCE",
+      32,
+      "00000000000000000000000000001111",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "ECALL",
+      "system",
+      [
+        "implicit"
+      ],
+      "ECALL",
+      32,
+      "00000000000000000000000001110011",
+      "11111111111111111111111111111111"
+    ],
+    [
+      "riscv64",
+      "EBREAK",
+      "system",
+      [
+        "implicit"
+      ],
+      "EBREAK",
+      32,
+      "00000000000100000000000001110011",
+      "11111111111111111111111111111111"
+    ],
+    [
+      "aarch64",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD X0,X1,X2",
+      32,
+      "10001011000000100000000000100000",
+      "11111111111000001111110000000000"
+    ],
+    [
+      "aarch64",
+      "SUB",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SUB X0,X1,X2",
+      32,
+      "11001011000000100000000000100000",
+      "11111111111000001111110000000000"
+    ],
+    [
+      "aarch64",
+      "AND",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "AND X0,X1,X2",
+      32,
+      "10001010000000100000000000100000",
+      "11111111111000001111110000000000"
+    ],
+    [
+      "aarch64",
+      "ORR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ORR X0,X1,X2",
+      32,
+      "10101010000000100000000000100000",
+      "11111111111000001111110000000000"
+    ],
+    [
+      "aarch64",
+      "EOR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "EOR X0,X1,X2",
+      32,
+      "11001010000000100000000000100000",
+      "11111111111000001111110000000000"
+    ],
+    [
+      "aarch64",
+      "ADD",
+      "imm",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ADD X0,X1,#1",
+      32,
+      "10010001000000000000010000100000",
+      "11111111000000000000000000000000"
+    ],
+    [
+      "aarch64",
+      "SUB",
+      "imm",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "SUB X0,X1,#1",
+      32,
+      "11010001000000000000010000100000",
+      "11111111000000000000000000000000"
+    ],
+    [
+      "aarch64",
+      "LDR",
+      "unsigned",
+      [
+        "register",
+        "memory"
+      ],
+      "LDR X0,[X1,#0]",
+      32,
+      "11111001010000000000000000100000",
+      "11111111110000000000000000000000"
+    ],
+    [
+      "aarch64",
+      "STR",
+      "unsigned",
+      [
+        "register",
+        "memory"
+      ],
+      "STR X0,[X1,#0]",
+      32,
+      "11111001000000000000000000100000",
+      "11111111110000000000000000000000"
+    ],
+    [
+      "aarch64",
+      "B",
+      "imm",
+      [
+        "branch-offset"
+      ],
+      "B 0",
+      32,
+      "00010100000000000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "aarch64",
+      "BL",
+      "imm",
+      [
+        "branch-offset"
+      ],
+      "BL 0",
+      32,
+      "10010100000000000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "aarch64",
+      "BR",
+      "reg",
+      [
+        "register"
+      ],
+      "BR X0",
+      32,
+      "11010110000111110000000000000000",
+      "11111111111111111111110000011111"
+    ],
+    [
+      "aarch64",
+      "BLR",
+      "reg",
+      [
+        "register"
+      ],
+      "BLR X0",
+      32,
+      "11010110001111110000000000000000",
+      "11111111111111111111110000011111"
+    ],
+    [
+      "aarch64",
+      "RET",
+      "reg",
+      [
+        "register"
+      ],
+      "RET X30",
+      32,
+      "11010110010111110000001111000000",
+      "11111111111111111111110000011111"
+    ],
+    [
+      "aarch64",
+      "SVC",
+      "imm",
+      [
+        "immediate"
+      ],
+      "SVC #0",
+      32,
+      "11010100000000000000000000000001",
+      "11111111111000000000000000011111"
+    ],
+    [
+      "aarch64",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "NOP",
+      32,
+      "11010101000000110010000000011111",
+      "11111111111111111111111111111111"
+    ],
+    [
+      "arm32",
+      "MOV",
+      "reg",
+      [
+        "register",
+        "register"
+      ],
+      "MOV r0,r1",
+      32,
+      "11100001101000000000000000000001",
+      "00001111111000001111111111110000"
+    ],
+    [
+      "arm32",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD r0,r1,r2",
+      32,
+      "11100000100000010000000000000010",
+      "00001111111000001111111111110000"
+    ],
+    [
+      "arm32",
+      "SUB",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SUB r0,r1,r2",
+      32,
+      "11100000010000010000000000000010",
+      "00001111111000001111111111110000"
+    ],
+    [
+      "arm32",
+      "AND",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "AND r0,r1,r2",
+      32,
+      "11100000000000010000000000000010",
+      "00001111111000001111111111110000"
+    ],
+    [
+      "arm32",
+      "ORR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ORR r0,r1,r2",
+      32,
+      "11100001100000010000000000000010",
+      "00001111111000001111111111110000"
+    ],
+    [
+      "arm32",
+      "LDR",
+      "imm",
+      [
+        "register",
+        "memory"
+      ],
+      "LDR r0,[r1,#0]",
+      32,
+      "11100101100100010000000000000000",
+      "00001111111111110000000000000000"
+    ],
+    [
+      "arm32",
+      "STR",
+      "imm",
+      [
+        "register",
+        "memory"
+      ],
+      "STR r0,[r1,#0]",
+      32,
+      "11100101100000010000000000000000",
+      "00001111111111110000000000000000"
+    ],
+    [
+      "arm32",
+      "B",
+      "imm",
+      [
+        "branch-offset"
+      ],
+      "B 0",
+      32,
+      "11101010000000000000000000000000",
+      "00001111000000000000000000000000"
+    ],
+    [
+      "arm32",
+      "BL",
+      "imm",
+      [
+        "branch-offset"
+      ],
+      "BL 0",
+      32,
+      "11101011000000000000000000000000",
+      "00001111000000000000000000000000"
+    ],
+    [
+      "arm32",
+      "BX",
+      "reg",
+      [
+        "register"
+      ],
+      "BX lr",
+      32,
+      "11100001001011111111111100011110",
+      "00001111111111111111111111110000"
+    ],
+    [
+      "mips32",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD $t0,$t1,$t2",
+      32,
+      "00000001001010100100000000100000",
+      "11111100000000000000011111111111"
+    ],
+    [
+      "mips32",
+      "SUB",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SUB $t0,$t1,$t2",
+      32,
+      "00000001001010100100000000100010",
+      "11111100000000000000011111111111"
+    ],
+    [
+      "mips32",
+      "AND",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "AND $t0,$t1,$t2",
+      32,
+      "00000001001010100100000000100100",
+      "11111100000000000000011111111111"
+    ],
+    [
+      "mips32",
+      "OR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "OR $t0,$t1,$t2",
+      32,
+      "00000001001010100100000000100101",
+      "11111100000000000000011111111111"
+    ],
+    [
+      "mips32",
+      "XOR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "XOR $t0,$t1,$t2",
+      32,
+      "00000001001010100100000000100110",
+      "11111100000000000000011111111111"
+    ],
+    [
+      "mips32",
+      "SLT",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SLT $t0,$t1,$t2",
+      32,
+      "00000001001010100100000000101010",
+      "11111100000000000000011111111111"
+    ],
+    [
+      "mips32",
+      "ADDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ADDI $t0,$t1,1",
+      32,
+      "00100001001010000000000000000001",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "mips32",
+      "LW",
+      "mem",
+      [
+        "register",
+        "memory"
+      ],
+      "LW $t0,0($t1)",
+      32,
+      "10001101001010000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "mips32",
+      "SW",
+      "mem",
+      [
+        "register",
+        "memory"
+      ],
+      "SW $t0,0($t1)",
+      32,
+      "10101101001010000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "mips32",
+      "BEQ",
+      "branch",
+      [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "BEQ $t0,$t1,1",
+      32,
+      "00010001000010010000000000000001",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "mips32",
+      "J",
+      "jump",
+      [
+        "branch-offset"
+      ],
+      "J 0",
+      32,
+      "00001000000000000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "mips32",
+      "JAL",
+      "jump",
+      [
+        "branch-offset"
+      ],
+      "JAL 0",
+      32,
+      "00001100000000000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "mips32",
+      "JR",
+      "reg",
+      [
+        "register"
+      ],
+      "JR $ra",
+      32,
+      "00000011111000000000000000001000",
+      "11111100000111111111111111111111"
+    ],
+    [
+      "powerpc",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "add r3,r4,r5",
+      32,
+      "01111100011001000010101000010100",
+      "11111100000000000000011111111110"
+    ],
+    [
+      "powerpc",
+      "SUBF",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "subf r3,r4,r5",
+      32,
+      "01111100011001000010100001010000",
+      "11111100000000000000011111111110"
+    ],
+    [
+      "powerpc",
+      "OR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "or r3,r4,r5",
+      32,
+      "01111100011001000010101101111000",
+      "11111100000000000000011111111110"
+    ],
+    [
+      "powerpc",
+      "XOR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "xor r3,r4,r5",
+      32,
+      "01111100011001000010001001111000",
+      "11111100000000000000011111111110"
+    ],
+    [
+      "powerpc",
+      "ADDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "addi r3,r4,1",
+      32,
+      "00111000100000110000000000000001",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "powerpc",
+      "LWZ",
+      "mem",
+      [
+        "register",
+        "memory"
+      ],
+      "lwz r3,0(r4)",
+      32,
+      "10000000011001000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "powerpc",
+      "STW",
+      "mem",
+      [
+        "register",
+        "memory"
+      ],
+      "stw r3,0(r4)",
+      32,
+      "10010000011001000000000000000000",
+      "11111100000000000000000000000000"
+    ],
+    [
+      "powerpc",
+      "B",
+      "imm",
+      [
+        "branch-offset"
+      ],
+      "b 0",
+      32,
+      "01001000000000000000000000000000",
+      "11111100000000000000000000000011"
+    ],
+    [
+      "powerpc",
+      "BL",
+      "imm",
+      [
+        "branch-offset"
+      ],
+      "bl 0",
+      32,
+      "01001000000000000000000000000001",
+      "11111100000000000000000000000011"
+    ],
+    [
+      "powerpc",
+      "BLR",
+      "none",
+      [
+        "implicit"
+      ],
+      "blr",
+      32,
+      "01001110100000000000000000100000",
+      "11111111111111111111111111111111"
+    ],
+    [
+      "powerpc",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "nop",
+      32,
+      "01100000000000000000000000000000",
+      "11111111111111111111111111111111"
+    ],
+    [
+      "m68k",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "NOP",
+      16,
+      "0100111001110001",
+      "1111111111111111"
+    ],
+    [
+      "m68k",
+      "RTS",
+      "none",
+      [
+        "implicit"
+      ],
+      "RTS",
+      16,
+      "0100111001110101",
+      "1111111111111111"
+    ],
+    [
+      "m68k",
+      "MOVEQ",
+      "imm",
+      [
+        "immediate",
+        "register"
+      ],
+      "MOVEQ #0,D0",
+      16,
+      "0111000000000000",
+      "1111000100000000"
+    ],
+    [
+      "m68k",
+      "ADDQ",
+      "imm",
+      [
+        "immediate",
+        "register"
+      ],
+      "ADDQ #1,D0",
+      16,
+      "0101001000000000",
+      "1111000111000000"
+    ],
+    [
+      "m68k",
+      "SUBQ",
+      "imm",
+      [
+        "immediate",
+        "register"
+      ],
+      "SUBQ #1,D0",
+      16,
+      "0101001100000000",
+      "1111000111000000"
+    ],
+    [
+      "m68k",
+      "BRA",
+      "disp",
+      [
+        "branch-offset"
+      ],
+      "BRA 0",
+      16,
+      "0110000000000000",
+      "1111111100000000"
+    ],
+    [
+      "m68k",
+      "BSR",
+      "disp",
+      [
+        "branch-offset"
+      ],
+      "BSR 0",
+      16,
+      "0110000100000000",
+      "1111111100000000"
+    ],
+    [
+      "m68k",
+      "JMP",
+      "indirect",
+      [
+        "memory"
+      ],
+      "JMP (A0)",
+      16,
+      "0100111011010000",
+      "1111111111111000"
+    ],
+    [
+      "m68k",
+      "JSR",
+      "indirect",
+      [
+        "memory"
+      ],
+      "JSR (A0)",
+      16,
+      "0100111010010000",
+      "1111111111111000"
+    ],
+    [
+      "avr",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "NOP",
+      16,
+      "0000000000000000",
+      "1111111111111111"
+    ],
+    [
+      "avr",
+      "ADD",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "ADD r16,r17",
+      16,
+      "0000111100000001",
+      "1111110000000000"
+    ],
+    [
+      "avr",
+      "SUB",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "SUB r16,r17",
+      16,
+      "0001100000000001",
+      "1111110000000000"
+    ],
+    [
+      "avr",
+      "AND",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "AND r16,r17",
+      16,
+      "0010001100000001",
+      "1111110000000000"
+    ],
+    [
+      "avr",
+      "EOR",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "EOR r16,r17",
+      16,
+      "0010010000000001",
+      "1111110000000000"
+    ],
+    [
+      "avr",
+      "OR",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "OR r16,r17",
+      16,
+      "0010011000000001",
+      "1111110000000000"
+    ],
+    [
+      "avr",
+      "RJMP",
+      "rel",
+      [
+        "branch-offset"
+      ],
+      "RJMP 0",
+      16,
+      "1100000000000000",
+      "1111000000000000"
+    ],
+    [
+      "avr",
+      "RET",
+      "none",
+      [
+        "implicit"
+      ],
+      "RET",
+      16,
+      "1001010100001000",
+      "1111111111111111"
+    ],
+    [
+      "avr",
+      "CALL",
+      "abs",
+      [
+        "branch-offset"
+      ],
+      "CALL 0",
+      32,
+      "10010100000011100000000000000000",
+      "11111110000011100000000000000000"
+    ],
+    [
+      "z80",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "NOP",
+      8,
+      "00000000",
+      "11111111"
+    ],
+    [
+      "z80",
+      "LD",
+      "imm8",
+      [
+        "register",
+        "immediate"
+      ],
+      "LD A,0",
+      8,
+      "00111110",
+      "11111111"
+    ],
+    [
+      "z80",
+      "LD",
+      "abs_store",
+      [
+        "memory",
+        "register"
+      ],
+      "LD (0),A",
+      8,
+      "00110010",
+      "11111111"
+    ],
+    [
+      "z80",
+      "LD",
+      "abs_load",
+      [
+        "register",
+        "memory"
+      ],
+      "LD A,(0)",
+      8,
+      "00111010",
+      "11111111"
+    ],
+    [
+      "z80",
+      "ADD",
+      "imm8",
+      [
+        "register",
+        "immediate"
+      ],
+      "ADD A,0",
+      16,
+      "1100011000000000",
+      "1111111100000000"
+    ],
+    [
+      "z80",
+      "SUB",
+      "imm8",
+      [
+        "register",
+        "immediate"
+      ],
+      "SUB 0",
+      16,
+      "1101011000000000",
+      "1111111100000000"
+    ],
+    [
+      "z80",
+      "XOR",
+      "a",
+      [
+        "register"
+      ],
+      "XOR A",
+      8,
+      "10101111",
+      "11111111"
+    ],
+    [
+      "z80",
+      "JP",
+      "abs",
+      [
+        "branch-offset"
+      ],
+      "JP 0",
+      8,
+      "11000011",
+      "11111111"
+    ],
+    [
+      "z80",
+      "CALL",
+      "abs",
+      [
+        "branch-offset"
+      ],
+      "CALL 0",
+      8,
+      "11001101",
+      "11111111"
+    ],
+    [
+      "z80",
+      "RET",
+      "none",
+      [
+        "implicit"
+      ],
+      "RET",
+      8,
+      "11001001",
+      "11111111"
+    ],
+    [
+      "6502",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "NOP",
+      8,
+      "11101010",
+      "11111111"
+    ],
+    [
+      "6502",
+      "LDA",
+      "imm",
+      [
+        "register",
+        "immediate"
+      ],
+      "LDA #0",
+      8,
+      "10101001",
+      "11111111"
+    ],
+    [
+      "6502",
+      "STA",
+      "abs",
+      [
+        "memory",
+        "register"
+      ],
+      "STA $0000",
+      8,
+      "10001101",
+      "11111111"
+    ],
+    [
+      "6502",
+      "ADC",
+      "imm",
+      [
+        "register",
+        "immediate"
+      ],
+      "ADC #0",
+      8,
+      "01101001",
+      "11111111"
+    ],
+    [
+      "6502",
+      "SBC",
+      "imm",
+      [
+        "register",
+        "immediate"
+      ],
+      "SBC #0",
+      8,
+      "11101001",
+      "11111111"
+    ],
+    [
+      "6502",
+      "BEQ",
+      "rel",
+      [
+        "branch-offset",
+        "condition"
+      ],
+      "BEQ 0",
+      8,
+      "11110000",
+      "11111111"
+    ],
+    [
+      "6502",
+      "BNE",
+      "rel",
+      [
+        "branch-offset",
+        "condition"
+      ],
+      "BNE 0",
+      8,
+      "11010000",
+      "11111111"
+    ],
+    [
+      "6502",
+      "JSR",
+      "abs",
+      [
+        "branch-offset"
+      ],
+      "JSR $0000",
+      8,
+      "00100000",
+      "11111111"
+    ],
+    [
+      "6502",
+      "JMP",
+      "abs",
+      [
+        "branch-offset"
+      ],
+      "JMP $0000",
+      8,
+      "01001100",
+      "11111111"
+    ],
+    [
+      "6502",
+      "RTS",
+      "none",
+      [
+        "implicit"
+      ],
+      "RTS",
+      8,
+      "01100000",
+      "11111111"
+    ],
+    [
+      "6502",
+      "TAX",
+      "none",
+      [
+        "register"
+      ],
+      "TAX",
+      8,
+      "10101010",
+      "11111111"
+    ],
+    [
+      "6502",
+      "INX",
+      "none",
+      [
+        "register"
+      ],
+      "INX",
+      8,
+      "11101000",
+      "11111111"
+    ],
+    [
+      "8051",
+      "NOP",
+      "none",
+      [
+        "implicit"
+      ],
+      "NOP",
+      8,
+      "00000000",
+      "11111111"
+    ],
+    [
+      "8051",
+      "MOV",
+      "imm",
+      [
+        "register",
+        "immediate"
+      ],
+      "MOV A,#0",
+      8,
+      "01110100",
+      "11111111"
+    ],
+    [
+      "8051",
+      "MOV",
+      "direct",
+      [
+        "memory",
+        "register"
+      ],
+      "MOV direct,A",
+      8,
+      "11110101",
+      "11111111"
+    ],
+    [
+      "8051",
+      "ADD",
+      "imm",
+      [
+        "register",
+        "immediate"
+      ],
+      "ADD A,#0",
+      8,
+      "00100100",
+      "11111111"
+    ],
+    [
+      "8051",
+      "SUBB",
+      "imm",
+      [
+        "register",
+        "immediate"
+      ],
+      "SUBB A,#0",
+      8,
+      "10010100",
+      "11111111"
+    ],
+    [
+      "8051",
+      "INC",
+      "a",
+      [
+        "register"
+      ],
+      "INC A",
+      8,
+      "00000100",
+      "11111111"
+    ],
+    [
+      "8051",
+      "LJMP",
+      "abs",
+      [
+        "branch-offset"
+      ],
+      "LJMP 0",
+      8,
+      "00000010",
+      "11111111"
+    ],
+    [
+      "8051",
+      "SJMP",
+      "rel",
+      [
+        "branch-offset"
+      ],
+      "SJMP 0",
+      8,
+      "10000000",
+      "11111111"
+    ],
+    [
+      "8051",
+      "DJNZ",
+      "rel",
+      [
+        "memory",
+        "branch-offset"
+      ],
+      "DJNZ direct,rel",
+      8,
+      "11010101",
+      "11111111"
+    ],
+    [
+      "s390x",
+      "AR",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "AR R1,R2",
+      16,
+      "0010011000010010",
+      "1111111111111111"
+    ],
+    [
+      "s390x",
+      "A",
+      "rxy",
+      [
+        "register",
+        "memory"
+      ],
+      "A R1,D2(X2,B2)",
+      32,
+      "01011010000100000000000000000000",
+      "11111111000000000000000000000000"
+    ],
+    [
+      "s390x",
+      "AG",
+      "rxy",
+      [
+        "register",
+        "memory"
+      ],
+      "AG R1,D2(X2,B2)",
+      48,
+      "111000110001000000000000000000000000000000001000",
+      "111111110000000000000000000000000000000000000000"
+    ],
+    [
+      "s390x",
+      "BAL",
+      "rx",
+      [
+        "register",
+        "memory"
+      ],
+      "BAL R1,D2(X2,B2)",
+      32,
+      "01000101000100000000000000000000",
+      "11111111000000000000000000000000"
+    ],
+    [
+      "x86-64",
+      "NOP",
+      "fixed",
+      [
+        "implicit"
+      ],
+      "NOP",
+      8,
+      "10010000",
+      "11111111"
+    ],
+    [
+      "x86-64",
+      "RET",
+      "fixed",
+      [
+        "implicit"
+      ],
+      "RET",
+      8,
+      "11000011",
+      "11111111"
+    ],
+    [
+      "x86-64",
+      "ADD",
+      "rm64_r64",
+      [
+        "memory",
+        "register"
+      ],
+      "ADD r/m64,r64",
+      24,
+      "010010000000000100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "SUB",
+      "rm64_r64",
+      [
+        "memory",
+        "register"
+      ],
+      "SUB r/m64,r64",
+      24,
+      "010010000010100100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "XOR",
+      "rm64_r64",
+      [
+        "memory",
+        "register"
+      ],
+      "XOR r/m64,r64",
+      24,
+      "010010000011000100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "AND",
+      "rm64_r64",
+      [
+        "memory",
+        "register"
+      ],
+      "AND r/m64,r64",
+      24,
+      "010010000010000100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "OR",
+      "rm64_r64",
+      [
+        "memory",
+        "register"
+      ],
+      "OR r/m64,r64",
+      24,
+      "010010000000100100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "MOV",
+      "rm64_r64",
+      [
+        "memory",
+        "register"
+      ],
+      "MOV r/m64,r64",
+      24,
+      "010010001000100100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "MOV",
+      "r64_rm64",
+      [
+        "memory",
+        "register"
+      ],
+      "MOV r64,r/m64",
+      24,
+      "010010001000101100000000",
+      "111111111111111100000000"
+    ],
+    [
+      "x86-64",
+      "JMP",
+      "rel32",
+      [
+        "branch-offset"
+      ],
+      "JMP rel32",
+      40,
+      "1110100100000000000000000000000000000000",
+      "1111111100000000000000000000000000000000"
+    ],
+    [
+      "x86-64",
+      "CALL",
+      "rel32",
+      [
+        "branch-offset"
+      ],
+      "CALL rel32",
+      40,
+      "1110100000000000000000000000000000000000",
+      "1111111100000000000000000000000000000000"
+    ],
+    [
+      "x86-64",
+      "PUSH",
+      "r64",
+      [
+        "register"
+      ],
+      "PUSH r64",
+      8,
+      "01010000",
+      "11111000"
+    ],
+    [
+      "x86-64",
+      "POP",
+      "r64",
+      [
+        "register"
+      ],
+      "POP r64",
+      8,
+      "01011000",
+      "11111000"
+    ],
+    [
+      "chimera-c8192",
+      "ADD",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "ADD Z0,Z1",
+      16,
+      "0001000000000000",
+      "1111000000000000"
+    ],
+    [
+      "chimera-c8192",
+      "MUL",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "MUL Z0,Z1",
+      16,
+      "0010000000000000",
+      "1111000000000000"
+    ],
+    [
+      "chimera-c8192",
+      "TCONTRACT",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "TCONTRACT Z0,Z1,Z2",
+      16,
+      "0011000000000000",
+      "1111000000000000"
+    ],
+    [
+      "chimera-c8192",
+      "MODEXP",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "MODEXP Z0,Z1,Z2",
+      16,
+      "0100000000000000",
+      "1111000000000000"
+    ],
+    [
+      "chimera-c8192",
+      "NETSEND",
+      "rp",
+      [
+        "register",
+        "mask"
+      ],
+      "NETSEND Z0,P0",
+      16,
+      "0101000000000000",
+      "1111000000000000"
+    ],
+    [
+      "riscv64",
+      "SLTI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "SLTI x1,x2,1",
+      32,
+      "00000000000100010010000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "XORI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "XORI x1,x2,1",
+      32,
+      "00000000000100010100000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "ORI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ORI x1,x2,1",
+      32,
+      "00000000000100010110000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "ANDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ANDI x1,x2,1",
+      32,
+      "00000000000100010111000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SB",
+      "store",
+      [
+        "register",
+        "memory"
+      ],
+      "SB x3,8(x2)",
+      32,
+      "00000000001100010000010000100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "SH",
+      "store",
+      [
+        "register",
+        "memory"
+      ],
+      "SH x3,8(x2)",
+      32,
+      "00000000001100010001010000100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "LH",
+      "load",
+      [
+        "register",
+        "memory"
+      ],
+      "LH x1,8(x2)",
+      32,
+      "00000000100000010001000010000011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "LBU",
+      "load",
+      [
+        "register",
+        "memory"
+      ],
+      "LBU x1,8(x2)",
+      32,
+      "00000000100000010100000010000011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv64",
+      "MRET",
+      "system",
+      [
+        "implicit"
+      ],
+      "MRET",
+      32,
+      "00110000001000000000000001110011",
+      "11111111111111111111111111111111"
+    ],
+    [
+      "arm32-thumb",
+      "NOP",
+      "thumb16",
+      [
+        "implicit"
+      ],
+      "NOP",
+      16,
+      "1011111100000000",
+      "1111111111111111"
+    ],
+    [
+      "arm32-thumb",
+      "MOVS",
+      "thumb16-imm8",
+      [
+        "register",
+        "immediate"
+      ],
+      "MOVS r0,#0",
+      16,
+      "0010000000000000",
+      "1111100000000000"
+    ],
+    [
+      "arm32-thumb",
+      "BX",
+      "thumb16-reg",
+      [
+        "register"
+      ],
+      "BX r14",
+      16,
+      "0100011101110000",
+      "1111111110000111"
+    ]
+  ],
+  "research_update": {
+    "reviewed_on": "2026-10-08",
+    "method": "Official vendor and standards documentation reviewed for architecture scope, instruction reference organization, and extension/version status. Curated reference supplement; not exhaustive.",
+    "source_findings": [
+      {
+        "source": "intel-sdm",
+        "finding": "Intel SDM separates basic architecture, the full A–Z instruction reference, system programming (memory management, protection, interrupts/exceptions, multiprocessor, VMX/VT, SGX), and model-specific registers. Track extension and processor feature availability separately."
+      },
+      {
+        "source": "arm-isa-glossary",
+        "finding": "An ISA specifies programmer-visible instructions, formats, registers, data types, memory model, privilege, and exceptions; distinguish ISA from microarchitecture."
+      },
+      {
+        "source": "arm",
+        "finding": "Track AArch64/A64 separately from AArch32 A32 and T32 (Thumb/Thumb-2); A64 is fixed 32-bit while T32 uses 16- and 32-bit encodings. Feature availability depends on architecture profile/version and implemented extensions."
+      },
+      {
+        "source": "riscv",
+        "finding": "RISC-V is modular: record base ISA, extensions, privileged architecture, and ratification status independently. Compressed C instructions use 16-bit encodings; base instructions commonly use 32 bits. The ratified library contains extensions beyond M/A/F/D/C/V."
+      },
+      {
+        "source": "openpower",
+        "finding": "Power ISA 3.1c defines user, virtual-environment, and operating-environment architecture in separate books; distinguish ISA instructions from platform requirements."
+      }
+    ],
+    "architecture_profiles": [
+      {
+        "id": "arm-aarch64-a64",
+        "architecture": "aarch64",
+        "profile": "A-profile",
+        "execution_state": "AArch64",
+        "instruction_set": "A64",
+        "instruction_length_bits": [
+          32
+        ],
+        "register_model": "64-bit general-purpose X0-X30 plus SP/PC and architectural SIMD/FP registers",
+        "features_to_track": [
+          "base integer",
+          "load/store",
+          "branch/control flow",
+          "SIMD/FP Advanced SIMD",
+          "atomics/ordering",
+          "system registers/exceptions",
+          "virtualization",
+          "cryptography",
+          "SVE/SVE2",
+          "SME",
+          "pointer authentication",
+          "memory tagging"
+        ],
+        "support_status": "catalog-partial",
+        "note": "Feature list is taxonomy, not a claim each extension is implemented or present on every CPU."
+      },
+      {
+        "id": "arm-aarch32-a32",
+        "architecture": "arm32",
+        "profile": "A/R profile where applicable",
+        "execution_state": "AArch32",
+        "instruction_set": "A32/ARM",
+        "instruction_length_bits": [
+          32
+        ],
+        "register_model": "32-bit R0-R15 plus status/system state and profile-specific FP/SIMD registers",
+        "features_to_track": [
+          "conditional execution",
+          "integer/data processing",
+          "load/store",
+          "branch/exchange",
+          "coprocessor and system instructions",
+          "VFP/Advanced SIMD where supported"
+        ],
+        "support_status": "catalog-partial",
+        "note": "Availability varies by architecture version and profile."
+      },
+      {
+        "id": "arm-aarch32-t32",
+        "architecture": "arm32-thumb",
+        "profile": "A/R/M profile availability varies by version",
+        "execution_state": "AArch32",
+        "instruction_set": "T32/Thumb-2",
+        "instruction_length_bits": [
+          16,
+          32
+        ],
+        "register_model": "AArch32 registers with Thumb encoding and execution-state rules",
+        "features_to_track": [
+          "16-bit Thumb encodings",
+          "32-bit Thumb-2 encodings",
+          "IT/conditional execution where supported",
+          "branch/exchange",
+          "load/store",
+          "system instructions by profile"
+        ],
+        "support_status": "catalog-partial",
+        "note": "Decode length is encoding-dependent; Thumb is not uniformly 32-bit."
+      },
+      {
+        "id": "riscv-modular",
+        "architecture": "riscv64",
+        "profile": "unprivileged and privileged specifications",
+        "instruction_set": "RV32I/RV64I plus separately versioned extensions",
+        "instruction_length_bits": [
+          16,
+          32,
+          48,
+          64,
+          80
+        ],
+        "support_status": "inventory-only",
+        "features_to_track": [
+          "I/E base",
+          "M",
+          "A",
+          "F",
+          "D",
+          "Q",
+          "C",
+          "B",
+          "V",
+          "Zicsr",
+          "Zifencei",
+          "counters",
+          "cryptography",
+          "cache-management",
+          "hypervisor",
+          "machine/supervisor privilege",
+          "Sv* virtual memory extensions"
+        ],
+        "note": "Encoding-length classes are not a claim that the current Chimera decoder supports these lengths or extensions; use the selected specification release for status."
+      },
+      {
+        "id": "intel-x86-extensions",
+        "architecture": "x86-64",
+        "profile": "Intel 64 and IA-32",
+        "instruction_set": "x86 variable-length encodings",
+        "support_status": "inventory-only",
+        "features_to_track": [
+          "legacy integer/x87",
+          "SSE family",
+          "AVX/AVX2",
+          "AVX-512",
+          "AVX10.1/10.2",
+          "AES and SHA extensions",
+          "BMI",
+          "FMA",
+          "virtualization VMX",
+          "SGX",
+          "CET",
+          "AMX"
+        ],
+        "note": "Mnemonic catalog does not imply CPU support; gate by CPUID, execution mode, OS state, and processor generation."
+      }
+    ]
+  },
+  "isa_inventory_policy": {
+    "scope": "Broad discoverable inventory of major CISC, RISC, EPIC/VLIW, GPU, virtual-machine and extension ISAs; not a claim that every proprietary, unpublished, historical, or custom ISA is enumerated.",
+    "status_semantics": {
+      "standard": "Existing architecture-level designation; verify version/profile applicability",
+      "legacy/standard": "Legacy family with published architectural variants",
+      "catalog-only": "Inventory/source target only; no instruction forms asserted",
+      "project-defined": "Defined by Chimera II OS project"
+    },
+    "verification_rule": "Instruction rows must be added only from a versioned authoritative reference or validated machine-readable definition. TableGen identifiers and family names are discovery candidates, not automatically architectural mnemonics or conformance evidence.",
+    "last_updated": "2026-10-09"
+  }
+}

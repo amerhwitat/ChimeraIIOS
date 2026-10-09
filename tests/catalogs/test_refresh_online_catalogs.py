@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
@@ -11,6 +12,23 @@ spec.loader.exec_module(mod)
 
 
 class CatalogRefreshTests(unittest.TestCase):
+    def test_canonical_isa_inventory_has_unique_architectures_and_source_refs(self):
+        root = MODULE.parents[2]
+        database = json.loads((root / "isa/isa_database.json").read_text(encoding="utf-8"))
+        architecture_ids = [row[0] for row in database["architectures"]]
+        self.assertEqual(len(architecture_ids), len(set(architecture_ids)))
+        source_ids = {source["id"] for source in database["sources"]}
+        self.assertTrue({"x86-64", "riscv64", "m68000", "z80", "openrisc", "loongarch64"}.issubset(set(architecture_ids)))
+        self.assertTrue(all(row[6] in source_ids for row in database["architectures"]))
+        catalog_only = [row for row in database["architectures"] if row[4] == "catalog-only"]
+        self.assertTrue(catalog_only)
+        self.assertTrue(all(row[7] == 0 for row in catalog_only))
+        self.assertIn("not a claim", database["isa_inventory_policy"]["scope"])
+        self.assertIn("catalog-only", database["accuracy_note"])
+
+    def test_arabic_family_labels_cover_new_isa_families(self):
+        for family in ("OpenRISC", "WebAssembly", "eBPF", "NVIDIA PTX", "Xtensa"):
+            self.assertIn(family, mod.ARABIC_ISA_FAMILIES)
     def test_aliases_include_required_arabic_examples(self):
         self.assertEqual(mod.ARABIC_ALIASES["ls"], "عرض")
         self.assertEqual(mod.ARABIC_ALIASES["cat"], "اقرأ")
