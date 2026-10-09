@@ -5,12 +5,18 @@
   "spacing": 8,
   "modules-left": ["custom/aurora", "wlr/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["network", "pulseaudio", "memory", "cpu", "battery", "tray"],
+  "modules-right": ["custom/package-managers", "network", "pulseaudio", "memory", "cpu", "battery", "tray"],
   "custom/aurora": {
     "format": "  CHIMERA II",
     "tooltip": true,
     "tooltip-format": "Aurora Wayland Desktop",
     "on-click": "sh -lc 'command -v wofi >/dev/null 2>&1 && wofi --show drun || true'"
+  },
+  "custom/package-managers": {
+    "format": "󰏖 Packages",
+    "tooltip": true,
+    "tooltip-format": "Aurora Package Manager Center",
+    "on-click": "python3 /usr/share/chimera/aurora/package_manager_panel.py"
   },
   "wlr/workspaces": {
     "format": "{name}",

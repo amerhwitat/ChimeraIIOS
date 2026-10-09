@@ -15,7 +15,7 @@ PY
 command -v cat >/dev/null
 cat /dev/null >/dev/null
 ln -s "$DISPATCHER" "$TMP/اقرأ"
-PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/اقرأ" /dev/null >/dev/null
+PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/اقرأ" >/dev/null
 ln -s "$DISPATCHER" "$TMP/عرض"
 PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/عرض" >/dev/null
 echo "Canonical cat     : PASS"

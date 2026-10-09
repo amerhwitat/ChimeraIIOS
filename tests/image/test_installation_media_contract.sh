@@ -31,7 +31,7 @@ grep -q 'installer-initrd.img' "$BUILD"
 grep -q 'live-manifest.json' "$ISO"
 grep -q 'chimera-stage-installer-media.sh' "$ISO"
 grep -q 'installation.img' "$ISO"
-grep -q '  -R' "$ISO"
+grep -Eq '(-rockridge[[:space:]]+on|^[[:space:]]+-R([[:space:]]|$))' "$ISO"
 
 bash -n "$BUILD"
 bash -n "$ISO"

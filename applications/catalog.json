@@ -409,116 +409,133 @@
       "name": "Aurora Flash Tool",
       "category": "System",
       "desktop": "aurora-flash-tool.desktop",
-      "binary": "aurora_flash_tool_gui.py"
+      "binary": "aurora_flash_tool_gui.py",
+      "sandbox": "system-policy"
     },
     {
       "id": "repository-portfolio",
       "name": "Repository Application Center",
       "category": "Development",
       "desktop": "repository-application-center.desktop",
-      "binary": "repository_application_center.py"
+      "binary": "repository_application_center.py",
+      "sandbox": "network-policy"
     },
     {
       "id": "chimera-installer",
       "name": "Chimera II Installer",
       "category": "System",
-      "binary": "installer"
+      "binary": "installer",
+      "sandbox": "system-policy"
     },
     {
       "id": "chimera-boot-manager",
       "name": "Jasper Boot Manager",
       "category": "System",
-      "binary": "jasper"
+      "binary": "jasper",
+      "sandbox": "system-policy"
     },
     {
       "id": "gates",
       "name": "Gates System Control Center",
       "category": "System",
-      "binary": "gates"
+      "binary": "gates",
+      "sandbox": "system-policy"
     },
     {
       "id": "cpu4096",
       "name": "CPU4096",
       "source": "CPU4096",
       "category": "Development;Hardware",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "cpu4096simulator",
       "name": "CPU4096Simulator",
       "source": "CPU4096Simulator",
       "category": "Development;Simulation;Web",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "general",
       "name": "general",
       "source": "general",
       "category": "Development;Integration;Mobile",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "test",
       "name": "test",
       "source": "test",
       "category": "Development;Testing;Integration",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "keygen",
       "name": "keygen",
       "source": "keygen",
       "category": "Security;Development;Java",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "eth-key-check",
       "name": "eth-key-check",
       "source": "eth-key-check",
       "category": "Security;Crypto",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "bruteforce",
       "name": "bruteforce",
       "source": "bruteforce",
       "category": "Security;Research",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "nlp",
       "name": "nlp",
       "source": "nlp",
       "category": "AI;NLP;Research",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "pdfreaderpy",
       "name": "PDFreaderPY",
       "source": "PDFreaderPY",
       "category": "Documents;PDF",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "bizx",
       "name": "BizX",
       "source": "BizX",
       "category": "Business;Development",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "bizxtreme",
       "name": "BizXtreme",
       "source": "BizXtreme",
       "category": "Games;Business;WebGL",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "application-policy"
     },
     {
       "id": "web-portal",
       "name": "amerhwitat.github.io",
       "source": "amerhwitat.github.io",
       "category": "Internet;Documentation",
-      "integration": "repository-application-center"
+      "integration": "repository-application-center",
+      "sandbox": "network-policy"
     },
     {
       "id": "bitcoin-core",
@@ -529,7 +546,8 @@
       "network": "Bitcoin Mainnet",
       "launcher": "bitcoin-qt",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "geth",
@@ -540,7 +558,8 @@
       "network": "Ethereum Mainnet",
       "launcher": "geth",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "monero",
@@ -551,7 +570,8 @@
       "network": "Monero Mainnet",
       "launcher": "monero-wallet-gui",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "litecoin-core",
@@ -562,7 +582,8 @@
       "network": "Litecoin Mainnet",
       "launcher": "litecoin-qt",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "dogecoin-core",
@@ -573,7 +594,8 @@
       "network": "Dogecoin Mainnet",
       "launcher": "dogecoin-qt",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "zcash",
@@ -584,7 +606,8 @@
       "network": "Zcash Mainnet",
       "launcher": "zcashd",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "dash-core",
@@ -595,7 +618,8 @@
       "network": "Dash Mainnet",
       "launcher": "dash-qt",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "solana-agave",
@@ -606,7 +630,8 @@
       "network": "Solana Mainnet",
       "launcher": "agave-validator",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "cardano-node",
@@ -617,7 +642,8 @@
       "network": "Cardano Mainnet",
       "launcher": "cardano-node",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "xrpl-rippled",
@@ -628,7 +654,8 @@
       "network": "XRP Ledger Mainnet",
       "launcher": "rippled",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "stellar-core",
@@ -639,7 +666,8 @@
       "network": "Stellar Mainnet",
       "launcher": "stellar-core",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "avalanchego",
@@ -650,7 +678,8 @@
       "network": "Avalanche Mainnet",
       "launcher": "avalanchego",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "nearcore",
@@ -661,7 +690,8 @@
       "network": "NEAR Mainnet",
       "launcher": "neard",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "aptos-core",
@@ -672,7 +702,8 @@
       "network": "Aptos Mainnet",
       "launcher": "aptos-node",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "sui",
@@ -683,7 +714,8 @@
       "network": "Sui Mainnet",
       "launcher": "sui-node",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "algorand",
@@ -694,7 +726,8 @@
       "network": "Algorand Mainnet",
       "launcher": "algod",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     },
     {
       "id": "kaspa",
@@ -705,7 +738,8 @@
       "network": "Kaspa Mainnet",
       "launcher": "kaspad",
       "integration": "Aurora Crypto Center",
-      "mainnet": true
+      "mainnet": true,
+      "sandbox": "network-policy"
     }
   ]
 }

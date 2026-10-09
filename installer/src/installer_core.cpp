@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <cstdio>
 #ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #include <process.h>
 #define CHIMERA_POPEN _popen

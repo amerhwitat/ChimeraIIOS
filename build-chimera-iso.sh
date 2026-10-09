@@ -11,6 +11,8 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
+  --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
+  --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -208,6 +210,8 @@ while [[ $# -gt 0 ]]; do
     --apache-ecosystem) export APACHE_ECOSYSTEM=1; shift;;
     --push) export CHIMERA_PUSH=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
+    --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
+    --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
@@ -378,10 +382,19 @@ run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
+  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
+    if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
+      bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
+    else
+      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso and mksquashfs; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
+      exit 2
+    fi
+  fi
   command -v docker >/dev/null || { log_error 'Docker is required'; exit 2; }
   command -v cpio >/dev/null || { log_error 'cpio is required'; exit 2; }
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
   command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
+  command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
   command -v busybox >/dev/null || log_warning 'busybox unavailable on host; Docker rootfs copy may provide it'
   docker info >/dev/null 2>&1 || { log_error 'Docker daemon unavailable'; exit 2; }
 }
@@ -772,7 +785,20 @@ EOF_INIT_VIDEO
   }
 }
 
-prepare_apache(){ [[ "${APACHE_ECOSYSTEM:-1}" == 0 ]] && return 0; local src="$SCRIPT_DIR/services/apache" dst="$ROOTFS_DIR/opt/chimera/apache"; [[ -d "$src" ]] || return 0; mkdir -p "$dst"; for f in apache-projects.json README.md apache-sync.py; do [[ -f "$src/$f" ]] && cp -f "$src/$f" "$dst/"; done; }
+prepare_apache_ecosystem(){
+  [[ "${APACHE_ECOSYSTEM:-1}" == 0 ]] && return 0
+  local src="$SCRIPT_DIR/services/apache" dst="$ROOTFS_DIR/opt/chimera/apache"
+  [[ -d "$src" ]] || return 0
+  mkdir -p "$dst"
+  # Verification policy is explicit and strict; release artifacts are not
+  # downloaded or executed during image composition.
+  export CHIMERA_APACHE_VERIFY_PGP=1
+  for f in apache-projects.json README.md apache-sync.py install-apache-ecosystem.sh verify-apache-package.sh; do
+    [[ -f "$src/$f" ]] && cp -f "$src/$f" "$dst/"
+  done
+  chmod +x "$dst/apache-sync.py" "$dst/install-apache-ecosystem.sh" "$dst/verify-apache-package.sh" 2>/dev/null || true
+}
+prepare_apache(){ prepare_apache_ecosystem; }
 stage_features(){
   [[ -x "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" ]] && bash "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" "$ROOTFS_DIR" "$SCRIPT_DIR"
   if [[ "${CHIMERA_BUILD_EMULATORS:-0}" == 1 && -x "$SCRIPT_DIR/tools/build-emulator-stack.sh" ]]; then bash "$SCRIPT_DIR/tools/build-emulator-stack.sh" >> "$LOG_DIR/emulator-build.log" 2>&1 || printf "[WARN] Emulator build staging failed; continuing ISO build.\n" | tee -a "$LOG_DIR/chimera-build.log"; fi
@@ -814,6 +840,60 @@ stage_features(){
   fi
   [[ -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" "$ROOTFS_DIR/usr/share/applications/"
 }
+
+
+stage_package_managers(){
+  header 'STEP 6: STAGE AURORA PACKAGE MANAGER CENTER'
+  local cli="$SCRIPT_DIR/tools/chimera-package-manager.sh"
+  local panel="$SCRIPT_DIR/desktop/aurora/package_manager_panel.py"
+  local desktop="$SCRIPT_DIR/desktop/aurora/aurora-package-managers.desktop"
+  local catalog="$SCRIPT_DIR/appcenter/catalog/package-managers.json"
+  local database_catalog="$SCRIPT_DIR/data/registry/databases.json"
+  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog"; do
+    [[ -s "$f" ]] || { log_error "Package manager payload missing: $f"; return 1; }
+  done
+  mkdir -p "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/share/chimera/aurora" \
+    "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/usr/share/chimera/appcenter" "$ROOTFS_DIR/usr/share/chimera/database" \
+    "$ISO_DIR/system/package-managers" "$ISO_DIR/system/desktop/aurora" \
+    "$ISO_DIR/system/appcenter/catalog" "$ISO_DIR/system/database"
+  install -m 0755 "$cli" "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  install -m 0644 "$panel" "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
+  install -m 0644 "$desktop" "$ROOTFS_DIR/usr/share/applications/aurora-package-managers.desktop"
+  install -m 0644 "$catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json"
+  install -m 0644 "$database_catalog" "$ROOTFS_DIR/usr/share/chimera/database/databases.json"
+  cp -f "$database_catalog" "$ISO_DIR/system/database/databases.json"
+  cp -f "$cli" "$ISO_DIR/system/package-managers/chimera-package-manager.sh"
+  cp -f "$panel" "$ISO_DIR/system/desktop/aurora/package_manager_panel.py"
+  cp -f "$desktop" "$ISO_DIR/system/desktop/aurora/aurora-package-managers.desktop"
+  cp -f "$catalog" "$ISO_DIR/system/appcenter/catalog/package-managers.json"
+  chmod +x "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
+  python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
+  python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/database/databases.json" >/dev/null
+  python3 -m json.tool "$SCRIPT_DIR/desktop/aurora/waybar/config.jsonc" >/dev/null
+  python3 -c 'import sys, xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$SCRIPT_DIR/desktop/aurora/labwc/menu.xml"
+  log_info "Aurora Package Manager Center staged (APT, DNF, Pacman, Zypper, APK, Snap, Flatpak, Homebrew, Nix, npm, Yarn, pnpm and Corepack)."
+  log_info "Free/open-source SQL and NoSQL database catalog staged into Aurora and the ISO payload."
+  log_info "Providers remain optional and are detected at runtime; the ISO build will not run remote package-manager installer scripts."
+}
+
+build_native_iso_pipeline(){
+  if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" == 0 ]]; then
+    log_info "Native boot/iso/build-iso.sh pipeline skipped by CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0"
+    return 0
+  fi
+  header 'STEP 11: RUN CANONICAL NATIVE ISO PIPELINE'
+  local native_script="$SCRIPT_DIR/boot/iso/build-iso.sh"
+  local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
+  [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
+  CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
+    bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
+  [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
+  (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
+  log_success "Canonical native ISO and checksum verified: $native_iso"
+}
+
 
 stage_games(){ local d="$ISO_DIR/games"; mkdir -p "$d"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" "$d/"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" "$d/"; [[ -d "$SCRIPT_DIR/games" ]] && cp -a "$SCRIPT_DIR/games/." "$d/" 2>/dev/null || true; }
 
@@ -1127,7 +1207,7 @@ main(){
   preflight
   check_deps
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features games squashfs iso verify report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
@@ -1139,10 +1219,12 @@ main(){
       branding) run_stage branding prepare_branding;;
       apache) run_stage apache prepare_apache;;
       features) run_stage features stage_features;;
+      package-managers) run_stage package-managers stage_package_managers;;
       games) run_stage games stage_games;;
       squashfs) run_stage squashfs build_squashfs;;
       iso) run_stage iso build_iso;;
       verify) run_stage verify verify_iso;;
+      native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
     esac
     completed="$stage"

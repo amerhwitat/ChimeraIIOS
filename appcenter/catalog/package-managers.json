@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "title": "Chimera II OS Package Manager Providers",
+  "default_provider": "auto",
+  "bridge": "/usr/bin/chimera-pkg",
+  "providers": [
+    {
+      "id": "apt",
+      "name": "APT",
+      "family": "Debian",
+      "command": "apt-get",
+      "privileged": true,
+      "availability": "detect"
+    },
+    {
+      "id": "dnf",
+      "name": "DNF",
+      "family": "Fedora/RHEL",
+      "command": "dnf",
+      "privileged": true,
+      "availability": "detect"
+    },
+    {
+      "id": "pacman",
+      "name": "Pacman",
+      "family": "Arch Linux",
+      "command": "pacman",
+      "privileged": true,
+      "availability": "detect"
+    },
+    {
+      "id": "zypper",
+      "name": "Zypper",
+      "family": "openSUSE",
+      "command": "zypper",
+      "privileged": true,
+      "availability": "detect"
+    },
+    {
+      "id": "apk",
+      "name": "APK",
+      "family": "Alpine",
+      "command": "apk",
+      "privileged": true,
+      "availability": "detect"
+    },
+    {
+      "id": "snap",
+      "name": "Snap",
+      "family": "Universal",
+      "command": "snap",
+      "privileged": true,
+      "availability": "detect",
+      "note": "Requires a running snapd service."
+    },
+    {
+      "id": "flatpak",
+      "name": "Flatpak",
+      "family": "Universal",
+      "command": "flatpak",
+      "privileged": false,
+      "availability": "detect"
+    },
+    {
+      "id": "brew",
+      "name": "Homebrew",
+      "aliases": [
+        "homebrew",
+        "brew"
+      ],
+      "family": "Cross-platform",
+      "command": "brew",
+      "privileged": false,
+      "availability": "detect"
+    },
+    {
+      "id": "nix",
+      "name": "Nix profile",
+      "family": "Cross-platform",
+      "command": "nix",
+      "privileged": false,
+      "availability": "detect"
+    },
+    {
+      "id": "npm",
+      "name": "npm",
+      "family": "JavaScript",
+      "command": "npm",
+      "privileged": false,
+      "availability": "detect",
+      "note": "Global installs affect the active Node.js installation."
+    },
+    {
+      "id": "yarn",
+      "name": "Yarn",
+      "family": "JavaScript",
+      "command": "yarn",
+      "privileged": false,
+      "availability": "detect",
+      "note": "Global commands vary by Yarn major version; Corepack is preferred for project-pinned versions."
+    },
+    {
+      "id": "pnpm",
+      "name": "pnpm",
+      "family": "JavaScript",
+      "command": "pnpm",
+      "privileged": false,
+      "availability": "detect",
+      "note": "Corepack can pin the project-specific pnpm version."
+    },
+    {
+      "id": "corepack",
+      "name": "Corepack",
+      "family": "JavaScript",
+      "command": "corepack",
+      "privileged": false,
+      "availability": "detect",
+      "note": "Manages project-pinned Yarn and pnpm versions; included with many Node.js distributions."
+    }
+  ],
+  "security": {
+    "no_shell_interpolation": true,
+    "package_names_validated": true,
+    "privileged_operations_require_root_or_sudo": true,
+    "providers_are_optional": true,
+    "no_unverified_network_installer_is_run_during_iso_build": true,
+    "mutating_provider_fallback": false,
+    "read_only_search_fallback": "auto-only"
+  }
+}

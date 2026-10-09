@@ -46,28 +46,24 @@ RUN set -eux; \
 WORKDIR /src
 COPY . /src
 
-# Normalize shell scripts with a POSIX-safe CR detector. Do not use Bash-only
-# ANSI-C quoting ($'\\r') here because Docker RUN defaults to /bin/sh.
+# Normalize scripts in a POSIX /bin/sh-compatible RUN layer.
 RUN set -eux; \
-    find /src -type f \\( \
+    find /src -type f \( \
       -name '*.sh' -o -name '*.bash' -o -name '*.command' -o \
       -name '*.ps1' -o -name 'Dockerfile*' -o \
       -name '*.yml' -o -name '*.yaml' \
-    \\) -print0 | xargs -0 -r dos2unix; \
+    \) -print0 | xargs -0 -r dos2unix; \
     grep -RIlZ --exclude-dir=.git '^#!' /src | xargs -0 -r dos2unix; \
-    # Explicitly strip any remaining CR at end-of-line from shell scripts. \
-    find /src -type f \\( -name '*.sh' -o -name '*.bash' -o -name '*.command' \\) -print0 | \
-      xargs -0 -r sed -i 's/\\r$//'; \
-    # POSIX-safe verification: grep for a literal carriage-return byte. \
-    CR=$(printf '\\r'); \
-    if find /src -type f \\( -name '*.sh' -o -name '*.bash' -o -name '*.command' \\) -print0 | \
+    find /src -type f \( -name '*.sh' -o -name '*.bash' -o -name '*.command' \) -print0 | \
+      xargs -0 -r sed -i 's/\r$//'; \
+    CR="$(printf '\r')"; \
+    if find /src -type f \( -name '*.sh' -o -name '*.bash' -o -name '*.command' \) -print0 | \
          xargs -0 -r grep -Il "$CR" | grep -q .; then \
       echo 'CRLF remains in a shell script after normalization' >&2; \
-      find /src -type f \\( -name '*.sh' -o -name '*.bash' -o -name '*.command' \\) -print0 | \
+      find /src -type f \( -name '*.sh' -o -name '*.bash' -o -name '*.command' \) -print0 | \
         xargs -0 -r grep -Il "$CR" || true; \
       exit 1; \
     fi
-
 RUN cmake -S /src -B /build -G Ninja \
       -DCHIMERA_ENABLE_EXPERIMENTAL=ON \
       -DCHIMERA_ENABLE_CVEL=ON \
