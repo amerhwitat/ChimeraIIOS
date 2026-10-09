@@ -221,6 +221,11 @@ static void task_live(void *) {
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
             chimera_sched_block();
+        } else {
+            // Installer media is handled by task_installer. There is no live
+            // payload to poll for, so the live service must block as well.
+            console_write("[LIVE] Installer target detected; live service idle");
+            chimera_sched_block();
         }
     }
 }
