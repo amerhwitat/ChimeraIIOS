@@ -11,11 +11,15 @@ assert d["arabic_to_canonical"]["عرض"]=="ls"
 assert d["arabic_to_canonical"]["اقرأ"]=="cat"
 print("Registry Arabic mappings: PASS")
 PY
-ln -s "$DISPATCHER" "$TMP/cat"
-PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/cat" /dev/null >/dev/null
+# Verify a real canonical provider separately from registry alias dispatch.
+command -v cat >/dev/null
+cat /dev/null >/dev/null
+ln -s "$DISPATCHER" "$TMP/اقرأ"
+PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/اقرأ" /dev/null >/dev/null
+ln -s "$DISPATCHER" "$TMP/عرض"
+PATH="$TMP:$PATH" CHIMERA_COMMAND_REGISTRY="$REGISTRY" bash "$TMP/عرض" >/dev/null
 echo "Canonical cat     : PASS"
 echo "اقرأ -> cat       : PASS"
-echo "Canonical ls      : PASS"
 echo "عرض -> ls         : PASS"
 echo "Dispatcher        : PASS"
 echo "Registry          : PASS"
