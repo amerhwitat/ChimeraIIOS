@@ -263,7 +263,8 @@ def refresh() -> int:
         "sources": isa_results,
         "successful_source_count": sum(1 for item in isa_results if item["status"] == "ok"),
         "unavailable_source_count": sum(1 for item in isa_results if item["status"] != "ok"),
-        "candidate_definition_count": sum(item.get("definition_identifier_count", 0) for item in isa_results)
+        "candidate_definition_count": sum(item.get("definition_identifier_count", 0) for item in isa_results),
+        "arabic_technical_glossary": ARABIC_GLOSSARY
     }
     arabic = update_arabic_registry(read_json(ARABIC_FILE, {}), entries)
     if successful_isa:
