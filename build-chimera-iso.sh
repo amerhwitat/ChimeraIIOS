@@ -774,7 +774,20 @@ EOF_INIT_VIDEO
   }
 }
 
-prepare_apache(){ [[ "${APACHE_ECOSYSTEM:-1}" == 0 ]] && return 0; local src="$SCRIPT_DIR/services/apache" dst="$ROOTFS_DIR/opt/chimera/apache"; [[ -d "$src" ]] || return 0; mkdir -p "$dst"; for f in apache-projects.json README.md apache-sync.py; do [[ -f "$src/$f" ]] && cp -f "$src/$f" "$dst/"; done; }
+prepare_apache_ecosystem(){
+  [[ "${APACHE_ECOSYSTEM:-1}" == 0 ]] && return 0
+  local src="$SCRIPT_DIR/services/apache" dst="$ROOTFS_DIR/opt/chimera/apache"
+  [[ -d "$src" ]] || return 0
+  mkdir -p "$dst"
+  # Verification policy is explicit and strict; release artifacts are not
+  # downloaded or executed during image composition.
+  export CHIMERA_APACHE_VERIFY_PGP=1
+  for f in apache-projects.json README.md apache-sync.py install-apache-ecosystem.sh verify-apache-package.sh; do
+    [[ -f "$src/$f" ]] && cp -f "$src/$f" "$dst/"
+  done
+  chmod +x "$dst/apache-sync.py" "$dst/install-apache-ecosystem.sh" "$dst/verify-apache-package.sh" 2>/dev/null || true
+}
+prepare_apache(){ prepare_apache_ecosystem; }
 stage_features(){
   [[ -x "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" ]] && bash "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" "$ROOTFS_DIR" "$SCRIPT_DIR"
   if [[ "${CHIMERA_BUILD_EMULATORS:-0}" == 1 && -x "$SCRIPT_DIR/tools/build-emulator-stack.sh" ]]; then bash "$SCRIPT_DIR/tools/build-emulator-stack.sh" >> "$LOG_DIR/emulator-build.log" 2>&1 || printf "[WARN] Emulator build staging failed; continuing ISO build.\n" | tee -a "$LOG_DIR/chimera-build.log"; fi
