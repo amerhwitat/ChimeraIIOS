@@ -62,17 +62,59 @@ def local_files():
                 except OSError: pass
     return out
 
+def discover_links(seed, max_depth=10, page_budget=80):
+    """Bounded, same-host recursive documentation discovery; never execute remote code."""
+    from html.parser import HTMLParser
+    from urllib.parse import urljoin, urlparse, urldefrag, urlunparse
+    class Links(HTMLParser):
+        def __init__(self):
+            super().__init__(); self.hrefs=[]
+        def handle_starttag(self, tag, attrs):
+            if tag.lower()=="a":
+                href=dict(attrs).get("href")
+                if href: self.hrefs.append(href)
+    host=urlparse(seed).netloc.lower()
+    queue=[(seed,0)]; queued={seed}; seen=set(); results=[]
+    while queue and len(seen)<page_budget:
+        url,depth=queue.pop(0)
+        if url in seen: continue
+        parsed=urlparse(url)
+        if parsed.netloc.lower()!=host or parsed.scheme not in ("http","https"): continue
+        if parsed.path.lower().endswith((".pdf",".zip",".gz",".png",".jpg",".jpeg",".svg",".mp4",".exe",".dmg")): continue
+        seen.add(url)
+        status,body,final=fetch(url)
+        if not status: continue
+        parser=Links()
+        try: parser.feed(body)
+        except Exception: continue
+        for href in parser.hrefs:
+            target,_=urldefrag(urljoin(final,href)); p=urlparse(target)
+            if p.scheme not in ("http","https") or p.netloc.lower()!=host: continue
+            target=urlunparse((p.scheme,p.netloc,p.path,"","",""))
+            if target not in results: results.append(target)
+            if depth<max_depth and target not in queued and target not in seen:
+                queue.append((target,depth+1)); queued.add(target)
+    return {"pages_visited":len(seen),"depth_limit":max_depth,"page_budget":page_budget,"links":results[:500]}
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--offline",action="store_true",help="index local catalogs only")
+    ap.add_argument("--depth",type=int,default=int(os.environ.get("CHIMERA_ISA_RESEARCH_DEPTH","10")),help="maximum recursive discovery depth (default: 10)")
+    ap.add_argument("--page-budget",type=int,default=int(os.environ.get("CHIMERA_ISA_RESEARCH_PAGE_BUDGET","80")),help="maximum pages per ISA documentation source (default: 80)")
     args=ap.parse_args()
+    if args.depth < 0 or args.page_budget < 1: ap.error("--depth must be >= 0 and --page-budget must be >= 1")
     OUT.mkdir(parents=True,exist_ok=True)
     local=local_files(); docs=[]
+    isa_sources=[(title,url,topic) for title,url,topic in SOURCES if topic=="isa"]
+    print("[INFO] Running bounded recursive ISA research across eleven processor families (depth=%d, page budget=%d)"%(args.depth,args.page_budget))
     if not args.offline:
         for title,url,topic in SOURCES:
             status,body,final=fetch(url)
-            snippet=re.sub(r"\s+"," ",re.sub(r"<[^>]+>"," ",body)).strip()
-            docs.append({"title":title,"url":final,"topic":topic,"http_status":status,"checked_at":dt.datetime.now(dt.timezone.utc).isoformat(),"sha256":hashlib.sha256(body.encode()).hexdigest(),"snippet":snippet[:500] if status else body[:200]})
+            snippet=re.sub(r"\\s+"," ",re.sub(r"<[^>]+>"," ",body)).strip()
+            row={"title":title,"url":final,"topic":topic,"http_status":status,"checked_at":dt.datetime.now(dt.timezone.utc).isoformat(),"sha256":hashlib.sha256(body.encode()).hexdigest(),"snippet":snippet[:500] if status else body[:200]}
+            if topic=="isa" and status:
+                row["recursive_discovery"]=discover_links(final,args.depth,args.page_budget)
+            docs.append(row)
     repos={}; searches=[]
     if not args.offline:
         headers={"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}
@@ -99,7 +141,7 @@ def main():
     lines += ["","## Local and Library-exported files",""]+["- "+x["path"]+" — "+str(x["bytes"])+" bytes; SHA-256 "+x["sha256"] for x in local]
     lines += ["","## Safe adoption workflow","","1. Verify each mnemonic against its normative ISA specification and record architecture/extension, operand encoding and CPU feature detection.","2. Add assembler/disassembler round-trip and negative tests before registry changes.","3. Review repository license, maintenance, provenance and security before reusing code.","4. Never execute remote shell snippets or import privileged commands automatically.","5. Export relevant ChatGPT Library documents into the configured Library directory; the build cannot access the Library service directly.",""]
     (OUT/"ISA_COMMAND_RESEARCH.md").write_text("\n".join(lines),encoding="utf-8")
-    print("[ISA-RESEARCH] local=%d docs=%d repositories=%d"%(len(local),len(docs),len(repos)))
+    print("[ISA-RESEARCH] local=%d docs=%d ISA sources=%d repositories=%d"%(len(local),len(docs),len(isa_sources),len(repos)))
     print("[ISA-RESEARCH] wrote docs/research/isa-command-research.json and ISA_COMMAND_RESEARCH.md")
     return 0
 if __name__=="__main__": raise SystemExit(main())
