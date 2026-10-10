@@ -22,7 +22,7 @@
     "value_bits",
     "mask_bits"
   ],
-  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Online research expansion 2026-10-10: eleven target families have curated official/community source links and are eligible for recursive discovery. Candidate mnemonics extracted from machine-readable backend sources are stored separately under research_candidates and never auto-converted into executable instruction rows. Architecture inventory entries with zero verified forms are catalog-only, not a claim of compiler, decoder, simulator, hardware, or boot support.",
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Online research expansion 2026-10-10: eleven target families have curated official/community source links and are eligible for recursive discovery. Candidate mnemonics extracted from machine-readable backend sources are stored separately under research_candidates and never auto-converted into executable instruction rows. Architecture inventory entries with zero verified forms are catalog-only, not a claim of compiler, decoder, simulator, hardware, or boot support. Eleven-family research targets are explicitly enumerated under research_targets. Their inclusion defines documentation discovery scope only; per-target verified_instruction_forms is a count of existing canonical rows, not a statement of complete ISA or operating-system support.",
   "architectures": [
     [
       "chimera-c8192",
@@ -3529,5 +3529,168 @@
     },
     "verification_rule": "Instruction rows must be added only from a versioned authoritative reference or validated machine-readable definition. TableGen identifiers and family names are discovery candidates, not automatically architectural mnemonics or conformance evidence.",
     "last_updated": "2026-10-10"
-  }
+  },
+  "research_targets": [
+    {
+      "id": "x86",
+      "families": [
+        "x86-64",
+        "x86-32",
+        "x86-16"
+      ],
+      "sources": [
+        "intel-sdm",
+        "amd64-architecture"
+      ],
+      "policy": "Version and feature-gate every instruction; variable-length decoding and CPU/OS state checks are required.",
+      "status": "research-target",
+      "verified_instruction_forms": 12
+    },
+    {
+      "id": "arm",
+      "families": [
+        "aarch64",
+        "arm32",
+        "arm32-thumb",
+        "armv7-risc",
+        "armv7-m",
+        "armv8-a32",
+        "armv9-a64",
+        "arm-sme",
+        "arm-sve"
+      ],
+      "sources": [
+        "arm"
+      ],
+      "policy": "Keep A64, A32, and T32 encodings and profile/version extensions distinct.",
+      "status": "research-target",
+      "verified_instruction_forms": 29
+    },
+    {
+      "id": "riscv",
+      "families": [
+        "riscv32",
+        "riscv64",
+        "riscv32e",
+        "riscv64e",
+        "riscv64gc",
+        "riscv-vector"
+      ],
+      "sources": [
+        "riscv",
+        "riscv-ratified"
+      ],
+      "policy": "Track base ISA, extension version/ratification, privileged architecture, and legal encodings independently.",
+      "status": "research-target",
+      "verified_instruction_forms": 21
+    },
+    {
+      "id": "mips",
+      "families": [
+        "mips32",
+        "mips64",
+        "mips16",
+        "mips64r6"
+      ],
+      "sources": [
+        "mips-archive"
+      ],
+      "policy": "Keep release and compressed encoding variants distinct; verify availability of normative reference sources.",
+      "status": "research-target",
+      "verified_instruction_forms": 13
+    },
+    {
+      "id": "power",
+      "families": [
+        "powerpc",
+        "ppc64",
+        "power10"
+      ],
+      "sources": [
+        "power-isa-31c"
+      ],
+      "policy": "Separate user, virtual-environment, and operating-environment instruction subsets and revision-specific prefixed forms.",
+      "status": "research-target",
+      "verified_instruction_forms": 11
+    },
+    {
+      "id": "sparc",
+      "families": [
+        "sparc-v8",
+        "sparc-v9"
+      ],
+      "sources": [
+        "sparc-v9-manual"
+      ],
+      "policy": "Record revision-specific instructions and privileged behavior; zero-form entries remain catalog-only.",
+      "status": "research-target",
+      "verified_instruction_forms": 0
+    },
+    {
+      "id": "loongarch",
+      "families": [
+        "loongarch32",
+        "loongarch64"
+      ],
+      "sources": [
+        "loongarch-manual"
+      ],
+      "policy": "Track LA32/LA64 and optional vector/virtualization extensions separately.",
+      "status": "research-target",
+      "verified_instruction_forms": 0
+    },
+    {
+      "id": "xtensa",
+      "families": [
+        "xtensa",
+        "xtensa-lx"
+      ],
+      "sources": [
+        "xtensa-cadence",
+        "xtensa-isa-docs"
+      ],
+      "policy": "ISA is configurable; validate the specific core configuration and licensed documentation.",
+      "status": "research-target",
+      "verified_instruction_forms": 0
+    },
+    {
+      "id": "avr",
+      "families": [
+        "avr"
+      ],
+      "sources": [
+        "microchip-avr"
+      ],
+      "policy": "Separate AVR core variants and program-memory/data-memory semantics.",
+      "status": "research-target",
+      "verified_instruction_forms": 9
+    },
+    {
+      "id": "superh",
+      "families": [
+        "sh4",
+        "superh-sh2",
+        "superh-sh4a"
+      ],
+      "sources": [
+        "renesas-superh"
+      ],
+      "policy": "Distinguish SH revisions and optional instruction sets; zero-form entries remain catalog-only.",
+      "status": "research-target",
+      "verified_instruction_forms": 0
+    },
+    {
+      "id": "openrisc",
+      "families": [
+        "openrisc",
+        "or1k"
+      ],
+      "sources": [
+        "openrisc"
+      ],
+      "policy": "Separate ORBIS base ISA from optional ORFPX and ORVDX extensions.",
+      "status": "research-target",
+      "verified_instruction_forms": 0
+    }
+  ]
 }
