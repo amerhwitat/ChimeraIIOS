@@ -41,3 +41,5 @@ The workflow `.github/workflows/koronos32-bringup.yml` runs static contract test
 | Cross-bitness binary execution | Loader/emulator integration and ABI tests | Not verified |
 
 Do not mark any gate complete solely because a source file, architecture identifier or build target exists.
+
+The machine-readable guest/backend status is tracked in `system/hosted/execution-backend-status.json`. It intentionally labels guest execution and cross-bitness loaders as unvalidated or unsupported until actual execution and negative-case tests exist.
