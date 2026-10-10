@@ -8,3 +8,9 @@ The hardware boundary is assembly-first. x86 port I/O uses IN/OUT instructions. 
 The Koronos core is freestanding: no libc, libstdc++, streams, allocation, exceptions, RTTI, or hosted runtime.
 
 ELF64 kernel images and relocatable/shared ELF64 modules are validated by machine type before loading. Relocation, W^X, symbol resolution, and module lifecycle are explicit kernel stages.
+
+## Endianness and execution modes
+
+The canonical policy is in `system/architecture/endianness.json`; freestanding load/store helpers are in `kernel/include/chimera/endianness.h`. x86 real16, protected32 and long64 use little-endian data representation. Mode transitions do not permit the bootloader to assume a different order. ARM32/AArch64 profiles must record the architecture revision and active endian controls; RISC-V targets default to the standard little-endian profile unless a specific supported platform says otherwise; MIPS/PowerPC variants are selected by target ABI; s390x is big-endian. Chimera research targets must declare byte order explicitly.
+
+Boot protocol numeric fields and serialized microkernel IPC use canonical little-endian encoding. In-memory native ABI structures are not wire formats. Emulators preserve guest-visible endianness for memory accesses, instruction fetch, MMIO and exceptions instead of leaking host order. Compatibility loaders validate executable machine and byte-order metadata before decoding. Unsupported profiles are rejected. These helpers and policy are contract-defined; per-backend tests and big-endian-host CI remain acceptance requirements.
