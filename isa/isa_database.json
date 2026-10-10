@@ -1,6 +1,6 @@
 {
   "$schema": "CHM-ISA-DB-4",
-  "version": "2026.10.09",
+  "version": "2026.10.10",
   "title": "Chimera II OS Universal ISA Database",
   "architecture_row": [
     "id",
@@ -22,7 +22,7 @@
     "value_bits",
     "mask_bits"
   ],
-  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs.",
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Online research expansion 2026-10-10: eleven target families have curated official/community source links and are eligible for recursive discovery. Candidate mnemonics extracted from machine-readable backend sources are stored separately under research_candidates and never auto-converted into executable instruction rows. Architecture inventory entries with zero verified forms are catalog-only, not a claim of compiler, decoder, simulator, hardware, or boot support.",
   "architectures": [
     [
       "chimera-c8192",
@@ -59,7 +59,7 @@
       "CISC",
       "x86",
       32,
-      "standard",
+      "catalog-only",
       "variable-length x86 encoding",
       "intel-sdm",
       0
@@ -89,7 +89,7 @@
       "RISC",
       "RISC-V",
       32,
-      "standard",
+      "catalog-only",
       "16/32-bit base plus extensions",
       "riscv",
       0
@@ -111,7 +111,7 @@
       32,
       "standard",
       "fixed 32-bit R/I/J",
-      "mips",
+      "mips-archive",
       13
     ],
     [
@@ -119,9 +119,9 @@
       "RISC",
       "MIPS",
       64,
-      "standard",
+      "catalog-only",
       "fixed 32-bit R/I/J",
-      "mips",
+      "mips-archive",
       0
     ],
     [
@@ -131,7 +131,7 @@
       32,
       "standard",
       "fixed 32-bit forms",
-      "openpower",
+      "power-isa-31c",
       11
     ],
     [
@@ -139,9 +139,9 @@
       "RISC",
       "Power ISA",
       64,
-      "standard",
+      "catalog-only",
       "32-bit forms plus prefixed extensions",
-      "openpower",
+      "power-isa-31c",
       0
     ],
     [
@@ -149,9 +149,9 @@
       "RISC",
       "SPARC",
       64,
-      "standard",
+      "catalog-only",
       "fixed 32-bit forms",
-      "sparc",
+      "sparc-v9-manual",
       0
     ],
     [
@@ -189,9 +189,9 @@
       "RISC",
       "SuperH",
       32,
-      "legacy/standard",
+      "catalog-only",
       "fixed 16-bit",
-      "chimera",
+      "renesas-superh",
       0
     ],
     [
@@ -199,9 +199,9 @@
       "RISC",
       "LoongArch",
       64,
-      "standard",
+      "catalog-only",
       "fixed 32-bit",
-      "loongarch",
+      "loongarch-manual",
       0
     ],
     [
@@ -229,9 +229,9 @@
       "RISC",
       "Xtensa",
       32,
-      "configurable",
+      "catalog-only",
       "16/24/32-bit configurable",
-      "chimera",
+      "xtensa-cadence",
       0
     ],
     [
@@ -581,7 +581,7 @@
       32,
       "catalog-only",
       "configurable 16/24-bit and optional extension instructions",
-      "xtensa",
+      "xtensa-cadence",
       0
     ],
     [
@@ -791,7 +791,7 @@
       32,
       "catalog-only",
       "fixed 32-bit instruction format",
-      "loongarch",
+      "loongarch-manual",
       0
     ],
     [
@@ -1310,6 +1310,72 @@
       "url": "https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/",
       "supports": [
         "intel-xe-gpu"
+      ]
+    },
+    {
+      "id": "xtensa-cadence",
+      "name": "Cadence Xtensa processor IP documentation",
+      "url": "https://www.cadence.com/en_US/home/tools/silicon-solutions/compute-ip/xtensa.html",
+      "supports": [
+        "xtensa",
+        "xtensa-lx"
+      ]
+    },
+    {
+      "id": "xtensa-isa-docs",
+      "name": "Xtensa ISA documentation index (community maintained)",
+      "url": "https://github.com/espressif/xtensa-isa-doc",
+      "supports": [
+        "xtensa",
+        "xtensa-lx"
+      ]
+    },
+    {
+      "id": "mips-archive",
+      "name": "MIPS architecture documentation index",
+      "url": "https://www.mips.com/technical-documents/",
+      "supports": [
+        "mips32",
+        "mips64",
+        "mips16",
+        "mips64r6"
+      ]
+    },
+    {
+      "id": "sparc-v9-manual",
+      "name": "Oracle SPARC V9 architecture manual",
+      "url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html",
+      "supports": [
+        "sparc-v9",
+        "sparc-v8"
+      ]
+    },
+    {
+      "id": "power-isa-31c",
+      "name": "OpenPOWER Power ISA version 3.1c",
+      "url": "https://openpower.foundation/specifications/isa/",
+      "supports": [
+        "powerpc",
+        "ppc64",
+        "power10"
+      ]
+    },
+    {
+      "id": "loongarch-manual",
+      "name": "LoongArch Volume 1 basic architecture",
+      "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+      "supports": [
+        "loongarch64",
+        "loongarch32"
+      ]
+    },
+    {
+      "id": "amd64-architecture",
+      "name": "AMD64 Architecture Programmer's Manual",
+      "url": "https://www.amd.com/en/search/documentation/hub.html",
+      "supports": [
+        "x86-64",
+        "x86-32"
       ]
     }
   ],
@@ -3306,156 +3372,150 @@
     ]
   ],
   "research_update": {
-    "reviewed_on": "2026-10-08",
-    "method": "Official vendor and standards documentation reviewed for architecture scope, instruction reference organization, and extension/version status. Curated reference supplement; not exhaustive.",
-    "source_findings": [
-      {
-        "source": "intel-sdm",
-        "finding": "Intel SDM separates basic architecture, the full A–Z instruction reference, system programming (memory management, protection, interrupts/exceptions, multiprocessor, VMX/VT, SGX), and model-specific registers. Track extension and processor feature availability separately."
-      },
-      {
-        "source": "arm-isa-glossary",
-        "finding": "An ISA specifies programmer-visible instructions, formats, registers, data types, memory model, privilege, and exceptions; distinguish ISA from microarchitecture."
-      },
-      {
-        "source": "arm",
-        "finding": "Track AArch64/A64 separately from AArch32 A32 and T32 (Thumb/Thumb-2); A64 is fixed 32-bit while T32 uses 16- and 32-bit encodings. Feature availability depends on architecture profile/version and implemented extensions."
-      },
-      {
-        "source": "riscv",
-        "finding": "RISC-V is modular: record base ISA, extensions, privileged architecture, and ratification status independently. Compressed C instructions use 16-bit encodings; base instructions commonly use 32 bits. The ratified library contains extensions beyond M/A/F/D/C/V."
-      },
-      {
-        "source": "openpower",
-        "finding": "Power ISA 3.1c defines user, virtual-environment, and operating-environment architecture in separate books; distinguish ISA instructions from platform requirements."
-      }
+    "reviewed_on": "2026-10-10",
+    "method": "Bounded recursive crawl of official/vendor specification indexes and source-controlled machine-readable ISA definitions; same-host links only; source metadata and hashes; human review required before executable instruction rows are added.",
+    "processor_families": [
+      "x86 / x86-64",
+      "Arm / AArch32 / AArch64",
+      "RISC-V",
+      "MIPS",
+      "Power ISA / PowerPC",
+      "SPARC",
+      "LoongArch",
+      "Xtensa",
+      "AVR",
+      "SuperH",
+      "OpenRISC"
     ],
-    "architecture_profiles": [
+    "policy": "Research candidates are not executable instructions. Only versioned normative encodings verified with tests may be appended to instructions. A family appearing in this catalog does not imply runtime support.",
+    "source_families": [
       {
-        "id": "arm-aarch64-a64",
-        "architecture": "aarch64",
-        "profile": "A-profile",
-        "execution_state": "AArch64",
-        "instruction_set": "A64",
-        "instruction_length_bits": [
-          32
-        ],
-        "register_model": "64-bit general-purpose X0-X30 plus SP/PC and architectural SIMD/FP registers",
-        "features_to_track": [
-          "base integer",
-          "load/store",
-          "branch/control flow",
-          "SIMD/FP Advanced SIMD",
-          "atomics/ordering",
-          "system registers/exceptions",
-          "virtualization",
-          "cryptography",
-          "SVE/SVE2",
-          "SME",
-          "pointer authentication",
-          "memory tagging"
-        ],
-        "support_status": "catalog-partial",
-        "note": "Feature list is taxonomy, not a claim each extension is implemented or present on every CPU."
+        "id": "xtensa-cadence",
+        "name": "Cadence Xtensa processor IP documentation",
+        "url": "https://www.cadence.com/en_US/home/tools/silicon-solutions/compute-ip/xtensa.html",
+        "supports": [
+          "xtensa",
+          "xtensa-lx"
+        ]
       },
       {
-        "id": "arm-aarch32-a32",
-        "architecture": "arm32",
-        "profile": "A/R profile where applicable",
-        "execution_state": "AArch32",
-        "instruction_set": "A32/ARM",
-        "instruction_length_bits": [
-          32
-        ],
-        "register_model": "32-bit R0-R15 plus status/system state and profile-specific FP/SIMD registers",
-        "features_to_track": [
-          "conditional execution",
-          "integer/data processing",
-          "load/store",
-          "branch/exchange",
-          "coprocessor and system instructions",
-          "VFP/Advanced SIMD where supported"
-        ],
-        "support_status": "catalog-partial",
-        "note": "Availability varies by architecture version and profile."
+        "id": "xtensa-isa-docs",
+        "name": "Xtensa ISA documentation index (community maintained)",
+        "url": "https://github.com/espressif/xtensa-isa-doc",
+        "supports": [
+          "xtensa",
+          "xtensa-lx"
+        ]
       },
       {
-        "id": "arm-aarch32-t32",
-        "architecture": "arm32-thumb",
-        "profile": "A/R/M profile availability varies by version",
-        "execution_state": "AArch32",
-        "instruction_set": "T32/Thumb-2",
-        "instruction_length_bits": [
-          16,
-          32
-        ],
-        "register_model": "AArch32 registers with Thumb encoding and execution-state rules",
-        "features_to_track": [
-          "16-bit Thumb encodings",
-          "32-bit Thumb-2 encodings",
-          "IT/conditional execution where supported",
-          "branch/exchange",
-          "load/store",
-          "system instructions by profile"
-        ],
-        "support_status": "catalog-partial",
-        "note": "Decode length is encoding-dependent; Thumb is not uniformly 32-bit."
+        "id": "renesas-superh",
+        "name": "Renesas SuperH documentation index",
+        "url": "https://www.renesas.com/en/document",
+        "supports": [
+          "sh4",
+          "superh-sh2",
+          "superh-sh4a"
+        ]
       },
       {
-        "id": "riscv-modular",
-        "architecture": "riscv64",
-        "profile": "unprivileged and privileged specifications",
-        "instruction_set": "RV32I/RV64I plus separately versioned extensions",
-        "instruction_length_bits": [
-          16,
-          32,
-          48,
-          64,
-          80
-        ],
-        "support_status": "inventory-only",
-        "features_to_track": [
-          "I/E base",
-          "M",
-          "A",
-          "F",
-          "D",
-          "Q",
-          "C",
-          "B",
-          "V",
-          "Zicsr",
-          "Zifencei",
-          "counters",
-          "cryptography",
-          "cache-management",
-          "hypervisor",
-          "machine/supervisor privilege",
-          "Sv* virtual memory extensions"
-        ],
-        "note": "Encoding-length classes are not a claim that the current Chimera decoder supports these lengths or extensions; use the selected specification release for status."
+        "id": "openrisc",
+        "name": "OpenRISC architecture and ISA documentation",
+        "url": "https://openrisc.io/",
+        "supports": [
+          "openrisc",
+          "or1k"
+        ]
       },
       {
-        "id": "intel-x86-extensions",
-        "architecture": "x86-64",
-        "profile": "Intel 64 and IA-32",
-        "instruction_set": "x86 variable-length encodings",
-        "support_status": "inventory-only",
-        "features_to_track": [
-          "legacy integer/x87",
-          "SSE family",
-          "AVX/AVX2",
-          "AVX-512",
-          "AVX10.1/10.2",
-          "AES and SHA extensions",
-          "BMI",
-          "FMA",
-          "virtualization VMX",
-          "SGX",
-          "CET",
-          "AMX"
-        ],
-        "note": "Mnemonic catalog does not imply CPU support; gate by CPUID, execution mode, OS state, and processor generation."
+        "id": "mips-archive",
+        "name": "MIPS architecture documentation index",
+        "url": "https://www.mips.com/technical-documents/",
+        "supports": [
+          "mips32",
+          "mips64",
+          "mips16",
+          "mips64r6"
+        ]
+      },
+      {
+        "id": "sparc-v9-manual",
+        "name": "Oracle SPARC V9 architecture manual",
+        "url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html",
+        "supports": [
+          "sparc-v9",
+          "sparc-v8"
+        ]
+      },
+      {
+        "id": "power-isa-31c",
+        "name": "OpenPOWER Power ISA version 3.1c",
+        "url": "https://openpower.foundation/specifications/isa/",
+        "supports": [
+          "powerpc",
+          "ppc64",
+          "power10"
+        ]
+      },
+      {
+        "id": "loongarch-manual",
+        "name": "LoongArch Volume 1 basic architecture",
+        "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+        "supports": [
+          "loongarch64",
+          "loongarch32"
+        ]
+      },
+      {
+        "id": "microchip-avr",
+        "name": "Microchip AVR instruction set manuals",
+        "url": "https://onlinedocs.microchip.com/",
+        "supports": [
+          "avr"
+        ]
+      },
+      {
+        "id": "intel-sdm",
+        "name": "Intel Software Developer Manuals",
+        "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "supports": [
+          "x86-64",
+          "x86-32",
+          "x86-16"
+        ]
+      },
+      {
+        "id": "amd64-architecture",
+        "name": "AMD64 Architecture Programmer's Manual",
+        "url": "https://www.amd.com/en/search/documentation/hub.html",
+        "supports": [
+          "x86-64",
+          "x86-32"
+        ]
+      },
+      {
+        "id": "arm",
+        "name": "Arm architecture documentation",
+        "url": "https://developer.arm.com/documentation",
+        "supports": [
+          "aarch64",
+          "arm32",
+          "arm32-thumb",
+          "armv9-a64",
+          "armv8-a32"
+        ]
+      },
+      {
+        "id": "riscv",
+        "name": "RISC-V Ratified Specifications Library",
+        "url": "https://docs.riscv.org/reference/isa/",
+        "supports": [
+          "riscv32",
+          "riscv64",
+          "riscv32e",
+          "riscv64e",
+          "riscv64gc",
+          "riscv-vector"
+        ]
       }
     ]
   },
@@ -3468,6 +3528,6 @@
       "project-defined": "Defined by Chimera II OS project"
     },
     "verification_rule": "Instruction rows must be added only from a versioned authoritative reference or validated machine-readable definition. TableGen identifiers and family names are discovery candidates, not automatically architectural mnemonics or conformance evidence.",
-    "last_updated": "2026-10-09"
+    "last_updated": "2026-10-10"
   }
 }
