@@ -16,7 +16,9 @@ extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory* out)
   uint32_t id0=pci_read((uint8_t)bus,(uint8_t)dev,0,0);if(id0==0xffffffffu||id0==0u)continue;uint32_t header=pci_read((uint8_t)bus,(uint8_t)dev,0,0x0c);uint32_t functions=(header&0x00800000u)?8u:1u;
   for(uint32_t fn=0;fn<functions&&out->count<CHIMERA_DEVICE_MAX;++fn){uint32_t id=fn==0?id0:pci_read((uint8_t)bus,(uint8_t)dev,(uint8_t)fn,0);if(id==0xffffffffu||id==0u)continue;uint32_t classreg=pci_read((uint8_t)bus,(uint8_t)dev,(uint8_t)fn,8);uint32_t hdr=pci_read((uint8_t)bus,(uint8_t)dev,(uint8_t)fn,0x0c);chimera_device& d=out->devices[out->count++];
    d.bus=1u;d.domain=0u;d.bdf=(bus<<8)|(dev<<3)|fn;d.vendor_id=(uint16_t)(id&0xffffu);d.device_id=(uint16_t)(id>>16);d.revision=classreg&0xffu;d.prog_if=(classreg>>8)&0xffu;d.subclass=(classreg>>16)&0xffu;d.class_code=(classreg>>24)&0xffu;d.flags=hdr;
-   uint32_t ss=pci_read((uint8_t)bus,(uint8_t)dev,(uint8_t)fn,0x2c);d.subsystem_vendor=(uint16_t)(ss&0xffffu);d.subsystem_device=(uint16_t)(ss>>16);d.device_class=classify((uint8_t)d.class_code,(uint8_t)d.subclass);d.name[0]='P';d.name[1]='C';d.name[2]='I';d.name[3]=0;
+   /* Subsystem IDs are defined for type-0 endpoints; do not interpret bridge registers as IDs. */
+   if (((hdr>>16)&0x7fu)==0u) { uint32_t ss=pci_read((uint8_t)bus,(uint8_t)dev,(uint8_t)fn,0x2c);d.subsystem_vendor=(uint16_t)(ss&0xffffu);d.subsystem_device=(uint16_t)(ss>>16); }
+   d.device_class=classify((uint8_t)d.class_code,(uint8_t)d.subclass);d.name[0]='P';d.name[1]='C';d.name[2]='I';d.name[3]=0;
   }
  }
 #else
