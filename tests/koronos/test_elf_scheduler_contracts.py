@@ -19,7 +19,8 @@ class Info(ctypes.Structure):
 class Segment(ctypes.Structure):
     _fields_ = [("file_offset", ctypes.c_uint64), ("virtual_address", ctypes.c_uint64),
                 ("file_size", ctypes.c_uint64), ("memory_size", ctypes.c_uint64),
-                ("flags", ctypes.c_uint64), ("align", ctypes.c_uint64)]
+                ("flags", ctypes.c_uint64), ("align", ctypes.c_uint64),
+                ("page_offset", ctypes.c_uint64)]
 class Proc(ctypes.Structure):
     _fields_ = [("pid", ctypes.c_uint32), ("state", ctypes.c_uint32),
                 ("segment_count", ctypes.c_uint32), ("reserved", ctypes.c_uint32),
@@ -36,6 +37,7 @@ class KernelContracts(unittest.TestCase):
             "g++", "-std=c++17", "-shared", "-fPIC", "-pthread",
             "-I", str(ROOT / "kernel/include"),
             str(ROOT / "kernel/core/process.cpp"),
+            str(ROOT / "kernel/core/elf_loader.cpp"),
             str(ROOT / "kernel/core/scheduler.cpp"), "-o", str(cls.lib),
         ], check=True)
         cls.api = ctypes.CDLL(str(cls.lib))
@@ -131,6 +133,7 @@ class KernelContracts(unittest.TestCase):
         self.assertEqual(out.segment_count, 1)
         self.assertEqual(out.entry, 0x400000)
         self.assertEqual(out.user_stack_top, 0x70000000)
+        self.assertEqual(out.segments[0].page_offset, 0)
 
     def test_elf_rejects_truncated_program_header_table(self):
         self.api.chimera_process_init()
