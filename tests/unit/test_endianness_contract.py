@@ -7,6 +7,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 CONTRACT = ROOT / "system/architecture/endianness.json"
 HEADER = ROOT / "kernel/include/chimera/endianness.h"
+WIRE = ROOT / "kernel/include/chimera/microkernel_wire.h"
 
 
 class EndiannessContractTests(unittest.TestCase):
@@ -22,6 +23,14 @@ class EndiannessContractTests(unittest.TestCase):
                        "powerpc32/64", "s390x"):
             self.assertIn(family, data["cpu_families"])
         self.assertEqual(data["canonical_wire"]["byte_order"], "little-endian")
+
+    def test_microkernel_wire_format_is_explicit_and_bounded(self):
+        text = WIRE.read_text(encoding="utf-8")
+        self.assertIn("CHIMERA_MK_MESSAGE_WIRE_SIZE 40u", text)
+        self.assertIn("chimera_mk_message_encode_le", text)
+        self.assertIn("chimera_mk_message_decode_le", text)
+        self.assertIn("dst_size < CHIMERA_MK_MESSAGE_WIRE_SIZE", text)
+        self.assertIn("src_size < CHIMERA_MK_MESSAGE_WIRE_SIZE", text)
 
     def test_freestanding_helpers_do_not_assume_native_endian(self):
         text = HEADER.read_text(encoding="utf-8")
