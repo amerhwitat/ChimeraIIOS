@@ -11527,34 +11527,54 @@
     },
     "last_updated": "2026-10-10",
     "hosted_compatibility_modes": {
-      "schema": "CHIMERA-HOSTED-ISA-MAP-1",
-      "policy": "These rows map host OS modes to physical ISA inventory candidates. A match does not mean the guest ABI, compiler backend, binary loader, or emulator is implemented.",
+      "schema": "CHIMERA-HOSTED-ISA-MAP-2",
+      "policy": "These rows map host OS modes to physical ISA inventory candidates. A match does not mean the guest ABI, compiler backend, binary loader, or emulator is implemented. 32-bit host support applies only to matching-bitness user-space bridge and compatible host tools; it does not enable a 64-bit guest or kernel on a 32-bit host.",
       "modes": {
         "windows": {
           "abi": "Win32/NT",
           "architectures": [
+            "x86-32",
             "x86-64",
+            "arm32",
             "armv9-a64"
           ],
-          "execution": "host-native on Windows; non-Windows PE execution requires a validated PE runtime"
+          "execution": "host-native matching-bitness process execution; guest PE execution still requires a validated PE runtime",
+          "supported_host_pointer_bits": [
+            32,
+            64
+          ]
         },
         "linux": {
           "abi": "Linux/POSIX",
           "architectures": [
+            "x86-32",
             "x86-64",
+            "arm32",
             "armv9-a64",
+            "riscv32",
             "riscv64"
           ],
-          "execution": "host-native process execution; no syscall emulation"
+          "execution": "host-native process execution; no syscall emulation",
+          "supported_host_pointer_bits": [
+            32,
+            64
+          ]
         },
         "unix": {
           "abi": "POSIX/BSD",
           "architectures": [
+            "x86-32",
             "x86-64",
+            "arm32",
             "armv9-a64",
+            "riscv32",
             "riscv64"
           ],
-          "execution": "host-native process execution; BSD extensions remain host-dependent"
+          "execution": "host-native process execution; BSD extensions remain host-dependent",
+          "supported_host_pointer_bits": [
+            32,
+            64
+          ]
         },
         "macos": {
           "abi": "Darwin/POSIX",
@@ -11562,7 +11582,10 @@
             "x86-64",
             "armv9-a64"
           ],
-          "execution": "host-native process execution; macOS security policy remains in force"
+          "execution": "64-bit host-native process execution only; 32-bit macOS excluded",
+          "supported_host_pointer_bits": [
+            64
+          ]
         }
       },
       "host_aliases": {
@@ -11573,7 +11596,10 @@
         "aarch64": "armv9-a64",
         "armv7l": "arm32",
         "riscv64": "riscv64",
-        "riscv32": "riscv32"
+        "riscv32": "riscv32",
+        "x86": "x86-32",
+        "i386": "x86-32",
+        "i686": "x86-32"
       },
       "bridge": "tools/runtime/chimera-hosted.py",
       "candidate_execution_status": "host-match-only; cross-ISA execution not implied",
