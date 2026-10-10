@@ -15,8 +15,8 @@ int main(){
  std::vector<uint8_t> info(8,0);
  MmapHead mh{sizeof(MmapEntry),0};
  std::vector<uint8_t> body;append(body,&mh,sizeof(mh));
- MmapEntry a{0,0x100000,1,0}, b{0x100000,0x3f00000,1,0}, reserved{0x800000,0x100000,2,0};
- append(body,&a,sizeof(a));append(body,&b,sizeof(b));append(body,&reserved,sizeof(reserved));
+ MmapEntry a{0,0x100000,1,0}, b{0x100000,0x700000,1,0}, reserved{0x800000,0x100000,2,0}, c{0x900000,0x3700000,1,0};
+ append(body,&a,sizeof(a));append(body,&b,sizeof(b));append(body,&reserved,sizeof(reserved));append(body,&c,sizeof(c));
  tag(info,6,body.data(),(uint32_t)body.size());
  uint8_t moduleBody[8]={0};uint32_t modStart=0x500000,modEnd=0x510000;std::memcpy(moduleBody,&modStart,4);std::memcpy(moduleBody+4,&modEnd,4);tag(info,3,moduleBody,sizeof(moduleBody));
  tag(info,0,nullptr,0);
