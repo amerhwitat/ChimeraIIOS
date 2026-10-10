@@ -112,4 +112,13 @@ install(DIRECTORY mobile DESTINATION share/chimera/mobile)
 install(PROGRAMS tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh DESTINATION bin)
 install(FILES tools/flash/flash-manifest.example.json tools/flash/README.md DESTINATION share/chimera/flash)
 
+# ISA candidate inventory and reference execution harness.
+install(PROGRAMS tools/isa/chimera_isa_candidate.py DESTINATION bin RENAME chimera-isa-candidate)
+install(FILES isa/isa_database.json DESTINATION share/chimera/isa)
+install(FILES docs/research/ISA_CANDIDATE_EXECUTION.md DESTINATION share/chimera/isa/docs)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_isa_candidate_runtime
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_isa_candidate_runtime.py)
+endif()
+
 add_subdirectory(tests/kernel)
