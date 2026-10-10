@@ -12,6 +12,9 @@ on:
       - 'kernel/include/chimera/elf64.h'
       - 'kernel/include/chimera/scheduler.h'
       - 'tests/koronos/**'
+      - 'kernel/core/elf_loader.cpp'
+      - 'kernel/include/chimera/elf_loader.h'
+      - 'kernel/build-koronos.sh'
       - '.github/workflows/koronos-elf-smp.yml'
   push:
     branches: [main]
@@ -37,6 +40,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y g++ python3
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
+      - name: Run transactional ELF loader tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_elf_loader_transaction.cpp kernel/core/process.cpp kernel/core/elf_loader.cpp -o /tmp/koronos-elf-loader-test
+          /tmp/koronos-elf-loader-test
       - name: Build freestanding Koronos kernel
         run: |
           sudo apt-get install -y nasm binutils
