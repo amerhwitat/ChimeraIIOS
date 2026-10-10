@@ -1216,7 +1216,7 @@ PYISA
   log_info "Scanning cached command catalogs before crawling SS64"
   [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
   if [[ "${CHIMERA_SKIP_SS64_CRAWL:-0}" != 1 ]]; then
-    log_info "SS64 crawl limits: pages/platform=${CHIMERA_SS64_MAX_PAGES:-80}, depth=${CHIMERA_SS64_MAX_DEPTH:-2}, timeout=${CHIMERA_SS64_TIMEOUT:-10}s, platform budget=${CHIMERA_SS64_PLATFORM_BUDGET:-90}s" 
+    log_info "SS64 crawl limits: pages/platform=${CHIMERA_SS64_MAX_PAGES:-500}, depth=${CHIMERA_SS64_MAX_DEPTH:-10}, timeout=${CHIMERA_SS64_TIMEOUT:-10}s, platform budget=${CHIMERA_SS64_PLATFORM_BUDGET:-120}s" 
     CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-90}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-80}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-2}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-0}"
   else
     log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
@@ -1247,6 +1247,10 @@ main(){
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+  fi
+  if [[ -f "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" ]]; then
+    log_info "Appending source-backed ISA discoveries and command references to the local catalogs"
+    python3 "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" || { log_error "Online catalog merge failed"; return 1; }
   fi
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
