@@ -26,8 +26,8 @@ static void serial_write(const char *s) {
     while (*s) {
         /* Bound each poll so a missing UART cannot hang the bring-up probe. */
         uint32_t spins = 100000u;
-        while (spins-- && !(inb(0x3FD) & 0x20u)) { }
-        if (spins != 0u) outb(0x3F8, (uint8_t)*s);
+        while (spins > 0u && !(inb(0x3FD) & 0x20u)) --spins;
+        if (spins > 0u) outb(0x3F8, (uint8_t)*s);
         ++s;
     }
 }
