@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "policy": "native-abi-over-koronos",
   "targets": {
     "native": {
@@ -10,7 +10,8 @@
       ],
       "execution": "native-or-emulated",
       "preferred_nbit": "hardware-best",
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native ISA ABI; explicit wire conversion"
     },
     "windows": {
       "architectures": [
@@ -23,7 +24,8 @@
         32,
         64
       ],
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native platform ABI for host calls; canonical little-endian for Chimera wire messages; guest order is separate"
     },
     "linux": {
       "architectures": [
@@ -37,7 +39,8 @@
         32,
         64
       ],
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native platform ABI for host calls; canonical little-endian for Chimera wire messages; guest order is separate"
     },
     "bsd": {
       "architectures": [
@@ -51,7 +54,8 @@
         32,
         64
       ],
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native platform ABI for host calls; canonical little-endian for Chimera wire messages; guest order is separate"
     },
     "darwin": {
       "architectures": [
@@ -62,7 +66,8 @@
       "preferred_nbit": [
         64
       ],
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native platform ABI for host calls; canonical little-endian for Chimera wire messages; guest order is separate"
     },
     "android": {
       "architectures": [
@@ -73,7 +78,8 @@
       "preferred_nbit": [
         64
       ],
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native platform ABI for host calls; canonical little-endian for Chimera wire messages; guest order is separate"
     },
     "ios": {
       "architectures": [
@@ -83,7 +89,8 @@
       "preferred_nbit": [
         64
       ],
-      "ipc": "mixed-width"
+      "ipc": "mixed-width",
+      "endianness": "native platform ABI for host calls; canonical little-endian for Chimera wire messages; guest order is separate"
     }
   },
   "wide_chimera_modes": [
@@ -177,5 +184,17 @@
       32,
       64
     ]
+  },
+  "endianness": {
+    "canonical_ipc_wire": "little-endian",
+    "native_mode": "Use active ISA/platform ABI byte order; do not infer from pointer width.",
+    "real_mode": "x86 real16 is little-endian; other ISA modes use their architectural definition.",
+    "compatibility_mode": "Keep guest data order independent from host order and explicitly convert binary ABI structures.",
+    "emulated_mode": "Guest CPU state controls guest endianness; all guest memory and MMIO operations use guest semantics.",
+    "mobile_mode": "Select by device/OS ABI profile; emulator guest order remains independent.",
+    "format_detection": "ELF EI_DATA and machine type must be validated before header decoding; unsupported endian variants are rejected.",
+    "implementation": "kernel/include/chimera/endianness.h",
+    "contract": "system/architecture/endianness.json",
+    "status": "policy-defined; backend-level endian tests remain required"
   }
 }
