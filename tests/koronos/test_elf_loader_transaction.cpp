@@ -38,7 +38,7 @@ int enter_user(void*, uint64_t entry, uint64_t stack, uint32_t pid) {
     assert(std::memcmp(cp->bytes, "TEST", 4) == 0);
     for (unsigned i = 4; i < 16; ++i) assert(cp->bytes[i] == 0); // BSS
     for (unsigned i = 0; i < CHIMERA_ELF_STACK_PAGES; ++i) {
-        const uint64_t va = stack - uint64_t(i + 1) * 4096;
+        const uint64_t va = expected_stack - uint64_t(i + 1) * 4096;
         const auto item = mappings.at(va);
         assert(item.second == (CHIMERA_ELF_USER | CHIMERA_ELF_WRITE)); // NX stack
         Page* sp = allocated.at(item.first);
