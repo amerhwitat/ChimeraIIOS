@@ -11525,6 +11525,59 @@
         "conformance_status": "not-tested"
       }
     },
-    "last_updated": "2026-10-10"
+    "last_updated": "2026-10-10",
+    "hosted_compatibility_modes": {
+      "schema": "CHIMERA-HOSTED-ISA-MAP-1",
+      "policy": "These rows map host OS modes to physical ISA inventory candidates. A match does not mean the guest ABI, compiler backend, binary loader, or emulator is implemented.",
+      "modes": {
+        "windows": {
+          "abi": "Win32/NT",
+          "architectures": [
+            "x86-64",
+            "armv9-a64"
+          ],
+          "execution": "host-native on Windows; non-Windows PE execution requires a validated PE runtime"
+        },
+        "linux": {
+          "abi": "Linux/POSIX",
+          "architectures": [
+            "x86-64",
+            "armv9-a64",
+            "riscv64"
+          ],
+          "execution": "host-native process execution; no syscall emulation"
+        },
+        "unix": {
+          "abi": "POSIX/BSD",
+          "architectures": [
+            "x86-64",
+            "armv9-a64",
+            "riscv64"
+          ],
+          "execution": "host-native process execution; BSD extensions remain host-dependent"
+        },
+        "macos": {
+          "abi": "Darwin/POSIX",
+          "architectures": [
+            "x86-64",
+            "armv9-a64"
+          ],
+          "execution": "host-native process execution; macOS security policy remains in force"
+        }
+      },
+      "host_aliases": {
+        "amd64": "x86-64",
+        "x86_64": "x86-64",
+        "x64": "x86-64",
+        "arm64": "armv9-a64",
+        "aarch64": "armv9-a64",
+        "armv7l": "arm32",
+        "riscv64": "riscv64",
+        "riscv32": "riscv32"
+      },
+      "bridge": "tools/runtime/chimera-hosted.py",
+      "candidate_execution_status": "host-match-only; cross-ISA execution not implied",
+      "updated": "2026-10-10"
+    }
   }
 }
