@@ -4,15 +4,32 @@ on:
   push:
     paths:
       - 'kernel/arch/x86_32/**'
+      - 'kernel/core/device.cpp'
+      - 'kernel/core/driver.cpp'
+      - 'kernel/include/chimera/device.h'
+      - 'kernel/include/chimera/driver.h'
+      - 'kernel/drivers/builtin/**'
+      - 'system/drivers/**'
+      - 'tools/drivers/**'
       - 'tools/runtime/check-koronos32-boot.sh'
       - 'tests/unit/test_koronos32_bringup.py'
       - 'tests/unit/test_endianness_contract.py'
+      - 'tests/unit/test_driver_discovery.py'
       - '.github/workflows/koronos32-bringup.yml'
   pull_request:
     paths:
       - 'kernel/arch/x86_32/**'
+      - 'kernel/core/device.cpp'
+      - 'kernel/core/driver.cpp'
+      - 'kernel/include/chimera/device.h'
+      - 'kernel/include/chimera/driver.h'
+      - 'kernel/drivers/builtin/**'
+      - 'system/drivers/**'
+      - 'tools/drivers/**'
       - 'tools/runtime/check-koronos32-boot.sh'
       - 'tests/unit/test_koronos32_bringup.py'
+      - 'tests/unit/test_endianness_contract.py'
+      - 'tests/unit/test_driver_discovery.py'
       - '.github/workflows/koronos32-bringup.yml'
   workflow_dispatch:
 
@@ -29,6 +46,25 @@ jobs:
           python-version: '3.x'
       - run: python tests/unit/test_koronos32_bringup.py
       - run: python tests/unit/test_endianness_contract.py
+      - run: python tests/unit/test_driver_discovery.py
+      - name: Validate driver catalog JSON
+        run: python -c "import json; json.load(open('system/drivers/catalog.json', encoding='utf-8')); json.load(open('mobile/mobile-sync.json', encoding='utf-8'))"
+
+  upstream-driver-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Refresh PCI/USB IDs and recursively index upstream driver trees
+        run: python tools/drivers/sync_upstream_catalog.py
+      - name: Upload upstream driver source index
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-upstream-driver-index
+          path: build/driver-source-index.json
+          if-no-files-found: error
 
   qemu-boot-smoke:
     runs-on: ubuntu-latest

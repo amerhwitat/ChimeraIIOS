@@ -1,0 +1,141 @@
+{
+  "schema": "CHIMERA-DRIVER-CATALOG-1",
+  "version": "2026.10.10",
+  "policy": {
+    "purpose": "Hardware ID matching and upstream driver-source discovery; entries do not imply a tested or bundled driver.",
+    "install_policy": "Never compile or load remote source automatically. Require license review, signature/hash verification, ABI match, sandboxed probe, and positive/negative tests.",
+    "match_order": [
+      "exact bus+vendor+device+subsystem IDs",
+      "exact bus+vendor+device IDs",
+      "class+subclass+programming-interface",
+      "class-only fallback"
+    ],
+    "status_values": [
+      "metadata-only",
+      "source-reviewed",
+      "build-tested",
+      "hardware-tested",
+      "supported"
+    ],
+    "unsupported_status_default": "metadata-only"
+  },
+  "upstreams": [
+    {
+      "id": "pci-ids",
+      "kind": "device-id-database",
+      "url": "https://github.com/pciutils/pciids",
+      "files": [
+        "pci.ids"
+      ]
+    },
+    {
+      "id": "usb-ids",
+      "kind": "device-id-database",
+      "url": "https://github.com/usbids/usbids",
+      "files": [
+        "usb.ids"
+      ]
+    },
+    {
+      "id": "linux-kernel",
+      "kind": "driver-source-index",
+      "url": "https://github.com/torvalds/linux",
+      "files": [
+        "drivers/net",
+        "drivers/usb",
+        "drivers/ata",
+        "drivers/nvme",
+        "drivers/gpu",
+        "drivers/virtio",
+        "drivers/block",
+        "drivers/hwmon",
+        "drivers/media",
+        "drivers/input",
+        "drivers/sound"
+      ],
+      "license": "GPL-2.0-only unless source file states otherwise"
+    },
+    {
+      "id": "edk2",
+      "kind": "firmware-driver-source-index",
+      "url": "https://github.com/tianocore/edk2",
+      "files": [
+        "MdeModulePkg",
+        "NetworkPkg",
+        "UsbPkg"
+      ]
+    },
+    {
+      "id": "zephyr",
+      "kind": "embedded-driver-source-index",
+      "url": "https://github.com/zephyrproject-rtos/zephyr",
+      "files": [
+        "drivers"
+      ]
+    }
+  ],
+  "builtin_candidates": [
+    {
+      "name": "virtio-net",
+      "bus": "virtio",
+      "vendor_id": "1af4",
+      "device_id": "1000",
+      "class": "network",
+      "status": "metadata-only",
+      "source": "kernel/drivers/builtin/virtio.cpp",
+      "note": "Descriptor exists; hardware probe and packet-path conformance are not established."
+    },
+    {
+      "name": "virtio-blk",
+      "bus": "virtio",
+      "vendor_id": "1af4",
+      "device_id": "1001",
+      "class": "storage",
+      "status": "metadata-only",
+      "source": "kernel/drivers/builtin/virtio.cpp",
+      "note": "Descriptor exists; block I/O and error-path conformance are not established."
+    },
+    {
+      "name": "pci-storage-generic",
+      "bus": "pci",
+      "vendor_id": "ffff",
+      "device_id": "ffff",
+      "class_code": "01",
+      "status": "metadata-only",
+      "source": "kernel/drivers/builtin/pci-generic.cpp",
+      "note": "Generic class candidate; not a functional storage controller driver."
+    },
+    {
+      "name": "pci-network-generic",
+      "bus": "pci",
+      "vendor_id": "ffff",
+      "device_id": "ffff",
+      "class_code": "02",
+      "status": "metadata-only",
+      "source": "kernel/drivers/builtin/pci-generic.cpp",
+      "note": "Generic class candidate; not a functional network driver."
+    },
+    {
+      "name": "pci-display-generic",
+      "bus": "pci",
+      "vendor_id": "ffff",
+      "device_id": "ffff",
+      "class_code": "03",
+      "status": "metadata-only",
+      "source": "kernel/drivers/builtin/pci-generic.cpp",
+      "note": "Generic class candidate; not a functional display driver."
+    }
+  ],
+  "device_id_databases": {
+    "pci": {
+      "upstream": "pci-ids",
+      "cache_path": "data/drivers/upstream/pci.ids",
+      "status": "not-yet-synced"
+    },
+    "usb": {
+      "upstream": "usb-ids",
+      "cache_path": "data/drivers/upstream/usb.ids",
+      "status": "not-yet-synced"
+    }
+  }
+}
