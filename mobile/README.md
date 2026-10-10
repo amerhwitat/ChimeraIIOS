@@ -37,3 +37,9 @@ Mobile flashing is confirmation-gated and device-profile constrained. The toolin
 ## Status
 
 The common contracts and roadmap are present; production device support remains profile-specific and requires hardware validation before a device is declared supported.
+
+## Endianness and cross-architecture boundaries
+
+Mobile builds consume the shared [endianness contract](../system/architecture/endianness.json) and freestanding helpers at `kernel/include/chimera/endianness.h`. The device OS/SoC ABI determines native data order; the boot handoff records the target and active mode. Microkernel IPC uses canonical little-endian serialized fields, while native in-memory structures remain ABI-specific. Android/iOS hosted execution does not establish that an emulated guest shares the host byte order. Emulators and compatibility layers must keep guest byte order independent and validate executable format metadata. Device-specific kernel, driver, Aurora and endian-mode behavior is not considered validated until tested on the named target profile.
+
+The x86-32 Koronos probe is shared as a development target only; it does not imply a complete 32-bit mobile kernel or device boot image. See [the 32-bit bring-up plan](../docs/koronos-32bit-bringup.md).
