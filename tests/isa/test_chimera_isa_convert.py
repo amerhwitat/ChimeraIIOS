@@ -20,6 +20,9 @@ class IsaConvertTests(unittest.TestCase):
   r=self.run_tool("plan","chimera-c8192","TCONTRACT"); self.assertEqual(r.returncode,2); self.assertIn("no approved semantic-operation mapping",r.stderr)
  def test_compatibility_backend_is_not_guessed(self):
   r=self.run_tool("plan","x86-64","ADD","--mode","compatibility"); self.assertEqual(r.returncode,2); self.assertIn("compatibility backend unavailable",r.stderr)
+ def test_rv32i_subset_can_plan_compatibility_mode(self):
+  r=self.run_tool("plan","riscv32","ADD","--mode","compatibility"); self.assertEqual(r.returncode,0,r.stderr)
+  p=json.loads(r.stdout); self.assertEqual(p["mode"],"compatibility"); self.assertFalse(p["machine_code_emitted"])
  def test_inventory_command(self):
   r=self.run_tool("inventory"); self.assertEqual(r.returncode,0,r.stderr); d=json.loads(r.stdout)
   self.assertEqual(d["profile_count"],d["architecture_count"]); self.assertGreater(d["instruction_candidate_count"],0)
