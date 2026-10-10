@@ -4,29 +4,26 @@ This is the release gate for the production x86-64 Koronos path. A successful co
 
 ## Current implementation boundary
 
-The changes in this branch harden ELF *admission* validation and make the cooperative scheduler's state-transition API CPU-specific. They do not yet implement physical page mapping, BSS clearing in mapped memory, ring-3 entry, AP startup, per-CPU stacks, or machine context switching. The current runtime loop dispatches CPU 0 only. These are explicit blockers, not features inferred from a load-plan or a successful compile.
+The changes harden ELF admission and add a transactional ELF loading engine in `kernel/core/elf_loader.cpp`. The engine allocates zeroed pages through a supplied backend, copies PT_LOAD bytes, leaves BSS zeroed, installs user mappings with requested permissions, creates a 64-KiB stack with an unmapped guard page, and rolls back pages/mappings if loading or handoff fails. The architecture backend is not implemented: the current tree does not provide a real physical-page allocator, user PTE/NX manager, TSS/user GDT setup, or audited ring-3 return path. Therefore this loader is not wired into boot and does not prove actual userspace execution. The current runtime loop dispatches CPU 0 only; AP startup and assembly context switching remain blockers.
 
 | Acceptance item | Current status |
 |---|---|
 | ELF header/table and segment admission checks | Partially implemented; host regression tests added |
-| Map pages, copy segments, zero BSS, enforce PTE permissions | Not implemented |
-| Construct user stack and audited ring-3 return frame | Not implemented |
+| Transactional ELF loader engine | Implemented against callbacks; requires a real architecture backend and QEMU validation |
+| Real user PTE mapping, NX/W^X, physical allocation | Not implemented in production backend |
+| Guarded 64-KiB stack construction | Loader engine implemented; not boot-integrated |
+| Audited ring-3 return frame and TSS | Not implemented |
 | Discover/start APs and initialize per-CPU stacks/state | Not implemented |
 | Assembly context switch and address-space/TLS/FPU state | Not implemented |
 | SMP-safe run queues and task ownership | Partial cooperative model only; no production SMP execution |
-| Host regression tests | Added; must pass CI before merge |
+| Host regression tests | Admission/scheduler suite updated to compile loader; CI not yet verified |
 | Full ISO build and QEMU SMP/userspace evidence | Not run; required before release verification |
 
 ## ELF load/handoff requirements
 
 Accept only ELF64 little-endian x86-64 ET_EXEC images supported by the current ABI. Before changing address-space state, validate ELF/program-header bounds, PT_LOAD file/memory sizes, arithmetic overflow, alignment, user virtual-address range, and segment overlap policy. Reject unsupported interpreters, dynamic relocations, malformed headers, W+X segments, and entry points outside executable load segments unless explicitly supported by the ABI.
 
-For each accepted PT_LOAD:
-- allocate/map user pages for the full memory range;
-- copy exactly p_filesz bytes from the validated file range;
-- zero [p_vaddr + p_filesz, p_vaddr + p_memsz) for BSS;
-- derive PTE permissions from PF_R/PF_W/PF_X and enforce NX/W^X;
-- roll back mappings and references if any operation fails.
+For each accepted PT_LOAD, the new loader engine allocates zeroed pages via `chimera_elf_loader_ops`, copies exactly `p_filesz` bytes using the validated file offset and page offset, thereby preserving zero-filled BSS, then asks the backend to install user mappings with the derived permissions. It rolls back already installed mappings and allocated frames if any later operation fails. The backend must implement actual physical allocation, supervisor writable aliases, user PTEs, NX, TLB invalidation, and atomic map-failure semantics; these are not yet present in the production x86-64 path. The `enter_user` callback must perform a real audited privilege transition and must not return on success; a returning callback is treated as failure and triggers rollback.
 
 Construct a guarded user stack, define initial register/ABI state, install address-space and privilege-transition state, and enter via one audited architecture-specific return-to-user path. On x86-64, document the iretq/sysretq selector and flags contract. Never call an ELF entry point as a kernel function or merely change RIP.
 
