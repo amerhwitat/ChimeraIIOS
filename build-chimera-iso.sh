@@ -11,6 +11,7 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
+  --offline-isa-research     Skip recursive online ISA research; use the checked-in catalog only.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
@@ -193,10 +194,12 @@ stop_watchdog(){
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
+CHIMERA_ISA_RESEARCH_ONLINE="${CHIMERA_ISA_RESEARCH_ONLINE:-1}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --offline-isa-research) CHIMERA_ISA_RESEARCH_ONLINE=0; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
@@ -1201,6 +1204,14 @@ main(){
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+  fi
+  if [[ "$CHIMERA_ISA_RESEARCH_ONLINE" == 1 ]]; then
+    log_info "Running bounded recursive ISA research across eleven processor families (depth=${CHIMERA_ISA_RESEARCH_MAX_DEPTH:-2}, page budget=${CHIMERA_ISA_RESEARCH_MAX_PAGES:-80})"
+    if ! python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" --refresh; then
+      log_warning "Recursive ISA research failed; retaining the last checked-in ISA catalog and continuing with offline validation"
+    fi
+  else
+    log_info "Online ISA research disabled; using the checked-in canonical ISA catalog"
   fi
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
