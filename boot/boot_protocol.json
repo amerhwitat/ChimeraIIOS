@@ -1,34 +1,148 @@
 {
-  "schema": "CHM-BOOT-PROTOCOL-1",
+  "schema": "CHM-BOOT-PROTOCOL-2",
   "name": "Chimera Universal Boot Contract",
   "goal": "Accept kernels from native or chainloaded BIOS/UEFI, Multiboot1/2, Limine-compatible, profile-specific mobile boot paths, and virtual-machine CD/DVD firmware without assuming a particular hypervisor implementation.",
-  "supported_firmware": ["BIOS", "UEFI"],
-  "supported_hypervisors": ["Hyper-V-Gen1-BIOS", "Hyper-V-Gen2-UEFI", "VMware-BIOS", "VMware-UEFI", "QEMU-BIOS", "QEMU-UEFI"],
-  "supported_virtual_media": ["ElTorito-CD", "ElTorito-DVD", "ISO9660-Level3"],
-  "supported_x86_modes": ["real16", "protected32", "long64"],
-  "supported_protocols": ["native", "bios_mbr", "uefi_efi", "multiboot1", "multiboot2", "limine", "chainload"],
+  "supported_firmware": [
+    "BIOS",
+    "UEFI"
+  ],
+  "supported_hypervisors": [
+    "Hyper-V-Gen1-BIOS",
+    "Hyper-V-Gen2-UEFI",
+    "VMware-BIOS",
+    "VMware-UEFI",
+    "QEMU-BIOS",
+    "QEMU-UEFI"
+  ],
+  "supported_virtual_media": [
+    "ElTorito-CD",
+    "ElTorito-DVD",
+    "ISO9660-Level3"
+  ],
+  "supported_x86_modes": [
+    "real16",
+    "protected32",
+    "long64"
+  ],
+  "supported_protocols": [
+    "native",
+    "bios_mbr",
+    "uefi_efi",
+    "multiboot1",
+    "multiboot2",
+    "limine",
+    "chainload"
+  ],
   "entry_contract": {
     "boot_context_magic": "CHMBOOT1",
-    "kernel_format": ["ELF32", "ELF64", "PE32+_EFI", "raw_profile_image"],
-    "required_data": ["memory_map", "framebuffer_if_available", "boot_drive_if_bios", "firmware_type", "cpu_architecture"],
-    "nbit_policy": {"probe": "Koronos hardware HAL", "default": "native-best", "wide_modes": [128, 256, 512, 1024, 2048, 4096, 8192], "mixed_width_ipc": true},
-    "hypervisor_policy": {"detect_from_acpi_pci_uefi": true, "prefer_virtual_display_fallback": true, "prefer_generic_pci_storage_network": true}
+    "kernel_format": [
+      "ELF32",
+      "ELF64",
+      "PE32+_EFI",
+      "raw_profile_image"
+    ],
+    "required_data": [
+      "memory_map",
+      "framebuffer_if_available",
+      "boot_drive_if_bios",
+      "firmware_type",
+      "cpu_architecture",
+      "execution_mode",
+      "native_data_endian",
+      "boot_protocol_endian"
+    ],
+    "nbit_policy": {
+      "probe": "Koronos hardware HAL",
+      "default": "native-best",
+      "wide_modes": [
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096,
+        8192
+      ],
+      "mixed_width_ipc": true
+    },
+    "hypervisor_policy": {
+      "detect_from_acpi_pci_uefi": true,
+      "prefer_virtual_display_fallback": true,
+      "prefer_generic_pci_storage_network": true
+    }
   },
-  "optional_data": ["ACPI_RSDP", "SMBIOS", "EFI_SYSTEM_TABLE", "EFI_MEMORY_MAP", "DTB", "initrd", "entropy", "TPM_EVENT_LOG", "bootloader_name", "command_line", "PCI_CONFIG", "USB_TOPOLOGY", "UEFI_DEVICE_PATHS"],
+  "optional_data": [
+    "ACPI_RSDP",
+    "SMBIOS",
+    "EFI_SYSTEM_TABLE",
+    "EFI_MEMORY_MAP",
+    "DTB",
+    "initrd",
+    "entropy",
+    "TPM_EVENT_LOG",
+    "bootloader_name",
+    "command_line",
+    "PCI_CONFIG",
+    "USB_TOPOLOGY",
+    "UEFI_DEVICE_PATHS"
+  ],
   "menu_first": {
     "enabled": true,
-    "entries": ["Chimera II OS", "Chimera II OS Safe Graphics", "Chimera II OS Diagnostics", "Chimera II OS Recovery", "Chainload Native Bootloader"],
+    "entries": [
+      "Chimera II OS",
+      "Chimera II OS Safe Graphics",
+      "Chimera II OS Diagnostics",
+      "Chimera II OS Recovery",
+      "Chainload Native Bootloader"
+    ],
     "timeout_seconds": 5,
-    "keyboard": ["arrows", "enter", "escape", "function_keys"]
+    "keyboard": [
+      "arrows",
+      "enter",
+      "escape",
+      "function_keys"
+    ]
   },
   "handoff": {
-    "phase_order": ["firmware_detect", "spitfire", "jasper", "grub", "menu", "hardware_discovery", "nbit_policy", "memory", "framebuffer", "koronos", "drivers", "spotnik", "nucleus", "aurora", "session"],
+    "phase_order": [
+      "firmware_detect",
+      "spitfire",
+      "jasper",
+      "grub",
+      "menu",
+      "hardware_discovery",
+      "nbit_policy",
+      "memory",
+      "framebuffer",
+      "koronos",
+      "drivers",
+      "spotnik",
+      "nucleus",
+      "aurora",
+      "session"
+    ],
     "progress_ui": "aurora_boot_ui",
     "failure_policy": "show_phase_error_then_offer_recovery",
-    "firmware_detection": ["BIOS", "UEFI", "UEFI_CSM"],
-    "firmware_tables": ["EFI_SYSTEM_TABLE", "ACPI_RSDP", "SMBIOS", "SMBIOS3", "TPM_EVENT_LOG"],
+    "firmware_detection": [
+      "BIOS",
+      "UEFI",
+      "UEFI_CSM"
+    ],
+    "firmware_tables": [
+      "EFI_SYSTEM_TABLE",
+      "ACPI_RSDP",
+      "SMBIOS",
+      "SMBIOS3",
+      "TPM_EVENT_LOG"
+    ],
     "hardware_discovery_before_driver_start": true,
-    "driver_order": ["motherboard_bus", "storage", "network", "display_gpu", "other"]
+    "driver_order": [
+      "motherboard_bus",
+      "storage",
+      "network",
+      "display_gpu",
+      "other"
+    ]
   },
   "security": {
     "verify_signatures_when_available": true,
@@ -37,5 +151,20 @@
     "require_explicit_profile_for_baremetal": true,
     "recovery_entry_required": true,
     "hypervisor_helpers_disable_secure_boot_for_unsigned_research_bootloader": true
+  },
+  "endianness": {
+    "boot_context": "All fixed-width numeric fields in CHMBOOT1 are little-endian; byte arrays and strings are uninterpreted bytes.",
+    "fields_required": [
+      "cpu_architecture",
+      "execution_mode",
+      "native_data_endian",
+      "boot_protocol_endian",
+      "guest_data_endian_if_emulated"
+    ],
+    "real_mode": "x86 real16 is little-endian; other architectures follow their own ISA. Firmware mode alone does not imply a universal endian setting.",
+    "transition": "Record and revalidate endian state across real16 -> protected32 -> long64 transitions and on handoff to Koronos.",
+    "compatibility": "Guest ABI byte order is distinct from host byte order; decode at the boundary.",
+    "emulation": "Emulator must implement guest-visible loads, stores, instruction fetch, MMIO and exceptions using guest architecture semantics.",
+    "unknown_policy": "Reject unknown or unsupported endian profiles for executable/kernel images."
   }
 }
