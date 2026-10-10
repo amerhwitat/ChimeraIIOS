@@ -399,9 +399,25 @@ check_deps(){
   # Docker CLI presence does not imply that a daemon is running. Diagnose the
   # endpoint and optionally start a local Linux daemon when explicitly enabled.
   if ! docker info >/dev/null 2>&1; then
-    log_error 'Docker daemon is unavailable or the configured Docker context cannot be reached.'
+    # Capture the actual failure rather than collapsing socket permissions,
+    # a stale context, and a stopped daemon into the same generic message.
+    local docker_diag docker_socket
+    docker_diag="$(docker info 2>&1 || true)"
+    log_error 'Docker CLI cannot access the configured Docker Engine.'
     log_error "Docker context: $(docker context show 2>/dev/null || echo unknown)"
     log_error "DOCKER_HOST: ${DOCKER_HOST:-<unset>}"
+    docker_socket="${DOCKER_HOST#unix://}"
+    [[ -n "$docker_socket" && "$docker_socket" != "$DOCKER_HOST" ]] || docker_socket="/var/run/docker.sock"
+    [[ -S "$docker_socket" ]] && log_info "Docker socket exists: $docker_socket" || log_warning "Docker socket not found at $docker_socket"
+    [[ -S /run/docker.sock ]] && log_info "Alternative socket exists: /run/docker.sock"
+    [[ -n "$docker_diag" ]] && log_error "Docker diagnostic: $(printf '%s' "$docker_diag" | tail -n 2 | tr '\n' ' ')"
+    if sudo -n docker info >/dev/null 2>&1; then
+      log_error 'The daemon is reachable only with sudo; fix socket group permissions rather than running the whole build as root.'
+      log_error 'Try: sudo usermod -aG docker "$USER" ; then log out of WSL/Linux completely and log back in.'
+    elif [[ -S "$docker_socket" ]] && ! [[ -r "$docker_socket" && -w "$docker_socket" ]]; then
+      log_error "Current user lacks read/write permission on $docker_socket."
+      log_error 'Check: ls -l /var/run/docker.sock; id; getent group docker'
+    fi
     if [[ "${CHIMERA_AUTO_START_DOCKER:-0}" == 1 ]]; then
       if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files docker.service >/dev/null 2>&1; then
         if sudo -n systemctl start docker >/dev/null 2>&1; then
@@ -1234,8 +1250,8 @@ main(){
   fi
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
-  preflight
   CURRENT_STAGE="preflight"
+  preflight
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
