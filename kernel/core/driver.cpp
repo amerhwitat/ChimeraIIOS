@@ -8,7 +8,7 @@ static int score_match(const chimera_driver_descriptor* d, const chimera_device*
  int score = 0;
  if (d->vendor_id != 0xFFFFu) { if (d->vendor_id != x->vendor_id) return -1; score += 100; }
  if (d->device_id != 0xFFFFu) { if (d->device_id != x->device_id) return -1; score += 100; }
- if (d->subsystem_id != 0u) { const uint32_t subsystem = ((uint32_t)x->subsystem_vendor << 16) | x->subsystem_device; if (d->subsystem_id != subsystem) return -1; score += 40; }
+ if (d->subsystem_id != 0u) { const uint32_t subsystem = ((uint32_t)x->subsystem_vendor << 16) | x->subsystem_device; if (d->subsystem_id != subsystem) return -1; score += 1000; }
  /* 0xff is the wildcard; zero is a valid PCI class/subclass/programming-interface value. */
  if (d->match_class != 0xffu) { if (d->match_class != (uint8_t)x->class_code) return -1; score += 30; }
  if (d->match_subclass != 0xffu) { if (d->match_subclass != (uint8_t)x->subclass) return -1; score += 20; }
