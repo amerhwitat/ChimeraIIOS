@@ -31,7 +31,7 @@
     {
       "id": "usb-ids",
       "kind": "device-id-database",
-      "url": "https://github.com/usbutils/usbutils",
+      "url": "https://github.com/usbids/usbids",
       "files": [
         "usb.ids"
       ]
