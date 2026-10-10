@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
 
 class Info(ctypes.Structure):
     _fields_ = [("id", ctypes.c_uint32), ("cpu", ctypes.c_uint32),
@@ -26,8 +27,6 @@ class Proc(ctypes.Structure):
                 ("entry", ctypes.c_uint64), ("user_stack_top", ctypes.c_uint64),
                 ("image_low", ctypes.c_uint64), ("image_high", ctypes.c_uint64),
                 ("segments", Segment * 16)]
-
-CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
 
 class KernelContracts(unittest.TestCase):
     @classmethod
@@ -55,6 +54,25 @@ class KernelContracts(unittest.TestCase):
     def tearDownClass(cls):
         cls.tmp.cleanup()
 
+    @staticmethod
+    def elf_fixture(flags=5, entry=0x400000, align=1, phoff=64, size=256):
+        image = bytearray(size)
+        image[0:7] = b"\x7fELF\x02\x01\x01"
+        struct.pack_into("<HHIQQQIHHHHHH", image, 16,
+                         2, 62, 1, entry, phoff, 0, 0, 64, 56, 1, 64, 0, 0)
+        if phoff + 56 <= size:
+            struct.pack_into("<IIQQQQQQ", image, phoff,
+                             1, flags, 120, 0x400000, 0, 4, 16, align)
+        image[120:124] = b"TEST"
+        return image
+
+    def admit(self, image):
+        buf = ctypes.create_string_buffer(bytes(image))
+        out = Proc()
+        result = self.api.chimera_process_admit_elf(
+            buf, len(image), 62, 0x70000000, ctypes.byref(out))
+        return result, out
+
     def test_block_wake_is_bound_to_selected_cpu_task(self):
         api = self.api
         api.chimera_sched_init(2)
@@ -77,8 +95,7 @@ class KernelContracts(unittest.TestCase):
     def test_scheduler_never_dispatches_one_task_twice_in_nested_call(self):
         api = self.api
         api.chimera_sched_init(2)
-        observed = []
-        nested_results = []
+        observed, nested_results = [], []
         @CALLBACK
         def callback(_):
             observed.append(1)
@@ -88,18 +105,32 @@ class KernelContracts(unittest.TestCase):
         self.assertEqual(observed, [1])
         self.assertEqual(nested_results, [0])
 
+    def test_elf_accepts_valid_executable_load_plan(self):
+        self.api.chimera_process_init()
+        result, out = self.admit(self.elf_fixture())
+        self.assertGreater(result, 0)
+        self.assertEqual(out.segment_count, 1)
+        self.assertEqual(out.entry, 0x400000)
+        self.assertEqual(out.user_stack_top, 0x70000000)
+
     def test_elf_rejects_truncated_program_header_table(self):
-        api = self.api
-        api.chimera_process_init()
+        self.api.chimera_process_init()
         image = bytearray(128)
-        image[0:4] = b"\x7fELF"
-        image[4] = 2; image[5] = 1; image[6] = 1
+        image[0:7] = b"\x7fELF\x02\x01\x01"
         struct.pack_into("<HHIQQQIHHHHHH", image, 16,
                          2, 62, 1, 0x400000, 120, 0, 0, 64, 56, 2, 64, 0, 0)
-        buf = ctypes.create_string_buffer(bytes(image))
-        out = Proc()
-        self.assertLess(api.chimera_process_admit_elf(
-            buf, len(image), 62, 0x70000000, ctypes.byref(out)), 0)
+        result, _ = self.admit(image)
+        self.assertLess(result, 0)
+
+    def test_elf_rejects_writable_executable_segment(self):
+        self.api.chimera_process_init()
+        result, _ = self.admit(self.elf_fixture(flags=7))
+        self.assertLess(result, 0)
+
+    def test_elf_rejects_entry_outside_executable_segment(self):
+        self.api.chimera_process_init()
+        result, _ = self.admit(self.elf_fixture(flags=4, entry=0x500000))
+        self.assertLess(result, 0)
 
 if __name__ == "__main__":
     unittest.main()
