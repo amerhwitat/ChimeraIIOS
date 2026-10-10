@@ -11,6 +11,7 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
+  --offline-isa-research     Skip recursive online ISA research; use the checked-in catalog only.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
@@ -193,10 +194,12 @@ stop_watchdog(){
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
+CHIMERA_ISA_RESEARCH_ONLINE="${CHIMERA_ISA_RESEARCH_ONLINE:-1}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --offline-isa-research) CHIMERA_ISA_RESEARCH_ONLINE=0; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
@@ -282,14 +285,38 @@ cleanup_generated_docker_image(){
   fi
 }
 push_docker_image(){
-  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
+  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || { log_info "Docker Hub publishing disabled by CHIMERA_PUSH=0"; return 0; }
+  command -v docker >/dev/null || { log_error "Docker CLI not found"; return 1; }
+
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
+  local latest="$DOCKER_IMAGE:latest"
   local target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
   local target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
-  local image_id
+  local image_id=""
+
+  # Resume builds may retain the stage marker while the local image has been
+  # pruned or Docker's image store was reset. Recover the expected tag from
+  # the latest tag when possible; otherwise rebuild before attempting a push.
   image_id="$(docker image inspect -f '{{.Id}}' "$source" 2>/dev/null || true)"
-  [[ -n "$image_id" ]] || { log_error "Cannot push missing Docker image: $source"; return 1; }
-  command -v docker >/dev/null || { log_error "Docker CLI not found"; return 1; }
+  if [[ -z "$image_id" ]]; then
+    local latest_id=""
+    latest_id="$(docker image inspect -f '{{.Id}}' "$latest" 2>/dev/null || true)"
+    if [[ -n "$latest_id" ]]; then
+      log_warning "Docker tag $source is missing; restoring it from $latest."
+      docker tag "$latest" "$source" || { log_error "Could not restore Docker tag $source from $latest"; return 1; }
+      image_id="$(docker image inspect -f '{{.Id}}' "$source" 2>/dev/null || true)"
+    fi
+  fi
+  if [[ -z "$image_id" ]]; then
+    log_warning "Docker image $source is missing at publish time; rebuilding it before publishing."
+    build_docker || return $?
+    image_id="$(docker image inspect -f '{{.Id}}' "$source" 2>/dev/null || true)"
+  fi
+  [[ -n "$image_id" ]] || {
+    log_error "Docker image is still missing after recovery build: $source"
+    log_error "Inspect $LOG_DIR/docker-build.log for the Docker build failure."
+    return 1
+  }
 
   if [[ -n "${DOCKERHUB_USERNAME:-}" && -n "${DOCKERHUB_TOKEN:-}" ]]; then
     printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin
@@ -308,6 +335,8 @@ push_docker_image(){
     docker push "$target:latest"
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
+  # Preserve the generated image if any push fails. Cleanup is intentionally
+  # reached only after all requested pushes have completed successfully.
   cleanup_generated_docker_image "$source" "$image_id"
 }
 
@@ -1201,6 +1230,14 @@ main(){
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+  fi
+  if [[ "$CHIMERA_ISA_RESEARCH_ONLINE" == 1 ]]; then
+    log_info "Running bounded recursive ISA research across eleven processor families (depth=${CHIMERA_ISA_RESEARCH_MAX_DEPTH:-2}, page budget=${CHIMERA_ISA_RESEARCH_MAX_PAGES:-80})"
+    if ! python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" --refresh; then
+      log_warning "Recursive ISA research failed; retaining the last checked-in ISA catalog and continuing with offline validation"
+    fi
+  else
+    log_info "Online ISA research disabled; using the checked-in canonical ISA catalog"
   fi
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset

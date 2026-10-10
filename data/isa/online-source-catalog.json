@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "generated_by": "tools/catalogs/refresh_online_catalogs.py",
-  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage.",
+  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage. ISA discovery on build performs bounded same-host recursive crawling (depth <= 2, global page cap) and stores source links, hashes, and instruction-definition candidates separately; it never auto-promotes candidates to executable ISA instructions.",
   "isa_sources": [
     {
       "id": "intel-sdm",
@@ -205,6 +205,69 @@
       "kind": "official-architecture-reference",
       "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref",
       "authority": "AMD"
+    },
+    {
+      "id": "xtensa-community-isa-docs",
+      "family": "Xtensa",
+      "kind": "community-maintained-architecture-documentation-index",
+      "url": "https://github.com/espressif/xtensa-isa-doc",
+      "authority": "Espressif/community (verify against vendor documentation)"
+    },
+    {
+      "id": "official-xtensa-cadence",
+      "family": "Xtensa",
+      "kind": "official-architecture-reference",
+      "url": "https://www.cadence.com/en_US/home/tools/silicon-solutions/compute-ip/xtensa.html",
+      "authority": "Cadence"
+    },
+    {
+      "id": "official-renesas-superh",
+      "family": "SuperH",
+      "kind": "official-document-index",
+      "url": "https://www.renesas.com/en/document",
+      "authority": "Renesas"
+    },
+    {
+      "id": "official-sparc-v9",
+      "family": "SPARC",
+      "kind": "official-architecture-manual",
+      "url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html",
+      "authority": "Oracle"
+    },
+    {
+      "id": "official-power-isa-31c",
+      "family": "Power ISA",
+      "kind": "official-architecture-specification",
+      "url": "https://openpower.foundation/specifications/isa/",
+      "authority": "OpenPOWER Foundation"
+    },
+    {
+      "id": "official-mips-documentation",
+      "family": "MIPS",
+      "kind": "architecture-document-index",
+      "url": "https://www.mips.com/technical-documents/",
+      "authority": "MIPS (availability may vary)"
+    },
+    {
+      "id": "official-avr-documentation",
+      "family": "AVR",
+      "kind": "official-instruction-reference-index",
+      "url": "https://onlinedocs.microchip.com/",
+      "authority": "Microchip"
+    },
+    {
+      "id": "official-loongarch",
+      "family": "LoongArch",
+      "kind": "official-architecture-reference",
+      "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+      "authority": "Loongson"
+    },
+    {
+      "id": "openrisc-isa-manual",
+      "family": "OpenRISC",
+      "kind": "official-architecture-reference",
+      "url": "https://openrisc.io/",
+      "authority": "OpenRISC"
     }
   ],
   "command_sources": [

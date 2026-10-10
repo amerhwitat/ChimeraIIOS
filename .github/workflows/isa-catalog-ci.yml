@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'isa/**'
+      - 'data/isa/**'
+      - 'tools/isa/research_catalog.py'
+      - 'build-chimera-iso.sh'
       - 'tests/isa/**'
       - 'tests/test_isa_registry.py'
       - 'tools/validate_isa_catalog.py'
@@ -20,6 +23,9 @@ on:
   pull_request:
     paths:
       - 'isa/**'
+      - 'data/isa/**'
+      - 'tools/isa/research_catalog.py'
+      - 'build-chimera-iso.sh'
       - 'tests/isa/**'
       - 'tests/test_isa_registry.py'
       - 'tools/validate_isa_catalog.py'
@@ -48,6 +54,50 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Validate recursive ISA research and build-script syntax
+        run: |
+          bash -n build-chimera-iso.sh
+          python -m py_compile tools/isa/research_catalog.py
+          python tools/isa/research_catalog.py --offline
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          db = json.loads(Path('isa/isa_database.json').read_text(encoding='utf-8'))
+          targets = db.get('research_targets', [])
+          assert len(targets) == 11, f'expected 11 ISA research targets, got {len(targets)}'
+          assert all(t.get('id') and t.get('sources') for t in targets)
+          world = json.loads(Path('isa/world_architectures.json').read_text(encoding='utf-8'))
+          assert all(t.get('executable_support_claimed') is False for t in world.get('research_targets', []))
+          print(f'ISA research metadata valid: {len(targets)} targets')
+          PY
+      - name: Live bounded recursive ISA web research
+        env:
+          CHIMERA_ISA_RESEARCH_MAX_DEPTH: '1'
+          CHIMERA_ISA_RESEARCH_MAX_PAGES: '20'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/isa/research_catalog.py --refresh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('docs/research/isa-command-research.json').read_text(encoding='utf-8'))
+          families = report.get('cpu_families', [])
+          checks = report.get('recursive_source_checks', [])
+          successful = [row for row in checks if 200 <= int(row.get('http_status', 0)) < 400]
+          assert len(families) == 11, f'expected 11 families in online report, got {len(families)}'
+          assert checks, 'live research did not visit any source pages'
+          assert successful, 'live research could not successfully fetch any source page'
+          print(f'Live ISA research: families={len(families)} pages={len(checks)} successful_fetches={len(successful)}')
+          PY
+      - name: Upload ISA research report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-isa-recursive-research
+          path: |
+            docs/research/isa-command-research.json
+            docs/research/ISA_COMMAND_RESEARCH.md
+          if-no-files-found: warn
       - name: Validate legacy ISA catalog
         run: python tools/validate_isa_catalog.py
       - name: Validate universal ISA database
