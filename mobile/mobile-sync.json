@@ -1,12 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "schema": "CHM-MOBILE-SYNC-3",
+  "schema": "CHM-MOBILE-SYNC-4",
   "source_of_truth": "ChimeraIIOS/main",
   "shared_components": [
     "kernel/koronos",
     "kernel/include/chimera/microkernel.h",
     "system/security",
     "system/database",
+    "system/drivers/catalog.json",
+    "docs/pnp-driver-discovery.md",
     "services/apache",
     "toolchains",
     "appcenter/catalog",
@@ -22,7 +24,19 @@
       "ipc_wire": "little-endian canonical",
       "cross_endian_messages": "encode/decode at boundary",
       "mixed_endian_guest_support": "backend-specific and unvalidated"
+    },
+    "pnp": {
+      "shared_catalog": "system/drivers/catalog.json",
+      "match_policy": "bus and most-specific supported hardware IDs first",
+      "remote_driver_auto_load": false
     }
+  },
+  "driver_discovery": {
+    "catalog": "system/drivers/catalog.json",
+    "sync_tool": "tools/drivers/sync_upstream_catalog.py",
+    "supported_current_bus_backend": "x86 PCI configuration mechanism #1",
+    "status": "shared-contract-defined; physical device support requires per-target validation",
+    "policy": "metadata-only upstream discovery; review, build and test before driver installation"
   },
   "android": {
     "hosted": true,
