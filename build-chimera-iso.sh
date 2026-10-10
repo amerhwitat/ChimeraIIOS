@@ -546,7 +546,7 @@ create_boot_menu(){
     if [[ ! -f "$SCRIPT_DIR/tools/isa/research_catalog.py" ]]; then
       log_warn "ISA research script is missing; skipping optional research refresh. Update the checkout or restore tools/isa/research_catalog.py."
     elif command -v python3 >/dev/null 2>&1; then
-      python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" 2>&1 | tee -a "$LOG_DIR/isa-research.log" || {
+      CHIMERA_ISA_RESEARCH_DEPTH="${CHIMERA_ISA_RESEARCH_DEPTH:-10}" CHIMERA_ISA_RESEARCH_PAGE_BUDGET="${CHIMERA_ISA_RESEARCH_PAGE_BUDGET:-80}" python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" --depth "${CHIMERA_ISA_RESEARCH_DEPTH:-10}" --page-budget "${CHIMERA_ISA_RESEARCH_PAGE_BUDGET:-80}" 2>&1 | tee -a "$LOG_DIR/isa-research.log" || {
         log_warn "Online ISA research failed; continuing boot build with existing registries."
       }
     else
