@@ -547,6 +547,90 @@
       "AVR",
       "SuperH",
       "OpenRISC"
-    ]
-  }
+    ],
+    "crawler": "tools/isa/research_catalog.py",
+    "build_integration": "build-chimera-iso.sh",
+    "online_by_default": true,
+    "offline_option": "--offline-isa-research",
+    "candidate_policy": "Research candidate identifiers are kept outside executable instruction rows until checked against normative specifications and tests."
+  },
+  "research_targets": [
+    {
+      "id": "x86",
+      "scope": "Intel and AMD x86 ISA",
+      "notes": "variable-length encodings; feature-specific",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "arm",
+      "scope": "Arm AArch32/AArch64",
+      "notes": "A32/T32/A64 and profile-specific",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "riscv",
+      "scope": "RISC-V",
+      "notes": "base ISA plus versioned optional extensions",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "mips",
+      "scope": "MIPS32/MIPS64",
+      "notes": "release and compressed variants",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "power",
+      "scope": "Power ISA/PowerPC",
+      "notes": "user, virtual-environment, operating-environment",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "sparc",
+      "scope": "SPARC V8/V9",
+      "notes": "revision-specific",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "loongarch",
+      "scope": "LoongArch LA32/LA64",
+      "notes": "base plus optional extensions",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "xtensa",
+      "scope": "Xtensa",
+      "notes": "configuration-specific ISA",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "avr",
+      "scope": "AVR",
+      "notes": "core-variant-specific",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "superh",
+      "scope": "SuperH SH-2/SH-4",
+      "notes": "revision-specific",
+      "status": "research-target",
+      "executable_support_claimed": false
+    },
+    {
+      "id": "openrisc",
+      "scope": "OpenRISC OR1K",
+      "notes": "ORBIS base plus optional extensions",
+      "status": "research-target",
+      "executable_support_claimed": false
+    }
+  ]
 }
