@@ -38,6 +38,11 @@ class CandidateRuntimeTests(unittest.TestCase):
         self.assertEqual(result["result"],42)
         self.assertTrue(result["compatibility"]["executed"])
 
+    def test_native_mode_reports_mapping_without_claiming_execution(self):
+        result=MOD.execute(SimpleNamespace(arch="riscv64",mnemonic="ADD",lhs=12,rhs=30,mode="native"))
+        self.assertEqual(result["mode"],"native-mapping")
+        self.assertFalse(result["executed"])
+
     def test_reference_interpreter_rejects_unsupported_instruction(self):
         with self.assertRaises(NotImplementedError):
             MOD.execute(SimpleNamespace(arch="riscv64",mnemonic="FENCE",lhs=0,rhs=0,mode="compatibility"))
