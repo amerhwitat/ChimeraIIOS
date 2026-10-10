@@ -1107,10 +1107,29 @@ build_iso(){
     exit 1
   fi
 
-  grub-mkrescue \
+  # GRUB invokes mformat/mcopy while creating its EFI boot image. In WSL,
+  # keeping TMPDIR beneath /mnt/c or another DrvFs mount can make those tools
+  # fail even when the ISO output has enough free space. Use a private Linux
+  # temporary directory for this stage; keep the final ISO on the chosen drive.
+  local grub_tmp="${CHIMERA_GRUB_TMPDIR:-/tmp/chimera-grub-rescue-${UID:-$(id -u)}}"
+  mkdir -p "$grub_tmp" || { log_error "Cannot create GRUB temporary directory: $grub_tmp"; exit 1; }
+  chmod 700 "$grub_tmp" 2>/dev/null || true
+  local grub_probe
+  grub_probe="$(mktemp "$grub_tmp/.chimera-grub-probe.XXXXXX" 2>/dev/null)" || {
+    log_error "GRUB temporary directory is not writable: $grub_tmp"
+    exit 1
+  }
+  rm -f -- "$grub_probe"
+  log_info "GRUB temporary directory: $grub_tmp"
+  if ! TMPDIR="$grub_tmp" MTOOLS_SKIP_CHECK=1 grub-mkrescue \
       -o "$iso" \
       "$ISO_DIR" \
-      2>&1 | tee "$LOG_DIR/grub-mkrescue.log"
+      2>&1 | tee "$LOG_DIR/grub-mkrescue.log"; then
+    log_error "grub-mkrescue failed; diagnostics from $LOG_DIR/grub-mkrescue.log:"
+    tail -n 100 "$LOG_DIR/grub-mkrescue.log" 2>/dev/null || true
+    log_error "Check mtools (mformat/mcopy), Linux-native temp storage, and free space on both temp and ISO filesystems."
+    exit 1
+  fi
 
   [[ -s "$iso" ]] || {
     log_error 'ISO generation produced no file'
