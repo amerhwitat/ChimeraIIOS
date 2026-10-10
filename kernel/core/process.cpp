@@ -9,7 +9,9 @@ struct Slot { chimera_process_image image{}; bool used = false; };
 Slot slots[CHIMERA_PROCESS_MAX];
 uint32_t next_pid = 1, count = 0;
 static bool add_ok(uint64_t a, uint64_t b, uint64_t *out) {
-    if (a > UINT64_MAX - b) return false; *out = a + b; return true;
+    if (a > UINT64_MAX - b) return false;
+    *out = a + b;
+    return true;
 }
 static uint64_t down(uint64_t x) { return x & ~(PAGE - 1); }
 static bool up(uint64_t x, uint64_t *out) {
