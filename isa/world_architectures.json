@@ -35,7 +35,7 @@
       "class": "CISC",
       "family": "x86",
       "word_bits": 32,
-      "status": "standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -59,7 +59,7 @@
       "class": "RISC",
       "family": "RISC-V",
       "word_bits": 32,
-      "status": "standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -83,7 +83,7 @@
       "class": "RISC",
       "family": "MIPS",
       "word_bits": 64,
-      "status": "standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -99,7 +99,7 @@
       "class": "RISC",
       "family": "Power ISA",
       "word_bits": 64,
-      "status": "standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -107,7 +107,7 @@
       "class": "RISC",
       "family": "SPARC",
       "word_bits": 64,
-      "status": "standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -139,7 +139,7 @@
       "class": "RISC",
       "family": "SuperH",
       "word_bits": 32,
-      "status": "legacy/standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -147,7 +147,7 @@
       "class": "RISC",
       "family": "LoongArch",
       "word_bits": 64,
-      "status": "standard",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -171,7 +171,7 @@
       "class": "RISC",
       "family": "Xtensa",
       "word_bits": 32,
-      "status": "configurable",
+      "status": "catalog-only",
       "instruction_forms": 0
     },
     {
@@ -403,6 +403,30 @@
     {
       "name": "Texas Instruments C6000 Code Generation Tools documentation",
       "url": "https://www.ti.com/tool/TI-CGT"
+    },
+    {
+      "name": "Cadence Xtensa processor IP documentation",
+      "url": "https://www.cadence.com/en_US/home/tools/silicon-solutions/compute-ip/xtensa.html"
+    },
+    {
+      "name": "Xtensa ISA documentation index (community maintained)",
+      "url": "https://github.com/espressif/xtensa-isa-doc"
+    },
+    {
+      "name": "Renesas SuperH documentation index",
+      "url": "https://www.renesas.com/en/document"
+    },
+    {
+      "name": "OpenRISC architecture and ISA documentation",
+      "url": "https://openrisc.io/"
+    },
+    {
+      "name": "OpenPOWER Power ISA 3.1c",
+      "url": "https://openpower.foundation/specifications/isa/"
+    },
+    {
+      "name": "LoongArch Volume 1 Basic Architecture",
+      "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
     }
   ],
   "processor_hierarchy": {
@@ -506,6 +530,23 @@
         "source": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/16-bit-mcus",
         "backend_status": "catalog-only-unless-backend-enabled"
       }
+    ]
+  },
+  "research_policy": {
+    "date": "2026-10-10",
+    "note": "Builds perform bounded recursive source discovery. Catalog-only means source/inventory presence only; do not infer encoder, decoder, compiler, emulator, hardware, or boot support. Discovered TableGen identifiers are unverified candidates and remain separate from executable instruction forms.",
+    "processor_families": [
+      "x86 / x86-64",
+      "Arm / AArch32 / AArch64",
+      "RISC-V",
+      "MIPS",
+      "Power ISA / PowerPC",
+      "SPARC",
+      "LoongArch",
+      "Xtensa",
+      "AVR",
+      "SuperH",
+      "OpenRISC"
     ]
   }
 }
