@@ -32,7 +32,7 @@ OPS = {
     "SRA": ("shift-right-arithmetic", lambda a,b,w: a >> (b % w)),
     "SRAI": ("shift-right-arithmetic", lambda a,b,w: a >> (b % w)),
     "MOV": ("move", lambda a,b,w: a), "MV": ("move", lambda a,b,w: a),
-    "LI": ("load-immediate", lambda a,b,w: a), "LUI": ("load-upper-immediate", lambda a,b,w: a),
+    "LI": ("load-immediate", lambda a,b,w: a),
     "NOP": ("nop", lambda a,b,w: a), "HINT": ("nop", lambda a,b,w: a),
     "MUL": ("multiply", lambda a,b,w: a*b),
     "SLT": ("set-less-than-signed", lambda a,b,w: int(a < b)),
