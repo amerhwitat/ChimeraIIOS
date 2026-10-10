@@ -30,12 +30,13 @@ typedef struct chimera_elf_loader_ops {
                          uint64_t physical, uint32_t permissions);
     void (*unmap_user_page)(void *context, uint64_t virtual_address);
     void (*free_page)(void *context, uint64_t physical);
-    int (*enter_user)(void *context, uint64_t entry, uint64_t stack_top,
+    int (*enter_user)(void *context, uint64_t entry, uint64_t initial_stack_pointer,
                       uint32_t pid);
 } chimera_elf_loader_ops;
 
 /* Maps/copies an admitted ET_EXEC image transactionally, creates a zeroed
- * 64-KiB user stack with an unmapped guard page, and asks the backend to enter
+ * 64-KiB user stack with an unmapped guard page and an empty argc/argv/envp/auxv
+ * initial frame, and asks the backend to enter
  * ring 3. A returning enter_user callback is treated as a failed handoff and
  * triggers rollback. This is usable only with a fully implemented backend. */
 int chimera_elf_load_and_enter(const void *image, uint64_t image_size,
