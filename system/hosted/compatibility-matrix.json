@@ -1,0 +1,210 @@
+{
+  "schema": "CHIMERA-HOSTED-COMPATIBILITY-2",
+  "version": "2026.10.10",
+  "purpose": "Run Chimera user-space tools and Aurora host integration on top of a supported 64-bit host OS without replacing its kernel.",
+  "support_policy": {
+    "minimum_host_pointer_bits": 64,
+    "required_runtime": "Python 3.10+ for the portable host bridge; C/C++ toolchain optional for native builds",
+    "execution_claim": "Hosted bridge and portable built-ins only; this file does not claim full guest OS virtualization or complete API/syscall emulation.",
+    "guest_executables": "Native execution requires the host OS loader and matching architecture. Cross-ISA execution requires a separately implemented and validated emulator/backend.",
+    "minimum_pointer_bits": 32,
+    "supported_host_word_sizes": [
+      32,
+      64
+    ],
+    "profiles": {
+      "32-bit-hosted": {
+        "status": "supported-user-space-bridge",
+        "host_oses": [
+          "32-bit Windows x86 where available",
+          "32-bit Linux x86",
+          "32-bit BSD/POSIX x86 where runtime remains available"
+        ],
+        "runtime_requirements": [
+          "32-bit Python 3",
+          "matching 32-bit system libraries and tools"
+        ],
+        "limitations": [
+          "cannot run 64-bit host binaries",
+          "cannot boot a 64-bit Koronos kernel on a 32-bit host",
+          "cannot execute 64-bit guest ISA natively",
+          "process address space is limited by the host OS"
+        ]
+      },
+      "64-bit-hosted": {
+        "status": "supported-user-space-bridge",
+        "host_oses": [
+          "64-bit Windows",
+          "64-bit Linux",
+          "64-bit BSD/POSIX",
+          "64-bit macOS"
+        ],
+        "limitations": [
+          "cross-ISA guest execution needs a validated backend"
+        ]
+      }
+    },
+    "unsupported_combinations": [
+      "64-bit Chimera native kernel on a 32-bit host",
+      "cross-bitness DLL/shared-library loading",
+      "32-bit macOS as a supported current target"
+    ],
+    "abi_rule": "Host executable, shared-library and process ABI bitness must match; ISA inventory does not imply executable backend support."
+  },
+  "host_modes": {
+    "windows_x64": {
+      "os": [
+        "Windows 10/11 x64",
+        "Windows Server x64"
+      ],
+      "abi": "Win32/NT host ABI",
+      "host_isa_candidates": [
+        "x86-64"
+      ],
+      "shells": [
+        "cmd.exe",
+        "PowerShell",
+        "Chimera hosted command bridge"
+      ],
+      "windows_apis": "compat/windows manifests and PE inspection; native PE runner is required for actual Windows binary execution when not already on Windows",
+      "desktop": "Aurora host bridge can open files/URLs and launch host programs; full Aurora desktop remains a separate component"
+    },
+    "linux_x64": {
+      "os": [
+        "64-bit Linux"
+      ],
+      "abi": "Linux/POSIX host ABI",
+      "host_isa_candidates": [
+        "x86-64"
+      ],
+      "shells": [
+        "sh",
+        "bash",
+        "zsh",
+        "fish",
+        "Chimera hosted command bridge"
+      ],
+      "desktop": "xdg-open integration when available; Aurora graphical runtime is separate"
+    },
+    "linux_arm64": {
+      "os": [
+        "64-bit Linux"
+      ],
+      "abi": "Linux/POSIX host ABI",
+      "host_isa_candidates": [
+        "armv9-a64"
+      ],
+      "shells": [
+        "sh",
+        "bash",
+        "zsh",
+        "fish",
+        "Chimera hosted command bridge"
+      ],
+      "desktop": "xdg-open integration when available; Aurora graphical runtime is separate"
+    },
+    "unix_bsd64": {
+      "os": [
+        "64-bit FreeBSD",
+        "64-bit OpenBSD",
+        "64-bit NetBSD and compatible POSIX systems"
+      ],
+      "abi": "POSIX/BSD host ABI",
+      "host_isa_candidates": [
+        "x86-64",
+        "armv9-a64",
+        "riscv64"
+      ],
+      "shells": [
+        "sh",
+        "bash where installed",
+        "zsh where installed",
+        "Chimera hosted command bridge"
+      ],
+      "desktop": "platform opener where supported; compositor is separate"
+    },
+    "macos64": {
+      "os": [
+        "64-bit macOS on Intel or Apple Silicon"
+      ],
+      "abi": "Darwin/POSIX host ABI",
+      "host_isa_candidates": [
+        "x86-64",
+        "armv9-a64"
+      ],
+      "shells": [
+        "zsh",
+        "bash",
+        "sh",
+        "Chimera hosted command bridge"
+      ],
+      "desktop": "open integration; native macOS security and application rules remain in force"
+    }
+  },
+  "command_compatibility": {
+    "portable_builtins": [
+      "pwd",
+      "ls",
+      "dir",
+      "echo",
+      "cat",
+      "type",
+      "mkdir",
+      "cp",
+      "copy",
+      "mv",
+      "move",
+      "rm",
+      "del",
+      "whoami",
+      "uname",
+      "env",
+      "set",
+      "clear",
+      "cls"
+    ],
+    "translation_policy": "Translate a small documented command alias set; pass external commands as argument arrays without shell=True or implicit shell interpolation.",
+    "limitations": [
+      "No full POSIX shell parser",
+      "No pipelines, redirections, job control or shell expansion in the bridge",
+      "External commands must exist on the host",
+      "Directory deletion is deliberately not recursive in the bridge"
+    ]
+  },
+  "isa_matching": {
+    "policy": "Match host CPU architecture to canonical ISA database IDs; inventory match is not emulator/compiler support.",
+    "aliases": {
+      "amd64": "x86-64",
+      "x86_64": "x86-64",
+      "x64": "x86-64",
+      "arm64": "armv9-a64",
+      "aarch64": "armv9-a64",
+      "armv7l": "arm32",
+      "riscv64": "riscv64",
+      "riscv32": "riscv32"
+    },
+    "execution_candidate_database": "isa/isa_database.json",
+    "reference_runtime": "tools/isa/chimera_isa_candidate.py",
+    "unsupported_cross_architecture": "refuse execution unless a matching decoder/backend and conformance tests are available"
+  },
+  "aurora_desktop_bridge": {
+    "operations": [
+      "host-info",
+      "open file or URL with host default application",
+      "launch a host executable through argument-array process APIs",
+      "expose current host ISA and compatibility mode"
+    ],
+    "not_claimed": [
+      "Full Wayland compositor on Windows/macOS",
+      "Full Win32 user32/gdi32/Direct3D implementation",
+      "Complete Linux syscall compatibility",
+      "Complete macOS/Darwin syscall compatibility"
+    ]
+  },
+  "security": [
+    "Never pass user commands to subprocess with shell=True",
+    "Do not copy proprietary Windows system DLLs",
+    "Validate PE headers and architecture before attempting execution",
+    "Use OS-native sandboxing/process isolation for untrusted executables"
+  ]
+}
