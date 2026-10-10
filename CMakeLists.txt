@@ -112,6 +112,14 @@ install(DIRECTORY mobile DESTINATION share/chimera/mobile)
 install(PROGRAMS tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh DESTINATION bin)
 install(FILES tools/flash/flash-manifest.example.json tools/flash/README.md DESTINATION share/chimera/flash)
 
+# Cross-platform Hosted Edition bridge (64-bit Windows, Linux/Unix and macOS).
+install(PROGRAMS tools/runtime/chimera-hosted.py DESTINATION bin RENAME chimera-hosted)
+install(FILES system/hosted/compatibility-matrix.json DESTINATION share/chimera/hosted)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_hosted_runtime
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_hosted_runtime.py)
+endif()
+
 # ISA candidate inventory and reference execution harness.
 install(PROGRAMS tools/isa/chimera_isa_candidate.py DESTINATION bin RENAME chimera-isa-candidate)
 install(FILES isa/isa_database.json DESTINATION share/chimera/isa)
