@@ -1,0 +1,112 @@
+{
+  "schema": "CHIMERA-ENDIANNESS-CONTRACT-1",
+  "version": "2026.10.10",
+  "principles": [
+    "CPU byte order, instruction encoding order, executable file byte order, and IPC/wire byte order are distinct concepts.",
+    "Real/protected/long execution modes do not by themselves define a universal endianness policy; use the selected ISA and active endian control state.",
+    "All kernel and userspace boundary structures must declare byte order or use the canonical serialized wire format.",
+    "Never reinterpret untrusted file or IPC bytes as native C structures without validating and decoding fields."
+  ],
+  "canonical_wire": {
+    "byte_order": "little-endian",
+    "applies_to": [
+      "CHMBOOT1 fixed-width numeric fields",
+      "microkernel serialized IPC",
+      "cross-process shared protocol headers",
+      "mobile sync manifests with binary fields",
+      "backend test vectors"
+    ],
+    "rule": "Decode/encode each integer explicitly; strings and byte arrays remain byte sequences."
+  },
+  "cpu_families": {
+    "x86-16/real-mode": {
+      "native_data_endian": "little",
+      "configurable_runtime_endian": false,
+      "notes": "x86 real mode is little-endian; real-mode status does not imply the host OS can run a 32/64-bit process."
+    },
+    "x86-32/protected-mode": {
+      "native_data_endian": "little",
+      "configurable_runtime_endian": false,
+      "notes": "Little-endian integer and instruction data conventions."
+    },
+    "x86-64/long-mode": {
+      "native_data_endian": "little",
+      "configurable_runtime_endian": false,
+      "notes": "Little-endian; compatibility submodes retain x86 byte order."
+    },
+    "arm32": {
+      "native_data_endian": "architecture-and-control-state-dependent",
+      "configurable_runtime_endian": true,
+      "notes": "Record ARM architecture revision and BE8/BE32/endianness controls; do not assume all ARM32 environments share one byte order."
+    },
+    "aarch64": {
+      "native_data_endian": "architecture-and-control-state-dependent",
+      "configurable_runtime_endian": true,
+      "notes": "EL and memory-attribute/control configuration may affect data endianness; instruction fetch remains architecture-defined. Probe active state."
+    },
+    "riscv32": {
+      "native_data_endian": "little",
+      "configurable_runtime_endian": false,
+      "notes": "Current standard base profiles use little-endian memory; big-endian support is not assumed unless a concrete platform specification and backend implement it."
+    },
+    "riscv64": {
+      "native_data_endian": "little",
+      "configurable_runtime_endian": false,
+      "notes": "Current standard base profiles use little-endian memory; big-endian support is not assumed unless a concrete platform specification and backend implement it."
+    },
+    "mips32/64": {
+      "native_data_endian": "platform-selected",
+      "configurable_runtime_endian": false,
+      "notes": "Both endian variants exist; select by ELF/platform ABI and backend profile."
+    },
+    "powerpc32/64": {
+      "native_data_endian": "platform-selected",
+      "configurable_runtime_endian": false,
+      "notes": "Big- and little-endian variants exist; select by target ABI and executable metadata."
+    },
+    "s390x": {
+      "native_data_endian": "big",
+      "configurable_runtime_endian": false,
+      "notes": "Big-endian target profile."
+    },
+    "chimera-research-isa": {
+      "native_data_endian": "explicit-target-profile",
+      "configurable_runtime_endian": true,
+      "notes": "Must be specified in the target descriptor; no default is inferred from N-bit register width."
+    }
+  },
+  "modes": {
+    "real_mode": {
+      "policy": "derive from ISA; x86 real16 is little-endian",
+      "bootloader_must_publish": "cpu_isa, execution_mode, native_data_endian, boot_protocol_endian"
+    },
+    "native": {
+      "policy": "probe or compile-time select the active architecture ABI; verify against executable metadata"
+    },
+    "compatibility": {
+      "policy": "guest ABI byte order is separate from host byte order; use conversion at all ABI, syscall, IPC and file-format boundaries"
+    },
+    "emulated": {
+      "policy": "emulator models guest byte order and memory accesses; host byte order must never leak into guest-visible state"
+    },
+    "virtualized": {
+      "policy": "guest CPU architectural state controls guest byte order; hypervisor/device protocol serialization is explicitly defined"
+    },
+    "mobile": {
+      "policy": "device SoC and runtime ABI profile provide the data byte order; Android/iOS hosted APIs do not imply the same order as an emulated guest"
+    }
+  },
+  "executable_formats": {
+    "ELF": "Validate EI_DATA and e_machine before decoding headers; support only byte orders implemented by the selected loader.",
+    "PE": "Validate machine and PE/COFF field encoding; executable format field encoding does not alone establish guest runtime support.",
+    "raw": "Require an explicit signed or trusted platform profile; reject ambiguous byte order."
+  },
+  "backend_requirements": [
+    "Expose guest endian state and reset value for each supported CPU profile.",
+    "Implement endian-correct loads/stores, atomics, MMIO, instruction fetch and exceptions according to the ISA.",
+    "Test canonical LE serialization on LE and BE hosts using byte-for-byte golden vectors.",
+    "Test ELF EI_DATA acceptance/rejection and mixed-endian guest/host IPC.",
+    "Reject unsupported endian modes rather than silently byte-swapping or executing with host semantics."
+  ],
+  "status": "contract-defined; per-CPU backend correctness and big-endian host CI are not yet validated"
+}
