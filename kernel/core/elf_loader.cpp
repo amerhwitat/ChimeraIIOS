@@ -18,7 +18,6 @@ static void copy_bytes(void *dst, const void *src, uint64_t n) {
     const auto *s = static_cast<const uint8_t *>(src);
     for (uint64_t i = 0; i < n; ++i) d[i] = s[i];
 }
-static uint64_t page_down(uint64_t n) { return n & ~(PAGE - 1); }
 static bool add_ok(uint64_t a, uint64_t b, uint64_t *out) {
     if (a > UINT64_MAX - b) return false;
     *out = a + b; return true;
