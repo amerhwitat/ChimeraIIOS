@@ -6,6 +6,7 @@ on:
       - 'kernel/arch/x86_32/**'
       - 'tools/runtime/check-koronos32-boot.sh'
       - 'tests/unit/test_koronos32_bringup.py'
+      - 'tests/unit/test_endianness_contract.py'
       - '.github/workflows/koronos32-bringup.yml'
   pull_request:
     paths:
@@ -27,6 +28,7 @@ jobs:
         with:
           python-version: '3.x'
       - run: python tests/unit/test_koronos32_bringup.py
+      - run: python tests/unit/test_endianness_contract.py
 
   qemu-boot-smoke:
     runs-on: ubuntu-latest
