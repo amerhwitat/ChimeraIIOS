@@ -395,7 +395,7 @@ check_deps(){
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
   command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
-  command -v busybox >/dev/null || log_warning 'busybox unavailable on host; installer creation must use a BusyBox binary from the exported rootfs or install the optional host package'
+  command -v busybox >/dev/null || log_warning 'busybox unavailable on host; create_installer currently requires host BusyBox. Install busybox-static (Debian/Ubuntu) before the installer stage.'
   # Docker CLI presence does not imply that a daemon is running. Diagnose the
   # endpoint and optionally start a local Linux daemon when explicitly enabled.
   if ! docker info >/dev/null 2>&1; then
