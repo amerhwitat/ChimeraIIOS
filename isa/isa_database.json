@@ -3517,7 +3517,8 @@
           "riscv-vector"
         ]
       }
-    ]
+    ],
+    "ci_validation": "The ISA Catalog CI runs bash -n on build-chimera-iso.sh, py_compile and offline mode for tools/isa/research_catalog.py, and asserts exactly eleven research targets with no executable-support claims."
   },
   "isa_inventory_policy": {
     "scope": "Broad discoverable inventory of major CISC, RISC, EPIC/VLIW, GPU, virtual-machine and extension ISAs; not a claim that every proprietary, unpublished, historical, or custom ISA is enumerated.",
