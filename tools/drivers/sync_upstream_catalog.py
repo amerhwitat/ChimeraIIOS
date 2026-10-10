@@ -8,7 +8,7 @@ import argparse, hashlib, json, pathlib, sys, urllib.error, urllib.request
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 CACHE=ROOT/"data/drivers/upstream"
 MAX_BYTES=32*1024*1024
-SOURCES={"pci.ids":"https://raw.githubusercontent.com/pciutils/pciids/master/pci.ids","usb.ids":"https://raw.githubusercontent.com/usbutils/usbutils/master/usb.ids"}
+SOURCES={"pci.ids":"https://raw.githubusercontent.com/pciutils/pciids/master/pci.ids","usb.ids":"https://raw.githubusercontent.com/usbids/usbids/master/usb.ids"}
 TREES={"linux-kernel":("torvalds/linux","master"),"edk2":("tianocore/edk2","master"),"zephyr":("zephyrproject-rtos/zephyr","main")}
 PREFIXES=("drivers/net/","drivers/usb/","drivers/ata/","drivers/nvme/","drivers/gpu/","drivers/virtio/","drivers/block/","drivers/hwmon/","drivers/media/","drivers/input/","drivers/sound/","MdeModulePkg/","NetworkPkg/","UsbPkg/","drivers/")
 def fetch(url, limit=MAX_BYTES):
