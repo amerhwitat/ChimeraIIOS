@@ -1,6 +1,6 @@
 {
   "$schema": "CHM-ISA-DB-4",
-  "version": "2026.10.09",
+  "version": "2026.10.10",
   "title": "Chimera II OS Universal ISA Database",
   "architecture_row": [
     "id",
@@ -22,7 +22,7 @@
     "value_bits",
     "mask_bits"
   ],
-  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution.",
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution. Conversion pipeline update 2026-10-10: every inventoried architecture has an explicit native semantic-IR planning profile and compatibility-backend status. Profiles do not imply machine-code translation or execution. Fifteen additional x86, Arm, RISC-V, LoongArch, WebAssembly and virtualization candidates are catalog-only until official encodings and semantics are transcribed and tested.",
   "architectures": [
     [
       "chimera-c8192",
@@ -892,6 +892,156 @@
       "catalog-only",
       "RVV vector extension with implementation-defined VLEN",
       "riscv",
+      0
+    ],
+    [
+      "x86-avx10",
+      "CISC-extension",
+      "Intel AVX10 vector extension",
+      64,
+      "catalog-only",
+      "x86 variable-length EVEX-family vector forms",
+      "intel-sdm",
+      0
+    ],
+    [
+      "x86-apx",
+      "CISC-extension",
+      "Intel Advanced Performance Extensions",
+      64,
+      "catalog-only",
+      "x86-64 general-purpose register and instruction extensions",
+      "intel-sdm",
+      0
+    ],
+    [
+      "x86-amx",
+      "CISC-extension",
+      "Intel Advanced Matrix Extensions",
+      64,
+      "catalog-only",
+      "x86-64 tile state and matrix instruction extensions",
+      "intel-sdm",
+      0
+    ],
+    [
+      "arm-sme2",
+      "RISC-extension",
+      "Arm Scalable Matrix Extension 2",
+      128,
+      "catalog-only",
+      "AArch64 scalable matrix extension",
+      "arm",
+      0
+    ],
+    [
+      "arm-mte",
+      "RISC-extension",
+      "Arm Memory Tagging Extension",
+      64,
+      "catalog-only",
+      "AArch64 tagged-address and allocation-tag instructions",
+      "arm",
+      0
+    ],
+    [
+      "riscv-crypto",
+      "RISC-V-extension",
+      "RISC-V Cryptography Extensions",
+      64,
+      "catalog-only",
+      "Optional scalar/vector cryptographic extensions",
+      "riscv-ratified",
+      0
+    ],
+    [
+      "riscv-hypervisor",
+      "RISC-V-extension",
+      "RISC-V Hypervisor Extension",
+      64,
+      "catalog-only",
+      "Privileged virtualization and guest address translation",
+      "riscv-ratified",
+      0
+    ],
+    [
+      "riscv-zicond",
+      "RISC-V-extension",
+      "RISC-V Zicond conditional operations",
+      64,
+      "catalog-only",
+      "Optional conditional-zero integer extension",
+      "riscv-ratified",
+      0
+    ],
+    [
+      "loongarch-lsx",
+      "RISC-extension",
+      "LoongArch LSX SIMD extension",
+      128,
+      "catalog-only",
+      "128-bit vector extension",
+      "loongarch",
+      0
+    ],
+    [
+      "loongarch-lasx",
+      "RISC-extension",
+      "LoongArch LASX SIMD extension",
+      256,
+      "catalog-only",
+      "256-bit vector extension",
+      "loongarch",
+      0
+    ],
+    [
+      "wasm-gc",
+      "VM-extension",
+      "WebAssembly GC proposal",
+      64,
+      "catalog-only",
+      "Typed references and managed-heap operations",
+      "webassembly",
+      0
+    ],
+    [
+      "wasm-component",
+      "VM-extension",
+      "WebAssembly Component Model",
+      64,
+      "catalog-only",
+      "Component interfaces and canonical ABI; not CPU instruction encoding",
+      "webassembly",
+      0
+    ],
+    [
+      "riscv-privileged",
+      "RISC-V-privileged",
+      "RISC-V privileged architecture",
+      64,
+      "catalog-only",
+      "CSRs, traps, privilege, virtual memory and PMP",
+      "riscv-ratified",
+      0
+    ],
+    [
+      "x86-svm",
+      "CISC-privileged",
+      "AMD SVM virtualization extensions",
+      64,
+      "catalog-only",
+      "AMD64 virtualization instructions and VMCB state",
+      "amd",
+      0
+    ],
+    [
+      "x86-vmx",
+      "CISC-privileged",
+      "Intel VMX virtualization extensions",
+      64,
+      "catalog-only",
+      "Intel virtualization instructions and VMCS state",
+      "intel-sdm",
       0
     ]
   ],
@@ -3305,160 +3455,13 @@
       "1111111110000111"
     ]
   ],
-  "research_update": {
-    "reviewed_on": "2026-10-08",
-    "method": "Official vendor and standards documentation reviewed for architecture scope, instruction reference organization, and extension/version status. Curated reference supplement; not exhaustive.",
-    "source_findings": [
-      {
-        "source": "intel-sdm",
-        "finding": "Intel SDM separates basic architecture, the full A–Z instruction reference, system programming (memory management, protection, interrupts/exceptions, multiprocessor, VMX/VT, SGX), and model-specific registers. Track extension and processor feature availability separately."
-      },
-      {
-        "source": "arm-isa-glossary",
-        "finding": "An ISA specifies programmer-visible instructions, formats, registers, data types, memory model, privilege, and exceptions; distinguish ISA from microarchitecture."
-      },
-      {
-        "source": "arm",
-        "finding": "Track AArch64/A64 separately from AArch32 A32 and T32 (Thumb/Thumb-2); A64 is fixed 32-bit while T32 uses 16- and 32-bit encodings. Feature availability depends on architecture profile/version and implemented extensions."
-      },
-      {
-        "source": "riscv",
-        "finding": "RISC-V is modular: record base ISA, extensions, privileged architecture, and ratification status independently. Compressed C instructions use 16-bit encodings; base instructions commonly use 32 bits. The ratified library contains extensions beyond M/A/F/D/C/V."
-      },
-      {
-        "source": "openpower",
-        "finding": "Power ISA 3.1c defines user, virtual-environment, and operating-environment architecture in separate books; distinguish ISA instructions from platform requirements."
-      }
-    ],
-    "architecture_profiles": [
-      {
-        "id": "arm-aarch64-a64",
-        "architecture": "aarch64",
-        "profile": "A-profile",
-        "execution_state": "AArch64",
-        "instruction_set": "A64",
-        "instruction_length_bits": [
-          32
-        ],
-        "register_model": "64-bit general-purpose X0-X30 plus SP/PC and architectural SIMD/FP registers",
-        "features_to_track": [
-          "base integer",
-          "load/store",
-          "branch/control flow",
-          "SIMD/FP Advanced SIMD",
-          "atomics/ordering",
-          "system registers/exceptions",
-          "virtualization",
-          "cryptography",
-          "SVE/SVE2",
-          "SME",
-          "pointer authentication",
-          "memory tagging"
-        ],
-        "support_status": "catalog-partial",
-        "note": "Feature list is taxonomy, not a claim each extension is implemented or present on every CPU."
-      },
-      {
-        "id": "arm-aarch32-a32",
-        "architecture": "arm32",
-        "profile": "A/R profile where applicable",
-        "execution_state": "AArch32",
-        "instruction_set": "A32/ARM",
-        "instruction_length_bits": [
-          32
-        ],
-        "register_model": "32-bit R0-R15 plus status/system state and profile-specific FP/SIMD registers",
-        "features_to_track": [
-          "conditional execution",
-          "integer/data processing",
-          "load/store",
-          "branch/exchange",
-          "coprocessor and system instructions",
-          "VFP/Advanced SIMD where supported"
-        ],
-        "support_status": "catalog-partial",
-        "note": "Availability varies by architecture version and profile."
-      },
-      {
-        "id": "arm-aarch32-t32",
-        "architecture": "arm32-thumb",
-        "profile": "A/R/M profile availability varies by version",
-        "execution_state": "AArch32",
-        "instruction_set": "T32/Thumb-2",
-        "instruction_length_bits": [
-          16,
-          32
-        ],
-        "register_model": "AArch32 registers with Thumb encoding and execution-state rules",
-        "features_to_track": [
-          "16-bit Thumb encodings",
-          "32-bit Thumb-2 encodings",
-          "IT/conditional execution where supported",
-          "branch/exchange",
-          "load/store",
-          "system instructions by profile"
-        ],
-        "support_status": "catalog-partial",
-        "note": "Decode length is encoding-dependent; Thumb is not uniformly 32-bit."
-      },
-      {
-        "id": "riscv-modular",
-        "architecture": "riscv64",
-        "profile": "unprivileged and privileged specifications",
-        "instruction_set": "RV32I/RV64I plus separately versioned extensions",
-        "instruction_length_bits": [
-          16,
-          32,
-          48,
-          64,
-          80
-        ],
-        "support_status": "inventory-only",
-        "features_to_track": [
-          "I/E base",
-          "M",
-          "A",
-          "F",
-          "D",
-          "Q",
-          "C",
-          "B",
-          "V",
-          "Zicsr",
-          "Zifencei",
-          "counters",
-          "cryptography",
-          "cache-management",
-          "hypervisor",
-          "machine/supervisor privilege",
-          "Sv* virtual memory extensions"
-        ],
-        "note": "Encoding-length classes are not a claim that the current Chimera decoder supports these lengths or extensions; use the selected specification release for status."
-      },
-      {
-        "id": "intel-x86-extensions",
-        "architecture": "x86-64",
-        "profile": "Intel 64 and IA-32",
-        "instruction_set": "x86 variable-length encodings",
-        "support_status": "inventory-only",
-        "features_to_track": [
-          "legacy integer/x87",
-          "SSE family",
-          "AVX/AVX2",
-          "AVX-512",
-          "AVX10.1/10.2",
-          "AES and SHA extensions",
-          "BMI",
-          "FMA",
-          "virtualization VMX",
-          "SGX",
-          "CET",
-          "AMX"
-        ],
-        "note": "Mnemonic catalog does not imply CPU support; gate by CPUID, execution mode, OS state, and processor generation."
-      }
-    ]
-  },
+  "research_update": [
+    {
+      "date": "2026-10-10",
+      "summary": "Added catalog-only ISA extension/privileged candidates and explicit conversion profiles for every inventoried architecture.",
+      "policy": "No opcode rows were invented for new candidates; execution/conformance claims remain disabled until sourced encodings, decoders, semantics and tests exist."
+    }
+  ],
   "isa_inventory_policy": {
     "scope": "Broad discoverable inventory of major CISC, RISC, EPIC/VLIW, GPU, virtual-machine and extension ISAs; not a claim that every proprietary, unpublished, historical, or custom ISA is enumerated.",
     "status_semantics": {
@@ -11604,6 +11607,2382 @@
       "bridge": "tools/runtime/chimera-hosted.py",
       "candidate_execution_status": "host-match-only; cross-ISA execution not implied",
       "updated": "2026-10-10"
+    },
+    "translation_profiles": [
+      {
+        "architecture": "chimera-c8192",
+        "family": "Chimera",
+        "class": "custom",
+        "word_bits": 8192,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "project-defined",
+        "candidate_instruction_forms": 5,
+        "candidate_count": 5,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "project-defined-profile-not-hardware-verified",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "chimera-r8192",
+        "family": "Chimera",
+        "class": "custom",
+        "word_bits": 8192,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "project-defined",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "project-defined-profile-not-hardware-verified",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-64",
+        "family": "x86",
+        "class": "CISC",
+        "word_bits": 64,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 12,
+        "candidate_count": 13,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-32",
+        "family": "x86",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "aarch64",
+        "family": "AArch64",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 16,
+        "candidate_count": 16,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arm32",
+        "family": "A32/T32",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 10,
+        "candidate_count": 10,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "reference-subset-only",
+          "backend": "tools/isa/chimera_isa_candidate.py step-rv32i",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv64",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 21,
+        "candidate_count": 30,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "mips32",
+        "family": "MIPS",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "mips",
+        "source_url": "https://www.mips.com/technical-documents/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 13,
+        "candidate_count": 13,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "mips64",
+        "family": "MIPS",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "mips",
+        "source_url": "https://www.mips.com/technical-documents/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "powerpc",
+        "family": "Power ISA",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "openpower",
+        "source_url": "https://openpowerfoundation.org/specifications/isa/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 11,
+        "candidate_count": 11,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "ppc64",
+        "family": "Power ISA",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "openpower",
+        "source_url": "https://openpowerfoundation.org/specifications/isa/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "sparc-v9",
+        "family": "SPARC",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "sparc",
+        "source_url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "m68k",
+        "family": "Motorola 68000",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy/standard",
+        "candidate_instruction_forms": 9,
+        "candidate_count": 9,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "s390x",
+        "family": "IBM z/Architecture",
+        "class": "CISC",
+        "word_bits": 64,
+        "source_ref": "ibm-z",
+        "source_url": "https://www.ibm.com/docs/en/zos",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 4,
+        "candidate_count": 4,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "vax",
+        "family": "VAX",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "sh4",
+        "family": "SuperH",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy/standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "loongarch64",
+        "family": "LoongArch",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "loongarch",
+        "source_url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "alpha",
+        "family": "DEC Alpha",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "hppa",
+        "family": "PA-RISC",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy/standard",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "xtensa",
+        "family": "Xtensa",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "configurable",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "avr",
+        "family": "AVR",
+        "class": "RISC",
+        "word_bits": 8,
+        "source_ref": "microchip-avr",
+        "source_url": "https://onlinedocs.microchip.com/",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 9,
+        "candidate_count": 9,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "8051",
+        "family": "MCS-51",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy/standard",
+        "candidate_instruction_forms": 9,
+        "candidate_count": 9,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "z80",
+        "family": "Z80",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "zilog",
+        "source_url": "https://www.zilog.com/docs/z80/",
+        "inventory_status": "legacy",
+        "candidate_instruction_forms": 10,
+        "candidate_count": 10,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "6502",
+        "family": "MOS 6502",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy",
+        "candidate_instruction_forms": 12,
+        "candidate_count": 12,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "ia64",
+        "family": "Itanium",
+        "class": "EPIC",
+        "word_bits": 64,
+        "source_ref": "chimera",
+        "source_url": "https://github.com/amerhwitat/ChimeraIIOS",
+        "inventory_status": "legacy",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "amd-gcn",
+        "family": "AMD GCN/RDNA/CDNA",
+        "class": "GPU",
+        "word_bits": 32,
+        "source_ref": "amd-gpu",
+        "source_url": "https://rocm.docs.amd.com/en/latest/reference/gpu-arch/index.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "msp430",
+        "family": "TI MSP430",
+        "class": "RISC",
+        "word_bits": 16,
+        "source_ref": "ti-msp430",
+        "source_url": "https://downloads.ti.com/docs/esd/SLAU131R/Content/SLAU131R_HTML/abstract.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "pic24-dspic",
+        "family": "Microchip PIC24/dsPIC",
+        "class": "RISC",
+        "word_bits": 24,
+        "source_ref": "microchip-pic24",
+        "source_url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU16/ProductDocuments/ReferenceManuals/dsPIC33-PIC24-Family-Reference-Manual-Introduction-DS70000573.pdf",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "c6000",
+        "family": "TI C6000 DSP",
+        "class": "VLIW",
+        "word_bits": 32,
+        "source_ref": "ti-c6000",
+        "source_url": "https://www.ti.com/tool/TI-CGT",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arm32-thumb",
+        "family": "AArch32/T32",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "standard",
+        "candidate_instruction_forms": 3,
+        "candidate_count": 3,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-16",
+        "family": "x86 real mode",
+        "class": "CISC",
+        "word_bits": 16,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "i8080",
+        "family": "Intel 8080/8085",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "intel-8080",
+        "source_url": "https://www.intel.com/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "pdp11",
+        "family": "DEC PDP-11",
+        "class": "CISC",
+        "word_bits": 16,
+        "source_ref": "pdp11",
+        "source_url": "https://bitsavers.org/pdf/dec/pdp11/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "motorola-6809",
+        "family": "Motorola 6809",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "motorola-6809",
+        "source_url": "https://www.nxp.com/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "m68000",
+        "family": "Motorola 68000 family",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "motorola-68000",
+        "source_url": "https://www.nxp.com/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "m68k-coldfire",
+        "family": "Motorola ColdFire",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "motorola-68000",
+        "source_url": "https://www.nxp.com/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "mos6502",
+        "family": "MOS 6502 family",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "mos-6502",
+        "source_url": "https://www.6502.org/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "wdc65c816",
+        "family": "WDC 65C816",
+        "class": "CISC",
+        "word_bits": 16,
+        "source_ref": "wdc-65c816",
+        "source_url": "https://www.westerndesigncenter.com/wdc/documentation.cfm",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "mcs51",
+        "family": "Intel MCS-51 / 8051",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "intel-8051",
+        "source_url": "https://www.keil.com/dd/docs/datashts/atmel/8051.pdf",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "m680x",
+        "family": "Motorola 6800/6801/6803",
+        "class": "CISC",
+        "word_bits": 8,
+        "source_ref": "motorola-6800",
+        "source_url": "https://www.nxp.com/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "ibm-s360",
+        "family": "IBM System/360",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "ibm-architecture",
+        "source_url": "https://bitsavers.org/pdf/ibm/360/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "ibm-z",
+        "family": "IBM z/Architecture",
+        "class": "CISC",
+        "word_bits": 64,
+        "source_ref": "ibm-z",
+        "source_url": "https://www.ibm.com/docs/en/zos",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "e2k",
+        "family": "Elbrus E2K",
+        "class": "VLIW",
+        "word_bits": 64,
+        "source_ref": "elbrus-e2k",
+        "source_url": "https://www.mcst.ru/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "armv7-risc",
+        "family": "ARMv7-A/R",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "armv7-m",
+        "family": "ARMv7-M",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "armv8-a32",
+        "family": "ARMv8-A AArch32",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "armv9-a64",
+        "family": "Armv9-A AArch64",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv32e",
+        "family": "RISC-V RV32E",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv64e",
+        "family": "RISC-V RV64E",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv128",
+        "family": "RISC-V RV128I proposal",
+        "class": "RISC",
+        "word_bits": 128,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "openrisc",
+        "family": "OpenRISC 1000",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "openrisc",
+        "source_url": "https://openrisc.io/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "or1k",
+        "family": "OpenRISC ORBIS",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "openrisc",
+        "source_url": "https://openrisc.io/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arc-compact",
+        "family": "Synopsys ARC",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "synopsys-arc",
+        "source_url": "https://www.synopsys.com/designware-ip/processor-solutions.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "andes-nds32",
+        "family": "Andes NDS32",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "andes-nds32",
+        "source_url": "https://www.andestech.com/en/products-solutions/andescore-processors/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "xtensa-lx",
+        "family": "Tensilica Xtensa LX",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "xtensa",
+        "source_url": "https://www.cadence.com/en_US/home/tools/silicon-solutions/compute-ip/xtensa.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "nios2",
+        "family": "Intel/Altera Nios II",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "intel-nios2",
+        "source_url": "https://www.intel.com/content/www/us/en/docs/programmable/683836/current/nios-ii-processor-reference-handbook.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "microblaze",
+        "family": "AMD/Xilinx MicroBlaze",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "amd-microblaze",
+        "source_url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "blackfin",
+        "family": "Analog Devices Blackfin",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "analog-devices-blackfin",
+        "source_url": "https://www.analog.com/en/resources/technical-documentation.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "tricore",
+        "family": "Infineon TriCore",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "infineon-tricore",
+        "source_url": "https://www.infineon.com/cms/en/product/microcontroller/32-bit-tricore-microcontroller/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "superh-sh2",
+        "family": "SuperH SH-2",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "renesas-superh",
+        "source_url": "https://www.renesas.com/en/document",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "superh-sh4a",
+        "family": "SuperH SH-4A",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "renesas-superh",
+        "source_url": "https://www.renesas.com/en/document",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "mips16",
+        "family": "MIPS16",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "mips",
+        "source_url": "https://www.mips.com/technical-documents/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "microchip-pic16",
+        "family": "Microchip PIC16",
+        "class": "RISC",
+        "word_bits": 14,
+        "source_ref": "microchip-pic",
+        "source_url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "microchip-pic18",
+        "family": "Microchip PIC18",
+        "class": "RISC",
+        "word_bits": 16,
+        "source_ref": "microchip-pic",
+        "source_url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "microchip-pic24",
+        "family": "Microchip PIC24",
+        "class": "RISC",
+        "word_bits": 24,
+        "source_ref": "microchip-pic24",
+        "source_url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU16/ProductDocuments/ReferenceManuals/dsPIC33-PIC24-Family-Reference-Manual-Introduction-DS70000573.pdf",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "dspic33",
+        "family": "Microchip dsPIC33",
+        "class": "RISC",
+        "word_bits": 24,
+        "source_ref": "microchip-pic24",
+        "source_url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU16/ProductDocuments/ReferenceManuals/dsPIC33-PIC24-Family-Reference-Manual-Introduction-DS70000573.pdf",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "msp430x",
+        "family": "TI MSP430X",
+        "class": "RISC",
+        "word_bits": 20,
+        "source_ref": "ti-msp430",
+        "source_url": "https://downloads.ti.com/docs/esd/SLAU131R/Content/SLAU131R_HTML/abstract.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "renesas-rx",
+        "family": "Renesas RX",
+        "class": "CISC",
+        "word_bits": 32,
+        "source_ref": "renesas-rx",
+        "source_url": "https://www.renesas.com/en/document",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "renesas-v850",
+        "family": "Renesas V850",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "renesas-v850",
+        "source_url": "https://www.renesas.com/en/document",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "fr-v",
+        "family": "Fujitsu FR-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "fujitsu-frv",
+        "source_url": "https://www.fujitsu.com/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "alpha-ev6",
+        "family": "DEC Alpha EV6",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "dec-alpha",
+        "source_url": "https://bitsavers.org/pdf/dec/alpha/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "hppa-2",
+        "family": "PA-RISC 2.0",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "hp-parisc",
+        "source_url": "https://parisc.wiki.kernel.org/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "sparc-v8",
+        "family": "SPARC V8",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "sparc",
+        "source_url": "https://docs.oracle.com/cd/E18752_01/html/816-1681/sparcv9-30990.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "power10",
+        "family": "IBM POWER10 / Power ISA",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "openpower",
+        "source_url": "https://openpowerfoundation.org/specifications/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "mips64r6",
+        "family": "MIPS64 Release 6",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "mips",
+        "source_url": "https://www.mips.com/technical-documents/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "loongarch32",
+        "family": "LoongArch32",
+        "class": "RISC",
+        "word_bits": 32,
+        "source_ref": "loongarch",
+        "source_url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv64gc",
+        "family": "RISC-V RV64GC profile",
+        "class": "RISC",
+        "word_bits": 64,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "wasm32",
+        "family": "WebAssembly 32-bit virtual ISA",
+        "class": "VM",
+        "word_bits": 32,
+        "source_ref": "webassembly",
+        "source_url": "https://webassembly.github.io/spec/core/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "wasm64",
+        "family": "WebAssembly 64-bit virtual ISA",
+        "class": "VM",
+        "word_bits": 64,
+        "source_ref": "webassembly",
+        "source_url": "https://webassembly.github.io/spec/core/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "ebpf",
+        "family": "Linux eBPF virtual ISA",
+        "class": "VM",
+        "word_bits": 64,
+        "source_ref": "ebpf",
+        "source_url": "https://docs.kernel.org/bpf/instruction-set.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "nvidia-ptx",
+        "family": "NVIDIA PTX virtual ISA",
+        "class": "GPU-VM",
+        "word_bits": 32,
+        "source_ref": "nvidia-ptx",
+        "source_url": "https://docs.nvidia.com/cuda/parallel-thread-execution/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "amd-gcn-rdna",
+        "family": "AMD GCN/RDNA/CDNA families",
+        "class": "GPU",
+        "word_bits": 32,
+        "source_ref": "amd-gpu",
+        "source_url": "https://rocm.docs.amd.com/en/latest/reference/gpu-arch/index.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "intel-xe-gpu",
+        "family": "Intel Xe GPU ISA",
+        "class": "GPU",
+        "word_bits": 32,
+        "source_ref": "intel-gpu",
+        "source_url": "https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arm-sme",
+        "family": "Arm Scalable Matrix Extension",
+        "class": "RISC-extension",
+        "word_bits": 128,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arm-sve",
+        "family": "Arm Scalable Vector Extension",
+        "class": "RISC-extension",
+        "word_bits": 128,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv-vector",
+        "family": "RISC-V Vector Extension",
+        "class": "RISC-extension",
+        "word_bits": 64,
+        "source_ref": "riscv",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 1,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-avx10",
+        "family": "Intel AVX10 vector extension",
+        "class": "CISC-extension",
+        "word_bits": 64,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-apx",
+        "family": "Intel Advanced Performance Extensions",
+        "class": "CISC-extension",
+        "word_bits": 64,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-amx",
+        "family": "Intel Advanced Matrix Extensions",
+        "class": "CISC-extension",
+        "word_bits": 64,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arm-sme2",
+        "family": "Arm Scalable Matrix Extension 2",
+        "class": "RISC-extension",
+        "word_bits": 128,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "arm-mte",
+        "family": "Arm Memory Tagging Extension",
+        "class": "RISC-extension",
+        "word_bits": 64,
+        "source_ref": "arm",
+        "source_url": "https://developer.arm.com/architectures",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv-crypto",
+        "family": "RISC-V Cryptography Extensions",
+        "class": "RISC-V-extension",
+        "word_bits": 64,
+        "source_ref": "riscv-ratified",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv-hypervisor",
+        "family": "RISC-V Hypervisor Extension",
+        "class": "RISC-V-extension",
+        "word_bits": 64,
+        "source_ref": "riscv-ratified",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv-zicond",
+        "family": "RISC-V Zicond conditional operations",
+        "class": "RISC-V-extension",
+        "word_bits": 64,
+        "source_ref": "riscv-ratified",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "loongarch-lsx",
+        "family": "LoongArch LSX SIMD extension",
+        "class": "RISC-extension",
+        "word_bits": 128,
+        "source_ref": "loongarch",
+        "source_url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "loongarch-lasx",
+        "family": "LoongArch LASX SIMD extension",
+        "class": "RISC-extension",
+        "word_bits": 256,
+        "source_ref": "loongarch",
+        "source_url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "wasm-gc",
+        "family": "WebAssembly GC proposal",
+        "class": "VM-extension",
+        "word_bits": 64,
+        "source_ref": "webassembly",
+        "source_url": "https://webassembly.github.io/spec/core/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "wasm-component",
+        "family": "WebAssembly Component Model",
+        "class": "VM-extension",
+        "word_bits": 64,
+        "source_ref": "webassembly",
+        "source_url": "https://webassembly.github.io/spec/core/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "riscv-privileged",
+        "family": "RISC-V privileged architecture",
+        "class": "RISC-V-privileged",
+        "word_bits": 64,
+        "source_ref": "riscv-ratified",
+        "source_url": "https://docs.riscv.org/reference/isa/",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-svm",
+        "family": "AMD SVM virtualization extensions",
+        "class": "CISC-privileged",
+        "word_bits": 64,
+        "source_ref": "amd",
+        "source_url": "https://www.amd.com/en/support/tech-docs",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      },
+      {
+        "architecture": "x86-vmx",
+        "family": "Intel VMX virtualization extensions",
+        "class": "CISC-privileged",
+        "word_bits": 64,
+        "source_ref": "intel-sdm",
+        "source_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+        "inventory_status": "catalog-only",
+        "candidate_instruction_forms": 0,
+        "candidate_count": 0,
+        "native_mode": {
+          "target": "CHIR-semantic-IR",
+          "status": "translation-plan-only",
+          "operation_mapping": "Requires an existing instruction candidate with explicit semantic_operation; output is semantic IR, not machine code."
+        },
+        "compatibility_mode": {
+          "status": "decoder-not-implemented",
+          "backend": "none",
+          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+        },
+        "execution_status": "not-claimed",
+        "conformance_status": "not-tested"
+      }
+    ],
+    "translation_policy": {
+      "schema": "CHIMERA-ISA-TRANSLATION-POLICY-1",
+      "native_target": "CHIR semantic intermediate representation",
+      "compatibility_target": "Architecture-specific reference interpreter only where decoder and semantics are implemented",
+      "rules": [
+        "Never infer encodings from mnemonic spelling or architecture family.",
+        "Inventory candidates are not executable instruction forms.",
+        "Semantic-IR plans are not machine code and require a validated target backend.",
+        "Compatibility mode is available only for explicitly implemented decoder/semantic subsets; unsupported instructions fail closed.",
+        "Every plan carries source and candidate/conformance status."
+      ],
+      "operation_whitelist": [
+        "add",
+        "sub",
+        "and",
+        "or",
+        "xor",
+        "shift-left",
+        "shift-right-logical",
+        "shift-right-arithmetic",
+        "move",
+        "load-immediate",
+        "nop",
+        "multiply",
+        "set-less-than-signed",
+        "set-less-than-unsigned"
+      ]
     }
   }
 }
