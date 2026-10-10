@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "generated_by": "tools/catalogs/refresh_online_catalogs.py",
-  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage.",
+  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage. Recursive discovery is configured to a maximum link depth of 10; online identifiers remain candidates until verified against the relevant architecture specification.",
   "isa_sources": [
     {
       "id": "intel-sdm",
@@ -204,6 +204,90 @@
       "family": "MicroBlaze",
       "kind": "official-architecture-reference",
       "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref",
+      "authority": "AMD"
+    },
+    {
+      "id": "openpower-isa",
+      "family": "Power ISA",
+      "kind": "official-isa-specification",
+      "url": "https://openpower.foundation/specifications/isa/",
+      "authority": "OpenPOWER Foundation"
+    },
+    {
+      "id": "ibm-z-architecture",
+      "family": "IBM z/Architecture",
+      "kind": "official-architecture-reference",
+      "url": "https://www.ibm.com/docs/en/zos/3.1.0?topic=architecture-principles-operation",
+      "authority": "IBM"
+    },
+    {
+      "id": "oracle-sparc-architecture",
+      "family": "SPARC",
+      "kind": "official-architecture-reference",
+      "url": "https://docs.oracle.com/cd/E53394_01/html/E54833/index.html",
+      "authority": "Oracle"
+    },
+    {
+      "id": "mips-architecture-docs",
+      "family": "MIPS",
+      "kind": "architecture-documentation-index",
+      "url": "https://www.mips.com/products/architectures/",
+      "authority": "MIPS"
+    },
+    {
+      "id": "microchip-avr-instruction-set",
+      "family": "AVR",
+      "kind": "official-instruction-set-reference",
+      "url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus/avr-mcus",
+      "authority": "Microchip"
+    },
+    {
+      "id": "ti-msp430-instruction-set",
+      "family": "MSP430",
+      "kind": "official-architecture-reference",
+      "url": "https://www.ti.com/lit/ug/slau144/slau144.pdf",
+      "authority": "Texas Instruments"
+    },
+    {
+      "id": "zilog-z80-reference",
+      "family": "Z80",
+      "kind": "architecture-reference",
+      "url": "https://www.zilog.com/docs/z80/um0080.pdf",
+      "authority": "Zilog"
+    },
+    {
+      "id": "keil-8051-instruction-set",
+      "family": "8051 / MCS-51",
+      "kind": "instruction-set-reference",
+      "url": "https://www.keil.com/support/man/docs/is51/is51_instructions.htm",
+      "authority": "Arm Keil"
+    },
+    {
+      "id": "motorola-68000-reference",
+      "family": "Motorola 68000",
+      "kind": "architecture-reference",
+      "url": "https://www.nxp.com/docs/en/reference-manual/M68000PRM.pdf",
+      "authority": "NXP"
+    },
+    {
+      "id": "vax-architecture-reference",
+      "family": "VAX",
+      "kind": "historical-architecture-reference",
+      "url": "https://www.bitsavers.org/pdf/dec/vax/",
+      "authority": "Bitsavers archive"
+    },
+    {
+      "id": "renesas-rx-instruction-set",
+      "family": "Renesas RX",
+      "kind": "official-architecture-reference",
+      "url": "https://www.renesas.com/en/document/mat/rx-family-users-manual-instruction-set",
+      "authority": "Renesas"
+    },
+    {
+      "id": "amd64-isa-programmers-manual",
+      "family": "x86-64",
+      "kind": "official-architecture-reference",
+      "url": "https://www.amd.com/en/search/documentation/hub.html",
       "authority": "AMD"
     }
   ],
