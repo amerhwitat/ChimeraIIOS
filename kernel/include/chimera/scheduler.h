@@ -11,15 +11,19 @@ typedef struct {
 } chimera_task_info;
 void chimera_sched_init(uint32_t cpu_count);
 uint32_t chimera_sched_cpu_count(void);
-int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priority);
-int chimera_sched_set_affinity(uint32_t task_id,uint64_t affinity_mask);
+int chimera_sched_submit(chimera_task_fn fn, void* arg, uint32_t priority);
+int chimera_sched_set_affinity(uint32_t task_id, uint64_t affinity_mask);
 uint32_t chimera_sched_run_once(uint32_t cpu);
-uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t cpu_count);
+/* Cooperative host/test dispatcher only; not an AP starter or stack switcher. */
+uint32_t chimera_sched_run_parallel(uint32_t first_cpu, uint32_t cpu_count);
+void chimera_sched_yield_cpu(uint32_t cpu);
+void chimera_sched_block_cpu(uint32_t cpu);
+void chimera_sched_exit_cpu(uint32_t cpu);
 void chimera_sched_yield(void);
 void chimera_sched_block(void);
 void chimera_sched_wake(uint32_t task_id);
 void chimera_sched_exit(void);
-uint32_t chimera_sched_snapshot(chimera_task_info* out,uint32_t capacity);
+uint32_t chimera_sched_snapshot(chimera_task_info* out, uint32_t capacity);
 uint32_t chimera_sched_runnable_count(void);
 #ifdef __cplusplus
 }
