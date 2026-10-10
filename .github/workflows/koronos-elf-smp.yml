@@ -12,6 +12,9 @@ on:
       - 'kernel/include/chimera/elf64.h'
       - 'kernel/include/chimera/scheduler.h'
       - 'tests/koronos/**'
+      - 'isa/isa_database.json'
+      - 'tools/isa/chimera_isa_convert.py'
+      - 'tests/isa/test_chimera_isa_convert.py'
       - 'kernel/core/elf_loader.cpp'
       - 'kernel/include/chimera/elf_loader.h'
       - 'kernel/build-koronos.sh'
@@ -38,6 +41,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install compiler and test tools
         run: sudo apt-get update && sudo apt-get install -y g++ python3
+      - name: Run ISA translation-plan regression tests
+        run: python3 tests/isa/test_chimera_isa_convert.py
+      - name: Validate ISA database JSON and profile coverage
+        run: |
+          python3 -m json.tool isa/isa_database.json >/dev/null
+          python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
       - name: Run transactional ELF loader tests
