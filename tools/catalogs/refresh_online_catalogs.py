@@ -179,6 +179,53 @@ def update_arabic_registry(existing: dict[str, Any], commands: list[dict[str, An
     return existing
 
 
+
+def recursive_link_discovery(seed: str, max_depth: int = 10, max_pages: int = 60, budget_seconds: float = 45.0) -> list[dict[str, Any]]:
+    """Discover same-host links breadth-first with depth/page/time limits."""
+    from urllib.parse import urlparse
+    seed_parts = urlparse(seed)
+    if seed_parts.scheme not in {"http", "https"} or not seed_parts.netloc:
+        return []
+    queue = [(seed, 0)]
+    queued = {seed}
+    seen = set()
+    found = {}
+    deadline = time.monotonic() + max(1.0, budget_seconds)
+    while queue and len(seen) < max_pages and time.monotonic() < deadline:
+        url, depth = queue.pop(0)
+        if url in seen:
+            continue
+        parts = urlparse(url)
+        if parts.netloc.lower() != seed_parts.netloc.lower() or parts.scheme not in {"http", "https"}:
+            continue
+        if parts.path.lower().endswith((".pdf", ".zip", ".gz", ".png", ".jpg", ".jpeg", ".svg", ".mp4", ".exe", ".dmg")):
+            continue
+        seen.add(url)
+        try:
+            raw, content_type = fetch(url)
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+            continue
+        page = raw.decode("utf-8", errors="replace")
+        if "html" not in content_type.lower() and "<html" not in page[:800].lower() and "<a " not in page[:800].lower():
+            continue
+        parser = AnchorParser()
+        parser.feed(page)
+        for label, href in parser.anchors:
+            target = canonical_url(url, href)
+            if not target:
+                continue
+            target_parts = urlparse(target)
+            if target_parts.netloc.lower() != seed_parts.netloc.lower():
+                continue
+            name = candidate_name(label)
+            if name:
+                found.setdefault(target, {"name": name, "url": target, "depth": depth + 1})
+            if depth < max_depth and target not in seen and target not in queued:
+                queue.append((target, depth + 1))
+                queued.add(target)
+    return sorted(found.values(), key=lambda row: (row["depth"], row["name"].casefold(), row["url"]))
+
+
 def refresh() -> int:
     source_doc = read_json(SOURCES_FILE, {})
     if not source_doc:
@@ -206,6 +253,10 @@ def refresh() -> int:
                 "definition_identifier_count": len(defs),
                 "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support."
             })
+            kind = str(source.get("kind", "")).lower()
+            if "tablegen" not in source["id"] and not url.lower().endswith(".pdf") and any(word in kind for word in ("index", "specification", "architecture-reference", "documentation")):
+                row["discovered_links"] = recursive_link_discovery(url, 10, int(__import__("os").environ.get("CHIMERA_CATALOG_MAX_PAGES", "60")), float(__import__("os").environ.get("CHIMERA_CATALOG_LINK_BUDGET", "45")))
+                row["link_depth_limit"] = 10
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
             row["error"] = str(exc)
             failures.append({"source": source["id"], "error": str(exc)})
@@ -220,6 +271,10 @@ def refresh() -> int:
             parser = AnchorParser()
             if "html" in content_type or "<html" in page[:500].lower():
                 parser.feed(page)
+                recursive_links = recursive_link_discovery(url, 10, int(__import__("os").environ.get("CHIMERA_CATALOG_MAX_PAGES", "60")), float(__import__("os").environ.get("CHIMERA_CATALOG_LINK_BUDGET", "45")))
+                parser.anchors.extend((item["name"], item["url"]) for item in recursive_links)
+                row["discovered_link_count"] = len(recursive_links)
+                row["link_depth_limit"] = 10
                 entries: dict[str, dict[str, str]] = {}
                 for label, href in parser.anchors:
                     name = candidate_name(label)
