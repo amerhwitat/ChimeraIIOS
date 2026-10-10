@@ -37,75 +37,27 @@ def merge_isa():
     if not isinstance(db, dict) or not isinstance(db.get("architectures"), list) or not isinstance(db.get("instructions"), list):
         raise SystemExit(f"Invalid canonical ISA database: {ISA_DB}")
     idx = load(ISA_INDEX, {})
-    sources = idx.get("sources", []) if isinstance(idx, dict) else []
-    families = {str(row[2]).casefold() for row in db["architectures"] if isinstance(row, list) and len(row) >= 3}
-    added = []
-    for src in sources:
-        family = str(src.get("family", "")).strip()
-        if family and family.casefold() not in families:
-            added.append([slug(family), "catalog-only", family, 0, "catalog-only",
-                          "Discovered from online source index; ISA class/width/encodings unverified",
-                          str(src.get("id", "online-discovery")), 0])
-            families.add(family.casefold())
-    if added:
-        db["architectures"].extend(added)
-    # Keep source discoveries separate from executable instruction forms.
-    old = db.get("online_discovery", {})
-    prior_sources = {str(x.get("id")): x for x in old.get("sources", [])} if isinstance(old, dict) else {}
-    for src in sources:
-        prior_sources[str(src.get("id", src.get("url", "unknown")))] = {
-            "id": src.get("id"), "family": src.get("family"), "url": src.get("url"),
-            "authority": src.get("authority"), "status": src.get("status", "indexed"),
-            "checked_utc": src.get("checked_utc"), "sha256": src.get("sha256"),
-            "definition_identifier_count": src.get("definition_identifier_count", 0),
-            "definition_identifiers": src.get("definition_identifiers", []),
-            "coverage_note": "Discovery candidates only; no encoding, decoder, execution, or conformance claim."
-        }
-    db["online_discovery"] = {
-        "updated_utc": STAMP,
-        "policy": "Source URLs and identifiers are discovery metadata. Only independently verified encodings belong in instructions.",
-        "sources": sorted(prior_sources.values(), key=lambda x: str(x.get("id", ""))),
-        "candidate_definition_count": sum(len(x.get("definition_identifiers", [])) for x in prior_sources.values()),
-    }
-    db["version"] = str(db.get("version", "2026.10")) + "+online-index"
-    write(ISA_DB, db)
-    print(f"[ISA] appended {len(added)} catalog-only architecture families; indexed {len(sources)} source records; executable instruction rows unchanged")
-
-def merge_commands():
-    idx = load(COMMAND_INDEX, {})
-    if not isinstance(idx, dict):
-        print("[COMMANDS] no online command index; skipping")
-        return
-    db = load(COMMAND_DB, {})
-    if not isinstance(db, dict):
-        db = {}
-    db.setdefault("schema_version", "4.5")
-    db.setdefault("product", "Chimera II OS")
-    db.setdefault("source", "SS64 plus official command references")
-    db.setdefault("source_index", "https://ss64.com/")
-    db.setdefault("policy", "Names, source URLs, and curated aliases only; reference prose is not mirrored and discovered names are not proof of executable providers.")
-    platforms = db.setdefault("platforms", {})
     sources = idx.get("sources", [])
+    platforms = db.setdefault("platforms", {})
     added = 0
-    for src in sources:
-        platform = str(src.get("platform", "online-reference")).strip() or "online-reference"
+    for source_row in sources:
+        platform = str(source_row.get("platform", "online-reference")).strip() or "online-reference"
         key = re.sub(r"[^a-z0-9_+-]+", "_", platform.casefold()).strip("_") or "online_reference"
-        bucket = platforms.setdefault(key, {"index": (src.get("url") or (src.get("source_urls") or [""])[0]), "commands": []})
+        bucket = platforms.setdefault(key, {"index": source_row.get("url", ""), "commands": []})
         existing = {(str(x.get("name", "")).casefold(), str(x.get("source", ""))) for x in bucket.get("commands", [])}
-        urls = src.get("source_urls", [])
-        name = str(src.get("name", "")).strip()
-        if not name:
-            continue
-        for url in urls or [src.get("url", "")]:
-            url = str(url or "")
+        for item in source_row.get("commands", []):
+            name = str(item.get("name", "")).strip()
+            if not name:
+                continue
+            url = str(item.get("url", source_row.get("url", "")) or "")
             pair = (name.casefold(), url)
             if pair in existing:
                 continue
             bucket.setdefault("commands", []).append({
                 "name": name, "platform": key, "source": url,
                 "source_kind": "online-reference-discovery",
-                "arabic_alias": src.get("arabic_alias"),
-                "translation_status": src.get("translation_status", "untranslated"),
+                "arabic_alias": None,
+                "translation_status": "untranslated",
                 "provider_status": "unverified"
             })
             existing.add(pair); added += 1
