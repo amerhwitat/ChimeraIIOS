@@ -10,7 +10,7 @@ The changes harden ELF admission and add a transactional ELF loading engine in `
 |---|---|
 | ELF header/table and segment admission checks | Partially implemented; host regression tests added |
 | Transactional ELF loader engine | Implemented against callbacks; requires a real architecture backend and QEMU validation |
-| Multiboot2-backed physical-page allocator | Implemented for full 4-KiB pages below 4 GiB; host tests/CI pending |
+| Multiboot2-backed physical-page allocator | Implemented for full 4-KiB pages below 4 GiB; host test and freestanding kernel build passed in [run 38077902070](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/38077902070) |
 | Real user PTE mapping, NX/W^X, TLB invalidation | Not implemented in production backend |
 | Guarded 64-KiB stack construction | Loader engine implemented; not boot-integrated |
 | Audited ring-3 return frame and TSS | Not implemented |
