@@ -274,7 +274,25 @@
       "target architecture and object-format matching",
       "Windows x64/x86 ABI requirements",
       "external assembler/linker detection boundary"
-    ]
+    ],
+    "hosted_edition_32_bit": {
+      "status": "user-space-profile-defined",
+      "platforms": [
+        "32-bit Windows x86 where available",
+        "32-bit Linux x86",
+        "32-bit BSD/POSIX x86 where available"
+      ],
+      "requirements": [
+        "32-bit Python 3",
+        "matching-bitness host libraries and tools"
+      ],
+      "limitations": [
+        "not a 32-bit Koronos kernel port",
+        "no native 64-bit executable or 64-bit shared-library loading",
+        "no claim of full CMake, Aurora, driver, ISO or guest-emulator 32-bit support",
+        "32-bit macOS excluded"
+      ]
+    }
   },
   "implementation_policy": "Compatibility features are contracts or targets unless explicitly marked implemented and tested. The hosted command bridge does not substitute for a complete Windows API, loader, shell, or desktop implementation.",
   "implementation_status": {
