@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 ISA_DB = ROOT / "isa" / "isa_database.json"
 ALIASES = {
-    "windows": {"ls": "dir", "cat": "type", "cp": "copy", "mv": "move", "rm": "del", "pwd": "cd"},
+    "windows": {"ls": "dir", "cat": "type", "cp": "copy", "mv": "move", "rm": "del", "pwd": "pwd"},
     "linux": {"dir": "ls", "type": "cat", "copy": "cp", "move": "mv", "del": "rm", "cls": "clear"},
     "unix": {"dir": "ls", "type": "cat", "copy": "cp", "move": "mv", "del": "rm", "cls": "clear"},
     "macos": {"dir": "ls", "type": "cat", "copy": "cp", "move": "mv", "del": "rm", "cls": "clear"},
@@ -175,6 +175,8 @@ def main(argv=None):
     run = sub.add_parser("run", help="run a safe built-in or host executable without shell interpolation")
     run.add_argument("--mode", choices=("windows","linux","unix","macos","darwin","bsd"), default=host_family().replace("linux-wsl","linux"))
     run.add_argument("command", nargs=argparse.REMAINDER)
+    isa = sub.add_parser("isa", help="match the host ISA to inventoried Chimera candidates")
+    isa.add_argument("--json", action="store_true")
     op = sub.add_parser("open", help="open a file or URL with the host desktop")
     op.add_argument("path")
     args = ap.parse_args(argv)
@@ -193,6 +195,15 @@ def main(argv=None):
             "unix": {"abi": "POSIX/BSD hosted user-space", "execution": "host executables and POSIX aliases"},
             "macos": {"abi": "Darwin hosted user-space", "execution": "host executables and POSIX aliases"}},
             "limitations": ["not a syscall emulator", "not a Windows API implementation", "not a guest kernel"]}, indent=2)); return 0
+    if args.action == "isa":
+        db = load_isa_db()
+        target = host_isa()
+        rows = [row for row in db.get("architectures", []) if row and str(row[0]).lower() == target.lower()]
+        data = {"host_isa": target, "host_architecture_candidate": rows[0] if rows else None,
+            "inventory_match": bool(rows), "execution_policy": "host-native execution uses the host OS ABI; guest ISA execution requires a validated decoder/backend",
+            "candidate_runtime": "tools/isa/chimera_isa_candidate.py",
+            "warning": "ISA inventory match does not mean that a compiler backend or emulator exists."}
+        print(json.dumps(data, indent=2)); return 0
     if args.action == "translate":
         print(json.dumps(translate(args.command,args.mode), indent=2)); return 0
     if args.action == "open": return open_path(args.path)
