@@ -9,6 +9,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/physmem.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -380,6 +381,9 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
+    const int memory_ready = chimera_physmem_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
+    console_write(memory_ready == 0 ? "[MEM ] Multiboot2 physical-page allocator ready" :
+                                      "[MEM ] Physical-page allocator unavailable; user loading must remain disabled");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
