@@ -27,7 +27,7 @@ try_provider(){
     zypper)
       "${SUDO[@]}" zypper --non-interactive refresh && "${SUDO[@]}" zypper --non-interactive install docker cpio grub2 xorriso squashfs mtools ;;
     apk)
-      "${SUDO[@]}" apk update && "${SUDO[@]}" apk add docker-cli cpio grub xorriso squashfs-tools busybox ;;
+      "${SUDO[@]}" apk update && "${SUDO[@]}" apk add docker-cli cpio grub xorriso squashfs-tools mtools busybox ;;
     xbps)
       "${SUDO[@]}" xbps-install -Sy docker cpio grub xorriso squashfs-tools mtools busybox ;;
     emerge)
