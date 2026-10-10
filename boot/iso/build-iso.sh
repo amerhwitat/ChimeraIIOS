@@ -39,6 +39,9 @@ chimera_copy_if_distinct() {
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ISO_ROOT="$ROOT/boot/iso"
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+LIVE_BOOT_DIR="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
+BOOT_ART_DIR="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}"
 DIST="$ISO_ROOT/dist"
 WORK="$ISO_ROOT/work"
 # Keep disposable GRUB/mtools scratch files on Linux-native storage even when
@@ -51,7 +54,7 @@ export TMPDIR="$WORK/tmp"
 
 printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
 bash "$ROOT/kernel/build-koronos.sh"
-KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
+KORONOS_ELF="$BUILD_DIR/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
 command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
 grub-file --is-x86-multiboot2 "$KORONOS_ELF"
@@ -70,7 +73,7 @@ cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 # Stage its dedicated initramfs and the canonical recovery menu after
 # prepare-layout, whose legacy recovery.cfg generation is intentionally kept
 # compatible with older installations.
-RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
+RECOVERY_BOOT="$LIVE_BOOT_DIR/boot/recovery"
 test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
 test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/recovery"
