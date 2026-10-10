@@ -119,6 +119,11 @@ def execute(args):
     if not op: raise NotImplementedError(f"{arch}:{mnemonic} has no implemented reference semantics")
     bits=int(known[3] or ARCH_BITS.get(arch,64))
     if bits<1 or bits>65536: raise ValueError(f"unsupported register width: {bits}")
+    if args.mode=="native":
+        return {"architecture":arch,"mode":"native-mapping","executed":False,
+          "mnemonic":mnemonic,"semantic_operation":op[0],"register_width_bits":bits,
+          "native_mapping":{"target":"Chimera semantic micro-op","operation":op[0]},
+          "note":"Mapping metadata only. This tool does not generate or execute native machine code."}
     mask=(1<<bits)-1
     lhs=args.lhs; rhs=args.rhs
     if mnemonic in {"MOV","MV","LI","LUI","NOP","HINT"}: rhs=0
