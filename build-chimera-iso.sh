@@ -395,8 +395,38 @@ check_deps(){
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
   command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
-  command -v busybox >/dev/null || log_warning 'busybox unavailable on host; Docker rootfs copy may provide it'
-  docker info >/dev/null 2>&1 || { log_error 'Docker daemon unavailable'; exit 2; }
+  command -v busybox >/dev/null || log_warning 'busybox unavailable on host; installer creation must use a BusyBox binary from the exported rootfs or install the optional host package'
+  # Docker CLI presence does not imply that a daemon is running. Diagnose the
+  # endpoint and optionally start a local Linux daemon when explicitly enabled.
+  if ! docker info >/dev/null 2>&1; then
+    log_error 'Docker daemon is unavailable or the configured Docker context cannot be reached.'
+    log_error "Docker context: $(docker context show 2>/dev/null || echo unknown)"
+    log_error "DOCKER_HOST: ${DOCKER_HOST:-<unset>}"
+    if [[ "${CHIMERA_AUTO_START_DOCKER:-0}" == 1 ]]; then
+      if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files docker.service >/dev/null 2>&1; then
+        if sudo -n systemctl start docker >/dev/null 2>&1; then
+          sleep 2
+        fi
+      elif command -v service >/dev/null 2>&1 && [[ -x /etc/init.d/docker ]]; then
+        sudo -n service docker start >/dev/null 2>&1 || true
+        sleep 2
+      fi
+    fi
+    if docker info >/dev/null 2>&1; then
+      log_success 'Docker daemon became available.'
+    else
+      if grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null || [[ -n "${WSL_INTEROP:-}" ]]; then
+        log_error 'WSL detected: start Docker Desktop on Windows and enable Settings > Resources > WSL Integration for this distro, then rerun the build.'
+        log_error 'If using Docker Engine inside WSL instead, start it with: sudo service docker start'
+      elif command -v systemctl >/dev/null 2>&1; then
+        log_error 'Start the Docker Engine with: sudo systemctl start docker'
+      else
+        log_error 'Start Docker Engine, verify the active context/DOCKER_HOST, and ensure your user can access the daemon socket.'
+      fi
+      log_error 'Optional Linux auto-start: set CHIMERA_AUTO_START_DOCKER=1 (requires passwordless sudo).'
+      return 2
+    fi
+  fi
 }
 
 build_docker(){
@@ -1205,7 +1235,9 @@ main(){
   scan_isa_and_commands_before_network_crawl
   [[ "$CLEAN_STATE" == 1 ]] && state_reset
   preflight
+  CURRENT_STAGE="preflight"
   check_deps
+  CURRENT_STAGE=""
   local completed="$(state_get)"
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
