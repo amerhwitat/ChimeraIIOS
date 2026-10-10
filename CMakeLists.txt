@@ -113,6 +113,7 @@ install(PROGRAMS tools/flash/chimera-flash mobile/android/build-mobile.sh mobile
 install(FILES tools/flash/flash-manifest.example.json tools/flash/README.md DESTINATION share/chimera/flash)
 
 # Cross-platform Hosted Edition bridge (64-bit Windows, Linux/Unix and macOS).
+install(FILES system/aurora/chimera-hosted-bridge.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(PROGRAMS tools/runtime/chimera-hosted.py DESTINATION bin RENAME chimera-hosted)
 install(FILES system/hosted/compatibility-matrix.json DESTINATION share/chimera/hosted)
 if(BUILD_TESTING AND Python3_Interpreter_FOUND)
