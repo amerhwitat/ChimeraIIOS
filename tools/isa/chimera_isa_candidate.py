@@ -135,6 +135,95 @@ def execute(args):
       "limitations":["No guest byte-stream decoding in this command","No flags, memory, exceptions, privilege state, MMU, devices, or timing model",
        "Result is masked to target register width","Not an ISA conformance test"]}
 
+# A real, bounded RV32I instruction-word decoder/executor for the base integer
+# ALU and upper-immediate forms. This operates on one 32-bit instruction word;
+# it is not a complete RV32I machine (no branches, loads/stores, traps, CSR, or devices).
+RV32I_ALU_R = {
+    (0x0, 0x00): "ADD", (0x0, 0x20): "SUB",
+    (0x7, 0x00): "AND", (0x6, 0x00): "OR", (0x4, 0x00): "XOR",
+    (0x1, 0x00): "SLL", (0x5, 0x00): "SRL", (0x5, 0x20): "SRA",
+}
+RV32I_ALU_I = {
+    0x0: "ADDI", 0x7: "ANDI", 0x6: "ORI", 0x4: "XORI",
+    0x1: "SLLI", 0x5: "SRLI", # SRAI is selected by funct7=0x20 below.
+}
+
+def _sign_extend(value, bits):
+    sign = 1 << (bits - 1)
+    return (value ^ sign) - sign
+
+def decode_rv32i(word):
+    """Decode one RV32I base integer ALU/upper-immediate instruction word.
+
+    Returns normalized fields or raises ValueError for illegal/unsupported encodings.
+    """
+    if not isinstance(word, int) or word < 0 or word > 0xffffffff:
+        raise ValueError("instruction word must be an unsigned 32-bit integer")
+    opcode = word & 0x7f
+    rd = (word >> 7) & 0x1f
+    funct3 = (word >> 12) & 0x7
+    rs1 = (word >> 15) & 0x1f
+    rs2 = (word >> 20) & 0x1f
+    funct7 = (word >> 25) & 0x7f
+    if opcode == 0x33:
+        key = (funct3, funct7)
+        if key not in RV32I_ALU_R:
+            raise ValueError(f"illegal or unsupported RV32I R-type encoding funct3=0x{funct3:x} funct7=0x{funct7:x}")
+        return {"mnemonic": RV32I_ALU_R[key], "rd": rd, "rs1": rs1, "rs2": rs2, "immediate": None, "length_bits": 32}
+    if opcode == 0x13:
+        if funct3 == 0x1:
+            if funct7 != 0:
+                raise ValueError("illegal SLLI encoding: upper immediate bits must be zero in RV32I")
+            mnemonic = "SLLI"
+            imm = rs2
+        elif funct3 == 0x5:
+            if funct7 == 0:
+                mnemonic, imm = "SRLI", rs2
+            elif funct7 == 0x20:
+                mnemonic, imm = "SRAI", rs2
+            else:
+                raise ValueError("illegal SRLI/SRAI encoding: reserved upper immediate bits")
+        else:
+            mnemonic = RV32I_ALU_I.get(funct3)
+            if mnemonic is None:
+                raise ValueError(f"unsupported RV32I I-type ALU funct3=0x{funct3:x}")
+            imm = _sign_extend((word >> 20) & 0xfff, 12)
+        return {"mnemonic": mnemonic, "rd": rd, "rs1": rs1, "rs2": None, "immediate": imm, "length_bits": 32}
+    if opcode == 0x37:
+        return {"mnemonic": "LUI", "rd": rd, "rs1": None, "rs2": None, "immediate": word & 0xfffff000, "length_bits": 32}
+    if opcode == 0x17:
+        return {"mnemonic": "AUIPC", "rd": rd, "rs1": None, "rs2": None, "immediate": word & 0xfffff000, "length_bits": 32}
+    raise ValueError(f"opcode 0x{opcode:02x} is outside the implemented RV32I decoder subset")
+
+def step_rv32i(word, registers=None, pc=0):
+    """Execute one decoded RV32I ALU/upper-immediate instruction in 32-bit state."""
+    decoded = decode_rv32i(word)
+    regs = [0] * 32 if registers is None else list(registers)
+    if len(regs) != 32 or any(not isinstance(v, int) for v in regs):
+        raise ValueError("register state must contain exactly 32 integer values")
+    regs = [v & 0xffffffff for v in regs]
+    old_pc = pc & 0xffffffff
+    name, rd, rs1, rs2, imm = (decoded[k] for k in ("mnemonic", "rd", "rs1", "rs2", "immediate"))
+    a = regs[rs1] if rs1 is not None else 0
+    b = regs[rs2] if rs2 is not None else (imm if imm is not None else 0)
+    if name in ("ADD", "ADDI"): value = a + b
+    elif name == "SUB": value = a - b
+    elif name in ("AND", "ANDI"): value = a & b
+    elif name in ("OR", "ORI"): value = a | b
+    elif name in ("XOR", "XORI"): value = a ^ b
+    elif name in ("SLL", "SLLI"): value = a << (b & 31)
+    elif name in ("SRL", "SRLI"): value = a >> (b & 31)
+    elif name in ("SRA", "SRAI"): value = _sign_extend(a, 32) >> (b & 31)
+    elif name == "LUI": value = imm
+    elif name == "AUIPC": value = old_pc + imm
+    else: raise ValueError(f"no RV32I execution semantics for {name}")
+    if rd != 0: regs[rd] = value & 0xffffffff
+    regs[0] = 0
+    return {"architecture":"riscv32", "mode":"rv32i-single-step", "instruction_word":f"0x{word:08x}",
+      "decoded":decoded, "pc_before":old_pc, "pc_after":(old_pc + 4) & 0xffffffff,
+      "registers":regs, "rd_value":regs[rd], "executed":True,
+      "limitations":["ALU and upper-immediate subset only", "No branch/jump, load/store, exception, CSR, privilege, MMU, device, or interrupt semantics", "Not a complete RV32I implementation or official conformance result"]}
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     sub=ap.add_subparsers(dest="command",required=True)
