@@ -10,7 +10,7 @@ if (( EUID == 0 )); then SUDO=(); elif command -v sudo >/dev/null 2>&1; then SUD
 fi
 have(){ command -v "$1" >/dev/null 2>&1; }
 missing=()
-for cmd in docker cpio grub-mkrescue xorriso mksquashfs; do have "$cmd" || missing+=("$cmd"); done
+for cmd in docker cpio grub-mkrescue xorriso mksquashfs mformat mcopy; do have "$cmd" || missing+=("$cmd"); done
 (("${#missing[@]}" == 0)) && { echo "All required host build tools are already available."; exit 0; }
 printf '[chimera-build-deps] Missing tools: %s\n' "${missing[*]}"
 failed=()
@@ -19,15 +19,15 @@ try_provider(){
   echo "[chimera-build-deps] Trying $manager for missing host build tools..."
   case "$manager" in
     apt)
-      "${SUDO[@]}" apt-get update && "${SUDO[@]}" apt-get install -y docker.io cpio grub-pc-bin grub-efi-amd64-bin xorriso squashfs-tools busybox-static ;;
+      "${SUDO[@]}" apt-get update && "${SUDO[@]}" apt-get install -y docker.io cpio grub-pc-bin grub-efi-amd64-bin xorriso squashfs-tools mtools busybox-static ;;
     dnf|yum)
-      "${SUDO[@]}" "$manager" install -y docker cpio grub2-tools-extra grub2-efi-x64-modules xorriso squashfs-tools busybox ;;
+      "${SUDO[@]}" "$manager" install -y docker cpio grub2-tools-extra grub2-efi-x64-modules xorriso squashfs-tools mtools busybox ;;
     pacman)
-      "${SUDO[@]}" pacman -Sy --needed --noconfirm docker cpio grub xorriso squashfs-tools busybox ;;
+      "${SUDO[@]}" pacman -Sy --needed --noconfirm docker cpio grub xorriso squashfs-tools mtools busybox ;;
     zypper)
-      "${SUDO[@]}" zypper --non-interactive refresh && "${SUDO[@]}" zypper --non-interactive install docker cpio grub2 xorriso squashfs ;;
+      "${SUDO[@]}" zypper --non-interactive refresh && "${SUDO[@]}" zypper --non-interactive install docker cpio grub2 xorriso squashfs mtools ;;
     apk)
-      "${SUDO[@]}" apk update && "${SUDO[@]}" apk add docker-cli cpio grub xorriso squashfs-tools busybox ;;
+      "${SUDO[@]}" apk update && "${SUDO[@]}" apk add docker-cli cpio grub xorriso squashfs-tools mtools busybox ;;
     xbps)
       "${SUDO[@]}" xbps-install -Sy docker cpio grub xorriso squashfs-tools busybox ;;
     emerge)
@@ -45,7 +45,7 @@ for manager in apt dnf yum pacman zypper apk xbps-install emerge; do
   attempted=1
   if try_provider "$manager"; then
     missing=()
-    for cmd in docker cpio grub-mkrescue xorriso mksquashfs; do have "$cmd" || missing+=("$cmd"); done
+    for cmd in docker cpio grub-mkrescue xorriso mksquashfs mformat mcopy; do have "$cmd" || missing+=("$cmd"); done
     (("${#missing[@]}" == 0)) && { echo "[chimera-build-deps] Required tools are now available."; exit 0; }
     printf '[chimera-build-deps] Provider %s returned success but tools remain missing: %s\n' "$manager" "${missing[*]}" >&2
   else
@@ -54,5 +54,5 @@ for manager in apt dnf yum pacman zypper apk xbps-install emerge; do
   fi
 done
 echo "[chimera-build-deps] Dependency bootstrap failed. Providers attempted: ${failed[*]:-none}; attempted_any=$attempted" >&2
-echo "Install Docker, cpio, GRUB rescue tools, xorriso and squashfs-tools manually, then retry." >&2
+echo "Install Docker, cpio, GRUB rescue tools, xorriso, squashfs-tools and mtools (mformat/mcopy) manually, then retry." >&2
 exit 1
