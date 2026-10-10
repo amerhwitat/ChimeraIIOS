@@ -25,6 +25,9 @@ static void wait_task(void*) {
         assert(chimera_wait_one(&mutex_obj, 0, 0) == CHIMERA_WAIT_SIGNALED);
         assert(chimera_mutex_release(&mutex_obj) == 0);
         assert(chimera_mutex_release(&mutex_obj) == 0);
+        /* This callback is a one-shot test fixture; don't let it consume the
+         * later timeout waiter's scheduler dispatch. */
+        chimera_sched_block();
     }
 }
 
