@@ -112,6 +112,9 @@ def execute(args):
     known=next((a for a in db["architectures"] if a and a[0]==arch),None)
     if not known: raise ValueError(f"unknown architecture: {arch}")
     mnemonic=normalize(args.mnemonic)
+    forms=[row for row in db["instructions"] if len(row)>=8 and row[0]==arch and normalize(row[1])==mnemonic]
+    if not forms:
+        raise NotImplementedError(f"{arch}:{mnemonic} is not present as an instruction form in the canonical database")
     op=OPS.get(mnemonic)
     if not op: raise NotImplementedError(f"{arch}:{mnemonic} has no implemented reference semantics")
     bits=int(known[3] or ARCH_BITS.get(arch,64))
