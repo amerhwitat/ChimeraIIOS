@@ -11472,6 +11472,59 @@
         "conformance_status": "not-tested",
         "note": "Inventory candidate only; no executable instruction semantics implied."
       }
-    ]
+    ],
+    "decoder_backends": {
+      "riscv32-rv32i-subset": {
+        "entrypoint": "tools/isa/chimera_isa_candidate.py step-rv32i",
+        "status": "implemented-reference-subset",
+        "instruction_word_bits": 32,
+        "implemented": [
+          "ADD",
+          "SUB",
+          "AND",
+          "OR",
+          "XOR",
+          "SLL",
+          "SRL",
+          "SRA",
+          "ADDI",
+          "ANDI",
+          "ORI",
+          "XORI",
+          "SLLI",
+          "SRLI",
+          "SRAI",
+          "LUI",
+          "AUIPC"
+        ],
+        "validations": [
+          "instruction word range",
+          "R-type funct3/funct7 legality for implemented forms",
+          "shift-immediate reserved bits",
+          "12-bit immediate sign extension",
+          "32-bit result masking",
+          "x0 hardwired zero"
+        ],
+        "not_implemented": [
+          "branches",
+          "jumps",
+          "loads",
+          "stores",
+          "FENCE",
+          "ECALL",
+          "EBREAK",
+          "CSR",
+          "privilege",
+          "traps",
+          "interrupts",
+          "MMU",
+          "PMP",
+          "devices",
+          "timing"
+        ],
+        "conformance_status": "not-tested"
+      }
+    },
+    "last_updated": "2026-10-10"
   }
 }
