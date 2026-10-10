@@ -39,15 +39,22 @@ chimera_copy_if_distinct() {
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ISO_ROOT="$ROOT/boot/iso"
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+LIVE_BOOT_DIR="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
+BOOT_ART_DIR="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}"
 DIST="$ISO_ROOT/dist"
 WORK="$ISO_ROOT/work"
+# Keep disposable GRUB/mtools scratch files on Linux-native storage even when
+# the repository and ISO output live under /mnt/c or /mnt/d in WSL.
+GRUB_TMP="${CHIMERA_GRUB_TMPDIR:-/tmp/chimera-grub-rescue-${UID:-$(id -u)}}"
 rm -rf "$DIST" "$WORK"
-mkdir -p "$DIST" "$WORK/tmp"
+mkdir -p "$DIST" "$WORK/tmp" "$GRUB_TMP"
+chmod 700 "$GRUB_TMP" 2>/dev/null || true
 export TMPDIR="$WORK/tmp"
 
 printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
 bash "$ROOT/kernel/build-koronos.sh"
-KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
+KORONOS_ELF="$BUILD_DIR/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
 command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
 grub-file --is-x86-multiboot2 "$KORONOS_ELF"
@@ -66,7 +73,7 @@ cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 # Stage its dedicated initramfs and the canonical recovery menu after
 # prepare-layout, whose legacy recovery.cfg generation is intentionally kept
 # compatible with older installations.
-RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
+RECOVERY_BOOT="$LIVE_BOOT_DIR/boot/recovery"
 test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
 test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/recovery"
@@ -169,11 +176,20 @@ python3 "$ISO_ROOT/validate-iso.py" --tree "$DIST/iso" --write-manifest "$DIST/i
 printf '%s\n' '[6/7] Master BIOS + UEFI hybrid ISO'
 command -v grub-mkrescue >/dev/null || { echo "grub-mkrescue is required." >&2; exit 2; }
 command -v xorriso >/dev/null || { echo "xorriso is required." >&2; exit 2; }
+command -v mformat >/dev/null || { echo "mformat is required by grub-mkrescue; install mtools." >&2; exit 2; }
+command -v mcopy >/dev/null || { echo "mcopy is required by grub-mkrescue; install mtools." >&2; exit 2; }
+grub_probe="$(mktemp "$GRUB_TMP/.chimera-grub-probe.XXXXXX")" || { echo "GRUB temp directory is not writable: $GRUB_TMP" >&2; exit 2; }
+rm -f "$grub_probe"
+printf 'GRUB temporary directory: %s\n' "$GRUB_TMP"
 # grub-mkrescue accepts its own options before the source tree. Do not pass
 # genisoimage/mkisofs flags such as -iso-level directly: grub-mkrescue forwards
 # them to xorriso, where they are rejected as unknown commands. Let xorriso use
 # its native defaults for a hybrid BIOS/UEFI image.
-grub-mkrescue -o "$DIST/output.iso" "$DIST/iso"
+if ! TMPDIR="$GRUB_TMP" MTOOLS_SKIP_CHECK=1 grub-mkrescue -o "$DIST/output.iso" "$DIST/iso" 2>&1 | tee "$DIST/GRUB-MKRESCUE.log"; then
+  echo "ERROR: grub-mkrescue failed; recent diagnostics:" >&2
+  tail -n 100 "$DIST/GRUB-MKRESCUE.log" >&2 || true
+  exit 1
+fi
 test -s "$DIST/output.iso"
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
