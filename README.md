@@ -155,3 +155,8 @@ The native security stack under `tools/security/` provides layered SHA-256, heur
 ## 32-bit Hosted Edition
 
 The user-space Hosted Edition defines a 32-bit profile for compatible x86 Windows, Linux and BSD/POSIX hosts, alongside 64-bit hosts. It requires a matching 32-bit Python runtime and compatible native dependencies. This does not mean the 64-bit Koronos kernel, 64-bit binaries, drivers or cross-bitness libraries run on 32-bit systems. See [the hosted-edition guide](docs/hosted-edition.md) and [compatibility matrix](system/hosted/compatibility-matrix.json). Current macOS support remains 64-bit only.
+
+
+## Koronos x86-32 bring-up status
+
+An isolated Multiboot/ELF32 serial probe is available under `kernel/arch/x86_32/`. The dedicated workflow `.github/workflows/koronos32-bringup.yml` runs contract checks and attempts a QEMU serial boot test. This probe is only the first bring-up scaffold: it is **not** the production Koronos kernel, a complete 32-bit ISO, or proof that native 32-bit drivers, toolchain, Aurora, guest ISA execution or cross-bitness binary loading work. Track the explicit implementation steps and acceptance gates in [the x86-32 bring-up plan](docs/koronos-32bit-bringup.md). The production ISO pipeline remains unchanged until the port passes those gates.
