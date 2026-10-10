@@ -1,30 +1,287 @@
 {
   "scope": "Windows desktop and application compatibility",
   "features": {
-    "processes": ["CreateProcess", "process environment", "command line", "environment blocks", "job objects", "process tokens", "exit codes"],
-    "threads": ["CreateThread", "TLS", "FLS", "thread priorities", "affinity", "suspend/resume", "alertable waits", "APCs", "thread message queues"],
-    "synchronization": ["events", "mutexes", "semaphores", "waitable timers", "critical sections", "SRW locks", "condition variables", "interlocked operations", "WaitForSingleObject", "WaitForMultipleObjects"],
-    "memory": ["VirtualAlloc", "VirtualFree", "VirtualProtect", "file mappings", "sections", "copy-on-write", "DEP/NX", "ASLR/relocations", "shared memory"],
-    "loader": ["PE32", "PE32+", "EXE", "DLL", "imports", "exports", "ordinals", "base relocations", "TLS", "delay imports", "API-set resolution", "side-by-side search policy", "module reference counts", "FreeLibrary", "GetModuleHandle", "GetProcAddress"],
-    "wow64": ["x86 user-mode process boundary", "32-bit pointer ABI", "32-bit thunk layer", "filesystem redirection policy", "registry redirection policy", "architecture-aware DLL search"],
-    "exceptions": ["SEH compatibility", "x64 unwind metadata", "VEH", "exception filters", "crash isolation"],
-    "user32": ["HWND", "window classes", "window procedures", "message queues", "GetMessage", "PeekMessage", "TranslateMessage", "DispatchMessage", "SendMessage", "PostMessage", "timers", "hooks", "keyboard", "mouse", "raw input", "menus", "dialogs", "clipboard", "drag and drop"],
-    "gdi32": ["HDC", "DIB/DIBSection", "bitmaps", "fonts", "pens", "brushes", "regions", "BitBlt", "StretchBlt", "AlphaBlend", "TextOut", "DrawText", "paths", "printing"],
-    "comctl32": ["buttons", "edit controls", "list view", "tree view", "toolbar", "status bar", "tab control", "progress bar", "trackbar", "common dialogs"],
-    "shell": ["ShellExecute", "file associations", "namespace", "Explorer-style file manager", "SHChangeNotify", "shell notifications", "shortcuts", "recycle bin", "known folders", "context menus"],
-    "registry": ["Hive-backed registry", "HKLM", "HKCU", "HKCR", "HKU", "keys", "values", "security descriptors", "32/64-bit view policy"],
-    "services": ["Service Control Manager compatibility", "service units", "start/stop/pause/continue", "dependencies", "service accounts", "event logging", "systemd/Kore bridge"],
-    "network": ["Winsock", "TCP", "UDP", "DNS", "overlapped sockets", "IOCP", "named pipes", "RPC transport", "WinHTTP/WinINet compatibility boundary"],
-    "com_ole": ["IUnknown", "IDispatch", "IClassFactory", "COM apartments", "CLSIDs", "IIDs", "registry activation", "marshalling", "OLE storage boundary", "clipboard formats"],
-    "graphics": ["DirectDraw compatibility", "Direct3D 9 compatibility", "Direct3D 11 compatibility", "DXGI boundary", "OpenGL/Vulkan backend", "GPU resource handles", "swap chains", "composition"],
-    "storage": ["Win32 file handles", "overlapped file I/O", "file locks", "memory mapped files", "ACLs", "alternate data streams", "NTFS compatibility", "FAT/exFAT compatibility", "unified VFS"],
-    "security": ["access tokens", "SIDs", "ACL/DACL/SACL", "security descriptors", "impersonation boundary", "credential APIs", "DPAPI-compatible boundary", "code-signing verification hook"],
-    "text": ["Unicode UTF-16", "ANSI code pages", "WideCharToMultiByte", "MultiByteToWideChar", "normalization", "locale", "IME boundary"],
-    "multimedia": ["timers", "basic wave/audio compatibility", "MIDI boundary", "media foundation/directshow compatibility boundary"],
-    "diagnostics": ["event log", "debug output", "ETW-compatible tracing boundary", "performance counters", "crash dumps", "stack traces"],
-    "deployment": ["PE validation", "DLL dependency analysis", "installer integration", "MSI compatibility boundary", "application manifests", "side-by-side assemblies", "version resources"],
-    "accessibility": ["UI Automation boundary", "MSAA compatibility", "keyboard navigation", "high contrast", "DPI scaling"],
-    "desktop": ["taskbar", "start menu", "notification area", "window switching", "virtual desktops", "display configuration", "screenshots", "power/session notifications"]
+    "processes": [
+      "CreateProcess",
+      "process environment",
+      "command line",
+      "environment blocks",
+      "job objects",
+      "process tokens",
+      "exit codes"
+    ],
+    "threads": [
+      "CreateThread",
+      "TLS",
+      "FLS",
+      "thread priorities",
+      "affinity",
+      "suspend/resume",
+      "alertable waits",
+      "APCs",
+      "thread message queues"
+    ],
+    "synchronization": [
+      "events",
+      "mutexes",
+      "semaphores",
+      "waitable timers",
+      "critical sections",
+      "SRW locks",
+      "condition variables",
+      "interlocked operations",
+      "WaitForSingleObject",
+      "WaitForMultipleObjects"
+    ],
+    "memory": [
+      "VirtualAlloc",
+      "VirtualFree",
+      "VirtualProtect",
+      "file mappings",
+      "sections",
+      "copy-on-write",
+      "DEP/NX",
+      "ASLR/relocations",
+      "shared memory"
+    ],
+    "loader": [
+      "PE32",
+      "PE32+",
+      "EXE",
+      "DLL",
+      "imports",
+      "exports",
+      "ordinals",
+      "base relocations",
+      "TLS",
+      "delay imports",
+      "API-set resolution",
+      "side-by-side search policy",
+      "module reference counts",
+      "FreeLibrary",
+      "GetModuleHandle",
+      "GetProcAddress"
+    ],
+    "wow64": [
+      "x86 user-mode process boundary",
+      "32-bit pointer ABI",
+      "32-bit thunk layer",
+      "filesystem redirection policy",
+      "registry redirection policy",
+      "architecture-aware DLL search"
+    ],
+    "exceptions": [
+      "SEH compatibility",
+      "x64 unwind metadata",
+      "VEH",
+      "exception filters",
+      "crash isolation"
+    ],
+    "user32": [
+      "HWND",
+      "window classes",
+      "window procedures",
+      "message queues",
+      "GetMessage",
+      "PeekMessage",
+      "TranslateMessage",
+      "DispatchMessage",
+      "SendMessage",
+      "PostMessage",
+      "timers",
+      "hooks",
+      "keyboard",
+      "mouse",
+      "raw input",
+      "menus",
+      "dialogs",
+      "clipboard",
+      "drag and drop"
+    ],
+    "gdi32": [
+      "HDC",
+      "DIB/DIBSection",
+      "bitmaps",
+      "fonts",
+      "pens",
+      "brushes",
+      "regions",
+      "BitBlt",
+      "StretchBlt",
+      "AlphaBlend",
+      "TextOut",
+      "DrawText",
+      "paths",
+      "printing"
+    ],
+    "comctl32": [
+      "buttons",
+      "edit controls",
+      "list view",
+      "tree view",
+      "toolbar",
+      "status bar",
+      "tab control",
+      "progress bar",
+      "trackbar",
+      "common dialogs"
+    ],
+    "shell": [
+      "ShellExecute",
+      "file associations",
+      "namespace",
+      "Explorer-style file manager",
+      "SHChangeNotify",
+      "shell notifications",
+      "shortcuts",
+      "recycle bin",
+      "known folders",
+      "context menus"
+    ],
+    "registry": [
+      "Hive-backed registry",
+      "HKLM",
+      "HKCU",
+      "HKCR",
+      "HKU",
+      "keys",
+      "values",
+      "security descriptors",
+      "32/64-bit view policy"
+    ],
+    "services": [
+      "Service Control Manager compatibility",
+      "service units",
+      "start/stop/pause/continue",
+      "dependencies",
+      "service accounts",
+      "event logging",
+      "systemd/Kore bridge"
+    ],
+    "network": [
+      "Winsock",
+      "TCP",
+      "UDP",
+      "DNS",
+      "overlapped sockets",
+      "IOCP",
+      "named pipes",
+      "RPC transport",
+      "WinHTTP/WinINet compatibility boundary"
+    ],
+    "com_ole": [
+      "IUnknown",
+      "IDispatch",
+      "IClassFactory",
+      "COM apartments",
+      "CLSIDs",
+      "IIDs",
+      "registry activation",
+      "marshalling",
+      "OLE storage boundary",
+      "clipboard formats"
+    ],
+    "graphics": [
+      "DirectDraw compatibility",
+      "Direct3D 9 compatibility",
+      "Direct3D 11 compatibility",
+      "DXGI boundary",
+      "OpenGL/Vulkan backend",
+      "GPU resource handles",
+      "swap chains",
+      "composition"
+    ],
+    "storage": [
+      "Win32 file handles",
+      "overlapped file I/O",
+      "file locks",
+      "memory mapped files",
+      "ACLs",
+      "alternate data streams",
+      "NTFS compatibility",
+      "FAT/exFAT compatibility",
+      "unified VFS"
+    ],
+    "security": [
+      "access tokens",
+      "SIDs",
+      "ACL/DACL/SACL",
+      "security descriptors",
+      "impersonation boundary",
+      "credential APIs",
+      "DPAPI-compatible boundary",
+      "code-signing verification hook"
+    ],
+    "text": [
+      "Unicode UTF-16",
+      "ANSI code pages",
+      "WideCharToMultiByte",
+      "MultiByteToWideChar",
+      "normalization",
+      "locale",
+      "IME boundary"
+    ],
+    "multimedia": [
+      "timers",
+      "basic wave/audio compatibility",
+      "MIDI boundary",
+      "media foundation/directshow compatibility boundary"
+    ],
+    "diagnostics": [
+      "event log",
+      "debug output",
+      "ETW-compatible tracing boundary",
+      "performance counters",
+      "crash dumps",
+      "stack traces"
+    ],
+    "deployment": [
+      "PE validation",
+      "DLL dependency analysis",
+      "installer integration",
+      "MSI compatibility boundary",
+      "application manifests",
+      "side-by-side assemblies",
+      "version resources"
+    ],
+    "accessibility": [
+      "UI Automation boundary",
+      "MSAA compatibility",
+      "keyboard navigation",
+      "high contrast",
+      "DPI scaling"
+    ],
+    "desktop": [
+      "taskbar",
+      "start menu",
+      "notification area",
+      "window switching",
+      "virtual desktops",
+      "display configuration",
+      "screenshots",
+      "power/session notifications"
+    ],
+    "hosted_edition": [
+      "64-bit host OS detection",
+      "host CPU ISA inventory matching",
+      "portable command aliases",
+      "host file/URL opener bridge",
+      "host-native process launch using argument arrays",
+      "Aurora Hosted Environment application-menu entry"
+    ],
+    "assembly": [
+      "MASM/NASM/GNU-assembler syntax classification",
+      "target architecture and object-format matching",
+      "Windows x64/x86 ABI requirements",
+      "external assembler/linker detection boundary"
+    ]
   },
-  "implementation_policy": "Expose stable Win32-compatible contracts over original Chimera implementations; do not copy proprietary Windows binaries or undocumented source. Third-party PE binaries supplied by the user are validated and isolated before execution."
+  "implementation_policy": "Compatibility features are contracts or targets unless explicitly marked implemented and tested. The hosted command bridge does not substitute for a complete Windows API, loader, shell, or desktop implementation.",
+  "implementation_status": {
+    "hosted_command_bridge": "implemented-user-space-prototype",
+    "windows_api_compatibility": "partial/planned",
+    "native_pe_execution_on_non_windows": "requires-separate-runner",
+    "win_asm_source_import": "not-integrated-source-file-not-present",
+    "aurora_native_windows_compositor": "not-verified"
+  }
 }
