@@ -5,6 +5,7 @@ import pathlib
 import struct
 import subprocess
 import tempfile
+import threading
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -15,12 +16,10 @@ class Info(ctypes.Structure):
                 ("state", ctypes.c_uint32), ("priority", ctypes.c_uint32),
                 ("affinity_mask", ctypes.c_uint64), ("runs", ctypes.c_uint64),
                 ("ticks", ctypes.c_uint64)]
-
 class Segment(ctypes.Structure):
     _fields_ = [("file_offset", ctypes.c_uint64), ("virtual_address", ctypes.c_uint64),
                 ("file_size", ctypes.c_uint64), ("memory_size", ctypes.c_uint64),
                 ("flags", ctypes.c_uint64), ("align", ctypes.c_uint64)]
-
 class Proc(ctypes.Structure):
     _fields_ = [("pid", ctypes.c_uint32), ("state", ctypes.c_uint32),
                 ("segment_count", ctypes.c_uint32), ("reserved", ctypes.c_uint32),
@@ -91,6 +90,26 @@ class KernelContracts(unittest.TestCase):
         api.chimera_sched_wake(task_id)
         self.assertEqual(api.chimera_sched_snapshot(snapshot, 8), 1)
         self.assertEqual(snapshot[0].state, 0)
+
+    def test_running_task_cannot_be_redispatched_after_yield_until_callback_returns(self):
+        api = self.api
+        api.chimera_sched_init(2)
+        entered, release = threading.Event(), threading.Event()
+        @CALLBACK
+        def callback(_):
+            api.chimera_sched_yield_cpu(0)
+            entered.set()
+            release.wait(timeout=5)
+        api.chimera_sched_submit(callback, None, 1)
+        worker = threading.Thread(target=lambda: api.chimera_sched_run_once(0))
+        worker.start()
+        self.assertTrue(entered.wait(timeout=5))
+        try:
+            self.assertEqual(api.chimera_sched_run_once(1), 0)
+        finally:
+            release.set()
+            worker.join(timeout=5)
+        self.assertFalse(worker.is_alive())
 
     def test_scheduler_never_dispatches_one_task_twice_in_nested_call(self):
         api = self.api
