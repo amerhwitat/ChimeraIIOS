@@ -163,7 +163,10 @@ extern "C" int chimera_elf_load_and_enter(const void *image, uint64_t image_size
         return -10;
     }
     *pid_out = plan.pid;
-    const int handoff = ops->enter_user(ops->context, plan.entry, top, plan.pid);
+    /* A zeroed initial frame represents argc=0, argv=NULL, envp=NULL,
+       followed by AT_NULL/0. Align the initial RSP to the x86-64 ABI. */
+    const uint64_t initial_rsp = (top - 5u * sizeof(uint64_t)) & ~0xFull;
+    const int handoff = ops->enter_user(ops->context, plan.entry, initial_rsp, plan.pid);
     /* A real ring-3 transfer cannot return here. A returned callback means
        handoff failed; tear down mappings instead of leaving a half-live task. */
     rollback(ops, pages, used);
