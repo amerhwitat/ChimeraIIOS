@@ -1,0 +1,47 @@
+name: Koronos 32-bit bring-up smoke test
+
+on:
+  push:
+    paths:
+      - 'kernel/arch/x86_32/**'
+      - 'tools/runtime/check-koronos32-boot.sh'
+      - 'tests/unit/test_koronos32_bringup.py'
+      - '.github/workflows/koronos32-bringup.yml'
+  pull_request:
+    paths:
+      - 'kernel/arch/x86_32/**'
+      - 'tools/runtime/check-koronos32-boot.sh'
+      - 'tests/unit/test_koronos32_bringup.py'
+      - '.github/workflows/koronos32-bringup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python -m unittest tests/unit/test_koronos32_bringup.py
+
+  qemu-boot-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install 32-bit freestanding and boot-test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib grub-pc-bin xorriso qemu-system-x86
+      - name: Build ELF32 and boot the probe in QEMU
+        run: bash tools/runtime/check-koronos32-boot.sh
+      - name: Upload QEMU serial log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos32-qemu-serial-log
+          path: build/koronos32-bringup/qemu-serial.log
+          if-no-files-found: ignore
