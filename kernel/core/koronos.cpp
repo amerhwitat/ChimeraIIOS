@@ -210,8 +210,8 @@ static volatile uint32_t installer_phase = 0;
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
-    // Registration is a one-shot bootstrap action, not a continuously runnable task.
-    chimera_sched_block();
+    // One-shot service initialization is complete; retire this worker.
+    chimera_sched_exit();
 }
 
 static void task_modules(void *) {
@@ -219,8 +219,8 @@ static void task_modules(void *) {
         console_write("[TASK] Module manager online");
         console_modules();
     }
-    // Module discovery completes during bootstrap; do not spin in READY forever.
-    chimera_sched_block();
+    // Module discovery is complete; retire this one-shot worker.
+    chimera_sched_exit();
 }
 
 static void task_live(void *) {
@@ -229,15 +229,18 @@ static void task_live(void *) {
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
             console_write("[LIVE] Runtime handoff queued");
-            chimera_sched_block();
+            // The module is accepted, but this kernel path has no ELF execution
+            // backend yet. Report that limitation instead of claiming handoff.
+            console_write("[LIVE] Userspace execution requires the ELF handoff backend");
+            chimera_sched_exit();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
-            chimera_sched_block();
+            chimera_sched_exit();
         } else {
             // Installer media is handled by task_installer. There is no live
             // payload to poll for, so the live service must block as well.
             console_write("[LIVE] Installer target detected; live service idle");
-            chimera_sched_block();
+            chimera_sched_exit();
         }
     }
 }
@@ -252,7 +255,7 @@ static void task_installer(void *) {
     if (!image && !manifest && !contract && !phases && !profiles) {
         if (installer_phase++ == 0)
             console_write("[INST] Installer target not selected: no installer modules");
-        chimera_sched_block();
+        chimera_sched_exit();
         return;
     }
 
@@ -282,10 +285,10 @@ static void task_installer(void *) {
         case 4:
             console_write("[INST] Installer initialization complete");
             console_write("[INST] Waiting for the Koronos userspace installer loader");
-            chimera_sched_block();
+            chimera_sched_exit();
             break;
         default:
-            chimera_sched_block();
+            chimera_sched_exit();
             break;
     }
 }
@@ -308,7 +311,7 @@ static void task_monitor(void *) {
     // This is currently a diagnostic snapshot, not a timer-driven service.
     // Emit it once; repeated polling here floods VGA/serial and obscures the
     // actual handoff state. A timer/event source can wake a periodic monitor later.
-    if (++ticks > 1u) { chimera_sched_block(); return; }
+    if (++ticks > 1u) { chimera_sched_exit(); return; }
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
@@ -342,9 +345,9 @@ static void task_kore(void *) {
         console_write("[KORE] Service orchestration online");
         console_write("[KORE] Core storage/security/logging services active");
     }
-    // Bootstrap orchestration is complete; a service worker must block until
-    // an event source wakes it rather than consume every scheduler dispatch.
-    chimera_sched_block();
+    // Bootstrap orchestration is a one-shot phase. Retire this worker; future
+    // event-driven service loops must be submitted as separate task entries.
+    chimera_sched_exit();
 }
 
 static void koronos_submit_bootstrap_tasks() {
