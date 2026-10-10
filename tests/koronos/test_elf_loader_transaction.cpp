@@ -29,7 +29,8 @@ void free_page(void*, uint64_t phys) {
     if (it != allocated.end()) { delete it->second; allocated.erase(it); }
 }
 int enter_user(void*, uint64_t entry, uint64_t stack, uint32_t pid) {
-    assert(pid != 0 && entry == expected_entry && stack == expected_stack);
+    assert(pid != 0 && entry == expected_entry && stack == expected_stack - 48);
+    assert((stack & 15u) == 0);
     assert(mappings.size() == 17); // one PT_LOAD page plus sixteen stack pages
     const auto code = mappings.at(0x400000);
     assert(code.second == (CHIMERA_ELF_USER | CHIMERA_ELF_EXEC));
@@ -43,7 +44,7 @@ int enter_user(void*, uint64_t entry, uint64_t stack, uint32_t pid) {
         Page* sp = allocated.at(item.first);
         for (unsigned j = 0; j < 4096; ++j) assert(sp->bytes[j] == 0);
     }
-    assert(!mappings.count(stack - uint64_t(CHIMERA_ELF_STACK_PAGES + 1) * 4096));
+    assert(!mappings.count(expected_stack - uint64_t(CHIMERA_ELF_STACK_PAGES + 1) * 4096));
     return 0; // returning is deliberately a failed ring-3 handoff
 }
 std::vector<uint8_t> fixture() {
