@@ -29,9 +29,9 @@ try_provider(){
     apk)
       "${SUDO[@]}" apk update && "${SUDO[@]}" apk add docker-cli cpio grub xorriso squashfs-tools mtools busybox ;;
     xbps)
-      "${SUDO[@]}" xbps-install -Sy docker cpio grub xorriso squashfs-tools busybox ;;
+      "${SUDO[@]}" xbps-install -Sy docker cpio grub xorriso squashfs-tools mtools busybox ;;
     emerge)
-      "${SUDO[@]}" emerge --sync && "${SUDO[@]}" emerge app-containers/docker app-arch/cpio sys-boot/grub app-cdr/xorriso sys-fs/squashfs-tools app-misc/busybox ;;
+      "${SUDO[@]}" emerge --sync && "${SUDO[@]}" emerge app-containers/docker app-arch/cpio sys-boot/grub app-cdr/xorriso sys-fs/squashfs-tools app-arch/mtools app-misc/busybox ;;
     *) return 2 ;;
   esac
 }
