@@ -6,6 +6,20 @@ The initial cross-repository Java audit, parity rules, and phased conversion pla
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
 
+## Hosted Edition (64-bit Windows / Linux / Unix / macOS)
+
+The portable user-mode bridge is `tools/runtime/chimera-hosted.py` and installs as `chimera-hosted`. It reports host OS/CPU details, matches the detected physical ISA to the canonical ISA inventory, provides a limited set of cross-platform command aliases and opens files/URLs through the host desktop. It does not replace the host kernel or claim complete Windows API, Linux syscall, BSD, or Darwin compatibility.
+
+```sh
+chimera-hosted info
+chimera-hosted compat list
+chimera-hosted isa
+chimera-hosted desktop-info
+chimera-hosted open .
+```
+
+See [Hosted Edition design, compatibility boundaries and limitations](docs/hosted-edition.md) and the machine-readable [compatibility matrix](system/hosted/compatibility-matrix.json). Windows PE validation is distinct from actual binary execution; cross-ISA candidates are not executable without a validated backend. The requested `win-asm.txt` source file was not present in the repository or found in the available file search, so its exact code still needs to be supplied before it can be faithfully integrated.
+
 ## Editions
 
 - **Hosted Edition** — runs on Windows, Linux/Unix, macOS, Android or iOS/iPadOS as an application/runtime environment.
