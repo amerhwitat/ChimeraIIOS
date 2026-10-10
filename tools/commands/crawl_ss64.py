@@ -28,7 +28,7 @@ def fetch(url,timeout,retries):
             if n<retries:time.sleep(.25*(n+1))
     raise RuntimeError(url)
 
-def crawl(seed,platform,max_pages,timeout,retries,delay,max_depth=2):
+def crawl(seed,platform,max_pages,timeout,retries,delay,max_depth=10):
     p=urllib.parse.urlparse(seed);prefix=p.path.rstrip("/")+"/";q=[(seed,0)];queued={seed};seen=set();out={};failures=0
     deadline=time.monotonic()+max(10.0,float(os.environ.get("CHIMERA_SS64_PLATFORM_BUDGET","90")))
     while q and len(seen)<max_pages and time.monotonic()<deadline:
@@ -239,8 +239,9 @@ def attach_arabic_labels(catalog, root):
     system_path.write_text(json.dumps(system,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(f"Arabic labels generated for {len(merged)} unique command names")
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument("--output",default="system/commands/ss64-command-catalog.json");ap.add_argument("--max-pages",type=int,default=80);ap.add_argument("--timeout",type=float,default=10);ap.add_argument("--retries",type=int,default=0);ap.add_argument("--delay",type=float,default=.01);ap.add_argument("--max-depth",type=int,default=2);ap.add_argument("--platforms",nargs="*",choices=sorted(INDEXES));args=ap.parse_args()
-    root=Path(__file__).resolve().parents[2];selected=args.platforms or list(INDEXES);out=Path(args.output);catalog={"schema_version":"4.4","product":"Chimera II OS","source":"SS64","source_index":"https://ss64.com/","generated_at_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"policy":"Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.","platforms":{}}
+    ap=argparse.ArgumentParser();ap.add_argument("--output",default="system/commands/ss64-command-catalog.json");ap.add_argument("--max-pages",type=int,default=500);ap.add_argument("--timeout",type=float,default=10);ap.add_argument("--retries",type=int,default=0);ap.add_argument("--delay",type=float,default=.01);ap.add_argument("--max-depth",type=int,default=10);ap.add_argument("--platforms",nargs="*",choices=sorted(INDEXES));args=ap.parse_args()
+    if not 0 <= args.max_depth <= 10: ap.error("--max-depth must be between 0 and 10")
+    root=Path(__file__).resolve().parents[2];selected=args.platforms or list(INDEXES);out=Path(args.output);catalog={"schema_version":"4.5","product":"Chimera II OS","source":"SS64","source_index":"https://ss64.com/","generated_at_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"policy":"Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.","platforms":{}}
     if out.exists():
         try:
             previous=json.loads(out.read_text(encoding="utf-8")); catalog["platforms"].update(previous.get("platforms",{})); print("[CACHE] Loaded existing command catalog before network crawl")
