@@ -115,7 +115,7 @@ def main():
  args=ap.parse_args()
  OUT.mkdir(parents=True,exist_ok=True)
  local=local_files(); db=json.loads(DB_PATH.read_text(encoding="utf-8")); source_doc=json.loads(SOURCE_PATH.read_text(encoding="utf-8"))
- docs=[]; searches=[]; repositories={}; recursive=[]; candidates=[]
+ docs=[]; searches=[]; repositories={}; recursive=[]; candidates=[]; family_results=[]
  if not args.offline:
   seeds=[]
   for f in CPU_FAMILIES:
