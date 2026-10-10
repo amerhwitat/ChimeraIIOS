@@ -20,27 +20,131 @@
     "wow64_x86_on_x64": "planned"
   },
   "architecture_rules": {
-    "x86_process": ["x86_pe32"],
-    "x64_process": ["x64_pe32_plus"],
-    "arm64_process": ["arm64_pe32_plus"],
+    "x86_process": [
+      "x86_pe32"
+    ],
+    "x64_process": [
+      "x64_pe32_plus"
+    ],
+    "arm64_process": [
+      "arm64_pe32_plus"
+    ],
     "cross_architecture": "requires_translation_or_wow64_boundary",
     "dll_must_match_process_architecture": true
   },
   "win32": {
-    "kernel32": ["CreateProcess", "ExitProcess", "GetLastError", "SetLastError", "VirtualAlloc", "VirtualFree", "VirtualProtect", "CreateFile", "ReadFile", "WriteFile", "CloseHandle", "GetModuleHandle", "LoadLibrary", "LoadLibraryEx", "FreeLibrary", "GetProcAddress"],
-    "ntdll": ["PEB/TEB abstraction", "NT object handles", "NT process/thread boundary", "section mapping", "waits", "APC/DPC bridge"],
-    "user32": ["window classes", "HWND", "message queues", "GetMessage", "PeekMessage", "TranslateMessage", "DispatchMessage", "SendMessage", "PostMessage", "input", "menus", "dialogs", "clipboard"],
-    "gdi32": ["HDC", "bitmaps", "fonts", "pens", "brushes", "BitBlt", "StretchBlt", "TextOut", "DrawText", "regions"],
-    "advapi32": ["registry", "security tokens", "services", "events", "semaphores", "mutexes"],
-    "ws2_32": ["socket", "bind", "connect", "listen", "accept", "send", "recv", "overlapped I/O", "IOCP bridge"],
-    "shell32": ["shell namespace", "file associations", "SHChangeNotify", "common shell operations"],
-    "ole32_com": ["COM apartments", "IUnknown", "class factories", "RPC boundary"],
-    "comctl32": ["common controls", "toolbar", "list view", "tree view", "status bar"],
-    "winmm": ["timer", "basic multimedia compatibility"],
-    "dxgi_d3d": ["DXGI/D3D compatibility boundary", "GPU HAL translation"]
+    "kernel32": [
+      "CreateProcess",
+      "ExitProcess",
+      "GetLastError",
+      "SetLastError",
+      "VirtualAlloc",
+      "VirtualFree",
+      "VirtualProtect",
+      "CreateFile",
+      "ReadFile",
+      "WriteFile",
+      "CloseHandle",
+      "GetModuleHandle",
+      "LoadLibrary",
+      "LoadLibraryEx",
+      "FreeLibrary",
+      "GetProcAddress"
+    ],
+    "ntdll": [
+      "PEB/TEB abstraction",
+      "NT object handles",
+      "NT process/thread boundary",
+      "section mapping",
+      "waits",
+      "APC/DPC bridge"
+    ],
+    "user32": [
+      "window classes",
+      "HWND",
+      "message queues",
+      "GetMessage",
+      "PeekMessage",
+      "TranslateMessage",
+      "DispatchMessage",
+      "SendMessage",
+      "PostMessage",
+      "input",
+      "menus",
+      "dialogs",
+      "clipboard"
+    ],
+    "gdi32": [
+      "HDC",
+      "bitmaps",
+      "fonts",
+      "pens",
+      "brushes",
+      "BitBlt",
+      "StretchBlt",
+      "TextOut",
+      "DrawText",
+      "regions"
+    ],
+    "advapi32": [
+      "registry",
+      "security tokens",
+      "services",
+      "events",
+      "semaphores",
+      "mutexes"
+    ],
+    "ws2_32": [
+      "socket",
+      "bind",
+      "connect",
+      "listen",
+      "accept",
+      "send",
+      "recv",
+      "overlapped I/O",
+      "IOCP bridge"
+    ],
+    "shell32": [
+      "shell namespace",
+      "file associations",
+      "SHChangeNotify",
+      "common shell operations"
+    ],
+    "ole32_com": [
+      "COM apartments",
+      "IUnknown",
+      "class factories",
+      "RPC boundary"
+    ],
+    "comctl32": [
+      "common controls",
+      "toolbar",
+      "list view",
+      "tree view",
+      "status bar"
+    ],
+    "winmm": [
+      "timer",
+      "basic multimedia compatibility"
+    ],
+    "dxgi_d3d": [
+      "DXGI/D3D compatibility boundary",
+      "GPU HAL translation"
+    ]
   },
   "nbit": {
-    "supported_process_widths": [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192],
+    "supported_process_widths": [
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      8192
+    ],
     "x86_compatibility_width": 32,
     "x64_compatibility_width": 64,
     "arm64_compatibility_width": 64,
@@ -55,12 +159,40 @@
     "filesystem": "Unified VFS with NTFS compatibility",
     "registry": "Hive registry database",
     "services": "Kore with systemd-compatible control surface",
-    "desktop": "Aurora Win32-compatible shell/compositor"
+    "desktop": "Aurora hosted desktop bridge for host file/URL opening; complete Win32-compatible shell/compositor remains a separate implementation target"
   },
   "execution_policy": {
     "windows_system_dlls": "do_not_copy_proprietary_binaries",
     "native_shims": "clean_room_api_compatible",
     "third_party_windows_binaries": "load_only_when_user_supplies_and_architecture_matches",
     "unsafe_unknown_pe": "validate_before_mapping_and_execute_in_isolated_process"
+  },
+  "hosted_edition": {
+    "runtime": "tools/runtime/chimera-hosted.py",
+    "supported_host_pointer_bits": 64,
+    "native_host_execution": "Use Windows' own loader for native Windows programs when hosted on Windows.",
+    "pe_compatibility_tool": "tools/runtime/chimera-pe.py validates PE headers; validation is not execution.",
+    "desktop_bridge": "Aurora can delegate opening files/URLs to the host desktop through chimera-hosted open.",
+    "current_limitations": [
+      "native Chimera PE runner remains separately required for running PE binaries on non-Windows hosts",
+      "Win32 API shims and complete GUI parity are not complete",
+      "cross-ISA translation requires a validated backend"
+    ]
+  },
+  "assembly_compatibility": {
+    "syntax_families": [
+      "MASM-style Intel syntax",
+      "NASM-style Intel syntax",
+      "GNU assembler syntax"
+    ],
+    "status": "external-toolchain-and-ABI-required",
+    "policy": "Select a matching assembler/linker and host ABI; source syntax alone does not emulate Windows APIs or calling conventions.",
+    "execution_requires": [
+      "matching target architecture",
+      "matching object/executable format",
+      "correct Windows x64 or x86 ABI when calling Win32",
+      "implemented API imports or execution on Windows host"
+    ],
+    "source_import_note": "Do not claim any particular assembly source file has been imported unless it is present in the repository and tested."
   }
 }
