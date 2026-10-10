@@ -241,6 +241,10 @@ def main():
     run.add_argument("--mode",choices=("native","compatibility"),default="compatibility")
     fmt=sub.add_parser("formats",help="describe supported binary container families")
     fmt.add_argument("--json",action="store_true")
+    step=sub.add_parser("step-rv32i",help="decode and execute one RV32I ALU/upper-immediate instruction word")
+    step.add_argument("--word",required=True,type=lambda s:int(s,0),help="32-bit instruction word, e.g. 0x002081b3")
+    step.add_argument("--registers",default=None,help="optional JSON array of 32 integer registers")
+    step.add_argument("--pc",type=lambda s:int(s,0),default=0,help="program counter (integer or 0x-prefixed)")
     refresh_parser=sub.add_parser("refresh-db",help="rebuild execution_candidates metadata in canonical ISA database")
     args=ap.parse_args(); db=load_db()
     if args.command=="refresh-db":
@@ -265,6 +269,13 @@ def main():
         try: result=execute(args)
         except (ValueError,NotImplementedError) as exc:
             print(f"ISA candidate execution refused: {exc}",file=sys.stderr); return 2
+        print(json.dumps(result,indent=2)); return 0
+    if args.command=="step-rv32i":
+        try:
+            registers=json.loads(args.registers) if args.registers is not None else None
+            result=step_rv32i(args.word,registers,args.pc)
+        except (ValueError,TypeError,json.JSONDecodeError) as exc:
+            print(f"RV32I step refused: {exc}",file=sys.stderr); return 2
         print(json.dumps(result,indent=2)); return 0
     return 2
 
