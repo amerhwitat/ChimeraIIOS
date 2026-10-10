@@ -1,0 +1,111 @@
+{
+  "schema": "CHIMERA-EXECUTION-BACKEND-STATUS-1",
+  "version": "2026.10.10",
+  "policy": {
+    "status_means": "An inventory entry, architecture alias, format parser, or static validation is not an execution backend.",
+    "native_execution_requires": [
+      "loader",
+      "ABI and syscall boundary",
+      "memory and exception model",
+      "documented instruction coverage",
+      "positive execution tests",
+      "negative/illegal-instruction tests",
+      "CI reproducibility"
+    ],
+    "cross_bitness_requires": [
+      "format and machine validation",
+      "actual loader/emulator or isolated guest runtime",
+      "ABI and syscall mapping",
+      "pointer-width and structure-layout tests",
+      "positive and negative execution tests",
+      "no host process memory corruption"
+    ]
+  },
+  "host_profiles": [
+    {
+      "id": "x86-32",
+      "pointer_bits": 32,
+      "status": "hosted-user-space-profile-defined",
+      "notes": "Can run only binaries and dependencies compatible with the active 32-bit host ABI. Does not imply Koronos kernel boot or guest instruction emulation."
+    },
+    {
+      "id": "x86-64",
+      "pointer_bits": 64,
+      "status": "existing-hosted-profile",
+      "notes": "Native execution still depends on the host ABI and installed runtime."
+    }
+  ],
+  "guest_backends": [
+    {
+      "id": "x86-32-on-x86-32",
+      "status": "not-validated",
+      "execution_mode": "native-when-host-ABI-matches",
+      "required_tests": [
+        "ELF32 loader",
+        "syscall/ABI",
+        "fault behavior",
+        "instruction subset"
+      ]
+    },
+    {
+      "id": "x86-64-on-x86-32",
+      "status": "unsupported",
+      "execution_mode": "none",
+      "reason": "A 32-bit host cannot natively execute a 64-bit process; requires a validated emulator or separate 64-bit execution service."
+    },
+    {
+      "id": "x86-32-on-x86-64",
+      "status": "not-validated",
+      "execution_mode": "compatibility-mode-candidate",
+      "required_tests": [
+        "compatibility-mode setup",
+        "32-bit loader and libraries",
+        "syscall ABI",
+        "fault and privilege isolation"
+      ]
+    },
+    {
+      "id": "riscv32",
+      "status": "not-validated",
+      "execution_mode": "none",
+      "required_tests": [
+        "decoder/encoder conformance",
+        "machine-model execution",
+        "trap/CSR tests",
+        "official ISA tests"
+      ]
+    },
+    {
+      "id": "arm32",
+      "status": "not-validated",
+      "execution_mode": "none",
+      "required_tests": [
+        "decoder/encoder conformance",
+        "machine-model execution",
+        "exception/privilege tests",
+        "official architecture tests"
+      ]
+    }
+  ],
+  "cross_bitness_formats": [
+    {
+      "format": "ELF32/i386",
+      "parser_status": "probe-link-validation-only",
+      "execution_status": "not-validated",
+      "loader_status": "not-implemented"
+    },
+    {
+      "format": "PE32/i386",
+      "parser_status": "metadata-validation-only",
+      "execution_status": "not-validated",
+      "loader_status": "not-implemented"
+    },
+    {
+      "format": "ELF64/x86-64",
+      "parser_status": "format-detection-only",
+      "execution_status": "unsupported-on-32-bit-host",
+      "loader_status": "not-implemented"
+    }
+  ],
+  "acceptance_policy": "Do not promote status to validated until a reproducible CI job runs the executable guest and checks expected output plus failure cases."
+}
