@@ -66,8 +66,11 @@ def info():
         "host_release": platform.release(),
         "host_isa": host_isa(),
         "pointer_bits": 64 if sys.maxsize > 2**32 else 32,
+        "host_word_bits": 64 if host_isa() in {"x86-64", "aarch64", "riscv64"} else (32 if host_isa() in {"x86-32", "arm32", "riscv32"} else None),
         "python": platform.python_version(),
-        "hosted_edition_supported": fam in {"windows", "linux", "linux-wsl", "unix", "macos"} and sys.maxsize > 2**32,
+        "hosted_edition_supported": (fam in {"windows", "linux", "linux-wsl", "unix"} and host_isa() in {"x86-32", "x86-64", "arm32", "aarch64", "riscv32", "riscv64"}) or (fam == "macos" and sys.maxsize > 2**32 and host_isa() in {"x86-64", "aarch64"}),
+        "hosted_profile": ("32-bit" if sys.maxsize <= 2**32 else "64-bit") + "-user-space",
+        "support_note": "32-bit hosted mode supports compatible 32-bit user-space tools only; it does not make 64-bit binaries, kernel code, drivers, or pointers executable on a 32-bit host.",
         "desktop_open": "os.startfile" if os.name == "nt" else ("open" if fam == "macos" else "xdg-open"),
         "note": "Hosted mode extends the host through a user-space runtime; it does not boot Koronos or emulate a complete guest OS."
     }
@@ -190,11 +193,11 @@ def main(argv=None):
         print(json.dumps(data, indent=2)); return 0
     if args.action == "compat":
         print(json.dumps({"host": host_family(), "modes": {
-            "windows": {"abi": "Win32/NT compatibility contracts", "execution": "native PE runner required for Windows binaries"},
-            "linux": {"abi": "Linux/POSIX hosted user-space", "execution": "host executables and POSIX aliases"},
-            "unix": {"abi": "POSIX/BSD hosted user-space", "execution": "host executables and POSIX aliases"},
-            "macos": {"abi": "Darwin hosted user-space", "execution": "host executables and POSIX aliases"}},
-            "limitations": ["not a syscall emulator", "not a Windows API implementation", "not a guest kernel"]}, indent=2)); return 0
+            "windows": {"abi": "Win32/NT compatibility contracts", "supported_host_bits": [32, 64], "execution": "native host executables of matching bitness; guest PE runner required for cross-ABI execution"},
+            "linux": {"abi": "Linux/POSIX hosted user-space", "supported_host_bits": [32, 64], "execution": "host executables of matching bitness and POSIX aliases"},
+            "unix": {"abi": "POSIX/BSD hosted user-space", "supported_host_bits": [32, 64], "execution": "host executables of matching bitness and POSIX aliases"},
+            "macos": {"abi": "Darwin hosted user-space", "supported_host_bits": [64], "execution": "host executables and POSIX aliases; 32-bit macOS excluded"}},
+            "limitations": ["not a syscall emulator", "not a Windows API implementation", "not a guest kernel", "host executable and library bitness must match", "64-bit guest programs cannot execute natively on a 32-bit host"]}, indent=2)); return 0
     if args.action == "isa":
         db = load_isa_db()
         detected = host_isa()
