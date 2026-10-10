@@ -4,13 +4,14 @@ This is the release gate for the production x86-64 Koronos path. A successful co
 
 ## Current implementation boundary
 
-The changes harden ELF admission and add a transactional ELF loading engine in `kernel/core/elf_loader.cpp`. The engine allocates zeroed pages through a supplied backend, copies PT_LOAD bytes, leaves BSS zeroed, installs user mappings with requested permissions, creates a 64-KiB stack with an unmapped guard page, and rolls back pages/mappings if loading or handoff fails. The architecture backend is not implemented: the current tree does not provide a real physical-page allocator, user PTE/NX manager, TSS/user GDT setup, or audited ring-3 return path. Therefore this loader is not wired into boot and does not prove actual userspace execution. The current runtime loop dispatches CPU 0 only; AP startup and assembly context switching remain blockers.
+The changes harden ELF admission and add a transactional ELF loading engine in `kernel/core/elf_loader.cpp`. The engine allocates zeroed pages through a supplied backend, copies PT_LOAD bytes, leaves BSS zeroed, installs user mappings with requested permissions, creates a 64-KiB stack with an unmapped guard page, and rolls back pages/mappings if loading or handoff fails. The Multiboot2-backed physical-page allocator now reserves the first MiB, kernel/BSS, boot-info block and module ranges, and only allocates usable full pages below the current 4-GiB identity map. The rest of the architecture backend is not implemented: there is no user PTE/NX manager, TSS/user GDT setup, or audited ring-3 return path. Therefore this loader is not wired into boot and does not prove actual userspace execution. The current runtime loop dispatches CPU 0 only; AP startup and assembly context switching remain blockers.
 
 | Acceptance item | Current status |
 |---|---|
 | ELF header/table and segment admission checks | Partially implemented; host regression tests added |
 | Transactional ELF loader engine | Implemented against callbacks; requires a real architecture backend and QEMU validation |
-| Real user PTE mapping, NX/W^X, physical allocation | Not implemented in production backend |
+| Multiboot2-backed physical-page allocator | Implemented for full 4-KiB pages below 4 GiB; host tests/CI pending |
+| Real user PTE mapping, NX/W^X, TLB invalidation | Not implemented in production backend |
 | Guarded 64-KiB stack construction | Loader engine implemented; not boot-integrated |
 | Audited ring-3 return frame and TSS | Not implemented |
 | Discover/start APs and initialize per-CPU stacks/state | Not implemented |
