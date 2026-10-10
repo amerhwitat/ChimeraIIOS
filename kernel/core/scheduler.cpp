@@ -8,7 +8,7 @@
 #include "chimera/scheduler.h"
 namespace {
 constexpr uint32_t MAX_CPUS=256, MAX_TASKS=1024;
-struct Task { chimera_task_fn fn=nullptr; void* arg=nullptr; chimera_task_info info{}; };
+struct Task { chimera_task_fn fn=nullptr; void* arg=nullptr; chimera_task_info info{}; uint32_t wait_age=0; };
 Task tasks[MAX_TASKS];
 uint32_t count=0,next_id=1,rr=0,cpus=1,lock_word=0;
 int32_t current_index[MAX_CPUS];
@@ -29,13 +29,22 @@ static int32_t current_locked(uint32_t cpu){
     return i;
 }
 static int32_t pick_next_locked(uint32_t cpu){
-    int32_t best=-1;uint32_t priority=0;const uint32_t start=count?rr%count:0;
+    int32_t best=-1;uint64_t best_score=0;const uint32_t start=count?rr%count:0;
     for(uint32_t k=0;k<count;k++){
         uint32_t i=(start+k)%count;
         if(tasks[i].info.state!=CHIMERA_TASK_READY||owned_locked(i)||!cpu_allowed(tasks[i].info,cpu))continue;
-        if(best<0||tasks[i].info.priority>priority){best=(int32_t)i;priority=tasks[i].info.priority;}
+        const uint32_t age=tasks[i].wait_age>1000000u?1000000u:tasks[i].wait_age;
+        const uint64_t score=(uint64_t)tasks[i].info.priority+(uint64_t)age*32u;
+        if(best<0||score>best_score){best=(int32_t)i;best_score=score;}
     }
-    if(best>=0)rr=((uint32_t)best+1u)%count;
+    if(best>=0){
+        for(uint32_t i=0;i<count;i++){
+            if(tasks[i].info.state==CHIMERA_TASK_READY&&!owned_locked(i)&&
+               (int32_t)i!=best&&tasks[i].wait_age<1000000u)++tasks[i].wait_age;
+        }
+        tasks[(uint32_t)best].wait_age=0;
+        rr=((uint32_t)best+1u)%count;
+    }
     return best;
 }
 static void change_current(uint32_t cpu,uint32_t state){
