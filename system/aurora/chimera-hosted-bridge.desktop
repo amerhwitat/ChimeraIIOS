@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera Hosted Environment
+Comment=Inspect the host OS, CPU ISA, compatibility modes, and Aurora bridge
+Exec=chimera-hosted desktop-info
+Terminal=true
+Categories=System;Utility;
+Keywords=Chimera;Hosted;Compatibility;ISA;Aurora;
