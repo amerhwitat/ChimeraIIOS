@@ -51,6 +51,35 @@ class CandidateRuntimeTests(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             MOD.execute(SimpleNamespace(arch="riscv64",mnemonic="BOGUS",lhs=1,rhs=2,mode="compatibility"))
 
+    def test_rv32i_word_decoder_executes_add(self):
+        # add x1, x1, x2; x1=12, x2=30 => x1=42
+        regs=[0]*32; regs[1]=12; regs[2]=30
+        result=MOD.step_rv32i(0x002080b3,regs)
+        self.assertEqual(result["registers"][1],42)
+        self.assertEqual(result["decoded"]["mnemonic"],"ADD")
+        self.assertTrue(result["executed"])
+
+    def test_rv32i_sign_extends_addi_immediate(self):
+        # addi x3, x1, -1
+        regs=[0]*32; regs[1]=0
+        result=MOD.step_rv32i(0xfff08193,regs)
+        self.assertEqual(result["registers"][3],0xffffffff)
+
+    def test_rv32i_keeps_zero_register_immutable(self):
+        # addi x0, x1, 5
+        regs=[0]*32; regs[1]=10
+        result=MOD.step_rv32i(0x00508013,regs)
+        self.assertEqual(result["registers"][0],0)
+        self.assertEqual(result["rd_value"],0)
+
+    def test_rv32i_rejects_reserved_shift_immediate(self):
+        with self.assertRaises(ValueError):
+            MOD.decode_rv32i(0x02009093)
+
+    def test_rv32i_rejects_instruction_outside_subset(self):
+        with self.assertRaises(ValueError):
+            MOD.decode_rv32i(0x00000063)  # branch encoding not implemented yet
+
     def test_formats_include_project_binary(self):
         self.assertIn("ncb",MOD.FORMATS)
 
