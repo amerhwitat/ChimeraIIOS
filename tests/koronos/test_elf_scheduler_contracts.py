@@ -27,6 +27,8 @@ class Proc(ctypes.Structure):
                 ("image_low", ctypes.c_uint64), ("image_high", ctypes.c_uint64),
                 ("segments", Segment * 16)]
 
+CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
 class KernelContracts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -39,8 +41,7 @@ class KernelContracts(unittest.TestCase):
             str(ROOT / "kernel/core/scheduler.cpp"), "-o", str(cls.lib),
         ], check=True)
         cls.api = ctypes.CDLL(str(cls.lib))
-        cls.api.chimera_sched_submit.argtypes = [ctypes.CFUNCTYPE(None, ctypes.c_void_p),
-                                                 ctypes.c_void_p, ctypes.c_uint32]
+        cls.api.chimera_sched_submit.argtypes = [CALLBACK, ctypes.c_void_p, ctypes.c_uint32]
         cls.api.chimera_sched_submit.restype = ctypes.c_int
         cls.api.chimera_sched_run_once.argtypes = [ctypes.c_uint32]
         cls.api.chimera_sched_run_once.restype = ctypes.c_uint32
@@ -58,8 +59,7 @@ class KernelContracts(unittest.TestCase):
         api = self.api
         api.chimera_sched_init(2)
         seen = ctypes.c_uint32(0)
-        callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-        @callback_type
+        @CALLBACK
         def callback(_):
             seen.value += 1
             api.chimera_sched_block_cpu(0)
@@ -69,25 +69,24 @@ class KernelContracts(unittest.TestCase):
         self.assertEqual(seen.value, 1)
         snapshot = (Info * 8)()
         self.assertEqual(api.chimera_sched_snapshot(snapshot, 8), 1)
-        self.assertEqual(snapshot[0].state, 2)  # BLOCKED persists after callback return
+        self.assertEqual(snapshot[0].state, 2)
         api.chimera_sched_wake(task_id)
         self.assertEqual(api.chimera_sched_snapshot(snapshot, 8), 1)
-        self.assertEqual(snapshot[0].state, 0)  # READY after wake
+        self.assertEqual(snapshot[0].state, 0)
 
     def test_scheduler_never_dispatches_one_task_twice_in_nested_call(self):
         api = self.api
         api.chimera_sched_init(2)
         observed = []
-        callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-        @callback_type
+        nested_results = []
+        @CALLBACK
         def callback(_):
             observed.append(1)
-            # CPU 0 is still executing this task, so nested dispatch on CPU 0
-            # must refuse to run it again.
-            self.assertEqual(api.chimera_sched_run_once(0), 0)
+            nested_results.append(api.chimera_sched_run_once(0))
         api.chimera_sched_submit(callback, None, 1)
         self.assertEqual(api.chimera_sched_run_once(0), 1)
-        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed, [1])
+        self.assertEqual(nested_results, [0])
 
     def test_elf_rejects_truncated_program_header_table(self):
         api = self.api
