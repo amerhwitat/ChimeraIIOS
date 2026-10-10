@@ -2,6 +2,13 @@
 
 #include <stdint.h>
 
+/*
+ * Endianness contract: these C structs are in-process native-ABI layouts,
+ * not serialized wire bytes. Serialize fixed-width IPC fields using the
+ * helpers in chimera/endianness.h (canonical little-endian wire encoding).
+ * A guest's byte order must not leak across the host microkernel boundary.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
