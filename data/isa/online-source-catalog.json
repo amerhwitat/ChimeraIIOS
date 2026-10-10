@@ -207,11 +207,11 @@
       "authority": "AMD"
     },
     {
-      "id": "llvm-xtensa-tablegen",
+      "id": "xtensa-community-isa-docs",
       "family": "Xtensa",
-      "kind": "machine-readable-instruction-definitions",
+      "kind": "community-maintained-architecture-documentation-index",
       "url": "https://github.com/espressif/xtensa-isa-doc",
-      "authority": "Espressif/community (review against licensed vendor documentation)"
+      "authority": "Espressif/community (verify against vendor documentation)"
     },
     {
       "id": "official-xtensa-cadence",
