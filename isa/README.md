@@ -57,3 +57,10 @@ The SQLite file `isa/isa.db` is generated output and should not be hand-edited; 
 ## Source boundary
 
 The lecture is used only for concepts and terminology relevant to ISA/assembler design. External architecture encodings remain attributed to their respective architecture specifications; Chimera-native encodings remain project-defined.
+
+
+## Candidate translation status (2026-10-10)
+
+The canonical database has an explicit translation profile for every inventoried architecture, including catalog-only extensions and privileged candidates. Use `python3 tools/isa/chimera_isa_convert.py inventory` to inspect coverage and `python3 tools/isa/chimera_isa_convert.py plan x86-64 ADD` to produce a **semantic-IR plan**.
+
+A plan is not machine-code translation, an instruction decoder, an emulator, or a conformance result. Compatibility mode fails closed unless an architecture-specific decoder subset is implemented. The catalog-only candidates added in this update have no invented opcode encodings. Their encodings, side effects, ABI behavior, privilege behavior, and official test coverage remain to be sourced and implemented.
