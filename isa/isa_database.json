@@ -3453,6 +3453,200 @@
       16,
       "0100011101110000",
       "1111111110000111"
+    ],
+    [
+      "riscv32",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD x1,x2,x3",
+      32,
+      "00000000001100010000000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "SUB",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SUB x1,x2,x3",
+      32,
+      "01000000001100010000000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "AND",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "AND x1,x2,x3",
+      32,
+      "00000000001100010111000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "OR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "OR x1,x2,x3",
+      32,
+      "00000000001100010110000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "XOR",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "XOR x1,x2,x3",
+      32,
+      "00000000001100010100000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "SLL",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SLL x1,x2,x3",
+      32,
+      "00000000001100010001000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "SRL",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SRL x1,x2,x3",
+      32,
+      "00000000001100010101000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "SRA",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "SRA x1,x2,x3",
+      32,
+      "01000000001100010101000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "ADDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ADDI x1,x2,5",
+      32,
+      "00000000010100010000000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "LUI",
+      "u",
+      [
+        "register",
+        "immediate"
+      ],
+      "LUI x1,0x1",
+      32,
+      "00000000000000000001000010110111",
+      "00000000000000000000000001111111"
+    ],
+    [
+      "riscv32",
+      "AUIPC",
+      "u",
+      [
+        "register",
+        "immediate"
+      ],
+      "AUIPC x1,0x1",
+      32,
+      "00000000000000000001000010010111",
+      "00000000000000000000000001111111"
+    ],
+    [
+      "riscv32",
+      "XORI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "XORI x1,x2,1",
+      32,
+      "00000000000100010100000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "ORI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ORI x1,x2,1",
+      32,
+      "00000000000100010110000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "ANDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ANDI x1,x2,1",
+      32,
+      "00000000000100010111000010010011",
+      "00000000000000000111000001111111"
     ]
   ],
   "research_update": [
@@ -3460,6 +3654,11 @@
       "date": "2026-10-10",
       "summary": "Added catalog-only ISA extension/privileged candidates and explicit conversion profiles for every inventoried architecture.",
       "policy": "No opcode rows were invented for new candidates; execution/conformance claims remain disabled until sourced encodings, decoders, semantics and tests exist."
+    },
+    {
+      "date": "2026-10-10",
+      "summary": "Added RV32I base instruction-form candidates corresponding to the existing reference decoder subset.",
+      "policy": "Copied only the shared fixed encodings of base integer forms from the canonical RISC-V 32-bit instruction rows; forms remain catalogued-unverified and are not conformance claims."
     }
   ],
   "isa_inventory_policy": {
@@ -3477,7 +3676,7 @@
     "schema": "CHIMERA-ISA-EXECUTION-CANDIDATES-1",
     "generated_from": "architectures and instructions arrays",
     "generated_at_utc": "2026-10-10T08:01:12.105Z",
-    "candidate_count": 227,
+    "candidate_count": 241,
     "policy": "Discovery candidates are not conformance claims. Only explicitly implemented operations execute in the reference interpreter.",
     "modes": {
       "native": "Maps supported guest operations to Chimera semantic micro-ops; this is not native machine-code JIT output.",
@@ -11474,6 +11673,564 @@
         ],
         "conformance_status": "not-tested",
         "note": "Inventory candidate only; no executable instruction semantics implied."
+      },
+      {
+        "id": "insn:riscv32:ADD:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ADD",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "ADD x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010000000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "add",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "add"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:SUB:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "SUB",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "SUB x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "01000000001100010000000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "sub",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "sub"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:AND:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "AND",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "AND x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010111000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "and",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "and"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:OR:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "OR",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "OR x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010110000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "or",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "or"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:XOR:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "XOR",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "XOR x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010100000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "xor",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "xor"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:SLL:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "SLL",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "SLL x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010001000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "shift-left",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "shift-left"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:SRL:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "SRL",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "SRL x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010101000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "shift-right-logical",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "shift-right-logical"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:SRA:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "SRA",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "SRA x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "01000000001100010101000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "shift-right-arithmetic",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "shift-right-arithmetic"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:ADDI:ri",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ADDI",
+        "form_id": "ri",
+        "operands": [
+          "register",
+          "register",
+          "immediate"
+        ],
+        "syntax": "ADDI x1,x2,5",
+        "length_bits": 32,
+        "value_bits": "00000000010100010000000010010011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "add",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "add"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:LUI:u",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "LUI",
+        "form_id": "u",
+        "operands": [
+          "register",
+          "immediate"
+        ],
+        "syntax": "LUI x1,0x1",
+        "length_bits": 32,
+        "value_bits": "00000000000000000001000010110111",
+        "mask_bits": "00000000000000000000000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": null,
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "not-implemented",
+          "chimera_equivalent": null
+        },
+        "compatibility_mode": {
+          "status": "unsupported",
+          "execution_semantics": null
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:AUIPC:u",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "AUIPC",
+        "form_id": "u",
+        "operands": [
+          "register",
+          "immediate"
+        ],
+        "syntax": "AUIPC x1,0x1",
+        "length_bits": 32,
+        "value_bits": "00000000000000000001000010010111",
+        "mask_bits": "00000000000000000000000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": null,
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "not-implemented",
+          "chimera_equivalent": null
+        },
+        "compatibility_mode": {
+          "status": "unsupported",
+          "execution_semantics": null
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:XORI:ri",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "XORI",
+        "form_id": "ri",
+        "operands": [
+          "register",
+          "register",
+          "immediate"
+        ],
+        "syntax": "XORI x1,x2,1",
+        "length_bits": 32,
+        "value_bits": "00000000000100010100000010010011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "xor",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "xor"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:ORI:ri",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ORI",
+        "form_id": "ri",
+        "operands": [
+          "register",
+          "register",
+          "immediate"
+        ],
+        "syntax": "ORI x1,x2,1",
+        "length_bits": 32,
+        "value_bits": "00000000000100010110000010010011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "or",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "or"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
+      },
+      {
+        "id": "insn:riscv32:ANDI:ri",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ANDI",
+        "form_id": "ri",
+        "operands": [
+          "register",
+          "register",
+          "immediate"
+        ],
+        "syntax": "ANDI x1,x2,1",
+        "length_bits": 32,
+        "value_bits": "00000000000100010111000010010011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "RISC-V RV32I 32-bit base integer encoding",
+        "source_ref": "riscv",
+        "semantic_operation": "and",
+        "candidate_status": "catalogued-unverified",
+        "native_mode": {
+          "status": "reference-micro-op",
+          "chimera_equivalent": "and"
+        },
+        "compatibility_mode": {
+          "status": "reference-interpreter",
+          "execution_semantics": "deterministic integer reference semantics; architectural side effects not modeled"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "pe-coff",
+          "mach-o",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "RV32I base-form candidate aligned to the ratified RISC-V encoding; candidate status remains unverified until official tests and decoder/backend conformance checks pass."
       }
     ],
     "decoder_backends": {
@@ -11756,7 +12513,7 @@
         "source_url": "https://docs.riscv.org/reference/isa/",
         "inventory_status": "standard",
         "candidate_instruction_forms": 0,
-        "candidate_count": 1,
+        "candidate_count": 15,
         "native_mode": {
           "target": "CHIR-semantic-IR",
           "status": "translation-plan-only",
@@ -11765,7 +12522,7 @@
         "compatibility_mode": {
           "status": "reference-subset-only",
           "backend": "tools/isa/chimera_isa_candidate.py step-rv32i",
-          "limitation": "Requires architecture-specific decode and semantics; mnemonic similarity is not binary compatibility."
+          "limitation": "Only the documented integer subset is planned; privilege, CSR, traps, interrupts, MMU/PMP, devices and timing are not implemented."
         },
         "execution_status": "not-claimed",
         "conformance_status": "not-tested"
