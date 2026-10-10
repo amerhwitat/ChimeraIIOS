@@ -197,9 +197,11 @@ def main(argv=None):
             "limitations": ["not a syscall emulator", "not a Windows API implementation", "not a guest kernel"]}, indent=2)); return 0
     if args.action == "isa":
         db = load_isa_db()
-        target = host_isa()
+        detected = host_isa()
+        aliases = {"aarch64": "armv9-a64", "arm64": "armv9-a64", "amd64": "x86-64", "x86_64": "x86-64", "x64": "x86-64", "i386": "x86-32", "i686": "x86-32"}
+        target = aliases.get(detected.lower(), detected)
         rows = [row for row in db.get("architectures", []) if row and str(row[0]).lower() == target.lower()]
-        data = {"host_isa": target, "host_architecture_candidate": rows[0] if rows else None,
+        data = {"host_isa": detected, "database_architecture_id": target, "host_architecture_candidate": rows[0] if rows else None,
             "inventory_match": bool(rows), "execution_policy": "host-native execution uses the host OS ABI; guest ISA execution requires a validated decoder/backend",
             "candidate_runtime": "tools/isa/chimera_isa_candidate.py",
             "warning": "ISA inventory match does not mean that a compiler backend or emulator exists."}
