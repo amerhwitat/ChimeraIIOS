@@ -21,7 +21,9 @@ class NBitDaemonTests(unittest.TestCase):
                 result=request({"op":"set","bits":8193,"backend":"chimera-virtual","isa":"chimera-nbit"})
                 self.assertTrue(result["ok"]);self.assertEqual(result["profile"]["selected_width_bits"],8193)
                 self.assertEqual(json.loads(config.read_text())["guest_isa"],"chimera-nbit")
-                self.assertFalse(request({"op":"set","bits":0,"backend":"auto","isa":"auto"})["ok"])
+                automatic=request({"op":"set","bits":0,"backend":"auto","isa":"auto"})
+                self.assertTrue(automatic["ok"]);self.assertEqual(automatic["profile"]["width_policy"],"auto")
+                self.assertFalse(request({"op":"set","bits":-1,"backend":"auto","isa":"auto"})["ok"])
             finally:
                 proc.terminate()
                 try:proc.wait(timeout=2)
