@@ -171,6 +171,13 @@ extern "C" int chimera_elf_load_and_enter(const void *image, uint64_t image_size
         chimera_process_discard_admitted(plan.pid);
         return -13;
     }
+    if (chimera_process_set_state(plan.pid, CHIMERA_PROCESS_RUNNING) != 0) {
+        rollback(ops, pages, used);
+        chimera_nbit_process_unregister(plan.pid);
+        chimera_process_set_state(plan.pid, CHIMERA_PROCESS_ADMITTED);
+        chimera_process_discard_admitted(plan.pid);
+        return -14;
+    }
     *pid_out = plan.pid;
     /* A zeroed initial frame represents argc=0, argv=NULL, envp=NULL,
        followed by AT_NULL/0. Align the initial RSP to the x86-64 ABI. */
