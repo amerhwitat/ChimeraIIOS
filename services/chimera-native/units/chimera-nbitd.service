@@ -1,0 +1,21 @@
+[Unit]
+Description=Chimera N-bit profile and VM policy service
+After=local-fs.target
+Before=aurora-session.service
+ConditionPathIsExecutable=/usr/bin/chimera-nbitd.py
+
+[Service]
+Type=simple
+RuntimeDirectory=chimera
+RuntimeDirectoryMode=0700
+UMask=0077
+ExecStart=/usr/bin/chimera-nbitd.py --socket /run/chimera/nbitd.sock --config /etc/chimera/nbit-mode.json
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
