@@ -6,13 +6,20 @@ extern "C" {
 #endif
 
 #define CHIMERA_HW_PROFILE_VERSION 1u
-#define CHIMERA_NBIT_MODE_COUNT 11u
+#define CHIMERA_NBIT_PREDEFINED_MODE_COUNT 11u
+/* Deprecated: accepted virtual widths are arbitrary positive uint32 values. */
+#define CHIMERA_NBIT_MODE_COUNT CHIMERA_NBIT_PREDEFINED_MODE_COUNT
 
 typedef enum chimera_architecture {
     CHIMERA_ARCH_UNKNOWN = 0,
     CHIMERA_ARCH_X86_64 = 1,
     CHIMERA_ARCH_AARCH64 = 2,
-    CHIMERA_ARCH_RISCV64 = 3
+    CHIMERA_ARCH_RISCV64 = 3,
+    CHIMERA_ARCH_X86_32 = 4,
+    CHIMERA_ARCH_ARM32 = 5,
+    CHIMERA_ARCH_RISCV32 = 6,
+    CHIMERA_ARCH_LOONGARCH64 = 7,
+    CHIMERA_ARCH_POWERPC64 = 8
 } chimera_architecture;
 
 typedef enum chimera_nbit_mode {
