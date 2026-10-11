@@ -59,7 +59,14 @@ if [[ -d "$BOOT_ART/spitfire" ]]; then cp -a "$BOOT_ART/spitfire/." "$DIST/boot/
 if [[ -d "$BOOT_ART/jasper" ]]; then cp -a "$BOOT_ART/jasper/." "$DIST/boot/chimera/jasper/"; fi
 if [[ -d "$BOOT_ART/grub" ]]; then cp -a "$BOOT_ART/grub/." "$DIST/boot/chimera/grub/"; fi
 if [[ -d "$BOOT_ART/manifests" ]]; then cp -a "$BOOT_ART/manifests/." "$DIST/boot/chimera/manifests/"; fi
-mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/src" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
+mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/src" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/install/services" "$DIST/usr/share/chimera/isa" "$DIST/usr/lib/chimera/tools" "$DIST/checksums"
+
+# Stage optional enterprise services and ISA catalogs for offline installer review.
+cp -f "$ROOT/installer/services/enterprise-services.json" "$DIST/install/services/enterprise-services.json"
+cp -f "$ROOT/isa/gpu_isa_registry.json" "$DIST/usr/share/chimera/isa/gpu_isa_registry.json"
+cp -f "$ROOT/isa/isa_database.json" "$DIST/usr/share/chimera/isa/isa_database.json"
+install -m 0755 "$ROOT/tools/services/enterprise_service_installer.py" "$DIST/usr/lib/chimera/tools/enterprise_service_installer.py"
+cp -f "$ROOT/boot/boot_protocol.json" "$DIST/install/boot_protocol.json"
 
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
 # the same offline assets without depending on network access or a desktop session.
