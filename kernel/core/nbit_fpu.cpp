@@ -10,8 +10,8 @@ uint32_t ChimeraNBitFPU::lane_bits(ChimeraNBitFloatOpcode op) {
     default:return 0;
     }
 }
-int ChimeraNBitFPU::execute_lanes(ChimeraNBitFloatView d,const ChimeraNBitFloatView a,
-                                  const ChimeraNBitFloatView b,ChimeraNBitFloatOpcode op) {
+int ChimeraNBitFPU::execute_lanes(ChimeraNBitFloatView d,ChimeraNBitConstFloatView a,
+                                  ChimeraNBitConstFloatView b,ChimeraNBitFloatOpcode op) {
     const uint32_t lane=lane_bits(op);
     if(!lane||!d.bytes||!a.bytes||!b.bytes||!d.width_bits||d.width_bits!=a.width_bits||
        a.width_bits!=b.width_bits||d.width_bits%lane) return -1;
@@ -37,6 +37,6 @@ int ChimeraNBitFPU::execute_lanes(ChimeraNBitFloatView d,const ChimeraNBitFloatV
 }
 extern "C" int chimera_nbit_fpu_execute(uint8_t*d,uint32_t dc,const uint8_t*a,uint32_t ac,
  const uint8_t*b,uint32_t bc,uint32_t bits,uint32_t opcode) {
-    return ChimeraNBitFPU::execute_lanes({d,bits,dc},{const_cast<uint8_t*>(a),bits,ac},
-       {const_cast<uint8_t*>(b),bits,bc},static_cast<ChimeraNBitFloatOpcode>(opcode));
+    return ChimeraNBitFPU::execute_lanes({d,bits,dc},{a,bits,ac},
+       {b,bits,bc},static_cast<ChimeraNBitFloatOpcode>(opcode));
 }
