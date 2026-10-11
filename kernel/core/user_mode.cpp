@@ -159,3 +159,18 @@ extern "C" int chimera_x86_64_user_mode_init(void) {
 extern "C" const chimera_elf_loader_ops *chimera_x86_64_user_loader_ops(void) {
     return &loader_ops;
 }
+extern "C" int chimera_x86_64_user_range_valid(uint64_t address,uint64_t length) {
+    if(address<0x40000000ull||address>=0x80000000ull||
+       length>512u||length>0x80000000ull-address) return 0;
+    if(length==0) return 1;
+    const uint64_t end=address+length;
+    uint64_t page=address&~(PAGE-1);
+    const uint64_t last=(end-1u)&~(PAGE-1);
+    for(;;) {
+        uint64_t *pte=get_pte(page,false);
+        if(!pte||!(*pte&PRESENT)||!(*pte&USER)) return 0;
+        if(page==last) break;
+        page+=PAGE;
+    }
+    return 1;
+}
