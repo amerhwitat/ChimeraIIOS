@@ -33,6 +33,8 @@ static volatile uint32_t g_irqs = 0;
 static volatile uint32_t g_soft = 0;
 static volatile uint32_t g_syscalls = 0;
 static volatile uint32_t g_last = 0;
+static uint32_t user_console_col = 0;
+static bool user_console_started = false;
 
 static void lidt(const idt_ptr64 *p) {
     __asm__ volatile("lidt (%0)" : : "r"(p) : "memory");
@@ -115,9 +117,18 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         const uint64_t len = regs[9];     // saved RSI
         if (number == 1u && chimera_x86_64_user_range_valid(ptr,len)) {
             const char *message = (const char *)(uintptr_t)ptr;
+            volatile uint16_t *vga = (volatile uint16_t *)0xB8000;
+            if (!user_console_started) {
+                for (uint32_t col=0; col<80u; ++col) vga[23u*80u+col]=0x0720u;
+                user_console_started = true;
+                user_console_col = 0;
+            }
             for (uint64_t n = 0; n < len; ++n) {
                 const uint8_t c = (uint8_t)message[n];
                 __asm__ volatile("outb %0, $0xE9" : : "a"(c));
+                if (c == '\\n') break;
+                if (c >= 0x20u && user_console_col < 80u)
+                    vga[23u*80u+user_console_col++] = (uint16_t)(0x0F00u|c);
             }
             regs[14] = len;
         } else {
