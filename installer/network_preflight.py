@@ -52,9 +52,20 @@ def driver_evidence(devices):
     loaded=set(read("/proc/modules").splitlines()[i].split()[0] for i in range(len(read("/proc/modules").splitlines())))
     for d in devices:
         d["driver_loaded"]=d["driver"] in loaded if d["driver"] else False
+        candidates=[]
+        if d["modalias"] and command("modprobe"):
+            rc,out,_=run(["modprobe","-R",d["modalias"]],5)
+            if rc==0: candidates=sorted(set(x.strip() for x in out.splitlines() if x.strip()))[:16]
+        d["candidate_modules"]=candidates
         d["driver_recommendation"]=("keep-current-driver" if d["driver_bound"] else
-            "inspect-modalias-and-kernel-driver-catalog" if d["modalias"] else "identify-device-before-selecting-driver")
-        d["firmware_hint"]="check-kernel-log-and-linux-firmware-package" if not d["driver_bound"] else None
+            "review-candidate-kernel-modules" if candidates else
+            "inspect-modalias-and-signed-driver-catalog" if d["modalias"] else "identify-device-before-selecting-driver")
+        firmware=[]
+        if d["driver"] and command("modinfo"):
+            rc,out,_=run(["modinfo","-F","firmware",d["driver"]],5)
+            if rc==0: firmware=[x.strip() for x in out.splitlines() if x.strip()][:32]
+        d["required_firmware_hints"]=firmware
+        d["firmware_hint"]="check-kernel-log-and-linux-firmware-package" if not d["driver_bound"] or firmware else None
     return devices
 
 def addresses():
@@ -121,7 +132,7 @@ def configure_wired(dev):
 def configure_wifi(ssid,password):
     if not command("nmcli"):
         return 127,"","Wi-Fi configuration currently requires NetworkManager (nmcli); no credentials were written."
-    # Password is supplied on stdin, never placed in argv, shell history, logs, or report.
+    # Password is never placed in argv, shell history, logs, or the installer report.
     if password is None:
         return run(["nmcli","--wait","35","device","wifi","connect",ssid],40)
     # Use a temporary private connection file; password is never in argv or logs.
@@ -141,7 +152,10 @@ def configure_wifi(ssid,password):
         if rc==0: rc,out,err=run(["nmcli","--wait","35","connection","up","id",connection_id],40)
         return rc,out,err
     finally:
-        run(["nmcli","connection","delete","id",connection_id],10)
+        # Keep a successful NetworkManager profile so connectivity survives the
+        # transition into installation. Remove only failed temporary profiles.
+        if locals().get("rc",1)!=0:
+            run(["nmcli","connection","delete","id",connection_id],10)
         try: os.unlink(path)
         except OSError: pass
 
