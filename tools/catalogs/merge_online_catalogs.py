@@ -52,54 +52,133 @@ def rows_from_index(index):
     return []
 
 
+def _valid_canonical_db(db):
+    return (
+        isinstance(db, dict)
+        and isinstance(db.get("architectures"), list)
+        and bool(db["architectures"])
+        and isinstance(db.get("instructions"), list)
+        and bool(db["instructions"])
+    )
+
+
+def _database_from_catalog():
+    """Reconstruct the legacy positional DB from the checked-in structured catalog.
+
+    Encoding masks are deliberately marked unavailable: the structured catalog
+    supplies sample encodings and field descriptions, not a universal fixed-bit
+    mask for every instruction form.
+    """
+    catalog_path = ROOT / "isa/catalog.json"
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    if not isinstance(catalog, dict) or catalog.get("schema") != "CHM-ISA-CATALOG-1":
+        raise ValueError(f"{catalog_path} is not a supported CHM-ISA-CATALOG-1 catalog")
+    families = catalog.get("families")
+    instructions = catalog.get("instructions")
+    if not isinstance(families, list) or not isinstance(instructions, list) or not families or not instructions:
+        raise ValueError(f"{catalog_path} has no families or instructions")
+
+    family_map = {}
+    architectures = []
+    for family in families:
+        if not isinstance(family, dict) or not family.get("id"):
+            continue
+        family_id = str(family["id"])
+        family_map[family_id] = family
+        architectures.append([family_id, str(family.get("class", "unknown")), family_id])
+
+    rows = []
+    for item in instructions:
+        if not isinstance(item, dict):
+            continue
+        family_id = str(item.get("family", ""))
+        encoding = item.get("encoding")
+        if family_id not in family_map or not isinstance(encoding, dict):
+            continue
+        sample = encoding.get("sample")
+        if not isinstance(sample, dict) or not isinstance(sample.get("binary"), str):
+            continue
+        bits = sample["binary"]
+        try:
+            length = int(encoding.get("length_bits", len(bits)))
+            if length <= 0 or len(bits) != length or any(bit not in "01" for bit in bits):
+                continue
+        except (TypeError, ValueError):
+            continue
+        operands = item.get("operands", [])
+        if not isinstance(operands, list):
+            operands = []
+        operand_names = [
+            str(op.get("name", op.get("kind", "operand"))) if isinstance(op, dict) else str(op)
+            for op in operands
+        ]
+        rows.append([
+            family_id,
+            str(item.get("mnemonic", "UNKNOWN")),
+            str(item.get("id", item.get("mnemonic", "unknown"))),
+            operand_names,
+            str(item.get("syntax", "")),
+            length,
+            bits,
+            "unavailable: consult isa/catalog.json encoding.fields",
+        ])
+
+    if not architectures or not rows:
+        raise ValueError(f"Could not reconstruct legacy rows from {catalog_path}")
+    return {
+        "schema": "CHM-ISA-DB-4",
+        "recovered_from": "isa/catalog.json",
+        "recovery_note": "Encoding samples were preserved; per-form fixed-bit masks remain unavailable and must not be treated as verified.",
+        "architectures": architectures,
+        "instructions": rows,
+        "online_architecture_candidates": [],
+        "online_instruction_candidates": [],
+    }
+
+
 def load_canonical_isa():
-    """Load the canonical database, recovering a damaged working copy from HEAD."""
+    """Load canonical DB; recover from Git, then from the checked-in ISA catalog."""
     import subprocess
 
+    local_error = "database file is missing"
     try:
-        raw = ISA_DB.read_text(encoding="utf-8")
-        db = json.loads(raw)
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        db = None
-        local_error = str(exc)
-    else:
-        local_error = "top-level JSON value is not an object" if not isinstance(db, dict) else ""
-
-    if isinstance(db, dict):
-        architectures = db.get("architectures")
-        instructions = db.get("instructions")
-        if isinstance(architectures, list) and isinstance(instructions, list) and architectures and instructions:
+        db = json.loads(ISA_DB.read_text(encoding="utf-8"))
+        if _valid_canonical_db(db):
             return db
-        local_error = "missing/non-list architectures or instructions, or empty catalog"
+        local_error = "missing/non-list/empty architectures or instructions"
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        local_error = str(exc)
 
-    # A malformed local JSON file must not prevent the build if Git has a valid
-    # committed canonical copy. Do not silently replace a valid local database.
+    # Preserve a known-good committed DB if the repository actually tracks it.
     try:
         raw = subprocess.check_output(
             ["git", "-C", str(ROOT), "show", "HEAD:isa/isa_database.json"],
             text=True, encoding="utf-8", stderr=subprocess.PIPE,
         )
         recovered = json.loads(raw)
-        if not isinstance(recovered, dict):
-            raise ValueError("committed file is not a JSON object")
-        if not isinstance(recovered.get("architectures"), list) or not recovered["architectures"]:
-            raise ValueError("committed database has no architecture rows")
-        if not isinstance(recovered.get("instructions"), list) or not recovered["instructions"]:
-            raise ValueError("committed database has no instruction rows")
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError, subprocess.CalledProcessError) as exc:
-        raise SystemExit(
-            f"Invalid canonical ISA database: {ISA_DB} ({local_error}); "
-            f"could not recover a valid committed copy ({exc}). "
-            "Restore isa/isa_database.json from a known-good commit, then rerun the build."
-        ) from exc
+        if _valid_canonical_db(recovered):
+            source = "Git HEAD"
+        else:
+            raise ValueError("committed DB has an invalid schema")
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError, subprocess.CalledProcessError):
+        # isa_database.json is generated/local in some checkouts and may not be
+        # tracked. The versioned structured catalog is the deterministic fallback.
+        try:
+            recovered = _database_from_catalog()
+            source = "isa/catalog.json"
+        except (OSError, UnicodeError, json.JSONDecodeError, ValueError, TypeError, KeyError) as exc:
+            raise SystemExit(
+                f"Invalid canonical ISA database: {ISA_DB} ({local_error}); "
+                f"could not recover from Git HEAD or isa/catalog.json ({exc})."
+            ) from exc
 
-    tmp = ISA_DB.with_suffix(ISA_DB.suffix + ".repair.tmp")
-    tmp.write_text(json.dumps(recovered, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    json.loads(tmp.read_text(encoding="utf-8"))
-    tmp.replace(ISA_DB)
-    print(f"[ISA] repaired invalid canonical database from Git HEAD ({len(recovered['architectures'])} architectures, {len(recovered['instructions'])} instruction rows)")
+    write(ISA_DB, recovered)
+    print(
+        f"[ISA] repaired canonical database from {source}: "
+        f"{len(recovered['architectures'])} architectures, "
+        f"{len(recovered['instructions'])} instruction rows"
+    )
     return recovered
-
 
 def merge_isa():
     db = load_canonical_isa()
