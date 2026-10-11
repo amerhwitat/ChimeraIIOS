@@ -80,6 +80,9 @@ extern "C" int chimera_ipc_send(uint32_t sender_pid,uint32_t id,uint64_t capabil
     if(i<0){unlock_service();return -5;}
     Endpoint &e=endpoints[(uint32_t)i];
     if(e.capability!=capability){unlock_service();return -6;}
+    chimera_nbit_process_context current_sender{};
+    if(!registered(sender_pid,&current_sender)){unlock_service();return -4;}
+    sender=current_sender;
     if(e.closing){unlock_service();return -10;}
     chimera_nbit_process_context receiver{};
     if(!registered(e.owner_pid,&receiver)){unlock_service();return -7;}
@@ -157,19 +160,34 @@ extern "C" int chimera_ipc_cancel(uint32_t sender_pid,uint32_t id,uint64_t seque
 }
 extern "C" void chimera_ipc_process_exit(uint32_t pid) {
     if(!pid)return;
+    /* Mark owned endpoints closing, then wait for in-flight copy_to_user calls
+       to leave the address space before the process reclaims its mappings. */
+    for(;;){
+        bool busy=false;
+        lock_service();
+        for(uint32_t i=0;i<CHIMERA_IPC_MAX_ENDPOINTS;++i){
+            Endpoint &e=endpoints[i];
+            if(!e.used||e.owner_pid!=pid)continue;
+            bool endpoint_busy=false;
+            for(uint32_t q=0;q<e.count;++q)
+                if(e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH].in_flight)endpoint_busy=true;
+            if(endpoint_busy){e.closing=true;busy=true;}
+            else clear_endpoint(e);
+        }
+        unlock_service();
+        if(!busy)break;
+#if defined(__i386__) || defined(__x86_64__)
+        __asm__ volatile("pause");
+#endif
+    }
     lock_service();
     for(uint32_t i=0;i<CHIMERA_IPC_MAX_ENDPOINTS;++i){
         Endpoint &e=endpoints[i];if(!e.used)continue;
-        if(e.owner_pid==pid){
-            bool busy=false;for(uint32_t q=0;q<e.count;++q)
-                if(e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH].in_flight)busy=true;
-            if(!busy)clear_endpoint(e);else e.closing=true;
-            continue;
-        }
         uint32_t kept=0;Message temp[CHIMERA_IPC_QUEUE_DEPTH]{};
         for(uint32_t q=0;q<e.count;++q){
             Message &m=e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH];
-            if(m.occupied&&(m.sender_pid!=pid||m.in_flight)){temp[kept++]=m;}
+            /* An already-reserved receive owns a kernel copy and may finish. */
+            if(m.occupied&&(m.sender_pid!=pid||m.in_flight))temp[kept++]=m;
         }
         for(uint32_t q=0;q<CHIMERA_IPC_QUEUE_DEPTH;++q)clear_message(e.queue[q]);
         for(uint32_t q=0;q<kept;++q)e.queue[q]=temp[q];
