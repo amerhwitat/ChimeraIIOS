@@ -195,3 +195,38 @@ jobs:
           test -s boot/iso/dist/iso/boot/visual/aurora-background.jpg.b64
           test -s boot/iso/dist/iso/boot/visual/chimera-intro.mp4
           test -s boot/iso/dist/iso/boot/visual/boot-visual-manifest.json
+          test -s boot/iso/dist/iso/boot/koronos/koronos.elf
+          test -s boot/iso/dist/iso/boot/koronos/chimera-user-init.elf
+
+      - name: QEMU boot the rebuilt ISO through the ring-3 userspace handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          log=/tmp/chimera-full-iso-qemu.log
+          rm -f "$log"
+          set +e
+          timeout --signal=TERM --kill-after=3s 35s qemu-system-x86_64 \
+            -machine q35,accel=tcg -cpu max -m 1024M -smp 2 \
+            -cdrom boot/iso/dist/output.iso -boot d \
+            -display none -serial none -monitor none \
+            -no-reboot -no-shutdown \
+            -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
+          qemu_rc=$?
+          set -e
+          if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 ]]; then
+            echo "QEMU exited before the full-ISO smoke timeout (status $qemu_rc)" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
+          for marker in \
+            '[KRN ] KORONOS READY' \
+            '[UABI] x86-64 user page tables, GDT/TSS and IDT ready' \
+            '[USER] Ring-3 Chimera init entered successfully; userspace handoff verified'; do
+            grep -Fq "$marker" "$log" || {
+              echo "Full ISO failed to reach marker: $marker" >&2
+              cat "$log" >&2
+              exit 1
+            }
+          done
+          echo "Full ISO successfully booted Koronos and entered the ring-3 native init payload."
+          cat "$log"
