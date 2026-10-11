@@ -174,7 +174,6 @@ def main():
                 if not success:
                     item["error"]="all available package staging adapters failed; provide --source-archive SERVICE=PATH and --source-sha256 SERVICE=HEX for verified source fallback"
                     plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
-        plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
         plan["services"].append(item)
         if a.enable: plan["enabled_targets"].append(svc["boot_target"])
     out=a.rootfs/"etc/chimera/enterprise-services.plan.json"
