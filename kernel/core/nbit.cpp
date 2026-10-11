@@ -14,11 +14,9 @@ static void registry_lock(void) {
 static void registry_unlock(void) { __sync_lock_release(&g_registry_lock); }
 
 static int valid_mode(uint32_t bits) {
-    switch (bits) {
-        case 8: case 16: case 32: case 64: case 128: case 256:
-        case 512: case 1024: case 2048: case 4096: case 8192: return 1;
-        default: return 0;
-    }
+    /* The virtual ABI accepts arbitrary positive widths, not only powers of two.
+       Runtime memory and scheduler policy impose practical per-process limits. */
+    return bits >= CHIMERA_NBIT_MODE_MIN_BITS && bits <= CHIMERA_NBIT_MODE_MAX_BITS;
 }
 static int find_process_locked(uint32_t process_id) {
     if (!process_id) return -1;
@@ -64,6 +62,20 @@ extern "C" int chimera_nbit_set_default(uint32_t bits) {
 }
 extern "C" int chimera_nbit_validate(uint32_t bits) { return valid_mode(bits) ? 0 : -1; }
 
+extern "C" int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out) {
+    if (!out) return -1;
+    if (g_profile.version != CHIMERA_HW_PROFILE_VERSION && chimera_nbit_init() != 0) return -2;
+    out->native_hardware_bits = g_profile.native_nbit_mode;
+    out->default_mode_bits = g_default_mode;
+    out->minimum_virtual_bits = CHIMERA_NBIT_MODE_MIN_BITS;
+    out->maximum_virtual_bits = CHIMERA_NBIT_MODE_MAX_BITS;
+    out->registered_process_capacity = CHIMERA_NBIT_MAX_PROCESS_MODES;
+    out->flags = CHIMERA_NBIT_CAP_ARBITRARY_WIDTH |
+                 CHIMERA_NBIT_CAP_CHIMERA_VIRTUAL_ABI |
+                 CHIMERA_NBIT_CAP_PHYSICAL_NATIVE_IS_HARDWARE_ONLY;
+    return 0;
+}
+
 extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id,
                                            uint32_t requested_bits, uint32_t compatibility_target) {
     if (!ctx || !process_id) return -1;
@@ -82,19 +94,31 @@ extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint
     ctx->flags = 0;
     return store_process(ctx);
 }
+
+extern "C" int chimera_nbit_process_init_chimera(chimera_nbit_process_context *ctx,
+                                                    uint32_t process_id,
+                                                    uint32_t requested_bits) {
+    int rc = chimera_nbit_process_init(ctx, process_id, requested_bits, 0);
+    if (rc != 0) return rc;
+    ctx->execution_class = CHIMERA_EXEC_CHIMERA_VIRTUAL;
+    ctx->flags = 1u; /* CHIMERA virtual ABI selection, not physical-native hardware. */
+    return store_process(ctx);
+}
 extern "C" int chimera_nbit_process_set_mode(chimera_nbit_process_context *ctx, uint32_t bits) {
     if (!ctx || !valid_mode(bits)) return -1;
     if (!chimera_hardware_supports_mode(&g_profile, bits)) return -2;
     ctx->mode_bits = bits;
-    ctx->execution_class = (bits == g_profile.native_nbit_mode && !ctx->compatibility_target)
-        ? CHIMERA_EXEC_NATIVE
-        : (ctx->compatibility_target ? CHIMERA_EXEC_COMPATIBILITY : CHIMERA_EXEC_EMULATED);
+    ctx->execution_class = ctx->compatibility_target
+        ? CHIMERA_EXEC_COMPATIBILITY
+        : ((ctx->flags & 1u) ? CHIMERA_EXEC_CHIMERA_VIRTUAL
+           : ((bits == g_profile.native_nbit_mode) ? CHIMERA_EXEC_NATIVE : CHIMERA_EXEC_EMULATED));
     return store_process(ctx);
 }
 extern "C" int chimera_nbit_process_set_compatibility(chimera_nbit_process_context *ctx, uint32_t target) {
     if (!ctx || !(target & g_profile.compatibility_mask) ||
         (target & ~g_profile.compatibility_mask)) return -1;
     ctx->compatibility_target = target;
+    ctx->flags &= ~1u;
     ctx->execution_class = CHIMERA_EXEC_COMPATIBILITY;
     return store_process(ctx);
 }
