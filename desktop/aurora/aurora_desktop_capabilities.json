@@ -336,7 +336,17 @@
     "playstation-ps4-emulation",
     "playstation-ps5-emulation",
     "native-emulator-detection",
-    "user-supplied-firmware-boundary"
+    "user-supplied-firmware-boundary",
+    "single-click-selection",
+    "double-click-open",
+    "triple-click-line-selection",
+    "titlebar-double-click-maximize-restore",
+    "minimize-restore-events",
+    "compatibility-message-loop",
+    "native-message-loop",
+    "gpu-compute-settings",
+    "nbit-register-cache-settings",
+    "extended-vector-state-settings"
   ],
   "input": [
     "mouse",
