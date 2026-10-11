@@ -44,7 +44,10 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     cpuid(1,0,&a,&b,&c,&d);
     out->logical_cpus = (b >> 16) & 0xffu;
     if (!out->logical_cpus) out->logical_cpus = 1;
+    if (d & (1u<<0)) out->feature_bits |= CHIMERA_HW_FPU;
     if (d & (1u<<26)) out->feature_bits |= CHIMERA_HW_SSE2;
+    if (c & (1u<<26)) out->feature_bits |= CHIMERA_HW_XSAVE;
+    if (c & (1u<<27)) out->feature_bits |= CHIMERA_HW_OSXSAVE;
     if (c & (1u<<25)) out->feature_bits |= CHIMERA_HW_AES;
     if (c & (1u<<30)) out->feature_bits |= CHIMERA_HW_RDRAND;
     if (c & (1u<<5)) out->feature_bits |= CHIMERA_HW_VMX;
