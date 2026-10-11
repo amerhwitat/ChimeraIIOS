@@ -1,4 +1,5 @@
 #include "chimera/elf_loader.h"
+#include "chimera/nbit.h"
 
 namespace {
 constexpr uint64_t PAGE = CHIMERA_ELF_PAGE_SIZE;
@@ -161,6 +162,15 @@ extern "C" int chimera_elf_load_and_enter(const void *image, uint64_t image_size
         chimera_process_discard_admitted(plan.pid);
         return -10;
     }
+    /* Publish the process execution mode before handing control to user mode.
+       Registered contexts are discoverable by the kernel-wide N-bit monitor. */
+    chimera_nbit_process_context mode{};
+    if (chimera_nbit_process_init(&mode, plan.pid, 64u, 0u) != 0) {
+        rollback(ops, pages, used);
+        chimera_process_set_state(plan.pid, CHIMERA_PROCESS_ADMITTED);
+        chimera_process_discard_admitted(plan.pid);
+        return -13;
+    }
     *pid_out = plan.pid;
     /* A zeroed initial frame represents argc=0, argv=NULL, envp=NULL,
        followed by AT_NULL/0. Align the initial RSP to the x86-64 ABI. */
@@ -169,6 +179,7 @@ extern "C" int chimera_elf_load_and_enter(const void *image, uint64_t image_size
     /* A real ring-3 transfer cannot return here. A returned callback means
        handoff failed; tear down mappings instead of leaving a half-live task. */
     rollback(ops, pages, used);
+    chimera_nbit_process_unregister(plan.pid);
     chimera_process_set_state(plan.pid, CHIMERA_PROCESS_ADMITTED);
     chimera_process_discard_admitted(plan.pid);
     return handoff == 0 ? -11 : -12;
