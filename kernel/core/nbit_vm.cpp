@@ -1,4 +1,5 @@
 #include "chimera/nbit_vm.h"
+#include "chimera/nbit_cache.h"
 
 namespace {
 static uint32_t nbytes(uint32_t bits) { return (uint32_t)(((uint64_t)bits+7u)/8u); }
@@ -36,7 +37,12 @@ int ChimeraNBitVM::run(ChimeraNBitVMState &s,const ChimeraNBitInstruction *progr
     if(s.halted)return CHIMERA_NBIT_VM_HALTED;
     while(s.pc<instruction_count) {
         if(s.steps>=s.step_limit)return CHIMERA_NBIT_VM_STEP_LIMIT;
-        const ChimeraNBitInstruction ins=program[s.pc++];
+        ChimeraNBitInstruction ins{};
+        if(s.instruction_cache) {
+            if(!ChimeraNBitCache::fetch(*s.instruction_cache,program,s.pc,s.code_generation,ins))
+                ins=program[s.pc];
+        } else ins=program[s.pc];
+        ++s.pc;
         ++s.steps;
         ChimeraNBitView d{},a{},b{};
         switch(ins.opcode) {
@@ -104,7 +110,7 @@ extern "C" int chimera_nbit_vm_initialize(ChimeraNBitVMState *state,uint8_t *reg
     return ChimeraNBitVM::initialize(*state,register_bytes,register_count,register_stride,
                                      register_storage_bytes,bit_width,step_limit);
 }
-extern "C" int chimera_nbit_vm_run(ChimeraNBitVMState *state,
+extern "C" int chimera_nbit_vm_set_cache(ChimeraNBitVMState *s, ChimeraNBitInstructionCache *cache, uint64_t generation) {\n    if(!s || !s->register_bytes)return CHIMERA_NBIT_VM_INVALID;\n    s->instruction_cache=cache; s->code_generation=generation; return 0;\n}\nextern "C" int chimera_nbit_vm_run(ChimeraNBitVMState *state,
                                      const ChimeraNBitInstruction *program,
                                      uint32_t instruction_count) {
     if(!state)return CHIMERA_NBIT_VM_INVALID;
