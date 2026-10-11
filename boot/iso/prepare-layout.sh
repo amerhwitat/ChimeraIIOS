@@ -76,6 +76,8 @@ mkdir -p "$DIST/usr/share/chimera/nbit" "$DIST/etc/chimera" "$DIST/usr/bin" "$DI
 install -m 0755 "$ROOT/tools/runtime/chimera-nbit-mode.py" "$DIST/usr/bin/chimera-nbit-mode.py"
 install -m 0755 "$ROOT/tools/runtime/chimera-nbitd.py" "$DIST/usr/bin/chimera-nbitd.py"
 cp -f "$ROOT/services/chimera-native/units/chimera-nbitd.service" "$DIST/usr/lib/systemd/system/chimera-nbitd.service"
+mkdir -p "$DIST/usr/lib/systemd/system-preset"
+cp -f "$ROOT/services/chimera-native/units/90-chimera.preset" "$DIST/usr/lib/systemd/system-preset/90-chimera.preset"
 install -m 0644 "$ROOT/tools/nbit/select_mode.py" "$DIST/usr/share/chimera/nbit/select_mode.py"
 cp -f "$ROOT/config/nbit-mode.json" "$DIST/usr/share/chimera/nbit/nbit-mode.json"
 cp -f "$ROOT/config/nbit-mode.json" "$DIST/etc/chimera/nbit-mode.json"
