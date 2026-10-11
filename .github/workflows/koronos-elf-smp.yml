@@ -9,6 +9,8 @@ on:
       - 'kernel/build-koronos.sh'
       - 'kernel/core/process.cpp'
       - 'kernel/core/elf_loader.cpp'
+      - 'kernel/core/nbit.cpp'
+      - 'kernel/include/chimera/nbit.h'
       - 'kernel/build-koronos.sh'
       - 'kernel/core/scheduler.cpp'
       - 'kernel/include/chimera/process.h'
