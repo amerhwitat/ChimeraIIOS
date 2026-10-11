@@ -43,6 +43,10 @@ The N-bit integer ABI accepts arbitrary positive widths within its 32-bit width 
 
 The N-bit vector FPU API currently implements IEEE binary32 and binary64 lane operations over arbitrary-width register views whose widths are multiples of the lane size. It is a software/host-FPU lane backend, not an implementation of arbitrary-precision floating-point formats. The freestanding kernel does not execute these host-FPU operations until per-thread x87/SSE/AVX state preservation is implemented. AVX/AVX-512 capabilities are only advertised when CPUID and the required OS-enabled XCR0 state agree.
 
+## Windows PE/DLL compatibility
+
+The PE loader validates and maps PE32/PE32+ images, applies supported base relocations, and now exposes a callback-based import resolver that writes resolved addresses into bounded IAT slots. The resolver is where the Win32 API-set/module runtime supplies DLL exports. The loader's preparation API returns the entrypoint after architecture validation, relocation and import resolution. Actual invocation still requires the compatibility process manager to map these bytes into an isolated process address space and dispatch the entrypoint under the selected x86/ARM compatibility execution context; parsing a DLL does not itself execute it.
+
 ## Aurora click and compatibility events
 
 `desktop/aurora/aurora_event_loop.py` accepts newline-delimited JSON events from a compositor or compatibility adapter. It maps single click to selection, double click to open, triple click on text to select-all, title-bar double click to maximize/restore, and right-click/long-press/Shift+F10 to context menus. It validates event surfaces and uses a fixed action allowlist. External action dispatch is dry-run unless `CHIMERA_DESKTOP_DISPATCH=1` is explicitly set.
