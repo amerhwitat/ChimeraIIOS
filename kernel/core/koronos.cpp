@@ -399,7 +399,7 @@ static void task_runtime_watchdog(void *) {
     console_write("[HANDOFF] Native user-init ELF found; validating and mapping PT_LOAD segments");
     uint32_t pid = 0;
     const int result = chimera_elf_load_and_enter(
-        (const void *)(uintptr_t)init->base, init->size, 62u, 0x70000000ull,
+        (const void *)(uintptr_t)init->base, init->size, 62u, 0x0000004000200000ull,
         chimera_x86_64_user_loader_ops(), &pid);
     // A successful IRETQ never returns. Any return is a failed transaction.
     console_write("[HANDOFF] ERROR: user-mode transition returned; ELF load/handoff failed");
