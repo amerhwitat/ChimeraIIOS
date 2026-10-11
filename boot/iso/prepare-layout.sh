@@ -253,6 +253,7 @@ cat > "$DIST/install/background-manifest.json" <<'EOF'
   "schema": "CHM-INSTALL-BACKGROUNDS-1",
   "default": "/install/installer-background.png",
   "steps": {
+    "network_preflight": "/install/installer-background.png",
     "welcome": "/install/installer-background.png",
     "hardware": "/usr/share/chimera/aurora/library-background.png",
     "mode": "/usr/share/chimera/aurora/desktop-background.png",
