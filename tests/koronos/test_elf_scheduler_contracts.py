@@ -28,6 +28,11 @@ class Proc(ctypes.Structure):
                 ("image_low", ctypes.c_uint64), ("image_high", ctypes.c_uint64),
                 ("segments", Segment * 16)]
 
+class Mode(ctypes.Structure):
+    _fields_ = [("process_id", ctypes.c_uint32), ("mode_bits", ctypes.c_uint32),
+                ("execution_class", ctypes.c_int), ("compatibility_target", ctypes.c_uint32),
+                ("abi_version", ctypes.c_uint32), ("flags", ctypes.c_uint32)]
+
 class KernelContracts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -53,6 +58,12 @@ class KernelContracts(unittest.TestCase):
         cls.api.chimera_process_admit_elf.argtypes = [ctypes.c_void_p, ctypes.c_uint64,
             ctypes.c_uint16, ctypes.c_uint64, ctypes.POINTER(Proc)]
         cls.api.chimera_process_admit_elf.restype = ctypes.c_int
+        cls.api.chimera_process_set_execution_mode.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32]
+        cls.api.chimera_process_set_execution_mode.restype = ctypes.c_int
+        cls.api.chimera_process_set_state.argtypes = [ctypes.c_uint32, ctypes.c_int]
+        cls.api.chimera_process_set_state.restype = ctypes.c_int
+        cls.api.chimera_nbit_process_get.argtypes = [ctypes.c_uint32, ctypes.POINTER(Mode)]
+        cls.api.chimera_nbit_process_get.restype = ctypes.c_int
 
     @classmethod
     def tearDownClass(cls):
@@ -76,6 +87,20 @@ class KernelContracts(unittest.TestCase):
         result = self.api.chimera_process_admit_elf(
             buf, len(image), 62, 0x70000000, ctypes.byref(out))
         return result, out
+
+    def test_process_mode_registry_tracks_admission_compatibility_and_exit(self):
+        result, proc = self.admit(self.elf_fixture())
+        self.assertGreater(result, 0)
+        mode = Mode()
+        self.assertEqual(self.api.chimera_nbit_process_get(result, ctypes.byref(mode)), 0)
+        self.assertEqual(mode.mode_bits, 64)
+        # CHIMERA_COMPAT_LINUX is bit 2 in the public hardware ABI.
+        self.assertEqual(self.api.chimera_process_set_execution_mode(result, 32, 1 << 2), 0)
+        self.assertEqual(self.api.chimera_nbit_process_get(result, ctypes.byref(mode)), 0)
+        self.assertEqual(mode.mode_bits, 32)
+        self.assertEqual(mode.execution_class, 2)  # CHIMERA_EXEC_COMPATIBILITY
+        self.assertEqual(self.api.chimera_process_set_state(result, 5), 0)  # EXITED
+        self.assertNotEqual(self.api.chimera_nbit_process_get(result, ctypes.byref(mode)), 0)
 
     def test_block_wake_is_bound_to_selected_cpu_task(self):
         api = self.api
