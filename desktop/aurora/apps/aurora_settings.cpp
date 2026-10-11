@@ -6,6 +6,12 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <cstring>
+#if defined(__unix__) || defined(__APPLE__)
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+#endif
 namespace fs=std::filesystem;
 
 struct Setting { std::string key, label, value, description; };
@@ -19,6 +25,29 @@ static fs::path nbit_profile_path() {
     if (const char* p=std::getenv("CHIMERA_NBIT_PROFILE_FILE"); p && *p) return p;
     if (const char* h=std::getenv("HOME"); h && *h) return fs::path(h)/".config/chimera/nbit-mode.json";
     return "/etc/chimera/nbit-mode.json";
+}
+static bool notify_nbitd(uint32_t width,const std::string& backend,
+                           const std::string& guest,const std::string& personality) {
+#if defined(__unix__) || defined(__APPLE__)
+    const char* configured=std::getenv("CHIMERA_NBIT_SOCKET");
+    const char* path=(configured&&*configured)?configured:"/run/chimera/nbitd.sock";
+    const int fd=::socket(AF_UNIX,SOCK_STREAM,0); if(fd<0)return false;
+    sockaddr_un addr{}; addr.sun_family=AF_UNIX;
+    if(std::strlen(path)>=sizeof(addr.sun_path)){::close(fd);return false;}
+    std::strncpy(addr.sun_path,path,sizeof(addr.sun_path)-1);
+    if(::connect(fd,reinterpret_cast<sockaddr*>(&addr),sizeof(addr))!=0){::close(fd);return false;}
+    std::ostringstream request;
+    request<<"{\"op\":\"set\",\"bits\":"<<width
+           <<",\"backend\":\""<<backend<<"\",\"isa\":\""<<guest<<"\"";
+    if(backend=="compatibility")request<<",\"compatibility\":\""<<personality<<"\"";
+    request<<"}\n";const std::string bytes=request.str();
+    std::size_t sent=0;
+    while(sent<bytes.size()){const auto n=::write(fd,bytes.data()+sent,bytes.size()-sent);if(n<=0){::close(fd);return false;}sent+=static_cast<std::size_t>(n);}
+    char response[1024]{};const auto got=::read(fd,response,sizeof(response)-1);::close(fd);
+    return got>0&&std::strstr(response,"\"ok\":true")!=nullptr;
+#else
+    (void)width;(void)backend;(void)guest;(void)personality;return false;
+#endif
 }
 static std::vector<Setting> defaults() {
     return {
@@ -156,7 +185,10 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
     f<<"  \"isa_catalog_does_not_imply_executable_backend\": true\n";
     f<<"}\n";
     f.close();
-    return !f.fail();
+    if(f.fail())return false;
+    if(!notify_nbitd(width,backend,resolved_guest,personality))
+        std::cerr<<"N-bit profile saved locally; nbitd is not reachable, so the running kernel profile was not updated.\n";
+    return true;
 }
 static std::vector<Setting> load() {
     auto v=defaults(); std::ifstream f(config_path()); std::string line;
