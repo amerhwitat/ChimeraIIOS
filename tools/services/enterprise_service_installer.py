@@ -158,9 +158,10 @@ def main():
     source_hashes=dict(x.split("=",1) for x in a.source_sha256 if "=" in x)
     for sid,url in source_urls.items():
         if sid not in services: p.error(f"unknown source-url service ID: {sid}")
-        archive,error=fetch_source_archive(sid,url,a.cache)
-        if error: p.error(error)
-        source_archives.setdefault(sid,str(archive))
+        if a.apply and sid in selected:
+            archive,error=fetch_source_archive(sid,url,a.cache)
+            if error: p.error(error)
+            source_archives.setdefault(sid,str(archive))
     native_compiler=bool(os.environ.get("CHIMERA_CC") or shutil.which("chimera-cc"))
     execution_mode=a.execution_mode
     if execution_mode=="auto":
