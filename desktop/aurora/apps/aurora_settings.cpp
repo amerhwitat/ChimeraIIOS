@@ -95,6 +95,19 @@ static uint32_t compatibility_mask(const std::string& target) {
     if(target=="ios")return 1u<<6;
     return 0;
 }
+static uint32_t backend_id(const std::string& backend) {
+    if(backend=="chimera-virtual")return 1u;
+    if(backend=="physical-native")return 2u;
+    if(backend=="compatibility")return 3u;
+    return 0u;
+}
+static uint32_t guest_isa_id(const std::string& guest) {
+    static const char* names[]={"auto","chimera-nbit","x86-16","x86-32","x86-64","aarch64",
+      "arm32","arm32-thumb","riscv32","riscv64","riscv128","mips32","mips64","powerpc",
+      "ppc64","loongarch32","loongarch64","s390x","sparc-v9","wasm32","wasm64"};
+    for(uint32_t i=0;i<sizeof(names)/sizeof(names[0]);++i)if(guest==names[i])return i;
+    return 0u;
+}
 static bool valid_nbit_profile(const std::vector<Setting>& v) {
     const std::string width_text=value_of(v,"isa.nbit.width");
     const std::string backend=value_of(v,"isa.nbit.backend");
@@ -110,6 +123,7 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
     const std::string backend=value_of(v,"isa.nbit.backend");
     const std::string guest=value_of(v,"isa.nbit.guest");
     const std::string personality=value_of(v,"isa.nbit.compatibility");
+    const std::string resolved_guest=(guest=="auto"&&backend=="chimera-virtual")?"chimera-nbit":guest;
     const uint32_t target=backend=="compatibility"?compatibility_mask(personality):0u;
     const uint32_t width=width_text=="auto"?0u:(uint32_t)std::stoull(width_text);
     const fs::path path=nbit_profile_path();
