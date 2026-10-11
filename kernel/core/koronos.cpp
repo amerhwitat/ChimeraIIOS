@@ -330,6 +330,8 @@ static void task_monitor(void *) {
             console_u32_raw(modes[j].process_id);
             console_raw(" bits=");
             console_u32_raw(modes[j].mode_bits);
+            console_raw(" isa=");
+            console_u32_raw(modes[j].guest_isa);
             console_raw(" class=");
             console_u32_raw((uint32_t)modes[j].execution_class);
             console_raw(" compat=");
