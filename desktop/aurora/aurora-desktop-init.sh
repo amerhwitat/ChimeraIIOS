@@ -27,6 +27,19 @@ log(){ printf '[Aurora] %s\n' "$*" >> "$LOG_DIR/aurora-desktop.log"; }
 export XDG_CURRENT_DESKTOP="${XDG_CURRENT_DESKTOP:-Aurora}"
 export XDG_SESSION_DESKTOP="${XDG_SESSION_DESKTOP:-Aurora}"
 export XDG_SESSION_TYPE=wayland
+
+# Start the authenticated local Aurora input message loop before launching the compositor.
+# The socket is user-private; compatibility adapters and native compositor plugins can
+# send newline-delimited JSON events through AURORA_EVENT_SOCKET.
+EVENT_LOOP="${CHIMERA_AURORA_EVENT_LOOP:-/usr/lib/chimera/aurora_event_loop.py}"
+if [[ -r "$EVENT_LOOP" ]] && command -v python3 >/dev/null 2>&1; then
+  AURORA_EVENT_SOCKET="$LOG_DIR/aurora-events.sock"
+  export AURORA_EVENT_SOCKET
+  CHIMERA_DESKTOP_DISPATCH=1 CHIMERA_DESKTOP_ACTION="${CHIMERA_DESKTOP_ACTION:-/usr/bin/chimera-desktop-action}" \
+    python3 "$EVENT_LOOP" --socket "$AURORA_EVENT_SOCKET" >"$LOG_DIR/aurora-events.log" 2>&1 &
+  log "event loop started: $AURORA_EVENT_SOCKET"
+fi
+
 if command -v dbus-update-activation-environment >/dev/null 2>&1; then
   dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE XDG_RUNTIME_DIR 2>/dev/null || true
 fi
