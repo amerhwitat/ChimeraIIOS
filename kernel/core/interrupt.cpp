@@ -1,5 +1,6 @@
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
+#include "chimera/user_mode.h"
 
 /* Defined by kernel/arch/x86_64/interrupts.asm.  Keep this declaration at
  * global scope: placing it inside the anonymous namespace gives the symbol
@@ -113,8 +114,7 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         const uint64_t number = regs[14]; // saved RAX
         const uint64_t ptr = regs[8];     // saved RDI
         const uint64_t len = regs[9];     // saved RSI
-        if (number == 1u && ptr >= 0x40000000ull && ptr < 0x80000000ull &&
-            len <= 512u && len <= 0x80000000ull - ptr) {
+        if (number == 1u && chimera_x86_64_user_range_valid(ptr,len)) {
             const char *message = (const char *)(uintptr_t)ptr;
             for (uint64_t n = 0; n < len; ++n) {
                 const uint8_t c = (uint8_t)message[n];
