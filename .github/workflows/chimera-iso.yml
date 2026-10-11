@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'CMakeLists.txt'
       - 'boot/**'
       - 'kernel/**'
       - 'src/**'
