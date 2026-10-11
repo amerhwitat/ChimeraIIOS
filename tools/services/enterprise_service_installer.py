@@ -124,8 +124,8 @@ def main():
               "staging":"not-requested","native_policy":svc.get("native","prefer-native-package"),
               "compatibility":svc.get("compatibility",[]),"attempts":[]}
         if a.apply:
-            if not detected:
-                item["error"]="no supported package manager detected"; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
+            if not detected and sid not in source_archives:
+                item["error"]="no package manager detected; verified source archive fallback was not supplied"; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
             success=False
             for candidate in detected:
                 packages=(svc.get("packages") or {}).get(candidate,[])
