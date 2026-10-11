@@ -371,19 +371,34 @@ static void task_kore(void *) {
 }
 
 /*
- * Keep a real scheduler client runnable after one-shot bootstrap services
- * block. Previously every service (including the one-shot monitor) blocked,
- * leaving the scheduler with zero READY tasks; the CPU spun forever in idle
- * and the last screen looked like a frozen boot. This supervisor is a
- * cooperative liveness task, not a claim that userspace has been entered.
+ * Report the userspace handoff state once, then block. This kernel currently
+ * has a transactional ELF loader contract but no registered x86-64 user-mode
+ * page-table/IRETQ backend wired into boot. Reprinting "awaiting handoff" from
+ * a permanently READY task looked like progress while guaranteeing a noisy
+ * idle loop. Be explicit about the actual blocker instead.
  */
 static void task_runtime_watchdog(void *) {
-    const uint32_t tick = ++runtime_watchdog_ticks;
-    if ((tick & 0x000FFFFFu) == 1u) {
-        console_write("[MON ] Runtime supervisor alive; awaiting a supported userspace handoff");
+    if (runtime_watchdog_ticks++ != 0u) {
+        chimera_sched_block();
+        return;
     }
-    // Returning without blocking makes the dispatcher put this task back in
-    // READY state. Other READY tasks still participate through scheduler aging.
+
+    const chimera_boot_module *live =
+        chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
+    const chimera_boot_module *install =
+        chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
+
+    console_write("[HANDOFF] Kernel scheduler is running; userspace entry has not occurred");
+    if (live) {
+        console_write("[HANDOFF] Live initramfs found, but it is data, not an executable ELF entry point");
+    } else if (install) {
+        console_write("[HANDOFF] Installer image found, but no executable userspace entry point is registered");
+    } else {
+        console_write("[HANDOFF] No live initramfs or installer image module was supplied");
+    }
+    console_write("[HANDOFF] BLOCKED: architecture user-mode page-table and IRETQ backend is not wired into boot");
+    console_write("[HANDOFF] This is not a successful userspace handoff; boot remains in kernel runtime");
+    chimera_sched_block();
 }
 
 static void koronos_submit_bootstrap_tasks() {
