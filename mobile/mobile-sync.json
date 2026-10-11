@@ -64,5 +64,28 @@
     "shared_header": "kernel/include/chimera/endianness.h",
     "policy": "SoC/runtime ABI determines native order; guest/emulator order is explicit; hosted Android/iOS APIs are not assumed to match guest byte order",
     "status": "contract-defined; device-specific endian behavior requires target validation"
+  },
+  "shared_preferences": [
+    "services.enterprise.install_policy",
+    "services.enterprise.enabled_targets",
+    "gpu.compute.enabled",
+    "gpu.compute.backend",
+    "gpu.compute.isa_policy",
+    "isa.nbit.cache",
+    "isa.vector.state",
+    "aurora.input.click_policy",
+    "aurora.compatibility.event_loop"
+  ],
+  "optional_services": {
+    "catalog": "installer/services/enterprise-services.json",
+    "default_enabled": [],
+    "enable_after_explicit_review": true,
+    "boot_targets_respected": true
+  },
+  "gpu_compute": {
+    "catalog": "isa/gpu_isa_registry.json",
+    "toolchain": "tools/gpu/chimera_gpu_toolchain.py",
+    "device_probe_required": true,
+    "unsupported_devices": "report-unavailable-no-fake-emulation"
   }
 }
