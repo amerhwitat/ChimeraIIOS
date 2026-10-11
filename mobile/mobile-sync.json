@@ -87,5 +87,14 @@
     "toolchain": "tools/gpu/chimera_gpu_toolchain.py",
     "device_probe_required": true,
     "unsupported_devices": "report-unavailable-no-fake-emulation"
-  }
+  },
+  "core_services": [
+    {
+      "id": "nbit-profiled",
+      "daemon": "chimera-nbitd",
+      "default_enabled": true,
+      "profile_file": "/etc/chimera/nbit-mode.json",
+      "kernel_must_validate_on_admission": true
+    }
+  ]
 }
