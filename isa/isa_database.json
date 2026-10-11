@@ -14971,5 +14971,113 @@
         "physical_native_width_must_match_hardware_profile": true
       }
     }
+  },
+  "gpu_isa_registry": "isa/gpu_isa_registry.json",
+  "vector_register_profiles": [
+    {
+      "id": "x86-x87",
+      "register_bits": 80,
+      "count": 8,
+      "state_components": [
+        "x87-data",
+        "x87-control",
+        "x87-status",
+        "tag"
+      ],
+      "execution": "hardware-feature-gated",
+      "status": "profile"
+    },
+    {
+      "id": "x86-mmx",
+      "register_bits": 64,
+      "count": 8,
+      "state_components": [
+        "mmx"
+      ],
+      "execution": "hardware-feature-gated",
+      "status": "profile"
+    },
+    {
+      "id": "x86-sse",
+      "register_bits": 128,
+      "count": 16,
+      "state_components": [
+        "xmm",
+        "mxcsr"
+      ],
+      "execution": "hardware-feature-gated",
+      "status": "profile"
+    },
+    {
+      "id": "x86-avx",
+      "register_bits": 256,
+      "count": 16,
+      "state_components": [
+        "ymm-upper",
+        "xmm-low"
+      ],
+      "execution": "requires-OSXSAVE-and-XCR0",
+      "status": "profile"
+    },
+    {
+      "id": "x86-avx512",
+      "register_bits": 512,
+      "count": 32,
+      "state_components": [
+        "zmm",
+        "opmask-k0-k7",
+        "high-16-zmm"
+      ],
+      "execution": "requires-AVX512-feature-and-OSXSAVE-state",
+      "status": "profile"
+    },
+    {
+      "id": "arm-neon",
+      "register_bits": 128,
+      "count": 32,
+      "state_components": [
+        "v0-v31"
+      ],
+      "execution": "hardware-feature-gated",
+      "status": "profile"
+    },
+    {
+      "id": "arm-sve",
+      "register_bits": "implementation-defined",
+      "count": 32,
+      "state_components": [
+        "z0-z31",
+        "predicate-p0-p15",
+        "ffr"
+      ],
+      "execution": "runtime-vector-length-and-OS-state-required",
+      "status": "profile"
+    },
+    {
+      "id": "chimera-nbit-vector",
+      "register_bits": "selected-width",
+      "count": "configurable",
+      "state_components": [
+        "vector-registers",
+        "predicate-registers",
+        "status"
+      ],
+      "execution": "software-emulated-unless-native-backend-advertises-support",
+      "status": "virtual-profile"
+    }
+  ],
+  "nbit_cache_policy": {
+    "schema": "CHIMERA-NBIT-CACHE-1",
+    "default_enabled": true,
+    "levels": [
+      "L1-instruction",
+      "L1-data",
+      "L2-unified"
+    ],
+    "virtual_runtime_cache": "bounded-caller-owned-direct-mapped",
+    "coherence": "invalidate-on-code-generation-change",
+    "limits": "bounded by memory budget",
+    "hardware_cache_discovery": "CPUID/ACPI/device-tree when supported",
+    "no_claim_of_physical_cache_emulation": true
   }
 }
