@@ -166,5 +166,22 @@
     "compatibility": "Guest ABI byte order is distinct from host byte order; decode at the boundary.",
     "emulation": "Emulator must implement guest-visible loads, stores, instruction fetch, MMIO and exceptions using guest architecture semantics.",
     "unknown_policy": "Reject unknown or unsupported endian profiles for executable/kernel images."
+  },
+  "enterprise_services": {
+    "catalog": "/install/services/enterprise-services.json",
+    "selection_required": true,
+    "default_targets": [],
+    "targets": [
+      "enterprise-identity.target",
+      "enterprise-databases.target",
+      "enterprise-web.target",
+      "enterprise-observability.target",
+      "enterprise-containers.target",
+      "enterprise-file.target",
+      "enterprise-access.target",
+      "enterprise-backup.target",
+      "enterprise-messaging.target"
+    ],
+    "activation_policy": "enable-only-after-installer-review"
   }
 }
