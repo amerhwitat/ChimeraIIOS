@@ -65,8 +65,9 @@ static bool valid_width(const std::string& value) {
     uint64_t n=0;
     for(char ch:value) {
         if(ch<'0'||ch>'9')return false;
-        n=n*10u+(uint64_t)(ch-'0');
-        if(n>UINT32_MAX)return false;
+        const uint64_t digit=(uint64_t)(ch-'0');
+        if(n>((uint64_t)UINT32_MAX-digit)/10u)return false;
+        n=n*10u+digit;
     }
     return n>0;
 }
