@@ -159,3 +159,14 @@ extern "C" int chimera_nbit_ipc_validate(const chimera_ipc_wire *wire) {
     if (expected > 16u * 1024u * 1024u || wire->payload_bytes != expected) return -4;
     return 0;
 }
+
+extern "C" int chimera_nbit_ipc_copy_payload(const chimera_ipc_wire *wire,
+                                               void *receiver_buffer,
+                                               uint32_t receiver_capacity) {
+    if (chimera_nbit_ipc_validate(wire) != 0) return -1;
+    if (!receiver_buffer || receiver_capacity < wire->payload_bytes) return -2;
+    const uint8_t *src = static_cast<const uint8_t *>(wire->payload);
+    uint8_t *dst = static_cast<uint8_t *>(receiver_buffer);
+    for (uint32_t i = 0; i < wire->payload_bytes; ++i) dst[i] = src[i];
+    return (int)wire->payload_bytes;
+}
