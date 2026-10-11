@@ -24,7 +24,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+python3 -m json.tool "$ROOT/isa/isa_database.json" >/dev/null
+python3 -m json.tool "$ROOT/isa/gpu_isa_registry.json" >/dev/null
 python3 "$ROOT/tools/isa/generate_registry.py"
+# Keep an auditable, reproducible snapshot of the CPU/GPU ISA inputs used by this build.
+python3 "$ROOT/tools/isa/chimera_isa_convert.py" inventory > "$BUILD/isa-inventory.json"
+sha256sum "$ROOT/isa/isa_database.json" "$ROOT/isa/gpu_isa_registry.json" > "$BUILD/isa-inputs.sha256"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
