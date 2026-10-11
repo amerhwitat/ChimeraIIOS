@@ -132,6 +132,7 @@ install(PROGRAMS tools/services/enterprise_service_installer.py tools/services/c
 install(FILES installer/services/enterprise-services.json DESTINATION share/chimera/installer/services)
 install(FILES services/service_registry.json DESTINATION share/chimera/services)
 install(FILES services/chimera-native/units/chimera-enterprise-services.service services/chimera-native/units/chimera-nbitd.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+install(FILES services/chimera-native/units/90-chimera.preset DESTINATION lib/systemd/system-preset)
 install(FILES desktop/aurora/window_manager_policy.json desktop/aurora/context_actions.json desktop/aurora/menu-event-map.json DESTINATION share/chimera/aurora)
 install(FILES isa/isa_database.json DESTINATION share/chimera/isa)
 install(FILES docs/research/ISA_CANDIDATE_EXECUTION.md DESTINATION share/chimera/isa/docs)
