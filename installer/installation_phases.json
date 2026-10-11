@@ -22,7 +22,7 @@
         "network_changes_require_user_confirmation": true
       },
       "background": {
-        "default": "/usr/share/chimera/aurora/installer-network.svg",
+        "default": "/install/installer-background.png",
         "fit": "cover",
         "overlay": "aurora-glass",
         "transition": "fade"
