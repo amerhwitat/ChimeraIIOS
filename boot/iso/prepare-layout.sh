@@ -72,6 +72,10 @@ cp -f "$ROOT/services/chimera-native/units/chimera-enterprise-services.service" 
 install -m 0755 "$ROOT/desktop/aurora/aurora_event_loop.py" "$DIST/usr/lib/chimera/aurora_event_loop.py"
 mkdir -p "$DIST/usr/lib/chimera/tools/gpu"
 install -m 0755 "$ROOT/tools/gpu/chimera_gpu_toolchain.py" "$DIST/usr/lib/chimera/tools/gpu/chimera_gpu_toolchain.py"
+mkdir -p "$DIST/usr/share/chimera/nbit" "$DIST/etc/chimera"
+install -m 0644 "$ROOT/tools/nbit/select_mode.py" "$DIST/usr/share/chimera/nbit/select_mode.py"
+cp -f "$ROOT/config/nbit-mode.json" "$DIST/usr/share/chimera/nbit/nbit-mode.json"
+cp -f "$ROOT/config/nbit-mode.json" "$DIST/etc/chimera/nbit-mode.json"
 cp -f "$ROOT/boot/boot_protocol.json" "$DIST/install/boot_protocol.json"
 
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
