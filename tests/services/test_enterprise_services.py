@@ -8,6 +8,9 @@ class EnterpriseCatalogTests(unittest.TestCase):
         self.assertEqual(data["boot"]["default_enabled"], [])
         self.assertGreaterEqual(len(data["services"]), 15)
         self.assertTrue(all(s["boot_target"].endswith(".target") for s in data["services"]))
+        service_ids={s["id"] for s in data["services"]}
+        self.assertTrue(all(set(p["services"]).issubset(service_ids) for p in data["profiles"]))
+        self.assertTrue(set(s["boot_target"] for s in data["services"]).issubset(set(data["boot"]["targets"])))
     def test_plan_only_does_not_modify_rootfs(self):
         with tempfile.TemporaryDirectory() as td:
             p=subprocess.run([sys.executable,str(ROOT/"tools/services/enterprise_service_installer.py"),
