@@ -129,7 +129,7 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
     f<<"  \"arbitrary_width_virtual_abi\": true,\n";
     f<<"  \"validation_required_at_kernel_admission\": true,\n";
     f<<"  \"isa_catalog_does_not_imply_executable_backend\": true\n";
-     <<"}\n";
+    f<<"}\\n";
     f.close();
     return !f.fail();
 }
