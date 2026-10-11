@@ -74,6 +74,7 @@ extern "C" int chimera_nbit_init(void) {
     registry_lock();
     g_hardware_default_mode = best;
     g_default_mode = best;
+    g_default_guest_isa = (chimera_nbit_guest_isa)hardware_guest_isa();
     registry_unlock();
     g_init_state = 1u;
     __sync_lock_release(&g_init_lock);
