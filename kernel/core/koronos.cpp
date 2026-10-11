@@ -9,6 +9,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/nbit.h"
 #include "chimera/physmem.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
@@ -318,6 +319,24 @@ static void task_monitor(void *) {
     console_u32(chimera_sched_cpu_count());
     console_write("[MON ] Runnable: ");
     console_u32(chimera_sched_runnable_count());
+    chimera_nbit_registry_snapshot mode_registry{};
+    if (chimera_nbit_registry_get_snapshot(&mode_registry) == 0) {
+        console_write("[NBIT] Registered process contexts: ");
+        console_u32(mode_registry.registered_processes);
+        chimera_nbit_process_context modes[8]{};
+        uint32_t mode_count = chimera_nbit_process_snapshot(modes, 8);
+        for (uint32_t j = 0; j < mode_count; ++j) {
+            console_raw("[NBIT] pid=");
+            console_u32_raw(modes[j].process_id);
+            console_raw(" bits=");
+            console_u32_raw(modes[j].mode_bits);
+            console_raw(" class=");
+            console_u32_raw((uint32_t)modes[j].execution_class);
+            console_raw(" compat=");
+            console_u32_raw(modes[j].compatibility_target);
+            console_endline();
+        }
+    }
     for (uint32_t i = 0; i < n; ++i) {
         // Keep each process record on one VGA/serial line. The previous
         // label/value-per-line format made the monitor look corrupted once
@@ -417,6 +436,16 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
     chimera_learning_init(f->logical_cpus);
+    if (chimera_nbit_init() == 0) {
+        chimera_nbit_registry_snapshot mode_registry{};
+        if (chimera_nbit_registry_get_snapshot(&mode_registry) == 0) {
+            console_write("[NBIT] Process execution-mode registry online");
+            console_write("[NBIT] Registry capacity: ");
+            console_u32(mode_registry.capacity);
+        }
+    } else {
+        console_write("[NBIT] WARNING: N-bit profile unavailable; mode-specific process admission is restricted");
+    }
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
     chimera_register_virtio_drivers();
