@@ -28,8 +28,9 @@ static int find_slot(uint32_t pid) {
     return -1;
 }
 static void retire_mode(uint32_t pid) {
-    chimera_ipc_process_exit(pid);
+    /* Stop new sends first; IPC cleanup then drains reservations before VM teardown. */
     chimera_nbit_process_unregister(pid);
+    chimera_ipc_process_exit(pid);
 }
 }
 extern "C" int chimera_process_init(void) {
