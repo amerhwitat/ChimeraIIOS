@@ -1,9 +1,9 @@
 name: Desktop Compatibility CI
 on:
   push:
-    paths: ['desktop/**','userland/**','man/**','docs/CHIMERA_UNICODE.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
+    paths: ['desktop/**','userland/**','man/**','installer/services/**','tools/services/**','tests/aurora/**','tests/services/**','isa/**','docs/CHIMERA_UNICODE.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
   pull_request:
-    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
+    paths: ['desktop/**','installer/services/**','tools/services/**','tests/aurora/**','tests/services/**','isa/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
 jobs:
   portable:
     runs-on: ubuntu-latest
@@ -32,6 +32,18 @@ jobs:
           python3 -m json.tool desktop/aurora/i18n/input_sources.json >/dev/null
           python3 -m json.tool desktop/aurora/i18n/language_catalog.json >/dev/null
           python3 -m json.tool desktop/aurora/window_manager_policy.json >/dev/null
+      - name: Test Aurora native and compatibility event loop
+        run: |
+          python3 -m py_compile desktop/aurora/aurora_event_loop.py
+          python3 tests/aurora/test_event_loop.py
+      - name: Validate enterprise service catalog and installer
+        run: |
+          python3 -m json.tool installer/services/enterprise-services.json >/dev/null
+          python3 -m json.tool isa/gpu_isa_registry.json >/dev/null
+          python3 -m json.tool isa/isa_database.json >/dev/null
+          python3 tests/services/test_enterprise_services.py
+          python3 tools/services/enterprise_service_installer.py >/tmp/enterprise-service-catalog.json
+          python3 -m json.tool /tmp/enterprise-service-catalog.json >/dev/null
       - name: Build native userland shell and system utilities
         run: |
           cmake -S . -B /tmp/chimera-build -DCMAKE_BUILD_TYPE=Release
