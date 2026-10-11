@@ -107,7 +107,8 @@ def main():
             print("Network is not ready. Review network_preflight.recommendations; offline installation remains available.",file=sys.stderr)
     inv=inventory(); inv["network_preflight"]=net; p=plan(inv,args.edition,args.qfs_block_size)
     p["recommendations"]={"network":net.get("recommendations",[]),
-        "installation_source":"online-mirror" if net.get("connectivity",{}).get("internet_ready",False) else "local-media-or-configure-network-first"}
+        "installation_source":"online-mirror" if net.get("connectivity",{}).get("internet_ready",False) else "local-media-or-configure-network-first",
+        "step_by_step":recommend_install_steps(inv,p)}
     if args.apply and not args.confirm_destructive:
         raise SystemExit("--apply requires --confirm-destructive; this installer never silently erases disks")
     if args.apply:
