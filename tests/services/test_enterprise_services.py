@@ -12,7 +12,8 @@ class EnterpriseCatalogTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             p=subprocess.run([sys.executable,str(ROOT/"tools/services/enterprise_service_installer.py"),
                               "--service","postgresql","--rootfs",td,"--cache",td+"/cache"],
-                             capture_output=True,text=True,check=True)
+                             capture_output=True,text=True,check=False)
+            self.assertEqual(p.returncode,0,p.stderr+"\n"+p.stdout)
             out=json.loads(p.stdout)
             self.assertEqual(out["services"][0]["id"],"postgresql")
             self.assertFalse((Path(td)/"etc/chimera/enterprise-services.plan.json").exists())
