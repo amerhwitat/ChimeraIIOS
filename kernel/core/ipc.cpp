@@ -183,15 +183,21 @@ extern "C" void chimera_ipc_process_exit(uint32_t pid) {
     lock_service();
     for(uint32_t i=0;i<CHIMERA_IPC_MAX_ENDPOINTS;++i){
         Endpoint &e=endpoints[i];if(!e.used)continue;
-        uint32_t kept=0;Message temp[CHIMERA_IPC_QUEUE_DEPTH]{};
-        for(uint32_t q=0;q<e.count;++q){
-            Message &m=e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH];
+        const uint32_t old_count=e.count;
+        uint32_t kept=0;
+        for(uint32_t q=0;q<old_count;++q){
+            const uint32_t src=(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH;
+            Message &m=e.queue[src];
             /* An already-reserved receive owns a kernel copy and may finish. */
-            if(m.occupied&&(m.sender_pid!=pid||m.in_flight))temp[kept++]=m;
+            if(m.occupied&&(m.sender_pid!=pid||m.in_flight)){
+                const uint32_t dst=(e.head+kept)%CHIMERA_IPC_QUEUE_DEPTH;
+                if(dst!=src)e.queue[dst]=m;
+                ++kept;
+            }
         }
-        for(uint32_t q=0;q<CHIMERA_IPC_QUEUE_DEPTH;++q)clear_message(e.queue[q]);
-        for(uint32_t q=0;q<kept;++q)e.queue[q]=temp[q];
-        e.head=0;e.count=kept;
+        for(uint32_t q=kept;q<old_count;++q)
+            clear_message(e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH]);
+        e.count=kept;
     }
     unlock_service();
 }
