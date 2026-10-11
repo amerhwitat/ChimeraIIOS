@@ -118,6 +118,8 @@ extern "C" int chimera_nbit_set_default_profile_ex(uint32_t bits, chimera_nbit_b
     if (!valid_mode(selected_bits)) return -2;
     if (backend == CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE &&
         selected_bits != g_profile.native_nbit_mode) return -3;
+    if (backend == CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE &&
+        guest_isa != CHIMERA_GUEST_ISA_AUTO && (uint32_t)guest_isa != hardware_guest_isa()) return -5;
     if (backend == CHIMERA_NBIT_BACKEND_COMPATIBILITY) {
         if (!compatibility_target || (compatibility_target & ~g_profile.compatibility_mask)) return -4;
     } else if (compatibility_target) return -4;
