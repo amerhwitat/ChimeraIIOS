@@ -129,9 +129,35 @@ def configure_wired(dev):
         return run(["dhclient","-v",name],30)
     return 127,"","No supported network manager or DHCP client found"
 
-def configure_wifi(ssid,password):
+def configure_wifi(ssid,password,interface=None):
     if not command("nmcli"):
-        return 127,"","Wi-Fi configuration currently requires NetworkManager (nmcli); no credentials were written."
+        if not interface or not command("wpa_supplicant") or not command("ip"):
+            return 127,"","Wi-Fi setup needs NetworkManager or wpa_supplicant plus iproute2; no credentials were written."
+        import tempfile
+        def conf_escape(value):
+            return value.replace("\\","\\\\").replace('"','\\"').replace("\n","")
+        with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",prefix="chimera-wpa-",delete=False) as f:
+            os.chmod(f.name,0o600)
+            f.write("ctrl_interface=/run/wpa_supplicant\nupdate_config=0\nnetwork={\n")
+            f.write('  ssid="'+conf_escape(ssid)+'"\n')
+            if password:
+                f.write('  key_mgmt=WPA-PSK\n  psk="'+conf_escape(password)+'"\n')
+            else:
+                f.write("  key_mgmt=NONE\n")
+            f.write("}\n")
+            path=f.name
+        try:
+            rc,out,err=run(["ip","link","set","dev",interface,"up"],5)
+            if rc==0: rc,out,err=run(["wpa_supplicant","-B","-i",interface,"-c",path],12)
+            if rc==0:
+                if command("dhclient"): rc,out,err=run(["dhclient","-v",interface],30)
+                elif command("udhcpc"): rc,out,err=run(["udhcpc","-i",interface,"-n","-q"],30)
+                elif command("networkctl"): rc,out,err=run(["networkctl","renew",interface],15)
+                else: return 127,"","Wi-Fi associated, but no DHCP client is installed."
+            return rc,out,err
+        finally:
+            try: os.unlink(path)
+            except OSError: pass
     # Password is never placed in argv, shell history, logs, or the installer report.
     if not password:
         # Open Wi-Fi networks need no secret; a secured network fails safely here
@@ -246,7 +272,7 @@ def gui_configure(report):
             stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,check=False)
         if password_result.returncode!=0:return False
         password=password_result.stdout.rstrip("\n")
-        rc,_,err=configure_wifi(ssid,password)
+        rc,_,err=configure_wifi(ssid,password,dev["name"])
         if rc:
             subprocess.run(["zenity","--error","--title=Wi-Fi connection failed",
                 "--text="+(err or "NetworkManager could not connect. Check password, signal and driver/firmware.")[:700]],check=False)
