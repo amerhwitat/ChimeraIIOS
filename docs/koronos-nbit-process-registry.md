@@ -1,21 +1,47 @@
-# Koronos process-mode registry and cross-width IPC
+# Koronos arbitrary-width N-bit execution, ISA mapping, and process registry
 
-## Process visibility and execution modes
+## User-selectable width and execution contract
 
-Every process admitted through `chimera_process_admit_elf` is registered in the kernel-wide N-bit registry as a 64-bit ELF process. Launchers that select a compatibility personality or an emulated mode must call `chimera_process_set_execution_mode(pid, bits, compatibility_target)` before making the process runnable. Launchers that do not use the common process table must register directly through `chimera_nbit_process_init`. A registry snapshot reports process-mode metadata; it is not a substitute for the scheduler's task inventory.
+The virtual ABI accepts any positive integer width from 1 through 4,294,967,295 bits; it no longer restricts widths to powers of two or stops at 8192 bits. The upper bound is the current ABI's 32-bit width field, not mathematical infinity. Actual usable width is bounded by available memory, process policy, caller-provided buffer capacity, and runtime step limits. A width request never allocates memory implicitly.
 
-Process exit and fault transitions retire the mode record and ask the IPC service to discard the process's queued messages and endpoints. Failed admission/loading rolls back its registration. The registry has a fixed capacity of `CHIMERA_NBIT_MAX_PROCESS_MODES` (1024); a registration failure must be treated as launch failure, not silently ignored.
+Use `python3 tools/nbit/select_mode.py` for an interactive selection, or for a scripted profile:
 
-## Capability-based IPC service
+```sh
+python3 tools/nbit/select_mode.py --bits 8193 --backend chimera-virtual --isa chimera-nbit
+python3 tools/nbit/select_mode.py --bits 32 --backend compatibility --compatibility linux --isa x86-32
+python3 tools/nbit/select_mode.py --show
+```
 
-`kernel/core/ipc.cpp` implements bounded endpoint queues with endpoint capability checks, per-message sender/receiver mode metadata, FIFO delivery, explicit cancellation, and process-exit cleanup. Queue depth is 16 messages per endpoint and payload size is limited to 1024 bytes. A sender's user pointer is copied into a kernel-owned staging buffer by the configured `copy_from_user` callback before enqueue. Receive copies from the kernel-owned queue through `copy_to_user`; the receiver never dereferences a sender address. The callbacks must perform real address-space validation and fault-safe copy operations in the platform/syscall layer. The `out` message-info structure is a kernel-owned output parameter.
+The selection is stored in `config/nbit-mode.json`. It is a requested profile, not an authorization token: the kernel must validate it against the probed hardware and runtime policy before process admission. The kernel APIs are `chimera_nbit_set_default`, `chimera_nbit_process_init`, and `chimera_nbit_process_init_chimera`. The last explicitly selects the Chimera virtual ABI.
 
-An endpoint capability is a bearer secret: a trusted kernel/service caller must mint and distribute an unpredictable 64-bit capability, keep it out of untrusted logs, and revoke it by unbinding the endpoint. This module checks the capability but does not itself provide a cryptographic random-number generator. The copy callbacks are an explicit architecture/syscall boundary; they must validate process address spaces and safely handle page faults. **The current boot path does not yet install these callbacks or expose IPC syscalls to ring 3.** The interrupt layer intentionally keeps software entry points at DPL0 until a valid TSS, user stack, and protected syscall return path exist, so this IPC service is kernel-callable and host-testable but is not yet a complete user-facing production IPC facility.
+**Physical native width is not user-configurable.** Only the detected CPU's `native_nbit_mode` can be reported as physical-native. The Chimera virtual N-bit mode is native to the OS-defined guest ABI and runs in the bounded software VM; it does not imply physical CPU registers or native instructions of arbitrary width.
 
-## Cross-width contract and physical hardware
+## OOP runtime and performance properties
 
-IPC transports canonical bytes; sender and receiver mode widths are metadata and are never interpreted as shared pointer widths or register layouts. The N-bit profile distinguishes `native_nbit_mode` from `maximum_emulated_nbit`. On a typical x86-64 CPU, 64 bits is the native general-purpose execution width; 128–8192-bit profiles are emulation targets unless a hardware backend explicitly proves otherwise. Vector extensions such as AVX-512 do not turn the CPU's general-purpose execution mode into a native 512-bit process ABI. Generated N-bit ELF notes are build artifacts, not evidence of native instruction execution.
+`ChimeraNBitArithmetic` in `kernel/core/nbit_runtime.cpp` implements allocation-free unsigned add/subtract, bitwise AND/OR/XOR/NOT, logical shifts, and unsigned compare over little-endian caller-owned buffers. Operations are linear in the number of bytes for these primitives. Views validate their width and capacity; unused high bits are masked. No exceptions, RTTI, heap allocation, or shared mutable arithmetic state are required.
 
-## Acceptance boundary
+`ChimeraNBitVM` implements a versioned, fixed-size 8-byte instruction format with LOAD_IMM32, MOV, ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, CMP, JMP, JZ, and HALT. It runs over caller-provided register storage, rejects malformed opcodes/register indices/jumps, and enforces an instruction step limit. This makes small programs in the Chimera virtual bytecode runnable in the N-bit ABI. It is not yet a compiler, JIT, or complete implementation of every catalogued Chimera ISA candidate.
 
-Host regressions cover process-mode registry operations, IPC authorization, bounded queues, cross-width delivery, cancellation, and cleanup. The freestanding kernel build and QEMU boot smoke test remain required; they must pass on the latest commit before the work is considered verified. Full process visibility also depends on every out-of-tree or independent compatibility launcher registering with the common API. The current generic ELF load-plan path remains ELF64-only; this change does not implement ELF32, Windows/Linux syscall translation, a complete user syscall dispatcher, or a physical wider-than-64-bit instruction engine.
+The arithmetic API is reentrant. `chimera_nbit_batch_add` lets a caller process disjoint ranges of independent values, so an SMP scheduler can dispatch separate ranges to different CPUs without shared scratch state. A single add/subtract carry chain remains sequential; no false claim of parallelizing a dependent arithmetic operation is made.
+
+## CISC/RISC ISA inventory and compatibility boundary
+
+`isa/isa_database.json` inventories 102 architecture/extension profiles and 168 instruction forms at this revision, with explicit source references and execution/conformance status. It includes x86-16/32/64 and extensions such as APX/AVX10, Arm32/AArch64 and SVE/SME, RISC-V 32/64/128 and vector/crypto/privileged profiles, plus MIPS, Power/PowerPC, LoongArch, SPARC, s390x, WebAssembly, and the project-defined Chimera profiles. Official references include the [Intel Software Developer Manuals](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html), [Intel ISA extensions](https://www.intel.com/content/www/us/en/developer/tools/isa-extensions/overview.html), [Arm architecture documentation](https://developer.arm.com/architectures), and [RISC-V ratified specifications](https://docs.riscv.org/reference/isa/v20260120/index.html).
+
+ISA profile selection and registry presence do not automatically execute foreign binaries. A working compatibility backend requires a correct decoder, semantics, ABI/syscall translation, binary loader/relocator, memory model, and conformance tests for each ISA/extension. Those full x86, Arm, RISC-V, MIPS, Power, LoongArch, SPARC, and s390x executable backends are not all implemented by this change. Unsupported operations must fail closed rather than being guessed from mnemonic similarity. AVX/SVE/vector widths are not general-purpose CPU native process widths.
+
+## Process visibility and lifecycle
+
+Every process admitted through `chimera_process_admit_elf` registers in the N-bit registry as an ELF64 process. Launchers that select a compatibility personality or virtual mode must call `chimera_process_set_execution_mode` before making the process runnable. Independent launch paths must register explicitly. Registry snapshots expose metadata, not a replacement for the scheduler's task inventory.
+
+Process exit/fault removes mode metadata and cleans IPC endpoints and queued messages. The registry has a fixed capacity of 1024 process contexts. Registration failure must fail process admission rather than silently hiding a process.
+
+## Cross-width IPC
+
+`kernel/core/ipc.cpp` implements bounded endpoint queues with capability checks, per-message sender/receiver width metadata, FIFO delivery, cancellation, and process-exit cleanup. Queue depth is 16 messages per endpoint; payloads are limited to 1024 bytes. Sender data is copied into kernel-owned staging through `copy_from_user`, and receive delivery uses `copy_to_user`. These callbacks must validate address spaces and handle faults safely.
+
+The current boot path does not yet install these callbacks or expose IPC through a complete protected ring-3 syscall path. Therefore this is a kernel-callable, host-testable service, not yet a complete production user-mode IPC facility.
+
+## Verification boundary
+
+CI now contains tests for arbitrary-width arithmetic, VM execution and step limits, profile selection, registry operations, IPC delivery/authorization/cancellation, and the freestanding kernel link. These tests must pass on the latest commit; they have not been run in this editing session. QEMU/ISO success is not claimed until a current workflow run provides the results.
