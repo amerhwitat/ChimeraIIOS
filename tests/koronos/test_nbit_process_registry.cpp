@@ -15,7 +15,7 @@ int main() {
     assert(chimera_nbit_set_default(13u) == 0);
     assert(chimera_nbit_set_default(64u) == 0);
 
-    chimera_nbit_process_context p32{}, p128{}, compat{}, virtual_nbit{};
+    chimera_nbit_process_context p32{}, p128{}, compat{}, virtual_nbit{}, physical{};
     assert(chimera_nbit_process_init(&p32, 101u, 32u, 0u) == 0);
     assert(chimera_nbit_process_init(&p128, 202u, 128u, 0u) == 0);
     assert(p32.execution_class == CHIMERA_EXEC_EMULATED);
@@ -51,6 +51,10 @@ int main() {
     malformed.payload_bytes = 1u;
     assert(chimera_nbit_ipc_validate(&malformed) != 0);
 
+    assert(chimera_nbit_process_init_physical_native(&physical, 505u, 13u) == -6);
+    assert(chimera_nbit_process_init_physical_native(&physical, 505u, caps.native_hardware_bits) == 0);
+    assert(physical.execution_class == CHIMERA_EXEC_NATIVE);
+
     assert(chimera_nbit_process_init_chimera(&virtual_nbit, 404u, 8193u) == 0);
     assert(virtual_nbit.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
     assert(chimera_nbit_process_set_mode(&virtual_nbit, 100003u) == 0);
@@ -67,6 +71,7 @@ int main() {
     assert(chimera_nbit_process_unregister(202u) == 0);
     assert(chimera_nbit_process_unregister(303u) == 0);
     assert(chimera_nbit_process_unregister(404u) == 0);
+    assert(chimera_nbit_process_unregister(505u) == 0);
 
     puts("N-bit process registry and cross-width IPC contracts passed.");
     return 0;
