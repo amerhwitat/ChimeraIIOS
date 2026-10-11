@@ -12,6 +12,9 @@ on:
       - 'kernel/core/nbit.cpp'
       - 'kernel/core/nbit_runtime.cpp'
       - 'kernel/include/chimera/nbit_runtime.h'
+      - 'tools/nbit/**'
+      - 'config/nbit-mode.json'
+      - 'tests/nbit/**'
       - 'kernel/core/ipc.cpp'
       - 'kernel/include/chimera/ipc.h'
       - 'kernel/include/chimera/nbit.h'
@@ -76,6 +79,8 @@ jobs:
           bash -n tools/aurora/build-visual-assets.sh
           bash -n desktop/aurora/aurora-progress.sh
           bash -n desktop/aurora/aurora-init-splash.sh
+      - name: Test user-selectable N-bit profiles
+        run: python3 -m unittest tests/nbit/test_select_mode.py
       - name: Run ISA translation-plan regression tests
         run: python3 tests/isa/test_chimera_isa_convert.py
       - name: Validate ISA database JSON and profile coverage
