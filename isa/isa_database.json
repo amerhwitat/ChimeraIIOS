@@ -1481,6 +1481,105 @@
       "supports": [
         "intel-xe-gpu"
       ]
+    },
+    {
+      "id": "superh",
+      "name": "Renesas SuperH architecture documentation landing page",
+      "url": "https://www.renesas.com/",
+      "supports": [
+        "superh-sh4"
+      ],
+      "note": "Discovery pointer only; pin a specific SH-4 manual/revision before encoding claims."
+    },
+    {
+      "id": "renesas",
+      "name": "Renesas MCU and processor documentation",
+      "url": "https://www.renesas.com/",
+      "supports": [
+        "v850"
+      ],
+      "note": "Discovery pointer only; select exact V850 variant and manual."
+    },
+    {
+      "id": "avr",
+      "name": "Microchip AVR documentation",
+      "url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus",
+      "supports": [
+        "avr8"
+      ],
+      "note": "Select exact AVR family and instruction-set manual."
+    },
+    {
+      "id": "microchip-dspic",
+      "name": "Microchip dsPIC digital signal controllers documentation",
+      "url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/digital-signal-controllers",
+      "supports": [
+        "dsPIC"
+      ],
+      "note": "Select exact device family and programmer reference."
+    },
+    {
+      "id": "qualcomm-hexagon",
+      "name": "Qualcomm Hexagon DSP platform",
+      "url": "https://www.qualcomm.com/products",
+      "supports": [
+        "hexagon"
+      ],
+      "note": "Public documentation availability varies by generation; catalog-only until a versioned ISA reference is pinned."
+    },
+    {
+      "id": "nios-ii",
+      "name": "Intel FPGA Nios II processor documentation",
+      "url": "https://www.intel.com/content/www/us/en/products/details/fpga.html",
+      "supports": [
+        "nios-ii"
+      ],
+      "note": "Discovery pointer; use exact Nios II processor handbook for instruction claims."
+    },
+    {
+      "id": "pa-risc",
+      "name": "HP PA-RISC technical documentation archive",
+      "url": "https://www.hp.com/",
+      "supports": [
+        "pa-risc"
+      ],
+      "note": "Legacy architecture; catalog-only until a specific manual is cited."
+    },
+    {
+      "id": "intel-itanium",
+      "name": "Intel Itanium architecture documentation archive",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "supports": [
+        "ia-64"
+      ],
+      "note": "Legacy EPIC ISA; source landing page is a discovery pointer, not a complete IA-64 manual citation."
+    },
+    {
+      "id": "khronos-spirv",
+      "name": "Khronos SPIR-V specifications",
+      "url": "https://registry.khronos.org/SPIR-V/",
+      "supports": [
+        "spir-v"
+      ],
+      "note": "Virtual/intermediate instruction representation; not a physical CPU ISA."
+    },
+    {
+      "id": "apple-gpu",
+      "name": "Apple GPU and Metal developer documentation",
+      "url": "https://developer.apple.com/metal/",
+      "supports": [
+        "apple-gpu"
+      ],
+      "note": "Public API docs do not expose all machine encodings; inventory only."
+    },
+    {
+      "id": "qualcomm-adreno",
+      "name": "Qualcomm Adreno GPU platform",
+      "url": "https://www.qualcomm.com/products",
+      "supports": [
+        "qualcomm-adreno"
+      ],
+      "note": "Generation-specific proprietary ISA; inventory only without authoritative encoding reference."
     }
   ],
   "instructions": [
@@ -3650,6 +3749,23 @@
         "power10-mma"
       ],
       "policy": "inventory-only unless instruction forms and versioned source citations are present"
+    },
+    "candidate_inventory_sources": {
+      "date": "2026-10-11",
+      "source_ids_added": [
+        "superh",
+        "renesas",
+        "avr",
+        "microchip-dspic",
+        "qualcomm-hexagon",
+        "nios-ii",
+        "pa-risc",
+        "intel-itanium",
+        "khronos-spirv",
+        "apple-gpu",
+        "qualcomm-adreno"
+      ],
+      "note": "Vendor/specification landing pages are discovery provenance only. Candidate rows remain catalog-only until versioned architecture manuals or machine-readable specifications verify instruction forms."
     }
   },
   "isa_inventory_policy": {
