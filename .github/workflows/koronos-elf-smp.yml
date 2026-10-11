@@ -118,7 +118,9 @@ jobs:
       - name: Build freestanding Koronos kernel
         run: |
           sudo apt-get install -y nasm binutils
-          bash kernel/build-koronos.sh
+          CHIMERA_NBIT_EXTRA_WIDTHS="13 8193" bash kernel/build-koronos.sh
+          test -f build/koronos/x86_64/nbit/koronos-nbit-13.elf
+          test -f build/koronos/x86_64/nbit/koronos-nbit-8193.elf
       - name: Verify required kernel ELF format
         run: |
           readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Class:.*ELF64'
