@@ -4,7 +4,7 @@
 
 The virtual ABI accepts any positive integer width from 1 through 4,294,967,295 bits; it no longer restricts widths to powers of two or stops at 8192 bits. The upper bound is the current ABI's 32-bit width field, not mathematical infinity. Actual usable width is bounded by available memory, process policy, caller-provided buffer capacity, and runtime step limits. A width request never allocates memory implicitly.
 
-Use `python3 tools/nbit/select_mode.py` for an interactive selection, or for a scripted profile:
+Use `python3 tools/nbit/select_mode.py` for an interactive selection, or for a scripted profile. Build custom metadata variants with `CHIMERA_NBIT_EXTRA_WIDTHS="13 8193 100003" bash kernel/build-koronos.sh`; these image-note artifacts do not imply physical native execution:
 
 ```sh
 python3 tools/nbit/select_mode.py --bits 8193 --backend chimera-virtual --isa chimera-nbit
@@ -12,7 +12,7 @@ python3 tools/nbit/select_mode.py --bits 32 --backend compatibility --compatibil
 python3 tools/nbit/select_mode.py --show
 ```
 
-The selection is stored in `config/nbit-mode.json`. It is a requested profile, not an authorization token: the kernel must validate it against the probed hardware and runtime policy before process admission. The kernel APIs are `chimera_nbit_set_default`, `chimera_nbit_process_init`, and `chimera_nbit_process_init_chimera`. The last explicitly selects the Chimera virtual ABI.
+The selection is stored in `config/nbit-mode.json`. It is a requested profile, not an authorization token: the kernel must validate it against the probed hardware and runtime policy before process admission. The kernel APIs are `chimera_nbit_set_default_profile`, `chimera_nbit_process_init_default`, `chimera_nbit_process_init_physical_native`, and `chimera_nbit_process_init_chimera`. The profile setter maps installer choices to the kernel backend policy; the last explicitly selects the Chimera virtual ABI. The current generic ELF64 loader honors the selected process profile but rejects virtual or compatibility profiles rather than incorrectly transferring them into physical x86-64 ring 3. The JSON selector is a policy file, not yet a kernel-side JSON parser; installer/runtime integration must call the profile API before admitting processes.
 
 **Physical native width is not user-configurable.** Only the detected CPU's `native_nbit_mode` can be reported as physical-native. The Chimera virtual N-bit mode is native to the OS-defined guest ABI and runs in the bounded software VM; it does not imply physical CPU registers or native instructions of arbitrary width.
 
