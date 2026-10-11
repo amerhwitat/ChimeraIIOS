@@ -88,6 +88,7 @@ jobs:
           tmp="$(mktemp -d)"
           HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.width 8193
           HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.backend chimera-virtual
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.guest x86-32
           HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.compatibility linux
           HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.backend compatibility
           python3 - "$tmp/.config/chimera/nbit-mode.json" <<'PY'
@@ -96,7 +97,7 @@ jobs:
           p=json.loads(Path(sys.argv[1]).read_text())
           assert p["selected_width_bits"] == 8193
           assert p["backend"] == "compatibility"
-          assert p["guest_isa"] == "chimera-nbit"
+          assert p["guest_isa"] == "x86-32"
           assert p["compatibility_personality"] == "linux"
           assert p["compatibility_target_mask"] == 4
           PY
