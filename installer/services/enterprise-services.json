@@ -1,0 +1,1091 @@
+{
+  "schema": "CHIMERA-ENTERPRISE-SERVICES-1",
+  "version": 1,
+  "description": "Optional enterprise service bundles. Catalog entries are install intents; services are enabled only after explicit user selection and configuration.",
+  "package_managers": [
+    "apt-get",
+    "dnf",
+    "yum",
+    "zypper",
+    "pacman",
+    "apk",
+    "brew",
+    "snap"
+  ],
+  "profiles": [
+    {
+      "id": "directory-identity",
+      "label": "Directory and identity",
+      "services": [
+        "ldap",
+        "kerberos",
+        "sso"
+      ],
+      "default": false
+    },
+    {
+      "id": "database",
+      "label": "Database platform",
+      "services": [
+        "postgresql",
+        "mariadb",
+        "redis"
+      ],
+      "default": false
+    },
+    {
+      "id": "web-platform",
+      "label": "Web and reverse proxy",
+      "services": [
+        "nginx",
+        "apache",
+        "haproxy"
+      ],
+      "default": false
+    },
+    {
+      "id": "observability",
+      "label": "Monitoring and observability",
+      "services": [
+        "prometheus",
+        "grafana",
+        "loki"
+      ],
+      "default": false
+    },
+    {
+      "id": "container-platform",
+      "label": "Containers and orchestration",
+      "services": [
+        "containerd",
+        "podman",
+        "kubernetes-tools"
+      ],
+      "default": false
+    },
+    {
+      "id": "file-and-print",
+      "label": "Enterprise file and print",
+      "services": [
+        "samba",
+        "cups",
+        "openssh"
+      ],
+      "default": false
+    },
+    {
+      "id": "backup",
+      "label": "Backup and recovery",
+      "services": [
+        "restic",
+        "borgbackup"
+      ],
+      "default": false
+    },
+    {
+      "id": "messaging",
+      "label": "Messaging and integration",
+      "services": [
+        "rabbitmq",
+        "mosquitto"
+      ],
+      "default": false
+    }
+  ],
+  "services": [
+    {
+      "id": "postgresql",
+      "profile": "database",
+      "label": "PostgreSQL",
+      "boot_target": "enterprise-databases.target",
+      "packages": {
+        "apt-get": [
+          "postgresql"
+        ],
+        "dnf": [
+          "postgresql-server"
+        ],
+        "yum": [
+          "postgresql-server"
+        ],
+        "zypper": [
+          "postgresql-server"
+        ],
+        "pacman": [
+          "postgresql"
+        ],
+        "apk": [
+          "postgresql"
+        ],
+        "brew": [
+          "postgresql@16"
+        ],
+        "snap": [
+          "postgresql"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://ftp.postgresql.org/pub/source/v16.4/postgresql-16.4.tar.gz",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "mariadb",
+      "profile": "database",
+      "label": "MariaDB",
+      "boot_target": "enterprise-databases.target",
+      "packages": {
+        "apt-get": [
+          "mariadb-server"
+        ],
+        "dnf": [
+          "mariadb-server"
+        ],
+        "yum": [
+          "mariadb-server"
+        ],
+        "zypper": [
+          "mariadb"
+        ],
+        "pacman": [
+          "mariadb"
+        ],
+        "apk": [
+          "mariadb"
+        ],
+        "brew": [
+          "mariadb"
+        ],
+        "snap": [
+          "mariadb"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://downloads.mariadb.org/",
+        "sha256_required": true,
+        "build": [
+          "cmake",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "redis",
+      "profile": "database",
+      "label": "Redis-compatible cache",
+      "boot_target": "enterprise-databases.target",
+      "packages": {
+        "apt-get": [
+          "redis-server"
+        ],
+        "dnf": [
+          "redis"
+        ],
+        "yum": [
+          "redis"
+        ],
+        "zypper": [
+          "redis"
+        ],
+        "pacman": [
+          "redis"
+        ],
+        "apk": [
+          "redis"
+        ],
+        "brew": [
+          "redis"
+        ],
+        "snap": [
+          "redis"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/redis/redis",
+        "sha256_required": true,
+        "build": [
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "nginx",
+      "profile": "web-platform",
+      "label": "NGINX",
+      "boot_target": "enterprise-web.target",
+      "packages": {
+        "apt-get": [
+          "nginx"
+        ],
+        "dnf": [
+          "nginx"
+        ],
+        "yum": [
+          "nginx"
+        ],
+        "zypper": [
+          "nginx"
+        ],
+        "pacman": [
+          "nginx"
+        ],
+        "apk": [
+          "nginx"
+        ],
+        "brew": [
+          "nginx"
+        ],
+        "snap": [
+          "nginx"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://nginx.org/download/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "apache",
+      "profile": "web-platform",
+      "label": "Apache HTTP Server",
+      "boot_target": "enterprise-web.target",
+      "packages": {
+        "apt-get": [
+          "apache2"
+        ],
+        "dnf": [
+          "httpd"
+        ],
+        "yum": [
+          "httpd"
+        ],
+        "zypper": [
+          "apache2"
+        ],
+        "pacman": [
+          "apache"
+        ],
+        "apk": [
+          "apache2"
+        ],
+        "brew": [
+          "httpd"
+        ],
+        "snap": [
+          "apache"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://httpd.apache.org/download.cgi",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "haproxy",
+      "profile": "web-platform",
+      "label": "HAProxy",
+      "boot_target": "enterprise-web.target",
+      "packages": {
+        "apt-get": [
+          "haproxy"
+        ],
+        "dnf": [
+          "haproxy"
+        ],
+        "yum": [
+          "haproxy"
+        ],
+        "zypper": [
+          "haproxy"
+        ],
+        "pacman": [
+          "haproxy"
+        ],
+        "apk": [
+          "haproxy"
+        ],
+        "brew": [
+          "haproxy"
+        ],
+        "snap": [
+          "haproxy"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.haproxy.org/download/",
+        "sha256_required": true,
+        "build": [
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "prometheus",
+      "profile": "observability",
+      "label": "Prometheus",
+      "boot_target": "enterprise-observability.target",
+      "packages": {
+        "apt-get": [
+          "prometheus"
+        ],
+        "dnf": [
+          "prometheus"
+        ],
+        "yum": [
+          "prometheus"
+        ],
+        "zypper": [
+          "prometheus"
+        ],
+        "pacman": [
+          "prometheus"
+        ],
+        "apk": [
+          "prometheus"
+        ],
+        "brew": [
+          "prometheus"
+        ],
+        "snap": [
+          "prometheus"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/prometheus/prometheus",
+        "sha256_required": true,
+        "build": [
+          "make build"
+        ]
+      }
+    },
+    {
+      "id": "grafana",
+      "profile": "observability",
+      "label": "Grafana",
+      "boot_target": "enterprise-observability.target",
+      "packages": {
+        "apt-get": [
+          "grafana"
+        ],
+        "dnf": [
+          "grafana"
+        ],
+        "yum": [
+          "grafana"
+        ],
+        "zypper": [
+          "grafana"
+        ],
+        "pacman": [
+          "grafana"
+        ],
+        "apk": [
+          "grafana"
+        ],
+        "brew": [
+          "grafana"
+        ],
+        "snap": [
+          "grafana"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/grafana/grafana",
+        "sha256_required": true,
+        "build": [
+          "make"
+        ]
+      }
+    },
+    {
+      "id": "loki",
+      "profile": "observability",
+      "label": "Grafana Loki",
+      "boot_target": "enterprise-observability.target",
+      "packages": {
+        "apt-get": [
+          "loki"
+        ],
+        "dnf": [
+          "loki"
+        ],
+        "yum": [
+          "loki"
+        ],
+        "zypper": [
+          "loki"
+        ],
+        "pacman": [
+          "loki"
+        ],
+        "apk": [
+          "loki"
+        ],
+        "brew": [
+          "loki"
+        ],
+        "snap": [
+          "loki"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/grafana/loki",
+        "sha256_required": true,
+        "build": [
+          "make"
+        ]
+      }
+    },
+    {
+      "id": "containerd",
+      "profile": "container-platform",
+      "label": "containerd",
+      "boot_target": "enterprise-containers.target",
+      "packages": {
+        "apt-get": [
+          "containerd"
+        ],
+        "dnf": [
+          "containerd"
+        ],
+        "yum": [
+          "containerd"
+        ],
+        "zypper": [
+          "containerd"
+        ],
+        "pacman": [
+          "containerd"
+        ],
+        "apk": [
+          "containerd"
+        ],
+        "brew": [
+          "containerd"
+        ],
+        "snap": [
+          "containerd"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/containerd/containerd",
+        "sha256_required": true,
+        "build": [
+          "make"
+        ]
+      }
+    },
+    {
+      "id": "podman",
+      "profile": "container-platform",
+      "label": "Podman",
+      "boot_target": "enterprise-containers.target",
+      "packages": {
+        "apt-get": [
+          "podman"
+        ],
+        "dnf": [
+          "podman"
+        ],
+        "yum": [
+          "podman"
+        ],
+        "zypper": [
+          "podman"
+        ],
+        "pacman": [
+          "podman"
+        ],
+        "apk": [
+          "podman"
+        ],
+        "brew": [
+          "podman"
+        ],
+        "snap": [
+          "podman"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/containers/podman",
+        "sha256_required": true,
+        "build": [
+          "make"
+        ]
+      }
+    },
+    {
+      "id": "kubernetes-tools",
+      "profile": "container-platform",
+      "label": "Kubernetes client tools",
+      "boot_target": "enterprise-containers.target",
+      "packages": {
+        "apt-get": [
+          "kubectl"
+        ],
+        "dnf": [
+          "kubernetes-client"
+        ],
+        "yum": [
+          "kubectl"
+        ],
+        "zypper": [
+          "kubernetes-client"
+        ],
+        "pacman": [
+          "kubectl"
+        ],
+        "apk": [
+          "kubectl"
+        ],
+        "brew": [
+          "kubernetes-cli"
+        ],
+        "snap": [
+          "kubectl"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/kubernetes/kubernetes",
+        "sha256_required": true,
+        "build": [
+          "make"
+        ]
+      }
+    },
+    {
+      "id": "samba",
+      "profile": "file-and-print",
+      "label": "Samba file services",
+      "boot_target": "enterprise-file.target",
+      "packages": {
+        "apt-get": [
+          "samba"
+        ],
+        "dnf": [
+          "samba"
+        ],
+        "yum": [
+          "samba"
+        ],
+        "zypper": [
+          "samba"
+        ],
+        "pacman": [
+          "samba"
+        ],
+        "apk": [
+          "samba"
+        ],
+        "brew": [
+          "samba"
+        ],
+        "snap": [
+          "samba"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.samba.org/samba/ftp/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "cups",
+      "profile": "file-and-print",
+      "label": "CUPS print service",
+      "boot_target": "enterprise-file.target",
+      "packages": {
+        "apt-get": [
+          "cups"
+        ],
+        "dnf": [
+          "cups"
+        ],
+        "yum": [
+          "cups"
+        ],
+        "zypper": [
+          "cups"
+        ],
+        "pacman": [
+          "cups"
+        ],
+        "apk": [
+          "cups"
+        ],
+        "brew": [
+          "cups"
+        ],
+        "snap": [
+          "cups"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/OpenPrinting/cups",
+        "sha256_required": true,
+        "build": [
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "openssh",
+      "profile": "file-and-print",
+      "label": "OpenSSH",
+      "boot_target": "enterprise-access.target",
+      "packages": {
+        "apt-get": [
+          "openssh-server"
+        ],
+        "dnf": [
+          "openssh-server"
+        ],
+        "yum": [
+          "openssh-server"
+        ],
+        "zypper": [
+          "openssh"
+        ],
+        "pacman": [
+          "openssh"
+        ],
+        "apk": [
+          "openssh"
+        ],
+        "brew": [
+          "openssh"
+        ],
+        "snap": [
+          "openssh"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.openssh.com/portable.html",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "restic",
+      "profile": "backup",
+      "label": "Restic backup",
+      "boot_target": "enterprise-backup.target",
+      "packages": {
+        "apt-get": [
+          "restic"
+        ],
+        "dnf": [
+          "restic"
+        ],
+        "yum": [
+          "restic"
+        ],
+        "zypper": [
+          "restic"
+        ],
+        "pacman": [
+          "restic"
+        ],
+        "apk": [
+          "restic"
+        ],
+        "brew": [
+          "restic"
+        ],
+        "snap": [
+          "restic"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/restic/restic",
+        "sha256_required": true,
+        "build": [
+          "go build"
+        ]
+      }
+    },
+    {
+      "id": "borgbackup",
+      "profile": "backup",
+      "label": "Borg Backup",
+      "boot_target": "enterprise-backup.target",
+      "packages": {
+        "apt-get": [
+          "borgbackup"
+        ],
+        "dnf": [
+          "borgbackup"
+        ],
+        "yum": [
+          "borgbackup"
+        ],
+        "zypper": [
+          "borgbackup"
+        ],
+        "pacman": [
+          "borg"
+        ],
+        "apk": [
+          "borgbackup"
+        ],
+        "brew": [
+          "borgbackup"
+        ],
+        "snap": [
+          "borgbackup"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/borgbackup/borg",
+        "sha256_required": true,
+        "build": [
+          "python -m build"
+        ]
+      }
+    },
+    {
+      "id": "rabbitmq",
+      "profile": "messaging",
+      "label": "RabbitMQ",
+      "boot_target": "enterprise-messaging.target",
+      "packages": {
+        "apt-get": [
+          "rabbitmq-server"
+        ],
+        "dnf": [
+          "rabbitmq-server"
+        ],
+        "yum": [
+          "rabbitmq-server"
+        ],
+        "zypper": [
+          "rabbitmq-server"
+        ],
+        "pacman": [
+          "rabbitmq"
+        ],
+        "apk": [
+          "rabbitmq-server"
+        ],
+        "brew": [
+          "rabbitmq"
+        ],
+        "snap": [
+          "rabbitmq"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/rabbitmq/rabbitmq-server",
+        "sha256_required": true,
+        "build": [
+          "make"
+        ]
+      }
+    },
+    {
+      "id": "mosquitto",
+      "profile": "messaging",
+      "label": "Eclipse Mosquitto MQTT",
+      "boot_target": "enterprise-messaging.target",
+      "packages": {
+        "apt-get": [
+          "mosquitto"
+        ],
+        "dnf": [
+          "mosquitto"
+        ],
+        "yum": [
+          "mosquitto"
+        ],
+        "zypper": [
+          "mosquitto"
+        ],
+        "pacman": [
+          "mosquitto"
+        ],
+        "apk": [
+          "mosquitto"
+        ],
+        "brew": [
+          "mosquitto"
+        ],
+        "snap": [
+          "mosquitto"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/eclipse-mosquitto/mosquitto",
+        "sha256_required": true,
+        "build": [
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "ldap",
+      "profile": "directory-identity",
+      "label": "OpenLDAP",
+      "boot_target": "enterprise-identity.target",
+      "packages": {
+        "apt-get": [
+          "slapd",
+          "ldap-utils"
+        ],
+        "dnf": [
+          "openldap-servers",
+          "openldap-clients"
+        ],
+        "yum": [
+          "openldap-servers",
+          "openldap-clients"
+        ],
+        "zypper": [
+          "openldap2"
+        ],
+        "pacman": [
+          "openldap"
+        ],
+        "apk": [
+          "openldap"
+        ],
+        "brew": [
+          "openldap"
+        ],
+        "snap": [
+          "openldap"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.openldap.org/software/download/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "kerberos",
+      "profile": "directory-identity",
+      "label": "Kerberos KDC and clients",
+      "boot_target": "enterprise-identity.target",
+      "packages": {
+        "apt-get": [
+          "krb5-kdc",
+          "krb5-user"
+        ],
+        "dnf": [
+          "krb5-server",
+          "krb5-workstation"
+        ],
+        "yum": [
+          "krb5-server",
+          "krb5-workstation"
+        ],
+        "zypper": [
+          "krb5"
+        ],
+        "pacman": [
+          "krb5"
+        ],
+        "apk": [
+          "krb5"
+        ],
+        "brew": [
+          "krb5"
+        ],
+        "snap": [
+          "krb5"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://web.mit.edu/kerberos/dist/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "sso",
+      "profile": "directory-identity",
+      "label": "SSO integration",
+      "boot_target": "enterprise-identity.target",
+      "packages": {
+        "apt-get": [
+          "keycloak"
+        ],
+        "dnf": [
+          "keycloak"
+        ],
+        "yum": [
+          "keycloak"
+        ],
+        "zypper": [
+          "keycloak"
+        ],
+        "pacman": [
+          "keycloak"
+        ],
+        "apk": [
+          "keycloak"
+        ],
+        "brew": [
+          "keycloak"
+        ],
+        "snap": [
+          "keycloak"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/keycloak/keycloak",
+        "sha256_required": true,
+        "build": [
+          "mvn package"
+        ]
+      }
+    }
+  ],
+  "security": {
+    "install_requires_explicit_selection": true,
+    "enable_services_after_review": true,
+    "never_run_unverified_remote_scripts": true,
+    "source_build_requires_verified_digest": true,
+    "network_listeners_disabled_until_configured": true,
+    "package_installs_must_be_staged_under_rootfs": true
+  },
+  "boot": {
+    "targets": [
+      "enterprise-identity.target",
+      "enterprise-databases.target",
+      "enterprise-web.target",
+      "enterprise-observability.target",
+      "enterprise-containers.target",
+      "enterprise-file.target",
+      "enterprise-access.target",
+      "enterprise-backup.target",
+      "enterprise-messaging.target"
+    ],
+    "default_enabled": []
+  }
+}
