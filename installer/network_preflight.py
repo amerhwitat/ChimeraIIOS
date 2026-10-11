@@ -215,7 +215,7 @@ def gui_configure(report):
     chosen=subprocess.run(["zenity","--list","--title=Chimera II OS — Step 1: Network",
         "--text=Select an interface to configure. Driver and firmware recommendations are shown in the report.",
         "--column=Interface","--column=Type","--column=Driver","--column=State","--print-column=1",
-        "--height=420","--width=850"],input="\n".join(rows)+"\n",text=True,
+        "--height=420","--width=850"],input="\n".join("|".join(rows[i:i+4]) for i in range(0,len(rows),4))+"\n",text=True,
         stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
     if not chosen:return False
     dev=next((x for x in devices if x["name"]==chosen),None)
@@ -234,15 +234,16 @@ def gui_configure(report):
             ssid=subprocess.run(["zenity","--list","--title=Choose Wi-Fi",
                 "--text=Choose a visible network or cancel to enter a hidden SSID.",
                 "--column=SSID","--column=Security","--column=Signal","--print-column=1",
-                "--height=420","--width=700"],input="\n".join(choices)+"\n",text=True,
+                "--height=420","--width=700"],input="\n".join("|".join(choices[i:i+3]) for i in range(0,len(choices),3))+"\n",text=True,
                 stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
         if not ssid:
             ssid=subprocess.run(["zenity","--entry","--title=Wi-Fi network","--text=Enter Wi-Fi SSID (hidden networks are supported)."],
                 stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,check=False).stdout.strip()
         if not ssid:return False
-        password=subprocess.run(["zenity","--password","--title=Wi-Fi credentials"],
-            stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,check=False).stdout.rstrip("\n")
-        if password is None:return False
+        password_result=subprocess.run(["zenity","--password","--title=Wi-Fi credentials"],
+            stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,check=False)
+        if password_result.returncode!=0:return False
+        password=password_result.stdout.rstrip("\n")
         rc,_,err=configure_wifi(ssid,password)
         if rc:
             subprocess.run(["zenity","--error","--title=Wi-Fi connection failed",
