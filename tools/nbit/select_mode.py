@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Select a Chimera N-bit execution profile for the installer/runtime handoff.
+"""Select a Chimera N-bit execution profile for installer/runtime handoff.
 
-This writes policy only; the kernel must validate the selected profile against
+This writes policy only; the kernel validates the selected profile against
 its probed hardware profile and resource limits before admitting a process.
 """
 from __future__ import annotations
@@ -13,27 +13,39 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = ROOT / "config" / "nbit-mode.json"
 COMPATIBILITY = {"native", "windows", "linux", "bsd", "darwin", "android", "ios"}
 BACKENDS = {"auto", "chimera-virtual", "physical-native", "compatibility"}
+ISA_TARGETS = {
+    "auto", "chimera-nbit", "x86-16", "x86-32", "x86-64", "aarch64",
+    "arm32", "arm32-thumb", "riscv32", "riscv64", "riscv128", "mips32",
+    "mips64", "powerpc", "ppc64", "loongarch32", "loongarch64", "s390x",
+    "sparc-v9", "wasm32", "wasm64"
+}
 
 
-def build_profile(bits: int, backend: str, compatibility: str | None) -> dict:
+def build_profile(bits: int, backend: str, compatibility: str | None,
+                  isa: str = "auto") -> dict:
     if not 1 <= bits <= 0xFFFFFFFF:
         raise ValueError("bit width must be an integer in the range 1..4294967295")
     if backend not in BACKENDS:
         raise ValueError(f"backend must be one of: {', '.join(sorted(BACKENDS))}")
+    if isa not in ISA_TARGETS:
+        raise ValueError(f"ISA must be one of: {', '.join(sorted(ISA_TARGETS))}")
     if compatibility is not None and compatibility not in COMPATIBILITY:
         raise ValueError(f"compatibility must be one of: {', '.join(sorted(COMPATIBILITY))}")
     if backend == "compatibility" and compatibility is None:
         raise ValueError("compatibility backend requires --compatibility")
     if backend != "compatibility" and compatibility is not None:
         raise ValueError("--compatibility is only valid with --backend compatibility")
+    guest_isa = "chimera-nbit" if backend == "chimera-virtual" and isa == "auto" else isa
     return {
         "schema": "CHIMERA-NBIT-USER-PROFILE-1",
         "selected_width_bits": bits,
         "backend": backend,
+        "guest_isa": guest_isa,
         "compatibility_personality": compatibility,
         "physical_native_width_is_hardware_defined": True,
         "arbitrary_width_virtual_abi": True,
         "validation_required_at_kernel_admission": True,
+        "isa_catalog_does_not_imply_executable_backend": True
     }
 
 
@@ -42,12 +54,16 @@ def main() -> int:
     parser.add_argument("--bits", type=int, help="selected process width, any positive integer up to 4294967295")
     parser.add_argument("--backend", choices=sorted(BACKENDS), default="auto")
     parser.add_argument("--compatibility", choices=sorted(COMPATIBILITY))
+    parser.add_argument("--isa", choices=sorted(ISA_TARGETS), default="auto",
+                        help="guest ISA target; catalog presence does not imply executable translation support")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--show", action="store_true", help="show current selection")
     args = parser.parse_args()
     if args.show and args.bits is None:
         if not args.config.exists():
-            print(json.dumps({"schema": "CHIMERA-NBIT-USER-PROFILE-1", "selected_width_bits": 64, "backend": "auto"}, indent=2))
+            print(json.dumps({"schema": "CHIMERA-NBIT-USER-PROFILE-1",
+                              "selected_width_bits": 64, "backend": "auto",
+                              "guest_isa": "auto"}, indent=2))
             return 0
         print(args.config.read_text(encoding="utf-8"))
         return 0
@@ -56,15 +72,16 @@ def main() -> int:
             raw = input("Choose Chimera N-bit width (any positive integer, default 64): ").strip()
             bits = int(raw or "64", 10)
             backend = input("Backend [auto/chimera-virtual/physical-native/compatibility] (default auto): ").strip() or "auto"
+            isa = input("Guest ISA [auto/chimera-nbit/x86-64/aarch64/riscv64/...](default auto): ").strip() or "auto"
             compatibility = None
             if backend == "compatibility":
                 compatibility = input("Compatibility [native/windows/linux/bsd/darwin/android/ios]: ").strip().lower()
         except (EOFError, ValueError):
             parser.error("interactive selection failed; pass --bits and --backend")
     else:
-        bits, backend, compatibility = args.bits, args.backend, args.compatibility
+        bits, backend, compatibility, isa = args.bits, args.backend, args.compatibility, args.isa
     try:
-        profile = build_profile(bits, backend, compatibility)
+        profile = build_profile(bits, backend, compatibility, isa)
     except ValueError as exc:
         parser.error(str(exc))
     args.config.parent.mkdir(parents=True, exist_ok=True)
