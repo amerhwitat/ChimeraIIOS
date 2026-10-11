@@ -22,7 +22,7 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BUILD="$ROOT/build/koronos/x86_64"
+BUILD="${CHIMERA_BUILD_DIR:-$ROOT/build}/koronos/x86_64"
 mkdir -p "$BUILD"
 python3 -m json.tool "$ROOT/isa/isa_database.json" >/dev/null
 python3 -m json.tool "$ROOT/isa/gpu_isa_registry.json" >/dev/null
@@ -112,15 +112,6 @@ for bits in "${NBIT_WIDTHS[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -DCHIMERA_NBIT_IMAGE_BITS="$bits" -c "$ROOT/kernel/core/nbit_note.cpp" -o "$BUILD/nbit-note-$bits.o"
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" "$BUILD/nbit-note-$bits.o" -o "$BUILD/nbit/koronos-nbit-$bits.elf"
 done
-# Build the native ring-3 entry ELF consumed by the Multiboot2 module handoff.
-# Keep it separate from the kernel: it is loaded as module2, validated as ELF64,
-# then mapped and entered by Koronos' ELF loader.
-"$NASM" -f elf64 "$ROOT/boot/user-init.asm" -o "$BUILD/user-init.o"
-"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/boot/user-init.ld" "$BUILD/user-init.o" -o "$BUILD/chimera-user-init.elf"
-readelf -h "$BUILD/chimera-user-init.elf" | grep -q 'EXEC' || { echo "ERROR: native user-init is not an ELF executable" >&2; exit 1; }
-readelf -l "$BUILD/chimera-user-init.elf" | grep -q 'LOAD' || { echo "ERROR: native user-init has no PT_LOAD segment" >&2; exit 1; }
-printf 'Native user-init ELF64: %s\n' "$BUILD/chimera-user-init.elf"
-
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
 printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
