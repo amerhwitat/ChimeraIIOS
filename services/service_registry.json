@@ -292,6 +292,29 @@
         "mobile": "touch-event-adapter"
       },
       "default_enabled": true
+    },
+    {
+      "id": "nbit-profiled",
+      "lifecycle": "boot",
+      "platforms": [
+        "chimera-native",
+        "linux-compatibility",
+        "mobile"
+      ],
+      "capabilities": [
+        "profile-get",
+        "profile-set",
+        "width-validation",
+        "guest-isa-selection",
+        "local-socket-policy"
+      ],
+      "backends": {
+        "chimera-native": "chimera-nbitd",
+        "linux-compatibility": "chimera-nbitd",
+        "mobile": "mobile-nbit-profile-service"
+      },
+      "default_enabled": true,
+      "requires_kernel_admission_validation": true
     }
   ]
 }
