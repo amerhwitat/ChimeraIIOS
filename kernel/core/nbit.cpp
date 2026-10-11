@@ -4,6 +4,7 @@
 
 static chimera_hardware_profile g_profile;
 static uint32_t g_default_mode = CHIMERA_NBIT_64;
+static uint32_t g_hardware_default_mode = CHIMERA_NBIT_64;
 static chimera_nbit_backend g_default_backend = CHIMERA_NBIT_BACKEND_AUTO;
 static uint32_t g_default_compatibility_target = 0;
 static chimera_nbit_process_context g_processes[CHIMERA_NBIT_MAX_PROCESS_MODES];
@@ -57,6 +58,7 @@ extern "C" int chimera_nbit_init(void) {
     uint32_t best = (uint32_t)chimera_hardware_best_mode(&g_profile);
     if (!valid_mode(best)) best = CHIMERA_NBIT_64;
     registry_lock();
+    g_hardware_default_mode = best;
     g_default_mode = best;
     registry_unlock();
     g_init_state = 1u;
@@ -86,15 +88,21 @@ extern "C" int chimera_nbit_set_default(uint32_t bits) {
 extern "C" int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend,
                                                   uint32_t compatibility_target) {
     if (chimera_nbit_init() != 0) return -1;
-    if (!valid_mode(bits) || backend < CHIMERA_NBIT_BACKEND_AUTO ||
+    if ((int)backend < (int)CHIMERA_NBIT_BACKEND_AUTO ||
         backend > CHIMERA_NBIT_BACKEND_COMPATIBILITY) return -2;
+    uint32_t selected_bits=bits;
+    if (!selected_bits) {
+        selected_bits=(backend==CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE)
+            ? g_profile.native_nbit_mode : g_hardware_default_mode;
+    }
+    if (!valid_mode(selected_bits)) return -2;
     if (backend == CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE &&
-        bits != g_profile.native_nbit_mode) return -3;
+        selected_bits != g_profile.native_nbit_mode) return -3;
     if (backend == CHIMERA_NBIT_BACKEND_COMPATIBILITY) {
         if (!compatibility_target || (compatibility_target & ~g_profile.compatibility_mask)) return -4;
     } else if (compatibility_target) return -4;
     registry_lock();
-    g_default_mode = bits;
+    g_default_mode = selected_bits;
     g_default_backend = backend;
     g_default_compatibility_target = compatibility_target;
     registry_unlock();
