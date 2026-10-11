@@ -43,7 +43,7 @@ on:
       - 'build-chimera-iso.sh'
       - '.github/workflows/koronos-elf-smp.yml'
   push:
-    branches: [main]
+    branches: [main, koronos/elf-smp-acceptance-gate]
     paths:
       - 'kernel/core/**'
       - 'kernel/arch/x86_64/**'
