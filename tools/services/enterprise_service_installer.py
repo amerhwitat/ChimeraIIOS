@@ -78,7 +78,7 @@ def main():
         return 0
     unknown=selected-services.keys()
     if unknown: p.error("unknown service IDs: "+", ".join(sorted(unknown)))
-    detected=[a.package_manager] if a.package_manager else [x for x in MANAGERS if shutil.which(x)]
+    detected=([a.package_manager] if a.package_manager else []) + [x for x in MANAGERS if shutil.which(x) and x != a.package_manager]
     pm=detected[0] if detected else None
     plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"package_manager_candidates":detected,"rootfs":str(a.rootfs),
           "apply":a.apply,"services":[],"enabled_targets":[]}
