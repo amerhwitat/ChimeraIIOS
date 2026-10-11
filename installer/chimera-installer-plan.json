@@ -91,5 +91,12 @@
     ],
     "defaultSelection": [],
     "bootTargetsEnabledOnlyAfterReview": true
+  },
+  "gpuProgramming": {
+    "tool": "/usr/lib/chimera/tools/gpu/chimera_gpu_toolchain.py",
+    "catalog": "/usr/share/chimera/isa/gpu_isa_registry.json",
+    "selection": "optional",
+    "requireDeviceProbe": true,
+    "allowCpuFallbackOnlyForSupportedSemantics": true
   }
 }
