@@ -1,11 +1,57 @@
 {
-  "schema":"CHM-AURORA-INSTALLER-GUI-1",
-  "renderer":"Aurora Wayland Glass",
-  "background":"assets/aurora/Aurora-Wayland-Glass-Desktop.png",
-  "library_source":"Aurora Wayland Glass Desktop.png",
-  "panels":["Welcome","Language & Keyboard","Network","Installation Source","Storage","Filesystem","Users","Desktop Personality","Bootloader","Installation Summary","Progress","Verification","Reboot"],
-  "input":["keyboard","pointer","touch"],
-  "modes":["install","live","recovery","compatibility"],
-  "accessibility":["high-contrast","large-text","keyboard-only","screen-reader-hook"],
-  "transaction":"chimera_installer_core"
+  "schema": "CHM-AURORA-INSTALLER-GUI-1",
+  "renderer": "Aurora Wayland Glass",
+  "background": "assets/aurora/Aurora-Wayland-Glass-Desktop.png",
+  "library_source": "Aurora Wayland Glass Desktop.png",
+  "panels": [
+    "Network",
+    "Welcome",
+    "Language & Keyboard",
+    "Installation Source",
+    "Storage",
+    "Filesystem",
+    "Users",
+    "Desktop Personality",
+    "Bootloader",
+    "Installation Summary",
+    "Progress",
+    "Verification",
+    "Reboot"
+  ],
+  "input": [
+    "keyboard",
+    "pointer",
+    "touch"
+  ],
+  "modes": [
+    "install",
+    "live",
+    "recovery",
+    "compatibility"
+  ],
+  "accessibility": [
+    "high-contrast",
+    "large-text",
+    "keyboard-only",
+    "screen-reader-hook"
+  ],
+  "transaction": "chimera_installer_core",
+  "first_step": "Network",
+  "network_preflight": {
+    "entrypoint": "network_preflight.py --configure",
+    "detect": [
+      "PCI Ethernet",
+      "USB Ethernet",
+      "Wi-Fi",
+      "driver binding",
+      "firmware hints",
+      "IP address",
+      "gateway",
+      "DNS",
+      "internet"
+    ],
+    "recommendations": "chimera-rnn-recommend when installed; validated deterministic hardware rules otherwise",
+    "offline_allowed": true,
+    "credentials": "never persisted in installer report"
+  }
 }
