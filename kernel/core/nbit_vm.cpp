@@ -17,7 +17,8 @@ int ChimeraNBitVM::initialize(ChimeraNBitVMState &s,uint8_t *storage,
     if(stride<bytes||(uint64_t)count*stride>storage_bytes)return CHIMERA_NBIT_VM_INVALID;
     s={};s.register_bytes=storage;s.register_count=count;s.register_stride=stride;
     s.register_storage_bytes=storage_bytes;s.bit_width=bits;s.step_limit=limit;
-    const uint32_t storage_used=count*stride;\n    for(uint32_t i=0;i<storage_used;++i)storage[i]=0;
+    const uint32_t storage_used=count*stride;
+    for(uint32_t i=0;i<storage_used;++i)storage[i]=0;
     return 0;
 }
 int ChimeraNBitVM::register_view(ChimeraNBitVMState &s,uint32_t index,ChimeraNBitView &out) {
