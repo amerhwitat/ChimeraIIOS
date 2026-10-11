@@ -11,6 +11,7 @@
 #include "chimera/process.h"
 #include "chimera/nbit.h"
 #include "chimera/physmem.h"
+#include "chimera/user_mode.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -210,6 +211,7 @@ static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
 static volatile uint32_t installer_phase = 0;
 static volatile uint32_t runtime_watchdog_ticks = 0;
+static volatile uint32_t user_mode_ready = 0;
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
@@ -371,11 +373,9 @@ static void task_kore(void *) {
 }
 
 /*
- * Report the userspace handoff state once, then block. This kernel currently
- * has a transactional ELF loader contract but no registered x86-64 user-mode
- * page-table/IRETQ backend wired into boot. Reprinting "awaiting handoff" from
- * a permanently READY task looked like progress while guaranteeing a noisy
- * idle loop. Be explicit about the actual blocker instead.
+ * Perform the real x86-64 userspace handoff once after bootstrap services
+ * have been registered. The staged ET_EXEC init is a small ring-3 ABI probe;
+ * it validates privilege transition and memory mappings, not full Aurora.
  */
 static void task_runtime_watchdog(void *) {
     if (runtime_watchdog_ticks++ != 0u) {
@@ -383,21 +383,28 @@ static void task_runtime_watchdog(void *) {
         return;
     }
 
-    const chimera_boot_module *live =
-        chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
-    const chimera_boot_module *install =
-        chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
-
-    console_write("[HANDOFF] Kernel scheduler is running; userspace entry has not occurred");
-    if (live) {
-        console_write("[HANDOFF] Live initramfs found, but it is data, not an executable ELF entry point");
-    } else if (install) {
-        console_write("[HANDOFF] Installer image found, but no executable userspace entry point is registered");
-    } else {
-        console_write("[HANDOFF] No live initramfs or installer image module was supplied");
+    const chimera_boot_module *init =
+        chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    if (!user_mode_ready) {
+        console_write("[HANDOFF] BLOCKED: x86-64 user-mode backend initialization failed");
+        chimera_sched_block();
+        return;
     }
-    console_write("[HANDOFF] BLOCKED: architecture user-mode page-table and IRETQ backend is not wired into boot");
-    console_write("[HANDOFF] This is not a successful userspace handoff; boot remains in kernel runtime");
+    if (!init || !init->base || !init->size) {
+        console_write("[HANDOFF] BLOCKED: native user-init ELF module is missing");
+        chimera_sched_block();
+        return;
+    }
+
+    console_write("[HANDOFF] Native user-init ELF found; validating and mapping PT_LOAD segments");
+    uint32_t pid = 0;
+    const int result = chimera_elf_load_and_enter(
+        (const void *)(uintptr_t)init->base, init->size, 62u, 0x70000000ull,
+        chimera_x86_64_user_loader_ops(), &pid);
+    // A successful IRETQ never returns. Any return is a failed transaction.
+    console_write("[HANDOFF] ERROR: user-mode transition returned; ELF load/handoff failed");
+    console_write("[HANDOFF] Loader status: ");
+    console_u32((uint32_t)(result < 0 ? -result : result));
     chimera_sched_block();
 }
 
@@ -512,6 +519,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_elf64_init();
     chimera_process_init();
     console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    const int user_mode_status = chimera_x86_64_user_mode_init();
+    user_mode_ready = user_mode_status == 0 ? 1u : 0u;
+    console_write(user_mode_ready ? "[UABI] x86-64 user page tables, GDT/TSS and IDT ready" :
+                                    "[UABI] ERROR: x86-64 user-mode backend initialization failed");
+    if (!user_mode_ready) {
+        console_write("[UABI] User ELF execution is disabled; kernel diagnostics remain available");
+    }
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
