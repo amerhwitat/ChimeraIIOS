@@ -26,7 +26,7 @@ class NetworkPreflightTests(unittest.TestCase):
         ui=json.loads((ROOT/"installer/gui/aurora-installer-ui.json").read_text())
         self.assertEqual(ui["first_step"],"Network")
         shell=(ROOT/"installer/gui/aurora-installer.sh").read_text()
-        self.assertLess(shell.index("network_preflight.py --gui"),shell.index('edition="$(choose_edition)"'))
+        self.assertLess(shell.index('python3 "$NETWORK_PREFLIGHT" --gui'),shell.index('edition="$(choose_edition)"'))
     def test_step_by_step_recommendations_are_ordered_and_non_destructive(self):
         spec=importlib.util.spec_from_file_location("chimera_installer",ROOT/"installer/chimera_installer.py")
         installer=importlib.util.module_from_spec(spec); spec.loader.exec_module(installer)
