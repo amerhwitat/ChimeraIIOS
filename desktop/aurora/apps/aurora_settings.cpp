@@ -112,6 +112,8 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
     const std::string personality=value_of(v,"isa.nbit.compatibility");
     const uint32_t target=backend=="compatibility"?compatibility_mask(personality):0u;
     const uint32_t width=width_text=="auto"?0u:(uint32_t)std::stoull(width_text);
+    const std::string json_personality=personality=="auto"
+        ? std::string("null") : std::string("\\\"")+personality+"\\\"";
     const fs::path path=nbit_profile_path();
     std::error_code ec;fs::create_directories(path.parent_path(),ec);
     if(ec)return false;
