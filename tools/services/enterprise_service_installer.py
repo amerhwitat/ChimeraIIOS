@@ -55,7 +55,7 @@ def package_stage(pm, packages, rootfs, cache):
     print(f"manager {pm} detected, but safe rootfs staging is unavailable for it",file=sys.stderr)
     return 2
 
-def verified_source_stage(service, archive_path, expected_sha256, rootfs, cache):
+def verified_source_stage(service, archive_path, expected_sha256, rootfs, cache, execution_mode):
     if not archive_path or not expected_sha256 or len(expected_sha256)!=64:
         return 2, "source fallback requires a supplied archive and 64-character SHA-256 digest"
     archive=Path(archive_path).resolve()
@@ -78,6 +78,15 @@ def verified_source_stage(service, archive_path, expected_sha256, rootfs, cache)
         roots=[x for x in build.iterdir()]
         cwd=roots[0] if len(roots)==1 and roots[0].is_dir() else build
         env=os.environ.copy(); env.update({"DESTDIR":str(rootfs.resolve()),"PREFIX":"/usr","CMAKE_INSTALL_PREFIX":"/usr"})
+        if execution_mode=="native":
+            cc=os.environ.get("CHIMERA_CC") or shutil.which("chimera-cc")
+            cxx=os.environ.get("CHIMERA_CXX") or shutil.which("chimera-c++")
+            if not cc: return 2, "native mode requires CHIMERA_CC or chimera-cc; compatibility binaries are not relabeled native"
+            env["CC"]=cc
+            if cxx: env["CXX"]=cxx
+            env["CHIMERA_EXECUTION_MODE"]="native"
+        else:
+            env["CHIMERA_EXECUTION_MODE"]="compatibility"
         svc=service
         for command in svc.get("source",{}).get("build",[]):
             argv=shlex.split(command)
@@ -95,6 +104,8 @@ def main():
     p.add_argument("--service",action="append",default=[])
     p.add_argument("--profile",action="append",default=[])
     p.add_argument("--package-manager",choices=MANAGERS)
+    p.add_argument("--execution-mode",choices=("auto","native","compatibility"),default="auto",
+                   help="native requires the Chimera compiler and verified source; compatibility stages platform packages")
     p.add_argument("--source-archive",action="append",default=[],metavar="SERVICE=PATH")
     p.add_argument("--source-sha256",action="append",default=[],metavar="SERVICE=HEX")
     p.add_argument("--apply",action="store_true",help="download and stage selected package payloads")
@@ -115,8 +126,13 @@ def main():
     detected=([a.package_manager] if a.package_manager else []) + [x for x in MANAGERS if shutil.which(x) and x != a.package_manager]
     source_archives=dict(x.split("=",1) for x in a.source_archive if "=" in x)
     source_hashes=dict(x.split("=",1) for x in a.source_sha256 if "=" in x)
+    native_compiler=bool(os.environ.get("CHIMERA_CC") or shutil.which("chimera-cc"))
+    execution_mode=a.execution_mode
+    if execution_mode=="auto":
+        execution_mode="native" if native_compiler and selected.issubset(source_archives.keys()) else "compatibility"
     pm=detected[0] if detected else None
-    plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"package_manager_candidates":detected,"rootfs":str(a.rootfs),
+    plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"package_manager_candidates":detected,
+          "execution_mode":execution_mode,"rootfs":str(a.rootfs),
           "apply":a.apply,"user_review_confirmed":a.enable,"services":[],"enabled_targets":[]}
     for sid in sorted(selected):
         svc=services[sid]
@@ -124,7 +140,16 @@ def main():
               "staging":"not-requested","native_policy":svc.get("native","prefer-native-package"),
               "compatibility":svc.get("compatibility",[]),"attempts":[]}
         if a.apply:
-            if not detected and sid not in source_archives:
+            if execution_mode=="native":
+                if sid not in source_archives:
+                    item["error"]="native mode requires a verified source archive for this service; package payloads are compatibility binaries"
+                    plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
+                rc, detail=verified_source_stage(svc,source_archives[sid],source_hashes.get(sid),a.rootfs,a.cache,"native")
+                item["attempts"].append({"method":"chimera-native-source-build","result":"staged" if rc==0 else "failed","detail":detail})
+                if rc:
+                    item["error"]=detail; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
+                item["selected_package_manager"]="chimera-native-source-build"; item["staging"]=detail
+            elif not detected and sid not in source_archives:
                 item["error"]="no package manager detected; verified source archive fallback was not supplied"; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
             success=False
             for candidate in detected:
@@ -139,13 +164,13 @@ def main():
                     item["staging"]="package payloads extracted; dependency resolution, service configuration and ABI conversion still require rootfs integration"
                     success=True; break
             if not success and sid in source_archives:
-                rc, detail=verified_source_stage(svc,source_archives[sid],source_hashes.get(sid),a.rootfs,a.cache)
+                rc, detail=verified_source_stage(svc,source_archives[sid],source_hashes.get(sid),a.rootfs,a.cache,"compatibility")
                 item["attempts"].append({"method":"verified-source-build","result":"staged" if rc==0 else "failed","detail":detail})
                 if rc==0:
                     item["selected_package_manager"]="verified-source-build"
                     item["staging"]=detail
                     success=True
-            if not success:
+            if execution_mode!="native" and not success:
                 item["error"]="all available package staging adapters failed; provide --source-archive SERVICE=PATH and --source-sha256 SERVICE=HEX for verified source fallback"
                 plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
         plan["services"].append(item)
