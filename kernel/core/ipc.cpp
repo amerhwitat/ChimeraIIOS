@@ -139,8 +139,14 @@ extern "C" int chimera_ipc_cancel(uint32_t sender_pid,uint32_t id,uint64_t seque
         uint32_t slot=(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH;Message &m=e.queue[slot];
         if(m.occupied&&m.sender_pid==sender_pid&&m.sequence==sequence){
             if(m.in_flight){unlock_service();return -2;}
-            /* Keep FIFO order: cancellation marks a tombstone, drained by receive. */
-            m.sender_pid=0;m.payload_bytes=0;m.payload_bits=0;
+            /* Remove the selected queued message while preserving FIFO order. */
+            for(uint32_t k=q;k+1u<e.count;++k){
+                uint32_t dst=(e.head+k)%CHIMERA_IPC_QUEUE_DEPTH;
+                uint32_t src=(e.head+k+1u)%CHIMERA_IPC_QUEUE_DEPTH;
+                e.queue[dst]=e.queue[src];
+            }
+            uint32_t last=(e.head+e.count-1u)%CHIMERA_IPC_QUEUE_DEPTH;
+            clear_message(e.queue[last]);--e.count;
             unlock_service();return 0;
         }
     }
