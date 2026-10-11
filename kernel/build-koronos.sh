@@ -11,6 +11,9 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
 
+Custom N-bit build profiles:
+  CHIMERA_NBIT_EXTRA_WIDTHS="13 8193 100003" kernel/build-koronos.sh
+
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
   The script's existing command-line interface and environment variables remain unchanged.
