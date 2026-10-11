@@ -32,6 +32,7 @@ struct ChimeraNBitVMState {
     uint8_t *register_bytes;
     uint32_t register_count;
     uint32_t register_stride;
+    uint32_t register_storage_bytes;
     uint32_t bit_width;
     uint32_t pc;
     uint64_t steps;
@@ -47,7 +48,7 @@ class ChimeraNBitVM final {
 public:
     static int initialize(ChimeraNBitVMState &state, uint8_t *register_bytes,
                           uint32_t register_count, uint32_t register_stride,
-                          uint32_t bit_width, uint64_t step_limit);
+                          uint32_t register_storage_bytes, uint32_t bit_width, uint64_t step_limit);
     static int run(ChimeraNBitVMState &state, const ChimeraNBitInstruction *program,
                    uint32_t instruction_count);
     static int register_view(ChimeraNBitVMState &state, uint32_t index,
