@@ -10,7 +10,13 @@ UNITS={
  "containerd":["containerd.service"],"podman":["podman.service"],"kubernetes-tools":[],
  "samba":["smbd.service","samba.service"],"cups":["cups.service"],"openssh":["sshd.service","ssh.service"],
  "restic":[],"borgbackup":[],"rabbitmq":["rabbitmq-server.service"],"mosquitto":["mosquitto.service"],
- "ldap":["slapd.service"],"kerberos":["krb5-kdc.service","krb5kdc.service"],"sso":["keycloak.service"]
+ "ldap":["slapd.service"],"kerberos":["krb5-kdc.service","krb5kdc.service"],"sso":["keycloak.service"],
+ "bind9":["named.service","bind9.service"],"dhcp-server":["isc-dhcp-server.service","dhcpd.service"],
+ "wireguard":["wg-quick@wg0.service"],"openvpn":["openvpn.service","openvpn-server@server.service"],
+ "freeradius":["freeradius.service","radiusd.service"],"postfix":["postfix.service"],
+ "dovecot":["dovecot.service"],"chrony":["chronyd.service","chrony.service"],
+ "fail2ban":["fail2ban.service"],"vault":["vault.service"],"minio":["minio.service"],
+ "libvirt":["libvirtd.service"],"qemu":[],"gitlab-runner":["gitlab-runner.service"]
 }
 def main():
     if not PLAN.is_file(): return 0
