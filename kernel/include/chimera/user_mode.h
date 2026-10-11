@@ -6,6 +6,7 @@ extern "C" {
 /* Initializes the x86-64 bootstrap identity map, user selectors, TSS and IDT. */
 int chimera_x86_64_user_mode_init(void);
 const chimera_elf_loader_ops *chimera_x86_64_user_loader_ops(void);
+int chimera_x86_64_user_range_valid(uint64_t address, uint64_t length);
 #ifdef __cplusplus
 }
 #endif
