@@ -123,6 +123,10 @@ endif()
 
 # ISA candidate inventory and reference execution harness.
 install(PROGRAMS tools/isa/chimera_isa_candidate.py DESTINATION bin RENAME chimera-isa-candidate)
+install(PROGRAMS tools/runtime/chimera-nbit-mode.py DESTINATION bin)
+install(FILES tools/nbit/select_mode.py DESTINATION share/chimera/nbit)
+install(FILES config/nbit-mode.json DESTINATION share/chimera/nbit)
+install(FILES isa/gpu_isa_registry.json DESTINATION share/chimera/isa)
 install(FILES isa/isa_database.json DESTINATION share/chimera/isa)
 install(FILES docs/research/ISA_CANDIDATE_EXECUTION.md DESTINATION share/chimera/isa/docs)
 if(BUILD_TESTING AND Python3_Interpreter_FOUND)
