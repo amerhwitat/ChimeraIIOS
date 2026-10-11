@@ -17,7 +17,11 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->maximum_emulated_nbit = UINT32_MAX;
 
 #if defined(__x86_64__) || defined(__i386__)
+#if defined(__x86_64__)
     out->architecture = CHIMERA_ARCH_X86_64;
+#else
+    out->architecture = CHIMERA_ARCH_X86_32;
+#endif
     out->native_pointer_bits = sizeof(void*) * 8u;
     out->native_nbit_mode = (sizeof(void*) == 8) ? CHIMERA_NBIT_64 : CHIMERA_NBIT_32;
     out->physical_address_bits = 36;
@@ -67,12 +71,40 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->virtual_address_bits = 48;
     out->logical_cpus = 1;
     out->feature_bits |= CHIMERA_HW_NEON;
+#elif defined(__arm__)
+    out->architecture = CHIMERA_ARCH_ARM32;
+    out->native_pointer_bits = 32;
+    out->native_nbit_mode = CHIMERA_NBIT_32;
+    out->physical_address_bits = 32;
+    out->virtual_address_bits = 32;
+    out->logical_cpus = 1;
 #elif defined(__riscv) && (__riscv_xlen == 64)
     out->architecture = CHIMERA_ARCH_RISCV64;
     out->native_pointer_bits = 64;
     out->native_nbit_mode = CHIMERA_NBIT_64;
     out->physical_address_bits = 56;
     out->virtual_address_bits = 39;
+    out->logical_cpus = 1;
+#elif defined(__riscv) && (__riscv_xlen == 32)
+    out->architecture = CHIMERA_ARCH_RISCV32;
+    out->native_pointer_bits = 32;
+    out->native_nbit_mode = CHIMERA_NBIT_32;
+    out->physical_address_bits = 34;
+    out->virtual_address_bits = 32;
+    out->logical_cpus = 1;
+#elif defined(__loongarch64)
+    out->architecture = CHIMERA_ARCH_LOONGARCH64;
+    out->native_pointer_bits = 64;
+    out->native_nbit_mode = CHIMERA_NBIT_64;
+    out->physical_address_bits = 48;
+    out->virtual_address_bits = 48;
+    out->logical_cpus = 1;
+#elif defined(__powerpc64__)
+    out->architecture = CHIMERA_ARCH_POWERPC64;
+    out->native_pointer_bits = 64;
+    out->native_nbit_mode = CHIMERA_NBIT_64;
+    out->physical_address_bits = 46;
+    out->virtual_address_bits = 64;
     out->logical_cpus = 1;
 #else
     out->architecture = CHIMERA_ARCH_UNKNOWN;
