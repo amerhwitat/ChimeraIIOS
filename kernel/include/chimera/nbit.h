@@ -50,7 +50,16 @@ typedef struct chimera_nbit_capabilities {
     uint32_t maximum_virtual_bits;
     uint32_t registered_process_capacity;
     uint32_t flags;
+    uint32_t default_backend;
+    uint32_t default_compatibility_target;
 } chimera_nbit_capabilities;
+
+typedef enum chimera_nbit_backend {
+    CHIMERA_NBIT_BACKEND_AUTO = 0,
+    CHIMERA_NBIT_BACKEND_CHIMERA_VIRTUAL = 1,
+    CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE = 2,
+    CHIMERA_NBIT_BACKEND_COMPATIBILITY = 3
+} chimera_nbit_backend;
 
 enum { CHIMERA_NBIT_CAP_ARBITRARY_WIDTH = 1u << 0,
        CHIMERA_NBIT_CAP_CHIMERA_VIRTUAL_ABI = 1u << 1,
@@ -58,10 +67,10 @@ enum { CHIMERA_NBIT_CAP_ARBITRARY_WIDTH = 1u << 0,
 
 int chimera_nbit_init(void);
 int chimera_nbit_get_default(uint32_t *bits);
-int chimera_nbit_set_default(uint32_t bits);
+int chimera_nbit_set_default(uint32_t bits);\nint chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target);
 int chimera_nbit_validate(uint32_t bits);
 int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out);
-int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits, uint32_t compatibility_target);
+int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits, uint32_t compatibility_target);\nint chimera_nbit_process_init_default(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits);
 /* Explicit user-selected Chimera N-bit virtual ABI; requested width may be any positive uint32_t. */
 int chimera_nbit_process_init_chimera(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits);
 /* Rejects any width except the probed physical CPU native word width. */
