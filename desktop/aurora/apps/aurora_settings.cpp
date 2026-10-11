@@ -94,15 +94,22 @@ static uint32_t compatibility_mask(const std::string& target) {
     if(target=="ios")return 1u<<6;
     return 0;
 }
-static bool save_nbit_profile(const std::vector<Setting>& v) {
+static bool valid_nbit_profile(const std::vector<Setting>& v) {
     const std::string width_text=value_of(v,"isa.nbit.width");
     const std::string backend=value_of(v,"isa.nbit.backend");
     const std::string guest=value_of(v,"isa.nbit.guest");
     const std::string personality=value_of(v,"isa.nbit.compatibility");
     if(!valid_width(width_text)||!valid_setting("isa.nbit.backend",backend)||
        !valid_setting("isa.nbit.guest",guest)||!valid_setting("isa.nbit.compatibility",personality))return false;
-    const uint32_t target=compatibility_mask(personality);
-    if(backend=="compatibility"&&!target)return false;
+    return backend!="compatibility"||compatibility_mask(personality)!=0;
+}
+static bool save_nbit_profile(const std::vector<Setting>& v) {
+    if(!valid_nbit_profile(v))return false;
+    const std::string width_text=value_of(v,"isa.nbit.width");
+    const std::string backend=value_of(v,"isa.nbit.backend");
+    const std::string guest=value_of(v,"isa.nbit.guest");
+    const std::string personality=value_of(v,"isa.nbit.compatibility");
+    const uint32_t target=backend=="compatibility"?compatibility_mask(personality):0u;
     const uint32_t width=width_text=="auto"?0u:(uint32_t)std::stoull(width_text);
     const fs::path path=nbit_profile_path();
     std::error_code ec;fs::create_directories(path.parent_path(),ec);
@@ -132,6 +139,7 @@ static std::vector<Setting> load() {
     return v;
 }
 static bool save(const std::vector<Setting>& v) {
+    if(!valid_nbit_profile(v))return false;
     std::error_code ec; fs::create_directories(config_path().parent_path(),ec);
     if(ec)return false;
     std::ofstream f(config_path()); if(!f) return false;
