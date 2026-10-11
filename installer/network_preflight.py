@@ -5,7 +5,7 @@ Detects NIC/Wi-Fi devices and driver/firmware evidence, offers safe interactive
 configuration, and emits a redacted report. It never stores Wi-Fi passwords.
 """
 from __future__ import annotations
-import argparse, getpass, json, os, platform, shutil, socket, subprocess, sys, time
+import argparse, getpass, json, os, platform, shutil, socket, subprocess, sys, time, uuid
 from pathlib import Path
 
 def run(argv, timeout=12, input_text=None):
@@ -126,19 +126,22 @@ def configure_wifi(ssid,password):
         return run(["nmcli","--wait","35","device","wifi","connect",ssid],40)
     # Use a temporary private connection file; password is never in argv or logs.
     import tempfile
+    connection_id="Chimera installer Wi-Fi "+uuid.uuid4().hex
+    def key_escape(value):
+        return value.replace("\\","\\\\").replace("\n","").replace(";","\\;")
     with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",prefix="chimera-wifi-",delete=False) as f:
         os.chmod(f.name,0o600)
-        f.write("[connection]\nid=Chimera installer temporary Wi-Fi\ntype=wifi\nautoconnect=false\n")
-        f.write("[wifi]\nmode=infrastructure\nssid="+ssid.replace("\\","\\\\").replace("\n","")+"\n")
-        f.write("[wifi-security]\nkey-mgmt=wpa-psk\npsk="+password.replace("\\","\\\\").replace("\n","")+"\n")
+        f.write("[connection]\nid="+connection_id+"\ntype=wifi\nautoconnect=false\n")
+        f.write("[wifi]\nmode=infrastructure\nssid="+key_escape(ssid)+"\n")
+        f.write("[wifi-security]\nkey-mgmt=wpa-psk\npsk="+key_escape(password)+"\n")
         f.write("[ipv4]\nmethod=auto\n[ipv6]\nmethod=auto\n")
         path=f.name
     try:
         rc,out,err=run(["nmcli","connection","load",path],10)
-        if rc==0: rc,out,err=run(["nmcli","--wait","35","connection","up","id","Chimera installer temporary Wi-Fi"],40)
-        run(["nmcli","connection","delete","id","Chimera installer temporary Wi-Fi"],10)
+        if rc==0: rc,out,err=run(["nmcli","--wait","35","connection","up","id",connection_id],40)
         return rc,out,err
     finally:
+        run(["nmcli","connection","delete","id",connection_id],10)
         try: os.unlink(path)
         except OSError: pass
 
