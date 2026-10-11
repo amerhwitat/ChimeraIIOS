@@ -75,8 +75,8 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/spitfire/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/koronos/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/grub/"
-KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
-USER_INIT="$ROOT/build/koronos/x86_64/chimera-user-init.elf"
+KORONOS="${CHIMERA_BUILD_DIR:-$ROOT/build}/koronos/x86_64/koronos.elf"
+USER_INIT="${CHIMERA_BUILD_DIR:-$ROOT/build}/koronos/x86_64/chimera-user-init.elf"
 # The kernel and the first native userspace ELF are a matched boot pair.
 # If either artifact is absent, rebuild both instead of silently staging a
 # kernel that will later stop at HANDOFF BLOCKED.
