@@ -55,3 +55,12 @@ public:
                              ChimeraNBitView &out);
 };
 static_assert(sizeof(ChimeraNBitInstruction)==8, "Chimera N-bit bytecode ABI must be 8 bytes");
+
+extern "C" {
+int chimera_nbit_vm_initialize(ChimeraNBitVMState *state, uint8_t *register_bytes,
+                              uint32_t register_count, uint32_t register_stride,
+                              uint32_t register_storage_bytes, uint32_t bit_width,
+                              uint64_t step_limit);
+int chimera_nbit_vm_run(ChimeraNBitVMState *state,
+                        const ChimeraNBitInstruction *program, uint32_t instruction_count);
+}
