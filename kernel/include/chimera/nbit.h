@@ -71,7 +71,8 @@ int chimera_nbit_set_default(uint32_t bits);
 int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target);
 int chimera_nbit_validate(uint32_t bits);
 int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out);
-int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits, uint32_t compatibility_target);\nint chimera_nbit_process_init_default(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits);
+int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits, uint32_t compatibility_target);
+int chimera_nbit_process_init_default(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits);
 /* Explicit user-selected Chimera N-bit virtual ABI; requested width may be any positive uint32_t. */
 int chimera_nbit_process_init_chimera(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits);
 /* Rejects any width except the probed physical CPU native word width. */
