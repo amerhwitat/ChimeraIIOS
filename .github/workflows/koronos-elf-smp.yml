@@ -130,3 +130,10 @@ jobs:
           done
           echo "QEMU reached the Koronos scheduler loop with two virtual CPUs configured."
           cat "$log"
+      - name: Preserve QEMU boot trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-qemu-debugcon
+          path: /tmp/koronos-qemu-debugcon.log
+          if-no-files-found: warn
