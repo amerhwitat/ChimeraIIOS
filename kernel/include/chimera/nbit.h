@@ -67,7 +67,8 @@ enum { CHIMERA_NBIT_CAP_ARBITRARY_WIDTH = 1u << 0,
 
 int chimera_nbit_init(void);
 int chimera_nbit_get_default(uint32_t *bits);
-int chimera_nbit_set_default(uint32_t bits);\nint chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target);
+int chimera_nbit_set_default(uint32_t bits);
+int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target);
 int chimera_nbit_validate(uint32_t bits);
 int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out);
 int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits, uint32_t compatibility_target);\nint chimera_nbit_process_init_default(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits);
