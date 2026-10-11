@@ -124,11 +124,11 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
      <<"  \"compatibility_personality\": ";
     if(personality=="auto") f<<"null"; else f<<"\""<<personality<<"\"";
     f<<",\n";
-     <<"  \"compatibility_target_mask\": "<<target<<",\n"
-     <<"  \"physical_native_width_is_hardware_defined\": true,\n"
-     <<"  \"arbitrary_width_virtual_abi\": true,\n"
-     <<"  \"validation_required_at_kernel_admission\": true,\n"
-     <<"  \"isa_catalog_does_not_imply_executable_backend\": true\n"
+    f<<"  \"compatibility_target_mask\": "<<target<<",\n"
+    f<<"  \"physical_native_width_is_hardware_defined\": true,\n"
+    f<<"  \"arbitrary_width_virtual_abi\": true,\n"
+    f<<"  \"validation_required_at_kernel_admission\": true,\n"
+    f<<"  \"isa_catalog_does_not_imply_executable_backend\": true\n"
      <<"}\n";
     f.close();
     return !f.fail();
