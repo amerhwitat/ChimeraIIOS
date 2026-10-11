@@ -109,3 +109,25 @@ extern "C" int chimera_nbit_word_add(uint8_t*d,uint32_t dc,const uint8_t*a,uint3
 extern "C" int chimera_nbit_word_subtract(uint8_t*d,uint32_t dc,const uint8_t*a,uint32_t ac,const uint8_t*b,uint32_t bc,uint32_t bits) {
     return ChimeraNBitArithmetic::subtract({d,bits,dc},{a,bits,ac},{b,bits,bc});
 }
+
+extern "C" int chimera_nbit_batch_add(uint8_t *dst,uint32_t dc,const uint8_t *lhs,uint32_t lc,
+                                        const uint8_t *rhs,uint32_t rc,uint32_t bits,
+                                        uint32_t stride,uint32_t first,uint32_t count) {
+    if (!count) return 0;
+    if (!dst || !lhs || !rhs || !bits) return -1;
+    const uint32_t bytes=byte_count(bits);
+    if (stride < bytes) return -2;
+    const uint64_t end=(uint64_t)first+(uint64_t)count;
+    if (end > (uint64_t)UINT32_MAX+1u) return -3;
+    const uint64_t last_offset=(end-1u)*(uint64_t)stride;
+    if (last_offset+bytes>dc || last_offset+bytes>lc || last_offset+bytes>rc) return -4;
+    for(uint32_t i=0;i<count;++i) {
+        const uint64_t offset=((uint64_t)first+i)*(uint64_t)stride;
+        int result=ChimeraNBitArithmetic::add(
+            {dst+(size_t)offset,bits,dc-(uint32_t)offset},
+            {lhs+(size_t)offset,bits,lc-(uint32_t)offset},
+            {rhs+(size_t)offset,bits,rc-(uint32_t)offset});
+        if(result)return result;
+    }
+    return 0;
+}
