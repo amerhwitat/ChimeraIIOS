@@ -8,6 +8,11 @@ static void cpuid(uint32_t leaf, uint32_t subleaf, uint32_t *a, uint32_t *b, uin
                      : "a"(leaf), "c"(subleaf));
     *a = aa; *b = bb; *c = cc; *d = dd;
 }
+static uint64_t xgetbv0() {
+    uint32_t lo=0, hi=0;
+    __asm__ volatile(".byte 0x0f,0x01,0xd0" : "=a"(lo),"=d"(hi) : "c"(0));
+    return ((uint64_t)hi<<32)|lo;
+}
 #endif
 
 extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
@@ -43,7 +48,15 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     if (c & (1u<<25)) out->feature_bits |= CHIMERA_HW_AES;
     if (c & (1u<<30)) out->feature_bits |= CHIMERA_HW_RDRAND;
     if (c & (1u<<5)) out->feature_bits |= CHIMERA_HW_VMX;
-    if (c & (1u<<28)) out->feature_bits |= CHIMERA_HW_AVX;
+    /* AVX state is usable only when both CPU and OS enable XSAVE state.
+       Never advertise AVX merely because CPUID reports the instruction set. */
+    uint64_t xcr0=0;
+    const bool osxsave=(c&(1u<<27))!=0;
+    const bool cpu_avx=(c&(1u<<28))!=0;
+    if(osxsave && cpu_avx) {
+        xcr0=xgetbv0();
+        if((xcr0&0x6u)==0x6u) out->feature_bits |= CHIMERA_HW_AVX;
+    }
     const uint32_t max_leaf=max_basic_leaf;
     uint32_t ext_max=0;
     cpuid(0x80000000u,0,&ext_max,&b,&c,&d);
@@ -61,8 +74,12 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     }
     if (max_leaf >= 7) {
         cpuid(7,0,&a,&b,&c,&d);
-        if (b & (1u<<5)) out->feature_bits |= CHIMERA_HW_AVX2;
-        if (b & (1u<<16)) out->feature_bits |= CHIMERA_HW_AVX512;
+        if ((out->feature_bits & CHIMERA_HW_AVX) && (b & (1u<<5)))
+            out->feature_bits |= CHIMERA_HW_AVX2;
+        /* AVX-512 requires opmask, ZMM-hi256 and hi16-ZMM state in XCR0. */
+        if ((out->feature_bits & CHIMERA_HW_AVX) && (b & (1u<<16)) &&
+            (xcr0 & 0xe6u)==0xe6u)
+            out->feature_bits |= CHIMERA_HW_AVX512;
     }
 #elif defined(__aarch64__)
     out->architecture = CHIMERA_ARCH_AARCH64;
