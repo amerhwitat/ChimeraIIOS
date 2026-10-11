@@ -6,7 +6,9 @@ static chimera_hardware_profile g_profile;
 static uint32_t g_default_mode = CHIMERA_NBIT_64;
 static chimera_nbit_process_context g_processes[CHIMERA_NBIT_MAX_PROCESS_MODES];
 static uint32_t g_process_count = 0;
-static uint32_t g_registry_lock = 0;\nstatic uint32_t g_init_lock = 0;\nstatic uint32_t g_init_state = 0;
+static uint32_t g_registry_lock = 0;
+static uint32_t g_init_lock = 0;
+static uint32_t g_init_state = 0;
 
 static void registry_lock(void) {
     while (__sync_lock_test_and_set(&g_registry_lock, 1u)) { }
