@@ -21,7 +21,11 @@ def manager():
 
 def run(args, cwd=None):
     print("+", " ".join(map(str,args)), flush=True)
-    return subprocess.run(args, cwd=cwd, check=False).returncode
+    try:
+        return subprocess.run(args, cwd=cwd, check=False).returncode
+    except OSError as exc:
+        print(f"cannot execute {args[0]}: {exc}",file=sys.stderr)
+        return 127
 
 def package_stage(pm, packages, rootfs, cache):
     """Download and extract packages without installing them into the host OS."""
