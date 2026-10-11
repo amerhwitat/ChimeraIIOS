@@ -13,6 +13,12 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = ROOT / "config" / "nbit-mode.json"
 COMPATIBILITY = {"native", "windows", "linux", "bsd", "darwin", "android", "ios"}
 BACKENDS = {"auto", "chimera-virtual", "physical-native", "compatibility"}
+BACKEND_IDS = {"auto": 0, "chimera-virtual": 1, "physical-native": 2, "compatibility": 3}
+ISA_IDS = {"auto":0,"chimera-nbit":1,"x86-16":2,"x86-32":3,"x86-64":4,"aarch64":5,
+           "arm32":6,"arm32-thumb":7,"riscv32":8,"riscv64":9,"riscv128":10,"mips32":11,
+           "mips64":12,"powerpc":13,"ppc64":14,"loongarch32":15,"loongarch64":16,
+           "s390x":17,"sparc-v9":18,"wasm32":19,"wasm64":20}
+COMPATIBILITY_MASKS = {"native":1,"windows":2,"linux":4,"bsd":8,"darwin":16,"android":32,"ios":64}
 ISA_TARGETS = {
     "auto", "chimera-nbit", "x86-16", "x86-32", "x86-64", "aarch64",
     "arm32", "arm32-thumb", "riscv32", "riscv64", "riscv128", "mips32",
@@ -40,8 +46,11 @@ def build_profile(bits: int, backend: str, compatibility: str | None,
         "schema": "CHIMERA-NBIT-USER-PROFILE-1",
         "selected_width_bits": bits,
         "backend": backend,
+        "backend_id": BACKEND_IDS[backend],
         "guest_isa": guest_isa,
+        "guest_isa_id": ISA_IDS[guest_isa],
         "compatibility_personality": compatibility,
+        "compatibility_target_mask": COMPATIBILITY_MASKS.get(compatibility, 0) if backend == "compatibility" else 0,
         "physical_native_width_is_hardware_defined": True,
         "arbitrary_width_virtual_abi": True,
         "validation_required_at_kernel_admission": True,
