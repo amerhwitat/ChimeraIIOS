@@ -3,7 +3,9 @@
 #include <stddef.h>
 
 static chimera_hardware_profile g_profile;
-static uint32_t g_default_mode = CHIMERA_NBIT_64;\nstatic chimera_nbit_backend g_default_backend = CHIMERA_NBIT_BACKEND_AUTO;\nstatic uint32_t g_default_compatibility_target = 0;
+static uint32_t g_default_mode = CHIMERA_NBIT_64;
+static chimera_nbit_backend g_default_backend = CHIMERA_NBIT_BACKEND_AUTO;
+static uint32_t g_default_compatibility_target = 0;
 static chimera_nbit_process_context g_processes[CHIMERA_NBIT_MAX_PROCESS_MODES];
 static uint32_t g_process_count = 0;
 static uint32_t g_registry_lock = 0;
