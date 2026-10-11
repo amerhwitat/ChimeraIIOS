@@ -51,9 +51,8 @@ extern "C" int chimera_interrupt_init(void) {
         g.offset_low = (uint16_t)(a & 0xFFFFu);
         g.selector = 0x08u;
         g.ist = 0;
-        /* Present 64-bit interrupt gate, DPL0. Software compatibility calls
-         * are recognized by the dispatcher but are not exposed to ring 3 until
-         * a TSS/user stack and validated user address space are installed. */
+        /* Ring 0 by default. Only the bounded bootstrap write syscall at
+         * vector 0x80 is callable from ring 3 (DPL3). */
         g.type_attr = (i == CHIMERA_SYSCALL_VECTOR) ? 0xEEu : 0x8Eu;
         g.offset_mid = (uint16_t)((a >> 16) & 0xFFFFu);
         g.offset_high = (uint32_t)(a >> 32);
