@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#define CHIMERA_NBIT_CONTEXT_VERSION 3u
+#define CHIMERA_NBIT_CONTEXT_VERSION 4u
 #define CHIMERA_NBIT_MAX_PROCESS_MODES 1024u
 #define CHIMERA_NBIT_MODE_MIN_BITS 1u
 /* Width is policy/resource bounded, not a power-of-two whitelist. */
@@ -17,9 +17,34 @@ typedef enum chimera_nbit_execution_class {
     CHIMERA_EXEC_CHIMERA_VIRTUAL = 3  /* Chimera N-bit ABI; not a physical CPU claim. */
 } chimera_nbit_execution_class;
 
+typedef enum chimera_nbit_guest_isa {
+    CHIMERA_GUEST_ISA_AUTO = 0,
+    CHIMERA_GUEST_ISA_CHIMERA_NBIT = 1,
+    CHIMERA_GUEST_ISA_X86_16 = 2,
+    CHIMERA_GUEST_ISA_X86_32 = 3,
+    CHIMERA_GUEST_ISA_X86_64 = 4,
+    CHIMERA_GUEST_ISA_AARCH64 = 5,
+    CHIMERA_GUEST_ISA_ARM32 = 6,
+    CHIMERA_GUEST_ISA_ARM32_THUMB = 7,
+    CHIMERA_GUEST_ISA_RISCV32 = 8,
+    CHIMERA_GUEST_ISA_RISCV64 = 9,
+    CHIMERA_GUEST_ISA_RISCV128 = 10,
+    CHIMERA_GUEST_ISA_MIPS32 = 11,
+    CHIMERA_GUEST_ISA_MIPS64 = 12,
+    CHIMERA_GUEST_ISA_POWERPC = 13,
+    CHIMERA_GUEST_ISA_PPC64 = 14,
+    CHIMERA_GUEST_ISA_LOONGARCH32 = 15,
+    CHIMERA_GUEST_ISA_LOONGARCH64 = 16,
+    CHIMERA_GUEST_ISA_S390X = 17,
+    CHIMERA_GUEST_ISA_SPARC_V9 = 18,
+    CHIMERA_GUEST_ISA_WASM32 = 19,
+    CHIMERA_GUEST_ISA_WASM64 = 20
+} chimera_nbit_guest_isa;
+
 typedef struct chimera_nbit_process_context {
     uint32_t process_id;
     uint32_t mode_bits;
+    uint32_t guest_isa;
     chimera_nbit_execution_class execution_class;
     uint32_t compatibility_target;
     uint32_t abi_version;
@@ -70,7 +95,7 @@ enum { CHIMERA_NBIT_CAP_ARBITRARY_WIDTH = 1u << 0,
 int chimera_nbit_init(void);
 int chimera_nbit_get_default(uint32_t *bits);
 int chimera_nbit_set_default(uint32_t bits);
-int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target);
+int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target);\nint chimera_nbit_set_default_profile_ex(uint32_t bits, chimera_nbit_backend backend, uint32_t compatibility_target, chimera_nbit_guest_isa guest_isa);
 int chimera_nbit_validate(uint32_t bits);
 int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out);
 int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id, uint32_t requested_bits, uint32_t compatibility_target);
