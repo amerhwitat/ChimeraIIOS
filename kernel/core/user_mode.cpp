@@ -100,7 +100,7 @@ static uint64_t *get_pte(uint64_t va, bool create) {
         uint64_t *pt=pt_pool[pt_pool_used++];
         const uint64_t base=pde&0x000FFFFFFFE00000ull;
         const uint64_t inherited=pde&(PRESENT|WRITE);
-        for(uint32_t i=0;i<512;i++) pt[i]=base+(uint64_t)i*PAGE|inherited;
+        for(uint32_t i=0;i<512;i++) pt[i]=(base+(uint64_t)i*PAGE)|inherited;
         pde=((uint64_t)pt)|PRESENT|WRITE|USER;
     } else if(!(pde&PRESENT)) {
         return nullptr;
