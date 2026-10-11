@@ -178,7 +178,7 @@ extern "C" int chimera_nbit_process_init_chimera(chimera_nbit_process_context *c
     ctx->execution_class = CHIMERA_EXEC_CHIMERA_VIRTUAL;
     ctx->compatibility_target = 0;
     ctx->abi_version = CHIMERA_NBIT_CONTEXT_VERSION;
-    ctx->flags = 1u; /* Native to the Chimera virtual ABI, not physical CPU hardware. */
+    ctx->flags = CHIMERA_NBIT_PROCESS_FLAG_CHIMERA_VIRTUAL;
     return store_process(ctx);
 }
 extern "C" int chimera_nbit_process_init_physical_native(chimera_nbit_process_context *ctx,
@@ -203,7 +203,7 @@ extern "C" int chimera_nbit_process_set_mode(chimera_nbit_process_context *ctx, 
     if (!ctx || !valid_mode(bits)) return -1;
     if (chimera_nbit_init() != 0) return -4;
     if (!chimera_hardware_supports_mode(&g_profile, bits)) return -2;
-    if (ctx->execution_class == CHIMERA_EXEC_NATIVE && !(ctx->flags & 1u) &&
+    if (ctx->execution_class == CHIMERA_EXEC_NATIVE && !(ctx->flags & CHIMERA_NBIT_PROCESS_FLAG_CHIMERA_VIRTUAL) &&
         !ctx->compatibility_target && bits != g_profile.native_nbit_mode) return -3;
     ctx->mode_bits = bits;
     ctx->execution_class = ctx->compatibility_target
@@ -216,7 +216,7 @@ extern "C" int chimera_nbit_process_set_compatibility(chimera_nbit_process_conte
     if (!ctx || !(target & g_profile.compatibility_mask) ||
         (target & ~g_profile.compatibility_mask)) return -1;
     ctx->compatibility_target = target;
-    ctx->flags &= ~1u;
+    ctx->flags &= ~CHIMERA_NBIT_PROCESS_FLAG_CHIMERA_VIRTUAL;
     ctx->execution_class = CHIMERA_EXEC_COMPATIBILITY;
     return store_process(ctx);
 }
