@@ -1,4 +1,5 @@
 #include "chimera/elf_loader.h"
+#include "chimera/nbit.h"
 #include <cassert>
 #include <cstdint>
 #include <cstring>
@@ -78,5 +79,14 @@ int main() {
                                         expected_stack, &ops, &pid);
     assert(result == -9);
     assert(mappings.empty() && allocated.empty() && chimera_process_count() == 0);
+
+    /* A virtual-width profile must never be handed to the physical ELF64 ring-3 path. */
+    fail_map_after = -1; map_calls = 0; pid = 0;
+    assert(chimera_nbit_set_default_profile(8193u, CHIMERA_NBIT_BACKEND_CHIMERA_VIRTUAL, 0u) == 0);
+    result = chimera_elf_load_and_enter(bytes.data(), bytes.size(), KORONOS_EM_X86_64,
+                                        expected_stack, &ops, &pid);
+    assert(result == -15 && pid == 0);
+    assert(mappings.empty() && allocated.empty() && chimera_process_count() == 0);
+    assert(chimera_nbit_set_default_profile(64u, CHIMERA_NBIT_BACKEND_AUTO, 0u) == 0);
     return 0;
 }
