@@ -61,6 +61,8 @@ typedef enum chimera_nbit_backend {
     CHIMERA_NBIT_BACKEND_COMPATIBILITY = 3
 } chimera_nbit_backend;
 
+enum { CHIMERA_NBIT_PROCESS_FLAG_CHIMERA_VIRTUAL = 1u << 0 };
+
 enum { CHIMERA_NBIT_CAP_ARBITRARY_WIDTH = 1u << 0,
        CHIMERA_NBIT_CAP_CHIMERA_VIRTUAL_ABI = 1u << 1,
        CHIMERA_NBIT_CAP_PHYSICAL_NATIVE_IS_HARDWARE_ONLY = 1u << 2 };
