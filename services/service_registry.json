@@ -1,15 +1,297 @@
 {
-  "schema":"CHM-SERVICE-1",
-  "services":[
-    {"id":"service-manager","lifecycle":"systemd/scm/launchd-compatible","platforms":["linux","windows","macos"],"capabilities":["start","stop","restart","status","dependencies","health"],"backends":{"linux":"systemd","windows":"scm","macos":"launchd"}},
-    {"id":"ipc","lifecycle":"managed","platforms":["linux","windows","macos","unix"],"capabilities":["bus","rpc","signals","peer-auth"],"backends":{"linux":"dbus","windows":"named-pipes-or-rpc","macos":"xpc-or-local-rpc","unix":"local-rpc"}},
-    {"id":"network","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["interfaces","wifi","dhcp","dns","routes","vpn"],"backends":{"linux":"networkmanager","windows":"native-networking","macos":"network-framework"}},
-    {"id":"audio-media","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["audio","video","routing","devices"],"backends":{"linux":"pipewire-alsa","windows":"wasapi","macos":"coreaudio-avfoundation"}},
-    {"id":"printing","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["ipp","cups","print-jobs","printers"],"backends":{"linux":"cups","windows":"spooler","macos":"cups-native"}},
-    {"id":"device-discovery","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["hotplug","hardware-ids","permissions"],"backends":{"linux":"udev","windows":"pnp","macos":"iokit-boundary"}},
-    {"id":"file-sharing","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["smb","shares","permissions"],"backends":{"linux":"samba","windows":"smb-server-client","macos":"smb-client"}},
-    {"id":"scheduler","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["timers","cron","tasks"],"backends":{"linux":"systemd-timers-cron","windows":"task-scheduler","macos":"launchd"}},
-    {"id":"terminal","lifecycle":"session","platforms":["linux","windows","macos"],"capabilities":["shell","pty","conpty","tabs"],"backends":{"linux":"pty","windows":"conpty-terminal","macos":"pty"}},
-    {"id":"logging","lifecycle":"managed","platforms":["linux","windows","macos"],"capabilities":["structured-logs","journaling","rotation"],"backends":{"linux":"journald-or-compat","windows":"eventlog","macos":"oslog"}}
+  "schema": "CHM-SERVICE-1",
+  "services": [
+    {
+      "id": "service-manager",
+      "lifecycle": "systemd/scm/launchd-compatible",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "start",
+        "stop",
+        "restart",
+        "status",
+        "dependencies",
+        "health"
+      ],
+      "backends": {
+        "linux": "systemd",
+        "windows": "scm",
+        "macos": "launchd"
+      }
+    },
+    {
+      "id": "ipc",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos",
+        "unix"
+      ],
+      "capabilities": [
+        "bus",
+        "rpc",
+        "signals",
+        "peer-auth"
+      ],
+      "backends": {
+        "linux": "dbus",
+        "windows": "named-pipes-or-rpc",
+        "macos": "xpc-or-local-rpc",
+        "unix": "local-rpc"
+      }
+    },
+    {
+      "id": "network",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "interfaces",
+        "wifi",
+        "dhcp",
+        "dns",
+        "routes",
+        "vpn"
+      ],
+      "backends": {
+        "linux": "networkmanager",
+        "windows": "native-networking",
+        "macos": "network-framework"
+      }
+    },
+    {
+      "id": "audio-media",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "audio",
+        "video",
+        "routing",
+        "devices"
+      ],
+      "backends": {
+        "linux": "pipewire-alsa",
+        "windows": "wasapi",
+        "macos": "coreaudio-avfoundation"
+      }
+    },
+    {
+      "id": "printing",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "ipp",
+        "cups",
+        "print-jobs",
+        "printers"
+      ],
+      "backends": {
+        "linux": "cups",
+        "windows": "spooler",
+        "macos": "cups-native"
+      }
+    },
+    {
+      "id": "device-discovery",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "hotplug",
+        "hardware-ids",
+        "permissions"
+      ],
+      "backends": {
+        "linux": "udev",
+        "windows": "pnp",
+        "macos": "iokit-boundary"
+      }
+    },
+    {
+      "id": "file-sharing",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "smb",
+        "shares",
+        "permissions"
+      ],
+      "backends": {
+        "linux": "samba",
+        "windows": "smb-server-client",
+        "macos": "smb-client"
+      }
+    },
+    {
+      "id": "scheduler",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "timers",
+        "cron",
+        "tasks"
+      ],
+      "backends": {
+        "linux": "systemd-timers-cron",
+        "windows": "task-scheduler",
+        "macos": "launchd"
+      }
+    },
+    {
+      "id": "terminal",
+      "lifecycle": "session",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "shell",
+        "pty",
+        "conpty",
+        "tabs"
+      ],
+      "backends": {
+        "linux": "pty",
+        "windows": "conpty-terminal",
+        "macos": "pty"
+      }
+    },
+    {
+      "id": "logging",
+      "lifecycle": "managed",
+      "platforms": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "capabilities": [
+        "structured-logs",
+        "journaling",
+        "rotation"
+      ],
+      "backends": {
+        "linux": "journald-or-compat",
+        "windows": "eventlog",
+        "macos": "oslog"
+      }
+    },
+    {
+      "id": "enterprise-targets",
+      "lifecycle": "boot-target",
+      "platforms": [
+        "chimera-native",
+        "linux-compatibility",
+        "mobile"
+      ],
+      "capabilities": [
+        "optional-service-profiles",
+        "explicit-consent",
+        "target-dependencies",
+        "health-gates",
+        "rollback"
+      ],
+      "backends": {
+        "chimera-native": "chimera-service",
+        "linux-compatibility": "systemd-or-compatibility",
+        "mobile": "mobile-service-manager"
+      },
+      "default_enabled": false,
+      "requires_user_review": true
+    },
+    {
+      "id": "gpu-compute",
+      "lifecycle": "on-demand",
+      "platforms": [
+        "chimera-native",
+        "linux-compatibility",
+        "mobile"
+      ],
+      "capabilities": [
+        "device-probe",
+        "vulkan",
+        "opencl",
+        "cuda",
+        "hip",
+        "shader-compilation",
+        "runtime-validation"
+      ],
+      "backends": {
+        "chimera-native": "chimera-gpu-toolchain",
+        "linux-compatibility": "vendor-runtime",
+        "mobile": "platform-gpu-runtime"
+      },
+      "default_enabled": false
+    },
+    {
+      "id": "nbit-runtime",
+      "lifecycle": "kernel-runtime",
+      "platforms": [
+        "chimera-native",
+        "linux-compatibility",
+        "mobile"
+      ],
+      "capabilities": [
+        "arbitrary-width-integer",
+        "bounded-instruction-cache",
+        "cross-width-ipc",
+        "binary32-binary64-lanes"
+      ],
+      "backends": {
+        "chimera-native": "koronos-nbit-vm",
+        "linux-compatibility": "chimera-nbit-runtime",
+        "mobile": "mobile-nbit-runtime"
+      },
+      "default_enabled": true
+    },
+    {
+      "id": "aurora-event-loop",
+      "lifecycle": "session",
+      "platforms": [
+        "chimera-native",
+        "linux-compatibility",
+        "mobile"
+      ],
+      "capabilities": [
+        "pointer-events",
+        "single-double-triple-click",
+        "keyboard-shortcuts",
+        "context-menus",
+        "compatibility-message-loop"
+      ],
+      "backends": {
+        "chimera-native": "aurora-event-loop",
+        "linux-compatibility": "compositor-adapter",
+        "mobile": "touch-event-adapter"
+      },
+      "default_enabled": true
+    }
   ]
 }
