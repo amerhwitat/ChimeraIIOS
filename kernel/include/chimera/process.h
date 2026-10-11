@@ -15,6 +15,7 @@ int chimera_process_admit_elf(const void*,uint64_t,uint16_t,uint64_t,chimera_pro
 int chimera_process_get(uint32_t,chimera_process_image*);
 int chimera_process_set_state(uint32_t,chimera_process_state);
 int chimera_process_set_execution_mode(uint32_t process_id, uint32_t mode_bits, uint32_t compatibility_target);
+int chimera_process_set_chimera_mode(uint32_t process_id, uint32_t mode_bits);
 uint32_t chimera_process_count(void);
 /* Removes an unstarted admitted process after a failed load transaction. */
 int chimera_process_discard_admitted(uint32_t pid);
