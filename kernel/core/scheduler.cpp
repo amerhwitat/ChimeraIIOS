@@ -60,21 +60,42 @@ extern "C" void chimera_sched_init(uint32_t n){
     unlock();
 }
 extern "C" uint32_t chimera_sched_cpu_count(void){lock();uint32_t n=cpus;unlock();return n;}
-extern "C" int chimera_sched_submit(chimera_task_fn fn,void*arg,uint32_t priority){
-    if(!fn)return -1;lock();if(count>=MAX_TASKS){unlock();return -2;}
-    uint32_t i=count++;tasks[i].fn=fn;tasks[i].arg=arg;
-    tasks[i].info={next_id++,0,CHIMERA_TASK_READY,priority,0ull,0,0};if(!next_id)next_id=1;
-    int id=(int)tasks[i].info.id;unlock();return id;
-}
-extern "C" int chimera_sched_set_affinity(uint32_t id,uint64_t mask){
-    if(!mask)return -1;lock();
-    for(uint32_t i=0;i<count;i++){
-        if(tasks[i].info.id!=id||tasks[i].info.state==CHIMERA_TASK_EXITED)continue;
-        uint32_t cpu=tasks[i].info.cpu;
-        if(owned_locked(i)&&(cpu>=64||(mask&(1ull<<cpu))==0)){unlock();return -3;}
-        tasks[i].info.affinity_mask=mask;unlock();return 0;
+extern "C" int chimera_sched_submit(chimera_task_fn fn, void *arg, uint32_t priority) {
+    if (!fn) return -1;
+
+    lock();
+    if (count >= MAX_TASKS) {
+        unlock();
+        return -2;
     }
-    unlock();return -2;
+
+    const uint32_t i = count++;
+    tasks[i].fn = fn;
+    tasks[i].arg = arg;
+    tasks[i].info = {next_id++, 0, CHIMERA_TASK_READY, priority, 0ull, 0, 0};
+    if (!next_id) next_id = 1;
+
+    const int id = (int)tasks[i].info.id;
+    unlock();
+    return id;
+}
+extern "C" int chimera_sched_set_affinity(uint32_t id, uint64_t mask) {
+    if (!mask) return -1;
+
+    lock();
+    for (uint32_t i = 0; i < count; ++i) {
+        if (tasks[i].info.id != id || tasks[i].info.state == CHIMERA_TASK_EXITED) continue;
+        const uint32_t cpu = tasks[i].info.cpu;
+        if (owned_locked(i) && (cpu >= 64 || (mask & (1ull << cpu)) == 0)) {
+            unlock();
+            return -3;
+        }
+        tasks[i].info.affinity_mask = mask;
+        unlock();
+        return 0;
+    }
+    unlock();
+    return -2;
 }
 extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     if(cpu>=chimera_sched_cpu_count())return 0;
@@ -113,7 +134,14 @@ extern "C" uint32_t chimera_sched_runnable_count(void){
         if(tasks[i].info.state==CHIMERA_TASK_READY&&!owned_locked(i))++n;
     unlock();return n;
 }
-extern "C" uint32_t chimera_sched_snapshot(chimera_task_info*out,uint32_t cap){
-    if(!out)return 0;lock();uint32_t n=count<cap?count:cap;
-    for(uint32_t i=0;i<n;i++)out[i]=tasks[i].info;unlock();return n;
+extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
+    if (!out) return 0;
+
+    lock();
+    const uint32_t n = count < cap ? count : cap;
+    for (uint32_t i = 0; i < n; ++i) {
+        out[i] = tasks[i].info;
+    }
+    unlock();
+    return n;
 }
