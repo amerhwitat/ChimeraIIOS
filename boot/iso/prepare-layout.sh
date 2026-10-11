@@ -66,6 +66,9 @@ cp -f "$ROOT/installer/services/enterprise-services.json" "$DIST/install/service
 cp -f "$ROOT/isa/gpu_isa_registry.json" "$DIST/usr/share/chimera/isa/gpu_isa_registry.json"
 cp -f "$ROOT/isa/isa_database.json" "$DIST/usr/share/chimera/isa/isa_database.json"
 install -m 0755 "$ROOT/tools/services/enterprise_service_installer.py" "$DIST/usr/lib/chimera/tools/enterprise_service_installer.py"
+install -m 0755 "$ROOT/tools/services/chimera_enterprise_targets.py" "$DIST/usr/lib/chimera/tools/chimera_enterprise_targets.py"
+mkdir -p "$DIST/usr/lib/systemd/system"
+cp -f "$ROOT/services/chimera-native/units/chimera-enterprise-services.service" "$DIST/usr/lib/systemd/system/chimera-enterprise-services.service"
 install -m 0755 "$ROOT/desktop/aurora/aurora_event_loop.py" "$DIST/usr/lib/chimera/aurora_event_loop.py"
 cp -f "$ROOT/boot/boot_protocol.json" "$DIST/install/boot_protocol.json"
 
