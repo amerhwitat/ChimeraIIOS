@@ -154,6 +154,18 @@ def main():
     if a.apply:
         out.parent.mkdir(parents=True,exist_ok=True)
         out.write_text(json.dumps(plan,indent=2)+"\n",encoding="utf-8")
+        tool_dir=a.rootfs/"usr/lib/chimera/tools"; tool_dir.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(ROOT/"tools/services/chimera_enterprise_targets.py",tool_dir/"chimera_enterprise_targets.py")
+        os.chmod(tool_dir/"chimera_enterprise_targets.py",0o755)
+        if a.enable and plan["enabled_targets"]:
+            unit_src=ROOT/"services/chimera-native/units/chimera-enterprise-services.service"
+            unit_dst=a.rootfs/"usr/lib/systemd/system/chimera-enterprise-services.service"
+            unit_dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(unit_src,unit_dst)
+            wants=a.rootfs/"etc/systemd/system/multi-user.target.wants"
+            wants.mkdir(parents=True,exist_ok=True)
+            link=wants/"chimera-enterprise-services.service"
+            if link.exists() or link.is_symlink(): link.unlink()
+            link.symlink_to("../../../../usr/lib/systemd/system/chimera-enterprise-services.service")
     print(json.dumps(plan,indent=2))
     return 0
 
