@@ -165,11 +165,20 @@ extern "C" int chimera_elf_load_and_enter(const void *image, uint64_t image_size
     /* Publish the process execution mode before handing control to user mode.
        Registered contexts are discoverable by the kernel-wide N-bit monitor. */
     chimera_nbit_process_context mode{};
-    if (chimera_nbit_process_init(&mode, plan.pid, 64u, 0u) != 0) {
+    if (chimera_nbit_process_init_default(&mode, plan.pid, 0u) != 0) {
         rollback(ops, pages, used);
         chimera_process_set_state(plan.pid, CHIMERA_PROCESS_ADMITTED);
         chimera_process_discard_admitted(plan.pid);
         return -13;
+    }
+    /* This transaction is specifically an ELF64/x86-64 hardware handoff.
+       Never enter ring 3 with a virtual-width or compatibility-only profile. */
+    if (mode.execution_class != CHIMERA_EXEC_NATIVE || mode.mode_bits != 64u ||
+        mode.compatibility_target != 0u) {
+        rollback(ops, pages, used);
+        chimera_process_set_state(plan.pid, CHIMERA_PROCESS_ADMITTED);
+        chimera_process_discard_admitted(plan.pid);
+        return -15;
     }
     if (chimera_process_set_state(plan.pid, CHIMERA_PROCESS_RUNNING) != 0) {
         rollback(ops, pages, used);
