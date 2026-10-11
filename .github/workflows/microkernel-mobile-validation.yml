@@ -49,3 +49,104 @@ jobs:
           grep -Fq '"generic_partition_flash": false' mobile/build-mobile-edition.sh
           grep -q 'exact_match_required' mobile/flash/mobile-flash-tool.sh
           grep -q 'sha256' mobile/flash/mobile-flash-tool.sh
+
+  nbit-koronos-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel, GRUB, and QEMU tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm binutils qemu-system-x86 grub-pc-bin grub-common xorriso mtools
+      - name: Test user-selected N-bit and ISA profiles
+        run: |
+          python3 tests/nbit/test_select_mode.py
+          python3 -m json.tool config/nbit-mode.json >/dev/null
+          python3 -m json.tool isa/isa_database.json >/dev/null
+          python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
+      - name: Compile and test Aurora N-bit settings
+        run: |
+          g++ -std=c++17 -Wall -Wextra desktop/aurora/apps/aurora_settings.cpp -o /tmp/aurora-settings-test
+          tmp="$(mktemp -d)"
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.width 8193
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.backend chimera-virtual
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.guest x86-32
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.compatibility linux
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.backend compatibility
+          python3 - "$tmp/.config/chimera/nbit-mode.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          p=json.loads(Path(sys.argv[1]).read_text())
+          assert p["selected_width_bits"] == 8193
+          assert p["backend_id"] == 3 and p["guest_isa_id"] == 3
+          assert p["compatibility_target_mask"] == 4
+          PY
+          if HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.width 0; then exit 1; fi
+      - name: Run arbitrary-width arithmetic and virtual-machine tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_runtime.cpp kernel/core/nbit_runtime.cpp -o /tmp/nbit-runtime-test
+          /tmp/nbit-runtime-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp -o /tmp/nbit-vm-test
+          /tmp/nbit-vm-test
+      - name: Run process registry, IPC, scheduler, and ELF transaction tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_process_registry.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/nbit-registry-test
+          /tmp/nbit-registry-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_ipc_service.cpp kernel/core/ipc.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/ipc-test
+          /tmp/ipc-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_physmem_allocator.cpp kernel/core/physmem.cpp -o /tmp/physmem-test
+          /tmp/physmem-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_elf_loader_transaction.cpp kernel/core/process.cpp kernel/core/elf_loader.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp kernel/core/ipc.cpp -o /tmp/elf-loader-test
+          /tmp/elf-loader-test
+          python3 tests/koronos/test_elf_scheduler_contracts.py
+      - name: Build kernel and arbitrary-width profile images
+        run: |
+          CHIMERA_NBIT_EXTRA_WIDTHS="13 8193" bash kernel/build-koronos.sh
+          readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Class:.*ELF64'
+          readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Machine:.*Advanced Micro Devices X86-64'
+          test -f build/koronos/x86_64/nbit/koronos-nbit-13.elf
+          test -f build/koronos/x86_64/nbit/koronos-nbit-8193.elf
+      - name: Boot GRUB Multiboot2 kernel with two vCPUs
+        shell: bash
+        run: |
+          set -euo pipefail
+          iso_root="$(mktemp -d)"
+          mkdir -p "$iso_root/boot/grub"
+          cp build/koronos/x86_64/koronos.elf "$iso_root/boot/koronos.elf"
+          cat > "$iso_root/boot/grub/grub.cfg" <<'GRUB'
+          set timeout=0
+          set default=0
+          menuentry "Koronos SMP acceptance" {
+            multiboot2 /boot/koronos.elf
+            boot
+          }
+          GRUB
+          grub-mkrescue -o /tmp/koronos-smp-smoke.iso "$iso_root"
+          log=/tmp/koronos-qemu-debugcon.log
+          rm -f "$log"
+          set +e
+          timeout --signal=TERM --kill-after=3s 15s qemu-system-x86_64 \
+            -machine q35,accel=tcg -cpu max -m 512M -smp 2 \
+            -cdrom /tmp/koronos-smp-smoke.iso -boot d \
+            -display none -serial none -monitor none -no-reboot -no-shutdown \
+            -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
+          qemu_rc=$?
+          set -e
+          if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 ]]; then
+            echo "QEMU exited before timeout (status $qemu_rc)" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
+          for marker in '[KRN ] koronos_boot entered' '[KRN ] KORONOS READY' '[SCH ] Bootstrap tasks submitted' '[RUN ] Entering Koronos scheduler loop'; do
+            grep -Fq "$marker" "$log" || { cat "$log" >&2; echo "Missing boot marker: $marker" >&2; exit 1; }
+          done
+          cat "$log"
+      - name: Preserve N-bit and QEMU logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nbit-koronos-acceptance
+          path: |
+            /tmp/koronos-qemu-debugcon.log
+            /tmp/chimera-isa-inventory.json
+          if-no-files-found: warn
