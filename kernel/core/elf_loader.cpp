@@ -174,7 +174,7 @@ extern "C" int chimera_elf_load_and_enter(const void *image, uint64_t image_size
     /* This transaction is specifically an ELF64/x86-64 hardware handoff.
        Never enter ring 3 with a virtual-width or compatibility-only profile. */
     if (mode.execution_class != CHIMERA_EXEC_NATIVE || mode.mode_bits != 64u ||
-        mode.compatibility_target != 0u) {
+        mode.compatibility_target != 0u || mode.guest_isa != CHIMERA_GUEST_ISA_X86_64) {
         rollback(ops, pages, used);
         chimera_process_set_state(plan.pid, CHIMERA_PROCESS_ADMITTED);
         chimera_process_discard_admitted(plan.pid);
