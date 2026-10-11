@@ -5,6 +5,9 @@ on:
   pull_request:
     paths:
       - 'CMakeLists.txt'
+      - 'config/**'
+      - 'tools/nbit/**'
+      - 'tools/runtime/chimera-nbit*'
       - 'boot/**'
       - 'kernel/**'
       - 'src/**'
