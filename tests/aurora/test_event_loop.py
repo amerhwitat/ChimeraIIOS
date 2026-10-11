@@ -39,7 +39,7 @@ class AuroraEventLoopTests(unittest.TestCase):
                 with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as client:
                     client.settimeout(2)
                     client.connect(str(path))
-                    client.sendall(b'{"surface":"window-titlebar","click_count":2,"maximized":false}\\n')
+                    client.sendall(b'{"surface":"window-titlebar","click_count":2,"maximized":false}\n')
                     response=json.loads(client.makefile("r",encoding="utf-8").readline())
                     self.assertEqual(response["request"]["action"],"maximize")
             finally:
