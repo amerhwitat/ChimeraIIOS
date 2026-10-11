@@ -78,13 +78,17 @@ jobs:
           python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
+      - name: Run N-bit process registry and cross-width IPC tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_process_registry.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-nbit-process-test
+          /tmp/koronos-nbit-process-test
       - name: Run physical-page allocator tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_physmem_allocator.cpp kernel/core/physmem.cpp -o /tmp/koronos-physmem-test
           /tmp/koronos-physmem-test
       - name: Run transactional ELF loader tests
         run: |
-          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_elf_loader_transaction.cpp kernel/core/process.cpp kernel/core/elf_loader.cpp -o /tmp/koronos-elf-loader-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_elf_loader_transaction.cpp kernel/core/process.cpp kernel/core/elf_loader.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-elf-loader-test
           /tmp/koronos-elf-loader-test
       - name: Build freestanding Koronos kernel
         run: |
