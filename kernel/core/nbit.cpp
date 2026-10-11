@@ -20,7 +20,7 @@ static void registry_unlock(void) { __sync_lock_release(&g_registry_lock); }
 static int valid_mode(uint32_t bits) {
     /* The virtual ABI accepts arbitrary positive widths, not only powers of two.
        Runtime memory and scheduler policy impose practical per-process limits. */
-    return bits >= CHIMERA_NBIT_MODE_MIN_BITS && bits <= CHIMERA_NBIT_MODE_MAX_BITS;
+    return bits != 0u;
 }
 static int find_process_locked(uint32_t process_id) {
     if (!process_id) return -1;
