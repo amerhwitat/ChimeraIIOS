@@ -37,7 +37,7 @@ void clear_endpoint(Endpoint &e){e=Endpoint{};}
 extern "C" int chimera_ipc_service_init(const chimera_ipc_service_ops *ops) {
     if(!ops||!ops->copy_from_user||!ops->copy_to_user)return -1;
     lock_service();
-    for(uint32_t i=0;i<CHIMERA_IPC_MAX_ENDPOINTS;++i)clear_endpoint(endpoints[i]);
+    if(initialized){unlock_service();return -2;}
     service_ops=*ops; initialized=true;
     unlock_service();
     return 0;
