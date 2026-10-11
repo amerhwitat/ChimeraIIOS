@@ -1,6 +1,6 @@
 {
   "$schema": "CHM-ISA-DB-4",
-  "version": "2026.10.10",
+  "version": "2026.10.11",
   "title": "Chimera II OS Universal ISA Database",
   "architecture_row": [
     "id",
@@ -1461,6 +1461,43 @@
       "supports": [
         "intel-xe-gpu"
       ]
+    },
+    {
+      "id": "intel-apx",
+      "name": "Intel Advanced Performance Extensions (APX) Architecture Specification",
+      "url": "https://www.intel.com/content/www/us/en/developer/tools/isa-extensions/overview.html",
+      "supports": [
+        "x86-64",
+        "x86-apx"
+      ],
+      "status": "official-specification-reference"
+    },
+    {
+      "id": "arm-architecture-reference",
+      "name": "Arm Architecture Reference Manuals and architecture overview",
+      "url": "https://developer.arm.com/architectures",
+      "supports": [
+        "aarch64",
+        "arm32",
+        "armv9-a64",
+        "arm-sve",
+        "arm-sme2"
+      ],
+      "status": "official-specification-reference"
+    },
+    {
+      "id": "riscv-ratified-2026",
+      "name": "RISC-V Ratified Specifications Library, January 2026 edition",
+      "url": "https://docs.riscv.org/reference/isa/v20260120/index.html",
+      "supports": [
+        "riscv32",
+        "riscv64",
+        "riscv128",
+        "riscv-vector",
+        "riscv-crypto",
+        "riscv-privileged"
+      ],
+      "status": "official-ratified-specification-reference"
     }
   ],
   "instructions": [
@@ -3649,18 +3686,7 @@
       "00000000000000000111000001111111"
     ]
   ],
-  "research_update": [
-    {
-      "date": "2026-10-10",
-      "summary": "Added catalog-only ISA extension/privileged candidates and explicit conversion profiles for every inventoried architecture.",
-      "policy": "No opcode rows were invented for new candidates; execution/conformance claims remain disabled until sourced encodings, decoders, semantics and tests exist."
-    },
-    {
-      "date": "2026-10-10",
-      "summary": "Added RV32I base instruction-form candidates corresponding to the existing reference decoder subset.",
-      "policy": "Copied only the shared fixed encodings of base integer forms from the canonical RISC-V 32-bit instruction rows; forms remain catalogued-unverified and are not conformance claims."
-    }
-  ],
+  "research_update": "[object Object],[object Object] Arbitrary-width virtual ABI update 2026-10-11: the kernel N-bit profile accepts any positive uint32 bit width, exposes a user-selectable Chimera virtual mode, and provides allocation-free caller-buffer integer primitives. Physical native width remains a hardware fact, not an arbitrary setting. Contemporary ISA source references include Intel APX/AVX10, Arm architecture references, and the January 2026 RISC-V ratified specifications; catalog presence remains distinct from executable backend and conformance status.",
   "isa_inventory_policy": {
     "scope": "Broad discoverable inventory of major CISC, RISC, EPIC/VLIW, GPU, virtual-machine and extension ISAs; not a claim that every proprietary, unpublished, historical, or custom ISA is enumerated.",
     "status_semantics": {
@@ -12285,7 +12311,7 @@
         "conformance_status": "not-tested"
       }
     },
-    "last_updated": "2026-10-10",
+    "last_updated": "2026-10-11",
     "hosted_compatibility_modes": {
       "schema": "CHIMERA-HOSTED-ISA-MAP-2",
       "policy": "These rows map host OS modes to physical ISA inventory candidates. A match does not mean the guest ABI, compiler backend, binary loader, or emulator is implemented. 32-bit host support applies only to matching-bitness user-space bridge and compatible host tools; it does not enable a 64-bit guest or kernel on a 32-bit host.",
@@ -14740,6 +14766,33 @@
         "set-less-than-signed",
         "set-less-than-unsigned"
       ]
+    },
+    "chimera_virtual_nbit": {
+      "abi": "CHIMERA-NBIT-VIRTUAL-1",
+      "width_policy": {
+        "minimum_bits": 1,
+        "maximum_bits": 4294967295,
+        "allowed_widths": "any positive integer width; no power-of-two whitelist",
+        "practical_limit": "bounded by per-process memory, kernel policy, and caller-provided buffer capacity"
+      },
+      "physical_native_policy": "Only hardware_profile.native_nbit_mode is reported as physical CPU native width. Vector widths such as AVX/AVX-512/SVE are not general-purpose native process widths.",
+      "execution_policy": "Chimera virtual N-bit mode is an OS-defined guest ABI executed through explicit semantic operations and architecture backends; it is native to the Chimera ABI, not a claim that the host CPU has registers of that width.",
+      "currently_implemented_operations": [
+        "unsigned add",
+        "unsigned subtract",
+        "bitwise AND",
+        "bitwise OR",
+        "bitwise XOR",
+        "bitwise NOT",
+        "logical shift left",
+        "logical shift right",
+        "unsigned compare"
+      ],
+      "storage": "little-endian caller-owned byte buffers; fixed-capacity views; no hidden heap allocation in the kernel arithmetic primitives",
+      "complexity": "linear O(width/8) for the implemented arithmetic and bitwise operations; alias-safe in-place operations where documented by the API",
+      "instruction_conformance": "not-claimed",
+      "native_machine_code_jit": "not-implemented",
+      "independent_isa_decoders": "must be implemented and conformance-tested per ISA; catalog metadata alone does not make x86, Arm, RISC-V, MIPS, Power, LoongArch, SPARC, or s390x binaries executable"
     }
   }
 }
