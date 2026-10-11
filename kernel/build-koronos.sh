@@ -75,7 +75,20 @@ auto_banner=''
 printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
 cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
 mkdir -p "$BUILD/nbit"
-for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
+NBIT_WIDTHS=(8 16 32 64 128 256 512 1024 2048 4096 8192)
+# Add any positive uint32 width as a build profile, e.g. CHIMERA_NBIT_EXTRA_WIDTHS="13 8193 100003".
+if [[ -n "${CHIMERA_NBIT_EXTRA_WIDTHS:-}" ]]; then
+  read -r -a extra_widths <<< "$CHIMERA_NBIT_EXTRA_WIDTHS"
+  for bits in "${extra_widths[@]}"; do
+    [[ "$bits" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR: invalid extra N-bit width: $bits" >&2; exit 1; }
+    (( bits <= 4294967295 )) || { echo "ERROR: N-bit width exceeds uint32 ABI limit: $bits" >&2; exit 1; }
+    NBIT_WIDTHS+=("$bits")
+  done
+fi
+declare -A seen_widths=()
+for bits in "${NBIT_WIDTHS[@]}"; do
+  [[ -n "${seen_widths[$bits]:-}" ]] && continue
+  seen_widths[$bits]=1
   "$CXX" "${CXXFLAGS[@]}" -DCHIMERA_NBIT_IMAGE_BITS="$bits" -c "$ROOT/kernel/core/nbit_note.cpp" -o "$BUILD/nbit-note-$bits.o"
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" "$BUILD/nbit-note-$bits.o" -o "$BUILD/nbit/koronos-nbit-$bits.elf"
 done
