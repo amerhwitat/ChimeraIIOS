@@ -106,7 +106,6 @@ extern "C" int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out) {
     if (!out) return -1;
     if (chimera_nbit_init() != 0) return -2;
     out->native_hardware_bits = g_profile.native_nbit_mode;
-    if (chimera_nbit_get_default(&out->default_mode_bits) != 0) return -3;
     out->minimum_virtual_bits = CHIMERA_NBIT_MODE_MIN_BITS;
     out->maximum_virtual_bits = CHIMERA_NBIT_MODE_MAX_BITS;
     out->registered_process_capacity = CHIMERA_NBIT_MAX_PROCESS_MODES;
