@@ -70,6 +70,8 @@ install -m 0755 "$ROOT/tools/services/chimera_enterprise_targets.py" "$DIST/usr/
 mkdir -p "$DIST/usr/lib/systemd/system"
 cp -f "$ROOT/services/chimera-native/units/chimera-enterprise-services.service" "$DIST/usr/lib/systemd/system/chimera-enterprise-services.service"
 install -m 0755 "$ROOT/desktop/aurora/aurora_event_loop.py" "$DIST/usr/lib/chimera/aurora_event_loop.py"
+mkdir -p "$DIST/usr/lib/chimera/tools/gpu"
+install -m 0755 "$ROOT/tools/gpu/chimera_gpu_toolchain.py" "$DIST/usr/lib/chimera/tools/gpu/chimera_gpu_toolchain.py"
 cp -f "$ROOT/boot/boot_protocol.json" "$DIST/install/boot_protocol.json"
 
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
