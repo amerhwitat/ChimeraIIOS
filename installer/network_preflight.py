@@ -133,7 +133,9 @@ def configure_wifi(ssid,password):
     if not command("nmcli"):
         return 127,"","Wi-Fi configuration currently requires NetworkManager (nmcli); no credentials were written."
     # Password is never placed in argv, shell history, logs, or the installer report.
-    if password is None:
+    if not password:
+        # Open Wi-Fi networks need no secret; a secured network fails safely here
+        # and the GUI can retry with a password.
         return run(["nmcli","--wait","35","device","wifi","connect",ssid],40)
     # Use a temporary private connection file; password is never in argv or logs.
     import tempfile
@@ -143,7 +145,7 @@ def configure_wifi(ssid,password):
     with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",prefix="chimera-wifi-",delete=False) as f:
         os.chmod(f.name,0o600)
         f.write("[connection]\nid="+connection_id+"\ntype=wifi\nautoconnect=false\n")
-        f.write("[wifi]\nmode=infrastructure\nssid="+key_escape(ssid)+"\n")
+        f.write("[wifi]\nmode=infrastructure\nhidden=true\nssid="+key_escape(ssid)+"\n")
         f.write("[wifi-security]\nkey-mgmt=wpa-psk\npsk="+key_escape(password)+"\n")
         f.write("[ipv4]\nmethod=auto\n[ipv6]\nmethod=auto\n")
         path=f.name
