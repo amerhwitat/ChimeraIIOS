@@ -34,9 +34,14 @@ chimera_interrupt_common:
     push r14
     push r15
 
-    mov rdi, [rsp + 120]
-    mov rsi, rsp
+    ; Preserve the saved-register frame in R12 and align the temporary
+    ; kernel call stack to the SysV AMD64 ABI before entering C++.
+    mov r12, rsp
+    and rsp, -16
+    mov rdi, [r12 + 120]
+    mov rsi, r12
     call chimera_interrupt_dispatch
+    mov rsp, r12
 
     mov rax, [rsp + 120]
     cmp eax, 8
