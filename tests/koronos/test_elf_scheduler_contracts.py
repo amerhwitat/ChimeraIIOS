@@ -30,8 +30,9 @@ class Proc(ctypes.Structure):
 
 class Mode(ctypes.Structure):
     _fields_ = [("process_id", ctypes.c_uint32), ("mode_bits", ctypes.c_uint32),
-                ("execution_class", ctypes.c_int), ("compatibility_target", ctypes.c_uint32),
-                ("abi_version", ctypes.c_uint32), ("flags", ctypes.c_uint32)]
+                ("guest_isa", ctypes.c_uint32), ("execution_class", ctypes.c_int),
+                ("compatibility_target", ctypes.c_uint32), ("abi_version", ctypes.c_uint32),
+                ("flags", ctypes.c_uint32)]
 
 class KernelContracts(unittest.TestCase):
     @classmethod
