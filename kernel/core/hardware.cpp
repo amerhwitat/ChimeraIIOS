@@ -28,6 +28,7 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->virtual_address_bits = 48;
     uint32_t a,b,c,d;
     cpuid(0,0,&a,&b,&c,&d);
+    const uint32_t max_basic_leaf = a;
     uint32_t vendor_words[3] = {b, d, c};
     for (size_t word = 0; word < 3; ++word) {
         for (size_t byte = 0; byte < 4; ++byte) {
@@ -43,7 +44,7 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     if (c & (1u<<30)) out->feature_bits |= CHIMERA_HW_RDRAND;
     if (c & (1u<<5)) out->feature_bits |= CHIMERA_HW_VMX;
     if (c & (1u<<28)) out->feature_bits |= CHIMERA_HW_AVX;
-    uint32_t max_leaf=a;
+    const uint32_t max_leaf=max_basic_leaf;
     uint32_t ext_max=0;
     cpuid(0x80000000u,0,&ext_max,&b,&c,&d);
     if(ext_max>=0x80000008u){
