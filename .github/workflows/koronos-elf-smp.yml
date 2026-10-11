@@ -209,8 +209,8 @@ jobs:
             '[KRN ] koronos_boot entered' \
             '[KRN ] KORONOS READY' \
             '[SCH ] Bootstrap tasks submitted' \
-            '[RUN ] Entering Koronos scheduler loop' \\
-            '[UABI] x86-64 user page tables, GDT/TSS and IDT ready' \\
+            '[RUN ] Entering Koronos scheduler loop' \
+            '[UABI] x86-64 user page tables, GDT/TSS and IDT ready' \
             '[USER] Ring-3 Chimera init entered successfully; userspace handoff verified'; do
             grep -Fq "$marker" "$log" || {
               echo "Missing QEMU boot marker: $marker" >&2
