@@ -1,3 +1,5 @@
+#include <cstdint>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -12,6 +14,11 @@ static fs::path config_path() {
     if (const char* p=std::getenv("CHIMERA_SETTINGS_FILE"); p && *p) return p;
     if (const char* h=std::getenv("HOME"); h && *h) return fs::path(h)/".config/chimera/settings.conf";
     return "/etc/chimera/settings.conf";
+}
+static fs::path nbit_profile_path() {
+    if (const char* p=std::getenv("CHIMERA_NBIT_PROFILE_FILE"); p && *p) return p;
+    if (const char* h=std::getenv("HOME"); h && *h) return fs::path(h)/".config/chimera/nbit-mode.json";
+    return "/etc/chimera/nbit-mode.json";
 }
 static std::vector<Setting> defaults() {
     return {
@@ -33,8 +40,11 @@ static std::vector<Setting> defaults() {
       {"performance.background","Background resource mode","opportunistic","Use idle CPU/RAM/I/O without starving interactive work"},
       {"performance.knowledge_cache","Knowledge cache","disk-first","Keep content on disk; bound metadata cache in RAM"},
       {"updates.reboot_policy","Reboot policy","ask","ask/later/now; patches never reboot silently"},
-      {"isa.nbit.width","N-bit ISA width","auto","auto selects the hardware-native mode; 8/16/32/64/128/256/512/1024/2048/4096/8192 are supported execution widths"},
-      {"isa.nbit.style","N-bit ISA style","RISC","RISC/CISC/HYBRID live execution profile"},
+      {"isa.nbit.width","N-bit width","auto","auto or any positive width from 1 to 4294967295; no power-of-two whitelist"},
+      {"isa.nbit.backend","N-bit backend","auto","auto/chimera-virtual/physical-native/compatibility"},
+      {"isa.nbit.guest","Guest ISA","auto","auto/chimera-nbit/x86-16/x86-32/x86-64/aarch64/arm32/riscv32/riscv64/mips32/mips64/powerpc/loongarch64/s390x/sparc-v9/wasm32/wasm64"},
+      {"isa.nbit.compatibility","Compatibility personality","auto","auto/native/windows/linux/bsd/darwin/android/ios; set before choosing compatibility backend"},
+      {"isa.nbit.style","N-bit ISA style","HYBRID","RISC/CISC/HYBRID semantic mapping preference; not a conformance claim"},
       {"isa.execution.mode","ISA execution mode","AutoHardware","Scalar/Vector/NativeWide/JIT/QuantumHybrid"},
       {"neural.dimensions","Neural representation dimensions","1024","Live deep-learning dimensionality; 128D baseline, higher dimensions enabled"},
       {"neural.representation","Neural representation","HyperDimensional","HyperDimensional/Tensor/Hybrid"},
@@ -45,25 +55,95 @@ static std::vector<Setting> defaults() {
       {"security.biometric.liveness","Require liveness","true","Require provider liveness for face/iris/palm/voice/vein"}
     };
 }
+static std::string value_of(const std::vector<Setting>& v,const std::string& key) {
+    for(const auto& s:v)if(s.key==key)return s.value;
+    return {};
+}
+static bool valid_width(const std::string& value) {
+    if(value=="auto")return true;
+    if(value.empty())return false;
+    uint64_t n=0;
+    for(char ch:value) {
+        if(ch<'0'||ch>'9')return false;
+        n=n*10u+(uint64_t)(ch-'0');
+        if(n>UINT32_MAX)return false;
+    }
+    return n>0;
+}
+static bool valid_setting(const std::string& key,const std::string& value) {
+    if(key=="isa.nbit.width")return valid_width(value);
+    if(key=="isa.nbit.backend")
+        return value=="auto"||value=="chimera-virtual"||value=="physical-native"||value=="compatibility";
+    if(key=="isa.nbit.guest") {
+        static const char* choices[]={"auto","chimera-nbit","x86-16","x86-32","x86-64","aarch64","arm32","arm32-thumb","riscv32","riscv64","riscv128","mips32","mips64","powerpc","ppc64","loongarch32","loongarch64","s390x","sparc-v9","wasm32","wasm64"};
+        for(const char* choice:choices)if(value==choice)return true;
+        return false;
+    }
+    if(key=="isa.nbit.compatibility")
+        return value=="auto"||value=="native"||value=="windows"||value=="linux"||value=="bsd"||value=="darwin"||value=="android"||value=="ios";
+    if(key=="isa.nbit.style")return value=="RISC"||value=="CISC"||value=="HYBRID";
+    return true;
+}
+static uint32_t compatibility_mask(const std::string& target) {
+    if(target=="native")return 1u<<0;
+    if(target=="windows")return 1u<<1;
+    if(target=="linux")return 1u<<2;
+    if(target=="bsd")return 1u<<3;
+    if(target=="darwin")return 1u<<4;
+    if(target=="android")return 1u<<5;
+    if(target=="ios")return 1u<<6;
+    return 0;
+}
+static bool save_nbit_profile(const std::vector<Setting>& v) {
+    const std::string width_text=value_of(v,"isa.nbit.width");
+    const std::string backend=value_of(v,"isa.nbit.backend");
+    const std::string guest=value_of(v,"isa.nbit.guest");
+    const std::string personality=value_of(v,"isa.nbit.compatibility");
+    if(!valid_width(width_text)||!valid_setting("isa.nbit.backend",backend)||
+       !valid_setting("isa.nbit.guest",guest)||!valid_setting("isa.nbit.compatibility",personality))return false;
+    const uint32_t target=compatibility_mask(personality);
+    if(backend=="compatibility"&&!target)return false;
+    const uint32_t width=width_text=="auto"?0u:(uint32_t)std::stoull(width_text);
+    const fs::path path=nbit_profile_path();
+    std::error_code ec;fs::create_directories(path.parent_path(),ec);
+    if(ec)return false;
+    std::ofstream f(path,std::ios::trunc);if(!f)return false;
+    f<<"{\n"
+     <<"  \"schema\": \"CHIMERA-NBIT-USER-PROFILE-1\",\n"
+     <<"  \"selected_width_bits\": "<<width<<",\n"
+     <<"  \"backend\": \""<<backend<<"\",\n"
+     <<"  \"guest_isa\": \""<<(guest=="auto"&&backend=="chimera-virtual"?"chimera-nbit":guest)<<"\",\n"
+     <<"  \"compatibility_personality\": "<<(personality=="auto"?"null":"\""+personality+"\"")<<",\n"
+     <<"  \"compatibility_target_mask\": "<<target<<",\n"
+     <<"  \"physical_native_width_is_hardware_defined\": true,\n"
+     <<"  \"arbitrary_width_virtual_abi\": true,\n"
+     <<"  \"validation_required_at_kernel_admission\": true,\n"
+     <<"  \"isa_catalog_does_not_imply_executable_backend\": true\n"
+     <<"}\n";
+    return f.good();
+}
 static std::vector<Setting> load() {
     auto v=defaults(); std::ifstream f(config_path()); std::string line;
     while(std::getline(f,line)) {
         auto eq=line.find('='); if(eq==std::string::npos) continue;
         auto key=line.substr(0,eq), value=line.substr(eq+1);
-        for(auto& s:v) if(s.key==key) s.value=value;
+        for(auto& s:v) if(s.key==key&&valid_setting(key,value)) s.value=value;
     }
     return v;
 }
 static bool save(const std::vector<Setting>& v) {
     std::error_code ec; fs::create_directories(config_path().parent_path(),ec);
+    if(ec)return false;
     std::ofstream f(config_path()); if(!f) return false;
     f<<"# Chimera II OS Aurora settings\n";
     for(const auto& s:v) f<<s.key<<"="<<s.value<<"\n";
-    return true;
+    f.close();
+    return f.good()&&save_nbit_profile(v);
 }
 static void usage() {
     std::cout<<"Aurora Settings — Chimera II OS\n"
-             <<"Usage: aurora-settings [list|show KEY|set KEY VALUE|reset|category CATEGORY]\n";
+             <<"Usage: aurora-settings [list|show KEY|set KEY VALUE|reset|category CATEGORY]\n"
+             <<"N-bit: set isa.nbit.width auto|BITS; isa.nbit.backend auto|chimera-virtual|physical-native|compatibility; isa.nbit.guest ISA\n";
 }
 int main(int argc,char** argv) {
     auto v=load();
@@ -77,7 +157,14 @@ int main(int argc,char** argv) {
         return 1;
     }
     if(cmd=="set" && argc>=4) {
-        for(auto&s:v) if(s.key==argv[2]) { s.value=argv[3]; if(save(v)){std::cout<<"Applied: "<<s.key<<"="<<s.value<<"\n";return 0;} return 2; }
+        for(auto&s:v) if(s.key==argv[2]) {
+            if(!valid_setting(s.key,argv[3])){std::cerr<<"Invalid value for "<<s.key<<": "<<argv[3]<<"\n";return 1;}
+            const std::string previous=s.value;s.value=argv[3];
+            if(save(v)){std::cout<<"Applied: "<<s.key<<"="<<s.value<<"\nN-bit profile: "<<nbit_profile_path()<<"\n";return 0;}
+            s.value=previous;
+            std::cerr<<"Could not persist settings/N-bit profile; compatibility backend requires a selected compatibility personality.\n";
+            return 2;
+        }
         std::cerr<<"Unknown setting: "<<argv[2]<<"\n"; return 1;
     }
     if(cmd=="reset") {
