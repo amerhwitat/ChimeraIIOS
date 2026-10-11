@@ -67,7 +67,7 @@ class EventSocketHandler(socketserver.StreamRequestHandler):
                 response={"event":"rejected","error":"event exceeds 1 MiB"}
             else:
                 response=dispatch_line(raw.decode("utf-8","replace"))
-            self.wfile.write((json.dumps(response,separators=(",",":"))+"\\n").encode("utf-8"))
+            self.wfile.write((json.dumps(response,separators=(",",":"))+"\n").encode("utf-8"))
             self.wfile.flush()
 
 def main():
