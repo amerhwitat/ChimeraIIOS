@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "chimera/hardware.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
