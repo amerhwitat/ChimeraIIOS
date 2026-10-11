@@ -122,11 +122,9 @@ def configure_wifi(ssid,password):
     if not command("nmcli"):
         return 127,"","Wi-Fi configuration currently requires NetworkManager (nmcli); no credentials were written."
     # Password is supplied on stdin, never placed in argv, shell history, logs, or report.
-    rc,out,err=run(["nmcli","--wait","35","--ask","device","wifi","connect",ssid],40)
-    if rc==0:return rc,out,err
-    # Explicit secure fallback: nmcli's password prompt is handled by its TTY, so
-    # use a temporary private connection file only if password was provided.
-    if password is None:return rc,out,err
+    if password is None:
+        return run(["nmcli","--wait","35","device","wifi","connect",ssid],40)
+    # Use a temporary private connection file; password is never in argv or logs.
     import tempfile
     with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",prefix="chimera-wifi-",delete=False) as f:
         os.chmod(f.name,0o600)
@@ -159,9 +157,25 @@ def recommend(report):
             rec.append({"priority":"high","title":"Resolve missing NIC driver/firmware","detail":"Inspect PCI/USB vendor IDs and modalias; choose a signed kernel driver and matching firmware. Do not install an unverified binary."})
         if not devices: rec.append({"priority":"high","title":"No network interface found","detail":"Check UEFI/BIOS device settings, USB tethering/Ethernet adapters, and virtual-machine NIC attachment."})
         if not rec: rec.append({"priority":"medium","title":"Network needs diagnosis","detail":"Check link, DHCP, gateway, DNS, captive portal, and firewall."})
-    # Local RNN/LLM adviser is opt-in and cannot perform actions. Its output is
-    # advisory only; deterministic hardware rules remain the fallback.
-    return rec
+    # The installed RNN/LLM advisor may rank these recommendations. It receives
+    # hardware facts only, has a strict timeout, cannot execute actions, and its
+    # output is schema-checked. Deterministic rules remain the fallback.
+    advisor=command("chimera-rnn-recommend")
+    if advisor:
+        payload=json.dumps({"task":"installer-network-next-steps","inventory":report,"rules_recommendations":rec})
+        rc,out,_=run([advisor,"--task","installer-network-next-steps","--json"],timeout=3,input_text=payload)
+        if rc==0:
+            try:
+                candidate=json.loads(out)
+                items=candidate.get("recommendations")
+                if isinstance(items,list) and items and all(isinstance(x,dict) and
+                    isinstance(x.get("title"),str) and isinstance(x.get("detail"),str) for x in items[:8]):
+                    return [{"priority":str(x.get("priority","medium"))[:16],
+                             "title":x["title"][:120],"detail":x["detail"][:500],
+                             "source":"rnn-llm-advisory"} for x in items[:8]]
+            except (ValueError,TypeError,AttributeError):
+                pass
+    return [dict(x,source="hardware-rules") for x in rec]
 
 def probe():
     devices=driver_evidence(device_inventory())
