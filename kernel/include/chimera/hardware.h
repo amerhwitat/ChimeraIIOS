@@ -46,7 +46,10 @@ enum {
     CHIMERA_HW_VMX = 1u << 6,
     CHIMERA_HW_SVM = 1u << 7,
     CHIMERA_HW_NEON = 1u << 8,
-    CHIMERA_HW_SVE = 1u << 9
+    CHIMERA_HW_SVE = 1u << 9,
+    CHIMERA_HW_FPU = 1u << 10,
+    CHIMERA_HW_XSAVE = 1u << 11,
+    CHIMERA_HW_OSXSAVE = 1u << 12
 };
 
 typedef struct chimera_hardware_profile {
