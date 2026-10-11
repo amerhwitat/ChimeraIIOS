@@ -5,10 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 
+static bool fail_copy_to = false;
+
 static int copy_from(void *,uint32_t,void *dst,const void *src,uint32_t n){
     if(!dst||!src)return -1;memcpy(dst,src,n);return 0;
 }
 static int copy_to(void *,uint32_t,void *dst,const void *src,uint32_t n){
+    if(fail_copy_to)return -2;
     if(!dst||!src)return -1;memcpy(dst,src,n);return 0;
 }
 int main(){
@@ -36,6 +39,12 @@ int main(){
     assert(chimera_ipc_send(101,77,cap,payload,13,999)==-8);
     uint8_t output[2]={};
     chimera_ipc_message_info info{};
+    assert(chimera_ipc_receive(202,77,cap,output,1,&info)==-6);
+    assert(chimera_ipc_queued_messages(77)==CHIMERA_IPC_QUEUE_DEPTH);
+    fail_copy_to=true;
+    assert(chimera_ipc_receive(202,77,cap,output,sizeof(output),&info)==-7);
+    fail_copy_to=false;
+    assert(chimera_ipc_queued_messages(77)==CHIMERA_IPC_QUEUE_DEPTH);
     assert(chimera_ipc_receive(202,77,cap,output,sizeof(output),&info)==2);
     assert(info.sender_pid==101&&info.sender_mode_bits==32&&info.receiver_mode_bits==128);
     assert(info.payload_bits==13&&info.payload_bytes==2&&info.sequence==10);
