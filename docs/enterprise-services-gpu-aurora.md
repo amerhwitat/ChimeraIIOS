@@ -6,7 +6,7 @@ The installer catalog at `installer/services/enterprise-services.json` groups id
 
 `tools/services/enterprise_service_installer.py` prints a plan by default. With `--apply`, it attempts to download and extract packages into the chosen rootfs, never installing them into the running build host. It retries other available package managers if the first staging adapter fails. The adapters currently support safe rootfs extraction for apt/deb and dnf/yum with rpm2cpio/cpio; other package managers are detected but skipped when they cannot safely stage into a rootfs.
 
-Source fallback is opt-in and requires both `--source-archive SERVICE=PATH` and `--source-sha256 SERVICE=HEX`. Archives are hash-checked and unsafe paths/links are rejected before extraction. Builds run with `DESTDIR` set to the target rootfs. A successful source build is not, by itself, proof of ABI compatibility, correct dependency closure, hardened service configuration, or operational readiness.
+Source fallback is opt-in and requires a verified archive plus `--source-sha256 SERVICE=HEX`. Use `--source-archive SERVICE=PATH` for a local archive or `--source-url SERVICE=HTTPS_URL` to download an archive over HTTPS. Downloaded bytes are not extracted or executed until the supplied SHA-256 matches. The catalog's human-facing project pages are not assumed to be tarball URLs. Archives are hash-checked and unsafe paths/links are rejected before extraction. Builds run with `DESTDIR` set to the target rootfs. A successful source build is not, by itself, proof of ABI compatibility, correct dependency closure, hardened service configuration, or operational readiness.
 
 Example plan:
 
