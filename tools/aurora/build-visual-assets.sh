@@ -55,10 +55,27 @@ convert_svg() {
 "$ROOT/tools/aurora/generate-default-artwork.sh" "$DEFAULTS"
 
 # Prefer supplied/Library artwork; otherwise use deterministic generated artwork.
-copy_first backgrounds/boot.jpg   "$LIB/Aurora Wayland Desktop - boot background.jpg"   "$ROOT/boot/jasper/background.jpg" || convert_svg "$DEFAULTS/aurora-boot.svg" "$OUT/backgrounds/boot.png"
+copy_first backgrounds/boot.jpg   "$LIB/Aurora Wayland Desktop - boot background.jpg"   "$ROOT/boot/jasper/background.jpg" || {
+  # Reuse the canonical embedded artwork already shipped in the repository
+  # before resorting to generated placeholder artwork.
+  python3 - "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" "$OUT/backgrounds/boot.jpg" <<'PYART'
+import base64, pathlib, sys
+src, dst = map(pathlib.Path, sys.argv[1:])
+try:
+    raw = base64.b64decode(src.read_text(encoding="ascii"), validate=True)
+    if not raw.startswith(bytes((255, 216, 255))):
+        raise ValueError("embedded artwork is not a JPEG")
+    dst.write_bytes(raw)
+except (OSError, ValueError) as exc:
+    print(f"[WARN] Embedded Aurora artwork unavailable: {exc}", file=sys.stderr)
+    raise SystemExit(1)
+PYART
+} || convert_svg "$DEFAULTS/aurora-boot.svg" "$OUT/backgrounds/boot.png"
 copy_first backgrounds/desktop.png   "$LIB/Aurora Wayland Glass Desktop.png"   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg" || convert_svg "$DEFAULTS/aurora-desktop.svg" "$OUT/backgrounds/desktop.png"
 copy_first backgrounds/showcase.png   "$LIB/Aurora Wayland Desktop Showcase.png" || convert_svg "$DEFAULTS/aurora-splash.svg" "$OUT/backgrounds/showcase.png"
-copy_first menus/default.png   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg"   "$LIB/Aurora Wayland Glass Desktop.png" || convert_svg "$DEFAULTS/aurora-menu.svg" "$OUT/menus/default.png"
+copy_first menus/default.png   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg"   "$LIB/Aurora Wayland Glass Desktop.png" || {
+  [[ -s "$OUT/backgrounds/boot.jpg" ]] && cp -f "$OUT/backgrounds/boot.jpg" "$OUT/menus/default.png"
+} || convert_svg "$DEFAULTS/aurora-menu.svg" "$OUT/menus/default.png"
 
 # Normalize supplied raster artwork to real PNG data.
 normalize_png() {
