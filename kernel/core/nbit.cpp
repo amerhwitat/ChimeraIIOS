@@ -67,6 +67,7 @@ extern "C" int chimera_nbit_validate(uint32_t bits) { return valid_mode(bits) ? 
 extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint32_t process_id,
                                            uint32_t requested_bits, uint32_t compatibility_target) {
     if (!ctx || !process_id) return -1;
+    if (g_profile.version != CHIMERA_HW_PROFILE_VERSION && chimera_nbit_init() != 0) return -4;
     uint32_t mode = requested_bits ? requested_bits : g_default_mode;
     if (!valid_mode(mode)) return -2;
     if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
