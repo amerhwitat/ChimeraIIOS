@@ -90,6 +90,62 @@
         "mosquitto"
       ],
       "default": false
+    },
+    {
+      "id": "network-edge",
+      "label": "Network edge and remote access",
+      "services": [
+        "bind9",
+        "dhcp-server",
+        "wireguard",
+        "openvpn",
+        "freeradius"
+      ],
+      "default": false
+    },
+    {
+      "id": "email-platform",
+      "label": "Enterprise email",
+      "services": [
+        "postfix",
+        "dovecot"
+      ],
+      "default": false
+    },
+    {
+      "id": "security-and-time",
+      "label": "Security and time services",
+      "services": [
+        "chrony",
+        "fail2ban",
+        "vault"
+      ],
+      "default": false
+    },
+    {
+      "id": "object-storage",
+      "label": "Object storage",
+      "services": [
+        "minio"
+      ],
+      "default": false
+    },
+    {
+      "id": "virtualization",
+      "label": "Virtualization hosts",
+      "services": [
+        "libvirt",
+        "qemu"
+      ],
+      "default": false
+    },
+    {
+      "id": "ci-runners",
+      "label": "CI runners",
+      "services": [
+        "gitlab-runner"
+      ],
+      "default": false
     }
   ],
   "services": [
@@ -1064,6 +1120,626 @@
           "mvn package"
         ]
       }
+    },
+    {
+      "id": "bind9",
+      "profile": "network-edge",
+      "label": "BIND DNS server",
+      "boot_target": "enterprise-network.target",
+      "packages": {
+        "apt-get": [
+          "bind9"
+        ],
+        "dnf": [
+          "bind"
+        ],
+        "yum": [
+          "bind"
+        ],
+        "zypper": [
+          "bind"
+        ],
+        "pacman": [
+          "bind"
+        ],
+        "apk": [
+          "bind"
+        ],
+        "brew": [
+          "bind"
+        ],
+        "snap": [
+          "bind"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://downloads.isc.org/isc/bind9/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "dhcp-server",
+      "profile": "network-edge",
+      "label": "ISC DHCP server",
+      "boot_target": "enterprise-network.target",
+      "packages": {
+        "apt-get": [
+          "isc-dhcp-server"
+        ],
+        "dnf": [
+          "dhcp-server"
+        ],
+        "yum": [
+          "dhcp-server"
+        ],
+        "zypper": [
+          "dhcp-server"
+        ],
+        "pacman": [
+          "dhcp"
+        ],
+        "apk": [
+          "dhcp-server"
+        ],
+        "brew": [
+          "isc-dhcp"
+        ],
+        "snap": [
+          "dhcp-server"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://downloads.isc.org/isc/dhcp/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "wireguard",
+      "profile": "network-edge",
+      "label": "WireGuard VPN",
+      "boot_target": "enterprise-network.target",
+      "packages": {
+        "apt-get": [
+          "wireguard"
+        ],
+        "dnf": [
+          "wireguard-tools"
+        ],
+        "yum": [
+          "wireguard-tools"
+        ],
+        "zypper": [
+          "wireguard-tools"
+        ],
+        "pacman": [
+          "wireguard-tools"
+        ],
+        "apk": [
+          "wireguard-tools"
+        ],
+        "brew": [
+          "wireguard-tools"
+        ],
+        "snap": [
+          "wireguard"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.wireguard.com/quickstart/",
+        "sha256_required": true,
+        "build": [
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "openvpn",
+      "profile": "network-edge",
+      "label": "OpenVPN",
+      "boot_target": "enterprise-network.target",
+      "packages": {
+        "apt-get": [
+          "openvpn"
+        ],
+        "dnf": [
+          "openvpn"
+        ],
+        "yum": [
+          "openvpn"
+        ],
+        "zypper": [
+          "openvpn"
+        ],
+        "pacman": [
+          "openvpn"
+        ],
+        "apk": [
+          "openvpn"
+        ],
+        "brew": [
+          "openvpn"
+        ],
+        "snap": [
+          "openvpn"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/OpenVPN/openvpn",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "freeradius",
+      "profile": "network-edge",
+      "label": "FreeRADIUS",
+      "boot_target": "enterprise-identity.target",
+      "packages": {
+        "apt-get": [
+          "freeradius"
+        ],
+        "dnf": [
+          "freeradius"
+        ],
+        "yum": [
+          "freeradius"
+        ],
+        "zypper": [
+          "freeradius-server"
+        ],
+        "pacman": [
+          "freeradius"
+        ],
+        "apk": [
+          "freeradius"
+        ],
+        "brew": [
+          "freeradius"
+        ],
+        "snap": [
+          "freeradius"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/FreeRADIUS/freeradius-server",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "postfix",
+      "profile": "email-platform",
+      "label": "Postfix mail transfer agent",
+      "boot_target": "enterprise-messaging.target",
+      "packages": {
+        "apt-get": [
+          "postfix"
+        ],
+        "dnf": [
+          "postfix"
+        ],
+        "yum": [
+          "postfix"
+        ],
+        "zypper": [
+          "postfix"
+        ],
+        "pacman": [
+          "postfix"
+        ],
+        "apk": [
+          "postfix"
+        ],
+        "brew": [
+          "postfix"
+        ],
+        "snap": [
+          "postfix"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.postfix.org/download.html",
+        "sha256_required": true,
+        "build": [
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "dovecot",
+      "profile": "email-platform",
+      "label": "Dovecot IMAP/POP3",
+      "boot_target": "enterprise-messaging.target",
+      "packages": {
+        "apt-get": [
+          "dovecot-imapd"
+        ],
+        "dnf": [
+          "dovecot"
+        ],
+        "yum": [
+          "dovecot"
+        ],
+        "zypper": [
+          "dovecot"
+        ],
+        "pacman": [
+          "dovecot"
+        ],
+        "apk": [
+          "dovecot"
+        ],
+        "brew": [
+          "dovecot"
+        ],
+        "snap": [
+          "dovecot"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/dovecot/core",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "chrony",
+      "profile": "security-and-time",
+      "label": "Chrony time synchronization",
+      "boot_target": "enterprise-infrastructure.target",
+      "packages": {
+        "apt-get": [
+          "chrony"
+        ],
+        "dnf": [
+          "chrony"
+        ],
+        "yum": [
+          "chrony"
+        ],
+        "zypper": [
+          "chrony"
+        ],
+        "pacman": [
+          "chrony"
+        ],
+        "apk": [
+          "chrony"
+        ],
+        "brew": [
+          "chrony"
+        ],
+        "snap": [
+          "chrony"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://chrony-project.org/download.html",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "fail2ban",
+      "profile": "security-and-time",
+      "label": "Fail2ban intrusion throttling",
+      "boot_target": "enterprise-security.target",
+      "packages": {
+        "apt-get": [
+          "fail2ban"
+        ],
+        "dnf": [
+          "fail2ban"
+        ],
+        "yum": [
+          "fail2ban"
+        ],
+        "zypper": [
+          "fail2ban"
+        ],
+        "pacman": [
+          "fail2ban"
+        ],
+        "apk": [
+          "fail2ban"
+        ],
+        "brew": [
+          "fail2ban"
+        ],
+        "snap": [
+          "fail2ban"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/fail2ban/fail2ban",
+        "sha256_required": true,
+        "build": [
+          "python3 -m build"
+        ]
+      }
+    },
+    {
+      "id": "vault",
+      "profile": "security-and-time",
+      "label": "HashiCorp Vault secrets service",
+      "boot_target": "enterprise-security.target",
+      "packages": {
+        "apt-get": [
+          "vault"
+        ],
+        "dnf": [
+          "vault"
+        ],
+        "yum": [
+          "vault"
+        ],
+        "zypper": [
+          "vault"
+        ],
+        "pacman": [
+          "vault"
+        ],
+        "apk": [
+          "vault"
+        ],
+        "brew": [
+          "vault"
+        ],
+        "snap": [
+          "vault"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/hashicorp/vault",
+        "sha256_required": true,
+        "build": [
+          "go build"
+        ]
+      }
+    },
+    {
+      "id": "minio",
+      "profile": "object-storage",
+      "label": "S3-compatible object storage",
+      "boot_target": "enterprise-storage.target",
+      "packages": {
+        "apt-get": [
+          "minio"
+        ],
+        "dnf": [
+          "minio"
+        ],
+        "yum": [
+          "minio"
+        ],
+        "zypper": [
+          "minio"
+        ],
+        "pacman": [
+          "minio"
+        ],
+        "apk": [
+          "minio"
+        ],
+        "brew": [
+          "minio"
+        ],
+        "snap": [
+          "minio"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://github.com/minio/minio",
+        "sha256_required": true,
+        "build": [
+          "go build"
+        ]
+      }
+    },
+    {
+      "id": "libvirt",
+      "profile": "virtualization",
+      "label": "Libvirt virtualization management",
+      "boot_target": "enterprise-virtualization.target",
+      "packages": {
+        "apt-get": [
+          "libvirt-daemon-system"
+        ],
+        "dnf": [
+          "libvirt"
+        ],
+        "yum": [
+          "libvirt"
+        ],
+        "zypper": [
+          "libvirt"
+        ],
+        "pacman": [
+          "libvirt"
+        ],
+        "apk": [
+          "libvirt"
+        ],
+        "brew": [
+          "libvirt"
+        ],
+        "snap": [
+          "libvirt"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://libvirt.org/sources/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "make",
+          "make install"
+        ]
+      }
+    },
+    {
+      "id": "qemu",
+      "profile": "virtualization",
+      "label": "QEMU hypervisor and emulator",
+      "boot_target": "enterprise-virtualization.target",
+      "packages": {
+        "apt-get": [
+          "qemu-system-x86"
+        ],
+        "dnf": [
+          "qemu-kvm"
+        ],
+        "yum": [
+          "qemu-kvm"
+        ],
+        "zypper": [
+          "qemu"
+        ],
+        "pacman": [
+          "qemu-full"
+        ],
+        "apk": [
+          "qemu-system-x86_64"
+        ],
+        "brew": [
+          "qemu"
+        ],
+        "snap": [
+          "qemu"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://www.qemu.org/download/",
+        "sha256_required": true,
+        "build": [
+          "./configure",
+          "ninja",
+          "ninja install"
+        ]
+      }
+    },
+    {
+      "id": "gitlab-runner",
+      "profile": "ci-runners",
+      "label": "GitLab CI runner",
+      "boot_target": "enterprise-ci.target",
+      "packages": {
+        "apt-get": [
+          "gitlab-runner"
+        ],
+        "dnf": [
+          "gitlab-runner"
+        ],
+        "yum": [
+          "gitlab-runner"
+        ],
+        "zypper": [
+          "gitlab-runner"
+        ],
+        "pacman": [
+          "gitlab-runner"
+        ],
+        "apk": [
+          "gitlab-runner"
+        ],
+        "brew": [
+          "gitlab-runner"
+        ],
+        "snap": [
+          "gitlab-runner"
+        ]
+      },
+      "native": "prefer-native-package",
+      "compatibility": [
+        "linux"
+      ],
+      "source": {
+        "url": "https://gitlab.com/gitlab-org/gitlab-runner",
+        "sha256_required": true,
+        "build": [
+          "make build"
+        ]
+      }
     }
   ],
   "security": {
@@ -1084,7 +1760,13 @@
       "enterprise-file.target",
       "enterprise-access.target",
       "enterprise-backup.target",
-      "enterprise-messaging.target"
+      "enterprise-messaging.target",
+      "enterprise-network.target",
+      "enterprise-infrastructure.target",
+      "enterprise-security.target",
+      "enterprise-storage.target",
+      "enterprise-virtualization.target",
+      "enterprise-ci.target"
     ],
     "default_enabled": []
   }
