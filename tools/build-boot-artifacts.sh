@@ -76,8 +76,15 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/koronos/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/grub/"
 KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
-test -s "$KORONOS" || "$ROOT/kernel/build-koronos.sh"
-test -s "$KORONOS"
+USER_INIT="$ROOT/build/koronos/x86_64/chimera-user-init.elf"
+# The kernel and the first native userspace ELF are a matched boot pair.
+# If either artifact is absent, rebuild both instead of silently staging a
+# kernel that will later stop at HANDOFF BLOCKED.
+if [[ ! -s "$KORONOS" || ! -s "$USER_INIT" ]]; then
+  bash "$ROOT/kernel/build-koronos.sh"
+fi
+test -s "$KORONOS" || { echo "ERROR: Koronos ELF64 kernel build produced no kernel." >&2; exit 2; }
+test -s "$USER_INIT" || { echo "ERROR: native user-init ELF build produced no executable." >&2; exit 2; }
 "$ROOT/boot/spitfire/build-spitfire.sh" "$OUT/spitfire" "$KORONOS"
 command -v nasm >/dev/null || { echo "nasm required" >&2; exit 2; }
 command -v g++ >/dev/null || { echo "g++ required" >&2; exit 2; }
@@ -89,6 +96,7 @@ nasm -f elf64 "$ROOT/boot/jasper/jasper_entry.asm" -o "$JASPER_BUILD/jasper_entr
 ld -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/boot/jasper/jasper.ld" "$JASPER_BUILD/jasper_entry.o" "$JASPER_BUILD/jasper_main.o" -o "$JASPER_BUILD/jasper.elf"
 cp "$JASPER_BUILD/jasper.elf" "$OUT/jasper/jasper.elf"
 chimera_copy_if_distinct "$KORONOS" "$OUT/koronos/koronos.elf"
+chimera_copy_if_distinct "$USER_INIT" "$OUT/koronos/chimera-user-init.elf"
 if command -v grub-mkimage >/dev/null 2>&1; then
   MODDIR=""
   for d in /usr/lib/grub/i386-pc /usr/lib/grub/i386-pc-eltorito; do [[ -d "$d" ]] && { MODDIR="$d"; break; }; done
