@@ -39,13 +39,17 @@ int main() {
     assert(chimera_nbit_set_default_profile(8193u, CHIMERA_NBIT_BACKEND_CHIMERA_VIRTUAL, 0u) == 0);
     assert(chimera_nbit_process_init_default(&default_virtual, 606u, 0u) == 0);
     assert(default_virtual.mode_bits == 8193u && default_virtual.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
+    assert(default_virtual.guest_isa == CHIMERA_GUEST_ISA_CHIMERA_NBIT);
     assert(chimera_nbit_set_default_profile(caps.native_hardware_bits, CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE, 0u) == 0);
     assert(chimera_nbit_process_init_default(&default_physical, 607u, 0u) == 0);
     assert(default_physical.execution_class == CHIMERA_EXEC_NATIVE);
+    assert(default_physical.guest_isa != CHIMERA_GUEST_ISA_AUTO);
     assert(chimera_nbit_set_default_profile(13u, CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE, 0u) == -3);
-    assert(chimera_nbit_set_default_profile(32u, CHIMERA_NBIT_BACKEND_COMPATIBILITY, CHIMERA_COMPAT_LINUX) == 0);
+    assert(chimera_nbit_set_default_profile_ex(32u, CHIMERA_NBIT_BACKEND_COMPATIBILITY,
+                                                CHIMERA_COMPAT_LINUX, CHIMERA_GUEST_ISA_X86_32) == 0);
     assert(chimera_nbit_process_init_default(&default_compat, 608u, 0u) == 0);
     assert(default_compat.execution_class == CHIMERA_EXEC_COMPATIBILITY);
+    assert(default_compat.guest_isa == CHIMERA_GUEST_ISA_X86_32);
     assert(chimera_nbit_set_default_profile(64u, CHIMERA_NBIT_BACKEND_AUTO, 0u) == 0);
     assert(chimera_nbit_process_unregister(606u) == 0);
     assert(chimera_nbit_process_unregister(607u) == 0);
@@ -77,6 +81,7 @@ int main() {
 
     assert(chimera_nbit_process_init_chimera(&virtual_nbit, 404u, 8193u) == 0);
     assert(virtual_nbit.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
+    assert(virtual_nbit.guest_isa == CHIMERA_GUEST_ISA_CHIMERA_NBIT);
     assert(chimera_nbit_process_set_mode(&virtual_nbit, 100003u) == 0);
     assert(virtual_nbit.mode_bits == 100003u);
     assert(virtual_nbit.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
