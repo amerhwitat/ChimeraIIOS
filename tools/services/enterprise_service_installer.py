@@ -117,7 +117,7 @@ def main():
     source_hashes=dict(x.split("=",1) for x in a.source_sha256 if "=" in x)
     pm=detected[0] if detected else None
     plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"package_manager_candidates":detected,"rootfs":str(a.rootfs),
-          "apply":a.apply,"services":[],"enabled_targets":[]}
+          "apply":a.apply,"user_review_confirmed":a.enable,"services":[],"enabled_targets":[]}
     for sid in sorted(selected):
         svc=services[sid]
         item={"id":sid,"label":svc["label"],"boot_target":svc["boot_target"],"packages":{},
