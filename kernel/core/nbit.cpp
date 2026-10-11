@@ -83,7 +83,7 @@ extern "C" int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out) {
     if (!out) return -1;
     if (chimera_nbit_init() != 0) return -2;
     out->native_hardware_bits = g_profile.native_nbit_mode;
-    out->default_mode_bits = g_default_mode;
+    if (chimera_nbit_get_default(&out->default_mode_bits) != 0) return -3;
     out->minimum_virtual_bits = CHIMERA_NBIT_MODE_MIN_BITS;
     out->maximum_virtual_bits = CHIMERA_NBIT_MODE_MAX_BITS;
     out->registered_process_capacity = CHIMERA_NBIT_MAX_PROCESS_MODES;
@@ -97,7 +97,8 @@ extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint
                                            uint32_t requested_bits, uint32_t compatibility_target) {
     if (!ctx || !process_id) return -1;
     if (chimera_nbit_init() != 0) return -4;
-    uint32_t mode = requested_bits ? requested_bits : g_default_mode;
+    uint32_t mode = requested_bits;
+    if (!mode && chimera_nbit_get_default(&mode) != 0) return -4;
     if (!valid_mode(mode)) return -2;
     if (compatibility_target & ~g_profile.compatibility_mask) return -5;
     if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
@@ -117,7 +118,8 @@ extern "C" int chimera_nbit_process_init_chimera(chimera_nbit_process_context *c
                                                     uint32_t requested_bits) {
     if (!ctx || !process_id) return -1;
     if (chimera_nbit_init() != 0) return -4;
-    const uint32_t mode = requested_bits ? requested_bits : g_default_mode;
+    uint32_t mode = requested_bits;
+    if (!mode && chimera_nbit_get_default(&mode) != 0) return -4;
     if (!valid_mode(mode)) return -2;
     if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
     ctx->process_id = process_id;
