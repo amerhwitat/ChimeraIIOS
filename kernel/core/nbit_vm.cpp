@@ -1,6 +1,5 @@
 #include "chimera/nbit_vm.h"
 #include "chimera/nbit_cache.h"
-#include "chimera/nbit_fpu.h"
 
 namespace {
 static uint32_t nbytes(uint32_t bits) { return (uint32_t)(((uint64_t)bits+7u)/8u); }
@@ -62,20 +61,9 @@ int ChimeraNBitVM::run(ChimeraNBitVMState &s,const ChimeraNBitInstruction *progr
             break;
         case CHIMERA_NBIT_OP_ADD: case CHIMERA_NBIT_OP_SUB:
         case CHIMERA_NBIT_OP_AND: case CHIMERA_NBIT_OP_OR: case CHIMERA_NBIT_OP_XOR:
-        case CHIMERA_NBIT_OP_F32_ADD: case CHIMERA_NBIT_OP_F32_SUB:
-        case CHIMERA_NBIT_OP_F32_MUL: case CHIMERA_NBIT_OP_F32_DIV:
-        case CHIMERA_NBIT_OP_F64_ADD: case CHIMERA_NBIT_OP_F64_SUB:
-        case CHIMERA_NBIT_OP_F64_MUL: case CHIMERA_NBIT_OP_F64_DIV:
             if(register_view(s,ins.dst,d)!=0||register_view(s,ins.lhs,a)!=0||
                register_view(s,ins.rhs,b)!=0)return CHIMERA_NBIT_VM_BAD_PROGRAM;
-            if(ins.opcode>=CHIMERA_NBIT_OP_F32_ADD && ins.opcode<=CHIMERA_NBIT_OP_F64_DIV) {
-                const int fpu_rc=ChimeraNBitFPU::execute_lanes(
-                    {d.bytes,d.bit_width,d.capacity_bytes},
-                    {a.bytes,a.bit_width,a.capacity_bytes},
-                    {b.bytes,b.bit_width,b.capacity_bytes},
-                    static_cast<ChimeraNBitFloatOpcode>(ins.opcode-CHIMERA_NBIT_OP_F32_ADD+CHIMERA_NBIT_F32_ADD));
-                if(fpu_rc!=0)return CHIMERA_NBIT_VM_BAD_PROGRAM;
-            } else if(ins.opcode==CHIMERA_NBIT_OP_ADD) {
+            if(ins.opcode==CHIMERA_NBIT_OP_ADD) {
                 if(ChimeraNBitArithmetic::add(d,as_const(a),as_const(b))!=0)return CHIMERA_NBIT_VM_INVALID;
             } else if(ins.opcode==CHIMERA_NBIT_OP_SUB) {
                 if(ChimeraNBitArithmetic::subtract(d,as_const(a),as_const(b))!=0)return CHIMERA_NBIT_VM_INVALID;
