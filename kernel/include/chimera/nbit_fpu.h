@@ -9,6 +9,11 @@ struct ChimeraNBitFloatView {
     uint32_t width_bits;
     uint32_t capacity_bytes;
 };
+struct ChimeraNBitConstFloatView {
+    const uint8_t *bytes;
+    uint32_t width_bits;
+    uint32_t capacity_bytes;
+};
 enum ChimeraNBitFloatOpcode : uint32_t {
     CHIMERA_NBIT_F32_ADD=1, CHIMERA_NBIT_F32_SUB=2,
     CHIMERA_NBIT_F32_MUL=3, CHIMERA_NBIT_F32_DIV=4,
@@ -17,8 +22,8 @@ enum ChimeraNBitFloatOpcode : uint32_t {
 };
 class ChimeraNBitFPU final {
 public:
-    static int execute_lanes(ChimeraNBitFloatView dst, const ChimeraNBitFloatView lhs,
-                             const ChimeraNBitFloatView rhs, ChimeraNBitFloatOpcode op);
+    static int execute_lanes(ChimeraNBitFloatView dst, ChimeraNBitConstFloatView lhs,
+                             ChimeraNBitConstFloatView rhs, ChimeraNBitFloatOpcode op);
     static uint32_t lane_bits(ChimeraNBitFloatOpcode op);
 };
 extern "C" int chimera_nbit_fpu_execute(uint8_t *dst,uint32_t dst_capacity,
