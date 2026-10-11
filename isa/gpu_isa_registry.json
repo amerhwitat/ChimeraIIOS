@@ -1,0 +1,163 @@
+{
+  "schema": "CHIMERA-GPU-ISA-REGISTRY-1",
+  "version": 1,
+  "policy": "Catalog entries describe programming models and device ISA families; support must be feature-probed per GPU and does not imply a universal native backend.",
+  "programming_models": [
+    {
+      "id": "vulkan-compute",
+      "api": "Vulkan",
+      "language": [
+        "SPIR-V"
+      ],
+      "native_targets": [
+        "NVIDIA",
+        "AMD",
+        "Intel",
+        "Arm",
+        "Qualcomm"
+      ],
+      "fallback": "CPU interpreter or software renderer",
+      "status": "adapter-required"
+    },
+    {
+      "id": "opencl",
+      "api": "OpenCL",
+      "language": [
+        "OpenCL C"
+      ],
+      "native_targets": [
+        "NVIDIA",
+        "AMD",
+        "Intel",
+        "Arm",
+        "Qualcomm"
+      ],
+      "fallback": "CPU OpenCL implementation",
+      "status": "adapter-required"
+    },
+    {
+      "id": "cuda",
+      "api": "CUDA",
+      "language": [
+        "CUDA C++",
+        "PTX"
+      ],
+      "native_targets": [
+        "NVIDIA"
+      ],
+      "fallback": "explicitly unavailable without compatible runtime/device",
+      "status": "vendor-specific"
+    },
+    {
+      "id": "rocm-hip",
+      "api": "HIP/ROCm",
+      "language": [
+        "HIP C++",
+        "AMD GCN/RDNA/CDNA ISA"
+      ],
+      "native_targets": [
+        "AMD"
+      ],
+      "fallback": "CPU HIP implementation where available",
+      "status": "vendor-specific"
+    },
+    {
+      "id": "directcompute",
+      "api": "DirectCompute",
+      "language": [
+        "HLSL/DXIL"
+      ],
+      "native_targets": [
+        "Windows Direct3D devices"
+      ],
+      "fallback": "compatibility backend required",
+      "status": "compatibility"
+    },
+    {
+      "id": "metal",
+      "api": "Metal",
+      "language": [
+        "Metal Shading Language",
+        "AIR"
+      ],
+      "native_targets": [
+        "Apple GPUs"
+      ],
+      "fallback": "compatibility backend required",
+      "status": "vendor-specific"
+    }
+  ],
+  "gpu_isa_families": [
+    {
+      "id": "nvidia-ptx",
+      "vendor": "NVIDIA",
+      "kind": "virtual-isa",
+      "reference": "NVIDIA PTX ISA",
+      "execution": "driver JIT to device ISA",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "nvidia-sass",
+      "vendor": "NVIDIA",
+      "kind": "machine-isa",
+      "reference": "generation-specific",
+      "execution": "physical GPU only or vendor emulator",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "amd-gcn",
+      "vendor": "AMD",
+      "kind": "machine-isa",
+      "reference": "generation-specific GCN",
+      "execution": "ROCm/HIP runtime or simulator",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "amd-rdna",
+      "vendor": "AMD",
+      "kind": "machine-isa",
+      "reference": "generation-specific RDNA",
+      "execution": "ROCm/HIP runtime or simulator",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "amd-cdna",
+      "vendor": "AMD",
+      "kind": "machine-isa",
+      "reference": "generation-specific CDNA",
+      "execution": "ROCm/HIP runtime or simulator",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "intel-xe",
+      "vendor": "Intel",
+      "kind": "machine-isa",
+      "reference": "generation-specific Xe",
+      "execution": "driver/runtime",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "arm-mali",
+      "vendor": "Arm",
+      "kind": "machine-isa",
+      "reference": "Mali GPU architecture",
+      "execution": "Vulkan/OpenCL driver",
+      "status": "catalogued-not-emulated"
+    },
+    {
+      "id": "qualcomm-adreno",
+      "vendor": "Qualcomm",
+      "kind": "machine-isa",
+      "reference": "Adreno generation-specific",
+      "execution": "Vulkan/OpenCL driver",
+      "status": "catalogued-not-emulated"
+    }
+  ],
+  "dispatch": {
+    "probe_device_vendor_and_features": true,
+    "never_execute_gpu_binary_on_cpu": true,
+    "compile_source_for_selected_target": true,
+    "validate_shader_abi": true,
+    "fallback_only_when_semantically_supported": true
+  }
+}
