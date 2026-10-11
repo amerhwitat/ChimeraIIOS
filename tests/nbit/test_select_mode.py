@@ -20,7 +20,9 @@ class NBitModeSelectionTests(unittest.TestCase):
             )
             profile = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(profile["selected_width_bits"], 8193)
-            self.assertEqual(profile["backend"], "chimera-virtual")\n            self.assertEqual(profile["guest_isa"], "chimera-nbit")
+            self.assertEqual(profile["backend"], "chimera-virtual")
+            self.assertEqual(profile["backend_id"], 1)
+            self.assertEqual(profile["guest_isa_id"], 1)\n            self.assertEqual(profile["guest_isa"], "chimera-nbit")
             self.assertTrue(profile["validation_required_at_kernel_admission"])
             self.assertIn("physical CPU-native", run.stdout)
 
@@ -34,6 +36,8 @@ class NBitModeSelectionTests(unittest.TestCase):
             )
             profile = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(profile["compatibility_personality"], "linux")\n            self.assertEqual(profile["guest_isa"], "x86-32")
+            self.assertEqual(profile["guest_isa_id"], 3)
+            self.assertEqual(profile["compatibility_target_mask"], 4)
 
     def test_invalid_width_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
