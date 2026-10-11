@@ -87,7 +87,13 @@
       "container-platform",
       "file-and-print",
       "backup",
-      "messaging"
+      "messaging",
+      "network-edge",
+      "email-platform",
+      "security-and-time",
+      "object-storage",
+      "virtualization",
+      "ci-runners"
     ],
     "defaultSelection": [],
     "bootTargetsEnabledOnlyAfterReview": true
