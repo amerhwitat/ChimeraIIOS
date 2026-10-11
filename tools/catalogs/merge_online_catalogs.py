@@ -52,6 +52,30 @@ def rows_from_index(index):
     return []
 
 
+def _verified_encoding_row_count(db):
+    """Count rows with a full-width binary value and fixed-bit mask."""
+    count = 0
+    for row in db.get("instructions", []) if isinstance(db, dict) else []:
+        if not isinstance(row, (list, tuple)) or len(row) != 8:
+            continue
+        try:
+            bits = int(row[5])
+        except (TypeError, ValueError):
+            continue
+        value, mask = row[6], row[7]
+        if (
+            0 < bits <= 65535
+            and isinstance(value, str)
+            and isinstance(mask, str)
+            and re.fullmatch(r"[01]+", value)
+            and re.fullmatch(r"[01]+", mask)
+            and len(value) == bits
+            and len(mask) == bits
+        ):
+            count += 1
+    return count
+
+
 def _valid_canonical_db(db):
     return (
         isinstance(db, dict)
@@ -137,47 +161,78 @@ def _database_from_catalog():
 
 
 def load_canonical_isa():
-    """Load canonical DB; recover from Git, then from the checked-in ISA catalog."""
+    """Load canonical DB; recover valid encoding rows from local or remote Git refs."""
     import subprocess
 
     local_error = "database file is missing"
     try:
         db = json.loads(ISA_DB.read_text(encoding="utf-8"))
-        if _valid_canonical_db(db):
+        if _valid_canonical_db(db) and _verified_encoding_row_count(db) > 0:
             return db
-        local_error = "missing/non-list/empty architectures or instructions"
+        local_error = (
+            "database has no verified full-width value/mask rows "
+            f"({_verified_encoding_row_count(db)} usable rows)"
+        )
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         local_error = str(exc)
 
-    # Preserve a known-good committed DB if the repository actually tracks it.
-    try:
-        raw = subprocess.check_output(
-            ["git", "-C", str(ROOT), "show", "HEAD:isa/isa_database.json"],
-            text=True, encoding="utf-8", stderr=subprocess.PIPE,
-        )
-        recovered = json.loads(raw)
-        if _valid_canonical_db(recovered):
-            source = "Git HEAD"
-        else:
-            raise ValueError("committed DB has an invalid schema")
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError, subprocess.CalledProcessError):
-        # isa_database.json is generated/local in some checkouts and may not be
-        # tracked. The versioned structured catalog is the deterministic fallback.
+    # Prefer the current commit, then known remote refs. This recovers a valid
+    # committed database even when the working copy was replaced by catalog-only
+    # rows whose masks are explicitly unavailable.
+    refs = (
+        ("HEAD:isa/isa_database.json", "Git HEAD"),
+        ("origin/koronos/elf-smp-acceptance-gate:isa/isa_database.json",
+         "origin/koronos/elf-smp-acceptance-gate"),
+        ("origin/main:isa/isa_database.json", "origin/main"),
+    )
+    recovered = None
+    source = None
+    for git_ref, label in refs:
+        try:
+            raw = subprocess.check_output(
+                ["git", "-C", str(ROOT), "show", git_ref],
+                text=True, encoding="utf-8", stderr=subprocess.PIPE,
+            )
+            candidate = json.loads(raw)
+            if (
+                _valid_canonical_db(candidate)
+                and _verified_encoding_row_count(candidate) > 0
+            ):
+                recovered, source = candidate, label
+                break
+        except (
+            OSError, UnicodeError, json.JSONDecodeError, ValueError,
+            subprocess.CalledProcessError,
+        ):
+            continue
+
+    if recovered is None:
+        # The structured catalog is a deterministic last resort, but it contains
+        # worked samples rather than universal fixed-bit masks. Preserve that
+        # limitation instead of manufacturing templates.
         try:
             recovered = _database_from_catalog()
-            source = "isa/catalog.json"
+            source = "isa/catalog.json (sample-only; masks unavailable)"
         except (OSError, UnicodeError, json.JSONDecodeError, ValueError, TypeError, KeyError) as exc:
             raise SystemExit(
                 f"Invalid canonical ISA database: {ISA_DB} ({local_error}); "
-                f"could not recover from Git HEAD or isa/catalog.json ({exc})."
+                f"could not recover from Git refs or isa/catalog.json ({exc})."
             ) from exc
 
     write(ISA_DB, recovered)
+    verified = _verified_encoding_row_count(recovered)
     print(
         f"[ISA] repaired canonical database from {source}: "
         f"{len(recovered['architectures'])} architectures, "
-        f"{len(recovered['instructions'])} instruction rows"
+        f"{len(recovered['instructions'])} instruction rows, "
+        f"{verified} verified encoding templates"
     )
+    if verified == 0:
+        print(
+            "[ISA] warning: only exact worked samples are available; "
+            "template masks were not fabricated. Fetch a branch containing "
+            "verified isa/isa_database.json rows to restore templates."
+        )
     return recovered
 
 def merge_isa():
