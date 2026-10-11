@@ -41,6 +41,9 @@ jobs:
           python3 -m json.tool installer/services/enterprise-services.json >/dev/null
           python3 -m json.tool isa/gpu_isa_registry.json >/dev/null
           python3 -m json.tool isa/isa_database.json >/dev/null
+          python3 -m py_compile tools/services/enterprise_service_installer.py tools/services/chimera_enterprise_targets.py tools/gpu/chimera_gpu_toolchain.py
+          python3 tools/gpu/chimera_gpu_toolchain.py --inventory >/tmp/chimera-gpu-toolchains.json
+          python3 -m json.tool /tmp/chimera-gpu-toolchains.json >/dev/null
           python3 tests/services/test_enterprise_services.py
           python3 tools/services/enterprise_service_installer.py >/tmp/enterprise-service-catalog.json
           python3 -m json.tool /tmp/enterprise-service-catalog.json >/dev/null
