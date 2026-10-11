@@ -134,6 +134,7 @@ if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
 fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
+test -s "$DIST/iso/boot/koronos/chimera-user-init.elf" || { echo "ERROR: native user-init ELF missing from ISO staging tree." >&2; exit 2; }
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
 for visual in \
   aurora-boot.png aurora-menu.png aurora-splash.png aurora-installer.png \
