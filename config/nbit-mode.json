@@ -10,5 +10,6 @@
   "isa_catalog_does_not_imply_executable_backend": true,
   "backend_id": 0,
   "guest_isa_id": 0,
-  "compatibility_target_mask": 0
+  "compatibility_target_mask": 0,
+  "width_policy": "explicit"
 }
