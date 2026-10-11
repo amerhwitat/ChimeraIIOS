@@ -66,6 +66,7 @@ cp -f "$ROOT/installer/services/enterprise-services.json" "$DIST/install/service
 cp -f "$ROOT/isa/gpu_isa_registry.json" "$DIST/usr/share/chimera/isa/gpu_isa_registry.json"
 cp -f "$ROOT/isa/isa_database.json" "$DIST/usr/share/chimera/isa/isa_database.json"
 install -m 0755 "$ROOT/tools/services/enterprise_service_installer.py" "$DIST/usr/lib/chimera/tools/enterprise_service_installer.py"
+install -m 0755 "$ROOT/desktop/aurora/aurora_event_loop.py" "$DIST/usr/lib/chimera/aurora_event_loop.py"
 cp -f "$ROOT/boot/boot_protocol.json" "$DIST/install/boot_protocol.json"
 
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
