@@ -26,10 +26,6 @@ def build_profile(bits: int, backend: str, compatibility: str | None) -> dict:
         raise ValueError("compatibility backend requires --compatibility")
     if backend != "compatibility" and compatibility is not None:
         raise ValueError("--compatibility is only valid with --backend compatibility")
-    if backend == "physical-native" and bits not in (8, 16, 32, 64, 128):
-        # This is only a conservative request shape check; hardware identity is
-        # unknown here and the kernel must enforce the exact physical native width.
-        raise ValueError("physical-native requires a conventional candidate width; kernel verifies the exact CPU width")
     return {
         "schema": "CHIMERA-NBIT-USER-PROFILE-1",
         "selected_width_bits": bits,
