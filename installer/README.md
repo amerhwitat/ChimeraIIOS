@@ -16,6 +16,12 @@ The installer is a GUI-first application with full keyboard navigation and mouse
 - Boot configuration
 - Completion / reboot
 
+## Network-first setup and guided recommendations
+
+The first installer screen runs `network_preflight.py` before edition and package-source selection. It enumerates Ethernet/Wi-Fi interfaces, checks bound kernel drivers, resolves candidate modules from device modaliases where available, reports firmware hints, checks IP/DNS/internet connectivity, and can configure wired DHCP or scan/connect to Wi-Fi through NetworkManager. The graphical Aurora installer uses Zenity when available; the CLI can run an interactive setup or a non-interactive probe. Credentials are excluded from the installer report and command-line arguments; successful Wi-Fi connections remain in NetworkManager so connectivity survives into package installation. If no driver is bound, the installer recommends signed driver/firmware investigation instead of blindly loading or installing a module.
+
+If `chimera-rnn-recommend` is installed, it may rank network and installation-step recommendations using hardware inventory only. Its output is treated as advisory, validated against a bounded schema, and never executed as commands. When unavailable or invalid, deterministic hardware rules provide the next steps. Offline installation remains available if network setup fails.
+
 ## Adaptive inventory engine
 
 `chimera_installer.py` provides an inventory-first planner used by the graphical or automation front ends. It detects firmware mode, architecture, CPU/core count, memory, storage, networking tools, virtualization, Secure Boot state when available, and evidence of existing operating systems. It produces a reviewable JSON installation plan and selects a compatible Chimera II OS edition using explicit heuristics.
