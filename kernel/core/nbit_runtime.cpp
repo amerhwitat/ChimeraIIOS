@@ -1,4 +1,5 @@
 #include "chimera/nbit_runtime.h"
+#include <stddef.h>
 
 namespace {
 static uint32_t byte_count(uint32_t bits) {
