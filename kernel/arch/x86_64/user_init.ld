@@ -8,7 +8,7 @@ PHDRS
 }
 SECTIONS
 {
-  . = 0x40000000;
+  . = 0x0000004000000000;
   .text : ALIGN(4096) { *(.text*) *(.rodata*) } :text
   . = ALIGN(4096);
   .data : { *(.data*) } :data
