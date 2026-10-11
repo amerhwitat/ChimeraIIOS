@@ -75,7 +75,12 @@ extern "C" int chimera_process_admit_elf(const void *image,uint64_t size,
         d.file_size=s.p_filesz;
         if(!add_ok(s.p_memsz,s.p_vaddr-seglow,&d.memory_size))return -8;
         d.flags=s.p_flags;d.align=s.p_align?s.p_align:PAGE;d.page_offset=s.p_vaddr-seglow;
-        if(seglow<low)low=seglow;if(seghigh>high)high=seghigh;
+        if (seglow < low) {
+            low = seglow;
+        }
+        if (seghigh > high) {
+            high = seghigh;
+        }
         if((s.p_flags&PF_X)&&p.entry>=s.p_vaddr&&p.entry<end)entry_executable=true;
     }
     if(!n||!entry_executable)return -9;
@@ -88,9 +93,16 @@ extern "C" int chimera_process_admit_elf(const void *image,uint64_t size,
     }
     return -10;
 }
-extern "C" int chimera_process_get(uint32_t pid,chimera_process_image *out) {
-    if(!out||!pid)return -1;int i=find_slot(pid);
-    if(i<0)return -2;*out=slots[(uint32_t)i].image;return 0;
+extern "C" int chimera_process_get(uint32_t pid, chimera_process_image *out) {
+    if (!out || !pid) {
+        return -1;
+    }
+    const int i = find_slot(pid);
+    if (i < 0) {
+        return -2;
+    }
+    *out = slots[static_cast<uint32_t>(i)].image;
+    return 0;
 }
 extern "C" int chimera_process_set_execution_mode(uint32_t pid,uint32_t bits,uint32_t target) {
     int i=find_slot(pid);if(i<0)return -1;
@@ -117,7 +129,20 @@ extern "C" int chimera_process_set_state(uint32_t pid,chimera_process_state stat
 }
 extern "C" uint32_t chimera_process_count(void){return count;}
 extern "C" int chimera_process_discard_admitted(uint32_t pid) {
-    if(!pid)return -1;int i=find_slot(pid);if(i<0)return -3;
-    if(slots[(uint32_t)i].image.state!=CHIMERA_PROCESS_ADMITTED)return -2;
-    retire_mode(pid);slots[(uint32_t)i]={};if(count)--count;return 0;
+    if (!pid) {
+        return -1;
+    }
+    const int i = find_slot(pid);
+    if (i < 0) {
+        return -3;
+    }
+    if (slots[static_cast<uint32_t>(i)].image.state != CHIMERA_PROCESS_ADMITTED) {
+        return -2;
+    }
+    retire_mode(pid);
+    slots[static_cast<uint32_t>(i)] = {};
+    if (count) {
+        --count;
+    }
+    return 0;
 }
