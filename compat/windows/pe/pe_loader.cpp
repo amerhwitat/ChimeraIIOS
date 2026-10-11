@@ -40,7 +40,7 @@ Status inspect(const std::string& path, Image& out, std::string& error){
     const std::size_t dd_off=opt+(out.pe32_plus?112:96); if(!range_ok(dd_off,8*16,b.size())) return Status::Ok;
     auto dir=[&](unsigned n){ return Dir{u32(b,dd_off+n*8),u32(b,dd_off+n*8+4)}; };
     const auto ex=dir(0); if(ex.rva){ auto p=rva_file(out.sections,ex.rva); if(p&&range_ok(p,sizeof(Exp),b.size())){ const auto* e=reinterpret_cast<const Exp*>(b.data()+p); auto np=rva_file(out.sections,e->names),op=rva_file(out.sections,e->ords),fp=rva_file(out.sections,e->funcs); for(std::uint32_t i=0;i<e->nname;i++){ if(!np||!op||!fp) break; auto nr=u32(b,np+i*4); auto ord=static_cast<std::uint16_t>(b[op+i*2]|(b[op+i*2+1]<<8)); if(ord>=e->nfunc) continue; auto fr=u32(b,fp+ord*4); auto namepos=rva_file(out.sections,nr); if(!namepos) continue; out.exports.push_back({cstr(b,namepos),fr,static_cast<std::uint16_t>(e->base+ord)}); } } }
-    const auto im=dir(1); if(im.rva){ auto p=rva_file(out.sections,im.rva); while(p&&range_ok(p,sizeof(Imp),b.size())){ const auto* x=reinterpret_cast<const Imp*>(b.data()+p); if(!x->name) break; auto np=rva_file(out.sections,x->name); auto tp=rva_file(out.sections,x->thunk?x->thunk:x->lookup); if(!np||!tp) break; const std::string dll=cstr(b,np); const std::uint64_t ordmask=out.pe32_plus?0x8000000000000000ull:0x80000000ull; for(std::size_t i=0;;i++){ std::uint64_t v=out.pe32_plus?u64(b,tp+i*8):u32(b,tp+i*4); if(!v) break; Import in{}; in.dll=dll; in.by_ordinal=(v&ordmask)!=0; if(in.by_ordinal) in.ordinal=static_cast<std::uint16_t>(v&0xffff); else { auto hp=rva_file(out.sections,static_cast<std::uint32_t>(v&0xffffffffu)); if(!hp) break; in.symbol=cstr(b,hp+2); } out.imports.push_back(std::move(in)); } p+=sizeof(Imp); } }
+    const auto im=dir(1); if(im.rva){ auto p=rva_file(out.sections,im.rva); while(p&&range_ok(p,sizeof(Imp),b.size())){ const auto* x=reinterpret_cast<const Imp*>(b.data()+p); if(!x->name) break; auto np=rva_file(out.sections,x->name); auto tp=rva_file(out.sections,x->thunk?x->thunk:x->lookup); if(!np||!tp) break; const std::string dll=cstr(b,np); const std::uint64_t ordmask=out.pe32_plus?0x8000000000000000ull:0x80000000ull; const std::size_t ptr_size=out.pe32_plus?8u:4u; for(std::size_t i=0;;i++){ std::uint64_t v=out.pe32_plus?u64(b,tp+i*ptr_size):u32(b,tp+i*ptr_size); if(!v) break; Import in{}; in.dll=dll; in.iat_rva=x->thunk+static_cast<std::uint32_t>(i*ptr_size); in.by_ordinal=(v&ordmask)!=0; if(in.by_ordinal) in.ordinal=static_cast<std::uint16_t>(v&0xffff); else { auto hp=rva_file(out.sections,static_cast<std::uint32_t>(v&0xffffffffu)); if(!hp) break; in.symbol=cstr(b,hp+2); } out.imports.push_back(std::move(in)); } p+=sizeof(Imp); } }
     const auto rel=dir(5); if(rel.rva){ auto p=rva_file(out.sections,rel.rva); const auto end=p?std::min(b.size(),p+static_cast<std::size_t>(rel.size)):0; while(p&&p+8<=end){ auto page=u32(b,p), sz=u32(b,p+4); if(sz<8||p+sz>end) break; for(std::size_t q=p+8;q+1<p+sz;q+=2){ auto e=static_cast<std::uint16_t>(b[q]|(b[q+1]<<8)); if((e>>12)==10) out.relocation_rvas.push_back(page+(e&0xfff)); } p+=sz; } }
     const auto tls=dir(9); if(tls.rva){ auto p=rva_file(out.sections,tls.rva); if(p){ const std::size_t ptr_size=out.pe32_plus?8:4; if(range_ok(p,ptr_size*4,b.size())){ const std::uint64_t callbacks_va=out.pe32_plus?u64(b,p+ptr_size*2):u32(b,p+ptr_size*2); if(callbacks_va>=out.preferred_base){ auto crva=static_cast<std::uint64_t>(callbacks_va-out.preferred_base); auto cp=rva_file(out.sections,static_cast<std::uint32_t>(crva)); if(cp){ for(std::size_t i=0;i<1024;i++){ auto va=out.pe32_plus?u64(b,cp+i*8):u32(b,cp+i*4); if(!va) break; if(va>=out.preferred_base) out.tls_callbacks.push_back(va-out.preferred_base); } } } } } }
     return Status::Ok;
@@ -61,7 +61,30 @@ Status apply_relocations(LoadedImage& image,std::string& error){
     return Status::Ok;
 }
 
-Status resolve_imports(LoadedImage&,std::string& error){ error="imports require the Chimera Win32 API-set/module resolver"; return Status::ImportUnresolved; }
+Status resolve_imports(LoadedImage& image,ImportResolver resolver,void *context,std::string& error){
+    if(!resolver && !image.image.imports.empty()){error="imports require a Win32 API-set/module resolver";return Status::ImportUnresolved;}
+    const std::size_t ptr_size=image.image.pe32_plus?8u:4u;
+    for(const auto& in:image.image.imports){
+        if(in.iat_rva>image.memory.size()||ptr_size>image.memory.size()-in.iat_rva){error="IAT slot outside mapped image";return Status::InvalidDirectory;}
+        std::uint64_t address=0;
+        if(!resolver(in.dll.c_str(),in.symbol.c_str(),in.ordinal,in.by_ordinal,&address,context)||!address){
+            error="unresolved import: "+in.dll+"!"+(in.by_ordinal?std::to_string(in.ordinal):in.symbol);return Status::ImportUnresolved;
+        }
+        if(!image.image.pe32_plus && address>0xffffffffull){error="resolved import address does not fit PE32";return Status::ArchitectureMismatch;}
+        if(ptr_size==8)std::memcpy(image.memory.data()+in.iat_rva,&address,8);
+        else {const auto a32=static_cast<std::uint32_t>(address);std::memcpy(image.memory.data()+in.iat_rva,&a32,4);}
+    }
+    return Status::Ok;
+}
+Status prepare_for_execution(const std::string& path,std::uint64_t load_base,Machine process_machine,
+                             ImportResolver resolver,void *context,LoadedImage& out,std::string& error){
+    auto status=map_image(path,load_base,out,error); if(status!=Status::Ok)return status;
+    status=validate_for_process(out.image,process_machine,error); if(status!=Status::Ok)return status;
+    status=apply_relocations(out,error); if(status!=Status::Ok)return status;
+    status=resolve_imports(out,resolver,context,error); if(status!=Status::Ok)return status;
+    if(out.image.kind==ImageKind::EXE && !out.image.entry_rva){error="executable image has no entry point";return Status::EntrypointMissing;}
+    return Status::Ok;
+}
 const Export* find_export(const Image& image,const std::string& name){ for(const auto& e:image.exports) if(e.name==name)return &e; return nullptr; }
 Status validate_for_process(const Image& image,Machine process_machine,std::string& error){ if(image.machine!=process_machine){error="PE image architecture does not match process architecture; use WOW64/ARM64 translation boundary";return Status::ArchitectureMismatch;} return Status::Ok; }
 }
