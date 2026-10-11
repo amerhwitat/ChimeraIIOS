@@ -10,6 +10,8 @@ on:
       - 'kernel/core/process.cpp'
       - 'kernel/core/elf_loader.cpp'
       - 'kernel/core/nbit.cpp'
+      - 'kernel/core/ipc.cpp'
+      - 'kernel/include/chimera/ipc.h'
       - 'kernel/include/chimera/nbit.h'
       - 'kernel/build-koronos.sh'
       - 'kernel/core/scheduler.cpp'
@@ -84,13 +86,17 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_process_registry.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-nbit-process-test
           /tmp/koronos-nbit-process-test
+      - name: Run capability IPC service regressions
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_ipc_service.cpp kernel/core/ipc.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-ipc-test
+          /tmp/koronos-ipc-test
       - name: Run physical-page allocator tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_physmem_allocator.cpp kernel/core/physmem.cpp -o /tmp/koronos-physmem-test
           /tmp/koronos-physmem-test
       - name: Run transactional ELF loader tests
         run: |
-          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_elf_loader_transaction.cpp kernel/core/process.cpp kernel/core/elf_loader.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-elf-loader-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_elf_loader_transaction.cpp kernel/core/process.cpp kernel/core/elf_loader.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp kernel/core/ipc.cpp -o /tmp/koronos-elf-loader-test
           /tmp/koronos-elf-loader-test
       - name: Build freestanding Koronos kernel
         run: |
