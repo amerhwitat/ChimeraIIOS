@@ -94,7 +94,7 @@ def load_canonical_isa():
         ) from exc
 
     tmp = ISA_DB.with_suffix(ISA_DB.suffix + ".repair.tmp")
-    tmp.write_text(json.dumps(recovered, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    tmp.write_text(json.dumps(recovered, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     json.loads(tmp.read_text(encoding="utf-8"))
     tmp.replace(ISA_DB)
     print(f"[ISA] repaired invalid canonical database from Git HEAD ({len(recovered['architectures'])} architectures, {len(recovered['instructions'])} instruction rows)")
