@@ -1,7 +1,7 @@
 name: Desktop Compatibility CI
 on:
   push:
-    paths: ['desktop/**','userland/**','man/**','installer/services/**','services/**','tools/services/**','tests/aurora/**','tests/services/**','isa/**','docs/CHIMERA_UNICODE.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
+    paths: ['desktop/**','userland/**','man/**','installer/services/**','services/**','tools/services/**','tests/aurora/**','tests/services/**','tests/compat/**','compat/windows/pe/**','isa/**','docs/CHIMERA_UNICODE.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
   pull_request:
     paths: ['desktop/**','installer/services/**','tools/services/**','tests/aurora/**','tests/services/**','isa/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
 jobs:
@@ -48,6 +48,10 @@ jobs:
           python3 tests/services/test_enterprise_services.py
           python3 tools/services/enterprise_service_installer.py >/tmp/enterprise-service-catalog.json
           python3 -m json.tool /tmp/enterprise-service-catalog.json >/dev/null
+      - name: Test PE32+ DLL import resolution
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I compat/windows/pe compat/windows/pe/pe_loader.cpp tests/compat/test_pe_import_resolver.cpp -o /tmp/chimera-pe-import-test
+          /tmp/chimera-pe-import-test
       - name: Build native userland shell and system utilities
         run: |
           cmake -S . -B /tmp/chimera-build -DCMAKE_BUILD_TYPE=Release
