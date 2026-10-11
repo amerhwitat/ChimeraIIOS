@@ -6,7 +6,7 @@ static chimera_hardware_profile g_profile;
 static uint32_t g_default_mode = CHIMERA_NBIT_64;
 static chimera_nbit_process_context g_processes[CHIMERA_NBIT_MAX_PROCESS_MODES];
 static uint32_t g_process_count = 0;
-static uint32_t g_registry_lock = 0;
+static uint32_t g_registry_lock = 0;\nstatic uint32_t g_init_lock = 0;\nstatic uint32_t g_init_state = 0;
 
 static void registry_lock(void) {
     while (__sync_lock_test_and_set(&g_registry_lock, 1u)) { }
@@ -44,20 +44,35 @@ static int store_process(const chimera_nbit_process_context *ctx) {
 }
 
 extern "C" int chimera_nbit_init(void) {
-    if (chimera_hardware_probe(&g_profile) != 0) return -1;
-    g_default_mode = (uint32_t)chimera_hardware_best_mode(&g_profile);
-    if (!valid_mode(g_default_mode)) g_default_mode = CHIMERA_NBIT_64;
+    while (__sync_lock_test_and_set(&g_init_lock, 1u)) { }
+    if (g_init_state == 1u) { __sync_lock_release(&g_init_lock); return 0; }
+    if (chimera_hardware_probe(&g_profile) != 0) {
+        __sync_lock_release(&g_init_lock);
+        return -1;
+    }
+    uint32_t best = (uint32_t)chimera_hardware_best_mode(&g_profile);
+    if (!valid_mode(best)) best = CHIMERA_NBIT_64;
+    registry_lock();
+    g_default_mode = best;
+    registry_unlock();
+    g_init_state = 1u;
+    __sync_lock_release(&g_init_lock);
     return 0;
 }
 extern "C" int chimera_nbit_get_default(uint32_t *bits) {
     if (!bits) return -1;
+    registry_lock();
     *bits = g_default_mode;
+    registry_unlock();
     return 0;
 }
 extern "C" int chimera_nbit_set_default(uint32_t bits) {
     if (!valid_mode(bits)) return -1;
+    if (chimera_nbit_init() != 0) return -3;
     if (!chimera_hardware_supports_mode(&g_profile, bits)) return -2;
+    registry_lock();
     g_default_mode = bits;
+    registry_unlock();
     return 0;
 }
 extern "C" int chimera_nbit_validate(uint32_t bits) { return valid_mode(bits) ? 0 : -1; }
