@@ -14,7 +14,7 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     if (!out) return -1;
     for (size_t i = 0; i < sizeof(*out); ++i) ((unsigned char*)out)[i] = 0;
     out->version = CHIMERA_HW_PROFILE_VERSION;
-    out->maximum_emulated_nbit = CHIMERA_NBIT_8192;
+    out->maximum_emulated_nbit = UINT32_MAX;
 
 #if defined(__x86_64__) || defined(__i386__)
     out->architecture = CHIMERA_ARCH_X86_64;
@@ -95,8 +95,9 @@ extern "C" int chimera_hardware_best_mode(const chimera_hardware_profile *profil
 }
 
 extern "C" int chimera_hardware_supports_mode(const chimera_hardware_profile *profile, uint32_t bits) {
+    /* Width support means a virtual/emulated ABI can represent the width.
+       Physical native execution remains exactly native_nbit_mode. */
     if (!profile || bits == 0) return 0;
-    if (bits <= profile->native_nbit_mode) return 1;
     return bits <= profile->maximum_emulated_nbit;
 }
 
