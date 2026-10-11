@@ -40,6 +40,7 @@ class KernelContracts(unittest.TestCase):
             str(ROOT / "kernel/core/elf_loader.cpp"),
             str(ROOT / "kernel/core/nbit.cpp"),
             str(ROOT / "kernel/core/hardware.cpp"),
+            str(ROOT / "kernel/core/ipc.cpp"),
             str(ROOT / "kernel/core/scheduler.cpp"), "-o", str(cls.lib),
         ], check=True)
         cls.api = ctypes.CDLL(str(cls.lib))
