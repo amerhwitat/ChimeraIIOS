@@ -10,6 +10,8 @@ on:
       - 'kernel/core/process.cpp'
       - 'kernel/core/elf_loader.cpp'
       - 'kernel/core/nbit.cpp'
+      - 'kernel/core/nbit_runtime.cpp'
+      - 'kernel/include/chimera/nbit_runtime.h'
       - 'kernel/core/ipc.cpp'
       - 'kernel/include/chimera/ipc.h'
       - 'kernel/include/chimera/nbit.h'
@@ -82,6 +84,10 @@ jobs:
           python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
+      - name: Run arbitrary-width N-bit arithmetic tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_runtime.cpp kernel/core/nbit_runtime.cpp -o /tmp/koronos-nbit-runtime-test
+          /tmp/koronos-nbit-runtime-test
       - name: Run N-bit process registry and cross-width IPC tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_process_registry.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-nbit-process-test
