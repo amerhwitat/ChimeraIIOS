@@ -14928,7 +14928,48 @@
         "s390x",
         "sparc-v9"
       ],
-      "backend_status": "catalogued-ISA profiles are not all decoded/executed; use only a backend with explicit implemented semantics and conformance tests"
+      "backend_status": "catalogued-ISA profiles are not all decoded/executed; use only a backend with explicit implemented semantics and conformance tests",
+      "profile_abi": {
+        "backend_ids": {
+          "auto": 0,
+          "chimera-virtual": 1,
+          "physical-native": 2,
+          "compatibility": 3
+        },
+        "guest_isa_ids": {
+          "auto": 0,
+          "chimera-nbit": 1,
+          "x86-16": 2,
+          "x86-32": 3,
+          "x86-64": 4,
+          "aarch64": 5,
+          "arm32": 6,
+          "arm32-thumb": 7,
+          "riscv32": 8,
+          "riscv64": 9,
+          "riscv128": 10,
+          "mips32": 11,
+          "mips64": 12,
+          "powerpc": 13,
+          "ppc64": 14,
+          "loongarch32": 15,
+          "loongarch64": 16,
+          "s390x": 17,
+          "sparc-v9": 18,
+          "wasm32": 19,
+          "wasm64": 20
+        },
+        "compatibility_target_masks": {
+          "native": 1,
+          "windows": 2,
+          "linux": 4,
+          "bsd": 8,
+          "darwin": 16,
+          "android": 32,
+          "ios": 64
+        },
+        "physical_native_width_must_match_hardware_profile": true
+      }
     }
   }
 }
