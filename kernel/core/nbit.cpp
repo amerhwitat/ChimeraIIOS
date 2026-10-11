@@ -7,6 +7,7 @@ static uint32_t g_default_mode = CHIMERA_NBIT_64;
 static uint32_t g_hardware_default_mode = CHIMERA_NBIT_64;
 static chimera_nbit_backend g_default_backend = CHIMERA_NBIT_BACKEND_AUTO;
 static uint32_t g_default_compatibility_target = 0;
+static chimera_nbit_guest_isa g_default_guest_isa = CHIMERA_GUEST_ISA_AUTO;
 static chimera_nbit_process_context g_processes[CHIMERA_NBIT_MAX_PROCESS_MODES];
 static uint32_t g_process_count = 0;
 static uint32_t g_registry_lock = 0;
@@ -23,6 +24,19 @@ static int valid_mode(uint32_t bits) {
        Runtime memory and scheduler policy impose practical per-process limits. */
     return bits != 0u;
 }
+static uint32_t hardware_guest_isa(void) {
+    switch (g_profile.architecture) {
+        case CHIMERA_ARCH_X86_32: return CHIMERA_GUEST_ISA_X86_32;
+        case CHIMERA_ARCH_X86_64: return CHIMERA_GUEST_ISA_X86_64;
+        case CHIMERA_ARCH_AARCH64: return CHIMERA_GUEST_ISA_AARCH64;
+        case CHIMERA_ARCH_ARM32: return CHIMERA_GUEST_ISA_ARM32;
+        case CHIMERA_ARCH_RISCV32: return CHIMERA_GUEST_ISA_RISCV32;
+        case CHIMERA_ARCH_RISCV64: return CHIMERA_GUEST_ISA_RISCV64;
+        case CHIMERA_ARCH_LOONGARCH64: return CHIMERA_GUEST_ISA_LOONGARCH64;
+        case CHIMERA_ARCH_POWERPC64: return CHIMERA_GUEST_ISA_PPC64;
+        default: return CHIMERA_GUEST_ISA_AUTO;
+    }
+}
 static int find_process_locked(uint32_t process_id) {
     if (!process_id) return -1;
     for (uint32_t i = 0; i < g_process_count; ++i)
@@ -31,7 +45,7 @@ static int find_process_locked(uint32_t process_id) {
 }
 static int store_process(const chimera_nbit_process_context *ctx) {
     if (!ctx || !ctx->process_id || ctx->abi_version != CHIMERA_NBIT_CONTEXT_VERSION ||
-        !valid_mode(ctx->mode_bits)) return -1;
+        !valid_mode(ctx->mode_bits) || ctx->guest_isa > CHIMERA_GUEST_ISA_WASM64) return -1;
     registry_lock();
     int i = find_process_locked(ctx->process_id);
     if (i >= 0) {
@@ -87,9 +101,15 @@ extern "C" int chimera_nbit_set_default(uint32_t bits) {
 
 extern "C" int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_backend backend,
                                                   uint32_t compatibility_target) {
+    return chimera_nbit_set_default_profile_ex(bits,backend,compatibility_target,CHIMERA_GUEST_ISA_AUTO);
+}
+extern "C" int chimera_nbit_set_default_profile_ex(uint32_t bits, chimera_nbit_backend backend,
+                                                       uint32_t compatibility_target,
+                                                       chimera_nbit_guest_isa guest_isa) {
     if (chimera_nbit_init() != 0) return -1;
     if ((int)backend < (int)CHIMERA_NBIT_BACKEND_AUTO ||
-        backend > CHIMERA_NBIT_BACKEND_COMPATIBILITY) return -2;
+        backend > CHIMERA_NBIT_BACKEND_COMPATIBILITY ||
+        (uint32_t)guest_isa > CHIMERA_GUEST_ISA_WASM64) return -2;
     uint32_t selected_bits=bits;
     if (!selected_bits) {
         selected_bits=(backend==CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE)
@@ -101,10 +121,18 @@ extern "C" int chimera_nbit_set_default_profile(uint32_t bits, chimera_nbit_back
     if (backend == CHIMERA_NBIT_BACKEND_COMPATIBILITY) {
         if (!compatibility_target || (compatibility_target & ~g_profile.compatibility_mask)) return -4;
     } else if (compatibility_target) return -4;
+    uint32_t selected_guest=(uint32_t)guest_isa;
+    if (guest_isa==CHIMERA_GUEST_ISA_AUTO) {
+        if (backend==CHIMERA_NBIT_BACKEND_CHIMERA_VIRTUAL) selected_guest=CHIMERA_GUEST_ISA_CHIMERA_NBIT;
+        else if (backend==CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE ||
+                 (backend==CHIMERA_NBIT_BACKEND_AUTO&&selected_bits==g_profile.native_nbit_mode))
+            selected_guest=hardware_guest_isa();
+    }
     registry_lock();
     g_default_mode = selected_bits;
     g_default_backend = backend;
     g_default_compatibility_target = compatibility_target;
+    g_default_guest_isa = (chimera_nbit_guest_isa)selected_guest;
     registry_unlock();
     return 0;
 }
@@ -124,6 +152,7 @@ extern "C" int chimera_nbit_get_capabilities(chimera_nbit_capabilities *out) {
     out->default_mode_bits = g_default_mode;
     out->default_backend = (uint32_t)g_default_backend;
     out->default_compatibility_target = g_default_compatibility_target;
+    out->default_guest_isa = (uint32_t)g_default_guest_isa;
     registry_unlock();
     return 0;
 }
@@ -139,6 +168,7 @@ extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint
     if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
     ctx->process_id = process_id;
     ctx->mode_bits = mode;
+    ctx->guest_isa = CHIMERA_GUEST_ISA_AUTO;
     ctx->execution_class = (mode == g_profile.native_nbit_mode && compatibility_target == 0)
         ? CHIMERA_EXEC_NATIVE
         : (compatibility_target ? CHIMERA_EXEC_COMPATIBILITY : CHIMERA_EXEC_EMULATED);
@@ -154,22 +184,28 @@ extern "C" int chimera_nbit_process_init_default(chimera_nbit_process_context *c
     if (chimera_nbit_init() != 0) return -4;
     uint32_t mode=requested_bits, target=0;
     chimera_nbit_backend backend;
+    chimera_nbit_guest_isa guest;
     registry_lock();
     if (!mode) mode=g_default_mode;
     backend=g_default_backend;
     target=g_default_compatibility_target;
+    guest=g_default_guest_isa;
     registry_unlock();
+    int rc=0;
     switch (backend) {
         case CHIMERA_NBIT_BACKEND_CHIMERA_VIRTUAL:
-            return chimera_nbit_process_init_chimera(ctx,process_id,mode);
+            rc=chimera_nbit_process_init_chimera(ctx,process_id,mode); break;
         case CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE:
-            return chimera_nbit_process_init_physical_native(ctx,process_id,mode);
+            rc=chimera_nbit_process_init_physical_native(ctx,process_id,mode); break;
         case CHIMERA_NBIT_BACKEND_COMPATIBILITY:
-            return chimera_nbit_process_init(ctx,process_id,mode,target);
+            rc=chimera_nbit_process_init(ctx,process_id,mode,target); break;
         case CHIMERA_NBIT_BACKEND_AUTO:
         default:
-            return chimera_nbit_process_init(ctx,process_id,mode,0);
+            rc=chimera_nbit_process_init(ctx,process_id,mode,0); break;
     }
+    if (rc!=0) return rc;
+    ctx->guest_isa=(uint32_t)guest;
+    return store_process(ctx);
 }
 
 extern "C" int chimera_nbit_process_init_chimera(chimera_nbit_process_context *ctx,
@@ -183,6 +219,7 @@ extern "C" int chimera_nbit_process_init_chimera(chimera_nbit_process_context *c
     if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
     ctx->process_id = process_id;
     ctx->mode_bits = mode;
+    ctx->guest_isa = CHIMERA_GUEST_ISA_CHIMERA_NBIT;
     ctx->execution_class = CHIMERA_EXEC_CHIMERA_VIRTUAL;
     ctx->compatibility_target = 0;
     ctx->abi_version = CHIMERA_NBIT_CONTEXT_VERSION;
@@ -200,6 +237,7 @@ extern "C" int chimera_nbit_process_init_physical_native(chimera_nbit_process_co
     if (mode != g_profile.native_nbit_mode) return -6;
     ctx->process_id = process_id;
     ctx->mode_bits = mode;
+    ctx->guest_isa = hardware_guest_isa();
     ctx->execution_class = CHIMERA_EXEC_NATIVE;
     ctx->compatibility_target = 0;
     ctx->abi_version = CHIMERA_NBIT_CONTEXT_VERSION;
