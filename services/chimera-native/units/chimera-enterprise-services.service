@@ -1,0 +1,17 @@
+[Unit]
+Description=Chimera II OS optional enterprise service targets
+Documentation=file:/usr/share/doc/chimera/enterprise-services.md
+After=local-fs.target network-pre.target
+ConditionPathExists=/etc/chimera/enterprise-services.plan.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/chimera/tools/chimera_enterprise_targets.py
+RemainAfterExit=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
