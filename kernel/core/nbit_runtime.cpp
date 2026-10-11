@@ -99,7 +99,7 @@ int ChimeraNBitArithmetic::compare_unsigned(ChimeraNBitConstView a, ChimeraNBitC
     for(uint32_t i=n;i>0;--i){
         uint8_t av=a.bytes[i-1u],bv=b.bytes[i-1u];
         if(i==n){const uint8_t mask=final_mask(a.bit_width);av&=mask;bv&=mask;}
-        if(av<bv)return -1;if(av>bv)return 1;
+        if(av<bv)return -1;\n        if(av>bv)return 1;
     }
     return 0;
 }
