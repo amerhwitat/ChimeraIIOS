@@ -14,7 +14,18 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = ROOT / "isa" / "catalog.json"
 DB_PATH = ROOT / "isa" / "isa_database.json"
 CATALOG = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
-DB = json.loads(DB_PATH.read_text(encoding="utf-8"))
+
+# The legacy positional database can be malformed or partially written. It is
+# only an optional source for masked templates; exact samples come from the
+# validated canonical catalog and must remain generatable when DB parsing fails.
+DB_LOAD_WARNING = None
+try:
+    DB = json.loads(DB_PATH.read_text(encoding="utf-8"))
+    if not isinstance(DB, dict):
+        raise ValueError("top-level JSON value is not an object")
+except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+    DB = {"architectures": [], "instructions": []}
+    DB_LOAD_WARNING = f"legacy ISA database unavailable ({exc}); generating exact samples from isa/catalog.json only"
 
 families = {
     row[0]: row[2]
@@ -130,6 +141,8 @@ header += [
 (ROOT / "kernel" / "generated" / "chimera_isa_encoding_samples.generated.h").write_text(
     "\n".join(header), encoding="utf-8")
 
+if DB_LOAD_WARNING:
+    print(f"Warning: {DB_LOAD_WARNING}")
 print(f"Generated {len(templates)} verified ISA encoding templates and {len(samples)} exact worked samples")
 if skipped_templates:
     print(f"Warning: skipped {len(skipped_templates)} database rows with missing/invalid template masks; exact catalog samples were still generated.")
