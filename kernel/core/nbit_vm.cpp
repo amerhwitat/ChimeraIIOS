@@ -94,3 +94,18 @@ int ChimeraNBitVM::run(ChimeraNBitVMState &s,const ChimeraNBitInstruction *progr
     }
     return CHIMERA_NBIT_VM_BAD_PROGRAM;
 }
+
+extern "C" int chimera_nbit_vm_initialize(ChimeraNBitVMState *state,uint8_t *register_bytes,
+                                            uint32_t register_count,uint32_t register_stride,
+                                            uint32_t register_storage_bytes,uint32_t bit_width,
+                                            uint64_t step_limit) {
+    if(!state)return CHIMERA_NBIT_VM_INVALID;
+    return ChimeraNBitVM::initialize(*state,register_bytes,register_count,register_stride,
+                                     register_storage_bytes,bit_width,step_limit);
+}
+extern "C" int chimera_nbit_vm_run(ChimeraNBitVMState *state,
+                                     const ChimeraNBitInstruction *program,
+                                     uint32_t instruction_count) {
+    if(!state)return CHIMERA_NBIT_VM_INVALID;
+    return ChimeraNBitVM::run(*state,program,instruction_count);
+}
