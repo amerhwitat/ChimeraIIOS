@@ -148,5 +148,15 @@
       ],
       "backend": "qemu-system"
     }
+  },
+  "enterprise_services": {
+    "optional": true,
+    "catalog": "services/enterprise-services.json",
+    "default_enabled": [],
+    "compatible_runtime_modes": [
+      "chimera-native",
+      "linux-compatibility"
+    ],
+    "service_targets_require_explicit_selection": true
   }
 }
