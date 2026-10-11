@@ -126,7 +126,7 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
             for (uint64_t n = 0; n < len; ++n) {
                 const uint8_t c = (uint8_t)message[n];
                 __asm__ volatile("outb %0, $0xE9" : : "a"(c));
-                if (c == '\\n') break;
+                if (c == '\n') break;
                 if (c >= 0x20u && user_console_col < 80u)
                     vga[23u*80u+user_console_col++] = (uint16_t)(0x0F00u|c);
             }
