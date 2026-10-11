@@ -73,6 +73,11 @@ extern "C" int chimera_ipc_send(uint32_t sender_pid,uint32_t id,uint64_t capabil
     chimera_ipc_service_ops ops{};
     lock_service();
     if(!initialized){unlock_service();return -3;}
+    int initial=endpoint_index(id);
+    if(initial<0){unlock_service();return -5;}
+    Endpoint &initial_endpoint=endpoints[(uint32_t)initial];
+    if(initial_endpoint.capability!=capability){unlock_service();return -6;}
+    if(initial_endpoint.closing){unlock_service();return -10;}
     ops=service_ops;unlock_service();
     uint8_t staged[CHIMERA_IPC_MAX_PAYLOAD]{};
     if(ops.copy_from_user(ops.context,sender_pid,staged,user_payload,(uint32_t)bytes64)!=0)return -4;
