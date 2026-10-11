@@ -1139,6 +1139,7 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/koronos/chimera-user-init.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt
