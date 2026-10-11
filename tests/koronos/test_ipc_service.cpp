@@ -26,7 +26,8 @@ int main(){
     assert(chimera_ipc_send(101,77,cap^1u,payload,13,1)==-6);
     assert(chimera_ipc_send(101,77,cap,payload,13,1)==2);
     assert(chimera_ipc_queued_messages(77)==1);
-    assert(chimera_ipc_receive(303,77,cap,payload,sizeof(payload),&(chimera_ipc_message_info{}))==-4);
+    chimera_ipc_message_info unauthorized_info{};
+    assert(chimera_ipc_receive(303,77,cap,payload,sizeof(payload),&unauthorized_info)==-4);
     assert(chimera_ipc_cancel(101,77,1)==0);
     assert(chimera_ipc_queued_messages(77)==0);
     for(uint64_t seq=10;seq<10+CHIMERA_IPC_QUEUE_DEPTH;++seq)
