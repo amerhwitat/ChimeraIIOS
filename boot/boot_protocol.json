@@ -180,7 +180,13 @@
       "enterprise-file.target",
       "enterprise-access.target",
       "enterprise-backup.target",
-      "enterprise-messaging.target"
+      "enterprise-messaging.target",
+      "enterprise-network.target",
+      "enterprise-infrastructure.target",
+      "enterprise-security.target",
+      "enterprise-storage.target",
+      "enterprise-virtualization.target",
+      "enterprise-ci.target"
     ],
     "activation_policy": "enable-only-after-installer-review"
   }
