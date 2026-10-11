@@ -59,7 +59,7 @@ def main():
             print("refusing to replace non-socket path",file=sys.stderr); return 2
         a.socket.unlink()
     with Server(str(a.socket),Handler) as server:
-        os.chmod(a.socket,0o600)
+        os.chmod(a.socket,0o660)
         server.serve_forever()
     return 0
 if __name__=="__main__": raise SystemExit(main())
