@@ -24,9 +24,13 @@ class Daemon:
             return {"ok":True,"profile":self.selector.build_profile(64,"auto",None,"auto")}
         if op=="set":
             try:
-                profile=self.selector.build_profile(int(request.get("bits",64)),
+                bits=int(request.get("bits",64))
+                profile=self.selector.build_profile(64 if bits==0 else bits,
                     str(request.get("backend","auto")),request.get("compatibility"),
                     str(request.get("isa","auto")))
+                if bits==0:
+                    profile["selected_width_bits"]=0
+                    profile["width_policy"]="auto"
             except (TypeError,ValueError) as exc: return {"ok":False,"error":str(exc)}
             self.config.parent.mkdir(parents=True,exist_ok=True)
             tmp=self.config.with_suffix(self.config.suffix+".tmp")
