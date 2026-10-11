@@ -67,7 +67,7 @@ fi
 # Build a tiny freestanding ET_EXEC payload used to verify the real ring-3
 # transition on every normal/live/install boot path. It is deliberately not
 # presented as the complete Aurora userspace; it proves the kernel-to-user ABI.
-"$CXX" "${CXXFLAGS[@]}" -mcmodel=small -fno-asynchronous-unwind-tables -fno-unwind-tables -c "$ROOT/kernel/userland/init.cpp" -o "$BUILD/chimera-user-init.o"
+"$CXX" "${CXXFLAGS[@]}" -mcmodel=large -fno-asynchronous-unwind-tables -fno-unwind-tables -c "$ROOT/kernel/userland/init.cpp" -o "$BUILD/chimera-user-init.o"
 "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/user_init.ld" "$BUILD/chimera-user-init.o" -o "$BUILD/chimera-user-init.elf"
 if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/chimera-user-init.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: user init payload is not ET_EXEC" >&2; exit 1; }
