@@ -1,0 +1,9 @@
+{
+  "schema": "CHIMERA-NBIT-USER-PROFILE-1",
+  "selected_width_bits": 64,
+  "backend": "auto",
+  "compatibility_personality": null,
+  "physical_native_width_is_hardware_defined": true,
+  "arbitrary_width_virtual_abi": true,
+  "validation_required_at_kernel_admission": true
+}
