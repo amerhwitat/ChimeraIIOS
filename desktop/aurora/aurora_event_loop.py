@@ -5,7 +5,7 @@ The compositor or compatibility adapter writes one event per line to stdin. The
 dispatcher validates the event and invokes only allow-listed desktop actions.
 """
 from __future__ import annotations
-import json, os, subprocess, sys, time
+import argparse, json, os, socket, socketserver, stat, subprocess, sys, time
 from pathlib import Path
 
 ACTIONS={
@@ -41,24 +41,59 @@ def resolve(event):
     if clicks==3:
         return "select-all" if surface=="text" else ("maximize" if surface=="window-titlebar" else "select")
     return ""
-def main():
-    dispatcher=os.environ.get("CHIMERA_DESKTOP_ACTION","/usr/bin/chimera-desktop-action")
-    for raw in sys.stdin:
-        try:
-            event=json.loads(raw)
-            action=resolve(event)
-            if not action: continue
-            if action not in ACTIONS.values() and action!="focus":
-                raise ValueError("action not allow-listed")
-            request={"action":action,"surface":event.get("surface","file"),
-                     "target":str(event.get("target",""))[:4096],
-                     "mode":"compatibility" if event.get("kind")=="compatibility" else "native",
-                     "timestamp_ns":time.monotonic_ns()}
-            print(json.dumps({"event":"dispatch","request":request},separators=(",",":")),flush=True)
-            # Dry-run is the safe default. Enable only when the compositor/session
-            # explicitly opts in; no shell is involved.
-            if os.environ.get("CHIMERA_DESKTOP_DISPATCH")=="1" and Path(dispatcher).is_file():
+def dispatch_line(raw):
+    try:
+        event=json.loads(raw)
+        action=resolve(event)
+        if not action: return {"event":"ignored"}
+        if action not in ACTIONS.values() and action!="focus":
+            raise ValueError("action not allow-listed")
+        request={"action":action,"surface":event.get("surface","file"),
+                 "target":str(event.get("target",""))[:4096],
+                 "mode":"compatibility" if event.get("kind")=="compatibility" else "native",
+                 "timestamp_ns":time.monotonic_ns()}
+        if os.environ.get("CHIMERA_DESKTOP_DISPATCH")=="1":
+            dispatcher=os.environ.get("CHIMERA_DESKTOP_ACTION","/usr/bin/chimera-desktop-action")
+            if Path(dispatcher).is_file():
                 subprocess.run([dispatcher,action,request["target"]],check=False,timeout=5)
-        except Exception as exc:
-            print(json.dumps({"event":"rejected","error":str(exc)[:240]}),file=sys.stderr,flush=True)
+        return {"event":"dispatch","request":request}
+    except Exception as exc:
+        return {"event":"rejected","error":str(exc)[:240]}
+
+class EventSocketHandler(socketserver.StreamRequestHandler):
+    def handle(self):
+        for raw in self.rfile:
+            if len(raw)>1024*1024:
+                response={"event":"rejected","error":"event exceeds 1 MiB"}
+            else:
+                response=dispatch_line(raw.decode("utf-8","replace"))
+            self.wfile.write((json.dumps(response,separators=(",",":"))+"\\n").encode("utf-8"))
+            self.wfile.flush()
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--socket",type=Path,help="serve newline-delimited JSON events over a local Unix socket")
+    args=parser.parse_args()
+    if args.socket:
+        if not hasattr(socket,"AF_UNIX"):
+            print("Unix event sockets are unavailable; use stdin compatibility mode",file=sys.stderr); return 2
+        args.socket.parent.mkdir(parents=True,exist_ok=True)
+        if args.socket.exists():
+            if not stat.S_ISSOCK(args.socket.stat().st_mode):
+                print("refusing to replace a non-socket event path",file=sys.stderr); return 2
+            args.socket.unlink()
+        class Server(socketserver.ThreadingUnixStreamServer):
+            daemon_threads=True
+            allow_reuse_address=True
+        with Server(str(args.socket),EventSocketHandler) as server:
+            os.chmod(args.socket,0o600)
+            server.serve_forever()
+        return 0
+    for raw in sys.stdin:
+        response=dispatch_line(raw)
+        if response.get("event")=="rejected":
+            print(json.dumps(response),file=sys.stderr,flush=True)
+        else:
+            print(json.dumps(response,separators=(",",":")),flush=True)
+    return 0
 if __name__=="__main__": main()
