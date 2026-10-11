@@ -33,11 +33,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'kernel/core/process.cpp'
-      - 'kernel/core/scheduler.cpp'
-      - 'kernel/include/chimera/process.h'
-      - 'kernel/include/chimera/elf64.h'
-      - 'kernel/include/chimera/scheduler.h'
+      - 'kernel/core/**'
+      - 'kernel/arch/x86_64/**'
+      - 'kernel/drivers/builtin/**'
+      - 'kernel/include/chimera/**'
+      - 'kernel/build-koronos.sh'
+      - 'isa/isa_database.json'
+      - 'tools/isa/**'
       - 'tests/koronos/**'
       - 'boot/iso/**'
       - 'boot/grub/**'
@@ -58,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install compiler and test tools
-        run: sudo apt-get update && sudo apt-get install -y g++ python3
+        run: sudo apt-get update && sudo apt-get install -y g++ python3 qemu-system-x86
       - name: Validate changed boot/build shell scripts
         run: |
           bash -n build-chimera-iso.sh
@@ -92,3 +94,39 @@ jobs:
         run: |
           readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Class:.*ELF64'
           readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Machine:.*Advanced Micro Devices X86-64'
+      - name: QEMU multi-vCPU kernel boot smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          log=/tmp/koronos-qemu-debugcon.log
+          rm -f "$log"
+          set +e
+          timeout --signal=TERM --kill-after=3s 15s qemu-system-x86_64 \
+            -machine q35 -cpu max -m 512M -smp 2 \
+            -kernel build/koronos/x86_64/koronos.elf \
+            -display none -serial none -monitor none \
+            -no-reboot -no-shutdown \
+            -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
+          qemu_rc=$?
+          set -e
+          # A successful smoke test intentionally leaves the scheduler running;
+          # timeout (124) is expected, while early QEMU/kernel termination is not.
+          if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 ]]; then
+            echo "QEMU exited before the smoke-test timeout (status $qemu_rc)" >&2
+            cat "$log" >&2 || true
+            exit 1
+          fi
+          test -s "$log" || { echo "QEMU produced no debugcon output" >&2; exit 1; }
+          for marker in \
+            '[KRN ] koronos_boot entered' \
+            '[KRN ] KORONOS READY' \
+            '[SCH ] Bootstrap tasks submitted' \
+            '[RUN ] Entering Koronos scheduler loop'; do
+            grep -Fq "$marker" "$log" || {
+              echo "Missing QEMU boot marker: $marker" >&2
+              cat "$log" >&2
+              exit 1
+            }
+          done
+          echo "QEMU reached the Koronos scheduler loop with two virtual CPUs configured."
+          cat "$log"
