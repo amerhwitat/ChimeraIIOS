@@ -78,24 +78,33 @@ def main():
         return 0
     unknown=selected-services.keys()
     if unknown: p.error("unknown service IDs: "+", ".join(sorted(unknown)))
-    pm=a.package_manager or manager()
-    plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"rootfs":str(a.rootfs),
+    detected=[a.package_manager] if a.package_manager else [x for x in MANAGERS if shutil.which(x)]
+    pm=detected[0] if detected else None
+    plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"package_manager_candidates":detected,"rootfs":str(a.rootfs),
           "apply":a.apply,"services":[],"enabled_targets":[]}
     for sid in sorted(selected):
-        svc=services[sid]; packages=(svc.get("packages") or {}).get(pm,[]) if pm else []
-        item={"id":sid,"label":svc["label"],"boot_target":svc["boot_target"],"packages":packages,
+        svc=services[sid]
+        item={"id":sid,"label":svc["label"],"boot_target":svc["boot_target"],"packages":{},
               "staging":"not-requested","native_policy":svc.get("native","prefer-native-package"),
-              "compatibility":svc.get("compatibility",[])}
+              "compatibility":svc.get("compatibility",[]),"attempts":[]}
         if a.apply:
-            if not pm:
+            if not detected:
                 item["error"]="no supported package manager detected"; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
-            if not packages:
-                item["error"]="no package mapping for selected manager"; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
-            rc=package_stage(pm,packages,a.rootfs,a.cache)
-            if rc:
-                item["error"]=f"safe package staging failed (exit {rc}); no unverified source was executed"
-                plan["services"].append(item); print(json.dumps(plan,indent=2)); return rc
-            item["staging"]="package payloads extracted; configuration and dependencies require rootfs integration"
+            success=False
+            for candidate in detected:
+                packages=(svc.get("packages") or {}).get(candidate,[])
+                item["packages"][candidate]=packages
+                if not packages:
+                    item["attempts"].append({"manager":candidate,"result":"no-package-mapping"}); continue
+                rc=package_stage(candidate,packages,a.rootfs,a.cache)
+                item["attempts"].append({"manager":candidate,"result":"staged" if rc==0 else "failed","exit_code":rc})
+                if rc==0:
+                    item["selected_package_manager"]=candidate
+                    item["staging"]="package payloads extracted; dependency resolution, service configuration and ABI conversion still require rootfs integration"
+                    success=True; break
+            if not success:
+                item["error"]="all available safe package staging adapters failed; source fallback requires a pinned archive and verified SHA-256 digest"
+                plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
         plan["services"].append(item)
         if a.enable: plan["enabled_targets"].append(svc["boot_target"])
     out=a.rootfs/"etc/chimera/enterprise-services.plan.json"
