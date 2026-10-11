@@ -555,10 +555,15 @@ create_boot_menu(){
   else
     log_info "ISA research refresh skipped by CHIMERA_ISA_RESEARCH=0."
   fi
-  "$SCRIPT_DIR/kernel/build-koronos.sh"
-  local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
+  CHIMERA_BUILD_DIR="$BUILD_DIR" bash "$SCRIPT_DIR/kernel/build-koronos.sh"
+  local k="$BUILD_DIR/koronos/x86_64/koronos.elf"
+  local user_init="$BUILD_DIR/koronos/x86_64/chimera-user-init.elf"
+  [[ -s "$k" ]] || { log_error "Koronos ELF missing: $k"; exit 1; }
+  [[ -s "$user_init" ]] || { log_error "Native user-init ELF missing: $user_init"; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
-  chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"
+  chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  chimera_copy_if_distinct "$user_init" "$ISO_DIR/boot/koronos/chimera-user-init.elf"
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
