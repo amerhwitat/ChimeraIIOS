@@ -45,6 +45,7 @@ def build_profile(bits: int, backend: str, compatibility: str | None,
     return {
         "schema": "CHIMERA-NBIT-USER-PROFILE-1",
         "selected_width_bits": bits,
+        "width_policy": "explicit",
         "backend": backend,
         "backend_id": BACKEND_IDS[backend],
         "guest_isa": guest_isa,
