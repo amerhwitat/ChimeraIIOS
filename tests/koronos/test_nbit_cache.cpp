@@ -16,6 +16,6 @@ int main() {
     assert(ChimeraNBitCache::fetch(cache,program,0,2,out));
     assert(cache.misses==2); // generation change is a miss
     ChimeraNBitCache::invalidate(cache);
-    assert(!lines[0].valid || lines[0].program_identity==0 || true);
+    for (const auto &line : lines) assert(line.valid==0);
     return 0;
 }
