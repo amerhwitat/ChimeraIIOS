@@ -83,7 +83,7 @@ extern "C" int chimera_process_admit_elf(const void *image,uint64_t size,
     for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;++i)if(!slots[i].used){
         p.pid=next_pid++;if(!next_pid)next_pid=1;p.state=CHIMERA_PROCESS_ADMITTED;
         chimera_nbit_process_context mode{};
-        if(chimera_nbit_process_init(&mode,p.pid,64u,0u)!=0)return -11;
+        if(chimera_nbit_process_init_default(&mode,p.pid,0u)!=0)return -11;
         slots[i].image=p;slots[i].used=true;++count;*out=p;return (int)p.pid;
     }
     return -10;
@@ -98,6 +98,13 @@ extern "C" int chimera_process_set_execution_mode(uint32_t pid,uint32_t bits,uin
     if(state==CHIMERA_PROCESS_EXITED||state==CHIMERA_PROCESS_FAULTED)return -2;
     chimera_nbit_process_context mode{};
     return chimera_nbit_process_init(&mode,pid,bits,target);
+}
+extern "C" int chimera_process_set_chimera_mode(uint32_t pid,uint32_t bits) {
+    int i=find_slot(pid);if(i<0)return -1;
+    const auto state=slots[(uint32_t)i].image.state;
+    if(state==CHIMERA_PROCESS_EXITED||state==CHIMERA_PROCESS_FAULTED)return -2;
+    chimera_nbit_process_context mode{};
+    return chimera_nbit_process_init_chimera(&mode,pid,bits);
 }
 extern "C" int chimera_process_set_state(uint32_t pid,chimera_process_state state) {
     if(!pid||state<CHIMERA_PROCESS_ADMITTED||state>CHIMERA_PROCESS_FAULTED)return -1;
