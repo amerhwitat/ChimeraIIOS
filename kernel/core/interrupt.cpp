@@ -53,7 +53,7 @@ extern "C" int chimera_interrupt_init(void) {
         /* Present 64-bit interrupt gate, DPL0. Software compatibility calls
          * are recognized by the dispatcher but are not exposed to ring 3 until
          * a TSS/user stack and validated user address space are installed. */
-        g.type_attr = 0x8Eu;
+        g.type_attr = (i == CHIMERA_SYSCALL_VECTOR) ? 0xEEu : 0x8Eu;
         g.offset_mid = (uint16_t)((a >> 16) & 0xFFFFu);
         g.offset_high = (uint32_t)(a >> 32);
         g.reserved = 0;
@@ -94,16 +94,39 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
 }
 
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
-    (void)frame;
     if (vector > 255u) return;
     g_last = (uint32_t)vector;
     if (is_exception((uint32_t)vector)) ++g_exceptions;
     else if (vector >= 32u && vector != CHIMERA_SYSCALL_VECTOR) ++g_irqs;
     else ++g_soft;
     if (vector == CHIMERA_SYSCALL_VECTOR || vector == CHIMERA_WINDOWS_INT_VECTOR ||
-        vector == CHIMERA_DOS_INT_VECTOR) {
-        ++g_syscalls;
+        vector == CHIMERA_DOS_INT_VECTOR) ++g_syscalls;
+
+    /*
+     * Minimal, bounded ring-3 ABI used by the bootstrap init and diagnostics:
+     * RAX=1, RDI=user pointer, RSI=byte count. This is deliberately not a
+     * claim of POSIX syscall compatibility. Only the dedicated user range and
+     * a small maximum length are accepted; output is emitted from ring 0.
+     */
+    if (vector == CHIMERA_SYSCALL_VECTOR && frame) {
+        uint64_t *regs = (uint64_t *)(uintptr_t)frame;
+        const uint64_t number = regs[14]; // saved RAX
+        const uint64_t ptr = regs[8];     // saved RDI
+        const uint64_t len = regs[9];     // saved RSI
+        if (number == 1u && ptr >= 0x40000000ull && ptr < 0x80000000ull &&
+            len <= 512u && len <= 0x80000000ull - ptr) {
+            const char *message = (const char *)(uintptr_t)ptr;
+            for (uint64_t n = 0; n < len; ++n) {
+                const uint8_t c = (uint8_t)message[n];
+                __asm__ volatile("outb %0, $0xE9" : : "a"(c));
+            }
+            regs[14] = len;
+        } else {
+            regs[14] = UINT64_MAX;
+        }
+        return;
     }
+
     chimera_interrupt_identity identity{};
     chimera_compat_recognize_interrupt((uint32_t)vector, &identity);
 }
