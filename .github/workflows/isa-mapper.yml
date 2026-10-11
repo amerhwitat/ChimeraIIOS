@@ -1,0 +1,32 @@
+name: ISA mapper and hardware advisor regression
+on:
+  push:
+    paths:
+      - 'isa/isa_database.json'
+      - 'tools/isa/**'
+      - 'tools/installer/**'
+      - 'tests/isa/**'
+      - 'tests/installer/**'
+      - '.github/workflows/isa-mapper.yml'
+  pull_request:
+    paths:
+      - 'isa/isa_database.json'
+      - 'tools/isa/**'
+      - 'tools/installer/**'
+      - 'tests/isa/**'
+      - 'tests/installer/**'
+      - '.github/workflows/isa-mapper.yml'
+  workflow_dispatch:
+jobs:
+  mapping-and-advisor-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python3 -m py_compile tools/isa/chimera_isa_mapper.py tools/installer/chimera_hardware_advisor.py
+      - run: python3 -m unittest discover -s tests/isa -v
+      - run: python3 -m unittest discover -s tests/installer -v
+      - run: python3 tools/isa/chimera_isa_mapper.py --source-architecture riscv64 --mnemonic ADD --no-record
+      - run: python3 tools/installer/chimera_hardware_advisor.py

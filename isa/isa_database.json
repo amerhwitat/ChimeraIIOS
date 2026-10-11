@@ -1,6 +1,6 @@
 {
   "$schema": "CHM-ISA-DB-4",
-  "version": "2026.10.09",
+  "version": "2026.10.11",
   "title": "Chimera II OS Universal ISA Database",
   "architecture_row": [
     "id",
@@ -22,7 +22,7 @@
     "value_bits",
     "mask_bits"
   ],
-  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution.",
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution. Update 2026-10-11: appended additional candidate architecture and extension inventory rows from the project's curated source registry. New rows with zero instruction forms are discovery/training candidates only; no encoding, decode, execution, or conformance support is implied. AI-assisted mapping must cite database row/source references and report uncertainty; only deterministic, validated backends may execute instructions.",
   "architectures": [
     [
       "chimera-c8192",
@@ -893,6 +893,176 @@
       "RVV vector extension with implementation-defined VLEN",
       "riscv",
       0
+    ],
+    [
+      "superh-sh4",
+      "RISC",
+      "SuperH SH-4",
+      32,
+      "catalog-only",
+      "16/32-bit mixed instruction encodings",
+      "superh",
+      0
+    ],
+    [
+      "v850",
+      "RISC",
+      "Renesas V850",
+      32,
+      "catalog-only",
+      "embedded instruction formats; variant-specific",
+      "renesas",
+      0
+    ],
+    [
+      "avr8",
+      "RISC",
+      "Atmel AVR 8-bit",
+      8,
+      "catalog-only",
+      "8-bit MCU ISA with multiword instructions",
+      "avr",
+      0
+    ],
+    [
+      "pic8",
+      "CISC",
+      "Microchip PIC 8-bit",
+      8,
+      "catalog-only",
+      "family-specific mid-range/high-end encodings",
+      "microchip-pic",
+      0
+    ],
+    [
+      "dsPIC",
+      "DSP",
+      "Microchip dsPIC/PIC24",
+      16,
+      "catalog-only",
+      "16-bit DSP/control instruction formats",
+      "microchip-dspic",
+      0
+    ],
+    [
+      "hexagon",
+      "DSP",
+      "Qualcomm Hexagon",
+      32,
+      "catalog-only",
+      "packetized VLIW DSP ISA; generation-specific",
+      "qualcomm-hexagon",
+      0
+    ],
+    [
+      "nios-ii",
+      "RISC",
+      "Intel Altera Nios II",
+      32,
+      "catalog-only",
+      "soft-core processor ISA",
+      "nios-ii",
+      0
+    ],
+    [
+      "pa-risc",
+      "RISC",
+      "HP PA-RISC",
+      64,
+      "legacy/standard",
+      "fixed-width instruction encodings; version-specific",
+      "pa-risc",
+      0
+    ],
+    [
+      "ia-64",
+      "EPIC",
+      "Intel Itanium IA-64",
+      64,
+      "legacy/standard",
+      "128-bit bundles with three instruction slots",
+      "intel-itanium",
+      0
+    ],
+    [
+      "bpf",
+      "VM",
+      "Berkeley Packet Filter bytecode",
+      64,
+      "catalog-only",
+      "virtual instruction set; verifier/runtime restrictions",
+      "bpf",
+      0
+    ],
+    [
+      "spir-v",
+      "GPU-VM",
+      "Khronos SPIR-V",
+      32,
+      "catalog-only",
+      "typed intermediate representation for GPU/compute APIs",
+      "khronos-spirv",
+      0
+    ],
+    [
+      "apple-gpu",
+      "GPU",
+      "Apple GPU ISA family",
+      32,
+      "catalog-only",
+      "proprietary generation-specific machine ISA",
+      "apple-gpu",
+      0
+    ],
+    [
+      "qualcomm-adreno",
+      "GPU",
+      "Qualcomm Adreno GPU ISA",
+      32,
+      "catalog-only",
+      "proprietary generation-specific machine ISA",
+      "qualcomm-adreno",
+      0
+    ],
+    [
+      "arm-mve",
+      "RISC-extension",
+      "Arm M-profile Vector Extension",
+      32,
+      "catalog-only",
+      "Thumb-2-associated vector extension; profile-specific",
+      "arm",
+      0
+    ],
+    [
+      "riscv-crypto",
+      "RISC-extension",
+      "RISC-V Cryptography Extensions",
+      32,
+      "catalog-only",
+      "extension encodings depend on ratified spec/version",
+      "riscv",
+      0
+    ],
+    [
+      "x86-avx10",
+      "CISC-extension",
+      "Intel AVX10",
+      512,
+      "catalog-only",
+      "x86 extension; exact feature support is model/OS-state dependent",
+      "intel-sdm",
+      0
+    ],
+    [
+      "power10-mma",
+      "RISC-extension",
+      "IBM Power10 MMA",
+      128,
+      "catalog-only",
+      "matrix multiply assist extension; implementation-specific state",
+      "openpower",
+      0
     ]
   ],
   "sources": [
@@ -1311,6 +1481,105 @@
       "supports": [
         "intel-xe-gpu"
       ]
+    },
+    {
+      "id": "superh",
+      "name": "Renesas SuperH architecture documentation landing page",
+      "url": "https://www.renesas.com/",
+      "supports": [
+        "superh-sh4"
+      ],
+      "note": "Discovery pointer only; pin a specific SH-4 manual/revision before encoding claims."
+    },
+    {
+      "id": "renesas",
+      "name": "Renesas MCU and processor documentation",
+      "url": "https://www.renesas.com/",
+      "supports": [
+        "v850"
+      ],
+      "note": "Discovery pointer only; select exact V850 variant and manual."
+    },
+    {
+      "id": "avr",
+      "name": "Microchip AVR documentation",
+      "url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus",
+      "supports": [
+        "avr8"
+      ],
+      "note": "Select exact AVR family and instruction-set manual."
+    },
+    {
+      "id": "microchip-dspic",
+      "name": "Microchip dsPIC digital signal controllers documentation",
+      "url": "https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/digital-signal-controllers",
+      "supports": [
+        "dsPIC"
+      ],
+      "note": "Select exact device family and programmer reference."
+    },
+    {
+      "id": "qualcomm-hexagon",
+      "name": "Qualcomm Hexagon DSP platform",
+      "url": "https://www.qualcomm.com/products",
+      "supports": [
+        "hexagon"
+      ],
+      "note": "Public documentation availability varies by generation; catalog-only until a versioned ISA reference is pinned."
+    },
+    {
+      "id": "nios-ii",
+      "name": "Intel FPGA Nios II processor documentation",
+      "url": "https://www.intel.com/content/www/us/en/products/details/fpga.html",
+      "supports": [
+        "nios-ii"
+      ],
+      "note": "Discovery pointer; use exact Nios II processor handbook for instruction claims."
+    },
+    {
+      "id": "pa-risc",
+      "name": "HP PA-RISC technical documentation archive",
+      "url": "https://www.hp.com/",
+      "supports": [
+        "pa-risc"
+      ],
+      "note": "Legacy architecture; catalog-only until a specific manual is cited."
+    },
+    {
+      "id": "intel-itanium",
+      "name": "Intel Itanium architecture documentation archive",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+      "supports": [
+        "ia-64"
+      ],
+      "note": "Legacy EPIC ISA; source landing page is a discovery pointer, not a complete IA-64 manual citation."
+    },
+    {
+      "id": "khronos-spirv",
+      "name": "Khronos SPIR-V specifications",
+      "url": "https://registry.khronos.org/SPIR-V/",
+      "supports": [
+        "spir-v"
+      ],
+      "note": "Virtual/intermediate instruction representation; not a physical CPU ISA."
+    },
+    {
+      "id": "apple-gpu",
+      "name": "Apple GPU and Metal developer documentation",
+      "url": "https://developer.apple.com/metal/",
+      "supports": [
+        "apple-gpu"
+      ],
+      "note": "Public API docs do not expose all machine encodings; inventory only."
+    },
+    {
+      "id": "qualcomm-adreno",
+      "name": "Qualcomm Adreno GPU platform",
+      "url": "https://www.qualcomm.com/products",
+      "supports": [
+        "qualcomm-adreno"
+      ],
+      "note": "Generation-specific proprietary ISA; inventory only without authoritative encoding reference."
     }
   ],
   "instructions": [
@@ -3306,8 +3575,8 @@
     ]
   ],
   "research_update": {
-    "reviewed_on": "2026-10-08",
-    "method": "Official vendor and standards documentation reviewed for architecture scope, instruction reference organization, and extension/version status. Curated reference supplement; not exhaustive.",
+    "reviewed_on": "2026-10-11",
+    "method": "Official vendor and standards documentation reviewed for architecture scope, instruction reference organization, and extension/version status. Curated reference supplement; not exhaustive. Candidate inventory additions recorded as catalog-only unless existing source-backed instruction forms are present; no external source is treated as proof of implementation.",
     "source_findings": [
       {
         "source": "intel-sdm",
@@ -3457,10 +3726,50 @@
         ],
         "note": "Mnemonic catalog does not imply CPU support; gate by CPUID, execution mode, OS state, and processor generation."
       }
-    ]
+    ],
+    "candidate_inventory_update": {
+      "date": "2026-10-11",
+      "added_architecture_ids": [
+        "superh-sh4",
+        "v850",
+        "avr8",
+        "pic8",
+        "dsPIC",
+        "hexagon",
+        "nios-ii",
+        "pa-risc",
+        "ia-64",
+        "bpf",
+        "spir-v",
+        "apple-gpu",
+        "qualcomm-adreno",
+        "arm-mve",
+        "riscv-crypto",
+        "x86-avx10",
+        "power10-mma"
+      ],
+      "policy": "inventory-only unless instruction forms and versioned source citations are present"
+    },
+    "candidate_inventory_sources": {
+      "date": "2026-10-11",
+      "source_ids_added": [
+        "superh",
+        "renesas",
+        "avr",
+        "microchip-dspic",
+        "qualcomm-hexagon",
+        "nios-ii",
+        "pa-risc",
+        "intel-itanium",
+        "khronos-spirv",
+        "apple-gpu",
+        "qualcomm-adreno"
+      ],
+      "note": "Vendor/specification landing pages are discovery provenance only. Candidate rows remain catalog-only until versioned architecture manuals or machine-readable specifications verify instruction forms."
+    }
   },
   "isa_inventory_policy": {
-    "scope": "Broad discoverable inventory of major CISC, RISC, EPIC/VLIW, GPU, virtual-machine and extension ISAs; not a claim that every proprietary, unpublished, historical, or custom ISA is enumerated.",
+    "scope": "Broad discoverable inventory of major CISC, RISC, EPIC/VLIW, GPU, virtual-machine and extension ISAs; not a claim that every proprietary, unpublished, historical, or custom ISA is enumerated. Additional candidates now include embedded MCU/DSP/soft-core, legacy workstation/mainframe, virtual bytecode, GPU intermediate/machine ISA, and newer extension families.",
     "status_semantics": {
       "standard": "Existing architecture-level designation; verify version/profile applicability",
       "legacy/standard": "Legacy family with published architectural variants",
@@ -3468,7 +3777,7 @@
       "project-defined": "Defined by Chimera II OS project"
     },
     "verification_rule": "Instruction rows must be added only from a versioned authoritative reference or validated machine-readable definition. TableGen identifiers and family names are discovery candidates, not automatically architectural mnemonics or conformance evidence.",
-    "last_updated": "2026-10-09"
+    "last_updated": "2026-10-11"
   },
   "execution_model": {
     "schema": "CHIMERA-ISA-EXECUTION-CANDIDATES-1",
@@ -11604,6 +11913,32 @@
       "bridge": "tools/runtime/chimera-hosted.py",
       "candidate_execution_status": "host-match-only; cross-ISA execution not implied",
       "updated": "2026-10-10"
+    },
+    "ai_isa_mapping": {
+      "schema": "CHM-ISA-MAP-1",
+      "purpose": "Rank candidate target instruction forms for a source operation while preserving source ISA, source provenance, compatibility constraints, and native Chimera mappings.",
+      "canonical_native_targets": [
+        "chimera-c8192",
+        "chimera-r8192"
+      ],
+      "modes": [
+        "exact-encoding",
+        "semantic-equivalence",
+        "lowering-sequence",
+        "emulation-required",
+        "unsupported"
+      ],
+      "policy": "Never infer executable support from architecture inventory alone. Require verified instruction forms, feature/profile checks, ABI/runtime availability, and a validated backend. AI suggestions are advisory until deterministic validation succeeds.",
+      "corpus_retention": {
+        "keep_all_candidates": true,
+        "keep_negative_matches": true,
+        "keep_provenance": true,
+        "keep_model_version": true,
+        "keep_confidence": true,
+        "keep_validation_outcomes": true,
+        "default_storage": "versioned JSONL dataset; no user code or prompts unless explicitly supplied as dataset"
+      },
+      "updated": "2026-10-11"
     }
   }
 }
