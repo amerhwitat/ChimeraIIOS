@@ -87,7 +87,10 @@ def verified_source_stage(service, archive_path, expected_sha256, rootfs, cache,
         return 2, "source fallback requires a supplied archive and 64-character SHA-256 digest"
     archive=Path(archive_path).resolve()
     if not archive.is_file(): return 2, "source archive does not exist"
-    digest=hashlib.sha256(archive.read_bytes()).hexdigest()
+    hasher=hashlib.sha256()
+    with archive.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024*1024), b""): hasher.update(chunk)
+    digest=hasher.hexdigest()
     if digest.lower()!=expected_sha256.lower(): return 2, "source archive SHA-256 mismatch"
     cache.mkdir(parents=True,exist_ok=True); rootfs.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="chimera-source-",dir=cache) as td:
