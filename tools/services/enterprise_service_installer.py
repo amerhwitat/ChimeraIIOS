@@ -159,6 +159,7 @@ def main():
     for sid,url in source_urls.items():
         if sid not in services: p.error(f"unknown source-url service ID: {sid}")
         if a.apply and sid in selected:
+            if sid not in source_hashes: p.error(f"--source-url for {sid} requires --source-sha256")
             archive,error=fetch_source_archive(sid,url,a.cache)
             if error: p.error(error)
             source_archives.setdefault(sid,str(archive))
