@@ -40,6 +40,8 @@ int main() {
     assert(chimera_nbit_process_init_default(&default_virtual, 606u, 0u) == 0);
     assert(default_virtual.mode_bits == 8193u && default_virtual.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
     assert(default_virtual.guest_isa == CHIMERA_GUEST_ISA_CHIMERA_NBIT);
+    assert(chimera_nbit_set_default_profile_ex(caps.native_hardware_bits, CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE,
+                                                0u, CHIMERA_GUEST_ISA_CHIMERA_NBIT) == -5);
     assert(chimera_nbit_set_default_profile(caps.native_hardware_bits, CHIMERA_NBIT_BACKEND_PHYSICAL_NATIVE, 0u) == 0);
     assert(chimera_nbit_process_init_default(&default_physical, 607u, 0u) == 0);
     assert(default_physical.execution_class == CHIMERA_EXEC_NATIVE);
