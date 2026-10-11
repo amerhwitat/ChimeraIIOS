@@ -59,6 +59,8 @@ int chimera_nbit_ipc_prepare(uint32_t sender_id, uint32_t receiver_id,
                              const void *payload, uint32_t payload_bits,
                              uint64_t sequence, chimera_ipc_wire *out);
 int chimera_nbit_ipc_validate(const chimera_ipc_wire *wire);
+/* Kernel-side copy into a receiver-owned buffer; never pass sender pointers across address spaces. */
+int chimera_nbit_ipc_copy_payload(const chimera_ipc_wire *wire, void *receiver_buffer, uint32_t receiver_capacity);
 
 #ifdef __cplusplus
 }
