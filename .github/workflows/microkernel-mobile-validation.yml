@@ -86,7 +86,7 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_runtime.cpp kernel/core/nbit_runtime.cpp -o /tmp/nbit-runtime-test
           /tmp/nbit-runtime-test
-          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp kernel/core/nbit_fpu.cpp -o /tmp/nbit-vm-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp -o /tmp/nbit-vm-test
           /tmp/nbit-vm-test
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_cache.cpp kernel/core/nbit_cache.cpp -o /tmp/nbit-cache-test
           /tmp/nbit-cache-test
