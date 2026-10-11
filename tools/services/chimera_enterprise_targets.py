@@ -36,9 +36,12 @@ def main():
         if item.get("staging") not in ("package payloads extracted; dependency resolution, service configuration and ABI conversion still require rootfs integration",
                                        "verified source build commands completed with DESTDIR staging; review package ABI and service config before enabling"):
             continue
-        if native:
-            rc=subprocess.run([native,"start",sid],check=False,timeout=15).returncode
-            if rc==0: continue
+        if plan.get("execution_mode")=="native":
+            if native:
+                subprocess.run([native,"start",sid],check=False,timeout=15)
+            else:
+                print(f"native service manager unavailable; skipping {sid}",file=sys.stderr)
+            continue
         if systemctl:
             for unit in UNITS[sid]:
                 probe=subprocess.run([systemctl,"cat",unit],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
