@@ -171,6 +171,7 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
     f<<"{\n"
      <<"  \"schema\": \"CHIMERA-NBIT-USER-PROFILE-1\",\n"
      <<"  \"selected_width_bits\": "<<width<<",\n"
+     <<"  \"width_policy\": \""<<(width_text=="auto"?"auto":"explicit")<<"\",\n"
      <<"  \"backend\": \""<<backend<<"\",\n"
      <<"  \"backend_id\": "<<backend_id(backend)<<",\n"
      <<"  \"guest_isa\": \""<<resolved_guest<<"\",\n"
