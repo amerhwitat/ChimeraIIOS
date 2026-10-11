@@ -53,8 +53,15 @@ printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
 bash "$ROOT/kernel/build-koronos.sh"
 KORONOS_ELF="$BUILD_DIR/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
-command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
-grub-file --is-x86-multiboot2 "$KORONOS_ELF"
+command -v grub-file >/dev/null || { echo "ERROR: grub-file is required to validate the Multiboot2 kernel." >&2; exit 2; }
+if ! grub-file --is-x86-multiboot2 "$KORONOS_ELF"; then
+  echo "ERROR: Koronos ELF is not recognized as a valid x86 Multiboot2 kernel: $KORONOS_ELF" >&2
+  echo "ELF section/header diagnostics:" >&2
+  readelf -h "$KORONOS_ELF" >&2 || true
+  readelf -S "$KORONOS_ELF" >&2 || true
+  echo "Expected .multiboot2 to be file-backed, allocated, 8-byte aligned, and within the first 32 KiB." >&2
+  exit 2
+fi
 
 printf '%s\n' '[2/7] Build and link Spit Fire native stages'
 bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
