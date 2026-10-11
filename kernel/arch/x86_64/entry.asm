@@ -7,7 +7,10 @@ BITS 32
 %define KORONOS_CPU_CISC 1
 %define KORONOS_X86_LONG64 2
 
-section .multiboot2
+; GRUB scans file-backed, allocated sections for the Multiboot2 header.
+; Declare ELF section flags explicitly so the header cannot be emitted as
+; a non-allocatable custom section and silently omitted from the load image.
+section .multiboot2 progbits alloc noexec nowrite align=8
 align 8
 mb2_header:
     dd MULTIBOOT2_MAGIC
