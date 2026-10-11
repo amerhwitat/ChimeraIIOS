@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+"""Network-first installer preflight for Chimera II OS.
+
+Detects NIC/Wi-Fi devices and driver/firmware evidence, offers safe interactive
+configuration, and emits a redacted report. It never stores Wi-Fi passwords.
+"""
+from __future__ import annotations
+import argparse, getpass, json, os, platform, shutil, socket, subprocess, sys, time
+from pathlib import Path
+
+def run(argv, timeout=12, input_text=None):
+    try:
+        p=subprocess.run(argv, input=input_text, text=True, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, timeout=timeout, check=False)
+        return p.returncode, p.stdout.strip(), p.stderr.strip()
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return 127, "", str(exc)
+
+def read(path):
+    try: return Path(path).read_text(errors="replace").strip()
+    except OSError: return ""
+
+def command(name): return shutil.which(name)
+
+def device_inventory():
+    devices=[]
+    root=Path("/sys/class/net")
+    if root.exists():
+        for p in sorted(root.iterdir()):
+            if p.name=="lo": continue
+            base=p.resolve()
+            wireless=(p/"wireless").exists() or (base/"wireless").exists() or (base/"phy80211").exists()
+            driver=""
+            try: driver=(base/"device/driver").resolve().name
+            except OSError: pass
+            modalias=read(base/"device/modalias")
+            vendor=read(base/"device/vendor"); device_id=read(base/"device/device")
+            if not vendor and (base/"device").exists():
+                vendor=read(base/"device/idVendor"); device_id=read(base/"device/idProduct")
+            carrier=read(p/"carrier")
+            devices.append({"name":p.name,"type":"wifi" if wireless else "ethernet_or_other",
+                "driver":driver or None,"driver_bound":bool(driver),"modalias":modalias or None,
+                "vendor_id":vendor or None,"device_id":device_id or None,
+                "operstate":read(p/"operstate") or "unknown","carrier":carrier or "unknown",
+                "address":read(p/"address") or None})
+    return devices
+
+def driver_evidence(devices):
+    modules=set()
+    for d in devices:
+        if d["driver"]: modules.add(d["driver"])
+    loaded=set(read("/proc/modules").splitlines()[i].split()[0] for i in range(len(read("/proc/modules").splitlines())))
+    for d in devices:
+        d["driver_loaded"]=d["driver"] in loaded if d["driver"] else False
+        d["driver_recommendation"]=("keep-current-driver" if d["driver_bound"] else
+            "inspect-modalias-and-kernel-driver-catalog" if d["modalias"] else "identify-device-before-selecting-driver")
+        d["firmware_hint"]="check-kernel-log-and-linux-firmware-package" if not d["driver_bound"] else None
+    return devices
+
+def addresses():
+    rc,out,_=run(["ip","-j","address","show"]) if command("ip") else (127,"","")
+    if rc==0:
+        try:
+            result=[]
+            for link in json.loads(out):
+                if link.get("ifname")=="lo": continue
+                ips=[a.get("local") for a in link.get("addr_info",[]) if a.get("scope")=="global"]
+                if ips: result.append({"interface":link.get("ifname"),"addresses":ips})
+            return result
+        except (ValueError,TypeError): pass
+    return []
+
+def connectivity(timeout=3):
+    # A direct TCP probe avoids depending on ICMP permission. DNS is checked too.
+    dns=False
+    try: socket.getaddrinfo("example.com",443); dns=True
+    except OSError: pass
+    tcp=False
+    try:
+        with socket.create_connection(("1.1.1.1",443),timeout=timeout): tcp=True
+    except OSError: pass
+    return {"internet_tcp":tcp,"dns":dns,"internet_ready":tcp and dns}
+
+def scan_wifi():
+    if command("nmcli"):
+        rc,out,err=run(["nmcli","-t","-f","SSID,SECURITY,SIGNAL","device","wifi","list","--rescan","yes"],20)
+        if rc==0:
+            items=[]
+            for line in out.splitlines():
+                parts=line.split(":")
+                if parts and parts[0]:
+                    items.append({"ssid":parts[0],"security":parts[1] if len(parts)>1 else "",
+                                  "signal":parts[2] if len(parts)>2 else ""})
+            return items
+    if command("iw"):
+        rc,out,_=run(["iw","dev"],5)
+        if rc==0:
+            names=[line.split()[1] for line in out.splitlines() if line.strip().startswith("Interface ")]
+            for name in names:
+                rc,scan,_=run(["iw","dev",name,"scan"],15)
+                if rc==0:
+                    ssids=[]
+                    for line in scan.splitlines():
+                        if line.strip().startswith("SSID:"):
+                            ssids.append({"ssid":line.split(":",1)[1].strip(),"security":"inspect access-point capabilities","signal":""})
+                    if ssids:return ssids
+    return []
+
+def configure_wired(dev):
+    name=dev["name"]
+    if command("nmcli"):
+        return run(["nmcli","--wait","25","device","connect",name],30)
+    if command("networkctl"):
+        run(["networkctl","renew",name],10)
+        time.sleep(2)
+        return (0,"networkctl renew requested","") if addresses() else (1,"","No address after networkctl renew")
+    if command("dhclient"):
+        return run(["dhclient","-v",name],30)
+    return 127,"","No supported network manager or DHCP client found"
+
+def configure_wifi(ssid,password):
+    if not command("nmcli"):
+        return 127,"","Wi-Fi configuration currently requires NetworkManager (nmcli); no credentials were written."
+    # Password is supplied on stdin, never placed in argv, shell history, logs, or report.
+    rc,out,err=run(["nmcli","--wait","35","--ask","device","wifi","connect",ssid],40)
+    if rc==0:return rc,out,err
+    # Explicit secure fallback: nmcli's password prompt is handled by its TTY, so
+    # use a temporary private connection file only if password was provided.
+    if password is None:return rc,out,err
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",prefix="chimera-wifi-",delete=False) as f:
+        os.chmod(f.name,0o600)
+        f.write("[connection]\nid=Chimera installer temporary Wi-Fi\ntype=wifi\nautoconnect=false\n")
+        f.write("[wifi]\nmode=infrastructure\nssid="+ssid.replace("\\","\\\\").replace("\n","")+"\n")
+        f.write("[wifi-security]\nkey-mgmt=wpa-psk\npsk="+password.replace("\\","\\\\").replace("\n","")+"\n")
+        f.write("[ipv4]\nmethod=auto\n[ipv6]\nmethod=auto\n")
+        path=f.name
+    try:
+        rc,out,err=run(["nmcli","connection","load",path],10)
+        if rc==0: rc,out,err=run(["nmcli","--wait","35","connection","up","id","Chimera installer temporary Wi-Fi"],40)
+        run(["nmcli","connection","delete","id","Chimera installer temporary Wi-Fi"],10)
+        return rc,out,err
+    finally:
+        try: os.unlink(path)
+        except OSError: pass
+
+def recommend(report):
+    devices=report["devices"]; ready=report["connectivity"]["internet_ready"]
+    rec=[]
+    if ready: rec.append({"priority":"info","title":"Internet ready","detail":"Continue to installation-source and package-mirror selection."})
+    else:
+        wifi=[d for d in devices if d["type"]=="wifi"]
+        wired=[d for d in devices if d["type"]!="wifi"]
+        if any(d["driver_bound"] for d in wired):
+            rec.append({"priority":"high","title":"Try wired DHCP first","detail":"A wired NIC has a bound driver; connect Ethernet and request DHCP."})
+        if any(d["driver_bound"] for d in wifi):
+            rec.append({"priority":"high","title":"Configure Wi-Fi","detail":"A Wi-Fi interface has a bound driver; scan and connect to an access point."})
+        if any(not d["driver_bound"] for d in devices):
+            rec.append({"priority":"high","title":"Resolve missing NIC driver/firmware","detail":"Inspect PCI/USB vendor IDs and modalias; choose a signed kernel driver and matching firmware. Do not install an unverified binary."})
+        if not devices: rec.append({"priority":"high","title":"No network interface found","detail":"Check UEFI/BIOS device settings, USB tethering/Ethernet adapters, and virtual-machine NIC attachment."})
+        if not rec: rec.append({"priority":"medium","title":"Network needs diagnosis","detail":"Check link, DHCP, gateway, DNS, captive portal, and firewall."})
+    # Local RNN/LLM adviser is opt-in and cannot perform actions. Its output is
+    # advisory only; deterministic hardware rules remain the fallback.
+    return rec
+
+def probe():
+    devices=driver_evidence(device_inventory())
+    return {"schema":"CHIMERA-NETWORK-PREFLIGHT-1","platform":platform.platform(),
+            "tools":{x:bool(command(x)) for x in ["ip","nmcli","iw","rfkill","networkctl","dhclient","lspci","lsusb","modprobe"]},
+            "devices":devices,"addresses":addresses(),"connectivity":connectivity()}
+
+def main():
+    ap=argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--probe",action="store_true",help="detect hardware and test connectivity")
+    ap.add_argument("--report",default="/tmp/chimera-network-preflight.json")
+    ap.add_argument("--configure",action="store_true",help="interactively configure Wi-Fi or wired DHCP")
+    ap.add_argument("--non-interactive",action="store_true",help="probe only; never prompt or change network")
+    args=ap.parse_args()
+    report=probe()
+    if args.configure and not args.non_interactive and sys.stdin.isatty() and not report["connectivity"]["internet_ready"]:
+        print("Chimera II OS — Step 1: Network and Wi-Fi")
+        for i,d in enumerate(report["devices"],1):
+            print(f"{i}. {d['name']} ({d['type']}); driver={d['driver'] or 'missing'}; state={d['operstate']}")
+        options=[d for d in report["devices"] if d["driver_bound"]]
+        if options:
+            choice=input("Select interface number to configure, or Enter to skip: ").strip()
+            if choice.isdigit() and 1<=int(choice)<=len(report["devices"]):
+                dev=report["devices"][int(choice)-1]
+                if not dev["driver_bound"]:
+                    print("No driver is bound. See the driver recommendation; refusing blind driver installation.")
+                elif dev["type"]=="wifi":
+                    nets=scan_wifi()
+                    for i,n in enumerate(nets,1): print(f"{i}. {n['ssid']} [{n['security']}] signal {n['signal']}")
+                    ssid=input("Wi-Fi SSID (enter manually if hidden): ").strip()
+                    if ssid:
+                        password=getpass.getpass("Wi-Fi password (not saved): ")
+                        rc,_,err=configure_wifi(ssid,password)
+                        if rc: print("Wi-Fi setup failed:",err or "connection manager returned an error")
+                else:
+                    rc,_,err=configure_wired(dev)
+                    if rc: print("Wired setup failed:",err or "network manager returned an error")
+        time.sleep(1); report=probe()
+    report["recommendations"]=recommend(report)
+    # Never include passwords, nmcli connection secrets, or command stderr in report.
+    Path(args.report).parent.mkdir(parents=True,exist_ok=True)
+    Path(args.report).write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
+    print(json.dumps(report,indent=2))
+    return 0 if report["connectivity"]["internet_ready"] else (2 if args.configure else 0)
+if __name__=="__main__": raise SystemExit(main())
