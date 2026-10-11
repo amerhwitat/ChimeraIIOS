@@ -112,8 +112,6 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
     const std::string personality=value_of(v,"isa.nbit.compatibility");
     const uint32_t target=backend=="compatibility"?compatibility_mask(personality):0u;
     const uint32_t width=width_text=="auto"?0u:(uint32_t)std::stoull(width_text);
-    const std::string json_personality=personality=="auto"
-        ? std::string("null") : std::string("\\\"")+personality+"\\\"";
     const fs::path path=nbit_profile_path();
     std::error_code ec;fs::create_directories(path.parent_path(),ec);
     if(ec)return false;
@@ -123,14 +121,17 @@ static bool save_nbit_profile(const std::vector<Setting>& v) {
      <<"  \"selected_width_bits\": "<<width<<",\n"
      <<"  \"backend\": \""<<backend<<"\",\n"
      <<"  \"guest_isa\": \""<<(guest=="auto"&&backend=="chimera-virtual"?"chimera-nbit":guest)<<"\",\n"
-     <<"  \"compatibility_personality\": "<<(personality=="auto"?"null":"\""+personality+"\"")<<",\n"
+     <<"  \"compatibility_personality\": ";
+    if(personality=="auto") f<<"null"; else f<<"\""<<personality<<"\"";
+    f<<",\n";
      <<"  \"compatibility_target_mask\": "<<target<<",\n"
      <<"  \"physical_native_width_is_hardware_defined\": true,\n"
      <<"  \"arbitrary_width_virtual_abi\": true,\n"
      <<"  \"validation_required_at_kernel_admission\": true,\n"
      <<"  \"isa_catalog_does_not_imply_executable_backend\": true\n"
      <<"}\n";
-    return f.good();
+    f.close();
+    return !f.fail();
 }
 static std::vector<Setting> load() {
     auto v=defaults(); std::ifstream f(config_path()); std::string line;
