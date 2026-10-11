@@ -97,7 +97,9 @@ jobs:
           p=json.loads(Path(sys.argv[1]).read_text())
           assert p["selected_width_bits"] == 8193
           assert p["backend"] == "compatibility"
+          assert p["backend_id"] == 3
           assert p["guest_isa"] == "x86-32"
+          assert p["guest_isa_id"] == 3
           assert p["compatibility_personality"] == "linux"
           assert p["compatibility_target_mask"] == 4
           PY
