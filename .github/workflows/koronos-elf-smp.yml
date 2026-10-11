@@ -11,6 +11,8 @@ on:
       - 'kernel/core/elf_loader.cpp'
       - 'kernel/core/nbit.cpp'
       - 'kernel/core/nbit_runtime.cpp'
+      - 'kernel/core/nbit_vm.cpp'
+      - 'kernel/include/chimera/nbit_vm.h'
       - 'kernel/include/chimera/nbit_runtime.h'
       - 'tools/nbit/**'
       - 'config/nbit-mode.json'
@@ -80,7 +82,7 @@ jobs:
           bash -n desktop/aurora/aurora-progress.sh
           bash -n desktop/aurora/aurora-init-splash.sh
       - name: Test user-selectable N-bit profiles
-        run: python3 -m unittest tests/nbit/test_select_mode.py
+        run: python3 tests/nbit/test_select_mode.py
       - name: Run ISA translation-plan regression tests
         run: python3 tests/isa/test_chimera_isa_convert.py
       - name: Validate ISA database JSON and profile coverage
@@ -89,6 +91,10 @@ jobs:
           python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
+      - name: Run Chimera N-bit virtual machine tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp -o /tmp/koronos-nbit-vm-test
+          /tmp/koronos-nbit-vm-test
       - name: Run arbitrary-width N-bit arithmetic tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_runtime.cpp kernel/core/nbit_runtime.cpp -o /tmp/koronos-nbit-runtime-test
