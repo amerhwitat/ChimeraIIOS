@@ -70,6 +70,7 @@ int main() {
     assert(chimera_nbit_process_init_physical_native(&physical, 505u, 13u) == -6);
     assert(chimera_nbit_process_init_physical_native(&physical, 505u, caps.native_hardware_bits) == 0);
     assert(physical.execution_class == CHIMERA_EXEC_NATIVE);
+    assert(chimera_nbit_process_set_mode(&physical, 13u) == -3);
 
     assert(chimera_nbit_process_init_chimera(&virtual_nbit, 404u, 8193u) == 0);
     assert(virtual_nbit.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
