@@ -63,6 +63,7 @@ extern "C" int chimera_nbit_init(void) {
 }
 extern "C" int chimera_nbit_get_default(uint32_t *bits) {
     if (!bits) return -1;
+    if (chimera_nbit_init() != 0) return -2;
     registry_lock();
     *bits = g_default_mode;
     registry_unlock();
