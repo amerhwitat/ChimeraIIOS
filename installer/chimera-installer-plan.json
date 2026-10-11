@@ -42,8 +42,16 @@
     "reboot"
   ],
   "destructiveOperationsRequireConfirmation": true,
-  "executionModes": ["auto-native", "manual-nbit", "wide-emulated", "compatibility"],
-  "mixedWidthIPC": {"enabled": true, "canonicalTransport": "width-neutral"},
+  "executionModes": [
+    "auto-native",
+    "manual-nbit",
+    "wide-emulated",
+    "compatibility"
+  ],
+  "mixedWidthIPC": {
+    "enabled": true,
+    "canonicalTransport": "width-neutral"
+  },
   "installationModes": [
     "hosted",
     "emulator",
@@ -67,5 +75,21 @@
     "acceleratedWhenAvailable": true,
     "tcgFallback": true,
     "diskFormat": "qcow2"
+  },
+  "optionalEnterpriseServices": {
+    "catalog": "services/enterprise-services.json",
+    "installerTool": "tools/services/enterprise_service_installer.py",
+    "profiles": [
+      "directory-identity",
+      "database",
+      "web-platform",
+      "observability",
+      "container-platform",
+      "file-and-print",
+      "backup",
+      "messaging"
+    ],
+    "defaultSelection": [],
+    "bootTargetsEnabledOnlyAfterReview": true
   }
 }
