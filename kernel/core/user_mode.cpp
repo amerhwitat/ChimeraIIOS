@@ -11,12 +11,15 @@ namespace {
 constexpr uint64_t PRESENT=1ull, WRITE=2ull, USER=4ull, HUGE=0x80ull;
 constexpr uint64_t NX=1ull<<63;
 constexpr uint64_t PAGE=4096ull, HUGE_PAGE=0x200000ull;
-constexpr uint32_t PT_POOL_COUNT=32;
+constexpr uint64_t USER_LOW=0x0000004000000000ull;
+constexpr uint64_t USER_HIGH=0x0000004000400000ull;
+constexpr uint32_t PT_POOL_COUNT=32, USER_PD_POOL_COUNT=8;
 alignas(4096) uint64_t pml4[512];
 alignas(4096) uint64_t pdpt[512];
 alignas(4096) uint64_t pd[4][512];
 alignas(4096) uint64_t pt_pool[PT_POOL_COUNT][512];
-uint32_t pt_pool_used=0;
+alignas(4096) uint64_t user_pd_pool[USER_PD_POOL_COUNT][512];
+uint32_t pt_pool_used=0, user_pd_pool_used=0;
 bool nx_available=false;
 alignas(16) uint8_t kernel_entry_stack[65536];
 
@@ -66,7 +69,10 @@ static void initialize_page_tables() {
     pml4[0]=((uint64_t)pdpt)|PRESENT|WRITE;
     for(uint32_t i=0;i<PT_POOL_COUNT;i++)
         for(uint32_t j=0;j<512;j++) pt_pool[i][j]=0;
+    for(uint32_t i=0;i<USER_PD_POOL_COUNT;i++)
+        for(uint32_t j=0;j<512;j++) user_pd_pool[i][j]=0;
     pt_pool_used=0;
+    user_pd_pool_used=0;
 
     uint32_t b=0,c=0,d=0;
     uint32_t leaf=0x80000001u;
@@ -85,15 +91,23 @@ static void initialize_page_tables() {
 }
 
 static uint64_t *get_pte(uint64_t va, bool create) {
-    if(va>=0x100000000ull) return nullptr; // current bootstrap map is 4 GiB identity
+    if(va>=0x0000800000000000ull) return nullptr;
     const uint32_t pml4_i=(uint32_t)((va>>39)&0x1FFu);
     const uint32_t pdpt_i=(uint32_t)((va>>30)&0x1FFu);
     const uint32_t pd_i=(uint32_t)((va>>21)&0x1FFu);
     const uint32_t pt_i=(uint32_t)((va>>12)&0x1FFu);
-    if(pml4_i!=0 || pdpt_i>=4) return nullptr;
+    if(pml4_i!=0) return nullptr;
     pml4[0]|=USER;
-    pdpt[pdpt_i]|=USER;
-    uint64_t &pde=pd[pdpt_i][pd_i];
+    if(!(pdpt[pdpt_i]&PRESENT)) {
+        if(!create||pdpt_i<4||user_pd_pool_used>=USER_PD_POOL_COUNT) return nullptr;
+        uint64_t *new_pd=user_pd_pool[user_pd_pool_used++];
+        for(uint32_t i=0;i<512;i++) new_pd[i]=0;
+        pdpt[pdpt_i]=((uint64_t)new_pd)|PRESENT|WRITE|USER;
+    } else {
+        pdpt[pdpt_i]|=USER;
+    }
+    uint64_t *directory=(uint64_t*)(uintptr_t)(pdpt[pdpt_i]&0x000FFFFFFFFFF000ull);
+    uint64_t &pde=directory[pd_i];
     if(pde&HUGE) {
         if(!create) return nullptr;
         if(pt_pool_used>=PT_POOL_COUNT) return nullptr;
@@ -103,7 +117,10 @@ static uint64_t *get_pte(uint64_t va, bool create) {
         for(uint32_t i=0;i<512;i++) pt[i]=(base+(uint64_t)i*PAGE)|inherited;
         pde=((uint64_t)pt)|PRESENT|WRITE|USER;
     } else if(!(pde&PRESENT)) {
-        return nullptr;
+        if(!create||pt_pool_used>=PT_POOL_COUNT) return nullptr;
+        uint64_t *pt=pt_pool[pt_pool_used++];
+        for(uint32_t i=0;i<512;i++) pt[i]=0;
+        pde=((uint64_t)pt)|PRESENT|WRITE|USER;
     } else {
         pde|=USER;
     }
@@ -120,7 +137,7 @@ static int alloc_page(void*,uint64_t *physical,void **alias) {
 }
 static int map_page(void*,uint64_t va,uint64_t physical,uint32_t permissions) {
     if((va&(PAGE-1))||(physical&(PAGE-1))||physical>=0x100000000ull||
-       va<0x40000000ull||va>=0x80000000ull) return -1;
+       va<USER_LOW||va>=USER_HIGH) return -1;
     uint64_t *pte=get_pte(va,true);
     if(!pte||(*pte&USER)) return -2;
     uint64_t flags=PRESENT|USER;
@@ -160,8 +177,8 @@ extern "C" const chimera_elf_loader_ops *chimera_x86_64_user_loader_ops(void) {
     return &loader_ops;
 }
 extern "C" int chimera_x86_64_user_range_valid(uint64_t address,uint64_t length) {
-    if(address<0x40000000ull||address>=0x80000000ull||
-       length>512u||length>0x80000000ull-address) return 0;
+    if(address<USER_LOW||address>=USER_HIGH||
+       length>512u||length>USER_HIGH-address) return 0;
     if(length==0) return 1;
     const uint64_t end=address+length;
     uint64_t page=address&~(PAGE-1);
