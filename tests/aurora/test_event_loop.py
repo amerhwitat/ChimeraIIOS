@@ -1,4 +1,4 @@
-import json, subprocess, sys, unittest
+import json, subprocess, sys, unittest, socket, time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 class AuroraEventLoopTests(unittest.TestCase):
@@ -26,4 +26,24 @@ class AuroraEventLoopTests(unittest.TestCase):
     def test_invalid_surface_is_rejected(self):
         r=self.run_events([{"surface":"arbitrary","click_count":1}])
         self.assertIn("rejected",r.stderr)
+    def test_local_socket_message_loop(self):
+        with __import__("tempfile").TemporaryDirectory() as td:
+            path=Path(td)/"events.sock"
+            proc=subprocess.Popen([sys.executable,str(ROOT/"desktop/aurora/aurora_event_loop.py"),"--socket",str(path)],
+                                  stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True)
+            try:
+                for _ in range(100):
+                    if path.exists(): break
+                    if proc.poll() is not None: self.fail("event loop exited before creating socket")
+                    time.sleep(0.02)
+                with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as client:
+                    client.settimeout(2)
+                    client.connect(str(path))
+                    client.sendall(b'{"surface":"window-titlebar","click_count":2,"maximized":false}\\n')
+                    response=json.loads(client.makefile("r",encoding="utf-8").readline())
+                    self.assertEqual(response["request"]["action"],"maximize")
+            finally:
+                proc.terminate()
+                try: proc.wait(timeout=2)
+                except subprocess.TimeoutExpired: proc.kill(); proc.wait(timeout=2)
 if __name__=="__main__": unittest.main()
