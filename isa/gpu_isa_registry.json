@@ -159,5 +159,37 @@
     "compile_source_for_selected_target": true,
     "validate_shader_abi": true,
     "fallback_only_when_semantically_supported": true
-  }
+  },
+  "references": [
+    {
+      "id": "nvidia-ptx-isa",
+      "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/",
+      "scope": "PTX virtual ISA and instruction semantics",
+      "source_type": "official-vendor-documentation"
+    },
+    {
+      "id": "nvidia-cuda-programming-guide",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/",
+      "scope": "CUDA programming model and device execution",
+      "source_type": "official-vendor-documentation"
+    },
+    {
+      "id": "amd-machine-readable-isa",
+      "url": "https://gpuopen.com/machine-readable-isa/",
+      "scope": "generation-specific AMD CDNA/RDNA ISA encodings and semantics",
+      "source_type": "official-vendor-documentation"
+    },
+    {
+      "id": "llvm-amdgpu-backend",
+      "url": "https://llvm.org/docs/AMDGPUUsage.html",
+      "scope": "AMDGPU target triples and code-generation backend",
+      "source_type": "compiler-documentation"
+    },
+    {
+      "id": "intel-avx-state",
+      "url": "https://www.intel.com/content/dam/develop/external/us/en/documents/319433-024-697869.pdf",
+      "scope": "AVX/AVX-512 XCR0 state requirements",
+      "source_type": "official-vendor-documentation"
+    }
+  ]
 }
