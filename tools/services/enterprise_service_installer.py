@@ -6,7 +6,7 @@ Package payloads are extracted into --rootfs where supported; host package manag
 are never allowed to install files directly into the running host from this tool.
 """
 from __future__ import annotations
-import argparse, json, os, shutil, subprocess, sys
+import argparse, hashlib, json, os, shlex, shutil, subprocess, sys, tarfile, tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -55,6 +55,38 @@ def package_stage(pm, packages, rootfs, cache):
     print(f"manager {pm} detected, but safe rootfs staging is unavailable for it",file=sys.stderr)
     return 2
 
+def verified_source_stage(service, archive_path, expected_sha256, rootfs, cache):
+    if not archive_path or not expected_sha256 or len(expected_sha256)!=64:
+        return 2, "source fallback requires a supplied archive and 64-character SHA-256 digest"
+    archive=Path(archive_path).resolve()
+    if not archive.is_file(): return 2, "source archive does not exist"
+    digest=hashlib.sha256(archive.read_bytes()).hexdigest()
+    if digest.lower()!=expected_sha256.lower(): return 2, "source archive SHA-256 mismatch"
+    cache.mkdir(parents=True,exist_ok=True); rootfs.mkdir(parents=True,exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="chimera-source-",dir=cache) as td:
+        build=Path(td)
+        try:
+            with tarfile.open(archive,"r:*") as tf:
+                members=tf.getmembers()
+                for m in members:
+                    p=Path(m.name)
+                    if p.is_absolute() or ".." in p.parts or m.issym() or m.islnk() or m.isdev():
+                        return 2, "unsafe archive member rejected"
+                tf.extractall(build,members=members)
+        except (tarfile.TarError,OSError) as exc:
+            return 2, f"cannot unpack verified source: {exc}"
+        roots=[x for x in build.iterdir()]
+        cwd=roots[0] if len(roots)==1 and roots[0].is_dir() else build
+        env=os.environ.copy(); env.update({"DESTDIR":str(rootfs.resolve()),"PREFIX":"/usr","CMAKE_INSTALL_PREFIX":"/usr"})
+        svc=service
+        for command in svc.get("source",{}).get("build",[]):
+            argv=shlex.split(command)
+            if not argv: continue
+            try: result=subprocess.run(argv,cwd=cwd,env=env,check=False)
+            except OSError as exc: return 2, f"source build tool unavailable: {exc}"
+            if result.returncode: return result.returncode, f"source build command failed: {command}"
+        return 0, "verified source build commands completed with DESTDIR staging; review package ABI and service config before enabling"
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--catalog",type=Path,default=CATALOG)
@@ -63,6 +95,8 @@ def main():
     p.add_argument("--service",action="append",default=[])
     p.add_argument("--profile",action="append",default=[])
     p.add_argument("--package-manager",choices=MANAGERS)
+    p.add_argument("--source-archive",action="append",default=[],metavar="SERVICE=PATH")
+    p.add_argument("--source-sha256",action="append",default=[],metavar="SERVICE=HEX")
     p.add_argument("--apply",action="store_true",help="download and stage selected package payloads")
     p.add_argument("--enable",action="store_true",help="write requested boot-target enablement intent after review")
     a=p.parse_args()
@@ -79,6 +113,8 @@ def main():
     unknown=selected-services.keys()
     if unknown: p.error("unknown service IDs: "+", ".join(sorted(unknown)))
     detected=([a.package_manager] if a.package_manager else []) + [x for x in MANAGERS if shutil.which(x) and x != a.package_manager]
+    source_archives=dict(x.split("=",1) for x in a.source_archive if "=" in x)
+    source_hashes=dict(x.split("=",1) for x in a.source_sha256 if "=" in x)
     pm=detected[0] if detected else None
     plan={"schema":"CHIMERA-ENTERPRISE-INSTALL-PLAN-1","package_manager":pm,"package_manager_candidates":detected,"rootfs":str(a.rootfs),
           "apply":a.apply,"services":[],"enabled_targets":[]}
@@ -102,8 +138,15 @@ def main():
                     item["selected_package_manager"]=candidate
                     item["staging"]="package payloads extracted; dependency resolution, service configuration and ABI conversion still require rootfs integration"
                     success=True; break
+            if not success and sid in source_archives:
+                rc, detail=verified_source_stage(svc,source_archives[sid],source_hashes.get(sid),a.rootfs,a.cache)
+                item["attempts"].append({"method":"verified-source-build","result":"staged" if rc==0 else "failed","detail":detail})
+                if rc==0:
+                    item["selected_package_manager"]="verified-source-build"
+                    item["staging"]=detail
+                    success=True
             if not success:
-                item["error"]="all available safe package staging adapters failed; source fallback requires a pinned archive and verified SHA-256 digest"
+                item["error"]="all available package staging adapters failed; provide --source-archive SERVICE=PATH and --source-sha256 SERVICE=HEX for verified source fallback"
                 plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
         plan["services"].append(item)
         if a.enable: plan["enabled_targets"].append(svc["boot_target"])
