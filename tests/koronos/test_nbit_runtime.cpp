@@ -33,6 +33,14 @@ int main() {
     assert(wide_out[1024]==0 && wide_out[0]==0); // bit 8193 shifted out
     assert(ChimeraNBitArithmetic::add({wide_out,8193,1},wa,wb)==-1);
     assert(ChimeraNBitArithmetic::add({wide_out,8192,1025},wa,wb)==-2);
+
+    uint8_t batch_a[4]={1,0,0xf0,0x1f}, batch_b[4]={2,0,0x30,0}, batch_out[4]={};
+    assert(chimera_nbit_batch_add(batch_out,sizeof(batch_out),batch_a,sizeof(batch_a),
+                                  batch_b,sizeof(batch_b),13,2,0,2)==0);
+    assert(batch_out[0]==3 && batch_out[1]==0);
+    assert(batch_out[2]==0x20 && batch_out[3]==0);
+    assert(chimera_nbit_batch_add(batch_out,3,batch_a,sizeof(batch_a),
+                                  batch_b,sizeof(batch_b),13,2,0,2)==-4);
     puts("Arbitrary-width N-bit arithmetic passed.");
     return 0;
 }
