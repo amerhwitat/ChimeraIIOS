@@ -3,6 +3,8 @@
 
 /* Little-endian, caller-owned, fixed-capacity integer storage. No heap, exceptions,
    RTTI, or hidden allocation; width is arbitrary within the supplied capacity. */
+enum { CHIMERA_NBIT_COMPARE_INVALID = (-2147483647 - 1) };
+
 struct ChimeraNBitConstView {
     const uint8_t *bytes;
     uint32_t bit_width;
