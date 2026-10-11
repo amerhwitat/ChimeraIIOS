@@ -26,6 +26,7 @@ static uint32_t classify(const char* s){
  if(has(s,"chimera-installer-contract")||has(s,"installer-contract.json")||has(s,"install-contract"))return CHIMERA_MODULE_INSTALL_CONTRACT;
  if(has(s,"chimera-install-phases")||has(s,"install-phases.json"))return CHIMERA_MODULE_INSTALL_PHASES;
  if(has(s,"chimera-installer-profiles")||has(s,"installer-profiles.json"))return CHIMERA_MODULE_INSTALL_PROFILES;
+ if(has(s,"chimera-user-init-elf")||has(s,"chimera-user-init.elf"))return CHIMERA_MODULE_USER_INIT_ELF;
  return CHIMERA_MODULE_OTHER;
 }
 }
