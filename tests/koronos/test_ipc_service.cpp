@@ -22,6 +22,7 @@ int main(){
     assert(chimera_nbit_process_init(&other,303,64,CHIMERA_COMPAT_LINUX)==0);
     chimera_ipc_service_ops ops{};ops.copy_from_user=copy_from;ops.copy_to_user=copy_to;
     assert(chimera_ipc_service_init(&ops)==0);
+    assert(chimera_ipc_service_init(&ops)==-2);
     const uint64_t cap=0x91a2b3c4d5e6f708ull;
     assert(chimera_ipc_endpoint_bind(202,77,cap)==0);
     assert(chimera_ipc_endpoint_bind(202,77,cap)==-3);
