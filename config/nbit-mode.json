@@ -5,5 +5,7 @@
   "compatibility_personality": null,
   "physical_native_width_is_hardware_defined": true,
   "arbitrary_width_virtual_abi": true,
-  "validation_required_at_kernel_admission": true
+  "validation_required_at_kernel_admission": true,
+  "guest_isa": "auto",
+  "isa_catalog_does_not_imply_executable_backend": true
 }
