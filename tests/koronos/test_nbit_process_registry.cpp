@@ -33,6 +33,10 @@ int main() {
     assert(wire.payload_bytes == 2u);
     assert(wire.sequence == 7u);
     assert(chimera_nbit_ipc_validate(&wire) == 0);
+    uint8_t receiver_copy[2] = {};
+    assert(chimera_nbit_ipc_copy_payload(&wire, receiver_copy, sizeof(receiver_copy)) == 2);
+    assert(receiver_copy[0] == payload[0] && receiver_copy[1] == payload[1]);
+    assert(chimera_nbit_ipc_copy_payload(&wire, receiver_copy, 1u) < 0);
 
     chimera_ipc_wire malformed = wire;
     malformed.payload_bytes = 1u;
