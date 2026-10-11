@@ -28,6 +28,7 @@ struct ChimeraNBitInstruction {
     uint8_t rhs;
     uint32_t immediate;
 };
+struct ChimeraNBitInstructionCache;
 struct ChimeraNBitVMState {
     uint8_t *register_bytes;
     uint32_t register_count;
@@ -40,6 +41,8 @@ struct ChimeraNBitVMState {
     uint8_t zero_flag;
     uint8_t halted;
     uint8_t reserved[6];
+    ChimeraNBitInstructionCache *instruction_cache;
+    uint64_t code_generation;
 };
 enum { CHIMERA_NBIT_VM_HALTED=0, CHIMERA_NBIT_VM_STEP_LIMIT=1,
        CHIMERA_NBIT_VM_INVALID=-1, CHIMERA_NBIT_VM_BAD_PROGRAM=-2 };
@@ -61,6 +64,7 @@ int chimera_nbit_vm_initialize(ChimeraNBitVMState *state, uint8_t *register_byte
                               uint32_t register_count, uint32_t register_stride,
                               uint32_t register_storage_bytes, uint32_t bit_width,
                               uint64_t step_limit);
+int chimera_nbit_vm_set_cache(ChimeraNBitVMState *state, ChimeraNBitInstructionCache *cache, uint64_t code_generation);
 int chimera_nbit_vm_run(ChimeraNBitVMState *state,
                         const ChimeraNBitInstruction *program, uint32_t instruction_count);
 }
