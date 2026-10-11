@@ -107,6 +107,10 @@ jobs:
           python3 -m json.tool packages/package-manager-registry.json >/dev/null
           python3 -m json.tool compat/binary-format-registry.json >/dev/null
           python3 -m json.tool install/installer-contract.json >/dev/null
+          python3 -m json.tool installer/installation_phases.json >/dev/null
+          python3 -m json.tool installer/gui/aurora-installer-ui.json >/dev/null
+          python3 -m py_compile installer/network_preflight.py installer/chimera_installer.py
+          python3 -m unittest tests/installer/test_network_preflight.py
           python3 -m json.tool desktop/aurora/gates_menu.json >/dev/null
           python3 -m json.tool appcenter/catalog/apps.json >/dev/null
           python3 -m json.tool appcenter/providers/providers.json >/dev/null
