@@ -200,14 +200,81 @@ def probe():
             "tools":{x:bool(command(x)) for x in ["ip","nmcli","iw","rfkill","networkctl","dhclient","lspci","lsusb","modprobe"]},
             "devices":devices,"addresses":addresses(),"connectivity":connectivity()}
 
+def gui_configure(report):
+    """Run a small native Zenity network wizard; secrets stay in Python memory."""
+    if not command("zenity"):
+        return False
+    devices=report.get("devices",[])
+    if not devices:
+        subprocess.run(["zenity","--warning","--title=Chimera Network Setup",
+            "--text=No Ethernet or Wi-Fi interface was detected. Check firmware settings or attach a NIC."],check=False)
+        return False
+    rows=[]
+    for d in devices:
+        rows.extend([d["name"],d["type"],d.get("driver") or "driver missing",d.get("operstate","unknown")])
+    chosen=subprocess.run(["zenity","--list","--title=Chimera II OS — Step 1: Network",
+        "--text=Select an interface to configure. Driver and firmware recommendations are shown in the report.",
+        "--column=Interface","--column=Type","--column=Driver","--column=State","--print-column=1",
+        "--height=420","--width=850"],input="\n".join(rows)+"\n",text=True,
+        stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
+    if not chosen:return False
+    dev=next((x for x in devices if x["name"]==chosen),None)
+    if not dev:return False
+    if not dev.get("driver_bound"):
+        detail="No driver is bound. Candidate modules: "+(", ".join(dev.get("candidate_modules",[])) or "not found")
+        detail+="\nFirmware hints: "+(", ".join(dev.get("required_firmware_hints",[])) or "inspect kernel logs and signed firmware packages")
+        subprocess.run(["zenity","--warning","--title=Driver needs attention","--text="+detail],check=False)
+        return False
+    if dev["type"]=="wifi":
+        nets=scan_wifi()
+        ssid=""
+        if nets:
+            choices=[]
+            for n in nets: choices.extend([n["ssid"],n.get("security",""),n.get("signal","")])
+            ssid=subprocess.run(["zenity","--list","--title=Choose Wi-Fi",
+                "--text=Choose a visible network or cancel to enter a hidden SSID.",
+                "--column=SSID","--column=Security","--column=Signal","--print-column=1",
+                "--height=420","--width=700"],input="\n".join(choices)+"\n",text=True,
+                stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
+        if not ssid:
+            ssid=subprocess.run(["zenity","--entry","--title=Wi-Fi network","--text=Enter Wi-Fi SSID (hidden networks are supported)."],
+                stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,check=False).stdout.strip()
+        if not ssid:return False
+        password=subprocess.run(["zenity","--password","--title=Wi-Fi credentials"],
+            stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,check=False).stdout.rstrip("\n")
+        if password is None:return False
+        rc,_,err=configure_wifi(ssid,password)
+        if rc:
+            subprocess.run(["zenity","--error","--title=Wi-Fi connection failed",
+                "--text="+(err or "NetworkManager could not connect. Check password, signal and driver/firmware.")[:700]],check=False)
+            return False
+    else:
+        rc,_,err=configure_wired(dev)
+        if rc:
+            subprocess.run(["zenity","--error","--title=Ethernet connection failed",
+                "--text="+(err or "Could not obtain a network connection. Check cable, link and DHCP.")[:700]],check=False)
+            return False
+    updated=probe()
+    if updated["connectivity"]["internet_ready"]:
+        subprocess.run(["zenity","--info","--title=Network ready",
+            "--text=Internet connectivity and DNS are available. The installer can now use online mirrors and package repositories."],check=False)
+        return True
+    subprocess.run(["zenity","--warning","--title=Network partially configured",
+        "--text=An interface was configured, but internet/DNS verification failed. You can continue offline or retry from the Network panel."],check=False)
+    return False
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--probe",action="store_true",help="detect hardware and test connectivity")
     ap.add_argument("--report",default="/tmp/chimera-network-preflight.json")
     ap.add_argument("--configure",action="store_true",help="interactively configure Wi-Fi or wired DHCP")
     ap.add_argument("--non-interactive",action="store_true",help="probe only; never prompt or change network")
+    ap.add_argument("--gui",action="store_true",help="show the graphical Zenity network-first wizard")
     args=ap.parse_args()
     report=probe()
+    if args.gui and not report["connectivity"]["internet_ready"]:
+        gui_configure(report)
+        report=probe()
     if args.configure and not args.non_interactive and sys.stdin.isatty() and not report["connectivity"]["internet_ready"]:
         print("Chimera II OS — Step 1: Network and Wi-Fi")
         for i,d in enumerate(report["devices"],1):
