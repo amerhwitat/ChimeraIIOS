@@ -113,10 +113,17 @@ extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint
 extern "C" int chimera_nbit_process_init_chimera(chimera_nbit_process_context *ctx,
                                                     uint32_t process_id,
                                                     uint32_t requested_bits) {
-    int rc = chimera_nbit_process_init(ctx, process_id, requested_bits, 0);
-    if (rc != 0) return rc;
+    if (!ctx || !process_id) return -1;
+    if (chimera_nbit_init() != 0) return -4;
+    const uint32_t mode = requested_bits ? requested_bits : g_default_mode;
+    if (!valid_mode(mode)) return -2;
+    if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
+    ctx->process_id = process_id;
+    ctx->mode_bits = mode;
     ctx->execution_class = CHIMERA_EXEC_CHIMERA_VIRTUAL;
-    ctx->flags = 1u; /* CHIMERA virtual ABI selection, not physical-native hardware. */
+    ctx->compatibility_target = 0;
+    ctx->abi_version = CHIMERA_NBIT_CONTEXT_VERSION;
+    ctx->flags = 1u; /* Native to the Chimera virtual ABI, not physical CPU hardware. */
     return store_process(ctx);
 }
 extern "C" int chimera_nbit_process_set_mode(chimera_nbit_process_context *ctx, uint32_t bits) {
