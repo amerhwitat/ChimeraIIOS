@@ -9,6 +9,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/physmem.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -207,6 +208,7 @@ static volatile uint32_t console_task_runs = 0;
 static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
 static volatile uint32_t installer_phase = 0;
+static volatile uint32_t runtime_watchdog_ticks = 0;
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
@@ -347,6 +349,22 @@ static void task_kore(void *) {
     chimera_sched_block();
 }
 
+/*
+ * Keep a real scheduler client runnable after one-shot bootstrap services
+ * block. Previously every service (including the one-shot monitor) blocked,
+ * leaving the scheduler with zero READY tasks; the CPU spun forever in idle
+ * and the last screen looked like a frozen boot. This supervisor is a
+ * cooperative liveness task, not a claim that userspace has been entered.
+ */
+static void task_runtime_watchdog(void *) {
+    const uint32_t tick = ++runtime_watchdog_ticks;
+    if ((tick & 0x000FFFFFu) == 1u) {
+        console_write("[MON ] Runtime supervisor alive; awaiting a supported userspace handoff");
+    }
+    // Returning without blocking makes the dispatcher put this task back in
+    // READY state. Other READY tasks still participate through scheduler aging.
+}
+
 static void koronos_submit_bootstrap_tasks() {
     int a = chimera_sched_submit(task_console, 0, 100);
     int b = chimera_sched_submit(task_modules, 0, 90);
@@ -354,9 +372,10 @@ static void koronos_submit_bootstrap_tasks() {
     int d = chimera_sched_submit(task_installer, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
+    int w = chimera_sched_submit(task_runtime_watchdog, 0, 50);
     console_write("[SCH ] Bootstrap tasks submitted");
-    console_write("[SCH ] console/module/live/installer/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0)
+    console_write("[SCH ] console/module/live/installer/Kore/monitor/supervisor services registered");
+    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0 || w < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
@@ -380,6 +399,9 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
+    const int memory_ready = chimera_physmem_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
+    console_write(memory_ready == 0 ? "[MEM ] Multiboot2 physical-page allocator ready" :
+                                      "[MEM ] Physical-page allocator unavailable; user loading must remain disabled");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
