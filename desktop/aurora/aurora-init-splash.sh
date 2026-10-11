@@ -51,6 +51,9 @@ play_video(){
 
   if command -v mpv >/dev/null 2>&1; then
     mpv --fs --no-terminal --really-quiet --keep-open=no \
+      --osd-level=3 --osd-duration=10000 \
+      --osd-msg1='CHIMERA II OS  •  AURORA STARTUP' \
+      --osd-msg2='Loading system services…' \
       --title='Chimera II OS — Aurora' "$VIDEO" >/dev/null 2>&1 &
     echo $! > "$PID_FILE"
     return 0
