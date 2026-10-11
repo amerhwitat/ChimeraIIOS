@@ -1,0 +1,26 @@
+name: ISA mapper regression
+on:
+  push:
+    paths:
+      - 'isa/isa_database.json'
+      - 'tools/isa/**'
+      - 'tests/isa/**'
+      - '.github/workflows/isa-mapper.yml'
+  pull_request:
+    paths:
+      - 'isa/isa_database.json'
+      - 'tools/isa/**'
+      - 'tests/isa/**'
+      - '.github/workflows/isa-mapper.yml'
+  workflow_dispatch:
+jobs:
+  mapper-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python3 -m py_compile tools/isa/chimera_isa_mapper.py
+      - run: python3 -m unittest discover -s tests/isa -v
+      - run: python3 tools/isa/chimera_isa_mapper.py --source-architecture riscv64 --mnemonic ADD --no-record
