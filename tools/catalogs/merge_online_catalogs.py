@@ -52,39 +52,96 @@ def rows_from_index(index):
     return []
 
 
+def load_canonical_isa():
+    """Load the canonical database, recovering a damaged working copy from HEAD."""
+    import subprocess
+
+    try:
+        raw = ISA_DB.read_text(encoding="utf-8")
+        db = json.loads(raw)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        db = None
+        local_error = str(exc)
+    else:
+        local_error = "top-level JSON value is not an object" if not isinstance(db, dict) else ""
+
+    if isinstance(db, dict):
+        architectures = db.get("architectures")
+        instructions = db.get("instructions")
+        if isinstance(architectures, list) and isinstance(instructions, list) and architectures and instructions:
+            return db
+        local_error = "missing/non-list architectures or instructions, or empty catalog"
+
+    # A malformed local JSON file must not prevent the build if Git has a valid
+    # committed canonical copy. Do not silently replace a valid local database.
+    try:
+        raw = subprocess.check_output(
+            ["git", "-C", str(ROOT), "show", "HEAD:isa/isa_database.json"],
+            text=True, encoding="utf-8", stderr=subprocess.PIPE,
+        )
+        recovered = json.loads(raw)
+        if not isinstance(recovered, dict):
+            raise ValueError("committed file is not a JSON object")
+        if not isinstance(recovered.get("architectures"), list) or not recovered["architectures"]:
+            raise ValueError("committed database has no architecture rows")
+        if not isinstance(recovered.get("instructions"), list) or not recovered["instructions"]:
+            raise ValueError("committed database has no instruction rows")
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError, subprocess.CalledProcessError) as exc:
+        raise SystemExit(
+            f"Invalid canonical ISA database: {ISA_DB} ({local_error}); "
+            f"could not recover a valid committed copy ({exc}). "
+            "Restore isa/isa_database.json from a known-good commit, then rerun the build."
+        ) from exc
+
+    tmp = ISA_DB.with_suffix(ISA_DB.suffix + ".repair.tmp")
+    tmp.write_text(json.dumps(recovered, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    json.loads(tmp.read_text(encoding="utf-8"))
+    tmp.replace(ISA_DB)
+    print(f"[ISA] repaired invalid canonical database from Git HEAD ({len(recovered['architectures'])} architectures, {len(recovered['instructions'])} instruction rows)")
+    return recovered
+
+
 def merge_isa():
-    db = load(ISA_DB, None)
-    if not isinstance(db, dict):
-        raise SystemExit(f"Invalid canonical ISA database: {ISA_DB}")
-    architectures = db.setdefault("architectures", [])
-    instructions = db.setdefault("instructions", [])
-    if not isinstance(architectures, list) or not isinstance(instructions, list):
-        raise SystemExit(f"Invalid canonical ISA database schema: {ISA_DB}")
+    db = load_canonical_isa()
+    # The canonical CHM-ISA-DB-4 database uses positional rows described by
+    # architecture_row/instruction_row. Online discoveries are stored separately
+    # so unverified objects can never corrupt the verified encoder/decoder rows.
+    architecture_candidates = db.setdefault("online_architecture_candidates", [])
+    instruction_candidates = db.setdefault("online_instruction_candidates", [])
+    if not isinstance(architecture_candidates, list) or not isinstance(instruction_candidates, list):
+        raise SystemExit(f"Invalid online-candidate sections in canonical ISA database: {ISA_DB}")
 
     index = load(ISA_INDEX, {})
     sources = rows_from_index(index)
-    existing = {
-        (str(item.get("architecture", "")).casefold(), str(item.get("mnemonic", "")).casefold(),
-         str(item.get("source", "")).casefold())
-        for item in instructions if isinstance(item, dict)
+    existing_architectures = {
+        str(item.get("id", item.get("name", "")) if isinstance(item, dict) else item[0] if isinstance(item, list) and item else item).casefold()
+        for item in db.get("architectures", [])
     }
-    added = 0
+    existing_candidates = {
+        (str(item.get("architecture", "")).casefold(),
+         str(item.get("mnemonic", "")).casefold(),
+         str(item.get("source", "")).casefold())
+        for item in instruction_candidates if isinstance(item, dict)
+    }
+    added_architectures = 0
+    added_instructions = 0
     for source in sources:
         architecture = str(source.get("architecture") or source.get("platform") or "online-reference").strip()
         url = str(source.get("url") or source.get("source") or "")
-        if architecture and architecture.casefold() not in {
-            str(a.get("name", a.get("id", "")) if isinstance(a, dict) else a).casefold()
-            for a in architectures
-        }:
-            architectures.append({"name": architecture, "source": url,
-                                  "status": "candidate", "conformance": "unverified"})
+        if architecture and architecture.casefold() not in existing_architectures:
+            if not any(str(row.get("name", row.get("id", ""))).casefold() == architecture.casefold()
+                       for row in architecture_candidates if isinstance(row, dict)):
+                architecture_candidates.append({
+                    "name": architecture, "source": url,
+                    "status": "candidate", "conformance": "unverified"
+                })
+                added_architectures += 1
         candidates = source.get("instructions", source.get("candidates", []))
         if not isinstance(candidates, list):
             continue
         for item in candidates:
             if isinstance(item, str):
-                mnemonic, item_url = item.strip(), url
-                semantic = None
+                mnemonic, item_url, semantic = item.strip(), url, None
             elif isinstance(item, dict):
                 mnemonic = str(item.get("mnemonic") or item.get("name") or "").strip()
                 item_url = str(item.get("url") or item.get("source") or url)
@@ -92,21 +149,23 @@ def merge_isa():
             else:
                 continue
             key = (architecture.casefold(), mnemonic.casefold(), item_url.casefold())
-            if not mnemonic or key in existing:
+            if not mnemonic or key in existing_candidates:
                 continue
-            row = {"architecture": architecture, "mnemonic": mnemonic, "source": item_url,
-                   "status": "candidate", "encoding_verified": False,
-                   "execution_verified": False, "conformance": "unverified"}
+            row = {
+                "architecture": architecture, "mnemonic": mnemonic, "source": item_url,
+                "status": "candidate", "encoding_verified": False,
+                "execution_verified": False, "conformance": "unverified"
+            }
             if semantic:
                 row["semantic_candidate"] = semantic
-            instructions.append(row)
-            existing.add(key)
-            added += 1
+            instruction_candidates.append(row)
+            existing_candidates.add(key)
+            added_instructions += 1
+
     db["online_discovery_updated_at_utc"] = STAMP
     db["online_source_count"] = len(sources)
     write(ISA_DB, db)
-    print(f"[ISA] appended {added} source-backed instruction candidates from {len(sources)} source rows")
-
+    print(f"[ISA] appended {added_instructions} unverified instruction candidates and {added_architectures} architecture candidates from {len(sources)} source rows; canonical encoding rows preserved")
 
 def merge_commands():
     index = load(COMMAND_INDEX, {})
