@@ -2,6 +2,33 @@
   "schema": "CHM-INSTALL-2",
   "phases": [
     {
+      "id": "network_preflight",
+      "name": "Network & Wi-Fi (first step)",
+      "required_before_install_sources": true,
+      "actions": [
+        "detect_ethernet_nics",
+        "detect_wifi_adapters",
+        "identify_driver_and_firmware",
+        "scan_wifi_networks",
+        "configure_wired_dhcp",
+        "configure_wifi_securely",
+        "verify_gateway_dns_and_internet",
+        "rnn_llm_step_by_step_recommendations",
+        "offline_continue_with_warning"
+      ],
+      "defaults": {
+        "do_not_store_wifi_password": true,
+        "never_install_unsigned_driver": true,
+        "network_changes_require_user_confirmation": true
+      },
+      "background": {
+        "default": "/usr/share/chimera/aurora/installer-network.svg",
+        "fit": "cover",
+        "overlay": "aurora-glass",
+        "transition": "fade"
+      }
+    },
+    {
       "id": "welcome",
       "name": "Welcome / Aurora",
       "actions": [
