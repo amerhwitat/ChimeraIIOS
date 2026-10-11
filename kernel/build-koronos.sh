@@ -29,7 +29,7 @@ CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(physmem dma dbus_compat koronos elf64 module relocate arch_init runtime runtime_loop scheduler process thread sync timer apc dpc hardware nbit nbit_runtime nbit_vm nbit_fpu firmware device multiboot_modules parallel nbit_cache driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model elf_loader ipc)
+sources=(physmem dma dbus_compat koronos elf64 module relocate arch_init runtime runtime_loop scheduler process thread sync timer apc dpc hardware nbit nbit_runtime nbit_vm firmware device multiboot_modules parallel nbit_cache driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model elf_loader ipc)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
