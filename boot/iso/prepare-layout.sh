@@ -270,6 +270,14 @@ cat > "$DIST/install/background-manifest.json" <<'EOF'
 }
 EOF
 
+# Stage the actual network-first Aurora installer, not just its phase manifest.
+mkdir -p "$DIST/usr/share/chimera/installer/gui" "$DIST/usr/share/chimera/installer/services"
+install -m 0644 "$ROOT/installer/chimera_installer.py" "$DIST/usr/share/chimera/installer/chimera_installer.py"
+install -m 0755 "$ROOT/installer/network_preflight.py" "$DIST/usr/share/chimera/installer/network_preflight.py"
+install -m 0755 "$ROOT/installer/gui/aurora-installer.sh" "$DIST/usr/share/chimera/installer/gui/aurora-installer.sh"
+install -m 0644 "$ROOT/installer/installation_phases.json" "$DIST/usr/share/chimera/installer/installation_phases.json"
+install -m 0644 "$ROOT/installer/gui/aurora-installer-ui.json" "$DIST/usr/share/chimera/installer/gui/aurora-installer-ui.json"
+install -m 0644 "$ROOT/installer/services/enterprise-services.json" "$DIST/usr/share/chimera/installer/services/enterprise-services.json"
 [[ -f "$ROOT/installer/installation_phases.json" ]] && cp "$ROOT/installer/installation_phases.json" "$DIST/chimera/manifests/"
 [[ -f "$ROOT/installer/installer_profiles.json" ]] && cp "$ROOT/installer/installer_profiles.json" "$DIST/chimera/manifests/"
 [[ -f "$ROOT/installer/chimera-installer-plan.json" ]] && cp "$ROOT/installer/chimera-installer-plan.json" "$DIST/chimera/manifests/"
