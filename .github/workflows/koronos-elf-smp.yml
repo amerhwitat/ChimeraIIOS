@@ -12,6 +12,12 @@ on:
       - 'kernel/core/nbit.cpp'
       - 'kernel/core/nbit_runtime.cpp'
       - 'kernel/core/nbit_vm.cpp'
+      - 'kernel/core/nbit_cache.cpp'
+      - 'kernel/core/nbit_fpu.cpp'
+      - 'kernel/include/chimera/nbit_cache.h'
+      - 'kernel/include/chimera/nbit_fpu.h'
+      - 'tests/koronos/test_nbit_cache.cpp'
+      - 'tests/koronos/test_nbit_fpu.cpp'
       - 'kernel/include/chimera/nbit_vm.h'
       - 'kernel/include/chimera/nbit_runtime.h'
       - 'tools/nbit/**'
@@ -123,12 +129,16 @@ jobs:
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
       - name: Run Chimera N-bit virtual machine tests
         run: |
-          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp -o /tmp/koronos-nbit-vm-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp -o /tmp/koronos-nbit-vm-test
           /tmp/koronos-nbit-vm-test
       - name: Run arbitrary-width N-bit arithmetic tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_runtime.cpp kernel/core/nbit_runtime.cpp -o /tmp/koronos-nbit-runtime-test
           /tmp/koronos-nbit-runtime-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_cache.cpp kernel/core/nbit_cache.cpp -o /tmp/koronos-nbit-cache-test
+          /tmp/koronos-nbit-cache-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_fpu.cpp kernel/core/nbit_fpu.cpp -o /tmp/koronos-nbit-fpu-test
+          /tmp/koronos-nbit-fpu-test
       - name: Run N-bit process registry and cross-width IPC tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_process_registry.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/koronos-nbit-process-test
