@@ -64,7 +64,13 @@ installer_progress(){
   printf '%s|%s|%s\n' "$pct" "$phase" "$msg" > "$PROGRESS_FILE"
 }
 
-installer_progress 8 "Installer" "Detecting hardware"
+installer_progress 4 "Network" "Detecting Ethernet, Wi-Fi, drivers and internet"
+NETWORK_PREFLIGHT="$ROOT/installer/network_preflight.py"
+if [[ -f "$NETWORK_PREFLIGHT" ]]; then
+  python3 "$NETWORK_PREFLIGHT" --gui --report "$PLAN_DIR/network-preflight.json" >/dev/null 2>"$PLAN_DIR/network-preflight.log" || true
+fi
+installer_progress 15 "Network" "Network preflight complete; online or offline installation is available"
+installer_progress 18 "Installer" "Detecting hardware"
 edition="$(choose_edition)" || {
   [[ -n "${SPLASH_PID:-}" ]] && kill "$SPLASH_PID" 2>/dev/null || true
   exit 0
