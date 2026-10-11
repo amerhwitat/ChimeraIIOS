@@ -53,6 +53,8 @@ on:
     paths:
       - 'kernel/core/**'
       - 'kernel/arch/x86_64/**'
+      - 'kernel/userland/**'
+      - 'kernel/include/chimera/user_mode.h'
       - 'kernel/drivers/builtin/**'
       - 'kernel/include/chimera/**'
       - 'kernel/build-koronos.sh'
@@ -173,11 +175,13 @@ jobs:
           iso_root="$(mktemp -d)"
           mkdir -p "$iso_root/boot/grub"
           cp build/koronos/x86_64/koronos.elf "$iso_root/boot/koronos.elf"
+          cp build/koronos/x86_64/chimera-user-init.elf "$iso_root/boot/chimera-user-init.elf"
           cat > "$iso_root/boot/grub/grub.cfg" <<'GRUB'
           set timeout=0
           set default=0
           menuentry "Koronos SMP acceptance" {
             multiboot2 /boot/koronos.elf
+            module2 /boot/chimera-user-init.elf chimera-user-init-elf
             boot
           }
           GRUB
@@ -205,14 +209,16 @@ jobs:
             '[KRN ] koronos_boot entered' \
             '[KRN ] KORONOS READY' \
             '[SCH ] Bootstrap tasks submitted' \
-            '[RUN ] Entering Koronos scheduler loop'; do
+            '[RUN ] Entering Koronos scheduler loop' \\
+            '[UABI] x86-64 user page tables, GDT/TSS and IDT ready' \\
+            '[USER] Ring-3 Chimera init entered successfully; userspace handoff verified'; do
             grep -Fq "$marker" "$log" || {
               echo "Missing QEMU boot marker: $marker" >&2
               cat "$log" >&2
               exit 1
             }
           done
-          echo "GRUB/Multiboot2 reached the Koronos scheduler loop with two virtual CPUs configured."
+          echo "GRUB/Multiboot2 entered the Koronos scheduler and executed the native init payload at ring 3 with two virtual CPUs configured."
           cat "$log"
       - name: Preserve QEMU boot trace
         if: always()
