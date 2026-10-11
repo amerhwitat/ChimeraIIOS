@@ -36,6 +36,7 @@ on:
       - 'boot/iso/**'
       - 'boot/grub/**'
       - 'boot/jasper/**'
+      - 'desktop/aurora/apps/**'
       - 'desktop/aurora/aurora-progress.sh'
       - 'desktop/aurora/aurora-init-splash.sh'
       - 'tools/aurora/**'
@@ -81,6 +82,28 @@ jobs:
           bash -n tools/aurora/build-visual-assets.sh
           bash -n desktop/aurora/aurora-progress.sh
           bash -n desktop/aurora/aurora-init-splash.sh
+      - name: Build and test Aurora N-bit settings selection
+        run: |
+          g++ -std=c++17 -Wall -Wextra desktop/aurora/apps/aurora_settings.cpp -o /tmp/aurora-settings-test
+          tmp="$(mktemp -d)"
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.width 8193
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.backend chimera-virtual
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.compatibility linux
+          HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.backend compatibility
+          python3 - "$tmp/.config/chimera/nbit-mode.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          p=json.loads(Path(sys.argv[1]).read_text())
+          assert p["selected_width_bits"] == 8193
+          assert p["backend"] == "compatibility"
+          assert p["guest_isa"] == "chimera-nbit"
+          assert p["compatibility_personality"] == "linux"
+          assert p["compatibility_target_mask"] == 4
+          PY
+          if HOME="$tmp" /tmp/aurora-settings-test set isa.nbit.width 0; then
+            echo "invalid N-bit width unexpectedly accepted" >&2
+            exit 1
+          fi
       - name: Test user-selectable N-bit profiles
         run: python3 tests/nbit/test_select_mode.py
       - name: Run ISA translation-plan regression tests
