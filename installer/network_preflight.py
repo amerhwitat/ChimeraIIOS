@@ -225,7 +225,7 @@ def recommend(report):
 def probe():
     devices=driver_evidence(device_inventory())
     return {"schema":"CHIMERA-NETWORK-PREFLIGHT-1","platform":platform.platform(),
-            "tools":{x:bool(command(x)) for x in ["ip","nmcli","iw","rfkill","networkctl","dhclient","lspci","lsusb","modprobe"]},
+            "tools":{x:bool(command(x)) for x in ["ip","nmcli","iw","rfkill","networkctl","dhclient","udhcpc","wpa_supplicant","lspci","lsusb","modprobe","modinfo"]},
             "devices":devices,"addresses":addresses(),"connectivity":connectivity()}
 
 def gui_configure(report):
