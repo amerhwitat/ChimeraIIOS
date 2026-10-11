@@ -86,10 +86,12 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_runtime.cpp kernel/core/nbit_runtime.cpp -o /tmp/nbit-runtime-test
           /tmp/nbit-runtime-test
-          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp -o /tmp/nbit-vm-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp kernel/core/nbit_fpu.cpp -o /tmp/nbit-vm-test
           /tmp/nbit-vm-test
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_cache.cpp kernel/core/nbit_cache.cpp -o /tmp/nbit-cache-test
           /tmp/nbit-cache-test
+          g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_fpu.cpp kernel/core/nbit_fpu.cpp -o /tmp/nbit-fpu-test
+          /tmp/nbit-fpu-test
       - name: Run process registry, IPC, scheduler, and ELF transaction tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_process_registry.cpp kernel/core/nbit.cpp kernel/core/hardware.cpp -o /tmp/nbit-registry-test
