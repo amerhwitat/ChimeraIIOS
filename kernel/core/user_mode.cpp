@@ -4,6 +4,9 @@
 #include "chimera/process.h"
 #include "chimera/interrupt.h"
 
+extern "C" void chimera_x86_64_enter_user(uint64_t entry, uint64_t stack_top)
+    __attribute__((noreturn));
+
 namespace {
 constexpr uint64_t PRESENT=1ull, WRITE=2ull, USER=4ull, HUGE=0x80ull;
 constexpr uint64_t NX=1ull<<63;
@@ -31,9 +34,6 @@ tss64 tss{};
 alignas(16) uint64_t gdt[7];
 struct __attribute__((packed)) descriptor_ptr { uint16_t limit; uint64_t base; };
 descriptor_ptr gdtr{};
-
-extern "C" void chimera_x86_64_enter_user(uint64_t entry, uint64_t stack_top)
-    __attribute__((noreturn));
 
 static void load_gdt_and_tss() {
     gdt[0]=0;
@@ -68,9 +68,10 @@ static void initialize_page_tables() {
         for(uint32_t j=0;j<512;j++) pt_pool[i][j]=0;
     pt_pool_used=0;
 
-    uint32_t a=0,b=0,c=0,d=0;
+    uint32_t b=0,c=0,d=0;
     uint32_t leaf=0x80000001u;
-    __asm__ volatile("cpuid" : "+a"(leaf), "=b"(b), "=c"(c), "=d"(d));
+    c=0;
+    __asm__ volatile("cpuid" : "+a"(leaf), "=b"(b), "+c"(c), "=d"(d));
     nx_available=(d&(1u<<20))!=0;
     if(nx_available) {
         uint32_t lo=0,hi=0;
@@ -78,7 +79,7 @@ static void initialize_page_tables() {
         lo|=(1u<<11); // EFER.NXE
         __asm__ volatile("wrmsr" : : "a"(lo), "d"(hi), "c"(0xC0000080u));
     }
-    (void)a;
+    (void)b;
     const uint64_t root=(uint64_t)pml4;
     __asm__ volatile("mov %0, %%cr3" : : "r"(root) : "memory");
 }
