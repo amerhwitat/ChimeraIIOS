@@ -33,6 +33,9 @@ int main() {
     assert(registry.capacity == CHIMERA_NBIT_MAX_PROCESS_MODES);
 
     chimera_nbit_process_context default_virtual{}, default_physical{}, default_compat{};
+    assert(chimera_nbit_set_default_profile(0u, CHIMERA_NBIT_BACKEND_AUTO, 0u) == 0);
+    uint32_t auto_width=0;
+    assert(chimera_nbit_get_default(&auto_width) == 0 && auto_width == caps.native_hardware_bits);
     assert(chimera_nbit_set_default_profile(8193u, CHIMERA_NBIT_BACKEND_CHIMERA_VIRTUAL, 0u) == 0);
     assert(chimera_nbit_process_init_default(&default_virtual, 606u, 0u) == 0);
     assert(default_virtual.mode_bits == 8193u && default_virtual.execution_class == CHIMERA_EXEC_CHIMERA_VIRTUAL);
