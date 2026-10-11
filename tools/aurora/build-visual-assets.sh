@@ -71,8 +71,8 @@ except (OSError, ValueError) as exc:
     raise SystemExit(1)
 PYART
 } || convert_svg "$DEFAULTS/aurora-boot.svg" "$OUT/backgrounds/boot.png"
-copy_first backgrounds/desktop.png   "$LIB/Aurora Wayland Glass Desktop.png"   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg" || convert_svg "$DEFAULTS/aurora-desktop.svg" "$OUT/backgrounds/desktop.png"
-copy_first backgrounds/showcase.png   "$LIB/Aurora Wayland Desktop Showcase.png" || convert_svg "$DEFAULTS/aurora-splash.svg" "$OUT/backgrounds/showcase.png"
+copy_first backgrounds/desktop.png   "$LIB/Aurora Wayland Glass Desktop.png"   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg" || { [[ -s "$OUT/backgrounds/boot.jpg" ]] && cp -f "$OUT/backgrounds/boot.jpg" "$OUT/backgrounds/desktop.png"; } || convert_svg "$DEFAULTS/aurora-desktop.svg" "$OUT/backgrounds/desktop.png"
+copy_first backgrounds/showcase.png   "$LIB/Aurora Wayland Desktop Showcase.png" || { [[ -s "$OUT/backgrounds/boot.jpg" ]] && cp -f "$OUT/backgrounds/boot.jpg" "$OUT/backgrounds/showcase.png"; } || convert_svg "$DEFAULTS/aurora-splash.svg" "$OUT/backgrounds/showcase.png"
 copy_first menus/default.png   "$LIB/Aurora-Wayland-Glass-Desktop.png(1).jpg"   "$LIB/Aurora Wayland Glass Desktop.png" || {
   [[ -s "$OUT/backgrounds/boot.jpg" ]] && cp -f "$OUT/backgrounds/boot.jpg" "$OUT/menus/default.png"
 } || convert_svg "$DEFAULTS/aurora-menu.svg" "$OUT/menus/default.png"
