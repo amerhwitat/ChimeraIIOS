@@ -22,6 +22,13 @@ on:
       - 'kernel/core/elf_loader.cpp'
       - 'kernel/include/chimera/elf_loader.h'
       - 'kernel/build-koronos.sh'
+      - 'boot/iso/**'
+      - 'boot/grub/**'
+      - 'boot/jasper/**'
+      - 'desktop/aurora/aurora-progress.sh'
+      - 'desktop/aurora/aurora-init-splash.sh'
+      - 'tools/aurora/**'
+      - 'build-chimera-iso.sh'
       - '.github/workflows/koronos-elf-smp.yml'
   push:
     branches: [main]
@@ -32,6 +39,13 @@ on:
       - 'kernel/include/chimera/elf64.h'
       - 'kernel/include/chimera/scheduler.h'
       - 'tests/koronos/**'
+      - 'boot/iso/**'
+      - 'boot/grub/**'
+      - 'boot/jasper/**'
+      - 'desktop/aurora/aurora-progress.sh'
+      - 'desktop/aurora/aurora-init-splash.sh'
+      - 'tools/aurora/**'
+      - 'build-chimera-iso.sh'
       - '.github/workflows/koronos-elf-smp.yml'
   workflow_dispatch:
 
@@ -45,6 +59,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install compiler and test tools
         run: sudo apt-get update && sudo apt-get install -y g++ python3
+      - name: Validate changed boot/build shell scripts
+        run: |
+          bash -n build-chimera-iso.sh
+          bash -n kernel/build-koronos.sh
+          bash -n boot/iso/build-iso.sh
+          bash -n boot/iso/prepare-layout.sh
+          bash -n tools/aurora/build-visual-assets.sh
+          bash -n desktop/aurora/aurora-progress.sh
+          bash -n desktop/aurora/aurora-init-splash.sh
       - name: Run ISA translation-plan regression tests
         run: python3 tests/isa/test_chimera_isa_convert.py
       - name: Validate ISA database JSON and profile coverage
