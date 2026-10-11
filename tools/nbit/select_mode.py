@@ -71,8 +71,9 @@ def main() -> int:
     if args.show and args.bits is None:
         if not args.config.exists():
             print(json.dumps({"schema": "CHIMERA-NBIT-USER-PROFILE-1",
-                              "selected_width_bits": 64, "backend": "auto",
-                              "guest_isa": "auto"}, indent=2))
+                              "selected_width_bits": 64, "backend": "auto", "backend_id": 0,
+                              "guest_isa": "auto", "guest_isa_id": 0,
+                              "compatibility_target_mask": 0}, indent=2))
             return 0
         print(args.config.read_text(encoding="utf-8"))
         return 0
