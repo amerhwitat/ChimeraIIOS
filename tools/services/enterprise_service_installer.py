@@ -151,28 +151,30 @@ def main():
                 item["selected_package_manager"]="chimera-native-source-build"; item["staging"]=detail
             elif not detected and sid not in source_archives:
                 item["error"]="no package manager detected; verified source archive fallback was not supplied"; plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
-            success=False
-            for candidate in detected:
-                packages=(svc.get("packages") or {}).get(candidate,[])
-                item["packages"][candidate]=packages
-                if not packages:
-                    item["attempts"].append({"manager":candidate,"result":"no-package-mapping"}); continue
-                rc=package_stage(candidate,packages,a.rootfs,a.cache)
-                item["attempts"].append({"manager":candidate,"result":"staged" if rc==0 else "failed","exit_code":rc})
-                if rc==0:
-                    item["selected_package_manager"]=candidate
-                    item["staging"]="package payloads extracted; dependency resolution, service configuration and ABI conversion still require rootfs integration"
-                    success=True; break
-            if not success and sid in source_archives:
-                rc, detail=verified_source_stage(svc,source_archives[sid],source_hashes.get(sid),a.rootfs,a.cache,"compatibility")
-                item["attempts"].append({"method":"verified-source-build","result":"staged" if rc==0 else "failed","detail":detail})
-                if rc==0:
-                    item["selected_package_manager"]="verified-source-build"
-                    item["staging"]=detail
-                    success=True
-            if execution_mode!="native" and not success:
-                item["error"]="all available package staging adapters failed; provide --source-archive SERVICE=PATH and --source-sha256 SERVICE=HEX for verified source fallback"
-                plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
+            if execution_mode!="native":
+                success=False
+                for candidate in detected:
+                    packages=(svc.get("packages") or {}).get(candidate,[])
+                    item["packages"][candidate]=packages
+                    if not packages:
+                        item["attempts"].append({"manager":candidate,"result":"no-package-mapping"}); continue
+                    rc=package_stage(candidate,packages,a.rootfs,a.cache)
+                    item["attempts"].append({"manager":candidate,"result":"staged" if rc==0 else "failed","exit_code":rc})
+                    if rc==0:
+                        item["selected_package_manager"]=candidate
+                        item["staging"]="package payloads extracted; dependency resolution, service configuration and ABI conversion still require rootfs integration"
+                        success=True; break
+                if not success and sid in source_archives:
+                    rc, detail=verified_source_stage(svc,source_archives[sid],source_hashes.get(sid),a.rootfs,a.cache,"compatibility")
+                    item["attempts"].append({"method":"verified-source-build","result":"staged" if rc==0 else "failed","detail":detail})
+                    if rc==0:
+                        item["selected_package_manager"]="verified-source-build"
+                        item["staging"]=detail
+                        success=True
+                if not success:
+                    item["error"]="all available package staging adapters failed; provide --source-archive SERVICE=PATH and --source-sha256 SERVICE=HEX for verified source fallback"
+                    plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
+        plan["services"].append(item); print(json.dumps(plan,indent=2)); return 2
         plan["services"].append(item)
         if a.enable: plan["enabled_targets"].append(svc["boot_target"])
     out=a.rootfs/"etc/chimera/enterprise-services.plan.json"
