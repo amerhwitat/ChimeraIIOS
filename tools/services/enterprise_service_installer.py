@@ -6,7 +6,7 @@ Package payloads are extracted into --rootfs where supported; host package manag
 are never allowed to install files directly into the running host from this tool.
 """
 from __future__ import annotations
-import argparse, hashlib, json, os, shlex, shutil, subprocess, sys, tarfile, tempfile
+import argparse, hashlib, json, os, shlex, shutil, subprocess, sys, tarfile, tempfile, urllib.request, urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -58,6 +58,29 @@ def package_stage(pm, packages, rootfs, cache):
     # Do not install into the host as a fallback.
     print(f"manager {pm} detected, but safe rootfs staging is unavailable for it",file=sys.stderr)
     return 2
+
+def fetch_source_archive(service_id, url, cache):
+    parsed=urllib.parse.urlparse(url)
+    if parsed.scheme!="https" or not parsed.netloc:
+        return None, "source URL must use HTTPS"
+    folder=cache/"source-downloads"; folder.mkdir(parents=True,exist_ok=True)
+    target=folder/(service_id+".archive")
+    try:
+        request=urllib.request.Request(url,headers={"User-Agent":"ChimeraIIOS-enterprise-installer/1"})
+        with urllib.request.urlopen(request,timeout=30) as response, target.open("wb") as out:
+            final=urllib.parse.urlparse(response.geturl())
+            if final.scheme!="https": return None,"source download redirected away from HTTPS"
+            total=0
+            while True:
+                chunk=response.read(1024*1024)
+                if not chunk: break
+                total+=len(chunk)
+                if total>2*1024*1024*1024: return None,"source archive exceeds 2 GiB safety limit"
+                out.write(chunk)
+        return target,None
+    except Exception as exc:
+        target.unlink(missing_ok=True)
+        return None,f"source download failed: {exc}"
 
 def verified_source_stage(service, archive_path, expected_sha256, rootfs, cache, execution_mode):
     if not archive_path or not expected_sha256 or len(expected_sha256)!=64:
@@ -111,6 +134,8 @@ def main():
     p.add_argument("--execution-mode",choices=("auto","native","compatibility"),default="auto",
                    help="native requires the Chimera compiler and verified source; compatibility stages platform packages")
     p.add_argument("--source-archive",action="append",default=[],metavar="SERVICE=PATH")
+    p.add_argument("--source-url",action="append",default=[],metavar="SERVICE=HTTPS_URL",
+                   help="download source only over HTTPS; --source-sha256 is mandatory")
     p.add_argument("--source-sha256",action="append",default=[],metavar="SERVICE=HEX")
     p.add_argument("--apply",action="store_true",help="download and stage selected package payloads")
     p.add_argument("--enable",action="store_true",help="write requested boot-target enablement intent after review")
@@ -129,7 +154,13 @@ def main():
     if unknown: p.error("unknown service IDs: "+", ".join(sorted(unknown)))
     detected=([a.package_manager] if a.package_manager else []) + [x for x in MANAGERS if shutil.which(x) and x != a.package_manager]
     source_archives=dict(x.split("=",1) for x in a.source_archive if "=" in x)
+    source_urls=dict(x.split("=",1) for x in a.source_url if "=" in x)
     source_hashes=dict(x.split("=",1) for x in a.source_sha256 if "=" in x)
+    for sid,url in source_urls.items():
+        if sid not in services: p.error(f"unknown source-url service ID: {sid}")
+        archive,error=fetch_source_archive(sid,url,a.cache)
+        if error: p.error(error)
+        source_archives.setdefault(sid,str(archive))
     native_compiler=bool(os.environ.get("CHIMERA_CC") or shutil.which("chimera-cc"))
     execution_mode=a.execution_mode
     if execution_mode=="auto":
