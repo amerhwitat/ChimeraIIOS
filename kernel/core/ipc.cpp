@@ -12,7 +12,7 @@ struct Message {
 struct Endpoint {
     uint32_t id=0, owner_pid=0, head=0, count=0;
     uint64_t capability=0;
-    bool used=false;
+    bool used=false, closing=false;
     Message queue[CHIMERA_IPC_QUEUE_DEPTH]{};
 };
 Endpoint endpoints[CHIMERA_IPC_MAX_ENDPOINTS];
@@ -80,6 +80,7 @@ extern "C" int chimera_ipc_send(uint32_t sender_pid,uint32_t id,uint64_t capabil
     if(i<0){unlock_service();return -5;}
     Endpoint &e=endpoints[(uint32_t)i];
     if(e.capability!=capability){unlock_service();return -6;}
+    if(e.closing){unlock_service();return -10;}
     chimera_nbit_process_context receiver{};
     if(!registered(e.owner_pid,&receiver)){unlock_service();return -7;}
     if(e.count>=CHIMERA_IPC_QUEUE_DEPTH){unlock_service();return -8;}
@@ -105,6 +106,7 @@ extern "C" int chimera_ipc_receive(uint32_t receiver_pid,uint32_t id,uint64_t ca
     if(i<0){unlock_service();return -3;}
     Endpoint &e=endpoints[(uint32_t)i];
     if(e.owner_pid!=receiver_pid||e.capability!=capability){unlock_service();return -4;}
+    if(e.closing){unlock_service();return -9;}
     if(!e.count){unlock_service();return 0;}
     Message &m=e.queue[e.head];
     if(!m.occupied||m.in_flight){unlock_service();return -5;}
@@ -120,11 +122,12 @@ extern "C" int chimera_ipc_receive(uint32_t receiver_pid,uint32_t id,uint64_t ca
         if(i>=0){Endpoint &again=endpoints[(uint32_t)i];if(again.count){
             Message &head=again.queue[again.head];
             if(head.occupied&&head.sequence==sequence)head.in_flight=false;
-        }}unlock_service();return -7;
+        }if(again.closing)clear_endpoint(again);}unlock_service();return -7;
     }
     lock_service();i=endpoint_index(id);
     if(i<0){unlock_service();return -8;}
     Endpoint &again=endpoints[(uint32_t)i];
+    if(again.closing){clear_endpoint(again);unlock_service();return -8;}
     if(again.owner_pid!=receiver_pid||!again.count){unlock_service();return -8;}
     Message &head=again.queue[again.head];
     if(!head.occupied||!head.in_flight||head.sequence!=sequence){unlock_service();return -8;}
@@ -160,13 +163,13 @@ extern "C" void chimera_ipc_process_exit(uint32_t pid) {
         if(e.owner_pid==pid){
             bool busy=false;for(uint32_t q=0;q<e.count;++q)
                 if(e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH].in_flight)busy=true;
-            if(!busy)clear_endpoint(e);
+            if(!busy)clear_endpoint(e);else e.closing=true;
             continue;
         }
         uint32_t kept=0;Message temp[CHIMERA_IPC_QUEUE_DEPTH]{};
         for(uint32_t q=0;q<e.count;++q){
             Message &m=e.queue[(e.head+q)%CHIMERA_IPC_QUEUE_DEPTH];
-            if(m.occupied&&m.sender_pid!=pid){temp[kept++]=m;}
+            if(m.occupied&&(m.sender_pid!=pid||m.in_flight)){temp[kept++]=m;}
         }
         for(uint32_t q=0;q<CHIMERA_IPC_QUEUE_DEPTH;++q)clear_message(e.queue[q]);
         for(uint32_t q=0;q<kept;++q)e.queue[q]=temp[q];
