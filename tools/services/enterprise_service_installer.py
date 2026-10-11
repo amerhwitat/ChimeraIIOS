@@ -121,7 +121,7 @@ def main():
     if not selected:
         print(json.dumps({"services":[{"id":x["id"],"label":x["label"],"profile":x["profile"],"boot_target":x["boot_target"]} for x in catalog["services"]],"profiles":catalog["profiles"]},indent=2))
         return 0
-    unknown=selected.difference(services.keys())
+    unknown={sid for sid in selected if sid not in services}
     if unknown: p.error("unknown service IDs: "+", ".join(sorted(unknown)))
     detected=([a.package_manager] if a.package_manager else []) + [x for x in MANAGERS if shutil.which(x) and x != a.package_manager]
     source_archives=dict(x.split("=",1) for x in a.source_archive if "=" in x)
