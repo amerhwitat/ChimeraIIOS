@@ -1,5 +1,6 @@
 #include "chimera/event.h"
 #include "chimera/file.h"
+#include "chimera/win32_message.h"
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -16,6 +17,16 @@ int main() {
     assert(event.type == CHM_EVENT_USER && event.value1 == 11);
     unsigned count = 0;
     assert(CHM_DispatchMessage(&event, count_event, &count) == 0 && count == 1);
+    assert(chm_win32_bind_message_queue(q) == 0);
+    assert(chm_win32_post_message(9, CHM_WM_USER + 3, 17, 23) == 0);
+    chm_win32_msg winmsg{};
+    assert(chm_win32_get_message(&winmsg, 10) == 1);
+    assert(winmsg.hwnd == 9 && winmsg.message == CHM_WM_USER + 3);
+    assert(winmsg.wParam == 17 && winmsg.lParam == 23);
+    assert(chm_win32_post_quit_message(5) == 0);
+    assert(chm_win32_get_message(&winmsg, 10) == 0);
+    assert(winmsg.message == CHM_WM_QUIT && winmsg.wParam == 5);
+    assert(chm_win32_bind_message_queue(nullptr) == -1);
     chm_event_queue_destroy(q);
     const char *path = "chimera-sdk-smoke.tmp";
     chm_fd fd = chm_open(path, CHM_O_WRITE_ONLY | CHM_O_CREATE | CHM_O_TRUNCATE, 0600);
