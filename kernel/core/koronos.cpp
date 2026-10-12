@@ -231,7 +231,7 @@ static void task_live(void *) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] Initramfs catalogued; userspace execution is not implemented");
             chimera_sched_block();
         } else if (chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) ||
                    chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST)) {
@@ -306,11 +306,11 @@ static void task_installer(void *) {
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI service initialized");
+            console_write("[INST] Installer UI userspace unavailable: execution handoff is not implemented");
             break;
         case 4:
-            console_write("[INST] Installer initialization complete");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] Installer metadata initialization complete");
+            console_write("[INST] No installer userspace process was launched");
             chimera_sched_block();
             break;
         default:
