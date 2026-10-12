@@ -47,7 +47,7 @@ jobs:
       - name: Validate capability maturity and evidence
         run: python3 tools/validation/validate_capability_status.py
       - name: Validate Python tests
-        run: python3 -m pytest -q tests/cloud tests/image tests/devops tests/build/test_capability_status.py tests/build/test_build_manifest.py
+        run: python3 -m pytest -q tests/cloud tests/image tests/devops tests/build/test_capability_status.py tests/build/test_build_manifest.py tests/build/test_portfolio_build_status.py
       - name: Validate Terraform when installed
         run: |
           if command -v terraform >/dev/null 2>&1; then
