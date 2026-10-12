@@ -70,4 +70,6 @@ extern "C" const chimera_boot_module* chimera_multiboot_find(uint32_t kind){
   if(modules[i].kind==kind)return &modules[i];
  return 0;
 }
-\nextern "C" const char* chimera_multiboot_kernel_cmdline(void){return kernel_cmdline;}\nextern "C" uint32_t chimera_multiboot_diagnostics_mode(void){return diagnostics_mode;}\n
+
+extern "C" const char* chimera_multiboot_kernel_cmdline(void){return kernel_cmdline;}
+extern "C" uint32_t chimera_multiboot_diagnostics_mode(void){return diagnostics_mode;}
