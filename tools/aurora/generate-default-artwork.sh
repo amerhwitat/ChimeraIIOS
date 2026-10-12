@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# --- Chimera II OS standard help ---
+# --- OctavianOS standard help ---
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
-Chimera II OS script: tools/aurora/generate-default-artwork.sh
+OctavianOS script: tools/aurora/generate-default-artwork.sh
 
 Usage:
   tools/aurora/generate-default-artwork.sh [options] [arguments]
@@ -12,7 +12,7 @@ Options:
   -h, --help    Show this help and exit successfully.
 
 Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
+  This help entry is provided consistently across OctavianOS shell tools.
   The script's existing command-line interface and environment variables remain unchanged.
 CHIMERA_HELP
   exit 0
@@ -40,15 +40,15 @@ write_svg() {
 </svg>
 EOF
 }
-write_svg aurora-boot "CHIMERA II OS" "AURORA BOOT" "#62e8ff"
-write_svg aurora-splash "CHIMERA II OS" "AURORA INITIALIZING" "#76f3d0"
-write_svg aurora-menu "CHIMERA II OS" "AURORA BOOT MENU" "#a6b8ff"
-write_svg aurora-installer "CHIMERA II OS" "AURORA INSTALLER" "#ffcf70"
-write_svg aurora-recovery "CHIMERA II OS" "AURORA RECOVERY" "#ff8fa3"
-write_svg aurora-diagnostics "CHIMERA II OS" "AURORA DIAGNOSTICS" "#d3a7ff"
-write_svg aurora-live "CHIMERA II OS" "AURORA LIVE ENVIRONMENT" "#70eaff"
-write_svg aurora-mobile "CHIMERA II OS" "AURORA MOBILE EDITION" "#75e6a5"
-write_svg aurora-desktop "CHIMERA II OS" "AURORA DESKTOP" "#68dfff"
+write_svg aurora-boot "OCTAVIANOS" "AURORA BOOT" "#62e8ff"
+write_svg aurora-splash "OCTAVIANOS" "AURORA INITIALIZING" "#76f3d0"
+write_svg aurora-menu "OCTAVIANOS" "AURORA BOOT MENU" "#a6b8ff"
+write_svg aurora-installer "OCTAVIANOS" "AURORA INSTALLER" "#ffcf70"
+write_svg aurora-recovery "OCTAVIANOS" "AURORA RECOVERY" "#ff8fa3"
+write_svg aurora-diagnostics "OCTAVIANOS" "AURORA DIAGNOSTICS" "#d3a7ff"
+write_svg aurora-live "OCTAVIANOS" "AURORA LIVE ENVIRONMENT" "#70eaff"
+write_svg aurora-mobile "OCTAVIANOS" "AURORA MOBILE EDITION" "#75e6a5"
+write_svg aurora-desktop "OCTAVIANOS" "AURORA DESKTOP" "#68dfff"
 cat > "$OUT/manifest.json" <<EOF
 {"schema":"CHIMERA-AURORA-ARTWORK-1","generated":true,"resolution":"1920x1080","assets":["aurora-boot.svg","aurora-splash.svg","aurora-menu.svg","aurora-installer.svg","aurora-recovery.svg","aurora-diagnostics.svg","aurora-live.svg","aurora-mobile.svg","aurora-desktop.svg"]}
 EOF
