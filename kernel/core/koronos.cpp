@@ -381,7 +381,8 @@ static void koronos_submit_bootstrap_tasks() {
     int b = chimera_sched_submit(task_modules, 0, 90);
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
-    int r = chimera_sched_submit(task_recovery, 0, 80);\n    int e = chimera_sched_submit(task_kore, 0, 95);
+    int r = chimera_sched_submit(task_recovery, 0, 80);
+    int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
     console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
