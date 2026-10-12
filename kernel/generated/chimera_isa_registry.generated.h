@@ -66,7 +66,7 @@ static const chimera_isa_entry CHIMERA_ISA_REGISTRY[] = {
   {"Power ISA","powerpc","SUBF","0x7C642850","11111100000000000000011111111110","register, register, register","subf r3,r4,r5 [rrr]",32},
   {"Power ISA","powerpc","OR","0x7C642B78","11111100000000000000011111111110","register, register, register","or r3,r4,r5 [rrr]",32},
   {"Power ISA","powerpc","XOR","0x7C642278","11111100000000000000011111111110","register, register, register","xor r3,r4,r5 [rrr]",32},
-  {"Power ISA","powerpc","ADDI","0x38830001","11111100000000000000000000000000","register, register, immediate","addi r3,r4,1 [ri]",32},
+  {"Power ISA","powerpc","ADDI","0x38640001","11111100000000000000000000000000","register, register, immediate","addi r3,r4,1 [ri]",32},
   {"Power ISA","powerpc","LWZ","0x80640000","11111100000000000000000000000000","register, memory","lwz r3,0(r4) [mem]",32},
   {"Power ISA","powerpc","STW","0x90640000","11111100000000000000000000000000","register, memory","stw r3,0(r4) [mem]",32},
   {"Power ISA","powerpc","B","0x48000000","11111100000000000000000000000011","branch-offset","b 0 [imm]",32},
@@ -156,5 +156,12 @@ static const chimera_isa_entry CHIMERA_ISA_REGISTRY[] = {
   {"AArch32/T32","arm32-thumb","NOP","0xBF00","1111111111111111","implicit","NOP [thumb16]",16},
   {"AArch32/T32","arm32-thumb","MOVS","0x2000","1111100000000000","register, immediate","MOVS r0,#0 [thumb16-imm8]",16},
   {"AArch32/T32","arm32-thumb","BX","0x4770","1111111110000111","register","BX r14 [thumb16-reg]",16},
+  {"RISC-V","riscv32","ADD","0x003100B3","11111110000000000111000001111111","register, register, register","ADD x1,x2,x3 [rrr]",32},
+  {"RISC-V","riscv32","ADDI","0x00510093","00000000000000000111000001111111","register, register, immediate","ADDI x1,x2,5 [ri]",32},
+  {"RISC-V","riscv32","LW","0x00812083","00000000000000000111000001111111","register, memory","LW x1,8(x2) [load]",32},
+  {"RISC-V","riscv32","SW","0x00312423","00000000000000000111000001111111","register, memory","SW x3,8(x2) [store]",32},
+  {"RISC-V","riscv32","BEQ","0x00208463","00000000000000000111000001111111","register, register, branch-offset","BEQ x1,x2,8 [branch]",32},
+  {"RISC-V","riscv32","FENCE","0x0000000F","00000000000000000111000001111111","memory","FENCE [fence]",32},
+  {"Z80","z80","LD","0x78","11111111","register, register","LD A,B [rr]",8},
 };
 static const uint32_t CHIMERA_ISA_REGISTRY_COUNT = sizeof(CHIMERA_ISA_REGISTRY)/sizeof(CHIMERA_ISA_REGISTRY[0]);

@@ -1,7 +1,7 @@
 {
   "schema": "CHM-ISA-ENCODING-REGISTRY-2",
   "scope": "Encoding templates are canonical bit patterns with masks; worked samples are exact operand examples. Neither list implies exhaustive ISA/backend support.",
-  "template_count": 154,
+  "template_count": 161,
   "sample_count": 54,
   "encoding_templates": [
     {
@@ -1123,8 +1123,8 @@
       ],
       "syntax": "addi r3,r4,1",
       "bits": 32,
-      "binary": "00111000100000110000000000000001",
-      "hex": "0x38830001",
+      "binary": "00111000011001000000000000000001",
+      "hex": "0x38640001",
       "mask_binary": "11111100000000000000000000000000",
       "mask_hex": "0xFC000000",
       "encoding_kind": "canonical-pattern-with-variable-fields"
@@ -2608,6 +2608,127 @@
       "hex": "0x4770",
       "mask_binary": "1111111110000111",
       "mask_hex": "0xFF87",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv32",
+      "family": "RISC-V",
+      "mnemonic": "ADD",
+      "form": "rrr",
+      "operands": [
+        "register",
+        "register",
+        "register"
+      ],
+      "syntax": "ADD x1,x2,x3",
+      "bits": 32,
+      "binary": "00000000001100010000000010110011",
+      "hex": "0x003100B3",
+      "mask_binary": "11111110000000000111000001111111",
+      "mask_hex": "0xFE00707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv32",
+      "family": "RISC-V",
+      "mnemonic": "ADDI",
+      "form": "ri",
+      "operands": [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "syntax": "ADDI x1,x2,5",
+      "bits": 32,
+      "binary": "00000000010100010000000010010011",
+      "hex": "0x00510093",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv32",
+      "family": "RISC-V",
+      "mnemonic": "LW",
+      "form": "load",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "LW x1,8(x2)",
+      "bits": 32,
+      "binary": "00000000100000010010000010000011",
+      "hex": "0x00812083",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv32",
+      "family": "RISC-V",
+      "mnemonic": "SW",
+      "form": "store",
+      "operands": [
+        "register",
+        "memory"
+      ],
+      "syntax": "SW x3,8(x2)",
+      "bits": 32,
+      "binary": "00000000001100010010010000100011",
+      "hex": "0x00312423",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv32",
+      "family": "RISC-V",
+      "mnemonic": "BEQ",
+      "form": "branch",
+      "operands": [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "syntax": "BEQ x1,x2,8",
+      "bits": 32,
+      "binary": "00000000001000001000010001100011",
+      "hex": "0x00208463",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "riscv32",
+      "family": "RISC-V",
+      "mnemonic": "FENCE",
+      "form": "fence",
+      "operands": [
+        "memory"
+      ],
+      "syntax": "FENCE",
+      "bits": 32,
+      "binary": "00000000000000000000000000001111",
+      "hex": "0x0000000F",
+      "mask_binary": "00000000000000000111000001111111",
+      "mask_hex": "0x0000707F",
+      "encoding_kind": "canonical-pattern-with-variable-fields"
+    },
+    {
+      "architecture": "z80",
+      "family": "Z80",
+      "mnemonic": "LD",
+      "form": "rr",
+      "operands": [
+        "register",
+        "register"
+      ],
+      "syntax": "LD A,B",
+      "bits": 8,
+      "binary": "01111000",
+      "hex": "0x78",
+      "mask_binary": "11111111",
+      "mask_hex": "0xFF",
       "encoding_kind": "canonical-pattern-with-variable-fields"
     }
   ],

@@ -51,3 +51,61 @@ def test_sources_are_recorded():
     for source in data["sources"]:
         assert source["url"].startswith("https://")
         assert source["scope"]
+
+
+DATABASE = ROOT / "isa" / "isa_database.json"
+
+
+def test_universal_database_instruction_candidates_have_effect_and_implementation_plans():
+    data = json.loads(DATABASE.read_text(encoding="utf-8"))
+    source_ids = {source["id"] for source in data["sources"]}
+    candidates = [
+        item for item in data["execution_model"]["execution_candidates"]
+        if item.get("kind") == "instruction-candidate"
+    ]
+    assert candidates
+    for item in candidates:
+        assert item["source_ref"] in source_ids, item["id"]
+        assert item["encoding_hex_template"].startswith("0x"), item["id"]
+        assert item["affected_registers_model"]["reads"]
+        assert item["affected_registers_model"]["writes"]
+        assert item["flags_effect_model"]["affected"]
+        assert item["memory_effect_model"]["class"]
+        plan = item["best_implementation"]
+        assert plan["recommended_strategy"]
+        assert plan["native_mode"] and plan["compatibility_mode"] and plan["n_bit_mode"]
+        assert plan["validation_gate"]
+        assert plan["status"] == "recommendation-only; implementation and conformance unverified"
+        if "exact_example" in item:
+            example = item["exact_example"]
+            assert len(example["binary_bits"]) == example["length_bits"]
+            assert int(example["hex_word"], 16) == int(example["binary_bits"], 2)
+
+
+
+def test_instruction_inventory_coverage_reports_gaps_without_claiming_exhaustiveness():
+    data = json.loads(DATABASE.read_text(encoding="utf-8"))
+    report = data["instruction_inventory_coverage"]
+    assert report["canonical_architecture_rows"] == len(data["architectures"])
+    assert report["architecture_identifier_count"] == len(report["architectures"])
+    assert report["architectures_with_catalog_forms"] == sum(
+        row["catalog_instruction_rows"] > 0 for row in report["architectures"]
+    )
+    assert report["architectures_with_instruction_candidates"] == sum(
+        row["instruction_candidate_rows"] > 0 for row in report["architectures"]
+    )
+    assert report["architectures_without_catalog_forms"]
+    assert "not proof" in report["policy"]
+
+def test_worked_encoding_samples_have_consistent_binary_hex_and_register_effects():
+    data = json.loads(DATABASE.read_text(encoding="utf-8"))
+    source_ids = {source["id"] for source in data["sources"]}
+    assert len(data["verified_encoding_samples"]) >= 20
+    for sample in data["verified_encoding_samples"]:
+        assert sample["source_ref"] in source_ids, sample
+        bits = sample["binary_bits"]
+        assert len(bits) == sample["length_bits"]
+        assert re.fullmatch(r"[01]+", bits)
+        assert int(sample["hex_word"], 16) == int(bits, 2)
+        assert "affected_registers" in sample
+        assert "status" in sample["chimera_nbit_mapping"]
