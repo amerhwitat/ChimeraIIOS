@@ -80,6 +80,7 @@ jobs:
       - name: Validate platform registries
         run: |
           python3 -m json.tool repositories/platform-manifest.json >/dev/null
+          python3 tools/validation/validate_capability_status.py
           python3 -m json.tool repositories/portfolio-integration.json >/dev/null
           python3 -m json.tool repositories/reference-document-import.json >/dev/null
           python3 -m json.tool repositories/isa-sources.json >/dev/null
@@ -102,6 +103,12 @@ jobs:
           python3 -m json.tool toolchains/cpp/ides.json >/dev/null
           python3 -m json.tool toolchains/cpp/debuggers.json >/dev/null
           for p in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$p"; done
+      - name: Configure Java 25 for portfolio Maven projects
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
       - name: Recursively acquire, compile and stage Amer Hwitat portfolio
         run: |
           rm -rf boot/iso/portfolio-build
