@@ -98,7 +98,7 @@ def main():
         try:
             body=get(RAW_ROOT.format(revision=revision)+path,args.timeout)
             digest=hashlib.sha256(body).hexdigest()
-            rows.extend(parse_file(body.decode("utf-8",errors="replace"),path,digest))
+            rows.extend(parse_file(body.decode("utf-8",errors="replace"),path,digest,revision))
         except (OSError,urllib.error.URLError,TimeoutError,UnicodeError) as e:
             failures.append({"path":path,"error":str(e)})
     unique={}
