@@ -52,7 +52,7 @@ convert_svg() {
   printf '[WARN] No SVG rasterizer available; retaining SVG fallback: %s\\n' "$src" >&2
   return 1
 }
-"$ROOT/tools/aurora/generate-default-artwork.sh" "$DEFAULTS"
+bash "$ROOT/tools/aurora/generate-default-artwork.sh" "$DEFAULTS"
 
 # Prefer supplied/Library artwork; otherwise use deterministic generated artwork.
 copy_first backgrounds/boot.jpg   "$LIB/Aurora Wayland Desktop - boot background.jpg"   "$ROOT/boot/jasper/background.jpg" || convert_svg "$DEFAULTS/aurora-boot.svg" "$OUT/backgrounds/boot.png"
@@ -148,7 +148,7 @@ for spec in \
   }
 done
 
-"$ROOT/tools/generate-aurora-media.sh" "$OUT"
+bash "$ROOT/tools/generate-aurora-media.sh" "$OUT"
 
 cat > "$OUT/progress/stages.json" <<'EOF'
 {"schema":"CHIMERA-AURORA-PROGRESS-2","visual_contract":"aurora-progress-v2","stages":[
