@@ -28,10 +28,20 @@
       "status": "conformance-tested",
       "scope": "host-side build pipeline",
       "evidence": [
-        {"kind": "workflow", "ref": ".github/workflows/build-chimera-iso.yml", "claim": "CI workflow completed successfully on the revision under test"},
-        {"kind": "script", "ref": "build-chimera-iso.sh", "claim": "builder validates El Torito BIOS/UEFI entries and required staged files"}
+        {
+          "kind": "workflow",
+          "ref": ".github/workflows/chimera-full-iso.yml",
+          "claim": "CI workflow completed successfully on the revision under test"
+        },
+        {
+          "kind": "script",
+          "ref": "build-chimera-iso.sh",
+          "claim": "builder validates El Torito BIOS/UEFI entries and required staged files"
+        }
       ],
-      "limits": ["structural verification does not by itself prove a successful interactive userspace session"]
+      "limits": [
+        "structural verification does not by itself prove a successful interactive userspace session"
+      ]
     },
     {
       "id": "koronos-boot",
@@ -39,9 +49,15 @@
       "status": "booted",
       "scope": "CI emulator target only",
       "evidence": [
-        {"kind": "workflow", "ref": ".github/workflows/koronos-qemu.yml", "claim": "QEMU boot matrix is the boot evidence source"}
+        {
+          "kind": "workflow",
+          "ref": ".github/workflows/koronos-boot-matrix.yml",
+          "claim": "QEMU boot matrix is the boot evidence source"
+        }
       ],
-      "limits": ["CI emulator success does not prove all physical platforms boot"]
+      "limits": [
+        "CI emulator success does not prove all physical platforms boot"
+      ]
     },
     {
       "id": "live-userspace",
@@ -49,9 +65,15 @@
       "status": "partial",
       "scope": "live image / desktop",
       "evidence": [
-        {"kind": "workflow", "ref": ".github/workflows/aurora-runtime.yml", "claim": "Aurora runtime contract checks"}
+        {
+          "kind": "workflow",
+          "ref": ".github/workflows/aurora-runtime-ci.yml",
+          "claim": "Aurora runtime contract checks"
+        }
       ],
-      "limits": ["do not promote to userspace-ready until the booted ISO demonstrates shell, service manager, storage and Aurora interaction end-to-end"]
+      "limits": [
+        "do not promote to userspace-ready until the booted ISO demonstrates shell, service manager, storage and Aurora interaction end-to-end"
+      ]
     },
     {
       "id": "native-vfs-syscalls",
@@ -59,9 +81,15 @@
       "status": "partial",
       "scope": "native kernel",
       "evidence": [
-        {"kind": "source", "ref": "kernel", "claim": "kernel source tree is the implementation area"}
+        {
+          "kind": "source",
+          "ref": "kernel",
+          "claim": "kernel source tree is the implementation area"
+        }
       ],
-      "limits": ["hosted POSIX-shaped adapters are not native VFS syscalls"]
+      "limits": [
+        "hosted POSIX-shaped adapters are not native VFS syscalls"
+      ]
     },
     {
       "id": "foreign-os-apis",
@@ -69,9 +97,15 @@
       "status": "partial",
       "scope": "compatibility runtime",
       "evidence": [
-        {"kind": "document", "ref": "docs/programming-models.md", "claim": "SDK programming-model boundary and remaining gaps"}
+        {
+          "kind": "document",
+          "ref": "docs/programming-models.md",
+          "claim": "SDK programming-model boundary and remaining gaps"
+        }
       ],
-      "limits": ["catalog entries and API-shaped adapters are not complete OS ABI implementations"]
+      "limits": [
+        "catalog entries and API-shaped adapters are not complete OS ABI implementations"
+      ]
     },
     {
       "id": "objective-c-toolchain",
@@ -79,9 +113,15 @@
       "status": "compiled",
       "scope": "hosted Clang cross-compile object output",
       "evidence": [
-        {"kind": "workflow", "ref": ".github/workflows/chimera-sdk.yml", "claim": "CI compiles architecture-specific Objective-C object files"}
+        {
+          "kind": "workflow",
+          "ref": ".github/workflows/chimera-sdk.yml",
+          "claim": "CI compiles architecture-specific Objective-C object files"
+        }
       ],
-      "limits": ["object compilation does not prove macOS linking, frameworks, execution or Apple ABI compatibility"]
+      "limits": [
+        "object compilation does not prove macOS linking, frameworks, execution or Apple ABI compatibility"
+      ]
     },
     {
       "id": "dotnet-runtime",
@@ -89,9 +129,15 @@
       "status": "partial",
       "scope": "toolchain driver and managed SDK",
       "evidence": [
-        {"kind": "workflow", "ref": ".github/workflows/chimera-sdk.yml", "claim": "SDK CI builds the managed project using installed .NET"}
+        {
+          "kind": "workflow",
+          "ref": ".github/workflows/chimera-sdk.yml",
+          "claim": "SDK CI builds the managed project using installed .NET"
+        }
       ],
-      "limits": ["this is not a native Chimera CLR/JIT port and does not mean the runtime is installed in the ISO"]
+      "limits": [
+        "this is not a native Chimera CLR/JIT port and does not mean the runtime is installed in the ISO"
+      ]
     },
     {
       "id": "apple-hardware",
@@ -99,9 +145,15 @@
       "status": "planned",
       "scope": "cross-target metadata only",
       "evidence": [
-        {"kind": "registry", "ref": "config/compatibility/apple-cpu-targets.json", "claim": "target triples and validation gates"}
+        {
+          "kind": "registry",
+          "ref": "config/compatibility/apple-cpu-targets.json",
+          "claim": "target triples and validation gates"
+        }
       ],
-      "limits": ["target metadata is not proof of boot, platform drivers or macOS application compatibility"]
+      "limits": [
+        "target metadata is not proof of boot, platform drivers or macOS application compatibility"
+      ]
     },
     {
       "id": "real-smp",
@@ -109,7 +161,9 @@
       "status": "not-verified",
       "scope": "kernel scheduler and CPU bring-up",
       "evidence": [],
-      "limits": ["sequential simulation, multiple virtual CPU labels or scheduler unit tests do not establish SMP; require parallel execution on two or more CPUs, AP bring-up evidence, synchronization tests and stress/conformance results"]
+      "limits": [
+        "sequential simulation, multiple virtual CPU labels or scheduler unit tests do not establish SMP; require parallel execution on two or more CPUs, AP bring-up evidence, synchronization tests and stress/conformance results"
+      ]
     },
     {
       "id": "r8192-virtual-architecture",
@@ -117,16 +171,46 @@
       "status": "partial",
       "scope": "host-side runtime model",
       "evidence": [
-        {"kind": "document", "ref": "docs/CHIMERA_II_ARCHITECTURE.md", "claim": "architecture and implementation boundaries"}
+        {
+          "kind": "document",
+          "ref": "docs/CHIMERA_II_ARCHITECTURE.md",
+          "claim": "architecture and implementation boundaries"
+        }
       ],
-      "limits": ["virtual register lanes and simulation are not dedicated 8192-bit silicon"]
+      "limits": [
+        "virtual register lanes and simulation are not dedicated 8192-bit silicon"
+      ]
     }
   ],
   "promotion_rules": {
-    "compiled": ["reproducible build command", "successful compiler exit", "artifact path or CI artifact evidence"],
-    "booted": ["specific image or target identity", "emulator/hardware log", "expected boot milestone"],
-    "userspace-ready": ["booted evidence", "shell and service readiness", "storage and network checks where claimed", "Aurora interaction check where claimed"],
-    "conformance-tested": ["named test suite", "expected results", "recorded revision", "no skipped required cases"],
-    "real-smp": ["at least two independently running CPUs", "AP startup evidence", "concurrent execution test", "inter-CPU synchronization/IPI test", "stress test"]
+    "compiled": [
+      "reproducible build command",
+      "successful compiler exit",
+      "artifact path or CI artifact evidence"
+    ],
+    "booted": [
+      "specific image or target identity",
+      "emulator/hardware log",
+      "expected boot milestone"
+    ],
+    "userspace-ready": [
+      "booted evidence",
+      "shell and service readiness",
+      "storage and network checks where claimed",
+      "Aurora interaction check where claimed"
+    ],
+    "conformance-tested": [
+      "named test suite",
+      "expected results",
+      "recorded revision",
+      "no skipped required cases"
+    ],
+    "real-smp": [
+      "at least two independently running CPUs",
+      "AP startup evidence",
+      "concurrent execution test",
+      "inter-CPU synchronization/IPI test",
+      "stress test"
+    ]
   }
 }
