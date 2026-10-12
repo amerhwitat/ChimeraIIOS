@@ -1,6 +1,7 @@
 #include "chimera/file.h"
 
 #include <cerrno>
+#include <climits>
 #ifdef _WIN32
 #  include <io.h>
 #  include <fcntl.h>
