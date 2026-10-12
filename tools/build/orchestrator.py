@@ -88,7 +88,7 @@ def clean(build: Path):
     print(f"[chimera] removed {build}"); return 0
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Chimera II OS unified build/install automation")
-    ap.add_argument("command", choices=["doctor", "deps", "configure", "build", "test", "package", "install", "clean", "all"]); ap.add_argument("--build-dir", default=str(ROOT / "build")); ap.add_argument("--generator"); ap.add_argument("--jobs", type=int); ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("command", choices=["doctor", "deps", "configure", "build", "test", "package", "install", "clean", "validate-status", "all"]); ap.add_argument("--build-dir", default=str(ROOT / "build")); ap.add_argument("--generator"); ap.add_argument("--jobs", type=int); ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv); build = Path(args.build_dir).resolve()
     if args.command == "doctor": return doctor()
     if args.command == "deps": return install_deps(args.dry_run)
