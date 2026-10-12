@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# --- Chimera II OS standard help ---
+# --- OctavianOS standard help ---
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
-Chimera II OS script: tools/aurora/build-visual-assets.sh
+OctavianOS script: tools/aurora/build-visual-assets.sh
 
 Usage:
   tools/aurora/build-visual-assets.sh [options] [arguments]
@@ -12,7 +12,7 @@ Options:
   -h, --help    Show this help and exit successfully.
 
 Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
+  This help entry is provided consistently across OctavianOS shell tools.
   The script's existing command-line interface and environment variables remain unchanged.
 CHIMERA_HELP
   exit 0
@@ -129,10 +129,10 @@ with open(out, "wb") as fh:
     fh.write(png)
 PY
 }
-generate_png_fallback "$OUT/backgrounds/boot.png" "CHIMERA II OS" "AURORA BOOT"
-generate_png_fallback "$OUT/backgrounds/desktop.png" "CHIMERA II OS" "AURORA DESKTOP"
-generate_png_fallback "$OUT/backgrounds/showcase.png" "CHIMERA II OS" "AURORA SHOWCASE"
-generate_png_fallback "$OUT/menus/default.png" "CHIMERA II OS" "AURORA BOOT MENU"
+generate_png_fallback "$OUT/backgrounds/boot.png" "OCTAVIANOS" "AURORA BOOT"
+generate_png_fallback "$OUT/backgrounds/desktop.png" "OCTAVIANOS" "AURORA DESKTOP"
+generate_png_fallback "$OUT/backgrounds/showcase.png" "OCTAVIANOS" "AURORA SHOWCASE"
+generate_png_fallback "$OUT/menus/default.png" "OCTAVIANOS" "AURORA BOOT MENU"
 
 for spec in \
   "splash/aurora-splash.png aurora-splash.svg" \
@@ -144,7 +144,7 @@ for spec in \
   set -- $spec
   convert_svg "$DEFAULTS/$2" "$OUT/$1" || {
     printf '[WARN] SVG rasterization unavailable for %s; generating deterministic PNG fallback.\\n' "$2" >&2
-    generate_png_fallback "$OUT/$1" "CHIMERA II OS" "$(basename "$2" .svg | tr '-' ' ' | tr '[:lower:]' '[:upper:]')"
+    generate_png_fallback "$OUT/$1" "OCTAVIANOS" "$(basename "$2" .svg | tr '-' ' ' | tr '[:lower:]' '[:upper:]')"
   }
 done
 
@@ -164,7 +164,7 @@ cat > "$OUT/progress/stages.json" <<'EOF'
 {"id":"ready","percent":100,"en":"Desktop ready","ar":"سطح المكتب جاهز"}]}
 EOF
 cat > "$OUT/progress/state.json" <<'EOF'
-{"percent":0,"stage":"firmware","message_en":"Starting Chimera II OS","message_ar":"بدء تشغيل Chimera II OS"}
+{"percent":0,"stage":"firmware","message_en":"Starting OctavianOS","message_ar":"بدء تشغيل OctavianOS"}
 EOF
 cat > "$OUT/progress/style.json" <<'EOF'
 {"schema":"CHIMERA-AURORA-PROGRESS-2","style":"glass-neon","height_px":14,"radius_px":7,"track_alpha":0.24,"fill_alpha":0.94,"glow":true,"indeterminate":false,"show_percent":true,"show_stage":true,"bilingual":true,"animation_ms":420}

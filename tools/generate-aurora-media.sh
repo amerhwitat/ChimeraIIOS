@@ -4,10 +4,10 @@
 
 # Always execute it with Bash; never invoke it through /bin/sh.
 
-# --- Chimera II OS standard help ---
+# --- OctavianOS standard help ---
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
-Chimera II OS script: tools/generate-aurora-media.sh
+OctavianOS script: tools/generate-aurora-media.sh
 
 Usage:
   tools/generate-aurora-media.sh [options] [arguments]
@@ -16,7 +16,7 @@ Options:
   -h, --help    Show this help and exit successfully.
 
 Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
+  This help entry is provided consistently across OctavianOS shell tools.
   The script's existing command-line interface and environment variables remain unchanged.
 CHIMERA_HELP
   exit 0
@@ -84,7 +84,7 @@ fi
 if [ ! -s "$OUT/Init.mp4" ] && [ -n "$BG" ] && [ -f "$BG" ] && command -v ffmpeg >/dev/null 2>&1; then
   echo "[INFO] Generating Aurora Init.mp4 from: $BG"
   ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 12 \
-    -vf "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,format=yuv420p,drawtext=fontcolor=white:fontsize=42:text='CHIMERA II OS':x=(w-text_w)/2:y=270,drawtext=fontcolor=white:fontsize=22:text='AURORA INITIALIZING':x=(w-text_w)/2:y=325,drawbox=x=340:y=390:w=600:h=12:color=white@0.22:t=fill,drawbox=x=340:y=390:w='600*t/12':h=12:color=white@0.9:t=fill" \
+    -vf "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,format=yuv420p,drawtext=fontcolor=white:fontsize=42:text='OCTAVIANOS':x=(w-text_w)/2:y=270,drawtext=fontcolor=white:fontsize=22:text='AURORA INITIALIZING':x=(w-text_w)/2:y=325,drawbox=x=340:y=390:w=600:h=12:color=white@0.22:t=fill,drawbox=x=340:y=390:w='600*t/12':h=12:color=white@0.9:t=fill" \
     -r 30 -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p -movflags +faststart "$OUT/Init.mp4"
 fi
 
@@ -111,7 +111,7 @@ EOF
 fi
 
 cat > "$OUT/progress/state.json" <<'EOF'
-{"percent":0,"stage":"firmware","message_en":"Starting Chimera II OS","message_ar":"بدء تشغيل Chimera II OS"}
+{"percent":0,"stage":"firmware","message_en":"Starting OctavianOS","message_ar":"بدء تشغيل OctavianOS"}
 EOF
 
 if [ ! -s "$OUT/Init.mp4" ]; then

@@ -14,7 +14,7 @@
 <g opacity=".95" fill="#fff"><circle cx="420" cy="330" r="4"/><circle cx="780" cy="520" r="3"/><circle cx="1180" cy="250" r="5"/><circle cx="2840" cy="310" r="4"/><circle cx="3290" cy="570" r="3"/><circle cx="3540" cy="260" r="5"/></g>
 <g transform="translate(250 260)">
  <path d="M0 420 L260 0 L520 420 L390 420 L260 210 L130 420Z" fill="none" stroke="#9fe8ff" stroke-width="30" opacity=".9"/>
- <text x="600" y="190" font-family="sans-serif" font-size="112" letter-spacing="10" fill="#f4fbff">CHIMERA II OS</text>
+ <text x="600" y="190" font-family="sans-serif" font-size="112" letter-spacing="10" fill="#f4fbff">OCTAVIANOS</text>
  <text x="605" y="300" font-family="sans-serif" font-size="52" letter-spacing="7" fill="#a9c8ff">AURORA WAYLAND GLASS</text>
 </g>
 <g transform="translate(3230 1480)"><circle cx="0" cy="0" r="86" fill="none" stroke="#172945" stroke-width="18"/><path d="M0 -86 A86 86 0 0 1 61 61" fill="none" stroke="#4fe8ff" stroke-width="18" stroke-linecap="round"/><circle cx="0" cy="0" r="16" fill="#bdefff"/></g>
@@ -22,5 +22,5 @@
  <text x="90" y="105" font-family="sans-serif" font-size="44" fill="#d9f6ff">KORONOS BOOT • UNIVERSAL EXECUTION • AURORA</text>
  <text x="90" y="180" font-family="sans-serif" font-size="34" fill="#9eb7d6">Hardware discovery and secure kernel handoff</text>
  <rect x="90" y="235" width="3160" height="28" rx="14" fill="#172945"/><rect x="90" y="235" width="1850" height="28" rx="14" fill="#4fe8ff"/>
- <text x="90" y="305" font-family="monospace" font-size="28" fill="#bdefff">Loading Chimera II OS…</text>
+ <text x="90" y="305" font-family="monospace" font-size="28" fill="#bdefff">Loading OctavianOS…</text>
 </g></svg>

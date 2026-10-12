@@ -2,11 +2,13 @@
 
 The initial cross-repository Java audit, parity rules, and phased conversion plan are tracked in [docs/JAVA_PORTFOLIO_MIGRATION.md](docs/JAVA_PORTFOLIO_MIGRATION.md). The migration preserves freestanding boot/kernel boundaries and does not claim untested ports are complete.
 
-# Chimera II OS
+# OctavianOS
+
+> **Project rename in progress:** OctavianOS is the new product identity for the system previously named Chimera II OS. This README and migration plan establish the new name; the repository URL, source identifiers, generated artifacts, boot labels, package names, and external integrations are not yet fully migrated. Do not treat this identity change as a completed repository-wide rename.
 
 > **Verification policy:** documented, cataloged, compiled, booted, userspace-ready, conformance-tested, and SMP-verified are distinct evidence levels. See [the verification evidence contract](docs/VERIFICATION_EVIDENCE_CONTRACT.md); do not infer a higher level from a lower one.
 
-Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
+OctavianOS is a cross-language research operating-system and application platform, evolved from the Chimera II OS codebase centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
 
 ## Hosted Edition (64-bit Windows / Linux / Unix / macOS)
 
