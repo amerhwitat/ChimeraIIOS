@@ -34,8 +34,10 @@ def recommend(db: dict[str, Any], hardware: dict[str, Any]) -> dict[str, Any]:
         "aarch64": "aarch64", "arm64": "aarch64", "armv7l": "arm32",
         "riscv64": "riscv64", "riscv32": "riscv32",
     }
-    canonical = aliases.get(detected, detected)
-    known_ids = {a["id"] for a in archs}
+    known_ids = {str(a["id"]).lower() for a in archs}
+    canonical = aliases.get(detected)
+    if canonical is None and detected in known_ids:
+        canonical = detected
     exact = next((a for a in archs if a["id"].lower() == canonical), None)
     evidence = []
     if exact:
