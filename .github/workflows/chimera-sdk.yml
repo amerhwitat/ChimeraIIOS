@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - "sdk/**"
+      - "tools/chimera-toolchain/**"
+      - "config/aurora/toolchain-install-profiles.json"
+      - "config/compatibility/apple-cpu-targets.json"
+      - "desktop/aurora/aurora_settings_registry.json"
       - "CMakeLists.txt"
       - ".github/workflows/chimera-sdk.yml"
   push:
@@ -26,6 +30,19 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake gcc g++ clang python3 openjdk-21-jdk
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Validate C# driver and managed SDK project
+        run: |
+          sh -n tools/chimera-toolchain/chimera-csharp
+          sh tools/chimera-toolchain/chimera-csharp --version
+          dotnet build sdk/csharp/Chimera.Sdk.csproj --configuration Release --no-restore || dotnet build sdk/csharp/Chimera.Sdk.csproj --configuration Release
+          python3 -m json.tool tools/chimera-toolchain/languages.json >/dev/null
+          python3 -m json.tool config/compatibility/apple-cpu-targets.json >/dev/null
+          python3 -m json.tool config/aurora/toolchain-install-profiles.json >/dev/null
+          python3 -m json.tool desktop/aurora/aurora_settings_registry.json >/dev/null
       - name: Configure
         run: cmake -S . -B build/sdk -DCMAKE_BUILD_TYPE=Release
       - name: Build SDK
