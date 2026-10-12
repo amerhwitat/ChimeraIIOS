@@ -114,6 +114,8 @@ STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+BUILD_DOCKER=1
+BUILD_ISO=1
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -388,7 +390,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs docker-publish boot installer branding apache features games squashfs iso verify report'; local ci ti
+  local order='docker rootfs commands docker-publish boot installer branding apache features games squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -495,7 +497,6 @@ export_rootfs(){
 
 
     log_info "STEP 2: exporting Docker rootfs"
-    chimera_export_docker_rootfs "$DOCKER_IMAGE:$DOCKER_TAG" "${ROOTFS_DIR}"
   # archive.  Extract it with delayed directory metadata restoration so
   # usr/local and deeply nested package trees are created before tar applies
   # their final permissions/timestamps.  This also avoids failures on WSL
@@ -558,13 +559,13 @@ create_boot_menu(){
   # Set CHIMERA_ISA_RESEARCH=0 to skip network discovery; offline indexing remains available.
   if [[ "${CHIMERA_ISA_RESEARCH:-1}" != "0" ]]; then
     if [[ ! -f "$SCRIPT_DIR/tools/isa/research_catalog.py" ]]; then
-      log_warn "ISA research script is missing; skipping optional research refresh. Update the checkout or restore tools/isa/research_catalog.py."
+      log_warning "ISA research script is missing; skipping optional research refresh. Update the checkout or restore tools/isa/research_catalog.py."
     elif command -v python3 >/dev/null 2>&1; then
       CHIMERA_ISA_RESEARCH_DEPTH="${CHIMERA_ISA_RESEARCH_DEPTH:-10}" CHIMERA_ISA_RESEARCH_PAGE_BUDGET="${CHIMERA_ISA_RESEARCH_PAGE_BUDGET:-80}" python3 "$SCRIPT_DIR/tools/isa/research_catalog.py" --depth "${CHIMERA_ISA_RESEARCH_DEPTH:-10}" --page-budget "${CHIMERA_ISA_RESEARCH_PAGE_BUDGET:-80}" 2>&1 | tee -a "$LOG_DIR/isa-research.log" || {
-        log_warn "Online ISA research failed; continuing boot build with existing registries."
+        log_warning "Online ISA research failed; continuing boot build with existing registries."
       }
     else
-      log_warn "python3 unavailable; skipping ISA research refresh."
+      log_warning "python3 unavailable; skipping ISA research refresh."
     fi
   else
     log_info "ISA research refresh skipped by CHIMERA_ISA_RESEARCH=0."
@@ -1268,6 +1269,21 @@ build_command_runtime(){
 }
 
 main(){
+  # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
+  if [[ "$BUILD_ISO" == 0 ]]; then
+    command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
+    run_stage docker build_docker
+    run_stage docker-publish push_docker_image
+    BUILD_SUCCEEDED=1
+    log_success "Docker-only pipeline completed."
+    return 0
+  fi
+  if [[ "$BUILD_DOCKER" == 0 ]]; then
+    docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 || {
+      log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
+      return 2
+    }
+  fi
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
@@ -1288,6 +1304,8 @@ main(){
   CURRENT_STAGE=""
   local completed="$(state_get)"
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+    if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
+    if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
