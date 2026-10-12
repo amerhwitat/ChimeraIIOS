@@ -24,6 +24,9 @@ RUN chmod +x /usr/local/bin/chimera-iso-builder tools/build/create-bootable-iso.
 RUN for script in \
     tools/build/create-bootable-iso.sh \
     tools/build-live-boot-binaries.sh \
+    tools/aurora/build-visual-assets.sh \
+    tools/aurora/generate-default-artwork.sh \
+    tools/generate-aurora-media.sh \
     boot/iso/build-iso.sh \
     boot/iso/prepare-layout.sh \
     boot/spitfire/build-spitfire.sh; do \
