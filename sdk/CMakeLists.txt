@@ -9,6 +9,7 @@ add_library(chimera_sdk STATIC
   src/chimera_sdk.cpp
   src/chimera_event.cpp
   src/chimera_file.cpp
+  src/chimera_win32_message.cpp
 )
 target_include_directories(chimera_sdk PUBLIC include)
 add_executable(chimera-sdk-config tools/chimera-sdk-config.cpp)
