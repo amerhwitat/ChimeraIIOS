@@ -16,6 +16,10 @@ This matrix records implementation targets without claiming that proprietary ope
 | IPC | ALPC/RPC patterns | pipes/sockets/shared memory | XPC/Mach-message patterns | capability IPC + shared rings |
 | Observability | ETW/performance counters | tracepoints/eBPF/perf | unified logging/instruments boundary | deterministic tracing + metrics |
 
+## Evidence status policy
+
+This matrix records targets and gaps, not completion claims. Each capability must use the evidence-backed statuses defined in [Implementation Evidence and Real SMP](IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md) and `docs/validation/capability-evidence.json`. Cataloged APIs, compiled adapters, and passing host tests must not be described as full foreign-OS compatibility without target-specific runtime and conformance evidence.
+
 ## Missing-work policy
 
 Each row is an adapter/interface target. Native Chimera implementation is added only where specifications and licensing permit. Proprietary internals are represented by clean-room behavioral contracts, compatibility shims, or external provider adapters.

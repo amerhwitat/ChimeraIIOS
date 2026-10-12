@@ -1,5 +1,7 @@
 # Chimera II OS Implementation Roadmap
 
+> **Capability maturity rule:** all roadmap completion statements must follow `docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md` and `docs/validation/capability-evidence.json`. Catalog entries are not executable implementations; compilation is not boot; boot is not userspace readiness; sequential CPU simulation is not genuine SMP. Genuine SMP stays unverified until its dedicated acceptance bundle passes.
+
 ## Status
 
 This roadmap is the execution baseline for the Computer Edition/Koronos and the separately isolated Mobile Microkernel edition. The project remains a research/engineering prototype: host validation and emulation are distinct from future bare-metal hardware targets.

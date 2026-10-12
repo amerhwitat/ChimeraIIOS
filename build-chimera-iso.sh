@@ -351,6 +351,8 @@ choose_storage(){
   log_success "Build storage switched to $best"
 }
 preflight(){
+  header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
+  python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
   header 'CPU / MEDIA PROFILE'
   log_info "Detected build-host CPU: $HOST_ARCH"
   log_info "Selected ISO target CPU: $TARGET_ARCH"
@@ -869,6 +871,13 @@ stage_features(){
   mkdir -p "$aurora_dir"
   if [[ -e "$aurora_config_dir" && ! -d "$aurora_config_dir" ]] || [[ -L "$aurora_config_dir" ]]; then rm -rf -- "$aurora_config_dir"; fi
   mkdir -p "$aurora_config_dir" "$ROOTFS_DIR/usr/share/chimera/docs"
+  # Stage the authoritative capability status and acceptance policy into both the ISO contract tree and installed rootfs.
+  mkdir -p "$ISO_DIR/chimera/docs/validation" "$ROOTFS_DIR/usr/share/chimera/docs/validation"
+  for f in docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md docs/validation/capability-evidence.json; do
+    [[ -f "$SCRIPT_DIR/$f" ]] || { log_error "Required capability documentation missing: $f"; return 1; }
+    cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/chimera/$f"
+    cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/$f"
+  done
   for f in config/aurora/desktop-parity.json config/aurora/emulators.json config/aurora/free-roms.json config/aurora/emulator-windows.json config/aurora/emulator-associations.json config/chimera/kernel-desktop-parity.json config/chimera/platform-feature-policy.json; do [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$aurora_config_dir/"; done
   [[ -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" ]] && cp -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" "$ROOTFS_DIR/usr/share/chimera/docs/"
   [[ -f "$SCRIPT_DIR/system/boot/chimera-log.conf" ]] && cp -f "$SCRIPT_DIR/system/boot/chimera-log.conf" "$ROOTFS_DIR/etc/chimera/" || true

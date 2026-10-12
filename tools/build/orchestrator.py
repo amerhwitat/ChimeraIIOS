@@ -22,6 +22,13 @@ def find_files(*patterns):
         for pattern in patterns:
             found.extend(Path(base) / f for f in files if fnmatch.fnmatch(f, pattern))
     return sorted(set(found))
+def validate_capability_status():
+    validator = ROOT / "tools" / "validation" / "validate_capability_status.py"
+    if not validator.is_file():
+        print("[chimera] ERROR: capability status validator is missing", file=sys.stderr)
+        return 2
+    return run([sys.executable, validator], root=ROOT)
+
 def doctor():
     tools = ["cmake", "ctest", "cpack", "python", "cargo", "rustc", "node", "npm", "java", "mvn", "gradle", "dotnet", "kotlinc", "swift", "dart", "nasm"]
     manifests = [str(p.relative_to(ROOT)) for p in find_files('Cargo.toml','package.json','pom.xml','build.gradle','build.gradle.kts','Package.swift','pubspec.yaml','*.csproj')]
@@ -88,9 +95,13 @@ def clean(build: Path):
     print(f"[chimera] removed {build}"); return 0
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Chimera II OS unified build/install automation")
-    ap.add_argument("command", choices=["doctor", "deps", "configure", "build", "test", "package", "install", "clean", "all"]); ap.add_argument("--build-dir", default=str(ROOT / "build")); ap.add_argument("--generator"); ap.add_argument("--jobs", type=int); ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("command", choices=["doctor", "deps", "configure", "build", "test", "package", "install", "clean", "validate-status", "all"]); ap.add_argument("--build-dir", default=str(ROOT / "build")); ap.add_argument("--generator"); ap.add_argument("--jobs", type=int); ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv); build = Path(args.build_dir).resolve()
     if args.command == "doctor": return doctor()
+    if args.command == "validate-status": return validate_capability_status()
+    if args.command in {"build", "test", "all"}:
+        status_rc = validate_capability_status()
+        if status_rc: return status_rc
     if args.command == "deps": return install_deps(args.dry_run)
     if args.command == "clean": return clean(build)
     if args.command == "configure": return configure(build, args.generator, args.dry_run)

@@ -28,6 +28,10 @@ The staging tree contains:
 
 The final media is ISO 9660 with El Torito boot metadata. `grub-mkrescue` is the preferred authoring backend because its GRUB installation can provide both BIOS and UEFI boot entries; `xorriso` is required by the GRUB authoring path. Standard UEFI media uses `EFI/BOOT/BOOTX64.EFI`.
 
+## Evidence and build policy
+
+The root `build-chimera-iso.sh` runs `tools/validation/validate_capability_status.py` during preflight and stages the capability registry and acceptance guide into both the ISO contract tree and installed rootfs. Use `tools/build/orchestrator.py all` for the native CMake/language build, tests, and packaging. ISO mastering is not a boot result; boot smoke tests are not userspace-ready evidence. See [Implementation Evidence and Real SMP](IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md).
+
 ## Verification
 
 The build verifies the staged tree and writes SHA-256 file manifests before mastering. CI additionally assembles SF0 and requires exactly 512 bytes ending in `55 AA`. QEMU is installed in CI for future serial boot tests; absence of a local QEMU/toolchain is reported rather than treated as a successful boot.
