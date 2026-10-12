@@ -36,7 +36,7 @@ int chm_win32_bind_message_queue(chm_event_queue *queue);
 int chm_win32_post_message(chm_hwnd hwnd, uint32_t message,
                            chm_wparam wParam, chm_lparam lParam);
 int chm_win32_post_quit_message(int exit_code);
-/* GetMessage: 1=message, 0=WM_QUIT, -1=error. Peek: 1=message, 0=empty. */
+/* GetMessage: 1=message, 0=WM_QUIT, 2=timeout, -1=error. Peek: 1=message, 0=empty. */
 int chm_win32_get_message(chm_win32_msg *out, uint32_t timeout_ms);
 int chm_win32_peek_message(chm_win32_msg *out);
 int chm_win32_dispatch_message(const chm_win32_msg *message,
