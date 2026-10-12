@@ -1,7 +1,6 @@
-# 
-> **Capability maturity rule:** all roadmap completion statements must follow `docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md` and `docs/validation/capability-evidence.json`. Catalog entries are not executable implementations; compilation is not boot; boot is not userspace readiness; sequential CPU simulation is not genuine SMP. Genuine SMP stays unverified until its dedicated acceptance bundle passes.
+# Chimera II OS Implementation Roadmap
 
-Chimera II OS Implementation Roadmap
+> **Capability maturity rule:** all roadmap completion statements must follow `docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md` and `docs/validation/capability-evidence.json`. Catalog entries are not executable implementations; compilation is not boot; boot is not userspace readiness; sequential CPU simulation is not genuine SMP. Genuine SMP stays unverified until its dedicated acceptance bundle passes.
 
 ## Status
 
