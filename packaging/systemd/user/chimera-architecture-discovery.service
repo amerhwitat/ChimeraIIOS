@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 %h/.local/lib/chimera/tools/architecture_discovery/chimera_discovery.py --output-dir %h/.local/share/chimera/architecture-discovery
+ExecStart=/usr/bin/python3 /usr/lib/chimera/tools/architecture_discovery/chimera_discovery.py --sources /usr/lib/chimera/config/architecture-discovery/sources.json --profiles /usr/lib/chimera/config/compatibility/distro-desktop-profiles.json --output-dir %h/.local/share/chimera/architecture-discovery
 Nice=10
 IOSchedulingClass=idle
 NoNewPrivileges=true
