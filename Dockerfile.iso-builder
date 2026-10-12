@@ -51,6 +51,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xz-utils \
     zip \
     unzip \
+    librsvg2-bin \
     cpio \
     \
     # Docker
