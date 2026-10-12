@@ -1,0 +1,35 @@
+{
+  "schema": "CHM-APPLE-CPU-TARGETS-1",
+  "purpose": "Explicit target and execution policy for Intel Macs and Apple Silicon in Chimera II OS",
+  "targets": [
+    {
+      "id": "apple-intel-x86_64",
+      "architecture": "x86_64",
+      "target_triple": "x86_64-unknown-chimera",
+      "status": "cross-compilation-target",
+      "execution": "requires an x86_64 Chimera kernel, boot path, drivers and userland",
+      "macos_binary_compatibility": "not implied; Mach-O, dyld, Apple frameworks and code-signing semantics need separate implementations"
+    },
+    {
+      "id": "apple-silicon-aarch64",
+      "architecture": "aarch64",
+      "target_triple": "aarch64-unknown-chimera",
+      "status": "cross-compilation-target",
+      "execution": "requires an AArch64 Chimera kernel, firmware/boot path, platform drivers and userland",
+      "hardware": "Apple M-series systems share the AArch64 ISA family but platform firmware, device trees, interrupt controllers, power management and device drivers are platform-specific",
+      "macos_binary_compatibility": "not implied; Rosetta 2 is an Apple technology and is not included by this target"
+    }
+  ],
+  "universal_binary": {
+    "status": "planned",
+    "required": ["separate validated x86_64 and aarch64 slices", "fat Mach-O parser", "per-slice loader selection"],
+    "note": "A target label alone does not create or execute a universal binary."
+  },
+  "validation_gates": [
+    "compiler target triple recognized",
+    "linker output format verified",
+    "kernel ELF/Mach-O policy verified",
+    "boot smoke test on matching emulator or hardware",
+    "platform driver inventory reviewed"
+  ]
+}
