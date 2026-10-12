@@ -1,0 +1,19 @@
+{
+  "schema": "CHM-ISA-SOURCE-MANIFEST-1",
+  "updated_utc": null,
+  "sources": [
+    {"id":"riscv-unified-db","family":"RISC-V","kind":"machine-readable-database","url":"https://github.com/riscv/riscv-unified-db","license":"check upstream file license","adapter":"json"},
+    {"id":"riscv-isa-manual","family":"RISC-V","kind":"official-specification","url":"https://docs.riscv.org/reference/isa/","license":"manual source repo is CC-BY-4.0; verify artifact","adapter":"reference-only"},
+    {"id":"llvm-mc","family":"multi-architecture","kind":"instruction-descriptions","url":"https://github.com/llvm/llvm-project/tree/main/llvm/lib/Target","license":"Apache-2.0 WITH LLVM-exception; verify files","adapter":"tablegen-index"},
+    {"id":"gnu-binutils-opcodes","family":"multi-architecture","kind":"opcode-tables","url":"https://github.com/bminor/binutils-gdb/tree/master/opcodes","license":"GPL and file-specific exceptions; review before ingestion","adapter":"opcode-index"},
+    {"id":"qemu-tcg","family":"multi-architecture","kind":"decoder-and-translator","url":"https://github.com/qemu/qemu/tree/master/target","license":"GPL-2.0-or-later; review before ingestion","adapter":"decoder-index"},
+    {"id":"intel-sdm","family":"x86-64,x86-32","kind":"official-specification","url":"https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html","license":"Intel terms; reference/link unless redistribution permitted","adapter":"reference-only"},
+    {"id":"amd-architecture-programming","family":"x86-64,x86-32","kind":"official-specification","url":"https://www.amd.com/en/search/documentation/hub.html","license":"AMD terms; reference/link unless redistribution permitted","adapter":"reference-only"},
+    {"id":"arm-architecture-reference","family":"AArch64,ARM32","kind":"official-specification","url":"https://developer.arm.com/documentation/","license":"Arm terms; reference/link unless redistribution permitted","adapter":"reference-only"},
+    {"id":"power-isa","family":"PowerPC","kind":"official-specification","url":"https://openpower.foundation/specifications/","license":"check individual OpenPOWER specification license","adapter":"reference-only"},
+    {"id":"mips-architecture","family":"MIPS32,MIPS64","kind":"specification-index","url":"https://www.mips.com/","license":"check individual source terms","adapter":"reference-only"},
+    {"id":"sparc-architecture","family":"SPARC","kind":"specification-index","url":"https://www.oracle.com/servers/technologies/sparc-architecture.html","license":"check individual source terms","adapter":"reference-only"},
+    {"id":"loongarch-reference","family":"LoongArch","kind":"official-specification","url":"https://loongson.github.io/LoongArch-Documentation/","license":"check repository/file license","adapter":"reference-only"},
+    {"id":"openisa-riscv","family":"RISC-V","kind":"implementation-ecosystem","url":"https://github.com/riscv","license":"per-repository license","adapter":"repository-index"}
+  ]
+}
