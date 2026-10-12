@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile discovery tool
-        run: python -m py_compile tools/architecture_discovery/chimera_discovery.py tests/test_architecture_discovery.py
+        run: python -m py_compile tools/architecture_discovery/chimera_discovery.py tests/test_architecture_discovery.py tests/test_build_pipeline_contract.py
       - name: Run safety and proposal tests
         run: python -m unittest discover -s tests -p test_architecture_discovery.py -v
       - name: Test builder stage and handoff contracts
