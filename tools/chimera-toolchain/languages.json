@@ -1,27 +1,198 @@
 {
   "schema": 2,
   "purpose": "Native language, ABI, module and library integration registry for Chimera II OS",
-  "ir": ["LLVM-IR", "MLIR", "CHIMERA-IR"],
+  "ir": [
+    "LLVM-IR",
+    "MLIR",
+    "CHIMERA-IR"
+  ],
   "languages": {
-    "c": {"driver":"chimera-ncc","frontend":"clang","standards":["c11","c17","c23"],"native":true,"build":["cmake","meson","make"]},
-    "cpp": {"driver":"chimera-ncc","frontend":"clang","standards":["c++17","c++20","c++23"],"native":true,"build":["cmake","meson","make"]},
-    "asm": {"driver":"chimera-as","frontend":"chimera-asm","native":true},
-    "rust": {"driver":"chimera-rustc","frontend":"rustc","build":"cargo","native":true,"ffi":["C","C++"],"modules":["bindgen","cbindgen"]},
-    "python": {"driver":"chimera-python","runtime":"python3","extensions":["CPython Limited API","abi3","abi3t"],"native":true,"build":["pip","venv","setuptools","scikit-build-core"],"modules":["numpy","scipy","pybind11","pytorch"]},
-    "java": {"driver":"chimera-javac","frontend":"javac","runtime":"JVM","native":true,"build":["maven","gradle"],"native_interop":["JNI","Foreign Function & Memory API"]},
-    "zig": {"driver":"chimera-zig","frontend":"zig","native":true,"ffi":["C"]},
-    "go": {"driver":"chimera-go","frontend":"go","native":true,"ffi":["C"]},
-    "fortran": {"driver":"chimera-fortran","frontend":"gfortran","native":true,"ffi":["C"]},
-    "swift": {"driver":"chimera-swift","frontend":"swiftc","native":true,"ffi":["C","C++"]}
+    "c": {
+      "driver": "chimera-ncc",
+      "frontend": "clang",
+      "standards": [
+        "c11",
+        "c17",
+        "c23"
+      ],
+      "native": true,
+      "build": [
+        "cmake",
+        "meson",
+        "make"
+      ]
+    },
+    "cpp": {
+      "driver": "chimera-ncc",
+      "frontend": "clang",
+      "standards": [
+        "c++17",
+        "c++20",
+        "c++23"
+      ],
+      "native": true,
+      "build": [
+        "cmake",
+        "meson",
+        "make"
+      ]
+    },
+    "asm": {
+      "driver": "chimera-as",
+      "frontend": "chimera-asm",
+      "native": true
+    },
+    "rust": {
+      "driver": "chimera-rustc",
+      "frontend": "rustc",
+      "build": "cargo",
+      "native": true,
+      "ffi": [
+        "C",
+        "C++"
+      ],
+      "modules": [
+        "bindgen",
+        "cbindgen"
+      ]
+    },
+    "python": {
+      "driver": "chimera-python",
+      "runtime": "python3",
+      "extensions": [
+        "CPython Limited API",
+        "abi3",
+        "abi3t"
+      ],
+      "native": true,
+      "build": [
+        "pip",
+        "venv",
+        "setuptools",
+        "scikit-build-core"
+      ],
+      "modules": [
+        "numpy",
+        "scipy",
+        "pybind11",
+        "pytorch"
+      ]
+    },
+    "java": {
+      "driver": "chimera-javac",
+      "frontend": "javac",
+      "runtime": "JVM",
+      "native": true,
+      "build": [
+        "maven",
+        "gradle"
+      ],
+      "native_interop": [
+        "JNI",
+        "Foreign Function & Memory API"
+      ]
+    },
+    "zig": {
+      "driver": "chimera-zig",
+      "frontend": "zig",
+      "native": true,
+      "ffi": [
+        "C"
+      ]
+    },
+    "go": {
+      "driver": "chimera-go",
+      "frontend": "go",
+      "native": true,
+      "ffi": [
+        "C"
+      ]
+    },
+    "fortran": {
+      "driver": "chimera-fortran",
+      "frontend": "gfortran",
+      "native": true,
+      "ffi": [
+        "C"
+      ]
+    },
+    "swift": {
+      "driver": "chimera-swift",
+      "frontend": "swiftc",
+      "native": true,
+      "ffi": [
+        "C",
+        "C++"
+      ]
+    },
+    "csharp": {
+      "driver": "chimera-csharp",
+      "frontend": "Roslyn via installed dotnet SDK",
+      "runtime": "Microsoft .NET CLR/JIT and BCL package",
+      "native": false,
+      "compatibility": "managed ABI requires an installed compatible runtime",
+      "targets": [
+        "net10.0"
+      ],
+      "status": "driver-added-runtime-not-bundled"
+    }
   },
   "compiler_libraries": {
-    "llvm": {"role":"IR optimizer/code generator","source":"upstream LLVM","required":false},
-    "mlir": {"role":"multi-level IR and domain-specific lowering","source":"upstream MLIR","required":false},
-    "compiler-rt": {"role":"compiler runtime support","source":"LLVM","required":false},
-    "libunwind": {"role":"unwinding","source":"upstream","required":false},
-    "libc": {"role":"C runtime","source":"target distribution/toolchain","required":true}
+    "llvm": {
+      "role": "IR optimizer/code generator",
+      "source": "upstream LLVM",
+      "required": false
+    },
+    "mlir": {
+      "role": "multi-level IR and domain-specific lowering",
+      "source": "upstream MLIR",
+      "required": false
+    },
+    "compiler-rt": {
+      "role": "compiler runtime support",
+      "source": "LLVM",
+      "required": false
+    },
+    "libunwind": {
+      "role": "unwinding",
+      "source": "upstream",
+      "required": false
+    },
+    "libc": {
+      "role": "C runtime",
+      "source": "target distribution/toolchain",
+      "required": true
+    }
   },
-  "common_libraries": ["chimera_nbit","chimera_kernel","chimera_fs","chimera_net","chimera_graphics","chimera_tensor","chimera_runtime","chimera_ffi"],
-  "recommended_native_acceleration": ["NumPy C API","PyTorch C++ API","PyTorch Stable C++ API","Rust bindgen/cbindgen","Java JNI/FFM"],
-  "targets": ["x86_64","i386","aarch64","armv7","riscv32","riscv64","mips64","ppc64le","s390x","wasm32","wasm64","chimera8192"]
+  "common_libraries": [
+    "chimera_nbit",
+    "chimera_kernel",
+    "chimera_fs",
+    "chimera_net",
+    "chimera_graphics",
+    "chimera_tensor",
+    "chimera_runtime",
+    "chimera_ffi"
+  ],
+  "recommended_native_acceleration": [
+    "NumPy C API",
+    "PyTorch C++ API",
+    "PyTorch Stable C++ API",
+    "Rust bindgen/cbindgen",
+    "Java JNI/FFM"
+  ],
+  "targets": [
+    "x86_64",
+    "i386",
+    "aarch64",
+    "armv7",
+    "riscv32",
+    "riscv64",
+    "mips64",
+    "ppc64le",
+    "s390x",
+    "wasm32",
+    "wasm64",
+    "chimera8192"
+  ]
 }
