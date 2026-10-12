@@ -1601,6 +1601,55 @@
         "ppc64"
       ],
       "note": "Community-parsed representation; cross-check each row against the official OpenPOWER ISA revision before conformance claims."
+    },
+    {
+      "id": "riscv-opcodes",
+      "name": "RISC-V Opcodes machine-readable encoding definitions",
+      "url": "https://github.com/riscv/riscv-opcodes",
+      "supports": [
+        "riscv32",
+        "riscv64",
+        "riscv128"
+      ],
+      "note": "Machine-readable masks, matches, extension membership and pseudo-op relationships; distinguish ratified from unratified files and pin a commit."
+    },
+    {
+      "id": "qemu-tcg",
+      "name": "QEMU TCG translator and typed intermediate representation documentation",
+      "url": "https://www.qemu.org/docs/master/devel/tcg.html",
+      "supports": [
+        "x86-64",
+        "aarch64",
+        "arm32",
+        "riscv32",
+        "riscv64",
+        "mips32",
+        "mips64",
+        "powerpc",
+        "ppc64",
+        "s390x",
+        "sparc-v9"
+      ],
+      "note": "Implementation design reference for dynamic translation and typed IR; not a source of architectural instruction semantics or proof of Chimera implementation."
+    },
+    {
+      "id": "qemu-tcg-ops",
+      "name": "QEMU TCG operations reference",
+      "url": "https://www.qemu.org/docs/master/devel/tcg-ops.html",
+      "supports": [
+        "x86-64",
+        "aarch64",
+        "arm32",
+        "riscv32",
+        "riscv64",
+        "mips32",
+        "mips64",
+        "powerpc",
+        "ppc64",
+        "s390x",
+        "sparc-v9"
+      ],
+      "note": "Useful for arithmetic/control-flow IR operation patterns; architectural flags, exceptions, memory model and privileged state must remain source-ISA specific."
     }
   ],
   "instructions": [
@@ -3727,6 +3776,18 @@
       {
         "source": "riscv-ratified",
         "finding": "Pin the unprivileged/privileged spec and extension versions independently; base, compressed, vector, atomic, CSR, and privilege instruction families need separate decode, semantics, and conformance states."
+      },
+      {
+        "source": "riscv-opcodes",
+        "finding": "The RISC-V opcode repository explicitly separates ratified and unratified extension files and generates match/mask artifacts; importer must retain extension/version provenance and pseudo-op relationships rather than flattening every row into a ratified instruction."
+      },
+      {
+        "source": "qemu-tcg",
+        "finding": "QEMU TCG uses a typed intermediate representation and dynamic translation; this is a useful implementation pattern for Chimera's per-ISA frontend to common IR to host backend pipeline, while guest architectural state and exception behavior remain separately modeled."
+      },
+      {
+        "source": "qemu-tcg-ops",
+        "finding": "A typed operation IR helps share arithmetic, branch, and memory lowering, but source architecture flags, delay slots, privilege transitions, MMU faults, and memory ordering need explicit architecture-specific state and tests."
       }
     ],
     "architecture_profiles": [
@@ -19694,7 +19755,10 @@
       "arm-machine-readable",
       "riscv-ratified",
       "openpower",
-      "openpower-json"
+      "openpower-json",
+      "riscv-opcodes",
+      "qemu-tcg",
+      "qemu-tcg-ops"
     ]
   }
 }
