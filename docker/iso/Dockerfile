@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_FIRMWARE=${CHIMERA_FIRMWARE}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
+    bash busybox ca-certificates git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
     grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin xorriso mtools dosfstools \
     python3 python3-pytest qemu-system-x86 file cpio rsync xz-utils gzip bzip2 \
     && rm -rf /var/lib/apt/lists/*
