@@ -1129,6 +1129,23 @@ build_iso(){
 verify_iso(){
   header 'STEP 10: VERIFY ISO BOOT STRUCTURE'
   local iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso"
+  local user_init="$BUILD_DIR/koronos/x86_64/chimera-user-init.elf"
+
+  # --resume may skip the boot stage after an older successful state marker.
+  # Repair the staged payload before verification and remaster the ISO, otherwise
+  # xorriso will correctly report that the required module is absent from the
+  # already-created image even though the current source now builds it.
+  if [[ ! -s "$ISO_DIR/boot/koronos/chimera-user-init.elf" ]]; then
+    [[ -s "$user_init" ]] || { log_error "Native user-init ELF missing from build output: $user_init"; exit 1; }
+    mkdir -p "$ISO_DIR/boot/koronos"
+    chimera_copy_if_distinct "$user_init" "$ISO_DIR/boot/koronos/chimera-user-init.elf"
+    log_warn "Restored native user-init ELF to ISO staging tree; rebuilding ISO before verification."
+    rm -f "$iso" "$iso.sha256"
+    grub-mkrescue -o "$iso" "$ISO_DIR" 2>&1 | tee "$LOG_DIR/grub-mkrescue.log"
+    [[ -s "$iso" ]] || { log_error "ISO remaster failed after restoring native user-init ELF"; exit 1; }
+    sha256sum "$iso" > "$iso.sha256"
+  fi
+
   [[ -s "$iso" ]] || { log_error 'ISO missing'; exit 1; }
   xorriso -indev "$iso" -report_el_torito plain | tee "$LOG_DIR/iso-el-torito.log"
   grep -qi 'El Torito' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no El Torito boot catalog'; exit 1; }
