@@ -192,10 +192,15 @@ jobs:
         run: xorriso -indev boot/iso/dist/output.iso -report_el_torito plain -report_system_area plain -print '' | tee boot/iso/dist/ISO-BOOT-REPORT.txt
       - name: ISO content smoke test
         run: |
+          set -euo pipefail
           test -s boot/iso/dist/output.iso
+          test -s boot/iso/dist/output.iso.sha256
+          sha256sum -c boot/iso/dist/output.iso.sha256
           test -f boot/iso/dist/iso/boot/spitfire/sf0_mbr.asm
           test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
-          test -s boot/iso/dist/iso/boot/visual/aurora-background.jpg
-          test -s boot/iso/dist/iso/boot/visual/aurora-background.jpg.b64
-          test -s boot/iso/dist/iso/boot/visual/chimera-intro.mp4
-          test -s boot/iso/dist/iso/boot/visual/boot-visual-manifest.json
+          # Enforce the current shared Aurora artwork contract; do not revive the
+          # retired aurora-background.jpg/base64 contract.
+          for visual in aurora-boot.png aurora-menu.png aurora-splash.png aurora-installer.png aurora-recovery.png aurora-diagnostics.png aurora-live.png aurora-mobile.png aurora-desktop.png Init.mp4 aurora-manifest.json; do
+            test -s "boot/iso/dist/iso/boot/visual/$visual"
+          done
+          test -s boot/iso/dist/iso/boot/visual/aurora-media/manifest.json
