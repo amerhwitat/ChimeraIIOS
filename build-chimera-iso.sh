@@ -1191,7 +1191,10 @@ verify_iso(){
     /boot/visual/Init.mp4
     /boot/visual/chimera-intro.mp4
     /boot/jasper/jasper.cfg
+    /boot/jasper/live.cfg
     /boot/jasper/install.cfg
+    /boot/jasper/recovery.cfg
+    /boot/jasper/diagnostics.cfg
     /boot/jasper/retro.cfg
     /boot/installation/menu.cfg
     /boot/spitfire/spitfire-menu.cfg
@@ -1199,6 +1202,9 @@ verify_iso(){
     /install/installer/installation.img
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
+    /install/installer/installation_phases.json
+    /install/installer/installer_profiles.json
+    /install/installer/installer-initrd.img
   )
   local required_path
   for required_path in "${required_iso_paths[@]}"; do

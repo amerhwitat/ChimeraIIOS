@@ -126,7 +126,24 @@ EOF
 # /boot/live/chimera-live-initramfs.img and /boot/live/live-manifest.json;
 # relying on an optional pre-existing build/live-boot directory caused
 # boot-time "file not found" failures.
-if [[ -x "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+# Keep Jasper's recovery/diagnostics entries and Koronos' Multiboot2 parser
+# synchronized so a menu cannot silently pass unrecognized recovery payloads.
+grep -q 'CHIMERA_MODULE_RECOVERY_INITRAMFS' "$ROOT/kernel/include/chimera/multiboot_modules.h" || {
+  echo "ERROR: Koronos has no recovery-initramfs module classification." >&2; exit 2;
+}
+grep -q 'CHIMERA_MODULE_RECOVERY_MANIFEST' "$ROOT/kernel/include/chimera/multiboot_modules.h" || {
+  echo "ERROR: Koronos has no recovery-manifest module classification." >&2; exit 2;
+}
+grep -q 'chm.mode=diagnostics' "$ROOT/kernel/core/multiboot_modules.cpp" || {
+  echo "ERROR: Koronos does not consume the Jasper diagnostics mode command line." >&2; exit 2;
+}
+grep -q 'task_recovery' "$ROOT/kernel/core/koronos.cpp" || {
+  echo "ERROR: Koronos recovery bootstrap task is missing." >&2; exit 2;
+}
+if [[ -f "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+  # Invoke explicitly with bash: this source script may not carry the executable bit.
+  # Validate the script before it writes generated live/recovery payloads.
+  bash -n "$ROOT/tools/build-live-boot-binaries.sh"
   bash "$ROOT/tools/build-live-boot-binaries.sh"
 else
   echo "Live boot builder missing: $ROOT/tools/build-live-boot-binaries.sh" >&2

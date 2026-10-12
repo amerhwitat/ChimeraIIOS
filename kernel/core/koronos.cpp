@@ -180,6 +180,9 @@ static const char *module_kind_name(uint32_t k) {
         case CHIMERA_MODULE_INSTALL_CONTRACT: return "INSTALL CONTRACT";
         case CHIMERA_MODULE_INSTALL_PHASES: return "INSTALL PHASES";
         case CHIMERA_MODULE_INSTALL_PROFILES: return "INSTALL PROFILES";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
+        case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
+        case CHIMERA_MODULE_DIAGNOSTIC_BACKGROUND: return "DIAGNOSTICS BACKGROUND";
         default: return "OTHER";
     }
 }
@@ -228,7 +231,11 @@ static void task_live(void *) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] Initramfs catalogued; userspace execution is not implemented");
+            chimera_sched_block();
+        } else if (chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) ||
+                   chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST)) {
+            console_write("[LIVE] Recovery target detected; live service idle");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -240,6 +247,28 @@ static void task_live(void *) {
             chimera_sched_block();
         }
     }
+}
+
+static uint32_t recovery_phase = 0;
+static void task_recovery(void *) {
+    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST);
+    if (!image && !manifest) {
+        chimera_sched_block();
+        return;
+    }
+    if (recovery_phase++ == 0) {
+        console_write("[REC ] Recovery target detected");
+        if (image) console_write("[REC ] Recovery initramfs module recognized");
+        else console_write("[REC ] ERROR: recovery initramfs module missing");
+        if (manifest) console_write("[REC ] Recovery manifest module recognized");
+        else console_write("[REC ] WARNING: recovery manifest module missing");
+        if (chimera_multiboot_diagnostics_mode()) {
+            console_write("[DIAG] Diagnostics mode consumed from Multiboot2 kernel command line");
+        }
+        console_write("[REC ] Initramfs payload is catalogued; executing its userspace init is not yet implemented");
+    }
+    chimera_sched_block();
 }
 
 static void task_installer(void *) {
@@ -277,11 +306,11 @@ static void task_installer(void *) {
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI service initialized");
+            console_write("[INST] Installer UI userspace unavailable: execution handoff is not implemented");
             break;
         case 4:
-            console_write("[INST] Installer initialization complete");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] Installer metadata initialization complete");
+            console_write("[INST] No installer userspace process was launched");
             chimera_sched_block();
             break;
         default:
@@ -352,11 +381,12 @@ static void koronos_submit_bootstrap_tasks() {
     int b = chimera_sched_submit(task_modules, 0, 90);
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
+    int r = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
-    console_write("[SCH ] console/module/live/installer/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0)
+    console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
+    if (a < 0 || b < 0 || c < 0 || d < 0 || r < 0 || e < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
