@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly Chimera II OS architecture and ISA candidate discovery
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+RandomizedDelaySec=45m
+Unit=chimera-architecture-discovery.service
+
+[Install]
+WantedBy=timers.target
