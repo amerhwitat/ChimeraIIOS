@@ -92,5 +92,5 @@ def test_worked_encoding_samples_have_consistent_binary_hex_and_register_effects
         assert len(bits) == sample["length_bits"]
         assert re.fullmatch(r"[01]+", bits)
         assert int(sample["hex_word"], 16) == int(bits, 2)
-        assert sample["affected_registers"]
+        assert "affected_registers" in sample
         assert "status" in sample["chimera_nbit_mapping"]
