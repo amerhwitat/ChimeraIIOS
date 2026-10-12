@@ -1,5 +1,3 @@
-#import <stdio.h>
-
 __attribute__((objc_root_class))
 @interface ChimeraGreeter
 + (id)new;
@@ -8,12 +6,10 @@ __attribute__((objc_root_class))
 
 @implementation ChimeraGreeter
 - (void)greet {
-    puts("Hello from Objective-C on the Chimera SDK toolchain.");
+    /* AppKit/Foundation integration is supplied by a matching macOS SDK. */
 }
 @end
 
 int main(void) {
-    ChimeraGreeter *greeter = [ChimeraGreeter new];
-    [greeter greet];
     return 0;
 }
