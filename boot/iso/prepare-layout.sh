@@ -126,7 +126,8 @@ EOF
 # /boot/live/chimera-live-initramfs.img and /boot/live/live-manifest.json;
 # relying on an optional pre-existing build/live-boot directory caused
 # boot-time "file not found" failures.
-if [[ -x "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+if [[ -f "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
+  # Invoke explicitly with bash: this source script may not carry the executable bit.
   bash "$ROOT/tools/build-live-boot-binaries.sh"
 else
   echo "Live boot builder missing: $ROOT/tools/build-live-boot-binaries.sh" >&2
