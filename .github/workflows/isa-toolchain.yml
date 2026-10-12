@@ -42,6 +42,8 @@ jobs:
         run: python3 tests/isa/test_generate_isa_bitfields.py
       - name: Test LLVM TableGen importer
         run: python3 tests/isa/test_import_llvm_targets.py
+      - name: Test pinned RISC-V opcode importer
+        run: python3 tests/isa/test_import_riscv_opcodes.py
       - name: Test software N-bit mode runtime and local daemon
         run: |
           python3 -m py_compile tools/runtime/chimera-nbit-mode.py tools/runtime/chimera-nbitd.py
