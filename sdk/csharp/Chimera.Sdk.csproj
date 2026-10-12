@@ -1,3 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-<PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>Chimera.Sdk</AssemblyName><RootNamespace>Chimera.Sdk</RootNamespace><Nullable>enable</Nullable></PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Chimera.Sdk</AssemblyName>
+    <RootNamespace>Chimera.Sdk</RootNamespace>
+    <PackageId>Chimera.Sdk</PackageId>
+    <Version>1.1.0</Version>
+    <Description>Managed API helpers for applications targeting Chimera II OS.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
 </Project>
