@@ -2,8 +2,12 @@ name: Chimera II SDK CI
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "sdk/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/chimera-sdk.yml"
   push:
-    branches: [main]
     paths:
       - "sdk/**"
       - "CMakeLists.txt"
