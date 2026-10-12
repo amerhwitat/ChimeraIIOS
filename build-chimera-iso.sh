@@ -353,6 +353,18 @@ choose_storage(){
 preflight(){
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
+  # Architecture/ISA discovery is metadata-only and defaults to offline mode.
+  # Network research is opt-in; failures do not silently promote support claims.
+  if [[ "${CHIMERA_ARCH_DISCOVERY:-1}" == 1 && -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
+    local -a discovery_args=(--output-dir "$BUILD_DIR/architecture-discovery")
+    [[ "${CHIMERA_ARCH_DISCOVERY_ONLINE:-0}" == 1 ]] && discovery_args+=(--online)
+    if ! python3 "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" "${discovery_args[@]}"; then
+      if [[ "${CHIMERA_ARCH_DISCOVERY_STRICT:-0}" == 1 ]]; then
+        log_error 'Architecture discovery failed in strict mode'; return 1
+      fi
+      log_warning 'Architecture discovery failed; continuing build without promoting candidates.'
+    fi
+  fi
   header 'CPU / MEDIA PROFILE'
   log_info "Detected build-host CPU: $HOST_ARCH"
   log_info "Selected ISO target CPU: $TARGET_ARCH"
