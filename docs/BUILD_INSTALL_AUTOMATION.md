@@ -1,4 +1,7 @@
-# Chimera II OS Build, Dependency, Packaging and Installer Automation
+# 
+> **Evidence gate:** the root `build-chimera-iso.sh` validates `docs/validation/capability-evidence.json` before the expensive ISO stages and stages that registry plus `docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md` into the image. For native CMake and registered language builds/tests, use `python3 tools/build/orchestrator.py all`. An ISO build, a compile, a boot smoke test, and userspace readiness are separate outcomes.
+
+Chimera II OS Build, Dependency, Packaging and Installer Automation
 
 Chimera II OS now has a single build orchestration contract exposed through Python, POSIX shell, Windows CMD, and PowerShell. GitHub Actions uses the same entry point so local and CI builds follow the same configuration/test/package sequence.
 
