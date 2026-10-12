@@ -1,9 +1,9 @@
 name: Desktop Compatibility CI
 on:
   push:
-    paths: ['desktop/**','userland/**','man/**','docs/CHIMERA_UNICODE.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
+    branches: [main]
   pull_request:
-    paths: ['desktop/**','docs/DESKTOP_COMPATIBILITY.md','.github/workflows/desktop-compatibility-ci.yml','tools/build-desktop-binaries.sh']
+  workflow_dispatch:
 jobs:
   portable:
     runs-on: ubuntu-latest
