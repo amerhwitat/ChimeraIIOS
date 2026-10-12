@@ -5,13 +5,11 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/lib/chimera/tools/architecture_discovery/chimera_discovery.py --output-dir %h/.local/share/chimera/architecture-discovery
+ExecStart=/usr/bin/python3 %h/.local/lib/chimera/tools/architecture_discovery/chimera_discovery.py --output-dir %h/.local/share/chimera/architecture-discovery
 Nice=10
 IOSchedulingClass=idle
 NoNewPrivileges=true
 PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=read-only
-ReadWritePaths=%h/.local/share/chimera/architecture-discovery
+ProtectSystem=full
 RestrictSUIDSGID=true
 LockPersonality=true
