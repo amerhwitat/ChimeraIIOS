@@ -87,6 +87,9 @@ def validate_form(row: dict[str, Any]) -> list[str]:
         for key in EFFECT_KEYS:
             if key not in effects:
                 errors.append(f"effects.{key} is missing; use [] or 'unknown' explicitly")
+            elif key == "endianness":
+                if effects[key] not in ("little", "big", "mixed", "architecture-defined", "unknown"):
+                    errors.append("effects.endianness must explicitly describe data-memory endianness")
             elif not (isinstance(effects[key], list) or effects[key] == "unknown"):
                 errors.append(f"effects.{key} must be a list or the literal 'unknown'")
     status = row.get("status", "catalog-only")
