@@ -28,44 +28,87 @@ def run(cmd,cwd,log):
  log.append({"cmd":cmd,"cwd":str(cwd),"returncode":r.returncode,"output":r.stdout[-12000:]})
  return r.returncode
 def build_one(repo,src,out,log):
- markers=[(src/"CMakeLists.txt",["cmake","-S",".","-B","build","-DCMAKE_BUILD_TYPE=Release"],["cmake","--build","build","--parallel"]),
-           (src/"Makefile",["make","-j2"],None),(src/"package.json",["npm","install","--ignore-scripts"],["npm","run","build"]),
-           (src/"Cargo.toml",["cargo","build","--release"],None),(src/"pom.xml",["mvn","-B","-DskipTests","package"],None),
-           (src/"build.gradle",["gradle","build","-x","test"],None),(src/"build.gradle.kts",["gradle","build","-x","test"],None)]
+ failures=[]
+ build_system=None
+ markers=[
+  (src/"CMakeLists.txt",["cmake","-S",".","-B","build","-DCMAKE_BUILD_TYPE=Release"],["cmake","--build","build","--parallel"]),
+  (src/"Makefile",["make","-j2"],None),
+  (src/"package.json",["npm","install","--ignore-scripts"],["npm","run","build","--if-present"]),
+  (src/"Cargo.toml",["cargo","build","--release"],None),
+  (src/"pom.xml",["mvn","-B","-DskipTests","package"],None),
+  (src/"build.gradle",["gradle","build","-x","test"],None),
+  (src/"build.gradle.kts",["gradle","build","-x","test"],None)
+ ]
  for marker,pre,post in markers:
-  if marker.exists():
-   if shutil.which(pre[0]):
-    rc=run(pre,src,log)
-    if rc==0 and post and shutil.which(post[0]): run(post,src,log)
-   else: log.append({"skip":"missing-tool","tool":pre[0]})
+  if not marker.exists(): continue
+  build_system=marker.name
+  if not shutil.which(pre[0]):
+   failures.append({"stage":"build","reason":"missing-tool","tool":pre[0]})
+   log.append({"skip":"missing-tool","tool":pre[0],"build_system":build_system})
    break
- # Python projects are syntax-checked, not pip-installed.
- for p in src.rglob("*.py"):
-  if ".git" not in p.parts:
-   run(["python3","-m","py_compile",str(p)],src,log)
- # Stage common artifacts without guessing executability.
+  rc=run(pre,src,log)
+  if rc:
+   failures.append({"stage":"configure-or-build","returncode":rc,"command":pre})
+   break
+  if post:
+   if not shutil.which(post[0]):
+    failures.append({"stage":"build","reason":"missing-tool","tool":post[0]})
+   else:
+    rc=run(post,src,log)
+    if rc: failures.append({"stage":"build","returncode":rc,"command":post})
+  break
+ # Python source is syntax-checked, never pip-installed or executed.
+ python_files=[p for p in src.rglob("*.py") if ".git" not in p.parts and not any(part in {"build","target","node_modules",".venv","venv"} for part in p.parts)]
+ for p in python_files:
+  rc=run(["python3","-m","py_compile",str(p)],src,log)
+  if rc: failures.append({"stage":"python-syntax","path":str(p.relative_to(src)),"returncode":rc})
+ # Stage artifacts without inferring that they are executable or compatible.
  for p in src.rglob("*"):
   if not p.is_file() or ".git" in p.parts: continue
   if p.suffix.lower() in {".so",".a",".dll",".lib",".exe",".elf",".bin",".img",".efi",".apk",".jar",".war",".wasm"}:
    d=out/"binaries"/repo; d.mkdir(parents=True,exist_ok=True); shutil.copy2(p,d/p.name)
+ if failures:
+  status="build-failed"
+ elif build_system:
+  status="built"
+ elif python_files:
+  status="syntax-checked"
+ else:
+  status="not-built"
+ return {"status":status,"build_system":build_system,"python_files_checked":len(python_files),"failures":failures}
 def main():
- ap=argparse.ArgumentParser(); ap.add_argument("--output",required=True); ap.add_argument("--references"); a=ap.parse_args()
+ ap=argparse.ArgumentParser()
+ ap.add_argument("--output",required=True)
+ ap.add_argument("--references")
+ a=ap.parse_args()
  root=Path(a.output).resolve(); sources=root/"src"; root.mkdir(parents=True,exist_ok=True); sources.mkdir(exist_ok=True)
- report={"schema":"chimera-portfolio-build-v1","repositories":{},"references":{}}
+ report={"schema":"chimera-portfolio-build-v2","repositories":{},"references":{}}
  for rid,url in REPOS:
   dst=sources/rid; log=[]
   try:
-   if not (dst/".git").exists(): run(["git","clone","--depth","1",url,str(dst)],root,log)
-   else: run(["git","pull","--ff-only"],dst,log)
-   build_one(rid,dst,root,log); report["repositories"][rid]={"url":url,"status":"processed","log":log}
-  except Exception as e: report["repositories"][rid]={"url":url,"status":"failed","error":repr(e),"log":log}
+   if not (dst/".git").exists():
+    rc=run(["git","clone","--depth","1",url,str(dst)],root,log)
+   else:
+    rc=run(["git","pull","--ff-only"],dst,log)
+   if rc:
+    report["repositories"][rid]={"url":url,"status":"clone-failed","build_success":False,"log":log}
+    continue
+   result=build_one(rid,dst,root,log)
+   report["repositories"][rid]={"url":url,**result,"build_success":result["status"]=="built","log":log}
+  except Exception as e:
+   report["repositories"][rid]={"url":url,"status":"failed","build_success":False,"error":repr(e),"log":log}
  if a.references:
   refroot=Path(a.references); target=root/"docs"/"references"; target.mkdir(parents=True,exist_ok=True)
   for name in ["w2K-source.pdf","Win32API-x86-x64_2.docx","W2K-ASM.txt"]:
    p=refroot/name
    if p.exists():
     q=target/name; shutil.copy2(p,q); report["references"][name]={"sha256":sha256(q),"size":q.stat().st_size}
- report["policy"]="Source is preserved; failures are explicit; remote post-install scripts are not executed."
+ counts={}
+ for entry in report["repositories"].values():
+  status=entry.get("status","unknown"); counts[status]=counts.get(status,0)+1
+ report["summary"]={"status_counts":counts,"repository_count":len(report["repositories"]),"all_repositories_built":all(e.get("build_success",False) for e in report["repositories"].values())}
+ report["policy"]="Per-repository build failures and missing toolchains are explicit. Staged artifacts are not assumed executable or ABI-compatible. Downloaded post-install scripts are never executed."
  (root/"portfolio-build-report.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
  print(json.dumps(report,indent=2))
-if __name__=="__main__": main()
+ return 0
+if __name__=="__main__": raise SystemExit(main())
