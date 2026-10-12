@@ -4,6 +4,8 @@ The initial cross-repository Java audit, parity rules, and phased conversion pla
 
 # Chimera II OS
 
+> **Verification policy:** documented, cataloged, compiled, booted, userspace-ready, conformance-tested, and SMP-verified are distinct evidence levels. See [the verification evidence contract](docs/VERIFICATION_EVIDENCE_CONTRACT.md); do not infer a higher level from a lower one.
+
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
 
 ## Hosted Edition (64-bit Windows / Linux / Unix / macOS)
