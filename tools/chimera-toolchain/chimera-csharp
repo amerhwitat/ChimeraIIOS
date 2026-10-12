@@ -1,0 +1,26 @@
+#!/bin/sh
+set -eu
+usage() {
+  cat <<'EOF'
+Chimera C# project driver
+Usage: chimera-csharp build|test|run|publish|restore|clean PROJECT [dotnet options...]
+This delegates to the installed Microsoft .NET SDK; it is not a CLR or compiler implementation by itself.
+EOF
+}
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then usage; exit 0; fi
+if [ "${1:-}" = "--version" ]; then
+  if command -v dotnet >/dev/null 2>&1; then exec dotnet --version; fi
+  echo 'chimera-csharp 1.0 (driver only; .NET SDK not installed)' >&2
+  exit 127
+fi
+if ! command -v dotnet >/dev/null 2>&1; then
+  echo 'chimera-csharp: .NET SDK not found. Install a supported SDK from Aurora > Developer > Toolchains.' >&2
+  exit 127
+fi
+if [ "$#" -lt 2 ]; then usage >&2; exit 2; fi
+verb=$1
+shift
+case "$verb" in
+  build|test|run|publish|restore|clean) exec dotnet "$verb" "$@" ;;
+  *) echo "chimera-csharp: unsupported command '$verb'." >&2; usage >&2; exit 2 ;;
+esac

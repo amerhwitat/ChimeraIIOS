@@ -18,3 +18,14 @@ cmake-build-*/
 *.img
 *.iso
 *.log
+# Generated portfolio trees can contain nested VCS metadata and build caches.
+**/.git/
+**/node_modules/
+**/__pycache__/
+**/.venv/
+**/venv/
+**/target/
+**/dist/
+**/.gradle/
+boot/iso/portfolio-build/src/**/build/
+boot/iso/portfolio-build/src/**/out/

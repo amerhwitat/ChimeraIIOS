@@ -20,6 +20,10 @@ The implementation uses a layered boundary:
 5. Mobile HAL → AArch64/RISC-V64 platform boundary.
 6. Services such as Spotnik, Nucleus, Hive and Aurora remain outside the privileged microkernel boundary.
 
+## Evidence-backed maturity and SMP
+
+The project now maintains `docs/validation/capability-evidence.json`, validated by `tools/validation/validate_capability_status.py`. Required distinctions: documented ≠ implemented; cataloged ≠ executable; compiled ≠ booted; booted ≠ userspace-ready; sequential multi-CPU simulation ≠ genuine SMP. Genuine SMP remains not verified pending AP bring-up, concurrent execution on at least two CPUs, inter-CPU synchronization/IPI tests, and stress logs. See [Implementation Evidence and Real SMP](IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md).
+
 ## Verification status
 
 GitHub Actions is the authoritative remote build/test environment for this repository when a workflow is present and a run has completed. Local compilation is not claimed unless a local toolchain execution has actually been performed.
