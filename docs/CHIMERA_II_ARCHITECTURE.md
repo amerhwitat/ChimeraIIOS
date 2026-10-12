@@ -59,6 +59,10 @@ Nucleus is the HTAP/data-engine boundary; TensorFS is the wide-state/object-orie
 
 CEF launches sandboxed services from explicit manifests. ROM/BIOS material and third-party cores require provenance and license checks.
 
+## Capability evidence and SMP status
+
+All capability claims follow [the evidence and real-SMP acceptance policy](IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md) and the machine-readable registry at `docs/validation/capability-evidence.json`. Documentation/catalog entries do not imply executable implementation; compilation does not imply boot; boot does not imply userspace readiness. Genuine SMP remains **not verified** until independent CPU bring-up, concurrent execution, cross-CPU synchronization/IPI, and stress evidence pass. Sequential multi-CPU simulation is not SMP.
+
 ## Engineering status
 
 The repository contains host-side prototypes and interface skeletons. Bare-metal boot, a production microkernel, full TCP/IP, a complete Wayland compositor, FPGA implementation and dedicated 8192-bit silicon are future engineering targets rather than completed claims.
