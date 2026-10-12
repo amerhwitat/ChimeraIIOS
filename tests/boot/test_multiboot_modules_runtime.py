@@ -47,6 +47,12 @@ static uint32_t build_info(uint8_t *p, const char *cmdline, bool recovery) {
         off = add_module(p, off, 0x1000, 0x2000, "chimera-recovery-initramfs");
         off = add_module(p, off, 0x3000, 0x3100, "chimera-recovery-manifest");
         off = add_module(p, off, 0x4000, 0x4100, "aurora-diagnostics");
+    } else if (std::strcmp(cmdline, "chm.mode=installer") == 0) {
+        off = add_module(p, off, 0x1000, 0x2000, "chimera-installation-image");
+        off = add_module(p, off, 0x3000, 0x3100, "chimera-installation-manifest");
+        off = add_module(p, off, 0x4000, 0x4100, "chimera-installer-contract");
+        off = add_module(p, off, 0x5000, 0x5100, "chimera-install-phases");
+        off = add_module(p, off, 0x6000, 0x6100, "chimera-installer-profiles");
     } else {
         off = add_module(p, off, 0x1000, 0x2000, "chimera-live-initramfs");
         off = add_module(p, off, 0x3000, 0x3100, "chimera-live-manifest");
@@ -74,6 +80,15 @@ int main() {
     assert(chimera_multiboot_diagnostics_mode() == 0);
     assert(chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS));
     assert(chimera_multiboot_find(CHIMERA_MODULE_LIVE_MANIFEST));
+
+    build_info(info, "chm.mode=installer", false);
+    assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 5);
+    assert(chimera_multiboot_diagnostics_mode() == 0);
+    assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE));
+    assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST));
+    assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT));
+    assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PHASES));
+    assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PROFILES));
     return 0;
 }
 """
