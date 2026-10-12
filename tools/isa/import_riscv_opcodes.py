@@ -11,14 +11,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT_DEFAULT = ROOT / "isa" / "sources" / "imports" / "riscv-opcodes.json"
-API_TREE = "https://api.github.com/repos/riscv/riscv-opcodes/git/trees/master?recursive=1"
-RAW_ROOT = "https://raw.githubusercontent.com/riscv/riscv-opcodes/master/"
+DEFAULT_REVISION = "5783cf3bea312a48d28e3e2c8a2fcb55603e4bed"
+API_TREE = "https://api.github.com/repos/riscv/riscv-opcodes/git/trees/{revision}?recursive=1"
+RAW_ROOT = "https://raw.githubusercontent.com/riscv/riscv-opcodes/{revision}/"
 
 def get(url: str, timeout: int) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent":"ChimeraIIOS-ISA-Importer/1.0","Accept":"application/vnd.github+json"})
     with urllib.request.urlopen(req, timeout=timeout) as r: return r.read()
 
-def parse_file(text: str, path: str, source_hash: str) -> list[dict]:
+def parse_file(text: str, path: str, source_hash: str, source_revision: str) -> list[dict]:
     # The upstream files declare fixed fields as NAME hi..lo=value; variable
     # fields are omitted from the fixed mask. Ignore macros, comments and aliases.
     rows=[]
@@ -69,8 +70,8 @@ def parse_file(text: str, path: str, source_hash: str) -> list[dict]:
           "feature_requirements":[],"exceptions":[],"semantic_id":None,
           "native_mapping":None,"compatibility_mapping":None,
           "execution_status":"not-implemented",
-          "source_ref":"https://github.com/riscv/riscv-opcodes/blob/master/"+path,
-          "source_revision":"master (moving ref; pin commit for release)",
+          "source_ref":f"https://github.com/riscv/riscv-opcodes/blob/{source_revision}/"+path,
+          "source_revision":source_revision,
           "source_sha256":source_hash,"license":"BSD-3-Clause-Clear (verify source file)"
         })
     return rows
@@ -80,9 +81,13 @@ def main():
     ap.add_argument("--output",type=Path,default=OUT_DEFAULT)
     ap.add_argument("--timeout",type=int,default=25)
     ap.add_argument("--max-files",type=int,default=500)
+    ap.add_argument("--revision",default=DEFAULT_REVISION,help="immutable upstream commit SHA (40 hex characters)")
     args=ap.parse_args()
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", args.revision):
+        raise SystemExit("--revision must be an immutable 40-character commit SHA")
+    revision=args.revision.lower()
     try:
-        tree=json.loads(get(API_TREE,args.timeout))
+        tree=json.loads(get(API_TREE.format(revision=revision),args.timeout))
     except Exception as e:
         raise SystemExit(f"cannot retrieve riscv-opcodes source tree: {e}")
     paths=[x["path"] for x in tree.get("tree",[]) if x.get("type")=="blob" and x.get("path","").startswith("extensions/") and Path(x["path"]).suffix in {".", ""}]
@@ -91,9 +96,9 @@ def main():
     rows=[]; failures=[]
     for path in paths:
         try:
-            body=get(RAW_ROOT+path,args.timeout)
+            body=get(RAW_ROOT.format(revision=revision)+path,args.timeout)
             digest=hashlib.sha256(body).hexdigest()
-            rows.extend(parse_file(body.decode("utf-8",errors="replace"),path,digest))
+            rows.extend(parse_file(body.decode("utf-8",errors="replace"),path,digest,revision))
         except (OSError,urllib.error.URLError,TimeoutError,UnicodeError) as e:
             failures.append({"path":path,"error":str(e)})
     unique={}
@@ -104,7 +109,7 @@ def main():
       "source_tree_sha":tree.get("sha"),"record_count":len(unique),"files_considered":len(paths),
       "failed_files":failures,"instructions":sorted(unique.values(),key=lambda r:(r["mnemonic"],r["form_id"])),
       "limitations":["Encoding masks only; register effects and semantics are not inferred.",
-        "Source branch is moving; release imports should pin a commit SHA.",
+        "Source revision is pinned by immutable commit SHA; review the pin before refreshing.",
         "Review source license and architecture/extension scope before merging."]}
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")

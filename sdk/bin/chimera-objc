@@ -1,2 +1,41 @@
-#!/usr/bin/env sh
-exec "${CHIMERA_OBJC:-clang}" -DCHIMERA_OS=1 "$@"
+#!/usr/bin/env bash
+set -euo pipefail
+
+compiler="${CHIMERA_OBJC_COMPILER:-clang}"
+target="${CHIMERA_OBJC_TARGET:-native}"
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    --chimera-target=native) target=native ;;
+    --chimera-target=darwin-x86_64) target=darwin-x86_64 ;;
+    --chimera-target=darwin-arm64) target=darwin-arm64 ;;
+    --chimera-target=*) echo "chimera-objc: unsupported target: $arg" >&2; exit 2 ;;
+    *) args+=("$arg") ;;
+  esac
+done
+
+compiler_name="${compiler##*/}"
+case "$compiler_name" in clang|clang-*) ;;
+  *) echo "chimera-objc: CHIMERA_OBJC_COMPILER must name clang" >&2; exit 2 ;;
+esac
+target_args=()
+case "$target" in
+  native) ;;
+  darwin-x86_64)
+    target_args+=(--target=x86_64-apple-macosx10.15 -fobjc-runtime=macosx-10.15) ;;
+  darwin-arm64)
+    target_args+=(--target=arm64-apple-macosx11.0 -fobjc-runtime=macosx-11.0) ;;
+esac
+
+has_compile_only=0
+for arg in "${args[@]}"; do
+  case "$arg" in -c|-E|-S|-fsyntax-only) has_compile_only=1 ;; esac
+done
+if [[ "$target" != native && -z "${CHIMERA_MACOS_SDK:-}" && $has_compile_only -eq 0 ]]; then
+  echo "chimera-objc: linking a macOS executable requires CHIMERA_MACOS_SDK; compile-only cross-target builds need no SDK." >&2
+  exit 2
+fi
+if [[ -n "${CHIMERA_MACOS_SDK:-}" && "$target" != native ]]; then
+  target_args+=(--sysroot="${CHIMERA_MACOS_SDK}")
+fi
+exec "$compiler" -x objective-c "${target_args[@]}" "${args[@]}"

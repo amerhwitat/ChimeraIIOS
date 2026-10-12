@@ -40,6 +40,16 @@ jobs:
         run: python3 tools/isa/test_isa_conformance.py /tmp/isa_bitfields.json
       - name: Validate ISA source reconciliation
         run: python3 tests/isa/test_generate_isa_bitfields.py
+      - name: Test LLVM TableGen importer
+        run: python3 tests/isa/test_import_llvm_targets.py
+      - name: Test pinned RISC-V opcode importer
+        run: python3 tests/isa/test_import_riscv_opcodes.py
+      - name: Test software N-bit mode runtime and local daemon
+        run: |
+          python3 -m py_compile tools/runtime/chimera-nbit-mode.py tools/runtime/chimera-nbitd.py
+          python3 -m unittest discover -s tools/runtime -p 'test_chimera_nbit_mode.py' -v
+          python3 -m unittest discover -s tests/runtime -p 'test_chimera_nbitd.py' -v
+          python3 tools/runtime/chimera-nbitd.py --check
       - name: Generate command registry
         run: python3 tools/shell/generate_command_registry.py --output /tmp/chimera_command_registry.json
       - name: Validate installer planner

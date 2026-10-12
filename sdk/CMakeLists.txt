@@ -5,10 +5,26 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(GNUInstallDirs)
 enable_testing()
-add_library(chimera_sdk STATIC src/chimera_sdk.cpp)
+add_library(chimera_sdk STATIC
+  src/chimera_sdk.cpp
+  src/chimera_event.cpp
+  src/chimera_file.cpp
+  src/chimera_win32_message.cpp
+)
 target_include_directories(chimera_sdk PUBLIC include)
 add_executable(chimera-sdk-config tools/chimera-sdk-config.cpp)
 add_test(NAME chimera_sdk_config COMMAND chimera-sdk-config)
+add_executable(chimera-sdk-native-api-smoke tests/native_api_smoke.cpp)
+target_link_libraries(chimera-sdk-native-api-smoke PRIVATE chimera_sdk)
+add_test(NAME chimera_sdk_native_api_smoke COMMAND chimera-sdk-native-api-smoke)
+add_executable(chimera-sdk-event-example examples/c/event_app.c)
+set_target_properties(chimera-sdk-event-example PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(chimera-sdk-event-example PRIVATE chimera_sdk)
+add_executable(chimera-sdk-file-example examples/c/file_app.c)
+set_target_properties(chimera-sdk-file-example PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(chimera-sdk-file-example PRIVATE chimera_sdk)
+add_test(NAME chimera_sdk_event_example COMMAND chimera-sdk-event-example)
+add_test(NAME chimera_sdk_file_example COMMAND chimera-sdk-file-example)
 target_link_libraries(chimera-sdk-config PRIVATE chimera_sdk)
 install(TARGETS chimera_sdk chimera-sdk-config ARCHIVE DESTINATION lib RUNTIME DESTINATION bin)
 install(DIRECTORY include/ DESTINATION include)
