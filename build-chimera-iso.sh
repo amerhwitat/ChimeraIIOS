@@ -355,18 +355,6 @@ choose_storage(){
 preflight(){
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
-  # Architecture/ISA discovery is metadata-only and defaults to offline mode.
-  # Network research is opt-in; failures do not silently promote support claims.
-  if [[ "${CHIMERA_ARCH_DISCOVERY:-1}" == 1 && -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
-    local -a discovery_args=(--output-dir "$BUILD_DIR/architecture-discovery")
-    [[ "${CHIMERA_ARCH_DISCOVERY_ONLINE:-0}" == 1 ]] && discovery_args+=(--online)
-    if ! python3 "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" "${discovery_args[@]}"; then
-      if [[ "${CHIMERA_ARCH_DISCOVERY_STRICT:-0}" == 1 ]]; then
-        log_error 'Architecture discovery failed in strict mode'; return 1
-      fi
-      log_warning 'Architecture discovery failed; continuing build without promoting candidates.'
-    fi
-  fi
   header 'CPU / MEDIA PROFILE'
   log_info "Detected build-host CPU: $HOST_ARCH"
   log_info "Selected ISO target CPU: $TARGET_ARCH"
@@ -382,6 +370,18 @@ preflight(){
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
       export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
+  fi
+  # Architecture/ISA discovery is metadata-only and defaults to offline mode.
+  # Network research is opt-in; failures do not silently promote support claims.
+  if [[ "${CHIMERA_ARCH_DISCOVERY:-1}" == 1 && -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
+    local -a discovery_args=(--output-dir "$BUILD_DIR/architecture-discovery")
+    [[ "${CHIMERA_ARCH_DISCOVERY_ONLINE:-0}" == 1 ]] && discovery_args+=(--online)
+    if ! python3 "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" "${discovery_args[@]}"; then
+      if [[ "${CHIMERA_ARCH_DISCOVERY_STRICT:-0}" == 1 ]]; then
+        log_error 'Architecture discovery failed in strict mode'; return 1
+      fi
+      log_warning 'Architecture discovery failed; continuing build without promoting candidates.'
+    fi
   fi
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
 }
@@ -1210,8 +1210,18 @@ verify_iso(){
   xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
   log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
-    log_info 'QEMU BIOS boot probe available; launching headless firmware probe.'
-    timeout "${CHIMERA_QEMU_BOOT_TIMEOUT:-20}" qemu-system-x86_64 -accel tcg -m 512 -cdrom "$iso" -display none -serial none -monitor none -no-reboot -no-shutdown >/dev/null 2>&1 || true
+    log_info 'Launching a non-asserting QEMU firmware smoke probe; timeout is not proof of boot success.'
+    local qemu_probe_rc=0
+    timeout "${CHIMERA_QEMU_BOOT_TIMEOUT:-20}" qemu-system-x86_64 -accel tcg -m 512 -cdrom "$iso" -display none -serial none -monitor none -no-reboot -no-shutdown >"$LOG_DIR/qemu-firmware-probe.log" 2>&1 || qemu_probe_rc=$?
+    if (( qemu_probe_rc == 124 )); then
+      log_warning 'QEMU smoke probe reached its timeout; no boot milestone was asserted. See qemu-firmware-probe.log.'
+    elif (( qemu_probe_rc != 0 )); then
+      log_warning "QEMU smoke probe exited with status $qemu_probe_rc; see qemu-firmware-probe.log."
+    else
+      log_info 'QEMU smoke probe exited cleanly, but userspace readiness still requires a dedicated observable acceptance test.'
+    fi
+  else
+    log_warning 'QEMU is unavailable; ISO verification is structural only and does not assert a runtime boot.'
   fi
 }
 

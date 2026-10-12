@@ -44,6 +44,16 @@ class BuildPipelineContractTests(unittest.TestCase):
         self.assertIn('packaging/systemd/user/chimera-architecture-discovery.timer', self.script)
         self.assertIn('Staged Aurora architecture/ISA discovery worker', self.script)
 
+    def test_qemu_timeout_is_not_reported_as_boot_success(self):
+        self.assertIn("no boot milestone was asserted", self.script)
+        self.assertIn('qemu-firmware-probe.log', self.script)
+        self.assertNotIn('qemu-system-x86_64 -accel tcg -m 512 -cdrom "$iso" -display none -serial none -monitor none -no-reboot -no-shutdown >/dev/null 2>&1 || true', self.script)
+
+    def test_discovery_uses_final_selected_build_directory(self):
+        storage_check = self.script.index('if ((rg<20 || og<20)); then')
+        discovery_call = self.script.index('tools/architecture_discovery/chimera_discovery.py')
+        self.assertGreater(discovery_call, storage_check)
+
 
 if __name__ == "__main__":
     unittest.main()
