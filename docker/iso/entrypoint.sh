@@ -70,4 +70,8 @@ OUTPUT_NAME="$(basename "$OUTPUT_ISO")"
   sha256sum "$OUTPUT_NAME" > "$OUTPUT_NAME.sha256"
 )
 cat "$OUTPUT_DIR/$OUTPUT_NAME.sha256"
+(
+  cd "$OUTPUT_DIR"
+  sha256sum --check "$OUTPUT_NAME.sha256"
+)
 echo "ISO artifact: $OUTPUT_ISO"
