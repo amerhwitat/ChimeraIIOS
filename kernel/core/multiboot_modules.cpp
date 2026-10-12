@@ -2,7 +2,9 @@
 namespace {
 constexpr uint32_t MAX_MODULES=64;
 chimera_boot_module modules[MAX_MODULES];
-uint32_t module_count=0;\nchar kernel_cmdline[128];\nuint32_t diagnostics_mode=0;
+uint32_t module_count=0;
+char kernel_cmdline[128];
+uint32_t diagnostics_mode=0;
 static void copy_cmd(char* dst,const char* src){
  uint32_t i=0;
  if(!src){dst[0]=0;return;}
@@ -39,7 +41,11 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
   const uint32_t type=*(const uint32_t*)(base+off);
   const uint32_t size=*(const uint32_t*)(base+off+4);
   if(size<8||off+size>total)break;
-  if(type==1&&size>=9){\n   copy_cmd(kernel_cmdline,(const char*)(base+off+8));\n   diagnostics_mode=has(kernel_cmdline,"chm.mode=diagnostics")?1u:0u;\n  }\n  if(type==3&&size>=16&&module_count<MAX_MODULES){
+  if(type==1&&size>=9){
+   copy_cmd(kernel_cmdline,(const char*)(base+off+8));
+   diagnostics_mode=has(kernel_cmdline,"chm.mode=diagnostics")?1u:0u;
+  }
+  if(type==3&&size>=16&&module_count<MAX_MODULES){
    const uint32_t start=*(const uint32_t*)(base+off+8);
    const uint32_t end=*(const uint32_t*)(base+off+12);
    chimera_boot_module&m=modules[module_count++];
