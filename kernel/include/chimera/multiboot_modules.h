@@ -9,7 +9,9 @@ typedef struct { uint64_t base,size; uint32_t kind; char cmdline[128]; } chimera
 uint32_t chimera_multiboot_scan(uint64_t boot_info);
 uint32_t chimera_multiboot_module_count(void);
 const chimera_boot_module* chimera_multiboot_module(uint32_t index);
-const chimera_boot_module* chimera_multiboot_find(uint32_t kind);\nconst char* chimera_multiboot_kernel_cmdline(void);\nuint32_t chimera_multiboot_diagnostics_mode(void);
+const chimera_boot_module* chimera_multiboot_find(uint32_t kind);
+const char* chimera_multiboot_kernel_cmdline(void);
+uint32_t chimera_multiboot_diagnostics_mode(void);
 #ifdef __cplusplus
 }
 #endif
