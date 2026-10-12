@@ -6,35 +6,132 @@
     "header": "kernel/include/chimera/syscall.h",
     "entry_architecture": "x86_64 interrupt/syscall entry is architecture-specific",
     "implemented_semantic_ids": [
-      {"id": 2, "name": "GETPID", "status": "placeholder-implementation"},
-      {"id": 3, "name": "YIELD", "status": "implemented"},
-      {"id": 4, "name": "TIME_TICKS", "status": "implemented"},
-      {"id": 1, "name": "EXIT", "status": "acknowledged-no-process-teardown"},
-      {"id": 16, "name": "EXIT_GROUP", "status": "acknowledged-no-process-teardown"}
+      {
+        "id": 2,
+        "name": "GETPID",
+        "status": "placeholder-implementation"
+      },
+      {
+        "id": 3,
+        "name": "YIELD",
+        "status": "implemented"
+      },
+      {
+        "id": 4,
+        "name": "TIME_TICKS",
+        "status": "implemented"
+      },
+      {
+        "id": 1,
+        "name": "EXIT",
+        "status": "acknowledged-no-process-teardown"
+      },
+      {
+        "id": 16,
+        "name": "EXIT_GROUP",
+        "status": "acknowledged-no-process-teardown"
+      }
     ],
     "declared_but_not_implemented": [
-      {"id": 8, "name": "READ", "status": "ENOSYS"},
-      {"id": 9, "name": "WRITE", "status": "ENOSYS"},
-      {"id": 10, "name": "MMAP", "status": "ENOSYS"},
-      {"id": 11, "name": "MUNMAP", "status": "ENOSYS"},
-      {"id": 12, "name": "IOCTL", "status": "ENOSYS"},
-      {"id": 13, "name": "NANOSLEEP", "status": "ENOSYS"},
-      {"id": 14, "name": "WAIT", "status": "ENOSYS"},
-      {"id": 15, "name": "ARCH_PRCTL", "status": "ENOSYS"}
+      {
+        "id": 8,
+        "name": "READ",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 9,
+        "name": "WRITE",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 10,
+        "name": "MMAP",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 11,
+        "name": "MUNMAP",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 12,
+        "name": "IOCTL",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 13,
+        "name": "NANOSLEEP",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 14,
+        "name": "WAIT",
+        "status": "ENOSYS"
+      },
+      {
+        "id": 15,
+        "name": "ARCH_PRCTL",
+        "status": "ENOSYS"
+      }
     ]
   },
   "programming_models": {
     "windows_event_driven": {
       "style": "message-loop, handles, callbacks, overlapped IO",
-      "sdk_header": "sdk/include/chimera/event.h",
-      "sdk_status": "thread-safe-user-space-queue",
+      "sdk_header": "sdk/include/chimera/win32_message.h",
+      "sdk_status": "implemented user-space message queue adapter; no full Win32 GUI/kernel ABI",
       "api_families": {
-        "kernel32": ["CreateProcess", "CreateThread", "CreateEvent", "SetEvent", "WaitForSingleObject", "WaitForMultipleObjects", "CreateFile", "ReadFile", "WriteFile", "CloseHandle", "VirtualAlloc", "VirtualFree"],
-        "user32": ["GetMessage", "PeekMessage", "TranslateMessage", "DispatchMessage", "PostMessage", "SendMessage", "DefWindowProc", "CreateWindowEx", "DestroyWindow"],
-        "gdi32": ["BeginPaint", "EndPaint", "TextOut", "BitBlt"],
-        "ws2_32": ["socket", "bind", "connect", "listen", "accept", "send", "recv", "WSAWaitForMultipleEvents", "IOCP"],
-        "ntdll": ["NtCreateFile", "NtReadFile", "NtWriteFile", "NtWaitForSingleObject", "NtCreateSection"],
-        "status": "catalogued; full API implementation not claimed"
+        "kernel32": [
+          "CreateProcess",
+          "CreateThread",
+          "CreateEvent",
+          "SetEvent",
+          "WaitForSingleObject",
+          "WaitForMultipleObjects",
+          "CreateFile",
+          "ReadFile",
+          "WriteFile",
+          "CloseHandle",
+          "VirtualAlloc",
+          "VirtualFree"
+        ],
+        "user32": [
+          "GetMessage",
+          "PeekMessage",
+          "TranslateMessage",
+          "DispatchMessage",
+          "PostMessage",
+          "SendMessage",
+          "DefWindowProc",
+          "CreateWindowEx",
+          "DestroyWindow"
+        ],
+        "gdi32": [
+          "BeginPaint",
+          "EndPaint",
+          "TextOut",
+          "BitBlt"
+        ],
+        "ws2_32": [
+          "socket",
+          "bind",
+          "connect",
+          "listen",
+          "accept",
+          "send",
+          "recv",
+          "WSAWaitForMultipleEvents",
+          "IOCP"
+        ],
+        "ntdll": [
+          "NtCreateFile",
+          "NtReadFile",
+          "NtWriteFile",
+          "NtWaitForSingleObject",
+          "NtCreateSection"
+        ],
+        "status": "catalogued; full API implementation not claimed",
+        "user32_status": "implemented subset: PostMessage-shaped posting, GetMessage-shaped retrieval, DispatchMessage-shaped callback; CreateWindowEx/DefWindowProc/real HWND backend pending"
       }
     },
     "linux_posix_file_oriented": {
@@ -42,12 +139,58 @@
       "sdk_header": "sdk/include/chimera/file.h",
       "sdk_status": "hosted-posix-adapter; native kernel VFS binding pending",
       "api_families": {
-        "file": ["open", "close", "read", "write", "pread", "pwrite", "lseek", "stat", "fstat", "unlink", "rename", "fsync"],
-        "process": ["fork", "execve", "wait4", "exit", "getpid", "kill", "clone"],
-        "memory": ["mmap", "munmap", "mprotect", "brk"],
-        "events": ["poll", "select", "epoll_create1", "epoll_ctl", "epoll_wait", "signalfd", "timerfd_create", "inotify_init1"],
-        "network": ["socket", "bind", "connect", "accept4", "sendmsg", "recvmsg"],
-        "linux_entry": ["x86_64 syscall", "i386 int 0x80/sysenter", "AArch64 svc #0"],
+        "file": [
+          "open",
+          "close",
+          "read",
+          "write",
+          "pread",
+          "pwrite",
+          "lseek",
+          "stat",
+          "fstat",
+          "unlink",
+          "rename",
+          "fsync"
+        ],
+        "process": [
+          "fork",
+          "execve",
+          "wait4",
+          "exit",
+          "getpid",
+          "kill",
+          "clone"
+        ],
+        "memory": [
+          "mmap",
+          "munmap",
+          "mprotect",
+          "brk"
+        ],
+        "events": [
+          "poll",
+          "select",
+          "epoll_create1",
+          "epoll_ctl",
+          "epoll_wait",
+          "signalfd",
+          "timerfd_create",
+          "inotify_init1"
+        ],
+        "network": [
+          "socket",
+          "bind",
+          "connect",
+          "accept4",
+          "sendmsg",
+          "recvmsg"
+        ],
+        "linux_entry": [
+          "x86_64 syscall",
+          "i386 int 0x80/sysenter",
+          "AArch64 svc #0"
+        ],
         "status": "names catalogued; only kernel dispatcher subset implemented"
       }
     },
@@ -56,10 +199,36 @@
       "sdk_header": "sdk/include/chimera/file.h",
       "sdk_status": "hosted-posix-adapter; Darwin ABI translation/frameworks pending",
       "api_families": {
-        "posix": ["open", "close", "read", "write", "mmap", "munmap", "stat", "fcntl", "kqueue", "kevent"],
-        "darwin_entry": ["x86_64 syscall", "AArch64 svc"],
-        "mach": ["mach_msg_trap", "mach_port_allocate", "mach_port_deallocate", "vm_allocate", "vm_deallocate", "task_info"],
-        "objective_c": ["Clang Objective-C frontend", "Foundation", "AppKit", "Objective-C runtime"],
+        "posix": [
+          "open",
+          "close",
+          "read",
+          "write",
+          "mmap",
+          "munmap",
+          "stat",
+          "fcntl",
+          "kqueue",
+          "kevent"
+        ],
+        "darwin_entry": [
+          "x86_64 syscall",
+          "AArch64 svc"
+        ],
+        "mach": [
+          "mach_msg_trap",
+          "mach_port_allocate",
+          "mach_port_deallocate",
+          "vm_allocate",
+          "vm_deallocate",
+          "task_info"
+        ],
+        "objective_c": [
+          "Clang Objective-C frontend",
+          "Foundation",
+          "AppKit",
+          "Objective-C runtime"
+        ],
         "status": "compiler driver supports object compilation; frameworks/runtime and native Mach-O execution are not claimed"
       }
     }
@@ -78,7 +247,11 @@
   "objective_c_driver": {
     "command": "sdk/bin/chimera-objc",
     "compiler": "Clang Objective-C frontend",
-    "targets": ["native", "darwin-x86_64", "darwin-arm64"],
+    "targets": [
+      "native",
+      "darwin-x86_64",
+      "darwin-arm64"
+    ],
     "macos_link_requires": "CHIMERA_MACOS_SDK pointing to a matching SDK",
     "status": "syntax/object compilation supported subject to installed Clang; full macOS app linking requires SDK/runtime/frameworks"
   }
