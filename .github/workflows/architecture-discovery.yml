@@ -1,0 +1,48 @@
+name: Architecture and ISA discovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      online:
+        description: Check allowlisted upstream text sources
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    - cron: "23 5 * * 1"
+  pull_request:
+    paths:
+      - "tools/architecture_discovery/**"
+      - "config/architecture-discovery/**"
+      - "config/compatibility/distro-desktop-profiles.json"
+      - "tests/test_architecture_discovery.py"
+      - ".github/workflows/architecture-discovery.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile discovery tool
+        run: python -m py_compile tools/architecture_discovery/chimera_discovery.py tests/test_architecture_discovery.py
+      - name: Run safety and proposal tests
+        run: python -m unittest tests.test_architecture_discovery -v
+      - name: Run deterministic offline discovery
+        run: python tools/architecture_discovery/chimera_discovery.py --output-dir build/architecture-discovery
+      - name: Optional bounded online source scan
+        if: github.event_name == 'workflow_dispatch' && inputs.online
+        run: python tools/architecture_discovery/chimera_discovery.py --online --output-dir build/architecture-discovery
+      - name: Upload discovery report
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-discovery-report
+          path: build/architecture-discovery/architecture-discovery-report.json
+          if-no-files-found: error
+          retention-days: 30
