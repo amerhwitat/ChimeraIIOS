@@ -991,7 +991,7 @@
       64,
       "catalog-only",
       "virtual instruction set; verifier/runtime restrictions",
-      "bpf",
+      "ebpf",
       0
     ],
     [

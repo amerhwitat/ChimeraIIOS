@@ -1210,6 +1210,9 @@ PYISA
   log_info "Validating and generating binary/hex ISA sample artifacts"
   python3 "$SCRIPT_DIR/tools/validate_isa_catalog.py" || { log_error "ISA sample validation failed"; return 1; }
   python3 "$SCRIPT_DIR/tools/isa/generate_encoding_artifacts.py" || { log_error "ISA encoding artifact generation failed"; return 1; }
+  local universal_args=()
+  [[ -s "$SCRIPT_DIR/isa/sources/imports/riscv-opcodes.json" ]] && universal_args+=(--input "$SCRIPT_DIR/isa/sources/imports/riscv-opcodes.json")
+  python3 "$SCRIPT_DIR/tools/isa/build_universal_catalog.py" "${universal_args[@]}" || { log_error "Universal ISA catalog generation failed"; return 1; }
   [[ -s "$SCRIPT_DIR/isa/generated/isa-encoding-samples.json" ]] || { log_error "ISA sample JSON missing"; return 1; }
   [[ -s "$SCRIPT_DIR/isa/generated/isa-encoding-registry.json" ]] || { log_error "ISA encoding registry JSON missing"; return 1; }
   [[ -s "$SCRIPT_DIR/kernel/generated/chimera_isa_encoding_samples.generated.h" ]] || { log_error "ISA sample header missing"; return 1; }
@@ -1247,6 +1250,10 @@ main(){
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+    log_info "Discovering official and machine-readable ISA source entry points"
+    python3 "$SCRIPT_DIR/tools/isa/crawl_sources.py" --refresh || { log_error "ISA source discovery failed"; return 1; }
+    log_info "Importing source-backed RISC-V opcode masks"
+    python3 "$SCRIPT_DIR/tools/isa/import_riscv_opcodes.py" || { log_error "RISC-V opcode import failed"; return 1; }
   fi
   if [[ -f "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" ]]; then
     log_info "Appending source-backed ISA discoveries and command references to the local catalogs"

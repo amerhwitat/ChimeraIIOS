@@ -1,0 +1,30 @@
+name: ISA importer validation
+
+on:
+  push:
+    branches:
+      - main
+      - "isa/**"
+      - "feat/isa-**"
+  pull_request:
+    paths:
+      - "tools/isa/architecture_importers.py"
+      - "tools/isa/tests/test_architecture_importers.py"
+      - ".github/workflows/isa-importer-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  importer-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Compile importer and tests
+        run: python -m py_compile tools/isa/architecture_importers.py tools/isa/tests/test_architecture_importers.py
+      - name: Run importer contract tests
+        run: python -m unittest discover -s tools/isa/tests -p 'test_architecture_importers.py' -v
