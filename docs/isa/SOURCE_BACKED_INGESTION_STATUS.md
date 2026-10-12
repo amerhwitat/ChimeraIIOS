@@ -11,7 +11,7 @@
 
 The RISC-V adapter imports encoding masks and source provenance. It intentionally does **not** infer register read/write effects, flags, memory behavior, traps, privilege checks, or semantics from an instruction mnemonic. Those properties must come from an authoritative semantic description or remain unknown. Imported forms remain `not-implemented` until an execution implementation exists.
 
-The source URL currently references the upstream moving `master` branch. For reproducible releases, pin the repository tree to a commit SHA and preserve that SHA in each record. Review licensing and source terms before redistributing imported data.
+The RISC-V opcode importer pins upstream commit `5783cf3bea312a48d28e3e2c8a2fcb55603e4bed` by default, records the immutable revision in each row, and accepts an explicit `--revision` override only when it is a 40-character commit SHA. Review and update this pin intentionally when refreshing the source catalog. Review licensing and source terms before redistributing imported data.
 
 ## Next family adapters
 
