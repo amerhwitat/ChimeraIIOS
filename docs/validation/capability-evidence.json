@@ -99,7 +99,7 @@
       "evidence": [
         {
           "kind": "document",
-          "ref": "docs/programming-models.md",
+          "ref": "sdk/manuals/PROGRAMMING_MODELS.md",
           "claim": "SDK programming-model boundary and remaining gaps"
         }
       ],
