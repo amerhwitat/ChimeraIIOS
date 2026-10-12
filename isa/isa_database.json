@@ -22,7 +22,7 @@
     "value_bits",
     "mask_bits"
   ],
-  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution. Update 2026-10-11: appended additional candidate architecture and extension inventory rows from the project's curated source registry. New rows with zero instruction forms are discovery/training candidates only; no encoding, decode, execution, or conformance support is implied. AI-assisted mapping must cite database row/source references and report uncertainty; only deterministic, validated backends may execute instructions. Update 2026-10-12: added explicit RV32I sample rows and a Z80 register-move sample; corrected the Power ISA ADDI worked sample to the encoding for addi r3,r4,1 (0x38640001). New instruction rows are catalogued samples, not proof of decoder/backend/conformance support. Existing compatibility mappings remain advisory unless an implementation and tests are explicitly listed. Update 2026-10-12: added explicit RV32I sample rows and a Z80 register-move sample; corrected the Power ISA ADDI worked sample to the encoding for addi r3,r4,1 (0x38640001). Added enriched cross-ISA encoding examples with byte/binary representations, affected registers/flags, memory effects, source references, compatibility requirements, and explicitly proposal-only N-bit mappings. These samples do not establish backend or conformance support.",
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution. Update 2026-10-11: appended additional candidate architecture and extension inventory rows from the project's curated source registry. New rows with zero instruction forms are discovery/training candidates only; no encoding, decode, execution, or conformance support is implied. AI-assisted mapping must cite database row/source references and report uncertainty; only deterministic, validated backends may execute instructions. Update 2026-10-12: added explicit RV32I sample rows and a Z80 register-move sample; corrected the Power ISA ADDI worked sample to the encoding for addi r3,r4,1 (0x38640001). New instruction rows are catalogued samples, not proof of decoder/backend/conformance support. Existing compatibility mappings remain advisory unless an implementation and tests are explicitly listed. Update 2026-10-12: added explicit RV32I sample rows and a Z80 register-move sample; corrected the Power ISA ADDI worked sample to the encoding for addi r3,r4,1 (0x38640001). Added enriched cross-ISA encoding examples with byte/binary representations, affected registers/flags, memory effects, source references, compatibility requirements, and explicitly proposal-only N-bit mappings. These samples do not establish backend or conformance support. Clarification: instruction bit strings and hex_word encode the architectural instruction word. hex_bytes is a memory-order byte sequence only when the target byte order is specified; bi-endian architectures leave it null until a target endianness is selected.",
   "architectures": [
     [
       "chimera-c8192",
@@ -12669,7 +12669,8 @@
       },
       "encoding_status": "documented-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x90"
     },
     {
       "architecture": "x86-64",
@@ -12693,7 +12694,8 @@
       },
       "encoding_status": "documented-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0xC3"
     },
     {
       "architecture": "x86-64",
@@ -12724,7 +12726,8 @@
       },
       "encoding_status": "documented-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x4801D8"
     },
     {
       "architecture": "aarch64",
@@ -12732,7 +12735,7 @@
       "syntax": "ADD X0,X1,X2",
       "length_bits": 32,
       "binary_bits": "10001011000000100000000000100000",
-      "hex_bytes": "8B 02 00 20",
+      "hex_bytes": "20 00 02 8B",
       "affected_registers": [
         "X0"
       ],
@@ -12747,7 +12750,8 @@
       },
       "encoding_status": "documented-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x8B020020"
     },
     {
       "architecture": "riscv32",
@@ -12755,7 +12759,7 @@
       "syntax": "ADD x1,x2,x3",
       "length_bits": 32,
       "binary_bits": "00000000001100010000000010110011",
-      "hex_bytes": "00 31 00 B3",
+      "hex_bytes": "B3 00 31 00",
       "affected_registers": [
         "x1"
       ],
@@ -12770,7 +12774,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "reference-subset-only",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x003100B3"
     },
     {
       "architecture": "riscv32",
@@ -12778,7 +12783,7 @@
       "syntax": "ADDI x1,x2,5",
       "length_bits": 32,
       "binary_bits": "00000000010100010000000010010011",
-      "hex_bytes": "00 51 00 93",
+      "hex_bytes": "93 00 51 00",
       "affected_registers": [
         "x1"
       ],
@@ -12793,7 +12798,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "reference-subset-only",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x00510093"
     },
     {
       "architecture": "riscv32",
@@ -12801,7 +12807,7 @@
       "syntax": "LW x1,8(x2)",
       "length_bits": 32,
       "binary_bits": "00000000100000010010000010000011",
-      "hex_bytes": "00 81 20 83",
+      "hex_bytes": "83 20 81 00",
       "affected_registers": [
         "x1"
       ],
@@ -12816,7 +12822,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x00812083"
     },
     {
       "architecture": "riscv32",
@@ -12824,7 +12831,7 @@
       "syntax": "SW x3,8(x2)",
       "length_bits": 32,
       "binary_bits": "00000000001100010010010000100011",
-      "hex_bytes": "00 31 24 23",
+      "hex_bytes": "23 24 31 00",
       "affected_registers": [],
       "flags_affected": [],
       "memory_effect": "store low 32 bits of x3 to address x2+8; faults and ordering are architecture-defined",
@@ -12837,7 +12844,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x00312423"
     },
     {
       "architecture": "riscv32",
@@ -12845,7 +12853,7 @@
       "syntax": "BEQ x1,x2,8",
       "length_bits": 32,
       "binary_bits": "00000000001000001000010001100011",
-      "hex_bytes": "00 20 84 63",
+      "hex_bytes": "63 84 20 00",
       "affected_registers": [
         "PC"
       ],
@@ -12860,7 +12868,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x00208463"
     },
     {
       "architecture": "riscv32",
@@ -12868,7 +12877,7 @@
       "syntax": "FENCE",
       "length_bits": 32,
       "binary_bits": "00000000000000000000000000001111",
-      "hex_bytes": "00 00 00 0F",
+      "hex_bytes": "0F 00 00 00",
       "affected_registers": [],
       "flags_affected": [],
       "memory_effect": "orders selected predecessor/successor memory and I/O operations; a no-op implementation is valid only when the execution environment guarantees equivalent ordering",
@@ -12881,7 +12890,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x0000000F"
     },
     {
       "architecture": "mips32",
@@ -12889,7 +12899,7 @@
       "syntax": "LW $t0,0($t1)",
       "length_bits": 32,
       "binary_bits": "10001101001010000000000000000000",
-      "hex_bytes": "8D 28 00 00",
+      "hex_bytes": null,
       "affected_registers": [
         "$t0"
       ],
@@ -12904,7 +12914,9 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x8D280000",
+      "encoding_representation_note": "hex_word is the architectural encoding value; memory bytes depend on the selected endianness/word-storage convention."
     },
     {
       "architecture": "powerpc",
@@ -12912,7 +12924,7 @@
       "syntax": "addi r3,r4,1",
       "length_bits": 32,
       "binary_bits": "00111000011001000000000000000001",
-      "hex_bytes": "38 64 00 01",
+      "hex_bytes": null,
       "affected_registers": [
         "r3"
       ],
@@ -12927,7 +12939,9 @@
       },
       "encoding_status": "corrected-reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x38640001",
+      "encoding_representation_note": "hex_word is the architectural encoding value; memory bytes depend on the selected endianness/word-storage convention."
     },
     {
       "architecture": "z80",
@@ -12950,7 +12964,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x78"
     },
     {
       "architecture": "avr",
@@ -12958,7 +12973,7 @@
       "syntax": "ADD r16,r17",
       "length_bits": 16,
       "binary_bits": "0000111100000001",
-      "hex_bytes": "0F 01",
+      "hex_bytes": null,
       "affected_registers": [
         "r16",
         "SREG"
@@ -12981,7 +12996,9 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x0F01",
+      "encoding_representation_note": "hex_word is the architectural encoding value; memory bytes depend on the selected endianness/word-storage convention."
     },
     {
       "architecture": "6502",
@@ -13010,7 +13027,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x6901"
     },
     {
       "architecture": "8051",
@@ -13033,7 +13051,8 @@
       },
       "encoding_status": "reference-sample",
       "execution_status": "not-implemented",
-      "conformance_status": "not-tested"
+      "conformance_status": "not-tested",
+      "hex_word": "0x7401"
     }
   ]
 }
