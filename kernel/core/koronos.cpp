@@ -180,6 +180,9 @@ static const char *module_kind_name(uint32_t k) {
         case CHIMERA_MODULE_INSTALL_CONTRACT: return "INSTALL CONTRACT";
         case CHIMERA_MODULE_INSTALL_PHASES: return "INSTALL PHASES";
         case CHIMERA_MODULE_INSTALL_PROFILES: return "INSTALL PROFILES";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
+        case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
+        case CHIMERA_MODULE_DIAGNOSTIC_BACKGROUND: return "DIAGNOSTICS BACKGROUND";
         default: return "OTHER";
     }
 }
@@ -229,6 +232,10 @@ static void task_live(void *) {
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
             console_write("[LIVE] Runtime handoff queued");
+            chimera_sched_block();
+        } else if (chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) ||
+                   chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST)) {
+            console_write("[LIVE] Recovery target detected; live service idle");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -374,11 +381,11 @@ static void koronos_submit_bootstrap_tasks() {
     int b = chimera_sched_submit(task_modules, 0, 90);
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
-    int e = chimera_sched_submit(task_kore, 0, 95);
+    int r = chimera_sched_submit(task_recovery, 0, 80);\n    int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
-    console_write("[SCH ] console/module/live/installer/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0)
+    console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
+    if (a < 0 || b < 0 || c < 0 || d < 0 || r < 0 || e < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
