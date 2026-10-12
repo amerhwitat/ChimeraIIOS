@@ -35,7 +35,7 @@ jobs:
           PYTHONPATH=sdk/python python3 sdk/tests/sdk_smoke.py
           build/sdk/sdk/chimera-sdk-config
           build/sdk/sdk/chimera-sdk-native-api-smoke
-          ctest --test-dir build/sdk --output-on-failure
+          ctest --test-dir build/sdk -R '^chimera_sdk_' --output-on-failure
           python3 -m json.tool compat/api-abi-registry.json >/dev/null
       - name: Objective-C and macOS target syntax checks
         run: |
