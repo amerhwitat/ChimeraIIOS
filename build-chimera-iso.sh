@@ -1191,7 +1191,10 @@ verify_iso(){
     /boot/visual/Init.mp4
     /boot/visual/chimera-intro.mp4
     /boot/jasper/jasper.cfg
+    /boot/jasper/live.cfg
     /boot/jasper/install.cfg
+    /boot/jasper/recovery.cfg
+    /boot/jasper/diagnostics.cfg
     /boot/jasper/retro.cfg
     /boot/installation/menu.cfg
     /boot/spitfire/spitfire-menu.cfg
