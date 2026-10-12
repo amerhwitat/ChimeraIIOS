@@ -14,7 +14,8 @@ for arg in "$@"; do
   esac
 done
 
-case "$compiler" in clang|clang-*) ;;
+compiler_name="${compiler##*/}"
+case "$compiler_name" in clang|clang-*) ;;
   *) echo "chimera-objc: CHIMERA_OBJC_COMPILER must name clang" >&2; exit 2 ;;
 esac
 target_args=()
