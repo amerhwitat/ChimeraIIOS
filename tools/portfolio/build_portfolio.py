@@ -6,7 +6,7 @@ pinned/default branches, inventories source/build systems, and invokes only
 recognized build commands in isolated working trees. Failures are recorded.
 """
 from __future__ import annotations
-import argparse, hashlib, json, os, shutil, subprocess
+import argparse, hashlib, json, os, py_compile, shutil, subprocess
 from pathlib import Path
 
 REPOS = [
@@ -60,8 +60,10 @@ def build_one(repo,src,out,log):
  # Python source is syntax-checked, never pip-installed or executed.
  python_files=[p for p in src.rglob("*.py") if ".git" not in p.parts and not any(part in {"build","target","node_modules",".venv","venv"} for part in p.parts)]
  for p in python_files:
-  rc=run(["python3","-m","py_compile",str(p)],src,log)
-  if rc: failures.append({"stage":"python-syntax","path":str(p.relative_to(src)),"returncode":rc})
+  try:
+   py_compile.compile(str(p),doraise=True)
+  except Exception as exc:
+   failures.append({"stage":"python-syntax","path":str(p.relative_to(src)),"error":str(exc)})
  # Stage artifacts without inferring that they are executable or compatible.
  for p in src.rglob("*"):
   if not p.is_file() or ".git" in p.parts: continue
