@@ -15,7 +15,7 @@ class BuildPipelineContractTests(unittest.TestCase):
 
     def test_resume_order_matches_actual_stage_loop(self):
         order_match = re.search(r"local order='([^']+)'", self.script)
-        loop_match = re.search(r"for stage in ([^;]+); do", self.script)
+        loop_match = re.search(r"for stage in (docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report); do", self.script)
         self.assertIsNotNone(order_match, "state resume order is missing")
         self.assertIsNotNone(loop_match, "build stage loop is missing")
         self.assertEqual(order_match.group(1).split(), loop_match.group(1).split())
