@@ -861,6 +861,25 @@ prepare_apache_ecosystem(){
 }
 prepare_apache(){ prepare_apache_ecosystem; }
 stage_features(){
+  # Install the bounded discovery worker and its data/configuration into the
+  # rootfs so Aurora can run it from a user-level systemd timer at runtime.
+  if [[ -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/lib/chimera/tools/architecture_discovery" \
+             "$ROOTFS_DIR/usr/lib/chimera/config/architecture-discovery" \
+             "$ROOTFS_DIR/usr/lib/chimera/config/compatibility" \
+             "$ROOTFS_DIR/usr/lib/systemd/user"
+    cp -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" "$ROOTFS_DIR/usr/lib/chimera/tools/architecture_discovery/chimera_discovery.py"
+    cp -f "$SCRIPT_DIR/tools/architecture_discovery/__init__.py" "$ROOTFS_DIR/usr/lib/chimera/tools/architecture_discovery/__init__.py"
+    cp -f "$SCRIPT_DIR/config/architecture-discovery/sources.json" "$ROOTFS_DIR/usr/lib/chimera/config/architecture-discovery/sources.json"
+    cp -f "$SCRIPT_DIR/config/compatibility/distro-desktop-profiles.json" "$ROOTFS_DIR/usr/lib/chimera/config/compatibility/distro-desktop-profiles.json"
+    if [[ -s "$SCRIPT_DIR/isa/isa_database.json" ]]; then
+      mkdir -p "$ROOTFS_DIR/usr/lib/chimera/isa"
+      cp -f "$SCRIPT_DIR/isa/isa_database.json" "$ROOTFS_DIR/usr/lib/chimera/isa/isa_database.json"
+    fi
+    cp -f "$SCRIPT_DIR/packaging/systemd/user/chimera-architecture-discovery.service" "$ROOTFS_DIR/usr/lib/systemd/user/"
+    cp -f "$SCRIPT_DIR/packaging/systemd/user/chimera-architecture-discovery.timer" "$ROOTFS_DIR/usr/lib/systemd/user/"
+    log_info "Staged Aurora architecture/ISA discovery worker, profile catalog and optional weekly user timer."
+  fi
   [[ -x "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" ]] && bash "$SCRIPT_DIR/tools/stage-chimera-runtime.sh" "$ROOTFS_DIR" "$SCRIPT_DIR"
   if [[ "${CHIMERA_BUILD_EMULATORS:-0}" == 1 && -x "$SCRIPT_DIR/tools/build-emulator-stack.sh" ]]; then bash "$SCRIPT_DIR/tools/build-emulator-stack.sh" >> "$LOG_DIR/emulator-build.log" 2>&1 || printf "[WARN] Emulator build staging failed; continuing ISO build.\n" | tee -a "$LOG_DIR/chimera-build.log"; fi
   if [[ -d "$BUILD_DIR/emulators/payloads" ]]; then mkdir -p "$ROOTFS_DIR/usr/lib/chimera/emulators/payloads"; cp -a "$BUILD_DIR/emulators/payloads/." "$ROOTFS_DIR/usr/lib/chimera/emulators/payloads/"; fi
