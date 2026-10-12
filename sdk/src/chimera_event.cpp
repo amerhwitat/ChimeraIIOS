@@ -24,7 +24,8 @@ static uint64_t now_ns() {
 
 extern "C" chm_event_queue *chm_event_queue_create(size_t capacity) {
     if (!capacity || capacity > 65536) return nullptr;
-    return new (std::nothrow) chm_event_queue(capacity);
+    try { return new (std::nothrow) chm_event_queue(capacity); }
+    catch (...) { return nullptr; }
 }
 extern "C" void chm_event_queue_destroy(chm_event_queue *q) { delete q; }
 extern "C" int chm_event_post(chm_event_queue *q, const chm_event *event) {
@@ -33,7 +34,8 @@ extern "C" int chm_event_post(chm_event_queue *q, const chm_event *event) {
     if (q->stopped || q->events.size() >= q->capacity) return -2;
     chm_event copy = *event;
     if (!copy.timestamp_ns) copy.timestamp_ns = now_ns();
-    q->events.push_back(copy);
+    try { q->events.push_back(copy); }
+    catch (...) { return -3; }
     q->ready.notify_one();
     return 0;
 }
