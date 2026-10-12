@@ -128,6 +128,8 @@ EOF
 # boot-time "file not found" failures.
 if [[ -f "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
   # Invoke explicitly with bash: this source script may not carry the executable bit.
+  # Validate the script before it writes generated live/recovery payloads.
+  bash -n "$ROOT/tools/build-live-boot-binaries.sh"
   bash "$ROOT/tools/build-live-boot-binaries.sh"
 else
   echo "Live boot builder missing: $ROOT/tools/build-live-boot-binaries.sh" >&2
