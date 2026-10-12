@@ -4,7 +4,7 @@ Chimera exposes two source-level models over one capability-checked service boun
 
 ## Model A: event-driven desktop applications
 
-Use `chimera/event.h` for a portable event loop and `CHM_PostMessage`/`CHM_GetMessage` for a Win32-shaped message pump. Events include window lifecycle, keyboard/pointer input, timers, file changes, I/O readiness, quit and application-defined events.
+Use `chimera/event.h` for a portable event loop and `chimera/win32_message.h` for a Win32-shaped message pump (`chm_win32_post_message`, `chm_win32_get_message`, `chm_win32_dispatch_message`). Events include window lifecycle, keyboard/pointer input, timers, file changes, I/O readiness, quit and application-defined events.
 
 ```c
 #include "chimera/event.h"
@@ -26,7 +26,7 @@ int main(void) {
 }
 ```
 
-The SDK's `CHM_*` functions are a clean-room compatibility surface; they are **not** aliases for Microsoft's proprietary implementation. The current queue is a thread-safe user-space queue suitable for hosted SDK programs. A native Koronos GUI server still needs to feed input/window/timer notifications through a capability-checked kernel IPC backend.
+The SDK's `CHM_*` and `chm_win32_*` functions are a clean-room compatibility surface; they are **not** aliases for Microsoft's proprietary implementation. The current queue is a thread-safe user-space queue suitable for hosted SDK programs. A native Koronos GUI server still needs to feed input/window/timer notifications through a capability-checked kernel IPC backend.
 
 Windows source ports can map familiar concepts as follows:
 
