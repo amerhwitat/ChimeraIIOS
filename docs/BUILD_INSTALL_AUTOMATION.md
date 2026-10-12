@@ -1,4 +1,5 @@
-# 
+# Chimera II OS Build, Install, and Automation
+
 > **Evidence gate:** the root `build-chimera-iso.sh` validates `docs/validation/capability-evidence.json` before the expensive ISO stages and stages that registry plus `docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md` into the image. For native CMake and registered language builds/tests, use `python3 tools/build/orchestrator.py all`. An ISO build, a compile, a boot smoke test, and userspace readiness are separate outcomes.
 
 Chimera II OS Build, Dependency, Packaging and Installer Automation
