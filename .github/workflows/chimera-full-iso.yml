@@ -114,6 +114,7 @@ jobs:
             sha256sum chimera-ii-os.iso.zst > chimera-ii-os.iso.zst.sha256
           )
       - name: Upload ISO artifacts
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: chimera-ii-os-live-installer
@@ -137,6 +138,9 @@ jobs:
           notes="Automated ChimeraIIOS ISO candidate from commit $GITHUB_SHA. CI validated the original ISO checksum and BIOS/QEMU boot markers (ELBC). The ISO is distributed as Zstandard-compressed .iso.zst because the raw ISO exceeds GitHub's 2 GiB per-asset limit. Decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso; verify the compressed file with its .zst.sha256 and the decompressed ISO with chimera-ii-os.iso.sha256. This is a development prerelease; full userspace/Aurora readiness is not implied."
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "${assets[@]}" --clobber
+            gh release edit "$tag" --draft=false --prerelease \
+              --title "Chimera II OS ISO candidate (${GITHUB_SHA::7})" \
+              --notes "$notes"
           else
             gh release create "$tag" "${assets[@]}" \
               --target "$GITHUB_SHA" \
