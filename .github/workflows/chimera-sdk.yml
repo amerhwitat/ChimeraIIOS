@@ -39,8 +39,10 @@ jobs:
           python3 -m json.tool compat/api-abi-registry.json >/dev/null
       - name: Objective-C and macOS target syntax checks
         run: |
-          sdk/bin/chimera-objc --chimera-target=darwin-x86_64 -fsyntax-only sdk/examples/objective-c/hello_chimera.m
-          sdk/bin/chimera-objc --chimera-target=darwin-arm64 -fsyntax-only sdk/examples/objective-c/hello_chimera.m
+          sdk/bin/chimera-objc --chimera-target=darwin-x86_64 -c sdk/examples/objective-c/hello_chimera.m -o /tmp/chimera-objc-x86_64.o
+          sdk/bin/chimera-objc --chimera-target=darwin-arm64 -c sdk/examples/objective-c/hello_chimera.m -o /tmp/chimera-objc-arm64.o
+          test -s /tmp/chimera-objc-x86_64.o
+          test -s /tmp/chimera-objc-arm64.o
       - name: Build Java SDK
         run: bash sdk/java/build.sh
       - name: Validate Python package
