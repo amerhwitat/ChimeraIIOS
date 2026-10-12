@@ -30,3 +30,7 @@ Zig, Go, Fortran and Swift are exposed through toolchain drivers and the common 
 The OS/package layer may integrate established libraries such as Python NumPy/SciPy/PyTorch/JAX, Rust crates, Java Maven/Gradle dependencies and C/C++ pkg-config/CMake packages when a target-compatible build and license are available. These projects are not silently vendored into the Chimera source tree; package metadata records provenance, license, ABI and target compatibility.
 
 See `tools/chimera-toolchain/languages.json` and `tools/chimera-toolchain/README.md` for the machine-readable and human-readable integration contracts.
+
+## Application programming models
+
+See [`manuals/PROGRAMMING_MODELS.md`](manuals/PROGRAMMING_MODELS.md) for the event-driven desktop API, POSIX-style file APIs, syscall/interrupt privilege boundaries, compatibility status, and Objective-C/macOS compile modes. The SDK now builds a thread-safe user-space event queue and a hosted descriptor-style file adapter with executable examples and regression tests. These are not claims of full Win32, Linux syscall, Darwin/Mach, or native kernel VFS coverage.
