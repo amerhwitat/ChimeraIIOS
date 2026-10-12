@@ -5,10 +5,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(GNUInstallDirs)
 enable_testing()
-add_library(chimera_sdk STATIC src/chimera_sdk.cpp)
+add_library(chimera_sdk STATIC
+  src/chimera_sdk.cpp
+  src/chimera_event.cpp
+  src/chimera_file.cpp
+)
 target_include_directories(chimera_sdk PUBLIC include)
 add_executable(chimera-sdk-config tools/chimera-sdk-config.cpp)
 add_test(NAME chimera_sdk_config COMMAND chimera-sdk-config)
+add_executable(chimera-sdk-native-api-smoke tests/native_api_smoke.cpp)
+target_link_libraries(chimera-sdk-native-api-smoke PRIVATE chimera_sdk)
+add_test(NAME chimera_sdk_native_api_smoke COMMAND chimera-sdk-native-api-smoke)
 target_link_libraries(chimera-sdk-config PRIVATE chimera_sdk)
 install(TARGETS chimera_sdk chimera-sdk-config ARCHIVE DESTINATION lib RUNTIME DESTINATION bin)
 install(DIRECTORY include/ DESTINATION include)
