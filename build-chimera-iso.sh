@@ -1202,6 +1202,9 @@ verify_iso(){
     /install/installer/installation.img
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
+    /install/installer/installation_phases.json
+    /install/installer/installer_profiles.json
+    /install/installer/installer-initrd.img
   )
   local required_path
   for required_path in "${required_iso_paths[@]}"; do
