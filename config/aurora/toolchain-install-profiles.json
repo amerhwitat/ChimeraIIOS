@@ -1,0 +1,51 @@
+{
+  "schema": "CHM-AURORA-TOOLCHAIN-INSTALL-1",
+  "title": "Aurora Developer Toolchains",
+  "policy": {
+    "installation": "explicit-user-request",
+    "network_installs_during_iso_build": false,
+    "require_signature_or_hash_validation": true,
+    "show_license_before_install": true,
+    "show_disk_and_download_size_when_known": true,
+    "prefer_configured_native_package_provider": true,
+    "fallback": "offer-only-after-architecture-and-dependency-check",
+    "unknown_package_sources": "block-by-default"
+  },
+  "profiles": [
+    {
+      "id": "c-cpp-asm",
+      "label": "C, C++, and Assembly",
+      "tools": ["clang", "llvm", "gcc", "binutils", "nasm", "cmake", "ninja", "make", "gdb", "lldb"]
+    },
+    {
+      "id": "dotnet",
+      "label": ".NET and C#",
+      "tools": ["dotnet-sdk", "dotnet-runtime", "aspnetcore-runtime", "nuget"],
+      "driver": "tools/chimera-toolchain/chimera-csharp",
+      "project": "sdk/csharp/Chimera.Sdk.csproj",
+      "status": "driver-added-runtime-package-required"
+    },
+    {
+      "id": "systems-languages",
+      "label": "Rust, Go, Zig, Swift, Fortran",
+      "tools": ["rustc", "cargo", "go", "zig", "swift", "gfortran"]
+    },
+    {
+      "id": "managed-jvm",
+      "label": "Java and Kotlin",
+      "tools": ["openjdk", "javac", "maven", "gradle", "kotlinc"]
+    },
+    {
+      "id": "scripting",
+      "label": "Scripting and web runtimes",
+      "tools": ["python3", "pypy3", "nodejs", "npm", "corepack", "php", "ruby", "lua", "perl", "tcl", "r", "julia", "powershell"]
+    },
+    {
+      "id": "apple-cross",
+      "label": "Intel Mac and Apple Silicon cross targets",
+      "tools": ["llvm", "clang", "lld", "qemu"],
+      "target_registry": "config/compatibility/apple-cpu-targets.json",
+      "status": "cross-target-metadata-platform-boot-and-driver-validation-required"
+    }
+  ]
+}
