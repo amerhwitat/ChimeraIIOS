@@ -25,7 +25,7 @@ class RiscVOpcodeImportTests(unittest.TestCase):
 
     def test_unfixed_source_revision_is_not_the_default(self):
         self.assertRegex(MODULE.DEFAULT_REVISION, r"^[0-9a-f]{40}$")
-        self.assertIn(MODULE.DEFAULT_REVISION, MODULE.API_TREE)
+        self.assertIn("{revision}", MODULE.API_TREE)
 
 
 if __name__ == "__main__":
