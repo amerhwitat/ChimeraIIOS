@@ -82,6 +82,21 @@ def test_universal_database_instruction_candidates_have_effect_and_implementatio
             assert int(example["hex_word"], 16) == int(example["binary_bits"], 2)
 
 
+
+def test_instruction_inventory_coverage_reports_gaps_without_claiming_exhaustiveness():
+    data = json.loads(DATABASE.read_text(encoding="utf-8"))
+    report = data["instruction_inventory_coverage"]
+    assert report["canonical_architecture_rows"] == len(data["architectures"])
+    assert report["architecture_identifier_count"] == len(report["architectures"])
+    assert report["architectures_with_catalog_forms"] == sum(
+        row["catalog_instruction_rows"] > 0 for row in report["architectures"]
+    )
+    assert report["architectures_with_instruction_candidates"] == sum(
+        row["instruction_candidate_rows"] > 0 for row in report["architectures"]
+    )
+    assert report["architectures_without_catalog_forms"]
+    assert "not proof" in report["policy"]
+
 def test_worked_encoding_samples_have_consistent_binary_hex_and_register_effects():
     data = json.loads(DATABASE.read_text(encoding="utf-8"))
     source_ids = {source["id"] for source in data["sources"]}
