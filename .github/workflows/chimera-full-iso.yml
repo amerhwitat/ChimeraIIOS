@@ -52,7 +52,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Build ASM/C/C++ and compose ISO
         env:
@@ -98,7 +98,23 @@ jobs:
             exit 1
           fi
 
+      - name: Compress ISO for GitHub release asset size limit
+        run: |
+          set -euo pipefail
+          iso=build/iso/chimera-ii-os.iso
+          compressed="$iso.zst"
+          zstd -T0 -3 --force "$iso" -o "$compressed"
+          zstd -t "$compressed"
+          size="$(stat -c '%s' "$compressed")"
+          echo "Compressed ISO size: $size bytes"
+          test "$size" -lt 2147483648 || { echo "::error::Compressed ISO still exceeds GitHub's 2 GiB release asset limit"; exit 1; }
+          (
+            cd build/iso
+            sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256
+            sha256sum chimera-ii-os.iso.zst > chimera-ii-os.iso.zst.sha256
+          )
       - name: Upload ISO artifacts
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: chimera-ii-os-live-installer
@@ -114,10 +130,21 @@ jobs:
         run: |
           set -euo pipefail
           tag="iso-${GITHUB_SHA::12}"
-          gh release create "$tag" \
-            build/iso/chimera-ii-os.iso \
-            build/iso/chimera-ii-os.iso.sha256 \
-            --target "$GITHUB_SHA" \
-            --prerelease \
-            --title "Chimera II OS ISO candidate (${GITHUB_SHA::7})" \
-            --notes "Automated ISO candidate built from ChimeraIIOS commit $GITHUB_SHA. CI validated the ISO checksum and BIOS/QEMU boot markers (ELBC). This is a development prerelease; full userspace/Aurora readiness is not implied."
+          assets=(
+            build/iso/chimera-ii-os.iso.zst
+            build/iso/chimera-ii-os.iso.zst.sha256
+            build/iso/chimera-ii-os.iso.sha256
+          )
+          notes="Automated ChimeraIIOS ISO candidate from commit $GITHUB_SHA. CI validated the original ISO checksum and BIOS/QEMU boot markers (ELBC). The ISO is distributed as Zstandard-compressed .iso.zst because the raw ISO exceeds GitHub's 2 GiB per-asset limit. Decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso; verify the compressed file with its .zst.sha256 and the decompressed ISO with chimera-ii-os.iso.sha256. This is a development prerelease; full userspace/Aurora readiness is not implied."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "${assets[@]}" --clobber
+            gh release edit "$tag" --draft=false --prerelease \
+              --title "Chimera II OS ISO candidate (${GITHUB_SHA::7})" \
+              --notes "$notes"
+          else
+            gh release create "$tag" "${assets[@]}" \
+              --target "$GITHUB_SHA" \
+              --prerelease \
+              --title "Chimera II OS ISO candidate (${GITHUB_SHA::7})" \
+              --notes "$notes"
+          fi
