@@ -4419,7 +4419,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "chimera"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:x86-64:NOP:fixed",
@@ -5441,7 +5450,18 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "intel-sdm",
+            "amd",
+            "intel-avx10"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:aarch64:ADD:rrr",
@@ -7471,7 +7491,20 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 6,
+          "exact_instruction_candidate_rows": 12,
+          "source_reference_ids": [
+            "riscv",
+            "riscv-ratified",
+            "riscv-opcodes",
+            "qemu-tcg",
+            "qemu-tcg-ops"
+          ],
+          "status": "partial-forms-not-exhaustive",
+          "next_required_work": "import remaining forms from pinned versioned machine-readable sources; add exact operand fields and effect semantics; differential-test decoder/encoder"
+        }
       },
       {
         "id": "insn:riscv64:ADD:rrr",
@@ -10826,7 +10859,18 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "mips",
+            "qemu-tcg",
+            "qemu-tcg-ops"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:powerpc:ADD:rrr",
@@ -11701,7 +11745,19 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "openpower",
+            "openpower-json",
+            "qemu-tcg",
+            "qemu-tcg-ops"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:sparc-v9",
@@ -11728,7 +11784,18 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "sparc",
+            "qemu-tcg",
+            "qemu-tcg-ops"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:m68k:NOP:none",
@@ -12750,7 +12817,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "dec-vax"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:sh4",
@@ -12777,7 +12853,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:loongarch64",
@@ -12804,7 +12887,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "loongarch"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:alpha",
@@ -12831,7 +12923,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:hppa",
@@ -12858,7 +12957,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:xtensa",
@@ -12885,7 +12991,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:avr:NOP:none",
@@ -15973,7 +16086,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:amd-gcn",
@@ -16000,7 +16120,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "amd-gpu"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:msp430",
@@ -16027,7 +16156,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "ti-msp430"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:pic24-dspic",
@@ -16054,7 +16192,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "microchip-pic24"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:c6000",
@@ -16081,7 +16228,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "ti-c6000"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:arm32-thumb:NOP:thumb16",
@@ -16337,7 +16493,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:i8080",
@@ -16364,7 +16527,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "intel-8080"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:pdp11",
@@ -16391,7 +16563,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "pdp11"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:motorola-6809",
@@ -16418,7 +16599,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "motorola-6809"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:m68000",
@@ -16445,7 +16635,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "motorola-68000"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:m68k-coldfire",
@@ -16472,7 +16671,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "motorola-68000"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:mos6502",
@@ -16499,7 +16707,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "mos-6502"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:wdc65c816",
@@ -16526,7 +16743,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "wdc-65c816"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:mcs51",
@@ -16553,7 +16779,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "intel-8051"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:m680x",
@@ -16580,7 +16815,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "motorola-6800"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:ibm-s360",
@@ -16607,7 +16851,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "ibm-architecture"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:ibm-z",
@@ -16634,7 +16887,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:e2k",
@@ -16661,7 +16921,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "elbrus-e2k"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:armv7-risc",
@@ -16688,7 +16957,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:armv7-m",
@@ -16715,7 +16991,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:armv8-a32",
@@ -16742,7 +17025,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:armv9-a64",
@@ -16769,7 +17059,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:riscv32e",
@@ -16796,7 +17093,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:riscv64e",
@@ -16823,7 +17127,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:riscv128",
@@ -16850,7 +17161,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "riscv-opcodes"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:openrisc",
@@ -16877,7 +17197,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "openrisc"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:or1k",
@@ -16904,7 +17233,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "openrisc"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:arc-compact",
@@ -16931,7 +17269,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "synopsys-arc"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:andes-nds32",
@@ -16958,7 +17305,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "andes-nds32"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:xtensa-lx",
@@ -16985,7 +17341,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "xtensa"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:nios2",
@@ -17012,7 +17377,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "intel-nios2"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:microblaze",
@@ -17039,7 +17413,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "amd-microblaze"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:blackfin",
@@ -17066,7 +17449,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "analog-devices-blackfin"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:tricore",
@@ -17093,7 +17485,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "infineon-tricore"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:superh-sh2",
@@ -17120,7 +17521,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "renesas-superh"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:superh-sh4a",
@@ -17147,7 +17557,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "renesas-superh"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:mips16",
@@ -17174,7 +17593,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:microchip-pic16",
@@ -17201,7 +17627,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "microchip-pic"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:microchip-pic18",
@@ -17228,7 +17663,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "microchip-pic"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:microchip-pic24",
@@ -17255,7 +17699,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:dspic33",
@@ -17282,7 +17733,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:msp430x",
@@ -17309,7 +17767,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:renesas-rx",
@@ -17336,7 +17801,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "renesas-rx"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:renesas-v850",
@@ -17363,7 +17837,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "renesas-v850"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:fr-v",
@@ -17390,7 +17873,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "fujitsu-frv"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:alpha-ev6",
@@ -17417,7 +17909,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "dec-alpha"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:hppa-2",
@@ -17444,7 +17945,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "hp-parisc"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:sparc-v8",
@@ -17471,7 +17981,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:power10",
@@ -17498,7 +18015,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:mips64r6",
@@ -17525,7 +18049,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:loongarch32",
@@ -17552,7 +18083,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:riscv64gc",
@@ -17579,7 +18117,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:wasm32",
@@ -17606,7 +18151,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "webassembly"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:wasm64",
@@ -17633,7 +18187,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "webassembly"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:ebpf",
@@ -17660,7 +18223,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "ebpf"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:nvidia-ptx",
@@ -17687,7 +18259,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "nvidia-ptx"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:amd-gcn-rdna",
@@ -17714,7 +18295,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:intel-xe-gpu",
@@ -17741,7 +18329,16 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [
+            "intel-gpu"
+          ],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:arm-sme",
@@ -17768,7 +18365,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:arm-sve",
@@ -17795,7 +18399,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "arch:riscv-vector",
@@ -17822,7 +18433,14 @@
           "ncb"
         ],
         "conformance_status": "not-tested",
-        "note": "Inventory candidate only; no executable instruction semantics implied."
+        "note": "Inventory candidate only; no executable instruction semantics implied.",
+        "instruction_coverage": {
+          "exact_catalog_instruction_rows": 0,
+          "exact_instruction_candidate_rows": 0,
+          "source_reference_ids": [],
+          "status": "architecture-catalog-only-no-instruction-forms",
+          "next_required_work": "pin a versioned authoritative instruction source; import forms, encodings, operand constraints, affected state, memory/exception effects, and implementation references"
+        }
       },
       {
         "id": "insn:riscv32:ADD:rrr",
@@ -19759,6 +20377,854 @@
       "riscv-opcodes",
       "qemu-tcg",
       "qemu-tcg-ops"
+    ]
+  },
+  "instruction_inventory_coverage": {
+    "schema": "CHM-ISA-INVENTORY-COVERAGE-1",
+    "generated_from": "isa_database.json architecture rows, instruction tuples, and execution_model.execution_candidates",
+    "architecture_candidate_count": 73,
+    "architectures_with_catalog_forms": 1,
+    "architectures_with_instruction_candidates": 1,
+    "architectures_without_catalog_forms": [
+      "chimera-r8192",
+      "x86-32",
+      "mips64",
+      "ppc64",
+      "sparc-v9",
+      "vax",
+      "sh4",
+      "loongarch64",
+      "alpha",
+      "hppa",
+      "xtensa",
+      "ia64",
+      "amd-gcn",
+      "msp430",
+      "pic24-dspic",
+      "c6000",
+      "x86-16",
+      "i8080",
+      "pdp11",
+      "motorola-6809",
+      "m68000",
+      "m68k-coldfire",
+      "mos6502",
+      "wdc65c816",
+      "mcs51",
+      "m680x",
+      "ibm-s360",
+      "ibm-z",
+      "e2k",
+      "armv7-risc",
+      "armv7-m",
+      "armv8-a32",
+      "armv9-a64",
+      "riscv32e",
+      "riscv64e",
+      "riscv128",
+      "openrisc",
+      "or1k",
+      "arc-compact",
+      "andes-nds32",
+      "xtensa-lx",
+      "nios2",
+      "microblaze",
+      "blackfin",
+      "tricore",
+      "superh-sh2",
+      "superh-sh4a",
+      "mips16",
+      "microchip-pic16",
+      "microchip-pic18",
+      "microchip-pic24",
+      "dspic33",
+      "msp430x",
+      "renesas-rx",
+      "renesas-v850",
+      "fr-v",
+      "alpha-ev6",
+      "hppa-2",
+      "sparc-v8",
+      "power10",
+      "mips64r6",
+      "loongarch32",
+      "riscv64gc",
+      "wasm32",
+      "wasm64",
+      "ebpf",
+      "nvidia-ptx",
+      "amd-gcn-rdna",
+      "intel-xe-gpu",
+      "arm-sme",
+      "arm-sve",
+      "riscv-vector"
+    ],
+    "policy": "Counts indicate catalog presence only, not completeness. Candidate rows and generic effect models are not proof of correct encoding, execution, compatibility, or conformance.",
+    "architectures": [
+      {
+        "architecture": "chimera-r8192",
+        "family": "Chimera",
+        "word_bits": 8192,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "chimera"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "x86-32",
+        "family": "x86",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "intel-sdm",
+          "amd",
+          "intel-avx10"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "word_bits": 32,
+        "catalog_instruction_rows": 6,
+        "instruction_candidate_rows": 12,
+        "source_reference_ids": [
+          "riscv",
+          "riscv-ratified",
+          "riscv-opcodes",
+          "qemu-tcg",
+          "qemu-tcg-ops"
+        ],
+        "status": "partial-forms-not-exhaustive"
+      },
+      {
+        "architecture": "mips64",
+        "family": "MIPS",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "mips",
+          "qemu-tcg",
+          "qemu-tcg-ops"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "ppc64",
+        "family": "Power ISA",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "openpower",
+          "openpower-json",
+          "qemu-tcg",
+          "qemu-tcg-ops"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "sparc-v9",
+        "family": "SPARC",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "sparc",
+          "qemu-tcg",
+          "qemu-tcg-ops"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "vax",
+        "family": "VAX",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "dec-vax"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "sh4",
+        "family": "SuperH",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "loongarch64",
+        "family": "LoongArch",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "loongarch"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "alpha",
+        "family": "DEC Alpha",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "hppa",
+        "family": "PA-RISC",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "xtensa",
+        "family": "Xtensa",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "ia64",
+        "family": "Itanium",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "amd-gcn",
+        "family": "AMD GCN/RDNA/CDNA",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "amd-gpu"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "msp430",
+        "family": "TI MSP430",
+        "word_bits": 16,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "ti-msp430"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "pic24-dspic",
+        "family": "Microchip PIC24/dsPIC",
+        "word_bits": 24,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "microchip-pic24"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "c6000",
+        "family": "TI C6000 DSP",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "ti-c6000"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "x86-16",
+        "family": "x86 real mode",
+        "word_bits": 16,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "i8080",
+        "family": "Intel 8080/8085",
+        "word_bits": 8,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "intel-8080"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "pdp11",
+        "family": "DEC PDP-11",
+        "word_bits": 16,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "pdp11"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "motorola-6809",
+        "family": "Motorola 6809",
+        "word_bits": 8,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "motorola-6809"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "m68000",
+        "family": "Motorola 68000 family",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "motorola-68000"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "m68k-coldfire",
+        "family": "Motorola ColdFire",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "motorola-68000"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "mos6502",
+        "family": "MOS 6502 family",
+        "word_bits": 8,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "mos-6502"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "wdc65c816",
+        "family": "WDC 65C816",
+        "word_bits": 16,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "wdc-65c816"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "mcs51",
+        "family": "Intel MCS-51 / 8051",
+        "word_bits": 8,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "intel-8051"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "m680x",
+        "family": "Motorola 6800/6801/6803",
+        "word_bits": 8,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "motorola-6800"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "ibm-s360",
+        "family": "IBM System/360",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "ibm-architecture"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "ibm-z",
+        "family": "IBM z/Architecture",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "e2k",
+        "family": "Elbrus E2K",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "elbrus-e2k"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "armv7-risc",
+        "family": "ARMv7-A/R",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "armv7-m",
+        "family": "ARMv7-M",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "armv8-a32",
+        "family": "ARMv8-A AArch32",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "armv9-a64",
+        "family": "Armv9-A AArch64",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "riscv32e",
+        "family": "RISC-V RV32E",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "riscv64e",
+        "family": "RISC-V RV64E",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "riscv128",
+        "family": "RISC-V RV128I proposal",
+        "word_bits": 128,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "riscv-opcodes"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "openrisc",
+        "family": "OpenRISC 1000",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "openrisc"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "or1k",
+        "family": "OpenRISC ORBIS",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "openrisc"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "arc-compact",
+        "family": "Synopsys ARC",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "synopsys-arc"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "andes-nds32",
+        "family": "Andes NDS32",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "andes-nds32"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "xtensa-lx",
+        "family": "Tensilica Xtensa LX",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "xtensa"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "nios2",
+        "family": "Intel/Altera Nios II",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "intel-nios2"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "microblaze",
+        "family": "AMD/Xilinx MicroBlaze",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "amd-microblaze"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "blackfin",
+        "family": "Analog Devices Blackfin",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "analog-devices-blackfin"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "tricore",
+        "family": "Infineon TriCore",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "infineon-tricore"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "superh-sh2",
+        "family": "SuperH SH-2",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "renesas-superh"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "superh-sh4a",
+        "family": "SuperH SH-4A",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "renesas-superh"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "mips16",
+        "family": "MIPS16",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "microchip-pic16",
+        "family": "Microchip PIC16",
+        "word_bits": 14,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "microchip-pic"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "microchip-pic18",
+        "family": "Microchip PIC18",
+        "word_bits": 16,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "microchip-pic"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "microchip-pic24",
+        "family": "Microchip PIC24",
+        "word_bits": 24,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "dspic33",
+        "family": "Microchip dsPIC33",
+        "word_bits": 24,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "msp430x",
+        "family": "TI MSP430X",
+        "word_bits": 20,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "renesas-rx",
+        "family": "Renesas RX",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "renesas-rx"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "renesas-v850",
+        "family": "Renesas V850",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "renesas-v850"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "fr-v",
+        "family": "Fujitsu FR-V",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "fujitsu-frv"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "alpha-ev6",
+        "family": "DEC Alpha EV6",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "dec-alpha"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "hppa-2",
+        "family": "PA-RISC 2.0",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "hp-parisc"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "sparc-v8",
+        "family": "SPARC V8",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "power10",
+        "family": "IBM POWER10 / Power ISA",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "mips64r6",
+        "family": "MIPS64 Release 6",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "loongarch32",
+        "family": "LoongArch32",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "riscv64gc",
+        "family": "RISC-V RV64GC profile",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "wasm32",
+        "family": "WebAssembly 32-bit virtual ISA",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "webassembly"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "wasm64",
+        "family": "WebAssembly 64-bit virtual ISA",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "webassembly"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "ebpf",
+        "family": "Linux eBPF virtual ISA",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "ebpf"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "nvidia-ptx",
+        "family": "NVIDIA PTX virtual ISA",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "nvidia-ptx"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "amd-gcn-rdna",
+        "family": "AMD GCN/RDNA/CDNA families",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "intel-xe-gpu",
+        "family": "Intel Xe GPU ISA",
+        "word_bits": 32,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [
+          "intel-gpu"
+        ],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "arm-sme",
+        "family": "Arm Scalable Matrix Extension",
+        "word_bits": 128,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "arm-sve",
+        "family": "Arm Scalable Vector Extension",
+        "word_bits": 128,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      },
+      {
+        "architecture": "riscv-vector",
+        "family": "RISC-V Vector Extension",
+        "word_bits": 64,
+        "catalog_instruction_rows": 0,
+        "instruction_candidate_rows": 0,
+        "source_reference_ids": [],
+        "status": "architecture-catalog-only-no-instruction-forms"
+      }
     ]
   }
 }
