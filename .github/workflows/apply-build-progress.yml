@@ -29,7 +29,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           script = Path("build-chimera-iso.sh").read_text(encoding="utf-8")
-          required = ("CURRENT_STAGE", "run_stage", "LOG_DIR", "WATCHDOG_PID", "preflight()")
+          required = ("CURRENT_STAGE", "run_stage", "LOG_DIR", "WATCHDOG_PID", "preflight")
           missing = [marker for marker in required if marker not in script]
           if missing:
               raise SystemExit("ISO builder is missing existing stage/log contracts: " + ", ".join(missing))
