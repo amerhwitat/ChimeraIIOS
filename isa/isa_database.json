@@ -1,6 +1,6 @@
 {
   "$schema": "CHM-ISA-DB-4",
-  "version": "2026.10.11",
+  "version": "2026.10.12",
   "title": "Chimera II OS Universal ISA Database",
   "architecture_row": [
     "id",
@@ -22,7 +22,7 @@
     "value_bits",
     "mask_bits"
   ],
-  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution. Update 2026-10-11: appended additional candidate architecture and extension inventory rows from the project's curated source registry. New rows with zero instruction forms are discovery/training candidates only; no encoding, decode, execution, or conformance support is implied. AI-assisted mapping must cite database row/source references and report uncertainty; only deterministic, validated backends may execute instructions.",
+  "accuracy_note": "value_bits is a canonical encoding or fixed-bit pattern; mask_bits marks fixed bits. Zero mask bits are operand-variable fields. Chimera-native encodings are project-defined. The current instruction rows are a partial catalog of verified forms, not an exhaustive enumeration of every instruction, extension, CPU model, or encoding variant. A target is compiler-supported only for forms implemented by the encoder/decoder and backend; catalog presence alone does not imply complete executable support. Internet research update 2026-10-08: additions are sourced from the official ISA specifications listed in sources; this remains a partial catalog and each encoding must be verified against the referenced architecture manual before use in an executable encoder/decoder. Inventory update 2026-10-09: added a broad architecture-family inventory covering historical, current, embedded, vector, GPU, and virtual ISAs. Rows marked catalog-only are discovery targets and have zero verified instruction forms; the inventory is intentionally not represented as literally exhaustive, and does not imply encoder, decoder, simulator, or hardware support. GPU/VM/extension entries are explicitly distinguished from general-purpose CPU base ISAs. Execution-candidate update: execution_model lists per-architecture and per-instruction candidates with encoding, mapping, compatibility, binary-format and conformance metadata. Reference-interpreter support is limited to explicitly implemented integer operations and does not imply complete native CPU execution. Update 2026-10-11: appended additional candidate architecture and extension inventory rows from the project's curated source registry. New rows with zero instruction forms are discovery/training candidates only; no encoding, decode, execution, or conformance support is implied. AI-assisted mapping must cite database row/source references and report uncertainty; only deterministic, validated backends may execute instructions. Update 2026-10-12: added explicit RV32I sample rows and a Z80 register-move sample; corrected the Power ISA ADDI worked sample to the encoding for addi r3,r4,1 (0x38640001). New instruction rows are catalogued samples, not proof of decoder/backend/conformance support. Existing compatibility mappings remain advisory unless an implementation and tests are explicitly listed. Update 2026-10-12: added explicit RV32I sample rows and a Z80 register-move sample; corrected the Power ISA ADDI worked sample to the encoding for addi r3,r4,1 (0x38640001). Added enriched cross-ISA encoding examples with byte/binary representations, affected registers/flags, memory effects, source references, compatibility requirements, and explicitly proposal-only N-bit mappings. These samples do not establish backend or conformance support.",
   "architectures": [
     [
       "chimera-c8192",
@@ -92,7 +92,7 @@
       "standard",
       "16/32-bit base plus extensions",
       "riscv",
-      0
+      6
     ],
     [
       "riscv64",
@@ -262,7 +262,7 @@
       "legacy",
       "prefix plus 1/2/3-byte",
       "zilog",
-      10
+      11
     ],
     [
       "6502",
@@ -2445,7 +2445,7 @@
       ],
       "addi r3,r4,1",
       32,
-      "00111000100000110000000000000001",
+      "00111000011001000000000000000001",
       "11111100000000000000000000000000"
     ],
     [
@@ -3572,6 +3572,99 @@
       16,
       "0100011101110000",
       "1111111110000111"
+    ],
+    [
+      "riscv32",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD x1,x2,x3",
+      32,
+      "00000000001100010000000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "ADDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ADDI x1,x2,5",
+      32,
+      "00000000010100010000000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "LW",
+      "load",
+      [
+        "register",
+        "memory"
+      ],
+      "LW x1,8(x2)",
+      32,
+      "00000000100000010010000010000011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "SW",
+      "store",
+      [
+        "register",
+        "memory"
+      ],
+      "SW x3,8(x2)",
+      32,
+      "00000000001100010010010000100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "BEQ",
+      "branch",
+      [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "BEQ x1,x2,8",
+      32,
+      "00000000001000001000010001100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "FENCE",
+      "fence",
+      [
+        "memory"
+      ],
+      "FENCE",
+      32,
+      "00000000000000000000000000001111",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "z80",
+      "LD",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "LD A,B",
+      8,
+      "01111000",
+      "11111111"
     ]
   ],
   "research_update": {
@@ -3783,7 +3876,7 @@
     "schema": "CHIMERA-ISA-EXECUTION-CANDIDATES-1",
     "generated_from": "architectures and instructions arrays",
     "generated_at_utc": "2026-10-10T08:01:12.105Z",
-    "candidate_count": 227,
+    "candidate_count": 241,
     "policy": "Discovery candidates are not conformance claims. Only explicitly implemented operations execute in the reference interpreter.",
     "modes": {
       "native": "Maps supported guest operations to Chimera semantic micro-ops; this is not native machine-code JIT output.",
@@ -11780,6 +11873,528 @@
         ],
         "conformance_status": "not-tested",
         "note": "Inventory candidate only; no executable instruction semantics implied."
+      },
+      {
+        "id": "insn:riscv32:ADD:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ADD",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "ADD x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010000000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "add",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "add"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:ADDI:ri",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ADDI",
+        "form_id": "ri",
+        "operands": [
+          "register",
+          "register",
+          "immediate"
+        ],
+        "syntax": "ADDI x1,x2,5",
+        "length_bits": 32,
+        "value_bits": "00000000010100010000000010010011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "add-immediate",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "add-immediate"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:LW:load",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "LW",
+        "form_id": "load",
+        "operands": [
+          "register",
+          "memory"
+        ],
+        "syntax": "LW x1,8(x2)",
+        "length_bits": 32,
+        "value_bits": "00000000100000010010000010000011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "load",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "load"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:SW:store",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "SW",
+        "form_id": "store",
+        "operands": [
+          "register",
+          "memory"
+        ],
+        "syntax": "SW x3,8(x2)",
+        "length_bits": 32,
+        "value_bits": "00000000001100010010010000100011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "store",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "store"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:BEQ:branch",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "BEQ",
+        "form_id": "branch",
+        "operands": [
+          "register",
+          "register",
+          "branch-offset"
+        ],
+        "syntax": "BEQ x1,x2,8",
+        "length_bits": 32,
+        "value_bits": "00000000001000001000010001100011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "branch-equal",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "branch-equal"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:FENCE:fence",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "FENCE",
+        "form_id": "fence",
+        "operands": [
+          "memory"
+        ],
+        "syntax": "FENCE",
+        "length_bits": 32,
+        "value_bits": "00000000000000000000000000001111",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "memory-ordering",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "memory-fence"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:z80:LD:rr",
+        "kind": "instruction-candidate",
+        "architecture": "z80",
+        "family": "Z80",
+        "class": "CISC",
+        "word_bits": 8,
+        "mnemonic": "LD",
+        "form_id": "rr",
+        "operands": [
+          "register",
+          "register"
+        ],
+        "syntax": "LD A,B",
+        "length_bits": 8,
+        "value_bits": "01111000",
+        "mask_bits": "11111111",
+        "encoding_model": "prefix plus 1/2/3-byte",
+        "source_ref": "zilog",
+        "semantic_operation": "register-move",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "move"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:ADD:rrr",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ADD",
+        "form_id": "rrr",
+        "operands": [
+          "register",
+          "register",
+          "register"
+        ],
+        "syntax": "ADD x1,x2,x3",
+        "length_bits": 32,
+        "value_bits": "00000000001100010000000010110011",
+        "mask_bits": "11111110000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "add",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "add"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:ADDI:ri",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "ADDI",
+        "form_id": "ri",
+        "operands": [
+          "register",
+          "register",
+          "immediate"
+        ],
+        "syntax": "ADDI x1,x2,5",
+        "length_bits": 32,
+        "value_bits": "00000000010100010000000010010011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "add-immediate",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "add-immediate"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:LW:load",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "LW",
+        "form_id": "load",
+        "operands": [
+          "register",
+          "memory"
+        ],
+        "syntax": "LW x1,8(x2)",
+        "length_bits": 32,
+        "value_bits": "00000000100000010010000010000011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "load",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "load"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:SW:store",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "SW",
+        "form_id": "store",
+        "operands": [
+          "register",
+          "memory"
+        ],
+        "syntax": "SW x3,8(x2)",
+        "length_bits": 32,
+        "value_bits": "00000000001100010010010000100011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "store",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "store"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:BEQ:branch",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "BEQ",
+        "form_id": "branch",
+        "operands": [
+          "register",
+          "register",
+          "branch-offset"
+        ],
+        "syntax": "BEQ x1,x2,8",
+        "length_bits": 32,
+        "value_bits": "00000000001000001000010001100011",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "branch-equal",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "branch-equal"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:riscv32:FENCE:fence",
+        "kind": "instruction-candidate",
+        "architecture": "riscv32",
+        "family": "RISC-V",
+        "class": "RISC",
+        "word_bits": 32,
+        "mnemonic": "FENCE",
+        "form_id": "fence",
+        "operands": [
+          "memory"
+        ],
+        "syntax": "FENCE",
+        "length_bits": 32,
+        "value_bits": "00000000000000000000000000001111",
+        "mask_bits": "00000000000000000111000001111111",
+        "encoding_model": "16/32-bit base plus extensions",
+        "source_ref": "riscv",
+        "semantic_operation": "memory-ordering",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "memory-fence"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
+      },
+      {
+        "id": "insn:z80:LD:rr",
+        "kind": "instruction-candidate",
+        "architecture": "z80",
+        "family": "Z80",
+        "class": "CISC",
+        "word_bits": 8,
+        "mnemonic": "LD",
+        "form_id": "rr",
+        "operands": [
+          "register",
+          "register"
+        ],
+        "syntax": "LD A,B",
+        "length_bits": 8,
+        "value_bits": "01111000",
+        "mask_bits": "11111111",
+        "encoding_model": "prefix plus 1/2/3-byte",
+        "source_ref": "zilog",
+        "semantic_operation": "register-move",
+        "candidate_status": "reference-sample-catalogued",
+        "native_mode": {
+          "status": "semantic-mapping-proposal",
+          "chimera_equivalent": "move"
+        },
+        "compatibility_mode": {
+          "status": "emulation-required",
+          "execution_semantics": "ISA-specific semantics and ABI required; no claim of executable cross-ISA compatibility"
+        },
+        "binary_formats": [
+          "raw",
+          "elf",
+          "ncb"
+        ],
+        "conformance_status": "not-tested",
+        "note": "Instruction form/sample is catalog data only. Runtime support requires a validated decoder, semantic backend, ABI/loader, and architecture conformance tests."
       }
     ],
     "decoder_backends": {
@@ -11834,7 +12449,7 @@
         "conformance_status": "not-tested"
       }
     },
-    "last_updated": "2026-10-10",
+    "last_updated": "2026-10-12",
     "hosted_compatibility_modes": {
       "schema": "CHIMERA-HOSTED-ISA-MAP-2",
       "policy": "These rows map host OS modes to physical ISA inventory candidates. A match does not mean the guest ABI, compiler backend, binary loader, or emulator is implemented. 32-bit host support applies only to matching-bitness user-space bridge and compatible host tools; it does not enable a 64-bit guest or kernel on a 32-bit host.",
@@ -11940,5 +12555,485 @@
       },
       "updated": "2026-10-11"
     }
-  }
+  },
+  "verified_encoding_samples": [
+    [
+      "riscv32",
+      "ADD",
+      "rrr",
+      [
+        "register",
+        "register",
+        "register"
+      ],
+      "ADD x1,x2,x3",
+      32,
+      "00000000001100010000000010110011",
+      "11111110000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "ADDI",
+      "ri",
+      [
+        "register",
+        "register",
+        "immediate"
+      ],
+      "ADDI x1,x2,5",
+      32,
+      "00000000010100010000000010010011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "LW",
+      "load",
+      [
+        "register",
+        "memory"
+      ],
+      "LW x1,8(x2)",
+      32,
+      "00000000100000010010000010000011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "SW",
+      "store",
+      [
+        "register",
+        "memory"
+      ],
+      "SW x3,8(x2)",
+      32,
+      "00000000001100010010010000100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "BEQ",
+      "branch",
+      [
+        "register",
+        "register",
+        "branch-offset"
+      ],
+      "BEQ x1,x2,8",
+      32,
+      "00000000001000001000010001100011",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "riscv32",
+      "FENCE",
+      "fence",
+      [
+        "memory"
+      ],
+      "FENCE",
+      32,
+      "00000000000000000000000000001111",
+      "00000000000000000111000001111111"
+    ],
+    [
+      "z80",
+      "LD",
+      "rr",
+      [
+        "register",
+        "register"
+      ],
+      "LD A,B",
+      8,
+      "01111000",
+      "11111111"
+    ],
+    {
+      "architecture": "x86-64",
+      "mnemonic": "NOP",
+      "syntax": "NOP",
+      "length_bits": 8,
+      "binary_bits": "10010000",
+      "hex_bytes": "90",
+      "affected_registers": [],
+      "flags_affected": [],
+      "memory_effect": "none",
+      "source_ref": "intel-sdm",
+      "compatibility_mapping": "same semantic no-op only after x86 decoder/runtime; no binary compatibility implied",
+      "chimera_nbit_mapping": {
+        "operation": "nop",
+        "width_rule": "width-independent",
+        "status": "proposal-only"
+      },
+      "encoding_status": "documented-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "x86-64",
+      "mnemonic": "RET",
+      "syntax": "RET",
+      "length_bits": 8,
+      "binary_bits": "11000011",
+      "hex_bytes": "C3",
+      "affected_registers": [
+        "RIP",
+        "RSP"
+      ],
+      "flags_affected": [],
+      "memory_effect": "reads return address from [RSP], then advances RSP by 8 in 64-bit near-return mode",
+      "source_ref": "intel-sdm",
+      "compatibility_mapping": "requires x86-64 control-flow/stack semantics and ABI",
+      "chimera_nbit_mapping": {
+        "operation": "return",
+        "width_rule": "stack pointer and return-address width must follow selected ABI, not merely N",
+        "status": "proposal-only"
+      },
+      "encoding_status": "documented-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "x86-64",
+      "mnemonic": "ADD",
+      "syntax": "ADD RAX,RBX",
+      "length_bits": 24,
+      "binary_bits": "010010000000000111011000",
+      "hex_bytes": "48 01 D8",
+      "affected_registers": [
+        "RAX",
+        "RFLAGS"
+      ],
+      "flags_affected": [
+        "CF",
+        "PF",
+        "AF",
+        "ZF",
+        "SF",
+        "OF"
+      ],
+      "memory_effect": "none",
+      "source_ref": "intel-sdm",
+      "compatibility_mapping": "requires x86-64 flag and width semantics; not a native Chimera encoding",
+      "chimera_nbit_mapping": {
+        "operation": "add",
+        "width_rule": "proposed result modulo 2^N with separately specified flag model",
+        "status": "proposal-only"
+      },
+      "encoding_status": "documented-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "aarch64",
+      "mnemonic": "ADD",
+      "syntax": "ADD X0,X1,X2",
+      "length_bits": 32,
+      "binary_bits": "10001011000000100000000000100000",
+      "hex_bytes": "8B 02 00 20",
+      "affected_registers": [
+        "X0"
+      ],
+      "flags_affected": [],
+      "memory_effect": "none",
+      "source_ref": "arm",
+      "compatibility_mapping": "requires A64 decoder, register model, and ABI",
+      "chimera_nbit_mapping": {
+        "operation": "add",
+        "width_rule": "map to configured N-bit integer op only with explicit overflow/flags policy",
+        "status": "proposal-only"
+      },
+      "encoding_status": "documented-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "riscv32",
+      "mnemonic": "ADD",
+      "syntax": "ADD x1,x2,x3",
+      "length_bits": 32,
+      "binary_bits": "00000000001100010000000010110011",
+      "hex_bytes": "00 31 00 B3",
+      "affected_registers": [
+        "x1"
+      ],
+      "flags_affected": [],
+      "memory_effect": "none",
+      "source_ref": "riscv",
+      "compatibility_mapping": "RV32I reference-subset arithmetic candidate; ABI/runtime and conformance remain incomplete",
+      "chimera_nbit_mapping": {
+        "operation": "add",
+        "width_rule": "result masked to configured N bits; N=32 matches RV32I register width",
+        "status": "reference-micro-op-proposal"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "reference-subset-only",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "riscv32",
+      "mnemonic": "ADDI",
+      "syntax": "ADDI x1,x2,5",
+      "length_bits": 32,
+      "binary_bits": "00000000010100010000000010010011",
+      "hex_bytes": "00 51 00 93",
+      "affected_registers": [
+        "x1"
+      ],
+      "flags_affected": [],
+      "memory_effect": "none",
+      "source_ref": "riscv",
+      "compatibility_mapping": "RV32I immediate sign-extension and XLEN result semantics required",
+      "chimera_nbit_mapping": {
+        "operation": "add-immediate",
+        "width_rule": "sign-extend 12-bit immediate then mask result to N",
+        "status": "reference-micro-op-proposal"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "reference-subset-only",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "riscv32",
+      "mnemonic": "LW",
+      "syntax": "LW x1,8(x2)",
+      "length_bits": 32,
+      "binary_bits": "00000000100000010010000010000011",
+      "hex_bytes": "00 81 20 83",
+      "affected_registers": [
+        "x1"
+      ],
+      "flags_affected": [],
+      "memory_effect": "load 32 bits from address x2+8; alignment/access faults and sign extension are architecture-defined",
+      "source_ref": "riscv",
+      "compatibility_mapping": "load/store subsystem, faults, and RV32 ABI required",
+      "chimera_nbit_mapping": {
+        "operation": "load",
+        "width_rule": "access width 32 independent of N-bit GPR width; extension policy explicit",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "riscv32",
+      "mnemonic": "SW",
+      "syntax": "SW x3,8(x2)",
+      "length_bits": 32,
+      "binary_bits": "00000000001100010010010000100011",
+      "hex_bytes": "00 31 24 23",
+      "affected_registers": [],
+      "flags_affected": [],
+      "memory_effect": "store low 32 bits of x3 to address x2+8; faults and ordering are architecture-defined",
+      "source_ref": "riscv",
+      "compatibility_mapping": "load/store subsystem, faults, and RV32 ABI required",
+      "chimera_nbit_mapping": {
+        "operation": "store",
+        "width_rule": "store width fixed at 32 bits; address width and fault model are separate",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "riscv32",
+      "mnemonic": "BEQ",
+      "syntax": "BEQ x1,x2,8",
+      "length_bits": 32,
+      "binary_bits": "00000000001000001000010001100011",
+      "hex_bytes": "00 20 84 63",
+      "affected_registers": [
+        "PC"
+      ],
+      "flags_affected": [],
+      "memory_effect": "if x1 equals x2, branch to PC+8; otherwise advance to next instruction",
+      "source_ref": "riscv",
+      "compatibility_mapping": "branch target, PC alignment, and exception semantics required",
+      "chimera_nbit_mapping": {
+        "operation": "branch-equal",
+        "width_rule": "comparison width follows selected architectural profile",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "riscv32",
+      "mnemonic": "FENCE",
+      "syntax": "FENCE",
+      "length_bits": 32,
+      "binary_bits": "00000000000000000000000000001111",
+      "hex_bytes": "00 00 00 0F",
+      "affected_registers": [],
+      "flags_affected": [],
+      "memory_effect": "orders selected predecessor/successor memory and I/O operations; a no-op implementation is valid only when the execution environment guarantees equivalent ordering",
+      "source_ref": "riscv",
+      "compatibility_mapping": "must map to host/guest memory-ordering primitives or a justified no-op",
+      "chimera_nbit_mapping": {
+        "operation": "memory-fence",
+        "width_rule": "independent of integer width; ordering model must be defined",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "mips32",
+      "mnemonic": "LW",
+      "syntax": "LW $t0,0($t1)",
+      "length_bits": 32,
+      "binary_bits": "10001101001010000000000000000000",
+      "hex_bytes": "8D 28 00 00",
+      "affected_registers": [
+        "$t0"
+      ],
+      "flags_affected": [],
+      "memory_effect": "load 32-bit word from address $t1+0; MIPS revision and alignment/fault rules apply",
+      "source_ref": "mips",
+      "compatibility_mapping": "MIPS decoder, delay/exception model where applicable, ABI and loader required",
+      "chimera_nbit_mapping": {
+        "operation": "load",
+        "width_rule": "load width is 32 bits; N-bit register extension policy explicit",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "powerpc",
+      "mnemonic": "ADDI",
+      "syntax": "addi r3,r4,1",
+      "length_bits": 32,
+      "binary_bits": "00111000011001000000000000000001",
+      "hex_bytes": "38 64 00 01",
+      "affected_registers": [
+        "r3"
+      ],
+      "flags_affected": [],
+      "memory_effect": "none",
+      "source_ref": "openpower",
+      "compatibility_mapping": "Power ISA operand/register semantics and ABI required",
+      "chimera_nbit_mapping": {
+        "operation": "add-immediate",
+        "width_rule": "truncate/extend to N only under an explicit Chimera arithmetic profile",
+        "status": "proposal-only"
+      },
+      "encoding_status": "corrected-reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "z80",
+      "mnemonic": "LD",
+      "syntax": "LD A,B",
+      "length_bits": 8,
+      "binary_bits": "01111000",
+      "hex_bytes": "78",
+      "affected_registers": [
+        "A"
+      ],
+      "flags_affected": [],
+      "memory_effect": "none",
+      "source_ref": "zilog-z80",
+      "compatibility_mapping": "requires Z80 8-bit register/flag model and interrupt timing where relevant",
+      "chimera_nbit_mapping": {
+        "operation": "move",
+        "width_rule": "8-bit value zero-extends into an N-bit destination only if the selected compatibility policy specifies it",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "avr",
+      "mnemonic": "ADD",
+      "syntax": "ADD r16,r17",
+      "length_bits": 16,
+      "binary_bits": "0000111100000001",
+      "hex_bytes": "0F 01",
+      "affected_registers": [
+        "r16",
+        "SREG"
+      ],
+      "flags_affected": [
+        "H",
+        "S",
+        "V",
+        "N",
+        "Z",
+        "C"
+      ],
+      "memory_effect": "none",
+      "source_ref": "microchip-avr",
+      "compatibility_mapping": "AVR status register and 8-bit register semantics required",
+      "chimera_nbit_mapping": {
+        "operation": "add",
+        "width_rule": "8-bit operands with AVR SREG flag equations; N-bit ALU mapping must preserve source flags",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "6502",
+      "mnemonic": "ADC",
+      "syntax": "ADC #$01",
+      "length_bits": 16,
+      "binary_bits": "0110100100000001",
+      "hex_bytes": "69 01",
+      "affected_registers": [
+        "A",
+        "P"
+      ],
+      "flags_affected": [
+        "N",
+        "V",
+        "Z",
+        "C"
+      ],
+      "memory_effect": "reads immediate operand byte; carry-in and decimal-mode behavior depend on CPU variant",
+      "source_ref": "mos-6502",
+      "compatibility_mapping": "requires selected 6502 variant, decimal arithmetic and status flags",
+      "chimera_nbit_mapping": {
+        "operation": "add-with-carry",
+        "width_rule": "8-bit arithmetic with variant-specific decimal mode; not equivalent to generic N-bit ADD",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    },
+    {
+      "architecture": "8051",
+      "mnemonic": "MOV",
+      "syntax": "MOV A,#0x01",
+      "length_bits": 16,
+      "binary_bits": "0111010000000001",
+      "hex_bytes": "74 01",
+      "affected_registers": [
+        "A"
+      ],
+      "flags_affected": [],
+      "memory_effect": "fetches immediate byte from instruction stream",
+      "source_ref": "intel-8051",
+      "compatibility_mapping": "requires 8051 accumulator, code-memory and SFR model",
+      "chimera_nbit_mapping": {
+        "operation": "move-immediate",
+        "width_rule": "8-bit immediate value, with N-bit destination extension specified by profile",
+        "status": "proposal-only"
+      },
+      "encoding_status": "reference-sample",
+      "execution_status": "not-implemented",
+      "conformance_status": "not-tested"
+    }
+  ]
 }
