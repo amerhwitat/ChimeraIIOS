@@ -242,6 +242,28 @@ static void task_live(void *) {
     }
 }
 
+static uint32_t recovery_phase = 0;
+static void task_recovery(void *) {
+    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST);
+    if (!image && !manifest) {
+        chimera_sched_block();
+        return;
+    }
+    if (recovery_phase++ == 0) {
+        console_write("[REC ] Recovery target detected");
+        if (image) console_write("[REC ] Recovery initramfs module recognized");
+        else console_write("[REC ] ERROR: recovery initramfs module missing");
+        if (manifest) console_write("[REC ] Recovery manifest module recognized");
+        else console_write("[REC ] WARNING: recovery manifest module missing");
+        if (chimera_multiboot_diagnostics_mode()) {
+            console_write("[DIAG] Diagnostics mode consumed from Multiboot2 kernel command line");
+        }
+        console_write("[REC ] Initramfs payload is catalogued; executing its userspace init is not yet implemented");
+    }
+    chimera_sched_block();
+}
+
 static void task_installer(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
     const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
