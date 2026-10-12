@@ -1,0 +1,15 @@
+[Unit]
+Description=Chimera II OS architecture and ISA candidate discovery
+Documentation=https://github.com/amerhwitat/ChimeraIIOS/blob/main/docs/AURORA_ARCHITECTURE_DISCOVERY.md
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/chimera/tools/architecture_discovery/chimera_discovery.py --sources /usr/lib/chimera/config/architecture-discovery/sources.json --profiles /usr/lib/chimera/config/compatibility/distro-desktop-profiles.json --output-dir %h/.local/share/chimera/architecture-discovery
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+RestrictSUIDSGID=true
+LockPersonality=true

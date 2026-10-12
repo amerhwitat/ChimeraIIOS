@@ -1,0 +1,22 @@
+{
+  "schema": "CHIMERA-ARCH-SOURCES-1",
+  "version": 1,
+  "refresh_policy": {
+    "default": "offline",
+    "scheduled_interval": "weekly",
+    "timeout_seconds": 8,
+    "max_bytes_per_source": 1500000,
+    "review_required_before_catalog_promotion": true,
+    "remote_code_execution": false
+  },
+  "sources": [
+    {"title": "RISC-V specifications", "url": "https://github.com/riscv/riscv-isa-manual"},
+    {"title": "Arm architecture documentation", "url": "https://developer.arm.com/documentation"},
+    {"title": "Intel architecture manuals", "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"},
+    {"title": "Linux kernel architecture documentation", "url": "https://docs.kernel.org/arch/index.html"},
+    {"title": "LLVM target documentation", "url": "https://llvm.org/docs/"},
+    {"title": "QEMU supported architectures", "url": "https://www.qemu.org/docs/master/system/targets.html"},
+    {"title": "OpenPOWER foundation", "url": "https://openpower.foundation/"},
+    {"title": "OpenRISC project", "url": "https://openrisc.io/"}
+  ]
+}

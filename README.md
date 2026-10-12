@@ -46,6 +46,10 @@ GCC's documented backend model remains the reference for adding a real physical 
 
 The architecture manifest is `tools/chimera-toolchain/architectures.json`; CMake integration is provided by `tools/chimera-toolchain/CMakeLists.txt`. The existing `tools/chimera-asm/` assembler/disassembler remains the Chimera-Bit assembly boundary.
 
+## Aurora architecture and compatibility discovery
+
+The bounded [Aurora architecture/ISA discovery workflow](docs/AURORA_ARCHITECTURE_DISCOVERY.md) periodically checks configured public specification sources and emits review-only candidates. It does not auto-enable unverified ISA execution. Selectable Linux distribution/desktop profile metadata is under `config/compatibility/distro-desktop-profiles.json`; imported userlands require OCI image, license, session/display integration and target-specific validation.
+
 ## Universal boot and startup
 
 The boot layer uses a normalized `CHMBOOT1` contract in `boot/boot_protocol.json`. Computer boot targets include BIOS/MBR, UEFI, Multiboot1/2, Limine-compatible handoff and controlled chainloading. BIOS legacy services and modern UEFI protocols/services are treated as separate firmware interfaces.

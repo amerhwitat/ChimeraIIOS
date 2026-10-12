@@ -1,0 +1,27 @@
+{
+  "schema": "CHIMERA-DISTRO-DESKTOP-PROFILES-1",
+  "version": 1,
+  "policy": {
+    "model": "selectable userspace/rootfs profiles, not kernel merging",
+    "build_time": "resolve pinned OCI image digest, verify signature where available, license and package manifests, then stage as an isolated profile",
+    "runtime": "launch selected desktop/session through an explicit compatibility boundary with per-profile storage, services and display integration",
+    "never": [
+      "merge foreign distro kernels into Koronos",
+      "execute unreviewed install scripts during discovery",
+      "claim every package or desktop works without per-profile tests",
+      "replace the host bootloader or partitions automatically"
+    ]
+  },
+  "profiles": [
+    {"id":"debian-gnome","family":"debian","desktop":"GNOME","image":"docker.io/library/debian:stable-slim","status":"candidate","requires":"OCI rootfs import, display/session adapter, package/license inventory"},
+    {"id":"ubuntu-gnome","family":"ubuntu","desktop":"GNOME","image":"docker.io/library/ubuntu:latest","status":"candidate","requires":"OCI rootfs import, display/session adapter, package/license inventory"},
+    {"id":"fedora-gnome","family":"fedora","desktop":"GNOME","image":"registry.fedoraproject.org/fedora:latest","status":"candidate","requires":"OCI rootfs import, display/session adapter, package/license inventory"},
+    {"id":"opensuse-kde","family":"opensuse","desktop":"KDE Plasma","image":"registry.opensuse.org/opensuse/tumbleweed:latest","status":"candidate","requires":"OCI rootfs import, display/session adapter, package/license inventory"},
+    {"id":"arch-kde","family":"arch","desktop":"KDE Plasma","image":"docker.io/library/archlinux:latest","status":"candidate","requires":"OCI rootfs import, display/session adapter, package/license inventory"},
+    {"id":"linux-mint-cinnamon","family":"linux-mint","desktop":"Cinnamon","image":"linuxmintd/mint22-amd64","status":"candidate","requires":"OCI availability verification, rootfs import, display/session adapter"},
+    {"id":"xfce-session","family":"cross-distro","desktop":"XFCE","image":null,"status":"integration-target","requires":"package manifest and session adapter per supported base distro"},
+    {"id":"lxqt-session","family":"cross-distro","desktop":"LXQt","image":null,"status":"integration-target","requires":"package manifest and session adapter per supported base distro"},
+    {"id":"mate-session","family":"cross-distro","desktop":"MATE","image":null,"status":"integration-target","requires":"package manifest and session adapter per supported base distro"},
+    {"id":"cosmic-session","family":"cross-distro","desktop":"COSMIC","image":null,"status":"integration-target","requires":"package manifest and session adapter per supported base distro"}
+  ]
+}
