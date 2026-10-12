@@ -875,8 +875,8 @@ stage_features(){
   mkdir -p "$ISO_DIR/chimera/docs/validation" "$ROOTFS_DIR/usr/share/chimera/docs/validation"
   for f in docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md docs/validation/capability-evidence.json; do
     [[ -f "$SCRIPT_DIR/$f" ]] || { log_error "Required capability documentation missing: $f"; return 1; }
-    cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/chimera/docs/$f"
-    cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/docs/$f"
+    cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/chimera/$f"
+    cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/$f"
   done
   for f in config/aurora/desktop-parity.json config/aurora/emulators.json config/aurora/free-roms.json config/aurora/emulator-windows.json config/aurora/emulator-associations.json config/chimera/kernel-desktop-parity.json config/chimera/platform-feature-policy.json; do [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$aurora_config_dir/"; done
   [[ -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" ]] && cp -f "$SCRIPT_DIR/docs/kernel-desktop-implementation.md" "$ROOTFS_DIR/usr/share/chimera/docs/"
