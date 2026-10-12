@@ -16,6 +16,7 @@ on:
       - "config/architecture-discovery/**"
       - "config/compatibility/distro-desktop-profiles.json"
       - "tests/test_architecture_discovery.py"
+      - "tests/test_build_pipeline_contract.py"
       - ".github/workflows/architecture-discovery.yml"
 
 permissions:
@@ -31,9 +32,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile discovery tool
-        run: python -m py_compile tools/architecture_discovery/chimera_discovery.py tests/test_architecture_discovery.py
+        run: python -m py_compile tools/architecture_discovery/chimera_discovery.py tests/test_architecture_discovery.py tests/test_build_pipeline_contract.py
       - name: Run safety and proposal tests
         run: python -m unittest discover -s tests -p test_architecture_discovery.py -v
+      - name: Test builder stage and handoff contracts
+        run: python -m unittest discover -s tests -p test_build_pipeline_contract.py -v
       - name: Run deterministic offline discovery
         run: python tools/architecture_discovery/chimera_discovery.py --output-dir build/architecture-discovery
       - name: Optional bounded online source scan
