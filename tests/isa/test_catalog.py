@@ -51,3 +51,46 @@ def test_sources_are_recorded():
     for source in data["sources"]:
         assert source["url"].startswith("https://")
         assert source["scope"]
+
+
+DATABASE = ROOT / "isa" / "isa_database.json"
+
+
+def test_universal_database_instruction_candidates_have_effect_and_implementation_plans():
+    data = json.loads(DATABASE.read_text(encoding="utf-8"))
+    source_ids = {source["id"] for source in data["sources"]}
+    candidates = [
+        item for item in data["execution_model"]["execution_candidates"]
+        if item.get("kind") == "instruction-candidate"
+    ]
+    assert candidates
+    for item in candidates:
+        assert item["source_ref"] in source_ids, item["id"]
+        assert item["encoding_hex_template"].startswith("0x"), item["id"]
+        assert item["affected_registers_model"]["reads"]
+        assert item["affected_registers_model"]["writes"]
+        assert item["flags_effect_model"]["affected"]
+        assert item["memory_effect_model"]["class"]
+        plan = item["best_implementation"]
+        assert plan["recommended_strategy"]
+        assert plan["native_mode"] and plan["compatibility_mode"] and plan["n_bit_mode"]
+        assert plan["validation_gate"]
+        assert plan["status"] == "recommendation-only; implementation and conformance unverified"
+        if "exact_example" in item:
+            example = item["exact_example"]
+            assert len(example["binary_bits"]) == example["length_bits"]
+            assert int(example["hex_word"], 16) == int(example["binary_bits"], 2)
+
+
+def test_worked_encoding_samples_have_consistent_binary_hex_and_register_effects():
+    data = json.loads(DATABASE.read_text(encoding="utf-8"))
+    source_ids = {source["id"] for source in data["sources"]}
+    assert len(data["verified_encoding_samples"]) >= 20
+    for sample in data["verified_encoding_samples"]:
+        assert sample["source_ref"] in source_ids, sample
+        bits = sample["binary_bits"]
+        assert len(bits) == sample["length_bits"]
+        assert re.fullmatch(r"[01]+", bits)
+        assert int(sample["hex_word"], 16) == int(bits, 2)
+        assert sample["affected_registers"]
+        assert "status" in sample["chimera_nbit_mapping"]
