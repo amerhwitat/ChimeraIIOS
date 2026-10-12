@@ -33,6 +33,9 @@ on:
       - "CMakeLists.txt"
       - ".github/workflows/chimera-full-iso.yml"
 
+permissions:
+  contents: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -103,3 +106,18 @@ jobs:
             build/iso/chimera-ii-os.iso
             build/iso/chimera-ii-os.iso.sha256
             chimera-ii-os.iso
+
+      - name: Publish validated ISO candidate to GitHub Releases
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="iso-${GITHUB_SHA::12}"
+          gh release create "$tag" \
+            build/iso/chimera-ii-os.iso \
+            build/iso/chimera-ii-os.iso.sha256 \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "Chimera II OS ISO candidate (${GITHUB_SHA::7})" \
+            --notes "Automated ISO candidate built from ChimeraIIOS commit $GITHUB_SHA. CI validated the ISO checksum and BIOS/QEMU boot markers (ELBC). This is a development prerelease; full userspace/Aurora readiness is not implied."
