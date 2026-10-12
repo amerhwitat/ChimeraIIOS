@@ -27,6 +27,9 @@ class BootMenuTargetTests(unittest.TestCase):
         for source, content in self.sources.items():
             for target in re.findall(r"\bconfigfile\s+(/boot/[^\s}]+)", content):
                 rel = target.lstrip("/")
+                # The canonical ISO GRUB file is staged at /boot/grub/grub.cfg.
+                if target == "/boot/grub/grub.cfg":
+                    rel = "boot/iso/grub.cfg"
                 with self.subTest(source=source, target=target):
                     self.assertTrue((ROOT / rel).is_file(), f"{source} references missing {target}")
 
