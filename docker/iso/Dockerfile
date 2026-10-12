@@ -20,4 +20,14 @@ COPY docker/iso/entrypoint.sh /usr/local/bin/chimera-iso-builder
 RUN chmod +x /usr/local/bin/chimera-iso-builder tools/build/create-bootable-iso.sh \
     boot/iso/build-iso.sh boot/iso/prepare-layout.sh boot/spitfire/build-spitfire.sh
 
+# Fail image construction early if a boot-stage script has shell syntax errors.
+RUN for script in \
+    tools/build/create-bootable-iso.sh \
+    tools/build-live-boot-binaries.sh \
+    boot/iso/build-iso.sh \
+    boot/iso/prepare-layout.sh \
+    boot/spitfire/build-spitfire.sh; do \
+      bash -n "$script"; \
+    done
+
 ENTRYPOINT ["/usr/local/bin/chimera-iso-builder"]
