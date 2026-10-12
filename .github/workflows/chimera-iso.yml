@@ -183,7 +183,7 @@ jobs:
           chmod +x boot/iso/build-iso.sh boot/iso/prepare-layout.sh tools/boot/prepare-visual-assets.py tools/boot/chimera-boot-visual.sh
           if [ ! -s "$CHIMERA_BOOT_VIDEO_SOURCE" ]; then
             mkdir -p "$(dirname "$CHIMERA_BOOT_VIDEO_SOURCE")"
-            ffmpeg -hide_banner -loglevel error -f lavfi -i "color=c=black:s=240x426:d=3" -vf "drawtext=text='CHIMERA II OS — Aurora Boot':fontcolor=white:fontsize=18:x=(w-text_w)/2:y=(h-text_h)/2" -an -c:v libx264 -pix_fmt yuv420p -crf 38 -movflags +faststart "$CHIMERA_BOOT_VIDEO_SOURCE"
+            ffmpeg -hide_banner -loglevel error -f lavfi -i "color=c=black:s=240x426:d=3" -vf "drawtext=text='OctavianOS — Aurora Boot':fontcolor=white:fontsize=18:x=(w-text_w)/2:y=(h-text_h)/2" -an -c:v libx264 -pix_fmt yuv420p -crf 38 -movflags +faststart "$CHIMERA_BOOT_VIDEO_SOURCE"
           fi
           test -s "$CHIMERA_BOOT_VIDEO_SOURCE"
           boot/iso/build-iso.sh
