@@ -1,6 +1,8 @@
 #import <stdio.h>
 
+__attribute__((objc_root_class))
 @interface ChimeraGreeter
++ (id)new;
 - (void)greet;
 @end
 
