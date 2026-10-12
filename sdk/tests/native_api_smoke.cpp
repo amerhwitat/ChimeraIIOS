@@ -26,6 +26,8 @@ int main() {
     assert(chm_win32_post_quit_message(5) == 0);
     assert(chm_win32_get_message(&winmsg, 10) == 0);
     assert(winmsg.message == CHM_WM_QUIT && winmsg.wParam == 5);
+    assert(chm_win32_get_message(&winmsg, 1) == 2);
+    assert(chm_win32_peek_message(&winmsg) == 0);
     assert(chm_win32_bind_message_queue(nullptr) == -1);
     chm_event_queue_destroy(q);
     const char *path = "chimera-sdk-smoke.tmp";
