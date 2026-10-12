@@ -109,7 +109,7 @@ def main():
       "source_tree_sha":tree.get("sha"),"record_count":len(unique),"files_considered":len(paths),
       "failed_files":failures,"instructions":sorted(unique.values(),key=lambda r:(r["mnemonic"],r["form_id"])),
       "limitations":["Encoding masks only; register effects and semantics are not inferred.",
-        "Source branch is moving; release imports should pin a commit SHA.",
+        "Source revision is pinned by immutable commit SHA; review the pin before refreshing.",
         "Review source license and architecture/extension scope before merging."]}
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
