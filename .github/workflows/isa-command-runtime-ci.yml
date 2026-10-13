@@ -27,6 +27,9 @@ on:
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
       - 'tools/commands/chimera-run'
+      - 'tools/commands/chimera-cpu-mode.py'
+      - 'tools/commands/test-chimera-cpu-mode.py'
+      - 'tools/commands/CPU-MODES-AND-TOPOLOGY.md'
       - 'tools/commands/os-command-runtime.json'
       - 'tools/commands/test-cross-os-runtime.py'
       - 'tools/commands/README-cross-os-runtime.md'
@@ -113,7 +116,9 @@ jobs:
         run: |
           python3 -m json.tool tools/commands/os-command-runtime.json >/dev/null
           python3 -m py_compile tools/commands/chimera-run tools/commands/generate_runtime_manifest.py tools/commands/test-cross-os-runtime.py
+          python3 -m py_compile tools/commands/chimera-cpu-mode.py tools/commands/test-chimera-cpu-mode.py
           python3 tools/commands/test-cross-os-runtime.py -v
+          python3 -m unittest tools/commands/test-chimera-cpu-mode.py -v
       - name: Validate generated command capability manifest
         run: |
           python3 tools/commands/generate_runtime_manifest.py
