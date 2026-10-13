@@ -53,7 +53,7 @@ jobs:
       - name: Install boot validation tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin python3-pytest
+          sudo apt-get install -y build-essential nasm gcc g++ binutils grub-pc-bin grub-efi-amd64-bin grub-common xorriso mtools dosfstools ovmf qemu-system-x86 busybox-static cpio ffmpeg imagemagick rsync file gzip bzip2 unzip librsvg2-bin python3-pytest
       - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
@@ -109,10 +109,16 @@ jobs:
           grep -q 'background_image' boot/spitfire/spitfire-menu.cfg
           grep -q 'desktop-background.conf' desktop/aurora/gates_menu.json
           test -s system/branding/aurora-default.png.base64
-      - name: Validate GRUB linkage contract
+      - name: Validate GRUB linkage and target routing contract
         run: |
           grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
           grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'configfile /boot/installation/menu.cfg' boot/iso/grub.cfg
+          grep -q 'module2 /install/installer/installation.img chimera-installation-image' boot/jasper/install.cfg
+          grep -q 'Mobile boot is unavailable in this build' boot/iso/grub.cfg
+          grep -q '3840x2160' boot/iso/grub.cfg
+          grep -q '1024x768' boot/iso/grub.cfg
+          grep -q '640x480' boot/iso/grub.cfg
           test -f kernel/arch/x86_64/entry.asm
           test -f kernel/arch/x86_64/koronos.ld
           test -f boot/spitfire/sf0_mbr.asm
@@ -122,5 +128,51 @@ jobs:
         run: |
           bash kernel/build-koronos.sh
           bash boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
-          nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start$'
+          nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start
+
           test -s build/bootloaders/spitfire-stage2.bin
+      - name: Build complete native BIOS/UEFI ISO candidate
+        run: |
+          set -euo pipefail
+          # Use the repository's native ISO mastering stage; this is a CI candidate, not a release.
+          bash boot/iso/build-iso.sh
+          test -s boot/iso/dist/output.iso
+          xorriso -indev boot/iso/dist/output.iso -report_el_torito plain -report_system_area plain | tee boot/iso/dist/ISO-BOOT-REPORT-CI.txt
+          grep -q 'El Torito' boot/iso/dist/ISO-BOOT-REPORT-CI.txt
+          test -s boot/iso/dist/iso/boot/grub/grub.cfg
+          test -s boot/iso/dist/iso/boot/koronos/koronos.elf
+          test -s boot/iso/dist/iso/boot/live/chimera-live-initramfs.img
+          test -s boot/iso/dist/iso/boot/recovery/chimera-recovery-initramfs.img
+          test -s boot/iso/dist/iso/install/installer/installation.img
+      - name: Boot complete ISO through BIOS and UEFI
+        run: |
+          set -uo pipefail
+          smoke=build/full-iso-qemu
+          iso=boot/iso/dist/output.iso
+          mkdir -p "$smoke"
+          set +e
+          timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -vga std -cdrom "$iso" -boot d -display none -serial "file:$smoke/bios-serial.log" -monitor none -no-reboot -no-shutdown -debugcon "file:$smoke/bios-debugcon.log" -global isa-debugcon.iobase=0xe9 -d guest_errors,cpu_reset -D "$smoke/bios-qemu.log"
+          bios_status=$?
+          cp /usr/share/OVMF/OVMF_VARS.fd "$smoke/OVMF_VARS.fd"
+          timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -vga std -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd -drive if=pflash,format=raw,file="$smoke/OVMF_VARS.fd" -cdrom "$iso" -boot order=d -display none -serial "file:$smoke/uefi-serial.log" -monitor none -no-reboot -no-shutdown -debugcon "file:$smoke/uefi-debugcon.log" -global isa-debugcon.iobase=0xe9 -d guest_errors,cpu_reset -D "$smoke/uefi-qemu.log"
+          uefi_status=$?
+          set -e
+          echo "BIOS QEMU exit: $bios_status; UEFI QEMU exit: $uefi_status"
+          for mode in bios uefi; do
+            if ! grep -Fq '[KRN ] KORONOS READY' "$smoke/$mode-debugcon.log" 2>/dev/null; then
+              echo "::error::$mode ISO boot did not reach the Koronos readiness marker"
+              [[ -f "$smoke/$mode-serial.log" ]] && tail -100 "$smoke/$mode-serial.log" || true
+              [[ -f "$smoke/$mode-qemu.log" ]] && tail -100 "$smoke/$mode-qemu.log" || true
+              exit 1
+            fi
+          done
+      - name: Upload full ISO boot traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-full-iso-bios-uefi-traces
+          path: |
+            build/full-iso-qemu/*
+            boot/iso/dist/ISO-BOOT-REPORT-CI.txt
+          if-no-files-found: ignore
+          retention-days: 14
