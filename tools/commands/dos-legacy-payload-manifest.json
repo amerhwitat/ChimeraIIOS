@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "purpose": "License-aware DOS/retro app and game payload inventory. Metadata does not imply that a payload is downloaded, included, or tested.",
+  "emulator_preferences": [
+    "dosbox-x",
+    "dosbox"
+  ],
+  "safety_model": {
+    "execute_dos_binaries_only_in_guest_pc": true,
+    "guest_memory_isolation_from_host_kernel": true,
+    "no_host_raw_disk_passthrough_by_default": true,
+    "no_runtime_unverified_downloads": true
+  },
+  "payload_policy": {
+    "required_fields": [
+      "name",
+      "source_url",
+      "version",
+      "license",
+      "sha256",
+      "format",
+      "emulator_profile",
+      "redistributable",
+      "status"
+    ],
+    "allowed_statuses": [
+      "cataloged",
+      "license-reviewed",
+      "downloaded",
+      "hash-verified",
+      "staged-in-iso",
+      "smoke-tested"
+    ],
+    "default_status": "cataloged",
+    "commercial_assets_included_without_permission": false
+  },
+  "bundled_titles": [],
+  "command_payloads": {
+    "path": "/usr/share/chimera/dos/bin",
+    "source": "separate license-reviewed package/build workflow",
+    "default_status": "not-installed"
+  },
+  "test_profiles": [
+    {
+      "id": "pc-xt",
+      "machine": "IBM PC/XT",
+      "cpu": "8086",
+      "graphics": [
+        "CGA",
+        "MDA"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "pc-at",
+      "machine": "IBM PC/AT",
+      "cpu": "80286",
+      "graphics": [
+        "EGA",
+        "VGA"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "pentium-vga",
+      "machine": "Pentium-compatible PC",
+      "cpu": "Pentium",
+      "graphics": [
+        "VGA",
+        "SVGA"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "pc98",
+      "machine": "NEC PC-98",
+      "cpu": "profile-dependent",
+      "graphics": [
+        "PC-98"
+      ],
+      "status": "planned"
+    }
+  ]
+}
