@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "purpose": "Architecture/toolchain capability contract. Presence is discovery metadata, not proof of conformance or successful execution.",
+  "status_vocabulary": [
+    "cataloged",
+    "format-detectable",
+    "assemble-provider-required",
+    "disassemble-provider-required",
+    "compile-provider-required",
+    "emulation-provider-required",
+    "conformance-tested",
+    "native-runtime-verified",
+    "unsupported"
+  ],
+  "architectures": {
+    "x86": {
+      "aliases": [
+        "i386",
+        "i486",
+        "i586",
+        "i686",
+        "ia32"
+      ],
+      "elf_machine": 3,
+      "pe_machine": [
+        "0x014c"
+      ],
+      "llvm_targets": [
+        "i386"
+      ],
+      "qemu_user": "qemu-i386",
+      "execution": "provider-required"
+    },
+    "x86_64": {
+      "aliases": [
+        "amd64",
+        "x64"
+      ],
+      "elf_machine": 62,
+      "pe_machine": [
+        "0x8664"
+      ],
+      "llvm_targets": [
+        "x86_64"
+      ],
+      "qemu_user": "qemu-x86_64",
+      "execution": "native-or-provider"
+    },
+    "armv7": {
+      "aliases": [
+        "arm",
+        "arm32",
+        "armhf"
+      ],
+      "elf_machine": 40,
+      "pe_machine": [],
+      "llvm_targets": [
+        "armv7-linux-gnueabihf"
+      ],
+      "qemu_user": "qemu-arm",
+      "execution": "provider-required"
+    },
+    "aarch64": {
+      "aliases": [
+        "arm64"
+      ],
+      "elf_machine": 183,
+      "pe_machine": [
+        "0xaa64"
+      ],
+      "llvm_targets": [
+        "aarch64-linux-gnu"
+      ],
+      "qemu_user": "qemu-aarch64",
+      "execution": "provider-required"
+    },
+    "riscv32": {
+      "aliases": [
+        "rv32",
+        "rv32i"
+      ],
+      "elf_machine": 243,
+      "elf_class": 1,
+      "pe_machine": [],
+      "llvm_targets": [
+        "riscv32-unknown-elf"
+      ],
+      "qemu_user": "qemu-riscv32",
+      "execution": "provider-required"
+    },
+    "riscv64": {
+      "aliases": [
+        "rv64",
+        "rv64gc"
+      ],
+      "elf_machine": 243,
+      "elf_class": 2,
+      "pe_machine": [],
+      "llvm_targets": [
+        "riscv64-linux-gnu"
+      ],
+      "qemu_user": "qemu-riscv64",
+      "execution": "provider-required"
+    },
+    "mips": {
+      "aliases": [
+        "mips32",
+        "mipsel"
+      ],
+      "elf_machine": 8,
+      "pe_machine": [],
+      "llvm_targets": [
+        "mipsel-linux-gnu"
+      ],
+      "qemu_user": "qemu-mipsel",
+      "execution": "provider-required"
+    },
+    "powerpc": {
+      "aliases": [
+        "ppc",
+        "powerpc32"
+      ],
+      "elf_machine": 20,
+      "pe_machine": [],
+      "llvm_targets": [
+        "powerpc-linux-gnu"
+      ],
+      "qemu_user": "qemu-ppc",
+      "execution": "provider-required"
+    },
+    "powerpc64": {
+      "aliases": [
+        "ppc64",
+        "ppc64le"
+      ],
+      "elf_machine": 21,
+      "pe_machine": [],
+      "llvm_targets": [
+        "powerpc64le-linux-gnu"
+      ],
+      "qemu_user": "qemu-ppc64le",
+      "execution": "provider-required"
+    },
+    "wasm32": {
+      "aliases": [
+        "wasm"
+      ],
+      "elf_machine": null,
+      "pe_machine": [],
+      "llvm_targets": [
+        "wasm32-wasi"
+      ],
+      "runtime": "wasmtime",
+      "execution": "provider-required"
+    },
+    "wasm64": {
+      "aliases": [],
+      "elf_machine": null,
+      "pe_machine": [],
+      "llvm_targets": [
+        "wasm64-unknown-unknown"
+      ],
+      "runtime": "wasmtime",
+      "execution": "provider-required"
+    },
+    "dos-x86": {
+      "aliases": [
+        "dos",
+        "8086",
+        "i8086"
+      ],
+      "elf_machine": null,
+      "pe_machine": [],
+      "llvm_targets": [
+        "i8086-pc-none"
+      ],
+      "runtime": "dosbox-x-or-dosemu",
+      "execution": "provider-required"
+    },
+    "macos-x86_64": {
+      "aliases": [
+        "macho-x86_64"
+      ],
+      "elf_machine": null,
+      "pe_machine": [],
+      "runtime": "darling",
+      "execution": "provider-required"
+    },
+    "macos-aarch64": {
+      "aliases": [
+        "macho-arm64"
+      ],
+      "elf_machine": null,
+      "pe_machine": [],
+      "runtime": "darling",
+      "execution": "provider-required"
+    },
+    "unknown": {
+      "aliases": [],
+      "execution": "unsupported"
+    }
+  },
+  "providers": {
+    "clang": {
+      "role": [
+        "assemble",
+        "compile"
+      ],
+      "detection": "executable lookup",
+      "claims": "provider availability only; target support must be probed"
+    },
+    "llvm-mc": {
+      "role": [
+        "assemble"
+      ],
+      "detection": "executable lookup"
+    },
+    "llvm-objdump": {
+      "role": [
+        "disassemble"
+      ],
+      "detection": "executable lookup"
+    },
+    "objdump": {
+      "role": [
+        "disassemble"
+      ],
+      "detection": "executable lookup"
+    },
+    "qemu-user": {
+      "role": [
+        "execute-foreign-linux-elf"
+      ],
+      "detection": "per-architecture qemu-user executable lookup"
+    },
+    "wine": {
+      "role": [
+        "execute-windows-pe"
+      ],
+      "detection": "executable lookup"
+    },
+    "darling": {
+      "role": [
+        "execute-macos-macho"
+      ],
+      "detection": "executable lookup"
+    },
+    "wasmtime": {
+      "role": [
+        "execute-wasm"
+      ],
+      "detection": "executable lookup"
+    },
+    "dosbox-x": {
+      "role": [
+        "execute-dos"
+      ],
+      "detection": "executable lookup"
+    }
+  },
+  "safety": {
+    "never_execute_unknown_raw_bytes": true,
+    "never_shell_interpolate_user_arguments": true,
+    "no_privilege_escalation": true
+  }
+}
