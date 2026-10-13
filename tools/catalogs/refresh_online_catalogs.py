@@ -144,10 +144,12 @@ def canonical_url(base: str, href: str) -> str:
     parsed = urlparse(absolute)
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
         return ""
-    # HTML may contain literal spaces or other unsafe characters in hrefs.
-    # Encode path characters before handing the URL to urllib.request.urlopen.
+    # Encode spaces and unsafe path characters before opening the URL.
+    # Keep valid percent escapes and URL path delimiters intact.
     safe_path = quote(parsed.path, safe="/%:@!$&'()*+,;=-._~")
     return urlunparse((parsed.scheme, parsed.netloc, safe_path, "", "", ""))
+
+
 def candidate_name(label: str) -> str:
     label = label.strip()
     if len(label) > 80 or not re.search(r"[A-Za-z0-9]", label):
