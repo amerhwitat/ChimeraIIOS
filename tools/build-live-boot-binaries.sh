@@ -53,7 +53,7 @@ INIT="$OUT/initramfs/root"
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
-for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip; do ln -sf busybox "$INIT/bin/$x"; done
+for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
@@ -65,31 +65,47 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
-mkdir -p /mnt/chimera /var/log/mesgs/archive /var/lib/chimera/drivers
+mkdir -p /mnt/chimera /var/log/mesgs/archive /var/lib/chimera/drivers /run/chimera
 ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
-printf "[LIVE] Initramfs started\\n" >> /var/log/mesgs
-if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
-
+progress() {
+  pct="$1"; phase="$2"; message="$3"; width=24; filled=$((pct * width / 100)); bar=""; n=0
+  while [ "$n" -lt "$width" ]; do
+    if [ "$n" -lt "$filled" ]; then bar="${bar}#"; else bar="${bar}-"; fi
+    n=$((n + 1))
+  done
+  line="[LIVE] [${bar}] ${pct}% ${phase}: ${message}"
+  printf '%s\\n' "$line" >> /var/log/mesgs
+  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
+}
+progress 0 "Initramfs" "Starting early userspace"
+progress 10 "Proc" "proc filesystem mount attempt complete"
+progress 20 "Sysfs" "sysfs filesystem mount attempt complete"
+progress 30 "Devices" "devtmpfs mount attempt complete"
+progress 35 "Runtime" "temporary runtime filesystem mount attempt complete"
+if [ -x /bin/chimera-driver-manager.sh ]; then
+  /bin/chimera-driver-manager.sh inventory || progress 45 "Drivers" "inventory command returned an error; continuing in recovery mode"
+fi
+progress 50 "Media discovery" "probing available boot media"
 mounted=0
 i=0
 while [ "$i" -lt 30 ]; do
   for dev in /dev/sr0 /dev/cdrom /dev/vda /dev/sda /dev/sdb /dev/mmcblk0; do
     [ -b "$dev" ] || continue
-    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; break 2; fi
-    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; break 2; fi
+    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; progress 80 "Media" "mounted $dev read-only"; break 2; fi
+    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; progress 80 "Media" "mounted $dev read-only"; break 2; fi
   done
   i=$((i + 1)); sleep 1
 done
-
 if [ "$mounted" -eq 1 ] && [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
-  printf "[LIVE] Media mounted\\n" >> /var/log/mesgs
   echo "Chimera II OS Live Media"
   echo "Koronos kernel selected by Jasper/GRUB Multiboot2."
   echo "Koronos kernel: /mnt/chimera/boot/koronos/koronos.elf"
   echo "Live manifest: /mnt/chimera/boot/live/live-manifest.json"
   echo "Live initramfs: /mnt/chimera/boot/live/chimera-live-initramfs.img"
+  progress 100 "Live shell" "initramfs is ready; desktop readiness is reported separately"
 else
-  printf "[LIVE] Media not found after 30 seconds\\n" >> /var/log/mesgs
+  progress 50 "Media discovery" "FAILED: media or live manifest not found; entering diagnostic shell"
   echo "Chimera II OS: live media not found after 30 seconds."
   echo "Available block devices:"
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
@@ -114,11 +130,27 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
-mkdir -p /mnt/chimera-root /var/log/mesgs/archive /var/lib/chimera/drivers
+mkdir -p /mnt/chimera-root /var/log/mesgs/archive /var/lib/chimera/drivers /run/chimera
 ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
-printf '%s\\n' '[RECOVERY] Jasper/Koronos recovery initramfs started' >> /var/log/mesgs
+recovery_progress() {
+  pct="$1"; phase="$2"; message="$3"; width=24; filled=$((pct * width / 100)); bar=""; n=0
+  while [ "$n" -lt "$width" ]; do
+    if [ "$n" -lt "$filled" ]; then bar="${bar}#"; else bar="${bar}-"; fi
+    n=$((n + 1))
+  done
+  line="[RECOVERY] [${bar}] ${pct}% ${phase}: ${message}"
+  printf '%s\\n' "$line" >> /var/log/mesgs
+  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
+}
+recovery_progress 0 "Initramfs" "Starting Jasper recovery userspace"
+recovery_progress 20 "Proc/sysfs/devices" "early filesystem mount attempts complete"
+recovery_progress 40 "Runtime" "recovery directories and logs ready"
 export CHIMERA_RECOVERY_INITRAMFS=1
-if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
+if [ -x /bin/chimera-driver-manager.sh ]; then
+  /bin/chimera-driver-manager.sh inventory || recovery_progress 50 "Drivers" "inventory returned an error; repair shell remains available"
+fi
+recovery_progress 100 "Recovery shell" "repair console is ready; individual repair actions report their own status"
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
