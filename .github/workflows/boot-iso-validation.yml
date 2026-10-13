@@ -180,6 +180,7 @@ jobs:
           done
           # Exercise the three primary GRUB handoffs by remastering the staged tree with each default.
           original_cfg="$smoke/staged-grub.cfg"
+          if [[ ! -s "$original_cfg" ]]; then cp boot/iso/dist/iso/boot/grub/grub.cfg "$original_cfg"; fi
           for target in live install recovery; do
             case "$target" in
               live) index=0 ;;
