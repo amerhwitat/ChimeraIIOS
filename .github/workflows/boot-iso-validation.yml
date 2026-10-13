@@ -128,7 +128,7 @@ jobs:
         run: |
           bash kernel/build-koronos.sh
           bash boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
-          nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start
+          nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start$'
 
           test -s build/bootloaders/spitfire-stage2.bin
       - name: Build complete native BIOS/UEFI ISO candidate
