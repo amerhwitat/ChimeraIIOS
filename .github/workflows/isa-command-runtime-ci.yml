@@ -9,6 +9,9 @@ on:
       - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
       - 'tools/isa/generate_encoding_artifacts.py'
       - 'tools/isa/riscv_codec.py'
+      - 'tools/isa/refresh_isa_catalog.py'
+      - 'tools/isa/test_refresh_isa_catalog.py'
+      - 'tools/isa/ONLINE-ISA-REFRESH.md'
       - 'tools/isa/test_riscv_codec.py'
       - 'tools/isa/rv32_machine.py'
       - 'tools/isa/test_rv32_machine.py'
@@ -65,6 +68,9 @@ on:
       - 'kernel/generated/chimera_isa_encoding_samples.generated.h'
       - 'tools/isa/generate_encoding_artifacts.py'
       - 'tools/isa/riscv_codec.py'
+      - 'tools/isa/refresh_isa_catalog.py'
+      - 'tools/isa/test_refresh_isa_catalog.py'
+      - 'tools/isa/ONLINE-ISA-REFRESH.md'
       - 'tools/isa/test_riscv_codec.py'
       - 'tools/isa/rv32_machine.py'
       - 'tools/isa/test_rv32_machine.py'
@@ -113,6 +119,11 @@ jobs:
           bash -n build-chimera-iso.sh
           bash -n tools/build-chimera-command-compat.sh
           bash -n tools/commands/install-command-providers.sh
+      - name: Validate online ISA refresh schema without network
+        run: |
+          python3 -m py_compile tools/isa/refresh_isa_catalog.py tools/isa/test_refresh_isa_catalog.py
+          python3 tools/isa/refresh_isa_catalog.py --self-test
+          python3 -m unittest tools/isa/test_refresh_isa_catalog.py -v
       - name: Test RV32I encoder, decoder, and interpreter subset
         run: |
           python3 -m unittest tools/isa/test_riscv_codec.py -v

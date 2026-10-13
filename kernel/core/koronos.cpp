@@ -192,6 +192,9 @@ static const char *module_kind_name(uint32_t k) {
         case CHIMERA_MODULE_INSTALL_CONTRACT: return "INSTALL CONTRACT";
         case CHIMERA_MODULE_INSTALL_PHASES: return "INSTALL PHASES";
         case CHIMERA_MODULE_INSTALL_PROFILES: return "INSTALL PROFILES";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
+        case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
+        case CHIMERA_MODULE_USER_INIT_ELF: return "USER INIT ELF";
         default: return "OTHER";
     }
 }
@@ -240,7 +243,8 @@ static void task_live(void *) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] USERSPACE NOT READY: no verified init ELF execution/context-switch handoff");
+            console_write("[AUR ] Aurora desktop NOT READY: live userspace has not acknowledged startup");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -292,14 +296,32 @@ static void task_installer(void *) {
             console_write("[INST] Installer UI service initialized");
             break;
         case 4:
-            console_write("[INST] Installer initialization complete");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] Installer service staging complete; installer userspace NOT READY");
+            console_write("[INST] Waiting for a verified Koronos userspace installer loader");
             chimera_sched_block();
             break;
         default:
             chimera_sched_block();
             break;
     }
+}
+
+static void task_recovery(void *) {
+    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST);
+    static bool reported = false;
+    if (!reported) {
+        reported = true;
+        if (!image && !manifest) {
+            console_write("[RECV] Recovery target not selected");
+        } else if (image && manifest) {
+            console_write("[RECV] Recovery initramfs and manifest accepted");
+            console_write("[RECV] Recovery userspace NOT READY: no verified init ELF execution/context-switch handoff");
+        } else {
+            console_write("[RECV] Recovery payload incomplete: initramfs or manifest missing");
+        }
+    }
+    chimera_sched_block();
 }
 
 static const char *task_state_name(uint32_t state) {
@@ -364,11 +386,12 @@ static void koronos_submit_bootstrap_tasks() {
     int b = chimera_sched_submit(task_modules, 0, 90);
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
+    int r = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
-    console_write("[SCH ] console/module/live/installer/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0)
+    console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
+    if (a < 0 || b < 0 || c < 0 || d < 0 || r < 0 || e < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
