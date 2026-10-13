@@ -99,6 +99,7 @@ jobs:
           bash -n tools/aurora/build-visual-assets.sh
           bash -n desktop/aurora/aurora-progress.sh
           bash -n desktop/aurora/aurora-init-splash.sh
+          bash -n desktop/aurora/aurora-desktop-init.sh
       - name: Build and test Aurora N-bit settings selection
         run: |
           g++ -std=c++17 -Wall -Wextra desktop/aurora/apps/aurora_settings.cpp -o /tmp/aurora-settings-test
