@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import contextlib
 import importlib.util
+import io
 import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 SCRIPT = Path(__file__).with_name("chimera-dos-adapter.py")
 SPEC = importlib.util.spec_from_file_location("chimera_dos_adapter", SCRIPT)
@@ -20,8 +23,21 @@ class DosAdapterTests(unittest.TestCase):
             self.assertTrue(MODULE.safe_dos_arg(value), value)
 
     def test_missing_command_payload_fails_closed(self):
-        with tempfile.TemporaryDirectory() as td:
-            self.assertFalse((Path(td) / 'append.exe').exists())
+        with tempfile.TemporaryDirectory() as td, patch.dict(os.environ, {"CHIMERA_DOS_BIN": td}), patch.object(MODULE, "provider", return_value="/fake/dosbox"):
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                rc = MODULE.main(["--command", "append"])
+            self.assertEqual(rc, 127)
+            self.assertIn("payload not installed", stderr.getvalue())
+
+    def test_command_arguments_are_quoted_and_passed_to_emulator(self):
+        with tempfile.TemporaryDirectory() as td, patch.dict(os.environ, {"CHIMERA_DOS_BIN": td}), patch.object(MODULE, "provider", return_value="/fake/dosbox"), patch.object(MODULE.subprocess, "run", return_value=type("R", (), {"returncode": 0})()) as run:
+            (Path(td) / "append.exe").write_bytes(b"test payload")
+            rc = MODULE.main(["--command", "append", "source path", "dest.dat"])
+            self.assertEqual(rc, 0)
+            args = run.call_args.args[0]
+            self.assertEqual(args[0], "/fake/dosbox")
+            self.assertIn("append.exe \"source path\" dest.dat", args)
 
 if __name__ == "__main__":
     unittest.main()
