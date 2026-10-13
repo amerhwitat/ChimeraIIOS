@@ -26,6 +26,16 @@ on:
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
+      - 'tools/commands/chimera-run'
+      - 'tools/commands/os-command-runtime.json'
+      - 'tools/commands/test-cross-os-runtime.py'
+      - 'tools/commands/README-cross-os-runtime.md'
+      - 'build-chimera-iso.sh'
+      - 'tools/commands/chimera-run'
+      - 'tools/commands/os-command-runtime.json'
+      - 'tools/commands/test-cross-os-runtime.py'
+      - 'tools/commands/README-cross-os-runtime.md'
+      - 'build-chimera-iso.sh'
       - 'system/commands/chimera-command-list.json'
       - 'system/commands/ss64-command-catalog.ar.json'
       - 'system/commands/ss64-command-catalog.json'
@@ -99,6 +109,11 @@ jobs:
           python3 tools/validate_isa_catalog.py
           python3 tools/isa/generate_encoding_artifacts.py
           git diff --exit-code -- isa/generated/isa-encoding-samples.json isa/generated/isa-encoding-registry.json kernel/generated/chimera_isa_encoding_samples.generated.h
+      - name: Validate cross-OS command registry and runtime dispatcher
+        run: |
+          python3 -m json.tool tools/commands/os-command-runtime.json >/dev/null
+          python3 -m py_compile tools/commands/chimera-run tools/commands/generate_runtime_manifest.py tools/commands/test-cross-os-runtime.py
+          python3 tools/commands/test-cross-os-runtime.py -v
       - name: Validate generated command capability manifest
         run: |
           python3 tools/commands/generate_runtime_manifest.py
@@ -107,7 +122,8 @@ jobs:
           from pathlib import Path
           d=json.loads(Path("system/commands/command-runtime-capabilities.json").read_text(encoding="utf-8"))
           assert d["command_count"] == len(d["commands"]) and d["command_count"] >= 800
-          assert d["mode_counts"].get("native") == 15
+          # The 15 C-native built-ins remain present; the new native dispatcher adds its own registered entry.
+          assert d["mode_counts"].get("native", 0) >= 15
           assert all(c.get("provider") and c.get("mode") for c in d["commands"])
           print("Command capability inventory valid:", d["command_count"], d["mode_counts"])
           PY

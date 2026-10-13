@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+"""Chimera/Octavian cross-OS executable dispatcher."""
+from __future__ import annotations
+import json, os, platform, shutil, struct, sys
+from pathlib import Path
+
+def load_manifest():
+    candidates = []
+    override = os.environ.get("CHIMERA_COMMAND_MANIFEST")
+    if override:
+        candidates.append(Path(override))
+    candidates.append(Path(__file__).resolve().with_name("os-command-runtime.json"))
+    candidates.append(Path("/usr/share/chimera/commands/os-command-runtime.json"))
+    for candidate in candidates:
+        try:
+            with candidate.open(encoding="utf-8") as f:
+                return json.load(f)
+        except OSError:
+            continue
+    raise FileNotFoundError("os-command-runtime.json not found beside chimera-run or under /usr/share/chimera/commands")
+
+def list_commands(manifest):
+    for group, info in manifest["providers"].items():
+        for name in info["commands"]:
+            print(f"{name}\t{group}\t{info['mode']}\t{info['runtime']}")
+
+def resolve_program(name):
+    candidate = Path(name)
+    skip = os.environ.get("CHIMERA_SHIM_BINARY")
+    skip_path = Path(skip).resolve() if skip else None
+    if candidate.parent != Path(".") or candidate.is_absolute():
+        resolved = candidate.resolve() if candidate.exists() else None
+        return None if resolved is not None and resolved == skip_path else (candidate.absolute() if resolved is not None else None)
+    for entry in os.environ.get("PATH", os.defpath).split(os.pathsep):
+        entry = entry or "."
+        path = Path(entry) / name
+        try:
+            if not path.is_file() or not os.access(path, os.X_OK):
+                continue
+            resolved = path.resolve()
+            if skip_path is not None and resolved == skip_path:
+                continue
+            return path.absolute()
+        except OSError:
+            continue
+    return None
+
+def classify(path):
+    try:
+        with path.open("rb") as f:
+            head = f.read(4096)
+    except OSError:
+        return "unreadable"
+    if head.startswith(b"#!"):
+        return "script"
+    if head.startswith(b"MZ"):
+        if len(head) >= 64:
+            pe_offset = struct.unpack("<I", head[60:64])[0]
+            if pe_offset + 4 <= len(head) and head[pe_offset:pe_offset + 4] == b"PE\0\0":
+                return "pe-coff"
+        return "dos-mz"
+    if head[:4] == b"\x7fELF":
+        if len(head) < 20:
+            return "elf-invalid"
+        machine = struct.unpack("<H", head[18:20])[0]
+        native = {"x86_64":{62},"amd64":{62},"i386":{3},"i686":{3},
+                  "aarch64":{183},"arm64":{183},"armv7l":{40},
+                  "riscv64":{243},"ppc64le":{21},"s390x":{22}}.get(platform.machine().lower(), set())
+        return "elf-native" if machine in native else "elf-other-architecture"
+    if head[:4] in (b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe",
+                    b"\xfe\xed\xfa\xcf", b"\xcf\xfa\xed\xfe",
+                    b"\xca\xfe\xba\xbe"):
+        return "macho"
+    if head.startswith(b"\0asm"):
+        return "webassembly"
+    return "unknown"
+
+def provider_for(kind, manifest):
+    for provider in manifest.get("foreign_binary_handlers", {}).get(kind, {}).get("providers", []):
+        found = shutil.which(provider)
+        if found:
+            return found
+    return None
+
+def command_group(manifest, name):
+    folded = name.casefold()
+    for group, info in manifest.get("providers", {}).items():
+        if any(str(command).casefold() == folded for command in info.get("commands", [])):
+            return group
+    return None
+
+def powershell_literal(value):
+    return "'" + value.replace("'", "''") + "'"
+
+def dispatch_named_compat(name, args, manifest):
+    group = command_group(manifest, name)
+    if group == "powershell":
+        runtime = shutil.which("pwsh") or shutil.which("powershell")
+        if not runtime:
+            print(f"chimera-run: PowerShell command {name!r} is cataloged but pwsh/powershell is not installed", file=sys.stderr)
+            return 126
+        script = "& " + powershell_literal(name)
+        if args:
+            script += " " + " ".join(powershell_literal(arg) for arg in args)
+        os.execv(runtime, [runtime, "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+    if group == "windows-cmd":
+        runtime = shutil.which("wine") or shutil.which("wine64")
+        if not runtime:
+            print(f"chimera-run: Windows command {name!r} requires Wine and a Windows command interpreter", file=sys.stderr)
+            return 126
+        # cmd.exe expands metacharacters even in some quoted contexts. Refuse
+        # risky arguments instead of converting user input into command syntax.
+        unsafe = set('&|<>^()%!"\r\n')
+        if any(any(ch in unsafe or ord(ch) < 32 for ch in arg) for arg in args):
+            print("chimera-run: refusing Windows CMD argument containing shell metacharacters", file=sys.stderr)
+            return 2
+        quoted = [('"'+arg+'"') if any(ch.isspace() for ch in arg) else arg for arg in args]
+        command_line = name + ((" " + " ".join(quoted)) if quoted else "")
+        os.execv(runtime, [runtime, "cmd", "/c", command_line])
+    if group == "dos-retro":
+        print(f"chimera-run: DOS command {name!r} is cataloged; DOSBox command adapter is not implemented yet", file=sys.stderr)
+        return 126
+    return None
+
+def main(argv):
+    mode = "auto"
+    if len(argv) >= 2 and argv[0] == "--mode":
+        mode, argv = argv[1], argv[2:]
+    if mode not in ("auto", "native", "compat"):
+        print("chimera-run: mode must be auto, native, or compat", file=sys.stderr); return 2
+    manifest = load_manifest()
+    if argv == ["--list"]:
+        list_commands(manifest); return 0
+    if not argv:
+        print("usage: chimera-run [--mode auto|native|compat] PROGRAM [ARG...]", file=sys.stderr)
+        print("       chimera-run --list", file=sys.stderr); return 2
+    if mode == "compat":
+        group = command_group(manifest, argv[0])
+        if group in ("windows-cmd", "powershell", "dos-retro"):
+            result = dispatch_named_compat(argv[0], argv[1:], manifest)
+            if result is not None:
+                return result
+    program = resolve_program(argv[0])
+    if not program:
+        result = dispatch_named_compat(argv[0], argv[1:], manifest) if mode != "native" else None
+        if result is not None:
+            return result
+        print(f"chimera-run: command not found: {argv[0]}", file=sys.stderr); return 127
+    kind = classify(program)
+    if not os.access(program, os.X_OK):
+        print(f"chimera-run: not executable: {program}", file=sys.stderr); return 126
+    if kind in ("script", "elf-native"):
+        os.execvpe(str(program), [str(program), *argv[1:]], os.environ)
+    if mode == "native":
+        print(f"chimera-run: {program} is not native (type={kind})", file=sys.stderr); return 126
+    if kind == "elf-other-architecture":
+        with program.open("rb") as f:
+            f.seek(18); machine = struct.unpack("<H", f.read(2))[0]
+        qemu = {183:"qemu-aarch64",40:"qemu-arm",3:"qemu-i386",243:"qemu-riscv64",21:"qemu-ppc64le",8:"qemu-mips"}.get(machine)
+        found = shutil.which(qemu) if qemu else None
+        if found:
+            os.execv(found, [found, str(program), *argv[1:]])
+    else:
+        found = provider_for(kind, manifest)
+        if found and kind == "pe-coff":
+            os.execv(found, [found, str(program), *argv[1:]])
+        if found and kind == "webassembly":
+            prefix = [found, "run"] if Path(found).name == "wasmtime" else [found]
+            os.execv(found, [*prefix, str(program), *argv[1:]])
+        if found and kind == "macho":
+            os.execv(found, [found, "shell", str(program), *argv[1:]])
+    print(f"chimera-run: no installed compatibility provider for {kind}: {program}", file=sys.stderr)
+    return 126
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
