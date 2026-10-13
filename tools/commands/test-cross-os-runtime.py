@@ -35,5 +35,31 @@ class RuntimeRegistryTests(unittest.TestCase):
             p = subprocess.run([sys.executable, str(RUNNER), "--mode", "native", f.name], text=True, capture_output=True)
             self.assertEqual(p.returncode, 126)
             self.assertIn("not native", p.stderr)
+    def test_powershell_command_uses_literal_arguments(self):
+        import os, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            capture = Path(td) / "args.json"
+            fake = Path(td) / "pwsh"
+            fake.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            fake.chmod(0o755)
+            env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""), CAPTURE_ARGS=str(capture))
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "Get-ChildItem", "hello world", "a'b"], env=env, text=True, capture_output=True)
+            self.assertEqual(p.returncode, 0, p.stderr)
+            args = json.loads(capture.read_text(encoding="utf-8"))
+            self.assertEqual(args[:3], ["-NoLogo", "-NoProfile", "-NonInteractive"])
+            self.assertEqual(args[-1], "& 'Get-ChildItem' 'hello world' 'a''b'")
+
+    def test_windows_cmd_provider_rejects_metacharacters(self):
+        import os, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            capture = Path(td) / "args.json"
+            fake = Path(td) / "wine"
+            fake.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            fake.chmod(0o755)
+            env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""), CAPTURE_ARGS=str(capture))
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "ipconfig", "/all&whoami"], env=env, text=True, capture_output=True)
+            self.assertEqual(p.returncode, 2)
+            self.assertIn("metacharacters", p.stderr)
+            self.assertFalse(capture.exists())
 if __name__ == "__main__":
     unittest.main()
