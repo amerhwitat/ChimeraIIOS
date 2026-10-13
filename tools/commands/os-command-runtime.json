@@ -1,34 +1,430 @@
 {
   "schema_version": 1,
-  "product": ["ChimeraIIOS", "OctavianOS"],
+  "product": [
+    "ChimeraIIOS",
+    "OctavianOS"
+  ],
   "purpose": "Discover commands and select a native or explicitly installed compatibility runtime. Registry entries are capability metadata, not a claim that every upstream command is shipped.",
-  "resolution_order": ["built-in", "registered-native", "host-path", "compatibility-provider"],
+  "resolution_order": [
+    "built-in",
+    "registered-native",
+    "host-path",
+    "compatibility-provider"
+  ],
   "modes": {
     "auto": "Prefer a native executable or script; use a registered compatibility provider only when required and installed.",
     "native": "Run only a native executable or script with its declared interpreter. Never silently emulate another OS or ISA.",
     "compat": "Use a compatible runtime for a recognized foreign executable; refuse if no suitable provider is installed."
   },
   "providers": {
-    "posix": {"commands": ["sh", "bash", "env", "test"], "runtime": "native POSIX process ABI", "mode": "native-when-present"},
-    "gnu-coreutils": {"commands": ["cat", "cp", "cut", "date", "df", "du", "echo", "env", "false", "head", "id", "ln", "ls", "mkdir", "mv", "nice", "od", "paste", "printf", "pwd", "readlink", "realpath", "rm", "rmdir", "sed", "sleep", "sort", "stat", "tail", "tee", "test", "touch", "tr", "true", "uname", "uniq", "wc", "xargs"], "runtime": "native provider binary", "mode": "native-when-present"},
-    "bsd-macos": {"commands": ["ditto", "diskutil", "dscacheutil", "mdfind", "open", "pbcopy", "pbpaste", "plutil", "say", "softwareupdate", "sw_vers"], "runtime": "macOS/BSD provider or host service", "mode": "compatibility-provider-required"},
-    "windows-cmd": {"commands": ["attrib", "call", "chcp", "chkdsk", "cls", "copy", "del", "dir", "echo", "fc", "find", "findstr", "ipconfig", "md", "mkdir", "move", "path", "ren", "rmdir", "set", "shutdown", "sort", "tasklist", "taskkill", "tree", "type", "where", "whoami", "xcopy"], "runtime": "Windows command interpreter or compatible implementation", "mode": "compatibility-provider-required"},
-    "powershell": {"commands": ["Get-ChildItem", "Get-Command", "Get-Content", "Get-Date", "Get-Help", "Get-Location", "Get-Process", "Get-Service", "Get-Item", "Get-ItemProperty", "Invoke-WebRequest", "Measure-Object", "Select-Object", "Set-Location", "Sort-Object", "Where-Object"], "runtime": "PowerShell (pwsh/powershell)", "mode": "compatibility-provider-required"},
-    "busybox": {"commands": ["ash", "awk", "basename", "bunzip2", "bzcat", "bzip2", "chgrp", "chmod", "chown", "chroot", "clear", "cmp", "comm", "crond", "crontab", "dd", "diff", "dirname", "dmesg", "dos2unix", "du", "find", "free", "ftpget", "ftpput", "getopt", "grep", "gunzip", "gzip", "halt", "hexdump", "hostname", "httpd", "kill", "killall", "less", "logread", "losetup", "md5sum", "microcom", "mkfifo", "mknod", "mktemp", "more", "mount", "nc", "netstat", "nslookup", "od", "patch", "pgrep", "pidof", "ping", "pkill", "printenv", "ps", "reboot", "reset", "seq", "setsid", "sha256sum", "shred", "syslogd", "tar", "telnet", "timeout", "top", "traceroute", "udhcpc", "umount", "uncompress", "unexpand", "uniq", "unix2dos", "unzip", "uptime", "watch", "wget", "which", "who", "xargs", "yes", "zcat"], "runtime": "installed BusyBox multicall binary", "mode": "native-when-present"},
-    "developer-tools": {"commands": ["ar", "as", "cc", "clang", "cmake", "c++", "gcc", "g++", "git", "ld", "make", "ninja", "objcopy", "objdump", "pkg-config", "python", "python3", "rustc", "cargo", "go", "javac", "java", "node", "npm", "sqlite3"], "runtime": "installed toolchain/provider", "mode": "native-when-present"},
-    "network-admin": {"commands": ["curl", "dig", "host", "ip", "iptables", "nft", "ping", "resolvectl", "route", "ss", "ssh", "scp", "sftp", "tcpdump", "traceroute", "wget"], "runtime": "installed native utility and permitted system capabilities", "mode": "native-when-present"},
-    "storage-filesystem": {"commands": ["blkid", "cryptsetup", "fdisk", "findmnt", "fsck", "lsblk", "mkfs", "mount", "parted", "smartctl", "swapon", "swapoff", "umount", "zpool", "zfs", "mdadm", "btrfs"], "runtime": "installed native utility; privileged operations require authorization", "mode": "native-when-present"},
-    "system-services": {"commands": ["dmesg", "free", "journalctl", "kill", "loginctl", "lscpu", "lsmem", "lsmod", "modprobe", "ps", "systemctl", "top", "uptime", "vmstat"], "runtime": "native utility plus matching service manager/kernel interface", "mode": "native-when-present"},
-    "dos-retro": {"commands": ["append", "assign", "backup", "choice", "debug", "defrag", "diskcopy", "edit", "fc", "fdisk", "format", "mem", "mode", "more", "subst", "sys", "tree", "undelete", "xcopy"], "runtime": "DOSBox, DOSBox-X, or compatible DOS environment", "mode": "compatibility-provider-required"},
-    "database": {"commands": ["sqlite3", "psql", "mysql", "mariadb", "redis-cli", "mongosh"], "runtime": "installed database client and server where applicable", "mode": "native-when-present"},
-    "chimera-native": {"commands": ["chimera-cmd", "chimera-emulator", "chimera-rom", "chimera-rom-scan", "chimera-run"], "runtime": "Chimera command ABI and registered providers", "mode": "native"}
+    "posix": {
+      "commands": [
+        "sh",
+        "bash",
+        "env",
+        "test"
+      ],
+      "runtime": "native POSIX process ABI",
+      "mode": "native-when-present"
+    },
+    "gnu-coreutils": {
+      "commands": [
+        "cat",
+        "cp",
+        "cut",
+        "date",
+        "df",
+        "du",
+        "echo",
+        "env",
+        "false",
+        "head",
+        "id",
+        "ln",
+        "ls",
+        "mkdir",
+        "mv",
+        "nice",
+        "od",
+        "paste",
+        "printf",
+        "pwd",
+        "readlink",
+        "realpath",
+        "rm",
+        "rmdir",
+        "sed",
+        "sleep",
+        "sort",
+        "stat",
+        "tail",
+        "tee",
+        "test",
+        "touch",
+        "tr",
+        "true",
+        "uname",
+        "uniq",
+        "wc",
+        "xargs"
+      ],
+      "runtime": "native provider binary",
+      "mode": "native-when-present"
+    },
+    "bsd-macos": {
+      "commands": [
+        "ditto",
+        "diskutil",
+        "dscacheutil",
+        "mdfind",
+        "open",
+        "pbcopy",
+        "pbpaste",
+        "plutil",
+        "say",
+        "softwareupdate",
+        "sw_vers"
+      ],
+      "runtime": "macOS/BSD provider or host service",
+      "mode": "compatibility-provider-required"
+    },
+    "windows-cmd": {
+      "commands": [
+        "attrib",
+        "call",
+        "chcp",
+        "chkdsk",
+        "cls",
+        "copy",
+        "del",
+        "dir",
+        "echo",
+        "fc",
+        "find",
+        "findstr",
+        "ipconfig",
+        "md",
+        "mkdir",
+        "move",
+        "path",
+        "ren",
+        "rmdir",
+        "set",
+        "shutdown",
+        "sort",
+        "tasklist",
+        "taskkill",
+        "tree",
+        "type",
+        "where",
+        "whoami",
+        "xcopy"
+      ],
+      "runtime": "Windows command interpreter or compatible implementation",
+      "mode": "compatibility-provider-required"
+    },
+    "powershell": {
+      "commands": [
+        "Get-ChildItem",
+        "Get-Command",
+        "Get-Content",
+        "Get-Date",
+        "Get-Help",
+        "Get-Location",
+        "Get-Process",
+        "Get-Service",
+        "Get-Item",
+        "Get-ItemProperty",
+        "Invoke-WebRequest",
+        "Measure-Object",
+        "Select-Object",
+        "Set-Location",
+        "Sort-Object",
+        "Where-Object"
+      ],
+      "runtime": "PowerShell (pwsh/powershell)",
+      "mode": "compatibility-provider-required"
+    },
+    "busybox": {
+      "commands": [
+        "ash",
+        "awk",
+        "basename",
+        "bunzip2",
+        "bzcat",
+        "bzip2",
+        "chgrp",
+        "chmod",
+        "chown",
+        "chroot",
+        "clear",
+        "cmp",
+        "comm",
+        "crond",
+        "crontab",
+        "dd",
+        "diff",
+        "dirname",
+        "dmesg",
+        "dos2unix",
+        "du",
+        "find",
+        "free",
+        "ftpget",
+        "ftpput",
+        "getopt",
+        "grep",
+        "gunzip",
+        "gzip",
+        "halt",
+        "hexdump",
+        "hostname",
+        "httpd",
+        "kill",
+        "killall",
+        "less",
+        "logread",
+        "losetup",
+        "md5sum",
+        "microcom",
+        "mkfifo",
+        "mknod",
+        "mktemp",
+        "more",
+        "mount",
+        "nc",
+        "netstat",
+        "nslookup",
+        "od",
+        "patch",
+        "pgrep",
+        "pidof",
+        "ping",
+        "pkill",
+        "printenv",
+        "ps",
+        "reboot",
+        "reset",
+        "seq",
+        "setsid",
+        "sha256sum",
+        "shred",
+        "syslogd",
+        "tar",
+        "telnet",
+        "timeout",
+        "top",
+        "traceroute",
+        "udhcpc",
+        "umount",
+        "uncompress",
+        "unexpand",
+        "uniq",
+        "unix2dos",
+        "unzip",
+        "uptime",
+        "watch",
+        "wget",
+        "which",
+        "who",
+        "xargs",
+        "yes",
+        "zcat"
+      ],
+      "runtime": "installed BusyBox multicall binary",
+      "mode": "native-when-present"
+    },
+    "developer-tools": {
+      "commands": [
+        "ar",
+        "as",
+        "cc",
+        "clang",
+        "cmake",
+        "c++",
+        "gcc",
+        "g++",
+        "git",
+        "ld",
+        "make",
+        "ninja",
+        "objcopy",
+        "objdump",
+        "pkg-config",
+        "python",
+        "python3",
+        "rustc",
+        "cargo",
+        "go",
+        "javac",
+        "java",
+        "node",
+        "npm",
+        "sqlite3"
+      ],
+      "runtime": "installed toolchain/provider",
+      "mode": "native-when-present"
+    },
+    "network-admin": {
+      "commands": [
+        "curl",
+        "dig",
+        "host",
+        "ip",
+        "iptables",
+        "nft",
+        "ping",
+        "resolvectl",
+        "route",
+        "ss",
+        "ssh",
+        "scp",
+        "sftp",
+        "tcpdump",
+        "traceroute",
+        "wget"
+      ],
+      "runtime": "installed native utility and permitted system capabilities",
+      "mode": "native-when-present"
+    },
+    "storage-filesystem": {
+      "commands": [
+        "blkid",
+        "cryptsetup",
+        "fdisk",
+        "findmnt",
+        "fsck",
+        "lsblk",
+        "mkfs",
+        "mount",
+        "parted",
+        "smartctl",
+        "swapon",
+        "swapoff",
+        "umount",
+        "zpool",
+        "zfs",
+        "mdadm",
+        "btrfs"
+      ],
+      "runtime": "installed native utility; privileged operations require authorization",
+      "mode": "native-when-present"
+    },
+    "system-services": {
+      "commands": [
+        "dmesg",
+        "free",
+        "journalctl",
+        "kill",
+        "loginctl",
+        "lscpu",
+        "lsmem",
+        "lsmod",
+        "modprobe",
+        "ps",
+        "systemctl",
+        "top",
+        "uptime",
+        "vmstat"
+      ],
+      "runtime": "native utility plus matching service manager/kernel interface",
+      "mode": "native-when-present"
+    },
+    "dos-retro": {
+      "commands": [
+        "append",
+        "assign",
+        "backup",
+        "choice",
+        "debug",
+        "defrag",
+        "diskcopy",
+        "edit",
+        "fc",
+        "fdisk",
+        "format",
+        "mem",
+        "mode",
+        "more",
+        "subst",
+        "sys",
+        "tree",
+        "undelete",
+        "xcopy"
+      ],
+      "runtime": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "mode": "compatibility-provider-required"
+    },
+    "database": {
+      "commands": [
+        "sqlite3",
+        "psql",
+        "mysql",
+        "mariadb",
+        "redis-cli",
+        "mongosh"
+      ],
+      "runtime": "installed database client and server where applicable",
+      "mode": "native-when-present"
+    },
+    "chimera-native": {
+      "commands": [
+        "chimera-cmd",
+        "chimera-emulator",
+        "chimera-rom",
+        "chimera-rom-scan",
+        "chimera-run"
+      ],
+      "runtime": "Chimera command ABI and registered providers",
+      "mode": "native"
+    },
+    "cpu-mode-manager": {
+      "commands": [
+        "chimera-cpu-mode"
+      ],
+      "runtime": "DOSBox-X/DOSBox profile selector; QEMU guest vCPU topology manager",
+      "mode": "explicit-profile-selection"
+    }
   },
   "foreign_binary_handlers": {
-    "pe-coff": {"providers": ["wine", "wine64"], "mode": "compat"},
-    "elf-other-architecture": {"providers": ["qemu-aarch64", "qemu-arm", "qemu-i386", "qemu-riscv64", "qemu-ppc64le", "qemu-mips"], "mode": "compat"},
-    "dos-mz": {"providers": ["dosbox", "dosbox-x"], "mode": "compat"},
-    "macho": {"providers": ["darling"], "mode": "compat"},
-    "webassembly": {"providers": ["wasmtime", "wasmer"], "mode": "compat"}
+    "pe-coff": {
+      "providers": [
+        "wine",
+        "wine64"
+      ],
+      "mode": "compat"
+    },
+    "elf-other-architecture": {
+      "providers": [
+        "qemu-aarch64",
+        "qemu-arm",
+        "qemu-i386",
+        "qemu-riscv64",
+        "qemu-ppc64le",
+        "qemu-mips"
+      ],
+      "mode": "compat"
+    },
+    "dos-mz": {
+      "providers": [
+        "dosbox",
+        "dosbox-x"
+      ],
+      "mode": "compat"
+    },
+    "macho": {
+      "providers": [
+        "darling"
+      ],
+      "mode": "compat"
+    },
+    "webassembly": {
+      "providers": [
+        "wasmtime",
+        "wasmer"
+      ],
+      "mode": "compat"
+    }
   },
   "policy": {
     "do_not_download_or_execute_untrusted_binaries_automatically": true,
