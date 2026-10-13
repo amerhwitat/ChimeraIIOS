@@ -30,6 +30,11 @@ on:
       - 'tools/commands/os-command-runtime.json'
       - 'tools/commands/test-cross-os-runtime.py'
       - 'tools/commands/README-cross-os-runtime.md'
+      - 'tools/commands/chimera-dos-adapter.py'
+      - 'tools/commands/test-chimera-dos-adapter.py'
+      - 'tools/commands/DOS-COMPATIBILITY.md'
+      - 'tools/commands/dos-legacy-payload-manifest.json'
+      - 'boot/iso/prepare-layout.sh'
       - 'build-chimera-iso.sh'
       - 'tools/commands/chimera-run'
       - 'tools/commands/os-command-runtime.json'
@@ -61,6 +66,14 @@ on:
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
+      - 'tools/commands/chimera-run'
+      - 'tools/commands/os-command-runtime.json'
+      - 'tools/commands/test-cross-os-runtime.py'
+      - 'tools/commands/chimera-dos-adapter.py'
+      - 'tools/commands/test-chimera-dos-adapter.py'
+      - 'tools/commands/DOS-COMPATIBILITY.md'
+      - 'tools/commands/dos-legacy-payload-manifest.json'
+      - 'boot/iso/prepare-layout.sh'
       - 'system/commands/chimera-command-list.json'
       - 'system/commands/ss64-command-catalog.ar.json'
       - 'system/commands/ss64-command-catalog.json'
@@ -112,8 +125,11 @@ jobs:
       - name: Validate cross-OS command registry and runtime dispatcher
         run: |
           python3 -m json.tool tools/commands/os-command-runtime.json >/dev/null
-          python3 -m py_compile tools/commands/chimera-run tools/commands/generate_runtime_manifest.py tools/commands/test-cross-os-runtime.py
+          python3 -m py_compile tools/commands/chimera-run tools/commands/chimera-dos-adapter.py tools/commands/test-chimera-dos-adapter.py tools/commands/generate_runtime_manifest.py tools/commands/test-cross-os-runtime.py
           python3 tools/commands/test-cross-os-runtime.py -v
+          python3 tools/commands/test-chimera-dos-adapter.py -v
+          python3 -m json.tool tools/commands/dos-legacy-payload-manifest.json >/dev/null
+          bash -n boot/iso/prepare-layout.sh
       - name: Validate generated command capability manifest
         run: |
           python3 tools/commands/generate_runtime_manifest.py
