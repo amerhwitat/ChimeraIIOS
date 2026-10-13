@@ -24,6 +24,9 @@ AURORA="$ROOT/aurora"
 LOG_DIR="${XDG_RUNTIME_DIR:-/tmp}/chimera"
 mkdir -p "$LOG_DIR"
 log(){ printf '[Aurora] %s\n' "$*" >> "$LOG_DIR/aurora-desktop.log"; }
+PROGRESS_FILE="\${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
+mkdir -p "$(dirname "$PROGRESS_FILE")"
+printf 'percent=90\nphase=Aurora\nmessage=Starting graphical target\n' > "$PROGRESS_FILE"
 export XDG_CURRENT_DESKTOP="${XDG_CURRENT_DESKTOP:-Aurora}"
 export XDG_SESSION_DESKTOP="${XDG_SESSION_DESKTOP:-Aurora}"
 export XDG_SESSION_TYPE=wayland
@@ -57,9 +60,9 @@ fi
 # Optional initialization video. It is launched only after Wayland is ready and
 # never blocks the desktop if video playback is unavailable.
 if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then
-  CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
-  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4" \
-    CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
+  CHIMERA_INIT_VIDEO="\${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
+  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4"
+  CHIMERA_PROGRESS_FILE="$PROGRESS_FILE" \
     bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
 fi
 
@@ -123,4 +126,5 @@ for _ in $(seq 1 20); do
   fi
   sleep 1
 done
+printf 'percent=100\nphase=Aurora\nmessage=Graphical target ready\n' > "$PROGRESS_FILE"
 log "desktop clients initialized; WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-unset} DISPLAY=${DISPLAY:-unset}"
