@@ -31,7 +31,7 @@ def resolve_program(name):
             resolved = path.resolve()
             if skip_path is not None and resolved == skip_path:
                 continue
-            return resolved
+            return path.absolute()
         except OSError:
             continue
     return None
