@@ -73,13 +73,13 @@ class RuntimeRegistryTests(unittest.TestCase):
             fake.chmod(0o755)
             env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""),
                        CAPTURE_ARGS=str(capture), CHIMERA_DOS_ROOT=str(root))
-            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "dir", "my folder"],
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "append", "my folder"],
                                env=env, text=True, capture_output=True)
             self.assertEqual(p.returncode, 0, p.stderr)
             args = json.loads(capture.read_text(encoding="utf-8"))
             self.assertEqual(args[0], "-noconsole")
             self.assertIn(f'mount c "{root}"', args)
-            self.assertIn('dir "my folder"', args)
+            self.assertIn('append "my folder"', args)
 
     def test_dosbox_adapter_refuses_metacharacters(self):
         import os, tempfile
@@ -91,7 +91,7 @@ class RuntimeRegistryTests(unittest.TestCase):
             fake.chmod(0o755)
             env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""),
                        CHIMERA_DOS_ROOT=str(root))
-            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "dir", "x&whoami"],
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "append", "x&whoami"],
                                env=env, text=True, capture_output=True)
             self.assertEqual(p.returncode, 2)
             self.assertIn("unsupported shell syntax", p.stderr)
