@@ -14,6 +14,7 @@ sqlite	قاعدة_بيانات	native	chimera-sql	Chimera/SQLite
 sqlite3	قاعدة_بيانات_3	native	chimera-sql	Chimera/SQLite
 terminal	طرفية	native	chimera-terminal	Chimera/PTY
 terminald	خدمة_الطرفية	native	chimera_terminald.py	Chimera/PTY
+chimera-cpu-mode	وضع_المعالج	native	chimera-cpu-mode	Chimera CPU profile manager
 find	ابحث	compat	find	SS64/Linux
 grep	فتش	compat	grep	SS64/Linux
 ps	عمليات	compat	ps	SS64/Linux
