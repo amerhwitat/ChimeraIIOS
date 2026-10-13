@@ -168,6 +168,9 @@ extern "C" int chimera_x86_64_user_mode_init(void) {
 #else
     if(!chimera_physmem_ready()) return -1;
     initialize_page_tables();
+    /* User ELF mappings require hardware NX enforcement. Do not silently run
+       with executable data/stack pages when EFER.NXE is unavailable. */
+    if(!nx_available) return -3;
     load_gdt_and_tss();
     if(chimera_interrupt_init()!=0) return -2;
     return 0;
