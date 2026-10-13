@@ -47,16 +47,18 @@ class Links(HTMLParser):
             self.href = None
             self.text = []
 
-def fetch(url: str, timeout: int = 25) -> bytes:
+def fetch(url: str, timeout: int = 25, max_bytes: int = 16 * 1024 * 1024) -> bytes:
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError(f"HTTPS URL required: {url}")
+    if parsed.hostname not in ALLOWED_HOSTS:
+        raise ValueError(f"host is not allowlisted: {parsed.hostname}")
     req = Request(url, headers={"User-Agent": "Chimera-DOS-Payload-Builder/1.0"})
     with urlopen(req, timeout=timeout) as response:
         final = urlparse(response.geturl())
-        if final.scheme != "https":
-            raise ValueError("redirected away from HTTPS")
-        return response.read(16 * 1024 * 1024 + 1)
+        if final.scheme != "https" or final.hostname not in ALLOWED_HOSTS:
+            raise ValueError("redirected to a non-allowlisted host or away from HTTPS")
+        return response.read(max_bytes + 1)
 
 def discover(source: str, output: Path) -> int:
     raw = fetch(source)
@@ -149,7 +151,7 @@ def stage(manifest_path: Path, cache: Path, destination: Path, allow_fetch: bool
         payload = cache / (item["id"] + ".zip")
         if not payload.is_file() and allow_fetch:
             try:
-                data = fetch(item["package_url"])
+                data = fetch(item["package_url"], max_bytes=256 * 1024 * 1024)
                 if len(data) > 256 * 1024 * 1024:
                     raise ValueError("package exceeds 256 MiB limit")
                 payload.write_bytes(data)
