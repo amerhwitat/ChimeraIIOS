@@ -127,8 +127,19 @@ sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recov
 
 for arch in arm64 armv7 x86_64; do
   mkdir -p "$OUT/mobile/$arch"
-  [[ -f "$KORONOS" ]] && cp -f "$KORONOS" "$OUT/mobile/$arch/koronos-runtime.elf"
-  printf '{"schema":"CHM-MOBILE-BOOT-1","architecture":"%s","bootloader":"device-specific","kernel":"device-specific-source-required","koronos_runtime":"koronos-runtime.elf","firmware":"device-specific-source-required","verified_binary_generation":true}\n' "$arch" > "$OUT/mobile/$arch/manifest.json"
+  kernel_ref="device-specific-source-required"
+  runtime_ref="not-generated"
+  # The current build produces an x86_64 ELF only. Never label that same ELF
+  # as an ARM binary, and never claim that a mobile target was verified.
+  if [[ "$arch" == "x86_64" && -s "$KORONOS" ]]; then
+    cp -f "$KORONOS" "$OUT/mobile/$arch/koronos-runtime.elf"
+    kernel_ref="x86_64-reference-only"
+    runtime_ref="koronos-runtime.elf"
+  else
+    rm -f "$OUT/mobile/$arch/koronos-runtime.elf"
+  fi
+  printf '{"schema":"CHM-MOBILE-BOOT-1","architecture":"%s","bootloader":"device-specific","kernel":"%s","koronos_runtime":"%s","firmware":"device-specific-source-required","verified_binary_generation":false}\n' \
+    "$arch" "$kernel_ref" "$runtime_ref" > "$OUT/mobile/$arch/manifest.json"
 done
 cat > "$OUT/boot/live/live-manifest.json" <<EOF
 {"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.img","linux_vmlinuz_required":false,"architectures":["x86_64"]}
