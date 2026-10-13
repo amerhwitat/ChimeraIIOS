@@ -8,6 +8,7 @@ BASE = ROOT / "system" / "commands" / "chimera-command-list.json"
 SS64 = ROOT / "system" / "commands" / "ss64-command-catalog.json"
 ARABIC = ROOT / "system" / "commands" / "ss64-command-catalog.ar.json"
 OUT = ROOT / "system" / "commands" / "command-runtime-capabilities.json"
+REGISTRY = ROOT / "tools" / "commands" / "os-command-runtime.json"
 NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
 SHELL = set("""alias bg break builtin caller case cd command continue declare dirs eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 PLATFORM_ARRAYS = {
@@ -57,10 +58,26 @@ def main():
         row = rows.setdefault(norm, {"name": name, "platforms": [], "source_urls": []})
         if not row["platforms"]:
             row["platforms"].append("ss64-catalog")
+    registry_modes={}
+    if REGISTRY.exists():
+        try:
+            registry=json.loads(REGISTRY.read_text(encoding="utf-8"))
+            for group, info in registry.get("providers", {}).items():
+                for name in info.get("commands", []):
+                    norm=str(name).casefold()
+                    row=rows.setdefault(norm, {"name":str(name), "platforms":[], "source_urls":[]})
+                    if group not in row["platforms"]: row["platforms"].append(group)
+                    registry_modes[norm]=(info.get("mode","compatibility-provider-required"), info.get("runtime",group))
+        except (OSError,json.JSONDecodeError) as exc:
+            print(f"warning: ignoring invalid command runtime registry: {exc}")
     commands=[]
     for key,row in sorted(rows.items()):
         if key in NATIVE: mode="native"; provider="chimera-cmd"
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
+        elif key in registry_modes:
+            declared, runtime=registry_modes[key]
+            mode="native-provider-required" if declared=="native-when-present" else declared
+            provider=runtime
         else:
             mode="compatibility-provider-required"
             if any(p in row["platforms"] for p in ("windows_cmd","powershell","vbscript")):
