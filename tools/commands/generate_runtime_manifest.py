@@ -30,6 +30,13 @@ def main():
             norm=name.casefold()
             row=rows.setdefault(norm,{"name":name,"platforms":[],"source_urls":[]})
             if platform not in row["platforms"]: row["platforms"].append(platform)
+    # The native multicall contract is authoritative even when a catalog is
+    # incomplete or a refresh temporarily drops one of these entries.
+    for name in sorted(NATIVE):
+        norm=name.casefold()
+        row=rows.setdefault(norm,{"name":name,"platforms":[],"source_urls":[]})
+        if "chimera_native" not in row["platforms"]:
+            row["platforms"].append("chimera_native")
     if SS64.exists():
         try:
             ss64=json.loads(SS64.read_text(encoding="utf-8"))
