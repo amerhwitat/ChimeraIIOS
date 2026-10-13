@@ -76,9 +76,9 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/koronos/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/grub/"
 KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
-test -s "$KORONOS" || "$ROOT/kernel/build-koronos.sh"
+test -s "$KORONOS" || bash "$ROOT/kernel/build-koronos.sh"
 test -s "$KORONOS"
-"$ROOT/boot/spitfire/build-spitfire.sh" "$OUT/spitfire" "$KORONOS"
+bash "$ROOT/boot/spitfire/build-spitfire.sh" "$OUT/spitfire" "$KORONOS"
 command -v nasm >/dev/null || { echo "nasm required" >&2; exit 2; }
 command -v g++ >/dev/null || { echo "g++ required" >&2; exit 2; }
 command -v ld >/dev/null || { echo "ld required" >&2; exit 2; }
