@@ -10,7 +10,7 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
-  --refresh-online-catalogs  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
+  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
@@ -200,7 +200,7 @@ DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --refresh-online-catalogs|--refresh-isa-catalog) REFRESH_ONLINE_CATALOGS=1; shift;;
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
