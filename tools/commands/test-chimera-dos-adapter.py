@@ -38,7 +38,7 @@ class DosAdapterTests(unittest.TestCase):
             args = run.call_args.args[0]
             self.assertEqual(args[0], "/fake/dosbox")
             self.assertIn(" -ro", args[2])
-            self.assertIn('append.exe "source path" dest.dat', args)
+            self.assertIn('"append.exe" "source path" dest.dat', args)
 
     def test_dos_app_is_mounted_read_only_by_default(self):
         with tempfile.TemporaryDirectory() as td, patch.object(MODULE, "provider", return_value="/fake/dosbox"), patch.object(MODULE.subprocess, "run", return_value=type("R", (), {"returncode": 0})()) as run:
