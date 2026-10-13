@@ -28,21 +28,21 @@ MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-15}"
 read_percent(){
   [[ -r "$PROGRESS" ]] || { printf '%s' '-1'; return 0; }
 
+  # Kernel/runtime state may be a key=value document with multiple lines.
+  local percent
+  percent="$(awk -F= '$1=="percent" { value=$2 } END { if (value ~ /^[0-9]+$/) print value; else print "" }' "$PROGRESS" 2>/dev/null || true)"
+  if [[ "$percent" =~ ^[0-9]+$ ]]; then
+    printf '%s' "$percent"
+    return 0
+  fi
+
+  # The shared Aurora progress helper also supports a single pct|phase|message row.
   local line
   line="$(tail -n 1 "$PROGRESS" 2>/dev/null || true)"
-
-  # Kernel boot progress uses key=value: percent=96
-  # Aurora progress helper uses: 96|Aurora|Starting desktop
-  if [[ "$line" =~ ^percent=([0-9]+) ]]; then
-    printf '%s' "${BASH_REMATCH[1]}"
-    return 0
-  fi
-
   if [[ "$line" =~ ^([0-9]+)\| ]]; then
-    printf '%s' "${BASH_REMATCH[1]}"
+    printf '%s' "\${BASH_REMATCH[1]}"
     return 0
   fi
-
   printf '%s' '-1'
 }
 
