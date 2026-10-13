@@ -21,7 +21,7 @@ def resolve_program(name):
     skip_path = Path(skip).resolve() if skip else None
     if candidate.parent != Path(".") or candidate.is_absolute():
         resolved = candidate.resolve() if candidate.exists() else None
-        return None if resolved is not None and resolved == skip_path else resolved
+        return None if resolved is not None and resolved == skip_path else (candidate.absolute() if resolved is not None else None)
     for entry in os.environ.get("PATH", os.defpath).split(os.pathsep):
         entry = entry or "."
         path = Path(entry) / name
