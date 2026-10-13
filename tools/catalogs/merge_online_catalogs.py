@@ -122,7 +122,10 @@ def merge_commands():
             continue
         platform = str(source.get("platform", source.get("id", "unknown")))
         fallback_url = str(source.get("url", ""))
-        for item in source.get("commands", []) if isinstance(source.get("commands", []), list) else []:
+        source_commands = source.get("commands", [])
+        if not isinstance(source_commands, list):
+            continue
+        for item in source_commands:
             if isinstance(item, dict):
                 append_reference(platform, item, fallback_url)
     for item in command_rows:
