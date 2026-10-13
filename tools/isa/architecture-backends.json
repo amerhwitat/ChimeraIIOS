@@ -109,7 +109,7 @@
       "elf_machine": 8,
       "pe_machine": [],
       "llvm_targets": [
-        "mipsel-linux-gnu"
+        "mips-linux-gnu"
       ],
       "qemu_user": "qemu-mips",
       "execution": "provider-required",
@@ -136,7 +136,7 @@
       "elf_machine": 21,
       "pe_machine": [],
       "llvm_targets": [
-        "powerpc64le-linux-gnu"
+        "powerpc64-linux-gnu"
       ],
       "qemu_user": "qemu-ppc64",
       "execution": "provider-required",
