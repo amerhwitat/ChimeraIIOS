@@ -45,7 +45,11 @@ def classify(path):
     if head.startswith(b"#!"):
         return "script"
     if head.startswith(b"MZ"):
-        return "pe-coff"
+        if len(head) >= 64:
+            pe_offset = struct.unpack("<I", head[60:64])[0]
+            if pe_offset + 4 <= len(head) and head[pe_offset:pe_offset + 4] == b"PE\\0\\0":
+                return "pe-coff"
+        return "dos-mz"
     if head[:4] == b"\x7fELF":
         if len(head) < 20:
             return "elf-invalid"
@@ -100,8 +104,13 @@ def main(argv):
             os.execv(found, [found, str(program), *argv[1:]])
     else:
         found = provider_for(kind, manifest)
-        if found:
+        if found and kind == "pe-coff":
             os.execv(found, [found, str(program), *argv[1:]])
+        if found and kind == "webassembly":
+            prefix = [found, "run"] if Path(found).name == "wasmtime" else [found]
+            os.execv(found, [*prefix, str(program), *argv[1:]])
+        if found and kind == "macho":
+            os.execv(found, [found, "shell", str(program), *argv[1:]])
     print(f"chimera-run: no installed compatibility provider for {kind}: {program}", file=sys.stderr)
     return 126
 
