@@ -49,8 +49,11 @@ class RuntimeRegistryTests(unittest.TestCase):
             p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", str(program), "level 2"], env=env, text=True, capture_output=True)
             self.assertEqual(p.returncode, 0, p.stderr)
             args = json.loads(capture.read_text(encoding="utf-8"))
-            self.assertEqual(args[0], str(program))
-            self.assertEqual(args[1], "level 2")
+            self.assertEqual(args[0], "-c")
+            self.assertIn(str(program.parent), args[1])
+            self.assertIn(" -ro", args[1])
+            self.assertEqual(args[2:5], ["-c", "c:", "-c"])
+            self.assertIn('"GAME.EXE" "level 2"', args[5])
 
     def test_powershell_command_uses_literal_arguments(self):
         import os, tempfile
