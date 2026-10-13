@@ -11,6 +11,7 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
+  --refresh-isa-catalog       Alias for --refresh-online-catalogs (refresh ISA/source catalogs before the build).
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
@@ -196,7 +197,7 @@ REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --refresh-online-catalogs|--refresh-isa-catalog) REFRESH_ONLINE_CATALOGS=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
