@@ -174,7 +174,7 @@ jobs:
         run: |
           readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Class:.*ELF64'
           readelf -h build/koronos/x86_64/koronos.elf | grep -E 'Machine:.*Advanced Micro Devices X86-64'
-      - name: QEMU multi-vCPU kernel boot smoke test
+      - name: QEMU multi-vCPU boot smoke test (not SMP proof)
         shell: bash
         run: |
           set -euo pipefail
@@ -186,7 +186,7 @@ jobs:
           cat > "$iso_root/boot/grub/grub.cfg" <<'GRUB'
           set timeout=0
           set default=0
-          menuentry "Koronos SMP acceptance" {
+          menuentry "Koronos boot smoke" {
             multiboot2 /boot/koronos.elf
             module2 /boot/chimera-user-init.elf chimera-user-init-elf
             boot
@@ -225,7 +225,7 @@ jobs:
               exit 1
             }
           done
-          echo "GRUB/Multiboot2 entered the Koronos scheduler and executed the native init payload at ring 3 with two virtual CPUs configured."
+          echo "GRUB/Multiboot2 boot smoke observed kernel and ring-3 init markers; two virtual CPUs were configured, which does not by itself prove genuine SMP scheduling."
           cat "$log"
       - name: Preserve QEMU boot trace
         if: always()
