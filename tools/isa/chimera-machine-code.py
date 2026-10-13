@@ -27,16 +27,32 @@ def host_arch():
     m = platform.machine().lower()
     aliases = {"amd64":"x86_64","x86_64":"x86_64","i386":"x86","i686":"x86",
                "aarch64":"aarch64","arm64":"aarch64","armv7l":"armv7",
-               "riscv64":"riscv64","ppc64le":"powerpc64"}
+               "riscv64":"riscv64","ppc64":"powerpc64","ppc64le":"powerpc64le"}
     return aliases.get(m, m or "unknown")
 
-def arch_by_elf(machine, elf_class):
+def arch_by_elf(machine, elf_class, endianness):
     for name, spec in registry()["architectures"].items():
-        if spec.get("elf_machine") == machine and name != "unknown":
-            expected = spec.get("elf_class")
-            if expected is None or expected == elf_class:
-                if machine != 243 or expected == elf_class:
-                    return name
+        if spec.get("elf_machine") != machine or name == "unknown":
+            continue
+        expected_class = spec.get("elf_class")
+        expected_endian = spec.get("elf_endianness")
+        if expected_class is not None and expected_class != elf_class:
+            continue
+        if expected_endian is not None and expected_endian != endianness:
+            continue
+        if machine == 243 and expected_class != elf_class:
+            continue
+        # If the registry has endian-specific variants, never choose one with
+        # a mismatched EI_DATA value. Legacy entries without a constraint are
+        # considered only when no exact endian variant matches.
+        if expected_endian is None:
+            variants = [s for n, s in registry()["architectures"].items()
+                        if n != "unknown" and s.get("elf_machine") == machine
+                        and s.get("elf_endianness") is not None
+                        and (s.get("elf_class") is None or s.get("elf_class") == elf_class)]
+            if variants:
+                continue
+        return name
     return "unknown"
 
 def identify_bytes(data: bytes, forced_arch: str | None = None):
@@ -58,7 +74,7 @@ def identify_bytes(data: bytes, forced_arch: str | None = None):
         if cls not in (1,2) or enc not in (1,2): raise ValueError("invalid ELF class or endianness")
         endian = "<" if enc == 1 else ">"
         machine = struct.unpack(endian+"H", data[18:20])[0]
-        arch = arch_by_elf(machine, cls)
+        arch = arch_by_elf(machine, cls, "little" if enc == 1 else "big")
         out.update(format="ELF", architecture=arch, confidence="header",
                    executable=True, endianness="little" if enc == 1 else "big",
                    details={"elf_class":32 if cls==1 else 64,"machine_id":machine})
@@ -141,23 +157,6 @@ def assemble(ns):
     if llvm_mc and ns.triple: return run_command([llvm_mc,"-triple",ns.triple,"-filetype=obj",ns.input,"-o",ns.output])
     raise RuntimeError("no suitable assembler provider installed (clang or llvm-mc); no output was fabricated")
 
-def compile_source(ns):
-    spec=registry()["architectures"].get(ns.arch.lower())
-    if not spec or ns.arch.lower()=="unknown":
-        raise ValueError(f"unknown registered target: {ns.arch}")
-    target=ns.target or (spec.get("llvm_targets") or [None])[0]
-    if not target:
-        raise RuntimeError(f"no compiler target metadata for {ns.arch}")
-    clang=shutil.which("clang")
-    if not clang:
-        raise RuntimeError("clang is not installed; compilation was not attempted")
-    # -c deliberately stops at object generation: no target linker/runtime is assumed.
-    argv=[clang,"--target="+target,"-c",ns.input,"-o",ns.output]
-    if ns.language:
-        argv.extend(["-x",ns.language])
-    argv.extend(ns.flags)
-    return run_command(argv)
-
 def disassemble(ns):
     info=identify(ns.input)
     if info["format"] not in ("ELF","PE/COFF","Mach-O","WebAssembly"):
@@ -198,7 +197,6 @@ def main():
     i=sub.add_parser("identify"); i.add_argument("input"); i.add_argument("--arch",help="for raw/non-self-describing bytes")
     sub.add_parser("providers")
     a=sub.add_parser("assemble"); a.add_argument("--arch",required=True); a.add_argument("--target"); a.add_argument("--triple"); a.add_argument("-o","--output",required=True); a.add_argument("input")
-    co=sub.add_parser("compile"); co.add_argument("--arch",required=True); co.add_argument("--target"); co.add_argument("--language",choices=("c","c++","assembler","assembler-with-cpp")); co.add_argument("-o","--output",required=True); co.add_argument("input"); co.add_argument("--flag",dest="flags",action="append",default=[],help="pass one compiler flag, repeat as needed")
     d=sub.add_parser("disassemble"); d.add_argument("input")
     e=sub.add_parser("execute"); e.add_argument("input"); e.add_argument("--arch"); e.add_argument("args",nargs=argparse.REMAINDER)
     ns=p.parse_args()
@@ -206,7 +204,6 @@ def main():
         if ns.cmd=="identify": print(json.dumps(identify(ns.input,ns.arch),indent=2)); return 0
         if ns.cmd=="providers": print(json.dumps(providers(),indent=2)); return 0
         if ns.cmd=="assemble": return assemble(ns)
-        if ns.cmd=="compile": return compile_source(ns)
         if ns.cmd=="disassemble": return disassemble(ns)
         if ns.cmd=="execute": return execute(ns)
     except (ValueError,RuntimeError,OSError,json.JSONDecodeError) as ex:
