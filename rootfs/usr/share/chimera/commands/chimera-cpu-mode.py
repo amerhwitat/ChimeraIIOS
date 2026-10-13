@@ -55,7 +55,7 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError:
             print(f"chimera-cpu-mode: --vcpus must be 'all' or 1..{len(cpus)}", file=sys.stderr)
             return 2
-        cmd = [qemu, "-machine", "q35", "-cpu", "host", "-smp", str(count), "-m", "2048", "-cdrom", str(Path(args.qemu_iso).resolve()), "-boot", "d"]
+        cmd = [qemu, "-machine", "q35", "-cpu", "max", "-smp", str(count), "-m", "2048", "-cdrom", str(Path(args.qemu_iso).resolve()), "-boot", "d"]
         if args.host_affinity and shutil.which("taskset"):
             cmd = [shutil.which("taskset"), "-c", ",".join(map(str, cpus)), *cmd]
         return subprocess.run(cmd, check=False).returncode
