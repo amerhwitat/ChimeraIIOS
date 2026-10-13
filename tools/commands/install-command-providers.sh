@@ -38,7 +38,7 @@ PACKAGES=(
   p7zip-full rar unrar-free cifs-utils nfs-common
   lvm2 mdadm smartmontools parted gdisk dosfstools exfatprogs
   squashfs-tools xorriso mtools
-  shellcheck
+  shellcheck dosbox dosbox-x
 )
 
 if ! command -v apt-get >/dev/null 2>&1; then

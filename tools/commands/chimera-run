@@ -118,8 +118,13 @@ def dispatch_named_compat(name, args, manifest):
         command_line = name + ((" " + " ".join(quoted)) if quoted else "")
         os.execv(runtime, [runtime, "cmd", "/c", command_line])
     if group == "dos-retro":
-        print(f"chimera-run: DOS command {name!r} is cataloged; DOSBox command adapter is not implemented yet", file=sys.stderr)
-        return 126
+        adapter = Path(__file__).resolve().with_name("chimera-dos-adapter.py")
+        if not adapter.is_file():
+            adapter = Path("/usr/share/chimera/commands/chimera-dos-adapter.py")
+        if not adapter.is_file():
+            print("chimera-run: DOS adapter is missing; install the DOS compatibility payload", file=sys.stderr)
+            return 126
+        os.execv(sys.executable, [sys.executable, str(adapter), "--command", name, *args])
     return None
 
 def main(argv):
@@ -147,7 +152,7 @@ def main(argv):
             return result
         print(f"chimera-run: command not found: {argv[0]}", file=sys.stderr); return 127
     kind = classify(program)
-    if not os.access(program, os.X_OK):
+    if not os.access(program, os.X_OK) and kind in ("script", "elf-native"):
         print(f"chimera-run: not executable: {program}", file=sys.stderr); return 126
     if kind in ("script", "elf-native"):
         os.execvpe(str(program), [str(program), *argv[1:]], os.environ)
@@ -169,6 +174,14 @@ def main(argv):
             os.execv(found, [*prefix, str(program), *argv[1:]])
         if found and kind == "macho":
             os.execv(found, [found, "shell", str(program), *argv[1:]])
+        if found and kind == "dos-mz":
+            adapter = Path(__file__).resolve().with_name("chimera-dos-adapter.py")
+            if not adapter.is_file():
+                adapter = Path("/usr/share/chimera/commands/chimera-dos-adapter.py")
+            if not adapter.is_file():
+                print("chimera-run: DOS adapter is missing; install the DOS compatibility payload", file=sys.stderr)
+                return 126
+            os.execv(sys.executable, [sys.executable, str(adapter), "--run", str(program), *argv[1:]])
     print(f"chimera-run: no installed compatibility provider for {kind}: {program}", file=sys.stderr)
     return 126
 

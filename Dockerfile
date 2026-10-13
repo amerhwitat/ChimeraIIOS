@@ -76,7 +76,8 @@ ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash ca-certificates python3 pciutils usbutils dmidecode iproute2 procps \
-    systemd systemd-sysv \
+    systemd systemd-sysv dosbox \
+    && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
