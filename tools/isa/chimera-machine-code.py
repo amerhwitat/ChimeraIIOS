@@ -30,13 +30,29 @@ def host_arch():
                "riscv64":"riscv64","ppc64le":"powerpc64"}
     return aliases.get(m, m or "unknown")
 
-def arch_by_elf(machine, elf_class):
+def arch_by_elf(machine, elf_class, endianness):
     for name, spec in registry()["architectures"].items():
-        if spec.get("elf_machine") == machine and name != "unknown":
-            expected = spec.get("elf_class")
-            if expected is None or expected == elf_class:
-                if machine != 243 or expected == elf_class:
-                    return name
+        if spec.get("elf_machine") != machine or name == "unknown":
+            continue
+        expected_class = spec.get("elf_class")
+        expected_endian = spec.get("elf_endianness")
+        if expected_class is not None and expected_class != elf_class:
+            continue
+        if expected_endian is not None and expected_endian != endianness:
+            continue
+        if machine == 243 and expected_class != elf_class:
+            continue
+        # If the registry has endian-specific variants, never choose one with
+        # a mismatched EI_DATA value. Legacy entries without a constraint are
+        # considered only when no exact endian variant matches.
+        if expected_endian is None:
+            variants = [s for n, s in registry()["architectures"].items()
+                        if n != "unknown" and s.get("elf_machine") == machine
+                        and s.get("elf_endianness") is not None
+                        and (s.get("elf_class") is None or s.get("elf_class") == elf_class)]
+            if variants:
+                continue
+        return name
     return "unknown"
 
 def identify_bytes(data: bytes, forced_arch: str | None = None):
@@ -58,7 +74,7 @@ def identify_bytes(data: bytes, forced_arch: str | None = None):
         if cls not in (1,2) or enc not in (1,2): raise ValueError("invalid ELF class or endianness")
         endian = "<" if enc == 1 else ">"
         machine = struct.unpack(endian+"H", data[18:20])[0]
-        arch = arch_by_elf(machine, cls)
+        arch = arch_by_elf(machine, cls, "little" if enc == 1 else "big")
         out.update(format="ELF", architecture=arch, confidence="header",
                    executable=True, endianness="little" if enc == 1 else "big",
                    details={"elf_class":32 if cls==1 else 64,"machine_id":machine})
