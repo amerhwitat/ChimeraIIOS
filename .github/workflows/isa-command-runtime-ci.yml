@@ -122,7 +122,8 @@ jobs:
           from pathlib import Path
           d=json.loads(Path("system/commands/command-runtime-capabilities.json").read_text(encoding="utf-8"))
           assert d["command_count"] == len(d["commands"]) and d["command_count"] >= 800
-          assert d["mode_counts"].get("native") == 15
+          # The 15 C-native built-ins remain present; the new native dispatcher adds its own registered entry.
+          assert d["mode_counts"].get("native", 0) >= 15
           assert all(c.get("provider") and c.get("mode") for c in d["commands"])
           print("Command capability inventory valid:", d["command_count"], d["mode_counts"])
           PY
