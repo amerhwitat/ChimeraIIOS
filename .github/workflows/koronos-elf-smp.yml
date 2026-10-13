@@ -40,6 +40,7 @@ on:
       - 'kernel/include/chimera/elf64.h'
       - 'kernel/include/chimera/scheduler.h'
       - 'tests/koronos/**'
+      - 'tests/boot/**'
       - 'isa/isa_database.json'
       - 'tools/isa/chimera_isa_convert.py'
       - 'tests/isa/test_chimera_isa_convert.py'
