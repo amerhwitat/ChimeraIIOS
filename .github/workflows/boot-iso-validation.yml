@@ -116,6 +116,9 @@ jobs:
           grep -q 'configfile /boot/installation/menu.cfg' boot/iso/grub.cfg
           grep -q 'module2 /install/installer/installation.img chimera-installation-image' boot/jasper/install.cfg
           grep -q 'Mobile boot is unavailable in this build' boot/iso/grub.cfg
+          for cfg in boot/iso/grub.cfg boot/jasper/jasper.cfg boot/jasper/live.cfg boot/jasper/install.cfg boot/installation/menu.cfg boot/spitfire/spitfire-menu.cfg; do
+            grub-script-check "$cfg"
+          done
           grep -q '3840x2160' boot/iso/grub.cfg
           grep -q '1024x768' boot/iso/grub.cfg
           grep -q '640x480' boot/iso/grub.cfg
