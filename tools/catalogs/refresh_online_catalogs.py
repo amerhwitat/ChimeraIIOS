@@ -138,12 +138,35 @@ def write_json(path: Path, value: Any) -> None:
 
 
 def canonical_url(base: str, href: str) -> str:
+    """Resolve and normalize discovered links into safe HTTP(S) URLs.
+
+    Some documentation pages contain unescaped spaces in product/model
+    names, such as /products/architectures/ARC RMX-100. urllib rejects such
+    paths at request time, so percent-encode them before queuing the URL.
+    Reject control characters and malformed URLs instead of aborting a crawl.
+    """
+    from urllib.parse import quote, urljoin, urlparse, urlunparse
+
+    href = href.strip()
+    if not href or any(ord(char) < 0x20 or ord(char) == 0x7f for char in href):
+        return ""
+    try:
+        absolute = urljoin(base, href)
+        parsed = urlparse(absolute)
+        if parsed.scheme.lower() not in ("http", "https") or not parsed.netloc:
+            return ""
+        # Keep URL delimiters and already escaped octets, but encode spaces
+        # and Unicode characters forbidden in an HTTP request path.
+        path = quote(parsed.path, safe="/%:@!def canonical_url(base: str, href: str) -> str:
     from urllib.parse import urljoin, urlparse, urlunparse
     absolute = urljoin(base, href)
     parsed = urlparse(absolute)
     if parsed.scheme not in ("http", "https"):
         return ""
-    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
+    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))'()*+,;=-._~")
+        return urlunparse((parsed.scheme.lower(), parsed.netloc, path, "", "", ""))
+    except (TypeError, ValueError):
+        return ""
 
 
 def candidate_name(label: str) -> str:
@@ -358,6 +381,10 @@ def self_test() -> int:
     assert candidate_name("ADD") == "ADD"
     assert candidate_name("Home") == ""
     assert canonical_url("https://example.org/a/index.html", "../cmd") == "https://example.org/cmd"
+    assert canonical_url("https://example.org/products/", "/products/architectures/ARC RMX-100") == "https://example.org/products/architectures/ARC%20RMX-100"
+    assert canonical_url("https://example.org/products/", "/products/architectures/ARC%20RMX-100") == "https://example.org/products/architectures/ARC%20RMX-100"
+    assert canonical_url("https://example.org/", "/bad\\npath") == ""
+    assert canonical_url("https://example.org/", "javascript:alert(1)") == ""
     assert ARABIC_ALIASES["ls"] == "عرض"
     assert ARABIC_ALIASES["cat"] == "اقرأ"
     parser = AnchorParser()
