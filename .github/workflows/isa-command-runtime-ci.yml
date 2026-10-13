@@ -35,6 +35,9 @@ on:
       - 'tools/commands/test-chimera-dos-adapter.py'
       - 'tools/commands/DOS-COMPATIBILITY.md'
       - 'tools/commands/dos-legacy-payload-manifest.json'
+      - 'tools/commands/dos-payload-builder.py'
+      - 'tools/commands/test-dos-payload-builder.py'
+      - 'tools/commands/DOS-ONLINE-PAYLOADS.md'
       - 'boot/iso/prepare-layout.sh'
       - 'build-chimera-iso.sh'
       - 'tools/commands/chimera-run'
@@ -74,6 +77,9 @@ on:
       - 'tools/commands/test-chimera-dos-adapter.py'
       - 'tools/commands/DOS-COMPATIBILITY.md'
       - 'tools/commands/dos-legacy-payload-manifest.json'
+      - 'tools/commands/dos-payload-builder.py'
+      - 'tools/commands/test-dos-payload-builder.py'
+      - 'tools/commands/DOS-ONLINE-PAYLOADS.md'
       - 'boot/iso/prepare-layout.sh'
       - 'system/commands/chimera-command-list.json'
       - 'system/commands/ss64-command-catalog.ar.json'
@@ -131,6 +137,8 @@ jobs:
           python3 tools/commands/test-cross-os-runtime.py -v
           python3 tools/commands/test-chimera-dos-adapter.py -v
           python3 -m json.tool tools/commands/dos-legacy-payload-manifest.json >/dev/null
+          python3 -m py_compile tools/commands/dos-payload-builder.py tools/commands/test-dos-payload-builder.py
+          python3 tools/commands/test-dos-payload-builder.py -v
           bash -n boot/iso/prepare-layout.sh
       - name: Validate generated command capability manifest
         run: |
