@@ -9,7 +9,7 @@ spec.loader.exec_module(mod)
 class RefreshISATests(unittest.TestCase):
     def test_semantic_fields_are_explicit(self):
         for field in ("register_classes", "flags_read", "flags_written", "memory_effects",
-                      "source_ref", "source_revision", "execution_status", "license"):
+                      "source_ref", "source_revision", "execution_status", "license", "registers_read",\n                      "registers_written", "register_effects", "operand_effects", "operand_constraints",\n                      "control_flow_effect", "semantic_summary"):
             self.assertIn(field, mod.SEMANTIC_FIELDS)
     def test_refresh_pipeline_is_explicit(self):
         self.assertEqual(mod.PIPELINE[0][1], ["--refresh"])
