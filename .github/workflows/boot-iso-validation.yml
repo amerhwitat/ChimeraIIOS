@@ -188,6 +188,8 @@ jobs:
           original_install_cfg="$smoke/original-installation-menu.cfg"
           cp ./boot/iso/dist/iso/boot/jasper/jasper.cfg "$original_jasper_cfg"
           cp ./boot/iso/dist/iso/boot/installation/menu.cfg "$original_install_cfg"
+          original_jasper_install_cfg="$smoke/original-jasper-install.cfg"
+          cp ./boot/iso/dist/iso/boot/jasper/install.cfg "$original_jasper_install_cfg"
           for target in live install recovery; do
             case "$target" in
               live) main_index=0; jasper_index=0; install_index=2 ;;
@@ -203,6 +205,26 @@ jobs:
             cp "$smoke/target-jasper.cfg" ./boot/iso/dist/iso/boot/jasper/jasper.cfg
             { printf 'set timeout=0\nset default=%s\n' "$install_index"; cat "$original_install_cfg"; printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n'; } > "$smoke/target-installation-menu.cfg"
             cp "$smoke/target-installation-menu.cfg" ./boot/iso/dist/iso/boot/installation/menu.cfg
+            if [[ "$target" == recovery ]]; then
+              cat > "$smoke/target-jasper-install.cfg" <<'EOF'
+          set timeout=0
+          set default=0
+          insmod normal
+          insmod multiboot2
+          insmod serial
+          serial --unit=0 --speed=115200
+          terminal_output --append serial
+          menuentry "QEMU recovery target" {
+            multiboot2 /boot/koronos/koronos.elf chm.log=verbose chm.progress=events
+            module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
+            module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
+            boot
+          }
+          EOF
+            else
+              { printf 'set timeout=0\nset default=%s\n' "$install_index"; cat "$original_jasper_install_cfg"; printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n'; } > "$smoke/target-jasper-install.cfg"
+            fi
+            cp "$smoke/target-jasper-install.cfg" ./boot/iso/dist/iso/boot/jasper/install.cfg
             grub-mkrescue -o "$smoke/target-$target.iso" ./boot/iso/dist/iso
             set +e
             timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -vga std -cdrom "$smoke/target-$target.iso" -boot d -display none -serial "file:$smoke/target-$target-serial.log" -monitor none -no-reboot -no-shutdown -debugcon "file:$smoke/target-$target-debugcon.log" -global isa-debugcon.iobase=0xe9
@@ -228,7 +250,8 @@ jobs:
           cp "$original_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/grub/grub.cfg
           cp "$original_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/jasper/grub.cfg
           cp "$original_jasper_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/jasper/jasper.cfg
-          cp "$original_install_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/installation/menu.cfg
+          cp "$original_install_cfg" ./boot/iso/dist/iso/boot/installation/menu.cfg
+          cp "$original_jasper_install_cfg" ./boot/iso/dist/iso/boot/jasper/install.cfg
       - name: Upload full ISO boot traces
         if: always()
         uses: actions/upload-artifact@v4
