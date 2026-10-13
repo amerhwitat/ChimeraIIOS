@@ -192,6 +192,9 @@ static const char *module_kind_name(uint32_t k) {
         case CHIMERA_MODULE_INSTALL_CONTRACT: return "INSTALL CONTRACT";
         case CHIMERA_MODULE_INSTALL_PHASES: return "INSTALL PHASES";
         case CHIMERA_MODULE_INSTALL_PROFILES: return "INSTALL PROFILES";
+        case CHIMERA_MODULE_USER_INIT_ELF: return "USER INIT ELF";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
+        case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
         default: return "OTHER";
     }
 }
@@ -239,8 +242,8 @@ static void task_live(void *) {
     if (live_task_runs++ == 0) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
-            console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] Live initramfs module staged; it has not been mounted or executed");
+            console_write("[HANDOFF] BLOCKED: no production user address-space/ring-3 entry path");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -268,38 +271,20 @@ static void task_installer(void *) {
         return;
     }
 
-    switch (installer_phase++) {
-        case 0:
-            console_write("[INST] Installer target detected");
-            if (image) console_write("[INST] Installation image accepted");
-            else console_write("[INST] ERROR: installation image module missing");
-            if (manifest) console_write("[INST] Installation manifest accepted");
-            else console_write("[INST] WARNING: installation manifest module missing");
-            if (contract) console_write("[INST] Installer contract accepted");
-            else console_write("[INST] WARNING: installer contract module missing");
-            break;
-        case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
-            break;
-        case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
-            break;
-        case 3:
-            if (phases) console_write("[INST] Installation phases loaded");
-            if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI service initialized");
-            break;
-        case 4:
-            console_write("[INST] Installer initialization complete");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
-            chimera_sched_block();
-            break;
-        default:
-            chimera_sched_block();
-            break;
+    if (installer_phase++ == 0) {
+        console_write("[INST] Installer target detected; module presence is not installer readiness");
+        if (image) console_write("[INST] Installation image staged");
+        else console_write("[INST] ERROR: installation image module missing");
+        if (manifest) console_write("[INST] Installation manifest staged");
+        else console_write("[INST] ERROR: installation manifest missing");
+        if (contract) console_write("[INST] Installer contract staged");
+        else console_write("[INST] ERROR: installer contract missing");
+        if (phases) console_write("[INST] Installation phase manifest staged");
+        if (profiles) console_write("[INST] Installer profile manifest staged");
+        console_write("[INST] BLOCKED: installer UI is not running; no executable userspace handoff exists");
+        console_write("[HANDOFF] BLOCKED: ring-3 page tables, privilege transition, and process context switch are not wired into boot");
     }
+    chimera_sched_block();
 }
 
 static const char *task_state_name(uint32_t state) {
@@ -396,6 +381,18 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
+    const bool live_target = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS) != nullptr;
+    const bool installer_target = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE) != nullptr;
+    const bool recovery_target = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) != nullptr;
+    const bool user_init_present = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) != nullptr;
+    console_write("[TARGET] Selected payload: ");
+    console_write(recovery_target ? "RECOVERY" : installer_target ? "INSTALLER" : live_target ? "LIVE" : "KERNEL-ONLY");
+    console_write("[HANDOFF] User init ELF module: ");
+    console_write(user_init_present ? "present (not proof of executable handoff)" : "missing");
+    if (live_target || installer_target || recovery_target) {
+        console_write("[HANDOFF] BLOCKED: this boot path has no production ring-3 loader/entry transition");
+        if (recovery_target) console_write("[RECOVERY] Recovery image staged only; recovery userspace is not running");
+    }
     koronos_arch_init(ctx);
     console_progress(25, "Architecture and interrupt setup complete");
 
