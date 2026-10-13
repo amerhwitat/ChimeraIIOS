@@ -26,5 +26,14 @@ class RuntimeRegistryTests(unittest.TestCase):
         p = subprocess.run([sys.executable, str(RUNNER), "--mode", "mystery", "echo"], text=True, capture_output=True)
         self.assertEqual(p.returncode, 2)
         self.assertIn("mode must be", p.stderr)
+    def test_native_mode_rejects_foreign_executable(self):
+        import os, tempfile
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"MZ" + b"\\0" * 126)
+            f.flush()
+            os.chmod(f.name, 0o755)
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "native", f.name], text=True, capture_output=True)
+            self.assertEqual(p.returncode, 126)
+            self.assertIn("not native", p.stderr)
 if __name__ == "__main__":
     unittest.main()
