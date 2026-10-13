@@ -198,7 +198,7 @@ def main():
     i=sub.add_parser("identify"); i.add_argument("input"); i.add_argument("--arch",help="for raw/non-self-describing bytes")
     sub.add_parser("providers")
     a=sub.add_parser("assemble"); a.add_argument("--arch",required=True); a.add_argument("--target"); a.add_argument("--triple"); a.add_argument("-o","--output",required=True); a.add_argument("input")
-    co=sub.add_parser("compile"); co.add_argument("--arch",required=True); co.add_argument("--target"); co.add_argument("--language",choices=("c","c++","assembler","assembler-with-cpp")); co.add_argument("-o","--output",required=True); co.add_argument("input"); co.add_argument("flags",nargs=argparse.REMAINDER)
+    co=sub.add_parser("compile"); co.add_argument("--arch",required=True); co.add_argument("--target"); co.add_argument("--language",choices=("c","c++","assembler","assembler-with-cpp")); co.add_argument("-o","--output",required=True); co.add_argument("input"); co.add_argument("--flag",dest="flags",action="append",default=[],help="pass one compiler flag, repeat as needed")
     d=sub.add_parser("disassemble"); d.add_argument("input")
     e=sub.add_parser("execute"); e.add_argument("input"); e.add_argument("--arch"); e.add_argument("args",nargs=argparse.REMAINDER)
     ns=p.parse_args()
