@@ -31,6 +31,10 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include kernel/core/multiboot_modules.cpp kernel/tests/multiboot_modules_test.cpp -o /tmp/koronos-multiboot-modules
           /tmp/koronos-multiboot-modules
+      - name: Test ELF PT_LOAD mapping, BSS zeroing, W^X and user-stack mapping
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include kernel/core/process_loader.cpp kernel/tests/process_loader_test.cpp -o /tmp/koronos-process-loader
+          /tmp/koronos-process-loader
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
