@@ -178,19 +178,28 @@ jobs:
               exit 1
             fi
           done
-          # Exercise the three primary GRUB handoffs by remastering the staged tree with each default.
+          # Test target routing through each possible top-level menu configuration, with GRUB output mirrored to serial.
           original_cfg="$smoke/staged-grub.cfg"
-          if [[ ! -s "$original_cfg" ]]; then cp boot/iso/dist/iso/boot/grub/grub.cfg "$original_cfg"; fi
+          if [[ ! -s "$original_cfg" ]]; then cp ./boot/iso/dist/iso/boot/grub/grub.cfg "$original_cfg"; fi
+          original_jasper_cfg="$smoke/original-jasper.cfg"
+          original_install_cfg="$smoke/original-installation-menu.cfg"
+          cp ./boot/iso/dist/iso/boot/jasper/jasper.cfg "$original_jasper_cfg"
+          cp ./boot/iso/dist/iso/boot/installation/menu.cfg "$original_install_cfg"
           for target in live install recovery; do
             case "$target" in
-              live) index=0 ;;
-              install) index=2 ;;
-              recovery) index=5 ;;
+              live) main_index=0; jasper_index=0; install_index=2 ;;
+              install) main_index=2; jasper_index=1; install_index=0 ;;
+              recovery) main_index=5; jasper_index=2; install_index=1 ;;
             esac
-            sed -E "s/^set default=.*/set default=$index/" "$original_cfg" > "$smoke/target-grub.cfg"
+            sed -E "s/^set default=.*/set default=$main_index/" "$original_cfg" > "$smoke/target-grub.cfg"
             printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n' >> "$smoke/target-grub.cfg"
             cp "$smoke/target-grub.cfg" ./boot/iso/dist/iso/boot/grub/grub.cfg
             cp "$smoke/target-grub.cfg" ./boot/iso/dist/iso/boot/jasper/grub.cfg
+            sed -E "s/^set default=.*/set default=$jasper_index/" "$original_jasper_cfg" > "$smoke/target-jasper.cfg"
+            printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n' >> "$smoke/target-jasper.cfg"
+            cp "$smoke/target-jasper.cfg" ./boot/iso/dist/iso/boot/jasper/jasper.cfg
+            { printf 'set timeout=0\nset default=%s\n' "$install_index"; cat "$original_install_cfg"; printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n'; } > "$smoke/target-installation-menu.cfg"
+            cp "$smoke/target-installation-menu.cfg" ./boot/iso/dist/iso/boot/installation/menu.cfg
             grub-mkrescue -o "$smoke/target-$target.iso" ./boot/iso/dist/iso
             set +e
             timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -vga std -cdrom "$smoke/target-$target.iso" -boot d -display none -serial "file:$smoke/target-$target-serial.log" -monitor none -no-reboot -no-shutdown -debugcon "file:$smoke/target-$target-debugcon.log" -global isa-debugcon.iobase=0xe9
@@ -204,16 +213,19 @@ jobs:
                 grep -Fq 'USERSPACE NOT READY' "$trace" || { echo "::error::Live target must report the real userspace readiness boundary"; exit 1; }
                 ;;
               install)
-                grep -Fq '[INST] Installer target detected' "$trace" || { echo "::error::Installer menu did not hand off installer modules"; exit 1; }
+                grep -Fq '[INST] Installer target detected' "$trace" || { echo "::error::Installer menu did not hand off installer modules"; tail -100 "$smoke/target-install-serial.log" || true; exit 1; }
                 grep -Fq 'installer userspace NOT READY' "$trace" || { echo "::error::Installer readiness was falsely reported"; exit 1; }
                 ;;
               recovery)
-                grep -Fq '[RECV] Recovery initramfs and manifest accepted' "$trace" || { echo "::error::Recovery menu did not hand off recovery modules"; exit 1; }
+                grep -Fq '[RECV] Recovery initramfs and manifest accepted' "$trace" || { echo "::error::Recovery menu did not hand off recovery modules"; tail -100 "$smoke/target-recovery-serial.log" || true; exit 1; }
                 grep -Fq 'Recovery userspace NOT READY' "$trace" || { echo "::error::Recovery readiness was falsely reported"; exit 1; }
                 ;;
             esac
           done
-          cp "$original_cfg" ./boot/iso/dist/iso/boot/grub/grub.cfg
+          cp "$original_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/grub/grub.cfg
+          cp "$original_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/jasper/grub.cfg
+          cp "$original_jasper_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/jasper/jasper.cfg
+          cp "$original_install_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/installation/menu.cfg
       - name: Upload full ISO boot traces
         if: always()
         uses: actions/upload-artifact@v4
