@@ -42,7 +42,9 @@ MZ, Mach-O, and WebAssembly. A handler is available only if a compatible provide
 is installed. Some Mach-O variants and architectures may require additional
 format validation and are not automatically assumed runnable.
 
-For DOS commands, install DOSBox or DOSBox-X and set `CHIMERA_DOS_ROOT` to an
+For DOS commands (including names shared with Windows CMD, such as `dir`), use
+`chimera-run --mode compat --os dos PROGRAM [ARG...]`. Install DOSBox or DOSBox-X
+and set `CHIMERA_DOS_ROOT` to an
 explicitly prepared DOS filesystem directory. The adapter mounts only that
 folder, accepts a conservative argument character set, and rejects command
 separators and path escapes. It does not download or provision a DOS image.
