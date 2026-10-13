@@ -33,7 +33,8 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
   if(!add_ok(ph.p_vaddr,ph.p_memsz,&end)||!user_addr(ph.p_vaddr)||!user_addr(end-1u)||!align_up(end,&map_end))return -7;
   if(ph.p_align>1u&&((ph.p_align&(ph.p_align-1u))!=0||(ph.p_vaddr%ph.p_align)!=(ph.p_offset%ph.p_align)))return -8;
   Plan&p=plans[count++];p.ph=ph;p.base=align_down(ph.p_vaddr);p.size=map_end-p.base;p.delta=ph.p_vaddr-p.base;p.end=end;
-  if(p.base<low)low=p.base;if(map_end>high)high=map_end;
+  if(p.base<low) low=p.base;
+  if(map_end>high) high=map_end;
   if((ph.p_flags&PF_X)&&h.e_entry>=ph.p_vaddr&&h.e_entry<end)entry_x=true;
   if(!add_ok(file_bytes,ph.p_filesz,&file_bytes))return -9;
  }
