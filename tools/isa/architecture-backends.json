@@ -29,8 +29,7 @@
         "i386"
       ],
       "qemu_user": "qemu-i386",
-      "execution": "provider-required",
-      "elf_class": 1
+      "execution": "provider-required"
     },
     "x86_64": {
       "aliases": [
@@ -45,8 +44,7 @@
         "x86_64"
       ],
       "qemu_user": "qemu-x86_64",
-      "execution": "native-or-provider",
-      "elf_class": 2
+      "execution": "native-or-provider"
     },
     "armv7": {
       "aliases": [
@@ -60,8 +58,7 @@
         "armv7-linux-gnueabihf"
       ],
       "qemu_user": "qemu-arm",
-      "execution": "provider-required",
-      "elf_class": 1
+      "execution": "provider-required"
     },
     "aarch64": {
       "aliases": [
@@ -75,8 +72,7 @@
         "aarch64-linux-gnu"
       ],
       "qemu_user": "qemu-aarch64",
-      "execution": "provider-required",
-      "elf_class": 2
+      "execution": "provider-required"
     },
     "riscv32": {
       "aliases": [
@@ -108,17 +104,16 @@
     },
     "mips": {
       "aliases": [
-        "mips32",
-        "mipsel"
+        "mips32"
       ],
       "elf_machine": 8,
       "pe_machine": [],
       "llvm_targets": [
-        "mipsel-linux-gnu"
+        "mips-linux-gnu"
       ],
-      "qemu_user": "qemu-mipsel",
+      "qemu_user": "qemu-mips",
       "execution": "provider-required",
-      "elf_class": 1
+      "elf_endianness": "big"
     },
     "powerpc": {
       "aliases": [
@@ -131,22 +126,21 @@
         "powerpc-linux-gnu"
       ],
       "qemu_user": "qemu-ppc",
-      "execution": "provider-required",
-      "elf_class": 1
+      "execution": "provider-required"
     },
     "powerpc64": {
       "aliases": [
         "ppc64",
-        "ppc64le"
+        "powerpc64be"
       ],
       "elf_machine": 21,
       "pe_machine": [],
       "llvm_targets": [
-        "powerpc64le-linux-gnu"
+        "powerpc64-linux-gnu"
       ],
-      "qemu_user": "qemu-ppc64le",
+      "qemu_user": "qemu-ppc64",
       "execution": "provider-required",
-      "elf_class": 2
+      "elf_endianness": "big"
     },
     "wasm32": {
       "aliases": [
@@ -205,6 +199,33 @@
     "unknown": {
       "aliases": [],
       "execution": "unsupported"
+    },
+    "mipsel": {
+      "aliases": [
+        "mipsel",
+        "mips32el"
+      ],
+      "elf_machine": 8,
+      "elf_endianness": "little",
+      "pe_machine": [],
+      "llvm_targets": [
+        "mipsel-linux-gnu"
+      ],
+      "qemu_user": "qemu-mipsel",
+      "execution": "provider-required"
+    },
+    "powerpc64le": {
+      "aliases": [
+        "ppc64le"
+      ],
+      "elf_machine": 21,
+      "elf_endianness": "little",
+      "pe_machine": [],
+      "llvm_targets": [
+        "powerpc64le-linux-gnu"
+      ],
+      "qemu_user": "qemu-ppc64le",
+      "execution": "provider-required"
     }
   },
   "providers": {
