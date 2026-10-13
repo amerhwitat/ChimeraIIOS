@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          timeout 15s qemu-system-x86_64 -machine pc -cpu max -m 1024 \
+          timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
             -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
             -debugcon file:qemu-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-koronos.log
