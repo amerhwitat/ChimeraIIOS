@@ -40,7 +40,7 @@ class RuntimeRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             capture = Path(td) / "args.json"
             emulator = Path(td) / "dosbox-x"
-            emulator.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            emulator.write_text("#!/usr/bin/env python3\nimport json,os,sys\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\n", encoding="utf-8")
             emulator.chmod(0o755)
             program = Path(td) / "GAME.EXE"
             program.write_bytes(b"MZ" + b"\\0" * 126)
