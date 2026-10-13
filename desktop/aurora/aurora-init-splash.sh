@@ -40,7 +40,7 @@ read_percent(){
   local line
   line="$(tail -n 1 "$PROGRESS" 2>/dev/null || true)"
   if [[ "$line" =~ ^([0-9]+)\| ]]; then
-    printf '%s' "\${BASH_REMATCH[1]}"
+    printf '%s' "${BASH_REMATCH[1]}"
     return 0
   fi
   printf '%s' '-1'
