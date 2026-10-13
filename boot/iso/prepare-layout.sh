@@ -72,6 +72,10 @@ if [[ "${CHIMERA_DOS_FETCH_ON_BUILD:-0}" == "1" ]]; then
   DOS_PAYLOAD_ARGS+=(--fetch)
 fi
 python3 "$ROOT/tools/commands/dos-payload-builder.py" "${DOS_PAYLOAD_ARGS[@]}"
+# Preserve online discovery metadata in the ISO when the build refreshed it.
+if [[ -s "$ROOT/build/dos-online-discovery.json" ]]; then
+  install -m 0644 "$ROOT/build/dos-online-discovery.json" "$DOS_RUNTIME/ONLINE-DISCOVERY.json"
+fi
 
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
 # the same offline assets without depending on network access or a desktop session.
