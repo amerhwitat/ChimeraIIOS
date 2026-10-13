@@ -45,3 +45,17 @@ Executable dispatch:
     chimera exec ./program
 
 This layer is intentionally independent from Koronos.
+
+## CPU execution profiles and virtual CPU topology
+
+Use `chimera-cpu-mode --list-cpus` to list host CPUs allowed to the current process.
+For legacy DOS software, `chimera-cpu-mode --mode real --program GAME.COM` disables
+DPMI, while `chimera-cpu-mode --mode protected --program APP.EXE` enables DPMI in
+DOSBox-X for applications that request protected-mode services. The latter is
+protected-capable, not a guarantee that an application enters protected mode.
+
+To boot an ISO with all CPUs available to the process exposed as guest vCPUs, use
+`chimera-cpu-mode --qemu-iso path/to/image.iso --vcpus all --host-affinity`.
+This configures a VM, not bare-metal Koronos SMP. A running host OS cannot safely
+switch its physical CPU into real mode; see CPU-MODES-AND-TOPOLOGY.md in the source
+repository for the architectural boundary and acceptance requirements.
