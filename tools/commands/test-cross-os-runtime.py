@@ -69,7 +69,7 @@ class RuntimeRegistryTests(unittest.TestCase):
             root.mkdir()
             capture = Path(td) / "args.json"
             fake = Path(td) / "dosbox-x"
-            fake.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            fake.write_text("#!/usr/bin/env python3\nimport json,os,sys\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\n", encoding="utf-8")
             fake.chmod(0o755)
             env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""),
                        CAPTURE_ARGS=str(capture), CHIMERA_DOS_ROOT=str(root))
@@ -87,7 +87,7 @@ class RuntimeRegistryTests(unittest.TestCase):
             root = Path(td) / "dosroot"
             root.mkdir()
             fake = Path(td) / "dosbox-x"
-            fake.write_text("#!/usr/bin/env python3\\nraise SystemExit(99)\\n", encoding="utf-8")
+            fake.write_text("#!/usr/bin/env python3\nraise SystemExit(99)\n", encoding="utf-8")
             fake.chmod(0o755)
             env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""),
                        CHIMERA_DOS_ROOT=str(root))
