@@ -888,10 +888,14 @@ stage_features(){
   # Ship the authoritative command registry, unified dispatcher and runtime model
   # into both the ISO contract tree and the installed rootfs.
   mkdir -p "$ISO_DIR/system/commands" "$ROOTFS_DIR/usr/share/chimera/commands" "$ROOTFS_DIR/usr/bin"
-  for f in system/commands/chimera-command-list.json system/commands/chimera-arabic.json system/commands/compatibility-binary-policy.json system/commands/ss64-command-catalog.json; do
+  for f in system/commands/chimera-command-list.json system/commands/chimera-arabic.json system/commands/compatibility-binary-policy.json system/commands/ss64-command-catalog.json system/commands/command-runtime-capabilities.json tools/commands/os-command-runtime.json; do
     [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/system/commands/$(basename "$f")" && cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/commands/$(basename "$f")"
   done
   [[ -f "$SCRIPT_DIR/tools/commands/chimera-cmd" ]] && cp -f "$SCRIPT_DIR/tools/commands/chimera-cmd" "$ROOTFS_DIR/usr/bin/chimera-cmd" && chmod +x "$ROOTFS_DIR/usr/bin/chimera-cmd"
+  if [[ -f "$SCRIPT_DIR/tools/commands/chimera-run" ]]; then
+    install -m 0755 "$SCRIPT_DIR/tools/commands/chimera-run" "$ROOTFS_DIR/usr/bin/chimera-run"
+    python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-run"
+  fi
   [[ -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" ]] && cp -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" "$ROOTFS_DIR/usr/share/chimera/chimera-unified-runtime-model.json"
   [[ -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" ]] && cp -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh" && chmod +x "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh"
   mkdir -p "$ROOTFS_DIR/etc/chimera" "$ROOTFS_DIR/usr/share/chimera"
