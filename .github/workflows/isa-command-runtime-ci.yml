@@ -27,6 +27,7 @@ on:
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
       - 'tools/commands/chimera-run'
+      - 'tools/commands/install-command-providers.sh'
       - 'tools/commands/os-command-runtime.json'
       - 'tools/commands/test-cross-os-runtime.py'
       - 'tools/commands/README-cross-os-runtime.md'
@@ -97,6 +98,7 @@ jobs:
         run: |
           bash -n build-chimera-iso.sh
           bash -n tools/build-chimera-command-compat.sh
+          bash -n tools/commands/install-command-providers.sh
       - name: Test RV32I encoder, decoder, and interpreter subset
         run: |
           python3 -m unittest tools/isa/test_riscv_codec.py -v
