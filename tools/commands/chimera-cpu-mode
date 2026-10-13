@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOT="${CHIMERA_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+exec python3 "$ROOT/tools/commands/chimera-cpu-mode.py" "$@"
