@@ -83,7 +83,10 @@ def main():
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
         elif key in registry_modes:
             declared, runtime=registry_modes[key]
-            # Only entries in NATIVE above are implemented by the compiled multicall.\n            # Registry declarations describe a provider capability; they must not\n            # silently promote dispatcher tools to native built-ins.\n            mode="native-provider-required" if declared in ("native", "native-when-present") else declared
+            # Only entries in NATIVE above are implemented by the compiled multicall.
+            # Registry declarations describe a provider capability; they must not
+            # silently promote dispatcher tools to native built-ins.
+            mode="native-provider-required" if declared in ("native", "native-when-present") else declared
             provider=runtime
         else:
             mode="compatibility-provider-required"
