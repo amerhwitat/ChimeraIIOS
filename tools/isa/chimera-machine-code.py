@@ -27,7 +27,7 @@ def host_arch():
     m = platform.machine().lower()
     aliases = {"amd64":"x86_64","x86_64":"x86_64","i386":"x86","i686":"x86",
                "aarch64":"aarch64","arm64":"aarch64","armv7l":"armv7",
-               "riscv64":"riscv64","ppc64le":"powerpc64"}
+               "riscv64":"riscv64","ppc64":"powerpc64","ppc64le":"powerpc64le"}
     return aliases.get(m, m or "unknown")
 
 def arch_by_elf(machine, elf_class, endianness):
