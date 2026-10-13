@@ -1,0 +1,48 @@
+name: Machine-code identification and toolchain contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/isa/architecture-backends.json'
+      - 'tools/isa/chimera-machine-code.py'
+      - 'tools/isa/test_machine_code_pipeline.py'
+      - '.github/workflows/machine-code-pipeline-ci.yml'
+  pull_request:
+    paths:
+      - 'tools/isa/architecture-backends.json'
+      - 'tools/isa/chimera-machine-code.py'
+      - 'tools/isa/test_machine_code_pipeline.py'
+      - '.github/workflows/machine-code-pipeline-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  identify-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate backend registry
+        run: |
+          python -m json.tool tools/isa/architecture-backends.json >/dev/null
+          python - <<'PY'
+          import json
+          p=json.load(open("tools/isa/architecture-backends.json"))
+          assert p["schema_version"] == 1
+          assert {"x86_64","aarch64","armv7","riscv32","riscv64","mips","powerpc","wasm32","dos-x86"} <= set(p["architectures"])
+          for name, spec in p["architectures"].items():
+              assert isinstance(spec.get("aliases", []), list), name
+          print("Architecture metadata validated; catalog entries are not conformance claims.")
+          PY
+      - name: Syntax check and tests
+        run: |
+          python -m py_compile tools/isa/chimera-machine-code.py tools/isa/test_machine_code_pipeline.py
+          python tools/isa/test_machine_code_pipeline.py -v
+      - name: Report host providers
+        run: python tools/isa/chimera-machine-code.py providers
