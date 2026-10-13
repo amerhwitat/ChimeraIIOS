@@ -138,12 +138,16 @@ def write_json(path: Path, value: Any) -> None:
 
 
 def canonical_url(base: str, href: str) -> str:
-    from urllib.parse import urljoin, urlparse, urlunparse
+    from urllib.parse import quote, urljoin, urlparse, urlunparse
+
     absolute = urljoin(base, href)
     parsed = urlparse(absolute)
-    if parsed.scheme not in ("http", "https"):
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
         return ""
-    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
+    # Encode spaces and unsafe path characters before opening the URL.
+    # Keep valid percent escapes and URL path delimiters intact.
+    safe_path = quote(parsed.path, safe="/%:@!$&'()*+,;=-._~")
+    return urlunparse((parsed.scheme, parsed.netloc, safe_path, "", "", ""))
 
 
 def candidate_name(label: str) -> str:
@@ -358,6 +362,8 @@ def self_test() -> int:
     assert candidate_name("ADD") == "ADD"
     assert candidate_name("Home") == ""
     assert canonical_url("https://example.org/a/index.html", "../cmd") == "https://example.org/cmd"
+    assert canonical_url("https://example.org/", "/products/architectures/ARC RMX-100") == "https://example.org/products/architectures/ARC%20RMX-100"
+    assert canonical_url("https://example.org/", "/path/a%20b") == "https://example.org/path/a%20b"
     assert ARABIC_ALIASES["ls"] == "عرض"
     assert ARABIC_ALIASES["cat"] == "اقرأ"
     parser = AnchorParser()

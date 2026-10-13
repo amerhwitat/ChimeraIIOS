@@ -52,6 +52,15 @@ class CatalogRefreshTests(unittest.TestCase):
             "https://example.org/grep",
         )
 
+    def test_url_path_spaces_are_percent_encoded(self):
+        self.assertEqual(
+            mod.canonical_url("https://example.org/docs/index.html", "ISA docs/ADD"),
+            "https://example.org/docs/ISA%20docs/ADD",
+        )
+
+    def test_non_http_urls_are_rejected(self):
+        self.assertEqual(mod.canonical_url("https://example.org/", "ftp://example.org/file"), "")
+
     def test_tablegen_definitions_are_discovery_candidates_only(self):
         candidates = mod.extract_definition_identifiers("def ADD : Inst;\ndef SUB : Inst;\ndef ADD : Inst;")
         self.assertEqual(candidates, ["ADD", "SUB"])
