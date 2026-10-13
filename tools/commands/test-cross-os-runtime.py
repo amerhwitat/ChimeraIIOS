@@ -61,5 +61,40 @@ class RuntimeRegistryTests(unittest.TestCase):
             self.assertEqual(p.returncode, 2)
             self.assertIn("metacharacters", p.stderr)
             self.assertFalse(capture.exists())
+
+    def test_dosbox_adapter_mounts_explicit_root_and_runs_builtin(self):
+        import os, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "dosroot"
+            root.mkdir()
+            capture = Path(td) / "args.json"
+            fake = Path(td) / "dosbox-x"
+            fake.write_text("#!/usr/bin/env python3\nimport json,os,sys\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\n", encoding="utf-8")
+            fake.chmod(0o755)
+            env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""),
+                       CAPTURE_ARGS=str(capture), CHIMERA_DOS_ROOT=str(root))
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "append", "my folder"],
+                               env=env, text=True, capture_output=True)
+            self.assertEqual(p.returncode, 0, p.stderr)
+            args = json.loads(capture.read_text(encoding="utf-8"))
+            self.assertEqual(args[0], "-noconsole")
+            self.assertIn(f'mount c "{root}"', args)
+            self.assertIn('append "my folder"', args)
+
+    def test_dosbox_adapter_refuses_metacharacters(self):
+        import os, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "dosroot"
+            root.mkdir()
+            fake = Path(td) / "dosbox-x"
+            fake.write_text("#!/usr/bin/env python3\nraise SystemExit(99)\n", encoding="utf-8")
+            fake.chmod(0o755)
+            env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""),
+                       CHIMERA_DOS_ROOT=str(root))
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "append", "x&whoami"],
+                               env=env, text=True, capture_output=True)
+            self.assertEqual(p.returncode, 2)
+            self.assertIn("unsupported shell syntax", p.stderr)
+
 if __name__ == "__main__":
     unittest.main()
