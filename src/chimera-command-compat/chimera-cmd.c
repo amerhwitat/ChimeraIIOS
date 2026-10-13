@@ -467,11 +467,47 @@ int main(int argc, char **argv)
     if (!strcmp(cmd, "false"))
         return cmd_false();
 
+    /* Route unknown command names through the shared runtime dispatcher.
+       Preserve argv exactly and never parse command text through a shell. */
+    if (getenv("CHIMERA_DISABLE_COMPAT") == NULL) {
+        const char *mode = getenv("CHIMERA_COMMAND_MODE");
+        if (mode == NULL || (strcmp(mode, "native") != 0 &&
+                             strcmp(mode, "compat") != 0 &&
+                             strcmp(mode, "auto") != 0))
+            mode = "auto";
+
+        char **run_argv = calloc((size_t)argc + 4, sizeof(*run_argv));
+        if (run_argv == NULL) {
+            fprintf(stderr, "chimera-cmd: out of memory while dispatching '%s'\n", cmd);
+            return 1;
+        }
+        char self_path[PATH_MAX];
+        ssize_t self_len = readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);
+        if (self_len > 0 && (size_t)self_len < sizeof(self_path)) {
+            self_path[self_len] = '\0';
+            (void)setenv("CHIMERA_SHIM_BINARY", self_path, 1);
+        }
+        run_argv[0] = (char *)"chimera-run";
+        run_argv[1] = (char *)"--mode";
+        run_argv[2] = (char *)mode;
+        run_argv[3] = (char *)cmd;
+        for (int i = 1; i < argc; ++i)
+            run_argv[i + 3] = argv[i];
+        run_argv[argc + 3] = NULL;
+        execvp(run_argv[0], run_argv);
+        int saved_errno = errno;
+        free(run_argv);
+        if (saved_errno != ENOENT) {
+            errno = saved_errno;
+            perror("chimera-cmd: chimera-run");
+            return 126;
+        }
+    }
+
     fprintf(
         stderr,
         "chimera-cmd: native implementation unavailable for '%s'\n",
         cmd
     );
-
     return 127;
 }
