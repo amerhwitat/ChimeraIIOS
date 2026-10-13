@@ -1,0 +1,40 @@
+name: Koronos ELF process loader unit tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'kernel/core/process_loader.cpp'
+      - 'kernel/include/chimera/process_loader.h'
+      - 'kernel/tests/process_loader_test.cpp'
+      - 'kernel/tests/process-loader-unit.sh'
+      - 'kernel/build-koronos.sh'
+      - '.github/workflows/koronos-process-loader.yml'
+  pull_request:
+    paths:
+      - 'kernel/core/process_loader.cpp'
+      - 'kernel/include/chimera/process_loader.h'
+      - 'kernel/tests/process_loader_test.cpp'
+      - 'kernel/tests/process-loader-unit.sh'
+      - 'kernel/build-koronos.sh'
+      - '.github/workflows/koronos-process-loader.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  loader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile host-side process loader tests with warnings as errors
+        run: bash kernel/tests/process-loader-unit.sh
+      - name: Compile and validate freestanding Koronos
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes nasm binutils
+          bash kernel/build-koronos.sh
+          test -s build/koronos/x86_64/koronos.elf
+          nm -a --defined-only build/koronos/x86_64/koronos.elf | grep -q chimera_elf_load_user_image
