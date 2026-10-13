@@ -14,7 +14,9 @@ ROOT = Path(__file__).resolve().parents[2]
 SEMANTIC_FIELDS = (
     "operands", "description", "register_classes", "flags_read", "flags_written",
     "memory_effects", "privilege", "extensions", "feature_requirements",
-    "exceptions", "registers_read", "registers_written", "register_effects",\n    "operand_effects", "operand_constraints", "control_flow_effect", "semantic_summary",\n    "semantic_id", "native_mapping", "compatibility_mapping",
+    "exceptions", "registers_read", "registers_written", "register_effects",
+    "operand_effects", "operand_constraints", "control_flow_effect", "semantic_summary",
+    "semantic_id", "native_mapping", "compatibility_mapping",
     "encoding_status", "execution_status", "source_ref", "source_revision",
     "source_sha256", "license",
 )
