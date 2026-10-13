@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chimera-ii-os.invalid/schema/instruction-semantics-v1.json",
+  "title": "Chimera ISA instruction semantic record",
+  "type": "object",
+  "required": [
+    "architecture",
+    "profile",
+    "mnemonic",
+    "form_id",
+    "length_bits",
+    "operands",
+    "encoding",
+    "register_effects",
+    "memory_effects",
+    "exceptions",
+    "source_ref",
+    "status"
+  ],
+  "properties": {
+    "architecture": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mnemonic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "form_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "length_bits": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "operands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "access"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "register",
+              "immediate",
+              "memory",
+              "relative",
+              "implicit",
+              "mask",
+              "predicate",
+              "rounding-mode"
+            ]
+          },
+          "access": {
+            "enum": [
+              "read",
+              "write",
+              "read-write",
+              "address",
+              "control"
+            ]
+          },
+          "width_bits": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "signed": {
+            "type": "boolean"
+          },
+          "encoding_field": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "encoding": {
+      "type": "object",
+      "required": [
+        "value_bits",
+        "mask_bits",
+        "endianness"
+      ],
+      "properties": {
+        "value_bits": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mask_bits": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "endianness": {
+          "enum": [
+            "little",
+            "big",
+            "mixed",
+            "instruction-little",
+            "architecture-defined"
+          ]
+        },
+        "immediate_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "bits",
+              "signed"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "bits": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "signed": {
+                "type": "boolean"
+              },
+              "scale": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "transform": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "register_effects": {
+      "type": "object",
+      "required": [
+        "reads",
+        "writes",
+        "flags_read",
+        "flags_written"
+      ],
+      "properties": {
+        "reads": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "writes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "flags_read": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "flags_written": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "memory_effects": {
+      "type": "object",
+      "required": [
+        "reads",
+        "writes",
+        "ordering"
+      ],
+      "properties": {
+        "reads": {
+          "type": "boolean"
+        },
+        "writes": {
+          "type": "boolean"
+        },
+        "ordering": {
+          "type": "string"
+        },
+        "alignment": {
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "privilege": {
+      "type": "string"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "feature_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_ref": {
+      "type": "string",
+      "format": "uri-reference",
+      "minLength": 1
+    },
+    "source_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "test_vectors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "input_state",
+          "expected_state"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "input_state": {
+            "type": "object"
+          },
+          "expected_state": {
+            "type": "object"
+          },
+          "expected_trap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "cataloged",
+        "encoding-verified",
+        "decoder-tested",
+        "semantics-implemented",
+        "differentially-tested",
+        "conformance-tested"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "test_suite": {
+          "type": "string"
+        },
+        "test_command": {
+          "type": "string"
+        },
+        "passed_vectors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_vectors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reference_implementation": {
+          "type": "string"
+        },
+        "validated_revision": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "conformance-tested"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "required": [
+              "test_suite",
+              "test_command",
+              "passed_vectors",
+              "total_vectors",
+              "reference_implementation",
+              "validated_revision"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}
