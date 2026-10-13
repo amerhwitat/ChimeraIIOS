@@ -148,7 +148,7 @@ for spec in \
   }
 done
 
-"$ROOT/tools/generate-aurora-media.sh" "$OUT"
+bash "$ROOT/tools/generate-aurora-media.sh" "$OUT"
 
 cat > "$OUT/progress/stages.json" <<'EOF'
 {"schema":"CHIMERA-AURORA-PROGRESS-2","visual_contract":"aurora-progress-v2","stages":[
