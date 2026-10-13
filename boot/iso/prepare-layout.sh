@@ -55,6 +55,13 @@ if [[ -d "$BOOT_ART/grub" ]]; then cp -a "$BOOT_ART/grub/." "$DIST/boot/chimera/
 if [[ -d "$BOOT_ART/manifests" ]]; then cp -a "$BOOT_ART/manifests/." "$DIST/boot/chimera/manifests/"; fi
 mkdir -p "$DIST/chimera/manifests" "$DIST/chimera/docs" "$DIST/src" "$DIST/usr/share/chimera/aurora" "$DIST/install" "$DIST/checksums"
 
+# Stage the DOS compatibility bridge and license-aware payload inventory in the ISO.
+DOS_RUNTIME="$DIST/usr/share/chimera/commands"
+mkdir -p "$DOS_RUNTIME"
+install -m 0755 "$ROOT/tools/commands/chimera-dos-adapter.py" "$DOS_RUNTIME/chimera-dos-adapter.py"
+install -m 0644 "$ROOT/tools/commands/dos-legacy-payload-manifest.json" "$DOS_RUNTIME/dos-legacy-payload-manifest.json"
+install -m 0644 "$ROOT/tools/commands/DOS-COMPATIBILITY.md" "$DOS_RUNTIME/DOS-COMPATIBILITY.md"
+
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
 # the same offline assets without depending on network access or a desktop session.
 mkdir -p "$DIST/boot/visual" "$DIST/usr/share/chimera/aurora/assets" "$DIST/desktop/aurora"
