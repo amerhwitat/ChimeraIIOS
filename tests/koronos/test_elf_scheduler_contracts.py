@@ -35,6 +35,13 @@ class Mode(ctypes.Structure):
                 ("flags", ctypes.c_uint32)]
 
 class KernelContracts(unittest.TestCase):
+    def test_x86_user_mode_fails_closed_without_nx(self):
+        # NX is a security prerequisite, not an optional optimization: without
+        # EFER.NXE, data and stack pages could remain executable.
+        source = (ROOT / "kernel/core/user_mode.cpp").read_text()
+        self.assertIn("if(!nx_available) return -3;", source)
+        self.assertIn("if(nx_available&&!(permissions&CHIMERA_ELF_EXEC)) flags|=NX;", source)
+
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
