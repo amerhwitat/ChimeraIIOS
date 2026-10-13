@@ -35,6 +35,23 @@ class RuntimeRegistryTests(unittest.TestCase):
             p = subprocess.run([sys.executable, str(RUNNER), "--mode", "native", f.name], text=True, capture_output=True)
             self.assertEqual(p.returncode, 126)
             self.assertIn("not native", p.stderr)
+    def test_dos_mz_binary_runs_through_emulator_without_host_exec_bit(self):
+        import json, os, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            capture = Path(td) / "args.json"
+            emulator = Path(td) / "dosbox-x"
+            emulator.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            emulator.chmod(0o755)
+            program = Path(td) / "GAME.EXE"
+            program.write_bytes(b"MZ" + b"\\0" * 126)
+            program.chmod(0o644)
+            env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""), CAPTURE_ARGS=str(capture))
+            p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", str(program), "level 2"], env=env, text=True, capture_output=True)
+            self.assertEqual(p.returncode, 0, p.stderr)
+            args = json.loads(capture.read_text(encoding="utf-8"))
+            self.assertEqual(args[0], str(program))
+            self.assertEqual(args[1], "level 2")
+
     def test_powershell_command_uses_literal_arguments(self):
         import os, tempfile
         with tempfile.TemporaryDirectory() as td:
