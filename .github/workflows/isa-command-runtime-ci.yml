@@ -120,6 +120,8 @@ jobs:
           python3 -m py_compile tools/commands/chimera-cpu-mode.py tools/commands/test-chimera-cpu-mode.py
           python3 tools/commands/test-cross-os-runtime.py -v
           python3 tools/commands/test-chimera-cpu-mode.py -v
+          cmp -s tools/commands/chimera-cpu-mode.py rootfs/usr/share/chimera/commands/chimera-cpu-mode.py
+          bash -n rootfs/usr/sbin/chimera-cpu-mode
       - name: Validate generated command capability manifest
         run: |
           python3 tools/commands/generate_runtime_manifest.py
