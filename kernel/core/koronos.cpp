@@ -312,11 +312,13 @@ static void task_recovery(void *) {
     static bool reported = false;
     if (!reported) {
         reported = true;
-        if (image && manifest) {
+        if (!image && !manifest) {
+            console_write("[RECV] Recovery target not selected");
+        } else if (image && manifest) {
             console_write("[RECV] Recovery initramfs and manifest accepted");
             console_write("[RECV] Recovery userspace NOT READY: no verified init ELF execution/context-switch handoff");
         } else {
-            console_write("[RECV] Recovery target not selected or recovery payload incomplete");
+            console_write("[RECV] Recovery payload incomplete: initramfs or manifest missing");
         }
     }
     chimera_sched_block();
