@@ -189,6 +189,17 @@ def main(argv):
         mode, argv = argv[1], argv[2:]
     if mode not in ("auto", "native", "compat"):
         print("chimera-run: mode must be auto, native, or compat", file=sys.stderr); return 2
+    os_target = None
+    if len(argv) >= 2 and argv[0] == "--os":
+        os_target, argv = argv[1], argv[2:]
+    if os_target not in (None, "dos"):
+        print("chimera-run: --os currently supports only the explicit target 'dos'", file=sys.stderr); return 2
+    if os_target == "dos":
+        if mode == "native":
+            print("chimera-run: --os dos requires --mode compat or auto", file=sys.stderr); return 2
+        if not argv:
+            print("usage: chimera-run --mode compat --os dos PROGRAM [ARG...]", file=sys.stderr); return 2
+        return dispatch_dos_compat(argv[0], argv[1:])
     manifest = load_manifest()
     if argv == ["--list"]:
         list_commands(manifest); return 0
