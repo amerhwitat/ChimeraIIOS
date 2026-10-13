@@ -42,3 +42,6 @@ def test_aurora_splash_tracks_graphical_target_readiness():
     assert "percent=90" in startup and "percent=100" in startup
     assert 'CHIMERA_PROGRESS_FILE="$PROGRESS_FILE"' in startup
     assert 'message=Graphical target ready' in startup
+    staging = (ROOT / "tools/stage-chimera-runtime.sh").read_text(encoding="utf-8")
+    assert "aurora-init-splash.sh" in staging
+    assert "CHIMERA_SPLASH_MAX_SECONDS:-120" in splash
