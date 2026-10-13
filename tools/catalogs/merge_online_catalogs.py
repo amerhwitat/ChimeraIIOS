@@ -33,40 +33,109 @@ def slug(value):
     return re.sub(r"[^a-z0-9]+", "-", value.casefold()).strip("-") or "unknown"
 
 def merge_isa():
+    """Validate the source-discovery index without promoting candidates to ISA forms."""
     db = load(ISA_DB, None)
     if not isinstance(db, dict) or not isinstance(db.get("architectures"), list) or not isinstance(db.get("instructions"), list):
         raise SystemExit(f"Invalid canonical ISA database: {ISA_DB}")
-    idx = load(ISA_INDEX, {})
+    idx = load(ISA_INDEX, None)
+    if idx is None:
+        print(f"[ISA] source-discovery index missing; canonical ISA database left unchanged: {ISA_INDEX}")
+        return
+    if not isinstance(idx, dict) or not isinstance(idx.get("sources", []), list):
+        raise SystemExit(f"Invalid online ISA discovery index: {ISA_INDEX}")
     sources = idx.get("sources", [])
+    successful = sum(1 for row in sources if isinstance(row, dict) and row.get("status") == "ok")
+    candidates = sum(
+        len(row.get("definition_identifiers", []))
+        for row in sources if isinstance(row, dict) and isinstance(row.get("definition_identifiers", []), list)
+    )
+    # Keep discovery metadata in its own index. Candidate identifiers are not
+    # architecture instruction forms and must not be inserted into the verified
+    # encoder/decoder database without per-form validation.
+    print(f"[ISA] source discovery: {successful}/{len(sources)} sources available; {candidates} candidate identifiers; canonical forms unchanged")
+
+
+def merge_commands():
+    """Merge discovered command names and source URLs without claiming executability."""
+    idx = load(COMMAND_INDEX, None)
+    if idx is None:
+        print(f"[COMMANDS] source index missing; existing command catalog preserved: {COMMAND_INDEX}")
+        return
+    if not isinstance(idx, dict):
+        raise SystemExit(f"Invalid online command index: {COMMAND_INDEX}")
+    source_rows = idx.get("sources", [])
+    command_rows = idx.get("commands", [])
+    if not isinstance(source_rows, list) or not isinstance(command_rows, list):
+        raise SystemExit(f"Invalid online command index schema: {COMMAND_INDEX}")
+
+    db = load(COMMAND_DB, {"schema_version": "1.0", "platforms": {}})
+    if not isinstance(db, dict):
+        raise SystemExit(f"Invalid command catalog: {COMMAND_DB}")
     platforms = db.setdefault("platforms", {})
-    added = 0
-    for source_row in sources:
-        platform = str(source_row.get("platform", "online-reference")).strip() or "online-reference"
-        key = re.sub(r"[^a-z0-9_+-]+", "_", platform.casefold()).strip("_") or "online_reference"
-        bucket = platforms.setdefault(key, {"index": source_row.get("url", ""), "commands": []})
-        existing = {(str(x.get("name", "")).casefold(), str(x.get("source", ""))) for x in bucket.get("commands", [])}
-        for item in source_row.get("commands", []):
-            name = str(item.get("name", "")).strip()
-            if not name:
-                continue
-            url = str(item.get("url", source_row.get("url", "")) or "")
+    if not isinstance(platforms, dict):
+        raise SystemExit(f"Invalid platforms map in command catalog: {COMMAND_DB}")
+
+    additions = 0
+    def append_reference(platform_name, item, fallback_url=""):
+        nonlocal additions
+        name = str(item.get("name", item.get("command", ""))).strip()
+        if not name:
+            return
+        platform = str(item.get("platform", platform_name or "unknown")).strip() or "unknown"
+        key = re.sub(r"[^a-z0-9_+-]+", "_", platform.casefold()).strip("_") or "unknown"
+        bucket = platforms.setdefault(key, {"platform": platform, "commands": []})
+        if not isinstance(bucket, dict):
+            raise SystemExit(f"Invalid platform catalog '{key}' in {COMMAND_DB}")
+        commands = bucket.setdefault("commands", [])
+        if not isinstance(commands, list):
+            raise SystemExit(f"Invalid command list for platform '{key}' in {COMMAND_DB}")
+        urls = item.get("source_urls")
+        if not isinstance(urls, list):
+            urls = [item.get("url", item.get("source", fallback_url))]
+        urls = [str(url).strip() for url in urls if str(url or "").strip()]
+        if not urls:
+            urls = [""]
+        existing = {
+            (str(row.get("name", "")).casefold(), str(row.get("source", "")))
+            for row in commands if isinstance(row, dict)
+        }
+        for url in urls:
             pair = (name.casefold(), url)
             if pair in existing:
                 continue
-            bucket.setdefault("commands", []).append({
-                "name": name, "platform": key, "source": url,
+            commands.append({
+                "name": name,
+                "platform": key,
+                "source": url,
                 "source_kind": "online-reference-discovery",
-                "arabic_alias": None,
-                "translation_status": "untranslated",
+                "arabic_alias": item.get("arabic_alias"),
+                "translation_status": str(item.get("translation_status", "untranslated")),
                 "provider_status": "unverified"
             })
-            existing.add(pair); added += 1
-        bucket["commands"].sort(key=lambda x: (str(x.get("name", "")).casefold(), str(x.get("source", ""))))
-        bucket["command_count"] = len(bucket["commands"])
+            existing.add(pair)
+            additions += 1
+        commands.sort(key=lambda row: (str(row.get("name", "")).casefold(), str(row.get("source", ""))))
+        bucket["command_count"] = len(commands)
+
+    for source in source_rows:
+        if not isinstance(source, dict):
+            continue
+        platform = str(source.get("platform", source.get("id", "unknown")))
+        fallback_url = str(source.get("url", ""))
+        source_commands = source.get("commands", [])
+        if not isinstance(source_commands, list):
+            continue
+        for item in source_commands:
+            if isinstance(item, dict):
+                append_reference(platform, item, fallback_url)
+    for item in command_rows:
+        if isinstance(item, dict):
+            append_reference(str(item.get("platform", "unknown")), item)
+
     db["generated_at_utc"] = STAMP
-    db["online_source_count"] = len(sources)
+    db["online_source_count"] = len(source_rows)
     write(COMMAND_DB, db)
-    print(f"[COMMANDS] appended {added} source-backed command references across {len(platforms)} platform catalogs")
+    print(f"[COMMANDS] appended {additions} source-backed command references across {len(platforms)} platform catalogs")
 
 def main():
     merge_isa()

@@ -32,6 +32,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Test online catalog merge regression cases
+        run: python3 -m unittest discover -s tools/catalogs -p 'test_merge_online_catalogs.py' -v
+      - name: Test ISO builder catalog refresh aliases
+        run: python3 tests/test_build_cli_options.py
       - name: Validate web assets
         run: python3 -m unittest tests/web/test_web_assets.py
       - name: Generate ISA bitfield registry
