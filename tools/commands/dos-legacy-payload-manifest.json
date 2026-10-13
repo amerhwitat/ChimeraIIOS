@@ -80,5 +80,78 @@
       ],
       "status": "planned"
     }
-  ]
+  ],
+  "cataloged_titles": [
+    {
+      "id": "blockdrop",
+      "name": "BlockDrop",
+      "genre": "puzzle",
+      "reported_license": "BSD 3-Clause License",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "Confirm the exact package version, license file, and redistribution terms before staging."
+    },
+    {
+      "id": "bolitaire",
+      "name": "Bolitaire",
+      "genre": "card",
+      "reported_license": "GNU General Public License, Version 2",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "Confirm source offer and package checksum for the selected release."
+    },
+    {
+      "id": "boom",
+      "name": "Boom",
+      "genre": "action",
+      "reported_license": "GNU General Public License, Version 2",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "FreeDOS-listed GPL Doom source port; engine and game data are separate payloads. Do not include proprietary IWAD data."
+    },
+    {
+      "id": "dos-defender",
+      "name": "DOS Defender",
+      "genre": "arcade",
+      "reported_license": "The Unlicense (Public Domain)",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "Verify package metadata and payload hash before ISO staging."
+    },
+    {
+      "id": "dungeons-of-noudar-3d",
+      "name": "Dungeons of Noudar 3D",
+      "genre": "dungeon crawler",
+      "reported_license": "Modified BSD 2-Clause License",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "Verify license notices and package architecture before ISO staging."
+    },
+    {
+      "id": "eliza",
+      "name": "Eliza",
+      "genre": "chatbot",
+      "reported_license": "Public Domain",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "Confirm the exact package's source and license metadata."
+    },
+    {
+      "id": "emeritus-pong",
+      "name": "Emeritus Pong",
+      "genre": "arcade",
+      "reported_license": "GNU General Public License, Version 3",
+      "source_url": "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/games/",
+      "status": "cataloged",
+      "binary_included": false,
+      "notes": "Verify source, license notices, package checksum, and runtime compatibility before staging."
+    }
+  ],
+  "notes": "Cataloged titles are discovery leads only. No game binary is bundled until its exact upstream package is license-reviewed, downloaded through a pinned build step, SHA-256 verified, staged, and smoke-tested."
 }
