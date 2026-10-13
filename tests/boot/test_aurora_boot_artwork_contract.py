@@ -34,3 +34,11 @@ def test_ring3_probe_is_not_attached_to_normal_boot_entries():
     probe_start = grub.index(probe)
     probe_end = grub.index("\n}", probe_start)
     assert "module2 /boot/koronos/chimera-user-init.elf chimera-user-init-elf" in grub[probe_start:probe_end]
+
+def test_aurora_splash_tracks_graphical_target_readiness():
+    splash = (ROOT / "desktop/aurora/aurora-init-splash.sh").read_text(encoding="utf-8")
+    startup = (ROOT / "desktop/aurora/aurora-desktop-init.sh").read_text(encoding="utf-8")
+    assert 'value=$2' in splash and 'value ~ /^[0-9]+$/' in splash
+    assert "percent=90" in startup and "percent=100" in startup
+    assert 'CHIMERA_PROGRESS_FILE="$PROGRESS_FILE"' in startup
+    assert 'message=Graphical target ready' in startup
