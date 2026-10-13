@@ -56,7 +56,7 @@ def classify(path):
     if head.startswith(b"MZ"):
         if len(head) >= 64:
             pe_offset = struct.unpack("<I", head[60:64])[0]
-            if pe_offset + 4 <= len(head) and head[pe_offset:pe_offset + 4] == b"PE\\0\\0":
+            if pe_offset + 4 <= len(head) and head[pe_offset:pe_offset + 4] == b"PE\0\0":
                 return "pe-coff"
         return "dos-mz"
     if head[:4] == b"\x7fELF":
@@ -110,7 +110,7 @@ def dispatch_named_compat(name, args, manifest):
             return 126
         # cmd.exe expands metacharacters even in some quoted contexts. Refuse
         # risky arguments instead of converting user input into command syntax.
-        unsafe = set('&|<>^()%!"\\r\\n')
+        unsafe = set('&|<>^()%!"\r\n')
         if any(any(ch in unsafe or ord(ch) < 32 for ch in arg) for arg in args):
             print("chimera-run: refusing Windows CMD argument containing shell metacharacters", file=sys.stderr)
             return 2
