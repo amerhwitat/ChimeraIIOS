@@ -17,10 +17,24 @@ def list_commands(manifest):
 
 def resolve_program(name):
     candidate = Path(name)
+    skip = os.environ.get("CHIMERA_SHIM_BINARY")
+    skip_path = Path(skip).resolve() if skip else None
     if candidate.parent != Path(".") or candidate.is_absolute():
-        return candidate.resolve() if candidate.exists() else None
-    found = shutil.which(name)
-    return Path(found).resolve() if found else None
+        resolved = candidate.resolve() if candidate.exists() else None
+        return None if resolved is not None and resolved == skip_path else resolved
+    for entry in os.environ.get("PATH", os.defpath).split(os.pathsep):
+        entry = entry or "."
+        path = Path(entry) / name
+        try:
+            if not path.is_file() or not os.access(path, os.X_OK):
+                continue
+            resolved = path.resolve()
+            if skip_path is not None and resolved == skip_path:
+                continue
+            return resolved
+        except OSError:
+            continue
+    return None
 
 def classify(path):
     try:
