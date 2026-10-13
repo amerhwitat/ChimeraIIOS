@@ -136,6 +136,10 @@ jobs:
           python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
+      - name: Run fail-closed userspace handoff verifier tests
+        run: |
+          python3 -m pip install --user pytest
+          python3 -m pytest -q tests/boot/test_userspace_handoff_verifier.py
       - name: Run Chimera N-bit virtual machine tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp -o /tmp/koronos-nbit-vm-test
