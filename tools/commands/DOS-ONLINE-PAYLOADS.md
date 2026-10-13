@@ -4,7 +4,16 @@ The build can refresh a metadata-only catalog from the official FreeDOS games
 index and can stage reviewed packages through the same DOSBox/DOSBox-X adapter
 used by command shells and Aurora.
 
-## Discover online titles
+## Discover online titles during a build
+
+```sh
+./build-chimera-iso.sh --refresh-online-catalogs
+```
+
+This refreshes the existing online indexes and saves the DOS discovery metadata
+to `build/dos-online-discovery.json`; the ISO layout copies it to
+`/usr/share/chimera/commands/ONLINE-DISCOVERY.json`. For a metadata-only refresh
+without the rest of the build:
 
 ```sh
 python3 tools/commands/dos-payload-builder.py discover --output build/dos-online-discovery.json
@@ -19,7 +28,7 @@ The ISO layout step always stages any already-cached payloads whose manifest
 entries pass every gate. To permit downloads for such entries during a build:
 
 ```sh
-CHIMERA_DOS_FETCH_ON_BUILD=1 ./build-chimera-iso.sh
+./build-chimera-iso.sh --sync-dos-payloads
 ```
 
 A package is eligible only when its manifest entry has all of:
