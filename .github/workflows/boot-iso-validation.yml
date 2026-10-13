@@ -178,6 +178,38 @@ jobs:
               exit 1
             fi
           done
+          # Exercise the three primary GRUB handoffs by remastering the staged tree with each default.
+          original_cfg="$smoke/staged-grub.cfg"
+          for target in live install recovery; do
+            case "$target" in
+              live) index=0 ;;
+              install) index=2 ;;
+              recovery) index=5 ;;
+            esac
+            sed -E "s/^set default=.*/set default=$index/" "$original_cfg" > ./boot/iso/dist/iso/boot/grub/grub.cfg
+            grub-mkrescue -o "$smoke/target-$target.iso" ./boot/iso/dist/iso
+            set +e
+            timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -vga std -cdrom "$smoke/target-$target.iso" -boot d -display none -serial "file:$smoke/target-$target-serial.log" -monitor none -no-reboot -no-shutdown -debugcon "file:$smoke/target-$target-debugcon.log" -global isa-debugcon.iobase=0xe9
+            target_status=$?
+            set -e
+            trace="$smoke/target-$target-debugcon.log"
+            grep -Fq '[KRN ] KORONOS READY' "$trace" || { echo "::error::$target menu did not reach Koronos (QEMU exit $target_status)"; tail -100 "$smoke/target-$target-serial.log" || true; exit 1; }
+            case "$target" in
+              live)
+                grep -Fq '[LIVE] Live initramfs module accepted' "$trace" || { echo "::error::Live menu loaded the wrong target payload"; exit 1; }
+                grep -Fq 'USERSPACE NOT READY' "$trace" || { echo "::error::Live target must report the real userspace readiness boundary"; exit 1; }
+                ;;
+              install)
+                grep -Fq '[INST] Installer target detected' "$trace" || { echo "::error::Installer menu did not hand off installer modules"; exit 1; }
+                grep -Fq 'installer userspace NOT READY' "$trace" || { echo "::error::Installer readiness was falsely reported"; exit 1; }
+                ;;
+              recovery)
+                grep -Fq '[RECV] Recovery initramfs and manifest accepted' "$trace" || { echo "::error::Recovery menu did not hand off recovery modules"; exit 1; }
+                grep -Fq 'Recovery userspace NOT READY' "$trace" || { echo "::error::Recovery readiness was falsely reported"; exit 1; }
+                ;;
+            esac
+          done
+          cp "$original_cfg" ./boot/iso/dist/iso/boot/grub/grub.cfg
       - name: Upload full ISO boot traces
         if: always()
         uses: actions/upload-artifact@v4
