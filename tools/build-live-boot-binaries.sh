@@ -137,11 +137,27 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
-mkdir -p /mnt/chimera-root /var/log/mesgs/archive /var/lib/chimera/drivers
+mkdir -p /mnt/chimera-root /var/log/mesgs/archive /var/lib/chimera/drivers /run/chimera
 ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
-printf '%s\\n' '[RECOVERY] Jasper/Koronos recovery initramfs started' >> /var/log/mesgs
+recovery_progress() {
+  pct="$1"; phase="$2"; message="$3"; width=24; filled=$((pct * width / 100)); bar=""; n=0
+  while [ "$n" -lt "$width" ]; do
+    if [ "$n" -lt "$filled" ]; then bar="${bar}#"; else bar="${bar}-"; fi
+    n=$((n + 1))
+  done
+  line="[RECOVERY] [${bar}] ${pct}% ${phase}: ${message}"
+  printf '%s\\n' "$line" >> /var/log/mesgs
+  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
+}
+recovery_progress 0 "Initramfs" "Starting Jasper recovery userspace"
+recovery_progress 20 "Proc/sysfs/devices" "early filesystem mount attempts complete"
+recovery_progress 40 "Runtime" "recovery directories and logs ready"
 export CHIMERA_RECOVERY_INITRAMFS=1
-if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
+if [ -x /bin/chimera-driver-manager.sh ]; then
+  /bin/chimera-driver-manager.sh inventory || recovery_progress 50 "Drivers" "inventory returned an error; repair shell remains available"
+fi
+recovery_progress 100 "Recovery shell" "repair console is ready; individual repair actions report their own status"
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
