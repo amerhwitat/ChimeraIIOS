@@ -203,8 +203,12 @@ insmod gfxterm
 insmod png
 insmod search
 if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/background.png; fi
-menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/koronos/koronos.elf
-  module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest }
+menuentry "Jasper Recovery — Koronos Rescue" {
+  multiboot2 /boot/koronos/koronos.elf chm.log=verbose chm.progress=events
+  module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
+  module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
+  boot
+}
 menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/koronos/koronos.elf }
 menuentry "Jasper Recovery — GRUB Command Line" { commandline }
 menuentry "Jasper Recovery — Reboot" { reboot }
