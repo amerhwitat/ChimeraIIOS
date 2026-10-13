@@ -134,8 +134,8 @@ jobs:
           python3 tools/isa/chimera_isa_convert.py inventory >/tmp/chimera-isa-inventory.json
       - name: Run ELF admission and scheduler regressions
         run: python3 tests/koronos/test_elf_scheduler_contracts.py
-      - name: Run fail-closed userspace handoff verifier tests
-        run: python3 -m pytest -q tests/boot/test_userspace_handoff_verifier.py
+      - name: Run boot artwork continuity and fail-closed handoff tests
+        run: python3 -m pytest -q tests/boot/test_aurora_boot_artwork_contract.py tests/boot/test_userspace_handoff_verifier.py
       - name: Run Chimera N-bit virtual machine tests
         run: |
           g++ -std=c++17 -Wall -Wextra -I kernel/include tests/koronos/test_nbit_vm.cpp kernel/core/nbit_vm.cpp kernel/core/nbit_runtime.cpp kernel/core/nbit_cache.cpp -o /tmp/koronos-nbit-vm-test
@@ -212,6 +212,11 @@ jobs:
             exit 1
           fi
           test -s "$log" || { echo "QEMU produced no debugcon output" >&2; exit 1; }
+          if grep -Fq '[HANDOFF] ERROR: user-mode transition returned; ELF load/handoff failed' "$log"; then
+            echo "Kernel reported that the native init ELF handoff failed." >&2
+            cat "$log" >&2
+            exit 1
+          fi
           for marker in \
             '[KRN ] koronos_boot entered' \
             '[KRN ] KORONOS READY' \
