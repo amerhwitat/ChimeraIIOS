@@ -192,9 +192,9 @@ jobs:
           cp ./boot/iso/dist/iso/boot/jasper/install.cfg "$original_jasper_install_cfg"
           for target in live install recovery; do
             case "$target" in
-              live) main_index=0; jasper_index=0; install_index=2 ;;
-              install) main_index=2; jasper_index=1; install_index=0 ;;
-              recovery) main_index=5; jasper_index=2; install_index=1 ;;
+              live) main_index=0; jasper_index=0; install_index=0 ;;
+              install) main_index=2; jasper_index=1; install_index=1 ;;
+              recovery) main_index=5; jasper_index=2; install_index=0 ;;
             esac
             sed -E "s/^set default=.*/set default=$main_index/" "$original_cfg" > "$smoke/target-grub.cfg"
             printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n' >> "$smoke/target-grub.cfg"
