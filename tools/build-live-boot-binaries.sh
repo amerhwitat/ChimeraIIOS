@@ -65,31 +65,54 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
-mkdir -p /mnt/chimera /var/log/mesgs/archive /var/lib/chimera/drivers
+mkdir -p /mnt/chimera /var/log/mesgs/archive /var/lib/chimera/drivers /run/chimera
 ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
-printf "[LIVE] Initramfs started\\n" >> /var/log/mesgs
-if [ -x /bin/chimera-driver-manager.sh ]; then /bin/chimera-driver-manager.sh inventory || true; fi
+
+# Event-driven progress and verbose console log. Percentages advance only after
+# the corresponding initramfs operation/attempt completes; 100% means the Live
+# recovery shell is ready, not that a desktop session has been proven.
+progress() {
+  pct="$1"; phase="$2"; message="$3"
+  width=24; filled=$((pct * width / 100)); bar=""; n=0
+  while [ "$n" -lt "$width" ]; do
+    if [ "$n" -lt "$filled" ]; then bar="${bar}#"; else bar="${bar}-"; fi
+    n=$((n + 1))
+  done
+  line="[LIVE] [${bar}] ${pct}% ${phase}: ${message}"
+  printf '%s\\n' "$line" >> /var/log/mesgs
+  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
+}
+progress 0 "Initramfs" "Starting early userspace"
+progress 10 "Proc" "proc filesystem mount attempt complete"
+progress 20 "Sysfs" "sysfs filesystem mount attempt complete"
+progress 30 "Devices" "devtmpfs mount attempt complete"
+progress 35 "Runtime" "temporary runtime filesystem mount attempt complete"
+if [ -x /bin/chimera-driver-manager.sh ]; then
+  /bin/chimera-driver-manager.sh inventory || progress 45 "Drivers" "inventory command returned an error; continuing in recovery mode"
+fi
+progress 50 "Media discovery" "probing available boot media"
 
 mounted=0
 i=0
 while [ "$i" -lt 30 ]; do
   for dev in /dev/sr0 /dev/cdrom /dev/vda /dev/sda /dev/sdb /dev/mmcblk0; do
     [ -b "$dev" ] || continue
-    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; break 2; fi
-    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; break 2; fi
+    if mount -t iso9660 -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; progress 80 "Media" "mounted $dev read-only"; break 2; fi
+    if mount -o ro "$dev" /mnt/chimera 2>/dev/null; then mounted=1; progress 80 "Media" "mounted $dev read-only"; break 2; fi
   done
   i=$((i + 1)); sleep 1
 done
 
 if [ "$mounted" -eq 1 ] && [ -f /mnt/chimera/boot/live/live-manifest.json ]; then
-  printf "[LIVE] Media mounted\\n" >> /var/log/mesgs
   echo "Chimera II OS Live Media"
   echo "Koronos kernel selected by Jasper/GRUB Multiboot2."
   echo "Koronos kernel: /mnt/chimera/boot/koronos/koronos.elf"
   echo "Live manifest: /mnt/chimera/boot/live/live-manifest.json"
   echo "Live initramfs: /mnt/chimera/boot/live/chimera-live-initramfs.img"
+  progress 100 "Live shell" "initramfs is ready; desktop readiness is reported separately"
 else
-  printf "[LIVE] Media not found after 30 seconds\\n" >> /var/log/mesgs
+  progress 50 "Media discovery" "FAILED: media or live manifest not found; entering diagnostic shell"
   echo "Chimera II OS: live media not found after 30 seconds."
   echo "Available block devices:"
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
