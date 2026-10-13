@@ -329,6 +329,7 @@ static void task_monitor(void *) {
         console_u32_raw((uint32_t)info[i].runs);
         console_endline();
     }
+    console_write("[MON ] Snapshot is taken during monitor dispatch; its own runs=0 is expected");
 }
 
 static void task_kore(void *) {
