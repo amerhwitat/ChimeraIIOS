@@ -10,7 +10,8 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
-  --refresh-online-catalogs  Refresh ISA and OS command source indexes from the internet before the build.
+  --refresh-online-catalogs  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
+  --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
@@ -195,10 +196,12 @@ stop_watchdog(){
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
+DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
@@ -1317,7 +1320,12 @@ main(){
       return 2
     }
   fi
+  if [[ "$DOS_FETCH_ON_BUILD" == 1 ]]; then
+    export CHIMERA_DOS_FETCH_ON_BUILD=1
+  fi
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
+    log_info "Discovering legacy DOS applications and games from the official FreeDOS catalog"
+    python3 "$SCRIPT_DIR/tools/commands/dos-payload-builder.py" discover --output "$BUILD_DIR/dos-online-discovery.json" || { log_error "DOS online discovery failed"; return 1; }
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
     log_info "Discovering official and machine-readable ISA source entry points"
