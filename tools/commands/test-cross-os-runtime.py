@@ -29,7 +29,7 @@ class RuntimeRegistryTests(unittest.TestCase):
     def test_native_mode_rejects_foreign_executable(self):
         import os, tempfile
         with tempfile.NamedTemporaryFile() as f:
-            f.write(b"MZ" + b"\\0" * 126)
+            f.write(b"MZ" + b"\0" * 126)
             f.flush()
             os.chmod(f.name, 0o755)
             p = subprocess.run([sys.executable, str(RUNNER), "--mode", "native", f.name], text=True, capture_output=True)
@@ -40,7 +40,7 @@ class RuntimeRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             capture = Path(td) / "args.json"
             fake = Path(td) / "pwsh"
-            fake.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            fake.write_text("#!/usr/bin/env python3\nimport json,os,sys\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\n", encoding="utf-8")
             fake.chmod(0o755)
             env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""), CAPTURE_ARGS=str(capture))
             p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "Get-ChildItem", "hello world", "a'b"], env=env, text=True, capture_output=True)
@@ -54,7 +54,7 @@ class RuntimeRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             capture = Path(td) / "args.json"
             fake = Path(td) / "wine"
-            fake.write_text("#!/usr/bin/env python3\\nimport json,os,sys\\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\\n", encoding="utf-8")
+            fake.write_text("#!/usr/bin/env python3\nimport json,os,sys\nopen(os.environ['CAPTURE_ARGS'],'w').write(json.dumps(sys.argv[1:]))\n", encoding="utf-8")
             fake.chmod(0o755)
             env = dict(os.environ, PATH=td + os.pathsep + os.environ.get("PATH", ""), CAPTURE_ARGS=str(capture))
             p = subprocess.run([sys.executable, str(RUNNER), "--mode", "compat", "ipconfig", "/all&whoami"], env=env, text=True, capture_output=True)
