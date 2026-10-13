@@ -222,7 +222,8 @@ jobs:
           }
           EOF
             else
-              { printf 'set timeout=0\nset default=%s\n' "$install_index"; cat "$original_jasper_install_cfg"; printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n'; } > "$smoke/target-jasper-install.cfg"
+              sed -E "s/^set timeout=.*/set timeout=0/; s/^set default=.*/set default=$install_index/" "$original_jasper_install_cfg" > "$smoke/target-jasper-install.cfg"
+              printf '\ninsmod serial\nserial --unit=0 --speed=115200\nterminal_output --append serial\n' >> "$smoke/target-jasper-install.cfg"
             fi
             cp "$smoke/target-jasper-install.cfg" ./boot/iso/dist/iso/boot/jasper/install.cfg
             grub-mkrescue -o "$smoke/target-$target.iso" ./boot/iso/dist/iso
