@@ -481,6 +481,12 @@ int main(int argc, char **argv)
             fprintf(stderr, "chimera-cmd: out of memory while dispatching '%s'\\n", cmd);
             return 1;
         }
+        char self_path[PATH_MAX];
+        ssize_t self_len = readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);
+        if (self_len > 0 && (size_t)self_len < sizeof(self_path)) {
+            self_path[self_len] = '\\0';
+            (void)setenv("CHIMERA_SHIM_BINARY", self_path, 1);
+        }
         run_argv[0] = (char *)"chimera-run";
         run_argv[1] = (char *)"--mode";
         run_argv[2] = (char *)mode;
