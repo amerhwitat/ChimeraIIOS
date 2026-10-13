@@ -118,9 +118,70 @@ def dispatch_named_compat(name, args, manifest):
         command_line = name + ((" " + " ".join(quoted)) if quoted else "")
         os.execv(runtime, [runtime, "cmd", "/c", command_line])
     if group == "dos-retro":
-        print(f"chimera-run: DOS command {name!r} is cataloged; DOSBox command adapter is not implemented yet", file=sys.stderr)
-        return 126
+        return dispatch_dos_compat(name, args)
     return None
+
+
+DOS_BUILTINS = {
+    "append", "assign", "call", "cd", "chcp", "chdir", "choice", "cls",
+    "copy", "date", "del", "dir", "echo", "erase", "exit", "for", "goto",
+    "if", "md", "mkdir", "path", "pause", "prompt", "rd", "rem", "ren",
+    "rename", "rmdir", "set", "shift", "time", "tree", "type", "ver", "vol",
+}
+DOS_SAFE = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 _.,:/\\+-")
+
+def dispatch_dos_compat(name, args):
+    """Run a DOS command inside a caller-provided, explicitly mounted DOSBox root."""
+    runtime = shutil.which("dosbox-x") or shutil.which("dosbox") or shutil.which("dosemu")
+    if not runtime:
+        print("chimera-run: DOS compatibility requires dosbox-x, dosbox, or dosemu", file=sys.stderr)
+        return 126
+    root_value = os.environ.get("CHIMERA_DOS_ROOT")
+    if not root_value:
+        print("chimera-run: set CHIMERA_DOS_ROOT to a prepared DOS filesystem directory", file=sys.stderr)
+        return 126
+    root = Path(root_value).expanduser().resolve()
+    if not root.is_dir():
+        print(f"chimera-run: CHIMERA_DOS_ROOT is not a directory: {root}", file=sys.stderr)
+        return 126
+    # DOSBox -c consumes command text. Reject command separators, redirects,
+    # quotes, control characters, and other syntax instead of interpolating them.
+    def safe(value):
+        return bool(value) and all(ch in DOS_SAFE for ch in value)
+    if not safe(name) or any(not safe(arg) for arg in args):
+        print("chimera-run: refusing DOS command/arguments containing unsupported shell syntax", file=sys.stderr)
+        return 2
+    command = name
+    if name.casefold() not in DOS_BUILTINS:
+        candidate = (root / name).resolve()
+        if not candidate.exists():
+            for suffix in (".com", ".exe", ".bat"):
+                alternative = (root / (name + suffix)).resolve()
+                if alternative.exists():
+                    candidate = alternative
+                    break
+        try:
+            candidate.relative_to(root)
+        except ValueError:
+            print("chimera-run: DOS program path escapes CHIMERA_DOS_ROOT", file=sys.stderr)
+            return 2
+        if not candidate.is_file() or candidate.suffix.lower() not in (".com", ".exe", ".bat"):
+            print(f"chimera-run: DOS program not found in CHIMERA_DOS_ROOT: {name}", file=sys.stderr)
+            return 127
+        command = candidate.name
+    if args:
+        command += " " + " ".join(('"' + a + '"') if any(ch.isspace() for ch in a) else a for a in args)
+    # DOSBox supports -c command batches; DOSEMU has a different CLI, so only
+    # select it when the DOSBox interfaces are unavailable and fail closed.
+    if Path(runtime).name.startswith("dosemu"):
+        print("chimera-run: DOSEMU provider detected but its CLI adapter is not implemented; install DOSBox/DOSBox-X", file=sys.stderr)
+        return 126
+    mount_path = str(root)
+    if not all(ch in DOS_SAFE for ch in mount_path):
+        print("chimera-run: CHIMERA_DOS_ROOT path contains unsupported DOSBox command characters", file=sys.stderr)
+        return 2
+    commands = ["-c", f'mount c "{mount_path}"', "-c", "c:", "-c", command, "-c", "exit"]
+    os.execv(runtime, [runtime, "-noconsole", *commands])
 
 def main(argv):
     mode = "auto"
