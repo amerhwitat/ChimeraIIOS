@@ -4,11 +4,20 @@ from __future__ import annotations
 import json, os, platform, shutil, struct, sys
 from pathlib import Path
 
-MANIFEST = Path(__file__).resolve().with_name("os-command-runtime.json")
-
 def load_manifest():
-    with MANIFEST.open(encoding="utf-8") as f:
-        return json.load(f)
+    candidates = []
+    override = os.environ.get("CHIMERA_COMMAND_MANIFEST")
+    if override:
+        candidates.append(Path(override))
+    candidates.append(Path(__file__).resolve().with_name("os-command-runtime.json"))
+    candidates.append(Path("/usr/share/chimera/commands/os-command-runtime.json"))
+    for candidate in candidates:
+        try:
+            with candidate.open(encoding="utf-8") as f:
+                return json.load(f)
+        except OSError:
+            continue
+    raise FileNotFoundError("os-command-runtime.json not found beside chimera-run or under /usr/share/chimera/commands")
 
 def list_commands(manifest):
     for group, info in manifest["providers"].items():
