@@ -152,7 +152,7 @@ def main(argv):
             return result
         print(f"chimera-run: command not found: {argv[0]}", file=sys.stderr); return 127
     kind = classify(program)
-    if not os.access(program, os.X_OK):
+    if not os.access(program, os.X_OK) and kind in ("script", "elf-native"):
         print(f"chimera-run: not executable: {program}", file=sys.stderr); return 126
     if kind in ("script", "elf-native"):
         os.execvpe(str(program), [str(program), *argv[1:]], os.environ)
