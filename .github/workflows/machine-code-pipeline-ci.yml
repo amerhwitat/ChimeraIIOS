@@ -6,6 +6,8 @@ on:
     paths:
       - 'tools/isa/architecture-backends.json'
       - 'tools/isa/chimera-machine-code.py'
+      - 'tools/isa/instruction-semantics.schema.json'
+      - 'tools/isa/MACHINE-CODE-TOOLCHAIN.md'
       - 'tools/isa/test_machine_code_pipeline.py'
       - '.github/workflows/machine-code-pipeline-ci.yml'
   pull_request:
@@ -31,6 +33,7 @@ jobs:
       - name: Validate backend registry
         run: |
           python -m json.tool tools/isa/architecture-backends.json >/dev/null
+          python -m json.tool tools/isa/instruction-semantics.schema.json >/dev/null
           python - <<'PY'
           import json
           p=json.load(open("tools/isa/architecture-backends.json"))
