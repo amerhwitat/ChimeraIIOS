@@ -81,6 +81,7 @@ permissions:
 jobs:
   iso:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Install ISO, EFI and visual-runtime tools
@@ -158,8 +159,8 @@ jobs:
           python3 -m json.tool boot/visual/boot-visual-manifest.json >/dev/null
           python3 -m py_compile tools/boot/prepare-visual-assets.py
           bash -n tools/boot/chimera-boot-visual.sh
-      - name: Build Aurora GUI container
-        run: docker build -t chimeraiios:ci .
+      # Container-image construction is covered by Desktop Compatibility CI.
+      # Keep this gate focused on native boot artifacts and the ISO/QEMU path.
       - name: Run boot and ISO tests
         run: python3 -m pytest -q tests/boot tests/iso
       - name: Validate Spit Fire MBR sector
