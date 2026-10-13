@@ -247,9 +247,9 @@ jobs:
                 ;;
             esac
           done
-          cp "$original_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/grub/grub.cfg
-          cp "$original_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/jasper/grub.cfg
-          cp "$original_jasper_cfg" ./boot/iso/dist/iso/boot/iso/dist/iso/boot/jasper/jasper.cfg
+          cp "$original_cfg" ./boot/iso/dist/iso/boot/grub/grub.cfg
+          cp "$original_cfg" ./boot/iso/dist/iso/boot/jasper/grub.cfg
+          cp "$original_jasper_cfg" ./boot/iso/dist/iso/boot/jasper/jasper.cfg
           cp "$original_install_cfg" ./boot/iso/dist/iso/boot/installation/menu.cfg
           cp "$original_jasper_install_cfg" ./boot/iso/dist/iso/boot/jasper/install.cfg
       - name: Upload full ISO boot traces
