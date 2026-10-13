@@ -52,16 +52,18 @@ def main(argv: list[str]) -> int:
     bin_dir = Path(os.environ.get("CHIMERA_DOS_BIN", "/usr/share/chimera/dos/bin")).resolve()
     if not bin_dir.is_dir():
         return fail(f"DOS command payload directory is absent: {bin_dir}; install a licensed DOS command payload package")
-    executable = bin_dir / (command + ("" if command.endswith((".com", ".exe", ".bat")) else ".exe"))
-    if not executable.is_file():
+    base = command[:-4] if command.endswith((".com", ".exe", ".bat")) else command
+    executable = next((bin_dir / (base + suffix) for suffix in (".com", ".exe", ".bat") if (bin_dir / (base + suffix)).is_file()), None)
+    if executable is None:
         # DOSBox's internal commands are not host commands. Never claim an
         # external DOS command is available merely because it is in a catalog.
-        return fail(f"DOS command payload not installed: {executable}", 127)
+        return fail(f"DOS command payload not installed: {bin_dir / (base + '.com/.exe/.bat')}", 127)
     dos_args = items[1:]
     if not all(safe_dos_arg(arg) for arg in [str(bin_dir), executable.name, *dos_args]):
         return fail("DOS command contains quotes, control characters, or shell metacharacters; refusing ambiguous DOS command syntax", 2)
     host_dir = str(bin_dir)
-    commands = ["mount c " + '"' + host_dir + '"', "c:", executable.name + ((" " + " ".join(dos_args)) if dos_args else ""), "exit"]
+    rendered_args = [('"'+arg+'"') if any(ch.isspace() for ch in arg) else arg for arg in dos_args]
+    commands = ["mount c " + '"' + host_dir + '"', "c:", executable.name + ((" " + " ".join(rendered_args)) if rendered_args else ""), "exit"]
     try:
         argv = [exe]
         for command_line in commands:
