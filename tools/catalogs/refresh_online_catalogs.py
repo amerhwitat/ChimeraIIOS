@@ -155,20 +155,11 @@ def canonical_url(base: str, href: str) -> str:
         parsed = urlparse(absolute)
         if parsed.scheme.lower() not in ("http", "https") or not parsed.netloc:
             return ""
-        # Keep URL delimiters and already escaped octets, but encode spaces
-        # and Unicode characters forbidden in an HTTP request path.
-        path = quote(parsed.path, safe="/%:@!def canonical_url(base: str, href: str) -> str:
-    from urllib.parse import urljoin, urlparse, urlunparse
-    absolute = urljoin(base, href)
-    parsed = urlparse(absolute)
-    if parsed.scheme not in ("http", "https"):
-        return ""
-    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))'()*+,;=-._~")
+        # Preserve URL delimiters and existing escapes; encode spaces/Unicode.
+        path = quote(parsed.path, safe="/%:@!$&'()*+,;=-._~")
         return urlunparse((parsed.scheme.lower(), parsed.netloc, path, "", "", ""))
     except (TypeError, ValueError):
         return ""
-
-
 def candidate_name(label: str) -> str:
     label = label.strip()
     if len(label) > 80 or not re.search(r"[A-Za-z0-9]", label):
@@ -383,7 +374,7 @@ def self_test() -> int:
     assert canonical_url("https://example.org/a/index.html", "../cmd") == "https://example.org/cmd"
     assert canonical_url("https://example.org/products/", "/products/architectures/ARC RMX-100") == "https://example.org/products/architectures/ARC%20RMX-100"
     assert canonical_url("https://example.org/products/", "/products/architectures/ARC%20RMX-100") == "https://example.org/products/architectures/ARC%20RMX-100"
-    assert canonical_url("https://example.org/", "/bad\\npath") == ""
+    assert canonical_url("https://example.org/", "/bad\npath") == ""
     assert canonical_url("https://example.org/", "javascript:alert(1)") == ""
     assert ARABIC_ALIASES["ls"] == "عرض"
     assert ARABIC_ALIASES["cat"] == "اقرأ"
