@@ -145,6 +145,18 @@ static void console_u32_raw(uint32_t v) {
     console_raw(&s[i]);
 }
 
+static void console_progress(uint32_t percent, const char *label) {
+    if (percent > 100u) percent = 100u;
+    const uint32_t filled = (percent * 20u) / 100u;
+    console_raw("[PROG] [");
+    for (uint32_t i = 0; i < 20u; ++i) console_raw(i < filled ? "#" : "-");
+    console_raw("] ");
+    console_u32_raw(percent);
+    console_raw("% ");
+    console_raw(label ? label : "Boot phase");
+    console_endline();
+}
+
 static void console_u32(uint32_t v) {
     char s[11];
     uint32_t i = 10;
@@ -377,12 +389,15 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     }
 
     console_write("OK");
+    console_progress(5, "Koronos boot context accepted");
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
+    console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
+    console_progress(25, "Architecture and interrupt setup complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
@@ -395,11 +410,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
     chimera_learning_init(f->logical_cpus);
+    console_progress(35, "Scheduler and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
     chimera_register_virtio_drivers();
     chimera_register_display_drivers();
     chimera_register_pci_generic_drivers();
+    console_progress(45, "Display and PCI driver registries populated");
 
     chimera_hardware_profile hw{};
     if (chimera_hardware_probe(&hw) == 0) {
@@ -426,6 +443,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     chimera_device_inventory inv{};
     int devices = chimera_hardware_enumerate_devices(&inv);
     console_write("[PCI ] Enumerated devices: ");
+    console_progress(55, "Hardware inventory enumerated");
     console_u32(devices < 0 ? 0 : (uint32_t)devices);
 
     int bound = chimera_driver_probe_all();
@@ -433,6 +451,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_u32(bound);
     int running = chimera_driver_start_all();
     console_write("[DRV ] Active driver set: ");
+    console_progress(65, "Driver probing and start requests completed");
     console_u32(running);
 
     chimera_platform_init(0);
@@ -444,6 +463,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_elf64_init();
     chimera_process_init();
     console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    console_progress(75, "Process admission and module registries initialized");
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
@@ -451,7 +471,9 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[KRN ] KORONOS READY");
     console_write("[IO  ] Console: VGA text + COM1");
     koronos_submit_bootstrap_tasks();
+    console_progress(90, "Bootstrap services registered");
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
     console_write("[RUN ] Entering Koronos scheduler loop");
+    console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
 }
