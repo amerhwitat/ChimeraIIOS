@@ -118,8 +118,13 @@ def dispatch_named_compat(name, args, manifest):
         command_line = name + ((" " + " ".join(quoted)) if quoted else "")
         os.execv(runtime, [runtime, "cmd", "/c", command_line])
     if group == "dos-retro":
-        print(f"chimera-run: DOS command {name!r} is cataloged; DOSBox command adapter is not implemented yet", file=sys.stderr)
-        return 126
+        adapter = Path(__file__).resolve().with_name("chimera-dos-adapter.py")
+        if not adapter.is_file():
+            adapter = Path("/usr/share/chimera/commands/chimera-dos-adapter.py")
+        if not adapter.is_file():
+            print("chimera-run: DOS adapter is missing; install the DOS compatibility payload", file=sys.stderr)
+            return 126
+        os.execv(sys.executable, [sys.executable, str(adapter), "--command", name, *args])
     return None
 
 def main(argv):
