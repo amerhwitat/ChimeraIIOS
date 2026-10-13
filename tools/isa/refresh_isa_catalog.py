@@ -81,7 +81,7 @@ def main() -> int:
     report = validate_catalog(args.output)
     report_path = ROOT / "isa/generated/isa-refresh-report.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\\n", encoding="utf-8")
+    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"[ISA-REFRESH] records={report['instruction_records']} architectures={report['architecture_count']} "
           f"conformance-tested={report['conformance_tested_records']} not-implemented={report['not_implemented_records']}")
     print(f"[ISA-REFRESH] report={report_path.relative_to(ROOT)}")
