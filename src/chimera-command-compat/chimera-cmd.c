@@ -478,13 +478,13 @@ int main(int argc, char **argv)
 
         char **run_argv = calloc((size_t)argc + 4, sizeof(*run_argv));
         if (run_argv == NULL) {
-            fprintf(stderr, "chimera-cmd: out of memory while dispatching '%s'\\n", cmd);
+            fprintf(stderr, "chimera-cmd: out of memory while dispatching '%s'\n", cmd);
             return 1;
         }
         char self_path[PATH_MAX];
         ssize_t self_len = readlink("/proc/self/exe", self_path, sizeof(self_path) - 1);
         if (self_len > 0 && (size_t)self_len < sizeof(self_path)) {
-            self_path[self_len] = '\\0';
+            self_path[self_len] = '\0';
             (void)setenv("CHIMERA_SHIM_BINARY", self_path, 1);
         }
         run_argv[0] = (char *)"chimera-run";
@@ -506,7 +506,7 @@ int main(int argc, char **argv)
 
     fprintf(
         stderr,
-        "chimera-cmd: native implementation unavailable for '%s'\\n",
+        "chimera-cmd: native implementation unavailable for '%s'\n",
         cmd
     );
     return 127;
