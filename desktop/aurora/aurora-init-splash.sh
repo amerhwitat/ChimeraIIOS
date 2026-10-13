@@ -23,7 +23,7 @@ VIDEO="${CHIMERA_INIT_VIDEO:-$ROOT/assets/Init.mp4}"
 [[ -s "$VIDEO" ]] || VIDEO="$ROOT/assets/init.mp4"
 PROGRESS="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
 PID_FILE="${XDG_RUNTIME_DIR:-/run}/chimera-aurora-splash.pid"
-MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-15}"
+MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-120}"
 
 read_percent(){
   [[ -r "$PROGRESS" ]] || { printf '%s' '-1'; return 0; }
