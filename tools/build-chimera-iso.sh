@@ -89,6 +89,11 @@ if [ "$SKIP_TESTS" != "1" ]; then
   fi
 fi
 say BUILD "Building network, toolchain, drivers, compatibility, mobile, desktop and live artifacts"
+# Ensure the CPU profile command is executable in the rootfs overlay before ISO staging.
+if [[ -f "$ROOT/rootfs/usr/sbin/chimera-cpu-mode" ]]; then
+  chmod +x "$ROOT/rootfs/usr/sbin/chimera-cpu-mode"
+fi
+
 for tool in build-network-toolkit.sh build-toolchain-bundle.sh fetch-driver-payloads.sh build-koronos-targets.sh fetch-foreign-runtimes.sh build-compatibility-binaries.sh build-mobile-edition.sh build-desktop-binaries.sh build-live-boot-binaries.sh; do
   chmod +x "$ROOT/tools/$tool"
 done
