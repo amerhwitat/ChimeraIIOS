@@ -11,6 +11,7 @@ Usage:
 Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
+  --refresh-isa-catalog       Fetch configured ISA references, append sourced metadata, and rebuild the universal ISA catalog.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
@@ -196,11 +197,13 @@ stop_watchdog(){
 header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
+REFRESH_ISA_CATALOG=0
 DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh-online-catalogs) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --refresh-isa-catalog) REFRESH_ISA_CATALOG=1; shift;;
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
@@ -1319,6 +1322,10 @@ main(){
       log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
       return 2
     }
+  fi
+  if [[ "$REFRESH_ISA_CATALOG" == 1 ]]; then
+    log_info "Refreshing source-backed ISA indexes and regenerating the universal instruction catalog"
+    python3 "$SCRIPT_DIR/tools/isa/refresh_isa_catalog.py" --refresh || { log_error "ISA refresh/catalog generation failed"; return 1; }
   fi
   if [[ "$DOS_FETCH_ON_BUILD" == 1 ]]; then
     export CHIMERA_DOS_FETCH_ON_BUILD=1
