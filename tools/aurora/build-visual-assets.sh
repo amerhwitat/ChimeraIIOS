@@ -52,7 +52,7 @@ convert_svg() {
   printf '[WARN] No SVG rasterizer available; retaining SVG fallback: %s\\n' "$src" >&2
   return 1
 }
-"$ROOT/tools/aurora/generate-default-artwork.sh" "$DEFAULTS"
+bash "$ROOT/tools/aurora/generate-default-artwork.sh" "$DEFAULTS"
 
 # Prefer supplied/Library artwork; otherwise use deterministic generated artwork.
 copy_first backgrounds/boot.jpg   "$LIB/Aurora Wayland Desktop - boot background.jpg"   "$ROOT/boot/jasper/background.jpg" || convert_svg "$DEFAULTS/aurora-boot.svg" "$OUT/backgrounds/boot.png"
