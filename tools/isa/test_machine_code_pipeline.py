@@ -21,6 +21,18 @@ class IdentificationTests(unittest.TestCase):
             b=bytearray(64); b[:4]=b"\x7fELF"; b[4]=cls; b[5]=1
             struct.pack_into("<H",b,18,243)
             self.assertEqual(mod.identify_bytes(bytes(b))["architecture"],expected)
+    def test_mips_elf_endianness_selects_matching_emulator_target(self):
+        for enc,expected in ((1,"mipsel"),(2,"mips")):
+            b=bytearray(64); b[:4]=b"\\x7fELF"; b[4]=1; b[5]=enc
+            struct.pack_into("<H" if enc==1 else ">H",b,18,8)
+            self.assertEqual(mod.identify_bytes(bytes(b))["architecture"],expected)
+
+    def test_powerpc64_elf_endianness_selects_matching_target(self):
+        for enc,expected in ((1,"powerpc64le"),(2,"powerpc64")):
+            b=bytearray(64); b[:4]=b"\\x7fELF"; b[4]=2; b[5]=enc
+            struct.pack_into("<H" if enc==1 else ">H",b,18,21)
+            self.assertEqual(mod.identify_bytes(bytes(b))["architecture"],expected)
+
     def test_pe_x86_64(self):
         b=bytearray(128); b[:2]=b"MZ"; struct.pack_into("<I",b,0x3c,64)
         b[64:68]=b"PE\0\0"; struct.pack_into("<H",b,68,0x8664)
