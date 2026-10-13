@@ -62,6 +62,17 @@ install -m 0755 "$ROOT/tools/commands/chimera-dos-adapter.py" "$DOS_RUNTIME/chim
 install -m 0644 "$ROOT/tools/commands/dos-legacy-payload-manifest.json" "$DOS_RUNTIME/dos-legacy-payload-manifest.json"
 install -m 0644 "$ROOT/tools/commands/DOS-COMPATIBILITY.md" "$DOS_RUNTIME/DOS-COMPATIBILITY.md"
 
+# Stage only license-reviewed, hash-pinned, smoke-tested DOS payloads. Network
+# access is opt-in; ordinary ISO builds use the local payload cache only.
+DOS_PAYLOAD_ARGS=(stage
+  --manifest "$ROOT/tools/commands/dos-legacy-payload-manifest.json"
+  --cache "${CHIMERA_DOS_CACHE:-$ROOT/build/dos-payload-cache}"
+  --dest "$DOS_RUNTIME/apps")
+if [[ "${CHIMERA_DOS_FETCH_ON_BUILD:-0}" == "1" ]]; then
+  DOS_PAYLOAD_ARGS+=(--fetch)
+fi
+python3 "$ROOT/tools/commands/dos-payload-builder.py" "${DOS_PAYLOAD_ARGS[@]}"
+
 # Hard-stage canonical boot artwork and Init.mp4 so every boot policy layer can access
 # the same offline assets without depending on network access or a desktop session.
 mkdir -p "$DIST/boot/visual" "$DIST/usr/share/chimera/aurora/assets" "$DIST/desktop/aurora"
