@@ -83,7 +83,7 @@ def main():
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
         elif key in registry_modes:
             declared, runtime=registry_modes[key]
-            mode="native-provider-required" if declared=="native-when-present" else declared
+            mode="native-provider-required" if declared in ("native", "native-when-present") else declared
             provider=runtime
         else:
             mode="compatibility-provider-required"
