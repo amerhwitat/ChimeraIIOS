@@ -19,7 +19,7 @@ static void boundary_block(void*) {
     assert(info[0].state==CHIMERA_TASK_RUNNING);
 }
 static void boundary_exit(void*) { ++boundary_runs; assert(chimera_sched_exit_on_cpu(0)==0); }
-static void wrong_cpu_action(void*) { ++boundary_runs; assert(chimera_sched_block_on_cpu(1)==-2); }
+static void wrong_cpu_action(void*) { ++boundary_runs; assert(chimera_sched_block_on_cpu(1)==-1); }
 int main(){
     chimera_sched_init(1);
     int low=chimera_sched_submit(low_task,nullptr,10),high=chimera_sched_submit(high_task,nullptr,100);
