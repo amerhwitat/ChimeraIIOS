@@ -1,0 +1,41 @@
+name: ELF64 Admission and Scheduler Regression
+
+on:
+  pull_request:
+    paths:
+      - "kernel/core/elf64.cpp"
+      - "kernel/core/process.cpp"
+      - "kernel/core/scheduler.cpp"
+      - "kernel/include/chimera/elf64.h"
+      - "kernel/include/chimera/process.h"
+      - "kernel/include/chimera/scheduler.h"
+      - "tests/kernel/**"
+      - ".github/workflows/elf64-admission.yml"
+  push:
+    branches:
+      - main
+      - "fix/elf-admission-validation-acceptance"
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-kernel-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ELF64 validation/admission regression
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
+            tests/kernel/elf64_admission_test.cpp \
+            kernel/core/elf64.cpp kernel/core/process.cpp \
+            -o /tmp/chimera-elf64-admission-test
+      - name: Run ELF64 validation/admission regression
+        run: /tmp/chimera-elf64-admission-test
+      - name: Build scheduler runtime regression
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
+            tests/kernel/scheduler_runtime_test.cpp kernel/core/scheduler.cpp \
+            -o /tmp/chimera-scheduler-runtime-test
+      - name: Run scheduler runtime regression
+        run: /tmp/chimera-scheduler-runtime-test
