@@ -8,6 +8,8 @@ static void blocker_task(void*){++blocker_runs;if(blocker_runs==1)chimera_sched_
 static void fair_high(void*){++fair_runs[0];}
 static void fair_mid(void*){++fair_runs[1];}
 static void fair_low(void*){++fair_runs[2];}
+static int affinity_runs;
+static void affinity_task(void*){++affinity_runs;}
 int main(){
     chimera_sched_init(1);
     int low=chimera_sched_submit(low_task,nullptr,10);
@@ -38,6 +40,26 @@ int main(){
     assert(chimera_sched_submit(fair_low,nullptr,80)>0);
     for(int i=0;i<6;i++) assert(chimera_sched_run_once(0)==1);
     assert(fair_runs[0]>=2&&fair_runs[1]>=2&&fair_runs[2]>=2);
+
+    // A nonzero 64-bit affinity mask must not accidentally permit CPU 64+.
+    chimera_sched_init(65); affinity_runs=0;
+    int cpu0_task=chimera_sched_submit(affinity_task,nullptr,10);
+    assert(cpu0_task>0&&chimera_sched_set_affinity((uint32_t)cpu0_task,1ull)==0);
+    assert(chimera_sched_run_once(64)==0&&affinity_runs==0);
+    assert(chimera_sched_run_once(0)==1&&affinity_runs==1);
+
+    chimera_sched_init(65); affinity_runs=0;
+    int cpu63_task=chimera_sched_submit(affinity_task,nullptr,10);
+    assert(cpu63_task>0&&chimera_sched_set_affinity((uint32_t)cpu63_task,1ull<<63)==0);
+    assert(chimera_sched_run_once(0)==0&&affinity_runs==0);
+    assert(chimera_sched_run_once(64)==0&&affinity_runs==0);
+    assert(chimera_sched_run_once(63)==1&&affinity_runs==1);
+
+    // An unpinned task remains eligible on CPU 64 even though the affinity
+    // bitmap cannot express an explicit CPU-64 bit.
+    chimera_sched_init(65); affinity_runs=0;
+    assert(chimera_sched_submit(affinity_task,nullptr,10)>0);
+    assert(chimera_sched_run_once(64)==1&&affinity_runs==1);
 
     puts("Koronos scheduler runtime: PASS"); return 0;
 }
