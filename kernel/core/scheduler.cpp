@@ -14,7 +14,10 @@ volatile int32_t current_index[MAX_CPUS];
 static void lock(){while(__sync_lock_test_and_set(&lock_word,1u)){} }
 static void unlock(){__sync_lock_release(&lock_word);}
 static bool cpu_allowed(const chimera_task_info& info,uint32_t cpu){
-    if(cpu>=64 || info.affinity_mask==0) return true;
+    // A zero mask means no affinity restriction. A nonzero 64-bit mask cannot
+    // represent CPUs >= 64, so never treat those CPUs as implicitly allowed.
+    if(info.affinity_mask==0) return true;
+    if(cpu>=64) return false;
     return (info.affinity_mask & (1ull<<cpu)) != 0;
 }
 static int32_t pick_next_locked(uint32_t cpu){
