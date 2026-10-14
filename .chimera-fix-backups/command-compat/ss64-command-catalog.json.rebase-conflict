@@ -6,6 +6,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "generated_at_utc": "2026-10-13T18:42:40Z",
 =======
   "generated_at_utc": "2026-10-09T07:36:36Z",
@@ -16,6 +17,9 @@
 =======
   "generated_at_utc": "2026-10-09T15:23:05Z",
 >>>>>>> 90a4fee0 ( Changes to be committed:)
+=======
+  "generated_at_utc": "2026-10-10T01:18:22Z",
+>>>>>>> 46e294a2 ( Changes to be committed:)
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
