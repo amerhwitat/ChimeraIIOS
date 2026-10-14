@@ -2,6 +2,12 @@
 
 static volatile uint32_t elf64_state;
 
+static void copy_bytes(void *destination, const void *source, uint64_t length) {
+    auto *dst = static_cast<uint8_t *>(destination);
+    const auto *src = static_cast<const uint8_t *>(source);
+    for (uint64_t i = 0; i < length; ++i) dst[i] = src[i];
+}
+
 extern "C" void koronos_elf64_init(void) {
     elf64_state = 0x454C4634u;
 }
@@ -11,7 +17,7 @@ extern "C" int koronos_elf64_validate(const void *image, uint64_t size,
     if (!image || size < sizeof(koronos_elf64_ehdr)) return 0;
 
     koronos_elf64_ehdr h{};
-    __builtin_memcpy(&h, image, sizeof(h));
+    copy_bytes(&h, image, sizeof(h));
     if (!koronos_elf64_valid(&h) ||
         h.e_version != 1u ||
         h.e_ehsize != sizeof(koronos_elf64_ehdr) ||
