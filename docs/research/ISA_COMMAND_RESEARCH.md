@@ -1,0 +1,327 @@
+# ISA, command, kernel and mobile OS research
+
+Generated: 2026-10-13T20:11:35.891922+00:00
+
+> Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
+
+## Official documentation
+- [RISC-V ISA specifications](https://docs.riscv.org/reference/isa/) — isa; HTTP 200
+- [Linux kernel documentation](https://docs.kernel.org/) — kernel; HTTP 200
+- [Linux x86 architecture](https://docs.kernel.org/arch/x86/) — isa; HTTP 200
+- [Linux ARM64 architecture](https://docs.kernel.org/arch/arm64/) — isa; HTTP 200
+- [Linux RISC-V architecture](https://docs.kernel.org/arch/riscv/) — isa; HTTP 200
+- [Linux driver API](https://docs.kernel.org/driver-api/) — drivers; HTTP 200
+- [Linux scheduler](https://docs.kernel.org/scheduler/) — scheduler; HTTP 200
+- [Linux userspace/syscall APIs](https://docs.kernel.org/userspace-api/) — syscalls; HTTP 200
+- [Android kernel architecture](https://source.android.com/docs/core/architecture/kernel) — mobile-os; HTTP 200
+- [Arm architecture documentation](https://support.arm.com/documentation) — isa; HTTP 200
+- [Intel architecture manuals](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html) — isa; HTTP 200
+- [AMD developer documentation](https://www.amd.com/en/search/documentation) — isa; HTTP 0
+- [UEFI specifications](https://uefi.org/specifications) — firmware; HTTP 0
+- [FreeBSD handbook](https://docs.freebsd.org/en/books/handbook/) — other-os; HTTP 200
+- [NetBSD documentation](https://www.netbsd.org/docs/) — other-os; HTTP 200
+
+## GitHub repository discoveries
+
+Search is broad but not exhaustive: results are capped per query and subject to GitHub API rate limits.
+- [pkgw/elfx86exts](https://github.com/pkgw/elfx86exts) — Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.; language Rust; stars 230; license MIT
+- [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 24; license MIT
+- [FISC-Project/FISC-LLVM](https://github.com/FISC-Project/FISC-LLVM) — FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64; language C++; stars 2; license unspecified
+- [yntha/arm64_insn_decoder](https://github.com/yntha/arm64_insn_decoder) — Simple project to decode arm64 instructions and display all their encoded fields; language Python; stars 2; license GPL-3.0
+- [4ad/arm64-dec-gen](https://github.com/4ad/arm64-dec-gen) — Generates arm64 instruction decoding for 7i, the Plan 9 arm64 emulator.; language Go; stars 2; license unspecified
+- [kobby-pentangeli/lc3box](https://github.com/kobby-pentangeli/lc3box) — Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture; language Rust; stars 1; license Apache-2.0
+- [gpellicci/InstructionSetArchitecture-code-assembler](https://github.com/gpellicci/InstructionSetArchitecture-code-assembler) — Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside; language Java; stars 1; license unspecified
+- [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
+- [ArianaDadgostar/Instruction-Set-Architecture](https://github.com/ArianaDadgostar/Instruction-Set-Architecture) — This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.; language C#; stars 0; license unspecified
+- [BrandonDao/ProjectISA](https://github.com/BrandonDao/ProjectISA) — A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress); language C#; stars 0; license unspecified
+- [VeritasCarpeDiem/Emulator](https://github.com/VeritasCarpeDiem/Emulator) — A assembler, disassembler, and emulator that executes bytecode based on the defined instruction set architecture (ISA) ; language C#; stars 0; license MIT
+- [RyanAlameddine/StanModeArchitecture](https://github.com/RyanAlameddine/StanModeArchitecture) — A simple Instruction Set Architecture I defined as well as an assembler, disassembler, and emulator for said ISA; language C#; stars 0; license unspecified
+- [DaoshuReal/x86-64-decoder](https://github.com/DaoshuReal/x86-64-decoder) — small table-driven x86-64 instruction decoder in C17 with no dependencies, split length/mnemonic and full-operand paths; language C; stars 0; license unspecified
+- [michalgr/sigstep-a64](https://github.com/michalgr/sigstep-a64) — Parameterized ARM64 instruction decoder and interpreter in Rust with zero-alloc, async-signal-safe backends.; language Rust; stars 0; license Apache-2.0
+- [Daan-25/img4-macos-arm64](https://github.com/Daan-25/img4-macos-arm64) — A lightweight command-line utility for encoding, decoding, and signing Apple img4 firmware containers, built with support for macOS ARM architecture. Includes source code and build instructions.; language C; stars 0; license MIT
+- [wuzw10/arm64-shadow-monitor](https://github.com/wuzw10/arm64-shadow-monitor) — ARM64 Shadow Memory Monitor — intercepts store instructions via SIGSEGV and mprotect. Write to read-protected VA_A triggers handler that decodes the instruction and redirects the store to shadow VA_B. Supports STR/STRH/STRB/STP.; language C; stars 0; license unspecified
+- [MeshacOkello/arm64-simulator](https://github.com/MeshacOkello/arm64-simulator) — A browser-based ARM64 (AArch64) CPU simulator — instruction decoding, a deterministic cycle-stepped execution engine, and a live view of registers, stack, heap, BSS and rodata.; language TypeScript; stars 0; license unspecified
+
+## Local and Library-exported files
+
+- isa/catalog.json — 39443 bytes; SHA-256 67e4135f10e119b00a5844a2608419da4238abebb8db58be1cfbd2cf34388421
+- isa/instructions.json — 675 bytes; SHA-256 23fa599f772d85f5b096cc9fe15d1111182b26eb1a587a6c75ce26766ed259e9
+- isa/isa_database.json — 329081 bytes; SHA-256 08be6d4af7bd6d8bc7f29edd1be6687a3ae64efd063dd9852ad603d8ae23cf0b
+- isa/README.md — 4214 bytes; SHA-256 c393dd13cd6f8281c7276738ed9da5f0e9528c09018b81c4973bb3dbf408b913
+- isa/schema.json — 1496 bytes; SHA-256 c10f7ec59fdb44bd487c702d5db9bef79c28afe8e534718ee6ec31b5f5427da7
+- isa/world_architectures.json — 13737 bytes; SHA-256 45e5348e07c40210aa9310d1fce48a460d4c2800c2ebe582bdf89dd359040152
+- isa/generated/isa-encoding-registry.json — 85838 bytes; SHA-256 79e37220e6db627592cb5b8412552e87b036ecbb660906fb3824b0e70a5a4e7b
+- isa/generated/isa-encoding-samples.json — 17344 bytes; SHA-256 66e897b22dffc1e58daf328803cb85d5137098b3e531f8a1519830bc555cd2cf
+- isa/generated/source-discovery-index.json — 8018 bytes; SHA-256 13b8ca7467833578e0b4a8406947f57bb9658514dd446165966ffa7509620b4f
+- isa/koronos/architecture.json — 981 bytes; SHA-256 089e7239564a37725abb8166eaa507bf25796b527e5b05aa1558d369471b69fe
+- isa/koronos/README.md — 646 bytes; SHA-256 e5ce016b1ae4738b5764efd44fb93120ea9ce867d96669d5cf049e121b444626
+- isa/sources/isa-source-manifest.json — 2996 bytes; SHA-256 027732ee4b23c3ad70e8930ab290b83d7bb6aba80c3d279a09c7a56ac1a0e1d3
+- isa/spec/chimera_isa.yaml — 4333 bytes; SHA-256 524199f7b69c81e60bc7ca2f7e14a1087524cc98175404231651a44a4276a69a
+- isa/spec/compatibility_targets.yaml — 605 bytes; SHA-256 5029270a65f6ec0d76d6bb2ab37c277eff1c8dbc34848bd860dfed375c897f16
+- isa/spec/risc-cisc-assemblers.md — 4709 bytes; SHA-256 d8f604fd08d3a9742ca977f7e63f76c826f49195701a8e4e57ff18289a638c7c
+- isa/sources/imports/riscv-opcodes.json — 1960860 bytes; SHA-256 a7e65cf1a78205834f3007c9b99cfad63c82aee8b8fcbb386332e284b455babb
+- tools/isa/architecture-backends.json — 5725 bytes; SHA-256 328e1bdf195d6ce594923f68a21a3f26bd21243efc55c1b4c46ca0620af66654
+- tools/isa/cisc-coverage.json — 9221 bytes; SHA-256 9dc19acb3aad10e461b83f3c2755f646568847aa3eedb0b47d0149280693d0e1
+- tools/isa/instruction-semantics.schema.json — 6972 bytes; SHA-256 d58cbfc3848e607a8e9cc5f10e2d8228305bad236828337a392527d4c2c05f29
+- tools/isa/isa_bitfields.schema.json — 1985 bytes; SHA-256 7c0a19343bbd70a0833e217522cf2d18b86252320a93230fbfac367cf11fff51
+- tools/isa/local_isa_catalog.json — 13121 bytes; SHA-256 5548bdf21dad97febce4ea4ef7b9f2cd39588d94353fb8f259496fce56136aff
+- tools/isa/MACHINE-CODE-TOOLCHAIN.md — 2337 bytes; SHA-256 93bb668aecd7cdf7bd7779efd1103b62f927a582a0a9a6f667455290a623f1bb
+- tools/isa/rv32i-coverage.json — 13202 bytes; SHA-256 e4de04dbf584543e3aa879906b49f0d599d29b9898fe6a6c29bbd477cc80aa70
+- config/foreign-runtime-sources.json — 2916 bytes; SHA-256 dcefc4f1c792b8f3d1756f477646bd20a3efdb578014a8c5c2480a5cba47aaac
+- config/linux-command-registry.json — 1857 bytes; SHA-256 d3c14dba25a56ba5c96efde188ee1b6d1cd1f8764f2340c6863c33ca80cf1935
+- config/mobile-os-sources.json — 2573 bytes; SHA-256 37ecd5dbc70350d79519033670aa06ba2b4949e109a6eba74b04f57ec3777983
+- config/architecture-discovery/sources.json — 1087 bytes; SHA-256 6f06d4d1d07e38e75824efd268a19b5d046dd1f3b92f29e323b8e8ddf3b421db
+- config/aurora/emulators.json — 4523 bytes; SHA-256 798ad39a7b6c8492d5f9165b480f46372ffa95e31eba58160c71822592044252
+- config/aurora/game-center.json — 4903 bytes; SHA-256 ab857ebd30b1ebe36f1aa6c6ac7aa5aa754e2f6c18fc7f34ebc0c56131a671b1
+- config/aurora/playstation.json — 550 bytes; SHA-256 12fc014d36aaf2b882792ae4af13843e697cffa20c35be594c6e107933191f40
+- config/aurora/rom-search.json — 990 bytes; SHA-256 c080a21147804dfcb7577eae10e55f2b54df3cc4906941282989c727a278e466
+- config/aurora/toolchain-install-profiles.json — 1849 bytes; SHA-256 aac38d798e1746d7c6f8d90bed04f36d656db1d2d7d13f0e936248c9d07e6117
+- config/boot/koronos-progress.json — 907 bytes; SHA-256 a9ab32a9bb2cd6dd958a259fd29a51f28e0060d18b9039cf7d88533dd5d8844e
+- config/chimera/kernel-desktop-parity.json — 1015 bytes; SHA-256 7051a26d3ca1bc14bc7ef4331a59d1318c908d7746f1b4b85a92aad6506921e6
+- config/chimera/platform-feature-policy.json — 939 bytes; SHA-256 e662c4f70f3b978c8bda2408d893635f0fbe5a06e2822bdf7e9036001a4eb6a0
+- config/compatibility/apple-cpu-targets.json — 1657 bytes; SHA-256 354e4c6264e6e0108e209e63c49c94ddd2c3782dd63b3f433e8229f71c8e53e7
+- config/compatibility/distro-desktop-profiles.json — 2806 bytes; SHA-256 e03eda0535969e6574926a1052ce9a5dc1f956f7c74d41d9d510a8a6821336d0
+- config/crash/chimera-crash-policy.json — 428 bytes; SHA-256 7496d73aabd3a3fdb2e97c42f2e67576893063e60130e6ee55604bd71ce139e9
+- config/drivers/driver-policy.json — 635 bytes; SHA-256 48f883cfae1146070d593e96ed58ad98fb6be445967433ed9349d7f1497b543e
+- config/drivers/driver-repositories.json — 2712 bytes; SHA-256 a10b1bb1a7313d100715240541786ef0e1a8fb8a5d4a5430c7e2d53cc4905a3c
+- config/logging/chimera-logging.json — 492 bytes; SHA-256 feccfb2cdf1c6c62c0d932f4ea5b2f76fc8d3493f76a50887c8e56f474effb0d
+- config/recovery/chimera-recovery-targets.json — 1147 bytes; SHA-256 9aac5808e6fa7d744c5c3fef0a4c0291f7c10774580968a08aef2547568bec4a
+- docs/APPLICATION_ECOSYSTEM.md — 2517 bytes; SHA-256 ff8c709cc6fd84d5eb115ed46bcbb2008c43fb7d866bb0ebb5691a31efecde45
+- docs/ARCH_LINUX_GIANT.md — 9005 bytes; SHA-256 8ae06b3e4ddf98d943f348098cade087500c354c082d8ec5ad83f2855038b779
+- docs/aurora-desktop-compatibility-architecture.md — 4895 bytes; SHA-256 58a3132e47008aba16330a752885616f355c330e16f53081aff55ea0dc4f673d
+- docs/aurora-game-center.md — 1252 bytes; SHA-256 be718423afeb7d6c93605e9a30a1b0e7823b4b39e471849744e4255c2b5fb6d5
+- docs/aurora-multilingual-media.md — 1340 bytes; SHA-256 5aebbf6a09fa1cf38c70d330fd55b6f83c3017ee85d89e82cd7157e13999d3bf
+- docs/AURORA_ARCHITECTURE_DISCOVERY.md — 4096 bytes; SHA-256 02dc2b8f066e4710f098d03e80f12486c783650b11c8c9e99c2fc4427462c095
+- docs/AURORA_GLASS_DESKTOP_AND_TERMINAL.md — 4209 bytes; SHA-256 0932d8f52fc56300620a8d282582aaf378e3bf1d8c6e21b57791bde7850e6f44
+- docs/AURORA_NATIVE_WEB_PARITY.md — 2204 bytes; SHA-256 e4492bace24c20101361b903dcdf9a9b97ea85d45b357a796f08bf93edfb2780
+- docs/AURORA_SETTINGS.md — 1565 bytes; SHA-256 167bd6165f1f67d84fe1dbdcd8342ea2741a683fdc1f895e2565ac929ffb538f
+- docs/AURORA_TERMINALS_SHELLS_BUILD.md — 2282 bytes; SHA-256 bbaf2e549f83459127c06036e8327ca78f4cdafc0ac212d84e53ba1e9855d581
+- docs/AURORA_WEBUI_LINUX_COMMAND_API.md — 1596 bytes; SHA-256 7f18e95da5d2d759c0d0bd18e035a57fdeb7ab1d1d1691a7ec3273b37476dc29
+- docs/AUTHOR_BIBLIOGRAPHY_AMER_HWITAT.md — 4245 bytes; SHA-256 769458f89e8539567ddf15b05fe722b030fdde448b66c99657c9508a0e0aad65
+- docs/AWK_SED_PROGRAMMING.md — 860 bytes; SHA-256 db8247443e209bfd1340b8539b7c48d508af3f0060fb4d241712ba76b277ca4f
+- docs/BIZX_NODEJS_INTEGRATION.md — 2011 bytes; SHA-256 532252be241a979fa4b8c620e4cce4fda321c48ab237852f921a0453105d816a
+- docs/boot-services-implementation-status.md — 1641 bytes; SHA-256 b9bcd4a9a8943d5984553ebfc1d2ca52fb0983010f71c05d50b14e42cbd20c54
+- docs/BOOT_TO_AURORA_SEQUENCE.md — 2517 bytes; SHA-256 cba7676c242e23c1179d4a329c6aa16904ccbee342d6218b7562121d4a91e6fe
+- docs/BUILD_INSTALL_AUTOMATION.md — 2993 bytes; SHA-256 bf346f1401930409cd6cdaeca86243160781cbfb141f84f105975873e646c6ff
+- docs/Chimera II OS Developer Guide.txt — 295473 bytes; SHA-256 500b8488d86400a3cf2050b1a47af71b08a42609117fb8b6fef42996db02aecd
+- docs/chimera-cpp-ide-research.md — 3244 bytes; SHA-256 31e5be00bfb91784571778788d438169188c1f9da7d046c279d409c285315734
+- docs/chimera-drivers-and-logging.md — 2851 bytes; SHA-256 4b1b3852b54b4bef1622be20df26ed92335b198c14f150ecfc815879206a8517
+- docs/chimeraIIOS-code1.txt — 140429 bytes; SHA-256 de5d07f08889109fa8482f3937308efd2b7052e922a971de4760b4e1a32c3866
+- docs/CHIMERA_128D_P2P_INTEROPERABILITY.md — 3258 bytes; SHA-256 449df3b1faa6f0cbc6f706e582eee06c22a9a2c3cdae3e720c98e9deda3510d4
+- docs/CHIMERA_ARABIC_TERMINALS.md — 5739 bytes; SHA-256 386c5fe38c01c711afded733fb380e68e59784ebd6b4d28bfaf09e706a364ee7
+- docs/CHIMERA_AURORA_2026_ENHANCEMENT_RESEARCH.md — 5033 bytes; SHA-256 3122170429ea61696c03c3fa0f6b22661e4bea948ffa7ac5be2f8fca392f6a3f
+- docs/CHIMERA_BEYOND_8192_DESIGN.md — 6000 bytes; SHA-256 078100cbb82b420ae65170f3e84f8d7e669b40168a6d30faf838837cc7ede5a0
+- docs/CHIMERA_COMMANDS.md — 2765 bytes; SHA-256 105ec52710a3032ccc2cad926ca315e28428ca934eaf89cc94b932a8308eae92
+- docs/CHIMERA_DISPLAY_GPU.md — 1794 bytes; SHA-256 7b09649a4d6571a2d94c28ebb833638eb3ada9b22a65be51fb5f0209f1c6f92a
+- docs/CHIMERA_ECOSYSTEM_INDEX.md — 3028 bytes; SHA-256 33420a4db2f607fa971195a2605a624c29d73f0c476c7a92ea2f88e2619974a4
+- docs/CHIMERA_ECOSYSTEM_PORTFOLIO.md — 7995 bytes; SHA-256 26065081e5da611ff25f48ab9612a31ca546a7da896b17ca1cc42009fa145109
+- docs/CHIMERA_HARDWARE_DRIVERS.md — 1828 bytes; SHA-256 f1c570eb813bfc70de24349125860be33c21f7c92ba07517d7c2d27d5fd91f53
+- docs/CHIMERA_IDENTITY_AND_SECURITY.md — 1402 bytes; SHA-256 943876e0e0c3a6f536ac8d2ed2cdf14b22f65035bf926e6d79a675b9bc994bbd
+- docs/CHIMERA_II_ARCHITECTURE.md — 3651 bytes; SHA-256 2d84173b201807882d586aa9d3e13891a61d8d64d4699eab4e1a25b4c3feee67
+- docs/CHIMERA_II_COGNITIVE_NETWORK.md — 5017 bytes; SHA-256 13fa7658c6b64ab6db9245e373c364885495ba68f6b67950b7b7c4c3142af4a7
+- docs/CHIMERA_II_COMPUTATIONAL_RESEARCH_BASELINE.md — 3722 bytes; SHA-256 ee93391336eeeeae43754c7fb1e3d7073a0f5dd26065ee3d32ba947198ea1560
+- docs/CHIMERA_II_FILESYSTEM_LAYOUT.md — 3463 bytes; SHA-256 dff19b9d1998e8ae58059cd490d25463250bc1f20929f60340943a30164e6f33
+- docs/CHIMERA_II_GAP_AND_STANDARDS_AUDIT_2026-09.md — 10861 bytes; SHA-256 13929997359cf9ecf293f9687abde00472975b9ff03911c44ac1f32a59618921
+- docs/CHIMERA_II_INSTALLER_AND_HARDWARE_COMPATIBILITY.md — 10375 bytes; SHA-256 d164b28ce133642e2e1fbd852dc5fcf967a20a62d7468c2c81dfcc9e02672a0f
+- docs/CHIMERA_II_ISA_FILESYSTEM_RESEARCH_2026-09.md — 13918 bytes; SHA-256 da039d03a1b76c07fd6c0afb78385db226a5aace003a279c3b66b1039274b3ea
+- docs/CHIMERA_II_ISA_MERGED.md — 5902 bytes; SHA-256 6f39da99116c995612154c2e215f2aa7e6be9a027b024fe6544c171f617e9081
+- docs/CHIMERA_II_KERNEL_AURORA_STARTUP.md — 3753 bytes; SHA-256 73aa62692af52c94d67adcf9882abfa07d3d2527096a291e138077665df1027d
+- docs/CHIMERA_II_KNOWLEDGE_CONSOLIDATION.md — 4979 bytes; SHA-256 5e38e8abb8991bb571535ce81c8e1ef935b481ff0762330c9b8be0cf9d3a779f
+- docs/CHIMERA_II_SOURCE_CATALOG.md — 2604 bytes; SHA-256 abdb1c4c4a912006564461f76ba5487e2c78a9ca33ccc8f93a2f5041557b38bb
+- docs/CHIMERA_II_STANDARDS_BASELINE.md — 5552 bytes; SHA-256 a350f7504f9ccd3c139b486a208e8cbb5b893f5a026cec781f6baf88cb5867ff
+- docs/CHIMERA_MOBILE_AND_RUNTIME_GAPS.md — 4519 bytes; SHA-256 99e87dda04a5f442c9826fa760a03c1b94416d89416fd4bdef53e8c9e6a76f6c
+- docs/CHIMERA_NATIVE_COMMANDS.md — 922 bytes; SHA-256 f258f2e48c51a2b2abd21132be0f86fd2e71e72ab87a020d8461391df64ca49e
+- docs/CHIMERA_NATIVE_SECURITY.md — 1373 bytes; SHA-256 9918e167f9f279cb1b5a1e357ad399b4c9569737f8b6c108df846e0fa06de52a
+- docs/CHIMERA_NATIVE_STORAGE_AND_AI_DRIVERS.md — 2907 bytes; SHA-256 754e9fd69d242d3c23045715f06cc18fc605308ac3539cc7667073948099b448
+- docs/CHIMERA_P2P_PROTOCOL.md — 2194 bytes; SHA-256 747b4c79956d2e68a9cdfa2b676e20198e7269730423f3c9a61dffe54e1412e1
+- docs/CHIMERA_PORTFOLIO_INTEGRATION_MATRIX.md — 1189 bytes; SHA-256 55f25b1fdd8bdf60baaa28a6f77f9e2c3afc51d8b6e843938c73883665318c08
+- docs/CHIMERA_RESOURCE_AND_REBOOT.md — 1940 bytes; SHA-256 b79f0588b6084b2044082803ffbc3fd0854bc2cc9c2f039150165f66cb815fdd
+- docs/CI_CD_PUBLIC_RESEARCH_OS_PLAN.md — 4185 bytes; SHA-256 46d1b702e07a43be384a27efbb28ba167e286c4047c6843cbd0f82e1fe9a1630
+- docs/COMMAND_COMPATIBILITY.md — 2180 bytes; SHA-256 c668147283bd5aea5e99e75d7c14e52bc970e8fda8284b6ef7e87e9688d2c9dc
+- docs/CONSOLIDATION_MANIFEST.md — 1497 bytes; SHA-256 b616f4464f52484b26e0dd9919435abd555a07a924692a7c1ee0601989a01a0f
+- docs/CPU_AWARE_ISO_BUILD.md — 2436 bytes; SHA-256 c33f1f46961aa7bd2df3720b3999b61d8935ed0faf96e2f9fdb63e216653edb0
+- docs/CROSS_LANGUAGE_IMPLEMENTATION.md — 497 bytes; SHA-256 3d3fcb0413ddde36644da0992542bb25798fe4999d567e5bc56fdc947af65593
+- docs/CROSS_PLATFORM_COMMAND_CHEATSHEETS.md — 1261 bytes; SHA-256 e66abf25ca1f4527415a00c1ed5132d7981f7fb86af0df2bbe002fb74e4db2ed
+- docs/CRYPTOGRAPHY_COIN_RESEARCH.md — 2145 bytes; SHA-256 88bef6fa20c251ea1265ea95e9b2956a4659fe58f9d81fcbcdfd32478051df5f
+- docs/CRYPTO_UPSTREAMS_AND_PROVENANCE.md — 7625 bytes; SHA-256 ece0d36f82c5767f593448c92dfa067173c72a286fd3c762bc80b2f974b1426e
+- docs/dashboard-aurora-2026.md — 1390 bytes; SHA-256 f382311c9778aee4cd2f9b2cd24d57f8e4096b3d1be020dd1279d414556a8044
+- docs/DEEP_RUNTIME_GAP_AUDIT.md — 1894 bytes; SHA-256 6abe5348e9d06f7396cc697fb479a3bfd8603cfd6cab7ec8fd72138211c55680
+- docs/DEEP_WEB_RESEARCH_AND_ENGAGEMENT.md — 11756 bytes; SHA-256 229fc4fa4c3ba3f0909bdcea679977c6cdbd9e6480f8a02031d53c8ac6fee0cf
+- docs/DESKTOP_COMPATIBILITY.md — 2483 bytes; SHA-256 f2df0c4cd77e127e9e41995776962cc550b283dafa9418bc9160d5f2d1805f30
+- docs/DRIVER_ACQUISITION.md — 2679 bytes; SHA-256 e19954eb18295a44703c4c3896ebd59b26094220f1fd86b2a5dba2976a42dc40
+- docs/DRIVER_ARCHITECTURE.md — 1820 bytes; SHA-256 5b323f33ac7abc88101f72637bfd57aa81837fc16c91f4b1cde3384c97f35310
+- docs/DRIVER_WINDOWS_LINUX_UNIX.md — 1076 bytes; SHA-256 00bc91acbc571cb40ac141c785dc576befe984db6fb7810edef9c626daec098e
+- docs/EXTERNAL_BUILDING_BLOCKS.md — 3338 bytes; SHA-256 fbd7a8d8ac844da36c18f6f7a771a5b7bf1c9a38a5caed4ed8731d6e9ec9c521
+- docs/FREE_HOSTING_AND_MEDIA_DISTRIBUTION.md — 5435 bytes; SHA-256 6a60b3d76d8b44c1e1880445c1869b1bec60115b26441393dae90bea1045c4a7
+- docs/HARDWARE_DRIVER_SOURCE_PROVENANCE.md — 1792 bytes; SHA-256 c576c8ba07c3043fb407e3284447dff3830d9caf9c7f4690070ec90ee00b04d8
+- docs/HARDWARE_NBIT_BOOT_INSTALL_FLOW.md — 5694 bytes; SHA-256 d62190349cd32ad1be97c7cdb026bd4ffbfbb98a57c887845ad7887b4b574a34
+- docs/hosted-edition.md — 4781 bytes; SHA-256 1f90ecffec08ef12388feb6328a04da14763724723e4fcb00b0a04f8ff4379b0
+- docs/HOST_HARDWARE_AND_COMPATIBILITY.md — 953 bytes; SHA-256 d68c8ae5e54585c667b9718179aa600cd787aeab67f96802371d5ef20f4023b1
+- docs/HYPERVISOR_BOOT_COMPATIBILITY.md — 2950 bytes; SHA-256 570f7a8b0f89984f7d912b32af8fd00321f1954950d7977b41c42b29683a02a3
+- docs/IMPLEMENTATION_EVIDENCE_AND_REAL_SMP.md — 5735 bytes; SHA-256 e39790b848333e30eaf21bc1fd1ef90fbeb0ca20f51fd1fb1100b886fb87e03a
+- docs/IMPLEMENTATION_PROGRESS_2026-09-29.md — 2792 bytes; SHA-256 d67176d05efa6d089714fa1cc6b1d0e073fe87c6a9e72e0a290d20c03265c8fc
+- docs/IMPLEMENTATION_ROADMAP.md — 6332 bytes; SHA-256 4852ccc36867191663c6491e323078cc78048829f2f33ed632e465dee0339c53
+- docs/IMPLEMENTATION_STATUS_NEXT.md — 2309 bytes; SHA-256 85a192a02d31a5d836057908b4c98f4a42a73159a1477d5c6a64a57d494ad682
+- docs/INSTALLATION_AND_BOOT.md — 2029 bytes; SHA-256 433c3199b340dbc10636ee9dc6ec5c823c75a5f599259ebb792c1edc22ce6663
+- docs/INTEGRATION_NOTES.md — 1194 bytes; SHA-256 db7f589bb64aa44af384ebd1c158c2b2c9230795ca59e97c368cbccef41d6629
+- docs/isa-and-arabic-command-catalogs.md — 1649 bytes; SHA-256 92ad292e19df000c2760136f55f967372cbc0013632786c4ef198718b5b748e8
+- docs/ISA_and_Source_Artifacts.md — 6187 bytes; SHA-256 9fb81a7091d2fed17132d3b38412dc90591193fc117cf0ee335211b2696722fe
+- docs/ISA_CATALOG.md — 4604 bytes; SHA-256 7d07af78a6bd887f1817897a59c6e72909ede04ce28561edc427ac54d3a28e0b
+- docs/ISA_COMPLETE.md — 4952 bytes; SHA-256 ae92a8c0b5a4ad3273fe6091cd24c4a018ddff2dec390de6e518d523e08003da
+- docs/ISA_DATABASE_RESEARCH.md — 1048 bytes; SHA-256 28a43fb0c453eaa845cacfb390d94b3b8022daeb28547d2fe4827a2a41867580
+- docs/ISA_ENCODER_DECODER.md — 2351 bytes; SHA-256 f4462cb0d29393df6dd5a6697e0a2d7fa986b3009a7b6b7d4a1e155681783974
+- docs/ISA_ENCODING_CONFORMANCE.md — 2309 bytes; SHA-256 1b1ec875364be0bce073d89b7ad6c64ef5dd69a36eda24dda395d4e03509624b
+- docs/ISA_ENCODING_CONFORMANCE_EXTENDED.md — 2823 bytes; SHA-256 0aad04c68d8a90f14c03b6032cd214d06617dbe5002e6626734ebb57892c8343
+- docs/ISA_ENCODING_DATA_DICTIONARY.md — 4241 bytes; SHA-256 4524bceb74e0815505585dbebe5ebb63a007b00112af40fb85c693e821b77ad4
+- docs/ISA_ENCODING_MIGRATION.md — 2636 bytes; SHA-256 1e7bbf13b7e553fa235254e20f3892c99c1955643a12956aff2f1fcc84cf7a60
+- docs/ISA_ENCODING_SPEC.md — 3800 bytes; SHA-256 2ed9df6cff744757d53321dcf467ce07a7a2087fc248766c1e5f69925d203782
+- docs/ISA_EXTENDED_OPCODE_INTEGRATION_0043_0091.md — 3968 bytes; SHA-256 5bd445f0512ce421adf66ae94153c7293275e27734c34185cf6825cef5ee1a22
+- docs/ISA_EXTENSION_0092_011C.md — 4592 bytes; SHA-256 dea30c0e2b712b92c288b7fcaae125965659b7f70d70ddf22bc45cf0aca5e28a
+- docs/ISA_FOREIGN_ARCHITECTURE_MATRIX.md — 2570 bytes; SHA-256 f1f4035ca7e0adb2bc21679486bc44f89c153977e1f4b2ea39eb22420a5e191f
+- docs/ISA_RESEARCH_PIPELINE.md — 2257 bytes; SHA-256 92ac5dd362cc2dd0f479c9005273be7977f5f44e7eabc4babef7feb30dd8f27b
+- docs/ISA_RNN_LLM_MAPPING.md — 2545 bytes; SHA-256 d8e35baaafb582c10961c1c4777b37604a2d344371ff1fcda37d367cf315ac1d
+- docs/ISA_TOOLCHAIN_AND_UNIX_COMPATIBILITY.md — 4938 bytes; SHA-256 8cf41b87286e521a759296594b2727c5c13710056b64283462dbd401aaa86e82
+- docs/JAVA_PORTFOLIO_MIGRATION.md — 25103 bytes; SHA-256 fb409e954e053b0bfea25a0583b524d71c45b950c0ccd3f5d66a4bfe873c90d5
+- docs/kernel-desktop-implementation.md — 2475 bytes; SHA-256 bec9fe11b263e06f2da078c653d3f70174f974271169c36b49904ee43b1a78ab
+- docs/kernel-desktop-parity.md — 823 bytes; SHA-256 9e86d5feb1ff0311fab03806a294a8c4ea982409cf573726bf117a57264f089b
+- docs/kernel-oop-parallelism.md — 1859 bytes; SHA-256 48ce4485b2ce53a0598649936de24632a95303b5894c331ebce3380a3fc9966f
+- docs/koronos-32bit-bringup.md — 3797 bytes; SHA-256 93c9ed7bc293d04e270eef6150e10ca81824def9cce624931fa644cb85ac9b95
+- docs/KORONOS_HARDWARE_DRIVER_FIRMWARE_FLOW.md — 3028 bytes; SHA-256 a5710811108358b2d74cb5065ee7a9b1a48ac383926b1beb58c5b387ff986340
+- docs/KORONOS_MICROKERNEL_2.md — 1502 bytes; SHA-256 b292d90127d288f0620b6e1b4d2bd0a4b888d1ca3dce80638fffb88f7d0f4209
+- docs/KORONOS_USERSPACE_HANDOFF_DIAGNOSIS.md — 3943 bytes; SHA-256 c410cd231e20752455dd5794b89eb28888988492161f64f76b3579990a9c26f2
+- docs/KORONOS_VMWARE_BOOT_FIX.md — 1873 bytes; SHA-256 b9717b0f3764e43366e23765b88694843658eb0bf5b16138ecda67122e139a25
+- docs/KOTLIN_MOBILE_PORTFOLIO.md — 3414 bytes; SHA-256 d01ae034aae7c80d08dcb97b961fa9ec3c0f361722276b9343aaa44d12a88d9d
+- docs/LANGUAGE_QUANTUM_COMPATIBILITY.md — 547 bytes; SHA-256 3a64a50fe9b8edbafc6268fd197277fb32d3168879d24d32fbbc5e560c9967e4
+- docs/LEGAL_AND_PROVENANCE.md — 794 bytes; SHA-256 4d2e48b1892d182a4e3c5b7769d4fa528e81af77001bdd8b7bd2445d639ef772
+- docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md — 3030 bytes; SHA-256 52270066925225f295baeb26e85442690fb6499c6d105f482f9713f4a2042916
+- docs/LINUX_7X_CROSSWALK.md — 1942 bytes; SHA-256 2d016a0d42d297f0cdef6a1ec4d59d836b7a5a32f886b704e1505721dab103aa
+- docs/LINUX_COMMANDS_SOURCE_CATALOG.md — 5476 bytes; SHA-256 1215968ccecc818dd433ff76307ae2f60922f40786b126e5518e56711e49a109
+- docs/LINUX_COMMAND_AND_STORAGE_COMPATIBILITY.md — 2604 bytes; SHA-256 0c68e7960615b1cf62f8a5dd6659525fdf35ca129a8338f8e18d7fecdd85f0c0
+- docs/LINUX_DISTRIBUTION_PROFILES.md — 1740 bytes; SHA-256 bba425fb04f6394c58224620cbf2ea58090162ae716e850981726b76ecc2cc3a
+- docs/LIVE_CD_INSTALLER_ARCHITECTURE.md — 1950 bytes; SHA-256 a85e77779f699b760e51ec4667304d6f0f9a32df3262acc213e5e8d4d1314853
+- docs/MASTER_SOURCE_MAP.md — 2226 bytes; SHA-256 8ae50f9f1cae9c87adb22c85b70cacbe60e36508bbdbe7586c5af7fadeaa9fae
+- docs/MOBILE_COMMUNICATIONS.md — 1282 bytes; SHA-256 34795dd3d30c0861f328502b40fe51ddd9b6a82845fe54675922f02cc08a9523
+- docs/NBIT_ARITHMETIC_AND_COMPILER_CONTRACT.md — 2797 bytes; SHA-256 29643bbe0ae3521244fce36b8963cefb6f5b169faf49494420f80270df8b62d3
+- docs/NBIT_TOOLCHAIN_INTEGRATION.md — 3464 bytes; SHA-256 0467bec445546e3fe1ca362f81f73f29a2c13b4c14cb2e345a76a316d62d5bd5
+- docs/OPEN_SOURCE_INTEGRATION.md — 1804 bytes; SHA-256 717ef3922c95efb3767d35985731712e725325080919066ab0cfea1a6676a245
+- docs/OPEN_SOURCE_RESEARCH_OS_PUBLICATION.md — 5556 bytes; SHA-256 d307fbc5490ff630907b104eb989f1699518a80476c3329d56c9ae6aa8cae7c3
+- docs/PACKAGE_MANAGEMENT_AND_REPOSITORIES.md — 3867 bytes; SHA-256 f6e13556eff33847e8582f727538f3db70bbc5ab06b38fd3fd6c4c52726641dd
+- docs/PERFORMANCE_AND_PORTABILITY.md — 2736 bytes; SHA-256 1089a12a043f15c1591945886a30be49c0e0f963b6ff92e4705b2525ffaa3fda
+- docs/playstation-and-crash-recovery.md — 1867 bytes; SHA-256 c4eab9a9d32ca9cc218652edb24ad411d45b6568f7ab37bf1ca5f4d902d33909
+- docs/playstation-rom-search.md — 1499 bytes; SHA-256 2ca0196132c7fc70ee489b25be6bd6b41563601910dac3f4e29440a3b112efc3
+- docs/PROVENANCE.md — 1672 bytes; SHA-256 32f1f852f29ec848d5e1ee97b84a135db7a37860740d37f59e5c591486b6e957
+- docs/PUBLICATION_ACCOUNTS_AND_AUTH.md — 2861 bytes; SHA-256 d9d7f9c6b11572e789d2dc4552ea5393eb50a55acfea9d18193825f524117a6e
+- docs/PUBLICATION_AND_MEDIA_DISTRIBUTION.md — 10500 bytes; SHA-256 6baa397c277df50a14e1d8069f3962141f8c17943a058298d7ce9c0262eeb459
+- docs/recovery-runtime-levels.md — 1603 bytes; SHA-256 2755e63b07ee3663406590490d249b3c3e0b78256fa9a096237ef524ab9c5756
+- docs/runtime-asset-deduplication.md — 1668 bytes; SHA-256 a6d9d36da1608fcfcdd00a139791f924f0e9bcb88aef685fef878443a400ac12
+- docs/RUST_IMPLEMENTATION.md — 1902 bytes; SHA-256 a1f3f45bbece7f27ff8cfcb703e155bb3b9af18a7d67b62857c41d71a37cfe62
+- docs/SCRIPTING_AND_PATTERN_COMPATIBILITY.md — 1541 bytes; SHA-256 998f0a4a97f22c898d8a107b4b1b7355ec34b4f52b98fd5133e20ca6fe21e290
+- docs/SERVICES_COMPATIBILITY.md — 762 bytes; SHA-256 ebafa7c5f3af7ec30e85d648ca081ec8c8701c246d170bcbbac67060db1c6465
+- docs/SOURCE_IMPORT_POLICY.md — 3048 bytes; SHA-256 d9c27cf68a654f01b529b2f0c13c8b253eaa5a0fde8aac12a9ee10caff1153e9
+- docs/SOURCE_LICENSE_BOUNDARIES.md — 1006 bytes; SHA-256 979f4934895fdc396a51f6f468c02d21c3f7f3ada08612b869320c7caada1a22
+- docs/STRUCTURED_ISO_BUILD.md — 2270 bytes; SHA-256 c9bedab8f96530797e6f0846d5354cb447fb5597d5482f09cd4adb232a880a42
+- docs/THAMUDIC_HISTORICAL_OBJECT_CATALOG.md — 5247 bytes; SHA-256 63cbfcf9a7587d51a669e955e466cd3562e584dd184ce19020d4c65d190644c2
+- docs/UNIVERSAL_ISA_AND_CPU_ARCHITECTURE.md — 2646 bytes; SHA-256 b65b71d58a054c378e3d65c9344aa48b6440111a53182e1b29ec57378c3fe976
+- docs/VERIFICATION_EVIDENCE_CONTRACT.md — 6711 bytes; SHA-256 2bd43d107b31cf0fa8eb7d63cdb8dbc5460da98506860266b1fa6cedfad6eec7
+- docs/W2K-ASM_IMPORT.md — 1124 bytes; SHA-256 1a75dc3a3ec9a8a8e5da414aed99851ec5f6cc73c1cdf0acc21bd747dfb3cc87
+- docs/WEB_REPO_AUDIT_2026-10-07.md — 2326 bytes; SHA-256 1f163b67240cc593a9aaa530e154d37a98a1049355a13c5faabb850393357d8c
+- docs/WEB_UI_ECOSYSTEM.md — 839 bytes; SHA-256 ef4dd47a0f10e0fe452c95bf68465217d9ec2c9835946303e2537c2cfb5e32e3
+- docs/Windows_Kernel_Dev_and_Snippets.md — 3355 bytes; SHA-256 94630683629676e912bf0801493a88a2d40b3c036c4fefb83d66f33ba7c82031
+- docs/ai/2026-research-and-package-architecture.md — 2407 bytes; SHA-256 4baac38a4885e15683c257314e54405f36b850bf7d1fc80010c7df3f14fc5f98
+- docs/ai/NEURAL_DIMENSIONAL_STATUS.md — 3906 bytes; SHA-256 ea90b15bb4b439f8778536b990d60e68038596e0b6b052bbf8d16b70c1addd3a
+- docs/ai/nextgen-2026.md — 3835 bytes; SHA-256 cc0d616d0264d950e3f8a409d6aed2dd31c820adc7a831f8ef0d64343fb7475c
+- docs/architecture/chimera-native-binary-format.md — 2055 bytes; SHA-256 3569181404474955f6b2c4f9369944d7faba49181abfc2fb480e76a4828bd48c
+- docs/architecture/chimera-native-ide-toolchain.md — 1850 bytes; SHA-256 de0a5ecadd19efe8813b835ecd6a8410ac466f810bee3f6e48b300d0f60bd913
+- docs/architecture/chimera-nbit-native-isa.md — 2101 bytes; SHA-256 b502dd563bf75f1ba0e953b870036c4e475afc672e117ca42e5e9be8ac05b250
+- docs/architecture/chimera-virtual-memory-swap.md — 1686 bytes; SHA-256 332feba1561f9693b74176fb3c80b7827766d6a802c9883c03ce4ba5cb41e8cf
+- docs/architecture/memory-bus.md — 1498 bytes; SHA-256 a8b2d7045e8c9b3dc91ec25dd58c73eb7b2aa9a17051d281aee78a8e741e63e6
+- docs/architecture/registern-and-data-stack.md — 1316 bytes; SHA-256 9ac7e94201edc1a59b0923c661180e2cc05936e7edfb2eb02ea9dd3aa150437e
+- docs/cloud/OPERATIONS.md — 1634 bytes; SHA-256 7e5573d80265182956b1b7dfa4670f0dabbbd655b1d380e1b6063d613328d536
+- docs/help/README.md — 1414 bytes; SHA-256 57a9cdaf50b41fd068e1b724233b85867cc126001e9ac92521670535dcbb36ae
+- docs/isa/SOURCE_BACKED_INGESTION_STATUS.md — 2444 bytes; SHA-256 d9dd57321a3cf5eb1309ff8d06d4d10716087a06d2aaac8e2356de5e0b938b39
+- docs/isa/SOURCE_DISCOVERY_AND_REGISTER_MAPPING.md — 3162 bytes; SHA-256 a9e4aacc53b1f64bab6756c87eb84810fdfca1c5977cd1b28a12e80f0cca8166
+- docs/isa/universal-lowering.md — 2410 bytes; SHA-256 e6424d03dec7b8a50554aea440d0611c5c321f90563e53a3524ce4a1031998cf
+- docs/isa/UNIVERSAL_ISA_INGESTION.md — 3336 bytes; SHA-256 d5736c9c533a63e6d4cc73d4802dbac60b959f166de1050327f36dde0f423dc7
+- docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
+- docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
+- docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
+- docs/research/isa-command-research.json — 254086 bytes; SHA-256 b33acbc89dd2a9d33acbc4aa0466ba6aef6b14d55d4e87d3837f1c61049a0f6f
+- docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
+- docs/research/ISA_COMMAND_RESEARCH.md — 51090 bytes; SHA-256 107081580ef38ec2bbc1b9eae3e036c46ad5940d4f377a5538b7caeb6705920b
+- docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
+- docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
+- docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
+- docs/virtualization/CVEL.md — 1541 bytes; SHA-256 0c0026b40c82ed7063a1e25a36646446acaeab9afb257a48e512c0edc0c95092
+- docs/web-ui/INTEGRATION.md — 865 bytes; SHA-256 67ed4553cd8efafd2c9da7acbe4dfb13138698cfeb7e3e16f6ab84af45aed1a5
+- docs/superpowers/plans/2026-09-09-chimera-system-control-center.md — 9254 bytes; SHA-256 67218d1e3d74523bc9700ea1869419038e5638ac860a218c8755ac6d1b6faec4
+- docs/superpowers/plans/2026-09-09-chimera-unified-man-help.md — 18416 bytes; SHA-256 c95e767a30abf8a55d8540fc8c9cfd74b011a885565f21946ac2ddcaf3f0041e
+- docs/superpowers/plans/2026-09-11-structured-bootable-iso.md — 7243 bytes; SHA-256 aadd03a12bdd092561ee83d67623a0218e14210c7b6295dc8dd69a3627331859
+- docs/superpowers/plans/2026-09-11-unified-distribution-and-mobile-platform.md — 7475 bytes; SHA-256 ec170f28ceab663fa0aed5d6bc92b578df2742df2d673a376b88627feeb729e4
+- docs/superpowers/plans/2026-09-12-apple-platform-expansion.md — 4141 bytes; SHA-256 0723e1675a05a8418354ca8990e8fe573b8eef85ab87bca818cce3fc251e1626
+- docs/superpowers/plans/2026-09-12-portfolio-128d-p2p-license.md — 5858 bytes; SHA-256 e154e1e9a7782c5ec4e0fe116df23646952a6e3c38bdb08f0ed6d27b8b56c4d8
+- docs/superpowers/plans/2026-09-13-build-install-automation.md — 6904 bytes; SHA-256 13825d1fe5e9be56aa37bd6d74c9f89d49c89bc955ac62aa56affd263f1efc5e
+- docs/superpowers/plans/2026-09-13-driver-acquisition.md — 5683 bytes; SHA-256 f3553db6d3b6007f9e1349914e5a2343fb0c565de2dbd42e7dca227b1a6c29ac
+- docs/superpowers/plans/2026-09-13-isa-catalog-expansion.md — 2321 bytes; SHA-256 aa01ee5bc4b16538cc7d636c370ee0a05e96c309017a0edb26d2fa58577eee0f
+- docs/superpowers/plans/2026-09-13-open-source-platform-integration.md — 5221 bytes; SHA-256 1507372d31c96a1eab9b9384db41997a797b4007ec1a1a42c5c5c917df93148e
+- docs/superpowers/plans/2026-09-13-quantum-multidimensional-rust.md — 13392 bytes; SHA-256 6ed6061177ab7274a7600c36a3bd54908ffdda737e0452ae3a0013fa2be51503
+- docs/superpowers/plans/2026-09-13-quantum-rust-multidim-implementation.md — 2528 bytes; SHA-256 4128e51609e8fdc58726d7dd4659cb633f9ec434a99f274411e4dd7f809ab59d
+- docs/superpowers/plans/2026-09-16-cloud-devops-vm-fabric.md — 3692 bytes; SHA-256 d0aac626cbaddfa5888e4706eae06b6d9fdc63ab379babde45623524d9a8f9cb
+- docs/superpowers/plans/2026-09-16-database-bigdata-cloud.md — 1726 bytes; SHA-256 4cbf2a5e1176bb5824030b88d0cb56dbf6b96405d9a971793e5bd23a3818a999
+- docs/superpowers/plans/2026-09-16-isa-registry.md — 5959 bytes; SHA-256 cd1ff9a9771e0cbb701887224180be0a0d3d0bd081b61712f2a548714b800347
+- docs/superpowers/plans/2026-09-16-nextgen-ai-parallel-iot.md — 2152 bytes; SHA-256 f0413ad32de2d84a60ca7a5c1e5a07f1da74d4ac2ed13de240c1888f0b15e6bc
+- docs/superpowers/plans/2026-09-16-universal-bootable-os-platform-plan.md — 2649 bytes; SHA-256 9b7189f868badce3fae1c52740ad0efd84f56d2205f582ad58d76db7917ba451
+- docs/superpowers/plans/2026-09-21-koronos-full-system-implementation-plan.md — 14442 bytes; SHA-256 8717151c894631c995235de1c400908f28693ca08f97a11545802d79a7a085a3
+- docs/superpowers/plans/2026-09-26-large-iso-storage-compression.md — 14467 bytes; SHA-256 81336efe8b88ce72f09a630fa1b9aa4a6c442bf5e2d0723dc8ea82dd739ec04e
+- docs/superpowers/plans/2026-09-29-kernel-userspace-enhancements.md — 14609 bytes; SHA-256 1d63115ac558c79a82d7f0a0b536067d278149dad6f25c5053ad9b204aba1707
+- docs/superpowers/plans/2026-09-30-native-boot-services.md — 9779 bytes; SHA-256 6f629d2bbdb0e7e0aad38dde0a46c36fc08335897b560061e83245025364e1a4
+- docs/superpowers/plans/2026-10-02-aurora-menu-sound-runtime.md — 8653 bytes; SHA-256 6b8aa4aee4755260bb8d463602959a366c748a4a714eeebd3b363d01101efad4
+- docs/superpowers/specs/2026-09-09-chimera-installer-manager-design.md — 3866 bytes; SHA-256 435a968ffce17bbbf6497243c24a196c332aedc02e304e09947699c671fd8ce7
+- docs/superpowers/specs/2026-09-09-chimera-system-control-center-design.md — 3610 bytes; SHA-256 0792fc944b2d60b730a8a1ef7e1fa5f04da1f3020a8b9f4ac01233ac8d1ba7f0
+- docs/superpowers/specs/2026-09-11-structured-bootable-iso-design.md — 3930 bytes; SHA-256 28dbccdbd08e1ee935065557349fc9138083039a954caad30e3f50e355582686
+- docs/superpowers/specs/2026-09-11-universal-toolchains-memory-bus-design.md — 3243 bytes; SHA-256 4a11faf1cc60b6729af6a5defb09d8cceb3385763d00b69bd36d57d8eb16eaf6
+- docs/superpowers/specs/2026-09-13-open-source-platform-integration-design.md — 6279 bytes; SHA-256 267adf6edb29ca5a475da8fc282406bb0b5ff8255cfe14fe81bd7026a0758456
+- docs/superpowers/specs/2026-09-13-quantum-multidimensional-rust-design.md — 7267 bytes; SHA-256 419bc6065fb838b7a625f8195825ad6757476e4a93324c8180c9623c1a84fae0
+- docs/superpowers/specs/2026-09-16-cloud-devops-vm-fabric-design.md — 4551 bytes; SHA-256 8aa569db36b6636ade0369642f70afcdc95180bfb780ae900fad71726985a9df
+- docs/superpowers/specs/2026-09-16-database-bigdata-cloud-design.md — 2984 bytes; SHA-256 c92a354bfb8c3feb4ae1f8eebc614352c08cb1c8b769e9470bafcaadd2eac814
+- docs/superpowers/specs/2026-09-16-isa-registry-design.md — 2852 bytes; SHA-256 3aa1c7a7fe2df1b9a204bd0d92a2182873e878dcf951ee9057c849ec455c12e8
+- docs/superpowers/specs/2026-09-16-universal-bootable-os-platform-design.md — 17237 bytes; SHA-256 4cabb6a94f388b7e8bfe5feec0dece11342be1530598ef6d6632e6ef294a732c
+- docs/superpowers/specs/2026-09-21-koronos-full-system-design.md — 11326 bytes; SHA-256 1546e975bfecfadc1d66996bbc1236ee93dad6d914966cdd7eff5c9793760cdc
+- docs/superpowers/specs/2026-09-30-native-boot-services-design.md — 8383 bytes; SHA-256 44652b88f86d46a02b2ff28207cf8d81373a77b775380bef27c7274a369a191b
+- docs/superpowers/specs/2026-10-01-aurora-futuristic-desktop-terminals-design.md — 9158 bytes; SHA-256 44056c3a2923ab0b1976c38dd31a2f5b4c04dee210a4c21dd44d5ce6ef745f02
+- docs/superpowers/specs/2026-10-02-aurora-menu-features-sound-design.md — 6148 bytes; SHA-256 151524102b5df3902e55265697dd3c9e631959b9cede4bf11825cde8f555ecba
+- system/architecture/endianness.json — 5650 bytes; SHA-256 4206b2bf44ee35de1aee86caf9465ae3437d7148cd9faf050c08ef7b704b4cd8
+- system/aurora/chimera-log-window.json — 974 bytes; SHA-256 0b8c5ca38744b9f7e44e0c765bb59b28e9f83870aa340c46e6ee11856ed9976b
+- system/aurora/README.md — 560 bytes; SHA-256 cbf7f5b1c5a528d990aec01b6827d5c9b13e477621aa2ec30c666c0ab1bca802
+- system/commands/chimera-arabic.json — 15130 bytes; SHA-256 01fa7fe0ce65bfe4e808858daaaa2a0349992c2741fc8744c59d020cc20fab78
+- system/commands/chimera-command-list.json — 18321 bytes; SHA-256 d341f12a03c50562c14a687ccba43fdf7744cd8a11fb1ca0cef8c0de59a10be2
+- system/commands/command-runtime-capabilities.json — 1838528 bytes; SHA-256 4b0ff4ea97ffcd93a7f75eaa098ffcb61ef77bdd376414e45a5ee29246bf0c24
+- system/commands/compatibility-binary-policy.json — 2614 bytes; SHA-256 1ce577b4bf47de8c6714477f9ab0ea606c3c00ee8dff2c2d09ea42dbcd48e2e8
+- system/commands/online-command-catalog.json — 1479924 bytes; SHA-256 fe6099fef55e5b20473693bd2af811b039db6e7fae8e08b55b2fc7cf195397f0
+- system/commands/ss64-command-catalog.ar.json — 1080118 bytes; SHA-256 7fa0ec27df8459231fbe83e3a0f4d8aa1d57c05623fe283cc1517430182c016f
+- system/hardware/chimera-hardware-profile.json — 524 bytes; SHA-256 884360f762b99759b446f4c61788f61a8528d362203f3f85383c5de44867c343
+- system/hardware/compatibility-modes.json — 5990 bytes; SHA-256 06a4b6bc1d6def4e225f12afde786cbed04b7330806b514f60eff7b33a3fe8e5
+- system/hosted/compatibility-matrix.json — 6671 bytes; SHA-256 689ca9caf01845e1aaff4aba8516dce28cdbcde22230285ade642c01d79dd76a
+- system/hosted/execution-backend-status.json — 3445 bytes; SHA-256 776940ffb18642bea9ec8520f62f4395a6619de4346c6f797d626698da162360
+- system/kore/chimera-boot-to-aurora-runtime.json — 1119 bytes; SHA-256 5ee1544d40beecf6923c4f589f6e3b4b6c8c15a491fc2370c7dacef045b9e58c
+- system/kore/chimera-emulation-runtime.json — 1134 bytes; SHA-256 f81618a0b79169e7c298875d6a168769c6dc9368911e2b913d7d6657441c11f7
+- system/kore/chimera-runtime-services.json — 862 bytes; SHA-256 30f9a62ea88e1189c627714752316b065dd60db839c48f1f37724c489ae58b50
+- system/kore/chimera-unified-runtime-model.json — 1583 bytes; SHA-256 ae2bbc6e7cd48b6b3757173e049334e841c093154268cfd45dcfd18070107c76
+- system/kore/units.json — 693 bytes; SHA-256 e9bb37caf2b608bd302a8c2c8adec28166aa8245c028cef5b71ae6511589313e
+- system/languages/sed.json — 606 bytes; SHA-256 d4e10577b0fc047ebb3560c27205076efef8a81b94c4dd25d3a46fd687b090a9
+- system/learning/chimera-boot-learning.json — 1860 bytes; SHA-256 3136499290d04535fe57c3adcec07f564e8dfc70170948764e9c7356bae9b12e
+- system/security/apache-sandbox.json — 380 bytes; SHA-256 48d686220a3a8376827c4898eebdaf9961c04b25e2909d0cfbfd146a49bf6658
+- system/security/chimera_web_policy.json — 1321 bytes; SHA-256 990b150f70b52e20b4ed865d75d9447a8ea33d918b2c1048f7f6d72e1bd2294f
+- system/services/chimera-service-manager.json — 773 bytes; SHA-256 e8c429aededf38f11eb01bf8b79b9c08807e29e6bc89bdde5fc649ec678f588e
+- system/shell/scripting_compatibility.json — 994 bytes; SHA-256 94719a9d3bef444fff551a36f0367968b2e3477881200c7e72096043bd347f90
+- system/terminal/shell_adapters.json — 586 bytes; SHA-256 23b9ca32b4e965fce877d31843a1c3b852490b535ef07c21b66a6baf76b739da
+- system/windows/api-set-registry.json — 1408 bytes; SHA-256 dffe90f1890872553ba0e634ff4a8941eec2d35ddf277fdd33b8d30ba8bde418
+- system/windows/compatibility-features.json — 7404 bytes; SHA-256 984d7240dd8bafafb91e3d44408f9d78f3724c4e9c66c0a4f82add8a1377bc89
+- system/windows/compatibility-manifest.json — 5383 bytes; SHA-256 7c6b07df1f5dfcd7fc3b0d81a0db775511139659d6e177e43bc9d614090ec207
+
+## Safe adoption workflow
+
+1. Verify each mnemonic against its normative ISA specification and record architecture/extension, operand encoding and CPU feature detection.
+2. Add assembler/disassembler round-trip and negative tests before registry changes.
+3. Review repository license, maintenance, provenance and security before reusing code.
+4. Never execute remote shell snippets or import privileged commands automatically.
+5. Export relevant ChatGPT Library documents into the configured Library directory; the build cannot access the Library service directly.
