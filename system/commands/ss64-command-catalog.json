@@ -4,10 +4,14 @@
   "source": "SS64",
   "source_index": "https://ss64.com/",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "generated_at_utc": "2026-10-13T18:42:40Z",
 =======
   "generated_at_utc": "2026-10-09T07:36:36Z",
 >>>>>>> 9f2f07cc ( Changes to be committed:)
+=======
+  "generated_at_utc": "2026-10-09T11:44:39Z",
+>>>>>>> de3d24b2 ( Changes to be committed:)
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
