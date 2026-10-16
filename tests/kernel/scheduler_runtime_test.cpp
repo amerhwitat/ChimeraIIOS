@@ -10,6 +10,14 @@ static void fair_mid(void*){++fair_runs[1];}
 static void fair_low(void*){++fair_runs[2];}
 static int affinity_runs;
 static void affinity_task(void*){++affinity_runs;}
+static int reentrant_outer_runs,reentrant_inner_runs;
+static uint32_t reentrant_nested_result;
+static void reentrant_inner(void*) { ++reentrant_inner_runs; }
+static void reentrant_outer(void*) {
+    ++reentrant_outer_runs;
+    /* A nested dispatch on the same CPU must not overwrite the active owner. */
+    reentrant_nested_result=chimera_sched_run_once(0);
+}
 static int boundary_runs;
 static void boundary_block(void*) {
     ++boundary_runs;
@@ -54,6 +62,14 @@ int main(){
     chimera_sched_init(65);affinity_runs=0;
     assert(chimera_sched_submit(affinity_task,nullptr,10)>0);
     assert(chimera_sched_run_once(64)==1&&affinity_runs==1);
+
+    chimera_sched_init(1);reentrant_outer_runs=reentrant_inner_runs=0;reentrant_nested_result=99;
+    int inner=chimera_sched_submit(reentrant_inner,nullptr,10);
+    int outer=chimera_sched_submit(reentrant_outer,nullptr,100);
+    assert(inner>0&&outer>0);
+    assert(chimera_sched_run_once(0)==1);
+    assert(reentrant_outer_runs==1&&reentrant_inner_runs==0&&reentrant_nested_result==0);
+    assert(chimera_sched_run_once(0)==1&&reentrant_inner_runs==1);
 
     chimera_sched_init(1);boundary_runs=0;
     int b=chimera_sched_submit(boundary_block,nullptr,10);
