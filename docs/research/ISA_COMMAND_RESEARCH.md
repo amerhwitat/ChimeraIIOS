@@ -1,6 +1,6 @@
 # ISA, command, kernel and mobile OS research
 
-Generated: 2026-10-13T20:11:35.891922+00:00
+Generated: 2026-10-14T05:08:10.403243+00:00
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -24,23 +24,52 @@ Generated: 2026-10-13T20:11:35.891922+00:00
 ## GitHub repository discoveries
 
 Search is broad but not exhaustive: results are capped per query and subject to GitHub API rate limits.
+- [Jamesits/dropWPBT](https://github.com/Jamesits/dropWPBT) — Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.; language C; stars 447; license BSD-2-Clause
 - [pkgw/elfx86exts](https://github.com/pkgw/elfx86exts) — Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.; language Rust; stars 230; license MIT
 - [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 24; license MIT
+- [fzi-forschungszentrum-informatik/riscv-etrace](https://github.com/fzi-forschungszentrum-informatik/riscv-etrace) — Decoder and tracer for RISC-V efficient instruction tracing.; language Rust; stars 5; license Apache-2.0
+- [malfallah/symrisc](https://github.com/malfallah/symrisc) — A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.; language Python; stars 2; license Apache-2.0
 - [FISC-Project/FISC-LLVM](https://github.com/FISC-Project/FISC-LLVM) — FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64; language C++; stars 2; license unspecified
 - [yntha/arm64_insn_decoder](https://github.com/yntha/arm64_insn_decoder) — Simple project to decode arm64 instructions and display all their encoded fields; language Python; stars 2; license GPL-3.0
 - [4ad/arm64-dec-gen](https://github.com/4ad/arm64-dec-gen) — Generates arm64 instruction decoding for 7i, the Plan 9 arm64 emulator.; language Go; stars 2; license unspecified
+- [codeswithdev/DEV-OS](https://github.com/codeswithdev/DEV-OS) — 🚀 DevOS is an ambitious open-source initiative to build India’s first fully independent operating system from absolute scratch — including a custom bootloader, kernel, memory management, scheduler, drivers, filesystem, and future AI-native architecture. No wrappers. Built from bare metal.; language C; stars 2; license MIT
 - [kobby-pentangeli/lc3box](https://github.com/kobby-pentangeli/lc3box) — Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture; language Rust; stars 1; license Apache-2.0
 - [gpellicci/InstructionSetArchitecture-code-assembler](https://github.com/gpellicci/InstructionSetArchitecture-code-assembler) — Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside; language Java; stars 1; license unspecified
+- [IITian-Ankit/RISCV_5_staged_Pipeline_Core](https://github.com/IITian-Ankit/RISCV_5_staged_Pipeline_Core) — RISC-V 5-Stage Pipelined Processor implementing the RV32I instruction set in Verilog. Features Instruction Fetch, Decode, Execute, Memory, and Write Back stages, with hazard detection, forwarding, and branch handling for efficient execution.; language Verilog; stars 1; license unspecified
+- [BengalEmpire/Bengal-Tiger-OS](https://github.com/BengalEmpire/Bengal-Tiger-OS) — Bengal Tiger OS is a 32-bit x86 (i386) open-source operating system written in ANSI C and x86 Assembly. Designed with modular architecture, hardware abstraction layers, VBE graphics, FAT filesystem persistence, Realtek network drivers, and a preemptive task scheduler,; language C; stars 1; license MIT
+- [mt6768-S/android_kernel_xiaomi_mt6768](https://github.com/mt6768-S/android_kernel_xiaomi_mt6768) — mt6768 common kernel; language C; stars 1; license NOASSERTION
 - [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
 - [ArianaDadgostar/Instruction-Set-Architecture](https://github.com/ArianaDadgostar/Instruction-Set-Architecture) — This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.; language C#; stars 0; license unspecified
 - [BrandonDao/ProjectISA](https://github.com/BrandonDao/ProjectISA) — A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress); language C#; stars 0; license unspecified
 - [VeritasCarpeDiem/Emulator](https://github.com/VeritasCarpeDiem/Emulator) — A assembler, disassembler, and emulator that executes bytecode based on the defined instruction set architecture (ISA) ; language C#; stars 0; license MIT
-- [RyanAlameddine/StanModeArchitecture](https://github.com/RyanAlameddine/StanModeArchitecture) — A simple Instruction Set Architecture I defined as well as an assembler, disassembler, and emulator for said ISA; language C#; stars 0; license unspecified
 - [DaoshuReal/x86-64-decoder](https://github.com/DaoshuReal/x86-64-decoder) — small table-driven x86-64 instruction decoder in C17 with no dependencies, split length/mnemonic and full-operand paths; language C; stars 0; license unspecified
 - [michalgr/sigstep-a64](https://github.com/michalgr/sigstep-a64) — Parameterized ARM64 instruction decoder and interpreter in Rust with zero-alloc, async-signal-safe backends.; language Rust; stars 0; license Apache-2.0
 - [Daan-25/img4-macos-arm64](https://github.com/Daan-25/img4-macos-arm64) — A lightweight command-line utility for encoding, decoding, and signing Apple img4 firmware containers, built with support for macOS ARM architecture. Includes source code and build instructions.; language C; stars 0; license MIT
 - [wuzw10/arm64-shadow-monitor](https://github.com/wuzw10/arm64-shadow-monitor) — ARM64 Shadow Memory Monitor — intercepts store instructions via SIGSEGV and mprotect. Write to read-protected VA_A triggers handler that decodes the instruction and redirects the store to shadow VA_B. Supports STR/STRH/STRB/STP.; language C; stars 0; license unspecified
 - [MeshacOkello/arm64-simulator](https://github.com/MeshacOkello/arm64-simulator) — A browser-based ARM64 (AArch64) CPU simulator — instruction decoding, a deterministic cycle-stepped execution engine, and a live view of registers, stack, heap, BSS and rodata.; language TypeScript; stars 0; license unspecified
+- [Anas-Gebreel/riscv-ldpc-cfu-accelerator](https://github.com/Anas-Gebreel/riscv-ldpc-cfu-accelerator) — RISC-V (NEORV32) custom-instruction accelerator for fixed-point min-sum LDPC decoding on the Terasic DE2-115 (Cyclone IV E).; language C; stars 0; license MIT
+- [JignasuShah/riscv-processor](https://github.com/JignasuShah/riscv-processor) — Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.; language unknown; stars 0; license unspecified
+- [Pikachu287/RiscV_ISA_Sim](https://github.com/Pikachu287/RiscV_ISA_Sim) — Decoding all RV32I instructions and simulating them; language C; stars 0; license unspecified
+- [Ruthik85/pipelined-16bit-riscv-core](https://github.com/Ruthik85/pipelined-16bit-riscv-core) — A 16-bit pipelined RISC-V processor core written in SystemVerilog, featuring modular instruction fetch, decode, and execute stages along with a hazard forwarding unit.; language SystemVerilog; stars 0; license unspecified
+- [DharanidharanRavikumar/riscv-decoder](https://github.com/DharanidharanRavikumar/riscv-decoder) — A C-based RISC-V RV32I instruction decoder with opcode, register, immediate, and instruction identification support.; language C; stars 0; license unspecified
+- [talayahya/Loupe](https://github.com/talayahya/Loupe) — C-based RISC-V instruction decoder and execution-core project with a React trace debugger.; language C; stars 0; license MIT
+- [sxbari/MyOS-x86](https://github.com/sxbari/MyOS-x86) — A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.; language C; stars 0; license MIT
+- [aleksandraastojanovic/riscv-kernel](https://github.com/aleksandraastojanovic/riscv-kernel) — A small operating system kernel for RISC-V (rv64), running on QEMU: custom memory allocator, trap-based system calls, cooperative multithreading with context switching — semaphores, preemptive scheduling and console driver in progress.; language C++; stars 0; license NOASSERTION
+- [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
+- [JorgeGBeltre/EspressoOS](https://github.com/JorgeGBeltre/EspressoOS) — EspressoOS: A from‑scratch operating system for ESP32-S3, written entirely in Rust. A Linux‑inspired kernel (VFS, scheduler, syscalls, everything is a file) with no dependencies on Espressif IDF or Arduino. Includes custom bootloader, memory management, drivers, OTA with A/B slots, and an interactive shell.; language Rust; stars 0; license MIT
+- [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
+- [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
+- [kquieter-debug/google-android-kernel-mirror](https://github.com/kquieter-debug/google-android-kernel-mirror) — Mirror of Google Android Common Kernel (ACK) from android.googlesource.com/kernel/common.; language unknown; stars 0; license GPL-2.0
+- [OWLXS/android_kernel_common](https://github.com/OWLXS/android_kernel_common) — kernel/common (android15-6.6.142) fork for the lamu build — hosts local patches (CFI fix, KernelSU/susfs) that kernel/common has no upstream branch to carry; language C; stars 0; license NOASSERTION
+- [riseproject-dev/android_kernel_common](https://github.com/riseproject-dev/android_kernel_common) — No description; language C; stars 0; license NOASSERTION
+- [samw662/android_kernel_motorola_sm6225-common](https://github.com/samw662/android_kernel_motorola_sm6225-common) — motorola sm6225 series kernel; language C; stars 0; license NOASSERTION
+- [LineageOS/android_kernel_amlogic_common_drivers](https://github.com/LineageOS/android_kernel_amlogic_common_drivers) — No description; language C; stars 0; license unspecified
+- [BayLibre/android_kernel_common](https://github.com/BayLibre/android_kernel_common) — No description; language C; stars 0; license NOASSERTION
+- [zaominn/android_kernel_common_oneplus_sm8850](https://github.com/zaominn/android_kernel_common_oneplus_sm8850) — No description; language C; stars 0; license NOASSERTION
+- [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
+- [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
+- [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
+- [Starry-Old/linux_syscall_api](https://github.com/Starry-Old/linux_syscall_api) — The project, written by Rust, is a compatibility layer for linux syscalls on different operating systems.; language Rust; stars 0; license unspecified
 
 ## Local and Library-exported files
 
@@ -245,9 +274,9 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
-- docs/research/isa-command-research.json — 254086 bytes; SHA-256 b33acbc89dd2a9d33acbc4aa0466ba6aef6b14d55d4e87d3837f1c61049a0f6f
+- docs/research/isa-command-research.json — 238933 bytes; SHA-256 d160c79ed7eb7e66f43873c145e034710d177080aba7acc0af266cd68c71a240
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
-- docs/research/ISA_COMMAND_RESEARCH.md — 51090 bytes; SHA-256 107081580ef38ec2bbc1b9eae3e036c46ad5940d4f377a5538b7caeb6705920b
+- docs/research/ISA_COMMAND_RESEARCH.md — 42969 bytes; SHA-256 745f3bb62f87890d83e90295f5361815524706249b1d047c6bb190379e17e76d
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
@@ -294,10 +323,10 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - system/aurora/README.md — 560 bytes; SHA-256 cbf7f5b1c5a528d990aec01b6827d5c9b13e477621aa2ec30c666c0ab1bca802
 - system/commands/chimera-arabic.json — 15130 bytes; SHA-256 01fa7fe0ce65bfe4e808858daaaa2a0349992c2741fc8744c59d020cc20fab78
 - system/commands/chimera-command-list.json — 18321 bytes; SHA-256 d341f12a03c50562c14a687ccba43fdf7744cd8a11fb1ca0cef8c0de59a10be2
-- system/commands/command-runtime-capabilities.json — 1838528 bytes; SHA-256 4b0ff4ea97ffcd93a7f75eaa098ffcb61ef77bdd376414e45a5ee29246bf0c24
+- system/commands/command-runtime-capabilities.json — 1495886 bytes; SHA-256 f5da8bc63d649c4b050e05f1540eb25a57db1eeea76a784bb89cd75601f1f3c0
 - system/commands/compatibility-binary-policy.json — 2614 bytes; SHA-256 1ce577b4bf47de8c6714477f9ab0ea606c3c00ee8dff2c2d09ea42dbcd48e2e8
 - system/commands/online-command-catalog.json — 1479924 bytes; SHA-256 fe6099fef55e5b20473693bd2af811b039db6e7fae8e08b55b2fc7cf195397f0
-- system/commands/ss64-command-catalog.ar.json — 1080118 bytes; SHA-256 7fa0ec27df8459231fbe83e3a0f4d8aa1d57c05623fe283cc1517430182c016f
+- system/commands/ss64-command-catalog.ar.json — 859977 bytes; SHA-256 455c7666e96c6cbae70dc78901aea3c3b82740e7b44f26bf623f39aebb804d32
 - system/hardware/chimera-hardware-profile.json — 524 bytes; SHA-256 884360f762b99759b446f4c61788f61a8528d362203f3f85383c5de44867c343
 - system/hardware/compatibility-modes.json — 5990 bytes; SHA-256 06a4b6bc1d6def4e225f12afde786cbed04b7330806b514f60eff7b33a3fe8e5
 - system/hosted/compatibility-matrix.json — 6671 bytes; SHA-256 689ca9caf01845e1aaff4aba8516dce28cdbcde22230285ade642c01d79dd76a
