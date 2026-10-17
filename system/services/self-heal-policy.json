@@ -3,7 +3,14 @@
   "heartbeat_timeout_seconds": 30,
   "failure_window_seconds": 300,
   "max_restarts_per_window": 2,
-  "restart_allowlist": [],
+  "restart_allowlist": [
+    "kore.service",
+    "console.service",
+    "timer.service",
+    "module-manager.service",
+    "storage.service",
+    "security.service"
+  ],
   "critical_services": [
     "kore.service",
     "console.service",
@@ -13,10 +20,15 @@
     "security.service"
   ],
   "recovery_rules": {
-    "restart_requires": ["allowlist", "explicit_apply", "configured_adapter"],
+    "restart_requires": [
+      "allowlist",
+      "explicit_apply",
+      "configured_adapter"
+    ],
     "max_restarts_per_window": 2,
     "on_repeated_failure": "quarantine-and-report",
-    "kernel_fault": "never-auto-patch-or-reboot"
+    "kernel_fault": "never-auto-patch-or-reboot",
+    "verification_required": "subsequent-heartbeat-or-korectl-status"
   },
   "learning": {
     "event_history": "jsonl",
