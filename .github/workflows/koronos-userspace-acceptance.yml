@@ -95,10 +95,46 @@ jobs:
           grep -Fq "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
           echo "Accepted target=$TARGET firmware=$FIRMWARE qemu_exit=$qemu_rc"
+      - name: Prove in-kernel timeout aborts a non-returning ring-3 process
+        if: matrix.firmware == 'bios'
+        run: |
+          set -euo pipefail
+          ROOT="$PWD"
+          OUT="$ROOT/build/userspace-acceptance/timeout"
+          ISO_ROOT="$OUT/iso"
+          mkdir -p "$ISO_ROOT/boot/grub"
+          cp build/koronos/x86_64/koronos.elf "$ISO_ROOT/boot/koronos.elf"
+          cp build/koronos/x86_64/user-init-timeout.elf "$ISO_ROOT/boot/user-init-timeout.elf"
+          cat > "$ISO_ROOT/boot/grub/grub.cfg" <<'EOF'
+          set timeout=0
+          set default=0
+          terminal_output console
+          menuentry "Koronos in-kernel timeout acceptance" {
+            multiboot2 /boot/koronos.elf
+            module2 /boot/user-init-timeout.elf chimera-user-init-elf target=live
+            boot
+          }
+          EOF
+          grub-mkrescue -o "$OUT/koronos-timeout.iso" "$ISO_ROOT"
+          LOG="$OUT/qemu-timeout.log"
+          set +e
+          timeout 15s qemu-system-x86_64 -machine pc -m 512M -cdrom "$OUT/koronos-timeout.iso" -boot d \
+            -display none -serial none -monitor none -no-reboot -no-shutdown \
+            -debugcon "file:$LOG" -global isa-debugcon.iobase=0xe9
+          qemu_rc=$?
+          set -e
+          cat "$LOG"
+          grep -Fq "[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline" "$LOG"
+          grep -Fq "[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed" "$LOG"
+          ! grep -Fq "USERSPACE READY: live" "$LOG"
+          echo "Accepted in-kernel non-cooperative timeout (outer QEMU exit=$qemu_rc)"
+
       - name: Upload boot diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: userspace-${{ matrix.target }}-${{ matrix.firmware }}-logs
-          path: build/userspace-acceptance/${{ matrix.target }}/qemu-${{ matrix.firmware }}.log
+          path: |
+            build/userspace-acceptance/${{ matrix.target }}/qemu-${{ matrix.firmware }}.log
+            build/userspace-acceptance/timeout/qemu-timeout.log
           if-no-files-found: warn
