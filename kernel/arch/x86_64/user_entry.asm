@@ -4,6 +4,7 @@ section .text
 global koronos_user_entry_init
 global koronos_arch_enter_user
 global koronos_syscall_entry
+global koronos_user_timeout_abort
 extern koronos_syscall_user_dispatch
 extern koronos_bootstrap_pml4
 extern koronos_user_exit_code
@@ -197,6 +198,25 @@ koronos_syscall_user_exit:
     pop rbp
     pop rbx
     mov rax, [rel koronos_user_exit_code]
+    push qword [rel koronos_cpu_syscall_state + 40]
+    popfq
+    swapgs
+    ret
+
+; Called only by the dedicated IRQ0 stub after the in-kernel deadline expires.
+; Discard the interrupted user IRQ frame and resume the original C caller as a
+; failed process, using the same saved kernel continuation as syscall exit.
+koronos_user_timeout_abort:
+    lea rax, [rel koronos_bootstrap_pml4]
+    mov cr3, rax
+    mov rsp, [rel koronos_cpu_syscall_state + 16]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
+    mov eax, -10
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
     swapgs
