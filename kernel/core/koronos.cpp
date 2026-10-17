@@ -408,10 +408,12 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_u32(modules);
     koronos_arch_init(ctx);
     const int address_space_init = (frame_init == 0) ? koronos_address_space_init() : -1;
-    if (address_space_init == 0) {
-        console_write("[MM  ] Process address-space backend ready (NX enabled; user VA begins above 4 GiB)");
+    const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
+    if (address_space_test == 0) {
+        console_write("[MM  ] Process page-table self-test passed: kernel identity mappings preserved; user U/RW/NX permissions verified; frames reclaimed");
+        console_write("[MM  ] User virtual addresses must begin at or above 4 GiB to avoid the bootstrap identity map");
     } else {
-        console_write("[MM  ] ERROR: process address-space backend unavailable; user-image launch remains disabled");
+        console_write("[MM  ] ERROR: process address-space backend unavailable or self-test failed; user-image launch remains disabled");
     }
     console_progress(25, "Architecture discovery and address-space safety checks complete");
 
