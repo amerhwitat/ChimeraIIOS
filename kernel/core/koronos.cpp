@@ -5,6 +5,7 @@
 #include "chimera/multiboot_modules.h"
 #include "chimera/frame_allocator.h"
 #include "chimera/address_space.h"
+#include "chimera/user_entry.h"
 #include "chimera/hardware.h"
 #include "chimera/device.h"
 #include "chimera/firmware.h"
@@ -379,6 +380,18 @@ extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
+extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
+    if (length == 0) return 0;
+    if (length > 4096u) return -22;
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0)
+        return -14;
+    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
+    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    return static_cast<int64_t>(length);
+}
+
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     debugcon_write("[KRN ] koronos_boot entered");
     serial_init();
@@ -409,11 +422,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_arch_init(ctx);
     const int address_space_init = (frame_init == 0) ? koronos_address_space_init() : -1;
     const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
-    if (address_space_test == 0) {
+    const int user_entry_init = (address_space_test == 0) ? koronos_user_entry_init() : -1;
+    if (address_space_test == 0 && user_entry_init == 0) {
         console_write("[MM  ] Process page-table self-test passed: kernel identity mappings preserved; user U/RW/NX permissions verified; frames reclaimed");
+        console_write("[ARCH] GDT/TSS RSP0 and native SYSCALL entry initialized; user-image launch remains gated on target payload acceptance");
         console_write("[MM  ] User virtual addresses must begin at or above 4 GiB to avoid the bootstrap identity map");
     } else {
-        console_write("[MM  ] ERROR: process address-space backend unavailable or self-test failed; user-image launch remains disabled");
+        console_write("[MM  ] ERROR: process address-space or ring-3 entry setup failed; user-image launch remains disabled");
     }
     console_progress(25, "Architecture discovery and address-space safety checks complete");
 
