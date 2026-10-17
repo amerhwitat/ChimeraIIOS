@@ -48,6 +48,22 @@ class SS64RootfsMappingTests(unittest.TestCase):
             self.assertEqual(existing.read_text(encoding="utf-8"), "administrator binary")
             self.assertEqual(os.readlink(existing_sbin), "../usr/bin/grep")
 
+    def test_merged_usr_symlink_layout_uses_valid_relative_targets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "usr/bin").mkdir(parents=True)
+            (root / "usr/sbin").mkdir(parents=True)
+            (root / "usr/bin/ls").write_text("provider", encoding="utf-8")
+            (root / "bin").symlink_to("usr/bin")
+            (root / "sbin").symlink_to("usr/sbin")
+            counts = MODULE.install_command_path_aliases(root, ["ls", "grep"])
+            self.assertEqual(counts, {"bin": 1, "sbin": 2})
+            self.assertEqual((root / "bin/ls").resolve(), (root / "usr/bin/ls").resolve())
+            self.assertEqual((root / "sbin/ls").resolve(), (root / "usr/bin/ls").resolve())
+            self.assertEqual((root / "sbin/grep").resolve(), (root / "usr/bin/grep").resolve())
+            self.assertEqual(os.readlink(root / "usr/sbin/ls"), "../bin/ls")
+            self.assertEqual(os.readlink(root / "usr/sbin/grep"), "../bin/grep")
+
     def test_does_not_treat_dispatcher_shim_as_real_provider(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
