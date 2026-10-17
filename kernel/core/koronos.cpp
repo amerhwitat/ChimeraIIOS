@@ -4,6 +4,7 @@
 #include "chimera/learning.h"
 #include "chimera/multiboot_modules.h"
 #include "chimera/frame_allocator.h"
+#include "chimera/address_space.h"
 #include "chimera/hardware.h"
 #include "chimera/device.h"
 #include "chimera/firmware.h"
@@ -406,7 +407,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
-    console_progress(25, "Architecture and interrupt setup complete");
+    const int address_space_init = (frame_init == 0) ? koronos_address_space_init() : -1;
+    if (address_space_init == 0) {
+        console_write("[MM  ] Process address-space backend ready (NX enabled; user VA begins above 4 GiB)");
+    } else {
+        console_write("[MM  ] ERROR: process address-space backend unavailable; user-image launch remains disabled");
+    }
+    console_progress(25, "Architecture discovery and address-space safety checks complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
