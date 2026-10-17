@@ -87,6 +87,7 @@ extern "C" {
 volatile uint64_t koronos_user_exit_code = 0;
 }
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
+extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
@@ -109,6 +110,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
             koronos_user_exit_code = frame->rdi & 0xFFu;
+            koronos_target_log("[SYSC] userspace exit syscall received");
             return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
         default:
             return static_cast<uint64_t>(-38ll);
