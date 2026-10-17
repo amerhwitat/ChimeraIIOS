@@ -3,7 +3,7 @@
 #include "chimera/address_space.h"
 #include "chimera/frame_allocator.h"
 #include "chimera/koronos_abi.h"
-
+extern "C" uint8_t koronos_bootstrap_pml4[];
 namespace {
 constexpr uint64_t PAGE_SIZE = 4096ull;
 constexpr uint64_t PAGE_MASK = PAGE_SIZE - 1ull;
