@@ -88,7 +88,9 @@ def install_command_path_aliases(rootfs, names):
             if target.exists() or target.is_symlink():
                 continue
             try:
-                target.symlink_to("../usr/bin/" + name)
+                provider = rootfs / "usr/bin" / name
+                relative_provider = os.path.relpath(provider, start=target_dir.resolve())
+                target.symlink_to(relative_provider)
                 installed[directory] += 1
             except FileExistsError:
                 pass
