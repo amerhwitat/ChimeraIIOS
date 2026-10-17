@@ -3,6 +3,8 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/multiboot_modules.h"
 
+extern "C" uint8_t __kernel_end;
+
 namespace {
 constexpr uint32_t PAGE_COUNT = static_cast<uint32_t>(KORONOS_FRAME_PHYS_LIMIT / KORONOS_FRAME_SIZE);
 constexpr uint32_t WORD_BITS = 32u;
@@ -105,7 +107,6 @@ extern "C" int koronos_frame_allocator_init(uint64_t info) {
 
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
     const uint32_t total = *reinterpret_cast<const uint32_t *>(base);
-    extern uint8_t __kernel_end;
     reserve_range(0, 0x100000u);
     reserve_range(0x100000u, reinterpret_cast<uintptr_t>(&__kernel_end) - 0x100000u);
     reserve_range(info, total);
