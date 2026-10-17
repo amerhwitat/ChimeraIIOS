@@ -4,6 +4,7 @@
 #include "chimera/learning.h"
 #include "chimera/multiboot_modules.h"
 #include "chimera/frame_allocator.h"
+#include "chimera/address_space.h"
 #include "chimera/hardware.h"
 #include "chimera/device.h"
 #include "chimera/firmware.h"
@@ -406,7 +407,15 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
-    console_progress(25, "Architecture and interrupt setup complete");
+    const int address_space_init = (frame_init == 0) ? koronos_address_space_init() : -1;
+    const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
+    if (address_space_test == 0) {
+        console_write("[MM  ] Process page-table self-test passed: kernel identity mappings preserved; user U/RW/NX permissions verified; frames reclaimed");
+        console_write("[MM  ] User virtual addresses must begin at or above 4 GiB to avoid the bootstrap identity map");
+    } else {
+        console_write("[MM  ] ERROR: process address-space backend unavailable or self-test failed; user-image launch remains disabled");
+    }
+    console_progress(25, "Architecture discovery and address-space safety checks complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
