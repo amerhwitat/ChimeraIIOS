@@ -16,6 +16,8 @@ extern koronos_user_exit_code
 ; Sets up a dedicated syscall stack and a 64-bit TSS. Kernel selectors retain
 ; their established values (CS=0x08, SS=0x10); ring 3 uses data=0x1B, code=0x23.
 koronos_user_entry_init:
+    pushfq
+    push rbx
     cli
     lea rax, [rel koronos_syscall_stack_top]
     mov [rel koronos_tss64 + 4], rax       ; TSS.RSP0
@@ -79,6 +81,8 @@ koronos_user_entry_init:
     shr rdx, 32
     wrmsr
     xor eax, eax
+    pop rbx
+    popfq
     ret
 
 ; int koronos_arch_enter_user(cr3, entry, user_stack_top)
