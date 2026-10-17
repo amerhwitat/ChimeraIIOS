@@ -83,8 +83,12 @@ extern "C" int chimera_syscall_get_snapshot(chimera_syscall_snapshot *out) {
     return 0;
 }
 
-extern "C" volatile uint64_t koronos_user_exit_code = 0;
+extern "C" {
+volatile uint64_t koronos_user_exit_code = 0;
+}
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
+
+}
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
