@@ -23,6 +23,9 @@ class SS64RootfsMappingTests(unittest.TestCase):
                 root, ["ls", "grep", "Get-Process", "bad/name", "../escape", ""]
             )
             self.assertEqual(counts, {"bin": 3, "sbin": 3})
+            self.assertEqual(MODULE.validate_command_path_aliases(
+                root, ["ls", "grep", "Get-Process", "bad/name", "../escape", ""]
+            ), 3)
             for directory in ("bin", "sbin"):
                 for name in ("ls", "grep", "Get-Process"):
                     link = root / directory / name
@@ -62,6 +65,15 @@ class SS64RootfsMappingTests(unittest.TestCase):
                     self.assertTrue(path.exists() or path.is_symlink(), f"{directory}/{name}")
                     self.assertEqual(path.resolve(), (root / "usr/bin" / name).resolve(),
                                      f"incorrect {directory}/{name} target")
+
+    def test_validator_rejects_missing_or_dangling_command_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "bin").mkdir()
+            (root / "sbin").mkdir()
+            (root / "bin/missing").symlink_to("../usr/bin/missing")
+            with self.assertRaisesRegex(RuntimeError, "SS64 command paths missing or dangling"):
+                MODULE.validate_command_path_aliases(root, ["missing"])
 
     def test_preserves_existing_files_and_links(self):
         with tempfile.TemporaryDirectory() as temp:
