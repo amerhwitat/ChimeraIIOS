@@ -91,13 +91,17 @@ koronos_user_entry_init:
 koronos_arch_enter_user:
     cmp rdi, 0
     je .bad_user_entry
-    cmp rsi, 0x0000000100000000
+    mov rax, 0x0000000100000000
+    cmp rsi, rax
     jb .bad_user_entry
-    cmp rsi, 0x0000800000000000
+    mov rax, 0x0000800000000000
+    cmp rsi, rax
     jae .bad_user_entry
-    cmp rdx, 0x0000000100000000
+    mov rax, 0x0000000100000000
+    cmp rdx, rax
     jb .bad_user_entry
-    cmp rdx, 0x0000800000000000
+    mov rax, 0x0000800000000000
+    cmp rdx, rax
     jae .bad_user_entry
     test rdx, 0xF
     jnz .bad_user_entry
@@ -146,7 +150,8 @@ koronos_syscall_entry:
     sub rsp, 8
     call koronos_syscall_user_dispatch
     add rsp, 8
-    cmp rax, EXIT_SENTINEL
+    mov rdx, EXIT_SENTINEL
+    cmp rax, rdx
     je .user_exit
 
     mov [gs:24], rax
