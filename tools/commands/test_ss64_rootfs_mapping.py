@@ -18,7 +18,8 @@ class SS64RootfsMappingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "usr/bin").mkdir(parents=True)
-            (root / "usr/bin/ls").write_text("provider", encoding="utf-8")
+            for name in ("ls", "grep", "Get-Process"):
+                (root / "usr/bin" / name).write_text("provider", encoding="utf-8")
             counts = MODULE.install_command_path_aliases(
                 root, ["ls", "grep", "Get-Process", "bad/name", "../escape", ""]
             )
