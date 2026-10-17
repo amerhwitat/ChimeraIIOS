@@ -107,3 +107,62 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
     chimera_interrupt_identity identity{};
     chimera_compat_recognize_interrupt((uint32_t)vector, &identity);
 }
+
+
+namespace {
+static volatile uint32_t user_timeout_ticks = 0;
+static volatile uint32_t user_timeout_active = 0;
+static inline void port_out8(uint16_t port, uint8_t value) {
+    __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
+}
+static inline void io_wait() { port_out8(0x80, 0); }
+}
+
+extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
+    if (ticks == 0) return -1;
+    __asm__ volatile("cli" ::: "memory");
+    if (chimera_interrupt_init() != 0) return -2;
+
+    // Remap the legacy PIC to vectors 0x20..0x2f, then expose only IRQ0.
+    port_out8(0x20, 0x11); io_wait();
+    port_out8(0xA0, 0x11); io_wait();
+    port_out8(0x21, 0x20); io_wait();
+    port_out8(0xA1, 0x28); io_wait();
+    port_out8(0x21, 0x04); io_wait();
+    port_out8(0xA1, 0x02); io_wait();
+    port_out8(0x21, 0x01); io_wait();
+    port_out8(0xA1, 0x01); io_wait();
+
+    // PIT channel 0, mode 3, approximately 100 Hz (1,193,182 / 11,932).
+    const uint16_t divisor = 11932;
+    port_out8(0x43, 0x36);
+    port_out8(0x40, static_cast<uint8_t>(divisor & 0xffu));
+    port_out8(0x40, static_cast<uint8_t>(divisor >> 8));
+
+    user_timeout_ticks = ticks;
+    user_timeout_active = 1;
+    port_out8(0x21, 0xFE); // unmask IRQ0 only
+    port_out8(0xA1, 0xFF); // mask all slave PIC IRQs
+    return 0;
+}
+
+extern "C" void koronos_user_timeout_disarm(void) {
+    __asm__ volatile("cli" ::: "memory");
+    user_timeout_active = 0;
+    user_timeout_ticks = 0;
+    port_out8(0x21, 0xFF);
+    port_out8(0xA1, 0xFF);
+}
+
+extern "C" int koronos_user_timeout_irq(void) {
+    // Acknowledge IRQ0 before checking the deadline so the PIC can deliver
+    // subsequent ticks while the user task is still within its time budget.
+    port_out8(0x20, 0x20);
+    if (!user_timeout_active) return 0;
+    if (user_timeout_ticks > 0) --user_timeout_ticks;
+    if (user_timeout_ticks == 0) {
+        user_timeout_active = 0;
+        return 1;
+    }
+    return 0;
+}

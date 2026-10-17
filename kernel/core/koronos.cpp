@@ -6,6 +6,7 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/address_space.h"
 #include "chimera/user_entry.h"
+#include "chimera/target_launch.h"
 #include "chimera/hardware.h"
 #include "chimera/device.h"
 #include "chimera/firmware.h"
@@ -240,6 +241,13 @@ static void task_modules(void *) {
 
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
+        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+            const int launch_rc = koronos_launch_selected_userspace();
+            if (launch_rc != 0)
+                console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
+            chimera_sched_block();
+            return;
+        }
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
@@ -388,8 +396,15 @@ extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length)
     if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0)
         return -14;
     const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
+    (void)koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length);
     for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
     return static_cast<int64_t>(length);
+}
+
+extern "C" void koronos_target_log(const char *message) {
+    if (!message) return;
+    debugcon_write(message);
+    console_write(message);
 }
 
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {

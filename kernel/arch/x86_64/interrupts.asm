@@ -13,9 +13,60 @@ global chimera_isr_table
 global chimera_isr_%+v
 chimera_isr_%+v:
     push qword v
+%if v = 32
+    jmp koronos_timer_irq_common
+%else
     jmp chimera_interrupt_common
+%endif
 %assign v v+1
 %endrep
+
+; IRQ0 is the only interrupt enabled while a userspace image runs. The TSS
+; switches to RSP0 before this stub; swapgs establishes the kernel GS state.
+; A timeout aborts the user continuation and returns to the saved kernel call
+; frame instead of IRETQ'ing back into the expired user process.
+extern koronos_user_timeout_irq
+extern koronos_user_timeout_abort
+koronos_timer_irq_common:
+    swapgs
+    push rax
+    push rcx
+    push rdx
+    push rbx
+    push rbp
+    push rsi
+    push rdi
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    sub rsp, 8
+    call koronos_user_timeout_irq
+    add rsp, 8
+    test eax, eax
+    jnz koronos_user_timeout_abort
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdi
+    pop rsi
+    pop rbp
+    pop rbx
+    pop rdx
+    pop rcx
+    pop rax
+    add rsp, 8
+    swapgs
+    iretq
 
 chimera_interrupt_common:
     push rax

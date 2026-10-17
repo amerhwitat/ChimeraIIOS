@@ -4,6 +4,7 @@ section .text
 global koronos_user_entry_init
 global koronos_arch_enter_user
 global koronos_syscall_entry
+global koronos_user_timeout_abort
 extern koronos_syscall_user_dispatch
 extern koronos_bootstrap_pml4
 extern koronos_user_exit_code
@@ -105,6 +106,14 @@ koronos_arch_enter_user:
     jae .bad_user_entry
     test rdx, 0xF
     jnz .bad_user_entry
+    ; SYSCALL exit returns to this C caller, so preserve the callee-saved
+    ; registers exactly as a normal ABI-conforming function must.
+    push rbx
+    push rbp
+    push r12
+    push r13
+    push r14
+    push r15
     pushfq
     pop rax
     mov [rel koronos_cpu_syscall_state + 40], rax
@@ -119,7 +128,7 @@ koronos_arch_enter_user:
     mov cr3, rdi
     push qword USER_DATA
     push rdx
-    push qword 0x2                           ; interrupts stay disabled until IRQ-safe user runtime
+    push qword 0x202                         ; enable IRQs in ring 3; IRQ0 enforces the in-kernel deadline
     push qword USER_CODE
     push rsi
     iretq
@@ -176,13 +185,38 @@ koronos_syscall_entry:
     mov rsp, [gs:8]
     mov rax, [gs:24]
     swapgs
-    sysret
+    o64 sysret
 
 koronos_syscall_user_exit:
     lea rax, [rel koronos_bootstrap_pml4]
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
     mov rax, [rel koronos_user_exit_code]
+    push qword [rel koronos_cpu_syscall_state + 40]
+    popfq
+    swapgs
+    ret
+
+; Called only by the dedicated IRQ0 stub after the in-kernel deadline expires.
+; Discard the interrupted user IRQ frame and resume the original C caller as a
+; failed process, using the same saved kernel continuation as syscall exit.
+koronos_user_timeout_abort:
+    lea rax, [rel koronos_bootstrap_pml4]
+    mov cr3, rax
+    mov rsp, [rel koronos_cpu_syscall_state + 16]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
+    mov eax, -10
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
     swapgs
