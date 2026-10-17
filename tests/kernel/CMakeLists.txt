@@ -90,3 +90,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_elf64_admission_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_elf64_admission COMMAND chimera_elf64_admission_test)
+
+
+add_executable(chimera_process_loader_test
+  process_loader_test.cpp
+  ../../kernel/core/process_loader.cpp
+  ../../kernel/core/elf64.cpp
+)
+target_include_directories(chimera_process_loader_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_process_loader_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_process_loader_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_process_loader COMMAND chimera_process_loader_test)

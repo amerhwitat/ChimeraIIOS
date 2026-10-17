@@ -1,6 +1,13 @@
 #include "chimera/process_loader.h"
 namespace {
 constexpr uint32_t PT_LOAD=1u, PF_X=1u, PF_W=2u, PF_R=4u;
+static void copy_bytes(void *destination,const void *source,uint64_t length){
+ auto*dst=static_cast<uint8_t*>(destination);const auto*src=static_cast<const uint8_t*>(source);
+ for(uint64_t i=0;i<length;i++)dst[i]=src[i];
+}
+static void zero_bytes(void *destination,uint64_t length){
+ auto*dst=static_cast<uint8_t*>(destination);for(uint64_t i=0;i<length;i++)dst[i]=0;
+}
 static bool add_ok(uint64_t a,uint64_t b,uint64_t*out){if(a>UINT64_MAX-b)return false;*out=a+b;return true;}
 static bool align_up(uint64_t x,uint64_t*out){if(x>UINT64_MAX-(CHIMERA_ELF_PAGE_SIZE-1u))return false;*out=(x+CHIMERA_ELF_PAGE_SIZE-1u)&~(CHIMERA_ELF_PAGE_SIZE-1u);return true;}
 static uint64_t align_down(uint64_t x){return x&~(CHIMERA_ELF_PAGE_SIZE-1u);}
@@ -12,7 +19,7 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  uint64_t stack_top,uint64_t stack_size,const chimera_elf_load_ops*ops,void*context,chimera_loaded_elf*out){
  if(!image||!out||!ops||!ops->create_address_space||!ops->map_pages||!ops->destroy_address_space)return -1;
  if(image_size<sizeof(koronos_elf64_ehdr))return -2;
- koronos_elf64_ehdr h{};__builtin_memcpy(&h,image,sizeof(h));
+ koronos_elf64_ehdr h{};copy_bytes(&h,image,sizeof(h));
  if(!koronos_elf64_valid(&h)||h.e_ehsize<sizeof(h)||h.e_machine!=machine||h.e_type!=KORONOS_ET_EXEC||
     h.e_phentsize!=sizeof(koronos_elf64_phdr)||h.e_phnum==0||h.e_phnum>CHIMERA_ELF_LOADER_MAX_SEGMENTS)return -3;
  const uint64_t phbytes=(uint64_t)h.e_phnum*h.e_phentsize;
@@ -25,7 +32,7 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  uint64_t low=UINT64_MAX,high=0,file_bytes=0;bool entry_x=false;
  const auto*bytes=static_cast<const uint8_t*>(image);
  for(uint16_t i=0;i<h.e_phnum;i++){
-  koronos_elf64_phdr ph{};__builtin_memcpy(&ph,bytes+h.e_phoff+(uint64_t)i*h.e_phentsize,sizeof(ph));
+  koronos_elf64_phdr ph{};copy_bytes(&ph,bytes+h.e_phoff+(uint64_t)i*h.e_phentsize,sizeof(ph));
   if(ph.p_type!=PT_LOAD)continue;
   if(count>=CHIMERA_ELF_LOADER_MAX_SEGMENTS||ph.p_memsz<ph.p_filesz||!inside(ph.p_offset,ph.p_filesz,image_size)||
      ph.p_memsz==0||(ph.p_flags&~(PF_R|PF_W|PF_X))!=0||(ph.p_flags&(PF_W|PF_X))==(PF_W|PF_X))return -6;
@@ -50,12 +57,12 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  for(uint32_t i=0;i<count;i++){
   const Plan&p=plans[i];void*alias=nullptr;
   if(ops->map_pages(context,as,p.base,p.size,p.ph.p_flags,&alias)!=0||!alias){ops->destroy_address_space(context,as);return -14;}
-  auto*dst=static_cast<uint8_t*>(alias);__builtin_memset(dst,0,(size_t)p.size);
-  if(p.ph.p_filesz)__builtin_memcpy(dst+p.delta,bytes+p.ph.p_offset,(size_t)p.ph.p_filesz);
+  auto*dst=static_cast<uint8_t*>(alias);zero_bytes(dst,p.size);
+  if(p.ph.p_filesz)copy_bytes(dst+p.delta,bytes+p.ph.p_offset,p.ph.p_filesz);
  }
  void*stack_alias=nullptr;
  if(ops->map_pages(context,as,stack_base,stack_size,PF_R|PF_W,&stack_alias)!=0||!stack_alias){ops->destroy_address_space(context,as);return -15;}
- __builtin_memset(stack_alias,0,(size_t)stack_size);
+ zero_bytes(stack_alias,stack_size);
  chimera_loaded_elf result{};result.abi=CHIMERA_ELF_LOADER_ABI;result.segment_count=count;result.address_space=as;
  result.entry=h.e_entry;result.user_stack_top=stack_top;result.image_low=low;result.image_high=high;result.loaded_file_bytes=file_bytes;
  *out=result;return 0;
