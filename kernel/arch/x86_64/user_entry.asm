@@ -112,6 +112,7 @@ koronos_arch_enter_user:
     mov [rel koronos_cpu_syscall_state + 16], rsp
     lea rax, [rel koronos_bootstrap_pml4]
     mov [rel koronos_cpu_syscall_state + 48], rax
+    mov qword [rel koronos_user_exit_code], 0
     lea rax, [rel koronos_syscall_stack_top]
     mov [rel koronos_cpu_syscall_state + 0], rax
     mov [rel koronos_tss64 + 4], rax
