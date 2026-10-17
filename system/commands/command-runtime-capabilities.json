@@ -2,19 +2,11 @@
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
   "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
   "native_binary": "rootfs/usr/bin/chimera-cmd",
-<<<<<<< HEAD
   "command_count": 4122,
   "mode_counts": {
     "compatibility-provider-required": 3883,
     "native": 15,
     "native-provider-required": 171,
-=======
-  "command_count": 3418,
-  "mode_counts": {
-    "compatibility-provider-required": 3179,
-    "native": 21,
-    "native-provider-required": 165,
->>>>>>> 7c53579e ( Changes to be committed:)
     "shell-builtin": 53
   },
   "commands": [
@@ -6840,7 +6832,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Anubis",
       "platforms": [
         "gnu_linux"
@@ -6876,16 +6867,6 @@
       "source_urls": [
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/append"
       ]
-=======
-      "name": "append",
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "application associated",
@@ -6968,19 +6949,6 @@
     },
     {
       "name": "ar",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "argument",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "developer-tools",
         "posix"
@@ -7125,7 +7093,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Artanis",
       "platforms": [
         "gnu_linux"
@@ -7150,8 +7117,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "as",
       "platforms": [
         "developer-tools"
@@ -7301,19 +7266,6 @@
     },
     {
       "name": "assign",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "Assignment Operators",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "dos-retro",
         "windows"
@@ -7469,12 +7421,9 @@
     {
       "name": "ATTRIB",
       "platforms": [
-<<<<<<< HEAD
         "linux_posix_shells",
         "macos",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -8185,7 +8134,6 @@
     {
       "name": "basename ()",
       "platforms": [
-<<<<<<< HEAD
         "posix"
       ],
       "mode": "compatibility-provider-required",
@@ -8204,12 +8152,6 @@
         "macos",
         "posix"
       ],
-=======
-        "linux_bash",
-        "macos",
-        "posix"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native POSIX process ABI",
       "arabic_label": "أمر نظام — bash",
@@ -10023,7 +9965,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Blog",
       "platforms": [
         "powershell"
@@ -10216,8 +10157,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "BOOTREC",
       "platforms": [
         "windows_cmd"
@@ -10345,7 +10284,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Bug Reports",
       "platforms": [
         "freebsd_unix"
@@ -10382,8 +10320,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "Built-in Constants",
       "platforms": [
         "vbscript"
@@ -10446,7 +10382,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "bytes",
       "platforms": [
         "macos"
@@ -10476,24 +10411,6 @@
         "linux_posix_shells",
         "macos"
       ],
-=======
-      "name": "bzcat",
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "bzip2",
-      "platforms": [
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — bzip2",
@@ -10503,21 +10420,7 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "C",
-=======
-      "name": "c++",
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "C:\\Program Files or C:\\Program Files (x86)",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "windows"
       ],
@@ -10636,12 +10539,8 @@
     {
       "name": "CALL",
       "platforms": [
-<<<<<<< HEAD
         "linux_posix_shells",
         "windows",
-=======
-        "powershell",
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -10703,16 +10602,6 @@
       "source_urls": [
         "https://ss64.com/access/rst-cancelupdate.html"
       ]
-    },
-    {
-      "name": "cargo",
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
     },
     {
       "name": "cargo",
@@ -10813,7 +10702,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "ccAudio",
       "platforms": [
         "gnu_linux"
@@ -10886,8 +10774,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "CCur",
       "platforms": [
         "access",
@@ -11160,10 +11046,7 @@
     {
       "name": "CHCP",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -11305,7 +11188,6 @@
     {
       "name": "chglogon",
       "platforms": [
-<<<<<<< HEAD
         "windows"
       ],
       "mode": "compatibility-provider-required",
@@ -11336,12 +11218,6 @@
         "macos",
         "posix"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — chgrp",
@@ -11498,11 +11374,7 @@
       "platforms": [
         "chimera-native"
       ],
-<<<<<<< HEAD
       "mode": "native-provider-required",
-=======
-      "mode": "native",
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
@@ -11542,11 +11414,7 @@
       "platforms": [
         "chimera-native"
       ],
-<<<<<<< HEAD
       "mode": "native-provider-required",
-=======
-      "mode": "native",
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
@@ -11656,11 +11524,7 @@
       "platforms": [
         "chimera-native"
       ],
-<<<<<<< HEAD
       "mode": "native-provider-required",
-=======
-      "mode": "native",
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
@@ -12020,11 +11884,7 @@
       "platforms": [
         "chimera-native"
       ],
-<<<<<<< HEAD
       "mode": "native-provider-required",
-=======
-      "mode": "native",
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
@@ -12034,11 +11894,7 @@
       "platforms": [
         "chimera-native"
       ],
-<<<<<<< HEAD
       "mode": "native-provider-required",
-=======
-      "mode": "native",
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
@@ -12048,11 +11904,7 @@
       "platforms": [
         "chimera-native"
       ],
-<<<<<<< HEAD
       "mode": "native-provider-required",
-=======
-      "mode": "native",
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
@@ -12263,10 +12115,7 @@
     {
       "name": "CHKDSK",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -12338,10 +12187,7 @@
       "name": "CHOICE",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
@@ -12568,7 +12414,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "cl",
       "platforms": [
         "gnu_linux"
@@ -12581,8 +12426,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "clang",
       "platforms": [
         "developer-tools"
@@ -12593,7 +12436,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "classes",
       "platforms": [
         "windows"
@@ -12606,8 +12448,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "ClassID",
       "platforms": [
         "windows_cmd"
@@ -12896,10 +12736,7 @@
     {
       "name": "CLS",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -12912,7 +12749,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "clutter",
       "platforms": [
         "gnu_linux"
@@ -12937,8 +12773,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "cmake",
       "platforms": [
         "developer-tools"
@@ -14110,11 +13944,8 @@
     {
       "name": "COPY",
       "platforms": [
-<<<<<<< HEAD
         "linux_posix_shells",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -15000,7 +14831,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Crypto",
       "platforms": [
         "gnu_linux"
@@ -15013,8 +14843,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "cryptsetup",
       "platforms": [
         "storage-filesystem"
@@ -15299,7 +15127,6 @@
     {
       "name": "Cursynth",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -15318,12 +15145,6 @@
         "macos",
         "posix"
       ],
-=======
-        "gnu-coreutils",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native provider binary",
       "arabic_label": "أمر نظام — cut",
@@ -16100,7 +15921,6 @@
     {
       "name": "dcpromo",
       "platforms": [
-<<<<<<< HEAD
         "windows"
       ],
       "mode": "compatibility-provider-required",
@@ -16119,12 +15939,6 @@
         "macos",
         "posix"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — dd",
@@ -16189,7 +16003,6 @@
     {
       "name": "debug",
       "platforms": [
-<<<<<<< HEAD
         "dos-retro"
       ],
       "mode": "compatibility-provider-required",
@@ -16217,14 +16030,6 @@
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
       "arabic_label": "مهمة (Debug-Job)",
-=======
-        "dos-retro",
-        "powershell"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": "أمر نظام — debug",
->>>>>>> 7c53579e ( Changes to be committed:)
       "source_urls": [
         "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/debug-job"
       ]
@@ -16322,10 +16127,7 @@
       "name": "DEFRAG",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
@@ -16351,10 +16153,7 @@
     {
       "name": "DEL",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -16766,7 +16565,6 @@
     {
       "name": "dfsdiag",
       "platforms": [
-<<<<<<< HEAD
         "windows"
       ],
       "mode": "compatibility-provider-required",
@@ -16881,12 +16679,6 @@
         "macos",
         "posix"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — diff",
@@ -16927,10 +16719,7 @@
       "name": "dig",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "network-admin"
       ],
@@ -16988,10 +16777,7 @@
         "linux_bash",
         "linux_posix_shells",
         "vbscript",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -17059,7 +16845,6 @@
     {
       "name": "directory listing",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -17114,12 +16899,6 @@
         "macos",
         "posix"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "اعرض — dirname",
@@ -17340,7 +17119,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Discover PowerShell",
       "platforms": [
         "windows"
@@ -17376,16 +17154,6 @@
       "source_urls": [
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/diskcopy"
       ]
-=======
-      "name": "diskcopy",
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "DISKPART",
@@ -17674,10 +17442,7 @@
       "platforms": [
         "busybox",
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "system-services"
       ],
       "mode": "native-provider-required",
@@ -17849,7 +17614,6 @@
     {
       "name": "Dominion",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -17878,11 +17642,6 @@
         "linux_bash",
         "linux_posix_shells"
       ],
-=======
-        "busybox",
-        "linux_bash"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — dos2unix",
@@ -19014,7 +18773,6 @@
     {
       "name": "dtrace",
       "platforms": [
-<<<<<<< HEAD
         "windows"
       ],
       "mode": "compatibility-provider-required",
@@ -19035,14 +18793,6 @@
         "posix",
         "windows_cmd"
       ],
-=======
-        "busybox",
-        "gnu-coreutils",
-        "linux_bash",
-        "macos",
-        "windows_cmd"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "احسب أحجام الملفات",
@@ -19126,22 +18876,13 @@
     {
       "name": "echo",
       "platforms": [
-<<<<<<< HEAD
-=======
-        "access",
->>>>>>> 7c53579e ( Changes to be committed:)
         "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
-<<<<<<< HEAD
         "posix",
         "windows",
-=======
-        "powershell",
-        "vbscript",
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -19257,16 +18998,6 @@
       "source_urls": [
         "https://www.gnu.org/software/emacs/manual/html_node/eglot/"
       ]
-    },
-    {
-      "name": "edit",
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
     },
     {
       "name": "egrep",
@@ -19743,10 +19474,7 @@
       "platforms": [
         "gnu-coreutils",
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "posix"
       ],
@@ -20856,14 +20584,10 @@
       "name": "FC",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "linux_posix_shells",
         "macos",
         "posix",
         "windows",
-=======
-        "macos",
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -20894,18 +20618,12 @@
       "name": "fdisk",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "storage-filesystem",
         "windows_cmd"
-=======
-        "linux_bash",
-        "macos",
-        "storage-filesystem"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "compatibility-provider-required",
       "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
@@ -21130,11 +20848,8 @@
         "linux_bash",
         "linux_posix_shells",
         "macos",
-<<<<<<< HEAD
         "posix",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -21199,10 +20914,7 @@
     {
       "name": "FINDSTR",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -21749,7 +21461,6 @@
     {
       "name": "formatting system",
       "platforms": [
-<<<<<<< HEAD
         "windows"
       ],
       "mode": "compatibility-provider-required",
@@ -21826,12 +21537,6 @@
         "linux_bash",
         "system-services"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "system-services"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": null,
@@ -21975,15 +21680,10 @@
       "name": "fsck",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
         "macos",
         "storage-filesystem",
         "windows_cmd"
-=======
-        "macos",
-        "storage-filesystem"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed native utility; privileged operations require authorization",
@@ -22296,7 +21996,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "ftp ascii",
       "platforms": [
         "windows"
@@ -22753,8 +22452,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "ftpget",
       "platforms": [
         "busybox"
@@ -22910,7 +22607,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "fveupdate",
       "platforms": [
         "windows"
@@ -22935,8 +22631,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "g++",
       "platforms": [
         "developer-tools"
@@ -22947,7 +22641,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "G-Golf",
       "platforms": [
         "gnu_linux"
@@ -22972,8 +22665,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "gawk",
       "platforms": [
         "gnu_linux",
@@ -22989,7 +22680,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "gawkinet",
       "platforms": [
         "gnu_linux"
@@ -23014,8 +22704,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "gcc",
       "platforms": [
         "developer-tools"
@@ -25109,7 +24797,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Getting started with Azure PowerShell",
       "platforms": [
         "windows"
@@ -25182,8 +24869,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "git",
       "platforms": [
         "developer-tools"
@@ -25194,7 +24879,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Git Repository",
       "platforms": [
         "freebsd_unix"
@@ -25231,8 +24915,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "global",
       "platforms": [
         "gnu_linux",
@@ -25382,7 +25064,6 @@
     {
       "name": "GNU ART",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -25890,11 +25571,6 @@
         "developer-tools",
         "sql_server"
       ],
-=======
-        "developer-tools",
-        "sql_server"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed toolchain/provider",
       "arabic_label": "أمر نظام — GO",
@@ -26106,21 +25782,11 @@
     {
       "name": "Greg",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
       "provider": "platform-runtime-not-selected",
       "arabic_label": "أمر نظام — Greg",
-=======
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": "ابحث داخل النصوص",
->>>>>>> 7c53579e ( Changes to be committed:)
       "source_urls": [
         "https://www.gnu.org/software/greg/gregdoc.html"
       ]
@@ -26503,23 +26169,10 @@
       ]
     },
     {
-      "name": "gunzip",
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "gzip",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "gnu_linux",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -26809,19 +26462,6 @@
     },
     {
       "name": "hexdump",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "hidden",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "busybox"
       ],
@@ -26886,25 +26526,12 @@
       "name": "host",
       "platforms": [
         "macos",
-<<<<<<< HEAD
         "network-admin"
       ],
       "mode": "native-provider-required",
       "provider": "installed native utility and permitted system capabilities",
       "arabic_label": null,
       "source_urls": []
-=======
-        "network-admin",
-        "powershell"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility and permitted system capabilities",
-      "arabic_label": "أمر نظام — host",
-      "source_urls": [
-        "https://ss64.com/bash/hostname.html",
-        "https://ss64.com/ps/get-host.html"
-      ]
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "hostname",
@@ -27074,7 +26701,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "https://man.FreeBSD.org/cgi/man.cgi?manpath=centos",
       "platforms": [
         "freebsd_unix"
@@ -27135,8 +26761,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "Hybrid",
       "platforms": [
         "vbscript"
@@ -27299,15 +26923,9 @@
       "platforms": [
         "powershell"
       ],
-<<<<<<< HEAD
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
       "arabic_label": "أمر نظام — IDictionary",
-=======
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
-      "arabic_label": "أمر نظام — id",
->>>>>>> 7c53579e ( Changes to be committed:)
       "source_urls": [
         "https://learn.microsoft.com/en-us/dotnet/api/system.collections.idictionary"
       ]
@@ -28229,10 +27847,7 @@
       "name": "ip",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "network-admin"
       ],
@@ -28260,10 +27875,7 @@
       "name": "IPCONFIG",
       "platforms": [
         "macos",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -28277,21 +27889,7 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "ipcrm",
-=======
-      "name": "iptables",
-      "platforms": [
-        "network-admin"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility and permitted system capabilities",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "Is Directory",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "posix"
       ],
@@ -28598,7 +28196,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Java Training Wheels",
       "platforms": [
         "gnu_linux"
@@ -28611,8 +28208,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "javac",
       "platforms": [
         "developer-tools"
@@ -28623,7 +28218,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Jel",
       "platforms": [
         "gnu_linux"
@@ -28661,9 +28255,6 @@
     },
     {
       "name": "Job",
-=======
-      "name": "job",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "powershell"
       ],
@@ -28794,7 +28385,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "JSON",
       "platforms": [
         "windows"
@@ -28807,8 +28397,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "Jump to the previous working directory",
       "platforms": [
         "powershell"
@@ -29000,12 +28588,7 @@
         "macos",
         "posix",
         "sql_server",
-<<<<<<< HEAD
         "system-services"
-=======
-        "system-services",
-        "windows_cmd"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "native utility plus matching service manager/kernel interface",
@@ -29553,19 +29136,6 @@
     },
     {
       "name": "ld",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "LDAP",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "developer-tools"
       ],
@@ -29642,10 +29212,7 @@
       "name": "less",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "gnu_linux",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -30415,16 +29982,6 @@
       "source_urls": []
     },
     {
-      "name": "loginctl",
-      "platforms": [
-        "system-services"
-      ],
-      "mode": "native-provider-required",
-      "provider": "native utility plus matching service manager/kernel interface",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "LOGMAN",
       "platforms": [
         "windows",
@@ -30690,19 +30247,6 @@
     },
     {
       "name": "logread",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "LOGTIME",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "busybox"
       ],
@@ -30994,10 +30538,7 @@
       "name": "lsblk",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "storage-filesystem"
       ],
       "mode": "native-provider-required",
@@ -31030,7 +30571,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "lseek ()",
       "platforms": [
         "posix"
@@ -31043,8 +30583,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "lsmem",
       "platforms": [
         "system-services"
@@ -31360,7 +30898,6 @@
       "name": "make",
       "platforms": [
         "developer-tools",
-<<<<<<< HEAD
         "gnu_linux",
         "linux_bash",
         "posix"
@@ -31368,23 +30905,6 @@
       "mode": "native-provider-required",
       "provider": "installed toolchain/provider",
       "arabic_label": "أمر نظام — make",
-=======
-        "linux_bash"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "Make a bootable macOS drive",
-      "platforms": [
-        "macos"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
-      "arabic_label": "محرك (Make a bootable macOS drive)",
->>>>>>> 7c53579e ( Changes to be committed:)
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/make.html",
         "https://www.gnu.org/software/make/manual/"
@@ -31797,16 +31317,6 @@
       ]
     },
     {
-      "name": "mariadb",
-      "platforms": [
-        "database"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed database client and server where applicable",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "Math functions",
       "platforms": [
         "vbscript"
@@ -31893,10 +31403,7 @@
     {
       "name": "MD",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -31924,12 +31431,8 @@
       "name": "md5sum",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash",
         "linux_posix_shells"
-=======
-        "linux_bash"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -32045,16 +31548,6 @@
       ]
     },
     {
-      "name": "mem",
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "MERGE",
       "platforms": [
         "sql_server"
@@ -32150,7 +31643,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "mh-e",
       "platforms": [
         "gnu_linux"
@@ -32163,8 +31655,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "microcom",
       "platforms": [
         "busybox"
@@ -32175,7 +31665,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Microsoft Error Lookup Tool",
       "platforms": [
         "windows"
@@ -32212,8 +31701,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "Mid",
       "platforms": [
         "access",
@@ -32418,11 +31905,8 @@
         "linux_bash",
         "linux_posix_shells",
         "macos",
-<<<<<<< HEAD
         "posix",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -32508,12 +31992,8 @@
       "name": "mknod",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash",
         "linux_posix_shells"
-=======
-        "linux_bash"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -32591,10 +32071,7 @@
       "name": "MODE",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
@@ -32620,7 +32097,6 @@
     {
       "name": "Modern Policy",
       "platforms": [
-<<<<<<< HEAD
         "powershell",
         "windows"
       ],
@@ -32638,11 +32114,6 @@
         "linux_posix_shells",
         "system-services"
       ],
-=======
-        "linux_bash",
-        "system-services"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — modprobe",
@@ -32665,21 +32136,7 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Modules with compatible PowerShell Editions",
-=======
-      "name": "mongosh",
-      "platforms": [
-        "database"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed database client and server where applicable",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "monitoring logon sessions",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "powershell"
       ],
@@ -32804,7 +32261,6 @@
     {
       "name": "Motti",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -32824,13 +32280,6 @@
         "storage-filesystem",
         "windows"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "macos",
-        "storage-filesystem"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed native utility; privileged operations require authorization",
       "arabic_label": "اربط — mount",
@@ -32893,11 +32342,7 @@
     {
       "name": "MOVE",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
-        "access",
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -33210,19 +32655,6 @@
     },
     {
       "name": "mysql",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "database"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed database client and server where applicable",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "name",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "database"
       ],
@@ -33321,12 +32753,8 @@
       "name": "nc",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash",
         "linux_posix_shells"
-=======
-        "linux_bash"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -34471,7 +33899,6 @@
     {
       "name": "newgrp",
       "platforms": [
-<<<<<<< HEAD
         "posix"
       ],
       "mode": "compatibility-provider-required",
@@ -34536,11 +33963,6 @@
         "linux_posix_shells",
         "network-admin"
       ],
-=======
-        "linux_bash",
-        "network-admin"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — nft",
@@ -34551,7 +33973,6 @@
     {
       "name": "nftw ()",
       "platforms": [
-<<<<<<< HEAD
         "posix"
       ],
       "mode": "compatibility-provider-required",
@@ -34582,12 +34003,6 @@
         "macos",
         "posix"
       ],
-=======
-        "gnu-coreutils",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native provider binary",
       "arabic_label": "أمر نظام — nice",
@@ -35252,29 +34667,6 @@
     },
     {
       "name": "objcopy",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "objdump",
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "Object Name",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "developer-tools"
       ],
@@ -35343,22 +34735,7 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Octave",
-=======
-      "name": "od",
-      "platforms": [
-        "busybox",
-        "gnu-coreutils"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "ODBC connection",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "gnu_linux"
       ],
@@ -36099,45 +35476,7 @@
       "provider": "installed native utility; privileged operations require authorization",
       "arabic_label": "أمر نظام — Parted",
       "source_urls": [
-<<<<<<< HEAD
         "https://www.gnu.org/software/parted/manual/"
-=======
-        "https://ss64.com/ps/syntax-parseexact.html"
-      ]
-    },
-    {
-      "name": "part of a variable",
-      "platforms": [
-        "windows_cmd"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
-      "arabic_label": "متغير (part of a variable)",
-      "source_urls": [
-        "https://ss64.com/nt/syntax-substring.html"
-      ]
-    },
-    {
-      "name": "parted",
-      "platforms": [
-        "storage-filesystem"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility; privileged operations require authorization",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "Partial Restore",
-      "platforms": [
-        "sql_server"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "platform-runtime-not-selected",
-      "arabic_label": "استعادة (Partial Restore)",
-      "source_urls": [
-        "https://ss64.com/sql/restore_partial.html"
->>>>>>> 7c53579e ( Changes to be committed:)
       ]
     },
     {
@@ -36182,7 +35521,6 @@
     {
       "name": "Passwords",
       "platforms": [
-<<<<<<< HEAD
         "linux_posix_shells",
         "macos",
         "powershell",
@@ -36204,12 +35542,6 @@
         "macos",
         "posix"
       ],
-=======
-        "gnu-coreutils",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native provider binary",
       "arabic_label": "أمر نظام — paste",
@@ -36222,7 +35554,6 @@
     {
       "name": "patch",
       "platforms": [
-<<<<<<< HEAD
         "busybox",
         "gnu_linux",
         "posix"
@@ -36234,23 +35565,12 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/patch.html",
         "https://www.gnu.org/software/diffutils/manual/"
       ]
-=======
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "PATH",
       "platforms": [
-<<<<<<< HEAD
         "powershell",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -36544,7 +35864,6 @@
     {
       "name": "pgg",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -36562,12 +35881,6 @@
         "linux_posix_shells",
         "macos"
       ],
-=======
-        "busybox",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — pgrep",
@@ -36642,11 +35955,8 @@
         "linux_posix_shells",
         "macos",
         "network-admin",
-<<<<<<< HEAD
         "powershell",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows_cmd"
       ],
       "mode": "native-provider-required",
@@ -36749,7 +36059,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Pipo",
       "platforms": [
         "gnu_linux"
@@ -36774,8 +36083,6 @@
       ]
     },
     {
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "name": "pkg-config",
       "platforms": [
         "developer-tools"
@@ -37905,13 +37212,9 @@
       "platforms": [
         "busybox",
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
         "macos",
         "posix",
-=======
-        "macos",
->>>>>>> 7c53579e ( Changes to be committed:)
         "system-services"
       ],
       "mode": "native-provider-required",
@@ -38474,26 +37777,6 @@
       "source_urls": [
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands"
       ]
-    },
-    {
-      "name": "python",
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "python3",
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
     },
     {
       "name": "QAppSrv",
@@ -39075,7 +38358,6 @@
     {
       "name": "readlink",
       "platforms": [
-<<<<<<< HEAD
         "gnu-coreutils",
         "posix"
       ],
@@ -39085,14 +38367,6 @@
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/readlink.html"
       ]
-=======
-        "gnu-coreutils"
-      ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
-      "arabic_label": null,
-      "source_urls": []
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "readonly",
@@ -39127,12 +38401,8 @@
       "name": "realpath",
       "platforms": [
         "gnu-coreutils",
-<<<<<<< HEAD
         "macos",
         "posix"
-=======
-        "macos"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "native provider binary",
@@ -39158,26 +38428,12 @@
       "name": "reboot",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash"
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": null,
       "source_urls": []
-=======
-        "linux_bash",
-        "macos",
-        "windows_cmd"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": "أمر نظام — reboot",
-      "source_urls": [
-        "https://ss64.com/mac/reboot.html",
-        "https://ss64.com/nt/shutdown.html"
-      ]
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "Receive-Job",
@@ -39332,16 +38588,6 @@
         "https://ss64.com/nt/syntax-redirection.html",
         "https://ss64.com/ps/syntax-redirection.html"
       ]
-    },
-    {
-      "name": "redis-cli",
-      "platforms": [
-        "database"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed database client and server where applicable",
-      "arabic_label": null,
-      "source_urls": []
     },
     {
       "name": "redis-cli",
@@ -40527,10 +39773,7 @@
     {
       "name": "REN",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -40804,11 +40047,7 @@
       "name": "reset",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "windows"
-=======
-        "windows_cmd"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -41310,11 +40549,8 @@
         "linux_bash",
         "linux_posix_shells",
         "macos",
-<<<<<<< HEAD
         "posix",
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -41730,7 +40966,6 @@
       ]
     },
     {
-<<<<<<< HEAD
       "name": "Running Adprep.exe",
       "platforms": [
         "windows"
@@ -41744,19 +40979,6 @@
     },
     {
       "name": "RunspaceAvailability Enumeration",
-=======
-      "name": "rustc",
-      "platforms": [
-        "developer-tools"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed toolchain/provider",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "saved in your profile",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "powershell"
       ],
@@ -42029,10 +41251,7 @@
       "name": "scp",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "network-admin"
       ],
       "mode": "native-provider-required",
@@ -42442,21 +41661,11 @@
     {
       "name": "Security Advisories",
       "platforms": [
-<<<<<<< HEAD
         "freebsd_unix"
       ],
       "mode": "compatibility-provider-required",
       "provider": "platform-runtime-not-selected",
       "arabic_label": "أمان (Security Advisories)",
-=======
-        "gnu-coreutils",
-        "linux_bash",
-        "macos"
-      ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
-      "arabic_label": "أمر نظام — sed",
->>>>>>> 7c53579e ( Changes to be committed:)
       "source_urls": [
         "https://www.FreeBSD.org/security"
       ]
@@ -44028,26 +43237,17 @@
       ],
       "mode": "native-provider-required",
       "provider": "native POSIX process ABI",
-<<<<<<< HEAD
       "arabic_label": "أمر نظام — sh",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sh.html"
       ]
-=======
-      "arabic_label": null,
-      "source_urls": []
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "sha256sum",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash",
         "linux_posix_shells"
-=======
-        "linux_bash"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -44418,16 +43618,6 @@
       ]
     },
     {
-      "name": "shred",
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "shuf",
       "platforms": [
         "linux_bash",
@@ -44447,10 +43637,7 @@
         "linux_posix_shells",
         "macos",
         "sql_server",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -44530,7 +43717,6 @@
     {
       "name": "Sipwitch",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -44601,13 +43787,6 @@
         "macos",
         "posix"
       ],
-=======
-        "gnu-coreutils",
-        "linux_bash",
-        "macos",
-        "windows_cmd"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native provider binary",
       "arabic_label": "أمر نظام — sleep",
@@ -44689,16 +43868,6 @@
       ]
     },
     {
-      "name": "smartctl",
-      "platforms": [
-        "storage-filesystem"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility; privileged operations require authorization",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "sntp",
       "platforms": [
         "linux_bash",
@@ -44753,7 +43922,6 @@
     {
       "name": "Solfege",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -44779,17 +43947,11 @@
       "name": "some rights reserved.",
       "platforms": [
         "linux_posix_shells",
-=======
-        "gnu-coreutils",
-        "linux_bash",
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "powershell",
-        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-<<<<<<< HEAD
       "provider": "windows-compat-runtime",
       "arabic_label": "أمر نظام — some rights reserved.",
       "source_urls": [
@@ -44810,8 +43972,6 @@
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
       "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — sort",
       "source_urls": [
@@ -45213,10 +44373,7 @@
       "name": "ss",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "network-admin"
       ],
       "mode": "native-provider-required",
@@ -45231,7 +44388,6 @@
       "platforms": [
         "linux_posix_shells",
         "macos",
-<<<<<<< HEAD
         "powershell",
         "windows_cmd"
       ],
@@ -45266,11 +44422,6 @@
         "network-admin",
         "windows_cmd"
       ],
-=======
-        "network-admin",
-        "windows_cmd"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "اتصال آمن عن بُعد",
@@ -46120,10 +45271,7 @@
       "name": "SUBST",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
@@ -46348,7 +45496,6 @@
       "source_urls": []
     },
     {
-<<<<<<< HEAD
       "name": "Swbis",
       "platforms": [
         "gnu_linux"
@@ -46362,9 +45509,6 @@
     },
     {
       "name": "Switch",
-=======
-      "name": "switch",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "access",
         "powershell"
@@ -46479,16 +45623,6 @@
       "source_urls": [
         "https://ss64.com/vb/syntax-null.html"
       ]
-    },
-    {
-      "name": "sys",
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
     },
     {
       "name": "sys",
@@ -46720,10 +45854,7 @@
       "name": "systemctl",
       "platforms": [
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "system-services"
       ],
       "mode": "native-provider-required",
@@ -46947,10 +46078,7 @@
       "name": "tar",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "gnu_linux",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -46969,10 +46097,7 @@
     {
       "name": "TASKKILL",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -46987,10 +46112,7 @@
     {
       "name": "TASKLIST",
       "platforms": [
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -47029,7 +46151,6 @@
     {
       "name": "tcgetwinsize ()",
       "platforms": [
-<<<<<<< HEAD
         "posix"
       ],
       "mode": "compatibility-provider-required",
@@ -47057,11 +46178,6 @@
         "macos",
         "network-admin"
       ],
-=======
-        "macos",
-        "network-admin"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — tcpdump",
@@ -47116,10 +46232,7 @@
       "name": "TELNET",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows_cmd"
       ],
       "mode": "native-provider-required",
@@ -47292,10 +46405,7 @@
       "platforms": [
         "gnu-coreutils",
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "posix"
       ],
@@ -47818,10 +46928,7 @@
       "platforms": [
         "busybox",
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "system-services"
       ],
@@ -47944,10 +47051,7 @@
       "platforms": [
         "busybox",
         "linux_bash",
-<<<<<<< HEAD
         "linux_posix_shells",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "macos",
         "network-admin"
       ],
@@ -48115,10 +47219,7 @@
       "name": "TREE",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -48363,10 +47464,7 @@
         "macos",
         "posix",
         "powershell",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -48630,29 +47728,6 @@
     },
     {
       "name": "uncompress",
-<<<<<<< HEAD
-=======
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "undelete",
-      "platforms": [
-        "dos-retro"
-      ],
-      "mode": "compatibility-provider-required",
-      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "Understand the different types of Active Directory group",
->>>>>>> 7c53579e ( Changes to be committed:)
       "platforms": [
         "busybox",
         "posix"
@@ -48890,12 +47965,8 @@
       "name": "unix2dos",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash",
         "linux_posix_shells"
-=======
-        "linux_bash"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -49986,7 +49057,6 @@
     {
       "name": "Vmgen",
       "platforms": [
-<<<<<<< HEAD
         "gnu_linux"
       ],
       "mode": "compatibility-provider-required",
@@ -50003,11 +49073,6 @@
         "linux_posix_shells",
         "system-services"
       ],
-=======
-        "linux_bash",
-        "system-services"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — vmstat",
@@ -50216,13 +49281,9 @@
       "name": "watch",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "linux_bash",
         "linux_posix_shells",
         "windows_cmd"
-=======
-        "linux_bash"
->>>>>>> 7c53579e ( Changes to be committed:)
       ],
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
@@ -50623,7 +49684,6 @@
       "name": "wget",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "gnu_linux",
         "linux_bash",
         "network-admin"
@@ -50646,15 +49706,6 @@
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/what.html"
       ]
-=======
-        "linux_bash",
-        "network-admin"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility and permitted system capabilities",
-      "arabic_label": null,
-      "source_urls": []
->>>>>>> 7c53579e ( Changes to be committed:)
     },
     {
       "name": "whatis",
@@ -50684,10 +49735,7 @@
       "name": "WHERE",
       "platforms": [
         "powershell",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -50769,10 +49817,7 @@
       "name": "which",
       "platforms": [
         "busybox",
-<<<<<<< HEAD
         "gnu_linux",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -50842,10 +49887,7 @@
         "linux_bash",
         "linux_posix_shells",
         "macos",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -51854,7 +50896,6 @@
     {
       "name": "X",
       "platforms": [
-<<<<<<< HEAD
         "windows"
       ],
       "mode": "compatibility-provider-required",
@@ -51874,13 +50915,6 @@
         "macos",
         "posix"
       ],
-=======
-        "busybox",
-        "gnu-coreutils",
-        "linux_bash",
-        "macos"
-      ],
->>>>>>> 7c53579e ( Changes to be committed:)
       "mode": "native-provider-required",
       "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — xargs",
@@ -51968,10 +51002,7 @@
       "name": "XCOPY",
       "platforms": [
         "dos-retro",
-<<<<<<< HEAD
         "windows",
-=======
->>>>>>> 7c53579e ( Changes to be committed:)
         "windows-cmd",
         "windows_cmd"
       ],
@@ -52247,26 +51278,6 @@
       ]
     },
     {
-      "name": "zcat",
-      "platforms": [
-        "busybox"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
-      "name": "zfs",
-      "platforms": [
-        "storage-filesystem"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility; privileged operations require authorization",
-      "arabic_label": null,
-      "source_urls": []
-    },
-    {
       "name": "zip",
       "platforms": [
         "linux_bash",
@@ -52282,16 +51293,6 @@
         "https://ss64.com/mac/zip.html",
         "https://ss64.com/ps/compress-archive.html"
       ]
-    },
-    {
-      "name": "zpool",
-      "platforms": [
-        "storage-filesystem"
-      ],
-      "mode": "native-provider-required",
-      "provider": "installed native utility; privileged operations require authorization",
-      "arabic_label": null,
-      "source_urls": []
     },
     {
       "name": "zpool",
