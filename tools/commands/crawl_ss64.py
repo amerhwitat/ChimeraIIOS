@@ -96,6 +96,23 @@ def install_command_path_aliases(rootfs, names):
                 pass
     return installed
 
+def validate_command_path_aliases(rootfs, names):
+    """Fail the build if any mapped command is missing or dangling in /bin or /sbin."""
+    missing = []
+    for name in sorted(set(names)):
+        if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name):
+            continue
+        for directory in ("bin", "sbin"):
+            path = rootfs / directory / name
+            if not path.exists():
+                missing.append(f"/{directory}/{name}")
+    if missing:
+        preview = ", ".join(missing[:20])
+        suffix = f" (and {len(missing) - 20} more)" if len(missing) > 20 else ""
+        raise RuntimeError("SS64 command paths missing or dangling: " + preview + suffix)
+    return len({name for name in names if re.fullmatch(r"[A-Za-z0-9_.+-]+", name)})
+
+
 def install_source(repo_root,rootfs,src,dst,mode=0o755):
     s=repo_root/src;d=rootfs/dst
     if not s.exists():return False
@@ -144,8 +161,9 @@ def reconcile(catalog,rootfs,repo_root):
             try:shim.symlink_to("chimera-compat")
             except FileExistsError:pass
     path_counts=install_command_path_aliases(rootfs, manifest["commands"].keys())
-    manifest["path_aliases"]={"/bin":len(manifest["commands"]),"/sbin":len(manifest["commands"])}
-    print(f"Installed SS64 command path aliases: /bin={path_counts['bin']} /sbin={path_counts['sbin']} (pre-existing entries preserved)")
+    validated_paths = validate_command_path_aliases(rootfs, manifest["commands"].keys())
+    manifest["path_aliases"]={"/bin":validated_paths,"/sbin":validated_paths}
+    print(f"Validated SS64 command paths: {validated_paths} mapped Linux/Bash names visible in both /bin and /sbin; created aliases /bin={path_counts['bin']} /sbin={path_counts['sbin']} (pre-existing entries preserved)")
     (compat_root/"commands.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     native_doc.setdefault("native_chimera",{})
     if isinstance(native_doc["native_chimera"],dict):
