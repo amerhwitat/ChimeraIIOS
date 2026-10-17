@@ -291,7 +291,11 @@ extern "C" int koronos_address_space_init(void) {
 extern "C" int koronos_address_space_ready(void) { return backend_ready ? 1 : 0; }
 extern "C" int koronos_address_space_self_test(void) {
     if (!backend_ready) return -1;
-    return address_space_self_test() ? 0 : -2;
+    if (!address_space_self_test()) {
+        backend_ready = 0;
+        return -2;
+    }
+    return 0;
 }
 extern "C" const chimera_elf_load_ops *koronos_address_space_loader_ops(void) {
     return backend_ready ? &loader_ops : nullptr;
