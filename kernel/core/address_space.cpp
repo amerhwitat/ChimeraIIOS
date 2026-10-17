@@ -236,6 +236,31 @@ static void destroy_address_space(void *, void *opaque) {
     if (space_valid(space)) destroy_locked(space);
     unlock_backend();
 }
+static bool user_page_access(uint64_t root_physical, uint64_t va, bool write_access) {
+    uint64_t *root = table_ptr(root_physical & ENTRY_ADDRESS_MASK);
+    if (!root) return false;
+    uint64_t entry = root[(va >> 39) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
+        (write_access && !(entry & ENTRY_WRITE)) || (entry & ENTRY_LARGE)) return false;
+    uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pdpt) return false;
+    entry = pdpt[(va >> 30) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
+        (write_access && !(entry & ENTRY_WRITE))) return false;
+    if (entry & ENTRY_LARGE) return true;
+    uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pd) return false;
+    entry = pd[(va >> 21) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
+        (write_access && !(entry & ENTRY_WRITE))) return false;
+    if (entry & ENTRY_LARGE) return true;
+    uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pt) return false;
+    entry = pt[(va >> 12) & 0x1FFu];
+    return (entry & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
+           (!write_access || (entry & ENTRY_WRITE));
+}
+
 static bool address_space_self_test() {
     const uint64_t before = koronos_frame_free_count();
     AddressSpace *space = static_cast<AddressSpace *>(create_address_space(nullptr));
@@ -303,5 +328,20 @@ extern "C" const chimera_elf_load_ops *koronos_address_space_loader_ops(void) {
 extern "C" uint64_t koronos_address_space_root(const void *opaque) {
     const AddressSpace *space = static_cast<const AddressSpace *>(opaque);
     return space_valid(space) ? space->root_physical : 0;
+}
+extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
+                                                        uint64_t address, uint64_t length,
+                                                        uint32_t write_access) {
+    if (length == 0) return 0;
+    if (address < KORONOS_USER_VIRTUAL_MIN || address >= CHIMERA_ELF_USER_LIMIT ||
+        length > CHIMERA_ELF_USER_LIMIT - address) return -1;
+    const uint64_t end = address + length;
+    uint64_t page = address & ~PAGE_MASK;
+    while (page < end) {
+        if (!user_page_access(root_physical, page, write_access != 0)) return -2;
+        if (page > UINT64_MAX - PAGE_SIZE) return -3;
+        page += PAGE_SIZE;
+    }
+    return 0;
 }
 extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
