@@ -128,7 +128,7 @@ koronos_arch_enter_user:
     mov cr3, rdi
     push qword USER_DATA
     push rdx
-    push qword 0x2                           ; interrupts stay disabled until IRQ-safe user runtime
+    push qword 0x202                         ; enable IRQs in ring 3; IRQ0 enforces the in-kernel deadline
     push qword USER_CODE
     push rsi
     iretq
