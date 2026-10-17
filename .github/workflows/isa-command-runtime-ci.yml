@@ -145,8 +145,6 @@ jobs:
       - name: Validate cross-OS command registry and runtime dispatcher
         run: |
           python3 -m json.tool tools/commands/os-command-runtime.json >/dev/null
-      - name: Test SS64 Linux command paths in /bin and /sbin
-        run: python3 -m unittest tools.commands.test_ss64_rootfs_mapping -v
           python3 -m py_compile tools/commands/chimera-run tools/commands/chimera-dos-adapter.py tools/commands/test-chimera-dos-adapter.py tools/commands/generate_runtime_manifest.py tools/commands/test-cross-os-runtime.py
           python3 tools/commands/test-cross-os-runtime.py -v
           python3 tools/commands/test-chimera-dos-adapter.py -v
@@ -158,6 +156,8 @@ jobs:
           python3 -m py_compile tools/commands/dos-payload-builder.py tools/commands/test-dos-payload-builder.py
           python3 tools/commands/test-dos-payload-builder.py -v
           bash -n boot/iso/prepare-layout.sh
+      - name: Test SS64 Linux command paths in /bin and /sbin
+        run: python3 -m unittest tools.commands.test_ss64_rootfs_mapping -v
       - name: Validate generated command capability manifest
         run: |
           python3 tools/commands/generate_runtime_manifest.py
