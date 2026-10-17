@@ -3,12 +3,12 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-17T22:55:04Z",
+  "generated_at_utc": "2026-10-17T22:55:06Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
       "index": "https://ss64.com/bash/",
-      "pages_crawled": 225,
+      "pages_crawled": 221,
       "fetch_failures": 0,
       "command_count": 491,
       "commands": [
@@ -5908,7 +5908,7 @@
     },
     "macos": {
       "index": "https://ss64.com/mac/",
-      "pages_crawled": 228,
+      "pages_crawled": 226,
       "fetch_failures": 0,
       "command_count": 626,
       "commands": [
@@ -13520,7 +13520,7 @@
     },
     "windows_cmd": {
       "index": "https://ss64.com/nt/",
-      "pages_crawled": 232,
+      "pages_crawled": 230,
       "fetch_failures": 0,
       "command_count": 1052,
       "commands": [
@@ -16153,15 +16153,15 @@
           ]
         },
         {
-          "name": "DATE",
+          "name": "date",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/date.html",
           "arabic_label": "التاريخ والوقت",
           "arabic_status": "translated",
           "arabic_search": [
             "التاريخ والوقت",
-            "DATE",
-            "أمر DATE"
+            "date",
+            "أمر date"
           ]
         },
         {
@@ -26516,7 +26516,7 @@
     },
     "powershell": {
       "index": "https://ss64.com/ps/",
-      "pages_crawled": 236,
+      "pages_crawled": 237,
       "fetch_failures": 0,
       "command_count": 1245,
       "commands": [
@@ -48784,7 +48784,7 @@
     },
     "access": {
       "index": "https://ss64.com/access/",
-      "pages_crawled": 242,
+      "pages_crawled": 246,
       "fetch_failures": 0,
       "command_count": 329,
       "commands": [
@@ -77986,6 +77986,5 @@
       ],
       "command_count": 55
     }
-  },
-  "online_source_count": 9
+  }
 }
