@@ -2,9 +2,10 @@
 #include <cstdint>
 #include <cstring>
 #include "chimera/frame_allocator.h"
+#include "chimera/multiboot_modules.h"
 
 extern "C" uint32_t chimera_multiboot_module_count(void) { return 0; }
-extern "C" const void *chimera_multiboot_module(uint32_t) { return nullptr; }
+extern "C" const chimera_boot_module *chimera_multiboot_module(uint32_t) { return nullptr; }
 
 #pragma pack(push, 1)
 struct Tag { uint32_t type, size; };
