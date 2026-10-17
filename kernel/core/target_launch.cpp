@@ -144,11 +144,26 @@ extern "C" int koronos_launch_selected_userspace(void) {
     active_pid=static_cast<uint32_t>(pid);
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
-    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry");
+    // 100 Hz PIT deadline: 1,000 ticks gives user init ten seconds to return
+    // and emit readiness. This is enforced by IRQ0 inside the kernel, not by
+    // the outer QEMU test timeout.
+    if (koronos_user_timeout_arm(1000u) != 0) {
+        ops->destroy_address_space(nullptr,loaded.address_space);
+        (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
+        active_target=TARGET_NONE;
+        koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
+        return -10;
+    }
+    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
     const int exit_code=koronos_arch_enter_user(root,loaded.entry,loaded.user_stack_top);
+    koronos_user_timeout_disarm();
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
     active_target=TARGET_NONE;
+    if (exit_code == -10) {
+        koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
+        return -11;
+    }
     if (!ready_seen) {
         koronos_target_log("[RUN ] ERROR: userspace init exited before its target-specific USERSPACE READY handshake");
         return -8;
