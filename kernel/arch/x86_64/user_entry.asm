@@ -184,7 +184,7 @@ koronos_syscall_entry:
     mov rsp, [gs:8]
     mov rax, [gs:24]
     swapgs
-    sysret
+    o64 sysret
 
 koronos_syscall_user_exit:
     lea rax, [rel koronos_bootstrap_pml4]
