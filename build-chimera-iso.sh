@@ -307,13 +307,33 @@ push_docker_image(){
 
   log_info "Publishing generated Docker image: $source -> $target:$target_tag"
   docker tag "$source" "$target:$target_tag"
-  docker push "$target:$target_tag"
+  docker_push_with_retry "$target:$target_tag" || return 1
   if [[ "$target_tag" != "latest" && "${CHIMERA_DOCKERHUB_PUSH_LATEST:-0}" == 1 ]]; then
     docker tag "$source" "$target:latest"
-    docker push "$target:latest"
+    docker_push_with_retry "$target:latest" || return 1
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
   cleanup_generated_docker_image "$source" "$image_id"
+}
+
+docker_push_with_retry() {
+  local image="$1" attempt max_attempts="${CHIMERA_DOCKERHUB_PUSH_ATTEMPTS:-4}" delay=5
+  [[ "$max_attempts" =~ ^[1-9][0-9]*$ ]] || max_attempts=4
+  for ((attempt=1; attempt<=max_attempts; attempt++)); do
+    log_info "Docker Hub push attempt $attempt/$max_attempts: $image"
+    if docker push "$image"; then
+      return 0
+    fi
+    if (( attempt == max_attempts )); then
+      log_error "Docker Hub push failed after $max_attempts attempts: $image"
+      log_error "Check registry connectivity, authentication, proxy/VPN, and registry status; increase CHIMERA_DOCKERHUB_PUSH_ATTEMPTS to allow more retries."
+      return 1
+    fi
+    log_warning "Docker Hub push failed; retrying in ${delay}s without rebuilding the image."
+    sleep "$delay"
+    delay=$((delay * 2))
+  done
+  return 1
 }
 
 is_writable_dir(){
