@@ -21,6 +21,18 @@ __attribute__((noreturn, used)) void _start(void) {
                      : "D"(fd), "S"(buffer), "d"(length)
                      : "rcx", "r11", "memory");
 
+    /* This second write proves SYSRET returned to ring 3 after the first
+       syscall; it is diagnostic output from the acceptance probe only. */
+    static const char returned_message[] = "USERSPACE SYSCALL RETURNED TO RING3\\n";
+    number = 9;
+    fd = 1;
+    buffer = returned_message;
+    length = (long)(sizeof(returned_message) - 1u);
+    __asm__ volatile("syscall"
+                     : "+a"(number)
+                     : "D"(fd), "S"(buffer), "d"(length)
+                     : "rcx", "r11", "memory");
+
     number = 1; /* CHM_SYS_EXIT */
     fd = 0;
     __asm__ volatile("syscall"
