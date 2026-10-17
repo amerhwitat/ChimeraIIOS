@@ -3442,6 +3442,22 @@
         "powershell"
       ]
     },
+    "about_debuggers": {
+      "name": "about_Debuggers",
+      "label": "أمر نظام — about_Debuggers",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "about_enum": {
+      "name": "about_Enum",
+      "label": "أمر نظام — about_Enum",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
     "about_environment_variables": {
       "name": "about_Environment_Variables",
       "label": "بيئة (about_Environment_Variables)",
@@ -3485,6 +3501,22 @@
     "about_functions": {
       "name": "about_Functions",
       "label": "أمر نظام — about_Functions",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "about_functions_advanced_parameters": {
+      "name": "about_Functions_Advanced_Parameters",
+      "label": "أمر نظام — about_Functions_Advanced_Parameters",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "about_functions_argument_completion": {
+      "name": "about_Functions_Argument_Completion",
+      "label": "أمر نظام — about_Functions_Argument_Completion",
       "translation_status": "identifier-preserved",
       "platforms": [
         "powershell"
@@ -4506,6 +4538,14 @@
       "translation_status": "identifier-preserved",
       "platforms": [
         "gnu_linux"
+      ]
+    },
+    "apartmentstate": {
+      "name": "ApartmentState",
+      "label": "أمر نظام — ApartmentState",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
       ]
     },
     "apl": {
@@ -8004,6 +8044,14 @@
         "windows"
       ]
     },
+    "commandast class": {
+      "name": "CommandAst Class",
+      "label": "أمر (CommandAst Class)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "powershell"
+      ]
+    },
     "commandinfo": {
       "name": "CommandInfo",
       "label": "أمر (CommandInfo)",
@@ -8181,6 +8229,14 @@
       "name": "Complete-Transaction",
       "label": "أمر نظام — Complete-Transaction",
       "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "completionresulttype": {
+      "name": "CompletionResultType",
+      "label": "نتيجة (CompletionResultType)",
+      "translation_status": "token-translated",
       "platforms": [
         "powershell"
       ]
@@ -9856,6 +9912,14 @@
         "powershell"
       ]
     },
+    "debug-process": {
+      "name": "Debug-Process",
+      "label": "عملية (Debug-Process)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "powershell"
+      ]
+    },
     "declare": {
       "name": "declare",
       "label": "أمر نظام — declare",
@@ -10917,6 +10981,14 @@
       "translation_status": "identifier-preserved",
       "platforms": [
         "macos"
+      ]
+    },
+    "double": {
+      "name": "Double",
+      "label": "أمر نظام — Double",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
       ]
     },
     "dpkg": {
@@ -22139,8 +22211,8 @@
       ]
     },
     "out-string": {
-      "name": "out-string",
-      "label": "أمر نظام — out-string",
+      "name": "Out-String",
+      "label": "أمر نظام — Out-String",
       "translation_status": "identifier-preserved",
       "platforms": [
         "powershell"
@@ -22157,6 +22229,14 @@
     "outputbufferingmode": {
       "name": "OutputBufferingMode",
       "label": "أمر نظام — OutputBufferingMode",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "outtarget": {
+      "name": "OutTarget",
+      "label": "أمر نظام — OutTarget",
       "translation_status": "identifier-preserved",
       "platforms": [
         "powershell"
@@ -22266,6 +22346,14 @@
       "translation_status": "identifier-preserved",
       "platforms": [
         "powershell"
+      ]
+    },
+    "parsing of floats": {
+      "name": "Parsing of Floats",
+      "label": "أمر نظام — Parsing of Floats",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "gnu_linux"
       ]
     },
     "parted": {
@@ -23579,9 +23667,25 @@
         "powershell"
       ]
     },
+    "pssessionconfigurationaccessmode": {
+      "name": "PSSessionConfigurationAccessMode",
+      "label": "تهيئة وصول (PSSessionConfigurationAccessMode)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "powershell"
+      ]
+    },
     "pssessionoption": {
       "name": "PSSessionOption",
       "label": "أمر نظام — PSSessionOption",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "pssessiontypeoption": {
+      "name": "PSSessionTypeOption",
+      "label": "أمر نظام — PSSessionTypeOption",
       "translation_status": "identifier-preserved",
       "platforms": [
         "powershell"
@@ -23601,6 +23705,22 @@
       "translation_status": "identifier-preserved",
       "platforms": [
         "windows_cmd"
+      ]
+    },
+    "psthreadoptions enumeration": {
+      "name": "PSThreadOptions Enumeration",
+      "label": "أمر نظام — PSThreadOptions Enumeration",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "pstransportoption": {
+      "name": "PSTransportOption",
+      "label": "أمر نظام — PSTransportOption",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
       ]
     },
     "pstypename": {
@@ -24596,6 +24716,7 @@
       "label": "أمر نظام — Regular Expressions",
       "translation_status": "identifier-preserved",
       "platforms": [
+        "gnu_linux",
         "powershell"
       ]
     },
@@ -27750,6 +27871,14 @@
         "macos"
       ]
     },
+    "specifying the time zone with tz": {
+      "name": "Specifying the Time Zone with TZ",
+      "label": "وقت (Specifying the Time Zone with TZ)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "gnu_linux"
+      ]
+    },
     "speedbar": {
       "name": "speedbar",
       "label": "أمر نظام — speedbar",
@@ -28749,6 +28878,14 @@
         "vbscript"
       ]
     },
+    "syntax of regular expressions": {
+      "name": "Syntax of Regular Expressions",
+      "label": "أمر نظام — Syntax of Regular Expressions",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "gnu_linux"
+      ]
+    },
     "sysadminctl": {
       "name": "sysadminctl",
       "label": "أمر نظام — sysadminctl",
@@ -28876,6 +29013,14 @@
       "translation_status": "token-translated",
       "platforms": [
         "windows"
+      ]
+    },
+    "system.management.automation.completionresult": {
+      "name": "System.Management.Automation.CompletionResult",
+      "label": "النظام نتيجة (System.Management.Automation.CompletionResult)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "powershell"
       ]
     },
     "system_profiler": {
@@ -30410,6 +30555,14 @@
       "name": "Update-Typedata",
       "label": "حدّث — Update-Typedata",
       "translation_status": "rule-translated",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "updatehelpscope": {
+      "name": "UpdateHelpScope",
+      "label": "تحديث مساعدة (UpdateHelpScope)",
+      "translation_status": "token-translated",
       "platforms": [
         "powershell"
       ]
@@ -32117,6 +32270,14 @@
       "name": "WSMan Provider",
       "label": "أمر نظام — WSMan Provider",
       "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "wsmanconfigcontainerelement": {
+      "name": "WSManConfigContainerElement",
+      "label": "إعداد (WSManConfigContainerElement)",
+      "translation_status": "token-translated",
       "platforms": [
         "powershell"
       ]

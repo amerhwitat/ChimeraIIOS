@@ -1,5 +1,5 @@
 {
-  "command_count": 3847,
+  "command_count": 3868,
   "commands": [
     {
       "arabic_alias": null,
@@ -5763,6 +5763,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "Parsing of Floats",
+      "platform": "GNU/Linux",
+      "source_urls": [
+        "https://www.gnu.org/software/libc/manual/html_node/Parsing-of-Floats.html"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "Parted",
       "platform": "GNU/Linux",
       "source_urls": [
@@ -6024,6 +6033,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "Regular Expressions",
+      "platform": "GNU/Linux",
+      "source_urls": [
+        "https://www.gnu.org/software/grep/manual/html_node/Regular-Expressions.html"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "remember",
       "platform": "GNU/Linux",
       "source_urls": [
@@ -6267,6 +6285,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "Specifying the Time Zone with TZ",
+      "platform": "GNU/Linux",
+      "source_urls": [
+        "https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "speedbar",
       "platform": "GNU/Linux",
       "source_urls": [
@@ -6379,6 +6406,15 @@
       "platform": "GNU/Linux",
       "source_urls": [
         "https://www.gnu.org/software/swbis/manual.html"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "Syntax of Regular Expressions",
+      "platform": "GNU/Linux",
+      "source_urls": [
+        "https://www.gnu.org/software/emacs/manual/html_node/emacs/Regexps.html"
       ],
       "translation_status": "untranslated"
     },
@@ -12351,6 +12387,24 @@
     },
     {
       "arabic_alias": null,
+      "name": "about_Debuggers",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_debuggers"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "about_Enum",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_enum"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "about_Environment_Variables",
       "platform": "PowerShell",
       "source_urls": [
@@ -12400,6 +12454,24 @@
       "platform": "PowerShell",
       "source_urls": [
         "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "about_Functions_Advanced_Parameters",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "about_Functions_Argument_Completion",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_argument_completion"
       ],
       "translation_status": "untranslated"
     },
@@ -12892,6 +12964,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "ApartmentState",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.threading.apartmentstate"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "ApplicationInfo",
       "platform": "PowerShell",
       "source_urls": [
@@ -13290,6 +13371,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "CommandAst Class",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.language.commandast"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "CommandInfo",
       "platform": "PowerShell",
       "source_urls": [
@@ -13358,6 +13448,15 @@
       "platform": "PowerShell",
       "source_urls": [
         "https://ss64.com/ps/complete-transaction.html"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "CompletionResultType",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresulttype"
       ],
       "translation_status": "untranslated"
     },
@@ -13661,6 +13760,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "Debug-Process",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/debug-process"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "DelOlder",
       "platform": "PowerShell",
       "source_urls": [
@@ -13821,6 +13929,15 @@
       "platform": "PowerShell",
       "source_urls": [
         "https://ss64.com/ps/do.html"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "Double",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.double"
       ],
       "translation_status": "untranslated"
     },
@@ -16548,7 +16665,8 @@
       "name": "Out-File",
       "platform": "PowerShell",
       "source_urls": [
-        "https://ss64.com/ps/out-file.html"
+        "https://ss64.com/ps/out-file.html",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-file"
       ],
       "translation_status": "untranslated"
     },
@@ -16586,7 +16704,8 @@
       "name": "Out-Printer",
       "platform": "PowerShell",
       "source_urls": [
-        "https://ss64.com/ps/out-printer.html"
+        "https://ss64.com/ps/out-printer.html",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-printer"
       ],
       "translation_status": "untranslated"
     },
@@ -16595,7 +16714,8 @@
       "name": "Out-String",
       "platform": "PowerShell",
       "source_urls": [
-        "https://ss64.com/ps/out-string.html"
+        "https://ss64.com/ps/out-string.html",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-string"
       ],
       "translation_status": "untranslated"
     },
@@ -16605,6 +16725,15 @@
       "platform": "PowerShell",
       "source_urls": [
         "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.outputbufferingmode"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "OutTarget",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.outtarget"
       ],
       "translation_status": "untranslated"
     },
@@ -16872,10 +17001,46 @@
     },
     {
       "arabic_alias": null,
+      "name": "PSSessionConfigurationAccessMode",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.pssessionconfigurationaccessmode"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "PSSessionOption",
       "platform": "PowerShell",
       "source_urls": [
         "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.remoting.pssessionoption"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "PSSessionTypeOption",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pssessiontypeoption"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "PSThreadOptions Enumeration",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.psthreadoptions"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "PSTransportOption",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pstransportoption"
       ],
       "translation_status": "untranslated"
     },
@@ -18098,7 +18263,8 @@
       "name": "Set-PSBreakpoint",
       "platform": "PowerShell",
       "source_urls": [
-        "https://ss64.com/ps/set-psbreakpoint.html"
+        "https://ss64.com/ps/set-psbreakpoint.html",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint"
       ],
       "translation_status": "untranslated"
     },
@@ -18580,6 +18746,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "System.Management.Automation.CompletionResult",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresult"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "Tab Completion",
       "platform": "PowerShell",
       "source_urls": [
@@ -18889,6 +19064,15 @@
     },
     {
       "arabic_alias": null,
+      "name": "UpdateHelpScope",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.updatehelpscope"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
       "name": "Uri",
       "platform": "PowerShell",
       "source_urls": [
@@ -19065,7 +19249,8 @@
       "name": "Write-Debug",
       "platform": "PowerShell",
       "source_urls": [
-        "https://ss64.com/ps/write-debug.html"
+        "https://ss64.com/ps/write-debug.html",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-debug"
       ],
       "translation_status": "untranslated"
     },
@@ -19166,6 +19351,15 @@
       "platform": "PowerShell",
       "source_urls": [
         "https://learn.microsoft.com/en-us/powershell/module/microsoft.wsman.management/about/about_wsman_provider"
+      ],
+      "translation_status": "untranslated"
+    },
+    {
+      "arabic_alias": null,
+      "name": "WSManConfigContainerElement",
+      "platform": "PowerShell",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.wsman.management.wsmanconfigcontainerelement"
       ],
       "translation_status": "untranslated"
     },
@@ -34696,14 +34890,14 @@
     }
   ],
   "curated_arabic_alias_count": 199,
-  "generated_utc": "2026-10-13T18:31:31.544257+00:00",
+  "generated_utc": "2026-10-17T08:10:48.370824+00:00",
   "schema_version": "1.0",
   "source_policy": "Names, URLs, source hashes and curated Arabic aliases only; no copied reference prose.",
   "sources": [
     {
       "authority": "SS64",
       "bytes_read": 40529,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": ". builtin",
@@ -36127,7 +36321,7 @@
     {
       "authority": "SS64",
       "bytes_read": 47341,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "afconvert",
@@ -37687,7 +37881,7 @@
     {
       "authority": "SS64",
       "bytes_read": 38744,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "% vs %%",
@@ -39443,7 +39637,7 @@
     {
       "authority": "SS64",
       "bytes_read": 88312,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "#requires",
@@ -41903,7 +42097,7 @@
     {
       "authority": "The Open Group",
       "bytes_read": 10690,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "1.7 Intrinsic Utilities",
@@ -42903,7 +43097,7 @@
     {
       "authority": "GNU Project",
       "bytes_read": 46537,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "(dir)",
@@ -45246,6 +45440,10 @@
           "url": "https://www.gnu.org/software/parallel/man.html"
         },
         {
+          "name": "Parsing of Floats",
+          "url": "https://www.gnu.org/software/libc/manual/html_node/Parsing-of-Floats.html"
+        },
+        {
           "name": "Parted",
           "url": "https://www.gnu.org/software/parted/manual/"
         },
@@ -45362,6 +45560,10 @@
           "url": "https://www.gnu.org/software/auctex/manual/reftex.index.html"
         },
         {
+          "name": "Regular Expressions",
+          "url": "https://www.gnu.org/software/grep/manual/html_node/Regular-Expressions.html"
+        },
+        {
           "name": "remember",
           "url": "https://www.gnu.org/software/emacs/manual/html_node/remember/"
         },
@@ -45470,6 +45672,10 @@
           "url": "https://www.gnu.org/software/spacechart/"
         },
         {
+          "name": "Specifying the Time Zone with TZ",
+          "url": "https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html"
+        },
+        {
           "name": "speedbar",
           "url": "https://www.gnu.org/software/emacs/manual/html_node/speedbar/"
         },
@@ -45520,6 +45726,10 @@
         {
           "name": "Swbis",
           "url": "https://www.gnu.org/software/swbis/manual.html"
+        },
+        {
+          "name": "Syntax of Regular Expressions",
+          "url": "https://www.gnu.org/software/emacs/manual/html_node/emacs/Regexps.html"
         },
         {
           "name": "Sysutils",
@@ -45726,7 +45936,7 @@
           "url": "https://www.gnu.org/software/zile/"
         }
       ],
-      "discovered_link_count": 697,
+      "discovered_link_count": 701,
       "http_content_type": "text/html",
       "id": "gnu-coreutils",
       "link_depth_limit": 10,
@@ -45739,7 +45949,7 @@
     {
       "authority": "Microsoft",
       "bytes_read": 125860,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "[MS-ERREF]: Windows Error Codes",
@@ -49356,14 +49566,14 @@
       "link_depth_limit": 10,
       "platform": "Windows",
       "policy": "Official command index",
-      "sha256": "1d9ce34d4bcd5a3417a367db5de9627e9277d64888355b7c505bb7ee0f22450f",
+      "sha256": "80a43cb1bb1bffae4541bf7eeabc2091ce81936686dea9691c97e3e318f4530e",
       "status": "ok",
       "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands"
     },
     {
       "authority": "Microsoft",
       "bytes_read": 62487,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "about_Aliases",
@@ -49394,6 +49604,14 @@
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help"
         },
         {
+          "name": "about_Debuggers",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_debuggers"
+        },
+        {
+          "name": "about_Enum",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_enum"
+        },
+        {
           "name": "about_Environment_Variables",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables"
         },
@@ -49416,6 +49634,14 @@
         {
           "name": "about_Functions",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions"
+        },
+        {
+          "name": "about_Functions_Advanced_Parameters",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters"
+        },
+        {
+          "name": "about_Functions_Argument_Completion",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_argument_completion"
         },
         {
           "name": "about_Hash_Tables",
@@ -49542,6 +49768,10 @@
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.aliasinfo"
         },
         {
+          "name": "ApartmentState",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.apartmentstate"
+        },
+        {
           "name": "ApplicationInfo",
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.applicationinfo"
         },
@@ -49578,6 +49808,10 @@
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdletinfo"
         },
         {
+          "name": "CommandAst Class",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.language.commandast"
+        },
+        {
           "name": "CommandInfo",
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.commandinfo"
         },
@@ -49588,6 +49822,10 @@
         {
           "name": "Compare-Object",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/compare-object"
+        },
+        {
+          "name": "CompletionResultType",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresulttype"
         },
         {
           "name": "component",
@@ -49626,6 +49864,10 @@
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/debug-job"
         },
         {
+          "name": "Debug-Process",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/debug-process"
+        },
+        {
           "name": "Disable-ExperimentalFeature",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/disable-experimentalfeature"
         },
@@ -49640,6 +49882,10 @@
         {
           "name": "Disconnect-PSSession",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/disconnect-pssession"
+        },
+        {
+          "name": "Double",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.double"
         },
         {
           "name": "Edit",
@@ -49950,6 +50196,10 @@
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/out-default"
         },
         {
+          "name": "Out-File",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-file"
+        },
+        {
           "name": "Out-Host",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/out-host"
         },
@@ -49958,8 +50208,20 @@
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/out-null"
         },
         {
+          "name": "Out-Printer",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-printer"
+        },
+        {
+          "name": "Out-String",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-string"
+        },
+        {
           "name": "OutputBufferingMode",
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.outputbufferingmode"
+        },
+        {
+          "name": "OutTarget",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.outtarget"
         },
         {
           "name": "PipelineVariable",
@@ -50018,8 +50280,24 @@
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.pssession"
         },
         {
+          "name": "PSSessionConfigurationAccessMode",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.pssessionconfigurationaccessmode"
+        },
+        {
           "name": "PSSessionOption",
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.remoting.pssessionoption"
+        },
+        {
+          "name": "PSSessionTypeOption",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pssessiontypeoption"
+        },
+        {
+          "name": "PSThreadOptions Enumeration",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.psthreadoptions"
+        },
+        {
+          "name": "PSTransportOption",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pstransportoption"
         },
         {
           "name": "PSTypeName",
@@ -50102,6 +50380,10 @@
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.remoting.sessiontype"
         },
         {
+          "name": "Set-PSBreakpoint",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint"
+        },
+        {
           "name": "Set-PSDebug",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/set-psdebug"
         },
@@ -50182,6 +50464,10 @@
           "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.switchparameter"
         },
         {
+          "name": "System.Management.Automation.CompletionResult",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresult"
+        },
+        {
           "name": "TabExpansion2",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/tabexpansion2"
         },
@@ -50212,6 +50498,10 @@
         {
           "name": "Update-Help",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/update-help"
+        },
+        {
+          "name": "UpdateHelpScope",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.updatehelpscope"
         },
         {
           "name": "Uri",
@@ -50246,6 +50536,10 @@
           "url": "https://learn.microsoft.com/en-us/windows/win32/winrm/portal"
         },
         {
+          "name": "Write-Debug",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-debug"
+        },
+        {
           "name": "Write-Host",
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-host"
         },
@@ -50262,24 +50556,28 @@
           "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.wsman.management/about/about_wsman_provider"
         },
         {
+          "name": "WSManConfigContainerElement",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.wsman.management.wsmanconfigcontainerelement"
+        },
+        {
           "name": "WSManConfigurationOption",
           "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.wsmanconfigurationoption"
         }
       ],
-      "discovered_link_count": 217,
+      "discovered_link_count": 239,
       "http_content_type": "text/html",
       "id": "powershell-reference",
       "link_depth_limit": 10,
       "platform": "PowerShell",
       "policy": "Official cmdlet reference index",
-      "sha256": "d4479cd6e71511700ced6bc16b839deb11441445d8d0dd0905928414372d62fe",
+      "sha256": "391338ce6a2a523b9903c009961a12d67df1f54ea807bc8bfa736309c86a4453",
       "status": "ok",
       "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/"
     },
     {
       "authority": "FreeBSD Project",
       "bytes_read": 53814,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "commands": [
         {
           "name": "About",
@@ -50513,5 +50811,5 @@
       "url": "https://man.freebsd.org/cgi/man.cgi"
     }
   ],
-  "untranslated_count": 3648
+  "untranslated_count": 3669
 }

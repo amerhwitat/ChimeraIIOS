@@ -2,9 +2,9 @@
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
   "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
   "native_binary": "rootfs/usr/bin/chimera-cmd",
-  "command_count": 4122,
+  "command_count": 4141,
   "mode_counts": {
-    "compatibility-provider-required": 3883,
+    "compatibility-provider-required": 3902,
     "native": 15,
     "native-provider-required": 171,
     "shell-builtin": 53
@@ -5204,6 +5204,30 @@
       ]
     },
     {
+      "name": "about_Debuggers",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — about_Debuggers",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_debuggers"
+      ]
+    },
+    {
+      "name": "about_Enum",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — about_Enum",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_enum"
+      ]
+    },
+    {
       "name": "about_Environment_Variables",
       "platforms": [
         "powershell"
@@ -5273,6 +5297,30 @@
       "arabic_label": "أمر نظام — about_Functions",
       "source_urls": [
         "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions"
+      ]
+    },
+    {
+      "name": "about_Functions_Advanced_Parameters",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — about_Functions_Advanced_Parameters",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters"
+      ]
+    },
+    {
+      "name": "about_Functions_Argument_Completion",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — about_Functions_Argument_Completion",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_argument_completion"
       ]
     },
     {
@@ -6841,6 +6889,18 @@
       "arabic_label": "أمر نظام — Anubis",
       "source_urls": [
         "https://www.gnu.org/software/anubis/manual/"
+      ]
+    },
+    {
+      "name": "ApartmentState",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — ApartmentState",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.threading.apartmentstate"
       ]
     },
     {
@@ -13181,6 +13241,18 @@
       ]
     },
     {
+      "name": "CommandAst Class",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر (CommandAst Class)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.language.commandast"
+      ]
+    },
+    {
       "name": "CommandInfo",
       "platforms": [
         "powershell"
@@ -13451,6 +13523,18 @@
       "arabic_label": "أمر نظام — Complete-Transaction",
       "source_urls": [
         "https://ss64.com/ps/complete-transaction.html"
+      ]
+    },
+    {
+      "name": "CompletionResultType",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "نتيجة (CompletionResultType)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresulttype"
       ]
     },
     {
@@ -16041,8 +16125,10 @@
       ],
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
-      "arabic_label": null,
-      "source_urls": []
+      "arabic_label": "عملية (Debug-Process)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/debug-process"
+      ]
     },
     {
       "name": "declare",
@@ -17685,6 +17771,18 @@
       "arabic_label": "أمر نظام — dot_clean",
       "source_urls": [
         "https://ss64.com/mac/dot_clean.html"
+      ]
+    },
+    {
+      "name": "Double",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — Double",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.double"
       ]
     },
     {
@@ -35217,6 +35315,7 @@
       "provider": "windows-compat-runtime",
       "arabic_label": "ملف (Out-File)",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-file",
         "https://ss64.com/ps/out-file.html"
       ]
     },
@@ -35267,18 +35366,20 @@
       "provider": "windows-compat-runtime",
       "arabic_label": "طابعة (Out-Printer)",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-printer",
         "https://ss64.com/ps/out-printer.html"
       ]
     },
     {
-      "name": "out-string",
+      "name": "Out-String",
       "platforms": [
         "powershell"
       ],
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
-      "arabic_label": "أمر نظام — out-string",
+      "arabic_label": "أمر نظام — Out-String",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-string",
         "https://ss64.com/ps/out-string.html"
       ]
     },
@@ -35304,6 +35405,18 @@
       "arabic_label": "أمر نظام — OutputBufferingMode",
       "source_urls": [
         "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.outputbufferingmode"
+      ]
+    },
+    {
+      "name": "OutTarget",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — OutTarget",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.outtarget"
       ]
     },
     {
@@ -35464,6 +35577,18 @@
       "arabic_label": "أمر نظام — ParseExact",
       "source_urls": [
         "https://ss64.com/ps/syntax-parseexact.html"
+      ]
+    },
+    {
+      "name": "Parsing of Floats",
+      "platforms": [
+        "gnu_linux"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "platform-runtime-not-selected",
+      "arabic_label": "أمر نظام — Parsing of Floats",
+      "source_urls": [
+        "https://www.gnu.org/software/libc/manual/html_node/Parsing-of-Floats.html"
       ]
     },
     {
@@ -37502,6 +37627,18 @@
       ]
     },
     {
+      "name": "PSSessionConfigurationAccessMode",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "تهيئة وصول (PSSessionConfigurationAccessMode)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.pssessionconfigurationaccessmode"
+      ]
+    },
+    {
       "name": "PSSessionOption",
       "platforms": [
         "powershell"
@@ -37511,6 +37648,18 @@
       "arabic_label": "أمر نظام — PSSessionOption",
       "source_urls": [
         "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.remoting.pssessionoption"
+      ]
+    },
+    {
+      "name": "PSSessionTypeOption",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — PSSessionTypeOption",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pssessiontypeoption"
       ]
     },
     {
@@ -37535,6 +37684,30 @@
       "arabic_label": "أمر نظام — PsSuspend",
       "source_urls": [
         "https://ss64.com/nt/pssuspend.html"
+      ]
+    },
+    {
+      "name": "PSThreadOptions Enumeration",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — PSThreadOptions Enumeration",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.psthreadoptions"
+      ]
+    },
+    {
+      "name": "PSTransportOption",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — PSTransportOption",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pstransportoption"
       ]
     },
     {
@@ -39099,13 +39272,15 @@
     {
       "name": "Regular Expressions",
       "platforms": [
+        "gnu_linux",
         "powershell"
       ],
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
       "arabic_label": "أمر نظام — Regular Expressions",
       "source_urls": [
-        "https://ss64.com/ps/syntax-regex.html"
+        "https://ss64.com/ps/syntax-regex.html",
+        "https://www.gnu.org/software/grep/manual/html_node/Regular-Expressions.html"
       ]
     },
     {
@@ -42819,6 +42994,7 @@
       "provider": "windows-compat-runtime",
       "arabic_label": "اضبط — Set-PSBreakpoint",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint",
         "https://ss64.com/ps/set-psbreakpoint.html"
       ]
     },
@@ -44048,6 +44224,18 @@
       "arabic_label": "أمر نظام — spctl",
       "source_urls": [
         "https://ss64.com/mac/spctl.html"
+      ]
+    },
+    {
+      "name": "Specifying the Time Zone with TZ",
+      "platforms": [
+        "gnu_linux"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "platform-runtime-not-selected",
+      "arabic_label": "وقت (Specifying the Time Zone with TZ)",
+      "source_urls": [
+        "https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html"
       ]
     },
     {
@@ -45625,6 +45813,18 @@
       ]
     },
     {
+      "name": "Syntax of Regular Expressions",
+      "platforms": [
+        "gnu_linux"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "platform-runtime-not-selected",
+      "arabic_label": "أمر نظام — Syntax of Regular Expressions",
+      "source_urls": [
+        "https://www.gnu.org/software/emacs/manual/html_node/emacs/Regexps.html"
+      ]
+    },
+    {
       "name": "sys",
       "platforms": [
         "dos-retro"
@@ -45836,6 +46036,18 @@
       "arabic_label": "النظام خطأ (System Error Codes (9000-11999) (0x2328-0x2edf))",
       "source_urls": [
         "https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--9000-11999-"
+      ]
+    },
+    {
+      "name": "System.Management.Automation.CompletionResult",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "النظام نتيجة (System.Management.Automation.CompletionResult)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresult"
       ]
     },
     {
@@ -48243,6 +48455,18 @@
       ]
     },
     {
+      "name": "UpdateHelpScope",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "تحديث مساعدة (UpdateHelpScope)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.updatehelpscope"
+      ]
+    },
+    {
       "name": "UpdateUsers",
       "platforms": [
         "vbscript"
@@ -50588,6 +50812,7 @@
       "provider": "windows-compat-runtime",
       "arabic_label": "صدّر أو احفظ — Write-Debug",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-debug",
         "https://ss64.com/ps/write-debug.html"
       ]
     },
@@ -50843,6 +51068,18 @@
       "arabic_label": "أمر نظام — WSMan Provider",
       "source_urls": [
         "https://learn.microsoft.com/en-us/powershell/module/microsoft.wsman.management/about/about_wsman_provider"
+      ]
+    },
+    {
+      "name": "WSManConfigContainerElement",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "إعداد (WSManConfigContainerElement)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.wsman.management.wsmanconfigcontainerelement"
       ]
     },
     {

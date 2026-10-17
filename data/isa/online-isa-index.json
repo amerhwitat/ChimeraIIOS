@@ -66,15 +66,15 @@
     "unknown": "غير_مترجم",
     "vector": "متجه"
   },
-  "candidate_definition_count": 7346,
-  "generated_utc": "2026-10-13T18:31:31.544257+00:00",
+  "candidate_definition_count": 7344,
+  "generated_utc": "2026-10-17T08:10:48.370824+00:00",
   "schema_version": "1.0",
   "source_policy": "Source metadata and hashes plus TableGen definition identifiers only. Not an exhaustive instruction list and not a conformance claim.",
   "sources": [
     {
       "authority": "Intel",
-      "bytes_read": 153442,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 151352,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -236,13 +236,173 @@
         },
         {
           "depth": 2,
+          "name": "10th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/10th-generation-intel-core-desktop-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "10th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/10th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "11th Gen Intel® Core™ Mobile Processor Technical Specifications",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/11th-gen-intel-core-mobile-processor-technical-specifications/"
+        },
+        {
+          "depth": 2,
+          "name": "11th Gen Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/11th-gen-intel-core-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "11th Generation Intel® Core™ (TGL-U) and Evo™ Launch 2020",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/11th-generation-intel-core-tgl-u-and-evo-launch-2020/"
+        },
+        {
+          "depth": 2,
+          "name": "11th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/11th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "11th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/11th-generation-intel-core-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "12th Gen Intel® Core",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/12th-gen-intel-core/"
+        },
+        {
+          "depth": 2,
+          "name": "12th Gen Intel® Core™ Mobile Processor Technical Specifications",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/12th-gen-intel-core-mobile-processor-technical-specifications/"
+        },
+        {
+          "depth": 2,
+          "name": "12th Generation Intel® Core™ Processor",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/12th-generation-intel-core-processor/"
+        },
+        {
+          "depth": 2,
+          "name": "12th Generation Intel® Core™ Processor",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/12th-generation-intel-core-processor_1/"
+        },
+        {
+          "depth": 2,
+          "name": "13th Gen Intel® Core",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/13th-gen-intel-core/"
+        },
+        {
+          "depth": 2,
+          "name": "13th Gen Intel® Core™ Desktop Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/13th-gen-intel-core-desktop-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "13th Gen Intel® Core™ Mobile Processor Technical Specifications",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/13th-gen-intel-core-mobile-processor-technical-specifications/"
+        },
+        {
+          "depth": 2,
+          "name": "13th Generation Intel® Core™ Mobile Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/13th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "14th Generation Intel® Core™ Mobile Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/14th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "1st Generation Intel® Xeon® Scalable Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/1st-generation-intel-xeon-scalable-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "2019",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/2019/"
+        },
+        {
+          "depth": 2,
+          "name": "2020",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/2020/"
+        },
+        {
+          "depth": 2,
+          "name": "2021",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/2021/"
+        },
+        {
+          "depth": 2,
+          "name": "2nd Generation Intel® Xeon® Scalable Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/2nd-generation-intel-xeon-scalable-processors/"
+        },
+        {
+          "depth": 2,
           "name": "3rd Generation Intel Xeon Processors Instruction Throughput and Latency",
           "url": "https://www.intel.com/content/www/us/en/content-details/679103/instruction-throughput-and-latency.html"
         },
         {
           "depth": 2,
+          "name": "3rd Generation Intel® Xeon® Scalable Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/3rd-generation-intel-xeon-scalable-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "4th Generation Intel® Xeon® Scalable Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/4th-generation-intel-xeon-scalable-processors/"
+        },
+        {
+          "depth": 2,
           "name": "5th Generation Intel Xeon Processors Landing Page",
           "url": "https://www.intel.com/content/www/us/en/products/docs/processors/xeon/5th-gen-xeon-scalable-processors.html"
+        },
+        {
+          "depth": 2,
+          "name": "5th Generation Intel® Xeon® Scalable Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/5th-generation-intel-xeon-scalable-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "6th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/6th-generation-intel-core-desktop-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "6th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/6th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "7th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/7th-generation-intel-core-desktop-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "7th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/7th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "8th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/8th-generation-intel-core-desktop-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "8th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/8th-generation-intel-core-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "9th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/9th-generation-intel-core-desktop-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "9th Generation Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/9th-generation-intel-core-mobile-processors/"
         },
         {
           "depth": 2,
@@ -286,6 +446,16 @@
         },
         {
           "depth": 2,
+          "name": "Architecture Day 2020",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/architecture-day-2020/"
+        },
+        {
+          "depth": 2,
+          "name": "Architecture Day 2021",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/architecture-day-2021/"
+        },
+        {
+          "depth": 2,
           "name": "Artificial Intelligence",
           "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/artificial-intelligence/overview.html"
         },
@@ -303,6 +473,16 @@
           "depth": 2,
           "name": "Artificial Intelligence (AI) Intel at AI Infra Summit 2026 August 26,2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ai-infra-summit-2026.html"
+        },
+        {
+          "depth": 2,
+          "name": "Artificial Intelligence (AI) Intel at OCP 2026 October 12,2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ocp-2026.html"
+        },
+        {
+          "depth": 2,
+          "name": "Artificial Intelligence (AI) Intel at Web Summit 2026 October 15,2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html"
         },
         {
           "depth": 2,
@@ -326,6 +506,21 @@
         },
         {
           "depth": 2,
+          "name": "Battery Life",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/battery-life/"
+        },
+        {
+          "depth": 2,
+          "name": "Benchmarks and Measurements",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/benchmarks-and-measurements/"
+        },
+        {
+          "depth": 2,
+          "name": "Bluetooth",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/bluetooth/"
+        },
+        {
+          "depth": 2,
           "name": "Board of Directors",
           "url": "https://www.intel.com/content/www/us/en/corporate/board-directors.html"
         },
@@ -343,6 +538,36 @@
           "depth": 2,
           "name": "Candidate Notice",
           "url": "https://www.intel.com/content/www/us/en/privacy/worldwide-candidate-privacy-policy.html"
+        },
+        {
+          "depth": 2,
+          "name": "CES 2019 - wrnch AI Demo*",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ces-2019-wrnch-ai-demo/"
+        },
+        {
+          "depth": 2,
+          "name": "CES 2021",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ces-2021/"
+        },
+        {
+          "depth": 2,
+          "name": "CES 2022",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ces-2022/"
+        },
+        {
+          "depth": 2,
+          "name": "CES 2024",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ces-2024/"
+        },
+        {
+          "depth": 2,
+          "name": "CES 2025",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ces-2025/"
+        },
+        {
+          "depth": 2,
+          "name": "CES 2026",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ces-2026/"
         },
         {
           "depth": 2,
@@ -381,6 +606,31 @@
         },
         {
           "depth": 2,
+          "name": "Computex 2021",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/computex-2021/"
+        },
+        {
+          "depth": 2,
+          "name": "Computex 2024",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/computex-2024/"
+        },
+        {
+          "depth": 2,
+          "name": "Computex 2025",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/computex-2025/"
+        },
+        {
+          "depth": 2,
+          "name": "Computex 2026",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/computex-2026/"
+        },
+        {
+          "depth": 2,
+          "name": "Connectivity",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/connectivity/"
+        },
+        {
+          "depth": 2,
           "name": "Connectivity",
           "url": "https://www.intel.com/content/www/us/en/policy/policy-connectivity.html"
         },
@@ -416,6 +666,26 @@
         },
         {
           "depth": 2,
+          "name": "Desktop",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/desktop/"
+        },
+        {
+          "depth": 2,
+          "name": "Desktop",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/desktop_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Desktop",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/desktop_2/"
+        },
+        {
+          "depth": 2,
+          "name": "Desktop",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-pentium-silver-desktop-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Developer Programs",
           "url": "https://www.intel.com/content/www/us/en/developer/programs/overview.html"
         },
@@ -436,6 +706,11 @@
         },
         {
           "depth": 2,
+          "name": "Disclosures",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/disclosures/"
+        },
+        {
+          "depth": 2,
           "name": "Distributor Directory",
           "url": "https://www.intel.com/content/www/us/en/partner/showcase/partner-directory/distributor-select-region.html"
         },
@@ -443,6 +718,21 @@
           "depth": 2,
           "name": "Diversity & Inclusion",
           "url": "https://www.intel.com/content/www/us/en/diversity/diversity-at-intel.html"
+        },
+        {
+          "depth": 2,
+          "name": "Edge",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/edge/"
+        },
+        {
+          "depth": 2,
+          "name": "Edge",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/edge_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Edge",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/edge_2/"
         },
         {
           "depth": 2,
@@ -486,8 +776,23 @@
         },
         {
           "depth": 2,
+          "name": "Ethernet",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ethernet/"
+        },
+        {
+          "depth": 2,
           "name": "Ethernet Products",
           "url": "https://www.intel.com/content/www/us/en/support/products/36773/network-and-i-o/ethernet-products.html"
+        },
+        {
+          "depth": 2,
+          "name": "Events",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/events/"
+        },
+        {
+          "depth": 2,
+          "name": "Events Archive",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/events-archive/"
         },
         {
           "depth": 2,
@@ -576,6 +881,11 @@
         },
         {
           "depth": 2,
+          "name": "Graphics and Accelerators",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/graphics-and-accelerators/"
+        },
+        {
+          "depth": 2,
           "name": "Healthcare & Life Sciences",
           "url": "https://www.intel.com/content/www/us/en/healthcare-it/healthcare-overview.html"
         },
@@ -596,6 +906,11 @@
         },
         {
           "depth": 2,
+          "name": "Hot Chips 2021",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/hot-chips-2021/"
+        },
+        {
+          "depth": 2,
           "name": "HPC Cluster Tuning on 3rd Generation Intel Xeon Scalable Processors",
           "url": "https://www.intel.com/content/www/us/en/developer/articles/guide/hpc-cluster-tuning-on-3rd-generation-xeon.html"
         },
@@ -611,8 +926,43 @@
         },
         {
           "depth": 2,
+          "name": "IFA 2019",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ifa-2019/"
+        },
+        {
+          "depth": 2,
+          "name": "IFA 2024",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/ifa-2024/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Atom® Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-atom-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Intel Atom® Processors",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/atom.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Atom® Processors x6000RE Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-atom-processors-x6000re-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Atom® Processors x7000C Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-atom-processors-x7000c-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Atom® Processors x7000E Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-atom-processors-x7000e-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Atom® Processors x7000RE Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-atom-processors-x7000re-series/"
         },
         {
           "depth": 2,
@@ -666,8 +1016,28 @@
         },
         {
           "depth": 2,
+          "name": "Intel Technology Tour (ITT) 2025",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-technology-tour-itt-2025/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel vPro powered by 12th Gen Intel Core processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-vpro-powered-by-12th-gen-intel-core-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel vPro®",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-vpro/"
+        },
+        {
+          "depth": 2,
           "name": "Intel vPro® for Business",
           "url": "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/overview.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel vPro® powered by 13th Gen Intel® Core™ processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-vpro-powered-by-13th-gen-intel-core-processors/"
         },
         {
           "depth": 2,
@@ -697,7 +1067,22 @@
         {
           "depth": 2,
           "name": "Intel® Arc™ G-Series Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-arc-g-series-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Arc™ G-Series Processors",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/arc/g-series/handheld-gaming.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Arc™ G3 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-arc-g3-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Arc™ Graphics",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-arc-graphics/"
         },
         {
           "depth": 2,
@@ -706,8 +1091,33 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Celeron® Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-celeron-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ (14th Gen) Desktop Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-14th-gen-desktop-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® Core™ i7 Processors",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/core/i7/docs.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ M Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-m-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ N Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-n-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors/"
         },
         {
           "depth": 2,
@@ -716,8 +1126,83 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Core™ Processors (14th Gen)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors-14th-gen/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Processors (Series 1)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors-series-1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Processors (Series 1)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors-series-1_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Processors (Series 2)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors-series-2/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Processors (Series 3)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors-series-3/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Processors (Series 3)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-processors-series-3_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® Core™ Ultra Processors",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/core-ultra.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 1)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 1)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-1_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 2)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-2/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 2)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-2_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 2)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-2_2/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 3)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-3/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Core™ Ultra Processors (Series 3)",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-core-ultra-processors-series-3_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Data Center GPU Flex Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-data-center-gpu-flex-series/"
         },
         {
           "depth": 2,
@@ -736,8 +1221,43 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Evo™ designs powered by 11th Generation Intel Core processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-evo-designs-powered-by-11th-generation-intel-core-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Evo™ designs powered by 12th Generation Intel Core processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-evo-designs-powered-by-12th-generation-intel-core-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Evo™ designs powered by 13th Generation Intel Core processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-evo-designs-powered-by-13th-generation-intel-core-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Evo™ designs powered by Intel Core Ultra Series 1 & 2 processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-evo-designs-powered-by-intel-core-ultra-series-1-2-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Evo™ designs powered by Intel Core Ultra Series 3 processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-evo-designs-powered-by-intel-core-ultra-series-3-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Evo™ Edition",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-evo-edition/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® FPGAs",
           "url": "https://www.intel.com/content/www/us/en/programmable/support/support-resources.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Gaudi® AI Accelerator",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-gaudi-ai-accelerator/"
         },
         {
           "depth": 2,
@@ -751,13 +1271,53 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Innovation 2021",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-innovation-2021/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Innovation 2022",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-innovation-2022/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Innovation 2023",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-innovation-2023/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® Intelligent Fabric Processors",
           "url": "https://www.intel.com/content/www/us/en/products/details/network-io/intelligent-fabric-processors.html"
         },
         {
           "depth": 2,
+          "name": "Intel® Iris® Xᵉ MAX",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-iris-x%E1%B5%89-max/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® NUCs",
           "url": "https://www.intel.com/content/www/us/en/support/products/98414/mini-pcs.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Optane™ Persistent Memory",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-optane-persistent-memory/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Optane™ Persistent Memory 200 Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-optane-persistent-memory-200-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Optane™ SSD P5800X Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-optane-ssd-p5800x-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Optane™ Technology",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-optane-technology/"
         },
         {
           "depth": 2,
@@ -771,8 +1331,23 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Pentium® Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-pentium-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® Server BIOS Support",
           "url": "https://www.intel.com/content/www/us/en/support/articles/000088822.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Server GPU",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-server-gpu/"
         },
         {
           "depth": 2,
@@ -786,13 +1361,38 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Xeon® 6",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-6/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® Xeon® 6 Processors with E-Cores Deep Dive",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/xeon/xeon6-e-cores.html"
         },
         {
           "depth": 2,
+          "name": "Intel® Xeon® 6+",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-6_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® 600 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-600-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Intel® Xeon® CPU Max Series",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/xeon/max-series.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® D Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-d-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-processors/"
         },
         {
           "depth": 2,
@@ -806,8 +1406,58 @@
         },
         {
           "depth": 2,
+          "name": "Intel® Xeon® W Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-processors_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® W-2200 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-w-2200-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® W-2400 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-w-2400-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® W-2500 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-w-2500-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® W-3300 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-w-3300-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® W-3400 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-w-3400-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel® Xeon® W-3500 Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-w-3500-processors/"
+        },
+        {
+          "depth": 2,
           "name": "International and digital trade policy",
           "url": "https://www.intel.com/content/www/us/en/policy/policy-trade.html"
+        },
+        {
+          "depth": 2,
+          "name": "Investor Day 2022",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/investor-day-2022/"
+        },
+        {
+          "depth": 2,
+          "name": "ISC 2022",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/isc-2022/"
+        },
+        {
+          "depth": 2,
+          "name": "ISC 2023",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/isc-2023/"
         },
         {
           "depth": 2,
@@ -856,6 +1506,31 @@
         },
         {
           "depth": 2,
+          "name": "Memory and Storage",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/memory-and-storage/"
+        },
+        {
+          "depth": 2,
+          "name": "Mobile",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-pentium-silver-mobile-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Mobile",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/mobile/"
+        },
+        {
+          "depth": 2,
+          "name": "Mobile",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/mobile_1/"
+        },
+        {
+          "depth": 2,
+          "name": "Mobile",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/mobile_2/"
+        },
+        {
+          "depth": 2,
           "name": "My Intel Dashboard",
           "url": "https://www.intel.com/content/www/us/en/secure/my-intel/dashboard.html"
         },
@@ -881,6 +1556,21 @@
         },
         {
           "depth": 2,
+          "name": "Optane™ Memory H10 with Solid State Storage",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/optane-memory-h10-with-solid-state-storage/"
+        },
+        {
+          "depth": 2,
+          "name": "Optane™ Memory M10 Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/optane-memory-m10-series/"
+        },
+        {
+          "depth": 2,
+          "name": "Optane™ SSD DC P4800X Series",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/optane-ssd-dc-p4800x-series/"
+        },
+        {
+          "depth": 2,
           "name": "other branded products",
           "url": "https://www.intel.com/content/www/us/en/support/topics/support-for-other-intel-products.html"
         },
@@ -893,6 +1583,11 @@
           "depth": 2,
           "name": "Our Values",
           "url": "https://www.intel.com/content/www/us/en/corporate-responsibility/our-values.html"
+        },
+        {
+          "depth": 2,
+          "name": "Overview",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/overview/"
         },
         {
           "depth": 2,
@@ -911,8 +1606,23 @@
         },
         {
           "depth": 2,
+          "name": "Pentium® Gold Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-pentium-gold-processors/"
+        },
+        {
+          "depth": 2,
+          "name": "Pentium® Silver Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-pentium-silver-processors/"
+        },
+        {
+          "depth": 2,
           "name": "Performance Hybrid Architecture Landing Page",
           "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/hybrid-architecture.html"
+        },
+        {
+          "depth": 2,
+          "name": "Platforms",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/platforms/"
         },
         {
           "depth": 2,
@@ -923,6 +1633,16 @@
           "depth": 2,
           "name": "Process Technologies",
           "url": "https://www.intel.com/content/www/us/en/foundry/process.html"
+        },
+        {
+          "depth": 2,
+          "name": "Processors",
+          "url": "http://www.intel.com/PerformanceIndex"
+        },
+        {
+          "depth": 2,
+          "name": "Processors",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/processors/"
         },
         {
           "depth": 2,
@@ -973,6 +1693,11 @@
           "depth": 2,
           "name": "Security",
           "url": "https://www.intel.com/content/www/us/en/security/overview.html"
+        },
+        {
+          "depth": 2,
+          "name": "Security and Manageability",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/security-and-manageability/"
         },
         {
           "depth": 2,
@@ -1046,6 +1771,11 @@
         },
         {
           "depth": 2,
+          "name": "Small Business",
+          "url": "https://www.intel.com/content/www/us/en/business/small-business/sme-pc-study.html"
+        },
+        {
+          "depth": 2,
           "name": "Software",
           "url": "https://www.intel.com/content/www/us/en/software/software-overview.html"
         },
@@ -1066,6 +1796,16 @@
         },
         {
           "depth": 2,
+          "name": "Supercomputing 22",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/supercomputing-22/"
+        },
+        {
+          "depth": 2,
+          "name": "Supercomputing 23",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/supercomputing-23/"
+        },
+        {
+          "depth": 2,
           "name": "Supplier.intel.com",
           "url": "https://www.intel.com/content/www/us/en/supplier/overview.html"
         },
@@ -1078,6 +1818,16 @@
           "depth": 2,
           "name": "Supply chain",
           "url": "https://www.intel.com/content/www/us/en/policy/policy-supply-chain.html"
+        },
+        {
+          "depth": 2,
+          "name": "Supply Chain Transparency",
+          "url": "https://www.intel.com/content/www/us/en/policy/policy-human-trafficking-and-slavery.html"
+        },
+        {
+          "depth": 2,
+          "name": "Sustainability",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/sustainability/"
         },
         {
           "depth": 2,
@@ -1141,6 +1891,16 @@
         },
         {
           "depth": 2,
+          "name": "Vision 2022",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/vision-2022/"
+        },
+        {
+          "depth": 2,
+          "name": "Vision 2024",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/vision-2024/"
+        },
+        {
+          "depth": 2,
           "name": "Watch video",
           "url": "https://www.intel.com/content/www/us/en/corporate-responsibility/a-world-of-opportunity-video.html"
         },
@@ -1171,6 +1931,21 @@
         },
         {
           "depth": 2,
+          "name": "Wi-Fi",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/wi-fi/"
+        },
+        {
+          "depth": 2,
+          "name": "Wired",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/wired/"
+        },
+        {
+          "depth": 2,
+          "name": "Wireless",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/wireless/"
+        },
+        {
+          "depth": 2,
           "name": "Wireless",
           "url": "https://www.intel.com/content/www/us/en/support/products/59485/wireless.html"
         },
@@ -1190,6 +1965,21 @@
           "url": "https://www.intel.com/content/www/us/en/policy/policy-workforce.html"
         },
         {
+          "depth": 2,
+          "name": "WWAN",
+          "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/wwan/"
+        },
+        {
+          "depth": 3,
+          "name": "13th Gen Intel® Core™ Mobile Processors for Edge",
+          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core/13thgenmobile.html"
+        },
+        {
+          "depth": 3,
+          "name": "13th Gen Intel® Core™ Processors for Edge",
+          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core/13thgen.html"
+        },
+        {
           "depth": 3,
           "name": "5th Gen Intel® Xeon® processors",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/xeon/5th-gen-xeon-scalable-processors.html"
@@ -1201,8 +1991,88 @@
         },
         {
           "depth": 3,
+          "name": "AI PC. Transformational Technology.",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/processors/core-ultra/ai-pc.html"
+        },
+        {
+          "depth": 3,
+          "name": "Browse developer resources",
+          "url": "https://www.intel.com/content/www/us/en/developer/platform/gaudi/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Compare",
+          "url": "https://www.intel.com/content/www/us/en/products/compare.html"
+        },
+        {
+          "depth": 3,
+          "name": "Compare 2.4 GHz vs. 5 GHz vs. 6 GHz",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/wireless/2-4-vs-5ghz.html"
+        },
+        {
+          "depth": 3,
+          "name": "Compare Products",
+          "url": "https://www.intel.com/compare/"
+        },
+        {
+          "depth": 3,
           "name": "Connect with the team",
           "url": "https://www.intel.com/content/www/us/en/now/xeon-6-series-processors/contact-us.html"
+        },
+        {
+          "depth": 3,
+          "name": "Controllers",
+          "url": "https://www.intel.com/content/www/us/en/products/details/ethernet/600-controllers/products.html"
+        },
+        {
+          "depth": 3,
+          "name": "Developer tools for Intel® Xeon® processors",
+          "url": "https://www.intel.com/content/www/us/en/developer/platform/xeon.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore graphics",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/desktop/b-series/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel esports",
+          "url": "https://www.intel.com/content/www/us/en/gaming/esports.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel vPro Certified Apps and Accessories",
+          "url": "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-apps-and-accessories.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel vPro® Manageability",
+          "url": "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-manageability/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel vPro® Security",
+          "url": "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-security/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel® Connectivity Performance Suite",
+          "url": "https://www.intel.com/content/www/us/en/products/details/wireless/connectivity-performance-suite.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel® Device IQ",
+          "url": "https://www.intel.com/content/www/us/en/content-details/915267/content.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore processors",
+          "url": "https://www.intel.com/content/www/us/en/products/details/processors/core-ultra/series-2.html"
+        },
+        {
+          "depth": 3,
+          "name": "Find AI PC developer resources",
+          "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/ai-pc/overview.html"
         },
         {
           "depth": 3,
@@ -1211,8 +2081,163 @@
         },
         {
           "depth": 3,
+          "name": "Get Intel® Battery Life Diagnostic Tool",
+          "url": "https://www.intel.com/content/www/us/en/developer/articles/tool/battery-life-diagnostic-tool.html"
+        },
+        {
+          "depth": 3,
+          "name": "Get product support",
+          "url": "https://www.intel.com/content/www/us/en/support/products/230021/graphics/data-center-gpu/intel-data-center-gpu-flex-series.html"
+        },
+        {
+          "depth": 3,
+          "name": "How to build a gaming PC",
+          "url": "https://www.intel.com/content/www/us/en/gaming/resources/how-to-build-a-gaming-pc.html"
+        },
+        {
+          "depth": 3,
+          "name": "How to choose a prebuilt gaming PC",
+          "url": "https://www.intel.com/content/www/us/en/gaming/resources/how-to-choose-prebuilt-gaming-pc.html"
+        },
+        {
+          "depth": 3,
+          "name": "How to choose: Prebuilt vs. custom PC",
+          "url": "https://www.intel.com/content/www/us/en/gaming/resources/how-to-choose-pre-built-vs-custom-pc.html"
+        },
+        {
+          "depth": 3,
+          "name": "How to find the right budget gaming PC",
+          "url": "https://www.intel.com/content/www/us/en/gaming/resources/finding-the-right-budget-gaming-pc.html"
+        },
+        {
+          "depth": 3,
+          "name": "How to fix high CPU usage",
+          "url": "https://www.intel.com/content/www/us/en/gaming/resources/how-to-fix-high-cpu-usage.html"
+        },
+        {
+          "depth": 3,
+          "name": "HPC software and tools",
+          "url": "https://www.intel.com/content/www/us/en/high-performance-computing/hpc-software-and-programming.html"
+        },
+        {
+          "depth": 3,
+          "name": "Hugging Face",
+          "url": "https://www.intel.com/content/www/us/en/developer/ecosystem/hugging-face.html"
+        },
+        {
+          "depth": 3,
+          "name": "Independent Hardware Vendors Acceleration Program",
+          "url": "https://www.intel.com/content/www/us/en/partner/programs/ihv-acceleration-program.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel AI for Enterprise RAG",
+          "url": "https://www.intel.com/content/www/us/en/goal/how-to-implement-rag.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Atom® P5900 processor product brief",
+          "url": "https://www.intel.com/content/dam/www/public/us/en/documents/product-briefs/atom-p5900-product-brief.pdf"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Atom® P6900 processor product brief",
+          "url": "https://www.intel.com/content/www/us/en/content-details/930281/consolidate-ai-network-architecture-with-intel-atom-p6900-processors.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Atom® x7000E developer kits",
+          "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/edge-5g/hardware/atom-x7000e-dev-kit.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Bluetooth® technology",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/wireless/bluetooth-solutions.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Corporate Responsibility Report",
+          "url": "https://www.intel.com/content/dam/www/central-libraries/us/en/documents/2026-08/csr-2025-26-full-report.pdf"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Gaudi 2 AI Accelerator",
+          "url": "https://www.intel.com/content/www/us/en/content-details/839363/intel-gaudi-2-ai-accelerators-white-paper.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Gaudi 3 Mezzanine Card: HL-325L",
+          "url": "https://www.intel.com/content/www/us/en/content-details/817487/intel-gaudi-3-ai-accelerator-325-l-oam-mezzanine-card-product-brief.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Gaudi 3 PCIe Card: HL-338",
+          "url": "https://www.intel.com/content/www/us/en/content-details/817488/intel-gaudi-3-ai-accelerator-hl-338-pcie-add-in-card-product-brief.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel Gaudi 3 UBB: HLB-325",
+          "url": "https://www.intel.com/content/www/us/en/content-details/817489/intel-gaudi-3-ai-accelerator-hlb-325-baseboard-product-brief.html"
+        },
+        {
+          "depth": 3,
           "name": "Intel Xeon Supporting Agentic AI",
           "url": "https://www.intel.com/content/www/us/en/content-details/928829/content-details.html"
+        },
+        {
+          "depth": 3,
+          "name": "intel.com/AIPC",
+          "url": "https://www.intel.com/content/www/us/en/now/ai-pc-possibilities.html"
+        },
+        {
+          "depth": 3,
+          "name": "intel.com/overclocking",
+          "url": "https://www.intel.com/content/www/us/en/gaming/overclocking-intel-processors.html"
+        },
+        {
+          "depth": 3,
+          "name": "intel.com/thunderbolt",
+          "url": "https://www.intel.com/content/www/us/en/architecture-and-technology/thunderbolt/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Arc™ B-Series GPUs for desktops",
+          "url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/desktop/b-series.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Arc™ GPU for the edge Explore GPUs for the edge",
+          "url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/edge.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Arc™ GPU-based laptops",
+          "url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/laptops.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Arc™ GPU-based laptops Explore laptop GPUs",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/mobile/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Arc™ Graphics drivers",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/software/drivers.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Arc™ Pro B-series GPUs for workstations Explore workstation GPUs",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/workstations/b-series/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Connectivity Analytics Program",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/wireless/connectivity-analytics.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Connectivity Performance Suite",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/wireless/connectivity-performance-suite.html"
         },
         {
           "depth": 3,
@@ -1248,6 +2273,16 @@
           "depth": 3,
           "name": "Intel® Core™ 7 processor 360 (6M Cache, up to 4.80 GHz)",
           "url": "https://www.intel.com/content/www/us/en/products/sku/246015/intel-core-7-processor-360-6m-cache-up-to-4-80-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Core™ processors",
+          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core/14thgen.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Core™ Processors",
+          "url": "https://www.intel.com/content/www/us/en/products/details/processors/core/edge.html"
         },
         {
           "depth": 3,
@@ -1306,6 +2341,11 @@
         },
         {
           "depth": 3,
+          "name": "Intel® Core™ Ultra Processors (Series 1) for Edge Applications",
+          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core-ultra.html"
+        },
+        {
+          "depth": 3,
           "name": "Intel® Core™ Ultra X7 Processor 358H (18M Cache, up to 4.80 GHz)",
           "url": "https://www.intel.com/content/www/us/en/products/sku/245527/intel-core-ultra-x7-processor-358h-18m-cache-up-to-4-80-ghz/specifications.html"
         },
@@ -1323,6 +2363,36 @@
           "depth": 3,
           "name": "Intel® Core™ Ultra X9 Processor 388H (18M Cache, up to 5.10 GHz)",
           "url": "https://www.intel.com/content/www/us/en/products/sku/245526/intel-core-ultra-x9-processor-388h-18m-cache-up-to-5-10-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Data Center GPU Flex 140",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/230020/intel-data-center-gpu-flex-140/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Data Center GPU Flex 170",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/230019/intel-data-center-gpu-flex-170/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Data Center GPU Flex 170V",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/240233/intel-data-center-gpu-flex-170v/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Edge Software Hub",
+          "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/edge-5g/edge-solutions/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Wi-Fi 6 Speed and connection you can depend on.",
+          "url": "https://www.intel.com/content/www/us/en/products/details/wireless/wi-fi-6-series.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Wi-Fi technology",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/wireless/solutions.html"
         },
         {
           "depth": 3,
@@ -1376,6 +2446,31 @@
         },
         {
           "depth": 3,
+          "name": "Intel® Xeon® CPU Max 9460 Processor (97.5M Cache, 2.20 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/232595/intel-xeon-cpu-max-9460-processor-97-5m-cache-2-20-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Xeon® CPU Max 9462 Processor (75M Cache, 2.70 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/232597/intel-xeon-cpu-max-9462-processor-75m-cache-2-70-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Xeon® CPU Max 9468 Processor (105M Cache, 2.10 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/232596/intel-xeon-cpu-max-9468-processor-105m-cache-2-10-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Xeon® CPU Max 9470 Processor (105M Cache, 2.00 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/232594/intel-xeon-cpu-max-9470-processor-105m-cache-2-00-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Xeon® CPU Max 9480 Processor (112.5M Cache, 1.90 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/232592/intel-xeon-cpu-max-9480-processor-112-5m-cache-1-90-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
           "name": "Intel® Xeon® CPU Max series product brief",
           "url": "https://www.intel.com/content/www/us/en/content-details/765366/intel-xeon-cpu-max-series-product-brief.html"
         },
@@ -1387,7 +2482,37 @@
         {
           "depth": 3,
           "name": "Learn more",
+          "url": "https://www.intel.com/content/www/us/en/products/details/network-io/ipu/adapter-e2100.html"
+        },
+        {
+          "depth": 3,
+          "name": "Learn more",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/core-ultra/edge.html"
+        },
+        {
+          "depth": 3,
+          "name": "NetSec SD-WAN developer kit",
+          "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/edge-5g/hardware/netsec-sd-wan-dev-kit.html"
+        },
+        {
+          "depth": 3,
+          "name": "Network Adapters",
+          "url": "https://www.intel.com/content/www/us/en/products/details/ethernet/600-network-adapters/products.html"
+        },
+        {
+          "depth": 3,
+          "name": "oneAPI GPU Optimization Guide",
+          "url": "https://www.intel.com/content/www/us/en/docs/oneapi/optimization-guide-gpu/2024-1/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "Overclocking on unlocked Intel® Core™ processors",
+          "url": "https://www.intel.com/content/www/us/en/gaming/resources/how-to-overclock.html"
+        },
+        {
+          "depth": 3,
+          "name": "Read The Blueprint for Growth",
+          "url": "https://www.intel.com/content/www/us/en/content-details/919636/content-details.html"
         },
         {
           "depth": 3,
@@ -1401,13 +2526,113 @@
         },
         {
           "depth": 3,
+          "name": "Read the product brief",
+          "url": "https://www.intel.com/content/www/us/en/content-details/919247/content-details.html"
+        },
+        {
+          "depth": 3,
+          "name": "Read the white paper",
+          "url": "https://www.intel.com/content/www/us/en/content-details/817486/intel-gaudi-3-ai-accelerator-white-paper"
+        },
+        {
+          "depth": 3,
+          "name": "Read the white paper",
+          "url": "https://www.intel.com/content/www/us/en/content-details/892383/content.html"
+        },
+        {
+          "depth": 3,
+          "name": "Read the Zero Trust white paper",
+          "url": "https://www.intel.com/content/www/us/en/security/contributions-zero-trust.html"
+        },
+        {
+          "depth": 3,
           "name": "See all Intel Xeon features",
           "url": "https://www.intel.com/content/www/us/en/products/details/processors/xeon/features.html"
         },
         {
           "depth": 3,
+          "name": "See product brief",
+          "url": "https://www.intel.com/content/www/us/en/content-details/768797/intel-data-center-gpu-flex-series-product-brief.html"
+        },
+        {
+          "depth": 3,
+          "name": "See product specs",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/245625/intel-arc-g3-extreme-processor-12m-cache-up-to-4-70-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "See product specs",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/245626/intel-arc-g3-processor-12m-cache-up-to-4-60-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "See reference design",
+          "url": "https://www.intel.com/content/www/us/en/content-details/833842/intel-gaudi-3-ai-accelerator-32-node-cluster-reference-design-white-paper"
+        },
+        {
+          "depth": 3,
+          "name": "The Intel HPC story",
+          "url": "https://www.intel.com/content/www/us/en/high-performance-computing/overview.html"
+        },
+        {
+          "depth": 3,
+          "name": "View controllers",
+          "url": "https://www.intel.com/content/www/us/en/ark/products/series/246043/intel-ethernet-e835-controllers-up-to-200gbe.html"
+        },
+        {
+          "depth": 3,
+          "name": "View E835 controller product brief",
+          "url": "https://www.intel.com/content/www/us/en/content-details/913514/intel-ethernet-controller-e835-product-brief.html"
+        },
+        {
+          "depth": 3,
+          "name": "View network adapters",
+          "url": "https://www.intel.com/content/www/us/en/ark/products/series/245454/intel-ethernet-e835-network-adapters-up-to-200gbe.html"
+        },
+        {
+          "depth": 3,
+          "name": "Vision Product Portfolio",
+          "url": "https://www.intel.com/content/www/us/en/internet-of-things/computer-vision/vision-products.html"
+        },
+        {
+          "depth": 3,
+          "name": "Visit Intel Gaudi Software",
+          "url": "https://www.intel.com/content/www/us/en/software/ai-accelerators/gaudi-software.html"
+        },
+        {
+          "depth": 3,
+          "name": "What Is an AI PC?",
+          "url": "https://www.intel.com/content/www/us/en/learn/what-is-an-ai-pc.html"
+        },
+        {
+          "depth": 3,
+          "name": "What’s the difference between CPU vs. GPU?",
+          "url": "https://www.intel.com/content/www/us/en/products/docs/processors/cpu-vs-gpu.html"
+        },
+        {
+          "depth": 3,
+          "name": "www.intel.com/content/www/us/en/security/security-as-a-component-of-tech.html",
+          "url": "https://www.intel.com/content/www/us/en/security/security-as-a-component-of-tech.html"
+        },
+        {
+          "depth": 3,
+          "name": "www.intel.com/Performance-vPro",
+          "url": "https://www.intel.com/Performance-vPro"
+        },
+        {
+          "depth": 3,
+          "name": "www.intel.com/performance-vpro",
+          "url": "https://www.intel.com/performance-vpro"
+        },
+        {
+          "depth": 3,
           "name": "Xeon CPU Supports System Level TCO for Agentic AI",
           "url": "https://www.intel.com/content/www/us/en/content-details/929278/system-level-tco-in-agentic-ai-optimizing-cpu-gpu-ratios-with-cpu-bound-work.html"
+        },
+        {
+          "depth": 3,
+          "name": "Xᵉ-HPG Microarchitecture",
+          "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/introduction-to-the-xe-hpg-architecture.html"
         }
       ],
       "family": "x86",
@@ -1416,13 +2641,13 @@
       "id": "intel-sdm",
       "kind": "official-document-index",
       "link_depth_limit": 10,
-      "sha256": "6640de3229c7e8182a8636940d9f9ee427ca62f7f3765344610c6cc7a1428ba1",
+      "sha256": "f405c1263418c56b19104513649eec6080a3a21a5956415941bc3aab5d93d020",
       "status": "ok",
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",
@@ -1434,7 +2659,7 @@
     {
       "authority": "Arm",
       "bytes_read": 10268,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -1452,7 +2677,7 @@
     {
       "authority": "RISC-V International",
       "bytes_read": 374,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -2096,7 +3321,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 2858,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -2111,10 +3336,10 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 653389,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 653479,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 1146,
+      "definition_identifier_count": 1145,
       "definition_identifiers": [
         "AArch64AssertZExtBool",
         "AArch64CB",
@@ -2265,6 +3490,7 @@
         "AArch64sminv",
         "AArch64smull",
         "AArch64sqabs",
+        "AArch64sqabsv",
         "AArch64sqadd",
         "AArch64sqdmulh",
         "AArch64sqdmulhPat",
@@ -3170,8 +4396,6 @@
         "azext_masked_load_i16",
         "azext_masked_load_i32",
         "azext_masked_load_i8",
-        "bitcast_fpimm_to_i32",
-        "bitcast_fpimm_to_i64",
         "copyFromSP",
         "fixedpoint_recip_v2f32",
         "fixedpoint_recip_v2f64",
@@ -3268,14 +4492,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-aarch64-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "626224c5dbe8be64b203ac6164ad05dfe3fa6e013e5e829e90cd3a6d1cb9c933",
+      "sha256": "1b08f8f2ab098d5825dd90ce4719a4002c5429b14b3968917f5439940e0f5177",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/AArch64/AArch64InstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 264258,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 766,
       "definition_identifiers": [
@@ -4058,7 +5282,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 104343,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 337,
       "definition_identifiers": [
@@ -4411,8 +5635,8 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 140862,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 140718,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 569,
       "definition_identifiers": [
@@ -4991,14 +6215,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-mips-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "334478d3d3069121db3de8c1b3d5b66e7b4ff0fd7cc025548868f5a9d580d0ef",
+      "sha256": "7ed878da493d8775f207c8901f943b7ec6ad1adec1ac3c48f2e396c9d0d1c44f",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Mips/MipsInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 259381,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 747,
       "definition_identifiers": [
@@ -5762,7 +6986,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 129144,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 718,
       "definition_identifiers": [
@@ -6496,8 +7720,8 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 86637,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 86632,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 361,
       "definition_identifiers": [
@@ -6868,14 +8092,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-sparc-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "7278f4641353a5bae95e23ee49d0b15bfd00609c18f49343d798c0c776097a83",
+      "sha256": "852de4f6ca3ca7f7c407e43bc30e8a68622e409ce8e2ca2ae65d71d3792358be",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Sparc/SparcInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 69557,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 69552,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 294,
       "definition_identifiers": [
@@ -7179,14 +8403,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-avr-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "c76eafc9d797f27a6e1f92cfacee1ffefd8357d535541bc91e1573659e62d2a6",
+      "sha256": "a32b5f427c0c28f86d9a3cda03b94a681db90668495d0a228a74c85c6c949559",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/AVR/AVRInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 109719,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 491,
       "definition_identifiers": [
@@ -7693,7 +8917,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Hexagon",
       "family_arabic": "هيكساغون",
@@ -7705,7 +8929,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 43033,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 224,
       "definition_identifiers": [
@@ -7945,10 +9169,10 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 149365,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 149281,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 628,
+      "definition_identifier_count": 627,
       "definition_identifiers": [
         "A16",
         "ABID",
@@ -8458,9 +9682,6 @@
         "atomic_store_glue",
         "az_extloadi8_d16_hi_",
         "az_extloadi8_d16_lo_",
-        "bitcast_fpimm_to_i16",
-        "bitcast_fpimm_to_i32",
-        "bitcast_fpimm_to_i64",
         "bitop3_0",
         "blgp",
         "cond_as_i32imm",
@@ -8572,6 +9793,8 @@
         "truncstorei8_glue",
         "unindexedload_glue",
         "unindexedstore_glue",
+        "vgpr32_hi16",
+        "vgpr32_lo16",
         "xnor",
         "zextload_glue",
         "zextloadi16_",
@@ -8584,14 +9807,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-amdgpu-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "f7cd9f4068967c707ddeddf612b90b71be0b2b9cbf7f75a9c7d58e4e217031a0",
+      "sha256": "f71f5f63455b6143ec66a704771db0df86254f5f98ae443651374d7878432f55",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/AMDGPU/SIInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 113668,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 371,
       "definition_identifiers": [
@@ -8978,8 +10201,8 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 19849,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 19844,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 71,
       "definition_identifiers": [
@@ -9060,14 +10283,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-wasm-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "1aab2f8241288405990f01afb1cb984b9cd90fc4aed6b8ea884f71ba3132a2b3",
+      "sha256": "cfbbe83205b4986f8633a58cef287bbe8c9f5366cffb9ec4d2a37541592327c7",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/WebAssembly/WebAssemblyInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 53746,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 54746,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 182,
       "definition_identifiers": [
@@ -9259,14 +10482,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-bpf-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "0f769d143ae05284516be199249c38678d418fddcf6d1e925376d1618e2a12c3",
+      "sha256": "9bae1626f1016974c5a05ef8d48d451d53e147c5a9ef9607ab342bb3039870af",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/BPF/BPFInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 52685,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 241,
       "definition_identifiers": [
@@ -9524,7 +10747,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 89459,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 200,
       "definition_identifiers": [
@@ -9740,7 +10963,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "OpenRISC",
       "family_arabic": "أوبن ريسك",
@@ -9752,7 +10975,7 @@
     {
       "authority": "Loongson",
       "bytes_read": 1714242,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -9776,7 +10999,7 @@
     {
       "authority": "WebAssembly Community Group",
       "bytes_read": 10128,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -10034,7 +11257,7 @@
     },
     {
       "authority": "Linux kernel documentation",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "eBPF",
       "family_arabic": "إي بي بي إف",
@@ -10046,7 +11269,7 @@
     {
       "authority": "NVIDIA",
       "bytes_read": 3928317,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -10062,7 +11285,7 @@
     {
       "authority": "OpenRISC",
       "bytes_read": 15637,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -10586,7 +11809,7 @@
     {
       "authority": "AMD",
       "bytes_read": 2575,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -10597,14 +11820,14 @@
       "id": "amd-microblaze-reference",
       "kind": "official-architecture-reference",
       "link_depth_limit": 10,
-      "sha256": "70bdb488c19c2b445832cb04591959dada6a675512796d930cfc807332907cdd",
+      "sha256": "22650617e7a005d5a7146da36ee39dcf5da510b6545fa9c1a46977e78a5cd40b",
       "status": "ok",
       "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref"
     },
     {
       "authority": "OpenPOWER Foundation",
-      "bytes_read": 16544,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "bytes_read": 16572,
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -10711,16 +11934,6 @@
         },
         {
           "depth": 1,
-          "name": "OpenPOWER Ready",
-          "url": "https://openpower.foundation/ready/"
-        },
-        {
-          "depth": 1,
-          "name": "OpenPOWER Ready™",
-          "url": "https://openpower.foundation/about/ready/"
-        },
-        {
-          "depth": 1,
           "name": "Resources",
           "url": "https://openpower.foundation/resources/"
         },
@@ -10771,11 +11984,6 @@
         },
         {
           "depth": 2,
-          "name": "2",
-          "url": "https://openpower.foundation/ready/page/2/"
-        },
-        {
-          "depth": 2,
           "name": "21unity Joins OpenPOWER Foundation Published on Wednesday 6 April 2022",
           "url": "https://openpower.foundation/blog/21unity-joins-openpowerfoundation/"
         },
@@ -10783,11 +11991,6 @@
           "depth": 2,
           "name": "3",
           "url": "https://openpower.foundation/blog/page/3/"
-        },
-        {
-          "depth": 2,
-          "name": "3",
-          "url": "https://openpower.foundation/ready/page/3/"
         },
         {
           "depth": 2,
@@ -10801,18 +12004,8 @@
         },
         {
           "depth": 2,
-          "name": "4",
-          "url": "https://openpower.foundation/ready/page/4/"
-        },
-        {
-          "depth": 2,
           "name": "5",
           "url": "https://openpower.foundation/blog/page/5/"
-        },
-        {
-          "depth": 2,
-          "name": "5",
-          "url": "https://openpower.foundation/ready/page/5/"
         },
         {
           "depth": 2,
@@ -10866,31 +12059,6 @@
         },
         {
           "depth": 2,
-          "name": "Alpha Data ADM-PCIE-7V3",
-          "url": "https://openpower.foundation/ready/alphadataadmpcie7v3/"
-        },
-        {
-          "depth": 2,
-          "name": "Alpha Data ADM-PCIE-8K5",
-          "url": "https://openpower.foundation/ready/alphadataadmpcie8k5/"
-        },
-        {
-          "depth": 2,
-          "name": "Alpha Data ADM-PCIE-8V3",
-          "url": "https://openpower.foundation/ready/alphadataadmpcie8v3/"
-        },
-        {
-          "depth": 2,
-          "name": "Alpha Data ADM-PCIE-9V3",
-          "url": "https://openpower.foundation/ready/alphadataadmpcie9v3/"
-        },
-        {
-          "depth": 2,
-          "name": "Alpha Data ADM-PCIE-KU3",
-          "url": "https://openpower.foundation/ready/alphadataadmpcieku3/"
-        },
-        {
-          "depth": 2,
           "name": "Altos Computing",
           "url": "https://openpower.foundation/members/altoscomputing/"
         },
@@ -10908,11 +12076,6 @@
           "depth": 2,
           "name": "Arjun Nag",
           "url": "https://openpower.foundation/members/arjunnag/"
-        },
-        {
-          "depth": 2,
-          "name": "AuvizDNN",
-          "url": "https://openpower.foundation/ready/auvizdnn/"
         },
         {
           "depth": 2,
@@ -10936,66 +12099,6 @@
         },
         {
           "depth": 2,
-          "name": "Broadcom LPe12002",
-          "url": "https://openpower.foundation/ready/broadcomlpe12002/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom LPe12004",
-          "url": "https://openpower.foundation/ready/broadcomlpe12004/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom LPe16002b",
-          "url": "https://openpower.foundation/ready/broadcomlpe16002b/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom LPe31002",
-          "url": "https://openpower.foundation/ready/broadcomlpe31002/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom LPe32002",
-          "url": "https://openpower.foundation/ready/broadcomlpe32002/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom MegaRAID 9361-16i",
-          "url": "https://openpower.foundation/ready/broadcommegaraid936116i/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom MegaRAID 9361-24i",
-          "url": "https://openpower.foundation/ready/broadcommegaraid936124i/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom MegaRAID 9361-8i",
-          "url": "https://openpower.foundation/ready/broadcommegaraid93618i/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom MegaRAID 9380-8i8e",
-          "url": "https://openpower.foundation/ready/broadcommegaraid93808i8e/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom MegaRAID 9460-16i",
-          "url": "https://openpower.foundation/ready/broadcommegaraid946016i/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom NetXtreme P225C Ethernet NIC",
-          "url": "https://openpower.foundation/ready/broadcomp225c/"
-        },
-        {
-          "depth": 2,
-          "name": "Broadcom NetXtreme P225P Ethernet NIC",
-          "url": "https://openpower.foundation/ready/broadcomp225p/"
-        },
-        {
-          "depth": 2,
           "name": "CAPI Accelerator Compliance Test Specification",
           "url": "https://openpower.foundation/compliance/caia/"
         },
@@ -11011,58 +12114,13 @@
         },
         {
           "depth": 2,
-          "name": "Chelsio T520-BT",
-          "url": "https://openpower.foundation/ready/chelsiot520bt/"
-        },
-        {
-          "depth": 2,
-          "name": "Chelsio T520-CR",
-          "url": "https://openpower.foundation/ready/chelsiot520cr/"
-        },
-        {
-          "depth": 2,
-          "name": "Chelsio T520-SO-CR",
-          "url": "https://openpower.foundation/ready/chelsiot520socr/"
-        },
-        {
-          "depth": 2,
-          "name": "Chelsio T580-CR",
-          "url": "https://openpower.foundation/ready/chelsiot580cr/"
-        },
-        {
-          "depth": 2,
-          "name": "Chelsio T580-LP-CR",
-          "url": "https://openpower.foundation/ready/chelsiot580lpcr/"
-        },
-        {
-          "depth": 2,
-          "name": "Chelsio T580-SO-CR",
-          "url": "https://openpower.foundation/ready/chelsiot580socr/"
-        },
-        {
-          "depth": 2,
           "name": "Chris Lockhart",
           "url": "https://openpower.foundation/members/chrislockhart/"
         },
         {
           "depth": 2,
-          "name": "Codee",
-          "url": "https://openpower.foundation/ready/codee/"
-        },
-        {
-          "depth": 2,
           "name": "Coherent Accelerator Interface Architecture",
           "url": "https://openpower.foundation/specifications/caia/"
-        },
-        {
-          "depth": 2,
-          "name": "Cyberlabs Insights",
-          "url": "https://openpower.foundation/ready/cyberlabsinsights/"
-        },
-        {
-          "depth": 2,
-          "name": "Cyberlabs Vision MetaServer",
-          "url": "https://openpower.foundation/ready/cyberlabsvisionmetaserver/"
         },
         {
           "depth": 2,
@@ -11081,11 +12139,6 @@
         },
         {
           "depth": 2,
-          "name": "Debian GNU/Linux ppc64el",
-          "url": "https://openpower.foundation/ready/debian/"
-        },
-        {
-          "depth": 2,
           "name": "Dr. Chuong-Yu Cho",
           "url": "https://openpower.foundation/members/chuong-yucho/"
         },
@@ -11093,11 +12146,6 @@
           "depth": 2,
           "name": "Dr. Eldad Levy",
           "url": "https://openpower.foundation/members/eldadlevy/"
-        },
-        {
-          "depth": 2,
-          "name": "Edico Genome Bio-IT Processor",
-          "url": "https://openpower.foundation/ready/edicogenomebioitprocessor/"
         },
         {
           "depth": 2,
@@ -11168,11 +12216,6 @@
           "depth": 2,
           "name": "Gregory Byrd",
           "url": "https://openpower.foundation/members/gregorybyrd/"
-        },
-        {
-          "depth": 2,
-          "name": "Haiecon Restabelecer 2.0",
-          "url": "https://openpower.foundation/ready/haieconrestabelecer20/"
         },
         {
           "depth": 2,
@@ -11826,13 +12869,13 @@
       "id": "openpower-isa",
       "kind": "official-isa-specification",
       "link_depth_limit": 10,
-      "sha256": "380fb568feb6fa56a63554838996e0f12046ef497edfb61eeb45b70ccc717132",
+      "sha256": "c24e8dbfdb0910120b56ee57b376f5ffb863e30e2eac836d57301921ec6d3c1b",
       "status": "ok",
       "url": "https://openpower.foundation/specifications/isa/"
     },
     {
       "authority": "IBM",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "IBM z/Architecture",
       "family_arabic": "آي بي إم زد",
@@ -11844,7 +12887,7 @@
     {
       "authority": "Oracle",
       "bytes_read": 36288,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -15838,7 +16881,7 @@
     {
       "authority": "MIPS",
       "bytes_read": 197657,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -15870,13 +16913,13 @@
       "id": "mips-architecture-docs",
       "kind": "architecture-documentation-index",
       "link_depth_limit": 10,
-      "sha256": "f0be5c638d8065330d5ea947108151c294176939f9676bdc518ca3ca074823a9",
+      "sha256": "b57d274d84f72313195b7b9919e35531fd20730a8f2be2c92c5681bc07c1d363",
       "status": "ok",
       "url": "https://www.mips.com/products/architectures/"
     },
     {
       "authority": "Microchip",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "AVR",
       "family_arabic": "معمارية إيه في آر",
@@ -15887,7 +16930,7 @@
     },
     {
       "authority": "Texas Instruments",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "MSP430",
       "family_arabic": "إم إس بي 430",
@@ -15899,7 +16942,7 @@
     {
       "authority": "Zilog",
       "bytes_read": 1587333,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -15915,7 +16958,7 @@
     {
       "authority": "Arm Keil",
       "bytes_read": 10268,
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -15930,7 +16973,7 @@
     },
     {
       "authority": "NXP",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "Motorola 68000",
       "family_arabic": "موتورولا 68000",
@@ -15941,7 +16984,7 @@
     },
     {
       "authority": "Bitsavers archive",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "VAX",
       "family_arabic": "غير مترجم",
@@ -15952,7 +16995,7 @@
     },
     {
       "authority": "Renesas",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Renesas RX",
       "family_arabic": "رينيساس آر إكس",
@@ -15963,7 +17006,7 @@
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-10-13T18:31:31.544257+00:00",
+      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",

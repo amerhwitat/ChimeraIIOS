@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-16T16:09:54Z",
+  "generated_at_utc": "2026-10-17T09:33:46Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_posix_shells": {
@@ -18636,7 +18636,7 @@
       "index": "https://ss64.com/ps/",
       "pages_crawled": 80,
       "fetch_failures": 0,
-      "command_count": 908,
+      "command_count": 930,
       "commands": [
         {
           "name": "#requires",
@@ -18991,6 +18991,38 @@
           ]
         },
         {
+          "name": "about_Debuggers",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_debuggers",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — about_Debuggers",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — about_Debuggers",
+            "about_Debuggers",
+            "أمر about_Debuggers"
+          ]
+        },
+        {
+          "name": "about_Enum",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_enum",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — about_Enum",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — about_Enum",
+            "about_Enum",
+            "أمر about_Enum"
+          ]
+        },
+        {
           "name": "about_Environment_Variables",
           "platform": "powershell",
           "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables",
@@ -19084,6 +19116,38 @@
             "أمر نظام — about_Functions",
             "about_Functions",
             "أمر about_Functions"
+          ]
+        },
+        {
+          "name": "about_Functions_Advanced_Parameters",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — about_Functions_Advanced_Parameters",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — about_Functions_Advanced_Parameters",
+            "about_Functions_Advanced_Parameters",
+            "أمر about_Functions_Advanced_Parameters"
+          ]
+        },
+        {
+          "name": "about_Functions_Argument_Completion",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_argument_completion",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — about_Functions_Argument_Completion",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — about_Functions_Argument_Completion",
+            "about_Functions_Argument_Completion",
+            "أمر about_Functions_Argument_Completion"
           ]
         },
         {
@@ -19935,6 +19999,22 @@
           ]
         },
         {
+          "name": "ApartmentState",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.apartmentstate",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — ApartmentState",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — ApartmentState",
+            "ApartmentState",
+            "أمر ApartmentState"
+          ]
+        },
+        {
           "name": "ApplicationInfo",
           "platform": "powershell",
           "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.applicationinfo",
@@ -20587,6 +20667,22 @@
           ]
         },
         {
+          "name": "CommandAst Class",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.language.commandast",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر (CommandAst Class)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "أمر (CommandAst Class)",
+            "CommandAst Class",
+            "أمر CommandAst Class"
+          ]
+        },
+        {
           "name": "CommandInfo",
           "platform": "powershell",
           "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.commandinfo",
@@ -20716,6 +20812,22 @@
             "أمر نظام — Complete-Transaction",
             "Complete-Transaction",
             "أمر Complete-Transaction"
+          ]
+        },
+        {
+          "name": "CompletionResultType",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresulttype",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "نتيجة (CompletionResultType)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "نتيجة (CompletionResultType)",
+            "CompletionResultType",
+            "أمر CompletionResultType"
           ]
         },
         {
@@ -21183,6 +21295,22 @@
           ]
         },
         {
+          "name": "Debug-Process",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/debug-process",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "عملية (Debug-Process)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "عملية (Debug-Process)",
+            "Debug-Process",
+            "أمر Debug-Process"
+          ]
+        },
+        {
           "name": "default",
           "platform": "powershell",
           "source": "https://ss64.com/ps/syntax-preference.html",
@@ -21476,6 +21604,22 @@
             "أمر نظام — dot-sourced",
             "dot-sourced",
             "أمر dot-sourced"
+          ]
+        },
+        {
+          "name": "Double",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.double",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — Double",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — Double",
+            "Double",
+            "أمر Double"
           ]
         },
         {
@@ -26029,6 +26173,22 @@
         {
           "name": "Out-File",
           "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-file",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "ملف (Out-File)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "ملف (Out-File)",
+            "Out-File",
+            "أمر Out-File"
+          ]
+        },
+        {
+          "name": "Out-File",
+          "platform": "powershell",
           "source": "https://ss64.com/ps/out-file.html",
           "arabic_label": "ملف (Out-File)",
           "arabic_status": "token-translated",
@@ -26109,6 +26269,22 @@
         {
           "name": "Out-Printer",
           "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-printer",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "طابعة (Out-Printer)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "طابعة (Out-Printer)",
+            "Out-Printer",
+            "أمر Out-Printer"
+          ]
+        },
+        {
+          "name": "Out-Printer",
+          "platform": "powershell",
           "source": "https://ss64.com/ps/out-printer.html",
           "arabic_label": "طابعة (Out-Printer)",
           "arabic_status": "token-translated",
@@ -26116,6 +26292,22 @@
             "طابعة (Out-Printer)",
             "Out-Printer",
             "أمر Out-Printer"
+          ]
+        },
+        {
+          "name": "Out-String",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-string",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — Out-String",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — Out-String",
+            "Out-String",
+            "أمر Out-String"
           ]
         },
         {
@@ -26144,6 +26336,22 @@
             "أمر نظام — OutputBufferingMode",
             "OutputBufferingMode",
             "أمر OutputBufferingMode"
+          ]
+        },
+        {
+          "name": "OutTarget",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.outtarget",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — OutTarget",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — OutTarget",
+            "OutTarget",
+            "أمر OutTarget"
           ]
         },
         {
@@ -26707,6 +26915,22 @@
           ]
         },
         {
+          "name": "PSSessionConfigurationAccessMode",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.pssessionconfigurationaccessmode",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "تهيئة وصول (PSSessionConfigurationAccessMode)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "تهيئة وصول (PSSessionConfigurationAccessMode)",
+            "PSSessionConfigurationAccessMode",
+            "أمر PSSessionConfigurationAccessMode"
+          ]
+        },
+        {
           "name": "PSSessionOption",
           "platform": "powershell",
           "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.remoting.pssessionoption",
@@ -26720,6 +26944,54 @@
             "أمر نظام — PSSessionOption",
             "PSSessionOption",
             "أمر PSSessionOption"
+          ]
+        },
+        {
+          "name": "PSSessionTypeOption",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pssessiontypeoption",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — PSSessionTypeOption",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — PSSessionTypeOption",
+            "PSSessionTypeOption",
+            "أمر PSSessionTypeOption"
+          ]
+        },
+        {
+          "name": "PSThreadOptions Enumeration",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.psthreadoptions",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — PSThreadOptions Enumeration",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — PSThreadOptions Enumeration",
+            "PSThreadOptions Enumeration",
+            "أمر PSThreadOptions Enumeration"
+          ]
+        },
+        {
+          "name": "PSTransportOption",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pstransportoption",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — PSTransportOption",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — PSTransportOption",
+            "PSTransportOption",
+            "أمر PSTransportOption"
           ]
         },
         {
@@ -28685,6 +28957,22 @@
         {
           "name": "Set-PSBreakpoint",
           "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "اضبط — Set-PSBreakpoint",
+          "arabic_status": "rule-translated",
+          "arabic_search": [
+            "اضبط — Set-PSBreakpoint",
+            "Set-PSBreakpoint",
+            "أمر Set-PSBreakpoint"
+          ]
+        },
+        {
+          "name": "Set-PSBreakpoint",
+          "platform": "powershell",
           "source": "https://ss64.com/ps/set-psbreakpoint.html",
           "arabic_label": "اضبط — Set-PSBreakpoint",
           "arabic_status": "rule-translated",
@@ -29519,6 +29807,22 @@
           ]
         },
         {
+          "name": "System.Management.Automation.CompletionResult",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.completionresult",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "النظام نتيجة (System.Management.Automation.CompletionResult)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "النظام نتيجة (System.Management.Automation.CompletionResult)",
+            "System.Management.Automation.CompletionResult",
+            "أمر System.Management.Automation.CompletionResult"
+          ]
+        },
+        {
           "name": "Tab Completion",
           "platform": "powershell",
           "source": "https://ss64.com/ps/syntax-tab-completion.html",
@@ -30035,6 +30339,22 @@
           ]
         },
         {
+          "name": "UpdateHelpScope",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.updatehelpscope",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "تحديث مساعدة (UpdateHelpScope)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "تحديث مساعدة (UpdateHelpScope)",
+            "UpdateHelpScope",
+            "أمر UpdateHelpScope"
+          ]
+        },
+        {
           "name": "Uri",
           "platform": "powershell",
           "source": "https://learn.microsoft.com/en-us/dotnet/api/system.uri",
@@ -30393,6 +30713,22 @@
         {
           "name": "Write-Debug",
           "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-debug",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "صدّر أو احفظ — Write-Debug",
+          "arabic_status": "rule-translated",
+          "arabic_search": [
+            "صدّر أو احفظ — Write-Debug",
+            "Write-Debug",
+            "أمر Write-Debug"
+          ]
+        },
+        {
+          "name": "Write-Debug",
+          "platform": "powershell",
           "source": "https://ss64.com/ps/write-debug.html",
           "arabic_label": "صدّر أو احفظ — Write-Debug",
           "arabic_status": "rule-translated",
@@ -30560,6 +30896,22 @@
             "أمر نظام — WSMan Provider",
             "WSMan Provider",
             "أمر WSMan Provider"
+          ]
+        },
+        {
+          "name": "WSManConfigContainerElement",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.wsman.management.wsmanconfigcontainerelement",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "إعداد (WSManConfigContainerElement)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "إعداد (WSManConfigContainerElement)",
+            "WSManConfigContainerElement",
+            "أمر WSManConfigContainerElement"
           ]
         },
         {
@@ -43898,6 +44250,22 @@
           ]
         },
         {
+          "name": "Parsing of Floats",
+          "platform": "gnu_linux",
+          "source": "https://www.gnu.org/software/libc/manual/html_node/Parsing-of-Floats.html",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — Parsing of Floats",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — Parsing of Floats",
+            "Parsing of Floats",
+            "أمر Parsing of Floats"
+          ]
+        },
+        {
           "name": "Parted",
           "platform": "gnu_linux",
           "source": "https://www.gnu.org/software/parted/manual/",
@@ -44362,6 +44730,22 @@
           ]
         },
         {
+          "name": "Regular Expressions",
+          "platform": "gnu_linux",
+          "source": "https://www.gnu.org/software/grep/manual/html_node/Regular-Expressions.html",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — Regular Expressions",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — Regular Expressions",
+            "Regular Expressions",
+            "أمر Regular Expressions"
+          ]
+        },
+        {
           "name": "remember",
           "platform": "gnu_linux",
           "source": "https://www.gnu.org/software/emacs/manual/html_node/remember/",
@@ -44794,6 +45178,22 @@
           ]
         },
         {
+          "name": "Specifying the Time Zone with TZ",
+          "platform": "gnu_linux",
+          "source": "https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "وقت (Specifying the Time Zone with TZ)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "وقت (Specifying the Time Zone with TZ)",
+            "Specifying the Time Zone with TZ",
+            "أمر Specifying the Time Zone with TZ"
+          ]
+        },
+        {
           "name": "speedbar",
           "platform": "gnu_linux",
           "source": "https://www.gnu.org/software/emacs/manual/html_node/speedbar/",
@@ -44999,6 +45399,22 @@
             "أمر نظام — Swbis",
             "Swbis",
             "أمر Swbis"
+          ]
+        },
+        {
+          "name": "Syntax of Regular Expressions",
+          "platform": "gnu_linux",
+          "source": "https://www.gnu.org/software/emacs/manual/html_node/emacs/Regexps.html",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — Syntax of Regular Expressions",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — Syntax of Regular Expressions",
+            "Syntax of Regular Expressions",
+            "أمر Syntax of Regular Expressions"
           ]
         },
         {
@@ -45818,7 +46234,7 @@
           ]
         }
       ],
-      "command_count": 705
+      "command_count": 709
     },
     "windows": {
       "platform": "Windows",
