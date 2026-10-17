@@ -12,6 +12,12 @@ static const char ready_message[] =
     "USERSPACE READY: " CHIMERA_TARGET_NAME " init pid=1\n";
 
 __attribute__((noreturn, used)) void _start(void) {
+#if defined(CHIMERA_TEST_HANG)
+    /* Deliberately hostile acceptance payload: no syscalls, no readiness,
+       and no voluntary yield. Only a hardware IRQ-backed kernel deadline can
+       regain control from this loop. */
+    for (;;) __asm__ volatile("pause" ::: "memory");
+#endif
     register long number __asm__("rax") = 9; /* CHM_SYS_WRITE */
     register long fd __asm__("rdi") = 1;
     register const char *buffer __asm__("rsi") = ready_message;
