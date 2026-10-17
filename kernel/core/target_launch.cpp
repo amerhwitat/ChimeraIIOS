@@ -21,15 +21,6 @@ static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
 
-static bool contains(const char *text, const char *needle) {
-    if (!text || !needle || !*needle) return false;
-    for (uint64_t i=0; text[i]; ++i) {
-        uint64_t j=0;
-        while (needle[j] && text[i+j] == needle[j]) ++j;
-        if (!needle[j]) return true;
-    }
-    return false;
-}
 static bool token(const char *text, const char *needle) {
     if (!text || !needle) return false;
     const uint64_t nlen = [&]() { uint64_t n=0; while (needle[n]) ++n; return n; }();
