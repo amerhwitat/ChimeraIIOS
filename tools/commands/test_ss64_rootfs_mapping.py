@@ -53,6 +53,7 @@ class SS64RootfsMappingTests(unittest.TestCase):
             root = Path(temp)
             (root / "usr/bin").mkdir(parents=True)
             (root / "usr/bin/chimera-compat").write_text("# dispatcher", encoding="utf-8")
+            (root / "usr/bin/chimera-compat").chmod(0o755)
             (root / "usr/bin/grep").symlink_to("chimera-compat")
             self.assertIsNone(MODULE.rootfs_provider(root, "grep"))
 
