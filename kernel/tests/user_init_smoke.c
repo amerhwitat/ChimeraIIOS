@@ -1,5 +1,11 @@
-#ifndef CHIMERA_TARGET_NAME
-#error "CHIMERA_TARGET_NAME must be supplied by the acceptance build"
+#if defined(CHIMERA_TARGET_LIVE)
+#define CHIMERA_TARGET_NAME "live"
+#elif defined(CHIMERA_TARGET_INSTALLER)
+#define CHIMERA_TARGET_NAME "installer"
+#elif defined(CHIMERA_TARGET_RECOVERY)
+#define CHIMERA_TARGET_NAME "recovery"
+#else
+#error "Select CHIMERA_TARGET_LIVE, CHIMERA_TARGET_INSTALLER, or CHIMERA_TARGET_RECOVERY"
 #endif
 
 static const char ready_message[] =
