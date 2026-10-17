@@ -1,0 +1,49 @@
+name: Koronos self-healing controller
+
+on:
+  pull_request:
+    paths:
+      - 'tools/runtime/koronos-self-heal.py'
+      - 'system/services/self-heal-policy.json'
+      - 'tests/test_koronos_self_heal.py'
+      - 'docs/koronos-self-healing-runtime.md'
+      - '.github/workflows/koronos-self-heal.yml'
+  push:
+    paths:
+      - 'tools/runtime/koronos-self-heal.py'
+      - 'system/services/self-heal-policy.json'
+      - 'tests/test_koronos_self_heal.py'
+      - 'docs/koronos-self-healing-runtime.md'
+      - '.github/workflows/koronos-self-heal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  controller-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate policy and syntax
+        run: |
+          python -m json.tool system/services/self-heal-policy.json >/dev/null
+          python -m py_compile tools/runtime/koronos-self-heal.py tests/test_koronos_self_heal.py
+      - name: Run bounded recovery tests
+        run: python -m unittest discover -s tests -p 'test_koronos_self_heal.py' -v
+      - name: Verify observe-only CLI path
+        run: |
+          printf '%s\n' '{"type":"service_stalled","service":"kore.service","timestamp":1000}' > /tmp/koronos-events.jsonl
+          python tools/runtime/koronos-self-heal.py --policy system/services/self-heal-policy.json --events /tmp/koronos-events.jsonl --now 1001 > /tmp/koronos-report.json
+          python -m json.tool /tmp/koronos-report.json >/dev/null
+          python - <<'PY'
+          import json
+          report=json.load(open('/tmp/koronos-report.json'))
+          assert report['plans'][0]['action'] == 'restart'
+          assert report['plans'][0]['execution'] == 'not-requested'
+          print('Observe-only recovery plan verified')
+          PY
