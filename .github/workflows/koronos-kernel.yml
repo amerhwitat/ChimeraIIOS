@@ -27,6 +27,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
       - name: Build Koronos ELF64
         run: bash kernel/build-koronos.sh
+      - name: Test physical frame allocator
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -I kernel/include \
+            tests/kernel/frame_allocator_test.cpp kernel/core/frame_allocator.cpp \
+            -o /tmp/chimera-frame-allocator-test
+          /tmp/chimera-frame-allocator-test
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
