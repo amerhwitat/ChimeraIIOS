@@ -66,7 +66,16 @@ jobs:
           LOG="$OUT/qemu-$FIRMWARE.log"
           QEMU=(qemu-system-x86_64 -m 512M -cdrom "$OUT/koronos-$TARGET.iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$LOG" -global isa-debugcon.iobase=0xe9)
           if [ "$FIRMWARE" = uefi ]; then
-            QEMU+=(-bios /usr/share/OVMF/OVMF_CODE.fd)
+            OVMF_CODE=""
+            for candidate in /usr/share/OVMF/OVMF_CODE.fd /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
+              if [ -f "$candidate" ]; then OVMF_CODE="$candidate"; break; fi
+            done
+            if [ -z "$OVMF_CODE" ]; then
+              echo "ERROR: OVMF firmware code image was not installed" >&2
+              find /usr/share -iname 'OVMF_CODE*.fd' -print >&2 || true
+              exit 1
+            fi
+            QEMU+=(-bios "$OVMF_CODE")
           fi
           set +e
           timeout 18s "${QEMU[@]}"
