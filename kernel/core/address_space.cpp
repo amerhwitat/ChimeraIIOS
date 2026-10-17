@@ -236,6 +236,35 @@ static void destroy_address_space(void *, void *opaque) {
     if (space_valid(space)) destroy_locked(space);
     unlock_backend();
 }
+static bool address_space_self_test() {
+    const uint64_t before = koronos_frame_free_count();
+    AddressSpace *space = static_cast<AddressSpace *>(create_address_space(nullptr));
+    if (!space) return false;
+    void *code_alias = nullptr;
+    void *stack_alias = nullptr;
+    const int code_rc = map_pages(nullptr, space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, 5u, &code_alias);
+    const int stack_rc = code_rc == 0
+        ? map_pages(nullptr, space, 0x00007FFFFFFFE000ull, PAGE_SIZE, 6u, &stack_alias)
+        : -1;
+    bool ok = code_rc == 0 && stack_rc == 0 && code_alias && stack_alias;
+    if (ok) {
+        uint64_t *code_pte = ensure_pte(space, KORONOS_USER_VIRTUAL_MIN);
+        uint64_t *stack_pte = ensure_pte(space, 0x00007FFFFFFFE000ull);
+        uint64_t *root = table_ptr(space->root_physical);
+        uint64_t *pdpt = root ? table_ptr(root[0] & ENTRY_ADDRESS_MASK) : nullptr;
+        uint64_t *pd = pdpt ? table_ptr(pdpt[0] & ENTRY_ADDRESS_MASK) : nullptr;
+        // Existing 2-MiB identity leaves must remain supervisor-only even though
+        // their parent entries are user-capable for high user mappings.
+        ok = code_pte && stack_pte && root && pdpt && pd &&
+             (*code_pte & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
+             (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
+             (*stack_pte & (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX)) ==
+                 (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX) &&
+             (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0;
+    }
+    destroy_address_space(nullptr, space);
+    return ok && koronos_frame_free_count() == before;
+}
 static const chimera_elf_load_ops loader_ops = {
     create_address_space, map_pages, destroy_address_space
 };
@@ -260,6 +289,10 @@ extern "C" int koronos_address_space_init(void) {
 #endif
 }
 extern "C" int koronos_address_space_ready(void) { return backend_ready ? 1 : 0; }
+extern "C" int koronos_address_space_self_test(void) {
+    if (!backend_ready) return -1;
+    return address_space_self_test() ? 0 : -2;
+}
 extern "C" const chimera_elf_load_ops *koronos_address_space_loader_ops(void) {
     return backend_ready ? &loader_ops : nullptr;
 }
