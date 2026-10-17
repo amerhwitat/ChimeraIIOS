@@ -11,6 +11,12 @@ extern "C" {
    Call only after NX/address-space initialization has succeeded. */
 int koronos_user_entry_init(void);
 
+/* Arm a PIT IRQ0-backed, in-kernel user execution deadline. The IRQ path may
+   abort a non-returning ring-3 task and resume its saved kernel continuation. */
+int koronos_user_timeout_arm(uint32_t ticks);
+void koronos_user_timeout_disarm(void);
+int koronos_user_timeout_irq(void);
+
 /* Enter a prepared user address space. Returns only after the user process exits
    through the native exit syscall; entry and stack must be validated user VAs. */
 int koronos_arch_enter_user(uint64_t cr3, uint64_t entry, uint64_t user_stack_top);
