@@ -394,7 +394,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
-    const int frame_init = koronos_frame_allocator_init(ctx->boot_info);
+    const int frame_init = koronos_frame_allocator_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
     if (frame_init == 0) {
         console_write("[MM  ] Physical frame allocator initialized; free 4 KiB frames: ");
         console_u32(static_cast<uint32_t>(koronos_frame_free_count()));
