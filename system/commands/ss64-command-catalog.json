@@ -3,12 +3,12 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-17T15:52:26Z",
+  "generated_at_utc": "2026-10-17T22:55:04Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
       "index": "https://ss64.com/bash/",
-      "pages_crawled": 221,
+      "pages_crawled": 225,
       "fetch_failures": 0,
       "command_count": 491,
       "commands": [
@@ -5908,7 +5908,7 @@
     },
     "macos": {
       "index": "https://ss64.com/mac/",
-      "pages_crawled": 225,
+      "pages_crawled": 228,
       "fetch_failures": 0,
       "command_count": 626,
       "commands": [
@@ -9377,15 +9377,15 @@
           ]
         },
         {
-          "name": "Keyboard Shortcuts",
+          "name": "keyboard shortcuts",
           "platform": "macos",
           "source": "https://ss64.com/mac/syntax-keyboard.html",
-          "arabic_label": "أمر نظام — Keyboard Shortcuts",
+          "arabic_label": "أمر نظام — keyboard shortcuts",
           "arabic_status": "identifier-preserved",
           "arabic_search": [
-            "أمر نظام — Keyboard Shortcuts",
-            "Keyboard Shortcuts",
-            "أمر Keyboard Shortcuts"
+            "أمر نظام — keyboard shortcuts",
+            "keyboard shortcuts",
+            "أمر keyboard shortcuts"
           ]
         },
         {
@@ -10013,15 +10013,15 @@
           ]
         },
         {
-          "name": "macOS Keyboard Shortcuts",
+          "name": "macOS Keyboard shortcuts",
           "platform": "macos",
           "source": "https://ss64.com/mac/syntax-keyboard.html",
-          "arabic_label": "أمر نظام — macOS Keyboard Shortcuts",
+          "arabic_label": "أمر نظام — macOS Keyboard shortcuts",
           "arabic_status": "identifier-preserved",
           "arabic_search": [
-            "أمر نظام — macOS Keyboard Shortcuts",
-            "macOS Keyboard Shortcuts",
-            "أمر macOS Keyboard Shortcuts"
+            "أمر نظام — macOS Keyboard shortcuts",
+            "macOS Keyboard shortcuts",
+            "أمر macOS Keyboard shortcuts"
           ]
         },
         {
@@ -13520,7 +13520,7 @@
     },
     "windows_cmd": {
       "index": "https://ss64.com/nt/",
-      "pages_crawled": 224,
+      "pages_crawled": 232,
       "fetch_failures": 0,
       "command_count": 1052,
       "commands": [
@@ -16153,15 +16153,15 @@
           ]
         },
         {
-          "name": "date",
+          "name": "DATE",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/date.html",
           "arabic_label": "التاريخ والوقت",
           "arabic_status": "translated",
           "arabic_search": [
             "التاريخ والوقت",
-            "date",
-            "أمر date"
+            "DATE",
+            "أمر DATE"
           ]
         },
         {
@@ -23637,15 +23637,15 @@
           ]
         },
         {
-          "name": "Services",
+          "name": "services",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/syntax-services.html",
-          "arabic_label": "خدمة النظام — Services",
+          "arabic_label": "خدمة النظام — services",
           "arabic_status": "rule-translated",
           "arabic_search": [
-            "خدمة النظام — Services",
-            "Services",
-            "أمر Services"
+            "خدمة النظام — services",
+            "services",
+            "أمر services"
           ]
         },
         {
@@ -26516,7 +26516,7 @@
     },
     "powershell": {
       "index": "https://ss64.com/ps/",
-      "pages_crawled": 237,
+      "pages_crawled": 236,
       "fetch_failures": 0,
       "command_count": 1245,
       "commands": [
@@ -48784,7 +48784,7 @@
     },
     "access": {
       "index": "https://ss64.com/access/",
-      "pages_crawled": 244,
+      "pages_crawled": 242,
       "fetch_failures": 0,
       "command_count": 329,
       "commands": [
@@ -77986,5 +77986,6 @@
       ],
       "command_count": 55
     }
-  }
+  },
+  "online_source_count": 9
 }

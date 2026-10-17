@@ -31714,13 +31714,13 @@
       ]
     },
     {
-      "name": "macOS Keyboard Shortcuts",
+      "name": "macOS Keyboard shortcuts",
       "platforms": [
         "macos"
       ],
       "mode": "compatibility-provider-required",
       "provider": "darwin-or-posix-provider",
-      "arabic_label": "أمر نظام — macOS Keyboard Shortcuts",
+      "arabic_label": "أمر نظام — macOS Keyboard shortcuts",
       "source_urls": [
         "https://ss64.com/mac/syntax-keyboard.html"
       ]
@@ -44667,7 +44667,7 @@
       ]
     },
     {
-      "name": "Services",
+      "name": "services",
       "platforms": [
         "linux_posix_shells",
         "powershell",
@@ -44675,7 +44675,7 @@
       ],
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
-      "arabic_label": "خدمة النظام — Services",
+      "arabic_label": "خدمة النظام — services",
       "source_urls": [
         "https://ss64.com/nt/syntax-services.html"
       ]

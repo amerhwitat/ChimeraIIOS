@@ -19885,8 +19885,8 @@
       ]
     },
     "macos keyboard shortcuts": {
-      "name": "macOS Keyboard Shortcuts",
-      "label": "أمر نظام — macOS Keyboard Shortcuts",
+      "name": "macOS Keyboard shortcuts",
+      "label": "أمر نظام — macOS Keyboard shortcuts",
       "translation_status": "identifier-preserved",
       "platforms": [
         "macos"
@@ -28159,8 +28159,8 @@
       ]
     },
     "services": {
-      "name": "Services",
-      "label": "خدمة النظام — Services",
+      "name": "services",
+      "label": "خدمة النظام — services",
       "translation_status": "rule-translated",
       "platforms": [
         "linux_posix_shells",
