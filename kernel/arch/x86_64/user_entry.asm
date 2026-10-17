@@ -105,6 +105,14 @@ koronos_arch_enter_user:
     jae .bad_user_entry
     test rdx, 0xF
     jnz .bad_user_entry
+    ; SYSCALL exit returns to this C caller, so preserve the callee-saved
+    ; registers exactly as a normal ABI-conforming function must.
+    push rbx
+    push rbp
+    push r12
+    push r13
+    push r14
+    push r15
     pushfq
     pop rax
     mov [rel koronos_cpu_syscall_state + 40], rax
@@ -182,6 +190,12 @@ koronos_syscall_user_exit:
     lea rax, [rel koronos_bootstrap_pml4]
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
     mov rax, [rel koronos_user_exit_code]
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
