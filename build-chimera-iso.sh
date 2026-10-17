@@ -1278,7 +1278,7 @@ PYISA
   [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
   if [[ "${CHIMERA_SKIP_SS64_CRAWL:-0}" != 1 ]]; then
     log_info "SS64 crawl limits: pages/platform=${CHIMERA_SS64_MAX_PAGES:-500}, depth=${CHIMERA_SS64_MAX_DEPTH:-10}, timeout=${CHIMERA_SS64_TIMEOUT:-10}s, platform budget=${CHIMERA_SS64_PLATFORM_BUDGET:-120}s" 
-    CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-90}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-80}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-2}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-0}"
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-90}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-80}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-2}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-0}"
   else
     log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
   fi
@@ -1302,6 +1302,27 @@ build_command_runtime(){
   CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
   [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
+  log_info "Reconciling every mapped SS64 Linux/Bash command into the selected rootfs"
+  python3 - "$SCRIPT_DIR" "$ROOTFS_DIR" <<'PYSS64'
+import json, sys
+from pathlib import Path
+repo = Path(sys.argv[1])
+rootfs = Path(sys.argv[2])
+catalog_path = repo / "system/commands/ss64-command-catalog.json"
+if not catalog_path.is_file() or catalog_path.stat().st_size == 0:
+    raise SystemExit("SS64 catalog is empty; cannot guarantee /bin and /sbin command coverage")
+catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+sys.path.insert(0, str(repo / "tools/commands"))
+import crawl_ss64
+manifest = crawl_ss64.reconcile(catalog, rootfs, repo)
+names = manifest.get("commands", {})
+if not names:
+    raise SystemExit("SS64 catalog contains no mapped Linux/Bash commands; refusing incomplete rootfs")
+count = crawl_ss64.validate_command_path_aliases(rootfs, names.keys())
+if count != len(names):
+    raise SystemExit(f"SS64 command path count mismatch: {count} validated vs {len(names)} mapped")
+print(f"[SS64] validated {count} mapped Linux/Bash commands under both /bin and /sbin in {rootfs}")
+PYSS64
 }
 
 main(){
