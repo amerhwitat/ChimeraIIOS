@@ -149,7 +149,6 @@ def canonical_url(base: str, href: str) -> str:
     safe_path = quote(parsed.path, safe="/%:@!$&'()*+,;=-._~")
     return urlunparse((parsed.scheme, parsed.netloc, safe_path, "", "", ""))
 
-
 def candidate_name(label: str) -> str:
     label = label.strip()
     if len(label) > 80 or not re.search(r"[A-Za-z0-9]", label):
