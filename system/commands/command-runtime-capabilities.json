@@ -31714,13 +31714,13 @@
       ]
     },
     {
-      "name": "macOS Keyboard shortcuts",
+      "name": "macOS Keyboard Shortcuts",
       "platforms": [
         "macos"
       ],
       "mode": "compatibility-provider-required",
       "provider": "darwin-or-posix-provider",
-      "arabic_label": "أمر نظام — macOS Keyboard shortcuts",
+      "arabic_label": "أمر نظام — macOS Keyboard Shortcuts",
       "source_urls": [
         "https://ss64.com/mac/syntax-keyboard.html"
       ]

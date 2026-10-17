@@ -19885,8 +19885,8 @@
       ]
     },
     "macos keyboard shortcuts": {
-      "name": "macOS Keyboard shortcuts",
-      "label": "أمر نظام — macOS Keyboard shortcuts",
+      "name": "macOS Keyboard Shortcuts",
+      "label": "أمر نظام — macOS Keyboard Shortcuts",
       "translation_status": "identifier-preserved",
       "platforms": [
         "macos"
