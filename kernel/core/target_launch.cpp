@@ -116,7 +116,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
-    if (!koronos_address_space_ready() || !koronos_user_entry_init) {
+    if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
     }
