@@ -124,10 +124,12 @@ def execute_plan(plans: list[dict[str, Any]], adapter: list[str] | None, apply: 
                 argv.append(token.replace("{action}", "restart").replace("{service}", plan["service"]))
             try:
                 completed = subprocess.run(argv, check=False, capture_output=True, text=True, timeout=30)
-                result["execution"] = "succeeded" if completed.returncode == 0 else "failed"
+                result["execution"] = "request-accepted-unverified" if completed.returncode == 0 else "failed"
                 result["exit_code"] = completed.returncode
                 result["output"] = (completed.stdout + completed.stderr)[-2000:]
-                result["requires_operator_review"] = completed.returncode != 0
+                # A zero exit code means the adapter accepted the request, not that
+                # the service recovered. A later heartbeat/status probe must verify it.
+                result["requires_operator_review"] = True
             except (OSError, subprocess.TimeoutExpired) as exc:
                 result["execution"] = "failed"
                 result["error"] = str(exc)
