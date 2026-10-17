@@ -152,7 +152,7 @@ koronos_syscall_entry:
     add rsp, 8
     mov rdx, EXIT_SENTINEL
     cmp rax, rdx
-    je .user_exit
+    je koronos_syscall_user_exit
 
     mov [gs:24], rax
     mov rcx, [rsp + 96]                     ; user RIP
@@ -177,7 +177,7 @@ koronos_syscall_entry:
     swapgs
     sysretq
 
-.user_exit:
+koronos_syscall_user_exit:
     lea rax, [rel koronos_bootstrap_pml4]
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
