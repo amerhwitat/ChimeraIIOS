@@ -1278,7 +1278,7 @@ PYISA
   [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
   if [[ "${CHIMERA_SKIP_SS64_CRAWL:-0}" != 1 ]]; then
     log_info "SS64 crawl limits: pages/platform=${CHIMERA_SS64_MAX_PAGES:-500}, depth=${CHIMERA_SS64_MAX_DEPTH:-10}, timeout=${CHIMERA_SS64_TIMEOUT:-10}s, platform budget=${CHIMERA_SS64_PLATFORM_BUDGET:-120}s" 
-    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-90}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-80}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-2}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-0}"
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-120}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-500}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-10}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-1}"
   else
     log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
   fi
