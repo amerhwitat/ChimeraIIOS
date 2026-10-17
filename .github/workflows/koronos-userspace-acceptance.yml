@@ -67,15 +67,21 @@ jobs:
           QEMU=(qemu-system-x86_64 -m 512M -cdrom "$OUT/koronos-$TARGET.iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$LOG" -global isa-debugcon.iobase=0xe9)
           if [ "$FIRMWARE" = uefi ]; then
             OVMF_CODE=""
-            for candidate in /usr/share/OVMF/OVMF_CODE.fd /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
-              if [ -f "$candidate" ]; then OVMF_CODE="$candidate"; break; fi
+            OVMF_VARS=""
+            for candidate in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
+              if [ -f "$candidate" ]; then
+                vars_candidate="${candidate/CODE/VARS}"
+                if [ -f "$vars_candidate" ]; then OVMF_CODE="$candidate"; OVMF_VARS="$vars_candidate"; break; fi
+              fi
             done
-            if [ -z "$OVMF_CODE" ]; then
-              echo "ERROR: OVMF firmware code image was not installed" >&2
-              find /usr/share -iname 'OVMF_CODE*.fd' -print >&2 || true
+            if [ -z "$OVMF_CODE" ] || [ -z "$OVMF_VARS" ]; then
+              echo "ERROR: matching OVMF code/vars images were not installed" >&2
+              find /usr/share -iname 'OVMF_*.fd' -print >&2 || true
               exit 1
             fi
-            QEMU+=(-bios "$OVMF_CODE")
+            cp "$OVMF_VARS" "$OUT/OVMF_VARS.fd"
+            QEMU+=(-drive "if=pflash,format=raw,unit=0,readonly=on,file=$OVMF_CODE"
+                   -drive "if=pflash,format=raw,unit=1,file=$OUT/OVMF_VARS.fd")
           fi
           set +e
           timeout 18s "${QEMU[@]}"
