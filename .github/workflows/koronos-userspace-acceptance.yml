@@ -1,0 +1,89 @@
+name: Koronos Userspace Acceptance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'kernel/**'
+      - '.github/workflows/koronos-userspace-acceptance.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'kernel/**'
+      - '.github/workflows/koronos-userspace-acceptance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  userspace:
+    name: ${{ matrix.target }} / ${{ matrix.firmware }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [live, installer, recovery]
+        firmware: [bios, uefi]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel, ISO and QEMU tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm gcc g++ binutils grub-common grub-pc-bin grub-efi-amd64-bin xorriso mtools qemu-system-x86 ovmf
+      - name: Build Koronos and high-address userspace probes
+        run: bash kernel/build-koronos.sh
+      - name: Build target-specific BIOS/UEFI ISO
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          ROOT="$PWD"
+          OUT="$ROOT/build/userspace-acceptance/$TARGET"
+          ISO_ROOT="$OUT/iso"
+          mkdir -p "$ISO_ROOT/boot/grub"
+          cp build/koronos/x86_64/koronos.elf "$ISO_ROOT/boot/koronos.elf"
+          cp "build/koronos/x86_64/user-init-$TARGET.elf" "$ISO_ROOT/boot/user-init-$TARGET.elf"
+          cat > "$ISO_ROOT/boot/grub/grub.cfg" <<EOF
+          set timeout=0
+          set default=0
+          terminal_output console
+          menuentry "Koronos $TARGET userspace acceptance" {
+            multiboot2 /boot/koronos.elf
+            module2 /boot/user-init-$TARGET.elf chimera-user-init-elf target=$TARGET
+            boot
+          }
+          EOF
+          grub-mkrescue -o "$OUT/koronos-$TARGET.iso" "$ISO_ROOT"
+          test -s "$OUT/koronos-$TARGET.iso"
+      - name: Boot and require userspace-originated readiness
+        env:
+          TARGET: ${{ matrix.target }}
+          FIRMWARE: ${{ matrix.firmware }}
+        run: |
+          set -uo pipefail
+          OUT="$PWD/build/userspace-acceptance/$TARGET"
+          LOG="$OUT/qemu-$FIRMWARE.log"
+          QEMU=(qemu-system-x86_64 -m 512M -cdrom "$OUT/koronos-$TARGET.iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$LOG" -global isa-debugcon.iobase=0xe9)
+          if [ "$FIRMWARE" = uefi ]; then
+            QEMU+=(-bios /usr/share/OVMF/OVMF_CODE.fd)
+          fi
+          set +e
+          timeout 18s "${QEMU[@]}"
+          qemu_rc=$?
+          set -e
+          # A healthy test init exits to the kernel, which then idles. Timeout
+          # is therefore expected; the marker and clean-exit diagnostics are the
+          # acceptance evidence, not the QEMU process exit code.
+          grep -Fq "[KRN ] KORONOS READY" "$LOG"
+          grep -Fq "USERSPACE READY: $TARGET init pid=1" "$LOG"
+          grep -Fq "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG"
+          grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
+          echo "Accepted target=$TARGET firmware=$FIRMWARE qemu_exit=$qemu_rc"
+      - name: Upload boot diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: userspace-${{ matrix.target }}-${{ matrix.firmware }}-logs
+          path: build/userspace-acceptance/${{ matrix.target }}/qemu-${{ matrix.firmware }}.log
+          if-no-files-found: warn
