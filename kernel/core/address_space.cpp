@@ -285,7 +285,15 @@ static bool address_space_self_test() {
              (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
              (*stack_pte & (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX)) ==
                  (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX) &&
-             (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0;
+             (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 0u) == 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 1u) != 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 0x00007FFFFFFFE000ull, 1u, 1u) == 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 0x00100000ull, 1u, 0u) != 0;
     }
     destroy_address_space(nullptr, space);
     return ok && koronos_frame_free_count() == before;
