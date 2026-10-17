@@ -119,7 +119,7 @@ def reconcile(catalog,rootfs,repo_root):
                 except OSError:pass
             # This path is interpreted inside the booted rootfs, not on the
             # host machine that assembled the ISO.
-            item["provider"]"]="/usr/lib/chimera/compat/bin/"+name;item["mode"]="rootfs-binary"
+            item["provider"]="/usr/lib/chimera/compat/bin/"+name;item["mode"]="rootfs-binary"
         else:item["mode"]="compatibility-shim";item["provider"]="chimera-compat (runtime provider lookup)"
         manifest["commands"][name]=item
     for src_name,dst_name in (("tools/runtime/chimera-korectl.py","korectl"),("tools/runtime/chimera-systemctl.py","systemctl"),("tools/runtime/chimera-service.py","service"),("tools/runtime/chimera-compat.py","chimera-compat"),("tools/runtime/kore-manager.py","kore-manager")):
@@ -141,6 +141,9 @@ def reconcile(catalog,rootfs,repo_root):
         if re.match(r"^[A-Za-z0-9_.+-]+$",name):
             try:shim.symlink_to("chimera-compat")
             except FileExistsError:pass
+    path_counts=install_command_path_aliases(rootfs, manifest["commands"].keys())
+    manifest["path_aliases"]={"/bin":len(manifest["commands"]),"/sbin":len(manifest["commands"])}
+    print(f"Installed SS64 command path aliases: /bin={path_counts['bin']} /sbin={path_counts['sbin']} (pre-existing entries preserved)")
     (compat_root/"commands.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     native_doc.setdefault("native_chimera",{})
     if isinstance(native_doc["native_chimera"],dict):
