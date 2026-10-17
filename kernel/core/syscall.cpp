@@ -1,4 +1,6 @@
 #include "chimera/syscall.h"
+#include "chimera/user_entry.h"
+#include "chimera/address_space.h"
 #include "chimera/compat.h"
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
@@ -79,4 +81,36 @@ extern "C" int chimera_syscall_get_snapshot(chimera_syscall_snapshot *out) {
     out->last_number = g_last_number;
     out->last_canonical = g_last_canonical;
     return 0;
+}
+
+extern "C" {
+volatile uint64_t koronos_user_exit_code = 0;
+}
+extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
+
+extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
+    if (!frame) return static_cast<uint64_t>(-22ll);
+    switch (frame->rax) {
+        case CHM_SYS_GETPID:
+            return 1u;
+        case CHM_SYS_YIELD:
+            // The bootstrap user entry is single-process until the scheduler owns
+            // address-space context switches; yielding is currently a safe no-op.
+            return 0;
+        case CHM_SYS_TIME_TICKS:
+            return chimera_timer_now();
+        case CHM_SYS_WRITE: {
+            const uint64_t fd = frame->rdi;
+            const uint64_t address = frame->rsi;
+            const uint64_t length = frame->rdx;
+            if (fd > 2u || length > 4096u) return static_cast<uint64_t>(-22ll);
+            return static_cast<uint64_t>(koronos_console_write_user(address, length));
+        }
+        case CHM_SYS_EXIT:
+        case CHM_SYS_EXIT_GROUP:
+            koronos_user_exit_code = frame->rdi & 0xFFu;
+            return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
+        default:
+            return static_cast<uint64_t>(-38ll);
+    }
 }
