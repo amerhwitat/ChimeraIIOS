@@ -98,7 +98,7 @@ for target in live installer recovery; do
   readelf -h "$BUILD/user-init-${target}.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
     echo "ERROR: user-init-${target}.elf is not ET_EXEC" >&2; exit 1;
   }
-  readelf -l "$BUILD/user-init-${target}.elf" | grep -Eq 'LOAD.*R E' || {
+  readelf -lW "$BUILD/user-init-${target}.elf" | grep -Eq 'LOAD.*R E' || {
     echo "ERROR: user-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
   }
 done
