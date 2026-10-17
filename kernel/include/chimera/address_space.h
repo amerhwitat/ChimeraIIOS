@@ -13,6 +13,7 @@ extern "C" {
    CPU feature discovery have completed. Fails closed if NX is unavailable. */
 int koronos_address_space_init(void);
 int koronos_address_space_ready(void);
+int koronos_address_space_self_test(void);
 const chimera_elf_load_ops *koronos_address_space_loader_ops(void);
 uint64_t koronos_address_space_root(const void *address_space);
 uint64_t koronos_address_space_count(void);
