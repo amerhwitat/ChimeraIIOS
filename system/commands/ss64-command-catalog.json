@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-17T15:27:42Z",
+  "generated_at_utc": "2026-10-17T15:52:26Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
@@ -5908,7 +5908,7 @@
     },
     "macos": {
       "index": "https://ss64.com/mac/",
-      "pages_crawled": 222,
+      "pages_crawled": 225,
       "fetch_failures": 0,
       "command_count": 626,
       "commands": [
@@ -13520,7 +13520,7 @@
     },
     "windows_cmd": {
       "index": "https://ss64.com/nt/",
-      "pages_crawled": 227,
+      "pages_crawled": 224,
       "fetch_failures": 0,
       "command_count": 1052,
       "commands": [
@@ -26516,7 +26516,7 @@
     },
     "powershell": {
       "index": "https://ss64.com/ps/",
-      "pages_crawled": 233,
+      "pages_crawled": 237,
       "fetch_failures": 0,
       "command_count": 1245,
       "commands": [
@@ -48784,7 +48784,7 @@
     },
     "access": {
       "index": "https://ss64.com/access/",
-      "pages_crawled": 225,
+      "pages_crawled": 244,
       "fetch_failures": 0,
       "command_count": 329,
       "commands": [
@@ -51081,15 +51081,15 @@
           ]
         },
         {
-          "name": "InstrRev",
+          "name": "InStrRev",
           "platform": "access",
           "source": "https://ss64.com/access/instrrev.html",
-          "arabic_label": "أمر نظام — InstrRev",
+          "arabic_label": "أمر نظام — InStrRev",
           "arabic_status": "identifier-preserved",
           "arabic_search": [
-            "أمر نظام — InstrRev",
-            "InstrRev",
-            "أمر InstrRev"
+            "أمر نظام — InStrRev",
+            "InStrRev",
+            "أمر InStrRev"
           ]
         },
         {

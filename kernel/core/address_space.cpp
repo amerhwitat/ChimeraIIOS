@@ -19,7 +19,7 @@ constexpr uint32_t MAX_MAPPED_BLOCKS = CHIMERA_ELF_LOADER_MAX_SEGMENTS + 1u;
 constexpr uint64_t MAX_USER_PAGES = 131072ull; // 512 MiB per address space.
 constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
 
-extern "C" uint8_t koronos_bootstrap_pml4[];
+
 
 struct FrameBlock { uint64_t physical; uint32_t pages; };
 struct AddressSpace {
