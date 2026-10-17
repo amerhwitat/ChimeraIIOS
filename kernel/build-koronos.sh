@@ -102,4 +102,19 @@ for target in live installer recovery; do
     echo "ERROR: user-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
   }
 done
+
+# A deliberately non-cooperative user process validates that the hardware
+# timer IRQ returns to the kernel without requiring a syscall or voluntary exit.
+"$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+  -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+  -fno-asynchronous-unwind-tables -fno-unwind-tables \
+  -DCHIMERA_TARGET_LIVE=1 -DCHIMERA_TEST_HANG=1 \
+  -c "$ROOT/kernel/tests/user_init_smoke.c" -o "$BUILD/user-init-timeout.o"
+"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+  -T "$ROOT/kernel/tests/user_init_smoke.ld" \
+  "$BUILD/user-init-timeout.o" -o "$BUILD/user-init-timeout.elf"
+readelf -lW "$BUILD/user-init-timeout.elf" | grep -Eq 'LOAD.*R E' || {
+  echo "ERROR: user-init-timeout.elf has no read/execute PT_LOAD" >&2; exit 1;
+}
+printf 'Built non-cooperative userspace timeout probe: %s/user-init-timeout.elf\n' "$BUILD"
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
