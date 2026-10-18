@@ -1,0 +1,42 @@
+name: Architecture Support Contract
+on:
+  push:
+    paths:
+      - "architecture/support-matrix.json"
+      - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
+      - "tests/architecture/test_support_matrix.py"
+      - ".github/workflows/architecture-support-contract.yml"
+  pull_request:
+    paths:
+      - "architecture/support-matrix.json"
+      - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
+      - "tests/architecture/test_support_matrix.py"
+      - ".github/workflows/architecture-support-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate machine-readable support contract
+        run: python3 -m unittest tests/architecture/test_support_matrix.py -v
+      - name: Verify available cross-toolchain inventory without claiming boot support
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tool in x86_64-linux-gnu-gcc i686-linux-gnu-gcc aarch64-linux-gnu-gcc riscv64-linux-gnu-gcc; do
+            if command -v "$tool" >/dev/null 2>&1; then
+              printf '[AVAILABLE] %s: %s\n' "$tool" "$(command -v "$tool")"
+            else
+              printf '[NOT INSTALLED] %s (no build/boot claim made)\n' "$tool"
+            fi
+          done
+          for emulator in qemu-system-x86_64 qemu-system-aarch64 qemu-system-riscv64 qemu-system-mips64 qemu-system-ppc64; do
+            if command -v "$emulator" >/dev/null 2>&1; then
+              printf '[AVAILABLE] %s\n' "$emulator"
+            else
+              printf '[NOT INSTALLED] %s (not exercised)\n' "$emulator"
+            fi
+          done
