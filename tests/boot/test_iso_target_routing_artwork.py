@@ -46,6 +46,16 @@ class IsoTargetRoutingTests(unittest.TestCase):
             self.assertIn('"$STAGE/boot/grub/Init.mp4"', builder)
             self.assertIn("library-artwork-manifest.json", builder)
 
+    def test_original_chimera_wallpaper_and_manifest_are_staged(self):
+        art = ROOT / "desktop/aurora/assets/chimera-infinite-research-horizon.svg"
+        manifest = ROOT / "desktop/aurora/assets/chimera-artwork-manifest.json"
+        self.assertTrue(art.is_file() and art.stat().st_size > 500)
+        self.assertTrue(manifest.is_file())
+        self.assertIn("chimera-infinite-research-horizon.svg", FULL_BUILDER)
+        self.assertIn("chimera-infinite-research-horizon.svg", LIVE_BUILDER)
+        self.assertIn("chimera-artwork-manifest.json", FULL_BUILDER)
+        self.assertIn("chimera-artwork-manifest.json", LIVE_BUILDER)
+
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
