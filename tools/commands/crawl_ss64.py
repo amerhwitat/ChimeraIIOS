@@ -85,10 +85,29 @@ def install_command_path_aliases(rootfs, names):
             if not re.match(r"^[A-Za-z0-9_.+-]+$", name):
                 continue
             target = target_dir / name
-            if target.exists() or target.is_symlink():
-                continue
+            provider = rootfs / "usr/bin" / name
+            # With merged-/usr, /bin and /usr/bin resolve to the same directory.
+            # Never create an alias from a command path to itself.
             try:
-                provider = rootfs / "usr/bin" / name
+                if target_dir.resolve() == (rootfs / "usr/bin").resolve():
+                    continue
+            except OSError:
+                pass
+            if target.exists():
+                continue
+            if target.is_symlink():
+                # A dangling /sbin alias is repairable only when it points to
+                # the expected /usr/bin provider. Preserve unrelated links.
+                try:
+                    resolved_target = target.parent.resolve() / os.readlink(target)
+                    expected = provider.resolve(strict=False)
+                    if resolved_target.resolve(strict=False) == expected and provider.exists():
+                        target.unlink()
+                    else:
+                        continue
+                except (OSError, RuntimeError):
+                    continue
+            try:
                 relative_provider = os.path.relpath(provider, start=target_dir.resolve())
                 target.symlink_to(relative_provider)
                 installed[directory] += 1
@@ -155,11 +174,27 @@ def reconcile(catalog,rootfs,repo_root):
     policy=repo_root/"system/commands/compatibility-binary-policy.json"
     if policy.exists():install_source(repo_root,rootfs,"system/commands/compatibility-binary-policy.json","usr/share/chimera/commands/compatibility-binary-policy.json",0o644)
     for name in sorted(native | set(manifest["commands"])):
-        shim=rootfs/"usr/bin"/name
-        if shim.exists():continue
-        if re.match(r"^[A-Za-z0-9_.+-]+$",name):
-            try:shim.symlink_to("chimera-compat")
-            except FileExistsError:pass
+        if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name):
+            continue
+        shim = rootfs / "usr/bin" / name
+        # Older reconciliation could create a self-referential symlink when
+        # /bin is merged into /usr/bin (e.g. /usr/bin/traceroute -> traceroute).
+        # Repair only that provably invalid self-link; preserve other existing
+        # links and real files.
+        if shim.is_symlink():
+            link_text = os.readlink(shim)
+            if link_text in {name, "./" + name}:
+                shim.unlink()
+        if shim.exists():
+            continue
+        if shim.is_symlink():
+            # Do not replace an unrelated dangling symlink: fail closed below
+            # rather than silently changing an administrator/package mapping.
+            continue
+        try:
+            shim.symlink_to("chimera-compat")
+        except FileExistsError:
+            pass
     path_counts=install_command_path_aliases(rootfs, manifest["commands"].keys())
     validated_paths = validate_command_path_aliases(rootfs, manifest["commands"].keys())
     manifest["path_aliases"]={"/bin":validated_paths,"/sbin":validated_paths}
