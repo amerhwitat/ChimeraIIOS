@@ -238,12 +238,25 @@ static void task_modules(void *) {
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
+        const chimera_boot_module *init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            /*
+             * Accepting a Multiboot module is not a userspace handoff. This
+             * kernel path does not yet unpack the initramfs, resolve its init
+             * executable, create a user address space, or enter ring 3. Never
+             * claim that a handoff is queued/ready when no launcher ran.
+             */
+            if (!init) {
+                console_write("[LIVE] ERROR: no chimera-user-init-elf module was supplied");
+                console_write("[LIVE] ERROR: initramfs contents are not executed by the module registry");
+            } else {
+                console_write("[LIVE] ERROR: user-init ELF module found but production launch adapter is not wired");
+            }
+            console_write("[LIVE] HANDOFF FAILED: userspace launcher unavailable");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
-            console_write("[LIVE] No live initramfs module; live service idle");
+            console_write("[LIVE] ERROR: no live initramfs module; live service idle");
             chimera_sched_block();
         } else {
             // Installer media is handled by task_installer. There is no live
