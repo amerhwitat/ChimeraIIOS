@@ -49,13 +49,6 @@ jobs:
           set -euo pipefail
           cmake -S . -B "${{ runner.temp }}/chimera-cmake" -DCMAKE_BUILD_TYPE=Release
           cmake --build "${{ runner.temp }}/chimera-cmake" --target aurora-settings chimera-shell chmctl chm-diagnostics chmhelp chm-utf8 -j2
-      - name: Publish compiled desktop component bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: chimera-native-desktop-components
-          path: ${{ runner.temp }}/chimera-desktop/
-          if-no-files-found: error
-          retention-days: 14
 
       - name: Build and headlessly smoke-test native Aurora and Marine GTK shells
         env:
@@ -72,3 +65,11 @@ jobs:
             echo "invalid desktop profile was accepted" >&2
             exit 1
           fi
+
+      - name: Publish compiled desktop component bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-native-desktop-components
+          path: ${{ runner.temp }}/chimera-desktop/
+          if-no-files-found: error
+          retention-days: 14
