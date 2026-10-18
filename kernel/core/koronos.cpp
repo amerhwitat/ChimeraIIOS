@@ -421,14 +421,15 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
     console_write(f->vendor);
-    console_write("[CPU ] Logical CPUs: ");
+    console_write("[CPU ] Detected logical CPUs: ");
     console_hex32(f->logical_cpus);
+    console_write("[CPU ] Online scheduler CPUs: 1 (AP startup not implemented)");
     console_write("[VM  ] Hypervisor detected: ");
     console_hex32(f->hypervisor);
 
     console_write("[SCH ] Initializing scheduler...");
-    chimera_sched_init(f->logical_cpus);
-    chimera_learning_init(f->logical_cpus);
+    chimera_sched_init(1); // CPU0 is the only CPU actually online; AP startup is not implemented.
+    chimera_learning_init(1); // Do not schedule work against detected-but-offline CPUs.
     console_progress(35, "Scheduler and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");

@@ -8,7 +8,8 @@ static void blocker_task(void*){++blocker_runs;if(blocker_runs==1)chimera_sched_
 static void fair_high(void*){++fair_runs[0];}
 static void fair_mid(void*){++fair_runs[1];}
 static void fair_low(void*){++fair_runs[2];}
-static int affinity_runs;
+static int affinity_runs,serial_runs;
+static void serial_task(void*){++serial_runs;}
 static void affinity_task(void*){++affinity_runs;}
 static int reentrant_outer_runs,reentrant_inner_runs;
 static uint32_t reentrant_nested_result;
@@ -48,6 +49,13 @@ int main(){
     assert(chimera_sched_submit(fair_low,nullptr,80)>0);
     for(int i=0;i<6;i++)assert(chimera_sched_run_once(0)==1);
     assert(fair_runs[0]>=2&&fair_runs[1]>=2&&fair_runs[2]>=2);
+
+    chimera_sched_init(2);serial_runs=0;
+    assert(chimera_sched_submit(serial_task,nullptr,10)>0);
+    assert(chimera_sched_submit(serial_task,nullptr,10)>0);
+    /* The old run_parallel implementation was just a serial for-loop. */
+    assert(chimera_sched_run_parallel(0,2)==0&&serial_runs==0);
+    assert(chimera_sched_run_serial_range(0,2)==2&&serial_runs==2);
 
     chimera_sched_init(65);affinity_runs=0;
     int cpu0=chimera_sched_submit(affinity_task,nullptr,10);
