@@ -63,7 +63,7 @@ class CodecTests(unittest.TestCase):
 
     def test_execute_all_integer_register_alu_families(self):
         cases = (
-            ("ADD x3, x1, x2", 10), ("SUB x3, x1, x2", 4),
+            ("ADD x3, x1, x2", 8), ("SUB x3, x1, x2", 2),
             ("SLL x3, x2, x2", 24), ("SLT x3, x2, x1", 1),
             ("SLTU x3, x1, x2", 0), ("XOR x3, x1, x2", 6),
             ("SRL x3, x1, x2", 0), ("SRA x3, x1, x2", 0),
@@ -80,6 +80,12 @@ class CodecTests(unittest.TestCase):
                                        codec.encode(asm), codec.encode("EBREAK")])
                 self.assertEqual(state["registers"][3], expected)
                 self.assertEqual(state["registers"][0], 0)
+
+    def test_execute_arithmetic_right_shift_sign_extends(self):
+        state = codec.execute([codec.encode("ADDI x1, x0, -8"),
+                               codec.encode("SRAI x3, x1, 1"),
+                               codec.encode("EBREAK")])
+        self.assertEqual(state["registers"][3], 0xFFFFFFFC)
 
     def test_execute_load_store_signed_and_unsigned_byte(self):
         program = [
