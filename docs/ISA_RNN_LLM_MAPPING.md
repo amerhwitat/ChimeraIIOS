@@ -35,3 +35,11 @@ The command and ISA routers now support an explicit `--llm` mode through `tools/
 
 
 **Native runtime caveat:** the command and ISA router sources/catalogs are staged by the native command builder, but the current BusyBox initramfs does not contain a verified Python 3 runtime and Koronos does not yet launch initramfs processes through a verified ring-3 transition. The shell wrappers now fail explicitly if `python3` is unavailable. CI packaging success must not be read as proof of native OS execution.
+
+
+## Trained RNN language model and execution evidence (2026-10-18)
+
+- The repository contains `tools/cognition/trainable_rnn_lm.py`, a trainable character-level vanilla RNN LM with next-character training, scoring, JSON weight serialization, and round-trip validation. It is a small research LM, **not an LLM-scale foundation model**.
+- The native command build trains `trained-command-isa-rnn.json` from catalog text and smoke-tests both command and ISA routers with `--rnn-model`. The trained model may rerank candidates only; it cannot authorize execution or assign ISA semantics.
+- The RV32I Python interpreter has expanded CI vectors for register and immediate ALU families, signed/unsigned loads, all store widths, branch conditions, and encoding round trips. These are interpreter-level vectors, not native Koronos opcode execution or full privileged-spec conformance.
+- Userspace acceptance now uses the explicit `USERSPACE READY: target=<live|installer|recovery> init_pid=<nonzero PID>` marker, checked against `[KRN ] KORONOS READY`. A marker emitted only by a kernel or module scan is not userspace readiness. Each target requires its own QEMU trace.
