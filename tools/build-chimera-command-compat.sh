@@ -81,6 +81,7 @@ fi
 if [[ -f "$ROOT/tools/commands/command_candidate_router.py" && -f "$ROOT/tools/cognition/chimera_rnn.py" ]]; then
     install -m 0644 "$ROOT/tools/commands/command_candidate_router.py" "$SHARE/command_candidate_router.py"
     install -m 0644 "$ROOT/tools/cognition/chimera_rnn.py" "$SHARE/chimera_rnn.py"
+    install -m 0644 "$ROOT/tools/cognition/local_llm.py" "$SHARE/local_llm.py"
     cat > "$BIN/chimera-learn-command" <<'LEARN'
 #!/bin/sh
 set -eu
@@ -106,6 +107,7 @@ if [[ -f "$ROOT/isa/generated/universal-instruction-catalog.json" && -f "$ROOT/t
     install -m 0644 "$ROOT/isa/generated/universal-instruction-catalog.json" "$ISASHARE/universal-instruction-catalog.json"
     install -m 0644 "$ROOT/tools/isa/isa_candidate_router.py" "$ISASHARE/isa_candidate_router.py"
     install -m 0644 "$ROOT/tools/cognition/chimera_rnn.py" "$ISASHARE/chimera_rnn.py"
+    install -m 0644 "$ROOT/tools/cognition/local_llm.py" "$ISASHARE/local_llm.py"
     cat > "$BIN/chimera-learn-isa" <<'LEARNISA'
 #!/bin/sh
 set -eu
