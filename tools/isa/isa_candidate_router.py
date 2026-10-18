@@ -6,7 +6,11 @@ from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
-from tools.cognition.chimera_rnn import RecurrentState
+try:
+ from tools.cognition.chimera_rnn import RecurrentState
+except ModuleNotFoundError:
+ sys.path.insert(0,str(Path(__file__).resolve().parent))
+ from chimera_rnn import RecurrentState
 DEFAULT=ROOT/"isa/generated/universal-instruction-catalog.json"
 def tokens(value): return set(re.findall(r"[a-z0-9_+.-]+",str(value).casefold()))
 def rank(query,catalog,limit=10):
