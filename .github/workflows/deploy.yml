@@ -3,6 +3,8 @@ name: Deploy Chimera II OS to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -43,6 +45,7 @@ jobs:
           test ! -e web/local-core
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     environment:
