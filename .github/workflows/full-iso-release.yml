@@ -1,0 +1,126 @@
+name: Build and publish Chimera II full ISO
+
+on:
+  push:
+    branches:
+      - release/full-iso-2026-10-18
+    paths:
+      - ".github/workflows/full-iso-release.yml"
+      - "kernel/**"
+      - "boot/**"
+      - "installer/**"
+      - "desktop/**"
+      - "iso/**"
+      - "tools/build-live-boot-binaries.sh"
+      - "tools/build-full-iso.sh"
+      - "CMakeLists.txt"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chimera-full-iso-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CHIMERA_FETCH_SOURCES: "0"
+
+jobs:
+  build-validate-publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install ISO and cross-build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+
+      - name: Build full ISO using repository builder
+        env:
+          CHIMERA_AURORA_BACKGROUND: ""
+        run: |
+          set -euo pipefail
+          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
+          ./tools/build-full-iso.sh
+
+      - name: Validate ISO and checksum
+        run: |
+          set -euo pipefail
+          test -s build/iso/chimera-ii-os.iso
+          test -s build/iso/chimera-ii-os.iso.sha256
+          file build/iso/chimera-ii-os.iso
+          sha256sum -c build/iso/chimera-ii-os.iso.sha256
+          xorriso -indev build/iso/chimera-ii-os.iso -report_el_torito plain -report_system_area plain -print '' | tee build/iso/ISO-BOOT-REPORT.txt
+
+      - name: QEMU BIOS boot smoke test
+        run: |
+          set -euo pipefail
+          set +e
+          timeout 25s qemu-system-x86_64 \
+            -machine pc -m 1024 -smp 1 -accel tcg \
+            -display none -serial none -monitor none \
+            -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
+            -debugcon file:/tmp/chimera-qemu-debugcon.log \
+            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          qemu_rc=$?
+          set -e
+          cat /tmp/chimera-qemu.log
+          test -s /tmp/chimera-qemu-debugcon.log
+          python3 - <<'PY'
+          from pathlib import Path
+          data = Path("/tmp/chimera-qemu-debugcon.log").read_bytes().decode("latin1")
+          cursor = 0
+          for marker in "ELBC":
+              found = data.find(marker, cursor)
+              if found < 0:
+                  raise SystemExit(f"QEMU did not reach ordered kernel marker {marker!r}; debugcon={data!r}")
+              cursor = found + 1
+          print("QEMU reached the expected x86 entry/long-mode/Koronos/post-init markers (ELBC).")
+          PY
+          echo "QEMU exit code: $qemu_rc (timeout is expected for a parked kernel)."
+
+      - name: Compress and verify release ISO
+        run: |
+          set -euo pipefail
+          cd build/iso
+          zstd -T0 -3 --force chimera-ii-os.iso -o chimera-ii-os.iso.zst
+          zstd -t chimera-ii-os.iso.zst
+          sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256
+          sha256sum chimera-ii-os.iso.zst > chimera-ii-os.iso.zst.sha256
+          test "$(stat -c '%s' chimera-ii-os.iso.zst)" -lt 2147483648
+
+      - name: Publish ISO candidate to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="iso-${GITHUB_SHA::12}"
+          assets=(
+            build/iso/chimera-ii-os.iso.zst
+            build/iso/chimera-ii-os.iso.zst.sha256
+            build/iso/chimera-ii-os.iso.sha256
+            build/iso/ISO-BOOT-REPORT.txt
+          )
+          notes="Full ChimeraIIOS x86_64 ISO built from commit $GITHUB_SHA using tools/build-full-iso.sh. CI verified the ISO checksum, El Torito/system-area metadata, and BIOS QEMU boot markers (ELBC). Download chimera-ii-os.iso.zst and decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso. Verify the compressed archive using chimera-ii-os.iso.zst.sha256 and the decompressed ISO using chimera-ii-os.iso.sha256. This is a development prerelease; the smoke test does not certify production Live/Installer/Recovery userspace or Aurora readiness."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "${assets[@]}" --clobber
+            gh release edit "$tag" --draft=false --prerelease --title "Chimera II OS Full ISO candidate (${GITHUB_SHA::7})" --notes "$notes"
+          else
+            gh release create "$tag" "${assets[@]}" --target "$GITHUB_SHA" --prerelease --title "Chimera II OS Full ISO candidate (${GITHUB_SHA::7})" --notes "$notes"
+          fi
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-full-iso-diagnostics-${{ github.sha }}
+          path: |
+            build/iso/
+            /tmp/chimera-qemu.log
+            /tmp/chimera-qemu-debugcon.log
+          if-no-files-found: warn
+          retention-days: 14
