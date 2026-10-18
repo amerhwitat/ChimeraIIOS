@@ -95,12 +95,20 @@ jobs:
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
+          extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
+          extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
           for name in ("live-manifest.json", "recovery-manifest.json",
-                       "installation-manifest.json", "installer-contract.json"):
+                       "installation-manifest.json", "installer-contract.json",
+                       "chimera-artwork-manifest.json"):
               json.loads((root / name).read_text())
+          if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
+              raise SystemExit("embedded Chimera wallpaper is not SVG source")
+          artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
+              raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
           grub = (root / "grub.cfg").read_text()
           for target in ("aurora-live", "install", "recovery"):
               if f"--id {target}" not in grub:
