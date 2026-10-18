@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 data=json.loads((ROOT/"tools/isa/rv32-machine-tested-subset.json").read_text(encoding="utf-8"))
-tests=(ROOT/"tools/isa/test_rv32_machine.py").read_text(encoding="utf-8")
+tests=(ROOT/"tools/isa/test_rv32_machine.py").read_text(encoding="utf-8")+"\\n"+(ROOT/"tools/isa/test_rv32i_execution_vectors.py").read_text(encoding="utf-8")
 assert data["schema"]=="CHM-RV32-MACHINE-UNIT-TESTED-SUBSET-1"
 for item in data["unit_tested"]:
  for test in item["tests"]:
