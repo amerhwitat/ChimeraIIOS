@@ -84,6 +84,19 @@ cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
 cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
 cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
+# Keep all early-boot visuals self-contained in the ISO.
+mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets"
+if [[ -s "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" ]]; then
+  base64 -d "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" > "$STAGE/boot/visual/aurora-wayland-glass.jpg"
+  cp -f "$STAGE/boot/visual/aurora-wayland-glass.jpg" "$STAGE/boot/grub/aurora-wayland-glass.jpg"
+fi
+for art in aurora-desktop.svg aurora-installer.svg aurora-library.svg aurora-wayland-glass.svg aurora-wayland-glass.png Init.mp4 library-artwork-manifest.json; do
+  [[ -s "$ROOT/desktop/aurora/assets/$art" ]] && cp -f "$ROOT/desktop/aurora/assets/$art" "$STAGE/desktop/aurora/assets/$art"
+done
+if [[ -s "$ROOT/desktop/aurora/assets/Init.mp4" ]]; then
+  cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/boot/grub/Init.mp4"
+fi
+
 install_iso_dependencies() {
   local missing=()
   command -v grub-mkrescue >/dev/null 2>&1 || missing+=(grub-mkrescue)
