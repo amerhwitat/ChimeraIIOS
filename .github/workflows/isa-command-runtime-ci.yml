@@ -105,9 +105,10 @@ on:
       - '.github/workflows/isa-command-runtime-ci.yml'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   validate-and-compile:
+    if: ${{ !contains(github.event.head_commit.message, '[catalog-bot]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -233,6 +234,17 @@ jobs:
           test -L /tmp/chimera-command-rootfs/usr/bin/mv
           test -s /tmp/chimera-command-rootfs/etc/chimera/commands/registry.tsv
 
+      - name: Persist regenerated source-backed catalogs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add isa/sources/imports/riscv-opcodes.json isa/generated/universal-instruction-catalog.json system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(isa): persist sourced ISA and command imports [catalog-bot]"
+            git push
+          else
+            echo "Generated catalogs already match the committed sources."
+          fi
       - name: Upload imported ISA and command catalogs
         uses: actions/upload-artifact@v4
         with:
