@@ -28,7 +28,6 @@ jobs:
       - name: Validate Compose
         run: docker compose config
       - name: Report publication mode
-        env:
         run: |
           if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
             echo "Docker Hub credentials are available; image publication can be enabled."
