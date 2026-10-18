@@ -1,0 +1,106 @@
+{
+  "schema": "CHM-RV32-MACHINE-UNIT-TESTED-SUBSET-1",
+  "scope": "RV32Machine Python simulator only; does not imply native Koronos execution or full ISA conformance",
+  "status_semantics": {
+    "unit-tested": "The named test exercises at least one behavior for this instruction family; not an architecture-spec conformance claim",
+    "expected-trap": "The named test expects rejection/trap behavior"
+  },
+  "unit_tested": [
+    {
+      "mnemonic": "ADDI",
+      "tests": [
+        "test_load_store_and_signed_load",
+        "test_store_and_load_word",
+        "test_ori_uses_bitwise_or",
+        "test_x0_is_hardwired"
+      ]
+    },
+    {
+      "mnemonic": "SB",
+      "tests": [
+        "test_load_store_and_signed_load"
+      ]
+    },
+    {
+      "mnemonic": "LB",
+      "tests": [
+        "test_load_store_and_signed_load"
+      ]
+    },
+    {
+      "mnemonic": "LBU",
+      "tests": [
+        "test_load_store_and_signed_load"
+      ]
+    },
+    {
+      "mnemonic": "SW",
+      "tests": [
+        "test_store_and_load_word"
+      ]
+    },
+    {
+      "mnemonic": "LW",
+      "tests": [
+        "test_store_and_load_word"
+      ]
+    },
+    {
+      "mnemonic": "ORI",
+      "tests": [
+        "test_ori_uses_bitwise_or"
+      ]
+    },
+    {
+      "mnemonic": "FENCE",
+      "tests": [
+        "test_fence_base_encoding_and_illegal_fence_i"
+      ]
+    },
+    {
+      "mnemonic": "CSRRWI",
+      "tests": [
+        "test_csr_write_read_and_mret_round_trip"
+      ]
+    },
+    {
+      "mnemonic": "CSRRS",
+      "tests": [
+        "test_csr_write_read_and_mret_round_trip"
+      ]
+    },
+    {
+      "mnemonic": "MRET",
+      "tests": [
+        "test_mret_restores_privilege_and_interrupt_enable"
+      ]
+    },
+    {
+      "mnemonic": "EBREAK",
+      "tests": [
+        "test_illegal_instruction_traps",
+        "test_trapping_instructions_count_toward_step_limit"
+      ]
+    }
+  ],
+  "expected_trap": [
+    {
+      "mnemonic": "FENCE.I",
+      "tests": [
+        "test_fence_base_encoding_and_illegal_fence_i"
+      ]
+    },
+    {
+      "mnemonic": "unknown/illegal encoding",
+      "tests": [
+        "test_illegal_instruction_traps"
+      ]
+    }
+  ],
+  "explicitly_not_claimed": [
+    "full RV32I conformance",
+    "all imported RISC-V encodings executable",
+    "native Koronos execution of these opcodes",
+    "privileged-spec-complete MMU/PMP/interrupt/device behavior"
+  ]
+}
