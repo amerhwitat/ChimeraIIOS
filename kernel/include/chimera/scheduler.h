@@ -14,6 +14,9 @@ uint32_t chimera_sched_cpu_count(void);
 int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priority);
 int chimera_sched_set_affinity(uint32_t task_id,uint64_t affinity_mask);
 uint32_t chimera_sched_run_once(uint32_t cpu);
+/* Explicit cooperative serial stepping for tests/tools; never evidence of SMP. */
+uint32_t chimera_sched_run_serial_range(uint32_t first_cpu,uint32_t cpu_count);
+/* Returns zero until architecture AP startup and independent per-CPU workers exist. */
 uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t cpu_count);
 /* CPU-explicit requests are required when multiple CPUs may be executing tasks.
  * Requests take effect at the dispatch callback boundary, never mid-callback. */
