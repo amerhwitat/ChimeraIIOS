@@ -53,21 +53,35 @@ jobs:
           rm -f docker-output/output.iso.sha256
           sha256sum docker-output/output.iso > docker-output/output.iso.sha256
           sha256sum --check docker-output/output.iso.sha256
-      - name: Verify staged SF0 SF1 Koronos ELF and GRUB metadata
-        run: |
-          set -euo pipefail
-          test -s boot/iso/dist/iso/src/ISA.csv
-          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
-          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf1-longmode.o
-          test -s boot/iso/dist/iso/boot/koronos/koronos.elf
-          grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
-          grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' boot/iso/grub.cfg
-          test -s boot/iso/dist/iso/boot/visual/aurora-boot.png
-          test -s boot/iso/dist/iso/boot/visual/Init.mp4
-      - name: Inspect ISO BIOS El Torito and UEFI metadata
+      - name: Install ISO inspection tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y xorriso
+          sudo apt-get install --yes xorriso
+      - name: Verify actual ISO payloads and GRUB metadata
+        run: |
+          set -euo pipefail
+          inspect="docker-output/iso-inspect"
+          mkdir -p "$inspect"
+          # The builder runs inside Docker, so its staging tree is not on the
+          # runner. Inspect the artifact itself instead of testing host-only paths.
+          for item in \
+            "/src/ISA.csv:src/ISA.csv" \
+            "/boot/spitfire/spitfire-sf0-mbr.bin:boot/spitfire/spitfire-sf0-mbr.bin" \
+            "/boot/spitfire/spitfire-sf1-longmode.o:boot/spitfire/spitfire-sf1-longmode.o" \
+            "/boot/koronos/koronos.elf:boot/koronos/koronos.elf" \
+            "/boot/grub/grub.cfg:boot/grub/grub.cfg" \
+            "/boot/visual/aurora-boot.png:boot/visual/aurora-boot.png" \
+            "/boot/visual/Init.mp4:boot/visual/Init.mp4"; do
+            iso_path="${item%%:*}"
+            local_path="${item#*:}"
+            mkdir -p "$inspect/$(dirname "$local_path")"
+            xorriso -osirrox on -indev docker-output/output.iso -extract "$iso_path" "$inspect/$local_path" >/dev/null
+            test -s "$inspect/$local_path" || { echo "ERROR: ISO payload missing: $iso_path" >&2; exit 2; }
+          done
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' "$inspect/boot/grub/grub.cfg"
+          grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$inspect/boot/grub/grub.cfg"
+      - name: Inspect ISO BIOS El Torito and UEFI metadata
+        run: |
           xorriso -indev docker-output/output.iso -report_el_torito plain -report_system_area plain -print '' | tee docker-output/ISO-BOOT-REPORT.txt
       - name: Upload Docker ISO release artifact
         uses: actions/upload-artifact@v4
