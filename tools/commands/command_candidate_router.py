@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 try:
     from tools.cognition.chimera_rnn import RecurrentState
+from tools.cognition.local_llm import rerank as local_llm_rerank
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from chimera_rnn import RecurrentState
@@ -53,13 +54,22 @@ def main():
     ap.add_argument("--limit", type=int, default=10)
     ap.add_argument("--catalog", type=Path, default=CATALOG)
     ap.add_argument("--queue", type=Path, default=Path.home()/".local/state/chimera/command-candidates.jsonl")
+    ap.add_argument("--llm", action="store_true", help="use a separately configured loopback local LLM to rerank candidates")
     a=ap.parse_args()
     if not 1 <= a.limit <= 100: raise SystemExit("--limit must be 1..100")
     catalog=json.loads(a.catalog.read_text(encoding="utf-8"))
-    results=rank(a.query, catalog, a.limit)
+    results=rank(a.query, catalog, max(a.limit, min(100, len(catalog.get("commands", [])))))
+    llm_meta={"mode":"deterministic-rnn","validated":False}
+    if a.llm:
+        candidates=[{"id":r["name"],"label":r["name"]+" | "+r["status"]} for r in results]
+        ordered,llm_meta=local_llm_rerank(a.query,candidates,a.limit)
+        by_name={r["name"]:r for r in results}
+        results=[by_name[c["id"]] for c in ordered if c["id"] in by_name][:a.limit]
+    else:
+        results=results[:a.limit]
     queued=queue_unresolved(a.query, catalog, a.queue)
     print(json.dumps({"schema":"CHM-RNN-COMMAND-ROUTER-1",
-      "engine":"deterministic recurrent-state ranking (not an LLM; no network inference)",
+      "engine":"deterministic recurrent-state retrieval"+(" with constrained local LLM reranking" if a.llm else ""), "llm":llm_meta,
       "query":a.query,"results":results,
       "unresolved_count":catalog.get("counts",{}).get("candidate_only",0),"queued_for_later":bool(queued),"queue_file":queued,
       "safety":"Ranking is advisory. This tool does not execute commands, install providers, or infer missing implementations."}, ensure_ascii=False, indent=2))
