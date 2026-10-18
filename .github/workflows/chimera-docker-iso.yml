@@ -52,11 +52,17 @@ jobs:
           test -s docker-output/output.iso
           test -s docker-output/output.iso.sha256
           (cd docker-output && sha256sum --check output.iso.sha256)
+      - name: Install ISO inspection tools and extract the built ISO
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
+          mkdir -p iso-extracted
+          xorriso -osirrox on -indev docker-output/output.iso -extract / iso-extracted
       - name: Verify staged Koronos, Spit Fire, Live, Recovery, artwork and GRUB metadata
         shell: bash
         run: |
           set -euo pipefail
-          tree=boot/iso/dist/iso
+          tree=iso-extracted
           check_file() {
             if [[ ! -s "$1" ]]; then
               echo "::error::Required staged artifact is missing or empty: $1"
@@ -89,8 +95,6 @@ jobs:
           echo "Verified canonical Koronos boot tree, live/recovery payloads, offline artwork, and GRUB linkage."
       - name: Inspect ISO BIOS El Torito and UEFI metadata
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xorriso
           xorriso -indev docker-output/output.iso -report_el_torito plain -report_system_area plain -print '' | tee docker-output/ISO-BOOT-REPORT.txt
       - name: Upload Docker ISO release artifact
         uses: actions/upload-artifact@v4
