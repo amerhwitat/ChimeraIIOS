@@ -12,6 +12,7 @@ on:
       - 'kernel/include/chimera/multiboot_modules.h'
       - 'kernel/tests/process-loader-unit.sh'
       - 'kernel/build-koronos.sh'
+      - 'tests/boot/**'
       - '.github/workflows/koronos-process-loader.yml'
   pull_request:
     paths:
@@ -38,6 +39,8 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp -o /tmp/chimera-multiboot-modules-test
           /tmp/chimera-multiboot-modules-test
+      - name: Test fail-closed userspace handoff marker verifier
+        run: python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
       - name: Compile and validate freestanding Koronos
         run: |
           sudo apt-get update
