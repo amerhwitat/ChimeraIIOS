@@ -91,10 +91,6 @@ extern "C" int chimera_sched_set_affinity(uint32_t task_id,uint64_t mask){
 }
 extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     lock();if(cpu>=cpus){unlock();return 0;}
-    /* A CPU may own at most one active callback. Without this guard, a second
-       concurrent/re-entrant run_once(cpu) can overwrite current_index[cpu],
-       lose ownership of the first callback, and misroute yield/block/exit. */
-    if(current_index[cpu]>=0){unlock();return 0;}
     chimera_task_fn fn=nullptr;void* arg=nullptr;uint32_t index=0;
     const int32_t selected=pick_next_locked(cpu);
     if(selected<0){unlock();return 0;}
@@ -134,6 +130,17 @@ extern "C" void chimera_sched_exit(void){legacy_action(ACTION_EXIT);}
 extern "C" uint32_t chimera_sched_runnable_count(void){
     lock();uint32_t n=0;for(uint32_t i=0;i<count;i++)if(tasks[i].info.state==CHIMERA_TASK_READY)++n;unlock();return n;
 }
-extern "C" uint32_t chimera_sched_snapshot(chimera_task_info*out,uint32_t cap){
-    if(!out)return 0;lock();uint32_t n=count<cap?count:cap;for(uint32_t i=0;i<n;i++)out[i]=tasks[i].info;unlock();return n;
+extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
+    if (out == nullptr) {
+        return 0;
+    }
+
+    lock();
+    const uint32_t n = count < cap ? count : cap;
+    for (uint32_t i = 0; i < n; ++i) {
+        out[i] = tasks[i].info;
+    }
+    unlock();
+
+    return n;
 }

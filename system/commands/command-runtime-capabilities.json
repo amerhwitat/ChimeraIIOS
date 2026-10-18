@@ -2,10 +2,11 @@
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
   "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
   "native_binary": "rootfs/usr/bin/chimera-cmd",
-  "command_count": 3337,
+  "command_count": 3418,
   "mode_counts": {
-    "compatibility-provider-required": 3269,
+    "compatibility-provider-required": 3179,
     "native": 15,
+    "native-provider-required": 171,
     "shell-builtin": 53
   },
   "commands": [
@@ -4384,6 +4385,16 @@
       ]
     },
     {
+      "name": "append",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "application associated",
       "platforms": [
         "windows_cmd"
@@ -4445,6 +4456,16 @@
       "source_urls": [
         "https://ss64.com/bash/aptitude.html"
       ]
+    },
+    {
+      "name": "ar",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "argument",
@@ -4622,6 +4643,16 @@
       ]
     },
     {
+      "name": "as",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "as admin",
       "platforms": [
         "powershell",
@@ -4688,6 +4719,16 @@
       ]
     },
     {
+      "name": "ash",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "aspell",
       "platforms": [
         "linux_bash"
@@ -4722,6 +4763,16 @@
       "source_urls": [
         "https://ss64.com/ps/syntax-assertion.html"
       ]
+    },
+    {
+      "name": "assign",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Assignment Operators",
@@ -4836,10 +4887,11 @@
     {
       "name": "ATTRIB",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — ATTRIB",
       "source_urls": [
         "https://ss64.com/nt/attrib.html"
@@ -5048,11 +5100,12 @@
     {
       "name": "awk",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — awk",
       "source_urls": [
         "https://ss64.com/bash/awk.html",
@@ -5074,10 +5127,11 @@
     {
       "name": "BACKUP",
       "platforms": [
+        "dos-retro",
         "sql_server"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "platform-runtime-not-selected",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "نسخ احتياطي (BACKUP)",
       "source_urls": [
         "https://ss64.com/sql/backup.html"
@@ -5264,11 +5318,12 @@
     {
       "name": "basename",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — basename",
       "source_urls": [
         "https://ss64.com/bash/basename.html",
@@ -5279,10 +5334,11 @@
       "name": "bash",
       "platforms": [
         "linux_bash",
-        "macos"
+        "macos",
+        "posix"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native POSIX process ABI",
       "arabic_label": "أمر نظام — bash",
       "source_urls": [
         "https://ss64.com/bash/bash.html",
@@ -5886,6 +5942,16 @@
       ]
     },
     {
+      "name": "blkid",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "BOOTREC",
       "platforms": [
         "windows_cmd"
@@ -6076,6 +6142,16 @@
       ]
     },
     {
+      "name": "btrfs",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "Built-in Constants",
       "platforms": [
         "vbscript"
@@ -6150,18 +6226,49 @@
       ]
     },
     {
+      "name": "bunzip2",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "bzcat",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "bzip2",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — bzip2",
       "source_urls": [
         "https://ss64.com/bash/bzip2.html",
         "https://ss64.com/mac/bzip.html"
       ]
+    },
+    {
+      "name": "c++",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "C:\\Program Files or C:\\Program Files (x86)",
@@ -6253,10 +6360,11 @@
       "name": "CALL",
       "platforms": [
         "powershell",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — CALL",
       "source_urls": [
         "https://ss64.com/nt/call.html",
@@ -6398,6 +6506,16 @@
       ]
     },
     {
+      "name": "cargo",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "case",
       "platforms": [
         "access",
@@ -6465,6 +6583,8 @@
     {
       "name": "cat",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "powershell"
@@ -6518,6 +6638,16 @@
         "https://ss64.com/access/cbyte.html",
         "https://ss64.com/vb/cbyte.html"
       ]
+    },
+    {
+      "name": "cc",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "CCur",
@@ -6751,10 +6881,11 @@
     {
       "name": "CHCP",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — CHCP",
       "source_urls": [
         "https://ss64.com/nt/chcp.html"
@@ -6851,11 +6982,12 @@
     {
       "name": "chgrp",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — chgrp",
       "source_urls": [
         "https://ss64.com/bash/chgrp.html",
@@ -6993,6 +7125,16 @@
       "source_urls": []
     },
     {
+      "name": "chimera-cmd",
+      "platforms": [
+        "chimera-native"
+      ],
+      "mode": "native-provider-required",
+      "provider": "Chimera command ABI and registered providers",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "chimera-container",
       "platforms": [
         "chimera_native"
@@ -7019,6 +7161,16 @@
       ],
       "mode": "compatibility-provider-required",
       "provider": "platform-runtime-not-selected",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "chimera-cpu-mode",
+      "platforms": [
+        "chimera-native"
+      ],
+      "mode": "native-provider-required",
+      "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
     },
@@ -7119,6 +7271,16 @@
       ],
       "mode": "compatibility-provider-required",
       "provider": "platform-runtime-not-selected",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "chimera-emulator",
+      "platforms": [
+        "chimera-native"
+      ],
+      "mode": "native-provider-required",
+      "provider": "Chimera command ABI and registered providers",
       "arabic_label": null,
       "source_urls": []
     },
@@ -7473,6 +7635,36 @@
       "source_urls": []
     },
     {
+      "name": "chimera-rom",
+      "platforms": [
+        "chimera-native"
+      ],
+      "mode": "native-provider-required",
+      "provider": "Chimera command ABI and registered providers",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "chimera-rom-scan",
+      "platforms": [
+        "chimera-native"
+      ],
+      "mode": "native-provider-required",
+      "provider": "Chimera command ABI and registered providers",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "chimera-run",
+      "platforms": [
+        "chimera-native"
+      ],
+      "mode": "native-provider-required",
+      "provider": "Chimera command ABI and registered providers",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "chimera-rust",
       "platforms": [
         "chimera_native"
@@ -7677,10 +7869,11 @@
     {
       "name": "CHKDSK",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "افحص نظام الملفات",
       "source_urls": [
         "https://ss64.com/nt/chkdsk.html"
@@ -7723,11 +7916,12 @@
     {
       "name": "chmod",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "غيّر الصلاحيات",
       "source_urls": [
         "https://ss64.com/bash/chmod.html",
@@ -7749,10 +7943,11 @@
     {
       "name": "CHOICE",
       "platforms": [
+        "dos-retro",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — CHOICE",
       "source_urls": [
         "https://ss64.com/nt/choice.html"
@@ -7773,11 +7968,12 @@
     {
       "name": "chown",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "غيّر المالك",
       "source_urls": [
         "https://ss64.com/bash/chown.html",
@@ -7826,11 +8022,12 @@
     {
       "name": "chroot",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — chroot",
       "source_urls": [
         "https://ss64.com/bash/chroot.html",
@@ -7938,6 +8135,16 @@
       ]
     },
     {
+      "name": "clang",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "ClassID",
       "platforms": [
         "windows_cmd"
@@ -7964,6 +8171,8 @@
     {
       "name": "clear",
       "platforms": [
+        "busybox",
+        "chimera_native",
         "linux_bash",
         "macos"
       ],
@@ -8191,14 +8400,25 @@
     {
       "name": "CLS",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "امسح الشاشة",
       "source_urls": [
         "https://ss64.com/nt/cls.html"
       ]
+    },
+    {
+      "name": "cmake",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "CMD",
@@ -8348,11 +8568,12 @@
     {
       "name": "cmp",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — cmp",
       "source_urls": [
         "https://ss64.com/bash/cmp.html",
@@ -8522,11 +8743,12 @@
     {
       "name": "comm",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — comm",
       "source_urls": [
         "https://ss64.com/bash/comm.html",
@@ -9552,10 +9774,11 @@
     {
       "name": "COPY",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "انسخ الملفات",
       "source_urls": [
         "https://ss64.com/nt/copy.html"
@@ -9708,6 +9931,8 @@
     {
       "name": "cp",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -10322,13 +10547,24 @@
       ]
     },
     {
+      "name": "crond",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "crontab",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — crontab",
       "source_urls": [
         "https://ss64.com/bash/crontab.html",
@@ -10346,6 +10582,16 @@
       "source_urls": [
         "https://ss64.com/bash/crontab.html"
       ]
+    },
+    {
+      "name": "cryptsetup",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "CSCcmd",
@@ -10528,10 +10774,11 @@
       "platforms": [
         "linux_bash",
         "macos",
+        "network-admin",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "نقل البيانات عبر الشبكة",
       "source_urls": [
         "https://ss64.com/bash/curl.html",
@@ -10597,11 +10844,12 @@
     {
       "name": "cut",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — cut",
       "source_urls": [
         "https://ss64.com/bash/cut.html",
@@ -10758,6 +11006,8 @@
       "name": "date",
       "platforms": [
         "access",
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "vbscript",
@@ -11427,11 +11677,12 @@
     {
       "name": "dd",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — dd",
       "source_urls": [
         "https://ss64.com/bash/dd.html",
@@ -11465,10 +11716,11 @@
     {
       "name": "debug",
       "platforms": [
+        "dos-retro",
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — debug",
       "source_urls": [
         "https://ss64.com/ps/write-debug.html"
@@ -11628,10 +11880,11 @@
     {
       "name": "DEFRAG",
       "platforms": [
+        "dos-retro",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — DEFRAG",
       "source_urls": [
         "https://ss64.com/nt/defrag.html"
@@ -11652,10 +11905,11 @@
     {
       "name": "DEL",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "احذف الملفات",
       "source_urls": [
         "https://ss64.com/nt/del.html"
@@ -11994,11 +12248,12 @@
     {
       "name": "df",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "اعرض مساحة الأقراص",
       "source_urls": [
         "https://ss64.com/bash/df.html",
@@ -12020,11 +12275,12 @@
     {
       "name": "diff",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — diff",
       "source_urls": [
         "https://ss64.com/bash/diff.html",
@@ -12049,10 +12305,11 @@
       "name": "dig",
       "platforms": [
         "linux_bash",
-        "macos"
+        "macos",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — dig",
       "source_urls": [
         "https://ss64.com/bash/dig.html",
@@ -12103,10 +12360,11 @@
         "access",
         "linux_bash",
         "vbscript",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "اعرض الملفات",
       "source_urls": [
         "https://ss64.com/access/dir.html",
@@ -12215,11 +12473,12 @@
     {
       "name": "dirname",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "اعرض — dirname",
       "source_urls": [
         "https://ss64.com/bash/dirname.html",
@@ -12433,6 +12692,16 @@
       ]
     },
     {
+      "name": "diskcopy",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "DISKPART",
       "platforms": [
         "windows_cmd"
@@ -12483,10 +12752,11 @@
     {
       "name": "diskutil",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "إدارة الأقراص",
       "source_urls": [
         "https://ss64.com/mac/diskutil.html"
@@ -12579,10 +12849,11 @@
     {
       "name": "ditto",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — ditto",
       "source_urls": [
         "https://ss64.com/mac/ditto.html"
@@ -12627,10 +12898,12 @@
     {
       "name": "dmesg",
       "platforms": [
-        "linux_bash"
+        "busybox",
+        "linux_bash",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — dmesg",
       "source_urls": [
         "https://ss64.com/bash/dmesg.html"
@@ -12772,10 +13045,11 @@
     {
       "name": "dos2unix",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — dos2unix",
       "source_urls": [
         "https://ss64.com/bash/dos2unix.html"
@@ -13544,10 +13818,11 @@
     {
       "name": "dscacheutil",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — dscacheutil",
       "source_urls": [
         "https://ss64.com/mac/dscacheutil.html"
@@ -14013,12 +14288,14 @@
     {
       "name": "du",
       "platforms": [
+        "busybox",
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "احسب أحجام الملفات",
       "source_urls": [
         "https://ss64.com/bash/du.html",
@@ -14100,10 +14377,13 @@
       "name": "echo",
       "platforms": [
         "access",
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "powershell",
         "vbscript",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "native",
@@ -14185,6 +14465,16 @@
       ],
       "mode": "compatibility-provider-required",
       "provider": "darwin-or-posix-provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "edit",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": null,
       "source_urls": []
     },
@@ -14708,11 +14998,13 @@
     {
       "name": "env",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
-        "macos"
+        "macos",
+        "posix"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — env",
       "source_urls": [
         "https://ss64.com/bash/env.html",
@@ -15842,6 +16134,8 @@
     {
       "name": "false",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -15856,7 +16150,9 @@
     {
       "name": "FC",
       "platforms": [
+        "dos-retro",
         "macos",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "shell-builtin",
@@ -15882,11 +16178,13 @@
     {
       "name": "fdisk",
       "platforms": [
+        "dos-retro",
         "linux_bash",
-        "macos"
+        "macos",
+        "storage-filesystem"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — fdisk",
       "source_urls": [
         "https://ss64.com/bash/fdisk.html",
@@ -16148,12 +16446,14 @@
       "name": "find",
       "platforms": [
         "access",
+        "busybox",
         "linux_bash",
         "macos",
+        "windows-cmd",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "ابحث عن الملفات",
       "source_urls": [
         "https://ss64.com/access/findfirst.html",
@@ -16271,12 +16571,23 @@
       ]
     },
     {
+      "name": "findmnt",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "FINDSTR",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — FINDSTR",
       "source_urls": [
         "https://ss64.com/nt/findstr.html"
@@ -16784,11 +17095,12 @@
       "name": "format",
       "platforms": [
         "access",
+        "dos-retro",
         "linux_bash",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "تنسيق (FORMAT)",
       "source_urls": [
         "https://ss64.com/access/format.html",
@@ -16991,10 +17303,12 @@
     {
       "name": "free",
       "platforms": [
-        "linux_bash"
+        "busybox",
+        "linux_bash",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": null,
       "source_urls": []
     },
@@ -17038,10 +17352,11 @@
       "name": "fsck",
       "platforms": [
         "linux_bash",
-        "macos"
+        "macos",
+        "storage-filesystem"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
       "arabic_label": "أمر نظام — fsck",
       "source_urls": [
         "https://ss64.com/bash/fsck.html",
@@ -17221,6 +17536,26 @@
       ]
     },
     {
+      "name": "ftpget",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "ftpput",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "FTYPE",
       "platforms": [
         "windows_cmd"
@@ -17386,6 +17721,16 @@
       ]
     },
     {
+      "name": "g++",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "gawk",
       "platforms": [
         "linux_bash"
@@ -17396,6 +17741,16 @@
       "source_urls": [
         "https://ss64.com/bash/awk.html"
       ]
+    },
+    {
+      "name": "gcc",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "GCI",
@@ -17907,7 +18262,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "اعرض عناصر المجلد",
       "source_urls": [
         "https://ss64.com/ps/get-childitem.html"
@@ -18027,7 +18382,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "اعرض الأوامر",
       "source_urls": [
         "https://ss64.com/ps/get-command.html"
@@ -18063,7 +18418,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "اقرأ محتوى الملف",
       "source_urls": [
         "https://ss64.com/ps/get-content.html"
@@ -18111,7 +18466,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "التاريخ والوقت",
       "source_urls": [
         "https://ss64.com/ps/get-date.html"
@@ -18325,7 +18680,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "اعرض المساعدة",
       "source_urls": [
         "https://ss64.com/ps/get-help.html"
@@ -18397,7 +18752,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "استعلم عن — Get-Item",
       "source_urls": [
         "https://ss64.com/ps/get-item.html"
@@ -18409,7 +18764,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "استعلم عن — Get-ItemProperty",
       "source_urls": [
         "https://ss64.com/ps/get-itemproperty.html"
@@ -18491,7 +18846,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "استعلم عن — Get-Location",
       "source_urls": [
         "https://ss64.com/ps/get-location.html"
@@ -18693,7 +19048,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "اعرض العمليات",
       "source_urls": [
         "https://ss64.com/ps/get-process.html"
@@ -18873,7 +19228,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "اعرض الخدمات",
       "source_urls": [
         "https://ss64.com/ps/get-service.html"
@@ -19280,10 +19635,11 @@
     {
       "name": "getopt",
       "platforms": [
+        "busybox",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — getopt",
       "source_urls": [
         "https://ss64.com/mac/getopt.html"
@@ -19338,6 +19694,16 @@
       "source_urls": [
         "https://ss64.com/nt/syntax-gettime.html"
       ]
+    },
+    {
+      "name": "git",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "global",
@@ -19402,10 +19768,11 @@
     {
       "name": "GO",
       "platforms": [
+        "developer-tools",
         "sql_server"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "platform-runtime-not-selected",
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
       "arabic_label": "أمر نظام — GO",
       "source_urls": [
         "https://ss64.com/sql/go.html"
@@ -19558,11 +19925,12 @@
     {
       "name": "grep",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "ابحث داخل النصوص",
       "source_urls": [
         "https://ss64.com/bash/grep.html",
@@ -19699,13 +20067,24 @@
       ]
     },
     {
+      "name": "gunzip",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "gzip",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "ضغط الملفات",
       "source_urls": [
         "https://ss64.com/bash/gzip.html",
@@ -19715,10 +20094,11 @@
     {
       "name": "halt",
       "platforms": [
+        "busybox",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — halt",
       "source_urls": [
         "https://ss64.com/mac/halt.html"
@@ -19790,11 +20170,12 @@
     {
       "name": "head",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — head",
       "source_urls": [
         "https://ss64.com/bash/head.html",
@@ -19934,6 +20315,16 @@
       ]
     },
     {
+      "name": "hexdump",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "hidden",
       "platforms": [
         "windows_cmd"
@@ -20028,10 +20419,11 @@
       "platforms": [
         "linux_bash",
         "macos",
+        "network-admin",
         "powershell"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — host",
       "source_urls": [
         "https://ss64.com/bash/hostname.html",
@@ -20041,6 +20433,8 @@
     {
       "name": "hostname",
       "platforms": [
+        "busybox",
+        "chimera_native",
         "linux_bash",
         "macos",
         "windows_cmd"
@@ -20139,6 +20533,16 @@
       "source_urls": [
         "https://ss64.com/bash/htop.html"
       ]
+    },
+    {
+      "name": "httpd",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Hybrid",
@@ -20241,12 +20645,13 @@
     {
       "name": "id",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "powershell"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — id",
       "source_urls": [
         "https://ss64.com/bash/id.html",
@@ -21019,7 +21424,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "أرسل طلب ويب",
       "source_urls": [
         "https://ss64.com/ps/invoke-webrequest.html"
@@ -21091,10 +21496,11 @@
       "name": "ip",
       "platforms": [
         "linux_bash",
-        "macos"
+        "macos",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "إعدادات الشبكة",
       "source_urls": [
         "https://ss64.com/bash/ip.html",
@@ -21512,15 +21918,26 @@
       "name": "IPCONFIG",
       "platforms": [
         "macos",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "إعدادات الشبكة",
       "source_urls": [
         "https://ss64.com/mac/ipconfig.html",
         "https://ss64.com/nt/ipconfig.html"
       ]
+    },
+    {
+      "name": "iptables",
+      "platforms": [
+        "network-admin"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Is Directory",
@@ -21736,6 +22153,26 @@
       "source_urls": []
     },
     {
+      "name": "java",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "javac",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "job",
       "platforms": [
         "powershell"
@@ -21838,6 +22275,16 @@
       "source_urls": [
         "https://ss64.com/mac/jot.html"
       ]
+    },
+    {
+      "name": "journalctl",
+      "platforms": [
+        "system-services"
+      ],
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Jump to the previous working directory",
@@ -22042,13 +22489,15 @@
     {
       "name": "kill",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos",
         "sql_server",
+        "system-services",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أوقف عملية",
       "source_urls": [
         "https://ss64.com/bash/kill.html",
@@ -22096,11 +22545,12 @@
     {
       "name": "killall",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — killall",
       "source_urls": [
         "https://ss64.com/bash/killall.html",
@@ -22308,6 +22758,16 @@
       ]
     },
     {
+      "name": "ld",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "LDAP",
       "platforms": [
         "powershell"
@@ -22460,11 +22920,12 @@
     {
       "name": "less",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — less",
       "source_urls": [
         "https://ss64.com/bash/less.html",
@@ -22755,11 +23216,12 @@
     {
       "name": "ln",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — ln",
       "source_urls": [
         "https://ss64.com/bash/ln.html",
@@ -22981,6 +23443,16 @@
       ]
     },
     {
+      "name": "loginctl",
+      "platforms": [
+        "system-services"
+      ],
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "LOGMAN",
       "platforms": [
         "windows_cmd"
@@ -23055,6 +23527,16 @@
         "https://ss64.com/bash/logout.html",
         "https://ss64.com/mac/logout.html"
       ]
+    },
+    {
+      "name": "logread",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "LOGTIME",
@@ -23179,6 +23661,16 @@
       ]
     },
     {
+      "name": "losetup",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "lp",
       "platforms": [
         "macos"
@@ -23289,6 +23781,8 @@
     {
       "name": "ls",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -23387,10 +23881,11 @@
     {
       "name": "lsblk",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "storage-filesystem"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
       "arabic_label": "اعرض — lsblk",
       "source_urls": [
         "https://ss64.com/bash/lsblk.html"
@@ -23407,6 +23902,36 @@
       "source_urls": [
         "https://ss64.com/mac/lsbom.html"
       ]
+    },
+    {
+      "name": "lscpu",
+      "platforms": [
+        "system-services"
+      ],
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "lsmem",
+      "platforms": [
+        "system-services"
+      ],
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "lsmod",
+      "platforms": [
+        "system-services"
+      ],
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "lsof",
@@ -23644,10 +24169,11 @@
     {
       "name": "make",
       "platforms": [
+        "developer-tools",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
       "arabic_label": null,
       "source_urls": []
     },
@@ -23799,6 +24325,16 @@
       ]
     },
     {
+      "name": "mariadb",
+      "platforms": [
+        "database"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed database client and server where applicable",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "Math functions",
       "platforms": [
         "vbscript"
@@ -23885,10 +24421,11 @@
     {
       "name": "MD",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — MD",
       "source_urls": [
         "https://ss64.com/nt/md.html"
@@ -23909,22 +24446,34 @@
     {
       "name": "md5sum",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — md5sum",
       "source_urls": [
         "https://ss64.com/bash/md5sum.html"
       ]
     },
     {
+      "name": "mdadm",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "mdfind",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — mdfind",
       "source_urls": [
         "https://ss64.com/mac/mdfind.html"
@@ -23984,7 +24533,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "قياس (Measure-Object)",
       "source_urls": [
         "https://ss64.com/ps/measure-object.html"
@@ -24001,6 +24550,16 @@
       "source_urls": [
         "https://ss64.com/nt/dpi-medium-120.txt"
       ]
+    },
+    {
+      "name": "mem",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "MERGE",
@@ -24047,6 +24606,16 @@
       "source_urls": [
         "https://ss64.com/ps/syntax-methods.html"
       ]
+    },
+    {
+      "name": "microcom",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Mid",
@@ -24104,8 +24673,11 @@
       "name": "mkdir",
       "platforms": [
         "access",
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "native",
@@ -24120,11 +24692,12 @@
     {
       "name": "mkfifo",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — mkfifo",
       "source_urls": [
         "https://ss64.com/bash/mkfifo.html",
@@ -24144,6 +24717,16 @@
         "https://ss64.com/bash/mkfile.html",
         "https://ss64.com/mac/mkfile.html"
       ]
+    },
+    {
+      "name": "mkfs",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "mkisofs",
@@ -24170,10 +24753,11 @@
     {
       "name": "mknod",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — mknod",
       "source_urls": [
         "https://ss64.com/bash/mknod.html"
@@ -24182,11 +24766,12 @@
     {
       "name": "mktemp",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — mktemp",
       "source_urls": [
         "https://ss64.com/bash/mktemp.html",
@@ -24232,10 +24817,11 @@
     {
       "name": "MODE",
       "platforms": [
+        "dos-retro",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — MODE",
       "source_urls": [
         "https://ss64.com/nt/mode.html"
@@ -24256,10 +24842,11 @@
     {
       "name": "modprobe",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — modprobe",
       "source_urls": [
         "https://ss64.com/bash/modprobe.html"
@@ -24276,6 +24863,16 @@
       "source_urls": [
         "https://ss64.com/ps/syntax-modules.html"
       ]
+    },
+    {
+      "name": "mongosh",
+      "platforms": [
+        "database"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed database client and server where applicable",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "monitoring logon sessions",
@@ -24320,13 +24917,15 @@
     {
       "name": "more",
       "platforms": [
+        "busybox",
+        "dos-retro",
         "linux_bash",
         "macos",
         "powershell",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — more",
       "source_urls": [
         "https://ss64.com/bash/more.html",
@@ -24364,11 +24963,13 @@
     {
       "name": "mount",
       "platforms": [
+        "busybox",
         "linux_bash",
-        "macos"
+        "macos",
+        "storage-filesystem"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
       "arabic_label": "اربط — mount",
       "source_urls": [
         "https://ss64.com/bash/mount.html",
@@ -24427,10 +25028,11 @@
       "name": "MOVE",
       "platforms": [
         "access",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "نقل (MOVE)",
       "source_urls": [
         "https://ss64.com/access/move.html",
@@ -24686,6 +25288,8 @@
     {
       "name": "mv",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -24696,6 +25300,16 @@
         "https://ss64.com/bash/mv.html",
         "https://ss64.com/mac/mv.html"
       ]
+    },
+    {
+      "name": "mysql",
+      "platforms": [
+        "database"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed database client and server where applicable",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "name",
@@ -24785,10 +25399,11 @@
     {
       "name": "nc",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — nc",
       "source_urls": [
         "https://ss64.com/bash/nc.html"
@@ -25346,12 +25961,13 @@
     {
       "name": "netstat",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — netstat",
       "source_urls": [
         "https://ss64.com/bash/netstat.html",
@@ -25862,10 +26478,11 @@
     {
       "name": "nft",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — nft",
       "source_urls": [
         "https://ss64.com/bash/nft.html"
@@ -25874,16 +26491,27 @@
     {
       "name": "nice",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — nice",
       "source_urls": [
         "https://ss64.com/bash/nice.html",
         "https://ss64.com/mac/nice.html"
       ]
+    },
+    {
+      "name": "ninja",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "nl",
@@ -25922,6 +26550,16 @@
       "source_urls": [
         "https://ss64.com/nt/nmbind.html"
       ]
+    },
+    {
+      "name": "node",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "NoDrives",
@@ -25990,13 +26628,24 @@
       ]
     },
     {
+      "name": "npm",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "nslookup",
       "platforms": [
+        "busybox",
         "linux_bash",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — nslookup",
       "source_urls": [
         "https://ss64.com/bash/nslookup.html",
@@ -26182,6 +26831,26 @@
       ]
     },
     {
+      "name": "objcopy",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "objdump",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "Object Name",
       "platforms": [
         "access"
@@ -26241,6 +26910,17 @@
       "source_urls": [
         "https://ss64.com/access/oct.html"
       ]
+    },
+    {
+      "name": "od",
+      "platforms": [
+        "busybox",
+        "gnu-coreutils"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "ODBC connection",
@@ -26341,11 +27021,12 @@
     {
       "name": "open",
       "platforms": [
+        "bsd-macos",
         "linux_bash",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "افتح ملفاً أو تطبيقاً",
       "source_urls": [
         "https://ss64.com/bash/open.html",
@@ -26961,6 +27642,16 @@
       ]
     },
     {
+      "name": "parted",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "Partial Restore",
       "platforms": [
         "sql_server"
@@ -27025,11 +27716,12 @@
     {
       "name": "paste",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — paste",
       "source_urls": [
         "https://ss64.com/bash/paste.html",
@@ -27037,12 +27729,23 @@
       ]
     },
     {
+      "name": "patch",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "PATH",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "مسار (path)",
       "source_urls": [
         "https://ss64.com/nt/path.html"
@@ -27162,10 +27865,11 @@
     {
       "name": "pbcopy",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "انسخ إلى الحافظة",
       "source_urls": [
         "https://ss64.com/mac/pbcopy.html"
@@ -27174,10 +27878,11 @@
     {
       "name": "pbpaste",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "اقرأ الحافظة",
       "source_urls": [
         "https://ss64.com/mac/pbpaste.html"
@@ -27298,11 +28003,12 @@
     {
       "name": "pgrep",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — pgrep",
       "source_urls": [
         "https://ss64.com/bash/pkill.html",
@@ -27334,6 +28040,16 @@
       ]
     },
     {
+      "name": "pidof",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "Pin/UnPin",
       "platforms": [
         "vbscript"
@@ -27348,12 +28064,14 @@
     {
       "name": "ping",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos",
+        "network-admin",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "اختبر الاتصال",
       "source_urls": [
         "https://ss64.com/bash/ping.html",
@@ -27462,6 +28180,16 @@
       ]
     },
     {
+      "name": "pkg-config",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "pkgutil",
       "platforms": [
         "macos"
@@ -27476,11 +28204,12 @@
     {
       "name": "pkill",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — pkill",
       "source_urls": [
         "https://ss64.com/bash/pkill.html",
@@ -27514,10 +28243,11 @@
     {
       "name": "plutil",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — plutil",
       "source_urls": [
         "https://ss64.com/mac/plutil.html"
@@ -28267,11 +28997,12 @@
     {
       "name": "printenv",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — printenv",
       "source_urls": [
         "https://ss64.com/bash/printenv.html",
@@ -28281,6 +29012,7 @@
     {
       "name": "printf",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -28615,11 +29347,13 @@
     {
       "name": "ps",
       "platforms": [
+        "busybox",
         "linux_bash",
-        "macos"
+        "macos",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "اعرض العمليات",
       "source_urls": [
         "https://ss64.com/bash/ps.html",
@@ -28855,6 +29589,16 @@
       ]
     },
     {
+      "name": "psql",
+      "platforms": [
+        "database"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed database client and server where applicable",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "PsService",
       "platforms": [
         "windows_cmd"
@@ -28945,6 +29689,8 @@
     {
       "name": "pwd",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -28979,6 +29725,26 @@
       "source_urls": [
         "https://ss64.com/ps/pwsh.html"
       ]
+    },
+    {
+      "name": "python",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "python3",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "QAppSrv",
@@ -29504,6 +30270,16 @@
       ]
     },
     {
+      "name": "readlink",
+      "platforms": [
+        "gnu-coreutils"
+      ],
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "readonly",
       "platforms": [
         "linux_bash",
@@ -29532,10 +30308,11 @@
     {
       "name": "realpath",
       "platforms": [
+        "gnu-coreutils",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — realpath",
       "source_urls": [
         "https://ss64.com/mac/realpath.html"
@@ -29544,12 +30321,13 @@
     {
       "name": "reboot",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — reboot",
       "source_urls": [
         "https://ss64.com/mac/reboot.html",
@@ -29757,6 +30535,16 @@
       "source_urls": [
         "https://ss64.com/nt/syntax-redirection.html"
       ]
+    },
+    {
+      "name": "redis-cli",
+      "platforms": [
+        "database"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed database client and server where applicable",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Ref variables",
@@ -30728,10 +31516,11 @@
     {
       "name": "REN",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أعد تسمية الملفات",
       "source_urls": [
         "https://ss64.com/nt/ren.html"
@@ -30967,10 +31756,11 @@
     {
       "name": "reset",
       "platforms": [
+        "busybox",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — reset",
       "source_urls": [
         "https://ss64.com/nt/winget-source-reset.html"
@@ -31035,6 +31825,16 @@
       "source_urls": [
         "https://ss64.com/ps/resolve-path.html"
       ]
+    },
+    {
+      "name": "resolvectl",
+      "platforms": [
+        "network-admin"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Restart-Computer",
@@ -31420,6 +32220,8 @@
     {
       "name": "rm",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -31434,12 +32236,14 @@
     {
       "name": "rmdir",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "احذف مجلداً",
       "source_urls": [
         "https://ss64.com/bash/rmdir.html",
@@ -31575,10 +32379,11 @@
       "name": "route",
       "platforms": [
         "macos",
+        "network-admin",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — route",
       "source_urls": [
         "https://ss64.com/mac/route.html",
@@ -31943,6 +32748,16 @@
       ]
     },
     {
+      "name": "rustc",
+      "platforms": [
+        "developer-tools"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed toolchain/provider",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "saved in your profile",
       "platforms": [
         "powershell"
@@ -31969,10 +32784,11 @@
     {
       "name": "say",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — say",
       "source_urls": [
         "https://ss64.com/mac/say.html"
@@ -32151,10 +32967,11 @@
     {
       "name": "scp",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "نسخ آمن للملفات",
       "source_urls": [
         "https://ss64.com/bash/scp.html"
@@ -32475,11 +33292,12 @@
     {
       "name": "sed",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — sed",
       "source_urls": [
         "https://ss64.com/bash/sed.html",
@@ -32548,7 +33366,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "أمر نظام — Select-Object",
       "source_urls": [
         "https://ss64.com/ps/select-object.html"
@@ -32677,11 +33495,12 @@
     {
       "name": "seq",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — seq",
       "source_urls": [
         "https://ss64.com/bash/seq.html",
@@ -32816,6 +33635,7 @@
         "macos",
         "sql_server",
         "vbscript",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "shell-builtin",
@@ -33401,7 +34221,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "غيّر المسار الحالي",
       "source_urls": [
         "https://ss64.com/ps/set-location.html"
@@ -33781,6 +34601,16 @@
       ]
     },
     {
+      "name": "setsid",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "SetSPN",
       "platforms": [
         "windows_cmd"
@@ -33877,10 +34707,11 @@
     {
       "name": "sftp",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": null,
       "source_urls": []
     },
@@ -33901,20 +34732,22 @@
     {
       "name": "sh",
       "platforms": [
-        "macos"
+        "macos",
+        "posix"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native POSIX process ABI",
       "arabic_label": null,
       "source_urls": []
     },
     {
       "name": "sha256sum",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — sha256sum",
       "source_urls": [
         "https://ss64.com/bash/sha256sum.html"
@@ -34314,6 +35147,16 @@
       ]
     },
     {
+      "name": "shred",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "shuf",
       "platforms": [
         "linux_bash"
@@ -34331,10 +35174,11 @@
         "linux_bash",
         "macos",
         "sql_server",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "إيقاف التشغيل (shutdown)",
       "source_urls": [
         "https://ss64.com/bash/shutdown.html",
@@ -34394,12 +35238,13 @@
     {
       "name": "sleep",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — sleep",
       "source_urls": [
         "https://ss64.com/bash/sleep.html",
@@ -34480,6 +35325,16 @@
       ]
     },
     {
+      "name": "smartctl",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "sntp",
       "platforms": [
         "linux_bash",
@@ -34496,10 +35351,11 @@
     {
       "name": "softwareupdate",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — softwareupdate",
       "source_urls": [
         "https://ss64.com/mac/softwareupdate.html"
@@ -34508,13 +35364,15 @@
     {
       "name": "sort",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "powershell",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — sort",
       "source_urls": [
         "https://ss64.com/bash/sort.html",
@@ -34541,7 +35399,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "أمر نظام — Sort-Object",
       "source_urls": [
         "https://ss64.com/ps/sort-object.html"
@@ -34885,10 +35743,12 @@
     {
       "name": "sqlite3",
       "platforms": [
+        "database",
+        "developer-tools",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed database client and server where applicable",
       "arabic_label": "أمر نظام — sqlite3",
       "source_urls": [
         "https://ss64.com/mac/sqlite3.html"
@@ -34923,10 +35783,11 @@
     {
       "name": "ss",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — ss",
       "source_urls": [
         "https://ss64.com/bash/ss.html"
@@ -34937,10 +35798,11 @@
       "platforms": [
         "linux_bash",
         "macos",
+        "network-admin",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "اتصال آمن عن بُعد",
       "source_urls": [
         "https://ss64.com/bash/ssh.html",
@@ -35238,11 +36100,12 @@
     {
       "name": "stat",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — stat",
       "source_urls": [
         "https://ss64.com/bash/stat.html",
@@ -35682,10 +36545,11 @@
     {
       "name": "SUBST",
       "platforms": [
+        "dos-retro",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — SUBST",
       "source_urls": [
         "https://ss64.com/nt/subst.html"
@@ -35884,14 +36748,35 @@
     {
       "name": "sw_vers",
       "platforms": [
+        "bsd-macos",
         "macos"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "provider": "macOS/BSD provider or host service",
       "arabic_label": "أمر نظام — sw_vers",
       "source_urls": [
         "https://ss64.com/mac/sw_vers.html"
       ]
+    },
+    {
+      "name": "swapoff",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "swapon",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "switch",
@@ -36094,6 +36979,16 @@
       ]
     },
     {
+      "name": "sys",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "sysadminctl",
       "platforms": [
         "macos"
@@ -36116,6 +37011,16 @@
       "source_urls": [
         "https://ss64.com/mac/sysctl.html"
       ]
+    },
+    {
+      "name": "syslogd",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "SYSMON",
@@ -36156,10 +37061,11 @@
     {
       "name": "systemctl",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — systemctl",
       "source_urls": [
         "https://ss64.com/bash/systemctl.html"
@@ -36316,11 +37222,12 @@
     {
       "name": "tail",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — tail",
       "source_urls": [
         "https://ss64.com/bash/tail.html",
@@ -36354,12 +37261,13 @@
     {
       "name": "tar",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أرشفة الملفات",
       "source_urls": [
         "https://ss64.com/bash/tar.html",
@@ -36420,10 +37328,11 @@
     {
       "name": "TASKKILL",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أنه عملية",
       "source_urls": [
         "https://ss64.com/nt/taskkill.html"
@@ -36444,10 +37353,11 @@
     {
       "name": "TASKLIST",
       "platforms": [
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "اعرض العمليات",
       "source_urls": [
         "https://ss64.com/nt/tasklist.html"
@@ -36480,10 +37390,11 @@
     {
       "name": "tcpdump",
       "platforms": [
-        "macos"
+        "macos",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — tcpdump",
       "source_urls": [
         "https://ss64.com/mac/tcpdump.html"
@@ -36504,11 +37415,12 @@
     {
       "name": "tee",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — tee",
       "source_urls": [
         "https://ss64.com/bash/tee.html",
@@ -36530,10 +37442,11 @@
     {
       "name": "TELNET",
       "platforms": [
+        "busybox",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — TELNET",
       "source_urls": [
         "https://ss64.com/nt/telnet.html"
@@ -36578,8 +37491,10 @@
     {
       "name": "test",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
-        "macos"
+        "macos",
+        "posix"
       ],
       "mode": "shell-builtin",
       "provider": "chimera-shell",
@@ -36881,11 +37796,12 @@
     {
       "name": "timeout",
       "platforms": [
+        "busybox",
         "linux_bash",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — timeout",
       "source_urls": [
         "https://ss64.com/bash/timeout.html",
@@ -37043,11 +37959,13 @@
     {
       "name": "top",
       "platforms": [
+        "busybox",
         "linux_bash",
-        "macos"
+        "macos",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "راقب العمليات",
       "source_urls": [
         "https://ss64.com/bash/top.html",
@@ -37057,6 +37975,8 @@
     {
       "name": "touch",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "powershell",
@@ -37089,11 +38009,12 @@
     {
       "name": "tr",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — tr",
       "source_urls": [
         "https://ss64.com/bash/tr.html",
@@ -37127,11 +38048,13 @@
     {
       "name": "traceroute",
       "platforms": [
+        "busybox",
         "linux_bash",
-        "macos"
+        "macos",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": "أمر نظام — traceroute",
       "source_urls": [
         "https://ss64.com/bash/traceroute.html",
@@ -37335,10 +38258,12 @@
     {
       "name": "TREE",
       "platforms": [
+        "dos-retro",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — TREE",
       "source_urls": [
         "https://ss64.com/nt/tree.html"
@@ -37399,6 +38324,8 @@
     {
       "name": "true",
       "platforms": [
+        "chimera_native",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
@@ -37597,6 +38524,7 @@
         "linux_bash",
         "macos",
         "powershell",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "shell-builtin",
@@ -37722,6 +38650,16 @@
       ]
     },
     {
+      "name": "udhcpc",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "ulimit",
       "platforms": [
         "linux_bash",
@@ -37752,11 +38690,13 @@
     {
       "name": "umount",
       "platforms": [
+        "busybox",
         "linux_bash",
-        "macos"
+        "macos",
+        "storage-filesystem"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
       "arabic_label": "أمر نظام — umount",
       "source_urls": [
         "https://ss64.com/mac/umount.html"
@@ -37780,12 +38720,13 @@
     {
       "name": "uname",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos",
         "vbscript"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "معلومات النظام",
       "source_urls": [
         "https://ss64.com/bash/uname.html",
@@ -37804,6 +38745,26 @@
       "source_urls": [
         "https://ss64.com/ps/unblock-file.html"
       ]
+    },
+    {
+      "name": "uncompress",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "undelete",
+      "platforms": [
+        "dos-retro"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Understand the different types of Active Directory group",
@@ -37856,11 +38817,12 @@
     {
       "name": "unexpand",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — unexpand",
       "source_urls": [
         "https://ss64.com/bash/unexpand.html",
@@ -37920,11 +38882,13 @@
     {
       "name": "uniq",
       "platforms": [
+        "busybox",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — uniq",
       "source_urls": [
         "https://ss64.com/bash/uniq.html",
@@ -37960,10 +38924,11 @@
     {
       "name": "unix2dos",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — unix2dos",
       "source_urls": [
         "https://ss64.com/bash/dos2unix.html"
@@ -38087,10 +39052,11 @@
     {
       "name": "unzip",
       "platforms": [
+        "busybox",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — unzip",
       "source_urls": [
         "https://ss64.com/mac/unzip.html",
@@ -38249,11 +39215,13 @@
     {
       "name": "uptime",
       "platforms": [
+        "busybox",
         "linux_bash",
-        "macos"
+        "macos",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — uptime",
       "source_urls": [
         "https://ss64.com/mac/uptime.html"
@@ -39023,10 +39991,11 @@
     {
       "name": "vmstat",
       "platforms": [
-        "linux_bash"
+        "linux_bash",
+        "system-services"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native utility plus matching service manager/kernel interface",
       "arabic_label": "أمر نظام — vmstat",
       "source_urls": [
         "https://ss64.com/bash/vmstat.html"
@@ -39191,10 +40160,11 @@
     {
       "name": "watch",
       "platforms": [
+        "busybox",
         "linux_bash"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — watch",
       "source_urls": [
         "https://ss64.com/bash/watch.html"
@@ -39215,11 +40185,12 @@
     {
       "name": "wc",
       "platforms": [
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "native provider binary",
       "arabic_label": "أمر نظام — wc",
       "source_urls": [
         "https://ss64.com/bash/wc.html",
@@ -39305,10 +40276,12 @@
     {
       "name": "wget",
       "platforms": [
-        "linux_bash"
+        "busybox",
+        "linux_bash",
+        "network-admin"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed native utility and permitted system capabilities",
       "arabic_label": null,
       "source_urls": []
     },
@@ -39352,10 +40325,11 @@
       "name": "WHERE",
       "platforms": [
         "powershell",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "Windows command interpreter or compatible implementation",
       "arabic_label": "أمر نظام — WHERE",
       "source_urls": [
         "https://ss64.com/nt/where.html",
@@ -39381,7 +40355,7 @@
         "powershell"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "PowerShell (pwsh/powershell)",
       "arabic_label": "أمر نظام — Where-Object",
       "source_urls": [
         "https://ss64.com/ps/where-object.html"
@@ -39440,11 +40414,12 @@
     {
       "name": "which",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — which",
       "source_urls": [
         "https://ss64.com/bash/which.html",
@@ -39495,11 +40470,12 @@
     {
       "name": "who",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — who",
       "source_urls": [
         "https://ss64.com/bash/who.html",
@@ -39509,8 +40485,10 @@
     {
       "name": "whoami",
       "platforms": [
+        "chimera_native",
         "linux_bash",
         "macos",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "native",
@@ -40643,11 +41621,13 @@
     {
       "name": "xargs",
       "platforms": [
+        "busybox",
+        "gnu-coreutils",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — xargs",
       "source_urls": [
         "https://ss64.com/bash/xargs.html",
@@ -40705,10 +41685,12 @@
     {
       "name": "XCOPY",
       "platforms": [
+        "dos-retro",
+        "windows-cmd",
         "windows_cmd"
       ],
       "mode": "compatibility-provider-required",
-      "provider": "windows-compat-runtime",
+      "provider": "DOSBox, DOSBox-X, or compatible DOS environment",
       "arabic_label": "أمر نظام — XCOPY",
       "source_urls": [
         "https://ss64.com/nt/xcopy.html"
@@ -40829,11 +41811,12 @@
     {
       "name": "yes",
       "platforms": [
+        "busybox",
         "linux_bash",
         "macos"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "darwin-or-posix-provider",
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
       "arabic_label": "أمر نظام — yes",
       "source_urls": [
         "https://ss64.com/bash/yes.html",
@@ -40879,6 +41862,26 @@
       ]
     },
     {
+      "name": "zcat",
+      "platforms": [
+        "busybox"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed BusyBox multicall binary",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
+      "name": "zfs",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
+    },
+    {
       "name": "zip",
       "platforms": [
         "linux_bash",
@@ -40918,6 +41921,16 @@
       "source_urls": [
         "https://ss64.com/ps/compress-archive.html"
       ]
+    },
+    {
+      "name": "zpool",
+      "platforms": [
+        "storage-filesystem"
+      ],
+      "mode": "native-provider-required",
+      "provider": "installed native utility; privileged operations require authorization",
+      "arabic_label": null,
+      "source_urls": []
     },
     {
       "name": "Zsh",

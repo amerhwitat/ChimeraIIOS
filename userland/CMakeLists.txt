@@ -1,6 +1,18 @@
 add_library(chimera_shell STATIC
   shell/chimera_shell.cpp
 )
+# POSIX password hashing dependency (libxcrypt/libcrypt).
+if(NOT WIN32)
+  find_path(CHIMERA_CRYPT_INCLUDE_DIR crypt.h)
+  find_library(CHIMERA_CRYPT_LIBRARY NAMES crypt)
+
+  if(NOT CHIMERA_CRYPT_INCLUDE_DIR OR
+     NOT CHIMERA_CRYPT_LIBRARY)
+    message(FATAL_ERROR
+      "Chimera security tools require crypt.h and libcrypt. "
+      "On Debian/Ubuntu, install libcrypt-dev.")
+  endif()
+endif()
 target_include_directories(chimera_shell PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/shell
   ${CMAKE_CURRENT_SOURCE_DIR}/../desktop/aurora/i18n
@@ -45,8 +57,18 @@ if(NOT WIN32)
   add_executable(chm-usermod ../system/security/chimera_user_mod.cpp)
   add_executable(chm-groupmod ../system/security/chimera_group_mod.cpp)
   add_executable(chm-security-selftest ../system/security/chimera_security_selftest.cpp)
-  target_link_libraries(chm-passwd PRIVATE crypt)
-  target_link_libraries(chm-user-setup PRIVATE crypt)
+  target_link_libraries(chm-passwd )
+    target_include_directories(${chm_security_target} PRIVATE
+      "${CHIMERA_CRYPT_INCLUDE_DIR}")
+    target_link_libraries(${chm_security_target} PRIVATE
+      "${CHIMERA_CRYPT_LIBRARY}")
+  endforeach())
+  target_link_libraries(chm-user-setup)
+    target_include_directories(${chm_security_target} PRIVATE
+      "${CHIMERA_CRYPT_INCLUDE_DIR}")
+    target_link_libraries(${chm_security_target} PRIVATE
+      "${CHIMERA_CRYPT_LIBRARY}")
+  endforeach())
 endif()
 add_executable(aurora-utf-selftest ../desktop/aurora/i18n/aurora_utf_selftest.cpp)
 add_executable(aurora-settings ../desktop/aurora/apps/aurora_settings.cpp)
