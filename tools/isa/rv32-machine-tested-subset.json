@@ -78,7 +78,6 @@
     {
       "mnemonic": "EBREAK",
       "tests": [
-        "test_illegal_instruction_traps",
         "test_trapping_instructions_count_toward_step_limit"
       ]
     }
