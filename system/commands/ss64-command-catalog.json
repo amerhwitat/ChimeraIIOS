@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-17T23:49:34Z",
+  "generated_at_utc": "2026-10-17T23:49:36Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
@@ -13520,7 +13520,7 @@
     },
     "windows_cmd": {
       "index": "https://ss64.com/nt/",
-      "pages_crawled": 231,
+      "pages_crawled": 230,
       "fetch_failures": 0,
       "command_count": 1052,
       "commands": [
@@ -26516,7 +26516,7 @@
     },
     "powershell": {
       "index": "https://ss64.com/ps/",
-      "pages_crawled": 238,
+      "pages_crawled": 237,
       "fetch_failures": 0,
       "command_count": 1245,
       "commands": [
@@ -48784,7 +48784,7 @@
     },
     "access": {
       "index": "https://ss64.com/access/",
-      "pages_crawled": 246,
+      "pages_crawled": 247,
       "fetch_failures": 0,
       "command_count": 329,
       "commands": [
@@ -77986,6 +77986,5 @@
       ],
       "command_count": 55
     }
-  },
-  "online_source_count": 9
+  }
 }
