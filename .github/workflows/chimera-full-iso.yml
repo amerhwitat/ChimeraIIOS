@@ -129,7 +129,9 @@ jobs:
             chimera-ii-os.iso
 
       - name: Publish validated ISO candidate to GitHub Releases
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
+        # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
