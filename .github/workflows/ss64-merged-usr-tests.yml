@@ -29,4 +29,4 @@ jobs:
           python -m py_compile tools/commands/crawl_ss64.py tools/commands/test_ss64_merged_usr.py
       - name: Run merged-/usr regression tests
         run: |
-          python -m unittest tools.commands.test_ss64_merged_usr -v
+          python tools/commands/test_ss64_merged_usr.py -v
