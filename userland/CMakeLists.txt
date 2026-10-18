@@ -37,6 +37,17 @@ add_executable(chm-resource-manager ../system/resource/chimera_resource_manager.
 # Keep the native Unix implementation intact while allowing the MSVC
 # compatibility build to compile the rest of ChimeraIIOS.
 if(NOT WIN32)
+  # crypt.h and libcrypt are provided by libxcrypt/libcrypt development packages.
+  # Fail during configuration with an actionable message instead of later
+  # failing to compile multiple security targets with "crypt.h: No such file".
+  find_path(CHIMERA_CRYPT_INCLUDE_DIR NAMES crypt.h)
+  find_library(CHIMERA_CRYPT_LIBRARY NAMES crypt)
+
+  if(NOT CHIMERA_CRYPT_INCLUDE_DIR OR NOT CHIMERA_CRYPT_LIBRARY)
+    message(FATAL_ERROR
+      "Chimera security tools require crypt.h and libcrypt. "
+      "On Debian/Ubuntu, install the libcrypt-dev package.")
+  endif()
   add_executable(chm-user-setup ../system/security/chimera_account_manager.cpp)
   add_executable(chm-ad ../system/security/chimera_ad_manager.cpp)
   add_executable(chm-passwd ../system/security/chimera_passwd.cpp)
@@ -45,8 +56,20 @@ if(NOT WIN32)
   add_executable(chm-usermod ../system/security/chimera_user_mod.cpp)
   add_executable(chm-groupmod ../system/security/chimera_group_mod.cpp)
   add_executable(chm-security-selftest ../system/security/chimera_security_selftest.cpp)
-  target_link_libraries(chm-passwd PRIVATE crypt)
-  target_link_libraries(chm-user-setup PRIVATE crypt)
+  foreach(chm_security_target IN ITEMS
+      chm-user-setup
+      chm-ad
+      chm-passwd
+      chm-groupadd
+      chm-perms
+      chm-usermod
+      chm-groupmod
+      chm-security-selftest)
+    target_include_directories(${chm_security_target} PRIVATE
+      "${CHIMERA_CRYPT_INCLUDE_DIR}")
+    target_link_libraries(${chm_security_target} PRIVATE
+      "${CHIMERA_CRYPT_LIBRARY}")
+  endforeach()
 endif()
 add_executable(aurora-utf-selftest ../desktop/aurora/i18n/aurora_utf_selftest.cpp)
 add_executable(aurora-settings ../desktop/aurora/apps/aurora_settings.cpp)
