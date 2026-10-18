@@ -1,0 +1,29 @@
+name: Koronos boot-target admission tests
+
+on:
+  pull_request:
+    paths:
+      - 'kernel/core/boot_target.cpp'
+      - 'kernel/include/chimera/boot_target.h'
+      - 'kernel/tests/boot_target_test.cpp'
+      - 'kernel/tests/boot-target-unit.sh'
+      - '.github/workflows/koronos-boot-target.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'kernel/core/boot_target.cpp'
+      - 'kernel/include/chimera/boot_target.h'
+      - 'kernel/tests/boot_target_test.cpp'
+      - 'kernel/tests/boot-target-unit.sh'
+      - '.github/workflows/koronos-boot-target.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  boot-target-admission:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run boot-target admission unit tests
+        run: bash kernel/tests/boot-target-unit.sh
