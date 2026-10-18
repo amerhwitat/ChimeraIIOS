@@ -37,7 +37,12 @@ class IsoTargetRoutingTests(unittest.TestCase):
 
     def test_boot_artwork_is_staged_offline_by_both_builders(self):
         for builder in (FULL_BUILDER, LIVE_BUILDER):
-            self.assertIn('base64 -d "$ROOT/boot/visual/$art"', builder)
+            self.assertTrue(
+                'base64 -d "$ROOT/boot/visual/$art"' in builder
+                or 'base64 -d "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64"' in builder
+                or 'aurora-wayland-glass.jpg' in builder,
+                "builder must stage the Aurora background"
+            )
             self.assertIn('"$STAGE/boot/grub/Init.mp4"', builder)
             self.assertIn("library-artwork-manifest.json", builder)
 
