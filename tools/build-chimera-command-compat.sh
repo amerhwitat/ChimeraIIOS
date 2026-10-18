@@ -94,6 +94,8 @@ else
   catalog="/usr/share/chimera/commands/native-command-candidates.json"
 fi
 [ -r "$router" ] && [ -r "$catalog" ] || { echo "chimera-learn-command: candidate runtime is not installed" >&2; exit 127; }
+command -v python3 >/dev/null 2>&1 || { echo "chimera-learn-command: Python 3 userspace runtime is not installed" >&2; exit 127; }
+command -v python3 >/dev/null 2>&1 || { echo "chimera-learn-isa: Python 3 userspace runtime is not installed" >&2; exit 127; }
 exec python3 "$router" "$@" --catalog "$catalog"
 LEARN
     chmod 0755 "$BIN/chimera-learn-command"
