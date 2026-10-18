@@ -40,8 +40,6 @@ def main():
     if not 1 <= a.limit <= 100: raise SystemExit("--limit must be 1..100")
     catalog=json.loads(a.catalog.read_text(encoding="utf-8"))
     results=rank(a.query, catalog, a.limit)
-    bus=KnowledgeBus(max_items=1000)
-    bus.add(Evidence.from_text("local-command-catalog", "command candidate query", a.query))
     print(json.dumps({"schema":"CHM-RNN-COMMAND-ROUTER-1",
       "engine":"deterministic recurrent-state ranking (not an LLM; no network inference)",
       "query":a.query,"results":results,
