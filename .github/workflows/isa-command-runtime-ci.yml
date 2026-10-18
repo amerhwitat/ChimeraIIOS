@@ -62,6 +62,8 @@ on:
       - 'tools/commands/test_import_command_candidates.py'
       - 'tools/commands/test_command_candidate_router.py'
       - 'tools/isa/run_import_pipeline.py'
+      - 'tools/isa/isa_candidate_router.py'
+      - 'tools/isa/test_isa_candidate_router.py'
       - '.github/workflows/isa-command-runtime-ci.yml'
   pull_request:
     paths:
@@ -176,6 +178,9 @@ jobs:
         run: |
           python3 tools/isa/import_riscv_opcodes.py --max-files 500
           python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
+          python3 -m py_compile tools/isa/isa_candidate_router.py tools/isa/test_isa_candidate_router.py
+          python3 -m unittest tools.isa.test_isa_candidate_router -v
+          python3 tools/isa/isa_candidate_router.py "riscv add" --limit 10
           python3 tools/commands/import_command_candidates.py
           python3 -m py_compile tools/commands/import_command_candidates.py tools/commands/command_candidate_router.py tools/commands/test_import_command_candidates.py tools/commands/test_command_candidate_router.py
           python3 -m unittest tools.commands.test_import_command_candidates tools.commands.test_command_candidate_router -v
