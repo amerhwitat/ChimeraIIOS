@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Safe RNN-assisted command candidate ranking; unresolved commands never auto-execute."""
 from __future__ import annotations
-import argparse, json, re
+import argparse, json, re, sys
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
 from tools.cognition.chimera_rnn import RecurrentState, Evidence, KnowledgeBus
 
 ROOT = Path(__file__).resolve().parents[2]
