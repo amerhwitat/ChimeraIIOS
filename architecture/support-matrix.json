@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "policy": "evidence-gated",
+  "execution_modes": [
+    "native",
+    "virtual-machine",
+    "instruction-emulation",
+    "compatibility-layer"
+  ],
+  "targets": [
+    {
+      "id": "x86_64",
+      "family": "CISC",
+      "class": "primary-iso-target",
+      "native_kernel": "partial-to-boot-smoke-tested",
+      "qemu": "kernel-entry-smoke-tested",
+      "userspace": "target-specific-acceptance-required",
+      "release_supported": false,
+      "evidence_required": [
+        "full-iso-build",
+        "live-aurora-ready",
+        "installer-install-reboot",
+        "recovery-repair",
+        "smp-concurrency",
+        "bios-uefi"
+      ]
+    },
+    {
+      "id": "x86",
+      "family": "CISC",
+      "class": "compatibility-target",
+      "native_kernel": "not-accepted",
+      "qemu": "emulator-backend-validation-only",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "32-bit-toolchain",
+        "architecture-specific-kernel",
+        "qemu-userspace-boot"
+      ]
+    },
+    {
+      "id": "aarch64",
+      "family": "RISC",
+      "class": "mobile-and-server-target",
+      "native_kernel": "mobile-microkernel-source-port-incomplete",
+      "qemu": "cross-build-and-emulator-tests-required",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "cross-build",
+        "qemu-virt-kernel-boot",
+        "device-tree",
+        "drivers",
+        "mobile-shell-ready",
+        "input-display-network-storage",
+        "recovery"
+      ]
+    },
+    {
+      "id": "armv7",
+      "family": "RISC",
+      "class": "mobile-legacy-target",
+      "native_kernel": "not-accepted",
+      "qemu": "backend-only-unless-boot-evidence-attached",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "cross-build",
+        "kernel-boot",
+        "drivers",
+        "userspace"
+      ]
+    },
+    {
+      "id": "riscv64",
+      "family": "RISC",
+      "class": "server-and-mobile-research-target",
+      "native_kernel": "mobile-microkernel-source-port-incomplete",
+      "qemu": "cross-build-and-emulator-tests-required",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "cross-build",
+        "qemu-virt-kernel-boot",
+        "interrupt-controller",
+        "device-tree",
+        "drivers",
+        "userspace-ready"
+      ]
+    },
+    {
+      "id": "riscv32",
+      "family": "RISC",
+      "class": "embedded-target",
+      "native_kernel": "not-accepted",
+      "qemu": "backend-only-unless-boot-evidence-attached",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "cross-build",
+        "kernel-boot",
+        "drivers",
+        "userspace"
+      ]
+    },
+    {
+      "id": "aarch64-mobile-device",
+      "family": "RISC",
+      "class": "physical-mobile-device",
+      "native_kernel": "device-specific-port-required",
+      "qemu": "generic-qemu-does-not-prove-device-support",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "boot-chain",
+        "device-tree-or-firmware",
+        "display-touch",
+        "wifi-cellular",
+        "storage",
+        "power-management",
+        "verified-update",
+        "recovery"
+      ]
+    },
+    {
+      "id": "mips64",
+      "family": "RISC",
+      "class": "research-target",
+      "native_kernel": "not-accepted",
+      "qemu": "emulator-catalog-only",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "architecture-port",
+        "cross-build",
+        "qemu-boot",
+        "drivers",
+        "userspace"
+      ]
+    },
+    {
+      "id": "powerpc64",
+      "family": "RISC",
+      "class": "research-target",
+      "native_kernel": "not-accepted",
+      "qemu": "emulator-catalog-only",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "architecture-port",
+        "cross-build",
+        "qemu-boot",
+        "drivers",
+        "userspace"
+      ]
+    },
+    {
+      "id": "loongarch64",
+      "family": "RISC",
+      "class": "research-target",
+      "native_kernel": "not-accepted",
+      "qemu": "emulator-catalog-only",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "architecture-port",
+        "cross-build",
+        "qemu-boot",
+        "drivers",
+        "userspace"
+      ]
+    }
+  ],
+  "rules": [
+    "A CPU emulator running guest instructions does not establish native OS support.",
+    "QEMU machine availability is not proof that the OS boots on that machine.",
+    "No target may be release_supported=true without linked, reproducible acceptance evidence.",
+    "Never load an x86_64 ELF kernel or userspace payload on a non-x86_64 target.",
+    "Mobile device support requires device-specific drivers, firmware interfaces, power management, secure update and recovery."
+  ]
+}
