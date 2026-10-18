@@ -13,6 +13,7 @@ on:
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
       - "CMakeLists.txt"
+      - "tests/boot/**"
       - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
@@ -55,6 +56,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
+      - name: Validate boot target routing and embedded artwork contract
+        run: python3 tests/boot/test_iso_target_routing_artwork.py
+
       - name: Build ASM/C/C++ and compose ISO
         env:
           CHIMERA_AURORA_BACKGROUND: ""
@@ -68,6 +72,58 @@ jobs:
           test -f build/iso/chimera-ii-os.iso.sha256
           file build/iso/chimera-ii-os.iso
           sha256sum -c build/iso/chimera-ii-os.iso.sha256
+
+      - name: Validate ISO contains target payloads and offline artwork
+        run: |
+          set -euo pipefail
+          iso=build/iso/chimera-ii-os.iso
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          extract() {
+            local source="$1" output="$2"
+            xorriso -osirrox on -indev "$iso" -extract "$source" "$output" >/dev/null
+            test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
+          }
+          extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
+          extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
+          extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
+          extract /boot/recovery/recovery-manifest.json "$tmp/recovery-manifest.json"
+          extract /install/installer/installation.img "$tmp/installation.img"
+          extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
+          extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          extract /boot/grub/grub.cfg "$tmp/grub.cfg"
+          extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
+          extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
+          # Inspect the initramfs actually embedded in the ISO. This is a
+          # payload-content check, not a substitute for target-specific QEMU.
+          mkdir -p "$tmp/live-root" "$tmp/recovery-root"
+          (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
+          (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
+          grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
+          grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
+          grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
+          grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
+          extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
+          extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          python3 - "$tmp" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          for name in ("live-manifest.json", "recovery-manifest.json",
+                       "installation-manifest.json", "installer-contract.json",
+                       "chimera-artwork-manifest.json"):
+              json.loads((root / name).read_text())
+          if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
+              raise SystemExit("embedded Chimera wallpaper is not SVG source")
+          artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
+              raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
+          grub = (root / "grub.cfg").read_text()
+          for target in ("aurora-live", "install", "recovery"):
+              if f"--id {target}" not in grub:
+                  raise SystemExit(f"GRUB config missing required target: {target}")
+          print("ISO payload check passed: Koronos, Live, Recovery, Installer and offline Aurora artwork are embedded.")
+          PY
 
       - name: QEMU headless Koronos boot smoke test
         run: |
@@ -125,7 +181,9 @@ jobs:
             chimera-ii-os.iso
 
       - name: Publish validated ISO candidate to GitHub Releases
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
+        # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

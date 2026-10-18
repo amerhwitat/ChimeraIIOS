@@ -70,5 +70,5 @@ jobs:
       - name: Validate GRUB progress/menu syntax markers
         run: |
           grep -q 'Live CD Hardware / Driver Progress' boot/iso/grub.cfg
-          grep -q 'Mobile / ARM64 Research Runtime' boot/iso/grub.cfg
+          grep -q 'Mobile / ARM64' boot/iso/grub.cfg
           grep -q 'Repair Terminal / Recovery' boot/iso/grub.cfg

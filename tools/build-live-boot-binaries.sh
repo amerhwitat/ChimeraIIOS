@@ -110,7 +110,10 @@ else
   echo "Available block devices:"
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
 fi
-exec /bin/sh
+# This marker is emitted by the initramfs userspace process, not by Koronos.
+# It proves the diagnostic shell handoff only; Aurora desktop readiness is separate.
+printf 'USERSPACE READY: target=live init_pid=%s\n' "$$" > /dev/console 2>/dev/null || printf 'USERSPACE READY: target=live init_pid=%s\n' "$$"
+exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
 (cd "$INIT" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
@@ -151,6 +154,9 @@ if [ -x /bin/chimera-driver-manager.sh ]; then
   /bin/chimera-driver-manager.sh inventory || recovery_progress 50 "Drivers" "inventory returned an error; repair shell remains available"
 fi
 recovery_progress 100 "Recovery shell" "repair console is ready; individual repair actions report their own status"
+# This marker confirms that recovery initramfs reached its userspace handoff.
+# It does not claim that any individual repair operation succeeded.
+printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$" > /dev/console 2>/dev/null || printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$"
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"

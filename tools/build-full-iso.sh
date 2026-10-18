@@ -120,6 +120,29 @@ cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
 cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
 cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
+
+# Embed boot artwork and splash media in the ISO itself: no network or host
+# filesystem lookup is allowed for early boot visuals.
+mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets"
+for art in aurora_boot_splash.svg; do
+  [[ -s "$ROOT/boot/splash/$art" ]] && cp -f "$ROOT/boot/splash/$art" "$STAGE/boot/visual/$art"
+done
+for art in aurora-desktop.svg aurora-installer.svg aurora-library.svg aurora-wayland-glass.svg aurora-wayland-glass.png chimera-infinite-research-horizon.svg chimera-artwork-manifest.json; do
+  [[ -s "$ROOT/desktop/aurora/assets/$art" ]] && cp -f "$ROOT/desktop/aurora/assets/$art" "$STAGE/desktop/aurora/assets/$art"
+done
+for art in aurora-wayland-glass.jpg.b64; do
+  if [[ -s "$ROOT/boot/visual/$art" ]]; then
+    base64 -d "$ROOT/boot/visual/$art" > "$STAGE/boot/visual/aurora-wayland-glass.jpg"
+    cp -f "$STAGE/boot/visual/aurora-wayland-glass.jpg" "$STAGE/boot/grub/aurora-wayland-glass.jpg"
+  fi
+done
+if [[ -s "$ROOT/desktop/aurora/assets/Init.mp4" ]]; then
+  cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/boot/grub/Init.mp4"
+  cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/desktop/aurora/assets/Init.mp4"
+fi
+if [[ -s "$ROOT/desktop/aurora/assets/library-artwork-manifest.json" ]]; then
+  cp -f "$ROOT/desktop/aurora/assets/library-artwork-manifest.json" "$STAGE/desktop/aurora/assets/library-artwork-manifest.json"
+fi
 [[ -f "$ROOT/boot/livecd/live-manifest.json" ]] && cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
 [[ -n "$SPIT_IMG" && -f "$SPIT_IMG" ]] && cp "$SPIT_IMG" "$STAGE/boot/spitfire.img"
 cp -a "$ROOT/installer" "$STAGE/install/"

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+<title id="title">ChimeraIIOS — Infinite Research Horizon</title><desc id="desc">Original futuristic OS wallpaper featuring translucent fractured cubes, aurora ribbons, a mountain lake and a technical research horizon.</desc>
+<defs>
+ <linearGradient id="bg" x2=".2" y2="1"><stop stop-color="#050d24"/><stop offset=".55" stop-color="#14254b"/><stop offset="1" stop-color="#030915"/></linearGradient>
+ <linearGradient id="cube" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c7fff9" stop-opacity=".45"/><stop offset=".5" stop-color="#58bfe9" stop-opacity=".12"/><stop offset="1" stop-color="#a88cff" stop-opacity=".32"/></linearGradient>
+ <linearGradient id="sky" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#2df2dc" stop-opacity="0"/><stop offset=".4" stop-color="#5bf6dd" stop-opacity=".8"/><stop offset=".72" stop-color="#a08bff" stop-opacity=".72"/><stop offset="1" stop-color="#ff8ddd" stop-opacity="0"/></linearGradient>
+ <radialGradient id="mist"><stop stop-color="#56ffe3" stop-opacity=".4"/><stop offset="1" stop-color="#10234b" stop-opacity="0"/></radialGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+ <pattern id="grid" width="70" height="70" patternUnits="userSpaceOnUse"><path d="M70 0H0V70" fill="none" stroke="#87d9ef" stroke-opacity=".13" stroke-width="1"/></pattern>
+</defs>
+<rect width="1920" height="1080" fill="url(#bg)"/><rect width="1920" height="760" fill="url(#grid)"/>
+<ellipse cx="1020" cy="360" rx="830" ry="340" fill="url(#mist)"/>
+<g fill="none" stroke="url(#sky)" stroke-width="95" filter="url(#blur)" opacity=".8"><path d="M-80 310 C300 30 530 450 850 220 S1500 10 2000 250"/><path d="M-40 420 C350 190 600 580 980 370 S1550 160 1960 420" stroke-width="48"/></g>
+<g transform="translate(1010 405)" stroke="#c7fff9" stroke-width="3" fill="url(#cube)">
+ <path d="M0 -260 L220 -132 L220 120 L0 250 L-220 120 L-220 -132Z" opacity=".7"/>
+ <path d="M0 -260 L0 0 L220 120 M0 0 L-220 120 M0 0 L0 250" fill="none" opacity=".9"/>
+ <path d="M-155 -174 L-10 -76 L-80 45 L-220 -132Z" fill="#5ce9d7" fill-opacity=".13"/>
+ <path d="M28 -202 L190 -112 L92 -8 L-10 -76Z" fill="#b5a4ff" fill-opacity=".22"/>
+ <path d="M0 0 L92 -8 L220 120 L80 204Z" fill="#70d7f3" fill-opacity=".15"/>
+ <path d="M-10 -76 L92 -8 L80 204 L-80 45Z" fill="#a0c6ff" fill-opacity=".1"/>
+</g>
+<g transform="translate(430 520)" stroke="#d8fff9" stroke-width="2" fill="url(#cube)" opacity=".62"><path d="M0 -145 L125 -72 L125 72 L0 145 L-125 72 L-125 -72Z"/><path d="M0 -145V0L125 72M0 0L-125 72M0 0V145" fill="none"/></g>
+<g transform="translate(1510 520)" stroke="#d8fff9" stroke-width="2" fill="url(#cube)" opacity=".52"><path d="M0 -130 L112 -65 L112 65 L0 130 L-112 65 L-112 -65Z"/><path d="M0 -130V0L112 65M0 0L-112 65M0 0V130" fill="none"/></g>
+<path d="M0 760 L180 660 360 730 590 600 790 745 1000 625 1180 740 1410 610 1620 720 1810 625 1920 690 V1080 H0Z" fill="#09182b"/>
+<path d="M0 810 L180 720 360 780 590 670 790 790 1000 700 1180 790 1410 685 1620 785 1810 700 1920 750 V1080 H0Z" fill="#102e43" opacity=".88"/>
+<path d="M0 855 Q280 820 480 870 T950 845 T1420 875 T1920 830 V1080 H0Z" fill="#061827"/>
+<path d="M0 855 Q280 820 480 870 T950 845 T1420 875 T1920 830" fill="none" stroke="#69f6e5" stroke-width="3" opacity=".7"/>
+<g font-family="Inter,Segoe UI,sans-serif" fill="#effffc"><text x="100" y="130" font-size="29" letter-spacing="9" opacity=".78">CHIMERA II OS</text><text x="100" y="190" font-size="18" letter-spacing="4" opacity=".62">N-BIT RESEARCH FRAMEWORK • KORONOS • AURORA</text></g>
+</svg>
