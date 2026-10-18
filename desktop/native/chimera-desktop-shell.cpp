@@ -30,7 +30,7 @@ bool spawn_command(const char* program, const char* argument) {
   GError* error = nullptr;
   const gboolean started = g_spawn_async(
       nullptr, argv, nullptr,
-      static_cast<GSpawnFlags>(G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD),
+      G_SPAWN_SEARCH_PATH,
       nullptr, nullptr, nullptr, &error);
   if (!started) {
     set_status(std::string(program) + ": " +
