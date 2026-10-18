@@ -1,0 +1,48 @@
+name: Trainable RNN model smoke build
+on:
+  push:
+    branches: [feat/trainable-rnn-language-model]
+    paths:
+      - "tools/cognition/trainable_rnn_lm.py"
+      - "tools/cognition/test_trainable_rnn_lm.py"
+      - "tools/commands/command_candidate_router.py"
+      - "tools/isa/isa_candidate_router.py"
+      - "vendor/chimera-ii-os/source/tools/commands/command_candidate_router.py"
+      - "vendor/chimera-ii-os/source/tools/isa/isa_candidate_router.py"
+      - ".github/workflows/trainable-rnn-lm.yml"
+  pull_request:
+    paths:
+      - "tools/cognition/trainable_rnn_lm.py"
+      - "tools/cognition/test_trainable_rnn_lm.py"
+      - "tools/commands/command_candidate_router.py"
+      - "tools/isa/isa_candidate_router.py"
+      - "vendor/chimera-ii-os/source/tools/commands/command_candidate_router.py"
+      - "vendor/chimera-ii-os/source/tools/isa/isa_candidate_router.py"
+      - ".github/workflows/trainable-rnn-lm.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  train-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Unit tests
+        run: |
+          python -m py_compile "tools/cognition/trainable_rnn_lm.py"
+          python -m unittest tools.cognition.test_trainable_rnn_lm -v
+      - name: Train from imported command and ISA catalogs
+        run: |
+          set -euo pipefail
+          python "tools/cognition/trainable_rnn_lm.py" train --source "isa/isa_database.json" --source "system/commands/chimera-command-list.json" --output build/chimera-command-isa-rnn.json --epochs 2 --hidden 12
+          python "tools/cognition/trainable_rnn_lm.py" score --model build/chimera-command-isa-rnn.json --text "riscv add echo list files"
+          test -s build/chimera-command-isa-rnn.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-trained-command-isa-rnn
+          path: build/chimera-command-isa-rnn.json
+          if-no-files-found: error
+          retention-days: 14
