@@ -65,6 +65,7 @@ on:
       - 'tools/isa/run_import_pipeline.py'
       - 'tools/isa/isa_candidate_router.py'
       - 'tools/isa/test_isa_candidate_router.py'
+      - 'tests/isa/test_import_riscv_opcodes.py'
       - 'tools/cognition/**'
       - '.github/workflows/isa-command-runtime-ci.yml'
   pull_request:
