@@ -29,7 +29,7 @@ def queue_unresolved(query,catalog,queue_path):
  record={"query_tokens":sorted(q)[:32],"query_sha256":hashlib.sha256(query.encode("utf-8")).hexdigest(),"status":"pending",
   "reason":"no exact architecture/mnemonic candidate; source and conformance review required","created_at_utc":datetime.now(timezone.utc).isoformat()}
  queue_path.parent.mkdir(parents=True,exist_ok=True)
- with queue_path.open("a",encoding="utf-8") as stream:stream.write(json.dumps(record,ensure_ascii=False)+"\\n")
+ with queue_path.open("a",encoding="utf-8") as stream:stream.write(json.dumps(record,ensure_ascii=False)+"\n")
  return str(queue_path)
 def main():
  p=argparse.ArgumentParser();p.add_argument("query");p.add_argument("--limit",type=int,default=10);p.add_argument("--catalog",type=Path,default=DEFAULT);p.add_argument("--queue",type=Path,default=Path.home()/".local/state/chimera/isa-candidates.jsonl");a=p.parse_args()
