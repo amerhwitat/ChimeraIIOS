@@ -98,6 +98,31 @@ LEARN
     chmod 0755 "$BIN/chimera-learn-command"
 fi
 
+# The ISA research router uses the same bounded recurrent-state module and a
+# source-backed universal catalog. Missing matches are queued for later review.
+ISASHARE="$OUT/usr/share/chimera/isa"
+mkdir -p "$ISASHARE"
+if [[ -f "$ROOT/isa/generated/universal-instruction-catalog.json" && -f "$ROOT/tools/isa/isa_candidate_router.py" && -f "$ROOT/tools/cognition/chimera_rnn.py" ]]; then
+    install -m 0644 "$ROOT/isa/generated/universal-instruction-catalog.json" "$ISASHARE/universal-instruction-catalog.json"
+    install -m 0644 "$ROOT/tools/isa/isa_candidate_router.py" "$ISASHARE/isa_candidate_router.py"
+    install -m 0644 "$ROOT/tools/cognition/chimera_rnn.py" "$ISASHARE/chimera_rnn.py"
+    cat > "$BIN/chimera-learn-isa" <<'LEARNISA'
+#!/bin/sh
+set -eu
+prefix="${CHIMERA_ROOT_PREFIX:-}"
+if [ -n "$prefix" ]; then
+  router="$prefix/usr/share/chimera/isa/isa_candidate_router.py"
+  catalog="$prefix/usr/share/chimera/isa/universal-instruction-catalog.json"
+else
+  router="/usr/share/chimera/isa/isa_candidate_router.py"
+  catalog="/usr/share/chimera/isa/universal-instruction-catalog.json"
+fi
+[ -r "$router" ] && [ -r "$catalog" ] || { echo "chimera-learn-isa: ISA candidate runtime is not installed" >&2; exit 127; }
+exec python3 "$router" "$@" --catalog "$catalog"
+LEARNISA
+    chmod 0755 "$BIN/chimera-learn-isa"
+fi
+
 log() { printf '[CHIMERA-CMD] %s\n' "$*"; }
 warn() { printf '[CHIMERA-CMD][WARNING] %s\n' "$*" >&2; }
 die() { printf '[CHIMERA-CMD][ERROR] %s\n' "$*" >&2; exit 1; }
