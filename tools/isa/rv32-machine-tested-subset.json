@@ -7,60 +7,73 @@
   },
   "unit_tested": [
     {
+      "mnemonic": "ADD",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
       "mnemonic": "ADDI",
       "tests": [
         "test_load_store_and_signed_load",
         "test_store_and_load_word",
         "test_ori_uses_bitwise_or",
-        "test_x0_is_hardwired"
+        "test_x0_is_hardwired",
+        "test_immediate_alu_and_shift_families_execute"
       ]
     },
     {
-      "mnemonic": "SB",
+      "mnemonic": "AND",
       "tests": [
-        "test_load_store_and_signed_load"
+        "test_integer_register_alu_families_execute"
       ]
     },
     {
-      "mnemonic": "LB",
+      "mnemonic": "ANDI",
       "tests": [
-        "test_load_store_and_signed_load"
+        "test_immediate_alu_and_shift_families_execute"
       ]
     },
     {
-      "mnemonic": "LBU",
+      "mnemonic": "AUIPC",
       "tests": [
-        "test_load_store_and_signed_load"
+        "test_jumps_link_register_and_upper_immediates_roundtrip"
       ]
     },
     {
-      "mnemonic": "SW",
+      "mnemonic": "BEQ",
       "tests": [
-        "test_store_and_load_word"
+        "test_all_branch_conditions_take_and_skip_expected_paths"
       ]
     },
     {
-      "mnemonic": "LW",
+      "mnemonic": "BGE",
       "tests": [
-        "test_store_and_load_word"
+        "test_all_branch_conditions_take_and_skip_expected_paths"
       ]
     },
     {
-      "mnemonic": "ORI",
+      "mnemonic": "BGEU",
       "tests": [
-        "test_ori_uses_bitwise_or"
+        "test_all_branch_conditions_take_and_skip_expected_paths"
       ]
     },
     {
-      "mnemonic": "FENCE",
+      "mnemonic": "BLT",
       "tests": [
-        "test_fence_base_encoding_and_illegal_fence_i"
+        "test_all_branch_conditions_take_and_skip_expected_paths"
       ]
     },
     {
-      "mnemonic": "CSRRWI",
+      "mnemonic": "BLTU",
       "tests": [
-        "test_csr_write_read_and_mret_round_trip"
+        "test_all_branch_conditions_take_and_skip_expected_paths"
+      ]
+    },
+    {
+      "mnemonic": "BNE",
+      "tests": [
+        "test_all_branch_conditions_take_and_skip_expected_paths"
       ]
     },
     {
@@ -70,15 +83,189 @@
       ]
     },
     {
-      "mnemonic": "MRET",
+      "mnemonic": "CSRRWI",
       "tests": [
-        "test_mret_restores_privilege_and_interrupt_enable"
+        "test_csr_write_read_and_mret_round_trip"
       ]
     },
     {
       "mnemonic": "EBREAK",
       "tests": [
         "test_trapping_instructions_count_toward_step_limit"
+      ]
+    },
+    {
+      "mnemonic": "FENCE",
+      "tests": [
+        "test_fence_base_encoding_and_illegal_fence_i"
+      ]
+    },
+    {
+      "mnemonic": "JAL",
+      "tests": [
+        "test_jal_and_jalr_execute_with_link_addresses"
+      ]
+    },
+    {
+      "mnemonic": "JALR",
+      "tests": [
+        "test_jal_and_jalr_execute_with_link_addresses"
+      ]
+    },
+    {
+      "mnemonic": "LB",
+      "tests": [
+        "test_load_store_and_signed_load",
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "LBU",
+      "tests": [
+        "test_load_store_and_signed_load",
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "LH",
+      "tests": [
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "LHU",
+      "tests": [
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "LUI",
+      "tests": [
+        "test_jumps_link_register_and_upper_immediates_roundtrip"
+      ]
+    },
+    {
+      "mnemonic": "LW",
+      "tests": [
+        "test_store_and_load_word",
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "MRET",
+      "tests": [
+        "test_mret_restores_privilege_and_interrupt_enable"
+      ]
+    },
+    {
+      "mnemonic": "OR",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "ORI",
+      "tests": [
+        "test_ori_uses_bitwise_or",
+        "test_immediate_alu_and_shift_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SB",
+      "tests": [
+        "test_load_store_and_signed_load",
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "SH",
+      "tests": [
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "SLL",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SLLI",
+      "tests": [
+        "test_immediate_alu_and_shift_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SLT",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SLTI",
+      "tests": [
+        "test_immediate_alu_and_shift_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SLTIU",
+      "tests": [
+        "test_immediate_alu_and_shift_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SLTU",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SRA",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SRAI",
+      "tests": [
+        "test_immediate_alu_and_shift_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SRL",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SRLI",
+      "tests": [
+        "test_immediate_alu_and_shift_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SUB",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "SW",
+      "tests": [
+        "test_store_and_load_word",
+        "test_signed_unsigned_loads_and_all_store_widths"
+      ]
+    },
+    {
+      "mnemonic": "XOR",
+      "tests": [
+        "test_integer_register_alu_families_execute"
+      ]
+    },
+    {
+      "mnemonic": "XORI",
+      "tests": [
+        "test_immediate_alu_and_shift_families_execute"
       ]
     }
   ],
