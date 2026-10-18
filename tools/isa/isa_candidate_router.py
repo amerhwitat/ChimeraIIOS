@@ -26,7 +26,7 @@ def queue_unresolved(query,catalog,queue_path):
  q=tokens(query)
  found=any(all(t in " ".join(str(row.get(k,"")) for k in ("architecture","mnemonic","form_id")).casefold() for t in q) for row in catalog.get("instructions",[]))
  if found:return None
- record={"query_tokens":sorted(q)[:32],"query_sha256":hashlib.sha256(query.encode("utf-8")).hexdigest(),"status":"pending",
+ record={"candidate_hint":(query.strip().split(maxsplit=1)[0] if query.strip() else "")[:64],"query_token_count":len(q),"query_sha256":hashlib.sha256(query.encode("utf-8")).hexdigest(),"status":"pending",
   "reason":"no exact architecture/mnemonic candidate; source and conformance review required","created_at_utc":datetime.now(timezone.utc).isoformat()}
  queue_path.parent.mkdir(parents=True,exist_ok=True)
  with queue_path.open("a",encoding="utf-8") as stream:stream.write(json.dumps(record,ensure_ascii=False)+"\n")
