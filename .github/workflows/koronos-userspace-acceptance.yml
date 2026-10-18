@@ -195,8 +195,10 @@ jobs:
             tree="$PWD/boot/iso/dist/acceptance-$target"
             mkdir -p "$tree"
             cp -a boot/iso/dist/iso/. "$tree/"
-            sed -i "s/^set default=0$/set default=$target/" "$tree/boot/grub/grub.cfg"
-            grep -q "^set default=$target$" "$tree/boot/grub/grub.cfg"
+            menu_id="$target"
+            if [ "$target" = installer ]; then menu_id=install; fi
+            sed -i "s/^set default=0$/set default=$menu_id/" "$tree/boot/grub/grub.cfg"
+            grep -q "^set default=$menu_id$" "$tree/boot/grub/grub.cfg"
             iso="$PWD/boot/iso/dist/acceptance-$target.iso"
             grub-mkrescue -o "$iso" "$tree"
             log="$PWD/boot/iso/dist/full-iso-$target-debugcon.log"
