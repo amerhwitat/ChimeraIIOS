@@ -1,0 +1,32 @@
+name: SS64 merged-/usr alias regression
+
+on:
+  push:
+    paths:
+      - "tools/commands/crawl_ss64.py"
+      - "tools/commands/test_ss64_merged_usr.py"
+      - ".github/workflows/ss64-merged-usr-tests.yml"
+  pull_request:
+    paths:
+      - "tools/commands/crawl_ss64.py"
+      - "tools/commands/test_ss64_merged_usr.py"
+      - ".github/workflows/ss64-merged-usr-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  merged-usr-aliases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Compile reconciler and regression test
+        run: |
+          python -m py_compile tools/commands/crawl_ss64.py tools/commands/test_ss64_merged_usr.py
+      - name: Run merged-/usr regression tests
+        run: |
+          python tools/commands/test_ss64_merged_usr.py -v
