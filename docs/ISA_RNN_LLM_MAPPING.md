@@ -18,3 +18,12 @@ python3 tools/installer/chimera_hardware_advisor.py --facts hardware-facts.json
 ```
 
 The installer UI should show each recommendation with the detected fact and reason, allow the user to correct facts, provide a safe fallback path, and ask explicit confirmation before any destructive operation. Hardware inventories remain local by default; sending them to an external model requires consent. A future RNN/LLM can summarize or rank recommendations only within validated compatibility rules and with a clear uncertainty label.
+
+
+## Automated import and RNN-assisted candidate retrieval (2026-10-18)
+
+- `tools/isa/import_riscv_opcodes.py` imports fixed-bit instruction encodings from an immutable upstream revision. The latest validated run imported 1,459 source-backed records from 141 files with zero file-fetch failures.
+- `tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json` combines those records with the legacy database without asserting executable support. The latest generated catalog contains 1,613 forms across 15 architecture identifiers; all 1,613 currently remain `not-implemented` in execution status.
+- `tools/isa/isa_candidate_router.py` and `tools/commands/command_candidate_router.py` use the existing bounded recurrent-state module for advisory ranking. This module is a deterministic research cell, **not a trained LLM**. It cannot infer authoritative semantics, create verified encodings, claim native support, or execute commands.
+- Command import currently inventories 4,081 candidates: 15 backed by the existing native multicall allowlist and 4,066 deferred for provider discovery and tests. Unknown commands stay queued rather than falling back to arbitrary shell execution.
+- The validated CI job persists generated source-backed catalogs and uploads the same run's artifact. Catalog, decode, execution, conformance, and userspace-ready are separate evidence levels.
