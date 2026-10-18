@@ -35,19 +35,20 @@ chmod +x "$ROOT/boot/iso/build-iso.sh" "$ROOT/boot/iso/prepare-layout.sh" "$ROOT
 # The repository build is the full Chimera pipeline: Koronos payload + Spit Fire
 # artifacts + GRUB2 + ISO 9660/El Torito. Do not replace it with the minimal
 # staging helper, otherwise the source-first ISO structure would be lost.
-if [[ "${CHIMERA_BUILD:-auto}" != "never" && ! -f "$KERNEL_PATH" ]]; then
-  echo "No boot/kernel.bin found; building the complete Chimera II OS ISO pipeline."
-  "$ROOT/boot/iso/build-iso.sh"
-  cp "$ROOT/boot/iso/dist/output.iso" "$OUTPUT_ISO"
-elif [[ "${CHIMERA_BUILD:-auto}" == "auto" && -f "$KERNEL_PATH" ]]; then
-  echo "Using existing boot/kernel.bin with the canonical minimal GRUB ISO generator."
-  "$ROOT/tools/build/create-bootable-iso.sh" "$KERNEL_PATH" "$GRUB_CFG" "$OUTPUT_ISO"
-elif [[ "${CHIMERA_BUILD:-auto}" == "never" ]]; then
-  if [[ ! -f "$KERNEL_PATH" ]]; then
+if [[ "${CHIMERA_BUILD:-auto}" == "never" ]]; then
+  # Explicit legacy/minimal mode only. It is not the release ISO path.
+  if [[ ! -s "$KERNEL_PATH" ]]; then
     echo "error: CHIMERA_BUILD=never but no kernel image exists at $KERNEL_PATH" >&2
     exit 1
   fi
   "$ROOT/tools/build/create-bootable-iso.sh" "$KERNEL_PATH" "$GRUB_CFG" "$OUTPUT_ISO"
+else
+  # Always prefer the canonical source-first ISO builder in auto/default mode.
+  # A stale legacy boot/kernel.bin may exist in the checkout and must not divert
+  # release builds into the minimal legacy ISO that omits Koronos/live/recovery.
+  echo "Building the canonical full Chimera II OS ISO pipeline (CHIMERA_BUILD=${CHIMERA_BUILD:-auto})."
+  "$ROOT/boot/iso/build-iso.sh"
+  cp "$ROOT/boot/iso/dist/output.iso" "$OUTPUT_ISO"
 fi
 
 if [[ ! -s "$OUTPUT_ISO" ]]; then
