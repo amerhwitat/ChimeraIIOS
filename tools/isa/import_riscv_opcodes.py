@@ -82,6 +82,7 @@ def main():
     ap.add_argument("--timeout",type=int,default=25)
     ap.add_argument("--max-files",type=int,default=500)
     ap.add_argument("--revision",default=DEFAULT_REVISION,help="immutable upstream commit SHA (40 hex characters)")
+    ap.add_argument("--allow-cached",action="store_true",help="reuse an existing schema- and revision-validated import if GitHub rate limits the upstream fetch")
     args=ap.parse_args()
     if not re.fullmatch(r"[0-9a-fA-F]{40}", args.revision):
         raise SystemExit("--revision must be an immutable 40-character commit SHA")
@@ -89,6 +90,15 @@ def main():
     try:
         tree=json.loads(get(API_TREE.format(revision=revision),args.timeout))
     except Exception as e:
+        if args.allow_cached and args.output.is_file():
+            try:
+                cached=json.loads(args.output.read_text(encoding="utf-8"))
+                records=cached.get("instructions",[])
+                if cached.get("schema")=="CHM-ISA-SOURCED-IMPORT-1" and records and all(row.get("source_revision")==revision for row in records):
+                    print(f"Using {len(records)} cached source-backed ISA records for pinned revision {revision}; upstream fetch unavailable: {e}")
+                    return 0
+            except (OSError,ValueError,TypeError):
+                pass
         raise SystemExit(f"cannot retrieve riscv-opcodes source tree: {e}")
     paths=[x["path"] for x in tree.get("tree",[]) if x.get("type")=="blob" and x.get("path","").startswith("extensions/") and Path(x["path"]).suffix in {".", ""}]
     # The repository's extension definition files commonly have no suffix.
