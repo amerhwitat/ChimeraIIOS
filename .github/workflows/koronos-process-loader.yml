@@ -7,6 +7,9 @@ on:
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
+      - 'kernel/tests/multiboot_modules_test.cpp'
+      - 'kernel/core/multiboot_modules.cpp'
+      - 'kernel/include/chimera/multiboot_modules.h'
       - 'kernel/tests/process-loader-unit.sh'
       - 'kernel/build-koronos.sh'
       - '.github/workflows/koronos-process-loader.yml'
@@ -31,6 +34,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Compile host-side process loader tests with warnings as errors
         run: bash kernel/tests/process-loader-unit.sh
+      - name: Compile and run Multiboot2 live/recovery module classification tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp -o /tmp/chimera-multiboot-modules-test
+          /tmp/chimera-multiboot-modules-test
       - name: Compile and validate freestanding Koronos
         run: |
           sudo apt-get update
