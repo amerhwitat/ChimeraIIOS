@@ -6,6 +6,9 @@ on:
       - "kernel/core/elf64.cpp"
       - "kernel/core/process.cpp"
       - "kernel/core/scheduler.cpp"
+      - "kernel/core/multiboot_modules.cpp"
+      - "kernel/include/chimera/multiboot_modules.h"
+      - "kernel/tests/multiboot_modules_test.cpp"
       - "kernel/include/chimera/elf64.h"
       - "kernel/include/chimera/process.h"
       - "kernel/include/chimera/scheduler.h"
@@ -32,6 +35,12 @@ jobs:
             -o /tmp/chimera-elf64-admission-test
       - name: Run ELF64 validation/admission regression
         run: /tmp/chimera-elf64-admission-test
+      - name: Build and run Multiboot2 live/recovery module classification regression
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include \\
+            kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp \\
+            -o /tmp/chimera-multiboot-modules-test
+          /tmp/chimera-multiboot-modules-test
       - name: Build scheduler runtime regression
         run: |
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
