@@ -188,6 +188,29 @@ jobs:
           grep -Fq 'USERSPACE SYSCALL RETURNED TO RING3' "$log"
           grep -Fq '[MM  ] Process page-table self-test passed' "$log"
           grep -Fq '[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly' "$log"
+      - name: Boot Installer and Recovery entries from the full ISO tree
+        run: |
+          set -euo pipefail
+          for target in installer recovery; do
+            tree="$PWD/boot/iso/dist/acceptance-$target"
+            mkdir -p "$tree"
+            cp -a boot/iso/dist/iso/. "$tree/"
+            sed -i "s/^set default=0$/set default=$target/" "$tree/boot/grub/grub.cfg"
+            grep -q "^set default=$target$" "$tree/boot/grub/grub.cfg"
+            iso="$PWD/boot/iso/dist/acceptance-$target.iso"
+            grub-mkrescue -o "$iso" "$tree"
+            log="$PWD/boot/iso/dist/full-iso-$target-debugcon.log"
+            set +e
+            timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
+            qemu_rc=$?
+            set -e
+            cat "$log"
+            grep -Fq '[KRN ] KORONOS READY' "$log"
+            grep -Fq "USERSPACE READY: $target init pid=1" "$log" || { echo "Full ISO $target entry did not dispatch target init (QEMU exit $qemu_rc)." >&2; exit 1; }
+            grep -Fq 'USERSPACE SYSCALL RETURNED TO RING3' "$log"
+            grep -Fq '[MM  ] Process page-table self-test passed' "$log"
+            grep -Fq '[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly' "$log"
+          done
       - name: Upload full-ISO userspace evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -196,6 +219,8 @@ jobs:
           path: |
             boot/iso/dist/full-iso-userspace-debugcon.log
             boot/iso/dist/full-iso-userspace-serial.log
+            boot/iso/dist/full-iso-installer-debugcon.log
+            boot/iso/dist/full-iso-recovery-debugcon.log
             boot/iso/dist/output.iso.sha256
           if-no-files-found: ignore
           retention-days: 14
