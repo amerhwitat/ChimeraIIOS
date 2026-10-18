@@ -13,6 +13,9 @@ on:
     branches: [main]
     paths:
       - 'kernel/**'
+      - 'boot/iso/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
       - '.github/workflows/koronos-userspace-acceptance.yml'
 
 permissions:
