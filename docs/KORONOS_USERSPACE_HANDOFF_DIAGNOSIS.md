@@ -108,3 +108,18 @@ kernel currently performs the transition. Until the actual architecture entry
 path emits the first-user-syscall acknowledgement and QEMU traces pass for each
 target, the handoff remains NOT VERIFIED. Never manufacture these markers in a
 host test or kernel-side pre-transition code to satisfy CI.
+
+
+## Architecture source audit — publication gate remains blocked (2026-10-18)
+
+The latest review of the x86-64 source separates acceptance tests from actual execution:
+
+- The ELF loader's callbacks are an interface, not proof that hardware page tables enforce user/supervisor, writable, NX, and W^X permissions.
+- Process admission/load-plan metadata does not by itself own a saved CPU context, runnable process, or cleanup-capable address space.
+- The current entry/GDT and interrupt path do not establish a complete user-selector + TSS/RSP0 setup, a validated ring-3 return frame, or a syscall path that dispatches a verified CPL-3-originated request.
+- A hard-coded GETPID result and an EXIT handler without process teardown are placeholders, not successful process semantics.
+- Cooperative callback scheduling is not architecture context switching or genuine SMP.
+
+The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
+
+Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
