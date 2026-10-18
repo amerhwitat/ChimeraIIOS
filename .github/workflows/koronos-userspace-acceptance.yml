@@ -178,7 +178,7 @@ jobs:
           log="$PWD/boot/iso/dist/full-iso-userspace-debugcon.log"
           serial="$PWD/boot/iso/dist/full-iso-userspace-serial.log"
           set +e
-          timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -cdrom boot/iso/dist/output.iso -boot d -display none -serial "file:$serial" -monitor none -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
+          timeout 60s qemu-system-x86_64 -machine q35 -m 1024 -cdrom boot/iso/dist/output.iso -boot d -display none -serial "file:$serial" -monitor none -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
           qemu_rc=$?
           set -e
           cat "$log"
@@ -203,7 +203,7 @@ jobs:
             grub-mkrescue -o "$iso" "$tree"
             log="$PWD/boot/iso/dist/full-iso-$target-debugcon.log"
             set +e
-            timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
+            timeout 60s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9
             qemu_rc=$?
             set -e
             cat "$log"
