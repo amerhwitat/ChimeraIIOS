@@ -12,11 +12,14 @@ LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
-    def test_installer_menu_routes_to_dedicated_installer_config(self):
+    def test_installer_menu_passes_installer_modules_to_koronos(self):
         start = GRUB.index('--id install {')
         end = GRUB.index('\n}', start)
         entry = GRUB[start:end]
-        self.assertIn("configfile /boot/jasper/install.cfg", entry)
+        self.assertIn("multiboot2 /boot/koronos/koronos.elf", entry)
+        self.assertIn("module2 /install/installer/installation.img chimera-installation-image", entry)
+        self.assertIn("module2 /install/installer/installation-manifest.json chimera-installation-manifest", entry)
+        self.assertIn("module2 /install/installer/installer-contract.json chimera-installer-contract", entry)
         self.assertNotIn("chimera-live-initramfs.img", entry)
         self.assertIn("--id installer", INSTALL)
         self.assertIn("/install/installer/installation.img", INSTALL)
