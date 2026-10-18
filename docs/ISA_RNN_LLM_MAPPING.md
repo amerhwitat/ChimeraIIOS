@@ -32,3 +32,6 @@ The installer UI should show each recommendation with the detected fact and reas
 ## Optional trained local LLM inference (2026-10-18)
 
 The command and ISA routers now support an explicit `--llm` mode through `tools/cognition/local_llm.py`. It calls a separately installed, trained OpenAI-compatible model server on loopback only (`CHIMERA_LLM_BASE_URL`, `CHIMERA_LLM_MODEL`). The response is strict-JSON parsed and every returned candidate ID must belong to the supplied allowlist. Malformed/unavailable model responses fall back to deterministic retrieval. The adapter is tested in CI. This repository does not bundle trained weights or claim that the deterministic `RecurrentState` is itself an LLM. The model can rank candidates; it cannot assert executable ISA support or trigger command execution.
+
+
+**Native runtime caveat:** the command and ISA router sources/catalogs are staged by the native command builder, but the current BusyBox initramfs does not contain a verified Python 3 runtime and Koronos does not yet launch initramfs processes through a verified ring-3 transition. The shell wrappers now fail explicitly if `python3` is unavailable. CI packaging success must not be read as proof of native OS execution.
