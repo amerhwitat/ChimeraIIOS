@@ -88,3 +88,38 @@ be safely corrected in code.
 - The GRUB Install menu now routes through Jasper's installer contract checks instead of booting the Live initramfs under an Install label.
 - Octavian's full-ISO release workflow requires an explicit `USERSPACE READY: target=live init_pid=` marker. The current kernel does not emit that marker because no verified ring-3 entry acknowledgement is wired up. Consequently, the ISO may be built and retained as a review artifact, but release publication is blocked until the real loader/context-switch path exists and the marker is produced by the executing init process.
 - This is deliberately a fail-closed acceptance gate, not a claim that the user process loader has been completed. The next implementation step remains page-table/address-space integration, mapped ELF PT_LOAD segments and BSS, user stack, GDT/TSS and saved context, architecture-controlled ring-3 entry, then a real init process acknowledgement. Installer and Recovery need their own executed userspace/repair tests after that handoff exists.
+
+
+## Stricter runtime proof contract (2026-10-18)
+
+The host-side verifier now requires three ordered events for the same target and
+same nonzero PID:
+
+1. `[KRN ] KORONOS READY`.
+2. `USER INIT SYSCALL: target=<target> init_pid=<pid>`, emitted by the syscall
+   or exception entry path only after it has established that the originating
+   context was at CPL 3. It must not be printed by the pre-transition launch
+   code.
+3. `USERSPACE READY: target=<target> init_pid=<pid>`, emitted only after init's
+   own readiness handshake succeeds.
+
+The stricter verifier and unit tests are an acceptance gate, not proof that the
+kernel currently performs the transition. Until the actual architecture entry
+path emits the first-user-syscall acknowledgement and QEMU traces pass for each
+target, the handoff remains NOT VERIFIED. Never manufacture these markers in a
+host test or kernel-side pre-transition code to satisfy CI.
+
+
+## Architecture source audit — publication gate remains blocked (2026-10-18)
+
+The latest review of the x86-64 source separates acceptance tests from actual execution:
+
+- The ELF loader's callbacks are an interface, not proof that hardware page tables enforce user/supervisor, writable, NX, and W^X permissions.
+- Process admission/load-plan metadata does not by itself own a saved CPU context, runnable process, or cleanup-capable address space.
+- The current entry/GDT and interrupt path do not establish a complete user-selector + TSS/RSP0 setup, a validated ring-3 return frame, or a syscall path that dispatches a verified CPL-3-originated request.
+- A hard-coded GETPID result and an EXIT handler without process teardown are placeholders, not successful process semantics.
+- Cooperative callback scheduling is not architecture context switching or genuine SMP.
+
+The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
+
+Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
