@@ -18,6 +18,26 @@ class TrainableRNNTests(unittest.TestCase):
   with tempfile.TemporaryDirectory() as td:
    path=Path(td)/"model.json";model.save(path,{"test":True});loaded=CharRNN.load(path)
    self.assertAlmostEqual(model.score("alpha command"),loaded.score("alpha command"),places=8)
+ def test_rejects_malformed_weight_dimensions(self):
+  import json
+  with tempfile.TemporaryDirectory() as td:
+   path=Path(td)/"model.json"
+   model=CharRNN(sorted(set("alpha beta \n")),hidden=4)
+   model.save(path)
+   data=json.loads(path.read_text(encoding="utf-8"))
+   data["Wxh"][0].pop()
+   path.write_text(json.dumps(data),encoding="utf-8")
+   with self.assertRaises(ValueError):CharRNN.load(path)
+ def test_rejects_nonfinite_weights(self):
+  import json
+  with tempfile.TemporaryDirectory() as td:
+   path=Path(td)/"model.json"
+   model=CharRNN(sorted(set("alpha beta \n")),hidden=4)
+   model.save(path)
+   data=json.loads(path.read_text(encoding="utf-8"))
+   data["Why"][0][0]=float("nan")
+   path.write_text(json.dumps(data),encoding="utf-8")
+   with self.assertRaises(ValueError):CharRNN.load(path)
  def test_rejects_unknown_schema(self):
   with tempfile.TemporaryDirectory() as td:
    path=Path(td)/"bad.json";path.write_text('{"schema":"wrong"}')
