@@ -1,6 +1,13 @@
 name: Chimera II OS Docker ISO
 
 on:
+  pull_request:
+    paths:
+      - 'docker/iso/**'
+      - 'tools/build/create-bootable-iso.sh'
+      - 'boot/iso/**'
+      - 'boot/spitfire/**'
+      - '.github/workflows/chimera-docker-iso.yml'
   workflow_dispatch:
   push:
     paths:
