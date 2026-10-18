@@ -53,14 +53,17 @@ jobs:
           rm -f docker-output/output.iso.sha256
           sha256sum docker-output/output.iso > docker-output/output.iso.sha256
           sha256sum --check docker-output/output.iso.sha256
-      - name: Verify staged SF0 SF1 kernel and GRUB metadata
+      - name: Verify staged SF0 SF1 Koronos ELF and GRUB metadata
         run: |
+          set -euo pipefail
           test -s boot/iso/dist/iso/src/ISA.csv
           test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
           test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf1-longmode.o
-          test -s boot/iso/dist/iso/boot/kernel.bin
-          grep -q 'My AI OS' boot/iso/dist/iso/boot/grub/grub.cfg
-          grep -q '/boot/kernel.bin' boot/iso/dist/iso/boot/grub/grub.cfg
+          test -s boot/iso/dist/iso/boot/koronos/koronos.elf
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
+          grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' boot/iso/grub.cfg
+          test -s boot/iso/dist/iso/boot/visual/aurora-boot.png
+          test -s boot/iso/dist/iso/boot/visual/Init.mp4
       - name: Inspect ISO BIOS El Torito and UEFI metadata
         run: |
           sudo apt-get update
