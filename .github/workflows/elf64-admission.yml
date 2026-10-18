@@ -37,9 +37,7 @@ jobs:
         run: /tmp/chimera-elf64-admission-test
       - name: Build and run Multiboot2 live/recovery module classification regression
         run: |
-          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include \\
-            kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp \\
-            -o /tmp/chimera-multiboot-modules-test
+          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp -o /tmp/chimera-multiboot-modules-test
           /tmp/chimera-multiboot-modules-test
       - name: Build scheduler runtime regression
         run: |
