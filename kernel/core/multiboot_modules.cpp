@@ -22,6 +22,8 @@ static uint32_t classify(const char* s){
  if(has(s,"chimera-user-init-elf")||has(s,"user-init.elf")||has(s,"chimera-init.elf"))return CHIMERA_MODULE_USER_INIT_ELF;
  if(has(s,"chimera-live-initramfs")||has(s,"live-initramfs")||has(s,"live-initramfs.img"))return CHIMERA_MODULE_LIVE_INITRAMFS;
  if(has(s,"chimera-live-manifest")||has(s,"live-manifest.json"))return CHIMERA_MODULE_LIVE_MANIFEST;
+ if(has(s,"chimera-recovery-initramfs")||has(s,"recovery-initramfs.img"))return CHIMERA_MODULE_RECOVERY_INITRAMFS;
+ if(has(s,"chimera-recovery-manifest")||has(s,"recovery-manifest.json"))return CHIMERA_MODULE_RECOVERY_MANIFEST;
  if(has(s,"chimera-installation-image")||has(s,"installation.img")||has(s,"install-image"))return CHIMERA_MODULE_INSTALL_IMAGE;
  if(has(s,"chimera-installation-manifest")||has(s,"installation-manifest.json")||has(s,"install-manifest"))return CHIMERA_MODULE_INSTALL_MANIFEST;
  if(has(s,"chimera-installer-contract")||has(s,"installer-contract.json")||has(s,"install-contract"))return CHIMERA_MODULE_INSTALL_CONTRACT;
