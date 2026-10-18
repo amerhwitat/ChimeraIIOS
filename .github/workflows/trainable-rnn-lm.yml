@@ -37,7 +37,7 @@ jobs:
       - name: Train from imported command and ISA catalogs
         run: |
           set -euo pipefail
-          python "tools/cognition/trainable_rnn_lm.py" train --source "isa/generated/universal-instruction-catalog.json" --source "system/commands/native-command-candidates.json" --output build/chimera-command-isa-rnn.json --epochs 2 --hidden 12
+          python "tools/cognition/trainable_rnn_lm.py" train --source "isa/isa_database.json" --source "system/commands/chimera-command-list.json" --output build/chimera-command-isa-rnn.json --epochs 2 --hidden 12
           python "tools/cognition/trainable_rnn_lm.py" score --model build/chimera-command-isa-rnn.json --text "riscv add echo list files"
           test -s build/chimera-command-isa-rnn.json
       - uses: actions/upload-artifact@v4
