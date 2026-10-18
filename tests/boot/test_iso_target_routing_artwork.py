@@ -59,6 +59,15 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
+    def test_generated_live_and_recovery_userspace_emit_distinct_handoff_markers(self):
+        builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
+        self.assertIn("USERSPACE READY: target=live init_pid=%s", builder)
+        self.assertIn("USERSPACE READY: target=recovery init_pid=%s", builder)
+        self.assertIn("exec /bin/sh -i", builder)
+        self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
+        # A shell handoff is not evidence that the Aurora desktop is ready.
+        self.assertIn("Aurora desktop readiness is separate", builder)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
