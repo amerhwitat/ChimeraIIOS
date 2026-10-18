@@ -8,7 +8,8 @@ alignas(8) uint8_t info[512];
 uint32_t align8(uint32_t n){return (n+7u)&~7u;}
 uint32_t append_module(uint32_t off,uint32_t start,uint32_t end,const char*cmd){
  const uint32_t size=16u+static_cast<uint32_t>(std::strlen(cmd))+1u;
- std::memcpy(info+off,&(const uint32_t&)(uint32_t{3}),4);
+ const uint32_t type=3;
+ std::memcpy(info+off,&type,4);
  std::memcpy(info+off+4,&size,4);
  std::memcpy(info+off+8,&start,4);std::memcpy(info+off+12,&end,4);
  std::memcpy(info+off+16,cmd,std::strlen(cmd)+1);
