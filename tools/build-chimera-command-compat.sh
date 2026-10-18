@@ -73,6 +73,25 @@ BACKUP="$ROOT/.chimera-fix-backups/command-compat"
 JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
 mkdir -p "$BIN" "$SBIN" "$LIB" "$ETC" "$CMDROOT" "$SHARE" "$BACKUP" "$BUILD"
 
+# Install the candidate catalog and advisory RNN router alongside the native command runtime.
+# Catalog rows are discovery metadata only; the native multicall allowlist remains authoritative.
+if [[ -f "$ROOT/system/commands/native-command-candidates.json" ]]; then
+    install -m 0644 "$ROOT/system/commands/native-command-candidates.json" "$SHARE/native-command-candidates.json"
+fi
+if [[ -f "$ROOT/tools/commands/command_candidate_router.py" && -f "$ROOT/tools/cognition/chimera_rnn.py" ]]; then
+    install -m 0644 "$ROOT/tools/commands/command_candidate_router.py" "$SHARE/command_candidate_router.py"
+    install -m 0644 "$ROOT/tools/cognition/chimera_rnn.py" "$SHARE/chimera_rnn.py"
+    cat > "$BIN/chimera-learn-command" <<'LEARN'
+#!/bin/sh
+set -eu
+router="/usr/share/chimera/commands/command_candidate_router.py"
+catalog="/usr/share/chimera/commands/native-command-candidates.json"
+[ -r "$router" ] && [ -r "$catalog" ] || { echo "chimera-learn-command: candidate runtime is not installed" >&2; exit 127; }
+exec python3 "$router" "$@" --catalog "$catalog"
+LEARN
+    chmod 0755 "$BIN/chimera-learn-command"
+fi
+
 log() { printf '[CHIMERA-CMD] %s\n' "$*"; }
 warn() { printf '[CHIMERA-CMD][WARNING] %s\n' "$*" >&2; }
 die() { printf '[CHIMERA-CMD][ERROR] %s\n' "$*" >&2; exit 1; }
