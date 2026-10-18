@@ -24,9 +24,14 @@ int main() {
     assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_LIVE) == CHIMERA_BOOT_TARGET_OK);
     assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_INSTALLER) ==
            CHIMERA_BOOT_TARGET_ERR_MISSING_PAYLOAD);
+
+    /* Multiple target payload families may coexist on a multi-mode ISO. */
     add(CHIMERA_MODULE_INSTALL_IMAGE);
-    assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_LIVE) ==
-           CHIMERA_BOOT_TARGET_ERR_CONFLICTING_PAYLOADS);
+    add(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_LIVE) == CHIMERA_BOOT_TARGET_OK);
+    assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_INSTALLER) == CHIMERA_BOOT_TARGET_OK);
+    assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_RECOVERY) == CHIMERA_BOOT_TARGET_OK);
+
     reset(); add(CHIMERA_MODULE_RECOVERY_MANIFEST);
     assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_RECOVERY) ==
            CHIMERA_BOOT_TARGET_ERR_MISSING_PAYLOAD);
