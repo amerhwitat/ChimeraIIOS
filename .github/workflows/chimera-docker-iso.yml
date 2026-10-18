@@ -65,7 +65,8 @@ jobs:
           # The builder runs inside Docker, so its staging tree is not on the
           # runner. Inspect the artifact itself instead of testing host-only paths.
           for item in \
-            "/src/ISA.csv:src/ISA.csv" \
+            "/src/chimera-source.tar.zst:src/chimera-source.tar.zst" \
+            "/src/README.txt:src/README.txt" \
             "/boot/spitfire/spitfire-sf0-mbr.bin:boot/spitfire/spitfire-sf0-mbr.bin" \
             "/boot/spitfire/spitfire-sf1-longmode.o:boot/spitfire/spitfire-sf1-longmode.o" \
             "/boot/koronos/koronos.elf:boot/koronos/koronos.elf" \
