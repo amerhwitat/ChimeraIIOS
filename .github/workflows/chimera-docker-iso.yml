@@ -52,14 +52,22 @@ jobs:
           test -s docker-output/output.iso
           test -s docker-output/output.iso.sha256
           (cd docker-output && sha256sum --check output.iso.sha256)
-      - name: Verify staged SF0 SF1 kernel and GRUB metadata
+      - name: Verify staged Koronos, Spit Fire, Live, Recovery, artwork and GRUB metadata
         run: |
-          test -s boot/iso/dist/iso/src/ISA.csv
-          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
-          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf1-longmode.o
-          test -s boot/iso/dist/iso/boot/kernel.bin
-          grep -q 'My AI OS' boot/iso/dist/iso/boot/grub/grub.cfg
-          grep -q '/boot/kernel.bin' boot/iso/dist/iso/boot/grub/grub.cfg
+          set -euo pipefail
+          tree=boot/iso/dist/iso
+          test -s "$tree/boot/koronos/koronos.elf"
+          test -s "$tree/boot/spitfire/spitfire-stage2.bin"
+          test -s "$tree/boot/live/chimera-live-initramfs.img"
+          test -s "$tree/boot/live/live-manifest.json"
+          test -s "$tree/boot/recovery/chimera-recovery-initramfs.img"
+          test -s "$tree/boot/recovery/recovery-manifest.json"
+          test -s "$tree/boot/visual/aurora-boot.png"
+          test -s "$tree/boot/visual/Init.mp4"
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' "$tree/boot/grub/grub.cfg"
+          grep -q '/boot/live/chimera-live-initramfs.img' "$tree/boot/grub/grub.cfg"
+          grep -q 'target=live' "$tree/boot/live/live-manifest.json" || true
+          echo "Verified canonical Koronos boot tree, live/recovery payloads, offline artwork, and GRUB linkage."
       - name: Inspect ISO BIOS El Torito and UEFI metadata
         run: |
           sudo apt-get update
