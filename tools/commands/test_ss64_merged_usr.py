@@ -18,6 +18,7 @@ class MergedUsrCommandAliasTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.rootfs = self.root / "rootfs"
         self.repo = self.root / "repo"
+        (self.repo / "system/commands").mkdir(parents=True)
         (self.rootfs / "usr/bin").mkdir(parents=True)
         (self.rootfs / "usr/sbin").mkdir(parents=True)
         (self.rootfs / "bin").symlink_to("usr/bin")
