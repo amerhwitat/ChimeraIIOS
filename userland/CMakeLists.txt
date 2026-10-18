@@ -57,13 +57,12 @@ if(NOT WIN32)
   add_executable(chm-usermod ../system/security/chimera_user_mod.cpp)
   add_executable(chm-groupmod ../system/security/chimera_group_mod.cpp)
   add_executable(chm-security-selftest ../system/security/chimera_security_selftest.cpp)
-  target_link_libraries(chm-passwd )
+  target_link_libraries(chm-passwd PRIVATE)
     target_include_directories(${chm_security_target} PRIVATE
       "${CHIMERA_CRYPT_INCLUDE_DIR}")
     target_link_libraries(${chm_security_target} PRIVATE
       "${CHIMERA_CRYPT_LIBRARY}")
-  endforeach())
-  target_link_libraries(chm-user-setup)
+  target_link_libraries(chm-user-setup PRIVATE)
     target_include_directories(${chm_security_target} PRIVATE
       "${CHIMERA_CRYPT_INCLUDE_DIR}")
     target_link_libraries(${chm_security_target} PRIVATE
