@@ -86,10 +86,31 @@ class CharRNN:
     @classmethod
     def load(cls,path):
         d=json.loads(Path(path).read_text(encoding="utf-8"))
-        if d.get("schema")!="CHIMERA-CHAR-RNN-LM-1": raise ValueError("unsupported model schema")
-        obj=cls(d["vocabulary"],d["hidden_size"])
-        for key in ("Wxh","Whh","Why","bh","by"): setattr(obj,key,d[key])
-        if len(obj.Wxh)!=obj.h or len(obj.Why)!=obj.v: raise ValueError("model dimensions invalid")
+        if not isinstance(d,dict) or d.get("schema")!="CHIMERA-CHAR-RNN-LM-1":
+            raise ValueError("unsupported model schema")
+        vocabulary=d.get("vocabulary")
+        hidden=d.get("hidden_size")
+        if (not isinstance(vocabulary,list) or len(vocabulary)<2
+                or not all(isinstance(c,str) and len(c)==1 for c in vocabulary)
+                or len(set(vocabulary))!=len(vocabulary)
+                or not isinstance(hidden,int) or isinstance(hidden,bool) or not 2<=hidden<=64):
+            raise ValueError("model vocabulary or hidden size invalid")
+        obj=cls(vocabulary,hidden)
+        shapes={"Wxh":(obj.h,obj.v),"Whh":(obj.h,obj.h),"Why":(obj.v,obj.h),"bh":(obj.h,),"by":(obj.v,)}
+        for key,shape in shapes.items():
+            value=d.get(key)
+            if len(shape)==2:
+                valid=(isinstance(value,list) and len(value)==shape[0]
+                       and all(isinstance(row,list) and len(row)==shape[1] for row in value))
+                flat=[x for row in value for x in row] if valid else []
+            else:
+                valid=isinstance(value,list) and len(value)==shape[0]
+                flat=value if valid else []
+            if not valid or not all(isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x) for x in flat):
+                raise ValueError(f"model tensor invalid: {key}")
+            setattr(obj,key,value)
+        if not isinstance(d.get("metadata",{}),dict):
+            raise ValueError("model metadata invalid")
         return obj
 
 def extract_strings(value, out, depth=0):
