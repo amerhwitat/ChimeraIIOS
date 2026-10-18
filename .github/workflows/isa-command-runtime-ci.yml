@@ -181,7 +181,7 @@ jobs:
           PY
       - name: Import sourced ISA forms and cross-OS command candidates
         run: |
-          python3 tools/isa/import_riscv_opcodes.py --max-files 500
+          python3 tools/isa/import_riscv_opcodes.py --max-files 500 --allow-cached
           python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
           python3 -m py_compile tools/cognition/local_llm.py tools/cognition/test_local_llm.py tools/isa/isa_candidate_router.py tools/isa/test_isa_candidate_router.py tools/commands/command_candidate_router.py
           python3 -m unittest tools.cognition.test_local_llm -v
