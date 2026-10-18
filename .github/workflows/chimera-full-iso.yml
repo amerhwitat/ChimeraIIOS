@@ -13,6 +13,7 @@ on:
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
       - "CMakeLists.txt"
+      - "tests/boot/**"
       - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
@@ -54,6 +55,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+
+      - name: Validate boot target routing and embedded artwork contract
+        run: python3 -m unittest tests/boot/test_iso_target_routing_artwork.py -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
