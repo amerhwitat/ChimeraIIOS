@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - '.github/workflows/chimera-docker-iso.yml'
       - 'ISA.csv'
       - 'tools/isa/**'
       - 'docker/iso/**'
@@ -44,6 +45,10 @@ jobs:
         run: |
           test -s docker-output/output.iso
           test -s docker-output/output.iso.sha256
+          # The container writes a checksum containing /output/output.iso, which
+          # is valid inside the container but not on the GitHub-hosted runner.
+          # Regenerate a portable checksum against the mounted artifact path.
+          sha256sum docker-output/output.iso > docker-output/output.iso.sha256
           sha256sum --check docker-output/output.iso.sha256
       - name: Verify staged SF0 SF1 kernel and GRUB metadata
         run: |
