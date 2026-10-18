@@ -1,6 +1,13 @@
 name: Chimera II OS Docker ISO
 
 on:
+  pull_request:
+    paths:
+      - 'docker/iso/**'
+      - 'tools/build/create-bootable-iso.sh'
+      - 'boot/iso/**'
+      - 'boot/spitfire/**'
+      - '.github/workflows/chimera-docker-iso.yml'
   workflow_dispatch:
   push:
     paths:
@@ -44,19 +51,50 @@ jobs:
         run: |
           test -s docker-output/output.iso
           test -s docker-output/output.iso.sha256
-          sha256sum --check docker-output/output.iso.sha256
-      - name: Verify staged SF0 SF1 kernel and GRUB metadata
-        run: |
-          test -s boot/iso/dist/iso/src/ISA.csv
-          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf0-mbr.bin
-          test -s boot/iso/dist/iso/boot/spitfire/spitfire-sf1-longmode.o
-          test -s boot/iso/dist/iso/boot/kernel.bin
-          grep -q 'My AI OS' boot/iso/dist/iso/boot/grub/grub.cfg
-          grep -q '/boot/kernel.bin' boot/iso/dist/iso/boot/grub/grub.cfg
-      - name: Inspect ISO BIOS El Torito and UEFI metadata
+          (cd docker-output && sha256sum --check output.iso.sha256)
+      - name: Install ISO inspection tools and extract the built ISO
         run: |
           sudo apt-get update
           sudo apt-get install -y xorriso
+          mkdir -p iso-extracted
+          xorriso -osirrox on -indev docker-output/output.iso -extract / iso-extracted
+      - name: Verify staged Koronos, Spit Fire, Live, Recovery, artwork and GRUB metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          tree=iso-extracted
+          check_file() {
+            if [[ ! -s "$1" ]]; then
+              echo "::error::Required staged artifact is missing or empty: $1"
+              echo "Available staged files:"
+              find "$tree/boot" -maxdepth 4 -type f -printf '%p (%s bytes)\\n' | sort || true
+              exit 1
+            fi
+            echo "PASS file: $1"
+          }
+          check_text() {
+            if ! grep -Fq -- "$2" "$1"; then
+              echo "::error::Expected text not found in $1: $2"
+              echo "--- $1 ---"
+              sed -n '1,220p' "$1" || true
+              exit 1
+            fi
+            echo "PASS text: $2"
+          }
+          check_file "$tree/boot/koronos/koronos.elf"
+          check_file "$tree/boot/spitfire/spitfire-stage2.bin"
+          check_file "$tree/boot/live/chimera-live-initramfs.img"
+          check_file "$tree/boot/live/live-manifest.json"
+          check_file "$tree/boot/recovery/chimera-recovery-initramfs.img"
+          check_file "$tree/boot/recovery/recovery-manifest.json"
+          check_file "$tree/boot/visual/aurora-boot.png"
+          check_file "$tree/boot/visual/Init.mp4"
+          check_text "$tree/boot/grub/grub.cfg" "multiboot2 /boot/koronos/koronos.elf"
+          check_text "$tree/boot/grub/grub.cfg" "/boot/live/chimera-live-initramfs.img"
+          check_text "$tree/boot/live/live-manifest.json" '"schema":"CHM-LIVE-KORONOS-1"'
+          echo "Verified canonical Koronos boot tree, live/recovery payloads, offline artwork, and GRUB linkage."
+      - name: Inspect ISO BIOS El Torito and UEFI metadata
+        run: |
           xorriso -indev docker-output/output.iso -report_el_torito plain -report_system_area plain -print '' | tee docker-output/ISO-BOOT-REPORT.txt
       - name: Upload Docker ISO release artifact
         uses: actions/upload-artifact@v4

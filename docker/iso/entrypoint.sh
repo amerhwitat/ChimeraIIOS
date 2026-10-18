@@ -63,5 +63,5 @@ if command -v xorriso >/dev/null 2>&1; then
   xorriso -indev "$OUTPUT_ISO" -report_el_torito plain -report_system_area plain -print ''
 fi
 
-sha256sum "$OUTPUT_ISO" | tee "$OUTPUT_ISO.sha256"
+printf '%s  %s\n' "$(sha256sum "$OUTPUT_ISO" | cut -d ' ' -f 1)" "$(basename "$OUTPUT_ISO")" > "$OUTPUT_ISO.sha256"
 echo "ISO artifact: $OUTPUT_ISO"
