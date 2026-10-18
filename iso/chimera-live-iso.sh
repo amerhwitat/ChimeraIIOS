@@ -92,7 +92,7 @@ for art in aurora-wayland-glass.jpg.b64; do
     cp -f "$STAGE/boot/visual/aurora-wayland-glass.jpg" "$STAGE/boot/grub/aurora-wayland-glass.jpg"
   fi
 done
-for art in aurora-desktop.svg aurora-installer.svg aurora-library.svg aurora-wayland-glass.svg aurora-wayland-glass.png chimera-infinite-research-horizon.svg Init.mp4 library-artwork-manifest.json; do
+for art in aurora-desktop.svg aurora-installer.svg aurora-library.svg aurora-wayland-glass.svg aurora-wayland-glass.png chimera-infinite-research-horizon.svg chimera-artwork-manifest.json Init.mp4 library-artwork-manifest.json; do
   [[ -s "$ROOT/desktop/aurora/assets/$art" ]] && cp -f "$ROOT/desktop/aurora/assets/$art" "$STAGE/desktop/aurora/assets/$art"
 done
 if [[ -s "$ROOT/desktop/aurora/assets/Init.mp4" ]]; then
