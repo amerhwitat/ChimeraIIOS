@@ -121,7 +121,6 @@ else
 fi
 [ -r "$router" ] && [ -r "$catalog" ] || { echo "chimera-learn-command: candidate runtime is not installed" >&2; exit 127; }
 command -v python3 >/dev/null 2>&1 || { echo "chimera-learn-command: Python 3 userspace runtime is not installed" >&2; exit 127; }
-command -v python3 >/dev/null 2>&1 || { echo "chimera-learn-isa: Python 3 userspace runtime is not installed" >&2; exit 127; }
 if [ -r "$model" ]; then
   exec python3 "$router" "$@" --rnn-model "$model" --catalog "$catalog"
 else
@@ -155,6 +154,7 @@ else
   model="/usr/share/chimera/cognition/trained-command-isa-rnn.json"
 fi
 [ -r "$router" ] && [ -r "$catalog" ] || { echo "chimera-learn-isa: ISA candidate runtime is not installed" >&2; exit 127; }
+command -v python3 >/dev/null 2>&1 || { echo "chimera-learn-isa: Python 3 userspace runtime is not installed" >&2; exit 127; }
 if [ -r "$model" ]; then
   exec python3 "$router" "$@" --rnn-model "$model" --catalog "$catalog"
 else
