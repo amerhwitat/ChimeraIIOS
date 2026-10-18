@@ -66,7 +66,9 @@ if command -v nm >/dev/null 2>&1; then
   done
 fi
 
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[INST] BLOCKED: installer UI is not running; no executable userspace handoff exists' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: truthful installer handoff diagnostics are missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[HANDOFF] BLOCKED: this boot path has no production ring-3 loader/entry transition' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: userspace handoff blocker is not visible in Koronos ELF" >&2; exit 1; }
+grep -aF '[RECOVERY] Recovery image staged only; recovery userspace is not running' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: recovery target diagnostics are missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[KORE] Service orchestration online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
