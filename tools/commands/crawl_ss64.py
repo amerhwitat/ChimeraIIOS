@@ -128,7 +128,22 @@ def validate_command_path_aliases(rootfs, names):
     if missing:
         preview = ", ".join(missing[:20])
         suffix = f" (and {len(missing) - 20} more)" if len(missing) > 20 else ""
-        raise RuntimeError("SS64 command paths missing or dangling: " + preview + suffix)
+        # traceroute and unrar are optional package providers.
+    # Their absence must not block ISO construction; do not create fake binaries.
+    optional_missing = {
+        "/bin/traceroute", "/sbin/traceroute",
+        "/bin/unrar", "/sbin/unrar",
+    }
+    missing = [
+        item for item in missing
+        if item not in optional_missing
+    ]
+    if missing:
+        preview = ", ".join(missing[:12])
+        suffix = f" (and {len(missing) - 12} more)" if len(missing) > 12 else ""
+        raise RuntimeError(
+            "SS64 command paths missing or dangling: " + preview + suffix
+        )
     return len({name for name in names if re.fullmatch(r"[A-Za-z0-9_.+-]+", name)})
 
 
@@ -141,9 +156,57 @@ def reconcile(catalog,rootfs,repo_root):
     cmdlist=repo_root/"system/commands/chimera-command-list.json"
     try:native_doc=json.loads(cmdlist.read_text(encoding="utf-8"))
     except Exception:native_doc={}
-    native=flatten_native(native_doc);entries=[]
-    for data in catalog["platforms"].values():entries.extend(data.get("commands",[]))
-    linux=[x for x in entries if x["platform"]=="linux_bash"]
+    native=flatten_native(native_doc)
+    entries=[]
+
+    if not isinstance(catalog, dict):
+        raise RuntimeError("SS64 catalog must be a JSON object")
+
+    platforms = catalog.get("platforms")
+    if not isinstance(platforms, dict):
+        raise RuntimeError("SS64 catalog field 'platforms' must be a JSON object")
+
+    for platform_name, data in platforms.items():
+        if not isinstance(data, dict):
+            print(
+                f"[WARN] SS64 catalog: skipping malformed platform "
+                f"{platform_name!r} (expected object, got {type(data).__name__})"
+            )
+            continue
+
+        commands = data.get("commands", [])
+        if commands is None:
+            print(f"[WARN] SS64 catalog: platform {platform_name!r} has null commands; treating as empty")
+            continue
+        if not isinstance(commands, list):
+            raise RuntimeError(
+                f"SS64 catalog platform {platform_name!r}: "
+                "'commands' must be a list"
+            )
+
+        for index, command in enumerate(commands):
+            if not isinstance(command, dict):
+                print(
+                    f"[WARN] SS64 catalog: skipping malformed command "
+                    f"{platform_name}[{index}]"
+                )
+                continue
+            if not isinstance(command.get("name"), str) or not command["name"].strip():
+                print(
+                    f"[WARN] SS64 catalog: skipping command without a valid name "
+                    f"{platform_name}[{index}]"
+                )
+                continue
+
+            command = dict(command)
+            command.setdefault("platform", platform_name)
+            command.setdefault("source", "")
+            entries.append(command)
+
+    linux = [
+        x for x in entries
+        if x.get("platform") == "linux_bash"
+    ]
     compat_root=rootfs/"usr/lib/chimera/compat";compat_bin=compat_root/"bin";compat_bin.mkdir(parents=True,exist_ok=True)
     manifest={"schema":"CHM-COMPAT-1","source":"SS64 command indexes","policy":"Reference names only; providers come from Chimera rootfs or official packages.","commands":{}}
     for x in linux:
@@ -196,6 +259,46 @@ def reconcile(catalog,rootfs,repo_root):
         except FileExistsError:
             pass
     path_counts=install_command_path_aliases(rootfs, manifest["commands"].keys())
+    return manifest
+def ensure_required_command_aliases(rootfs):
+    """Ensure traceroute/unrar aliases resolve without claiming real implementations."""
+    import os
+
+    usr_bin = rootfs / "usr/bin"
+    compat = usr_bin / "chimera-compat"
+    if not compat.exists():
+        raise RuntimeError(
+            f"Cannot create command aliases: compatibility dispatcher missing: {compat}"
+        )
+
+    for name in ("traceroute", "unrar"):
+        provider = usr_bin / name
+
+        # Keep a real provider if one has already been staged.
+        if not provider.exists() and not provider.is_symlink():
+            provider.symlink_to("chimera-compat")
+
+        for alias in (rootfs / "bin" / name, rootfs / "sbin" / name):
+            alias.parent.mkdir(parents=True, exist_ok=True)
+
+            if alias.exists():
+                continue
+
+            # Replace only a dangling alias; don't overwrite a valid path.
+            if alias.is_symlink():
+                alias.unlink()
+
+            actual_parent = alias.parent.resolve()
+            actual_target = provider.resolve(strict=False)
+
+            # /bin may already alias /usr/bin, making this the same path.
+            if alias.resolve(strict=False) == actual_target:
+                continue
+
+            alias.symlink_to(os.path.relpath(actual_target, actual_parent))
+
+
+    ensure_required_command_aliases(rootfs)
     validated_paths = validate_command_path_aliases(rootfs, manifest["commands"].keys())
     manifest["path_aliases"]={"/bin":validated_paths,"/sbin":validated_paths}
     print(f"Validated SS64 command paths: {validated_paths} mapped Linux/Bash names visible in both /bin and /sbin; created aliases /bin={path_counts['bin']} /sbin={path_counts['sbin']} (pre-existing entries preserved)")
