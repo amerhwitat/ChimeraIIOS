@@ -56,20 +56,24 @@ if(NOT WIN32)
   add_executable(chm-usermod ../system/security/chimera_user_mod.cpp)
   add_executable(chm-groupmod ../system/security/chimera_group_mod.cpp)
   add_executable(chm-security-selftest ../system/security/chimera_security_selftest.cpp)
-  foreach(chm_security_target IN ITEMS
-      chm-user-setup
-      chm-ad
-      chm-passwd
-      chm-groupadd
-      chm-perms
-      chm-usermod
-      chm-groupmod
-      chm-security-selftest)
-    target_include_directories(${chm_security_target} PRIVATE
-      "${CHIMERA_CRYPT_INCLUDE_DIR}")
-    target_link_libraries(${chm_security_target} PRIVATE
-      "${CHIMERA_CRYPT_LIBRARY}")
-  endforeach()
+  # Use explicit one-line target commands to keep this block easy to parse
+  # across the project's supported CMake versions.
+  target_include_directories(chm-user-setup PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-user-setup PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-ad PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-ad PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-passwd PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-passwd PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-groupadd PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-groupadd PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-perms PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-perms PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-usermod PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-usermod PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-groupmod PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-groupmod PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
+  target_include_directories(chm-security-selftest PRIVATE "${CHIMERA_CRYPT_INCLUDE_DIR}")
+  target_link_libraries(chm-security-selftest PRIVATE "${CHIMERA_CRYPT_LIBRARY}")
 endif()
 add_executable(aurora-utf-selftest ../desktop/aurora/i18n/aurora_utf_selftest.cpp)
 add_executable(aurora-settings ../desktop/aurora/apps/aurora_settings.cpp)
