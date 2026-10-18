@@ -187,7 +187,10 @@ jobs:
           python3 -m unittest tests/isa/test_import_riscv_opcodes.py -v
           python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
           python3 -m py_compile tools/cognition/local_llm.py tools/cognition/test_local_llm.py tools/isa/isa_candidate_router.py tools/isa/test_isa_candidate_router.py tools/commands/command_candidate_router.py
+          python3 -m py_compile tools/cognition/trainable_rnn_lm.py tools/cognition/train_command_isa_rnn.py tools/cognition/test_train_command_isa_rnn.py
           python3 -m unittest tools.cognition.test_local_llm -v
+          python3 -m unittest tools.cognition.test_trainable_rnn_lm -v
+          python3 -m unittest tools.cognition.test_train_command_isa_rnn -v
           python3 -m unittest tools.isa.test_isa_candidate_router -v
           python3 tools/isa/isa_candidate_router.py "riscv add" --limit 10
           python3 tools/commands/import_command_candidates.py
