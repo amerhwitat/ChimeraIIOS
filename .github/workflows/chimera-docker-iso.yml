@@ -51,7 +51,7 @@ jobs:
         run: |
           test -s docker-output/output.iso
           test -s docker-output/output.iso.sha256
-          sha256sum --check docker-output/output.iso.sha256
+          (cd docker-output && sha256sum --check output.iso.sha256)
       - name: Verify staged SF0 SF1 kernel and GRUB metadata
         run: |
           test -s boot/iso/dist/iso/src/ISA.csv
