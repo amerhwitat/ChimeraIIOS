@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'desktop/**'
+      - 'desktop/native/**'
       - 'tools/build-desktop-binaries.sh'
       - '.github/workflows/native-desktop-suite.yml'
   pull_request:
@@ -23,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install native build tools
-        run: sudo apt-get update && sudo apt-get install --yes build-essential cmake python3
+        run: sudo apt-get update && sudo apt-get install --yes build-essential cmake python3 libgtk-4-dev xvfb
       - name: Compile Aurora native desktop components
         env:
           CHIMERA_DESKTOP_BUILD_DIR: ${{ runner.temp }}/chimera-desktop
@@ -55,3 +56,19 @@ jobs:
           path: ${{ runner.temp }}/chimera-desktop/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Build and headlessly smoke-test native Aurora and Marine GTK shells
+        env:
+          CHIMERA_DESKTOP_BUILD_DIR: ${{ runner.temp }}/chimera-desktop
+        run: |
+          set -euo pipefail
+          mkdir -p "$CHIMERA_DESKTOP_BUILD_DIR/bin"
+          c++ -std=c++20 -O2 -Wall -Wextra \
+            $(pkg-config --cflags gtk4) desktop/native/chimera-desktop-shell.cpp \
+            $(pkg-config --libs gtk4) -o "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell"
+          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=aurora --self-test
+          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=marine --self-test
+          if "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=invalid --self-test; then
+            echo "invalid desktop profile was accepted" >&2
+            exit 1
+          fi
