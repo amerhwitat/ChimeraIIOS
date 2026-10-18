@@ -8,10 +8,11 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
 try:
  from tools.cognition.chimera_rnn import RecurrentState
-from tools.cognition.local_llm import rerank as local_llm_rerank
+ from tools.cognition.local_llm import rerank as local_llm_rerank
 except ModuleNotFoundError:
  sys.path.insert(0,str(Path(__file__).resolve().parent))
  from chimera_rnn import RecurrentState
+ from local_llm import rerank as local_llm_rerank
 DEFAULT=ROOT/"isa/generated/universal-instruction-catalog.json"
 def tokens(value): return set(re.findall(r"[a-z0-9_+.-]+",str(value).casefold()))
 def rank(query,catalog,limit=10):
