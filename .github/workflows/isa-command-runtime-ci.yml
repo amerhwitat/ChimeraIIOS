@@ -12,6 +12,7 @@ on:
       - 'tools/isa/test_riscv_codec.py'
       - 'tools/isa/rv32_machine.py'
       - 'tools/isa/test_rv32_machine.py'
+      - 'tools/isa/test_rv32i_execution_vectors.py'
       - 'tools/binary/**'
       - 'tools/memory/chimera_swap.py'
       - 'tools/memory/test_chimera_swap.py'
