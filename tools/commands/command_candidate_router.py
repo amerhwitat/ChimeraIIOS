@@ -5,10 +5,14 @@ import argparse, json, re, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from tools.cognition.chimera_rnn import RecurrentState, Evidence, KnowledgeBus
+try:
+    from tools.cognition.chimera_rnn import RecurrentState
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from chimera_rnn import RecurrentState
 
 ROOT = Path(__file__).resolve().parents[2]
-CATALOG = ROOT / "system/commands/native-command-candidates.json"
+CATALOG = (Path(__file__).resolve().with_name("native-command-candidates.json") if Path(__file__).resolve().with_name("native-command-candidates.json").exists() else ROOT / "system/commands/native-command-candidates.json")
 def tokenize(text):
     return set(re.findall(r"[a-z0-9_+.-]+", text.casefold()))
 def rank(query, catalog, limit=10):
