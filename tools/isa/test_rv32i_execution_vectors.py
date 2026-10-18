@@ -39,6 +39,16 @@ class RV32IExecutionVectors(unittest.TestCase):
    with self.subTest(op=op):
     m=run([f"ADDI x1, x0, {left}",f"ADDI x2, x0, {right}",f"{op} x1, x2, 8","ADDI x3, x0, 1","ADDI x3, x0, 2","EBREAK"])
     self.assertEqual(m.regs[3],2 if taken else 1)
+ def test_signed_comparisons_and_arithmetic_shift(self):
+  m=run(["ADDI x1, x0, -8","SRAI x2, x1, 1","SLT x3, x1, x0","SLTU x4, x1, x0","EBREAK"])
+  self.assertEqual(m.regs[2],0xfffffffc)
+  self.assertEqual(m.regs[3],1)
+  self.assertEqual(m.regs[4],0)
+ def test_jal_and_jalr_execute_with_link_addresses(self):
+  jal=run(["JAL x1, 8","ADDI x2, x0, 1","ADDI x2, x0, 2","EBREAK"])
+  self.assertEqual(jal.regs[1],4);self.assertEqual(jal.regs[2],2)
+  jalr=run(["ADDI x1, x0, 12","JALR x2, 0(x1)","ADDI x3, x0, 1","ADDI x3, x0, 2","EBREAK"])
+  self.assertEqual(jalr.regs[2],8);self.assertEqual(jalr.regs[3],2)
  def test_jumps_link_register_and_upper_immediates_roundtrip(self):
   for asm in ("LUI x1, 0x12345","AUIPC x2, 0xABCDE","JAL x1, 20","JALR x1, 4(x2)"):
    with self.subTest(asm=asm):
