@@ -238,6 +238,11 @@ jobs:
           test -x /tmp/chimera-command-rootfs/usr/bin/chimera-cmd
           test -L /tmp/chimera-command-rootfs/usr/bin/mv
           test -s /tmp/chimera-command-rootfs/etc/chimera/commands/registry.tsv
+          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/native-command-candidates.json
+          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/command_candidate_router.py
+          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/chimera_rnn.py
+          test -x /tmp/chimera-command-rootfs/usr/bin/chimera-learn-command
+          CHIMERA_ROOT_PREFIX=/tmp/chimera-command-rootfs /tmp/chimera-command-rootfs/usr/bin/chimera-learn-command "list files" --limit 5 | grep -q 'CHM-RNN-COMMAND-ROUTER-1'
 
       - name: Persist regenerated source-backed catalogs
         run: |
