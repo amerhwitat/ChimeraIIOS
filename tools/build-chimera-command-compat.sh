@@ -73,15 +73,27 @@ BACKUP="$ROOT/.chimera-fix-backups/command-compat"
 JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
 mkdir -p "$BIN" "$SBIN" "$LIB" "$ETC" "$CMDROOT" "$SHARE" "$BACKUP" "$BUILD"
 
-# Train a small local character-RNN on checked-in command and ISA catalogs.
-# It only reorders candidates; it never changes the native execution allowlist.
+# Train the advisory RNN on the imported command and universal ISA catalogs when
+# available. Legacy catalogs are only a bootstrap fallback; model output never
+# changes the native command allowlist or ISA execution/conformance status.
 COGSHARE="$OUT/usr/share/chimera/cognition"
 mkdir -p "$COGSHARE"
-if [[ -f "$ROOT/tools/cognition/trainable_rnn_lm.py" && -f "$ROOT/isa/isa_database.json" && -f "$ROOT/system/commands/chimera-command-list.json" ]]; then
+if [[ -f "$ROOT/tools/cognition/train_command_isa_rnn.py" \
+      && -f "$ROOT/system/commands/native-command-candidates.json" \
+      && -f "$ROOT/isa/generated/universal-instruction-catalog.json" ]]; then
+    python3 "$ROOT/tools/cognition/train_command_isa_rnn.py" \
+        --commands "$ROOT/system/commands/native-command-candidates.json" \
+        --isa "$ROOT/isa/generated/universal-instruction-catalog.json" \
+        --output "$COGSHARE/trained-command-isa-rnn.json" --epochs 2 --hidden 12
+elif [[ -f "$ROOT/tools/cognition/trainable_rnn_lm.py" \
+        && -f "$ROOT/isa/isa_database.json" \
+        && -f "$ROOT/system/commands/chimera-command-list.json" ]]; then
     python3 "$ROOT/tools/cognition/trainable_rnn_lm.py" train \
         --source "$ROOT/isa/isa_database.json" \
         --source "$ROOT/system/commands/chimera-command-list.json" \
         --output "$COGSHARE/trained-command-isa-rnn.json" --epochs 2 --hidden 12
+else
+    echo "[CHIMERA-CMD][WARNING] RNN model not trained: imported catalogs are missing." >&2
 fi
 
 # Install the candidate catalog and advisory RNN router alongside the native command runtime.
