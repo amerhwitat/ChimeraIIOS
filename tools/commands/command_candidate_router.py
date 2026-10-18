@@ -8,10 +8,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 try:
     from tools.cognition.chimera_rnn import RecurrentState
-from tools.cognition.local_llm import rerank as local_llm_rerank
+    from tools.cognition.local_llm import rerank as local_llm_rerank
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from chimera_rnn import RecurrentState
+    from local_llm import rerank as local_llm_rerank
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = (Path(__file__).resolve().with_name("native-command-candidates.json") if Path(__file__).resolve().with_name("native-command-candidates.json").exists() else ROOT / "system/commands/native-command-candidates.json")
