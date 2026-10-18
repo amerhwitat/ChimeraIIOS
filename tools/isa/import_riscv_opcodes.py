@@ -19,6 +19,17 @@ def get(url: str, timeout: int) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent":"ChimeraIIOS-ISA-Importer/1.0","Accept":"application/vnd.github+json"})
     with urllib.request.urlopen(req, timeout=timeout) as r: return r.read()
 
+def cached_import_is_valid(path: Path, revision: str) -> bool:
+    """Accept only a non-empty import whose every record cites the pinned revision."""
+    try:
+        cached=json.loads(Path(path).read_text(encoding="utf-8"))
+        records=cached.get("instructions",[])
+        return (cached.get("schema")=="CHM-ISA-SOURCED-IMPORT-1" and bool(records)
+                and cached.get("record_count")==len(records)
+                and all(row.get("source_revision")==revision for row in records))
+    except (OSError,ValueError,TypeError,AttributeError):
+        return False
+
 def parse_file(text: str, path: str, source_hash: str, source_revision: str) -> list[dict]:
     # The upstream files declare fixed fields as NAME hi..lo=value; variable
     # fields are omitted from the fixed mask. Ignore macros, comments and aliases.
@@ -90,15 +101,10 @@ def main():
     try:
         tree=json.loads(get(API_TREE.format(revision=revision),args.timeout))
     except Exception as e:
-        if args.allow_cached and args.output.is_file():
-            try:
-                cached=json.loads(args.output.read_text(encoding="utf-8"))
-                records=cached.get("instructions",[])
-                if cached.get("schema")=="CHM-ISA-SOURCED-IMPORT-1" and records and all(row.get("source_revision")==revision for row in records):
-                    print(f"Using {len(records)} cached source-backed ISA records for pinned revision {revision}; upstream fetch unavailable: {e}")
-                    return 0
-            except (OSError,ValueError,TypeError):
-                pass
+        if args.allow_cached and cached_import_is_valid(args.output,revision):
+            cached=json.loads(args.output.read_text(encoding="utf-8"))
+            print(f"Using {len(cached['instructions'])} cached source-backed ISA records for pinned revision {revision}; upstream fetch unavailable: {e}")
+            return 0
         raise SystemExit(f"cannot retrieve riscv-opcodes source tree: {e}")
     paths=[x["path"] for x in tree.get("tree",[]) if x.get("type")=="blob" and x.get("path","").startswith("extensions/") and Path(x["path"]).suffix in {".", ""}]
     # The repository's extension definition files commonly have no suffix.
