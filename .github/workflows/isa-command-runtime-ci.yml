@@ -131,7 +131,7 @@ jobs:
       - name: Test RV32 machine memory, traps, ORI, and FENCE constraints
         run: |
           python3 -m unittest tools/isa/test_rv32_machine.py -v
-          python3 -m pytest -q tools/isa/test_rv32i_execution_vectors.py
+          python3 -m unittest tools/isa/test_rv32i_execution_vectors.py -v
           python3 tools/isa/validate_rv32_machine_tested_subset.py
       - name: Test swap and NCB binary tooling
         run: |
