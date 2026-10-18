@@ -310,7 +310,7 @@ static void task_installer(void *) {
             console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
             break;
         case 4:
-            console_write("[INST] Installer initialization complete");
+            console_write("[INST] Installer contract processing complete; installer execution is not verified");
             console_write("[INST] Waiting for the Koronos userspace installer loader");
             chimera_sched_block();
             break;
