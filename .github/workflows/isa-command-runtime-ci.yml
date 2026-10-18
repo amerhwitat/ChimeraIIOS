@@ -178,7 +178,8 @@ jobs:
         run: |
           python3 tools/isa/import_riscv_opcodes.py --max-files 500
           python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
-          python3 -m py_compile tools/cognition/local_llm.py tools/cognition/test_local_llm.py tools/isa/isa_candidate_router.py tools/isa/test_isa_candidate_router.py tools/commands/command_candidate_router.py\n          python3 -m unittest tools.cognition.test_local_llm -v
+          python3 -m py_compile tools/cognition/local_llm.py tools/cognition/test_local_llm.py tools/isa/isa_candidate_router.py tools/isa/test_isa_candidate_router.py tools/commands/command_candidate_router.py
+          python3 -m unittest tools.cognition.test_local_llm -v
           python3 -m unittest tools.isa.test_isa_candidate_router -v
           python3 tools/isa/isa_candidate_router.py "riscv add" --limit 10
           python3 tools/commands/import_command_candidates.py
@@ -240,7 +241,9 @@ jobs:
           test -s /tmp/chimera-command-rootfs/etc/chimera/commands/registry.tsv
           test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/native-command-candidates.json
           test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/command_candidate_router.py
-          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/chimera_rnn.py\n          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/local_llm.py\n          test -s /tmp/chimera-command-rootfs/usr/share/chimera/isa/local_llm.py
+          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/chimera_rnn.py
+          test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/local_llm.py
+          test -s /tmp/chimera-command-rootfs/usr/share/chimera/isa/local_llm.py
           test -x /tmp/chimera-command-rootfs/usr/bin/chimera-learn-command
           CHIMERA_ROOT_PREFIX=/tmp/chimera-command-rootfs /tmp/chimera-command-rootfs/usr/bin/chimera-learn-command "list files" --limit 5 --queue /tmp/chimera-command-pending.jsonl | grep -q 'CHM-RNN-COMMAND-ROUTER-1'
           test -s /tmp/chimera-command-rootfs/usr/share/chimera/isa/universal-instruction-catalog.json
