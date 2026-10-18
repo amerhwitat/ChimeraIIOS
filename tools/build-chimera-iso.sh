@@ -116,7 +116,8 @@ cp -f "$TARGET" "$ROOT/chimera-ii-os.iso"
 cp -f "$TARGET.sha256" "$ROOT/chimera-ii-os.iso.sha256"
 if command -v xorriso >/dev/null 2>&1; then xorriso -indev "$TARGET" -report_el_torito plain -report_system_area plain > "$ROOT/build/iso/ISO-BOOT-REPORT.txt" || true; fi
 say VERIFY "Validating final ISO"
-python3 "$ROOT/boot/iso/validate-iso.py" --tree "$ROOT/boot/iso/dist/iso" --write-manifest "$ROOT/build/iso/SHA256SUMS" || true
+# Fail closed: a malformed staged tree must stop the ISO build and prevent release publication.
+python3 "$ROOT/boot/iso/validate-iso.py" --tree "$ROOT/boot/iso/dist/iso" --write-manifest "$ROOT/build/iso/SHA256SUMS"
 [ -s "$ROOT/chimera-ii-os.iso" ] || die "Final ISO copy missing"
 echo "ISO: $ROOT/chimera-ii-os.iso"
 echo "SHA256: $ROOT/chimera-ii-os.iso.sha256"
