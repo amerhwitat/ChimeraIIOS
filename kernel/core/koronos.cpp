@@ -241,6 +241,7 @@ static void task_live(void *) {
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
             console_write("[LIVE] Runtime handoff queued");
+            console_write("[USER] USERSPACE HANDOFF NOT VERIFIED: initramfs is registered but no executable ring-3 entry path is connected");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -289,7 +290,8 @@ static void task_installer(void *) {
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI service initialized");
+            console_write("[INST] Installer metadata parsed; graphical installer userspace is not running");
+            console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
             break;
         case 4:
             console_write("[INST] Installer initialization complete");
@@ -463,6 +465,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_elf64_init();
     chimera_process_init();
     console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    console_write("[USER] USERSPACE READY is withheld: ELF load-plan admission is not a process execution context");
     console_progress(75, "Process admission and module registries initialized");
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
