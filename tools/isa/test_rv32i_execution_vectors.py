@@ -37,7 +37,7 @@ class RV32IExecutionVectors(unittest.TestCase):
   cases=[("BEQ",5,5,True),("BNE",5,5,False),("BLT",4,5,True),("BGE",5,5,True),("BLTU",4,5,True),("BGEU",5,4,True)]
   for op,left,right,taken in cases:
    with self.subTest(op=op):
-    m=run([f"ADDI x1, x0, {left}",f"ADDI x2, x0, {right}",f"{op} x1, x2, 8","ADDI x3, x0, 1","ADDI x3, x0, 2","EBREAK"])
+    m=run([f"ADDI x1, x0, {left}",f"ADDI x2, x0, {right}",f"{op} x1, x2, 12","ADDI x3, x0, 1","JAL x0, 8","ADDI x3, x0, 2","EBREAK"])
     self.assertEqual(m.regs[3],2 if taken else 1)
  def test_signed_comparisons_and_arithmetic_shift(self):
   m=run(["ADDI x1, x0, -8","SRAI x2, x1, 1","SLT x3, x1, x0","SLTU x4, x1, x0","EBREAK"])
