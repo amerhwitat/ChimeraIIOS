@@ -84,8 +84,14 @@ if [[ -f "$ROOT/tools/commands/command_candidate_router.py" && -f "$ROOT/tools/c
     cat > "$BIN/chimera-learn-command" <<'LEARN'
 #!/bin/sh
 set -eu
-router="/usr/share/chimera/commands/command_candidate_router.py"
-catalog="/usr/share/chimera/commands/native-command-candidates.json"
+prefix="${CHIMERA_ROOT_PREFIX:-}"
+if [ -n "$prefix" ]; then
+  router="$prefix/usr/share/chimera/commands/command_candidate_router.py"
+  catalog="$prefix/usr/share/chimera/commands/native-command-candidates.json"
+else
+  router="/usr/share/chimera/commands/command_candidate_router.py"
+  catalog="/usr/share/chimera/commands/native-command-candidates.json"
+fi
 [ -r "$router" ] && [ -r "$catalog" ] || { echo "chimera-learn-command: candidate runtime is not installed" >&2; exit 127; }
 exec python3 "$router" "$@" --catalog "$catalog"
 LEARN
