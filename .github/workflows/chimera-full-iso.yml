@@ -73,6 +73,41 @@ jobs:
           file build/iso/chimera-ii-os.iso
           sha256sum -c build/iso/chimera-ii-os.iso.sha256
 
+      - name: Validate ISO contains target payloads and offline artwork
+        run: |
+          set -euo pipefail
+          iso=build/iso/chimera-ii-os.iso
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          extract() {
+            local source="$1" output="$2"
+            xorriso -osirrox on -indev "$iso" -extract "$source" "$output" >/dev/null
+            test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
+          }
+          extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
+          extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
+          extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
+          extract /boot/recovery/recovery-manifest.json "$tmp/recovery-manifest.json"
+          extract /install/installer/installation.img "$tmp/installation.img"
+          extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
+          extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          extract /boot/grub/grub.cfg "$tmp/grub.cfg"
+          extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
+          extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
+          python3 - "$tmp" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          for name in ("live-manifest.json", "recovery-manifest.json",
+                       "installation-manifest.json", "installer-contract.json"):
+              json.loads((root / name).read_text())
+          grub = (root / "grub.cfg").read_text()
+          for target in ("aurora-live", "install", "recovery"):
+              if f"--id {target}" not in grub:
+                  raise SystemExit(f"GRUB config missing required target: {target}")
+          print("ISO payload check passed: Koronos, Live, Recovery, Installer and offline Aurora artwork are embedded.")
+          PY
+
       - name: QEMU headless Koronos boot smoke test
         run: |
           set +e
