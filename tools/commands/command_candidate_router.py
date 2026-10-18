@@ -44,7 +44,7 @@ def queue_unresolved(query, catalog, queue_path):
               "created_at_utc": datetime.now(timezone.utc).isoformat()}
     queue_path.parent.mkdir(parents=True, exist_ok=True)
     with queue_path.open("a", encoding="utf-8") as stream:
-        stream.write(json.dumps(record, ensure_ascii=False) + "\\n")
+        stream.write(json.dumps(record, ensure_ascii=False) + "\n")
     return str(queue_path)
 
 def main():
