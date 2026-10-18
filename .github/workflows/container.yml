@@ -35,7 +35,7 @@ jobs:
             echo "Docker Hub credentials are unavailable or this is a pull request; validate/build locally without publishing."
           fi
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != ''
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
