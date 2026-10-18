@@ -155,6 +155,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential nasm binutils python3 grub-common grub-pc-bin grub-efi-amd64-bin xorriso mtools dosfstools qemu-system-x86 busybox-static cpio ffmpeg imagemagick unzip python3-cairosvg
+      - name: Build Koronos and target-specific user-init ELFs
+        run: |
+          set -euo pipefail
+          bash kernel/build-koronos.sh
+          test -s build/koronos/x86_64/user-init-live.elf
+          test -s build/koronos/x86_64/user-init-installer.elf
+          test -s build/koronos/x86_64/user-init-recovery.elf
       - name: Build Live and Recovery payloads and the canonical BIOS/UEFI ISO
         run: |
           set -euo pipefail
