@@ -48,6 +48,9 @@ jobs:
           # The container writes a checksum containing /output/output.iso, which
           # is valid inside the container but not on the GitHub-hosted runner.
           # Regenerate a portable checksum against the mounted artifact path.
+          # The container creates mounted files as root; remove its checksum before
+          # writing the host-side portable checksum to avoid an ownership failure.
+          rm -f docker-output/output.iso.sha256
           sha256sum docker-output/output.iso > docker-output/output.iso.sha256
           sha256sum --check docker-output/output.iso.sha256
       - name: Verify staged SF0 SF1 kernel and GRUB metadata
