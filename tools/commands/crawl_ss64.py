@@ -161,6 +161,56 @@ def reconcile(catalog,rootfs,repo_root):
             try:shim.symlink_to("chimera-compat")
             except FileExistsError:pass
     path_counts=install_command_path_aliases(rootfs, manifest["commands"].keys())
+
+    # Repair missing SS64 aliases after the compatibility shims are staged.
+    # Resolve rootfs-internal absolute symlinks without following them on the host.
+    import os
+
+    def rootfs_directory(name):
+        directory = rootfs / name
+        if directory.is_symlink():
+            target = os.readlink(directory)
+            if os.path.isabs(target):
+                directory = rootfs / target.lstrip("/")
+            else:
+                directory = directory.parent / target
+            directory = Path(os.path.normpath(str(directory)))
+        try:
+            directory.relative_to(rootfs)
+        except ValueError:
+            raise RuntimeError(f"Unsafe rootfs alias directory: {name}")
+        directory.mkdir(parents=True, exist_ok=True)
+        return directory
+
+    staged_bin = rootfs / "usr/bin"
+    for name in sorted(manifest["commands"]):
+        if not re.match(r"^[A-Za-z0-9_.+-]+$", name):
+            continue
+
+        provider = staged_bin / name
+        if not provider.exists() and not provider.is_symlink():
+            # The earlier reconciliation loop should have installed this shim.
+            raise RuntimeError(f"Compatibility command shim was not staged: {name}")
+
+        for dirname in ("bin", "sbin"):
+            alias_dir = rootfs_directory(dirname)
+            alias = alias_dir / name
+
+            if alias.exists():
+                continue
+            if alias.is_symlink():
+                alias.unlink()
+
+            relative_provider = os.path.relpath(provider, alias_dir)
+            alias.symlink_to(relative_provider)
+
+    # Persist the generated manifest before validation, so a failed build
+    # still leaves the reconciled command registry available for diagnosis.
+    (compat_root / "commands.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+        encoding="utf-8",
+    )
+
     validated_paths = validate_command_path_aliases(rootfs, manifest["commands"].keys())
     manifest["path_aliases"]={"/bin":validated_paths,"/sbin":validated_paths}
     print(f"Validated SS64 command paths: {validated_paths} mapped Linux/Bash names visible in both /bin and /sbin; created aliases /bin={path_counts['bin']} /sbin={path_counts['sbin']} (pre-existing entries preserved)")
