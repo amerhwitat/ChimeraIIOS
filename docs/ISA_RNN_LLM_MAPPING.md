@@ -27,3 +27,8 @@ The installer UI should show each recommendation with the detected fact and reas
 - `tools/isa/isa_candidate_router.py` and `tools/commands/command_candidate_router.py` use the existing bounded recurrent-state module for advisory ranking. This module is a deterministic research cell, **not a trained LLM**. It cannot infer authoritative semantics, create verified encodings, claim native support, or execute commands.
 - Command import currently inventories 4,081 candidates: 15 backed by the existing native multicall allowlist and 4,066 deferred for provider discovery and tests. Unknown commands stay queued rather than falling back to arbitrary shell execution.
 - The validated CI job persists generated source-backed catalogs and uploads the same run's artifact. Catalog, decode, execution, conformance, and userspace-ready are separate evidence levels.
+
+
+## Optional trained local LLM inference (2026-10-18)
+
+The command and ISA routers now support an explicit `--llm` mode through `tools/cognition/local_llm.py`. It calls a separately installed, trained OpenAI-compatible model server on loopback only (`CHIMERA_LLM_BASE_URL`, `CHIMERA_LLM_MODEL`). The response is strict-JSON parsed and every returned candidate ID must belong to the supplied allowlist. Malformed/unavailable model responses fall back to deterministic retrieval. The adapter is tested in CI. This repository does not bundle trained weights or claim that the deterministic `RecurrentState` is itself an LLM. The model can rank candidates; it cannot assert executable ISA support or trigger command execution.
