@@ -56,6 +56,12 @@ on:
       - 'src/chimera-command-compat/**'
       - 'tools/build-chimera-command-compat.sh'
       - 'system/commands/compatibility-binary-policy.json'
+      - 'system/commands/native-command-candidates.json'
+      - 'tools/commands/import_command_candidates.py'
+      - 'tools/commands/command_candidate_router.py'
+      - 'tools/commands/test_import_command_candidates.py'
+      - 'tools/commands/test_command_candidate_router.py'
+      - 'tools/isa/run_import_pipeline.py'
       - '.github/workflows/isa-command-runtime-ci.yml'
   pull_request:
     paths:
@@ -165,6 +171,24 @@ jobs:
           assert all(c.get("provider") and c.get("mode") for c in d["commands"])
           print("Command capability inventory valid:", d["command_count"], d["mode_counts"])
           PY
+      - name: Import sourced ISA forms and cross-OS command candidates
+        run: |
+          python3 tools/isa/import_riscv_opcodes.py --max-files 500
+          python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
+          python3 tools/commands/import_command_candidates.py
+          python3 -m py_compile tools/commands/import_command_candidates.py tools/commands/command_candidate_router.py tools/commands/test_import_command_candidates.py tools/commands/test_command_candidate_router.py
+          python3 -m unittest tools.commands.test_import_command_candidates tools.commands.test_command_candidate_router -v
+          python3 tools/commands/command_candidate_router.py "list files" --limit 10
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("system/commands/native-command-candidates.json").read_text(encoding="utf-8"))
+          assert p["counts"]["total"] == len(p["commands"])
+          assert p["counts"]["native_implemented"] == 15
+          assert p["counts"]["candidate_only"] > 1000
+          assert all((c["execution_allowed"] is False and c["learning"]["state"] == "unresolved") for c in p["commands"] if c["status"] == "candidate-only")
+          print("Imported native/candidate command inventory:", p["counts"])
+          PY
       - name: Compile kernel ISA lookup registry
         run: |
           c++ -std=c++17 -Wall -Wextra -Werror -I kernel/include -c kernel/core/isa_registry.cpp -o /tmp/chimera-isa-registry.o
@@ -208,3 +232,15 @@ jobs:
           test -x /tmp/chimera-command-rootfs/usr/bin/chimera-cmd
           test -L /tmp/chimera-command-rootfs/usr/bin/mv
           test -s /tmp/chimera-command-rootfs/etc/chimera/commands/registry.tsv
+
+      - name: Upload imported ISA and command catalogs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-ISA-Command-Import-${{ github.sha }}
+          path: |
+            isa/sources/imports/riscv-opcodes.json
+            isa/generated/universal-instruction-catalog.json
+            system/commands/native-command-candidates.json
+            system/commands/command-runtime-capabilities.json
+          if-no-files-found: error
+          retention-days: 30
