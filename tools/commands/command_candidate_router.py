@@ -56,11 +56,20 @@ def main():
     ap.add_argument("--catalog", type=Path, default=CATALOG)
     ap.add_argument("--queue", type=Path, default=Path.home()/".local/state/chimera/command-candidates.jsonl")
     ap.add_argument("--llm", action="store_true", help="use a separately configured loopback local LLM to rerank candidates")
+    ap.add_argument("--rnn-model", type=Path, help="optional trained character-RNN JSON model for candidate ranking")
     a=ap.parse_args()
     if not 1 <= a.limit <= 100: raise SystemExit("--limit must be 1..100")
     catalog=json.loads(a.catalog.read_text(encoding="utf-8"))
     results=rank(a.query, catalog, max(a.limit, min(100, len(catalog.get("commands", [])))))
     llm_meta={"mode":"deterministic-rnn","validated":False}
+    if a.rnn_model:
+        try:
+            from tools.cognition.trainable_rnn_lm import CharRNN
+        except ModuleNotFoundError:
+            from trainable_rnn_lm import CharRNN
+        trained=CharRNN.load(a.rnn_model)
+        results.sort(key=lambda row: (-trained.score(a.query+" "+row["name"]+" "+row["status"]), row["name"]))
+        llm_meta={"mode":"trained-character-rnn","model":str(a.rnn_model),"validated":True,"llm_scale":False}
     if a.llm:
         candidates=[{"id":r["name"],"label":r["name"]+" | "+r["status"]} for r in results]
         ordered,llm_meta=local_llm_rerank(a.query,candidates,a.limit)
@@ -70,7 +79,7 @@ def main():
         results=results[:a.limit]
     queued=queue_unresolved(a.query, catalog, a.queue)
     print(json.dumps({"schema":"CHM-RNN-COMMAND-ROUTER-1",
-      "engine":"deterministic recurrent-state retrieval"+(" with constrained local LLM reranking" if a.llm else ""), "llm":llm_meta,
+      "engine":"deterministic recurrent-state retrieval"+(" with constrained local LLM reranking" if a.llm else "")+(" with trained character-RNN scoring" if a.rnn_model else ""), "llm":llm_meta,
       "query":a.query,"results":results,
       "unresolved_count":catalog.get("counts",{}).get("candidate_only",0),"queued_for_later":bool(queued),"queue_file":queued,
       "safety":"Ranking is advisory. This tool does not execute commands, install providers, or infer missing implementations."}, ensure_ascii=False, indent=2))
