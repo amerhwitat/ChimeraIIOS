@@ -15,7 +15,7 @@ class DesktopParityContractTests(unittest.TestCase):
         self.assertIn("A browser preview or feature inventory must never be reported as a native desktop implementation.", contract["acceptance"]["policy"])
 
     def test_both_desktops_load_shared_shell(self):
-        for rel in ("desktop/aurora/index.html", "desktop/marine/index.html"):
+        for rel in ("desktop/aurora-wayland-glass/index.html", "desktop/marine/index.html"):
             page = (ROOT / rel).read_text()
             self.assertIn('<script src="../shared/desktop-parity.js" defer></script>', page, rel)
             self.assertIn("Preview only", page, rel)
