@@ -11,6 +11,8 @@ on:
       - 'kernel/include/chimera/boot_target.h'
       - 'kernel/tests/boot_target_test.cpp'
       - 'kernel/tests/boot-target-unit.sh'
+      - 'kernel/core/syscall.cpp'
+      - 'kernel/tests/test_syscall_lifecycle_fail_closed.py'
       - '.github/workflows/koronos-boot-target.yml'
   push:
     branches: [main]
@@ -19,6 +21,8 @@ on:
       - 'kernel/include/chimera/boot_target.h'
       - 'kernel/tests/boot_target_test.cpp'
       - 'kernel/tests/boot-target-unit.sh'
+      - 'kernel/core/syscall.cpp'
+      - 'kernel/tests/test_syscall_lifecycle_fail_closed.py'
       - '.github/workflows/koronos-boot-target.yml'
 
 permissions:
@@ -31,3 +35,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run boot-target admission unit tests
         run: bash kernel/tests/boot-target-unit.sh
+      - name: Reject fabricated PID and exit success
+        run: python3 kernel/tests/test_syscall_lifecycle_fail_closed.py
