@@ -15,7 +15,9 @@ uint32_t koronos_target_userspace_ready(void);
 uint32_t koronos_target_active_pid(void);
 /* Acknowledges a syscall only when its saved user RIP and active CR3 match
    the currently launched process. Returns that process PID, otherwise zero. */
-uint32_t koronos_target_note_user_syscall(uint64_t user_rip);
+uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs);
+/* Context validation for SYSCALL, which does not save the caller CS. */
+uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 
 #ifdef __cplusplus
 }
