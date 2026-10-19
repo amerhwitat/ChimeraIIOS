@@ -32,6 +32,7 @@ on:
       - "tools/build-full-iso.*"
       - "sdk/**"
       - "CMakeLists.txt"
+      - "tests/boot/**"
       - ".github/workflows/chimera-full-iso.yml"
 
 permissions:
