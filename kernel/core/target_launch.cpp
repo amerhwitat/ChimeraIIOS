@@ -49,17 +49,18 @@ static const char *target_name(Target target) {
         default: return "unknown";
     }
 }
-static void log_syscall_pid(uint32_t pid) {
-    char message[72];
-    const char prefix[] = "[SYSC] active userspace syscall context validated pid=";
+static void log_user_init_syscall(Target target, uint32_t pid) {
+    char message[96];
+    const char *name = target_name(target);
+    const char prefix[] = "USER INIT SYSCALL: target=";
     size_t used = 0;
     for (size_t i = 0; i < sizeof(prefix) - 1u; ++i) message[used++] = prefix[i];
-    char reversed[10];
-    size_t digits = 0;
-    do {
-        reversed[digits++] = (char)('0' + (pid % 10u));
-        pid /= 10u;
-    } while (pid && digits < sizeof(reversed));
+    while (*name) message[used++] = *name++;
+    const char middle[] = " init_pid=";
+    for (size_t i = 0; i < sizeof(middle) - 1u; ++i) message[used++] = middle[i];
+    char reversed[10]; size_t digits = 0;
+    do { reversed[digits++] = (char)('0' + (pid % 10u)); pid /= 10u; }
+    while (pid && digits < sizeof(reversed));
     while (digits) message[used++] = reversed[--digits];
     message[used] = 0;
     koronos_target_log(message);
