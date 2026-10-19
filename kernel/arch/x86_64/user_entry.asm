@@ -161,10 +161,7 @@ koronos_syscall_entry:
     sub rsp, 8
     call koronos_syscall_user_dispatch
     add rsp, 8
-    lea rdi, [rel koronos_sysret_trace]
-    sub rsp, 8
-    call koronos_target_log
-    add rsp, 8
+    ; Keep the syscall return value intact until the exit-sentinel check.
     mov rdx, EXIT_SENTINEL
     cmp rax, rdx
     je koronos_syscall_user_exit
