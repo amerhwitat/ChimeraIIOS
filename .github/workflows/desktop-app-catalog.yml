@@ -39,7 +39,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html")):
+          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html"), Path("appcenter/document-desk.html"), Path("appcenter/snake-arcade.html")):
               text = path.read_text(encoding="utf-8")
               scripts = re.findall(r"<script>(.*?)</script>", text, re.S)
               assert scripts, f"missing inline script: {path}"
