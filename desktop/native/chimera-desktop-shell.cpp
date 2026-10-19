@@ -111,7 +111,7 @@ void filter_app_cards(GtkSearchEntry* entry, gpointer) {
   for (GtkWidget* card : app_cards) {
     const char* searchable = static_cast<const char*>(
         g_object_get_data(G_OBJECT(card), "search-text"));
-    const bool visible = !query || query[0] == '\\0' ||
+    const bool visible = !query || query[0] == 0 ||
         (searchable && g_strstr_len(searchable, -1, query));
     gtk_widget_set_visible(card, visible);
   }
