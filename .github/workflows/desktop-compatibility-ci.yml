@@ -50,6 +50,6 @@ jobs:
           test -s man/chm-utf8.1
           test -s man/aurora-terminal.1
       - name: Python syntax
-        run: python -m py_compile desktop/python/chimera_desktop.py tools/validation/validate_capability_status.py
+        run: python -m py_compile desktop/python/chimera_desktop.py desktop/aurora/repository_application_center.py appcenter/cli/chimera-appctl.py tools/validation/validate_capability_status.py
       - name: Java syntax/build
         run: javac java/chimera/desktop/*.java
