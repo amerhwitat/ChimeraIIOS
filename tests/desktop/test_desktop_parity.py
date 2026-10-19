@@ -37,6 +37,13 @@ class DesktopParityContractTests(unittest.TestCase):
         for feature in ("launcher-search", "window-management", "virtual-workspaces", "quick-settings", "accessibility-preferences"):
             self.assertIn(feature, script)
 
+    def test_native_gtk_shell_has_search_and_navigation(self):
+        source = (ROOT / "desktop/native/chimera-desktop-shell.cpp").read_text()
+        self.assertIn("gtk_search_entry_new()", source)
+        self.assertIn("filter_app_cards", source)
+        self.assertIn("G_CALLBACK(nav_clicked)", source)
+        self.assertIn("g_strstr_len", source)
+
     def test_shared_shell_javascript_syntax(self):
         try:
             subprocess.run(["node", "--check", str(ROOT / "desktop/shared/desktop-parity.js")],
