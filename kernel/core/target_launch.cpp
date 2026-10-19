@@ -17,6 +17,7 @@ enum Target : uint32_t { TARGET_NONE=0, TARGET_LIVE=1, TARGET_INSTALLER=2, TARGE
 static volatile uint32_t active_target = TARGET_NONE;
 static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
+static bool active_probe = false;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
@@ -47,11 +48,11 @@ static const char *target_name(Target target) {
         default: return "unknown";
     }
 }
-static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
+static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid, bool probe) {
     const char *name = target_name(target);
     char prefix[80];
     uint64_t p=0;
-    const char *a="USERSPACE READY: ";
+    const char *a=probe ? "USERSPACE PROBE READY: " : "USERSPACE READY: ";
     while (*a) prefix[p++]=*a++;
     while (*name) prefix[p++]=*name++;
     const char *b=" init pid=";
@@ -79,7 +80,7 @@ static bool target_marker(const char *bytes, uint64_t length, Target target, uin
 extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length) {
     if (!bytes || !length || active_target==TARGET_NONE || !active_pid) return 0;
-    if (target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
+    if (target_marker(bytes,length,static_cast<Target>(active_target),active_pid,active_probe)) {
         ready_seen=1;
         return 1;
     }
@@ -142,6 +143,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     }
     active_target=target;
     active_pid=static_cast<uint32_t>(pid);
+    active_probe=token(selected->cmdline,"probe=1");
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
     // 100 Hz PIT deadline: 1,000 ticks gives user init ten seconds to return
@@ -151,6 +153,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         ops->destroy_address_space(nullptr,loaded.address_space);
         (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
         active_target=TARGET_NONE;
+        active_probe=false;
         koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
         return -10;
     }
@@ -160,6 +163,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
     active_target=TARGET_NONE;
+    const bool was_probe=active_probe;
+    active_probe=false;
     if (exit_code == -10) {
         koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
         return -11;
@@ -172,6 +177,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: userspace init exited nonzero after readiness");
         return -9;
     }
-    koronos_target_log("[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly");
+    if (was_probe) koronos_target_log("[PROBE] Target ring-3 ELF probe emitted its own readiness handshake and exited cleanly");
+    else koronos_target_log("[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly");
     return 0;
 }
