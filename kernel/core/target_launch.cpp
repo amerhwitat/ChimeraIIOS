@@ -17,6 +17,8 @@ enum Target : uint32_t { TARGET_NONE=0, TARGET_LIVE=1, TARGET_INSTALLER=2, TARGE
 static volatile uint32_t active_target = TARGET_NONE;
 static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
+static uint64_t active_root = 0;
+static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
