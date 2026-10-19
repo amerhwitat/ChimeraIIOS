@@ -301,7 +301,7 @@ jobs:
               fi
               qemu_log="$base/$target-$firmware-qemu.log"
               set +e
-              timeout 15s qemu-system-x86_64 "\${qemu_args[@]}" >"$qemu_log" 2>&1
+              timeout 15s qemu-system-x86_64 "${qemu_args[@]}" >"$qemu_log" 2>&1
               qemu_rc=$?
               set -e
               if [[ ! -s "$trace" ]]; then
