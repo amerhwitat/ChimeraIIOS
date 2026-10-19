@@ -6,6 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CPUS=2 \
     QEMU_DISPLAY=vnc=:1
 
+LABEL org.opencontainers.image.title="Chimera II OS ISO Runner Candidate" \
+      org.opencontainers.image.description="QEMU wrapper for development ISO; not a production OS release"
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates qemu-system-x86 ovmf \
     && rm -rf /var/lib/apt/lists/*
