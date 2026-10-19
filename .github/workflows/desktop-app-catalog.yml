@@ -34,5 +34,18 @@ jobs:
           assert manifest == ids, 'ISO application manifest must exactly match catalog IDs in order'
           print(f'validated {len(manifest)} ISO catalog IDs')
           PY
+      - name: Syntax-check standalone browser app scripts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html")):
+              text = path.read_text(encoding="utf-8")
+              scripts = re.findall(r"<script>(.*?)</script>", text, re.S)
+              assert scripts, f"missing inline script: {path}"
+              Path("/tmp/" + path.stem + ".js").write_text("\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/paint-studio.js
+          node --check /tmp/media-deck.js
       - name: Test Application Center discovery and safe plans
         run: python -m pytest -q appcenter/tests
