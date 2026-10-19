@@ -69,6 +69,17 @@ bool spawn_command(const char* program, const char* argument) {
   return started;
 }
 
+bool launch_first_available(const char* const* candidates,
+                           const char* success_message) {
+  for (size_t i = 0; candidates[i]; ++i) {
+    if (spawn_command(candidates[i], nullptr)) {
+      set_status(success_message);
+      return true;
+    }
+  }
+  return false;
+}
+
 void launch_clicked(GtkButton*, gpointer data) {
   const char* action = static_cast<const char*>(data);
   if (std::strcmp(action, "terminal") == 0) {
@@ -91,13 +102,37 @@ void launch_clicked(GtkButton*, gpointer data) {
       return;
     }
   } else if (std::strcmp(action, "settings") == 0) {
-    if (spawn_command("gnome-control-center", nullptr)) {
-      set_status("Host settings opened.");
+    const char* candidates[] = {"gnome-control-center", "systemsettings", nullptr};
+    if (launch_first_available(candidates, "Host settings opened.")) return;
+  } else if (std::strcmp(action, "paint") == 0) {
+    const char* candidates[] = {"krita", "gimp", "pinta", "kolourpaint", nullptr};
+    if (launch_first_available(candidates, "Installed painting application launched.")) return;
+  } else if (std::strcmp(action, "media-player") == 0) {
+    const char* candidates[] = {"vlc", "mpv", "celluloid", "parole", "audacious", nullptr};
+    if (launch_first_available(candidates, "Installed media player launched.")) return;
+  } else if (std::strcmp(action, "image-viewer") == 0) {
+    const char* candidates[] = {"loupe", "eog", "gwenview", "ristretto", "feh", nullptr};
+    if (launch_first_available(candidates, "Installed image viewer launched.")) return;
+  } else if (std::strcmp(action, "games") == 0) {
+    const char* candidates[] = {"steam", "heroic", "lutris", "retroarch", nullptr};
+    if (launch_first_available(candidates, "Installed game launcher opened.")) return;
+  } else if (std::strcmp(action, "text-editor") == 0) {
+    const char* candidates[] = {"gnome-text-editor", "gedit", "kate", "mousepad", nullptr};
+    if (launch_first_available(candidates, "Installed text editor launched.")) return;
+  } else if (std::strcmp(action, "calculator") == 0) {
+    const char* candidates[] = {"gnome-calculator", "kcalc", "qalculate-gtk", nullptr};
+    if (launch_first_available(candidates, "Installed calculator launched.")) return;
+  } else if (std::strcmp(action, "office") == 0) {
+    const char* candidates[] = {"libreoffice", "onlyoffice-desktopeditors", nullptr};
+    if (launch_first_available(candidates, "Installed office suite launched.")) return;
+  } else if (std::strcmp(action, "app-catalog") == 0) {
+    if (spawn_command("xdg-open", "https://amerhwitat.github.io/apps/desktop-app-catalog/")) {
+      set_status("Application catalog opened in the host browser.");
       return;
     }
   }
   set_status(std::string(action) +
-             ": no supported host application is installed.");
+             ": no supported host application is installed or launchable.");
 }
 
 GtkWidget* action_button(const char* label, const char* action,
@@ -279,6 +314,22 @@ void activate(GtkApplication* app, gpointer) {
       "Open a URL using the configured browser handler.", "browser"), 2, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(grid), app_card("⚙", "Settings",
       "Open host settings when the provider is installed.", "settings"), 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🎨", "Paint Studio",
+      "Launch an installed Krita, GIMP, Pinta or KolourPaint app.", "paint"), 1, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🎬", "Media Player",
+      "Launch an installed VLC, mpv, Celluloid or compatible player.", "media-player"), 2, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🖼", "Image Viewer",
+      "Launch an installed image viewer.", "image-viewer"), 0, 2, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🎮", "Games",
+      "Open an installed Steam, Heroic, Lutris or RetroArch launcher.", "games"), 1, 2, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("📝", "Text Editor",
+      "Launch an installed desktop text editor.", "text-editor"), 2, 2, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🧮", "Calculator",
+      "Launch an installed desktop calculator.", "calculator"), 0, 3, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🗂", "Desktop App Catalog",
+      "Browse upstream apps, platform scope, licenses and integration state.", "app-catalog"), 1, 3, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("▤", "Office",
+      "Launch an installed LibreOffice or ONLYOFFICE desktop suite.", "office"), 2, 3, 1, 1);
 
   GtkWidget* footer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
   gtk_widget_add_css_class(footer, "footer");
