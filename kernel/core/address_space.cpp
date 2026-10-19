@@ -221,10 +221,26 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     const uint64_t leaf_flags = ENTRY_PRESENT | ENTRY_USER |
         ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
         ((elf_flags & 1u) ? 0u : ENTRY_NX);
-    for (uint64_t i = 0; i < pages64; ++i) {
-        uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
-        if (!pte || (*pte & ENTRY_PRESENT)) { unlock_backend(); return -5; }
-        *pte = (physical + i * PAGE_SIZE) | leaf_flags;
+    uint64_t mapped_now = 0;
+    for (; mapped_now < pages64; ++mapped_now) {
+        uint64_t *pte = ensure_pte(space, virtual_base + mapped_now * PAGE_SIZE);
+        if (!pte || (*pte & ENTRY_PRESENT)) {
+            // Do not leave a partially installed user mapping pointing at
+            // frames that may be freed by the caller's error path.  The page
+            // table pages created while walking are still owned by this
+            // address space and are reclaimed when the space is destroyed.
+            for (uint64_t j = 0; j < mapped_now; ++j) {
+                uint64_t *installed = ensure_pte(space, virtual_base + j * PAGE_SIZE);
+                if (installed) *installed = 0;
+            }
+            (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+            --space->mapped_count;
+            space->mapped[space->mapped_count] = {};
+            space->user_pages -= pages64;
+            unlock_backend();
+            return -5;
+        }
+        *pte = (physical + mapped_now * PAGE_SIZE) | leaf_flags;
     }
     *kernel_alias = reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
     unlock_backend();
@@ -263,7 +279,35 @@ static bool address_space_self_test() {
              (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0;
     }
     destroy_address_space(nullptr, space);
-    return ok && koronos_frame_free_count() == before;
+
+    // Force a partial-range collision: page 1 already exists, then a two-page
+    // mapping starting at page 0 must roll back page 0 when page 1 collides.
+    bool rollback_ok = false;
+    AddressSpace *rollback_space =
+        static_cast<AddressSpace *>(create_address_space(nullptr));
+    if (rollback_space) {
+        void *conflict_alias = nullptr;
+        const uint64_t base = KORONOS_USER_VIRTUAL_MIN + 0x200000ull;
+        const int conflict_rc =
+            map_pages(nullptr, rollback_space, base + PAGE_SIZE, PAGE_SIZE, 5u,
+                      &conflict_alias);
+        if (conflict_rc == 0 && conflict_alias) {
+            void *range_alias = nullptr;
+            const int range_rc =
+                map_pages(nullptr, rollback_space, base, 2u * PAGE_SIZE, 5u,
+                          &range_alias);
+            uint64_t *first = ensure_pte(rollback_space, base);
+            uint64_t *conflict = ensure_pte(rollback_space, base + PAGE_SIZE);
+            rollback_ok = range_rc == -5 && first && conflict &&
+                          ((*first & ENTRY_PRESENT) == 0) &&
+                          ((*conflict & (ENTRY_PRESENT | ENTRY_USER)) ==
+                           (ENTRY_PRESENT | ENTRY_USER)) &&
+                          rollback_space->mapped_count == 1u &&
+                          rollback_space->user_pages == 1u;
+        }
+        destroy_address_space(nullptr, rollback_space);
+    }
+    return ok && rollback_ok && koronos_frame_free_count() == before;
 }
 static const chimera_elf_load_ops loader_ops = {
     create_address_space, map_pages, destroy_address_space
