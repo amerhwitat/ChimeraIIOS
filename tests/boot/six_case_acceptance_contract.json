@@ -1,0 +1,114 @@
+{
+  "schema": "CHM-OS-PRODUCTION-SIX-CASE-1",
+  "status": "contract-only",
+  "rule": "Never mark PASS from kernel logs, standalone probe ELFs, staged payloads, or fabricated markers. Require real production ISO boot plus CPL3-originated init syscall and matching nonzero PID READY evidence.",
+  "required_events": {
+    "syscall": "USER INIT SYSCALL: target=<target> init_pid=<nonzero>",
+    "ready": "USERSPACE READY: target=<target> init_pid=<same-nonzero>",
+    "provenance": "Verify CPL3 origin, target, same nonzero PID, firmware, ISO SHA-256, kernel SHA, and attached serial/debug log."
+  },
+  "cases": [
+    {
+      "id": "live-bios",
+      "target": "live",
+      "firmware": "bios",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null
+      }
+    },
+    {
+      "id": "installer-bios",
+      "target": "installer",
+      "firmware": "bios",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null
+      }
+    },
+    {
+      "id": "recovery-bios",
+      "target": "recovery",
+      "firmware": "bios",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null
+      }
+    },
+    {
+      "id": "live-uefi",
+      "target": "live",
+      "firmware": "uefi",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null
+      }
+    },
+    {
+      "id": "installer-uefi",
+      "target": "installer",
+      "firmware": "uefi",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null
+      }
+    },
+    {
+      "id": "recovery-uefi",
+      "target": "recovery",
+      "firmware": "uefi",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null
+      }
+    }
+  ],
+  "required_followups": [
+    "Live starts Aurora and verifies the real session.",
+    "Installer completes, reboots, and boots the installed system.",
+    "Recovery performs a real recovery operation.",
+    "Prove AP startup and simultaneous SMP separately; -smp alone is not proof."
+  ]
+}
