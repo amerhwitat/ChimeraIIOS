@@ -15,6 +15,7 @@ extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
 volatile uint32_t koronos_state = 0;
+chimera_boot_target selected_boot_target = CHIMERA_BOOT_TARGET_INVALID;
 
 static uint8_t serial_in8(uint16_t port) {
     uint8_t v;
@@ -381,14 +382,18 @@ static void task_kore(void *) {
 static void koronos_submit_bootstrap_tasks() {
     int a = chimera_sched_submit(task_console, 0, 100);
     int b = chimera_sched_submit(task_modules, 0, 90);
-    int c = chimera_sched_submit(task_live, 0, 80);
-    int d = chimera_sched_submit(task_installer, 0, 80);
-    int recovery = chimera_sched_submit(task_recovery, 0, 80);
+    int target_task = -1;
+    if (selected_boot_target == CHIMERA_BOOT_TARGET_LIVE)
+        target_task = chimera_sched_submit(task_live, 0, 80);
+    else if (selected_boot_target == CHIMERA_BOOT_TARGET_INSTALLER)
+        target_task = chimera_sched_submit(task_installer, 0, 80);
+    else if (selected_boot_target == CHIMERA_BOOT_TARGET_RECOVERY)
+        target_task = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
-    console_write("[SCH ] Bootstrap tasks submitted");
-    console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0)
+    console_write("[SCH ] Bootstrap tasks submitted for selected target only");
+    console_write("[SCH ] console/module/selected-target/Kore services registered");
+    if (a < 0 || b < 0 || target_task < 0 || e < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
@@ -430,6 +435,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         console_write("[BOOT] FATAL: selected boot target payload is missing or invalid");
         for (;;) { __asm__ volatile("cli; hlt"); }
     }
+    selected_boot_target = selected;
     console_write("[BOOT] Explicit boot target admitted: ");
     console_write(selected == CHIMERA_BOOT_TARGET_LIVE ? "live" :
                   selected == CHIMERA_BOOT_TARGET_INSTALLER ? "installer" : "recovery");
