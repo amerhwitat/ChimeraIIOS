@@ -206,23 +206,23 @@ jobs:
               cp -a boot/iso/dist/iso/. "$tree/"
               cp "build/koronos/x86_64/user-init-$target.elf" "$tree/boot/koronos/user-init-$target.elf"
               python3 - "$tree/boot/grub/grub.cfg" "$target" <<'PY'
-import sys
-from pathlib import Path
-cfg = Path(sys.argv[1])
-target = sys.argv[2]
-text = cfg.read_text(encoding="utf-8")
-if target == "live":
-    needle = "module2 /boot/live/live-manifest.json chimera-live-manifest\n"
-elif target == "installer":
-    needle = "module2 /install/installer/installer_profiles.json chimera-installer-profiles\n"
-else:
-    needle = "module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest\n"
-module = f"module2 /boot/koronos/user-init-{target}.elf chimera-user-init-elf target={target} probe=1\n"
-if needle not in text:
-    raise SystemExit(f"target menu contract not found for {target}: {needle.strip()}")
-text = text.replace(needle, needle + module)
-cfg.write_text(text, encoding="utf-8")
-PY
+          import sys
+          from pathlib import Path
+          cfg = Path(sys.argv[1])
+          target = sys.argv[2]
+          text = cfg.read_text(encoding="utf-8")
+          if target == "live":
+          needle = "module2 /boot/live/live-manifest.json chimera-live-manifest\n"
+          elif target == "installer":
+          needle = "module2 /install/installer/installer_profiles.json chimera-installer-profiles\n"
+          else:
+          needle = "module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest\n"
+          module = f"module2 /boot/koronos/user-init-{target}.elf chimera-user-init-elf target={target} probe=1\n"
+          if needle not in text:
+          raise SystemExit(f"target menu contract not found for {target}: {needle.strip()}")
+          text = text.replace(needle, needle + module)
+          cfg.write_text(text, encoding="utf-8")
+          PY
               sed -i "s/^set default=0$/set default=$menu_id/" "$tree/boot/grub/grub.cfg"
               grep -q "^set default=$menu_id$" "$tree/boot/grub/grub.cfg"
               iso="$base/$target-$firmware.iso"
