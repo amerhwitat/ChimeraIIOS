@@ -131,6 +131,10 @@ jobs:
           set -euo pipefail
           test -s dist/output.iso
           test -s dist/output.iso.sha256
+          expected="$(awk '{print $1}' dist/output.iso.sha256)"
+          actual="$(sha256sum dist/output.iso | awk '{print $1}')"
+          test "$expected" = "$actual"
+          printf '%s  output.iso\n' "$expected" > dist/output.iso.sha256
           (cd dist && sha256sum -c output.iso.sha256)
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
