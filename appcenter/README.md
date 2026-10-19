@@ -12,6 +12,8 @@ The expanded [application catalog](catalog/apps.json) covers common desktop work
 
 [Paint Studio](paint-studio.html) is a dependency-free browser canvas editor with pen, line, rectangle, ellipse, eraser, undo, image import and PNG export. It runs in a modern browser and keeps edits in the page until exported. **This is a browser app prototype, not a native Koronos executable or a claim of OS-level file/graphics integration.**
 
+[Media Deck](media-deck.html) is a dependency-free local browser audio/video player with queue controls, volume, playback speed and keyboard play/pause. Browser codec support applies; this is not a native media backend.
+
 ## Policy
 
 The ISO contains open-source core components and metadata/source references. Proprietary binaries are not copied into the repository merely because an application is popular. The application manager opens or invokes an official distribution mechanism when a license or store policy requires it. Untrusted post-install scripts are not run implicitly.
