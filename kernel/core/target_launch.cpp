@@ -159,6 +159,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
     }
     active_target=target;
     active_pid=static_cast<uint32_t>(pid);
+    active_root=root;
+    syscall_ack_seen=0;
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
     // 100 Hz PIT deadline: 1,000 ticks gives user init ten seconds to return
