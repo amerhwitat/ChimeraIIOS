@@ -49,7 +49,10 @@ def inspect_elf(path: Path, target: str) -> dict:
         if p_align > 1 and ((p_align & (p_align - 1)) or p_vaddr % p_align != p_offset % p_align):
             raise ValueError(f"{target}: PT_LOAD alignment invalid")
         loads.append((p_vaddr, p_vaddr + p_memsz, p_flags))
-    ordered = sorted((start, end) for start, end, _ in loads)\n    if any(ordered[i][0] < ordered[i - 1][1] for i in range(1, len(ordered))):\n        raise ValueError(f"{target}: overlapping PT_LOAD virtual ranges")\n    if not loads or not any((flags & PF_X) and start <= entry < end for start, end, flags in loads):
+    ordered = sorted((start, end) for start, end, _ in loads)
+    if any(ordered[i][0] < ordered[i - 1][1] for i in range(1, len(ordered))):
+        raise ValueError(f"{target}: overlapping PT_LOAD virtual ranges")
+    if not loads or not any((flags & PF_X) and start <= entry < end for start, end, flags in loads):
         raise ValueError(f"{target}: entry point is not inside an executable PT_LOAD segment")
     return {
         "target": target,
