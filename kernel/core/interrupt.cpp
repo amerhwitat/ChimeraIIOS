@@ -107,8 +107,8 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         const uint64_t rip = saved ? saved[16] : 0u;
         const char *kind = vector == 6u ? "[EXC] #UD RIP=0x" :
                            (vector == 13u ? "[EXC] #GP RIP=0x" : "[EXC] #PF RIP=0x");
-        char message[64]; size_t pos = 0;
-        while (kind[pos] && pos < sizeof(message)-1u) { message[pos] = kind[pos]; ++pos; }
+        char message[64]; unsigned int pos = 0;
+        while (pos < sizeof(message)-1u && kind[pos]) { message[pos] = kind[pos]; ++pos; }
         for (int shift = 60; shift >= 0 && pos < sizeof(message)-1u; shift -= 4)
             message[pos++] = "0123456789ABCDEF"[(rip >> shift) & 0xFu];
         message[pos] = 0;
