@@ -94,9 +94,15 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
 }
 
 extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs);
+extern "C" void koronos_target_log(const char *message);
 
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
     if (vector > 255u) return;
+    /* Keep fatal ring-0 return faults observable in QEMU debugcon. In
+     * particular, a SYSRET #GP must not look like a silent userspace hang. */
+    if (vector == 6u) koronos_target_log("[EXC] Invalid-opcode exception in kernel/user transition");
+    if (vector == 13u) koronos_target_log("[EXC] General-protection exception in kernel/user transition");
+    if (vector == 14u) koronos_target_log("[EXC] Page-fault exception in kernel/user transition");
     g_last = (uint32_t)vector;
     if (is_exception((uint32_t)vector)) ++g_exceptions;
     else if (vector >= 32u && vector != CHIMERA_SYSCALL_VECTOR) ++g_irqs;
