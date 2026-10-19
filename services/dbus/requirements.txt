@@ -1,0 +1,2 @@
+# Optional hosted-runtime dependency for the D-Bus service endpoint.
+dbus-next>=0.2.3,<0.3
