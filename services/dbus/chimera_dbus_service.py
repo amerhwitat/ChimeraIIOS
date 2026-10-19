@@ -14,6 +14,7 @@ from dbus_next.service import ServiceInterface, method
 BUS_NAME = os.environ.get("CHIMERA_DBUS_NAME", "org.chimera.OS")
 OBJECT_PATH = os.environ.get("CHIMERA_DBUS_PATH", "/org/chimera/OS")
 INTERFACE = os.environ.get("CHIMERA_DBUS_INTERFACE", BUS_NAME)
+BUS_TYPE = BusType.SESSION if os.environ.get("CHIMERA_DBUS_BUS_TYPE") == "session" else BusType.SYSTEM
 
 def _run(argv: list[str], timeout: float = 2.0) -> dict[str, Any]:
     """Run a fixed allow-listed diagnostic command without a shell."""
@@ -52,7 +53,7 @@ class OperatingSystemStatus(ServiceInterface):
                           sort_keys=True, separators=(",", ":"))
 
 async def serve() -> None:
-    bus = await MessageBus(bus_type=BusType.SYSTEM).connect()
+    bus = await MessageBus(bus_type=BUS_TYPE).connect()
     bus.export(OBJECT_PATH, OperatingSystemStatus())
     await bus.request_name(BUS_NAME)
     # Stay alive for service-manager supervision; do not return after readiness.
