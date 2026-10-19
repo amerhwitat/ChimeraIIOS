@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install headless browser for app launch smoke tests
+        run: |
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps chromium
+      - name: Launch and exercise browser application prototypes
+        run: node appcenter/tests/browser-smoke.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
