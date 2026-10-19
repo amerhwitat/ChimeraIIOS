@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
 
