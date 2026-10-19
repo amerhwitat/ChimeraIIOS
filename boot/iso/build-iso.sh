@@ -58,19 +58,10 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
 
-# Production Koronos handoff requires a real, target-specific native init ELF.
-# Initramfs/manifests alone are not executable init processes. Refuse to build
-# an ISO whose GRUB routes cannot launch the selected userspace in ring 3.
-for required_init in \
-    "$DIST/iso/boot/live/user-init-live.elf" \
-    "$DIST/iso/boot/installer/user-init-installer.elf" \
-    "$DIST/iso/boot/recovery/user-init-recovery.elf"; do
-    test -s "$required_init" || {
-        echo "ERROR: required production init ELF is missing: $required_init" >&2
-        echo "Build and stage the native Live, Installer, and Recovery init ELFs before ISO creation." >&2
-        exit 2
-    }
-done
+# Validate production init payload structure and emit a checksum manifest.
+# This validates packaging inputs only; full-ISO ring-3 runtime acceptance is separate.
+python3 "$ROOT/tools/boot/verify-production-init-elfs.py" \
+    "$DIST/iso" --write-manifest "$DIST/iso/boot/production-init-elfs.json"
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
