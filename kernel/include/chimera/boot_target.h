@@ -18,7 +18,9 @@ typedef enum chimera_boot_target_error {
     CHIMERA_BOOT_TARGET_ERR_UNKNOWN = -1,
     CHIMERA_BOOT_TARGET_ERR_MISSING_PAYLOAD = -2,
     CHIMERA_BOOT_TARGET_ERR_CONFLICTING_PAYLOADS = -3,
-    CHIMERA_BOOT_TARGET_ERR_EMPTY_MODULE = -4
+    CHIMERA_BOOT_TARGET_ERR_EMPTY_MODULE = -4,
+    CHIMERA_BOOT_TARGET_ERR_NOT_SELECTED = -5,
+    CHIMERA_BOOT_TARGET_ERR_DUPLICATE = -6
 } chimera_boot_target_error;
 
 /*
@@ -27,6 +29,8 @@ typedef enum chimera_boot_target_error {
  * loaded as a process or entered at ring 3.
  */
 int chimera_boot_target_validate(chimera_boot_target target);
+/* Accept exactly one token: chimera.target=live|installer|recovery. */
+int chimera_boot_target_parse(const char *command_line, chimera_boot_target *out_target);
 
 #ifdef __cplusplus
 }
