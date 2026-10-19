@@ -8,6 +8,7 @@ global koronos_user_timeout_abort
 extern koronos_syscall_user_dispatch
 extern koronos_bootstrap_pml4
 extern koronos_user_exit_code
+extern koronos_target_log
 
 %define USER_DATA 0x1B
 %define USER_CODE 0x23
@@ -160,6 +161,10 @@ koronos_syscall_entry:
     sub rsp, 8
     call koronos_syscall_user_dispatch
     add rsp, 8
+    lea rdi, [rel koronos_sysret_trace]
+    sub rsp, 8
+    call koronos_target_log
+    add rsp, 8
     mov rdx, EXIT_SENTINEL
     cmp rax, rdx
     je koronos_syscall_user_exit
@@ -184,13 +189,6 @@ koronos_syscall_entry:
     add rsp, 8                              ; saved rax; RAX becomes syscall result
     mov rsp, [gs:8]
     mov rax, [gs:24]
-    ; Diagnostic trace: prove C dispatch returned and record that the next
-    ; instruction is the ring-3 SYSRET boundary. Exceptions are logged by IDT.
-    extern koronos_target_log
-    lea rdi, [rel koronos_sysret_trace]
-    sub rsp, 8
-    call koronos_target_log
-    add rsp, 8
     swapgs
     o64 sysret
 
