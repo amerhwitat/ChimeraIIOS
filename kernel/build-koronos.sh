@@ -88,7 +88,7 @@ printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware
 USER_CC="${CC:-gcc}"
 for target in live installer recovery; do
   "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
-    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
     -fno-asynchronous-unwind-tables -fno-unwind-tables \
     -D"CHIMERA_TARGET_${target^^}"=1 \
     -c "$ROOT/kernel/tests/user_init_smoke.c" -o "$BUILD/user-init-${target}.o"
@@ -106,7 +106,7 @@ done
 # A deliberately non-cooperative user process validates that the hardware
 # timer IRQ returns to the kernel without requiring a syscall or voluntary exit.
 "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
-  -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+  -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
   -fno-asynchronous-unwind-tables -fno-unwind-tables \
   -DCHIMERA_TARGET_LIVE=1 -DCHIMERA_TEST_HANG=1 \
   -c "$ROOT/kernel/tests/user_init_smoke.c" -o "$BUILD/user-init-timeout.o"
