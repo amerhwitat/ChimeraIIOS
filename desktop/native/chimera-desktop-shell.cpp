@@ -6,6 +6,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <sys/wait.h>
 
 namespace {
 const char* desktop_id = "aurora";
@@ -13,6 +14,8 @@ bool self_test = false;
 GtkLabel* status_label = nullptr;
 GtkSearchEntry* app_search_entry = nullptr;
 std::vector<GtkWidget*> app_cards;
+guint active_children = 0;
+
 
 const char* desktop_name() {
   return std::strcmp(desktop_id, "marine") == 0
@@ -23,6 +26,22 @@ void set_status(const std::string& text) {
   if (status_label) gtk_label_set_text(status_label, text.c_str());
 }
 
+void child_exited(GPid pid, gint status, gpointer data) {
+  const char* program = static_cast<const char*>(data);
+  if (active_children > 0) --active_children;
+  std::string message = std::string(program ? program : "Child process") +
+      (WIFEXITED(status) ? " exited (code " + std::to_string(WEXITSTATUS(status)) + ")."
+                         : WIFSIGNALED(status) ? " terminated by signal " +
+                               std::to_string(WTERMSIG(status)) + "."
+                                                : " finished.");
+  g_spawn_close_pid(pid);
+  g_free(data);
+  if (status_label) {
+    message += " Active child processes: " + std::to_string(active_children) + ".";
+    set_status(message);
+  }
+}
+
 bool spawn_command(const char* program, const char* argument) {
   gchar* path = g_find_program_in_path(program);
   if (!path) return false;
@@ -31,14 +50,21 @@ bool spawn_command(const char* program, const char* argument) {
                     const_cast<gchar*>(argument), nullptr};
   if (!argument) argv[1] = nullptr;
   GError* error = nullptr;
+  GPid child_pid = 0;
   const gboolean started = g_spawn_async(
       nullptr, argv, nullptr,
-      G_SPAWN_SEARCH_PATH,
-      nullptr, nullptr, nullptr, &error);
+      static_cast<GSpawnFlags>(G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD),
+      nullptr, nullptr, &child_pid, &error);
   if (!started) {
     set_status(std::string(program) + ": " +
                (error ? error->message : "process launch failed"));
     if (error) g_error_free(error);
+  }
+  if (started) {
+    ++active_children;
+    g_child_watch_add(child_pid, child_exited, g_strdup(program));
+    set_status(std::string(program) + " started; active child processes: " +
+               std::to_string(active_children) + ".");
   }
   return started;
 }
