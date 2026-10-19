@@ -82,6 +82,18 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
+extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip) {
+    if (active_target == TARGET_NONE || !active_pid || !active_root) return 0u;
+    if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) return 0u;
+    uint64_t current_cr3 = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(current_cr3));
+    if ((current_cr3 & 0x000FFFFFFFFFF000ull) != active_root) return 0u;
+    if (!syscall_ack_seen) {
+        syscall_ack_seen = 1u;
+        koronos_target_log("[SYSC] CPL3 syscall acknowledged for active userspace process");
+    }
+    return active_pid;
+}
 extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length) {
     if (!bytes || !length || active_target==TARGET_NONE || !active_pid) return 0;
     if (target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
