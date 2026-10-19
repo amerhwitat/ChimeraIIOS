@@ -253,12 +253,32 @@ jobs:
         run: |
           set -uo pipefail
           base=/tmp/chimera-userspace-traces
-          ovmf_code="$(find /usr/share/OVMF /usr/share/ovmf -type f \( -name 'OVMF_CODE.fd' -o -name 'OVMF_CODE_4M.fd' \) -print -quit 2>/dev/null || true)"
-          if [[ -z "$ovmf_code" ]]; then
-            echo "::error::OVMF firmware image not found; UEFI acceptance cannot pass."
+          # Match OVMF CODE and VARS as a pair; CODE alone is not enough
+          # for a reliable writable UEFI variable store.
+          ovmf_code=""
+          ovmf_vars=""
+          for pair in \
+            "OVMF_CODE_4M.fd:OVMF_VARS_4M.fd" \
+            "OVMF_CODE.fd:OVMF_VARS.fd" \
+            "edk2-x86_64-code.fd:edk2-x86_64-vars.fd"; do
+            code_name="${pair%%:*}"
+            vars_name="${pair##*:}"
+            code_path="$(find /usr/share/OVMF /usr/share/ovmf /usr/share/qemu \( -type f -o -type l \) -name "$code_name" -print -quit 2>/dev/null || true)"
+            vars_path="$(find /usr/share/OVMF /usr/share/ovmf /usr/share/qemu \( -type f -o -type l \) -name "$vars_name" -print -quit 2>/dev/null || true)"
+            if [[ -n "$code_path" && -s "$code_path" && -n "$vars_path" && -s "$vars_path" ]]; then
+              ovmf_code="$code_path"
+              ovmf_vars="$vars_path"
+              break
+            fi
+          done
+          if [[ -z "$ovmf_code" || -z "$ovmf_vars" ]]; then
+            echo "::error::A matching OVMF CODE/VARS firmware pair was not found."
+            echo "Installed OVMF-related files:"
+            dpkg -L ovmf 2>/dev/null | grep -E '\.(fd|bin)$' || true
             echo "accepted=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          echo "UEFI firmware CODE=$ovmf_code VARS=$ovmf_vars"
           accepted=true
           for target in live installer recovery; do
             test_iso="$base/$target.iso"
@@ -272,14 +292,21 @@ jobs:
               rm -f "$trace"
               qemu_args=(-machine q35 -m 1024 -smp 2 -accel tcg -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9)
               if [[ "$firmware" == "uefi" ]]; then
-                qemu_args+=(-bios "$ovmf_code")
+                vars_copy="$base/$target-OVMF_VARS.fd"
+                cp "$ovmf_vars" "$vars_copy"
+                qemu_args+=(
+                  -drive "if=pflash,format=raw,unit=0,readonly=on,file=$ovmf_code"
+                  -drive "if=pflash,format=raw,unit=1,file=$vars_copy"
+                )
               fi
+              qemu_log="$base/$target-$firmware-qemu.log"
               set +e
-              timeout 15s qemu-system-x86_64 "${qemu_args[@]}" >/dev/null 2>&1
+              timeout 15s qemu-system-x86_64 "\${qemu_args[@]}" >"$qemu_log" 2>&1
               qemu_rc=$?
               set -e
               if [[ ! -s "$trace" ]]; then
                 echo "::error::$target/$firmware emitted no debugcon trace (qemu exit $qemu_rc)"
+                cat "$qemu_log" || true
                 accepted=false
                 continue
               fi
