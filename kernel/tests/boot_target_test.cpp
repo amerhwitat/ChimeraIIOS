@@ -17,6 +17,17 @@ static void add(uint32_t kind) {
     modules[count].size = 0x1000; ++count;
 }
 int main() {
+    chimera_boot_target parsed = CHIMERA_BOOT_TARGET_INVALID;
+    assert(chimera_boot_target_parse("quiet chimera.target=live console=ttyS0", &parsed) == CHIMERA_BOOT_TARGET_OK);
+    assert(parsed == CHIMERA_BOOT_TARGET_LIVE);
+    assert(chimera_boot_target_parse("chimera.target=installer", &parsed) == CHIMERA_BOOT_TARGET_OK);
+    assert(parsed == CHIMERA_BOOT_TARGET_INSTALLER);
+    assert(chimera_boot_target_parse("chimera.target=recovery", &parsed) == CHIMERA_BOOT_TARGET_OK);
+    assert(parsed == CHIMERA_BOOT_TARGET_RECOVERY);
+    assert(chimera_boot_target_parse("quiet", &parsed) == CHIMERA_BOOT_TARGET_ERR_NOT_SELECTED);
+    assert(chimera_boot_target_parse("chimera.target=bogus", &parsed) == CHIMERA_BOOT_TARGET_ERR_UNKNOWN);
+    assert(chimera_boot_target_parse("chimera.target=live chimera.target=recovery", &parsed) == CHIMERA_BOOT_TARGET_ERR_DUPLICATE);
+    assert(chimera_boot_target_parse("chimera.target=live", nullptr) == CHIMERA_BOOT_TARGET_ERR_UNKNOWN);
     reset();
     assert(chimera_boot_target_validate(CHIMERA_BOOT_TARGET_LIVE) ==
            CHIMERA_BOOT_TARGET_ERR_MISSING_PAYLOAD);
