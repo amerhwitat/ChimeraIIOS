@@ -14,6 +14,6 @@ c++ -std=c++20 -O2 $(pkg-config --cflags gtk4) desktop/native/chimera-desktop-sh
 ./chimera-desktop-shell --desktop=marine
 ```
 
-The launcher uses an allowlist of fixed host commands and does not interpolate shell strings. Missing host applications are reported in the status line. The `--self-test` flag builds and presents the window, then exits for headless CI under Xvfb.
+The launcher uses an allowlist of fixed host commands and does not interpolate shell strings. Child processes are started without shell interpolation, registered with GLib child-watch callbacks, reaped, and reported with exit/termination status and an active-child count. This is host-process lifecycle tracking, not a complete login/session manager. Missing host applications are reported in the status line. The `--self-test` flag builds and presents the window, then exits for headless CI under Xvfb.
 
 **Important runtime boundary:** this is a native GTK shell client for a Linux user-space/display server. It is not a Wayland compositor and cannot run directly on Koronos until the kernel can execute ordinary user processes and the OS has compatible graphics, input, and service APIs. The existing HTML designs remain reference prototypes; this source is a separate native implementation path, not proof that all desktop functions are complete.
