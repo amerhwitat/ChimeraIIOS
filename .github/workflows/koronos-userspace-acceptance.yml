@@ -56,7 +56,7 @@ jobs:
           terminal_output console
           menuentry "Koronos $TARGET userspace acceptance" {
             multiboot2 /boot/koronos.elf
-            module2 /boot/user-init-$TARGET.elf chimera-user-init-elf target=$TARGET
+            module2 /boot/user-init-$TARGET.elf chimera-user-init-elf target=$TARGET probe=1
             boot
           }
           EOF
@@ -97,8 +97,8 @@ jobs:
           # is therefore expected; the marker and clean-exit diagnostics are the
           # acceptance evidence, not the QEMU process exit code.
           grep -Fq "[KRN ] KORONOS READY" "$LOG"
-          grep -Fq "USERSPACE READY: $TARGET init pid=1" "$LOG"
-          grep -Fq "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG"
+          grep -Fq "USERSPACE PROBE READY: $TARGET init pid=1" "$LOG"
+          grep -Fq "[PROBE] Target ring-3 ELF probe emitted its own readiness handshake and exited cleanly" "$LOG"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
           echo "Accepted target=$TARGET firmware=$FIRMWARE qemu_exit=$qemu_rc"
       - name: Prove in-kernel timeout aborts a non-returning ring-3 process
@@ -117,7 +117,7 @@ jobs:
           terminal_output console
           menuentry "Koronos in-kernel timeout acceptance" {
             multiboot2 /boot/koronos.elf
-            module2 /boot/user-init-timeout.elf chimera-user-init-elf target=live
+            module2 /boot/user-init-timeout.elf chimera-user-init-elf target=live probe=1
             boot
           }
           EOF
@@ -132,7 +132,7 @@ jobs:
           cat "$LOG"
           grep -Fq "[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline" "$LOG"
           grep -Fq "[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed" "$LOG"
-          ! grep -Fq "USERSPACE READY: live" "$LOG"
+          ! grep -Fq "USERSPACE PROBE READY: live" "$LOG"
           echo "Accepted in-kernel non-cooperative timeout (outer QEMU exit=$qemu_rc)"
 
       - name: Upload boot diagnostics
@@ -146,7 +146,7 @@ jobs:
           if-no-files-found: warn
 
   full-iso-live-userspace:
-    name: Full BIOS ISO / real Live userspace handoff
+    name: Full ISO target ELF probe acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -202,8 +202,27 @@ jobs:
             esac
             for firmware in bios uefi; do
               tree="$base/$target-$firmware/tree"
-              mkdir -p "$tree"
+              mkdir -p "$tree/boot/koronos"
               cp -a boot/iso/dist/iso/. "$tree/"
+              cp "build/koronos/x86_64/user-init-$target.elf" "$tree/boot/koronos/user-init-$target.elf"
+              python3 - "$tree/boot/grub/grub.cfg" "$target" <<'PY'
+import sys
+from pathlib import Path
+cfg = Path(sys.argv[1])
+target = sys.argv[2]
+text = cfg.read_text(encoding="utf-8")
+if target == "live":
+    needle = "module2 /boot/live/live-manifest.json chimera-live-manifest\n"
+elif target == "installer":
+    needle = "module2 /install/installer/installer_profiles.json chimera-installer-profiles\n"
+else:
+    needle = "module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest\n"
+module = f"module2 /boot/koronos/user-init-{target}.elf chimera-user-init-elf target={target} probe=1\n"
+if needle not in text:
+    raise SystemExit(f"target menu contract not found for {target}: {needle.strip()}")
+text = text.replace(needle, needle + module)
+cfg.write_text(text, encoding="utf-8")
+PY
               sed -i "s/^set default=0$/set default=$menu_id/" "$tree/boot/grub/grub.cfg"
               grep -q "^set default=$menu_id$" "$tree/boot/grub/grub.cfg"
               iso="$base/$target-$firmware.iso"
@@ -222,10 +241,10 @@ jobs:
               set -e
               cat "$log"
               grep -Fq '[KRN ] KORONOS READY' "$log"
-              grep -Fq "USERSPACE READY: $target init pid=1" "$log" || { echo "::error::$target/$firmware target ELF probe did not reach ring-3 readiness (QEMU exit $qemu_rc)"; exit 1; }
+              grep -Fq "USERSPACE PROBE READY: $target init pid=1" "$log" || { echo "::error::$target/$firmware target ELF probe did not reach ring-3 readiness (QEMU exit $qemu_rc)"; exit 1; }
               grep -Fq 'USERSPACE SYSCALL RETURNED TO RING3' "$log"
               grep -Fq '[MM  ] Process page-table self-test passed' "$log"
-              grep -Fq '[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly' "$log"
+              grep -Fq '[PROBE] Target ring-3 ELF probe emitted its own readiness handshake and exited cleanly' "$log"
               echo "PASS: full ISO tree target ELF probe target=$target firmware=$firmware"
             done
           done
