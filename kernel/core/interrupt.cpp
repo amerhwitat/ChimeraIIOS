@@ -93,8 +93,9 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
     return 0;
 }
 
+extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs);
+
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
-    (void)frame;
     if (vector > 255u) return;
     g_last = (uint32_t)vector;
     if (is_exception((uint32_t)vector)) ++g_exceptions;
