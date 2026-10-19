@@ -86,6 +86,7 @@ extern "C" int chimera_syscall_get_snapshot(chimera_syscall_snapshot *out) {
 extern "C" {
 volatile uint64_t koronos_user_exit_code = 0;
 }
+extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
 
