@@ -98,9 +98,10 @@ extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
-    /* SYSCALL itself does not encode the caller CPL in a saved CS. Validate
-     * the saved user RIP and the active process CR3 before acknowledging it. */
-    if (!koronos_target_note_user_syscall(frame->rcx))
+    /* SYSCALL does not preserve caller CS. It may serve the active process,
+     * but it cannot produce the CPL3 acceptance acknowledgement. That proof
+     * is emitted only by the DPL3 INT 0x80 gate after checking saved CS.RPL. */
+    if (!koronos_target_validate_syscall_context(frame->rcx))
         return static_cast<uint64_t>(-38ll);
     switch (frame->rax) {
         case CHM_SYS_GETPID: {
