@@ -97,7 +97,11 @@ jobs:
           # is therefore expected; the marker and clean-exit diagnostics are the
           # acceptance evidence, not the QEMU process exit code.
           grep -Fq "[KRN ] KORONOS READY" "$LOG"
-          grep -Fq "USERSPACE PROBE READY: $TARGET init pid=1" "$LOG"
+          ready_line="$(grep -Eo "USERSPACE PROBE READY: ${TARGET} init pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
+          ack_line="$(grep -Eo "USER INIT SYSCALL: target=${TARGET} init_pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
+          test -n "$ready_line"
+          test -n "$ack_line"
+          test "${ready_line##*=}" = "${ack_line##*=}"
           grep -Fq "[PROBE] Target ring-3 ELF probe emitted its own readiness handshake and exited cleanly" "$LOG"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
           echo "Accepted target=$TARGET firmware=$FIRMWARE qemu_exit=$qemu_rc"
@@ -241,7 +245,11 @@ jobs:
               set -e
               cat "$log"
               grep -Fq '[KRN ] KORONOS READY' "$log"
-              grep -Fq "USERSPACE PROBE READY: $target init pid=1" "$log" || { echo "::error::$target/$firmware target ELF probe did not reach ring-3 readiness (QEMU exit $qemu_rc)"; exit 1; }
+              ready_line="$(grep -Eo "USERSPACE PROBE READY: ${target} init pid=[1-9][0-9]*" "$log" | tail -n 1)"
+              ack_line="$(grep -Eo "USER INIT SYSCALL: target=${target} init_pid=[1-9][0-9]*" "$log" | tail -n 1)"
+              test -n "$ready_line" || { echo "::error::$target/$firmware probe did not reach ring-3 readiness (QEMU exit $qemu_rc)"; exit 1; }
+              test -n "$ack_line"
+              test "${ready_line##*=}" = "${ack_line##*=}"
               grep -Fq 'USERSPACE PROBE SYSCALL RETURNED TO RING3' "$log"
               grep -Fq '[MM  ] Process page-table self-test passed' "$log"
               grep -Fq '[PROBE] Target ring-3 ELF probe emitted its own readiness handshake and exited cleanly' "$log"
