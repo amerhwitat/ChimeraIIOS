@@ -1,0 +1,36 @@
+name: Koronos D-Bus service contract
+on:
+  push:
+    paths:
+      - 'services/dbus/**'
+      - 'tests/unit/test_dbus_service_contract.py'
+      - 'tools/dbus/**'
+      - '.github/workflows/koronos-dbus-service.yml'
+  pull_request:
+    paths:
+      - 'services/dbus/**'
+      - 'tests/unit/test_dbus_service_contract.py'
+      - 'tools/dbus/**'
+      - '.github/workflows/koronos-dbus-service.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile service and test sources
+        run: python -m py_compile services/dbus/chimera_dbus_service.py tests/unit/test_dbus_service_contract.py
+      - name: Run D-Bus service contract tests
+        run: python -m unittest discover -s tests/unit -p 'test_dbus_service_contract.py' -v
+      - name: Validate package entry points
+        run: |
+          test -x tools/dbus/install-koronos-dbus.sh
+          sh -n tools/dbus/install-koronos-dbus.sh
+          test -f services/dbus/chimera-dbus.service
+          test -f services/dbus/org.chimera.OS.conf
+          test -f services/dbus/org.chimera.OS.service
