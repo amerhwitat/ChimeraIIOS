@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - 'kernel/core/boot_target.cpp'
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/multiboot_modules.cpp'
+      - 'kernel/include/chimera/multiboot_modules.h'
+      - 'kernel/build-koronos.sh'
       - 'kernel/include/chimera/boot_target.h'
       - 'kernel/tests/boot_target_test.cpp'
       - 'kernel/tests/boot-target-unit.sh'
