@@ -59,8 +59,10 @@ jobs:
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
 
-      - name: Test fail-closed userspace handoff evidence verifier
-        run: python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
+      - name: Test fail-closed userspace handoff evidence verifier and release gate
+        run: |
+          python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
+          python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
