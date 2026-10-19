@@ -185,22 +185,16 @@ koronos_syscall_entry:
     pop rbx
     add rsp, 8                              ; saved rax; RAX becomes syscall result
     mov rax, [gs:24]
-    ; Trace on the supervisor syscall stack, never on the user RSP. Preserve
-    ; SYSRET's result, return RIP and user RFLAGS across the C logging call.
-    extern koronos_target_log
-    push rax
-    push rcx
+    ; Return through a privilege-changing IRETQ frame. This avoids depending
+    ; on SYSRET selector arithmetic and keeps the user RSP off the kernel
+    ; stack until the CPU performs the CPL0->CPL3 return.
+    push qword USER_DATA
+    push qword [gs:8]
     push r11
-    sub rsp, 8
-    lea rdi, [rel koronos_sysret_trace]
-    call koronos_target_log
-    add rsp, 8
-    pop r11
-    pop rcx
-    pop rax
-    mov rsp, [gs:8]
+    push qword USER_CODE
+    push rcx
     swapgs
-    o64 sysret
+    iretq
 
 koronos_syscall_user_exit:
     lea rax, [rel koronos_bootstrap_pml4]
@@ -263,6 +257,4 @@ koronos_syscall_stack_bottom:
     resb 65536
 koronos_syscall_stack_top:
 
-section .rodata
-koronos_sysret_trace: db "[SYSC] dispatch returned; attempting SYSRET to ring 3", 0
 
