@@ -44,21 +44,26 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
 
     switch (id.canonical) {
         case CHM_SYS_GETPID:
-            *return_value = 1u;
-            return 0;
+        case CHM_SYS_EXIT:
+        case CHM_SYS_EXIT_GROUP:
+            /*
+             * These operations require a real current-process context:
+             * GETPID must return the scheduler-bound process PID, and EXIT
+             * must terminate that process and reclaim its resources. This
+             * dispatcher currently has neither binding. Never fabricate PID
+             * 1 or acknowledge exit while leaving the task alive; report the
+             * operation as unavailable until the lifecycle is wired up.
+             */
+            (void)args;
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_YIELD:
             chimera_sched_yield();
             *return_value = 0;
             return 0;
         case CHM_SYS_TIME_TICKS:
             *return_value = chimera_timer_now();
-            return 0;
-        case CHM_SYS_EXIT:
-        case CHM_SYS_EXIT_GROUP:
-            /* Process teardown is deliberately owned by the process manager;
-             * this early dispatcher only acknowledges the semantic operation. */
-            (void)args;
-            *return_value = 0;
             return 0;
         default:
             ++g_rejected;
