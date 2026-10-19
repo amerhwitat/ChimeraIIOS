@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07172b">
+<title>Paint Studio — ChimeraIIOS</title>
+<style>
+:root{color-scheme:dark;font:14px system-ui,sans-serif;background:#071426;color:#edfaff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 80% 0,#0b526b 0,transparent 42%),#071426}header{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 16px;background:#071a30eF;border-bottom:1px solid #89eaf044}header strong{letter-spacing:.12em}a{color:#aaf5f5;text-decoration:none}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 16px;background:#0b2038;border-bottom:1px solid #89eaf033}button,.tool,select,input[type=color]{border:1px solid #8be8ed55;border-radius:8px;background:#12304d;color:#efffff;padding:8px 10px;font:inherit;cursor:pointer}button:hover,.tool:hover{background:#1b4665}button[aria-pressed=true]{background:#187b91;border-color:#8cf7ff}input[type=range]{width:100px;accent-color:#70e6f2}.workspace{padding:16px;max-width:1200px;margin:auto}.board{display:flex;justify-content:center;align-items:center;min-height:55vh;padding:12px;background:#091a2d;border:1px solid #89eaf033;border-radius:12px;overflow:auto}canvas{display:block;max-width:100%;height:auto;touch-action:none;background:white;box-shadow:0 12px 35px #0006;cursor:crosshair}.status{color:#a9c4d9;font-size:12px;margin:10px 2px}.hidden{display:none}@media(max-width:600px){.workspace{padding:8px}.board{min-height:48vh;padding:4px}header{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header><strong>◈ PAINT STUDIO</strong><span>Local-first raster sketchpad</span><span style="margin-left:auto"><a href="./application-center.html">Application Center</a></span></header>
+<div class="toolbar" role="toolbar" aria-label="Paint tools">
+<button class="tool" data-tool="pen" aria-pressed="true">✎ Pen</button><button class="tool" data-tool="line" aria-pressed="false">╱ Line</button><button class="tool" data-tool="rect" aria-pressed="false">▱ Rectangle</button><button class="tool" data-tool="ellipse" aria-pressed="false">◯ Ellipse</button><button class="tool" data-tool="eraser" aria-pressed="false">⌫ Eraser</button>
+<label>Color <input id="color" type="color" value="#16263d" aria-label="Brush color"></label><label>Size <input id="size" type="range" min="1" max="48" value="5"><output id="sizeValue">5 px</output></label>
+<button id="undo">↶ Undo</button><button id="clear">Clear</button><button id="open">Open image</button><input id="file" class="hidden" type="file" accept="image/*"><button id="save">Save PNG</button>
+</div>
+<main class="workspace"><div class="board"><canvas id="canvas" width="1000" height="650" aria-label="Drawing canvas"></canvas></div><p class="status" id="status" aria-live="polite">Ready · drawings stay in this browser tab until you save them.</p><p class="status">Prototype scope: local browser canvas only. This is a working web app, not evidence of a native Koronos graphics stack or OS-level file integration.</p></main>
+<script>
+(() => {
+ const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d',{willReadFrequently:true}), status=document.getElementById('status');
+ const color=document.getElementById('color'), size=document.getElementById('size'), sizeValue=document.getElementById('sizeValue'), file=document.getElementById('file');
+ let tool='pen',drawing=false,start=null,snapshot=null,history=[];
+ function message(s){status.textContent=s}
+ function remember(){history.push(ctx.getImageData(0,0,canvas.width,canvas.height));if(history.length>30)history.shift()}
+ function point(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+ function style(){ctx.lineWidth=Number(size.value);ctx.strokeStyle=tool==='eraser'?'#ffffff':color.value;ctx.fillStyle=color.value;ctx.lineCap='round';ctx.lineJoin='round'}
+ function shape(p){ctx.putImageData(snapshot,0,0);style();ctx.beginPath();if(tool==='line'){ctx.moveTo(start.x,start.y);ctx.lineTo(p.x,p.y)}else if(tool==='rect'){ctx.rect(start.x,start.y,p.x-start.x,p.y-start.y)}else if(tool==='ellipse'){ctx.ellipse((start.x+p.x)/2,(start.y+p.y)/2,Math.abs(p.x-start.x)/2,Math.abs(p.y-start.y)/2,0,0,Math.PI*2)}ctx.stroke()}
+ document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));message('Tool: '+tool)}));
+ size.addEventListener('input',()=>sizeValue.value=size.value+' px');
+ canvas.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;remember();drawing=true;start=point(e);snapshot=ctx.getImageData(0,0,canvas.width,canvas.height);canvas.setPointerCapture(e.pointerId);style();if(tool==='pen'||tool==='eraser'){ctx.beginPath();ctx.moveTo(start.x,start.y)}});
+ canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=point(e);if(tool==='pen'||tool==='eraser'){style();ctx.lineTo(p.x,p.y);ctx.stroke()}else shape(p)});
+ function finish(e){if(!drawing)return;const p=point(e);if(tool==='line'||tool==='rect'||tool==='ellipse')shape(p);drawing=false;start=null;snapshot=null}
+ canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',()=>{drawing=false;start=null;snapshot=null});
+ document.getElementById('undo').addEventListener('click',()=>{const image=history.pop();if(image)ctx.putImageData(image,0,0);message(image?'Undid last edit':'Nothing to undo')});
+ document.getElementById('clear').addEventListener('click',()=>{remember();ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);message('Canvas cleared')});
+ document.getElementById('open').addEventListener('click',()=>file.click());
+ file.addEventListener('change',()=>{const f=file.files&&file.files[0];if(!f)return;if(!f.type.startsWith('image/')){message('Please select an image file');return}const url=URL.createObjectURL(f),img=new Image();img.onload=()=>{remember();ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);const scale=Math.min(canvas.width/img.width,canvas.height/img.height);const w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(canvas.width-w)/2,(canvas.height-h)/2,w,h);URL.revokeObjectURL(url);message('Opened '+f.name)};img.onerror=()=>{URL.revokeObjectURL(url);message('Could not decode image')};img.src=url;file.value=''});
+ document.getElementById('save').addEventListener('click',()=>{canvas.toBlob(blob=>{if(!blob){message('PNG export failed');return}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='paint-studio.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('PNG export prepared')},'image/png')});
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+})();
+</script>
+</body></html>
