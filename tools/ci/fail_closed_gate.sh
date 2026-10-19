@@ -23,7 +23,7 @@ for target in live installer recovery; do
   payload="$SOURCE/build/koronos/userspace/${target}-init.elf"
   [[ -s "$payload" ]] || fail "missing production init ELF: $payload"
 done
-python3 "$SOURCE/tools/boot/validate_production_init.py" 2>&1 | tee "$LOG_DIR/elf-validation.log"
+python3 "$ROOT/tools/boot/validate_production_init.py" 2>&1 | tee "$LOG_DIR/elf-validation.log"
 
 # The matrix runs six fresh ISO boots and records independent serial/debugcon
 # traces. A QEMU timeout/exit code is not acceptance evidence.
