@@ -9,7 +9,7 @@
 #endif
 
 static const char ready_message[] =
-    "USERSPACE READY: " CHIMERA_TARGET_NAME " init pid=1\n";
+    "USERSPACE PROBE READY: " CHIMERA_TARGET_NAME " init pid=1\n";
 
 __attribute__((noreturn, used)) void _start(void) {
 #if defined(CHIMERA_TEST_HANG)
@@ -29,7 +29,7 @@ __attribute__((noreturn, used)) void _start(void) {
 
     /* This second write proves SYSRET returned to ring 3 after the first
        syscall; it is diagnostic output from the acceptance probe only. */
-    static const char returned_message[] = "USERSPACE SYSCALL RETURNED TO RING3\\n";
+    static const char returned_message[] = "USERSPACE PROBE SYSCALL RETURNED TO RING3\n";
     number = 9;
     fd = 1;
     buffer = returned_message;
