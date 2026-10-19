@@ -4,10 +4,27 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - 'docker/iso-runner/**'
       - '.github/workflows/chimera-docker-iso.yml'
       - 'ISA.csv'
       - 'tools/isa/**'
       - 'docker/iso/**'
+      - 'docker/iso-runner/**'
+      - 'tools/build/create-bootable-iso.sh'
+      - 'boot/iso/**'
+      - 'boot/spitfire/**'
+      - 'boot/kernel.bin'
+      - 'cmake/**'
+      - 'src/**'
+      - 'include/**'
+
+  pull_request:
+    paths:
+      - '.github/workflows/chimera-docker-iso.yml'
+      - 'ISA.csv'
+      - 'tools/isa/**'
+      - 'docker/iso/**'
+      - 'docker/iso-runner/**'
       - 'tools/build/create-bootable-iso.sh'
       - 'boot/iso/**'
       - 'boot/spitfire/**'
@@ -84,7 +101,7 @@ jobs:
       - name: Inspect ISO BIOS El Torito and UEFI metadata
         run: |
           xorriso -indev docker-output/output.iso -report_el_torito plain -report_system_area plain -print '' | tee docker-output/ISO-BOOT-REPORT.txt
-      - name: Upload Docker ISO release artifact
+      - name: Upload Docker ISO candidate artifact
         uses: actions/upload-artifact@v4
         with:
           name: chimera2os-docker-output-iso
@@ -93,3 +110,48 @@ jobs:
             docker-output/output.iso.sha256
             docker-output/ISO-BOOT-REPORT.txt
           retention-days: 14
+
+  publish-iso-runner-candidate:
+    name: Publish QEMU ISO runner candidate to GHCR
+    needs: [docker-iso]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Download candidate ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: chimera2os-docker-output-iso
+          path: dist
+      - name: Verify candidate ISO and checksum
+        run: |
+          set -euo pipefail
+          test -s dist/output.iso
+          test -s dist/output.iso.sha256
+          (cd dist && sha256sum -c output.iso.sha256)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate candidate image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/amerhwitat/chimera-ii-os-iso-runner
+          tags: |
+            type=raw,value=candidate
+            type=sha,prefix=sha-
+      - name: Build and publish candidate ISO runner
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/iso-runner/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
