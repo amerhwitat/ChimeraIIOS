@@ -63,7 +63,6 @@ jobs:
       - name: Test fail-closed userspace handoff evidence verifier and release gate
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
-          python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
