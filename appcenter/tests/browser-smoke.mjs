@@ -62,10 +62,11 @@ try {
   await page.goto(file("file-toolkit.html"));
   await page.locator("#files").setInputFiles({name:"hello.txt",mimeType:"text/plain",buffer:Buffer.from("hello toolkit")});
   await page.locator("#hash").click();
-  await page.waitForFunction(() => document.querySelector("#rows").innerText.includes("hello.txt"));
-  await page.waitForTimeout(150);
-  assert.match(await page.locator("#rows").innerText(), /hello\.txt/);
-  passed.push("File Toolkit selected-file inspection");
+  const expectedSha256 = "a3c73fefc6738d0bb4a10007ae286ca7ababcdfae2e3a0366c39deda2e006de8";
+  await page.waitForFunction((digest) => document.querySelector("#rows").innerText.includes(digest), expectedSha256);
+  assert.match(await page.locator("#rows").innerText(), new RegExp(expectedSha256));
+  assert.match(await page.locator("#status").innerText(), /SHA-256 checksums calculated locally/);
+  passed.push("File Toolkit metadata and SHA-256 verification");
 
   await page.goto(file("code-workbench.html"));
   await page.locator("#run").click();
