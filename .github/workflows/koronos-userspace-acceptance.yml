@@ -94,7 +94,7 @@ jobs:
           # Require a real, nonzero PID supplied by the running probe, not a
           # literal pid=1 baked into the image or a kernel-authored marker.
           ready_line="$(grep -Eo "USERSPACE READY: ${TARGET} init pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
-          ack_line="$(grep -Eo "\\[SYSC\\] active userspace syscall context validated pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
+          ack_line="$(grep -Eo "USER INIT SYSCALL: target=${TARGET} init_pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
           test -n "$ready_line"
           test -n "$ack_line"
           ready_pid="${ready_line##*=}"
