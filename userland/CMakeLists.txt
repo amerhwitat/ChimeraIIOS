@@ -115,3 +115,28 @@ install(FILES ../system/learning/chimera-boot-learning.json DESTINATION share/ch
 add_executable(chimera-runtime-recovery boot/chimera_runtime_recovery.cpp)
 target_compile_features(chimera-runtime-recovery PRIVATE cxx_std_20)
 install(TARGETS chimera-runtime-recovery RUNTIME DESTINATION bin)
+
+
+# Koronos D-Bus status service (hosted Linux runtime). The service requires
+# dbus-next and a system bus; native bare-metal availability is separately gated.
+install(PROGRAMS ../services/dbus/chimera_dbus_service.py
+  DESTINATION libexec/chimera)
+install(FILES
+  ../services/dbus/chimera-dbus.service
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+install(FILES
+  ../services/dbus/org.chimera.OS.conf
+  DESTINATION etc/dbus-1/system.d)
+install(FILES
+  ../services/dbus/org.chimera.OS.service
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
+install(PROGRAMS ../services/dbus/chimera-dbus.init
+  DESTINATION etc/init.d)
+install(FILES
+  ../services/dbus/README.md
+  ../services/dbus/requirements.txt
+  DESTINATION share/chimera/dbus)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_dbus_service_contract
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_dbus_service_contract.py)
+endif()
