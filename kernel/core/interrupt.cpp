@@ -97,12 +97,23 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t
 extern "C" void koronos_target_log(const char *message);
 
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
+    static volatile uint32_t first_transition_exception = 0;
     if (vector > 255u) return;
-    /* Keep fatal ring-0 return faults observable in QEMU debugcon. In
-     * particular, a SYSRET #GP must not look like a silent userspace hang. */
-    if (vector == 6u) koronos_target_log("[EXC] Invalid-opcode exception in kernel/user transition");
-    if (vector == 13u) koronos_target_log("[EXC] General-protection exception in kernel/user transition");
-    if (vector == 14u) koronos_target_log("[EXC] Page-fault exception in kernel/user transition");
+    /* Emit one address-bearing record for the first transition exception.
+     * Repeatedly IRET'ing to the same faulting RIP must not flood debugcon. */
+    if ((vector == 6u || vector == 13u || vector == 14u) &&
+        __sync_bool_compare_and_swap(&first_transition_exception, 0u, 1u)) {
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        const uint64_t rip = saved ? saved[16] : 0u;
+        const char *kind = vector == 6u ? "[EXC] #UD RIP=0x" :
+                           (vector == 13u ? "[EXC] #GP RIP=0x" : "[EXC] #PF RIP=0x");
+        char message[64]; size_t pos = 0;
+        while (kind[pos] && pos < sizeof(message)-1u) { message[pos] = kind[pos]; ++pos; }
+        for (int shift = 60; shift >= 0 && pos < sizeof(message)-1u; shift -= 4)
+            message[pos++] = "0123456789ABCDEF"[(rip >> shift) & 0xFu];
+        message[pos] = 0;
+        koronos_target_log(message);
+    }
     g_last = (uint32_t)vector;
     if (is_exception((uint32_t)vector)) ++g_exceptions;
     else if (vector >= 32u && vector != CHIMERA_SYSCALL_VECTOR) ++g_irqs;
