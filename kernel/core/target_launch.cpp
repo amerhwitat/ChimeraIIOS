@@ -49,6 +49,21 @@ static const char *target_name(Target target) {
         default: return "unknown";
     }
 }
+static void log_syscall_pid(uint32_t pid) {
+    char message[72];
+    const char prefix[] = "[SYSC] active userspace syscall context validated pid=";
+    size_t used = 0;
+    for (size_t i = 0; i < sizeof(prefix) - 1u; ++i) message[used++] = prefix[i];
+    char reversed[10];
+    size_t digits = 0;
+    do {
+        reversed[digits++] = (char)('0' + (pid % 10u));
+        pid /= 10u;
+    } while (pid && digits < sizeof(reversed));
+    while (digits) message[used++] = reversed[--digits];
+    message[used] = 0;
+    koronos_target_log(message);
+}
 static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
     const char *name = target_name(target);
     char prefix[80];
@@ -90,7 +105,7 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip) {
     if ((current_cr3 & 0x000FFFFFFFFFF000ull) != active_root) return 0u;
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
-        koronos_target_log("[SYSC] active userspace RIP/CR3 context validated; CPL3 proof still requires a privilege-checking entry gate");
+        log_syscall_pid(active_pid);
     }
     return active_pid;
 }
