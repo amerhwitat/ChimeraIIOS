@@ -123,3 +123,9 @@ The latest review of the x86-64 source separates acceptance tests from actual ex
 The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
 
 Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
+
+## Process syscall fail-closed correction (2026-10-19)
+
+The native syscall dispatcher previously returned the constant PID 1 for GETPID and returned success for EXIT/EXIT_GROUP even though it had no current-process context or teardown path. Draft PR [#147](https://github.com/amerhwitat/ChimeraIIOS/pull/147) changes those operations to return the existing ENOSYS-style error and increment the rejected counter until real process identity and teardown are connected.
+
+This is a correctness correction, not a ring-3 implementation. It does not create process-owned page tables, activate CR3, install GDT/TSS/RSP0, enter CPL3, implement a syscall return path, or make the userspace verifier pass. Keep the production gate blocked until those facilities and real target-specific init execution are implemented and tested across Live/Installer/Recovery × BIOS/UEFI.
