@@ -38,10 +38,10 @@ extern "C" int chimera_boot_target_parse(const char *line, chimera_boot_target *
     const char key[] = "chimera.target=";
     uint32_t matches = 0;
     for (const char *p = line; *p;) {
-        while (*p == ' ' || *p == '\\t' || *p == '\\r' || *p == '\\n') ++p;
+        while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') ++p;
         if (!*p) break;
         const char *start = p;
-        while (*p && *p != ' ' && *p != '\\t' && *p != '\\r' && *p != '\\n') ++p;
+        while (*p && *p != ' ' && *p != '\t' && *p != '\r' && *p != '\n') ++p;
         const uint32_t len = static_cast<uint32_t>(p - start);
         if (len >= sizeof(key) - 1u) {
             bool same = true;
