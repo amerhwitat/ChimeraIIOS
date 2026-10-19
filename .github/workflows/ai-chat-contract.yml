@@ -1,0 +1,19 @@
+name: Local AI chat and six-case contract
+on:
+  push:
+    paths: ["ai/koronos_chat.py","tests/ai/**","tests/boot/six_case_acceptance_contract.json","tests/boot/test_six_case_acceptance_contract.py",".github/workflows/ai-chat-contract.yml"]
+  pull_request:
+    paths: ["ai/koronos_chat.py","tests/ai/**","tests/boot/six_case_acceptance_contract.json","tests/boot/test_six_case_acceptance_contract.py",".github/workflows/ai-chat-contract.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m py_compile ai/koronos_chat.py
+      - run: python -m unittest discover -s tests/ai -p "test_*.py" -v
+      - run: python3 tests/boot/test_six_case_acceptance_contract.py
