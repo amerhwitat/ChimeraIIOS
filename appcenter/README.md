@@ -26,6 +26,7 @@ The ISO contains open-source core components and metadata/source references. Pro
 
 ```text
 python3 appcenter/cli/chimera-appctl.py validate
+python3 appcenter/cli/chimera-appctl.py runtime-status
 python3 appcenter/cli/chimera-appctl.py list
 python3 appcenter/cli/chimera-appctl.py categories --count
 python3 appcenter/cli/chimera-appctl.py search media
@@ -49,3 +50,7 @@ chimera-pkg databases
 ```
 
 When provider is `auto`, failed read-only package searches may retry another installed provider. Install, remove and update operations never silently switch providers. Build dependency installation is disabled by default; explicitly opt in with `./build-chimera-iso.sh --install-build-deps` to let the builder try available host package managers when required build tools are missing. This may install system packages and therefore requires root or sudo. It does not bypass Docker daemon readiness checks or run remote installer scripts.
+
+## Native package contract
+
+See [PACKAGING.md](PACKAGING.md), [package-manifest.schema.json](package-manifest.schema.json), and [runtime-support-manifest.json](runtime-support-manifest.json) for required dependency, permission, sandbox, signing, lifecycle and launch-test evidence. Native package availability remains false until these gates pass. `runtime-status` prints per-entry support and native launch-test state.
