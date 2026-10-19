@@ -32,7 +32,12 @@ jobs:
           manifest = Path('iso/manifests/application-catalog.txt').read_text(encoding='utf-8').splitlines()
           ids = [app['id'] for app in apps]
           assert manifest == ids, 'ISO application manifest must exactly match catalog IDs in order'
-          print(f'validated {len(manifest)} ISO catalog IDs')
+          runtime = json.loads(Path('appcenter/runtime-support-manifest.json').read_text(encoding='utf-8'))
+          assert [item['id'] for item in runtime['apps']] == ids, 'runtime support manifest must match catalog order'
+          required = {'install', 'update', 'rollback', 'uninstall'}
+          assert all(required <= set(item['lifecycle']) for item in runtime['apps'])
+          assert all(item['native_package']['available'] is False for item in runtime['apps'])
+          print(f'validated {len(manifest)} ISO IDs and explicit runtime lifecycle gates')
           PY
       - name: Syntax-check standalone browser app scripts
         run: |
