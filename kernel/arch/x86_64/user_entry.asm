@@ -120,8 +120,12 @@ koronos_arch_enter_user:
     mov rax, 0x0000800000000000
     cmp rdx, rax
     jae .bad_user_entry
-    test rdx, 0xF
-    jnz .bad_user_entry
+    ; _start is compiled as a freestanding C function without a CRT shim:
+    ; present the ABI function-entry alignment, RSP % 16 == 8.
+    mov rax, rdx
+    and rax, 0xF
+    cmp rax, 8
+    jne .bad_user_entry
     ; SYSCALL exit returns to this C caller, so preserve the callee-saved
     ; registers exactly as a normal ABI-conforming function must.
     push rbx
