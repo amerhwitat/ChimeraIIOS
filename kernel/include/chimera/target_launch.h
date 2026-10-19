@@ -11,6 +11,8 @@ extern "C" {
 int koronos_launch_selected_userspace(void);
 int koronos_target_note_user_write(const char *bytes, uint64_t length);
 uint32_t koronos_target_userspace_ready(void);
+/* Returns the kernel-owned PID only while a selected target process is active. */
+uint32_t koronos_target_active_pid(void);
 
 #ifdef __cplusplus
 }
