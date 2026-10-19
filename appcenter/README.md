@@ -16,6 +16,8 @@ The expanded [application catalog](catalog/apps.json) covers common desktop work
 
 [Document Desk](document-desk.html) provides local text/Markdown editing, text export, and browser-native PDF preview. [Snake Arcade](snake-arcade.html) is a small playable canvas game with keyboard/touch controls. These are browser prototypes; neither supplies native office-suite, PDF engine, graphics driver, or native game-runtime support.
 
+Additional working browser prototypes are available: [Vector Studio](vector-studio.html) for SVG drawing/export, [Sheet Desk](sheet-desk.html) for editable CSV import/export, [File Toolkit](file-toolkit.html) for local file metadata and SHA-256 checksums, and [Code Workbench](code-workbench.html) for HTML editing with a sandboxed preview. These are browser applications; they do not imply native vector/rendering, spreadsheet formula, filesystem, compiler, debugger, or SDK support.
+
 ## Policy
 
 The ISO contains open-source core components and metadata/source references. Proprietary binaries are not copied into the repository merely because an application is popular. The application manager opens or invokes an official distribution mechanism when a license or store policy requires it. Untrusted post-install scripts are not run implicitly.
