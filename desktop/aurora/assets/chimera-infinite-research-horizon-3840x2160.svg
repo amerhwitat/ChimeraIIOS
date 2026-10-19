@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160" role="img" aria-labelledby="title desc">
+<title id="title">Chimera II OS — Infinite Research Horizon</title><desc id="desc">Original ultrawide cosmic aurora over a mountain lake with translucent fractured cubes and an abstract many-dimensional data lattice.</desc>
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#020614"/><stop offset=".46" stop-color="#0b1b37"/><stop offset="1" stop-color="#06121f"/></linearGradient>
+ <radialGradient id="aurora"><stop stop-color="#61fff0" stop-opacity=".62"/><stop offset=".4" stop-color="#7567ff" stop-opacity=".28"/><stop offset="1" stop-color="#061020" stop-opacity="0"/></radialGradient>
+ <linearGradient id="mountain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#315272"/><stop offset=".55" stop-color="#142b45"/><stop offset="1" stop-color="#07111f"/></linearGradient>
+ <linearGradient id="water" x2="0" y2="1"><stop stop-color="#17475c"/><stop offset="1" stop-color="#020710"/></linearGradient>
+ <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#b7ffff" stop-opacity=".28"/><stop offset="1" stop-color="#8a74ff" stop-opacity=".03"/></linearGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="58"/></filter>
+ <pattern id="mesh" width="96" height="96" patternUnits="userSpaceOnUse"><path d="M0 0H96V96" fill="none" stroke="#76e8ff" stroke-opacity=".12" stroke-width="2"/></pattern>
+</defs>
+<rect width="3840" height="2160" fill="url(#sky)"/><ellipse cx="1950" cy="550" rx="1800" ry="1050" fill="url(#aurora)"/>
+<g fill="none" stroke-linecap="round" filter="url(#blur)" opacity=".72"><path d="M-120 720C500 160 820 900 1430 320S2460 760 3030 240 3640 440 4000 130" stroke="#43e7d7" stroke-width="170"/><path d="M-80 900C520 340 970 1020 1570 500S2470 910 3070 420 3660 670 3980 330" stroke="#7773ff" stroke-width="125"/></g>
+<g fill="none" stroke="#bcfff7" stroke-opacity=".3"><path d="M-80 720C500 160 820 900 1430 320S2460 760 3030 240 3640 440 4000 130" stroke-width="5"/><path d="M-80 800C500 240 820 980 1430 400S2460 840 3030 320 3640 520 4000 210" stroke-width="3"/></g>
+<g fill="#d7faff"><circle cx="260" cy="230" r="4"/><circle cx="630" cy="155" r="3"/><circle cx="1080" cy="290" r="4"/><circle cx="1640" cy="170" r="3"/><circle cx="2180" cy="300" r="4"/><circle cx="2720" cy="160" r="3"/><circle cx="3320" cy="280" r="4"/><circle cx="3630" cy="140" r="3"/></g>
+<path d="M0 1430 420 1010 700 1240 1080 770 1460 1310 1810 880 2170 1280 2560 790 2940 1260 3330 850 3840 1320V2160H0Z" fill="url(#mountain)"/>
+<path d="M0 1570 450 1250 830 1480 1170 1080 1580 1510 1950 1140 2360 1510 2780 1080 3190 1480 3580 1170 3840 1370V2160H0Z" fill="#09192b"/>
+<path d="M0 1660Q960 1510 1920 1670T3840 1630V2160H0Z" fill="url(#water)"/><rect y="1640" width="3840" height="520" fill="url(#mesh)"/>
+<g fill="url(#glass)" stroke="#b9f7ff" stroke-opacity=".42" stroke-width="7">
+ <path d="M570 530 770 420 970 535 770 650Z M570 530V760L770 880V650Z M970 535V765L770 880V650Z"/>
+ <path d="M2770 560 2940 465 3110 565 2940 665Z M2770 560V755L2940 855V665Z M3110 565V760L2940 855V665Z"/>
+ <path d="M1740 390 1880 310 2020 390 1880 470Z M1740 390V550L1880 630V470Z M2020 390V550L1880 630V470Z"/>
+</g>
+<g fill="none" stroke="#6deeff" stroke-opacity=".35" stroke-width="3"><path d="M0 1930 800 1750 1450 1970 2180 1750 2900 1930 3840 1740"/><path d="M0 2020 800 1840 1450 2060 2180 1840 2900 2020 3840 1830"/></g>
+<g transform="translate(1920 1050)" fill="none" stroke="#aafcff" stroke-opacity=".38" stroke-width="4"><circle r="390"/><circle r="320"/><circle r="245"/><path d="M-470 0H470M0-470V470M-330-330 330 330M330-330-330 330"/></g>
+<g fill="#e1ffff"><circle cx="1920" cy="1050" r="15"/><circle cx="1520" cy="1050" r="7"/><circle cx="2320" cy="1050" r="7"/><circle cx="1920" cy="650" r="7"/><circle cx="1920" cy="1450" r="7"/></g>
+</svg>
