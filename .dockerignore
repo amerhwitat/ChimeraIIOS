@@ -29,3 +29,7 @@ cmake-build-*/
 **/.gradle/
 boot/iso/portfolio-build/src/**/build/
 boot/iso/portfolio-build/src/**/out/
+
+# Include the explicitly staged ISO only for the QEMU runner image build.
+!dist/
+!dist/output.iso
