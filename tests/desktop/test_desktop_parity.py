@@ -49,7 +49,7 @@ class DesktopParityContractTests(unittest.TestCase):
         for program in ("krita", "gimp", "pinta", "vlc", "mpv", "steam",
                         "heroic", "retroarch", "libreoffice", "onlyoffice-desktopeditors"):
             self.assertIn('"'+program+'"', source)
-        self.assertIn("not launchable", source)
+        self.assertIn("installed or launchable", source)
 
     def test_production_native_acceptance_gates_are_explicit_and_fail_closed(self):
         contract = json.loads((ROOT / "desktop/desktop-feature-contract.json").read_text())
