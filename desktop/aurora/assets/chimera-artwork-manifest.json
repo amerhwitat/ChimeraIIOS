@@ -16,6 +16,22 @@
       "origin": "original project artwork",
       "license": "CC0-1.0",
       "boot_rasterization_required": true
+    },
+    {
+      "path": "desktop/aurora/assets/chimera-infinite-research-horizon-3840x2160.svg",
+      "role": "desktop-wallpaper",
+      "title": "ChimeraIIOS — Infinite Research Horizon (4K)",
+      "motifs": [
+        "translucent fractured cubes",
+        "aurora ribbons",
+        "mountain lake",
+        "research lattice"
+      ],
+      "format": "SVG",
+      "dimensions": "3840x2160 viewBox",
+      "origin": "original project artwork",
+      "license": "CC0-1.0",
+      "boot_rasterization_required": true
     }
   ],
   "runtime_note": "The SVG is an original desktop source asset. GRUB firmware-stage display requires a PNG/JPEG raster derivative to be generated and embedded by the ISO builder; this manifest does not claim that derivative is present."
