@@ -269,5 +269,3 @@ koronos_syscall_stack_top:
 section .rodata
 koronos_sysret_trace: db "[SYSC] dispatch returned; attempting SYSRET to ring 3", 0
 
-section .rodata
-koronos_sysret_trace: db "[SYSC] C dispatch returned; entering SYSRET", 0
