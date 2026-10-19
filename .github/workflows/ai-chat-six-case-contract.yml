@@ -1,0 +1,35 @@
+name: AI chat and six-case contract tests
+
+on:
+  pull_request:
+    paths:
+      - 'tools/cognition/koronos_chat.py'
+      - 'tests/ai_chat_test.py'
+      - 'tests/six_case_contract_test.py'
+      - 'tests/boot/six_case_acceptance_contract.json'
+      - '.github/workflows/ai-chat-six-case-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/cognition/koronos_chat.py'
+      - 'tests/ai_chat_test.py'
+      - 'tests/six_case_contract_test.py'
+      - 'tests/boot/six_case_acceptance_contract.json'
+      - '.github/workflows/ai-chat-six-case-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Test chat adapter
+        run: python3 tests/ai_chat_test.py
+      - name: Validate six-case evidence contract (not a boot test)
+        run: python3 tests/six_case_contract_test.py
