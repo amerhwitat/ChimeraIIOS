@@ -3,6 +3,7 @@
 #include "chimera/driver.h"
 #include "chimera/learning.h"
 #include "chimera/multiboot_modules.h"
+#include "chimera/boot_target.h"
 #include "chimera/hardware.h"
 #include "chimera/device.h"
 #include "chimera/firmware.h"
@@ -415,6 +416,23 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
+
+    chimera_boot_target selected = CHIMERA_BOOT_TARGET_INVALID;
+    const int target_parse = chimera_boot_target_parse(chimera_multiboot_command_line(), &selected);
+    if (target_parse != CHIMERA_BOOT_TARGET_OK) {
+        debugcon_write("[BOOT-FAIL] Missing, invalid, or duplicate chimera.target= selection");
+        console_write("[BOOT] FATAL: specify exactly one chimera.target=live|installer|recovery");
+        for (;;) { __asm__ volatile("cli; hlt"); }
+    }
+    const int target_status = chimera_boot_target_validate(selected);
+    if (target_status != CHIMERA_BOOT_TARGET_OK) {
+        debugcon_write("[BOOT-FAIL] Selected target payload admission failed");
+        console_write("[BOOT] FATAL: selected boot target payload is missing or invalid");
+        for (;;) { __asm__ volatile("cli; hlt"); }
+    }
+    console_write("[BOOT] Explicit boot target admitted: ");
+    console_write(selected == CHIMERA_BOOT_TARGET_LIVE ? "live" :
+                  selected == CHIMERA_BOOT_TARGET_INSTALLER ? "installer" : "recovery");
     koronos_arch_init(ctx);
     console_progress(25, "Architecture and interrupt setup complete");
 
