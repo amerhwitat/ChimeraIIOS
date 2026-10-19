@@ -1,0 +1,353 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/amerhwitat/ChimeraIIOS/blob/main/appcenter/package-manifest.schema.json",
+  "title": "ChimeraIIOS Native Application Package Manifest",
+  "description": "Contract for future signed native packages. Defining this schema does not mean any catalog app has a native package.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "version",
+    "target",
+    "runtime",
+    "entrypoint",
+    "dependencies",
+    "permissions",
+    "sandbox",
+    "lifecycle",
+    "provenance",
+    "signature",
+    "verification"
+  ],
+  "properties": {
+    "schema": {
+      "const": "chimera.native-package/v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "os",
+        "architectures"
+      ],
+      "properties": {
+        "os": {
+          "enum": [
+            "ChimeraIIOS",
+            "OctavianOS"
+          ]
+        },
+        "architectures": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "x86_64",
+              "aarch64"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "abi",
+        "minimum_version"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "koronos-elf",
+            "linux-compat",
+            "web-runtime",
+            "wasm-runtime",
+            "vm-runtime"
+          ]
+        },
+        "abi": {
+          "type": "string"
+        },
+        "minimum_version": {
+          "type": "string"
+        }
+      }
+    },
+    "entrypoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "format"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "format": {
+          "enum": [
+            "ELF64",
+            "WASM",
+            "HTML",
+            "PWA"
+          ]
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version_range",
+          "required"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version_range": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "reason",
+          "default"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]+$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": {
+            "enum": [
+              "deny",
+              "ask",
+              "allow"
+            ]
+          }
+        }
+      }
+    },
+    "sandbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "network",
+        "filesystem",
+        "devices"
+      ],
+      "properties": {
+        "profile": {
+          "type": "string"
+        },
+        "network": {
+          "enum": [
+            "none",
+            "restricted",
+            "user-approved",
+            "unrestricted"
+          ]
+        },
+        "filesystem": {
+          "enum": [
+            "none",
+            "app-private",
+            "user-selected",
+            "scoped"
+          ]
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "install",
+        "update",
+        "rollback",
+        "uninstall"
+      ],
+      "properties": {
+        "install": {
+          "enum": [
+            "transactional",
+            "not-supported"
+          ]
+        },
+        "update": {
+          "enum": [
+            "transactional",
+            "not-supported"
+          ]
+        },
+        "rollback": {
+          "enum": [
+            "supported",
+            "not-supported"
+          ]
+        },
+        "uninstall": {
+          "enum": [
+            "transactional",
+            "not-supported"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_url",
+        "license",
+        "source_revision",
+        "sbom"
+      ],
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "license": {
+          "type": "string"
+        },
+        "source_revision": {
+          "type": "string"
+        },
+        "sbom": {
+          "type": "string"
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "key_id",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "enum": [
+            "ed25519"
+          ]
+        },
+        "key_id": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "build_status",
+        "launch_tests",
+        "permission_tests"
+      ],
+      "properties": {
+        "build_status": {
+          "enum": [
+            "not-run",
+            "pass",
+            "fail"
+          ]
+        },
+        "launch_tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target",
+              "status"
+            ],
+            "properties": {
+              "target": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "not-run",
+                  "pass",
+                  "fail"
+                ]
+              }
+            }
+          }
+        },
+        "permission_tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "permission",
+              "status"
+            ],
+            "properties": {
+              "permission": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "not-run",
+                  "pass",
+                  "fail"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
