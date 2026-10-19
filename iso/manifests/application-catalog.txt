@@ -46,3 +46,7 @@ vscodium
 file-roller
 gnome-calculator
 virtualbox
+vector-studio
+sheet-desk
+file-toolkit
+code-workbench
