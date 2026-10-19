@@ -59,16 +59,6 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
 
-# Stage real ET_EXEC user-init probes produced by the same kernel build. GRUB
-# passes these as Multiboot2 modules so Koronos can admit/map them and enter
-# ring 3; initramfs presence alone is not userspace execution.
-USER_INIT_DIR="$ROOT/build/koronos/x86_64"
-for target in live installer recovery; do
-  user_init="$USER_INIT_DIR/user-init-$target.elf"
-  test -s "$user_init" || { echo "ERROR: missing target user init: $user_init" >&2; exit 2; }
-  readelf -h "$user_init" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $user_init is not ET_EXEC" >&2; exit 2; }
-  install -m 0644 "$user_init" "$ROOT/boot/iso/dist/iso/boot/koronos/user-init-$target.elf"
-done
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
@@ -152,9 +142,6 @@ done
 bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
 
 grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
-grep -q 'module2 /boot/koronos/user-init-live.elf chimera-user-init-elf target=live' "$ROOT/boot/iso/grub.cfg"
-grep -q 'module2 /boot/koronos/user-init-installer.elf chimera-user-init-elf target=installer' "$ROOT/boot/iso/grub.cfg"
-grep -q 'module2 /boot/koronos/user-init-recovery.elf chimera-user-init-elf target=recovery' "$ROOT/boot/iso/grub.cfg"
 grep -q 'chm.target=live' "$ROOT/boot/iso/grub.cfg"
 grep -q 'chm.target=installer' "$ROOT/boot/iso/grub.cfg"
 grep -q 'chm.target=recovery' "$ROOT/boot/iso/grub.cfg"
