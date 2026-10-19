@@ -90,7 +90,7 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip) {
     if ((current_cr3 & 0x000FFFFFFFFFF000ull) != active_root) return 0u;
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
-        koronos_target_log("[SYSC] CPL3 syscall acknowledged for active userspace process");
+        koronos_target_log("[SYSC] active userspace RIP/CR3 context validated; CPL3 proof still requires a privilege-checking entry gate");
     }
     return active_pid;
 }
