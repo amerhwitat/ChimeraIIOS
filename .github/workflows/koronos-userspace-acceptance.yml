@@ -242,7 +242,7 @@ PY
               cat "$log"
               grep -Fq '[KRN ] KORONOS READY' "$log"
               grep -Fq "USERSPACE PROBE READY: $target init pid=1" "$log" || { echo "::error::$target/$firmware target ELF probe did not reach ring-3 readiness (QEMU exit $qemu_rc)"; exit 1; }
-              grep -Fq 'USERSPACE SYSCALL RETURNED TO RING3' "$log"
+              grep -Fq 'USERSPACE PROBE SYSCALL RETURNED TO RING3' "$log"
               grep -Fq '[MM  ] Process page-table self-test passed' "$log"
               grep -Fq '[PROBE] Target ring-3 ELF probe emitted its own readiness handshake and exited cleanly' "$log"
               echo "PASS: full ISO tree target ELF probe target=$target firmware=$firmware"
