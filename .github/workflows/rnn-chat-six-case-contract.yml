@@ -1,0 +1,22 @@
+name: RNN chat adapter and production six-case contract
+on:
+  push:
+    paths: ["tools/cognition/koronos_chat.py","tools/cognition/test_koronos_chat.py","tests/boot/six_case_acceptance_contract.json","tests/boot/test_six_case_acceptance_contract.py",".github/workflows/rnn-chat-six-case-contract.yml"]
+  pull_request:
+    paths: ["tools/cognition/koronos_chat.py","tools/cognition/test_koronos_chat.py","tests/boot/six_case_acceptance_contract.json","tests/boot/test_six_case_acceptance_contract.py",".github/workflows/rnn-chat-six-case-contract.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chat-and-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Compile and test chat adapter
+        run: |
+          python -m py_compile tools/cognition/koronos_chat.py
+          python -m unittest tools.cognition.test_koronos_chat -v
+      - name: Validate six-case evidence schema (not a boot test)
+        run: python3 tests/boot/test_six_case_acceptance_contract.py
