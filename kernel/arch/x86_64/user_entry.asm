@@ -184,6 +184,13 @@ koronos_syscall_entry:
     add rsp, 8                              ; saved rax; RAX becomes syscall result
     mov rsp, [gs:8]
     mov rax, [gs:24]
+    ; Diagnostic trace: prove C dispatch returned and record that the next
+    ; instruction is the ring-3 SYSRET boundary. Exceptions are logged by IDT.
+    extern koronos_target_log
+    lea rdi, [rel koronos_sysret_trace]
+    sub rsp, 8
+    call koronos_target_log
+    add rsp, 8
     swapgs
     o64 sysret
 
@@ -247,3 +254,6 @@ alignb 16
 koronos_syscall_stack_bottom:
     resb 65536
 koronos_syscall_stack_top:
+
+section .rodata
+koronos_sysret_trace: db "[SYSC] dispatch returned; attempting SYSRET to ring 3", 0
