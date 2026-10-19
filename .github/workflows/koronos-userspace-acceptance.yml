@@ -210,25 +210,36 @@ jobs:
               cp -a boot/iso/dist/iso/. "$tree/"
               cp "build/koronos/x86_64/user-init-$target.elf" "$tree/boot/koronos/user-init-$target.elf"
               python3 - "$tree/boot/grub/grub.cfg" "$target" <<'PY'
-          import sys
+          import re, sys
           from pathlib import Path
           cfg = Path(sys.argv[1])
           target = sys.argv[2]
           text = cfg.read_text(encoding="utf-8")
           if target == "live":
               needle = "module2 /boot/live/live-manifest.json chimera-live-manifest\n"
+              menu_prefix = 'menuentry "Chimera II OS — Live Aurora / Koronos'
           elif target == "installer":
               needle = "module2 /install/installer/installer_profiles.json chimera-installer-profiles\n"
+              menu_prefix = 'menuentry "Chimera II OS — Install / Installer Environment'
           else:
               needle = "module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest\n"
+              menu_prefix = 'menuentry "Chimera II OS — Repair Terminal / Recovery'
           module = f"module2 /boot/koronos/user-init-{target}.elf chimera-user-init-elf target={target} probe=1\n"
           if needle not in text:
-              raise SystemExit(f"target menu contract not found for {target}: {needle.strip()}")
+              raise SystemExit(f"target module contract not found for {target}: {needle.strip()}")
           text = text.replace(needle, needle + module)
-          cfg.write_text(text, encoding="utf-8")
+          lines = text.splitlines()
+          target_line = next((i for i, line in enumerate(lines) if line.startswith(menu_prefix)), None)
+          if target_line is None:
+              raise SystemExit(f"target menu entry not found for {target}: {menu_prefix}")
+          top_level = [i for i, line in enumerate(lines) if line.startswith("menuentry ") or line.startswith("submenu ")]
+          menu_index = sum(1 for i in top_level if i < target_line)
+          text, count = re.subn(r"(?m)^set default=.*$", f"set default={menu_index}", text, count=1)
+          if count != 1:
+              raise SystemExit("expected exactly one top-level set default directive")
+          cfg.write_text(text if text.endswith("\n") else text + "\n", encoding="utf-8")
+          print(f"[probe] target={target} selected top-level GRUB index {menu_index}")
           PY
-              sed -i "s/^set default=0$/set default=$menu_id/" "$tree/boot/grub/grub.cfg"
-              grep -q "^set default=$menu_id$" "$tree/boot/grub/grub.cfg"
               iso="$base/$target-$firmware.iso"
               log="$base/$target-$firmware-debugcon.log"
               grub-mkrescue -o "$iso" "$tree"
