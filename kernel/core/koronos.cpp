@@ -191,6 +191,8 @@ static const char *module_kind_name(uint32_t k) {
     switch (k) {
         case CHIMERA_MODULE_LIVE_INITRAMFS: return "LIVE INITRAMFS";
         case CHIMERA_MODULE_LIVE_MANIFEST: return "LIVE MANIFEST";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
+        case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
         case CHIMERA_MODULE_INSTALL_IMAGE: return "INSTALL IMAGE";
         case CHIMERA_MODULE_INSTALL_MANIFEST: return "INSTALL MANIFEST";
         case CHIMERA_MODULE_INSTALL_CONTRACT: return "INSTALL CONTRACT";
@@ -250,8 +252,8 @@ static void task_live(void *) {
         }
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
-            console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] Live initramfs module recognized");
+            console_write("[USER] Handoff withheld: production initramfs requires a supported native init ELF/runtime; no process was launched");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -263,6 +265,17 @@ static void task_live(void *) {
             chimera_sched_block();
         }
     }
+}
+
+static void task_recovery(void *) {
+    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    if (image) {
+        console_write("[REC ] Recovery initramfs module recognized");
+        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+    } else {
+        console_write("[REC ] Recovery target not selected: no recovery initramfs module");
+    }
+    chimera_sched_block();
 }
 
 static void task_installer(void *) {
@@ -376,10 +389,11 @@ static void koronos_submit_bootstrap_tasks() {
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
+    int r = chimera_sched_submit(task_recovery, 0, 80);
     int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
-    console_write("[SCH ] console/module/live/installer/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || m < 0)
+    console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
+    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || r < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
