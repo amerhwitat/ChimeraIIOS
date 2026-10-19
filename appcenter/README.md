@@ -14,6 +14,8 @@ The expanded [application catalog](catalog/apps.json) covers common desktop work
 
 [Media Deck](media-deck.html) is a dependency-free local browser audio/video player with queue controls, volume, playback speed and keyboard play/pause. Browser codec support applies; this is not a native media backend.
 
+[Document Desk](document-desk.html) provides local text/Markdown editing, text export, and browser-native PDF preview. [Snake Arcade](snake-arcade.html) is a small playable canvas game with keyboard/touch controls. These are browser prototypes; neither supplies native office-suite, PDF engine, graphics driver, or native game-runtime support.
+
 ## Policy
 
 The ISO contains open-source core components and metadata/source references. Proprietary binaries are not copied into the repository merely because an application is popular. The application manager opens or invokes an official distribution mechanism when a license or store policy requires it. Untrusted post-install scripts are not run implicitly.
