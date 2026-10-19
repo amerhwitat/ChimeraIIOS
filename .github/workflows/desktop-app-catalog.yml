@@ -23,5 +23,16 @@ jobs:
         run: python -m pip install pytest
       - name: Validate application catalog
         run: python appcenter/cli/chimera-appctl.py validate
+      - name: Check ISO application manifest matches catalog IDs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          apps = json.loads(Path('appcenter/catalog/apps.json').read_text(encoding='utf-8'))['apps']
+          manifest = Path('iso/manifests/application-catalog.txt').read_text(encoding='utf-8').splitlines()
+          ids = [app['id'] for app in apps]
+          assert manifest == ids, 'ISO application manifest must exactly match catalog IDs in order'
+          print(f'validated {len(manifest)} ISO catalog IDs')
+          PY
       - name: Test Application Center discovery and safe plans
         run: python -m pytest -q appcenter/tests
