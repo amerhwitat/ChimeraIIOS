@@ -1,0 +1,31 @@
+name: Desktop parity preview checks
+on:
+  pull_request:
+    paths:
+      - "desktop/**"
+      - "tests/desktop/**"
+      - ".github/workflows/desktop-parity.yml"
+  push:
+    branches: [main]
+    paths:
+      - "desktop/**"
+      - "tests/desktop/**"
+      - ".github/workflows/desktop-parity.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check shared shell JavaScript syntax
+        run: node --check desktop/shared/desktop-parity.js
+      - name: Run desktop parity contract tests
+        run: python3 -m unittest discover -s tests/desktop -v

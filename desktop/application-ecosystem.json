@@ -1,0 +1,828 @@
+{
+  "schema": "CHM-DESKTOP-APPLICATION-ECOSYSTEM-1",
+  "updated_utc": "2026-10-19",
+  "purpose": "Cross-platform desktop application discovery and integration plan for ChimeraIIOS and OctavianOS. This catalog is broad but not exhaustive; it does not imply third-party apps are bundled, ported, licensed for redistribution, or runnable on Koronos.",
+  "target_desktops": [
+    "Aurora Wayland Glass Desktop",
+    "Marine Desktop"
+  ],
+  "host_platform_reference": [
+    "Windows",
+    "Linux",
+    "macOS"
+  ],
+  "integration_policy": {
+    "source_first": "Prefer upstream open-source source packages and native ports; preserve upstream licenses, trademarks, codecs, assets and notices.",
+    "app_states": [
+      "preview-implemented",
+      "catalog-only",
+      "port-and-package-required",
+      "proprietary-external"
+    ],
+    "launch_policy": "Only apps marked preview-implemented are implemented in the browser preview. Catalog-only apps open their upstream project page. Native launch requires a verified package, compatible ABI/runtime, trusted session adapter, permission policy and target test.",
+    "compatibility": "Windows PE/Win32, Linux ELF/POSIX, macOS Mach-O/AppKit and proprietary DRM/anti-cheat are not automatically interchangeable. Compatibility layers and emulators must be individually tested."
+  },
+  "built_in_preview_apps": [
+    {
+      "id": "paint",
+      "name": "Paint Studio",
+      "category": "graphics",
+      "state": "preview-implemented",
+      "description": "Canvas drawing with color, brush size, clear and PNG export.",
+      "capabilities": [
+        "draw",
+        "color",
+        "brush-size",
+        "png-export"
+      ]
+    },
+    {
+      "id": "media-player",
+      "name": "Media Player",
+      "category": "media",
+      "state": "preview-implemented",
+      "description": "Open a user-selected local audio/video file using browser-provided playback controls.",
+      "capabilities": [
+        "local-file-picker",
+        "audio",
+        "video",
+        "playback-controls"
+      ],
+      "limitations": [
+        "Codec support depends on the browser; no filesystem-wide scanning or native device integration."
+      ]
+    },
+    {
+      "id": "image-viewer",
+      "name": "Image Viewer",
+      "category": "graphics",
+      "state": "preview-implemented",
+      "description": "Open and preview a user-selected image file.",
+      "capabilities": [
+        "local-file-picker",
+        "image-preview",
+        "fit-to-window"
+      ]
+    },
+    {
+      "id": "games",
+      "name": "Game Center",
+      "category": "games",
+      "state": "preview-implemented",
+      "description": "Built-in Tic-Tac-Toe mini-game and discovery links to game projects.",
+      "capabilities": [
+        "tic-tac-toe",
+        "game-discovery"
+      ]
+    },
+    {
+      "id": "text-editor",
+      "name": "Text Editor",
+      "category": "productivity",
+      "state": "preview-implemented",
+      "description": "Edit plain text locally in the browser and export it as a .txt file.",
+      "capabilities": [
+        "plain-text-editing",
+        "download-export"
+      ]
+    },
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "category": "utilities",
+      "state": "preview-implemented",
+      "description": "Basic arithmetic calculator.",
+      "capabilities": [
+        "basic-arithmetic"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "graphics",
+      "name": "Painting, drawing and images",
+      "applications": [
+        {
+          "id": "krita",
+          "name": "Krita",
+          "upstream": "https://krita.org/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "digital-painting",
+            "animation"
+          ]
+        },
+        {
+          "id": "gimp",
+          "name": "GIMP",
+          "upstream": "https://www.gimp.org/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "raster-editing",
+            "photo-retouching"
+          ]
+        },
+        {
+          "id": "inkscape",
+          "name": "Inkscape",
+          "upstream": "https://inkscape.org/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "vector-drawing",
+            "svg"
+          ]
+        },
+        {
+          "id": "pinta",
+          "name": "Pinta",
+          "upstream": "https://www.pinta-project.com/",
+          "license": "MIT",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "simple-painting",
+            "image-editing"
+          ]
+        },
+        {
+          "id": "kolourpaint",
+          "name": "KolourPaint",
+          "upstream": "https://apps.kde.org/kolourpaint/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux"
+          ],
+          "capabilities": [
+            "simple-painting"
+          ]
+        },
+        {
+          "id": "paint-net",
+          "name": "Paint.NET",
+          "upstream": "https://www.getpaint.net/",
+          "license": "proprietary",
+          "state": "proprietary-external",
+          "platforms": [
+            "Windows"
+          ],
+          "capabilities": [
+            "raster-editing"
+          ]
+        },
+        {
+          "id": "darktable",
+          "name": "darktable",
+          "upstream": "https://www.darktable.org/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "raw-photo-workflow"
+          ]
+        },
+        {
+          "id": "blender",
+          "name": "Blender",
+          "upstream": "https://www.blender.org/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "3d",
+            "animation",
+            "compositing"
+          ]
+        },
+        {
+          "id": "libreoffice-draw",
+          "name": "LibreOffice Draw",
+          "upstream": "https://www.libreoffice.org/",
+          "license": "MPL-2.0; LGPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "diagramming",
+            "pdf-annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "name": "Audio, video and capture",
+      "applications": [
+        {
+          "id": "vlc",
+          "name": "VLC media player",
+          "upstream": "https://www.videolan.org/vlc/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "audio",
+            "video",
+            "streaming",
+            "subtitles"
+          ]
+        },
+        {
+          "id": "mpv",
+          "name": "mpv",
+          "upstream": "https://mpv.io/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "audio",
+            "video",
+            "gpu-rendering"
+          ]
+        },
+        {
+          "id": "audacity",
+          "name": "Audacity",
+          "upstream": "https://www.audacityteam.org/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "audio-recording",
+            "editing"
+          ]
+        },
+        {
+          "id": "obs-studio",
+          "name": "OBS Studio",
+          "upstream": "https://obsproject.com/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "recording",
+            "streaming",
+            "scenes"
+          ]
+        },
+        {
+          "id": "kdenlive",
+          "name": "Kdenlive",
+          "upstream": "https://kdenlive.org/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "video-editing"
+          ]
+        },
+        {
+          "id": "shotcut",
+          "name": "Shotcut",
+          "upstream": "https://shotcut.org/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "video-editing"
+          ]
+        },
+        {
+          "id": "ffmpeg",
+          "name": "FFmpeg tools",
+          "upstream": "https://ffmpeg.org/",
+          "license": "LGPL-2.1-or-later or GPL depending on build",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "decode",
+            "encode",
+            "transcode"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "productivity",
+      "name": "Office, notes and reading",
+      "applications": [
+        {
+          "id": "libreoffice",
+          "name": "LibreOffice",
+          "upstream": "https://www.libreoffice.org/",
+          "license": "MPL-2.0; LGPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "documents",
+            "spreadsheets",
+            "presentations"
+          ]
+        },
+        {
+          "id": "onlyoffice",
+          "name": "ONLYOFFICE Desktop Editors",
+          "upstream": "https://www.onlyoffice.com/desktop.aspx",
+          "license": "AGPL-3.0 with edition-specific terms",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "documents",
+            "spreadsheets",
+            "presentations"
+          ]
+        },
+        {
+          "id": "okular",
+          "name": "Okular",
+          "upstream": "https://okular.kde.org/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux"
+          ],
+          "capabilities": [
+            "pdf",
+            "ebooks",
+            "annotations"
+          ]
+        },
+        {
+          "id": "calibre",
+          "name": "calibre",
+          "upstream": "https://calibre-ebook.com/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "ebooks",
+            "library-management"
+          ]
+        },
+        {
+          "id": "thunderbird",
+          "name": "Mozilla Thunderbird",
+          "upstream": "https://www.thunderbird.net/",
+          "license": "MPL-2.0",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "email",
+            "calendar"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "internet",
+      "name": "Browsers and communication",
+      "applications": [
+        {
+          "id": "firefox",
+          "name": "Mozilla Firefox",
+          "upstream": "https://www.mozilla.org/firefox/",
+          "license": "MPL-2.0",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "web",
+            "privacy"
+          ]
+        },
+        {
+          "id": "chromium",
+          "name": "Chromium",
+          "upstream": "https://www.chromium.org/",
+          "license": "BSD-3-Clause and third-party licenses",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "web"
+          ]
+        },
+        {
+          "id": "brave",
+          "name": "Brave",
+          "upstream": "https://brave.com/",
+          "license": "MPL-2.0 plus component-specific terms",
+          "state": "proprietary-external",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "web",
+            "privacy"
+          ]
+        },
+        {
+          "id": "element",
+          "name": "Element",
+          "upstream": "https://element.io/",
+          "license": "AGPL-3.0 for key client components",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "messaging",
+            "federation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "games",
+      "name": "Games, launchers and emulators",
+      "applications": [
+        {
+          "id": "steam",
+          "name": "Steam",
+          "upstream": "https://store.steampowered.com/about/",
+          "license": "proprietary",
+          "state": "proprietary-external",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "game-library",
+            "store",
+            "controller"
+          ]
+        },
+        {
+          "id": "heroic",
+          "name": "Heroic Games Launcher",
+          "upstream": "https://heroicgameslauncher.com/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "game-library",
+            "store-integration"
+          ]
+        },
+        {
+          "id": "lutris",
+          "name": "Lutris",
+          "upstream": "https://lutris.net/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Linux"
+          ],
+          "capabilities": [
+            "game-library",
+            "runners"
+          ]
+        },
+        {
+          "id": "retroarch",
+          "name": "RetroArch",
+          "upstream": "https://www.retroarch.com/",
+          "license": "GPL-3.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "emulation",
+            "controller"
+          ]
+        },
+        {
+          "id": "dosbox-staging",
+          "name": "DOSBox Staging",
+          "upstream": "https://dosbox-staging.github.io/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "dos-emulation"
+          ]
+        },
+        {
+          "id": "scummvm",
+          "name": "ScummVM",
+          "upstream": "https://www.scummvm.org/",
+          "license": "GPL-3.0-or-later; game assets separately licensed",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "adventure-game-runtime"
+          ]
+        },
+        {
+          "id": "supertuxkart",
+          "name": "SuperTuxKart",
+          "upstream": "https://supertuxkart.net/",
+          "license": "GPL-3.0-or-later; assets have individual terms",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "racing-game"
+          ]
+        },
+        {
+          "id": "0ad",
+          "name": "0 A.D.",
+          "upstream": "https://play0ad.com/",
+          "license": "GPL-2.0-or-later; assets have individual terms",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "strategy-game"
+          ]
+        },
+        {
+          "id": "minetest",
+          "name": "Luanti (formerly Minetest)",
+          "upstream": "https://www.luanti.org/",
+          "license": "LGPL-2.1-or-later; content separately licensed",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "voxel-sandbox"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "development",
+      "name": "Development and creation",
+      "applications": [
+        {
+          "id": "vscodium",
+          "name": "VSCodium",
+          "upstream": "https://vscodium.com/",
+          "license": "MIT for VSCodium; extension terms vary",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "code-editor",
+            "extensions"
+          ]
+        },
+        {
+          "id": "git",
+          "name": "Git",
+          "upstream": "https://git-scm.com/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "version-control"
+          ]
+        },
+        {
+          "id": "godot",
+          "name": "Godot Engine",
+          "upstream": "https://godotengine.org/",
+          "license": "MIT",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "game-development",
+            "2d",
+            "3d"
+          ]
+        },
+        {
+          "id": "arduino-ide",
+          "name": "Arduino IDE",
+          "upstream": "https://www.arduino.cc/en/software",
+          "license": "GPL-2.0-or-later and component-specific licenses",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "embedded-development"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "utilities",
+      "name": "Files, archive, system and accessibility",
+      "applications": [
+        {
+          "id": "7zip",
+          "name": "7-Zip",
+          "upstream": "https://www.7-zip.org/",
+          "license": "LGPL-2.1-or-later; unRAR restriction applies to unRAR code",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux"
+          ],
+          "capabilities": [
+            "archive-management"
+          ]
+        },
+        {
+          "id": "peazip",
+          "name": "PeaZip",
+          "upstream": "https://peazip.github.io/",
+          "license": "LGPL-3.0-or-later; bundled components vary",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "archive-management"
+          ]
+        },
+        {
+          "id": "keepassxc",
+          "name": "KeePassXC",
+          "upstream": "https://keepassxc.org/",
+          "license": "GPL-2.0-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "password-vault",
+            "local-encryption"
+          ]
+        },
+        {
+          "id": "syncthing",
+          "name": "Syncthing",
+          "upstream": "https://syncthing.net/",
+          "license": "MPL-2.0",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Windows",
+            "Linux",
+            "macOS"
+          ],
+          "capabilities": [
+            "file-sync"
+          ]
+        },
+        {
+          "id": "orca",
+          "name": "Orca screen reader",
+          "upstream": "https://orca.gnome.org/",
+          "license": "LGPL-2.1-or-later",
+          "state": "port-and-package-required",
+          "platforms": [
+            "Linux"
+          ],
+          "capabilities": [
+            "screen-reader",
+            "assistive-technology"
+          ]
+        }
+      ]
+    }
+  ],
+  "native_integration_requirements": [
+    "Package manifest, version, architecture, dependency graph and upstream provenance",
+    "License and trademark review plus bundled third-party notices",
+    "Target-native build or documented compatible runtime; no assumed binary compatibility",
+    "Desktop entry, icon, categories, MIME/file associations and Open With registration",
+    "Permission declarations, sandbox profile, signature verification and update/rollback policy",
+    "File picker, drag-and-drop, clipboard, accessibility and localization integration",
+    "Hardware acceleration, input, audio/video and device capability detection with fallback",
+    "Automated install/launch/open-file/quit/update tests on each claimed target"
+  ]
+}

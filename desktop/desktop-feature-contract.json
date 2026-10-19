@@ -1,0 +1,192 @@
+{
+  "schema": "CHM-DESKTOP-FEATURE-CONTRACT-1",
+  "status": "prototype-with-native-adapters-pending",
+  "desktops": {
+    "aurora": {
+      "display_name": "Aurora Wayland Glass Desktop",
+      "design_influences": [
+        "macOS dock and glass workspace",
+        "Linux/BSD virtual workspaces and compositing",
+        "shared cross-platform accessibility"
+      ]
+    },
+    "marine": {
+      "display_name": "Marine Desktop",
+      "design_influences": [
+        "Windows-style launcher and taskbar",
+        "Linux/BSD workspace and panel conventions",
+        "shared cross-platform accessibility"
+      ]
+    }
+  },
+  "preview_features": [
+    "application launcher and search",
+    "window open, focus, minimize, maximize, close and drag",
+    "four virtual workspaces",
+    "window tiling and taskbar/dock window switcher",
+    "quick settings panel",
+    "theme, display scale, high contrast and reduced-motion preferences",
+    "language preference persistence",
+    "notification center preview",
+    "keyboard shortcuts and context-menu workspace access",
+    "application catalogue and compatibility information",
+    "Built-in Paint Studio with canvas drawing and PNG export in the browser preview",
+    "Local-file audio/video player using browser-supported codecs in the preview",
+    "Local image viewer, plain-text editor export and basic calculator preview",
+    "Playable Tic-Tac-Toe mini-game and discoverable third-party desktop application catalog",
+    "Cross-platform app metadata with upstream links, platform scope, licensing notes and explicit integration state"
+  ],
+  "native_adapter_required": [
+    "real process launch and process supervision",
+    "real file-system mounts and file portals",
+    "Wayland/X11/DRM/KMS compositor and input handling",
+    "multi-monitor enumeration, display modes, HDR and color management",
+    "network, Bluetooth, audio, camera and peripheral services",
+    "power, battery, sleep, lock screen and session lifecycle",
+    "real system notifications, focus rules and per-app permissions",
+    "package installation, signed updates, sandboxing and secure credential storage",
+    "clipboard, drag/drop, screen capture and global hotkeys",
+    "assistive technology APIs, complete localization and IME integration",
+    "hardware-accelerated rendering and compositor recovery"
+  ],
+  "acceptance": {
+    "preview_test": "node syntax check plus desktop contract regression tests",
+    "native_acceptance": "requires implementation, session-manager wiring, packaged artifacts and runtime evidence on each supported target",
+    "policy": "A browser preview or feature inventory must never be reported as a native desktop implementation."
+  },
+  "native_acceptance_gates": [
+    {
+      "id": "compositor",
+      "subsystem": "Wayland/DRM/KMS compositor and hardware acceleration",
+      "status": "not_implemented",
+      "evidence_required": [
+        "native compositor binary built for target",
+        "DRM/KMS device initialization and fallback logs",
+        "hardware or software rendering smoke test",
+        "compositor crash/restart test"
+      ]
+    },
+    {
+      "id": "display-input",
+      "subsystem": "Multi-monitor, HDR, input and color management",
+      "status": "not_implemented",
+      "evidence_required": [
+        "enumerated physical outputs and modes",
+        "input device discovery and event delivery",
+        "color/HDR capability detection with safe fallback",
+        "hotplug and unplug tests"
+      ]
+    },
+    {
+      "id": "session-manager",
+      "subsystem": "Koronos-native process and session manager",
+      "status": "not_implemented",
+      "evidence_required": [
+        "kernel-owned PID 1 or supported native init",
+        "spawn/exec/wait/exit/reap using real kernel syscalls",
+        "session shutdown and restart",
+        "per-user service supervision and failure recovery"
+      ]
+    },
+    {
+      "id": "filesystem-clipboard",
+      "subsystem": "Native filesystem, clipboard and drag/drop",
+      "status": "incomplete",
+      "evidence_required": [
+        "mounted filesystem operations from target userspace",
+        "permission-checked clipboard service",
+        "cross-app drag/drop transfer",
+        "crash and malformed-input tests"
+      ]
+    },
+    {
+      "id": "device-services",
+      "subsystem": "Networking, Bluetooth, audio, power, sleep and notifications",
+      "status": "incomplete",
+      "evidence_required": [
+        "real device/service discovery",
+        "permission-checked service requests",
+        "suspend/resume and reconnect tests",
+        "observable service failure and recovery"
+      ]
+    },
+    {
+      "id": "security-packages",
+      "subsystem": "Signed packages, sandboxing and secure credentials",
+      "status": "incomplete",
+      "evidence_required": [
+        "signature verification and rollback rejection",
+        "sandbox isolation tests",
+        "credential storage access control",
+        "update integrity and recovery tests"
+      ]
+    },
+    {
+      "id": "accessibility",
+      "subsystem": "Accessibility APIs, IME, localization and compositor recovery",
+      "status": "incomplete",
+      "evidence_required": [
+        "assistive-technology API integration test",
+        "IME composition and focus tests",
+        "locale/resource coverage tests",
+        "compositor restart with session recovery"
+      ]
+    },
+    {
+      "id": "iso-desktop",
+      "subsystem": "Production ISO desktop launch and readiness",
+      "status": "not_verified",
+      "evidence_required": [
+        "target-specific production init payload in generated ISO",
+        "actual ring-3 init syscall acknowledgement",
+        "same nonzero kernel PID in target readiness marker",
+        "desktop launch after userspace readiness"
+      ]
+    },
+    {
+      "id": "six-case",
+      "subsystem": "Live/Installer/Recovery × BIOS/UEFI production init",
+      "status": "not_verified",
+      "evidence_required": [
+        "six separate runs using unchanged verifier",
+        "CPL3-originated init syscall evidence",
+        "matching kernel-owned nonzero PID for each case",
+        "preserved per-case serial/debug logs"
+      ]
+    },
+    {
+      "id": "end-to-end",
+      "subsystem": "Aurora, installer, Recovery and AP-backed SMP",
+      "status": "not_verified",
+      "evidence_required": [
+        "Live reaches Aurora interactive session",
+        "installer completes disk workflow and reboots into installed system",
+        "Recovery performs a real repair/diagnostic operation",
+        "multiple APs online with measured concurrent execution"
+      ]
+    },
+    {
+      "id": "application-ecosystem",
+      "subsystem": "Cross-platform application catalog, packaging and desktop integration",
+      "status": "not_implemented",
+      "evidence_required": [
+        "application catalog has unique IDs, upstream provenance, platform scope and reviewed license/third-party notices",
+        "native package build and dependency-resolution result for each app claimed as supported",
+        "install, launch, open-file/MIME association, quit, update and rollback tests on each supported target",
+        "permission/sandbox and signature-verification tests for packaged apps",
+        "media codec, graphics acceleration, input/controller and accessibility capability tests where applicable",
+        "no app is advertised as installed or runnable unless the target artifact and runtime test exist"
+      ]
+    }
+  ],
+  "release_policy": {
+    "status": "blocked_until_all_required_gates_pass",
+    "rules": [
+      "A browser preview is not a native desktop implementation.",
+      "A GTK host shell is not a Koronos-native compositor or session manager.",
+      "A successful build or kernel boot is not production userspace readiness.",
+      "Probe ELFs, synthetic markers, weakened verifiers and host OS services cannot substitute for the actual production path.",
+      "Do not publish a production release until every required native acceptance gate has retained passing evidence."
+    ]
+  }
+}
