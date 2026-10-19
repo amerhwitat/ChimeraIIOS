@@ -270,8 +270,11 @@ jobs:
           CHIMERA_ROOT_PREFIX=/tmp/chimera-command-rootfs /tmp/chimera-command-rootfs/usr/bin/chimera-learn-isa "riscv add" --limit 5 --queue /tmp/chimera-isa-pending.jsonl > /tmp/chimera-isa-rnn.json
           cat /tmp/chimera-isa-rnn.json
           grep -q '"mode": "trained-character-rnn"' /tmp/chimera-isa-rnn.json
+          mkdir -p build/runtime
+          cp /tmp/chimera-command-rootfs/usr/share/chimera/cognition/trained-command-isa-rnn.json build/runtime/trained-command-isa-rnn.json
 
       - name: Persist regenerated source-backed catalogs
+        if: github.event_name != 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -283,6 +286,7 @@ jobs:
             echo "Generated catalogs already match the committed sources."
           fi
       - name: Upload imported ISA and command catalogs
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Chimera-ISA-Command-Import-${{ github.sha }}
@@ -291,5 +295,6 @@ jobs:
             isa/generated/universal-instruction-catalog.json
             system/commands/native-command-candidates.json
             system/commands/command-runtime-capabilities.json
+            build/runtime/trained-command-isa-rnn.json
           if-no-files-found: error
           retention-days: 30
