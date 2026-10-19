@@ -31,18 +31,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install kernel, ISO and QEMU tools
         run: |
-          cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source"
+          cd "$GITHUB_WORKSPACE"
           sudo apt-get update
           sudo apt-get install -y nasm gcc g++ binutils grub-common grub-pc-bin grub-efi-amd64-bin xorriso mtools qemu-system-x86 ovmf
       - name: Run strict ELF loader regression tests
         run: |
-          cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source"
+          cd "$GITHUB_WORKSPACE"
           bash kernel/tests/process-loader-unit.sh
       - name: Build Koronos and high-address userspace probes
-        run: cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source" && bash kernel/build-koronos.sh
+        run: cd "$GITHUB_WORKSPACE" && bash kernel/build-koronos.sh
       - name: Test Live and Recovery Multiboot2 module classification
         run: |
-          cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source"
+          cd "$GITHUB_WORKSPACE"
           set -euo pipefail
           g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include \
             kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp \
@@ -52,7 +52,7 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
         run: |
-          cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source"
+          cd "$GITHUB_WORKSPACE"
           set -euo pipefail
           ROOT="$PWD"
           OUT="$ROOT/build/userspace-acceptance/$TARGET"
@@ -77,7 +77,7 @@ jobs:
           TARGET: ${{ matrix.target }}
           FIRMWARE: ${{ matrix.firmware }}
         run: |
-          cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source"
+          cd "$GITHUB_WORKSPACE"
           set -uo pipefail
           OUT="$PWD/build/userspace-acceptance/$TARGET"
           LOG="$OUT/qemu-$FIRMWARE.log"
@@ -126,7 +126,7 @@ jobs:
       - name: Prove in-kernel timeout aborts a non-returning ring-3 process
         if: matrix.firmware == 'bios'
         run: |
-          cd "$GITHUB_WORKSPACE/vendor/chimera-ii-os/source"
+          cd "$GITHUB_WORKSPACE"
           set -euo pipefail
           ROOT="$PWD"
           OUT="$ROOT/build/userspace-acceptance/timeout"
