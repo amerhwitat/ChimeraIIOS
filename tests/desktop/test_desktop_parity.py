@@ -44,6 +44,14 @@ class DesktopParityContractTests(unittest.TestCase):
         self.assertIn("G_CALLBACK(nav_clicked)", source)
         self.assertIn("g_strstr_len", source)
 
+    def test_native_shell_tracks_child_process_lifecycle(self):
+        source = (ROOT / "desktop/native/chimera-desktop-shell.cpp").read_text()
+        self.assertIn("G_SPAWN_DO_NOT_REAP_CHILD", source)
+        self.assertIn("g_child_watch_add(child_pid, child_exited", source)
+        self.assertIn("g_spawn_close_pid(pid)", source)
+        self.assertIn("Active child processes:", source)
+        self.assertIn("not a compositor", source)
+
     def test_shared_shell_javascript_syntax(self):
         try:
             subprocess.run(["node", "--check", str(ROOT / "desktop/shared/desktop-parity.js")],
