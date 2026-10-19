@@ -187,8 +187,21 @@ koronos_syscall_entry:
     add rsp, 8                              ; saved rcx
     pop rbx
     add rsp, 8                              ; saved rax; RAX becomes syscall result
-    mov rsp, [gs:8]
     mov rax, [gs:24]
+    ; Trace on the supervisor syscall stack, never on the user RSP. Preserve
+    ; SYSRET's result, return RIP and user RFLAGS across the C logging call.
+    extern koronos_target_log
+    push rax
+    push rcx
+    push r11
+    sub rsp, 8
+    lea rdi, [rel koronos_sysret_trace]
+    call koronos_target_log
+    add rsp, 8
+    pop r11
+    pop rcx
+    pop rax
+    mov rsp, [gs:8]
     swapgs
     o64 sysret
 
@@ -255,3 +268,6 @@ koronos_syscall_stack_top:
 
 section .rodata
 koronos_sysret_trace: db "[SYSC] dispatch returned; attempting SYSRET to ring 3", 0
+
+section .rodata
+koronos_sysret_trace: db "[SYSC] C dispatch returned; entering SYSRET", 0
