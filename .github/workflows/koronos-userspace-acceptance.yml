@@ -33,6 +33,13 @@ jobs:
           sudo apt-get install -y nasm gcc g++ binutils grub-common grub-pc-bin grub-efi-amd64-bin xorriso mtools qemu-system-x86 ovmf
       - name: Build Koronos and high-address userspace probes
         run: bash kernel/build-koronos.sh
+      - name: Test Live and Recovery Multiboot2 module classification
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include \
+            kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp \
+            -o /tmp/koronos-multiboot-modules-test
+          /tmp/koronos-multiboot-modules-test
       - name: Build target-specific BIOS/UEFI ISO
         env:
           TARGET: ${{ matrix.target }}
