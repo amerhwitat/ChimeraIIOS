@@ -9,10 +9,29 @@
 ### END INIT INFO
 set -eu
 SERVICE=chimera-dbus.service
+DAEMON=/usr/libexec/chimera/chimera_dbus_service.py
+PIDFILE=/run/chimera-dbus.pid
+if command -v systemctl >/dev/null 2>&1; then
+  case "${1:-status}" in
+    start) exec systemctl start "$SERVICE" ;;
+    stop) exec systemctl stop "$SERVICE" ;;
+    restart) exec systemctl restart "$SERVICE" ;;
+    status) exec systemctl status "$SERVICE" --no-pager ;;
+    *) echo "usage: $0 {start|stop|restart|status}" >&2; exit 2 ;;
+  esac
+fi
 case "${1:-status}" in
-  start)   exec systemctl start "$SERVICE" ;;
-  stop)    exec systemctl stop "$SERVICE" ;;
-  restart) exec systemctl restart "$SERVICE" ;;
-  status)  exec systemctl status "$SERVICE" --no-pager ;;
+  start)
+    if [ -s "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then exit 0; fi
+    exec start-stop-daemon --start --background --make-pidfile --pidfile "$PIDFILE" --startas "$DAEMON"
+    ;;
+  stop)
+    start-stop-daemon --stop --retry TERM/5/KILL/2 --pidfile "$PIDFILE" --remove-pidfile
+    ;;
+  restart) "$0" stop; "$0" start ;;
+  status)
+    if [ -s "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then exit 0; fi
+    echo "chimera-dbus is not running" >&2; exit 3
+    ;;
   *) echo "usage: $0 {start|stop|restart|status}" >&2; exit 2 ;;
 esac
