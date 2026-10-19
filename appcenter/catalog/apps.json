@@ -797,6 +797,70 @@
       "note": "Not bundled or verified by this catalog entry; install only through the official project/provider after target compatibility and license checks."
     },
     {
+      "id": "paint-studio",
+      "name": "Paint Studio",
+      "version": "web-prototype",
+      "category": "graphics",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/paint-studio.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser canvas paint prototype; not a native graphics application."
+    },
+    {
+      "id": "media-deck",
+      "name": "Media Deck",
+      "version": "web-prototype",
+      "category": "media",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/media-deck.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser local media player prototype; supported codecs depend on the browser."
+    },
+    {
+      "id": "document-desk",
+      "name": "Document Desk",
+      "version": "web-prototype",
+      "category": "office",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/document-desk.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser text and PDF-preview prototype; not a full office or native PDF stack."
+    },
+    {
+      "id": "snake-arcade",
+      "name": "Snake Arcade",
+      "version": "web-prototype",
+      "category": "games",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/snake-arcade.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser canvas game prototype; not a native game runtime."
+    },
+    {
       "id": "vector-studio",
       "name": "Vector Studio",
       "version": "web-prototype",
@@ -810,7 +874,6 @@
       "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/vector-studio.html",
       "sandbox": "browser",
       "install": "web",
-      "availability": "catalog-only",
       "note": "Browser SVG editor prototype; not a native graphics application."
     },
     {
@@ -827,7 +890,6 @@
       "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/sheet-desk.html",
       "sandbox": "browser",
       "install": "web",
-      "availability": "catalog-only",
       "note": "Browser CSV grid prototype; no XLSX, formulas, macros, or native spreadsheet runtime."
     },
     {
@@ -844,7 +906,6 @@
       "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/file-toolkit.html",
       "sandbox": "browser",
       "install": "web",
-      "availability": "catalog-only",
       "note": "Browser-local file metadata and SHA-256 tool; filesystem access is limited to user-selected files."
     },
     {
@@ -861,7 +922,6 @@
       "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/code-workbench.html",
       "sandbox": "browser",
       "install": "web",
-      "availability": "catalog-only",
       "note": "Browser HTML/CSS/JS editor with sandboxed preview; not a native compiler or debugger."
     }
   ]
