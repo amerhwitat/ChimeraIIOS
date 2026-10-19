@@ -24,6 +24,7 @@ case "$OS" in
     POLICY_FILE=$ROOT/services/dbus/org.chimera.OS.conf
     ACTIVATION_FILE=$ROOT/services/dbus/org.chimera.OS.service
     INIT_FILE=$ROOT/services/dbus/chimera-dbus.init
+    INIT_NAME=chimera-dbus
     EXECDIR=$LIBEXECDIR/chimera
     ;;
   octavian)
@@ -33,6 +34,7 @@ case "$OS" in
     POLICY_FILE=$ROOT/services/dbus/org.octavian.OS.conf
     ACTIVATION_FILE=$ROOT/services/dbus/org.octavian.OS.service
     INIT_FILE=$ROOT/services/dbus/octavian-dbus.init
+    INIT_NAME=octavian-dbus
     EXECDIR=$LIBEXECDIR/octavian
     ;;
   *) echo "invalid OS '$OS'; use chimera or octavian" >&2; exit 2 ;;
@@ -42,6 +44,6 @@ put "$ROOT/services/dbus/chimera_dbus_service.py" "$EXECDIR/chimera_dbus_service
 put "$UNIT_FILE" "$SYSTEMD_DIR/$SERVICE" 0644
 put "$POLICY_FILE" "$SYSCONFDIR/dbus-1/system.d/$BUS_NAME.conf" 0644
 put "$ACTIVATION_FILE" "$DBUS_SERVICES_DIR/$BUS_NAME.service" 0644
-put "$INIT_FILE" "$SYSCONFDIR/init.d/$SERVICE" 0755
+put "$INIT_FILE" "$SYSCONFDIR/init.d/$INIT_NAME" 0755
 put "$ROOT/services/dbus/requirements.txt" "$PREFIX/share/$OS/dbus/requirements.txt" 0644
 echo "Staged $SERVICE for $OS under ${DESTDIR:-/}; install dbus-next and reload the system bus/service manager before enabling it."
