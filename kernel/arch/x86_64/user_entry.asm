@@ -21,6 +21,21 @@ koronos_user_entry_init:
     pushfq
     push rbx
     cli
+
+    ; Enable the architectural FP/SSE state required by baseline x86-64
+    ; userspace. The freestanding kernel is built with -mno-sse and does not
+    ; use SIMD while this single init process is active.
+    mov rax, cr0
+    and rax, ~(1 << 2)                     ; clear CR0.EM
+    and rax, ~(1 << 3)                     ; clear CR0.TS
+    or rax, (1 << 1)                       ; set CR0.MP
+    mov cr0, rax
+    mov rax, cr4
+    or rax, (1 << 9) | (1 << 10)            ; CR4.OSFXSR | CR4.OSXMMEXCPT
+    mov cr4, rax
+    fninit
+    ldmxcsr [rel koronos_default_mxcsr]
+
     lea rax, [rel koronos_syscall_stack_top]
     mov [rel koronos_tss64 + 4], rax       ; TSS.RSP0
     mov word [rel koronos_tss64 + 102], 104 ; I/O bitmap begins beyond TSS limit
@@ -258,3 +273,7 @@ koronos_syscall_stack_bottom:
 koronos_syscall_stack_top:
 
 
+
+section .rodata
+align 4
+koronos_default_mxcsr: dd 0x1F80
