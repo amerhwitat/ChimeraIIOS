@@ -17,6 +17,10 @@ __attribute__((noreturn, used)) void _start(void) {
        regain control from this loop. */
     for (;;) __asm__ volatile("pause" ::: "memory");
 #endif
+    /* INT 0x80 enters a DPL3 IDT gate. The kernel acknowledgement is emitted
+       only after checking the CPU-saved CS.RPL==3 and the active process CR3.
+       This is distinct from SYSCALL, which does not save caller CS. */
+    __asm__ volatile("int $0x80" ::: "memory");
     /* Ask the active kernel process record for our PID. Never bake PID 1 into
        the user image: this must keep working when process allocation changes. */
     register long number __asm__("rax") = 2; /* CHM_SYS_GETPID */
