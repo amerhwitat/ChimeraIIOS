@@ -14,6 +14,8 @@ int chimera_process_init(void);
 int chimera_process_admit_elf(const void*,uint64_t,uint16_t,uint64_t,chimera_process_image*);
 int chimera_process_get(uint32_t,chimera_process_image*);
 int chimera_process_set_state(uint32_t,chimera_process_state);
+/* Release a terminal process-table record after address-space resources are reclaimed. */
+int chimera_process_reap(uint32_t pid);
 uint32_t chimera_process_count(void);
 #ifdef __cplusplus
 }
