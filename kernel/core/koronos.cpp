@@ -313,11 +313,11 @@ static void task_installer(void *) {
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI service initialized");
+            console_write("[INST] Installer UI scaffolding initialized; graphical userspace is not running");
             break;
         case 4:
-            console_write("[INST] Installer initialization complete");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
+            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
             chimera_sched_block();
             break;
         default:
