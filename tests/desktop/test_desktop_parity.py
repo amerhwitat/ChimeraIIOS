@@ -44,6 +44,21 @@ class DesktopParityContractTests(unittest.TestCase):
         self.assertIn("G_CALLBACK(nav_clicked)", source)
         self.assertIn("g_strstr_len", source)
 
+    def test_production_native_acceptance_gates_are_explicit_and_fail_closed(self):
+        contract = json.loads((ROOT / "desktop/desktop-feature-contract.json").read_text())
+        gates = contract["native_acceptance_gates"]
+        self.assertEqual(len({gate["id"] for gate in gates}), len(gates))
+        self.assertEqual({gate["id"] for gate in gates}, {
+            "compositor", "display-input", "session-manager", "filesystem-clipboard",
+            "device-services", "security-packages", "accessibility", "iso-desktop",
+            "six-case", "end-to-end"
+        })
+        for gate in gates:
+            self.assertTrue(gate["evidence_required"], gate["id"])
+            self.assertNotEqual(gate["status"], "passed", gate["id"])
+        self.assertEqual(contract["release_policy"]["status"], "blocked_until_all_required_gates_pass")
+        self.assertTrue(any("weakened verifiers" in rule for rule in contract["release_policy"]["rules"]))
+
     def test_native_shell_tracks_child_process_lifecycle(self):
         source = (ROOT / "desktop/native/chimera-desktop-shell.cpp").read_text()
         self.assertIn("G_SPAWN_DO_NOT_REAP_CHILD", source)
