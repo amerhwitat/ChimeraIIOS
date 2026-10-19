@@ -29,6 +29,20 @@ jobs:
         run: python -m pip install pytest
       - name: Validate application catalog
         run: python appcenter/cli/chimera-appctl.py validate
+      - name: Validate native package schema and explicit runtime support states
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          schema = json.loads(Path("appcenter/package-manifest.schema.json").read_text(encoding="utf-8"))
+          assert schema["$schema"].endswith("2020-12/schema")
+          assert schema["properties"]["signature"]["required"] == ["algorithm", "key_id", "value"]
+          assert set(schema["properties"]["lifecycle"]["required"]) == {"install", "update", "rollback", "uninstall"}
+          runtime = json.loads(Path("appcenter/runtime-support-manifest.json").read_text(encoding="utf-8"))
+          assert runtime["lifecycle_contract"]["install"] == "not-implemented-for-native-apps"
+          assert all(not app["native_package"]["available"] for app in runtime["apps"])
+          print("native package contract is defined; no unverified native package is claimed")
+          PY
       - name: Check ISO application manifest matches catalog IDs
         run: |
           python - <<'PY'
