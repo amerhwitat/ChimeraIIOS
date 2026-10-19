@@ -69,6 +69,12 @@ jobs:
           rm -f docker-output/output.iso.sha256
           sha256sum docker-output/output.iso > docker-output/output.iso.sha256
           sha256sum --check docker-output/output.iso.sha256
+      - name: Build QEMU ISO runner image for validation
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp docker-output/output.iso dist/output.iso
+          docker build --file docker/iso-runner/Dockerfile --tag chimera-iso-runner:candidate .
       - name: Install ISO inspection tools
         run: |
           sudo apt-get update
