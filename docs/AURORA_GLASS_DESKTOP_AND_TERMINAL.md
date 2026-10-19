@@ -68,3 +68,15 @@ The same logical contracts are referenced by CPU4096Simulator and the associated
 ## Background asset requirement
 
 The repository expects the approved artwork at `web/assets/aurora/aurora-wallpaper.png` (and `public/assets/aurora/aurora-wallpaper.png` in the simulator). The Library artwork is the authoritative reference. If a deployment does not contain the approved binary asset, it must not claim pixel-identical background parity; it should report the missing asset and use the configured fallback only until the canonical asset is installed.
+
+
+## Portfolio GUI migration coordination
+
+The public portfolio now maintains a cross-repository GUI migration inventory and staged acceptance guidance:
+- [Portfolio GUI Migration Dashboard](https://amerhwitat.github.io/apps/portfolio-migration/)
+- [Migration architecture and acceptance guide](https://github.com/amerhwitat/amerhwitat.github.io/blob/main/docs/PORTFOLIO_GUI_MIGRATION.md)
+- [Desktop Evolution Lab](https://amerhwitat.github.io/apps/desktop-evolution/)
+
+The existing browser Aurora shell and the native Wayland compositor are different execution targets. The desktop planner is a feature-planning prototype, not proof that every planned feature is connected to the kernel, display backend, session manager, or filesystem. Keep Aurora Wayland Glass Desktop and Marine Desktop as separate personalities over shared capability contracts.
+
+For each Python, Java/JavaFX/Swing, and native-code repository, inventory the real entry point and dependencies before porting. Use Angular/TypeScript or Next.js/TypeScript where they fit the existing browser architecture; use Spring Boot only as a separately hosted JVM service, never as an assumed GitHub Pages runtime. Track build, browser, publication, and native acceptance independently. None of these website artifacts substitutes for the BIOS/UEFI six-case userspace acceptance or genuine AP-backed SMP evidence.
