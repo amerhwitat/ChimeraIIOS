@@ -39,7 +39,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html"), Path("appcenter/document-desk.html"), Path("appcenter/snake-arcade.html")):
+          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html"), Path("appcenter/document-desk.html"), Path("appcenter/snake-arcade.html"), Path("appcenter/vector-studio.html"), Path("appcenter/sheet-desk.html"), Path("appcenter/file-toolkit.html"), Path("appcenter/code-workbench.html")):
               text = path.read_text(encoding="utf-8")
               scripts = re.findall(r"<script>(.*?)</script>", text, re.S)
               assert scripts, f"missing inline script: {path}"
@@ -49,5 +49,9 @@ jobs:
           node --check /tmp/media-deck.js
           node --check /tmp/document-desk.js
           node --check /tmp/snake-arcade.js
+          node --check /tmp/vector-studio.js
+          node --check /tmp/sheet-desk.js
+          node --check /tmp/file-toolkit.js
+          node --check /tmp/code-workbench.js
       - name: Test Application Center discovery and safe plans
         run: python -m pytest -q appcenter/tests
