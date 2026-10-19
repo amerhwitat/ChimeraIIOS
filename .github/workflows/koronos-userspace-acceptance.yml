@@ -212,14 +212,14 @@ jobs:
           target = sys.argv[2]
           text = cfg.read_text(encoding="utf-8")
           if target == "live":
-          needle = "module2 /boot/live/live-manifest.json chimera-live-manifest\n"
+              needle = "module2 /boot/live/live-manifest.json chimera-live-manifest\n"
           elif target == "installer":
-          needle = "module2 /install/installer/installer_profiles.json chimera-installer-profiles\n"
+              needle = "module2 /install/installer/installer_profiles.json chimera-installer-profiles\n"
           else:
-          needle = "module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest\n"
+              needle = "module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest\n"
           module = f"module2 /boot/koronos/user-init-{target}.elf chimera-user-init-elf target={target} probe=1\n"
           if needle not in text:
-          raise SystemExit(f"target menu contract not found for {target}: {needle.strip()}")
+              raise SystemExit(f"target menu contract not found for {target}: {needle.strip()}")
           text = text.replace(needle, needle + module)
           cfg.write_text(text, encoding="utf-8")
           PY
