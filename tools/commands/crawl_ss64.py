@@ -58,8 +58,60 @@ def flatten_native(c):
 
 def rootfs_provider(rootfs,name):
     for p in (rootfs/"usr/bin"/name,rootfs/"bin"/name,rootfs/"usr/sbin"/name,rootfs/"sbin"/name,rootfs/"usr/local/bin"/name):
-        if p.is_file() and os.access(p,os.X_OK):return p
+        if not (p.is_file() and os.access(p,os.X_OK)):
+            continue
+        # A prior reconciliation may already have installed this name as a
+        # compatibility shim. Never repackage the dispatcher as its own provider.
+        try:
+            if p.resolve().name in {"chimera-compat", "chimera-compat.py"}:
+                continue
+        except OSError:
+            continue
+        return p
     return None
+
+def install_command_path_aliases(rootfs, names):
+    """Expose every SS64 Linux/Bash catalog name under both /bin and /sbin.
+
+    These are command-discovery/dispatch paths, not a claim that every command
+    has a native implementation. Missing providers fail closed in chimera-compat.
+    Existing real binaries and administrator-owned links are preserved.
+    """
+    installed = {"bin": 0, "sbin": 0}
+    for directory in ("bin", "sbin"):
+        target_dir = rootfs / directory
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for name in sorted(set(names)):
+            if not re.match(r"^[A-Za-z0-9_.+-]+$", name):
+                continue
+            target = target_dir / name
+            if target.exists() or target.is_symlink():
+                continue
+            try:
+                provider = rootfs / "usr/bin" / name
+                relative_provider = os.path.relpath(provider, start=target_dir.resolve())
+                target.symlink_to(relative_provider)
+                installed[directory] += 1
+            except FileExistsError:
+                pass
+    return installed
+
+def validate_command_path_aliases(rootfs, names):
+    """Fail the build if any mapped command is missing or dangling in /bin or /sbin."""
+    missing = []
+    for name in sorted(set(names)):
+        if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name):
+            continue
+        for directory in ("bin", "sbin"):
+            path = rootfs / directory / name
+            if not path.exists():
+                missing.append(f"/{directory}/{name}")
+    if missing:
+        preview = ", ".join(missing[:20])
+        suffix = f" (and {len(missing) - 20} more)" if len(missing) > 20 else ""
+        raise RuntimeError("SS64 command paths missing or dangling: " + preview + suffix)
+    return len({name for name in names if re.fullmatch(r"[A-Za-z0-9_.+-]+", name)})
+
 
 def install_source(repo_root,rootfs,src,dst,mode=0o755):
     s=repo_root/src;d=rootfs/dst
@@ -84,7 +136,9 @@ def reconcile(catalog,rootfs,repo_root):
             if not dst.exists():
                 try:shutil.copy2(p,dst);dst.chmod(0o755)
                 except OSError:pass
-            item["provider"]=str(dst);item["mode"]="rootfs-binary"
+            # This path is interpreted inside the booted rootfs, not on the
+            # host machine that assembled the ISO.
+            item["provider"]="/usr/lib/chimera/compat/bin/"+name;item["mode"]="rootfs-binary"
         else:item["mode"]="compatibility-shim";item["provider"]="chimera-compat (runtime provider lookup)"
         manifest["commands"][name]=item
     for src_name,dst_name in (("tools/runtime/chimera-korectl.py","korectl"),("tools/runtime/chimera-systemctl.py","systemctl"),("tools/runtime/chimera-service.py","service"),("tools/runtime/chimera-compat.py","chimera-compat"),("tools/runtime/kore-manager.py","kore-manager")):
@@ -106,6 +160,60 @@ def reconcile(catalog,rootfs,repo_root):
         if re.match(r"^[A-Za-z0-9_.+-]+$",name):
             try:shim.symlink_to("chimera-compat")
             except FileExistsError:pass
+    path_counts=install_command_path_aliases(rootfs, manifest["commands"].keys())
+
+    # Repair missing SS64 aliases after the compatibility shims are staged.
+    # Resolve rootfs-internal absolute symlinks without following them on the host.
+    import os
+
+    def rootfs_directory(name):
+        directory = rootfs / name
+        if directory.is_symlink():
+            target = os.readlink(directory)
+            if os.path.isabs(target):
+                directory = rootfs / target.lstrip("/")
+            else:
+                directory = directory.parent / target
+            directory = Path(os.path.normpath(str(directory)))
+        try:
+            directory.relative_to(rootfs)
+        except ValueError:
+            raise RuntimeError(f"Unsafe rootfs alias directory: {name}")
+        directory.mkdir(parents=True, exist_ok=True)
+        return directory
+
+    staged_bin = rootfs / "usr/bin"
+    for name in sorted(manifest["commands"]):
+        if not re.match(r"^[A-Za-z0-9_.+-]+$", name):
+            continue
+
+        provider = staged_bin / name
+        if not provider.exists() and not provider.is_symlink():
+            # The earlier reconciliation loop should have installed this shim.
+            raise RuntimeError(f"Compatibility command shim was not staged: {name}")
+
+        for dirname in ("bin", "sbin"):
+            alias_dir = rootfs_directory(dirname)
+            alias = alias_dir / name
+
+            if alias.exists():
+                continue
+            if alias.is_symlink():
+                alias.unlink()
+
+            relative_provider = os.path.relpath(provider, alias_dir)
+            alias.symlink_to(relative_provider)
+
+    # Persist the generated manifest before validation, so a failed build
+    # still leaves the reconciled command registry available for diagnosis.
+    (compat_root / "commands.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+        encoding="utf-8",
+    )
+
+    validated_paths = validate_command_path_aliases(rootfs, manifest["commands"].keys())
+    manifest["path_aliases"]={"/bin":validated_paths,"/sbin":validated_paths}
+    print(f"Validated SS64 command paths: {validated_paths} mapped Linux/Bash names visible in both /bin and /sbin; created aliases /bin={path_counts['bin']} /sbin={path_counts['sbin']} (pre-existing entries preserved)")
     (compat_root/"commands.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     native_doc.setdefault("native_chimera",{})
     if isinstance(native_doc["native_chimera"],dict):

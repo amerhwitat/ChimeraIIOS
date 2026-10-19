@@ -307,13 +307,33 @@ push_docker_image(){
 
   log_info "Publishing generated Docker image: $source -> $target:$target_tag"
   docker tag "$source" "$target:$target_tag"
-  docker push "$target:$target_tag"
+  docker_push_with_retry "$target:$target_tag" || return 1
   if [[ "$target_tag" != "latest" && "${CHIMERA_DOCKERHUB_PUSH_LATEST:-0}" == 1 ]]; then
     docker tag "$source" "$target:latest"
-    docker push "$target:latest"
+    docker_push_with_retry "$target:latest" || return 1
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
   cleanup_generated_docker_image "$source" "$image_id"
+}
+
+docker_push_with_retry() {
+  local image="$1" attempt max_attempts="${CHIMERA_DOCKERHUB_PUSH_ATTEMPTS:-4}" delay=5
+  [[ "$max_attempts" =~ ^[1-9][0-9]*$ ]] || max_attempts=4
+  for ((attempt=1; attempt<=max_attempts; attempt++)); do
+    log_info "Docker Hub push attempt $attempt/$max_attempts: $image"
+    if docker push "$image"; then
+      return 0
+    fi
+    if (( attempt == max_attempts )); then
+      log_error "Docker Hub push failed after $max_attempts attempts: $image"
+      log_error "Check registry connectivity, authentication, proxy/VPN, and registry status; increase CHIMERA_DOCKERHUB_PUSH_ATTEMPTS to allow more retries."
+      return 1
+    fi
+    log_warning "Docker Hub push failed; retrying in ${delay}s without rebuilding the image."
+    sleep "$delay"
+    delay=$((delay * 2))
+  done
+  return 1
 }
 
 is_writable_dir(){
@@ -1278,7 +1298,7 @@ PYISA
   [[ -s "$SCRIPT_DIR/system/commands/ss64-command-catalog.json" ]] && log_info "SS64 catalog cache exists; crawler will merge new discoveries"
   if [[ "${CHIMERA_SKIP_SS64_CRAWL:-0}" != 1 ]]; then
     log_info "SS64 crawl limits: pages/platform=${CHIMERA_SS64_MAX_PAGES:-500}, depth=${CHIMERA_SS64_MAX_DEPTH:-10}, timeout=${CHIMERA_SS64_TIMEOUT:-10}s, platform budget=${CHIMERA_SS64_PLATFORM_BUDGET:-120}s" 
-    CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-90}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-80}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-2}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-0}"
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-120}" python3 "$SCRIPT_DIR/tools/commands/crawl_ss64.py" --max-pages "${CHIMERA_SS64_MAX_PAGES:-500}" --max-depth "${CHIMERA_SS64_MAX_DEPTH:-10}" --timeout "${CHIMERA_SS64_TIMEOUT:-10}" --retries "${CHIMERA_SS64_RETRIES:-1}"
   else
     log_info "SS64 network crawl skipped by CHIMERA_SKIP_SS64_CRAWL=1"
   fi
@@ -1302,6 +1322,27 @@ build_command_runtime(){
   CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
   [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
+  log_info "Reconciling every mapped SS64 Linux/Bash command into the selected rootfs"
+  python3 - "$SCRIPT_DIR" "$ROOTFS_DIR" <<'PYSS64'
+import json, sys
+from pathlib import Path
+repo = Path(sys.argv[1])
+rootfs = Path(sys.argv[2])
+catalog_path = repo / "system/commands/ss64-command-catalog.json"
+if not catalog_path.is_file() or catalog_path.stat().st_size == 0:
+    raise SystemExit("SS64 catalog is empty; cannot guarantee /bin and /sbin command coverage")
+catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+sys.path.insert(0, str(repo / "tools/commands"))
+import crawl_ss64
+manifest = crawl_ss64.reconcile(catalog, rootfs, repo)
+names = manifest.get("commands", {})
+if not names:
+    raise SystemExit("SS64 catalog contains no mapped Linux/Bash commands; refusing incomplete rootfs")
+count = crawl_ss64.validate_command_path_aliases(rootfs, names.keys())
+if count != len(names):
+    raise SystemExit(f"SS64 command path count mismatch: {count} validated vs {len(names)} mapped")
+print(f"[SS64] validated {count} mapped Linux/Bash commands under both /bin and /sbin in {rootfs}")
+PYSS64
 }
 
 main(){

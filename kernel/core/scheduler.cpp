@@ -134,6 +134,16 @@ extern "C" void chimera_sched_exit(void){legacy_action(ACTION_EXIT);}
 extern "C" uint32_t chimera_sched_runnable_count(void){
     lock();uint32_t n=0;for(uint32_t i=0;i<count;i++)if(tasks[i].info.state==CHIMERA_TASK_READY)++n;unlock();return n;
 }
-extern "C" uint32_t chimera_sched_snapshot(chimera_task_info*out,uint32_t cap){
-    if(!out)return 0;lock();uint32_t n=count<cap?count:cap;for(uint32_t i=0;i<n;i++)out[i]=tasks[i].info;unlock();return n;
+extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
+    if (out == nullptr) {
+        return 0;
+    }
+
+    lock();
+    const uint32_t n = count < cap ? count : cap;
+    for (uint32_t i = 0; i < n; ++i) {
+        out[i] = tasks[i].info;
+    }
+    unlock();
+    return n;
 }

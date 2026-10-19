@@ -4,9 +4,11 @@ section .text
 global koronos_user_entry_init
 global koronos_arch_enter_user
 global koronos_syscall_entry
+global koronos_user_timeout_abort
 extern koronos_syscall_user_dispatch
 extern koronos_bootstrap_pml4
 extern koronos_user_exit_code
+extern koronos_target_log
 
 %define USER_DATA 0x1B
 %define USER_CODE 0x23
@@ -19,6 +21,21 @@ koronos_user_entry_init:
     pushfq
     push rbx
     cli
+
+    ; Enable the architectural FP/SSE state required by baseline x86-64
+    ; userspace. The freestanding kernel is built with -mno-sse and does not
+    ; use SIMD while this single init process is active.
+    mov rax, cr0
+    and rax, ~(1 << 2)                     ; clear CR0.EM
+    and rax, ~(1 << 3)                     ; clear CR0.TS
+    or rax, (1 << 1)                       ; set CR0.MP
+    mov cr0, rax
+    mov rax, cr4
+    or rax, (1 << 9) | (1 << 10)            ; CR4.OSFXSR | CR4.OSXMMEXCPT
+    mov cr4, rax
+    fninit
+    ldmxcsr [rel koronos_default_mxcsr]
+
     lea rax, [rel koronos_syscall_stack_top]
     mov [rel koronos_tss64 + 4], rax       ; TSS.RSP0
     mov word [rel koronos_tss64 + 102], 104 ; I/O bitmap begins beyond TSS limit
@@ -103,8 +120,20 @@ koronos_arch_enter_user:
     mov rax, 0x0000800000000000
     cmp rdx, rax
     jae .bad_user_entry
-    test rdx, 0xF
-    jnz .bad_user_entry
+    ; _start is compiled as a freestanding C function without a CRT shim:
+    ; present the ABI function-entry alignment, RSP % 16 == 8.
+    mov rax, rdx
+    and rax, 0xF
+    cmp rax, 8
+    jne .bad_user_entry
+    ; SYSCALL exit returns to this C caller, so preserve the callee-saved
+    ; registers exactly as a normal ABI-conforming function must.
+    push rbx
+    push rbp
+    push r12
+    push r13
+    push r14
+    push r15
     pushfq
     pop rax
     mov [rel koronos_cpu_syscall_state + 40], rax
@@ -119,7 +148,7 @@ koronos_arch_enter_user:
     mov cr3, rdi
     push qword USER_DATA
     push rdx
-    push qword 0x2                           ; interrupts stay disabled until IRQ-safe user runtime
+    push qword 0x202                         ; enable IRQs in ring 3; IRQ0 enforces the in-kernel deadline
     push qword USER_CODE
     push rsi
     iretq
@@ -151,6 +180,7 @@ koronos_syscall_entry:
     sub rsp, 8
     call koronos_syscall_user_dispatch
     add rsp, 8
+    ; Keep the syscall return value intact until the exit-sentinel check.
     mov rdx, EXIT_SENTINEL
     cmp rax, rdx
     je koronos_syscall_user_exit
@@ -173,16 +203,48 @@ koronos_syscall_entry:
     add rsp, 8                              ; saved rcx
     pop rbx
     add rsp, 8                              ; saved rax; RAX becomes syscall result
-    mov rsp, [gs:8]
     mov rax, [gs:24]
+    ; Return through a privilege-changing IRETQ frame. This avoids depending
+    ; on SYSRET selector arithmetic and keeps the user RSP off the kernel
+    ; stack until the CPU performs the CPL0->CPL3 return.
+    push qword USER_DATA
+    push qword [gs:8]
+    push r11
+    push qword USER_CODE
+    push rcx
     swapgs
-    sysret
+    iretq
 
 koronos_syscall_user_exit:
     lea rax, [rel koronos_bootstrap_pml4]
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
     mov rax, [rel koronos_user_exit_code]
+    push qword [rel koronos_cpu_syscall_state + 40]
+    popfq
+    swapgs
+    ret
+
+; Called only by the dedicated IRQ0 stub after the in-kernel deadline expires.
+; Discard the interrupted user IRQ frame and resume the original C caller as a
+; failed process, using the same saved kernel continuation as syscall exit.
+koronos_user_timeout_abort:
+    lea rax, [rel koronos_bootstrap_pml4]
+    mov cr3, rax
+    mov rsp, [rel koronos_cpu_syscall_state + 16]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
+    mov eax, -10
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
     swapgs
@@ -213,3 +275,9 @@ alignb 16
 koronos_syscall_stack_bottom:
     resb 65536
 koronos_syscall_stack_top:
+
+
+
+section .rodata
+align 4
+koronos_default_mxcsr: dd 0x1F80

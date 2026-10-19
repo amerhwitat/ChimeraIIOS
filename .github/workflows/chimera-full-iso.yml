@@ -71,15 +71,19 @@ jobs:
       - name: QEMU headless Koronos boot smoke test
         run: |
           set +e
-          timeout 20s qemu-system-x86_64 \
+          timeout 25s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
-            -display none -serial none -monitor none \
+            -display none -serial file:/tmp/chimera-qemu-serial.log -monitor none \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
             -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
           qemu_rc=$?
           set -e
           cat /tmp/chimera-qemu.log
+          if [ -f /tmp/chimera-qemu-serial.log ]; then
+            echo "---- GRUB / serial boot trace ----"
+            cat /tmp/chimera-qemu-serial.log
+          fi
           if [ -f /tmp/chimera-qemu-debugcon.log ]; then
             python3 - <<'PY'
           from pathlib import Path
@@ -95,6 +99,7 @@ jobs:
           PY
           else
             echo "QEMU produced no debugcon output (exit $qemu_rc)" >&2
+            echo "Serial trace retained above to identify the GRUB-to-kernel stopping point." >&2
             exit 1
           fi
 
