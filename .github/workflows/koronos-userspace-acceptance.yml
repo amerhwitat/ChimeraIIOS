@@ -5,11 +5,17 @@ on:
   pull_request:
     paths:
       - 'kernel/**'
+      - 'boot/iso/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
       - '.github/workflows/koronos-userspace-acceptance.yml'
   push:
     branches: [main]
     paths:
       - 'kernel/**'
+      - 'boot/iso/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
       - '.github/workflows/koronos-userspace-acceptance.yml'
 
 permissions:
@@ -154,3 +160,111 @@ jobs:
             build/userspace-acceptance/${{ matrix.target }}/qemu-${{ matrix.firmware }}.log
             build/userspace-acceptance/timeout/qemu-timeout.log
           if-no-files-found: warn
+
+  full-iso-live-userspace:
+    name: Full BIOS ISO / real Live userspace handoff
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native ISO and QEMU dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential nasm binutils python3 grub-common grub-pc-bin grub-efi-amd64-bin xorriso mtools dosfstools qemu-system-x86 busybox-static cpio ffmpeg imagemagick unzip python3-cairosvg
+      - name: Build Koronos and target-specific user-init ELFs
+        run: |
+          set -euo pipefail
+          bash kernel/build-koronos.sh
+          test -s build/koronos/x86_64/user-init-live.elf
+          test -s build/koronos/x86_64/user-init-installer.elf
+          test -s build/koronos/x86_64/user-init-recovery.elf
+      - name: Build Live and Recovery payloads and the canonical BIOS/UEFI ISO
+        run: |
+          set -euo pipefail
+          bash tools/build-live-boot-binaries.sh
+          bash boot/iso/build-iso.sh
+          test -s boot/iso/dist/output.iso
+          test -s boot/iso/dist/iso/boot/koronos/user-init-live.elf
+          test -s boot/iso/dist/iso/boot/koronos/user-init-installer.elf
+          test -s boot/iso/dist/iso/boot/koronos/user-init-recovery.elf
+          sha256sum -c boot/iso/dist/output.iso.sha256
+      - name: Verify six-case full-ISO target ELF probe matrix (not production init acceptance)
+        run: |
+          set -euo pipefail
+          base="$PWD/boot/iso/dist/full-iso-probes"
+          mkdir -p "$base"
+          ovmf_code=""
+          ovmf_vars=""
+          for pair in \
+            "OVMF_CODE_4M.fd:OVMF_VARS_4M.fd" \
+            "OVMF_CODE.fd:OVMF_VARS.fd" \
+            "edk2-x86_64-code.fd:edk2-x86_64-vars.fd"; do
+            code_name="${pair%%:*}"
+            vars_name="${pair##*:}"
+            code_path="$(find /usr/share/OVMF /usr/share/ovmf /usr/share/qemu \( -type f -o -type l \) -name "$code_name" -print -quit 2>/dev/null || true)"
+            vars_path="$(find /usr/share/OVMF /usr/share/ovmf /usr/share/qemu \( -type f -o -type l \) -name "$vars_name" -print -quit 2>/dev/null || true)"
+            if [[ -n "$code_path" && -s "$code_path" && -n "$vars_path" && -s "$vars_path" ]]; then
+              ovmf_code="$code_path"
+              ovmf_vars="$vars_path"
+              break
+            fi
+          done
+          [[ -n "$ovmf_code" && -n "$ovmf_vars" ]] || { echo "::error::No matching OVMF CODE/VARS pair"; exit 1; }
+          for target in live installer recovery; do
+            case "$target" in
+              live) menu_id=aurora-live ;;
+              installer) menu_id=install ;;
+              recovery) menu_id=recovery ;;
+            esac
+            for firmware in bios uefi; do
+              tree="$base/$target-$firmware/tree"
+              mkdir -p "$tree"
+              cp -a boot/iso/dist/iso/. "$tree/"
+              sed -i "s/^set default=0$/set default=$menu_id/" "$tree/boot/grub/grub.cfg"
+              grep -q "^set default=$menu_id$" "$tree/boot/grub/grub.cfg"
+              iso="$base/$target-$firmware.iso"
+              log="$base/$target-$firmware-debugcon.log"
+              grub-mkrescue -o "$iso" "$tree"
+              qemu=(qemu-system-x86_64 -machine q35 -m 1024 -smp 2 -accel tcg -cdrom "$iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9)
+              if [[ "$firmware" == uefi ]]; then
+                vars_copy="$base/$target-OVMF_VARS.fd"
+                cp "$ovmf_vars" "$vars_copy"
+                qemu+=(-drive "if=pflash,format=raw,unit=0,readonly=on,file=$ovmf_code"
+                       -drive "if=pflash,format=raw,unit=1,file=$vars_copy")
+              fi
+              set +e
+              timeout 45s "${qemu[@]}"
+              qemu_rc=$?
+              set -e
+              cat "$log"
+              grep -Fq '[KRN ] KORONOS READY' "$log"
+              grep -Fq "USERSPACE READY: $target init pid=1" "$log" || { echo "::error::$target/$firmware target ELF probe did not reach ring-3 readiness (QEMU exit $qemu_rc)"; exit 1; }
+              grep -Fq 'USERSPACE SYSCALL RETURNED TO RING3' "$log"
+              grep -Fq '[MM  ] Process page-table self-test passed' "$log"
+              grep -Fq '[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly' "$log"
+              echo "PASS: full ISO tree target ELF probe target=$target firmware=$firmware"
+            done
+          done
+      - name: Upload full-ISO userspace probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-full-iso-userspace-probes
+          path: |
+            boot/iso/dist/full-iso-probes/*-debugcon.log
+            boot/iso/dist/output.iso.sha256
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload full-ISO userspace evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-full-iso-userspace-acceptance
+          path: |
+            boot/iso/dist/full-iso-userspace-debugcon.log
+            boot/iso/dist/full-iso-userspace-serial.log
+            boot/iso/dist/full-iso-installer-debugcon.log
+            boot/iso/dist/full-iso-recovery-debugcon.log
+            boot/iso/dist/output.iso.sha256
+          if-no-files-found: ignore
+          retention-days: 14
