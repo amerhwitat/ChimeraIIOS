@@ -77,6 +77,9 @@ static bool target_marker(const char *bytes, uint64_t length, Target target, uin
 }
 
 extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
+extern "C" uint32_t koronos_target_active_pid(void) {
+    return active_target != TARGET_NONE ? active_pid : 0u;
+}
 extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length) {
     if (!bytes || !length || active_target==TARGET_NONE || !active_pid) return 0;
     if (target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
