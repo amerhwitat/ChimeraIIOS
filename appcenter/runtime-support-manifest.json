@@ -1,0 +1,1448 @@
+{
+  "schema": "chimera.app.runtime-support/v1",
+  "description": "Explicit support and lifecycle gates. A catalog entry is not a native package. Browser prototypes are web previews only and must not be reported as native Koronos applications.",
+  "native_runtime": {
+    "name": "Koronos ELF userspace",
+    "status": "not-verified-for-these-apps",
+    "required_before_support": [
+      "target-specific dependency resolution",
+      "license and provenance review",
+      "signed package manifest",
+      "declared permissions and sandbox profile",
+      "install/update/rollback/uninstall implementation",
+      "actual launch test on each target",
+      "crash and permission-denial tests"
+    ]
+  },
+  "lifecycle_contract": {
+    "install": "not-implemented-for-native-apps",
+    "update": "not-implemented-for-native-apps",
+    "rollback": "not-implemented-for-native-apps",
+    "uninstall": "not-implemented-for-native-apps",
+    "permissions": "declarative-only",
+    "dependency_resolution": "not-implemented-for-native-apps",
+    "package_signing": "not-implemented-for-native-apps"
+  },
+  "apps": [
+    {
+      "id": "youtube",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "firefox",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "chromium",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "vlc",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "telegram",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "signal",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "discord",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "reddit",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "libreoffice",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "gimp",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "vscode",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "krita",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "inkscape",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "pinta",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "blender",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "darktable",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "rawtherapee",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "obs-studio",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "audacity",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "ardour",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "kdenlive",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "shotcut",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "handbrake",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "mpv",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "jellyfin-media-player",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "thunderbird",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "element",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "keepassxc",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "filezilla",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "qbittorrent",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "freecad",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "openscad",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "kicad",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "okular",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "calibre",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "steam",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "lutris",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "heroic",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "retroarch",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "super-tux-kart",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "xonotic",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "0ad",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "godot",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "geany",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "vscodium",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "file-roller",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "gnome-calculator",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "virtualbox",
+      "support_status": "catalog-only",
+      "runtime": "not-configured",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [],
+      "sandbox": "not-configured",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "not-applicable",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Inventory metadata only; no native package or launch verification is claimed."
+    },
+    {
+      "id": "vector-studio",
+      "support_status": "browser-prototype",
+      "runtime": "browser",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [
+        "user-selected-files-only",
+        "local-browser-storage-none",
+        "network-access-not-required"
+      ],
+      "sandbox": "browser-origin-sandbox",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "checked-in-ci",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Functional web preview prototype only; not a native Koronos executable."
+    },
+    {
+      "id": "sheet-desk",
+      "support_status": "browser-prototype",
+      "runtime": "browser",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [
+        "user-selected-files-only",
+        "local-browser-storage-none",
+        "network-access-not-required"
+      ],
+      "sandbox": "browser-origin-sandbox",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "checked-in-ci",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Functional web preview prototype only; not a native Koronos executable."
+    },
+    {
+      "id": "file-toolkit",
+      "support_status": "browser-prototype",
+      "runtime": "browser",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [
+        "user-selected-files-only",
+        "local-browser-storage-none",
+        "network-access-not-required"
+      ],
+      "sandbox": "browser-origin-sandbox",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "checked-in-ci",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Functional web preview prototype only; not a native Koronos executable."
+    },
+    {
+      "id": "code-workbench",
+      "support_status": "browser-prototype",
+      "runtime": "browser",
+      "native_package": {
+        "available": false,
+        "format": null,
+        "version": null,
+        "signature": null
+      },
+      "dependencies": [],
+      "permissions": [
+        "user-selected-files-only",
+        "local-browser-storage-none",
+        "network-access-not-required"
+      ],
+      "sandbox": "browser-origin-sandbox",
+      "lifecycle": {
+        "install": "not-implemented",
+        "update": "not-implemented",
+        "rollback": "not-implemented",
+        "uninstall": "not-implemented"
+      },
+      "tests": {
+        "catalog_validation": "required-in-ci",
+        "javascript_syntax": "checked-in-ci",
+        "browser_launch": "not-verified",
+        "native_launch": "not-run"
+      },
+      "note": "Functional web preview prototype only; not a native Koronos executable."
+    }
+  ]
+}
