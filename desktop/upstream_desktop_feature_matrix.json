@@ -1,0 +1,400 @@
+{
+  "schema": "CHM-DESKTOP-PARITY-1",
+  "status": "reference-inventory-not-implementation",
+  "policy": "Upstream desktop names and URLs identify compatibility references only. Do not copy proprietary source, artwork, fonts, icons, trademarks, or binaries without a license and provenance review. Feature availability in this catalog does not mean the OS implements it.",
+  "platforms": {
+    "linux_bsd": [
+      {
+        "id": "gnome",
+        "name": "GNOME Shell",
+        "url": "https://www.gnome.org/",
+        "license": "GPL/LGPL and component-specific licenses",
+        "ui": [
+          "overview",
+          "workspaces",
+          "top-panel",
+          "notifications",
+          "settings",
+          "accessibility",
+          "extensions"
+        ]
+      },
+      {
+        "id": "kde-plasma",
+        "name": "KDE Plasma",
+        "url": "https://kde.org/plasma-desktop/",
+        "license": "GPL/LGPL and component-specific licenses",
+        "ui": [
+          "launcher",
+          "panels",
+          "widgets",
+          "system-tray",
+          "activities",
+          "search",
+          "notifications",
+          "settings"
+        ]
+      },
+      {
+        "id": "xfce",
+        "name": "Xfce",
+        "url": "https://www.xfce.org/",
+        "license": "GPL/LGPL and component-specific licenses",
+        "ui": [
+          "panel",
+          "window-manager",
+          "settings",
+          "file-manager",
+          "lightweight"
+        ]
+      },
+      {
+        "id": "cinnamon",
+        "name": "Cinnamon",
+        "url": "https://github.com/linuxmint/cinnamon",
+        "license": "GPL and component-specific licenses",
+        "ui": [
+          "start-menu",
+          "panel",
+          "applets",
+          "desklets",
+          "window-management"
+        ]
+      },
+      {
+        "id": "mate",
+        "name": "MATE",
+        "url": "https://mate-desktop.org/",
+        "license": "GPL/LGPL and component-specific licenses",
+        "ui": [
+          "traditional-panels",
+          "menu",
+          "file-manager",
+          "settings",
+          "accessibility"
+        ]
+      },
+      {
+        "id": "lxqt",
+        "name": "LXQt",
+        "url": "https://lxqt-project.org/",
+        "license": "GPL/LGPL and component-specific licenses",
+        "ui": [
+          "panel",
+          "launcher",
+          "system-tray",
+          "settings",
+          "lightweight"
+        ]
+      },
+      {
+        "id": "lxde",
+        "name": "LXDE",
+        "url": "https://lxde.org/",
+        "license": "GPL/LGPL and component-specific licenses",
+        "ui": [
+          "panel",
+          "launcher",
+          "file-manager",
+          "lightweight"
+        ]
+      },
+      {
+        "id": "budgie",
+        "name": "Budgie",
+        "url": "https://buddiesofbudgie.org/",
+        "license": "GPL and component-specific licenses",
+        "ui": [
+          "panel",
+          "menu",
+          "notifications",
+          "workspace-switcher",
+          "settings"
+        ]
+      },
+      {
+        "id": "pantheon",
+        "name": "Pantheon",
+        "url": "https://elementary.io/",
+        "license": "GPL and component-specific licenses",
+        "ui": [
+          "dock",
+          "top-panel",
+          "app-launcher",
+          "multitasking",
+          "settings"
+        ]
+      },
+      {
+        "id": "cosmic",
+        "name": "COSMIC",
+        "url": "https://system76.com/cosmic",
+        "license": "Per-repository license review required",
+        "ui": [
+          "tiling",
+          "workspaces",
+          "panels",
+          "launcher",
+          "settings"
+        ]
+      },
+      {
+        "id": "deepin",
+        "name": "Deepin Desktop Environment",
+        "url": "https://www.deepin.org/",
+        "license": "Per-component license review required",
+        "ui": [
+          "dock",
+          "launcher",
+          "control-center",
+          "notifications",
+          "workspaces"
+        ]
+      },
+      {
+        "id": "enlightenment",
+        "name": "Enlightenment",
+        "url": "https://www.enlightenment.org/",
+        "license": "BSD and component-specific licenses",
+        "ui": [
+          "compositor",
+          "shelves",
+          "gadgets",
+          "effects",
+          "virtual-desktops"
+        ]
+      },
+      {
+        "id": "i3",
+        "name": "i3",
+        "url": "https://i3wm.org/",
+        "license": "BSD-3-Clause",
+        "ui": [
+          "tiling",
+          "keyboard-navigation",
+          "workspaces",
+          "status-bar"
+        ]
+      },
+      {
+        "id": "sway",
+        "name": "Sway",
+        "url": "https://swaywm.org/",
+        "license": "MIT",
+        "ui": [
+          "wayland-tiling",
+          "keyboard-navigation",
+          "workspaces",
+          "outputs"
+        ]
+      },
+      {
+        "id": "hyprland",
+        "name": "Hyprland",
+        "url": "https://hypr.land/",
+        "license": "Per-repository license review required",
+        "ui": [
+          "wayland-compositor",
+          "tiling",
+          "animations",
+          "workspaces",
+          "plugins"
+        ]
+      }
+    ],
+    "windows": [
+      {
+        "id": "windows-classic",
+        "name": "Classic Win32 desktop conventions",
+        "url": "https://learn.microsoft.com/en-us/windows/win32/",
+        "license": "Windows SDK terms; implement clean-room compatibility, do not redistribute proprietary shell code",
+        "ui": [
+          "start-menu",
+          "taskbar",
+          "window-controls",
+          "menus",
+          "keyboard-shortcuts"
+        ]
+      },
+      {
+        "id": "windows-7-aero",
+        "name": "Windows 7/Aero-era interaction profile",
+        "url": "https://learn.microsoft.com/en-us/windows/apps/",
+        "license": "Design reference only",
+        "ui": [
+          "taskbar-previews",
+          "window-composition",
+          "snap",
+          "notifications"
+        ]
+      },
+      {
+        "id": "windows-10",
+        "name": "Windows 10 interaction profile",
+        "url": "https://learn.microsoft.com/en-us/windows/apps/",
+        "license": "Design reference only",
+        "ui": [
+          "start-menu",
+          "taskbar",
+          "action-center",
+          "virtual-desktops",
+          "snap"
+        ]
+      },
+      {
+        "id": "windows-11",
+        "name": "Windows 11 interaction profile",
+        "url": "https://learn.microsoft.com/en-us/windows/apps/",
+        "license": "Design reference only",
+        "ui": [
+          "modern-start",
+          "taskbar",
+          "snap-layouts",
+          "quick-settings",
+          "notifications",
+          "virtual-desktops"
+        ]
+      },
+      {
+        "id": "winui",
+        "name": "WinUI / Windows App SDK patterns",
+        "url": "https://github.com/microsoft/microsoft-ui-xaml",
+        "license": "Review upstream repository license before any import",
+        "ui": [
+          "fluent-controls",
+          "adaptive-layout",
+          "accessibility",
+          "theme",
+          "localization"
+        ]
+      }
+    ],
+    "macos": [
+      {
+        "id": "mac-classic",
+        "name": "Classic Mac desktop conventions",
+        "url": "https://developer.apple.com/design/human-interface-guidelines/",
+        "license": "Design reference only",
+        "ui": [
+          "menu-bar",
+          "desktop-icons",
+          "window-controls",
+          "keyboard-shortcuts"
+        ]
+      },
+      {
+        "id": "mac-appkit",
+        "name": "macOS AppKit conventions",
+        "url": "https://developer.apple.com/documentation/appkit/",
+        "license": "Apple SDK terms; do not redistribute proprietary implementation",
+        "ui": [
+          "menu-bar",
+          "dock",
+          "responder-chain",
+          "window-management",
+          "accessibility"
+        ]
+      },
+      {
+        "id": "mac-modern",
+        "name": "Modern macOS interaction profile",
+        "url": "https://developer.apple.com/design/human-interface-guidelines/designing-for-macos/",
+        "license": "Design reference only",
+        "ui": [
+          "dock",
+          "menu-bar",
+          "control-center",
+          "mission-control",
+          "spaces",
+          "full-screen",
+          "multi-display"
+        ]
+      },
+      {
+        "id": "swiftui",
+        "name": "SwiftUI adaptive UI patterns",
+        "url": "https://developer.apple.com/swiftui/",
+        "license": "Apple SDK terms; use as design reference unless licensed",
+        "ui": [
+          "adaptive-layout",
+          "state-driven-ui",
+          "accessibility",
+          "localization",
+          "keyboard-navigation"
+        ]
+      }
+    ]
+  },
+  "common_capabilities": [
+    {
+      "id": "session-manager",
+      "status": "planned",
+      "acceptance": "Start and stop a real user session; recover from compositor failure."
+    },
+    {
+      "id": "window-management",
+      "status": "planned",
+      "acceptance": "Create, focus, move, resize, minimize, maximize, tile and close real windows."
+    },
+    {
+      "id": "input-routing",
+      "status": "planned",
+      "acceptance": "Keyboard, pointer, touch/gesture and accessibility input with focus and hit-testing tests."
+    },
+    {
+      "id": "launcher-search",
+      "status": "planned",
+      "acceptance": "Discover only installed applications; launch process and report errors."
+    },
+    {
+      "id": "panel-dock",
+      "status": "planned",
+      "acceptance": "Task/window list reflects actual processes/windows; pinning persists across sessions."
+    },
+    {
+      "id": "notifications",
+      "status": "planned",
+      "acceptance": "Permission-aware notification service with focus and do-not-disturb controls."
+    },
+    {
+      "id": "workspace-multidisplay",
+      "status": "planned",
+      "acceptance": "Workspace switching and display hotplug/mode changes tested against supported compositor."
+    },
+    {
+      "id": "settings-theme",
+      "status": "planned",
+      "acceptance": "Persist themes, fonts, scale, language, RTL, reduced motion and contrast."
+    },
+    {
+      "id": "file-manager",
+      "status": "planned",
+      "acceptance": "Uses actual VFS/filesystem APIs and honors permissions; no mock file actions."
+    },
+    {
+      "id": "accessibility",
+      "status": "planned",
+      "acceptance": "Keyboard-only operation, screen-reader/accessibility tree, focus order and scaling tests."
+    },
+    {
+      "id": "sound-power-network",
+      "status": "planned",
+      "acceptance": "Controls call real OS services and clearly report unsupported hardware."
+    },
+    {
+      "id": "session-security",
+      "status": "planned",
+      "acceptance": "User isolation, app launch policy, lock screen and authentication integration."
+    },
+    {
+      "id": "crash-recovery",
+      "status": "planned",
+      "acceptance": "Compositor/app crash isolation, session logs and safe restart."
+    },
+    {
+      "id": "packaging-updates",
+      "status": "planned",
+      "acceptance": "Signed/provenanced packages, transactional update/rollback, license manifest."
+    }
+  ]
+}
