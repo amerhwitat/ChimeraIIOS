@@ -87,7 +87,15 @@ chimera_interrupt_common:
 
     mov rdi, [rsp + 120]
     mov rsi, rsp
+    ; A CPL3 interrupt pushes SS/RSP/RFLAGS/CS/RIP before the stub saves
+    ; registers, so this frame is not guaranteed to satisfy the SysV AMD64
+    ; pre-call 16-byte stack alignment. Preserve the frame pointer in RBX
+    ; (its interrupted value is already saved in the frame), align for C, and
+    ; restore the exact frame pointer before the common register epilogue.
+    mov rbx, rsp
+    and rsp, -16
     call chimera_interrupt_dispatch
+    mov rsp, rbx
 
     mov rax, [rsp + 120]
     cmp eax, 8
