@@ -1,0 +1,38 @@
+name: Desktop Application Catalog CI
+on:
+  push:
+    paths:
+      - "appcenter/**"
+      - ".github/workflows/desktop-app-catalog.yml"
+  pull_request:
+    paths:
+      - "appcenter/**"
+      - ".github/workflows/desktop-app-catalog.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-catalog:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Validate application catalog
+        run: python appcenter/cli/chimera-appctl.py validate
+      - name: Check ISO application manifest matches catalog IDs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          apps = json.loads(Path('appcenter/catalog/apps.json').read_text(encoding='utf-8'))['apps']
+          manifest = Path('iso/manifests/application-catalog.txt').read_text(encoding='utf-8').splitlines()
+          ids = [app['id'] for app in apps]
+          assert manifest == ids, 'ISO application manifest must exactly match catalog IDs in order'
+          print(f'validated {len(manifest)} ISO catalog IDs')
+          PY
+      - name: Test Application Center discovery and safe plans
+        run: python -m pytest -q appcenter/tests
