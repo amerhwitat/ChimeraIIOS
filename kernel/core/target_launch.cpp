@@ -10,7 +10,7 @@
 #include "chimera/frame_allocator.h"
 
 namespace {
-constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull;
+constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE008ull; // SysV AMD64 _start entry alignment: RSP % 16 == 8
 constexpr uint64_t USER_STACK_SIZE = 64ull * 1024ull;
 constexpr uint64_t MAX_INIT_IMAGE = 64ull * 1024ull * 1024ull;
 enum Target : uint32_t { TARGET_NONE=0, TARGET_LIVE=1, TARGET_INSTALLER=2, TARGET_RECOVERY=3 };
