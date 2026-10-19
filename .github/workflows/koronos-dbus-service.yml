@@ -24,9 +24,16 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile service and test sources
-        run: python -m py_compile services/dbus/chimera_dbus_service.py tests/unit/test_dbus_service_contract.py
+        run: python -m py_compile services/dbus/chimera_dbus_service.py tests/unit/test_dbus_service_contract.py tests/unit/test_dbus_service_integration.py
       - name: Run D-Bus service contract tests
         run: python -m unittest discover -s tests/unit -p 'test_dbus_service_contract.py' -v
+      - name: Install D-Bus integration-test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dbus-daemon
+          python -m pip install dbus-next
+      - name: Exercise real D-Bus wire methods
+        run: dbus-run-session -- python -m unittest discover -s tests/unit -p 'test_dbus_service_integration.py' -v
       - name: Validate package entry points and DESTDIR staging
         run: |
           set -euo pipefail
