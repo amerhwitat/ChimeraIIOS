@@ -200,7 +200,11 @@ extern "C" int koronos_launch_selected_userspace(void) {
         return -10;
     }
     koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
-    const int exit_code=koronos_arch_enter_user(root,loaded.entry,loaded.user_stack_top);
+    /* _start is a freestanding C entry, not a CRT process-entry shim.
+     * Give it the SysV function-entry stack alignment (RSP % 16 == 8).
+     * The full final stack page is already mapped by the ELF loader. */
+    const uint64_t user_entry_stack = loaded.user_stack_top - sizeof(uint64_t);
+    const int exit_code=koronos_arch_enter_user(root,loaded.entry,user_entry_stack);
     koronos_user_timeout_disarm();
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
