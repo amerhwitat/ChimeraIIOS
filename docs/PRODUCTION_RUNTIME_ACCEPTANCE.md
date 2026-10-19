@@ -64,3 +64,7 @@ The new workflow is deliberately named **Koronos Ring-3 Smoke Probes (not produc
 ### CI integration corrections
 
 The first new parity-workflow attempt exposed two integration issues: the copied Octavian workflow still used the vendored-source checkout path, and Chimera's x86-64 entry assembly did not export the bootstrap PML4 symbol required by the newly synchronized address-space backend. The workflow now uses the repository root, and entry.asm was synchronized to export koronos_bootstrap_pml4. Validation is pending in smoke matrix #39274513629, native build #39274513564, and loader tests #39274513527. Do not treat queued jobs as passing evidence.
+
+### Native build result — 2026-10-19
+
+The synchronized runtime foundation now passes the ChimeraIIOS native Koronos Kernel Build workflow #39274513564: ELF64 build, protected-process admission, ELF validation, and unresolved-symbol checks all passed. This is compile/link evidence only. The six-case smoke workflow #39274699829 is still queued; do not claim the ring-3 path has passed in Chimera until that matrix completes. Production init ELFs and target services remain absent, so full-ISO acceptance and release remain blocked.
