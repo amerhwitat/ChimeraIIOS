@@ -8,6 +8,14 @@ The expanded [application catalog](catalog/apps.json) covers common desktop work
 
 **Cataloged does not mean installed, bundled, ported, or verified.** Added entries use `availability: catalog-only` until packaging, license/provenance review, dependency resolution, target-specific build and actual launch tests are complete. Host versions of Windows/macOS/Linux applications are not automatically runnable on the bare-metal Chimera kernel. Use official providers or explicitly identified web, VM, emulation, or compatibility routes where appropriate.
 
+## Working browser application prototype
+
+[Paint Studio](paint-studio.html) is a dependency-free browser canvas editor with pen, line, rectangle, ellipse, eraser, undo, image import and PNG export. It runs in a modern browser and keeps edits in the page until exported. **This is a browser app prototype, not a native Koronos executable or a claim of OS-level file/graphics integration.**
+
+[Media Deck](media-deck.html) is a dependency-free local browser audio/video player with queue controls, volume, playback speed and keyboard play/pause. Browser codec support applies; this is not a native media backend.
+
+[Document Desk](document-desk.html) provides local text/Markdown editing, text export, and browser-native PDF preview. [Snake Arcade](snake-arcade.html) is a small playable canvas game with keyboard/touch controls. These are browser prototypes; neither supplies native office-suite, PDF engine, graphics driver, or native game-runtime support.
+
 ## Policy
 
 The ISO contains open-source core components and metadata/source references. Proprietary binaries are not copied into the repository merely because an application is popular. The application manager opens or invokes an official distribution mechanism when a license or store policy requires it. Untrusted post-install scripts are not run implicitly.
