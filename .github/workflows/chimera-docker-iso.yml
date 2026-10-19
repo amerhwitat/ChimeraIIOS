@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'docker/iso-runner/**'
       - '.github/workflows/chimera-docker-iso.yml'
       - 'ISA.csv'
       - 'tools/isa/**'
