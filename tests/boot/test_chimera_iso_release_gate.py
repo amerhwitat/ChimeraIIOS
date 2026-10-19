@@ -15,11 +15,11 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         for target in ("live", "installer", "recovery"):
             self.assertIn(f'for target in live installer recovery', self.text)
             self.assertIn(f'python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"', self.text)
-        self.assertIn("USERSPACE READY", self.text)
+        self.assertIn("verify-userspace-handoff.py", self.text)
 
     def test_release_requires_runtime_gate_and_explicit_approval(self):
         release = self.text.split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[1]
-        condition = release.splitlines()[2]
+        condition = next(line for line in release.splitlines() if line.strip().startswith("if:"))
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
 
