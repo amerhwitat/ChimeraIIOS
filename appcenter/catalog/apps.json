@@ -22,7 +22,7 @@
       "version": "latest",
       "category": "browser",
       "license": "MPL-2.0",
-      "provider": "linux",
+      "provider": "native",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -37,7 +37,7 @@
       "version": "latest",
       "category": "browser",
       "license": "BSD-3-Clause",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -52,7 +52,7 @@
       "version": "latest",
       "category": "media",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -128,7 +128,7 @@
       "version": "latest",
       "category": "office",
       "license": "MPL-2.0",
-      "provider": "linux",
+      "provider": "native",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -143,7 +143,7 @@
       "version": "latest",
       "category": "graphics",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -173,7 +173,7 @@
       "version": "latest",
       "category": "graphics",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -190,7 +190,7 @@
       "version": "latest",
       "category": "graphics",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -207,7 +207,7 @@
       "version": "latest",
       "category": "graphics",
       "license": "MIT",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -224,7 +224,7 @@
       "version": "latest",
       "category": "3d-modeling",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -241,7 +241,7 @@
       "version": "latest",
       "category": "photo",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -258,7 +258,7 @@
       "version": "latest",
       "category": "photo",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -275,7 +275,7 @@
       "version": "latest",
       "category": "media-production",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -292,7 +292,7 @@
       "version": "latest",
       "category": "audio",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -309,7 +309,7 @@
       "version": "latest",
       "category": "audio-production",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -326,7 +326,7 @@
       "version": "latest",
       "category": "video-editing",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -343,7 +343,7 @@
       "version": "latest",
       "category": "video-editing",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -360,7 +360,7 @@
       "version": "latest",
       "category": "video-conversion",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -377,7 +377,7 @@
       "version": "latest",
       "category": "media",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "native",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -394,7 +394,7 @@
       "version": "latest",
       "category": "media",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -411,7 +411,7 @@
       "version": "latest",
       "category": "email",
       "license": "MPL-2.0",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -445,7 +445,7 @@
       "version": "latest",
       "category": "security",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -462,7 +462,7 @@
       "version": "latest",
       "category": "network",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -479,7 +479,7 @@
       "version": "latest",
       "category": "network",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -496,7 +496,7 @@
       "version": "latest",
       "category": "engineering",
       "license": "LGPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -513,7 +513,7 @@
       "version": "latest",
       "category": "3d-modeling",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -530,7 +530,7 @@
       "version": "latest",
       "category": "engineering",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -547,7 +547,7 @@
       "version": "latest",
       "category": "documents",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -564,7 +564,7 @@
       "version": "latest",
       "category": "ebooks",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -598,7 +598,7 @@
       "version": "latest",
       "category": "games",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -615,7 +615,7 @@
       "version": "latest",
       "category": "games",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -632,7 +632,7 @@
       "version": "latest",
       "category": "emulation",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -649,7 +649,7 @@
       "version": "latest",
       "category": "games",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -666,7 +666,7 @@
       "version": "latest",
       "category": "games",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "native",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -683,7 +683,7 @@
       "version": "latest",
       "category": "games",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -700,7 +700,7 @@
       "version": "latest",
       "category": "development",
       "license": "MIT",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -717,7 +717,7 @@
       "version": "latest",
       "category": "development",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -734,7 +734,7 @@
       "version": "latest",
       "category": "development",
       "license": "MIT",
-      "provider": "linux",
+      "provider": "flatpak",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -751,7 +751,7 @@
       "version": "latest",
       "category": "utilities",
       "license": "GPL-2.0-or-later",
-      "provider": "linux",
+      "provider": "native",
       "architectures": [
         "x86_64",
         "aarch64"
@@ -768,7 +768,7 @@
       "version": "latest",
       "category": "utilities",
       "license": "GPL-3.0-or-later",
-      "provider": "linux",
+      "provider": "native",
       "architectures": [
         "x86_64",
         "aarch64"
