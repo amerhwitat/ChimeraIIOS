@@ -98,11 +98,18 @@ extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
+    /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
+     * from a native SYSCALL context/dispatch failure without manufacturing
+     * any userspace readiness marker. */
+    koronos_target_log("[SYSC] entered native user syscall dispatcher");
     /* SYSCALL does not preserve caller CS. It may serve the active process,
      * but it cannot produce the CPL3 acceptance acknowledgement. That proof
      * is emitted only by the DPL3 INT 0x80 gate after checking saved CS.RPL. */
-    if (!koronos_target_validate_syscall_context(frame->rcx))
+    if (!koronos_target_validate_syscall_context(frame->rcx)) {
+        koronos_target_log("[SYSC] rejected user syscall context (RIP/CR3/PID mismatch)");
         return static_cast<uint64_t>(-38ll);
+    }
+    koronos_target_log("[SYSC] accepted user syscall context");
     switch (frame->rax) {
         case CHM_SYS_GETPID: {
             /* PID comes from the active kernel-owned process record. Never
