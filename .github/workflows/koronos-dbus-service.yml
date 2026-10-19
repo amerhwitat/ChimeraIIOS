@@ -27,10 +27,14 @@ jobs:
         run: python -m py_compile services/dbus/chimera_dbus_service.py tests/unit/test_dbus_service_contract.py
       - name: Run D-Bus service contract tests
         run: python -m unittest discover -s tests/unit -p 'test_dbus_service_contract.py' -v
-      - name: Validate package entry points
+      - name: Validate package entry points and DESTDIR staging
         run: |
+          set -euo pipefail
           test -f tools/dbus/install-koronos-dbus.sh
           sh -n tools/dbus/install-koronos-dbus.sh
-          test -f services/dbus/chimera-dbus.service
-          test -f services/dbus/org.chimera.OS.conf
-          test -f services/dbus/org.chimera.OS.service
+          stage=$(mktemp -d)
+          trap 'rm -rf "$stage"' EXIT
+          DESTDIR="$stage" sh tools/dbus/install-koronos-dbus.sh --os chimera
+          test -x "$stage/usr/libexec/chimera/chimera_dbus_service.py"
+          test -f "$stage/etc/dbus-1/system.d/org.chimera.OS.conf"
+          test -f "$stage/usr/share/dbus-1/system-services/org.chimera.OS.service"
