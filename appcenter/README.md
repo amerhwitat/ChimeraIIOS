@@ -15,14 +15,16 @@ The ISO contains open-source core components and metadata/source references. Pro
 ## Commands
 
 ```text
+python3 appcenter/cli/chimera-appctl.py validate
 python3 appcenter/cli/chimera-appctl.py list
+python3 appcenter/cli/chimera-appctl.py categories --count
 python3 appcenter/cli/chimera-appctl.py search media
 python3 appcenter/cli/chimera-appctl.py show youtube
 python3 appcenter/cli/chimera-appctl.py sources
 python3 appcenter/cli/chimera-appctl.py install-plan youtube
 ```
 
-`install-plan` is deliberately non-executing. An installer UI or privileged package backend must review and authorize an actual installation.
+`validate` checks unique IDs, required metadata, registered provider IDs, HTTPS URLs and declared verification states. The Aurora Repository Application Center now reads this catalog for search/category discovery and only opens verified HTTPS project websites; it does not run installers. `install-plan` is deliberately non-executing. An installer UI or privileged package backend must review and authorize an actual installation.
 
 ## Aurora package manager providers
 
