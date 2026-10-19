@@ -253,7 +253,7 @@ jobs:
         run: |
           set -uo pipefail
           base=/tmp/chimera-userspace-traces
-          ovmf_code="$(find /usr/share/OVMF /usr/share/ovmf -type f \\( -name 'OVMF_CODE.fd' -o -name 'OVMF_CODE_4M.fd' \\) -print -quit 2>/dev/null || true)"
+          ovmf_code="$(find /usr/share/OVMF /usr/share/ovmf -type f \( -name 'OVMF_CODE.fd' -o -name 'OVMF_CODE_4M.fd' \) -print -quit 2>/dev/null || true)"
           if [[ -z "$ovmf_code" ]]; then
             echo "::error::OVMF firmware image not found; UEFI acceptance cannot pass."
             echo "accepted=false" >> "$GITHUB_OUTPUT"
