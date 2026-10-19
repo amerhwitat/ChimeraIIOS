@@ -41,6 +41,7 @@ jobs:
           ./kernel/build-koronos.sh
           grub-file --is-x86-multiboot2 build/koronos/x86_64/koronos.elf
           file build/koronos/x86_64/koronos.elf
+          python3 kernel/tests/test_boot_target_grub_contract.py
       - name: Build desktop artifacts
         run: ./tools/build-desktop-binaries.sh
       - name: Build minimal Multiboot2 test ISO
