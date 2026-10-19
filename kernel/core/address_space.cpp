@@ -221,10 +221,26 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     const uint64_t leaf_flags = ENTRY_PRESENT | ENTRY_USER |
         ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
         ((elf_flags & 1u) ? 0u : ENTRY_NX);
-    for (uint64_t i = 0; i < pages64; ++i) {
-        uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
-        if (!pte || (*pte & ENTRY_PRESENT)) { unlock_backend(); return -5; }
-        *pte = (physical + i * PAGE_SIZE) | leaf_flags;
+    uint64_t mapped_now = 0;
+    for (; mapped_now < pages64; ++mapped_now) {
+        uint64_t *pte = ensure_pte(space, virtual_base + mapped_now * PAGE_SIZE);
+        if (!pte || (*pte & ENTRY_PRESENT)) {
+            // Do not leave a partially installed user mapping pointing at
+            // frames that may be freed by the caller's error path.  The page
+            // table pages created while walking are still owned by this
+            // address space and are reclaimed when the space is destroyed.
+            for (uint64_t j = 0; j < mapped_now; ++j) {
+                uint64_t *installed = ensure_pte(space, virtual_base + j * PAGE_SIZE);
+                if (installed) *installed = 0;
+            }
+            (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+            --space->mapped_count;
+            space->mapped[space->mapped_count] = {};
+            space->user_pages -= pages64;
+            unlock_backend();
+            return -5;
+        }
+        *pte = (physical + mapped_now * PAGE_SIZE) | leaf_flags;
     }
     *kernel_alias = reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
     unlock_backend();
