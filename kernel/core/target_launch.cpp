@@ -179,6 +179,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
     active_target=TARGET_NONE;
+    active_root=0;
     if (exit_code == -10) {
         koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
         return -11;
