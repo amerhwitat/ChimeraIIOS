@@ -29,7 +29,12 @@
     "language preference persistence",
     "notification center preview",
     "keyboard shortcuts and context-menu workspace access",
-    "application catalogue and compatibility information"
+    "application catalogue and compatibility information",
+    "Built-in Paint Studio with canvas drawing and PNG export in the browser preview",
+    "Local-file audio/video player using browser-supported codecs in the preview",
+    "Local image viewer, plain-text editor export and basic calculator preview",
+    "Playable Tic-Tac-Toe mini-game and discoverable third-party desktop application catalog",
+    "Cross-platform app metadata with upstream links, platform scope, licensing notes and explicit integration state"
   ],
   "native_adapter_required": [
     "real process launch and process supervision",
@@ -158,6 +163,19 @@
         "installer completes disk workflow and reboots into installed system",
         "Recovery performs a real repair/diagnostic operation",
         "multiple APs online with measured concurrent execution"
+      ]
+    },
+    {
+      "id": "application-ecosystem",
+      "subsystem": "Cross-platform application catalog, packaging and desktop integration",
+      "status": "not_implemented",
+      "evidence_required": [
+        "application catalog has unique IDs, upstream provenance, platform scope and reviewed license/third-party notices",
+        "native package build and dependency-resolution result for each app claimed as supported",
+        "install, launch, open-file/MIME association, quit, update and rollback tests on each supported target",
+        "permission/sandbox and signature-verification tests for packaged apps",
+        "media codec, graphics acceleration, input/controller and accessibility capability tests where applicable",
+        "no app is advertised as installed or runnable unless the target artifact and runtime test exist"
       ]
     }
   ],
