@@ -122,7 +122,12 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t
 }
 extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length) {
     if (!bytes || !length || active_target==TARGET_NONE || !active_pid) return 0;
-    if (target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
+    /* Readiness is valid only after this active process has already
+       issued a syscall through the DPL3 gate and the kernel verified its
+       saved CS.RPL, RIP and CR3. A write that arrives first cannot satisfy
+       the readiness half of the acceptance handshake. */
+    if (syscall_ack_seen && active_pid &&
+        target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
         ready_seen=1;
         return 1;
     }
