@@ -20,6 +20,17 @@ class DesktopParityContractTests(unittest.TestCase):
             self.assertIn('<script src="../shared/desktop-parity.js" defer></script>', page, rel)
             self.assertIn("Preview only", page, rel)
 
+    def test_iso_staging_copies_desktop_tree(self):
+        candidates = [
+            ROOT / "iso/chimera-live-iso.sh",
+            ROOT / "tools/build-full-iso.sh",
+            ROOT / "vendor/chimera-ii-os/source/iso/chimera-live-iso.sh",
+            ROOT / "vendor/chimera-ii-os/source/tools/build-full-iso.sh",
+        ]
+        scripts = [p.read_text() for p in candidates if p.is_file()]
+        self.assertTrue(any('cp -a "$ROOT/desktop" "$STAGE/system/desktop"' in s for s in scripts),
+                        "ISO builder must stage the full desktop tree, including shared shell assets")
+
     def test_shared_shell_exposes_truthful_capability_flag(self):
         script = (ROOT / "desktop/shared/desktop-parity.js").read_text()
         self.assertIn("nativeSessionAdapter:false", script)
