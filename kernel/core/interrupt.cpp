@@ -105,6 +105,13 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         vector == CHIMERA_DOS_INT_VECTOR) {
         ++g_syscalls;
     }
+    if (vector == CHIMERA_SYSCALL_VECTOR && frame) {
+        /* interrupts.asm saves 15 GPRs, then vector, then the hardware frame:
+         * frame[16] is RIP and frame[17] is CS. INT 0x80's IDT gate is DPL3;
+         * still check the CPU-saved RPL explicitly before acknowledging. */
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        (void)koronos_target_note_user_syscall(saved[16], saved[17]);
+    }
     chimera_interrupt_identity identity{};
     chimera_compat_recognize_interrupt((uint32_t)vector, &identity);
 }
