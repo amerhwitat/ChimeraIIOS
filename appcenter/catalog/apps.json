@@ -807,7 +807,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/paint-studio.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/paint-studio.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser canvas paint prototype; not a native graphics application."
@@ -823,7 +823,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/media-deck.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/media-deck.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser local media player prototype; supported codecs depend on the browser."
@@ -839,7 +839,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/document-desk.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/document-desk.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser text and PDF-preview prototype; not a full office or native PDF stack."
@@ -855,7 +855,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/snake-arcade.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/snake-arcade.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser canvas game prototype; not a native game runtime."
@@ -871,7 +871,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/vector-studio.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/vector-studio.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser SVG editor prototype; not a native graphics application."
@@ -887,7 +887,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/sheet-desk.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/sheet-desk.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser CSV grid prototype; no XLSX, formulas, macros, or native spreadsheet runtime."
@@ -903,7 +903,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/file-toolkit.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/file-toolkit.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser-local file metadata and SHA-256 tool; filesystem access is limited to user-selected files."
@@ -919,7 +919,7 @@
         "x86_64",
         "aarch64"
       ],
-      "homepage": "https://github.com/amerhwitat/OctavianOS/blob/main/apps/code-workbench.html",
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/code-workbench.html",
       "sandbox": "browser",
       "install": "web",
       "note": "Browser HTML/CSS/JS editor with sandboxed preview; not a native compiler or debugger."
