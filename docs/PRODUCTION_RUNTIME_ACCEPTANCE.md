@@ -68,3 +68,12 @@ The first new parity-workflow attempt exposed two integration issues: the copied
 ### Native build result — 2026-10-19
 
 The synchronized runtime foundation now passes the ChimeraIIOS native Koronos Kernel Build workflow #39274513564: ELF64 build, protected-process admission, ELF validation, and unresolved-symbol checks all passed. This is compile/link evidence only. The six-case smoke workflow #39274699829 has now completed successfully: all six test-only Live/Installer/Recovery × BIOS/UEFI probes passed, including the user-originated readiness handshake. This validates the smoke launch path, not production service behavior. Production init ELFs and target services remain absent, so full-ISO acceptance and release remain blocked.
+
+
+## Cross-repository production-init root cause — 2026-10-19
+
+The latest OctavianOS native build [#39275559014](https://github.com/amerhwitat/OctavianOS/actions/runs/39275559014) confirms the next blocker is beyond the already-passing ring-3 smoke foundation. The ISO builder invokes the production ELF validator but has no production init compile/stage rule before it; GRUB target entries also do not pass the kernel a `chimera-user-init-elf` module. The current syscall ABI exposes only PID, yield, ticks, console write, and exit operations; it does not yet expose the filesystem/process/device/graphics contract needed to consume the existing cpio initramfs and start Aurora or perform actual installer/recovery work.
+
+The shell `/init` scripts in Live/Recovery cpio images are not equivalent to the native ELF modules expected by `koronos_launch_selected_userspace()`. Do not add a marker-only ELF or reuse `kernel/tests/user_init_smoke.c` as production payload. The required next implementation is a supported initramfs execution model or a real native userspace ABI/service layer, three target-specific init programs, production build/staging rules, and matching GRUB module routing. Full acceptance must then separately demonstrate Live→Aurora, disposable-disk install→reboot→installed boot, a real Recovery action, AP-backed SMP, and all six target × firmware boots.
+
+As of this update: native kernel and six smoke probes PASS; production init ELF build/routing MISSING; full production acceptance NOT VERIFIED; ISO release BLOCKED.
