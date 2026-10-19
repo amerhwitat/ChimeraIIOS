@@ -86,3 +86,7 @@ Added the shared freestanding x86-64 target-init source and linker layout at `ke
 These are deliberately fail-closed bootstraps, not complete production userspace: they verify kernel-owned PID lookup and console syscall behavior, report that the native filesystem/process/device/graphics service layer is missing, and exit with status 78. They do not emit `USERSPACE READY` and cannot satisfy production acceptance. This work addresses ELF compilation, staging, and target routing, but does not implement the actual Live desktop, disk installer, or recovery service.
 
 Latest verification pending CI. Release remains blocked until real target-specific service behavior, Live→Aurora, install/reboot, Recovery operations, AP-backed SMP, and all six full-ISO BIOS/UEFI cases are proven.
+
+
+### Build validation note
+A local freestanding compile/link check initially exposed 32-bit absolute relocations at the 4 GiB user-image base. The build flags now explicitly use `-mcmodel=large`; a repeated compile/link check produced all three ELF64 ET_EXEC files with one RX PT_LOAD segment at `0x100000000`. This is compile/link evidence only, not QEMU runtime or production acceptance. Repository CI for the branch is queued at the last status check.
