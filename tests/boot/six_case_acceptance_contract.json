@@ -1,0 +1,151 @@
+{
+  "schema": "CHM-OS-PRODUCTION-SIX-CASE-1",
+  "status": "contract-only",
+  "rule": "Never mark PASS from kernel logs, standalone probe ELFs, staged payloads, or fabricated markers. Require a real production ISO boot plus CPL3-originated init syscall and matching nonzero PID READY evidence.",
+  "required_events": {
+    "syscall": "USER INIT SYSCALL: target=<target> init_pid=<nonzero>",
+    "ready": "USERSPACE READY: target=<target> init_pid=<same-nonzero>",
+    "provenance": "Verify CPL3 origin, matching target and PID, firmware, ISO SHA-256, kernel SHA, QEMU version, and attached serial/debug logs."
+  },
+  "cases": [
+    {
+      "id": "live-bios",
+      "target": "live",
+      "firmware": "bios",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null,
+        "aurora_session_log": null,
+        "installer_completion_log": null,
+        "installed_reboot_log": null,
+        "recovery_operation_log": null,
+        "ap_startup_log": null,
+        "concurrent_smp_log": null
+      }
+    },
+    {
+      "id": "live-uefi",
+      "target": "live",
+      "firmware": "uefi",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null,
+        "aurora_session_log": null,
+        "installer_completion_log": null,
+        "installed_reboot_log": null,
+        "recovery_operation_log": null,
+        "ap_startup_log": null,
+        "concurrent_smp_log": null
+      }
+    },
+    {
+      "id": "installer-bios",
+      "target": "installer",
+      "firmware": "bios",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null,
+        "aurora_session_log": null,
+        "installer_completion_log": null,
+        "installed_reboot_log": null,
+        "recovery_operation_log": null,
+        "ap_startup_log": null,
+        "concurrent_smp_log": null
+      }
+    },
+    {
+      "id": "installer-uefi",
+      "target": "installer",
+      "firmware": "uefi",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null,
+        "aurora_session_log": null,
+        "installer_completion_log": null,
+        "installed_reboot_log": null,
+        "recovery_operation_log": null,
+        "ap_startup_log": null,
+        "concurrent_smp_log": null
+      }
+    },
+    {
+      "id": "recovery-bios",
+      "target": "recovery",
+      "firmware": "bios",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null,
+        "aurora_session_log": null,
+        "installer_completion_log": null,
+        "installed_reboot_log": null,
+        "recovery_operation_log": null,
+        "ap_startup_log": null,
+        "concurrent_smp_log": null
+      }
+    },
+    {
+      "id": "recovery-uefi",
+      "target": "recovery",
+      "firmware": "uefi",
+      "status": "NOT_RUN",
+      "evidence": {
+        "iso_sha256": null,
+        "kernel_sha": null,
+        "qemu_version": null,
+        "init_pid": null,
+        "syscall_cpl": null,
+        "syscall_log": null,
+        "ready_log": null,
+        "artifact_url": null,
+        "aurora_session_log": null,
+        "installer_completion_log": null,
+        "installed_reboot_log": null,
+        "recovery_operation_log": null,
+        "ap_startup_log": null,
+        "concurrent_smp_log": null
+      }
+    }
+  ],
+  "required_followups": [
+    "Live: prove the actual Aurora session reaches its desktop-ready event.",
+    "Installer: complete installation, reboot, and boot the installed system.",
+    "Recovery: perform and verify a real recovery operation on a disposable test image.",
+    "SMP: prove AP startup and simultaneous per-CPU progress; -smp configuration or sequential simulation alone is not proof.",
+    "Run the unchanged production verifier against actual ISO artifacts and serial/debug logs."
+  ]
+}
