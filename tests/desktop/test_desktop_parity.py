@@ -67,6 +67,31 @@ class DesktopParityContractTests(unittest.TestCase):
         self.assertIn("Active child processes:", source)
         self.assertIn("not a compositor", source)
 
+    def test_application_ecosystem_catalog_and_preview_apps(self):
+        catalog = json.loads((ROOT / "desktop/application-ecosystem.json").read_text())
+        self.assertEqual(catalog["schema"], "CHM-DESKTOP-APPLICATION-ECOSYSTEM-1")
+        self.assertEqual({app["id"] for app in catalog["built_in_preview_apps"]}, {
+            "paint", "media-player", "image-viewer", "games", "text-editor", "calculator"
+        })
+        self.assertIn("Windows", catalog["host_platform_reference"])
+        self.assertIn("Linux", catalog["host_platform_reference"])
+        self.assertIn("macOS", catalog["host_platform_reference"])
+        allowed_states = set(catalog["integration_policy"]["app_states"])
+        ids = [app["id"] for category in catalog["categories"] for app in category["applications"]]
+        self.assertEqual(len(ids), len(set(ids)), "catalog app IDs must be unique")
+        for category in catalog["categories"]:
+            self.assertTrue(category["applications"], category["id"])
+            for app in category["applications"]:
+                self.assertIn(app["state"], allowed_states, app["id"])
+                self.assertTrue(app["upstream"].startswith("https://"), app["id"])
+                self.assertTrue(app["platforms"], app["id"])
+        shell = (ROOT / "desktop/shared/desktop-parity.js").read_text()
+        for app_id in ("paint", "media-player", "image-viewer", "games", "text-editor", "calculator", "app-catalog"):
+            self.assertIn("id:'" + app_id + "'", shell)
+        self.assertIn("function initPreviewApp", shell)
+        self.assertIn("nativeSessionAdapter:false", shell)
+        self.assertIn("Catalog entries describe integration candidates", shell)
+
     def test_shared_shell_javascript_syntax(self):
         try:
             subprocess.run(["node", "--check", str(ROOT / "desktop/shared/desktop-parity.js")],
