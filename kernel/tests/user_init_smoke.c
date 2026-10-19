@@ -57,7 +57,7 @@ __attribute__((noreturn, used)) void _start(void) {
         for (;;) __asm__ volatile("pause" ::: "memory");
     }
     while (digits) ready_message[used++] = reversed[--digits];
-    ready_message[used++] = '\\n';
+    ready_message[used++] = '\n';
 
     number = 9; /* CHM_SYS_WRITE */
     register long fd __asm__("rdi") = 1;
