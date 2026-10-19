@@ -43,6 +43,13 @@ class DesktopParityContractTests(unittest.TestCase):
         self.assertIn("filter_app_cards", source)
         self.assertIn("G_CALLBACK(nav_clicked)", source)
         self.assertIn("g_strstr_len", source)
+        for action in ("paint", "media-player", "image-viewer", "games", "text-editor",
+                       "calculator", "office", "app-catalog"):
+            self.assertIn('"'+action+'"', source)
+        for program in ("krita", "gimp", "pinta", "vlc", "mpv", "steam",
+                        "heroic", "retroarch", "libreoffice", "onlyoffice-desktopeditors"):
+            self.assertIn('"'+program+'"', source)
+        self.assertIn("not launchable", source)
 
     def test_production_native_acceptance_gates_are_explicit_and_fail_closed(self):
         contract = json.loads((ROOT / "desktop/desktop-feature-contract.json").read_text())
