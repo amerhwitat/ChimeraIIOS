@@ -98,17 +98,27 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
-extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip) {
+static uint32_t validate_active_user_context(uint64_t user_rip) {
     if (active_target == TARGET_NONE || !active_pid || !active_root) return 0u;
     if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) return 0u;
     uint64_t current_cr3 = 0;
     __asm__ volatile("mov %%cr3, %0" : "=r"(current_cr3));
-    if ((current_cr3 & 0x000FFFFFFFFFF000ull) != active_root) return 0u;
+    return ((current_cr3 & 0x000FFFFFFFFFF000ull) == active_root) ? active_pid : 0u;
+}
+extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip) {
+    return validate_active_user_context(user_rip);
+}
+extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs) {
+    /* This acknowledgement is only reachable from the DPL3 INT 0x80 gate.
+       The CPU-saved CS RPL, not an inferred user RIP, proves CPL3 origin. */
+    if ((user_cs & 3u) != 3u) return 0u;
+    const uint32_t pid = validate_active_user_context(user_rip);
+    if (!pid) return 0u;
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
-        log_syscall_pid(active_pid);
+        log_user_init_syscall(static_cast<Target>(active_target), pid);
     }
-    return active_pid;
+    return pid;
 }
 extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length) {
     if (!bytes || !length || active_target==TARGET_NONE || !active_pid) return 0;
