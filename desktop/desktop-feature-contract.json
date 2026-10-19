@@ -1,0 +1,44 @@
+{
+  "schema": "CHM-DESKTOP-FEATURE-CONTRACT-1",
+  "status": "prototype-with-native-adapters-pending",
+  "desktops": {
+    "aurora": {
+      "display_name": "Aurora Wayland Glass Desktop",
+      "design_influences": ["macOS dock and glass workspace", "Linux/BSD virtual workspaces and compositing", "shared cross-platform accessibility"]
+    },
+    "marine": {
+      "display_name": "Marine Desktop",
+      "design_influences": ["Windows-style launcher and taskbar", "Linux/BSD workspace and panel conventions", "shared cross-platform accessibility"]
+    }
+  },
+  "preview_features": [
+    "application launcher and search",
+    "window open, focus, minimize, maximize, close and drag",
+    "four virtual workspaces",
+    "window tiling and taskbar/dock window switcher",
+    "quick settings panel",
+    "theme, display scale, high contrast and reduced-motion preferences",
+    "language preference persistence",
+    "notification center preview",
+    "keyboard shortcuts and context-menu workspace access",
+    "application catalogue and compatibility information"
+  ],
+  "native_adapter_required": [
+    "real process launch and process supervision",
+    "real file-system mounts and file portals",
+    "Wayland/X11/DRM/KMS compositor and input handling",
+    "multi-monitor enumeration, display modes, HDR and color management",
+    "network, Bluetooth, audio, camera and peripheral services",
+    "power, battery, sleep, lock screen and session lifecycle",
+    "real system notifications, focus rules and per-app permissions",
+    "package installation, signed updates, sandboxing and secure credential storage",
+    "clipboard, drag/drop, screen capture and global hotkeys",
+    "assistive technology APIs, complete localization and IME integration",
+    "hardware-accelerated rendering and compositor recovery"
+  ],
+  "acceptance": {
+    "preview_test": "node syntax check plus desktop contract regression tests",
+    "native_acceptance": "requires implementation, session-manager wiring, packaged artifacts and runtime evidence on each supported target",
+    "policy": "A browser preview or feature inventory must never be reported as a native desktop implementation."
+  }
+}
