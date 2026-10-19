@@ -52,3 +52,11 @@ Do not create marker-only or probe-derived production init ELFs to bypass these 
 6. Publish only after all mandatory gates pass and artifacts/traces are available for review.
 
 A passing smoke matrix is useful regression evidence, but it does not change the production statuses above.
+
+## Runtime implementation parity update — 2026-10-19
+
+The native x86-64 ring-3 runtime foundation from OctavianOS's smoke-tested vendored Chimera source has now been synchronized into this ChimeraIIOS branch. This includes the frame allocator and process address-space backend, target ELF launch path, user-entry/TSS/SYSCALL assembly, interrupt/syscall integration, Multiboot user-init module classification, target launch integration in Koronos, and the build script wiring. The source-level parity is committed, but it is not yet considered validated in ChimeraIIOS until its own new six-case smoke workflow completes.
+
+The new workflow is deliberately named **Koronos Ring-3 Smoke Probes (not production acceptance)**. It builds test-only payloads and does not establish Live-to-Aurora, installer completion/reboot, recovery operation, or AP-backed SMP.
+
+**Production remains blocked:** no production service ELFs are created by the smoke-probe build. The three required boot/live/user-init-live.elf, boot/installer/user-init-installer.elf, and boot/recovery/user-init-recovery.elf payloads still need genuine target implementations and production ISO routing. Do not copy kernel/tests/user_init_smoke.c outputs into production paths. No release is authorized by this parity sync.
