@@ -94,7 +94,12 @@ jobs:
           # Require a real, nonzero PID supplied by the running probe, not a
           # literal pid=1 baked into the image or a kernel-authored marker.
           ready_line="$(grep -Eo "USERSPACE READY: ${TARGET} init pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
+          ack_line="$(grep -Eo "\\[SYSC\\] active userspace syscall context validated pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
           test -n "$ready_line"
+          test -n "$ack_line"
+          ready_pid="${ready_line##*=}"
+          ack_pid="${ack_line##*=}"
+          test "$ready_pid" = "$ack_pid"
           grep -Fq "USERSPACE SYSCALL RETURNED TO RING3" "$LOG"
           grep -Fq "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
