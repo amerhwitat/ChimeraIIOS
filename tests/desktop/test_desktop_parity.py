@@ -51,7 +51,7 @@ class DesktopParityContractTests(unittest.TestCase):
         self.assertEqual({gate["id"] for gate in gates}, {
             "compositor", "display-input", "session-manager", "filesystem-clipboard",
             "device-services", "security-packages", "accessibility", "iso-desktop",
-            "six-case", "end-to-end"
+            "six-case", "end-to-end", "application-ecosystem"
         })
         for gate in gates:
             self.assertTrue(gate["evidence_required"], gate["id"])
