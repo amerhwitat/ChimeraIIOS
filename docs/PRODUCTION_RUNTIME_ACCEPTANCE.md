@@ -77,3 +77,12 @@ The latest OctavianOS native build [#39275559014](https://github.com/amerhwitat/
 The shell `/init` scripts in Live/Recovery cpio images are not equivalent to the native ELF modules expected by `koronos_launch_selected_userspace()`. Do not add a marker-only ELF or reuse `kernel/tests/user_init_smoke.c` as production payload. The required next implementation is a supported initramfs execution model or a real native userspace ABI/service layer, three target-specific init programs, production build/staging rules, and matching GRUB module routing. Full acceptance must then separately demonstrate Live→Aurora, disposable-disk install→reboot→installed boot, a real Recovery action, AP-backed SMP, and all six target × firmware boots.
 
 As of this update: native kernel and six smoke probes PASS; production init ELF build/routing MISSING; full production acceptance NOT VERIFIED; ISO release BLOCKED.
+
+
+## Native target init ELF build and routing update — 2026-10-19
+
+Added the shared freestanding x86-64 target-init source and linker layout at `kernel/userspace/native_init.c` and `kernel/userspace/native_init.ld`, plus `tools/build-production-init-elfs.sh` to compile and stage the three target-specific files at the exact paths checked by the production ELF validator. `boot/iso/build-iso.sh` invokes this build after ISO layout preparation and before structural validation. Main GRUB and Jasper target menus now pass the appropriate `chimera-user-init-elf target=live|installer|recovery` module.
+
+These are deliberately fail-closed bootstraps, not complete production userspace: they verify kernel-owned PID lookup and console syscall behavior, report that the native filesystem/process/device/graphics service layer is missing, and exit with status 78. They do not emit `USERSPACE READY` and cannot satisfy production acceptance. This work addresses ELF compilation, staging, and target routing, but does not implement the actual Live desktop, disk installer, or recovery service.
+
+Latest verification pending CI. Release remains blocked until real target-specific service behavior, Live→Aurora, install/reboot, Recovery operations, AP-backed SMP, and all six full-ISO BIOS/UEFI cases are proven.
