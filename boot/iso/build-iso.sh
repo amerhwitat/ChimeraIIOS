@@ -58,6 +58,10 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
 
+# Build and stage target-specific fail-closed native init bootstraps. These
+# prove ABI entry but intentionally do not claim production userspace readiness.
+bash "$ROOT/tools/build-production-init-elfs.sh"
+
 # Validate production init payload structure and emit a checksum manifest.
 # This validates packaging inputs only; full-ISO ring-3 runtime acceptance is separate.
 python3 "$ROOT/tools/boot/verify-production-init-elfs.py" \
