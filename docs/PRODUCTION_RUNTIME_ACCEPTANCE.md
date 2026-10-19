@@ -60,3 +60,7 @@ The native x86-64 ring-3 runtime foundation from OctavianOS's smoke-tested vendo
 The new workflow is deliberately named **Koronos Ring-3 Smoke Probes (not production acceptance)**. It builds test-only payloads and does not establish Live-to-Aurora, installer completion/reboot, recovery operation, or AP-backed SMP.
 
 **Production remains blocked:** no production service ELFs are created by the smoke-probe build. The three required boot/live/user-init-live.elf, boot/installer/user-init-installer.elf, and boot/recovery/user-init-recovery.elf payloads still need genuine target implementations and production ISO routing. Do not copy kernel/tests/user_init_smoke.c outputs into production paths. No release is authorized by this parity sync.
+
+### CI integration corrections
+
+The first new parity-workflow attempt exposed two integration issues: the copied Octavian workflow still used the vendored-source checkout path, and Chimera's x86-64 entry assembly did not export the bootstrap PML4 symbol required by the newly synchronized address-space backend. The workflow now uses the repository root, and entry.asm was synchronized to export koronos_bootstrap_pml4. Validation is pending in smoke matrix #39274513629, native build #39274513564, and loader tests #39274513527. Do not treat queued jobs as passing evidence.
