@@ -5,11 +5,14 @@
 #include <gtk/gtk.h>
 #include <cstring>
 #include <string>
+#include <vector>
 
 namespace {
 const char* desktop_id = "aurora";
 bool self_test = false;
 GtkLabel* status_label = nullptr;
+GtkSearchEntry* app_search_entry = nullptr;
+std::vector<GtkWidget*> app_cards;
 
 const char* desktop_name() {
   return std::strcmp(desktop_id, "marine") == 0
@@ -84,6 +87,10 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
                     const char* action) {
   GtkWidget* card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
   gtk_widget_add_css_class(card, "app-card");
+  const std::string searchable = std::string(title) + " " + detail;
+  g_object_set_data_full(G_OBJECT(card), "search-text",
+                          g_ascii_strdown(searchable.c_str(), -1), g_free);
+  app_cards.push_back(card);
   GtkWidget* icon = gtk_label_new(glyph);
   gtk_widget_add_css_class(icon, "app-glyph");
   GtkWidget* name = gtk_label_new(title);
@@ -96,6 +103,37 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
   gtk_box_append(GTK_BOX(card), description);
   gtk_box_append(GTK_BOX(card), action_button("Open", action, "accent"));
   return card;
+}
+
+void filter_app_cards(GtkSearchEntry* entry, gpointer) {
+  const char* raw = gtk_editable_get_text(GTK_EDITABLE(entry));
+  gchar* query = g_ascii_strdown(raw ? raw : "", -1);
+  for (GtkWidget* card : app_cards) {
+    const char* searchable = static_cast<const char*>(
+        g_object_get_data(G_OBJECT(card), "search-text"));
+    const bool visible = !query || query[0] == '\\0' ||
+        (searchable && g_strstr_len(searchable, -1, query));
+    gtk_widget_set_visible(card, visible);
+  }
+  g_free(query);
+}
+
+void nav_clicked(GtkButton*, gpointer data) {
+  const char* item = static_cast<const char*>(data);
+  if (std::strcmp(item, "Applications") == 0) {
+    if (app_search_entry) gtk_widget_grab_focus(GTK_WIDGET(app_search_entry));
+    set_status("Search applications by name or description.");
+  } else if (std::strcmp(item, "Files") == 0) {
+    launch_clicked(nullptr, const_cast<char*>("files"));
+  } else if (std::strcmp(item, "Settings") == 0) {
+    launch_clicked(nullptr, const_cast<char*>("settings"));
+  } else if (std::strcmp(item, "Devices") == 0) {
+    set_status("Device controls require installed host service providers.");
+  } else if (std::strcmp(item, "Accessibility") == 0) {
+    set_status("Host accessibility settings can be opened from Settings; native Aurora accessibility adapters remain in progress.");
+  } else {
+    set_status("Overview selected.");
+  }
 }
 
 void install_style() {
@@ -164,6 +202,8 @@ void activate(GtkApplication* app, gpointer) {
                            "Devices", "Accessibility"}) {
     GtkWidget* nav = gtk_button_new_with_label(item);
     gtk_widget_add_css_class(nav, "nav-button");
+    g_signal_connect(nav, "clicked", G_CALLBACK(nav_clicked),
+                     const_cast<char*>(item));
     gtk_box_append(GTK_BOX(sidebar), nav);
   }
   GtkWidget* spacer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -191,6 +231,14 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_set_halign(subtitle, GTK_ALIGN_START);
   gtk_widget_add_css_class(subtitle, "muted");
   gtk_box_append(GTK_BOX(content), subtitle);
+
+  app_search_entry = GTK_SEARCH_ENTRY(gtk_search_entry_new());
+  gtk_search_entry_set_placeholder_text(app_search_entry,
+                                        "Search apps and descriptions…");
+  gtk_widget_set_hexpand(GTK_WIDGET(app_search_entry), TRUE);
+  g_signal_connect(app_search_entry, "search-changed",
+                   G_CALLBACK(filter_app_cards), nullptr);
+  gtk_box_append(GTK_BOX(content), GTK_WIDGET(app_search_entry));
 
   GtkWidget* grid = gtk_grid_new();
   gtk_grid_set_row_spacing(GTK_GRID(grid), 16);
