@@ -1,5 +1,3 @@
-# Application Center discovery manifest (catalog entries; not a bundled-binary list)
-# Entries are discoverable metadata only unless a separate package/launch acceptance record says otherwise.
 youtube
 firefox
 chromium
