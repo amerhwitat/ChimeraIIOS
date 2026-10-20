@@ -40,3 +40,18 @@ Additionally verify all required services' actual process/health state, highest 
 Record commit SHA; toolchain/dependency results; BIOS/UEFI GRUB artifact checks; HAL probes; kernel build/tests; target module identity and hashes; six independent production QEMU outcomes; service health; display mode/fallbacks; Aurora launch; installer/reboot/installed boot; recovery operation; SMP evidence; artifact URLs; release decision.
 
 **This contract is a documentation update, not an implementation claim. Do not fabricate readiness markers or weaken the existing verifier.**
+
+
+## Latest verified CI evidence — 2026-10-20
+
+Cross-repository OctavianOS workflow run [#39413346831](https://github.com/amerhwitat/OctavianOS/actions/runs/39413346831), commit `a564ccc568a9a55b9e77233873cfe18d7929ef62`, is a **failed production candidate**, not a release.
+
+- PASS: freestanding Koronos build, ELF/Multiboot2 entry validation, Live/Recovery module classification tests, kernel readiness smoke, payload staging, ISO candidate creation, and artwork verification.
+- FAIL: QEMU Recovery target-routing/readiness smoke.
+- SKIPPED: Installer routing smoke, complete-ISO boot gate, production Live/Installer/Recovery verification, and prerelease publication.
+- Runtime trace: the ring-3 probe reports `init_pid=1`, but init then says required native filesystem/process/device/graphics services are unavailable, exits before the target-specific `USERSPACE READY` handshake, and the scheduler monitor reports `Runnable: 0`.
+- The workflow emitted `Recovery readiness failure was not reported`; this is a verifier/reporting-path defect to investigate alongside the missing service implementations. Do not weaken the acceptance check to turn this failure green.
+
+Candidate ISO artifact (review only): [octavianos-native-iso-candidate](https://github.com/amerhwitat/OctavianOS/actions/runs/39413346831/artifacts/12260134142). QEMU trace artifact: [octavianos-full-iso-qemu-trace](https://github.com/amerhwitat/OctavianOS/actions/runs/39413346831/artifacts/12260288932). These artifacts do not imply production acceptance.
+
+**Status remains NOT VERIFIED:** all six destination/firmware combinations, Aurora interactive desktop, installer disk-write/reboot/installed-disk boot, a real recovery operation, and AP-backed concurrent SMP remain unproven. Do not publish or promote this candidate.
