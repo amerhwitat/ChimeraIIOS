@@ -29,6 +29,10 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("dosfstools ovmf qemu-system-x86", self.text)
         self.assertIn('if [[ "$firmware" == "uefi" ]]; then', self.text)
         self.assertIn('"$ovmf"', self.text)
+        self.assertIn('"$ovmf_vars"', self.text)
+        self.assertIn('if=pflash,format=raw,unit=0,readonly=on,file=$ovmf', self.text)
+        self.assertIn('if=pflash,format=raw,unit=1,file=$vars_copy', self.text)
+        self.assertIn('cp "$ovmf_vars" "$vars_copy"', self.text)
         self.assertIn('trace="$base/$target-$firmware-debugcon.log"', self.text)
 
     def test_unverified_handoff_fails_workflow_after_candidate_artifacts_are_uploaded(self):
