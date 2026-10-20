@@ -29,7 +29,7 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("dosfstools ovmf qemu-system-x86", self.text)
         self.assertIn('if [[ "$firmware" == "uefi" ]]; then', self.text)
         self.assertIn('"$ovmf"', self.text)
-        self.assertIn('"$target-$firmware-debugcon.log"', self.text)
+        self.assertIn('trace="$base/$target-$firmware-debugcon.log"', self.text)
 
     def test_unverified_handoff_fails_workflow_after_candidate_artifacts_are_uploaded(self):
         gate = self.text.split(
