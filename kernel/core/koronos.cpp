@@ -412,6 +412,18 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
+    const chimera_framebuffer_info *fb = chimera_multiboot_framebuffer();
+    if (fb) {
+        console_write("[FB  ] Multiboot2 linear framebuffer tag validated");
+        console_write("[FB  ] Width: "); console_u32(fb->width);
+        console_write("[FB  ] Height: "); console_u32(fb->height);
+        console_write("[FB  ] Pitch: "); console_u32(fb->pitch);
+        console_write("[FB  ] Bits per pixel: "); console_u32(fb->bpp);
+        console_write("[FB  ] Format: "); console_u32(fb->format);
+        console_write("[FB  ] Framebuffer is parsed but not yet mapped/rendered by the text console");
+    } else {
+        console_write("[FB  ] No valid Multiboot2 framebuffer tag; retaining VGA/serial fallback");
+    }
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
