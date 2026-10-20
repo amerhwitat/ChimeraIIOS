@@ -101,6 +101,7 @@ int main(int argc, char** argv) {
     return 2;
   }
   plan.install_aurora = plan.desktop == "aurora";
+  plan.install_marine = plan.desktop == "marine";
   plan.software_profile = choose("Software profile (minimal/desktop/developer/compatibility)", "", "desktop");
   if (plan.software_profile != "minimal" && plan.software_profile != "desktop" &&
       plan.software_profile != "developer" && plan.software_profile != "compatibility") {
