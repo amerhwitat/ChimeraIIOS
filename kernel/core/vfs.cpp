@@ -65,7 +65,7 @@ bool parent_exists(const char *p, uint64_t n) {
 bool child_exists(const char *parent, const char *candidate) {
     const uint64_t plen=len(parent);
     for(uint32_t i=0;i<CHIMERA_VFS_MAX_NODES;++i) {
-        if(!nodes[i].used || !nodes[i].path) continue;
+        if(!nodes[i].used) continue;
         const char *p=nodes[i].path;
         if(!eq(p,candidate) && p[0]=='/' ) {
             uint64_t n=len(p);
