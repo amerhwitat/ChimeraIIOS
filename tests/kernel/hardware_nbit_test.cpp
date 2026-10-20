@@ -17,9 +17,9 @@ int main() {
     assert(chimera_nbit_validate(best) == 0);
 
     chimera_nbit_process_context low{}, high{};
-    assert(chimera_nbit_process_init(&low, 1, 32, CHIMERA_COMPAT_NATIVE) == 0);
+    assert(chimera_nbit_process_init(&low, 1, p.native_nbit_mode, CHIMERA_COMPAT_NATIVE) == 0);
     assert(chimera_nbit_process_init(&high, 2, 64, CHIMERA_COMPAT_NATIVE) == 0);
-    assert(low.mode_bits == 32);
+    assert(low.mode_bits == p.native_nbit_mode);
     assert(high.mode_bits == 64);
 
     const char payload[] = "mixed-width IPC";
@@ -27,7 +27,7 @@ int main() {
                           8u * (uint32_t)(sizeof(payload) - 1), (uint32_t)(sizeof(payload) - 1), 1, payload};
     assert(chimera_nbit_ipc_validate(&wire) == 0);
 
-    assert(chimera_nbit_process_set_mode(&low, 64) == 0);
+    assert(chimera_nbit_process_set_mode(&low, p.native_nbit_mode) == 0);
     const uint32_t previous_target = low.compatibility_target;
     assert(chimera_nbit_process_set_compatibility(&low, CHIMERA_COMPAT_WINDOWS) == -1);
     assert(low.compatibility_target == previous_target);
