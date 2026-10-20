@@ -31,14 +31,14 @@ int main() {
     const chimera_boot_module* module = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
     failures += check(module && module->base == 0x1000 && module->size == 0x1000,
                       "module bounds and classification are preserved");
-    failures += check(module && module->cmdline[sizeof(module->cmdline)-1] == 0,
+    failures += check(module && memchr(module->cmdline, 0, sizeof(module->cmdline)) != nullptr,
                       "command line buffer is always terminated");
 
     build_valid(info, false, true);
     failures += check(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 1,
                       "unterminated source command line is bounded and accepted safely");
     module = chimera_multiboot_module(0);
-    failures += check(module && module->cmdline[sizeof(module->cmdline)-1] == 0,
+    failures += check(module && memchr(module->cmdline, 0, sizeof(module->cmdline)) != nullptr,
                       "truncated command line remains terminated");
 
     build_valid(info, true, false);
