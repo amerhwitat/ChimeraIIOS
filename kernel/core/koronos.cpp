@@ -255,7 +255,7 @@ static void task_live(void *) {
             console_write("[LIVE] Live initramfs module recognized");
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
-                console_write("[RUN ] Live payload has no launchable production init ELF; failing closed");
+                console_write("[RUN ] Live target init failed before readiness; failing closed");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -275,7 +275,7 @@ static void task_recovery(void *) {
         console_write("[REC ] Recovery initramfs module recognized");
         const int launch_rc = koronos_launch_selected_userspace();
         if (launch_rc != 0)
-            console_write("[RUN ] Recovery payload has no launchable production init ELF; failing closed");
+            console_write("[RUN ] Recovery target init failed before readiness; failing closed");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
@@ -299,7 +299,7 @@ static void task_installer(void *) {
     if (image) {
         const int launch_rc = koronos_launch_selected_userspace();
         if (launch_rc != 0) {
-            console_write("[RUN ] Installer payload has no launchable production init ELF; failing closed");
+            console_write("[RUN ] Installer target init failed before readiness; failing closed");
             chimera_sched_block();
             return;
         }
