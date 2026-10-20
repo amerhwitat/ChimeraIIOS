@@ -14,6 +14,12 @@ extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
 volatile uint32_t koronos_state = 0;
+static volatile uint32_t g_console_ready = 0;
+static volatile uint32_t g_module_registry_ready = 0;
+static volatile uint32_t g_scheduler_ready = 0;
+static volatile uint32_t g_hardware_inventory_ready = 0;
+static volatile uint32_t g_driver_manager_ready = 0;
+static volatile uint32_t g_process_registry_ready = 0;
 
 static uint8_t serial_in8(uint16_t port) {
     uint8_t v;
@@ -364,13 +370,56 @@ static void task_monitor(void *) {
     }
 }
 
+static bool service_id_equal(const char* a, const char* b) {
+    if (!a || !b) return false;
+    while (*a && *b && *a == *b) { ++a; ++b; }
+    return *a == 0 && *b == 0;
+}
+static bool bootstrap_service_ready(const char* id) {
+    if (service_id_equal(id, "console") || service_id_equal(id, "logging"))
+        return g_console_ready != 0;
+    if (service_id_equal(id, "module-registry")) return g_module_registry_ready != 0;
+    if (service_id_equal(id, "scheduler")) return g_scheduler_ready != 0;
+    if (service_id_equal(id, "hardware-inventory")) return g_hardware_inventory_ready != 0;
+    if (service_id_equal(id, "driver-manager")) return g_driver_manager_ready != 0;
+    if (service_id_equal(id, "process-registry")) return g_process_registry_ready != 0;
+    return false;
+}
+static int bootstrap_service_start(const char* id, void*) {
+    return bootstrap_service_ready(id) ? 0 : -1;
+}
+static int bootstrap_service_health(const char* id, void*) {
+    return bootstrap_service_ready(id) ? 0 : -1;
+}
 static void task_kore(void *) {
     static bool started = false;
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
-        console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Service backends remain DECLARED until start and health checks succeed");
+        static const char* console_dep[] = {"console"};
+        static const char* scheduler_dep[] = {"scheduler"};
+        static const char* hardware_dep[] = {"hardware-inventory"};
+        static const chimera_service_manifest services[] = {
+            {CHIMERA_SERVICE_ABI, "console", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 1, 0, nullptr},
+            {CHIMERA_SERVICE_ABI, "module-registry", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 1, 1, console_dep},
+            {CHIMERA_SERVICE_ABI, "scheduler", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 1, 1, console_dep},
+            {CHIMERA_SERVICE_ABI, "hardware-inventory", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 0, 1, scheduler_dep},
+            {CHIMERA_SERVICE_ABI, "driver-manager", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 0, 1, hardware_dep},
+            {CHIMERA_SERVICE_ABI, "process-registry", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 1, 1, scheduler_dep},
+            {CHIMERA_SERVICE_ABI, "logging", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 0, 1, console_dep}
+        };
+        const char* ordered[CHIMERA_SERVICE_MAX] = {};
+        chimera_service_plan plan{0, CHIMERA_SERVICE_MAX, ordered};
+        const chimera_service_ops ops{bootstrap_service_start, bootstrap_service_health, nullptr, nullptr};
+        console_write("[KORE] Starting initialized kernel services with dependency and health checks");
+        const int result = chimera_service_start_all(services, 7, &ops, &plan);
+        if (result < 0) console_write("[KORE] ERROR: critical bootstrap service failed health validation");
+        for (uint32_t i = 0; i < 7; ++i) {
+            console_write(chimera_service_get_state(services[i].id) == CHM_SVC_RUNNING
+                ? "[KORE] service RUNNING: " : "[KORE] service NOT RUNNING: ");
+            console_write(services[i].id);
+        }
+        console_write("[KORE] Storage, network, security and graphical-session services are not declared RUNNING without backends");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
@@ -408,9 +457,11 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     }
 
     console_write("OK");
+    g_console_ready = 1;
     console_progress(5, "Koronos boot context accepted");
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
+    g_module_registry_ready = 1;
     console_write("[MB2 ] Scanned Multiboot2 modules");
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
@@ -429,6 +480,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(1); // CPU0 is the only CPU actually online; AP startup is not implemented.
+    g_scheduler_ready = 1;
     chimera_learning_init(1); // Do not schedule work against detected-but-offline CPUs.
     console_progress(35, "Scheduler and learning runtime initialized");
 
@@ -465,11 +517,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[PCI ] Enumerated devices: ");
     console_progress(55, "Hardware inventory enumerated");
     console_u32(devices < 0 ? 0 : (uint32_t)devices);
+    g_hardware_inventory_ready = (devices >= 0);
 
     int bound = chimera_driver_probe_all();
     console_write("[DRV ] Native/compatible bindings: ");
     console_u32(bound);
     int running = chimera_driver_start_all();
+    g_driver_manager_ready = (bound >= 0 && running >= 0);
     console_write("[DRV ] Active driver set: ");
     console_progress(65, "Driver probing and start requests completed");
     console_u32(running);
@@ -482,6 +536,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     chimera_learning_record(1, f->logical_cpus);
     koronos_elf64_init();
     chimera_process_init();
+    g_process_registry_ready = 1;
     console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
     console_write("[USER] USERSPACE READY is withheld: ELF load-plan admission is not a process execution context");
     console_progress(75, "Process admission and module registries initialized");
