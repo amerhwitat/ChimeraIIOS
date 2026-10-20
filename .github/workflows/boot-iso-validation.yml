@@ -19,6 +19,7 @@ on:
       - 'system/commands/online-command-catalog.json'
       - 'data/isa/online-isa-index.json'
       - 'tools/tests/test-iso-resume-and-aurora.sh'
+      - 'tools/tests/test-grub-highest-resolution-policy.sh'
       - 'build-chimera-iso.sh'
       - '.github/workflows/boot-iso-validation.yml'
   pull_request:
