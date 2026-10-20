@@ -253,14 +253,16 @@ static void task_live(void *) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
             console_write("[LIVE] Live initramfs module recognized");
-            console_write("[USER] Handoff withheld: production initramfs requires a supported native init ELF/runtime; no process was launched");
+            const int launch_rc = koronos_launch_selected_userspace();
+            if (launch_rc != 0)
+                console_write("[RUN ] Live payload has no launchable production init ELF; failing closed");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
             chimera_sched_block();
         } else {
             // Installer media is handled by task_installer. There is no live
-            // payload to poll for, so the live service must block as well.
+            // payload to launch in this target, so the live service blocks.
             console_write("[LIVE] Installer target detected; live service idle");
             chimera_sched_block();
         }
@@ -271,7 +273,9 @@ static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
-        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+        const int launch_rc = koronos_launch_selected_userspace();
+        if (launch_rc != 0)
+            console_write("[RUN ] Recovery payload has no launchable production init ELF; failing closed");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
@@ -290,6 +294,15 @@ static void task_installer(void *) {
             console_write("[INST] Installer target not selected: no installer modules");
         chimera_sched_block();
         return;
+    }
+
+    if (image) {
+        const int launch_rc = koronos_launch_selected_userspace();
+        if (launch_rc != 0) {
+            console_write("[RUN ] Installer payload has no launchable production init ELF; failing closed");
+            chimera_sched_block();
+            return;
+        }
     }
 
     switch (installer_phase++) {
