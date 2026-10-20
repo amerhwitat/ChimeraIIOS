@@ -60,6 +60,10 @@ def main() -> int:
         return fail("kernel launch must reject a target-mismatched init ELF whenever a production payload is present")
     if 'bash "$ROOT/tools/build-production-init-elfs.sh"' not in prepare_text:
         return fail("ISO preparation does not invoke target init ELF builder")
+    if "module2 /boot/recovery/user-init-recovery.elf chimera-user-init-elf target=recovery" not in prepare_text:
+        return fail("generated Jasper recovery menu does not dispatch the native recovery ELF")
+    if "module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs" not in prepare_text:
+        return fail("generated Jasper recovery menu does not pass the recovery payload")
     if "chimera-user-init-elf target=live" not in live_text:
         return fail("Jasper Live config does not dispatch the Live init ELF")
     if "chimera-user-init-elf target=recovery" not in recovery_text:
