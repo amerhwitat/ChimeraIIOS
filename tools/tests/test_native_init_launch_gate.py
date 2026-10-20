@@ -21,6 +21,14 @@ def fail(message: str) -> int:
 def main() -> int:
     launch = LAUNCH.read_text(encoding="utf-8")
     bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
+    native_init_path = ROOT / "kernel/userspace/native_init.c"
+    if not native_init_path.is_file():
+        return fail("native init bootstrap source is missing")
+    native_init = native_init_path.read_text(encoding="utf-8")
+    if "call0(2)" not in native_init or "NATIVE INIT PID: target=" not in native_init:
+        return fail("native init must report the actual GETPID syscall result")
+    if "USERSPACE READY:" in native_init:
+        return fail("fail-closed bootstrap must not fabricate readiness")
 
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
