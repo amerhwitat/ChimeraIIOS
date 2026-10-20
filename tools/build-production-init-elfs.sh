@@ -12,7 +12,7 @@ test -s "$SRC" && test -s "$LD_SCRIPT"
 build_one() {
   local target="$1" name="$2" out="$3"
   local obj="$OUT/user-init-$target.o"
-  "$CC" -std=c11 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -nostdlib -Wall -Wextra -Werror -DCHIMERA_INIT_TARGET="$target" -DCHIMERA_INIT_TARGET_NAME='"'"'"$name"'"' -c "$SRC" -o "$obj"
+  "$CC" -std=c11 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -nostdlib -Wall -Wextra -Werror -DCHIMERA_INIT_TARGET="$target" -DCHIMERA_INIT_TARGET_NAME=\"${name}\" -c "$SRC" -o "$obj"
   "$LD" -nostdlib -z max-page-size=0x1000 -T "$LD_SCRIPT" -o "$OUT/user-init-$target.elf" "$obj"
   test -s "$OUT/user-init-$target.elf"
   readelf -h "$OUT/user-init-$target.elf" | grep -q 'Advanced Micro Devices X86-64'
