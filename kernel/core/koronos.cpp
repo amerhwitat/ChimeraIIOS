@@ -14,6 +14,7 @@
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
 
+extern "C" int chimera_vfs_init(void);
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
@@ -536,6 +537,9 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     chimera_learning_record(1, f->logical_cpus);
     koronos_elf64_init();
+    const int vfs_rc = chimera_vfs_init();
+    if (vfs_rc == 0) console_write("[VFS] Bounded RAM filesystem initialized (non-persistent backend)");
+    else console_write("[VFS] ERROR: RAM filesystem initialization failed");
     chimera_process_init();
     console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
     console_progress(75, "Process admission and module registries initialized");
