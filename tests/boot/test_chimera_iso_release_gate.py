@@ -52,9 +52,11 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         standalone_live_copy = standalone.index('cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"')
         standalone_kernel_copy = standalone.index('copy_if_distinct "$CHIMERA_KERNEL" "$STAGE/boot/koronos/koronos.elf"')
         self.assertLess(standalone_live_copy, standalone_kernel_copy, "standalone ISO must copy canonical kernel last")
+        grub = (ROOT / "boot/iso/grub.cfg").read_text(encoding="utf-8")
         for target in ("live", "installer", "recovery"):
             self.assertIn(f"user-init-{target}.elf", builder)
-            self.assertIn(f"chimera-user-init-elf target={target}", builder)
+            self.assertIn("chimera-user-init-elf target=$target", builder)
+            self.assertIn(f"chimera-user-init-elf target={target}", grub)
 
 if __name__ == "__main__":
     unittest.main()
