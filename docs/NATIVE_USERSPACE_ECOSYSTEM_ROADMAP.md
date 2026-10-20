@@ -50,3 +50,31 @@ Run the canonical build, targeted tests, and then six independent actual-ISO boo
 
 ## Status on creation
 This document and catalog are planning/traceability inputs only. They do not claim that the listed applications have been imported, that native services are complete, or that production acceptance has passed. Release remains BLOCKED until evidence meets the gates above.
+
+
+## Engineering update — 2026-10-20 (verified repository state)
+
+The production bridge is still fail-closed and the release gate remains BLOCKED. The current OctavianOS bridge PR is [#93](https://github.com/amerhwitat/OctavianOS/pull/93); its source explicitly recognizes gzip magic and returns an unsupported-compression error because no bounded DEFLATE backend is present. Its own PR description confirms that the staged Live/Recovery initramfs files are gzip-compressed CPIO and that their current `/init` entries are shell scripts, not native ELF init services. The installer image is not proven to be a supported CPIO archive. A CPIO parser test that asserts gzip rejection is a correct negative test, not production payload support.
+
+The related upstream production handoff gate is [ChimeraIIOS PR #162](https://github.com/amerhwitat/ChimeraIIOS/pull/162). The truthful-service-readiness work is tracked in [ChimeraIIOS PR #166](https://github.com/amerhwitat/ChimeraIIOS/pull/166) and [OctavianOS PR #91](https://github.com/amerhwitat/OctavianOS/pull/91). This ecosystem roadmap is [ChimeraIIOS PR #168](https://github.com/amerhwitat/ChimeraIIOS/pull/168) / [OctavianOS PR #94](https://github.com/amerhwitat/OctavianOS/pull/94). All are open, unmerged changes at the time of this update; this roadmap PR is documentation only.
+
+### Required implementation order (do not skip gates)
+
+1. Choose and enforce one real production payload contract. Preferred safe paths are either (a) make the canonical build stage a verified uncompressed `newc` CPIO for the native init path, with size limits and artifact validation, or (b) implement and fuzz-test a bounded gzip/DEFLATE decoder with strict output-size, header/trailer, checksum, and timeout/resource limits. Do not simply remove the gzip rejection or treat compressed bytes as CPIO.
+2. Replace script-only production `/init` entries with target-specific, freestanding native ELF init programs. Define the required service startup/error contract and build dependencies; a smoke ELF must never substitute for these production binaries.
+3. Wire the selected target ELF into scheduler-owned process/task state and a real PID; validate PT_LOAD/BSS, permissions, user stack, process page tables, GDT/TSS and ring-3 entry. Verify syscall entry originates at CPL3 and dispatches against the owning process.
+4. Implement and test lifecycle/syscall backends in dependency order: GETPID/EXIT/EXIT_GROUP, MMAP/MUNMAP rollback, WAIT, bounded user-memory copy, and VFS/file I/O. Fail closed on unimplemented calls and do not fabricate PID or service readiness.
+5. Build using the canonical repository builder and native Koronos build workflow; run unit/contract tests and preserve raw logs. The canonical local ISO command remains `./build-chimera-iso.sh --clean-state --storage-auto`; do not invent replacement flags or claim a build when no runner/log is available.
+6. Run the unchanged verifier against six actual production ISO boots (Live, Installer, Recovery × BIOS, UEFI). Require a same nonzero scheduler-owned PID across target init, CPL3 syscall evidence, and readiness. Separately verify Aurora startup, installer transaction + reboot + installed boot, a real recovery repair operation, and AP-started concurrent SMP.
+
+### Evidence ledger
+
+- Production gzip payload extraction: **BLOCKED / not implemented**.
+- Production-native Live/Installer/Recovery init ELFs: **BLOCKED / not established**.
+- Scheduler-owned PID + production CPL3 syscall lifecycle: **NOT VERIFIED**.
+- Canonical build from this update: **NOT RUN here**; no new build logs or ISO artifacts are claimed.
+- Six-case production BIOS/UEFI matrix: **NOT PASSED / NOT VERIFIED**.
+- Aurora, install/reboot, recovery repair, AP-backed SMP: **NOT VERIFIED**.
+- Release publication: **KEEP BLOCKED**.
+
+Update this ledger only when a corresponding code change, test output, and/or raw target boot artifact exists. CI checks for docs or routing probes must not be promoted into production acceptance evidence.
