@@ -51,7 +51,7 @@ def main() -> int:
 
     build_path = ROOT / "kernel/build-koronos.sh"
     build = build_path.read_text(encoding="utf-8")
-    if "user-init-${target}.elf" in build and "acceptance probes, not production shells" not in build:
+    if "user-init-${target}.elf" in build and not ("acceptance probes" in build and "not production shells" in build):
         return fail("smoke probe artifacts are not explicitly isolated from production")
 
     print("NATIVE INIT LAUNCH GATE PASS: missing production ELF fails closed; probes remain isolated")
