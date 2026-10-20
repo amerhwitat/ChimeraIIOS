@@ -1,29 +1,181 @@
 {
   "schema": "chimera-filesystem-registry-v1",
-  "capability_model": ["probe", "read", "write", "install-target", "live-root"],
-  "native": {"name":"qfs","block_size_default":4096,"block_size_allowed":[4096,8192,16384,32768,65536],"require_page_size_at_least_block":true},
-  "filesystems": [
-    {"name":"FAT12","probe":true,"read":true,"write":true},
-    {"name":"FAT16","probe":true,"read":true,"write":true},
-    {"name":"FAT32","probe":true,"read":true,"write":true},
-    {"name":"exFAT","probe":true,"read":true,"write":true},
-    {"name":"NTFS","probe":true,"read":true,"write":true},
-    {"name":"ext2","probe":true,"read":true,"write":true},
-    {"name":"ext3","probe":true,"read":true,"write":true},
-    {"name":"qfs","probe":true,"read":true,"write":true,"native":true,"block_size_default":4096,"block_size_allowed":[4096,8192,16384,32768,65536]},
-    {"name":"ext4","probe":true,"read":true,"write":true},
-    {"name":"XFS","probe":true,"read":true,"write":true},
-    {"name":"Btrfs","probe":true,"read":true,"write":true},
-    {"name":"ZFS","probe":true,"read":true,"write":false},
-    {"name":"ISO-9660","probe":true,"read":true,"write":false},
-    {"name":"Rock Ridge","probe":true,"read":true,"write":false},
-    {"name":"Joliet","probe":true,"read":true,"write":false},
-    {"name":"UDF","probe":true,"read":true,"write":false},
-    {"name":"SquashFS","probe":true,"read":true,"write":false},
-    {"name":"tmpfs","probe":true,"read":true,"write":true},
-    {"name":"proc","probe":true,"read":true,"write":false},
-    {"name":"sysfs","probe":true,"read":true,"write":false},
-    {"name":"network-filesystem","probe":true,"read":true,"write":true}
+  "capability_model": [
+    "probe",
+    "read",
+    "write",
+    "install-target",
+    "live-root"
   ],
-  "note": "Capabilities are independently qualified; listing a filesystem does not claim universal kernel or hardware support."
+  "native": {
+    "name": "qfs",
+    "block_size_default": 4096,
+    "block_size_allowed": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "require_page_size_at_least_block": true
+  },
+  "filesystems": [
+    {
+      "name": "FAT12",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "FAT16",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "FAT32",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "exFAT",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "NTFS",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "ext2",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "ext3",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "qfs",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "native": true,
+      "block_size_default": 4096,
+      "block_size_allowed": [
+        4096,
+        8192,
+        16384,
+        32768,
+        65536
+      ],
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "ext4",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "XFS",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "Btrfs",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "ZFS",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "ISO-9660",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "Rock Ridge",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "Joliet",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "UDF",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "SquashFS",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "tmpfs",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "proc",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "sysfs",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    },
+    {
+      "name": "network-filesystem",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "implementation_status": "not-kernel-integrated"
+    }
+  ],
+  "note": "This registry is a candidate-format catalog, not proof of runtime support. No listed on-disk/network filesystem is currently qualified as kernel-mounted or read/write capable by this branch. The bounded RAM VFS and descriptor layer are not yet mounted, persistent, or connected to user-mode syscalls. Capabilities remain false until driver, mount, mutation, ownership, corruption-recovery, and end-to-end tests pass."
 }
