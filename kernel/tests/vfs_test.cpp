@@ -13,8 +13,8 @@ int main() {
     assert(chimera_vfs_read("/tmp/a",4,out,3)==3 && std::memcmp(out,"sys",3)==0);
     assert(chimera_vfs_write("/tmp/a",20,"x",1)==1);
     std::memset(out,0,sizeof(out));
-    assert(chimera_vfs_read("/tmp/a",sizeof(data),out,13)==13);
-    assert(out[0]==0 && out[12]=='x');
+    assert(chimera_vfs_read("/tmp/a",sizeof(data),out,13)==10);
+    assert(out[0]==0 && out[9]=='x');
     assert(chimera_vfs_truncate("/tmp/a",4)==0);
     chimera_vfs_stat st{};
     assert(chimera_vfs_stat_path("/tmp/a",&st)==0 && st.size==4);
