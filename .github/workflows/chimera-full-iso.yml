@@ -172,15 +172,18 @@ jobs:
           accepted=true
           for target in live installer recovery; do
             tree="$base/$target/tree"
-            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
+            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/boot/installer" "$tree/install/installer"
             xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
             if [[ "$target" == "live" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
+              xorriso -osirrox on -indev "$iso" -extract /boot/live/user-init-live.elf "$tree/boot/live/user-init-live.elf" >/dev/null 2>&1 || accepted=false
             elif [[ "$target" == "recovery" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/recovery/chimera-recovery-initramfs.img "$tree/boot/recovery/chimera-recovery-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/recovery/recovery-manifest.json "$tree/boot/recovery/recovery-manifest.json" >/dev/null 2>&1 || accepted=false
+              xorriso -osirrox on -indev "$iso" -extract /boot/recovery/user-init-recovery.elf "$tree/boot/recovery/user-init-recovery.elf" >/dev/null 2>&1 || accepted=false
             else
+              xorriso -osirrox on -indev "$iso" -extract /boot/installer/user-init-installer.elf "$tree/boot/installer/user-init-installer.elf" >/dev/null 2>&1 || accepted=false
               for f in installation.img installation-manifest.json installer-contract.json installation_phases.json installer_profiles.json; do
                 xorriso -osirrox on -indev "$iso" -extract "/install/installer/$f" "$tree/install/installer/$f" >/dev/null 2>&1 || accepted=false
               done
@@ -196,11 +199,13 @@ jobs:
               cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
             module2 /boot/live/chimera-live-initramfs.img chimera-live-initramfs
             module2 /boot/live/live-manifest.json chimera-live-manifest
+            module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live
           GRUB
             elif [[ "$target" == "recovery" ]]; then
               cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
             module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
             module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
+            module2 /boot/recovery/user-init-recovery.elf chimera-user-init-elf target=recovery
           GRUB
             else
               cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
@@ -209,6 +214,7 @@ jobs:
             module2 /install/installer/installer-contract.json chimera-installer-contract
             module2 /install/installer/installation_phases.json chimera-install-phases
             module2 /install/installer/installer_profiles.json chimera-installer-profiles
+            module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer
           GRUB
             fi
             cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
