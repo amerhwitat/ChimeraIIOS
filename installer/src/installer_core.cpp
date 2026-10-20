@@ -104,6 +104,8 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   for(const auto&s:build_plan(p)) std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
   if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
   if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
+  std::cerr<<"[installer] BLOCKED: no verified partition/filesystem/encryption/bootloader transaction backend is registered; refusing to copy payload and report installation success.\n";
+  return 10;
   if(copy_tree(p.source_root,p.target_root)!=0) return 4;
   if(p.deep_driver_search){
     fs::create_directories(p.target_root/"var/lib/chimera/drivers");
