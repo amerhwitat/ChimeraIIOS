@@ -44,8 +44,7 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
         const uint32_t signature = a;
         const uint32_t base_family = (signature >> 8) & 0xFu;
         const uint32_t base_model = (signature >> 4) & 0xFu;
-        out->cpu_family = base_family == 0xFu ? base_family + ((signature >> 20) & 0xFFu) :
-                          (base_family == 0x6u ? base_family + ((signature >> 20) & 0xFFu) : base_family);
+        out->cpu_family = base_family == 0xFu ? base_family + ((signature >> 20) & 0xFFu) : base_family;
         out->cpu_model = (base_family == 0x6u || base_family == 0xFu)
             ? base_model | (((signature >> 16) & 0xFu) << 4) : base_model;
         out->cpu_stepping = signature & 0xFu;
@@ -89,9 +88,10 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
             if ((b & 0xFFFFu) == 0 || ((c >> 8) & 0xFFu) == 0) break;
             const uint32_t type = (c >> 8) & 0xFFu;
             if (type == 1u) smt_threads = b & 0xFFFFu;
-            if (type == 2u) { package_logical = b & 0xFFFFu; core_count = 1u << (a & 0x1Fu); }
+            if (type == 2u) package_logical = b & 0xFFFFu;
         }
     }
+    if (!core_count && topology_leaf && package_logical >= smt_threads) core_count = package_logical / smt_threads;
     if (!core_count && max_basic_leaf >= 4u) {
         cpuid(4,0,&a,&b,&c,&d);
         if ((a & 0x1Fu) != 0) core_count = ((a >> 26) & 0x3Fu) + 1u;
