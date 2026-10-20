@@ -93,38 +93,37 @@ static void build_profiles() {
 }
 
 static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
+    // Only translate calls whose semantics and argument layout are represented
+    // by the current canonical ABI. Unsupported Linux calls must remain
+    // CHIMERA_SYS_INVALID; never alias them to unrelated native operations.
     if (bits == 32u) {
         switch (n) {
-            case 1: return 1;
-            case 3: return 8;
-            case 4: return 9;
-            case 5: return 5;
-            case 6: return 6;
-            case 20: return 2;
-            case 45: return 12;
-            case 90: return 10;
-            case 91: return 11;
-            case 162: return 13;
+            case 1: return 1;   // exit
+            case 3: return 8;   // read
+            case 4: return 9;   // write
+            case 20: return 2;  // getpid
+            case 91: return 11; // munmap
+            case 162: return 13;// nanosleep
             default: return 0xFFFFFFFFu;
         }
     }
-    switch (n) {
-        case 0: return 8;
-        case 1: return 9;
-        case 2: return 5;
-        case 3: return 6;
-        case 9: return 10;
-        case 11: return 11;
-        case 12: return 12;
-        case 16: return 11;
-        case 35: return 13;
-        case 39: return 2;
-        case 60: return 1;
-        case 61: return 14;
-        case 158: return 15;
-        case 231: return 16;
-        default: return 0xFFFFFFFFu;
+    if (bits == 64u) {
+        switch (n) {
+            case 0: return 8;   // read
+            case 1: return 9;   // write
+            case 9: return 10;  // mmap (dispatcher remains ENOSYS until implemented)
+            case 11: return 11; // munmap (dispatcher remains ENOSYS until implemented)
+            case 16: return 12; // ioctl (dispatcher remains ENOSYS until implemented)
+            case 35: return 13; // nanosleep
+            case 39: return 2;  // getpid
+            case 60: return 1;  // exit
+            case 61: return 14; // wait4; backend must validate supported semantics
+            case 158: return 15;// arch_prctl
+            case 231: return 16;// exit_group
+            default: return 0xFFFFFFFFu;
+        }
     }
+    return 0xFFFFFFFFu;
 }
 
 } // namespace
