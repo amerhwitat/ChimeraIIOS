@@ -24,6 +24,8 @@ mkdir -p "$BUILD"
 # Run host-side ABI regression tests before compiling the freestanding kernel.
 "${CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/compat.cpp" "$ROOT/kernel/tests/linux_syscall_translation_test.cpp" -o "$BUILD/linux-syscall-translation-test"
 "$BUILD/linux-syscall-translation-test"
+"${CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_bootstrap_honesty_test.cpp" -o "$BUILD/service-bootstrap-honesty-test"
+"$BUILD/service-bootstrap-honesty-test"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
