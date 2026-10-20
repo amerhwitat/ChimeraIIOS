@@ -3,6 +3,7 @@ namespace {
 constexpr uint32_t MAX_MODULES=64;
 chimera_boot_module modules[MAX_MODULES];
 uint32_t module_count=0;
+chimera_framebuffer_info framebuffer{};
 static void copy_cmd(char* dst,const char* src){
  uint32_t i=0;
  if(!src){dst[0]=0;return;}
@@ -34,6 +35,7 @@ static uint32_t classify(const char* s){
 }
 extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64_t boot_info){
  module_count=0;
+ framebuffer = {};
  if(!boot_info)return 0;
  const uint8_t* base=(const uint8_t*)(uintptr_t)boot_info;
  uint32_t total=*(const uint32_t*)base;
@@ -42,6 +44,35 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
   const uint32_t type=*(const uint32_t*)(base+off);
   const uint32_t size=*(const uint32_t*)(base+off+4);
   if(size<8||off+size>total)break;
+  if(type==8 && size>=32) {
+   /* Multiboot2 framebuffer information tag. Never trust firmware-supplied
+    * dimensions/pitch blindly: validate the complete scanline and byte span. */
+   const uint64_t addr=*(const uint64_t*)(base+off+8);
+   const uint32_t pitch=*(const uint32_t*)(base+off+16);
+   const uint32_t width=*(const uint32_t*)(base+off+20);
+   const uint32_t height=*(const uint32_t*)(base+off+24);
+   const uint8_t bpp=*(const uint8_t*)(base+off+28);
+   const uint8_t format=*(const uint8_t*)(base+off+29);
+   uint64_t row_bytes=((uint64_t)width*(uint64_t)bpp+7u)/8u;
+   uint64_t span=(uint64_t)pitch*(uint64_t)height;
+   if(addr && width && height && width<=16384u && height<=16384u &&
+      (bpp==8u || bpp==15u || bpp==16u || bpp==24u || bpp==32u) &&
+      (format==0u || format==1u || format==2u) &&
+      pitch>=row_bytes && span>=pitch && span<=0xFFFFFFFFFFFFFFFFull-addr) {
+     framebuffer.address=addr; framebuffer.pitch=pitch; framebuffer.width=width;
+     framebuffer.height=height; framebuffer.bpp=bpp; framebuffer.format=format;
+     framebuffer.reserved=*(const uint16_t*)(base+off+30);
+     if(format==1u && size>=38u) {
+       framebuffer.red_pos=*(const uint8_t*)(base+off+32);
+       framebuffer.red_mask_size=*(const uint8_t*)(base+off+33);
+       framebuffer.green_pos=*(const uint8_t*)(base+off+34);
+       framebuffer.green_mask_size=*(const uint8_t*)(base+off+35);
+       framebuffer.blue_pos=*(const uint8_t*)(base+off+36);
+       framebuffer.blue_mask_size=*(const uint8_t*)(base+off+37);
+     }
+     framebuffer.valid=1u;
+   }
+  }
   if(type==3&&size>=16&&module_count<MAX_MODULES){
    const uint32_t start=*(const uint32_t*)(base+off+8);
    const uint32_t end=*(const uint32_t*)(base+off+12);
@@ -63,4 +94,8 @@ extern "C" const chimera_boot_module* chimera_multiboot_find(uint32_t kind){
  for(uint32_t i=0;i<module_count;i++)
   if(modules[i].kind==kind)return &modules[i];
  return 0;
+}
+
+extern "C" const chimera_framebuffer_info* chimera_multiboot_framebuffer(void){
+ return framebuffer.valid ? &framebuffer : 0;
 }

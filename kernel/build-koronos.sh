@@ -26,6 +26,13 @@ CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
+# Host-side Multiboot2 module/framebuffer parser regression must pass before
+# compiling the freestanding kernel, so malformed tag handling fails early.
+"${HOST_CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/tests/multiboot_modules_test.cpp" \
+  "$ROOT/kernel/core/multiboot_modules.cpp" -o "$BUILD/multiboot-modules-test"
+"$BUILD/multiboot-modules-test"
+
 sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"

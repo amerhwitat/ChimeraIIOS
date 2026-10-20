@@ -6,10 +6,14 @@ extern "C" {
 #endif
 enum chimera_module_kind { CHIMERA_MODULE_UNKNOWN=0, CHIMERA_MODULE_LIVE_INITRAMFS=1, CHIMERA_MODULE_LIVE_MANIFEST=2, CHIMERA_MODULE_INSTALL_IMAGE=3, CHIMERA_MODULE_INSTALL_MANIFEST=4, CHIMERA_MODULE_INSTALL_CONTRACT=5, CHIMERA_MODULE_INSTALL_PHASES=6, CHIMERA_MODULE_INSTALL_PROFILES=7, CHIMERA_MODULE_USER_INIT_ELF=8, CHIMERA_MODULE_OTHER=9, CHIMERA_MODULE_RECOVERY_INITRAMFS=10, CHIMERA_MODULE_RECOVERY_MANIFEST=11 };
 typedef struct { uint64_t base,size; uint32_t kind; char cmdline[128]; } chimera_boot_module;
+/* Parsed from Multiboot2 information tag type 8. Address is physical; callers
+ * must map it before drawing. Indexed/RGB formats are retained, unknown formats rejected. */
+typedef struct { uint64_t address; uint32_t pitch,width,height; uint8_t bpp,format; uint16_t reserved; uint8_t red_pos,red_mask_size,green_pos,green_mask_size,blue_pos,blue_mask_size; uint8_t valid; } chimera_framebuffer_info;
 uint32_t chimera_multiboot_scan(uint64_t boot_info);
 uint32_t chimera_multiboot_module_count(void);
 const chimera_boot_module* chimera_multiboot_module(uint32_t index);
 const chimera_boot_module* chimera_multiboot_find(uint32_t kind);
+const chimera_framebuffer_info* chimera_multiboot_framebuffer(void);
 #ifdef __cplusplus
 }
 #endif

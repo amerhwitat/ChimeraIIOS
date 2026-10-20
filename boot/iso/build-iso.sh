@@ -136,6 +136,12 @@ for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/boot-artwork-manifest.json" || { echo "ERROR: artwork manifest missing from $stage stage." >&2; exit 2; }
 done
 
+# Include the complete offline desktop asset set (wallpapers, MP4/WAV media,
+# branding, menu catalogs, icon themes, and manifests) in both ISO and rootfs.
+python3 "$ROOT/tools/aurora/stage-desktop-artifacts.py" \
+  --rootfs "${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}" \
+  --iso-root "$DIST/iso"
+
 # Stage a real installer initramfs and the canonical installer JSON contracts.
 bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
 

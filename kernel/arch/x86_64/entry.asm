@@ -14,6 +14,15 @@ mb2_header:
     dd 0
     dd mb2_header_end - mb2_header
     dd -(MULTIBOOT2_MAGIC + 0 + (mb2_header_end - mb2_header))
+    ; Request the highest preferred graphics mode; GRUB may choose a supported fallback.
+    dw 5
+    dw 0
+    dd 20
+    dd 5120
+    dd 2880
+    dd 32
+    ; Header tags are 8-byte aligned; framebuffer request size is 20 bytes.
+    dd 0
     dw 0
     dw 0
     dd 8
