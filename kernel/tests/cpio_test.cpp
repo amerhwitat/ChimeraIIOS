@@ -52,6 +52,21 @@ int main() {
     if (chimera_cpio_validate(duplicate, d) == 0) {
         fputs("FAIL: duplicate normalized paths must be rejected\\n", stderr); return 1;
     }
+    uint8_t crc_archive[512] = {};
+    uint32_t cr = entry(crc_archive, 0, "etc/crc", "abc");
+    cr = entry(crc_archive, cr, "TRAILER!!!", "");
+    crc_archive[5] = '2';
+    const uint32_t trailer_off = cr - 124u;
+    (void)trailer_off;
+    crc_archive[124u + 5u] = '2';
+    hex8(reinterpret_cast<char *>(crc_archive) + 102u, 294u); /* 'a' + 'b' + 'c' */
+    if (chimera_cpio_validate(crc_archive, cr) != 0) {
+        fputs("FAIL: valid 070702 data checksum should validate\\n", stderr); return 1;
+    }
+    hex8(reinterpret_cast<char *>(crc_archive) + 102u, 0u);
+    if (chimera_cpio_validate(crc_archive, cr) == 0) {
+        fputs("FAIL: invalid 070702 data checksum must be rejected\\n", stderr); return 1;
+    }
     puts("PASS: bounded CPIO newc lookup and archive validation tests");
     return 0;
 }
