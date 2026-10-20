@@ -28,7 +28,7 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
 # Host-side Multiboot2 module/framebuffer parser regression must pass before
 # compiling the freestanding kernel, so malformed tag handling fails early.
-"$CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" \
+"${HOST_CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" \
   "$ROOT/kernel/tests/multiboot_modules_test.cpp" \
   "$ROOT/kernel/core/multiboot_modules.cpp" -o "$BUILD/multiboot-modules-test"
 "$BUILD/multiboot-modules-test"
