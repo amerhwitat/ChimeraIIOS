@@ -6,6 +6,7 @@ successfully handled when no native USER_INIT_ELF module is supplied. It is
 not a runtime boot test and does not establish production readiness.
 """
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -29,6 +30,17 @@ def main() -> int:
         return fail("native init must report the actual GETPID syscall result")
     if "USERSPACE READY:" in native_init:
         return fail("fail-closed bootstrap must not fabricate readiness")
+
+    syscall_header = (ROOT / "kernel/include/chimera/syscall.h").read_text(encoding="utf-8")
+    mmap_id = re.search(r"CHM_SYS_MMAP\\s*=\\s*(\\d+)", syscall_header)
+    if not mmap_id or int(mmap_id.group(1)) != 10:
+        return fail("native syscall ABI no longer identifies syscall 10 as MMAP; review ABI changes explicitly")
+    if "CHM_SYS_MOUNT" in syscall_header:
+        return fail("mount syscall was added; require an implementation and runtime tests before changing fail-closed init")
+    if re.search(r"call[0-6]\\(10\\)", native_init):
+        return fail("native init must not treat syscall 10 (MMAP) as a mount operation")
+    if "call1(1, 78)" not in native_init or "NATIVE INIT BLOCKED:" not in native_init:
+        return fail("bootstrap must retain its explicit unavailable-service exit")
 
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
@@ -62,7 +74,7 @@ def main() -> int:
     if "user-init-${target}.elf" in build and not ("acceptance probes" in build and "not production shells" in build):
         return fail("smoke probe artifacts are not explicitly isolated from production")
 
-    print("NATIVE INIT LAUNCH GATE PASS: missing production ELF fails closed; probes remain isolated")
+    print("NATIVE INIT LAUNCH GATE PASS: missing ELF fails closed; mount ABI is not faked; probes remain isolated")
     return 0
 
 
