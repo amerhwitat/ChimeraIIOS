@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#define CHIMERA_HW_PROFILE_VERSION 1u
+#define CHIMERA_HW_PROFILE_VERSION 2u
 #define CHIMERA_NBIT_MODE_COUNT 11u
 
 typedef enum chimera_architecture {
@@ -42,10 +42,27 @@ enum {
     CHIMERA_HW_SVE = 1u << 9
 };
 
+typedef enum chimera_cpu_vendor {
+    CHIMERA_CPU_VENDOR_UNKNOWN = 0,
+    CHIMERA_CPU_VENDOR_INTEL = 1,
+    CHIMERA_CPU_VENDOR_AMD = 2,
+    CHIMERA_CPU_VENDOR_HYGON = 3,
+    CHIMERA_CPU_VENDOR_VIA = 4,
+    CHIMERA_CPU_VENDOR_ARM = 5,
+    CHIMERA_CPU_VENDOR_RISCV = 6
+} chimera_cpu_vendor;
+
 typedef struct chimera_hardware_profile {
     uint32_t version;
     chimera_architecture architecture;
+    /* CPUID topology describes the current package, not CPUs already online. */
     uint32_t logical_cpus;
+    uint32_t physical_cores;
+    uint32_t logical_per_core;
+    uint32_t cpu_vendor_id;
+    uint32_t cpu_family;
+    uint32_t cpu_model;
+    uint32_t cpu_stepping;
     uint32_t physical_address_bits;
     uint32_t virtual_address_bits;
     uint32_t native_pointer_bits;
