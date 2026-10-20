@@ -3,10 +3,11 @@ namespace {
 constexpr uint32_t MAX_MODULES=64;
 chimera_boot_module modules[MAX_MODULES];
 uint32_t module_count=0;
-static void copy_cmd(char* dst,const char* src){
+static void copy_cmd(char* dst,const char* src,uint32_t available){
  uint32_t i=0;
- if(!src){dst[0]=0;return;}
- for(;i<127&&src[i];++i) dst[i]=src[i];
+ if(!src||available==0){dst[0]=0;return;}
+ const uint32_t limit=available<127u?available:127u;
+ for(;i<limit&&src[i];++i) dst[i]=src[i];
  dst[i]=0;
 }
 static bool has(const char* s,const char* needle){
@@ -38,23 +39,34 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
  const uint8_t* base=(const uint8_t*)(uintptr_t)boot_info;
  uint32_t total=*(const uint32_t*)base;
  if(total<16||total>16u*1024u*1024u)return 0;
- for(uint32_t off=8;off+8<=total;){
+ bool end_tag_seen=false;
+ for(uint32_t off=8;off<=total-8;){
   const uint32_t type=*(const uint32_t*)(base+off);
   const uint32_t size=*(const uint32_t*)(base+off+4);
-  if(size<8||off+size>total)break;
+  if(size<8||size>total-off) { module_count=0; return 0; }
   if(type==3&&size>=16&&module_count<MAX_MODULES){
    const uint32_t start=*(const uint32_t*)(base+off+8);
    const uint32_t end=*(const uint32_t*)(base+off+12);
-   chimera_boot_module&m=modules[module_count++];
-   m.base=start;
-   m.size=end>=start?(uint64_t)end-start:0;
-   m.cmdline[0]=0;
-   if(size>16)copy_cmd(m.cmdline,(const char*)(base+off+16));
-   m.kind=classify(m.cmdline);
+   if(end>start){
+    chimera_boot_module&m=modules[module_count];
+    m.base=start;
+    m.size=(uint64_t)end-start;
+    m.cmdline[0]=0;
+    if(size>16)copy_cmd(m.cmdline,(const char*)(base+off+16),size-16u);
+    m.kind=classify(m.cmdline);
+    ++module_count;
+   }
   }
-  if(type==0) break;
-  off=(off+size+7u)&~7u;
+  if(type==0){
+   if(size!=8) { module_count=0; return 0; }
+   end_tag_seen=true;
+   break;
+  }
+  const uint32_t advance=(size+7u)&~7u;
+  if(advance<size||advance>total-off) { module_count=0; return 0; }
+  off+=advance;
  }
+ if(!end_tag_seen) { module_count=0; return 0; }
  return module_count;
 }
 extern "C" uint32_t chimera_multiboot_module_count(void){return module_count;}
