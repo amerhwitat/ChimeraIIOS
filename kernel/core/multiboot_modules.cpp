@@ -58,7 +58,7 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
    }
   }
   if(type==0){
-   if(size!=8) { module_count=0; return 0; }
+   if(size!=8 || off+size!=total) { module_count=0; return 0; }
    end_tag_seen=true;
    break;
   }
