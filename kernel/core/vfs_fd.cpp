@@ -31,7 +31,7 @@ extern "C" int chimera_vfs_open(chimera_vfs_fd *table, uint32_t capacity, chimer
                                  uint32_t flags) {
     const uint32_t valid = CHIMERA_FD_READ | CHIMERA_FD_WRITE | CHIMERA_FD_CREATE | CHIMERA_FD_TRUNC;
     if (!table || !fs || !pid || !path || !capacity || capacity > CHIMERA_VFS_FD_MAX ||
-        !(flags & (CHIMERA_FD_READ | CHIMERA_FD_WRITE)) || (flags & ~valid))
+        !(flags & (CHIMERA_FD_READ | CHIMERA_FD_WRITE)) || (flags & ~valid) ||\n        ((flags & CHIMERA_FD_TRUNC) && !(flags & CHIMERA_FD_WRITE)))
         return CHIMERA_VFS_EINVAL;
 
     uint32_t slot = capacity;
