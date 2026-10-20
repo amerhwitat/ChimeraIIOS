@@ -77,6 +77,7 @@ extern "C" int chimera_vfs_open_for(uint32_t pid, const char *path, uint32_t fla
     if (!chimera_vfs_is_mounted()) return -2;
     chimera_cpio_entry entry{};
     if (chimera_cpio_find(g_archive, g_archive_size, path, &entry) != 0) return -3;
+    if ((entry.mode & 0170000u) != 0100000u) return -5; /* only regular files are openable */
     lock();
     for (uint32_t i = 0; i < FD_COUNT; ++i) {
         open_file &f = g_fds[pid - 1u][i];
