@@ -22,6 +22,9 @@ int main() {
     uint32_t n = entry(archive, 0, "./etc/chimera.conf", "mode=live\n");
     n = entry(archive, n, "TRAILER!!!", "");
     chimera_cpio_entry out{};
+    if (chimera_cpio_validate(archive, n) != 0) {
+        fputs("FAIL: complete valid newc archive should validate\\n", stderr); return 1;
+    }
     if (chimera_cpio_find(archive, n, "/etc/chimera.conf", &out) != 0 ||
         out.size != 10 || memcmp(out.data, "mode=live\n", 10) != 0) {
         fputs("FAIL: exact path lookup and data bounds\n", stderr); return 1;
@@ -36,6 +39,19 @@ int main() {
     if (chimera_cpio_find(archive, n, "/etc/chimera.conf", &out) != -1) {
         fputs("FAIL: invalid magic must be rejected\n", stderr); return 1;
     }
-    puts("PASS: bounded CPIO newc lookup tests");
+    uint8_t unsafe[512] = {};
+    uint32_t u = entry(unsafe, 0, "./../escape", "x");
+    u = entry(unsafe, u, "TRAILER!!!", "");
+    if (chimera_cpio_validate(unsafe, u) == 0) {
+        fputs("FAIL: parent traversal path must be rejected\\n", stderr); return 1;
+    }
+    uint8_t duplicate[512] = {};
+    uint32_t d = entry(duplicate, 0, "./etc/same", "a");
+    d = entry(duplicate, d, "etc/same", "b");
+    d = entry(duplicate, d, "TRAILER!!!", "");
+    if (chimera_cpio_validate(duplicate, d) == 0) {
+        fputs("FAIL: duplicate normalized paths must be rejected\\n", stderr); return 1;
+    }
+    puts("PASS: bounded CPIO newc lookup and archive validation tests");
     return 0;
 }
