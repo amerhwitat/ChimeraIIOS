@@ -37,8 +37,7 @@ static int stop_service(const char* id, void* opaque) {
     if (i < 0) return -1;
     ++f->stops[i];
     if (f->stop_count < 8) {
-        strncpy(f->stop_order[f->stop_count], id, 15);
-        f->stop_order[f->stop_count][15] = 0;
+        snprintf(f->stop_order[f->stop_count], sizeof(f->stop_order[f->stop_count]), "%s", id);
         ++f->stop_count;
     }
     return 0;
