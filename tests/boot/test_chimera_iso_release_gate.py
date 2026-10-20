@@ -28,5 +28,14 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("no release will be published", self.text)
         self.assertIn("name: Upload target-specific userspace acceptance traces", self.text)
 
+    def test_unverified_handoff_fails_workflow_after_artifacts_are_uploaded(self):
+        upload = self.text.index("name: Upload ISO artifacts")
+        fail = self.text.index("name: Fail the workflow when production userspace acceptance is unverified")
+        publish = self.text.index("name: Publish validated ISO candidate to GitHub Releases")
+        self.assertLess(upload, fail)
+        self.assertLess(fail, publish)
+        self.assertIn("if: steps.userspace_gate.outputs.accepted != 'true'", self.text[fail:publish])
+        self.assertIn("exit 1", self.text[fail:publish])
+
 if __name__ == "__main__":
     unittest.main()
