@@ -123,3 +123,25 @@ The latest review of the x86-64 source separates acceptance tests from actual ex
 The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
 
 Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
+
+
+## Native PID 1 service gap and syscall ABI audit (2026-10-20)
+
+The target-specific bootstrap now demonstrably reaches CPL3 in smoke traces, performs a kernel syscall, reports the kernel-returned PID, and exits with status 78 because native services are unavailable. This is execution evidence, not a complete userspace runtime.
+
+The suggested `CHM_SYS_MOUNT = 10` example must **not** be copied into the current ABI: `kernel/include/chimera/syscall.h` defines syscall 10 as `CHM_SYS_MMAP`, and there is no implemented `CHM_SYS_MOUNT` operation. Passing three path pointers to syscall 10 would invoke the wrong operation, not mount a filesystem. A table that merely records `/` and returns success without backing filesystem operations would also be a false success.
+
+The current source tree has Multiboot2 module classification and target-specific ELF dispatch, but no integrated kernel VFS mount/open/read/stat service that unpacks and exposes the selected initramfs to PID 1. The gzip/newc payload is not automatically a mounted root filesystem. Do not claim VFS readiness based on module presence alone.
+
+Implementation order:
+
+1. Specify a versioned native syscall ABI and argument-validation contract. Do not allocate a mount syscall ID until its kernel handler and tests land together.
+2. Implement a bounded, read-only newc CPIO parser with path traversal rejection, duplicate/path policy, symlink handling, file-size bounds, and gzip/CRC/ISIZE validation if compressed payloads are accepted.
+3. Build a kernel-owned VFS namespace over the validated archive, with real lookup/read/stat semantics and explicit errors; mount registration must only succeed after the backing root is live.
+4. Expose only the minimal, documented user API required by PID 1. Validate user pointers/ranges and return `-ENOSYS`/`-ENODEV` until each operation is genuinely implemented.
+5. Add host regression tests for malformed archives and path attacks, syscall ABI tests, and QEMU tests that read a known file through the user ABI. Verify invalid/missing root fails closed.
+6. Only after VFS works, add process spawn/wait/reap, device enumeration/control, target service managers, and real graphics/input/storage services. Emit `USERSPACE READY` only after the target's required service health checks succeed.
+
+The regression guard `tools/tests/test_native_init_launch_gate.py` now prevents syscall 10 from being mistaken for mount and preserves status-78/no-readiness behavior while the mount ABI is absent. This guard is intentionally temporary: when a real mount/VFS ABI is implemented, update the test with ABI and runtime coverage rather than weakening the fail-closed contract.
+
+**Current status: service runtime blocked.** Do not mark Live, Installer, Recovery, Aurora/Marine desktop, disk-writing installer, recovery repair, or AP-backed SMP as production-ready based on the current PID smoke. No release or prerelease until all required runtime acceptance gates pass.
