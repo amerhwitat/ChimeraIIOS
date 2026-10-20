@@ -39,7 +39,7 @@ __attribute__((noreturn, used)) void _start(void) {
     }
 
     char ready_message[96];
-    const char prefix[] = "USERSPACE READY: " CHIMERA_TARGET_NAME " init pid=";
+    const char prefix[] = "USERSPACE READY: target=" CHIMERA_TARGET_NAME " init_pid=";
     size_t used = 0;
     for (size_t i = 0; i < sizeof(prefix) - 1u; ++i)
         ready_message[used++] = prefix[i];
