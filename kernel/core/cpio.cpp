@@ -86,9 +86,10 @@ extern "C" int chimera_cpio_validate(const void *archive, uint64_t archive_size)
         const uint8_t *h = bytes + offset;
         if (!((h[0]=='0'&&h[1]=='7'&&h[2]=='0'&&h[3]=='7'&&h[4]=='0'&&h[5]=='1') ||
               (h[0]=='0'&&h[1]=='7'&&h[2]=='0'&&h[3]=='7'&&h[4]=='0'&&h[5]=='2')) return -1;
-        uint32_t mode=0, file_size=0, name_size=0;
+        uint32_t mode=0, file_size=0, name_size=0, checksum=0;
+        const bool crc_format = h[5] == '2';
         if (!hex8(h+14,&mode) || !hex8(h+54,&file_size) || !hex8(h+94,&name_size) ||
-            name_size < 2u || name_size > CHIMERA_CPIO_PATH_MAX) return -1;
+            !hex8(h+102,&checksum) || name_size < 2u || name_size > CHIMERA_CPIO_PATH_MAX) return -1;
         uint64_t name_end;
         if (add_overflow(header_end, name_size, &name_end) || name_end > archive_size) return -1;
         const uint8_t *name = bytes + header_end;
@@ -103,6 +104,13 @@ extern "C" int chimera_cpio_validate(const void *archive, uint64_t archive_size)
         if (add_overflow(data_end, 3u, &next)) return -1;
         next &= ~3ull;
         if (next > archive_size || next <= offset) return -1;
+        if (crc_format) {
+            uint32_t sum = 0;
+            for (uint64_t i = data_offset; i < data_end; ++i) sum += bytes[i];
+            if (sum != checksum) return -1;
+        } else if (checksum != 0) {
+            return -1;
+        }
         const bool trailer = name_size == 11u &&
             name[0]=='T'&&name[1]=='R'&&name[2]=='A'&&name[3]=='I'&&name[4]=='L'&&
             name[5]=='E'&&name[6]=='R'&&name[7]=='!'&&name[8]=='!'&&name[9]=='!'&&name[10]==0;
