@@ -59,3 +59,8 @@ The current manager is deliberately serialized: its global state registry has no
 ## Current acceptance state
 
 The latest source commits are on open draft PRs. A fresh workflow run for the newest commits has not been returned by the available run query, so compile/test status remains **unverified**. Production acceptance is still blocked. The current kernel startup has real flags for console, module scan, scheduler, device inventory, driver probe/start, and process-registry initialization, but these do not provide the missing filesystem/VFS, native script interpreter, complete process execution and lifecycle, storage/network/security/display session services, or target operations.
+
+
+## Boot input parser hardening — 2026-10-20
+
+The Multiboot2 module scanner now bounds command-line reads by each tag's declared size, NUL-terminates its fixed-size copy, rejects malformed/oversized tags and invalid module address ranges, and requires the correctly sized end tag to be the final tag in the declared information block. Host regression tests for these cases are wired into the canonical kernel build. This hardening improves safe module discovery but does not itself mount an initramfs, interpret scripts, or execute target init.
