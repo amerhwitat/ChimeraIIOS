@@ -16,7 +16,7 @@ int main() {
     assert(chimera_nbit_validate(best) == 0);
 
     chimera_nbit_process_context low{}, high{};
-    assert(chimera_nbit_process_init(&low, 1, 32, CHIMERA_COMPAT_LINUX) == 0);
+    assert(chimera_nbit_process_init(&low, 1, 32, CHIMERA_COMPAT_NATIVE) == 0);
     assert(chimera_nbit_process_init(&high, 2, 8192, CHIMERA_COMPAT_NATIVE) == 0);
     assert(low.mode_bits == 32);
     assert(high.mode_bits == 8192);
@@ -27,8 +27,11 @@ int main() {
     assert(chimera_nbit_ipc_validate(&wire) == 0);
 
     assert(chimera_nbit_process_set_mode(&low, 64) == 0);
-    assert(chimera_nbit_process_set_compatibility(&low, CHIMERA_COMPAT_WINDOWS) == 0);
-    assert(low.execution_class == CHIMERA_EXEC_COMPATIBILITY);
+    const uint32_t previous_target = low.compatibility_target;
+    assert(chimera_nbit_process_set_compatibility(&low, CHIMERA_COMPAT_WINDOWS) == -1);
+    assert(low.compatibility_target == previous_target);
+    assert(low.execution_class != CHIMERA_EXEC_COMPATIBILITY);
+    assert(chimera_nbit_process_init(&high, 3, 64, CHIMERA_COMPAT_LINUX) == -4);
 
     puts("chimera hardware/N-bit tests passed");
     return 0;
