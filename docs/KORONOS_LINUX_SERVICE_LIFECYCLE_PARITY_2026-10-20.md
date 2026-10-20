@@ -48,3 +48,14 @@ The boot path now registers and health-checks the initialized console, module re
 - Linux subsystem API documentation (memory, drivers, storage, filesystems, networking): https://docs.kernel.org/subsystem-apis.html
 
 No Linux implementation source is copied into Koronos here. The parity comparison is behavioral and architectural; kernel-internal Linux APIs are not a stable userspace ABI and are not directly portable to Koronos.
+
+
+## Follow-up hardening — 2026-10-20
+
+The lifecycle validator now rejects empty service IDs, invalid initial state values, self-dependencies and duplicate dependency entries. Startup/shutdown returns an error if the bounded global state registry cannot record a required transition, instead of silently proceeding with incomplete state. Matching regression cases are present in both repositories.
+
+The current manager is deliberately serialized: its global state registry has no SMP lock. Do not call it concurrently from APs or independent service workers until a real kernel synchronization primitive is integrated. The ID state table also assumes service ID storage remains valid for the lifetime of registered states; production manifests should use static-lifetime IDs until ownership is redesigned.
+
+## Current acceptance state
+
+The latest source commits are on open draft PRs. A fresh workflow run for the newest commits has not been returned by the available run query, so compile/test status remains **unverified**. Production acceptance is still blocked. The current kernel startup has real flags for console, module scan, scheduler, device inventory, driver probe/start, and process-registry initialization, but these do not provide the missing filesystem/VFS, native script interpreter, complete process execution and lifecycle, storage/network/security/display session services, or target operations.
