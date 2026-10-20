@@ -42,7 +42,7 @@ static int stop_service(const char* id, void* opaque) {
     }
     return 0;
 }
-static int check(bool ok, const char* what) {
+static int position(const char* const* order, uint32_t count, const char* id) {\n    for (uint32_t i = 0; i < count; ++i) if (!strcmp(order[i], id)) return static_cast<int>(i);\n    return -1;\n}\nstatic int check(bool ok, const char* what) {
     if (!ok) fprintf(stderr, "FAIL: %s\n", what);
     return ok ? 0 : 1;
 }
