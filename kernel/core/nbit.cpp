@@ -41,6 +41,8 @@ extern "C" int chimera_nbit_process_init(chimera_nbit_process_context *ctx, uint
     uint32_t mode = requested_bits ? requested_bits : g_default_mode;
     if (!valid_mode(mode)) return -2;
     if (!chimera_hardware_supports_mode(&g_profile, mode)) return -3;
+    /* Compatibility targets require a registered, implemented provider. */
+    if (compatibility_target && !(compatibility_target & g_profile.compatibility_mask)) return -4;
     ctx->process_id = process_id;
     ctx->mode_bits = mode;
     ctx->execution_class = (mode == g_profile.native_nbit_mode) ? CHIMERA_EXEC_NATIVE : CHIMERA_EXEC_EMULATED;
