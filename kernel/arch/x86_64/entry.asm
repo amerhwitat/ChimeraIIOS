@@ -21,6 +21,8 @@ mb2_header:
     dd 5120
     dd 2880
     dd 32
+    ; Header tags are 8-byte aligned; framebuffer request size is 20 bytes.
+    dd 0
     dw 0
     dw 0
     dd 8
