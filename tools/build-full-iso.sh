@@ -119,8 +119,11 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
-[[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+# Copy the canonical kernel last so a stale kernel inside the live-boot tree
+# cannot overwrite the production launch path selected above.
+mkdir -p "$STAGE/boot/koronos"
+cp -f "$KERNEL" "$STAGE/boot/koronos/koronos.elf"
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
