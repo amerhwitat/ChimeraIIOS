@@ -70,9 +70,13 @@ extern "C" uint32_t chimera_service_get_state(const char*id){
     return CHM_SVC_DECLARED;
 }
 extern "C" void chimera_kore_bootstrap(void){
-    chimera_service_set_state("chimera.device",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.storage",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.security",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.logging",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.kore",CHM_SVC_RUNNING);
+    /*
+     * This entry point does not start service implementations. Do not publish
+     * CHM_SVC_RUNNING here: callers must transition a service to RUNNING only
+     * after its real initialization and health checks succeed.
+     *
+     * Until concrete service start hooks are wired in, the registry's default
+     * DECLARED state is the truthful state. Production readiness gates must
+     * fail closed rather than infer service readiness from this bootstrap.
+     */
 }
