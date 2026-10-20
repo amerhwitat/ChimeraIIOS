@@ -251,6 +251,26 @@ for spec in "live:/boot/live/user-init-live.elf" "installer:/boot/installer/user
   python3 "$ROOT/tools/validate-native-init-elf.py" --target "$target" "$out"
 done
 xorriso -osirrox on -indev "$FINAL" -extract /boot/grub/grub.cfg "$INIT_VERIFY/grub.cfg" >/dev/null
+grep -q '^set default=aurora-livefor target in live installer recovery; do
+  grep -q "chimera-user-init-elf target=$target" "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO GRUB menu lacks target=$target native init route" >&2; exit 2; }
+done
+for spec in "live:/boot/jasper/live.cfg" "installer:/boot/jasper/install.cfg" "recovery:/boot/jasper/recovery.cfg"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/jasper-$target.cfg"
+  xorriso -osirrox on -indev "$FINAL" -extract "$path" "$out" >/dev/null
+  grep -q "chimera-user-init-elf target=$target" "$out" || { echo "ERROR: final ISO Jasper route lacks target=$target native init" >&2; exit 2; }
+done
+rm -rf "$STAGE" "$BUILD/inject" "$BUILD/base-for-inject.iso" "$BUILD/base.iso" 2>/dev/null || true
+# Preserve build/full/cmake for incremental/manual CMake builds.
+if [[ -d "$BUILD/cmake" ]]; then
+  find "$BUILD/cmake" -type f \( -name "*.o" -o -name "*.obj" -o -name "*.d" -o -name "*.gcda" -o -name "*.gcno" \) -delete 2>/dev/null || true
+  rm -rf "$BUILD/cmake/CMakeFiles/CMakeScratch" "$BUILD/cmake/Testing" 2>/dev/null || true
+fi
+cp "$FINAL" "$ROOT/chimera-ii-os.iso"
+sha256sum "$FINAL" | tee "$FINAL.sha256"
+echo "Built $FINAL"
+ "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO default boot is not the Live target" >&2; exit 2; }
 for target in live installer recovery; do
   grep -q "chimera-user-init-elf target=$target" "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO GRUB menu lacks target=$target native init route" >&2; exit 2; }
 done
