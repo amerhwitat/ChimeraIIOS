@@ -136,35 +136,75 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
 
 extern "C" int koronos_launch_selected_userspace(void) {
     if (attempted) return 0;
-    attempted=true;
-    const chimera_boot_module *selected=nullptr;
-    uint32_t count=0;
-    for (uint32_t i=0;i<chimera_multiboot_module_count();++i) {
-        const chimera_boot_module *m=chimera_multiboot_module(i);
-        if (m && m->kind==CHIMERA_MODULE_USER_INIT_ELF) { selected=m; ++count; }
+    attempted = true;
+    const chimera_boot_module *selected = nullptr;
+    const chimera_boot_module *payload = nullptr;
+    uint32_t elf_count = 0;
+    uint32_t payload_count = 0;
+    for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
+        const chimera_boot_module *m = chimera_multiboot_module(i);
+        if (!m) continue;
+        if (m->kind == CHIMERA_MODULE_USER_INIT_ELF) { selected = m; ++elf_count; }
+        if (m->kind == CHIMERA_MODULE_LIVE_INITRAMFS ||
+            m->kind == CHIMERA_MODULE_RECOVERY_INITRAMFS ||
+            m->kind == CHIMERA_MODULE_INSTALL_IMAGE) { payload = m; ++payload_count; }
     }
-    if (count==0) {
-        /* Kernel-only smoke boots have no target payload and remain valid.
-         * A production initramfs/install image without its separate native
-         * ELF is a packaging/dispatch failure, never a successful handoff. */
-        const bool has_target_payload =
-            chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS) != nullptr ||
-            chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) != nullptr ||
-            chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE) != nullptr;
-        if (!has_target_payload) return 0;
-        koronos_target_log("[RUN ] ERROR: production target payload is present but no USER_INIT_ELF module was supplied");
-        return -12;
-    }
-    if (count!=1 || !selected || !selected->base || selected->size<sizeof(koronos_elf64_ehdr) ||
-        selected->size>MAX_INIT_IMAGE || selected->base>=KORONOS_FRAME_PHYS_LIMIT ||
-        selected->size>KORONOS_FRAME_PHYS_LIMIT-selected->base) {
+
+    /* Kernel-only boots remain valid. Candidate probes may supply one ELF
+       without a production payload. Production payloads must be paired with
+       exactly one target-matched native init ELF. */
+    if (payload_count == 0 && elf_count == 0) return 0;
+    if (elf_count != 1 || !selected) {
         koronos_target_log("[RUN ] ERROR: expected exactly one bounded USER_INIT_ELF module");
         return -1;
     }
-    const Target target=parse_target(selected->cmdline);
-    if (target==TARGET_NONE) {
+
+    const void *init_elf = nullptr;
+    uint64_t init_elf_size = 0;
+    Target target = TARGET_NONE;
+    if (payload_count != 0) {
+        if (payload_count != 1 || !payload) {
+            koronos_target_log("[RUN ] ERROR: production boot requires exactly one payload; refusing ambiguous dispatch");
+            return -2;
+        }
+        if (payload->kind == CHIMERA_MODULE_LIVE_INITRAMFS) target = TARGET_LIVE;
+        else if (payload->kind == CHIMERA_MODULE_RECOVERY_INITRAMFS) target = TARGET_RECOVERY;
+        else if (payload->kind == CHIMERA_MODULE_INSTALL_IMAGE) target = TARGET_INSTALLER;
+        if (target == TARGET_NONE) return -3;
+        if (!payload->base || payload->size == 0 ||
+            payload->base >= KORONOS_FRAME_PHYS_LIMIT ||
+            payload->size > KORONOS_FRAME_PHYS_LIMIT - payload->base) {
+            koronos_target_log("[RUN ] ERROR: selected production payload is outside bounded physical memory");
+            return -4;
+        }
+        if (target != TARGET_INSTALLER && payload->size > MAX_INIT_IMAGE) {
+            koronos_target_log("[RUN ] ERROR: initramfs exceeds the bounded production payload limit");
+            return -5;
+        }
+    }
+
+    if (!selected->base || selected->size < sizeof(koronos_elf64_ehdr) ||
+        selected->size > MAX_INIT_IMAGE || selected->base >= KORONOS_FRAME_PHYS_LIMIT ||
+        selected->size > KORONOS_FRAME_PHYS_LIMIT - selected->base) {
+        koronos_target_log("[RUN ] ERROR: target-native init ELF is outside bounded physical memory");
+        return -6;
+    }
+    const Target elf_target = parse_target(selected->cmdline);
+    if (payload_count != 0 && elf_target != target) {
+        koronos_target_log("[RUN ] ERROR: native init ELF target does not match the selected production payload");
+        return -7;
+    }
+    target = elf_target;
+    if (target == TARGET_NONE) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
-        return -2;
+        return -8;
+    }
+    init_elf = reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));
+    init_elf_size = selected->size;
+    if (payload_count != 0) {
+        koronos_target_log("[RUN ] Selected target-matched native init ELF alongside production payload");
+        if (target == TARGET_INSTALLER)
+            koronos_target_log("[RUN ] Installer image retained as a separate module; native installer init must mount/consume it");
     }
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
@@ -177,16 +217,15 @@ extern "C" int koronos_launch_selected_userspace(void) {
     }
 
     chimera_process_image process{};
-    const int pid=chimera_process_admit_elf(reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base)),
-        selected->size,KORONOS_EM_X86_64,USER_STACK_TOP,&process);
+    const int pid=chimera_process_admit_elf(init_elf,
+        init_elf_size,KORONOS_EM_X86_64,USER_STACK_TOP,&process);
     if (pid<=0) {
         koronos_target_log("[RUN ] ERROR: selected user init failed protected-process admission");
         return -5;
     }
     chimera_loaded_elf loaded{};
     const int load_rc=chimera_elf_load_user_image(
-        reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base)),selected->size,
-        KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
+        init_elf,init_elf_size,KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
     if (load_rc!=0) {
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
         koronos_target_log("[RUN ] ERROR: selected user init ELF load failed");
