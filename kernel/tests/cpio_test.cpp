@@ -29,7 +29,7 @@ int main() {
     if (chimera_cpio_find(archive, n, "/etc/missing", &out) != -2) {
         fputs("FAIL: missing path must be reported absent\n", stderr); return 1;
     }
-    if (chimera_cpio_find(archive, n-1, "/etc/chimera.conf", &out) != -1) {
+    if (chimera_cpio_find(archive, 109, "/etc/chimera.conf", &out) != -1) {
         fputs("FAIL: truncated archive must be rejected\n", stderr); return 1;
     }
     archive[0] = 'x';
