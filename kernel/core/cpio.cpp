@@ -85,7 +85,7 @@ extern "C" int chimera_cpio_validate(const void *archive, uint64_t archive_size)
         if (add_overflow(offset, HEADER_SIZE, &header_end) || header_end > archive_size) return -1;
         const uint8_t *h = bytes + offset;
         if (!((h[0]=='0'&&h[1]=='7'&&h[2]=='0'&&h[3]=='7'&&h[4]=='0'&&h[5]=='1') ||
-              (h[0]=='0'&&h[1]=='7'&&h[2]=='0'&&h[3]=='7'&&h[4]=='0'&&h[5]=='2')) return -1;
+              (h[0]=='0'&&h[1]=='7'&&h[2]=='0'&&h[3]=='7'&&h[4]=='0'&&h[5]=='2'))) return -1;
         uint32_t mode=0, file_size=0, name_size=0, checksum=0;
         const bool crc_format = h[5] == '2';
         if (!hex8(h+14,&mode) || !hex8(h+54,&file_size) || !hex8(h+94,&name_size) ||
