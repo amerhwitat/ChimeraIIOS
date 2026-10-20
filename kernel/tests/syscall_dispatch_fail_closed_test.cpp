@@ -20,7 +20,7 @@ extern "C" void chimera_sched_yield(void) {}
 extern "C" uint64_t chimera_timer_now(void) { return 1234; }
 
 static int check(bool ok, const char *message) {
-    if (!ok) std::fprintf(stderr, "FAIL: %s\n", message);
+    if (!ok) fprintf(stderr, "FAIL: %s\n", message);
     return ok ? 0 : 1;
 }
 int main() {
@@ -36,6 +36,6 @@ int main() {
     chimera_syscall_snapshot snapshot{};
     failures += check(chimera_syscall_get_snapshot(&snapshot) == 0 && snapshot.initialized == 1 && snapshot.rejected >= 4, "snapshot tracks rejected calls");
     if (failures) return 1;
-    std::puts("PASS: syscall dispatch fail-closed regression tests");
+    puts("PASS: syscall dispatch fail-closed regression tests");
     return 0;
 }
