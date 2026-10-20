@@ -582,6 +582,10 @@ create_boot_menu(){
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
   for f in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o; do [[ -s "$b/spitfire/$f" ]] || { log_error "Missing Spit Fire artifact: $f"; exit 1; }; cp "$b/spitfire/$f" "$ISO_DIR/boot/spitfire/"; done
   bash "$SCRIPT_DIR/tools/build-live-boot-binaries.sh"
+  # Stage target-specific native init ELFs into the same tree used by the
+  # comprehensive ISO builder. Without these Multiboot2 modules, GRUB selects
+  # the initramfs fallback and Koronos cannot enter the process-aware ring-3 path.
+  CHIMERA_INIT_ELF_STAGE="$ISO_DIR" bash "$SCRIPT_DIR/tools/build-production-init-elfs.sh"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/chimera-live-initramfs.img"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/live-manifest.json"
   mkdir -p "$ISO_DIR/boot/recovery" "$ISO_DIR/recovery"
@@ -613,6 +617,9 @@ create_boot_menu(){
   [[ -s "$ISO_DIR/boot/grub/grub.cfg" ]] || { log_error 'Staged GRUB configuration is empty'; exit 1; }
   [[ -s "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img" ]] || { log_error 'Recovery initramfs missing'; exit 1; }
   [[ -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" ]] || { log_error 'Live initramfs missing'; exit 1; }
+  for init_elf in boot/live/user-init-live.elf boot/installer/user-init-installer.elf boot/recovery/user-init-recovery.elf; do
+    [[ -s "$ISO_DIR/$init_elf" ]] || { log_error "Production init ELF missing from ISO tree: $init_elf"; exit 1; }
+  done
 }
 
 prepare_branding(){
