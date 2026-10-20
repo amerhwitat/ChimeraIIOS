@@ -2,6 +2,8 @@
 #include "chimera/koronos_abi.h"
 #include <stddef.h>
 struct mb2_tag { uint32_t type,size; };
+static chimera_firmware_profile g_firmware_profile;
+static int g_firmware_profile_valid = 0;
 static uint64_t read64(const void *p){return *(const uint64_t*)p;}
 extern "C" int chimera_firmware_probe(const void *boot_context, chimera_firmware_profile *out){
  if(!out)return -1;
@@ -20,10 +22,16 @@ extern "C" int chimera_firmware_probe(const void *boot_context, chimera_firmware
    off=(off+t->size+7u)&~7u; if(t->type==0)break;
  }
  if(out->type==CHIMERA_FW_UNKNOWN)out->type=CHIMERA_FW_BIOS;
+ /* Keep firmware provenance available to runtime services after boot. */
+ g_firmware_profile=*out; g_firmware_profile_valid=1;
  return 0;
 }
 extern "C" int chimera_firmware_validate_tables(const chimera_firmware_profile *p){
  if(!p||p->version!=CHIMERA_FIRMWARE_VERSION)return -1;
  if(p->type==CHIMERA_FW_UEFI&&!p->efi_system_table)return -2;
  return 0;
+}
+
+extern "C" const chimera_firmware_profile *chimera_firmware_profile_snapshot(void){
+ return g_firmware_profile_valid ? &g_firmware_profile : 0;
 }
