@@ -154,8 +154,9 @@ extern "C" int chimera_hardware_best_mode(const chimera_hardware_profile *profil
 }
 extern "C" int chimera_hardware_supports_mode(const chimera_hardware_profile *profile, uint32_t bits) {
     if (!profile || bits == 0) return 0;
-    if (bits <= profile->native_nbit_mode) return 1;
-    return bits <= profile->maximum_emulated_nbit;
+    /* A declared N-bit profile is not executable without an installed
+       interpreter/JIT. Only native-width execution is currently guaranteed. */
+    return bits == profile->native_nbit_mode;
 }
 extern "C" uint32_t chimera_hardware_compatibility_mask(const chimera_hardware_profile *profile) {
     return profile ? profile->compatibility_mask : 0;
