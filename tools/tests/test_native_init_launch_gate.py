@@ -53,7 +53,7 @@ def main() -> int:
     ):
         if marker not in bootstrap:
             return fail(f"{target} payload recognition is missing")
-        diagnostic = target.capitalize() + " payload has no launchable production init ELF"
+        diagnostic = target.capitalize() + " target init failed before readiness"
         if diagnostic not in bootstrap:
             return fail(f"{target} missing-init failure diagnostic is missing")
 
