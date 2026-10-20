@@ -13,6 +13,8 @@ int chimera_vfs_mount_readonly(const void *archive, uint64_t archive_size, const
 int chimera_vfs_is_mounted(void);
 /* Explicit PID ownership is intentional until the syscall entry has a real current-task binding. */
 int chimera_vfs_open_for(uint32_t pid, const char *path, uint32_t flags);
+/* buffer is kernel memory only; a future syscall adapter must validate the
+ * active process's user range and copy via a bounded kernel buffer. */
 int chimera_vfs_read_for(uint32_t pid, int fd, void *buffer, uint64_t count, uint64_t *read_count);
 int chimera_vfs_close_for(uint32_t pid, int fd);
 #ifdef __cplusplus
