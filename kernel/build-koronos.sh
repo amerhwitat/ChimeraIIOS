@@ -21,10 +21,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
-# Run host-side ABI regression tests before compiling the freestanding kernel.
-"${CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/compat.cpp" "$ROOT/kernel/tests/linux_syscall_translation_test.cpp" -o "$BUILD/linux-syscall-translation-test"
+# Run host-side regression tests with a hosted compiler, independently of the
+# freestanding/cross CXX selected for Koronos below.
+HOST_CXX="${HOST_CXX:-g++}"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/compat.cpp" "$ROOT/kernel/tests/linux_syscall_translation_test.cpp" -o "$BUILD/linux-syscall-translation-test"
 "$BUILD/linux-syscall-translation-test"
-"${CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_bootstrap_honesty_test.cpp" -o "$BUILD/service-bootstrap-honesty-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_bootstrap_honesty_test.cpp" -o "$BUILD/service-bootstrap-honesty-test"
 "$BUILD/service-bootstrap-honesty-test"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
