@@ -1,5 +1,6 @@
 #include "chimera/syscall.h"
 #include "chimera/compat.h"
+#include "chimera/process.h"
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
 
@@ -13,18 +14,13 @@ static volatile uint32_t g_last_entry = 0;
 static volatile uint32_t g_last_number = 0;
 static volatile uint32_t g_last_canonical = 0xFFFFFFFFu;
 
-static uint64_t error_value() {
-    return (uint64_t)(-(int64_t)CHIMERA_ENOSYS);
-}
-}
-
-extern "C" int chimera_syscall_init(void) {
-    g_initialized = 1;
-    return 0;
+static uint64_t error_value(uint32_t error = CHIMERA_ENOSYS) {
+    return (uint64_t)(-(int64_t)error);
 }
 
-extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32_t number,
-                                         const uint64_t *args, uint64_t *return_value) {
+static int dispatch_impl(uint32_t entry, uint32_t bitness, uint32_t number,
+                         uint32_t cpu, uint32_t pid, bool has_process_context,
+                         const uint64_t *args, uint64_t *return_value) {
     if (!return_value) return -1;
     ++g_dispatched;
 
@@ -39,12 +35,18 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
     g_last_entry = id.entry;
     g_last_number = id.number;
     g_last_canonical = id.canonical;
-
     if (id.canonical != 0xFFFFFFFFu) ++g_translated;
 
     switch (id.canonical) {
         case CHM_SYS_GETPID:
-            *return_value = 1u;
+            /* Never invent PID 1. The architecture entry must supply the
+             * identity of the process that actually made this syscall. */
+            if (!has_process_context || pid == 0) {
+                ++g_rejected;
+                *return_value = error_value();
+                return -1;
+            }
+            *return_value = pid;
             return 0;
         case CHM_SYS_YIELD:
             chimera_sched_yield();
@@ -54,17 +56,63 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
             *return_value = chimera_timer_now();
             return 0;
         case CHM_SYS_EXIT:
-        case CHM_SYS_EXIT_GROUP:
-            /* Process teardown is deliberately owned by the process manager;
-             * this early dispatcher only acknowledges the semantic operation. */
-            (void)args;
-            *return_value = 0;
+        case CHM_SYS_EXIT_GROUP: {
+            /* An acknowledgement is not an exit. Require an explicit process
+             * and CPU context, confirm the process exists, then request the
+             * current CPU's scheduler task to terminate and update its process
+             * record. The architecture entry must bind PID to that task. */
+            chimera_process_image process{};
+            if (!has_process_context || pid == 0 ||
+                chimera_process_get(pid, &process) != 0) {
+                ++g_rejected;
+                *return_value = error_value();
+                return -1;
+            }
+            if (chimera_sched_exit_on_cpu(cpu) != 0) {
+                ++g_rejected;
+                *return_value = error_value();
+                return -1;
+            }
+            if (chimera_process_set_state(pid, CHIMERA_PROCESS_EXITED) != 0) {
+                ++g_rejected;
+                *return_value = error_value();
+                return -1;
+            }
+            *return_value = args ? args[0] : 0; /* exit status */
             return 0;
+        }
         default:
+            /* READ/WRITE/MMAP/MUNMAP/IOCTL/NANOSLEEP/WAIT/ARCH_PRCTL remain
+             * unsupported until their backing VFS, VM, timer, and wait queues
+             * exist. Do not fake success. */
             ++g_rejected;
             *return_value = error_value();
             return -1;
     }
+}
+}
+
+extern "C" int chimera_syscall_init(void) {
+    g_initialized = 1;
+    return 0;
+}
+
+extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness,
+                                         uint32_t number, const uint64_t *args,
+                                         uint64_t *return_value) {
+    return dispatch_impl(entry, bitness, number, UINT32_MAX, 0, false,
+                         args, return_value);
+}
+
+extern "C" int chimera_syscall_dispatch_for_process(uint32_t entry,
+                                                     uint32_t bitness,
+                                                     uint32_t number,
+                                                     uint32_t cpu,
+                                                     uint32_t pid,
+                                                     const uint64_t *args,
+                                                     uint64_t *return_value) {
+    return dispatch_impl(entry, bitness, number, cpu, pid, true, args,
+                         return_value);
 }
 
 extern "C" int chimera_syscall_get_snapshot(chimera_syscall_snapshot *out) {

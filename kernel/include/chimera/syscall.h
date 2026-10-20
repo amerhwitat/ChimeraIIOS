@@ -54,6 +54,13 @@ typedef struct chimera_syscall_snapshot {
 int chimera_syscall_init(void);
 int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32_t number,
                              const uint64_t *args, uint64_t *return_value);
+/* Process-aware entry for an architecture syscall stub after it has validated
+ * the current CPL3 process and identified the CPU executing the syscall.
+ * The legacy context-free entry fails closed for process-lifecycle calls. */
+int chimera_syscall_dispatch_for_process(uint32_t entry, uint32_t bitness,
+                                         uint32_t number, uint32_t cpu,
+                                         uint32_t pid, const uint64_t *args,
+                                         uint64_t *return_value);
 int chimera_syscall_get_snapshot(chimera_syscall_snapshot *out);
 
 #ifdef __cplusplus
