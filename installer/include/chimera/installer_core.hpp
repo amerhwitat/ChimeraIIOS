@@ -34,7 +34,7 @@ struct InstallPlan {
   std::string bootloader{"spitfire"};
   std::string kernel{"koronos"};
   std::string filesystem{"qfs"};
-  bool install_aurora{true}, install_kore{true}, install_compatibility{true};
+  bool install_aurora{true}, install_marine{false}, install_kore{true}, install_compatibility{true};
   bool deep_driver_search{true};
   bool download_driver_binaries{true};
   bool install_detected_drivers{true};
