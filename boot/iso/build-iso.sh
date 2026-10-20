@@ -184,6 +184,23 @@ command -v xorriso >/dev/null || { echo "xorriso is required." >&2; exit 2; }
 # its native defaults for a hybrid BIOS/UEFI image.
 grub-mkrescue -o "$DIST/output.iso" "$DIST/iso"
 test -s "$DIST/output.iso"
+
+# Verify that target-specific init ELFs and their routing metadata survived ISO mastering.
+# This is a packaging gate; the full QEMU userspace readiness gate remains separate.
+INIT_VERIFY="$WORK/iso-init-elf-verify"
+mkdir -p "$INIT_VERIFY"
+for spec in "live:/boot/live/user-init-live.elf" "installer:/boot/installer/user-init-installer.elf" "recovery:/boot/recovery/user-init-recovery.elf"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/user-init-$target.elf"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "$path" "$out" >/dev/null
+  test -s "$out" || { echo "ERROR: final ISO missing target init ELF $path" >&2; exit 2; }
+  python3 "$ROOT/tools/validate-native-init-elf.py" --target "$target" "$out"
+done
+xorriso -osirrox on -indev "$DIST/output.iso" -extract /boot/grub/grub.cfg "$INIT_VERIFY/grub.cfg" >/dev/null
+grep -q 'chimera-user-init-elf target=live' "$INIT_VERIFY/grub.cfg"
+grep -q 'chimera-user-init-elf target=installer' "$INIT_VERIFY/grub.cfg"
+grep -q 'chimera-user-init-elf target=recovery' "$INIT_VERIFY/grub.cfg"
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
 printf '%s\n' '[7/7] Inspect El Torito boot records'
