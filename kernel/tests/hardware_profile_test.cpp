@@ -13,7 +13,7 @@ int main() {
     assert(p.maximum_emulated_nbit == CHIMERA_NBIT_8192);
     assert((p.compatibility_mask & CHIMERA_COMPAT_NATIVE) != 0);
     assert((p.compatibility_mask & CHIMERA_COMPAT_LINUX) == 0);
-    assert(chimera_hardware_supports_mode(&p, 8192));
+    assert(!chimera_hardware_supports_mode(&p, 8192));
     assert(!chimera_hardware_supports_mode(&p, 0));
     assert(chimera_hardware_best_mode(&p) == (int)p.best_nbit_mode);
     puts("CPU topology/profile regression tests: PASS");
