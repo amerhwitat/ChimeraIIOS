@@ -2,9 +2,9 @@
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
   "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
   "native_binary": "rootfs/usr/bin/chimera-cmd",
-  "command_count": 4453,
+  "command_count": 4455,
   "mode_counts": {
-    "compatibility-provider-required": 4214,
+    "compatibility-provider-required": 4216,
     "native": 15,
     "native-provider-required": 171,
     "shell-builtin": 53
@@ -3457,6 +3457,18 @@
       "arabic_label": "مساعدة (about_Comment_Based_Help)",
       "source_urls": [
         "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help"
+      ]
+    },
+    {
+      "name": "about_Debuggers",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "أمر نظام — about_Debuggers",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_debuggers"
       ]
     },
     {
@@ -15983,8 +15995,10 @@
       ],
       "mode": "compatibility-provider-required",
       "provider": "windows-compat-runtime",
-      "arabic_label": null,
-      "source_urls": []
+      "arabic_label": "عملية (Debug-Process)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/debug-process"
+      ]
     },
     {
       "name": "declare",
@@ -45551,6 +45565,7 @@
       "provider": "windows-compat-runtime",
       "arabic_label": "اضبط — Set-PSBreakpoint",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint",
         "https://ss64.com/ps/set-psbreakpoint.html"
       ]
     },
@@ -51784,6 +51799,18 @@
       ]
     },
     {
+      "name": "UpdateHelpScope",
+      "platforms": [
+        "powershell"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "windows-compat-runtime",
+      "arabic_label": "تحديث مساعدة (UpdateHelpScope)",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.updatehelpscope"
+      ]
+    },
+    {
       "name": "UpdateUsers",
       "platforms": [
         "vbscript"
@@ -54797,6 +54824,7 @@
       "provider": "windows-compat-runtime",
       "arabic_label": "صدّر أو احفظ — Write-Debug",
       "source_urls": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-debug",
         "https://ss64.com/ps/write-debug.html"
       ]
     },

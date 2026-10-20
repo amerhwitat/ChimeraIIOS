@@ -2275,6 +2275,14 @@
         "powershell"
       ]
     },
+    "about_debuggers": {
+      "name": "about_Debuggers",
+      "label": "أمر نظام — about_Debuggers",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "powershell"
+      ]
+    },
     "about_enum": {
       "name": "about_Enum",
       "label": "أمر نظام — about_Enum",
@@ -9799,6 +9807,14 @@
     "debug-job": {
       "name": "Debug-Job",
       "label": "مهمة (Debug-Job)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "debug-process": {
+      "name": "Debug-Process",
+      "label": "عملية (Debug-Process)",
       "translation_status": "token-translated",
       "platforms": [
         "powershell"
@@ -32712,6 +32728,14 @@
       "name": "Update-Typedata",
       "label": "حدّث — Update-Typedata",
       "translation_status": "rule-translated",
+      "platforms": [
+        "powershell"
+      ]
+    },
+    "updatehelpscope": {
+      "name": "UpdateHelpScope",
+      "label": "تحديث مساعدة (UpdateHelpScope)",
+      "translation_status": "token-translated",
       "platforms": [
         "powershell"
       ]

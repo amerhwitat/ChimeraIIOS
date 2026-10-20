@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-18T11:48:46Z",
+  "generated_at_utc": "2026-10-19T16:36:15Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_bash": {
@@ -26518,7 +26518,7 @@
       "index": "https://ss64.com/ps/",
       "pages_crawled": 80,
       "fetch_failures": 0,
-      "command_count": 1245,
+      "command_count": 1250,
       "commands": [
         {
           "name": "\"n2\"",
@@ -27578,6 +27578,22 @@
             "مساعدة (about_Comment_Based_Help)",
             "about_Comment_Based_Help",
             "أمر about_Comment_Based_Help"
+          ]
+        },
+        {
+          "name": "about_Debuggers",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_debuggers",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمر نظام — about_Debuggers",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — about_Debuggers",
+            "about_Debuggers",
+            "أمر about_Debuggers"
           ]
         },
         {
@@ -30574,6 +30590,22 @@
             "مهمة (Debug-Job)",
             "Debug-Job",
             "أمر Debug-Job"
+          ]
+        },
+        {
+          "name": "Debug-Process",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/debug-process",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "عملية (Debug-Process)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "عملية (Debug-Process)",
+            "Debug-Process",
+            "أمر Debug-Process"
           ]
         },
         {
@@ -40023,6 +40055,22 @@
         {
           "name": "Set-PSBreakpoint",
           "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "اضبط — Set-PSBreakpoint",
+          "arabic_status": "rule-translated",
+          "arabic_search": [
+            "اضبط — Set-PSBreakpoint",
+            "Set-PSBreakpoint",
+            "أمر Set-PSBreakpoint"
+          ]
+        },
+        {
+          "name": "Set-PSBreakpoint",
+          "platform": "powershell",
           "source": "https://ss64.com/ps/set-psbreakpoint.html",
           "arabic_label": "اضبط — Set-PSBreakpoint",
           "arabic_status": "rule-translated",
@@ -41857,6 +41905,22 @@
           ]
         },
         {
+          "name": "UpdateHelpScope",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.powershell.commands.updatehelpscope",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "تحديث مساعدة (UpdateHelpScope)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "تحديث مساعدة (UpdateHelpScope)",
+            "UpdateHelpScope",
+            "أمر UpdateHelpScope"
+          ]
+        },
+        {
           "name": "upper",
           "platform": "powershell",
           "source": "https://ss64.com/ps/syntax-methods.html",
@@ -42330,6 +42394,22 @@
             "أمر نظام — Word",
             "Word",
             "أمر Word"
+          ]
+        },
+        {
+          "name": "Write-Debug",
+          "platform": "powershell",
+          "source": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-debug",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "صدّر أو احفظ — Write-Debug",
+          "arabic_status": "rule-translated",
+          "arabic_search": [
+            "صدّر أو احفظ — Write-Debug",
+            "Write-Debug",
+            "أمر Write-Debug"
           ]
         },
         {
