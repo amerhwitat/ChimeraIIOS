@@ -44,8 +44,8 @@ extern "C" int chimera_vfs_mount_readonly(const void *archive, uint64_t archive_
     chimera_cpio_entry marker{};
     if (chimera_cpio_find(archive, archive_size, "/etc/chimera/target", &marker) != 0)
         return -2;
-    const uint32_t target_len = same(expected_target, "installer") ? 9u :
-                                (same(expected_target, "recovery") ? 8u : 5u);
+    const uint32_t target_len = same(expected_target, "installer") ? 10u :
+                                (same(expected_target, "recovery") ? 9u : 5u);
     if (marker.size != target_len || !marker.data || marker.data[target_len - 1u] != '\n')
         return -3;
     for (uint32_t i = 0; i + 1u < target_len; ++i)
