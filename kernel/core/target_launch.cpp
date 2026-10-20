@@ -143,7 +143,18 @@ extern "C" int koronos_launch_selected_userspace(void) {
         const chimera_boot_module *m=chimera_multiboot_module(i);
         if (m && m->kind==CHIMERA_MODULE_USER_INIT_ELF) { selected=m; ++count; }
     }
-    if (count==0) return 0; // Kernel-only smoke boots intentionally have no user ELF.
+    if (count==0) {
+        /* Kernel-only smoke boots have no target payload and remain valid.
+         * A production initramfs/install image without its separate native
+         * ELF is a packaging/dispatch failure, never a successful handoff. */
+        const bool has_target_payload =
+            chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS) != nullptr ||
+            chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) != nullptr ||
+            chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE) != nullptr;
+        if (!has_target_payload) return 0;
+        koronos_target_log("[RUN ] ERROR: production target payload is present but no USER_INIT_ELF module was supplied");
+        return -12;
+    }
     if (count!=1 || !selected || !selected->base || selected->size<sizeof(koronos_elf64_ehdr) ||
         selected->size>MAX_INIT_IMAGE || selected->base>=KORONOS_FRAME_PHYS_LIMIT ||
         selected->size>KORONOS_FRAME_PHYS_LIMIT-selected->base) {
