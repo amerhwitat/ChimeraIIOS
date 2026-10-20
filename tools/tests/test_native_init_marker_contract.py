@@ -6,7 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 LAUNCH = ROOT / "kernel/core/target_launch.cpp"
 PROBE = ROOT / "kernel/tests/user_init_smoke.c"
-VERIFY = ROOT / "tests/migration/verify-userspace-handoff.py"
+VERIFY = ROOT / "tests/boot/verify-userspace-handoff.py"
 ACCEPTANCE = ROOT / ".github/workflows/koronos-userspace-acceptance.yml"
 
 
