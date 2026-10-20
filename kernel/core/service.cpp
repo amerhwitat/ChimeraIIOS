@@ -39,14 +39,20 @@ extern "C" int chimera_service_validate(const chimera_service_manifest* services
     if (!services || !count || count > CHIMERA_SERVICE_MAX) return -1;
     for (uint32_t i = 0; i < count; ++i) {
         if (services[i].abi_version != CHIMERA_SERVICE_ABI || !services[i].id ||
-            services[i].restart > CHM_RESTART_FAILURE ||
+            !services[i].id[0] || services[i].restart > CHM_RESTART_FAILURE ||
+            services[i].state > CHM_SVC_RECOVERING ||
             (services[i].dependency_count && !services[i].dependencies) ||
             services[i].dependency_count > count) return -2;
         for (uint32_t j = i + 1; j < count; ++j)
             if (same(services[i].id, services[j].id)) return -3;
-        for (uint32_t d = 0; d < services[i].dependency_count; ++d)
-            if (!services[i].dependencies[d] ||
-                find(services, count, services[i].dependencies[d]) < 0) return -4;
+        for (uint32_t d = 0; d < services[i].dependency_count; ++d) {
+            const char* dependency = services[i].dependencies[d];
+            if (!dependency || !dependency[0] || find(services, count, dependency) < 0)
+                return -4;
+            if (same(services[i].id, dependency)) return -5;
+            for (uint32_t previous = 0; previous < d; ++previous)
+                if (same(services[i].dependencies[previous], dependency)) return -6;
+        }
     }
     return 0;
 }
@@ -107,27 +113,27 @@ extern "C" int chimera_service_start_all(const chimera_service_manifest* service
     const int resolved = chimera_service_resolve(services, count, plan);
     if (resolved < 0) return resolved;
     for (uint32_t i = 0; i < count; ++i)
-        (void)chimera_service_set_state(services[i].id, CHM_SVC_DECLARED);
+        if (chimera_service_set_state(services[i].id, CHM_SVC_DECLARED) < 0) return -10;
 
     for (uint32_t k = 0; k < plan->count; ++k) {
         const int index = find(services, count, plan->ordered_ids[k]);
         if (index < 0) return -7;
         const chimera_service_manifest* service = &services[static_cast<uint32_t>(index)];
         if (!dependencies_running(services, static_cast<uint32_t>(index))) {
-            (void)chimera_service_set_state(service->id, CHM_SVC_BLOCKED);
+            if (chimera_service_set_state(service->id, CHM_SVC_BLOCKED) < 0) return -10;
             if (service->critical) return -8;
             continue;
         }
-        (void)chimera_service_set_state(service->id, CHM_SVC_STARTING);
+        if (chimera_service_set_state(service->id, CHM_SVC_STARTING) < 0) return -10;
         int result = run_one(service->id, ops);
         if (result < 0 && service->restart == CHM_RESTART_FAILURE) {
-            (void)chimera_service_set_state(service->id, CHM_SVC_RECOVERING);
+            if (chimera_service_set_state(service->id, CHM_SVC_RECOVERING) < 0) return -10;
             result = run_one(service->id, ops); /* one bounded retry, never an unbounded loop */
         }
         if (result == 0) {
-            (void)chimera_service_set_state(service->id, CHM_SVC_RUNNING);
+            if (chimera_service_set_state(service->id, CHM_SVC_RUNNING) < 0) return -10;
         } else {
-            (void)chimera_service_set_state(service->id, CHM_SVC_FAILED);
+            if (chimera_service_set_state(service->id, CHM_SVC_FAILED) < 0) return -10;
             if (service->critical) return -9;
         }
     }
@@ -142,11 +148,11 @@ extern "C" int chimera_service_stop_all(const chimera_service_manifest* services
         const char* id = plan->ordered_ids[k - 1u];
         if (find(services, count, id) < 0) return -2;
         if (chimera_service_get_state(id) != CHM_SVC_RUNNING) continue;
-        (void)chimera_service_set_state(id, CHM_SVC_STOPPING);
+        if (chimera_service_set_state(id, CHM_SVC_STOPPING) < 0) return -4;
         if (ops->stop(id, ops->context) == 0) {
-            (void)chimera_service_set_state(id, CHM_SVC_STOPPED);
+            if (chimera_service_set_state(id, CHM_SVC_STOPPED) < 0) return -4;
         } else {
-            (void)chimera_service_set_state(id, CHM_SVC_FAILED);
+            if (chimera_service_set_state(id, CHM_SVC_FAILED) < 0) return -4;
             result = -3;
         }
     }
