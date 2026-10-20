@@ -282,6 +282,13 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      - name: Fail workflow when production userspace handoff is unverified
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        shell: bash
+        run: |
+          echo "::error::Production acceptance failed: one or more Live/Installer/Recovery targets did not prove the required userspace handoff. Candidate artifacts and traces were uploaded for diagnosis; no release is authorized."
+          exit 1
+
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
