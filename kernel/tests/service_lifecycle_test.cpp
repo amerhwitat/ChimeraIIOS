@@ -25,7 +25,7 @@ int main(){
  failures+=check(f.starts[1]==2&&chimera_service_get_state("display")==CHM_SVC_RUNNING,"failure restart is bounded and health-checked");
  failures+=check(chimera_service_get_state("ui")==CHM_SVC_RUNNING,"dependent starts only after dependency healthy");
  failures+=check(chimera_service_get_state("audio")==CHM_SVC_FAILED&&chimera_service_get_state("media")==CHM_SVC_BLOCKED,"failed health blocks dependent service");
- failures+=check(chimera_service_stop_all(services,5,&ops,&plan)==0,"shutdown succeeds");
+ f.stop_count=0;\n failures+=check(chimera_service_stop_all(services,5,&ops,&plan)==0,"shutdown succeeds");
  failures+=check(chimera_service_get_state("console")==CHM_SVC_STOPPED&&chimera_service_get_state("display")==CHM_SVC_STOPPED,"shutdown transitions running services to stopped");
  failures+=check(f.stop_count>=3&&!strcmp(f.stop_order[0],"ui")&&!strcmp(f.stop_order[1],"display")&&!strcmp(f.stop_order[2],"console"),"shutdown uses reverse dependency order");
  if(failures)return 1;puts("PASS: service lifecycle, dependency, health, retry and shutdown tests");return 0;
