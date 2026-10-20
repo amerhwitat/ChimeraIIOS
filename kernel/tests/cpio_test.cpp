@@ -57,8 +57,7 @@ int main() {
     cr = entry(crc_archive, cr, "TRAILER!!!", "");
     crc_archive[5] = '2';
     const uint32_t trailer_off = cr - 124u;
-    (void)trailer_off;
-    crc_archive[124u + 5u] = '2';
+    crc_archive[trailer_off + 5u] = '2';
     hex8(reinterpret_cast<char *>(crc_archive) + 102u, 294u); /* 'a' + 'b' + 'c' */
     if (chimera_cpio_validate(crc_archive, cr) != 0) {
         fputs("FAIL: valid 070702 data checksum should validate\\n", stderr); return 1;
