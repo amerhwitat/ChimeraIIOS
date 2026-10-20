@@ -56,8 +56,8 @@ def main() -> int:
 
     if "payload_count != 1" not in launch_text or "elf_count != 1" not in launch_text:
         return fail("kernel launch must require exactly one production payload and one native init ELF")
-    if "if (elf_target != target)" not in launch_text:
-        return fail("kernel launch must reject a target-mismatched init ELF")
+    if "elf_target != target" not in launch_text or "payload_count != 0" not in launch_text:
+        return fail("kernel launch must reject a target-mismatched init ELF whenever a production payload is present")
     if 'bash "$ROOT/tools/build-production-init-elfs.sh"' not in prepare_text:
         return fail("ISO preparation does not invoke target init ELF builder")
     if "chimera-user-init-elf target=live" not in live_text:
