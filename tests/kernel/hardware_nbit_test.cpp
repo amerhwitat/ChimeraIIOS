@@ -8,7 +8,8 @@ int main() {
     assert(chimera_hardware_probe(&p) == 0);
     assert(p.version == CHIMERA_HW_PROFILE_VERSION);
     assert(p.logical_cpus >= 1);
-    assert(chimera_hardware_supports_mode(&p, 64) == 1);
+    assert(chimera_hardware_supports_mode(&p, p.native_nbit_mode) == 1);
+    assert(chimera_hardware_supports_mode(&p, 8192) == 0);
     assert(chimera_nbit_init() == 0);
 
     uint32_t best = 0;
@@ -17,9 +18,9 @@ int main() {
 
     chimera_nbit_process_context low{}, high{};
     assert(chimera_nbit_process_init(&low, 1, 32, CHIMERA_COMPAT_NATIVE) == 0);
-    assert(chimera_nbit_process_init(&high, 2, 8192, CHIMERA_COMPAT_NATIVE) == 0);
+    assert(chimera_nbit_process_init(&high, 2, 64, CHIMERA_COMPAT_NATIVE) == 0);
     assert(low.mode_bits == 32);
-    assert(high.mode_bits == 8192);
+    assert(high.mode_bits == 64);
 
     const char payload[] = "mixed-width IPC";
     chimera_ipc_wire wire{CHIMERA_NBIT_CONTEXT_VERSION, low.mode_bits, high.mode_bits,
@@ -32,6 +33,7 @@ int main() {
     assert(low.compatibility_target == previous_target);
     assert(low.execution_class != CHIMERA_EXEC_COMPATIBILITY);
     assert(chimera_nbit_process_init(&high, 3, 64, CHIMERA_COMPAT_LINUX) == -4);
+    assert(chimera_nbit_process_init(&high, 4, 8192, CHIMERA_COMPAT_NATIVE) == -3);
 
     puts("chimera hardware/N-bit tests passed");
     return 0;
