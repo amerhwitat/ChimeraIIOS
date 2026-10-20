@@ -25,7 +25,7 @@ class NativeInitMarkerContractTests(unittest.TestCase):
         verifier = VERIFY.read_text(encoding="utf-8")
         self.assertIn('USERSPACE READY: target=${TARGET} init_pid=[1-9][0-9]*', workflow)
         self.assertIn('! grep -Fq "USERSPACE READY: target=live" "$LOG"', workflow)
-        self.assertIn(r'USERSPACE READY: target=(live|installer|recovery) init_pid=', verifier)
+        self.assertIn('target=(?P<target_canonical>live|installer|recovery) init_pid=', verifier)
         self.assertNotIn('USERSPACE READY: ${TARGET} init pid=', workflow)
 
 
