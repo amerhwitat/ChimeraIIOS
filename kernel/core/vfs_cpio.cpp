@@ -41,6 +41,7 @@ static bool valid_target(const char *target) {
 extern "C" int chimera_vfs_mount_readonly(const void *archive, uint64_t archive_size,
                                             const char *expected_target) {
     if (!archive || archive_size < 110u || !valid_target(expected_target)) return -1;
+    if (chimera_cpio_validate(archive, archive_size) != 0) return -4;
     chimera_cpio_entry marker{};
     if (chimera_cpio_find(archive, archive_size, "/etc/chimera/target", &marker) != 0)
         return -2;
