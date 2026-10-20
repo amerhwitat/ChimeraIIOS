@@ -57,6 +57,7 @@ jobs:
       - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
+          bash tools/tests/test-grub-highest-resolution-policy.sh
           bash tests/build/test_cpu_aware_iso.sh
           bash -n tools/branding/stage-aurora-image.sh
           bash -n tools/branding/chimera-set-desktop-background.sh
