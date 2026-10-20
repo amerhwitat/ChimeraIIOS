@@ -65,7 +65,7 @@ int main() {
     chimera_service_ops ops{start_service, health_service, stop_service, &f};
     int failures = 0;
 
-    failures += check(chimera_service_validate(services, 5) == 0, "valid service manifest");
+    chimera_kore_bootstrap();\n    failures += check(chimera_service_get_state("chimera.storage") == CHM_SVC_DECLARED,\n                      "Kore bootstrap does not fabricate storage service readiness");\n    failures += check(chimera_service_validate(services, 5) == 0, "valid service manifest");
     failures += check(chimera_service_start_all(services, 5, &ops, &plan) == 0,
                       "noncritical failure does not abort unrelated services");
     failures += check(plan.count == 5 && !strcmp(ordered[0], "console") &&
