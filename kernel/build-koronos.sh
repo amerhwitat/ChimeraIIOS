@@ -29,6 +29,12 @@ SERVICE_TEST="$BUILD/service-lifecycle-test"
   -o "$SERVICE_TEST"
 "$SERVICE_TEST"
 rm -f "$SERVICE_TEST"
+MULTIBOOT_TEST="$BUILD/multiboot-modules-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/multiboot_modules.cpp" "$ROOT/kernel/tests/multiboot_modules_test.cpp" \
+  -o "$MULTIBOOT_TEST"
+"$MULTIBOOT_TEST"
+rm -f "$MULTIBOOT_TEST"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
