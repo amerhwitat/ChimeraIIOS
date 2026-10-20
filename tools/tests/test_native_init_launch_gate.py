@@ -32,12 +32,12 @@ def main() -> int:
         return fail("fail-closed bootstrap must not fabricate readiness")
 
     syscall_header = (ROOT / "kernel/include/chimera/syscall.h").read_text(encoding="utf-8")
-    mmap_id = re.search(r"CHM_SYS_MMAP\\s*=\\s*(\\d+)", syscall_header)
+    mmap_id = re.search(r"CHM_SYS_MMAP\s*=\s*(\d+)", syscall_header)
     if not mmap_id or int(mmap_id.group(1)) != 10:
         return fail("native syscall ABI no longer identifies syscall 10 as MMAP; review ABI changes explicitly")
     if "CHM_SYS_MOUNT" in syscall_header:
         return fail("mount syscall was added; require an implementation and runtime tests before changing fail-closed init")
-    if re.search(r"call[0-6]\\(10\\)", native_init):
+    if re.search(r"call[0-6]\(10\)", native_init):
         return fail("native init must not treat syscall 10 (MMAP) as a mount operation")
     if "call1(1, 78)" not in native_init or "NATIVE INIT BLOCKED:" not in native_init:
         return fail("bootstrap must retain its explicit unavailable-service exit")
