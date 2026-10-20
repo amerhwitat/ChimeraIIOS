@@ -21,6 +21,8 @@ This is a source comparison against the current upstream Linux kernel tree and i
 
 ## Lifecycle contract introduced
 
+The boot path now registers and health-checks the initialized console, module registry, scheduler, hardware inventory, driver manager, process registry, and logging adapters. These states describe only the kernel bootstrap facilities actually checked; they do not claim that storage, network, security, display composition, or a graphical session is running.
+
 - Manifest validation rejects missing IDs, duplicate IDs, missing dependency references, invalid restart policies and over-capacity graphs.
 - Topological resolution rejects dependency cycles.
 - Callbacks execute in dependency order. A failed dependency becomes BLOCKED and cannot start its dependants.
@@ -32,7 +34,7 @@ This is a source comparison against the current upstream Linux kernel tree and i
 
 ## Required next integrations
 
-1. Register real console, timer, memory, storage/block, filesystem/mount, device, input, display, network, logging, security, process/scheduler, and session services with concrete start/health/stop callbacks.
+1. Add concrete timer, memory-management, storage/block, filesystem/mount, input, display/compositor, network, security, and session service backends with real start/health/stop callbacks; only existing bootstrap facilities are wired today.
 2. Implement native target init programs that call those services through supported interfaces; no readiness-only ELF is acceptable.
 3. Give Live, Installer and Recovery distinct dependency manifests and real operations.
 4. Add process-owned syscall dispatch, wait/exit/reap, user-memory validation, and safe cross-process lifecycle.
