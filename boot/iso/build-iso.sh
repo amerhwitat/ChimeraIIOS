@@ -214,7 +214,11 @@ printf 'ISO: %s\nKoronos: %s\nSpit Fire: %s\nAurora background: %s\nBoot video: 
   "$DIST/output.iso" "$DIST/iso/boot/koronos/koronos.elf" "$DIST/iso/boot/spitfire/spitfire-stage2.bin" \
   "$DIST/iso/boot/visual/aurora-boot.png" "$DIST/iso/boot/visual/Init.mp4" \
   "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img"
- "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO default boot is not the Live target" >&2; exit 2; }
+INIT_VERIFY="$DIST/final-iso-init-verify"
+rm -rf "$INIT_VERIFY"
+mkdir -p "$INIT_VERIFY"
+xorriso -osirrox on -indev "$DIST/output.iso" -extract /boot/grub/grub.cfg "$INIT_VERIFY/grub.cfg" >/dev/null
+grep -q '^set default=aurora-live' "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO default boot is not the Live target" >&2; exit 2; }
 grep -q 'chimera-user-init-elf target=live' "$INIT_VERIFY/grub.cfg"
 grep -q 'chimera-user-init-elf target=installer' "$INIT_VERIFY/grub.cfg"
 grep -q 'chimera-user-init-elf target=recovery' "$INIT_VERIFY/grub.cfg"
