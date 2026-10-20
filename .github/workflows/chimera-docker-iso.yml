@@ -158,6 +158,9 @@ jobs:
           tags: |
             type=raw,value=candidate
             type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=Chimera II OS ISO Runner Candidate
+            org.opencontainers.image.description=QEMU wrapper for development ISO; not a production OS release
       - name: Build and publish candidate ISO runner
         uses: docker/build-push-action@v6
         with:
