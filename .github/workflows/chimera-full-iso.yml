@@ -227,14 +227,27 @@ jobs:
               trace="$base/$target-$firmware-debugcon.log"
               if [[ "$firmware" == "uefi" ]]; then
                 ovmf=/usr/share/OVMF/OVMF_CODE.fd
-                [[ -f "$ovmf" ]] || ovmf=/usr/share/OVMF/OVMF_CODE_4M.fd
-                if [[ ! -f "$ovmf" ]]; then
-                  echo "::warning::OVMF firmware image unavailable; $target UEFI case is NOT RUN"
+                ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+                if [[ ! -f "$ovmf" || ! -f "$ovmf_vars" ]]; then
+                  ovmf=/usr/share/OVMF/OVMF_CODE_4M.fd
+                  ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+                fi
+                if [[ ! -f "$ovmf" || ! -f "$ovmf_vars" ]]; then
+                  echo "::warning::Matching OVMF CODE/VARS firmware pair unavailable; $target UEFI case is NOT RUN"
                   accepted=false
                   continue
                 fi
+                # OVMF requires a read-only CODE flash and a writable per-run
+                # VARS flash. Do not pass CODE through QEMU's legacy -bios path.
+                vars_copy="$base/$target-OVMF_VARS.fd"
+                cp "$ovmf_vars" "$vars_copy"
                 set +e
-                timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -bios "$ovmf" -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+                timeout 12s qemu-system-x86_64 -machine q35 -m 1024 \
+                  -drive "if=pflash,format=raw,unit=0,readonly=on,file=$ovmf" \
+                  -drive "if=pflash,format=raw,unit=1,file=$vars_copy" \
+                  -cdrom "$test_iso" -boot d -display none -serial none -monitor none \
+                  -no-reboot -no-shutdown -debugcon "file:$trace" \
+                  -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
                 qemu_rc=$?
                 set -e
               else
