@@ -202,7 +202,16 @@ extern "C" int chimera_compat_recognize_syscall(uint32_t entry, uint32_t bitness
         return 0;
     }
     if (entry == CHM_ENTRY_X86_INT80 || entry == CHM_ENTRY_X86_SYSCALL) {
+        // Keep a mismatched entry/ABI pair in the Linux personality but leave
+        // it unmapped. The dispatcher fails it closed as ENOSYS; it must not
+        // fall through into the native syscall namespace.
         out->os = CHM_OS_LINUX;
+        if ((entry == CHM_ENTRY_X86_SYSCALL && bitness != 64u) ||
+            (entry == CHM_ENTRY_X86_INT80 && bitness != 32u)) {
+            out->canonical = 0xFFFFFFFFu;
+            out->flags = 0;
+            return 0;
+        }
         out->canonical = linux_canonical(number, bitness);
         out->flags = CHM_COMPAT_SYSCALL_TRANSLATION;
         if (bitness == 32u) out->flags |= CHM_COMPAT_32BIT | CHM_COMPAT_POINTER_TRANSLATION;
