@@ -201,6 +201,13 @@ xorriso -osirrox on -indev "$DIST/output.iso" -extract /boot/grub/grub.cfg "$INI
 grep -q 'chimera-user-init-elf target=live' "$INIT_VERIFY/grub.cfg"
 grep -q 'chimera-user-init-elf target=installer' "$INIT_VERIFY/grub.cfg"
 grep -q 'chimera-user-init-elf target=recovery' "$INIT_VERIFY/grub.cfg"
+for spec in "live:/boot/jasper/live.cfg" "installer:/boot/jasper/install.cfg" "recovery:/boot/jasper/recovery.cfg"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/jasper-$target.cfg"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "$path" "$out" >/dev/null
+  grep -q "chimera-user-init-elf target=$target" "$out" || { echo "ERROR: final ISO Jasper route does not dispatch target=$target" >&2; exit 2; }
+done
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
 printf '%s\n' '[7/7] Inspect El Torito boot records'
