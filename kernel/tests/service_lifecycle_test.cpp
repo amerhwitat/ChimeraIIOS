@@ -74,6 +74,23 @@ int main() {
     failures += check(chimera_service_get_state("chimera.storage") == CHM_SVC_DECLARED,
                       "Kore bootstrap does not fabricate storage service readiness");
     failures += check(chimera_service_validate(services, 5) == 0, "valid service manifest");
+    chimera_service_manifest malformed[5];
+    memcpy(malformed, services, sizeof(services));
+    const char* self_dep[] = {"ui"};
+    malformed[0].dependencies = self_dep;
+    malformed[0].dependency_count = 1;
+    failures += check(chimera_service_validate(malformed, 5) < 0, "self-dependency is rejected");
+    memcpy(malformed, services, sizeof(services));
+    const char* duplicate_deps[] = {"console", "console"};
+    malformed[1].dependencies = duplicate_deps;
+    malformed[1].dependency_count = 2;
+    failures += check(chimera_service_validate(malformed, 5) < 0, "duplicate dependency is rejected");
+    memcpy(malformed, services, sizeof(services));
+    malformed[0].id = "";
+    failures += check(chimera_service_validate(malformed, 5) < 0, "empty service ID is rejected");
+    memcpy(malformed, services, sizeof(services));
+    malformed[0].state = CHM_SVC_RECOVERING + 1;
+    failures += check(chimera_service_validate(malformed, 5) < 0, "invalid initial state is rejected");
     failures += check(chimera_service_start_all(services, 5, &ops, &plan) == 0,
                       "noncritical failure does not abort unrelated services");
     failures += check(plan.count == 5 &&
