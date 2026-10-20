@@ -39,7 +39,7 @@ static void write_pid_diagnostic(long pid) {
   }
   if (digits == 0 || used + digits + 1u > sizeof(message)) call1(1, 78);
   while (digits) message[used++] = reversed[--digits];
-  message[used++] = '\\n';
+  message[used++] = '\n';
   if (write_console(message, (long)used) < 0) call1(1, 78);
 }
 __attribute__((noreturn, used)) void _start(void) {
