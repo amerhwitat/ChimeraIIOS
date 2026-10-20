@@ -36,6 +36,6 @@ Deliver a guided, full-screen setup experience comparable in task coverage to Wi
 
 ## Current repository reality / acceptance gates
 
-The existing C++ installer core currently prints a broad plan and copies a source tree to a target root. Its GUI executable is presently a console stub. It does not yet implement safe partitioning, filesystem creation, encryption, a real bootloader installation backend, a transactional rollback journal, or first-boot acceptance. Those features must be implemented and tested before advertising this as a full installer.
+The existing C++ installer core currently prints a broad plan and copies a source tree to a target root. Its current installer GUI target is now a guided text-mode planning frontend, not a graphical UI. It does not yet implement safe partitioning, filesystem creation, encryption, a real bootloader installation backend, a transactional rollback journal, or first-boot acceptance. Those features must be implemented and tested before advertising this as a full installer.
 
 Acceptance requires unit tests for plan validation and journal recovery, disposable-disk QEMU tests, interruption/power-loss tests, signed manifest verification, BIOS and UEFI install/reboot tests, and a test proving a mismatched or changed target disk is rejected before any destructive operation.
