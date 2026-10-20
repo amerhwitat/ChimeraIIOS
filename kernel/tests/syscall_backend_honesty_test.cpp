@@ -14,16 +14,16 @@ int main() {
     uint64_t rv = 0;
     uint64_t args[CHIMERA_SYSCALL_MAX_ARGS] = {};
     /* Never claim PID 1 until a scheduler/process identity binding exists. */
-    assert(chimera_syscall_dispatch(CHM_ENTRY_X86_SYSCALL, 64, 39, args, &rv) == -1);
+    assert(chimera_syscall_dispatch(CHM_ENTRY_NATIVE, 64, CHM_SYS_GETPID, args, &rv) == -1);
     assert(rv == (uint64_t)(-(int64_t)CHIMERA_ENOSYS));
     /* Exit cannot be a successful no-op; teardown must be wired first. */
-    assert(chimera_syscall_dispatch(CHM_ENTRY_X86_SYSCALL, 64, 60, args, &rv) == -1);
+    assert(chimera_syscall_dispatch(CHM_ENTRY_NATIVE, 64, CHM_SYS_EXIT, args, &rv) == -1);
     assert(rv == (uint64_t)(-(int64_t)CHIMERA_ENOSYS));
-    assert(chimera_syscall_dispatch(CHM_ENTRY_X86_SYSCALL, 64, 24, args, &rv) == 0);
+    assert(chimera_syscall_dispatch(CHM_ENTRY_NATIVE, 64, CHM_SYS_YIELD, args, &rv) == 0);
     assert(rv == 0 && yielded == 1);
-    assert(chimera_syscall_dispatch(CHM_ENTRY_X86_SYSCALL, 64, 228, args, &rv) == 0);
+    assert(chimera_syscall_dispatch(CHM_ENTRY_NATIVE, 64, CHM_SYS_TIME_TICKS, args, &rv) == 0);
     assert(rv == 123456u);
-    assert(chimera_syscall_dispatch(CHM_ENTRY_X86_SYSCALL, 64, 12, args, &rv) == -1);
+    assert(chimera_syscall_dispatch(CHM_ENTRY_NATIVE, 64, CHM_SYS_MMAP, args, &rv) == -1);
     assert(rv == (uint64_t)(-(int64_t)CHIMERA_ENOSYS));
     puts("syscall backend honesty regression tests: PASS");
     return 0;
