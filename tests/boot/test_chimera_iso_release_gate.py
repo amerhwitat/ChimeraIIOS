@@ -23,6 +23,14 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
 
+    def test_all_three_targets_are_checked_under_bios_and_uefi(self):
+        self.assertIn("for target in live installer recovery; do", self.text)
+        self.assertIn("for firmware in bios uefi; do", self.text)
+        self.assertIn("dosfstools ovmf qemu-system-x86", self.text)
+        self.assertIn('if [[ "$firmware" == "uefi" ]]; then', self.text)
+        self.assertIn('"$ovmf"', self.text)
+        self.assertIn('"$target-$firmware-debugcon.log"', self.text)
+
     def test_unverified_handoff_fails_workflow_after_candidate_artifacts_are_uploaded(self):
         gate = self.text.split(
             "      - name: Fail workflow when production userspace handoff is unverified", 1
