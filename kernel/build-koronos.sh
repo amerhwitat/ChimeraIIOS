@@ -23,6 +23,14 @@ BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
+# Run the syscall contract regression before compiling the freestanding kernel.
+SYSCALL_TEST="$BUILD/syscall-dispatch-test"
+"$CXX" -std=c++17 -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/syscall.cpp" \
+  "$ROOT/kernel/tests/syscall_dispatch_fail_closed_test.cpp" \
+  -o "$SYSCALL_TEST"
+"$SYSCALL_TEST"
+rm -f "$SYSCALL_TEST"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
