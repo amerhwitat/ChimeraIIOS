@@ -31,6 +31,16 @@ SYSCALL_TEST="$BUILD/syscall-dispatch-test"
   -o "$SYSCALL_TEST"
 "$SYSCALL_TEST"
 rm -f "$SYSCALL_TEST"
+
+# Exercise dependency ordering, health gating, bounded restart, and reverse shutdown
+# on the host before compiling the freestanding kernel.
+SERVICE_TEST="$BUILD/service-lifecycle-test"
+HOST_CXX="${HOST_CXX:-g++}"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_lifecycle_test.cpp" \
+  -o "$SERVICE_TEST"
+"$SERVICE_TEST"
+rm -f "$SERVICE_TEST"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
