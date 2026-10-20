@@ -23,6 +23,18 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
 
+    def test_unverified_handoff_fails_workflow_after_candidate_artifacts_are_uploaded(self):
+        gate = self.text.split(
+            "      - name: Fail workflow when production userspace handoff is unverified", 1
+        )[1].split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[0]
+        self.assertIn("if: steps.userspace_gate.outputs.accepted != 'true'", gate)
+        self.assertIn("exit 1", gate)
+        self.assertIn("Upload ISO artifacts", self.text)
+        self.assertLess(
+            self.text.index("      - name: Upload ISO artifacts"),
+            self.text.index("      - name: Fail workflow when production userspace handoff is unverified"),
+        )
+
     def test_unverified_handoff_keeps_build_reviewable_but_blocks_release(self):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
         self.assertIn("no release will be published", self.text)
