@@ -1,0 +1,181 @@
+{
+  "schema": "KORONOS-LINUX-COUNTERPART-GAP-MATRIX-1",
+  "status": "audit-only-no-fixes-claimed",
+  "reference": {
+    "requested": "Linux v7.2.2",
+    "url": "https://elixir.bootlin.com/linux/v7.2.2/source",
+    "access": "Bootlin endpoint blocked by robots in this session; compare source paths and pin exact revision before patching"
+  },
+  "targetEvidence": {
+    "x86_64": {
+      "status": "native-build-iso-path",
+      "productionUserspace": "blocked"
+    },
+    "x86_32": {
+      "status": "legacy-bring-up",
+      "productionBoot": "not-verified"
+    },
+    "aarch64": {
+      "status": "port-layer",
+      "productionBoot": "not-verified"
+    },
+    "riscv64": {
+      "status": "port-layer",
+      "productionBoot": "not-verified"
+    },
+    "cortex_m": {
+      "status": "boot-port",
+      "scope": "embedded; not desktop"
+    },
+    "r8192_c8192_registerN": {
+      "status": "emulator-or-virtual-ISA",
+      "nativeCPU": "not-claimed"
+    },
+    "octavianos": {
+      "status": "x86_64-ISO-contract",
+      "otherArchitectures": "not-verified"
+    }
+  },
+  "gaps": [
+    {
+      "id": "KOR-001",
+      "priority": "P0",
+      "area": "architecture-scope",
+      "evidence": "kernel/arch/targets.json marks AArch64/RV64 as port-layer and R8192/C8192 as emulator",
+      "linuxCounterparts": [
+        "arch/*/Kconfig",
+        "arch/*/Makefile",
+        "Documentation/arch/"
+      ],
+      "acceptance": "Per-architecture build+boot+userspace evidence; status never inferred across architectures"
+    },
+    {
+      "id": "KOR-002",
+      "priority": "P0",
+      "area": "boot-entry-firmware",
+      "evidence": "kernel/build-koronos.sh assembles x86_64 NASM sources; AArch64/RV64 have stubs but are not linked by this builder",
+      "linuxCounterparts": [
+        "arch/x86/kernel/head_64.S",
+        "arch/arm64/kernel/head.S",
+        "arch/riscv/kernel/head.S",
+        "init/main.c"
+      ],
+      "acceptance": "Correct boot protocol, firmware data, stack, CPU/hart identity, first console for each architecture"
+    },
+    {
+      "id": "KOR-003",
+      "priority": "P0",
+      "area": "memory-and-exec",
+      "evidence": "ELF admission/load-plan is not proof of process execution",
+      "linuxCounterparts": [
+        "mm/page_alloc.c",
+        "mm/memory.c",
+        "fs/exec.c",
+        "fs/binfmt_elf.c",
+        "kernel/fork.c"
+      ],
+      "acceptance": "PT_LOAD/BSS, permissions, user stack, isolated page tables and real production init"
+    },
+    {
+      "id": "KOR-004",
+      "priority": "P0",
+      "area": "syscalls-process-lifecycle",
+      "evidence": "kernel/core/syscall.cpp handles GETPID/YIELD/TIME_TICKS/EXIT semantics only; GETPID returns constant 1; EXIT does not prove teardown",
+      "linuxCounterparts": [
+        "kernel/entry/common.c",
+        "kernel/sys.c",
+        "kernel/exit.c",
+        "kernel/fork.c",
+        "kernel/time/"
+      ],
+      "acceptance": "Real PID allocation, safe user-copy, errno ABI, process exit/reap/wait and tested advertised syscall set"
+    },
+    {
+      "id": "KOR-005",
+      "priority": "P0",
+      "area": "genuine-smp",
+      "evidence": "Scheduler CPU indices/shared task table do not prove hardware AP/hart startup or concurrent execution",
+      "linuxCounterparts": [
+        "kernel/sched/core.c",
+        "kernel/smp.c",
+        "arch/x86/kernel/smpboot.c",
+        "kernel/irq/"
+      ],
+      "acceptance": "AP/hart online logs, concurrent work, timer preemption, IPI/cross-CPU wakeups, affinity and lock stress"
+    },
+    {
+      "id": "KOR-006",
+      "priority": "P1",
+      "area": "interrupts-timer-context",
+      "evidence": "Yield is not proof of timer preemption or architecture-correct user return",
+      "linuxCounterparts": [
+        "arch/x86/entry/entry_64.S",
+        "arch/arm64/kernel/entry.S",
+        "arch/riscv/kernel/entry.S",
+        "kernel/time/timer.c"
+      ],
+      "acceptance": "Exception/syscall frame round trips and timer-driven preemption/sleep-wakeup tests per architecture"
+    },
+    {
+      "id": "KOR-007",
+      "priority": "P0",
+      "area": "initramfs-payload-contract",
+      "evidence": "Distinct Live/Installer/Recovery payloads must match compression/archive/parser/module contracts",
+      "linuxCounterparts": [
+        "init/initramfs.c",
+        "lib/decompress_*.c",
+        "fs/exec.c",
+        "init/main.c"
+      ],
+      "acceptance": "Extract actual ISO; verify hashes, compression, archive, module names, ELF machine and actual selected init"
+    },
+    {
+      "id": "KOR-008",
+      "priority": "P0",
+      "area": "userspace-service-chain",
+      "evidence": "Ring-3 smoke ELF/kernel message does not prove VFS, service manager, shell, installer, recovery or desktop",
+      "linuxCounterparts": [
+        "init/main.c",
+        "kernel/kthread.c",
+        "fs/",
+        "drivers/base/",
+        "drivers/tty/"
+      ],
+      "acceptance": "Real target init starts required services and emits canonical readiness only after startup"
+    },
+    {
+      "id": "KOR-009",
+      "priority": "P1",
+      "area": "console-and-drivers",
+      "evidence": "Artwork staging is not display-driver or device initialization evidence",
+      "linuxCounterparts": [
+        "drivers/tty/serial/",
+        "drivers/video/",
+        "drivers/base/",
+        "kernel/printk/"
+      ],
+      "acceptance": "Reliable serial/debug console, graphics fallback and enumerated device-driver results"
+    },
+    {
+      "id": "KOR-010",
+      "priority": "P1",
+      "area": "cpu-features-topology",
+      "evidence": "Feature registry entries do not prove safe feature detection or native RegisterN ISA",
+      "linuxCounterparts": [
+        "arch/x86/kernel/cpu/",
+        "arch/x86/kernel/smpboot.c",
+        "kernel/cpu.c"
+      ],
+      "acceptance": "Feature-gated execution, topology report and explicit emulator/native distinction"
+    }
+  ],
+  "requiredMatrix": [
+    "Live-BIOS",
+    "Live-UEFI",
+    "Installer-BIOS",
+    "Installer-UEFI",
+    "Recovery-BIOS",
+    "Recovery-UEFI"
+  ],
+  "policy": "fail-closed; NOT RUN/NOT IMPLEMENTED is not PASS; no release promotion until production target evidence exists"
+}
