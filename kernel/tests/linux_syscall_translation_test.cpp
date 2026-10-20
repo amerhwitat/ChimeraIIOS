@@ -36,7 +36,8 @@ int main() {
     expect(CHM_ENTRY_X86_SYSCALL, 64, 2, 0xFFFFFFFFu, "x86_64 open remains unsupported");
     expect(CHM_ENTRY_X86_SYSCALL, 64, 3, 0xFFFFFFFFu, "x86_64 close remains unsupported");
     expect(CHM_ENTRY_X86_SYSCALL, 64, 5, 0xFFFFFFFFu, "x86_64 fstat remains unsupported");
-    expect(CHM_ENTRY_X86_SYSCALL, 64, 12, 0xFFFFFFFFu, "x86_64 mprotect remains unsupported");
+    expect(CHM_ENTRY_X86_SYSCALL, 64, 10, 0xFFFFFFFFu, "x86_64 mprotect remains unsupported");
+    expect(CHM_ENTRY_X86_SYSCALL, 64, 12, 0xFFFFFFFFu, "x86_64 brk remains unsupported");
 
     // The legacy i386 mmap syscall uses a pointer to an argument block, so it
     // must not be translated to the six-register native mmap contract.
@@ -50,6 +51,12 @@ int main() {
     expect(CHM_ENTRY_X86_INT80, 32, 6, 0xFFFFFFFFu, "i386 close remains unsupported");
     expect(CHM_ENTRY_X86_INT80, 32, 45, 0xFFFFFFFFu, "i386 brk remains unsupported");
     expect(CHM_ENTRY_X86_INT80, 32, 90, 0xFFFFFFFFu, "i386 legacy mmap remains unsupported");
+    expect(CHM_ENTRY_X86_INT80, 32, 125, 0xFFFFFFFFu, "i386 mprotect remains unsupported");
+
+    // A known Linux syscall number through a mismatched entry/ABI pair must
+    // remain unmapped in the Linux personality rather than becoming native.
+    expect(CHM_ENTRY_X86_SYSCALL, 32, 39, 0xFFFFFFFFu, "SYSCALL with i386 ABI rejected");
+    expect(CHM_ENTRY_X86_INT80, 64, 39, 0xFFFFFFFFu, "INT80 with x86_64 ABI rejected");
 
     if (failures) return 1;
     std::puts("Linux syscall translation regression tests: PASS");
