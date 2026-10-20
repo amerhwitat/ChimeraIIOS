@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -16,10 +17,24 @@ struct Hardware {
 struct InstallPlan {
   std::filesystem::path target_root;
   std::filesystem::path source_root;
+  // Captured by the guided setup planner. These values are not applied until a
+  // verified storage/boot transaction backend is available.
+  std::string target_device_id{"UNSELECTED"};
+  std::string partition_strategy{"guided"};
+  std::string encryption{"none"};
+  std::string desktop{"aurora"};
+  std::string locale{"en_US.UTF-8"};
+  std::string keyboard{"us"};
+  std::string timezone{"UTC"};
+  std::string network_mode{"dhcp"};
+  std::string hostname{"chimera"};
+  std::string username{"user"};
+  std::string software_profile{"desktop"};
+  bool secure_boot{false};
   std::string bootloader{"spitfire"};
   std::string kernel{"koronos"};
   std::string filesystem{"qfs"};
-  bool install_aurora{true}, install_kore{true}, install_compatibility{true};
+  bool install_aurora{true}, install_marine{false}, install_kore{true}, install_compatibility{true};
   bool deep_driver_search{true};
   bool download_driver_binaries{true};
   bool install_detected_drivers{true};

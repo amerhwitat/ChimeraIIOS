@@ -1,0 +1,47 @@
+name: Native installer build and packaging
+
+on:
+  pull_request:
+    paths:
+      - 'installer/**'
+      - 'kernel/core/unified_logo_asset.cpp'
+      - 'assets/branding/**'
+      - '.github/workflows/installer-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'installer/**'
+      - 'kernel/core/unified_logo_asset.cpp'
+      - 'assets/branding/**'
+      - '.github/workflows/installer-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-installer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes build-essential cmake
+      - name: Configure installer
+        run: cmake -S installer -B build/installer -DCMAKE_BUILD_TYPE=Release
+      - name: Build CLI and guided setup frontend
+        run: cmake --build build/installer --parallel 2
+      - name: Install into staging tree and verify artwork
+        run: |
+          set -euo pipefail
+          cmake --install build/installer --prefix "$PWD/build/installer-stage"
+          test -x build/installer-stage/bin/chimera-installer-cli
+          test -x build/installer-stage/bin/chimera-installer-gui
+          test -s build/installer-stage/share/chimera/installer/artwork/unified-master-logo.svg
+      - name: Verify preview-only safety contract is present
+        run: |
+          grep -Fq 'Production storage and bootloader backends are not implemented yet' installer/src/installer_gui.cpp
+          grep -Fq 'no verified partition/filesystem/encryption/bootloader transaction backend is registered' installer/src/installer_core.cpp
