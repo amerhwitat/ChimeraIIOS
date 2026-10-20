@@ -10,6 +10,8 @@ uint32_t chimera_multiboot_scan(uint64_t boot_info);
 uint32_t chimera_multiboot_module_count(void);
 const chimera_boot_module* chimera_multiboot_module(uint32_t index);
 const chimera_boot_module* chimera_multiboot_find(uint32_t kind);
+/* Kernel command line from Multiboot2 information tag type 1. */
+const char* chimera_multiboot_command_line(void);
 #ifdef __cplusplus
 }
 #endif
