@@ -16,6 +16,11 @@ static int index_of(const char* id) {
     if (!strcmp(id, "media")) return 4;
     return -1;
 }
+static int position(const char* const* order, uint32_t count, const char* id) {
+    for (uint32_t i = 0; i < count; ++i)
+        if (!strcmp(order[i], id)) return static_cast<int>(i);
+    return -1;
+}
 static int start_service(const char* id, void* opaque) {
     fixture* f = static_cast<fixture*>(opaque);
     const int i = index_of(id);
@@ -42,7 +47,7 @@ static int stop_service(const char* id, void* opaque) {
     }
     return 0;
 }
-static int position(const char* const* order, uint32_t count, const char* id) {\n    for (uint32_t i = 0; i < count; ++i) if (!strcmp(order[i], id)) return static_cast<int>(i);\n    return -1;\n}\nstatic int check(bool ok, const char* what) {
+static int check(bool ok, const char* what) {
     if (!ok) fprintf(stderr, "FAIL: %s\n", what);
     return ok ? 0 : 1;
 }
@@ -65,12 +70,17 @@ int main() {
     chimera_service_ops ops{start_service, health_service, stop_service, &f};
     int failures = 0;
 
-    chimera_kore_bootstrap();\n    failures += check(chimera_service_get_state("chimera.storage") == CHM_SVC_DECLARED,\n                      "Kore bootstrap does not fabricate storage service readiness");\n    failures += check(chimera_service_validate(services, 5) == 0, "valid service manifest");
+    chimera_kore_bootstrap();
+    failures += check(chimera_service_get_state("chimera.storage") == CHM_SVC_DECLARED,
+                      "Kore bootstrap does not fabricate storage service readiness");
+    failures += check(chimera_service_validate(services, 5) == 0, "valid service manifest");
     failures += check(chimera_service_start_all(services, 5, &ops, &plan) == 0,
                       "noncritical failure does not abort unrelated services");
-    failures += check(plan.count == 5 && !strcmp(ordered[0], "console") &&
-                      !strcmp(ordered[1], "display") && !strcmp(ordered[2], "ui"),
-                      "dependency order is respected");
+    failures += check(plan.count == 5 &&
+                      position(ordered, plan.count, "console") < position(ordered, plan.count, "display") &&
+                      position(ordered, plan.count, "display") < position(ordered, plan.count, "ui") &&
+                      position(ordered, plan.count, "audio") < position(ordered, plan.count, "media"),
+                      "dependency order is respected without constraining unrelated services");
     failures += check(f.starts[1] == 2 &&
                       chimera_service_get_state("display") == CHM_SVC_RUNNING,
                       "failure restart is bounded and health-checked");
