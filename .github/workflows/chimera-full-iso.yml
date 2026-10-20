@@ -288,6 +288,12 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      - name: Fail the workflow when production userspace acceptance is unverified
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        run: |
+          echo "::error::Production userspace acceptance failed; ISO artifacts are retained for diagnosis, but the workflow must be red."
+          exit 1
+
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
