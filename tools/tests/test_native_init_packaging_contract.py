@@ -35,6 +35,8 @@ def main() -> int:
     init_text = source.read_text(encoding="utf-8")
     prepare_text = prepare.read_text(encoding="utf-8")
     grub_text = grub.read_text(encoding="utf-8")
+    if "set default=aurora-live" not in grub_text:
+        return fail("canonical GRUB must default to the explicit Live target ID")
     live_text = live_cfg.read_text(encoding="utf-8")
     recovery_text = recovery_cfg.read_text(encoding="utf-8")
     install_text = install_cfg.read_text(encoding="utf-8")
