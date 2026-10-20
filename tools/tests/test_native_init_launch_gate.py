@@ -42,21 +42,18 @@ def main() -> int:
     if "call1(1, 78)" not in native_init or "NATIVE INIT BLOCKED:" not in native_init:
         return fail("bootstrap must retain its explicit unavailable-service exit")
 
-    if "if (count==0)" not in launch:
-        return fail("missing explicit zero-USER_INIT_ELF branch")
-    zero_branch = launch.split("if (count==0)", 1)[1].split(
-        "if (count!=1", 1
-    )[0]
     for required in (
+        "if (payload_count == 0 && elf_count == 0) return 0;",
+        "if (elf_count != 1 || !selected)",
+        "if (payload_count != 1 || !payload)",
         "CHIMERA_MODULE_LIVE_INITRAMFS",
         "CHIMERA_MODULE_RECOVERY_INITRAMFS",
         "CHIMERA_MODULE_INSTALL_IMAGE",
-        "if (!has_target_payload) return 0;",
-        "no USER_INIT_ELF module was supplied",
-        "return -12;",
+        "if (payload_count != 0 && elf_target != target)",
+        "target = elf_target;",
     ):
-        if required not in zero_branch:
-            return fail(f"zero-module production failure contract missing: {required}")
+        if required not in launch:
+            return fail(f"target-matched production dispatch contract missing: {required}")
 
     for target, marker in (
         ("live", "CHIMERA_MODULE_LIVE_INITRAMFS"),
@@ -74,7 +71,7 @@ def main() -> int:
     if "user-init-${target}.elf" in build and not ("acceptance probes" in build and "not production shells" in build):
         return fail("smoke probe artifacts are not explicitly isolated from production")
 
-    print("NATIVE INIT LAUNCH GATE PASS: missing ELF fails closed; mount ABI is not faked; probes remain isolated")
+    print("NATIVE INIT LAUNCH GATE PASS: production payloads require one target-matched ELF; mount ABI is not faked; probes remain isolated")
     return 0
 
 
