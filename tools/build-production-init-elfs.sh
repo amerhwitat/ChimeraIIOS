@@ -17,6 +17,7 @@ build_one() {
   test -s "$OUT/user-init-$target.elf"
   readelf -h "$OUT/user-init-$target.elf" | grep -q 'Advanced Micro Devices X86-64'
   readelf -l "$OUT/user-init-$target.elf" | grep -q 'LOAD'
+  python3 "$ROOT/tools/validate-native-init-elf.py" --target "$target" "$OUT/user-init-$target.elf"
   mkdir -p "$(dirname "$STAGE/$out")"
   install -m 0644 "$OUT/user-init-$target.elf" "$STAGE/$out"
   printf 'Built fail-closed native init bootstrap: target=%s path=%s\n' "$target" "$STAGE/$out"
