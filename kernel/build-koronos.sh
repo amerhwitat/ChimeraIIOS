@@ -21,6 +21,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+# Run host-side regression tests with a hosted compiler, independently of the
+# freestanding/cross CXX selected for Koronos below.
+HOST_CXX="${HOST_CXX:-g++}"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/compat.cpp" "$ROOT/kernel/tests/linux_syscall_translation_test.cpp" -o "$BUILD/linux-syscall-translation-test"
+"$BUILD/linux-syscall-translation-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_bootstrap_honesty_test.cpp" -o "$BUILD/service-bootstrap-honesty-test"
+"$BUILD/service-bootstrap-honesty-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/hardware.cpp" "$ROOT/kernel/tests/hardware_profile_test.cpp" -o "$BUILD/hardware-profile-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/compat.cpp" "$ROOT/kernel/core/syscall.cpp" "$ROOT/kernel/tests/syscall_backend_honesty_test.cpp" -o "$BUILD/syscall-backend-honesty-test"
+"${HOST_CXX:-g++}" -std=c++17 -Wall -Wextra -I"$ROOT/kernel/include" "$ROOT/kernel/core/hardware.cpp" "$ROOT/kernel/core/nbit.cpp" "$ROOT/tests/kernel/hardware_nbit_test.cpp" -o "$BUILD/nbit-hardware-honesty-test"
+"$BUILD/nbit-hardware-honesty-test"
+"$BUILD/syscall-backend-honesty-test"
+"$BUILD/hardware-profile-test"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
@@ -68,7 +81,8 @@ fi
 
 grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[KORE] Service orchestration online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[KORE] Service registry initialized; process-backed health checks pending' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore service-registry diagnostic is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[KORE] Storage/security/logging services BLOCKED: real backends and health checks unavailable' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: blocked-service diagnostic is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
 auto_banner=''

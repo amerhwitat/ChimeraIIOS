@@ -1,4 +1,5 @@
 #include "chimera/compat.h"
+#include "chimera/syscall.h"
 
 namespace {
 
@@ -93,38 +94,39 @@ static void build_profiles() {
 }
 
 static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
+    // Only translate calls whose semantics and argument layout are represented
+    // by the current canonical ABI. Unsupported Linux calls must remain
+    // CHIMERA_SYS_INVALID; never alias them to unrelated native operations.
     if (bits == 32u) {
         switch (n) {
-            case 1: return 1;
-            case 3: return 8;
-            case 4: return 9;
-            case 5: return 5;
-            case 6: return 6;
-            case 20: return 2;
-            case 45: return 12;
-            case 90: return 10;
-            case 91: return 11;
-            case 162: return 13;
+            case 1: return 1;   // exit
+            case 3: return 8;   // read
+            case 4: return 9;   // write
+            case 20: return 2;  // getpid
+            case 158: return CHM_SYS_YIELD; // sched_yield
+            case 91: return 11; // munmap
+            case 162: return 13;// nanosleep
             default: return 0xFFFFFFFFu;
         }
     }
-    switch (n) {
-        case 0: return 8;
-        case 1: return 9;
-        case 2: return 5;
-        case 3: return 6;
-        case 9: return 10;
-        case 11: return 11;
-        case 12: return 12;
-        case 16: return 11;
-        case 35: return 13;
-        case 39: return 2;
-        case 60: return 1;
-        case 61: return 14;
-        case 158: return 15;
-        case 231: return 16;
-        default: return 0xFFFFFFFFu;
+    if (bits == 64u) {
+        switch (n) {
+            case 0: return 8;   // read
+            case 1: return 9;   // write
+            case 9: return 10;  // mmap (dispatcher remains ENOSYS until implemented)
+            case 11: return 11; // munmap (dispatcher remains ENOSYS until implemented)
+            case 16: return 12; // ioctl (dispatcher remains ENOSYS until implemented)
+            case 24: return CHM_SYS_YIELD; // sched_yield
+            case 35: return 13; // nanosleep
+            case 39: return 2;  // getpid
+            case 60: return 1;  // exit
+            case 61: return 14; // wait4; backend must validate supported semantics
+            case 158: return 15;// arch_prctl
+            case 231: return 16;// exit_group
+            default: return 0xFFFFFFFFu;
+        }
     }
+    return 0xFFFFFFFFu;
 }
 
 } // namespace
@@ -168,6 +170,17 @@ extern "C" int chimera_compat_recognize_syscall(uint32_t entry, uint32_t bitness
     if (!out) return -1;
     out->os = CHM_OS_NATIVE; out->entry = entry; out->bitness = bitness;
     out->number = number; out->canonical = 0xFFFFFFFFu; out->flags = 0;
+    if (entry == CHM_ENTRY_NATIVE) {
+        switch (number) {
+            case CHM_SYS_EXIT: case CHM_SYS_GETPID: case CHM_SYS_YIELD:
+            case CHM_SYS_TIME_TICKS: case CHM_SYS_READ: case CHM_SYS_WRITE:
+            case CHM_SYS_MMAP: case CHM_SYS_MUNMAP: case CHM_SYS_IOCTL:
+            case CHM_SYS_NANOSLEEP: case CHM_SYS_WAIT: case CHM_SYS_ARCH_PRCTL:
+            case CHM_SYS_EXIT_GROUP:
+                out->os = CHM_OS_NATIVE; out->canonical = number; return 0;
+            default: return 0;
+        }
+    }
     if (entry == CHM_ENTRY_X86_INT21) {
         out->os = CHM_OS_DOS; out->canonical = 0x100u | (number & 0xFFu);
         out->flags = CHM_COMPAT_INTERRUPT_TRANSLATION | CHM_COMPAT_EMULATION_REQUIRED;
@@ -189,7 +202,16 @@ extern "C" int chimera_compat_recognize_syscall(uint32_t entry, uint32_t bitness
         return 0;
     }
     if (entry == CHM_ENTRY_X86_INT80 || entry == CHM_ENTRY_X86_SYSCALL) {
+        // Keep a mismatched entry/ABI pair in the Linux personality but leave
+        // it unmapped. The dispatcher fails it closed as ENOSYS; it must not
+        // fall through into the native syscall namespace.
         out->os = CHM_OS_LINUX;
+        if ((entry == CHM_ENTRY_X86_SYSCALL && bitness != 64u) ||
+            (entry == CHM_ENTRY_X86_INT80 && bitness != 32u)) {
+            out->canonical = 0xFFFFFFFFu;
+            out->flags = 0;
+            return 0;
+        }
         out->canonical = linux_canonical(number, bitness);
         out->flags = CHM_COMPAT_SYSCALL_TRANSLATION;
         if (bitness == 32u) out->flags |= CHM_COMPAT_32BIT | CHM_COMPAT_POINTER_TRANSLATION;
