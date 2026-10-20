@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #ifndef CHIMERA_INIT_TARGET
 #error CHIMERA_INIT_TARGET must be set by the target build
 #endif
