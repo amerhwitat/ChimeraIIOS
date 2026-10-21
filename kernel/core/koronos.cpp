@@ -521,10 +521,13 @@ extern "C" int64_t koronos_vfs_stat_user(uint64_t path_address,uint64_t out_addr
     const int valid=koronos_user_buffer_ok(out_address,sizeof(chimera_vfs_stat),1u);if(valid)return valid;
     chimera_vfs_stat st{};const int rc=chimera_vfs_stat_path(&g_vfs,path,0u,0u,&st);if(rc)return rc;
     auto*dst=reinterpret_cast<uint8_t*>(static_cast<uintptr_t>(out_address));const auto*src=reinterpret_cast<const uint8_t*>(&st);
-    for(uint64_t i=0;i<sizeof(st);++i)dst[i]=src[i];return 0;
+    for (uint64_t i = 0; i < sizeof(st); ++i) { dst[i] = src[i]; }
+    return 0;
 }
 extern "C" int64_t koronos_vfs_create_user(uint64_t path_address,uint64_t mode) {
-    if(mode>0777u)return -22;const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    if (mode > 0777u) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid) return -38;
     char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
     return chimera_vfs_create(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
 }
@@ -544,7 +547,9 @@ extern "C" int64_t koronos_vfs_chmod_user(uint64_t path_address,uint64_t mode) {
     return chimera_vfs_chmod(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
 }
 extern "C" int64_t koronos_vfs_chown_user(uint64_t path_address,uint64_t uid,uint64_t gid) {
-    if(uid>UINT32_MAX||gid>UINT32_MAX)return -22;const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    if (uid > UINT32_MAX || gid > UINT32_MAX) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid) return -38;
     char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
     return chimera_vfs_chown(&g_vfs,path,static_cast<uint32_t>(uid),static_cast<uint32_t>(gid),0u);
 }
