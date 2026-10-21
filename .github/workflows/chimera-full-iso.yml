@@ -97,6 +97,11 @@ jobs:
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
           extract /boot/koronos/native-init.elf "$tmp/native-init.elf"
+          for target in live installer recovery; do
+            extract "/boot/koronos/native-init-$target.elf" "$tmp/native-init-$target.elf"
+            readelf -h "$tmp/native-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+            readelf -l "$tmp/native-init-$target.elf" | grep -q LOAD
+          done
           readelf -h "$tmp/native-init.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
           readelf -h "$tmp/native-init.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
           readelf -l "$tmp/native-init.elf" | grep -q LOAD
@@ -198,7 +203,9 @@ jobs:
             tree="$base/$target/tree"
             mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
             xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
-            xorriso -osirrox on -indev "$iso" -extract /boot/koronos/native-init.elf "$tree/boot/koronos/native-init.elf" >/dev/null 2>&1 || accepted=false
+            init_path="/boot/koronos/native-init-$target.elf"
+             mkdir -p "$tree/$(dirname "$init_path")"
+             xorriso -osirrox on -indev "$iso" -extract "$init_path" "$tree$init_path" >/dev/null 2>&1 || accepted=false
             if [[ "$target" == "live" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
@@ -236,7 +243,7 @@ jobs:
             module2 /install/installer/installer_profiles.json chimera-installer-profiles
           GRUB
             fi
-            echo "    module2 /boot/koronos/native-init.elf chimera-user-init-elf target=$target" >> "$tree/boot/grub/grub.cfg"
+            echo "    module2 $init_path chimera-user-init-elf target=$target" >> "$tree/boot/grub/grub.cfg"
             cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
             boot
           }
