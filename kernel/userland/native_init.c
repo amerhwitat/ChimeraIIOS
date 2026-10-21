@@ -31,8 +31,8 @@ __attribute__((noreturn)) void _start(void){
  static const char path[]="/run/native-init-selftest";
  static const char moved[]="/run/native-init-renamed";
  static const char payload[]="koronos-vfs-roundtrip";
- static const char good[]="[INIT] CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed; persistent services unavailable, readiness withheld.\n";
- static const char bad[]="[INIT] ERROR: CPL3 identity or RAM VFS syscall self-test failed; readiness withheld.\n";
+ static const char good[]="[INIT] CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed; persistent services unavailable, readiness withheld (target=" CHIMERA_INIT_TARGET_NAME ").\\n";
+ static const char bad[]="[INIT] ERROR: CPL3 identity or RAM VFS syscall self-test failed; readiness withheld (target=" CHIMERA_INIT_TARGET_NAME ").\\n";
  char buffer[sizeof(payload)]={0};struct vfs_stat st={0};
  long md=-1,fd=-1,wr=-1,sk=-1,rd=-1,stat1=-1,chmod1=-1,chown1=-1,trunc=-1,stat2=-1,busy=-1,cl=-1,ren=-1,un=-1,rdmd=-1;
  if(pid>0)md=syscall3(SYS_MKDIR,(long)dir,0755,0);
