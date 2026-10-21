@@ -1,5 +1,7 @@
 #include "chimera/block.h"
 
+/* Transport-neutral API only: hardware backends must supply real I/O callbacks. */
+
 namespace {
 struct Slot {
     bool used;
