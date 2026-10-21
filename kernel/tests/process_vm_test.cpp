@@ -2,7 +2,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
-static alignas(4096) uint8_t mem[2048][4096];
+alignas(4096) static uint8_t mem[2048][4096];
 static bool used[2048];
 static int alloc(void*,uint32_t n,uint64_t*p,void**alias){for(uint32_t i=1;i+n<=2048;++i){bool ok=true;for(uint32_t j=0;j<n;++j)if(used[i+j]){ok=false;break;}if(!ok)continue;for(uint32_t j=0;j<n;++j)used[i+j]=true;*p=(uint64_t)i*4096;*alias=mem[i];return 0;}return -1;}
 static void release(void*,uint64_t p,uint32_t n){uint32_t i=(uint32_t)(p/4096);for(uint32_t j=0;j<n;++j){assert(i+j<2048);used[i+j]=false;}}
