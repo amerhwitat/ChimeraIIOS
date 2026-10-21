@@ -57,7 +57,7 @@ int main() {
     int failures = 0;
 
     chimera_process_init();
-    make_image();
+    make_image(bytes);
     const int pid = chimera_process_admit_elf(
         bytes, sizeof(bytes), MACHINE_X86_64, STACK_TOP, &out);
     failures += check(pid > 0, "valid ELF is admitted");
@@ -92,14 +92,14 @@ int main() {
                       "rejected W+X image does not consume a registry slot");
 
     chimera_process_init();
-    make_image();
+    make_image(bytes);
     reinterpret_cast<koronos_elf64_ehdr *>(bytes)->e_entry = TEXT_ADDRESS + 0x400;
     failures += check(chimera_process_admit_elf(
                           bytes, sizeof(bytes), MACHINE_X86_64, STACK_TOP, &out) == -9,
                       "entry outside executable segment is rejected");
 
     chimera_process_init();
-    make_image();
+    make_image(bytes);
     auto *ph = reinterpret_cast<koronos_elf64_phdr *>(
         bytes + sizeof(koronos_elf64_ehdr));
     ph->p_filesz = ph->p_memsz + 1;
@@ -108,7 +108,7 @@ int main() {
                       "file size larger than memory size is rejected");
 
     chimera_process_init();
-    make_image();
+    make_image(bytes);
     ph = reinterpret_cast<koronos_elf64_phdr *>(
         bytes + sizeof(koronos_elf64_ehdr));
     ph->p_vaddr = UINT64_MAX - 0x10;
@@ -118,7 +118,7 @@ int main() {
                       "overflowing virtual segment range is rejected");
 
     chimera_process_init();
-    make_image();
+    make_image(bytes);
     reinterpret_cast<koronos_elf64_ehdr *>(bytes)->e_phoff = UINT64_MAX - 8;
     failures += check(chimera_process_admit_elf(
                           bytes, sizeof(bytes), MACHINE_X86_64, STACK_TOP, &out) == -2,
