@@ -53,7 +53,7 @@ if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS
 # It deliberately fails closed until production storage/service startup exists;
 # it is not a smoke probe and never prints the acceptance readiness marker.
 NATIVE_INIT="$OUT/boot/koronos/native-init.elf"
-"${CC:-gcc}" -m64 -std=c11 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie -fno-asynchronous-unwind-tables -fno-unwind-tables -nostdlib -static -no-pie \
+"${CC:-gcc}" -m64 -std=c11 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie -fno-asynchronous-unwind-tables -fno-unwind-tables -mcmodel=large -nostdlib -static -no-pie \
   -Wl,-e,_start -Wl,-Ttext-segment=0x100000000 -Wl,-z,max-page-size=0x1000 -Wl,-z,noexecstack \
   "$ROOT/kernel/userland/native_init.c" -o "$NATIVE_INIT"
 readelf -h "$NATIVE_INIT" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: native init is not ELF64" >&2; exit 2; }
