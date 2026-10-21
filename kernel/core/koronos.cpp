@@ -547,7 +547,9 @@ extern "C" int64_t koronos_vfs_truncate_user(uint64_t path_address,uint64_t leng
     return chimera_vfs_truncate(&g_vfs,path,length,0u,0u);
 }
 extern "C" int64_t koronos_vfs_chmod_user(uint64_t path_address,uint64_t mode) {
-    if(mode>0777u)return -22;const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    if (mode > 0777u) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid) return -38;
     char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
     return chimera_vfs_chmod(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
 }
