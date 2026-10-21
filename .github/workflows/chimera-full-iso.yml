@@ -186,6 +186,8 @@ jobs:
       - name: Verify actual Live, Installer, and Recovery userspace handoff
         id: userspace_gate
         shell: bash
+        env:
+          FIRMWARE: ${{ matrix.firmware }}
         run: |
           set -uo pipefail
           iso=build/iso/chimera-ii-os.iso
