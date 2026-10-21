@@ -28,5 +28,8 @@ int main() {
     assert(chimera_vfs_fd_write(fds, 8, 9, fd2, s, 1) == CHIMERA_VFS_EACCES);
     assert(chimera_vfs_close_process(fds, 8, 9) == 0);
     assert(chimera_vfs_fd_read(fds, 8, 9, fd2, out, 1) == CHIMERA_VFS_EINVAL);
+    assert(chimera_vfs_mkdir(&fs, "/directory", 0755, 0, 0) == CHIMERA_VFS_OK);
+    assert(chimera_vfs_open(fds, 8, &fs, 7, 0, 0, "/directory", CHIMERA_FD_READ) == CHIMERA_VFS_EISDIR);
+    assert(chimera_vfs_rmdir(&fs, "/directory", 0, 0) == CHIMERA_VFS_OK);
     return 0;
 }
