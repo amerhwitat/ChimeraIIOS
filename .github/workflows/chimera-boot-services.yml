@@ -1,9 +1,9 @@
 name: Chimera Boot and Enterprise Services
 on:
   push:
-    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/core/driver.cpp','kernel/include/chimera/driver.h','kernel/include/chimera/device.h','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
+    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/core/driver.cpp','kernel/include/chimera/driver.h','kernel/include/chimera/device.h','kernel/include/chimera/service.h','kernel/tests/driver_backend_honesty_test.cpp','tools/tests/test_service_registry.py','config/services/runtime-evidence.json','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   pull_request:
-    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
+    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/core/driver.cpp','kernel/include/chimera/driver.h','kernel/tests/driver_backend_honesty_test.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/test_service_registry.py','config/services/runtime-evidence.json','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
