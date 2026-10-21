@@ -10,6 +10,40 @@ static uint32_t pci_read(uint8_t bus,uint8_t dev,uint8_t fn,uint8_t off){
 #endif
 static chimera_device_class classify(uint8_t base,uint8_t sub){if(base==1)return CHM_DEV_STORAGE;if(base==2)return CHM_DEV_NETWORK;if(base==3)return sub==0x00?CHM_DEV_DISPLAY:CHM_DEV_GPU;if(base==6)return CHM_DEV_MOTHERBOARD; if(base==0x0C&&sub==3)return CHM_DEV_USB;return CHM_DEV_OTHER;}
 extern "C" int chimera_hardware_device_class(uint8_t base,uint8_t sub){return (int)classify(base,sub);}
+
+/* Decode address/type bits only. Resource sizing, reservation, mapping, and
+ * device enablement are separate privileged operations and are not implied.
+ */
+extern "C" int chimera_pci_decode_bar(uint32_t low,uint32_t high,chimera_pci_bar *out){
+ if(!out)return -1;
+ out->address=0; out->kind=CHM_PCI_BAR_INVALID; out->prefetchable=0;
+ out->consumes_next=0; out->reserved=0;
+ if(low==0u || low==0xffffffffu)return -1;
+ if(low&1u){
+   out->kind=CHM_PCI_BAR_IO;
+   out->address=(uint64_t)(low&~3u);
+   return 0;
+ }
+ const uint32_t type=(low>>1)&3u;
+ out->prefetchable=(uint8_t)((low>>3)&1u);
+ if(type==0u){
+   out->kind=CHM_PCI_BAR_MMIO32;
+   out->address=(uint64_t)(low&0xfffffff0u);
+   return 0;
+ }
+ if(type==1u){
+   out->kind=CHM_PCI_BAR_MMIO20;
+   out->address=(uint64_t)(low&0x000ffff0u);
+   return 0;
+ }
+ if(type==2u){
+   out->kind=CHM_PCI_BAR_MMIO64;
+   out->address=((uint64_t)high<<32)|(uint64_t)(low&0xfffffff0u);
+   out->consumes_next=1;
+   return 0;
+ }
+ return -1; /* reserved memory BAR encoding */
+}
 extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out){
  if(!out)return -1;
  for(size_t i=0;i<sizeof(*out);++i)((uint8_t*)out)[i]=0;
