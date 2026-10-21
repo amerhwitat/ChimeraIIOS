@@ -641,6 +641,8 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
     chimera_learning_init(f->logical_cpus);
+    /* Service health must reflect completed initialization, not the static default. */
+    g_scheduler_ready = 1;
     console_progress(35, "Scheduler and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
