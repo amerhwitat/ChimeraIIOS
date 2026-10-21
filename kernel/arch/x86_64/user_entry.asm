@@ -70,7 +70,7 @@ koronos_user_entry_init:
     ; Enable SYSCALL/SYSRET and keep interrupts, TF and DF masked in the kernel.
     mov ecx, 0xC0000080                    ; IA32_EFER
     rdmsr
-    or eax, 1                              ; SCE
+    or eax, 0x801                          ; SCE + NXE (required by user PTEs)
     wrmsr
     mov ecx, 0xC0000081                    ; IA32_STAR
     mov rax, 0x0013000800000000             ; kernel CS=08; user base=13
