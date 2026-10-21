@@ -140,7 +140,7 @@ for target in live installer recovery; do
     -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
     -mno-sse -mno-mmx -msoft-float -fno-asynchronous-unwind-tables \
     -fno-unwind-tables -DCHIMERA_INIT_TARGET="$target_id" \
-    -DCHIMERA_INIT_TARGET_NAME=\\"$target\\" \
+    -DCHIMERA_INIT_TARGET_NAME=\"$target\" \
     -c "$ROOT/kernel/userspace/native_init.c" -o "$BUILD/native-init-$target.o"
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
     -T "$ROOT/kernel/tests/user_init_smoke.ld" \
