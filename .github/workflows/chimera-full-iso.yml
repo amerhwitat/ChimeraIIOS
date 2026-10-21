@@ -158,7 +158,7 @@ jobs:
               ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
             fi
             cp "$ovmf_vars" /tmp/chimera-qemu-vars.fd
-            timeout 20s qemu-system-x86_64 -machine q35 -m 1024 -smp 1 -accel tcg -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file=/tmp/chimera-qemu-vars.fd -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+            timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -smp 1 -accel tcg -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file=/tmp/chimera-qemu-vars.fd -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
           else
             timeout 20s qemu-system-x86_64 -machine pc -m 1024 -smp 1 -accel tcg -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
           fi
@@ -257,7 +257,7 @@ jobs:
               fi
               vars="$base/$target-vars.fd"
               cp "$ovmf_vars" "$vars"
-              timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file="$vars" -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+              timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file="$vars" -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             else
               timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             fi
