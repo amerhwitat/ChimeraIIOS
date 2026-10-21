@@ -116,6 +116,11 @@ extern "C" int64_t koronos_vfs_rename_user(uint64_t old_address,uint64_t new_add
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
+    /* IRQ0 may expire while the kernel is in CPL0, where the IRQ handler
+     * must not abandon a critical section. Consume that pending deadline
+     * here before accepting another userspace syscall. The assembly abort
+     * restores the original launch continuation and returns a failure code. */
+    if (koronos_user_timeout_pending()) koronos_user_timeout_abort();
     /* A deadline may expire while the task is in CPL3. Refuse further work and
        unwind through the dedicated timeout path before dispatching any syscall. */
     if (koronos_user_timeout_pending()) {
