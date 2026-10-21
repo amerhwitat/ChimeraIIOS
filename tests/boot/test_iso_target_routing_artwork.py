@@ -72,7 +72,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
         # An initramfs shell diagnostic is not proof of a kernel-managed
         # ring-3 process or a readiness marker from the canonical acceptance ABI.
-        self.assertIn("Aurora desktop readiness is separate", builder)
+        self.assertIn("shell as a kernel-managed process", builder)
 
 
 if __name__ == "__main__":
