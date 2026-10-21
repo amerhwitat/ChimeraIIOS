@@ -281,9 +281,13 @@ static void task_live(void *) {
 
 static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
-    if (image) {
+    const chimera_boot_module *native_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    if (native_init) {
+        console_write("[REC ] Native init ELF is staged; target-launch verifier is authoritative");
+        console_write("[REC ] Recovery repair service and persistent storage backend remain unavailable");
+    } else if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
-        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+        console_write("[USER] Recovery handoff withheld: no native init ELF was staged");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
@@ -315,21 +319,22 @@ static void task_installer(void *) {
             else console_write("[INST] WARNING: installer contract module missing");
             break;
         case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
+            console_write("[INST] Metadata inspection only; no installer runtime service has started");
             break;
         case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
+            console_write("[INST] Hardware and storage backends are unavailable; no disk I/O was attempted");
             break;
         case 3:
-            if (phases) console_write("[INST] Installation phases loaded");
-            if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI scaffolding initialized; graphical userspace is not running");
+            if (phases) console_write("[INST] Installation phase metadata parsed");
+            if (profiles) console_write("[INST] Installer profile metadata parsed");
+            console_write("[INST] No graphical installer userspace is claimed");
             break;
         case 4:
-            console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
-            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
+            if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))
+                console_write("[INST] Native init ELF was staged; install transaction and reboot are still unimplemented");
+            else
+                console_write("[USER] Installer handoff withheld: no native init ELF was staged");
+            console_write("[INST] Installer readiness withheld until persistent disk transaction is verified");
             chimera_sched_block();
             break;
         default:
