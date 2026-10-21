@@ -95,6 +95,8 @@ extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
+extern "C" int koronos_user_timeout_pending(void);
+extern "C" __attribute__((noreturn)) void koronos_user_timeout_abort(void);
 extern "C" int64_t koronos_vfs_open_user(uint64_t path_address,uint64_t flags);
 extern "C" int64_t koronos_vfs_read_user(uint64_t fd,uint64_t address,uint64_t length);
 extern "C" int64_t koronos_vfs_write_user(uint64_t fd,uint64_t address,uint64_t length);
