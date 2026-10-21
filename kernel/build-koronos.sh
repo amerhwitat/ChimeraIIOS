@@ -23,6 +23,11 @@ BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
 # Run service lifecycle regression tests before the freestanding build.
 HOST_CXX="${HOST_CXX:-g++}"
+BLOCK_TEST="$BUILD/block-api-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/block.cpp" "$ROOT/kernel/tests/block_api_test.cpp" -o "$BLOCK_TEST"
+"$BLOCK_TEST"
+rm -f "$BLOCK_TEST"
 SERVICE_TEST="$BUILD/service-lifecycle-test"
 "$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
   "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_lifecycle_test.cpp" \
@@ -64,7 +69,7 @@ CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader frame_allocator address_space target_launch thread sync timer apc dpc hardware nbit firmware device multiboot_modules cpio vfs vfs_fd parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
+sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader block frame_allocator address_space target_launch thread sync timer apc dpc hardware nbit firmware device multiboot_modules cpio vfs vfs_fd parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
