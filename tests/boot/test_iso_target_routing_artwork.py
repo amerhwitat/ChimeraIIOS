@@ -23,7 +23,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("module2 /install/installer/installation-manifest.json chimera-installation-manifest", entry)
         self.assertIn("module2 /install/installer/installer-contract.json chimera-installer-contract", entry)
         self.assertNotIn("chimera-live-initramfs.img", entry)
-        self.assertIn("chimera-user-init-elf target=installer", entry)
+        self.assertIn("module2 /boot/koronos/native-init-installer.elf chimera-user-init-elf target=installer", entry)
         self.assertIn("--id installer", INSTALL)
         self.assertIn("/install/installer/installation.img", INSTALL)
 
@@ -33,13 +33,13 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
-        self.assertIn("chimera-user-init-elf target=recovery", RECOVERY)
+        self.assertIn("module2 /boot/koronos/native-init-recovery.elf chimera-user-init-elf target=recovery", RECOVERY)
 
     def test_native_ring3_init_is_built_and_staged_without_fabricated_readiness(self):
         source = (ROOT / "kernel/userland/native_init.c").read_text()
         builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
         self.assertIn("native-init.elf", builder)
-        self.assertIn("chimera-user-init-elf target=live", GRUB)
+        self.assertIn("module2 /boot/koronos/native-init-live.elf chimera-user-init-elf target=live", GRUB)
         self.assertIn("chimera-user-init-elf target=installer", GRUB)
         self.assertIn("chimera-user-init-elf target=recovery", RECOVERY)
         self.assertIn('int $0x80', source)
@@ -78,9 +78,9 @@ class IsoTargetRoutingTests(unittest.TestCase):
             with self.subTest(target=name):
                 lines = [
                     line for line in target_entry.splitlines()
-                    if "module2 /boot/koronos/native-init.elf chimera-user-init-elf" in line
+                    if "module2 /boot/koronos/native-init-" in line and "chimera-user-init-elf" in line
                 ]
-                self.assertEqual(len(lines), 1, f"{name} must stage exactly one USER_INIT_ELF")
+                self.assertEqual(len(lines), 1, f"{name} must stage exactly one USER_INIT_ELF")\n                self.assertIn(f"/boot/koronos/native-init-{target}.elf", lines[0])
                 self.assertIn(f"target={target}", lines[0])
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
