@@ -103,6 +103,7 @@ extern "C" void koronos_target_log(const char *message);
 
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
     static volatile uint32_t first_transition_exception = 0;
+    static volatile uint32_t first_user_int80 = 0;
     if (vector > 255u) return;
     /* Emit one address-bearing record for the first transition exception.
      * Repeatedly IRET'ing to the same faulting RIP must not flood debugcon. */
@@ -139,10 +140,14 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
     }
     if (vector == CHIMERA_SYSCALL_VECTOR && frame) {
         /* interrupts.asm saves 15 GPRs, then vector, then the hardware frame:
-         * frame[16] is RIP and frame[17] is CS. INT 0x80's IDT gate is DPL3;
-         * still check the CPU-saved RPL explicitly before acknowledging. */
+         * frame[16] is RIP and frame[17] is CS. Log the first vector entry so
+         * a failed CPL3 acceptance run can distinguish no entry from rejected
+         * saved context. This diagnostic is not readiness evidence. */
         const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
-        (void)koronos_target_note_user_syscall(saved[16], saved[17]);
+        if (__sync_bool_compare_and_swap(&first_user_int80, 0u, 1u))
+            koronos_target_log("[INT80] software vector entered; validating saved CS/RIP/CR3/PID");
+        if (!koronos_target_note_user_syscall(saved[16], saved[17]))
+            koronos_target_log("[INT80] first vector rejected: saved CS/RIP/CR3/PID did not match active user process");
     }
     chimera_interrupt_identity identity{};
     chimera_compat_recognize_interrupt((uint32_t)vector, &identity);
