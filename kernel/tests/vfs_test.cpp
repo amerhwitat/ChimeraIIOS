@@ -25,5 +25,15 @@ int main(){
  assert(chimera_vfs_unlink(&fs,"home/user/note.txt",1000,100)==CHIMERA_VFS_EACCES);
  assert(chimera_vfs_unlink(&fs,"home/user/note.txt",2000,200)==0);
  assert(chimera_vfs_stat_path(&fs,"home/user/note.txt",0,0,&st)==CHIMERA_VFS_ENOENT);
+ assert(chimera_vfs_mkdir(&fs,"/run",0755,0,0)==CHIMERA_VFS_OK);
+ assert(chimera_vfs_create(&fs,"/run/a",0644,0,0)==CHIMERA_VFS_OK);
+ assert(chimera_vfs_stat_path(&fs,"/run",0,0,&st)==CHIMERA_VFS_OK&&st.type==CHIMERA_VFS_TYPE_DIRECTORY);
+ assert(chimera_vfs_read(&fs,"/run",0,buf,1,0,0)==CHIMERA_VFS_EISDIR);
+ assert(chimera_vfs_rmdir(&fs,"/run",0,0)==CHIMERA_VFS_ENOTEMPTY);
+ assert(chimera_vfs_rename(&fs,"/run/a","/run/b",0,0)==CHIMERA_VFS_OK);
+ assert(chimera_vfs_stat_path(&fs,"/run/a",0,0,&st)==CHIMERA_VFS_ENOENT);
+ assert(chimera_vfs_stat_path(&fs,"/run/b",0,0,&st)==CHIMERA_VFS_OK&&st.type==CHIMERA_VFS_TYPE_FILE);
+ assert(chimera_vfs_unlink(&fs,"/run/b",0,0)==CHIMERA_VFS_OK);
+ assert(chimera_vfs_rmdir(&fs,"/run",0,0)==CHIMERA_VFS_OK);
  return 0;
 }
