@@ -49,7 +49,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_each_real_target_entry_stages_exactly_one_native_init_elf(self):
         def entry(source, marker):
             start = source.index(marker)
-            end = source.index("\\n}", start)
+            end = source.index("\n}", start)
             return source[start:end]
 
         # A duplicate USER_INIT_ELF makes the kernel's fail-closed launch
