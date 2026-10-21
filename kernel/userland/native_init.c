@@ -1,4 +1,13 @@
 #include <stdint.h>
+#ifndef CHIMERA_INIT_TARGET
+#error CHIMERA_INIT_TARGET must be set by the target build
+#endif
+#ifndef CHIMERA_INIT_TARGET_NAME
+#error CHIMERA_INIT_TARGET_NAME must be set by the target build
+#endif
+#if CHIMERA_INIT_TARGET < 1 || CHIMERA_INIT_TARGET > 3
+#error CHIMERA_INIT_TARGET must identify Live, Installer, or Recovery
+#endif
 /* Native ring-3 init boundary. It validates process identity and exercises
  * filesystem mutation syscalls, but deliberately withholds USERSPACE READY
  * until persistent storage and target service startup are genuinely available. */
