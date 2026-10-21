@@ -35,7 +35,6 @@ for service in services:
     for dep in service.get("dependencies", []):
         assert position[dep] < position[service["id"]], f"dependency order violation: {dep} -> {service['id']}"
 
-print("PASS: service registry, profiles and dependency graph are valid")
 
 # Runtime claims are separate from service catalog membership.
 EVIDENCE = json.loads((ROOT / "config/services/runtime-evidence.json").read_text())
@@ -55,3 +54,5 @@ for target, firmware_matrix in targets.items():
     assert set(firmware_matrix) == {"bios", "uefi"}
     assert all(value in {"not_verified", "pass", "fail"} for value in firmware_matrix.values())
 assert all(value == "not_verified" for matrix in targets.values() for value in matrix.values()), "update only from real target-specific artifacts"
+
+print("PASS: service registry, profiles, dependency graph and runtime evidence matrix are valid")
