@@ -283,6 +283,30 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      # These gates intentionally fail closed until their real acceptance
+      # workflows exist. Do not replace these explicit blockers with probe-only
+      # checks or infer success from unrelated build jobs.
+      - name: Block release until six-case BIOS/UEFI acceptance is implemented
+        id: firmware_matrix
+        if: always()
+        run: |
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Release blocked: Live/Installer/Recovery x BIOS/UEFI production acceptance is not implemented in this workflow."
+
+      - name: Block release until installed-disk acceptance is implemented
+        id: installed_disk_gate
+        if: always()
+        run: |
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Release blocked: installed-disk write, persistence, and reboot acceptance is not implemented."
+
+      - name: Block release until genuine SMP acceptance is implemented
+        id: smp_gate
+        if: always()
+        run: |
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Release blocked: AP startup and concurrent per-CPU execution acceptance is not implemented."
+
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
