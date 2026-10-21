@@ -46,6 +46,17 @@ static chimera_vfs_node *find(chimera_vfs *fs, const char *path) {
     return nullptr;
 }
 
+static bool has_children(chimera_vfs *fs,const char *parent) {
+    uint32_t n=0;while(parent[n])++n;
+    for(uint32_t i=0;i<fs->node_capacity;++i){
+        const chimera_vfs_node *node=&fs->nodes[i];
+        if(!node->used)continue;
+        uint32_t j=0;while(j<n&&node->path[j]==parent[j])++j;
+        if(j==n&&node->path[n]=='/')return true;
+    }
+    return false;
+}
+
 static bool allowed(const chimera_vfs_node *node, uint32_t uid, uint32_t gid, uint32_t bit) {
     if (uid == 0) return true;
     const uint32_t shift = uid == node->uid ? 6u : (gid == node->gid ? 3u : 0u);
@@ -98,6 +109,7 @@ extern "C" int chimera_vfs_create(chimera_vfs *fs, const char *path,
         node->uid = uid;
         node->gid = gid;
         node->mode = mode & 0777u;
+        node->type = CHIMERA_VFS_TYPE_FILE;
         node->size = 0;
         node->used = 1;
         uint64_t end;
@@ -128,6 +140,7 @@ extern "C" int chimera_vfs_stat_path(chimera_vfs *fs, const char *path,
     out->uid = node->uid;
     out->gid = node->gid;
     out->mode = node->mode;
+    out->type = node->type;
     return CHIMERA_VFS_OK;
 }
 
@@ -140,6 +153,7 @@ extern "C" int64_t chimera_vfs_read(chimera_vfs *fs, const char *path, uint64_t 
     if (rc) return rc;
     chimera_vfs_node *node = find(fs, key);
     if (!node) return CHIMERA_VFS_ENOENT;
+    if (node->type != CHIMERA_VFS_TYPE_FILE) return CHIMERA_VFS_EISDIR;
     if (!allowed(node, uid, gid, 4u)) return CHIMERA_VFS_EACCES;
     if (offset >= node->size || !length) return 0;
     uint64_t count = node->size - offset;
@@ -158,6 +172,7 @@ extern "C" int64_t chimera_vfs_write(chimera_vfs *fs, const char *path, uint64_t
     if (rc) return rc;
     chimera_vfs_node *node = find(fs, key);
     if (!node) return CHIMERA_VFS_ENOENT;
+    if (node->type != CHIMERA_VFS_TYPE_FILE) return CHIMERA_VFS_EISDIR;
     if (!allowed(node, uid, gid, 2u)) return CHIMERA_VFS_EACCES;
     uint64_t end;
     if (add_overflow(offset, length, &end) || end > node->capacity) return CHIMERA_VFS_EFBIG;
@@ -179,6 +194,7 @@ extern "C" int chimera_vfs_truncate(chimera_vfs *fs, const char *path, uint64_t 
     if (rc) return rc;
     chimera_vfs_node *node = find(fs, key);
     if (!node) return CHIMERA_VFS_ENOENT;
+    if (node->type != CHIMERA_VFS_TYPE_FILE) return CHIMERA_VFS_EISDIR;
     if (!allowed(node, uid, gid, 2u)) return CHIMERA_VFS_EACCES;
     if (size > node->capacity) return CHIMERA_VFS_EFBIG;
     const uint64_t old_size = node->size;
@@ -225,11 +241,53 @@ extern "C" int chimera_vfs_unlink(chimera_vfs *fs, const char *path,
     if (rc) return rc;
     chimera_vfs_node *node = find(fs, key);
     if (!node) return CHIMERA_VFS_ENOENT;
+    if (node->type == CHIMERA_VFS_TYPE_DIRECTORY) return CHIMERA_VFS_EISDIR;
     if (caller_uid != 0 && caller_uid != node->uid) return CHIMERA_VFS_EACCES;
     (void)caller_gid;
     node->used = 0;
     node->path[0] = 0;
     node->size = 0;
-    node->uid = node->gid = node->mode = 0;
+    node->uid = node->gid = node->mode = node->type = 0;
+    return CHIMERA_VFS_OK;
+}
+
+extern "C" int chimera_vfs_mkdir(chimera_vfs *fs,const char *path,uint32_t mode,uint32_t uid,uint32_t gid) {
+    FsGuard guard(fs);
+    char key[CHIMERA_VFS_PATH_MAX];const int rc=canonical(fs,path,key);if(rc)return rc;
+    if(find(fs,key))return CHIMERA_VFS_EEXIST;
+    for(uint32_t i=0;i<fs->node_capacity;++i){
+        chimera_vfs_node *node=&fs->nodes[i];if(node->used)continue;
+        uint32_t j=0;while(key[j]&&j+1<CHIMERA_VFS_PATH_MAX){node->path[j]=key[j];++j;}node->path[j]=0;
+        node->uid=uid;node->gid=gid;node->mode=mode&0777u;node->type=CHIMERA_VFS_TYPE_DIRECTORY;node->size=0;node->used=1;
+        return CHIMERA_VFS_OK;
+    }
+    return CHIMERA_VFS_ENOSPC;
+}
+extern "C" int chimera_vfs_rmdir(chimera_vfs *fs,const char *path,uint32_t uid,uint32_t gid) {
+    FsGuard guard(fs);
+    char key[CHIMERA_VFS_PATH_MAX];const int rc=canonical(fs,path,key);if(rc)return rc;
+    chimera_vfs_node *node=find(fs,key);if(!node)return CHIMERA_VFS_ENOENT;
+    if(node->type!=CHIMERA_VFS_TYPE_DIRECTORY)return CHIMERA_VFS_ENOTDIR;
+    if(uid!=0&&uid!=node->uid&&!allowed(node,uid,gid,3u))return CHIMERA_VFS_EACCES;
+    if(has_children(fs,key))return CHIMERA_VFS_ENOTEMPTY;
+    node->used=0;node->path[0]=0;node->size=0;node->uid=node->gid=node->mode=node->type=0;
+    return CHIMERA_VFS_OK;
+}
+extern "C" int chimera_vfs_rename(chimera_vfs *fs,const char *old_path,const char *new_path,uint32_t uid,uint32_t gid) {
+    FsGuard guard(fs);
+    char old_key[CHIMERA_VFS_PATH_MAX],new_key[CHIMERA_VFS_PATH_MAX];
+    int rc=canonical(fs,old_path,old_key);if(rc)return rc;
+    rc=canonical(fs,new_path,new_key);if(rc)return rc;
+    chimera_vfs_node *node=find(fs,old_key);if(!node)return CHIMERA_VFS_ENOENT;
+    if(find(fs,new_key))return CHIMERA_VFS_EEXIST;
+    if(uid!=0&&uid!=node->uid&&!allowed(node,uid,gid,3u))return CHIMERA_VFS_EACCES;
+    if(node->type==CHIMERA_VFS_TYPE_DIRECTORY){
+        if(has_children(fs,old_key))return CHIMERA_VFS_ENOTEMPTY;
+        uint32_t n=0;while(old_key[n])++n;
+        uint32_t j=0;while(new_key[j]&&j<n&&new_key[j]==old_key[j])++j;
+        if(j==n&&new_key[n]=='/')return CHIMERA_VFS_EINVAL;
+    }
+    uint32_t i=0;while(new_key[i]&&i+1<CHIMERA_VFS_PATH_MAX){node->path[i]=new_key[i];++i;}
+    node->path[i]=0;
     return CHIMERA_VFS_OK;
 }
