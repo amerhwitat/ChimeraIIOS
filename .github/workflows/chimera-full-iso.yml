@@ -47,6 +47,11 @@ env:
 
 jobs:
   build:
+    name: Full ISO production handoff / ${{ matrix.firmware }}
+    strategy:
+      fail-fast: false
+      matrix:
+        firmware: [bios, uefi]
     timeout-minutes: 180
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +60,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
