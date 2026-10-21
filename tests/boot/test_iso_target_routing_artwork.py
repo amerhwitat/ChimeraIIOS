@@ -80,7 +80,8 @@ class IsoTargetRoutingTests(unittest.TestCase):
                     line for line in target_entry.splitlines()
                     if "module2 /boot/koronos/native-init-" in line and "chimera-user-init-elf" in line
                 ]
-                self.assertEqual(len(lines), 1, f"{name} must stage exactly one USER_INIT_ELF")\n                self.assertIn(f"/boot/koronos/native-init-{target}.elf", lines[0])
+                self.assertEqual(len(lines), 1, f"{name} must stage exactly one USER_INIT_ELF")
+                self.assertIn(f"/boot/koronos/native-init-{target}.elf", lines[0])
                 self.assertIn(f"target={target}", lines[0])
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
