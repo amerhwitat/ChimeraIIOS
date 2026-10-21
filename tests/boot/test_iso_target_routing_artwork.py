@@ -10,6 +10,7 @@ RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 LIVE = (ROOT / "boot/jasper/live.cfg").read_text()
+FULL_ISO_WORKFLOW = (ROOT / ".github/workflows/chimera-full-iso.yml").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -45,6 +46,12 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("SYS_GETPID", source)
         self.assertIn("SYS_EXIT,78", source)
         self.assertNotIn("USERSPACE READY:", source)
+
+    def test_full_iso_gate_boots_real_native_init_not_a_candidate_probe(self):
+        self.assertIn('extract /boot/koronos/native-init.elf "$tree/boot/koronos/native-init.elf"', FULL_ISO_WORKFLOW)
+        self.assertIn('module2 /boot/koronos/native-init.elf chimera-user-init-elf target=$target', FULL_ISO_WORKFLOW)
+        self.assertIn("CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed", FULL_ISO_WORKFLOW)
+        self.assertIn("verify-userspace-handoff.py", FULL_ISO_WORKFLOW)
 
     def test_each_real_target_entry_stages_exactly_one_native_init_elf(self):
         def entry(source, marker):
