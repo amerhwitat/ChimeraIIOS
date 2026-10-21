@@ -206,6 +206,13 @@ extern "C" void koronos_user_timeout_disarm(void) {
 }
 
 extern "C" void koronos_user_timeout_abort(void);
+extern "C" int koronos_user_timeout_pending(void) {
+    // Read the volatile expiry flag set by IRQ0. The syscall entry checks this
+    // before accepting further user work, so an expired ring-3 task cannot
+    // evade the bounded launch deadline by making another syscall.
+    return user_timeout_expired ? 1 : 0;
+}
+
 extern "C" int koronos_user_timeout_irq(void) {
     // Acknowledge IRQ0 before checking the deadline so the PIC can deliver
     // subsequent ticks while the user task is still within its time budget.
