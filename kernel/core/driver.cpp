@@ -3,6 +3,8 @@
 #include <stddef.h>
 
 static chimera_driver_descriptor g_drivers[256];
+static chimera_device g_bound_devices[256];
+static uint8_t g_device_bound[256];
 static uint32_t g_count = 0;
 static int g_last_probe_count = 0;
 static int g_last_probe_failures = 0;
@@ -20,7 +22,10 @@ static int match(const chimera_driver_descriptor *d, const chimera_device *x) {
 extern "C" int chimera_driver_register(const chimera_driver_descriptor *d) {
     if (!d || d->abi_version != KORONOS_DRIVER_ABI || !d->name || g_count >= 256)
         return -1;
-    g_drivers[g_count++] = *d;
+    g_drivers[g_count] = *d;
+    g_bound_devices[g_count] = {};
+    g_device_bound[g_count] = 0;
+    ++g_count;
     return 0;
 }
 
@@ -30,17 +35,19 @@ extern "C" const chimera_driver_registry *chimera_driver_registry_snapshot() {
     return &r;
 }
 
-/* A descriptor/catalog match is not a functioning driver. Only a device that
- * passed its real device-specific probe may transition to RUNNING. The probe
- * callback receives the discovered device exactly once, during probe_all. */
+/* Probe and start are separate lifecycle stages. A successful probe alone is
+ * not a running driver: start must also be present and succeed for the bound
+ * device. Device records are copied because hardware enumeration may return
+ * a stack-owned inventory that expires after probe_all returns. */
 extern "C" int chimera_driver_start_all() {
     int started = 0;
     int rejected = 0;
     for (uint32_t i = 0; i < g_count; ++i) {
         chimera_driver_descriptor *d = &g_drivers[i];
-        if (d->state != 2 && d->state != 1) continue;
-        if (!d->probe || d->state != 2) {
-            d->state = 5; /* FAILED/unsupported: no executable driver backend */
+        if (d->state != 2) continue;
+        if (!d->probe || !d->start || !g_device_bound[i] ||
+            d->start(&g_bound_devices[i]) != 0) {
+            d->state = 5; /* FAILED: absent or unsuccessful executable backend */
             ++rejected;
             continue;
         }
@@ -65,15 +72,13 @@ extern "C" int chimera_driver_probe_all() {
             chimera_driver_descriptor *d = &g_drivers[j];
             if (!match(d, x)) continue;
             matched_candidate = true;
-            if (!d->probe) {
+            if (!d->probe || d->probe(x) != 0) {
                 d->state = 5;
                 continue;
             }
-            if (d->probe(x) != 0) {
-                d->state = 5;
-                continue;
-            }
-            d->state = 2; /* probed; start_all may now mark it running */
+            g_bound_devices[j] = *x;
+            g_device_bound[j] = 1;
+            d->state = 2; /* PROBED; not RUNNING until start succeeds */
             ++g_last_probe_count;
             operational = true;
             break;
@@ -81,8 +86,6 @@ extern "C" int chimera_driver_probe_all() {
         if (!operational) {
             ++g_last_probe_failures;
             if (!matched_candidate) {
-                /* Catalog-only compatibility descriptors are explicitly
-                 * unavailable until they have an executable probe backend. */
                 static chimera_driver_descriptor compat[256];
                 static uint32_t cc = 0;
                 if (cc < 256) {
@@ -96,13 +99,11 @@ extern "C" int chimera_driver_probe_all() {
                         0, x->vendor_id, x->device_id, 0, "compatibility-adapter",
                         "catalog-only; no executable backend", "1",
                         static_cast<uint8_t>(x->class_code), static_cast<uint8_t>(x->subclass),
-                        static_cast<uint8_t>(x->prog_if), 5, "compatibility-layer", nullptr};
+                        static_cast<uint8_t>(x->prog_if), 5, "compatibility-layer", nullptr, nullptr};
                     (void)chimera_driver_register(d);
                 }
             }
         }
     }
-    /* Any discovered device without a successful executable probe means the
-     * driver layer is degraded; callers must not advertise full readiness. */
     return g_last_probe_failures ? -2 : g_last_probe_count;
 }
