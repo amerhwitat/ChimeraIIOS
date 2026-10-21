@@ -91,6 +91,10 @@ jobs:
             test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          extract /boot/koronos/native-init.elf "$tmp/native-init.elf"
+          readelf -h "$tmp/native-init.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
+          readelf -h "$tmp/native-init.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+          readelf -l "$tmp/native-init.elf" | grep -q LOAD
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
           extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
