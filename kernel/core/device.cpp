@@ -49,6 +49,17 @@ extern "C" int chimera_pci_decode_device_bar(const chimera_device *device,uint8_
  out->address=0; out->kind=CHM_PCI_BAR_INVALID; out->prefetchable=0;
  out->consumes_next=0; out->reserved=0;
  if(!device || index>=device->bar_count || index>=6u)return -1;
+ /* Refuse to decode an upper dword as an independent BAR. */
+ for(uint8_t prior=0;prior<index;){
+   const uint32_t prior_low=device->bar_raw[prior];
+   if(prior_low!=0u && prior_low!=0xffffffffu && (prior_low&1u)==0u &&
+      ((prior_low>>1)&3u)==2u){
+     if((uint8_t)(prior+1u)==index)return -2;
+     prior=(uint8_t)(prior+2u);
+   } else {
+     ++prior;
+   }
+ }
  const uint32_t low=device->bar_raw[index];
  if(low==0u || low==0xffffffffu)return -1;
  uint32_t high=0;
