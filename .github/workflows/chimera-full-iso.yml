@@ -247,7 +247,20 @@ jobs:
               continue
             fi
             set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            if [[ "$FIRMWARE" == "uefi" ]]; then
+              if [[ -f /usr/share/OVMF/OVMF_CODE_4M.fd ]]; then
+                ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd
+                ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+              else
+                ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
+                ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+              fi
+              vars="$base/$target-vars.fd"
+              cp "$ovmf_vars" "$vars"
+              timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file="$vars" -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            else
+              timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            fi
             qemu_rc=$?
             set -e
             if [[ ! -s "$trace" ]]; then
