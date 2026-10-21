@@ -182,6 +182,7 @@ jobs:
             tree="$base/$target/tree"
             mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
             xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
+            xorriso -osirrox on -indev "$iso" -extract /boot/koronos/native-init.elf "$tree/boot/koronos/native-init.elf" >/dev/null 2>&1 || accepted=false
             if [[ "$target" == "live" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
@@ -219,6 +220,7 @@ jobs:
             module2 /install/installer/installer_profiles.json chimera-installer-profiles
           GRUB
             fi
+            echo "    module2 /boot/koronos/native-init.elf chimera-user-init-elf target=$target" >> "$tree/boot/grub/grub.cfg"
             cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
             boot
           }
@@ -241,6 +243,11 @@ jobs:
             fi
             if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
               echo "::warning::$target target did not reach Koronos readiness"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[INIT] CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed' "$trace"; then
+              echo "::warning::$target native init did not complete the CPL3 filesystem syscall self-test"
               accepted=false
               continue
             fi
