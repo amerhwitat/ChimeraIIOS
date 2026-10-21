@@ -319,7 +319,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-ii-os-live-installer
+          name: chimera-ii-os-live-installer-${{ matrix.firmware }}
           path: |
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
@@ -328,12 +328,12 @@ jobs:
       # These gates intentionally fail closed until their real acceptance
       # workflows exist. Do not replace these explicit blockers with probe-only
       # checks or infer success from unrelated build jobs.
-      - name: Block release until six-case BIOS/UEFI acceptance is implemented
+      - name: Block release until target readiness is proven under both firmware modes
         id: firmware_matrix
         if: always()
         run: |
           echo "accepted=false" >> "$GITHUB_OUTPUT"
-          echo "::warning::Release blocked: Live/Installer/Recovery x BIOS/UEFI production acceptance is not implemented in this workflow."
+          echo "::warning::The six-case matrix is exercised, but native init still exits 78 without USERSPACE READY; target service readiness is not proven."
 
       - name: Block release until installed-disk acceptance is implemented
         id: installed_disk_gate
@@ -365,7 +365,7 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
           )
-          notes="Automated ChimeraIIOS ISO candidate from commit $GITHUB_SHA. CI validated the original ISO checksum and BIOS/QEMU boot markers (ELBC). The ISO is distributed as Zstandard-compressed .iso.zst because the raw ISO exceeds GitHub's 2 GiB per-asset limit. Decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso; verify the compressed file with its .zst.sha256 and the decompressed ISO with chimera-ii-os.iso.sha256. This is a development prerelease; full userspace/Aurora readiness is not implied."
+          notes="Automated ChimeraIIOS ISO candidate from commit $GITHUB_SHA. The six-case Live/Installer/Recovery x BIOS/UEFI handoff matrix must pass before publication; build and kernel boot markers alone are not acceptance. The ISO is distributed as Zstandard-compressed .iso.zst because the raw ISO exceeds GitHub's 2 GiB per-asset limit. Decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso; verify the compressed file with its .zst.sha256 and the decompressed ISO with chimera-ii-os.iso.sha256. This is a development prerelease; full userspace/Aurora readiness is not implied."
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "${assets[@]}" --clobber
             gh release edit "$tag" --draft=false --prerelease \
