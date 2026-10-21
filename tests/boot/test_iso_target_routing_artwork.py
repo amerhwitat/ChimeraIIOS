@@ -9,6 +9,7 @@ INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
+LIVE = (ROOT / "boot/jasper/live.cfg").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -44,6 +45,32 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("SYS_GETPID", source)
         self.assertIn("SYS_EXIT,78", source)
         self.assertNotIn("USERSPACE READY:", source)
+
+    def test_each_real_target_entry_stages_exactly_one_native_init_elf(self):
+        def entry(source, marker):
+            start = source.index(marker)
+            end = source.index("\\n}", start)
+            return source[start:end]
+
+        # A duplicate USER_INIT_ELF makes the kernel's fail-closed launch
+        # selector reject the whole target; a missing one leaves no ring-3 init.
+        live_entry = entry(LIVE, '--id aurora-live {')
+        installer_entry = entry(INSTALL, '--id installer {')
+        recovery_entry = entry(RECOVERY, '--id recovery-terminal {')
+        recovery_safe_entry = entry(RECOVERY, '--id recovery-safe {')
+        for name, target_entry, target in (
+            ("Live", live_entry, "live"),
+            ("Installer", installer_entry, "installer"),
+            ("Recovery", recovery_entry, "recovery"),
+            ("Safe Recovery", recovery_safe_entry, "recovery"),
+        ):
+            with self.subTest(target=name):
+                lines = [
+                    line for line in target_entry.splitlines()
+                    if "module2 /boot/koronos/native-init.elf chimera-user-init-elf" in line
+                ]
+                self.assertEqual(len(lines), 1, f"{name} must stage exactly one USER_INIT_ELF")
+                self.assertIn(f"target={target}", lines[0])
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
