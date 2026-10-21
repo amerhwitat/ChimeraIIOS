@@ -23,6 +23,7 @@ typedef struct chimera_vfs {
     uint8_t *data;
     uint64_t data_capacity, slot_size;
     uint32_t initialized;
+    volatile uint32_t lock;
 } chimera_vfs;
 typedef struct chimera_vfs_stat { uint64_t size, capacity; uint32_t uid, gid, mode; } chimera_vfs_stat;
 int chimera_vfs_init(chimera_vfs*, chimera_vfs_node*, uint32_t, void*, uint64_t, uint64_t);
