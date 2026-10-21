@@ -549,6 +549,23 @@ extern "C" int64_t koronos_vfs_chown_user(uint64_t path_address,uint64_t uid,uin
     return chimera_vfs_chown(&g_vfs,path,static_cast<uint32_t>(uid),static_cast<uint32_t>(gid),0u);
 }
 
+extern "C" int64_t koronos_vfs_mkdir_user(uint64_t path_address,uint64_t mode) {
+    if(mode>0777u)return -22;const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_mkdir(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
+}
+extern "C" int64_t koronos_vfs_rmdir_user(uint64_t path_address) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_rmdir(&g_vfs,path,0u,0u);
+}
+extern "C" int64_t koronos_vfs_rename_user(uint64_t old_address,uint64_t new_address) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char old_path[CHIMERA_VFS_PATH_MAX]{},new_path[CHIMERA_VFS_PATH_MAX]{};
+    const int a=koronos_copy_user_path(old_address,old_path);if(a)return a;
+    const int b=koronos_copy_user_path(new_address,new_path);if(b)return b;
+    return chimera_vfs_rename(&g_vfs,old_path,new_path,0u,0u);
+}
 extern "C" void koronos_vfs_close_process(uint32_t pid) {
     if (pid) (void)chimera_vfs_close_process(g_vfs_fds, CHIMERA_VFS_FD_MAX, pid);
 }
