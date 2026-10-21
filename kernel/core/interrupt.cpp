@@ -7,7 +7,8 @@
  * internal linkage and produces an undefined reference at link time. */
 extern "C" void *chimera_isr_table[CHIMERA_IDT_ENTRIES];
 extern "C" int koronos_user_timeout_irq(void);
-extern "C" void koronos_user_timeout_abort(void);
+extern "C" __attribute__((noreturn)) void koronos_user_timeout_abort(void);
+extern "C" int koronos_user_timeout_pending(void);
 
 namespace {
 
@@ -118,7 +119,13 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         koronos_target_log(message);
     }
     if (vector == 32u) {
-        if (koronos_user_timeout_irq() != 0) koronos_user_timeout_abort();
+        const int expired = koronos_user_timeout_irq();
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        /* Never abandon a kernel critical section/lock from an IRQ. A deadline
+         * that expires in CPL0 remains pending and is handled at syscall entry
+         * or on the next IRQ taken from CPL3. */
+        if (expired && saved && ((saved[17] & 3u) == 3u))
+            koronos_user_timeout_abort();
         return;
     }
     g_last = (uint32_t)vector;
@@ -144,6 +151,7 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
 namespace {
 static volatile uint32_t user_timeout_ticks = 0;
 static volatile uint32_t user_timeout_active = 0;
+static volatile uint32_t user_timeout_expired = 0;
 static inline void port_out8(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
 }
@@ -172,6 +180,7 @@ extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
     port_out8(0x40, static_cast<uint8_t>(divisor >> 8));
 
     user_timeout_ticks = ticks;
+    user_timeout_expired = 0;
     user_timeout_active = 1;
     port_out8(0x21, 0xFE); // unmask IRQ0 only
     port_out8(0xA1, 0xFF); // mask all slave PIC IRQs
@@ -181,6 +190,7 @@ extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
 extern "C" void koronos_user_timeout_disarm(void) {
     __asm__ volatile("cli" ::: "memory");
     user_timeout_active = 0;
+    user_timeout_expired = 0;
     user_timeout_ticks = 0;
     port_out8(0x21, 0xFF);
     port_out8(0xA1, 0xFF);
@@ -194,7 +204,7 @@ extern "C" int koronos_user_timeout_irq(void) {
     if (!user_timeout_active) return 0;
     if (user_timeout_ticks > 0) --user_timeout_ticks;
     if (user_timeout_ticks == 0) {
-        user_timeout_active = 0;
+        user_timeout_expired = 1;
         return 1;
     }
     return 0;
