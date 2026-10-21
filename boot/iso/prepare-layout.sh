@@ -177,6 +177,9 @@ for target in live installer recovery; do
   init_elf="$ROOT/build/koronos/x86_64/user-init-$target.elf"
   test -s "$init_elf" || { echo "ERROR: production $target init ELF missing: $init_elf" >&2; exit 2; }
   chimera_copy_if_distinct "$init_elf" "$DIST/boot/koronos/native-init-$target.elf"
+  # Target-specific paths are consumed by the full-ISO acceptance matrix.
+  mkdir -p "$DIST/boot/$target"
+  chimera_copy_if_distinct "$init_elf" "$DIST/boot/$target/user-init-$target.elf"
 done
 chimera_copy_if_distinct "$ROOT/build/koronos/x86_64/user-init-live.elf" "$DIST/boot/koronos/native-init.elf"
 
