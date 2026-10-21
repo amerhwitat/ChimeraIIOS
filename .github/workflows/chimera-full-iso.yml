@@ -246,6 +246,7 @@ jobs:
             echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
           else
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
+            exit 1
           fi
 
       - name: Upload target-specific userspace acceptance traces
