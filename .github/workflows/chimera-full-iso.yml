@@ -285,9 +285,9 @@ jobs:
           done
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
+            echo "PASS: all three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness under $FIRMWARE."
           else
-            echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
+            echo "FAIL: $FIRMWARE production handoff is NOT VERIFIED for every target; no release will be published."
             exit 1
           fi
 
@@ -295,7 +295,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-target-userspace-traces
+          name: chimera-target-userspace-traces-${{ matrix.firmware }}
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
