@@ -41,6 +41,11 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include kernel/core/driver.cpp kernel/tests/driver_backend_honesty_test.cpp -o /tmp/driver-backend-honesty-test
           /tmp/driver-backend-honesty-test
+      - name: Compile and run service lifecycle tests
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include kernel/core/service.cpp kernel/tests/service_lifecycle_test.cpp -o /tmp/service-lifecycle-test
+          /tmp/service-lifecycle-test
       - name: Shell syntax
         run: bash -n kernel/build-koronos.sh
   koronos:
