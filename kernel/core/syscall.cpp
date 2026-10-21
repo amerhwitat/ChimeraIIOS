@@ -95,6 +95,18 @@ extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
+extern "C" int64_t koronos_vfs_open_user(uint64_t path_address,uint64_t flags);
+extern "C" int64_t koronos_vfs_read_user(uint64_t fd,uint64_t address,uint64_t length);
+extern "C" int64_t koronos_vfs_write_user(uint64_t fd,uint64_t address,uint64_t length);
+extern "C" int64_t koronos_vfs_seek_user(uint64_t fd,uint64_t offset);
+extern "C" int64_t koronos_vfs_close_user(uint64_t fd);
+extern "C" int64_t koronos_vfs_stat_user(uint64_t path_address,uint64_t out_address);
+extern "C" int64_t koronos_vfs_create_user(uint64_t path_address,uint64_t mode);
+extern "C" int64_t koronos_vfs_unlink_user(uint64_t path_address);
+extern "C" int64_t koronos_vfs_truncate_user(uint64_t path_address,uint64_t length);
+extern "C" int64_t koronos_vfs_chmod_user(uint64_t path_address,uint64_t mode);
+extern "C" int64_t koronos_vfs_chown_user(uint64_t path_address,uint64_t uid,uint64_t gid);
+
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
@@ -123,13 +135,28 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             return 0;
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
-        case CHM_SYS_WRITE: {
-            const uint64_t fd = frame->rdi;
-            const uint64_t address = frame->rsi;
-            const uint64_t length = frame->rdx;
-            if (fd > 2u || length > 4096u) return static_cast<uint64_t>(-22ll);
-            return static_cast<uint64_t>(koronos_console_write_user(address, length));
-        }
+        case CHM_SYS_READ:
+            return static_cast<uint64_t>(koronos_vfs_read_user(frame->rdi,frame->rsi,frame->rdx));
+        case CHM_SYS_WRITE:
+            return static_cast<uint64_t>(koronos_vfs_write_user(frame->rdi,frame->rsi,frame->rdx));
+        case CHM_SYS_OPEN:
+            return static_cast<uint64_t>(koronos_vfs_open_user(frame->rdi,frame->rsi));
+        case CHM_SYS_CLOSE:
+            return static_cast<uint64_t>(koronos_vfs_close_user(frame->rdi));
+        case CHM_SYS_SEEK:
+            return static_cast<uint64_t>(koronos_vfs_seek_user(frame->rdi,frame->rsi));
+        case CHM_SYS_STAT:
+            return static_cast<uint64_t>(koronos_vfs_stat_user(frame->rdi,frame->rsi));
+        case CHM_SYS_CREATE:
+            return static_cast<uint64_t>(koronos_vfs_create_user(frame->rdi,frame->rsi));
+        case CHM_SYS_UNLINK:
+            return static_cast<uint64_t>(koronos_vfs_unlink_user(frame->rdi));
+        case CHM_SYS_TRUNCATE:
+            return static_cast<uint64_t>(koronos_vfs_truncate_user(frame->rdi,frame->rsi));
+        case CHM_SYS_CHMOD:
+            return static_cast<uint64_t>(koronos_vfs_chmod_user(frame->rdi,frame->rsi));
+        case CHM_SYS_CHOWN:
+            return static_cast<uint64_t>(koronos_vfs_chown_user(frame->rdi,frame->rsi,frame->rdx));
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
             koronos_user_exit_code = frame->rdi & 0xFFu;
