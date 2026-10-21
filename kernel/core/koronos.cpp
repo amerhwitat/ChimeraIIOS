@@ -21,6 +21,10 @@ extern "C" void koronos_outb(uint16_t port, uint8_t value);
 namespace {
 volatile uint32_t koronos_state = 0;
 static volatile uint32_t g_console_ready = 0;
+static chimera_vfs g_vfs{};
+static chimera_vfs_node g_vfs_nodes[CHIMERA_VFS_MAX_FILES]{};
+static uint8_t g_vfs_data[CHIMERA_VFS_MAX_FILES * 4096u]{};
+static chimera_vfs_fd g_vfs_fds[CHIMERA_VFS_FD_MAX]{};
 static volatile uint32_t g_module_registry_ready = 0;
 static volatile uint32_t g_scheduler_ready = 0;
 static volatile uint32_t g_hardware_inventory_ready = 0;
@@ -579,8 +583,8 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     chimera_learning_record(1, f->logical_cpus);
     koronos_elf64_init();
     chimera_process_init();
-    const int vfs_init_rc = chimera_vfs_init();
-    const int vfs_fd_init_rc = (vfs_init_rc == 0) ? chimera_vfs_fd_init() : -1;
+    const int vfs_init_rc = chimera_vfs_init(&g_vfs, g_vfs_nodes, CHIMERA_VFS_MAX_FILES, g_vfs_data, sizeof(g_vfs_data), 4096u);
+    const int vfs_fd_init_rc = (vfs_init_rc == 0) ? chimera_vfs_fd_init(g_vfs_fds, CHIMERA_VFS_FD_MAX) : -1;
     if (vfs_init_rc == 0 && vfs_fd_init_rc == 0)
         console_write("[VFS] Volatile RAM VFS and descriptor registry initialized (no persistent mount)");
     else
