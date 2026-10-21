@@ -54,7 +54,7 @@ extern "C" int chimera_driver_start_all() {
         d->state = 3;
         ++started;
     }
-    return rejected ? -2 : started;
+    return (rejected || g_last_probe_failures) ? -2 : started;
 }
 
 extern "C" int chimera_driver_probe_all() {
