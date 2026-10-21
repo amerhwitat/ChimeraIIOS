@@ -353,9 +353,9 @@ jobs:
 
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
-        # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        # Fail closed until dedicated BIOS/UEFI target matrix, installed-disk, and real SMP gates exist and pass.
-        # The current workflow does not define these outputs, so a repository variable alone can never publish a release.
+        # A matrix instance must never publish independently of the other firmware instance.
+        # Keep this fail-closed until an aggregate publish job requires BOTH firmware runs,
+        # real installed-disk acceptance, and genuine SMP acceptance.
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.firmware_matrix.outputs.accepted == 'true' && steps.installed_disk_gate.outputs.accepted == 'true' && steps.smp_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
