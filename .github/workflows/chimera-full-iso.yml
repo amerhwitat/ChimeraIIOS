@@ -106,8 +106,12 @@ jobs:
           mkdir -p "$tmp/live-root" "$tmp/recovery-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
-          grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
-          grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
+          # These checks prove only that the initramfs contains its shell
+          # entrypoint. Payload strings are not CPL3/runtime acceptance evidence.
+          grep -Fq 'INITRAMFS SHELL READY: target=live (payload diagnostic only)' "$tmp/live-root/init"
+          grep -Fq 'INITRAMFS SHELL READY: target=recovery (payload diagnostic only)' "$tmp/recovery-root/init"
+          ! grep -Fq 'USERSPACE READY: target=' "$tmp/live-root/init"
+          ! grep -Fq 'USERSPACE READY: target=' "$tmp/recovery-root/init"
           grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
