@@ -4,7 +4,7 @@ constexpr uint64_t PAGE=4096, ADDR_MASK=0x000FFFFFFFFFF000ull, USER_LIMIT=0x0000
 constexpr uint32_t PF_X=1u,PF_W=2u,PF_R=4u;
 struct Region {uint64_t base,physical,size;uint32_t pages;bool used;};
 struct Table {uint64_t physical;bool used;};
-chimera_x86_vm_ops g_ops{};void*g_context=nullptr;bool g_ready=false;chimera_x86_address_space* g_spaces=nullptr;constexpr uint32_t MAX_SPACES=16;
+chimera_x86_vm_ops g_ops{};void*g_context=nullptr;bool g_ready=false;constexpr uint32_t MAX_SPACES=16;
 static void zero(void*p,uint64_t n){auto*b=static_cast<uint8_t*>(p);for(uint64_t i=0;i<n;++i)b[i]=0;}
 static bool add_ok(uint64_t a,uint64_t b,uint64_t*out){if(a>UINT64_MAX-b)return false;*out=a+b;return true;}
 static bool canonical_user_range(uint64_t base,uint64_t size){uint64_t end=0;return size&&base>=PAGE&&!(base&(PAGE-1))&&!(size&(PAGE-1))&&add_ok(base,size,&end)&&end<=USER_LIMIT;}
