@@ -8,10 +8,12 @@ extern "C" {
 #define CHIMERA_VFS_MAX_FILES 64u
 enum { CHIMERA_VFS_OK=0, CHIMERA_VFS_EINVAL=-1, CHIMERA_VFS_ENOENT=-2,
        CHIMERA_VFS_EEXIST=-3, CHIMERA_VFS_ENOSPC=-4, CHIMERA_VFS_EACCES=-5,
-       CHIMERA_VFS_EFBIG=-6 };
+       CHIMERA_VFS_EFBIG=-6, CHIMERA_VFS_EISDIR=-7, CHIMERA_VFS_ENOTDIR=-8,
+       CHIMERA_VFS_ENOTEMPTY=-9 };
+enum { CHIMERA_VFS_TYPE_FILE=1u, CHIMERA_VFS_TYPE_DIRECTORY=2u };
 typedef struct chimera_vfs_node {
     char path[CHIMERA_VFS_PATH_MAX];
-    uint32_t uid, gid, mode;
+    uint32_t uid, gid, mode, type;
     uint64_t data_offset, size, capacity;
     uint32_t used;
 } chimera_vfs_node;
@@ -25,9 +27,12 @@ typedef struct chimera_vfs {
     uint32_t initialized;
     volatile uint32_t lock;
 } chimera_vfs;
-typedef struct chimera_vfs_stat { uint64_t size, capacity; uint32_t uid, gid, mode; } chimera_vfs_stat;
+typedef struct chimera_vfs_stat { uint64_t size, capacity; uint32_t uid, gid, mode, type; } chimera_vfs_stat;
 int chimera_vfs_init(chimera_vfs*, chimera_vfs_node*, uint32_t, void*, uint64_t, uint64_t);
 int chimera_vfs_create(chimera_vfs*, const char*, uint32_t, uint32_t, uint32_t);
+int chimera_vfs_mkdir(chimera_vfs*, const char*, uint32_t, uint32_t, uint32_t);
+int chimera_vfs_rmdir(chimera_vfs*, const char*, uint32_t, uint32_t);
+int chimera_vfs_rename(chimera_vfs*, const char*, const char*, uint32_t, uint32_t);
 int chimera_vfs_stat_path(chimera_vfs*, const char*, uint32_t, uint32_t, chimera_vfs_stat*);
 int64_t chimera_vfs_read(chimera_vfs*, const char*, uint64_t, void*, uint64_t, uint32_t, uint32_t);
 int64_t chimera_vfs_write(chimera_vfs*, const char*, uint64_t, const void*, uint64_t, uint32_t, uint32_t);
