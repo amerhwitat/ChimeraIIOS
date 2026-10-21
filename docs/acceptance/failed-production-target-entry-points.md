@@ -67,3 +67,8 @@ The earlier analysis above is the historical baseline; the following changes sup
 The RAM VFS is volatile and bounded. There is no persistent block-storage path or production FAT/ext2/ISO9660 implementation, no mounted/decompressed initramfs, no Live desktop startup, no durable installer disk transaction/reboot, no recovery repair shell, and no proven AP startup or genuine concurrent SMP. General multi-process credentials and wait/reap semantics also remain incomplete.
 
 The production acceptance gate must remain strict. A passing kernel build, host VFS test, QEMU boot smoke, or candidate probe is not a production PASS. The six target/firmware cases must show the real init PID, CPL3 syscall acknowledgement, target-native readiness, and actual target operation. Current native init intentionally withholds readiness and exits 78; release publication remains blocked until those service implementations and full-ISO runs pass.
+
+
+### Empirical BIOS trace update — Full ISO run 39548799792
+
+The BIOS-only full-ISO trace artifact shows that Live, Installer, and Recovery each entered CPL3, acknowledged INT 0x80 for the active init PID, and completed the native RAM-VFS file/directory syscall self-test. Each init then exited with status 78 and no USERSPACE READY marker. The authoritative verifier therefore failed at target readiness, as intended. This is evidence that the ring-3/syscall/filesystem bridge executes; it is not evidence of a usable Live desktop, installer, or recovery shell. The current workflow now has a BIOS/UEFI matrix and isolated OVMF VARS per target; exact-head matrix results remain pending.
