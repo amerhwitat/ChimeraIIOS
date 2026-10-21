@@ -227,9 +227,10 @@ koronos_syscall_user_exit:
     pop rbp
     pop rbx
     mov rax, [rel koronos_user_exit_code]
+    ; Restore user GS before POPFQ can re-enable interrupts on the kernel stack.
+    swapgs
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
-    swapgs
     ret
 
 ; Called only by the dedicated IRQ0 stub after the in-kernel deadline expires.
@@ -264,9 +265,10 @@ koronos_user_timeout_abort:
     pop rbp
     pop rbx
     mov eax, -10
+    ; Restore user GS before POPFQ can re-enable interrupts on the kernel stack.
+    swapgs
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
-    swapgs
     ret
 
 section .data
