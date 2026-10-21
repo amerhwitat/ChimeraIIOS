@@ -1,6 +1,8 @@
 #include "chimera/vfs_fd.h"
 
 namespace {
+static volatile uint32_t fd_table_lock=0;
+struct FdGuard { FdGuard(){while(__sync_lock_test_and_set(&fd_table_lock,1u)){} } ~FdGuard(){__sync_lock_release(&fd_table_lock);} };
 static chimera_vfs_fd *get(chimera_vfs_fd *table, uint32_t capacity, uint32_t pid, int fd) {
     if (!table || !pid || fd < 0 || static_cast<uint32_t>(fd) >= capacity ||
         capacity > CHIMERA_VFS_FD_MAX) return nullptr;
@@ -21,6 +23,7 @@ static int copy_path(char *dst, const char *src) {
 }
 
 extern "C" int chimera_vfs_fd_init(chimera_vfs_fd *table, uint32_t capacity) {
+    FdGuard guard;
     if (!table || !capacity || capacity > CHIMERA_VFS_FD_MAX) return CHIMERA_VFS_EINVAL;
     for (uint32_t i = 0; i < capacity; ++i) table[i] = {};
     return CHIMERA_VFS_OK;
@@ -29,6 +32,7 @@ extern "C" int chimera_vfs_fd_init(chimera_vfs_fd *table, uint32_t capacity) {
 extern "C" int chimera_vfs_open(chimera_vfs_fd *table, uint32_t capacity, chimera_vfs *fs,
                                  uint32_t pid, uint32_t uid, uint32_t gid, const char *path,
                                  uint32_t flags) {
+    FdGuard guard;
     const uint32_t valid = CHIMERA_FD_READ | CHIMERA_FD_WRITE | CHIMERA_FD_CREATE | CHIMERA_FD_TRUNC;
     if (!table || !fs || !pid || !path || !capacity || capacity > CHIMERA_VFS_FD_MAX ||
         !(flags & (CHIMERA_FD_READ | CHIMERA_FD_WRITE)) || (flags & ~valid) ||
@@ -85,6 +89,7 @@ extern "C" int chimera_vfs_open(chimera_vfs_fd *table, uint32_t capacity, chimer
 
 extern "C" int64_t chimera_vfs_fd_read(chimera_vfs_fd *table, uint32_t capacity, uint32_t pid,
                                         int fd, void *buffer, uint64_t length) {
+    FdGuard guard;
     chimera_vfs_fd *entry = get(table, capacity, pid, fd);
     if (!entry) return CHIMERA_VFS_EINVAL;
     if (!(entry->flags & CHIMERA_FD_READ)) return CHIMERA_VFS_EACCES;
@@ -96,6 +101,7 @@ extern "C" int64_t chimera_vfs_fd_read(chimera_vfs_fd *table, uint32_t capacity,
 
 extern "C" int64_t chimera_vfs_fd_write(chimera_vfs_fd *table, uint32_t capacity, uint32_t pid,
                                          int fd, const void *buffer, uint64_t length) {
+    FdGuard guard;
     chimera_vfs_fd *entry = get(table, capacity, pid, fd);
     if (!entry) return CHIMERA_VFS_EINVAL;
     if (!(entry->flags & CHIMERA_FD_WRITE)) return CHIMERA_VFS_EACCES;
@@ -107,6 +113,7 @@ extern "C" int64_t chimera_vfs_fd_write(chimera_vfs_fd *table, uint32_t capacity
 
 extern "C" int chimera_vfs_fd_seek(chimera_vfs_fd *table, uint32_t capacity, uint32_t pid,
                                     int fd, uint64_t offset) {
+    FdGuard guard;
     chimera_vfs_fd *entry = get(table, capacity, pid, fd);
     if (!entry) return CHIMERA_VFS_EINVAL;
     entry->offset = offset;
@@ -114,6 +121,7 @@ extern "C" int chimera_vfs_fd_seek(chimera_vfs_fd *table, uint32_t capacity, uin
 }
 
 extern "C" int chimera_vfs_close(chimera_vfs_fd *table, uint32_t capacity, uint32_t pid, int fd) {
+    FdGuard guard;
     chimera_vfs_fd *entry = get(table, capacity, pid, fd);
     if (!entry) return CHIMERA_VFS_EINVAL;
     *entry = {};
@@ -121,6 +129,7 @@ extern "C" int chimera_vfs_close(chimera_vfs_fd *table, uint32_t capacity, uint3
 }
 
 extern "C" int chimera_vfs_close_process(chimera_vfs_fd *table, uint32_t capacity, uint32_t pid) {
+    FdGuard guard;
     if (!table || !pid || !capacity || capacity > CHIMERA_VFS_FD_MAX) return CHIMERA_VFS_EINVAL;
     for (uint32_t i = 0; i < capacity; ++i) {
         if (table[i].used && table[i].owner_pid == pid) table[i] = {};
