@@ -20,6 +20,15 @@ extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out)
    chimera_device &d=out->devices[out->count++]; d.bus=1;d.bdf=(bus<<8)|(dev<<3)|fn;d.vendor_id=(uint16_t)(id&0xffff);d.device_id=(uint16_t)(id>>16);
    d.revision=classreg&0xff; d.prog_if=(classreg>>8)&0xff; d.subclass=(classreg>>16)&0xff; d.class_code=(classreg>>24)&0xff; d.flags=hdr;
    d.device_class=classify((uint8_t)d.class_code,(uint8_t)d.subclass);
+   /* Header type 0 exposes six BARs; type 1 PCI bridges expose two. Read-only
+    * discovery deliberately does not write all-ones to size BARs, enable bus
+    * mastering, or dereference addresses. A later resource manager must size,
+    * reserve and map these resources before a driver can use them.
+    */
+   const uint8_t header_type=(uint8_t)((hdr>>16)&0x7fu);
+   d.bar_count=(header_type==0u)?6u:(header_type==1u?2u:0u);
+   for(uint8_t bi=0;bi<d.bar_count;++bi)
+     d.bar_raw[bi]=pci_read((uint8_t)bus,(uint8_t)dev,(uint8_t)fn,(uint8_t)(0x10u+4u*bi));
    d.name[0]='P';d.name[1]='C';d.name[2]='I';d.name[3]=0;
  }
 #else
