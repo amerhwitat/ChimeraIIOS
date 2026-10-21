@@ -44,6 +44,25 @@ extern "C" int chimera_pci_decode_bar(uint32_t low,uint32_t high,chimera_pci_bar
  }
  return -1; /* reserved memory BAR encoding */
 }
+extern "C" int chimera_pci_decode_device_bar(const chimera_device *device,uint8_t index,chimera_pci_bar *out){
+ if(!out)return -1;
+ out->address=0; out->kind=CHM_PCI_BAR_INVALID; out->prefetchable=0;
+ out->consumes_next=0; out->reserved=0;
+ if(!device || index>=device->bar_count || index>=6u)return -1;
+ const uint32_t low=device->bar_raw[index];
+ if(low==0u || low==0xffffffffu)return -1;
+ uint32_t high=0;
+ if((low&1u)==0u && ((low>>1)&3u)==2u){
+   if(index+1u>=device->bar_count || index+1u>=6u)return -1;
+   high=device->bar_raw[index+1u];
+   if(high==0xffffffffu)return -1;
+ }
+ /* A slot that is the upper dword of a preceding 64-bit BAR is not
+  * self-identifying from its own bits; callers should advance by two when
+  * the preceding decoded BAR reports consumes_next.
+  */
+ return chimera_pci_decode_bar(low,high,out);
+}
 extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out){
  if(!out)return -1;
  for(size_t i=0;i<sizeof(*out);++i)((uint8_t*)out)[i]=0;
