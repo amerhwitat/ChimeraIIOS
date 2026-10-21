@@ -18,6 +18,11 @@ int main() {
     assert(chimera_vfs_fd_read(fds, 8, 8, fd, out, 1) == CHIMERA_VFS_EINVAL);
     assert(chimera_vfs_close(fds, 8, 7, fd) == 0);
     assert(chimera_vfs_fd_read(fds, 8, 7, fd, out, 1) == CHIMERA_VFS_EINVAL);
+    assert(chimera_vfs_create(&fs, "/docs/locked.txt", 000u, 1000, 100) == 0);
+    int denied = chimera_vfs_open(fds, 8, &fs, 100, 1000, 100, "/docs/locked.txt",
+                                  CHIMERA_FD_READ | CHIMERA_FD_CREATE);
+    assert(denied == CHIMERA_VFS_EACCES);
+
     int fd2 = chimera_vfs_open(fds, 8, &fs, 9, 1000, 100, "/docs/file.txt", CHIMERA_FD_READ);
     assert(fd2 >= 0);
     assert(chimera_vfs_fd_write(fds, 8, 9, fd2, s, 1) == CHIMERA_VFS_EACCES);
