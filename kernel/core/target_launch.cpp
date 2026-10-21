@@ -22,6 +22,7 @@ static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_vfs_close_process(uint32_t pid);
 
 static bool token(const char *text, const char *needle) {
     if (!text || !needle) return false;
@@ -211,6 +212,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     const uint64_t user_entry_stack = loaded.user_stack_top - sizeof(uint64_t);
     const int exit_code=koronos_arch_enter_user(root,loaded.entry,user_entry_stack);
     koronos_user_timeout_disarm();
+    koronos_vfs_close_process(active_pid);
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
     active_target=TARGET_NONE;
