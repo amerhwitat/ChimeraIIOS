@@ -52,7 +52,7 @@ void make_image(uint8_t *bytes, uint32_t flags = PF_R | PF_X) {
 }
 
 int main() {
-    static uint8_t bytes[IMAGE_SIZE];
+    alignas(8) static uint8_t bytes[IMAGE_SIZE];
     chimera_process_image out{};
     int failures = 0;
 
