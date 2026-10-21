@@ -121,12 +121,6 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
      * here before accepting another userspace syscall. The assembly abort
      * restores the original launch continuation and returns a failure code. */
     if (koronos_user_timeout_pending()) koronos_user_timeout_abort();
-    /* A deadline may expire while the task is in CPL3. Refuse further work and
-       unwind through the dedicated timeout path before dispatching any syscall. */
-    if (koronos_user_timeout_pending()) {
-        koronos_target_log("[SYSC] launch deadline expired; aborting user process");
-        koronos_user_timeout_abort();
-    }
     /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
      * from a native SYSCALL context/dispatch failure without manufacturing
      * any userspace readiness marker. */
