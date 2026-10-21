@@ -33,6 +33,25 @@ static int run_one(const char* id, const chimera_service_ops* ops) {
     }
     return 0;
 }
+
+static int rollback_started(const chimera_service_manifest* services, uint32_t count,
+                            const chimera_service_ops* ops, const chimera_service_plan* plan) {
+    int result = 0;
+    for (uint32_t k = plan->count; k > 0; --k) {
+        const char* id = plan->ordered_ids[k - 1u];
+        if (find(services, count, id) < 0) return -1;
+        if (chimera_service_get_state(id) != CHM_SVC_RUNNING) continue;
+        if (chimera_service_set_state(id, CHM_SVC_STOPPING) < 0) return -2;
+        if (ops->stop && ops->stop(id, ops->context) == 0) {
+            if (chimera_service_set_state(id, CHM_SVC_STOPPED) < 0) return -2;
+        } else {
+            (void)chimera_service_set_state(id, CHM_SVC_FAILED);
+            result = -3;
+        }
+    }
+    return result;
+}
+
 }
 
 extern "C" int chimera_service_validate(const chimera_service_manifest* services, uint32_t count) {
@@ -121,7 +140,7 @@ extern "C" int chimera_service_start_all(const chimera_service_manifest* service
         const chimera_service_manifest* service = &services[static_cast<uint32_t>(index)];
         if (!dependencies_running(services, static_cast<uint32_t>(index))) {
             if (chimera_service_set_state(service->id, CHM_SVC_BLOCKED) < 0) return -10;
-            if (service->critical) return -8;
+            if (service->critical) { (void)rollback_started(services, count, ops, plan); return -8; }
             continue;
         }
         if (chimera_service_set_state(service->id, CHM_SVC_STARTING) < 0) return -10;
@@ -134,7 +153,7 @@ extern "C" int chimera_service_start_all(const chimera_service_manifest* service
             if (chimera_service_set_state(service->id, CHM_SVC_RUNNING) < 0) return -10;
         } else {
             if (chimera_service_set_state(service->id, CHM_SVC_FAILED) < 0) return -10;
-            if (service->critical) return -9;
+            if (service->critical) { (void)rollback_started(services, count, ops, plan); return -9; }
         }
     }
     return 0;
