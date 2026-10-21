@@ -126,4 +126,33 @@ for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
 done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
 printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
+# Build the real production init ELF for each boot target. These are not
+# readiness probes: native_init.c intentionally exits 78 until real storage,
+# security, logging and graphics service backends pass their runtime checks.
+CC="${CC:-gcc}"
+for target in live installer recovery; do
+  case "$target" in
+    live) target_id=1 ;;
+    installer) target_id=2 ;;
+    recovery) target_id=3 ;;
+  esac
+  "$CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+    -mno-sse -mno-mmx -msoft-float -fno-asynchronous-unwind-tables \
+    -fno-unwind-tables -DCHIMERA_INIT_TARGET="$target_id" \
+    -DCHIMERA_INIT_TARGET_NAME=\\"$target\\" \
+    -c "$ROOT/kernel/userspace/native_init.c" -o "$BUILD/native-init-$target.o"
+  "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+    -T "$ROOT/kernel/tests/user_init_smoke.ld" \
+    "$BUILD/native-init-$target.o" -o "$BUILD/user-init-$target.elf"
+  readelf -h "$BUILD/user-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: user-init-$target.elf is not an executable ELF" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/user-init-$target.elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: user-init-$target.elf has no read/execute PT_LOAD" >&2; exit 1;
+  }
+  test -s "$BUILD/user-init-$target.elf"
+done
+printf 'Built fail-closed production init ELFs (not readiness probes): %s/user-init-{live,installer,recovery}.elf\n' "$BUILD"
+
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
