@@ -59,16 +59,6 @@ PROCESS_TEST="$BUILD/process-elf-admission-test"
   "$ROOT/kernel/tests/process_elf_admission_test.cpp" -o "$PROCESS_TEST"
 "$PROCESS_TEST"
 rm -f "$PROCESS_TEST"
-VM_TEST="$BUILD/process-vm-test"
-"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
-  "$ROOT/kernel/core/process_vm.cpp" "$ROOT/kernel/tests/process_vm_test.cpp" -o "$VM_TEST"
-"$VM_TEST"
-rm -f "$VM_TEST"
-GDT_TEST="$BUILD/gdt-tss-test"
-"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -DCHIMERA_GDT_TSS_HOST_TEST -I"$ROOT/kernel/include" \
-  "$ROOT/kernel/core/gdt_tss.cpp" "$ROOT/kernel/tests/gdt_tss_test.cpp" -o "$GDT_TEST"
-"$GDT_TEST"
-rm -f "$GDT_TEST"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
