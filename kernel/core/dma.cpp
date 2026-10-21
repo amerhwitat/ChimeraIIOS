@@ -41,10 +41,19 @@ extern "C" int koronos_dma_alloc(size_t size, size_t alignment, uint64_t dma_mas
         (void)koronos_frame_free_contiguous(reserve_physical, reserve_pages);
         return -3;
     }
+    const uint64_t reserve_bytes = (uint64_t)reserve_pages * KORONOS_FRAME_SIZE;
+    if (reserve_physical > UINT64_MAX - reserve_bytes) {
+        (void)koronos_frame_free_contiguous(reserve_physical, reserve_pages);
+        return -3;
+    }
     const uint64_t physical = (reserve_physical + mask) & ~mask;
-    const uint64_t last = physical + (uint64_t)pages * KORONOS_FRAME_SIZE - 1u;
-    const uint64_t reserve_end = reserve_physical +
-        (uint64_t)reserve_pages * KORONOS_FRAME_SIZE;
+    const uint64_t allocation_bytes = (uint64_t)pages * KORONOS_FRAME_SIZE;
+    if (physical > UINT64_MAX - allocation_bytes) {
+        (void)koronos_frame_free_contiguous(reserve_physical, reserve_pages);
+        return -3;
+    }
+    const uint64_t last = physical + allocation_bytes - 1u;
+    const uint64_t reserve_end = reserve_physical + reserve_bytes;
     if (last < physical || physical < reserve_physical ||
         last >= reserve_end || last > dma_mask) {
         (void)koronos_frame_free_contiguous(reserve_physical, reserve_pages);
