@@ -189,7 +189,7 @@ jobs:
         run: |
           set -uo pipefail
           iso=build/iso/chimera-ii-os.iso
-          base=/tmp/chimera-userspace-traces
+          base="/tmp/chimera-userspace-traces/$FIRMWARE"
           mkdir -p "$base"
           accepted=true
           for target in live installer recovery; do
