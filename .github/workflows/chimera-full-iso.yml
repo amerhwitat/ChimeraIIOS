@@ -277,11 +277,17 @@ jobs:
             fi
             if ! grep -Fq '[INIT] CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed' "$trace"; then
               echo "::warning::$target native init did not complete the CPL3 filesystem syscall self-test"
+              echo "::group::Last $target debugcon trace lines ($FIRMWARE)"
+              tail -n 120 "$trace" || true
+              echo "::endgroup::"
               accepted=false
               continue
             fi
             if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
               echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
+              echo "::group::Last $target debugcon trace lines ($FIRMWARE)"
+              tail -n 120 "$trace" || true
+              echo "::endgroup::"
               accepted=false
             fi
           done
