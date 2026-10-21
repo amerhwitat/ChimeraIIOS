@@ -72,3 +72,10 @@ The production acceptance gate must remain strict. A passing kernel build, host 
 ### Empirical BIOS trace update — Full ISO run 39548799792
 
 The BIOS-only full-ISO trace artifact shows that Live, Installer, and Recovery each entered CPL3, acknowledged INT 0x80 for the active init PID, and completed the native RAM-VFS file/directory syscall self-test. Each init then exited with status 78 and no USERSPACE READY marker. The authoritative verifier therefore failed at target readiness, as intended. This is evidence that the ring-3/syscall/filesystem bridge executes; it is not evidence of a usable Live desktop, installer, or recovery shell. The current workflow now has a BIOS/UEFI matrix and isolated OVMF VARS per target; exact-head matrix results remain pending.
+
+
+### Six-case BIOS/UEFI production-handoff trace — run 39550840262
+
+The updated matrix now executed all six target/firmware cases. The uploaded BIOS and UEFI trace artifacts show, for each of Live, Installer, and Recovery: (1) KORONOS READY, (2) a CPL3 INT 0x80 acknowledgement bound to target and init_pid=1, (3) a successful native RAM-VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir self-test, and (4) an explicit kernel failure because the init exited before the target-specific USERSPACE READY handshake. No readiness marker was fabricated. The full-ISO acceptance job correctly failed at the readiness gate for both firmware modes; this is a verified partial success and a real production blocker, not a release PASS.
+
+Artifacts: chimera-target-userspace-traces-bios and chimera-target-userspace-traces-uefi from https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39550840262. The six-case matrix now provides the required firmware-specific evidence. Persistent storage, Live desktop startup, installer transaction/reboot, recovery repair service, and genuine SMP remain unimplemented/unverified.
