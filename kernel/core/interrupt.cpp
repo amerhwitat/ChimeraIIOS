@@ -161,8 +161,13 @@ static inline void io_wait() { port_out8(0x80, 0); }
 
 extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
     if (ticks == 0) return -1;
+    uint64_t saved_flags = 0;
+    __asm__ volatile("pushfq; popq %0" : "=r"(saved_flags));
     __asm__ volatile("cli" ::: "memory");
-    if (chimera_interrupt_init() != 0) return -2;
+    if (chimera_interrupt_init() != 0) {
+        if (saved_flags & (1ull << 9)) __asm__ volatile("sti" ::: "memory");
+        return -2;
+    }
 
     // Remap the legacy PIC to vectors 0x20..0x2f, then expose only IRQ0.
     port_out8(0x20, 0x11); io_wait();
@@ -189,12 +194,15 @@ extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
 }
 
 extern "C" void koronos_user_timeout_disarm(void) {
+    uint64_t saved_flags = 0;
+    __asm__ volatile("pushfq; popq %0" : "=r"(saved_flags));
     __asm__ volatile("cli" ::: "memory");
     user_timeout_active = 0;
     user_timeout_expired = 0;
     user_timeout_ticks = 0;
     port_out8(0x21, 0xFF);
     port_out8(0xA1, 0xFF);
+    if (saved_flags & (1ull << 9)) __asm__ volatile("sti" ::: "memory");
 }
 
 extern "C" void koronos_user_timeout_abort(void);
