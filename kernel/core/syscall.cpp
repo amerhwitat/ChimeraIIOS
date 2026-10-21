@@ -116,6 +116,12 @@ extern "C" int64_t koronos_vfs_rename_user(uint64_t old_address,uint64_t new_add
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
+    /* A deadline may expire while the task is in CPL3. Refuse further work and
+       unwind through the dedicated timeout path before dispatching any syscall. */
+    if (koronos_user_timeout_pending()) {
+        koronos_target_log("[SYSC] launch deadline expired; aborting user process");
+        koronos_user_timeout_abort();
+    }
     /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
      * from a native SYSCALL context/dispatch failure without manufacturing
      * any userspace readiness marker. */
