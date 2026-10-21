@@ -106,6 +106,10 @@ extern "C" int64_t koronos_vfs_unlink_user(uint64_t path_address);
 extern "C" int64_t koronos_vfs_truncate_user(uint64_t path_address,uint64_t length);
 extern "C" int64_t koronos_vfs_chmod_user(uint64_t path_address,uint64_t mode);
 extern "C" int64_t koronos_vfs_chown_user(uint64_t path_address,uint64_t uid,uint64_t gid);
+extern "C" int64_t koronos_vfs_mkdir_user(uint64_t path_address,uint64_t mode);
+extern "C" int64_t koronos_vfs_rmdir_user(uint64_t path_address);
+extern "C" int64_t koronos_vfs_rename_user(uint64_t old_address,uint64_t new_address);
+
 
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
@@ -157,6 +161,12 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             return static_cast<uint64_t>(koronos_vfs_chmod_user(frame->rdi,frame->rsi));
         case CHM_SYS_CHOWN:
             return static_cast<uint64_t>(koronos_vfs_chown_user(frame->rdi,frame->rsi,frame->rdx));
+        case CHM_SYS_MKDIR:
+            return static_cast<uint64_t>(koronos_vfs_mkdir_user(frame->rdi,frame->rsi));
+        case CHM_SYS_RMDIR:
+            return static_cast<uint64_t>(koronos_vfs_rmdir_user(frame->rdi));
+        case CHM_SYS_RENAME:
+            return static_cast<uint64_t>(koronos_vfs_rename_user(frame->rdi,frame->rsi));
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
             koronos_user_exit_code = frame->rdi & 0xFFu;
