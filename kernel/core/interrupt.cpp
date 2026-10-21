@@ -8,6 +8,7 @@
 extern "C" void *chimera_isr_table[CHIMERA_IDT_ENTRIES];
 extern "C" int koronos_user_timeout_irq(void);
 extern "C" __attribute__((noreturn)) void koronos_user_timeout_abort(void);
+extern "C" __attribute__((noreturn)) void koronos_user_timeout_abort_irq(void);
 extern "C" int koronos_user_timeout_pending(void);
 
 namespace {
@@ -125,7 +126,7 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
          * that expires in CPL0 remains pending and is handled at syscall entry
          * or on the next IRQ taken from CPL3. */
         if (expired && saved && ((saved[17] & 3u) == 3u))
-            koronos_user_timeout_abort();
+            koronos_user_timeout_abort_irq();
         return;
     }
     g_last = (uint32_t)vector;
