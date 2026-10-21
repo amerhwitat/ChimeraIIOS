@@ -34,6 +34,25 @@ static bool in(uint64_t offset, uint64_t length, uint64_t size) {
     uint64_t end = 0;
     return add_ok(offset, length, &end) && end <= size;
 }
+
+/* PIDs are kernel identities, not slot indices. Skip zero and every live PID
+ * when the 32-bit counter wraps; never overwrite an existing process identity. */
+static uint32_t allocate_pid() {
+    for (uint32_t attempt = 0; attempt < CHIMERA_PROCESS_MAX + 1u; ++attempt) {
+        uint32_t candidate = next_pid++;
+        if (next_pid == 0) next_pid = 1;
+        if (candidate == 0) continue;
+        bool in_use = false;
+        for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+            if (slots[i].used && slots[i].image.pid == candidate) {
+                in_use = true;
+                break;
+            }
+        }
+        if (!in_use) return candidate;
+    }
+    return 0;
+}
 }
 
 extern "C" int chimera_process_init(void) {
@@ -119,8 +138,8 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (!slots[i].used) {
-            p.pid = next_pid++;
-            if (!next_pid) next_pid = 1;
+            p.pid = allocate_pid();
+            if (!p.pid) return -10;
             p.state = CHIMERA_PROCESS_ADMITTED;
             slots[i].image = p;
             slots[i].used = true;
