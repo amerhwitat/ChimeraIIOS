@@ -12,10 +12,10 @@ import sys
 TARGETS = {"live", "installer", "recovery"}
 KERNEL_MARKER = "[KRN ] KORONOS READY"
 ENTRY_RE = re.compile(
-    r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+    r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 READY_RE = re.compile(
-    r"USERSPACE READY: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+    r"USERSPACE READY: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 BLOCKED_MARKERS = (
     "NATIVE INIT BLOCKED:",
