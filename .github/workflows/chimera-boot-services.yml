@@ -1,7 +1,7 @@
 name: Chimera Boot and Enterprise Services
 on:
   push:
-    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
+    paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/core/driver.cpp','kernel/include/chimera/driver.h','kernel/include/chimera/device.h','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   pull_request:
     paths: ['boot/**','config/services/**','installer/services/**','kernel/core/service.cpp','kernel/include/chimera/service.h','kernel/build-koronos.sh','tools/tests/**','.github/workflows/chimera-boot-services.yml']
   workflow_dispatch:
@@ -37,6 +37,10 @@ jobs:
         run: |
           python3 tools/chimera_service_plan.py minimal-desktop
           python3 tools/chimera_service_plan.py enterprise-server
+      - name: Compile and run driver backend honesty test
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include kernel/core/driver.cpp kernel/tests/driver_backend_honesty_test.cpp -o /tmp/driver-backend-honesty-test
+          /tmp/driver-backend-honesty-test
       - name: Shell syntax
         run: bash -n kernel/build-koronos.sh
   koronos:
