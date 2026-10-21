@@ -6,6 +6,8 @@
  * global scope: placing it inside the anonymous namespace gives the symbol
  * internal linkage and produces an undefined reference at link time. */
 extern "C" void *chimera_isr_table[CHIMERA_IDT_ENTRIES];
+extern "C" int koronos_user_timeout_irq(void);
+extern "C" void koronos_user_timeout_abort(void);
 
 namespace {
 
