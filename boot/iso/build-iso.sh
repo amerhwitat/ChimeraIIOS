@@ -57,6 +57,12 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
+for target in live installer recovery; do
+  staged_init="$DIST/iso/boot/koronos/native-init-$target.elf"
+  test -s "$staged_init" || { echo "ERROR: target-specific $target init ELF was not staged: $staged_init" >&2; exit 2; }
+done
+# The unqualified path is retained only as a compatibility alias for Live.
+test -s "$DIST/iso/boot/koronos/native-init.elf"
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
