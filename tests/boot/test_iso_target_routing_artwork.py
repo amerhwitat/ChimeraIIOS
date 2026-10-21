@@ -48,8 +48,8 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertNotIn("USERSPACE READY:", source)
 
     def test_full_iso_gate_boots_real_native_init_not_a_candidate_probe(self):
-        self.assertIn('extract /boot/koronos/native-init.elf "$tree/boot/koronos/native-init.elf"', FULL_ISO_WORKFLOW)
-        self.assertIn('module2 /boot/koronos/native-init.elf chimera-user-init-elf target=$target', FULL_ISO_WORKFLOW)
+        self.assertIn('init_path="/boot/koronos/native-init-$target.elf"', FULL_ISO_WORKFLOW)
+        self.assertIn('module2 $init_path chimera-user-init-elf target=$target', FULL_ISO_WORKFLOW)
         self.assertIn("CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed", FULL_ISO_WORKFLOW)
         self.assertIn("verify-userspace-handoff.py", FULL_ISO_WORKFLOW)
         self.assertIn("firmware: [bios, uefi]", FULL_ISO_WORKFLOW)
