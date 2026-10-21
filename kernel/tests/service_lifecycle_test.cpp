@@ -26,6 +26,7 @@ static int start_service(const char* id, void* opaque) {
     const int i = index_of(id);
     if (i < 0) return -1;
     ++f->starts[i];
+    if (i == 1 && f->fail_display_always) return -1;
     if (i == 1 && f->fail_display_once) { f->fail_display_once = 0; return -1; }
     return 0;
 }
@@ -117,6 +118,28 @@ int main() {
                       !strcmp(f.stop_order[1], "display") &&
                       !strcmp(f.stop_order[2], "console"),
                       "shutdown uses reverse dependency order");
+
+    /* Critical service failure must roll back dependencies already started. */
+    const char* critical_display_deps[] = {"console"};
+    chimera_service_manifest critical_services[] = {
+        {CHIMERA_SERVICE_ABI, "console", CHM_SVC_DECLARED, CHM_RESTART_NEVER, 1, 0, nullptr},
+        {CHIMERA_SERVICE_ABI, "display", CHM_SVC_DECLARED, CHM_RESTART_FAILURE, 1, 1, critical_display_deps}
+    };
+    const char* critical_order[CHIMERA_SERVICE_MAX] = {};
+    chimera_service_plan critical_plan{0, CHIMERA_SERVICE_MAX, critical_order};
+    fixture critical_fixture{};
+    critical_fixture.fail_display_always = 1;
+    chimera_service_ops critical_ops{start_service, health_service, stop_service, &critical_fixture};
+    failures += check(chimera_service_start_all(critical_services, 2, &critical_ops, &critical_plan) == -9,
+                      "critical service failure aborts startup");
+    failures += check(chimera_service_get_state("console") == CHM_SVC_STOPPED &&
+                      chimera_service_get_state("display") == CHM_SVC_FAILED,
+                      "critical failure rolls back previously started dependencies");
+    int console_stopped = 0;
+    for (int i = 0; i < critical_fixture.stop_count; ++i)
+        if (!strcmp(critical_fixture.stop_order[i], "console")) console_stopped = 1;
+    failures += check(console_stopped, "rollback invokes dependency stop callback");
+
     if (failures) return 1;
     puts("PASS: service lifecycle, dependency, health, retry and shutdown tests");
     return 0;
