@@ -33,6 +33,7 @@ int main(){
   chimera_device captured{}; captured.bar_count=3;
   captured.bar_raw[0]=0x000c0004u; captured.bar_raw[1]=0x00000012u; captured.bar_raw[2]=0x0000c001u;
   assert(chimera_pci_decode_device_bar(&captured,0,&bar)==0 && bar.kind==CHM_PCI_BAR_MMIO64 && bar.address==0x00000012000c0000ull);
+  assert(chimera_pci_decode_device_bar(&captured,1,&bar)==-2 && bar.kind==CHM_PCI_BAR_INVALID);
   assert(chimera_pci_decode_device_bar(&captured,2,&bar)==0 && bar.kind==CHM_PCI_BAR_IO && bar.address==0x0000c000u);
   assert(chimera_pci_decode_device_bar(&captured,3,&bar)!=0 && bar.kind==CHM_PCI_BAR_INVALID);
   captured.bar_count=1;
