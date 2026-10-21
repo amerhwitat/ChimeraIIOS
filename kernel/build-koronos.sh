@@ -53,6 +53,12 @@ VFS_FD_TEST="$BUILD/vfs-fd-test"
   "$ROOT/kernel/tests/vfs_fd_test.cpp" -o "$VFS_FD_TEST"
 "$VFS_FD_TEST"
 rm -f "$VFS_FD_TEST"
+PROCESS_TEST="$BUILD/process-elf-admission-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/elf64.cpp" "$ROOT/kernel/core/process.cpp" \
+  "$ROOT/kernel/tests/process_elf_admission_test.cpp" -o "$PROCESS_TEST"
+"$PROCESS_TEST"
+rm -f "$PROCESS_TEST"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
