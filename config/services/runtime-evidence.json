@@ -1,0 +1,170 @@
+{
+  "schema": "chimera-runtime-evidence-v1",
+  "semantics": {
+    "declared": "Catalog entry exists; no claim of operational implementation.",
+    "blocked": "Required operational backend or end-to-end evidence is missing.",
+    "verified": "Only permitted with a reproducible test artifact and target-specific evidence reference."
+  },
+  "services": {
+    "chimera.device": {
+      "status": "blocked",
+      "missing": [
+        "device enumeration must bind each discovered device to a working driver",
+        "driver probe and start callbacks must both succeed"
+      ],
+      "evidence": [
+        "driver registry contract tests"
+      ]
+    },
+    "chimera.storage": {
+      "status": "blocked",
+      "missing": [
+        "real block device backend (virtio-blk or equivalent)",
+        "bounded request queues and completion/error paths",
+        "flush/barrier semantics",
+        "persistent partition/filesystem mount"
+      ]
+    },
+    "chimera.security": {
+      "status": "blocked",
+      "missing": [
+        "process identity enforcement at privileged service boundary",
+        "permission checks for file and device operations",
+        "audited policy enforcement"
+      ]
+    },
+    "chimera.network": {
+      "status": "blocked",
+      "missing": [
+        "operational NIC backend",
+        "packet transmit/receive and link state",
+        "network configuration and resolver service"
+      ]
+    },
+    "chimera.logging": {
+      "status": "blocked",
+      "missing": [
+        "running log service with health endpoint",
+        "bounded queue/backpressure policy",
+        "persistent log sink after durable storage is available"
+      ]
+    },
+    "chimera.kore": {
+      "status": "blocked",
+      "missing": [
+        "service manager must launch real service processes",
+        "restart and dependency failure behavior on target",
+        "health results tied to service-owned operations"
+      ]
+    },
+    "aurora.session": {
+      "status": "blocked",
+      "missing": [
+        "working display/input backend",
+        "Wayland protocol/compositor startup",
+        "session manager and process supervision"
+      ]
+    },
+    "aurora.desktop": {
+      "status": "blocked",
+      "missing": [
+        "live graphical session on native ISO",
+        "window/input/rendering smoke tests",
+        "desktop readiness emitted by running compositor/session"
+      ]
+    },
+    "enterprise.ssh": {
+      "status": "declared",
+      "missing": [
+        "network and security dependencies plus server implementation tests"
+      ]
+    },
+    "enterprise.web": {
+      "status": "declared",
+      "missing": [
+        "network and security dependencies plus service health tests"
+      ]
+    },
+    "enterprise.database": {
+      "status": "declared",
+      "missing": [
+        "durable storage, security integration, crash recovery tests"
+      ]
+    },
+    "enterprise.fileserver": {
+      "status": "declared",
+      "missing": [
+        "durable filesystem and network backends"
+      ]
+    },
+    "enterprise.container": {
+      "status": "declared",
+      "missing": [
+        "isolation primitives, resource limits, storage/network backend"
+      ]
+    },
+    "enterprise.ai": {
+      "status": "declared",
+      "missing": [
+        "working storage/device service dependencies and workload evidence"
+      ]
+    },
+    "developer.toolchain": {
+      "status": "declared",
+      "missing": [
+        "target image package and executable smoke tests"
+      ]
+    }
+  },
+  "targets": {
+    "live": {
+      "bios": "not_verified",
+      "uefi": "not_verified"
+    },
+    "installer": {
+      "bios": "not_verified",
+      "uefi": "not_verified"
+    },
+    "recovery": {
+      "bios": "not_verified",
+      "uefi": "not_verified"
+    }
+  },
+  "acceptance": {
+    "ready_marker": "Must be emitted by the target process only after required services are operational.",
+    "prohibited_shortcuts": [
+      "RAM VFS self-test as proof of durable storage",
+      "driver catalog registration as proof of driver start",
+      "kernel-emitted readiness marker",
+      "host-side test ELF as production init",
+      "sequential CPU simulation as SMP proof"
+    ]
+  },
+  "upstream_design_references": [
+    {
+      "project": "Linux kernel virtio",
+      "url": "https://docs.kernel.org/driver-api/virtio/virtio.html",
+      "use": "virtio transport/virtqueue lifecycle, device discovery and completion/error handling; port design, not Linux kernel source files"
+    },
+    {
+      "project": "Linux kernel virtio driver guide",
+      "url": "https://docs.kernel.org/driver-api/virtio/writing_virtio_drivers.html",
+      "use": "separate device registration, queue setup, callbacks and lifecycle"
+    },
+    {
+      "project": "systemd service dependencies",
+      "url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html",
+      "use": "separate requirement dependencies from ordering, track failures and service state"
+    },
+    {
+      "project": "Weston / Wayland",
+      "url": "https://wayland.pages.freedesktop.org/weston/index.html",
+      "use": "compositor/backend separation and testable headless/nested/DRM backends"
+    },
+    {
+      "project": "Calamares installer framework",
+      "url": "https://calamares.codeberg.page/",
+      "use": "modular installer jobs, target configuration and transactional phase boundaries; verify current upstream license before code reuse"
+    }
+  ]
+}
