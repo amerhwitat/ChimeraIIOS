@@ -2,6 +2,9 @@
 namespace {
 struct __attribute__((packed)) DescriptorPointer { uint16_t limit; uint64_t base; };
 uint64_t gdt[7];chimera_x86_tss64 tss{};DescriptorPointer gdtr{};bool prepared=false,installed=false;
+#if !defined(CHIMERA_GDT_TSS_HOST_TEST)
+extern "C" void koronos_x86_load_gdt_tss(const void*,uint16_t);
+#endif
 static bool valid_stack(uint64_t p){return p!=0&&(p&0xFul)==0;}
 static uint64_t segment(uint8_t access,uint8_t flags){return 0xFFFFull|((uint64_t)access<<40)|((uint64_t)(flags&0xF)<<52);}
 static void set_tss_descriptor(uint64_t base,uint32_t limit){gdt[5]=(limit&0xFFFFu)|((base&0xFFFFFFull)<<16)|(0x89ull<<40)|(((uint64_t)limit&0xF0000ull)<<32)|(((base>>24)&0xFFull)<<56);gdt[6]=base>>32;}
@@ -11,7 +14,6 @@ extern "C" int chimera_x86_gdt_tss_install(uint64_t stack){int rc=chimera_x86_gd
 #if defined(CHIMERA_GDT_TSS_HOST_TEST)
  return -2;
 #else
- extern void koronos_x86_load_gdt_tss(const void*,uint16_t);
  koronos_x86_load_gdt_tss(&gdtr,CHIMERA_X86_TSS_SELECTOR);installed=true;return 0;
 #endif
 }
