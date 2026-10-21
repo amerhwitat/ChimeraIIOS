@@ -45,6 +45,13 @@ extern "C" int chimera_vfs_open(chimera_vfs_fd *table, uint32_t capacity, chimer
     }
     if (slot == capacity) return CHIMERA_VFS_ENOSPC;
 
+    chimera_vfs_stat existing_stat{};
+    const int stat_rc = chimera_vfs_stat_path(fs,path,uid,gid,&existing_stat);
+    if (stat_rc == CHIMERA_VFS_OK && existing_stat.type != CHIMERA_VFS_TYPE_FILE)
+        return CHIMERA_VFS_EISDIR;
+    if (stat_rc != CHIMERA_VFS_OK && stat_rc != CHIMERA_VFS_ENOENT)
+        return stat_rc;
+
     int64_t read_probe = CHIMERA_VFS_ENOENT;
     int64_t write_probe = CHIMERA_VFS_ENOENT;
     if (flags & CHIMERA_FD_READ)
