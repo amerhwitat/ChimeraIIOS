@@ -31,6 +31,8 @@ typedef struct chimera_pci_bar {
  uint8_t reserved;
 } chimera_pci_bar;
 int chimera_pci_decode_bar(uint32_t low, uint32_t high, chimera_pci_bar *out);
+/* Decode one captured BAR slot; returns -2 for an upper half of a 64-bit BAR. */
+int chimera_pci_decode_device_bar(const chimera_device *device, uint8_t index, chimera_pci_bar *out);
 int chimera_hardware_enumerate_devices(chimera_device_inventory *out);
 const chimera_device_inventory *chimera_hardware_inventory(void);
 int chimera_hardware_device_class(uint8_t base_class, uint8_t subclass);
