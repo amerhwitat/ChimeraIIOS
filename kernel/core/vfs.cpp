@@ -1,6 +1,7 @@
 #include "chimera/vfs.h"
 
 namespace {
+struct FsGuard { volatile uint32_t *lock; explicit FsGuard(chimera_vfs *fs):lock(fs?&fs->lock:nullptr){if(lock)while(__sync_lock_test_and_set(lock,1u)){} } ~FsGuard(){if(lock)__sync_lock_release(lock);} };
 static bool add_overflow(uint64_t a, uint64_t b, uint64_t *out) {
     if (!out || b > UINT64_MAX - a) return true;
     *out = a + b;
@@ -73,6 +74,7 @@ extern "C" int chimera_vfs_init(chimera_vfs *fs, chimera_vfs_node *nodes,
         nodes[i].data_offset = static_cast<uint64_t>(i) * slot_size;
         nodes[i].capacity = slot_size;
     }
+    fs->lock = 0;
     fs->initialized = 1;
     return CHIMERA_VFS_OK;
 }
