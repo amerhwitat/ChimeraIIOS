@@ -256,6 +256,11 @@ static void task_modules(void *) {
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
         if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+            if (!g_process_registry_ready) {
+                console_write("[RUN ] ERROR: refusing userspace launch because process registry initialization failed");
+                chimera_sched_block();
+                return;
+            }
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
                 console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
@@ -696,15 +701,20 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     chimera_learning_record(1, f->logical_cpus);
     koronos_elf64_init();
-    chimera_process_init();
+    const int process_init_rc = chimera_process_init();
+    g_process_registry_ready = (process_init_rc == 0);
+    if (!g_process_registry_ready)
+        console_write("[PROC] ERROR: process registry initialization failed; native userspace launch will remain blocked");
     const int vfs_init_rc = chimera_vfs_init(&g_vfs, g_vfs_nodes, CHIMERA_VFS_MAX_FILES, g_vfs_data, sizeof(g_vfs_data), 4096u);
     const int vfs_fd_init_rc = (vfs_init_rc == 0) ? chimera_vfs_fd_init(g_vfs_fds, CHIMERA_VFS_FD_MAX) : -1;
     if (vfs_init_rc == 0 && vfs_fd_init_rc == 0)
         console_write("[VFS] Volatile RAM VFS and descriptor registry initialized (no persistent mount)");
     else
         console_write("[VFS] ERROR: VFS initialization failed; persistent storage remains unavailable");
-    g_process_registry_ready = 1;
-    console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    if (g_process_registry_ready)
+        console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    else
+        console_write("[PROC] ERROR: protected-process admission layer is unavailable");
     console_progress(75, "Process admission and module registries initialized");
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
