@@ -62,13 +62,16 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
-    def test_generated_live_and_recovery_userspace_emit_distinct_handoff_markers(self):
+    def test_generated_live_and_recovery_initramfs_use_diagnostic_markers_only(self):
         builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
-        self.assertIn("USERSPACE READY: target=live init_pid=%s", builder)
-        self.assertIn("USERSPACE READY: target=recovery init_pid=%s", builder)
+        self.assertIn("INITRAMFS SHELL READY: target=live (payload diagnostic only)", builder)
+        self.assertIn("INITRAMFS SHELL READY: target=recovery (payload diagnostic only)", builder)
+        self.assertNotIn("printf 'USERSPACE READY: target=live", builder)
+        self.assertNotIn("printf 'USERSPACE READY: target=recovery", builder)
         self.assertIn("exec /bin/sh -i", builder)
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
-        # A shell handoff is not evidence that the Aurora desktop is ready.
+        # An initramfs shell diagnostic is not proof of a kernel-managed
+        # ring-3 process or a readiness marker from the canonical acceptance ABI.
         self.assertIn("Aurora desktop readiness is separate", builder)
 
 
