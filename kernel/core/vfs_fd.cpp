@@ -50,9 +50,11 @@ extern "C" int chimera_vfs_open(chimera_vfs_fd *table, uint32_t capacity, chimer
 
     const bool exists = read_probe >= 0 || write_probe >= 0;
     if (!exists) {
+        // An access-denied probe means the path exists but this caller cannot
+        // use it. Do not turn that into EEXIST by trying O_CREAT.
+        if (read_probe == CHIMERA_VFS_EACCES || write_probe == CHIMERA_VFS_EACCES)
+            return CHIMERA_VFS_EACCES;
         if (!(flags & CHIMERA_FD_CREATE)) {
-            if (read_probe == CHIMERA_VFS_EACCES || write_probe == CHIMERA_VFS_EACCES)
-                return CHIMERA_VFS_EACCES;
             return CHIMERA_VFS_ENOENT;
         }
         const int rc = chimera_vfs_create(fs, path, 0644u, uid, gid);
