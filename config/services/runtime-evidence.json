@@ -166,5 +166,12 @@
       "url": "https://calamares.codeberg.page/",
       "use": "modular installer jobs, target configuration and transactional phase boundaries; verify current upstream license before code reuse"
     }
-  ]
+  ],
+  "latest_gate": {
+    "run": "Chimera Boot and Enterprise Services #1142",
+    "url": "https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39618702545",
+    "status": "passed",
+    "evidence": "Contract tests, driver backend honesty test, service lifecycle tests, and freestanding Koronos build passed on head d616b5af0e807b9863746b50c16baf14447d583b.",
+    "limitation": "This workflow does not prove production userspace readiness, persistent storage, graphical session, installer completion, recovery repair, or AP-backed SMP. All six target/firmware entries remain not_verified."
+  }
 }
