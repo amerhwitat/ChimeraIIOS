@@ -145,14 +145,23 @@ jobs:
           PY
 
       - name: QEMU headless Koronos boot smoke test
+        env:
+          FIRMWARE: ${{ matrix.firmware }}
         run: |
           set +e
-          timeout 20s qemu-system-x86_64 \
-            -machine pc -m 1024 -smp 1 -accel tcg \
-            -display none -serial none -monitor none \
-            -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
-            -debugcon file:/tmp/chimera-qemu-debugcon.log \
-            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          if [[ "$FIRMWARE" == "uefi" ]]; then
+            if [[ -f /usr/share/OVMF/OVMF_CODE_4M.fd ]]; then
+              ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd
+              ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+            else
+              ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
+              ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+            fi
+            cp "$ovmf_vars" /tmp/chimera-qemu-vars.fd
+            timeout 20s qemu-system-x86_64 -machine q35 -m 1024 -smp 1 -accel tcg -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file=/tmp/chimera-qemu-vars.fd -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          else
+            timeout 20s qemu-system-x86_64 -machine pc -m 1024 -smp 1 -accel tcg -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          fi
           qemu_rc=$?
           set -e
           cat /tmp/chimera-qemu.log
