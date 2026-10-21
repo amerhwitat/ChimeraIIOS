@@ -4,6 +4,7 @@
 #include <string.h>
 
 static int probe_calls;
+static int start_calls;
 extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out) {
     if (!out) return -1;
     memset(out, 0, sizeof(*out));
@@ -24,34 +25,41 @@ static int real_probe(const void *device) {
     ++probe_calls;
     return (d->vendor_id == 0x1AF4 && d->device_id == 0x1001) ? 0 : -1;
 }
+static int real_start(const void *device) {
+    if (!device) return -1;
+    const chimera_device *d = static_cast<const chimera_device *>(device);
+    ++start_calls;
+    return (d->vendor_id == 0x1AF4 && d->device_id == 0x1001) ? 0 : -1;
+}
 static int fail(const char *message) { fprintf(stderr, "FAIL: %s\n", message); return 1; }
 
 int main() {
-    /* A catalog entry with no probe callback must never be promoted to RUNNING. */
     chimera_driver_descriptor catalog_only{
         KORONOS_DRIVER_ABI, CHM_BUS_VIRTIO, CHM_DRV_STORAGE, 0,
         0x1AF4, 0x1001, 0, "virtio-blk-catalog-only", "none", "1",
-        0, 0, 0, 0, "test", nullptr
+        0, 0, 0, 0, "test", nullptr, nullptr
     };
     if (chimera_driver_register(&catalog_only) != 0) return fail("register catalog-only descriptor");
     if (chimera_driver_probe_all() >= 0) return fail("missing executable backend was not reported");
-    if (chimera_driver_start_all() >= 0) return fail("start_all accepted a descriptor without probe");
+    if (chimera_driver_start_all() >= 0) return fail("start_all accepted a descriptor without probe/start");
     const chimera_driver_registry *registry = chimera_driver_registry_snapshot();
     if (!registry || registry->count != 1 || registry->entries[0].state != 5)
         return fail("catalog-only descriptor was not marked FAILED");
 
-    /* A device-specific successful probe is the only route to RUNNING. */
     chimera_driver_descriptor executable{
         KORONOS_DRIVER_ABI, CHM_BUS_VIRTIO, CHM_DRV_STORAGE, 0,
         0x1AF4, 0x1001, 0, "virtio-blk-probe-test", "test", "1",
-        0, 0, 0, 0, "test", real_probe
+        0, 0, 0, 0, "test", real_probe, real_start
     };
-    if (chimera_driver_register(&executable) != 0) return fail("register executable probe");
+    if (chimera_driver_register(&executable) != 0) return fail("register executable driver");
     if (chimera_driver_probe_all() != 1) return fail("real probe was not accepted");
     if (probe_calls != 1) return fail("probe was not called exactly once with the device");
-    if (chimera_driver_start_all() < 0) return fail("probed driver failed start");
     registry = chimera_driver_registry_snapshot();
-    if (registry->entries[1].state != 3) return fail("successfully probed driver not RUNNING");
-    puts("PASS: catalog-only drivers fail closed; only successful device probes can become RUNNING");
+    if (registry->entries[1].state != 2) return fail("probe must leave driver PROBED, not RUNNING");
+    if (chimera_driver_start_all() != 1) return fail("real start callback was not accepted");
+    if (start_calls != 1) return fail("start was not called exactly once with bound device");
+    registry = chimera_driver_registry_snapshot();
+    if (registry->entries[1].state != 3) return fail("successfully started driver not RUNNING");
+    puts("PASS: driver reaches RUNNING only after successful device probe and start callbacks");
     return 0;
 }
