@@ -119,6 +119,22 @@ int main() {
 
     chimera_process_init();
     make_image(bytes);
+    auto *overlap_header = reinterpret_cast<koronos_elf64_ehdr *>(bytes);
+    overlap_header->e_phnum = 2;
+    auto *segments = reinterpret_cast<koronos_elf64_phdr *>(
+        bytes + sizeof(koronos_elf64_ehdr));
+    segments[1] = segments[0];
+    segments[1].p_offset = PAYLOAD_OFFSET + 16;
+    segments[1].p_vaddr = TEXT_ADDRESS + 0x100;
+    segments[1].p_filesz = 8;
+    segments[1].p_memsz = 0x100;
+    segments[1].p_align = 1;
+    failures += check(chimera_process_admit_elf(
+                          bytes, sizeof(bytes), MACHINE_X86_64, STACK_TOP, &out) == -11,
+                      "page-overlapping PT_LOAD segments are rejected");
+
+    chimera_process_init();
+    make_image(bytes);
     reinterpret_cast<koronos_elf64_ehdr *>(bytes)->e_phoff = UINT64_MAX - 8;
     failures += check(chimera_process_admit_elf(
                           bytes, sizeof(bytes), MACHINE_X86_64, STACK_TOP, &out) == -2,
