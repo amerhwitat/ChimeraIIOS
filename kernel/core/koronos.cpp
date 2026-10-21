@@ -549,6 +549,10 @@ extern "C" int64_t koronos_vfs_chown_user(uint64_t path_address,uint64_t uid,uin
     return chimera_vfs_chown(&g_vfs,path,static_cast<uint32_t>(uid),static_cast<uint32_t>(gid),0u);
 }
 
+extern "C" void koronos_vfs_close_process(uint32_t pid) {
+    if (pid) (void)chimera_vfs_close_process(g_vfs_fds, CHIMERA_VFS_FD_MAX, pid);
+}
+
 extern "C" void koronos_target_log(const char *message) {
     if (!message) return;
     debugcon_write(message);
