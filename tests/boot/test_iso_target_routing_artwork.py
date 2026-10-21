@@ -53,6 +53,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed", FULL_ISO_WORKFLOW)
         self.assertIn("verify-userspace-handoff.py", FULL_ISO_WORKFLOW)
         self.assertIn("firmware: [bios, uefi]", FULL_ISO_WORKFLOW)
+        self.assertIn("FIRMWARE: ${{ matrix.firmware }}", FULL_ISO_WORKFLOW)
         self.assertIn('vars="$base/$target-vars.fd"', FULL_ISO_WORKFLOW)
         self.assertIn("FAIL: $FIRMWARE production handoff is NOT VERIFIED", FULL_ISO_WORKFLOW)
 
