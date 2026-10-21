@@ -9,6 +9,10 @@ typedef struct chimera_device {
  uint32_t bus, domain, bdf, class_code, subclass, prog_if, revision;
  uint16_t vendor_id, device_id, subsystem_vendor, subsystem_device;
  uint32_t flags;
+ /* Raw PCI BAR dwords as observed; not sized, mapped, or safe to dereference. */
+ uint8_t bar_count;
+ uint8_t bar_reserved[3];
+ uint32_t bar_raw[6];
  chimera_device_class device_class;
  char name[64];
 } chimera_device;
