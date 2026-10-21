@@ -35,7 +35,10 @@ enum chimera_native_syscall {
     CHM_SYS_UNLINK = 22,
     CHM_SYS_TRUNCATE = 23,
     CHM_SYS_CHMOD = 24,
-    CHM_SYS_CHOWN = 25
+    CHM_SYS_CHOWN = 25,
+    CHM_SYS_MKDIR = 26,
+    CHM_SYS_RMDIR = 27,
+    CHM_SYS_RENAME = 28
 };
 
 typedef struct chimera_syscall_frame {
