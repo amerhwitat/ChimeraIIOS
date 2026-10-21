@@ -48,3 +48,22 @@ Run Live, Installer, and Recovery independently under BIOS and UEFI (six separat
 - `kernel/core/syscall.cpp::chimera_syscall_dispatch` (compatibility dispatcher without authoritative process context)
 - `kernel/core/vfs_fd.cpp` and `kernel/core/vfs.cpp` (RAM-only primitives; not yet a secure process-backed syscall path)
 - `kernel/core/cpio.cpp::chimera_cpio_find` (bounded lookup primitive; not a mounted filesystem)
+
+
+## Appended engineering update — 2026-10-21
+
+The earlier analysis above is the historical baseline; the following changes supersede the listed missing-bridge items, but do not claim target readiness.
+
+### Implemented since that baseline
+
+- Added the physical frame allocator and isolated address-space backend to the production Koronos build, including ELF segment mappings, user PTE permissions, BSS/stack setup, and the x86-64 GDT/TSS/SYSCALL entry path.
+- Fixed a concrete bootstrap paging mismatch: the address-space clone requires all four PDPT entries for the 4-GiB identity map, while entry.asm had initialized only PDPT[0]. All four entries are now populated. EFER.NXE is enabled before executing NX-protected user mappings.
+- Connected target-selected native-init ELF launch for Live, Installer, and Recovery. The full-ISO handoff harness now stages the actual native-init ELF in each target-specific ISO instead of omitting the user init module.
+- Added a fail-closed native init that performs CPL3 INT 0x80 acknowledgement, obtains its process PID, and exercises RAM-VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir syscalls. It exits with status 78 and never prints USERSPACE READY because persistent storage and production target services are still unavailable.
+- Added VFS file and directory operations, typed stat results, serialized filesystem/descriptor access, PID-bound descriptor checks, user-range validation, and descriptor cleanup on exit/timeout. Installer and Recovery log messages were corrected so metadata inspection is not described as services having started.
+
+### Still blocked
+
+The RAM VFS is volatile and bounded. There is no persistent block-storage path or production FAT/ext2/ISO9660 implementation, no mounted/decompressed initramfs, no Live desktop startup, no durable installer disk transaction/reboot, no recovery repair shell, and no proven AP startup or genuine concurrent SMP. General multi-process credentials and wait/reap semantics also remain incomplete.
+
+The production acceptance gate must remain strict. A passing kernel build, host VFS test, QEMU boot smoke, or candidate probe is not a production PASS. The six target/firmware cases must show the real init PID, CPL3 syscall acknowledgement, target-native readiness, and actual target operation. Current native init intentionally withholds readiness and exits 78; release publication remains blocked until those service implementations and full-ISO runs pass.
