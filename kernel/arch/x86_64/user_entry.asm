@@ -246,6 +246,9 @@ koronos_user_timeout_abort_irq:
     pop rbp
     pop rbx
     mov eax, -10
+    ; Hardware IRQ from CPL3 did not execute SYSCALL's SWAPGS prologue.
+    ; Restore kernel GS before POPFQ can re-enable interrupts.
+    swapgs
     push qword [rel koronos_cpu_syscall_state + 40]
     popfq
     ret
