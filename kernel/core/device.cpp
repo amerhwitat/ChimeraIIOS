@@ -51,7 +51,7 @@ extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out)
  for(uint32_t bus=0;bus<256&&out->count<CHIMERA_DEVICE_MAX;++bus) for(uint32_t dev=0;dev<32&&out->count<CHIMERA_DEVICE_MAX;++dev) for(uint32_t fn=0;fn<8&&out->count<CHIMERA_DEVICE_MAX;++fn){
    uint32_t id=pci_read(bus,dev,fn,0); if(id==0xffffffffu||id==0u) continue;
    uint32_t classreg=pci_read(bus,dev,fn,8); uint32_t hdr=pci_read(bus,dev,fn,0x0c);
-   chimera_device &d=out->devices[out->count++]; d.bus=1;d.bdf=(bus<<8)|(dev<<3)|fn;d.vendor_id=(uint16_t)(id&0xffff);d.device_id=(uint16_t)(id>>16);
+   chimera_device &d=out->devices[out->count++]; d.bus=bus;d.bdf=(bus<<8)|(dev<<3)|fn;d.vendor_id=(uint16_t)(id&0xffff);d.device_id=(uint16_t)(id>>16);
    d.revision=classreg&0xff; d.prog_if=(classreg>>8)&0xff; d.subclass=(classreg>>16)&0xff; d.class_code=(classreg>>24)&0xff; d.flags=hdr;
    d.device_class=classify((uint8_t)d.class_code,(uint8_t)d.subclass);
    /* Header type 0 exposes six BARs; type 1 PCI bridges expose two. Read-only
