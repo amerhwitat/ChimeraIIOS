@@ -4,7 +4,7 @@
 
 struct fixture {
     int starts[5], health[5], stops[5];
-    int fail_display_once, fail_audio_health;
+    int fail_display_once, fail_display_always, fail_audio_health;
     char stop_order[8][16];
     int stop_count;
 };
