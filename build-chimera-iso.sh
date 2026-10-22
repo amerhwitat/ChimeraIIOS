@@ -774,6 +774,18 @@ EOF_INIT_VIDEO
 
   # Keep the complete artwork library inside the installed system and on the
   # ISO so every Aurora screen can use the hardcoded artwork offline.
+  # Ship the curated cross-platform optional-app catalog to both the installed
+  # root filesystem and the ISO artifact. Catalog entries are discovery-only;
+  # this does not install third-party applications or claim native compatibility.
+  local optional_app_catalog="$SCRIPT_DIR/desktop/optional_apps_catalog.json"
+  [[ -s "$optional_app_catalog" ]] || {
+    log_error "Required optional application catalog is missing: $optional_app_catalog"
+    return 1
+  }
+  mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop" "$ISO_DIR/system/applications"
+  cp -f "$optional_app_catalog" "$ROOTFS_DIR/usr/share/chimera/desktop/optional_apps_catalog.json"
+  cp -f "$optional_app_catalog" "$ISO_DIR/system/applications/optional_apps_catalog.json"
+  chmod 0644 "$ROOTFS_DIR/usr/share/chimera/desktop/optional_apps_catalog.json" "$ISO_DIR/system/applications/optional_apps_catalog.json"
   if [[ -d "$SCRIPT_DIR/desktop/aurora/assets/library" ]]; then
     cp -a "$SCRIPT_DIR/desktop/aurora/assets/library/." \
       "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/"
