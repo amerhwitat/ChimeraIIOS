@@ -43,6 +43,28 @@ int main() {
   chimera_cpio_summary s{};
   assert(chimera_cpio_validate_newc(a.data(),a.size(),&s)==CHIMERA_CPIO_OK);
   assert(s.entries==3u&&s.regular_files==1u&&s.directories==2u&&s.has_init==1u&&s.payload_bytes==3u);
+
+  /* Leading "./" is a common relative-path prefix in newc archives. It must
+     validate consistently with the transactional RAMFS extractor. */
+  std::vector<uint8_t> leading_dot;
+  entry(leading_dot,".",0040755u,nullptr);
+  entry(leading_dot,"./bin",0040755u,nullptr);
+  entry(leading_dot,"./bin/init",0100755u,"ELF");
+  entry(leading_dot,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(leading_dot.data(),leading_dot.size(),&s)==CHIMERA_CPIO_OK);
+
+  /* Different spellings of the same canonical path must not bypass duplicate
+     or file-as-directory prefix-conflict detection. */
+  std::vector<uint8_t> dot_duplicate;
+  entry(dot_duplicate,"./bin",0040755u,nullptr);
+  entry(dot_duplicate,"bin",0040755u,nullptr);
+  entry(dot_duplicate,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(dot_duplicate.data(),dot_duplicate.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> dot_prefix_conflict;
+  entry(dot_prefix_conflict,"./node",0100644u,"x");
+  entry(dot_prefix_conflict,"node/child",0100644u,"y");
+  entry(dot_prefix_conflict,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(dot_prefix_conflict.data(),dot_prefix_conflict.size(),&s)==CHIMERA_CPIO_E_PATH);
   auto bad_newc_check=a;
   /* newc (070701) requires c_check == 0 at header offset 102. */
   bad_newc_check[102]='0'; bad_newc_check[103]='0'; bad_newc_check[104]='0'; bad_newc_check[105]='0';
