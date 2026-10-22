@@ -27,6 +27,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and test pinned Perl
         run: |
-          bash tools/perl-runtime/build-perl-runtime.sh --version "${{ matrix.channel }}" --prefix "$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs"
-          "$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs/bin/perl" -v
-          "$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs/bin/perl" -c tools/perl-runtime/perl-runtime-smoke.pl
+          set -euo pipefail
+          prefix="$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs"
+          bash tools/perl-runtime/build-perl-runtime.sh --version "${{ matrix.channel }}" --prefix "$prefix"
+          "$prefix/bin/perl" -v
+          "$prefix/bin/perl" -c tools/perl-runtime/perl-runtime-smoke.pl
+          # Package only the tested host-ABI build. This is not a native Koronos package.
+          mkdir -p "$RUNNER_TEMP/perl-package"
+          tar -C "$prefix" -czf "$RUNNER_TEMP/perl-package/perl-${{ matrix.channel }}-host-abi.tar.gz" .
+      - name: Publish tested host-ABI runtime artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: perl-${{ matrix.channel }}-host-abi
+          path: ${{ runner.temp }}/perl-package/perl-${{ matrix.channel }}-host-abi.tar.gz
+          if-no-files-found: error
+          retention-days: 14
