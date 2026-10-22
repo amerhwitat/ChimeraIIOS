@@ -114,6 +114,7 @@ native_source = NATIVE_INIT.read_text(encoding="utf-8")
 assert 'int $0x80' in native_source and "CHM_SYS_GETPID" in native_source and "CHM_SYS_WRITE" in native_source, (
     "native init must use the CPL3 gate and Koronos native syscall ABI"
 )
+assert "CHM_SYS_VALIDATE_BOOT_PAYLOAD" in native_source, "native init must require payload validation before readiness"
 assert "VFS mounting, storage" in native_source and "service supervision and desktop readiness" in native_source, (
     "native init must not overclaim unfinished runtime readiness"
 )
