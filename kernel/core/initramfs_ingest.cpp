@@ -13,6 +13,14 @@ extern "C" int chimera_initramfs_prepare_newc(const void *input,uint64_t input_s
     if(input_size==0u||input_size>CHIMERA_INITRAMFS_MAX_INPUT_BYTES||
        workspace_capacity>CHIMERA_CPIO_MAX_ARCHIVE_BYTES||workspace_capacity<110u)
         return CHIMERA_CPIO_E_LIMIT;
+    const uintptr_t in_addr=reinterpret_cast<uintptr_t>(input);
+    const uintptr_t out_addr=reinterpret_cast<uintptr_t>(workspace);
+    if(input_size>UINTPTR_MAX-in_addr||workspace_capacity>UINTPTR_MAX-out_addr)
+        return CHIMERA_CPIO_E_ARGUMENT;
+    /* Do not permit in-place or partial-overlap decompression: writes must not
+       overwrite bytes the inflater has yet to consume. */
+    if(in_addr<out_addr+workspace_capacity&&out_addr<in_addr+input_size)
+        return CHIMERA_CPIO_E_ARGUMENT;
     const auto *src=static_cast<const uint8_t*>(input);
     auto *dst=static_cast<uint8_t*>(workspace);
     uint64_t produced=0;
