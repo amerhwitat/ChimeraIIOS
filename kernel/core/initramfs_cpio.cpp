@@ -116,6 +116,10 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
         !align4(data_end,size,&data_aligned)) return CHIMERA_CPIO_E_BOUNDS;
     const uint8_t *name=b+header_end;
     if (name[name_size-1u]!=0) return CHIMERA_CPIO_E_PATH;
+    /* CPIO names are NUL-terminated strings. Reject embedded NULs so the
+       validated byte path cannot alias a shorter path in VFS consumers. */
+    for (uint32_t i=0;i+1u<name_size;i++)
+      if (name[i]==0u) return CHIMERA_CPIO_E_PATH;
     if (name_size==11u) {
       static const char end_name[]="TRAILER!!!";
       bool is_trailer=true;
