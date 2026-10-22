@@ -166,6 +166,43 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+
+    /* Bind the executable init to the independently classified production
+       payload. A target=live ELF must not run with an installer/recovery
+       image, and multiple payloads are ambiguous even when the ELF is valid.
+       Candidate-only smoke boots remain possible when no production payload
+       is present; the full ISO gate separately requires a real target payload
+       and verifies target operation. */
+    uint32_t payload_count=0;
+    Target payload_target=TARGET_NONE;
+    for (uint32_t i=0;i<chimera_multiboot_module_count();++i) {
+        const chimera_boot_module *m=chimera_multiboot_module(i);
+        if (!m) continue;
+        switch (m->kind) {
+            case CHIMERA_MODULE_LIVE_INITRAMFS:
+                ++payload_count;
+                payload_target=TARGET_LIVE;
+                break;
+            case CHIMERA_MODULE_INSTALL_IMAGE:
+                ++payload_count;
+                payload_target=TARGET_INSTALLER;
+                break;
+            case CHIMERA_MODULE_RECOVERY_INITRAMFS:
+                ++payload_count;
+                payload_target=TARGET_RECOVERY;
+                break;
+            default:
+                break;
+        }
+    }
+    if (payload_count>1u) {
+        koronos_target_log("[RUN ] ERROR: multiple production target payloads are present; refusing ambiguous dispatch");
+        return -13;
+    }
+    if (payload_count==1u && payload_target!=target) {
+        koronos_target_log("[RUN ] ERROR: native init target does not match the selected production payload");
+        return -14;
+    }
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
