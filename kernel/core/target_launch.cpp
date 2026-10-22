@@ -8,6 +8,7 @@
 #include "chimera/address_space.h"
 #include "chimera/elf64.h"
 #include "chimera/frame_allocator.h"
+#include "chimera/initramfs_cpio.h"
 
 namespace {
 constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull; // Loader requires a page-aligned stack ceiling
@@ -202,6 +203,26 @@ extern "C" int koronos_launch_selected_userspace(void) {
     if (payload_count==1u && payload_target!=target) {
         koronos_target_log("[RUN ] ERROR: native init target does not match the selected production payload");
         return -14;
+    }
+    if (payload_count==1u && (target==TARGET_LIVE || target==TARGET_RECOVERY)) {
+        const uint32_t kind = target==TARGET_LIVE ? CHIMERA_MODULE_LIVE_INITRAMFS : CHIMERA_MODULE_RECOVERY_INITRAMFS;
+        const chimera_boot_module *archive = chimera_multiboot_find(kind);
+        if (!archive || !archive->base || !archive->size || archive->base>=KORONOS_FRAME_PHYS_LIMIT ||
+            archive->size>KORONOS_FRAME_PHYS_LIMIT-archive->base) {
+            koronos_target_log("[RUN ] ERROR: selected initramfs bounds are invalid");
+            return -15;
+        }
+        chimera_cpio_summary summary{};
+        const int cpio_rc = chimera_cpio_validate_newc(
+            reinterpret_cast<const void *>(static_cast<uintptr_t>(archive->base)), archive->size, &summary);
+        if (cpio_rc == CHIMERA_CPIO_E_COMPRESSION) {
+            koronos_target_log("[RUN ] ERROR: gzip initramfs requires bounded decompression; refusing envelope-only acceptance");
+            return -16;
+        }
+        if (cpio_rc != CHIMERA_CPIO_OK || !summary.has_init) {
+            koronos_target_log("[RUN ] ERROR: selected initramfs is malformed, unsafe, or lacks top-level init");
+            return -17;
+        }
     }
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
