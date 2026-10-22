@@ -88,6 +88,16 @@ assert "return 0;" in parallel_body, (
     "parallel dispatch must fail closed until independent AP workers are implemented"
 )
 
+# Parallel-for must not disguise serial chunk iteration as concurrent execution.
+PARALLEL_SOURCE = ROOT / "kernel/core/parallel.cpp"
+parallel_source = PARALLEL_SOURCE.read_text(encoding="utf-8")
+assert "if (workers > 1) return 0;" in parallel_source, (
+    "multi-worker parallel_for requests must fail closed until AP-backed dispatch exists"
+)
+assert "for (uint32_t i = begin; i < end; ++i)" in parallel_source, (
+    "single-worker fallback must be explicit and reviewable"
+)
+
 app_count = sum(len(family.get("examples", [])) for family in families)
 print(f"cross-OS contracts PASS: {len(os_entries)} OS families, "
       f"{len(compat['cpu_profiles'])} CPU profiles, {len(setting_ids)} settings, "
