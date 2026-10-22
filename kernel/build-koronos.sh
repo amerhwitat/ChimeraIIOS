@@ -64,12 +64,18 @@ PROCESS_TEST="$BUILD/process-elf-admission-test"
   "$ROOT/kernel/tests/process_elf_admission_test.cpp" -o "$PROCESS_TEST"
 "$PROCESS_TEST"
 rm -f "$PROCESS_TEST"
+VIRTIO_PCI_TEST="$BUILD/virtio-pci-caps-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/virtio_pci.cpp" "$ROOT/kernel/tests/virtio_pci_caps_test.cpp" \
+  -o "$VIRTIO_PCI_TEST"
+"$VIRTIO_PCI_TEST"
+rm -f "$VIRTIO_PCI_TEST"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader block dma virtio_blk frame_allocator address_space target_launch thread sync timer apc dpc hardware nbit firmware device multiboot_modules cpio vfs vfs_fd parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
+sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader block dma virtio_blk virtio_pci frame_allocator address_space target_launch thread sync timer apc dpc hardware nbit firmware device multiboot_modules cpio vfs vfs_fd parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
