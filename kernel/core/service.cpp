@@ -70,9 +70,13 @@ extern "C" uint32_t chimera_service_get_state(const char*id){
     return CHM_SVC_DECLARED;
 }
 extern "C" void chimera_kore_bootstrap(void){
-    chimera_service_set_state("chimera.device",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.storage",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.security",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.logging",CHM_SVC_RUNNING);
+    /* Registration is not a health check. Do not mark target-critical services
+       RUNNING merely because the orchestrator has initialized its registry.
+       Until each subsystem exposes a successful implementation/health probe,
+       keep it BLOCKED so userspace readiness cannot infer false availability. */
+    chimera_service_set_state("chimera.device",CHM_SVC_BLOCKED);
+    chimera_service_set_state("chimera.storage",CHM_SVC_BLOCKED);
+    chimera_service_set_state("chimera.security",CHM_SVC_BLOCKED);
+    chimera_service_set_state("chimera.logging",CHM_SVC_BLOCKED);
     chimera_service_set_state("chimera.kore",CHM_SVC_RUNNING);
 }
