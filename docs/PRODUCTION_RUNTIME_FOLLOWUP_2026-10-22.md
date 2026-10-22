@@ -45,3 +45,9 @@
 ## Release decision
 
 Keep PR #187 draft and production publication blocked. Do not treat compilation, ISO composition, kernel-ready smoke, candidate ring-3 probes, a generic readiness line, or mergeability as production acceptance.
+
+## Follow-up scan — 2026-10-22, after production trace inspection
+
+The actual three-target QEMU trace artifact confirmed that Live and Recovery failed before ring-3 because their gzip-compressed CPIO archives begin with the conventional root directory entry `., which `safe_path()` rejected. Installer reaches the real user-originated INT 0x80 acknowledgement and PID output, then correctly exits 78 because required native filesystem/process/device/graphics services are not available.
+
+PR #187 now accepts only `. as a directory entry and adds raw/gzip ingestion and CPIO regression fixtures with that root entry (`631c2ed`, `a2bc99a`, `4d35e3e`). The full ISO build on the updated head is still pending; do not infer production acceptance from the unit fixtures. Rootfs extraction/mounting, complete process/syscall lifecycle, target services, Aurora health, installer persistence, recovery postcondition, and AP-backed SMP remain open gates.
