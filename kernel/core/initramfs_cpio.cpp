@@ -45,6 +45,30 @@ static bool safe_path(const uint8_t *p,uint32_t n) {
   if (component==2u&&p[n-2]=='.'&&p[n-3]=='.') return false;
   return true;
 }
+static bool duplicate_name(const uint8_t *b,uint64_t end,const uint8_t *name,uint32_t name_size) {
+  uint64_t off=0;
+  while (off<end) {
+    if (end-off<110u) return true;
+    const uint8_t *h=b+off;
+    bool ok=true;
+    const uint32_t file_size=hex8(h+54,&ok), prior_name_size=hex8(h+94,&ok);
+    if (!ok || prior_name_size==0u) return true;
+    uint64_t name_end=0,name_aligned=0,data_end=0,next=0;
+    if (!add_ok(off,110u,end,&name_end) ||
+        !add_ok(name_end,prior_name_size,end,&name_end) ||
+        !align4(name_end,end,&name_aligned) ||
+        !add_ok(name_aligned,file_size,end,&data_end) ||
+        !align4(data_end,end,&next) || next>end) return true;
+    const uint8_t *prior=b+off+110u;
+    if (prior_name_size==name_size) {
+      uint32_t i=0;
+      while (i<name_size && prior[i]==name[i]) ++i;
+      if (i==name_size) return true;
+    }
+    off=next;
+  }
+  return false;
+}
 }
 extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimera_cpio_summary *out) {
   if (!input||!out) return CHIMERA_CPIO_E_ARGUMENT;
@@ -83,6 +107,7 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
       }
     }
     if (!safe_path(name,name_size)) return CHIMERA_CPIO_E_PATH;
+    if (duplicate_name(b,off,name,name_size)) return CHIMERA_CPIO_E_PATH;
     if (++s.entries>CHIMERA_CPIO_MAX_ENTRIES) return CHIMERA_CPIO_E_LIMIT;
     const uint32_t type=mode&0170000u;
     if (type==0100000u) ++s.regular_files;
