@@ -123,6 +123,9 @@ cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
 # injecting into a base ISO, mapping /boot must replace the base ISO's config.
 mkdir -p "$STAGE/boot/grub"
 cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
+for target in live installer recovery; do
+  (cd "$STAGE/boot/koronos" && sha256sum --check "native-init-$target.elf.sha256")
+done
 cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
 cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
