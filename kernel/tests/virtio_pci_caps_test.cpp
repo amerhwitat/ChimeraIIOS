@@ -29,6 +29,9 @@ int main() {
     c[0x50+1]=0x40;
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("cycle rejected");
     c[0x50+1]=0x64;
+    c[0x40+1]=0x48;
+    if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("overlapping capability pointer rejected");
+    c[0x40+1]=0x50;
     put32(c+0x60,0);
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("zero notify multiplier rejected");
     put32(c+0x60,4);
