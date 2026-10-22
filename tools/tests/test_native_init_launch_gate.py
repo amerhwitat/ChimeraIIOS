@@ -74,6 +74,12 @@ def main() -> int:
     if "transactional RAMFS staging failed; no rootfs was published" not in launch:
         return fail("RAMFS extraction errors must fail closed before userspace dispatch")
 
+    ramfs_source = (ROOT / "kernel/core/ramfs.cpp").read_text(encoding="utf-8")
+    if "Normalize only" not in ramfs_source or "normalized_name[0]=='.'&&normalized_name[1]=='/'" not in ramfs_source:
+        return fail("RAMFS must normalize common leading ./ paths from relative newc archives")
+    if "absolute paths and interior dot/dot-dot" not in ramfs_source:
+        return fail("RAMFS path normalization must preserve traversal rejection")
+
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
     zero_branch = launch.split("if (count==0)", 1)[1].split(
