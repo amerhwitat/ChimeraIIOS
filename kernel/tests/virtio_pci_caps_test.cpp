@@ -35,6 +35,11 @@ int main() {
     put32(c+0x60,0);
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("zero notify multiplier rejected");
     put32(c+0x60,4);
+    put32(c+0x58,0x1000);
+    if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("overlapping BAR windows rejected");
+    put32(c+0x58,0x2001);
+    if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("misaligned notify window rejected");
+    put32(c+0x58,0x2000);
     put16(c,0x1234);
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("non-Virtio vendor rejected");
     puts("PASS: Virtio PCI capability parser validates function identity, chain bounds/cycles, region metadata, required capabilities and notify multiplier");
