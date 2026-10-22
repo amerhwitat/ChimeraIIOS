@@ -32,7 +32,7 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
         result = run("installer", trace)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("ordered kernel-ready -> user-originated init syscall", result.stdout)
+        self.assertIn("target mismatch", result.stdout)
 
     def test_requires_same_pid_for_entry_and_ready(self):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=2)
@@ -46,9 +46,22 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
         self.assertEqual(run("live", trace).returncode, 0)
 
-    def test_rejects_zero_or_mismatched_pid(self):
+    def test_rejects_zero_or_wrong_target_pid(self):
         self.assertEqual(run("recovery", KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)).returncode, 1)
         self.assertEqual(run("recovery", KERNEL + ENTRY.format(target="recovery", pid=0) + READY.format(target="recovery", pid=0)).returncode, 1)
+
+    def test_rejects_duplicate_success_markers_instead_of_selecting_a_later_pair(self):
+        trace = (KERNEL + ENTRY.format(target="live", pid=1) +
+                 READY.format(target="live", pid=1) + READY.format(target="live", pid=1))
+        result = run("live", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("exactly one nonzero userspace-ready marker", result.stdout)
+
+    def test_rejects_mixed_target_markers(self):
+        trace = (KERNEL + ENTRY.format(target="live", pid=1) +
+                 READY.format(target="live", pid=1) +
+                 ENTRY.format(target="recovery", pid=2))
+        self.assertEqual(run("live", trace).returncode, 1)
 
     def test_accepts_recovery_with_nonzero_pid(self):
         trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2)
