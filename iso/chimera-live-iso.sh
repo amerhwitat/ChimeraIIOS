@@ -159,6 +159,8 @@ CHIMERA_INIT_ELF_STAGE="$LIVE_BOOT" bash "$ROOT/tools/build-production-init-elfs
 for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
   "$LIVE_BOOT/boot/live/live-manifest.json" \
+  "$LIVE_BOOT/boot/recovery/chimera-recovery-initramfs.img" \
+  "$LIVE_BOOT/boot/recovery/recovery-manifest.json" \
   "$LIVE_BOOT/boot/koronos/koronos.elf" \
   "$LIVE_BOOT/boot/live/user-init-live.elf" \
   "$LIVE_BOOT/boot/installer/user-init-installer.elf" \
@@ -171,6 +173,8 @@ mkdir -p "$STAGE/boot/live" "$STAGE/boot/koronos" "$STAGE/boot/installer" "$STAG
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/user-init-live.elf" "$STAGE/boot/live/"
+cp -f "$LIVE_BOOT/boot/recovery/chimera-recovery-initramfs.img" "$STAGE/boot/recovery/"
+cp -f "$LIVE_BOOT/boot/recovery/recovery-manifest.json" "$STAGE/boot/recovery/"
 cp -f "$LIVE_BOOT/boot/installer/user-init-installer.elf" "$STAGE/boot/installer/"
 cp -f "$LIVE_BOOT/boot/recovery/user-init-recovery.elf" "$STAGE/boot/recovery/"
 chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
