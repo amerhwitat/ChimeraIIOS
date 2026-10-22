@@ -1,0 +1,2 @@
+{"type":"heartbeat","service":"kore.service","timestamp":1800000000}
+{"type":"service_stalled","service":"kore.service","timestamp":1800000035}
