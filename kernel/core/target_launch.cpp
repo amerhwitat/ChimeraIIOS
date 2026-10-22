@@ -106,7 +106,7 @@ static bool target_marker(const char *bytes, uint64_t length, Target target, uin
             ++digits; ++k;
         }
         if (digits && parsed==pid &&
-            (k==length || bytes[k]=='\\n' || bytes[k]=='\\r' || bytes[k]==' '))
+            (k==length || bytes[k]=='\n' || bytes[k]=='\r' || bytes[k]==' '))
             return true;
     }
     return false;
