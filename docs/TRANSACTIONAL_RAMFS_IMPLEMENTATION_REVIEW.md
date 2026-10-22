@@ -52,3 +52,27 @@ The submitted snippets are useful as a sketch, but must not be copied verbatim i
 7. Keep release blocked until all six cases prove user-originated CPL3 syscall acknowledgement and same-PID userspace readiness, followed by Live→Aurora, installer persistence, recovery postconditions, and genuine AP/concurrent-SMP evidence.
 
 This document is a tracked engineering contract, not evidence that these gates have passed.
+
+
+## 2026-10-22 implementation progress (candidate branch)
+
+A bounded RAMFS staging API has now been added as `kernel/include/chimera/ramfs.h` and `kernel/core/ramfs.cpp`, with a host test at `kernel/tests/ramfs_test.cpp`. The source is included in the Koronos source list, and the host test is invoked by the kernel build script. OctavianOS mirrors these files under `vendor/chimera-ii-os/source/kernel/`.
+
+Implemented in this candidate:
+- allocator callbacks instead of an assumed `kernel_alloc` ABI;
+- bounded CPIO parsing with a full existing CPIO validator preflight;
+- dynamic tree nodes and file buffers with explicit archive/path/file/total/node limits;
+- canonical component validation, duplicate and file/directory conflict rejection;
+- fail-closed rejection of unsupported file types;
+- an unpublished staging root returned only after complete extraction; all staged allocations are destroyed on failure;
+- read-only lookup/read helpers and a host regression for extraction, reading, traversal rejection, and duplicate-archive rollback.
+
+Still **not production integrated or verified**:
+- The allocator callbacks are not yet bound to a production kernel allocator / frame-backed arena.
+- The staging root is not yet atomically published through the existing VFS; `target_launch.cpp` still validates/decompresses the archive and then proceeds without exposing its files to init.
+- Process-owned FD tables and `open/read/close/execve` syscalls are not implemented.
+- The current VFS remains bounded and is not replaced by this staging API.
+- New build/test workflows are queued; no test pass is claimed until their results are observed.
+- Production six-case BIOS/UEFI readiness, Aurora handoff, installer persistence, recovery postconditions, and genuine SMP remain release gates.
+
+The implementation deliberately does not emit or synthesize a userspace readiness marker. Do not merge or publish a production release until the above integration and acceptance evidence exists.
