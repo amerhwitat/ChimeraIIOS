@@ -44,6 +44,11 @@ int main() {
   assert(s.entries==2u&&s.regular_files==1u&&s.directories==1u&&s.has_init==1u&&s.payload_bytes==3u);
   auto truncated=a; truncated.pop_back();
   assert(chimera_cpio_validate_newc(truncated.data(),truncated.size(),&s)!=CHIMERA_CPIO_OK);
+  std::vector<uint8_t> sbin_init;
+  entry(sbin_init,"sbin/init",0100755u,"ELF");
+  entry(sbin_init,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(sbin_init.data(),sbin_init.size(),&s)==CHIMERA_CPIO_OK);
+  assert(s.has_init==1u);
   std::vector<uint8_t> traversal;
   entry(traversal,"../escape",0100644u,"x"); entry(traversal,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(traversal.data(),traversal.size(),&s)==CHIMERA_CPIO_E_PATH);
