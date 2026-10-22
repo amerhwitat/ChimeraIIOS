@@ -79,5 +79,25 @@ extern "C" int koronos_virtio_pci_parse_caps(
         !out->device.present || !out->has_notify_multiplier) return -9;
     if (out->common.length < 56u || out->notify.length < 2u ||
         out->device.length < 8u) return -10;
+
+    /* A BAR offset/length pair is untrusted device metadata. Reject overlapping
+     * Virtio windows in the same BAR rather than allowing one mapping to alias
+     * another register region. The ranges were overflow-checked in add_region.
+     */
+    const koronos_virtio_pci_region *regions[] = {
+        &out->common, &out->notify, &out->isr, &out->device
+    };
+    for (unsigned i = 0; i < sizeof(regions) / sizeof(regions[0]); ++i) {
+        if (!regions[i]->present) continue;
+        const uint64_t begin_i = regions[i]->offset;
+        const uint64_t end_i = begin_i + regions[i]->length;
+        for (unsigned j = i + 1; j < sizeof(regions) / sizeof(regions[0]); ++j) {
+            if (!regions[j]->present || regions[i]->bar != regions[j]->bar) continue;
+            const uint64_t begin_j = regions[j]->offset;
+            const uint64_t end_j = begin_j + regions[j]->length;
+            if (begin_i < end_j && begin_j < end_i) return -11;
+        }
+    }
+    if ((out->notify.offset & 1u) != 0u) return -12;
     return 0;
 }
