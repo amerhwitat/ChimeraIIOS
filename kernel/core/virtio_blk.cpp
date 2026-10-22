@@ -120,9 +120,9 @@ static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
         return -2; // bounded timeout; queue/device recovery is required before reuse
     }
     volatile UsedElement *used = used_ring(d);
-    volatile UsedElement elem = used[old_used % d->queue_size];
+    const uint32_t completed_id = used[old_used % d->queue_size].id;
     d->last_used = static_cast<uint16_t>(old_used + 1u);
-    if (elem.id != 0 || *request_status(d) != VIRTIO_BLK_S_OK) {
+    if (completed_id != 0 || *request_status(d) != VIRTIO_BLK_S_OK) {
         d->busy = 0;
         return -3;
     }
@@ -185,8 +185,7 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     barrier();
     const uint32_t feature_lo = c->device_feature;
     c->driver_feature_select = 0;
-    c->driver_feature = (feature_lo & (1u << VIRTIO_BLK_F_FLUSH)) |
-                        (1u << VIRTIO_BLK_F_FLUSH & feature_lo);
+    c->driver_feature = feature_lo & (1u << VIRTIO_BLK_F_FLUSH);
     c->device_status |= STATUS_FEATURES_OK;
     barrier();
     if (!(c->device_status & STATUS_FEATURES_OK)) {
