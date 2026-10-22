@@ -109,6 +109,9 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
       name_size=hex8(h+94,&ok), check=hex8(h+102,&ok);
     if (!ok||name_size<1u||name_size>CHIMERA_CPIO_MAX_PATH+1u)
       return CHIMERA_CPIO_E_HEADER;
+    /* newc (070701) defines c_check as zero; only crc (070702) carries
+       the unsigned byte-sum checksum. Do not silently accept mixed formats. */
+    if (!crc && check!=0u) return CHIMERA_CPIO_E_CHECKSUM;
     uint64_t name_end=0,name_aligned=0,data_end=0,data_aligned=0;
     if (!add_ok(header_end,name_size,size,&name_end)||
         !align4(name_end,size,&name_aligned)||
