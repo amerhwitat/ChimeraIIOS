@@ -1,6 +1,6 @@
 {
   "schema": "CHIMERA-RESEARCH-CATALOG-1",
-  "generated_at": "2026-10-20T19:30:56.432224+00:00",
+  "generated_at": "2026-10-22T14:22:16.431739+00:00",
   "policy": {
     "discovery_only": true,
     "remote_code_execution": false,
@@ -1022,8 +1022,8 @@
     },
     {
       "path": "docs/research/isa-command-research.json",
-      "bytes": 254039,
-      "sha256": "20e221b11e425242744cdfbc68b2e61cb27925ca3f8168c68eda09123fe0804c"
+      "bytes": 229761,
+      "sha256": "1c5fd7949d73ee90af737e7a775b3e1fe94a0bd674b2f36c43fef22e20391a02"
     },
     {
       "path": "docs/research/ISA_CANDIDATE_EXECUTION.md",
@@ -1032,8 +1032,8 @@
     },
     {
       "path": "docs/research/ISA_COMMAND_RESEARCH.md",
-      "bytes": 51288,
-      "sha256": "14585d7d63da0e33116b16fe64b53e0aa244f3fb2ecb171bc5adf7787eb802e1"
+      "bytes": 38272,
+      "sha256": "aa6817621093ad68e61b60d48498f22bf293701bcc61fcc65802531a81e3b98f"
     },
     {
       "path": "docs/toolchains/managed-and-apple-compatibility.md",
@@ -1387,7 +1387,7 @@
       "url": "https://docs.riscv.org/reference/isa/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:28:07.654395+00:00",
+      "checked_at": "2026-10-22T14:19:14.942347+00:00",
       "sha256": "f095c7c98f7bb5d8526f8b04206fd25aeb441b5b9cbad5d19b51d862a20e46b0",
       "snippet": "Redirecting to isa v20260120 \n   \n   \n     Redirecting to the latest version:  isa v20260120",
       "recursive_discovery": {
@@ -1541,7 +1541,7 @@
       "url": "https://docs.kernel.org/",
       "topic": "kernel",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:28:38.659924+00:00",
+      "checked_at": "2026-10-22T14:19:48.584018+00:00",
       "sha256": "90114396b603caa65d2d9603a22a9c85605b730ca8b9352d91059d6e3db83b04",
       "snippet": "The Linux Kernel documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process "
     },
@@ -1550,7 +1550,7 @@
       "url": "https://docs.kernel.org/arch/x86/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:28:39.047995+00:00",
+      "checked_at": "2026-10-22T14:19:49.019438+00:00",
       "sha256": "f3a6ad4c59dffa82e5ff65d24f96b6eaed659b1b441f283b1bd6687b5a09d925",
       "snippet": "x86-specific Documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development proces",
       "recursive_discovery": {
@@ -2066,7 +2066,7 @@
       "url": "https://docs.kernel.org/arch/arm64/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:05.360951+00:00",
+      "checked_at": "2026-10-22T14:20:19.629553+00:00",
       "sha256": "312bce195f5fe7d0ef502cc41ef2ab6985c78cc889e8e4ec33cf04bd5b6e574f",
       "snippet": "ARM64 Architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Su",
       "recursive_discovery": {
@@ -2582,7 +2582,7 @@
       "url": "https://docs.kernel.org/arch/riscv/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:29.449616+00:00",
+      "checked_at": "2026-10-22T14:20:46.999857+00:00",
       "sha256": "6d7b18b8897dd9b9b4d5cf825b26e062cd257855671e1ca90a12d59f30481a1c",
       "snippet": "RISC-V architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  S",
       "recursive_discovery": {
@@ -3098,7 +3098,7 @@
       "url": "https://docs.kernel.org/driver-api/",
       "topic": "drivers",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:54.185933+00:00",
+      "checked_at": "2026-10-22T14:21:14.556931+00:00",
       "sha256": "40e335a272a683625e788db9f21fc0365fad00c0247e819eb751bce0a543f4af",
       "snippet": "Driver implementer’s API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development pr"
     },
@@ -3107,7 +3107,7 @@
       "url": "https://docs.kernel.org/scheduler/",
       "topic": "scheduler",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:54.507999+00:00",
+      "checked_at": "2026-10-22T14:21:14.901814+00:00",
       "sha256": "f37ac2de8905476d3fec5a9472f8825cdf176caaddc4edc36db8e03ceb87367d",
       "snippet": "Scheduler &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Submitting "
     },
@@ -3116,7 +3116,7 @@
       "url": "https://docs.kernel.org/userspace-api/",
       "topic": "syscalls",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:54.767985+00:00",
+      "checked_at": "2026-10-22T14:21:15.243639+00:00",
       "sha256": "7faf0ddcb40d3ceb6435d17e053bf01c32fc1b62abf8e5d60e40f603b91afa7e",
       "snippet": "The Linux kernel user-space API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Develop"
     },
@@ -3125,8 +3125,8 @@
       "url": "https://source.android.com/docs/core/architecture/kernel",
       "topic": "mobile-os",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:55.573199+00:00",
-      "sha256": "fa89fd6def7570f3c814b8df1b6a91a73bb4c9690791ed8ab8d7c176da6596d5",
+      "checked_at": "2026-10-22T14:21:16.036347+00:00",
+      "sha256": "1b8ade73e8e37bc7ac34e638a09edb199ca9dc2dce9571eef1979b527c7953c6",
       "snippet": "Kernel overview &nbsp;|&nbsp; Android OS core topics &nbsp;|&nbsp; Android Open Source Project \n\n    \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"Article\",\n    \n    \"headline\": \"Kernel overview\"\n  }\n  \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"BreadcrumbList\",\n    \"itemListElement\": [{\n      \"@type\": \"ListItem\",\n      \"position\": 1,\n      \"name\": \"Docs\",\n      \"item\": \"https://source.android.com/docs\"\n    },{\n      \"@type\": \"ListItem\",\n      \"position\": 2,\n      \"name\":"
     },
     {
@@ -3134,7 +3134,7 @@
       "url": "https://support.arm.com/documentation",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:56.343170+00:00",
+      "checked_at": "2026-10-22T14:21:16.963087+00:00",
       "sha256": "8cee92dffdb3a5499ca8a3a56b2399d5bb54866a09aad813342b3b73eee1e06d",
       "snippet": "window.docsHubConfig={\"REACT_APP_2FA_ACR\":\"B2C_1A_HV.SIGN-IN-CONF.1.1.0\",\"REACT_APP_2FA_AUTHORITY\":\"https://account.arm.com/tfp/armb2c.onmicrosoft.com/B2C_1A_HV.SIGN-IN-CONF.1.1.0/v2.0/\",\"REACT_APP_2FA_CLIENT_ID\":\"da089d53-3538-4d3e-8ea0-73dfe483f321\",\"REACT_APP_2FA_SCOPE\":\"openid https://armb2c.onmicrosoft.com/docsHub/read\",\"REACT_APP_ADOBE_LAUNCH_URL\":\"https://support.arm.com/arm-tag-manager/support.arm.com/atm.js\",\"REACT_APP_AI_ASSISTANCE_ENABLED\":\"true\",\"REACT_APP_ARM_DOCUMENTATION_IMAGE_ASS",
       "recursive_discovery": {
@@ -3149,8 +3149,8 @@
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:29:57.025377+00:00",
-      "sha256": "20aff7106bde00a1009b50a07c176f1d8c0a32e7d3f858c2e893f5491e4fcc90",
+      "checked_at": "2026-10-22T14:21:17.681616+00:00",
+      "sha256": "c47b48062356febd7b10b34e78ca771d8ed71301e5a4805d4717c39533fccf7e",
       "snippet": "Manuals for Intel® 64 and IA-32 Architectures \n    \n    \n    \n\n\n\n\n\n\n\n\n\n \n \n \n\n     \n     \n\n     \n     \n\n\n\n\n\n     \n      \n     \n      \n     \n      \n\n\n    \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    \n    \n        \n    \n\n\n\n\n    \n    \n    \n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n \n    var cq_tms = {\n        wa_emtcontenttype: \"emtcontenttype:designanddevelopmentreference/developerguide/developeruserguide,emtcontenttype:designanddevelopmentreference/developerguide,emtcontent",
       "recursive_discovery": {
         "pages_visited": 80,
@@ -3338,8 +3338,9 @@
           "https://www.intel.com/content/www/us/en/corporate/board-directors.html",
           "https://www.intel.com/content/www/us/en/policy/policy-ip.html",
           "https://www.intel.com/content/www/us/en/support/campus-locations.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/data-center/amd-intel-simplify-x86-ai-development-with-pytorch.html",
+          "https://www.intel.com/content/www/us/en/newsroom/opinion/building-america-capacity-to-innovate.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-edge-ai-turns-football-crowd-data-into-revenue.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/data-center/amd-intel-simplify-x86-ai-development-with-pytorch.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-massrobotics-physical-ai-startup-speed.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-offers-day-0-support-for-meta-muse-spark-open.html",
@@ -3655,8 +3656,7 @@
           "https://www.intel.com/content/www/us/en/security/security-as-a-component-of-tech.html",
           "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/mobile/overview.html",
           "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/workstations/b-series/overview.html",
-          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/edge.html",
-          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/desktop/b-series.html"
+          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/edge.html"
         ]
       }
     },
@@ -3665,7 +3665,7 @@
       "url": "https://www.amd.com/en/search/documentation",
       "topic": "isa",
       "http_status": 0,
-      "checked_at": "2026-10-20T19:30:48.956524+00:00",
+      "checked_at": "2026-10-22T14:22:04.546613+00:00",
       "sha256": "0738e1d53e03cdde4e379859b024fb665340ccc62ac4ed215101772e5d81327b",
       "snippet": "HTTP Error 404: Not Found"
     },
@@ -3674,7 +3674,7 @@
       "url": "https://uefi.org/specifications",
       "topic": "firmware",
       "http_status": 0,
-      "checked_at": "2026-10-20T19:30:50.236628+00:00",
+      "checked_at": "2026-10-22T14:22:04.991818+00:00",
       "sha256": "2fbdaaa36a31ec4853f2062504fc20ecfc24512cfe648271bc840f246a542911",
       "snippet": "HTTP Error 403: Forbidden"
     },
@@ -3683,7 +3683,7 @@
       "url": "https://docs.freebsd.org/en/books/handbook/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:30:50.859950+00:00",
+      "checked_at": "2026-10-22T14:22:05.708497+00:00",
       "sha256": "109a95818d0d231bf26df6ab14366cb92c08d121416b71d4d2caddad6c2bcb3c",
       "snippet": "FreeBSD Handbook | FreeBSD Documentation Portal                     {\"@context\":\"http://schema.org\",\"@type\":\"Article\",\"url\":\"https:\\/\\/docs.freebsd.org\\/en\\/books\\/handbook\\/\",\"name\":\"FreeBSD Documentation Portal\",\"headline\":\"FreeBSD Documentation Portal\",\"description\":\"FreeBSD Documentation Portal\"}          \n           \n About\n      About    FreeBSD    FreeBSD Foundation    Code of Conduct      \n Get FreeBSD\n      Get FreeBSD    Release Information    Release Engineering    Security Advisories"
     },
@@ -3692,7 +3692,7 @@
       "url": "https://www.netbsd.org/docs/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-10-20T19:30:52.294995+00:00",
+      "checked_at": "2026-10-22T14:22:07.284522+00:00",
       "sha256": "3efa17d6501c0bb3b2c0a7f5ccfe34ee9302e089d877226645600c4c9a08ebdb",
       "snippet": "NetBSD Documentation \n   \n \n  \n  Skip to main content.  \n          \n  \n     \n     \n  \n  \n \n\t  Navigation:\n\t  \n \n \n\t  Home  \n  \n\t    Recent changes  \n  \n\t    NetBSD blog  \n  \n\t    Presentations  \n \n \n \n \n\t  About  \n  \n\t    Developers  \n  \n\t    Gallery  \n  \n\t    Ports  \n  \n\t    Packages  \n \n \n \n \n\t  Documentation  \n  \n\t    FAQ &amp; HOWTOs  \n  \n\t    The Guide  \n  \n\t    Manual pages  \n  \n\t    Wiki  \n \n \n \n \n\t  Support  \n  \n\t    Community  \n  \n\t    Mailing lists  \n  \n\t    Bug reports  \n  \n\t    Secur"
     }
@@ -3700,60 +3700,613 @@
   "github_searches": [
     {
       "query": "instruction set architecture assembler disassembler",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=instruction+set+architecture+assembler+disassembler&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "malfallah/symrisc",
+        "MattJackson/thumb-asm",
+        "kobby-pentangeli/lc3box",
+        "ArianaDadgostar/Instruction-Set-Architecture",
+        "BrandonDao/ProjectISA",
+        "VeritasCarpeDiem/Emulator",
+        "gpellicci/InstructionSetArchitecture-code-assembler",
+        "FISC-Project/FISC-LLVM"
+      ]
     },
     {
       "query": "x86 decoder instruction table",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=x86+decoder+instruction+table&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "DaoshuReal/x86-64-decoder"
+      ]
     },
     {
       "query": "arm64 instruction decoder",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=arm64+instruction+decoder&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "pkgw/elfx86exts",
+        "michalgr/sigstep-a64",
+        "Daan-25/img4-macos-arm64",
+        "overducast/RiftByte",
+        "wuzw10/arm64-shadow-monitor",
+        "MeshacOkello/arm64-simulator",
+        "yntha/arm64_insn_decoder",
+        "4ad/arm64-dec-gen"
+      ]
     },
     {
       "query": "riscv instruction decoder",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=riscv+instruction+decoder&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "rishikezz/riscv32i-cpu-core-tlverilog",
+        "Anas-Gebreel/riscv-ldpc-cfu-accelerator",
+        "JignasuShah/riscv-processor",
+        "Pikachu287/RiscV_ISA_Sim",
+        "Ruthik85/pipelined-16bit-riscv-core",
+        "DharanidharanRavikumar/riscv-decoder",
+        "DharanidharanRavikumar/riscv-simulator",
+        "fzi-forschungszentrum-informatik/riscv-etrace"
+      ]
     },
     {
       "query": "operating system kernel scheduler drivers",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=operating+system+kernel+scheduler+drivers&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "sxbari/MyOS-x86",
+        "JorgeGBeltre/EspressoOS",
+        "codeswithdev/DEV-OS",
+        "aleksandraastojanovic/riscv-kernel",
+        "BengalEmpire/Bengal-Tiger-OS",
+        "Onsase-cpu/Asterion-OS",
+        "zizadhrmaa/rOSes-are-red_Operating-System",
+        "sowjithanumola/NovaOS"
+      ]
     },
     {
       "query": "android common kernel",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=android+common+kernel&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers",
+        "Duy-Thanh/android_kernel_common",
+        "SavoryBanana/sailfish-linux-6.18",
+        "itswill00/fearless-kernel",
+        "samw662/android_kernel_motorola_sm6375-common",
+        "Kyura-Ground/android_device_asus_sdm660-common-4.19",
+        "xfwdrev/android_kernel_samsung_sm8475",
+        "vlxlxlv/android-kernel-common-5.10"
+      ]
     },
     {
       "query": "uefi acpi firmware tables",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=uefi+acpi+firmware+tables&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "Jamesits/dropWPBT"
+      ]
     },
     {
       "query": "syscall compatibility layer",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=syscall+compatibility+layer&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "suhteevah/linux-compat-nostd",
+        "jdhruv1503/LinuxCompatibilityLayer",
+        "dyber-pqc/bsdulator",
+        "Starry-Old/linux_syscall_api"
+      ]
     }
   ],
-  "repositories": []
+  "repositories": [
+    {
+      "name": "Jamesits/dropWPBT",
+      "url": "https://github.com/Jamesits/dropWPBT",
+      "description": "Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.",
+      "language": "C",
+      "stars": 447,
+      "updated_at": "2026-10-19T18:53:06Z",
+      "license": "BSD-2-Clause",
+      "query": "uefi acpi firmware tables",
+      "review_required": true
+    },
+    {
+      "name": "pkgw/elfx86exts",
+      "url": "https://github.com/pkgw/elfx86exts",
+      "description": "Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.",
+      "language": "Rust",
+      "stars": 230,
+      "updated_at": "2026-10-20T20:43:11Z",
+      "license": "MIT",
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "overducast/RiftByte",
+      "url": "https://github.com/overducast/RiftByte",
+      "description": "Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.",
+      "language": "C",
+      "stars": 25,
+      "updated_at": "2026-10-21T13:53:51Z",
+      "license": "MIT",
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "vlxlxlv/android-kernel-common-5.10",
+      "url": "https://github.com/vlxlxlv/android-kernel-common-5.10",
+      "description": "v1llhaze! GKI Custom Kernel for 5.10 based (android12)",
+      "language": "C",
+      "stars": 17,
+      "updated_at": "2026-10-19T11:48:59Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "fzi-forschungszentrum-informatik/riscv-etrace",
+      "url": "https://github.com/fzi-forschungszentrum-informatik/riscv-etrace",
+      "description": "Decoder and tracer for RISC-V efficient instruction tracing.",
+      "language": "Rust",
+      "stars": 5,
+      "updated_at": "2026-09-16T16:29:14Z",
+      "license": "Apache-2.0",
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "malfallah/symrisc",
+      "url": "https://github.com/malfallah/symrisc",
+      "description": "A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.",
+      "language": "Python",
+      "stars": 2,
+      "updated_at": "2026-10-13T22:31:39Z",
+      "license": "Apache-2.0",
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "FISC-Project/FISC-LLVM",
+      "url": "https://github.com/FISC-Project/FISC-LLVM",
+      "description": "FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64",
+      "language": "C++",
+      "stars": 2,
+      "updated_at": "2023-09-23T14:04:51Z",
+      "license": null,
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "yntha/arm64_insn_decoder",
+      "url": "https://github.com/yntha/arm64_insn_decoder",
+      "description": "Simple project to decode arm64 instructions and display all their encoded fields",
+      "language": "Python",
+      "stars": 2,
+      "updated_at": "2025-04-09T17:56:12Z",
+      "license": "GPL-3.0",
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "4ad/arm64-dec-gen",
+      "url": "https://github.com/4ad/arm64-dec-gen",
+      "description": "Generates arm64 instruction decoding for 7i, the Plan 9 arm64 emulator.",
+      "language": "Go",
+      "stars": 2,
+      "updated_at": "2023-01-28T16:30:06Z",
+      "license": null,
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "codeswithdev/DEV-OS",
+      "url": "https://github.com/codeswithdev/DEV-OS",
+      "description": "🚀 DevOS is an ambitious open-source initiative to build India’s first fully independent operating system from absolute scratch — including a custom bootloader, kernel, memory management, scheduler, drivers, filesystem, and future AI-native architecture. No wrappers. Built from bare metal.",
+      "language": "C",
+      "stars": 2,
+      "updated_at": "2026-09-18T09:33:14Z",
+      "license": "MIT",
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "kobby-pentangeli/lc3box",
+      "url": "https://github.com/kobby-pentangeli/lc3box",
+      "description": "Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture",
+      "language": "Rust",
+      "stars": 1,
+      "updated_at": "2026-08-12T13:36:21Z",
+      "license": "Apache-2.0",
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "gpellicci/InstructionSetArchitecture-code-assembler",
+      "url": "https://github.com/gpellicci/InstructionSetArchitecture-code-assembler",
+      "description": "Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside",
+      "language": "Java",
+      "stars": 1,
+      "updated_at": "2019-11-29T11:43:42Z",
+      "license": null,
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "BengalEmpire/Bengal-Tiger-OS",
+      "url": "https://github.com/BengalEmpire/Bengal-Tiger-OS",
+      "description": "Bengal Tiger OS is a 32-bit x86 (i386) open-source operating system written in ANSI C and x86 Assembly. Designed with modular architecture, hardware abstraction layers, VBE graphics, FAT filesystem persistence, Realtek network drivers, and a preemptive task scheduler,",
+      "language": "C",
+      "stars": 1,
+      "updated_at": "2026-09-02T17:08:24Z",
+      "license": "MIT",
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "samw662/android_kernel_motorola_sm6375-common",
+      "url": "https://github.com/samw662/android_kernel_motorola_sm6375-common",
+      "description": "motorola sm6375 series unified tree",
+      "language": "C",
+      "stars": 1,
+      "updated_at": "2026-10-22T03:05:57Z",
+      "license": "GPL-2.0",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "MattJackson/thumb-asm",
+      "url": "https://github.com/MattJackson/thumb-asm",
+      "description": "An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2026-10-03T03:24:45Z",
+      "license": "MIT",
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "ArianaDadgostar/Instruction-Set-Architecture",
+      "url": "https://github.com/ArianaDadgostar/Instruction-Set-Architecture",
+      "description": "This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.",
+      "language": "C#",
+      "stars": 0,
+      "updated_at": "2025-06-24T20:35:22Z",
+      "license": null,
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "BrandonDao/ProjectISA",
+      "url": "https://github.com/BrandonDao/ProjectISA",
+      "description": "A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress)",
+      "language": "C#",
+      "stars": 0,
+      "updated_at": "2026-05-07T07:16:42Z",
+      "license": null,
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "VeritasCarpeDiem/Emulator",
+      "url": "https://github.com/VeritasCarpeDiem/Emulator",
+      "description": "A assembler, disassembler, and emulator that executes bytecode based on the defined instruction set architecture (ISA) ",
+      "language": "C#",
+      "stars": 0,
+      "updated_at": "2024-10-11T00:27:28Z",
+      "license": "MIT",
+      "query": "instruction set architecture assembler disassembler",
+      "review_required": true
+    },
+    {
+      "name": "DaoshuReal/x86-64-decoder",
+      "url": "https://github.com/DaoshuReal/x86-64-decoder",
+      "description": "small table-driven x86-64 instruction decoder in C17 with no dependencies, split length/mnemonic and full-operand paths",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-09-22T04:01:34Z",
+      "license": null,
+      "query": "x86 decoder instruction table",
+      "review_required": true
+    },
+    {
+      "name": "michalgr/sigstep-a64",
+      "url": "https://github.com/michalgr/sigstep-a64",
+      "description": "Parameterized ARM64 instruction decoder and interpreter in Rust with zero-alloc, async-signal-safe backends.",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2026-09-18T10:01:27Z",
+      "license": "Apache-2.0",
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "Daan-25/img4-macos-arm64",
+      "url": "https://github.com/Daan-25/img4-macos-arm64",
+      "description": "A lightweight command-line utility for encoding, decoding, and signing Apple img4 firmware containers, built with support for macOS ARM architecture. Includes source code and build instructions.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-09-06T17:42:46Z",
+      "license": "MIT",
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "wuzw10/arm64-shadow-monitor",
+      "url": "https://github.com/wuzw10/arm64-shadow-monitor",
+      "description": "ARM64 Shadow Memory Monitor — intercepts store instructions via SIGSEGV and mprotect. Write to read-protected VA_A triggers handler that decodes the instruction and redirects the store to shadow VA_B. Supports STR/STRH/STRB/STP.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-05-18T13:14:03Z",
+      "license": null,
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "MeshacOkello/arm64-simulator",
+      "url": "https://github.com/MeshacOkello/arm64-simulator",
+      "description": "A browser-based ARM64 (AArch64) CPU simulator — instruction decoding, a deterministic cycle-stepped execution engine, and a live view of registers, stack, heap, BSS and rodata.",
+      "language": "TypeScript",
+      "stars": 0,
+      "updated_at": "2026-09-15T15:40:28Z",
+      "license": null,
+      "query": "arm64 instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "rishikezz/riscv32i-cpu-core-tlverilog",
+      "url": "https://github.com/rishikezz/riscv32i-cpu-core-tlverilog",
+      "description": "RISC-V RV32I CPU core implemented in TL-Verilog using Makerchip, featuring instruction decoding, ALU operations, memory access and simulation visualization.",
+      "language": "TL-Verilog",
+      "stars": 0,
+      "updated_at": "2026-10-18T16:15:53Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "Anas-Gebreel/riscv-ldpc-cfu-accelerator",
+      "url": "https://github.com/Anas-Gebreel/riscv-ldpc-cfu-accelerator",
+      "description": "RISC-V (NEORV32) custom-instruction accelerator for fixed-point min-sum LDPC decoding on the Terasic DE2-115 (Cyclone IV E).",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-13T10:57:20Z",
+      "license": "MIT",
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "JignasuShah/riscv-processor",
+      "url": "https://github.com/JignasuShah/riscv-processor",
+      "description": "Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.",
+      "language": null,
+      "stars": 0,
+      "updated_at": "2026-10-12T19:13:55Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "Pikachu287/RiscV_ISA_Sim",
+      "url": "https://github.com/Pikachu287/RiscV_ISA_Sim",
+      "description": "Decoding all RV32I instructions and simulating them",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-08T17:14:28Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "Ruthik85/pipelined-16bit-riscv-core",
+      "url": "https://github.com/Ruthik85/pipelined-16bit-riscv-core",
+      "description": "A 16-bit pipelined RISC-V processor core written in SystemVerilog, featuring modular instruction fetch, decode, and execute stages along with a hazard forwarding unit.",
+      "language": "SystemVerilog",
+      "stars": 0,
+      "updated_at": "2026-10-04T12:06:34Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "DharanidharanRavikumar/riscv-decoder",
+      "url": "https://github.com/DharanidharanRavikumar/riscv-decoder",
+      "description": "A C-based RISC-V RV32I instruction decoder with opcode, register, immediate, and instruction identification support.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-09-30T19:53:28Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "DharanidharanRavikumar/riscv-simulator",
+      "url": "https://github.com/DharanidharanRavikumar/riscv-simulator",
+      "description": "A from-scratch RV32I instruction-set simulator written in C, It fetches, decodes (using the same match/mask technique as the official Spike simulator), and executes real RISC-V machine code, one instruction at a time.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-15T10:38:07Z",
+      "license": "MIT",
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "sxbari/MyOS-x86",
+      "url": "https://github.com/sxbari/MyOS-x86",
+      "description": "A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-21T12:59:01Z",
+      "license": "MIT",
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "JorgeGBeltre/EspressoOS",
+      "url": "https://github.com/JorgeGBeltre/EspressoOS",
+      "description": "EspressoOS: A from‑scratch operating system for ESP32-S3, written entirely in Rust. A Linux‑inspired kernel (VFS, scheduler, syscalls, everything is a file) with no dependencies on Espressif IDF or Arduino. Includes custom bootloader, memory management, drivers, OTA with A/B slots, and an interactive shell.",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2026-10-15T02:37:48Z",
+      "license": "MIT",
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "aleksandraastojanovic/riscv-kernel",
+      "url": "https://github.com/aleksandraastojanovic/riscv-kernel",
+      "description": "A small operating system kernel for RISC-V (rv64), running on QEMU: custom memory allocator, trap-based system calls, cooperative multithreading with context switching — semaphores, preemptive scheduling and console driver in progress.",
+      "language": "C++",
+      "stars": 0,
+      "updated_at": "2026-09-05T16:40:00Z",
+      "license": "NOASSERTION",
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "Onsase-cpu/Asterion-OS",
+      "url": "https://github.com/Onsase-cpu/Asterion-OS",
+      "description": "Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-08-30T14:01:52Z",
+      "license": "NOASSERTION",
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "zizadhrmaa/rOSes-are-red_Operating-System",
+      "url": "https://github.com/zizadhrmaa/rOSes-are-red_Operating-System",
+      "description": "A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-06-29T17:00:40Z",
+      "license": null,
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "sowjithanumola/NovaOS",
+      "url": "https://github.com/sowjithanumola/NovaOS",
+      "description": "NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-06-12T10:45:11Z",
+      "license": null,
+      "query": "operating system kernel scheduler drivers",
+      "review_required": true
+    },
+    {
+      "name": "Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers",
+      "url": "https://github.com/Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers",
+      "description": "",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-22T13:15:51Z",
+      "license": null,
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "Duy-Thanh/android_kernel_common",
+      "url": "https://github.com/Duy-Thanh/android_kernel_common",
+      "description": "",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-22T10:47:29Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "SavoryBanana/sailfish-linux-6.18",
+      "url": "https://github.com/SavoryBanana/sailfish-linux-6.18",
+      "description": "Android Common Kernel 6.18 (Android 17) backport for Google Pixel (sailfish)",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-22T09:24:01Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "itswill00/fearless-kernel",
+      "url": "https://github.com/itswill00/fearless-kernel",
+      "description": "Fearless Kernel - custom Android kernel based on Android Common Kernel 5.10.270 (android12-5.10-lts) for Redmi Note 14 4G (tanzanite)",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-22T08:12:06Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "Kyura-Ground/android_device_asus_sdm660-common-4.19",
+      "url": "https://github.com/Kyura-Ground/android_device_asus_sdm660-common-4.19",
+      "description": "Common device tree for ASUS SDM660-Kernel-4.19",
+      "language": "C++",
+      "stars": 0,
+      "updated_at": "2026-10-22T00:38:43Z",
+      "license": null,
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "xfwdrev/android_kernel_samsung_sm8475",
+      "url": "https://github.com/xfwdrev/android_kernel_samsung_sm8475",
+      "description": "Upstreamed common kernel from ACK and msm kernel from Linaro for Samsung Galaxy Z Flip4 (b4q)",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-22T00:37:08Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "suhteevah/linux-compat-nostd",
+      "url": "https://github.com/suhteevah/linux-compat-nostd",
+      "description": "no_std Linux syscall compatibility layer — run Linux binaries on bare metal",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2026-05-30T06:06:50Z",
+      "license": "Apache-2.0",
+      "query": "syscall compatibility layer",
+      "review_required": true
+    },
+    {
+      "name": "jdhruv1503/LinuxCompatibilityLayer",
+      "url": "https://github.com/jdhruv1503/LinuxCompatibilityLayer",
+      "description": "Run Linux syscalls on non-Linux environments — compatibility shim layer",
+      "language": "Python",
+      "stars": 0,
+      "updated_at": "2026-06-20T05:20:11Z",
+      "license": null,
+      "query": "syscall compatibility layer",
+      "review_required": true
+    },
+    {
+      "name": "dyber-pqc/bsdulator",
+      "url": "https://github.com/dyber-pqc/bsdulator",
+      "description": "FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-10T21:10:56Z",
+      "license": "NOASSERTION",
+      "query": "syscall compatibility layer",
+      "review_required": true
+    },
+    {
+      "name": "Starry-Old/linux_syscall_api",
+      "url": "https://github.com/Starry-Old/linux_syscall_api",
+      "description": "The project, written by Rust, is a compatibility layer for linux syscalls on different operating systems.",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2025-09-03T09:02:38Z",
+      "license": null,
+      "query": "syscall compatibility layer",
+      "review_required": true
+    }
+  ]
 }
