@@ -7,7 +7,7 @@
 #include <vector>
 using Bytes=std::vector<uint8_t>;
 static void field(Bytes& b,size_t off,uint32_t v){static const char h[]="0123456789abcdef";for(int i=7;i>=0;--i){b[off+(size_t)i]=(uint8_t)h[v&15u];v>>=4;}}
-static void entry(Bytes& b,const char* name,uint32_t mode,const char* data){size_t s=b.size();b.resize(s+110,0);std::memcpy(b.data()+s,"070701",6);field(b,s+14,mode);uint32_t n=(uint32_t)std::strlen(name)+1,z=data?(uint32_t)std::strlen(data):0;field(b,s+54,z);field(b,s+94,n);b.insert(b.end(),name,name+n);while(b.size()%4)b.push_back(0);if(data)b.insert(b.end(),data,data+z);while(b.size()%4)b.push_back(0);}
+static void entry(Bytes& b,const char* name,uint32_t mode,const char* data){size_t s=b.size();b.resize(s+110,(uint8_t)'0');std::memcpy(b.data()+s,"070701",6);field(b,s+14,mode);uint32_t n=(uint32_t)std::strlen(name)+1,z=data?(uint32_t)std::strlen(data):0;field(b,s+54,z);field(b,s+94,n);b.insert(b.end(),name,name+n);while(b.size()%4)b.push_back(0);if(data)b.insert(b.end(),data,data+z);while(b.size()%4)b.push_back(0);}
 static uint32_t crc32(const uint8_t*p,size_t n){uint32_t c=0xffffffffu;for(size_t j=0;j<n;++j){c^=p[j];for(int i=0;i<8;++i)c=(c>>1)^((c&1)?0xedb88320u:0u);}return c^0xffffffffu;}
 static void le32(Bytes&b,uint32_t v){for(int i=0;i<4;++i)b.push_back((uint8_t)(v>>(8*i)));}
 static Bytes gzip_stored(const Bytes& raw){assert(raw.size()<65536);Bytes b={0x1f,0x8b,8,0,0,0,0,0,0,255,1,(uint8_t)raw.size(),(uint8_t)(raw.size()>>8),(uint8_t)~raw.size(),(uint8_t)(~raw.size()>>8)};b.insert(b.end(),raw.begin(),raw.end());le32(b,crc32(raw.data(),raw.size()));le32(b,(uint32_t)raw.size());return b;}
