@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Aurora Flash Tool: safe Chimera image/media writer front end."""
-import argparse, hashlib, os, shutil, subprocess, sys, tempfile
+import argparse, hashlib, os, re, shutil, stat, subprocess, sys, tempfile
 
 def sha256(path):
     h=hashlib.sha256()
@@ -16,21 +16,45 @@ def devices():
         return '{"error":%r}'%str(e)
 
 def flash(image, device, expected_sha256=None):
-    if not os.path.isfile(image): raise SystemExit("Image not found")
-    if not os.path.exists(device): raise SystemExit("Target device not found")
-    if expected_sha256 and sha256(image).lower()!=expected_sha256.lower(): raise SystemExit("SHA-256 mismatch")
-    if os.path.realpath(device)==os.path.realpath(os.sep): raise SystemExit("Refusing root filesystem target")
-    if not os.environ.get("CHIMERA_FLASH_CONFIRM")=="YES":
+    if not os.path.isfile(image):
+        raise SystemExit("Image not found")
+    if not device.startswith("/dev/"):
+        raise SystemExit("Target must be an explicit /dev/... device path")
+    if not os.path.exists(device):
+        raise SystemExit("Target device not found")
+    if not stat.S_ISBLK(os.stat(device).st_mode):
+        raise SystemExit("Refusing non-block-device target")
+    if not expected_sha256 or not re.fullmatch(r"[0-9a-fA-F]{64}", expected_sha256):
+        raise SystemExit("A 64-character expected SHA-256 is required")
+    expected_sha256 = expected_sha256.lower()
+    actual = sha256(image).lower()
+    if actual != expected_sha256:
+        raise SystemExit("SHA-256 mismatch; refusing to flash")
+    if not os.environ.get("CHIMERA_FLASH_CONFIRM") == "YES":
         raise SystemExit("Set CHIMERA_FLASH_CONFIRM=YES only after verifying the selected removable target.")
-    subprocess.run(["sync"],check=False)
-    with open(image,"rb") as src, open(device,"wb",buffering=0) as dst:
-        shutil.copyfileobj(src,dst,length=4*1024*1024)
-        dst.flush(); os.fsync(dst.fileno())
-    subprocess.run(["sync"],check=False)
+    image_size = os.path.getsize(image)
+    subprocess.run(["sync"], check=False)
+    with open(image, "rb") as src, open(device, "r+b", buffering=0) as dst:
+        shutil.copyfileobj(src, dst, length=4 * 1024 * 1024)
+        dst.flush()
+        os.fsync(dst.fileno())
+    subprocess.run(["sync"], check=False)
+    # Read back exactly the image-length prefix and verify the bytes written.
+    h = hashlib.sha256()
+    remaining = image_size
+    with open(device, "rb", buffering=0) as dst:
+        while remaining:
+            chunk = dst.read(min(1024 * 1024, remaining))
+            if not chunk:
+                raise SystemExit("Post-write verification failed: short read from target")
+            h.update(chunk)
+            remaining -= len(chunk)
+    if h.hexdigest().lower() != expected_sha256:
+        raise SystemExit("Post-write verification failed: target SHA-256 mismatch")
 
 p=argparse.ArgumentParser(description="Aurora Flash Tool")
 p.add_argument("--list",action="store_true")
-p.add_argument("--image"); p.add_argument("--device"); p.add_argument("--sha256")
+p.add_argument("--image"); p.add_argument("--device"); p.add_argument("--sha256", required=False)
 a=p.parse_args()
 if a.list: print(devices()); raise SystemExit(0)
 if not a.image or not a.device: p.error("--image and --device are required")
