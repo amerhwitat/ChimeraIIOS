@@ -1,0 +1,28 @@
+name: Perl runtime smoke
+
+on:
+  pull_request:
+    paths:
+      - "tools/perl-runtime/**"
+      - ".github/workflows/perl-runtime-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/perl-runtime/**"
+      - ".github/workflows/perl-runtime-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-perl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test pinned Perl
+        run: |
+          tools/perl-runtime/build-perl-runtime.sh --prefix "$RUNNER_TEMP/perl-5.44-rootfs"
+          "$RUNNER_TEMP/perl-5.44-rootfs/bin/perl" -v
+          "$RUNNER_TEMP/perl-5.44-rootfs/bin/perl" -c tools/perl-runtime/perl-runtime-smoke.pl
