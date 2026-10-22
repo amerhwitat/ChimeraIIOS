@@ -28,7 +28,7 @@ static const char *admission_failure(int rc) {
         case -1: return "[RUN ] Admission detail: null image/output or invalid user stack ceiling";
         case -2: return "[RUN ] Admission detail: invalid ELF header, identity, or machine";
         case -3: return "[RUN ] Admission detail: PT_LOAD file range exceeds the ELF image";
-        case -4: return "[RUN ] Admission detail: PT_LOAD address overflows or lies outside the user stack ceiling";
+        case -4: return "[RUN ] Admission detail: PT_LOAD has zero memory size, address overflow, or lies outside the user stack ceiling";
         case -5: return "[RUN ] Admission detail: PT_LOAD alignment is not a power of two";
         case -6: return "[RUN ] Admission detail: ELF exceeds the process segment limit";
         case -7: return "[RUN ] Admission detail: writable-executable PT_LOAD rejected";
