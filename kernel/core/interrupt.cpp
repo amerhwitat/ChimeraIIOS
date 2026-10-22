@@ -125,9 +125,13 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
     }
     if (vector == CHIMERA_SYSCALL_VECTOR && frame) {
         /* interrupts.asm saves 15 GPRs, then vector, then the hardware frame:
-         * frame[16] is RIP and frame[17] is CS. INT 0x80's IDT gate is DPL3;
-         * still check the CPU-saved RPL explicitly before acknowledging. */
+         * frame[16] is RIP and frame[17] is CS. Keep a single diagnostic at
+         * this boundary so a missing CPL3 acknowledgement can be localized
+         * to IDT delivery versus process-context validation. */
+        static volatile uint32_t first_user_int80 = 0;
         const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        if (__sync_bool_compare_and_swap(&first_user_int80, 0u, 1u))
+            koronos_target_log("[INT80] reached common IDT dispatcher; validating saved CPL and CR3");
         (void)koronos_target_note_user_syscall(saved[16], saved[17]);
     }
     chimera_interrupt_identity identity{};
