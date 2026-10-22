@@ -22,6 +22,8 @@ static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
+/* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
+static bool active_ring3_probe = false;
 struct TemporaryFrames {
     uint64_t base = 0;
     uint32_t pages = 0;
@@ -78,18 +80,22 @@ static void log_user_init_syscall(Target target, uint32_t pid) {
 }
 static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
     if (!bytes || !length || pid == 0u) return false;
-    const char *prefix = nullptr;
+    const char *production_prefix = nullptr;
+    const char *probe_prefix = nullptr;
     switch (target) {
-        case TARGET_LIVE: prefix = "USERSPACE TARGET READY: live component=aurora-session"; break;
-        case TARGET_INSTALLER: prefix = "USERSPACE TARGET READY: installer component=install-executor"; break;
-        case TARGET_RECOVERY: prefix = "USERSPACE TARGET READY: recovery component=recovery-runtime"; break;
+        case TARGET_LIVE: production_prefix = "USERSPACE TARGET READY: live component=aurora-session"; probe_prefix = "USERSPACE READY: live"; break;
+        case TARGET_INSTALLER: production_prefix = "USERSPACE TARGET READY: installer component=install-executor"; probe_prefix = "USERSPACE READY: installer"; break;
+        case TARGET_RECOVERY: production_prefix = "USERSPACE TARGET READY: recovery component=recovery-runtime"; probe_prefix = "USERSPACE READY: recovery"; break;
         default: return false;
     }
-    uint64_t prefix_len=0;
-    while (prefix[prefix_len]) ++prefix_len;
     static const char pid_label[] = " init pid=";
     const uint64_t pid_label_len=sizeof(pid_label)-1u;
-    for (uint64_t i=0; i+prefix_len+pid_label_len<length; ++i) {
+    for (uint32_t variant=0; variant<2; ++variant) {
+      const char *prefix = (variant==0) ? production_prefix : (active_ring3_probe ? probe_prefix : nullptr);
+      if (!prefix) continue;
+      uint64_t prefix_len=0;
+      while (prefix[prefix_len]) ++prefix_len;
+      for (uint64_t i=0; i+prefix_len+pid_label_len<length; ++i) {
         uint64_t j=0;
         while (j<prefix_len && bytes[i+j]==prefix[j]) ++j;
         if (j!=prefix_len) continue;
@@ -108,6 +114,7 @@ static bool target_marker(const char *bytes, uint64_t length, Target target, uin
         if (digits && parsed==pid &&
             (k==length || bytes[k]=='\n' || bytes[k]=='\r' || bytes[k]==' '))
             return true;
+      }
     }
     return false;
 }
@@ -309,6 +316,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         return -7;
     }
     active_target=target;
+    active_ring3_probe=token(selected->cmdline, "probe=ring3");
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
     syscall_ack_seen=0;
@@ -334,6 +342,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
     active_target=TARGET_NONE;
+    active_ring3_probe=false;
     active_root=0;
     if (exit_code == -10) {
         koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
