@@ -48,6 +48,7 @@ for required in ("inventory", "catalog_match", "policy_check", "sandbox_probe", 
 for forbidden in ("load_or_execute_model_generated_kernel_code", "bypass_signature_or_trust_policy"):
     assert forbidden in driver["model_role"]["forbidden"], f"missing safety guard: {forbidden}"
 assert driver["learning_policy"]["offline_first"] is True
+assert driver["implementation_status"] == "policy_only_no_RNN_or_LLM_inference_backend_linked"
 assert "bound_verified" in driver["driver_states"]
 
 families = catalog["application_families"]
@@ -66,4 +67,4 @@ app_count = sum(len(family.get("examples", [])) for family in families)
 print(f"cross-OS contracts PASS: {len(os_entries)} OS families, "
       f"{len(compat['cpu_profiles'])} CPU profiles, {len(setting_ids)} settings, "
       f"{len(families)} app families/{app_count} candidate apps, "
-      f"{len(driver['pipeline'])} driver-assistant stages")
+      f"{len(driver['pipeline'])} driver-assistant stages (policy only)")
