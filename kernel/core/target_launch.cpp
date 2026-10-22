@@ -9,6 +9,7 @@
 #include "chimera/elf64.h"
 #include "chimera/frame_allocator.h"
 #include "chimera/initramfs_cpio.h"
+#include "chimera/initramfs_ingest.h"
 
 namespace {
 constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull; // Loader requires a page-aligned stack ceiling
@@ -21,6 +22,15 @@ static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
+struct TemporaryFrames {
+    uint64_t base = 0;
+    uint32_t pages = 0;
+    ~TemporaryFrames() { if (base && pages) (void)koronos_frame_free_contiguous(base, pages); }
+};
+static uint32_t read_le32(const uint8_t *p) {
+    return static_cast<uint32_t>(p[0]) | (static_cast<uint32_t>(p[1]) << 8) |
+           (static_cast<uint32_t>(p[2]) << 16) | (static_cast<uint32_t>(p[3]) << 24);
+}
 
 extern "C" void koronos_target_log(const char *message);
 
@@ -208,16 +218,49 @@ extern "C" int koronos_launch_selected_userspace(void) {
             koronos_target_log("[RUN ] ERROR: selected initramfs bounds are invalid");
             return -15;
         }
+        const void *archive_bytes = reinterpret_cast<const void *>(static_cast<uintptr_t>(archive->base));
+        const auto *archive_prefix = static_cast<const uint8_t *>(archive_bytes);
         chimera_cpio_summary summary{};
-        const int cpio_rc = chimera_cpio_validate_newc(
-            reinterpret_cast<const void *>(static_cast<uintptr_t>(archive->base)), archive->size, &summary);
-        if (cpio_rc == CHIMERA_CPIO_E_COMPRESSION) {
-            koronos_target_log("[RUN ] ERROR: gzip initramfs requires bounded decompression; refusing envelope-only acceptance");
-            return -16;
-        }
-        if (cpio_rc != CHIMERA_CPIO_OK || !summary.has_init) {
-            koronos_target_log("[RUN ] ERROR: selected initramfs is malformed, unsafe, or lacks top-level init");
-            return -17;
+        int cpio_rc = CHIMERA_CPIO_OK;
+        if (archive->size >= 2u && archive_prefix[0] == 0x1fu && archive_prefix[1] == 0x8bu) {
+            if (archive->size < 18u) {
+                koronos_target_log("[RUN ] ERROR: truncated gzip initramfs header/trailer");
+                return -16;
+            }
+            const uint64_t expected_size = read_le32(archive_prefix + archive->size - 4u);
+            if (expected_size < 110u || expected_size > MAX_INIT_IMAGE) {
+                koronos_target_log("[RUN ] ERROR: gzip initramfs ISIZE is outside the bounded CPIO output range");
+                return -16;
+            }
+            const uint64_t pages64 = (expected_size + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
+            if (pages64 == 0u || pages64 > 16384u) {
+                koronos_target_log("[RUN ] ERROR: gzip initramfs output page count exceeds the configured limit");
+                return -16;
+            }
+            TemporaryFrames decompressed{};
+            decompressed.pages = static_cast<uint32_t>(pages64);
+            decompressed.base = koronos_frame_alloc_contiguous(decompressed.pages);
+            if (!decompressed.base) {
+                decompressed.pages = 0;
+                koronos_target_log("[RUN ] ERROR: unable to reserve bounded initramfs decompression workspace");
+                return -18;
+            }
+            uint64_t decoded_size = 0;
+            cpio_rc = chimera_initramfs_prepare_newc(
+                archive_bytes, archive->size,
+                reinterpret_cast<void *>(static_cast<uintptr_t>(decompressed.base)),
+                expected_size, &decoded_size, &summary);
+            if (cpio_rc != CHIMERA_CPIO_OK || decoded_size != expected_size || !summary.has_init) {
+                koronos_target_log("[RUN ] ERROR: gzip decode, CRC32/ISIZE, CPIO safety, or init-entry validation failed");
+                return -19;
+            }
+            koronos_target_log("[RUN ] Bounded gzip/DEFLATE, CRC32/ISIZE and CPIO validation passed");
+        } else {
+            cpio_rc = chimera_cpio_validate_newc(archive_bytes, archive->size, &summary);
+            if (cpio_rc != CHIMERA_CPIO_OK || !summary.has_init) {
+                koronos_target_log("[RUN ] ERROR: selected initramfs is malformed, unsafe, or lacks top-level init");
+                return -17;
+            }
         }
     }
     if (!koronos_address_space_ready()) {
