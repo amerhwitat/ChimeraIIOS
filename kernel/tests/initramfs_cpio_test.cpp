@@ -49,6 +49,11 @@ int main() {
   entry(sbin_init,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(sbin_init.data(),sbin_init.size(),&s)==CHIMERA_CPIO_OK);
   assert(s.has_init==1u);
+  std::vector<uint8_t> symlink_init;
+  entry(symlink_init,"init",0120777u,"safe-target");
+  entry(symlink_init,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(symlink_init.data(),symlink_init.size(),&s)==CHIMERA_CPIO_OK);
+  assert(s.has_init==0u);
   std::vector<uint8_t> traversal;
   entry(traversal,"../escape",0100644u,"x"); entry(traversal,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(traversal.data(),traversal.size(),&s)==CHIMERA_CPIO_E_PATH);
