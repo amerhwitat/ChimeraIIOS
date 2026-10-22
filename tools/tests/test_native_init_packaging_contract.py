@@ -63,8 +63,6 @@ def main() -> int:
         return fail("kernel launch must bind the init ELF to the sole production payload")
     if "if (count!=1 || !selected" not in launch_text:
         return fail("kernel launch must require exactly one bounded native init ELF")
-    if "if (elf_target != target)" in launch_text:
-        pass
     if "native init target does not match the selected production payload" not in launch_text:
         return fail("kernel launch must report target/payload mismatch")
     if 'bash "$ROOT/tools/build-production-init-elfs.sh"' not in prepare_text:
