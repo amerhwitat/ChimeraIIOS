@@ -18,4 +18,21 @@ const Bytes compressed=gzip_stored(raw);std::memset(workspace,0,sizeof(workspace
 assert(chimera_initramfs_prepare_newc(compressed.data(),compressed.size(),workspace,64,&size,&s)==CHIMERA_CPIO_E_LIMIT);
 Bytes bad=compressed;bad[bad.size()-8]^=1;assert(chimera_initramfs_prepare_newc(bad.data(),bad.size(),workspace,sizeof(workspace),&size,&s)==CHIMERA_CPIO_E_COMPRESSION&&size==0);
 const Bytes traversal=archive("../outside","x");const Bytes evil=gzip_stored(traversal);assert(chimera_initramfs_prepare_newc(evil.data(),evil.size(),workspace,sizeof(workspace),&size,&s)==CHIMERA_CPIO_E_PATH);
+
+// Duplicate normalized paths must fail closed.
+Bytes duplicate;entry(duplicate,"same",0100644u,"a");entry(duplicate,"same",0100644u,"b");entry(duplicate,"TRAILER!!!",0,nullptr);
+chimera_cpio_summary checked{};assert(chimera_cpio_validate_newc(duplicate.data(),duplicate.size(),&checked)==CHIMERA_CPIO_E_PATH);
+// A regular file cannot also be a parent directory of another entry.
+Bytes prefix;entry(prefix,"node",0100644u,"x");entry(prefix,"node/child",0100644u,"y");entry(prefix,"TRAILER!!!",0,nullptr);
+assert(chimera_cpio_validate_newc(prefix.data(),prefix.size(),&checked)==CHIMERA_CPIO_E_PATH);
+// Directory prefixes are valid when the parent entry is explicitly a directory.
+Bytes directory;entry(directory,"node/",0040755u,nullptr);entry(directory,"node/child",0100644u,"y");entry(directory,"TRAILER!!!",0,nullptr);
+assert(chimera_cpio_validate_newc(directory.data(),directory.size(),&checked)==CHIMERA_CPIO_OK);
+// Reject symlink targets that try to escape the archive root.
+Bytes symlink;entry(symlink,"link",0120777u,"../outside");entry(symlink,"TRAILER!!!",0,nullptr);
+assert(chimera_cpio_validate_newc(symlink.data(),symlink.size(),&checked)==CHIMERA_CPIO_E_PATH);
+// A truncated gzip stream and concatenated gzip members are not accepted.
+Bytes truncated=compressed;truncated.pop_back();assert(chimera_initramfs_prepare_newc(truncated.data(),truncated.size(),workspace,sizeof(workspace),&size,&s)==CHIMERA_CPIO_E_COMPRESSION);
+Bytes concatenated=compressed;concatenated.insert(concatenated.end(),compressed.begin(),compressed.end());
+assert(chimera_initramfs_prepare_newc(concatenated.data(),concatenated.size(),workspace,sizeof(workspace),&size,&s)==CHIMERA_CPIO_E_COMPRESSION);
 std::puts("bounded initramfs ingestion: raw/gzip, capacity, CRC and traversal checks passed");}
