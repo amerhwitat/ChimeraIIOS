@@ -199,6 +199,7 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     if (!offered) { c->device_status |= STATUS_FAILED; return -4; }
     uint16_t q = 1;
     while (q <= KORONOS_VIRTIO_BLK_QUEUE_MAX / 2u && q * 2u <= offered) q *= 2u;
+    if (q < 3u) { c->device_status |= STATUS_FAILED; return -4; }
     d->queue_size = q;
     if (koronos_dma_alloc(4096, 4096, t->dma_mask, &d->ring) != 0 ||
         koronos_dma_alloc(4096, 4096, t->dma_mask, &d->request) != 0 ||
