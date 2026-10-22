@@ -1,0 +1,56 @@
+name: Optional Application Catalog Contract
+
+on:
+  push:
+    paths:
+      - 'desktop/optional_apps_catalog.json'
+      - 'desktop/aurora_app_registry.json'
+      - 'desktop/aurora/optional-app-center.html'
+      - '.github/workflows/optional-app-catalog.yml'
+  pull_request:
+    paths:
+      - 'desktop/optional_apps_catalog.json'
+      - 'desktop/aurora_app_registry.json'
+      - 'desktop/aurora/optional-app-center.html'
+      - '.github/workflows/optional-app-catalog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate catalog and panel integration
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          catalog_path = Path("desktop/optional_apps_catalog.json")
+          registry_path = Path("desktop/aurora_app_registry.json")
+          panel_path = Path("desktop/aurora/optional-app-center.html")
+          catalog = json.loads(catalog_path.read_text(encoding='utf-8'))
+          registry = json.loads(registry_path.read_text(encoding='utf-8'))
+          assert catalog.get('$schema') == 'CHM-OPTIONAL-APP-CATALOG-1'
+          apps = catalog.get('apps')
+          assert isinstance(apps, list) and len(apps) >= 40, 'catalog unexpectedly small'
+          ids = [app.get('id') for app in apps]
+          assert all(ids) and len(ids) == len(set(ids)), 'missing or duplicate app IDs'
+          allowed_platforms = {'Windows', 'Linux', 'macOS', 'Web'}
+          for app in apps:
+              assert app.get('name') and app.get('category') and app.get('license')
+              assert app.get('upstream', '').startswith('https://'), app.get('id')
+              assert app.get('platforms') and set(app['platforms']) <= allowed_platforms, app.get('id')
+              assert app.get('default_installed') is False, app.get('id')
+          entry = next((app for app in registry.get('apps', []) if app.get('id') == 'optional-app-center'), None)
+          assert entry, 'optional-app-center missing from Aurora app registry'
+          assert entry.get('catalog') == str(catalog_path), 'registry catalog path mismatch'
+          assert panel_path.exists(), 'panel entry missing'
+          panel = panel_path.read_text(encoding='utf-8')
+          assert 'fetch("../optional_apps_catalog.json")' in panel, 'panel does not load catalog'
+          assert ('not verified' in panel.lower() or 'not mean' in panel.lower() or 'not claims' in panel.lower()), 'missing compatibility disclaimer'
+
+          print(f'PASS: {len(apps)} unique catalog entries; registry and panel wired; install state is fail-closed')
+          PY
