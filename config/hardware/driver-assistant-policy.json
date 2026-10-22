@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "name": "Koronos Hardware and Driver Assistant",
+  "name": "Koronos Hardware and Driver Assistant Policy",
   "model_role": {
     "allowed": [
       "classify_hardware_from_PCI_USB_ACPI_SMBIOS_and_firmware_ids",
@@ -16,7 +16,8 @@
       "claim_binding_without_probe_success",
       "invent_hardware_ids_or_driver_compatibility",
       "write_firmware_or_device_configuration_without_explicit_policy"
-    ]
+    ],
+    "implementation_boundary": "The kernel currently records validated events only; actual RNN/LLM ranking must run in a separate sandboxed userspace service and is not claimed by this policy manifest."
   },
   "pipeline": [
     {
@@ -101,7 +102,7 @@
     "confidence_is_not_a_substitute_for_signature_or_runtime_tests": true
   },
   "learning_policy": {
-    "model_type": "RNN/LLM-assisted ranking; deterministic rules remain authoritative",
+    "model_type": "planned RNN/LLM-assisted ranking; deterministic rules remain authoritative; inference backend not yet linked",
     "train_from": [
       "validated_inventory",
       "signed_catalog_metadata",
@@ -134,5 +135,6 @@
     "bounded_timeouts",
     "failure_rollback",
     "audit_log"
-  ]
+  ],
+  "implementation_status": "policy_only_no_RNN_or_LLM_inference_backend_linked"
 }
