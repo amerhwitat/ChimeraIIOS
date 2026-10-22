@@ -57,6 +57,7 @@ typedef struct koronos_virtio_blk {
     uint8_t attached;
     uint8_t busy;
     uint8_t flush_supported;
+    uint8_t failed;
 } koronos_virtio_blk;
 
 /* Attach only after PCI capability parsing has validated and mapped the
