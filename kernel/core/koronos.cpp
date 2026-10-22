@@ -488,7 +488,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
-    debugcon_write("[KRN ] KORONOS READY");
+    /* console_write already forwards to debugcon via serial_write. */
     console_write("[KRN ] KORONOS READY");
     console_write("[IO  ] Console: VGA text + COM1");
     koronos_submit_bootstrap_tasks();
