@@ -1,26 +1,29 @@
 # Perl runtime integration (Perl 5.44.0)
 
-This package adds a reproducible build recipe and a small acceptance test for
-upstream Perl. It pins the CPAN source archive by SHA-256 and runs Perl's own
-\`make test\` suite before staging the interpreter.
+This package adds a reproducible build recipe and acceptance test for upstream Perl.
+It pins each CPAN source archive by SHA-256 and runs Perl's own `make test`
+suite before staging the interpreter.
 
 - Production stable release: Perl 5.44.0 (released 2026-07-15).
-- Source: https://www.cpan.org/src/5.0/perl-5.44.0.tar.gz
-- SHA-256: \`3b855066b92491cb40e86affb1ca57d1a388aa43e51b91c7806a32c2f65f96c3\`
-- Development releases are not used for the default OS runtime.
+  - Source: https://www.cpan.org/src/5.0/perl-5.44.0.tar.gz
+  - SHA-256: `3b855066b92491cb40e86affb1ca57d1a388aa43e51b91c7806a32c2f65f96c3`
+- Latest development release: Perl 5.45.3 (released 2026-09-24).
+  - Source: https://www.cpan.org/src/5.0/perl-5.45.3.tar.gz
+  - SHA-256: `f8aac25c3dc34abbaf0d84da132913f726c7faa27906b460cc442da417c2fdac`
+- Stable 5.44.0 remains the default; use `--version development` to build 5.45.3 for testing.
 
 ## Build
 
 From the repository root on a POSIX build host with a C compiler, make, tar,
 curl or wget, and a SHA-256 utility:
 
-\`\`\`sh
+```sh
 bash tools/perl-runtime/build-perl-runtime.sh --prefix "$PWD/build/perl-rootfs"
-\`\`\`
+```
 
 The build downloads the pinned source, verifies its digest, configures Perl for
 the build host, runs the upstream tests, installs under the staging prefix,
-and runs \`perl-runtime-smoke.pl\`.
+and runs `perl-runtime-smoke.pl`.
 
 ## Important execution boundary
 
