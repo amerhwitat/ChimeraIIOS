@@ -53,3 +53,15 @@ The log also contains PASS: ordered kernel/user-syscall/userspace-ready trace ta
 - [ ] Matrix: six independent Live/Installer/Recovery × BIOS/UEFI results with ISO/payload hashes, full boot logs, syscall/PID evidence, service health evidence, and explicit PASS/FAIL/NOT RUN.
 
 This ledger is not an implementation claim. Keep release blocked until each checkbox has executable evidence; a generic USERSPACE READY marker is not target-service proof.
+
+
+## Source implementation update — 2026-10-22
+
+A first executable archive-validation layer has now been added to the Koronos source tree and build script on this branch:
+
+- `kernel/include/chimera/initramfs_cpio.h` defines a bounded validation API and explicit status codes.
+- `kernel/core/initramfs_cpio.cpp` validates raw `070701`/`070702` newc headers, hex fields, bounds, alignment, NUL-terminated names, path traversal/absolute-path rejection, supported entry types, CRC checks for `070702`, entry/expanded-payload limits, and the `TRAILER!!!` terminator. It reports gzip as unsupported compression rather than accepting the envelope as a valid archive.
+- `kernel/tests/initramfs_cpio_test.cpp` adds host regression cases for a valid archive, top-level `init`, truncation, path traversal, gzip rejection and size limits; `kernel/build-koronos.sh` compiles/runs this test and links the validator into Koronos.
+- `kernel/core/target_launch.cpp` now validates raw Live/Recovery CPIO before launch and rejects gzip until a bounded decompressor is wired. The production readiness check now requires a target-owned service marker (`aurora-session`, `install-executor`, or `recovery-runtime`) rather than the generic native-init probe marker.
+
+This is a real partial implementation, not a complete initramfs runtime. It does not yet extract files, mount a VFS, create process-owned file descriptors, implement exec/wait/reap, or start target services. The parser does not yet implement duplicate-path/conflicting-entry detection. Gzip/DEFLATE support remains absent, so compressed production initramfs deliberately fails closed. Host regression and kernel CI workflows triggered by these commits were queued at the last poll; no passing build/test claim is made here.
