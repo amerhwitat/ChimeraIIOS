@@ -151,7 +151,9 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
     }
     if (UINT64_MAX-s.payload_bytes<file_size) return CHIMERA_CPIO_E_BOUNDS;
     s.payload_bytes+=file_size;
-    if (name_size==5u&&name[0]=='i'&&name[1]=='n'&&name[2]=='i'&&name[3]=='t'&&name[4]==0) s.has_init=1u;
+    const bool top_init = name_size==5u&&name[0]=='i'&&name[1]=='n'&&name[2]=='i'&&name[3]=='t'&&name[4]==0;
+    const bool sbin_init = name_size==10u&&name[0]=='s'&&name[1]=='b'&&name[2]=='i'&&name[3]=='n'&&name[4]=='/'&&name[5]=='i'&&name[6]=='n'&&name[7]=='i'&&name[8]=='t'&&name[9]==0;
+    if (top_init || sbin_init) s.has_init=1u;
     off=data_aligned;
   }
   if (!trailer) return CHIMERA_CPIO_E_TRAILER;
