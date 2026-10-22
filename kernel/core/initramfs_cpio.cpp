@@ -26,6 +26,8 @@ static bool align4(uint64_t v,uint64_t limit,uint64_t *out) {
 }
 static bool safe_path(const uint8_t *p,uint32_t n,bool directory) {
   if (!p||n<2||n>CHIMERA_CPIO_MAX_PATH+1u||p[n-1]!=0) return false;
+  /* Standard initramfs archives include the root directory as ".". Permit only that exact spelling, and only as a directory; all other dot components remain rejected. */
+  if (directory && n==2u && p[0]=='.' && p[1]==0) return true;
   if (p[0]=='/' || p[0]==0) return false;
   uint32_t end=n-1u;
   /* CPIO producers commonly encode directories as "path/". Accept that
