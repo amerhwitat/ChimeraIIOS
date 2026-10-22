@@ -1,0 +1,44 @@
+name: Desktop preferences contract validation
+on:
+  push:
+    paths:
+      - 'desktop/shared/**'
+      - 'desktop/aurora/aurora_settings_registry.json'
+      - 'config/settings/control-panel-registry.json'
+      - '.github/workflows/desktop-preferences-ci.yml'
+  pull_request:
+    paths:
+      - 'desktop/shared/**'
+      - 'desktop/aurora/aurora_settings_registry.json'
+      - 'config/settings/control-panel-registry.json'
+      - '.github/workflows/desktop-preferences-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate preferences controller syntax
+        run: node --check desktop/shared/desktop-preferences.js
+      - name: Validate registry and explicit native capability boundary
+        run: |
+          set -euo pipefail
+          python3 -m json.tool desktop/aurora/aurora_settings_registry.json >/dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          reg = json.loads(Path("desktop/aurora/aurora_settings_registry.json").read_text())
+          contract = reg["desktop_preferences_contract"]
+          assert contract["native_provider_status"] == "not_connected"
+          assert "mouse_click_feedback" in reg["categories"][-1]["pages"]
+          js = Path(contract["frontend"]).read_text()
+          css = Path(contract["stylesheet"]).read_text()
+          assert "Ctrl+Alt+D" in js and "localStorage" in js
+          assert "#os-preferences-panel" in css
+          print("Preferences assets and conservative native-provider contract valid.")
+          PY
