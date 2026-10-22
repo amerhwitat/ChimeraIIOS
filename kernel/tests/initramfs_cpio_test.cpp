@@ -57,6 +57,10 @@ int main() {
   std::vector<uint8_t> traversal;
   entry(traversal,"../escape",0100644u,"x"); entry(traversal,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(traversal.data(),traversal.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> directory_payload;
+  entry(directory_payload,"bad-dir",0040755u,"unexpected");
+  entry(directory_payload,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(directory_payload.data(),directory_payload.size(),&s)==CHIMERA_CPIO_E_TYPE);
   std::vector<uint8_t> embedded_nul;
   entry(embedded_nul,"init",0100755u,"ELF");
   entry(embedded_nul,"TRAILER!!!",0,nullptr);
