@@ -52,7 +52,12 @@ if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS
 # The production GRUB entries select a target-specific native init ELF in addition
 # to the data initramfs. Build-koronos.sh owns these ELFs; stage and validate
 # all three here so the full ISO cannot silently omit the executable handoff.
-NATIVE_INIT_DIR="$BUILD_DIR/koronos/x86_64"
+NATIVE_INIT_DIR="${CHIMERA_KORONOS_BUILD_DIR:-$BUILD_DIR/koronos/x86_64}"
+# kernel/build-koronos.sh currently emits to the repository canonical path;
+# honor an explicit override first, then fall back to that canonical output.
+if [[ ! -s "$NATIVE_INIT_DIR/native-init-live.elf" && -s "$ROOT/build/koronos/x86_64/native-init-live.elf" ]]; then
+  NATIVE_INIT_DIR="$ROOT/build/koronos/x86_64"
+fi
 for target in live installer recovery; do
   native_init="$NATIVE_INIT_DIR/native-init-$target.elf"
   if [[ ! -s "$native_init" ]]; then
