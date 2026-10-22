@@ -111,3 +111,18 @@ Cross-repository verification on the mirrored runtime branch:
 Root cause remains the same lifecycle seam: newc is validated and extracted into an unpublished RAMFS staging tree, but the separate fixed-size VFS has no mount/publication interface and is not backed by that tree. Removing the fail-closed guard would not create filesystem visibility or working file syscalls. The current native syscall surface does not yet provide process-owned descriptors and safe open/read/write/stat operations. The required next work is a capacity-appropriate mount abstraction, atomic root publication with rollback tests, process-bound file syscalls and pointer validation, real target service lifecycles, and then production BIOS/UEFI acceptance plus Aurora, installer persistence, recovery postconditions and real AP-backed SMP.
 
 **Status:** keep PR #187 draft. The guard is a safety barrier, not a fix for the missing rootfs lifecycle. No production ISO publication is authorized until exact-head CI and all production gates pass.
+
+
+## Source-level rootfs seam correction and latest CI — 2026-10-23
+
+Exact-source review refines the cross-repository diagnosis:
+
+- In OctavianOS's vendored `target_launch.cpp`, the production path checks target/module bounds and then fails closed at `-15`; it does not invoke the CPIO validator, RAMFS extractor, or publisher. Its isolated bounded-ingestion CI pass does not establish launcher integration.
+- In ChimeraIIOS `kernel/core/target_launch.cpp`, the path validates/decompresses the archive and calls `stage_rootfs()` to create an unpublished RAMFS tree, but the tree is not mounted/published into the process-visible VFS and the same guard rejects production launch.
+- Both repos' VFS interface remains a separate fixed-capacity store (64 nodes, 128-byte paths, 4096-byte files) with no RAMFS root-mount/atomic-swap contract. The native syscall layer still lacks process-owned file descriptors and safe filesystem operations against a mounted root.
+
+The closure work is therefore ordered, not interchangeable: first wire OctavianOS production launcher to validated RAMFS staging (Chimera already has staging); then add atomic root publication with rollback and ownership tests; then process-bound descriptors/syscalls and user-buffer validation; then real target services. Keep the fail-closed guard until those invariants are established.
+
+Latest OctavianOS CI at commit `3d8859714439d307fc6aaafd93930e7b7183dbc5`: bounded ingestion, source integration, target routing, artwork/progress, and explicit ELF smoke passed. Candidate ring-3 run `39866564460` remained in progress; Installer/BIOS and Recovery/UEFI passed as candidate jobs, with four jobs still running at poll time. These are not production ISO results. ChimeraIIOS still returned no workflow run for its recorded source-fix commit, so mirrored source changes remain unverified there.
+
+Release remains blocked pending launcher integration, rootfs publication, real services, six production BIOS/UEFI cases, Aurora, installer cold-reboot persistence, recovery postconditions, and AP-backed concurrent SMP.
