@@ -31,6 +31,14 @@ def main() -> int:
     if "USERSPACE READY:" in native_init:
         return fail("fail-closed bootstrap must not fabricate readiness")
 
+    service_source = (ROOT / "kernel/core/service.cpp").read_text(encoding="utf-8")
+    if 'chimera_service_set_state("chimera.storage",CHM_SVC_RUNNING)' in service_source:
+        return fail("service registry must not mark storage RUNNING without an implementation health check")
+    if 'chimera_service_set_state("chimera.device",CHM_SVC_RUNNING)' in service_source:
+        return fail("service registry must not mark device services RUNNING without an implementation health check")
+    if "Registration is not a health check" not in service_source:
+        return fail("service readiness versus registry initialization contract is missing")
+
     syscall_header = (ROOT / "kernel/include/chimera/syscall.h").read_text(encoding="utf-8")
     mmap_id = re.search(r"CHM_SYS_MMAP\s*=\s*(\d+)", syscall_header)
     if not mmap_id or int(mmap_id.group(1)) != 10:
