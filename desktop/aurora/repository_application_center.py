@@ -89,6 +89,11 @@ class App(tk.Tk):
         ttk.Label(filters, text="Category").pack(side="left")
         self.category_box = ttk.Combobox(filters, textvariable=self.category, state="readonly", width=22)
         self.category_box.pack(side="left", padx=(6, 0))
+        ttk.Label(filters, text="Platform").pack(side="left", padx=(12, 0))
+        self.platform = tk.StringVar(value="All platforms")
+        self.platform_box = ttk.Combobox(filters, textvariable=self.platform, state="readonly", width=14,
+                                          values=("All platforms", "Windows", "Linux", "macOS", "Web"))
+        self.platform_box.pack(side="left", padx=(6, 0))
         body = ttk.Panedwindow(self, orient="horizontal"); body.pack(fill="both", expand=True, padx=14, pady=12)
         left = ttk.Frame(body); right = ttk.Frame(body, padding=(12, 0, 0, 0))
         body.add(left, weight=3); body.add(right, weight=2)
@@ -108,6 +113,7 @@ class App(tk.Tk):
         ttk.Label(self, text="Safety: this interface never runs third-party code or installs applications. Use a verified package provider.").pack(anchor="w", padx=14, pady=(0, 10))
         self.query.trace_add("write", lambda *_: self.populate())
         self.category_box.bind("<<ComboboxSelected>>", lambda _event: self.populate())
+        self.platform_box.bind("<<ComboboxSelected>>", lambda _event: self.populate())
         self.refresh()
 
     def refresh(self):
@@ -121,10 +127,12 @@ class App(tk.Tk):
     def populate(self):
         self.tree.delete(*self.tree.get_children())
         query, category = self.query.get().casefold().strip(), self.category.get()
+        platform = self.platform.get()
         for entry in self.entries:
             text = " ".join(str(entry.get(k, "")) for k in ("id","name","category","provider","status","license","description")).casefold()
             if query and query not in text: continue
             if category != "All" and entry["category"] != category: continue
+            if platform != "All platforms" and platform not in entry.get("platforms", []): continue
             # Treeview item IDs must be unique even if an upstream catalog reuses an identifier.
             iid = entry["id"]
             if self.tree.exists(iid): iid = f'{entry["kind"].lower()}-{iid}'
