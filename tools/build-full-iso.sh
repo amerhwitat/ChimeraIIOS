@@ -87,7 +87,15 @@ if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
 if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" "$DISK_MANAGER"; fi
 
-KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
+# Build the production kernel through the canonical freestanding path. The
+# CMake compatibility target is useful for host integration, but must not be
+# selected as the ISO's kernel unless it contains the verified native ring-3 launcher.
+bash "$ROOT/kernel/build-koronos.sh"
+KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
+test -s "$KERNEL" || { echo "ERROR: canonical Koronos ELF is missing after build-koronos.sh" >&2; exit 2; }
+# Stage fail-closed target-native init ELFs into the live-boot tree shared by
+# both the base-ISO injection and standalone GRUB mastering paths.
+CHIMERA_INIT_STAGE_DIR="$ROOT/build/live-boot" bash "$ROOT/tools/build-production-init-elfs.sh"
 SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
 if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
 
@@ -111,11 +119,16 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
-[[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+# Copy the canonical kernel last so a stale kernel inside the live-boot tree
+# cannot overwrite the production launch path selected above.
+mkdir -p "$STAGE/boot/koronos"
+cp -f "$KERNEL" "$STAGE/boot/koronos/koronos.elf"
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
+mkdir -p "$STAGE/boot/grub"
+cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
 cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
@@ -223,6 +236,52 @@ else
 fi
 
 [[ -s "$FINAL" ]] || { echo "ERROR: ISO was not produced: $FINAL" >&2; exit 1; }
+# Validate the exact kernel and target-init ELFs from the mastered ISO, not just staging files.
+INIT_VERIFY="$BUILD/final-iso-init-verify"
+rm -rf "$INIT_VERIFY"
+mkdir -p "$INIT_VERIFY"
+xorriso -osirrox on -indev "$FINAL" -extract /boot/koronos/koronos.elf "$INIT_VERIFY/koronos.elf" >/dev/null
+cmp "$KERNEL" "$INIT_VERIFY/koronos.elf" || { echo "ERROR: final ISO kernel differs from canonical Koronos build" >&2; exit 2; }
+for spec in "live:/boot/live/user-init-live.elf" "installer:/boot/installer/user-init-installer.elf" "recovery:/boot/recovery/user-init-recovery.elf"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/user-init-$target.elf"
+  xorriso -osirrox on -indev "$FINAL" -extract "$path" "$out" >/dev/null
+  test -s "$out" || { echo "ERROR: final ISO missing target init ELF $path" >&2; exit 2; }
+  python3 "$ROOT/tools/validate-native-init-elf.py" --target "$target" "$out"
+done
+xorriso -osirrox on -indev "$FINAL" -extract /boot/grub/grub.cfg "$INIT_VERIFY/grub.cfg" >/dev/null
+grep -q '^set default=aurora-live' "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO default boot is not the Live target" >&2; exit 2; }
+for target in live installer recovery; do
+  grep -q "chimera-user-init-elf target=$target" "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO GRUB menu lacks target=$target native init route" >&2; exit 2; }
+done
+for spec in "live:/boot/jasper/live.cfg" "installer:/boot/jasper/install.cfg" "recovery:/boot/jasper/recovery.cfg"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/jasper-$target.cfg"
+  xorriso -osirrox on -indev "$FINAL" -extract "$path" "$out" >/dev/null
+  grep -q "chimera-user-init-elf target=$target" "$out" || { echo "ERROR: final ISO Jasper route lacks target=$target native init" >&2; exit 2; }
+done
+rm -rf "$STAGE" "$BUILD/inject" "$BUILD/base-for-inject.iso" "$BUILD/base.iso" 2>/dev/null || true
+# Preserve build/full/cmake for incremental/manual CMake builds.
+if [[ -d "$BUILD/cmake" ]]; then
+  find "$BUILD/cmake" -type f \( -name "*.o" -o -name "*.obj" -o -name "*.d" -o -name "*.gcda" -o -name "*.gcno" \) -delete 2>/dev/null || true
+  rm -rf "$BUILD/cmake/CMakeFiles/CMakeScratch" "$BUILD/cmake/Testing" 2>/dev/null || true
+fi
+cp "$FINAL" "$ROOT/chimera-ii-os.iso"
+sha256sum "$FINAL" | tee "$FINAL.sha256"
+echo "Built $FINAL"
+ "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO default boot is not the Live target" >&2; exit 2; }
+for target in live installer recovery; do
+  grep -q "chimera-user-init-elf target=$target" "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO GRUB menu lacks target=$target native init route" >&2; exit 2; }
+done
+for spec in "live:/boot/jasper/live.cfg" "installer:/boot/jasper/install.cfg" "recovery:/boot/jasper/recovery.cfg"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/jasper-$target.cfg"
+  xorriso -osirrox on -indev "$FINAL" -extract "$path" "$out" >/dev/null
+  grep -q "chimera-user-init-elf target=$target" "$out" || { echo "ERROR: final ISO Jasper route lacks target=$target native init" >&2; exit 2; }
+done
 rm -rf "$STAGE" "$BUILD/inject" "$BUILD/base-for-inject.iso" "$BUILD/base.iso" 2>/dev/null || true
 # Preserve build/full/cmake for incremental/manual CMake builds.
 if [[ -d "$BUILD/cmake" ]]; then

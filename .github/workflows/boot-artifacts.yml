@@ -7,6 +7,8 @@ on:
       - 'kernel/**'
       - 'tools/build-boot-artifacts.sh'
       - 'boot/iso/**'
+      - 'tools/boot/verify-production-init-elfs.py'
+      - 'tests/boot/test_production_init_elf_validator.py'
   pull_request:
     paths:
       - 'boot/**'
@@ -32,6 +34,8 @@ jobs:
         run: |
           chmod +x kernel/build-koronos.sh boot/spitfire/build-spitfire.sh tools/build-boot-artifacts.sh
           bash tools/build-boot-artifacts.sh
+      - name: Test production init ELF payload validator
+        run: python3 tests/boot/test_production_init_elf_validator.py
       - name: Validate ELF artifacts
         run: |
           test -s build/boot-artifacts/koronos/koronos.elf

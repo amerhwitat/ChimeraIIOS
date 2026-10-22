@@ -57,6 +57,13 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
+
+# prepare-layout.sh builds and stages the three target-specific native init
+# ELFs. Verify that staged set here without compiling it a second time.
+# Validate production init payload structure and emit a checksum manifest.
+# This validates packaging inputs only; full-ISO ring-3 runtime acceptance is separate.
+python3 "$ROOT/tools/boot/verify-production-init-elfs.py" \
+    "$DIST/iso" --write-manifest "$DIST/iso/boot/production-init-elfs.json"
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
@@ -175,6 +182,53 @@ command -v xorriso >/dev/null || { echo "xorriso is required." >&2; exit 2; }
 # its native defaults for a hybrid BIOS/UEFI image.
 grub-mkrescue -o "$DIST/output.iso" "$DIST/iso"
 test -s "$DIST/output.iso"
+
+# Verify that target-specific init ELFs and their routing metadata survived ISO mastering.
+# This is a packaging gate; the full QEMU userspace readiness gate remains separate.
+INIT_VERIFY="$WORK/iso-init-elf-verify"
+mkdir -p "$INIT_VERIFY"
+for spec in "live:/boot/live/user-init-live.elf" "installer:/boot/installer/user-init-installer.elf" "recovery:/boot/recovery/user-init-recovery.elf"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/user-init-$target.elf"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "$path" "$out" >/dev/null
+  test -s "$out" || { echo "ERROR: final ISO missing target init ELF $path" >&2; exit 2; }
+  python3 "$ROOT/tools/validate-native-init-elf.py" --target "$target" "$out"
+done
+xorriso -osirrox on -indev "$DIST/output.iso" -extract /boot/grub/grub.cfg "$INIT_VERIFY/grub.cfg" >/dev/null
+grep -q '^set default=aurora-livegrep -q 'chimera-user-init-elf target=live' "$INIT_VERIFY/grub.cfg"
+grep -q 'chimera-user-init-elf target=installer' "$INIT_VERIFY/grub.cfg"
+grep -q 'chimera-user-init-elf target=recovery' "$INIT_VERIFY/grub.cfg"
+for spec in "live:/boot/jasper/live.cfg" "installer:/boot/jasper/install.cfg" "recovery:/boot/jasper/recovery.cfg"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/jasper-$target.cfg"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "$path" "$out" >/dev/null
+  grep -q "chimera-user-init-elf target=$target" "$out" || { echo "ERROR: final ISO Jasper route does not dispatch target=$target" >&2; exit 2; }
+done
+sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
+
+printf '%s\n' '[7/7] Inspect El Torito boot records'
+xorriso -indev "$DIST/output.iso" -report_el_torito plain -report_system_area plain | tee "$DIST/ISO-BOOT-REPORT.txt"
+printf 'ISO: %s\nKoronos: %s\nSpit Fire: %s\nAurora background: %s\nBoot video: %s\nRecovery terminal: %s\n' \
+  "$DIST/output.iso" "$DIST/iso/boot/koronos/koronos.elf" "$DIST/iso/boot/spitfire/spitfire-stage2.bin" \
+  "$DIST/iso/boot/visual/aurora-boot.png" "$DIST/iso/boot/visual/Init.mp4" \
+  "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img"
+INIT_VERIFY="$DIST/final-iso-init-verify"
+rm -rf "$INIT_VERIFY"
+mkdir -p "$INIT_VERIFY"
+xorriso -osirrox on -indev "$DIST/output.iso" -extract /boot/grub/grub.cfg "$INIT_VERIFY/grub.cfg" >/dev/null
+grep -q '^set default=aurora-live' "$INIT_VERIFY/grub.cfg" || { echo "ERROR: final ISO default boot is not the Live target" >&2; exit 2; }
+grep -q 'chimera-user-init-elf target=live' "$INIT_VERIFY/grub.cfg"
+grep -q 'chimera-user-init-elf target=installer' "$INIT_VERIFY/grub.cfg"
+grep -q 'chimera-user-init-elf target=recovery' "$INIT_VERIFY/grub.cfg"
+for spec in "live:/boot/jasper/live.cfg" "installer:/boot/jasper/install.cfg" "recovery:/boot/jasper/recovery.cfg"; do
+  target="${spec%%:*}"
+  path="${spec#*:}"
+  out="$INIT_VERIFY/jasper-$target.cfg"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "$path" "$out" >/dev/null
+  grep -q "chimera-user-init-elf target=$target" "$out" || { echo "ERROR: final ISO Jasper route does not dispatch target=$target" >&2; exit 2; }
+done
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
 printf '%s\n' '[7/7] Inspect El Torito boot records'

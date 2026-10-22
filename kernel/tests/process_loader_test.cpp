@@ -30,7 +30,19 @@ int main(){
  assert(m.regions[0].bytes[0x100]==0x90&&m.regions[0].bytes[0x103]==0xc3);
  for(size_t i=0x104;i<0x2100;i++)assert(m.regions[0].bytes[i]==0);
  assert(m.regions[1].base==0x6fe000&&m.regions[1].flags==6);
- put32(elf+68,7);Mock bad{};chimera_loaded_elf untouched{};
- assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad,&untouched)<0);
- assert(bad.count==0);puts("process loader: PT_LOAD copy, BSS zeroing, W^X and stack mapping passed");return 0;
+ // Header version and exact ELF header size are mandatory.
+ build_elf(elf,sizeof(elf)); put32(elf+20,2); Mock bad_version{}; chimera_loaded_elf untouched{};
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_version,&untouched)<0);
+ assert(bad_version.count==0);
+ build_elf(elf,sizeof(elf)); put16(elf+52,63); Mock bad_header{};
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_header,&untouched)<0);
+ assert(bad_header.count==0);
+ // Reject mappings in the first user page (null/low-memory guard).
+ build_elf(elf,sizeof(elf)); put64(elf+24,0x200); put64(elf+80,0x100); Mock low_page{};
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&low_page,&untouched)<0);
+ assert(low_page.count==0);
+ build_elf(elf,sizeof(elf)); put32(elf+68,7); Mock bad_wx{};
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_wx,&untouched)<0);
+ assert(bad_wx.count==0);
+ puts("process loader: PT_LOAD copy, BSS zeroing, header/version, low-page guard, W^X and stack mapping passed");return 0;
 }
