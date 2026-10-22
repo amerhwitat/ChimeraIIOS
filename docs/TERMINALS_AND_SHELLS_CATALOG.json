@@ -1,0 +1,66 @@
+{
+  "schema": "CHM-TERMINAL-SHELL-CATALOG-1",
+  "purpose": "Discoverable catalog of open-source terminal emulators and shells; catalog entries are not claims of bundled or installed software.",
+  "default_terminal": {
+    "chimera": "Aurora Terminal",
+    "octavian": "Marine Terminal"
+  },
+  "shells": [
+    {"id":"bash","name":"GNU Bash","license":"GPL-3.0-or-later","status":"provider-required","notes":"POSIX-oriented interactive and scripting shell"},
+    {"id":"zsh","name":"Z Shell","license":"MIT-like; see upstream","status":"provider-required","notes":"Interactive shell with extensive completion"},
+    {"id":"fish","name":"fish","license":"GPL-2.0-or-later","status":"provider-required","notes":"User-friendly interactive shell; syntax differs from POSIX sh"},
+    {"id":"dash","name":"Dash","license":"BSD-style","status":"provider-required","notes":"Small POSIX shell"},
+    {"id":"ksh","name":"KornShell","license":"varies by implementation","status":"provider-required","notes":"Choose and record a specific open-source implementation"},
+    {"id":"tcsh","name":"TENEX C Shell","license":"BSD-style","status":"provider-required","notes":"C-shell family"},
+    {"id":"yash","name":"Yet Another Shell","license":"GPL-2.0-or-later","status":"provider-required","notes":"POSIX-compliant shell"},
+    {"id":"nushell","name":"Nushell","license":"MIT","status":"provider-required","notes":"Structured-data pipeline shell; not POSIX sh"},
+    {"id":"xonsh","name":"xonsh","license":"BSD-2-Clause","status":"provider-required","notes":"Python-powered shell"},
+    {"id":"murex","name":"Murex","license":"MIT","status":"provider-required","notes":"Typed pipeline shell"},
+    {"id":"oil","name":"Oil / OSH / YSH","license":"Apache-2.0","status":"provider-required","notes":"Shell and scripting language; confirm package/upstream status"},
+    {"id":"powershell","name":"PowerShell","license":"MIT","status":"provider-required","notes":"Cross-platform shell; Windows-specific cmdlets still need Windows providers"}
+  ],
+  "terminal_emulators": [
+    {"id":"aurora-terminal","name":"Aurora Terminal","license":"project","status":"native-default","os":"ChimeraIIOS"},
+    {"id":"marine-terminal","name":"Marine Terminal","license":"project","status":"native-default","os":"OctavianOS"},
+    {"id":"gnome-terminal","name":"GNOME Terminal","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"gnome-console","name":"GNOME Console","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"konsole","name":"Konsole","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"xfce4-terminal","name":"Xfce Terminal","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"mate-terminal","name":"MATE Terminal","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"tilix","name":"Tilix","license":"MPL-2.0","status":"provider-required"},
+    {"id":"terminator","name":"Terminator","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"kitty","name":"kitty","license":"GPL-3.0","status":"provider-required"},
+    {"id":"wezterm","name":"WezTerm","license":"MIT","status":"provider-required"},
+    {"id":"alacritty","name":"Alacritty","license":"Apache-2.0 OR MIT","status":"provider-required"},
+    {"id":"ghostty","name":"Ghostty","license":"MIT","status":"provider-required"},
+    {"id":"foot","name":"foot","license":"MIT","status":"provider-required"},
+    {"id":"xterm","name":"xterm","license":"MIT-like; see upstream","status":"provider-required"},
+    {"id":"st","name":"suckless st","license":"MIT/X Consortium-style; see upstream","status":"provider-required"},
+    {"id":"lxterminal","name":"LXTerminal","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"qterminal","name":"QTerminal","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"tilix","name":"Tilix","license":"MPL-2.0","status":"provider-required"},
+    {"id":"terminology","name":"Terminology","license":"BSD-2-Clause","status":"provider-required"},
+    {"id":"black-box","name":"Black Box","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"tabby","name":"Tabby","license":"MIT","status":"provider-required"},
+    {"id":"hyper","name":"Hyper","license":"MIT","status":"provider-required"},
+    {"id":"rio","name":"Rio Terminal","license":"MIT","status":"provider-required"},
+    {"id":"contour","name":"Contour","license":"Apache-2.0","status":"provider-required"},
+    {"id":"electerm","name":"electerm","license":"MIT","status":"provider-required"},
+    {"id":"cool-retro-term","name":"Cool Retro Term","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"guake","name":"Guake","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"yakuake","name":"Yakuake","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"tilda","name":"Tilda","license":"GPL-2.0-or-later","status":"provider-required"},
+    {"id":"ptyxis","name":"Ptyxis","license":"GPL-3.0-or-later","status":"provider-required"},
+    {"id":"wezterm-mux","name":"WezTerm multiplexer","license":"MIT","status":"provider-required","kind":"multiplexer"}
+  ],
+  "policy": {
+    "status_values": ["native-default", "installed", "provider-required", "unsupported"],
+    "rules": [
+      "Only native-default or installed entries with executable launch targets may be shown as available.",
+      "Check upstream license and supported architecture before packaging; license labels are indicative and must be verified against upstream metadata.",
+      "Do not bundle third-party software without preserving its license, notices, source availability obligations, and security update path.",
+      "Terminal emulator and shell are separate layers; a terminal must not be mistaken for a shell.",
+      "Do not invoke a shell with untrusted command strings. Prefer argv-based process launch and explicit user confirmation for privileged actions."
+    ]
+  }
+}
