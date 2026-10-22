@@ -60,6 +60,8 @@ static uint64_t read_le64(const volatile uint8_t *p) {
     return value;
 }
 
+static void barrier();
+
 /* Virtio device configuration may change while being read. Use the standard
  * generation counter so a 64-bit capacity cannot be assembled from two
  * different device-config snapshots. */
