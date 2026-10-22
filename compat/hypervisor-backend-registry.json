@@ -1,0 +1,200 @@
+{
+  "schema": "chimera-open-source-hypervisor-backends-v1",
+  "policy": "Catalogued availability is not integration. Runtime support is enabled only when a backend is detected, its host/guest requirements are satisfied, and its specific acceptance tests pass. Do not claim guest boot compatibility from a package being installed.",
+  "backends": [
+    {
+      "id": "qemu-tcg",
+      "name": "QEMU TCG",
+      "license": "GPL-2.0-or-later",
+      "kind": "machine-emulator",
+      "host_os": [
+        "Linux",
+        "Windows",
+        "macOS",
+        "FreeBSD",
+        "NetBSD"
+      ],
+      "acceleration": "software-emulation",
+      "status": "existing-test-tooling; guest-boot-matrix-incomplete",
+      "notes": "Primary portable cross-ISA emulation path; TCG is emulation, not hardware virtualization."
+    },
+    {
+      "id": "kvm",
+      "name": "Linux KVM",
+      "license": "GPL-2.0-only (Linux kernel)",
+      "kind": "kernel-virtualization",
+      "host_os": [
+        "Linux"
+      ],
+      "acceleration": "hardware",
+      "status": "conditional-host-acceleration; guest-boot-matrix-incomplete",
+      "notes": "Requires Linux, /dev/kvm, CPU virtualization extensions and host permissions."
+    },
+    {
+      "id": "xen",
+      "name": "Xen Project",
+      "license": "GPL-2.0-only",
+      "kind": "type-1-hypervisor",
+      "host_os": [
+        "Linux",
+        "NetBSD",
+        "FreeBSD (toolstack/guest roles vary)"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "Requires a Xen-enabled host and a tested toolstack integration."
+    },
+    {
+      "id": "bhyve",
+      "name": "bhyve",
+      "license": "BSD-2-Clause",
+      "kind": "type-2-hosted-hypervisor",
+      "host_os": [
+        "FreeBSD"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "FreeBSD host only; device models and boot workflow need a backend adapter."
+    },
+    {
+      "id": "virtualbox-base",
+      "name": "VirtualBox base package",
+      "license": "GPL-3.0-or-later (base package; extension pack has separate terms)",
+      "kind": "type-2-hosted-hypervisor",
+      "host_os": [
+        "Linux",
+        "Windows",
+        "macOS",
+        "Solaris"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "Keep extension-pack functionality out of the open-source capability claim."
+    },
+    {
+      "id": "firecracker",
+      "name": "Firecracker",
+      "license": "Apache-2.0",
+      "kind": "microVM-monitor",
+      "host_os": [
+        "Linux"
+      ],
+      "acceleration": "KVM",
+      "status": "catalogued-not-integrated",
+      "notes": "Linux/KVM host, restricted device model; suited to microVM workflows rather than arbitrary desktop guests."
+    },
+    {
+      "id": "cloud-hypervisor",
+      "name": "Cloud Hypervisor",
+      "license": "Apache-2.0",
+      "kind": "cloud-vmm",
+      "host_os": [
+        "Linux"
+      ],
+      "acceleration": "KVM",
+      "status": "catalogued-not-integrated",
+      "notes": "Requires Linux/KVM and a supported virtio device configuration."
+    },
+    {
+      "id": "crosvm",
+      "name": "crosvm",
+      "license": "BSD-3-Clause",
+      "kind": "sandboxed-vmm",
+      "host_os": [
+        "Linux"
+      ],
+      "acceleration": "KVM",
+      "status": "catalogued-not-integrated",
+      "notes": "Linux/KVM host; sandbox and device backend configuration required."
+    },
+    {
+      "id": "acrn",
+      "name": "ACRN",
+      "license": "BSD-3-Clause",
+      "kind": "embedded-type-1-hypervisor",
+      "host_os": [
+        "Linux (service OS)"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "Target-specific embedded platform and service-OS requirements."
+    },
+    {
+      "id": "jailhouse",
+      "name": "Jailhouse",
+      "license": "GPL-2.0-only",
+      "kind": "static-partitioning-hypervisor",
+      "host_os": [
+        "Linux (root cell)"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "Static partitioning rather than a general-purpose dynamic VM manager."
+    },
+    {
+      "id": "bao",
+      "name": "Bao Hypervisor",
+      "license": "BSD-2-Clause",
+      "kind": "static-partitioning-hypervisor",
+      "host_os": [
+        "Bare metal; deployment-specific management"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "Static partitioning; supported board and architecture requirements apply."
+    },
+    {
+      "id": "hafnium",
+      "name": "Hafnium",
+      "license": "BSD-3-Clause",
+      "kind": "Arm-type-1-hypervisor",
+      "host_os": [
+        "Arm deployment-specific"
+      ],
+      "acceleration": "Arm virtualization extensions",
+      "status": "catalogued-not-integrated",
+      "notes": "Arm-focused partition manager; architecture and firmware prerequisites apply."
+    },
+    {
+      "id": "openbsd-vmm",
+      "name": "OpenBSD vmm/vmd",
+      "license": "ISC/BSD-derived (OpenBSD source components)",
+      "kind": "host-kernel-vmm",
+      "host_os": [
+        "OpenBSD"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "OpenBSD host-specific; requires vmd control and guest image integration."
+    },
+    {
+      "id": "netbsd-nvmm",
+      "name": "NetBSD NVMM",
+      "license": "BSD-2-Clause (NetBSD components)",
+      "kind": "host-kernel-vmm",
+      "host_os": [
+        "NetBSD"
+      ],
+      "acceleration": "hardware",
+      "status": "catalogued-not-integrated",
+      "notes": "NetBSD host-specific API and userspace integration required."
+    }
+  ],
+  "integration_contract": {
+    "capability_probe_required": true,
+    "never_silently_fallback_from_hardware_acceleration": false,
+    "fallback_policy": "Explicitly report TCG/software emulation when hardware acceleration is unavailable; do not label it KVM or native virtualization.",
+    "required_tests": [
+      "backend executable/version detection",
+      "host capability and permission check",
+      "guest architecture/device compatibility",
+      "BIOS and UEFI boot where supported",
+      "serial/console capture",
+      "timeout and exit-status propagation",
+      "storage persistence and cold reboot",
+      "network/device-model smoke tests",
+      "per-backend license and provenance metadata"
+    ],
+    "release_rule": "A backend is production-supported only after a backend-specific acceptance workflow passes on its supported host/guest matrix."
+  }
+}

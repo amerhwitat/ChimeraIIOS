@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "purpose": "Machine-readable compatibility claims for OS targets, CPU families, ABIs, and execution providers.",
+  "rules": {
+    "status_values": [
+      "native_verified",
+      "native_candidate",
+      "compatibility_provider_required",
+      "emulated",
+      "unsupported",
+      "not_tested"
+    ],
+    "default_status": "not_tested",
+    "claims_require_evidence": true,
+    "architecture_catalog_is_not_execution_support": true,
+    "compatibility_requires_explicit_provider_and_abi_translation": true
+  },
+  "operating_system_families": [
+    {
+      "id": "chimera",
+      "label": "ChimeraIIOS",
+      "host_targets": [
+        "x86_64"
+      ],
+      "status": "native_candidate",
+      "notes": "Native runtime acceptance is gated by the BIOS/UEFI production handoff matrix."
+    },
+    {
+      "id": "octavian",
+      "label": "OctavianOS",
+      "host_targets": [
+        "x86_64"
+      ],
+      "status": "native_candidate",
+      "notes": "Vendored-source parity and production runtime acceptance must be independently verified."
+    },
+    {
+      "id": "linux",
+      "label": "Linux",
+      "support_mode": "compatibility_provider_required",
+      "abi_families": [
+        "linux-x86_64",
+        "linux-i386",
+        "linux-aarch64",
+        "linux-riscv64"
+      ]
+    },
+    {
+      "id": "windows",
+      "label": "Windows",
+      "support_mode": "compatibility_provider_required",
+      "abi_families": [
+        "windows-x86_64",
+        "windows-i386",
+        "windows-arm64"
+      ]
+    },
+    {
+      "id": "macos",
+      "label": "macOS",
+      "support_mode": "compatibility_provider_required",
+      "abi_families": [
+        "darwin-x86_64",
+        "darwin-arm64"
+      ],
+      "notes": "Darwin binary compatibility is not implied by POSIX API similarity."
+    }
+  ],
+  "cpu_profiles": [
+    {
+      "id": "x86_64",
+      "bits": 64,
+      "execution": "native_candidate",
+      "feature_detection": "CPUID",
+      "status": "native_candidate"
+    },
+    {
+      "id": "x86_32",
+      "bits": 32,
+      "execution": "compatibility_provider_required",
+      "feature_detection": "CPUID",
+      "status": "not_tested"
+    },
+    {
+      "id": "aarch64",
+      "bits": 64,
+      "execution": "port_or_emulator",
+      "feature_detection": "platform-registers",
+      "status": "not_tested"
+    },
+    {
+      "id": "riscv64",
+      "bits": 64,
+      "execution": "port_or_emulator",
+      "feature_detection": "ISA-and-platform-probes",
+      "status": "not_tested"
+    },
+    {
+      "id": "nbit-research",
+      "bits": "configurable",
+      "execution": "software-defined-or-emulated",
+      "status": "emulated",
+      "notes": "Nonstandard 128-bit through 8192-bit profiles are research/emulation modes, not claims of physical CPU support."
+    }
+  ],
+  "compatibility_decision_order": [
+    "detect_cpu_and_features",
+    "identify_binary_format",
+    "identify_os_abi",
+    "check_required_instructions",
+    "check_syscall_and_memory_model",
+    "select_native_or_compatibility_provider",
+    "run_sandboxed_smoke_test",
+    "record_evidence_or_fail_closed"
+  ]
+}

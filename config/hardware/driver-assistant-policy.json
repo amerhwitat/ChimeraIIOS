@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "name": "Koronos Hardware and Driver Assistant Policy",
+  "model_role": {
+    "allowed": [
+      "classify_hardware_from_PCI_USB_ACPI_SMBIOS_and_firmware_ids",
+      "match_ids_against_signed_local_driver_catalog",
+      "explain_candidate_matches",
+      "suggest_required_kernel_interfaces",
+      "generate_reviewable_driver_scaffolds_in_development_mode",
+      "rank_candidates_with_evidence_and_confidence"
+    ],
+    "forbidden": [
+      "load_or_execute_model_generated_kernel_code",
+      "bypass_signature_or_trust_policy",
+      "claim_binding_without_probe_success",
+      "invent_hardware_ids_or_driver_compatibility",
+      "write_firmware_or_device_configuration_without_explicit_policy"
+    ],
+    "implementation_boundary": "The kernel currently records validated events only; actual RNN/LLM ranking must run in a separate sandboxed userspace service and is not claimed by this policy manifest."
+  },
+  "pipeline": [
+    {
+      "step": 1,
+      "name": "inventory",
+      "inputs": [
+        "PCI_vendor_device_subsystem_class_revision",
+        "USB_vid_pid_interface",
+        "ACPI_HID_CID",
+        "SMBIOS_platform",
+        "CPU_features",
+        "firmware_mode"
+      ],
+      "output": "immutable_hardware_record"
+    },
+    {
+      "step": 2,
+      "name": "catalog_match",
+      "inputs": [
+        "hardware_record",
+        "signed_driver_manifest"
+      ],
+      "output": "ranked_candidates"
+    },
+    {
+      "step": 3,
+      "name": "policy_check",
+      "checks": [
+        "architecture",
+        "kernel_abi",
+        "bus_type",
+        "device_revision_range",
+        "license",
+        "signature",
+        "known_conflicts"
+      ],
+      "failure": "no_bind"
+    },
+    {
+      "step": 4,
+      "name": "sandbox_probe",
+      "checks": [
+        "bounded_probe",
+        "resource_limits",
+        "rollback",
+        "timeout",
+        "device_ownership"
+      ],
+      "failure": "unbind_and_quarantine"
+    },
+    {
+      "step": 5,
+      "name": "acceptance",
+      "checks": [
+        "functional_smoke_test",
+        "error_path_test",
+        "suspend_resume_if_supported",
+        "reboot_persistence_if_relevant"
+      ],
+      "failure": "mark_unverified"
+    },
+    {
+      "step": 6,
+      "name": "audit",
+      "outputs": [
+        "driver_id",
+        "hardware_ids",
+        "version",
+        "signature_digest",
+        "probe_result",
+        "test_evidence",
+        "model_version",
+        "confidence",
+        "timestamp"
+      ]
+    }
+  ],
+  "confidence_policy": {
+    "high_threshold": 0.95,
+    "medium_threshold": 0.75,
+    "below_medium": "show_as_unverified_suggestion_only",
+    "confidence_is_not_a_substitute_for_signature_or_runtime_tests": true
+  },
+  "learning_policy": {
+    "model_type": "planned RNN/LLM-assisted ranking; deterministic rules remain authoritative; inference backend not yet linked",
+    "train_from": [
+      "validated_inventory",
+      "signed_catalog_metadata",
+      "operator_approved_results",
+      "automated_test_results"
+    ],
+    "never_train_from_as_truth": [
+      "unverified_model_output",
+      "failed_probe_without_diagnosis",
+      "untrusted_external_binary"
+    ],
+    "offline_first": true,
+    "privacy": "do not upload serial numbers, MAC addresses, or raw machine inventory by default"
+  },
+  "driver_states": [
+    "discovered",
+    "candidate",
+    "signature_verified",
+    "probe_pending",
+    "bound_verified",
+    "quarantined",
+    "unsupported",
+    "not_tested"
+  ],
+  "minimum_safety": [
+    "signed_manifest",
+    "ABI_match",
+    "least_privilege_DMA",
+    "IOMMU_when_available",
+    "bounded_timeouts",
+    "failure_rollback",
+    "audit_log"
+  ],
+  "implementation_status": "policy_only_no_RNN_or_LLM_inference_backend_linked"
+}

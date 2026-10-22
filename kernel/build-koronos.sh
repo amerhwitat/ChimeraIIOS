@@ -21,6 +21,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+python3 "$ROOT/tools/tests/test_cross_os_contracts.py"
+HOST_CXX="${HOST_CXX:-g++}"
+DRIVER_TEST="$BUILD/driver-backend-honesty-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/driver.cpp" "$ROOT/kernel/tests/driver_backend_honesty_test.cpp" -o "$DRIVER_TEST"
+"$DRIVER_TEST"
+rm -f "$DRIVER_TEST"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
@@ -82,3 +88,31 @@ done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
 printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
+
+# Build production target init ELFs from dedicated sources; never reuse test probes.
+USER_CC="${CC:-gcc}"
+for target in live installer recovery; do
+  case "$target" in
+    live) target_define=CHIMERA_TARGET_LIVE ;;
+    installer) target_define=CHIMERA_TARGET_INSTALLER ;;
+    recovery) target_define=CHIMERA_TARGET_RECOVERY ;;
+  esac
+  "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+    -mno-sse -mno-mmx -msoft-float -fno-asynchronous-unwind-tables \
+    -fno-unwind-tables -D"$target_define"=1 \
+    -c "$ROOT/kernel/userspace/native_init.c" -o "$BUILD/native-init-$target.o"
+  "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+    -T "$ROOT/kernel/userspace/native_init_linker.ld" \
+    "$BUILD/native-init-$target.o" -o "$BUILD/native-init-$target.elf"
+  readelf -h "$BUILD/native-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: production native-init-$target.elf is not ET_EXEC" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/native-init-$target.elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: production native-init-$target.elf has no RX PT_LOAD" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/native-init-$target.elf" | grep -Eq 'LOAD.*RW ' || {
+    echo "ERROR: production native-init-$target.elf has no writable RW PT_LOAD" >&2; exit 1;
+  }
+done
+printf 'Production native init ELFs: %s/native-init-{live,installer,recovery}.elf\n' "$BUILD"

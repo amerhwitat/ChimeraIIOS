@@ -487,6 +487,22 @@
         "platform_drivers",
         "compatibility_report"
       ]
+    },
+    {
+      "id": "desktop_experience",
+      "name": "Desktop experience",
+      "pages": [
+        "preferences_menu",
+        "desktop_interaction_profile",
+        "keyboard_shortcuts",
+        "mouse_click_feedback",
+        "interface_sounds",
+        "desktop_ui_scale",
+        "accent_color",
+        "reduce_motion",
+        "wallpaper_picker",
+        "developer_overlay"
+      ]
     }
   ],
   "behavior": {
@@ -507,5 +523,28 @@
     "apple_silicon_aarch64_target": "cross-compilation-target",
     "macos_abi_implemented": false,
     "rosetta_2_included": false
+  },
+  "desktop_preferences_contract": {
+    "frontend": "desktop/shared/desktop-preferences.js",
+    "stylesheet": "desktop/shared/desktop-preferences.css",
+    "persistence": "browser_local_storage_per_origin",
+    "supported_ui_controls": [
+      "accent_color",
+      "ui_scale",
+      "reduce_motion",
+      "interface_sounds",
+      "mouse_click_feedback",
+      "desktop_profile",
+      "developer_overlay",
+      "wallpaper_picker_bridge"
+    ],
+    "keyboard_shortcuts": {
+      "Ctrl+,": "open_or_close_preferences",
+      "Ctrl+Alt+D": "toggle_developer_overlay",
+      "Escape": "close_preferences",
+      "Alt+1..4": "prototype_workspace_indicator"
+    },
+    "native_provider_status": "not_connected",
+    "safety": "hardware_network_power_driver_firmware_and_kernel_settings_must_remain_disabled_until_native_capability_adapter_is_verified"
   }
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static regressions for the x86-64 ISO menu routing and offline artwork contract."""
 from pathlib import Path
+import json
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,6 +32,18 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
 
+    def test_static_recovery_manifest_selects_the_built_production_initramfs(self):
+        manifest = json.loads((ROOT / "boot/recovery/recovery-manifest.json").read_text())
+        self.assertEqual(manifest.get("schema"), "CHM-RECOVERY-BOOT-2")
+        self.assertEqual(
+            manifest.get("initramfs"),
+            "/boot/recovery/chimera-recovery-initramfs.img",
+        )
+        self.assertEqual(manifest.get("kernel"), "/boot/koronos/koronos.elf")
+        # The full ISO builder copies this static directory after generated
+        # artifacts, so the source manifest must retain the runtime selector.
+        self.assertIn('cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"', FULL_BUILDER)
+
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
         end = GRUB.index('\n}', start)
@@ -58,6 +71,31 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("chimera-infinite-research-horizon.svg", LIVE_BUILDER)
         self.assertIn("chimera-artwork-manifest.json", FULL_BUILDER)
         self.assertIn("chimera-artwork-manifest.json", LIVE_BUILDER)
+
+    def test_production_native_init_elves_are_staged_and_hashed(self):
+        builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
+        for target in ("live", "installer", "recovery"):
+            self.assertIn(f"native-init-{target}.elf", builder)
+            self.assertIn(f"native-init-{target}.elf.sha256", builder)
+        self.assertIn("production native init ELF missing", builder)
+        self.assertIn('readelf -lW "$native_init"', builder)
+        self.assertIn('"$OUT/boot/koronos/native-init-$target.elf"', builder)
+
+    def test_full_iso_replaces_base_grub_config_with_current_routing(self):
+        self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
+        self.assertIn(' -map "$STAGE/boot" /boot', FULL_BUILDER)
+
+    def test_production_grub_entries_select_matching_native_init(self):
+        live = (ROOT / "boot/jasper/live.cfg").read_text()
+        installer = (ROOT / "boot/jasper/install.cfg").read_text()
+        recovery = (ROOT / "boot/jasper/recovery.cfg").read_text()
+        for text in (GRUB, live):
+            self.assertIn("native-init-live.elf chimera-user-init-elf target=live", text)
+        self.assertIn("target=installer", installer)
+        self.assertIn("native-init-installer.elf chimera-user-init-elf target=installer", installer)
+        self.assertIn("target=recovery", recovery)
+        self.assertIn("native-init-recovery.elf chimera-user-init-elf target=recovery", recovery)
+        self.assertIn("target=live", GRUB)
 
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)

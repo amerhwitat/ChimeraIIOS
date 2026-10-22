@@ -1,4 +1,41 @@
 {
-  "schema":"CHM-RECOVERY-BOOT-1","kernel":"Koronos","loader":"Jasper","native_loader":"Spit Fire",
-  "purpose":"Recovery payload contract","operations":["filesystem-check","boot-repair","account-repair","network-recovery","rollback"]
+  "schema": "CHM-RECOVERY-BOOT-2",
+  "loader": "Jasper",
+  "kernel": "/boot/koronos/koronos.elf",
+  "kernel_protocol": "Multiboot2",
+  "initramfs": "/boot/recovery/chimera-recovery-initramfs.img",
+  "console": "/bin/chimera-recovery-console.sh",
+  "operations": [
+    "status",
+    "disks",
+    "mounts",
+    "mount-root",
+    "umount-root",
+    "targets",
+    "target-detect",
+    "mount-target",
+    "mount-fs",
+    "check-root",
+    "repair-root",
+    "verify",
+    "rollback",
+    "boot-normal",
+    "network",
+    "drivers",
+    "logs"
+  ],
+  "runtime_levels": [
+    "L0-firmware",
+    "L1-koronos",
+    "L2-linux",
+    "L2-windows",
+    "L2-macos",
+    "L3-hosted"
+  ],
+  "targets": [
+    "linux",
+    "windows",
+    "macos",
+    "chimera"
+  ]
 }

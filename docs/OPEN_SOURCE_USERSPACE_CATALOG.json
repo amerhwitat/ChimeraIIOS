@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "project": "ChimeraIIOS / OctavianOS native userspace ecosystem",
+  "policy": {
+    "source_policy": "Prefer upstream-maintained free/open-source projects; import source only after reviewing exact revision, license, dependency licenses, notices, trademarks, bundled assets, and build requirements.",
+    "no_false_support_claims": true,
+    "native_os_boundary": "Host, browser, JavaFX, WASM, compatibility, and emulator applications are not native Koronos applications unless actually built for and executed by the target runtime.",
+    "release_rule": "Do not publish an application as native-supported until its package builds reproducibly, dependencies resolve, permissions are enforced, launch/exit works, and target-specific tests pass."
+  },
+  "application_families": [
+    {
+      "id": "web-browser",
+      "examples": [
+        {
+          "name": "Firefox",
+          "source": "https://github.com/mozilla-firefox/firefox",
+          "license_review": "Review upstream licensing and all build dependencies"
+        }
+      ],
+      "capabilities": [
+        "HTML/CSS/JavaScript",
+        "TLS",
+        "downloads",
+        "tabs",
+        "extensions"
+      ],
+      "status": "candidate_only",
+      "native_dependencies": [
+        "network stack",
+        "TLS and certificate store",
+        "font and text stack",
+        "graphics/compositor",
+        "sandbox/process model"
+      ]
+    },
+    {
+      "id": "office",
+      "examples": [
+        {
+          "name": "LibreOffice",
+          "source": "https://github.com/LibreOffice/core",
+          "license_review": "Review MPL/LGPL/GPL components and notices"
+        }
+      ],
+      "capabilities": [
+        "word processing",
+        "spreadsheets",
+        "presentations",
+        "PDF export"
+      ],
+      "status": "candidate_only",
+      "native_dependencies": [
+        "GUI toolkit",
+        "font stack",
+        "printing",
+        "file dialogs",
+        "document import/export libraries"
+      ]
+    },
+    {
+      "id": "paint-image",
+      "examples": [
+        {
+          "name": "GIMP",
+          "source": "https://gitlab.gnome.org/GNOME/gimp",
+          "license_review": "Review GPL and plug-in/component licenses"
+        },
+        {
+          "name": "Krita",
+          "source": "https://invent.kde.org/graphics/krita",
+          "license_review": "Review GPL and bundled component licenses"
+        },
+        {
+          "name": "Pinta",
+          "source": "https://github.com/PintaProject/Pinta",
+          "license_review": "MIT plus retained third-party notices"
+        }
+      ],
+      "capabilities": [
+        "raster painting",
+        "layers",
+        "image editing",
+        "export"
+      ],
+      "status": "candidate_only"
+    },
+    {
+      "id": "vector-design",
+      "examples": [
+        {
+          "name": "Inkscape",
+          "source": "https://gitlab.com/inkscape/inkscape",
+          "license_review": "Review GPL and dependencies"
+        },
+        {
+          "name": "Penpot",
+          "source": "https://github.com/penpot/penpot",
+          "license_review": "Review repository and component-specific licenses"
+        }
+      ],
+      "capabilities": [
+        "SVG",
+        "vector drawing",
+        "UI mockups"
+      ],
+      "status": "candidate_only"
+    },
+    {
+      "id": "media",
+      "examples": [
+        {
+          "name": "VLC",
+          "source": "https://code.videolan.org/videolan/vlc",
+          "license_review": "Review GPL/LGPL choices, codec patents, and bundled codec licenses"
+        },
+        {
+          "name": "Audacity",
+          "source": "https://github.com/audacity/audacity",
+          "license_review": "Review GPL and bundled libraries"
+        },
+        {
+          "name": "Kdenlive",
+          "source": "https://invent.kde.org/multimedia/kdenlive",
+          "license_review": "Review GPL and multimedia dependencies"
+        },
+        {
+          "name": "OBS Studio",
+          "source": "https://github.com/obsproject/obs-studio",
+          "license_review": "Review GPL and plug-in/dependency licenses"
+        }
+      ],
+      "capabilities": [
+        "audio/video playback",
+        "audio recording",
+        "video editing",
+        "screen recording"
+      ],
+      "status": "candidate_only",
+      "native_dependencies": [
+        "audio API",
+        "video decode/encode",
+        "GPU acceleration",
+        "device permissions"
+      ]
+    },
+    {
+      "id": "3d-cad",
+      "examples": [
+        {
+          "name": "Blender",
+          "source": "https://projects.blender.org/blender/blender",
+          "license_review": "Review GPL and bundled dependencies"
+        },
+        {
+          "name": "FreeCAD",
+          "source": "https://github.com/FreeCAD/FreeCAD",
+          "license_review": "Review LGPL/GPL components and dependency licenses"
+        },
+        {
+          "name": "LibreCAD",
+          "source": "https://github.com/LibreCAD/LibreCAD",
+          "license_review": "GPLv2 and retained third-party notices"
+        }
+      ],
+      "capabilities": [
+        "3D modeling",
+        "rendering",
+        "parametric CAD",
+        "2D CAD"
+      ],
+      "status": "candidate_only",
+      "native_dependencies": [
+        "OpenGL/Vulkan or software renderer",
+        "input",
+        "fonts",
+        "large-memory allocation"
+      ]
+    },
+    {
+      "id": "office-utilities",
+      "examples": [
+        {
+          "name": "7-Zip",
+          "source": "https://github.com/ip7z/7zip",
+          "license_review": "Review each source component's license and platform support"
+        },
+        {
+          "name": "Calibre",
+          "source": "https://github.com/kovidgoyal/calibre",
+          "license_review": "Review GPL and all bundled Python/library licenses"
+        },
+        {
+          "name": "KeePassXC",
+          "source": "https://github.com/keepassxreboot/keepassxc",
+          "license_review": "Review GPL and cryptographic dependency notices"
+        }
+      ],
+      "capabilities": [
+        "archive management",
+        "ebook library",
+        "password vault"
+      ],
+      "status": "candidate_only"
+    },
+    {
+      "id": "development",
+      "examples": [
+        {
+          "name": "VSCodium",
+          "source": "https://github.com/VSCodium/vscodium",
+          "license_review": "Review Code OSS license, extension marketplace, and redistribution constraints"
+        },
+        {
+          "name": "Geany",
+          "source": "https://github.com/geany/geany",
+          "license_review": "Review GPL and plugin licenses"
+        },
+        {
+          "name": "Git",
+          "source": "https://github.com/git/git",
+          "license_review": "GPLv2 and bundled component notices"
+        }
+      ],
+      "capabilities": [
+        "code editing",
+        "version control",
+        "build tooling",
+        "debugging"
+      ],
+      "status": "candidate_only"
+    },
+    {
+      "id": "games-emulation",
+      "examples": [
+        {
+          "name": "SuperTuxKart",
+          "source": "https://github.com/supertuxkart/stk-code",
+          "license_review": "Review game code, media assets, and third-party assets separately"
+        },
+        {
+          "name": "DOSBox Staging",
+          "source": "https://github.com/dosbox-staging/dosbox-staging",
+          "license_review": "Review source and bundled component licenses"
+        }
+      ],
+      "capabilities": [
+        "open-source games",
+        "legacy-system emulation"
+      ],
+      "status": "candidate_only",
+      "restrictions": [
+        "Do not bundle copyrighted game ROMs, BIOS images, firmware, proprietary fonts, or unlicensed media."
+      ]
+    }
+  ],
+  "required_native_platform_services": [
+    "ELF loader and process lifecycle",
+    "scheduler-owned PID/task identity and safe context switching",
+    "ring-3 syscall entry/return with user-origin validation",
+    "process-owned virtual address spaces, user stacks, W^X and cleanup",
+    "VFS, mount layer, file descriptors, read/write/stat/directory operations",
+    "IPC, wait/wake, signals or a documented equivalent, and process reaping",
+    "device discovery and permission-enforced device services",
+    "network stack, DNS, sockets, TLS and certificate storage",
+    "graphics API, compositor/window manager, input, fonts and clipboard",
+    "audio API, multimedia decode/encode, timers and power management",
+    "package manager with dependency resolution, signatures, permissions, sandboxing, transactions and rollback",
+    "installer partition/filesystem operations and recovery repair primitives"
+  ],
+  "acceptance": {
+    "production_init_targets": [
+      "live",
+      "installer",
+      "recovery"
+    ],
+    "firmware": [
+      "bios",
+      "uefi"
+    ],
+    "required_cases": 6,
+    "must_use_unchanged_production_verifier": true,
+    "required_evidence": [
+      "real target-specific init ELF",
+      "CPL3-originated syscall acknowledgement",
+      "same nonzero scheduler-owned PID in readiness handshake",
+      "raw per-case serial/debug trace",
+      "artifact identity and firmware/target provenance"
+    ],
+    "separate_acceptance": [
+      "Live-to-Aurora desktop startup",
+      "installer completion/reboot/installed boot",
+      "real recovery operation",
+      "AP startup and concurrent per-CPU SMP"
+    ],
+    "release_status_until_all_pass": "BLOCKED"
+  },
+  "target_os_matrix": [
+    {
+      "id": "chimera",
+      "label": "ChimeraIIOS",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "octavian",
+      "label": "OctavianOS",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "linux",
+      "label": "Linux",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "windows",
+      "label": "Windows",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "macos",
+      "label": "macOS",
+      "status": "candidate_only",
+      "provider_required": true
+    }
+  ],
+  "target_matrix_policy": "Every application family remains candidate-only on every target until its build/package, ABI/runtime provider, permissions, launch/exit, and target-specific tests pass. Upstream support on a host OS does not imply native support in ChimeraIIOS or OctavianOS."
+}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fail-closed acceptance check for a real target-specific init userspace handoff.
 
-The entry acknowledgement must be emitted by the syscall/exception entry path
-after it has established that the originating context was executing at CPL 3.
-A pre-transition kernel log line is not evidence of user-mode execution.
+The syscall acknowledgement must originate from a validated CPL3 entry path.
+The verifier treats the trace as a whole: duplicated, wrong-target, zero-PID,
+out-of-order, or mismatched-PID markers are failures rather than ignorable noise.
 """
 from pathlib import Path
 import re
@@ -28,29 +28,33 @@ def main() -> int:
         print(f"FAIL: trace not found: {trace_path}", file=sys.stderr)
         return 1
     trace = trace_path.read_text(encoding="utf-8", errors="replace")
-    missing = []
-    kernel_at = trace.find(KERNEL_MARKER)
-    if kernel_at < 0:
-        missing.append("Koronos kernel readiness")
+    kernels = list(re.finditer(re.escape(KERNEL_MARKER), trace))
     entries = list(ENTRY_RE.finditer(trace))
-    if not entries:
-        missing.append("user-originated init syscall acknowledgement (CPL 3)")
     ready = list(READY_RE.finditer(trace))
-    if not ready:
-        missing.append("actual init PID readiness marker")
-    if missing:
-        print("FAIL: missing " + ", ".join(missing))
+
+    if len(kernels) != 1:
+        print(f"FAIL: expected exactly one kernel-ready marker, found {len(kernels)}")
         return 1
-    for entry in entries:
-        if entry.group(1) != target or kernel_at >= entry.start():
-            continue
-        for marker in ready:
-            if (marker.group(1) == target and marker.group(2) == entry.group(2)
-                    and entry.start() < marker.start()):
-                print(f"PASS: target={target} init entered user mode and reported readiness with a consistent PID")
-                return 0
-    print("FAIL: expected ordered kernel-ready -> user-originated init syscall -> userspace-ready markers for target=" + target + " with the same nonzero PID")
-    return 1
+    if len(entries) != 1:
+        print(f"FAIL: expected exactly one nonzero user-originated init syscall acknowledgement, found {len(entries)}")
+        return 1
+    if len(ready) != 1:
+        print(f"FAIL: expected exactly one nonzero userspace-ready marker, found {len(ready)}")
+        return 1
+
+    entry, marker = entries[0], ready[0]
+    if entry.group(1) != target or marker.group(1) != target:
+        print(f"FAIL: target mismatch: expected {target}, syscall={entry.group(1)}, ready={marker.group(1)}")
+        return 1
+    if entry.group(2) != marker.group(2):
+        print(f"FAIL: PID mismatch: syscall={entry.group(2)}, ready={marker.group(2)}")
+        return 1
+    if not kernels[0].start() < entry.start() < marker.start():
+        print("FAIL: required ordered sequence is kernel-ready -> user-originated init syscall -> userspace-ready")
+        return 1
+
+    print(f"PASS: target={target} entered user mode and reported readiness with PID {marker.group(2)}")
+    return 0
 
 
 if __name__ == "__main__":
