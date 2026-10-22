@@ -245,6 +245,22 @@
       "name": "Aurora PlayStation Emulator Hub",
       "desktop": "desktop/aurora/aurora-playstation-emulators.desktop",
       "category": "games"
+    },
+    {
+      "id": "optional-app-center",
+      "name": "Optional Application Center",
+      "category": "productivity",
+      "entry": "desktop/aurora/package-center",
+      "catalog": "desktop/optional_apps_catalog.json",
+      "ui": "application-center",
+      "capabilities": [
+        "cross-platform-app-discovery",
+        "platform-filtering",
+        "official-upstream-links",
+        "package-provider-routing"
+      ],
+      "launch_mode": "package-center-catalog",
+      "availability": "catalog-only-until-provider-probe"
     }
   ],
   "compatibility_apps": [
@@ -256,5 +272,12 @@
     "linux-container",
     "bsd-userland"
   ],
-  "integration": "All applications are user-space processes/services and communicate with Koronos through stable IPC."
+  "integration": "All applications are user-space processes/services and communicate with Koronos through stable IPC.",
+  "optional_app_catalog": {
+    "path": "desktop/optional_apps_catalog.json",
+    "schema": "CHM-OPTIONAL-APP-CATALOG-1",
+    "panel": "application-center",
+    "package_panel": "package-center",
+    "policy": "catalog-only until a package provider confirms availability; never mark uninstalled software as installed"
+  }
 }
