@@ -35,8 +35,10 @@ int main() {
     put32(c+0x60,0);
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("zero notify multiplier rejected");
     put32(c+0x60,4);
+    c[0x50+4]=0; /* Put notify and common windows in the same BAR. */
     put32(c+0x58,0x1000);
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("overlapping BAR windows rejected");
+    c[0x50+4]=2;
     put32(c+0x58,0x2001);
     if(koronos_virtio_pci_parse_caps(c,&out)>=0) return fail("misaligned notify window rejected");
     put32(c+0x58,0x2000);
