@@ -389,7 +389,8 @@ static void task_kore(void *) {
         started = true;
         chimera_kore_bootstrap();
         console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Core storage/security/logging services active");
+        console_write("[KORE] Storage/device/security services BLOCKED pending implementation health checks");
+        console_write("[KORE] Registry initialized; service registration is not service readiness");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
