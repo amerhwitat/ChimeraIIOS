@@ -157,6 +157,56 @@ extern "C" uint64_t koronos_frame_alloc_contiguous(uint32_t count) {
     unlock();
     return 0;
 }
+extern "C" uint64_t koronos_frame_alloc_contiguous_aligned(
+    uint32_t count, uint32_t alignment_pages, uint64_t max_address) {
+    if (!initialized || count == 0 || alignment_pages == 0 ||
+        count > PAGE_COUNT - FIRST_ALLOCATABLE_PAGE)
+        return 0;
+
+    /* The final byte must fit beneath the device's inclusive DMA address limit. */
+    const uint64_t allocation_bytes =
+        static_cast<uint64_t>(count) * KORONOS_FRAME_SIZE;
+    if (allocation_bytes == 0 || max_address < allocation_bytes - 1u)
+        return 0;
+
+    lock();
+    uint32_t candidate = FIRST_ALLOCATABLE_PAGE;
+    const uint32_t remainder = candidate % alignment_pages;
+    if (remainder != 0u) {
+        const uint32_t adjustment = alignment_pages - remainder;
+        if (candidate > UINT32_MAX - adjustment) {
+            unlock();
+            return 0;
+        }
+        candidate += adjustment;
+    }
+
+    while (candidate <= PAGE_COUNT - count) {
+        const uint64_t physical =
+            static_cast<uint64_t>(candidate) * KORONOS_FRAME_SIZE;
+        const uint64_t last = physical + allocation_bytes - 1u;
+        if (last > max_address) break;
+
+        uint32_t available = 0;
+        while (available < count && bit(free_bitmap, candidate + available))
+            ++available;
+        if (available == count) {
+            for (uint32_t p = candidate; p < candidate + count; ++p) {
+                clear_bit(free_bitmap, p);
+                set_bit(allocated_bitmap, p);
+            }
+            free_pages -= count;
+            unlock();
+            return physical;
+        }
+
+        if (candidate > UINT32_MAX - alignment_pages) break;
+        candidate += alignment_pages;
+    }
+    unlock();
+    return 0;
+}
+
 extern "C" uint64_t koronos_frame_alloc(void) {
     return koronos_frame_alloc_contiguous(1);
 }
