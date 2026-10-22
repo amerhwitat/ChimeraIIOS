@@ -151,6 +151,10 @@ for target in live installer recovery; do
   readelf -lW "$BUILD/user-init-$target.elf" | grep -Eq 'LOAD.*R E' || {
     echo "ERROR: user-init-$target.elf has no read/execute PT_LOAD" >&2; exit 1;
   }
+  readelf -lW "$BUILD/user-init-$target.elf" | tee "$BUILD/user-init-$target.phdrs.txt"
+  awk '$1 == "LOAD" { n++; if ($6 ~ /^0x0+$/) empty=1 } END { exit !(n >= 2 && !empty) }' "$BUILD/user-init-$target.phdrs.txt" || {
+    echo "ERROR: user-init-$target.elf has an empty PT_LOAD; production ELF admission would reject it" >&2; exit 1;
+  }
   test -s "$BUILD/user-init-$target.elf"
 done
 printf 'Built fail-closed production init ELFs (not readiness probes): %s/user-init-{live,installer,recovery}.elf\n' "$BUILD"
