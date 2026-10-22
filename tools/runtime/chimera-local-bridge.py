@@ -133,9 +133,17 @@ class H(BaseHTTPRequestHandler):
                 return send(self,200,{"status":"match" if expected and actual==expected else "computed","image":str(image),"sha256":actual,"matches":bool(expected and actual==expected)})
             if path=="/flash/execute":
                 image=safe_path(d.get("image")); device=str(d.get("device","")).strip()
-                expected=str(d.get("sha256","")).strip()
+                expected=str(d.get("sha256","")).strip().lower()
                 if not image.is_file(): return send(self,404,{"error":"image-not-found"})
                 if not device.startswith("/dev/"): return send(self,400,{"error":"device-must-be-/dev-path"})
+                if len(expected)!=64 or any(ch not in "0123456789abcdef" for ch in expected):
+                    return send(self,400,{"error":"expected-sha256-required"})
+                import hashlib
+                h=hashlib.sha256()
+                with image.open("rb") as source:
+                    for chunk in iter(lambda:source.read(1024*1024),b""): h.update(chunk)
+                if h.hexdigest()!=expected:
+                    return send(self,409,{"error":"image-sha256-mismatch"})
                 tool=ROOT/"desktop/aurora/aurora_flash_tool.py"
                 if not tool.exists(): return send(self,503,{"error":"flash-tool-missing"})
                 if os.environ.get("CHIMERA_FLASH_CONFIRM")!="YES": return send(self,409,{"error":"flash-confirmation-required","hint":"Set CHIMERA_FLASH_CONFIRM=YES only after verifying the removable target."})
