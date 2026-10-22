@@ -15,7 +15,7 @@ From the repository root on a POSIX build host with a C compiler, make, tar,
 curl or wget, and a SHA-256 utility:
 
 \`\`\`sh
-tools/perl-runtime/build-perl-runtime.sh --prefix "$PWD/build/perl-rootfs"
+bash tools/perl-runtime/build-perl-runtime.sh --prefix "$PWD/build/perl-rootfs"
 \`\`\`
 
 The build downloads the pinned source, verifies its digest, configures Perl for
