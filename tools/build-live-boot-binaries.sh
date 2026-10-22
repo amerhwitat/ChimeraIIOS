@@ -49,17 +49,33 @@ mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initram
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
-# Build the actual x86-64 ring-3 init payload at the documented 4 GiB user VA.
-# It deliberately fails closed until production storage/service startup exists;
-# it is not a smoke probe and never prints the acceptance readiness marker.
-NATIVE_INIT="$OUT/boot/koronos/native-init.elf"
-"${CC:-gcc}" -m64 -std=c11 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pie -fno-asynchronous-unwind-tables -fno-unwind-tables -mcmodel=large -nostdlib -static -no-pie \
-  -Wl,-e,_start -Wl,-Ttext-segment=0x100000000 -Wl,-z,max-page-size=0x1000 -Wl,-z,noexecstack \
-  "$ROOT/kernel/userland/native_init.c" -o "$NATIVE_INIT"
-readelf -h "$NATIVE_INIT" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: native init is not ELF64" >&2; exit 2; }
-readelf -h "$NATIVE_INIT" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: native init is not ET_EXEC" >&2; exit 2; }
-readelf -l "$NATIVE_INIT" | grep -q 'LOAD' || { echo "ERROR: native init has no loadable segment" >&2; exit 2; }
-sha256sum "$NATIVE_INIT" > "$NATIVE_INIT.sha256"
+# Build target-specific x86-64 ring-3 init ELFs at the documented 4 GiB user VA.
+# These are real target-labelled images, not acceptance probes. They deliberately
+# withhold readiness until production storage and service startup are verified.
+NATIVE_DIR="$OUT/boot/koronos"
+CC="${CC:-gcc}"
+for target in live installer recovery; do
+  case "$target" in
+    live) target_id=1 ;;
+    installer) target_id=2 ;;
+    recovery) target_id=3 ;;
+  esac
+  NATIVE_INIT="$NATIVE_DIR/native-init-$target.elf"
+  "$CC" -m64 -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pie -fno-asynchronous-unwind-tables -fno-unwind-tables \
+    -mcmodel=large -nostdlib -static -no-pie \
+    -DCHIMERA_INIT_TARGET="$target_id" -DCHIMERA_INIT_TARGET_NAME="\"$target\"" \
+    -Wl,-e,_start -Wl,-Ttext-segment=0x100000000 -Wl,-z,max-page-size=0x1000 -Wl,-z,noexecstack \
+    "$ROOT/kernel/userland/native_init.c" -o "$NATIVE_INIT"
+  readelf -h "$NATIVE_INIT" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: $target init is not ELF64" >&2; exit 2; }
+  readelf -h "$NATIVE_INIT" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target init is not ET_EXEC" >&2; exit 2; }
+  readelf -l "$NATIVE_INIT" | grep -q 'LOAD' || { echo "ERROR: $target init has no loadable segment" >&2; exit 2; }
+  test -s "$NATIVE_INIT"
+  sha256sum "$NATIVE_INIT" > "$NATIVE_INIT.sha256"
+done
+# Preserve the legacy generic path as an alias of the explicit Live image.
+cp -f "$NATIVE_DIR/native-init-live.elf" "$NATIVE_DIR/native-init.elf"
+cp -f "$NATIVE_DIR/native-init-live.elf.sha256" "$NATIVE_DIR/native-init.elf.sha256"
 INIT="$OUT/initramfs/root"
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
