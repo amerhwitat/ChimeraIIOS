@@ -3,18 +3,28 @@
 #include "chimera/driver.h"
 #include "chimera/learning.h"
 #include "chimera/multiboot_modules.h"
+#include "chimera/frame_allocator.h"
+#include "chimera/address_space.h"
+#include "chimera/user_entry.h"
+#include "chimera/target_launch.h"
 #include "chimera/hardware.h"
 #include "chimera/device.h"
 #include "chimera/firmware.h"
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/vfs.h"
+#include "chimera/vfs_fd.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
 volatile uint32_t koronos_state = 0;
 static volatile uint32_t g_console_ready = 0;
+static chimera_vfs g_vfs{};
+static chimera_vfs_node g_vfs_nodes[CHIMERA_VFS_MAX_FILES]{};
+static uint8_t g_vfs_data[CHIMERA_VFS_MAX_FILES * 4096u]{};
+static chimera_vfs_fd g_vfs_fds[CHIMERA_VFS_FD_MAX]{};
 static volatile uint32_t g_module_registry_ready = 0;
 static volatile uint32_t g_scheduler_ready = 0;
 static volatile uint32_t g_hardware_inventory_ready = 0;
@@ -227,7 +237,6 @@ static volatile uint32_t console_task_runs = 0;
 static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
 static volatile uint32_t installer_phase = 0;
-static volatile uint32_t recovery_task_runs = 0;
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
@@ -246,11 +255,22 @@ static void task_modules(void *) {
 
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
+        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+            if (!g_process_registry_ready) {
+                console_write("[RUN ] ERROR: refusing userspace launch because process registry initialization failed");
+                chimera_sched_block();
+                return;
+            }
+            const int launch_rc = koronos_launch_selected_userspace();
+            if (launch_rc != 0)
+                console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
+            chimera_sched_block();
+            return;
+        }
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
-            console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
-            console_write("[USER] USERSPACE HANDOFF NOT VERIFIED: initramfs is registered but no executable ring-3 entry path is connected");
+            console_write("[LIVE] Live initramfs module recognized");
+            console_write("[USER] Handoff withheld: production initramfs requires a supported native init ELF/runtime; no process was launched");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
             console_write("[LIVE] No live initramfs module; live service idle");
@@ -265,14 +285,16 @@ static void task_live(void *) {
 }
 
 static void task_recovery(void *) {
-    if (recovery_task_runs++ == 0) {
-        const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
-        if (image) {
-            console_write("[REC ] Recovery initramfs module accepted");
-            console_write("[REC ] USERSPACE HANDOFF NOT VERIFIED: repair shell has not been entered");
-        } else {
-            console_write("[REC ] Recovery target not selected: no recovery initramfs module");
-        }
+    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    const chimera_boot_module *native_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    if (native_init) {
+        console_write("[REC ] Native init ELF is staged; target-launch verifier is authoritative");
+        console_write("[REC ] Recovery repair service and persistent storage backend remain unavailable");
+    } else if (image) {
+        console_write("[REC ] Recovery initramfs module recognized");
+        console_write("[USER] Recovery handoff withheld: no native init ELF was staged");
+    } else {
+        console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
     chimera_sched_block();
 }
@@ -302,22 +324,22 @@ static void task_installer(void *) {
             else console_write("[INST] WARNING: installer contract module missing");
             break;
         case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
+            console_write("[INST] Metadata inspection only; no installer runtime service has started");
             break;
         case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
+            console_write("[INST] Hardware and storage backends are unavailable; no disk I/O was attempted");
             break;
         case 3:
-            if (phases) console_write("[INST] Installation phases loaded");
-            if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer metadata parsed; graphical installer userspace is not running");
-            console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
+            if (phases) console_write("[INST] Installation phase metadata parsed");
+            if (profiles) console_write("[INST] Installer profile metadata parsed");
+            console_write("[INST] No graphical installer userspace is claimed");
             break;
         case 4:
-            console_write("[INST] Installer contract processing complete; installer execution is not verified");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))
+                console_write("[INST] Native init ELF was staged; install transaction and reboot are still unimplemented");
+            else
+                console_write("[USER] Installer handoff withheld: no native init ELF was staged");
+            console_write("[INST] Installer readiness withheld until persistent disk transaction is verified");
             chimera_sched_block();
             break;
         default:
@@ -431,12 +453,12 @@ static void koronos_submit_bootstrap_tasks() {
     int b = chimera_sched_submit(task_modules, 0, 90);
     int c = chimera_sched_submit(task_live, 0, 80);
     int d = chimera_sched_submit(task_installer, 0, 80);
-    int recovery = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
+    int r = chimera_sched_submit(task_recovery, 0, 80);
     int m = chimera_sched_submit(task_monitor, 0, 60);
     console_write("[SCH ] Bootstrap tasks submitted");
     console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0)
+    if (a < 0 || b < 0 || c < 0 || d < 0 || e < 0 || r < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
 }
@@ -444,6 +466,132 @@ static void koronos_submit_bootstrap_tasks() {
 extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
+
+extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
+    if (length == 0) return 0;
+    if (length > 4096u) return -22;
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0)
+        return -14;
+    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
+    (void)koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length);
+    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    return static_cast<int64_t>(length);
+}
+
+static uint64_t koronos_current_cr3() { uint64_t root=0; __asm__ volatile("mov %%cr3, %0" : "=r"(root)); return root; }
+static int koronos_copy_user_path(uint64_t address,char *out) {
+    if(!address||!out)return -14;
+    const uint64_t root=koronos_current_cr3();
+    for(uint32_t i=0;i<CHIMERA_VFS_PATH_MAX;++i){
+        if(address>UINT64_MAX-i)return -14;
+        const uint64_t at=address+i;
+        if(koronos_address_space_validate_user_range(root,at,1u,0u)!=0)return -14;
+        const char ch=*reinterpret_cast<const char*>(static_cast<uintptr_t>(at));
+        out[i]=ch;
+        if(ch==0)return 0;
+    }
+    out[CHIMERA_VFS_PATH_MAX-1]=0;
+    return -22;
+}
+static int koronos_user_buffer_ok(uint64_t address,uint64_t length,uint32_t write_access) {
+    if(length==0)return 0;
+    if(!address||length>4096u)return -22;
+    return koronos_address_space_validate_user_range(koronos_current_cr3(),address,length,write_access)==0?0:-14;
+}
+extern "C" int64_t koronos_vfs_open_user(uint64_t path_address,uint64_t flags) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid||flags>UINT32_MAX)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    const int fd=chimera_vfs_open(g_vfs_fds,CHIMERA_VFS_FD_MAX,&g_vfs,pid,0u,0u,path,static_cast<uint32_t>(flags));
+    return fd<0?fd:static_cast<int64_t>(fd)+3;
+}
+extern "C" int64_t koronos_vfs_read_user(uint64_t fd,uint64_t address,uint64_t length) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid||fd<3u||fd>CHIMERA_VFS_FD_MAX+2u)return -9;
+    const int valid=koronos_user_buffer_ok(address,length,1u);if(valid)return valid;
+    return chimera_vfs_fd_read(g_vfs_fds,CHIMERA_VFS_FD_MAX,pid,static_cast<int>(fd-3u),reinterpret_cast<void*>(static_cast<uintptr_t>(address)),length);
+}
+extern "C" int64_t koronos_vfs_write_user(uint64_t fd,uint64_t address,uint64_t length) {
+    if(fd<=2u)return koronos_console_write_user(address,length);
+    const uint32_t pid=koronos_target_active_pid();if(!pid||fd>CHIMERA_VFS_FD_MAX+2u)return -9;
+    const int valid=koronos_user_buffer_ok(address,length,0u);if(valid)return valid;
+    return chimera_vfs_fd_write(g_vfs_fds,CHIMERA_VFS_FD_MAX,pid,static_cast<int>(fd-3u),reinterpret_cast<const void*>(static_cast<uintptr_t>(address)),length);
+}
+extern "C" int64_t koronos_vfs_seek_user(uint64_t fd,uint64_t offset) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid||fd<3u||fd>CHIMERA_VFS_FD_MAX+2u)return -9;
+    return chimera_vfs_fd_seek(g_vfs_fds,CHIMERA_VFS_FD_MAX,pid,static_cast<int>(fd-3u),offset);
+}
+extern "C" int64_t koronos_vfs_close_user(uint64_t fd) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid||fd<3u||fd>CHIMERA_VFS_FD_MAX+2u)return -9;
+    return chimera_vfs_close(g_vfs_fds,CHIMERA_VFS_FD_MAX,pid,static_cast<int>(fd-3u));
+}
+extern "C" int64_t koronos_vfs_stat_user(uint64_t path_address,uint64_t out_address) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    const int valid=koronos_user_buffer_ok(out_address,sizeof(chimera_vfs_stat),1u);if(valid)return valid;
+    chimera_vfs_stat st{};const int rc=chimera_vfs_stat_path(&g_vfs,path,0u,0u,&st);if(rc)return rc;
+    auto*dst=reinterpret_cast<uint8_t*>(static_cast<uintptr_t>(out_address));const auto*src=reinterpret_cast<const uint8_t*>(&st);
+    for (uint64_t i = 0; i < sizeof(st); ++i) { dst[i] = src[i]; }
+    return 0;
+}
+extern "C" int64_t koronos_vfs_create_user(uint64_t path_address,uint64_t mode) {
+    if (mode > 0777u) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid) return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_create(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
+}
+extern "C" int64_t koronos_vfs_unlink_user(uint64_t path_address) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_unlink(&g_vfs,path,0u,0u);
+}
+extern "C" int64_t koronos_vfs_truncate_user(uint64_t path_address,uint64_t length) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_truncate(&g_vfs,path,length,0u,0u);
+}
+extern "C" int64_t koronos_vfs_chmod_user(uint64_t path_address,uint64_t mode) {
+    if (mode > 0777u) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid) return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_chmod(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
+}
+extern "C" int64_t koronos_vfs_chown_user(uint64_t path_address,uint64_t uid,uint64_t gid) {
+    if (uid > UINT32_MAX || gid > UINT32_MAX) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid) return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_chown(&g_vfs,path,static_cast<uint32_t>(uid),static_cast<uint32_t>(gid),0u);
+}
+
+extern "C" int64_t koronos_vfs_mkdir_user(uint64_t path_address,uint64_t mode) {
+    if(mode>0777u)return -22;const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_mkdir(&g_vfs,path,static_cast<uint32_t>(mode),0u,0u);
+}
+extern "C" int64_t koronos_vfs_rmdir_user(uint64_t path_address) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char path[CHIMERA_VFS_PATH_MAX]{};const int cp=koronos_copy_user_path(path_address,path);if(cp)return cp;
+    return chimera_vfs_rmdir(&g_vfs,path,0u,0u);
+}
+extern "C" int64_t koronos_vfs_rename_user(uint64_t old_address,uint64_t new_address) {
+    const uint32_t pid=koronos_target_active_pid();if(!pid)return -38;
+    char old_path[CHIMERA_VFS_PATH_MAX]{},new_path[CHIMERA_VFS_PATH_MAX]{};
+    const int a=koronos_copy_user_path(old_address,old_path);if(a)return a;
+    const int b=koronos_copy_user_path(new_address,new_path);if(b)return b;
+    return chimera_vfs_rename(&g_vfs,old_path,new_path,0u,0u);
+}
+extern "C" void koronos_vfs_close_process(uint32_t pid) {
+    if (pid) (void)chimera_vfs_close_process(g_vfs_fds, CHIMERA_VFS_FD_MAX, pid);
+}
+
+extern "C" void koronos_target_log(const char *message) {
+    if (!message) return;
+    debugcon_write(message);
+    console_write(message);
+}
 
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     debugcon_write("[KRN ] koronos_boot entered");
@@ -463,25 +611,43 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     g_module_registry_ready = 1;
     console_write("[MB2 ] Scanned Multiboot2 modules");
+    const int frame_init = koronos_frame_allocator_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
+    if (frame_init == 0) {
+        console_write("[MM  ] Physical frame allocator initialized; free 4 KiB frames: ");
+        console_u32(static_cast<uint32_t>(koronos_frame_free_count()));
+    } else {
+        console_write("[MM  ] ERROR: physical frame allocator initialization failed");
+        console_write("[MM  ] User-image launch must remain disabled until memory ownership is valid");
+    }
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
-    console_progress(25, "Architecture and interrupt setup complete");
+    const int address_space_init = (frame_init == 0) ? koronos_address_space_init() : -1;
+    const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
+    const int user_entry_init = (address_space_test == 0) ? koronos_user_entry_init() : -1;
+    if (address_space_test == 0 && user_entry_init == 0) {
+        console_write("[MM  ] Process page-table self-test passed: kernel identity mappings preserved; user U/RW/NX permissions verified; frames reclaimed");
+        console_write("[ARCH] GDT/TSS RSP0 and native SYSCALL entry initialized; user-image launch remains gated on target payload acceptance");
+        console_write("[MM  ] User virtual addresses must begin at or above 4 GiB to avoid the bootstrap identity map");
+    } else {
+        console_write("[MM  ] ERROR: process address-space or ring-3 entry setup failed; user-image launch remains disabled");
+    }
+    console_progress(25, "Architecture discovery and address-space safety checks complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
     console_write(f->vendor);
-    console_write("[CPU ] Detected logical CPUs: ");
+    console_write("[CPU ] Logical CPUs: ");
     console_hex32(f->logical_cpus);
-    console_write("[CPU ] Online scheduler CPUs: 1 (AP startup not implemented)");
     console_write("[VM  ] Hypervisor detected: ");
     console_hex32(f->hypervisor);
 
     console_write("[SCH ] Initializing scheduler...");
-    chimera_sched_init(1); // CPU0 is the only CPU actually online; AP startup is not implemented.
+    chimera_sched_init(f->logical_cpus);
+    chimera_learning_init(f->logical_cpus);
+    /* Service health must reflect completed initialization, not the static default. */
     g_scheduler_ready = 1;
-    chimera_learning_init(1); // Do not schedule work against detected-but-offline CPUs.
     console_progress(35, "Scheduler and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
@@ -535,10 +701,20 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     chimera_learning_record(1, f->logical_cpus);
     koronos_elf64_init();
-    chimera_process_init();
-    g_process_registry_ready = 1;
-    console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
-    console_write("[USER] USERSPACE READY is withheld: ELF load-plan admission is not a process execution context");
+    const int process_init_rc = chimera_process_init();
+    g_process_registry_ready = (process_init_rc == 0);
+    if (!g_process_registry_ready)
+        console_write("[PROC] ERROR: process registry initialization failed; native userspace launch will remain blocked");
+    const int vfs_init_rc = chimera_vfs_init(&g_vfs, g_vfs_nodes, CHIMERA_VFS_MAX_FILES, g_vfs_data, sizeof(g_vfs_data), 4096u);
+    const int vfs_fd_init_rc = (vfs_init_rc == 0) ? chimera_vfs_fd_init(g_vfs_fds, CHIMERA_VFS_FD_MAX) : -1;
+    if (vfs_init_rc == 0 && vfs_fd_init_rc == 0)
+        console_write("[VFS] Volatile RAM VFS and descriptor registry initialized (no persistent mount)");
+    else
+        console_write("[VFS] ERROR: VFS initialization failed; persistent storage remains unavailable");
+    if (g_process_registry_ready)
+        console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    else
+        console_write("[PROC] ERROR: protected-process admission layer is unavailable");
     console_progress(75, "Process admission and module registries initialized");
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;

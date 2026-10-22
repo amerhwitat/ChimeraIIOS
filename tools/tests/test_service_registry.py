@@ -35,4 +35,24 @@ for service in services:
     for dep in service.get("dependencies", []):
         assert position[dep] < position[service["id"]], f"dependency order violation: {dep} -> {service['id']}"
 
-print("PASS: service registry, profiles and dependency graph are valid")
+
+# Runtime claims are separate from service catalog membership.
+EVIDENCE = json.loads((ROOT / "config/services/runtime-evidence.json").read_text())
+assert EVIDENCE["schema"] == "chimera-runtime-evidence-v1"
+assert set(EVIDENCE["services"]) == known, "runtime evidence must cover every catalog service"
+allowed_statuses = {"declared", "blocked", "verified"}
+for service in services:
+    status = service.get("state")
+    assert status in allowed_statuses, f"invalid implementation state for {service['id']}: {status}"
+    evidence_status = EVIDENCE["services"][service["id"]]["status"]
+    assert status == evidence_status, f"catalog/evidence state mismatch for {service['id']}"
+    if service.get("critical"):
+        assert status != "verified", f"critical service cannot be marked verified without target evidence: {service['id']}"
+targets = EVIDENCE["targets"]
+assert set(targets) == {"live", "installer", "recovery"}
+for target, firmware_matrix in targets.items():
+    assert set(firmware_matrix) == {"bios", "uefi"}
+    assert all(value in {"not_verified", "pass", "fail"} for value in firmware_matrix.values())
+assert all(value == "not_verified" for matrix in targets.values() for value in matrix.values()), "update only from real target-specific artifacts"
+
+print("PASS: service registry, profiles, dependency graph and runtime evidence matrix are valid")

@@ -49,6 +49,33 @@ mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initram
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
+# Build target-specific x86-64 ring-3 init ELFs at the documented 4 GiB user VA.
+# These are real target-labelled images, not acceptance probes. They deliberately
+# withhold readiness until production storage and service startup are verified.
+NATIVE_DIR="$OUT/boot/koronos"
+CC="${CC:-gcc}"
+for target in live installer recovery; do
+  case "$target" in
+    live) target_id=1 ;;
+    installer) target_id=2 ;;
+    recovery) target_id=3 ;;
+  esac
+  NATIVE_INIT="$NATIVE_DIR/native-init-$target.elf"
+  "$CC" -m64 -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pie -fno-asynchronous-unwind-tables -fno-unwind-tables \
+    -mcmodel=large -nostdlib -static -no-pie \
+    -DCHIMERA_INIT_TARGET="$target_id" -DCHIMERA_INIT_TARGET_NAME="\"$target\"" \
+    -Wl,-e,_start -Wl,-Ttext-segment=0x100000000 -Wl,-z,max-page-size=0x1000 -Wl,-z,noexecstack \
+    "$ROOT/kernel/userland/native_init.c" -o "$NATIVE_INIT"
+  readelf -h "$NATIVE_INIT" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: $target init is not ELF64" >&2; exit 2; }
+  readelf -h "$NATIVE_INIT" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target init is not ET_EXEC" >&2; exit 2; }
+  readelf -l "$NATIVE_INIT" | grep -q 'LOAD' || { echo "ERROR: $target init has no loadable segment" >&2; exit 2; }
+  test -s "$NATIVE_INIT"
+  sha256sum "$NATIVE_INIT" > "$NATIVE_INIT.sha256"
+done
+# Preserve the legacy generic path as an alias of the explicit Live image.
+cp -f "$NATIVE_DIR/native-init-live.elf" "$NATIVE_DIR/native-init.elf"
+cp -f "$NATIVE_DIR/native-init-live.elf.sha256" "$NATIVE_DIR/native-init.elf.sha256"
 INIT="$OUT/initramfs/root"
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
@@ -110,9 +137,10 @@ else
   echo "Available block devices:"
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
 fi
-# This marker is emitted by the initramfs userspace process, not by Koronos.
-# It proves the diagnostic shell handoff only; Aurora desktop readiness is separate.
-printf 'USERSPACE READY: target=live init_pid=%s\n' "$$" > /dev/console 2>/dev/null || printf 'USERSPACE READY: target=live init_pid=%s\n' "$$"
+# This is an initramfs payload diagnostic only. It is deliberately not the
+# canonical USERSPACE READY acceptance marker: Koronos has not launched this
+# shell as a kernel-managed process, and $ is not authoritative kernel PID data.
+printf 'INITRAMFS SHELL READY: target=live (payload diagnostic only)\n' > /dev/console 2>/dev/null || printf 'INITRAMFS SHELL READY: target=live (payload diagnostic only)\n'
 exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
@@ -154,9 +182,10 @@ if [ -x /bin/chimera-driver-manager.sh ]; then
   /bin/chimera-driver-manager.sh inventory || recovery_progress 50 "Drivers" "inventory returned an error; repair shell remains available"
 fi
 recovery_progress 100 "Recovery shell" "repair console is ready; individual repair actions report their own status"
-# This marker confirms that recovery initramfs reached its userspace handoff.
-# It does not claim that any individual repair operation succeeded.
-printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$" > /dev/console 2>/dev/null || printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$"
+# This is an initramfs payload diagnostic only, not evidence of a Koronos
+# process launch or successful repair operations. Never impersonate the kernel
+# acceptance marker or treat shell $ as an authoritative kernel-assigned PID.
+printf 'INITRAMFS SHELL READY: target=recovery (payload diagnostic only)\n' > /dev/console 2>/dev/null || printf 'INITRAMFS SHELL READY: target=recovery (payload diagnostic only)\n'
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"

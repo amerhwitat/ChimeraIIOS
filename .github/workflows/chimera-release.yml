@@ -81,7 +81,13 @@ jobs:
           name: chimera2os-release-${{ github.ref_name }}
           path: release/
           retention-days: 30
+      # A boot smoke marker is not production userspace acceptance. Do not
+      # publish until Live/Installer/Recovery pass BIOS and UEFI production runs.
       - name: Publish GitHub Release
+        if: vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" release/* --title "Chimera II OS $GITHUB_REF_NAME" --generate-notes
+      - name: Keep release unpublished without production acceptance
+        if: vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED != 'true'
+        run: echo "::warning::Release artifacts were built but not published; CHIMERA_RELEASE_ACCEPTANCE_APPROVED is not true and production userspace acceptance remains unverified."

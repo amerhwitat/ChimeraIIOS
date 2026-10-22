@@ -34,6 +34,25 @@ static bool in(uint64_t offset, uint64_t length, uint64_t size) {
     uint64_t end = 0;
     return add_ok(offset, length, &end) && end <= size;
 }
+
+/* PIDs are kernel identities, not slot indices. Skip zero and every live PID
+ * when the 32-bit counter wraps; never overwrite an existing process identity. */
+static uint32_t allocate_pid() {
+    for (uint32_t attempt = 0; attempt < CHIMERA_PROCESS_MAX + 1u; ++attempt) {
+        uint32_t candidate = next_pid++;
+        if (next_pid == 0) next_pid = 1;
+        if (candidate == 0) continue;
+        bool in_use = false;
+        for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+            if (slots[i].used && slots[i].image.pid == candidate) {
+                in_use = true;
+                break;
+            }
+        }
+        if (!in_use) return candidate;
+    }
+    return 0;
+}
 }
 
 extern "C" int chimera_process_init(void) {
@@ -80,9 +99,26 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
         if (n >= MAX_SEGMENTS) return -6;
         if ((s.p_flags & (PF_W | PF_X)) == (PF_W | PF_X)) return -7;
 
+        const uint64_t segment_low = down(s.p_vaddr);
+        uint64_t aligned_end = 0;
+        if (!up(end, &aligned_end)) return -8;
+        // Reject page-level PT_LOAD overlap. Mapping overlapping segments with
+        // different permissions can silently weaken W^X or make load order
+        // determine which bytes/permissions survive.
+        for (uint32_t j = 0; j < n; ++j) {
+            const auto &prior = p.segments[j];
+            uint64_t prior_end = 0;
+            if (!add_ok(prior.virtual_address, prior.memory_size, &prior_end))
+                return -8;
+            uint64_t prior_page_end = 0;
+            if (!up(prior_end, &prior_page_end)) return -8;
+            if (segment_low < prior_page_end &&
+                prior.virtual_address < aligned_end) return -11;
+        }
+
         auto &d = p.segments[n++];
         d.file_offset = s.p_offset;
-        d.virtual_address = down(s.p_vaddr);
+        d.virtual_address = segment_low;
         d.file_size = s.p_filesz;
         // Include the leading page offset without recomputing an unchecked sum.
         d.memory_size = end - d.virtual_address;
@@ -90,8 +126,6 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
         d.align = s.p_align ? s.p_align : PAGE;
 
         if (d.virtual_address < low) low = d.virtual_address;
-        uint64_t aligned_end = 0;
-        if (!up(end, &aligned_end)) return -8;
         if (aligned_end > high) high = aligned_end;
         if ((s.p_flags & PF_X) && h.e_entry >= s.p_vaddr &&
             h.e_entry < end) entry_executable = true;
@@ -104,8 +138,8 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (!slots[i].used) {
-            p.pid = next_pid++;
-            if (!next_pid) next_pid = 1;
+            p.pid = allocate_pid();
+            if (!p.pid) return -10;
             p.state = CHIMERA_PROCESS_ADMITTED;
             slots[i].image = p;
             slots[i].used = true;

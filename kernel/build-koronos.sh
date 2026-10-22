@@ -23,6 +23,11 @@ BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
 # Run service lifecycle regression tests before the freestanding build.
 HOST_CXX="${HOST_CXX:-g++}"
+BLOCK_TEST="$BUILD/block-api-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/block.cpp" "$ROOT/kernel/tests/block_api_test.cpp" -o "$BLOCK_TEST"
+"$BLOCK_TEST"
+rm -f "$BLOCK_TEST"
 SERVICE_TEST="$BUILD/service-lifecycle-test"
 "$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
   "$ROOT/kernel/core/service.cpp" "$ROOT/kernel/tests/service_lifecycle_test.cpp" \
@@ -35,12 +40,36 @@ MULTIBOOT_TEST="$BUILD/multiboot-modules-test"
   -o "$MULTIBOOT_TEST"
 "$MULTIBOOT_TEST"
 rm -f "$MULTIBOOT_TEST"
+CPIO_TEST="$BUILD/cpio-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/cpio.cpp" "$ROOT/kernel/tests/cpio_test.cpp" \
+  -o "$CPIO_TEST"
+"$CPIO_TEST"
+rm -f "$CPIO_TEST"
+VFS_TEST="$BUILD/vfs-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/tests/vfs_test.cpp" \
+  -o "$VFS_TEST"
+"$VFS_TEST"
+rm -f "$VFS_TEST"
+VFS_FD_TEST="$BUILD/vfs-fd-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/core/vfs_fd.cpp" \
+  "$ROOT/kernel/tests/vfs_fd_test.cpp" -o "$VFS_FD_TEST"
+"$VFS_FD_TEST"
+rm -f "$VFS_FD_TEST"
+PROCESS_TEST="$BUILD/process-elf-admission-test"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/elf64.cpp" "$ROOT/kernel/core/process.cpp" \
+  "$ROOT/kernel/tests/process_elf_admission_test.cpp" -o "$PROCESS_TEST"
+"$PROCESS_TEST"
+rm -f "$PROCESS_TEST"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
+sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader block dma frame_allocator address_space target_launch thread sync timer apc dpc hardware nbit firmware device multiboot_modules cpio vfs vfs_fd parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
@@ -52,9 +81,10 @@ done
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/io.asm" -o "$BUILD/io.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/mode_switch.asm" -o "$BUILD/mode_switch.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/interrupts.asm" -o "$BUILD/interrupts.o"
+"$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/user_entry.asm" -o "$BUILD/user-entry.o"
 "$NASM" -f elf64 "$ROOT/kernel/modules/koronos_test_module.asm" -o "$BUILD/module-test.o"
 
-link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o")
+link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o" "$BUILD/user-entry.o")
 for src in "${sources[@]}"; do link_objects+=("$BUILD/$src.o"); done
 link_objects+=("$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/pci-generic-driver.o" "$BUILD/module-test.o")
 for obj in "${link_objects[@]}"; do
@@ -72,7 +102,7 @@ if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not ELF64" >&2; exit 1; }
 fi
 if command -v nm >/dev/null 2>&1; then
-  required_symbols=(koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_service_get_state chimera_service_start_all chimera_service_stop_all chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove)
+  required_symbols=(koronos_idle_loop koronos_user_timeout_arm koronos_user_timeout_disarm koronos_user_timeout_irq koronos_user_timeout_pending koronos_user_timeout_abort koronos_user_timeout_abort_irq koronos_user_timeout_arm koronos_user_timeout_disarm koronos_user_timeout_irq koronos_user_timeout_abort koronos_dma_alloc koronos_dma_free koronos_frame_allocator_init koronos_frame_alloc koronos_frame_alloc_contiguous koronos_frame_free koronos_frame_free_contiguous koronos_frame_free_count koronos_address_space_init koronos_address_space_ready koronos_address_space_self_test koronos_address_space_loader_ops koronos_address_space_root koronos_address_space_validate_user_range koronos_address_space_count koronos_user_entry_init koronos_arch_enter_user koronos_syscall_entry koronos_syscall_user_dispatch koronos_launch_selected_userspace koronos_target_note_user_write koronos_target_userspace_ready koronos_target_note_user_syscall koronos_target_validate_syscall_context koronos_target_active_pid koronos_target_log koronos_vfs_open_user koronos_vfs_read_user koronos_vfs_write_user koronos_vfs_seek_user koronos_vfs_close_user koronos_vfs_stat_user koronos_vfs_create_user koronos_vfs_unlink_user koronos_vfs_truncate_user koronos_vfs_chmod_user koronos_vfs_chown_user koronos_vfs_mkdir_user koronos_vfs_rmdir_user koronos_vfs_rename_user koronos_vfs_close_process chimera_cpio_find chimera_vfs_init chimera_vfs_create chimera_vfs_stat_path chimera_vfs_read chimera_vfs_write chimera_vfs_truncate chimera_vfs_chmod chimera_vfs_chown chimera_vfs_unlink chimera_vfs_fd_init chimera_vfs_open chimera_vfs_fd_read chimera_vfs_fd_write chimera_vfs_fd_seek chimera_vfs_close chimera_vfs_close_process chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_service_get_state chimera_service_start_all chimera_service_stop_all chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove)
   for symbol in "${required_symbols[@]}"; do
     nm -a --defined-only "$BUILD/koronos.elf" | awk -v sym="$symbol" '$NF == sym { found=1 } END { exit !found }' || {
       echo "ERROR: $symbol is not linked" >&2; nm -a "$BUILD/koronos.elf" 2>/dev/null | awk -v sym="$symbol" '$NF == sym || index($0,sym)' >&2 || true; exit 1;
@@ -80,7 +110,8 @@ if command -v nm >/dev/null 2>&1; then
   done
 fi
 
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[INST] Installer target detected' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer target handler is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[INST] Installer readiness withheld until persistent disk transaction is verified' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer fail-closed gate is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[KORE] Starting initialized kernel services with dependency and health checks' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore service startup/health-check path is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
@@ -95,4 +126,37 @@ for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
 done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
 printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
+# Build the real production init ELF for each boot target. These are not
+# readiness probes: native_init.c intentionally exits 78 until real storage,
+# security, logging and graphics service backends pass their runtime checks.
+CC="${CC:-gcc}"
+for target in live installer recovery; do
+  case "$target" in
+    live) target_id=1 ;;
+    installer) target_id=2 ;;
+    recovery) target_id=3 ;;
+  esac
+  "$CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+    -mno-sse -mno-mmx -msoft-float -fno-asynchronous-unwind-tables \
+    -fno-unwind-tables -DCHIMERA_INIT_TARGET="$target_id" \
+    -DCHIMERA_INIT_TARGET_NAME=\"$target\" \
+    -c "$ROOT/kernel/userland/native_init.c" -o "$BUILD/native-init-$target.o"
+  "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+    -T "$ROOT/kernel/tests/user_init_smoke.ld" \
+    "$BUILD/native-init-$target.o" -o "$BUILD/user-init-$target.elf"
+  readelf -h "$BUILD/user-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: user-init-$target.elf is not an executable ELF" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/user-init-$target.elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: user-init-$target.elf has no read/execute PT_LOAD" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/user-init-$target.elf" | tee "$BUILD/user-init-$target.phdrs.txt"
+  awk '$1 == "LOAD" { n++; if ($6 ~ /^0x0+$/) empty=1 } END { exit !(n >= 2 && !empty) }' "$BUILD/user-init-$target.phdrs.txt" || {
+    echo "ERROR: user-init-$target.elf has an empty PT_LOAD; production ELF admission would reject it" >&2; exit 1;
+  }
+  test -s "$BUILD/user-init-$target.elf"
+done
+printf 'Built fail-closed production init ELFs (not readiness probes): %s/user-init-{live,installer,recovery}.elf\n' "$BUILD"
+
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"

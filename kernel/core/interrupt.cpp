@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
 
@@ -5,6 +6,10 @@
  * global scope: placing it inside the anonymous namespace gives the symbol
  * internal linkage and produces an undefined reference at link time. */
 extern "C" void *chimera_isr_table[CHIMERA_IDT_ENTRIES];
+extern "C" int koronos_user_timeout_irq(void);
+extern "C" __attribute__((noreturn)) void koronos_user_timeout_abort(void);
+extern "C" __attribute__((noreturn)) void koronos_user_timeout_abort_irq(void);
+extern "C" int koronos_user_timeout_pending(void);
 
 namespace {
 
@@ -50,10 +55,10 @@ extern "C" int chimera_interrupt_init(void) {
         g.offset_low = (uint16_t)(a & 0xFFFFu);
         g.selector = 0x08u;
         g.ist = 0;
-        /* Present 64-bit interrupt gate, DPL0. Software compatibility calls
-         * are recognized by the dispatcher but are not exposed to ring 3 until
-         * a TSS/user stack and validated user address space are installed. */
-        g.type_attr = 0x8Eu;
+        /* INT 0x80 is the one DPL3 software gate. Its handler validates the
+         * hardware-saved CS.RPL and active process CR3 before emitting evidence.
+         * All other interrupt gates remain supervisor-only. */
+        g.type_attr = (i == CHIMERA_SYSCALL_VECTOR) ? 0xEEu : 0x8Eu;
         g.offset_mid = (uint16_t)((a >> 16) & 0xFFFFu);
         g.offset_high = (uint32_t)(a >> 32);
         g.reserved = 0;
@@ -93,9 +98,38 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
     return 0;
 }
 
+extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs);
+extern "C" void koronos_target_log(const char *message);
+
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
-    (void)frame;
+    static volatile uint32_t first_transition_exception = 0;
+    static volatile uint32_t first_user_int80 = 0;
     if (vector > 255u) return;
+    /* Emit one address-bearing record for the first transition exception.
+     * Repeatedly IRET'ing to the same faulting RIP must not flood debugcon. */
+    if ((vector == 6u || vector == 13u || vector == 14u) &&
+        __sync_bool_compare_and_swap(&first_transition_exception, 0u, 1u)) {
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        const uint64_t rip = saved ? saved[16] : 0u;
+        const char *kind = vector == 6u ? "[EXC] #UD RIP=0x" :
+                           (vector == 13u ? "[EXC] #GP RIP=0x" : "[EXC] #PF RIP=0x");
+        char message[64]; unsigned int pos = 0;
+        while (pos < sizeof(message)-1u && kind[pos]) { message[pos] = kind[pos]; ++pos; }
+        for (int shift = 60; shift >= 0 && pos < sizeof(message)-1u; shift -= 4)
+            message[pos++] = "0123456789ABCDEF"[(rip >> shift) & 0xFu];
+        message[pos] = 0;
+        koronos_target_log(message);
+    }
+    if (vector == 32u) {
+        const int expired = koronos_user_timeout_irq();
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        /* Never abandon a kernel critical section/lock from an IRQ. A deadline
+         * that expires in CPL0 remains pending and is handled at syscall entry
+         * or on the next IRQ taken from CPL3. */
+        if (expired && saved && ((saved[17] & 3u) == 3u))
+            koronos_user_timeout_abort_irq();
+        return;
+    }
     g_last = (uint32_t)vector;
     if (is_exception((uint32_t)vector)) ++g_exceptions;
     else if (vector >= 32u && vector != CHIMERA_SYSCALL_VECTOR) ++g_irqs;
@@ -104,6 +138,95 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         vector == CHIMERA_DOS_INT_VECTOR) {
         ++g_syscalls;
     }
+    if (vector == CHIMERA_SYSCALL_VECTOR && frame) {
+        /* interrupts.asm saves 15 GPRs, then vector, then the hardware frame:
+         * frame[16] is RIP and frame[17] is CS. Log the first vector entry so
+         * a failed CPL3 acceptance run can distinguish no entry from rejected
+         * saved context. This diagnostic is not readiness evidence. */
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        if (__sync_bool_compare_and_swap(&first_user_int80, 0u, 1u))
+            koronos_target_log("[INT80] software vector entered; validating saved CS/RIP/CR3/PID");
+        if (!koronos_target_note_user_syscall(saved[16], saved[17]))
+            koronos_target_log("[INT80] first vector rejected: saved CS/RIP/CR3/PID did not match active user process");
+    }
     chimera_interrupt_identity identity{};
     chimera_compat_recognize_interrupt((uint32_t)vector, &identity);
+}
+
+
+namespace {
+static volatile uint32_t user_timeout_ticks = 0;
+static volatile uint32_t user_timeout_active = 0;
+static volatile uint32_t user_timeout_expired = 0;
+static inline void port_out8(uint16_t port, uint8_t value) {
+    __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
+}
+static inline void io_wait() { port_out8(0x80, 0); }
+}
+
+extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
+    if (ticks == 0) return -1;
+    uint64_t saved_flags = 0;
+    __asm__ volatile("pushfq; popq %0" : "=r"(saved_flags));
+    __asm__ volatile("cli" ::: "memory");
+    if (chimera_interrupt_init() != 0) {
+        if (saved_flags & (1ull << 9)) __asm__ volatile("sti" ::: "memory");
+        return -2;
+    }
+
+    // Remap the legacy PIC to vectors 0x20..0x2f, then expose only IRQ0.
+    port_out8(0x20, 0x11); io_wait();
+    port_out8(0xA0, 0x11); io_wait();
+    port_out8(0x21, 0x20); io_wait();
+    port_out8(0xA1, 0x28); io_wait();
+    port_out8(0x21, 0x04); io_wait();
+    port_out8(0xA1, 0x02); io_wait();
+    port_out8(0x21, 0x01); io_wait();
+    port_out8(0xA1, 0x01); io_wait();
+
+    // PIT channel 0, mode 3, approximately 100 Hz (1,193,182 / 11,932).
+    const uint16_t divisor = 11932;
+    port_out8(0x43, 0x36);
+    port_out8(0x40, static_cast<uint8_t>(divisor & 0xffu));
+    port_out8(0x40, static_cast<uint8_t>(divisor >> 8));
+
+    user_timeout_ticks = ticks;
+    user_timeout_expired = 0;
+    user_timeout_active = 1;
+    port_out8(0x21, 0xFE); // unmask IRQ0 only
+    port_out8(0xA1, 0xFF); // mask all slave PIC IRQs
+    return 0;
+}
+
+extern "C" void koronos_user_timeout_disarm(void) {
+    uint64_t saved_flags = 0;
+    __asm__ volatile("pushfq; popq %0" : "=r"(saved_flags));
+    __asm__ volatile("cli" ::: "memory");
+    user_timeout_active = 0;
+    user_timeout_expired = 0;
+    user_timeout_ticks = 0;
+    port_out8(0x21, 0xFF);
+    port_out8(0xA1, 0xFF);
+    if (saved_flags & (1ull << 9)) __asm__ volatile("sti" ::: "memory");
+}
+
+extern "C" void koronos_user_timeout_abort(void);
+extern "C" int koronos_user_timeout_pending(void) {
+    // Read the volatile expiry flag set by IRQ0. The syscall entry checks this
+    // before accepting further user work, so an expired ring-3 task cannot
+    // evade the bounded launch deadline by making another syscall.
+    return user_timeout_expired ? 1 : 0;
+}
+
+extern "C" int koronos_user_timeout_irq(void) {
+    // Acknowledge IRQ0 before checking the deadline so the PIC can deliver
+    // subsequent ticks while the user task is still within its time budget.
+    port_out8(0x20, 0x20);
+    if (!user_timeout_active) return 0;
+    if (user_timeout_ticks > 0) --user_timeout_ticks;
+    if (user_timeout_ticks == 0) {
+        user_timeout_expired = 1;
+        return 1;
+    }
+    return 0;
 }

@@ -32,7 +32,7 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
         result = run("installer", trace)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("ordered kernel-ready -> user-originated init syscall", result.stdout)
+        self.assertIn("requested target=installer", result.stdout)
 
     def test_requires_same_pid_for_entry_and_ready(self):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=2)
@@ -53,6 +53,19 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
     def test_accepts_recovery_with_nonzero_pid(self):
         trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2)
         self.assertEqual(run("recovery", trace).returncode, 0)
+
+    def test_distinguishes_cpl3_entry_from_blocked_service_readiness(self):
+        trace = KERNEL + ENTRY.format(target="recovery", pid=1) + "NATIVE INIT BLOCKED: storage unavailable\n"
+        result = run("recovery", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("CPL 3 init entry observed", result.stdout)
+        self.assertIn("services are unavailable", result.stdout)
+
+    def test_entry_without_readiness_or_block_reason_is_diagnostic_not_pass(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=1)
+        result = run("live", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("inspect init exit and service diagnostics", result.stdout)
 
 
 if __name__ == "__main__":

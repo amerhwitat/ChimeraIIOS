@@ -171,6 +171,17 @@ fi
 KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
 [[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
 chimera_copy_if_distinct "$KERNEL" "$DIST/boot/koronos/koronos.elf"
+# Stage distinct production init ELFs. The legacy native-init.elf alias is Live
+# only; target menus must never launch an ELF compiled for a different target.
+for target in live installer recovery; do
+  init_elf="$ROOT/build/koronos/x86_64/user-init-$target.elf"
+  test -s "$init_elf" || { echo "ERROR: production $target init ELF missing: $init_elf" >&2; exit 2; }
+  chimera_copy_if_distinct "$init_elf" "$DIST/boot/koronos/native-init-$target.elf"
+  # Target-specific paths are consumed by the full-ISO acceptance matrix.
+  mkdir -p "$DIST/boot/$target"
+  chimera_copy_if_distinct "$init_elf" "$DIST/boot/$target/user-init-$target.elf"
+done
+chimera_copy_if_distinct "$ROOT/build/koronos/x86_64/user-init-live.elf" "$DIST/boot/koronos/native-init.elf"
 
 # Bootloader source/artifacts and Jasper recovery configuration.
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"

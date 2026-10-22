@@ -47,6 +47,11 @@ env:
 
 jobs:
   build:
+    name: Full ISO production handoff / ${{ matrix.firmware }}
+    strategy:
+      fail-fast: false
+      matrix:
+        firmware: [bios, uefi]
     timeout-minutes: 180
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +60,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -91,6 +96,15 @@ jobs:
             test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          extract /boot/koronos/native-init.elf "$tmp/native-init.elf"
+          for target in live installer recovery; do
+            extract "/boot/koronos/native-init-$target.elf" "$tmp/native-init-$target.elf"
+            readelf -h "$tmp/native-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+            readelf -l "$tmp/native-init-$target.elf" | grep -q LOAD
+          done
+          readelf -h "$tmp/native-init.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
+          readelf -h "$tmp/native-init.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+          readelf -l "$tmp/native-init.elf" | grep -q LOAD
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
           extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
@@ -106,8 +120,12 @@ jobs:
           mkdir -p "$tmp/live-root" "$tmp/recovery-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
-          grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
-          grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
+          # These checks prove only that the initramfs contains its shell
+          # entrypoint. Payload strings are not CPL3/runtime acceptance evidence.
+          grep -Fq 'INITRAMFS SHELL READY: target=live (payload diagnostic only)' "$tmp/live-root/init"
+          grep -Fq 'INITRAMFS SHELL READY: target=recovery (payload diagnostic only)' "$tmp/recovery-root/init"
+          ! grep -Fq 'USERSPACE READY: target=' "$tmp/live-root/init"
+          ! grep -Fq 'USERSPACE READY: target=' "$tmp/recovery-root/init"
           grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
@@ -132,14 +150,23 @@ jobs:
           PY
 
       - name: QEMU headless Koronos boot smoke test
+        env:
+          FIRMWARE: ${{ matrix.firmware }}
         run: |
           set +e
-          timeout 20s qemu-system-x86_64 \
-            -machine pc -m 1024 -smp 1 -accel tcg \
-            -display none -serial none -monitor none \
-            -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
-            -debugcon file:/tmp/chimera-qemu-debugcon.log \
-            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          if [[ "$FIRMWARE" == "uefi" ]]; then
+            if [[ -f /usr/share/OVMF/OVMF_CODE_4M.fd ]]; then
+              ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd
+              ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+            else
+              ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
+              ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+            fi
+            cp "$ovmf_vars" /tmp/chimera-qemu-vars.fd
+            timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -smp 1 -accel tcg -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file=/tmp/chimera-qemu-vars.fd -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          else
+            timeout 20s qemu-system-x86_64 -machine pc -m 1024 -smp 1 -accel tcg -display none -serial none -monitor none -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso -debugcon file:/tmp/chimera-qemu-debugcon.log -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+          fi
           qemu_rc=$?
           set -e
           cat /tmp/chimera-qemu.log
@@ -164,16 +191,21 @@ jobs:
       - name: Verify actual Live, Installer, and Recovery userspace handoff
         id: userspace_gate
         shell: bash
+        env:
+          FIRMWARE: ${{ matrix.firmware }}
         run: |
           set -uo pipefail
           iso=build/iso/chimera-ii-os.iso
-          base=/tmp/chimera-userspace-traces
+          base="/tmp/chimera-userspace-traces/$FIRMWARE"
           mkdir -p "$base"
           accepted=true
           for target in live installer recovery; do
             tree="$base/$target/tree"
             mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
             xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
+            init_path="/boot/koronos/native-init-$target.elf"
+             mkdir -p "$tree/$(dirname "$init_path")"
+             xorriso -osirrox on -indev "$iso" -extract "$init_path" "$tree$init_path" >/dev/null 2>&1 || accepted=false
             if [[ "$target" == "live" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
@@ -211,6 +243,7 @@ jobs:
             module2 /install/installer/installer_profiles.json chimera-installer-profiles
           GRUB
             fi
+            echo "    module2 $init_path chimera-user-init-elf target=$target" >> "$tree/boot/grub/grub.cfg"
             cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
             boot
           }
@@ -223,7 +256,20 @@ jobs:
               continue
             fi
             set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            if [[ "$FIRMWARE" == "uefi" ]]; then
+              if [[ -f /usr/share/OVMF/OVMF_CODE_4M.fd ]]; then
+                ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd
+                ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+              else
+                ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
+                ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+              fi
+              vars="$base/$target-vars.fd"
+              cp "$ovmf_vars" "$vars"
+              timeout 25s qemu-system-x86_64 -machine q35 -m 1024 -drive if=pflash,format=raw,readonly=on,file="$ovmf_code" -drive if=pflash,format=raw,file="$vars" -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            else
+              timeout 15s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            fi
             qemu_rc=$?
             set -e
             if [[ ! -s "$trace" ]]; then
@@ -236,23 +282,35 @@ jobs:
               accepted=false
               continue
             fi
+            if ! grep -Fq '[INIT] CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed' "$trace"; then
+              echo "::warning::$target native init did not complete the CPL3 filesystem syscall self-test"
+              echo "::group::Last $target debugcon trace lines ($FIRMWARE)"
+              tail -n 120 "$trace" || true
+              echo "::endgroup::"
+              accepted=false
+              continue
+            fi
             if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
               echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
+              echo "::group::Last $target debugcon trace lines ($FIRMWARE)"
+              tail -n 120 "$trace" || true
+              echo "::endgroup::"
               accepted=false
             fi
           done
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
+            echo "PASS: all three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness under $FIRMWARE."
           else
-            echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
+            echo "FAIL: $FIRMWARE production handoff is NOT VERIFIED for every target; no release will be published."
+            exit 1
           fi
 
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-target-userspace-traces
+          name: chimera-target-userspace-traces-${{ matrix.firmware }}
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
@@ -276,16 +334,42 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-ii-os-live-installer
+          name: chimera-ii-os-live-installer-${{ matrix.firmware }}
           path: |
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      # These gates intentionally fail closed until their real acceptance
+      # workflows exist. Do not replace these explicit blockers with probe-only
+      # checks or infer success from unrelated build jobs.
+      - name: Block release until target readiness is proven under both firmware modes
+        id: firmware_matrix
+        if: always()
+        run: |
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::The six-case matrix is exercised, but native init still exits 78 without USERSPACE READY; target service readiness is not proven."
+
+      - name: Block release until installed-disk acceptance is implemented
+        id: installed_disk_gate
+        if: always()
+        run: |
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Release blocked: installed-disk write, persistence, and reboot acceptance is not implemented."
+
+      - name: Block release until genuine SMP acceptance is implemented
+        id: smp_gate
+        if: always()
+        run: |
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Release blocked: AP startup and concurrent per-CPU execution acceptance is not implemented."
+
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
-        # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        # A matrix instance must never publish independently of the other firmware instance.
+        # Keep this fail-closed until an aggregate publish job requires BOTH firmware runs,
+        # real installed-disk acceptance, and genuine SMP acceptance.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.firmware_matrix.outputs.accepted == 'true' && steps.installed_disk_gate.outputs.accepted == 'true' && steps.smp_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -296,7 +380,7 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
           )
-          notes="Automated ChimeraIIOS ISO candidate from commit $GITHUB_SHA. CI validated the original ISO checksum and BIOS/QEMU boot markers (ELBC). The ISO is distributed as Zstandard-compressed .iso.zst because the raw ISO exceeds GitHub's 2 GiB per-asset limit. Decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso; verify the compressed file with its .zst.sha256 and the decompressed ISO with chimera-ii-os.iso.sha256. This is a development prerelease; full userspace/Aurora readiness is not implied."
+          notes="Automated ChimeraIIOS ISO candidate from commit $GITHUB_SHA. The six-case Live/Installer/Recovery x BIOS/UEFI handoff matrix must pass before publication; build and kernel boot markers alone are not acceptance. The ISO is distributed as Zstandard-compressed .iso.zst because the raw ISO exceeds GitHub's 2 GiB per-asset limit. Decompress with: zstd -d chimera-ii-os.iso.zst -o chimera-ii-os.iso; verify the compressed file with its .zst.sha256 and the decompressed ISO with chimera-ii-os.iso.sha256. This is a development prerelease; full userspace/Aurora readiness is not implied."
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "${assets[@]}" --clobber
             gh release edit "$tag" --draft=false --prerelease \

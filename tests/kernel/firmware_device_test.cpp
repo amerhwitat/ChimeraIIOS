@@ -21,6 +21,23 @@ int main(){
   assert(chimera_hardware_device_class(3,0)==CHM_DEV_DISPLAY);
   assert(chimera_hardware_device_class(3,2)==CHM_DEV_GPU);
   assert(chimera_hardware_device_class(6,0)==CHM_DEV_MOTHERBOARD);
+  chimera_pci_bar bar{};
+  assert(chimera_pci_decode_bar(0,0,&bar)!=0 && bar.kind==CHM_PCI_BAR_INVALID);
+  assert(chimera_pci_decode_bar(0x0000c001u,0,&bar)==0);
+  assert(bar.kind==CHM_PCI_BAR_IO && bar.address==0x0000c000u);
+  assert(chimera_pci_decode_bar(0xFEBF0008u,0,&bar)==0);
+  assert(bar.kind==CHM_PCI_BAR_MMIO32 && bar.address==0xFEBF0000u && bar.prefetchable==1);
+  assert(chimera_pci_decode_bar(0x000c0004u,0x00000012u,&bar)==0);
+  assert(bar.kind==CHM_PCI_BAR_MMIO64 && bar.address==0x00000012000c0000ull && bar.consumes_next==1);
+  assert(chimera_pci_decode_bar(0x00000006u,0,&bar)!=0 && bar.kind==CHM_PCI_BAR_INVALID);
+  chimera_device captured{}; captured.bar_count=3;
+  captured.bar_raw[0]=0x000c0004u; captured.bar_raw[1]=0x00000012u; captured.bar_raw[2]=0x0000c001u;
+  assert(chimera_pci_decode_device_bar(&captured,0,&bar)==0 && bar.kind==CHM_PCI_BAR_MMIO64 && bar.address==0x00000012000c0000ull);
+  assert(chimera_pci_decode_device_bar(&captured,1,&bar)==-2 && bar.kind==CHM_PCI_BAR_INVALID);
+  assert(chimera_pci_decode_device_bar(&captured,2,&bar)==0 && bar.kind==CHM_PCI_BAR_IO && bar.address==0x0000c000u);
+  assert(chimera_pci_decode_device_bar(&captured,3,&bar)!=0 && bar.kind==CHM_PCI_BAR_INVALID);
+  captured.bar_count=1;
+  assert(chimera_pci_decode_device_bar(&captured,0,&bar)!=0 && bar.kind==CHM_PCI_BAR_INVALID);
   puts("firmware/device identity tests passed");
   return 0;
 }

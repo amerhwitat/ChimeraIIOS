@@ -6,6 +6,9 @@ on:
       - "mobile/microkernel-mobile-edition.json"
       - "mobile/device-profile.schema.json"
       - "kernel/include/chimera/process.h"
+      - "kernel/include/chimera/block.h"
+      - "kernel/core/block.cpp"
+      - "kernel/tests/block_api_test.cpp"
       - "kernel/core/process.cpp"
       - "kernel/tests/process_admission.cpp"
       - "desktop/aurora/aurora-launcher.cpp"
@@ -45,6 +48,11 @@ jobs:
         run: |
           g++ -std=c++17 -I kernel/include             kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp             -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
+      - name: Compile and run bounded block API contract test
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include kernel/core/block.cpp kernel/tests/block_api_test.cpp -o /tmp/chimera-block-api-test
+          /tmp/chimera-block-api-test
       - name: Compile Aurora launcher
         run: |
           g++ -std=c++17 -Wall -Wextra desktop/aurora/aurora-launcher.cpp -o /tmp/aurora-launcher

@@ -9,6 +9,8 @@ INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
+LIVE = (ROOT / "boot/jasper/live.cfg").read_text()
+FULL_ISO_WORKFLOW = (ROOT / ".github/workflows/chimera-full-iso.yml").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -21,6 +23,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("module2 /install/installer/installation-manifest.json chimera-installation-manifest", entry)
         self.assertIn("module2 /install/installer/installer-contract.json chimera-installer-contract", entry)
         self.assertNotIn("chimera-live-initramfs.img", entry)
+        self.assertIn("module2 /boot/koronos/native-init-installer.elf chimera-user-init-elf target=installer", entry)
         self.assertIn("--id installer", INSTALL)
         self.assertIn("/install/installer/installation.img", INSTALL)
 
@@ -30,6 +33,56 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
+        self.assertIn("module2 /boot/koronos/native-init-recovery.elf chimera-user-init-elf target=recovery", RECOVERY)
+
+    def test_native_ring3_init_is_built_and_staged_without_fabricated_readiness(self):
+        source = (ROOT / "kernel/userland/native_init.c").read_text()
+        builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
+        self.assertIn("native-init.elf", builder)
+        self.assertIn("module2 /boot/koronos/native-init-live.elf chimera-user-init-elf target=live", GRUB)
+        self.assertIn("chimera-user-init-elf target=installer", GRUB)
+        self.assertIn("chimera-user-init-elf target=recovery", RECOVERY)
+        self.assertIn('int $0x80', source)
+        self.assertIn("SYS_GETPID", source)
+        self.assertIn("SYS_EXIT,78", source)
+        self.assertNotIn("USERSPACE READY:", source)
+
+    def test_full_iso_gate_boots_real_native_init_not_a_candidate_probe(self):
+        self.assertIn('init_path="/boot/koronos/native-init-$target.elf"', FULL_ISO_WORKFLOW)
+        self.assertIn('module2 $init_path chimera-user-init-elf target=$target', FULL_ISO_WORKFLOW)
+        self.assertIn("CPL3 identity and RAM VFS create/write/seek/read/stat/chmod/chown/truncate/close/rename/unlink/mkdir/rmdir passed", FULL_ISO_WORKFLOW)
+        self.assertIn("verify-userspace-handoff.py", FULL_ISO_WORKFLOW)
+        self.assertIn("firmware: [bios, uefi]", FULL_ISO_WORKFLOW)
+        self.assertIn("FIRMWARE: ${{ matrix.firmware }}", FULL_ISO_WORKFLOW)
+        self.assertIn('vars="$base/$target-vars.fd"', FULL_ISO_WORKFLOW)
+        self.assertIn("FAIL: $FIRMWARE production handoff is NOT VERIFIED", FULL_ISO_WORKFLOW)
+
+    def test_each_real_target_entry_stages_exactly_one_native_init_elf(self):
+        def entry(source, marker):
+            start = source.index(marker)
+            end = source.index("\n}", start)
+            return source[start:end]
+
+        # A duplicate USER_INIT_ELF makes the kernel's fail-closed launch
+        # selector reject the whole target; a missing one leaves no ring-3 init.
+        live_entry = entry(LIVE, '--id aurora-live {')
+        installer_entry = entry(INSTALL, '--id installer {')
+        recovery_entry = entry(RECOVERY, '--id recovery-terminal {')
+        recovery_safe_entry = entry(RECOVERY, '--id recovery-safe {')
+        for name, target_entry, target in (
+            ("Live", live_entry, "live"),
+            ("Installer", installer_entry, "installer"),
+            ("Recovery", recovery_entry, "recovery"),
+            ("Safe Recovery", recovery_safe_entry, "recovery"),
+        ):
+            with self.subTest(target=name):
+                lines = [
+                    line for line in target_entry.splitlines()
+                    if "module2 /boot/koronos/native-init-" in line and "chimera-user-init-elf" in line
+                ]
+                self.assertEqual(len(lines), 1, f"{name} must stage exactly one USER_INIT_ELF")
+                self.assertIn(f"/boot/koronos/native-init-{target}.elf", lines[0])
+                self.assertIn(f"target={target}", lines[0])
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
@@ -62,14 +115,17 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
-    def test_generated_live_and_recovery_userspace_emit_distinct_handoff_markers(self):
+    def test_generated_live_and_recovery_initramfs_use_diagnostic_markers_only(self):
         builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
-        self.assertIn("USERSPACE READY: target=live init_pid=%s", builder)
-        self.assertIn("USERSPACE READY: target=recovery init_pid=%s", builder)
+        self.assertIn("INITRAMFS SHELL READY: target=live (payload diagnostic only)", builder)
+        self.assertIn("INITRAMFS SHELL READY: target=recovery (payload diagnostic only)", builder)
+        self.assertNotIn("printf 'USERSPACE READY: target=live", builder)
+        self.assertNotIn("printf 'USERSPACE READY: target=recovery", builder)
         self.assertIn("exec /bin/sh -i", builder)
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
-        # A shell handoff is not evidence that the Aurora desktop is ready.
-        self.assertIn("Aurora desktop readiness is separate", builder)
+        # An initramfs shell diagnostic is not proof of a kernel-managed
+        # ring-3 process or a readiness marker from the canonical acceptance ABI.
+        self.assertIn("shell as a kernel-managed process", builder)
 
 
 if __name__ == "__main__":
