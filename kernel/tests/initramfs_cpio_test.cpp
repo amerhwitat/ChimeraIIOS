@@ -87,7 +87,7 @@ int main() {
   crc_entry(crc_archive,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(crc_archive.data(),crc_archive.size(),&s)==CHIMERA_CPIO_OK);
   auto bad_crc_trailer=crc_archive;
-  const size_t crc_trailer_check=bad_crc_trailer.size()-110u+102u;
+  const size_t crc_trailer_check=bad_crc_trailer.size()-124u+102u;
   field(bad_crc_trailer,crc_trailer_check,1u);
   assert(chimera_cpio_validate_newc(bad_crc_trailer.data(),bad_crc_trailer.size(),&s)==CHIMERA_CPIO_E_CHECKSUM);
   auto bad_crc=crc_archive;
