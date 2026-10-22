@@ -81,6 +81,10 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('readelf -lW "$native_init"', builder)
         self.assertIn('"$OUT/boot/koronos/native-init-$target.elf"', builder)
 
+    def test_full_iso_replaces_base_grub_config_with_current_routing(self):
+        self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
+        self.assertIn(' -map "$STAGE/boot" /boot', FULL_BUILDER)
+
     def test_production_grub_entries_select_matching_native_init(self):
         live = (ROOT / "boot/jasper/live.cfg").read_text()
         installer = (ROOT / "boot/jasper/install.cfg").read_text()
