@@ -214,7 +214,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         const uint32_t kind = target==TARGET_LIVE ? CHIMERA_MODULE_LIVE_INITRAMFS : CHIMERA_MODULE_RECOVERY_INITRAMFS;
         const chimera_boot_module *archive = chimera_multiboot_find(kind);
         if (!archive || !archive->base || !archive->size || archive->base>=KORONOS_FRAME_PHYS_LIMIT ||
-            archive->size>KORONOS_FRAME_PHYS_LIMIT-archive->base) {
+            archive->size>MAX_INIT_IMAGE || archive->size>KORONOS_FRAME_PHYS_LIMIT-archive->base) {
             koronos_target_log("[RUN ] ERROR: selected initramfs bounds are invalid");
             return -15;
         }
