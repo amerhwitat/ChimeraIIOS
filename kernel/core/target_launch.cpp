@@ -67,31 +67,27 @@ static void log_user_init_syscall(Target target, uint32_t pid) {
     koronos_target_log(message);
 }
 static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
-    const char *name = target_name(target);
-    char prefix[80];
-    uint64_t p=0;
-    const char *a="USERSPACE READY: ";
-    while (*a) prefix[p++]=*a++;
-    while (*name) prefix[p++]=*name++;
-    const char *b=" init pid=";
-    while (*b) prefix[p++]=*b++;
-    if (length < p+2u) return false;
-    bool found=false;
-    for (uint64_t i=0; i+p<length; ++i) {
-        uint64_t j=0;
-        while (j<p && bytes[i+j]==prefix[j]) ++j;
-        if (j!=p) continue;
-        uint64_t k=i+p;
-        uint32_t parsed=0, digits=0;
-        while (k<length && bytes[k]>='0' && bytes[k]<='9') {
-            parsed=parsed*10u+(uint32_t)(bytes[k]-'0');
-            ++k; ++digits;
-        }
-        if (digits && parsed==pid && (k==length || bytes[k]=='\n' || bytes[k]=='\r' || bytes[k]==' ')) {
-            found=true; break;
-        }
+    (void)pid;
+    /* Production readiness is target-owned service evidence, never the generic
+       native-init ABI probe. The service itself must emit this only after its
+       own initialization and health check succeed. */
+    const char *expected = nullptr;
+    switch (target) {
+        case TARGET_LIVE: expected = "USERSPACE TARGET READY: live component=aurora-session"; break;
+        case TARGET_INSTALLER: expected = "USERSPACE TARGET READY: installer component=install-executor"; break;
+        case TARGET_RECOVERY: expected = "USERSPACE TARGET READY: recovery component=recovery-runtime"; break;
+        default: return false;
     }
-    return found;
+    uint64_t n=0;
+    while (expected[n]) ++n;
+    if (!bytes || length<n) return false;
+    for (uint64_t i=0;i+n<=length;i++) {
+        uint64_t j=0;
+        while (j<n && bytes[i+j]==expected[j]) ++j;
+        if (j==n && (i+n==length || bytes[i+n]=='\n' || bytes[i+n]=='\r' || bytes[i+n]==' '))
+            return true;
+    }
+    return false;
 }
 }
 
