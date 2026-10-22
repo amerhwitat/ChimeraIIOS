@@ -29,8 +29,7 @@ extern "C" int koronos_virtio_pci_parse_caps(
     *out = {};
     const uint16_t vendor = le16(config);
     const uint16_t device = le16(config + 2);
-    if (vendor != 0x1af4u || (device != 0x1041u && device != 0x1042u &&
-                              device != 0x1001u)) return -2;
+    if (vendor != 0x1af4u || (device != 0x1042u && device != 0x1001u)) return -2;
 
     /* PCI Status bit 4 indicates that a capability list is present. */
     if ((le16(config + 6) & (1u << 4u)) == 0) return -3;
