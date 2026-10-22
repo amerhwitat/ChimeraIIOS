@@ -90,3 +90,11 @@ Latest verification pending CI. Release remains blocked until real target-specif
 
 ### Build validation note
 A local freestanding compile/link check initially exposed 32-bit absolute relocations at the 4 GiB user-image base. The build flags now explicitly use `-mcmodel=large`; a repeated compile/link check produced all three ELF64 ET_EXEC files with one RX PT_LOAD segment at `0x100000000`. This is compile/link evidence only, not QEMU runtime or production acceptance. Repository CI for the branch is queued at the last status check.
+
+
+## Exact-head remediation cycle — 2026-10-22
+
+- Mirrored the production-rootfs fail-closed guard in `kernel/core/target_launch.cpp` (`af4ceb14938bd1a08ef9015b17db02a6ad8fff74`) because the launch path did not extract/publish the validated root payload before entering the separately staged init ELF.
+- Mirrored precise CPIO-to-RAMFS error mapping in `kernel/core/ramfs.cpp` (`c16306b1fbd8920d2fc360824ac9fe60bc5a8653`) after OctavianOS explicit ELF smoke exposed a regression at RAMFS test line 62. The test failed because a CPIO type-validation error was reported as a generic header error.
+- Source-level changes are present, but no workflow run has been returned for the current ChimeraIIOS PR head. Compile/test confirmation is pending.
+- The guard is intentionally fail-closed, not a claim that rootfs publication, full userspace syscalls, target services, Live-to-Aurora, installer persistence, recovery, six-case production acceptance, or AP-backed SMP is complete. Production release remains BLOCKED.
