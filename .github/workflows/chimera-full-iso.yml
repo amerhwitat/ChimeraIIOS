@@ -101,8 +101,12 @@ jobs:
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
-          # Inspect the initramfs actually embedded in the ISO. This is a
-          # payload-content check, not a substitute for target-specific QEMU.
+          # Inspect the exact initramfs selected by the production ISO manifests.
+          # Hashes below bind the extracted payload bytes to this build; this is
+          # artifact-contract evidence, not a claim that userspace boot passed.
+          gzip -t "$tmp/live-initramfs.img"
+          gzip -t "$tmp/recovery-initramfs.img"
+          sha256sum "$tmp/live-initramfs.img" "$tmp/recovery-initramfs.img"
           mkdir -p "$tmp/live-root" "$tmp/recovery-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
@@ -115,10 +119,25 @@ jobs:
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
+          manifests = {}
           for name in ("live-manifest.json", "recovery-manifest.json",
                        "installation-manifest.json", "installer-contract.json",
                        "chimera-artwork-manifest.json"):
-              json.loads((root / name).read_text())
+              manifests[name] = json.loads((root / name).read_text())
+          expected = {
+              "live-manifest.json": ("/boot/live/chimera-live-initramfs.img", "live-initramfs.img"),
+              "recovery-manifest.json": ("/boot/recovery/chimera-recovery-initramfs.img", "recovery-initramfs.img"),
+          }
+          import hashlib
+          for name, (selected_path, extracted_name) in expected.items():
+              manifest = manifests[name]
+              if manifest.get("initramfs") != selected_path:
+                  raise SystemExit(f"{name} does not select expected production artifact {selected_path!r}")
+              payload = root / extracted_name
+              data = payload.read_bytes()
+              if not data:
+                  raise SystemExit(f"production payload is empty: {payload}")
+              print(f"manifest={name} selected={selected_path} extracted={payload} size={len(data)} sha256={hashlib.sha256(data).hexdigest()}")
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
