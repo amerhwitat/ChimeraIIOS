@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Optional Application Center — Aurora</title>
+<style>
+:root{color-scheme:dark;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:#071426;color:#eef8ff}
+*{box-sizing:border-box}body{margin:0;padding:clamp(14px,3vw,32px);background:radial-gradient(ellipse at top right,#1b4160,#071426 60%);min-height:100vh}
+main{max-width:1100px;margin:auto}h1{font-size:clamp(25px,4vw,40px);margin:0 0 5px}p{color:#bcd0e2}header{border-bottom:1px solid #ffffff24;padding-bottom:18px;margin-bottom:18px}.notice{border:1px solid #79c7d955;background:#15364b88;padding:12px 14px;border-radius:12px;margin:16px 0}.filters{display:grid;grid-template-columns:minmax(160px,1fr) 150px 170px;gap:9px;margin:18px 0}.filters input,.filters select{width:100%;padding:11px;border:1px solid #ffffff30;border-radius:9px;background:#102942;color:#fff;font:inherit}.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.app{border:1px solid #ffffff22;background:#ffffff09;border-radius:13px;padding:15px;min-width:0}.app h2{font-size:16px;margin:0 0 7px}.meta{font-size:12px;color:#bed2e4;margin:4px 0}.app a{display:inline-block;margin-top:10px;color:#9de6e4}.status{color:#9de6e4;min-height:24px}@media(max-width:650px){.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header><h1>Optional Application Center</h1><p>Aurora Wayland Glass Desktop · cross-platform software discovery</p></header>
+<div class="notice"><strong>Catalog, not installation state.</strong> These entries identify upstream applications for Windows, Linux and macOS. A listing does not mean an app is installed, ported to ChimeraIIOS, licensed for redistribution, or executable here. Install only through a verified package provider or the official publisher, after checking licensing and compatibility.</div>
+<div class="filters"><input id="search" type="search" placeholder="Search names, categories, licenses…" aria-label="Search applications"><select id="platform" aria-label="Platform"><option value="all">All platforms</option><option>Windows</option><option>Linux</option><option>macOS</option><option>Web</option></select><select id="category" aria-label="Category"><option value="all">All categories</option></select></div>
+<p id="status" class="status" role="status">Loading catalog…</p><section id="apps" class="apps" aria-label="Optional applications"></section>
+</main>
+<script>
+(()=>{const search=document.querySelector("#search"),platform=document.querySelector("#platform"),category=document.querySelector("#category"),apps=document.querySelector("#apps"),status=document.querySelector("#status");let items=[];
+const node=(tag,value,cls)=>{const el=document.createElement(tag);el.textContent=value??"";if(cls)el.className=cls;return el};
+function render(){const q=search.value.trim().toLowerCase(),p=platform.value,c=category.value;const shown=items.filter(a=>(p==="all"||a.platforms?.includes(p))&&(c==="all"||a.category===c)&&[a.name,a.category,a.license,...(a.platforms||[])].join(" ").toLowerCase().includes(q));apps.replaceChildren();for(const a of shown){const card=node("article","","app");card.append(node("h2",a.name),node("p",a.category+" · "+(a.platforms||[]).join(", "),"meta"),node("p","License: "+a.license,"meta"),node("p","Availability and launch support are not verified by this catalog.","meta"));const link=node("a","Official project / publisher");link.href=a.upstream;link.target="_blank";link.rel="noopener noreferrer";card.append(link);apps.append(card)}status.textContent=shown.length+" catalog entries shown."}
+search.addEventListener("input",render);platform.addEventListener("change",render);category.addEventListener("change",render);
+fetch("../optional_apps_catalog.json").then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json()}).then(data=>{items=Array.isArray(data.apps)?data.apps:[];[...new Set(items.map(a=>a.category).filter(Boolean))].sort().forEach(c=>{const o=node("option",c[0].toUpperCase()+c.slice(1));o.value=c;category.append(o)});render()}).catch(()=>{status.textContent="Could not load ../optional_apps_catalog.json. Check that the catalog is deployed beside the desktop directory."});
+})();
+</script>
+</body></html>
