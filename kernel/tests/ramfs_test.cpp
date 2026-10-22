@@ -11,8 +11,11 @@ static void* alloc_cb(uint64_t n,void*ctx) {
     void*p=malloc((size_t)n);if(p)++s->outstanding;return p;
 }
 static void free_cb(void*p,void*ctx) {
-    if(!p)return;auto*s=static_cast<alloc_state*>(ctx);
-    assert(s->outstanding>0);--s->outstanding;free(p);
+    if(!p)return;
+    auto*s=static_cast<alloc_state*>(ctx);
+    assert(s->outstanding>0);
+    --s->outstanding;
+    free(p);
 }
 static size_t entry(uint8_t*b,size_t o,const char*name,uint32_t mode,const char*data) {
     size_t nl=strlen(name)+1,sz=data?strlen(data):0;
@@ -20,7 +23,9 @@ static size_t entry(uint8_t*b,size_t o,const char*name,uint32_t mode,const char*
     uint32_t v[13]={1,mode,0,0,1,0,(uint32_t)sz,0,0,0,0,(uint32_t)nl,0};
     for(int k=0;k<13;k++){char x[9];snprintf(x,sizeof(x),"%08x",v[k]);memcpy(b+o+6+k*8,x,8);}
     o+=110;memcpy(b+o,name,nl);o=(o+nl+3)&~(size_t)3;
-    if(sz)memcpy(b+o,data,sz);o=(o+sz+3)&~(size_t)3;return o;
+    if(sz)memcpy(b+o,data,sz);
+    o=(o+sz+3)&~(size_t)3;
+    return o;
 }
 static size_t make_archive(uint8_t*b,int duplicate) {
     size_t n=0;n=entry(b,n,".",0040000,nullptr);n=entry(b,n,"./bin",0040000,nullptr);
