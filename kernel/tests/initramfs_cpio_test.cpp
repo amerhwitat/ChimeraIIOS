@@ -36,12 +36,13 @@ static void crc_entry(std::vector<uint8_t>& b,const char* name,uint32_t mode,con
 }
 int main() {
   std::vector<uint8_t> a;
+  entry(a,".",0040755u,nullptr); // conventional root entry emitted by production initramfs builders
   entry(a,"init",0100755u,"ELF");
   entry(a,"etc",0040755u,nullptr);
   entry(a,"TRAILER!!!",0,nullptr);
   chimera_cpio_summary s{};
   assert(chimera_cpio_validate_newc(a.data(),a.size(),&s)==CHIMERA_CPIO_OK);
-  assert(s.entries==2u&&s.regular_files==1u&&s.directories==1u&&s.has_init==1u&&s.payload_bytes==3u);
+  assert(s.entries==3u&&s.regular_files==1u&&s.directories==2u&&s.has_init==1u&&s.payload_bytes==3u);
   auto bad_newc_check=a;
   /* newc (070701) requires c_check == 0 at header offset 102. */
   bad_newc_check[102]='0'; bad_newc_check[103]='0'; bad_newc_check[104]='0'; bad_newc_check[105]='0';
