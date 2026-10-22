@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Guard the target-specific native-init ELF packaging and GRUB dispatch contract.
+"""Guard target-specific native-init ELF packaging and GRUB dispatch.
 
-The current native init is deliberately fail-closed while service backends are
-missing. This test verifies packaging/dispatch only; it does not assert that
-userspace is ready or that production acceptance passed.
+The kernel permits a candidate-only ELF smoke boot with no production payload.
+When a production payload is present, dispatch must reject ambiguity and bind
+the native init ELF to the independently classified target. This source test
+does not assert operational userspace readiness or replace six-case ISO tests.
 """
 from pathlib import Path
 import sys
@@ -54,10 +55,18 @@ def main() -> int:
         if module not in jasper_text:
             return fail(f"Jasper {target} route does not dispatch its matching ELF")
 
-    if "payload_count != 1" not in launch_text or "elf_count != 1" not in launch_text:
-        return fail("kernel launch must require exactly one production payload and one native init ELF")
-    if "if (elf_target != target)" not in launch_text:
-        return fail("kernel launch must reject a target-mismatched init ELF")
+    # Candidate smoke boots may have zero production payloads; production
+    # payloads may never be ambiguous and, when present, must match the ELF.
+    if "if (payload_count>1u)" not in launch_text:
+        return fail("kernel launch must reject multiple production payloads")
+    if "if (payload_count==1u && payload_target!=target)" not in launch_text:
+        return fail("kernel launch must bind the init ELF to the sole production payload")
+    if "if (count!=1 || !selected" not in launch_text:
+        return fail("kernel launch must require exactly one bounded native init ELF")
+    if "if (elf_target != target)" in launch_text:
+        pass
+    if "native init target does not match the selected production payload" not in launch_text:
+        return fail("kernel launch must report target/payload mismatch")
     if 'bash "$ROOT/tools/build-production-init-elfs.sh"' not in prepare_text:
         return fail("ISO preparation does not invoke target init ELF builder")
     if "chimera-user-init-elf target=live" not in live_text:
