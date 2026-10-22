@@ -156,8 +156,8 @@ for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
   "$LIVE_BOOT/boot/live/live-manifest.json" \
   "$LIVE_BOOT/boot/koronos/koronos.elf" \
-  "$LIVE_BOOT/boot/koronos/native-init-live.elf" \\
-  "$LIVE_BOOT/boot/koronos/native-init-installer.elf" \\
+  "$LIVE_BOOT/boot/koronos/native-init-live.elf" \
+  "$LIVE_BOOT/boot/koronos/native-init-installer.elf" \
   "$LIVE_BOOT/boot/koronos/native-init-recovery.elf"; do
   [[ -s "$required" ]] || { echo "ERROR: missing live-boot artifact: $required" >&2; exit 2; }
 done
