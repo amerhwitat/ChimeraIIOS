@@ -1,6 +1,9 @@
 #include "chimera/hardware.h"
 #include <stddef.h>
 
+static chimera_hardware_profile g_hardware_profile;
+static int g_hardware_profile_valid = 0;
+
 #if defined(__x86_64__) || defined(__i386__)
 static void cpuid(uint32_t leaf, uint32_t subleaf, uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d) {
     uint32_t aa, bb, cc, dd;
@@ -87,6 +90,9 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->compatibility_mask = CHIMERA_COMPAT_NATIVE |
         CHIMERA_COMPAT_WINDOWS | CHIMERA_COMPAT_LINUX | CHIMERA_COMPAT_BSD |
         CHIMERA_COMPAT_DARWIN | CHIMERA_COMPAT_ANDROID | CHIMERA_COMPAT_IOS;
+    /* Retain probed properties beyond the bootstrap stack object's lifetime. */
+    g_hardware_profile = *out;
+    g_hardware_profile_valid = 1;
     return 0;
 }
 
@@ -102,4 +108,8 @@ extern "C" int chimera_hardware_supports_mode(const chimera_hardware_profile *pr
 
 extern "C" uint32_t chimera_hardware_compatibility_mask(const chimera_hardware_profile *profile) {
     return profile ? profile->compatibility_mask : 0;
+}
+
+extern "C" const chimera_hardware_profile *chimera_hardware_profile_snapshot(void) {
+    return g_hardware_profile_valid ? &g_hardware_profile : 0;
 }

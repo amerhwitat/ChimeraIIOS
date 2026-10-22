@@ -69,6 +69,8 @@ typedef enum chimera_compatibility_target {
 } chimera_compatibility_target;
 
 int chimera_hardware_probe(chimera_hardware_profile *out);
+/* Immutable snapshot of the last successful early-boot hardware probe. */
+const chimera_hardware_profile *chimera_hardware_profile_snapshot(void);
 int chimera_hardware_best_mode(const chimera_hardware_profile *profile);
 int chimera_hardware_supports_mode(const chimera_hardware_profile *profile, uint32_t bits);
 uint32_t chimera_hardware_compatibility_mask(const chimera_hardware_profile *profile);

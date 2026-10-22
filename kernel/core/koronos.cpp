@@ -445,6 +445,17 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         console_u32(hw.native_nbit_mode);
         console_write("[HW  ] Best N-bit mode: ");
         console_u32(hw.best_nbit_mode);
+        console_write("[HW  ] CPU vendor: ");
+        console_write(hw.vendor);
+        console_write("[HW  ] CPU model: ");
+        console_write(hw.model);
+        console_write("[HW  ] Physical address bits: ");
+        console_u32(hw.physical_address_bits);
+        console_write("[HW  ] Virtual address bits: ");
+        console_u32(hw.virtual_address_bits);
+        console_write("[HW  ] Feature bitmap (high/low hex): ");
+        console_hex32((uint32_t)(hw.feature_bits >> 32));
+        console_hex32((uint32_t)hw.feature_bits);
     }
 
     chimera_firmware_profile fw{};
@@ -465,6 +476,18 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[PCI ] Enumerated devices: ");
     console_progress(55, "Hardware inventory enumerated");
     console_u32(devices < 0 ? 0 : (uint32_t)devices);
+    if (devices > 0) {
+        uint32_t report_count = inv.count < 16u ? inv.count : 16u;
+        for (uint32_t i = 0; i < report_count; ++i) {
+            const chimera_device *d = &inv.devices[i];
+            console_write("[PCI ] vendor/device IDs: ");
+            console_hex32(((uint32_t)d->vendor_id << 16) | d->device_id);
+            console_write("[PCI ] class/subclass: ");
+            console_hex32((d->class_code << 16) | d->subclass);
+        }
+        if (inv.count > report_count)
+            console_write("[PCI ] Log capped at 16 entries; full inventory remains in kernel snapshot");
+    }
 
     int bound = chimera_driver_probe_all();
     console_write("[DRV ] Native/compatible bindings: ");
