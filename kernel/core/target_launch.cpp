@@ -10,6 +10,7 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/initramfs_cpio.h"
 #include "chimera/initramfs_ingest.h"
+#include "chimera/ramfs.h"
 
 namespace {
 constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull; // Loader requires a page-aligned stack ceiling
@@ -24,6 +25,57 @@ static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 /* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
 static bool active_ring3_probe = false;
+/* A successful archive validation is not a mounted rootfs. Keep a separately
+   allocated, bounded RAMFS staging tree alive across the user-init handoff.
+   The current syscall/VFS bridge is not yet wired to this tree, so this state
+   must never be reported as process-visible filesystem readiness. */
+static chimera_ramfs_node *staged_rootfs = nullptr;
+static bool staged_rootfs_ready = false;
+struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
+constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
+static void *ramfs_frame_alloc(uint64_t bytes, void *) {
+    if (!bytes || bytes > UINT64_MAX - sizeof(RamfsFrameHeader)) return nullptr;
+    const uint64_t total = bytes + sizeof(RamfsFrameHeader);
+    const uint64_t pages64 = (total + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
+    if (!pages64 || pages64 > 16384u) return nullptr;
+    const uint64_t base = koronos_frame_alloc_contiguous(static_cast<uint32_t>(pages64));
+    if (!base) return nullptr;
+    auto *header = reinterpret_cast<RamfsFrameHeader *>(static_cast<uintptr_t>(base));
+    header->pages = static_cast<uint32_t>(pages64);
+    header->magic = RAMFS_FRAME_MAGIC;
+    header->reserved = 0;
+    return reinterpret_cast<void *>(static_cast<uintptr_t>(base + sizeof(RamfsFrameHeader)));
+}
+static void ramfs_frame_free(void *ptr, void *) {
+    if (!ptr) return;
+    const uintptr_t address = reinterpret_cast<uintptr_t>(ptr);
+    if (address < sizeof(RamfsFrameHeader)) return;
+    auto *header = reinterpret_cast<RamfsFrameHeader *>(address - sizeof(RamfsFrameHeader));
+    if (header->magic != RAMFS_FRAME_MAGIC || !header->pages) return;
+    const uint32_t pages = header->pages;
+    const uint64_t base = address - sizeof(RamfsFrameHeader);
+    header->magic = 0;
+    (void)koronos_frame_free_contiguous(base, pages);
+}
+static int stage_rootfs(const void *archive, uint64_t archive_size) {
+    if (staged_rootfs_ready || staged_rootfs) return -1;
+    const chimera_ramfs_allocator allocator{ramfs_frame_alloc, ramfs_frame_free, nullptr};
+    const chimera_ramfs_limits limits{CHIMERA_RAMFS_MAX_ENTRIES,
+        CHIMERA_RAMFS_MAX_PATH, CHIMERA_RAMFS_MAX_FILE_BYTES,
+        CHIMERA_RAMFS_MAX_TOTAL_BYTES};
+    chimera_ramfs_node *candidate = nullptr;
+    const int rc = chimera_ramfs_extract_newc(archive, archive_size,
+        &allocator, &limits, &candidate);
+    if (rc != CHIMERA_RAMFS_OK || !candidate) {
+        if (candidate) chimera_ramfs_destroy(candidate, &allocator);
+        return rc ? rc : CHIMERA_RAMFS_E_HEADER;
+    }
+    /* Commit only after the extractor validated the whole archive and built
+       every node. On any error its contract leaves no published candidate. */
+    staged_rootfs = candidate;
+    staged_rootfs_ready = true;
+    return CHIMERA_RAMFS_OK;
+}
 struct TemporaryFrames {
     uint64_t base = 0;
     uint32_t pages = 0;
@@ -296,6 +348,14 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 return -19;
             }
             koronos_target_log("[RUN ] Bounded gzip/DEFLATE, CRC32/ISIZE and CPIO validation passed");
+            const int rootfs_rc = stage_rootfs(
+                reinterpret_cast<const void *>(static_cast<uintptr_t>(decompressed.base)),
+                decoded_size);
+            if (rootfs_rc != CHIMERA_RAMFS_OK) {
+                koronos_target_log("[RUN ] ERROR: transactional RAMFS staging failed; no rootfs was published");
+                return -20;
+            }
+            koronos_target_log("[RUN ] Rootfs archive extracted into bounded unpublished RAMFS staging tree");
         } else {
             cpio_rc = chimera_cpio_validate_newc(archive_bytes, archive->size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK) {
@@ -304,6 +364,12 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 koronos_target_log("[RUN ] ERROR: selected initramfs is malformed or unsafe");
                 return -17;
             }
+            const int rootfs_rc = stage_rootfs(archive_bytes, archive->size);
+            if (rootfs_rc != CHIMERA_RAMFS_OK) {
+                koronos_target_log("[RUN ] ERROR: transactional RAMFS staging failed; no rootfs was published");
+                return -20;
+            }
+            koronos_target_log("[RUN ] Rootfs archive extracted into bounded unpublished RAMFS staging tree");
         }
     }
     if (!koronos_address_space_ready()) {
