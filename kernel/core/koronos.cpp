@@ -288,6 +288,8 @@ static void task_installer(void *) {
     switch (installer_phase++) {
         case 0:
             console_write("[INST] Installer target detected");
+            if (image && !chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))
+                console_write("[USER] Installer handoff blocked: installation image is data and no native USER_INIT_ELF module was staged");
             if (image) console_write("[INST] Installation image accepted");
             else console_write("[INST] ERROR: installation image module missing");
             if (manifest) console_write("[INST] Installation manifest accepted");
