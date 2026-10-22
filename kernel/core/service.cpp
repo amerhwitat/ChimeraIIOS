@@ -70,9 +70,17 @@ extern "C" uint32_t chimera_service_get_state(const char*id){
     return CHM_SVC_DECLARED;
 }
 extern "C" void chimera_kore_bootstrap(void){
-    chimera_service_set_state("chimera.device",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.storage",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.security",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.logging",CHM_SVC_RUNNING);
-    chimera_service_set_state("chimera.kore",CHM_SVC_RUNNING);
+    /*
+     * Bootstrap declares the core service identities; it does not start them.
+     * RUNNING is reserved for services whose start callback and independent
+     * health check both succeeded. In particular, the current kernel has a
+     * transport-neutral block API but no registered hardware block backend or
+     * persistent filesystem mount, so storage must not be advertised as ready.
+     * The service manager owns subsequent state transitions.
+     */
+    chimera_service_set_state("chimera.device",CHM_SVC_DECLARED);
+    chimera_service_set_state("chimera.storage",CHM_SVC_DECLARED);
+    chimera_service_set_state("chimera.security",CHM_SVC_DECLARED);
+    chimera_service_set_state("chimera.logging",CHM_SVC_DECLARED);
+    chimera_service_set_state("chimera.kore",CHM_SVC_DECLARED);
 }
