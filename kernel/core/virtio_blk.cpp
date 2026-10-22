@@ -96,10 +96,17 @@ static bool wait_status(koronos_virtio_blk *d, uint8_t mask, uint8_t expected) {
 }
 static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
                  uint32_t sectors, void *buffer, bool device_writes) {
-    if (!d || !d->attached || d->failed) return -1;
-    if (sectors > MAX_SECTORS || (type != VIRTIO_BLK_T_FLUSH && (!sectors || !buffer)))
-        return -1;
-    if (__sync_lock_test_and_set(&d->busy, 1u)) return -1;
+    if (!d || !d->attached || d->failed) return CHIMERA_BLOCK_ENODEV;
+    if (type != VIRTIO_BLK_T_IN && type != VIRTIO_BLK_T_OUT &&
+        type != VIRTIO_BLK_T_FLUSH) return CHIMERA_BLOCK_EINVAL;
+    if (type != VIRTIO_BLK_T_FLUSH) {
+        if (sectors == 0 || sectors > MAX_SECTORS || !buffer)
+            return CHIMERA_BLOCK_EINVAL;
+        if (lba >= d->block.sector_count ||
+            static_cast<uint64_t>(sectors) > d->block.sector_count - lba)
+            return CHIMERA_BLOCK_ERANGE;
+    }
+    if (__sync_lock_test_and_set(&d->busy, 1u)) return CHIMERA_BLOCK_EIO;
     const size_t bytes = static_cast<size_t>(sectors) * SECTOR_SIZE;
     if (type == VIRTIO_BLK_T_OUT)
         for (size_t i = 0; i < bytes; ++i)
@@ -119,6 +126,21 @@ static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
                    static_cast<uint16_t>(DESC_NEXT | (device_writes ? DESC_WRITE : 0)), 2};
         desc[2] = {d->request.physical_address + sizeof(RequestHeader), 1, DESC_WRITE, 0};
     }
+    /* Revalidate the selected queue's notify window before publishing the
+     * available-ring entry. A rejected request must never become visible to
+     * the device without a valid notification path. */
+    const uint16_t notify_off = d->transport.common->queue_notify_off;
+    const uint64_t byte_off = static_cast<uint64_t>(notify_off) * d->transport.notify_multiplier;
+    if (!d->transport.notify_base || byte_off > d->transport.notify_length ||
+        d->transport.notify_length - static_cast<size_t>(byte_off) < sizeof(uint16_t)) {
+        d->failed = 1;
+        d->transport.common->device_status |= STATUS_FAILED;
+        __sync_lock_release(&d->busy);
+        return CHIMERA_BLOCK_EIO;
+    }
+    volatile uint16_t *notify = reinterpret_cast<volatile uint16_t *>(
+        const_cast<uint8_t *>(d->transport.notify_base) + byte_off);
+
     uint16_t avail = *avail_idx(d);
     avail_ring(d)[avail % d->queue_size] = 0;
     barrier();
@@ -126,16 +148,6 @@ static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
     barrier();
 
     const uint16_t old_used = d->last_used;
-    const uint16_t notify_off = d->transport.common->queue_notify_off;
-    const uint64_t byte_off = static_cast<uint64_t>(notify_off) * d->transport.notify_multiplier;
-    if (byte_off + sizeof(uint16_t) > d->transport.notify_length) {
-        d->failed = 1;
-        d->transport.common->device_status |= STATUS_FAILED;
-        __sync_lock_release(&d->busy);
-        return -1;
-    }
-    volatile uint16_t *notify = reinterpret_cast<volatile uint16_t *>(
-        const_cast<uint8_t *>(d->transport.notify_base) + byte_off);
     *notify = 0;
     barrier();
     bool complete = false;
