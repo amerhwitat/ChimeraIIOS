@@ -172,18 +172,6 @@ KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
 [[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
 chimera_copy_if_distinct "$KERNEL" "$DIST/boot/koronos/koronos.elf"
 
-# Stage independently built target-specific Koronos ABI init ELFs.
-NATIVE_INIT_DIR="$ROOT/build/koronos/x86_64"
-for target in live installer recovery; do
-  native_init="$NATIVE_INIT_DIR/native-init-$target.elf"
-  [[ -s "$native_init" ]] || { echo "ERROR: production native init missing: $native_init" >&2; exit 2; }
-  readelf -h "$native_init" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: native init is not ET_EXEC: $native_init" >&2; exit 2; }
-  readelf -lW "$native_init" | grep -Eq 'LOAD.*R E' || { echo "ERROR: native init has no RX PT_LOAD: $native_init" >&2; exit 2; }
-  readelf -lW "$native_init" | grep -Eq 'LOAD.*RW ' || { echo "ERROR: native init has no RW PT_LOAD: $native_init" >&2; exit 2; }
-  cp -f "$native_init" "$DIST/boot/koronos/native-init-$target.elf"
-  sha256sum "$DIST/boot/koronos/native-init-$target.elf" > "$DIST/boot/koronos/native-init-$target.elf.sha256"
-done
-
 # Bootloader source/artifacts and Jasper recovery configuration.
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
