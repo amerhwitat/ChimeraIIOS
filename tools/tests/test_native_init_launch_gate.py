@@ -42,6 +42,19 @@ def main() -> int:
     if "call1(1, 78)" not in native_init or "NATIVE INIT BLOCKED:" not in native_init:
         return fail("bootstrap must retain its explicit unavailable-service exit")
 
+    archive_guard = launch.split(
+        "if (payload_count==1u && (target==TARGET_LIVE || target==TARGET_RECOVERY))", 1
+    )
+    if len(archive_guard) != 2:
+        return fail("missing Live/Recovery rootfs archive validation block")
+    archive_guard = archive_guard[1].split("if (!koronos_address_space_ready())", 1)[0]
+    if "summary.has_init" in archive_guard:
+        return fail("rootfs archive validation must not require executable /init when a separately staged target-matched native ELF is the entry point")
+    if "cpio_rc != CHIMERA_CPIO_OK" not in archive_guard:
+        return fail("Live/Recovery rootfs must still fail closed on invalid CPIO")
+    if "separately staged" not in archive_guard:
+        return fail("rootfs/entry-point separation rationale and regression guard are missing")
+
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
     zero_branch = launch.split("if (count==0)", 1)[1].split(
