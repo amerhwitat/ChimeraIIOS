@@ -57,6 +57,12 @@ int main() {
   std::vector<uint8_t> traversal;
   entry(traversal,"../escape",0100644u,"x"); entry(traversal,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(traversal.data(),traversal.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> embedded_nul;
+  entry(embedded_nul,"init",0100755u,"ELF");
+  entry(embedded_nul,"TRAILER!!!",0,nullptr);
+  /* Turn the fourth visible name byte into NUL while retaining the final NUL. */
+  embedded_nul[112]=0;
+  assert(chimera_cpio_validate_newc(embedded_nul.data(),embedded_nul.size(),&s)==CHIMERA_CPIO_E_PATH);
   std::vector<uint8_t> duplicate;
   entry(duplicate,"init",0100755u,"ELF");
   entry(duplicate,"init",0100755u,"ELF");
