@@ -22,6 +22,22 @@ static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
+
+static const char *admission_failure(int rc) {
+    switch (rc) {
+        case -1: return "[RUN ] Admission detail: invalid argument or stack limit";
+        case -2: return "[RUN ] Admission detail: invalid ELF identity or machine";
+        case -3: return "[RUN ] Admission detail: PT_LOAD file range is outside the ELF";
+        case -4: return "[RUN ] Admission detail: PT_LOAD lies outside the user address range";
+        case -5: return "[RUN ] Admission detail: PT_LOAD alignment is not a power of two";
+        case -6: return "[RUN ] Admission detail: ELF exceeds the segment limit";
+        case -7: return "[RUN ] Admission detail: writable-executable PT_LOAD rejected";
+        case -8: return "[RUN ] Admission detail: PT_LOAD address arithmetic overflow";
+        case -9: return "[RUN ] Admission detail: entry point is outside admitted segments";
+        case -10: return "[RUN ] Admission detail: process table is full";
+        default: return "[RUN ] Admission detail: unclassified process admission error";
+    }
+}
 extern "C" void koronos_vfs_close_process(uint32_t pid);
 
 static bool token(const char *text, const char *needle) {
@@ -171,6 +187,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         selected->size,KORONOS_EM_X86_64,USER_STACK_TOP,&process);
     if (pid<=0) {
         koronos_target_log("[RUN ] ERROR: selected user init failed protected-process admission");
+        koronos_target_log(admission_failure(pid));
         return -5;
     }
     chimera_loaded_elf loaded{};
