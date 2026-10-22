@@ -1,0 +1,20 @@
+{
+  "name": "perl",
+  "upstream": "Perl",
+  "version": "5.44.0",
+  "channel": "stable",
+  "source_url": "https://www.cpan.org/src/5.0/perl-5.44.0.tar.gz",
+  "sha256": "3b855066b92491cb40e86affb1ca57d1a388aa43e51b91c7806a32c2f65f96c3",
+  "build_script": "tools/perl-runtime/build-perl-runtime.sh",
+  "smoke_test": "tools/perl-runtime/perl-runtime-smoke.pl",
+  "build_profile": "host-abi-staging",
+  "default_iso_integration": false,
+  "native_koronos_status": "blocked",
+  "native_koronos_blockers": [
+    "compatible libc and dynamic loader",
+    "POSIX process and file APIs",
+    "memory mapping and signal semantics",
+    "booted native-OS Perl execution acceptance"
+  ],
+  "notes": "Only enable native execution after all blockers are implemented and verified; host-built Perl is not a native Koronos executable."
+}
