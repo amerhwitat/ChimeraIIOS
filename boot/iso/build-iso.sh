@@ -122,6 +122,13 @@ if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
 fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
+for target in live installer recovery; do
+  native_init="$DIST/iso/boot/koronos/native-init-$target.elf"
+  test -s "$native_init" || { echo "ERROR: production native init missing from ISO: $native_init" >&2; exit 2; }
+  readelf -h "$native_init" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: staged native init is not ET_EXEC: $native_init" >&2; exit 2; }
+  readelf -lW "$native_init" | grep -Eq 'LOAD.*R E' || { echo "ERROR: staged native init lacks RX PT_LOAD: $native_init" >&2; exit 2; }
+  readelf -lW "$native_init" | grep -Eq 'LOAD.*RW ' || { echo "ERROR: staged native init lacks RW PT_LOAD: $native_init" >&2; exit 2; }
+done
 test -s "$DIST/iso/boot/spitfire/spitfire-stage2.bin"
 for visual in \
   aurora-boot.png aurora-menu.png aurora-splash.png aurora-installer.png \
