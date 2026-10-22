@@ -144,8 +144,13 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
       for (uint32_t i=0;i<file_size;) {
         uint32_t j=i; while(j<file_size&&target[j]!='/') ++j;
         const uint32_t n=j-i;
+        /* Reject empty components (double or trailing slashes) rather than
+           letting different consumers normalize a link target differently. */
+        if (n==0u) return CHIMERA_CPIO_E_PATH;
         if ((n==1u&&target[i]=='.')||(n==2u&&target[i]=='.'&&target[i+1]=='.')) return CHIMERA_CPIO_E_PATH;
+        if (j==file_size) break;
         i=j+1u;
+        if (i==file_size) return CHIMERA_CPIO_E_PATH;
       }
     }
     if (crc) {
