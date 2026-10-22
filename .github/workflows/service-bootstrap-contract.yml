@@ -1,0 +1,31 @@
+name: Service Bootstrap Contract
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kernel/core/service.cpp"
+      - "kernel/include/chimera/service.h"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - ".github/workflows/service-bootstrap-contract.yml"
+  pull_request:
+    paths:
+      - "kernel/core/service.cpp"
+      - "kernel/include/chimera/service.h"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - ".github/workflows/service-bootstrap-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  service-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile service bootstrap contract with warnings as errors
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/service.cpp kernel/tests/service_bootstrap_test.cpp \
+            -o /tmp/service-bootstrap-contract
+          /tmp/service-bootstrap-contract
