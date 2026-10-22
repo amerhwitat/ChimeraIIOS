@@ -26,17 +26,17 @@ struct __attribute__((packed)) Descriptor {
 struct __attribute__((packed)) UsedElement { uint32_t id; uint32_t length; };
 struct __attribute__((packed)) RequestHeader { uint32_t type; uint32_t reserved; uint64_t sector; };
 
-static uint16_t *avail_flags(koronos_virtio_blk *d) {
-    return reinterpret_cast<uint16_t *>(d->ring.virtual_address + 2048u);
+static size_t avail_offset(const koronos_virtio_blk *d) {
+    return static_cast<size_t>(d->queue_size) * sizeof(Descriptor);
 }
 static volatile uint16_t *avail_idx(koronos_virtio_blk *d) {
-    return reinterpret_cast<volatile uint16_t *>(d->ring.virtual_address + 2050u);
+    return reinterpret_cast<volatile uint16_t *>(d->ring.virtual_address + avail_offset(d) + 2u);
 }
 static uint16_t *avail_ring(koronos_virtio_blk *d) {
-    return reinterpret_cast<uint16_t *>(d->ring.virtual_address + 2052u);
+    return reinterpret_cast<uint16_t *>(d->ring.virtual_address + avail_offset(d) + 4u);
 }
 static size_t used_offset(const koronos_virtio_blk *d) {
-    const size_t end = 2048u + 4u + static_cast<size_t>(d->queue_size) * sizeof(uint16_t);
+    const size_t end = avail_offset(d) + 4u + static_cast<size_t>(d->queue_size) * sizeof(uint16_t);
     return (end + 3u) & ~static_cast<size_t>(3u);
 }
 static volatile uint16_t *used_idx(koronos_virtio_blk *d) {
@@ -221,7 +221,7 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     }
     c->queue_size = q;
     c->queue_desc = d->ring.physical_address;
-    c->queue_driver = d->ring.physical_address + 2048u;
+    c->queue_driver = d->ring.physical_address + avail_offset(d);
     c->queue_device = d->ring.physical_address + used_offset(d);
     c->queue_enable = 1;
     barrier();
