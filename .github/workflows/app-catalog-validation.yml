@@ -1,0 +1,33 @@
+name: Optional application catalog validation
+
+on:
+  pull_request:
+    paths:
+      - "desktop/optional_apps_catalog.json"
+      - "scripts/check_optional_apps_catalog.py"
+      - "tests/test_optional_apps_catalog.py"
+      - ".github/workflows/app-catalog-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "desktop/optional_apps_catalog.json"
+      - "scripts/check_optional_apps_catalog.py"
+      - "tests/test_optional_apps_catalog.py"
+      - ".github/workflows/app-catalog-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate catalog metadata and integration safety
+        run: python scripts/check_optional_apps_catalog.py
+      - name: Run validator regression tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
