@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "updated": "2026-10-22",
+  "purpose": "Evidence-based parity backlog for common programming language runtimes and operating-system services found across Windows, Linux, and macOS ecosystems.",
+  "policy": {
+    "statuses": [
+      "verified-native",
+      "verified-host-abi",
+      "source-present",
+      "build-pending",
+      "integration-pending",
+      "blocked",
+      "not-a-goal"
+    ],
+    "rule": "Do not mark verified-native unless built for the target OS and exercised on the target OS. Host-ABI artifacts and source presence do not establish native Koronos compatibility.",
+    "release_gate": "No production ISO inclusion or readiness claim without reproducible target build, smoke/regression tests, dependency audit, and booted target acceptance."
+  },
+  "languages": [
+    {
+      "name": "C",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "system compiler/toolchain",
+      "status": "audit-required"
+    },
+    {
+      "name": "C++",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "system compiler/toolchain",
+      "status": "audit-required"
+    },
+    {
+      "name": "Rust",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "rustc/cargo",
+      "status": "audit-required"
+    },
+    {
+      "name": "Go",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Go toolchain",
+      "status": "audit-required"
+    },
+    {
+      "name": "Zig",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Zig toolchain",
+      "status": "audit-required"
+    },
+    {
+      "name": "Assembly",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "target assembler/linker",
+      "status": "audit-required"
+    },
+    {
+      "name": "Python",
+      "family": "interpreted",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "CPython-compatible runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "JavaScript",
+      "family": "interpreted/JIT",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Node.js-compatible runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "TypeScript",
+      "family": "transpiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "TypeScript compiler plus JS runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "Java",
+      "family": "VM",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "JDK/JRE-compatible JVM",
+      "status": "audit-required"
+    },
+    {
+      "name": "C#",
+      "family": "VM/AOT",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": ".NET SDK/runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "Perl",
+      "family": "interpreted",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Perl 5.44 stable; 5.45 development optional",
+      "status": "host-abi-staging-ci-pending"
+    },
+    {
+      "name": "Ruby",
+      "family": "interpreted/JIT",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Ruby runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "PHP",
+      "family": "interpreted/JIT",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "PHP CLI/runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "Lua",
+      "family": "embedded/interpreted",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Lua interpreter/library",
+      "status": "audit-required"
+    },
+    {
+      "name": "Tcl",
+      "family": "interpreted",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Tcl interpreter",
+      "status": "audit-required"
+    },
+    {
+      "name": "R",
+      "family": "statistical",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "R runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "Fortran",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Fortran compiler/runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "Ada",
+      "family": "compiled",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Ada compiler/runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "Swift",
+      "family": "compiled",
+      "upstreams": [
+        "Linux",
+        "macOS",
+        "Windows-toolchain-limited"
+      ],
+      "implementation": "Swift toolchain",
+      "status": "audit-required"
+    },
+    {
+      "name": "Kotlin",
+      "family": "JVM/native",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Kotlin compiler plus JVM/native target",
+      "status": "audit-required"
+    },
+    {
+      "name": "Julia",
+      "family": "JIT",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "Julia runtime",
+      "status": "audit-required"
+    },
+    {
+      "name": "PowerShell",
+      "family": "shell",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "PowerShell 7+",
+      "status": "audit-required"
+    },
+    {
+      "name": "POSIX shell",
+      "family": "shell",
+      "upstreams": [
+        "Linux",
+        "macOS",
+        "Windows-compatibility"
+      ],
+      "implementation": "sh-compatible shell",
+      "status": "audit-required"
+    },
+    {
+      "name": "SQL",
+      "family": "database language",
+      "upstreams": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "implementation": "SQL engine/client compatibility",
+      "status": "audit-required"
+    }
+  ],
+  "services": [
+    {
+      "name": "init and service supervision",
+      "category": "system",
+      "status": "integration-pending"
+    },
+    {
+      "name": "process lifecycle, signals, job control",
+      "category": "system",
+      "status": "blocked-until-kernel-userspace-contract"
+    },
+    {
+      "name": "users, groups, permissions, authentication",
+      "category": "security",
+      "status": "audit-required"
+    },
+    {
+      "name": "network interfaces, routing, DHCP, DNS",
+      "category": "network",
+      "status": "audit-required"
+    },
+    {
+      "name": "TLS, certificate trust, crypto providers",
+      "category": "security",
+      "status": "audit-required"
+    },
+    {
+      "name": "storage, filesystems, mount management",
+      "category": "storage",
+      "status": "audit-required"
+    },
+    {
+      "name": "package manager and dependency resolution",
+      "category": "packages",
+      "status": "audit-required"
+    },
+    {
+      "name": "system logs, journal, crash diagnostics",
+      "category": "observability",
+      "status": "audit-required"
+    },
+    {
+      "name": "SSH client/server and remote administration",
+      "category": "network",
+      "status": "audit-required"
+    },
+    {
+      "name": "HTTP server and reverse proxy",
+      "category": "network",
+      "status": "audit-required"
+    },
+    {
+      "name": "time synchronization and scheduled jobs",
+      "category": "system",
+      "status": "audit-required"
+    },
+    {
+      "name": "IPC/message bus and service discovery",
+      "category": "system",
+      "status": "integration-pending"
+    },
+    {
+      "name": "GUI session, compositor, display protocol",
+      "category": "desktop",
+      "status": "integration-pending"
+    },
+    {
+      "name": "audio, printing, Bluetooth, USB device services",
+      "category": "device",
+      "status": "audit-required"
+    },
+    {
+      "name": "database service and backup/restore",
+      "category": "data",
+      "status": "audit-required"
+    },
+    {
+      "name": "container runtime and sandboxing",
+      "category": "isolation",
+      "status": "audit-required"
+    },
+    {
+      "name": "developer tools: compiler, linker, debugger, build system",
+      "category": "developer",
+      "status": "audit-required"
+    }
+  ],
+  "requiredEvidence": [
+    "source and license/provenance recorded",
+    "pinned upstream release and cryptographic checksum",
+    "target-specific build output and dependency closure",
+    "unit/regression tests and negative/failure-path tests",
+    "package layout and clean uninstall/upgrade behavior",
+    "native target execution test (not host execution or emulator-only unless labelled)",
+    "booted Live, Installer, Recovery validation where applicable",
+    "security policy, capabilities, filesystem and process API compatibility reviewed",
+    "artifact provenance and reproducible CI logs"
+  ]
+}
