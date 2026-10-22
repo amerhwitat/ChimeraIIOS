@@ -26,6 +26,8 @@ python3 "$ROOT/tools/tests/test_validate_native_init_elf.py"
 python3 "$ROOT/tools/tests/test_native_init_packaging_contract.py"
 python3 "$ROOT/tools/tests/test_native_init_launch_gate.py"
 python3 "$ROOT/tools/tests/test_target_init_payload_binding.py"
+CXX="${CXX:-g++}" "$CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/initramfs_cpio.cpp" "$ROOT/kernel/tests/initramfs_cpio_test.cpp" -o "$BUILD/initramfs-cpio-test"
+"$BUILD/initramfs-cpio-test"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
