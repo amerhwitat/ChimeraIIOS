@@ -98,6 +98,13 @@ assert "for (uint32_t i = begin; i < end; ++i)" in parallel_source, (
     "single-worker fallback must be explicit and reviewable"
 )
 
+# Installer media is a data payload, not proof of a native ring-3 init process.
+KORONOS_SOURCE = ROOT / "kernel/core/koronos.cpp"
+koronos_source = KORONOS_SOURCE.read_text(encoding="utf-8")
+assert "Installer handoff blocked: installation image is data and no native USER_INIT_ELF module was staged" in koronos_source, (
+    "installer payload without a native init ELF must remain explicitly blocked"
+)
+
 app_count = sum(len(family.get("examples", [])) for family in families)
 print(f"cross-OS contracts PASS: {len(os_entries)} OS families, "
       f"{len(compat['cpu_profiles'])} CPU profiles, {len(setting_ids)} settings, "
