@@ -34,6 +34,11 @@ static size_t make_archive(uint8_t*b,int duplicate) {
     return entry(b,n,"TRAILER!!!",0,nullptr);
 }
 int main() {
+    /* Output pointers are cleared even when argument validation fails. */
+    chimera_ramfs_node *invalid_out=reinterpret_cast<chimera_ramfs_node*>(uintptr_t(1));
+    assert(chimera_ramfs_extract_newc(nullptr,0,nullptr,nullptr,&invalid_out)==CHIMERA_RAMFS_E_ARGUMENT);
+    assert(invalid_out==nullptr);
+
     alloc_state state{-1,0,0};chimera_ramfs_allocator a{alloc_cb,free_cb,&state};
     chimera_ramfs_limits l{128,255,1048576,4194304};uint8_t b[4096]{};
     size_t n=make_archive(b,0);chimera_ramfs_node*r=nullptr;
