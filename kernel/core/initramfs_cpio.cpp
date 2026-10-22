@@ -28,6 +28,10 @@ static bool safe_path(const uint8_t *p,uint32_t n,bool directory) {
   if (!p||n<2||n>CHIMERA_CPIO_MAX_PATH+1u||p[n-1]!=0) return false;
   /* Standard initramfs archives include the root directory as ".". Permit only that exact spelling, and only as a directory; all other dot components remain rejected. */
   if (directory && n==2u && p[0]=='.' && p[1]==0) return true;
+  /* Normalize only conventional leading relative "./" prefixes before path
+     validation. The extractor uses the same rule; interior dot components,
+     absolute paths, and traversal remain rejected. */
+  while (n>=3u && p[0]=='.' && p[1]=='/') { p+=2u; n-=2u; }
   if (p[0]=='/' || p[0]==0) return false;
   uint32_t end=n-1u;
   /* CPIO producers commonly encode directories as "path/". Accept that
@@ -70,22 +74,32 @@ static bool duplicate_name(const uint8_t *b,uint64_t end,const uint8_t *name,uin
         !add_ok(name_aligned,file_size,end,&data_end) ||
         !align4(data_end,end,&next) || next>end) return true;
     const uint8_t *prior=b+off+110u;
+    const uint8_t *prior_canonical=prior;
+    const uint8_t *current_canonical=name;
     uint32_t prior_effective=prior_name_size-1u;
     uint32_t current_effective=name_size-1u;
-    if (prior_effective>0u&&prior[prior_effective-1u]=='/'&&
+    /* Compare canonical paths so "./bin/x" cannot alias "bin/x" or bypass
+       duplicate and file-as-directory prefix-conflict checks. */
+    while (prior_effective>=2u && prior_canonical[0]=='.' && prior_canonical[1]=='/') {
+      prior_canonical+=2u; prior_effective-=2u;
+    }
+    while (current_effective>=2u && current_canonical[0]=='.' && current_canonical[1]=='/') {
+      current_canonical+=2u; current_effective-=2u;
+    }
+    if (prior_effective>0u&&prior_canonical[prior_effective-1u]=='/'&&
         (prior_mode&0170000u)==0040000u) --prior_effective;
-    if (current_effective>0u&&name[current_effective-1u]=='/'&&
+    if (current_effective>0u&&current_canonical[current_effective-1u]=='/'&&
         (current_mode&0170000u)==0040000u) --current_effective;
     uint32_t common=0;
     while (common<prior_effective && common<current_effective &&
-           prior[common]==name[common]) ++common;
+           prior_canonical[common]==current_canonical[common]) ++common;
     if (common==prior_effective && common==current_effective) return true;
     const bool prior_is_dir=(prior_mode&0170000u)==0040000u;
     const bool current_is_dir=(current_mode&0170000u)==0040000u;
     if (common==prior_effective && common<current_effective &&
-        name[common]=='/' && !prior_is_dir) return true;
+        current_canonical[common]=='/' && !prior_is_dir) return true;
     if (common==current_effective && common<prior_effective &&
-        prior[common]=='/' && !current_is_dir) return true;
+        prior_canonical[common]=='/' && !current_is_dir) return true;
     off=next;
   }
   return false;
