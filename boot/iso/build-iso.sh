@@ -66,6 +66,12 @@ bash "$ROOT/tools/build-production-init-elfs.sh"
 # This validates packaging inputs only; full-ISO ring-3 runtime acceptance is separate.
 python3 "$ROOT/tools/boot/verify-production-init-elfs.py" \
     "$DIST/iso" --write-manifest "$DIST/iso/boot/production-init-elfs.json"
+for module in \
+  'module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live' \
+  'module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer' \
+  'module2 /boot/recovery/user-init-recovery.elf chimera-user-init-elf target=recovery'; do
+  grep -Fq "$module" "$DIST/iso/boot/grub/grub.cfg" || { echo "ERROR: GRUB is missing target native init module: $module" >&2; exit 2; }
+done
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
