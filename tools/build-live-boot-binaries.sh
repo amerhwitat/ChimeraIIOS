@@ -68,7 +68,7 @@ for target in live installer recovery; do
   readelf -lW "$native_init" | grep -Eq 'LOAD.*R E' || { echo "ERROR: $native_init has no executable PT_LOAD" >&2; exit 2; }
   readelf -lW "$native_init" | grep -Eq 'LOAD.*RW ' || { echo "ERROR: $native_init has no writable PT_LOAD" >&2; exit 2; }
   chimera_copy_if_distinct "$native_init" "$OUT/boot/koronos/native-init-$target.elf"
-  sha256sum "$OUT/boot/koronos/native-init-$target.elf" > "$OUT/boot/koronos/native-init-$target.elf.sha256"
+  (cd "$OUT/boot/koronos" && sha256sum "native-init-$target.elf" > "native-init-$target.elf.sha256")
 done
 INIT="$OUT/initramfs/root"
 BUSYBOX="$(command -v busybox || true)"
