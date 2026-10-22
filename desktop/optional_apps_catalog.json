@@ -22,11 +22,11 @@
   },
   "apps": [
     {
-      "id": "firefox",
-      "name": "Firefox",
-      "category": "internet",
-      "license": "Mozilla Public License 2.0",
-      "upstream": "https://www.mozilla.org/firefox/",
+      "id": "element",
+      "name": "Element",
+      "category": "communication",
+      "license": "AGPL-3.0 and component licenses",
+      "upstream": "https://element.io/",
       "platforms": [
         "Windows",
         "Linux",
@@ -35,14 +35,14 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Internet"
+      "panel": "Communication"
     },
     {
-      "id": "chromium",
-      "name": "Chromium",
-      "category": "internet",
-      "license": "BSD-3-Clause and component licenses",
-      "upstream": "https://www.chromium.org/",
+      "id": "teams",
+      "name": "Microsoft Teams",
+      "category": "communication",
+      "license": "Proprietary",
+      "upstream": "https://www.microsoft.com/microsoft-teams/",
       "platforms": [
         "Windows",
         "Linux",
@@ -51,14 +51,14 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Internet"
+      "panel": "Communication"
     },
     {
-      "id": "brave",
-      "name": "Brave Browser",
-      "category": "internet",
-      "license": "MPL-2.0 and component licenses",
-      "upstream": "https://brave.com/",
+      "id": "signal",
+      "name": "Signal Desktop",
+      "category": "communication",
+      "license": "AGPL-3.0",
+      "upstream": "https://signal.org/",
       "platforms": [
         "Windows",
         "Linux",
@@ -67,7 +67,7 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Internet"
+      "panel": "Communication"
     },
     {
       "id": "thunderbird",
@@ -86,11 +86,11 @@
       "panel": "Communication"
     },
     {
-      "id": "libreoffice",
-      "name": "LibreOffice",
-      "category": "productivity",
-      "license": "MPL-2.0",
-      "upstream": "https://www.libreoffice.org/",
+      "id": "zoom",
+      "name": "Zoom Workplace",
+      "category": "communication",
+      "license": "Proprietary",
+      "upstream": "https://zoom.us/",
       "platforms": [
         "Windows",
         "Linux",
@@ -99,183 +99,22 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Productivity"
+      "panel": "Communication"
     },
     {
-      "id": "onlyoffice",
-      "name": "ONLYOFFICE Desktop Editors",
-      "category": "productivity",
-      "license": "AGPL-3.0 and component licenses",
-      "upstream": "https://www.onlyoffice.com/desktop.aspx",
+      "id": "wine",
+      "name": "Wine",
+      "category": "compatibility",
+      "license": "LGPL-2.1-or-later",
+      "upstream": "https://www.winehq.org/",
       "platforms": [
-        "Windows",
         "Linux",
         "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Productivity"
-    },
-    {
-      "id": "vlc",
-      "name": "VLC media player",
-      "category": "media",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://www.videolan.org/vlc/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Media"
-    },
-    {
-      "id": "mpv",
-      "name": "mpv",
-      "category": "media",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://mpv.io/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Media"
-    },
-    {
-      "id": "audacity",
-      "name": "Audacity",
-      "category": "media",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://www.audacityteam.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Media"
-    },
-    {
-      "id": "obs-studio",
-      "name": "OBS Studio",
-      "category": "media",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://obsproject.com/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Media"
-    },
-    {
-      "id": "kdenlive",
-      "name": "Kdenlive",
-      "category": "creative",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://kdenlive.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Creative"
-    },
-    {
-      "id": "shotcut",
-      "name": "Shotcut",
-      "category": "creative",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://shotcut.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Creative"
-    },
-    {
-      "id": "openshot",
-      "name": "OpenShot",
-      "category": "creative",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://www.openshot.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Creative"
-    },
-    {
-      "id": "gimp",
-      "name": "GIMP",
-      "category": "creative",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://www.gimp.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Creative"
-    },
-    {
-      "id": "krita",
-      "name": "Krita",
-      "category": "creative",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://krita.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Creative"
-    },
-    {
-      "id": "inkscape",
-      "name": "Inkscape",
-      "category": "creative",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://inkscape.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Creative"
+      "panel": "Utilities"
     },
     {
       "id": "blender",
@@ -310,27 +149,25 @@
       "panel": "Creative"
     },
     {
-      "id": "handbrake",
-      "name": "HandBrake",
-      "category": "media",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://handbrake.fr/",
+      "id": "garageband",
+      "name": "GarageBand",
+      "category": "creative",
+      "license": "Apple proprietary",
+      "upstream": "https://www.apple.com/mac/garageband/",
       "platforms": [
-        "Windows",
-        "Linux",
         "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Media"
+      "panel": "Creative"
     },
     {
-      "id": "calibre",
-      "name": "calibre",
-      "category": "productivity",
+      "id": "gimp",
+      "name": "GIMP",
+      "category": "creative",
       "license": "GPL-3.0-or-later",
-      "upstream": "https://calibre-ebook.com/",
+      "upstream": "https://www.gimp.org/",
       "platforms": [
         "Windows",
         "Linux",
@@ -339,14 +176,14 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Productivity"
+      "panel": "Creative"
     },
     {
-      "id": "keepassxc",
-      "name": "KeePassXC",
-      "category": "security",
+      "id": "inkscape",
+      "name": "Inkscape",
+      "category": "creative",
       "license": "GPL-2.0-or-later",
-      "upstream": "https://keepassxc.org/",
+      "upstream": "https://inkscape.org/",
       "platforms": [
         "Windows",
         "Linux",
@@ -355,14 +192,28 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Security"
+      "panel": "Creative"
     },
     {
-      "id": "syncthing",
-      "name": "Syncthing",
-      "category": "utilities",
-      "license": "MPL-2.0",
-      "upstream": "https://syncthing.net/",
+      "id": "irfanview",
+      "name": "IrfanView",
+      "category": "creative",
+      "license": "Freeware for non-commercial use; terms apply",
+      "upstream": "https://www.irfanview.com/",
+      "platforms": [
+        "Windows"
+      ],
+      "panel": "Creative",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "kdenlive",
+      "name": "Kdenlive",
+      "category": "creative",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://kdenlive.org/",
       "platforms": [
         "Windows",
         "Linux",
@@ -371,22 +222,207 @@
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "panel": "Creative"
     },
     {
-      "id": "7zip",
-      "name": "7-Zip",
-      "category": "utilities",
-      "license": "LGPL-2.1-or-later; unRAR restriction applies to unRAR code",
-      "upstream": "https://www.7-zip.org/",
+      "id": "krita",
+      "name": "Krita",
+      "category": "creative",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://krita.org/",
       "platforms": [
         "Windows",
-        "Linux"
+        "Linux",
+        "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "panel": "Creative"
+    },
+    {
+      "id": "paint",
+      "name": "Microsoft Paint",
+      "category": "creative",
+      "license": "Microsoft proprietary component",
+      "upstream": "https://apps.microsoft.com/",
+      "platforms": [
+        "Windows"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Creative"
+    },
+    {
+      "id": "photos",
+      "name": "Microsoft Photos",
+      "category": "creative",
+      "license": "Microsoft proprietary component",
+      "upstream": "https://apps.microsoft.com/",
+      "platforms": [
+        "Windows"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Creative"
+    },
+    {
+      "id": "openshot",
+      "name": "OpenShot",
+      "category": "creative",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://www.openshot.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Creative"
+    },
+    {
+      "id": "shotcut",
+      "name": "Shotcut",
+      "category": "creative",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://shotcut.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Creative"
+    },
+    {
+      "id": "dbeaver",
+      "name": "DBeaver Community",
+      "category": "development",
+      "license": "Apache-2.0",
+      "upstream": "https://dbeaver.io/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "panel": "Development",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "docker-desktop",
+      "name": "Docker Desktop",
+      "category": "development",
+      "license": "Proprietary; usage terms apply",
+      "upstream": "https://www.docker.com/products/docker-desktop/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Development"
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "category": "development",
+      "license": "GPL-2.0-only",
+      "upstream": "https://git-scm.com/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Development"
+    },
+    {
+      "id": "iterm2",
+      "name": "iTerm2",
+      "category": "development",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://iterm2.com/",
+      "platforms": [
+        "macOS"
+      ],
+      "panel": "Development",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "notepad-plus-plus",
+      "name": "Notepad++",
+      "category": "development",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://notepad-plus-plus.org/",
+      "platforms": [
+        "Windows"
+      ],
+      "panel": "Development",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "podman",
+      "name": "Podman",
+      "category": "development",
+      "license": "Apache-2.0",
+      "upstream": "https://podman.io/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Development"
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "category": "development",
+      "license": "Proprietary; product terms apply",
+      "upstream": "https://www.postman.com/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "panel": "Development",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "development",
+      "license": "PSF-2.0",
+      "upstream": "https://www.python.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Development"
     },
     {
       "id": "vscode",
@@ -421,14 +457,12 @@
       "panel": "Development"
     },
     {
-      "id": "git",
-      "name": "Git",
+      "id": "xcode",
+      "name": "Xcode",
       "category": "development",
-      "license": "GPL-2.0-only",
-      "upstream": "https://git-scm.com/",
+      "license": "Apple proprietary; Apple SDK terms apply",
+      "upstream": "https://developer.apple.com/xcode/",
       "platforms": [
-        "Windows",
-        "Linux",
         "macOS"
       ],
       "integration": "external-package-or-provider",
@@ -437,159 +471,13 @@
       "panel": "Development"
     },
     {
-      "id": "python",
-      "name": "Python",
-      "category": "development",
-      "license": "PSF-2.0",
-      "upstream": "https://www.python.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Development"
-    },
-    {
-      "id": "docker-desktop",
-      "name": "Docker Desktop",
-      "category": "development",
-      "license": "Proprietary; usage terms apply",
-      "upstream": "https://www.docker.com/products/docker-desktop/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Development"
-    },
-    {
-      "id": "podman",
-      "name": "Podman",
-      "category": "development",
-      "license": "Apache-2.0",
-      "upstream": "https://podman.io/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Development"
-    },
-    {
-      "id": "filezilla",
-      "name": "FileZilla",
-      "category": "network",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://filezilla-project.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Network"
-    },
-    {
-      "id": "transmission",
-      "name": "Transmission",
-      "category": "network",
-      "license": "GPL-2.0-or-later",
-      "upstream": "https://transmissionbt.com/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Network"
-    },
-    {
-      "id": "signal",
-      "name": "Signal Desktop",
-      "category": "communication",
-      "license": "AGPL-3.0",
-      "upstream": "https://signal.org/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Communication"
-    },
-    {
-      "id": "element",
-      "name": "Element",
-      "category": "communication",
-      "license": "AGPL-3.0 and component licenses",
-      "upstream": "https://element.io/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Communication"
-    },
-    {
-      "id": "zoom",
-      "name": "Zoom Workplace",
-      "category": "communication",
-      "license": "Proprietary",
-      "upstream": "https://zoom.us/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Communication"
-    },
-    {
-      "id": "teams",
-      "name": "Microsoft Teams",
-      "category": "communication",
-      "license": "Proprietary",
-      "upstream": "https://www.microsoft.com/microsoft-teams/",
-      "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Communication"
-    },
-    {
-      "id": "steam",
-      "name": "Steam",
+      "id": "bottles",
+      "name": "Bottles",
       "category": "games",
-      "license": "Proprietary client; game licenses vary",
-      "upstream": "https://store.steampowered.com/about/",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://usebottles.com/",
       "platforms": [
-        "Windows",
-        "Linux",
-        "macOS"
+        "Linux"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
@@ -611,13 +499,15 @@
       "panel": "Games"
     },
     {
-      "id": "bottles",
-      "name": "Bottles",
+      "id": "steam",
+      "name": "Steam",
       "category": "games",
-      "license": "GPL-3.0-or-later",
-      "upstream": "https://usebottles.com/",
+      "license": "Proprietary client; game licenses vary",
+      "upstream": "https://store.steampowered.com/about/",
       "platforms": [
-        "Linux"
+        "Windows",
+        "Linux",
+        "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
@@ -625,19 +515,52 @@
       "panel": "Games"
     },
     {
-      "id": "wine",
-      "name": "Wine",
-      "category": "compatibility",
-      "license": "LGPL-2.1-or-later",
-      "upstream": "https://www.winehq.org/",
+      "id": "brave",
+      "name": "Brave Browser",
+      "category": "internet",
+      "license": "MPL-2.0 and component licenses",
+      "upstream": "https://brave.com/",
       "platforms": [
+        "Windows",
         "Linux",
         "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "panel": "Internet"
+    },
+    {
+      "id": "chromium",
+      "name": "Chromium",
+      "category": "internet",
+      "license": "BSD-3-Clause and component licenses",
+      "upstream": "https://www.chromium.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Internet"
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "category": "internet",
+      "license": "Mozilla Public License 2.0",
+      "upstream": "https://www.mozilla.org/firefox/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Internet"
     },
     {
       "id": "microsoft-edge",
@@ -656,46 +579,253 @@
       "panel": "Internet"
     },
     {
-      "id": "notepad",
-      "name": "Windows Notepad",
-      "category": "utilities",
-      "license": "Microsoft proprietary component",
-      "upstream": "https://apps.microsoft.com/",
+      "id": "safari",
+      "name": "Safari",
+      "category": "internet",
+      "license": "Apple proprietary; macOS only",
+      "upstream": "https://www.apple.com/safari/",
       "platforms": [
-        "Windows"
+        "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "panel": "Internet"
     },
     {
-      "id": "paint",
-      "name": "Microsoft Paint",
-      "category": "creative",
-      "license": "Microsoft proprietary component",
-      "upstream": "https://apps.microsoft.com/",
+      "id": "audacity",
+      "name": "Audacity",
+      "category": "media",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://www.audacityteam.org/",
       "platforms": [
-        "Windows"
+        "Windows",
+        "Linux",
+        "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Creative"
+      "panel": "Media"
     },
     {
-      "id": "photos",
-      "name": "Microsoft Photos",
-      "category": "creative",
-      "license": "Microsoft proprietary component",
-      "upstream": "https://apps.microsoft.com/",
+      "id": "handbrake",
+      "name": "HandBrake",
+      "category": "media",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://handbrake.fr/",
       "platforms": [
-        "Windows"
+        "Windows",
+        "Linux",
+        "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Creative"
+      "panel": "Media"
+    },
+    {
+      "id": "mpv",
+      "name": "mpv",
+      "category": "media",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://mpv.io/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Media"
+    },
+    {
+      "id": "obs-studio",
+      "name": "OBS Studio",
+      "category": "media",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://obsproject.com/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Media"
+    },
+    {
+      "id": "quicktime",
+      "name": "QuickTime / AVFoundation tools",
+      "category": "media",
+      "license": "Apple platform component; SDK terms apply",
+      "upstream": "https://developer.apple.com/",
+      "platforms": [
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Media"
+    },
+    {
+      "id": "vlc",
+      "name": "VLC media player",
+      "category": "media",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://www.videolan.org/vlc/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Media"
+    },
+    {
+      "id": "filezilla",
+      "name": "FileZilla",
+      "category": "network",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://filezilla-project.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Network"
+    },
+    {
+      "id": "putty",
+      "name": "PuTTY",
+      "category": "network",
+      "license": "MIT-style permissive license; see upstream license",
+      "upstream": "https://www.chiark.greenend.org.uk/~sgtatham/putty/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "panel": "Network",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "category": "network",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://www.qbittorrent.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "panel": "Network",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "transmission",
+      "name": "Transmission",
+      "category": "network",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://transmissionbt.com/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Network"
+    },
+    {
+      "id": "winscp",
+      "name": "WinSCP",
+      "category": "network",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://winscp.net/",
+      "platforms": [
+        "Windows"
+      ],
+      "panel": "Network",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "calibre",
+      "name": "calibre",
+      "category": "productivity",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://calibre-ebook.com/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Productivity"
+    },
+    {
+      "id": "joplin",
+      "name": "Joplin",
+      "category": "productivity",
+      "license": "MIT",
+      "upstream": "https://joplinapp.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "panel": "Productivity",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "keynote",
+      "name": "Keynote",
+      "category": "productivity",
+      "license": "Apple proprietary",
+      "upstream": "https://www.apple.com/keynote/",
+      "platforms": [
+        "macOS",
+        "Web"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Productivity"
+    },
+    {
+      "id": "libreoffice",
+      "name": "LibreOffice",
+      "category": "productivity",
+      "license": "MPL-2.0",
+      "upstream": "https://www.libreoffice.org/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Productivity"
     },
     {
       "id": "microsoft-365",
@@ -730,32 +860,51 @@
       "panel": "Productivity"
     },
     {
-      "id": "quicktime",
-      "name": "QuickTime / AVFoundation tools",
-      "category": "media",
-      "license": "Apple platform component; SDK terms apply",
-      "upstream": "https://developer.apple.com/",
+      "id": "numbers",
+      "name": "Numbers",
+      "category": "productivity",
+      "license": "Apple proprietary",
+      "upstream": "https://www.apple.com/numbers/",
       "platforms": [
-        "macOS"
+        "macOS",
+        "Web"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Media"
+      "panel": "Productivity"
     },
     {
-      "id": "safari",
-      "name": "Safari",
-      "category": "internet",
-      "license": "Apple proprietary; macOS only",
-      "upstream": "https://www.apple.com/safari/",
+      "id": "obsidian",
+      "name": "Obsidian",
+      "category": "productivity",
+      "license": "Proprietary; free for personal use subject to terms",
+      "upstream": "https://obsidian.md/",
       "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "panel": "Productivity",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "onlyoffice",
+      "name": "ONLYOFFICE Desktop Editors",
+      "category": "productivity",
+      "license": "AGPL-3.0 and component licenses",
+      "upstream": "https://www.onlyoffice.com/desktop.aspx",
+      "platforms": [
+        "Windows",
+        "Linux",
         "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Internet"
+      "panel": "Productivity"
     },
     {
       "id": "pages",
@@ -773,62 +922,177 @@
       "panel": "Productivity"
     },
     {
-      "id": "keynote",
-      "name": "Keynote",
-      "category": "productivity",
-      "license": "Apple proprietary",
-      "upstream": "https://www.apple.com/keynote/",
+      "id": "keepassxc",
+      "name": "KeePassXC",
+      "category": "security",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://keepassxc.org/",
       "platforms": [
-        "macOS",
-        "Web"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Productivity"
-    },
-    {
-      "id": "numbers",
-      "name": "Numbers",
-      "category": "productivity",
-      "license": "Apple proprietary",
-      "upstream": "https://www.apple.com/numbers/",
-      "platforms": [
-        "macOS",
-        "Web"
-      ],
-      "integration": "external-package-or-provider",
-      "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Productivity"
-    },
-    {
-      "id": "garageband",
-      "name": "GarageBand",
-      "category": "creative",
-      "license": "Apple proprietary",
-      "upstream": "https://www.apple.com/mac/garageband/",
-      "platforms": [
+        "Windows",
+        "Linux",
         "macOS"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Creative"
+      "panel": "Security"
     },
     {
-      "id": "xcode",
-      "name": "Xcode",
-      "category": "development",
-      "license": "Apple proprietary; Apple SDK terms apply",
-      "upstream": "https://developer.apple.com/xcode/",
+      "id": "proton-vpn",
+      "name": "Proton VPN",
+      "category": "security",
+      "license": "GPL-3.0-or-later for relevant client components; verify each package",
+      "upstream": "https://protonvpn.com/",
       "platforms": [
+        "Windows",
+        "Linux",
         "macOS"
+      ],
+      "panel": "Security",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "gparted",
+      "name": "GParted",
+      "category": "system",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://gparted.org/",
+      "platforms": [
+        "Linux"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "timeshift",
+      "name": "Timeshift",
+      "category": "system",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://github.com/linuxmint/timeshift",
+      "platforms": [
+        "Linux"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "7zip",
+      "name": "7-Zip",
+      "category": "utilities",
+      "license": "LGPL-2.1-or-later; unRAR restriction applies to unRAR code",
+      "upstream": "https://www.7-zip.org/",
+      "platforms": [
+        "Windows",
+        "Linux"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
       "launchability": "not-guaranteed",
-      "panel": "Development"
+      "panel": "Utilities"
+    },
+    {
+      "id": "appcleaner",
+      "name": "AppCleaner",
+      "category": "utilities",
+      "license": "Freeware; proprietary",
+      "upstream": "https://freemacsoft.net/appcleaner/",
+      "platforms": [
+        "macOS"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "appimage",
+      "name": "AppImage ecosystem",
+      "category": "utilities",
+      "license": "Per-app license; verify each package",
+      "upstream": "https://appimage.org/",
+      "platforms": [
+        "Linux"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Utilities"
+    },
+    {
+      "id": "dolphin-file-manager",
+      "name": "Dolphin File Manager",
+      "category": "utilities",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://apps.kde.org/dolphin/",
+      "platforms": [
+        "Linux"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "everything-search",
+      "name": "Everything Search",
+      "category": "utilities",
+      "license": "Freeware; proprietary",
+      "upstream": "https://www.voidtools.com/",
+      "platforms": [
+        "Windows"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "flatpak",
+      "name": "Flatpak",
+      "category": "utilities",
+      "license": "LGPL-2.1-or-later",
+      "upstream": "https://flatpak.org/",
+      "platforms": [
+        "Linux"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Utilities"
+    },
+    {
+      "id": "gnome-files",
+      "name": "GNOME Files (Nautilus)",
+      "category": "utilities",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://apps.gnome.org/Nautilus/",
+      "platforms": [
+        "Linux"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "gnome-software",
+      "name": "GNOME Software",
+      "category": "utilities",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://apps.gnome.org/",
+      "platforms": [
+        "Linux"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Utilities"
     },
     {
       "id": "homebrew",
@@ -846,18 +1110,20 @@
       "panel": "Utilities"
     },
     {
-      "id": "gnome-software",
-      "name": "GNOME Software",
+      "id": "kde-connect",
+      "name": "KDE Connect",
       "category": "utilities",
       "license": "GPL-2.0-or-later",
-      "upstream": "https://apps.gnome.org/",
+      "upstream": "https://kdeconnect.kde.org/",
       "platforms": [
-        "Linux"
+        "Linux",
+        "Windows",
+        "macOS"
       ],
+      "panel": "Utilities",
       "integration": "external-package-or-provider",
       "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "launchability": "not-guaranteed"
     },
     {
       "id": "discover",
@@ -874,32 +1140,32 @@
       "panel": "Utilities"
     },
     {
-      "id": "flatpak",
-      "name": "Flatpak",
+      "id": "macports",
+      "name": "MacPorts",
       "category": "utilities",
-      "license": "LGPL-2.1-or-later",
-      "upstream": "https://flatpak.org/",
+      "license": "BSD-style and component licenses",
+      "upstream": "https://www.macports.org/",
       "platforms": [
-        "Linux"
+        "macOS"
       ],
+      "panel": "Utilities",
       "integration": "external-package-or-provider",
       "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "launchability": "not-guaranteed"
     },
     {
-      "id": "appimage",
-      "name": "AppImage ecosystem",
+      "id": "microsoft-powertoys",
+      "name": "Microsoft PowerToys",
       "category": "utilities",
-      "license": "Per-app license; verify each package",
-      "upstream": "https://appimage.org/",
+      "license": "MIT",
+      "upstream": "https://github.com/microsoft/PowerToys",
       "platforms": [
-        "Linux"
+        "Windows"
       ],
+      "panel": "Utilities",
       "integration": "external-package-or-provider",
       "default_installed": false,
-      "launchability": "not-guaranteed",
-      "panel": "Utilities"
+      "launchability": "not-guaranteed"
     },
     {
       "id": "nextcloud",
@@ -911,6 +1177,92 @@
         "Windows",
         "Linux",
         "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Utilities"
+    },
+    {
+      "id": "raycast",
+      "name": "Raycast",
+      "category": "utilities",
+      "license": "Proprietary; product terms apply",
+      "upstream": "https://www.raycast.com/",
+      "platforms": [
+        "macOS"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "rectangle",
+      "name": "Rectangle Window Manager",
+      "category": "utilities",
+      "license": "MIT",
+      "upstream": "https://rectangleapp.com/",
+      "platforms": [
+        "macOS"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "sharex",
+      "name": "ShareX",
+      "category": "utilities",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://getsharex.com/",
+      "platforms": [
+        "Windows"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "category": "utilities",
+      "license": "MPL-2.0",
+      "upstream": "https://syncthing.net/",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Utilities"
+    },
+    {
+      "id": "thunar",
+      "name": "Thunar File Manager",
+      "category": "utilities",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://docs.xfce.org/xfce/thunar/start",
+      "platforms": [
+        "Linux"
+      ],
+      "panel": "Utilities",
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed"
+    },
+    {
+      "id": "notepad",
+      "name": "Windows Notepad",
+      "category": "utilities",
+      "license": "Microsoft proprietary component",
+      "upstream": "https://apps.microsoft.com/",
+      "platforms": [
+        "Windows"
       ],
       "integration": "external-package-or-provider",
       "default_installed": false,
