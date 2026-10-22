@@ -92,7 +92,13 @@ mkdir -p "$SRC_DIR"
 tar -xzf "$ARCHIVE" --strip-components=1 -C "$SRC_DIR"
 cd "$SRC_DIR"
 echo "[perl-runtime] Configuring Perl $VERSION ($CHANNEL) for host ABI; prefix=$PREFIX"
-./Configure -des -Dprefix="$PREFIX" -Dman1dir=none -Dman3dir=none -Duseshrplib=false
+CONFIGURE_FLAGS=(-des -Dprefix="$PREFIX" -Dman1dir=none -Dman3dir=none -Duseshrplib=false)
+# Upstream Perl deliberately requires an explicit opt-in for odd-numbered
+# development releases. Keep this flag scoped to the opt-in development channel.
+if [[ "$CHANNEL" == "development" ]]; then
+  CONFIGURE_FLAGS+=(-Dusedevel)
+fi
+./Configure "${CONFIGURE_FLAGS[@]}"
 make -j"$JOBS"
 make test
 make install
