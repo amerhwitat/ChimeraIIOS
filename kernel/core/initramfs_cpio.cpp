@@ -47,10 +47,11 @@ static bool safe_path(const uint8_t *p,uint32_t n) {
 }
 }
 extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimera_cpio_summary *out) {
-  if (!input||!out||size<110u) return CHIMERA_CPIO_E_ARGUMENT;
+  if (!input||!out) return CHIMERA_CPIO_E_ARGUMENT;
   if (size>CHIMERA_CPIO_MAX_ARCHIVE_BYTES) return CHIMERA_CPIO_E_LIMIT;
+  if (size>=2u) { const auto *prefix=static_cast<const uint8_t*>(input); if (prefix[0]==0x1fu&&prefix[1]==0x8bu) return CHIMERA_CPIO_E_COMPRESSION; }
+  if (size<110u) return CHIMERA_CPIO_E_ARGUMENT;
   const auto *b=static_cast<const uint8_t*>(input);
-  if (b[0]==0x1fu&&b[1]==0x8bu) return CHIMERA_CPIO_E_COMPRESSION;
   chimera_cpio_summary s{}; s.archive_bytes=size;
   uint64_t off=0; bool trailer=false;
   while (off<size) {
