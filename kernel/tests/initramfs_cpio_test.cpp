@@ -42,6 +42,11 @@ int main() {
   chimera_cpio_summary s{};
   assert(chimera_cpio_validate_newc(a.data(),a.size(),&s)==CHIMERA_CPIO_OK);
   assert(s.entries==2u&&s.regular_files==1u&&s.directories==1u&&s.has_init==1u&&s.payload_bytes==3u);
+  auto bad_newc_check=a;
+  /* newc (070701) requires c_check == 0 at header offset 102. */
+  bad_newc_check[102]='0'; bad_newc_check[103]='0'; bad_newc_check[104]='0'; bad_newc_check[105]='0';
+  bad_newc_check[106]='0'; bad_newc_check[107]='0'; bad_newc_check[108]='0'; bad_newc_check[109]='1';
+  assert(chimera_cpio_validate_newc(bad_newc_check.data(),bad_newc_check.size(),&s)==CHIMERA_CPIO_E_CHECKSUM);
   auto truncated=a; truncated.pop_back();
   assert(chimera_cpio_validate_newc(truncated.data(),truncated.size(),&s)!=CHIMERA_CPIO_OK);
   std::vector<uint8_t> sbin_init;
