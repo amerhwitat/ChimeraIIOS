@@ -200,6 +200,12 @@ fi
 rm -f "$MFORMAT_TEST"
 mkdir -p "$STAGE/boot/grub"
 cp "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
+for module in \
+  'module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live' \
+  'module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer' \
+  'module2 /boot/recovery/user-init-recovery.elf chimera-user-init-elf target=recovery'; do
+  grep -Fq "$module" "$STAGE/boot/grub/grub.cfg" || { echo "ERROR: GRUB is missing target native init module: $module" >&2; exit 2; }
+done
 rm -f "$OUT"
 # Pass only xorriso-native options after grub-mkrescue's "--" separator.
 # "-iso-level" is a genisoimage/mkisofs compatibility option, not a native
