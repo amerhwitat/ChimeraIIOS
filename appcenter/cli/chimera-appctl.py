@@ -12,6 +12,7 @@ import urllib.parse
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "catalog" / "apps.json"
 PROVIDERS = ROOT / "providers" / "providers.json"
+RUNTIME_MANIFEST = ROOT / "runtime-support-manifest.json"
 ALLOWED_EXTERNAL_PROVIDERS = {"windows-linux", "external", "web"}
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]+$")
 
@@ -65,6 +66,18 @@ def validate_catalog():
                     errors.append(f"{prefix} ({app_id}): {field} must be an HTTPS URL")
         if availability(app) not in {"catalog-only", "source-reviewed", "imported", "build-verified", "launch-verified", "supported", "blocked"}:
             errors.append(f"{prefix} ({app_id}): invalid availability status")
+    if RUNTIME_MANIFEST.exists():
+        runtime = load(RUNTIME_MANIFEST)
+        runtime_ids = [item.get("id") for item in runtime.get("apps", [])]
+        catalog_ids = [item.get("id") for item in catalog["apps"]]
+        if runtime_ids != catalog_ids:
+            errors.append("runtime support manifest IDs/order must exactly match catalog IDs")
+        required_lifecycle = {"install", "update", "rollback", "uninstall"}
+        for item in runtime.get("apps", []):
+            if not required_lifecycle.issubset(item.get("lifecycle", {})):
+                errors.append(f"runtime manifest ({item.get('id')}): lifecycle contract is incomplete")
+            if item.get("support_status") not in {"catalog-only", "browser-prototype", "source-reviewed", "imported", "build-verified", "launch-verified", "supported", "blocked"}:
+                errors.append(f"runtime manifest ({item.get('id')}): invalid support_status")
     if errors:
         raise ValueError("\n".join(errors))
     return len(catalog["apps"])
@@ -147,6 +160,14 @@ def cmd_validate(args):
     return 0
 
 
+def cmd_runtime_status(args):
+    manifest = load(RUNTIME_MANIFEST)
+    for app in manifest.get("apps", []):
+        print(f'{app["id"]}\t{app["support_status"]}\t{app["runtime"]}\t{app["tests"]["native_launch"]}')
+    lifecycle = manifest["lifecycle_contract"]
+    print(f'Native lifecycle: install={lifecycle["install"]}; update={lifecycle["update"]}; uninstall={lifecycle["uninstall"]}', file=sys.stderr)
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="chimera-appctl")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -164,7 +185,8 @@ def build_parser():
     plan = sub.add_parser("install-plan", help="print a non-executing installation plan")
     plan.add_argument("id")
     plan.set_defaults(func=cmd_plan)
-    sub.add_parser("validate", help="validate IDs, provider references, URLs and statuses").set_defaults(func=cmd_validate)
+    sub.add_parser("validate", help="validate catalog and runtime-support manifest").set_defaults(func=cmd_validate)
+    sub.add_parser("runtime-status", help="show native/browser support and launch-test status").set_defaults(func=cmd_runtime_status)
     return parser
 
 
