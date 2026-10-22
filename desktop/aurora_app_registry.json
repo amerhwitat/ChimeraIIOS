@@ -250,7 +250,7 @@
       "id": "optional-app-center",
       "name": "Optional Application Center",
       "category": "productivity",
-      "entry": "desktop/aurora/package-center",
+      "entry": "desktop/aurora/optional-app-center.html",
       "catalog": "desktop/optional_apps_catalog.json",
       "ui": "application-center",
       "capabilities": [
@@ -259,7 +259,7 @@
         "official-upstream-links",
         "package-provider-routing"
       ],
-      "launch_mode": "package-center-catalog",
+      "launch_mode": "hosted-web-panel",
       "availability": "catalog-only-until-provider-probe"
     }
   ],
