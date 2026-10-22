@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 COMPAT = ROOT / "config/platform/os-compatibility.json"
 DRIVER = ROOT / "config/hardware/driver-assistant-policy.json"
 SETTINGS = ROOT / "config/settings/control-panel-registry.json"
+CATALOG = ROOT / "docs/OPEN_SOURCE_USERSPACE_CATALOG.json"
 
 def load(path):
     with path.open("r", encoding="utf-8") as stream:
@@ -18,6 +19,7 @@ def load(path):
 compat = load(COMPAT)
 driver = load(DRIVER)
 settings = load(SETTINGS)
+catalog = load(CATALOG)
 
 allowed = set(compat["rules"]["status_values"])
 assert compat["rules"]["default_status"] in allowed
@@ -48,6 +50,20 @@ for forbidden in ("load_or_execute_model_generated_kernel_code", "bypass_signatu
 assert driver["learning_policy"]["offline_first"] is True
 assert "bound_verified" in driver["driver_states"]
 
+families = catalog["application_families"]
+family_ids = [family["id"] for family in families]
+assert len(family_ids) == len(set(family_ids)), "duplicate application family IDs"
+for family in families:
+    assert family.get("status") == "candidate_only", (
+        f"application family {family['id']} must remain candidate-only until target validation"
+    )
+    for app in family.get("examples", []):
+        assert app.get("name") and app.get("source"), (
+            f"application example in {family['id']} needs a name and upstream source"
+        )
+
+app_count = sum(len(family.get("examples", [])) for family in families)
 print(f"cross-OS contracts PASS: {len(os_entries)} OS families, "
       f"{len(compat['cpu_profiles'])} CPU profiles, {len(setting_ids)} settings, "
+      f"{len(families)} app families/{app_count} candidate apps, "
       f"{len(driver['pipeline'])} driver-assistant stages")
