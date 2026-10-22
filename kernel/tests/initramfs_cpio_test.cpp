@@ -43,6 +43,15 @@ int main() {
   entry(conflict,"node/child",0100644u,"y");
   entry(conflict,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(conflict.data(),conflict.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> slash_dir;
+  entry(slash_dir,"usr/",0040755u,nullptr);
+  entry(slash_dir,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(slash_dir.data(),slash_dir.size(),&s)==CHIMERA_CPIO_OK);
+  std::vector<uint8_t> canonical_duplicate;
+  entry(canonical_duplicate,"usr",0040755u,nullptr);
+  entry(canonical_duplicate,"usr/",0040755u,nullptr);
+  entry(canonical_duplicate,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(canonical_duplicate.data(),canonical_duplicate.size(),&s)==CHIMERA_CPIO_E_PATH);
   const uint8_t gzip[]={0x1f,0x8b,0,0,0,0};
   assert(chimera_cpio_validate_newc(gzip,sizeof(gzip),&s)==CHIMERA_CPIO_E_COMPRESSION);
   assert(chimera_cpio_validate_newc(a.data(),CHIMERA_CPIO_MAX_ARCHIVE_BYTES+1ull,&s)==CHIMERA_CPIO_E_LIMIT);
