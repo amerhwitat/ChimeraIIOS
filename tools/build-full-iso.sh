@@ -118,6 +118,11 @@ cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
+# Keep the GRUB config in the staged tree synchronized with the exact
+# target-specific native-init paths staged from this source revision. When
+# injecting into a base ISO, mapping /boot must replace the base ISO's config.
+mkdir -p "$STAGE/boot/grub"
+cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
 cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
