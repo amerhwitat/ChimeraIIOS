@@ -13,7 +13,7 @@ PHDRS
 
 SECTIONS
 {
-  . = 0x400000;
+  . = 0x100000000; /* User VA must satisfy Koronos's canonical user-range contract. */
   .text : ALIGN(0x1000)
   {
     KEEP(*(.text.boot))
