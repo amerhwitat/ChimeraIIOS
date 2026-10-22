@@ -48,7 +48,13 @@ extern "C" int chimera_ramfs_extract_newc(const void*input,uint64_t size,const c
   bool is_trailer=namesize==11u;static const char tr[]="TRAILER!!!";if(is_trailer)for(uint32_t i=0;i<10u;i++)if(name[i]!=(uint8_t)tr[i])is_trailer=false;if(is_trailer){if(filesize||check){destroy_node(root,a);return CHIMERA_RAMFS_E_TRAILER;}trailer=true;off=da;break;}
   if(++entries>lim.max_entries||filesize>lim.max_file_bytes||filesize>lim.max_total_bytes-total){destroy_node(root,a);return CHIMERA_RAMFS_E_LIMIT;}if(crc){uint32_t sum=0;for(uint32_t i=0;i<filesize;i++)sum+=b[na+i];if(sum!=check){destroy_node(root,a);return CHIMERA_RAMFS_E_CHECKSUM;}}else if(check){destroy_node(root,a);return CHIMERA_RAMFS_E_CHECKSUM;}
   uint32_t ft=mode&0170000u,type=ft==0040000u?1u:(ft==0100000u?2u:0u);if(type==2u&&nlink>1u){destroy_node(root,a);return CHIMERA_RAMFS_E_TYPE;}if(!type){destroy_node(root,a);return CHIMERA_RAMFS_E_TYPE;}uint32_t plen=namesize-1u;if(plen&&name[plen-1u]=='/'){if(type!=1u){destroy_node(root,a);return CHIMERA_RAMFS_E_PATH;}--plen;}if(plen>lim.max_path_bytes){destroy_node(root,a);return CHIMERA_RAMFS_E_LIMIT;}
-  int rc=insert_path(root,(const char*)name,plen,type,b+na,filesize,a,&total,&node_count,lim.max_entries);if(rc){destroy_node(root,a);return rc;}off=da;
+  /* Common newc producers prefix relative paths with ./ . Normalize only
+     this leading relative prefix; absolute paths and interior dot/dot-dot
+     components remain rejected by insert_path/component_ok. */
+  const uint8_t *normalized_name=name;
+  while(plen>=2u&&normalized_name[0]=='.'&&normalized_name[1]=='/'){normalized_name+=2u;plen-=2u;}
+  if(!plen){destroy_node(root,a);return CHIMERA_RAMFS_E_PATH;}
+  int rc=insert_path(root,(const char*)normalized_name,plen,type,b+na,filesize,a,&total,&node_count,lim.max_entries);if(rc){destroy_node(root,a);return rc;}off=da;
  }
  if(!trailer||off>size){destroy_node(root,a);return CHIMERA_RAMFS_E_TRAILER;}for(uint64_t i=off;i<size;i++)if(b[i]){destroy_node(root,a);return CHIMERA_RAMFS_E_TRAILER;}*out=root;return CHIMERA_RAMFS_OK;
 }
