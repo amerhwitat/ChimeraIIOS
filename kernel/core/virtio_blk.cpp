@@ -234,13 +234,19 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     if (!capacity) { release(d); return -7; }
     d->block = {block_id, SECTOR_SIZE, capacity,
                 d->flush_supported ? &block_ops : &block_ops_without_flush, d};
-    if (chimera_block_register(&d->block) != CHIMERA_BLOCK_OK) {
-        release(d); return -8;
-    }
+
+    /* Do not publish callbacks through the block registry until the device
+     * has accepted DRIVER_OK. Otherwise a concurrent caller could submit I/O
+     * while the transport is not yet operational. */
     c->device_status |= STATUS_DRIVER_OK;
     barrier();
     if (!(c->device_status & STATUS_DRIVER_OK)) {
-        (void)chimera_block_unregister(block_id); release(d); return -9;
+        release(d);
+        return -9;
+    }
+    if (chimera_block_register(&d->block) != CHIMERA_BLOCK_OK) {
+        release(d);
+        return -8;
     }
     return 0;
 }
