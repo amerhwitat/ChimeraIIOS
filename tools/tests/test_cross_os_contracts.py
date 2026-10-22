@@ -77,7 +77,7 @@ SCHEDULER = ROOT / "kernel/core/scheduler.cpp"
 scheduler_source = SCHEDULER.read_text(encoding="utf-8")
 parallel_signature = 'extern "C" uint32_t chimera_sched_run_parallel('
 assert parallel_signature in scheduler_source, f"missing parallel scheduler entry: {SCHEDULER}"
-parallel_body = scheduler_source.split(parallel_signature, 1)[1].split("\\n}", 1)[0]
+parallel_body = scheduler_source.split(parallel_signature, 1)[1].split("\n}", 1)[0]
 assert "chimera_sched_run_once(" not in parallel_body, (
     "run_parallel must not disguise serial callback stepping as SMP"
 )
