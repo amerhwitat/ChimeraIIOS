@@ -72,6 +72,15 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("chimera-artwork-manifest.json", FULL_BUILDER)
         self.assertIn("chimera-artwork-manifest.json", LIVE_BUILDER)
 
+    def test_production_native_init_elves_are_staged_and_hashed(self):
+        builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
+        for target in ("live", "installer", "recovery"):
+            self.assertIn(f"native-init-{target}.elf", builder)
+            self.assertIn(f"native-init-{target}.elf.sha256", builder)
+        self.assertIn("production native init ELF missing", builder)
+        self.assertIn('readelf -lW "$native_init"', builder)
+        self.assertIn('"$OUT/boot/koronos/native-init-$target.elf"', builder)
+
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
