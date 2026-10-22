@@ -38,7 +38,7 @@ jobs:
           assert "mouse_click_feedback" in reg["categories"][-1]["pages"]
           js = Path(contract["frontend"]).read_text()
           css = Path(contract["stylesheet"]).read_text()
-          assert "Ctrl+Alt+D" in js and "localStorage" in js
+          assert "e.ctrlKey && e.altKey" in js and "localStorage" in js
           assert "#os-preferences-panel" in css
           print("Preferences assets and conservative native-provider contract valid.")
           PY
