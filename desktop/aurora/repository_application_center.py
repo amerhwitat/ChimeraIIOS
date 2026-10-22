@@ -7,6 +7,8 @@ from tkinter import messagebox, ttk
 ROOT = pathlib.Path(os.environ.get("CHIMERA_ROOT", "/usr/share/chimera"))
 APP_CATALOG = ROOT / "appcenter" / "catalog" / "apps.json"
 REPOSITORY_CATALOG = ROOT / "applications" / "ecosystem" / "repos.json"
+OPTIONAL_APP_CATALOG = pathlib.Path(os.environ.get("CHIMERA_OPTIONAL_APP_CATALOG", str(ROOT / "desktop" / "optional_apps_catalog.json")))
+SOURCE_OPTIONAL_APP_CATALOG = pathlib.Path(__file__).resolve().parent.parent / "optional_apps_catalog.json"
 
 
 def load_json(path):
@@ -19,7 +21,7 @@ def safe_web_url(value):
     return value if parsed.scheme == "https" and parsed.netloc else None
 
 
-def load_entries(app_catalog=APP_CATALOG, repository_catalog=REPOSITORY_CATALOG):
+def load_entries(app_catalog=APP_CATALOG, repository_catalog=REPOSITORY_CATALOG, optional_app_catalog=None):
     """Normalize metadata for display only; never execute catalog-provided commands."""
     entries = []
     try:
@@ -34,6 +36,25 @@ def load_entries(app_catalog=APP_CATALOG, repository_catalog=REPOSITORY_CATALOG)
             })
     except (OSError, json.JSONDecodeError) as exc:
         entries.append({"id":"catalog-error","name":"Application catalog unavailable","category":"Diagnostics",
+                        "provider":"none","status":"unavailable","url":"","license":"n/a","kind":"Diagnostic",
+                        "description":str(exc)})
+    # Optional cross-OS software is discovery metadata only. Never infer installability.
+    optional_path = optional_app_catalog or (OPTIONAL_APP_CATALOG if OPTIONAL_APP_CATALOG.is_file() else SOURCE_OPTIONAL_APP_CATALOG)
+    try:
+        for app in load_json(optional_path).get("apps", []):
+            platforms = app.get("platforms", [])
+            entries.append({
+                "id": app.get("id", ""), "name": app.get("name", app.get("id", "Unnamed optional app")),
+                "category": app.get("category", "Other"), "provider": "official-upstream",
+                "status": "catalog-only · " + (", ".join(platforms) if platforms else "platform not recorded"),
+                "url": app.get("upstream", ""), "license": app.get("license", "Review upstream license"),
+                "kind": "Optional application",
+                "platforms": platforms,
+                "description": "Optional software catalog entry. Listed platforms: " + (", ".join(platforms) if platforms else "not recorded") +
+                    ". Installation, redistribution rights, and native launch support are not verified. Use the official publisher and a verified package provider."
+            })
+    except (OSError, json.JSONDecodeError) as exc:
+        entries.append({"id":"optional-catalog-status","name":"Optional app catalog unavailable","category":"Diagnostics",
                         "provider":"none","status":"unavailable","url":"","license":"n/a","kind":"Diagnostic",
                         "description":str(exc)})
     try:
@@ -72,7 +93,7 @@ class App(tk.Tk):
         left = ttk.Frame(body); right = ttk.Frame(body, padding=(12, 0, 0, 0))
         body.add(left, weight=3); body.add(right, weight=2)
         self.tree = ttk.Treeview(left, columns=("category", "provider", "status"), show="tree headings", selectmode="browse")
-        for col, width in (("category", 140), ("provider", 115), ("status", 130)):
+        for col, width in (("category", 120), ("provider", 115), ("status", 200)):
             self.tree.heading(col, text=col.title()); self.tree.column(col, width=width, stretch=(col == "category"))
         self.tree.column("#0", width=210); self.tree.pack(fill="both", expand=True)
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
