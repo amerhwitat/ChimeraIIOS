@@ -81,6 +81,18 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('readelf -lW "$native_init"', builder)
         self.assertIn('"$OUT/boot/koronos/native-init-$target.elf"', builder)
 
+    def test_production_grub_entries_select_matching_native_init(self):
+        live = (ROOT / "boot/jasper/live.cfg").read_text()
+        installer = (ROOT / "boot/jasper/install.cfg").read_text()
+        recovery = (ROOT / "boot/jasper/recovery.cfg").read_text()
+        for text in (GRUB, live):
+            self.assertIn("native-init-live.elf chimera-user-init-elf target=live", text)
+        self.assertIn("target=installer", installer)
+        self.assertIn("native-init-installer.elf chimera-user-init-elf target=installer", installer)
+        self.assertIn("target=recovery", recovery)
+        self.assertIn("native-init-recovery.elf chimera-user-init-elf target=recovery", recovery)
+        self.assertIn("target=live", GRUB)
+
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
