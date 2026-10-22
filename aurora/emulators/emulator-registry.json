@@ -1,12 +1,13 @@
 {
   "schema_version": 2,
   "panel": "Aurora Emulators",
-  "category": "PlayStation / Retro",
+  "category": "Amiga / MAME / PlayStation / Retro",
   "integration": {
-    "panel_entrypoint": "web/playstation_emulators.html",
+    "panel_entrypoint": "web/retro_emulators.html",
     "native_launcher": "tools/emulation/playstation-launcher.sh",
     "rom_policy": "user-provisioned",
-    "firmware_policy": "user-provisioned-and-verified"
+    "firmware_policy": "user-provisioned-and-verified",
+    "media_policy": "user-provisioned-only; no copyrighted ROMs or proprietary firmware bundled"
   },
   "entries": [
     {
@@ -101,6 +102,31 @@
       "launcher": "tools/emulation/playstation-launcher.sh",
       "status": "experimental",
       "manifest": "web/playstation_emulators.json"
+    },
+    {
+      "id": "mame-arcade",
+      "name": "MAME Arcade Center",
+      "vendor": "MAME project / local install",
+      "system": "Arcade and multi-system",
+      "architecture": "multi-architecture",
+      "launcher": "aurora/emulators/bin/launch-retro.sh retro-arcade",
+      "status": "requires-installed-mame-and-user-roms",
+      "entrypoint": "web/retro_emulators.html",
+      "media_policy": "user-provisioned-only",
+      "notes": "Native launcher opens the locally installed MAME UI; hosted MAME Center accepts user-provided ROM sets and compatible local JS/WASM cores."
+    },
+    {
+      "id": "amiga-puae",
+      "name": "Amiga Emulator",
+      "vendor": "PUAE / FS-UAE / MAME",
+      "system": "Commodore Amiga",
+      "architecture": "Motorola 68000 family",
+      "launcher": "aurora/emulators/bin/launch-retro.sh retro-amiga",
+      "status": "requires-emulator-and-user-firmware",
+      "entrypoint": "web/retro_emulators.html",
+      "media_policy": "user-provisioned-only",
+      "firmware_policy": "Kickstart user-provided; never bundled",
+      "notes": "Uses FS-UAE when installed and falls back to MAME when available; the optional PUAE local bridge is separate from the OS-native launcher."
     }
   ]
 }
