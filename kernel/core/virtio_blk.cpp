@@ -146,6 +146,7 @@ static int block_flush(void *ctx) {
     return issue(static_cast<koronos_virtio_blk *>(ctx), VIRTIO_BLK_T_FLUSH, 0, 0, nullptr, false);
 }
 static const chimera_block_ops block_ops{block_read, block_write, block_flush};
+static const chimera_block_ops block_ops_without_flush{block_read, block_write, nullptr};
 
 static void release(koronos_virtio_blk *d) {
     if (d->transport.common) d->transport.common->device_status = 0;
@@ -185,7 +186,8 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     barrier();
     const uint32_t feature_lo = c->device_feature;
     c->driver_feature_select = 0;
-    c->driver_feature = feature_lo & (1u << VIRTIO_BLK_F_FLUSH);
+    d->flush_supported = (feature_lo & (1u << VIRTIO_BLK_F_FLUSH)) != 0;
+    c->driver_feature = d->flush_supported ? (1u << VIRTIO_BLK_F_FLUSH) : 0u;
     c->device_status |= STATUS_FEATURES_OK;
     barrier();
     if (!(c->device_status & STATUS_FEATURES_OK)) {
@@ -219,7 +221,8 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
 
     const uint64_t capacity = read_le64(t->device_config);
     if (!capacity) { release(d); return -7; }
-    d->block = {block_id, SECTOR_SIZE, capacity, &block_ops, d};
+    d->block = {block_id, SECTOR_SIZE, capacity,
+                d->flush_supported ? &block_ops : &block_ops_without_flush, d};
     if (chimera_block_register(&d->block) != CHIMERA_BLOCK_OK) {
         release(d); return -8;
     }
