@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static regressions for the x86-64 ISO menu routing and offline artwork contract."""
 from pathlib import Path
+import json
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -30,6 +31,18 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
+
+    def test_static_recovery_manifest_selects_the_built_production_initramfs(self):
+        manifest = json.loads((ROOT / "boot/recovery/recovery-manifest.json").read_text())
+        self.assertEqual(manifest.get("schema"), "CHM-RECOVERY-BOOT-2")
+        self.assertEqual(
+            manifest.get("initramfs"),
+            "/boot/recovery/chimera-recovery-initramfs.img",
+        )
+        self.assertEqual(manifest.get("kernel"), "/boot/koronos/koronos.elf")
+        # The full ISO builder copies this static directory after generated
+        # artifacts, so the source manifest must retain the runtime selector.
+        self.assertIn('cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"', FULL_BUILDER)
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
