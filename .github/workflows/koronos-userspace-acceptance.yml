@@ -48,6 +48,14 @@ jobs:
             kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp \
             -o /tmp/koronos-multiboot-modules-test
           /tmp/koronos-multiboot-modules-test
+      - name: Compile and run transactional RAMFS extraction and rollback tests
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          set -euo pipefail
+          g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include \
+            kernel/tests/ramfs_test.cpp kernel/core/ramfs.cpp kernel/core/initramfs_cpio.cpp \
+            -o /tmp/koronos-ramfs-test
+          /tmp/koronos-ramfs-test
       - name: Build target-specific BIOS/UEFI ISO
         env:
           TARGET: ${{ matrix.target }}
