@@ -17,12 +17,16 @@ permissions:
 
 jobs:
   build-perl:
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [stable, development]
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Build and test pinned Perl
         run: |
-          bash tools/perl-runtime/build-perl-runtime.sh --prefix "$RUNNER_TEMP/perl-5.44-rootfs"
-          "$RUNNER_TEMP/perl-5.44-rootfs/bin/perl" -v
-          "$RUNNER_TEMP/perl-5.44-rootfs/bin/perl" -c tools/perl-runtime/perl-runtime-smoke.pl
+          bash tools/perl-runtime/build-perl-runtime.sh --version "${{ matrix.channel }}" --prefix "$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs"
+          "$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs/bin/perl" -v
+          "$RUNNER_TEMP/perl-${{ matrix.channel }}-rootfs/bin/perl" -c tools/perl-runtime/perl-runtime-smoke.pl
