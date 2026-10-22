@@ -23,6 +23,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and test pinned Perl
         run: |
-          tools/perl-runtime/build-perl-runtime.sh --prefix "$RUNNER_TEMP/perl-5.44-rootfs"
+          bash tools/perl-runtime/build-perl-runtime.sh --prefix "$RUNNER_TEMP/perl-5.44-rootfs"
           "$RUNNER_TEMP/perl-5.44-rootfs/bin/perl" -v
           "$RUNNER_TEMP/perl-5.44-rootfs/bin/perl" -c tools/perl-runtime/perl-runtime-smoke.pl
