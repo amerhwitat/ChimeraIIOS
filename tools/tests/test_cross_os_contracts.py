@@ -72,6 +72,22 @@ for family in families:
             f"application example in {family['id']} needs a name and upstream source"
         )
 
+# Keep the scheduler's SMP claim honest: serial stepping is not parallel execution.
+SCHEDULER = ROOT / "kernel/core/scheduler.cpp"
+scheduler_source = SCHEDULER.read_text(encoding="utf-8")
+parallel_signature = 'extern "C" uint32_t chimera_sched_run_parallel('
+assert parallel_signature in scheduler_source, f"missing parallel scheduler entry: {SCHEDULER}"
+parallel_body = scheduler_source.split(parallel_signature, 1)[1].split("\\n}", 1)[0]
+assert "chimera_sched_run_once(" not in parallel_body, (
+    "run_parallel must not disguise serial callback stepping as SMP"
+)
+assert "chimera_sched_run_serial_range(" not in parallel_body, (
+    "run_parallel must not delegate to the serial stepping helper"
+)
+assert "return 0;" in parallel_body, (
+    "parallel dispatch must fail closed until independent AP workers are implemented"
+)
+
 app_count = sum(len(family.get("examples", [])) for family in families)
 print(f"cross-OS contracts PASS: {len(os_entries)} OS families, "
       f"{len(compat['cpu_profiles'])} CPU profiles, {len(setting_ids)} settings, "
