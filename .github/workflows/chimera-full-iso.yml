@@ -93,8 +93,14 @@ jobs:
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
+          extract /boot/live/user-init-live.elf "$tmp/user-init-live.elf"
           extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
           extract /boot/recovery/recovery-manifest.json "$tmp/recovery-manifest.json"
+          extract /boot/recovery/user-init-recovery.elf "$tmp/user-init-recovery.elf"
+          extract /boot/installer/user-init-installer.elf "$tmp/user-init-installer.elf"
+          python3 tools/validate-native-init-elf.py --target live "$tmp/user-init-live.elf"
+          python3 tools/validate-native-init-elf.py --target installer "$tmp/user-init-installer.elf"
+          python3 tools/validate-native-init-elf.py --target recovery "$tmp/user-init-recovery.elf"
           extract /install/installer/installation.img "$tmp/installation.img"
           extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
           extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
@@ -128,7 +134,14 @@ jobs:
           for target in ("aurora-live", "install", "recovery"):
               if f"--id {target}" not in grub:
                   raise SystemExit(f"GRUB config missing required target: {target}")
-          print("ISO payload check passed: Koronos, Live, Recovery, Installer and offline Aurora artwork are embedded.")
+          for module in (
+              "module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live",
+              "module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer",
+              "module2 /boot/recovery/user-init-recovery.elf chimera-user-init-elf target=recovery",
+          ):
+              if module not in grub:
+                  raise SystemExit(f"GRUB config missing target-specific native init module: {module}")
+          print("ISO payload check passed: Koronos, target native init ELFs, Live, Recovery, Installer and offline Aurora artwork are embedded.")
           PY
 
       - name: QEMU headless Koronos boot smoke test
