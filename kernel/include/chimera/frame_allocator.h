@@ -10,6 +10,11 @@ int koronos_frame_allocator_init(uint64_t multiboot_info, uint64_t kernel_base, 
 /* Returned physical addresses are identity-mapped by the bootstrap map. */
 uint64_t koronos_frame_alloc(void);
 uint64_t koronos_frame_alloc_contiguous(uint32_t page_count);
+/* Atomically allocate an aligned contiguous run whose final byte is <= max_address.
+ * alignment_pages must be nonzero; alignment is expressed in 4-KiB pages. */
+uint64_t koronos_frame_alloc_contiguous_aligned(uint32_t page_count,
+                                                uint32_t alignment_pages,
+                                                uint64_t max_address);
 int koronos_frame_free(uint64_t physical_address);
 int koronos_frame_free_contiguous(uint64_t physical_address, uint32_t page_count);
 uint64_t koronos_frame_free_count(void);
