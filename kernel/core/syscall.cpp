@@ -44,8 +44,18 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
 
     switch (id.canonical) {
         case CHM_SYS_GETPID:
-            *return_value = 1u;
-            return 0;
+            /*
+             * Do not fabricate PID 1 here. This dispatcher has no connection
+             * to a process table, and returning a constant made a kernel-side
+             * probe look like a real userspace process. Until the process
+             * manager supplies the current task's PID through a verified
+             * interface, fail closed rather than emit false acceptance
+             * evidence. Production userspace readiness must be reported by
+             * the launched process, not inferred from this syscall stub.
+             */
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_YIELD:
             chimera_sched_yield();
             *return_value = 0;
@@ -55,11 +65,15 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
             return 0;
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
-            /* Process teardown is deliberately owned by the process manager;
-             * this early dispatcher only acknowledges the semantic operation. */
+            /*
+             * Process teardown is deliberately owned by the process manager.
+             * This early dispatcher has no process-exit hook, so it must not
+             * claim that an exit was completed.
+             */
             (void)args;
-            *return_value = 0;
-            return 0;
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         default:
             ++g_rejected;
             *return_value = error_value();
