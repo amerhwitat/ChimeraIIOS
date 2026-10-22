@@ -33,3 +33,23 @@ Keep the production gate fail-closed. Do not substitute a generic init marker, a
 - Limine boot protocol contract: https://github.com/limine-bootloader/limine-protocol/blob/trunk/PROTOCOL.md
 
 These references guide design; no third-party implementation was copied into the kernel without a license, integration, and test review.
+
+
+## Follow-up evidence — 2026-10-22
+
+The corresponding OctavianOS recovery/UEFI production acceptance job (run 39774382031, job 119809533041) completed with FAILURE after building Koronos, high-address userspace probes, classifying the recovery module, building a target-specific ISO, and attempting the userspace readiness gate. The trace shows generic USERSPACE READY: recovery init pid=1, followed by userspace exit; the launcher reports that init exited before its target-specific handshake, then says recovery handoff is withheld because no native recovery init ELF/runtime is wired to the payload. Runnable task count is zero. This is not a recovery-runtime pass.
+
+The log also contains PASS: ordered kernel/user-syscall/userspace-ready trace target=recovery pid=1; this is only a trace-order/probe assertion and must not override the later job failure or be interpreted as service readiness. Generic probe evidence and target service readiness are distinct gates.
+
+## Implementation/acceptance ledger
+
+- [ ] Bounded newc parser: validate magic, fixed-width hexadecimal fields, namesize/filesize, NUL termination, 4-byte alignment, trailer, and offset arithmetic before reading.
+- [ ] Compression: support gzip/DEFLATE through a bounded decoder with compressed and expanded-size limits; reject unsupported formats explicitly.
+- [ ] Extraction: reject absolute paths, '..', invalid components, duplicate/conflicting entries, unsupported file types, and symlink escape; enforce entry/count/total-byte limits.
+- [ ] VFS/FD integration: mount extracted initramfs into a real namespace; connect per-process descriptor tables and validated user-buffer copies to real file operations; preserve permissions and fail closed for unsupported operations.
+- [ ] Lifecycle: real exec/exit/wait/reap and address-space/descriptor cleanup; PID and readiness tied to the same live process and target-owned service.
+- [ ] Targets: Live starts and health-checks Aurora; Installer executes a bounded transaction on disposable storage and verifies reboot persistence; Recovery provides a usable shell and commands.
+- [ ] Storage/SMP: cold-reboot persistence evidence and AP startup plus concurrent execution on distinct CPUs.
+- [ ] Matrix: six independent Live/Installer/Recovery × BIOS/UEFI results with ISO/payload hashes, full boot logs, syscall/PID evidence, service health evidence, and explicit PASS/FAIL/NOT RUN.
+
+This ledger is not an implementation claim. Keep release blocked until each checkbox has executable evidence; a generic USERSPACE READY marker is not target-service proof.
