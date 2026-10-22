@@ -129,6 +129,9 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
       for (uint32_t i=0;i<10u;i++) if (name[i]!=(uint8_t)end_name[i]) is_trailer=false;
       if (is_trailer) {
         if (file_size!=0u) return CHIMERA_CPIO_E_TRAILER;
+        /* CRC-format trailers have an empty payload, so c_check must be zero.
+           Validate it before the trailer early-exit below. */
+        if (crc && check!=0u) return CHIMERA_CPIO_E_CHECKSUM;
         trailer=true; off=data_aligned; break;
       }
     }
