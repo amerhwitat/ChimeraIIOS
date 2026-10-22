@@ -38,6 +38,7 @@ jobs:
         run: |
           bash -n build-chimera-iso.sh
           grep -q 'stage_package_managers' build-chimera-iso.sh
+          grep -q 'optional_app_catalog' build-chimera-iso.sh
           grep -q 'build_native_iso_pipeline' build-chimera-iso.sh
           grep -q 'CHIMERA_BUILD_NATIVE_ISO_PIPELINE' build-chimera-iso.sh
           grep -q 'CHIMERA_INSTALL_BUILD_DEPS' build-chimera-iso.sh
