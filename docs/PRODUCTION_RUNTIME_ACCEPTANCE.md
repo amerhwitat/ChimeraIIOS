@@ -98,3 +98,16 @@ A local freestanding compile/link check initially exposed 32-bit absolute reloca
 - Mirrored precise CPIO-to-RAMFS error mapping in `kernel/core/ramfs.cpp` (`c16306b1fbd8920d2fc360824ac9fe60bc5a8653`) after OctavianOS explicit ELF smoke exposed a regression at RAMFS test line 62. The test failed because a CPIO type-validation error was reported as a generic header error.
 - Source-level changes are present, but no workflow run has been returned for the current ChimeraIIOS PR head. Compile/test confirmation is pending.
 - The guard is intentionally fail-closed, not a claim that rootfs publication, full userspace syscalls, target services, Live-to-Aurora, installer persistence, recovery, six-case production acceptance, or AP-backed SMP is complete. Production release remains BLOCKED.
+
+
+## Check/Plan/Do recheck — 2026-10-23
+
+Cross-repository verification on the mirrored runtime branch:
+
+- OctavianOS bounded ingestion, explicit user ELF module smoke, target-routing contracts, and artwork/progress contracts passed on source-fix commit `e946b2336fc905a39618491d7069d5d2128d6ff7`.
+- OctavianOS candidate ring-3 matrix run `39849315730` was **cancelled overall**: four candidate jobs passed; Live/BIOS and Live/UEFI were cancelled before completing. Do not call this a six-case pass.
+- This repository's workflow-run API still returned no run for `c16306b1fbd8920d2fc360824ac9fe60bc5a8653`; the CPIO-to-RAMFS error-mapping fix and guard remain **not CI-verified here**.
+
+Root cause remains the same lifecycle seam: newc is validated and extracted into an unpublished RAMFS staging tree, but the separate fixed-size VFS has no mount/publication interface and is not backed by that tree. Removing the fail-closed guard would not create filesystem visibility or working file syscalls. The current native syscall surface does not yet provide process-owned descriptors and safe open/read/write/stat operations. The required next work is a capacity-appropriate mount abstraction, atomic root publication with rollback tests, process-bound file syscalls and pointer validation, real target service lifecycles, and then production BIOS/UEFI acceptance plus Aurora, installer persistence, recovery postconditions and real AP-backed SMP.
+
+**Status:** keep PR #187 draft. The guard is a safety barrier, not a fix for the missing rootfs lifecycle. No production ISO publication is authorized until exact-head CI and all production gates pass.
