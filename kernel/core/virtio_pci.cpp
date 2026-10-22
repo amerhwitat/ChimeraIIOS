@@ -36,10 +36,11 @@ extern "C" int koronos_virtio_pci_parse_caps(
     uint8_t ptr = config[0x34];
     if ((ptr & 3u) != 0) return -4;
     uint8_t visited[256] = {};
+    uint8_t covered[256] = {};
     unsigned count = 0;
     while (ptr) {
         if (ptr < 0x40u || ptr > 0xfcu || (ptr & 3u) != 0 ||
-            visited[ptr] || ++count > 48u) return -4;
+            visited[ptr] || covered[ptr] || ++count > 48u) return -4;
         visited[ptr] = 1;
         const uint8_t id = config[ptr];
         const uint8_t next = config[ptr + 1u];
@@ -49,6 +50,10 @@ extern "C" int koronos_virtio_pci_parse_caps(
             const uint8_t type = config[ptr + 3u];
             if (cap_len < 16u || static_cast<unsigned>(ptr) + cap_len > 256u)
                 return -5;
+            for (unsigned i = ptr; i < static_cast<unsigned>(ptr) + cap_len; ++i) {
+                if (covered[i] && i != ptr) return -5;
+                covered[i] = 1;
+            }
             const uint8_t bar = config[ptr + 4u];
             const uint32_t offset = le32(config + ptr + 8u);
             const uint32_t length = le32(config + ptr + 12u);
