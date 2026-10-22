@@ -63,6 +63,17 @@ def main() -> int:
     if "separately staged" not in archive_guard:
         return fail("rootfs/entry-point separation rationale and regression guard are missing")
 
+    if '#include "chimera/ramfs.h"' not in launch or "chimera_ramfs_extract_newc" not in (ROOT / "kernel/core/ramfs.cpp").read_text(encoding="utf-8"):
+        return fail("production launch must compile against the bounded transactional RAMFS extractor")
+    if "stage_rootfs(archive_bytes, archive->size)" not in launch:
+        return fail("raw CPIO path must stage a complete unpublished RAMFS tree")
+    if "stage_rootfs(" not in launch or "decoded_size" not in launch:
+        return fail("gzip CPIO path must stage the decoded archive into RAMFS")
+    if "Rootfs archive extracted into bounded unpublished RAMFS staging tree" not in launch:
+        return fail("rootfs staging must be logged without claiming it is mounted or process-visible")
+    if "transactional RAMFS staging failed; no rootfs was published" not in launch:
+        return fail("RAMFS extraction errors must fail closed before userspace dispatch")
+
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
     zero_branch = launch.split("if (count==0)", 1)[1].split(
