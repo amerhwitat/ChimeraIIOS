@@ -75,6 +75,14 @@ int main() {
   entry(canonical_duplicate,"usr/",0040755u,nullptr);
   entry(canonical_duplicate,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(canonical_duplicate.data(),canonical_duplicate.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> symlink_escape;
+  entry(symlink_escape,"link",0120777u,"../outside");
+  entry(symlink_escape,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(symlink_escape.data(),symlink_escape.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> symlink_absolute;
+  entry(symlink_absolute,"link",0120777u,"/etc/passwd");
+  entry(symlink_absolute,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(symlink_absolute.data(),symlink_absolute.size(),&s)==CHIMERA_CPIO_E_PATH);
   const uint8_t gzip[]={0x1f,0x8b,0,0,0,0};
   assert(chimera_cpio_validate_newc(gzip,sizeof(gzip),&s)==CHIMERA_CPIO_E_COMPRESSION);
   assert(chimera_cpio_validate_newc(a.data(),CHIMERA_CPIO_MAX_ARCHIVE_BYTES+1ull,&s)==CHIMERA_CPIO_E_LIMIT);
