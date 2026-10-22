@@ -24,11 +24,19 @@ static bool align4(uint64_t v,uint64_t limit,uint64_t *out) {
   if (a>limit) return false;
   *out=a; return true;
 }
-static bool safe_path(const uint8_t *p,uint32_t n) {
+static bool safe_path(const uint8_t *p,uint32_t n,bool directory) {
   if (!p||n<2||n>CHIMERA_CPIO_MAX_PATH+1u||p[n-1]!=0) return false;
   if (p[0]=='/' || p[0]==0) return false;
+  uint32_t end=n-1u;
+  /* CPIO producers commonly encode directories as "path/". Accept that
+     spelling only for directory entries; compare paths canonically below. */
+  if (end>0u&&p[end-1u]=='/') {
+    if (!directory) return false;
+    --end;
+  }
+  if (end==0u) return false;
   uint32_t component=0;
-  for (uint32_t i=0;i<n-1u;i++) {
+  for (uint32_t i=0;i<end;i++) {
     if (p[i]=='\\') return false;
     if (p[i]=='/') {
       if (!component) return false;
@@ -41,8 +49,8 @@ static bool safe_path(const uint8_t *p,uint32_t n) {
     }
   }
   if (!component) return false;
-  if (component==1u&&p[n-2]=='.') return false;
-  if (component==2u&&p[n-2]=='.'&&p[n-3]=='.') return false;
+  if (component==1u&&p[end-1u]=='.') return false;
+  if (component==2u&&p[end-1u]=='.'&&p[end-2u]=='.') return false;
   return true;
 }
 static bool duplicate_name(const uint8_t *b,uint64_t end,const uint8_t *name,uint32_t name_size,uint32_t current_mode) {
@@ -60,15 +68,22 @@ static bool duplicate_name(const uint8_t *b,uint64_t end,const uint8_t *name,uin
         !add_ok(name_aligned,file_size,end,&data_end) ||
         !align4(data_end,end,&next) || next>end) return true;
     const uint8_t *prior=b+off+110u;
+    uint32_t prior_effective=prior_name_size-1u;
+    uint32_t current_effective=name_size-1u;
+    if (prior_effective>0u&&prior[prior_effective-1u]=='/'&&
+        (prior_mode&0170000u)==0040000u) --prior_effective;
+    if (current_effective>0u&&name[current_effective-1u]=='/'&&
+        (current_mode&0170000u)==0040000u) --current_effective;
     uint32_t common=0;
-    while (common<prior_name_size && common<name_size && prior[common]==name[common]) ++common;
-    if (common==prior_name_size && common==name_size) return true;
+    while (common<prior_effective && common<current_effective &&
+           prior[common]==name[common]) ++common;
+    if (common==prior_effective && common==current_effective) return true;
     const bool prior_is_dir=(prior_mode&0170000u)==0040000u;
     const bool current_is_dir=(current_mode&0170000u)==0040000u;
-    if (common==prior_name_size-1u && prior[prior_name_size-1u]==0 &&
-        common<name_size-1u && name[common]=='/' && !prior_is_dir) return true;
-    if (common==name_size-1u && name[name_size-1u]==0 &&
-        common<prior_name_size-1u && prior[common]=='/' && !current_is_dir) return true;
+    if (common==prior_effective && common<current_effective &&
+        name[common]=='/' && !prior_is_dir) return true;
+    if (common==current_effective && common<prior_effective &&
+        prior[common]=='/' && !current_is_dir) return true;
     off=next;
   }
   return false;
@@ -110,7 +125,7 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
         trailer=true; off=data_aligned; break;
       }
     }
-    if (!safe_path(name,name_size)) return CHIMERA_CPIO_E_PATH;
+    if (!safe_path(name,name_size,(mode&0170000u)==0040000u)) return CHIMERA_CPIO_E_PATH;
     if (duplicate_name(b,off,name,name_size,mode)) return CHIMERA_CPIO_E_PATH;
     if (++s.entries>CHIMERA_CPIO_MAX_ENTRIES) return CHIMERA_CPIO_E_LIMIT;
     const uint32_t type=mode&0170000u;
