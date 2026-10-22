@@ -170,7 +170,7 @@ for target in live installer recovery; do
   native_init="$LIVE_BOOT/boot/koronos/native-init-$target.elf"
   [[ -s "$native_init" ]] || { echo "ERROR: missing production native init: $native_init" >&2; exit 2; }
   [[ -s "$native_init.sha256" ]] || { echo "ERROR: missing native init checksum: $native_init.sha256" >&2; exit 2; }
-  sha256sum --check "$native_init.sha256"
+  (cd "$LIVE_BOOT/boot/koronos" && sha256sum --check "native-init-$target.elf.sha256")
   cp -f "$native_init" "$STAGE/boot/koronos/native-init-$target.elf"
   cp -f "$native_init.sha256" "$STAGE/boot/koronos/native-init-$target.elf.sha256"
 done
