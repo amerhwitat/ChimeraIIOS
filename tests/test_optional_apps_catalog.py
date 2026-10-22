@@ -42,7 +42,13 @@ class OptionalAppCatalogTests(unittest.TestCase):
         data["platforms"] = [["nested"]]
         self.assertTrue(any("unsupported platform" in e for e in MODULE.validate(data)))
 
-    def test_non_https_browser_preview_is_rejected(self):\n        data = dict(self.catalog)\n        data["apps"] = [dict(app) for app in self.catalog["apps"]]\n        data["apps"][0]["web_preview"] = "javascript:alert(1)"\n        self.assertTrue(any("web_preview must be an HTTPS URL" in e for e in MODULE.validate(data)))\n\n    def test_unknown_platform_is_rejected(self):
+    def test_non_https_browser_preview_is_rejected(self):
+        data = dict(self.catalog)
+        data["apps"] = [dict(app) for app in self.catalog["apps"]]
+        data["apps"][0]["web_preview"] = "javascript:alert(1)"
+        self.assertTrue(any("web_preview must be an HTTPS URL" in e for e in MODULE.validate(data)))
+
+    def test_unknown_platform_is_rejected(self):
         data = dict(self.catalog)
         data["apps"] = [dict(app) for app in self.catalog["apps"]]
         data["apps"][0]["platforms"] = ["ChimeraIIOS"]
