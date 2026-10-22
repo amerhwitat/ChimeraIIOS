@@ -100,7 +100,13 @@ def validate(data: object) -> list[str]:
               or not set(app_platforms) <= ALLOWED_PLATFORMS):
             errors.append(f"{prefix}.platforms contains duplicates or unsupported platform names")
 
-        web_preview = app.get("web_preview")\n        if web_preview is not None:\n            preview_url = urlsplit(web_preview) if isinstance(web_preview, str) else None\n            if preview_url is None or preview_url.scheme != "https" or not preview_url.netloc or preview_url.username or preview_url.password:\n                errors.append(f"{prefix}.web_preview must be an HTTPS URL without embedded credentials")\n\n        if app.get("default_installed") is not False:
+        web_preview = app.get("web_preview")
+        if web_preview is not None:
+            preview_url = urlsplit(web_preview) if isinstance(web_preview, str) else None
+            if preview_url is None or preview_url.scheme != "https" or not preview_url.netloc or preview_url.username or preview_url.password:
+                errors.append(f"{prefix}.web_preview must be an HTTPS URL without embedded credentials")
+
+        if app.get("default_installed") is not False:
             errors.append(f"{prefix}.default_installed must be false; installation requires provider evidence")
         if app.get("launchability") != "not-guaranteed":
             errors.append(f"{prefix}.launchability must remain not-guaranteed until verified")
