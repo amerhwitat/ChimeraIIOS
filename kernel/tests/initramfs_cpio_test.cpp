@@ -20,6 +20,20 @@ static void entry(std::vector<uint8_t>& b,const char* name,uint32_t mode,const c
   if(data)b.insert(b.end(),data,data+z);
   while(b.size()%4u)b.push_back(0);
 }
+static void crc_entry(std::vector<uint8_t>& b,const char* name,uint32_t mode,const char* data) {
+  const size_t start=b.size(); b.resize(start+110,0);
+  std::memcpy(b.data()+start,"070702",6);
+  field(b,start+14,mode);
+  const uint32_t n=(uint32_t)std::strlen(name)+1u;
+  const uint32_t z=data?(uint32_t)std::strlen(data):0u;
+  field(b,start+54,z); field(b,start+94,n);
+  uint32_t sum=0; if(data) for(uint32_t i=0;i<z;i++) sum+=static_cast<uint8_t>(data[i]);
+  field(b,start+102,sum);
+  b.insert(b.end(),name,name+n);
+  while(b.size()%4u)b.push_back(0);
+  if(data)b.insert(b.end(),data,data+z);
+  while(b.size()%4u)b.push_back(0);
+}
 int main() {
   std::vector<uint8_t> a;
   entry(a,"init",0100755u,"ELF");
@@ -43,6 +57,15 @@ int main() {
   entry(conflict,"node/child",0100644u,"y");
   entry(conflict,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(conflict.data(),conflict.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> crc_archive;
+  crc_entry(crc_archive,"init",0100755u,"ELF");
+  crc_entry(crc_archive,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(crc_archive.data(),crc_archive.size(),&s)==CHIMERA_CPIO_OK);
+  auto bad_crc=crc_archive;
+  /* First entry's check field is at header offset 102. */
+  bad_crc[102]='0'; bad_crc[103]='0'; bad_crc[104]='0'; bad_crc[105]='0';
+  bad_crc[106]='0'; bad_crc[107]='0'; bad_crc[108]='0'; bad_crc[109]='0';
+  assert(chimera_cpio_validate_newc(bad_crc.data(),bad_crc.size(),&s)==CHIMERA_CPIO_E_CHECKSUM);
   std::vector<uint8_t> slash_dir;
   entry(slash_dir,"usr/",0040755u,nullptr);
   entry(slash_dir,"TRAILER!!!",0,nullptr);
