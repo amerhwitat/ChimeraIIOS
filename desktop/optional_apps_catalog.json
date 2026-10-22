@@ -1268,6 +1268,24 @@
       "default_installed": false,
       "launchability": "not-guaranteed",
       "panel": "Utilities"
+    },
+    {
+      "id": "pdfreaderpy",
+      "name": "PDFreaderPY",
+      "category": "documents",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://github.com/amerhwitat/PDFreaderPY",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Documents",
+      "web_preview": "https://amerhwitat.github.io/apps/pdf-reader.html",
+      "notes": "Browser preview is view-only. Native PDF processing, OCR, extraction, and OS launcher support require separate provider verification."
     }
   ]
 }
