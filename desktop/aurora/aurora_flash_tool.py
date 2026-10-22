@@ -24,6 +24,19 @@ def flash(image, device, expected_sha256=None):
         raise SystemExit("Target device not found")
     if not stat.S_ISBLK(os.stat(device).st_mode):
         raise SystemExit("Refusing non-block-device target")
+    # Fail closed if lsblk cannot establish that this is a whole disk or if
+    # any partition/child of the target is mounted.
+    try:
+        kind = subprocess.run(["lsblk", "-dnro", "TYPE", device], check=True,
+                              capture_output=True, text=True, timeout=5).stdout.strip()
+        mounts = subprocess.run(["lsblk", "-nrpo", "MOUNTPOINT", device], check=True,
+                                capture_output=True, text=True, timeout=5).stdout.splitlines()
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise SystemExit("Cannot safely inspect target with lsblk: " + str(exc))
+    if kind != "disk":
+        raise SystemExit("Refusing target that is not a whole disk")
+    if any(point.strip() for point in mounts):
+        raise SystemExit("Refusing target with mounted filesystem(s)")
     if not expected_sha256 or not re.fullmatch(r"[0-9a-fA-F]{64}", expected_sha256):
         raise SystemExit("A 64-character expected SHA-256 is required")
     expected_sha256 = expected_sha256.lower()
