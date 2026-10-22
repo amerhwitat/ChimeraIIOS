@@ -38,6 +38,11 @@ int main() {
   entry(duplicate,"init",0100755u,"ELF");
   entry(duplicate,"TRAILER!!!",0,nullptr);
   assert(chimera_cpio_validate_newc(duplicate.data(),duplicate.size(),&s)==CHIMERA_CPIO_E_PATH);
+  std::vector<uint8_t> conflict;
+  entry(conflict,"node",0100644u,"x");
+  entry(conflict,"node/child",0100644u,"y");
+  entry(conflict,"TRAILER!!!",0,nullptr);
+  assert(chimera_cpio_validate_newc(conflict.data(),conflict.size(),&s)==CHIMERA_CPIO_E_PATH);
   const uint8_t gzip[]={0x1f,0x8b,0,0,0,0};
   assert(chimera_cpio_validate_newc(gzip,sizeof(gzip),&s)==CHIMERA_CPIO_E_COMPRESSION);
   assert(chimera_cpio_validate_newc(a.data(),CHIMERA_CPIO_MAX_ARCHIVE_BYTES+1ull,&s)==CHIMERA_CPIO_E_LIMIT);
