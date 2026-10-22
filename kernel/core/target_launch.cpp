@@ -287,15 +287,21 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 archive_bytes, archive->size,
                 reinterpret_cast<void *>(static_cast<uintptr_t>(decompressed.base)),
                 expected_size, &decoded_size, &summary);
-            if (cpio_rc != CHIMERA_CPIO_OK || decoded_size != expected_size || !summary.has_init) {
-                koronos_target_log("[RUN ] ERROR: gzip decode, CRC32/ISIZE, CPIO safety, or init-entry validation failed");
+            if (cpio_rc != CHIMERA_CPIO_OK || decoded_size != expected_size) {
+                /* The separately staged, target-matched native ELF is the
+                   executable entry point. A shell /init or absent /init in
+                   the archive must not reject an otherwise valid rootfs;
+                   CPIO safety and gzip integrity remain mandatory. */
+                koronos_target_log("[RUN ] ERROR: gzip decode, CRC32/ISIZE, or CPIO safety validation failed");
                 return -19;
             }
             koronos_target_log("[RUN ] Bounded gzip/DEFLATE, CRC32/ISIZE and CPIO validation passed");
         } else {
             cpio_rc = chimera_cpio_validate_newc(archive_bytes, archive->size, &summary);
-            if (cpio_rc != CHIMERA_CPIO_OK || !summary.has_init) {
-                koronos_target_log("[RUN ] ERROR: selected initramfs is malformed, unsafe, or lacks top-level init");
+            if (cpio_rc != CHIMERA_CPIO_OK) {
+                /* Entry-point selection is provided by the separately staged
+                   native init ELF; validate the archive as rootfs data only. */
+                koronos_target_log("[RUN ] ERROR: selected initramfs is malformed or unsafe");
                 return -17;
             }
         }
