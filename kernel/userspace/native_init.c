@@ -18,6 +18,7 @@
 #define CHM_SYS_EXIT 1u
 #define CHM_SYS_GETPID 2u
 #define CHM_SYS_WRITE 9u
+#define CHM_SYS_VALIDATE_BOOT_PAYLOAD 17u
 
 static volatile uint64_t native_init_state = 1;
 
@@ -64,6 +65,8 @@ __attribute__((noreturn, used)) void _start(void) {
 
     const long pid = koronos_syscall1(CHM_SYS_GETPID, 0);
     if (pid <= 0) fail_closed(78);
+    /* Require target data-module validation before reporting init readiness. */
+    if (koronos_syscall1(CHM_SYS_VALIDATE_BOOT_PAYLOAD, 0) != 0) fail_closed(78);
 
     /* Report only the native-init ABI milestone. VFS mounting, storage
        durability, service supervision and desktop readiness remain separate
