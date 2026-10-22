@@ -33,7 +33,8 @@ extern "C" int koronos_virtio_pci_parse_caps(
 
     /* PCI Status bit 4 indicates that a capability list is present. */
     if ((le16(config + 6) & (1u << 4u)) == 0) return -3;
-    uint8_t ptr = static_cast<uint8_t>(config[0x34] & 0xfcu);
+    uint8_t ptr = config[0x34];
+    if ((ptr & 3u) != 0) return -4;
     uint8_t visited[256] = {};
     unsigned count = 0;
     while (ptr) {
@@ -41,7 +42,8 @@ extern "C" int koronos_virtio_pci_parse_caps(
             visited[ptr] || ++count > 48u) return -4;
         visited[ptr] = 1;
         const uint8_t id = config[ptr];
-        const uint8_t next = static_cast<uint8_t>(config[ptr + 1u] & 0xfcu);
+        const uint8_t next = config[ptr + 1u];
+        if ((next & 3u) != 0) return -4;
         if (id == KORONOS_VIRTIO_PCI_CAP_VENDOR_ID) {
             const uint8_t cap_len = config[ptr + 2u];
             const uint8_t type = config[ptr + 3u];
