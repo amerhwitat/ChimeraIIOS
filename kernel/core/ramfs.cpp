@@ -28,6 +28,21 @@ static int insert_path(chimera_ramfs_node*root,const char*path,uint32_t length,u
  }return CHIMERA_RAMFS_E_PATH;
 }
 }
+static int map_cpio_status(int status) {
+ switch(status) {
+  case CHIMERA_CPIO_OK: return CHIMERA_RAMFS_OK;
+  case CHIMERA_CPIO_E_ARGUMENT: return CHIMERA_RAMFS_E_ARGUMENT;
+  case CHIMERA_CPIO_E_LIMIT: return CHIMERA_RAMFS_E_LIMIT;
+  case CHIMERA_CPIO_E_HEADER: return CHIMERA_RAMFS_E_HEADER;
+  case CHIMERA_CPIO_E_BOUNDS: return CHIMERA_RAMFS_E_BOUNDS;
+  case CHIMERA_CPIO_E_PATH: return CHIMERA_RAMFS_E_PATH;
+  case CHIMERA_CPIO_E_TYPE: return CHIMERA_RAMFS_E_TYPE;
+  case CHIMERA_CPIO_E_CHECKSUM: return CHIMERA_RAMFS_E_CHECKSUM;
+  case CHIMERA_CPIO_E_TRAILER: return CHIMERA_RAMFS_E_TRAILER;
+  case CHIMERA_CPIO_E_COMPRESSION: return CHIMERA_RAMFS_E_HEADER;
+  default: return CHIMERA_RAMFS_E_HEADER;
+ }
+}
 extern "C" void chimera_ramfs_destroy(chimera_ramfs_node*r,const chimera_ramfs_allocator*a){if(r&&a&&a->free)destroy_node(r,a);}
 extern "C" int chimera_ramfs_extract_newc(const void*input,uint64_t size,const chimera_ramfs_allocator*a,const chimera_ramfs_limits*requested,chimera_ramfs_node**out){
  if(out) *out=nullptr;
@@ -35,7 +50,7 @@ extern "C" int chimera_ramfs_extract_newc(const void*input,uint64_t size,const c
  chimera_ramfs_limits lim=*requested;if(!lim.max_entries||lim.max_entries>CHIMERA_RAMFS_MAX_ENTRIES)lim.max_entries=CHIMERA_RAMFS_MAX_ENTRIES;if(!lim.max_path_bytes||lim.max_path_bytes>CHIMERA_RAMFS_MAX_PATH)lim.max_path_bytes=CHIMERA_RAMFS_MAX_PATH;if(!lim.max_file_bytes||lim.max_file_bytes>CHIMERA_RAMFS_MAX_FILE_BYTES)lim.max_file_bytes=CHIMERA_RAMFS_MAX_FILE_BYTES;if(!lim.max_total_bytes||lim.max_total_bytes>CHIMERA_RAMFS_MAX_TOTAL_BYTES)lim.max_total_bytes=CHIMERA_RAMFS_MAX_TOTAL_BYTES;
  if(size<110u||size>CHIMERA_RAMFS_MAX_TOTAL_BYTES) return CHIMERA_RAMFS_E_LIMIT;
  chimera_cpio_summary preflight{};
- if(chimera_cpio_validate_newc(input,size,&preflight)!=CHIMERA_CPIO_OK) return CHIMERA_RAMFS_E_HEADER;
+ const int preflight_rc=chimera_cpio_validate_newc(input,size,&preflight);if(preflight_rc!=CHIMERA_CPIO_OK)return map_cpio_status(preflight_rc);
  auto*b=(const uint8_t*)input;
  uint64_t off=0,total=0;
  uint32_t entries=0,node_count=1;
