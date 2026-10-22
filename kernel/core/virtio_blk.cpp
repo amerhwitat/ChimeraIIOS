@@ -69,10 +69,10 @@ static bool wait_status(koronos_virtio_blk *d, uint8_t mask, uint8_t expected) {
 }
 static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
                  uint32_t sectors, void *buffer, bool device_writes) {
-    if (!d || !d->attached || d->busy) return -1;
+    if (!d || !d->attached || d->failed) return -1;
     if (sectors > MAX_SECTORS || (type != VIRTIO_BLK_T_FLUSH && (!sectors || !buffer)))
         return -1;
-    d->busy = 1;
+    if (__sync_lock_test_and_set(&d->busy, 1u)) return -1;
     const size_t bytes = static_cast<size_t>(sectors) * SECTOR_SIZE;
     if (type == VIRTIO_BLK_T_OUT)
         for (size_t i = 0; i < bytes; ++i)
@@ -102,7 +102,9 @@ static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
     const uint16_t notify_off = d->transport.common->queue_notify_off;
     const uint64_t byte_off = static_cast<uint64_t>(notify_off) * d->transport.notify_multiplier;
     if (byte_off + sizeof(uint16_t) > d->transport.notify_length) {
-        d->busy = 0;
+        d->failed = 1;
+        d->transport.common->device_status |= STATUS_FAILED;
+        __sync_lock_release(&d->busy);
         return -1;
     }
     volatile uint16_t *notify = reinterpret_cast<volatile uint16_t *>(
@@ -116,14 +118,18 @@ static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
         relax(d);
     }
     if (!complete) {
-        d->busy = 0;
-        return -2; // bounded timeout; queue/device recovery is required before reuse
+        d->failed = 1;
+        d->transport.common->device_status |= STATUS_FAILED;
+        __sync_lock_release(&d->busy);
+        return -2; // latch failed: queue cannot be safely reused without reset
     }
     volatile UsedElement *used = used_ring(d);
     const uint32_t completed_id = used[old_used % d->queue_size].id;
     d->last_used = static_cast<uint16_t>(old_used + 1u);
     if (completed_id != 0 || *request_status(d) != VIRTIO_BLK_S_OK) {
-        d->busy = 0;
+        d->failed = 1;
+        d->transport.common->device_status |= STATUS_FAILED;
+        __sync_lock_release(&d->busy);
         return -3;
     }
     barrier();
@@ -131,7 +137,7 @@ static int issue(koronos_virtio_blk *d, uint32_t type, uint64_t lba,
         for (size_t i = 0; i < bytes; ++i)
             static_cast<uint8_t *>(buffer)[i] =
                 reinterpret_cast<const uint8_t *>(d->data.virtual_address)[i];
-    d->busy = 0;
+    __sync_lock_release(&d->busy);
     return 0;
 }
 static int block_read(void *ctx, uint64_t lba, uint32_t count, void *buffer) {
@@ -155,6 +161,7 @@ static void release(koronos_virtio_blk *d) {
     if (d->ring.physical_address) (void)koronos_dma_free(&d->ring);
     d->attached = 0;
     d->busy = 0;
+    d->failed = 0;
 }
 }
 
