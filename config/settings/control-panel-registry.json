@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "product_targets": [
+    "ChimeraIIOS",
+    "OctavianOS"
+  ],
+  "principles": [
+    "capability_detected_before_setting_is_enabled",
+    "unsupported_settings_are_visible_but_disabled_with_reason",
+    "changes_are_validated_and_audited",
+    "never_expose_secret_values_in_exported_settings"
+  ],
+  "sections": [
+    {
+      "id": "system",
+      "title": "System",
+      "settings": [
+        "system.language",
+        "system.region",
+        "system.timezone",
+        "system.date_time",
+        "system.default_apps",
+        "system.startup",
+        "system.updates",
+        "system.telemetry"
+      ]
+    },
+    {
+      "id": "appearance",
+      "title": "Appearance",
+      "settings": [
+        "appearance.theme",
+        "appearance.accent",
+        "appearance.wallpaper",
+        "appearance.icons",
+        "appearance.fonts",
+        "appearance.scale",
+        "appearance.display_resolution",
+        "appearance.refresh_rate",
+        "appearance.accessibility"
+      ]
+    },
+    {
+      "id": "desktop",
+      "title": "Desktop and Sessions",
+      "settings": [
+        "desktop.session",
+        "desktop.compositor",
+        "desktop.window_behavior",
+        "desktop.virtual_desktops",
+        "desktop.shortcuts",
+        "desktop.notifications",
+        "desktop.audio"
+      ]
+    },
+    {
+      "id": "network",
+      "title": "Network",
+      "settings": [
+        "network.interfaces",
+        "network.wifi",
+        "network.ethernet",
+        "network.vpn",
+        "network.proxy",
+        "network.firewall",
+        "network.bluetooth"
+      ]
+    },
+    {
+      "id": "devices",
+      "title": "Devices and Drivers",
+      "settings": [
+        "devices.inventory",
+        "devices.driver_status",
+        "devices.driver_updates",
+        "devices.printer",
+        "devices.camera",
+        "devices.audio",
+        "devices.input",
+        "devices.storage",
+        "devices.power",
+        "devices.firmware"
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security and Privacy",
+      "settings": [
+        "security.accounts",
+        "security.authentication",
+        "security.permissions",
+        "security.disk_encryption",
+        "security.secure_boot",
+        "security.keys",
+        "security.privacy",
+        "security.audit_log"
+      ]
+    },
+    {
+      "id": "compatibility",
+      "title": "Compatibility",
+      "settings": [
+        "compat.os_profiles",
+        "compat.cpu_features",
+        "compat.binary_formats",
+        "compat.providers",
+        "compat.emulation",
+        "compat.per_app_overrides"
+      ]
+    },
+    {
+      "id": "applications",
+      "title": "Applications",
+      "settings": [
+        "apps.catalog",
+        "apps.install_sources",
+        "apps.file_associations",
+        "apps.permissions",
+        "apps.startup",
+        "apps.updates",
+        "apps.compatibility",
+        "apps.uninstall"
+      ]
+    },
+    {
+      "id": "developer",
+      "title": "Developer and Diagnostics",
+      "settings": [
+        "developer.logs",
+        "developer.crash_reports",
+        "developer.performance",
+        "developer.services",
+        "developer.kernel_modules",
+        "developer.driver_assistant",
+        "developer.model_policy"
+      ]
+    },
+    {
+      "id": "power",
+      "title": "Power and Performance",
+      "settings": [
+        "power.profile",
+        "power.sleep",
+        "power.hibernate",
+        "power.thermal_policy",
+        "power.cpu_governor",
+        "power.battery",
+        "power.wake_sources"
+      ]
+    },
+    {
+      "id": "storage",
+      "title": "Storage",
+      "settings": [
+        "storage.devices",
+        "storage.partitions",
+        "storage.filesystems",
+        "storage.mounts",
+        "storage.trim",
+        "storage.encryption",
+        "storage.backups"
+      ]
+    },
+    {
+      "id": "platform_specific",
+      "title": "Platform-specific",
+      "settings": [
+        "platform.firmware",
+        "platform.secure_boot",
+        "platform.tpm_or_equivalent",
+        "platform.gpu_control",
+        "platform.vendor_extensions"
+      ]
+    }
+  ],
+  "platform_adapters": {
+    "linux": {
+      "provider": "settings-daemon-and-dbus-adapter",
+      "status": "compatibility_provider_required"
+    },
+    "windows": {
+      "provider": "windows-settings-and-device-management-adapter",
+      "status": "compatibility_provider_required"
+    },
+    "macos": {
+      "provider": "macos-system-settings-and-iokit-adapter",
+      "status": "compatibility_provider_required"
+    },
+    "chimera": {
+      "provider": "native-koronos-settings-services",
+      "status": "native_candidate"
+    },
+    "octavian": {
+      "provider": "native-koronos-settings-services",
+      "status": "native_candidate"
+    }
+  },
+  "apply_contract": {
+    "flow": [
+      "read_capabilities",
+      "validate_schema",
+      "authorize_change",
+      "stage_change",
+      "apply_with_timeout",
+      "verify_effect",
+      "persist_or_rollback",
+      "emit_audit_event"
+    ],
+    "no_silent_fallback": true,
+    "unsupported_behavior": "disabled_with_explanation",
+    "hardware_or_firmware_changes_require_elevated_authorization": true
+  }
+}
