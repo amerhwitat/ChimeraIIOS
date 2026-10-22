@@ -65,3 +65,23 @@ A first executable archive-validation layer has now been added to the Koronos so
 - `kernel/core/target_launch.cpp` now validates raw Live/Recovery CPIO before launch and rejects gzip until a bounded decompressor is wired. The production readiness check now requires a target-owned service marker (`aurora-session`, `install-executor`, or `recovery-runtime`) rather than the generic native-init probe marker.
 
 This is a real partial implementation, not a complete initramfs runtime. It does not yet extract files, mount a VFS, create process-owned file descriptors, implement exec/wait/reap, or start target services. Duplicate path names and regular-file path-prefix conflicts are now rejected by a bounded prior-entry scan; regression cases cover exact duplicates and a file-versus-child conflict. Directory parent/child ordering and full extraction semantics still require a VFS-aware extraction layer. Gzip/DEFLATE support remains absent, so compressed production initramfs deliberately fails closed. Host regression and kernel CI workflows triggered by these commits were queued at the last poll; no passing build/test claim is made here.
+
+
+## Latest production acceptance ledger — 2026-10-22
+
+Evidence source: completed Full ISO run [39717218453](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39717218453), on the earlier kernel integration head. Both BIOS and UEFI jobs completed ISO composition, payload checks and early QEMU kernel-ready smoke, then failed the actual production userspace handoff. The workflow uploaded target traces and ISO candidates, but skipped release publication. This run predates the current PR #187 target-ELF staging head; the new exact-head run remains queued and must be evaluated separately.
+
+| Production case | Result from run 39717218453 | Evidence / remaining work |
+|---|---|---|
+| Live / BIOS | FAIL | Target readiness gate failed; native init exits 78 instead of starting a real Live service. |
+| Installer / BIOS | FAIL | Target readiness gate failed; installer transaction and durable storage service are absent. |
+| Recovery / BIOS | FAIL | Target readiness gate failed; recovery runtime and verified repair operation are absent. |
+| Live / UEFI | FAIL | Target readiness gate failed; native init exits 78 instead of starting a real Live service. |
+| Installer / UEFI | FAIL | Target readiness gate failed; installer transaction and durable storage service are absent. |
+| Recovery / UEFI | FAIL | Target readiness gate failed; recovery runtime and verified repair operation are absent. |
+| Aurora session handoff | NOT PASSING | No target-owned Aurora session health/readiness evidence. |
+| Installer write → cold reboot → read-back | NOT IMPLEMENTED / NOT RUN | Workflow explicitly blocks release on missing persistence acceptance. |
+| Recovery repair postcondition | NOT IMPLEMENTED / NOT RUN | Payload routing is not a repair operation. |
+| AP startup + concurrent per-CPU execution | NOT IMPLEMENTED / NOT RUN | Workflow explicitly blocks release on missing genuine SMP acceptance. |
+
+Do not copy these historical FAIL results onto the newer PR #187 head as if it had completed; that head's full-ISO workflow is still queued. Equally, do not infer a pass from queued status. Release remains blocked until exact-head CI produces real target-owned evidence and all six production cases pass.
