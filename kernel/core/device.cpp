@@ -74,6 +74,22 @@ extern "C" int chimera_pci_decode_device_bar(const chimera_device *device,uint8_
   */
  return chimera_pci_decode_bar(low,high,out);
 }
+extern "C" int chimera_pci_read_config_space(uint32_t bus,uint8_t dev,uint8_t fn,uint8_t out[256]){
+ if(!out || bus>255u || dev>=32u || fn>=8u)return -1;
+#if defined(__x86_64__) || defined(__i386__)
+ for(uint32_t off=0;off<256u;off+=4u){
+   const uint32_t value=pci_read((uint8_t)bus,dev,fn,(uint8_t)off);
+   out[off]=(uint8_t)value;
+   out[off+1u]=(uint8_t)(value>>8u);
+   out[off+2u]=(uint8_t)(value>>16u);
+   out[off+3u]=(uint8_t)(value>>24u);
+ }
+ return 0;
+#else
+ for(uint32_t i=0;i<256u;++i)out[i]=0;
+ return -2;
+#endif
+}
 extern "C" int chimera_hardware_enumerate_devices(chimera_device_inventory *out){
  if(!out)return -1;
  for(size_t i=0;i<sizeof(*out);++i)((uint8_t*)out)[i]=0;
