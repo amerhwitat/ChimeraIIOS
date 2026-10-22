@@ -54,6 +54,15 @@ assert "bound_verified" in driver["driver_states"]
 families = catalog["application_families"]
 family_ids = [family["id"] for family in families]
 assert len(family_ids) == len(set(family_ids)), "duplicate application family IDs"
+target_matrix = catalog["target_os_matrix"]
+target_ids = [target["id"] for target in target_matrix]
+assert len(target_ids) == len(set(target_ids)), "duplicate app target IDs"
+for required in ("chimera", "octavian", "linux", "windows", "macos"):
+    assert required in target_ids, f"missing app target: {required}"
+for target in target_matrix:
+    assert target["status"] == "candidate_only" and target["provider_required"] is True, (
+        f"target {target['id']} must remain gated on provider and evidence"
+    )
 for family in families:
     assert family.get("status") == "candidate_only", (
         f"application family {family['id']} must remain candidate-only until target validation"
