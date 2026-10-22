@@ -17,6 +17,7 @@ required = (
     "if (payload_count>1u)",
     "if (payload_count==1u && payload_target!=target)",
     "native init target does not match the selected production payload",
+    "production rootfs is validated but not mounted; refusing userspace readiness without VFS publication",
 )
 missing = [part for part in required if part not in source]
 if missing:
