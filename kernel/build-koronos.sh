@@ -1,3 +1,31 @@
+
+# Build production target init ELFs from dedicated sources; never reuse test probes.
+USER_CC="${CC:-gcc}"
+for target in live installer recovery; do
+  case "$target" in
+    live) target_define=CHIMERA_TARGET_LIVE ;;
+    installer) target_define=CHIMERA_TARGET_INSTALLER ;;
+    recovery) target_define=CHIMERA_TARGET_RECOVERY ;;
+  esac
+  "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone \
+    -mno-sse -mno-mmx -msoft-float -fno-asynchronous-unwind-tables \
+    -fno-unwind-tables -D"$target_define"=1 \
+    -c "$ROOT/kernel/userspace/native_init.c" -o "$BUILD/native-init-$target.o"
+  "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+    -T "$ROOT/kernel/userspace/native_init_linker.ld" \
+    "$BUILD/native-init-$target.o" -o "$BUILD/native-init-$target.elf"
+  readelf -h "$BUILD/native-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: production native-init-$target.elf is not ET_EXEC" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/native-init-$target.elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: production native-init-$target.elf has no RX PT_LOAD" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/native-init-$target.elf" | grep -Eq 'LOAD.*RW ' || {
+    echo "ERROR: production native-init-$target.elf has no writable RW PT_LOAD" >&2; exit 1;
+  }
+done
+printf 'Production native init ELFs: %s/native-init-{live,installer,recovery}.elf\n' "$BUILD"
 #!/usr/bin/env bash
 
 # --- Chimera II OS standard help ---
