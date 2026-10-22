@@ -59,6 +59,27 @@ static uint64_t read_le64(const volatile uint8_t *p) {
     for (unsigned i = 0; i < 8; ++i) value |= static_cast<uint64_t>(p[i]) << (i * 8u);
     return value;
 }
+
+/* Virtio device configuration may change while being read. Use the standard
+ * generation counter so a 64-bit capacity cannot be assembled from two
+ * different device-config snapshots. */
+static bool read_capacity(koronos_virtio_blk *d, uint64_t *capacity) {
+    if (!d || !capacity || !d->transport.common ||
+        !d->transport.device_config || d->transport.device_config_length < 8)
+        return false;
+    for (uint32_t attempt = 0; attempt < 1000u; ++attempt) {
+        const uint8_t before = d->transport.common->config_generation;
+        barrier();
+        const uint64_t value = read_le64(d->transport.device_config);
+        barrier();
+        const uint8_t after = d->transport.common->config_generation;
+        if (before == after) {
+            *capacity = value;
+            return value != 0;
+        }
+    }
+    return false;
+}
 static void barrier() { __asm__ volatile("mfence" ::: "memory"); }
 static void relax(koronos_virtio_blk *d) {
     if (d->transport.relax) d->transport.relax(d->transport.context);
@@ -214,6 +235,18 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     while (q <= KORONOS_VIRTIO_BLK_QUEUE_MAX / 2u && q * 2u <= offered) q *= 2u;
     if (q < 3u) { c->device_status |= STATUS_FAILED; return -4; }
     d->queue_size = q;
+
+    /* Reject an invalid notify window before allocating memory or enabling
+     * the queue. Once a request is published, a bad notify offset would leave
+     * the device unaware of work already placed in the available ring. */
+    const uint64_t notify_byte_off =
+        static_cast<uint64_t>(c->queue_notify_off) * t->notify_multiplier;
+    if (notify_byte_off > t->notify_length ||
+        t->notify_length - static_cast<size_t>(notify_byte_off) < sizeof(uint16_t)) {
+        c->device_status |= STATUS_FAILED;
+        return -5;
+    }
+
     if (koronos_dma_alloc(4096, 4096, t->dma_mask, &d->ring) != 0 ||
         koronos_dma_alloc(4096, 4096, t->dma_mask, &d->request) != 0 ||
         koronos_dma_alloc(MAX_SECTORS * SECTOR_SIZE, 4096, t->dma_mask, &d->data) != 0) {
@@ -230,8 +263,8 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     d->free_head = 0;
     d->attached = 1;
 
-    const uint64_t capacity = read_le64(t->device_config);
-    if (!capacity) { release(d); return -7; }
+    uint64_t capacity = 0;
+    if (!read_capacity(d, &capacity)) { release(d); return -7; }
     d->block = {block_id, SECTOR_SIZE, capacity,
                 d->flush_supported ? &block_ops : &block_ops_without_flush, d};
 
