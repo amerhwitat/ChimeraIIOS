@@ -136,10 +136,28 @@ extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip) {
 }
 extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs) {
     /* This acknowledgement is only reachable from the DPL3 INT 0x80 gate.
-       The CPU-saved CS RPL, not an inferred user RIP, proves CPL3 origin. */
-    if ((user_cs & 3u) != 3u) return 0u;
-    const uint32_t pid = validate_active_user_context(user_rip);
-    if (!pid) return 0u;
+       The CPU-saved CS RPL, not an inferred user RIP, proves CPL3 origin.
+       Rejection reasons are deliberately explicit: production traces showed
+       missing acknowledgements, and a silent zero obscured the failing layer. */
+    if ((user_cs & 3u) != 3u) {
+        koronos_target_log("[INT80] rejected: saved CS.RPL is not 3");
+        return 0u;
+    }
+    if (active_target == TARGET_NONE || !active_pid || !active_root) {
+        koronos_target_log("[INT80] rejected: no active target PID/CR3");
+        return 0u;
+    }
+    if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) {
+        koronos_target_log("[INT80] rejected: saved user RIP is outside the user range");
+        return 0u;
+    }
+    uint64_t current_cr3 = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(current_cr3));
+    if ((current_cr3 & 0x000FFFFFFFFFF000ull) != active_root) {
+        koronos_target_log("[INT80] rejected: current CR3 does not match active process root");
+        return 0u;
+    }
+    const uint32_t pid = active_pid;
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
         log_user_init_syscall(static_cast<Target>(active_target), pid);
