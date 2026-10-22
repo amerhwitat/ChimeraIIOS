@@ -293,5 +293,38 @@
       "AP startup and concurrent per-CPU SMP"
     ],
     "release_status_until_all_pass": "BLOCKED"
-  }
+  },
+  "target_os_matrix": [
+    {
+      "id": "chimera",
+      "label": "ChimeraIIOS",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "octavian",
+      "label": "OctavianOS",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "linux",
+      "label": "Linux",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "windows",
+      "label": "Windows",
+      "status": "candidate_only",
+      "provider_required": true
+    },
+    {
+      "id": "macos",
+      "label": "macOS",
+      "status": "candidate_only",
+      "provider_required": true
+    }
+  ],
+  "target_matrix_policy": "Every application family remains candidate-only on every target until its build/package, ABI/runtime provider, permissions, launch/exit, and target-specific tests pass. Upstream support on a host OS does not imply native support in ChimeraIIOS or OctavianOS."
 }
