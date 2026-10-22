@@ -49,6 +49,22 @@ mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initram
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
+# The production GRUB entries select a target-specific native init ELF in addition
+# to the data initramfs. Build-koronos.sh owns these ELFs; stage and validate
+# all three here so the full ISO cannot silently omit the executable handoff.
+NATIVE_INIT_DIR="$BUILD_DIR/koronos/x86_64"
+for target in live installer recovery; do
+  native_init="$NATIVE_INIT_DIR/native-init-$target.elf"
+  if [[ ! -s "$native_init" ]]; then
+    echo "ERROR: production native init ELF missing: $native_init (run kernel/build-koronos.sh first)" >&2
+    exit 2
+  fi
+  readelf -h "$native_init" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $native_init is not an ELF executable" >&2; exit 2; }
+  readelf -lW "$native_init" | grep -Eq 'LOAD.*R E' || { echo "ERROR: $native_init has no executable PT_LOAD" >&2; exit 2; }
+  readelf -lW "$native_init" | grep -Eq 'LOAD.*RW ' || { echo "ERROR: $native_init has no writable PT_LOAD" >&2; exit 2; }
+  chimera_copy_if_distinct "$native_init" "$OUT/boot/koronos/native-init-$target.elf"
+  sha256sum "$OUT/boot/koronos/native-init-$target.elf" > "$OUT/boot/koronos/native-init-$target.elf.sha256"
+done
 INIT="$OUT/initramfs/root"
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
