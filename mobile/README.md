@@ -43,3 +43,19 @@ The common contracts and roadmap are present; production device support remains 
 Mobile builds consume the shared [endianness contract](../system/architecture/endianness.json) and freestanding helpers at `kernel/include/chimera/endianness.h`. The device OS/SoC ABI determines native data order; the boot handoff records the target and active mode. Microkernel IPC uses canonical little-endian serialized fields, while native in-memory structures remain ABI-specific. Android/iOS hosted execution does not establish that an emulated guest shares the host byte order. Emulators and compatibility layers must keep guest byte order independent and validate executable format metadata. Device-specific kernel, driver, Aurora and endian-mode behavior is not considered validated until tested on the named target profile.
 
 The x86-32 Koronos probe is shared as a development target only; it does not imply a complete 32-bit mobile kernel or device boot image. See [the 32-bit bring-up plan](../docs/koronos-32bit-bringup.md).
+
+
+## Cross-edition synchronization and flash safety (2026-10-22)
+
+The mobile edition and the Super Flash & ISO Tool must consume the same versioned release manifest and artifact digests as desktop/ISO builds; they must not infer support from a successful desktop build.
+
+- Every artifact records repository, commit SHA, target architecture, boot mode, build workflow/run, SHA-256, and verification status.
+- Mobile profiles are exact-device/SoC contracts. ARM64 remains a bring-up target until the named device boots and passes display, touch, audio, storage, networking, power, verified-boot, update/rollback, and recovery tests. x86, x86_64, and ARM32 are not implied by the reference AArch64 profile.
+- The browser UI only requests operations from the local native bridge; it cannot directly access block devices. Flashing requires an explicit /dev/... target, a valid matching SHA-256, a separate typed destructive confirmation, and native-side safety checks including mounted-filesystem refusal and post-write read-back verification.
+- The native tool must reject system/root disks, mounted target partitions, ambiguous devices, stale device identity, image/target size mismatch, and a missing CHIMERA_FLASH_CONFIRM=YES. Never bypass Android Verified Boot, Apple secure boot, bootloader locks, or OEM signing.
+- Phone firmware/ROM writes remain disabled unless an exact model-specific, signed and verified profile explicitly supports the operation. ADB/Fastboot diagnostics are read-only by default.
+- Report states distinctly: NOT RUN, PASS, FAIL, or UNSUPPORTED; source/manifest validation is not a boot test. Do not publish a device as supported without reproducible hardware evidence.
+
+## Required synchronization checks
+
+Before promoting a mobile or flash release, verify manifest/artifact digest consistency across ChimeraIIOS, OctavianOS, and the Web UI; run mobile profile schema checks, flash shell syntax checks, desktop ISO checks, and the six production BIOS/UEFI Live/Installer/Recovery cases where applicable. Keep release publication blocked if any required gate is missing or failed.
