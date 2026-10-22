@@ -105,6 +105,23 @@ assert "Installer handoff blocked: installation image is data and no native USER
     "installer payload without a native init ELF must remain explicitly blocked"
 )
 
+# A dedicated Koronos ABI init artifact is compiled separately from test probes.
+NATIVE_INIT = ROOT / "kernel/userspace/native_init.c"
+NATIVE_LINKER = ROOT / "kernel/userspace/native_init_linker.ld"
+NATIVE_BUILD = ROOT / "kernel/build-koronos.sh"
+assert NATIVE_INIT.is_file() and NATIVE_LINKER.is_file(), "native init source/linker layout missing"
+native_source = NATIVE_INIT.read_text(encoding="utf-8")
+assert 'int $0x80' in native_source and "CHM_SYS_GETPID" in native_source and "CHM_SYS_WRITE" in native_source, (
+    "native init must use the CPL3 gate and Koronos native syscall ABI"
+)
+assert "VFS mounting, storage durability, service supervision and desktop readiness" in native_source, (
+    "native init must not overclaim unfinished runtime readiness"
+)
+build_source = NATIVE_BUILD.read_text(encoding="utf-8")
+assert "kernel/userspace/native_init.c" in build_source and "native-init-$target.elf" in build_source, (
+    "build must compile production init independently from candidate probes"
+)
+
 app_count = sum(len(family.get("examples", [])) for family in families)
 print(f"cross-OS contracts PASS: {len(os_entries)} OS families, "
       f"{len(compat['cpu_profiles'])} CPU profiles, {len(setting_ids)} settings, "
