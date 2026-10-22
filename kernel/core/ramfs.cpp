@@ -16,19 +16,32 @@ static bool component_ok(const char*p,uint32_t n){if(!n||(n==1&&p[0]=='.')||(n==
 static void unlink_node(chimera_ramfs_node*n){if(!n||!n->parent)return;auto**p=&n->parent->children;while(*p&&*p!=n)p=&(*p)->next;if(*p==n)*p=n->next;n->parent=nullptr;n->next=nullptr;}
 static int insert_path(chimera_ramfs_node*root,const char*path,uint32_t length,uint32_t type,const uint8_t*payload,uint32_t bytes,const chimera_ramfs_allocator*a,uint64_t*total,uint32_t*node_count,uint32_t max_nodes){
  if(length==1&&path[0]=='.'&&type==1){if(root->explicit_entry)return CHIMERA_RAMFS_E_DUPLICATE;root->explicit_entry=1;return 0;}
- if(!length||path[0]=='/'||path[length-1]=='/')return CHIMERA_RAMFS_E_PATH;auto*cur=root;uint32_t start=0;
+ if(!length||path[0]=='/'||path[length-1]=='/') return CHIMERA_RAMFS_E_PATH;
+ auto*cur=root;
+ uint32_t start=0;
  for(uint32_t i=0;i<=length;i++){if(i<length&&path[i]!='/')continue;uint32_t n=i-start; if(!component_ok(path+start,n))return CHIMERA_RAMFS_E_PATH;bool final=i==length;uint32_t wanted=final?type:1u;auto*child=find_child(cur,path+start,n);
   if(child){if(child->type!=wanted)return CHIMERA_RAMFS_E_CONFLICT;if(final){if(child->explicit_entry)return CHIMERA_RAMFS_E_DUPLICATE;if(type==2u&&child->children)return CHIMERA_RAMFS_E_CONFLICT;child->explicit_entry=1;if(type==2u&&bytes){child->data=(uint8_t*)a->alloc(bytes,a->context);if(!child->data){child->explicit_entry=0;return CHIMERA_RAMFS_E_NOMEM;}copy_bytes(child->data,payload,bytes);}child->size=bytes;*total+=bytes;return 0;}}
   else{if(*node_count>=max_nodes)return CHIMERA_RAMFS_E_LIMIT;child=new_node(path+start,n,wanted,cur,a);if(!child)return CHIMERA_RAMFS_E_NOMEM;++*node_count;if(final){child->explicit_entry=1;if(type==2u&&bytes){child->data=(uint8_t*)a->alloc(bytes,a->context);if(!child->data){unlink_node(child);destroy_node(child,a);--*node_count;return CHIMERA_RAMFS_E_NOMEM;}copy_bytes(child->data,payload,bytes);}child->size=bytes;*total+=bytes;return 0;}}
-  if(child->type!=1u)return CHIMERA_RAMFS_E_CONFLICT;cur=child;start=i+1u;
+  if(child->type!=1u) return CHIMERA_RAMFS_E_CONFLICT;
+  cur=child;
+  start=i+1u;
  }return CHIMERA_RAMFS_E_PATH;
 }
 }
 extern "C" void chimera_ramfs_destroy(chimera_ramfs_node*r,const chimera_ramfs_allocator*a){if(r&&a&&a->free)destroy_node(r,a);}
 extern "C" int chimera_ramfs_extract_newc(const void*input,uint64_t size,const chimera_ramfs_allocator*a,const chimera_ramfs_limits*requested,chimera_ramfs_node**out){
- if(out)*out=nullptr;if(!input||!a||!a->alloc||!a->free||!out||!requested)return CHIMERA_RAMFS_E_ARGUMENT;
+ if(out) *out=nullptr;
+ if(!input||!a||!a->alloc||!a->free||!out||!requested) return CHIMERA_RAMFS_E_ARGUMENT;
  chimera_ramfs_limits lim=*requested;if(!lim.max_entries||lim.max_entries>CHIMERA_RAMFS_MAX_ENTRIES)lim.max_entries=CHIMERA_RAMFS_MAX_ENTRIES;if(!lim.max_path_bytes||lim.max_path_bytes>CHIMERA_RAMFS_MAX_PATH)lim.max_path_bytes=CHIMERA_RAMFS_MAX_PATH;if(!lim.max_file_bytes||lim.max_file_bytes>CHIMERA_RAMFS_MAX_FILE_BYTES)lim.max_file_bytes=CHIMERA_RAMFS_MAX_FILE_BYTES;if(!lim.max_total_bytes||lim.max_total_bytes>CHIMERA_RAMFS_MAX_TOTAL_BYTES)lim.max_total_bytes=CHIMERA_RAMFS_MAX_TOTAL_BYTES;
- if(size<110u||size>CHIMERA_RAMFS_MAX_TOTAL_BYTES)return CHIMERA_RAMFS_E_LIMIT;chimera_cpio_summary preflight{};if(chimera_cpio_validate_newc(input,size,&preflight)!=CHIMERA_CPIO_OK)return CHIMERA_RAMFS_E_HEADER;auto*b=(const uint8_t*)input;uint64_t off=0,total=0;uint32_t entries=0,node_count=1;bool trailer=false;auto*root=new_node("",0,1,nullptr,a);if(!root)return CHIMERA_RAMFS_E_NOMEM;
+ if(size<110u||size>CHIMERA_RAMFS_MAX_TOTAL_BYTES) return CHIMERA_RAMFS_E_LIMIT;
+ chimera_cpio_summary preflight{};
+ if(chimera_cpio_validate_newc(input,size,&preflight)!=CHIMERA_CPIO_OK) return CHIMERA_RAMFS_E_HEADER;
+ auto*b=(const uint8_t*)input;
+ uint64_t off=0,total=0;
+ uint32_t entries=0,node_count=1;
+ bool trailer=false;
+ auto*root=new_node("",0,1,nullptr,a);
+ if(!root) return CHIMERA_RAMFS_E_NOMEM;
  while(off<size){uint64_t he=0;if(!add_ok(off,110u,size,&he)){destroy_node(root,a);return CHIMERA_RAMFS_E_BOUNDS;}const uint8_t*h=b+off;bool ok=true;if(!(h[0]=='0'&&h[1]=='7'&&h[2]=='0'&&h[3]=='7'&&h[4]=='0'&&(h[5]=='1'||h[5]=='2'))){destroy_node(root,a);return CHIMERA_RAMFS_E_HEADER;}
   bool crc=h[5]=='2';uint32_t mode=hex8(h+14,&ok),nlink=hex8(h+38,&ok),filesize=hex8(h+54,&ok),namesize=hex8(h+94,&ok),check=hex8(h+102,&ok);if(!ok||namesize<1u||namesize>lim.max_path_bytes+1u){destroy_node(root,a);return CHIMERA_RAMFS_E_HEADER;}
   uint64_t ne=0,na=0,de=0,da=0;if(!add_ok(he,namesize,size,&ne)||!align4(ne,size,&na)||!add_ok(na,filesize,size,&de)||!align4(de,size,&da)){destroy_node(root,a);return CHIMERA_RAMFS_E_BOUNDS;}const uint8_t*name=b+he;if(name[namesize-1u]){destroy_node(root,a);return CHIMERA_RAMFS_E_PATH;}for(uint32_t i=0;i+1u<namesize;i++)if(!name[i]){destroy_node(root,a);return CHIMERA_RAMFS_E_PATH;}
