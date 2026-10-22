@@ -1,4 +1,11 @@
 #include <stdint.h>
+/* Keep both strict W^X PT_LOAD segments non-empty in production init ELFs.
+ * Otherwise GNU ld can emit an empty writable PHDR which kernel admission rejects. */
+__attribute__((used, section(".data")))
+volatile unsigned long chimera_native_init_writable_data = 0x4348494d455241ull;
+__attribute__((used, section(".bss")))
+volatile unsigned long chimera_native_init_zero_fill;
+
 #ifndef CHIMERA_INIT_TARGET
 #error CHIMERA_INIT_TARGET must be set by the target build
 #endif
