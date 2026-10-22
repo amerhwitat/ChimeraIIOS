@@ -55,7 +55,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools ovmf qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -216,30 +216,61 @@ jobs:
           }
           GRUB
             test_iso="$base/$target.iso"
-            trace="$base/$target-debugcon.log"
             if ! grub-mkrescue -o "$test_iso" "$tree" >/dev/null 2>&1; then
               echo "::warning::Could not create $target target smoke ISO"
               accepted=false
               continue
             fi
-            set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
-            qemu_rc=$?
-            set -e
-            if [[ ! -s "$trace" ]]; then
-              echo "::warning::$target QEMU emitted no debugcon trace (exit $qemu_rc)"
-              accepted=false
-              continue
-            fi
-            if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
-              echo "::warning::$target target did not reach Koronos readiness"
-              accepted=false
-              continue
-            fi
-            if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
-              echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
-              accepted=false
-            fi
+            # Run each target through both firmware paths; topology/boot discovery
+            # and userspace readiness are independent acceptance dimensions.
+            for firmware in bios uefi; do
+              trace="$base/$target-$firmware-debugcon.log"
+              if [[ "$firmware" == "uefi" ]]; then
+                ovmf=/usr/share/OVMF/OVMF_CODE.fd
+                ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+                if [[ ! -f "$ovmf" || ! -f "$ovmf_vars" ]]; then
+                  ovmf=/usr/share/OVMF/OVMF_CODE_4M.fd
+                  ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+                fi
+                if [[ ! -f "$ovmf" || ! -f "$ovmf_vars" ]]; then
+                  echo "::warning::Matching OVMF CODE/VARS firmware pair unavailable; $target UEFI case is NOT RUN"
+                  accepted=false
+                  continue
+                fi
+                # OVMF requires a read-only CODE flash and a writable per-run
+                # VARS flash. Do not pass CODE through QEMU's legacy -bios path.
+                vars_copy="$base/$target-OVMF_VARS.fd"
+                cp "$ovmf_vars" "$vars_copy"
+                set +e
+                timeout 12s qemu-system-x86_64 -machine q35 -m 1024 \
+                  -drive "if=pflash,format=raw,unit=0,readonly=on,file=$ovmf" \
+                  -drive "if=pflash,format=raw,unit=1,file=$vars_copy" \
+                  -cdrom "$test_iso" -boot d -display none -serial none -monitor none \
+                  -no-reboot -no-shutdown -debugcon "file:$trace" \
+                  -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+                qemu_rc=$?
+                set -e
+              else
+                set +e
+                timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+                qemu_rc=$?
+                set -e
+              fi
+              if [[ ! -s "$trace" ]]; then
+                echo "::warning::$target/$firmware QEMU emitted no debugcon trace (exit $qemu_rc)"
+                accepted=false
+                continue
+              fi
+              if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
+                echo "::warning::$target/$firmware target did not reach Koronos readiness"
+                accepted=false
+                continue
+              fi
+              if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
+                echo "::warning::$target/$firmware actual ring-3 init handoff is not verified; release remains blocked"
+                accepted=false
+              fi
+            done
           done
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
@@ -281,6 +312,13 @@ jobs:
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
+
+      - name: Fail workflow when production userspace handoff is unverified
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        shell: bash
+        run: |
+          echo "::error::Production acceptance failed: one or more Live/Installer/Recovery targets did not prove the required userspace handoff. Candidate artifacts and traces were uploaded for diagnosis; no release is authorized."
+          exit 1
 
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
