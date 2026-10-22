@@ -50,6 +50,14 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         self.assertEqual(run("recovery", KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)).returncode, 1)
         self.assertEqual(run("recovery", KERNEL + ENTRY.format(target="recovery", pid=0) + READY.format(target="recovery", pid=0)).returncode, 1)
 
+    def test_accepts_runtime_readiness_format_with_nonzero_pid(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=7) + "USERSPACE READY: live init pid=7\n"
+        self.assertEqual(run("live", trace).returncode, 0)
+
+    def test_rejects_runtime_readiness_when_pid_differs(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=7) + "USERSPACE READY: live init pid=8\n"
+        self.assertEqual(run("live", trace).returncode, 1)
+
     def test_accepts_recovery_with_nonzero_pid(self):
         trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2)
         self.assertEqual(run("recovery", trace).returncode, 0)

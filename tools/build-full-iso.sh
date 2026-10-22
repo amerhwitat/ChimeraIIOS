@@ -74,6 +74,17 @@ cleanup_finished
 "$ROOT/tools/build-desktop-binaries.sh"
 cleanup_finished
 "$ROOT/tools/build-live-boot-binaries.sh"
+# Build the three target-specific native init ELFs into the same boot tree
+# copied into the ISO. The kernel must receive a USER_INIT_ELF Multiboot2
+# module for each production target; merely embedding the CPIO/disk payload
+# causes the production handoff verifier to correctly fail closed.
+CHIMERA_INIT_ELF_STAGE="$ROOT/build/live-boot" bash "$ROOT/tools/build-production-init-elfs.sh"
+for target_path in \
+  "$ROOT/build/live-boot/boot/live/user-init-live.elf" \
+  "$ROOT/build/live-boot/boot/installer/user-init-installer.elf" \
+  "$ROOT/build/live-boot/boot/recovery/user-init-recovery.elf"; do
+  [[ -s "$target_path" ]] || { echo "ERROR: target init ELF missing from ISO staging tree: $target_path" >&2; exit 2; }
+done
 cleanup_finished
 # The compiler tree is finished at this point; retain only the produced kernel/binaries.
 # Keep the configured CMake tree for incremental/manual builds. Remove only generated compiler intermediates.

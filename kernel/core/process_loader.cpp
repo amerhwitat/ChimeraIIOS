@@ -13,7 +13,7 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  if(!image||!out||!ops||!ops->create_address_space||!ops->map_pages||!ops->destroy_address_space)return -1;
  if(image_size<sizeof(koronos_elf64_ehdr))return -2;
  koronos_elf64_ehdr h{};__builtin_memcpy(&h,image,sizeof(h));
- if(!koronos_elf64_valid(&h)||h.e_ehsize<sizeof(h)||h.e_machine!=machine||h.e_type!=KORONOS_ET_EXEC||
+ if(!koronos_elf64_valid(&h)||h.e_version!=1u||h.e_ehsize!=sizeof(h)||h.e_machine!=machine||h.e_type!=KORONOS_ET_EXEC||
     h.e_phentsize!=sizeof(koronos_elf64_phdr)||h.e_phnum==0||h.e_phnum>CHIMERA_ELF_LOADER_MAX_SEGMENTS)return -3;
  const uint64_t phbytes=(uint64_t)h.e_phnum*h.e_phentsize;
  if(!inside(h.e_phoff,phbytes,image_size))return -4;
@@ -30,7 +30,7 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
   if(count>=CHIMERA_ELF_LOADER_MAX_SEGMENTS||ph.p_memsz<ph.p_filesz||!inside(ph.p_offset,ph.p_filesz,image_size)||
      ph.p_memsz==0||(ph.p_flags&~(PF_R|PF_W|PF_X))!=0||(ph.p_flags&(PF_W|PF_X))==(PF_W|PF_X))return -6;
   uint64_t end=0,map_end=0;
-  if(!add_ok(ph.p_vaddr,ph.p_memsz,&end)||!user_addr(ph.p_vaddr)||!user_addr(end-1u)||!align_up(end,&map_end))return -7;
+  if(!add_ok(ph.p_vaddr,ph.p_memsz,&end)||ph.p_vaddr<CHIMERA_ELF_PAGE_SIZE||!user_addr(ph.p_vaddr)||!user_addr(end-1u)||!align_up(end,&map_end)||!user_addr(map_end-1u))return -7;
   if(ph.p_align>1u&&((ph.p_align&(ph.p_align-1u))!=0||(ph.p_vaddr%ph.p_align)!=(ph.p_offset%ph.p_align)))return -8;
   Plan&p=plans[count++];p.ph=ph;p.base=align_down(ph.p_vaddr);p.size=map_end-p.base;p.delta=ph.p_vaddr-p.base;p.end=end;
   if(p.base<low) low=p.base;

@@ -57,6 +57,21 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
+
+# Build and stage target-specific fail-closed native init bootstraps. These
+# prove ABI entry but intentionally do not claim production userspace readiness.
+bash "$ROOT/tools/build-production-init-elfs.sh"
+
+# Validate production init payload structure and emit a checksum manifest.
+# This validates packaging inputs only; full-ISO ring-3 runtime acceptance is separate.
+python3 "$ROOT/tools/boot/verify-production-init-elfs.py" \
+    "$DIST/iso" --write-manifest "$DIST/iso/boot/production-init-elfs.json"
+for module in \
+  'module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live' \
+  'module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer' \
+  'module2 /boot/recovery/user-init-recovery.elf chimera-user-init-elf target=recovery'; do
+  grep -Fq "$module" "$DIST/iso/boot/grub/grub.cfg" || { echo "ERROR: GRUB is missing target native init module: $module" >&2; exit 2; }
+done
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"

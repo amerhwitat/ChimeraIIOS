@@ -15,7 +15,7 @@ ENTRY_RE = re.compile(
     r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 READY_RE = re.compile(
-    r"USERSPACE READY: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
+    r"USERSPACE READY: (?:target=(?P<target_canonical>live|installer|recovery) init_pid=|(?P<target_runtime>live|installer|recovery) init pid=)(?P<pid>[1-9][0-9]*)\b"
 )
 
 
@@ -45,7 +45,8 @@ def main() -> int:
         if entry.group(1) != target or kernel_at >= entry.start():
             continue
         for marker in ready:
-            if (marker.group(1) == target and marker.group(2) == entry.group(2)
+            if ((marker.group("target_canonical") or marker.group("target_runtime")) == target
+                    and marker.group("pid") == entry.group(2)
                     and entry.start() < marker.start()):
                 print(f"PASS: target={target} init entered user mode and reported readiness with a consistent PID")
                 return 0
