@@ -35,11 +35,15 @@ static volatile uint16_t *avail_idx(koronos_virtio_blk *d) {
 static uint16_t *avail_ring(koronos_virtio_blk *d) {
     return reinterpret_cast<uint16_t *>(d->ring.virtual_address + 2052u);
 }
+static size_t used_offset(const koronos_virtio_blk *d) {
+    const size_t end = 2048u + 4u + static_cast<size_t>(d->queue_size) * sizeof(uint16_t);
+    return (end + 3u) & ~static_cast<size_t>(3u);
+}
 static volatile uint16_t *used_idx(koronos_virtio_blk *d) {
-    return reinterpret_cast<volatile uint16_t *>(d->ring.virtual_address + 2308u + 2u);
+    return reinterpret_cast<volatile uint16_t *>(d->ring.virtual_address + used_offset(d) + 2u);
 }
 static volatile UsedElement *used_ring(koronos_virtio_blk *d) {
-    return reinterpret_cast<volatile UsedElement *>(d->ring.virtual_address + 2312u);
+    return reinterpret_cast<volatile UsedElement *>(d->ring.virtual_address + used_offset(d) + 4u);
 }
 static Descriptor *descriptors(koronos_virtio_blk *d) {
     return reinterpret_cast<Descriptor *>(d->ring.virtual_address);
@@ -218,7 +222,7 @@ extern "C" int koronos_virtio_blk_attach(koronos_virtio_blk *d,
     c->queue_size = q;
     c->queue_desc = d->ring.physical_address;
     c->queue_driver = d->ring.physical_address + 2048u;
-    c->queue_device = d->ring.physical_address + 2308u;
+    c->queue_device = d->ring.physical_address + used_offset(d);
     c->queue_enable = 1;
     barrier();
     if (!wait_status(d, STATUS_FAILED, 0)) { release(d); return -6; }
