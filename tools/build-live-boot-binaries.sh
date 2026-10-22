@@ -68,7 +68,14 @@ for target in live installer recovery; do
   readelf -lW "$native_init" | grep -Eq 'LOAD.*R E' || { echo "ERROR: $native_init has no executable PT_LOAD" >&2; exit 2; }
   readelf -lW "$native_init" | grep -Eq 'LOAD.*RW ' || { echo "ERROR: $native_init has no writable PT_LOAD" >&2; exit 2; }
   chimera_copy_if_distinct "$native_init" "$OUT/boot/koronos/native-init-$target.elf"
-  (cd "$OUT/boot/koronos" && sha256sum "native-init-$target.elf" > "native-init-$target.elf.sha256")
+  # Keep each production checksum contract explicit for static policy checks.
+  case "$target" in
+    live) checksum_file="native-init-live.elf.sha256" ;;
+    installer) checksum_file="native-init-installer.elf.sha256" ;;
+    recovery) checksum_file="native-init-recovery.elf.sha256" ;;
+    *) echo "ERROR: unsupported native init target: $target" >&2; exit 2 ;;
+  esac
+  (cd "$OUT/boot/koronos" && sha256sum "native-init-$target.elf" > "$checksum_file")
 done
 INIT="$OUT/initramfs/root"
 BUSYBOX="$(command -v busybox || true)"
