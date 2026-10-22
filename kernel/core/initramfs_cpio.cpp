@@ -133,6 +133,9 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
     if (duplicate_name(b,off,name,name_size,mode)) return CHIMERA_CPIO_E_PATH;
     if (++s.entries>CHIMERA_CPIO_MAX_ENTRIES) return CHIMERA_CPIO_E_LIMIT;
     const uint32_t type=mode&0170000u;
+    /* Directory payloads are non-canonical and can be interpreted differently
+       by validators and extractors. Reject them before any future extraction. */
+    if (type==0040000u && file_size!=0u) return CHIMERA_CPIO_E_TYPE;
     if (type==0100000u) ++s.regular_files;
     else if (type==0040000u) ++s.directories;
     else if (type!=0120000u) return CHIMERA_CPIO_E_TYPE;
