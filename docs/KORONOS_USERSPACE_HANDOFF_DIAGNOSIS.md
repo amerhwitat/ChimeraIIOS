@@ -123,3 +123,12 @@ The latest review of the x86-64 source separates acceptance tests from actual ex
 The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
 
 Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
+
+## Latest independent evidence — 2026-10-22
+
+The post-merge Koronos VMware/QEMU boot matrix [run 39728242407](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39728242407) passed its target-specific boot-probe job, and the full ISO build [run 39728242461](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39728242461) passed. These are build/boot-probe results only; they do not prove that the final production initramfs starts a real user-mode init.
+
+The mirrored OctavianOS production trace verifier [run 39728253993](https://github.com/amerhwitat/OctavianOS/actions/runs/39728253993) failed for Live, Installer, and Recovery because all three traces lacked both a CPL3-originated init syscall acknowledgement and the matching real init PID readiness marker. Prerelease was skipped. Thus the current evidence remains: candidate probes pass, production init handoff is not accepted, and persistent storage, service supervision, Aurora session startup, installer write/verify/reboot, recovery repair, and genuine AP-backed SMP are not proven.
+
+Keep the acceptance verifier fail-closed. The next fix must connect the actual target initramfs payload to the production ELF loader and process-aware ring-3 execution path, then emit PID-bound readiness only from the running init process. Do not manufacture markers or infer process execution from a queued module.
+
