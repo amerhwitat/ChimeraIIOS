@@ -477,6 +477,16 @@ static bool address_space_self_test() {
         : -1;
     bool ok = code_rc == 0 && stack_rc == 0 && code_alias && stack_alias;
     if (ok) {
+        PageMeta *generation_meta = find_page_meta(space, KORONOS_USER_VIRTUAL_MIN, nullptr);
+        const uint64_t saved_generation = generation_meta ? generation_meta->owner_generation : 0u;
+        if (generation_meta) generation_meta->owner_generation = saved_generation ^ 1u;
+        const bool stale_generation_rejected =
+            find_page_meta(space, KORONOS_USER_VIRTUAL_MIN, nullptr) == nullptr;
+        if (generation_meta) generation_meta->owner_generation = saved_generation;
+        ok = generation_meta != nullptr && saved_generation == space->generation &&
+             stale_generation_rejected;
+    }
+    if (ok) {
         uint64_t queried_physical = 0;
         uint32_t queried_flags = 0;
         const uint64_t free_before_overlap = koronos_frame_free_count();
