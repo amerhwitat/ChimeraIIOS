@@ -89,7 +89,7 @@ def main() -> int:
     if "koronos_target_fs_write" not in launch or "chimera_vfs_write" not in launch:
         return fail("validated ring-3 writes must route to the VFS and mutable tmpfs backend")
     syscall_source = (ROOT / "kernel/core/syscall.cpp").read_text(encoding="utf-8")
-    for syscall in ("case CHM_SYS_OPEN:", "case CHM_SYS_READ:", "case CHM_SYS_WRITE:", "case CHM_SYS_CLOSE:"):
+    for syscall in ("case CHM_SYS_OPEN:", "case CHM_SYS_READ:", "case CHM_SYS_WRITE:", "case CHM_SYS_CLOSE:", "case CHM_SYS_SEEK:"):
         if syscall not in syscall_source:
             return fail(f"native dispatcher missing filesystem syscall route: {syscall}")
 
