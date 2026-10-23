@@ -150,8 +150,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace.write_text(
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
-                "USERSPACE SYSCALL RETURNED TO RING3\\n"
-                "USERSPACE READY: target=live init_pid=8\\n",
+                "USERSPACE TARGET READY: live component=aurora-session init pid=8\\n",
                 encoding="utf-8",
             )
             data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
