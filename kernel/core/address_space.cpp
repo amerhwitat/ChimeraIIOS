@@ -48,7 +48,9 @@ struct AddressSpace {
 static AddressSpace spaces[MAX_ADDRESS_SPACES]{};
 static volatile uint32_t backend_ready = 0;
 static volatile uint32_t backend_lock = 0;
-static uint64_t created_spaces = 0;\nstatic koronos_tlb_shootdown_fn tlb_shootdown = nullptr;\nstatic void *tlb_context = nullptr;
+static uint64_t created_spaces = 0;
+static koronos_tlb_shootdown_fn tlb_shootdown = nullptr;
+static void *tlb_context = nullptr;
 
 static void lock_backend() {
     while (__sync_lock_test_and_set(&backend_lock, 1u)) {}
@@ -584,7 +586,8 @@ extern "C" int koronos_address_space_query(void *opaque, uint64_t va,
     unlock_backend();
     return 0;
 }
-\nstatic PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
+
+static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
 
 static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out) {
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
