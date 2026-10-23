@@ -18,6 +18,11 @@ int main(){
     if(chimera_vfs_seek(10,fd,0,0)!=0)return fail("seek");
     char output[32]{};if(chimera_vfs_read(10,fd,output,sizeof(input))!=(int64_t)sizeof(input))return fail("read");
     if(memcmp(input,output,sizeof(input)))return fail("readback");
+    char oversized[2048]{};
+    if(chimera_vfs_write(10,fd,oversized,sizeof(oversized))!=-27)return fail("file limit was not enforced");
+    if(chimera_vfs_seek(10,fd,0,0)!=0)return fail("seek after rejected write");
+    char preserved[32]{};if(chimera_vfs_read(10,fd,preserved,sizeof(input))!=(int64_t)sizeof(input))return fail("read after rejected write");
+    if(memcmp(input,preserved,sizeof(input)))return fail("failed write changed committed file contents");
     if(chimera_vfs_close(10,fd)!=0)return fail("close");
     fd=chimera_vfs_open(10,"/var/state",CHIMERA_VFS_O_RDWR|CHIMERA_VFS_O_TRUNC,0644u);if(fd<3)return fail("truncate open");
     chimera_vfs_stat st{};if(chimera_vfs_stat_path("/var/state",&st)!=0||st.size!=0)return fail("truncate did not clear file");
