@@ -124,3 +124,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_tmpfs_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_tmpfs COMMAND chimera_tmpfs_test)
+
+if(Python3_Interpreter_FOUND)
+  add_test(NAME chimera_production_closeout_daps
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/tests/test_production_closeout_daps.py)
+endif()
