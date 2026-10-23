@@ -1,6 +1,7 @@
 #include "chimera/service.h"
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 int main(){
  const char* sd[]={"device"};const char* dd[]={"storage"};
  chimera_service_manifest v[]={
@@ -9,7 +10,7 @@ int main(){
  {CHIMERA_SERVICE_ABI,"desktop",CHM_SVC_DECLARED,CHM_RESTART_FAILURE,1,1,dd}};
  const char* order[3]={};chimera_service_plan p{0,3,order};
  assert(chimera_service_validate(v,3)==0);assert(chimera_service_resolve(v,3,&p)==0&&p.count==3);
- assert(order[0][0]=='d'&&order[1][0]=='s'&&order[2][0]=='d');
+ assert(std::strcmp(order[0],"device")==0&&std::strcmp(order[1],"storage")==0&&std::strcmp(order[2],"desktop")==0);
  chimera_service_manifest missing[]={{CHIMERA_SERVICE_ABI,"broken",CHM_SVC_DECLARED,CHM_RESTART_NEVER,1,1,nullptr}};
  p.count=123;assert(chimera_service_validate(missing,1)<0);assert(chimera_service_resolve(missing,1,&p)<0&&p.count==0);
  chimera_service_manifest bad[]={{CHIMERA_SERVICE_ABI,"bad",99u,CHM_RESTART_NEVER,1,0,nullptr}};
