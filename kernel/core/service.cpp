@@ -77,7 +77,13 @@ static int start_one(managed_service* m) {
                 if (UINT32_MAX - elapsed < step) elapsed = g_config.health_timeout_ticks;
                 else elapsed += step;
             }
-            if (g_backend->stop) (void)g_backend->stop(m->manifest.id, m->handle, g_backend->context);
+            /* Never forget a failed-to-stop service: doing so could orphan a
+               process and allow a duplicate instance on the next retry. */
+            const int stop_rc = g_backend->stop(m->manifest.id, m->handle, g_backend->context);
+            if (stop_rc != 0) {
+                set_state_internal(m->manifest.id, CHM_SVC_FAILED);
+                return -4;
+            }
             m->started = false;
             m->handle = 0;
         }
@@ -218,6 +224,13 @@ extern "C" int chimera_service_supervisor_poll(void) {
         if (index < 0) { ++failures; continue; }
         managed_service* m = &g_managed[static_cast<uint32_t>(index)];
         if (!m->started) continue;
+        /* A failed dependency makes this service unhealthy even if its process
+           is still alive; stop dependents before continuing down the graph. */
+        if (!dependencies_running(&m->manifest)) {
+            if (stop_one(m) != 0) ++failures;
+            else set_state_internal(m->manifest.id, CHM_SVC_BLOCKED);
+            continue;
+        }
         int exit_code = 0;
         const int rc = g_backend->wait_exit(m->manifest.id, m->handle, &exit_code, g_backend->context);
         if (rc < 0) { set_state_internal(m->manifest.id, CHM_SVC_FAILED); ++failures; continue; }
