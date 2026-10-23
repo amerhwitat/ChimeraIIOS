@@ -181,7 +181,10 @@ extern "C" int64_t chimera_vfs_read(uint32_t pid,int64_t fd,void *buffer,uint64_
     if(!pid||fd<3||fd>=CHIMERA_VFS_MAX_OPEN_FILES+3u||(!buffer&&length))return -22;
     lock();OpenFile f=files[(uint32_t)(fd-3)];if(!f.active||f.pid!=pid){unlock();return -9;}
     if((f.flags&CHIMERA_VFS_O_ACCMODE)==CHIMERA_VFS_O_WRONLY){unlock();return -9;}
-    Mount m=mounts[f.mount_index];unlock();if(!m.active||!m.ops.read)return -38;
+    unlock();
+    MountPin pin(f.mount_index);
+    if (!pin.held || !pin.mount.ops.read) return -38;
+    const Mount &m = pin.mount;
     uint64_t n=0;int rc=m.ops.read(m.context,f.path,f.offset,buffer,length,&n);if(rc)return rc;if(n>length)return -5;
     lock();OpenFile &live=files[(uint32_t)(fd-3)];if(!live.active||live.pid!=pid||live.generation!=f.generation){unlock();return -9;}
     if(live.offset>UINT64_MAX-n){unlock();return -75;}live.offset+=n;unlock();return (int64_t)n;
@@ -190,7 +193,11 @@ extern "C" int64_t chimera_vfs_write(uint32_t pid,int64_t fd,const void *buffer,
     if(!pid||fd<3||fd>=CHIMERA_VFS_MAX_OPEN_FILES+3u||(!buffer&&length))return -22;
     lock();OpenFile f=files[(uint32_t)(fd-3)];if(!f.active||f.pid!=pid){unlock();return -9;}
     if((f.flags&CHIMERA_VFS_O_ACCMODE)==CHIMERA_VFS_O_RDONLY){unlock();return -9;}
-    Mount m=mounts[f.mount_index];unlock();if(!m.active)return -9;if(mount_readonly(m))return -30;if(!m.ops.write)return -38;
+    unlock();
+    MountPin pin(f.mount_index);
+    if (!pin.held) return -9;
+    const Mount &m = pin.mount;
+    if(mount_readonly(m))return -30;if(!m.ops.write)return -38;
     uint64_t n=0;int rc=m.ops.write(m.context,f.path,f.offset,buffer,length,&n);if(rc)return rc;if(n>length)return -5;
     lock();OpenFile &live=files[(uint32_t)(fd-3)];if(!live.active||live.pid!=pid||live.generation!=f.generation){unlock();return -9;}
     if(live.offset>UINT64_MAX-n){unlock();return -75;}live.offset+=n;unlock();return (int64_t)n;
