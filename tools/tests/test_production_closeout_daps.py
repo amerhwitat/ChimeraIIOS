@@ -67,7 +67,9 @@ def valid_evidence():
             "case_ids": ["live-bios", "live-uefi", "installer-bios", "installer-uefi",
                          "recovery-bios", "recovery-uefi"],
             "address_space_map_unmap_protect_query_verified": True,
-            "page_pinning_verified": True, "page_fault_handling_verified": True,
+            "page_pinning_verified": True, "vma_lookup_verified": True,
+            "frame_reference_counting_verified": True, "system_block_config_verified": True,
+            "system_block_size_bytes": "4096", "page_fault_handling_verified": True,
             "swap_roundtrip_verified": True, "swapout_failure_preserves_resident_verified": True,
             "swapin_rollback_verified": True, "io_failure_rollback_verified": True,
             "corruption_rejected_verified": True, "tlb_shootdown_verified": True,
@@ -251,6 +253,17 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         errors = check_evidence(data)
         self.assertTrue(any("vm_swap: production_iso_sha256 must match" in e for e in errors))
         self.assertTrue(any("vm_swap: case_ids must cover exactly all six" in e for e in errors))
+
+    def test_vm_swap_requires_vma_frame_ownership_and_block_size_evidence(self):
+        data = valid_evidence()
+        for field in ("vma_lookup_verified", "frame_reference_counting_verified",
+                      "system_block_config_verified", "system_block_size_bytes"):
+            data["vm_swap"].pop(field)
+        errors = check_evidence(data)
+        self.assertTrue(any("vm_swap: vma_lookup_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: frame_reference_counting_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: system_block_config_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: missing system_block_size_bytes" in e for e in errors))
 
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
