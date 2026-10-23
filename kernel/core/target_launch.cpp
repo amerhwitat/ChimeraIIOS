@@ -213,11 +213,13 @@ static int copy_target_user_path(uint64_t user_path, char path[CHIMERA_VFS_MAX_P
     if (!active_root || !user_path) return -14;
     uint32_t length = 0;
     for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
-        if (user_path > UINT64_MAX - length ||
-            koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0)
-            return -14;
+        if (user_path > UINT64_MAX - length) return -14;
         if (koronos_address_space_pin(active_address_space, user_path + length, 1u, 0u) != 0)
             return -14;
+        if (koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0) {
+            (void)koronos_address_space_unpin(active_address_space, user_path + length, 1u);
+            return -14;
+        }
         const char c = *reinterpret_cast<const volatile char *>(static_cast<uintptr_t>(user_path + length));
         if (koronos_address_space_unpin(active_address_space, user_path + length, 1u) != 0)
             return -14;
@@ -242,8 +244,10 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0 ||
-        koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
+    if (!user_buffer || koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count); return -14;
+    }
     const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd),
         reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count);
     if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
@@ -254,8 +258,10 @@ extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, ui
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0 ||
-        koronos_address_space_pin(active_address_space, user_buffer, count, 0u) != 0) return -14;
+    if (!user_buffer || koronos_address_space_pin(active_address_space, user_buffer, count, 0u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count); return -14;
+    }
     const int64_t result = chimera_vfs_write(pid, static_cast<int64_t>(fd),
         reinterpret_cast<const void *>(static_cast<uintptr_t>(user_buffer)), count);
     if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
