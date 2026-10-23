@@ -21,7 +21,7 @@ constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
 
 
 
-struct FrameBlock { uint64_t physical; uint32_t pages; };
+struct FrameBlock { uint64_t physical; uint64_t virtual_base; uint32_t pages; uint32_t elf_flags; };
 struct AddressSpace {
     uint64_t magic;
     uint64_t root_physical;
@@ -35,7 +35,7 @@ struct AddressSpace {
 static AddressSpace spaces[MAX_ADDRESS_SPACES]{};
 static volatile uint32_t backend_ready = 0;
 static volatile uint32_t backend_lock = 0;
-static uint64_t created_spaces = 0;
+static uint64_t created_spaces = 0;\nstatic koronos_tlb_shootdown_fn tlb_shootdown = nullptr;\nstatic void *tlb_context = nullptr;
 
 static void lock_backend() {
     while (__sync_lock_test_and_set(&backend_lock, 1u)) {}
@@ -179,6 +179,40 @@ static uint64_t *ensure_pte(AddressSpace *space, uint64_t virtual_address) {
     }
     uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
     return pt ? &pt[pt_i] : nullptr;
+}
+
+static uint64_t *find_pte(AddressSpace *space, uint64_t virtual_address) {
+    if (!space_valid(space) || virtual_address < KORONOS_USER_VIRTUAL_MIN ||
+        virtual_address >= CHIMERA_ELF_USER_LIMIT) return nullptr;
+    const uint32_t pml4_i = static_cast<uint32_t>((virtual_address >> 39) & 0x1FFu);
+    const uint32_t pdpt_i = static_cast<uint32_t>((virtual_address >> 30) & 0x1FFu);
+    const uint32_t pd_i = static_cast<uint32_t>((virtual_address >> 21) & 0x1FFu);
+    const uint32_t pt_i = static_cast<uint32_t>((virtual_address >> 12) & 0x1FFu);
+    uint64_t *root = table_ptr(space->root_physical);
+    if (!root) return nullptr;
+    uint64_t entry = root[pml4_i];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_LARGE)) return nullptr;
+    uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pdpt) return nullptr;
+    entry = pdpt[pdpt_i];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_LARGE)) return nullptr;
+    uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pd) return nullptr;
+    entry = pd[pd_i];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_LARGE)) return nullptr;
+    uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    return pt ? &pt[pt_i] : nullptr;
+}
+
+static FrameBlock *find_block(AddressSpace *space, uint64_t base, uint64_t length) {
+    if (!space || !length || (base & PAGE_MASK) || (length & PAGE_MASK)) return nullptr;
+    const uint64_t pages = length / PAGE_SIZE;
+    if (pages > UINT32_MAX) return nullptr;
+    for (uint32_t i = 0; i < space->mapped_count; ++i) {
+        FrameBlock *b = &space->mapped[i];
+        if (b->virtual_base == base && b->pages == static_cast<uint32_t>(pages)) return b;
+    }
+    return nullptr;
 }
 
 static void *create_address_space(void *) {
@@ -382,4 +416,116 @@ extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
     }
     return 0;
 }
-extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
+extern "C" int koronos_address_space_register_tlb_shootdown(
+    koronos_tlb_shootdown_fn callback, void *context) {
+    if (!callback) return -1;
+    lock_backend();
+    if (tlb_shootdown && (tlb_shootdown != callback || tlb_context != context)) {
+        unlock_backend(); return -2;
+    }
+    tlb_shootdown = callback;
+    tlb_context = context;
+    unlock_backend();
+    return 0;
+}
+
+extern "C" int koronos_address_space_map(void *opaque, uint64_t base, uint64_t length,
+                                           uint32_t elf_flags) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space)) return -1;
+    void *alias = nullptr;
+    return map_pages(nullptr, space, base, length, elf_flags, &alias);
+}
+
+extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t length) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || !length || (base & PAGE_MASK) || (length & PAGE_MASK) ||
+        base < KORONOS_USER_VIRTUAL_MIN || base >= CHIMERA_ELF_USER_LIMIT ||
+        length > CHIMERA_ELF_USER_LIMIT - base) return -1;
+    lock_backend();
+    if (!tlb_shootdown) { unlock_backend(); return -2; }
+    if (!space_valid(space)) { unlock_backend(); return -3; }
+    uint32_t index = space->mapped_count;
+    FrameBlock *block = find_block(space, base, length);
+    if (!block) { unlock_backend(); return -4; }
+    index = static_cast<uint32_t>(block - space->mapped);
+    for (uint64_t i = 0; i < block->pages; ++i) {
+        uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
+        if (!pte || !(*pte & ENTRY_PRESENT) ||
+            ((*pte & ENTRY_ADDRESS_MASK) != block->physical + i * PAGE_SIZE)) {
+            unlock_backend(); return -5;
+        }
+    }
+    const uint64_t root = space->root_physical;
+    const uint32_t pages = block->pages;
+    const uint64_t physical = block->physical;
+    for (uint64_t i = 0; i < pages; ++i) *find_pte(space, base + i * PAGE_SIZE) = 0;
+    // The callback is required to be synchronous and cannot report partial
+    // completion: frames are not returned to the allocator before shootdown.
+    tlb_shootdown(root, base, length, tlb_context);
+    if (koronos_frame_free_contiguous(physical, pages) != 0) {
+        // Restore the mapping if allocator reclamation fails; keep ownership.
+        for (uint64_t i = 0; i < pages; ++i) {
+            uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
+            if (pte) *pte = (physical + i * PAGE_SIZE) | ENTRY_PRESENT | ENTRY_USER |
+                ((block->elf_flags & 2u) ? ENTRY_WRITE : 0u) |
+                ((block->elf_flags & 1u) ? 0u : ENTRY_NX);
+        }
+        tlb_shootdown(root, base, length, tlb_context);
+        unlock_backend(); return -6;
+    }
+    space->user_pages -= pages;
+    for (uint32_t i = index + 1; i < space->mapped_count; ++i) space->mapped[i - 1] = space->mapped[i];
+    --space->mapped_count;
+    unlock_backend();
+    return 0;
+}
+
+extern "C" int koronos_address_space_protect(void *opaque, uint64_t base, uint64_t length,
+                                               uint32_t elf_flags) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || (elf_flags & ~7u) != 0u ||
+        ((elf_flags & 2u) && (elf_flags & 1u)) || !length || (base & PAGE_MASK) ||
+        (length & PAGE_MASK) || base < KORONOS_USER_VIRTUAL_MIN ||
+        base >= CHIMERA_ELF_USER_LIMIT || length > CHIMERA_ELF_USER_LIMIT - base) return -1;
+    lock_backend();
+    if (!tlb_shootdown) { unlock_backend(); return -2; }
+    FrameBlock *block = find_block(space, base, length);
+    if (!block) { unlock_backend(); return -3; }
+    for (uint64_t i = 0; i < block->pages; ++i) {
+        uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
+        if (!pte || !(*pte & ENTRY_PRESENT) ||
+            ((*pte & ENTRY_ADDRESS_MASK) != block->physical + i * PAGE_SIZE)) {
+            unlock_backend(); return -4;
+        }
+    }
+    const uint64_t root = space->root_physical;
+    for (uint64_t i = 0; i < block->pages; ++i) {
+        uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
+        *pte = (*pte & ~(ENTRY_WRITE | ENTRY_NX)) |
+               ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
+               ((elf_flags & 1u) ? 0u : ENTRY_NX);
+    }
+    tlb_shootdown(root, base, length, tlb_context);
+    block->elf_flags = elf_flags;
+    unlock_backend();
+    return 0;
+}
+
+extern "C" int koronos_address_space_query(void *opaque, uint64_t va,
+                                             uint64_t *physical_out, uint32_t *flags_out) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || va < KORONOS_USER_VIRTUAL_MIN ||
+        va >= CHIMERA_ELF_USER_LIMIT || !physical_out || !flags_out) return -1;
+    lock_backend();
+    uint64_t *pte = find_pte(space, va);
+    if (!pte || !(*pte & ENTRY_PRESENT) || !(*pte & ENTRY_USER)) {
+        unlock_backend(); return -2;
+    }
+    *physical_out = (*pte & ENTRY_ADDRESS_MASK) | (va & PAGE_MASK);
+    *flags_out = ((*pte & ENTRY_NX) ? 0u : 1u) |
+                 ((*pte & ENTRY_WRITE) ? 2u : 0u) | 4u;
+    unlock_backend();
+    return 0;
+}
+\nextern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
