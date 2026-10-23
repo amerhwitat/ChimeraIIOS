@@ -121,6 +121,11 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
     cases = data.get("cases")
     if not isinstance(cases, dict):
         return ["cases must be an object keyed by target-firmware"]
+    # The production matrix is deliberately closed: extra/candidate entries
+    # must not be mistaken for part of the six required production boots.
+    unexpected_cases = sorted(set(cases) - set(CASE_IDS))
+    for case_id in unexpected_cases:
+        errors.append(f"cases: unexpected non-production case {case_id!r}")
     declared_iso_hash = data.get("production_iso_sha256")
     if not isinstance(declared_iso_hash, str) or not HEX256.fullmatch(declared_iso_hash):
         errors.append("production_iso_sha256 must be a required 64-character SHA-256 hex digest")
