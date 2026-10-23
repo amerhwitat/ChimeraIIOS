@@ -413,6 +413,10 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
         pages64 > MAX_USER_PAGES - space->user_pages) {
         unlock_backend(); return -3;
     }
+    const bool root_is_active = current_cr3_root() == space->root_physical;
+    if (root_is_active && !tlb_shootdown) {
+        unlock_backend(); return -10; // no stale non-present translation may survive publication
+    }
 
     // Prepare every page-table path and reject overlap before acquiring data
     // frames. Intermediate empty tables are owned by this address space and
@@ -477,6 +481,8 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     block.pages = static_cast<uint32_t>(pages64);
     block.metadata_pages = static_cast<uint32_t>(metadata_pages64);
     block.elf_flags = elf_flags;
+    if (root_is_active)
+        tlb_shootdown(space->root_physical, virtual_base, size, tlb_context);
     koronos_vma_descriptor &vma = space->vmas[space->vma_count++];
     vma.abi = KORONOS_VMA_ABI;
     vma.backing_kind = KORONOS_VMA_ANONYMOUS;
