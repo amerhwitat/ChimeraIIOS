@@ -25,8 +25,8 @@ constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
 enum PageState : uint8_t { PAGE_RESIDENT = 1, PAGE_SWAPPED = 2, PAGE_EVICTING = 3, PAGE_LOADING = 4 };
 constexpr uint8_t PAGE_META_DIRTY = 0x40u;
 constexpr uint8_t PAGE_META_REFERENCED = 0x80u;
-struct PageMeta { uint16_t pins; uint8_t state; uint8_t flags; uint32_t swap_slot; };
-static_assert(sizeof(PageMeta) == 8, "page metadata must remain compact");
+struct PageMeta { uint64_t physical; uint16_t pins; uint8_t state; uint8_t flags; uint32_t swap_slot; };
+static_assert(sizeof(PageMeta) == 16, "per-page metadata must retain frame ownership and state");
 struct FrameBlock {
     uint64_t physical;
     uint64_t metadata_physical;
@@ -309,6 +309,7 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     }
     auto *page_meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(metadata_physical));
     for (uint64_t i = 0; i < pages64; ++i) {
+        page_meta[i].physical = physical + i * PAGE_SIZE;
         page_meta[i].pins = 0;
         page_meta[i].state = PAGE_RESIDENT;
         page_meta[i].flags = static_cast<uint8_t>(elf_flags | PAGE_META_REFERENCED);
@@ -719,8 +720,8 @@ static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t 
         if (page_va < b.virtual_base || page_va - b.virtual_base >= bytes) continue;
         const uint64_t index = (page_va - b.virtual_base) / PAGE_SIZE;
         if (index >= b.pages || !b.metadata_physical) return nullptr;
-        if (physical_out) *physical_out = b.physical + index * PAGE_SIZE;
         auto *meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(b.metadata_physical));
+        if (physical_out) *physical_out = meta[index].physical;
         return &meta[index];
     }
     return nullptr;
