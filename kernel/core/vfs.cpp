@@ -197,7 +197,8 @@ extern "C" int64_t chimera_vfs_write(uint32_t pid,int64_t fd,const void *buffer,
     MountPin pin(f.mount_index);
     if (!pin.held) return -9;
     const Mount &m = pin.mount;
-    if(mount_readonly(m))return -30;if(!m.ops.write)return -38;
+    if (mount_readonly(m)) return -30;
+    if (!m.ops.write) return -38;
     uint64_t n=0;int rc=m.ops.write(m.context,f.path,f.offset,buffer,length,&n);if(rc)return rc;if(n>length)return -5;
     lock();OpenFile &live=files[(uint32_t)(fd-3)];if(!live.active||live.pid!=pid||live.generation!=f.generation){unlock();return -9;}
     if(live.offset>UINT64_MAX-n){unlock();return -75;}live.offset+=n;unlock();return (int64_t)n;
@@ -225,24 +226,35 @@ extern "C" int chimera_vfs_close_process(uint32_t pid) {
     return closed;
 }
 extern "C" int chimera_vfs_stat_path(const char *path,chimera_vfs_stat *out) {
-    if(!out)return -22;char canonical[CHIMERA_VFS_MAX_PATH+1u];Resolved r{};int rc=resolve_path(path,canonical,&r);if(rc)return rc;return check_existing(r,r.relative,out);
+    if (!out) return -22;
+    char canonical[CHIMERA_VFS_MAX_PATH + 1u];
+    Resolved r{};
+    int rc = resolve_path(path, canonical, &r);
+    if (rc) return rc;
+    return check_existing(r, r.relative, out);
 }
 extern "C" int chimera_vfs_mkdir(const char *path,uint32_t mode) {
     char canonical[CHIMERA_VFS_MAX_PATH+1u];Resolved r{};int rc=resolve_path(path,canonical,&r);if(rc)return rc;
     MountPin pin(r.index);if(!pin.held)return -2;const Mount &m=pin.mount;
-    if(mount_readonly(m))return -30;if(!m.ops.mkdir)return -38;return m.ops.mkdir(m.context,r.relative,mode);
+    if (mount_readonly(m)) return -30;
+    if (!m.ops.mkdir) return -38;
+    return m.ops.mkdir(m.context, r.relative, mode);
 }
 extern "C" int chimera_vfs_unlink(const char *path,uint32_t directory) {
     char canonical[CHIMERA_VFS_MAX_PATH+1u];Resolved r{};int rc=resolve_path(path,canonical,&r);if(rc)return rc;
     MountPin pin(r.index);if(!pin.held)return -2;const Mount &m=pin.mount;
-    if(mount_readonly(m))return -30;if(!m.ops.unlink)return -38;return m.ops.unlink(m.context,r.relative,directory?1u:0u);
+    if (mount_readonly(m)) return -30;
+    if (!m.ops.unlink) return -38;
+    return m.ops.unlink(m.context, r.relative, directory ? 1u : 0u);
 }
 extern "C" int chimera_vfs_rename(const char *old_path,const char *new_path) {
     char old_c[CHIMERA_VFS_MAX_PATH+1u],new_c[CHIMERA_VFS_MAX_PATH+1u];Resolved old_r{},new_r{};
     int rc=resolve_path(old_path,old_c,&old_r);if(rc)return rc;rc=resolve_path(new_path,new_c,&new_r);if(rc)return rc;
     if(old_r.index!=new_r.index)return -18;
     MountPin pin(old_r.index);if(!pin.held)return -2;const Mount &m=pin.mount;
-    if(mount_readonly(m))return -30;if(!m.ops.rename)return -38;return m.ops.rename(m.context,old_r.relative,new_r.relative);
+    if (mount_readonly(m)) return -30;
+    if (!m.ops.rename) return -38;
+    return m.ops.rename(m.context, old_r.relative, new_r.relative);
 }
 extern "C" int chimera_vfs_sync(void) {
     for (uint32_t i = 0; i < CHIMERA_VFS_MAX_MOUNTS; ++i) {
