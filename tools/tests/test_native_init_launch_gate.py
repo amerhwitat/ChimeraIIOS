@@ -77,7 +77,11 @@ def main() -> int:
         return fail("complete RAMFS tree must be atomically published only after successful extraction")
     if 'chimera_vfs_mount("/", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY)' not in launch:
         return fail("rootfs publication must register the extracted tree as the process-visible VFS root")
-    for operation in ("koronos_target_fs_open", "koronos_target_fs_read", "koronos_target_fs_close"):
+    if 'chimera_vfs_mount("/tmp", chimera_tmpfs_vfs_ops(), tmpfs_candidate, 0u)' not in launch:
+        return fail("target root must include a bounded writable tmpfs mount")
+    if "chimera_tmpfs_create" not in launch:
+        return fail("writable tmpfs must be allocated before the target is dispatched")
+    for operation in ("koronos_target_fs_open", "koronos_target_fs_read", "koronos_target_fs_write", "koronos_target_fs_seek", "koronos_target_fs_close"):
         if operation not in launch:
             return fail(f"process-bound read-only filesystem operation missing: {operation}")
     if "koronos_address_space_validate_user_range(active_root" not in launch:
