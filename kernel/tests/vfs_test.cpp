@@ -45,7 +45,6 @@ int main(){
     if(chimera_vfs_close(7,fd)!=0)return fail("close");
     if(chimera_vfs_mount("/readonly",&ops,&fs,CHIMERA_VFS_MOUNT_RDONLY)!=0)return fail("readonly mount");
     if(chimera_vfs_open(7,"/readonly/note",CHIMERA_VFS_O_CREAT|CHIMERA_VFS_O_RDWR,0644)!=-30)return fail("readonly mount mutation accepted");
-    if(chimera_vfs_unmount("/")!=-16)return fail("unmount with open descriptor expected busy");
     fd=chimera_vfs_open(7,"/note",CHIMERA_VFS_O_RDONLY,0);if(fd<3)return fail("reopen");
     if(chimera_vfs_unmount("/")!=-16)return fail("open descriptor did not pin mount");
     if(chimera_vfs_close(7,fd)!=0)return fail("reclose");
