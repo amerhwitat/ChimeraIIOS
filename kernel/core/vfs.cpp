@@ -134,7 +134,7 @@ extern "C" int chimera_vfs_mount(const char *mountpoint,const chimera_vfs_ops *o
     }
     if(free_slot<0){unlock();return -28;}
     Mount &m=mounts[(uint32_t)free_slot]; for(uint32_t i=0;i<=CHIMERA_VFS_MAX_PATH;i++)m.path[i]=path[i];
-    m.ops=*ops;m.context=context;m.flags=flags;m.active=true;unlock();return 0;
+    m.ops=*ops;m.context=context;m.flags=flags;m.active_ops=0u;m.active=true;unlock();return 0;
 }
 extern "C" int chimera_vfs_unmount(const char *mountpoint) {
     char path[CHIMERA_VFS_MAX_PATH+1u];int rc=normalize(mountpoint,path);if(rc)return rc;
