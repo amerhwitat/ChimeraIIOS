@@ -66,6 +66,25 @@ int main() {
         chimera_service_get_state("storage")!=CHM_SVC_STOPPED) {
       fprintf(stderr,"FAIL: reverse-order stop failed\n"); return 4;
     }
-    puts("PASS: dependency order, health probes, exit monitoring, bounded restart, reverse stop");
+    /* A dependency exit must stop dependent services instead of leaving them
+       falsely RUNNING against a dead prerequisite. */
+    reset();
+    add_fake("storage"); add_fake("device"); add_fake("aurora");
+    if (chimera_service_supervisor_start(services,3,&backend,&config)!=0) {
+      fprintf(stderr,"FAIL: second supervisor start failed\\n"); return 5;
+    }
+    fake_service* storage=find_fake("storage");
+    storage->alive=false; storage->exit_code=9;
+    if (chimera_service_supervisor_poll()!=-2 ||
+        chimera_service_get_state("storage")!=CHM_SVC_FAILED ||
+        chimera_service_get_state("device")!=CHM_SVC_BLOCKED ||
+        chimera_service_get_state("aurora")!=CHM_SVC_BLOCKED ||
+        find_fake("device")->alive || find_fake("aurora")->alive) {
+      fprintf(stderr,"FAIL: dependency failure did not cascade-stop dependents\\n"); return 6;
+    }
+    if (chimera_service_supervisor_stop()!=0) {
+      fprintf(stderr,"FAIL: cleanup after dependency cascade failed\\n"); return 7;
+    }
+    puts("PASS: dependency order, health probes, exit monitoring, bounded restart, reverse stop and dependency-failure cascade");
     return 0;
 }
