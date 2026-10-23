@@ -89,6 +89,8 @@ struct MountPin {
     Mount mount;
     bool held;
     explicit MountPin(uint32_t i) : index(i), mount{}, held(false) {
+        MountPin(const MountPin &) = delete;
+        MountPin &operator=(const MountPin &) = delete;
         lock();
         if (i < CHIMERA_VFS_MAX_MOUNTS && mounts[i].active) {
             ++mounts[i].active_ops;
