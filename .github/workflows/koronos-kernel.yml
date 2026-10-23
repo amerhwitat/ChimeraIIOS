@@ -32,6 +32,12 @@ jobs:
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
+      - name: Test transactional RAMFS extraction, symlinks, and rollback
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/initramfs_cpio.cpp kernel/core/ramfs.cpp kernel/tests/ramfs_test.cpp \
+            -o /tmp/koronos-ramfs-test
+          /tmp/koronos-ramfs-test
       - name: Test fail-closed device driver probing
         run: |
           set -euo pipefail
