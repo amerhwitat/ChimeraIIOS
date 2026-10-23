@@ -177,6 +177,24 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertFalse(any("raw_trace lacks a target-matched userspace readiness marker" in e for e in errors))
         self.assertFalse(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
 
+    def test_legacy_probe_marker_cannot_satisfy_production_closeout(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE READY: target=live init_pid=7\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("raw_trace lacks a target-matched userspace readiness marker" in e for e in errors))
+
     def test_rejects_production_ready_marker_for_wrong_component(self):
         import tempfile
         from pathlib import Path
