@@ -240,7 +240,8 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
             if field.endswith("_verified"):
                 if value is not True:
                     errors.append(f"{name}: {field} must be true")
-            elif not nonempty(value):
+            elif not (nonempty(value) or
+                      (field == "case_ids" and isinstance(value, list) and bool(value))):
                 errors.append(f"{name}: missing {field}")
             elif artifact_root is not None and field == "evidence":
                 _check_artifact(value, f"{name}: evidence", artifact_root, errors)
