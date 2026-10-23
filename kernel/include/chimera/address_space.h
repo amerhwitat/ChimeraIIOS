@@ -8,6 +8,23 @@ extern "C" {
 
 #define KORONOS_USER_VIRTUAL_MIN 0x0000000100000000ull
 #define KORONOS_ADDRESS_SPACE_ABI 1u
+#define KORONOS_VMA_ABI 1u
+#define KORONOS_VMA_MAX 64u
+
+enum koronos_vma_backing_kind { KORONOS_VMA_ANONYMOUS=0, KORONOS_VMA_ELF_IMAGE=1, KORONOS_VMA_FILE=2, KORONOS_VMA_SWAP=3 };
+enum koronos_vma_residency { KORONOS_VMA_RESIDENT=1, KORONOS_VMA_PARTIAL=2, KORONOS_VMA_NONRESIDENT=3 };
+typedef struct koronos_vma_descriptor {
+    uint32_t abi;
+    uint32_t backing_kind;
+    uint32_t elf_flags;
+    uint32_t residency;
+    uint64_t virtual_base;
+    uint64_t length;
+    uint64_t backing_object;
+    uint64_t backing_offset;
+    uint64_t page_count;
+    uint64_t resident_pages;
+} koronos_vma_descriptor;
 
 /* Enables the process address-space backend after the physical allocator and
    CPU feature discovery have completed. Fails closed if NX is unavailable. */
