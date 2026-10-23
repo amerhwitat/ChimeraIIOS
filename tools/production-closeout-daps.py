@@ -304,7 +304,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         data = json.loads(args.evidence.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         print(f"BLOCKED: cannot read valid evidence JSON: {exc}", file=sys.stderr)
         return 2
     errors = check_evidence(data, args.evidence.resolve().parent)
