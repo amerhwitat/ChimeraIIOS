@@ -34,6 +34,12 @@ Applies to: ChimeraIIOS Koronos and the vendored kernel in OctavianOS.
 6. **Security**: process-owned credentials, UID/GID and mode checks, mount namespace policy, symlink handling, path traversal defenses, TOCTOU-safe lookup, locking, and block-device authorization must be in place before exposing mutations to ring 3.
 7. **Acceptance per driver**: known-good and malformed images, boundary/overflow tests, fuzzing, read/write/rename/unlink tests as applicable, remount tests, fault-injected I/O, sync/power-loss recovery, and a production ISO/VM test with raw evidence. Unsupported formats must return a clear unsupported-format error.
 
+## 2026-10-23 block I/O and ISO9660 candidate
+
+The current branch now includes a bounded byte-offset block-device contract and a read-only ISO9660 PVD backend wired to the VFS callback ABI. The candidate intentionally supports only the primary volume descriptor and common case-insensitive ISO names with optional `;version` suffix removal. Rock Ridge, Joliet name decoding, UDF, multi-extent files, writes, and filesystem-specific permissions are not implemented. A synthetic image test and build-script/CTest entries were added, but **they have not yet been compiled or executed in this environment**; therefore the driver is SOURCE ONLY, not unit-tested or production-accepted.
+
+The block adapter checks ABI, device presence, offset/length bounds, read-only writes, and unsupported flush behavior. Device lifetime remains the caller's responsibility: a mounted ISO backend must be unmounted before its device context is removed. Further review must validate descriptor sequencing, corrupt directory records, sector-boundary cases, media removal during reads, and mount/unmount races before production use.
+
 ## Release gate
 
 A filesystem is not "implemented" merely because it has a name in a registry, a parser, a VFS callback table, or a unit test. Track each driver as **NOT IMPLEMENTED**, **IN PROGRESS**, **SOURCE ONLY**, **UNIT TESTED**, **IMAGE-INTEGRATION TESTED**, or **PRODUCTION ACCEPTED** with artifact hashes and traces. Do not advertise universal mounting until each advertised format has its own passing evidence.
