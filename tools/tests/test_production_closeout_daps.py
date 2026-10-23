@@ -309,6 +309,17 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] MAP'" in e for e in errors))
         self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] SWAP LOAD'" in e for e in errors))
 
+    def test_vm_trace_rejects_invalid_utf8(self):
+        import tempfile
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "vm-swap.log"
+            trace.parent.mkdir()
+            trace.write_bytes(bytes([255, 254, 250]))
+            data["vm_swap"]["evidence"] = "traces/vm-swap.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("vm_swap: cannot read/decipher evidence trace" in e for e in errors))
     def test_unexpected_candidate_case_is_rejected(self):
         data = valid_evidence()
         data["cases"]["candidate-live-qemu"] = {
