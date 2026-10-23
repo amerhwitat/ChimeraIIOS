@@ -175,3 +175,5 @@ alignb 16
 stack64_bottom: resb 262144
 stack64_top:
 __boot_bss_end:
+
+section .note.GNU-stack noalloc noexec nowrite progbits
