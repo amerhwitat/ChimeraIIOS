@@ -48,6 +48,10 @@ def check_evidence(data: object) -> list[str]:
             errors.append(f"{case_id}: no verified CPL3-originated syscall acknowledgement")
         if case.get("process_visible_rootfs") is not True:
             errors.append(f"{case_id}: process-visible rootfs/VFS mount not proven")
+        if case.get("rootfs_file_syscalls_verified") is not True:
+            errors.append(f"{case_id}: process-visible rootfs OPEN/READ/CLOSE was not verified from ring 3")
+        if not nonempty(case.get("rootfs_file_syscalls_evidence")):
+            errors.append(f"{case_id}: missing raw evidence for rootfs OPEN/READ/CLOSE")
         syscall_pid = case.get("syscall_pid")
         ready_pid = case.get("readiness_pid")
         if not isinstance(syscall_pid, int) or isinstance(syscall_pid, bool) or syscall_pid <= 0:
