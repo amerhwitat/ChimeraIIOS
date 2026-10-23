@@ -894,6 +894,8 @@ extern "C" int koronos_address_space_evict_one(void *opaque) {
             return -6;
         }
         lock_backend();
+        if (old_slot != KORONOS_SWAP_SLOT_INVALID && meta->swap_slot == old_slot)
+            meta->swap_slot = KORONOS_SWAP_SLOT_INVALID;
         if (meta->state != PAGE_EVICTING || meta->physical != physical ||
             !(*pte & ENTRY_PRESENT) || ((*pte & ENTRY_ADDRESS_MASK) != physical)) {
             if (meta->state == PAGE_EVICTING) meta->state = PAGE_NONRESIDENT;
