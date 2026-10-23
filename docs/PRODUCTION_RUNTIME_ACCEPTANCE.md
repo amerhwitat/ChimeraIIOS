@@ -126,3 +126,12 @@ The closure work is therefore ordered, not interchangeable: first wire OctavianO
 Latest OctavianOS CI at commit `3d8859714439d307fc6aaafd93930e7b7183dbc5`: bounded ingestion, source integration, target routing, artwork/progress, and explicit ELF smoke passed. Candidate ring-3 run `39866564460` remained in progress; Installer/BIOS and Recovery/UEFI passed as candidate jobs, with four jobs still running at poll time. These are not production ISO results. ChimeraIIOS still returned no workflow run for its recorded source-fix commit, so mirrored source changes remain unverified there.
 
 Release remains blocked pending launcher integration, rootfs publication, real services, six production BIOS/UEFI cases, Aurora, installer cold-reboot persistence, recovery postconditions, and AP-backed concurrent SMP.
+
+
+## 2026-10-23 follow-up — root causes and closeout boundary
+
+- Verified CI jobs: Boot Artifact Validation #39926508746, Desktop Compatibility #39926508696, Structured ISO #39926646499, and Koronos contracts/build #39925905184 passed. Their logs prove build/structure/source-contract regressions only, not production service readiness.
+- The payload-binding regression was a stale source-contract assertion; the test now asserts bounded RAMFS staging, read-only root mount, writable /tmp mount, and delayed root publication. This does not prove successful mounts in a real production boot.
+- Source audit still shows a deliberate fail-closed native init: it reports `NATIVE INIT BLOCKED` and exits 78. Installer target launch explicitly refuses launch while the storage-backed root namespace is missing. The three target ELF files being present and structurally valid is not equivalent to target services being operational.
+- The production closeout checker requires six target/firmware cases, matching nonzero syscall/readiness PID, rootfs file syscall evidence, Live/Recovery tmpfs mutation traces, display/Aurora, installer persistence, recovery repair, and SMP evidence. The checker does not generate any of that evidence; raw boot artifacts must be collected from real test runs.
+- Remaining root causes: production Live service/Aurora session not operationally proven; installer storage namespace/persistence path missing; Recovery repair action/postcondition not proven; AP startup and overlapping multi-CPU execution not proven. Keep release blocked until the unchanged production verifier and all independent runtime gates pass.
