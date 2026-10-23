@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include "chimera/address_space.h"
 #include "chimera/frame_allocator.h"
+#include "chimera/swap.h"
 #include "chimera/koronos_abi.h"
 extern "C" uint8_t koronos_bootstrap_pml4[];
 namespace {
