@@ -70,6 +70,7 @@ def valid_evidence():
             "page_pinning_verified": True, "vma_lookup_verified": True,
             "frame_reference_counting_verified": True, "system_block_config_verified": True,
             "system_block_size_bytes": "4096", "page_fault_handling_verified": True,
+            "pager_thread_verified": True, "fault_wait_wake_verified": True,
             "swap_roundtrip_verified": True, "swapout_failure_preserves_resident_verified": True,
             "swapin_rollback_verified": True, "io_failure_rollback_verified": True,
             "corruption_rejected_verified": True, "tlb_shootdown_verified": True,
@@ -257,12 +258,15 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
     def test_vm_swap_requires_vma_frame_ownership_and_block_size_evidence(self):
         data = valid_evidence()
         for field in ("vma_lookup_verified", "frame_reference_counting_verified",
-                      "system_block_config_verified", "system_block_size_bytes"):
+                      "system_block_config_verified", "system_block_size_bytes",
+                      "pager_thread_verified", "fault_wait_wake_verified"):
             data["vm_swap"].pop(field)
         errors = check_evidence(data)
         self.assertTrue(any("vm_swap: vma_lookup_verified must be true" in e for e in errors))
         self.assertTrue(any("vm_swap: frame_reference_counting_verified must be true" in e for e in errors))
         self.assertTrue(any("vm_swap: system_block_config_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: pager_thread_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: fault_wait_wake_verified must be true" in e for e in errors))
         self.assertTrue(any("vm_swap: missing system_block_size_bytes" in e for e in errors))
 
     def test_vm_swap_rejects_invalid_system_block_size(self):
