@@ -23,7 +23,7 @@ static int parse_record(const uint8_t*p,uint32_t avail,Record*out){
  if(!p||!out||avail<34u||p[0]<34u||p[0]>avail)return -5;
  uint8_t len=p[0],nl=p[32];if((uint32_t)33u+nl>len||!both32(p+2)||!both32(p+10))return -5;
  if((p[25]&0x80u)!=0u)return -95;
- out->extent=le32(p+2)+p[1];out->size=le32(p+10);out->flags=p[25];out->name_len=nl;out->name=p+33;return 0;
+ uint32_t extent=le32(p+2);if(extent>UINT32_MAX-p[1])return -5;out->extent=extent+p[1];out->size=le32(p+10);out->flags=p[25];out->name_len=nl;out->name=p+33;return 0;
 }
 static bool same_char(uint8_t a,char b){if(a>='a'&&a<='z')a=(uint8_t)(a-'a'+'A');if(b>='a'&&b<='z')b=(char)(b-'a'+'A');return a==(uint8_t)b;}
 static bool name_match(const Record&r,const char*name,uint32_t n){
