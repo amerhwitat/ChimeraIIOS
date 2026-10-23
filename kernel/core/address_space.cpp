@@ -860,7 +860,8 @@ extern "C" int koronos_address_space_evict_one(void *opaque) {
         va = block->virtual_base + static_cast<uint64_t>(page_index) * PAGE_SIZE;
         PageMeta *meta = find_page_meta(space, va, nullptr); uint64_t *pte = find_pte(space, va);
         if (!meta || !pte || meta->state != PAGE_RESIDENT || meta->pins || !meta->physical ||
-            !(*pte & ENTRY_PRESENT) || ((*pte & ENTRY_ADDRESS_MASK) != meta->physical)) continue;
+            !(*pte & ENTRY_PRESENT) || ((*pte & ENTRY_ADDRESS_MASK) != meta->physical) ||
+            koronos_vm_frame_refcount(meta->physical) != 1u) continue;
         if (*pte & ENTRY_DIRTY) meta->flags |= PAGE_META_DIRTY;
         if ((*pte & ENTRY_ACCESSED) || (meta->flags & PAGE_META_REFERENCED)) {
             *pte &= ~ENTRY_ACCESSED; meta->flags &= static_cast<uint8_t>(~PAGE_META_REFERENCED);
@@ -895,7 +896,10 @@ extern "C" int koronos_address_space_evict_one(void *opaque) {
         lock_backend();
         if (meta->state != PAGE_EVICTING || meta->physical != physical ||
             !(*pte & ENTRY_PRESENT) || ((*pte & ENTRY_ADDRESS_MASK) != physical)) {
-            unlock_backend(); (void)koronos_swap_release(new_slot); return -7;
+            if (meta->state == PAGE_EVICTING) meta->state = PAGE_NONRESIDENT;
+            unlock_backend(); (void)koronos_swap_release(new_slot);
+            if (original_pte & ENTRY_WRITE) shoot(root, va, PAGE_SIZE, ctx);
+            return -7;
         }
         *pte = ENTRY_SWAPPED; meta->swap_slot = new_slot; meta->physical = 0; meta->state = PAGE_SWAPPED;
         for (uint32_t v = 0; v < space->vma_count; ++v) {
