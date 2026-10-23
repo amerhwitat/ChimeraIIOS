@@ -83,7 +83,8 @@ static int start_one(managed_service* m) {
             m->handle = 0;
         }
         set_state_internal(m->manifest.id, CHM_SVC_FAILED);
-        if (m->manifest.restart != CHM_RESTART_FAILURE || attempts >= g_config.max_restarts)
+        if (m->manifest.restart != CHM_RESTART_FAILURE ||
+            m->restart_count >= g_config.max_restarts)
             return spawn_rc != 0 ? spawn_rc : -3;
         ++attempts;
         ++m->restart_count;
@@ -190,6 +191,12 @@ extern "C" int chimera_service_supervisor_start(const chimera_service_manifest* 
     for (uint32_t i = 0; i < count; ++i) {
         g_managed[i] = {services[i], 0, 0, 0, false};
         set_state_internal(services[i].id, CHM_SVC_DECLARED);
+    }
+    /* Store order pointers against the supervisor-owned manifest copies. */
+    for (uint32_t i = 0; i < g_order_count; ++i) {
+        const int index = find_managed(g_order[i]);
+        if (index < 0) return -2;
+        g_order[i] = g_managed[static_cast<uint32_t>(index)].manifest.id;
     }
     g_supervisor_active = true;
     for (uint32_t i = 0; i < g_order_count; ++i) {
