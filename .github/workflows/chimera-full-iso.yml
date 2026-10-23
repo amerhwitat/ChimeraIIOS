@@ -370,6 +370,8 @@ jobs:
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
+            build/iso/production-closeout-evidence.json
+            build/iso/closeout-traces/**
 
       - name: Enforce full production closeout evidence (DAPS)
         # Candidate target smoke is not the six-case production gate. Never publish
