@@ -28,6 +28,7 @@ int main(void) {
     for (uint32_t i=0;i<sizeof(in);++i) in[i]=(uint8_t)((i*37u+11u)&0xffu);
     uint32_t slot=KORONOS_SWAP_SLOT_INVALID;
     CHECK(koronos_swap_store(in,&slot)==0 && slot==0);
+    CHECK(koronos_swap_init(&b)!=0); // never discard owned swap slots by reinitializing
     memset(out,0,sizeof(out)); CHECK(koronos_swap_load(slot,out)==0);
     CHECK(memcmp(in,out,sizeof(in))==0);
     CHECK(koronos_swap_release(slot)==0);
