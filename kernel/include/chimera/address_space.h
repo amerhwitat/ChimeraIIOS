@@ -42,6 +42,11 @@ int koronos_address_space_protect(void *address_space, uint64_t virtual_base, ui
                                   uint32_t elf_flags);
 int koronos_address_space_query(void *address_space, uint64_t virtual_address,
                                 uint64_t *physical_address, uint32_t *elf_flags);
+int koronos_address_space_vma_query(void *address_space, uint64_t virtual_address,
+                                    koronos_vma_descriptor *out);
+int koronos_address_space_vma_set_backing(void *address_space, uint64_t virtual_base,
+                                          uint64_t length, uint32_t backing_kind,
+                                          uint64_t backing_object, uint64_t backing_offset);
 int koronos_address_space_pin(void *address_space, uint64_t virtual_address, uint64_t length,
                               uint32_t write_access);
 int koronos_address_space_unpin(void *address_space, uint64_t virtual_address, uint64_t length);
