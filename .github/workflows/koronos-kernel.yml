@@ -7,6 +7,7 @@ on:
       - "isa/koronos/**"
       - "tools/koronos/**"
       - ".github/workflows/koronos-kernel.yml"
+      - "docs/PRODUCTION_RUNTIME_ACCEPTANCE.md"
   pull_request:
     paths:
       - "kernel/**"
