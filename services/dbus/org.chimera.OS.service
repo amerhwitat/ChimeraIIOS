@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=org.chimera.OS
+Exec=/usr/libexec/chimera/chimera_dbus_service.py
+User=root
+SystemdService=chimera-dbus.service
