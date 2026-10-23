@@ -388,9 +388,16 @@ static bool address_space_self_test() {
             space, KORONOS_USER_VIRTUAL_MIN, &queried_physical, &queried_flags);
         const int overlap_rc = koronos_address_space_map(
             space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, 5u);
+        const int pin_rc = koronos_address_space_pin(
+            space, KORONOS_USER_VIRTUAL_MIN, 1u, 0u);
+        const int unpin_rc = pin_rc == 0 ? koronos_address_space_unpin(
+            space, KORONOS_USER_VIRTUAL_MIN, 1u) : -1;
+        const int double_unpin_rc = koronos_address_space_unpin(
+            space, KORONOS_USER_VIRTUAL_MIN, 1u);
         ok = query_rc == 0 &&
              queried_physical == reinterpret_cast<uintptr_t>(code_alias) &&
-             queried_flags == 5u && overlap_rc != 0 &&
+             queried_flags == 5u && overlap_rc != 0 && pin_rc == 0 &&
+             unpin_rc == 0 && double_unpin_rc != 0 &&
              koronos_frame_free_count() == free_before_overlap;
         uint64_t *code_pte = ensure_pte(space, KORONOS_USER_VIRTUAL_MIN);
         uint64_t *stack_pte = ensure_pte(space, 0x00007FFFFFFFE000ull);
