@@ -109,7 +109,6 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         vector == 21u || vector == 29u || vector == 30u;
     if (vector == 14u && frame) {
         const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
-        const uint64_t user_rip = saved[17];
         const uint64_t user_cs = saved[18];
         if ((user_cs & 3u) == 3u && koronos_target_active_pid() != 0u) {
             uint64_t fault_address = 0;
