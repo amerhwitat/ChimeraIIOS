@@ -471,8 +471,12 @@ static bool address_space_self_test() {
     destroy_address_space(nullptr, space);
     return ok && koronos_frame_free_count() == before;
 }
+static int set_vma_backing(void *, void *address_space, uint64_t base, uint64_t length,
+                             uint32_t kind, uint64_t object, uint64_t offset) {
+    return koronos_address_space_vma_set_backing(address_space, base, length, kind, object, offset);
+}
 static const chimera_elf_load_ops loader_ops = {
-    create_address_space, map_pages, destroy_address_space
+    create_address_space, map_pages, destroy_address_space, set_vma_backing
 };
 }
 
