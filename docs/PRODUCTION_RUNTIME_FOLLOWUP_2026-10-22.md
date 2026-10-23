@@ -120,3 +120,14 @@ Verification status: no workflow runs were reported for the latest source/link-g
 ## Closeout gate tightened — ring-3 file-operation evidence (2026-10-23)
 
 The production DAPS gate now requires every one of the six target/firmware cases to include both rootfs_file_syscalls_verified=true and a non-empty rootfs_file_syscalls_evidence reference, in addition to process_visible_rootfs=true. This prevents a successful pointer publication or source-level check from being treated as proof that ring-3 can actually open, read, and close a file. The source-contract regression test checks that these fields remain mandatory. OctavianOS root and vendored copies are synchronized. This is a stricter fail-closed gate; no evidence has been generated for the new fields, so release acceptance remains blocked.
+
+
+## General VFS and mutable tmpfs implementation update — 2026-10-23
+
+Added a mountable VFS backend API (kernel/include/chimera/vfs.h, kernel/core/vfs.cpp) with longest-prefix mount routing, canonical absolute paths that reject dot/dot-dot traversal, per-PID descriptors, offset tracking/seek, read/write/open/close, create/truncate/mkdir/unlink/rename/sync backend hooks, read-only mount enforcement, and mount-operation pins that prevent unmount while a backend callback is active. Added a bounded mutable tmpfs backend (kernel/include/chimera/tmpfs.h, kernel/core/tmpfs.cpp) with per-file and total-byte limits; writes/truncates allocate replacement content before commit so allocation/limit failures preserve the old contents.
+
+Live/Recovery target launch now mounts the validated initramfs RAMFS as read-only / and a bounded writable tmpfs at /tmp before dispatch. Native ring-3 OPEN/READ/WRITE/SEEK/CLOSE route through the VFS; console descriptors 0–2 retain console output. File writes validate the user source range; file reads validate the writable destination range. Kernel VFS APIs support mkdir/unlink/rename/sync, but those mutation operations are not yet exposed as ring-3 syscalls because process ownership/mode permission enforcement must be added first.
+
+Regression coverage added to kernel/tests/vfs_test.cpp and kernel/tests/tmpfs_test.cpp; canonical build script and CTest now include them. The DAPS gate requires real tmpfs_mutation_verified plus raw evidence for each Live/Recovery BIOS/UEFI case. OctavianOS vendor copies were synchronized.
+
+Verification limitation: no local compiler run was possible in this session, and the latest workflow-run lookup returned no runs. The source, tests, and link contracts are committed but unverified until the canonical kernel/ISO CI runs. Installer storage-backed root mount/write/verify/cold reboot, persistent disk filesystem backend, production service supervision, Aurora health, Recovery repair postcondition, AP-backed SMP, and the six-case full production matrix remain open. Do not merge or publish a production release yet.
