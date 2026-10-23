@@ -142,3 +142,11 @@ Release remains blocked pending launcher integration, rootfs publication, real s
 - Workflow commit `882caeba2a1a2cfa29c29207818dc1ece40061a2` adds a CI step to compile-check `tools/production-closeout-daps.py` and run `tools/tests/test_production_closeout_daps.py`. This closes a test-discovery gap: the DAPS verifier had regression tests in a separate directory, but the full ISO workflow did not explicitly execute them.
 - This verifies the verifier's rejection behavior (missing cases/artifacts, bad ISO digest, path traversal, candidate-smoke substitution), not the production runtime itself.
 - The latest DAPS/workflow commits do not yet have a confirmed fresh CI result in this review. The operational blockers remain unchanged: native init intentionally exits 78, Installer lacks a verified storage-backed root/persistence path, and Aurora, recovery repair, six production cases, and AP-backed concurrent SMP require real runtime evidence.
+
+
+## 2026-10-23 follow-up — raw evidence must agree with claims
+
+- Commits `4ff727634279777420c4ab48cb2f79179dd5d99d` and `badbb57e9f0d3dd9bf6d542b99512b7694d27565` address a further closeout-verifier weakness: the DAPS JSON's booleans and artifact paths were checked, but raw trace contents were not semantically cross-checked against the claimed readiness and service outcomes.
+- DAPS now validates the production raw trace for kernel-ready, user-originated target syscall, ring-3 return, target-matched nonzero readiness PID, PID equality, and syscall-before-readiness ordering. It also checks evidence logs for rootfs OPEN/READ/CLOSE, Live/Recovery tmpfs CREATE/WRITE/READ/TRUNCATE, display fallbacks/Aurora, persistence, repair postcondition, and SMP markers.
+- Regression tests now cover a readiness claim without a syscall and a raw trace with mismatched PIDs. This tightens the evidence gate; it does not create missing runtime traces or imply that the underlying services work.
+- Fresh CI has not yet been confirmed for these commits. Release remains blocked until actual production logs contain the required markers and all six firmware/target cases plus independent gates pass.
