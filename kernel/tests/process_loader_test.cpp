@@ -24,7 +24,7 @@ static void build_elf(uint8_t*b,size_t n){
  b[0x100]=0x90;b[0x101]=0x90;b[0x102]=0x90;b[0x103]=0xc3;
 }
 int main(){
- uint8_t elf[512];build_elf(elf,sizeof(elf));chimera_elf_load_ops ops{create_as,map_pages,destroy_as,set_backing};Mock m{};chimera_loaded_elf loaded{};
+ uint8_t elf[512];build_elf(elf,sizeof(elf));chimera_elf_load_ops ops{create_as,map_pages,destroy_as,set_backing};Mock m{};chimera_loaded_elf loaded{};chimera_loaded_elf untouched{};
  int rc=chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&m,&loaded);
  assert(rc==0&&loaded.entry==0x400100&&loaded.segment_count==1&&loaded.loaded_file_bytes==4);
  assert(m.count==2&&!m.destroyed&&m.regions[0].base==0x400000&&m.regions[0].flags==5);
@@ -37,7 +37,7 @@ int main(){
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_backing,&untouched)==-16);
  assert(bad_backing.destroyed&&bad_backing.count==1);
  // Header version and exact ELF header size are mandatory.
- build_elf(elf,sizeof(elf)); put32(elf+20,2); Mock bad_version{}; chimera_loaded_elf untouched{};
+ build_elf(elf,sizeof(elf)); put32(elf+20,2); Mock bad_version{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_version,&untouched)<0);
  assert(bad_version.count==0);
  build_elf(elf,sizeof(elf)); put16(elf+52,63); Mock bad_header{};
