@@ -43,6 +43,20 @@ if "--system-block-size" not in source or 'SYSTEM_BLOCK_SIZE="${1#*=}"' not in s
     print("FAIL: system block size must be configurable by CLI", file=sys.stderr)
     raise SystemExit(1)
 
+# The primary ISO builder must forward the same setting to the canonical kernel build.
+iso_builder = ROOT / "build-chimera-iso.sh"
+try:
+    iso_source = iso_builder.read_text(encoding="utf-8")
+except OSError as exc:
+    print(f"FAIL: cannot read {iso_builder}: {exc}", file=sys.stderr)
+    raise SystemExit(2)
+if "--system-block-size" not in iso_source or "export KORONOS_SYSTEM_BLOCK_SIZE" not in iso_source:
+    print("FAIL: primary ISO builder does not expose/forward system block size", file=sys.stderr)
+    raise SystemExit(1)
+if 'KORONOS_SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"' not in iso_source:
+    print("FAIL: primary ISO builder must default system block size to 4096", file=sys.stderr)
+    raise SystemExit(1)
+
 # Invalid CLI values must fail before compilation or filesystem side effects.
 invalid = subprocess.run(
     ["bash", str(script), "--system-block-size", "1000"],
