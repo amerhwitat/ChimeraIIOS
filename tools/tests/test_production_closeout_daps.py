@@ -36,6 +36,7 @@ def valid_evidence():
                 case["tmpfs_mutation_evidence"] = f"traces/{case_id}-tmpfs.log"
             cases[case_id] = case
     return {
+        "production_iso_sha256": "a" * 64,
         "cases": cases,
         "display": {
             "status": "PASS",
@@ -68,6 +69,13 @@ def valid_evidence():
 class ProductionCloseoutDapsTest(unittest.TestCase):
     def test_complete_evidence_passes(self):
         self.assertEqual(check_evidence(valid_evidence()), [])
+
+    def test_missing_top_level_iso_digest_blocks_closeout(self):
+        data = valid_evidence()
+        data.pop("production_iso_sha256")
+        errors = check_evidence(data)
+        self.assertTrue(any("production_iso_sha256 must be a required" in e for e in errors))
+        self.assertTrue(any("cannot bind case ISO to a missing/invalid top-level" in e for e in errors))
 
     def test_live_and_recovery_require_mutation_trace(self):
         data = valid_evidence()
