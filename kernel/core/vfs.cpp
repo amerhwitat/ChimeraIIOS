@@ -199,7 +199,8 @@ extern "C" int64_t chimera_vfs_seek(uint32_t pid,int64_t fd,int64_t offset,uint3
     lock();OpenFile &f=files[(uint32_t)(fd-3)];if(!f.active||f.pid!=pid){unlock();return -9;}
     uint64_t base=0;if(whence==1u)base=f.offset;else if(whence==2u){Mount m=mounts[f.mount_index];chimera_vfs_stat st{};int rc=m.ops.lookup?m.ops.lookup(m.context,f.path,&st):-38;if(rc){unlock();return rc;}base=st.size;}else if(whence!=0u){unlock();return -22;}
     uint64_t next;if(offset<0){uint64_t delta=(uint64_t)(-(offset+1))+1u;if(delta>base){unlock();return -22;}next=base-delta;}else{if(base>UINT64_MAX-(uint64_t)offset){unlock();return -75;}next=base+(uint64_t)offset;}
-    f.offset=next;unlock();return next>INT64_MAX?-75:(int64_t)next;
+    if (next > INT64_MAX) { unlock(); return -75; }
+    f.offset=next;unlock();return (int64_t)next;
 }
 extern "C" int chimera_vfs_close(uint32_t pid,int64_t fd) {
     if(!pid||fd<3||fd>=CHIMERA_VFS_MAX_OPEN_FILES+3u)return -9;
