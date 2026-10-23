@@ -100,6 +100,8 @@ def main() -> int:
     daps_source = (ROOT / "tools/production-closeout-daps.py").read_text(encoding="utf-8")
     if 'rootfs_file_syscalls_verified' not in daps_source or 'rootfs_file_syscalls_evidence' not in daps_source:
         return fail("release gate must require ring-3 OPEN/READ/CLOSE evidence, not just a published root pointer")
+    if "tmpfs_mutation_verified" not in daps_source or "tmpfs_mutation_evidence" not in daps_source:
+        return fail("release gate must require real writable tmpfs evidence for Live and Recovery")
 
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
