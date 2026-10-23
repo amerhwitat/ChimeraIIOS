@@ -26,7 +26,7 @@ static uint32_t initialized = 0u;
 static uint8_t lock_word = 0u;
 static void lock() { while (__atomic_test_and_set(&lock_word, __ATOMIC_ACQUIRE)) {} }
 static void unlock() { __atomic_clear(&lock_word, __ATOMIC_RELEASE); }
-static uint32_t length_of(const char *s) { uint32_t n=0; if(!s)return 0; while(s[n] && n<=CHIMERA_VFS_MAX_PATH) ++n; return n; }
+static uint32_t length_of(const char *s) { uint32_t n=0; if(!s)return 0; while(n<=CHIMERA_VFS_MAX_PATH && s[n]) ++n; return n; }
 static bool equal(const char *a,const char *b) { uint32_t i=0; while(a[i] && b[i] && a[i]==b[i]) ++i; return a[i]==b[i]; }
 static void copy_string(char *d,const char *s,uint32_t n) { for(uint32_t i=0;i<n;i++)d[i]=s[i]; d[n]=0; }
 static int normalize(const char *input,char *output) {
@@ -67,9 +67,14 @@ static int resolve(const char *canonical,Resolved *out) {
     }
     if(best>=0) {
         out->index=(uint32_t)best;
-        const char *rest=canonical+best_len;
-        if(!*rest) {out->relative[0]='/';out->relative[1]=0;}
-        else copy_string(out->relative,rest,length_of(rest));
+        const char *rest = canonical + best_len;
+        if (equal(mounts[(uint32_t)best].path, "/")) {
+            copy_string(out->relative, canonical, length_of(canonical));
+        } else if (!*rest) {
+            out->relative[0]='/'; out->relative[1]=0;
+        } else {
+            copy_string(out->relative, rest, length_of(rest));
+        }
     }
     unlock();
     return best<0 ? -2 : 0;
@@ -121,16 +126,22 @@ extern "C" int64_t chimera_vfs_open(uint32_t pid,const char *path,uint32_t flags
        (flags & ~(CHIMERA_VFS_O_ACCMODE|CHIMERA_VFS_O_CREAT|CHIMERA_VFS_O_EXCL|CHIMERA_VFS_O_TRUNC|CHIMERA_VFS_O_APPEND)))return -22;
     char canonical[CHIMERA_VFS_MAX_PATH+1u];Resolved r{};int rc=resolve_path(path,canonical,&r);if(rc)return rc;
     Mount m;lock();m=mounts[r.index];unlock();
+    const uint32_t access = flags & CHIMERA_VFS_O_ACCMODE;
+    if (mount_readonly(m) && (access != CHIMERA_VFS_O_RDONLY ||
+        (flags & (CHIMERA_VFS_O_CREAT | CHIMERA_VFS_O_TRUNC)))) return -30;
+    if ((flags & CHIMERA_VFS_O_TRUNC) && access == CHIMERA_VFS_O_RDONLY) return -22;
     chimera_vfs_stat st{};rc=check_existing(r,r.relative,&st);
     if(rc==-2 && (flags&CHIMERA_VFS_O_CREAT)){
-        if(mount_readonly(m))return -30;if(!m.ops.create)return -38;
+        if(mount_readonly(m))return -30;
+        if(!m.ops.create)return -38;
         rc=m.ops.create(m.context,r.relative,CHIMERA_VFS_REGULAR,mode);if(rc)return rc;
         rc=check_existing(r,r.relative,&st);
     } else if(rc==0 && (flags&CHIMERA_VFS_O_CREAT) && (flags&CHIMERA_VFS_O_EXCL)) return -17;
     if(rc)return rc;
     if(st.type==CHIMERA_VFS_DIRECTORY && (flags&CHIMERA_VFS_O_ACCMODE)!=CHIMERA_VFS_O_RDONLY)return -21;
     if((flags&CHIMERA_VFS_O_TRUNC) && (flags&CHIMERA_VFS_O_ACCMODE)!=CHIMERA_VFS_O_RDONLY){
-        if(mount_readonly(m))return -30;if(!m.ops.truncate)return -38;
+        if(mount_readonly(m))return -30;
+        if(!m.ops.truncate)return -38;
         rc=m.ops.truncate(m.context,r.relative,0u);if(rc)return rc;st.size=0;
     }
     lock();for(uint32_t i=0;i<CHIMERA_VFS_MAX_OPEN_FILES;i++)if(!files[i].active){
