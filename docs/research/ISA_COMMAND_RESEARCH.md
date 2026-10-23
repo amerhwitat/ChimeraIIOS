@@ -1,6 +1,6 @@
 # ISA, command, kernel and mobile OS research
 
-Generated: 2026-10-22T14:22:16.431739+00:00
+Generated: 2026-10-22T18:32:03.048175+00:00
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -47,29 +47,25 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Daan-25/img4-macos-arm64](https://github.com/Daan-25/img4-macos-arm64) — A lightweight command-line utility for encoding, decoding, and signing Apple img4 firmware containers, built with support for macOS ARM architecture. Includes source code and build instructions.; language C; stars 0; license MIT
 - [wuzw10/arm64-shadow-monitor](https://github.com/wuzw10/arm64-shadow-monitor) — ARM64 Shadow Memory Monitor — intercepts store instructions via SIGSEGV and mprotect. Write to read-protected VA_A triggers handler that decodes the instruction and redirects the store to shadow VA_B. Supports STR/STRH/STRB/STP.; language C; stars 0; license unspecified
 - [MeshacOkello/arm64-simulator](https://github.com/MeshacOkello/arm64-simulator) — A browser-based ARM64 (AArch64) CPU simulator — instruction decoding, a deterministic cycle-stepped execution engine, and a live view of registers, stack, heap, BSS and rodata.; language TypeScript; stars 0; license unspecified
+- [JignasuShah/riscv-processor](https://github.com/JignasuShah/riscv-processor) — Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.; language SystemVerilog; stars 0; license unspecified
 - [rishikezz/riscv32i-cpu-core-tlverilog](https://github.com/rishikezz/riscv32i-cpu-core-tlverilog) — RISC-V RV32I CPU core implemented in TL-Verilog using Makerchip, featuring instruction decoding, ALU operations, memory access and simulation visualization.; language TL-Verilog; stars 0; license unspecified
 - [Anas-Gebreel/riscv-ldpc-cfu-accelerator](https://github.com/Anas-Gebreel/riscv-ldpc-cfu-accelerator) — RISC-V (NEORV32) custom-instruction accelerator for fixed-point min-sum LDPC decoding on the Terasic DE2-115 (Cyclone IV E).; language C; stars 0; license MIT
-- [JignasuShah/riscv-processor](https://github.com/JignasuShah/riscv-processor) — Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.; language unknown; stars 0; license unspecified
 - [Pikachu287/RiscV_ISA_Sim](https://github.com/Pikachu287/RiscV_ISA_Sim) — Decoding all RV32I instructions and simulating them; language C; stars 0; license unspecified
 - [Ruthik85/pipelined-16bit-riscv-core](https://github.com/Ruthik85/pipelined-16bit-riscv-core) — A 16-bit pipelined RISC-V processor core written in SystemVerilog, featuring modular instruction fetch, decode, and execute stages along with a hazard forwarding unit.; language SystemVerilog; stars 0; license unspecified
 - [DharanidharanRavikumar/riscv-decoder](https://github.com/DharanidharanRavikumar/riscv-decoder) — A C-based RISC-V RV32I instruction decoder with opcode, register, immediate, and instruction identification support.; language C; stars 0; license unspecified
 - [DharanidharanRavikumar/riscv-simulator](https://github.com/DharanidharanRavikumar/riscv-simulator) — A from-scratch RV32I instruction-set simulator written in C, It fetches, decodes (using the same match/mask technique as the official Spike simulator), and executes real RISC-V machine code, one instruction at a time.; language C; stars 0; license MIT
-- [sxbari/MyOS-x86](https://github.com/sxbari/MyOS-x86) — A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.; language C; stars 0; license MIT
 - [JorgeGBeltre/EspressoOS](https://github.com/JorgeGBeltre/EspressoOS) — EspressoOS: A from‑scratch operating system for ESP32-S3, written entirely in Rust. A Linux‑inspired kernel (VFS, scheduler, syscalls, everything is a file) with no dependencies on Espressif IDF or Arduino. Includes custom bootloader, memory management, drivers, OTA with A/B slots, and an interactive shell.; language Rust; stars 0; license MIT
+- [sxbari/MyOS-x86](https://github.com/sxbari/MyOS-x86) — A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.; language C; stars 0; license MIT
 - [aleksandraastojanovic/riscv-kernel](https://github.com/aleksandraastojanovic/riscv-kernel) — A small operating system kernel for RISC-V (rv64), running on QEMU: custom memory allocator, trap-based system calls, cooperative multithreading with context switching — semaphores, preemptive scheduling and console driver in progress.; language C++; stars 0; license NOASSERTION
 - [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
 - [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
 - [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
 - [Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers](https://github.com/Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers) — No description; language C; stars 0; license unspecified
-- [Duy-Thanh/android_kernel_common](https://github.com/Duy-Thanh/android_kernel_common) — No description; language C; stars 0; license NOASSERTION
+- [Duy-Thanh/android_kernel_common](https://github.com/Duy-Thanh/android_kernel_common) — No description; language C; stars 0; license unspecified
 - [SavoryBanana/sailfish-linux-6.18](https://github.com/SavoryBanana/sailfish-linux-6.18) — Android Common Kernel 6.18 (Android 17) backport for Google Pixel (sailfish); language C; stars 0; license NOASSERTION
 - [itswill00/fearless-kernel](https://github.com/itswill00/fearless-kernel) — Fearless Kernel - custom Android kernel based on Android Common Kernel 5.10.270 (android12-5.10-lts) for Redmi Note 14 4G (tanzanite); language C; stars 0; license NOASSERTION
 - [Kyura-Ground/android_device_asus_sdm660-common-4.19](https://github.com/Kyura-Ground/android_device_asus_sdm660-common-4.19) — Common device tree for ASUS SDM660-Kernel-4.19; language C++; stars 0; license unspecified
 - [xfwdrev/android_kernel_samsung_sm8475](https://github.com/xfwdrev/android_kernel_samsung_sm8475) — Upstreamed common kernel from ACK and msm kernel from Linaro for Samsung Galaxy Z Flip4 (b4q); language C; stars 0; license NOASSERTION
-- [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
-- [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
-- [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
-- [Starry-Old/linux_syscall_api](https://github.com/Starry-Old/linux_syscall_api) — The project, written by Rust, is a compatibility layer for linux syscalls on different operating systems.; language Rust; stars 0; license unspecified
 
 ## Local and Library-exported files
 
@@ -275,9 +271,9 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
-- docs/research/isa-command-research.json — 229761 bytes; SHA-256 1c5fd7949d73ee90af737e7a775b3e1fe94a0bd674b2f36c43fef22e20391a02
+- docs/research/isa-command-research.json — 254201 bytes; SHA-256 8785c937825f271510565b83ef475336c2e3ac449a88e9ea5852e049496b26d0
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
-- docs/research/ISA_COMMAND_RESEARCH.md — 38272 bytes; SHA-256 aa6817621093ad68e61b60d48498f22bf293701bcc61fcc65802531a81e3b98f
+- docs/research/ISA_COMMAND_RESEARCH.md — 51400 bytes; SHA-256 b9ff4c0ba713c0542fc0c784dd06e588b9b8f3dcc5f019137615ea6dd093f9b3
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
