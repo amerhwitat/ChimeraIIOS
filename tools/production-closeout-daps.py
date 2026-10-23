@@ -252,9 +252,9 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                 vm_iso_sha.lower() != top_iso_sha.lower()):
             errors.append("vm_swap: production_iso_sha256 must match the top-level production ISO SHA-256")
         vm_case_ids = vm_swap.get("case_ids")
-        if (not isinstance(vm_case_ids, list) or len(vm_case_ids) != len(cases) or
+        if (not isinstance(vm_case_ids, list) or len(vm_case_ids) != len(CASE_IDS) or
                 any(not isinstance(case_id, str) for case_id in vm_case_ids) or
-                set(vm_case_ids) != set(cases)):
+                set(vm_case_ids) != set(CASE_IDS)):
             errors.append("vm_swap: case_ids must cover exactly all six production target/firmware cases")
 
     if data.get("candidate_smoke_substituted") is True:
