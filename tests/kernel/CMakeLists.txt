@@ -1,3 +1,14 @@
+add_executable(chimera_service_runtime_test
+  service_runtime_test.cpp
+  ../../kernel/core/service.cpp
+)
+target_include_directories(chimera_service_runtime_test PRIVATE ${CMAKE_SOURCE_DIR}/kernel/include)
+target_compile_features(chimera_service_runtime_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_service_runtime_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_service_runtime COMMAND chimera_service_runtime_test)
+
 cmake_minimum_required(VERSION 3.16)
 add_executable(chimera_kernel_sync_test
   kernel_sync_test.cpp
