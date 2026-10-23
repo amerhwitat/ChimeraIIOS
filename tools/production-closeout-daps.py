@@ -54,7 +54,7 @@ def check_evidence(data: object) -> list[str]:
             errors.append(f"{case_id}: missing raw evidence for rootfs OPEN/READ/CLOSE")
         if case_id.startswith(("live-", "recovery-")):
             if case.get("tmpfs_mutation_verified") is not True:
-                errors.append(f"{case_id}: writable tmpfs create/write/read/truncate/unlink was not verified")
+                errors.append(f"{case_id}: writable tmpfs create/write/read/truncate was not verified")
             if not nonempty(case.get("tmpfs_mutation_evidence")):
                 errors.append(f"{case_id}: missing raw evidence for writable tmpfs operations")
         syscall_pid = case.get("syscall_pid")
