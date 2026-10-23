@@ -31,6 +31,13 @@ jobs:
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
+      - name: Test fail-closed device driver probing
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/driver.cpp kernel/tests/driver_probe_test.cpp \
+            -o /tmp/koronos-driver-probe-test
+          /tmp/koronos-driver-probe-test
       - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
       - name: Assert no unresolved symbols
