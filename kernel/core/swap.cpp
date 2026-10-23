@@ -3,10 +3,8 @@
 #include "chimera/swap.h"
 
 namespace {
-constexpr uint32_t WORD_BITS = 32u;
 enum SlotState : uint8_t { SLOT_FREE = 0, SLOT_WRITING = 1, SLOT_USED = 2, SLOT_READING = 3 };
 static koronos_swap_backend g_backend{};
-static uint32_t g_bitmap[KORONOS_SWAP_MAX_SLOTS / WORD_BITS]{};
 static uint8_t g_states[KORONOS_SWAP_MAX_SLOTS]{};
 static uint32_t g_checksums[KORONOS_SWAP_MAX_SLOTS]{};
 static uint32_t g_slots = 0;
@@ -17,9 +15,6 @@ static volatile uint32_t g_lock = 0;
 static uint64_t g_writes = 0, g_reads = 0, g_checksum_failures = 0, g_io_failures = 0;
 static void lock() { while (__sync_lock_test_and_set(&g_lock, 1u)) {} }
 static void unlock() { __sync_lock_release(&g_lock); }
-static bool bit(uint32_t slot) { return (g_bitmap[slot / WORD_BITS] & (1u << (slot % WORD_BITS))) != 0; }
-static void set_bit(uint32_t slot) { g_bitmap[slot / WORD_BITS] |= (1u << (slot % WORD_BITS)); }
-static void clear_bit(uint32_t slot) { g_bitmap[slot / WORD_BITS] &= ~(1u << (slot % WORD_BITS)); }
 static uint32_t checksum(const uint8_t *data, uint32_t size) {
     uint32_t crc = 0xFFFFFFFFu;
     for (uint32_t i = 0; i < size; ++i) {
@@ -52,7 +47,6 @@ extern "C" int koronos_swap_init(const koronos_swap_backend *backend) {
     if (slots64 == 0) { unlock(); return -2; }
     g_ready = 0;
     g_slots = 0; g_used = 0;
-    for (uint32_t i = 0; i < KORONOS_SWAP_MAX_SLOTS / WORD_BITS; ++i) g_bitmap[i] = 0;
     for (uint32_t i = 0; i < KORONOS_SWAP_MAX_SLOTS; ++i) {
         g_states[i] = SLOT_FREE;
         g_checksums[i] = 0;
@@ -76,7 +70,7 @@ extern "C" int koronos_swap_store(const void *page, uint32_t *slot_out) {
     if (!slot_offset(slot, &offset)) { unlock(); return -4; }
     // Reserve under lock, then release the spinlock before backend I/O.
     g_states[slot] = SLOT_WRITING;
-    set_bit(slot); ++g_used; ++g_active_ops;
+    ++g_used; ++g_active_ops;
     const koronos_swap_backend backend = g_backend;
     unlock();
 
@@ -86,7 +80,7 @@ extern "C" int koronos_swap_store(const void *page, uint32_t *slot_out) {
     lock();
     --g_active_ops;
     if (io_rc != 0) {
-        g_states[slot] = SLOT_FREE; clear_bit(slot); --g_used;
+        g_states[slot] = SLOT_FREE; --g_used;
         ++g_io_failures;
         unlock(); return -5;
     }
@@ -130,7 +124,7 @@ extern "C" int koronos_swap_release(uint32_t slot) {
     // A writer/reader owns this slot until its I/O completes. The caller must
     // retry rather than releasing storage which is currently in flight.
     if (g_states[slot] != SLOT_USED) { unlock(); return -3; }
-    g_states[slot] = SLOT_FREE; clear_bit(slot); g_checksums[slot] = 0; --g_used;
+    g_states[slot] = SLOT_FREE; g_checksums[slot] = 0; --g_used;
     unlock();
     return 0;
 }
