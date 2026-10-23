@@ -70,9 +70,22 @@ def main() -> int:
     if "stage_rootfs(" not in launch or "decoded_size" not in launch:
         return fail("gzip CPIO path must stage the decoded archive into RAMFS")
     if "Rootfs archive extracted into bounded unpublished RAMFS staging tree" not in launch:
-        return fail("rootfs staging must be logged without claiming it is mounted or process-visible")
+        return fail("the archive must be fully extracted before publication")
     if "transactional RAMFS staging failed; no rootfs was published" not in launch:
         return fail("RAMFS extraction errors must fail closed before userspace dispatch")
+    if "__atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE)" not in launch:
+        return fail("complete RAMFS tree must be atomically published only after successful extraction")
+    for operation in ("koronos_target_fs_open", "koronos_target_fs_read", "koronos_target_fs_close"):
+        if operation not in launch:
+            return fail(f"process-bound read-only filesystem operation missing: {operation}")
+    if "koronos_address_space_validate_user_range(active_root" not in launch:
+        return fail("filesystem syscalls must validate user buffers against the active process address space")
+    if "if (flags != 0u) return -22" not in launch:
+        return fail("open must remain read-only until transactional RAMFS writes exist")
+    syscall_source = (ROOT / "kernel/core/syscall.cpp").read_text(encoding="utf-8")
+    for syscall in ("case CHM_SYS_OPEN:", "case CHM_SYS_READ:", "case CHM_SYS_CLOSE:"):
+        if syscall not in syscall_source:
+            return fail(f"native dispatcher missing filesystem syscall route: {syscall}")
 
     ramfs_source = (ROOT / "kernel/core/ramfs.cpp").read_text(encoding="utf-8")
     if "Normalize only" not in ramfs_source or "normalized_name[0]=='.'&&normalized_name[1]=='/'" not in ramfs_source:
