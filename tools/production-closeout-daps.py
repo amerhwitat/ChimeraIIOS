@@ -197,6 +197,8 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         ("installer_persistence", ("status", "write_verified", "cold_reboot_verified", "readback_verified", "evidence"), "PASS"),
         ("recovery_repair", ("status", "repair_verified", "postcondition_verified", "evidence"), "PASS"),
         ("smp", ("status", "ap_startup_verified", "overlapping_execution_verified", "evidence"), "PASS"),
+        ("vm_swap", ("status", "page_fault_handling_verified", "swap_roundtrip_verified",
+                     "io_failure_rollback_verified", "corruption_rejected_verified", "evidence"), "PASS"),
     )
     for name, fields, expected_status in requirements:
         section = data.get(name)
@@ -222,6 +224,7 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                     "installer_persistence": ("WRITE", "COLD REBOOT", "READBACK"),
                     "recovery_repair": ("REPAIR", "POSTCONDITION"),
                     "smp": ("AP STARTUP", "OVERLAPPING EXECUTION"),
+                    "vm_swap": ("PAGE FAULT", "SWAP STORE", "SWAP LOAD", "IO FAILURE", "CHECKSUM FAILURE"),
                 }
                 _check_trace_tokens(value, f"{name}: evidence", artifact_root,
                                     required_markers.get(name, ()), errors)
