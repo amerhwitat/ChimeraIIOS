@@ -90,26 +90,66 @@ static uint64_t new_table(AddressSpace *space) {
 static bool space_valid(const AddressSpace *space) {
     return space && space->magic == SPACE_MAGIC && space->active && space->root_physical;
 }
+static uint64_t current_cr3_root() {
+#if defined(__x86_64__)
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    return root & ENTRY_ADDRESS_MASK;
+#else
+    return 0;
+#endif
+}
 static void destroy_locked(AddressSpace *space) {
     if (!space || space->magic != SPACE_MAGIC) return;
-    // A pinned user page may still be referenced by a syscall copy. Refuse
-    // reclamation rather than freeing backing frames while that copy is live.
+    // Never reclaim page tables while this CPU is still executing on the root.
+    // AP scheduling is not enabled in the current kernel; future SMP activation
+    // must additionally track per-CPU root ownership before using this path.
+    if (current_cr3_root() == space->root_physical) return;
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         const FrameBlock &b = space->mapped[i];
         if (!b.metadata_physical) continue;
         const auto *meta = reinterpret_cast<const PageMeta *>(
             static_cast<uintptr_t>(b.metadata_physical));
-        for (uint32_t p = 0; p < b.pages; ++p) if (meta[p].pins != 0u) return;
+        for (uint32_t p = 0; p < b.pages; ++p) {
+            if (meta[p].pins != 0u || meta[p].state == PAGE_EVICTING ||
+                meta[p].state == PAGE_LOADING) return;
+            if (meta[p].physical && koronos_vm_frame_refcount(meta[p].physical) == 0u) return;
+        }
     }
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
-        if (space->mapped[i].physical && space->mapped[i].pages)
-            (void)koronos_vm_frame_release_contiguous(space->mapped[i].physical, space->mapped[i].pages);
-        if (space->mapped[i].metadata_physical && space->mapped[i].metadata_pages)
-            (void)koronos_vm_frame_release_contiguous(space->mapped[i].metadata_physical,
-                                                space->mapped[i].metadata_pages);
+        FrameBlock &b = space->mapped[i];
+        auto *meta = b.metadata_physical
+            ? reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(b.metadata_physical)) : nullptr;
+        if (meta) {
+            for (uint32_t p = 0; p < b.pages; ++p) {
+                if (meta[p].physical) {
+                    if (koronos_vm_frame_release(meta[p].physical) != 0) {
+                        space->active = 0; space->magic = 0; space->root_physical = 0;
+                        return; // poisoned space: leak remaining ownership, never reuse it
+                    }
+                    meta[p].physical = 0;
+                }
+                if (meta[p].state == PAGE_SWAPPED && meta[p].swap_slot != KORONOS_SWAP_SLOT_INVALID) {
+                    if (koronos_swap_release(meta[p].swap_slot) != 0) {
+                        space->active = 0; space->magic = 0; space->root_physical = 0;
+                        return;
+                    }
+                    meta[p].swap_slot = KORONOS_SWAP_SLOT_INVALID;
+                }
+            }
+        }
+        if (b.metadata_physical && b.metadata_pages &&
+            koronos_vm_frame_release_contiguous(b.metadata_physical, b.metadata_pages) != 0) {
+            space->active = 0; space->magic = 0; space->root_physical = 0;
+            return;
+        }
     }
-    for (uint32_t i = space->table_count; i > 0; --i)
-        (void)koronos_vm_frame_release(space->table_frames[i - 1]);
+    for (uint32_t i = space->table_count; i > 0; --i) {
+        if (koronos_vm_frame_release(space->table_frames[i - 1]) != 0) {
+            space->active = 0; space->magic = 0; space->root_physical = 0;
+            return;
+        }
+    }
     space->magic = 0;
     space->active = 0;
     space->root_physical = 0;
