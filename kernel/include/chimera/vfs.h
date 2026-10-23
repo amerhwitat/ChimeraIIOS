@@ -53,6 +53,7 @@ int64_t chimera_vfs_read(uint32_t pid, int64_t fd, void *buffer, uint64_t length
 int64_t chimera_vfs_write(uint32_t pid, int64_t fd, const void *buffer, uint64_t length);
 int64_t chimera_vfs_seek(uint32_t pid, int64_t fd, int64_t offset, uint32_t whence);
 int chimera_vfs_close(uint32_t pid, int64_t fd);
+int chimera_vfs_close_process(uint32_t pid);
 int chimera_vfs_stat_path(const char *path, chimera_vfs_stat *out);
 int chimera_vfs_mkdir(const char *path, uint32_t mode);
 int chimera_vfs_unlink(const char *path, uint32_t directory);
