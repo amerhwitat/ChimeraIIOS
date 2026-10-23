@@ -394,6 +394,16 @@ static bool user_page_access(uint64_t root_physical, uint64_t va, bool write_acc
 
 static bool address_space_self_test() {
     const uint64_t before = koronos_frame_free_count();
+    const uint64_t reference_probe = koronos_vm_frame_alloc();
+    if (!reference_probe) return false;
+    bool refs_ok = koronos_vm_frame_refcount(reference_probe) == 1u &&
+        koronos_vm_frame_retain(reference_probe) == 0 &&
+        koronos_vm_frame_refcount(reference_probe) == 2u &&
+        koronos_vm_frame_release(reference_probe) == 0 &&
+        koronos_vm_frame_refcount(reference_probe) == 1u &&
+        koronos_vm_frame_release(reference_probe) == 0 &&
+        koronos_vm_frame_refcount(reference_probe) == 0u;
+    if (!refs_ok || koronos_frame_free_count() != before) return false;
     AddressSpace *space = static_cast<AddressSpace *>(create_address_space(nullptr));
     if (!space) return false;
     void *code_alias = nullptr;
@@ -409,6 +419,12 @@ static bool address_space_self_test() {
         const uint64_t free_before_overlap = koronos_frame_free_count();
         const int query_rc = koronos_address_space_query(
             space, KORONOS_USER_VIRTUAL_MIN, &queried_physical, &queried_flags);
+        koronos_vma_descriptor queried_vma{};
+        const int vma_rc = koronos_address_space_vma_query(
+            space, KORONOS_USER_VIRTUAL_MIN, &queried_vma);
+        const int vma_backing_rc = koronos_address_space_vma_set_backing(
+            space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, KORONOS_VMA_ELF_IMAGE,
+            reinterpret_cast<uintptr_t>(code_alias), 0u);
         const int overlap_rc = koronos_address_space_map(
             space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, 5u);
         const int pin_rc = koronos_address_space_pin(
@@ -417,7 +433,11 @@ static bool address_space_self_test() {
             space, KORONOS_USER_VIRTUAL_MIN, 1u) : -1;
         const int double_unpin_rc = koronos_address_space_unpin(
             space, KORONOS_USER_VIRTUAL_MIN, 1u);
-        ok = query_rc == 0 &&
+        ok = query_rc == 0 && vma_rc == 0 && vma_backing_rc == 0 &&
+             queried_vma.abi == KORONOS_VMA_ABI &&
+             queried_vma.backing_kind == KORONOS_VMA_ANONYMOUS &&
+             queried_vma.virtual_base == KORONOS_USER_VIRTUAL_MIN &&
+             queried_vma.page_count == 1u && queried_vma.resident_pages == 1u &&
              queried_physical == reinterpret_cast<uintptr_t>(code_alias) &&
              queried_flags == 5u && overlap_rc != 0 && pin_rc == 0 &&
              unpin_rc == 0 && double_unpin_rc != 0 &&
