@@ -94,6 +94,7 @@ static int mutate_allowed(const Mount &m) { return mount_readonly(m) ? -30 : 0; 
 
 extern "C" int chimera_vfs_init(void) {
     lock();
+    if (initialized) { unlock(); return 0; }
     for(uint32_t i=0;i<CHIMERA_VFS_MAX_MOUNTS;i++) mounts[i]={};
     for(uint32_t i=0;i<CHIMERA_VFS_MAX_OPEN_FILES;i++) files[i]={};
     next_generation=1u; initialized=1u;
