@@ -126,6 +126,19 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("production_iso: artifact file does not exist" in e for e in errors))
         self.assertTrue(any("raw_trace: artifact file does not exist" in e for e in errors))
 
+    def test_cli_rejects_invalid_utf8_evidence_manifest(self):
+        import subprocess
+        import sys
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "evidence.json"
+            manifest.write_bytes(bytes([255, 254, 250]))
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "tools" / "production-closeout-daps.py"), str(manifest)],
+                capture_output=True, text=True, check=False,
+            )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("BLOCKED: cannot read valid evidence JSON", result.stderr)
     def test_iso_sha256_is_checked_without_loading_whole_file(self):
         import tempfile
         import hashlib
