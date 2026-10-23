@@ -33,8 +33,8 @@ extern "C" int chimera_driver_start_all(){
 extern "C" int chimera_driver_probe_inventory(const chimera_device_inventory *inventory){
  if(!inventory || inventory->count>CHIMERA_DEVICE_MAX) return -1;
  g_last_probe_count=0;
- for(uint32_t i=0;i<inv.count;i++){
-   const chimera_device *x=&inv.devices[i]; int bound=0;
+ for(uint32_t i=0;i<inventory->count;i++){
+   const chimera_device *x=&inventory->devices[i]; int bound=0;
    for(uint32_t j=0;j<g_count;j++){
      chimera_driver_descriptor *d=&g_drivers[j];
      if(!match(d,x)) continue;
