@@ -15,9 +15,6 @@ from pathlib import Path
 
 TARGETS = ("live", "installer", "recovery")
 FIRMWARE = ("bios", "uefi")
-COMPONENT = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}
-
-
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -41,6 +38,7 @@ def collect(iso: Path, output: Path, candidate_traces: Path) -> dict:
         # Copying a potentially multi-gigabyte ISO is avoided; require same directory.
         raise ValueError("ISO must reside beside the evidence JSON so DAPS can verify its hash")
 
+    iso_digest = sha256(iso)
     cases = {}
     for target in TARGETS:
         for firmware in FIRMWARE:
@@ -55,7 +53,7 @@ def collect(iso: Path, output: Path, candidate_traces: Path) -> dict:
             case = {
                 "status": "NOT RUN",
                 "production_iso": iso_rel.as_posix(),
-                "iso_sha256": sha256(iso),
+                "iso_sha256": iso_digest,
                 "raw_trace": raw_trace,
                 "cpl3_syscall_ack": False,
                 "process_visible_rootfs": False,
@@ -77,7 +75,7 @@ def collect(iso: Path, output: Path, candidate_traces: Path) -> dict:
     data = {
         "schema_version": 1,
         "collector": "tools/collect-production-closeout-evidence.py",
-        "production_iso_sha256": sha256(iso),
+        "production_iso_sha256": iso_digest,
         "candidate_smoke_substituted": True,
         "collection_note": "Candidate target-specific smoke traces are archived for diagnosis only; all six actual production ISO/firmware cases and independent gates remain NOT RUN.",
         "cases": cases,
