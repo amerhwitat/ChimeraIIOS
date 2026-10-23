@@ -63,9 +63,14 @@ def valid_evidence():
             "evidence": "traces/smp-overlap.log",
         },
         "vm_swap": {
-            "status": "PASS", "page_fault_handling_verified": True,
-            "swap_roundtrip_verified": True, "io_failure_rollback_verified": True,
-            "corruption_rejected_verified": True, "evidence": "traces/vm-swap.log",
+            "status": "PASS", "address_space_map_unmap_protect_query_verified": True,
+            "page_pinning_verified": True, "page_fault_handling_verified": True,
+            "swap_roundtrip_verified": True, "swapout_failure_preserves_resident_verified": True,
+            "swapin_rollback_verified": True, "io_failure_rollback_verified": True,
+            "corruption_rejected_verified": True, "tlb_shootdown_verified": True,
+            "storage_discovery_verified": True, "swap_exhaustion_verified": True,
+            "teardown_reclaims_frames_slots_verified": True, "repeated_swap_cycles_verified": True,
+            "evidence": "traces/vm-swap.log",
         },
         "candidate_smoke_substituted": False,
     }
