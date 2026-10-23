@@ -98,6 +98,7 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags);
 extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uint64_t count);
 extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count);
 extern "C" int64_t koronos_target_fs_close(uint64_t fd);
+extern "C" int64_t koronos_target_fs_seek(uint64_t fd, uint64_t offset, uint64_t whence);
 extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
@@ -133,6 +134,8 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             return static_cast<uint64_t>(koronos_target_fs_read(frame->rdi, frame->rsi, frame->rdx));
         case CHM_SYS_CLOSE:
             return static_cast<uint64_t>(koronos_target_fs_close(frame->rdi));
+        case CHM_SYS_SEEK:
+            return static_cast<uint64_t>(koronos_target_fs_seek(frame->rdi, frame->rsi, frame->rdx));
         case CHM_SYS_WRITE: {
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
