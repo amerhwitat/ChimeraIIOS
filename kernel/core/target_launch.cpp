@@ -12,6 +12,7 @@
 #include "chimera/initramfs_ingest.h"
 #include "chimera/ramfs.h"
 #include "chimera/vfs.h"
+#include "chimera/tmpfs.h"
 
 namespace {
 constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull; // Loader requires a page-aligned stack ceiling
@@ -33,6 +34,7 @@ static bool staged_rootfs_ready = false;
 /* Published only after the VFS root mount succeeds. The extracted tree is
    immutable and remains alive for the lifetime of the mounted root. */
 static chimera_ramfs_node *published_rootfs = nullptr;
+static chimera_tmpfs *published_tmpfs = nullptr;
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -445,8 +447,20 @@ extern "C" int koronos_launch_selected_userspace(void) {
             koronos_target_log("[RUN ] ERROR: VFS root mount failed; refusing userspace launch");
             return -15;
         }
+        const chimera_ramfs_allocator tmpfs_allocator{ramfs_frame_alloc, ramfs_frame_free, nullptr};
+        const chimera_tmpfs_limits tmpfs_limits{128u, CHIMERA_VFS_MAX_PATH, 1024u * 1024u, 4u * 1024u * 1024u};
+        chimera_tmpfs *tmpfs_candidate = nullptr;
+        if (chimera_tmpfs_create(&tmpfs_allocator, &tmpfs_limits, &tmpfs_candidate) != 0 ||
+            !tmpfs_candidate ||
+            chimera_vfs_mount("/tmp", chimera_tmpfs_vfs_ops(), tmpfs_candidate, 0u) != 0) {
+            if (tmpfs_candidate) chimera_tmpfs_destroy(tmpfs_candidate);
+            (void)chimera_vfs_unmount("/");
+            koronos_target_log("[RUN ] ERROR: bounded writable /tmp filesystem mount failed; refusing userspace launch");
+            return -15;
+        }
+        published_tmpfs = tmpfs_candidate;
         __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
-        koronos_target_log("[VFS ] Rootfs mounted atomically; process path lookup and read-only file syscalls enabled");
+        koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file syscalls enabled");
     }
     if (payload_count == 1u && target == TARGET_INSTALLER) {
         koronos_target_log("[RUN ] ERROR: installer storage-backed root namespace is not mounted; refusing false readiness");
