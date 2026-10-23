@@ -403,7 +403,8 @@ static bool address_space_self_test() {
         koronos_vm_frame_refcount(reference_probe) == 1u &&
         koronos_vm_frame_release(reference_probe) == 0 &&
         koronos_vm_frame_refcount(reference_probe) == 0u;
-    if (!refs_ok || koronos_frame_free_count() != before) return false;
+    if (!refs_ok) { const uint32_t remaining = koronos_vm_frame_refcount(reference_probe); if (remaining) (void)koronos_vm_frame_release_contiguous(reference_probe, 1u); return false; }
+    if (koronos_frame_free_count() != before) return false;
     AddressSpace *space = static_cast<AddressSpace *>(create_address_space(nullptr));
     if (!space) return false;
     void *code_alias = nullptr;
@@ -424,7 +425,9 @@ static bool address_space_self_test() {
             space, KORONOS_USER_VIRTUAL_MIN, &queried_vma);
         const int vma_backing_rc = koronos_address_space_vma_set_backing(
             space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, KORONOS_VMA_ELF_IMAGE,
-            reinterpret_cast<uintptr_t>(code_alias), 0u);
+            0xC0DEu, 0u);
+        koronos_vma_descriptor updated_vma{};
+        const int updated_vma_rc = koronos_address_space_vma_query(space, KORONOS_USER_VIRTUAL_MIN, &updated_vma);
         const int overlap_rc = koronos_address_space_map(
             space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, 5u);
         const int pin_rc = koronos_address_space_pin(
@@ -433,7 +436,8 @@ static bool address_space_self_test() {
             space, KORONOS_USER_VIRTUAL_MIN, 1u) : -1;
         const int double_unpin_rc = koronos_address_space_unpin(
             space, KORONOS_USER_VIRTUAL_MIN, 1u);
-        ok = query_rc == 0 && vma_rc == 0 && vma_backing_rc == 0 &&
+        ok = query_rc == 0 && vma_rc == 0 && vma_backing_rc == 0 && updated_vma_rc == 0 &&
+             updated_vma.backing_kind == KORONOS_VMA_ELF_IMAGE && updated_vma.backing_object == 0xC0DEu &&
              queried_vma.abi == KORONOS_VMA_ABI &&
              queried_vma.backing_kind == KORONOS_VMA_ANONYMOUS &&
              queried_vma.virtual_base == KORONOS_USER_VIRTUAL_MIN &&
