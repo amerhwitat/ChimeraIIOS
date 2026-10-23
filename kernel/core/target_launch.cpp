@@ -205,11 +205,8 @@ extern "C" uint32_t koronos_target_active_pid(void) {
    User addresses are validated against the active process's own CR3 before any
    dereference. Writes to regular files remain unsupported (EROFS) until RAMFS
    has transactional mutation semantics. */
-extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
-    if (flags > UINT32_MAX) return -22;
-    const uint32_t pid = koronos_target_active_pid();
-    if (!pid || !active_root || !user_path) return -14;
-    char path[CHIMERA_VFS_MAX_PATH + 1u];
+static int copy_target_user_path(uint64_t user_path, char path[CHIMERA_VFS_MAX_PATH + 1u]) {
+    if (!active_root || !user_path) return -14;
     uint32_t length = 0;
     for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
         if (user_path > UINT64_MAX - length ||
@@ -220,6 +217,15 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
         if (!c) break;
     }
     if (length > CHIMERA_VFS_MAX_PATH || !path[0]) return -22;
+    return 0;
+}
+extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
+    if (flags > UINT32_MAX) return -22;
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid || !active_root || !user_path) return -14;
+    char path[CHIMERA_VFS_MAX_PATH + 1u];
+    const int path_rc = copy_target_user_path(user_path, path);
+    if (path_rc != 0) return path_rc;
     if (!__atomic_load_n(&published_rootfs, __ATOMIC_ACQUIRE)) return -2;
     return chimera_vfs_open(pid, path, static_cast<uint32_t>(flags), 0644u);
 }
