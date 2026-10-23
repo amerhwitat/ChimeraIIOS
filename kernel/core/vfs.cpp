@@ -113,7 +113,6 @@ static int check_existing(const Resolved &r,const char *path,chimera_vfs_stat *s
     if (!pin.mount.ops.lookup) return -38;
     return pin.mount.ops.lookup(pin.mount.context,path,st);
 }
-static int mutate_allowed(const Mount &m) { return mount_readonly(m) ? -30 : 0; }
 }
 
 extern "C" int chimera_vfs_init(void) {
