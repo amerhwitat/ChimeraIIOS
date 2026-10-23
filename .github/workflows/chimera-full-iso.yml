@@ -12,6 +12,8 @@ on:
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
+      - "tools/collect-production-closeout-evidence.py"
+      - "tools/tests/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
       - ".github/workflows/chimera-full-iso.yml"
@@ -30,6 +32,8 @@ on:
       - "userland/**"
       - "iso/**"
       - "tools/build-full-iso.*"
+      - "tools/collect-production-closeout-evidence.py"
+      - "tools/tests/**"
       - "sdk/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
@@ -62,8 +66,9 @@ jobs:
 
       - name: Test production closeout DAPS gate
         run: |
-          python3 -m py_compile tools/production-closeout-daps.py
+          python3 -m py_compile tools/production-closeout-daps.py tools/collect-production-closeout-evidence.py
           python3 -m unittest discover -s tools/tests -p "test_production_closeout_daps.py" -v
+          python3 -m unittest discover -s tools/tests -p "test_collect_production_closeout_evidence.py" -v
 
       - name: Test fail-closed userspace handoff evidence verifier and release gate
         run: |
@@ -329,6 +334,17 @@ jobs:
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Collect fail-closed production closeout evidence
+        if: always() && hashFiles('build/iso/chimera-ii-os.iso') != ''
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chimera-userspace-traces
+          python3 tools/collect-production-closeout-evidence.py \
+            --iso build/iso/chimera-ii-os.iso \
+            --output-dir build/iso \
+            --candidate-traces /tmp/chimera-userspace-traces
+          echo "::notice::Evidence manifest created with NOT RUN production gates. Candidate smoke traces are diagnostic only; DAPS must remain blocked until actual production evidence exists."
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
