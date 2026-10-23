@@ -297,7 +297,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
 
     def test_unexpected_candidate_case_is_rejected(self):
         data = valid_evidence()
-        data["candidate-live-qemu"] = {
+        data["cases"]["candidate-live-qemu"] = {
             "status": "PASS",
             "production_iso": "candidate.iso",
             "iso_sha256": "a" * 64,
