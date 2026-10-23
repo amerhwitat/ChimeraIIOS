@@ -18,6 +18,7 @@ struct Slot {
 
 Slot slots[CHIMERA_PROCESS_MAX];
 uint32_t next_pid = 1, count = 0;
+bool process_registry_initialized = false;
 
 static bool add_ok(uint64_t a, uint64_t b, uint64_t *out) {
     if (a > UINT64_MAX - b) return false;
@@ -37,9 +38,13 @@ static bool in(uint64_t offset, uint64_t length, uint64_t size) {
 }
 
 extern "C" int chimera_process_init(void) {
+    // Initialization is one-way for the lifetime of this kernel instance.
+    // Re-entering init must not erase live process records or recycle PIDs.
+    if (process_registry_initialized) return 0;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) slots[i] = {};
     next_pid = 1;
     count = 0;
+    process_registry_initialized = true;
     return 0;
 }
 
