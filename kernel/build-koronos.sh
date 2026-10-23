@@ -9,11 +9,13 @@ Usage:
   kernel/build-koronos.sh [options] [arguments]
 
 Options:
-  -h, --help    Show this help and exit successfully.
+  -h, --help                    Show this help and exit successfully.
+  --system-block-size BYTES     Set the kernel system/block I/O size.
+  --system-block-size=BYTES     Equivalent form.
 
-Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
-  The script's existing command-line interface and environment variables remain unchanged.
+System block size defaults to 4096 bytes. Valid values are powers of two from
+512 through 65536 bytes. KORONOS_SYSTEM_BLOCK_SIZE sets the same default when
+the command-line option is omitted.
 CHIMERA_HELP
   exit 0
 fi
@@ -21,7 +23,25 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"
-if [[ ! "$SYSTEM_BLOCK_SIZE" =~ ^[0-9]+$ ]]; then echo "ERROR: KORONOS_SYSTEM_BLOCK_SIZE must be an integer power of two (512..65536)" >&2; exit 2; fi
+while (($#)); do
+  case "$1" in
+    --system-block-size)
+      if (($# < 2)); then echo "ERROR: --system-block-size requires a byte count" >&2; exit 2; fi
+      SYSTEM_BLOCK_SIZE="$2"
+      shift 2
+      ;;
+    --system-block-size=*)
+      SYSTEM_BLOCK_SIZE="${1#*=}"
+      shift
+      ;;
+    *)
+      echo "ERROR: unknown option: $1" >&2
+      echo "Use --help for supported options." >&2
+      exit 2
+      ;;
+  esac
+done
+if [[ ! "$SYSTEM_BLOCK_SIZE" =~ ^[0-9]+$ ]]; then echo "ERROR: system block size must be an integer power of two (512..65536)" >&2; exit 2; fi
 SYSTEM_BLOCK_SIZE=$((10#$SYSTEM_BLOCK_SIZE))
 if (( SYSTEM_BLOCK_SIZE < 512 || SYSTEM_BLOCK_SIZE > 65536 || (SYSTEM_BLOCK_SIZE & (SYSTEM_BLOCK_SIZE - 1)) != 0 )); then echo "ERROR: KORONOS_SYSTEM_BLOCK_SIZE must be a power of two between 512 and 65536 bytes" >&2; exit 2; fi
 mkdir -p "$BUILD"
