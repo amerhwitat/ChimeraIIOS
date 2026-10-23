@@ -230,7 +230,7 @@ Required implementation is a process-owned exec/spawn + wait/exit/reap contract 
 ### Actions taken in this remediation pass
 
 1. Reconfirmed the RAMFS symlink extraction regression and kernel/DAPS CI green results.
-2. Found a cross-repository source-drift defect: OctavianOS candidate acceptance still pinned ChimeraIIOS `24b48f7ddf2b1f244e8f95a9d6b041ac44549889`, not the reviewed head. Updated the OctavianOS PR workflow to pin `579fe94f63770358f6d5efef1b037e4e0c46e69b` in both checkout and SHA assertion; this should trigger a fresh six-case **candidate probe** run.
+2. Audited OctavianOS source pinning. A transient workflow-only update to `579fe94f63770358f6d5efef1b037e4e0c46e69b` was subsequently reverted by the branch's newer commit `77cfc0b65b393e641d580b515abfe5c2228dccb9`, which deliberately restores `24b48f7ddf2b1f244e8f95a9d6b041ac44549889` to match `vendor/chimera-ii-os/UPSTREAM_REVISION`. The current workflow therefore preserves vendor parity. To validate newer Chimera source in OctavianOS, synchronize the complete vendor snapshot and revision marker together; changing only the workflow pin would create a false source-parity failure.
 3. Kept production status fail-closed. No production readiness, installer persistence, Aurora, recovery repair, AP-backed SMP, or six-case ISO-hash-bound closeout is claimed.
 
 ### Release decision
