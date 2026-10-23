@@ -201,6 +201,9 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
+extern "C" void *koronos_target_active_address_space(void) {
+    return active_target != TARGET_NONE ? active_address_space : nullptr;
+}
 
 /* Read-only process-owned descriptors bridge the validated RAMFS root to ring 3.
    User addresses are validated against the active process's own CR3 before any
