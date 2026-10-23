@@ -70,3 +70,33 @@ Observed current-head checks:
 A source re-read of `kernel/core/target_launch.cpp` confirms the remaining lifecycle blocker precisely: the gzip CPIO workspace is a local `TemporaryFrames` object and is freed at scope exit after validation; there is no extraction/mount operation before `chimera_arch_enter_user`. `kernel/userspace/native_init.c` explicitly exits 78 after reporting missing services. Therefore a passing kernel build and loader unit tests validate only those components; they do not validate a production rootfs or readiness.
 
 No readiness marker, verifier relaxation, or release was added. Keep the production release gate blocked until a real process-visible filesystem and target services are implemented and all six production traces pass.
+
+
+## Check/Plan/Do closeout loop — 2026-10-23
+
+### Check: source-backed failures
+- Production Live/Recovery initramfs is bounded-decoded and CPIO-validated, then extracted into an unpublished RAMFS staging tree. The launch path explicitly returns before ring-3 entry when a production payload exists because the staged rootfs is not mounted/published into a process-visible VFS. This is the direct reason those production cases cannot produce a real user-originated syscall/readiness handshake on this path.
+- `kernel/userspace/native_init.c` is diagnostic-only by design. It performs an INT 0x80 acknowledgement attempt, requests kernel-owned PID, writes diagnostics, reports unavailable services, and exits 78. Do not relabel this as production init.
+- Installer payload is a disk/image container and does not share the Live/Recovery CPIO extraction path; it needs a real installer execution and persistence test.
+- Genuine AP startup and per-CPU scheduler workers are absent. CPU discovery is not CPU-online evidence; a loop over run_once() is serial, not SMP.
+- No supported process-visible VFS bridge was found on the reviewed production branch; the expected standalone VFS source path returned 404. Do not invent an API or connect the 64-node/4-KiB legacy RAMFS as if it were production-capable.
+
+### Plan: close blockers in dependency order
+1. Implement a capacity-appropriate transactional extractor with canonical paths, duplicate/prefix conflict rejection, strict type/symlink policy, total-byte/entry limits, and rollback.
+2. Implement atomic VFS root publication plus process-owned namespace/descriptors and validated user-buffer file syscalls.
+3. Implement process exit/wait/reap and address-space teardown as one lifecycle contract.
+4. Build target-specific production init/service programs; only emit readiness after required service health checks, tied to the same nonzero kernel-owned PID that issued a CPL3 syscall.
+5. Implement real installer write/verify/cold-reboot/read-back and recovery repair/postcondition tests.
+6. Implement AP discovery/startup, per-CPU state/worker startup and overlapping execution evidence before enabling multi-CPU scheduling.
+7. Run unchanged production acceptance for Live/Installer/Recovery × BIOS/UEFI on the final ISO, archive raw traces and artifact hashes.
+
+### Do: committed scheduler safety fix
+- Commit `bf7683a22fef0ac27ae6501e53b759b61f21574c` initializes the scheduler with one online CPU until AP startup exists. This avoids assigning runnable work to CPUs that CPUID reports but the kernel has not started.
+
+### Validation: observed, not inferred
+- Historical exact-head evidence includes successful kernel build/loader tests but failed actual production target handoff; the full production verifier reported missing CPL3 acknowledgement and/or matching nonzero PID readiness. Those are failures, not a production pass.
+- No workflow run was returned for the scheduler fix commit at the last lookup. Treat that as unreported, not passing.
+- Production rootfs mount, production service health, all six BIOS/UEFI cases, Aurora, installer persistence, recovery repair, and genuine SMP remain unverified.
+
+### Release decision
+Keep PR #187 draft. Do not publish a production release until all seven dependency-order gates above pass. Never weaken the verifier, synthesize readiness, or count queued/cancelled/unreported checks as passing.
