@@ -1,0 +1,33 @@
+name: Production Closeout DAPS Regression Tests
+
+on:
+  pull_request:
+    paths:
+      - "tools/production-closeout-daps.py"
+      - "tools/tests/test_production_closeout_daps.py"
+      - ".github/workflows/production-closeout-daps.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/production-closeout-daps.py"
+      - "tools/tests/test_production_closeout_daps.py"
+      - ".github/workflows/production-closeout-daps.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  daps-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile DAPS verifier
+        run: python3 -m py_compile tools/production-closeout-daps.py
+      - name: Run DAPS regression suite
+        run: python3 tools/tests/test_production_closeout_daps.py
