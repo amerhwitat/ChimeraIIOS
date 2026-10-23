@@ -339,6 +339,17 @@ static bool address_space_self_test() {
         : -1;
     bool ok = code_rc == 0 && stack_rc == 0 && code_alias && stack_alias;
     if (ok) {
+        uint64_t queried_physical = 0;
+        uint32_t queried_flags = 0;
+        const uint64_t free_before_overlap = koronos_frame_free_count();
+        const int query_rc = koronos_address_space_query(
+            space, KORONOS_USER_VIRTUAL_MIN, &queried_physical, &queried_flags);
+        const int overlap_rc = koronos_address_space_map(
+            space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, 5u);
+        ok = query_rc == 0 &&
+             queried_physical == reinterpret_cast<uintptr_t>(code_alias) &&
+             queried_flags == 5u && overlap_rc != 0 &&
+             koronos_frame_free_count() == free_before_overlap;
         uint64_t *code_pte = ensure_pte(space, KORONOS_USER_VIRTUAL_MIN);
         uint64_t *stack_pte = ensure_pte(space, 0x00007FFFFFFFE000ull);
         uint64_t *root = table_ptr(space->root_physical);
@@ -346,7 +357,7 @@ static bool address_space_self_test() {
         uint64_t *pd = pdpt ? table_ptr(pdpt[0] & ENTRY_ADDRESS_MASK) : nullptr;
         // Existing 2-MiB identity leaves must remain supervisor-only even though
         // their parent entries are user-capable for high user mappings.
-        ok = code_pte && stack_pte && root && pdpt && pd &&
+        ok = ok && code_pte && stack_pte && root && pdpt && pd &&
              (*code_pte & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
              (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
              (*stack_pte & (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX)) ==
