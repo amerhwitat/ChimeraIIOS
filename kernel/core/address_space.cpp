@@ -552,18 +552,20 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
     // completion: frames are not returned to the allocator before shootdown.
     tlb_shootdown(root, base, length, tlb_context);
     if (koronos_vm_frame_release_contiguous(physical, pages) != 0) {
-        // Restore the mapping if allocator reclamation fails; keep ownership.
-        for (uint64_t i = 0; i < pages; ++i) {
-            uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
-            if (pte) *pte = (physical + i * PAGE_SIZE) | ENTRY_PRESENT | ENTRY_USER |
-                ((block->elf_flags & 2u) ? ENTRY_WRITE : 0u) |
-                ((block->elf_flags & 1u) ? 0u : ENTRY_NX);
-        }
+        // A failed release may have reclaimed a prefix. Never reinstall PTEs
+        // to possibly freed frames; leave the range inaccessible and fail closed.
         tlb_shootdown(root, base, length, tlb_context);
         unlock_backend(); return -6;
     }
     if (metadata_physical && metadata_pages)
         (void)koronos_vm_frame_release_contiguous(metadata_physical, metadata_pages);
+    for (uint32_t v = 0; v < space->vma_count; ++v) {
+        if (space->vmas[v].virtual_base == base && space->vmas[v].length == length) {
+            for (uint32_t j = v + 1; j < space->vma_count; ++j) space->vmas[j - 1] = space->vmas[j];
+            --space->vma_count;
+            break;
+        }
+    }
     space->user_pages -= pages;
     for (uint32_t i = index + 1; i < space->mapped_count; ++i) space->mapped[i - 1] = space->mapped[i];
     --space->mapped_count;
@@ -602,6 +604,10 @@ extern "C" int koronos_address_space_protect(void *opaque, uint64_t base, uint64
     }
     tlb_shootdown(root, base, length, tlb_context);
     block->elf_flags = elf_flags;
+    for (uint32_t v = 0; v < space->vma_count; ++v) {
+        if (space->vmas[v].virtual_base == base && space->vmas[v].length == length)
+            space->vmas[v].elf_flags = elf_flags;
+    }
     unlock_backend();
     return 0;
 }
