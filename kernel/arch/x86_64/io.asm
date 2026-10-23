@@ -41,3 +41,5 @@ koronos_outl:
     mov eax, esi
     out dx, eax
     ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits
