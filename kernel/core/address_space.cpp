@@ -40,6 +40,8 @@ struct AddressSpace {
     uint64_t root_physical;
     uint64_t table_frames[MAX_TABLE_FRAMES];
     FrameBlock mapped[MAX_MAPPED_BLOCKS];
+    koronos_vma_descriptor vmas[KORONOS_VMA_MAX];
+    uint32_t vma_count;
     uint32_t table_count;
     uint32_t mapped_count;
     uint64_t user_pages;
@@ -76,10 +78,10 @@ static bool track_table(AddressSpace *space, uint64_t physical) {
     return true;
 }
 static uint64_t new_table(AddressSpace *space) {
-    uint64_t physical = koronos_frame_alloc();
+    uint64_t physical = koronos_vm_frame_alloc();
     if (!physical) return 0;
     if (!track_table(space, physical)) {
-        (void)koronos_frame_free(physical);
+        (void)koronos_vm_frame_release(physical);
         return 0;
     }
     zero_bytes(reinterpret_cast<void *>(static_cast<uintptr_t>(physical)), PAGE_SIZE);
@@ -113,6 +115,7 @@ static void destroy_locked(AddressSpace *space) {
     space->root_physical = 0;
     space->table_count = 0;
     space->mapped_count = 0;
+    space->vma_count = 0;
     space->user_pages = 0;
 }
 static bool clone_bootstrap_map(AddressSpace *space) {
@@ -276,7 +279,7 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     const uint64_t pages64 = size / PAGE_SIZE;
     if (!pages64 || pages64 > UINT32_MAX || pages64 > MAX_USER_PAGES) return -3;
     lock_backend();
-    if (!space_valid(space) || space->mapped_count >= MAX_MAPPED_BLOCKS ||
+    if (!space_valid(space) || space->mapped_count >= MAX_MAPPED_BLOCKS || space->vma_count >= KORONOS_VMA_MAX ||
         pages64 > MAX_USER_PAGES - space->user_pages) {
         unlock_backend(); return -3;
     }
@@ -290,15 +293,15 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
         if (*pte & ENTRY_PRESENT) { unlock_backend(); return -6; }
     }
 
-    const uint64_t physical = koronos_frame_alloc_contiguous(static_cast<uint32_t>(pages64));
+    const uint64_t physical = koronos_vm_frame_alloc_contiguous(static_cast<uint32_t>(pages64));
     if (!physical) { unlock_backend(); return -4; }
     const uint64_t metadata_bytes = pages64 * sizeof(PageMeta);
     const uint64_t metadata_pages64 = (metadata_bytes + PAGE_MASK) / PAGE_SIZE;
     if (!metadata_pages64 || metadata_pages64 > UINT32_MAX) {
-        (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        (void)koronos_vm_frame_release_contiguous(physical, static_cast<uint32_t>(pages64));
         unlock_backend(); return -8;
     }
-    const uint64_t metadata_physical = koronos_frame_alloc_contiguous(
+    const uint64_t metadata_physical = koronos_vm_frame_alloc_contiguous(
         static_cast<uint32_t>(metadata_pages64));
     if (!metadata_physical) {
         (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
@@ -331,7 +334,7 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
             if (pte) *pte = 0;
         }
         (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
-        (void)koronos_frame_free_contiguous(metadata_physical, static_cast<uint32_t>(metadata_pages64));
+        (void)koronos_vm_frame_release_contiguous(metadata_physical, static_cast<uint32_t>(metadata_pages64));
         unlock_backend();
         return -7;
     }
