@@ -18,6 +18,9 @@ def valid_evidence():
             case_id = f"{target}-{firmware}"
             case = {
                 "status": "PASS",
+                "display_mode_verified": True,
+                "display_mode": "1024x768",
+                "display_mode_evidence": f"traces/{case_id}-display.log",
                 "production_iso": f"koronos-{case_id}.iso",
                 "iso_sha256": "a" * 64,
                 "raw_trace": f"traces/{case_id}.log",
@@ -34,6 +37,16 @@ def valid_evidence():
             cases[case_id] = case
     return {
         "cases": cases,
+        "display": {
+            "status": "PASS",
+            "framebuffer_detected_verified": True,
+            "highest_supported_mode_verified": True,
+            "fallback_1024x768_verified": True,
+            "fallback_640x480_verified": True,
+            "aurora_compositor_handoff_verified": True,
+            "selected_mode": "1920x1080",
+            "evidence": "traces/display-modes.log",
+        },
         "aurora_handoff": {"status": "PASS", "evidence": "traces/aurora.log"},
         "installer_persistence": {
             "status": "PASS", "write_verified": True, "cold_reboot_verified": True,
@@ -72,6 +85,14 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         errors = check_evidence(data)
         self.assertTrue(any("OPEN/READ/CLOSE was not verified" in e for e in errors))
         self.assertTrue(any("missing raw evidence for rootfs OPEN/READ/CLOSE" in e for e in errors))
+
+    def test_missing_display_evidence_blocks_closeout(self):
+        data = valid_evidence()
+        data.pop("display")
+        data["cases"]["live-bios"].pop("display_mode_evidence")
+        errors = check_evidence(data)
+        self.assertTrue(any("display: missing evidence object" in e for e in errors))
+        self.assertTrue(any("missing raw framebuffer/display evidence" in e for e in errors))
 
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
