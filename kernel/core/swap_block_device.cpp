@@ -36,7 +36,7 @@ extern "C" int koronos_swap_init_block_extent(const chimera_block_device *device
         return -1;
     if (!device || device->abi != CHIMERA_BLOCK_DEVICE_ABI ||
         !device->read || !device->write || !device->flush ||
-        (device->flags & CHIMERA_BLOCK_READ_ONLY) || !device->logical_block_size ||
+        (device->flags & CHIMERA_BLOCK_READ_ONLY) || device->logical_block_size < 512u ||
         device->logical_block_size > KORONOS_SWAP_PAGE_SIZE ||
         (device->logical_block_size & (device->logical_block_size - 1u)) != 0u ||
         (KORONOS_SWAP_PAGE_SIZE % device->logical_block_size) != 0u ||
