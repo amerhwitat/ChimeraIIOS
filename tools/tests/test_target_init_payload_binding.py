@@ -17,7 +17,11 @@ required = (
     "if (payload_count>1u)",
     "if (payload_count==1u && payload_target!=target)",
     "native init target does not match the selected production payload",
-    "production rootfs is validated but not mounted; refusing userspace readiness without VFS publication",
+    "stage_rootfs(archive_bytes, archive->size)",
+    "chimera_vfs_mount(\"/\", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY)",
+    "chimera_vfs_mount(\"/tmp\", chimera_tmpfs_vfs_ops(), tmpfs_candidate, 0u)",
+    "transactional RAMFS staging failed; no rootfs was published",
+    "VFS root mount failed; refusing userspace launch",
 )
 missing = [part for part in required if part not in source]
 if missing:
