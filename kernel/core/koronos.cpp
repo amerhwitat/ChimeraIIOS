@@ -18,6 +18,10 @@ extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
 volatile uint32_t koronos_state = 0;
+static uint32_t g_system_block_size = KORONOS_SYSTEM_BLOCK_SIZE;
+static bool system_block_size_valid(uint32_t size) {
+    return size >= KORONOS_SYSTEM_BLOCK_MIN && size <= KORONOS_SYSTEM_BLOCK_MAX && (size & (size - 1u)) == 0u;
+}
 
 static uint8_t serial_in8(uint16_t port) {
     uint8_t v;
@@ -71,6 +75,47 @@ static void serial_write(const char *s) {
     while (*s) serial_write8((uint8_t)*s++);
     serial_write8('\r');
     serial_write8('\n');
+}
+
+static void parse_system_block_option(uint64_t info) {
+    if (!info) return;
+    const auto *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
+    const uint32_t total = *reinterpret_cast<const uint32_t *>(base);
+    if (total < 16u || total > 16u * 1024u * 1024u) return;
+    for (uint32_t off = 8u; off <= total - 8u;) {
+        const auto *tag = reinterpret_cast<const uint32_t *>(base + off);
+        const uint32_t type = tag[0], size = tag[1];
+        if (size < 8u || size > total - off) return;
+        if (type == 0u) return;
+        if (type == 1u && size > 8u) {
+            const char *cmd = reinterpret_cast<const char *>(base + off + 8u);
+            const uint32_t bytes = size - 8u;
+            const char key[] = "koronos.system_block=";
+            for (uint32_t i = 0; i < bytes && cmd[i];) {
+                while (i < bytes && (cmd[i] == ' ' || cmd[i] == '\t')) ++i;
+                const uint32_t start = i;
+                while (i < bytes && cmd[i] && cmd[i] != ' ' && cmd[i] != '\t') ++i;
+                if (i - start < sizeof(key) - 1u) continue;
+                bool match = true;
+                for (uint32_t k = 0; k < sizeof(key) - 1u; ++k) if (cmd[start + k] != key[k]) { match = false; break; }
+                if (!match) continue;
+                uint32_t value = 0;
+                bool valid = i > start + sizeof(key) - 1u;
+                for (uint32_t k = start + sizeof(key) - 1u; k < i; ++k) {
+                    if (cmd[k] < '0' || cmd[k] > '9') { valid = false; break; }
+                    const uint32_t digit = static_cast<uint32_t>(cmd[k] - '0');
+                    if (value > (KORONOS_SYSTEM_BLOCK_MAX - digit) / 10u) { valid = false; break; }
+                    value = value * 10u + digit;
+                }
+                if (valid && system_block_size_valid(value)) g_system_block_size = value;
+                else debugcon_write("[BLK] Invalid koronos.system_block value; retaining configured default");
+            }
+            return;
+        }
+        const uint64_t next = (static_cast<uint64_t>(off) + size + 7u) & ~7ull;
+        if (next <= off || next > total) return;
+        off = static_cast<uint32_t>(next);
+    }
 }
 
 static void vga_clear() {
