@@ -13,7 +13,7 @@ Branch: `audit/koronos-cross-os-syscall-roadmap-20261023`
 
 ## Important limitation
 
-This is the **swap storage backend foundation**, not a claim that full virtual-memory paging or a Windows `Page.sys` equivalent is finished. The current address-space implementation still uses a fixed address-space table, fixed mapping records, contiguous physical allocations, and a 512 MiB per-space limit. It does not yet implement a complete page-fault-driven demand-paging/eviction policy, swap-in/out PTE transitions, dirty/reference tracking, page replacement, TLB shootdown, or storage-driver-backed boot-time swap discovery. Those features must be implemented before this can be called a complete VM/swap system.
+This is the **swap storage backend foundation**, not a claim that full virtual-memory paging or a Windows `Page.sys` equivalent is finished. The current address-space implementation still uses a fixed address-space table, fixed mapping records, contiguous physical allocations, and a 512 MiB per-space limit. It does not yet implement a complete page-fault-driven demand-paging/eviction policy, swap-in/out PTE transitions, dirty/reference tracking, page replacement, TLB shootdown, or storage-driver-backed boot-time swap discovery. Those features must be implemented before this can be called a complete VM/swap system. The production DAPS verifier has also been strengthened to require a `vm_swap` evidence section proving page-fault handling, successful swap round-trip, I/O failure rollback, and corruption rejection with raw trace markers; the current backend-only implementation cannot satisfy that gate yet.
 
 ## Required next milestones
 
