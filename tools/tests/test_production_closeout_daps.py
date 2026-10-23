@@ -125,6 +125,39 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             errors = GATE["check_evidence"](data, Path(tmp))
         self.assertTrue(any("artifact path escapes the evidence directory" in e for e in errors))
 
+    def test_claimed_readiness_must_exist_in_raw_trace(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text("[KRN ] KORONOS READY\\nUSERSPACE READY: target=live init_pid=7\\n", encoding="utf-8")
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("raw_trace is missing required runtime marker 'USER INIT SYSCALL:'" in e for e in errors))
+        self.assertTrue(any("raw_trace lacks a target-matched user-originated syscall" in e for e in errors))
+
+    def test_raw_trace_rejects_mismatched_target_or_pid(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE SYSCALL RETURNED TO RING3\\n"
+                "USERSPACE READY: target=live init_pid=8\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
