@@ -26,10 +26,8 @@ static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 /* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
 static bool active_ring3_probe = false;
-/* A successful archive validation is not a mounted rootfs. Keep a separately
-   allocated, bounded RAMFS staging tree alive across the user-init handoff.
-   The current syscall/VFS bridge is not yet wired to this tree, so this state
-   must never be reported as process-visible filesystem readiness. */
+/* Keep the complete bounded extraction private until the VFS root mount
+   succeeds. The tree remains alive while mounted and is never mutated in place. */
 static chimera_ramfs_node *staged_rootfs = nullptr;
 static bool staged_rootfs_ready = false;
 /* Published only after the VFS root mount succeeds. The extracted tree is
@@ -212,7 +210,7 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
     if (!pid || !active_root || !user_path) return -14;
     char path[CHIMERA_VFS_MAX_PATH + 1u];
     uint32_t length = 0;
-    for (; length < CHIMERA_VFS_MAX_PATH; ++length) {
+    for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
         if (user_path > UINT64_MAX - length ||
             koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0)
             return -14;
@@ -220,7 +218,7 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
         path[length] = c;
         if (!c) break;
     }
-    if (length == CHIMERA_VFS_MAX_PATH || !path[0]) return -22;
+    if (length > CHIMERA_VFS_MAX_PATH || !path[0]) return -22;
     if (!__atomic_load_n(&published_rootfs, __ATOMIC_ACQUIRE)) return -2;
     return chimera_vfs_open(pid, path, CHIMERA_VFS_O_RDONLY, 0444u);
 }
