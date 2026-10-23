@@ -40,7 +40,10 @@ swap_test_compile = next((i for i, line in enumerate(lines)
 if swap_test_compile is None:
     print("FAIL: swap block-device host test compile command is missing", file=sys.stderr)
     raise SystemExit(1)
-if not all(token in lines[swap_test_compile]
+# The compiler command uses shell continuations, so inspect the complete
+# command block rather than only its final "-o" line.
+swap_test_command = "\n".join(lines[max(0, swap_test_compile - 3):swap_test_compile + 1])
+if not all(token in swap_test_command
            for token in ('"$ROOT/kernel/core/block_device.cpp"',
                          '"$ROOT/kernel/core/swap.cpp"',
                          '"$ROOT/kernel/core/swap_block_device.cpp"',
