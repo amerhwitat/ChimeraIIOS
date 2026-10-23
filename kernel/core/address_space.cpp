@@ -835,4 +835,152 @@ extern "C" int koronos_address_space_unpin(void *opaque, uint64_t address, uint6
     return 0;
 }
 
+extern "C" int koronos_address_space_evict_one(void *opaque) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space)) return -1;
+    koronos_swap_snapshot swap_status{};
+    if (koronos_swap_get_snapshot(&swap_status) != 0 || !swap_status.initialized) return -2;
+    lock_backend();
+    if (!space_valid(space) || !tlb_shootdown) { unlock_backend(); return -3; }
+    const uint64_t total = space->user_pages;
+    if (!total) { unlock_backend(); return -4; }
+    const uint64_t start = space->eviction_cursor % total;
+    const uint64_t scan = total < VM_EVICTION_SCAN_LIMIT ? total : VM_EVICTION_SCAN_LIMIT;
+    for (uint64_t step = 0; step < scan; ++step) {
+        const uint64_t flat = (start + step) % total;
+        uint64_t prefix = 0, va = 0; FrameBlock *block = nullptr; uint32_t page_index = 0;
+        for (uint32_t b = 0; b < space->mapped_count; ++b) {
+            if (flat < prefix + space->mapped[b].pages) { block = &space->mapped[b]; page_index = static_cast<uint32_t>(flat - prefix); break; }
+            prefix += space->mapped[b].pages;
+        }
+        if (!block) continue;
+        va = block->virtual_base + static_cast<uint64_t>(page_index) * PAGE_SIZE;
+        PageMeta *meta = find_page_meta(space, va, nullptr); uint64_t *pte = find_pte(space, va);
+        if (!meta || !pte || meta->state != PAGE_RESIDENT || meta->pins || !meta->physical ||
+            !(*pte & ENTRY_PRESENT) || ((*pte & ENTRY_ADDRESS_MASK) != meta->physical)) continue;
+        if (*pte & ENTRY_DIRTY) meta->flags |= PAGE_META_DIRTY;
+        if ((*pte & ENTRY_ACCESSED) || (meta->flags & PAGE_META_REFERENCED)) {
+            *pte &= ~ENTRY_ACCESSED; meta->flags &= static_cast<uint8_t>(~PAGE_META_REFERENCED);
+            space->eviction_cursor = (flat + 1u) % total;
+            const uint64_t root = space->root_physical; const auto shoot = tlb_shootdown; void *ctx = tlb_context;
+            unlock_backend(); shoot(root, va, PAGE_SIZE, ctx); return 1;
+        }
+        const uint64_t physical = meta->physical, root = space->root_physical;
+        const uint64_t original_pte = *pte; const uint32_t old_slot = meta->swap_slot;
+        const auto shoot = tlb_shootdown; void *ctx = tlb_context;
+        meta->state = PAGE_EVICTING;
+        if (*pte & ENTRY_WRITE) *pte &= ~ENTRY_WRITE;
+        space->eviction_cursor = (flat + 1u) % total;
+        unlock_backend();
+        if (original_pte & ENTRY_WRITE) shoot(root, va, PAGE_SIZE, ctx);
+        uint32_t new_slot = KORONOS_SWAP_SLOT_INVALID;
+        if (koronos_swap_store(reinterpret_cast<const void *>(static_cast<uintptr_t>(physical)), &new_slot) != 0) {
+            lock_backend();
+            if (meta->state == PAGE_EVICTING && meta->physical == physical) { *pte = original_pte; meta->state = PAGE_RESIDENT; }
+            unlock_backend();
+            if (original_pte & ENTRY_WRITE) shoot(root, va, PAGE_SIZE, ctx);
+            return -5;
+        }
+        if (old_slot != KORONOS_SWAP_SLOT_INVALID && koronos_swap_release(old_slot) != 0) {
+            (void)koronos_swap_release(new_slot);
+            lock_backend();
+            if (meta->state == PAGE_EVICTING && meta->physical == physical) { *pte = original_pte; meta->state = PAGE_RESIDENT; }
+            unlock_backend();
+            if (original_pte & ENTRY_WRITE) shoot(root, va, PAGE_SIZE, ctx);
+            return -6;
+        }
+        lock_backend();
+        if (meta->state != PAGE_EVICTING || meta->physical != physical ||
+            !(*pte & ENTRY_PRESENT) || ((*pte & ENTRY_ADDRESS_MASK) != physical)) {
+            unlock_backend(); (void)koronos_swap_release(new_slot); return -7;
+        }
+        *pte = ENTRY_SWAPPED; meta->swap_slot = new_slot; meta->physical = 0; meta->state = PAGE_SWAPPED;
+        for (uint32_t v = 0; v < space->vma_count; ++v) {
+            auto &vma = space->vmas[v];
+            if (va >= vma.virtual_base && va - vma.virtual_base < vma.length) {
+                if (vma.resident_pages) --vma.resident_pages;
+                vma.residency = vma.resident_pages == 0 ? KORONOS_VMA_NONRESIDENT : KORONOS_VMA_PARTIAL;
+                break;
+            }
+        }
+        unlock_backend();
+        shoot(root, va, PAGE_SIZE, ctx);
+        const int release_rc = koronos_vm_frame_release(physical);
+        if (release_rc != 0 && release_rc == -3 && koronos_vm_frame_refcount(physical) != 0u) {
+            lock_backend();
+            if (meta->state == PAGE_SWAPPED && meta->swap_slot == new_slot && meta->physical == 0u) {
+                meta->physical = physical; meta->state = PAGE_RESIDENT; meta->swap_slot = KORONOS_SWAP_SLOT_INVALID;
+                *pte = physical | (original_pte & ~ENTRY_ADDRESS_MASK);
+                for (uint32_t v = 0; v < space->vma_count; ++v) {
+                    auto &vma = space->vmas[v];
+                    if (va >= vma.virtual_base && va - vma.virtual_base < vma.length) {
+                        ++vma.resident_pages; vma.residency = KORONOS_VMA_RESIDENT; break;
+                    }
+                }
+            }
+            unlock_backend(); shoot(root, va, PAGE_SIZE, ctx); (void)koronos_swap_release(new_slot); return -8;
+        }
+        return release_rc == 0 ? 0 : -9;
+    }
+    space->eviction_cursor = (start + scan) % total;
+    unlock_backend(); return -10;
+}
+
+extern "C" int koronos_address_space_handle_page_fault(void *opaque, uint64_t fault_address, uint64_t error_code) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || fault_address < KORONOS_USER_VIRTUAL_MIN || fault_address >= CHIMERA_ELF_USER_LIMIT ||
+        !(error_code & 4u) || (error_code & 8u)) return -1;
+    const uint64_t va = fault_address & ~PAGE_MASK;
+    for (uint32_t wait = 0; wait < 1000000u; ++wait) {
+        lock_backend();
+        if (!space_valid(space)) { unlock_backend(); return -2; }
+        PageMeta *meta = find_page_meta(space, va, nullptr); uint64_t *pte = find_pte(space, va);
+        koronos_vma_descriptor *vma = nullptr;
+        for (uint32_t i = 0; i < space->vma_count; ++i)
+            if (va >= space->vmas[i].virtual_base && va - space->vmas[i].virtual_base < space->vmas[i].length) { vma = &space->vmas[i]; break; }
+        if (!meta || !pte || !vma) { unlock_backend(); return -3; }
+        if (((error_code & 2u) && !(vma->elf_flags & 2u)) || ((error_code & 16u) && !(vma->elf_flags & 1u))) { unlock_backend(); return -4; }
+        if (meta->state == PAGE_EVICTING || meta->state == PAGE_LOADING) { unlock_backend(); __asm__ volatile("pause"); continue; }
+        if (meta->state == PAGE_RESIDENT && (*pte & ENTRY_PRESENT)) {
+            const bool allowed = (!(error_code & 2u) || (*pte & ENTRY_WRITE)) && (!(error_code & 16u) || !(*pte & ENTRY_NX));
+            unlock_backend(); return allowed ? 0 : -5;
+        }
+        if (meta->state != PAGE_SWAPPED || !(*pte & ENTRY_SWAPPED) || (*pte & ENTRY_PRESENT) ||
+            meta->swap_slot == KORONOS_SWAP_SLOT_INVALID || !tlb_shootdown) { unlock_backend(); return -6; }
+        const uint32_t slot = meta->swap_slot; const uint32_t flags = vma->elf_flags;
+        const uint64_t root = space->root_physical; const auto shoot = tlb_shootdown; void *ctx = tlb_context;
+        meta->state = PAGE_LOADING;
+        unlock_backend();
+        uint64_t frame = koronos_vm_frame_alloc();
+        for (uint32_t retry = 0; !frame && retry < VM_EVICTION_RETRY_LIMIT; ++retry) {
+            (void)koronos_address_space_evict_one(space); frame = koronos_vm_frame_alloc();
+        }
+        if (!frame) { lock_backend(); if (meta->state == PAGE_LOADING) meta->state = PAGE_SWAPPED; unlock_backend(); return -7; }
+        if (koronos_swap_load(slot, reinterpret_cast<void *>(static_cast<uintptr_t>(frame))) != 0) {
+            (void)koronos_vm_frame_release(frame);
+            lock_backend(); if (meta->state == PAGE_LOADING) meta->state = PAGE_SWAPPED; unlock_backend(); return -8;
+        }
+        lock_backend();
+        if (meta->state != PAGE_LOADING || meta->swap_slot != slot || !(*pte & ENTRY_SWAPPED) || (*pte & ENTRY_PRESENT)) {
+            if (meta->state == PAGE_LOADING) meta->state = PAGE_SWAPPED;
+            unlock_backend(); (void)koronos_vm_frame_release(frame); return -9;
+        }
+        meta->physical = frame; meta->state = PAGE_RESIDENT;
+        *pte = frame | ENTRY_PRESENT | ENTRY_USER | ((flags & 2u) ? ENTRY_WRITE : 0u) | ((flags & 1u) ? 0u : ENTRY_NX);
+        for (uint32_t v = 0; v < space->vma_count; ++v) {
+            auto &entry = space->vmas[v];
+            if (va >= entry.virtual_base && va - entry.virtual_base < entry.length) {
+                ++entry.resident_pages; entry.residency = entry.resident_pages == entry.page_count ? KORONOS_VMA_RESIDENT : KORONOS_VMA_PARTIAL; break;
+            }
+        }
+        unlock_backend();
+        shoot(root, va, PAGE_SIZE, ctx);
+        if (koronos_swap_release(slot) == 0) {
+            lock_backend(); if (meta->state == PAGE_RESIDENT && meta->physical == frame && meta->swap_slot == slot) meta->swap_slot = KORONOS_SWAP_SLOT_INVALID; unlock_backend();
+        }
+        return 0;
+    }
+    return -10;
+}
+
 extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
