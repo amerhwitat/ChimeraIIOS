@@ -14,6 +14,8 @@ extern "C" int chimera_service_validate(const chimera_service_manifest*s,uint32_
   if(s[i].abi_version!=CHIMERA_SERVICE_ABI||!nonempty(s[i].id))return -2;
   if(s[i].state>CHM_SVC_RECOVERING||s[i].restart>CHM_RESTART_FAILURE||s[i].critical>1u)return -6;
   if(s[i].dependency_count&&!s[i].dependencies)return -7;
+  /* A service cannot depend on itself; cap the list before dereferencing it. */
+  if(s[i].dependency_count>=n)return -7;
   for(uint32_t j=i+1;j<n;++j)if(same(s[i].id,s[j].id))return -3;
   for(uint32_t d=0;d<s[i].dependency_count;++d){
    const char*dep=s[i].dependencies[d];if(!nonempty(dep)||find(s,n,dep)<0)return -4;
