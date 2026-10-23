@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Regression guard for the canonical Koronos build's ISO9660 test wiring."""
 from pathlib import Path
-import os
 import subprocess
 import sys
 
