@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Regression guard for the canonical Koronos build's ISO9660 test wiring."""
 from pathlib import Path
+import os
+import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -37,6 +39,25 @@ if "-DKORONOS_SYSTEM_BLOCK_SIZE=$SYSTEM_BLOCK_SIZE" not in source:
     raise SystemExit(1)
 if "power of two between 512 and 65536 bytes" not in source:
     print("FAIL: system block size bounds are not validated", file=sys.stderr)
+    raise SystemExit(1)
+if "--system-block-size" not in source or "SYSTEM_BLOCK_SIZE=\"\${1#*=}\"" not in source:
+    print("FAIL: system block size must be configurable by CLI", file=sys.stderr)
+    raise SystemExit(1)
+
+# Invalid CLI values must fail before compilation or filesystem side effects.
+invalid = subprocess.run(
+    ["bash", str(script), "--system-block-size", "1000"],
+    cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+)
+if invalid.returncode != 2 or "power of two" not in invalid.stderr:
+    print("FAIL: invalid CLI system block size was not rejected early", file=sys.stderr)
+    raise SystemExit(1)
+missing = subprocess.run(
+    ["bash", str(script), "--system-block-size"],
+    cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+)
+if missing.returncode != 2 or "requires a byte count" not in missing.stderr:
+    print("FAIL: missing CLI system block size was not rejected", file=sys.stderr)
     raise SystemExit(1)
 
 print("koronos_build_script_contract: PASS")
