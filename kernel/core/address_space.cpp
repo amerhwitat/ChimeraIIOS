@@ -623,6 +623,59 @@ extern "C" int koronos_address_space_query(void *opaque, uint64_t va,
     return 0;
 }
 
+extern "C" int koronos_address_space_vma_query(void *opaque, uint64_t va,
+                                                 koronos_vma_descriptor *out) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || !out || va < KORONOS_USER_VIRTUAL_MIN ||
+        va >= CHIMERA_ELF_USER_LIMIT) return -1;
+    lock_backend();
+    for (uint32_t i = 0; i < space->vma_count; ++i) {
+        const koronos_vma_descriptor &vma = space->vmas[i];
+        if (va >= vma.virtual_base && va - vma.virtual_base < vma.length) {
+            *out = vma;
+            unlock_backend();
+            return 0;
+        }
+    }
+    unlock_backend();
+    return -2;
+}
+
+extern "C" int koronos_address_space_vma_set_backing(void *opaque, uint64_t base,
+                                                       uint64_t length, uint32_t kind,
+                                                       uint64_t object, uint64_t offset) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || kind > KORONOS_VMA_SWAP || !length ||
+        (base & PAGE_MASK) || (length & PAGE_MASK) ||
+        base < KORONOS_USER_VIRTUAL_MIN || base >= CHIMERA_ELF_USER_LIMIT ||
+        length > CHIMERA_ELF_USER_LIMIT - base || offset > UINT64_MAX - length)
+        return -1;
+    if ((kind == KORONOS_VMA_ELF_IMAGE || kind == KORONOS_VMA_FILE) && object == 0u)
+        return -2;
+    lock_backend();
+    for (uint32_t i = 0; i < space->vma_count; ++i) {
+        koronos_vma_descriptor &vma = space->vmas[i];
+        if (vma.virtual_base != base || vma.length != length) continue;
+        if (kind == KORONOS_VMA_SWAP) {
+            FrameBlock *block = find_block(space, base, length);
+            if (!block) { unlock_backend(); return -3; }
+            auto *meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(block->metadata_physical));
+            for (uint32_t p = 0; p < block->pages; ++p) {
+                if (meta[p].state != PAGE_SWAPPED || meta[p].swap_slot == KORONOS_SWAP_SLOT_INVALID) {
+                    unlock_backend(); return -4;
+                }
+            }
+        }
+        vma.backing_kind = kind;
+        vma.backing_object = object;
+        vma.backing_offset = offset;
+        unlock_backend();
+        return 0;
+    }
+    unlock_backend();
+    return -5;
+}
+
 static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
 
 static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out) {
