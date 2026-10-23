@@ -185,3 +185,10 @@ This closes a **test-coverage gap**: the prior Chimera workflow ran the target-s
 5. Generate the closeout evidence bundle only from those real harness outputs, then run DAPS and inspect all CI logs.
 
 Latest code commit noted here: `061643babf6827bcb46adc0ec70ac083fb749cd6`. Fresh CI for this commit has not yet been returned by the available workflow-run lookup. Production release remains blocked.
+
+
+### Additional syscall/service boundary finding (2026-10-23)
+
+The native syscall dispatcher in `kernel/core/syscall.cpp` currently implements PID lookup, yield, timer ticks, OPEN/READ/WRITE/CLOSE/SEEK, and EXIT. Although the public syscall enum names `CHM_SYS_WAIT`, there is no process-spawn/exec syscall wired into this dispatcher and no working userspace supervisor API that can start the target service graph and wait for verified service health. The kernel service module validates dependency declarations and records states; it is not a process launcher. This is a direct architectural reason the native init cannot truthfully start `aurora-session`, `install-executor`, or `recovery-runtime` and then report production readiness. A readiness-only patch would be incorrect.
+
+Required implementation is a process-owned exec/spawn + wait/exit/reap contract integrated with ELF/address-space creation and scheduler context switching, then a service supervisor that tracks actual child PID/exit state and target-specific health. Only after this exists should native init emit the production component marker.
