@@ -19,7 +19,6 @@ on:
       - "kernel/core/initramfs_cpio.cpp"
       - "kernel/include/chimera/ramfs.h"
       - "kernel/tests/ramfs_test.cpp"
-      - "kernel/tests/service_bootstrap_test.cpp"
       - "boot/iso/prepare-layout.sh"
       - "boot/iso/grub.cfg"
       - "boot/jasper/live.cfg"
