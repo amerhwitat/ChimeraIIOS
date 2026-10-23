@@ -82,12 +82,14 @@ def main() -> int:
             return fail(f"process-bound read-only filesystem operation missing: {operation}")
     if "koronos_address_space_validate_user_range(active_root" not in launch:
         return fail("filesystem syscalls must validate user buffers against the active process address space")
-    if "if (flags != 0u) return -30" not in launch:
-        return fail("open must reject writable flags until a writable backend is mounted")
-    if "chimera_vfs_open(pid, path, CHIMERA_VFS_O_RDONLY, 0444u)" not in launch:
+    if "if (flags > UINT32_MAX) return -22" not in launch:
+        return fail("native open flags must be bounded before conversion to the VFS ABI")
+    if "chimera_vfs_open(pid, path, static_cast<uint32_t>(flags), 0644u)" not in launch:
         return fail("native open must use the general VFS descriptor table")
+    if "koronos_target_fs_write" not in launch or "chimera_vfs_write" not in launch:
+        return fail("validated ring-3 writes must route to the VFS and mutable tmpfs backend")
     syscall_source = (ROOT / "kernel/core/syscall.cpp").read_text(encoding="utf-8")
-    for syscall in ("case CHM_SYS_OPEN:", "case CHM_SYS_READ:", "case CHM_SYS_CLOSE:"):
+    for syscall in ("case CHM_SYS_OPEN:", "case CHM_SYS_READ:", "case CHM_SYS_WRITE:", "case CHM_SYS_CLOSE:"):
         if syscall not in syscall_source:
             return fail(f"native dispatcher missing filesystem syscall route: {syscall}")
 
