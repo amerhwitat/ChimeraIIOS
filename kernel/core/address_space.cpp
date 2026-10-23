@@ -126,7 +126,8 @@ static void destroy_locked(AddressSpace *space) {
         const auto *meta = reinterpret_cast<const PageMeta *>(
             static_cast<uintptr_t>(b.metadata_physical));
         for (uint32_t p = 0; p < b.pages; ++p) {
-            if (meta[p].pins != 0u || meta[p].state == PAGE_EVICTING ||
+            if (meta[p].owner_generation != space->generation ||
+                meta[p].pins != 0u || meta[p].state == PAGE_EVICTING ||
                 meta[p].state == PAGE_LOADING) return;
             if (meta[p].physical && koronos_vm_frame_refcount(meta[p].physical) == 0u) return;
         }
@@ -773,7 +774,8 @@ extern "C" int koronos_address_space_vma_set_backing(void *opaque, uint64_t base
             if (!block) { unlock_backend(); return -3; }
             auto *meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(block->metadata_physical));
             for (uint32_t p = 0; p < block->pages; ++p) {
-                if (meta[p].state != PAGE_SWAPPED || meta[p].swap_slot == KORONOS_SWAP_SLOT_INVALID) {
+                if (meta[p].owner_generation != space->generation ||
+                    meta[p].state != PAGE_SWAPPED || meta[p].swap_slot == KORONOS_SWAP_SLOT_INVALID) {
                     unlock_backend(); return -4;
                 }
             }
