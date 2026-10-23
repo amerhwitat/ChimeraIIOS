@@ -502,7 +502,8 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
     index = static_cast<uint32_t>(block - space->mapped);
     for (uint64_t i = 0; i < block->pages; ++i) {
         uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
-        if (!pte || !(*pte & ENTRY_PRESENT) ||
+        PageMeta *meta = find_page_meta(space, base + i * PAGE_SIZE, nullptr);
+        if (!pte || !(*pte & ENTRY_PRESENT) || !meta || meta->pins != 0u ||
             ((*pte & ENTRY_ADDRESS_MASK) != block->physical + i * PAGE_SIZE)) {
             unlock_backend(); return -5;
         }
@@ -583,7 +584,9 @@ extern "C" int koronos_address_space_query(void *opaque, uint64_t va,
     unlock_backend();
     return 0;
 }
-\nstatic PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out) {
+\nstatic PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
+
+static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out) {
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         FrameBlock &b = space->mapped[i];
         const uint64_t bytes = static_cast<uint64_t>(b.pages) * PAGE_SIZE;
