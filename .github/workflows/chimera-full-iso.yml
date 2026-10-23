@@ -272,6 +272,55 @@ jobs:
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
 
+      - name: Run UEFI target handoff matrix (candidate smoke; not production acceptance)
+        shell: bash
+        run: |
+          set -uo pipefail
+          base=/tmp/chimera-userspace-traces
+          accepted=true
+          code=""
+          vars=""
+          for candidate in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
+            if [[ -f "$candidate" ]]; then
+              candidate_vars="${candidate/CODE/VARS}"
+              if [[ -f "$candidate_vars" ]]; then code="$candidate"; vars="$candidate_vars"; break; fi
+            fi
+          done
+          if [[ -z "$code" || -z "$vars" ]]; then
+            echo "::error::UEFI candidate matrix cannot run: matching OVMF code/vars images not found"
+            exit 1
+          fi
+          for target in live installer recovery; do
+            test_iso="$base/$target.iso"
+            if [[ ! -s "$test_iso" ]]; then
+              echo "::error::$target candidate ISO missing; BIOS candidate build did not produce it"
+              accepted=false
+              continue
+            fi
+            trace="$base/$target-uefi-debugcon.log"
+            vars_copy="$base/$target-uefi-vars.fd"
+            cp "$vars" "$vars_copy"
+            set +e
+            timeout 18s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d \
+              -display none -serial none -monitor none -no-reboot -no-shutdown \
+              -drive "if=pflash,format=raw,unit=0,readonly=on,file=$code" \
+              -drive "if=pflash,format=raw,unit=1,file=$vars_copy" \
+              -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            qemu_rc=$?
+            set -e
+            if [[ ! -s "$trace" ]] || ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
+              echo "::error::$target UEFI candidate did not reach Koronos readiness (qemu exit $qemu_rc)"
+              accepted=false
+              continue
+            fi
+            if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
+              echo "::error::$target UEFI candidate ring-3 handoff is not verified"
+              accepted=false
+            fi
+          done
+          echo "UEFI candidate smoke matrix accepted=$accepted (this is not production acceptance)"
+          if [[ "$accepted" != true ]]; then exit 1; fi
+
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4
