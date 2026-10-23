@@ -37,7 +37,10 @@ typedef struct koronos_swap_snapshot {
 } koronos_swap_snapshot;
 
 /* Swap is disabled until a validated block/file backend is supplied. Backend
-   callbacks must perform exact-length I/O and must not call back into swap. */
+   callbacks execute without the swap spinlock and may run concurrently for
+   different slots. They must perform exact-length I/O, be concurrency-safe,
+   and must not mutate/reinitialize swap from inside a callback. Read-only
+   snapshot queries are safe from a callback. */
 int koronos_swap_init(const koronos_swap_backend *backend);
 int koronos_swap_store(const void *page, uint32_t *slot_out);
 int koronos_swap_load(uint32_t slot, void *page_out);
