@@ -48,6 +48,12 @@ def check_evidence(data: object) -> list[str]:
             errors.append(f"{case_id}: no verified CPL3-originated syscall acknowledgement")
         if case.get("process_visible_rootfs") is not True:
             errors.append(f"{case_id}: process-visible rootfs/VFS mount not proven")
+        if case.get("display_mode_verified") is not True:
+            errors.append(f"{case_id}: framebuffer/display mode was not verified in this production boot")
+        if not nonempty(case.get("display_mode")):
+            errors.append(f"{case_id}: missing selected framebuffer/display mode")
+        if not nonempty(case.get("display_mode_evidence")):
+            errors.append(f"{case_id}: missing raw framebuffer/display evidence")
         if case.get("rootfs_file_syscalls_verified") is not True:
             errors.append(f"{case_id}: process-visible rootfs OPEN/READ/CLOSE was not verified from ring 3")
         if not nonempty(case.get("rootfs_file_syscalls_evidence")):
@@ -67,6 +73,9 @@ def check_evidence(data: object) -> list[str]:
             errors.append(f"{case_id}: syscall PID and readiness PID do not match")
 
     requirements = (
+        ("display", ("status", "framebuffer_detected_verified", "highest_supported_mode_verified",
+                     "fallback_1024x768_verified", "fallback_640x480_verified",
+                     "aurora_compositor_handoff_verified", "selected_mode", "evidence"), "PASS"),
         ("aurora_handoff", ("status", "evidence"), "PASS"),
         ("installer_persistence", ("status", "write_verified", "cold_reboot_verified", "readback_verified", "evidence"), "PASS"),
         ("recovery_repair", ("status", "repair_verified", "postcondition_verified", "evidence"), "PASS"),
