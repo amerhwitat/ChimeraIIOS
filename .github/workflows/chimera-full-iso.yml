@@ -60,6 +60,11 @@ jobs:
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
 
+      - name: Test production closeout DAPS gate
+        run: |
+          python3 -m py_compile tools/production-closeout-daps.py
+          python3 -m unittest discover -s tools/tests -p "test_production_closeout_daps.py" -v
+
       - name: Test fail-closed userspace handoff evidence verifier and release gate
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
