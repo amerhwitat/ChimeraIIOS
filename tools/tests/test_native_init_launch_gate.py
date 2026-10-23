@@ -30,6 +30,11 @@ def main() -> int:
         return fail("native init must report the actual GETPID syscall result")
     if "USERSPACE READY:" in native_init:
         return fail("fail-closed bootstrap must not fabricate readiness")
+    if "vfs_selftest()" not in native_init or "NATIVE INIT VFS SELFTEST PASS" not in native_init:
+        return fail("native init must exercise the real VFS syscalls before reporting service-blocked status")
+    for syscall_id in ("call2(17,", "call3(9,", "call3(19,", "call3(8,", "call1(18,"):
+        if syscall_id not in native_init:
+            return fail(f"native VFS selftest missing syscall path: {syscall_id}")
 
     service_source = (ROOT / "kernel/core/service.cpp").read_text(encoding="utf-8")
     if 'chimera_service_set_state("chimera.storage",CHM_SVC_RUNNING)' in service_source:
