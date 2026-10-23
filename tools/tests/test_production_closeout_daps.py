@@ -163,6 +163,20 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("trace is missing required runtime marker 'USER INIT SYSCALL:'" in e for e in errors))
         self.assertTrue(any("raw_trace lacks a target-matched user-originated syscall" in e for e in errors))
 
+    def test_raw_trace_rejects_invalid_utf8(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_bytes(bytes((255, 254, 250)))
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("cannot read/decipher evidence artifact" in e for e in errors))
+        self.assertTrue(any("cannot read/decipher raw_trace evidence" in e for e in errors))
+
     def test_raw_trace_rejects_mismatched_target_or_pid(self):
         import tempfile
         from pathlib import Path
