@@ -867,8 +867,7 @@ extern "C" int koronos_address_space_vma_set_backing(void *opaque, uint64_t base
     return -5;
 }
 
-static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
-
+namespace {
 static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out) {
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         FrameBlock &b = space->mapped[i];
@@ -882,6 +881,7 @@ static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t 
         return &meta[index];
     }
     return nullptr;
+}
 }
 
 extern "C" int koronos_address_space_pin(void *opaque, uint64_t address, uint64_t length,
