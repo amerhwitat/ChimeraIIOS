@@ -29,6 +29,9 @@ int main(void) {
 
     CHECK(koronos_swap_init_block_extent(&device, 1u, 3u * KORONOS_SWAP_PAGE_SIZE) != 0);
     CHECK(koronos_swap_get_snapshot(&snapshot) == 0 && snapshot.initialized == 0u);
+    device.logical_block_size = 8192u;
+    CHECK(koronos_swap_init_block_extent(&device, KORONOS_SWAP_PAGE_SIZE, 3u * KORONOS_SWAP_PAGE_SIZE) != 0);
+    device.logical_block_size = 512u;
     CHECK(koronos_swap_init_block_extent(&device, KORONOS_SWAP_PAGE_SIZE, 3u * KORONOS_SWAP_PAGE_SIZE) == 0);
 
     uint8_t input[KORONOS_SWAP_PAGE_SIZE], output[KORONOS_SWAP_PAGE_SIZE];
