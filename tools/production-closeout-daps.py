@@ -67,9 +67,9 @@ def _check_trace_tokens(path_value: object, label: str, root: Path, required: tu
     if not path.is_relative_to(base) or not path.is_file():
         return  # _check_artifact reports the primary path failure.
     try:
-        content = path.read_text(encoding="utf-8", errors="replace")
-    except OSError as exc:
-        errors.append(f"{label}: cannot read evidence artifact: {exc}")
+        content = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        errors.append(f"{label}: cannot read/decipher evidence artifact: {exc}")
         return
     folded = content.casefold()
     for token in required:
@@ -89,8 +89,8 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
         if path.is_relative_to(base) and path.is_file():
             try:
                 content = path.read_text(encoding="utf-8", errors="replace")
-            except OSError as exc:
-                errors.append(f"{case_id}: cannot read raw_trace evidence: {exc}")
+            except (OSError, UnicodeError) as exc:
+                errors.append(f"{case_id}: cannot read/decipher raw_trace evidence: {exc}")
                 return
             entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
             component = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}[target]
