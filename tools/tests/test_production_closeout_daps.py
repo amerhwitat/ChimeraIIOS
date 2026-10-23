@@ -136,7 +136,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace.write_text("[KRN ] KORONOS READY\\nUSERSPACE READY: target=live init_pid=7\\n", encoding="utf-8")
             data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
             errors = GATE["check_evidence"](data, root)
-        self.assertTrue(any("raw_trace is missing required runtime marker 'USER INIT SYSCALL:'" in e for e in errors))
+        self.assertTrue(any("trace is missing required runtime marker 'USER INIT SYSCALL:'" in e for e in errors))
         self.assertTrue(any("raw_trace lacks a target-matched user-originated syscall" in e for e in errors))
 
     def test_raw_trace_rejects_mismatched_target_or_pid(self):
