@@ -36,7 +36,7 @@ extern "C" int koronos_swap_init(const koronos_swap_backend *backend) {
     lock();
     // Never replace/reset backend metadata while an operation is outside the
     // lock performing potentially blocking storage I/O.
-    if (g_active_ops != 0) { unlock(); return -3; }
+    if (g_active_ops != 0 || (g_ready && g_used != 0u)) { unlock(); return -3; }
     if (!backend || backend->abi != KORONOS_SWAP_ABI ||
         backend->page_size != KORONOS_SWAP_PAGE_SIZE || !backend->read || !backend->write ||
         backend->capacity_bytes < KORONOS_SWAP_PAGE_SIZE) {
