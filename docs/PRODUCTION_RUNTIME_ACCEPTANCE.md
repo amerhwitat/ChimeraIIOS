@@ -135,3 +135,10 @@ Release remains blocked pending launcher integration, rootfs publication, real s
 - Source audit still shows a deliberate fail-closed native init: it reports `NATIVE INIT BLOCKED` and exits 78. Installer target launch explicitly refuses launch while the storage-backed root namespace is missing. The three target ELF files being present and structurally valid is not equivalent to target services being operational.
 - The production closeout checker requires six target/firmware cases, matching nonzero syscall/readiness PID, rootfs file syscall evidence, Live/Recovery tmpfs mutation traces, display/Aurora, installer persistence, recovery repair, and SMP evidence. The checker does not generate any of that evidence; raw boot artifacts must be collected from real test runs.
 - Remaining root causes: production Live service/Aurora session not operationally proven; installer storage namespace/persistence path missing; Recovery repair action/postcondition not proven; AP startup and overlapping multi-CPU execution not proven. Keep release blocked until the unchanged production verifier and all independent runtime gates pass.
+
+
+## 2026-10-23 follow-up — DAPS CI coverage
+
+- Workflow commit `882caeba2a1a2cfa29c29207818dc1ece40061a2` adds a CI step to compile-check `tools/production-closeout-daps.py` and run `tools/tests/test_production_closeout_daps.py`. This closes a test-discovery gap: the DAPS verifier had regression tests in a separate directory, but the full ISO workflow did not explicitly execute them.
+- This verifies the verifier's rejection behavior (missing cases/artifacts, bad ISO digest, path traversal, candidate-smoke substitution), not the production runtime itself.
+- The latest DAPS/workflow commits do not yet have a confirmed fresh CI result in this review. The operational blockers remain unchanged: native init intentionally exits 78, Installer lacks a verified storage-backed root/persistence path, and Aurora, recovery repair, six production cases, and AP-backed concurrent SMP require real runtime evidence.
