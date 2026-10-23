@@ -94,6 +94,23 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("display: missing evidence object" in e for e in errors))
         self.assertTrue(any("missing raw framebuffer/display evidence" in e for e in errors))
 
+    def test_cli_artifact_validation_rejects_missing_files(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            errors = GATE["check_evidence"](valid_evidence(), Path(tmp))
+        self.assertTrue(any("production_iso: artifact file does not exist" in e for e in errors))
+        self.assertTrue(any("raw_trace: artifact file does not exist" in e for e in errors))
+
+    def test_artifact_path_traversal_is_rejected(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        data["cases"]["live-bios"]["raw_trace"] = "../outside.log"
+        with tempfile.TemporaryDirectory() as tmp:
+            errors = GATE["check_evidence"](data, Path(tmp))
+        self.assertTrue(any("artifact path escapes the evidence directory" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
