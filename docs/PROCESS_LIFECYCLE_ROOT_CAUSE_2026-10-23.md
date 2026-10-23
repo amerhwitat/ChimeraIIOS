@@ -42,3 +42,12 @@ Do not implement spawn as a wrapper around the current synchronous `koronos_arch
 ## Status
 
 This is a source-level root-cause finding and implementation contract, not a claim that the process lifecycle has already been implemented or that any production boot has passed. Keep release blocked until code, tests, and actual production runtime evidence agree.
+
+
+## Remediation delta — 2026-10-23
+
+The first post-fix workflow cycle passed the Koronos build/contracts job, portable job, and boot-artifact validation job at commit `98d522340eb8c51c96e6d5c9ec5733dbe670147e`. The failing DAPS test was a stale assertion: it expected a different diagnostic prefix than the validator emitted. The assertion was corrected without weakening the required `USER INIT SYSCALL:` and target-matched nonzero PID/readiness checks.
+
+A CI trigger gap was also fixed: `.github/workflows/chimera-iso.yml` now reruns on pushes to `tools/tests/**`, and `.github/workflows/build-all-editions.yml` now reruns when kernel contract tests change. The full Structured ISO run and six-edition matrix are in progress; no PASS is claimed until they complete.
+
+The process registry has monotonic fail-closed PID allocation and idempotent initialization, with regression coverage. The complete parent/child spawn/exec, scheduler-owned blocking/wakeup, process-bound syscall lifecycle, operational target supervision, installer storage persistence, production ring-3 VFS traces, six-case production ISO acceptance, Aurora/recovery postconditions, and AP-backed SMP remain unresolved. Release stays blocked until those independent gates have production trace evidence.
