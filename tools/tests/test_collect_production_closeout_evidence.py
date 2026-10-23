@@ -51,6 +51,19 @@ class CollectorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "ISO must reside beside"):
                 MODULE.collect(iso, root / "evidence", root / "traces")
 
+    def test_collected_candidate_report_is_rejected_by_production_daps(self):
+        import runpy
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            iso = root / "chimera-ii-os.iso"
+            iso.write_bytes(b"test production iso bytes")
+            data = MODULE.collect(iso, root, root / "no-candidate-traces")
+            daps = runpy.run_path(str(ROOT / "tools" / "production-closeout-daps.py"), run_name="daps_test_module")
+            errors = daps["check_evidence"](data)
+        self.assertTrue(any("status must be PASS, got 'NOT RUN'" in error for error in errors))
+        self.assertTrue(any("candidate smoke evidence cannot substitute" in error for error in errors))
+        self.assertTrue(any("smp: status must be PASS" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
