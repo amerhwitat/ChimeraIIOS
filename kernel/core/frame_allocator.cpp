@@ -202,3 +202,52 @@ extern "C" uint64_t koronos_frame_free_count(void) {
     unlock();
     return result;
 }
+
+extern "C" uint64_t koronos_vm_frame_alloc_contiguous(uint32_t count) {
+    const uint64_t base = koronos_frame_alloc_contiguous(count);
+    if (!base) return 0;
+    const uint32_t first = static_cast<uint32_t>(base / KORONOS_FRAME_SIZE);
+    vm_lock();
+    for (uint32_t i = 0; i < count; ++i) {
+        if (vm_frame_refs[first + i] != 0u) { vm_unlock(); (void)koronos_frame_free_contiguous(base, count); return 0; }
+    }
+    for (uint32_t i = 0; i < count; ++i) vm_frame_refs[first + i] = 1u;
+    vm_unlock();
+    return base;
+}
+extern "C" uint64_t koronos_vm_frame_alloc(void) { return koronos_vm_frame_alloc_contiguous(1u); }
+extern "C" int koronos_vm_frame_retain(uint64_t address) {
+    uint32_t index = 0;
+    if (!vm_frame_index(address, &index)) return -1;
+    vm_lock();
+    if (vm_frame_refs[index] == 0u || vm_frame_refs[index] == UINT16_MAX) { vm_unlock(); return -2; }
+    ++vm_frame_refs[index]; vm_unlock(); return 0;
+}
+extern "C" int koronos_vm_frame_release(uint64_t address) {
+    uint32_t index = 0;
+    if (!vm_frame_index(address, &index)) return -1;
+    vm_lock();
+    if (vm_frame_refs[index] == 0u) { vm_unlock(); return -2; }
+    --vm_frame_refs[index]; const bool reclaim = vm_frame_refs[index] == 0u; vm_unlock();
+    if (!reclaim || koronos_frame_free(address) == 0) return 0;
+    vm_lock(); if (vm_frame_refs[index] == 0u) vm_frame_refs[index] = 1u; vm_unlock(); return -3;
+}
+extern "C" int koronos_vm_frame_release_contiguous(uint64_t address, uint32_t count) {
+    if (!count || (address & (KORONOS_FRAME_SIZE - 1u)) != 0u || address >= KORONOS_FRAME_PHYS_LIMIT ||
+        static_cast<uint64_t>(count) > (KORONOS_FRAME_PHYS_LIMIT - address) / KORONOS_FRAME_SIZE) return -1;
+    const uint32_t first = static_cast<uint32_t>(address / KORONOS_FRAME_SIZE);
+    vm_lock();
+    for (uint32_t i = 0; i < count; ++i) { if (first + i < FIRST_ALLOCATABLE_PAGE || vm_frame_refs[first + i] == 0u) { vm_unlock(); return -2; } }
+    for (uint32_t i = 0; i < count; ++i) --vm_frame_refs[first + i];
+    vm_unlock();
+    int result = 0;
+    for (uint32_t i = 0; i < count; ++i) {
+        vm_lock(); const bool reclaim = vm_frame_refs[first + i] == 0u; vm_unlock();
+        if (reclaim && koronos_frame_free(address + static_cast<uint64_t>(i) * KORONOS_FRAME_SIZE) != 0) result = -3;
+    }
+    return result;
+}
+extern "C" uint32_t koronos_vm_frame_refcount(uint64_t address) {
+    uint32_t index = 0; if (!vm_frame_index(address, &index)) return 0;
+    vm_lock(); const uint32_t refs = vm_frame_refs[index]; vm_unlock(); return refs;
+}
