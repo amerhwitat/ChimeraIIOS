@@ -163,8 +163,7 @@ extern "C" int chimera_service_resolve(const chimera_service_manifest* s, uint32
 }
 extern "C" int chimera_service_set_state(const char* id, uint32_t state) {
     if (!nonempty(id) || state > CHM_SVC_RECOVERING) return -1;
-    set_state_internal(id, state);
-    return 0;
+    return set_state_internal(id, state) ? 0 : -2;
 }
 extern "C" uint32_t chimera_service_get_state(const char* id) {
     for (uint32_t i = 0; i < g_state_count; ++i)
