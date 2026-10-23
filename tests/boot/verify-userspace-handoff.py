@@ -15,8 +15,17 @@ ENTRY_RE = re.compile(
     r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 READY_RE = re.compile(
-    r"USERSPACE READY: (?:target=(?P<target_canonical>live|installer|recovery) init_pid=|(?P<target_runtime>live|installer|recovery) init pid=)(?P<pid>[1-9][0-9]*)\b"
+    r"USERSPACE TARGET READY: (?P<target_production>live|installer|recovery) "
+    r"component=(?P<component>aurora-session|install-executor|recovery-runtime) "
+    r"init pid=(?P<pid_production>[1-9][0-9]*)\b"
+    r"|USERSPACE READY: (?:target=(?P<target_canonical>live|installer|recovery) init_pid="
+    r"|(?P<target_runtime>live|installer|recovery) init pid=)(?P<pid>[1-9][0-9]*)\b"
 )
+EXPECTED_COMPONENT = {
+    "live": "aurora-session",
+    "installer": "install-executor",
+    "recovery": "recovery-runtime",
+}
 
 
 def main() -> int:
@@ -45,8 +54,13 @@ def main() -> int:
         if entry.group(1) != target or kernel_at >= entry.start():
             continue
         for marker in ready:
-            if ((marker.group("target_canonical") or marker.group("target_runtime")) == target
-                    and marker.group("pid") == entry.group(2)
+            marker_target = (marker.group("target_production") or marker.group("target_canonical")
+                            or marker.group("target_runtime"))
+            marker_pid = marker.group("pid_production") or marker.group("pid")
+            component = marker.group("component")
+            if (marker_target == target
+                    and (component is None or component == EXPECTED_COMPONENT[target])
+                    and marker_pid == entry.group(2)
                     and entry.start() < marker.start()):
                 print(f"PASS: target={target} init entered user mode and reported readiness with a consistent PID")
                 return 0
