@@ -62,6 +62,11 @@ def valid_evidence():
             "overlapping_execution_verified": True, "cpu_ids": [0, 1],
             "evidence": "traces/smp-overlap.log",
         },
+        "vm_swap": {
+            "status": "PASS", "page_fault_handling_verified": True,
+            "swap_roundtrip_verified": True, "io_failure_rollback_verified": True,
+            "corruption_rejected_verified": True, "evidence": "traces/vm-swap.log",
+        },
         "candidate_smoke_substituted": False,
     }
 
