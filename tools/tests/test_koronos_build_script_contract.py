@@ -39,7 +39,7 @@ if "-DKORONOS_SYSTEM_BLOCK_SIZE=$SYSTEM_BLOCK_SIZE" not in source:
 if "power of two between 512 and 65536 bytes" not in source:
     print("FAIL: system block size bounds are not validated", file=sys.stderr)
     raise SystemExit(1)
-if "--system-block-size" not in source or "SYSTEM_BLOCK_SIZE=\"\${1#*=}\"" not in source:
+if "--system-block-size" not in source or 'SYSTEM_BLOCK_SIZE="${1#*=}"' not in source:
     print("FAIL: system block size must be configurable by CLI", file=sys.stderr)
     raise SystemExit(1)
 
