@@ -253,6 +253,11 @@ extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
     if (!pid) return -9;
     return chimera_vfs_close(pid, static_cast<int64_t>(fd));
 }
+extern "C" int64_t koronos_target_fs_seek(uint64_t fd, uint64_t offset, uint64_t whence) {
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid || offset > INT64_MAX || whence > 2u) return -22;
+    return chimera_vfs_seek(pid, static_cast<int64_t>(fd), static_cast<int64_t>(offset), static_cast<uint32_t>(whence));
+}
 static uint32_t validate_active_user_context(uint64_t user_rip) {
     if (active_target == TARGET_NONE || !active_pid || !active_root) return 0u;
     if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) return 0u;
