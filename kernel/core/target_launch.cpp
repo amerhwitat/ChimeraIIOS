@@ -206,7 +206,7 @@ extern "C" uint32_t koronos_target_active_pid(void) {
    dereference. Writes to regular files remain unsupported (EROFS) until RAMFS
    has transactional mutation semantics. */
 extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
-    if (flags != 0u) return -30; /* O_RDONLY until a writable filesystem is mounted */
+    if (flags > UINT32_MAX) return -22;
     const uint32_t pid = koronos_target_active_pid();
     if (!pid || !active_root || !user_path) return -14;
     char path[CHIMERA_VFS_MAX_PATH + 1u];
@@ -221,7 +221,7 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
     }
     if (length > CHIMERA_VFS_MAX_PATH || !path[0]) return -22;
     if (!__atomic_load_n(&published_rootfs, __ATOMIC_ACQUIRE)) return -2;
-    return chimera_vfs_open(pid, path, CHIMERA_VFS_O_RDONLY, 0444u);
+    return chimera_vfs_open(pid, path, static_cast<uint32_t>(flags), 0644u);
 }
 extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uint64_t count) {
     const uint32_t pid = koronos_target_active_pid();
@@ -231,6 +231,16 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
     if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0)
         return -14;
     return chimera_vfs_read(pid, static_cast<int64_t>(fd), reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count);
+}
+extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count) {
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid || !active_root) return -9;
+    if (!count) return 0;
+    if (count > 4096u) return -22;
+    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0)
+        return -14;
+    return chimera_vfs_write(pid, static_cast<int64_t>(fd),
+        reinterpret_cast<const void *>(static_cast<uintptr_t>(user_buffer)), count);
 }
 extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
     const uint32_t pid = koronos_target_active_pid();
@@ -458,7 +468,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
             return -15;
         }
         __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
-        koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file syscalls enabled");
+        koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file mutation syscalls enabled");
     }
     if (payload_count == 1u && target == TARGET_INSTALLER) {
         koronos_target_log("[RUN ] ERROR: installer storage-backed root namespace is not mounted; refusing false readiness");
