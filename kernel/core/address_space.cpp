@@ -22,7 +22,7 @@ constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
 
 
 
-enum PageState : uint8_t { PAGE_RESIDENT = 1, PAGE_SWAPPED = 2, PAGE_EVICTING = 3, PAGE_LOADING = 4 };
+enum PageState : uint8_t { PAGE_NONRESIDENT = 0, PAGE_RESIDENT = 1, PAGE_SWAPPED = 2, PAGE_EVICTING = 3, PAGE_LOADING = 4 };
 constexpr uint8_t PAGE_META_DIRTY = 0x40u;
 constexpr uint8_t PAGE_META_REFERENCED = 0x80u;
 struct PageMeta { uint64_t physical; uint16_t pins; uint8_t state; uint8_t flags; uint32_t swap_slot; };
@@ -607,24 +607,28 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
         uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
         PageMeta *meta = find_page_meta(space, base + i * PAGE_SIZE, nullptr);
         if (!pte || !(*pte & ENTRY_PRESENT) || !meta || meta->pins != 0u ||
-            ((*pte & ENTRY_ADDRESS_MASK) != block->physical + i * PAGE_SIZE)) {
+            ((*pte & ENTRY_ADDRESS_MASK) != meta->physical)) {
             unlock_backend(); return -5;
         }
     }
     const uint64_t root = space->root_physical;
     const uint32_t pages = block->pages;
-    const uint64_t physical = block->physical;
     const uint64_t metadata_physical = block->metadata_physical;
     const uint32_t metadata_pages = block->metadata_pages;
     for (uint64_t i = 0; i < pages; ++i) *find_pte(space, base + i * PAGE_SIZE) = 0;
     // The callback is required to be synchronous and cannot report partial
     // completion: frames are not returned to the allocator before shootdown.
     tlb_shootdown(root, base, length, tlb_context);
-    if (koronos_vm_frame_release_contiguous(physical, pages) != 0) {
-        // A failed release may have reclaimed a prefix. Never reinstall PTEs
-        // to possibly freed frames; leave the range inaccessible and fail closed.
-        tlb_shootdown(root, base, length, tlb_context);
-        unlock_backend(); return -6;
+    auto *page_meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(metadata_physical));
+    for (uint32_t i = 0; i < pages; ++i) {
+        if (koronos_vm_frame_release(page_meta[i].physical) != 0) {
+            // Never reinstall PTEs to possibly reclaimed frames. The unmapped
+            // range remains inaccessible and teardown is blocked for diagnosis.
+            tlb_shootdown(root, base, length, tlb_context);
+            unlock_backend(); return -6;
+        }
+        page_meta[i].physical = 0;
+        page_meta[i].state = PAGE_NONRESIDENT;
     }
     if (metadata_physical && metadata_pages)
         (void)koronos_vm_frame_release_contiguous(metadata_physical, metadata_pages);
