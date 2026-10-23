@@ -35,7 +35,7 @@ HOST_CXX="${HOST_CXX:-g++}"
 "$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/initramfs_cpio.cpp" "$ROOT/kernel/core/gzip.cpp" "$ROOT/kernel/core/initramfs_ingest.cpp" "$ROOT/kernel/tests/initramfs_ingest_test.cpp" -o "$BUILD/initramfs-ingest-test"
 "$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/initramfs_cpio.cpp" "$ROOT/kernel/core/ramfs.cpp" "$ROOT/kernel/tests/ramfs_test.cpp" -o "$BUILD/ramfs-test"
 "$BUILD/ramfs-test"
-"$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/tests/vfs_test.cpp" -o "$BUILD/vfs-test"
+"$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/block_device.cpp" "$ROOT/kernel/core/iso9660.cpp" "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/tests/block_device_iso9660_test.cpp" -o "$BUILD/block-device-iso9660-test"\n"$BUILD/block-device-iso9660-test"\n"$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/tests/vfs_test.cpp" -o "$BUILD/vfs-test"
 "$BUILD/vfs-test"
 "$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/core/tmpfs.cpp" "$ROOT/kernel/tests/tmpfs_test.cpp" -o "$BUILD/tmpfs-test"
 "$BUILD/tmpfs-test"
@@ -45,7 +45,7 @@ CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator address_space initramfs_cpio gzip initramfs_ingest ramfs vfs tmpfs target_launch)
+sources=(block_device iso9660 koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator address_space initramfs_cpio gzip initramfs_ingest ramfs vfs tmpfs target_launch)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
