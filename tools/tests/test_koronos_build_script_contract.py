@@ -29,4 +29,14 @@ if "sources=(block_device iso9660 " not in source:
     print("FAIL: block-device and ISO9660 objects are not part of the kernel build", file=sys.stderr)
     raise SystemExit(1)
 
+if 'SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"' not in source:
+    print("FAIL: system block size must default to 4096 and allow user configuration", file=sys.stderr)
+    raise SystemExit(1)
+if "-DKORONOS_SYSTEM_BLOCK_SIZE=$SYSTEM_BLOCK_SIZE" not in source:
+    print("FAIL: configured system block size is not passed to the kernel compiler", file=sys.stderr)
+    raise SystemExit(1)
+if "power of two between 512 and 65536 bytes" not in source:
+    print("FAIL: system block size bounds are not validated", file=sys.stderr)
+    raise SystemExit(1)
+
 print("koronos_build_script_contract: PASS")
