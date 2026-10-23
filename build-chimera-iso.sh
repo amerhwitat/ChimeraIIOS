@@ -9,7 +9,8 @@ Usage:
   build-chimera-iso.sh [options] [arguments]
 
 Options:
-  -h, --help    Show this help and exit successfully.
+  -h, --help                    Show this help and exit successfully.
+  --system-block-size BYTES     Set Koronos system block size (default 4096; powers of two 512..65536).
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
@@ -217,10 +218,25 @@ while [[ $# -gt 0 ]]; do
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
+    --system-block-size) [[ -n "${2:-}" ]] || { log_error '--system-block-size requires a byte count'; exit 2; }; export KORONOS_SYSTEM_BLOCK_SIZE="$2"; shift 2;;
+    --system-block-size=*) export KORONOS_SYSTEM_BLOCK_SIZE="${1#*=}"; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+KORONOS_SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"
+if [[ ! "$KORONOS_SYSTEM_BLOCK_SIZE" =~ ^[0-9]+$ ]]; then
+  log_error 'System block size must be an integer power of two from 512 through 65536.'
+  exit 2
+fi
+KORONOS_SYSTEM_BLOCK_SIZE=$((10#$KORONOS_SYSTEM_BLOCK_SIZE))
+if (( KORONOS_SYSTEM_BLOCK_SIZE < 512 || KORONOS_SYSTEM_BLOCK_SIZE > 65536 ||
+      (KORONOS_SYSTEM_BLOCK_SIZE & (KORONOS_SYSTEM_BLOCK_SIZE - 1)) != 0 )); then
+  log_error 'System block size must be a power of two from 512 through 65536.'
+  exit 2
+fi
+export KORONOS_SYSTEM_BLOCK_SIZE
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
