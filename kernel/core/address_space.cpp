@@ -103,13 +103,13 @@ static void destroy_locked(AddressSpace *space) {
     }
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         if (space->mapped[i].physical && space->mapped[i].pages)
-            (void)koronos_frame_free_contiguous(space->mapped[i].physical, space->mapped[i].pages);
+            (void)koronos_vm_frame_release_contiguous(space->mapped[i].physical, space->mapped[i].pages);
         if (space->mapped[i].metadata_physical && space->mapped[i].metadata_pages)
-            (void)koronos_frame_free_contiguous(space->mapped[i].metadata_physical,
+            (void)koronos_vm_frame_release_contiguous(space->mapped[i].metadata_physical,
                                                 space->mapped[i].metadata_pages);
     }
     for (uint32_t i = space->table_count; i > 0; --i)
-        (void)koronos_frame_free(space->table_frames[i - 1]);
+        (void)koronos_vm_frame_release(space->table_frames[i - 1]);
     space->magic = 0;
     space->active = 0;
     space->root_physical = 0;
@@ -304,7 +304,7 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     const uint64_t metadata_physical = koronos_vm_frame_alloc_contiguous(
         static_cast<uint32_t>(metadata_pages64));
     if (!metadata_physical) {
-        (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        (void)koronos_vm_frame_release_contiguous(physical, static_cast<uint32_t>(pages64));
         unlock_backend(); return -9;
     }
     auto *page_meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(metadata_physical));
@@ -333,7 +333,7 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
             uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
             if (pte) *pte = 0;
         }
-        (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        (void)koronos_vm_frame_release_contiguous(physical, static_cast<uint32_t>(pages64));
         (void)koronos_vm_frame_release_contiguous(metadata_physical, static_cast<uint32_t>(metadata_pages64));
         unlock_backend();
         return -7;
@@ -345,6 +345,17 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     block.pages = static_cast<uint32_t>(pages64);
     block.metadata_pages = static_cast<uint32_t>(metadata_pages64);
     block.elf_flags = elf_flags;
+    koronos_vma_descriptor &vma = space->vmas[space->vma_count++];
+    vma.abi = KORONOS_VMA_ABI;
+    vma.backing_kind = KORONOS_VMA_ANONYMOUS;
+    vma.elf_flags = elf_flags;
+    vma.residency = KORONOS_VMA_RESIDENT;
+    vma.virtual_base = virtual_base;
+    vma.length = size;
+    vma.backing_object = 0;
+    vma.backing_offset = 0;
+    vma.page_count = pages64;
+    vma.resident_pages = pages64;
     space->user_pages += pages64;
     *kernel_alias = reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
     unlock_backend();
@@ -540,7 +551,7 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
     // The callback is required to be synchronous and cannot report partial
     // completion: frames are not returned to the allocator before shootdown.
     tlb_shootdown(root, base, length, tlb_context);
-    if (koronos_frame_free_contiguous(physical, pages) != 0) {
+    if (koronos_vm_frame_release_contiguous(physical, pages) != 0) {
         // Restore the mapping if allocator reclamation fails; keep ownership.
         for (uint64_t i = 0; i < pages; ++i) {
             uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
@@ -552,7 +563,7 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
         unlock_backend(); return -6;
     }
     if (metadata_physical && metadata_pages)
-        (void)koronos_frame_free_contiguous(metadata_physical, metadata_pages);
+        (void)koronos_vm_frame_release_contiguous(metadata_physical, metadata_pages);
     space->user_pages -= pages;
     for (uint32_t i = index + 1; i < space->mapped_count; ++i) space->mapped[i - 1] = space->mapped[i];
     --space->mapped_count;
