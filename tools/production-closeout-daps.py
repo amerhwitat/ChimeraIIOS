@@ -88,7 +88,7 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
         path = (base / rel).resolve() if not rel.is_absolute() else base
         if path.is_relative_to(base) and path.is_file():
             try:
-                content = path.read_text(encoding="utf-8", errors="replace")
+                content = path.read_text(encoding="utf-8")
             except (OSError, UnicodeError) as exc:
                 errors.append(f"{case_id}: cannot read/decipher raw_trace evidence: {exc}")
                 return
