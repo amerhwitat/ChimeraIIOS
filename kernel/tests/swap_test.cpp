@@ -5,12 +5,17 @@
 
 static uint8_t disk[KORONOS_SWAP_MAX_SLOTS * KORONOS_SWAP_PAGE_SIZE];
 static int fail_read = 0, fail_write = 0;
+static int callback_lock_probe() {
+    // Backend callbacks must not run while the swap metadata spinlock is held.
+    koronos_swap_snapshot snapshot{};
+    return koronos_swap_get_snapshot(&snapshot);
+}
 static int rd(void *, uint64_t off, void *buf, uint32_t len) {
-    if (fail_read || off > sizeof(disk) || len > sizeof(disk) - off) return -1;
+    if (callback_lock_probe() != 0 || fail_read || off > sizeof(disk) || len > sizeof(disk) - off) return -1;
     memcpy(buf, disk + off, len); return 0;
 }
 static int wr(void *, uint64_t off, const void *buf, uint32_t len) {
-    if (fail_write || off > sizeof(disk) || len > sizeof(disk) - off) return -1;
+    if (callback_lock_probe() != 0 || fail_write || off > sizeof(disk) || len > sizeof(disk) - off) return -1;
     memcpy(disk + off, buf, len); return 0;
 }
 #define CHECK(x) do { if (!(x)) { fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #x); return 1; } } while (0)
