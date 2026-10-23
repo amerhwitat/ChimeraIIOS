@@ -281,3 +281,5 @@ koronos_syscall_stack_top:
 section .rodata
 align 4
 koronos_default_mxcsr: dd 0x1F80
+
+section .note.GNU-stack noalloc noexec nowrite progbits
