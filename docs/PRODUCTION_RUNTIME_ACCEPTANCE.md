@@ -118,8 +118,8 @@ Root cause remains the same lifecycle seam: newc is validated and extracted into
 Exact-source review refines the cross-repository diagnosis:
 
 - In OctavianOS's vendored `target_launch.cpp`, the production path checks target/module bounds and then fails closed at `-15`; it does not invoke the CPIO validator, RAMFS extractor, or publisher. Its isolated bounded-ingestion CI pass does not establish launcher integration.
-- In ChimeraIIOS `kernel/core/target_launch.cpp`, the path validates/decompresses the archive and calls `stage_rootfs()` to create an unpublished RAMFS tree, but the tree is not mounted/published into the process-visible VFS and the same guard rejects production launch.
-- Both repos' VFS interface remains a separate fixed-capacity store (64 nodes, 128-byte paths, 4096-byte files) with no RAMFS root-mount/atomic-swap contract. The native syscall layer still lacks process-owned file descriptors and safe filesystem operations against a mounted root.
+- In the current ChimeraIIOS `kernel/core/target_launch.cpp`, the Live/Recovery path validates/decompresses the archive, stages RAMFS, mounts `/` read-only and `/tmp` writable, and publishes the root pointer only after both mounts succeed. The remaining proof is runtime: the production ISO must show successful mounts and process-originated VFS operations. Installer still fails closed until its storage-backed root namespace exists.
+- The current source has a RAMFS root publication path and process-bound read-only OPEN/READ/CLOSE syscalls, plus bounded tmpfs operations for the native init self-test. Source integration and tests do not prove production runtime success. Installer persistence remains a separate disk-backed lifecycle requirement.
 
 The closure work is therefore ordered, not interchangeable: first wire OctavianOS production launcher to validated RAMFS staging (Chimera already has staging); then add atomic root publication with rollback and ownership tests; then process-bound descriptors/syscalls and user-buffer validation; then real target services. Keep the fail-closed guard until those invariants are established.
 
