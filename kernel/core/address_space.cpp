@@ -290,6 +290,75 @@ static uint64_t *find_pte(AddressSpace *space, uint64_t virtual_address) {
     return pt ? &pt[pt_i] : nullptr;
 }
 
+static bool table_empty(uint64_t physical) {
+    uint64_t *table = table_ptr(physical);
+    if (!table) return false;
+    for (uint32_t i = 0; i < 512u; ++i) if (table[i] != 0u) return false;
+    return true;
+}
+
+static bool release_tracked_table(AddressSpace *space, uint64_t physical) {
+    if (!space || !physical || physical == space->root_physical ||
+        koronos_vm_frame_refcount(physical) != 1u) return false;
+    uint32_t index = space->table_count;
+    for (uint32_t i = 0; i < space->table_count; ++i) {
+        if (space->table_frames[i] == physical) { index = i; break; }
+    }
+    if (index == space->table_count || koronos_vm_frame_release(physical) != 0) return false;
+    for (uint32_t i = index + 1u; i < space->table_count; ++i)
+        space->table_frames[i - 1u] = space->table_frames[i];
+    --space->table_count;
+    return true;
+}
+
+/* Caller holds backend_lock and has already cleared the leaf PTE and completed
+   a synchronous shootdown. Empty user-owned tables are detached, invalidated,
+   then reclaimed. Bootstrap identity-map tables remain populated and owned. */
+static void prune_empty_user_tables(AddressSpace *space, uint64_t va) {
+    if (!space_valid(space) || !tlb_shootdown) return;
+    const uint32_t pml4_i = static_cast<uint32_t>((va >> 39) & 0x1FFu);
+    const uint32_t pdpt_i = static_cast<uint32_t>((va >> 30) & 0x1FFu);
+    const uint32_t pd_i = static_cast<uint32_t>((va >> 21) & 0x1FFu);
+    uint64_t *root = table_ptr(space->root_physical);
+    if (!root || !(root[pml4_i] & ENTRY_PRESENT) || (root[pml4_i] & ENTRY_LARGE)) return;
+    uint64_t *pdpt = table_ptr(root[pml4_i] & ENTRY_ADDRESS_MASK);
+    if (!pdpt || !(pdpt[pdpt_i] & ENTRY_PRESENT) || (pdpt[pdpt_i] & ENTRY_LARGE)) return;
+    const uint64_t pd_phys = pdpt[pdpt_i] & ENTRY_ADDRESS_MASK;
+    uint64_t *pd = table_ptr(pd_phys);
+    if (!pd || !(pd[pd_i] & ENTRY_PRESENT) || (pd[pd_i] & ENTRY_LARGE)) return;
+    const uint64_t pt_phys = pd[pd_i] & ENTRY_ADDRESS_MASK;
+    if (table_empty(pt_phys)) {
+        const uint64_t saved = pd[pd_i];
+        pd[pd_i] = 0;
+        tlb_shootdown(space->root_physical, va, PAGE_SIZE, tlb_context);
+        if (!release_tracked_table(space, pt_phys)) {
+            pd[pd_i] = saved;
+            tlb_shootdown(space->root_physical, va, PAGE_SIZE, tlb_context);
+            return;
+        }
+    }
+    if (table_empty(pd_phys)) {
+        const uint64_t saved = pdpt[pdpt_i];
+        pdpt[pdpt_i] = 0;
+        tlb_shootdown(space->root_physical, va, PAGE_SIZE, tlb_context);
+        if (!release_tracked_table(space, pd_phys)) {
+            pdpt[pdpt_i] = saved;
+            tlb_shootdown(space->root_physical, va, PAGE_SIZE, tlb_context);
+            return;
+        }
+    }
+    const uint64_t pdpt_phys = root[pml4_i] & ENTRY_ADDRESS_MASK;
+    if (table_empty(pdpt_phys)) {
+        const uint64_t saved = root[pml4_i];
+        root[pml4_i] = 0;
+        tlb_shootdown(space->root_physical, va, PAGE_SIZE, tlb_context);
+        if (!release_tracked_table(space, pdpt_phys)) {
+            root[pml4_i] = saved;
+            tlb_shootdown(space->root_physical, va, PAGE_SIZE, tlb_context);
+        }
+    }
+}
+
 static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
 
 static FrameBlock *find_block(AddressSpace *space, uint64_t base, uint64_t length) {
@@ -652,6 +721,8 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
     // The callback is required to be synchronous and cannot report partial
     // completion: frames are not returned to the allocator before shootdown.
     tlb_shootdown(root, base, length, tlb_context);
+    for (uint64_t i = 0; i < pages; ++i)
+        prune_empty_user_tables(space, base + i * PAGE_SIZE);
     auto *page_meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(metadata_physical));
     for (uint32_t i = 0; i < pages; ++i) {
         if (koronos_vm_frame_release(page_meta[i].physical) != 0) {
