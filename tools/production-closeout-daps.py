@@ -285,11 +285,12 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                 trace_path = (artifact_root.resolve() / Path(trace_value)).resolve()
                 if trace_path.is_relative_to(artifact_root.resolve()) and trace_path.is_file():
                     try:
-                        trace_text = trace_path.read_text(encoding="utf-8", errors="replace").casefold()
-                    except OSError:
+                        trace_text = trace_path.read_text(encoding="utf-8").casefold()
+                    except (OSError, UnicodeError) as exc:
+                        errors.append(f"vm_swap: cannot read/decipher evidence trace: {exc}")
                         trace_text = ""
                     expected_size_marker = f"system block size (bytes): {parsed_block_size}"
-                    if expected_size_marker not in trace_text:
+                    if trace_text and expected_size_marker not in trace_text:
                         errors.append("vm_swap: evidence trace does not report the configured system block size")
 
     if data.get("candidate_smoke_substituted") is True:
