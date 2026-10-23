@@ -63,7 +63,10 @@ def valid_evidence():
             "evidence": "traces/smp-overlap.log",
         },
         "vm_swap": {
-            "status": "PASS", "address_space_map_unmap_protect_query_verified": True,
+            "status": "PASS", "production_iso_sha256": "a" * 64,
+            "case_ids": ["live-bios", "live-uefi", "installer-bios", "installer-uefi",
+                         "recovery-bios", "recovery-uefi"],
+            "address_space_map_unmap_protect_query_verified": True,
             "page_pinning_verified": True, "page_fault_handling_verified": True,
             "swap_roundtrip_verified": True, "swapout_failure_preserves_resident_verified": True,
             "swapin_rollback_verified": True, "io_failure_rollback_verified": True,
