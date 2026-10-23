@@ -230,6 +230,17 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             errors = GATE["check_evidence"](data, root)
         self.assertTrue(any("raw_trace lacks a target-matched userspace readiness marker" in e for e in errors))
 
+    def test_vm_swap_requires_tlb_pinning_and_rollback_evidence(self):
+        data = valid_evidence()
+        for field in ("page_pinning_verified", "swapout_failure_preserves_resident_verified",
+                      "swapin_rollback_verified", "tlb_shootdown_verified",
+                      "storage_discovery_verified", "teardown_reclaims_frames_slots_verified"):
+            data["vm_swap"].pop(field)
+        errors = check_evidence(data)
+        self.assertTrue(any("vm_swap: page_pinning_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: tlb_shootdown_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: swapin_rollback_verified must be true" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
