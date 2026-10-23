@@ -197,8 +197,14 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         ("installer_persistence", ("status", "write_verified", "cold_reboot_verified", "readback_verified", "evidence"), "PASS"),
         ("recovery_repair", ("status", "repair_verified", "postcondition_verified", "evidence"), "PASS"),
         ("smp", ("status", "ap_startup_verified", "overlapping_execution_verified", "evidence"), "PASS"),
-        ("vm_swap", ("status", "page_fault_handling_verified", "swap_roundtrip_verified",
-                     "io_failure_rollback_verified", "corruption_rejected_verified", "evidence"), "PASS"),
+        ("vm_swap", ("status", "address_space_map_unmap_protect_query_verified",
+                     "page_pinning_verified", "page_fault_handling_verified",
+                     "swap_roundtrip_verified", "swapout_failure_preserves_resident_verified",
+                     "swapin_rollback_verified", "io_failure_rollback_verified",
+                     "corruption_rejected_verified", "tlb_shootdown_verified",
+                     "storage_discovery_verified", "swap_exhaustion_verified",
+                     "teardown_reclaims_frames_slots_verified", "repeated_swap_cycles_verified",
+                     "evidence"), "PASS"),
     )
     for name, fields, expected_status in requirements:
         section = data.get(name)
@@ -224,7 +230,11 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                     "installer_persistence": ("WRITE", "COLD REBOOT", "READBACK"),
                     "recovery_repair": ("REPAIR", "POSTCONDITION"),
                     "smp": ("AP STARTUP", "OVERLAPPING EXECUTION"),
-                    "vm_swap": ("PAGE FAULT", "SWAP STORE", "SWAP LOAD", "IO FAILURE", "CHECKSUM FAILURE"),
+                    "vm_swap": ("MAP", "UNMAP", "PROTECT", "QUERY", "PAGE PIN", "PAGE UNPIN",
+                                "PAGE FAULT", "SWAP STORE", "SWAP LOAD", "SWAP OUT ROLLBACK",
+                                "SWAP IN ROLLBACK", "IO FAILURE", "CHECKSUM FAILURE",
+                                "TLB SHOOTDOWN", "SWAP DEVICE DISCOVERED", "SWAP EXHAUSTED",
+                                "ADDRESS SPACE TEARDOWN", "REPEATED SWAP CYCLE"),
                 }
                 _check_trace_tokens(value, f"{name}: evidence", artifact_root,
                                     required_markers.get(name, ()), errors)
