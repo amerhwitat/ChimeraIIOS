@@ -16,7 +16,11 @@ static int read_file(void *ctx,const char *path,uint64_t off,void *dst,uint64_t 
 }
 static int write_file(void *ctx,const char *path,uint64_t off,const void *src,uint64_t len,uint64_t *out){
     auto *fs=static_cast<TestFs*>(ctx);if(strcmp(path,"/note")||!fs->exists)return -2;
-    if(off>sizeof(fs->data)||len>sizeof(fs->data)-off)return -28;memcpy(fs->data+off,src,(size_t)len);if(off+len>fs->size)fs->size=off+len;*out=len;return 0;
+    if (off > sizeof(fs->data) || len > sizeof(fs->data) - off) return -28;
+    memcpy(fs->data + off, src, (size_t)len);
+    if (off + len > fs->size) fs->size = off + len;
+    *out = len;
+    return 0;
 }
 static int create_file(void *ctx,const char *path,uint32_t type,uint32_t mode){
     (void)mode;auto *fs=static_cast<TestFs*>(ctx);if(strcmp(path,"/note")||fs->exists||type!=CHIMERA_VFS_REGULAR)return -17;fs->exists=true;fs->size=0;return 0;
