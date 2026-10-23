@@ -212,3 +212,27 @@ Required implementation is a process-owned exec/spawn + wait/exit/reap contract 
 - This is a verifier integrity fix and a driver-discovery correctness fix, not a production storage implementation. Functional virtio/block I/O and swap registration, AP startup and real SMP, pager wait/wake, acknowledged all-CPU TLB shootdown, complete services, Aurora, installer persistence, recovery repair, and all six actual production ISO/firmware cases remain release blockers.
 
 **Decision remains BLOCKED.** Do not merge or publish a production ISO until exact-head CI passes and genuine, hash-bound runtime evidence satisfies the unchanged production closeout gate.
+
+
+## 2026-10-23 — Check/Plan/Do/Act production blocker re-audit
+
+### Confirmed runtime findings
+
+- **Live/Recovery rootfs:** the previous CPIO symlink rejection is corrected by bounded symlink extraction and regression coverage. Runtime evidence from the full-ISO trace confirms rootfs publication, read-only `/`, writable bounded `/tmp`, ring-3 syscall acknowledgement, kernel-owned init PID, and the create/write/seek/read/close self-test.
+- **Live/Recovery service lifecycle:** `kernel/userspace/native_init.c` deliberately exits with status 78 after the VFS self-test because the native filesystem/process/device/graphics service set is unavailable. This is the immediate reason the production readiness marker is absent. Do not replace the exit with a marker.
+- **Service manager:** `kernel/core/service.cpp` validates manifests and resolves dependency order, but `chimera_kore_bootstrap()` only marks device, storage, security, and logging as blocked and Kore as running. This is a registry/bootstrap primitive, not a service process supervisor: no production spawn/wait/reap, health probes, restart/backoff, dependency-aware start/stop, or target readiness contract is wired into it.
+- **Installer:** `kernel/core/target_launch.cpp` classifies the installer payload as a disk image and intentionally returns `-15` because a storage-backed installer root namespace is not mounted. Installer boot must not be reported as ready until block-device discovery, partition/filesystem mounting, installer namespace publication, and durable write/sync/readback are implemented and tested.
+- **Aurora:** the VFS self-test does not establish framebuffer mode selection, input/display service availability, compositor startup, or session handoff. The production `aurora-session` health handshake must be emitted only after those operations succeed.
+- **Recovery:** recovery init has no proven repair transaction and verified postcondition yet. A recovery shell or a successful ring-3 probe is insufficient.
+- **SMP:** candidate single-process probes do not prove AP startup or overlapping execution on distinct CPU IDs. The AP bootstrap and per-CPU work evidence remain absent.
+- **DAPS:** the existing `tools/production-closeout-daps.py` remains the production gate. It requires the exact ISO hash in every raw trace, all six target/firmware cases, matching positive syscall/readiness PIDs, rootfs/tmpfs operations, display/Aurora, installer cold-reboot persistence, recovery postconditions, SMP, and VM/swap evidence. Do not replace it with a marker-only checker.
+
+### Actions taken in this remediation pass
+
+1. Reconfirmed the RAMFS symlink extraction regression and kernel/DAPS CI green results.
+2. Found a cross-repository source-drift defect: OctavianOS candidate acceptance still pinned ChimeraIIOS `24b48f7ddf2b1f244e8f95a9d6b041ac44549889`, not the reviewed head. Updated the OctavianOS PR workflow to pin `579fe94f63770358f6d5efef1b037e4e0c46e69b` in both checkout and SHA assertion; this should trigger a fresh six-case **candidate probe** run.
+3. Kept production status fail-closed. No production readiness, installer persistence, Aurora, recovery repair, AP-backed SMP, or six-case ISO-hash-bound closeout is claimed.
+
+### Release decision
+
+**BLOCKED.** The source/build regression fixes are publishable on their review branches, but a production ISO is not. The next implementation work is the real service supervisor and its process/health contracts, installer block-device/root namespace lifecycle, Aurora runtime/compositor handoff, recovery repair transaction, AP startup/concurrent per-CPU proof, and the six-case production harness. Each must be implemented against the repository's real APIs and pass DAPS on raw evidence bound to the exact ISO digest.
