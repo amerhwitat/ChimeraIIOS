@@ -236,3 +236,23 @@ Required implementation is a process-owned exec/spawn + wait/exit/reap contract 
 ### Release decision
 
 **BLOCKED.** The source/build regression fixes are publishable on their review branches, but a production ISO is not. The next implementation work is the real service supervisor and its process/health contracts, installer block-device/root namespace lifecycle, Aurora runtime/compositor handoff, recovery repair transaction, AP startup/concurrent per-CPU proof, and the six-case production harness. Each must be implemented against the repository's real APIs and pass DAPS on raw evidence bound to the exact ISO digest.
+
+
+## 2026-10-23 — Service supervisor implementation pass
+
+### Implemented on the review branch
+
+- Added a backend-neutral service supervisor API with bounded service count, dependency validation and topological start order, per-service health probes, nonblocking process-exit observation, bounded restart budgets/backoff, critical-service rollback, and reverse-dependency stop.
+- Added a deterministic fake-backend regression covering dependency-ordered start, health-confirmed RUNNING state, process exit detection, bounded restart, and reverse-order shutdown.
+- Added a dedicated GitHub Actions service supervisor contract workflow and included the same regression in the DAPS regression workflow.
+- Changed early Kore bootstrap to mark device, storage, security, logging, and Kore as BLOCKED until a real backend starts them and reports healthy. Registration/bootstrap can no longer manufacture RUNNING status.
+
+### Important integration boundary
+
+The supervisor implementation is not yet wired to a production process-spawn/wait/reap backend in the kernel, and no target-specific service manifests are connected to it. The unit test uses a deterministic fake backend and validates supervisor policy only. It is not evidence that the Live filesystem/process/device/display/Aurora services are running in the ISO.
+
+Installer block-device discovery/mount and durable storage readback, recovery repair postconditions, Aurora compositor/session handoff, AP startup/concurrent SMP, and the six ISO-hash-bound production traces remain unverified. Do not remove native init's explicit unavailable-service exit or relax DAPS to compensate.
+
+### Current acceptance decision
+
+**BLOCKED.** The lifecycle supervisor code and contract tests are now present on this review branch; CI execution and production backend integration are still required. Release remains prohibited until the actual six-case production DAPS evidence passes.
