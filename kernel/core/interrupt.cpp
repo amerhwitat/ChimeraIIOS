@@ -117,7 +117,7 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
             __asm__ volatile("mov %%cr2, %0" : "=r"(fault_address));
             const uint64_t error_code = saved[16];
             void *active_space = koronos_target_active_address_space();
-            if (active_space && koronos_address_space_handle_page_fault(active_space, fault_address, error_code) == 0)
+            if (active_space && koronos_address_space_page_fault_fastpath(active_space, fault_address, error_code) == 0)
                 return;
             char message[96];
             const char prefix[] = "[PF] Unhandled ring-3 page fault; aborting PID, CR2=0x";
