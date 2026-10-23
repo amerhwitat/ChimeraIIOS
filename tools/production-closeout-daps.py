@@ -258,6 +258,26 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                 any(not isinstance(case_id, str) for case_id in vm_case_ids) or
                 set(vm_case_ids) != set(CASE_IDS)):
             errors.append("vm_swap: case_ids must cover exactly all six production target/firmware cases")
+        block_size = vm_swap.get("system_block_size_bytes")
+        try:
+            parsed_block_size = int(block_size) if isinstance(block_size, str) and block_size.isdecimal() else 0
+        except ValueError:
+            parsed_block_size = 0
+        if (parsed_block_size < 512 or parsed_block_size > 65536 or
+                (parsed_block_size & (parsed_block_size - 1)) != 0):
+            errors.append("vm_swap: system_block_size_bytes must be a power of two from 512 through 65536")
+        if artifact_root is not None and parsed_block_size:
+            trace_value = vm_swap.get("evidence")
+            if nonempty(trace_value) and not Path(trace_value).is_absolute():
+                trace_path = (artifact_root.resolve() / Path(trace_value)).resolve()
+                if trace_path.is_relative_to(artifact_root.resolve()) and trace_path.is_file():
+                    try:
+                        trace_text = trace_path.read_text(encoding="utf-8", errors="replace").casefold()
+                    except OSError:
+                        trace_text = ""
+                    expected_size_marker = f"system block size (bytes): {parsed_block_size}"
+                    if expected_size_marker not in trace_text:
+                        errors.append("vm_swap: evidence trace does not report the configured system block size")
 
     if data.get("candidate_smoke_substituted") is True:
         errors.append("candidate smoke evidence cannot substitute for production ISO acceptance")
