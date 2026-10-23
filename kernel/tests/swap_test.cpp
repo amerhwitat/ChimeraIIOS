@@ -39,6 +39,23 @@ int main(void) {
     koronos_swap_snapshot s{}; CHECK(koronos_swap_get_snapshot(&s)==0);
     CHECK(s.checksum_failures==1 && s.used_slots==1 && s.writes==2 && s.reads==1);
     CHECK(koronos_swap_release(slot)==0);
+
+    // Explicitly test capacity exhaustion and repeated reuse with a tiny
+    // backend; capacity is the validated device extent, not the host buffer.
+    koronos_swap_backend tiny=b;
+    tiny.capacity_bytes=2u*KORONOS_SWAP_PAGE_SIZE;
+    CHECK(koronos_swap_init(&tiny)==0);
+    uint32_t a=KORONOS_SWAP_SLOT_INVALID, z=KORONOS_SWAP_SLOT_INVALID, extra=KORONOS_SWAP_SLOT_INVALID;
+    CHECK(koronos_swap_store(in,&a)==0 && a==0);
+    CHECK(koronos_swap_store(in,&z)==0 && z==1);
+    CHECK(koronos_swap_store(in,&extra)!=0);
+    CHECK(koronos_swap_release(a)==0 && koronos_swap_release(z)==0);
+    for (uint32_t cycle=0; cycle<8; ++cycle) {
+        CHECK(koronos_swap_store(in,&a)==0);
+        CHECK(koronos_swap_load(a,out)==0 && memcmp(in,out,sizeof(in))==0);
+        CHECK(koronos_swap_release(a)==0);
+    }
+    CHECK(koronos_swap_get_snapshot(&s)==0 && s.used_slots==0 && s.writes==10 && s.reads==8);
     puts("Koronos swap backend tests passed");
     return 0;
 }
