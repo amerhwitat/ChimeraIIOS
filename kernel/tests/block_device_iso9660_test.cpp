@@ -7,8 +7,8 @@
 static uint8_t disk[20u*2048u];
 static int rd(void*,uint64_t o,void*b,uint64_t n){memcpy(b,disk+o,(size_t)n);return 0;}
 static int wr(void*,uint64_t o,const void*b,uint64_t n){memcpy(disk+o,b,(size_t)n);return 0;}
-static void both32(uint8_t*p,uint32_t v){p[0]=v;p[1]=v>>8;p[2]=v>>16;p[3]=v>>24;p[4]=v;p[5]=v>>8;p[6]=v>>16;p[7]=v>>24;}
-static void both16(uint8_t*p,uint16_t v){p[0]=v;p[1]=v>>8;p[2]=v;p[3]=v>>8;}
+static void both32(uint8_t*p,uint32_t v){p[0]=v;p[1]=v>>8;p[2]=v>>16;p[3]=v>>24;p[4]=v>>24;p[5]=v>>16;p[6]=v>>8;p[7]=v;}
+static void both16(uint8_t*p,uint16_t v){p[0]=v;p[1]=v>>8;p[2]=v>>8;p[3]=v;}
 static uint32_t record(uint8_t*p,uint32_t extent,uint32_t size,uint8_t flags,const uint8_t*name,uint8_t nl){uint8_t n=(uint8_t)(33+nl+((nl%2)==0));memset(p,0,n);p[0]=n;both32(p+2,extent);both32(p+10,size);p[25]=flags;p[32]=nl;memcpy(p+33,name,nl);return n;}
 int main(){
  chimera_block_device d{CHIMERA_BLOCK_DEVICE_ABI,512,sizeof(disk),0,nullptr,rd,wr,nullptr,nullptr};
