@@ -115,3 +115,8 @@ Implemented on this branch:
 Commits: d261e1c03fe4f73258321d5dcadfc2d37d3aa713, 0fbbba9ae3df330394235b779df88e6607999f6e, ad575d86e8fb65f7aae992299afe2dbedb61f320, afd14a33d227570555715573988cb422594591f3, c5628efb2a6f4f95ceeca71d54c5e93cf19d5147, 494b4cd6bb4b8d5e7fb1be2e18a2cb9b538ab3f8.
 
 Verification status: no workflow runs were reported for the latest source/link-gate commits at the latest connector poll; the tests/build have not been run locally in this session. Treat this as implemented but unverified. This is a narrow read-only RAMFS bridge, not a general mutable VFS or complete process file API. Service manager/supervision, Aurora session startup, installer write/verify/cold reboot, recovery repair postcondition, AP startup/concurrent SMP, and the six-case full production acceptance matrix remain open. Keep the PR draft and release blocked.
+
+
+## Closeout gate tightened — ring-3 file-operation evidence (2026-10-23)
+
+The production DAPS gate now requires every one of the six target/firmware cases to include both rootfs_file_syscalls_verified=true and a non-empty rootfs_file_syscalls_evidence reference, in addition to process_visible_rootfs=true. This prevents a successful pointer publication or source-level check from being treated as proof that ring-3 can actually open, read, and close a file. The source-contract regression test checks that these fields remain mandatory. OctavianOS root and vendored copies are synchronized. This is a stricter fail-closed gate; no evidence has been generated for the new fields, so release acceptance remains blocked.
