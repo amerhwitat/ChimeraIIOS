@@ -38,13 +38,17 @@ static TmpNode *alloc_node(chimera_tmpfs *fs,const char *name,uint32_t len,uint3
     copy_bytes(n->name,name,len);n->name[len]=0;return n;
 }
 static void free_node(chimera_tmpfs *fs,TmpNode*n){
-    if(!n)return;TmpNode*c=n->children;while(c){TmpNode*next=c->next;free_node(fs,c);c=next;}
+    if (!n) return;
+    TmpNode *c = n->children;
+    while (c) { TmpNode *next = c->next; free_node(fs, c); c = next; }
     if(n->data)fs->allocator.free(n->data,fs->allocator.context);
     if(n->name)fs->allocator.free(n->name,fs->allocator.context);
     fs->allocator.free(n,fs->allocator.context);
 }
 static bool canonical(const char *path,uint32_t max_path){
-    if(!path||path[0]!='/')return false;uint32_t n=str_len(path,max_path);if(!n||n>max_path)return false;
+    if (!path || path[0] != '/') return false;
+    uint32_t n = str_len(path, max_path);
+    if (!n || n > max_path) return false;
     for(uint32_t i=0;i<n;){while(path[i]=='/')++i;if(!path[i])break;uint32_t s=i;while(path[i]&&path[i]!='/')++i;uint32_t l=i-s;
         if((l==1u&&path[s]=='.')||(l==2u&&path[s]=='.'&&path[s+1u]=='.'))return false;
     }return true;
@@ -55,7 +59,9 @@ static TmpNode *find_node(chimera_tmpfs*fs,const char*path){
     while(path[i]){
         uint32_t s=i;while(path[i]&&path[i]!='/')++i;uint32_t l=i-s;
         TmpNode*found=nullptr;for(TmpNode*c=cur->children;c;c=c->next)if(c->name_length==l&&same(c->name,path+s,l)){found=c;break;}
-        if(!found)return nullptr;cur=found;while(path[i]=='/')++i;
+        if (!found) return nullptr;
+        cur = found;
+        while (path[i] == '/') ++i;
     }return cur;
 }
 static bool split_parent(chimera_tmpfs*fs,const char*path,TmpNode**parent,const char**base,uint32_t*base_len){
@@ -94,7 +100,13 @@ static int tmp_write(void*ctx,const char*path,uint64_t off,const void*buf,uint64
     uint64_t total=fs->total_bytes-n->size;if(total>fs->limits.max_total_bytes||new_size>fs->limits.max_total_bytes-total){fs_unlock(fs);return -28;}
     auto*data=static_cast<uint8_t*>(fs->allocator.alloc(new_size,fs->allocator.context));if(!data){fs_unlock(fs);return -12;}
     zero_bytes(data,new_size);if(n->size)copy_bytes(data,n->data,n->size);copy_bytes(data+off,buf,len);
-    if(n->data)fs->allocator.free(n->data,fs->allocator.context);n->data=data;n->size=new_size;fs->total_bytes=total+new_size;*out=len;fs_unlock(fs);return 0;
+    if (n->data) fs->allocator.free(n->data, fs->allocator.context);
+    n->data = data;
+    n->size = new_size;
+    fs->total_bytes = total + new_size;
+    *out = len;
+    fs_unlock(fs);
+    return 0;
 }
 static int tmp_create(void*ctx,const char*path,uint32_t type,uint32_t mode){auto*fs=static_cast<chimera_tmpfs*>(ctx);if(!fs)return -22;fs_lock(fs);int rc=create_node(fs,path,type,mode);fs_unlock(fs);return rc;}
 static int tmp_truncate(void*ctx,const char*path,uint64_t size){
@@ -103,7 +115,12 @@ static int tmp_truncate(void*ctx,const char*path,uint64_t size){
     if(size>fs->limits.max_file_bytes){fs_unlock(fs);return -27;}uint64_t total=fs->total_bytes-n->size;
     if(total>fs->limits.max_total_bytes||size>fs->limits.max_total_bytes-total){fs_unlock(fs);return -28;}
     uint8_t*data=nullptr;if(size){data=static_cast<uint8_t*>(fs->allocator.alloc(size,fs->allocator.context));if(!data){fs_unlock(fs);return -12;}zero_bytes(data,size);uint64_t copy=n->size<size?n->size:size;if(copy)copy_bytes(data,n->data,copy);}
-    if(n->data)fs->allocator.free(n->data,fs->allocator.context);n->data=data;n->size=size;fs->total_bytes=total+size;fs_unlock(fs);return 0;
+    if (n->data) fs->allocator.free(n->data, fs->allocator.context);
+    n->data = data;
+    n->size = size;
+    fs->total_bytes = total + size;
+    fs_unlock(fs);
+    return 0;
 }
 static int tmp_mkdir(void*ctx,const char*path,uint32_t mode){auto*fs=static_cast<chimera_tmpfs*>(ctx);if(!fs)return -22;fs_lock(fs);int rc=create_node(fs,path,CHIMERA_VFS_DIRECTORY,mode);fs_unlock(fs);return rc;}
 static int tmp_unlink(void*ctx,const char*path,uint32_t directory){
@@ -130,7 +147,8 @@ static const chimera_vfs_ops ops={tmp_lookup,tmp_read,tmp_write,tmp_create,tmp_t
 }
 
 extern "C" int chimera_tmpfs_create(const chimera_ramfs_allocator *allocator,const chimera_tmpfs_limits *limits,chimera_tmpfs **out){
-    if(out)*out=nullptr;if(!allocator||!allocator->alloc||!allocator->free||!limits||!out||
+    if (out) *out = nullptr;
+    if (!allocator || !allocator->alloc || !allocator->free || !limits || !out ||
        !limits->max_entries||limits->max_entries>CHIMERA_RAMFS_MAX_ENTRIES||
        !limits->max_path_bytes||limits->max_path_bytes>CHIMERA_VFS_MAX_PATH||
        !limits->max_file_bytes||!limits->max_total_bytes||limits->max_file_bytes>limits->max_total_bytes)return -22;
