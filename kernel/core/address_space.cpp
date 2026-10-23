@@ -950,7 +950,7 @@ extern "C" int koronos_address_space_page_fault_fastpath(void *opaque, uint64_t 
     if (((error_code & 2u) && !(vma->elf_flags & 2u)) ||
         ((error_code & 16u) && !(vma->elf_flags & 1u))) { unlock_backend(); return -3; }
     if (meta->state == PAGE_RESIDENT && (*pte & ENTRY_PRESENT) &&
-        (!(error_code & 2u) || (*pte & ENTRY_WRITE)) &&
+        user_page_access(space->root_physical, va, (error_code & 2u) != 0u) &&
         (!(error_code & 16u) || !(*pte & ENTRY_NX))) {
         unlock_backend(); return 0;
     }
