@@ -179,6 +179,16 @@ extern "C" int chimera_vfs_close(uint32_t pid,int64_t fd) {
     if(!pid||fd<3||fd>=CHIMERA_VFS_MAX_OPEN_FILES+3u)return -9;
     lock();OpenFile &f=files[(uint32_t)(fd-3)];if(!f.active||f.pid!=pid){unlock();return -9;}f={};unlock();return 0;
 }
+extern "C" int chimera_vfs_close_process(uint32_t pid) {
+    if (!pid) return -22;
+    int closed = 0;
+    lock();
+    for (uint32_t i = 0; i < CHIMERA_VFS_MAX_OPEN_FILES; ++i) {
+        if (files[i].active && files[i].pid == pid) { files[i] = {}; ++closed; }
+    }
+    unlock();
+    return closed;
+}
 extern "C" int chimera_vfs_stat_path(const char *path,chimera_vfs_stat *out) {
     if(!out)return -22;char canonical[CHIMERA_VFS_MAX_PATH+1u];Resolved r{};int rc=resolve_path(path,canonical,&r);if(rc)return rc;return check_existing(r,r.relative,out);
 }
