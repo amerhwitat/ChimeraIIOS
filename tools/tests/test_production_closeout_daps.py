@@ -244,6 +244,14 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("vm_swap: tlb_shootdown_verified must be true" in e for e in errors))
         self.assertTrue(any("vm_swap: swapin_rollback_verified must be true" in e for e in errors))
 
+    def test_vm_swap_evidence_must_bind_to_all_six_cases_and_iso(self):
+        data = valid_evidence()
+        data["vm_swap"]["production_iso_sha256"] = "b" * 64
+        data["vm_swap"]["case_ids"] = ["live-bios"]
+        errors = check_evidence(data)
+        self.assertTrue(any("vm_swap: production_iso_sha256 must match" in e for e in errors))
+        self.assertTrue(any("vm_swap: case_ids must cover exactly all six" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
