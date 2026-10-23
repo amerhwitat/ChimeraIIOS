@@ -30,8 +30,15 @@ constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
 enum PageState : uint8_t { PAGE_NONRESIDENT = 0, PAGE_RESIDENT = 1, PAGE_SWAPPED = 2, PAGE_EVICTING = 3, PAGE_LOADING = 4 };
 constexpr uint8_t PAGE_META_DIRTY = 0x40u;
 constexpr uint8_t PAGE_META_REFERENCED = 0x80u;
-struct PageMeta { uint64_t physical; uint16_t pins; uint8_t state; uint8_t flags; uint32_t swap_slot; };
-static_assert(sizeof(PageMeta) == 16, "per-page metadata must retain frame ownership and state");
+struct PageMeta {
+    uint64_t physical;
+    uint64_t owner_generation;
+    uint16_t pins;
+    uint8_t state;
+    uint8_t flags;
+    uint32_t swap_slot;
+};
+static_assert(sizeof(PageMeta) == 24, "per-page metadata must retain frame ownership, generation, and state");
 struct FrameBlock {
     uint64_t physical;
     uint64_t metadata_physical;
@@ -42,6 +49,7 @@ struct FrameBlock {
 };
 struct AddressSpace {
     uint64_t magic;
+    uint64_t generation;
     uint64_t root_physical;
     uint64_t table_frames[MAX_TABLE_FRAMES];
     FrameBlock mapped[MAX_MAPPED_BLOCKS];
@@ -57,6 +65,7 @@ static AddressSpace spaces[MAX_ADDRESS_SPACES]{};
 static volatile uint32_t backend_ready = 0;
 static volatile uint32_t backend_lock = 0;
 static uint64_t created_spaces = 0;
+static uint64_t next_space_generation = 1;
 static koronos_tlb_shootdown_fn tlb_shootdown = nullptr;
 static void *tlb_context = nullptr;
 
@@ -302,7 +311,12 @@ static void *create_address_space(void *) {
     }
     if (!space) { unlock_backend(); return nullptr; }
     zero_bytes(space, sizeof(AddressSpace));
+    if (next_space_generation == 0u || next_space_generation == UINT64_MAX) {
+        unlock_backend();
+        return nullptr; // never reuse a generation after counter exhaustion
+    }
     space->magic = SPACE_MAGIC;
+    space->generation = next_space_generation++;
     space->active = 1;
     if (!clone_bootstrap_map(space)) {
         destroy_locked(space);
@@ -356,6 +370,7 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     auto *page_meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(metadata_physical));
     for (uint64_t i = 0; i < pages64; ++i) {
         page_meta[i].physical = physical + i * PAGE_SIZE;
+        page_meta[i].owner_generation = space->generation;
         page_meta[i].pins = 0;
         page_meta[i].state = PAGE_RESIDENT;
         page_meta[i].flags = static_cast<uint8_t>(elf_flags | PAGE_META_REFERENCED);
@@ -773,6 +788,7 @@ static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t 
         const uint64_t index = (page_va - b.virtual_base) / PAGE_SIZE;
         if (index >= b.pages || !b.metadata_physical) return nullptr;
         auto *meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(b.metadata_physical));
+        if (meta[index].owner_generation != space->generation) return nullptr;
         if (physical_out) *physical_out = meta[index].physical;
         return &meta[index];
     }
