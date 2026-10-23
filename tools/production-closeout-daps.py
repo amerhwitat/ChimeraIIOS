@@ -77,7 +77,7 @@ def _check_trace_tokens(path_value: object, label: str, root: Path, required: tu
             errors.append(f"{label}: trace is missing required runtime marker {token!r}")
 
 
-def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str]) -> None:
+def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str], expected_iso_sha256: object = None) -> None:
     target = case_id.rsplit("-", 1)[0]
     trace = case.get("raw_trace")
     if nonempty(trace):
@@ -92,6 +92,18 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
             except (OSError, UnicodeError) as exc:
                 errors.append(f"{case_id}: cannot read/decipher raw_trace evidence: {exc}")
                 return
+            # A manifest hash alone cannot prove that a captured boot log came from
+            # the same ISO: stale traces can otherwise be paired with a newer image.
+            # The boot harness must stamp the digest it actually launched into the
+            # captured trace, and the marker must match this case's verified ISO.
+            iso_marker = re.search(
+                r"PRODUCTION ISO SHA-256:\\s*([0-9a-fA-F]{64})", content, re.IGNORECASE)
+            if not isinstance(expected_iso_sha256, str) or not HEX256.fullmatch(expected_iso_sha256):
+                errors.append(f"{case_id}: cannot bind raw_trace to a valid case ISO SHA-256")
+            elif not iso_marker:
+                errors.append(f"{case_id}: raw_trace lacks the production ISO SHA-256 binding marker")
+            elif iso_marker.group(1).lower() != expected_iso_sha256.lower():
+                errors.append(f"{case_id}: raw_trace ISO SHA-256 does not match the case production ISO")
             entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
             component = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}[target]
             # Production closeout must prove the target service is healthy.
@@ -155,7 +167,7 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         if artifact_root is not None:
             _check_artifact(case.get("production_iso"), f"{case_id}: production_iso", artifact_root, errors, case.get("iso_sha256") if isinstance(case.get("iso_sha256"), str) else None)
             _check_artifact(case.get("raw_trace"), f"{case_id}: raw_trace", artifact_root, errors)
-            _check_target_trace(case_id, case, artifact_root, errors)
+            _check_target_trace(case_id, case, artifact_root, errors, case.get("iso_sha256"))
         if case.get("cpl3_syscall_ack") is not True:
             errors.append(f"{case_id}: no verified CPL3-originated syscall acknowledgement")
         if case.get("process_visible_rootfs") is not True:
