@@ -787,6 +787,13 @@ extern "C" int koronos_address_space_pin(void *opaque, uint64_t address, uint64_
         length > CHIMERA_ELF_USER_LIMIT - address) return -1;
     const uint64_t end = address + length;
     const uint64_t first_page = address & ~PAGE_MASK;
+    // Resolve swapped pages before pinning; this may perform bounded eviction
+    // if physical memory is exhausted. Invalid ranges still fail closed.
+    for (uint64_t va = first_page; va < end; va += PAGE_SIZE) {
+        if (koronos_address_space_handle_page_fault(space, va, 4u | (write_access ? 2u : 0u)) != 0)
+            return -5;
+        if (va > UINT64_MAX - PAGE_SIZE) return -4;
+    }
     lock_backend();
     if (!space_valid(space)) { unlock_backend(); return -2; }
     // Validate the entire range before changing any pin counts.
