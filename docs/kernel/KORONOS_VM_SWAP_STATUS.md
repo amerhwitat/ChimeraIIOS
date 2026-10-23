@@ -5,7 +5,7 @@ Branch: `audit/koronos-cross-os-syscall-roadmap-20261023`
 
 ## Implemented in this change
 
-- Added a versioned `chimera/swap.h` C ABI with backend callbacks for exact 4 KiB reads and writes.
+- Added a versioned `chimera/swap.h` C ABI with backend callbacks for exact 4 KiB reads and writes, plus a block-device extent adapter that validates geometry, capacity, presence, write permission, and mandatory flush support. The adapter accepts a caller-supplied device descriptor; it does not discover/register devices by itself.
 - Added a bounded swap-slot manager with allocation/release, per-page CRC-32 integrity verification, I/O error accounting, capacity bounds, and a status snapshot. Backend reads/writes now run outside the metadata spinlock; per-slot in-flight states prevent release/reinitialization races, and a regression callback queries the snapshot during I/O to catch lock-held I/O deadlocks.
 - Swap starts disabled and is enabled only when a caller provides a valid backend. This deliberately avoids treating RAM or an unconfigured device as persistent swap.
 - Added host regression coverage for invalid initialization, allocation/store/load/release, I/O failure rollback, and corruption detection.
