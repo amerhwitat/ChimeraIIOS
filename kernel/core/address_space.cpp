@@ -222,6 +222,8 @@ static uint64_t *find_pte(AddressSpace *space, uint64_t virtual_address) {
     return pt ? &pt[pt_i] : nullptr;
 }
 
+static PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out);
+
 static FrameBlock *find_block(AddressSpace *space, uint64_t base, uint64_t length) {
     if (!space || !length || (base & PAGE_MASK) || (length & PAGE_MASK)) return nullptr;
     const uint64_t pages = length / PAGE_SIZE;
