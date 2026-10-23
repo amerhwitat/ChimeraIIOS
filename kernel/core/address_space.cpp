@@ -612,7 +612,8 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
     for (uint64_t i = 0; i < block->pages; ++i) {
         uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
         PageMeta *meta = find_page_meta(space, base + i * PAGE_SIZE, nullptr);
-        if (!pte || !(*pte & ENTRY_PRESENT) || !meta || meta->pins != 0u ||
+        if (!pte || !(*pte & ENTRY_PRESENT) || !meta || meta->state != PAGE_RESIDENT ||
+            meta->physical == 0u || meta->pins != 0u ||
             ((*pte & ENTRY_ADDRESS_MASK) != meta->physical)) {
             unlock_backend(); return -5;
         }
