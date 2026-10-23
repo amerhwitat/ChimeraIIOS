@@ -25,6 +25,7 @@ on:
       - 'install/**'
       - 'docs/**'
       - 'tests/**'
+      - 'tools/tests/**'
       - 'tools/portfolio/**'
       - 'tools/boot/**'
       - 'tools/commands/**'
