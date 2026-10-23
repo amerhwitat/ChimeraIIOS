@@ -90,6 +90,15 @@ static bool space_valid(const AddressSpace *space) {
 }
 static void destroy_locked(AddressSpace *space) {
     if (!space || space->magic != SPACE_MAGIC) return;
+    // A pinned user page may still be referenced by a syscall copy. Refuse
+    // reclamation rather than freeing backing frames while that copy is live.
+    for (uint32_t i = 0; i < space->mapped_count; ++i) {
+        const FrameBlock &b = space->mapped[i];
+        if (!b.metadata_physical) continue;
+        const auto *meta = reinterpret_cast<const PageMeta *>(
+            static_cast<uintptr_t>(b.metadata_physical));
+        for (uint32_t p = 0; p < b.pages; ++p) if (meta[p].pins != 0u) return;
+    }
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         if (space->mapped[i].physical && space->mapped[i].pages)
             (void)koronos_frame_free_contiguous(space->mapped[i].physical, space->mapped[i].pages);
@@ -561,7 +570,8 @@ extern "C" int koronos_address_space_protect(void *opaque, uint64_t base, uint64
     if (!block) { unlock_backend(); return -3; }
     for (uint64_t i = 0; i < block->pages; ++i) {
         uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
-        if (!pte || !(*pte & ENTRY_PRESENT) ||
+        PageMeta *meta = find_page_meta(space, base + i * PAGE_SIZE, nullptr);
+        if (!pte || !(*pte & ENTRY_PRESENT) || !meta || meta->pins != 0u ||
             ((*pte & ENTRY_ADDRESS_MASK) != block->physical + i * PAGE_SIZE)) {
             unlock_backend(); return -4;
         }
