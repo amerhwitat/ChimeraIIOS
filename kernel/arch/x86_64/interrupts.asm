@@ -164,3 +164,5 @@ chimera_isr_table:
     dq chimera_isr_%+v
 %assign v v+1
 %endrep
+
+section .note.GNU-stack noalloc noexec nowrite progbits
