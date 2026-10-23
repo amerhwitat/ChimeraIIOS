@@ -11,8 +11,8 @@ static chimera_iso9660 pool[4]{};
 struct Record { uint32_t extent,size; uint8_t flags,name_len; const uint8_t *name; };
 static uint16_t le16(const uint8_t*p){return (uint16_t)p[0]|((uint16_t)p[1]<<8);}
 static uint32_t le32(const uint8_t*p){return (uint32_t)p[0]|((uint32_t)p[1]<<8)|((uint32_t)p[2]<<16)|((uint32_t)p[3]<<24);}
-static bool both16(const uint8_t*p){return p[0]==p[2]&&p[1]==p[3];}
-static bool both32(const uint8_t*p){return p[0]==p[4]&&p[1]==p[5]&&p[2]==p[6]&&p[3]==p[7];}
+static bool both16(const uint8_t*p){return p[0]==p[3]&&p[1]==p[2];}
+static bool both32(const uint8_t*p){return p[0]==p[7]&&p[1]==p[6]&&p[2]==p[5]&&p[3]==p[4];}
 static bool valid_extent(const chimera_iso9660*fs,uint32_t extent,uint32_t size){
  if(!fs||extent>=fs->volume_blocks)return false;
  uint64_t start=(uint64_t)extent*CHIMERA_ISO9660_SECTOR_SIZE;
