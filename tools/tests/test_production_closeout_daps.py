@@ -271,6 +271,26 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         errors = check_evidence(data)
         self.assertTrue(any("system_block_size_bytes must be a power of two" in e for e in errors))
 
+    def test_vm_trace_requires_production_scoped_runtime_markers(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "vm-swap.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "SYSTEM BLOCK SIZE (bytes): 4096\\nMAP UNMAP PROTECT QUERY PAGE PIN PAGE UNPIN "
+                "VMA LOOKUP FRAME REFCOUNT PAGE FAULT SWAP STORE SWAP LOAD SWAP OUT ROLLBACK "
+                "SWAP IN ROLLBACK IO FAILURE CHECKSUM FAILURE TLB SHOOTDOWN SWAP DEVICE DISCOVERED "
+                "SWAP EXHAUSTED ADDRESS SPACE TEARDOWN REPEATED SWAP CYCLE\\n",
+                encoding="utf-8",
+            )
+            data["vm_swap"]["evidence"] = "traces/vm-swap.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] MAP'" in e for e in errors))
+        self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] SWAP LOAD'" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
