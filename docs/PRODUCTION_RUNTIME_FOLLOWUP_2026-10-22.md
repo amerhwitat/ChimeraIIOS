@@ -100,3 +100,18 @@ No readiness marker, verifier relaxation, or release was added. Keep the product
 
 ### Release decision
 Keep PR #187 draft. Do not publish a production release until all seven dependency-order gates above pass. Never weaken the verifier, synthesize readiness, or count queued/cancelled/unreported checks as passing.
+
+
+## Follow-up implementation — RAMFS root publication and read-only process file syscalls (2026-10-23)
+
+Implemented on this branch:
+- kernel/core/target_launch.cpp: after complete bounded CPIO extraction succeeds, atomically publish the immutable RAMFS root pointer for the selected Live/Recovery target. Installer remains fail-closed because its payload is a disk/image container and is not mounted by this path.
+- Added process-bound descriptor slots tied to the active kernel-owned PID. open accepts read-only flags only; read validates the destination range against the active process CR3 and caps one operation at 4096 bytes; close checks descriptor ownership. Descriptors are reclaimed when init exits.
+- kernel/include/chimera/syscall.h and kernel/core/syscall.cpp: add native OPEN/CLOSE IDs and route OPEN/READ/CLOSE into the rootfs bridge. Existing WRITE remains console-only; RAMFS file mutation is not implemented.
+- tools/tests/test_native_init_launch_gate.py: extend the source-contract gate to require atomic publication, active-address-space validation, read-only open, and all three syscall routes.
+- kernel/build-koronos.sh: require the new bridge symbols at link validation.
+- Corrected the service readiness comment so the existing gate phrase “Registration is not a health check” remains explicit.
+
+Commits: d261e1c03fe4f73258321d5dcadfc2d37d3aa713, 0fbbba9ae3df330394235b779df88e6607999f6e, ad575d86e8fb65f7aae992299afe2dbedb61f320, afd14a33d227570555715573988cb422594591f3, c5628efb2a6f4f95ceeca71d54c5e93cf19d5147, 494b4cd6bb4b8d5e7fb1be2e18a2cb9b538ab3f8.
+
+Verification status: no workflow runs were reported for the latest source/link-gate commits at the latest connector poll; the tests/build have not been run locally in this session. Treat this as implemented but unverified. This is a narrow read-only RAMFS bridge, not a general mutable VFS or complete process file API. Service manager/supervision, Aurora session startup, installer write/verify/cold reboot, recovery repair postcondition, AP startup/concurrent SMP, and the six-case full production acceptance matrix remain open. Keep the PR draft and release blocked.
