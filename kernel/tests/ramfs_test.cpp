@@ -30,6 +30,8 @@ static size_t entry(uint8_t*b,size_t o,const char*name,uint32_t mode,const char*
 static size_t make_archive(uint8_t*b,int duplicate) {
     size_t n=0;n=entry(b,n,".",0040000,nullptr);n=entry(b,n,"./bin",0040000,nullptr);
     n=entry(b,n,"./bin/init",0100000,"hello");
+    n=entry(b,n,"./bin/busybox",0100000,"applet");
+    n=entry(b,n,"./bin/sh",0120000,"busybox");
     if(duplicate)n=entry(b,n,"bin/init",0100000,"again");
     return entry(b,n,"TRAILER!!!",0,nullptr);
 }
@@ -46,6 +48,10 @@ int main() {
     auto*f=chimera_ramfs_lookup(r,"/bin/init");assert(f&&chimera_ramfs_file_size(f)==5);
     char out[8]{};uint64_t got=0;
     assert(chimera_ramfs_read(f,0,out,sizeof(out),&got)==0&&got==5&&!memcmp(out,"hello",5));
+    auto*link=chimera_ramfs_lookup(r,"/bin/sh");
+    assert(link&&chimera_ramfs_file_size(link)==6);
+    memset(out,0,sizeof(out));got=0;
+    assert(chimera_ramfs_read(link,0,out,sizeof(out),&got)==0&&got==6&&!memcmp(out,"applet",6));
     assert(!chimera_ramfs_lookup(r,"/bin/../init"));
     chimera_ramfs_destroy(r,&a);assert(state.outstanding==0);
     memset(b,0,sizeof(b));n=make_archive(b,1);r=nullptr;
