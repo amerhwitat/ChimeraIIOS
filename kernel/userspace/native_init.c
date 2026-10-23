@@ -18,6 +18,47 @@ static long call1(long number, long a) {
   __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi) : "rcx", "r11", "memory");
   return rax;
 }
+static long call2(long number, long a, long b) {
+  register long rax __asm__("rax") = number;
+  register long rdi __asm__("rdi") = a;
+  register long rsi __asm__("rsi") = b;
+  __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi), "S"(rsi) : "rcx", "r11", "memory");
+  return rax;
+}
+static long call3(long number, long a, long b, long c) {
+  register long rax __asm__("rax") = number;
+  register long rdi __asm__("rdi") = a;
+  register long rsi __asm__("rsi") = b;
+  register long rdx __asm__("rdx") = c;
+  __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi), "S"(rsi), "d"(rdx) : "rcx", "r11", "memory");
+  return rax;
+}
+static int vfs_selftest(void) {
+  static const char path[] = "/tmp/.chimera-vfs-selftest";
+  static const char payload[] = "CHIMERA-VFS-OK\n";
+  char observed[sizeof(payload)];
+  const long fd = call2(17, (long)path, 0x0502L); /* O_CREAT|O_TRUNC|O_RDWR */
+  if (fd < 3) return -1;
+  if (call3(9, fd, (long)payload, (long)sizeof(payload)) != (long)sizeof(payload)) {
+    (void)call1(18, fd);
+    return -2;
+  }
+  if (call3(19, fd, 0, 0) != 0) {
+    (void)call1(18, fd);
+    return -3;
+  }
+  if (call3(8, fd, (long)observed, (long)sizeof(payload)) != (long)sizeof(payload)) {
+    (void)call1(18, fd);
+    return -4;
+  }
+  for (size_t i = 0; i < sizeof(payload); ++i) {
+    if (observed[i] != payload[i]) {
+      (void)call1(18, fd);
+      return -5;
+    }
+  }
+  return call1(18, fd) == 0 ? 0 : -6;
+}
 static long write_console(const char *p, long n) {
   register long rax __asm__("rax") = 9;
   register long rdi __asm__("rdi") = 1;
@@ -53,6 +94,13 @@ __attribute__((noreturn, used)) void _start(void) {
   if (pid <= 0) call1(1, 78);
   if (write_console(started, (long)(sizeof(started)-1)) < 0) call1(1, 78);
   write_pid_diagnostic(pid);
+  if (vfs_selftest() != 0) {
+    static const char vfs_failed[] = "NATIVE INIT VFS SELFTEST FAIL: rootfs/tmpfs syscall contract unavailable.\n";
+    (void)write_console(vfs_failed, (long)(sizeof(vfs_failed)-1));
+    call1(1, 78);
+  }
+  static const char vfs_passed[] = "NATIVE INIT VFS SELFTEST PASS: create/write/seek/read/close verified.\n";
+  if (write_console(vfs_passed, (long)(sizeof(vfs_passed)-1)) < 0) call1(1, 78);
   if (write_console(blocked, (long)(sizeof(blocked)-1)) < 0) call1(1, 78);
   /* Exit 78 is an explicit unavailable-service result, not readiness. The
      production release gate must remain red until these services exist. */
