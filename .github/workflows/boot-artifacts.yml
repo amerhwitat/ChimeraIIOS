@@ -5,6 +5,7 @@ on:
     paths:
       - 'boot/**'
       - 'kernel/**'
+      - 'tools/tests/**'
       - 'tools/build-boot-artifacts.sh'
       - 'boot/iso/**'
       - 'tools/boot/verify-production-init-elfs.py'
