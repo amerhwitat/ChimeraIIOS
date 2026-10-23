@@ -206,26 +206,56 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     if (!kernel_alias || !size || (virtual_base & PAGE_MASK) || (size & PAGE_MASK) ||
         virtual_base < KORONOS_USER_VIRTUAL_MIN || virtual_base >= CHIMERA_ELF_USER_LIMIT ||
         size > CHIMERA_ELF_USER_LIMIT - virtual_base) return -1;
+    *kernel_alias = nullptr;
     AddressSpace *space = static_cast<AddressSpace *>(opaque);
-    if (!space_valid(space) || space->mapped_count >= MAX_MAPPED_BLOCKS ||
-        (elf_flags & ~7u) != 0u || (elf_flags & 2u && elf_flags & 1u)) return -2;
+    if (!space_valid(space) || (elf_flags & ~7u) != 0u ||
+        (elf_flags & 2u && elf_flags & 1u)) return -2;
     const uint64_t pages64 = size / PAGE_SIZE;
-    if (!pages64 || pages64 > UINT32_MAX || pages64 > MAX_USER_PAGES - space->user_pages) return -3;
+    if (!pages64 || pages64 > UINT32_MAX || pages64 > MAX_USER_PAGES) return -3;
     lock_backend();
+    if (!space_valid(space) || space->mapped_count >= MAX_MAPPED_BLOCKS ||
+        pages64 > MAX_USER_PAGES - space->user_pages) {
+        unlock_backend(); return -3;
+    }
+
+    // Prepare every page-table path and reject overlap before acquiring data
+    // frames. Intermediate empty tables are owned by this address space and
+    // may safely remain until teardown if preparation runs out of frames.
+    for (uint64_t i = 0; i < pages64; ++i) {
+        uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
+        if (!pte) { unlock_backend(); return -5; }
+        if (*pte & ENTRY_PRESENT) { unlock_backend(); return -6; }
+    }
+
     const uint64_t physical = koronos_frame_alloc_contiguous(static_cast<uint32_t>(pages64));
     if (!physical) { unlock_backend(); return -4; }
+    const uint64_t leaf_flags = ENTRY_PRESENT | ENTRY_USER |
+        ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
+        ((elf_flags & 1u) ? 0u : ENTRY_NX);
+
+    // Since the backend lock remains held and every PTE path was prepared
+    // above, installation is deterministic. Keep defensive rollback anyway:
+    // never publish a partial mapping or leak/reuse a frame still referenced
+    // by a PTE if a future page-table backend changes these assumptions.
+    uint64_t installed = 0;
+    for (; installed < pages64; ++installed) {
+        uint64_t *pte = ensure_pte(space, virtual_base + installed * PAGE_SIZE);
+        if (!pte || (*pte & ENTRY_PRESENT)) break;
+        *pte = (physical + installed * PAGE_SIZE) | leaf_flags;
+    }
+    if (installed != pages64) {
+        for (uint64_t i = 0; i < installed; ++i) {
+            uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
+            if (pte) *pte = 0;
+        }
+        (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        unlock_backend();
+        return -7;
+    }
     FrameBlock &block = space->mapped[space->mapped_count++];
     block.physical = physical;
     block.pages = static_cast<uint32_t>(pages64);
     space->user_pages += pages64;
-    const uint64_t leaf_flags = ENTRY_PRESENT | ENTRY_USER |
-        ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
-        ((elf_flags & 1u) ? 0u : ENTRY_NX);
-    for (uint64_t i = 0; i < pages64; ++i) {
-        uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
-        if (!pte || (*pte & ENTRY_PRESENT)) { unlock_backend(); return -5; }
-        *pte = (physical + i * PAGE_SIZE) | leaf_flags;
-    }
     *kernel_alias = reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
     unlock_backend();
     return 0;
