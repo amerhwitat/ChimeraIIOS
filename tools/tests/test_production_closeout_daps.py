@@ -265,6 +265,12 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("vm_swap: system_block_config_verified must be true" in e for e in errors))
         self.assertTrue(any("vm_swap: missing system_block_size_bytes" in e for e in errors))
 
+    def test_vm_swap_rejects_invalid_system_block_size(self):
+        data = valid_evidence()
+        data["vm_swap"]["system_block_size_bytes"] = "3000"
+        errors = check_evidence(data)
+        self.assertTrue(any("system_block_size_bytes must be a power of two" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
