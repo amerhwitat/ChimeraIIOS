@@ -965,7 +965,7 @@ extern "C" int koronos_address_space_handle_page_fault(void *opaque, uint64_t fa
             if (meta->state == PAGE_LOADING) meta->state = PAGE_SWAPPED;
             unlock_backend(); (void)koronos_vm_frame_release(frame); return -9;
         }
-        meta->physical = frame; meta->state = PAGE_RESIDENT;
+        meta->physical = frame; meta->state = PAGE_LOADING;
         *pte = frame | ENTRY_PRESENT | ENTRY_USER | ((flags & 2u) ? ENTRY_WRITE : 0u) | ((flags & 1u) ? 0u : ENTRY_NX);
         for (uint32_t v = 0; v < space->vma_count; ++v) {
             auto &entry = space->vmas[v];
@@ -975,9 +975,13 @@ extern "C" int koronos_address_space_handle_page_fault(void *opaque, uint64_t fa
         }
         unlock_backend();
         shoot(root, va, PAGE_SIZE, ctx);
-        if (koronos_swap_release(slot) == 0) {
-            lock_backend(); if (meta->state == PAGE_RESIDENT && meta->physical == frame && meta->swap_slot == slot) meta->swap_slot = KORONOS_SWAP_SLOT_INVALID; unlock_backend();
+        const int slot_release = koronos_swap_release(slot);
+        lock_backend();
+        if (meta->state == PAGE_LOADING && meta->physical == frame) {
+            if (slot_release == 0 && meta->swap_slot == slot) meta->swap_slot = KORONOS_SWAP_SLOT_INVALID;
+            meta->state = PAGE_RESIDENT;
         }
+        unlock_backend();
         return 0;
     }
     return -10;
