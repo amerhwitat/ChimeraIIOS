@@ -96,6 +96,7 @@ extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags);
 extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uint64_t count);
+extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count);
 extern "C" int64_t koronos_target_fs_close(uint64_t fd);
 extern "C" void koronos_target_log(const char *message);
 
@@ -136,8 +137,9 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
-            if (fd > 2u || length > 4096u) return static_cast<uint64_t>(-30ll);
-            return static_cast<uint64_t>(koronos_console_write_user(address, length));
+            if (length > 4096u) return static_cast<uint64_t>(-22ll);
+            if (fd <= 2u) return static_cast<uint64_t>(koronos_console_write_user(address, length));
+            return static_cast<uint64_t>(koronos_target_fs_write(fd, address, length));
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
