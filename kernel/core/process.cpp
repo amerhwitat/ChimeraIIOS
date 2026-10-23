@@ -107,7 +107,7 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
             // Never wrap into an identity that may still be live or
             // have stale references. This bounded registry does not yet reap
             // slots, so exhaustion is an explicit admission failure.
-            if (next_pid == 0) return -11;
+            if (next_pid == 0 || next_pid > 0x7FFFFFFFu) return -11;
             p.pid = next_pid;
             next_pid = (next_pid == UINT32_MAX) ? 0 : next_pid + 1;
             p.state = CHIMERA_PROCESS_ADMITTED;
