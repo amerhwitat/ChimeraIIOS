@@ -197,7 +197,8 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         ("installer_persistence", ("status", "write_verified", "cold_reboot_verified", "readback_verified", "evidence"), "PASS"),
         ("recovery_repair", ("status", "repair_verified", "postcondition_verified", "evidence"), "PASS"),
         ("smp", ("status", "ap_startup_verified", "overlapping_execution_verified", "evidence"), "PASS"),
-        ("vm_swap", ("status", "address_space_map_unmap_protect_query_verified",
+        ("vm_swap", ("status", "production_iso_sha256", "case_ids",
+                     "address_space_map_unmap_protect_query_verified",
                      "page_pinning_verified", "page_fault_handling_verified",
                      "swap_roundtrip_verified", "swapout_failure_preserves_resident_verified",
                      "swapin_rollback_verified", "io_failure_rollback_verified",
@@ -242,6 +243,16 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
             cpu_ids = section.get("cpu_ids")
             if not isinstance(cpu_ids, list) or len({v for v in cpu_ids if isinstance(v, int) and not isinstance(v, bool)}) < 2:
                 errors.append("smp: cpu_ids must prove execution on at least two distinct CPUs")
+
+    vm_swap = data.get("vm_swap")
+    if isinstance(vm_swap, dict):
+        vm_iso_sha = vm_swap.get("production_iso_sha256")
+        top_iso_sha = data.get("production_iso_sha256")
+        if not isinstance(vm_iso_sha, str) or vm_iso_sha.lower() != top_iso_sha:
+            errors.append("vm_swap: production_iso_sha256 must match the top-level production ISO SHA-256")
+        vm_case_ids = vm_swap.get("case_ids")
+        if not isinstance(vm_case_ids, list) or set(vm_case_ids) != set(cases):
+            errors.append("vm_swap: case_ids must cover exactly all six production target/firmware cases")
 
     if data.get("candidate_smoke_substituted") is True:
         errors.append("candidate smoke evidence cannot substitute for production ISO acceptance")
