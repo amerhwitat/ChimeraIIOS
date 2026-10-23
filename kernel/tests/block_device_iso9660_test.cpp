@@ -19,7 +19,7 @@ int main(){
  uint8_t*term=disk+17*2048;term[0]=255;memcpy(term+1,"CD001",5);term[6]=1;
  uint8_t*dir=disk+18*2048;uint8_t dot=0,dotdot=1;uint32_t pos=record(dir,18,2048,2,&dot,1);pos+=record(dir+pos,18,2048,2,&dotdot,1);uint8_t fname[]="HELLO.TXT;1";pos+=record(dir+pos,19,5,0,fname,sizeof(fname)-1);
  memcpy(disk+19*2048,"hello",5);
- chimera_iso9660*fs=nullptr;assert(chimera_iso9660_mount(&d,&fs)==0&&fs);
+ uint8_t saved_endian_byte=p[83];p[83]^=1u;chimera_iso9660*fs=nullptr;assert(chimera_iso9660_mount(&d,&fs)==-5&&fs==nullptr);p[83]=saved_endian_byte;assert(chimera_iso9660_mount(&d,&fs)==0&&fs);
  auto ops=chimera_iso9660_vfs_ops();chimera_vfs_stat st{};assert(ops->lookup(fs,"/HELLO.TXT",&st)==0&&st.size==5);
  char out[6]={};uint64_t got=0;assert(ops->read(fs,"/HELLO.TXT",0,out,5,&got)==0&&got==5&&memcmp(out,"hello",5)==0);
  assert(ops->write==nullptr&&ops->create==nullptr);
