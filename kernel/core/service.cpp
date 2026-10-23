@@ -41,7 +41,8 @@ extern "C" int chimera_service_set_state(const char*id,uint32_t state){
 }
 extern "C" uint32_t chimera_service_get_state(const char*id){for(uint32_t i=0;i<g_state_count;++i)if(same(g_states[i].id,id))return g_states[i].state;return CHM_SVC_DECLARED;}
 extern "C" void chimera_kore_bootstrap(void){
- /* Registry initialization is not subsystem health; keep unimplemented services blocked. */
+ /* Registration is not a health check. Registry initialization is not subsystem
+    health; keep unimplemented services blocked until their implementations report healthy. */
  chimera_service_set_state("chimera.device",CHM_SVC_BLOCKED);
  chimera_service_set_state("chimera.storage",CHM_SVC_BLOCKED);
  chimera_service_set_state("chimera.security",CHM_SVC_BLOCKED);
