@@ -24,6 +24,14 @@ def nonempty(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _check_artifact(value: object, label: str, root: Path, errors: list[str],
                     expected_sha256: str | None = None) -> None:
     if not nonempty(value):
@@ -42,7 +50,7 @@ def _check_artifact(value: object, label: str, root: Path, errors: list[str],
         errors.append(f"{label}: artifact file does not exist: {value}")
         return
     if expected_sha256 is not None:
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        digest = _sha256_file(path)
         if digest.lower() != expected_sha256.lower():
             errors.append(f"{label}: SHA-256 does not match artifact contents")
 
