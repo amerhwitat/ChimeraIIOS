@@ -2,6 +2,7 @@
 
 namespace {
 constexpr uint32_t MAX_SERVICES = CHIMERA_SERVICE_MAX;
+constexpr uint32_t MAX_STATE_RECORDS = MAX_SERVICES + 8u;
 struct service_state { const char* id; uint32_t state; };
 struct managed_service {
     chimera_service_manifest manifest;
@@ -10,7 +11,7 @@ struct managed_service {
     int last_exit;
     bool started;
 };
-static service_state g_states[MAX_SERVICES];
+static service_state g_states[MAX_STATE_RECORDS];
 static uint32_t g_state_count = 0;
 static managed_service g_managed[MAX_SERVICES];
 static uint32_t g_managed_count = 0;
@@ -36,11 +37,13 @@ static int find_managed(const char* id) {
         if (same(g_managed[i].manifest.id, id)) return static_cast<int>(i);
     return -1;
 }
-static void set_state_internal(const char* id, uint32_t state) {
+static bool set_state_internal(const char* id, uint32_t state) {
     for (uint32_t i = 0; i < g_state_count; ++i) {
-        if (same(g_states[i].id, id)) { g_states[i].state = state; return; }
+        if (same(g_states[i].id, id)) { g_states[i].state = state; return true; }
     }
-    if (g_state_count < MAX_SERVICES) g_states[g_state_count++] = {id, state};
+    if (g_state_count >= MAX_STATE_RECORDS) return false;
+    g_states[g_state_count++] = {id, state};
+    return true;
 }
 static bool dependencies_running(const chimera_service_manifest* s) {
     for (uint32_t d = 0; d < s->dependency_count; ++d)
@@ -182,6 +185,9 @@ extern "C" int chimera_service_supervisor_start(const chimera_service_manifest* 
                                                 const chimera_service_supervisor_config* config) {
     if (g_supervisor_active || !backend || !backend->start || !backend->probe ||
         !backend->wait_exit || !backend->stop || !config) return -1;
+    if ((config->health_timeout_ticks &&
+         (!config->health_poll_ticks || !backend->sleep_ticks)) ||
+        (config->restart_backoff_ticks && !backend->sleep_ticks)) return -1;
     const int valid = chimera_service_validate(services, count);
     if (valid != 0) return valid;
     const chimera_service_plan plan{0u, MAX_SERVICES, g_order};
@@ -194,7 +200,12 @@ extern "C" int chimera_service_supervisor_start(const chimera_service_manifest* 
     g_config = *config;
     for (uint32_t i = 0; i < count; ++i) {
         g_managed[i] = {services[i], 0, 0, 0, false};
-        set_state_internal(services[i].id, CHM_SVC_DECLARED);
+        if (!set_state_internal(services[i].id, CHM_SVC_DECLARED)) {
+            g_managed_count = 0;
+            g_order_count = 0;
+            g_backend = nullptr;
+            return -3;
+        }
     }
     /* Store order pointers against the supervisor-owned manifest copies. */
     for (uint32_t i = 0; i < g_order_count; ++i) {
@@ -233,7 +244,13 @@ extern "C" int chimera_service_supervisor_poll(void) {
         }
         int exit_code = 0;
         const int rc = g_backend->wait_exit(m->manifest.id, m->handle, &exit_code, g_backend->context);
-        if (rc < 0) { set_state_internal(m->manifest.id, CHM_SVC_FAILED); ++failures; continue; }
+        if (rc < 0) {
+            set_state_internal(m->manifest.id, CHM_SVC_FAILED);
+            (void)stop_one(m); /* attempt cleanup, but keep the supervisor failed */
+            set_state_internal(m->manifest.id, CHM_SVC_FAILED);
+            ++failures;
+            continue;
+        }
         if (rc == 0) continue;
         m->started = false;
         m->handle = 0;
