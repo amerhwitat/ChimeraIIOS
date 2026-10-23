@@ -19,6 +19,15 @@ class ProcessPidNoWrapTests(unittest.TestCase):
         commit = source.index("slots[i].image = p;", guard)
         self.assertLess(guard, commit)
 
+    def test_registry_initialization_cannot_clear_live_identity_state(self):
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn("static bool process_registry_initialized = false;", source)
+        guard = source.index("if (process_registry_initialized) return 0;")
+        reset = source.index("slots[i] = {};", guard)
+        initialized = source.index("process_registry_initialized = true;", reset)
+        self.assertLess(guard, reset)
+        self.assertLess(reset, initialized)
+
 
 if __name__ == "__main__":
     unittest.main()
