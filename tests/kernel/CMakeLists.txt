@@ -101,3 +101,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_elf64_admission_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_elf64_admission COMMAND chimera_elf64_admission_test)
+
+add_executable(chimera_vfs_test
+  ../../kernel/tests/vfs_test.cpp
+  ../../kernel/core/vfs.cpp
+)
+target_include_directories(chimera_vfs_test PRIVATE ${CMAKE_SOURCE_DIR}/kernel/include)
+target_compile_features(chimera_vfs_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_vfs_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_vfs COMMAND chimera_vfs_test)
