@@ -288,7 +288,9 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     }
     FrameBlock &block = space->mapped[space->mapped_count++];
     block.physical = physical;
+    block.virtual_base = virtual_base;
     block.pages = static_cast<uint32_t>(pages64);
+    block.elf_flags = elf_flags;
     space->user_pages += pages64;
     *kernel_alias = reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
     unlock_backend();
