@@ -87,7 +87,11 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
         base = root.resolve()
         path = (base / rel).resolve() if not rel.is_absolute() else base
         if path.is_relative_to(base) and path.is_file():
-            content = path.read_text(encoding="utf-8", errors="replace")
+            try:
+                content = path.read_text(encoding="utf-8", errors="replace")
+            except OSError as exc:
+                errors.append(f"{case_id}: cannot read raw_trace evidence: {exc}")
+                return
             entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
             component = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}[target]
             # Production closeout must prove the target service is healthy.
