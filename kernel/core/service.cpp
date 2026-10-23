@@ -57,7 +57,6 @@ static int start_one(managed_service* m) {
         return -2;
     }
     set_state_internal(m->manifest.id, CHM_SVC_STARTING);
-    uint32_t attempts = 0;
     for (;;) {
         uint64_t handle = 0;
         const int spawn_rc = g_backend->start(m->manifest.id, &handle, g_backend->context);
@@ -86,7 +85,6 @@ static int start_one(managed_service* m) {
         if (m->manifest.restart != CHM_RESTART_FAILURE ||
             m->restart_count >= g_config.max_restarts)
             return spawn_rc != 0 ? spawn_rc : -3;
-        ++attempts;
         ++m->restart_count;
         wait_ticks(g_config.restart_backoff_ticks);
         set_state_internal(m->manifest.id, CHM_SVC_RECOVERING);
