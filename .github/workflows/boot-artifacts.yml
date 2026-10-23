@@ -5,6 +5,7 @@ on:
     paths:
       - 'boot/**'
       - 'kernel/**'
+      - '.github/workflows/boot-artifacts.yml'
       - 'tools/tests/**'
       - 'tools/build-boot-artifacts.sh'
       - 'boot/iso/**'
@@ -14,6 +15,8 @@ on:
     paths:
       - 'boot/**'
       - 'kernel/**'
+      - 'tools/tests/**'
+      - '.github/workflows/boot-artifacts.yml'
       - 'tools/build-boot-artifacts.sh'
       - 'boot/iso/**'
   workflow_dispatch:
