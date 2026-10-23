@@ -131,3 +131,8 @@ Live/Recovery target launch now mounts the validated initramfs RAMFS as read-onl
 Regression coverage added to kernel/tests/vfs_test.cpp and kernel/tests/tmpfs_test.cpp; canonical build script and CTest now include them. The DAPS gate requires real tmpfs_mutation_verified plus raw evidence for each Live/Recovery BIOS/UEFI case. OctavianOS vendor copies were synchronized.
 
 Verification limitation: no local compiler run was possible in this session, and the latest workflow-run lookup returned no runs. The source, tests, and link contracts are committed but unverified until the canonical kernel/ISO CI runs. Installer storage-backed root mount/write/verify/cold reboot, persistent disk filesystem backend, production service supervision, Aurora health, Recovery repair postcondition, AP-backed SMP, and the six-case full production matrix remain open. Do not merge or publish a production release yet.
+
+
+## Ring-3 VFS self-test
+
+The fail-closed native init now performs a real /tmp create + truncate + write + seek + read + close round trip through the native syscall dispatcher and prints NATIVE INIT VFS SELFTEST PASS only when the returned byte counts and payload match. A failure prints a diagnostic and exits 78. This is a filesystem contract probe, not USERSPACE READY, and the init still exits 78 after reporting unavailable production services. The source-contract test requires these syscall paths. Production evidence still must come from raw traces of the unchanged verifier.
