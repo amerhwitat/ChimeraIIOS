@@ -102,6 +102,20 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("production_iso: artifact file does not exist" in e for e in errors))
         self.assertTrue(any("raw_trace: artifact file does not exist" in e for e in errors))
 
+    def test_iso_sha256_is_checked_without_loading_whole_file(self):
+        import tempfile
+        import hashlib
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            iso = root / "koronos-live-bios.iso"
+            iso.write_bytes(b"sample-iso-payload")
+            data = valid_evidence()
+            data["cases"]["live-bios"]["production_iso"] = iso.name
+            data["cases"]["live-bios"]["iso_sha256"] = hashlib.sha256(b"wrong-payload").hexdigest()
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("live-bios: production_iso: SHA-256 does not match artifact contents" in e for e in errors))
+
     def test_artifact_path_traversal_is_rejected(self):
         import tempfile
         from pathlib import Path
