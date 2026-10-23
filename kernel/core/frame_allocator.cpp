@@ -17,6 +17,15 @@ uint32_t allocated_bitmap[BITMAP_WORDS];
 volatile uint32_t allocator_lock = 0;
 bool initialized = false;
 uint64_t free_pages = 0;
+uint16_t vm_frame_refs[PAGE_COUNT]{};
+volatile uint32_t vm_ref_lock = 0;
+static void vm_lock() { while (__sync_lock_test_and_set(&vm_ref_lock, 1u)) {} }
+static void vm_unlock() { __sync_lock_release(&vm_ref_lock); }
+static bool vm_frame_index(uint64_t address, uint32_t *index) {
+    if (!index || (address & (KORONOS_FRAME_SIZE - 1u)) != 0u || address >= KORONOS_FRAME_PHYS_LIMIT) return false;
+    *index = static_cast<uint32_t>(address / KORONOS_FRAME_SIZE);
+    return *index >= FIRST_ALLOCATABLE_PAGE && *index < PAGE_COUNT;
+}
 
 struct Mb2Tag { uint32_t type, size; };
 struct Mb2MmapTag { uint32_t type, size, entry_size, entry_version; };
@@ -117,6 +126,8 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     }
     free_pages = 0;
     initialized = false;
+    for (uint32_t i = 0; i < PAGE_COUNT; ++i) vm_frame_refs[i] = 0;
+    vm_ref_lock = 0;
     if (!parse_mmap(info)) return -1;
 
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
