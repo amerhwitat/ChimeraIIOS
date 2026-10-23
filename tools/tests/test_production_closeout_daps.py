@@ -199,6 +199,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace = root / "traces" / "live-bios.log"
             trace.parent.mkdir()
             trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "a" * 64 + "\\n"
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
                 "USERSPACE TARGET READY: live component=aurora-session init pid=8\\n",
@@ -207,6 +208,43 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
             errors = GATE["check_evidence"](data, root)
         self.assertTrue(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
+
+    def test_raw_trace_requires_matching_production_iso_sha256(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("raw_trace lacks the production ISO SHA-256 binding marker" in e for e in errors))
+
+    def test_raw_trace_rejects_mismatched_production_iso_sha256(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "b" * 64 + "\\n"
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("raw_trace ISO SHA-256 does not match" in e for e in errors))
 
     def test_accepts_real_production_target_ready_marker(self):
         import tempfile
@@ -217,6 +255,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace = root / "traces" / "live-bios.log"
             trace.parent.mkdir()
             trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "a" * 64 + "\\n"
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
                 "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
@@ -254,6 +293,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace = root / "traces" / "live-bios.log"
             trace.parent.mkdir()
             trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "a" * 64 + "\\n"
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
                 "USERSPACE TARGET READY: live component=recovery-runtime init pid=7\\n",
