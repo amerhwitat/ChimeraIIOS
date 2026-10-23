@@ -90,17 +90,19 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
             content = path.read_text(encoding="utf-8", errors="replace")
             entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
             component = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}[target]
+            # Production closeout must prove the target service is healthy.
+            # Legacy USERSPACE READY probe markers are smoke-test signals only
+            # and must never satisfy a production release gate.
             ready = re.search(
-                r"USERSPACE TARGET READY: " + re.escape(target) + r" component=" + re.escape(component) +
-                r" init pid=([1-9][0-9]*)|USERSPACE READY: target=" + re.escape(target) +
-                r" init_pid=([1-9][0-9]*)|USERSPACE READY: " + re.escape(target) +
+                r"USERSPACE TARGET READY: " + re.escape(target) +
+                r" component=" + re.escape(component) +
                 r" init pid=([1-9][0-9]*)", content)
             if not entry:
                 errors.append(f"{case_id}: raw_trace lacks a target-matched user-originated syscall with nonzero PID")
             if not ready:
                 errors.append(f"{case_id}: raw_trace lacks a target-matched userspace readiness marker with nonzero PID")
             elif entry:
-                ready_pid = next(group for group in ready.groups() if group is not None)
+                ready_pid = ready.group(1)
                 if entry.group(1) != ready_pid:
                     errors.append(f"{case_id}: raw_trace syscall/readiness PIDs do not match")
             if entry and ready and entry.start() >= ready.start():
