@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
+#include "chimera/address_space.h"
 
 /* Defined by kernel/arch/x86_64/interrupts.asm.  Keep this declaration at
  * global scope: placing it inside the anonymous namespace gives the symbol
@@ -96,6 +97,7 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
 
 extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs);
 extern "C" uint32_t koronos_target_active_pid(void);
+extern "C" void *koronos_target_active_address_space(void);
 extern "C" void koronos_user_page_fault_abort(void);
 extern "C" void koronos_target_log(const char *message);
 
@@ -113,6 +115,10 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
         if ((user_cs & 3u) == 3u && koronos_target_active_pid() != 0u) {
             uint64_t fault_address = 0;
             __asm__ volatile("mov %%cr2, %0" : "=r"(fault_address));
+            const uint64_t error_code = saved[16];
+            void *active_space = koronos_target_active_address_space();
+            if (active_space && koronos_address_space_handle_page_fault(active_space, fault_address, error_code) == 0)
+                return;
             char message[96];
             const char prefix[] = "[PF] Unhandled ring-3 page fault; aborting PID, CR2=0x";
             unsigned int pos = 0;
