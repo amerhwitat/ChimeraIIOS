@@ -158,6 +158,43 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             errors = GATE["check_evidence"](data, root)
         self.assertTrue(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
 
+    def test_accepts_real_production_target_ready_marker(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertFalse(any("raw_trace lacks a target-matched userspace readiness marker" in e for e in errors))
+        self.assertFalse(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
+
+    def test_rejects_production_ready_marker_for_wrong_component(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE TARGET READY: live component=recovery-runtime init pid=7\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("raw_trace lacks a target-matched userspace readiness marker" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
