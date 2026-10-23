@@ -17,3 +17,5 @@ koronos_protected_mode_probe:
  mov es,ax
  mov ss,ax
  ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits
