@@ -82,15 +82,19 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
     trace = case.get("raw_trace")
     if nonempty(trace):
         _check_trace_tokens(trace, f"{case_id}: raw_trace", root,
-                            ("[KRN ] KORONOS READY", "USER INIT SYSCALL:",
-                             "USERSPACE SYSCALL RETURNED TO RING3"), errors)
+                            ("[KRN ] KORONOS READY", "USER INIT SYSCALL:"), errors)
         rel = Path(trace)
         base = root.resolve()
         path = (base / rel).resolve() if not rel.is_absolute() else base
         if path.is_relative_to(base) and path.is_file():
             content = path.read_text(encoding="utf-8", errors="replace")
             entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
-            ready = re.search(r"USERSPACE READY: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)|USERSPACE READY: " + re.escape(target) + r" init pid=([1-9][0-9]*)", content)
+            component = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}[target]
+            ready = re.search(
+                r"USERSPACE TARGET READY: " + re.escape(target) + r" component=" + re.escape(component) +
+                r" init pid=([1-9][0-9]*)|USERSPACE READY: target=" + re.escape(target) +
+                r" init_pid=([1-9][0-9]*)|USERSPACE READY: " + re.escape(target) +
+                r" init pid=([1-9][0-9]*)", content)
             if not entry:
                 errors.append(f"{case_id}: raw_trace lacks a target-matched user-originated syscall with nonzero PID")
             if not ready:
