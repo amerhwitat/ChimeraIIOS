@@ -30,6 +30,30 @@ if "sources=(block_device iso9660 " not in source:
     print("FAIL: block-device and ISO9660 objects are not part of the kernel build", file=sys.stderr)
     raise SystemExit(1)
 
+# The swap adapter must be linked into Koronos and its host regression test
+# must be compiled with the canonical build and executed as a separate step.
+if "swap_block_device" not in source.split("sources=(", 1)[1].split(")", 1)[0]:
+    print("FAIL: swap block-device adapter is not part of the kernel object list", file=sys.stderr)
+    raise SystemExit(1)
+swap_test_compile = next((i for i, line in enumerate(lines)
+                          if ' -o "$BUILD/swap-block-device-test"' in line), None)
+if swap_test_compile is None:
+    print("FAIL: swap block-device host test compile command is missing", file=sys.stderr)
+    raise SystemExit(1)
+if not all(token in lines[swap_test_compile]
+           for token in ('"$ROOT/kernel/core/block_device.cpp"',
+                         '"$ROOT/kernel/core/swap.cpp"',
+                         '"$ROOT/kernel/core/swap_block_device.cpp"',
+                         '"$ROOT/kernel/tests/swap_block_device_test.cpp"')):
+    print("FAIL: swap block-device host test does not compile the adapter and its dependencies", file=sys.stderr)
+    raise SystemExit(1)
+if swap_test_compile + 1 >= len(lines) or lines[swap_test_compile + 1].strip() != '"$BUILD/swap-block-device-test"':
+    print("FAIL: swap block-device host test must run immediately after compilation", file=sys.stderr)
+    raise SystemExit(1)
+if "koronos_swap_init_block_extent" not in source:
+    print("FAIL: required-symbol gate does not include the swap block-device initializer", file=sys.stderr)
+    raise SystemExit(1)
+
 if 'SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"' not in source:
     print("FAIL: system block size must default to 4096 and allow user configuration", file=sys.stderr)
     raise SystemExit(1)
