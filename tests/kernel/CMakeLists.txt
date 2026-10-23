@@ -113,6 +113,20 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 add_test(NAME chimera_vfs COMMAND chimera_vfs_test)
 
+add_executable(chimera_block_device_iso9660_test
+  ../../kernel/tests/block_device_iso9660_test.cpp
+  ../../kernel/core/block_device.cpp
+  ../../kernel/core/iso9660.cpp
+  ../../kernel/core/vfs.cpp
+)
+target_include_directories(chimera_block_device_iso9660_test PRIVATE ${CMAKE_SOURCE_DIR}/kernel/include)
+target_compile_features(chimera_block_device_iso9660_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_block_device_iso9660_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_block_device_iso9660 COMMAND chimera_block_device_iso9660_test)
+
+
 add_executable(chimera_tmpfs_test
   ../../kernel/tests/tmpfs_test.cpp
   ../../kernel/core/tmpfs.cpp
