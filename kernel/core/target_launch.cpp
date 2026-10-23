@@ -34,7 +34,6 @@ static bool staged_rootfs_ready = false;
 /* Published only after the VFS root mount succeeds. The extracted tree is
    immutable and remains alive for the lifetime of the mounted root. */
 static chimera_ramfs_node *published_rootfs = nullptr;
-static chimera_tmpfs *published_tmpfs = nullptr;
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -458,7 +457,6 @@ extern "C" int koronos_launch_selected_userspace(void) {
             koronos_target_log("[RUN ] ERROR: bounded writable /tmp filesystem mount failed; refusing userspace launch");
             return -15;
         }
-        published_tmpfs = tmpfs_candidate;
         __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
         koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file syscalls enabled");
     }
