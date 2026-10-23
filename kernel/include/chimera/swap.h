@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+struct chimera_block_device;
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +43,10 @@ typedef struct koronos_swap_snapshot {
    and must not mutate/reinitialize swap from inside a callback. Read-only
    snapshot queries are safe from a callback. */
 int koronos_swap_init(const koronos_swap_backend *backend);
+/* Bind a caller-discovered writable block-device extent. The adapter copies the
+   device descriptor, requires flush support, and keeps swap disabled on failure. */
+int koronos_swap_init_block_extent(const struct chimera_block_device *device,
+                                   uint64_t byte_offset, uint64_t length);
 int koronos_swap_store(const void *page, uint32_t *slot_out);
 int koronos_swap_load(uint32_t slot, void *page_out);
 int koronos_swap_release(uint32_t slot);
