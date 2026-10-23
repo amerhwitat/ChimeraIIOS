@@ -21,7 +21,19 @@ constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
 
 
 
-struct FrameBlock { uint64_t physical; uint64_t virtual_base; uint32_t pages; uint32_t elf_flags; };
+enum PageState : uint8_t { PAGE_RESIDENT = 1, PAGE_SWAPPED = 2, PAGE_EVICTING = 3, PAGE_LOADING = 4 };
+constexpr uint8_t PAGE_META_DIRTY = 0x40u;
+constexpr uint8_t PAGE_META_REFERENCED = 0x80u;
+struct PageMeta { uint16_t pins; uint8_t state; uint8_t flags; uint32_t swap_slot; };
+static_assert(sizeof(PageMeta) == 8, "page metadata must remain compact");
+struct FrameBlock {
+    uint64_t physical;
+    uint64_t metadata_physical;
+    uint64_t virtual_base;
+    uint32_t pages;
+    uint32_t metadata_pages;
+    uint32_t elf_flags;
+};
 struct AddressSpace {
     uint64_t magic;
     uint64_t root_physical;
@@ -78,6 +90,9 @@ static void destroy_locked(AddressSpace *space) {
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         if (space->mapped[i].physical && space->mapped[i].pages)
             (void)koronos_frame_free_contiguous(space->mapped[i].physical, space->mapped[i].pages);
+        if (space->mapped[i].metadata_physical && space->mapped[i].metadata_pages)
+            (void)koronos_frame_free_contiguous(space->mapped[i].metadata_physical,
+                                                space->mapped[i].metadata_pages);
     }
     for (uint32_t i = space->table_count; i > 0; --i)
         (void)koronos_frame_free(space->table_frames[i - 1]);
@@ -263,6 +278,25 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
 
     const uint64_t physical = koronos_frame_alloc_contiguous(static_cast<uint32_t>(pages64));
     if (!physical) { unlock_backend(); return -4; }
+    const uint64_t metadata_bytes = pages64 * sizeof(PageMeta);
+    const uint64_t metadata_pages64 = (metadata_bytes + PAGE_MASK) / PAGE_SIZE;
+    if (!metadata_pages64 || metadata_pages64 > UINT32_MAX) {
+        (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        unlock_backend(); return -8;
+    }
+    const uint64_t metadata_physical = koronos_frame_alloc_contiguous(
+        static_cast<uint32_t>(metadata_pages64));
+    if (!metadata_physical) {
+        (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        unlock_backend(); return -9;
+    }
+    auto *page_meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(metadata_physical));
+    for (uint64_t i = 0; i < pages64; ++i) {
+        page_meta[i].pins = 0;
+        page_meta[i].state = PAGE_RESIDENT;
+        page_meta[i].flags = static_cast<uint8_t>(elf_flags | PAGE_META_REFERENCED);
+        page_meta[i].swap_slot = KORONOS_SWAP_SLOT_INVALID;
+    }
     const uint64_t leaf_flags = ENTRY_PRESENT | ENTRY_USER |
         ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
         ((elf_flags & 1u) ? 0u : ENTRY_NX);
@@ -283,13 +317,16 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
             if (pte) *pte = 0;
         }
         (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64));
+        (void)koronos_frame_free_contiguous(metadata_physical, static_cast<uint32_t>(metadata_pages64));
         unlock_backend();
         return -7;
     }
     FrameBlock &block = space->mapped[space->mapped_count++];
     block.physical = physical;
+    block.metadata_physical = metadata_physical;
     block.virtual_base = virtual_base;
     block.pages = static_cast<uint32_t>(pages64);
+    block.metadata_pages = static_cast<uint32_t>(metadata_pages64);
     block.elf_flags = elf_flags;
     space->user_pages += pages64;
     *kernel_alias = reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
@@ -472,6 +509,8 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
     const uint64_t root = space->root_physical;
     const uint32_t pages = block->pages;
     const uint64_t physical = block->physical;
+    const uint64_t metadata_physical = block->metadata_physical;
+    const uint32_t metadata_pages = block->metadata_pages;
     for (uint64_t i = 0; i < pages; ++i) *find_pte(space, base + i * PAGE_SIZE) = 0;
     // The callback is required to be synchronous and cannot report partial
     // completion: frames are not returned to the allocator before shootdown.
@@ -487,6 +526,8 @@ extern "C" int koronos_address_space_unmap(void *opaque, uint64_t base, uint64_t
         tlb_shootdown(root, base, length, tlb_context);
         unlock_backend(); return -6;
     }
+    if (metadata_physical && metadata_pages)
+        (void)koronos_frame_free_contiguous(metadata_physical, metadata_pages);
     space->user_pages -= pages;
     for (uint32_t i = index + 1; i < space->mapped_count; ++i) space->mapped[i - 1] = space->mapped[i];
     --space->mapped_count;
@@ -541,4 +582,74 @@ extern "C" int koronos_address_space_query(void *opaque, uint64_t va,
     unlock_backend();
     return 0;
 }
-\nextern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
+\nstatic PageMeta *find_page_meta(AddressSpace *space, uint64_t page_va, uint64_t *physical_out) {
+    for (uint32_t i = 0; i < space->mapped_count; ++i) {
+        FrameBlock &b = space->mapped[i];
+        const uint64_t bytes = static_cast<uint64_t>(b.pages) * PAGE_SIZE;
+        if (page_va < b.virtual_base || page_va - b.virtual_base >= bytes) continue;
+        const uint64_t index = (page_va - b.virtual_base) / PAGE_SIZE;
+        if (index >= b.pages || !b.metadata_physical) return nullptr;
+        if (physical_out) *physical_out = b.physical + index * PAGE_SIZE;
+        auto *meta = reinterpret_cast<PageMeta *>(static_cast<uintptr_t>(b.metadata_physical));
+        return &meta[index];
+    }
+    return nullptr;
+}
+
+extern "C" int koronos_address_space_pin(void *opaque, uint64_t address, uint64_t length,
+                                           uint32_t write_access) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || !length || write_access > 1u ||
+        address < KORONOS_USER_VIRTUAL_MIN || address >= CHIMERA_ELF_USER_LIMIT ||
+        length > CHIMERA_ELF_USER_LIMIT - address) return -1;
+    const uint64_t end = address + length;
+    const uint64_t first_page = address & ~PAGE_MASK;
+    lock_backend();
+    if (!space_valid(space)) { unlock_backend(); return -2; }
+    // Validate the entire range before changing any pin counts.
+    for (uint64_t va = first_page; va < end; va += PAGE_SIZE) {
+        uint64_t physical = 0;
+        PageMeta *meta = find_page_meta(space, va, &physical);
+        uint64_t *pte = find_pte(space, va);
+        if (!meta || meta->state != PAGE_RESIDENT || meta->pins == UINT16_MAX ||
+            !pte || !(*pte & ENTRY_PRESENT) || !(*pte & ENTRY_USER) ||
+            ((*pte & ENTRY_ADDRESS_MASK) != physical) ||
+            (write_access && !(*pte & ENTRY_WRITE))) {
+            unlock_backend(); return -3;
+        }
+        if (va > UINT64_MAX - PAGE_SIZE) { unlock_backend(); return -4; }
+    }
+    for (uint64_t va = first_page; va < end; va += PAGE_SIZE) {
+        PageMeta *meta = find_page_meta(space, va, nullptr);
+        ++meta->pins;
+        meta->flags |= PAGE_META_REFERENCED;
+        if (write_access) meta->flags |= PAGE_META_DIRTY;
+    }
+    unlock_backend();
+    return 0;
+}
+
+extern "C" int koronos_address_space_unpin(void *opaque, uint64_t address, uint64_t length) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || !length || address < KORONOS_USER_VIRTUAL_MIN ||
+        address >= CHIMERA_ELF_USER_LIMIT || length > CHIMERA_ELF_USER_LIMIT - address) return -1;
+    const uint64_t end = address + length;
+    const uint64_t first_page = address & ~PAGE_MASK;
+    lock_backend();
+    if (!space_valid(space)) { unlock_backend(); return -2; }
+    for (uint64_t va = first_page; va < end; va += PAGE_SIZE) {
+        PageMeta *meta = find_page_meta(space, va, nullptr);
+        if (!meta || meta->state != PAGE_RESIDENT || meta->pins == 0) {
+            unlock_backend(); return -3;
+        }
+        if (va > UINT64_MAX - PAGE_SIZE) { unlock_backend(); return -4; }
+    }
+    for (uint64_t va = first_page; va < end; va += PAGE_SIZE) {
+        PageMeta *meta = find_page_meta(space, va, nullptr);
+        --meta->pins;
+    }
+    unlock_backend();
+    return 0;
+}
+
+extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
