@@ -97,7 +97,7 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str],
             # The boot harness must stamp the digest it actually launched into the
             # captured trace, and the marker must match this case's verified ISO.
             iso_marker = re.search(
-                r"PRODUCTION ISO SHA-256:\\s*([0-9a-fA-F]{64})", content, re.IGNORECASE)
+                r"PRODUCTION ISO SHA-256:\s*([0-9a-fA-F]{64})", content, re.IGNORECASE)
             if not isinstance(expected_iso_sha256, str) or not HEX256.fullmatch(expected_iso_sha256):
                 errors.append(f"{case_id}: cannot bind raw_trace to a valid case ISO SHA-256")
             elif not iso_marker:
