@@ -484,8 +484,15 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_hex32(f->hypervisor);
 
     console_write("[SCH ] Initializing scheduler...");
-    chimera_sched_init(f->logical_cpus);
-    chimera_learning_init(f->logical_cpus);
+    // CPUID reports possible/logical processors, not processors that Koronos
+    // has actually brought online. Until AP startup and per-CPU scheduler
+    // state are implemented, CPU0 is the only schedulable CPU. Passing the
+    // detected count here can assign runnable work to offline CPUs and stall
+    // the bootstrap/userspace handoff.
+    constexpr uint32_t online_scheduler_cpus = 1;
+    console_write("[SCH ] Online scheduler CPUs: 1 (AP startup not implemented)");
+    chimera_sched_init(online_scheduler_cpus);
+    chimera_learning_init(online_scheduler_cpus);
     console_progress(35, "Scheduler and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
