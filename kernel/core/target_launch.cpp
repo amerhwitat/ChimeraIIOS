@@ -31,6 +31,13 @@ static bool active_ring3_probe = false;
    must never be reported as process-visible filesystem readiness. */
 static chimera_ramfs_node *staged_rootfs = nullptr;
 static bool staged_rootfs_ready = false;
+/* Published only after complete archive validation and transactional extraction.
+   The RAMFS API is the process-visible root namespace until a general VFS mount
+   layer exists; publication is one pointer swap and the tree remains alive. */
+static chimera_ramfs_node *published_rootfs = nullptr;
+constexpr uint32_t MAX_TARGET_FDS = 32u;
+struct TargetFd { uint32_t pid; const chimera_ramfs_node *node; uint64_t offset; bool active; };
+static TargetFd target_fds[MAX_TARGET_FDS]{};
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -176,6 +183,71 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
+
+/* Read-only process-owned descriptors bridge the validated RAMFS root to ring 3.
+   User addresses are validated against the active process's own CR3 before any
+   dereference. Writes to regular files remain unsupported (EROFS) until RAMFS
+   has transactional mutation semantics. */
+extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
+    if (flags != 0u) return -22; /* O_RDONLY only */
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid || !active_root || !user_path) return -14;
+    char path[CHIMERA_RAMFS_MAX_PATH + 1u];
+    uint32_t length = 0;
+    for (; length < CHIMERA_RAMFS_MAX_PATH; ++length) {
+        if (user_path > UINT64_MAX - length ||
+            koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0)
+            return -14;
+        const char c = *reinterpret_cast<const volatile char *>(static_cast<uintptr_t>(user_path + length));
+        path[length] = c;
+        if (!c) break;
+    }
+    if (length == CHIMERA_RAMFS_MAX_PATH || !path[0]) return -22;
+    auto *root = __atomic_load_n(&published_rootfs, __ATOMIC_ACQUIRE);
+    if (!root) return -2;
+    const auto *node = chimera_ramfs_lookup(root, path);
+    if (!node) return -2;
+    if (chimera_ramfs_is_directory(node)) return -21;
+    for (uint32_t i = 0; i < MAX_TARGET_FDS; ++i) {
+        if (!target_fds[i].active) {
+            target_fds[i] = {pid, node, 0u, true};
+            return static_cast<int64_t>(i + 3u);
+        }
+    }
+    return -24;
+}
+extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uint64_t count) {
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid || fd < 3u || fd >= MAX_TARGET_FDS + 3u) return -9;
+    auto &entry = target_fds[static_cast<uint32_t>(fd - 3u)];
+    if (!entry.active || entry.pid != pid || !entry.node) return -9;
+    if (!count) return 0;
+    if (count > 4096u) return -22;
+    if (!user_buffer || !active_root ||
+        koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0)
+        return -14;
+    uint64_t bytes = 0;
+    const int rc = chimera_ramfs_read(entry.node, entry.offset,
+        reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count, &bytes);
+    if (rc != CHIMERA_RAMFS_OK) return -5;
+    if (bytes > count || entry.offset > UINT64_MAX - bytes) return -5;
+    entry.offset += bytes;
+    return static_cast<int64_t>(bytes);
+}
+extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
+    const uint32_t pid = koronos_target_active_pid();
+    if (!pid || fd < 3u || fd >= MAX_TARGET_FDS + 3u) return -9;
+    auto &entry = target_fds[static_cast<uint32_t>(fd - 3u)];
+    if (!entry.active || entry.pid != pid) return -9;
+    entry = {};
+    return 0;
+}
+static void close_target_fds(uint32_t pid) {
+    if (!pid) return;
+    for (uint32_t i = 0; i < MAX_TARGET_FDS; ++i)
+        if (target_fds[i].active && target_fds[i].pid == pid) target_fds[i] = {};
+}
+
 static uint32_t validate_active_user_context(uint64_t user_rip) {
     if (active_target == TARGET_NONE || !active_pid || !active_root) return 0u;
     if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) return 0u;
@@ -372,13 +444,19 @@ extern "C" int koronos_launch_selected_userspace(void) {
             koronos_target_log("[RUN ] Rootfs archive extracted into bounded unpublished RAMFS staging tree");
         }
     }
-    /* Production root payloads are classified and bounds-checked above, but
-     * this launch path does not yet extract the archive into RAMFS or publish
-     * that tree to the process-visible VFS. Launching init anyway permits a
-     * probe ELF to print USERSPACE READY while / is unavailable. Fail closed
-     * until transactional extraction + atomic VFS publication are wired here. */
-    if (payload_count == 1u) {
-        koronos_target_log("[RUN ] ERROR: production rootfs is validated but not mounted; refusing userspace readiness without VFS publication");
+    /* The extracted RAMFS tree is immutable and complete at this point. Publish
+       it as one root pointer only after extraction succeeded; installer images
+       are disk containers, not CPIO rootfs archives, and remain fail-closed. */
+    if (payload_count == 1u && (target == TARGET_LIVE || target == TARGET_RECOVERY)) {
+        if (!staged_rootfs_ready || !staged_rootfs) {
+            koronos_target_log("[RUN ] ERROR: production rootfs staging is absent; refusing userspace launch");
+            return -15;
+        }
+        __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
+        koronos_target_log("[VFS ] Rootfs published atomically; process path lookup and read-only file syscalls enabled");
+    }
+    if (payload_count == 1u && target == TARGET_INSTALLER) {
+        koronos_target_log("[RUN ] ERROR: installer storage-backed root namespace is not mounted; refusing false readiness");
         return -15;
     }
     if (!koronos_address_space_ready()) {
@@ -438,6 +516,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     const uint64_t user_entry_stack = loaded.user_stack_top - sizeof(uint64_t);
     const int exit_code=koronos_arch_enter_user(root,loaded.entry,user_entry_stack);
     koronos_user_timeout_disarm();
+    close_target_fds(active_pid);
     ops->destroy_address_space(nullptr,loaded.address_space);
     (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
     active_target=TARGET_NONE;
