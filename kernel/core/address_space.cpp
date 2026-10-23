@@ -579,9 +579,12 @@ extern "C" int koronos_address_space_protect(void *opaque, uint64_t base, uint64
     const uint64_t root = space->root_physical;
     for (uint64_t i = 0; i < block->pages; ++i) {
         uint64_t *pte = find_pte(space, base + i * PAGE_SIZE);
+        PageMeta *meta = find_page_meta(space, base + i * PAGE_SIZE, nullptr);
         *pte = (*pte & ~(ENTRY_WRITE | ENTRY_NX)) |
                ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
                ((elf_flags & 1u) ? 0u : ENTRY_NX);
+        if (meta) meta->flags = static_cast<uint8_t>(
+            (meta->flags & (PAGE_META_DIRTY | PAGE_META_REFERENCED)) | elf_flags);
     }
     tlb_shootdown(root, base, length, tlb_context);
     block->elf_flags = elf_flags;
