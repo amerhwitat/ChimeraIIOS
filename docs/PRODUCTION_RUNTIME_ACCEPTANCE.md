@@ -150,3 +150,12 @@ Release remains blocked pending launcher integration, rootfs publication, real s
 - DAPS now validates the production raw trace for kernel-ready, user-originated target syscall, ring-3 return, target-matched nonzero readiness PID, PID equality, and syscall-before-readiness ordering. It also checks evidence logs for rootfs OPEN/READ/CLOSE, Live/Recovery tmpfs CREATE/WRITE/READ/TRUNCATE, display fallbacks/Aurora, persistence, repair postcondition, and SMP markers.
 - Regression tests now cover a readiness claim without a syscall and a raw trace with mismatched PIDs. This tightens the evidence gate; it does not create missing runtime traces or imply that the underlying services work.
 - Fresh CI has not yet been confirmed for these commits. Release remains blocked until actual production logs contain the required markers and all six firmware/target cases plus independent gates pass.
+
+
+## 2026-10-23 follow-up — production readiness contract mismatch
+
+- Root cause: the production kernel's `target_marker()` accepts `USERSPACE TARGET READY: <target> component=<target-service> init pid=<pid>`, but the standalone `verify-userspace-handoff.py` previously recognized only the older `USERSPACE READY:` probe forms. That would reject a legitimate production service marker even if it appeared in a real trace.
+- A second false requirement was introduced in DAPS: it required a literal `USERSPACE SYSCALL RETURNED TO RING3` string that is not part of the kernel's established trace contract. The syscall acknowledgement itself is emitted by the CPL3-validated syscall path; the extra string must not be required.
+- Commits `da8566ba8b1fe02fec2bf7ccea7109df2ca4798d`, `66e2f6f83082fa3750d8692aa478b615d73792df`, and `a977394d57b1b9a93a3da9cf87f487b378dd235a` align DAPS and the standalone verifier with the real production marker, including the expected component for each target, and add regression tests.
+- Commit `1657d06dbfe49de903ab62aa58f8b1f13dfffab0` adds DAPS regression cases for the real production marker and wrong-component rejection.
+- This repairs a verifier false-negative and removes an unsupported marker requirement. It does not make the currently blocked native init operational, does not provide Installer persistence, and does not establish a production boot. Fresh CI and real runtime traces are still required.
