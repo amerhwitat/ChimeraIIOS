@@ -55,6 +55,54 @@ def _check_artifact(value: object, label: str, root: Path, errors: list[str],
             errors.append(f"{label}: SHA-256 does not match artifact contents")
 
 
+def _check_trace_tokens(path_value: object, label: str, root: Path, required: tuple[str, ...], errors: list[str]) -> None:
+    """Require semantic markers in the actual artifact, not only JSON booleans."""
+    if not nonempty(path_value):
+        return
+    rel = Path(path_value)
+    if rel.is_absolute():
+        return
+    base = root.resolve()
+    path = (base / rel).resolve()
+    if not path.is_relative_to(base) or not path.is_file():
+        return  # _check_artifact reports the primary path failure.
+    try:
+        content = path.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        errors.append(f"{label}: cannot read evidence artifact: {exc}")
+        return
+    folded = content.casefold()
+    for token in required:
+        if token.casefold() not in folded:
+            errors.append(f"{label}: trace is missing required runtime marker {token!r}")
+
+
+def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str]) -> None:
+    target = case_id.rsplit("-", 1)[0]
+    trace = case.get("raw_trace")
+    if nonempty(trace):
+        _check_trace_tokens(trace, f"{case_id}: raw_trace", root,
+                            ("[KRN ] KORONOS READY", "USER INIT SYSCALL:",
+                             "USERSPACE SYSCALL RETURNED TO RING3"), errors)
+        rel = Path(trace)
+        base = root.resolve()
+        path = (base / rel).resolve() if not rel.is_absolute() else base
+        if path.is_relative_to(base) and path.is_file():
+            content = path.read_text(encoding="utf-8", errors="replace")
+            entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
+            ready = re.search(r"USERSPACE READY: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)|USERSPACE READY: " + re.escape(target) + r" init pid=([1-9][0-9]*)", content)
+            if not entry:
+                errors.append(f"{case_id}: raw_trace lacks a target-matched user-originated syscall with nonzero PID")
+            if not ready:
+                errors.append(f"{case_id}: raw_trace lacks a target-matched userspace readiness marker with nonzero PID")
+            elif entry:
+                ready_pid = next(group for group in ready.groups() if group is not None)
+                if entry.group(1) != ready_pid:
+                    errors.append(f"{case_id}: raw_trace syscall/readiness PIDs do not match")
+            if entry and ready and entry.start() >= ready.start():
+                errors.append(f"{case_id}: raw_trace user syscall acknowledgement must precede readiness")
+
+
 def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -79,6 +127,7 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         if artifact_root is not None:
             _check_artifact(case.get("production_iso"), f"{case_id}: production_iso", artifact_root, errors, case.get("iso_sha256") if isinstance(case.get("iso_sha256"), str) else None)
             _check_artifact(case.get("raw_trace"), f"{case_id}: raw_trace", artifact_root, errors)
+            _check_target_trace(case_id, case, artifact_root, errors)
         if case.get("cpl3_syscall_ack") is not True:
             errors.append(f"{case_id}: no verified CPL3-originated syscall acknowledgement")
         if case.get("process_visible_rootfs") is not True:
@@ -97,6 +146,8 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
             errors.append(f"{case_id}: missing raw evidence for rootfs OPEN/READ/CLOSE")
         if artifact_root is not None and nonempty(case.get("rootfs_file_syscalls_evidence")):
             _check_artifact(case.get("rootfs_file_syscalls_evidence"), f"{case_id}: rootfs_file_syscalls_evidence", artifact_root, errors)
+            _check_trace_tokens(case.get("rootfs_file_syscalls_evidence"), f"{case_id}: rootfs_file_syscalls_evidence", artifact_root,
+                                ("OPEN", "READ", "CLOSE"), errors)
         if case_id.startswith(("live-", "recovery-")):
             if case.get("tmpfs_mutation_verified") is not True:
                 errors.append(f"{case_id}: writable tmpfs create/write/read/truncate was not verified")
@@ -104,6 +155,8 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                 errors.append(f"{case_id}: missing raw evidence for writable tmpfs operations")
             if artifact_root is not None and nonempty(case.get("tmpfs_mutation_evidence")):
                 _check_artifact(case.get("tmpfs_mutation_evidence"), f"{case_id}: tmpfs_mutation_evidence", artifact_root, errors)
+                _check_trace_tokens(case.get("tmpfs_mutation_evidence"), f"{case_id}: tmpfs_mutation_evidence", artifact_root,
+                                    ("CREATE", "WRITE", "READ", "TRUNCATE"), errors)
         syscall_pid = case.get("syscall_pid")
         ready_pid = case.get("readiness_pid")
         if not isinstance(syscall_pid, int) or isinstance(syscall_pid, bool) or syscall_pid <= 0:
@@ -140,6 +193,15 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                 errors.append(f"{name}: missing {field}")
             elif artifact_root is not None and field == "evidence":
                 _check_artifact(value, f"{name}: evidence", artifact_root, errors)
+                required_markers = {
+                    "display": ("FRAMEBUFFER", "1024x768", "640x480", "AURORA"),
+                    "aurora_handoff": ("AURORA", "HANDOFF"),
+                    "installer_persistence": ("WRITE", "COLD REBOOT", "READBACK"),
+                    "recovery_repair": ("REPAIR", "POSTCONDITION"),
+                    "smp": ("AP STARTUP", "OVERLAPPING EXECUTION"),
+                }
+                _check_trace_tokens(value, f"{name}: evidence", artifact_root,
+                                    required_markers.get(name, ()), errors)
         if name == "smp":
             cpu_ids = section.get("cpu_ids")
             if not isinstance(cpu_ids, list) or len({v for v in cpu_ids if isinstance(v, int) and not isinstance(v, bool)}) < 2:
