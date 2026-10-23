@@ -93,6 +93,10 @@ def main() -> int:
     if "absolute paths and interior dot/dot-dot" not in ramfs_source:
         return fail("RAMFS path normalization must preserve traversal rejection")
 
+    daps_source = (ROOT / "tools/production-closeout-daps.py").read_text(encoding="utf-8")
+    if 'rootfs_file_syscalls_verified' not in daps_source or 'rootfs_file_syscalls_evidence' not in daps_source:
+        return fail("release gate must require ring-3 OPEN/READ/CLOSE evidence, not just a published root pointer")
+
     if "if (count==0)" not in launch:
         return fail("missing explicit zero-USER_INIT_ELF branch")
     zero_branch = launch.split("if (count==0)", 1)[1].split(
