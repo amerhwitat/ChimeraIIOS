@@ -6,6 +6,7 @@ on:
       - "tools/production-closeout-daps.py"
       - "tools/tests/test_production_closeout_daps.py"
       - ".github/workflows/production-closeout-daps.yml"
+      - "docs/PRODUCTION_RUNTIME_ACCEPTANCE.md"
   push:
     branches: [main]
     paths:
