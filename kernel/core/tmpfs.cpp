@@ -2,6 +2,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 struct TmpNode {
     char *name;
     uint32_t name_length;
@@ -23,8 +27,17 @@ struct chimera_tmpfs {
 };
 
 namespace {
+#if defined(_MSC_VER)
+static void fs_lock(chimera_tmpfs *fs) {
+    while (_InterlockedExchange8(reinterpret_cast<volatile char *>(&fs->lock_word), 1) != 0) {}
+}
+static void fs_unlock(chimera_tmpfs *fs) {
+    (void)_InterlockedExchange8(reinterpret_cast<volatile char *>(&fs->lock_word), 0);
+}
+#else
 static void fs_lock(chimera_tmpfs *fs) { while (__atomic_test_and_set(&fs->lock_word, __ATOMIC_ACQUIRE)) {} }
 static void fs_unlock(chimera_tmpfs *fs) { __atomic_clear(&fs->lock_word, __ATOMIC_RELEASE); }
+#endif
 static uint32_t str_len(const char *s,uint32_t limit) { if(!s)return limit+1u;uint32_t n=0;while(n<=limit&&s[n])++n;return n; }
 static void copy_bytes(void *dst,const void *src,uint64_t n) { auto*d=static_cast<uint8_t*>(dst);const auto*s=static_cast<const uint8_t*>(src);for(uint64_t i=0;i<n;i++)d[i]=s[i]; }
 static void zero_bytes(void *dst,uint64_t n) { auto*d=static_cast<uint8_t*>(dst);for(uint64_t i=0;i<n;i++)d[i]=0; }
