@@ -498,8 +498,9 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     console_write("OK");
     parse_system_block_option(ctx->boot_info);
-    console_write("[BLK ] System block size (bytes): ");
-    console_u32(g_system_block_size);
+    console_raw("[BLK ] System block size (bytes): ");
+    console_u32_raw(g_system_block_size);
+    console_endline();
     console_write("[BLK ] Override with GRUB option koronos.system_block=<512..65536 power of two>");
     console_progress(5, "Koronos boot context accepted");
     console_write("[HW  ] Initializing hardware...");
