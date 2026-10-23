@@ -295,6 +295,17 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] MAP'" in e for e in errors))
         self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] SWAP LOAD'" in e for e in errors))
 
+    def test_unexpected_candidate_case_is_rejected(self):
+        data = valid_evidence()
+        data["candidate-live-qemu"] = {
+            "status": "PASS",
+            "production_iso": "candidate.iso",
+            "iso_sha256": "a" * 64,
+            "raw_trace": "candidate-smoke.log",
+        }
+        errors = check_evidence(data)
+        self.assertTrue(any("unexpected non-production case 'candidate-live-qemu'" in e for e in errors))
+
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()
         data["candidate_smoke_substituted"] = True
