@@ -62,6 +62,22 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2)
         self.assertEqual(run("recovery", trace).returncode, 0)
 
+    def test_accepts_production_target_ready_component_marker(self):
+        trace = (
+            KERNEL
+            + ENTRY.format(target="live", pid=7)
+            + "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n"
+        )
+        self.assertEqual(run("live", trace).returncode, 0)
+
+    def test_rejects_production_marker_with_wrong_component(self):
+        trace = (
+            KERNEL
+            + ENTRY.format(target="live", pid=7)
+            + "USERSPACE TARGET READY: live component=recovery-runtime init pid=7\\n"
+        )
+        self.assertEqual(run("live", trace).returncode, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
