@@ -12,6 +12,10 @@ on:
       - "kernel/userspace/native_init.c"
       - "kernel/userspace/native_init.ld"
       - "kernel/core/target_launch.cpp"
+      - "kernel/core/ramfs.cpp"
+      - "kernel/core/initramfs_cpio.cpp"
+      - "kernel/include/chimera/ramfs.h"
+      - "kernel/tests/ramfs_test.cpp"
       - "boot/iso/prepare-layout.sh"
       - "boot/iso/grub.cfg"
       - "boot/jasper/live.cfg"
@@ -56,6 +60,12 @@ jobs:
         run: python3 -m py_compile tools/production-closeout-daps.py
       - name: Run DAPS regression suite
         run: python3 tools/tests/test_production_closeout_daps.py
+      - name: Run RAMFS symlink extraction and rollback regression
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/initramfs_cpio.cpp kernel/core/ramfs.cpp kernel/tests/ramfs_test.cpp \
+            -o /tmp/koronos-ramfs-test
+          /tmp/koronos-ramfs-test
       - name: Build target-specific native init ELFs
         run: bash tools/build-production-init-elfs.sh
       - name: Verify native init ELF packaging and target binding
