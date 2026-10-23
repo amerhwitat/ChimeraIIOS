@@ -75,13 +75,17 @@ def main() -> int:
         return fail("RAMFS extraction errors must fail closed before userspace dispatch")
     if "__atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE)" not in launch:
         return fail("complete RAMFS tree must be atomically published only after successful extraction")
+    if 'chimera_vfs_mount("/", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY)' not in launch:
+        return fail("rootfs publication must register the extracted tree as the process-visible VFS root")
     for operation in ("koronos_target_fs_open", "koronos_target_fs_read", "koronos_target_fs_close"):
         if operation not in launch:
             return fail(f"process-bound read-only filesystem operation missing: {operation}")
     if "koronos_address_space_validate_user_range(active_root" not in launch:
         return fail("filesystem syscalls must validate user buffers against the active process address space")
-    if "if (flags != 0u) return -22" not in launch:
-        return fail("open must remain read-only until transactional RAMFS writes exist")
+    if "if (flags != 0u) return -30" not in launch:
+        return fail("open must reject writable flags until a writable backend is mounted")
+    if "chimera_vfs_open(pid, path, CHIMERA_VFS_O_RDONLY, 0444u)" not in launch:
+        return fail("native open must use the general VFS descriptor table")
     syscall_source = (ROOT / "kernel/core/syscall.cpp").read_text(encoding="utf-8")
     for syscall in ("case CHM_SYS_OPEN:", "case CHM_SYS_READ:", "case CHM_SYS_CLOSE:"):
         if syscall not in syscall_source:
