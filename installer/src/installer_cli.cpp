@@ -69,13 +69,8 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  std::cerr << "\nINSTALLATION BLOCKED: the current backend copies payload files and "
-               "writes metadata, but does not implement the required transactional "
-               "partition/filesystem/mount, durable journal/rollback, verified-write, "
-               "bootloader, and post-install reboot-verification operations.\n"
-               "No destructive operation was attempted. Do not interpret this plan as "
-               "an installation or as success.\n"
-               "Both GUI and text frontends must remain blocked until the shared "
-               "transaction backend implements and verifies those operations.\n";
-  return 78; // EX_CONFIG: fail closed until a production transaction backend exists.
+  plan.dry_run = false;
+  // Route the confirmed request through the same executor as the GUI. The
+  // executor itself fails closed until the transactional backend is complete.
+  return installer.execute(plan, true);
 }
