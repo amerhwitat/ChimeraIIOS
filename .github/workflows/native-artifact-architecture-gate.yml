@@ -42,6 +42,14 @@ jobs:
           readelf -h build/koronos/x86_64/koronos.elf | tee build/koronos/x86_64/elf-header.txt
           readelf -h build/koronos/x86_64/koronos.elf | grep -Eq 'Class:[[:space:]]+ELF64'
           readelf -h build/koronos/x86_64/koronos.elf | grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64'
+      - name: Run hardened ELF admission regression tests
+        run: |
+          set -euo pipefail
+          cd .
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/process.cpp kernel/core/elf64.cpp kernel/tests/process_admission.cpp \
+            -o /tmp/koronos-process-admission-test
+          /tmp/koronos-process-admission-test
       - name: Assemble a kernel-only BIOS and UEFI boot ISO
         run: |
           set -euo pipefail
