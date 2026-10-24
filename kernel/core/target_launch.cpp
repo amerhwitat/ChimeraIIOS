@@ -23,6 +23,7 @@ static volatile uint32_t active_target = TARGET_NONE;
 static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
+static void *active_address_space = nullptr;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 /* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
@@ -200,6 +201,9 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
+extern "C" void *koronos_target_active_address_space(void) {
+    return active_target != TARGET_NONE ? active_address_space : nullptr;
+}
 
 /* Read-only process-owned descriptors bridge the validated RAMFS root to ring 3.
    User addresses are validated against the active process's own CR3 before any
@@ -209,10 +213,16 @@ static int copy_target_user_path(uint64_t user_path, char path[CHIMERA_VFS_MAX_P
     if (!active_root || !user_path) return -14;
     uint32_t length = 0;
     for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
-        if (user_path > UINT64_MAX - length ||
-            koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0)
+        if (user_path > UINT64_MAX - length) return -14;
+        if (koronos_address_space_pin(active_address_space, user_path + length, 1u, 0u) != 0)
             return -14;
+        if (koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0) {
+            (void)koronos_address_space_unpin(active_address_space, user_path + length, 1u);
+            return -14;
+        }
         const char c = *reinterpret_cast<const volatile char *>(static_cast<uintptr_t>(user_path + length));
+        if (koronos_address_space_unpin(active_address_space, user_path + length, 1u) != 0)
+            return -14;
         path[length] = c;
         if (!c) break;
     }
@@ -234,19 +244,28 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0)
-        return -14;
-    return chimera_vfs_read(pid, static_cast<int64_t>(fd), reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count);
+    if (!user_buffer || koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count); return -14;
+    }
+    const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd),
+        reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count);
+    if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+    return result;
 }
 extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count) {
     const uint32_t pid = koronos_target_active_pid();
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0)
-        return -14;
-    return chimera_vfs_write(pid, static_cast<int64_t>(fd),
+    if (!user_buffer || koronos_address_space_pin(active_address_space, user_buffer, count, 0u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count); return -14;
+    }
+    const int64_t result = chimera_vfs_write(pid, static_cast<int64_t>(fd),
         reinterpret_cast<const void *>(static_cast<uintptr_t>(user_buffer)), count);
+    if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+    return result;
 }
 extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
     const uint32_t pid = koronos_target_active_pid();
@@ -522,6 +541,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     active_ring3_probe=token(selected->cmdline, "probe=ring3");
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
+    active_address_space=loaded.address_space;
     syscall_ack_seen=0;
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
@@ -532,6 +552,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
         ops->destroy_address_space(nullptr,loaded.address_space);
         (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
         active_target=TARGET_NONE;
+        active_root=0;
+        active_address_space=nullptr;
         koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
         return -10;
     }
@@ -548,6 +570,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     active_target=TARGET_NONE;
     active_ring3_probe=false;
     active_root=0;
+    active_address_space=nullptr;
     if (exit_code == -10) {
         koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
         return -11;

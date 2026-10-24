@@ -18,6 +18,9 @@ struct chimera_driver_registry {
 };
 int chimera_driver_register(const chimera_driver_descriptor*);
 const chimera_driver_registry* chimera_driver_registry_snapshot();
+struct chimera_device_inventory;
+/* Injectable inventory entry point for deterministic driver-probe tests. */
+int chimera_driver_probe_inventory(const struct chimera_device_inventory *inventory);
 int chimera_driver_probe_all();
 int chimera_driver_start_all();
 #ifdef __cplusplus

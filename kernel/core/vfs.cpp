@@ -2,6 +2,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 namespace {
 struct Mount {
     char path[CHIMERA_VFS_MAX_PATH + 1u];
@@ -25,8 +29,17 @@ static OpenFile files[CHIMERA_VFS_MAX_OPEN_FILES]{};
 static uint32_t next_generation = 1u;
 static uint32_t initialized = 0u;
 static uint8_t lock_word = 0u;
+#if defined(_MSC_VER)
+static void lock() {
+    while (_InterlockedExchange8(reinterpret_cast<volatile char *>(&lock_word), 1) != 0) {}
+}
+static void unlock() {
+    (void)_InterlockedExchange8(reinterpret_cast<volatile char *>(&lock_word), 0);
+}
+#else
 static void lock() { while (__atomic_test_and_set(&lock_word, __ATOMIC_ACQUIRE)) {} }
 static void unlock() { __atomic_clear(&lock_word, __ATOMIC_RELEASE); }
+#endif
 static uint32_t length_of(const char *s) { uint32_t n=0; if(!s)return 0; while(n<=CHIMERA_VFS_MAX_PATH && s[n]) ++n; return n; }
 static bool equal(const char *a,const char *b) { uint32_t i=0; while(a[i] && b[i] && a[i]==b[i]) ++i; return a[i]==b[i]; }
 static void copy_string(char *d,const char *s,uint32_t n) { for(uint32_t i=0;i<n;i++)d[i]=s[i]; d[n]=0; }
