@@ -11,10 +11,11 @@ def test_text_frontend_uses_shared_installer_planner_and_executor():
 
 
 def test_text_frontend_never_claims_install_success_without_transaction_backend():
-    assert 'INSTALLATION BLOCKED' in CLI
-    assert 'return 78;' in CLI
+    assert 'INSTALLATION BLOCKED' in CORE
+    assert 'return 78;' in CORE
     assert 'no success is claimed' in CLI
     assert 'Attempt an actual installation now?' in CLI
+    assert 'return installer.execute(plan, true);' in CLI
 
 
 def test_text_frontend_is_keyboard_only_and_has_explicit_review():
@@ -52,3 +53,14 @@ def test_linux_layout_and_ntfs_fat_safety_are_explicit():
     assert '"fstab_source": "verified_partition_uuid_only"' in POLICY
     assert '"never_force_dirty_or_hibernated_volume": true' in POLICY
     assert '"missing_capability_policy": "fail_closed"' in POLICY
+
+TARGETS = (ROOT / "config" / "live-target-parity.json").read_text(encoding="utf-8")
+
+
+def test_live_installer_and_recovery_target_require_same_boot_and_service_chain():
+    for stage in ("spit-fire", "jasper-grub", "koronos-elf", "scheduler-runtime", "target-services"):
+        assert stage in TARGETS
+    for target in ('"live"', '"installer"', '"recovery"'):
+        assert target in TARGETS
+    assert '"same_iso_sha256_required_for_all_traces": true' in TARGETS
+    assert '"simulated_smp_is_invalid": true' in TARGETS
