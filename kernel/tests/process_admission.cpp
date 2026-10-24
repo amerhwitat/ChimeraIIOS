@@ -50,5 +50,15 @@ int main() {
 
   make_elf(image,false);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&q)<0);
+  make_elf(image,false);
+  chimera_process_image abandoned{};
+  const int abandoned_pid=chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x300000000,&abandoned);
+  assert(abandoned_pid>0 && chimera_process_count()==2);
+  assert(chimera_process_abort_start(static_cast<uint32_t>(abandoned_pid))==0);
+  assert(chimera_process_count()==1);
+  assert(chimera_process_get(static_cast<uint32_t>(abandoned_pid),&q)<0);
+  // Started/ready processes cannot be silently discarded by startup rollback.
+  assert(chimera_process_abort_start(pid)<0);
+  assert(chimera_process_count()==1);
   return 0;
 }
