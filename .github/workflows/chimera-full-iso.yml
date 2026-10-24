@@ -106,8 +106,12 @@ jobs:
           mkdir -p "$tmp/live-root" "$tmp/recovery-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
-          grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
-          grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
+          # Shell-script initramfs handoff is diagnostic only. It must never
+          # impersonate the kernel's native ELF process readiness contract.
+          if grep -Fq 'USERSPACE READY:' "$tmp/live-root/init" "$tmp/recovery-root/init"; then
+            echo "::error::shell initramfs contains a native userspace readiness marker"
+            exit 1
+          fi
           grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
