@@ -1,4 +1,5 @@
 #include "chimera/ramfs.h"
+#include "chimera/initramfs_cpio.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,7 +30,7 @@ static size_t entry(uint8_t*b,size_t o,const char*name,uint32_t mode,const char*
 }
 static size_t make_archive(uint8_t*b,int duplicate) {
     size_t n=0;n=entry(b,n,".",0040000,nullptr);n=entry(b,n,"./bin",0040000,nullptr);
-    n=entry(b,n,"./bin/init",0100000,"hello");
+    n=entry(b,n,"./bin/init",0100755,"hello");
     n=entry(b,n,"./bin/busybox",0100000,"applet");
     n=entry(b,n,"./bin/sh",0120000,"busybox");
     if(duplicate)n=entry(b,n,"bin/init",0100000,"again");
@@ -43,7 +44,17 @@ int main() {
 
     alloc_state state{-1,0,0};chimera_ramfs_allocator a{alloc_cb,free_cb,&state};
     chimera_ramfs_limits l{128,255,1048576,4194304};uint8_t b[4096]{};
-    size_t n=make_archive(b,0);chimera_ramfs_node*r=nullptr;
+    size_t n=make_archive(b,0);
+    chimera_cpio_summary summary{};
+    assert(chimera_cpio_validate_newc(b,n,&summary)==CHIMERA_CPIO_OK);
+    chimera_cpio_entry entry_view{};
+    assert(chimera_cpio_lookup_executable_newc(b,n,"/bin/init",&entry_view)==CHIMERA_CPIO_OK);
+    assert(entry_view.size==5u && entry_view.data && !memcmp(entry_view.data,"hello",5));
+    assert(chimera_cpio_lookup_newc(b,n,"bin/missing",&entry_view)==CHIMERA_CPIO_E_NOT_FOUND);
+    assert(entry_view.data==nullptr && entry_view.size==0u);
+    assert(chimera_cpio_lookup_executable_newc(b,n,"/bin/sh",&entry_view)==CHIMERA_CPIO_E_TYPE);
+    assert(chimera_cpio_lookup_newc(b,n,"/bin/../init",&entry_view)==CHIMERA_CPIO_E_PATH);
+    chimera_ramfs_node*r=nullptr;
     assert(chimera_ramfs_extract_newc(b,n,&a,&l,&r)==CHIMERA_RAMFS_OK);
     auto*f=chimera_ramfs_lookup(r,"/bin/init");assert(f&&chimera_ramfs_file_size(f)==5);
     char out[8]{};uint64_t got=0;
