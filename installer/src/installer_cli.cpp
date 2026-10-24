@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
             << "Network/GPU  : " << (hw.network ? "detected" : "not detected")
             << "/" << (hw.graphics ? "detected" : "not detected") << "\n\n";
 
-  if (!ask_yes_no("Review the shared installation plan?")) {
+  if (!ask_yes_no("Start the installer wizard?")) {
     std::cout << "Cancelled; no changes made.\n";
     return 0;
   }
@@ -60,6 +60,10 @@ int main(int argc, char** argv) {
               << "     " << step.detail << "\n";
   }
   std::cout << "\nSource: " << plan.source_root << "\nTarget: " << plan.target_root
+            << "\nSystem role: " << plan.edition << "\nDesktop profile: " << plan.desktop_profile
+            << "\nStorage mode: " << plan.storage_mode
+            << "\nPreserve existing OS: " << (plan.preserve_existing_os ? "yes" : "no")
+            << "\nEncrypt root: " << (plan.encrypt_root ? "yes" : "no")
             << "\nFilesystem: " << plan.filesystem << "\nBootloader: " << plan.bootloader
             << "\nLocale: " << plan.locale
             << "\nTime zone: " << plan.timezone
