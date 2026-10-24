@@ -60,6 +60,7 @@ struct AddressSpace {
     uint64_t user_pages;
     uint64_t eviction_cursor;
     uint8_t active;
+    uint8_t poisoned;
 };
 static AddressSpace spaces[MAX_ADDRESS_SPACES]{};
 static volatile uint32_t backend_ready = 0;
@@ -114,12 +115,12 @@ static uint64_t current_cr3_root() {
     return 0;
 #endif
 }
-static void destroy_locked(AddressSpace *space) {
-    if (!space || space->magic != SPACE_MAGIC) return;
+static int destroy_locked(AddressSpace *space) {
+    if (!space || space->magic != SPACE_MAGIC) return -1;
     // Never reclaim page tables while this CPU is still executing on the root.
     // AP scheduling is not enabled in the current kernel; future SMP activation
     // must additionally track per-CPU root ownership before using this path.
-    if (current_cr3_root() == space->root_physical) return;
+    if (current_cr3_root() == space->root_physical) return -2;
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
         const FrameBlock &b = space->mapped[i];
         if (!b.metadata_physical) continue;
@@ -128,8 +129,8 @@ static void destroy_locked(AddressSpace *space) {
         for (uint32_t p = 0; p < b.pages; ++p) {
             if (meta[p].owner_generation != space->generation ||
                 meta[p].pins != 0u || meta[p].state == PAGE_EVICTING ||
-                meta[p].state == PAGE_LOADING) return;
-            if (meta[p].physical && koronos_vm_frame_refcount(meta[p].physical) == 0u) return;
+                meta[p].state == PAGE_LOADING) return -3;
+            if (meta[p].physical && koronos_vm_frame_refcount(meta[p].physical) == 0u) return -4;
         }
     }
     for (uint32_t i = 0; i < space->mapped_count; ++i) {
@@ -140,15 +141,15 @@ static void destroy_locked(AddressSpace *space) {
             for (uint32_t p = 0; p < b.pages; ++p) {
                 if (meta[p].physical) {
                     if (koronos_vm_frame_release(meta[p].physical) != 0) {
-                        space->active = 0; space->magic = 0; space->root_physical = 0;
-                        return; // poisoned space: leak remaining ownership, never reuse it
+                        space->active = 0; space->magic = 0; space->root_physical = 0; space->poisoned = 1;
+                        return -5; // quarantine after partial release; never reuse this slot
                     }
                     meta[p].physical = 0;
                 }
                 if (meta[p].state == PAGE_SWAPPED && meta[p].swap_slot != KORONOS_SWAP_SLOT_INVALID) {
                     if (koronos_swap_release(meta[p].swap_slot) != 0) {
-                        space->active = 0; space->magic = 0; space->root_physical = 0;
-                        return;
+                        space->active = 0; space->magic = 0; space->root_physical = 0; space->poisoned = 1;
+                        return -5;
                     }
                     meta[p].swap_slot = KORONOS_SWAP_SLOT_INVALID;
                 }
@@ -156,14 +157,14 @@ static void destroy_locked(AddressSpace *space) {
         }
         if (b.metadata_physical && b.metadata_pages &&
             koronos_vm_frame_release_contiguous(b.metadata_physical, b.metadata_pages) != 0) {
-            space->active = 0; space->magic = 0; space->root_physical = 0;
-            return;
+            space->active = 0; space->magic = 0; space->root_physical = 0; space->poisoned = 1;
+            return -5;
         }
     }
     for (uint32_t i = space->table_count; i > 0; --i) {
         if (koronos_vm_frame_release(space->table_frames[i - 1]) != 0) {
-            space->active = 0; space->magic = 0; space->root_physical = 0;
-            return;
+            space->active = 0; space->magic = 0; space->root_physical = 0; space->poisoned = 1;
+            return -5;
         }
     }
     space->magic = 0;
@@ -173,6 +174,7 @@ static void destroy_locked(AddressSpace *space) {
     space->mapped_count = 0;
     space->vma_count = 0;
     space->user_pages = 0;
+    return 0;
 }
 static bool clone_bootstrap_map(AddressSpace *space) {
     const uint64_t bootstrap = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
@@ -377,7 +379,7 @@ static void *create_address_space(void *) {
     lock_backend();
     AddressSpace *space = nullptr;
     for (uint32_t i = 0; i < MAX_ADDRESS_SPACES; ++i) {
-        if (!spaces[i].active && spaces[i].magic == 0) { space = &spaces[i]; break; }
+        if (!spaces[i].active && spaces[i].magic == 0 && !spaces[i].poisoned) { space = &spaces[i]; break; }
     }
     if (!space) { unlock_backend(); return nullptr; }
     zero_bytes(space, sizeof(AddressSpace));
@@ -499,11 +501,12 @@ static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
     unlock_backend();
     return 0;
 }
-static void destroy_address_space(void *, void *opaque) {
+static int destroy_address_space(void *, void *opaque) {
     AddressSpace *space = static_cast<AddressSpace *>(opaque);
     lock_backend();
-    if (space_valid(space)) destroy_locked(space);
+    const int rc = space_valid(space) ? destroy_locked(space) : -1;
     unlock_backend();
+    return rc;
 }
 static bool user_page_access(uint64_t root_physical, uint64_t va, bool write_access) {
     uint64_t *root = table_ptr(root_physical & ENTRY_ADDRESS_MASK);
