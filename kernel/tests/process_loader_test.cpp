@@ -33,6 +33,7 @@ int main(){
  put32(elf+68,7);Mock bad{};chimera_loaded_elf untouched{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad,&untouched)<0);
  assert(bad.count==0);
+ put32(elf+68,5); // restore RX permissions for the rollback-path fixture
  // A failure after the image mapping but during stack mapping must roll back
  // the newly-created address space and must not publish a partial result.
  Mock rollback{};rollback.fail_on_call=2;
