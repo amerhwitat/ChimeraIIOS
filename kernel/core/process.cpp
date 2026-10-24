@@ -9,6 +9,8 @@ static void copy_bytes(void *destination, const void *source, uint64_t length) {
     for (uint64_t i = 0; i < length; ++i) dst[i] = src[i];
 }
 constexpr uint64_t PAGE = 4096;
+constexpr uint64_t USER_MIN = 0x0000000100000000ull;
+constexpr uint64_t USER_LIMIT = 0x0000800000000000ull;
 constexpr uint32_t PT_LOAD = 1, PF_W = 2, PF_X = 1;
 
 struct Slot {
@@ -63,7 +65,7 @@ extern "C" int chimera_process_init(void) {
 extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
                                           uint16_t machine, uint64_t stack,
                                           chimera_process_image *out) {
-    if (!image || !out || stack < PAGE) return -1;
+    if (!image || !out || stack < USER_MIN || stack >= USER_LIMIT) return -1;
     if (!koronos_elf64_validate(image, size, machine)) return -2;
 
     koronos_elf64_ehdr h{};
@@ -90,9 +92,9 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 
         uint64_t end = 0;
         if (!add_ok(s.p_vaddr, s.p_memsz, &end) || s.p_memsz == 0 ||
-            s.p_vaddr < 0x0000000100000000ull ||
-            s.p_vaddr >= 0x0000800000000000ull ||
-            end > stack || end > 0x0000800000000000ull) return -4;
+            s.p_vaddr < USER_MIN ||
+            s.p_vaddr >= USER_LIMIT ||
+            end > stack || end > USER_LIMIT) return -4;
         if (s.p_align > 1 &&
             ((s.p_align & (s.p_align - 1)) != 0 ||
              (s.p_vaddr % s.p_align) != (s.p_offset % s.p_align))) return -5;
