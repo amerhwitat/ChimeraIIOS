@@ -559,14 +559,22 @@ extern "C" int koronos_launch_selected_userspace(void) {
         KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
     if (load_rc!=0) {
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
-        koronos_target_log("[RUN ] ERROR: selected user init ELF load failed");
+        /* -17 means rollback teardown itself failed; retain the record rather
+           than pretending its address-space resources were released. */
+        if (load_rc != -17 &&
+            chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0)
+            (void)chimera_process_reap(static_cast<uint32_t>(pid));
+        koronos_target_log("[RUN ] ERROR: selected user init ELF load failed or rollback was incomplete");
         return -6;
     }
     const uint64_t root=koronos_address_space_root(loaded.address_space);
     if (!root) {
-        ops->destroy_address_space(nullptr,loaded.address_space);
+        const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
-        koronos_target_log("[RUN ] ERROR: selected user init has no owned CR3 root");
+        if (destroy_rc == 0 &&
+            chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0)
+            (void)chimera_process_reap(static_cast<uint32_t>(pid));
+        koronos_target_log("[RUN ] ERROR: selected user init has no owned CR3 root; teardown status recorded");
         return -7;
     }
     active_target=target;
@@ -581,12 +589,18 @@ extern "C" int koronos_launch_selected_userspace(void) {
     // and emit readiness. This is enforced by IRQ0 inside the kernel, not by
     // the outer QEMU test timeout.
     if (koronos_user_timeout_arm(1000u) != 0) {
-        ops->destroy_address_space(nullptr,loaded.address_space);
-        (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
+        const uint32_t failed_pid = active_pid;
+        const int close_rc = chimera_vfs_close_process(failed_pid);
+        const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
+        (void)chimera_process_set_state(failed_pid,CHIMERA_PROCESS_FAULTED);
+        if (close_rc == 0 && destroy_rc == 0 &&
+            chimera_process_mark_resources_released(failed_pid) == 0)
+            (void)chimera_process_reap(failed_pid);
         active_target=TARGET_NONE;
+        active_ring3_probe=false;
         active_root=0;
         active_address_space=nullptr;
-        koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
+        koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed user timeout; cleanup result checked");
         return -10;
     }
     koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
@@ -596,13 +610,28 @@ extern "C" int koronos_launch_selected_userspace(void) {
     const uint64_t user_entry_stack = loaded.user_stack_top - sizeof(uint64_t);
     const int exit_code=koronos_arch_enter_user(root,loaded.entry,user_entry_stack);
     koronos_user_timeout_disarm();
-    (void)chimera_vfs_close_process(active_pid);
-    ops->destroy_address_space(nullptr,loaded.address_space);
-    (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
+    const uint32_t exited_pid = active_pid;
+    const int close_rc = chimera_vfs_close_process(exited_pid);
+    const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
+    int lifecycle_rc = 0;
+    if (close_rc != 0 || destroy_rc != 0) {
+        lifecycle_rc = -1;
+    } else if (chimera_process_set_state(exited_pid,
+               exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED) != 0) {
+        lifecycle_rc = -2;
+    } else if (chimera_process_mark_resources_released(exited_pid) != 0) {
+        lifecycle_rc = -3;
+    } else if (chimera_process_reap(exited_pid) != 0) {
+        lifecycle_rc = -4;
+    }
     active_target=TARGET_NONE;
     active_ring3_probe=false;
     active_root=0;
     active_address_space=nullptr;
+    if (lifecycle_rc != 0) {
+        koronos_target_log("[RUN ] ERROR: process teardown incomplete; address space or descriptors were not proven released");
+        return -12;
+    }
     if (exit_code == -10) {
         koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
         return -11;
