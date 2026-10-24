@@ -72,6 +72,11 @@ static int stage_archive_init_elf(const void *archive, uint64_t archive_size) {
     koronos_target_log("[RUN ] Archive /init resolved and retained as the production ELF entry point");
     return 0;
 }
+static void discard_staged_archive_init() {
+    if (staged_archive_init) ramfs_frame_free(staged_archive_init, nullptr);
+    staged_archive_init = nullptr;
+    staged_archive_init_size = 0;
+}
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -561,11 +566,13 @@ extern "C" int koronos_launch_selected_userspace(void) {
         return -15;
     }
     if (!koronos_address_space_ready()) {
+        discard_staged_archive_init();
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
     }
     const chimera_elf_load_ops *ops=koronos_address_space_loader_ops();
     if (!ops) {
+        discard_staged_archive_init();
         koronos_target_log("[RUN ] ERROR: ELF loader has no real address-space operations");
         return -4;
     }
@@ -575,17 +582,14 @@ extern "C" int koronos_launch_selected_userspace(void) {
     const uint64_t init_image_size = staged_archive_init ? staged_archive_init_size : selected->size;
     const int pid=chimera_process_admit_elf(init_image, init_image_size, KORONOS_EM_X86_64, USER_STACK_TOP, &process);
     if (pid<=0) {
+        discard_staged_archive_init();
         koronos_target_log("[RUN ] ERROR: selected user init failed protected-process admission");
         return -5;
     }
     chimera_loaded_elf loaded{};
     const int load_rc=chimera_elf_load_user_image(init_image, init_image_size,
         KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
-    if (staged_archive_init) {
-        ramfs_frame_free(staged_archive_init, nullptr);
-        staged_archive_init = nullptr;
-        staged_archive_init_size = 0;
-    }
+    discard_staged_archive_init();
     if (load_rc!=0) {
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
         koronos_target_log("[RUN ] ERROR: selected user init ELF load failed");
