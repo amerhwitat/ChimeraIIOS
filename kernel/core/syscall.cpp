@@ -44,22 +44,37 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
 
     switch (id.canonical) {
         case CHM_SYS_GETPID:
-            *return_value = 1u;
-            return 0;
+            /*
+             * A constant PID is not process identity. Until the trap path is
+             * bound to a live, scheduled process context, fail closed rather
+             * than allowing a probe to mistake the bootstrap task for init.
+             */
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_YIELD:
-            chimera_sched_yield();
-            *return_value = 0;
-            return 0;
+            /*
+             * Callback dispatch is not a saved-register process context switch.
+             * Do not report a successful user yield before that backend exists.
+             */
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_TIME_TICKS:
             *return_value = chimera_timer_now();
             return 0;
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
-            /* Process teardown is deliberately owned by the process manager;
-             * this early dispatcher only acknowledges the semantic operation. */
+            /*
+             * Returning success without marking the current process exited,
+             * waking waiters, and reclaiming its resources fabricates lifecycle
+             * progress. Keep these calls unsupported until process ownership
+             * and teardown are connected to the active syscall context.
+             */
             (void)args;
-            *return_value = 0;
-            return 0;
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         default:
             ++g_rejected;
             *return_value = error_value();
