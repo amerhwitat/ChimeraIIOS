@@ -5,7 +5,7 @@
 namespace {
 bool ask_yes_no(const std::string& prompt, bool default_no = true) {
   std::string answer;
-  std::cout << prompt << " [y/N] " << std::flush;
+  std::cout << prompt << (default_no ? " [y/N] " : " [Y/n] ") << std::flush;
   if (!std::getline(std::cin, answer)) return false;
   if (answer.empty()) return !default_no;
   return answer == "y" || answer == "Y" || answer == "yes" || answer == "YES";
