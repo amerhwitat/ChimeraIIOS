@@ -2,7 +2,7 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chimera II Setup</title><link rel="stylesheet" href="aurora-installer.css"></head>
 <body>
-<header><div class="brand">CHIMERA II <span>SETUP</span></div><label class="language-picker" for="uiLanguage">Installer language <select id="uiLanguage" aria-label="Installer language"></select></label><div id="backend" class="status" role="status">Backend status: preview only</div></header>
+<header><div class="brand">CHIMERA II <span>SETUP</span></div><label class="language-picker" for="uiLanguage"><span id="languageLabel">Installer language</span> <select id="uiLanguage" aria-label="Installer language"></select></label><div id="backend" class="status" role="status">Backend status: preview only</div></header>
 <main>
 <aside><h1>Install Chimera II</h1><p class="sub">A guided setup inspired by established Linux installers.</p><nav id="steps" aria-label="Installation steps"></nav><div class="note"><b id="safetyTitle">Safety mode</b><p id="safetyText">No disk writes are available from this preview. Installation remains blocked until a verified transactional backend is integrated.</p><p id="languageFallback" role="status" hidden></p></div></aside>
 <section class="panel" aria-live="polite"><div class="kicker" id="kicker">STEP 1 OF 9</div><h2 id="heading">Welcome</h2><p id="intro"></p><form id="wizard"></form><div id="message" role="status"></div><div class="actions"><button type="button" id="back" class="secondary">Back</button><button type="button" id="next">Continue</button></div></section>
