@@ -15,6 +15,8 @@ int chimera_process_admit_elf(const void*,uint64_t,uint16_t,uint64_t,chimera_pro
 int chimera_process_get(uint32_t,chimera_process_image*);
 int chimera_process_set_state(uint32_t,chimera_process_state);
 /* Reclaim a terminal record only; PIDs are monotonic and never reused. */
+/* Caller may mark resources released only after address-space and kernel-resource teardown succeeds. */
+int chimera_process_mark_resources_released(uint32_t pid);
 int chimera_process_reap(uint32_t pid);
 uint32_t chimera_process_count(void);
 #ifdef __cplusplus
