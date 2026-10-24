@@ -60,5 +60,15 @@ class CrossDistroInstallerWorkflowTests(unittest.TestCase):
         self.assertIn("English fallback", js)
 
 
+    def test_full_iso_workflow_fails_when_userspace_acceptance_is_false(self):
+        workflow = (ROOT / ".github" / "workflows" / "chimera-full-iso.yml").read_text(encoding="utf-8")
+        self.assertIn("name: Fail workflow when target userspace acceptance is missing", workflow)
+        self.assertIn("if: steps.userspace_gate.outputs.accepted != 'true'", workflow)
+        self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", workflow)
+        gate = workflow.index("name: Fail workflow when target userspace acceptance is missing")
+        publish = workflow.index("name: Publish validated ISO candidate to GitHub Releases", gate)
+        self.assertIn("exit 1", workflow[gate:publish])
+
+
 if __name__ == "__main__":
     unittest.main()
