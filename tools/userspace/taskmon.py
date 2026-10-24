@@ -57,7 +57,7 @@ def windows_snapshot() -> dict[str, Any]:
     script = r"""
 $os = Get-CimInstance Win32_OperatingSystem
 $procs = Get-Process | ForEach-Object {
-  [pscustomobject]@{ pid=$_.Id; name=$_.ProcessName; state="?"; rss_bytes=[int64]$_.WorkingSet64; virtual_bytes=[int64]$_.VirtualMemorySize64; cpu_seconds=if ($_.CPU -ne $null) {[double]$_.CPU} else {0.0} }
+  $cpu = 0.0; if ($_.CPU -ne $null) { $cpu = [double]$_.CPU }; [pscustomobject]@{ pid=$_.Id; name=$_.ProcessName; state="?"; rss_bytes=[int64]$_.WorkingSet64; virtual_bytes=[int64]$_.VirtualMemorySize64; cpu_seconds=$cpu }
 }
 [pscustomobject]@{ total_bytes=[int64]$os.TotalVisibleMemorySize*1024; available_bytes=[int64]$os.FreePhysicalMemory*1024; processes=@($procs) } | ConvertTo-Json -Depth 5 -Compress
 """
