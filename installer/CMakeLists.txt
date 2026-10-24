@@ -18,4 +18,5 @@ install(FILES cross-distro-workflow.json DESTINATION share/chimera/installer)
 install(DIRECTORY gui/ DESTINATION share/chimera/installer/gui
   FILES_MATCHING PATTERN "aurora-installer.html"
                  PATTERN "aurora-installer.css"
-                 PATTERN "aurora-installer.js")
+                 PATTERN "aurora-installer.js"
+                 PATTERN "aurora-installer-ui.json")
