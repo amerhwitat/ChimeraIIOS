@@ -14,11 +14,14 @@ def main() -> int:
         return 1
     header = HEADER.read_text(encoding="utf-8")
     source = SOURCE.read_text(encoding="utf-8")
-    required_header = ("int chimera_process_reap(uint32_t pid);",)
+    required_header = ("int chimera_process_mark_resources_released(uint32_t pid);",
+        "int chimera_process_reap(uint32_t pid);",)
     required_source = (
         "if (state != CHIMERA_PROCESS_EXITED && state != CHIMERA_PROCESS_FAULTED)",
         "Never free a running, ready, blocked, or merely admitted process",
         "if (count == 0) return -5;",
+        "if (!slots[i].resources_released) return -6;",
+        "slots[i].resources_released = true;",
         "slots[i] = {};",
         "--count;",
     )
