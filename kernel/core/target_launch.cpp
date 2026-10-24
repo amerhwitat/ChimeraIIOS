@@ -35,6 +35,9 @@ static bool staged_rootfs_ready = false;
 /* Published only after the VFS root mount succeeds. The extracted tree is
    immutable and remains alive for the lifetime of the mounted root. */
 static chimera_ramfs_node *published_rootfs = nullptr;
+static void *ramfs_frame_alloc(uint64_t bytes, void *context);
+static void ramfs_frame_free(void *ptr, void *context);
+extern "C" void koronos_target_log(const char *message);
 static void *staged_archive_init = nullptr;
 static uint64_t staged_archive_init_size = 0;
 static int stage_archive_init_elf(const void *archive, uint64_t archive_size) {
