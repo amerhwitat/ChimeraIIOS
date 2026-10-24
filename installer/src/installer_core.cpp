@@ -102,68 +102,15 @@ int Installer::copy_tree(const fs::path& src,const fs::path& dst) const {
 }
 int Installer::execute(const InstallPlan& p,bool confirmed) {
   std::cout<<"Chimera II Setup — Koronos installation transaction\n";
-  for(const auto&s:build_plan(p)) std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
-  if(p.dry_run){std::cout<<"Dry-run: no disk changes.\\n";return 0;}
-  // Fail closed globally: GUI callers share this executor. This implementation
-  // is a payload copier, not a transactional partition/filesystem/boot backend.
-  // Do not let any frontend bypass the missing production acceptance gates.
-  std::cerr<<"INSTALLATION BLOCKED: transactional storage, durable journal/rollback, verified writes, bootloader installation, target locale/time configuration, and post-install cold-boot verification are not implemented by this executor.\\n";
-  std::cerr<<"No disk changes were attempted. A plan or payload copy is not installation success.\\n";
+  for(const auto& s:build_plan(p))
+    std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
+  if(p.dry_run) {
+    std::cout<<"DRY RUN ONLY: no disk changes; no installation success is claimed.\n";
+    return 0;
+  }
+  (void)confirmed;
+  std::cerr<<"INSTALLATION BLOCKED: this shared executor does not yet implement transactional partition/filesystem/mount operations, durable journal and rollback, verified writes, bootloader installation, locale/timezone/keymap persistence, or post-install cold-boot verification.\n";
+  std::cerr<<"No disk changes were attempted. GUI and text frontends are both blocked by this backend gate.\n";
   return 78;
-  if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\\n";return 3;}
-  if(copy_tree(p.source_root,p.target_root)!=0) return 4;
-  if(p.deep_driver_search){
-    fs::create_directories(p.target_root/"var/lib/chimera/drivers");
-    fs::create_directories(p.target_root/"lib/firmware");
-    fs::create_directories(p.target_root/"usr/lib/chimera/drivers");
-    fs::path manifest=p.source_root/"drivers/driver-manifest.json";
-    if(fs::exists(manifest)) fs::copy_file(manifest,p.target_root/"var/lib/chimera/drivers/driver-manifest.json",fs::copy_options::overwrite_existing);
-    std::ofstream log(p.target_root/"var/lib/chimera/drivers/installation-plan.txt");
-    log<<"deep_driver_search="<<p.deep_driver_search<<"\\n";
-    log<<"download_driver_binaries="<<p.download_driver_binaries<<"\\n";
-    log<<"install_detected_drivers="<<p.install_detected_drivers<<"\\n";
-    log<<"verify_driver_signatures="<<p.verify_driver_signatures<<"\\n";
-    log<<"Driver binaries are installed only after device-ID matching and verification.\\n";
-  }
-  fs::path network_tools = p.source_root/"build/network-tools";
-  if(!fs::exists(network_tools)) network_tools = p.source_root/"network-tools";
-  if(fs::exists(network_tools)) { fs::remove_all(p.target_root/"opt/chimera/network-tools"); if(copy_tree(network_tools,p.target_root/"opt/chimera/network-tools")!=0) return 7; }
-  fs::create_directories(p.target_root/"etc/chimera");
-  if(fs::exists(p.source_root/"services/network")) copy_tree(p.source_root/"services/network",p.target_root/"usr/lib/chimera/network");
-  fs::path toolchains = p.source_root/"build/toolchains";
-  if(!fs::exists(toolchains)) toolchains = p.source_root/"toolchains";
-  if(fs::exists(toolchains)) { fs::remove_all(p.target_root/"opt/chimera/toolchains"); if(copy_tree(toolchains,p.target_root/"opt/chimera/toolchains")!=0) return 6; }
-  fs::create_directories(p.target_root/"etc/profile.d");
-  { std::ofstream env(p.target_root/"etc/profile.d/chimera-toolchains.sh"); env<<"export CHIMERA_TOOLCHAIN_ROOT=/opt/chimera/toolchains\\nexport PATH=/opt/chimera/toolchains/bin:$PATH\\nexport LD_LIBRARY_PATH=/opt/chimera/toolchains/lib:/opt/chimera/toolchains/lib64:$LD_LIBRARY_PATH\\n"; }
-  fs::path sdk = p.source_root/"sdk";
-  if(fs::exists(sdk)) { fs::remove_all(p.target_root/"opt/chimera-sdk"); if(copy_tree(sdk,p.target_root/"opt/chimera-sdk")!=0) return 5; }
-  fs::create_directories(p.target_root/"etc/chimera");
-  std::ofstream f(p.target_root/"etc/chimera/install.conf");
-  f<<"kernel="<<p.kernel<<"\nbootloader="<<p.bootloader<<"\nfilesystem="<<p.filesystem<<"\n";
-  Hardware hw=detect_hardware();
-  f<<"cpu_architecture="<<hw.architecture<<"\ncpu_vendor="<<hw.cpu_vendor<<"\ncpu_cores="<<hw.cpu_cores<<"\nkoronos_compatibility="<<(hw.koronos_compatibility?1:0)<<"\n";
-  f<<"firmware="<<firmware_name(hw.firmware)<<"\n";
-  f<<"driver_selection_order=native-koronos,linux-compatible,windows-compatible,macos-compatible,generic\n";
-  f<<"storage_driver_required_before_install=1\n";
-  f<<"foreign_driver_execution=adapter-only\n";
-  fs::create_directories(p.target_root/"var/lib/chimera/drivers");
-  std::ofstream rec(p.target_root/"var/lib/chimera/drivers/installer-recommendations.json");
-  rec<<"{\n  \"firmware\": \""<<firmware_name(hw.firmware)<<"\",\n";
-  rec<<"  \"storage\": \""<<(hw.nvme||hw.sata?"detected-native-or-catalog-match":"unresolved")<<"\",\n";
-  rec<<"  \"network\": \""<<(hw.network?"detected":"unresolved")<<"\",\n";
-  rec<<"  \"graphics\": \""<<(hw.graphics?"detected":"unresolved")<<"\",\n";
-  rec<<"  \"policy\": \"native-first-with-verified-compatibility-adapters\"\n}\n";
-  if(p.deep_driver_search){
-    const std::string pci=capture_command("lspci -Dnnk 2>/dev/null");
-    const std::string usb=capture_command("lsusb -nn 2>/dev/null");
-    std::ofstream evidence(p.target_root/"var/lib/chimera/drivers/hardware-evidence.txt");
-    evidence<<"=== PCI / driver bindings ===\n"<<pci<<"\n=== USB ===\n"<<usb<<"\n";
-    if(fs::exists("/sys/class/dmi/id")){
-      const char* keys[]={"sys_vendor","product_name","board_vendor","board_name","bios_vendor","bios_version"};
-      for(const char* key:keys){std::ifstream in(std::string("/sys/class/dmi/id/")+key);std::string v;std::getline(in,v);evidence<<key<<"="<<v<<"\n";}
-    }
-  }
-  std::cout<<"Payload deployed. Platform-specific partition/boot operations are selected by the backend.\n";
-  return 0;
 }
 }
