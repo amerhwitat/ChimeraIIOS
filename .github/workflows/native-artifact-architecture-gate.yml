@@ -1,0 +1,142 @@
+name: Native ELF and Firmware Artifact Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kernel/**"
+      - "tools/runtime/check-koronos32-boot.sh"
+      - "architecture/support-matrix.json"
+      - ".github/workflows/native-artifact-architecture-gate.yml"
+  pull_request:
+    paths:
+      - "kernel/**"
+      - "tools/runtime/check-koronos32-boot.sh"
+      - "architecture/support-matrix.json"
+      - ".github/workflows/native-artifact-architecture-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-artifacts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  x86_64-kernel-elf-and-bios-uefi-iso:
+    name: Build and inspect x86-64 Koronos ELF + BIOS/UEFI ISO
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install freestanding build and ISO tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes g++ nasm binutils grub-pc-bin grub-efi-amd64-bin xorriso mtools python3
+      - name: Build actual x86-64 Koronos kernel ELF
+        run: |
+          set -euo pipefail
+          bash kernel/build-koronos.sh
+          test -s build/koronos/x86_64/koronos.elf
+          readelf -h build/koronos/x86_64/koronos.elf | tee build/koronos/x86_64/elf-header.txt
+          readelf -h build/koronos/x86_64/koronos.elf | grep -Eq 'Class:[[:space:]]+ELF64'
+          readelf -h build/koronos/x86_64/koronos.elf | grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64'
+      - name: Assemble a kernel-only BIOS and UEFI boot ISO
+        run: |
+          set -euo pipefail
+          stage=build/native-artifact-iso
+          mkdir -p "$stage/boot/grub"
+          cp build/koronos/x86_64/koronos.elf "$stage/boot/koronos.elf"
+          cat > "$stage/boot/grub/grub.cfg" <<'GRUBCFG'
+          set timeout=0
+          set default=0
+          menuentry "Koronos x86-64 kernel artifact (kernel-only; not production acceptance)" {
+              multiboot2 /boot/koronos.elf
+              boot
+          }
+          GRUBCFG
+          grub-mkrescue -o build/koronos-x86_64-bios-uefi-kernel-only.iso "$stage"
+          test -s build/koronos-x86_64-bios-uefi-kernel-only.iso
+          xorriso -indev build/koronos-x86_64-bios-uefi-kernel-only.iso -report_el_torito as_mkisofs 2>&1 | tee build/koronos/x86_64/eltorito-report.txt
+          grep -Eqi 'UEFI|efi' build/koronos/x86_64/eltorito-report.txt
+          sha256sum build/koronos/x86_64/koronos.elf build/koronos-x86_64-bios-uefi-kernel-only.iso > build/koronos/x86_64/SHA256SUMS
+      - name: Upload engineering artifacts (not a release candidate)
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-x86-64-elf-bios-uefi-kernel-only
+          path: |
+            build/koronos/x86_64/koronos.elf
+            build/koronos/x86_64/elf-header.txt
+            build/koronos/x86_64/eltorito-report.txt
+            build/koronos/x86_64/SHA256SUMS
+            build/koronos-x86_64-bios-uefi-kernel-only.iso
+          if-no-files-found: error
+          retention-days: 14
+
+  x86_32-bringup-probe:
+    name: Build and boot x86 32-bit probe (not a production kernel)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install 32-bit build and QEMU tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes make gcc gcc-multilib binutils grub-pc-bin xorriso mtools qemu-system-x86
+      - name: Build ELF32 and execute QEMU bring-up test
+        run: |
+          set -euo pipefail
+          bash tools/runtime/check-koronos32-boot.sh
+          test -s build/koronos32-bringup/objects/koronos32-probe.elf
+          readelf -h build/koronos32-bringup/objects/koronos32-probe.elf | tee build/koronos32-bringup/elf-header.txt
+          readelf -h build/koronos32-bringup/objects/koronos32-probe.elf | grep -Eq 'Class:[[:space:]]+ELF32'
+          readelf -h build/koronos32-bringup/objects/koronos32-probe.elf | grep -Eq 'Machine:[[:space:]]+Intel 80386'
+          sha256sum build/koronos32-bringup/objects/koronos32-probe.elf > build/koronos32-bringup/SHA256SUMS
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-x86-32-bringup-probe-not-production
+          path: |
+            build/koronos32-bringup/objects/koronos32-probe.elf
+            build/koronos32-bringup/elf-header.txt
+            build/koronos32-bringup/qemu-serial.log
+            build/koronos32-bringup/SHA256SUMS
+          if-no-files-found: ignore
+          retention-days: 14
+
+  architecture-release-contract:
+    name: Ensure unimplemented architectures are not advertised as supported
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate architecture support matrix
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("architecture/support-matrix.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          targets = data.get("targets", [])
+          if not targets:
+              raise SystemExit("FAIL: architecture support matrix has no targets")
+          errors = []
+          for target in targets:
+              ident = target.get("id", "<missing-id>")
+              if target.get("release_supported") is True:
+                  evidence = target.get("evidence_required", [])
+                  if not evidence:
+                      errors.append(f"{ident}: release_supported=true without evidence requirements")
+              if not ident or not target.get("native_kernel"):
+                  errors.append(f"{ident}: missing target identity or native kernel status")
+          if errors:
+              print("\n".join(errors))
+              raise SystemExit(1)
+          print(f"PASS: {len(targets)} architecture records validated.")
+          print("This is a policy check only; it does not claim that catalogued ISAs have built kernels or EFI applications.")
+          for target in targets:
+              if target.get("release_supported") is not True:
+                  print(f"[NOT RELEASE SUPPORTED] {target['id']}: {target.get('native_kernel', 'status unspecified')}")
+          PY
