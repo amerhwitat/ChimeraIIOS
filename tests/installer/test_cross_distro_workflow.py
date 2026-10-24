@@ -67,7 +67,7 @@ class CrossDistroInstallerWorkflowTests(unittest.TestCase):
         self.assertIn("waking waiters", syscall)
         self.assertIn("reclaiming its resources", syscall)
         self.assertNotIn("*return_value = 1u;", syscall)
-        self.assertNotIn("*return_value = 0;\\n            return 0;\\n        case CHM_SYS_EXIT", syscall)
+        self.assertNotIn("*return_value = 0;\n            return 0;\n        case CHM_SYS_EXIT", syscall)
 
     def test_full_iso_workflow_fails_when_userspace_acceptance_is_false(self):
         workflow = (ROOT / ".github" / "workflows" / "chimera-full-iso.yml").read_text(encoding="utf-8")
