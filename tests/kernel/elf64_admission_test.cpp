@@ -50,7 +50,7 @@ int main() {
     chimera_process_image admitted{};
     assert(chimera_process_init() == 0);
     int pid = chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
-                                        0x700000, &admitted);
+                                        0x0000000100700000ull, &admitted);
     assert(pid > 0 && admitted.pid == static_cast<uint32_t>(pid));
     assert(admitted.state == CHIMERA_PROCESS_ADMITTED);
     assert(admitted.segment_count == 1 && admitted.entry == 0x0000000100400100ull);
@@ -59,7 +59,7 @@ int main() {
     put32(elf + 68, 6); // PF_R | PF_W
     chimera_process_image rejected{};
     assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
-                                     0x700000, &rejected) < 0);
+                                     0x0000000100700000ull, &rejected) < 0);
     puts("ELF64 validation/admission: bounds and executable-entry checks passed");
     return 0;
 }
