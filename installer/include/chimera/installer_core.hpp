@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -19,6 +20,12 @@ struct InstallPlan {
   std::string bootloader{"spitfire"};
   std::string kernel{"koronos"};
   std::string filesystem{"qfs"};
+  std::string locale{"en_US.UTF-8"};
+  std::string timezone{"UTC"};
+  std::string keyboard_layout{"us"};
+  std::string input_languages{"en"};
+  bool hardware_clock_utc{true};
+  bool enable_ntp{true};
   bool install_aurora{true}, install_kore{true}, install_compatibility{true};
   bool deep_driver_search{true};
   bool download_driver_binaries{true};
