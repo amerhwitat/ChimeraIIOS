@@ -104,7 +104,7 @@ jobs:
                 OVMF_VARS="$vars_candidate"
                 break
               fi
-            done < <(find /usr/share -type f \\( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \\) -print 2>/dev/null | sort)
+            done < <(find /usr/share -type f \( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \) -print 2>/dev/null | sort)
             if [ -z "$OVMF_CODE" ] || [ -z "$OVMF_VARS" ]; then
               echo "ERROR: matching OVMF code/vars images were not installed" >&2
               find /usr/share -iname 'OVMF_*.fd' -print >&2 || true
