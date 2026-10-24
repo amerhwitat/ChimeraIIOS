@@ -67,12 +67,18 @@ def main() -> int:
         return fail("archive /init resolution must use the validated entry lookup, not a summary-only flag")
     if "cpio_rc != CHIMERA_CPIO_OK" not in archive_guard:
         return fail("Live/Recovery rootfs must still fail closed on invalid CPIO")
-    if "stage_archive_init_elf(" not in archive_guard:
-        return fail("production launch must resolve and retain the actual archive /init ELF before rootfs publication")
-    if "const void *init_image = staged_archive_init ?" not in launch:
-        return fail("process admission must use archive /init when a production rootfs is selected")
-    if "interpreter/argv exec and script FD support are not implemented" not in launch:
-        return fail("shell-script /init must fail closed until a real interpreter/exec backend exists")
+    if "const void *init_image = reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));" not in launch:
+        return fail("process admission must execute the explicitly tagged USER_INIT_ELF module")
+    if "const uint64_t init_image_size = selected->size;" not in launch:
+        return fail("process admission must use the selected module's bounded image size")
+    for forbidden in (
+        "stage_archive_init_elf(",
+        "staged_archive_init",
+        'chimera_cpio_lookup_executable_newc(archive, archive_size, "/init", &entry)',
+        "interpreter/argv exec and script FD support are not implemented",
+    ):
+        if forbidden in launch:
+            return fail("initramfs /init must not override the tagged native ELF: " + forbidden)
 
     if '#include "chimera/ramfs.h"' not in launch or "chimera_ramfs_extract_newc" not in (ROOT / "kernel/core/ramfs.cpp").read_text(encoding="utf-8"):
         return fail("production launch must compile against the bounded transactional RAMFS extractor")
