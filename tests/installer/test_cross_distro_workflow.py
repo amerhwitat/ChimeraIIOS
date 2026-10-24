@@ -41,6 +41,21 @@ class CrossDistroInstallerWorkflowTests(unittest.TestCase):
         self.assertIn("Transaction: not started", js)
         self.assertIn("Disk writes: none", js)
 
+    def test_installer_localization_picker_catalog_and_rtl_contract(self):
+        html = HTML.read_text(encoding="utf-8")
+        js = JS.read_text(encoding="utf-8")
+        catalog = (ROOT / "installer" / "gui" / "installer-i18n.js").read_text(encoding="utf-8")
+        self.assertIn('id="uiLanguage"', html)
+        self.assertIn('src="installer-i18n.js"', html)
+        self.assertIn("Intl.getCanonicalLocales", catalog)
+        self.assertIn("const rtl=new Set", catalog)
+        self.assertIn("'ar':", catalog)
+        self.assertIn("'zh':", catalog)
+        self.assertIn("'ja':", catalog)
+        self.assertIn("setLocale", js)
+        self.assertIn("document.documentElement.dir", js)
+        self.assertIn("English fallback", js)
+
 
 if __name__ == "__main__":
     unittest.main()
