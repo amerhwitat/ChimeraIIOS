@@ -34,6 +34,23 @@ static bool in(uint64_t offset, uint64_t length, uint64_t size) {
     uint64_t end = 0;
     return add_ok(offset, length, &end) && end <= size;
 }
+
+static bool pid_in_use(uint32_t pid) {
+    if (!pid) return true;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i)
+        if (slots[i].used && slots[i].image.pid == pid) return true;
+    return false;
+}
+
+/* Never wrap PID allocation onto an existing live process record. */
+static uint32_t allocate_pid() {
+    for (uint32_t attempt = 0; attempt < CHIMERA_PROCESS_MAX + 1u; ++attempt) {
+        if (!next_pid || next_pid > 0x7fffffffu) next_pid = 1;
+        const uint32_t candidate = next_pid++;
+        if (candidate && !pid_in_use(candidate)) return candidate;
+    }
+    return 0;
+}
 }
 
 extern "C" int chimera_process_init(void) {
@@ -73,7 +90,9 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 
         uint64_t end = 0;
         if (!add_ok(s.p_vaddr, s.p_memsz, &end) || s.p_memsz == 0 ||
-            s.p_vaddr >= stack || end > stack) return -4;
+            s.p_vaddr < 0x0000000100000000ull ||
+            s.p_vaddr >= 0x0000800000000000ull ||
+            end > stack || end > 0x0000800000000000ull) return -4;
         if (s.p_align > 1 &&
             ((s.p_align & (s.p_align - 1)) != 0 ||
              (s.p_vaddr % s.p_align) != (s.p_offset % s.p_align))) return -5;
@@ -92,20 +111,31 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
         if (d.virtual_address < low) low = d.virtual_address;
         uint64_t aligned_end = 0;
         if (!up(end, &aligned_end)) return -8;
+        /* The current mapper has no safe permission-merging policy for
+         * page-overlapping PT_LOAD segments; reject them before loading. */
+        for (uint32_t j = 0; j + 1u < n; ++j) {
+            uint64_t prior_end = 0;
+            if (!add_ok(p.segments[j].virtual_address,
+                        p.segments[j].memory_size, &prior_end) ||
+                !up(prior_end, &prior_end)) return -8;
+            if (d.virtual_address < prior_end &&
+                p.segments[j].virtual_address < aligned_end) return -11;
+        }
         if (aligned_end > high) high = aligned_end;
         if ((s.p_flags & PF_X) && h.e_entry >= s.p_vaddr &&
             h.e_entry < end) entry_executable = true;
     }
 
-    if (!n || !entry_executable) return -9;
+    if (!n || p.entry < low || p.entry >= high || p.entry >= stack ||
+        !entry_executable) return -9;
     p.segment_count = n;
     p.image_low = low;
     p.image_high = high;
 
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (!slots[i].used) {
-            p.pid = next_pid++;
-            if (!next_pid) next_pid = 1;
+            p.pid = allocate_pid();
+            if (!p.pid) return -10;
             p.state = CHIMERA_PROCESS_ADMITTED;
             slots[i].image = p;
             slots[i].used = true;
