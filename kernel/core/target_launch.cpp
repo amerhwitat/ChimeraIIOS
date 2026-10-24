@@ -520,8 +520,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
         } else {
             cpio_rc = chimera_cpio_validate_newc(archive_bytes, archive->size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK) {
-                /* Entry-point selection is provided by the separately staged
-                   native init ELF; validate the archive as rootfs data only. */
+                /* Archive /init is the production entry point and was
+                   resolved as a bounded ELF before this rootfs is accepted. */
                 koronos_target_log("[RUN ] ERROR: selected initramfs is malformed or unsafe");
                 return -17;
             }
