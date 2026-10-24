@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Unit tests for the native ELF target matrix; these do not claim CPU execution."""
-import json, struct, tempfile, unittest
+import json, struct, sys, tempfile, unittest
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts" / "arch"))
 import verify_elf_matrix as verifier
 
 class ElfMatrixTests(unittest.TestCase):
@@ -28,7 +30,8 @@ class ElfMatrixTests(unittest.TestCase):
             ident[18:20] = struct.pack("<H", 62)
             p.write_bytes(ident)
             self.assertEqual(verifier.read_elf_identity(p), (64, "little", 62))
-            verifier.verify_artifact(next(t for t in verifier.load_manifest()["architecture_targets"] if t["id"] == "x86_64"), p)
+            target = next(t for t in verifier.load_manifest()["architecture_targets"] if t["id"] == "x86_64")
+            verifier.verify_artifact(target, p)
 
     def test_rejects_cross_architecture_mismatch(self):
         with tempfile.TemporaryDirectory() as d:
@@ -36,7 +39,7 @@ class ElfMatrixTests(unittest.TestCase):
             ident = bytearray(20)
             ident[:4] = b"\x7fELF"
             ident[4], ident[5], ident[6] = 2, 1, 1
-            ident[18:20] = struct.pack("<H", 183) # AArch64, not x86-64
+            ident[18:20] = struct.pack("<H", 183)
             p.write_bytes(ident)
             target = next(t for t in verifier.load_manifest()["architecture_targets"] if t["id"] == "x86_64")
             with self.assertRaisesRegex(verifier.MatrixError, "identity mismatch"):
