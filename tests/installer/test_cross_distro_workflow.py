@@ -60,6 +60,14 @@ class CrossDistroInstallerWorkflowTests(unittest.TestCase):
         self.assertIn("English fallback", js)
 
 
+    def test_process_dependent_syscalls_fail_closed_without_live_context(self):
+        syscall = (ROOT / "kernel" / "core" / "syscall.cpp").read_text(encoding="utf-8")
+        self.assertIn("A constant PID is not process identity", syscall)
+        self.assertIn("Do not report a successful user yield", syscall)
+        self.assertIn("fabricates lifecycle progress", syscall)
+        self.assertNotIn("*return_value = 1u;", syscall)
+        self.assertNotIn("*return_value = 0;\n            return 0;\n        case CHM_SYS_EXIT", syscall)
+
     def test_full_iso_workflow_fails_when_userspace_acceptance_is_false(self):
         workflow = (ROOT / ".github" / "workflows" / "chimera-full-iso.yml").read_text(encoding="utf-8")
         self.assertIn("name: Fail workflow when target userspace acceptance is missing", workflow)
