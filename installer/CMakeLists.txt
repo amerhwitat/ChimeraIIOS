@@ -13,3 +13,9 @@ install(DIRECTORY profiles DESTINATION share/chimera/installer)
 # Toolchains are staged into the ISO/target root by the installer transaction.
 install(FILES installation_phases.json installer_profiles.json chimera-installer-plan.json config/installed-system-policy.json config/live-target-parity.json DESTINATION share/chimera/installer)
 install(FILES ../desktop/aurora/assets/aurora-installer.svg ../desktop/aurora/assets/aurora-library.svg ../desktop/aurora/assets/aurora-desktop.svg DESTINATION share/chimera/installer/artwork)
+
+install(FILES cross-distro-workflow.json DESTINATION share/chimera/installer)
+install(DIRECTORY gui/ DESTINATION share/chimera/installer/gui
+  FILES_MATCHING PATTERN "aurora-installer.html"
+                 PATTERN "aurora-installer.css"
+                 PATTERN "aurora-installer.js")
