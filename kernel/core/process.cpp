@@ -51,6 +51,8 @@ extern "C" int chimera_process_init(void) {
 extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
                                           uint16_t machine, uint64_t stack,
                                           chimera_process_image *out) {
+    // Reject use before init; otherwise a later init silently erased the record.
+    if (!process_registry_initialized) return -12;
     if (!image || !out || stack < PAGE) return -1;
     if (!koronos_elf64_validate(image, size, machine)) return -2;
 
@@ -127,6 +129,7 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 }
 
 extern "C" int chimera_process_get(uint32_t pid, chimera_process_image *out) {
+    if (!process_registry_initialized) return -3;
     if (!out || !pid) return -1;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (slots[i].used && slots[i].image.pid == pid) {
@@ -139,6 +142,7 @@ extern "C" int chimera_process_get(uint32_t pid, chimera_process_image *out) {
 
 extern "C" int chimera_process_set_state(uint32_t pid,
                                           chimera_process_state state) {
+    if (!process_registry_initialized) return -3;
     if (!pid || state < CHIMERA_PROCESS_ADMITTED ||
         state > CHIMERA_PROCESS_FAULTED) return -1;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
@@ -150,4 +154,4 @@ extern "C" int chimera_process_set_state(uint32_t pid,
     return -2;
 }
 
-extern "C" uint32_t chimera_process_count(void) { return count; }
+extern "C" uint32_t chimera_process_count(void) { return process_registry_initialized ? count : 0; }
