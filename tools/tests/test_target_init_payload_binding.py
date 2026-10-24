@@ -25,6 +25,11 @@ required = (
     "bounded writable /tmp filesystem mount failed; refusing userspace launch",
     "__atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE)",
     "if (!staged_rootfs_ready || !staged_rootfs)",
+    "stage_archive_init_elf(archive_bytes, archive->size)",
+    "const void *init_image = staged_archive_init ?",
+    "chimera_process_admit_elf(init_image, init_image_size",
+    "chimera_elf_load_user_image(init_image, init_image_size",
+    "interpreter/argv exec and script FD support are not implemented",
 )
 missing = [part for part in required if part not in source]
 if missing:
