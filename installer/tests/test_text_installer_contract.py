@@ -20,7 +20,7 @@ def test_text_frontend_never_claims_install_success_without_transaction_backend(
 
 def test_text_frontend_is_keyboard_only_and_has_explicit_review():
     assert 'keyboard-only text mode' in CLI
-    assert 'Review the shared installation plan?' in CLI
+    assert 'Start the installer wizard?' in CLI
     assert 'Target root (mounted target only)' in CLI
 
 
@@ -34,6 +34,9 @@ def test_installer_collects_locale_timezone_keyboard_and_input_languages():
     assert 'plan.timezone = ask_text' in CLI
     assert 'plan.keyboard_layout = ask_text' in CLI
     assert 'plan.input_languages = ask_text' in CLI
+    assert 'plan.storage_mode = ask_text' in CLI
+    assert 'plan.edition = ask_text' in CLI
+    assert 'plan.desktop_profile = ask_text' in CLI
     for field in ("locale", "timezone", "keyboard_layout", "input_languages", "hardware_clock_utc", "enable_ntp"):
         assert field in HEADER
 
