@@ -7,16 +7,24 @@ ISO="$BUILD/koronos32-probe.iso"
 LOG="$BUILD/qemu-serial.log"
 TIMEOUT_SECONDS="${CHIMERA32_QEMU_TIMEOUT:-12}"
 
-for tool in make gcc ld grub-mkrescue xorriso qemu-system-i386 timeout readelf; do
+for tool in make gcc ld grub-mkrescue grub-file xorriso qemu-system-i386 timeout readelf; do
   command -v "$tool" >/dev/null 2>&1 || { echo "Missing required tool: $tool" >&2; exit 2; }
 done
 mkdir -p "$BUILD"
 make -C "$SRC" clean all check BUILD="$BUILD/objects"
 mkdir -p "$BUILD/iso/boot/grub"
 cp "$BUILD/objects/koronos32-probe.elf" "$BUILD/iso/boot/koronos32-probe.elf"
+grub-file --is-x86-multiboot "$BUILD/objects/koronos32-probe.elf" || {
+  echo "FAIL: GRUB does not recognize the probe as a Multiboot v1 kernel" >&2
+  readelf -S "$BUILD/objects/koronos32-probe.elf" >&2
+  exit 1
+}
 cat > "$BUILD/iso/boot/grub/grub.cfg" <<'GRUBCFG'
 set timeout=0
 set default=0
+serial --unit=0 --speed=115200
+terminal_input serial
+terminal_output serial
 menuentry "Koronos 32-bit bring-up probe" {
     multiboot /boot/koronos32-probe.elf
     boot
@@ -24,7 +32,7 @@ menuentry "Koronos 32-bit bring-up probe" {
 GRUBCFG
 grub-mkrescue -o "$ISO" "$BUILD/iso" >/dev/null
 set +e
-timeout "$TIMEOUT_SECONDS" qemu-system-i386 -machine pc -m 128M -cdrom "$ISO" -display none -serial file:"$LOG" -monitor none -no-reboot -no-shutdown
+timeout "$TIMEOUT_SECONDS" qemu-system-i386 -machine pc -m 128M -boot order=d -cdrom "$ISO" -display none -serial file:"$LOG" -monitor none -no-reboot -no-shutdown
 qemu_status=$?
 set -e
 if ! grep -Fq 'KORONOS32_BOOT_OK' "$LOG"; then
