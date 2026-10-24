@@ -124,6 +124,14 @@ static const chimera_vfs_ops ramfs_vfs_ops = {
     ramfs_vfs_lookup, ramfs_vfs_read, nullptr, nullptr, nullptr,
     nullptr, nullptr, nullptr, nullptr
 };
+static void discard_staged_rootfs() {
+    if (staged_rootfs) {
+        const chimera_ramfs_allocator allocator{ramfs_frame_alloc, ramfs_frame_free, nullptr};
+        chimera_ramfs_destroy(staged_rootfs, &allocator);
+    }
+    staged_rootfs = nullptr;
+    staged_rootfs_ready = false;
+}
 static int stage_rootfs(const void *archive, uint64_t archive_size) {
     if (staged_rootfs_ready || staged_rootfs) return -1;
     const chimera_ramfs_allocator allocator{ramfs_frame_alloc, ramfs_frame_free, nullptr};
@@ -545,6 +553,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         }
         if (chimera_vfs_init() != 0 ||
             chimera_vfs_mount("/", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY) != 0) {
+            discard_staged_rootfs();
             discard_staged_archive_init();
             koronos_target_log("[RUN ] ERROR: VFS root mount failed; refusing userspace launch");
             return -15;
@@ -557,6 +566,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
             chimera_vfs_mount("/tmp", chimera_tmpfs_vfs_ops(), tmpfs_candidate, 0u) != 0) {
             if (tmpfs_candidate) chimera_tmpfs_destroy(tmpfs_candidate);
             (void)chimera_vfs_unmount("/");
+            discard_staged_rootfs();
             discard_staged_archive_init();
             koronos_target_log("[RUN ] ERROR: bounded writable /tmp filesystem mount failed; refusing userspace launch");
             return -15;
