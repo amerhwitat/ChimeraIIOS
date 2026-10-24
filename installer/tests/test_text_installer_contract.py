@@ -23,6 +23,7 @@ def test_text_frontend_is_keyboard_only_and_has_explicit_review():
     assert 'Review the shared installation plan?' in CLI
     assert 'Target root (mounted target only)' in CLI
 
+
 CORE = (ROOT / "src" / "installer_core.cpp").read_text(encoding="utf-8")
 HEADER = (ROOT / "include" / "chimera" / "installer_core.hpp").read_text(encoding="utf-8")
 POLICY = (ROOT / "config" / "installed-system-policy.json").read_text(encoding="utf-8")
@@ -41,7 +42,6 @@ def test_gui_and_text_share_fail_closed_executor():
     assert 'INSTALLATION BLOCKED' in CORE
     assert 'return 78;' in CORE
     assert 'if(p.dry_run)' in CORE
-    # The previous unsafe copy-and-success path must not remain in execute().
     execute = CORE[CORE.index("int Installer::execute("):]
     assert "copy_tree(p.source_root,p.target_root)" not in execute
     assert "return 78;" in execute
@@ -54,6 +54,7 @@ def test_linux_layout_and_ntfs_fat_safety_are_explicit():
     assert '"never_force_dirty_or_hibernated_volume": true' in POLICY
     assert '"missing_capability_policy": "fail_closed"' in POLICY
 
+
 TARGETS = (ROOT / "config" / "live-target-parity.json").read_text(encoding="utf-8")
 
 
@@ -64,3 +65,11 @@ def test_live_installer_and_recovery_target_require_same_boot_and_service_chain(
         assert target in TARGETS
     assert '"same_iso_sha256_required_for_all_traces": true' in TARGETS
     assert '"simulated_smp_is_invalid": true' in TARGETS
+
+
+def test_settings_summary_uses_real_line_breaks_not_literal_backslash_sequences():
+    # Two backslashes followed by n in a C++ string print the characters \\n,
+    # rather than the intended line break.
+    assert '<< "\\\\nLocale:' not in CLI
+    assert '<< "\\\\nTime zone:' not in CLI
+    assert '<< "\\\\nKeyboard:' not in CLI
