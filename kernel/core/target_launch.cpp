@@ -500,9 +500,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 reinterpret_cast<void *>(static_cast<uintptr_t>(decompressed.base)),
                 expected_size, &decoded_size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK || decoded_size != expected_size) {
-                /* The separately staged, target-matched native ELF is the
-                   executable entry point. A shell /init or absent /init in
-                   the archive must not reject an otherwise valid rootfs;
+                /* Archive /init is the production entry point. This path is
+                   reached only after it has been resolved as a bounded ELF;
                    CPIO safety and gzip integrity remain mandatory. */
                 koronos_target_log("[RUN ] ERROR: gzip decode, CRC32/ISIZE, or CPIO safety validation failed");
                 return -19;
