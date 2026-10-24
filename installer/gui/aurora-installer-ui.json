@@ -1,11 +1,79 @@
 {
-  "schema":"CHM-AURORA-INSTALLER-GUI-1",
-  "renderer":"Aurora Wayland Glass",
-  "background":"assets/aurora/Aurora-Wayland-Glass-Desktop.png",
-  "library_source":"Aurora Wayland Glass Desktop.png",
-  "panels":["Welcome","Language & Keyboard","Network","Installation Source","Storage","Filesystem","Users","Desktop Personality","Bootloader","Installation Summary","Progress","Verification","Reboot"],
-  "input":["keyboard","pointer","touch"],
-  "modes":["install","live","recovery","compatibility"],
-  "accessibility":["high-contrast","large-text","keyboard-only","screen-reader-hook"],
-  "transaction":"chimera_installer_core"
+  "schema": "CHM-AURORA-INSTALLER-GUI-2",
+  "renderer": "Aurora Wayland Glass",
+  "background": "assets/aurora/Aurora-Wayland-Glass-Desktop.png",
+  "library_source": "Aurora Wayland Glass Desktop.png",
+  "panels": [
+    "Welcome",
+    "Language & Keyboard",
+    "Hardware & Firmware",
+    "Network & Source",
+    "System Role & Software",
+    "Guided/Custom Storage",
+    "Accounts & Security",
+    "Bootloader",
+    "Review & Commit",
+    "Installation Progress (backend required)",
+    "Verification",
+    "Reboot"
+  ],
+  "input": [
+    "keyboard",
+    "pointer",
+    "touch"
+  ],
+  "modes": [
+    "install",
+    "live",
+    "recovery",
+    "compatibility"
+  ],
+  "accessibility": [
+    "high-contrast",
+    "large-text",
+    "keyboard-only",
+    "screen-reader-hook"
+  ],
+  "transaction": "chimera_installer_core",
+  "workflow_contract": "cross-distro-workflow.json",
+  "design_influences": [
+    "Red Hat Anaconda/CentOS",
+    "Linux Mint/Ubuntu",
+    "Debian Installer",
+    "SUSE YaST"
+  ],
+  "storage_modes": [
+    "guided",
+    "custom"
+  ],
+  "safety": {
+    "dry_run_default": true,
+    "erase_default": false,
+    "preserve_existing_os_default": true,
+    "require_stable_target_identity": true,
+    "require_explicit_confirmation": true,
+    "transaction_backend": "fail-closed-until-journal-rollback-readback-and-boot-verification-exist"
+  },
+  "backend_status": "review-only; native GUI transaction adapter not integrated",
+  "localization": {
+    "runtime": "installer-i18n.js",
+    "locale_standard": "BCP-47",
+    "utf8": true,
+    "rtl_layout": true,
+    "bundled_translations": [
+      "en",
+      "ar",
+      "es",
+      "fr",
+      "de",
+      "pt",
+      "ru",
+      "zh",
+      "ja",
+      "hi",
+      "ur",
+      "tr"
+    ],
+    "fallback": "English for valid locales without a bundled translation"
+  }
 }

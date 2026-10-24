@@ -50,6 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Test fail-closed production service-lifecycle DAPS contract
+        run: python3 scripts/daps/test_production_acceptance_gate.py
       - name: Install boot validation tools
         run: |
           sudo apt-get update

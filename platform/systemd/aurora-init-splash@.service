@@ -1,0 +1,18 @@
+[Unit]
+Description=Aurora Init.mp4 boot-progress splash
+Documentation=https://github.com/amerhwitat/ChimeraIIOS
+After=chimera-kernel.service
+PartOf=aurora-session@%i.service
+
+[Service]
+Type=oneshot
+User=%i
+Environment=XDG_SESSION_TYPE=wayland
+Environment=XDG_CURRENT_DESKTOP=Aurora
+Environment=XDG_SESSION_DESKTOP=aurora
+Environment=MOZ_ENABLE_WAYLAND=1
+Environment=QT_QPA_PLATFORM=wayland
+ExecStart=/usr/bin/aurora-init-splash --background
+
+[Install]
+WantedBy=graphical.target

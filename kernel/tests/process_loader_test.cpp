@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <stdio.h>
 struct Region{uint64_t base=0,size=0;uint32_t flags=0;uint8_t bytes[65536]{};};
-struct Mock{Region regions[8]{};uint32_t count=0;bool destroyed=false;};
+struct Mock{Region regions[8]{};uint32_t count=0,map_calls=0,fail_on_call=0;bool destroyed=false;};
 static void*create_as(void*p){auto*m=(Mock*)p;m->count=0;m->destroyed=false;return m;}
 static int map_pages(void*p,void*as,uint64_t base,uint64_t size,uint32_t flags,void**alias){
- auto*m=(Mock*)p;if(as!=p||!alias||size>sizeof(m->regions[0].bytes)||m->count>=8)return -1;
+ auto*m=(Mock*)p;++m->map_calls;if(m->fail_on_call&&m->map_calls==m->fail_on_call)return -9;if(as!=p||!alias||size>sizeof(m->regions[0].bytes)||m->count>=8)return -1;
  for(uint32_t i=0;i<m->count;i++)if(base<m->regions[i].base+m->regions[i].size&&m->regions[i].base<base+size)return -2;
  auto&r=m->regions[m->count++];r.base=base;r.size=size;r.flags=flags;*alias=r.bytes;return 0;
 }
@@ -32,5 +32,14 @@ int main(){
  assert(m.regions[1].base==0x6fe000&&m.regions[1].flags==6);
  put32(elf+68,7);Mock bad{};chimera_loaded_elf untouched{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad,&untouched)<0);
- assert(bad.count==0);puts("process loader: PT_LOAD copy, BSS zeroing, W^X and stack mapping passed");return 0;
+ assert(bad.count==0);
+ put32(elf+68,5); // restore RX permissions for the rollback-path fixture
+ // A failure after the image mapping but during stack mapping must roll back
+ // the newly-created address space and must not publish a partial result.
+ Mock rollback{};rollback.fail_on_call=2;
+ chimera_loaded_elf sentinel{};sentinel.abi=0xdecafbad;sentinel.entry=0x12345678;
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&rollback,&sentinel)==-15);
+ assert(rollback.map_calls==2&&rollback.destroyed);
+ assert(sentinel.abi==0xdecafbad&&sentinel.entry==0x12345678);
+ puts("process loader: PT_LOAD copy, BSS zeroing, W^X, stack mapping and rollback passed");return 0;
 }
