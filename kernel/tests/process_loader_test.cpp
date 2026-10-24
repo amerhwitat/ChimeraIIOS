@@ -3,14 +3,14 @@
 #include <stdint.h>
 #include <stdio.h>
 struct Region{uint64_t base=0,size=0;uint32_t flags=0;uint8_t bytes[65536]{};};
-struct Mock{Region regions[8]{};uint32_t count=0;bool destroyed=false;uint32_t backing_count=0,backing_kind=0;uint64_t backing_object=0,backing_offset=0;bool fail_backing=false;};
+struct Mock{Region regions[8]{};uint32_t count=0;bool destroyed=false;uint32_t backing_count=0,backing_kind=0;uint64_t backing_object=0,backing_offset=0;bool fail_backing=false,fail_destroy=false;};
 static void*create_as(void*p){auto*m=(Mock*)p;m->count=0;m->destroyed=false;return m;}
 static int map_pages(void*p,void*as,uint64_t base,uint64_t size,uint32_t flags,void**alias){
  auto*m=(Mock*)p;if(as!=p||!alias||size>sizeof(m->regions[0].bytes)||m->count>=8)return -1;
  for(uint32_t i=0;i<m->count;i++)if(base<m->regions[i].base+m->regions[i].size&&m->regions[i].base<base+size)return -2;
  auto&r=m->regions[m->count++];r.base=base;r.size=size;r.flags=flags;*alias=r.bytes;return 0;
 }
-static int destroy_as(void*p,void*as){assert(p==as);((Mock*)p)->destroyed=true;return 0;}
+static int destroy_as(void*p,void*as){assert(p==as);auto*m=(Mock*)p;m->destroyed=true;return m->fail_destroy?-1:0;}
 static int set_backing(void*p,void*as,uint64_t,uint64_t,uint32_t kind,uint64_t object,uint64_t offset){auto*m=(Mock*)p;if(as!=p||m->fail_backing)return -1;++m->backing_count;m->backing_kind=kind;m->backing_object=object;m->backing_offset=offset;return 0;}
 static void put16(uint8_t*p,uint16_t v){p[0]=(uint8_t)v;p[1]=(uint8_t)(v>>8);}
 static void put32(uint8_t*p,uint32_t v){for(int i=0;i<4;i++)p[i]=(uint8_t)(v>>(8*i));}
@@ -36,6 +36,10 @@ int main(){
  build_elf(elf,sizeof(elf)); Mock bad_backing{}; bad_backing.fail_backing=true;
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_backing,&untouched)==-16);
  assert(bad_backing.destroyed&&bad_backing.count==1);
+ // A rollback teardown failure is surfaced distinctly and must not be reported as ordinary load failure.
+ build_elf(elf,sizeof(elf)); Mock failed_rollback{}; failed_rollback.fail_backing=true; failed_rollback.fail_destroy=true;
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&failed_rollback,&untouched)==-17);
+ assert(failed_rollback.destroyed&&failed_rollback.count==1);
  // Header version and exact ELF header size are mandatory.
  build_elf(elf,sizeof(elf)); put32(elf+20,2); Mock bad_version{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_version,&untouched)<0);
