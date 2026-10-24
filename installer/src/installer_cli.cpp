@@ -56,7 +56,12 @@ int main(int argc, char** argv) {
   }
   std::cout << "\nSource: " << plan.source_root << "\nTarget: " << plan.target_root
             << "\nFilesystem: " << plan.filesystem << "\nBootloader: "
-            << plan.bootloader << "\n\n";
+            << plan.bootloader << "\\nLocale: " << plan.locale
+            << "\\nTime zone: " << plan.timezone
+            << "\\nKeyboard: " << plan.keyboard_layout
+            << "\\nInput languages: " << plan.input_languages
+            << "\\nHardware clock UTC: " << (plan.hardware_clock_utc ? "yes" : "no")
+            << "\\nNTP: " << (plan.enable_ntp ? "enabled" : "disabled") << "\\n\\n";
 
   const int plan_rc = installer.execute(plan, false);
   if (plan_rc != 0) {
