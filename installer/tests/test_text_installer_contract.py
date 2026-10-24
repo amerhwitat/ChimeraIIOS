@@ -26,6 +26,9 @@ def test_text_frontend_is_keyboard_only_and_has_explicit_review():
 
 CORE = (ROOT / "src" / "installer_core.cpp").read_text(encoding="utf-8")
 HEADER = (ROOT / "include" / "chimera" / "installer_core.hpp").read_text(encoding="utf-8")
+GUI = (ROOT / "src" / "installer_gui.cpp").read_text(encoding="utf-8")
+CMAKE = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
+FLOW = (ROOT / "cross-distro-workflow.json").read_text(encoding="utf-8")
 POLICY = (ROOT / "config" / "installed-system-policy.json").read_text(encoding="utf-8")
 
 
@@ -76,3 +79,20 @@ def test_settings_summary_uses_real_line_breaks_not_literal_backslash_sequences(
     assert '<< "\\\\nLocale:' not in CLI
     assert '<< "\\\\nTime zone:' not in CLI
     assert '<< "\\\\nKeyboard:' not in CLI
+
+def test_text_frontend_collects_cross_distro_wizard_choices():
+    for field in ("source_type", "network_mode", "hostname", "admin_username", "firewall_enabled", "secure_boot", "storage_mode", "edition", "desktop_profile", "preserve_existing_os", "encrypt_root"):
+        assert field in HEADER
+    for prompt in ("Source type", "Network mode", "Installed system hostname", "Administrator username", "Storage mode", "System role", "Desktop profile"):
+        assert prompt in CLI
+    assert "source_type" in CORE and "network_mode" in CORE
+
+
+def test_gui_launcher_packages_accessible_wizard_and_remains_fail_closed():
+    assert "aurora-installer.html" in GUI
+    assert "xdg-open" in GUI
+    assert "INSTALLER GUI UNAVAILABLE" in GUI
+    assert "cross-distro-workflow.json DESTINATION share/chimera/installer" in CMAKE
+    assert "install(DIRECTORY gui/" in CMAKE
+    for distro in ("Red Hat Anaconda / CentOS", "Linux Mint / Ubuntu", "Debian Installer", "SUSE YaST"):
+        assert distro in FLOW
