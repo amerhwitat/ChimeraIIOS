@@ -206,7 +206,7 @@ extern "C" int chimera_cpio_lookup_newc(const void *input,uint64_t size,
   if (valid!=CHIMERA_CPIO_OK) return valid;
   const auto *b=static_cast<const uint8_t*>(input);
   uint32_t request_len=0;
-  while (requested[request_len] && request_len<=CHIMERA_CPIO_MAX_PATH) ++request_len;
+  while (request_len<=CHIMERA_CPIO_MAX_PATH && requested[request_len]) ++request_len;
   if (!request_len || request_len>CHIMERA_CPIO_MAX_PATH) return CHIMERA_CPIO_E_PATH;
   const char *want=requested;
   while (*want=='/') ++want;
