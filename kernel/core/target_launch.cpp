@@ -529,6 +529,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
             if (stage_archive_init_elf(archive_bytes, archive->size) != 0) return -21;
             const int rootfs_rc = stage_rootfs(archive_bytes, archive->size);
             if (rootfs_rc != CHIMERA_RAMFS_OK) {
+                discard_staged_archive_init();
                 koronos_target_log("[RUN ] ERROR: transactional RAMFS staging failed; no rootfs was published");
                 return -20;
             }
