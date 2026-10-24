@@ -125,6 +125,11 @@ install(FILES system/aurora/chimera-hosted-bridge.desktop DESTINATION ${CMAKE_IN
 install(PROGRAMS tools/runtime/chimera-hosted.py DESTINATION bin RENAME chimera-hosted)
 install(FILES system/hosted/compatibility-matrix.json DESTINATION share/chimera/hosted)
 if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_init_video_progress
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_init_video_progress.py)
+endif()
+
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
   add_test(NAME chimera_hosted_runtime
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_hosted_runtime.py)
 endif()
