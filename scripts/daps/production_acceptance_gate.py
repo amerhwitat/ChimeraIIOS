@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Fail-closed production DAPS gate for a single ISO and six target/firmware traces.
+"""Fail-closed production DAPS gate for one ISO and six target/firmware traces.
 
-Evidence is collected by the real boot/test harness, never synthesized by this
-validator. A missing field, mismatched ISO digest, candidate-probe trace, or
-kernel-authored readiness marker is a hard failure.
+Evidence must be produced by the real boot/test harness, never synthesized by
+this validator. Missing fields, an ISO digest mismatch, candidate-probe traces,
+or kernel-authored readiness markers are hard failures.
 """
 from __future__ import annotations
 
@@ -51,6 +51,14 @@ def require(condition: bool, message: str) -> None:
         raise GateError(message)
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def check_case(path: Path, target: str, firmware: str, iso_sha: str) -> None:
     e = load_json(path)
     prefix = f"{target}/{firmware}"
@@ -75,7 +83,8 @@ def check_case(path: Path, target: str, firmware: str, iso_sha: str) -> None:
     require(e.get("target_service_health") is True,
             f"{prefix}: target services have not passed health checks")
     mounts = e.get("mounts")
-    require(isinstance(mounts, list) and BASE_MOUNTS.issubset(set(mounts)),
+    require(isinstance(mounts, list) and all(isinstance(x, str) for x in mounts)
+            and BASE_MOUNTS.issubset(set(mounts)),
             f"{prefix}: required /proc, /sys, /dev, /run, /tmp mounts not proven")
     health = e.get("services")
     require(isinstance(health, dict), f"{prefix}: missing per-service health results")
@@ -90,7 +99,7 @@ def check_case(path: Path, target: str, firmware: str, iso_sha: str) -> None:
                       "boot_entry_verified", "cold_reboot_passed",
                       "persistent_readback_passed"):
             require(e.get(field) is True, f"{prefix}: {field} not proven")
-    elif target == "recovery":
+    else:
         require(e.get("repair_or_rollback_postconditions") is True,
                 f"{prefix}: recovery repair/rollback postconditions not proven")
 
@@ -101,11 +110,13 @@ def check_smp(path: Path) -> None:
     require(isinstance(ids, list) and len(ids) >= 2 and
             all(type(x) is int and x >= 0 for x in ids) and len(set(ids)) == len(ids),
             "SMP: need distinct BSP/AP APIC IDs from runtime evidence")
-    require(e.get("ap_workers_started", 0) >= 1,
+    ap_count = e.get("ap_workers_started")
+    require(type(ap_count) is int and ap_count >= 1,
             "SMP: no application processor startup proven")
     require(e.get("overlapping_execution_observed") is True,
             "SMP: overlapping execution was not observed")
-    require(e.get("workers_completed", 0) >= 2,
+    completed = e.get("workers_completed")
+    require(type(completed) is int and completed >= 2,
             "SMP: at least two concurrently scheduled workers must complete")
     require(e.get("simulated") is False,
             "SMP: simulated/sequential CPU execution is not acceptable evidence")
@@ -119,17 +130,17 @@ def main() -> int:
     args = parser.parse_args()
     try:
         require(args.iso.is_file(), f"ISO does not exist: {args.iso}")
-        iso_sha = hashlib.sha256(args.iso.read_bytes()).hexdigest()
+        iso_sha = sha256_file(args.iso)
         print(f"ISO SHA-256: {iso_sha}")
         for target, firmware in CASES:
-            name = f"{target}-{firmware}.json"
-            check_case(args.evidence_dir / name, target, firmware, iso_sha)
+            check_case(args.evidence_dir / f"{target}-{firmware}.json",
+                       target, firmware, iso_sha)
             print(f"PASS: {target}/{firmware}")
         check_smp(args.evidence_dir / "smp.json")
         print("PASS: genuine AP-backed overlapping SMP")
         print("DAPS PASS: all six target/firmware cases and SMP evidence match this ISO")
         return 0
-    except (GateError, OSError) as exc:
+    except (GateError, OSError, TypeError, ValueError) as exc:
         print(f"DAPS BLOCKED: {exc}", file=sys.stderr)
         return 1
 
