@@ -40,6 +40,12 @@ int main(int argc, char** argv) {
   InstallPlan plan;
   plan.source_root = argc > 1 ? argv[1] : ask_text("Installation source", "/run/chimera/live");
   plan.target_root = argc > 2 ? argv[2] : ask_text("Target root (mounted target only)", "/target");
+  plan.locale = ask_text("Installation language / locale", "en_US.UTF-8");
+  plan.timezone = ask_text("Time zone (IANA name)", "UTC");
+  plan.keyboard_layout = ask_text("Console keyboard layout", "us");
+  plan.input_languages = ask_text("Input languages (comma-separated)", "en");
+  plan.hardware_clock_utc = ask_yes_no("Keep hardware clock in UTC?");
+  plan.enable_ntp = ask_yes_no("Enable network time synchronization?");
   plan.dry_run = true;
 
   std::cout << "\nPlanned phases (shared Installer::build_plan backend):\n";
