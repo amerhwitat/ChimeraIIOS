@@ -513,6 +513,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 reinterpret_cast<const void *>(static_cast<uintptr_t>(decompressed.base)),
                 decoded_size);
             if (rootfs_rc != CHIMERA_RAMFS_OK) {
+                discard_staged_archive_init();
                 koronos_target_log("[RUN ] ERROR: transactional RAMFS staging failed; no rootfs was published");
                 return -20;
             }
@@ -544,6 +545,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         }
         if (chimera_vfs_init() != 0 ||
             chimera_vfs_mount("/", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY) != 0) {
+            discard_staged_archive_init();
             koronos_target_log("[RUN ] ERROR: VFS root mount failed; refusing userspace launch");
             return -15;
         }
@@ -555,6 +557,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
             chimera_vfs_mount("/tmp", chimera_tmpfs_vfs_ops(), tmpfs_candidate, 0u) != 0) {
             if (tmpfs_candidate) chimera_tmpfs_destroy(tmpfs_candidate);
             (void)chimera_vfs_unmount("/");
+            discard_staged_archive_init();
             koronos_target_log("[RUN ] ERROR: bounded writable /tmp filesystem mount failed; refusing userspace launch");
             return -15;
         }
