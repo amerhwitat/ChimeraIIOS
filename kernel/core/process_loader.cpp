@@ -49,19 +49,19 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  void*as=ops->create_address_space(context);if(!as)return -13;
  for(uint32_t i=0;i<count;i++){
   const Plan&p=plans[i];void*alias=nullptr;
-  if(ops->map_pages(context,as,p.base,p.size,p.ph.p_flags,&alias)!=0||!alias){ops->destroy_address_space(context,as);return -14;}
+  if(ops->map_pages(context,as,p.base,p.size,p.ph.p_flags,&alias)!=0||!alias){return ops->destroy_address_space(context,as)==0 ? -14 : -17;}
   if (ops->set_backing) {
    if (p.ph.p_offset < p.delta ||
        ops->set_backing(context,as,p.base,p.size,CHIMERA_ELF_BACKING_IMAGE,
                         reinterpret_cast<uintptr_t>(image),p.ph.p_offset-p.delta)!=0) {
-    ops->destroy_address_space(context,as);return -16;
+    return ops->destroy_address_space(context,as)==0 ? -16 : -17;
    }
   }
   auto*dst=static_cast<uint8_t*>(alias);__builtin_memset(dst,0,(size_t)p.size);
   if(p.ph.p_filesz)__builtin_memcpy(dst+p.delta,bytes+p.ph.p_offset,(size_t)p.ph.p_filesz);
  }
  void*stack_alias=nullptr;
- if(ops->map_pages(context,as,stack_base,stack_size,PF_R|PF_W,&stack_alias)!=0||!stack_alias){ops->destroy_address_space(context,as);return -15;}
+ if(ops->map_pages(context,as,stack_base,stack_size,PF_R|PF_W,&stack_alias)!=0||!stack_alias){return ops->destroy_address_space(context,as)==0 ? -15 : -17;}
  __builtin_memset(stack_alias,0,(size_t)stack_size);
  chimera_loaded_elf result{};result.abi=CHIMERA_ELF_LOADER_ABI;result.segment_count=count;result.address_space=as;
  result.entry=h.e_entry;result.user_stack_top=stack_top;result.image_low=low;result.image_high=high;result.loaded_file_bytes=file_bytes;
