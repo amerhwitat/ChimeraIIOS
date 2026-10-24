@@ -93,12 +93,18 @@ jobs:
           if [ "$FIRMWARE" = uefi ]; then
             OVMF_CODE=""
             OVMF_VARS=""
-            for candidate in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
-              if [ -f "$candidate" ]; then
-                vars_candidate="${candidate/CODE/VARS}"
-                if [ -f "$vars_candidate" ]; then OVMF_CODE="$candidate"; OVMF_VARS="$vars_candidate"; break; fi
+            # Ubuntu/Debian OVMF package versions install firmware in several
+            # directories and may suffix both halves with _4M, .ms, or .secboot.
+            # Discover installed firmware instead of assuming one package layout.
+            while IFS= read -r candidate; do
+              [ -n "$candidate" ] || continue
+              vars_candidate="${candidate/CODE/VARS}"
+              if [ -f "$vars_candidate" ]; then
+                OVMF_CODE="$candidate"
+                OVMF_VARS="$vars_candidate"
+                break
               fi
-            done
+            done < <(find /usr/share -type f \\( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \\) -print 2>/dev/null | sort)
             if [ -z "$OVMF_CODE" ] || [ -z "$OVMF_VARS" ]; then
               echo "ERROR: matching OVMF code/vars images were not installed" >&2
               find /usr/share -iname 'OVMF_*.fd' -print >&2 || true
