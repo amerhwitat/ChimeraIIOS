@@ -196,3 +196,72 @@ extern "C" int chimera_cpio_validate_newc(const void *input,uint64_t size,chimer
   *out=s;
   return CHIMERA_CPIO_OK;
 }
+
+extern "C" int chimera_cpio_lookup_newc(const void *input,uint64_t size,
+                                        const char *requested,chimera_cpio_entry *out) {
+  if (out) { out->mode=0; out->size=0; out->data=nullptr; }
+  if (!input || !requested || !out) return CHIMERA_CPIO_E_ARGUMENT;
+  chimera_cpio_summary summary{};
+  const int valid=chimera_cpio_validate_newc(input,size,&summary);
+  if (valid!=CHIMERA_CPIO_OK) return valid;
+  const auto *b=static_cast<const uint8_t*>(input);
+  uint32_t request_len=0;
+  while (request_len<=CHIMERA_CPIO_MAX_PATH && requested[request_len]) ++request_len;
+  if (!request_len || request_len>CHIMERA_CPIO_MAX_PATH) return CHIMERA_CPIO_E_PATH;
+  const char *want=requested;
+  while (*want=='/') ++want;
+  while (want[0]=='.' && want[1]=='/') want+=2;
+  if (!*want) return CHIMERA_CPIO_E_PATH;
+  for (const char *p=want; *p; ++p) {
+    if ((uint8_t)*p<0x20u || (uint8_t)*p==92u) return CHIMERA_CPIO_E_PATH;
+    if (*p=='/' && (p[1]=='/' || p[1]==0)) return CHIMERA_CPIO_E_PATH;
+  }
+  for (const char *p=want; *p;) {
+    const char *end=p; while (*end && *end!='/') ++end;
+    const size_t n=(size_t)(end-p);
+    if ((n==1u&&p[0]=='.') || (n==2u&&p[0]=='.'&&p[1]=='.')) return CHIMERA_CPIO_E_PATH;
+    p=*end?end+1:end;
+  }
+  uint64_t off=0;
+  while (off<size) {
+    uint64_t he=0,ne=0,na=0,de=0,da=0;
+    if (!add_ok(off,110u,size,&he)) return CHIMERA_CPIO_E_BOUNDS;
+    const uint8_t *h=b+off;
+    bool ok=true;
+    const uint32_t mode=hex8(h+14,&ok), bytes=hex8(h+54,&ok), namesz=hex8(h+94,&ok);
+    if (!ok || !add_ok(he,namesz,size,&ne) || !align4(ne,size,&na) ||
+        !add_ok(na,bytes,size,&de) || !align4(de,size,&da)) return CHIMERA_CPIO_E_BOUNDS;
+    const uint8_t *name=b+he;
+    if (namesz==11u) {
+      static const char trailer[]="TRAILER!!!";
+      bool is_trailer=true;
+      for (uint32_t i=0;i<10u;i++) if (name[i]!=(uint8_t)trailer[i]) is_trailer=false;
+      if (is_trailer) break;
+    }
+    const char *candidate=(const char*)name;
+    uint32_t candidate_len=namesz-1u;
+    while (candidate_len>=2u && candidate[0]=='.' && candidate[1]=='/') {
+      candidate+=2; candidate_len-=2;
+    }
+    uint32_t wanted_len=0; while (want[wanted_len]) ++wanted_len;
+    if (candidate_len==wanted_len) {
+      uint32_t i=0; while (i<wanted_len && candidate[i]==want[i]) ++i;
+      if (i==wanted_len) {
+        out->mode=mode; out->size=bytes; out->data=b+na;
+        return CHIMERA_CPIO_OK;
+      }
+    }
+    off=da;
+  }
+  return CHIMERA_CPIO_E_NOT_FOUND;
+}
+extern "C" int chimera_cpio_lookup_executable_newc(const void *archive,uint64_t size,
+                                                     const char *path,chimera_cpio_entry *entry) {
+  const int rc=chimera_cpio_lookup_newc(archive,size,path,entry);
+  if (rc!=CHIMERA_CPIO_OK) return rc;
+  if ((entry->mode&0170000u)!=0100000u || (entry->mode&0111u)==0u) {
+    entry->mode=0; entry->size=0; entry->data=nullptr;
+    return CHIMERA_CPIO_E_TYPE;
+  }
+  return CHIMERA_CPIO_OK;
+}

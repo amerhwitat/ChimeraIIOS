@@ -67,9 +67,9 @@ def _check_trace_tokens(path_value: object, label: str, root: Path, required: tu
     if not path.is_relative_to(base) or not path.is_file():
         return  # _check_artifact reports the primary path failure.
     try:
-        content = path.read_text(encoding="utf-8", errors="replace")
-    except OSError as exc:
-        errors.append(f"{label}: cannot read evidence artifact: {exc}")
+        content = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        errors.append(f"{label}: cannot read/decipher evidence artifact: {exc}")
         return
     folded = content.casefold()
     for token in required:
@@ -77,7 +77,7 @@ def _check_trace_tokens(path_value: object, label: str, root: Path, required: tu
             errors.append(f"{label}: trace is missing required runtime marker {token!r}")
 
 
-def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str]) -> None:
+def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str], expected_iso_sha256: object = None) -> None:
     target = case_id.rsplit("-", 1)[0]
     trace = case.get("raw_trace")
     if nonempty(trace):
@@ -87,7 +87,23 @@ def _check_target_trace(case_id: str, case: dict, root: Path, errors: list[str])
         base = root.resolve()
         path = (base / rel).resolve() if not rel.is_absolute() else base
         if path.is_relative_to(base) and path.is_file():
-            content = path.read_text(encoding="utf-8", errors="replace")
+            try:
+                content = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeError) as exc:
+                errors.append(f"{case_id}: cannot read/decipher raw_trace evidence: {exc}")
+                return
+            # A manifest hash alone cannot prove that a captured boot log came from
+            # the same ISO: stale traces can otherwise be paired with a newer image.
+            # The boot harness must stamp the digest it actually launched into the
+            # captured trace, and the marker must match this case's verified ISO.
+            iso_marker = re.search(
+                r"PRODUCTION ISO SHA-256:\s*([0-9a-fA-F]{64})", content, re.IGNORECASE)
+            if not isinstance(expected_iso_sha256, str) or not HEX256.fullmatch(expected_iso_sha256):
+                errors.append(f"{case_id}: cannot bind raw_trace to a valid case ISO SHA-256")
+            elif not iso_marker:
+                errors.append(f"{case_id}: raw_trace lacks the production ISO SHA-256 binding marker")
+            elif iso_marker.group(1).lower() != expected_iso_sha256.lower():
+                errors.append(f"{case_id}: raw_trace ISO SHA-256 does not match the case production ISO")
             entry = re.search(r"USER INIT SYSCALL: target=" + re.escape(target) + r" init_pid=([1-9][0-9]*)", content)
             component = {"live": "aurora-session", "installer": "install-executor", "recovery": "recovery-runtime"}[target]
             # Production closeout must prove the target service is healthy.
@@ -117,6 +133,11 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
     cases = data.get("cases")
     if not isinstance(cases, dict):
         return ["cases must be an object keyed by target-firmware"]
+    # The production matrix is deliberately closed: extra/candidate entries
+    # must not be mistaken for part of the six required production boots.
+    unexpected_cases = sorted(set(cases) - set(CASE_IDS))
+    for case_id in unexpected_cases:
+        errors.append(f"cases: unexpected non-production case {case_id!r}")
     declared_iso_hash = data.get("production_iso_sha256")
     if not isinstance(declared_iso_hash, str) or not HEX256.fullmatch(declared_iso_hash):
         errors.append("production_iso_sha256 must be a required 64-character SHA-256 hex digest")
@@ -146,7 +167,7 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         if artifact_root is not None:
             _check_artifact(case.get("production_iso"), f"{case_id}: production_iso", artifact_root, errors, case.get("iso_sha256") if isinstance(case.get("iso_sha256"), str) else None)
             _check_artifact(case.get("raw_trace"), f"{case_id}: raw_trace", artifact_root, errors)
-            _check_target_trace(case_id, case, artifact_root, errors)
+            _check_target_trace(case_id, case, artifact_root, errors, case.get("iso_sha256"))
         if case.get("cpl3_syscall_ack") is not True:
             errors.append(f"{case_id}: no verified CPL3-originated syscall acknowledgement")
         if case.get("process_visible_rootfs") is not True:
@@ -193,6 +214,17 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
         ("installer_persistence", ("status", "write_verified", "cold_reboot_verified", "readback_verified", "evidence"), "PASS"),
         ("recovery_repair", ("status", "repair_verified", "postcondition_verified", "evidence"), "PASS"),
         ("smp", ("status", "ap_startup_verified", "overlapping_execution_verified", "evidence"), "PASS"),
+        ("vm_swap", ("status", "production_iso_sha256", "case_ids",
+                     "address_space_map_unmap_protect_query_verified",
+                     "page_pinning_verified", "vma_lookup_verified", "frame_reference_counting_verified",
+                     "system_block_config_verified", "system_block_size_bytes", "page_fault_handling_verified",
+                     "pager_thread_verified", "fault_wait_wake_verified",
+                     "swap_roundtrip_verified", "swapout_failure_preserves_resident_verified",
+                     "swapin_rollback_verified", "io_failure_rollback_verified",
+                     "corruption_rejected_verified", "tlb_shootdown_verified",
+                     "storage_discovery_verified", "swap_exhaustion_verified",
+                     "teardown_reclaims_frames_slots_verified", "repeated_swap_cycles_verified",
+                     "evidence"), "PASS"),
     )
     for name, fields, expected_status in requirements:
         section = data.get(name)
@@ -208,7 +240,8 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
             if field.endswith("_verified"):
                 if value is not True:
                     errors.append(f"{name}: {field} must be true")
-            elif not nonempty(value):
+            elif not (nonempty(value) or
+                      (field == "case_ids" and isinstance(value, list) and bool(value))):
                 errors.append(f"{name}: missing {field}")
             elif artifact_root is not None and field == "evidence":
                 _check_artifact(value, f"{name}: evidence", artifact_root, errors)
@@ -218,6 +251,19 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
                     "installer_persistence": ("WRITE", "COLD REBOOT", "READBACK"),
                     "recovery_repair": ("REPAIR", "POSTCONDITION"),
                     "smp": ("AP STARTUP", "OVERLAPPING EXECUTION"),
+                    "vm_swap": ("SYSTEM BLOCK SIZE (bytes):",
+                                "[PRODUCTION VM] VMA LOOKUP", "[PRODUCTION VM] FRAME REFCOUNT",
+                                "[PRODUCTION VM] MAP", "[PRODUCTION VM] UNMAP",
+                                "[PRODUCTION VM] PROTECT", "[PRODUCTION VM] QUERY",
+                                "[PRODUCTION VM] PAGE PIN", "[PRODUCTION VM] PAGE UNPIN",
+                                "[PRODUCTION VM] PAGE FAULT", "[PRODUCTION VM] PAGER THREAD",
+                                "[PRODUCTION VM] FAULT WAIT", "[PRODUCTION VM] FAULT WAKE",
+                                "[PRODUCTION VM] SWAP STORE",
+                                "[PRODUCTION VM] SWAP LOAD", "[PRODUCTION VM] SWAP OUT ROLLBACK",
+                                "[PRODUCTION VM] SWAP IN ROLLBACK", "[PRODUCTION VM] IO FAILURE",
+                                "[PRODUCTION VM] CHECKSUM FAILURE", "[PRODUCTION VM] TLB SHOOTDOWN",
+                                "[PRODUCTION VM] SWAP DEVICE DISCOVERED", "[PRODUCTION VM] SWAP EXHAUSTED",
+                                "[PRODUCTION VM] ADDRESS SPACE TEARDOWN", "[PRODUCTION VM] REPEATED SWAP CYCLE"),
                 }
                 _check_trace_tokens(value, f"{name}: evidence", artifact_root,
                                     required_markers.get(name, ()), errors)
@@ -225,6 +271,40 @@ def check_evidence(data: object, artifact_root: Path | None = None) -> list[str]
             cpu_ids = section.get("cpu_ids")
             if not isinstance(cpu_ids, list) or len({v for v in cpu_ids if isinstance(v, int) and not isinstance(v, bool)}) < 2:
                 errors.append("smp: cpu_ids must prove execution on at least two distinct CPUs")
+
+    vm_swap = data.get("vm_swap")
+    if isinstance(vm_swap, dict):
+        vm_iso_sha = vm_swap.get("production_iso_sha256")
+        top_iso_sha = data.get("production_iso_sha256")
+        if (not isinstance(vm_iso_sha, str) or not isinstance(top_iso_sha, str) or
+                vm_iso_sha.lower() != top_iso_sha.lower()):
+            errors.append("vm_swap: production_iso_sha256 must match the top-level production ISO SHA-256")
+        vm_case_ids = vm_swap.get("case_ids")
+        if (not isinstance(vm_case_ids, list) or len(vm_case_ids) != len(CASE_IDS) or
+                any(not isinstance(case_id, str) for case_id in vm_case_ids) or
+                set(vm_case_ids) != set(CASE_IDS)):
+            errors.append("vm_swap: case_ids must cover exactly all six production target/firmware cases")
+        block_size = vm_swap.get("system_block_size_bytes")
+        try:
+            parsed_block_size = int(block_size) if isinstance(block_size, str) and block_size.isdecimal() else 0
+        except ValueError:
+            parsed_block_size = 0
+        if (parsed_block_size < 512 or parsed_block_size > 65536 or
+                (parsed_block_size & (parsed_block_size - 1)) != 0):
+            errors.append("vm_swap: system_block_size_bytes must be a power of two from 512 through 65536")
+        if artifact_root is not None and parsed_block_size:
+            trace_value = vm_swap.get("evidence")
+            if nonempty(trace_value) and not Path(trace_value).is_absolute():
+                trace_path = (artifact_root.resolve() / Path(trace_value)).resolve()
+                if trace_path.is_relative_to(artifact_root.resolve()) and trace_path.is_file():
+                    try:
+                        trace_text = trace_path.read_text(encoding="utf-8").casefold()
+                    except (OSError, UnicodeError) as exc:
+                        errors.append(f"vm_swap: cannot read/decipher evidence trace: {exc}")
+                        trace_text = ""
+                    expected_size_marker = f"system block size (bytes): {parsed_block_size}"
+                    if trace_text and expected_size_marker not in trace_text:
+                        errors.append("vm_swap: evidence trace does not report the configured system block size")
 
     if data.get("candidate_smoke_substituted") is True:
         errors.append("candidate smoke evidence cannot substitute for production ISO acceptance")
@@ -237,7 +317,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         data = json.loads(args.evidence.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         print(f"BLOCKED: cannot read valid evidence JSON: {exc}", file=sys.stderr)
         return 2
     errors = check_evidence(data, args.evidence.resolve().parent)

@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
+#include "chimera/address_space.h"
 
 /* Defined by kernel/arch/x86_64/interrupts.asm.  Keep this declaration at
  * global scope: placing it inside the anonymous namespace gives the symbol
@@ -95,17 +96,50 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
 }
 
 extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs);
+extern "C" uint32_t koronos_target_active_pid(void);
+extern "C" void *koronos_target_active_address_space(void);
+extern "C" void koronos_user_page_fault_abort(void);
 extern "C" void koronos_target_log(const char *message);
 
 extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
     static volatile uint32_t first_transition_exception = 0;
     if (vector > 255u) return;
-    /* Emit one address-bearing record for the first transition exception.
-     * Repeatedly IRET'ing to the same faulting RIP must not flood debugcon. */
+    /* Error-code exceptions place the CPU error code before saved RIP/CS.
+     * Do not misreport #GP/#PF error codes as instruction pointers. */
+    const bool has_error_code = vector == 8u || vector == 10u || vector == 11u ||
+        vector == 12u || vector == 13u || vector == 14u || vector == 17u ||
+        vector == 21u || vector == 29u || vector == 30u;
+    if (vector == 14u && frame) {
+        const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
+        const uint64_t user_cs = saved[18];
+        if ((user_cs & 3u) == 3u && koronos_target_active_pid() != 0u) {
+            uint64_t fault_address = 0;
+            __asm__ volatile("mov %%cr2, %0" : "=r"(fault_address));
+            const uint64_t error_code = saved[16];
+            void *active_space = koronos_target_active_address_space();
+            if (active_space && koronos_address_space_page_fault_fastpath(active_space, fault_address, error_code) == 0)
+                return;
+            char message[96];
+            const char prefix[] = "[PF] Unhandled ring-3 page fault; aborting PID, CR2=0x";
+            unsigned int pos = 0;
+            while (pos < sizeof(message)-1u && prefix[pos]) { message[pos] = prefix[pos]; ++pos; }
+            for (int shift = 60; shift >= 0 && pos < sizeof(message)-1u; shift -= 4)
+                message[pos++] = "0123456789ABCDEF"[(fault_address >> shift) & 0xFu];
+            message[pos] = 0;
+            koronos_target_log(message);
+            // No demand-paging handler is installed yet. Terminate the faulty
+            // user continuation instead of IRET'ing into the same #PF forever.
+            koronos_user_page_fault_abort();
+        }
+        koronos_target_log("[PF] Kernel/unbound page fault; stopping CPU");
+        __asm__ volatile("cli" ::: "memory");
+        for (;;) __asm__ volatile("hlt");
+    }
+    /* Emit one address-bearing record for the first transition exception. */
     if ((vector == 6u || vector == 13u || vector == 14u) &&
         __sync_bool_compare_and_swap(&first_transition_exception, 0u, 1u)) {
         const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
-        const uint64_t rip = saved ? saved[16] : 0u;
+        const uint64_t rip = saved ? saved[(has_error_code ? 17u : 16u)] : 0u;
         const char *kind = vector == 6u ? "[EXC] #UD RIP=0x" :
                            (vector == 13u ? "[EXC] #GP RIP=0x" : "[EXC] #PF RIP=0x");
         char message[64]; unsigned int pos = 0;

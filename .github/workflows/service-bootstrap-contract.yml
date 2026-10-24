@@ -1,0 +1,29 @@
+name: Koronos Service Supervisor Contract
+on:
+  push:
+    paths:
+      - "kernel/core/service.cpp"
+      - "kernel/include/chimera/service.h"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - ".github/workflows/service-bootstrap-contract.yml"
+  pull_request:
+    paths:
+      - "kernel/core/service.cpp"
+      - "kernel/include/chimera/service.h"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - ".github/workflows/service-bootstrap-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  service-supervisor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile lifecycle supervisor with warnings as errors
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/service.cpp kernel/tests/service_bootstrap_test.cpp \
+            -o /tmp/service-supervisor-contract
+          /tmp/service-supervisor-contract

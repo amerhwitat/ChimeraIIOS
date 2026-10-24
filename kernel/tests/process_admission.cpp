@@ -17,14 +17,24 @@ static void make_elf(uint8_t* b,bool wx){
 }
 int main(){
   uint8_t image[8192]{};
-  chimera_process_init();
   make_elf(image,false);
   chimera_process_image p{};
+  // Pre-init access must fail closed rather than create a record that a later
+  // initialization silently discards.
+  assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&p)==-12);
+  assert(chimera_process_get(1,&p)==-3);
+  assert(chimera_process_set_state(1,CHIMERA_PROCESS_READY)==-3);
+  assert(chimera_process_count()==0);
+  assert(chimera_process_init()==0);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&p)>0);
   assert(p.segment_count==1 && p.entry==0x400100 && p.image_low==0x400000);
   uint32_t pid=p.pid;
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
   chimera_process_image q{};
+  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
+  // Initialization is idempotent and cannot erase records or recycle PIDs.
+  assert(chimera_process_init()==0);
+  assert(chimera_process_count()==1);
   assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
   make_elf(image,true);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&q)<0);

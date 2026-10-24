@@ -17,6 +17,15 @@ uint32_t allocated_bitmap[BITMAP_WORDS];
 volatile uint32_t allocator_lock = 0;
 bool initialized = false;
 uint64_t free_pages = 0;
+uint16_t vm_frame_refs[PAGE_COUNT]{};
+volatile uint32_t vm_ref_lock = 0;
+static void vm_lock() { while (__sync_lock_test_and_set(&vm_ref_lock, 1u)) {} }
+static void vm_unlock() { __sync_lock_release(&vm_ref_lock); }
+static bool vm_frame_index(uint64_t address, uint32_t *index) {
+    if (!index || (address & (KORONOS_FRAME_SIZE - 1u)) != 0u || address >= KORONOS_FRAME_PHYS_LIMIT) return false;
+    *index = static_cast<uint32_t>(address / KORONOS_FRAME_SIZE);
+    return *index >= FIRST_ALLOCATABLE_PAGE && *index < PAGE_COUNT;
+}
 
 struct Mb2Tag { uint32_t type, size; };
 struct Mb2MmapTag { uint32_t type, size, entry_size, entry_version; };
@@ -117,6 +126,8 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     }
     free_pages = 0;
     initialized = false;
+    for (uint32_t i = 0; i < PAGE_COUNT; ++i) vm_frame_refs[i] = 0;
+    vm_ref_lock = 0;
     if (!parse_mmap(info)) return -1;
 
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
@@ -190,4 +201,53 @@ extern "C" uint64_t koronos_frame_free_count(void) {
     const uint64_t result = free_pages;
     unlock();
     return result;
+}
+
+extern "C" uint64_t koronos_vm_frame_alloc_contiguous(uint32_t count) {
+    const uint64_t base = koronos_frame_alloc_contiguous(count);
+    if (!base) return 0;
+    const uint32_t first = static_cast<uint32_t>(base / KORONOS_FRAME_SIZE);
+    vm_lock();
+    for (uint32_t i = 0; i < count; ++i) {
+        if (vm_frame_refs[first + i] != 0u) { vm_unlock(); (void)koronos_frame_free_contiguous(base, count); return 0; }
+    }
+    for (uint32_t i = 0; i < count; ++i) vm_frame_refs[first + i] = 1u;
+    vm_unlock();
+    return base;
+}
+extern "C" uint64_t koronos_vm_frame_alloc(void) { return koronos_vm_frame_alloc_contiguous(1u); }
+extern "C" int koronos_vm_frame_retain(uint64_t address) {
+    uint32_t index = 0;
+    if (!vm_frame_index(address, &index)) return -1;
+    vm_lock();
+    if (vm_frame_refs[index] == 0u || vm_frame_refs[index] == UINT16_MAX) { vm_unlock(); return -2; }
+    ++vm_frame_refs[index]; vm_unlock(); return 0;
+}
+extern "C" int koronos_vm_frame_release(uint64_t address) {
+    uint32_t index = 0;
+    if (!vm_frame_index(address, &index)) return -1;
+    vm_lock();
+    if (vm_frame_refs[index] == 0u) { vm_unlock(); return -2; }
+    --vm_frame_refs[index]; const bool reclaim = vm_frame_refs[index] == 0u; vm_unlock();
+    if (!reclaim || koronos_frame_free(address) == 0) return 0;
+    vm_lock(); if (vm_frame_refs[index] == 0u) vm_frame_refs[index] = 1u; vm_unlock(); return -3;
+}
+extern "C" int koronos_vm_frame_release_contiguous(uint64_t address, uint32_t count) {
+    if (!count || (address & (KORONOS_FRAME_SIZE - 1u)) != 0u || address >= KORONOS_FRAME_PHYS_LIMIT ||
+        static_cast<uint64_t>(count) > (KORONOS_FRAME_PHYS_LIMIT - address) / KORONOS_FRAME_SIZE) return -1;
+    const uint32_t first = static_cast<uint32_t>(address / KORONOS_FRAME_SIZE);
+    vm_lock();
+    for (uint32_t i = 0; i < count; ++i) { if (first + i < FIRST_ALLOCATABLE_PAGE || vm_frame_refs[first + i] == 0u) { vm_unlock(); return -2; } }
+    for (uint32_t i = 0; i < count; ++i) --vm_frame_refs[first + i];
+    vm_unlock();
+    int result = 0;
+    for (uint32_t i = 0; i < count; ++i) {
+        vm_lock(); const bool reclaim = vm_frame_refs[first + i] == 0u; vm_unlock();
+        if (reclaim && koronos_frame_free(address + static_cast<uint64_t>(i) * KORONOS_FRAME_SIZE) != 0) result = -3;
+    }
+    return result;
+}
+extern "C" uint32_t koronos_vm_frame_refcount(uint64_t address) {
+    uint32_t index = 0; if (!vm_frame_index(address, &index)) return 0;
+    vm_lock(); const uint32_t refs = vm_frame_refs[index]; vm_unlock(); return refs;
 }

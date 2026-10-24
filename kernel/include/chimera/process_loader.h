@@ -5,7 +5,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define CHIMERA_ELF_LOADER_ABI 1u
+#define CHIMERA_ELF_LOADER_ABI 2u
+#define CHIMERA_ELF_BACKING_IMAGE 1u
 #define CHIMERA_ELF_LOADER_MAX_SEGMENTS 16u
 #define CHIMERA_ELF_USER_LIMIT 0x0000800000000000ull
 #define CHIMERA_ELF_PAGE_SIZE 4096ull
@@ -15,6 +16,10 @@ typedef struct chimera_elf_load_ops {
     int (*map_pages)(void *context, void *address_space, uint64_t virtual_base,
                      uint64_t size, uint32_t elf_flags, void **kernel_alias);
     void (*destroy_address_space)(void *context, void *address_space);
+    /* Optional metadata hook; a persistent image object lets VM describe clean ELF pages. */
+    int (*set_backing)(void *context, void *address_space, uint64_t virtual_base,
+                       uint64_t length, uint32_t backing_kind,
+                       uint64_t backing_object, uint64_t backing_offset);
 } chimera_elf_load_ops;
 typedef struct chimera_loaded_elf {
     uint32_t abi, segment_count;
