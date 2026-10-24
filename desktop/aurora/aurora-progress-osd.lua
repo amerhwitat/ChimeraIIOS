@@ -42,7 +42,7 @@ local function render()
         '{\\an2\\fs25\\bord2\\shad1\\1c&HFFFFFF&\\3c&H30200A&}' ..
         'CHIMERA II OS  |  %s\\N%s %s\\N%s',
         s.phase, bar, percent, s.message)
-    mp.set_osd_ass(0, 0, overlay:gsub('[{}]', ''))
+    mp.set_osd_ass(0, 0, overlay)
 end
 
 mp.add_periodic_timer(0.25, render)
