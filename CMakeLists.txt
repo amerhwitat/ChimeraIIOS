@@ -65,6 +65,13 @@ install(FILES toolchains/chimera-native-toolchain.json DESTINATION share/chimera
 # Boot/ISO assets: keep source artwork and boot contracts available to the installed system.
 install(DIRECTORY boot/splash DESTINATION share/chimera/boot)
 install(DIRECTORY desktop/aurora/assets DESTINATION share/chimera/aurora)
+# Init.mp4 is installed at a stable boot path and in the Aurora asset library.
+# GRUB cannot render MP4; playback begins when the Wayland userspace is available.
+install(FILES desktop/aurora/assets/library/Init.mp4 DESTINATION boot/chimera)
+install(PROGRAMS desktop/aurora/aurora-init-splash.sh DESTINATION bin RENAME aurora-init-splash)
+install(FILES desktop/aurora/aurora-progress-osd.lua DESTINATION share/chimera/aurora)
+install(FILES platform/systemd/aurora-session@.service platform/systemd/aurora-init-splash@.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+
 install(FILES config/aurora/font-packages.json config/aurora/text-layout.json config/aurora/language-font-map.json DESTINATION share/chimera/aurora/config)
 install(FILES fonts/README.md docs/aurora-rtl-ltr.md DESTINATION share/chimera/aurora/docs)
 install(PROGRAMS tools/build-font-pack.sh DESTINATION bin)
