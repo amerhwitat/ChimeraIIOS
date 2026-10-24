@@ -17,6 +17,11 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
             self.assertIn(f'python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"', self.text)
         self.assertIn("verify-userspace-handoff.py", self.text)
 
+    def test_shell_initramfs_cannot_impersonate_native_readiness(self):
+        self.assertIn("shell initramfs contains a native userspace readiness marker", self.text)
+        initramfs_builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text(encoding="utf-8")
+        self.assertNotIn("USERSPACE READY:", initramfs_builder)
+
     def test_release_requires_runtime_gate_and_explicit_approval(self):
         release = self.text.split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[1]
         condition = next(line for line in release.splitlines() if line.strip().startswith("if:"))
