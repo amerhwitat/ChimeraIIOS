@@ -287,6 +287,23 @@ static uint32_t validate_active_user_context(uint64_t user_rip) {
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip) {
     return validate_active_user_context(user_rip);
 }
+/* The native SYSCALL entry does not save CS, but the kernel has already
+   entered through IA32_LSTAR. Accept its acknowledgement only when the saved
+   user RIP, active PID, and current CR3 all match the launched process. This
+   is deliberately separate from the INT 0x80 path, which additionally checks
+   the CPU-saved CS.RPL. */
+extern "C" uint32_t koronos_target_note_native_syscall(uint64_t user_rip) {
+    const uint32_t pid = validate_active_user_context(user_rip);
+    if (!pid) {
+        koronos_target_log("[SYSC] rejected acknowledgement: user RIP/CR3/PID mismatch");
+        return 0u;
+    }
+    if (!syscall_ack_seen) {
+        syscall_ack_seen = 1u;
+        log_user_init_syscall(static_cast<Target>(active_target), pid);
+    }
+    return pid;
+}
 extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs) {
     /* This acknowledgement is only reachable from the DPL3 INT 0x80 gate.
        The CPU-saved CS RPL, not an inferred user RIP, proves CPL3 origin.
