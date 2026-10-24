@@ -15,7 +15,7 @@ typedef struct chimera_elf_load_ops {
     void *(*create_address_space)(void *context);
     int (*map_pages)(void *context, void *address_space, uint64_t virtual_base,
                      uint64_t size, uint32_t elf_flags, void **kernel_alias);
-    void (*destroy_address_space)(void *context, void *address_space);
+    int (*destroy_address_space)(void *context, void *address_space);
     /* Optional metadata hook; a persistent image object lets VM describe clean ELF pages. */
     int (*set_backing)(void *context, void *address_space, uint64_t virtual_base,
                        uint64_t length, uint32_t backing_kind,
