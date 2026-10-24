@@ -82,6 +82,24 @@ def check_case(path: Path, target: str, firmware: str, iso_sha: str) -> None:
             f"{prefix}: candidate probe is not production userspace evidence")
     require(e.get("target_service_health") is True,
             f"{prefix}: target services have not passed health checks")
+    # A one-shot ring-3 probe that prints READY and exits is not a service
+    # runtime. Require a live, kernel-owned supervisor process and an actual
+    # ring-3 filesystem read/write/readback probe before target acceptance.
+    manager_pid = e.get("service_manager_pid")
+    require(type(manager_pid) is int and manager_pid > 0,
+            f"{prefix}: service manager must have a live nonzero kernel PID")
+    require(e.get("service_manager_pid_origin") == "kernel-owned-process-table",
+            f"{prefix}: service-manager PID is not from the kernel process table")
+    require(e.get("service_manager_state") == "running",
+            f"{prefix}: service manager is not proven to remain running")
+    require(e.get("service_manager_address_space_owned") is True,
+            f"{prefix}: service manager has no proven process-owned address space")
+    require(e.get("service_health_origin") == "userspace-service-manager",
+            f"{prefix}: service health was not reported by the userspace service manager")
+    require(e.get("filesystem_rw_probe") is True,
+            f"{prefix}: real filesystem read/write/readback probe is missing")
+    require(e.get("filesystem_rw_probe_origin") == "ring3-user-process",
+            f"{prefix}: filesystem read/write probe did not originate in ring-3 userspace")
     mounts = e.get("mounts")
     require(isinstance(mounts, list) and all(isinstance(x, str) for x in mounts)
             and BASE_MOUNTS.issubset(set(mounts)),
