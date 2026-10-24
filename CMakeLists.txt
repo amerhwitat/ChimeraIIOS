@@ -70,7 +70,7 @@ install(DIRECTORY desktop/aurora/assets DESTINATION share/chimera/aurora)
 install(FILES desktop/aurora/assets/library/Init.mp4 DESTINATION /boot/chimera)
 install(PROGRAMS desktop/aurora/aurora-init-splash.sh DESTINATION bin RENAME aurora-init-splash)
 install(FILES desktop/aurora/aurora-progress-osd.lua DESTINATION share/chimera/aurora)
-install(FILES platform/systemd/aurora-session@.service platform/systemd/aurora-init-splash@.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+install(FILES platform/systemd/aurora-session@.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
 
 install(FILES config/aurora/font-packages.json config/aurora/text-layout.json config/aurora/language-font-map.json DESTINATION share/chimera/aurora/config)
 install(FILES fonts/README.md docs/aurora-rtl-ltr.md DESTINATION share/chimera/aurora/docs)
