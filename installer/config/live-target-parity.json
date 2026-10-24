@@ -1,0 +1,41 @@
+{
+  "schema": "chimera-live-target-parity-v1",
+  "boot_chain": [
+    "spit-fire",
+    "jasper-grub",
+    "koronos-elf",
+    "hardware-and-driver-init",
+    "scheduler-runtime",
+    "target-init",
+    "target-services",
+    "aurora-or-target-shell"
+  ],
+  "targets": {
+    "live": {
+      "root_source": "live-initramfs",
+      "required_mounts": ["/proc", "/sys", "/dev", "/run", "/tmp"],
+      "required_services": ["device-manager", "filesystem", "network", "logging", "process-supervisor", "session-manager"],
+      "success_evidence": ["ring3_init_syscall_ack", "matching_nonzero_pid", "target_service_health", "aurora_native_session"]
+    },
+    "installer": {
+      "root_source": "installer-initramfs",
+      "required_mounts": ["/proc", "/sys", "/dev", "/run", "/tmp"],
+      "required_services": ["device-manager", "filesystem", "storage-discovery", "network", "logging", "process-supervisor", "installer-transaction"],
+      "success_evidence": ["ring3_init_syscall_ack", "matching_nonzero_pid", "transaction_commit", "verified_boot_entry", "installed_system_cold_reboot"]
+    },
+    "recovery": {
+      "root_source": "recovery-initramfs",
+      "required_mounts": ["/proc", "/sys", "/dev", "/run", "/tmp"],
+      "required_services": ["device-manager", "filesystem", "storage-discovery", "logging", "process-supervisor", "recovery-manager"],
+      "success_evidence": ["ring3_init_syscall_ack", "matching_nonzero_pid", "repair_or_rollback_postconditions"]
+    }
+  },
+  "acceptance": {
+    "firmware_matrix": ["bios", "uefi"],
+    "all_targets_required": true,
+    "same_iso_sha256_required_for_all_traces": true,
+    "kernel_emitted_readiness_marker_is_invalid": true,
+    "simulated_smp_is_invalid": true,
+    "publication_requires_all_evidence": true
+  }
+}
