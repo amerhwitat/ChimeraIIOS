@@ -50,7 +50,7 @@ Hardware Installer::detect_hardware() const {
 std::string Installer::firmware_name(Firmware f) {
   if(f==Firmware::BIOS) return "BIOS"; if(f==Firmware::UEFI) return "UEFI"; return "Unknown";
 }
-std::vector<Step> Installer::build_plan(const InstallPlan&) const {
+std::vector<Step> Installer::build_plan(const InstallPlan& p) const {
   return {
     {"detect","Hardware / CPU detection","Detect architecture, CPU vendor, logical cores, firmware, PCI/USB/ACPI devices, storage, graphics and network capabilities"},
     {"cpucompat","Koronos CPU compatibility","Select native or conservative compatibility mode from detected CPU capabilities while preserving all detected logical cores"},
@@ -59,13 +59,14 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
     {"driverpolicy","Driver trust policy","Allow only signed or cryptographically verified packages; keep proprietary/unknown binaries quarantined unless explicitly enabled"},
     {"driverdownload","Driver acquisition","Download compatible driver/firmware packages, verify hashes/signatures and quarantine untrusted artifacts"},
     {"driverinstall","Driver deployment","Install selected native Koronos modules and compatibility drivers into the target rootfs and regenerate module/firmware indexes"},
-    {"locale","Language / Keyboard / Accessibility","Locale, keyboard, console, screen-reader and high-contrast options"},
-    {"time","Date / Time / Timezone","Timezone, RTC policy and optional NTP synchronization"},
+    {"locale","Language / Keyboard / Accessibility","Selected locale=" + p.locale + "; keyboard=" + p.keyboard_layout + "; input languages=" + p.input_languages + ". Target config must include locale, console keymap and input-method setup."},
+    {"time","Date / Time / Timezone","Selected timezone=" + p.timezone + "; hardware clock UTC=" + (p.hardware_clock_utc ? "yes" : "no") + "; NTP=" + (p.enable_ntp ? "enabled" : "disabled") + ". Configure timezone, RTC policy and time-sync service only during a verified transaction."},
     {"source","Installation source","Live ISO, local repository, HTTP/HTTPS, NFS and network-share sources"},
     {"network","Network / Proxy","DHCP, static IPv4/IPv6, VLAN, bond, bridge and proxy"},
     {"software","Software Selection","Base system, development, compatibility, desktop and optional package groups"},
     {"partition","Storage layout","Guided/custom partitioning, GPT/MBR, NVMe/SATA/HDD/USB, LVM, RAID, iSCSI and multipath"},
-    {"format","Filesystem / Encryption","Create/mount qfs, xfs, zfs, ext4, btrfs, ntfs, FAT and optional LUKS2"},
+    {"format","Filesystem / Encryption","Select a supported native filesystem; identify NTFS, FAT16 and FAT32 partitions read-only during discovery. Writable NTFS requires a verified NTFS driver/helper; FAT requires the FAT/VFAT driver. Never format or mount writable until capability and target-device identity are verified."},
+    {"fstab","Linux filesystem layout","Stage Linux hierarchy: /etc, /usr, /var, /home, /root, /boot, /dev, /proc, /sys, /run, /tmp, /opt, /mnt and /media; generate fstab only from verified partition UUIDs and tested mount options."},
     {"copy","System deployment","Copy Koronos, Spit Fire/Jasper, Kore, Aurora, userland and compatibility payloads"},
     {"boot","Bootloader / Secure Boot","Install Spit Fire/Jasper/GRUB2, BIOS/UEFI fallback, Secure Boot and bootloader target"},
     {"configure","System configuration","Hostname, services, firewall, security policy, SSH, shells, desktops, drivers and compatibility profiles"},
@@ -102,8 +103,14 @@ int Installer::copy_tree(const fs::path& src,const fs::path& dst) const {
 int Installer::execute(const InstallPlan& p,bool confirmed) {
   std::cout<<"Chimera II Setup — Koronos installation transaction\n";
   for(const auto&s:build_plan(p)) std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
-  if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
-  if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
+  if(p.dry_run){std::cout<<"Dry-run: no disk changes.\\n";return 0;}
+  // Fail closed globally: GUI callers share this executor. This implementation
+  // is a payload copier, not a transactional partition/filesystem/boot backend.
+  // Do not let any frontend bypass the missing production acceptance gates.
+  std::cerr<<"INSTALLATION BLOCKED: transactional storage, durable journal/rollback, verified writes, bootloader installation, target locale/time configuration, and post-install cold-boot verification are not implemented by this executor.\\n";
+  std::cerr<<"No disk changes were attempted. A plan or payload copy is not installation success.\\n";
+  return 78;
+  if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\\n";return 3;}
   if(copy_tree(p.source_root,p.target_root)!=0) return 4;
   if(p.deep_driver_search){
     fs::create_directories(p.target_root/"var/lib/chimera/drivers");
