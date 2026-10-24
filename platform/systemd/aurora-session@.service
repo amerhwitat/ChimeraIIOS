@@ -13,6 +13,8 @@ Environment=XDG_SESSION_DESKTOP=aurora
 Environment=MOZ_ENABLE_WAYLAND=1
 Environment=QT_QPA_PLATFORM=wayland
 ExecStart=/usr/lib/chimera/aurora-session
+# Start progress video after the compositor/session process has been launched.
+ExecStartPost=-/usr/bin/aurora-init-splash --background
 # Start the progress splash after the session process has been launched; it self-backgrounds.
 ExecStartPost=-/usr/bin/aurora-init-splash --background
 Restart=on-failure
