@@ -42,5 +42,13 @@ int main() {
   make_elf(image,false);
   reinterpret_cast<koronos_elf64_phdr *>(image+sizeof(koronos_elf64_ehdr))->p_flags=4;
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x200000000,&q)<0);
+
+  make_elf(image,false);
+  reinterpret_cast<koronos_elf64_ehdr *>(image)->e_entry=0x400100;
+  reinterpret_cast<koronos_elf64_phdr *>(image+sizeof(koronos_elf64_ehdr))->p_vaddr=0x400000;
+  assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x200000000,&q)<0);
+
+  make_elf(image,false);
+  assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&q)<0);
   return 0;
 }
