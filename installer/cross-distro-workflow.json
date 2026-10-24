@@ -213,5 +213,29 @@
     "native_transaction_backend": "not_implemented",
     "gui_native_backend_binding": "not_implemented",
     "production_acceptance": "blocked"
+  },
+  "localization": {
+    "locale_standard": "BCP-47",
+    "unicode": "UTF-8",
+    "automatic_locale_detection": true,
+    "runtime_locale_selection": true,
+    "rtl_layout": true,
+    "bundled_ui_translation_languages": [
+      "en",
+      "ar",
+      "es",
+      "fr",
+      "de",
+      "pt",
+      "ru",
+      "zh",
+      "ja",
+      "hi",
+      "ur",
+      "tr"
+    ],
+    "all_other_valid_bcp47_tags": "selectable; use explicit English fallback when a translation catalog is not bundled",
+    "system_locale_and_input_languages_are_separate_from_installer_ui_language": true,
+    "no_network_translation_dependency": true
   }
 }
