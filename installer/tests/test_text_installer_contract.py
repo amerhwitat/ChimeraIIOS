@@ -94,5 +94,11 @@ def test_gui_launcher_packages_accessible_wizard_and_remains_fail_closed():
     assert "INSTALLER GUI UNAVAILABLE" in GUI
     assert "cross-distro-workflow.json DESTINATION share/chimera/installer" in CMAKE
     assert "install(DIRECTORY gui/" in CMAKE
+    assert "PATTERN \"aurora-installer-ui.json\"" in CMAKE
     for distro in ("Red Hat Anaconda / CentOS", "Linux Mint / Ubuntu", "Debian Installer", "SUSE YaST"):
         assert distro in FLOW
+
+def test_release_artifact_is_blocked_without_exact_iso_daps():
+    release = (ROOT.parent / ".github" / "workflows" / "chimera-release.yml").read_text(encoding="utf-8")
+    assert "production_acceptance_gate.py" in release
+    assert "--evidence-dir production-evidence" in release
