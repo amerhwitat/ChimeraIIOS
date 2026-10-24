@@ -614,7 +614,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     const int close_rc = chimera_vfs_close_process(exited_pid);
     const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
     int lifecycle_rc = 0;
-    if (close_rc != 0 || destroy_rc != 0) {
+    if (close_rc < 0 || destroy_rc != 0) {
         lifecycle_rc = -1;
     } else if (chimera_process_set_state(exited_pid,
                exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED) != 0) {
