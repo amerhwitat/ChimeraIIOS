@@ -3,10 +3,11 @@
 #include <string>
 
 namespace {
-bool ask_yes_no(const std::string& prompt) {
+bool ask_yes_no(const std::string& prompt, bool default_no = true) {
   std::string answer;
   std::cout << prompt << " [y/N] " << std::flush;
   if (!std::getline(std::cin, answer)) return false;
+  if (answer.empty()) return !default_no;
   return answer == "y" || answer == "Y" || answer == "yes" || answer == "YES";
 }
 std::string ask_text(const std::string& prompt, const std::string& fallback) {
@@ -44,8 +45,8 @@ int main(int argc, char** argv) {
   plan.timezone = ask_text("Time zone (IANA name)", "UTC");
   plan.keyboard_layout = ask_text("Console keyboard layout", "us");
   plan.input_languages = ask_text("Input languages (comma-separated)", "en");
-  plan.hardware_clock_utc = ask_yes_no("Keep hardware clock in UTC?");
-  plan.enable_ntp = ask_yes_no("Enable network time synchronization?");
+  plan.hardware_clock_utc = ask_yes_no("Keep hardware clock in UTC?", false);
+  plan.enable_ntp = ask_yes_no("Enable network time synchronization?", false);
   plan.dry_run = true;
 
   std::cout << "\nPlanned phases (shared Installer::build_plan backend):\n";
