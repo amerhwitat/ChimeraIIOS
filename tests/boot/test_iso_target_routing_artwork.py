@@ -62,14 +62,15 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
-    def test_generated_live_and_recovery_userspace_emit_distinct_handoff_markers(self):
+    def test_shell_userspace_cannot_emit_native_process_readiness_markers(self):
         builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
-        self.assertIn("USERSPACE READY: target=live init_pid=%s", builder)
-        self.assertIn("USERSPACE READY: target=recovery init_pid=%s", builder)
+        # A diagnostic shell is not the native ELF process launcher and must
+        # never impersonate CPL3 syscall acknowledgement or process readiness.
+        self.assertNotIn("USERSPACE READY:", builder)
+        self.assertIn("Diagnostic-shell availability is not native-process", builder)
         self.assertIn("exec /bin/sh -i", builder)
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
-        # A shell handoff is not evidence that the Aurora desktop is ready.
-        self.assertIn("Aurora desktop readiness is separate", builder)
+        self.assertNotIn("USERSPACE READY:", builder)
 
 
 if __name__ == "__main__":

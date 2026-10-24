@@ -1,0 +1,33 @@
+name: TaskMon userspace tests
+
+on:
+  pull_request:
+    paths:
+      - "tools/userspace/taskmon.py"
+      - "tests/test_taskmon.py"
+      - ".github/workflows/taskmon-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/userspace/taskmon.py"
+      - "tests/test_taskmon.py"
+      - ".github/workflows/taskmon-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  taskmon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Run TaskMon unit tests
+        run: python -m unittest discover -s tests -p 'test_taskmon.py' -v
+      - name: Smoke-test JSON output
+        run: |
+          python tools/userspace/taskmon.py --json > taskmon-output.json
+          python -c "import json; d=json.load(open('taskmon-output.json', encoding='utf-8')); assert isinstance(d['processes'], list); assert d['process_count'] == len(d['processes']); assert 'memory' in d"
