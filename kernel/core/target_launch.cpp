@@ -593,7 +593,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         const int close_rc = chimera_vfs_close_process(failed_pid);
         const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
         (void)chimera_process_set_state(failed_pid,CHIMERA_PROCESS_FAULTED);
-        if (close_rc == 0 && destroy_rc == 0 &&
+        if (close_rc >= 0 && destroy_rc == 0 &&
             chimera_process_mark_resources_released(failed_pid) == 0)
             (void)chimera_process_reap(failed_pid);
         active_target=TARGET_NONE;
