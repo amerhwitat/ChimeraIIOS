@@ -23,6 +23,12 @@ struct InstallPlan {
   std::string storage_mode{"guided"};
   std::string edition{"desktop"};
   std::string desktop_profile{"aurora"};
+  std::string source_type{"iso"};
+  std::string network_mode{"dhcp"};
+  std::string hostname{"chimera"};
+  std::string admin_username{"admin"};
+  bool firewall_enabled{true};
+  bool secure_boot{false};
   bool preserve_existing_os{true};
   bool encrypt_root{false};
   std::string locale{"en_US.UTF-8"};
