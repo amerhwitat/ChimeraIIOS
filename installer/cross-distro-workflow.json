@@ -1,0 +1,217 @@
+{
+  "schema": "CHIMERA_CROSS_DISTRO_INSTALLER_FLOW_V1",
+  "goal": "A native Chimera installer experience informed by public workflows, not copied distro code or branding.",
+  "design_influences": [
+    {
+      "project": "Red Hat Anaconda / CentOS",
+      "patterns": [
+        "hardware and storage summary",
+        "guided and custom storage",
+        "software environment selection",
+        "review before irreversible changes",
+        "clear installation progress"
+      ]
+    },
+    {
+      "project": "Linux Mint / Ubuntu",
+      "patterns": [
+        "welcome and language first",
+        "guided alongside/erase/custom choices only when backend can enforce them",
+        "desktop-friendly accessibility",
+        "post-install restart handoff"
+      ]
+    },
+    {
+      "project": "Debian Installer",
+      "patterns": [
+        "keyboard-first sequential workflow",
+        "explicit network/source setup",
+        "separate partition and package steps",
+        "recoverable logs and diagnostics"
+      ]
+    },
+    {
+      "project": "SUSE YaST",
+      "patterns": [
+        "expert storage controls",
+        "system roles",
+        "bootloader and security summary",
+        "transaction review and validation"
+      ]
+    }
+  ],
+  "shared_frontend_contract": {
+    "text": "chimera-installer-cli",
+    "gui": "Aurora installer wizard",
+    "executor": "Installer::build_plan + Installer::execute",
+    "parity_rule": "Both frontends submit the same normalized plan and display the same backend result; neither may claim installation success independently."
+  },
+  "steps": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "required": [
+        "license",
+        "install_mode",
+        "accessibility"
+      ]
+    },
+    {
+      "id": "language",
+      "title": "Language and input",
+      "required": [
+        "locale",
+        "keyboard_layout",
+        "input_languages",
+        "accessibility"
+      ]
+    },
+    {
+      "id": "hardware",
+      "title": "Hardware and firmware",
+      "required": [
+        "architecture",
+        "firmware",
+        "storage_inventory",
+        "network_inventory",
+        "graphics_inventory"
+      ]
+    },
+    {
+      "id": "network",
+      "title": "Network and installation source",
+      "required": [
+        "source_type",
+        "source_validation",
+        "network_policy"
+      ]
+    },
+    {
+      "id": "role",
+      "title": "System role and software",
+      "required": [
+        "edition",
+        "desktop_profile",
+        "software_groups",
+        "driver_policy"
+      ]
+    },
+    {
+      "id": "storage",
+      "title": "Storage",
+      "modes": [
+        "guided",
+        "custom"
+      ],
+      "required": [
+        "target_identity",
+        "partition_plan",
+        "filesystem_capability_probe",
+        "encryption_choice",
+        "preserve_existing_os_policy"
+      ]
+    },
+    {
+      "id": "time",
+      "title": "Time and timezone",
+      "required": [
+        "timezone_iana",
+        "rtc_utc",
+        "ntp_policy"
+      ]
+    },
+    {
+      "id": "accounts",
+      "title": "Accounts and security",
+      "required": [
+        "hostname",
+        "admin_account",
+        "authentication_policy",
+        "firewall_policy"
+      ]
+    },
+    {
+      "id": "boot",
+      "title": "Bootloader",
+      "required": [
+        "firmware_boot_target",
+        "boot_entry_plan",
+        "secure_boot_policy"
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Review changes",
+      "required": [
+        "human_readable_diff",
+        "target_disk_confirmation",
+        "destructive_confirmation",
+        "journal_capacity_check"
+      ]
+    },
+    {
+      "id": "install",
+      "title": "Installation progress",
+      "required": [
+        "event_driven_progress",
+        "durable_journal",
+        "cancel_safety",
+        "logs"
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "Verify installation",
+      "required": [
+        "readback_hashes",
+        "filesystem_checks",
+        "config_persistence",
+        "bootloader_verify"
+      ]
+    },
+    {
+      "id": "finish",
+      "title": "Finish and reboot",
+      "required": [
+        "unmount_sync",
+        "reboot_confirmation",
+        "cold_boot_evidence"
+      ]
+    }
+  ],
+  "storage_safety": {
+    "dry_run_default": true,
+    "erase_default": false,
+    "preserve_existing_os_default": true,
+    "never_infer_target_from_mountpoint": true,
+    "require_stable_device_identity": true,
+    "require_explicit_confirmation": true,
+    "write_only_after_journal_is_durable": true,
+    "rollback_on_precommit_failure": true,
+    "readback_verification_required": true,
+    "filesystem_write_requires_verified_driver_and_mount_probe": true,
+    "unsupported_operation": "fail_closed"
+  },
+  "acceptance": {
+    "text_gui_plan_parity": true,
+    "six_cases": [
+      "live-bios",
+      "live-uefi",
+      "installer-bios",
+      "installer-uefi",
+      "recovery-bios",
+      "recovery-uefi"
+    ],
+    "require_exact_iso_sha256": true,
+    "require_real_ring3_syscall_and_kernel_pid": true,
+    "require_installed_cold_reboot": true,
+    "require_recovery_postconditions": true,
+    "require_ap_backed_overlapping_smp": true
+  },
+  "status": {
+    "workflow_contract": "implemented",
+    "native_transaction_backend": "not_implemented",
+    "gui_native_backend_binding": "not_implemented",
+    "production_acceptance": "blocked"
+  }
+}
