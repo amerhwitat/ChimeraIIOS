@@ -164,8 +164,8 @@ extern "C" int chimera_process_reap(uint32_t pid) {
            Address-space teardown is a separate prerequisite owned by the caller. */
         if (state != CHIMERA_PROCESS_EXITED && state != CHIMERA_PROCESS_FAULTED)
             return -4;
+        if (count == 0) return -5; /* registry invariant violation; preserve slot */
         slots[i] = {};
-        if (count == 0) return -5; /* registry invariant violation */
         --count;
         return 0;
     }
