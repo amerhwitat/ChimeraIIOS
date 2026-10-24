@@ -40,6 +40,11 @@ int main(int argc, char** argv) {
 
   InstallPlan plan;
   plan.source_root = argc > 1 ? argv[1] : ask_text("Installation source", "/run/chimera/live");
+  plan.edition = ask_text("System role (desktop/server/minimal/developer)", "desktop");
+  plan.desktop_profile = ask_text("Desktop profile (aurora/marine/none)", "aurora");
+  plan.storage_mode = ask_text("Storage mode (guided/custom)", "guided");
+  plan.preserve_existing_os = ask_yes_no("Preserve existing operating systems by default?", false);
+  plan.encrypt_root = ask_yes_no("Encrypt root volume? (backend capability must be verified)", true);
   plan.target_root = argc > 2 ? argv[2] : ask_text("Target root (mounted target only)", "/target");
   plan.locale = ask_text("Installation language / locale", "en_US.UTF-8");
   plan.timezone = ask_text("Time zone (IANA name)", "UTC");
