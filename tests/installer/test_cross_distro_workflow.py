@@ -63,7 +63,7 @@ class CrossDistroInstallerWorkflowTests(unittest.TestCase):
         syscall = (ROOT / "kernel" / "core" / "syscall.cpp").read_text(encoding="utf-8")
         self.assertIn("A constant PID is not process identity", syscall)
         self.assertIn("Do not report a successful user yield", syscall)
-        self.assertIn("marking its resources", syscall)
+        self.assertIn("marking the current process exited", syscall)
         self.assertIn("waking waiters", syscall)
         self.assertIn("reclaiming its resources", syscall)
         self.assertNotIn("*return_value = 1u;", syscall)
