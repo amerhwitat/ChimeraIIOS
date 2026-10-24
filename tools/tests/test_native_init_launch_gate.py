@@ -64,11 +64,15 @@ def main() -> int:
         return fail("missing Live/Recovery rootfs archive validation block")
     archive_guard = archive_guard[1].split("if (!koronos_address_space_ready())", 1)[0]
     if "summary.has_init" in archive_guard:
-        return fail("rootfs archive validation must not require executable /init when a separately staged target-matched native ELF is the entry point")
+        return fail("archive /init resolution must use the validated entry lookup, not a summary-only flag")
     if "cpio_rc != CHIMERA_CPIO_OK" not in archive_guard:
         return fail("Live/Recovery rootfs must still fail closed on invalid CPIO")
-    if "separately staged" not in archive_guard:
-        return fail("rootfs/entry-point separation rationale and regression guard are missing")
+    if "stage_archive_init_elf(" not in archive_guard:
+        return fail("production launch must resolve and retain the actual archive /init ELF before rootfs publication")
+    if "const void *init_image = staged_archive_init ?" not in launch:
+        return fail("process admission must use archive /init when a production rootfs is selected")
+    if "interpreter/argv exec and script FD support are not implemented" not in launch:
+        return fail("shell-script /init must fail closed until a real interpreter/exec backend exists")
 
     if '#include "chimera/ramfs.h"' not in launch or "chimera_ramfs_extract_newc" not in (ROOT / "kernel/core/ramfs.cpp").read_text(encoding="utf-8"):
         return fail("production launch must compile against the bounded transactional RAMFS extractor")
