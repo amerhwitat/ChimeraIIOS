@@ -54,6 +54,11 @@ int main() {
     assert(entry_view.data==nullptr && entry_view.size==0u);
     assert(chimera_cpio_lookup_executable_newc(b,n,"/bin/sh",&entry_view)==CHIMERA_CPIO_E_TYPE);
     assert(chimera_cpio_lookup_newc(b,n,"/bin/../init",&entry_view)==CHIMERA_CPIO_E_PATH);
+    char oversized_path[CHIMERA_CPIO_MAX_PATH + 2];
+    memset(oversized_path,'a',sizeof(oversized_path));
+    oversized_path[sizeof(oversized_path)-1]=0;
+    assert(chimera_cpio_lookup_newc(b,n,oversized_path,&entry_view)==CHIMERA_CPIO_E_PATH);
+    assert(entry_view.data==nullptr && entry_view.size==0u);
     chimera_ramfs_node*r=nullptr;
     assert(chimera_ramfs_extract_newc(b,n,&a,&l,&r)==CHIMERA_RAMFS_OK);
     auto*f=chimera_ramfs_lookup(r,"/bin/init");assert(f&&chimera_ramfs_file_size(f)==5);
