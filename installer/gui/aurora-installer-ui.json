@@ -54,5 +54,26 @@
     "require_explicit_confirmation": true,
     "transaction_backend": "fail-closed-until-journal-rollback-readback-and-boot-verification-exist"
   },
-  "backend_status": "review-only; native GUI transaction adapter not integrated"
+  "backend_status": "review-only; native GUI transaction adapter not integrated",
+  "localization": {
+    "runtime": "installer-i18n.js",
+    "locale_standard": "BCP-47",
+    "utf8": true,
+    "rtl_layout": true,
+    "bundled_translations": [
+      "en",
+      "ar",
+      "es",
+      "fr",
+      "de",
+      "pt",
+      "ru",
+      "zh",
+      "ja",
+      "hi",
+      "ur",
+      "tr"
+    ],
+    "fallback": "English for valid locales without a bundled translation"
+  }
 }
