@@ -1,0 +1,55 @@
+{
+  "schema": "chimera-installed-system-policy-v1",
+  "locale": {
+    "default": "en_US.UTF-8",
+    "installer_prompt": true,
+    "persist_to": ["/etc/locale.conf", "/etc/default/locale"],
+    "input_languages": ["en"],
+    "keyboard": {
+      "default_console_layout": "us",
+      "persist_to": ["/etc/vconsole.conf", "/etc/default/keyboard"],
+      "desktop_input_method_required": true
+    }
+  },
+  "time": {
+    "default_timezone": "UTC",
+    "timezone_format": "IANA",
+    "hardware_clock_utc": true,
+    "ntp_default_enabled": true,
+    "persist_to": ["/etc/localtime", "/etc/timezone", "/etc/adjtime"],
+    "required_service": "time-sync",
+    "success_requires": ["valid_zoneinfo_entry", "rtc_policy_written", "time_sync_service_health"]
+  },
+  "filesystem": {
+    "root_layout": ["/bin", "/boot", "/dev", "/etc", "/home", "/lib", "/media", "/mnt", "/opt", "/proc", "/root", "/run", "/sbin", "/srv", "/sys", "/tmp", "/usr", "/var"],
+    "mount_table": "/etc/fstab",
+    "fstab_source": "verified_partition_uuid_only",
+    "foreign_filesystems": {
+      "ntfs": {
+        "identify": true,
+        "read_only_fallback": true,
+        "write_allowed_only_if": ["verified_kernel_driver_or_ntfs3g", "mount_probe_passed", "volume_not_dirty_or_hibernated", "explicit_user_mount_policy"],
+        "never_force_dirty_or_hibernated_volume": true
+      },
+      "fat16": {
+        "identify": true,
+        "read_write_allowed_only_if": ["verified_fat_driver", "mount_probe_passed"]
+      },
+      "fat32": {
+        "identify": true,
+        "read_write_allowed_only_if": ["verified_vfat_driver", "mount_probe_passed"]
+      }
+    }
+  },
+  "installation_safety": {
+    "dry_run_default": true,
+    "explicit_target_disk_confirmation": true,
+    "durable_transaction_journal_required": true,
+    "rollback_required": true,
+    "write_readback_verification_required": true,
+    "bootloader_install_and_verify_required": true,
+    "cold_reboot_required": true,
+    "frontend_success_requires_backend_commit_and_postconditions": true,
+    "missing_capability_policy": "fail_closed"
+  }
+}
