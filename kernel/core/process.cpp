@@ -154,4 +154,22 @@ extern "C" int chimera_process_set_state(uint32_t pid,
     return -2;
 }
 
+extern "C" int chimera_process_reap(uint32_t pid) {
+    if (!process_registry_initialized) return -3;
+    if (!pid) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        if (!slots[i].used || slots[i].image.pid != pid) continue;
+        const uint32_t state = slots[i].image.state;
+        /* Never free a running, ready, blocked, or merely admitted process.
+           Address-space teardown is a separate prerequisite owned by the caller. */
+        if (state != CHIMERA_PROCESS_EXITED && state != CHIMERA_PROCESS_FAULTED)
+            return -4;
+        slots[i] = {};
+        if (count == 0) return -5; /* registry invariant violation */
+        --count;
+        return 0;
+    }
+    return -2;
+}
+
 extern "C" uint32_t chimera_process_count(void) { return process_registry_initialized ? count : 0; }
