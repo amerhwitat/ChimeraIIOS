@@ -10,7 +10,7 @@ static int map_pages(void*p,void*as,uint64_t base,uint64_t size,uint32_t flags,v
  for(uint32_t i=0;i<m->count;i++)if(base<m->regions[i].base+m->regions[i].size&&m->regions[i].base<base+size)return -2;
  auto&r=m->regions[m->count++];r.base=base;r.size=size;r.flags=flags;*alias=r.bytes;return 0;
 }
-static void destroy_as(void*p,void*as){assert(p==as);((Mock*)p)->destroyed=true;}
+static int destroy_as(void*p,void*as){assert(p==as);((Mock*)p)->destroyed=true;return 0;}
 static int set_backing(void*p,void*as,uint64_t,uint64_t,uint32_t kind,uint64_t object,uint64_t offset){auto*m=(Mock*)p;if(as!=p||m->fail_backing)return -1;++m->backing_count;m->backing_kind=kind;m->backing_object=object;m->backing_offset=offset;return 0;}
 static void put16(uint8_t*p,uint16_t v){p[0]=(uint8_t)v;p[1]=(uint8_t)(v>>8);}
 static void put32(uint8_t*p,uint32_t v){for(int i=0;i<4;i++)p[i]=(uint8_t)(v>>(8*i));}
