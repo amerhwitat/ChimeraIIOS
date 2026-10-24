@@ -4,7 +4,7 @@
 #include "chimera/process.h"
 
 static void make_elf(uint8_t* b,bool wx){
-  std::memset(b,0,4096);
+  std::memset(b,0,8192);
   auto* h=(koronos_elf64_ehdr*)b;
   h->e_ident[0]=0x7f; h->e_ident[1]='E'; h->e_ident[2]='L'; h->e_ident[3]='F';
   h->e_ident[4]=2; h->e_ident[5]=1; h->e_ident[6]=1; h->e_type=KORONOS_ET_EXEC; h->e_machine=KORONOS_EM_X86_64;
@@ -17,14 +17,25 @@ static void make_elf(uint8_t* b,bool wx){
 }
 int main(){
   uint8_t image[8192]{};
-  chimera_process_init();
   make_elf(image,false);
   chimera_process_image p{};
+  // Admission before init must fail closed rather than create a record that
+  // a later init silently discards.
+  assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&p)==-12);
+  assert(chimera_process_get(1,&p)==-3);
+  assert(chimera_process_set_state(1,CHIMERA_PROCESS_READY)==-3);
+  assert(chimera_process_count()==0);
+  assert(chimera_process_init()==0);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&p)>0);
   assert(p.segment_count==1 && p.entry==0x400100 && p.image_low==0x400000);
   uint32_t pid=p.pid;
+  assert(chimera_process_count()==1);
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
   chimera_process_image q{};
+  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
+  // Reinitialization is idempotent and must not erase records or recycle PIDs.
+  assert(chimera_process_init()==0);
+  assert(chimera_process_count()==1);
   assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
   make_elf(image,true);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&q)<0);
