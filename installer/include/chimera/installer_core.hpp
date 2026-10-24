@@ -20,6 +20,11 @@ struct InstallPlan {
   std::string bootloader{"spitfire"};
   std::string kernel{"koronos"};
   std::string filesystem{"qfs"};
+  std::string storage_mode{"guided"};
+  std::string edition{"desktop"};
+  std::string desktop_profile{"aurora"};
+  bool preserve_existing_os{true};
+  bool encrypt_root{false};
   std::string locale{"en_US.UTF-8"};
   std::string timezone{"UTC"};
   std::string keyboard_layout{"us"};
