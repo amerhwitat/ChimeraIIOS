@@ -38,45 +38,6 @@ static chimera_ramfs_node *published_rootfs = nullptr;
 static void *ramfs_frame_alloc(uint64_t bytes, void *context);
 static void ramfs_frame_free(void *ptr, void *context);
 extern "C" void koronos_target_log(const char *message);
-static void *staged_archive_init = nullptr;
-static uint64_t staged_archive_init_size = 0;
-static int stage_archive_init_elf(const void *archive, uint64_t archive_size) {
-    if (!archive || !archive_size || staged_archive_init || staged_archive_init_size) return -1;
-    chimera_cpio_entry entry{};
-    const int lookup_rc = chimera_cpio_lookup_executable_newc(archive, archive_size, "/init", &entry);
-    if (lookup_rc != CHIMERA_CPIO_OK || !entry.data || entry.size < sizeof(koronos_elf64_ehdr)) {
-        koronos_target_log("[RUN ] ERROR: production archive /init is missing, non-executable, or too small; refusing to substitute a separate init ELF");
-        return -1;
-    }
-    const auto *bytes = static_cast<const uint8_t *>(entry.data);
-    if (bytes[0] != 0x7fu || bytes[1] != 'E' || bytes[2] != 'L' || bytes[3] != 'F') {
-        if (entry.size >= 2u && bytes[0] == '#' && bytes[1] == '!')
-            koronos_target_log("[RUN ] ERROR: archive /init is a script; interpreter/argv exec and script FD support are not implemented");
-        else
-            koronos_target_log("[RUN ] ERROR: archive /init is not a native ELF executable; refusing false readiness");
-        return -1;
-    }
-    if (entry.size > MAX_INIT_IMAGE) {
-        koronos_target_log("[RUN ] ERROR: archive /init exceeds the bounded native init image limit");
-        return -1;
-    }
-    void *copy = ramfs_frame_alloc(entry.size, nullptr);
-    if (!copy) {
-        koronos_target_log("[RUN ] ERROR: unable to retain archive /init ELF outside temporary decompression storage");
-        return -1;
-    }
-    auto *destination = static_cast<uint8_t *>(copy);
-    for (uint64_t i = 0; i < entry.size; ++i) destination[i] = bytes[i];
-    staged_archive_init = copy;
-    staged_archive_init_size = entry.size;
-    koronos_target_log("[RUN ] Archive /init resolved and retained as the production ELF entry point");
-    return 0;
-}
-static void discard_staged_archive_init() {
-    if (staged_archive_init) ramfs_frame_free(staged_archive_init, nullptr);
-    staged_archive_init = nullptr;
-    staged_archive_init_size = 0;
-}
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -508,19 +469,17 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 reinterpret_cast<void *>(static_cast<uintptr_t>(decompressed.base)),
                 expected_size, &decoded_size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK || decoded_size != expected_size) {
-                /* Archive /init is the production entry point. This path is
-                   reached only after it has been resolved as a bounded ELF;
-                   CPIO safety and gzip integrity remain mandatory. */
+                /* The separately tagged USER_INIT_ELF module is the executable
+                   entry point. Validate the initramfs independently as a rootfs;
+                   its legacy /init may be a script and is not executed here. */
                 koronos_target_log("[RUN ] ERROR: gzip decode, CRC32/ISIZE, or CPIO safety validation failed");
                 return -19;
             }
             koronos_target_log("[RUN ] Bounded gzip/DEFLATE, CRC32/ISIZE and CPIO validation passed");
-            if (stage_archive_init_elf(reinterpret_cast<const void *>(static_cast<uintptr_t>(decompressed.base)), decoded_size) != 0) return -21;
             const int rootfs_rc = stage_rootfs(
                 reinterpret_cast<const void *>(static_cast<uintptr_t>(decompressed.base)),
                 decoded_size);
             if (rootfs_rc != CHIMERA_RAMFS_OK) {
-                discard_staged_archive_init();
                 koronos_target_log("[RUN ] ERROR: transactional RAMFS staging failed; no rootfs was published");
                 return -20;
             }
@@ -528,15 +487,13 @@ extern "C" int koronos_launch_selected_userspace(void) {
         } else {
             cpio_rc = chimera_cpio_validate_newc(archive_bytes, archive->size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK) {
-                /* Archive /init is the production entry point and was
-                   resolved as a bounded ELF before this rootfs is accepted. */
+                /* The tagged USER_INIT_ELF is the executable entry point;
+                   this CPIO archive is validated and staged only as the rootfs. */
                 koronos_target_log("[RUN ] ERROR: selected initramfs is malformed or unsafe");
                 return -17;
             }
-            if (stage_archive_init_elf(archive_bytes, archive->size) != 0) return -21;
             const int rootfs_rc = stage_rootfs(archive_bytes, archive->size);
             if (rootfs_rc != CHIMERA_RAMFS_OK) {
-                discard_staged_archive_init();
                 koronos_target_log("[RUN ] ERROR: transactional RAMFS staging failed; no rootfs was published");
                 return -20;
             }
@@ -554,7 +511,6 @@ extern "C" int koronos_launch_selected_userspace(void) {
         if (chimera_vfs_init() != 0 ||
             chimera_vfs_mount("/", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY) != 0) {
             discard_staged_rootfs();
-            discard_staged_archive_init();
             koronos_target_log("[RUN ] ERROR: VFS root mount failed; refusing userspace launch");
             return -15;
         }
@@ -567,7 +523,6 @@ extern "C" int koronos_launch_selected_userspace(void) {
             if (tmpfs_candidate) chimera_tmpfs_destroy(tmpfs_candidate);
             (void)chimera_vfs_unmount("/");
             discard_staged_rootfs();
-            discard_staged_archive_init();
             koronos_target_log("[RUN ] ERROR: bounded writable /tmp filesystem mount failed; refusing userspace launch");
             return -15;
         }
@@ -579,30 +534,29 @@ extern "C" int koronos_launch_selected_userspace(void) {
         return -15;
     }
     if (!koronos_address_space_ready()) {
-        discard_staged_archive_init();
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
     }
     const chimera_elf_load_ops *ops=koronos_address_space_loader_ops();
     if (!ops) {
-        discard_staged_archive_init();
         koronos_target_log("[RUN ] ERROR: ELF loader has no real address-space operations");
         return -4;
     }
 
     chimera_process_image process{};
-    const void *init_image = staged_archive_init ? staged_archive_init : reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));
-    const uint64_t init_image_size = staged_archive_init ? staged_archive_init_size : selected->size;
+    // Execute the exact native ELF selected by the CHIMERA_MODULE_USER_INIT_ELF
+    // tag. The initramfs is a filesystem payload, not an alternate executable
+    // source; never let /init inside it override the explicitly selected image.
+    const void *init_image = reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));
+    const uint64_t init_image_size = selected->size;
     const int pid=chimera_process_admit_elf(init_image, init_image_size, KORONOS_EM_X86_64, USER_STACK_TOP, &process);
     if (pid<=0) {
-        discard_staged_archive_init();
         koronos_target_log("[RUN ] ERROR: selected user init failed protected-process admission");
         return -5;
     }
     chimera_loaded_elf loaded{};
     const int load_rc=chimera_elf_load_user_image(init_image, init_image_size,
         KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
-    discard_staged_archive_init();
     if (load_rc!=0) {
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
         koronos_target_log("[RUN ] ERROR: selected user init ELF load failed");
