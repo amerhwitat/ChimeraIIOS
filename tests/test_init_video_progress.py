@@ -12,7 +12,7 @@ SESSION = ROOT / "platform/systemd/aurora-session@.service"
 class InitVideoProgressTests(unittest.TestCase):
     def test_media_is_hardcoded_into_system_install_paths(self):
         cmake = CMAKE.read_text(encoding="utf-8")
-        self.assertIn("desktop/aurora/assets/library/Init.mp4 DESTINATION boot/chimera", cmake)
+        self.assertIn("desktop/aurora/assets/library/Init.mp4 DESTINATION /boot/chimera", cmake)
         self.assertIn("desktop/aurora/aurora-init-splash.sh DESTINATION bin RENAME aurora-init-splash", cmake)
         self.assertIn("aurora-progress-osd.lua DESTINATION share/chimera/aurora", cmake)
 
