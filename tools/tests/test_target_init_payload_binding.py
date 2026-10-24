@@ -27,11 +27,11 @@ required = (
     "if (!staged_rootfs_ready || !staged_rootfs)",
     "static void discard_staged_rootfs()",
     "discard_staged_rootfs();",
-    "stage_archive_init_elf(archive_bytes, archive->size)",
-    "const void *init_image = staged_archive_init ?",
+    "CHIMERA_MODULE_USER_INIT_ELF",
+    "const void *init_image = reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));",
+    "const uint64_t init_image_size = selected->size;",
     "chimera_process_admit_elf(init_image, init_image_size",
     "chimera_elf_load_user_image(init_image, init_image_size",
-    "interpreter/argv exec and script FD support are not implemented",
 )
 missing = [part for part in required if part not in source]
 if missing:
@@ -53,6 +53,14 @@ if min(root_fail, root_fail_cleanup, tmp_fail, tmp_fail_cleanup, tmp_unmount) < 
     raise SystemExit("VFS publication failure must reclaim staged RAMFS")
 if not (root_fail_cleanup < root_fail and tmp_unmount < tmp_fail_cleanup < tmp_fail):
     raise SystemExit("rootfs cleanup must follow unmount and precede failure return")
+for forbidden in (
+    "stage_archive_init_elf",
+    "staged_archive_init",
+    'chimera_cpio_lookup_executable_newc(archive, archive_size, "/init", &entry)',
+    "interpreter/argv exec and script FD support are not implemented",
+):
+    if forbidden in source:
+        raise SystemExit("archive /init must not override the tagged native ELF: " + forbidden)
 if "production root filesystem is not mounted" in source:
     raise SystemExit("stale rootfs-not-mounted source contract remains; use the current fail-closed mount path")
-print("native init payload-binding contract: PASS (source-level only)")
+print("native init payload-binding contract: PASS (tagged native ELF selected; source-level only)")
