@@ -53,13 +53,13 @@ int main() {
                                         0x7fffffffe000ull, &admitted);
     assert(pid > 0 && admitted.pid == static_cast<uint32_t>(pid));
     assert(admitted.state == CHIMERA_PROCESS_ADMITTED);
-    assert(admitted.segment_count == 1 && admitted.entry == 0x400100);
+    assert(admitted.segment_count == 1 && admitted.entry == 0x100400100);
 
     // An entry point in a non-executable PT_LOAD is not a runnable ELF image.
     put32(elf + 68, 6); // PF_R | PF_W
     chimera_process_image rejected{};
     assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
-                                     0x700000, &rejected) < 0);
+                                     0x7fffffffe000ull, &rejected) < 0);
     puts("ELF64 validation/admission: bounds and executable-entry checks passed");
     return 0;
 }
