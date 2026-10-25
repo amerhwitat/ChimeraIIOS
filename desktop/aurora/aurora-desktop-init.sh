@@ -23,7 +23,7 @@ ROOT=/usr/share/chimera
 AURORA="$ROOT/aurora"
 LOG_DIR="${XDG_RUNTIME_DIR:-/tmp}/chimera"
 mkdir -p "$LOG_DIR"
-log(){ printf '[Aurora] %s\\n' "$*" >> "$LOG_DIR/aurora-desktop.log"; }
+log(){ printf '[Aurora] %s\n' "$*" >> "$LOG_DIR/aurora-desktop.log"; }
 
 # Event-driven UI progress: only advance after a real session/service check.
 PROGRESS_STATE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
@@ -34,7 +34,7 @@ progress_set(){
   mkdir -p "$(dirname "$PROGRESS_STATE")" 2>/dev/null || return 0
   seq="$(date +%s%N 2>/dev/null || date +%s)"
   tmp="$PROGRESS_STATE.tmp.$$"
-  if printf 'version=1\\nsequence=%s\\npercent=%s\\nphase=%s\\nmessage=%s\\ntimestamp=%s\\n' \
+  if printf 'version=1\nsequence=%s\npercent=%s\nphase=%s\nmessage=%s\ntimestamp=%s\n' \
       "$seq" "$pct" "$phase" "$message" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$tmp"; then
     mv -f "$tmp" "$PROGRESS_STATE" || { rm -f "$tmp"; return 1; }
   else
