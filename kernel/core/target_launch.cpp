@@ -301,15 +301,15 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
     uint8_t kernel_buffer[4096];
     const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count);
     if (result < 0) {
-        (void)koronos_address_space_unpin(active_address_space, user_buffer, count);
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
         return result;
     }
     if (static_cast<uint64_t>(result) > count) {
-        (void)koronos_address_space_unpin(active_address_space, user_buffer, count);
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
         return -5;
     }
     if (result > 0 && koronos_target_copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0) {
-        (void)koronos_address_space_unpin(active_address_space, user_buffer, count);
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
         return -14;
     }
     if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
