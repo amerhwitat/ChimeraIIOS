@@ -79,6 +79,7 @@ jobs:
           python3 tools/tests/test_progress_bridge_contract.py
           python3 tools/tests/test_production_qemu_matrix.py
           python3 tools/tests/test_user_copy_syscall_contract.py
+          python3 tools/tests/test_native_init_runtime_contract.py
           python3 tools/tests/test_syscall_usercopy_contract.py
 
       - name: Test production closeout DAPS gate
