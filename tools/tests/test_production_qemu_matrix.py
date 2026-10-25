@@ -20,8 +20,8 @@ class ProductionQemuMatrixContract(unittest.TestCase):
 USER INIT SYSCALL: target=live init_pid=12
 NATIVE INIT PID: target=live pid=12
 NATIVE INIT VFS SELFTEST PASS: create/write/seek/read/close verified
-/etc/os-release open/read/close verified
-/tmp write selftest PASS
+USERSPACE ROOTFS FILE SELFTEST PASS: /etc/os-release OPEN READ CLOSE
+USERSPACE TMPFS MUTATION PASS: CREATE WRITE READ TRUNCATE
 USERSPACE TARGET READY: live component=aurora-session init pid=12
 """
         self.assertEqual(target_marker_errors("live", trace), [])
