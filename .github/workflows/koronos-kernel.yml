@@ -6,6 +6,8 @@ on:
       - "kernel/**"
       - "isa/koronos/**"
       - "tools/koronos/**"
+      - "tools/tests/test_user_copy_syscall_contract.py"
+      - "tools/tests/test_syscall_usercopy_contract.py"
       - ".github/workflows/koronos-kernel.yml"
       - "docs/PRODUCTION_RUNTIME_ACCEPTANCE.md"
   pull_request:
@@ -28,6 +30,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
       - name: Build Koronos ELF64
         run: bash kernel/build-koronos.sh
+      - name: Validate syscall user-memory boundaries
+        run: |
+          python3 tools/tests/test_user_copy_syscall_contract.py
+          python3 tools/tests/test_syscall_usercopy_contract.py
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
