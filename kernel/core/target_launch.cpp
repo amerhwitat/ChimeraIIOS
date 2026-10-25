@@ -229,6 +229,9 @@ static bool user_range_bounds_valid(uint64_t address, uint64_t length) {
 extern "C" int koronos_target_copy_from_user(void *destination, uint64_t source, uint64_t length) {
     if ((!destination && length) || !active_root || !active_address_space) return -14;
     if (!length) return 0;
+    /* The opaque process object and the root selected for this syscall must
+       agree; never validate against a stale or unrelated global CR3. */
+    if (koronos_address_space_root(active_address_space) != active_root) return -14;
     if (!user_range_bounds_valid(source, length)) return -14;
     if (koronos_address_space_pin(active_address_space, source, length, 0u) != 0) return -14;
     if (koronos_address_space_validate_user_range(active_root, source, length, 0u) != 0) {
@@ -243,6 +246,7 @@ extern "C" int koronos_target_copy_from_user(void *destination, uint64_t source,
 extern "C" int koronos_target_copy_to_user(uint64_t destination, const void *source, uint64_t length) {
     if ((!source && length) || !active_root || !active_address_space) return -14;
     if (!length) return 0;
+    if (koronos_address_space_root(active_address_space) != active_root) return -14;
     if (!user_range_bounds_valid(destination, length)) return -14;
     if (koronos_address_space_pin(active_address_space, destination, length, 1u) != 0) return -14;
     if (koronos_address_space_validate_user_range(active_root, destination, length, 1u) != 0) {
