@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Collect real ISO identity and candidate traces into a fail-closed closeout report.
+"""Collect ISO identity and hash-bound production QEMU traces into fail-closed evidence.
 
-This collector deliberately does not promote candidate payload smoke tests to
-production acceptance. Missing six-case production runs and independent gates
-remain NOT RUN, so production-closeout-daps.py must reject the report.
+Actual QEMU traces are kept distinct from candidate smoke logs. A blocked trace
+remains BLOCKED, and independent display, installer persistence, recovery,
+SMP, and VM/swap gates remain NOT RUN until separately evidenced.
 """
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ def collect(iso: Path, output: Path, candidate_traces: Path, production_matrix: 
             trace_source = "missing"
             production_bound = False
             matrix_case = matrix_cases.get(case_id) if matrix_report is not None else None
-            if isinstance(matrix_case, dict) and matrix_dir is not None:
+            if isinstance(matrix_case, dict) and matrix_case.get("qemu_started") is True and matrix_dir is not None:
                 trace_rel = matrix_case.get("trace")
                 if isinstance(trace_rel, str) and trace_rel:
                     rel_path = Path(trace_rel)
