@@ -20,6 +20,13 @@ class ProgressBridgeContract(unittest.TestCase):
         self.assertIn('"progress_state": "/run/chimera/koronos-progress.state"', builder)
         self.assertIn('"progress_ui": "/usr/share/chimera/aurora/aurora-progress.sh"', builder)
 
+    def test_kernel_progress_events_are_emitted_at_real_init_milestones(self):
+        kernel = (ROOT / "kernel/core/koronos.cpp").read_text()
+        self.assertIn("CHIMERA_PROGRESS_EVENT percent=", kernel)
+        self.assertIn('console_progress(25, "Architecture discovery and address-space safety checks complete")', kernel)
+        self.assertIn('console_progress(75, "Process admission and module registries initialized")', kernel)
+        self.assertIn('console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)")', kernel)
+
     def test_ui_reads_real_state_instead_of_advancing_a_completion_timer(self):
         ui = (ROOT / "desktop/aurora/aurora-progress.sh").read_text()
         self.assertIn('mapfile -t v < <(read_state', ui)
