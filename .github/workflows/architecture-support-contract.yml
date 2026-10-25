@@ -12,6 +12,8 @@ on:
       - "tests/architecture/test_efi_pe_validation.py"
       - "tests/architecture/test_aarch64_linker_contract.py"
       - "tools/validate_elf_image.py"
+      - "build-chimera-iso.sh"
+      - "boot/iso/build-iso.sh"
       - "tools/validate_efi_pe.py"
       - ".github/workflows/architecture-support-contract.yml"
   pull_request:
@@ -23,6 +25,10 @@ on:
       - "tests/architecture/test_support_matrix.py"
       - "tests/architecture/test_elf_validation.py"
       - "tools/validate_elf_image.py"
+      - "docs/architecture/EFI_PE_COFF_VALIDATION.md"
+      - "tests/architecture/test_efi_pe_validation.py"
+      - "tests/architecture/test_aarch64_linker_contract.py"
+      - "tools/validate_efi_pe.py"
       - ".github/workflows/architecture-support-contract.yml"
   workflow_dispatch:
 permissions:
@@ -34,6 +40,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate support matrix and ELF validator fixtures
         run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py tests/architecture/test_efi_pe_validation.py tests/architecture/test_aarch64_linker_contract.py -v
+      - name: Check ISO builder shell syntax
+        run: bash -n build-chimera-iso.sh boot/iso/build-iso.sh
       - name: Verify available cross-toolchain inventory without claiming boot support
         shell: bash
         run: |
