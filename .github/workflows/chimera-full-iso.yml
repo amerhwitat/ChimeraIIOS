@@ -11,6 +11,8 @@ on:
       - "iso/**"
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
+      - "build-chimera-iso.sh"
+      - "tools/wallpapers/**"
       - "tools/build-full-iso.*"
       - "tools/collect-production-closeout-evidence.py"
       - "tools/tests/**"
@@ -63,6 +65,16 @@ jobs:
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
+      - name: Validate shell syntax and user-memory/progress/wallpaper contracts
+        run: |
+          set -euo pipefail
+          for script in build-chimera-iso.sh desktop/aurora/aurora-desktop-init.sh desktop/aurora/aurora-init-splash.sh desktop/aurora/aurora-progress.sh system/boot/koronos-progress.sh; do
+            bash -n "$script"
+          done
+          python3 tools/wallpapers/test_embed_wallpapers.py
+          python3 tools/tests/test_progress_bridge_contract.py
+          python3 tools/tests/test_user_copy_syscall_contract.py
+          python3 tools/tests/test_syscall_usercopy_contract.py
 
       - name: Test production closeout DAPS gate
         run: |
