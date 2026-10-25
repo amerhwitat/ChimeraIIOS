@@ -154,6 +154,35 @@ fi
 if [[ -s "$ROOT/desktop/aurora/assets/library-artwork-manifest.json" ]]; then
   cp -f "$ROOT/desktop/aurora/assets/library-artwork-manifest.json" "$STAGE/desktop/aurora/assets/library-artwork-manifest.json"
 fi
+
+# Embed the two exact session JPEG attachments byte-for-byte for offline use.
+# The embedder verifies dimensions and pinned SHA-256 values; no generated
+# replacement or network source may satisfy the production branding contract.
+SESSION_WALLPAPER_SOURCE="${CHIMERA_SESSION_WALLPAPER_DIR:-$ROOT/desktop/aurora/assets/library}"
+SESSION_WALLPAPER_A="$SESSION_WALLPAPER_SOURCE/Duck-ai-image-2026-10-18-07-06(1).jpeg"
+SESSION_WALLPAPER_B="$SESSION_WALLPAPER_SOURCE/Duck-ai-image-2026-10-18-06-36.jpeg"
+if [[ -s "$SESSION_WALLPAPER_A" && -s "$SESSION_WALLPAPER_B" ]]; then
+  SESSION_BRANDING_CSS="$BUILD/dual-os-brand-wallpapers.css"
+  SESSION_BRANDING_MANIFEST="$BUILD/dual-os-brand-wallpapers.json"
+  python3 "$ROOT/tools/wallpapers/embed_wallpapers.py" --session-branding \
+    --source-dir "$SESSION_WALLPAPER_SOURCE" --css "$SESSION_BRANDING_CSS" \
+    --manifest "$SESSION_BRANDING_MANIFEST"
+  for destination in "$STAGE/desktop/aurora/assets" "$STAGE/system/desktop/aurora/assets"; do
+    mkdir -p "$destination"
+    install -m 0644 "$SESSION_BRANDING_CSS" "$destination/dual-os-brand-wallpapers.css"
+    install -m 0644 "$SESSION_BRANDING_MANIFEST" "$destination/dual-os-brand-wallpapers.json"
+  done
+  mkdir -p "$STAGE/boot/visual"
+  install -m 0644 "$SESSION_BRANDING_CSS" "$STAGE/boot/visual/dual-os-brand-wallpapers.css"
+  install -m 0644 "$SESSION_WALLPAPER_A" "$STAGE/desktop/aurora/assets/library/Duck-ai-image-2026-10-18-07-06(1).jpeg"
+  install -m 0644 "$SESSION_WALLPAPER_B" "$STAGE/desktop/aurora/assets/library/Duck-ai-image-2026-10-18-06-36.jpeg"
+  echo "Embedded original session dual-brand JPEGs as offline data URIs."
+elif [[ "${CHIMERA_REQUIRE_SESSION_BRANDING:-1}" == "1" ]]; then
+  echo "ERROR: exact session JPEGs are missing; refusing a production ISO without the original offline data URIs." >&2
+  exit 1
+else
+  echo "WARNING: exact session JPEGs missing; diagnostic ISO only, release remains blocked." >&2
+fi
 [[ -f "$ROOT/boot/livecd/live-manifest.json" ]] && cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/"
 [[ -n "$SPIT_IMG" && -f "$SPIT_IMG" ]] && cp "$SPIT_IMG" "$STAGE/boot/spitfire.img"
 cp -a "$ROOT/installer" "$STAGE/install/"
