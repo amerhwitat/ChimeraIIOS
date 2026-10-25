@@ -620,6 +620,14 @@ static bool address_space_self_test() {
              (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
                  KORONOS_USER_VIRTUAL_MIN, 1u, 0u) == 0 &&
+              /* The final byte of a mapped page is valid, but extending one
+                 byte beyond it must reject the entire span. */
+              koronos_address_space_validate_user_range(space->root_physical,
+                  KORONOS_USER_VIRTUAL_MIN + PAGE_SIZE - 1u, 1u, 0u) == 0 &&
+              koronos_address_space_validate_user_range(space->root_physical,
+                  KORONOS_USER_VIRTUAL_MIN + PAGE_SIZE - 1u, 2u, 0u) != 0 &&
+              koronos_address_space_validate_user_range(space->root_physical,
+                  KORONOS_USER_VIRTUAL_MIN, UINT64_MAX, 0u) != 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
                  KORONOS_USER_VIRTUAL_MIN, 1u, 1u) != 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
