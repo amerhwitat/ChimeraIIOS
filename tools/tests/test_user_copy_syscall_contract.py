@@ -66,6 +66,9 @@ class UserCopyBoundaryContract(unittest.TestCase):
         self.assertIn("KORONOS_USER_VIRTUAL_MIN + PAGE_SIZE - 1u, 2u, 0u", self.address_space)
         self.assertIn("0u, 0u, 0u) == 0", self.address_space)
         self.assertIn("write_access > 1u || root_physical == 0u", self.address_space)
+        self.assertIn("space_for_root(root_physical)", self.address_space)
+        self.assertIn("meta->owner_generation != space->generation", self.address_space)
+        self.assertIn("lock_backend()", self.address_space)
 
     def test_syscall_write_routes_console_and_regular_files_separately(self):
         self.assertIn("koronos_console_write_user(address, length)", self.syscall)
@@ -83,6 +86,8 @@ class UserCopyBoundaryContract(unittest.TestCase):
         write_body = self.launch[write_start:close_start]
         self.assertIn("copy_target_user_path(user_path, path)", open_body)
         self.assertIn("koronos_target_copy_to_user(user_buffer, kernel_buffer", read_body)
+        self.assertLess(read_body.index("koronos_address_space_pin("),
+                        read_body.index("chimera_vfs_read("))
         self.assertIn("koronos_target_copy_from_user(kernel_buffer, user_buffer, count)", write_body)
         for body in (open_body, read_body, write_body):
             self.assertIn("active_pid", body)
