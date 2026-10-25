@@ -23,7 +23,32 @@ ROOT=/usr/share/chimera
 AURORA="$ROOT/aurora"
 LOG_DIR="${XDG_RUNTIME_DIR:-/tmp}/chimera"
 mkdir -p "$LOG_DIR"
-log(){ printf '[Aurora] %s\n' "$*" >> "$LOG_DIR/aurora-desktop.log"; }
+log(){ printf '[Aurora] %s\\n' "$*" >> "$LOG_DIR/aurora-desktop.log"; }
+
+# Event-driven UI progress: only advance after a real session/service check.
+PROGRESS_STATE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
+progress_set(){
+  local pct="$1" phase="$2" message="$3" tmp seq
+  [[ "$pct" =~ ^[0-9]+$ && "$pct" -ge 0 && "$pct" -le 100 ]] || return 2
+  [[ -n "$phase" && -n "$message" ]] || return 2
+  mkdir -p "$(dirname "$PROGRESS_STATE")" 2>/dev/null || return 0
+  seq="$(date +%s%N 2>/dev/null || date +%s)"
+  tmp="$PROGRESS_STATE.tmp.$$"
+  if printf 'version=1\\nsequence=%s\\npercent=%s\\nphase=%s\\nmessage=%s\\ntimestamp=%s\\n' \
+      "$seq" "$pct" "$phase" "$message" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$tmp"; then
+    mv -f "$tmp" "$PROGRESS_STATE" || { rm -f "$tmp"; return 1; }
+  else
+    rm -f "$tmp"; return 1
+  fi
+}
+wayland_socket_ready(){
+  [[ -n "${WAYLAND_DISPLAY:-}" && -n "${XDG_RUNTIME_DIR:-}" &&
+     -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]]
+}
+compositor_process_alive(){
+  command -v pgrep >/dev/null 2>&1 &&
+    pgrep -u "$(id -u)" -f '(^|/)(sway|weston|kwin_wayland|wayfire|labwc|cage)( |$)' >/dev/null 2>&1
+}
 export XDG_CURRENT_DESKTOP="${XDG_CURRENT_DESKTOP:-Aurora}"
 export XDG_SESSION_DESKTOP="${XDG_SESSION_DESKTOP:-Aurora}"
 export XDG_SESSION_TYPE=wayland
@@ -41,13 +66,33 @@ if command -v wireplumber >/dev/null 2>&1 && ! pgrep -u "$(id -u)" -x wireplumbe
   wireplumber >/tmp/aurora-wireplumber.log 2>&1 &
 fi
 
-# Optional initialization video. It is launched only after Wayland is ready and
-# never blocks the desktop if video playback is unavailable.
+# The milestone is based on the actual Wayland socket, not elapsed time.
+progress_set 80 aurora-session "Aurora session environment exported" || true
+for _ in $(seq 1 10); do
+  wayland_socket_ready && break
+  sleep 1
+done
+if wayland_socket_ready; then
+  progress_set 90 wayland-session "Wayland session socket is available" || true
+  if command -v zenity >/dev/null 2>&1 && [[ -x "$AURORA/aurora-progress.sh" ]]; then
+    CHIMERA_PROGRESS_FILE="$PROGRESS_STATE" "$AURORA/aurora-progress.sh" gui >/tmp/aurora-progress-ui.log 2>&1 &
+  fi
+else
+  progress_set 85 wayland-session "Waiting for a verified Wayland session socket" || true
+  log "Wayland session socket unavailable; refusing to report desktop readiness"
+fi
+
+# Select the video first, then always invoke the launcher. The old '||' chain
+# accidentally skipped playback whenever the primary Init.mp4 already existed.
 if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then
   CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
-  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4" \
-    CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
-    bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4"
+  if [[ -s "$CHIMERA_INIT_VIDEO" ]]; then
+    CHIMERA_INIT_VIDEO="$CHIMERA_INIT_VIDEO" CHIMERA_PROGRESS_FILE="$PROGRESS_STATE" \
+      bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+  else
+    log "Init.mp4 unavailable; continuing without the optional splash video"
+  fi
 fi
 
 if command -v swaybg >/dev/null 2>&1; then
@@ -110,4 +155,14 @@ for _ in $(seq 1 20); do
   fi
   sleep 1
 done
-log "desktop clients initialized; WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-unset} DISPLAY=${DISPLAY:-unset}"
+log "desktop client launch phase finished; WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-unset} DISPLAY=${DISPLAY:-unset}"
+if wayland_socket_ready && compositor_process_alive; then
+  progress_set 100 aurora-session "Aurora desktop session initialized; kernel and service acceptance remain separate" || true
+  log "verified Wayland socket and compositor process; desktop session milestone complete"
+elif wayland_socket_ready; then
+  progress_set 95 aurora-session "Wayland socket exists but compositor process health was not confirmed" || true
+  log "Wayland socket exists but compositor process health was not confirmed"
+else
+  progress_set 85 aurora-session "Desktop startup incomplete: Wayland socket unavailable" || true
+  log "desktop readiness withheld because the Wayland socket is unavailable"
+fi
