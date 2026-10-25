@@ -62,6 +62,7 @@ jobs:
           EVIDENCE_RUN_ID: ${{ inputs.evidence_run_id }}
         run: |
           set -euo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || { echo "Publication is allowed only from main after production DAPS acceptance." >&2; exit 1; }
           [[ "$EVIDENCE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid evidence run ID" >&2; exit 2; }
           result="$(gh run view "$EVIDENCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json status,conclusion --jq '.status + ":" + .conclusion')"
           [[ "$result" == "completed:success" ]] || {
