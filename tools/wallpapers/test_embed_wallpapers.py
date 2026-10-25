@@ -12,7 +12,7 @@ def fake_jpeg(width: int, height: int) -> bytes:
     # markers, segment bounds, and the declared dimensions without re-encoding.
     sof_payload = bytes([8]) + height.to_bytes(2, "big") + width.to_bytes(2, "big") + bytes([3, 1, 0x11, 0, 2, 0x11, 0, 3, 0x11, 0])
     segment = bytes([0xFF, 0xC0]) + (len(sof_payload) + 2).to_bytes(2, "big") + sof_payload
-    return b"\\xff\\xd8" + segment + b"\\xff\\xd9"
+    return b"\xff\xd8" + segment + b"\xff\xd9"
 
 
 class WallpaperEmbedContract(unittest.TestCase):
