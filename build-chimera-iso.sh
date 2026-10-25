@@ -176,6 +176,27 @@ log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
 log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_file(){ ensure_log_dir || return 0; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log" 2>/dev/null || true; }
 log_both(){ log_info "$*"; log_file "$*"; }
+# Preserve both validator output streams and the validator's real exit status.
+# pipefail is enabled globally; the explicit branch records a durable PASS/FAIL.
+run_logged_validation(){
+  local logfile="$1"; shift
+  local rc=0
+  mkdir -p "$(dirname "$logfile")"
+  log_info "Validation command: $* (log: $logfile)"
+  if "$@" 2>&1 | tee "$logfile"; then
+    printf '[VALIDATION PASS] exit=0 command=%q' "$1" >> "$logfile"
+    printf ' %q' "${@:2}" >> "$logfile"
+    printf '\n' >> "$logfile"
+    log_file "[VALIDATION PASS] exit=0 command=$* log=$logfile"
+    return 0
+  else
+    rc=$?
+    printf '[VALIDATION FAIL] exit=%s command=%s\n' "$rc" "$*" | tee -a "$logfile" >&2
+    log_file "[VALIDATION FAIL] exit=$rc command=$* log=$logfile"
+    log_error "Validation failed with exit $rc; see $logfile"
+    return "$rc"
+  fi
+}
 process_snapshot(){
   ensure_log_dir || return 0
   {
@@ -1272,10 +1293,8 @@ build_iso(){
   [[ -s "$pe_validator" ]] || { log_error "EFI PE validator missing: $pe_validator"; exit 1; }
   [[ -n "$koronos_elf" ]] || { log_error "Koronos kernel ELF missing; refusing to package unvalidated boot media."; exit 1; }
   command -v python3 >/dev/null 2>&1 || { log_error "python3 is required for boot artifact validation."; exit 2; }
-  log_info "Validating production Koronos ELF structure: $koronos_elf"
-  python3 "$elf_validator" --target x86_64 "$koronos_elf" 2>&1 | tee "$LOG_DIR/validate-koronos-elf.log"
-  log_info "Validating staged UEFI application PE/COFF structure: $uefi_loader"
-  python3 "$pe_validator" --target x86_64 "$uefi_loader" 2>&1 | tee "$LOG_DIR/validate-bootx64-pe.log"
+  run_logged_validation "$LOG_DIR/validate-koronos-elf.log" python3 "$elf_validator" --target x86_64 "$koronos_elf"
+  run_logged_validation "$LOG_DIR/validate-bootx64-pe.log" python3 "$pe_validator" --target x86_64 "$uefi_loader"
 
   source_bytes="$(du -sB1 "$ISO_DIR" 2>/dev/null | awk '{print $1}')"
   free_bytes_now="$(free_bytes "$ISO_OUTPUT_DIR")"
