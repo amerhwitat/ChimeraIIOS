@@ -32,6 +32,15 @@ required = (
     "const uint64_t init_image_size = selected->size;",
     "chimera_process_admit_elf(init_image, init_image_size",
     "chimera_elf_load_user_image(init_image, init_image_size",
+    "koronos_target_rollback_quarantine_pid",
+    "koronos_target_retry_rollback_quarantine",
+    "rollback_quarantined_ops = ops;",
+    "rollback_quarantined_destroyed = true;",
+    "rollback_quarantined_ops->destroy_address_space(nullptr,",
+    "chimera_process_mark_resources_released(rollback_quarantined_pid)",
+    "chimera_process_reap(rollback_quarantined_pid)",
+    "if (rollback_quarantined_address_space &&",
+    "koronos_target_retry_rollback_quarantine() != 0) return -18;",
 )
 missing = [part for part in required if part not in source]
 if missing:
@@ -63,4 +72,15 @@ for forbidden in (
         raise SystemExit("archive /init must not override the tagged native ELF: " + forbidden)
 if "production root filesystem is not mounted" in source:
     raise SystemExit("stale rootfs-not-mounted source contract remains; use the current fail-closed mount path")
+# Quarantine is released only after successful address-space destruction and
+# process registry release/reap; a failed retry blocks another target launch.
+retry = source.find("extern \"C\" int koronos_target_retry_rollback_quarantine(void)")
+destroy = source.find("rollback_quarantined_ops->destroy_address_space(nullptr,", retry)
+mark = source.find("chimera_process_mark_resources_released(rollback_quarantined_pid)", retry)
+reap = source.find("chimera_process_reap(rollback_quarantined_pid)", retry)
+clear = source.find("rollback_quarantined_address_space = nullptr;", retry)
+if min(retry, destroy, mark, reap, clear) < 0 or not (retry < destroy < mark < reap < clear):
+    raise SystemExit("quarantine must retain ownership until teardown, resource release and reap succeed")
+if "return -2;" not in source[destroy:mark]:
+    raise SystemExit("failed quarantine teardown must remain fail-closed")
 print("native init payload-binding contract: PASS (tagged native ELF selected; source-level only)")
