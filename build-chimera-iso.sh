@@ -888,7 +888,7 @@ EOF_INIT_VIDEO
     log_info "Embedded exact session dual-brand JPEGs as offline data URIs."
   else
     log_warning "Session dual-brand JPEGs are not staged in the source tree; their Base64 data URIs were not generated."
-    if [[ "${CHIMERA_REQUIRE_SESSION_BRANDING:-0}" == "1" ]]; then
+    if [[ "${CHIMERA_REQUIRE_SESSION_BRANDING:-1}" == "1" ]]; then
       log_error "CHIMERA_REQUIRE_SESSION_BRANDING=1 but one or both exact session JPEGs are missing."
       return 1
     fi
