@@ -837,6 +837,36 @@ EOF_INIT_VIDEO
       "$ROOTFS_DIR/usr/share/chimera/aurora/assets/"
   fi
 
+  # Embed the exact approved wallpaper JPEGs as data URIs for fully offline
+  # desktop startup. The generator verifies the original dimensions and hashes
+  # the bytes; it never resizes or re-encodes the supplied images.
+  local wallpaper_source="$SCRIPT_DIR/desktop/aurora/assets/library"
+  local aurora_wallpaper="$wallpaper_source/aurora-and-mountain.jpg"
+  local marine_wallpaper="$wallpaper_source/octavian-marine-dual-brand.jpg"
+  if [[ -s "$aurora_wallpaper" && -s "$marine_wallpaper" ]]; then
+    local wallpaper_css="$BUILD_DIR/embedded-wallpapers.css"
+    local wallpaper_manifest="$BUILD_DIR/embedded-wallpapers.json"
+    if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
+        --source-dir "$wallpaper_source" --css "$wallpaper_css" \
+        --manifest "$wallpaper_manifest" >"$LOG_DIR/embedded-wallpapers.json.log" 2>&1; then
+      log_error "Embedded wallpaper generation failed; refusing malformed desktop assets."
+      cat "$LOG_DIR/embedded-wallpapers.json.log" >&2
+      return 1
+    fi
+    install -m 0644 "$wallpaper_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.css"
+    install -m 0644 "$wallpaper_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.json"
+    cp -f "$aurora_wallpaper" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/aurora-and-mountain.jpg"
+    cp -f "$marine_wallpaper" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/octavian-marine-dual-brand.jpg"
+    cp -f "$wallpaper_css" "$ISO_DIR/boot/visual/embedded-wallpapers.css"
+    log_info "Embedded original Aurora and Marine wallpapers as offline JPEG data URIs."
+  else
+    log_warning "Exact Aurora/Marine wallpaper JPEG sources are not staged; dark desktop fallback remains active."
+    if [[ "${CHIMERA_REQUIRE_EMBEDDED_WALLPAPERS:-0}" == "1" ]]; then
+      log_error "CHIMERA_REQUIRE_EMBEDDED_WALLPAPERS=1 but exact wallpaper source files are missing."
+      return 1
+    fi
+  fi
+
   # Install the same visual aliases used by desktop, installer, recovery and
   # mobile components so there is one deterministic offline artwork contract.
   if [[ -s "$visual/backgrounds/desktop.png" ]]; then
