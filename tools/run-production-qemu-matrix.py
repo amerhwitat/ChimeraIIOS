@@ -164,7 +164,7 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     monitor_error = ""
     process = None
     try:
-        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, text=True)
         # GRUB's checked-in menu timeout is eight seconds. Navigate the actual
         # ISO menu, not a reconstructed target ISO or probe ELF.
         time.sleep(2.0)
