@@ -252,11 +252,12 @@ def main() -> int:
         "iso_sha256": digest_before,
         "iso_sha256_after": digest_after,
         "cases": results,
-        "production_acceptance": "PASS" if all(x["status"] == "PASS" for x in results) else "BLOCKED",
-        "note": "This report is diagnostic; the unchanged production DAPS verifier and independent persistence/recovery/display/SMP gates remain authoritative.",
+        "target_boot_matrix": "PASS" if all(x["status"] == "PASS" for x in results) else "BLOCKED",
+        "production_acceptance": "NOT ESTABLISHED BY THIS MATRIX",
+        "note": "This report proves only the six exact-ISO target boot traces. The unchanged production DAPS verifier and independent persistence/recovery/display/SMP gates remain authoritative.",
     }
     (output / "matrix-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    return 0 if report["production_acceptance"] == "PASS" else 1
+    return 0 if report["target_boot_matrix"] == "PASS" else 1
 
 
 if __name__ == "__main__":
