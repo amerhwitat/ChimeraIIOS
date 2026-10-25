@@ -30,10 +30,10 @@ int main() {
   bytes[0]='X'; assert(koronos_acpi_madt_parse(bytes,n,&topo)==-3);
   n=make_table(bytes); bytes[9] ^= 1; assert(koronos_acpi_madt_parse(bytes,n,&topo)==-5);
   n=make_table(bytes); bytes[45]=0; assert(koronos_acpi_madt_parse(bytes,n,&topo)==-7);
-  n=make_table(bytes); bytes[45]=7; put32(bytes+48,1); checksum(bytes,n,9);
+  n=make_table(bytes); bytes[55]=2; checksum(bytes,n,9);
   /* Duplicate APIC IDs are rejected and output is cleared on failure. */
   assert(koronos_acpi_madt_parse(bytes,n,&topo)==-9 && topo.count==0);
-  n=make_table(bytes); bytes[45]=7; put32(bytes+48,0); checksum(bytes,n,9);
+  n=make_table(bytes);
   assert(koronos_acpi_madt_parse(bytes,n,&topo)==0);
   n=make_table(bytes); put64(bytes+48,0x100000000ull); /* not used in this layout */
   assert(koronos_acpi_madt_parse(bytes,n,&topo)<0);
