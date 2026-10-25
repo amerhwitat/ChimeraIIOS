@@ -134,6 +134,7 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     case_dir.mkdir(parents=True, exist_ok=True)
     debug_log = case_dir / "qemu-debugcon.raw.log"
     serial_log = case_dir / "qemu-serial.raw.log"
+    stderr_log = case_dir / "qemu-stderr.raw.log"
     trace = case_dir / "raw-trace.log"
     monitor = Path("/tmp") / f"chm-{os.getpid()}-{target}-{firmware}.sock"
     monitor.unlink(missing_ok=True)
@@ -166,8 +167,9 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     qemu_rc: int | None = None
     monitor_error = ""
     process = None
+    stderr_stream = stderr_log.open("w", encoding="utf-8")
     try:
-        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, text=True)
+        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=stderr_stream, text=True)
         # GRUB's checked-in menu timeout is eight seconds. Navigate the actual
         # ISO menu, not a reconstructed target ISO or probe ELF.
         time.sleep(2.0)
@@ -192,9 +194,11 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
             process.kill()
             process.wait()
         monitor.unlink(missing_ok=True)
+        stderr_stream.close()
 
     debug = debug_log.read_text(encoding="utf-8", errors="replace") if debug_log.exists() else ""
     serial = serial_log.read_text(encoding="utf-8", errors="replace") if serial_log.exists() else ""
+    stderr = stderr_log.read_text(encoding="utf-8", errors="replace") if stderr_log.exists() else ""
     combined = (
         f"PRODUCTION ISO SHA-256: {digest}\n"
         f"CASE: target={target} firmware={firmware} qemu_exit={qemu_rc}\n"
@@ -216,6 +220,7 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
         "trace": trace.relative_to(output).as_posix(),
         "serial_log": serial_log.relative_to(output).as_posix(),
         "debugcon_log": debug_log.relative_to(output).as_posix(),
+        "stderr_log": stderr_log.relative_to(output).as_posix(),
     }
 
 
