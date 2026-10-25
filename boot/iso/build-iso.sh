@@ -24,13 +24,13 @@ set -euo pipefail
 validate_artifact() {
     local logfile="$1"; shift
     local rc=0
-    printf '[VALIDATION RUN] command=%s\\n' "$*" | tee -a "$logfile"
+    printf '[VALIDATION RUN] command=%s\n' "$*" | tee -a "$logfile"
     if "$@" 2>&1 | tee -a "$logfile"; then
-        printf '[VALIDATION PASS] exit=0 command=%s\\n' "$*" | tee -a "$logfile"
+        printf '[VALIDATION PASS] exit=0 command=%s\n' "$*" | tee -a "$logfile"
         return 0
     else
         rc=$?
-        printf '[VALIDATION FAIL] exit=%s command=%s\\n' "$rc" "$*" | tee -a "$logfile" >&2
+        printf '[VALIDATION FAIL] exit=%s command=%s\n' "$rc" "$*" | tee -a "$logfile" >&2
         return "$rc"
     fi
 }
