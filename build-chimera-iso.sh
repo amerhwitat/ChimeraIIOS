@@ -43,7 +43,16 @@ chimera_export_docker_rootfs() {
     (( required == 0 || avail >= required )) || { log_error "Insufficient WSL /tmp space: need about $required bytes, have $avail."; return 1; }
     rm -rf -- "$work/export" "$work/rootfs"
     mkdir -p "$work/export" "$work/rootfs"
-    cid="$(docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$owner" "$image") || { log_error "docker create failed: $image"; return 1; }
+    # Avoid nested command-substitution quoting; capture the container ID only after create succeeds.
+    local cid_file="$work/container-id"
+    if ! docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$owner" "$image" > "$cid_file"; then
+        rm -f -- "$cid_file"
+        log_error "docker create failed: $image"
+        return 1
+    fi
+    IFS= read -r cid < "$cid_file"
+    rm -f -- "$cid_file"
+    [[ -n "$cid" ]] || { log_error "docker create returned an empty container ID"; return 1; }
     tarball="$work/export/rootfs.tar"
     log_info "Exporting $image -> $tarball"
     if ! docker export "$cid" -o "$tarball"; then
