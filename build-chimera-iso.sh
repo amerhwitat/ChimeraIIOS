@@ -1058,7 +1058,8 @@ stage_package_managers(){
   local desktop="$SCRIPT_DIR/desktop/aurora/aurora-package-managers.desktop"
   local catalog="$SCRIPT_DIR/appcenter/catalog/package-managers.json"
   local database_catalog="$SCRIPT_DIR/data/registry/databases.json"
-  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog"; do
+  local optional_apps_catalog="$SCRIPT_DIR/desktop/optional_apps_catalog.json"
+  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog" "$optional_apps_catalog"; do
     [[ -s "$f" ]] || { log_error "Package manager payload missing: $f"; return 1; }
   done
   mkdir -p "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/share/chimera/aurora" \
@@ -1069,16 +1070,19 @@ stage_package_managers(){
   install -m 0644 "$panel" "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   install -m 0644 "$desktop" "$ROOTFS_DIR/usr/share/applications/aurora-package-managers.desktop"
   install -m 0644 "$catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json"
+  install -m 0644 "$optional_apps_catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/optional_apps_catalog.json"
   install -m 0644 "$database_catalog" "$ROOTFS_DIR/usr/share/chimera/database/databases.json"
   cp -f "$database_catalog" "$ISO_DIR/system/database/databases.json"
   cp -f "$cli" "$ISO_DIR/system/package-managers/chimera-package-manager.sh"
   cp -f "$panel" "$ISO_DIR/system/desktop/aurora/package_manager_panel.py"
   cp -f "$desktop" "$ISO_DIR/system/desktop/aurora/aurora-package-managers.desktop"
   cp -f "$catalog" "$ISO_DIR/system/appcenter/catalog/package-managers.json"
+  cp -f "$optional_apps_catalog" "$ISO_DIR/system/appcenter/catalog/optional_apps_catalog.json"
   chmod +x "$ROOTFS_DIR/usr/bin/chimera-pkg"
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
+  python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/optional_apps_catalog.json" >/dev/null
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/database/databases.json" >/dev/null
   python3 -m json.tool "$SCRIPT_DIR/desktop/aurora/waybar/config.jsonc" >/dev/null
   python3 -c 'import sys, xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$SCRIPT_DIR/desktop/aurora/labwc/menu.xml"
