@@ -85,9 +85,9 @@ HOST_CXX="${HOST_CXX:-g++}"
 "$BUILD/initramfs-ingest-test"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
-"$CXX" -std=c++20 -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include" -c "$ROOT/kernel/smp/acpi_rsdp.cpp" -o "$BUILD/acpi_rsdp.o"
 CXXFLAGS=(-DKORONOS_SYSTEM_BLOCK_SIZE=$SYSTEM_BLOCK_SIZE -ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
+"$CXX" -std=c++20 -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include" -c "$ROOT/kernel/smp/acpi_rsdp.cpp" -o "$BUILD/acpi_rsdp.o"
 
 sources=(acpi_madt block_device iso9660 koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator address_space swap swap_block_device initramfs_cpio gzip initramfs_ingest ramfs vfs tmpfs target_launch)
 for src in "${sources[@]}"; do
