@@ -55,6 +55,7 @@ jobs:
         run: |
           python3 -m py_compile tools/release/verify-production-daps.py
           python3 tools/tests/test_production_daps_contract.py
+          python3 tools/tests/test_container_publish_gate.py
       - name: Verify evidence source run completed successfully
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
