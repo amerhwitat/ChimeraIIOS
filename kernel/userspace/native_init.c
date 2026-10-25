@@ -77,7 +77,41 @@ static int vfs_selftest(void) {
       return -5;
     }
   }
-  return call1(18, fd) == 0 ? 0 : -6;
+  if (call1(18, fd) != 0) return -6;
+
+  /* Re-open with O_TRUNC and prove that the old bytes are no longer readable. */
+  const long truncated_fd = call2(17, (long)path, 0x0402L); /* O_TRUNC|O_RDWR */
+  if (truncated_fd < 3) return -7;
+  if (call3(8, truncated_fd, (long)observed, 1) != 0) {
+    (void)call1(18, truncated_fd);
+    return -8;
+  }
+  return call1(18, truncated_fd) == 0 ? 0 : -9;
+}
+static int os_release_selftest(void) {
+  static const char path[] = "/etc/os-release";
+  static const char name_prefix[] = "NAME=";
+  static const char id_prefix[] = "ID=";
+  char observed[512];
+  const long fd = open_readonly(path);
+  if (fd < 3) return -1;
+  const long count = call3(8, fd, (long)observed, (long)sizeof(observed));
+  const long close_rc = call1(18, fd);
+  if (count <= 0 || count > (long)sizeof(observed) || close_rc != 0) return -2;
+  int identity_found = 0;
+  for (long i = 0; i < count; ++i) {
+    if (i + (long)(sizeof(name_prefix) - 1u) <= count) {
+      size_t j = 0;
+      while (j < sizeof(name_prefix) - 1u && observed[i + (long)j] == name_prefix[j]) ++j;
+      if (j == sizeof(name_prefix) - 1u) identity_found = 1;
+    }
+    if (i + (long)(sizeof(id_prefix) - 1u) <= count) {
+      size_t j = 0;
+      while (j < sizeof(id_prefix) - 1u && observed[i + (long)j] == id_prefix[j]) ++j;
+      if (j == sizeof(id_prefix) - 1u) identity_found = 1;
+    }
+  }
+  return identity_found ? 0 : -3;
 }
 static long write_console(const char *p, long n) {
   register long rax __asm__("rax") = 9;
@@ -123,7 +157,16 @@ __attribute__((noreturn, used)) void _start(void) {
     call1(1, 78);
   }
   static const char vfs_passed[] = "NATIVE INIT VFS SELFTEST PASS: create/write/seek/read/close verified.\n";
+  static const char tmpfs_passed[] = "USERSPACE TMPFS MUTATION PASS: CREATE WRITE READ TRUNCATE\n";
   if (write_console(vfs_passed, (long)(sizeof(vfs_passed)-1)) < 0) call1(1, 78);
+  if (write_console(tmpfs_passed, (long)(sizeof(tmpfs_passed)-1)) < 0) call1(1, 78);
+  if (os_release_selftest() != 0) {
+    static const char os_release_failed[] = "USERSPACE ROOTFS FILE SELFTEST FAIL: /etc/os-release OPEN READ CLOSE\n";
+    (void)write_console(os_release_failed, (long)(sizeof(os_release_failed)-1));
+    call1(1, 78);
+  }
+  static const char os_release_passed[] = "USERSPACE ROOTFS FILE SELFTEST PASS: /etc/os-release OPEN READ CLOSE\n";
+  if (write_console(os_release_passed, (long)(sizeof(os_release_passed)-1)) < 0) call1(1, 78);
   if (write_console(component_prefix, (long)(sizeof(component_prefix)-1)) < 0) call1(1, 78);
   const long gui_fd = open_readonly(CHIMERA_GUI_ENTRYPOINT);
   if (gui_fd < 0) {
