@@ -30,7 +30,7 @@ class ProgressBridgeContract(unittest.TestCase):
     def test_desktop_progress_requires_real_wayland_and_compositor_health(self):
         desktop = (ROOT / "desktop/aurora/aurora-desktop-init.sh").read_text()
         self.assertIn("wayland_socket_ready", desktop)
-        self.assertIn('PROGRESS_STATE="$XDG_RUNTIME_DIR/chimera/koronos-progress.state"', desktop) if "PROGRESS_STATE=\"$XDG_RUNTIME_DIR/chimera/koronos-progress.state\"" in desktop else self.assertIn('PROGRESS_STATE="$XDG_RUNTIME_DIR/chimera/koronos-progress.state"', desktop)
+        self.assertIn('PROGRESS_STATE="$XDG_RUNTIME_DIR/chimera/koronos-progress.state"', desktop)
         self.assertIn("compositor_process_alive", desktop)
         self.assertIn('progress_set 100 aurora-session "Aurora desktop session initialized;', desktop)
         self.assertIn("refusing to report desktop readiness", desktop)
