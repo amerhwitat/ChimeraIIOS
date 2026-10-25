@@ -37,6 +37,7 @@ class NativeInitRuntimeContract(unittest.TestCase):
         self.assertIn('> "$REC/etc/os-release"', self.builder)
         self.assertIn("NAME=ChimeraIIOS", self.builder)
         self.assertIn("NAME=ChimeraIIOS Recovery", self.builder)
+        self.assertLess(self.builder.index('cp -a "$INIT/." "$REC/"'), self.builder.index("NAME=ChimeraIIOS Recovery"))
 
 
 if __name__ == "__main__":
