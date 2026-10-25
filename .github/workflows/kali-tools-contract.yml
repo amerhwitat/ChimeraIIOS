@@ -34,6 +34,7 @@ jobs:
         run: |
           python -m py_compile tools/kali/chimera-kali tools/kali/test_chimera_kali.py tools/wallpapers/embed_wallpapers.py tools/wallpapers/test_embed_wallpapers.py
           python tools/kali/test_chimera_kali.py -v
+          python tools/wallpapers/test_embed_wallpapers.py -v
           python -m json.tool tools/kali/kali_tool_catalog.json >/dev/null
           python -m json.tool system/security/kali_tools_catalog.json >/dev/null
           python -m json.tool system/security/kali_integration_policy.json >/dev/null
