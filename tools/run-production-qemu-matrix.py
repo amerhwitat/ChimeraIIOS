@@ -109,6 +109,13 @@ def target_marker_errors(target: str, text: str) -> list[str]:
         errors.append("syscall PID and target-readiness PID differ")
     if syscall and target_ready and syscall.start() >= target_ready.start():
         errors.append("syscall acknowledgement does not precede target readiness")
+    expected_mount = (
+        f"USERSPACE ROOTFS MOUNTED: target={target}"
+        if target in ("live", "recovery")
+        else "USERSPACE INSTALLER STORAGE ROOT MOUNTED: target=installer"
+    )
+    if expected_mount not in text:
+        errors.append("target-specific process-visible root namespace mount evidence missing")
     if "NATIVE INIT VFS SELFTEST PASS" not in text:
         errors.append("kernel-backed VFS self-test marker missing")
     if "USERSPACE ROOTFS FILE SELFTEST PASS: /etc/os-release OPEN READ CLOSE" not in text:
@@ -141,7 +148,7 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     if firmware == "uefi":
         if pair is None:
             trace.write_text(f"PRODUCTION ISO SHA-256: {digest}\nCASE: {case_id}\nOVMF code/vars pair unavailable\n")
-            return {"case": case_id, "status": "BLOCKED", "errors": ["matching OVMF code/vars pair unavailable"], "trace": str(trace)}
+            return {"case": case_id, "status": "BLOCKED", "errors": ["matching OVMF code/vars pair unavailable"], "trace": trace.relative_to(output).as_posix()}
         code, vars_template = pair
         vars_copy = case_dir / "OVMF_VARS.fd"
         shutil.copyfile(vars_template, vars_copy)
@@ -205,9 +212,9 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
         "errors": errors,
         "qemu_exit": qemu_rc,
         "iso_sha256": digest,
-        "trace": str(trace),
-        "serial_log": str(serial_log),
-        "debugcon_log": str(debug_log),
+        "trace": trace.relative_to(output).as_posix(),
+        "serial_log": serial_log.relative_to(output).as_posix(),
+        "debugcon_log": debug_log.relative_to(output).as_posix(),
     }
 
 
