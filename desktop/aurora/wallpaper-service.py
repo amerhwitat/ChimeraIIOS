@@ -11,5 +11,5 @@ def main():
         except Exception:pass
     # Provider adapters populate approved image URLs and attribution metadata.
     # This daemon deliberately does not scrape arbitrary sites.
-    STATE.write_text(json.dumps({"timestamp":time.time(),"config":data},indent=2))
+    STATE.write_text(json.dumps({"timestamp":time.time(),"config":data,"offline_defaults":data.get("offline_defaults",{}),"embedded_css":"/usr/share/chimera/aurora/assets/embedded-wallpapers.css","remote_sources_opt_in":bool(data.get("remote_sources_opt_in",True))},indent=2))
 if __name__=="__main__": main()
