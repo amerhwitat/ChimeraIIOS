@@ -44,6 +44,7 @@ static chimera_ramfs_node *published_rootfs = nullptr;
 static void *ramfs_frame_alloc(uint64_t bytes, void *context);
 static void ramfs_frame_free(void *ptr, void *context);
 extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_progress_event(uint32_t percent, const char *phase, const char *message);
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -372,6 +373,7 @@ extern "C" uint32_t koronos_target_note_native_syscall(uint64_t user_rip) {
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
         log_user_init_syscall(static_cast<Target>(active_target), pid);
+        koronos_progress_event(95u, "userspace", "Ring-3 process issued a verified syscall");
     }
     return pid;
 }
@@ -402,6 +404,7 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
         log_user_init_syscall(static_cast<Target>(active_target), pid);
+        koronos_progress_event(95u, "userspace", "Ring-3 process issued a verified syscall");
     }
     return pid;
 }
@@ -414,6 +417,10 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
     if (syscall_ack_seen && active_pid &&
         target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
         ready_seen=1;
+        if (active_ring3_probe)
+            koronos_progress_event(97u, "userspace-probe", "Ring-3 probe marker observed; production desktop readiness not implied");
+        else
+            koronos_progress_event(100u, "userspace-ready", "Target-specific userspace readiness marker verified");
         return 1;
     }
     return 0;
@@ -489,6 +496,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+    koronos_progress_event(82u, "userspace", "Selected target payload identified");
 
     /* Bind the executable init to the independently classified production
        payload. A target=live ELF must not run with an installer/recovery
@@ -625,6 +633,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
             return -15;
         }
         __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
+        koronos_progress_event(90u, "userspace", "Read-only root and writable /tmp mounted");
         koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file mutation syscalls enabled");
         if (target == TARGET_LIVE)
             koronos_target_log("USERSPACE ROOTFS MOUNTED: target=live root=read-only tmpfs=/tmp");
@@ -698,6 +707,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     syscall_ack_seen=0;
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
+    koronos_progress_event(92u, "userspace", "Native process admitted and execution context prepared");
     // 100 Hz PIT deadline: 1,000 ticks gives user init ten seconds to return
     // and emit readiness. This is enforced by IRQ0 inside the kernel, not by
     // the outer QEMU test timeout.
