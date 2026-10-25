@@ -174,8 +174,11 @@ if [[ -s "$SESSION_WALLPAPER_A" && -s "$SESSION_WALLPAPER_B" ]]; then
   done
   mkdir -p "$STAGE/boot/visual"
   install -m 0644 "$SESSION_BRANDING_CSS" "$STAGE/boot/visual/dual-os-brand-wallpapers.css"
+  mkdir -p "$STAGE/desktop/aurora/assets/library" "$STAGE/system/desktop/aurora/assets/library"
   install -m 0644 "$SESSION_WALLPAPER_A" "$STAGE/desktop/aurora/assets/library/Duck-ai-image-2026-10-18-07-06(1).jpeg"
   install -m 0644 "$SESSION_WALLPAPER_B" "$STAGE/desktop/aurora/assets/library/Duck-ai-image-2026-10-18-06-36.jpeg"
+  install -m 0644 "$SESSION_WALLPAPER_A" "$STAGE/system/desktop/aurora/assets/library/Duck-ai-image-2026-10-18-07-06(1).jpeg"
+  install -m 0644 "$SESSION_WALLPAPER_B" "$STAGE/system/desktop/aurora/assets/library/Duck-ai-image-2026-10-18-06-36.jpeg"
   echo "Embedded original session dual-brand JPEGs as offline data URIs."
 elif [[ "${CHIMERA_REQUIRE_SESSION_BRANDING:-1}" == "1" ]]; then
   echo "ERROR: exact session JPEGs are missing; refusing a production ISO without the original offline data URIs." >&2
