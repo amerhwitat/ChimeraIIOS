@@ -46,6 +46,15 @@ static long call3(long number, long a, long b, long c) {
 #else
 #error "Unknown CHIMERA_INIT_TARGET"
 #endif
+__attribute__((noreturn)) static void fail_closed(long code) {
+  (void)call1(1, code);
+  /* EXIT must not fall through if process teardown is unavailable. Yield if
+     possible so the fail-closed process cannot monopolize a CPU. */
+  for (;;) {
+    (void)call0(3);
+    __asm__ volatile("pause" ::: "memory");
+  }
+}
 static long open_readonly(const char *path) {
   register long number __asm__("rax") = 17;
   register const char *pathname __asm__("rdi") = path;
@@ -133,10 +142,10 @@ static void write_pid_diagnostic(long pid) {
     reversed[digits++] = (char)('0' + (value % 10u));
     value /= 10u;
   }
-  if (digits == 0 || used + digits + 1u > sizeof(message)) call1(1, 78);
+  if (digits == 0 || used + digits + 1u > sizeof(message)) fail_closed(78);
   while (digits) message[used++] = reversed[--digits];
   message[used++] = '\n';
-  if (write_console(message, (long)used) < 0) call1(1, 78);
+  if (write_console(message, (long)used) < 0) fail_closed(78);
 }
 __attribute__((noreturn, used)) void _start(void) {
   static const char started[] = "NATIVE INIT STARTED: " CHIMERA_INIT_TARGET_NAME "\n";
@@ -148,36 +157,36 @@ __attribute__((noreturn, used)) void _start(void) {
      from the kernel-owned process record and may never be fabricated. */
   __asm__ volatile("int $0x80" ::: "memory");
   long pid = call0(2);
-  if (pid <= 0) call1(1, 78);
-  if (write_console(started, (long)(sizeof(started)-1)) < 0) call1(1, 78);
+  if (pid <= 0) fail_closed(78);
+  if (write_console(started, (long)(sizeof(started)-1)) < 0) fail_closed(78);
   write_pid_diagnostic(pid);
   if (vfs_selftest() != 0) {
     static const char vfs_failed[] = "NATIVE INIT VFS SELFTEST FAIL: rootfs/tmpfs syscall contract unavailable.\n";
     (void)write_console(vfs_failed, (long)(sizeof(vfs_failed)-1));
-    call1(1, 78);
+    fail_closed(78);
   }
   static const char vfs_passed[] = "NATIVE INIT VFS SELFTEST PASS: create/write/seek/read/close verified.\n";
   static const char tmpfs_passed[] = "USERSPACE TMPFS MUTATION PASS: CREATE WRITE READ TRUNCATE\n";
-  if (write_console(vfs_passed, (long)(sizeof(vfs_passed)-1)) < 0) call1(1, 78);
-  if (write_console(tmpfs_passed, (long)(sizeof(tmpfs_passed)-1)) < 0) call1(1, 78);
+  if (write_console(vfs_passed, (long)(sizeof(vfs_passed)-1)) < 0) fail_closed(78);
+  if (write_console(tmpfs_passed, (long)(sizeof(tmpfs_passed)-1)) < 0) fail_closed(78);
   if (os_release_selftest() != 0) {
     static const char os_release_failed[] = "USERSPACE ROOTFS FILE SELFTEST FAIL: /etc/os-release OPEN READ CLOSE\n";
     (void)write_console(os_release_failed, (long)(sizeof(os_release_failed)-1));
-    call1(1, 78);
+    fail_closed(78);
   }
   static const char os_release_passed[] = "USERSPACE ROOTFS FILE SELFTEST PASS: /etc/os-release OPEN READ CLOSE\n";
-  if (write_console(os_release_passed, (long)(sizeof(os_release_passed)-1)) < 0) call1(1, 78);
-  if (write_console(component_prefix, (long)(sizeof(component_prefix)-1)) < 0) call1(1, 78);
+  if (write_console(os_release_passed, (long)(sizeof(os_release_passed)-1)) < 0) fail_closed(78);
+  if (write_console(component_prefix, (long)(sizeof(component_prefix)-1)) < 0) fail_closed(78);
   const long gui_fd = open_readonly(CHIMERA_GUI_ENTRYPOINT);
   if (gui_fd < 0) {
-    if (write_console(component_missing, (long)(sizeof(component_missing)-1)) < 0) call1(1, 78);
-    call1(1, 78);
+    if (write_console(component_missing, (long)(sizeof(component_missing)-1)) < 0) fail_closed(78);
+    fail_closed(78);
   }
   (void)call1(18, gui_fd);
-  if (write_console(component_unlaunchable, (long)(sizeof(component_unlaunchable)-1)) < 0) call1(1, 78);
-  if (write_console(blocked, (long)(sizeof(blocked)-1)) < 0) call1(1, 78);
+  if (write_console(component_unlaunchable, (long)(sizeof(component_unlaunchable)-1)) < 0) fail_closed(78);
+  if (write_console(blocked, (long)(sizeof(blocked)-1)) < 0) fail_closed(78);
   /* Exit 78 is an explicit unavailable-service result, not readiness. The
      production release gate must remain red until these services exist. */
-  call1(1, 78);
+  fail_closed(78);
   for (;;) __asm__ volatile("pause" ::: "memory");
 }
