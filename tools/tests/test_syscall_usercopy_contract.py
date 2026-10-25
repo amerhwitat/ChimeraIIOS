@@ -59,6 +59,9 @@ class SyscallUserCopyContract(unittest.TestCase):
         builder = (ROOT / "build-chimera-iso.sh").read_text()
         embedder = (ROOT / "tools/wallpapers/embed_wallpapers.py").read_text()
         self.assertIn('CHIMERA_REQUIRE_SESSION_BRANDING:-1', builder)
+        full_builder = (ROOT / "tools/build-full-iso.sh").read_text()
+        self.assertIn("--session-branding", full_builder)
+        self.assertIn("CHIMERA_REQUIRE_SESSION_BRANDING:-1", full_builder)
         self.assertIn('expected_sha256', embedder)
         self.assertIn('SHA-256 mismatch', embedder)
 
