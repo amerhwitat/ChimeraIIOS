@@ -615,6 +615,10 @@ static bool address_space_self_test() {
              koronos_address_space_validate_user_range(space->root_physical,
                  KORONOS_USER_VIRTUAL_MIN, 1u, 1u) != 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 2u) != 0 &&
+             koronos_address_space_validate_user_range(0u,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 0u) != 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
                  0x00007FFFFFFFE000ull, 1u, 1u) == 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
                  0x00100000ull, 1u, 0u) != 0 &&
@@ -683,7 +687,8 @@ extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
                                                         uint64_t address, uint64_t length,
                                                         uint32_t write_access) {
     if (length == 0) return 0;
-    if (address < KORONOS_USER_VIRTUAL_MIN || address >= CHIMERA_ELF_USER_LIMIT ||
+    if (write_access > 1u || root_physical == 0u || (root_physical & PAGE_MASK) != 0u ||
+        address < KORONOS_USER_VIRTUAL_MIN || address >= CHIMERA_ELF_USER_LIMIT ||
         length > CHIMERA_ELF_USER_LIMIT - address) return -1;
     const uint64_t end = address + length;
     uint64_t page = address & ~PAGE_MASK;
