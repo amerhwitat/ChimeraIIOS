@@ -148,7 +148,7 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     if firmware == "uefi":
         if pair is None:
             trace.write_text(f"PRODUCTION ISO SHA-256: {digest}\nCASE: {case_id}\nOVMF code/vars pair unavailable\n")
-            return {"case": case_id, "status": "BLOCKED", "errors": ["matching OVMF code/vars pair unavailable"], "trace": trace.relative_to(output).as_posix()}
+            return {"case": case_id, "status": "BLOCKED", "qemu_started": False, "errors": ["matching OVMF code/vars pair unavailable"], "trace": trace.relative_to(output).as_posix()}
         code, vars_template = pair
         vars_copy = case_dir / "OVMF_VARS.fd"
         shutil.copyfile(vars_template, vars_copy)
@@ -209,6 +209,7 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     return {
         "case": case_id,
         "status": "PASS" if not errors else "BLOCKED",
+        "qemu_started": process is not None,
         "errors": errors,
         "qemu_exit": qemu_rc,
         "iso_sha256": digest,
