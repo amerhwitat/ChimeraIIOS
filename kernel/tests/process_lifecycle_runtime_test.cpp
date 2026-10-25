@@ -32,8 +32,10 @@ int main() {
         assert(chimera_process_count()==1);
         assert(chimera_process_mark_resources_released((uint32_t)pid)==-4);
         assert(chimera_process_reap((uint32_t)pid)==-4);
+        assert(chimera_process_set_state((uint32_t)pid,CHIMERA_PROCESS_RUNNING)==0);
         const chimera_process_state terminal=(i%2u)==0u ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED;
         assert(chimera_process_set_state((uint32_t)pid,terminal)==0);
+        assert(chimera_process_set_state((uint32_t)pid,CHIMERA_PROCESS_RUNNING)==-4);
         assert(chimera_process_reap((uint32_t)pid)==-6);
         assert(chimera_process_mark_resources_released((uint32_t)pid)==0);
         assert(chimera_process_reap((uint32_t)pid)==0);
