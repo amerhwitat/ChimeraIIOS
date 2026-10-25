@@ -14,7 +14,10 @@ def main() -> int:
     text = SCRIPT.read_text(encoding="utf-8")
     required = (
         'CHIMERA_PUSH="${CHIMERA_PUSH:-0}"',
+        "CHIMERA_BUILD_ID",
         "label=chimera.rootfs.export=true",
+        "chimera.rootfs.owner=$CHIMERA_BUILD_ID",
+        "chimera.rootfs.owner=$owner",
         'docker create --label chimera.rootfs.export=true --name "$cname"',
         'find "$ROOTFS_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +',
         '[[ -n "$daps_verifier" && -f "$daps_verifier" ]]',
@@ -27,6 +30,9 @@ def main() -> int:
         if token not in text:
             print(f"BUILD CLEANUP FAIL: missing safety contract: {token}", file=sys.stderr)
             return 1
+    if "--filter 'label=chimera.rootfs.export=true'" in text:
+        print("BUILD CLEANUP FAIL: global exporter-container deletion is forbidden", file=sys.stderr)
+        return 1
     if "docker container prune -f" in text:
         print("BUILD CLEANUP FAIL: global container prune is forbidden", file=sys.stderr)
         return 1
