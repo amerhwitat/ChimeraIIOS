@@ -19,6 +19,7 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         trace = """[KRN ] KORONOS READY
 USER INIT SYSCALL: target=live init_pid=12
 NATIVE INIT PID: target=live pid=12
+USERSPACE ROOTFS MOUNTED: target=live root=read-only tmpfs=/tmp
 NATIVE INIT VFS SELFTEST PASS: create/write/seek/read/close verified
 USERSPACE ROOTFS FILE SELFTEST PASS: /etc/os-release OPEN READ CLOSE
 USERSPACE TMPFS MUTATION PASS: CREATE WRITE READ TRUNCATE
