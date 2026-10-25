@@ -24,6 +24,8 @@ def validate_elf(data: bytes, target: str) -> dict:
         raise ELFValidationError(f"ELF class {elf_class} does not match {target}")
     if encoding not in (1, 2):
         raise ELFValidationError("invalid ELF data encoding")
+    if encoding != 1:
+        raise ELFValidationError(f"big-endian ELF is not accepted for the {target} little-endian profile")
     if version != 1:
         raise ELFValidationError("unsupported ELF identification version")
     endian = "<" if encoding == 1 else ">"
@@ -65,8 +67,9 @@ def validate_elf(data: bytes, target: str) -> dict:
             raise ELFValidationError(f"PT_LOAD[{index}] alignment is not a power of two")
         if p_align > 1 and p_offset % p_align != p_vaddr % p_align:
             raise ELFValidationError(f"PT_LOAD[{index}] offset/vaddr alignment incongruent")
-        if p_memsz and p_vaddr + p_memsz < p_vaddr:
-            raise ELFValidationError(f"PT_LOAD[{index}] address range overflows")
+        max_address = (1 << (64 if is64 else 32)) - 1
+        if p_memsz and p_vaddr > max_address - p_memsz:
+            raise ELFValidationError(f"PT_LOAD[{index}] address range overflows target address width")
         if p_memsz:
             loads.append((p_vaddr, p_vaddr + p_memsz, index))
     if not loads:
