@@ -18,7 +18,7 @@ def main() -> int:
         "label=chimera.rootfs.export=true",
         "chimera.rootfs.owner=$CHIMERA_BUILD_ID",
         "chimera.rootfs.owner=$owner",
-        'docker create --label chimera.rootfs.export=true --name "$cname"',
+        'docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$CHIMERA_BUILD_ID" --name "$cname"',
         'find "$ROOTFS_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +',
         '[[ -n "$daps_verifier" && -f "$daps_verifier" ]]',
         '[[ -n "$daps_evidence" && -f "$daps_evidence" ]]',
