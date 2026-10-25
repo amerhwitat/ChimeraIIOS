@@ -1,4 +1,5 @@
 #include "../include/chimera/process.h"
+#include "../include/chimera/task_context.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
