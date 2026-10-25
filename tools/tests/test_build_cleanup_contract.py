@@ -15,7 +15,7 @@ def main() -> int:
     required = (
         'CHIMERA_PUSH="${CHIMERA_PUSH:-0}"',
         "CHIMERA_BUILD_ID",
-        "label=chimera.rootfs.export=true",
+        "--label chimera.rootfs.export=true",
         "chimera.rootfs.owner=$CHIMERA_BUILD_ID",
         "chimera.rootfs.owner=$owner",
         'docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$CHIMERA_BUILD_ID" --name "$cname"',
