@@ -10,6 +10,11 @@ target_marker_errors = MATRIX["target_marker_errors"]
 
 
 class ProductionQemuMatrixContract(unittest.TestCase):
+    def test_matrix_never_claims_full_production_acceptance(self):
+        source = (ROOT / "tools/run-production-qemu-matrix.py").read_text()
+        self.assertIn('"production_acceptance": "NOT ESTABLISHED BY THIS MATRIX"', source)
+        self.assertIn('"target_boot_matrix":', source)
+
     def test_matching_real_runtime_markers_are_accepted_by_parser(self):
         trace = """[KRN ] KORONOS READY
 USER INIT SYSCALL: target=live init_pid=12
