@@ -26,6 +26,7 @@ class UserCopyBoundaryContract(unittest.TestCase):
 
     def test_copy_primitives_validate_bounds_pin_validate_and_unpin(self):
         self.assertIn("length - 1u > UINT64_MAX - address", self.launch)
+        self.assertIn('__asm__ volatile("mov %%cr3, %0" : "=r"(current_cr3))', self.launch)
         for function in ("koronos_target_copy_from_user", "koronos_target_copy_to_user"):
             start = self.launch.index('extern "C" int ' + function)
             end = self.launch.find('\nextern "C" int ', start + 1)
@@ -37,6 +38,7 @@ class UserCopyBoundaryContract(unittest.TestCase):
             self.assertIn("koronos_address_space_pin", body)
             self.assertIn("koronos_address_space_validate_user_range", body)
             self.assertIn("koronos_address_space_unpin", body)
+            self.assertIn("active_cr3_matches_root()", body)
 
     def test_filesystem_backends_receive_kernel_owned_staging(self):
         self.assertIn("chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count)", self.launch)
