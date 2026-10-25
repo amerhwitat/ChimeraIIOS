@@ -72,6 +72,38 @@ class UserCopyBoundaryContract(unittest.TestCase):
         self.assertIn("koronos_target_fs_write(fd, address, length)", self.syscall)
         self.assertIn("if (length > 4096u)", self.syscall)
 
+    def test_every_user_pointer_path_uses_the_shared_process_bound_copy(self):
+        # OPEN consumes a path; READ writes to user memory; WRITE reads from it.
+        open_start = self.launch.index('extern "C" int64_t koronos_target_fs_open')
+        read_start = self.launch.index('extern "C" int64_t koronos_target_fs_read')
+        write_start = self.launch.index('extern "C" int64_t koronos_target_fs_write')
+        close_start = self.launch.index('extern "C" int64_t koronos_target_fs_close')
+        open_body = self.launch[open_start:read_start]
+        read_body = self.launch[read_start:write_start]
+        write_body = self.launch[write_start:close_start]
+        self.assertIn("copy_target_user_path(user_path, path)", open_body)
+        self.assertIn("koronos_target_copy_to_user(user_buffer, kernel_buffer", read_body)
+        self.assertIn("koronos_target_copy_from_user(kernel_buffer, user_buffer, count)", write_body)
+        for body in (open_body, read_body, write_body):
+            self.assertIn("active_pid", body)
+        self.assertNotIn("reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer))", read_body)
+        self.assertNotIn("reinterpret_cast<const void *>(static_cast<uintptr_t>(user_buffer))", write_body)
+
+    def test_address_space_range_check_uses_process_root_and_checks_each_page(self):
+        start = self.address_space.index('extern "C" int koronos_address_space_validate_user_range')
+        end = self.address_space.index('extern "C" int koronos_address_space_register_tlb_shootdown', start)
+        body = self.address_space[start:end]
+        self.assertIn("root_physical == 0u", body)
+        self.assertIn("length > CHIMERA_ELF_USER_LIMIT - address", body)
+        self.assertIn("while (page < end)", body)
+        self.assertIn("user_page_access(root_physical, page, write_access != 0)", body)
+        pin_start = self.address_space.index('extern "C" int koronos_address_space_pin')
+        pin_end = self.address_space.index('extern "C" int koronos_address_space_unpin', pin_start)
+        pin_body = self.address_space[pin_start:pin_end]
+        self.assertIn("meta->pins == UINT16_MAX", pin_body)
+        self.assertIn("(write_access && !(*pte & ENTRY_WRITE))", pin_body)
+        self.assertIn("++meta->pins", pin_body)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
