@@ -24,6 +24,10 @@ static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
 static void *active_address_space = nullptr;
+/* Address spaces whose rollback teardown failed stay explicitly quarantined.
+   They are never treated as released or silently discarded. */
+static void *rollback_quarantined_address_space = nullptr;
+static uint32_t rollback_quarantined_pid = 0;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 /* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
@@ -617,11 +621,20 @@ extern "C" int koronos_launch_selected_userspace(void) {
         KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
     if (load_rc!=0) {
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
-        /* -17 means rollback teardown itself failed; retain the record rather
-           than pretending its address-space resources were released. */
-        if (load_rc != -17 &&
-            chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0)
+        /* -17 returns the still-owned address-space handle. Quarantine it and
+           keep the process record unreaped until teardown is independently
+           proven; never drop the only reference to partially mapped tables. */
+        if (load_rc == -17) {
+            if (!loaded.address_space || rollback_quarantined_address_space) {
+                koronos_target_log("[RUN ] FATAL: rollback failed and quarantine capacity/handle invariant failed");
+                return -18;
+            }
+            rollback_quarantined_address_space = loaded.address_space;
+            rollback_quarantined_pid = static_cast<uint32_t>(pid);
+            koronos_target_log("[RUN ] ERROR: ELF rollback teardown failed; address space quarantined and PID retained");
+        } else if (chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0) {
             (void)chimera_process_reap(static_cast<uint32_t>(pid));
+        }
         koronos_target_log("[RUN ] ERROR: selected user init ELF load failed or rollback was incomplete");
         return -6;
     }
