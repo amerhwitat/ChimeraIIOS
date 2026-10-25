@@ -216,24 +216,55 @@ extern "C" void *koronos_target_active_address_space(void) {
     return active_target != TARGET_NONE ? active_address_space : nullptr;
 }
 
-/* Read-only process-owned descriptors bridge the validated RAMFS root to ring 3.
-   User addresses are validated against the active process's own CR3 before any
-   dereference. Writes to regular files remain unsupported (EROFS) until RAMFS
-   has transactional mutation semantics. */
+/* x86-64 currently exposes only the lower canonical user half. Check
+   arithmetic before pinning; the address-space backend then checks mappings
+   and per-page read/write permissions against the active process root. */
+constexpr uint64_t USER_ADDRESS_LIMIT = 0x0000800000000000ull;
+static bool user_range_bounds_valid(uint64_t address, uint64_t length) {
+    if (!length) return true;
+    if (!address || address >= USER_ADDRESS_LIMIT) return false;
+    if (length - 1u > UINT64_MAX - address) return false;
+    return address + length - 1u < USER_ADDRESS_LIMIT;
+}
+static int copy_from_user(void *destination, uint64_t source, uint64_t length) {
+    if ((!destination && length) || !active_root || !active_address_space) return -14;
+    if (!length) return 0;
+    if (!user_range_bounds_valid(source, length)) return -14;
+    if (koronos_address_space_pin(active_address_space, source, length, 0u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, source, length, 0u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, source, length);
+        return -14;
+    }
+    auto *out = static_cast<uint8_t *>(destination);
+    const auto *in = reinterpret_cast<const volatile uint8_t *>(static_cast<uintptr_t>(source));
+    for (uint64_t i = 0; i < length; ++i) out[i] = in[i];
+    return koronos_address_space_unpin(active_address_space, source, length) == 0 ? 0 : -14;
+}
+static int copy_to_user(uint64_t destination, const void *source, uint64_t length) {
+    if ((!source && length) || !active_root || !active_address_space) return -14;
+    if (!length) return 0;
+    if (!user_range_bounds_valid(destination, length)) return -14;
+    if (koronos_address_space_pin(active_address_space, destination, length, 1u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, destination, length, 1u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, destination, length);
+        return -14;
+    }
+    auto *out = reinterpret_cast<volatile uint8_t *>(static_cast<uintptr_t>(destination));
+    const auto *in = static_cast<const uint8_t *>(source);
+    for (uint64_t i = 0; i < length; ++i) out[i] = in[i];
+    return koronos_address_space_unpin(active_address_space, destination, length) == 0 ? 0 : -14;
+}
+/* Process-owned descriptors bridge the validated RAMFS root to ring 3. Filesystem
+   backends receive kernel-owned buffers only; regular-file writes remain
+   unsupported until RAMFS has transactional mutation semantics. */
 static int copy_target_user_path(uint64_t user_path, char path[CHIMERA_VFS_MAX_PATH + 1u]) {
     if (!active_root || !user_path) return -14;
     uint32_t length = 0;
     for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
         if (user_path > UINT64_MAX - length) return -14;
-        if (koronos_address_space_pin(active_address_space, user_path + length, 1u, 0u) != 0)
-            return -14;
-        if (koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0) {
-            (void)koronos_address_space_unpin(active_address_space, user_path + length, 1u);
-            return -14;
-        }
-        const char c = *reinterpret_cast<const volatile char *>(static_cast<uintptr_t>(user_path + length));
-        if (koronos_address_space_unpin(active_address_space, user_path + length, 1u) != 0)
-            return -14;
+        char c = 0;
+        const int rc = copy_from_user(&c, user_path + length, 1u);
+        if (rc != 0) return rc;
         path[length] = c;
         if (!c) break;
     }
@@ -255,13 +286,13 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
-    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0) {
-        (void)koronos_address_space_unpin(active_address_space, user_buffer, count); return -14;
-    }
-    const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd),
-        reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count);
-    if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+    if (!user_range_bounds_valid(user_buffer, count)) return -14;
+    uint8_t kernel_buffer[4096];
+    const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count);
+    if (result < 0) return result;
+    if (static_cast<uint64_t>(result) > count) return -5;
+    if (result > 0 && copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0)
+        return -14;
     return result;
 }
 extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count) {
@@ -269,14 +300,10 @@ extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, ui
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_pin(active_address_space, user_buffer, count, 0u) != 0) return -14;
-    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0) {
-        (void)koronos_address_space_unpin(active_address_space, user_buffer, count); return -14;
-    }
-    const int64_t result = chimera_vfs_write(pid, static_cast<int64_t>(fd),
-        reinterpret_cast<const void *>(static_cast<uintptr_t>(user_buffer)), count);
-    if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
-    return result;
+    if (!user_range_bounds_valid(user_buffer, count)) return -14;
+    uint8_t kernel_buffer[4096];
+    if (copy_from_user(kernel_buffer, user_buffer, count) != 0) return -14;
+    return chimera_vfs_write(pid, static_cast<int64_t>(fd), kernel_buffer, count);
 }
 extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
     const uint32_t pid = koronos_target_active_pid();
