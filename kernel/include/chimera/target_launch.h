@@ -9,6 +9,10 @@ extern "C" {
    ELF was selected or when the selected init exited after its own readiness
    handshake; negative values describe an explicit launch/acceptance failure. */
 int koronos_launch_selected_userspace(void);
+/* Return the quarantined PID (0 if none); retry returns 0 only after complete
+   address-space teardown, resource-release bookkeeping and process reaping. */
+uint32_t koronos_target_rollback_quarantine_pid(void);
+int koronos_target_retry_rollback_quarantine(void);
 int koronos_target_note_user_write(const char *bytes, uint64_t length);
 uint32_t koronos_target_userspace_ready(void);
 /* Returns the kernel-owned PID only while a selected target process is active. */
