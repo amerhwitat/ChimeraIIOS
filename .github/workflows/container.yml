@@ -2,9 +2,9 @@ name: Container — Build and Push Docker Hub
 
 on:
   push:
-    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py']
+    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py', 'tools/tests/test_build_cleanup_contract.py']
   pull_request:
-    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py']
+    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py', 'tools/tests/test_build_cleanup_contract.py']
   workflow_dispatch:
     inputs:
       evidence_run_id:
@@ -40,6 +40,7 @@ jobs:
           python3 -m py_compile tools/release/verify-production-daps.py
           python3 tools/tests/test_production_daps_contract.py
           python3 tools/tests/test_container_publish_gate.py
+          python3 tools/tests/test_build_cleanup_contract.py
       - name: Verify evidence source run completed successfully
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
