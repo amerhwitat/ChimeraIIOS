@@ -312,6 +312,13 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
        only fail during copy-out. The copy helper takes a nested pin while
        copying; this outer pin prevents unmap/teardown for the whole operation. */
     if (koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
+    /* Pinning protects residency/lifetime, but is not a substitute for the
+       complete permission walk: verify every parent and leaf PTE before the
+       VFS read mutates the descriptor offset. */
+    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0) {
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+        return -14;
+    }
     uint8_t kernel_buffer[4096];
     const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count);
     if (result < 0) {
