@@ -287,16 +287,32 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
 }
 extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uint64_t count) {
     const uint32_t pid = koronos_target_active_pid();
-    if (!pid || !active_root) return -9;
+    if (!pid || !active_root || !active_address_space) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_range_bounds_valid(user_buffer, count)) return -14;
+    if (!user_range_bounds_valid(user_buffer, count) ||
+        koronos_address_space_root(active_address_space) != active_root) return -14;
+
+    /* Validate write access and pin the destination BEFORE reading the file.
+       Otherwise an invalid user buffer could consume the descriptor offset and
+       only fail during copy-out. The copy helper takes a nested pin while
+       copying; this outer pin prevents unmap/teardown for the whole operation. */
+    if (koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
     uint8_t kernel_buffer[4096];
     const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count);
-    if (result < 0) return result;
-    if (static_cast<uint64_t>(result) > count) return -5;
-    if (result > 0 && koronos_target_copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0)
+    if (result < 0) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count);
+        return result;
+    }
+    if (static_cast<uint64_t>(result) > count) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count);
+        return -5;
+    }
+    if (result > 0 && koronos_target_copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, user_buffer, count);
         return -14;
+    }
+    if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
     return result;
 }
 extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count) {
