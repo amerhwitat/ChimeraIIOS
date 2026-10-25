@@ -50,6 +50,6 @@
       "dark_fallback": "#070914"
     }
   },
-  "remote_sources_opt_in": true,
+  "remote_sources_opt_in": false,
   "offline_defaults_require_no_network": true
 }
