@@ -11,6 +11,7 @@ on:
       - "iso/**"
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
+      - "tools/run-production-qemu-matrix.py"
       - "build-chimera-iso.sh"
       - "tools/wallpapers/**"
       - "tools/build-full-iso.*"
@@ -61,7 +62,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 qemu-utils ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -87,9 +88,12 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Build ASM/C/C++ and compose diagnostic ISO
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          # Let the diagnostic ISO boot even when exact session JPEGs are absent;
+          # the later strict branding gate still fails and forbids publication.
+          CHIMERA_REQUIRE_SESSION_BRANDING: "0"
         run: |
           chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
           ./tools/build-full-iso.sh
@@ -341,12 +345,31 @@ jobs:
           echo "UEFI candidate smoke matrix accepted=$accepted (this is not production acceptance)"
           if [[ "$accepted" != true ]]; then exit 1; fi
 
+      - name: Run exact-ISO BIOS/UEFI Live/Installer/Recovery matrix
+        if: always() && hashFiles('build/iso/chimera-ii-os.iso') != ''
+        run: |
+          python3 -m py_compile tools/run-production-qemu-matrix.py
+          python3 tools/run-production-qemu-matrix.py \
+            --iso build/iso/chimera-ii-os.iso \
+            --output build/iso/production-qemu-matrix \
+            --timeout 18
+
+      - name: Require exact session wallpaper originals for release
+        if: always()
+        run: |
+          python3 tools/wallpapers/embed_wallpapers.py --session-branding \
+            --source-dir desktop/aurora/assets/library \
+            --css build/iso/dual-os-brand-wallpapers.css \
+            --manifest build/iso/dual-os-brand-wallpapers.json
+
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: chimera-target-userspace-traces
-          path: /tmp/chimera-userspace-traces/
+          path: |
+            /tmp/chimera-userspace-traces/
+            build/iso/production-qemu-matrix/
           if-no-files-found: ignore
           retention-days: 14
 
