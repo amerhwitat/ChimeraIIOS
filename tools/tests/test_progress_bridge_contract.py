@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Contract tests for real event-driven Init.mp4/Aurora progress state."""
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+class ProgressBridgeContract(unittest.TestCase):
+    def test_writer_and_aurora_reader_share_the_same_state_path(self):
+        writer = (ROOT / "system/boot/koronos-progress.sh").read_text()
+        ui = (ROOT / "desktop/aurora/aurora-progress.sh").read_text()
+        self.assertIn('STATE_FILE="$STATE_DIR/koronos-progress.state"', writer)
+        self.assertIn('STATE_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"', ui)
+        self.assertIn('mv -f "$tmp" "$STATE_FILE"', writer)
+        self.assertIn("read_state", ui)
+
+    def test_video_manifest_points_at_the_same_runtime_state(self):
+        builder = (ROOT / "build-chimera-iso.sh").read_text()
+        self.assertIn('"progress_state": "/run/chimera/koronos-progress.state"', builder)
+        self.assertIn('"progress_ui": "/usr/share/chimera/aurora/aurora-progress.sh"', builder)
+
+    def test_ui_reads_real_state_instead_of_advancing_a_completion_timer(self):
+        ui = (ROOT / "desktop/aurora/aurora-progress.sh").read_text()
+        self.assertIn('mapfile -t v < <(read_state', ui)
+        self.assertNotIn("percent=$((percent +", ui)
+        self.assertNotIn("pct=$((pct +", ui)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
