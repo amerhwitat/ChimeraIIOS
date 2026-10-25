@@ -34,13 +34,13 @@ static long call3(long number, long a, long b, long c) {
   return rax;
 }
 /* Target-specific GUI entrypoint names; these are lookup targets, not a claim that execve/graphics are implemented. */
-#if CHIMERA_INIT_TARGET == 1
+#if CHIMERA_INIT_TARGET_ID == 1
 #define CHIMERA_GUI_COMPONENT "aurora-session"
 #define CHIMERA_GUI_ENTRYPOINT "/usr/bin/aurora-session"
-#elif CHIMERA_INIT_TARGET == 2
+#elif CHIMERA_INIT_TARGET_ID == 2
 #define CHIMERA_GUI_COMPONENT "install-executor"
 #define CHIMERA_GUI_ENTRYPOINT "/usr/bin/chimera-installer"
-#elif CHIMERA_INIT_TARGET == 3
+#elif CHIMERA_INIT_TARGET_ID == 3
 #define CHIMERA_GUI_COMPONENT "recovery-runtime"
 #define CHIMERA_GUI_ENTRYPOINT "/usr/bin/chimera-recovery"
 #else
