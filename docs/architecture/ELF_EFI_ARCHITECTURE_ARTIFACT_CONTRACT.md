@@ -17,7 +17,7 @@ This document is shared by ChimeraIIOS and OctavianOS. Keep the same target IDs 
 | Target ID | ELF/toolchain family | EFI candidate | Current repository posture | Required before promotion |
 |---|---|---|---|---|
 | `x86_64` | `x86_64-elf` or project-approved cross target | X64 PE/COFF | Primary boot pipeline, production release still blocked | Kernel + loader + EFI handoff, all six target/firmware traces, services/UI, installer persistence, recovery and SMP evidence |
-| `i386` | `i686-elf` | IA32 PE/COFF only where firmware supports it | Probe/porting target; not release accepted | 32-bit kernel, paging/interrupt/syscall ABI, matching loader, BIOS/UEFI boot tests |
+| `x86` | `i686-elf` | IA32 PE/COFF only where firmware supports it | Probe/porting target; not release accepted | 32-bit kernel, paging/interrupt/syscall ABI, matching loader, BIOS/UEFI boot tests |
 | `aarch64` | `aarch64-elf` | ARM64 PE/COFF on supported UEFI platforms | Porting target | EL transition, exception vectors, timer/interrupt controller, device tree, drivers, userspace and QEMU/board traces |
 | `armv7` | `arm-none-eabi` or approved Linux ABI as applicable | Firmware-specific; not assumed | Porting target | Defined platform/ABI, exception and MMU setup, boot chain, drivers and userspace tests |
 | `riscv64` | `riscv64-unknown-elf` | Only for an explicitly supported RISC-V UEFI firmware target | Porting target | SBI/firmware contract, privilege transition, trap/timer/interrupt paths, device tree, drivers and userspace traces |
