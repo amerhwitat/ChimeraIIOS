@@ -512,8 +512,15 @@ build_docker(){
 export_rootfs(){
   header 'STEP 2: EXPORT DOCKER ROOTFS'
   cleanup_generated_build_artifacts
+  # Rootfs is a generated export target. Reject dangerous aliases/symlinks and
+  # remove hidden entries as well as visible entries so stale state cannot leak
+  # from a previous image build into the new immutable ISO rootfs.
+  [[ -n "$ROOTFS_DIR" && "$ROOTFS_DIR" != "/" && "$ROOTFS_DIR" != "$SCRIPT_DIR" && "$ROOTFS_DIR" != "$BUILD_DIR" && ! -L "$ROOTFS_DIR" ]] || {
+    log_error "Unsafe rootfs export destination: $ROOTFS_DIR"
+    return 1
+  }
   mkdir -p "$ROOTFS_DIR"
-  rm -rf "$ROOTFS_DIR"/*
+  find "$ROOTFS_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
   local cname="chimera-export-$BASHPID"
   local tar_rc=1
   local image_bytes=0 free_now=0 required_bytes=0
