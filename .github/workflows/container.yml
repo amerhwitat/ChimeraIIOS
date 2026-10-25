@@ -2,9 +2,9 @@ name: Container — Build and Push Docker Hub
 
 on:
   push:
-    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml']
+    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py']
   pull_request:
-    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml']
+    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py']
   workflow_dispatch:
     inputs:
       evidence_run_id:
