@@ -73,7 +73,8 @@ ELF_VALIDATOR="$ROOT/tools/validate_elf_image.py"
 PE_VALIDATOR="$ROOT/tools/validate_efi_pe.py"
 command -v python3 >/dev/null || { echo "python3 is required for boot artifact validation." >&2; exit 2; }
 test -s "$ELF_VALIDATOR" && test -s "$PE_VALIDATOR" || { echo "ELF/EFI validator missing; refusing to package ISO." >&2; exit 2; }
-UEFI_SOURCE="$ROOT/build/boot-artifacts/uefi/BOOTX64.EFI"
+BOOT_ART_DIR="${CHIMERA_BOOT_ARTIFACT_DIR:-${CHIMERA_BUILD_DIR:-$ROOT/build}/boot-artifacts}"
+UEFI_SOURCE="$BOOT_ART_DIR/uefi/BOOTX64.EFI"
 test -s "$UEFI_SOURCE" || { echo "Generated UEFI loader missing: $UEFI_SOURCE" >&2; exit 2; }
 mkdir -p "$DIST/iso/EFI/BOOT"
 cp -f "$UEFI_SOURCE" "$DIST/iso/EFI/BOOT/BOOTX64.EFI"
