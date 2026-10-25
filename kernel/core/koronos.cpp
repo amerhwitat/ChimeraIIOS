@@ -204,6 +204,16 @@ static void console_progress(uint32_t percent, const char *label) {
     console_raw("% ");
     console_raw(label ? label : "Boot phase");
     console_endline();
+
+    /* Stable machine-readable telemetry for serial-log consumers. The values
+       are emitted only at real kernel subsystem milestones; no timer advances
+       this percentage and 100% is explicitly kernel-init completion, not
+       userspace/desktop readiness. */
+    console_raw("CHIMERA_PROGRESS_EVENT percent=");
+    console_u32_raw(percent);
+    console_raw(" phase=koronos-init message=");
+    console_raw(label ? label : "Boot phase");
+    console_endline();
 }
 
 static void console_u32(uint32_t v) {
