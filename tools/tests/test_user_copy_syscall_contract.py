@@ -65,6 +65,7 @@ class UserCopyBoundaryContract(unittest.TestCase):
         self.assertIn("0xFFFF800000000000ull, 1u, 0u", self.address_space)
         self.assertIn("KORONOS_USER_VIRTUAL_MIN + PAGE_SIZE - 1u, 2u, 0u", self.address_space)
         self.assertIn("0u, 0u, 0u) == 0", self.address_space)
+        self.assertIn("write_access > 1u || root_physical == 0u", self.address_space)
 
     def test_syscall_write_routes_console_and_regular_files_separately(self):
         self.assertIn("koronos_console_write_user(address, length)", self.syscall)
