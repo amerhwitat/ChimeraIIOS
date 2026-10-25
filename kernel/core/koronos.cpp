@@ -194,26 +194,32 @@ static void console_u32_raw(uint32_t v) {
     console_raw(&s[i]);
 }
 
-static void console_progress(uint32_t percent, const char *label) {
+extern "C" void koronos_progress_event(uint32_t percent, const char *phase,
+                                               const char *message) {
     if (percent > 100u) percent = 100u;
+    const char *safe_phase = phase ? phase : "kernel";
+    const char *safe_message = message ? message : "Boot milestone";
     const uint32_t filled = (percent * 20u) / 100u;
     console_raw("[PROG] [");
     for (uint32_t i = 0; i < 20u; ++i) console_raw(i < filled ? "#" : "-");
     console_raw("] ");
     console_u32_raw(percent);
     console_raw("% ");
-    console_raw(label ? label : "Boot phase");
+    console_raw(safe_message);
     console_endline();
 
-    /* Stable machine-readable telemetry for serial-log consumers. The values
-       are emitted only at real kernel subsystem milestones; no timer advances
-       this percentage and 100% is explicitly kernel-init completion, not
-       userspace/desktop readiness. */
+    /* Machine-readable progress is emitted only on real subsystem/target
+       transitions. There are no timer-driven or synthetic completion events. */
     console_raw("CHIMERA_PROGRESS_EVENT percent=");
     console_u32_raw(percent);
-    console_raw(" phase=koronos-init message=");
-    console_raw(label ? label : "Boot phase");
+    console_raw(" phase=");
+    console_raw(safe_phase);
+    console_raw(" message=");
+    console_raw(safe_message);
     console_endline();
+}
+static void console_progress(uint32_t percent, const char *label) {
+    koronos_progress_event(percent, "koronos-init", label);
 }
 
 static void console_u32(uint32_t v) {
@@ -618,7 +624,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
     console_write("[RUN ] Entering Koronos scheduler loop");
-    console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
+    console_progress(80, "Kernel initialization complete; waiting for selected userspace target milestones");
 }
 
 extern "C" uint32_t koronos_system_block_size_get(void) { return g_system_block_size; }
