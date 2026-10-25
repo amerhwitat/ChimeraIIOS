@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""Explicitly opt-in package front-end for Kali-compatible tool packages.
+
+This does not add third-party repositories or execute tools on its own. The
+operator must configure trusted APT sources and create
+/etc/chimera/kali-repository-enabled containing exactly: enabled=true
+after reviewing the repository key and package policy.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+METAPACKAGES = {
+    "core": "kali-linux-core",
+    "default": "kali-linux-default",
+    "headless": "kali-linux-headless",
+    "top10": "kali-tools-top10",
+    "everything": "kali-linux-everything",
+}
+CATEGORIES = {
+    "information-gathering": "kali-tools-information-gathering",
+    "vulnerability": "kali-tools-vulnerability",
+    "web": "kali-tools-web",
+    "database": "kali-tools-database",
+    "passwords": "kali-tools-passwords",
+    "wireless": "kali-tools-wireless",
+    "reverse-engineering": "kali-tools-reverse-engineering",
+    "exploitation": "kali-tools-exploitation",
+    "post-exploitation": "kali-tools-post-exploitation",
+    "forensics": "kali-tools-forensics",
+    "reporting": "kali-tools-reporting",
+    "hardware": "kali-tools-hardware",
+    "crypto-stego": "kali-tools-crypto-stego",
+    "fuzzing": "kali-tools-fuzzing",
+    "bluetooth": "kali-tools-bluetooth",
+    "sniffing-spoofing": "kali-tools-sniffing-spoofing",
+    "social-engineering": "kali-tools-social-engineering",
+    "voip": "kali-tools-voip",
+    "windows-resources": "kali-tools-windows-resources",
+    "rfid": "kali-tools-rfid",
+    "sdr": "kali-tools-sdr",
+    "respond": "kali-tools-respond",
+}
+PACKAGE_RE = re.compile(r"^[a-z0-9][a-z0-9+.-]{0,127}$")
+OPT_IN = Path("/etc/chimera/kali-repository-enabled")
+
+
+def run(args: list[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(args, check=False, text=True, stdout=subprocess.PIPE if capture else None)
+
+
+def enabled() -> bool:
+    try:
+        return OPT_IN.read_text(encoding="utf-8").strip() == "enabled=true"
+    except OSError:
+        return False
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="chimera-kali",
+        description="Search and install Kali tool packages from operator-configured, trusted APT sources.",
+    )
+    sub = parser.add_subparsers(dest="action", required=True)
+    sub.add_parser("list", help="list supported Kali metapackages and categories")
+    search = sub.add_parser("search", help="search currently configured APT package indexes")
+    search.add_argument("query")
+    status = sub.add_parser("status", help="show repository opt-in and APT availability")
+    install = sub.add_parser("install", help="install one package, metapackage, or category")
+    install.add_argument("package", help="package name, core/default/headless/top10/everything, or category")
+    install.add_argument("--yes", action="store_true", help="confirm package installation without prompting")
+    ns = parser.parse_args()
+
+    if ns.action == "list":
+        print("Kali metapackages:")
+        for name, package in METAPACKAGES.items():
+            print(f"  {name:18} {package}")
+        print("Kali categories:")
+        for name, package in CATEGORIES.items():
+            print(f"  {name:24} {package}")
+        print("Repository configuration is operator-managed; no source is enabled automatically.")
+        return 0
+    if ns.action == "status":
+        print(f"repository_opt_in={'enabled' if enabled() else 'disabled'}")
+        print(f"apt_get={shutil.which('apt-get') or 'missing'}")
+        print(f"apt_cache={shutil.which('apt-cache') or 'missing'}")
+        return 0
+    if ns.action == "search":
+        if not shutil.which("apt-cache"):
+            print("chimera-kali: apt-cache is not installed", file=sys.stderr)
+            return 3
+        result = run(["apt-cache", "search", "--", ns.query])
+        return result.returncode
+
+    package = METAPACKAGES.get(ns.package, CATEGORIES.get(ns.package, ns.package))
+    if not PACKAGE_RE.fullmatch(package):
+        print("chimera-kali: invalid package/category identifier", file=sys.stderr)
+        return 2
+    if not enabled():
+        print(
+            "chimera-kali: blocked: configure and review trusted Kali-compatible APT sources, "
+            f"then create {OPT_IN} with the exact content enabled=true",
+            file=sys.stderr,
+        )
+        return 4
+    if os.geteuid() != 0:
+        print("chimera-kali: install requires root; rerun through the system's approved privilege tool", file=sys.stderr)
+        return 5
+    if not shutil.which("apt-get") or not shutil.which("apt-cache"):
+        print("chimera-kali: apt-get and apt-cache are required", file=sys.stderr)
+        return 3
+    known = run(["apt-cache", "show", package], capture=True)
+    if known.returncode != 0 or not known.stdout:
+        print(f"chimera-kali: package is not present in configured indexes: {package}", file=sys.stderr)
+        return 6
+    if package == METAPACKAGES["everything"] and not ns.yes:
+        answer = input("kali-linux-everything can download a very large tool set. Continue? [y/N] ").strip().lower()
+        if answer not in {"y", "yes"}:
+            print("cancelled")
+            return 1
+    command = ["apt-get", "install"]
+    if ns.yes:
+        command.append("-y")
+    command.extend(["--", package])
+    return run(command).returncode
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
