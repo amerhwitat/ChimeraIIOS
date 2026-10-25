@@ -79,6 +79,16 @@ class WallpaperEmbedContract(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
                 generate_session_branding(root, root / "out.css", root / "out.json")
 
+    def test_session_sources_are_pinned_to_uploaded_original_hashes(self):
+        self.assertEqual(
+            SESSION_BRANDING["Duck-ai-image-2026-10-18-07-06(1).jpeg"]["expected_sha256"],
+            "a4004733cae6fb06c89d6d7e3dedf4e0190de512f7535613d51789397f0a246e",
+        )
+        self.assertEqual(
+            SESSION_BRANDING["Duck-ai-image-2026-10-18-06-36.jpeg"]["expected_sha256"],
+            "049e64ef31b6506816ca32956bc439e87b32abadb96c8f56160f401e578953e4",
+        )
+
     def test_missing_exact_session_attachment_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
