@@ -115,7 +115,7 @@ STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 
@@ -270,7 +270,12 @@ cleanup_generated_build_artifacts(){
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
+  # Only remove containers explicitly labeled as temporary rootfs exporters.
+  # Do not prune unrelated containers owned by the developer or other projects.
+  while read -r cid; do
+    [[ -n "$cid" ]] || continue
+    docker rm -f "$cid" >/dev/null 2>&1 || true
+  done < <(docker ps -aq --filter 'label=chimera.rootfs.export=true' 2>/dev/null || true)
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -285,25 +290,41 @@ docker_image_in_use(){
   docker ps -aq --filter "ancestor=$image" | grep -q .
 }
 cleanup_generated_docker_image(){
-  local image="$1" image_id="$2" tagged=""
+  local image="$1" image_id="$2" current_id=""
   [[ -n "$image_id" ]] || return 0
+  # Remove only the temporary source tag. Never remove every tag sharing this
+  # image ID: another project or release may own those references.
   if docker_image_in_use "$image"; then
-    log_warning "Keeping Docker image $image because a container still references it."
+    log_warning "Keeping source tag $image because a container still references it."
     return 0
   fi
-  # Remove every local tag that points at the image created by this build.
-  while read -r tagged; do
-    [[ -n "$tagged" ]] || continue
-    docker image rm -f "$tagged" >/dev/null 2>&1 || true
-  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
-  if docker image inspect "$image_id" >/dev/null 2>&1; then
-    log_warning "Docker image layers remain because another local reference uses $image_id."
-  else
-    log_success "Unused generated Docker image removed: $image_id"
+  current_id="$(docker image inspect -f '{{.Id}}' "$image" 2>/dev/null || true)"
+  if [[ "$current_id" == "$image_id" ]]; then
+    docker image rm "$image" >/dev/null 2>&1 || {
+      log_warning "Could not remove unused source tag $image; keeping it."
+      return 0
+    }
+    log_success "Removed temporary Docker source tag: $image"
   fi
 }
 push_docker_image(){
   [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
+  # Registry publication is a release action. Require closing production DAPS
+  # evidence; a candidate probe or successful build is not release approval.
+  local daps_verifier="${CHIMERA_DAPS_VERIFIER:-}"
+  local daps_evidence="${CHIMERA_DAPS_EVIDENCE:-}"
+  [[ -n "$daps_verifier" && -f "$daps_verifier" ]] || {
+    log_error "Docker publish blocked: set CHIMERA_DAPS_VERIFIER to the closing production DAPS verifier."
+    return 1
+  }
+  [[ -n "$daps_evidence" && -f "$daps_evidence" ]] || {
+    log_error "Docker publish blocked: set CHIMERA_DAPS_EVIDENCE to evidence.json from the immutable production ISO run."
+    return 1
+  }
+  python3 "$daps_verifier" --evidence "$daps_evidence" || {
+    log_error "Docker publish blocked: production DAPS acceptance failed."
+    return 1
+  }
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
   local target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
   local target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
@@ -409,7 +430,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs commands boot installer branding apache features package-managers games squashfs iso verify native-iso report docker-publish'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -510,7 +531,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --label chimera.rootfs.export=true --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
@@ -1371,13 +1392,12 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands boot installer branding apache features package-managers games squashfs iso verify native-iso report docker-publish; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
-      docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
       boot) run_stage boot create_boot_menu;;
@@ -1392,6 +1412,13 @@ main(){
       verify) run_stage verify verify_iso;;
       native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
+      docker-publish)
+        if [[ "$BUILD_DOCKER" == 0 || "${CHIMERA_PUSH:-0}" != 1 ]]; then
+          log_info "Skipping Docker publish (not requested; use --push after production DAPS acceptance)."
+        else
+          run_stage docker-publish push_docker_image
+        fi
+        ;;
     esac
     completed="$stage"
   done
