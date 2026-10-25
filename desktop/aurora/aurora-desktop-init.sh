@@ -31,7 +31,20 @@ progress_set(){
   local pct="$1" phase="$2" message="$3" tmp seq
   [[ "$pct" =~ ^[0-9]+$ && "$pct" -ge 0 && "$pct" -le 100 ]] || return 2
   [[ -n "$phase" && -n "$message" ]] || return 2
-  mkdir -p "$(dirname "$PROGRESS_STATE")" 2>/dev/null || return 0
+  local state_dir
+  state_dir="$(dirname "$PROGRESS_STATE")"
+  if ! mkdir -p "$state_dir" 2>/dev/null || [[ ! -w "$state_dir" ]]; then
+    # A user session may not have write access to the root-owned boot state.
+    # Fall back only when the caller did not explicitly choose a shared path.
+    if [[ -z "${CHIMERA_PROGRESS_FILE:-}" && -n "${XDG_RUNTIME_DIR:-}" ]]; then
+      PROGRESS_STATE="$XDG_RUNTIME_DIR/chimera/koronos-progress.state"
+      state_dir="$(dirname "$PROGRESS_STATE")"
+      mkdir -p "$state_dir" 2>/dev/null || return 0
+      [[ -w "$state_dir" ]] || return 0
+    else
+      return 0
+    fi
+  fi
   seq="$(date +%s%N 2>/dev/null || date +%s)"
   tmp="$PROGRESS_STATE.tmp.$$"
   if printf 'version=1\nsequence=%s\npercent=%s\nphase=%s\nmessage=%s\ntimestamp=%s\n' \
