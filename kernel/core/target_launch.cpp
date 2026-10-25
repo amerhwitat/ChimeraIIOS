@@ -28,6 +28,8 @@ static void *active_address_space = nullptr;
    They are never treated as released or silently discarded. */
 static void *rollback_quarantined_address_space = nullptr;
 static uint32_t rollback_quarantined_pid = 0;
+static const chimera_elf_load_ops *rollback_quarantined_ops = nullptr;
+static bool rollback_quarantined_destroyed = false;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 /* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
@@ -417,7 +419,45 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
     return 0;
 }
 
+/* Exposed for diagnostics and controlled retry. A quarantine remains owned
+   until destroy_address_space reports complete teardown AND the process
+   registry accepts resource release and reap. */
+extern "C" uint32_t koronos_target_rollback_quarantine_pid(void) {
+    return rollback_quarantined_address_space ? rollback_quarantined_pid : 0u;
+}
+extern "C" int koronos_target_retry_rollback_quarantine(void) {
+    if (!rollback_quarantined_address_space || !rollback_quarantined_pid ||
+        !rollback_quarantined_ops || !rollback_quarantined_ops->destroy_address_space)
+        return -1;
+    if (!rollback_quarantined_destroyed) {
+        if (rollback_quarantined_ops->destroy_address_space(nullptr,
+                rollback_quarantined_address_space) != 0) {
+            koronos_target_log("[RUN ] ERROR: quarantined address-space teardown retry failed; ownership retained");
+            return -2;
+        }
+        rollback_quarantined_destroyed = true;
+    }
+    if (chimera_process_mark_resources_released(rollback_quarantined_pid) != 0) {
+        koronos_target_log("[RUN ] ERROR: address space was destroyed but process resource-release transition failed; record retained");
+        return -3;
+    }
+    if (chimera_process_reap(rollback_quarantined_pid) != 0) {
+        koronos_target_log("[RUN ] ERROR: address space was destroyed but process reap failed; record retained");
+        return -4;
+    }
+    rollback_quarantined_address_space = nullptr;
+    rollback_quarantined_pid = 0;
+    rollback_quarantined_ops = nullptr;
+    rollback_quarantined_destroyed = false;
+    koronos_target_log("[RUN ] Quarantined address space teardown retried successfully; process resources released and record reaped");
+    return 0;
+}
+
 extern "C" int koronos_launch_selected_userspace(void) {
+    /* Never begin another target launch while an earlier partial address space
+       is still owned by quarantine. Retry teardown first; failure is fail-closed. */
+    if (rollback_quarantined_address_space &&
+        koronos_target_retry_rollback_quarantine() != 0) return -18;
     if (attempted) return 0;
     attempted=true;
     const chimera_boot_module *selected=nullptr;
@@ -631,6 +671,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
             }
             rollback_quarantined_address_space = loaded.address_space;
             rollback_quarantined_pid = static_cast<uint32_t>(pid);
+            rollback_quarantined_ops = ops;
+            rollback_quarantined_destroyed = false;
             koronos_target_log("[RUN ] ERROR: ELF rollback teardown failed; address space quarantined and PID retained");
         } else if (chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0) {
             (void)chimera_process_reap(static_cast<uint32_t>(pid));
