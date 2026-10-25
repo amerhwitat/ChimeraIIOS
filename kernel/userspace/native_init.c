@@ -55,6 +55,10 @@ __attribute__((noreturn)) static void fail_closed(long code) {
     __asm__ volatile("pause" ::: "memory");
   }
 }
+__attribute__((noreturn)) static void stop_after_exit_failure(long code) {
+  (void)call1(1, code);
+  for (;;) { (void)call0(3); __asm__ volatile("pause" ::: "memory"); }
+}
 static long open_readonly(const char *path) {
   register long number __asm__("rax") = 17;
   register const char *pathname __asm__("rdi") = path;
