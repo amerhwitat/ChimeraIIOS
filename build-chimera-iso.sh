@@ -867,6 +867,29 @@ EOF_INIT_VIDEO
     fi
   fi
 
+  # Also embed the two exact session dual-brand JPEGs when their original bytes
+  # have been staged. Missing source attachments are reported; generated artwork is
+  # never mislabeled as the user's original files.
+  local session_brand_a="$wallpaper_source/Duck-ai-image-2026-10-18-07-06(1).jpeg"
+  local session_brand_b="$wallpaper_source/Duck-ai-image-2026-10-18-06-36.jpeg"
+  if [[ -s "$session_brand_a" && -s "$session_brand_b" ]]; then
+    local session_css="$BUILD_DIR/dual-os-brand-wallpapers.css"
+    local session_manifest="$BUILD_DIR/dual-os-brand-wallpapers.json"
+    if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
+        --session-branding --source-dir "$wallpaper_source" --css "$session_css" \
+        --manifest "$session_manifest" >"$LOG_DIR/dual-os-brand-wallpapers.log" 2>&1; then
+      log_error "Exact session JPEG Base64 embedding failed; refusing malformed branding assets."
+      cat "$LOG_DIR/dual-os-brand-wallpapers.log" >&2
+      return 1
+    fi
+    install -m 0644 "$session_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.css"
+    install -m 0644 "$session_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.json"
+    cp -f "$session_css" "$ISO_DIR/boot/visual/dual-os-brand-wallpapers.css"
+    log_info "Embedded exact session dual-brand JPEGs as offline data URIs."
+  else
+    log_warning "Session dual-brand JPEGs are not staged in the source tree; their Base64 data URIs were not generated."
+  fi
+
   # Install the same visual aliases used by desktop, installer, recovery and
   # mobile components so there is one deterministic offline artwork contract.
   if [[ -s "$visual/backgrounds/desktop.png" ]]; then
