@@ -960,7 +960,8 @@ extern "C" int koronos_address_space_pin(void *opaque, uint64_t address, uint64_
         uint64_t physical = 0;
         PageMeta *meta = find_page_meta(space, va, &physical);
         uint64_t *pte = find_pte(space, va);
-        if (!meta || meta->state != PAGE_RESIDENT || meta->pins == UINT16_MAX ||
+        if (!meta || meta->owner_generation != space->generation ||
+            meta->state != PAGE_RESIDENT || meta->pins == UINT16_MAX ||
             !pte || !(*pte & ENTRY_PRESENT) || !(*pte & ENTRY_USER) ||
             ((*pte & ENTRY_ADDRESS_MASK) != physical) ||
             (write_access && !(*pte & ENTRY_WRITE))) {
@@ -988,7 +989,8 @@ extern "C" int koronos_address_space_unpin(void *opaque, uint64_t address, uint6
     if (!space_valid(space)) { unlock_backend(); return -2; }
     for (uint64_t va = first_page; va < end; va += PAGE_SIZE) {
         PageMeta *meta = find_page_meta(space, va, nullptr);
-        if (!meta || meta->state != PAGE_RESIDENT || meta->pins == 0) {
+        if (!meta || meta->owner_generation != space->generation ||
+            meta->state != PAGE_RESIDENT || meta->pins == 0) {
             unlock_backend(); return -3;
         }
         if (va > UINT64_MAX - PAGE_SIZE) { unlock_backend(); return -4; }
