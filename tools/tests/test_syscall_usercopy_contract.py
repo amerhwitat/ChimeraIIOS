@@ -67,6 +67,7 @@ class SyscallUserCopyContract(unittest.TestCase):
         service = (ROOT / "desktop/aurora/wallpaper-service.py").read_text()
         self.assertIs(config.get("remote_sources_opt_in"), False)
         self.assertIn('"remote_sources_opt_in",False', service)
+        self.assertIn('"session_branding_css":"/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.css"', service)
 
 
 if __name__ == "__main__":
