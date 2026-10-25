@@ -27,7 +27,10 @@ typedef struct chimera_loaded_elf {
     uint64_t entry, user_stack_top, image_low, image_high, loaded_file_bytes;
 } chimera_loaded_elf;
 /* Loads ET_EXEC PT_LOAD segments, zeroes BSS, maps a non-executable stack.
-   It prepares an image but does not itself switch to ring 3. */
+   It prepares an image but does not itself switch to ring 3. On ordinary
+   failure, *out is zeroed. Return -17 means address-space teardown failed;
+   *out->address_space is the still-owned handle and must be quarantined (not
+   reused or reported released) until a later teardown succeeds. */
 int chimera_elf_load_user_image(const void *image, uint64_t image_size,
                                 uint16_t expected_machine, uint64_t stack_top,
                                 uint64_t stack_size, const chimera_elf_load_ops *ops,
