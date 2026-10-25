@@ -30,6 +30,8 @@ def main() -> int:
                 return 1
         for line in text.splitlines():
             stripped = line.strip()
+            if stripped == "push:":
+                continue  # Top-level GitHub Actions event trigger, not a registry push.
             if stripped.startswith("push:") and "steps.daps.outputs.accepted == 'true'" not in stripped:
                 print(f"CONTAINER PUBLISH FAIL: ungated push in {path.name}: {stripped}", file=sys.stderr)
                 return 1
