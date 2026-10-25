@@ -14,6 +14,8 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         source = (ROOT / "tools/run-production-qemu-matrix.py").read_text()
         self.assertIn('"production_acceptance": "NOT ESTABLISHED BY THIS MATRIX"', source)
         self.assertIn('"target_boot_matrix":', source)
+        self.assertIn('"qemu_started": process is not None', source)
+        self.assertIn('"qemu_started": False', source)
 
     def test_matching_real_runtime_markers_are_accepted_by_parser(self):
         trace = """[KRN ] KORONOS READY
