@@ -36,7 +36,7 @@ EXPECTED = {
 
 
 def jpeg_dimensions(data: bytes) -> tuple[int, int]:
-    if len(data) < 4 or data[:2] != b"\\xff\\xd8" or data[-2:] != b"\\xff\\xd9":
+    if len(data) < 4 or data[:2] != b"\xff\xd8" or data[-2:] != b"\xff\xd9":
         raise ValueError("not a complete JPEG stream (SOI/EOI markers missing)")
     i = 2
     sof = {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}
