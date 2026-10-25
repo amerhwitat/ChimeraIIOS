@@ -461,21 +461,16 @@ extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
-extern "C" void *koronos_target_active_address_space(void);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
     if (length == 0) return 0;
     if (length > 4096u) return -22;
-    uint64_t root = 0;
-    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
-    void *space = koronos_target_active_address_space();
-    if (!space || koronos_address_space_pin(space, address, length, 0u) != 0) return -14;
-    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0) {
-        (void)koronos_address_space_unpin(space, address, length); return -14;
-    }
-    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
-    (void)koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length);
-    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
-    if (koronos_address_space_unpin(space, address, length) != 0) return -14;
+    /* Never dereference a ring-3 pointer from the console/syscall path. The
+       shared helper validates and pins the active process's own address space,
+       then copies into kernel-owned memory before diagnostics inspect bytes. */
+    uint8_t kernel_buffer[4096];
+    if (koronos_target_copy_from_user(kernel_buffer, address, length) != 0) return -14;
+    (void)koronos_target_note_user_write(reinterpret_cast<const char *>(kernel_buffer), length);
+    for (uint64_t i = 0; i < length; ++i) debugcon_write8(kernel_buffer[i]);
     return static_cast<int64_t>(length);
 }
 
