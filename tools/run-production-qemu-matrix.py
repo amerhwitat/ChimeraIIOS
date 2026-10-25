@@ -110,15 +110,11 @@ def target_marker_errors(target: str, text: str) -> list[str]:
     if syscall and target_ready and syscall.start() >= target_ready.start():
         errors.append("syscall acknowledgement does not precede target readiness")
     if "NATIVE INIT VFS SELFTEST PASS" not in text:
-        errors.append("kernel-backed VFS read/write self-test marker missing")
-    if "/etc/os-release" not in text or not re.search(
-        r"os-release.{0,80}(open|read|close)|(open|read|close).{0,80}os-release",
-        text,
-        re.IGNORECASE | re.DOTALL,
-    ):
-        errors.append("/etc/os-release open/read/close evidence missing")
-    if not re.search(r"(/tmp|tmpfs).{0,100}(write|create).{0,80}(pass|verified|ok)", text, re.I | re.S):
-        errors.append("writable /tmp evidence missing")
+        errors.append("kernel-backed VFS self-test marker missing")
+    if "USERSPACE ROOTFS FILE SELFTEST PASS: /etc/os-release OPEN READ CLOSE" not in text:
+        errors.append("process-visible /etc/os-release OPEN/READ/CLOSE evidence missing")
+    if "USERSPACE TMPFS MUTATION PASS: CREATE WRITE READ TRUNCATE" not in text:
+        errors.append("writable /tmp CREATE/WRITE/READ/TRUNCATE evidence missing")
     if "NATIVE INIT BLOCKED" in text or "NATIVE INIT VFS SELFTEST FAIL" in text:
         errors.append("native init explicitly reported blocked/failed services")
     return errors
