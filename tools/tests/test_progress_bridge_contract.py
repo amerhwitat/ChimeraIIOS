@@ -25,7 +25,12 @@ class ProgressBridgeContract(unittest.TestCase):
         self.assertIn("CHIMERA_PROGRESS_EVENT percent=", kernel)
         self.assertIn('console_progress(25, "Architecture discovery and address-space safety checks complete")', kernel)
         self.assertIn('console_progress(75, "Process admission and module registries initialized")', kernel)
-        self.assertIn('console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)")', kernel)
+        self.assertIn('console_progress(80, "Kernel initialization complete; waiting for selected userspace target milestones")', kernel)
+        launch = (ROOT / "kernel/core/target_launch.cpp").read_text()
+        self.assertIn('koronos_progress_event(90u, "userspace", "Read-only root and writable /tmp mounted")', launch)
+        self.assertIn('koronos_progress_event(95u, "userspace", "Ring-3 process issued a verified syscall")', launch)
+        self.assertIn('koronos_progress_event(100u, "userspace-ready", "Target-specific userspace readiness marker verified")', launch)
+        self.assertIn('"Ring-3 probe marker observed; production desktop readiness not implied"', launch)
 
     def test_desktop_progress_requires_real_wayland_and_compositor_health(self):
         desktop = (ROOT / "desktop/aurora/aurora-desktop-init.sh").read_text()
