@@ -944,6 +944,14 @@ stage_features(){
     install -m 0755 "$SCRIPT_DIR/tools/commands/chimera-run" "$ROOTFS_DIR/usr/bin/chimera-run"
     python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-run"
   fi
+  # Stage the opt-in Kali-compatible package frontend and its taxonomy into the installed OS.
+  if [[ -f "$SCRIPT_DIR/tools/kali/chimera-kali" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/sbin" "$ROOTFS_DIR/usr/share/chimera/kali"
+    install -m 0755 "$SCRIPT_DIR/tools/kali/chimera-kali" "$ROOTFS_DIR/usr/sbin/chimera-kali"
+    [[ -f "$SCRIPT_DIR/tools/kali/kali_tool_catalog.json" ]] && install -m 0644 "$SCRIPT_DIR/tools/kali/kali_tool_catalog.json" "$ROOTFS_DIR/usr/share/chimera/kali/kali_tool_catalog.json"
+    python3 -m py_compile "$ROOTFS_DIR/usr/sbin/chimera-kali"
+    log_info "Staged Kali-compatible package frontend (repository opt-in remains disabled)."
+  fi
   [[ -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" ]] && cp -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" "$ROOTFS_DIR/usr/share/chimera/chimera-unified-runtime-model.json"
   [[ -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" ]] && cp -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh" && chmod +x "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh"
   mkdir -p "$ROOTFS_DIR/etc/chimera" "$ROOTFS_DIR/usr/share/chimera"
