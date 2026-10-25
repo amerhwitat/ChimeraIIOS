@@ -66,6 +66,27 @@ bash "$ROOT/tools/build-production-init-elfs.sh"
 # This validates packaging inputs only; full-ISO ring-3 runtime acceptance is separate.
 python3 "$ROOT/tools/boot/verify-production-init-elfs.py" \
     "$DIST/iso" --write-manifest "$DIST/iso/boot/production-init-elfs.json"
+
+# Bind static validation to the actual files staged into this ISO, not merely
+# to filenames or synthetic fixtures. This is a structural gate, not boot proof.
+ELF_VALIDATOR="$ROOT/tools/validate_elf_image.py"
+PE_VALIDATOR="$ROOT/tools/validate_efi_pe.py"
+command -v python3 >/dev/null || { echo "python3 is required for boot artifact validation." >&2; exit 2; }
+test -s "$ELF_VALIDATOR" && test -s "$PE_VALIDATOR" || { echo "ELF/EFI validator missing; refusing to package ISO." >&2; exit 2; }
+UEFI_SOURCE="$ROOT/build/boot-artifacts/uefi/BOOTX64.EFI"
+test -s "$UEFI_SOURCE" || { echo "Generated UEFI loader missing: $UEFI_SOURCE" >&2; exit 2; }
+mkdir -p "$DIST/iso/EFI/BOOT"
+cp -f "$UEFI_SOURCE" "$DIST/iso/EFI/BOOT/BOOTX64.EFI"
+python3 "$ELF_VALIDATOR" --target x86_64 "$KORONOS_ELF" | tee "$DIST/ELF-STRUCTURE-VALIDATION.log"
+python3 "$ELF_VALIDATOR" --target x86_64 "$DIST/iso/boot/koronos/koronos.elf" | tee -a "$DIST/ELF-STRUCTURE-VALIDATION.log"
+for init_elf in \
+  "$DIST/iso/boot/live/user-init-live.elf" \
+  "$DIST/iso/boot/installer/user-init-installer.elf" \
+  "$DIST/iso/boot/recovery/user-init-recovery.elf"; do
+  test -s "$init_elf" || { echo "Production init ELF missing: $init_elf" >&2; exit 2; }
+  python3 "$ELF_VALIDATOR" --target x86_64 "$init_elf" | tee -a "$DIST/ELF-STRUCTURE-VALIDATION.log"
+done
+python3 "$PE_VALIDATOR" --target x86_64 "$DIST/iso/EFI/BOOT/BOOTX64.EFI" | tee "$DIST/EFI-PE-STRUCTURE-VALIDATION.log"
 for module in \
   'module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live' \
   'module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer' \
