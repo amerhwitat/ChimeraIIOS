@@ -36,6 +36,28 @@ static bool in(uint64_t offset, uint64_t length, uint64_t size) {
     uint64_t end = 0;
     return add_ok(offset, length, &end) && end <= size;
 }
+static bool valid_transition(chimera_process_state from, chimera_process_state to) {
+    if (from == to) return true;
+    switch (from) {
+        case CHIMERA_PROCESS_ADMITTED:
+            return to == CHIMERA_PROCESS_READY || to == CHIMERA_PROCESS_RUNNING ||
+                   to == CHIMERA_PROCESS_FAULTED;
+        case CHIMERA_PROCESS_READY:
+            return to == CHIMERA_PROCESS_RUNNING || to == CHIMERA_PROCESS_BLOCKED ||
+                   to == CHIMERA_PROCESS_FAULTED;
+        case CHIMERA_PROCESS_RUNNING:
+            return to == CHIMERA_PROCESS_READY || to == CHIMERA_PROCESS_BLOCKED ||
+                   to == CHIMERA_PROCESS_EXITED || to == CHIMERA_PROCESS_FAULTED;
+        case CHIMERA_PROCESS_BLOCKED:
+            return to == CHIMERA_PROCESS_READY || to == CHIMERA_PROCESS_EXITED ||
+                   to == CHIMERA_PROCESS_FAULTED;
+        case CHIMERA_PROCESS_EXITED:
+        case CHIMERA_PROCESS_FAULTED:
+        case CHIMERA_PROCESS_EMPTY:
+        default:
+            return false;
+    }
+}
 }
 
 extern "C" int chimera_process_init(void) {
@@ -148,7 +170,12 @@ extern "C" int chimera_process_set_state(uint32_t pid,
         state > CHIMERA_PROCESS_FAULTED) return -1;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (slots[i].used && slots[i].image.pid == pid) {
-            slots[i].image.state = state;
+            const auto current = static_cast<chimera_process_state>(slots[i].image.state);
+            if (!valid_transition(current, state)) return -4;
+            if (slots[i].resources_released &&
+                state != CHIMERA_PROCESS_EXITED && state != CHIMERA_PROCESS_FAULTED)
+                return -5;
+            slots[i].image.state = static_cast<uint32_t>(state);
             return 0;
         }
     }
