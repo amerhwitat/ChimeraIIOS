@@ -6,6 +6,8 @@ on:
       - "tools/kali/**"
       - "tools/wallpapers/**"
       - "tools/tests/test_user_copy_syscall_contract.py"
+      - "tools/wallpapers/**"
+      - "tools/tests/test_user_copy_syscall_contract.py"
       - "system/security/kali_tools_catalog.json"
       - "system/security/kali_integration_policy.json"
       - "build-chimera-iso.sh"
