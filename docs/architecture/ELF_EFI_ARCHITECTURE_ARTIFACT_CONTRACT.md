@@ -49,3 +49,32 @@ This list is a maintained porting inventory, not a promise of support for every 
 5. User-mode transition, syscall ABI, memory permissions, scheduler/process lifecycle and file I/O pass runtime tests.
 6. Target-specific services and desktop/installer/recovery postconditions pass.
 7. Evidence is immutable and linked from the support matrix. Until then, `release_supported` remains false.
+
+
+## Target-specific linker and entry ABI profiles
+
+These profiles are requirements for future architecture ports, not evidence that the corresponding boot code already exists. Keep kernel linker scripts separate from EFI application's PE/COFF link configuration; an EFI application is not the kernel ELF.
+
+### AArch64 (`aarch64`)
+
+- Pin the compiler triple, ABI, endianness, ISA baseline and permitted extensions. The kernel ELF must report ELFCLASS64 and `EM_AARCH64`; reject a mismatched machine or data encoding before packaging.
+- The linker script must declare the actual kernel entry symbol with `ENTRY(...)`, explicit `PHDRS`/load segments, page-aligned segment boundaries, and deliberate placement of boot text, regular text/rodata, data, `.bss`, and stack reservations. Specify whether the image is linked for a physical load address or a higher-half virtual address and document the relocation contract.
+- Define the boot entry preconditions: exception level (EL), stack alignment and ownership, MMU/cache state, interrupt masking, register clobbers, and how platform information is passed. Do not assume that all firmware enters at the same EL or with the same translation state.
+- Install exception vectors with architecture-required alignment; establish exception stacks, translation tables, memory attributes, timer and interrupt-controller setup before enabling normal scheduling.
+- Specify the platform-description handoff (for example, a validated device-tree pointer), early console policy, and how the kernel validates RAM and reserved regions.
+- For UEFI, build a separate real AArch64 PE/COFF EFI application with the matching machine/subsystem and UEFI calling convention. Validate it with PE/COFF inspection and boot it under an explicitly identified AArch64 UEFI profile.
+
+### RISC-V 64 (`riscv64`)
+
+- Pin the exact compiler triple, `-march` extension set, `-mabi`, code model, endianness, and privilege/platform profile. The kernel ELF must report ELFCLASS64 and `EM_RISCV`; do not infer ABI compatibility from the filename.
+- The linker script must define the load address and physical/virtual mapping model, `ENTRY(_start)` (or the explicitly documented entry), `PHDRS`/load segments, page alignment, `.text.init`, regular text/rodata, data, `.bss`, and stack reservations. Match linker placement to the chosen `medlow`/`medany` or other approved code model.
+- Initialize the global pointer according to the toolchain's relaxation rules, establish a valid stack before calling compiled code, and document register preservation and early boot's use of `gp`, `sp`, and firmware-provided arguments.
+- Select one concrete entry contract, such as an OpenSBI/SBI profile, and document expected privilege mode, hart identifier, device-tree pointer, interrupt state, and firmware services. Do not mix assumptions from different `fw_jump`, `fw_dynamic`, direct-S-mode, or UEFI boot paths.
+- Implement trap-vector setup, supervisor timer/interrupt handling, SBI calls where required, hart startup/parking, device-tree parsing, and memory-map validation before claiming a bootable kernel.
+- For UEFI, use a separately built and inspected RISC-V PE/COFF application only when the selected firmware implements the matching UEFI profile. SBI boot and UEFI boot are distinct entry paths and must have separate tests.
+
+### CI validation boundary and required next checks
+
+The current architecture-support workflow runs the support-matrix unit tests and reports whether a small set of cross-toolchains/emulators are installed. It does not currently compile AArch64/RISC-V kernel images, inspect ELF headers/program headers, validate linker-script symbols or entry ABI, inspect PE/COFF EFI machine/subsystem fields, or boot either target. Its green result must therefore be labelled **contract/inventory validation only**.
+
+Before a target can advance beyond porting status, add target-specific CI that: (1) builds from the real architecture port and pinned toolchain; (2) inspects ELF class, endianness, machine, type, entry and `PT_LOAD` ranges; (3) checks required linker symbols/section alignment and rejects overlapping or out-of-range segments; (4) inspects EFI PE/COFF machine and subsystem independently; (5) boots the exact hashed artifacts under a declared firmware/emulator profile; and (6) records user-mode entry and target runtime evidence. Missing toolchains or emulators must remain explicit skips/unavailable statuses, never passes. Until those checks and runtime gates exist, these targets remain unaccepted.
