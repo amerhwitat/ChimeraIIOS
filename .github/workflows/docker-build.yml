@@ -138,7 +138,7 @@ jobs:
           file: ./Dockerfile
           target: runtime
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name == 'workflow_dispatch' && steps.daps.outputs.accepted == 'true' }}
           tags: ${{ steps.runtime-meta.outputs.tags }}
           labels: ${{ steps.runtime-meta.outputs.labels }}
           cache-from: type=gha,scope=chimeraiios-runtime
