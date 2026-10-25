@@ -38,6 +38,8 @@ class UserCopyBoundaryContract(unittest.TestCase):
             self.assertIn("koronos_address_space_pin", body)
             self.assertIn("koronos_address_space_validate_user_range", body)
             self.assertIn("koronos_address_space_unpin", body)
+        self.assertIn("USERSPACE ROOTFS MOUNTED: target=live", self.launch)
+        self.assertIn("USERSPACE ROOTFS MOUNTED: target=recovery", self.launch)
             self.assertIn("active_cr3_matches_root()", body)
 
     def test_filesystem_backends_receive_kernel_owned_staging(self):
