@@ -1259,6 +1259,24 @@ build_iso(){
   fi
   log_info "UEFI removable-media loader ready: $uefi_loader"
 
+  # Fail closed on the actual boot inputs before packaging them into an ISO.
+  # These are structural checks only; firmware and six-case runtime acceptance
+  # remain separate release gates.
+  local elf_validator="$SCRIPT_DIR/tools/validate_elf_image.py"
+  local pe_validator="$SCRIPT_DIR/tools/validate_efi_pe.py"
+  local koronos_elf=""
+  for candidate in "$BUILD_DIR/koronos/x86_64/koronos.elf" "$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; do
+    if [[ -s "$candidate" ]]; then koronos_elf="$candidate"; break; fi
+  done
+  [[ -s "$elf_validator" ]] || { log_error "ELF validator missing: $elf_validator"; exit 1; }
+  [[ -s "$pe_validator" ]] || { log_error "EFI PE validator missing: $pe_validator"; exit 1; }
+  [[ -n "$koronos_elf" ]] || { log_error "Koronos kernel ELF missing; refusing to package unvalidated boot media."; exit 1; }
+  command -v python3 >/dev/null 2>&1 || { log_error "python3 is required for boot artifact validation."; exit 2; }
+  log_info "Validating production Koronos ELF structure: $koronos_elf"
+  python3 "$elf_validator" --target x86_64 "$koronos_elf" 2>&1 | tee "$LOG_DIR/validate-koronos-elf.log"
+  log_info "Validating staged UEFI application PE/COFF structure: $uefi_loader"
+  python3 "$pe_validator" --target x86_64 "$uefi_loader" 2>&1 | tee "$LOG_DIR/validate-bootx64-pe.log"
+
   source_bytes="$(du -sB1 "$ISO_DIR" 2>/dev/null | awk '{print $1}')"
   free_bytes_now="$(free_bytes "$ISO_OUTPUT_DIR")"
 
