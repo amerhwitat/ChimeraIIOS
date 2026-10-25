@@ -41,7 +41,7 @@ jobs:
       - name: Validate support matrix and ELF validator fixtures
         run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py tests/architecture/test_efi_pe_validation.py tests/architecture/test_aarch64_linker_contract.py -v
       - name: Check ISO builder shell syntax
-        run: bash -n build-chimera-iso.sh boot/iso/build-iso.sh
+        run: bash -n build-chimera-iso.sh && bash -n boot/iso/build-iso.sh
       - name: Verify available cross-toolchain inventory without claiming boot support
         shell: bash
         run: |
