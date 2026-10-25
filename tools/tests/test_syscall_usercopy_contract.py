@@ -58,7 +58,7 @@ class SyscallUserCopyContract(unittest.TestCase):
     def test_release_build_fails_closed_when_exact_session_wallpapers_are_missing(self):
         builder = (ROOT / "build-chimera-iso.sh").read_text()
         embedder = (ROOT / "tools/wallpapers/embed_wallpapers.py").read_text()
-        self.assertIn('CHIMERA_REQUIRE_SESSION_BRANDING:-0', builder)
+        self.assertIn('CHIMERA_REQUIRE_SESSION_BRANDING:-1', builder)
         self.assertIn('expected_sha256', embedder)
         self.assertIn('SHA-256 mismatch', embedder)
 
