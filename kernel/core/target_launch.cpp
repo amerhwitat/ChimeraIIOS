@@ -226,7 +226,7 @@ static bool user_range_bounds_valid(uint64_t address, uint64_t length) {
     if (length - 1u > UINT64_MAX - address) return false;
     return address + length - 1u < USER_ADDRESS_LIMIT;
 }
-static int copy_from_user(void *destination, uint64_t source, uint64_t length) {
+extern "C" int koronos_target_copy_from_user(void *destination, uint64_t source, uint64_t length) {
     if ((!destination && length) || !active_root || !active_address_space) return -14;
     if (!length) return 0;
     if (!user_range_bounds_valid(source, length)) return -14;
@@ -240,7 +240,7 @@ static int copy_from_user(void *destination, uint64_t source, uint64_t length) {
     for (uint64_t i = 0; i < length; ++i) out[i] = in[i];
     return koronos_address_space_unpin(active_address_space, source, length) == 0 ? 0 : -14;
 }
-static int copy_to_user(uint64_t destination, const void *source, uint64_t length) {
+extern "C" int koronos_target_copy_to_user(uint64_t destination, const void *source, uint64_t length) {
     if ((!source && length) || !active_root || !active_address_space) return -14;
     if (!length) return 0;
     if (!user_range_bounds_valid(destination, length)) return -14;
@@ -263,7 +263,7 @@ static int copy_target_user_path(uint64_t user_path, char path[CHIMERA_VFS_MAX_P
     for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
         if (user_path > UINT64_MAX - length) return -14;
         char c = 0;
-        const int rc = copy_from_user(&c, user_path + length, 1u);
+        const int rc = koronos_target_copy_from_user(&c, user_path + length, 1u);
         if (rc != 0) return rc;
         path[length] = c;
         if (!c) break;
@@ -291,7 +291,7 @@ extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uin
     const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count);
     if (result < 0) return result;
     if (static_cast<uint64_t>(result) > count) return -5;
-    if (result > 0 && copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0)
+    if (result > 0 && koronos_target_copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0)
         return -14;
     return result;
 }
@@ -302,7 +302,7 @@ extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, ui
     if (count > 4096u) return -22;
     if (!user_range_bounds_valid(user_buffer, count)) return -14;
     uint8_t kernel_buffer[4096];
-    if (copy_from_user(kernel_buffer, user_buffer, count) != 0) return -14;
+    if (koronos_target_copy_from_user(kernel_buffer, user_buffer, count) != 0) return -14;
     return chimera_vfs_write(pid, static_cast<int64_t>(fd), kernel_buffer, count);
 }
 extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
