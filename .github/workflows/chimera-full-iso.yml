@@ -292,7 +292,7 @@ jobs:
               vars="$candidate_vars"
               break
             fi
-          done < <(find /usr/share -type f \\( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \\) -print0 2>/dev/null)
+          done < <(find /usr/share -type f \( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \) -print0 2>/dev/null)
 
           if [[ -z "$code" || -z "$vars" ]]; then
             echo "::error::UEFI candidate matrix cannot run: matching OVMF code/vars images not found"
