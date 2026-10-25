@@ -106,6 +106,16 @@ for init_elf in \
   validate_artifact "$DIST/ELF-STRUCTURE-VALIDATION.log" python3 "$ELF_VALIDATOR" --target x86_64 "$init_elf"
 done
 validate_artifact "$DIST/EFI-PE-STRUCTURE-VALIDATION.log" python3 "$PE_VALIDATOR" --target x86_64 "$DIST/iso/EFI/BOOT/BOOTX64.EFI"
+# Parse the exact logs emitted above. Require successful records for every
+# staged boot artifact; malformed, missing, orphaned, or failed records abort.
+python3 "$ROOT/tools/validate_build_log.py" "$DIST/ELF-STRUCTURE-VALIDATION.log" \
+  --require "$KORONOS_ELF" \
+  --require "$DIST/iso/boot/koronos/koronos.elf" \
+  --require "$DIST/iso/boot/live/user-init-live.elf" \
+  --require "$DIST/iso/boot/installer/user-init-installer.elf" \
+  --require "$DIST/iso/boot/recovery/user-init-recovery.elf"
+python3 "$ROOT/tools/validate_build_log.py" "$DIST/EFI-PE-STRUCTURE-VALIDATION.log" \
+  --require "$DIST/iso/EFI/BOOT/BOOTX64.EFI"
 for module in \
   'module2 /boot/live/user-init-live.elf chimera-user-init-elf target=live' \
   'module2 /boot/installer/user-init-installer.elf chimera-user-init-elf target=installer' \
