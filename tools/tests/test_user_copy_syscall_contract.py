@@ -106,8 +106,12 @@ class UserCopyBoundaryContract(unittest.TestCase):
         pin_end = self.address_space.index('extern "C" int koronos_address_space_unpin', pin_start)
         pin_body = self.address_space[pin_start:pin_end]
         self.assertIn("meta->pins == UINT16_MAX", pin_body)
+        self.assertIn("meta->owner_generation != space->generation", pin_body)
         self.assertIn("(write_access && !(*pte & ENTRY_WRITE))", pin_body)
         self.assertIn("++meta->pins", pin_body)
+        unpin_start = self.address_space.index('extern "C" int koronos_address_space_unpin')
+        unpin_body = self.address_space[unpin_start:]
+        self.assertIn("meta->owner_generation != space->generation", unpin_body)
 
 
 if __name__ == "__main__":
