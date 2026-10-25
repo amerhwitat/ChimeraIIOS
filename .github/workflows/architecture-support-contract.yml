@@ -5,6 +5,7 @@ on:
       - "architecture/support-matrix.json"
       - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
       - "docs/architecture/ELF_EFI_ARCHITECTURE_ARTIFACT_CONTRACT.md"
+      - "docs/architecture/AARCH64_LINKER_ENTRY_ABI.md"
       - "tests/architecture/test_support_matrix.py"
       - "tests/architecture/test_elf_validation.py"
       - "tools/validate_elf_image.py"
@@ -14,7 +15,10 @@ on:
       - "architecture/support-matrix.json"
       - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
       - "docs/architecture/ELF_EFI_ARCHITECTURE_ARTIFACT_CONTRACT.md"
+      - "docs/architecture/AARCH64_LINKER_ENTRY_ABI.md"
       - "tests/architecture/test_support_matrix.py"
+      - "tests/architecture/test_elf_validation.py"
+      - "tools/validate_elf_image.py"
       - ".github/workflows/architecture-support-contract.yml"
   workflow_dispatch:
 permissions:
@@ -24,9 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate machine-readable support contract
+      - name: Validate support matrix and ELF validator fixtures
         run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py -v
-      - name: Validate ELF header and PT_LOAD parser against synthetic fixtures (not production artifacts)\n        run: python3 -m unittest tests/architecture/test_elf_validation.py -v\n      - name: Verify available cross-toolchain inventory without claiming boot support
+      - name: Verify available cross-toolchain inventory without claiming boot support
         shell: bash
         run: |
           set -euo pipefail
