@@ -21,7 +21,7 @@ def main() -> int:
         '[[ -n "$daps_evidence" && -f "$daps_evidence" ]]',
         'python3 "$daps_verifier" --evidence "$daps_evidence"',
         "docker image rm \"$image\"",
-        "docker-publish report",
+        "report docker-publish",
     )
     for token in required:
         if token not in text:
