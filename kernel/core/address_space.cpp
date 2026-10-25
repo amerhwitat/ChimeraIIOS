@@ -106,6 +106,14 @@ static uint64_t new_table(AddressSpace *space) {
 static bool space_valid(const AddressSpace *space) {
     return space && space->magic == SPACE_MAGIC && space->active && space->root_physical;
 }
+static PageMeta *find_page_meta(AddressSpace *space, uint64_t va, uint64_t *physical_out);
+static AddressSpace *space_for_root(uint64_t root_physical) {
+    for (uint32_t i = 0; i < MAX_ADDRESS_SPACES; ++i) {
+        if (space_valid(&spaces[i]) && spaces[i].root_physical == root_physical)
+            return &spaces[i];
+    }
+    return nullptr;
+}
 static uint64_t current_cr3_root() {
 #if defined(__x86_64__)
     uint64_t root = 0;
@@ -686,17 +694,37 @@ extern "C" uint64_t koronos_address_space_root(const void *opaque) {
 extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
                                                         uint64_t address, uint64_t length,
                                                         uint32_t write_access) {
+    /* POSIX-style zero-length buffers are valid without dereferencing address. */
     if (length == 0) return 0;
     if (write_access > 1u || root_physical == 0u || (root_physical & PAGE_MASK) != 0u ||
         address < KORONOS_USER_VIRTUAL_MIN || address >= CHIMERA_ELF_USER_LIMIT ||
         length > CHIMERA_ELF_USER_LIMIT - address) return -1;
-    const uint64_t end = address + length;
+
+    /* A page-table root alone is not process identity. Resolve it to a live
+       Koronos address-space object, then validate every page under the VM lock
+       against both its owned metadata and actual user/write PTE permissions. */
+    lock_backend();
+    AddressSpace *space = space_for_root(root_physical);
+    if (!space) { unlock_backend(); return -2; }
+    const uint64_t end = address + length; // safe after limit subtraction above
     uint64_t page = address & ~PAGE_MASK;
     while (page < end) {
-        if (!user_page_access(root_physical, page, write_access != 0)) return -2;
-        if (page > UINT64_MAX - PAGE_SIZE) return -3;
+        uint64_t physical = 0;
+        PageMeta *meta = find_page_meta(space, page, &physical);
+        uint64_t *pte = find_pte(space, page);
+        if (!meta || meta->owner_generation != space->generation ||
+            meta->state != PAGE_RESIDENT || !physical || !pte ||
+            !(*pte & ENTRY_PRESENT) || !(*pte & ENTRY_USER) ||
+            (write_access && !(*pte & ENTRY_WRITE)) ||
+            ((*pte & ENTRY_ADDRESS_MASK) != physical) ||
+            !user_page_access(root_physical, page, write_access != 0)) {
+            unlock_backend();
+            return -3;
+        }
+        if (page > UINT64_MAX - PAGE_SIZE) { unlock_backend(); return -4; }
         page += PAGE_SIZE;
     }
+    unlock_backend();
     return 0;
 }
 extern "C" int koronos_address_space_register_tlb_shootdown(
