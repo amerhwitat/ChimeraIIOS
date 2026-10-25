@@ -50,6 +50,7 @@ KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
 INIT="$OUT/initramfs/root"
+printf 'NAME=ChimeraIIOS\\nID=chimera\\nVERSION_ID=2\\n' > "$INIT/etc/os-release"
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
@@ -123,6 +124,8 @@ sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-
 # the init process immediately opens the repair console instead of attempting
 # to mount optical media. This makes Jasper Recovery deterministic.
 REC="$OUT/initramfs/recovery"
+mkdir -p "$REC/etc"
+printf 'NAME=ChimeraIIOS Recovery\\nID=chimera-recovery\\nVERSION_ID=2\\n' > "$REC/etc/os-release"
 rm -rf "$REC"
 mkdir -p "$REC"
 cp -a "$INIT/." "$REC/"
