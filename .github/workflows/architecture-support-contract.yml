@@ -15,6 +15,8 @@ on:
       - "build-chimera-iso.sh"
       - "boot/iso/build-iso.sh"
       - "tools/validate_efi_pe.py"
+      - "tools/verify_aarch64_linker_entry.py"
+      - "tests/architecture/test_aarch64_entry_verifier.py"
       - ".github/workflows/architecture-support-contract.yml"
   pull_request:
     paths:
@@ -29,6 +31,10 @@ on:
       - "tests/architecture/test_efi_pe_validation.py"
       - "tests/architecture/test_aarch64_linker_contract.py"
       - "tools/validate_efi_pe.py"
+      - "tools/verify_aarch64_linker_entry.py"
+      - "tests/architecture/test_aarch64_entry_verifier.py"
+      - "build-chimera-iso.sh"
+      - "boot/iso/build-iso.sh"
       - ".github/workflows/architecture-support-contract.yml"
   workflow_dispatch:
 permissions:
@@ -39,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate support matrix and ELF validator fixtures
-        run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py tests/architecture/test_efi_pe_validation.py tests/architecture/test_aarch64_linker_contract.py -v
+        run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py tests/architecture/test_efi_pe_validation.py tests/architecture/test_aarch64_linker_contract.py tests/architecture/test_aarch64_entry_verifier.py -v
       - name: Check ISO builder shell syntax
         run: bash -n build-chimera-iso.sh && bash -n boot/iso/build-iso.sh
       - name: Verify available cross-toolchain inventory without claiming boot support
