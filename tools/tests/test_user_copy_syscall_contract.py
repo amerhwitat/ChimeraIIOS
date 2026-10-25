@@ -33,6 +33,7 @@ class UserCopyBoundaryContract(unittest.TestCase):
                 end = self.launch.find("\n/* Process-owned descriptors", start)
             body = self.launch[start:end]
             self.assertIn("user_range_bounds_valid", body)
+            self.assertIn("koronos_address_space_root(active_address_space) != active_root", body)
             self.assertIn("koronos_address_space_pin", body)
             self.assertIn("koronos_address_space_validate_user_range", body)
             self.assertIn("koronos_address_space_unpin", body)
