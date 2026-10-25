@@ -582,6 +582,10 @@ extern "C" int koronos_launch_selected_userspace(void) {
         }
         __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
         koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file mutation syscalls enabled");
+        if (target == TARGET_LIVE)
+            koronos_target_log("USERSPACE ROOTFS MOUNTED: target=live root=read-only tmpfs=/tmp");
+        else if (target == TARGET_RECOVERY)
+            koronos_target_log("USERSPACE ROOTFS MOUNTED: target=recovery root=read-only tmpfs=/tmp");
     }
     if (payload_count == 1u && target == TARGET_INSTALLER) {
         koronos_target_log("[RUN ] ERROR: installer storage-backed root namespace is not mounted; refusing false readiness");
