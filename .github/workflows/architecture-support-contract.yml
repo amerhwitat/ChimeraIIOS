@@ -6,9 +6,13 @@ on:
       - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
       - "docs/architecture/ELF_EFI_ARCHITECTURE_ARTIFACT_CONTRACT.md"
       - "docs/architecture/AARCH64_LINKER_ENTRY_ABI.md"
+      - "docs/architecture/EFI_PE_COFF_VALIDATION.md"
       - "tests/architecture/test_support_matrix.py"
       - "tests/architecture/test_elf_validation.py"
+      - "tests/architecture/test_efi_pe_validation.py"
+      - "tests/architecture/test_aarch64_linker_contract.py"
       - "tools/validate_elf_image.py"
+      - "tools/validate_efi_pe.py"
       - ".github/workflows/architecture-support-contract.yml"
   pull_request:
     paths:
@@ -29,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate support matrix and ELF validator fixtures
-        run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py -v
+        run: python3 -m unittest tests/architecture/test_support_matrix.py tests/architecture/test_elf_validation.py tests/architecture/test_efi_pe_validation.py tests/architecture/test_aarch64_linker_contract.py -v
       - name: Verify available cross-toolchain inventory without claiming boot support
         shell: bash
         run: |
