@@ -4,12 +4,14 @@ on:
     paths:
       - "architecture/support-matrix.json"
       - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
+      - "docs/architecture/ELF_EFI_ARCHITECTURE_ARTIFACT_CONTRACT.md"
       - "tests/architecture/test_support_matrix.py"
       - ".github/workflows/architecture-support-contract.yml"
   pull_request:
     paths:
       - "architecture/support-matrix.json"
       - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
+      - "docs/architecture/ELF_EFI_ARCHITECTURE_ARTIFACT_CONTRACT.md"
       - "tests/architecture/test_support_matrix.py"
       - ".github/workflows/architecture-support-contract.yml"
   workflow_dispatch:
