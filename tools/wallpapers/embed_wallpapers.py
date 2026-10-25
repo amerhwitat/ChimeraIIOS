@@ -37,6 +37,7 @@ SESSION_BRANDING = {
         "width": 1672,
         "height": 941,
         "background": "#050711",
+        "expected_sha256": "a4004733cae6fb06c89d6d7e3dedf4e0190de512f7535613d51789397f0a246e",
     },
     "Duck-ai-image-2026-10-18-06-36.jpeg": {
         "id": "octavian-chimera-beast-brand",
@@ -44,6 +45,7 @@ SESSION_BRANDING = {
         "width": 1672,
         "height": 941,
         "background": "#050711",
+        "expected_sha256": "049e64ef31b6506816ca32956bc439e87b32abadb96c8f56160f401e578953e4",
     },
 }
 
@@ -89,6 +91,10 @@ def _entry(path: Path, filename: str, spec: dict) -> tuple[str, dict]:
     width, height = jpeg_dimensions(raw)
     if (width, height) != (spec["width"], spec["height"]):
         raise ValueError(f"{filename}: expected {spec['width']}x{spec['height']}, got {width}x{height}")
+    digest = hashlib.sha256(raw).hexdigest()
+    expected_digest = spec.get("expected_sha256")
+    if expected_digest and digest != expected_digest:
+        raise ValueError(f"{filename}: SHA-256 mismatch; refusing to embed non-original session artwork")
     encoded = base64.b64encode(raw).decode("ascii")
     if not re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", encoded):
         raise ValueError(f"{filename}: Base64 encoder produced invalid output")
@@ -96,7 +102,7 @@ def _entry(path: Path, filename: str, spec: dict) -> tuple[str, dict]:
     metadata = {
         "id": spec["id"], "file": filename, "mime_type": "image/jpeg",
         "width": width, "height": height, "bytes": len(raw),
-        "sha256": hashlib.sha256(raw).hexdigest(),
+        "sha256": digest,
         "data_uri_prefix": "data:image/jpeg;base64,", "embedded": True,
         "offline": True, "fit": "cover", "dark_fallback": spec["background"],
     }
