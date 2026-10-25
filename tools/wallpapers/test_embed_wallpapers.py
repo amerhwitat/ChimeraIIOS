@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Tests for byte-preserving offline wallpaper and dual-brand data-URI embedding."""
 import base64
+import hashlib
 import json
 import re
 import tempfile
 import unittest
 from pathlib import Path
 
+import embed_wallpapers as embed_module
 from embed_wallpapers import (
     EXPECTED, SESSION_BRANDING, generate, generate_session_branding, jpeg_dimensions,
 )
@@ -46,12 +48,19 @@ class WallpaperEmbedContract(unittest.TestCase):
             source = root / "source"
             source.mkdir()
             expected_bytes = {}
-            for filename in SESSION_BRANDING:
+            fixture_specs = {}
+            for filename, spec in SESSION_BRANDING.items():
                 data = fake_jpeg(1672, 941)
                 expected_bytes[filename] = data
                 (source / filename).write_bytes(data)
+                fixture_specs[filename] = {**spec, "expected_sha256": hashlib.sha256(data).hexdigest()}
             css_path, manifest_path = root / "session.css", root / "session.json"
-            result = generate_session_branding(source, css_path, manifest_path)
+            original_specs = embed_module.SESSION_BRANDING
+            try:
+                embed_module.SESSION_BRANDING = fixture_specs
+                result = generate_session_branding(source, css_path, manifest_path)
+            finally:
+                embed_module.SESSION_BRANDING = original_specs
             css = css_path.read_text()
             manifest = json.loads(manifest_path.read_text())
             matches = re.findall(r'data:image/jpeg;base64,([A-Za-z0-9+/=]+)', css)
@@ -61,6 +70,14 @@ class WallpaperEmbedContract(unittest.TestCase):
             self.assertTrue(all(entry["embedded"] and entry["offline"] for entry in manifest["wallpapers"]))
             self.assertEqual([entry["sha256"] for entry in manifest["wallpapers"]],
                              [__import__("hashlib").sha256(data).hexdigest() for data in expected_bytes.values()])
+
+    def test_session_branding_rejects_same_dimensions_with_wrong_original_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for filename in SESSION_BRANDING:
+                (root / filename).write_bytes(fake_jpeg(1672, 941))
+            with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                generate_session_branding(root, root / "out.css", root / "out.json")
 
     def test_missing_exact_session_attachment_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
