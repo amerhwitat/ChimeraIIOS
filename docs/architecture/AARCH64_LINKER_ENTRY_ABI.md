@@ -27,3 +27,12 @@ A production script must be reviewed together with the actual AArch64 reset/firm
 ## Promotion gate
 
 A linker-script compile is not boot acceptance. Require ELF header/program-header inspection, entry-symbol verification, segment range and alignment checks, boot under a named AArch64 UEFI or firmware profile, exception/trap tests, user-mode entry, and immutable artifact hashes. Until those exist, keep `aarch64.release_supported=false`.
+
+
+## Automated entry-symbol verifier
+
+Once an actual AArch64 linker script and linked kernel ELF exist, run:
+
+`python3 tools/verify_aarch64_linker_entry.py --script path/to/kernel-aarch64.ld --elf path/to/koronos-aarch64.elf`
+
+The tool requires the explicit output format/architecture, `ENTRY(kernel_entry)`, `PHDRS`/ `PT_LOAD`, validates the ELF structure, and checks that the linked ELF exports `kernel_entry` using `nm -g --defined-only`. Unit fixtures exercise the checker logic only; they are not an AArch64 production build or boot test.
