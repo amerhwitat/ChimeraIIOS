@@ -29,7 +29,7 @@ chimera_export_docker_rootfs() {
     local image="${1:-${CHIMERA_DOCKER_IMAGE:-${DOCKER_IMAGE:-}}}"
     local dest="${2:-${CHIMERA_ROOTFS_DIR:-${ROOTFS_DIR:-${ROOTFS:-}}}}"
     local work="${CHIMERA_ROOTFS_WORK:-/tmp/chimera-rootfs-work}"
-    local cid='' tarball='' avail required=0 stage
+    local cid='' tarball='' avail required=0 stage owner="${CHIMERA_BUILD_ID:-chimera-export-$BASHPID}"
     [[ -n "$image" ]] || { log_error "Docker image is not set for rootfs export."; return 1; }
     [[ -n "$dest" ]] || { log_error "Rootfs destination is not set; use CHIMERA_ROOTFS_DIR."; return 1; }
     command -v docker >/dev/null || { log_error "Docker CLI not found."; return 1; }
@@ -43,8 +43,7 @@ chimera_export_docker_rootfs() {
     (( required == 0 || avail >= required )) || { log_error "Insufficient WSL /tmp space: need about $required bytes, have $avail."; return 1; }
     rm -rf -- "$work/export" "$work/rootfs"
     mkdir -p "$work/export" "$work/rootfs"
-    while read -r old; do [[ -z "$old" ]] || docker rm -f "$old" >/dev/null 2>&1 || true; done < <(docker ps -aq --filter 'label=chimera.rootfs.export=true')
-    cid="$(docker create --label chimera.rootfs.export=true "$image")" || { log_error "docker create failed: $image"; return 1; }
+    cid="$(docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$owner" "$image") || { log_error "docker create failed: $image"; return 1; }
     tarball="$work/export/rootfs.tar"
     log_info "Exporting $image -> $tarball"
     if ! docker export "$cid" -o "$tarball"; then
@@ -100,6 +99,8 @@ DOCKER_TAG="${DOCKER_TAG:-latest}"
 ISO_NAME="ChimeraIIOS-comprehensive"
 ISO_VERSION="1.0.0"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$SCRIPT_DIR/build}"
+CHIMERA_BUILD_ID="${CHIMERA_BUILD_ID:-chimera-$BASHPID}"
+export CHIMERA_BUILD_ID
 ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
@@ -275,7 +276,7 @@ cleanup_generated_build_artifacts(){
   while read -r cid; do
     [[ -n "$cid" ]] || continue
     docker rm -f "$cid" >/dev/null 2>&1 || true
-  done < <(docker ps -aq --filter 'label=chimera.rootfs.export=true' 2>/dev/null || true)
+  done < <(docker ps -aq --filter "label=chimera.rootfs.owner=$CHIMERA_BUILD_ID" 2>/dev/null || true)
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -538,7 +539,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --label chimera.rootfs.export=true --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$CHIMERA_BUILD_ID" --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
