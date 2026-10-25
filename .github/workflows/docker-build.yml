@@ -23,6 +23,12 @@ on:
       - 'Dockerfile.*'
       - 'docker/**'
       - '.dockerignore'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker-build.yml'
+      - '.github/workflows/container.yml'
+      - 'tools/tests/test_container_publish_gate.py'
+      - 'tools/release/verify-production-daps.py'
+      - 'tools/tests/test_production_daps_contract.py'
   workflow_dispatch:
     inputs:
       evidence_run_id:
