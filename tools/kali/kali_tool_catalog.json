@@ -1,21 +1,169 @@
 {
-  "schema":"CHM-KALI-CATALOG-1",
-  "source":"Kali Linux official metapackage taxonomy",
-  "integration":"Native Chimera package manifests plus isolated compatibility environment; not a redistribution of proprietary software.",
-  "metapackages":["kali-linux-core","kali-linux-default","kali-linux-everything","kali-tools-top10","kali-tools-reverse-engineering","kali-tools-vulnerability","kali-tools-forensics","kali-tools-reporting","kali-tools-respond","kali-tools-information-gathering","kali-tools-web","kali-tools-wireless","kali-tools-passwords","kali-tools-sniffing-spoofing","kali-tools-exploitation","kali-tools-post-exploitation","kali-tools-social-engineering","kali-tools-crypto-stego","kali-tools-hardware","kali-tools-rfid","kali-tools-sdr","kali-tools-voip"],
-  "representative_tools":{
-    "information_gathering":["nmap","masscan","amass","theHarvester","recon-ng"],
-    "web":["Burp Suite","ZAP","nikto","sqlmap","wpscan"],
-    "wireless":["aircrack-ng","kismet","wifite"],
-    "sniffing":["Wireshark","tcpdump","netsniff-ng","mitmproxy"],
-    "forensics":["Autopsy","Sleuth Kit","Volatility","Guymager","ewf-tools"],
-    "reverse_engineering":["Ghidra","radare2","Rizin","Cutter","apktool","JADX","dex2jar","Bytecode Viewer","EDB"],
-    "vulnerability_analysis":["Nmap NSE","GVM","Lynis","Nikto","Nuclei"],
-    "password_auditing":["John the Ripper","Hashcat"],
-    "exploitation_frameworks":["Metasploit Framework"],
-    "hardware_and_sdr":["GNU Radio","HackRF tools","UHD","Proxmark3 tools"],
-    "reporting":["Faraday","Dradis","EyeWitness"]
+  "schema": "CHM-KALI-CATALOG-2",
+  "source": "Kali Linux official metapackage taxonomy and operator-configured APT package indexes",
+  "integration": "Package frontend and metadata are integrated; packages are installed from trusted configured repositories on demand and are not falsely claimed as prebundled.",
+  "repository_policy": {
+    "enabled_by_default": false,
+    "operator_opt_in_required": true,
+    "trust": "verify signing key and repository origin before creating /etc/chimera/kali-repository-enabled",
+    "nonfree": "per-package license review; never silently import",
+    "source_build": "prefer source packages and preserve copyright/license/provenance"
   },
-  "execution_policy":{"default":"sandbox","network_tools":"explicit authorization and isolated lab by default","credential_testing":"authorized systems only","exploit_development":"isolated test targets only"},
-  "package_strategy":["native open-source packages","compatibility packages","containerized Kali environment","tool metadata and launchers","license/provenance records"]
+  "install_modes": {
+    "core": "kali-linux-core",
+    "default": "kali-linux-default",
+    "headless": "kali-linux-headless",
+    "top10": "kali-tools-top10",
+    "everything": "kali-linux-everything",
+    "category": "install one category metapackage"
+  },
+  "metapackages": [
+    "kali-linux-core",
+    "kali-linux-default",
+    "kali-linux-headless",
+    "kali-linux-everything",
+    "kali-tools-top10",
+    "kali-tools-information-gathering",
+    "kali-tools-vulnerability",
+    "kali-tools-web",
+    "kali-tools-database",
+    "kali-tools-passwords",
+    "kali-tools-wireless",
+    "kali-tools-reverse-engineering",
+    "kali-tools-exploitation",
+    "kali-tools-post-exploitation",
+    "kali-tools-forensics",
+    "kali-tools-reporting",
+    "kali-tools-hardware",
+    "kali-tools-crypto-stego",
+    "kali-tools-fuzzing",
+    "kali-tools-bluetooth",
+    "kali-tools-sniffing-spoofing",
+    "kali-tools-social-engineering",
+    "kali-tools-voip",
+    "kali-tools-windows-resources",
+    "kali-tools-rfid",
+    "kali-tools-sdr",
+    "kali-tools-respond"
+  ],
+  "categories": {
+    "information-gathering": "kali-tools-information-gathering",
+    "vulnerability": "kali-tools-vulnerability",
+    "web": "kali-tools-web",
+    "database": "kali-tools-database",
+    "passwords": "kali-tools-passwords",
+    "wireless": "kali-tools-wireless",
+    "reverse-engineering": "kali-tools-reverse-engineering",
+    "exploitation": "kali-tools-exploitation",
+    "post-exploitation": "kali-tools-post-exploitation",
+    "forensics": "kali-tools-forensics",
+    "reporting": "kali-tools-reporting",
+    "hardware": "kali-tools-hardware",
+    "crypto-stego": "kali-tools-crypto-stego",
+    "fuzzing": "kali-tools-fuzzing",
+    "bluetooth": "kali-tools-bluetooth",
+    "sniffing-spoofing": "kali-tools-sniffing-spoofing",
+    "social-engineering": "kali-tools-social-engineering",
+    "voip": "kali-tools-voip",
+    "windows-resources": "kali-tools-windows-resources",
+    "rfid": "kali-tools-rfid",
+    "sdr": "kali-tools-sdr",
+    "respond": "kali-tools-respond"
+  },
+  "representative_tools": {
+    "information_gathering": [
+      "nmap",
+      "masscan",
+      "amass",
+      "theHarvester",
+      "recon-ng"
+    ],
+    "web": [
+      "Burp Suite",
+      "ZAP",
+      "nikto",
+      "sqlmap",
+      "wpscan"
+    ],
+    "wireless": [
+      "aircrack-ng",
+      "kismet",
+      "wifite"
+    ],
+    "sniffing": [
+      "Wireshark",
+      "tcpdump",
+      "netsniff-ng",
+      "mitmproxy"
+    ],
+    "forensics": [
+      "Autopsy",
+      "Sleuth Kit",
+      "Volatility",
+      "Guymager",
+      "ewf-tools"
+    ],
+    "reverse_engineering": [
+      "Ghidra",
+      "radare2",
+      "Rizin",
+      "Cutter",
+      "apktool",
+      "JADX",
+      "dex2jar",
+      "EDB"
+    ],
+    "vulnerability_analysis": [
+      "Nmap NSE",
+      "GVM",
+      "Lynis",
+      "Nikto",
+      "Nuclei"
+    ],
+    "password_auditing": [
+      "John the Ripper",
+      "Hashcat"
+    ],
+    "exploitation_frameworks": [
+      "Metasploit Framework"
+    ],
+    "hardware_and_sdr": [
+      "GNU Radio",
+      "HackRF tools",
+      "UHD",
+      "Proxmark3 tools"
+    ],
+    "reporting": [
+      "Faraday",
+      "Dradis",
+      "EyeWitness"
+    ]
+  },
+  "commands": {
+    "list": "chimera-kali list",
+    "status": "chimera-kali status",
+    "search": "chimera-kali search <query>",
+    "install_mode": "chimera-kali install <core|default|headless|top10|everything>",
+    "install_category": "chimera-kali install <category>",
+    "install_package": "chimera-kali install <package-name>",
+    "unattended": "chimera-kali install <package-name> --yes"
+  },
+  "inventory": {
+    "source_of_truth": "APT package indexes configured by the operator",
+    "catalog_is_not_a_complete_package_dump": true,
+    "update": "refresh trusted APT indexes, then use chimera-kali search"
+  },
+  "execution_policy": {
+    "default": "sandbox",
+    "network_tools": "explicit authorization and isolated lab by default",
+    "credential_testing": "authorized systems only",
+    "exploit_development": "isolated test targets only"
+  },
+  "package_strategy": [
+    "native open-source packages",
+    "compatibility packages",
+    "operator-enabled Kali repository",
+    "tool metadata and launchers",
+    "license and provenance records"
+  ]
 }
