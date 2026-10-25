@@ -396,7 +396,7 @@ jobs:
           set +e
           python3 tools/production-closeout-daps.py build/iso/production-closeout-evidence.json 2>&1 | tee build/iso/production-daps-verifier.log
           verifier_rc=${PIPESTATUS[0]}
-          printf 'production_daps_exit_code=%s\\n' "$verifier_rc" > build/iso/production-daps-verifier.status
+          printf 'production_daps_exit_code=%s\n' "$verifier_rc" > build/iso/production-daps-verifier.status
           exit "$verifier_rc"
 
       - name: Compress ISO for GitHub release asset size limit
