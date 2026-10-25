@@ -386,8 +386,18 @@ jobs:
           python3 tools/collect-production-closeout-evidence.py \
             --iso build/iso/chimera-ii-os.iso \
             --output-dir build/iso \
-            --candidate-traces /tmp/chimera-userspace-traces
+            --candidate-traces /tmp/chimera-userspace-traces \
+            --production-matrix build/iso/production-qemu-matrix
           echo "::notice::Evidence manifest created with NOT RUN production gates. Candidate smoke traces are diagnostic only; DAPS must remain blocked until actual production evidence exists."
+
+      - name: Run unchanged production DAPS verifier on exact-ISO raw traces
+        if: always() && hashFiles('build/iso/production-closeout-evidence.json') != ''
+        run: |
+          set +e
+          python3 tools/production-closeout-daps.py build/iso/production-closeout-evidence.json 2>&1 | tee build/iso/production-daps-verifier.log
+          verifier_rc=${PIPESTATUS[0]}
+          printf 'production_daps_exit_code=%s\\n' "$verifier_rc" > build/iso/production-daps-verifier.status
+          exit "$verifier_rc"
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
@@ -414,6 +424,8 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
             build/iso/production-closeout-evidence.json
+            build/iso/production-daps-verifier.log
+            build/iso/production-daps-verifier.status
             build/iso/closeout-traces/**
 
       - name: Enforce full production closeout evidence (DAPS)
