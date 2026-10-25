@@ -617,7 +617,21 @@ static bool address_space_self_test() {
              koronos_address_space_validate_user_range(space->root_physical,
                  0x00007FFFFFFFE000ull, 1u, 1u) == 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
-                 0x00100000ull, 1u, 0u) != 0;
+                 0x00100000ull, 1u, 0u) != 0 &&
+             /* Zero-length spans are valid regardless of the unused pointer. */
+             koronos_address_space_validate_user_range(space->root_physical,
+                 0u, 0u, 0u) == 0 &&
+             /* A range that begins in the last byte of the mapped code page
+                and crosses into an unmapped page must fail as a whole. */
+             koronos_address_space_validate_user_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN + PAGE_SIZE - 1u, 2u, 0u) != 0 &&
+             koronos_address_space_pin(space,
+                 KORONOS_USER_VIRTUAL_MIN + PAGE_SIZE - 1u, 2u, 0u) != 0 &&
+             /* Reject arithmetic overflow and the non-canonical/kernel half. */
+             koronos_address_space_validate_user_range(space->root_physical,
+                 CHIMERA_ELF_USER_LIMIT - 1u, 2u, 0u) != 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 0xFFFF800000000000ull, 1u, 0u) != 0;
     }
     destroy_address_space(nullptr, space);
     return ok && koronos_frame_free_count() == before;
