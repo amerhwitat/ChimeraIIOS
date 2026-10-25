@@ -38,8 +38,16 @@ int main(){
  assert(bad_backing.destroyed&&bad_backing.count==1);
  // A rollback teardown failure is surfaced distinctly and must not be reported as ordinary load failure.
  build_elf(elf,sizeof(elf)); Mock failed_rollback{}; failed_rollback.fail_backing=true; failed_rollback.fail_destroy=true;
- assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&failed_rollback,&untouched)==-17);
+ chimera_loaded_elf quarantined{};
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&failed_rollback,&quarantined)==-17);
  assert(failed_rollback.destroyed&&failed_rollback.count==1);
+ assert(quarantined.abi==CHIMERA_ELF_LOADER_ABI&&quarantined.address_space==&failed_rollback);
+ assert(quarantined.segment_count==1);
+ // Ordinary failures must not leave a stale handle in the result structure.
+ build_elf(elf,sizeof(elf)); Mock ordinary_failure{}; ordinary_failure.fail_backing=true;
+ chimera_loaded_elf empty_on_failure{}; empty_on_failure.address_space=(void*)1;
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&ordinary_failure,&empty_on_failure)==-16);
+ assert(empty_on_failure.address_space==nullptr&&empty_on_failure.abi==0);
  // Header version and exact ELF header size are mandatory.
  build_elf(elf,sizeof(elf)); put32(elf+20,2); Mock bad_version{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad_version,&untouched)<0);
