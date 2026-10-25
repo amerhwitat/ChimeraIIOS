@@ -30,7 +30,7 @@ class KaliFrontendContract(unittest.TestCase):
         self.assertIn("kali-linux-core", result.stdout)
         self.assertIn("kali-linux-everything", result.stdout)
         self.assertIn("kali-tools-information-gathering", result.stdout)
-        self.assertIn("No source is enabled automatically", result.stdout)
+        self.assertIn("no source is enabled automatically", result.stdout.lower())
 
     def test_install_fails_closed_without_explicit_repository_opt_in(self):
         with tempfile.TemporaryDirectory() as tmp:
