@@ -27,6 +27,19 @@ class ProgressBridgeContract(unittest.TestCase):
         self.assertIn('console_progress(75, "Process admission and module registries initialized")', kernel)
         self.assertIn('console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)")', kernel)
 
+    def test_desktop_progress_requires_real_wayland_and_compositor_health(self):
+        desktop = (ROOT / "desktop/aurora/aurora-desktop-init.sh").read_text()
+        self.assertIn("wayland_socket_ready", desktop)
+        self.assertIn("compositor_process_alive", desktop)
+        self.assertIn('progress_set 100 aurora-session "Aurora desktop session initialized;', desktop)
+        self.assertIn("refusing to report desktop readiness", desktop)
+        self.assertIn('bash "$AURORA/aurora-init-splash.sh"', desktop)
+
+    def test_splash_reads_percent_field_not_final_timestamp_line(self):
+        splash = (ROOT / "desktop/aurora/aurora-init-splash.sh").read_text()
+        self.assertIn('awk -F= \'$1=="percent" {print $2; exit}\'', splash)
+        self.assertIn("tail -n 1", splash)
+
     def test_ui_reads_real_state_instead_of_advancing_a_completion_timer(self):
         ui = (ROOT / "desktop/aurora/aurora-progress.sh").read_text()
         self.assertIn('mapfile -t v < <(read_state', ui)
