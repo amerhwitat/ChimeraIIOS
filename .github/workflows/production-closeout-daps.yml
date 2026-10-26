@@ -1,0 +1,93 @@
+name: Production Closeout DAPS Regression Tests
+
+on:
+  pull_request:
+    paths:
+      - "tools/production-closeout-daps.py"
+      - "tools/tests/test_production_closeout_daps.py"
+      - "tools/tests/test_native_init_packaging_contract.py"
+      - "tools/tests/test_target_init_payload_binding.py"
+      - "tools/tests/test_native_init_launch_gate.py"
+      - "tools/build-production-init-elfs.sh"
+      - "tools/validate-native-init-elf.py"
+      - "kernel/userspace/native_init.c"
+      - "kernel/userspace/native_init.ld"
+      - "kernel/core/target_launch.cpp"
+      - "kernel/core/service.cpp"
+      - "kernel/include/chimera/service.h"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - "kernel/core/ramfs.cpp"
+      - "kernel/core/initramfs_cpio.cpp"
+      - "kernel/include/chimera/ramfs.h"
+      - "kernel/tests/ramfs_test.cpp"
+      - "boot/iso/prepare-layout.sh"
+      - "boot/iso/grub.cfg"
+      - "boot/jasper/live.cfg"
+      - "boot/jasper/recovery.cfg"
+      - "boot/jasper/install.cfg"
+      - ".github/workflows/production-closeout-daps.yml"
+      - "docs/PRODUCTION_RUNTIME_ACCEPTANCE.md"
+  push:
+    branches: [main]
+    paths:
+      - "tools/production-closeout-daps.py"
+      - "tools/tests/test_production_closeout_daps.py"
+      - "tools/tests/test_native_init_packaging_contract.py"
+      - "tools/tests/test_target_init_payload_binding.py"
+      - "tools/tests/test_native_init_launch_gate.py"
+      - "tools/build-production-init-elfs.sh"
+      - "tools/validate-native-init-elf.py"
+      - "kernel/userspace/native_init.c"
+      - "kernel/userspace/native_init.ld"
+      - "kernel/core/target_launch.cpp"
+      - "kernel/core/service.cpp"
+      - "kernel/include/chimera/service.h"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - "kernel/core/ramfs.cpp"
+      - "kernel/core/initramfs_cpio.cpp"
+      - "kernel/include/chimera/ramfs.h"
+      - "kernel/tests/ramfs_test.cpp"
+      - "kernel/tests/service_bootstrap_test.cpp"
+      - "boot/iso/prepare-layout.sh"
+      - "boot/iso/grub.cfg"
+      - "boot/jasper/live.cfg"
+      - "boot/jasper/recovery.cfg"
+      - "boot/jasper/install.cfg"
+      - ".github/workflows/production-closeout-daps.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  daps-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile DAPS verifier
+        run: python3 -m py_compile tools/production-closeout-daps.py
+      - name: Run DAPS regression suite
+        run: python3 tools/tests/test_production_closeout_daps.py
+      - name: Run dependency-aware service lifecycle regression
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/service.cpp kernel/tests/service_bootstrap_test.cpp \
+            -o /tmp/service-supervisor-contract
+          /tmp/service-supervisor-contract
+      - name: Run RAMFS symlink extraction and rollback regression
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/initramfs_cpio.cpp kernel/core/ramfs.cpp kernel/tests/ramfs_test.cpp \
+            -o /tmp/koronos-ramfs-test
+          /tmp/koronos-ramfs-test
+      - name: Build target-specific native init ELFs
+        run: bash tools/build-production-init-elfs.sh
+      - name: Verify native init ELF packaging and target binding
+        run: |
+          python3 tools/tests/test_native_init_packaging_contract.py
+          python3 tools/tests/test_target_init_payload_binding.py

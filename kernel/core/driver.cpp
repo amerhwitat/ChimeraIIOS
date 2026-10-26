@@ -20,15 +20,32 @@ extern "C" int chimera_driver_register(const chimera_driver_descriptor* d){
 extern "C" const chimera_driver_registry* chimera_driver_registry_snapshot(){
  static chimera_driver_registry r{0,256,g_drivers}; r.count=g_count; return &r;
 }
-extern "C" int chimera_driver_start_all(){ int started=0; for(uint32_t i=0;i<g_count;i++){ chimera_driver_descriptor *d=&g_drivers[i]; if(d->state==2 || d->state==1){ if(d->probe && d->probe(0)!=0){d->state=5;continue;} d->state=3; started++; }} return started; }
-extern "C" int chimera_driver_probe_all(){
- chimera_device_inventory inv{}; int n=chimera_hardware_enumerate_devices(&inv); if(n<0)return n;
+extern "C" int chimera_driver_start_all(){
+ int started=0;
+ for(uint32_t i=0;i<g_count;i++){
+   chimera_driver_descriptor *d=&g_drivers[i];
+   /* probe_all already invoked the callback with a real device. Never call it
+      again with nullptr: drivers may dereference their bound-device argument. */
+   if(d->state==2 && d->probe){ d->state=3; started++; }
+ }
+ return started;
+}
+extern "C" int chimera_driver_probe_inventory(const chimera_device_inventory *inventory){
+ if(!inventory || inventory->count>CHIMERA_DEVICE_MAX) return -1;
  g_last_probe_count=0;
- for(uint32_t i=0;i<inv.count;i++){
-   const chimera_device *x=&inv.devices[i]; int bound=0;
+ for(uint32_t i=0;i<inventory->count;i++){
+   const chimera_device *x=&inventory->devices[i]; int bound=0;
    for(uint32_t j=0;j<g_count;j++){
      chimera_driver_descriptor *d=&g_drivers[j];
-     if(match(d,x)){ d->state=2; bound=1; g_last_probe_count++; if(d->probe)d->probe(x); break; }
+     if(!match(d,x)) continue;
+     /* A catalogue entry without executable probe code is not a bound driver.
+        A failing probe must not count as discovery/registration success. */
+     if(!d->probe){ d->state=5; continue; }
+     if(d->probe(x)!=0){ d->state=5; continue; }
+     d->state=2;
+     bound=1;
+     g_last_probe_count++;
+     break;
    }
    if(!bound){
      static chimera_driver_descriptor compat[256]; static uint32_t cc=0;
@@ -45,4 +62,10 @@ extern "C" int chimera_driver_probe_all(){
    }
  }
  return g_last_probe_count;
+}
+extern "C" int chimera_driver_probe_all(){
+ chimera_device_inventory inv{};
+ int n=chimera_hardware_enumerate_devices(&inv);
+ if(n<0)return n;
+ return chimera_driver_probe_inventory(&inv);
 }

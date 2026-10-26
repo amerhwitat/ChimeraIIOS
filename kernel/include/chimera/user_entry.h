@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +27,19 @@ typedef struct koronos_user_syscall_frame {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8;
     uint64_t rdi, rsi, rbp, rdx, rcx, rbx, rax;
 } koronos_user_syscall_frame;
+
+#ifdef __cplusplus
+static_assert(sizeof(koronos_user_syscall_frame) == 120,
+              "user SYSCALL frame ABI size changed");
+static_assert(offsetof(koronos_user_syscall_frame, r8) == 56,
+              "user SYSCALL frame R8 offset changed");
+static_assert(offsetof(koronos_user_syscall_frame, rdi) == 64,
+              "user SYSCALL frame RDI offset changed");
+static_assert(offsetof(koronos_user_syscall_frame, rcx) == 96,
+              "user SYSCALL frame RCX/user-RIP offset changed");
+static_assert(offsetof(koronos_user_syscall_frame, rax) == 112,
+              "user SYSCALL frame RAX offset changed");
+#endif
 
 uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame);
 extern volatile uint64_t koronos_user_exit_code;

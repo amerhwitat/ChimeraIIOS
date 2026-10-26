@@ -11,6 +11,9 @@ on:
       - "iso/**"
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
+      - "tools/run-production-qemu-matrix.py"
+      - "build-chimera-iso.sh"
+      - "tools/wallpapers/**"
       - "tools/build-full-iso.*"
       - "tools/collect-production-closeout-evidence.py"
       - "tools/tests/**"
@@ -32,6 +35,9 @@ on:
       - "userland/**"
       - "iso/**"
       - "tools/build-full-iso.*"
+      - "tools/run-production-qemu-matrix.py"
+      - "build-chimera-iso.sh"
+      - "tools/wallpapers/**"
       - "tools/collect-production-closeout-evidence.py"
       - "tools/tests/**"
       - "sdk/**"
@@ -59,10 +65,23 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 qemu-utils ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
+      - name: Validate shell syntax and user-memory/progress/wallpaper contracts
+        run: |
+          set -euo pipefail
+          for script in build-chimera-iso.sh tools/build-full-iso.sh tools/build-live-boot-binaries.sh desktop/aurora/aurora-desktop-init.sh desktop/aurora/aurora-init-splash.sh desktop/aurora/aurora-progress.sh system/boot/koronos-progress.sh; do
+            bash -n "$script"
+          done
+          python3 tools/wallpapers/test_embed_wallpapers.py
+          python3 tools/tests/test_progress_bridge_contract.py
+          python3 tools/tests/test_production_qemu_matrix.py
+          python3 tools/tests/test_user_copy_syscall_contract.py
+          python3 tools/tests/test_native_init_runtime_contract.py
+          python3 tools/tests/test_collect_production_closeout_evidence.py
+          python3 tools/tests/test_syscall_usercopy_contract.py
 
       - name: Test production closeout DAPS gate
         run: |
@@ -75,9 +94,12 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Build ASM/C/C++ and compose diagnostic ISO
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          # Let the diagnostic ISO boot even when exact session JPEGs are absent;
+          # the later strict branding gate still fails and forbids publication.
+          CHIMERA_REQUIRE_SESSION_BRANDING: "0"
         run: |
           chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
           ./tools/build-full-iso.sh
@@ -285,12 +307,15 @@ jobs:
           accepted=true
           code=""
           vars=""
-          for candidate in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
-            if [[ -f "$candidate" ]]; then
-              candidate_vars="${candidate/CODE/VARS}"
-              if [[ -f "$candidate_vars" ]]; then code="$candidate"; vars="$candidate_vars"; break; fi
+          while IFS= read -r -d '' candidate; do
+            candidate_vars="${candidate/CODE/VARS}"
+            if [[ -f "$candidate_vars" ]]; then
+              code="$candidate"
+              vars="$candidate_vars"
+              break
             fi
-          done
+          done < <(find /usr/share -type f \( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \) -print0 2>/dev/null)
+
           if [[ -z "$code" || -z "$vars" ]]; then
             echo "::error::UEFI candidate matrix cannot run: matching OVMF code/vars images not found"
             exit 1
@@ -326,12 +351,31 @@ jobs:
           echo "UEFI candidate smoke matrix accepted=$accepted (this is not production acceptance)"
           if [[ "$accepted" != true ]]; then exit 1; fi
 
+      - name: Run exact-ISO BIOS/UEFI Live/Installer/Recovery matrix
+        if: always() && hashFiles('build/iso/chimera-ii-os.iso') != ''
+        run: |
+          python3 -m py_compile tools/run-production-qemu-matrix.py
+          python3 tools/run-production-qemu-matrix.py \
+            --iso build/iso/chimera-ii-os.iso \
+            --output build/iso/production-qemu-matrix \
+            --timeout 18
+
+      - name: Require exact session wallpaper originals for release
+        if: always()
+        run: |
+          python3 tools/wallpapers/embed_wallpapers.py --session-branding \
+            --source-dir desktop/aurora/assets/library \
+            --css build/iso/dual-os-brand-wallpapers.css \
+            --manifest build/iso/dual-os-brand-wallpapers.json
+
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: chimera-target-userspace-traces
-          path: /tmp/chimera-userspace-traces/
+          path: |
+            /tmp/chimera-userspace-traces/
+            build/iso/production-qemu-matrix/
           if-no-files-found: ignore
           retention-days: 14
 
@@ -343,8 +387,18 @@ jobs:
           python3 tools/collect-production-closeout-evidence.py \
             --iso build/iso/chimera-ii-os.iso \
             --output-dir build/iso \
-            --candidate-traces /tmp/chimera-userspace-traces
+            --candidate-traces /tmp/chimera-userspace-traces \
+            --production-matrix build/iso/production-qemu-matrix
           echo "::notice::Evidence manifest created with NOT RUN production gates. Candidate smoke traces are diagnostic only; DAPS must remain blocked until actual production evidence exists."
+
+      - name: Run unchanged production DAPS verifier on exact-ISO raw traces
+        if: always() && hashFiles('build/iso/production-closeout-evidence.json') != ''
+        run: |
+          set +e
+          python3 tools/production-closeout-daps.py build/iso/production-closeout-evidence.json 2>&1 | tee build/iso/production-daps-verifier.log
+          verifier_rc=${PIPESTATUS[0]}
+          printf 'production_daps_exit_code=%s\n' "$verifier_rc" > build/iso/production-daps-verifier.status
+          exit "$verifier_rc"
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
@@ -371,6 +425,8 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
             build/iso/production-closeout-evidence.json
+            build/iso/production-daps-verifier.log
+            build/iso/production-daps-verifier.status
             build/iso/closeout-traces/**
 
       - name: Enforce full production closeout evidence (DAPS)

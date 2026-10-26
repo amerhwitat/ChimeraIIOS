@@ -2,11 +2,37 @@
   "$schema": "CHM-AURORA-WALLPAPER-1",
   "desktop": "Aurora Wayland Glass",
   "purpose": "High-resolution desktop background import, scheduling, multi-output placement, color-aware presentation and safe integration with compatible desktop shells.",
-  "sources": ["local-file", "folder", "library", "wallpaper-pack", "configured-provider"],
-  "formats": ["png", "jpeg", "jpg", "webp", "avif", "tiff", "bmp"],
-  "minimum_quality": {"default_long_edge_px": 3840, "allow_user_override": true, "preserve_original": true},
+  "sources": [
+    "local-file",
+    "folder",
+    "library",
+    "wallpaper-pack",
+    "configured-provider"
+  ],
+  "formats": [
+    "png",
+    "jpeg",
+    "jpg",
+    "webp",
+    "avif",
+    "tiff",
+    "bmp"
+  ],
+  "minimum_quality": {
+    "default_long_edge_px": 3840,
+    "allow_user_override": true,
+    "preserve_original": true
+  },
   "display": {
-    "modes": ["fill", "fit", "crop", "tile", "center", "span", "per-output"],
+    "modes": [
+      "fill",
+      "fit",
+      "crop",
+      "tile",
+      "center",
+      "span",
+      "per-output"
+    ],
     "high_dpi": true,
     "preferred_buffer_scale": true,
     "hdr_color_management": true,
@@ -18,7 +44,14 @@
   },
   "scheduler": {
     "enabled": true,
-    "modes": ["interval", "clock", "sunrise-sunset", "login", "workspace-change", "manual"],
+    "modes": [
+      "interval",
+      "clock",
+      "sunrise-sunset",
+      "login",
+      "workspace-change",
+      "manual"
+    ],
     "interval_seconds": 3600,
     "randomize": true,
     "avoid_repeats": true,
@@ -28,7 +61,15 @@
   "import": {
     "recursive_folders": true,
     "duplicate_detection": "sha256",
-    "metadata": ["width", "height", "format", "color_profile", "orientation", "license", "source"],
+    "metadata": [
+      "width",
+      "height",
+      "format",
+      "color_profile",
+      "orientation",
+      "license",
+      "source"
+    ],
     "validate_before_install": true,
     "quarantine_invalid_files": true,
     "never_execute_images": true
@@ -44,14 +85,35 @@
     "native_compositor_surface": true,
     "output_awareness": true,
     "preferred_buffer_scale": true,
-    "optional_protocols": ["Treeland wallpaper manager", "Weston desktop shell"],
+    "optional_protocols": [
+      "Treeland wallpaper manager",
+      "Weston desktop shell"
+    ],
     "fallback": "Aurora compositor-owned wallpaper surface"
   },
   "other_desktops": {
-    "linux_wayland": ["KDE Plasma", "GNOME", "Sway", "Hyprland", "Mutter", "KWin", "Weston", "Treeland", "Wayfire", "Labwc"],
+    "linux_wayland": [
+      "KDE Plasma",
+      "GNOME",
+      "Sway",
+      "Hyprland",
+      "Mutter",
+      "KWin",
+      "Weston",
+      "Treeland",
+      "Wayfire",
+      "Labwc"
+    ],
     "linux_x11": true,
-    "windows": ["Win32", "Windows 10", "Windows 11"],
-    "macos": ["AppKit", "SwiftUI-compatible integration"],
+    "windows": [
+      "Win32",
+      "Windows 10",
+      "Windows 11"
+    ],
+    "macos": [
+      "AppKit",
+      "SwiftUI-compatible integration"
+    ],
     "compatibility_policy": "Use native desktop API when available; otherwise use Aurora adapter without replacing proprietary components."
   },
   "accessibility": {
@@ -66,5 +128,34 @@
     "network_download_requires_policy": true,
     "license_metadata_supported": true,
     "sandbox_image_decoding": true
-  }
+  },
+  "default_wallpapers": {
+    "chimera-aurora": {
+      "file": "aurora-and-mountain.jpg",
+      "desktop": "Aurora Wayland Glass",
+      "mime_type": "image/jpeg",
+      "expected_dimensions": [
+        2048,
+        1152
+      ],
+      "offline": true,
+      "fit": "cover",
+      "dark_fallback": "#07121c",
+      "embedded_css": "usr/share/chimera/aurora/assets/embedded-wallpapers.css"
+    },
+    "octavian-marine": {
+      "file": "octavian-marine-dual-brand.jpg",
+      "desktop": "Marine",
+      "mime_type": "image/jpeg",
+      "expected_dimensions": [
+        1672,
+        941
+      ],
+      "offline": true,
+      "fit": "cover",
+      "dark_fallback": "#070914",
+      "embedded_css": "usr/share/chimera/aurora/assets/embedded-wallpapers.css"
+    }
+  },
+  "embedded_defaults_generated_by": "tools/wallpapers/embed_wallpapers.py"
 }

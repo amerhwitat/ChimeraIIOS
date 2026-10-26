@@ -9,7 +9,8 @@ Usage:
   build-chimera-iso.sh [options] [arguments]
 
 Options:
-  -h, --help    Show this help and exit successfully.
+  -h, --help                    Show this help and exit successfully.
+  --system-block-size BYTES     Set Koronos system block size (default 4096; powers of two 512..65536).
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
@@ -28,7 +29,7 @@ chimera_export_docker_rootfs() {
     local image="${1:-${CHIMERA_DOCKER_IMAGE:-${DOCKER_IMAGE:-}}}"
     local dest="${2:-${CHIMERA_ROOTFS_DIR:-${ROOTFS_DIR:-${ROOTFS:-}}}}"
     local work="${CHIMERA_ROOTFS_WORK:-/tmp/chimera-rootfs-work}"
-    local cid='' tarball='' avail required=0 stage
+    local cid='' tarball='' avail required=0 stage owner="${CHIMERA_BUILD_ID:-chimera-export-$BASHPID}"
     [[ -n "$image" ]] || { log_error "Docker image is not set for rootfs export."; return 1; }
     [[ -n "$dest" ]] || { log_error "Rootfs destination is not set; use CHIMERA_ROOTFS_DIR."; return 1; }
     command -v docker >/dev/null || { log_error "Docker CLI not found."; return 1; }
@@ -42,8 +43,16 @@ chimera_export_docker_rootfs() {
     (( required == 0 || avail >= required )) || { log_error "Insufficient WSL /tmp space: need about $required bytes, have $avail."; return 1; }
     rm -rf -- "$work/export" "$work/rootfs"
     mkdir -p "$work/export" "$work/rootfs"
-    while read -r old; do [[ -z "$old" ]] || docker rm -f "$old" >/dev/null 2>&1 || true; done < <(docker ps -aq --filter 'label=chimera.rootfs.export=true')
-    cid="$(docker create --label chimera.rootfs.export=true "$image")" || { log_error "docker create failed: $image"; return 1; }
+    # Avoid nested command-substitution quoting; capture the container ID only after create succeeds.
+    local cid_file="$work/container-id"
+    if ! docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$owner" "$image" > "$cid_file"; then
+        rm -f -- "$cid_file"
+        log_error "docker create failed: $image"
+        return 1
+    fi
+    IFS= read -r cid < "$cid_file"
+    rm -f -- "$cid_file"
+    [[ -n "$cid" ]] || { log_error "docker create returned an empty container ID"; return 1; }
     tarball="$work/export/rootfs.tar"
     log_info "Exporting $image -> $tarball"
     if ! docker export "$cid" -o "$tarball"; then
@@ -99,6 +108,8 @@ DOCKER_TAG="${DOCKER_TAG:-latest}"
 ISO_NAME="ChimeraIIOS-comprehensive"
 ISO_VERSION="1.0.0"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$SCRIPT_DIR/build}"
+CHIMERA_BUILD_ID="${CHIMERA_BUILD_ID:-chimera-$BASHPID}"
+export CHIMERA_BUILD_ID
 ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
@@ -114,7 +125,7 @@ STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 
@@ -165,6 +176,27 @@ log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
 log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_file(){ ensure_log_dir || return 0; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log" 2>/dev/null || true; }
 log_both(){ log_info "$*"; log_file "$*"; }
+# Preserve both validator output streams and the validator's real exit status.
+# pipefail is enabled globally; the explicit branch records a durable PASS/FAIL.
+run_logged_validation(){
+  local logfile="$1"; shift
+  local rc=0
+  mkdir -p "$(dirname "$logfile")"
+  log_info "Validation command: $* (log: $logfile)"
+  if "$@" 2>&1 | tee "$logfile"; then
+    printf '[VALIDATION PASS] exit=0 command=%q' "$1" >> "$logfile"
+    printf ' %q' "${@:2}" >> "$logfile"
+    printf '\n' >> "$logfile"
+    log_file "[VALIDATION PASS] exit=0 command=$* log=$logfile"
+    return 0
+  else
+    rc=$?
+    printf '[VALIDATION FAIL] exit=%s command=%s\n' "$rc" "$*" | tee -a "$logfile" >&2
+    log_file "[VALIDATION FAIL] exit=$rc command=$* log=$logfile"
+    log_error "Validation failed with exit $rc; see $logfile"
+    return "$rc"
+  fi
+}
 process_snapshot(){
   ensure_log_dir || return 0
   {
@@ -217,10 +249,25 @@ while [[ $# -gt 0 ]]; do
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
+    --system-block-size) [[ -n "${2:-}" ]] || { log_error '--system-block-size requires a byte count'; exit 2; }; export KORONOS_SYSTEM_BLOCK_SIZE="$2"; shift 2;;
+    --system-block-size=*) export KORONOS_SYSTEM_BLOCK_SIZE="${1#*=}"; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+KORONOS_SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"
+if [[ ! "$KORONOS_SYSTEM_BLOCK_SIZE" =~ ^[0-9]+$ ]]; then
+  log_error 'System block size must be an integer power of two from 512 through 65536.'
+  exit 2
+fi
+KORONOS_SYSTEM_BLOCK_SIZE=$((10#$KORONOS_SYSTEM_BLOCK_SIZE))
+if (( KORONOS_SYSTEM_BLOCK_SIZE < 512 || KORONOS_SYSTEM_BLOCK_SIZE > 65536 ||
+      (KORONOS_SYSTEM_BLOCK_SIZE & (KORONOS_SYSTEM_BLOCK_SIZE - 1)) != 0 )); then
+  log_error 'System block size must be a power of two from 512 through 65536.'
+  exit 2
+fi
+export KORONOS_SYSTEM_BLOCK_SIZE
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
@@ -254,7 +301,12 @@ cleanup_generated_build_artifacts(){
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
+  # Only remove containers explicitly labeled as temporary rootfs exporters.
+  # Do not prune unrelated containers owned by the developer or other projects.
+  while read -r cid; do
+    [[ -n "$cid" ]] || continue
+    docker rm -f "$cid" >/dev/null 2>&1 || true
+  done < <(docker ps -aq --filter "label=chimera.rootfs.owner=$CHIMERA_BUILD_ID" 2>/dev/null || true)
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -269,25 +321,41 @@ docker_image_in_use(){
   docker ps -aq --filter "ancestor=$image" | grep -q .
 }
 cleanup_generated_docker_image(){
-  local image="$1" image_id="$2" tagged=""
+  local image="$1" image_id="$2" current_id=""
   [[ -n "$image_id" ]] || return 0
+  # Remove only the temporary source tag. Never remove every tag sharing this
+  # image ID: another project or release may own those references.
   if docker_image_in_use "$image"; then
-    log_warning "Keeping Docker image $image because a container still references it."
+    log_warning "Keeping source tag $image because a container still references it."
     return 0
   fi
-  # Remove every local tag that points at the image created by this build.
-  while read -r tagged; do
-    [[ -n "$tagged" ]] || continue
-    docker image rm -f "$tagged" >/dev/null 2>&1 || true
-  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
-  if docker image inspect "$image_id" >/dev/null 2>&1; then
-    log_warning "Docker image layers remain because another local reference uses $image_id."
-  else
-    log_success "Unused generated Docker image removed: $image_id"
+  current_id="$(docker image inspect -f '{{.Id}}' "$image" 2>/dev/null || true)"
+  if [[ "$current_id" == "$image_id" ]]; then
+    docker image rm "$image" >/dev/null 2>&1 || {
+      log_warning "Could not remove unused source tag $image; keeping it."
+      return 0
+    }
+    log_success "Removed temporary Docker source tag: $image"
   fi
 }
 push_docker_image(){
   [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
+  # Registry publication is a release action. Require closing production DAPS
+  # evidence; a candidate probe or successful build is not release approval.
+  local daps_verifier="${CHIMERA_DAPS_VERIFIER:-}"
+  local daps_evidence="${CHIMERA_DAPS_EVIDENCE:-}"
+  [[ -n "$daps_verifier" && -f "$daps_verifier" ]] || {
+    log_error "Docker publish blocked: set CHIMERA_DAPS_VERIFIER to the closing production DAPS verifier."
+    return 1
+  }
+  [[ -n "$daps_evidence" && -f "$daps_evidence" ]] || {
+    log_error "Docker publish blocked: set CHIMERA_DAPS_EVIDENCE to evidence.json from the immutable production ISO run."
+    return 1
+  }
+  python3 "$daps_verifier" --evidence "$daps_evidence" || {
+    log_error "Docker publish blocked: production DAPS acceptance failed."
+    return 1
+  }
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
   local target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
   local target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
@@ -393,7 +461,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs commands boot installer branding apache features package-managers games squashfs iso verify native-iso report docker-publish'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -475,8 +543,15 @@ build_docker(){
 export_rootfs(){
   header 'STEP 2: EXPORT DOCKER ROOTFS'
   cleanup_generated_build_artifacts
+  # Rootfs is a generated export target. Reject dangerous aliases/symlinks and
+  # remove hidden entries as well as visible entries so stale state cannot leak
+  # from a previous image build into the new immutable ISO rootfs.
+  [[ -n "$ROOTFS_DIR" && "$ROOTFS_DIR" != "/" && "$ROOTFS_DIR" != "$SCRIPT_DIR" && "$ROOTFS_DIR" != "$BUILD_DIR" && ! -L "$ROOTFS_DIR" ]] || {
+    log_error "Unsafe rootfs export destination: $ROOTFS_DIR"
+    return 1
+  }
   mkdir -p "$ROOTFS_DIR"
-  rm -rf "$ROOTFS_DIR"/*
+  find "$ROOTFS_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
   local cname="chimera-export-$BASHPID"
   local tar_rc=1
   local image_bytes=0 free_now=0 required_bytes=0
@@ -494,7 +569,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --label chimera.rootfs.export=true --label "chimera.rootfs.owner=$CHIMERA_BUILD_ID" --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
@@ -622,6 +697,48 @@ prepare_branding(){
            "$ROOTFS_DIR/usr/share/backgrounds/chimera" \
            "$ISO_DIR/boot/visual" \
            "$ISO_DIR/boot/grub"
+
+  # Release builds preserve the two exact dual-brand session wallpapers and
+  # embed their original bytes for offline desktop startup. Explicitly setting
+  # CHIMERA_REQUIRE_SESSION_BRANDING=0 is only for non-release development.
+  local require_session_branding="${CHIMERA_REQUIRE_SESSION_BRANDING:-1}"
+  case "$require_session_branding" in
+    0) log_warning "Exact session-branding gate disabled for development build." ;;
+    1)
+      local session_branding_source="$SCRIPT_DIR/desktop/aurora/assets/library"
+      local session_branding_tool="$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py"
+      [[ -s "$session_branding_source/Duck-ai-image-2026-10-18-07-06(1).jpeg" ]] || {
+        log_error "Required original session wallpaper is missing: Duck-ai-image-2026-10-18-07-06(1).jpeg"
+        return 1
+      }
+      [[ -s "$session_branding_source/Duck-ai-image-2026-10-18-06-36.jpeg" ]] || {
+        log_error "Required original session wallpaper is missing: Duck-ai-image-2026-10-18-06-36.jpeg"
+        return 1
+      }
+      [[ -s "$session_branding_tool" ]] || {
+        log_error "Session wallpaper embedder is missing: $session_branding_tool"
+        return 1
+      }
+      local session_branding_out="$BUILD_DIR/session-branding"
+      mkdir -p "$session_branding_out"
+      python3 "$session_branding_tool" --session-branding \
+        --source-dir "$session_branding_source" \
+        --css "$session_branding_out/embedded-session-branding.css" \
+        --manifest "$session_branding_out/embedded-session-branding.json" || {
+          log_error "Exact session wallpaper validation/embedding failed."
+          return 1
+        }
+      cp -f "$session_branding_out/embedded-session-branding.css" \
+        "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-session-branding.css"
+      cp -f "$session_branding_out/embedded-session-branding.json" \
+        "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-session-branding.json"
+      cp -f "$session_branding_out/embedded-session-branding.css" \
+        "$ISO_DIR/boot/visual/embedded-session-branding.css"
+      cp -f "$session_branding_out/embedded-session-branding.json" \
+        "$ISO_DIR/boot/visual/embedded-session-branding.json"
+      ;;
+    *) log_error "CHIMERA_REQUIRE_SESSION_BRANDING must be 0 or 1"; return 2 ;;
+  esac
 
   # Build the complete deterministic Aurora visual set. Supplied Library artwork
   # wins; generated SVG artwork remains the offline fallback.
@@ -783,6 +900,42 @@ EOF_INIT_VIDEO
       "$ROOTFS_DIR/usr/share/chimera/aurora/assets/"
   fi
 
+  # Embed offline wallpapers from the canonical assets when present, or from
+  # related artwork already checked into the library. Pinned originals retain
+  # their hash/dimension checks; fallback artwork is recorded honestly in the
+  # manifest with its real source filename and SHA-256.
+  local wallpaper_source="$SCRIPT_DIR/desktop/aurora/assets/library"
+  local wallpaper_css="$BUILD_DIR/embedded-wallpapers.css"
+  local wallpaper_manifest="$BUILD_DIR/embedded-wallpapers.json"
+  if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
+      --source-dir "$wallpaper_source" --css "$wallpaper_css" \
+      --manifest "$wallpaper_manifest" >"$LOG_DIR/embedded-wallpapers.json.log" 2>&1; then
+    log_error "Offline wallpaper generation failed: no valid canonical or related artwork."
+    cat "$LOG_DIR/embedded-wallpapers.json.log" >&2
+    return 1
+  fi
+  install -m 0644 "$wallpaper_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.css"
+  install -m 0644 "$wallpaper_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.json"
+  cp -f "$wallpaper_css" "$ISO_DIR/boot/visual/embedded-wallpapers.css"
+  log_info "Embedded Aurora and Marine wallpaper roles as offline data URIs."
+
+  # Use authentic dual-brand originals when available. Otherwise use the
+  # related checked-in Aurora artwork as an explicitly recorded fallback; do
+  # not label fallback bytes as the user's pinned original JPEGs.
+  local session_css="$BUILD_DIR/dual-os-brand-wallpapers.css"
+  local session_manifest="$BUILD_DIR/dual-os-brand-wallpapers.json"
+  if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
+      --session-branding --source-dir "$wallpaper_source" --css "$session_css" \
+      --manifest "$session_manifest" >"$LOG_DIR/dual-os-brand-wallpapers.log" 2>&1; then
+    log_error "Dual-OS wallpaper generation failed: no valid original or related local artwork."
+    cat "$LOG_DIR/dual-os-brand-wallpapers.log" >&2
+    return 1
+  fi
+  install -m 0644 "$session_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.css"
+  install -m 0644 "$session_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.json"
+  cp -f "$session_css" "$ISO_DIR/boot/visual/dual-os-brand-wallpapers.css"
+  log_info "Embedded dual-OS wallpaper roles offline; source provenance is recorded in the manifest."
+
   # Install the same visual aliases used by desktop, installer, recovery and
   # mobile components so there is one deterministic offline artwork contract.
   if [[ -s "$visual/backgrounds/desktop.png" ]]; then
@@ -899,6 +1052,14 @@ stage_features(){
     install -m 0755 "$SCRIPT_DIR/tools/commands/chimera-run" "$ROOTFS_DIR/usr/bin/chimera-run"
     python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-run"
   fi
+  # Stage the opt-in Kali-compatible package frontend and its taxonomy into the installed OS.
+  if [[ -f "$SCRIPT_DIR/tools/kali/chimera-kali" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/sbin" "$ROOTFS_DIR/usr/share/chimera/kali"
+    install -m 0755 "$SCRIPT_DIR/tools/kali/chimera-kali" "$ROOTFS_DIR/usr/sbin/chimera-kali"
+    [[ -f "$SCRIPT_DIR/tools/kali/kali_tool_catalog.json" ]] && install -m 0644 "$SCRIPT_DIR/tools/kali/kali_tool_catalog.json" "$ROOTFS_DIR/usr/share/chimera/kali/kali_tool_catalog.json"
+    python3 -m py_compile "$ROOTFS_DIR/usr/sbin/chimera-kali"
+    log_info "Staged Kali-compatible package frontend (repository opt-in remains disabled)."
+  fi
   [[ -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" ]] && cp -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" "$ROOTFS_DIR/usr/share/chimera/chimera-unified-runtime-model.json"
   [[ -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" ]] && cp -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh" && chmod +x "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh"
   mkdir -p "$ROOTFS_DIR/etc/chimera" "$ROOTFS_DIR/usr/share/chimera"
@@ -943,7 +1104,8 @@ stage_package_managers(){
   local desktop="$SCRIPT_DIR/desktop/aurora/aurora-package-managers.desktop"
   local catalog="$SCRIPT_DIR/appcenter/catalog/package-managers.json"
   local database_catalog="$SCRIPT_DIR/data/registry/databases.json"
-  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog"; do
+  local optional_apps_catalog="$SCRIPT_DIR/desktop/optional_apps_catalog.json"
+  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog" "$optional_apps_catalog"; do
     [[ -s "$f" ]] || { log_error "Package manager payload missing: $f"; return 1; }
   done
   mkdir -p "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/share/chimera/aurora" \
@@ -954,16 +1116,19 @@ stage_package_managers(){
   install -m 0644 "$panel" "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   install -m 0644 "$desktop" "$ROOTFS_DIR/usr/share/applications/aurora-package-managers.desktop"
   install -m 0644 "$catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json"
+  install -m 0644 "$optional_apps_catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/optional_apps_catalog.json"
   install -m 0644 "$database_catalog" "$ROOTFS_DIR/usr/share/chimera/database/databases.json"
   cp -f "$database_catalog" "$ISO_DIR/system/database/databases.json"
   cp -f "$cli" "$ISO_DIR/system/package-managers/chimera-package-manager.sh"
   cp -f "$panel" "$ISO_DIR/system/desktop/aurora/package_manager_panel.py"
   cp -f "$desktop" "$ISO_DIR/system/desktop/aurora/aurora-package-managers.desktop"
   cp -f "$catalog" "$ISO_DIR/system/appcenter/catalog/package-managers.json"
+  cp -f "$optional_apps_catalog" "$ISO_DIR/system/appcenter/catalog/optional_apps_catalog.json"
   chmod +x "$ROOTFS_DIR/usr/bin/chimera-pkg"
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
+  python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/optional_apps_catalog.json" >/dev/null
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/database/databases.json" >/dev/null
   python3 -m json.tool "$SCRIPT_DIR/desktop/aurora/waybar/config.jsonc" >/dev/null
   python3 -c 'import sys, xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$SCRIPT_DIR/desktop/aurora/labwc/menu.xml"
@@ -1135,6 +1300,22 @@ build_iso(){
     exit 1
   fi
   log_info "UEFI removable-media loader ready: $uefi_loader"
+
+  # Fail closed on the actual boot inputs before packaging them into an ISO.
+  # These are structural checks only; firmware and six-case runtime acceptance
+  # remain separate release gates.
+  local elf_validator="$SCRIPT_DIR/tools/validate_elf_image.py"
+  local pe_validator="$SCRIPT_DIR/tools/validate_efi_pe.py"
+  local koronos_elf=""
+  for candidate in "$BUILD_DIR/koronos/x86_64/koronos.elf" "$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; do
+    if [[ -s "$candidate" ]]; then koronos_elf="$candidate"; break; fi
+  done
+  [[ -s "$elf_validator" ]] || { log_error "ELF validator missing: $elf_validator"; exit 1; }
+  [[ -s "$pe_validator" ]] || { log_error "EFI PE validator missing: $pe_validator"; exit 1; }
+  [[ -n "$koronos_elf" ]] || { log_error "Koronos kernel ELF missing; refusing to package unvalidated boot media."; exit 1; }
+  command -v python3 >/dev/null 2>&1 || { log_error "python3 is required for boot artifact validation."; exit 2; }
+  run_logged_validation "$LOG_DIR/validate-koronos-elf.log" python3 "$elf_validator" --target x86_64 "$koronos_elf"
+  run_logged_validation "$LOG_DIR/validate-bootx64-pe.log" python3 "$pe_validator" --target x86_64 "$uefi_loader"
 
   source_bytes="$(du -sB1 "$ISO_DIR" 2>/dev/null | awk '{print $1}')"
   free_bytes_now="$(free_bytes "$ISO_OUTPUT_DIR")"
@@ -1355,13 +1536,12 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands boot installer branding apache features package-managers games squashfs iso verify native-iso report docker-publish; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
-      docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
       boot) run_stage boot create_boot_menu;;
@@ -1376,6 +1556,13 @@ main(){
       verify) run_stage verify verify_iso;;
       native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
+      docker-publish)
+        if [[ "$BUILD_DOCKER" == 0 || "${CHIMERA_PUSH:-0}" != 1 ]]; then
+          log_info "Skipping Docker publish (not requested; use --push after production DAPS acceptance)."
+        else
+          run_stage docker-publish push_docker_image
+        fi
+        ;;
     esac
     completed="$stage"
   done

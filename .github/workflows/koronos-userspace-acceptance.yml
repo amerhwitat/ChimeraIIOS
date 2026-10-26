@@ -93,12 +93,18 @@ jobs:
           if [ "$FIRMWARE" = uefi ]; then
             OVMF_CODE=""
             OVMF_VARS=""
-            for candidate in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do
-              if [ -f "$candidate" ]; then
-                vars_candidate="${candidate/CODE/VARS}"
-                if [ -f "$vars_candidate" ]; then OVMF_CODE="$candidate"; OVMF_VARS="$vars_candidate"; break; fi
+            # Ubuntu/Debian OVMF package versions install firmware in several
+            # directories and may suffix both halves with _4M, .ms, or .secboot.
+            # Discover installed firmware instead of assuming one package layout.
+            while IFS= read -r candidate; do
+              [ -n "$candidate" ] || continue
+              vars_candidate="${candidate/CODE/VARS}"
+              if [ -f "$vars_candidate" ]; then
+                OVMF_CODE="$candidate"
+                OVMF_VARS="$vars_candidate"
+                break
               fi
-            done
+            done < <(find /usr/share -type f \( -iname 'OVMF_CODE*.fd' -o -iname 'OVMF_CODE*.bin' \) -print 2>/dev/null | sort)
             if [ -z "$OVMF_CODE" ] || [ -z "$OVMF_VARS" ]; then
               echo "ERROR: matching OVMF code/vars images were not installed" >&2
               find /usr/share -iname 'OVMF_*.fd' -print >&2 || true
@@ -127,8 +133,18 @@ jobs:
           ready_pid="${ready_line##*=}"
           ack_pid="${ack_line##*=}"
           test "$ready_pid" = "$ack_pid"
-          grep -Fq "USERSPACE SYSCALL RETURNED TO RING3" "$LOG"
-          grep -Fq "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG"
+          # Require the observable trace to prove the sequence, not merely the
+          # presence of individually plausible markers in an arbitrary order.
+          kernel_line="$(grep -nF "[KRN ] KORONOS READY" "$LOG" | head -n 1 | cut -d: -f1)"
+          ack_order_line="$(grep -nF "USER INIT SYSCALL: target=${TARGET} init_pid=${ack_pid}" "$LOG" | head -n 1 | cut -d: -f1)"
+          ring3_return_line="$(grep -nF "USERSPACE SYSCALL RETURNED TO RING3" "$LOG" | head -n 1 | cut -d: -f1)"
+          ready_order_line="$(grep -nF "USERSPACE READY: ${TARGET} init pid=${ready_pid}" "$LOG" | head -n 1 | cut -d: -f1)"
+          clean_exit_line="$(grep -nF "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG" | head -n 1 | cut -d: -f1)"
+          test -n "$kernel_line" && test -n "$ack_order_line" && test -n "$ring3_return_line" && test -n "$ready_order_line" && test -n "$clean_exit_line"
+          test "$kernel_line" -lt "$ack_order_line"
+          test "$ack_order_line" -lt "$ready_order_line"
+          test "$ready_order_line" -lt "$ring3_return_line"
+          test "$ring3_return_line" -lt "$clean_exit_line"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
           echo "Candidate ring-3 launch smoke passed target=$TARGET firmware=$FIRMWARE qemu_exit=$qemu_rc (production payload acceptance remains separate)"
       - name: Prove in-kernel timeout aborts a non-returning ring-3 process

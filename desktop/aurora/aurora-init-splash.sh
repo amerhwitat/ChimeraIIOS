@@ -29,20 +29,18 @@ read_percent(){
   [[ -r "$PROGRESS" ]] || { printf '%s' '-1'; return 0; }
 
   local line
-  line="$(tail -n 1 "$PROGRESS" 2>/dev/null || true)"
-
-  # Kernel boot progress uses key=value: percent=96
-  # Aurora progress helper uses: 96|Aurora|Starting desktop
-  if [[ "$line" =~ ^percent=([0-9]+) ]]; then
-    printf '%s' "${BASH_REMATCH[1]}"
+  # The atomic state is multi-line key=value; read percent, not the timestamp.
+  line="$(awk -F= '$1=="percent" {print $2; exit}' "$PROGRESS" 2>/dev/null || true)"
+  if [[ "$line" =~ ^[0-9]+$ ]]; then
+    printf '%s' "$line"
     return 0
   fi
-
+  # Compatibility with older single-line pipe-format progress writers.
+  line="$(tail -n 1 "$PROGRESS" 2>/dev/null || true)"
   if [[ "$line" =~ ^([0-9]+)\| ]]; then
     printf '%s' "${BASH_REMATCH[1]}"
     return 0
   fi
-
   printf '%s' '-1'
 }
 

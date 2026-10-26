@@ -23,6 +23,13 @@ static volatile uint32_t active_target = TARGET_NONE;
 static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
+static void *active_address_space = nullptr;
+/* Address spaces whose rollback teardown failed stay explicitly quarantined.
+   They are never treated as released or silently discarded. */
+static void *rollback_quarantined_address_space = nullptr;
+static uint32_t rollback_quarantined_pid = 0;
+static const chimera_elf_load_ops *rollback_quarantined_ops = nullptr;
+static bool rollback_quarantined_destroyed = false;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 /* Candidate-only fallback is gated by the explicit probe=ring3 module flag. */
@@ -34,6 +41,10 @@ static bool staged_rootfs_ready = false;
 /* Published only after the VFS root mount succeeds. The extracted tree is
    immutable and remains alive for the lifetime of the mounted root. */
 static chimera_ramfs_node *published_rootfs = nullptr;
+static void *ramfs_frame_alloc(uint64_t bytes, void *context);
+static void ramfs_frame_free(void *ptr, void *context);
+extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_progress_event(uint32_t percent, const char *phase, const char *message);
 struct RamfsFrameHeader { uint32_t pages; uint32_t magic; uint64_t reserved; };
 constexpr uint32_t RAMFS_FRAME_MAGIC = 0x52414D46u;
 static void *ramfs_frame_alloc(uint64_t bytes, void *) {
@@ -81,6 +92,14 @@ static const chimera_vfs_ops ramfs_vfs_ops = {
     ramfs_vfs_lookup, ramfs_vfs_read, nullptr, nullptr, nullptr,
     nullptr, nullptr, nullptr, nullptr
 };
+static void discard_staged_rootfs() {
+    if (staged_rootfs) {
+        const chimera_ramfs_allocator allocator{ramfs_frame_alloc, ramfs_frame_free, nullptr};
+        chimera_ramfs_destroy(staged_rootfs, &allocator);
+    }
+    staged_rootfs = nullptr;
+    staged_rootfs_ready = false;
+}
 static int stage_rootfs(const void *archive, uint64_t archive_size) {
     if (staged_rootfs_ready || staged_rootfs) return -1;
     const chimera_ramfs_allocator allocator{ramfs_frame_alloc, ramfs_frame_free, nullptr};
@@ -200,19 +219,71 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
+extern "C" void *koronos_target_active_address_space(void) {
+    return active_target != TARGET_NONE ? active_address_space : nullptr;
+}
 
-/* Read-only process-owned descriptors bridge the validated RAMFS root to ring 3.
-   User addresses are validated against the active process's own CR3 before any
-   dereference. Writes to regular files remain unsupported (EROFS) until RAMFS
-   has transactional mutation semantics. */
+/* x86-64 currently exposes only the lower canonical user half. Check
+   arithmetic before pinning; the address-space backend then checks mappings
+   and per-page read/write permissions against the active process root. */
+constexpr uint64_t USER_ADDRESS_LIMIT = 0x0000800000000000ull;
+static bool user_range_bounds_valid(uint64_t address, uint64_t length) {
+    if (!length) return true;
+    if (!address || address >= USER_ADDRESS_LIMIT) return false;
+    if (length - 1u > UINT64_MAX - address) return false;
+    return address + length - 1u < USER_ADDRESS_LIMIT;
+}
+static bool active_cr3_matches_root() {
+    if (!active_root || !active_address_space ||
+        koronos_address_space_root(active_address_space) != active_root) return false;
+    uint64_t current_cr3 = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(current_cr3));
+    return (current_cr3 & 0x000FFFFFFFFFF000ull) == active_root;
+}
+extern "C" int koronos_target_copy_from_user(void *destination, uint64_t source, uint64_t length) {
+    if ((!destination && length) || !active_root || !active_address_space) return -14;
+    if (!length) return 0;
+    if (!active_cr3_matches_root()) return -14;
+    /* The opaque process object and the root selected for this syscall must
+       agree; never validate against a stale or unrelated global CR3. */
+    if (koronos_address_space_root(active_address_space) != active_root) return -14;
+    if (!user_range_bounds_valid(source, length)) return -14;
+    if (koronos_address_space_pin(active_address_space, source, length, 0u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, source, length, 0u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, source, length);
+        return -14;
+    }
+    auto *out = static_cast<uint8_t *>(destination);
+    const auto *in = reinterpret_cast<const volatile uint8_t *>(static_cast<uintptr_t>(source));
+    for (uint64_t i = 0; i < length; ++i) out[i] = in[i];
+    return koronos_address_space_unpin(active_address_space, source, length) == 0 ? 0 : -14;
+}
+extern "C" int koronos_target_copy_to_user(uint64_t destination, const void *source, uint64_t length) {
+    if ((!source && length) || !active_root || !active_address_space) return -14;
+    if (!length) return 0;
+    if (!active_cr3_matches_root()) return -14;
+    if (!user_range_bounds_valid(destination, length)) return -14;
+    if (koronos_address_space_pin(active_address_space, destination, length, 1u) != 0) return -14;
+    if (koronos_address_space_validate_user_range(active_root, destination, length, 1u) != 0) {
+        (void)koronos_address_space_unpin(active_address_space, destination, length);
+        return -14;
+    }
+    auto *out = reinterpret_cast<volatile uint8_t *>(static_cast<uintptr_t>(destination));
+    const auto *in = static_cast<const uint8_t *>(source);
+    for (uint64_t i = 0; i < length; ++i) out[i] = in[i];
+    return koronos_address_space_unpin(active_address_space, destination, length) == 0 ? 0 : -14;
+}
+/* Process-owned descriptors bridge the validated RAMFS root to ring 3. Filesystem
+   backends receive kernel-owned buffers only; regular-file writes remain
+   unsupported until RAMFS has transactional mutation semantics. */
 static int copy_target_user_path(uint64_t user_path, char path[CHIMERA_VFS_MAX_PATH + 1u]) {
     if (!active_root || !user_path) return -14;
     uint32_t length = 0;
     for (; length <= CHIMERA_VFS_MAX_PATH; ++length) {
-        if (user_path > UINT64_MAX - length ||
-            koronos_address_space_validate_user_range(active_root, user_path + length, 1u, 0u) != 0)
-            return -14;
-        const char c = *reinterpret_cast<const volatile char *>(static_cast<uintptr_t>(user_path + length));
+        if (user_path > UINT64_MAX - length) return -14;
+        char c = 0;
+        const int rc = koronos_target_copy_from_user(&c, user_path + length, 1u);
+        if (rc != 0) return rc;
         path[length] = c;
         if (!c) break;
     }
@@ -231,22 +302,49 @@ extern "C" int64_t koronos_target_fs_open(uint64_t user_path, uint64_t flags) {
 }
 extern "C" int64_t koronos_target_fs_read(uint64_t fd, uint64_t user_buffer, uint64_t count) {
     const uint32_t pid = koronos_target_active_pid();
-    if (!pid || !active_root) return -9;
+    if (!pid || !active_root || !active_address_space) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0)
+    if (!user_range_bounds_valid(user_buffer, count) || !active_cr3_matches_root()) return -14;
+
+    /* Validate write access and pin the destination BEFORE reading the file.
+       Otherwise an invalid user buffer could consume the descriptor offset and
+       only fail during copy-out. The copy helper takes a nested pin while
+       copying; this outer pin prevents unmap/teardown for the whole operation. */
+    if (koronos_address_space_pin(active_address_space, user_buffer, count, 1u) != 0) return -14;
+    /* Pinning protects residency/lifetime, but is not a substitute for the
+       complete permission walk: verify every parent and leaf PTE before the
+       VFS read mutates the descriptor offset. */
+    if (koronos_address_space_validate_user_range(active_root, user_buffer, count, 1u) != 0) {
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
         return -14;
-    return chimera_vfs_read(pid, static_cast<int64_t>(fd), reinterpret_cast<void *>(static_cast<uintptr_t>(user_buffer)), count);
+    }
+    uint8_t kernel_buffer[4096];
+    const int64_t result = chimera_vfs_read(pid, static_cast<int64_t>(fd), kernel_buffer, count);
+    if (result < 0) {
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+        return result;
+    }
+    if (static_cast<uint64_t>(result) > count) {
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+        return -5;
+    }
+    if (result > 0 && koronos_target_copy_to_user(user_buffer, kernel_buffer, static_cast<uint64_t>(result)) != 0) {
+        if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+        return -14;
+    }
+    if (koronos_address_space_unpin(active_address_space, user_buffer, count) != 0) return -14;
+    return result;
 }
 extern "C" int64_t koronos_target_fs_write(uint64_t fd, uint64_t user_buffer, uint64_t count) {
     const uint32_t pid = koronos_target_active_pid();
     if (!pid || !active_root) return -9;
     if (!count) return 0;
     if (count > 4096u) return -22;
-    if (!user_buffer || koronos_address_space_validate_user_range(active_root, user_buffer, count, 0u) != 0)
-        return -14;
-    return chimera_vfs_write(pid, static_cast<int64_t>(fd),
-        reinterpret_cast<const void *>(static_cast<uintptr_t>(user_buffer)), count);
+    if (!user_range_bounds_valid(user_buffer, count)) return -14;
+    uint8_t kernel_buffer[4096];
+    if (koronos_target_copy_from_user(kernel_buffer, user_buffer, count) != 0) return -14;
+    return chimera_vfs_write(pid, static_cast<int64_t>(fd), kernel_buffer, count);
 }
 extern "C" int64_t koronos_target_fs_close(uint64_t fd) {
     const uint32_t pid = koronos_target_active_pid();
@@ -267,6 +365,24 @@ static uint32_t validate_active_user_context(uint64_t user_rip) {
 }
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip) {
     return validate_active_user_context(user_rip);
+}
+/* The native SYSCALL entry does not save CS, but the kernel has already
+   entered through IA32_LSTAR. Accept its acknowledgement only when the saved
+   user RIP, active PID, and current CR3 all match the launched process. This
+   is deliberately separate from the INT 0x80 path, which additionally checks
+   the CPU-saved CS.RPL. */
+extern "C" uint32_t koronos_target_note_native_syscall(uint64_t user_rip) {
+    const uint32_t pid = validate_active_user_context(user_rip);
+    if (!pid) {
+        koronos_target_log("[SYSC] rejected acknowledgement: user RIP/CR3/PID mismatch");
+        return 0u;
+    }
+    if (!syscall_ack_seen) {
+        syscall_ack_seen = 1u;
+        log_user_init_syscall(static_cast<Target>(active_target), pid);
+        koronos_progress_event(95u, "userspace", "Ring-3 process issued a verified syscall");
+    }
+    return pid;
 }
 extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t user_cs) {
     /* This acknowledgement is only reachable from the DPL3 INT 0x80 gate.
@@ -295,6 +411,7 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t
     if (!syscall_ack_seen) {
         syscall_ack_seen = 1u;
         log_user_init_syscall(static_cast<Target>(active_target), pid);
+        koronos_progress_event(95u, "userspace", "Ring-3 process issued a verified syscall");
     }
     return pid;
 }
@@ -307,12 +424,54 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
     if (syscall_ack_seen && active_pid &&
         target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
         ready_seen=1;
+        if (active_ring3_probe)
+            koronos_progress_event(97u, "userspace-probe", "Ring-3 probe marker observed; production desktop readiness not implied");
+        else
+            koronos_progress_event(100u, "userspace-ready", "Target-specific userspace readiness marker verified");
         return 1;
     }
     return 0;
 }
 
+/* Exposed for diagnostics and controlled retry. A quarantine remains owned
+   until destroy_address_space reports complete teardown AND the process
+   registry accepts resource release and reap. */
+extern "C" uint32_t koronos_target_rollback_quarantine_pid(void) {
+    return rollback_quarantined_address_space ? rollback_quarantined_pid : 0u;
+}
+extern "C" int koronos_target_retry_rollback_quarantine(void) {
+    if (!rollback_quarantined_address_space || !rollback_quarantined_pid ||
+        !rollback_quarantined_ops || !rollback_quarantined_ops->destroy_address_space)
+        return -1;
+    if (!rollback_quarantined_destroyed) {
+        if (rollback_quarantined_ops->destroy_address_space(nullptr,
+                rollback_quarantined_address_space) != 0) {
+            koronos_target_log("[RUN ] ERROR: quarantined address-space teardown retry failed; ownership retained");
+            return -2;
+        }
+        rollback_quarantined_destroyed = true;
+    }
+    if (chimera_process_mark_resources_released(rollback_quarantined_pid) != 0) {
+        koronos_target_log("[RUN ] ERROR: address space was destroyed but process resource-release transition failed; record retained");
+        return -3;
+    }
+    if (chimera_process_reap(rollback_quarantined_pid) != 0) {
+        koronos_target_log("[RUN ] ERROR: address space was destroyed but process reap failed; record retained");
+        return -4;
+    }
+    rollback_quarantined_address_space = nullptr;
+    rollback_quarantined_pid = 0;
+    rollback_quarantined_ops = nullptr;
+    rollback_quarantined_destroyed = false;
+    koronos_target_log("[RUN ] Quarantined address space teardown retried successfully; process resources released and record reaped");
+    return 0;
+}
+
 extern "C" int koronos_launch_selected_userspace(void) {
+    /* Never begin another target launch while an earlier partial address space
+       is still owned by quarantine. Retry teardown first; failure is fail-closed. */
+    if (rollback_quarantined_address_space &&
+        koronos_target_retry_rollback_quarantine() != 0) return -18;
     if (attempted) return 0;
     attempted=true;
     const chimera_boot_module *selected=nullptr;
@@ -344,6 +503,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+    koronos_progress_event(82u, "userspace", "Selected target payload identified");
 
     /* Bind the executable init to the independently classified production
        payload. A target=live ELF must not run with an installer/recovery
@@ -422,10 +582,9 @@ extern "C" int koronos_launch_selected_userspace(void) {
                 reinterpret_cast<void *>(static_cast<uintptr_t>(decompressed.base)),
                 expected_size, &decoded_size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK || decoded_size != expected_size) {
-                /* The separately staged, target-matched native ELF is the
-                   executable entry point. A shell /init or absent /init in
-                   the archive must not reject an otherwise valid rootfs;
-                   CPIO safety and gzip integrity remain mandatory. */
+                /* The separately tagged USER_INIT_ELF module is the executable
+                   entry point. Validate the initramfs independently as a rootfs;
+                   its legacy /init may be a script and is not executed here. */
                 koronos_target_log("[RUN ] ERROR: gzip decode, CRC32/ISIZE, or CPIO safety validation failed");
                 return -19;
             }
@@ -441,8 +600,8 @@ extern "C" int koronos_launch_selected_userspace(void) {
         } else {
             cpio_rc = chimera_cpio_validate_newc(archive_bytes, archive->size, &summary);
             if (cpio_rc != CHIMERA_CPIO_OK) {
-                /* Entry-point selection is provided by the separately staged
-                   native init ELF; validate the archive as rootfs data only. */
+                /* The tagged USER_INIT_ELF is the executable entry point;
+                   this CPIO archive is validated and staged only as the rootfs. */
                 koronos_target_log("[RUN ] ERROR: selected initramfs is malformed or unsafe");
                 return -17;
             }
@@ -464,6 +623,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         }
         if (chimera_vfs_init() != 0 ||
             chimera_vfs_mount("/", &ramfs_vfs_ops, staged_rootfs, CHIMERA_VFS_MOUNT_RDONLY) != 0) {
+            discard_staged_rootfs();
             koronos_target_log("[RUN ] ERROR: VFS root mount failed; refusing userspace launch");
             return -15;
         }
@@ -475,11 +635,17 @@ extern "C" int koronos_launch_selected_userspace(void) {
             chimera_vfs_mount("/tmp", chimera_tmpfs_vfs_ops(), tmpfs_candidate, 0u) != 0) {
             if (tmpfs_candidate) chimera_tmpfs_destroy(tmpfs_candidate);
             (void)chimera_vfs_unmount("/");
+            discard_staged_rootfs();
             koronos_target_log("[RUN ] ERROR: bounded writable /tmp filesystem mount failed; refusing userspace launch");
             return -15;
         }
         __atomic_store_n(&published_rootfs, staged_rootfs, __ATOMIC_RELEASE);
+        koronos_progress_event(90u, "userspace", "Read-only root and writable /tmp mounted");
         koronos_target_log("[VFS ] Read-only initramfs root and bounded writable /tmp mounted; process file mutation syscalls enabled");
+        if (target == TARGET_LIVE)
+            koronos_target_log("USERSPACE ROOTFS MOUNTED: target=live root=read-only tmpfs=/tmp");
+        else if (target == TARGET_RECOVERY)
+            koronos_target_log("USERSPACE ROOTFS MOUNTED: target=recovery root=read-only tmpfs=/tmp");
     }
     if (payload_count == 1u && target == TARGET_INSTALLER) {
         koronos_target_log("[RUN ] ERROR: installer storage-backed root namespace is not mounted; refusing false readiness");
@@ -496,43 +662,75 @@ extern "C" int koronos_launch_selected_userspace(void) {
     }
 
     chimera_process_image process{};
-    const int pid=chimera_process_admit_elf(reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base)),
-        selected->size,KORONOS_EM_X86_64,USER_STACK_TOP,&process);
+    // Execute the exact native ELF selected by the CHIMERA_MODULE_USER_INIT_ELF
+    // tag. The initramfs is a filesystem payload, not an alternate executable
+    // source; never let /init inside it override the explicitly selected image.
+    const void *init_image = reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));
+    const uint64_t init_image_size = selected->size;
+    const int pid=chimera_process_admit_elf(init_image, init_image_size, KORONOS_EM_X86_64, USER_STACK_TOP, &process);
     if (pid<=0) {
         koronos_target_log("[RUN ] ERROR: selected user init failed protected-process admission");
         return -5;
     }
     chimera_loaded_elf loaded{};
-    const int load_rc=chimera_elf_load_user_image(
-        reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base)),selected->size,
+    const int load_rc=chimera_elf_load_user_image(init_image, init_image_size,
         KORONOS_EM_X86_64,USER_STACK_TOP,USER_STACK_SIZE,ops,nullptr,&loaded);
     if (load_rc!=0) {
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
-        koronos_target_log("[RUN ] ERROR: selected user init ELF load failed");
+        /* -17 returns the still-owned address-space handle. Quarantine it and
+           keep the process record unreaped until teardown is independently
+           proven; never drop the only reference to partially mapped tables. */
+        if (load_rc == -17) {
+            if (!loaded.address_space || rollback_quarantined_address_space) {
+                koronos_target_log("[RUN ] FATAL: rollback failed and quarantine capacity/handle invariant failed");
+                return -18;
+            }
+            rollback_quarantined_address_space = loaded.address_space;
+            rollback_quarantined_pid = static_cast<uint32_t>(pid);
+            rollback_quarantined_ops = ops;
+            rollback_quarantined_destroyed = false;
+            koronos_target_log("[RUN ] ERROR: ELF rollback teardown failed; address space quarantined and PID retained");
+        } else if (chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0) {
+            (void)chimera_process_reap(static_cast<uint32_t>(pid));
+        }
+        koronos_target_log("[RUN ] ERROR: selected user init ELF load failed or rollback was incomplete");
         return -6;
     }
     const uint64_t root=koronos_address_space_root(loaded.address_space);
     if (!root) {
-        ops->destroy_address_space(nullptr,loaded.address_space);
+        const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
         (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
-        koronos_target_log("[RUN ] ERROR: selected user init has no owned CR3 root");
+        if (destroy_rc == 0 &&
+            chimera_process_mark_resources_released(static_cast<uint32_t>(pid)) == 0)
+            (void)chimera_process_reap(static_cast<uint32_t>(pid));
+        koronos_target_log("[RUN ] ERROR: selected user init has no owned CR3 root; teardown status recorded");
         return -7;
     }
     active_target=target;
     active_ring3_probe=token(selected->cmdline, "probe=ring3");
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
+    active_address_space=loaded.address_space;
     syscall_ack_seen=0;
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
+    koronos_progress_event(92u, "userspace", "Native process admitted and execution context prepared");
     // 100 Hz PIT deadline: 1,000 ticks gives user init ten seconds to return
     // and emit readiness. This is enforced by IRQ0 inside the kernel, not by
     // the outer QEMU test timeout.
     if (koronos_user_timeout_arm(1000u) != 0) {
-        ops->destroy_address_space(nullptr,loaded.address_space);
-        (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
+        const uint32_t failed_pid = active_pid;
+        const int close_rc = chimera_vfs_close_process(failed_pid);
+        const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
+        (void)chimera_process_set_state(failed_pid,CHIMERA_PROCESS_FAULTED);
+        if (close_rc >= 0 && destroy_rc == 0 &&
+            chimera_process_mark_resources_released(failed_pid) == 0)
+            (void)chimera_process_reap(failed_pid);
         active_target=TARGET_NONE;
-        koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
+        active_ring3_probe=false;
+        active_root=0;
+        active_address_space=nullptr;
+        koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed user timeout; cleanup result checked");
         return -10;
     }
     koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
@@ -542,12 +740,28 @@ extern "C" int koronos_launch_selected_userspace(void) {
     const uint64_t user_entry_stack = loaded.user_stack_top - sizeof(uint64_t);
     const int exit_code=koronos_arch_enter_user(root,loaded.entry,user_entry_stack);
     koronos_user_timeout_disarm();
-    (void)chimera_vfs_close_process(active_pid);
-    ops->destroy_address_space(nullptr,loaded.address_space);
-    (void)chimera_process_set_state(active_pid,exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED);
+    const uint32_t exited_pid = active_pid;
+    const int close_rc = chimera_vfs_close_process(exited_pid);
+    const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);
+    int lifecycle_rc = 0;
+    if (close_rc < 0 || destroy_rc != 0) {
+        lifecycle_rc = -1;
+    } else if (chimera_process_set_state(exited_pid,
+               exit_code==0 ? CHIMERA_PROCESS_EXITED : CHIMERA_PROCESS_FAULTED) != 0) {
+        lifecycle_rc = -2;
+    } else if (chimera_process_mark_resources_released(exited_pid) != 0) {
+        lifecycle_rc = -3;
+    } else if (chimera_process_reap(exited_pid) != 0) {
+        lifecycle_rc = -4;
+    }
     active_target=TARGET_NONE;
     active_ring3_probe=false;
     active_root=0;
+    active_address_space=nullptr;
+    if (lifecycle_rc != 0) {
+        koronos_target_log("[RUN ] ERROR: process teardown incomplete; address space or descriptors were not proven released");
+        return -12;
+    }
     if (exit_code == -10) {
         koronos_target_log("[RUN ] ERROR: in-kernel PIT deadline expired; user process aborted and address space will be reclaimed");
         return -11;

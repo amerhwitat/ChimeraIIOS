@@ -1,0 +1,53 @@
+name: Kali tools integration contract
+
+on:
+  pull_request:
+    paths:
+      - "tools/kali/**"
+      - "tools/wallpapers/**"
+      - "tools/tests/test_user_copy_syscall_contract.py"
+      - "tools/tests/test_progress_bridge_contract.py"
+      - "system/security/kali_tools_catalog.json"
+      - "system/security/kali_integration_policy.json"
+      - "build-chimera-iso.sh"
+      - "boot/iso/build-iso.sh"
+      - "tools/build-full-iso.sh"
+      - ".github/workflows/kali-tools-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/kali/**"
+      - "tools/wallpapers/**"
+      - "system/security/kali_tools_catalog.json"
+      - "system/security/kali_integration_policy.json"
+      - "build-chimera-iso.sh"
+      - "boot/iso/build-iso.sh"
+      - "tools/build-full-iso.sh"
+      - ".github/workflows/kali-tools-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kali-tools-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate frontend, wallpaper provenance, and build scripts
+        run: |
+          python -m py_compile tools/kali/chimera-kali tools/kali/test_chimera_kali.py tools/wallpapers/embed_wallpapers.py tools/wallpapers/test_embed_wallpapers.py
+          python tools/kali/test_chimera_kali.py -v
+          python tools/wallpapers/test_embed_wallpapers.py -v
+          python tools/tests/test_user_copy_syscall_contract.py
+          python tools/tests/test_progress_bridge_contract.py
+          python -m json.tool tools/kali/kali_tool_catalog.json >/dev/null
+          python -m json.tool system/security/kali_tools_catalog.json >/dev/null
+          python -m json.tool system/security/kali_integration_policy.json >/dev/null
+          for script in build-chimera-iso.sh boot/iso/build-iso.sh tools/build-full-iso.sh; do
+            bash -n "$script"
+          done

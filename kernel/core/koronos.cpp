@@ -18,6 +18,10 @@ extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
 volatile uint32_t koronos_state = 0;
+static uint32_t g_system_block_size = KORONOS_SYSTEM_BLOCK_SIZE;
+static bool system_block_size_valid(uint32_t size) {
+    return size >= KORONOS_SYSTEM_BLOCK_MIN && size <= KORONOS_SYSTEM_BLOCK_MAX && (size & (size - 1u)) == 0u;
+}
 
 static uint8_t serial_in8(uint16_t port) {
     uint8_t v;
@@ -71,6 +75,47 @@ static void serial_write(const char *s) {
     while (*s) serial_write8((uint8_t)*s++);
     serial_write8('\r');
     serial_write8('\n');
+}
+
+static void parse_system_block_option(uint64_t info) {
+    if (!info) return;
+    const auto *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
+    const uint32_t total = *reinterpret_cast<const uint32_t *>(base);
+    if (total < 16u || total > 16u * 1024u * 1024u) return;
+    for (uint32_t off = 8u; off <= total - 8u;) {
+        const auto *tag = reinterpret_cast<const uint32_t *>(base + off);
+        const uint32_t type = tag[0], size = tag[1];
+        if (size < 8u || size > total - off) return;
+        if (type == 0u) return;
+        if (type == 1u && size > 8u) {
+            const char *cmd = reinterpret_cast<const char *>(base + off + 8u);
+            const uint32_t bytes = size - 8u;
+            const char key[] = "koronos.system_block=";
+            for (uint32_t i = 0; i < bytes && cmd[i];) {
+                while (i < bytes && (cmd[i] == ' ' || cmd[i] == '\t')) ++i;
+                const uint32_t start = i;
+                while (i < bytes && cmd[i] && cmd[i] != ' ' && cmd[i] != '\t') ++i;
+                if (i - start < sizeof(key) - 1u) continue;
+                bool match = true;
+                for (uint32_t k = 0; k < sizeof(key) - 1u; ++k) if (cmd[start + k] != key[k]) { match = false; break; }
+                if (!match) continue;
+                uint32_t value = 0;
+                bool valid = i > start + sizeof(key) - 1u;
+                for (uint32_t k = start + sizeof(key) - 1u; k < i; ++k) {
+                    if (cmd[k] < '0' || cmd[k] > '9') { valid = false; break; }
+                    const uint32_t digit = static_cast<uint32_t>(cmd[k] - '0');
+                    if (value > (KORONOS_SYSTEM_BLOCK_MAX - digit) / 10u) { valid = false; break; }
+                    value = value * 10u + digit;
+                }
+                if (valid && system_block_size_valid(value)) g_system_block_size = value;
+                else debugcon_write("[BLK] Invalid koronos.system_block value; retaining configured default");
+            }
+            return;
+        }
+        const uint64_t next = (static_cast<uint64_t>(off) + size + 7u) & ~7ull;
+        if (next <= off || next > total) return;
+        off = static_cast<uint32_t>(next);
+    }
 }
 
 static void vga_clear() {
@@ -149,16 +194,32 @@ static void console_u32_raw(uint32_t v) {
     console_raw(&s[i]);
 }
 
-static void console_progress(uint32_t percent, const char *label) {
+extern "C" void koronos_progress_event(uint32_t percent, const char *phase,
+                                               const char *message) {
     if (percent > 100u) percent = 100u;
+    const char *safe_phase = phase ? phase : "kernel";
+    const char *safe_message = message ? message : "Boot milestone";
     const uint32_t filled = (percent * 20u) / 100u;
     console_raw("[PROG] [");
     for (uint32_t i = 0; i < 20u; ++i) console_raw(i < filled ? "#" : "-");
     console_raw("] ");
     console_u32_raw(percent);
     console_raw("% ");
-    console_raw(label ? label : "Boot phase");
+    console_raw(safe_message);
     console_endline();
+
+    /* Machine-readable progress is emitted only on real subsystem/target
+       transitions. There are no timer-driven or synthetic completion events. */
+    console_raw("CHIMERA_PROGRESS_EVENT percent=");
+    console_u32_raw(percent);
+    console_raw(" phase=");
+    console_raw(safe_phase);
+    console_raw(" message=");
+    console_raw(safe_message);
+    console_endline();
+}
+static void console_progress(uint32_t percent, const char *label) {
+    koronos_progress_event(percent, "koronos-init", label);
 }
 
 static void console_u32(uint32_t v) {
@@ -419,13 +480,13 @@ extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
     if (length == 0) return 0;
     if (length > 4096u) return -22;
-    uint64_t root = 0;
-    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
-    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0)
-        return -14;
-    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
-    (void)koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length);
-    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    /* Never dereference a ring-3 pointer from the console/syscall path. The
+       shared helper validates and pins the active process's own address space,
+       then copies into kernel-owned memory before diagnostics inspect bytes. */
+    uint8_t kernel_buffer[4096];
+    if (koronos_target_copy_from_user(kernel_buffer, address, length) != 0) return -14;
+    (void)koronos_target_note_user_write(reinterpret_cast<const char *>(kernel_buffer), length);
+    for (uint64_t i = 0; i < length; ++i) debugcon_write8(kernel_buffer[i]);
     return static_cast<int64_t>(length);
 }
 
@@ -447,6 +508,11 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     }
 
     console_write("OK");
+    parse_system_block_option(ctx->boot_info);
+    console_raw("[BLK ] System block size (bytes): ");
+    console_u32_raw(g_system_block_size);
+    console_endline();
+    console_write("[BLK ] Override with GRUB option koronos.system_block=<512..65536 power of two>");
     console_progress(5, "Koronos boot context accepted");
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
@@ -558,5 +624,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
     console_write("[RUN ] Entering Koronos scheduler loop");
-    console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
+    console_progress(80, "Kernel initialization complete; waiting for selected userspace target milestones");
 }
+
+extern "C" uint32_t koronos_system_block_size_get(void) { return g_system_block_size; }

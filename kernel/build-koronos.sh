@@ -9,24 +9,58 @@ Usage:
   kernel/build-koronos.sh [options] [arguments]
 
 Options:
-  -h, --help    Show this help and exit successfully.
+  -h, --help                    Show this help and exit successfully.
+  --system-block-size BYTES     Set the kernel system/block I/O size.
+  --system-block-size=BYTES     Equivalent form.
 
-Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
-  The script's existing command-line interface and environment variables remain unchanged.
+System block size defaults to 4096 bytes. Valid values are powers of two from
+512 through 65536 bytes. KORONOS_SYSTEM_BLOCK_SIZE sets the same default when
+the command-line option is omitted.
 CHIMERA_HELP
   exit 0
 fi
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
+SYSTEM_BLOCK_SIZE="${KORONOS_SYSTEM_BLOCK_SIZE:-4096}"
+while (($#)); do
+  case "$1" in
+    --system-block-size)
+      if (($# < 2)); then echo "ERROR: --system-block-size requires a byte count" >&2; exit 2; fi
+      SYSTEM_BLOCK_SIZE="$2"
+      shift 2
+      ;;
+    --system-block-size=*)
+      SYSTEM_BLOCK_SIZE="${1#*=}"
+      shift
+      ;;
+    *)
+      echo "ERROR: unknown option: $1" >&2
+      echo "Use --help for supported options." >&2
+      exit 2
+      ;;
+  esac
+done
+if [[ ! "$SYSTEM_BLOCK_SIZE" =~ ^[0-9]+$ ]]; then echo "ERROR: system block size must be an integer power of two (512..65536)" >&2; exit 2; fi
+SYSTEM_BLOCK_SIZE=$((10#$SYSTEM_BLOCK_SIZE))
+if (( SYSTEM_BLOCK_SIZE < 512 || SYSTEM_BLOCK_SIZE > 65536 || (SYSTEM_BLOCK_SIZE & (SYSTEM_BLOCK_SIZE - 1)) != 0 )); then echo "ERROR: KORONOS_SYSTEM_BLOCK_SIZE must be a power of two between 512 and 65536 bytes" >&2; exit 2; fi
 mkdir -p "$BUILD"
 bash -n "$ROOT/tools/build-production-init-elfs.sh"
 python3 "$ROOT/tools/tests/test_koronos_build_script_contract.py"
 python3 "$ROOT/tools/tests/test_validate_native_init_elf.py"
 python3 "$ROOT/tools/tests/test_native_init_packaging_contract.py"
 python3 "$ROOT/tools/tests/test_native_init_launch_gate.py"
+python3 "$ROOT/tools/tests/test_target_gui_entrypoints.py"
 python3 "$ROOT/tools/tests/test_production_closeout_daps.py"
+python3 "$ROOT/tools/tests/test_process_lifecycle_contract.py"
+"${HOST_CXX:-${CXX:-g++}}" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/firmware.cpp" "$ROOT/kernel/tests/firmware_multiboot_test.cpp" -o "$BUILD/firmware-multiboot-test"
+"$BUILD/firmware-multiboot-test"
+"${HOST_CXX:-${CXX:-g++}}" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/acpi_madt.cpp" "$ROOT/kernel/tests/acpi_madt_test.cpp" -o "$BUILD/acpi-madt-test"
+"$BUILD/acpi-madt-test"
+"${HOST_CXX:-${CXX:-g++}}" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/smp/acpi_rsdp.cpp" "$ROOT/kernel/tests/acpi_rsdp_test.cpp" -o "$BUILD/acpi-rsdp-test"
+"$BUILD/acpi-rsdp-test"
+"${HOST_CXX:-${CXX:-g++}}" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/elf64.cpp" "$ROOT/kernel/core/process.cpp" "$ROOT/kernel/tests/process_lifecycle_runtime_test.cpp" -o "$BUILD/process-lifecycle-test"
+"$BUILD/process-lifecycle-test"
 python3 "$ROOT/tools/tests/test_target_init_payload_binding.py"
 HOST_CXX="${HOST_CXX:-g++}"
 "$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/initramfs_cpio.cpp" "$ROOT/kernel/tests/initramfs_cpio_test.cpp" -o "$BUILD/initramfs-cpio-test"
@@ -42,13 +76,21 @@ HOST_CXX="${HOST_CXX:-g++}"
 "$BUILD/vfs-test"
 "$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/vfs.cpp" "$ROOT/kernel/core/tmpfs.cpp" "$ROOT/kernel/tests/tmpfs_test.cpp" -o "$BUILD/tmpfs-test"
 "$BUILD/tmpfs-test"
+"$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" "$ROOT/kernel/core/swap.cpp" "$ROOT/kernel/tests/swap_test.cpp" -o "$BUILD/swap-test"
+"$BUILD/swap-test"
+"$HOST_CXX" -std=c++20 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/core/block_device.cpp" "$ROOT/kernel/core/swap.cpp" \
+  "$ROOT/kernel/core/swap_block_device.cpp" "$ROOT/kernel/tests/swap_block_device_test.cpp" \
+  -o "$BUILD/swap-block-device-test"
+"$BUILD/swap-block-device-test"
 "$BUILD/initramfs-ingest-test"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
-CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
+CXXFLAGS=(-DKORONOS_SYSTEM_BLOCK_SIZE=$SYSTEM_BLOCK_SIZE -ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
+"$CXX" -std=c++20 -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include" -c "$ROOT/kernel/smp/acpi_rsdp.cpp" -o "$BUILD/acpi_rsdp.o"
 
-sources=(block_device iso9660 koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator address_space initramfs_cpio gzip initramfs_ingest ramfs vfs tmpfs target_launch)
+sources=(acpi_madt block_device iso9660 koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator address_space swap swap_block_device initramfs_cpio gzip initramfs_ingest ramfs vfs tmpfs target_launch)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
@@ -65,7 +107,7 @@ done
 
 link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o" "$BUILD/user-entry.o")
 for src in "${sources[@]}"; do link_objects+=("$BUILD/$src.o"); done
-link_objects+=("$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/pci-generic-driver.o" "$BUILD/module-test.o")
+link_objects+=("$BUILD/acpi_rsdp.o" "$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/pci-generic-driver.o" "$BUILD/module-test.o")
 for obj in "${link_objects[@]}"; do
   [[ -f "$obj" ]] || { echo "ERROR: required Koronos link object is missing: $obj" >&2; exit 1; }
 done
@@ -81,7 +123,7 @@ if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not ELF64" >&2; exit 1; }
 fi
 if command -v nm >/dev/null 2>&1; then
-  required_symbols=(koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove koronos_frame_allocator_init koronos_frame_alloc koronos_frame_alloc_contiguous koronos_frame_free koronos_frame_free_contiguous koronos_frame_free_count koronos_address_space_init koronos_address_space_ready koronos_address_space_self_test koronos_address_space_loader_ops koronos_address_space_root koronos_address_space_validate_user_range koronos_address_space_count koronos_user_entry_init koronos_arch_enter_user koronos_syscall_entry koronos_syscall_user_dispatch koronos_console_write_user koronos_launch_selected_userspace koronos_target_note_user_write koronos_target_userspace_ready koronos_target_note_user_syscall koronos_target_validate_syscall_context koronos_target_active_pid koronos_target_fs_open koronos_target_fs_read koronos_target_fs_write koronos_target_fs_close koronos_target_fs_seek chimera_vfs_init chimera_vfs_mount chimera_vfs_open chimera_vfs_read chimera_vfs_write chimera_vfs_seek chimera_vfs_close chimera_vfs_close_process chimera_tmpfs_create chimera_tmpfs_destroy chimera_tmpfs_vfs_ops koronos_target_log chimera_gzip_decompress_bounded chimera_initramfs_prepare_newc chimera_cpio_validate_newc)
+  required_symbols=(koronos_acpi_find_rsdp koronos_acpi_locate_madt koronos_idle_loop koronos_system_block_size_get chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe koronos_acpi_madt_parse chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_process_mark_resources_released chimera_process_reap chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove koronos_frame_allocator_init koronos_frame_alloc koronos_frame_alloc_contiguous koronos_frame_free koronos_frame_free_contiguous koronos_frame_free_count koronos_vm_frame_alloc koronos_vm_frame_alloc_contiguous koronos_vm_frame_retain koronos_vm_frame_release koronos_vm_frame_release_contiguous koronos_vm_frame_refcount koronos_swap_init koronos_swap_init_block_extent koronos_swap_store koronos_swap_load koronos_swap_release koronos_swap_get_snapshot koronos_swap_self_test koronos_address_space_register_tlb_shootdown koronos_address_space_map koronos_address_space_unmap koronos_address_space_protect koronos_address_space_query koronos_address_space_vma_query koronos_address_space_vma_set_backing koronos_address_space_evict_one koronos_address_space_page_fault_fastpath koronos_address_space_handle_page_fault koronos_address_space_pin koronos_address_space_unpin koronos_address_space_init koronos_address_space_ready koronos_address_space_self_test koronos_address_space_loader_ops koronos_address_space_root koronos_address_space_validate_user_range koronos_address_space_count koronos_user_entry_init koronos_arch_enter_user koronos_user_page_fault_abort koronos_syscall_entry koronos_syscall_user_dispatch koronos_console_write_user koronos_launch_selected_userspace koronos_target_note_user_write koronos_target_userspace_ready koronos_target_note_user_syscall koronos_target_validate_syscall_context koronos_target_active_pid koronos_target_active_address_space koronos_target_fs_open koronos_target_fs_read koronos_target_fs_write koronos_target_fs_close koronos_target_fs_seek chimera_vfs_init chimera_vfs_mount chimera_vfs_open chimera_vfs_read chimera_vfs_write chimera_vfs_seek chimera_vfs_close chimera_vfs_close_process chimera_tmpfs_create chimera_tmpfs_destroy chimera_tmpfs_vfs_ops koronos_target_log chimera_gzip_decompress_bounded chimera_initramfs_prepare_newc chimera_cpio_validate_newc)
   for symbol in "${required_symbols[@]}"; do
     nm -a --defined-only "$BUILD/koronos.elf" | awk -v sym="$symbol" '$NF == sym { found=1 } END { exit !found }' || {
       echo "ERROR: $symbol is not linked" >&2; nm -a "$BUILD/koronos.elf" 2>/dev/null | awk -v sym="$symbol" '$NF == sym || index($0,sym)' >&2 || true; exit 1;

@@ -2,6 +2,14 @@
 #include <stdint.h>
 #define KORONOS_ABI_VERSION 0x00010000u
 #define KORONOS_BOOTINFO_MAGIC 0x4B4F524Fu
+#ifndef KORONOS_SYSTEM_BLOCK_SIZE
+#define KORONOS_SYSTEM_BLOCK_SIZE 4096u
+#endif
+#define KORONOS_SYSTEM_BLOCK_MIN 512u
+#define KORONOS_SYSTEM_BLOCK_MAX 65536u
+#if KORONOS_SYSTEM_BLOCK_SIZE < KORONOS_SYSTEM_BLOCK_MIN || KORONOS_SYSTEM_BLOCK_SIZE > KORONOS_SYSTEM_BLOCK_MAX || (KORONOS_SYSTEM_BLOCK_SIZE & (KORONOS_SYSTEM_BLOCK_SIZE - 1u)) != 0
+#error "KORONOS_SYSTEM_BLOCK_SIZE must be a power of two between 512 and 65536 bytes"
+#endif
 enum koronos_cpu_class { KORONOS_CPU_CISC=1, KORONOS_CPU_RISC=2, KORONOS_CPU_CHIMERA=3 };
 enum koronos_x86_mode { KORONOS_X86_REAL16=0, KORONOS_X86_PROTECTED32=1, KORONOS_X86_LONG64=2, KORONOS_X86_COMPAT32=3, KORONOS_X86_V8086=4 };
 struct koronos_cpu_features {
@@ -34,6 +42,7 @@ void koronos_elf64_init(void);
 void koronos_module_init(void);
 const struct koronos_cpu_features* koronos_get_cpu_features(void);
 void koronos_idle_loop(void);
+uint32_t koronos_system_block_size_get(void);
 #ifdef __cplusplus
 }
 #endif

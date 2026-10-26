@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "title": "One ecosystem desktop feature contract",
+  "delivery": "responsive-showcase-prototype",
+  "runtime_status": "prototype-not-native-session",
+  "environments": [
+    {"id":"chimera","name":"ChimeraIIOS Desktop","tagline":"Power. Freedom. Unity.","profile":"general-purpose","ui":["application-menu","dock","clock-weather-widget","wallpaper-gallery","settings-entry","file-entry","terminal-entry"],"native_session":"not-verified"},
+    {"id":"octavian","name":"OctavianOS Desktop","tagline":"Elegant. Secure. Future-Ready.","profile":"productivity","ui":["application-menu","dock","office-entry","browser-entry","file-manager-entry","settings-entry"],"native_session":"not-verified"},
+    {"id":"aurora","name":"Aurora Desktop","tagline":"Create. Explore. Belong.","profile":"glass-creative","ui":["translucent-menu","creative-app-categories","dock","wallpaper-gallery","screen-saver-gallery"],"native_session":"prototype; production readiness not verified"},
+    {"id":"koronos","name":"Koronos Desktop","tagline":"Secure. Reliable. Enterprise-Grade.","profile":"enterprise","ui":["administration-menu","network-tools-entry","security-center-entry","system-logs-entry"],"native_session":"not-verified"},
+    {"id":"nova","name":"Nova Desktop","tagline":"Lightweight. Modern. Versatile.","profile":"lightweight","ui":["compact-menu","utility-categories","dock","responsive-layout"],"native_session":"not-verified"},
+    {"id":"mobile","name":"Mobile OS (Tablet/Phone)","tagline":"Touch. Go. Anywhere.","profile":"touch-first","ui":["responsive-app-grid","large-touch-targets","portrait-layout","phone-tablet-breakpoints"],"native_session":"not-verified"}
+  ],
+  "shared_preview_capabilities": [
+    "responsive-layout",
+    "keyboard-dismiss-menus",
+    "accessible-focus-and-status",
+    "reduced-motion-preference",
+    "local-app-selection-feedback",
+    "wallpaper-category-catalog",
+    "screen-saver-category-catalog"
+  ],
+  "native_acceptance_requirements": [
+    "real-session-manager-and-compositor",
+    "installed-app-discovery-and-process-launch",
+    "real-window-focus-move-resize-minimize-maximize-close",
+    "keyboard-pointer-touch-hit-testing",
+    "persisted-user-settings-and-wallpaper",
+    "actual-vfs-backed-file-manager",
+    "crash-recovery-and-session-health",
+    "hardware-accelerated-rendering-probe"
+  ],
+  "policy": "A UI selection or showcase test is not evidence of native app execution, compositor health, hardware acceleration, or production OS readiness."
+}

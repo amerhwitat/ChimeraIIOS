@@ -2,10 +2,19 @@ name: Container — Build and Push Docker Hub
 
 on:
   push:
-    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml']
+    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py', 'tools/tests/test_build_cleanup_contract.py']
   pull_request:
-    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml']
+    paths: ['Dockerfile', '.dockerignore', 'docker/**', 'docker-compose.yml', '.github/workflows/container.yml', '.github/workflows/docker-build.yml', 'tools/tests/test_container_publish_gate.py', 'tools/release/verify-production-daps.py', 'tools/tests/test_production_daps_contract.py', 'tools/tests/test_build_cleanup_contract.py']
   workflow_dispatch:
+    inputs:
+      evidence_run_id:
+        description: "Completed successful run that produced the immutable production DAPS evidence bundle"
+        required: true
+        type: string
+      evidence_artifact_name:
+        description: "Exact artifact name containing evidence.json and ISO-bound raw traces"
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,6 +22,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
   attestations: write
   id-token: write
 
@@ -25,6 +35,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
+      - name: Compile verifier and validate fail-closed DAPS contract
+        run: |
+          python3 -m py_compile tools/release/verify-production-daps.py
+          python3 tools/tests/test_production_daps_contract.py
+          python3 tools/tests/test_container_publish_gate.py
+          python3 tools/tests/test_build_cleanup_contract.py
+      - name: Verify evidence source run completed successfully
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVIDENCE_RUN_ID: ${{ inputs.evidence_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || { echo "Publication is allowed only from main after production DAPS acceptance." >&2; exit 1; }
+          [[ "$EVIDENCE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid evidence run ID" >&2; exit 2; }
+          result="$(gh run view "$EVIDENCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json status,conclusion --jq '.status + ":" + .conclusion')"
+          [[ "$result" == "completed:success" ]] || { echo "Publication blocked: evidence source run is not completed successfully ($result)" >&2; exit 1; }
+      - name: Download production DAPS evidence
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.evidence_run_id }}
+          name: ${{ inputs.evidence_artifact_name }}
+          path: build/production-daps
+      - name: Verify production DAPS evidence before allowing image publication
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        id: daps
+        run: |
+          set -euo pipefail
+          python3 tools/release/verify-production-daps.py --evidence build/production-daps/evidence.json
+          echo "accepted=true" >> "$GITHUB_OUTPUT"
+      - name: Require Docker Hub credentials for publication
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          [[ -n "$DOCKERHUB_USERNAME" && -n "$DOCKERHUB_TOKEN" ]] || {
+            echo "Docker Hub publication blocked: configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN." >&2
+            exit 1
+          }
       - name: Validate Compose
         run: docker compose config
       - name: Report publication mode
@@ -35,7 +87,7 @@ jobs:
             echo "Credentials unavailable or pull request event; build will validate without registry publication."
           fi
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
+        if: github.event_name == 'workflow_dispatch' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -56,7 +108,7 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+          push: ${{ github.event_name == 'workflow_dispatch' && steps.daps.outputs.accepted == 'true' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: true

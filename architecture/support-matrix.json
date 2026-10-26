@@ -170,6 +170,42 @@
         "drivers",
         "userspace"
       ]
+    },
+    {
+      "id": "s390x",
+      "family": "CISC",
+      "class": "research-target",
+      "native_kernel": "not-accepted",
+      "qemu": "emulator-catalog-only-unless-target-specific-boot-evidence-attached",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "architecture-port",
+        "cross-build",
+        "defined-firmware-boot-chain",
+        "interrupt-and-timer-path",
+        "drivers",
+        "userspace",
+        "runtime-acceptance"
+      ]
+    },
+    {
+      "id": "sparc64",
+      "family": "RISC",
+      "class": "research-target",
+      "native_kernel": "not-accepted",
+      "qemu": "emulator-catalog-only-unless-target-specific-boot-evidence-attached",
+      "userspace": "not-accepted",
+      "release_supported": false,
+      "evidence_required": [
+        "architecture-port",
+        "cross-build",
+        "defined-platform-and-firmware",
+        "trap-and-timer-path",
+        "drivers",
+        "userspace",
+        "runtime-acceptance"
+      ]
     }
   ],
   "rules": [

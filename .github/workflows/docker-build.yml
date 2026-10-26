@@ -12,13 +12,35 @@ on:
       - 'docker/**'
       - '.dockerignore'
       - 'docker-compose.yml'
+      - '.github/workflows/docker-build.yml'
+      - '.github/workflows/container.yml'
+      - 'tools/tests/test_container_publish_gate.py'
+      - 'tools/release/verify-production-daps.py'
+      - 'tools/tests/test_production_daps_contract.py'
+      - 'tools/tests/test_build_cleanup_contract.py'
   pull_request:
     paths:
       - 'Dockerfile'
       - 'Dockerfile.*'
       - 'docker/**'
       - '.dockerignore'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker-build.yml'
+      - '.github/workflows/container.yml'
+      - 'tools/tests/test_container_publish_gate.py'
+      - 'tools/release/verify-production-daps.py'
+      - 'tools/tests/test_production_daps_contract.py'
+      - 'tools/tests/test_build_cleanup_contract.py'
   workflow_dispatch:
+    inputs:
+      evidence_run_id:
+        description: "Completed successful run that produced the immutable production DAPS evidence bundle"
+        required: true
+        type: string
+      evidence_artifact_name:
+        description: "Exact artifact name containing evidence.json and the ISO-bound raw traces"
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,6 +48,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
   packages: write
   id-token: write
 
@@ -41,6 +64,41 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Compile verifier and validate fail-closed DAPS contract
+        run: |
+          python3 -m py_compile tools/release/verify-production-daps.py
+          python3 tools/tests/test_production_daps_contract.py
+          python3 tools/tests/test_container_publish_gate.py
+          python3 tools/tests/test_build_cleanup_contract.py
+      - name: Verify evidence source run completed successfully
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVIDENCE_RUN_ID: ${{ inputs.evidence_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || { echo "Publication is allowed only from main after production DAPS acceptance." >&2; exit 1; }
+          [[ "$EVIDENCE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid evidence run ID" >&2; exit 2; }
+          result="$(gh run view "$EVIDENCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json status,conclusion --jq '.status + ":" + .conclusion')"
+          [[ "$result" == "completed:success" ]] || {
+            echo "Publication blocked: evidence source run is not completed successfully ($result)" >&2
+            exit 1
+          }
+      - name: Download production DAPS evidence
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.evidence_run_id }}
+          name: ${{ inputs.evidence_artifact_name }}
+          path: build/production-daps
+      - name: Verify production DAPS evidence before allowing image publication
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        id: daps
+        run: |
+          set -euo pipefail
+          python3 tools/release/verify-production-daps.py --evidence build/production-daps/evidence.json
+          echo "accepted=true" >> "$GITHUB_OUTPUT"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -82,7 +140,7 @@ jobs:
           file: ./Dockerfile
           target: builder
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name == 'workflow_dispatch' && steps.daps.outputs.accepted == 'true' }}
           tags: ${{ steps.builder-meta.outputs.tags }}
           labels: ${{ steps.builder-meta.outputs.labels }}
           cache-from: type=gha,scope=chimeraiios-builder
@@ -96,7 +154,7 @@ jobs:
           file: ./Dockerfile
           target: runtime
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name == 'workflow_dispatch' && steps.daps.outputs.accepted == 'true' }}
           tags: ${{ steps.runtime-meta.outputs.tags }}
           labels: ${{ steps.runtime-meta.outputs.labels }}
           cache-from: type=gha,scope=chimeraiios-runtime

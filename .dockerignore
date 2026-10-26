@@ -30,6 +30,15 @@ cmake-build-*/
 boot/iso/portfolio-build/src/**/build/
 boot/iso/portfolio-build/src/**/out/
 
-# Include the explicitly staged ISO only for the QEMU runner image build.
+# Never send generated ISOs, build roots, or release artifacts into the general-purpose Docker build context.
+dist/
+output/
+chimera-build/
+chimera-output/
+rootfs/
+*.sha256
+
+# The ISO runner image needs the just-built candidate as its sole generated payload.
+# Keep other build outputs excluded from the general Docker context.
 !dist/
 !dist/output.iso

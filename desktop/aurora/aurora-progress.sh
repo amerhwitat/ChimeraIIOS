@@ -24,7 +24,7 @@ set -euo pipefail
 #   percent|phase|message
 # in $CHIMERA_PROGRESS_FILE (default /run/chimera/progress.state).
 
-STATE_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/progress.state}"
+STATE_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
 MODE="${1:-monitor}"
 
 bar(){

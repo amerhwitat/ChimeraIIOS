@@ -41,8 +41,10 @@ def main() -> int:
         return fail("service registry must not mark storage RUNNING without an implementation health check")
     if 'chimera_service_set_state("chimera.device",CHM_SVC_RUNNING)' in service_source:
         return fail("service registry must not mark device services RUNNING without an implementation health check")
-    if "Registration is not a health check" not in service_source:
-        return fail("service readiness versus registry initialization contract is missing")
+    if "chimera_service_supervisor_start" not in service_source or "chimera_service_supervisor_poll" not in service_source:
+        return fail("service readiness contract must include the lifecycle supervisor, not only registry state")
+    if 'set_state_internal("chimera.kore", CHM_SVC_BLOCKED)' not in service_source:
+        return fail("Kore must remain BLOCKED until a real backend starts it and health checks pass")
 
     syscall_header = (ROOT / "kernel/include/chimera/syscall.h").read_text(encoding="utf-8")
     mmap_id = re.search(r"CHM_SYS_MMAP\s*=\s*(\d+)", syscall_header)
@@ -52,8 +54,9 @@ def main() -> int:
         return fail("mount syscall was added; require an implementation and runtime tests before changing fail-closed init")
     if re.search(r"call[0-6]\(10\)", native_init):
         return fail("native init must not treat syscall 10 (MMAP) as a mount operation")
-    if "call1(1, 78)" not in native_init or "NATIVE INIT BLOCKED:" not in native_init:
-        return fail("bootstrap must retain its explicit unavailable-service exit")
+    if ("fail_closed(78)" not in native_init or "call1(1, code)" not in native_init
+            or "NATIVE INIT BLOCKED:" not in native_init):
+        return fail("bootstrap must retain its explicit unavailable-service exit 78 through fail_closed()")
 
     archive_guard = launch.split(
         "if (payload_count==1u && (target==TARGET_LIVE || target==TARGET_RECOVERY))", 1
@@ -62,11 +65,21 @@ def main() -> int:
         return fail("missing Live/Recovery rootfs archive validation block")
     archive_guard = archive_guard[1].split("if (!koronos_address_space_ready())", 1)[0]
     if "summary.has_init" in archive_guard:
-        return fail("rootfs archive validation must not require executable /init when a separately staged target-matched native ELF is the entry point")
+        return fail("archive /init resolution must use the validated entry lookup, not a summary-only flag")
     if "cpio_rc != CHIMERA_CPIO_OK" not in archive_guard:
         return fail("Live/Recovery rootfs must still fail closed on invalid CPIO")
-    if "separately staged" not in archive_guard:
-        return fail("rootfs/entry-point separation rationale and regression guard are missing")
+    if "const void *init_image = reinterpret_cast<const void *>(static_cast<uintptr_t>(selected->base));" not in launch:
+        return fail("process admission must execute the explicitly tagged USER_INIT_ELF module")
+    if "const uint64_t init_image_size = selected->size;" not in launch:
+        return fail("process admission must use the selected module's bounded image size")
+    for forbidden in (
+        "stage_archive_init_elf(",
+        "staged_archive_init",
+        'chimera_cpio_lookup_executable_newc(archive, archive_size, "/init", &entry)',
+        "interpreter/argv exec and script FD support are not implemented",
+    ):
+        if forbidden in launch:
+            return fail("initramfs /init must not override the tagged native ELF: " + forbidden)
 
     if '#include "chimera/ramfs.h"' not in launch or "chimera_ramfs_extract_newc" not in (ROOT / "kernel/core/ramfs.cpp").read_text(encoding="utf-8"):
         return fail("production launch must compile against the bounded transactional RAMFS extractor")

@@ -62,6 +62,22 @@ def valid_evidence():
             "overlapping_execution_verified": True, "cpu_ids": [0, 1],
             "evidence": "traces/smp-overlap.log",
         },
+        "vm_swap": {
+            "status": "PASS", "production_iso_sha256": "a" * 64,
+            "case_ids": ["live-bios", "live-uefi", "installer-bios", "installer-uefi",
+                         "recovery-bios", "recovery-uefi"],
+            "address_space_map_unmap_protect_query_verified": True,
+            "page_pinning_verified": True, "vma_lookup_verified": True,
+            "frame_reference_counting_verified": True, "system_block_config_verified": True,
+            "system_block_size_bytes": "4096", "page_fault_handling_verified": True,
+            "pager_thread_verified": True, "fault_wait_wake_verified": True,
+            "swap_roundtrip_verified": True, "swapout_failure_preserves_resident_verified": True,
+            "swapin_rollback_verified": True, "io_failure_rollback_verified": True,
+            "corruption_rejected_verified": True, "tlb_shootdown_verified": True,
+            "storage_discovery_verified": True, "swap_exhaustion_verified": True,
+            "teardown_reclaims_frames_slots_verified": True, "repeated_swap_cycles_verified": True,
+            "evidence": "traces/vm-swap.log",
+        },
         "candidate_smoke_substituted": False,
     }
 
@@ -110,6 +126,19 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("production_iso: artifact file does not exist" in e for e in errors))
         self.assertTrue(any("raw_trace: artifact file does not exist" in e for e in errors))
 
+    def test_cli_rejects_invalid_utf8_evidence_manifest(self):
+        import subprocess
+        import sys
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "evidence.json"
+            manifest.write_bytes(bytes([255, 254, 250]))
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "tools" / "production-closeout-daps.py"), str(manifest)],
+                capture_output=True, text=True, check=False,
+            )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("BLOCKED: cannot read valid evidence JSON", result.stderr)
     def test_iso_sha256_is_checked_without_loading_whole_file(self):
         import tempfile
         import hashlib
@@ -147,7 +176,40 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
         self.assertTrue(any("trace is missing required runtime marker 'USER INIT SYSCALL:'" in e for e in errors))
         self.assertTrue(any("raw_trace lacks a target-matched user-originated syscall" in e for e in errors))
 
+    def test_raw_trace_rejects_invalid_utf8(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_bytes(bytes((255, 254, 250)))
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("cannot read/decipher evidence artifact" in e for e in errors))
+        self.assertTrue(any("cannot read/decipher raw_trace evidence" in e for e in errors))
+
     def test_raw_trace_rejects_mismatched_target_or_pid(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "a" * 64 + "\\n"
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE TARGET READY: live component=aurora-session init pid=8\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = GATE["check_evidence"](data, root)
+        self.assertTrue(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
+
+    def test_raw_trace_requires_matching_production_iso_sha256(self):
         import tempfile
         from pathlib import Path
         data = valid_evidence()
@@ -158,12 +220,31 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace.write_text(
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
-                "USERSPACE TARGET READY: live component=aurora-session init pid=8\\n",
+                "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
                 encoding="utf-8",
             )
             data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
-            errors = GATE["check_evidence"](data, root)
-        self.assertTrue(any("raw_trace syscall/readiness PIDs do not match" in e for e in errors))
+            errors = check_evidence(data, root)
+        self.assertTrue(any("raw_trace lacks the production ISO SHA-256 binding marker" in e for e in errors))
+
+    def test_raw_trace_rejects_mismatched_production_iso_sha256(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "live-bios.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "b" * 64 + "\\n"
+                "[KRN ] KORONOS READY\\n"
+                "USER INIT SYSCALL: target=live init_pid=7\\n"
+                "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
+                encoding="utf-8",
+            )
+            data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("raw_trace ISO SHA-256 does not match" in e for e in errors))
 
     def test_accepts_real_production_target_ready_marker(self):
         import tempfile
@@ -174,6 +255,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace = root / "traces" / "live-bios.log"
             trace.parent.mkdir()
             trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "a" * 64 + "\\n"
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
                 "USERSPACE TARGET READY: live component=aurora-session init pid=7\\n",
@@ -211,6 +293,7 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             trace = root / "traces" / "live-bios.log"
             trace.parent.mkdir()
             trace.write_text(
+                "PRODUCTION ISO SHA-256: " + "a" * 64 + "\\n"
                 "[KRN ] KORONOS READY\\n"
                 "USER INIT SYSCALL: target=live init_pid=7\\n"
                 "USERSPACE TARGET READY: live component=recovery-runtime init pid=7\\n",
@@ -219,6 +302,87 @@ class ProductionCloseoutDapsTest(unittest.TestCase):
             data["cases"]["live-bios"]["raw_trace"] = "traces/live-bios.log"
             errors = GATE["check_evidence"](data, root)
         self.assertTrue(any("raw_trace lacks a target-matched userspace readiness marker" in e for e in errors))
+
+    def test_vm_swap_requires_tlb_pinning_and_rollback_evidence(self):
+        data = valid_evidence()
+        for field in ("page_pinning_verified", "swapout_failure_preserves_resident_verified",
+                      "swapin_rollback_verified", "tlb_shootdown_verified",
+                      "storage_discovery_verified", "teardown_reclaims_frames_slots_verified"):
+            data["vm_swap"].pop(field)
+        errors = check_evidence(data)
+        self.assertTrue(any("vm_swap: page_pinning_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: tlb_shootdown_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: swapin_rollback_verified must be true" in e for e in errors))
+
+    def test_vm_swap_evidence_must_bind_to_all_six_cases_and_iso(self):
+        data = valid_evidence()
+        data["vm_swap"]["production_iso_sha256"] = "b" * 64
+        data["vm_swap"]["case_ids"] = ["live-bios"]
+        errors = check_evidence(data)
+        self.assertTrue(any("vm_swap: production_iso_sha256 must match" in e for e in errors))
+        self.assertTrue(any("vm_swap: case_ids must cover exactly all six" in e for e in errors))
+
+    def test_vm_swap_requires_vma_frame_ownership_and_block_size_evidence(self):
+        data = valid_evidence()
+        for field in ("vma_lookup_verified", "frame_reference_counting_verified",
+                      "system_block_config_verified", "system_block_size_bytes",
+                      "pager_thread_verified", "fault_wait_wake_verified"):
+            data["vm_swap"].pop(field)
+        errors = check_evidence(data)
+        self.assertTrue(any("vm_swap: vma_lookup_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: frame_reference_counting_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: system_block_config_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: pager_thread_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: fault_wait_wake_verified must be true" in e for e in errors))
+        self.assertTrue(any("vm_swap: missing system_block_size_bytes" in e for e in errors))
+
+    def test_vm_swap_rejects_invalid_system_block_size(self):
+        data = valid_evidence()
+        data["vm_swap"]["system_block_size_bytes"] = "3000"
+        errors = check_evidence(data)
+        self.assertTrue(any("system_block_size_bytes must be a power of two" in e for e in errors))
+
+    def test_vm_trace_requires_production_scoped_runtime_markers(self):
+        import tempfile
+        from pathlib import Path
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "vm-swap.log"
+            trace.parent.mkdir()
+            trace.write_text(
+                "SYSTEM BLOCK SIZE (bytes): 4096\\nMAP UNMAP PROTECT QUERY PAGE PIN PAGE UNPIN "
+                "VMA LOOKUP FRAME REFCOUNT PAGE FAULT SWAP STORE SWAP LOAD SWAP OUT ROLLBACK "
+                "SWAP IN ROLLBACK IO FAILURE CHECKSUM FAILURE TLB SHOOTDOWN SWAP DEVICE DISCOVERED "
+                "SWAP EXHAUSTED ADDRESS SPACE TEARDOWN REPEATED SWAP CYCLE\\n",
+                encoding="utf-8",
+            )
+            data["vm_swap"]["evidence"] = "traces/vm-swap.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] MAP'" in e for e in errors))
+        self.assertTrue(any("trace is missing required runtime marker '[PRODUCTION VM] SWAP LOAD'" in e for e in errors))
+
+    def test_vm_trace_rejects_invalid_utf8(self):
+        import tempfile
+        data = valid_evidence()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trace = root / "traces" / "vm-swap.log"
+            trace.parent.mkdir()
+            trace.write_bytes(bytes([255, 254, 250]))
+            data["vm_swap"]["evidence"] = "traces/vm-swap.log"
+            errors = check_evidence(data, root)
+        self.assertTrue(any("vm_swap: cannot read/decipher evidence trace" in e for e in errors))
+    def test_unexpected_candidate_case_is_rejected(self):
+        data = valid_evidence()
+        data["cases"]["candidate-live-qemu"] = {
+            "status": "PASS",
+            "production_iso": "candidate.iso",
+            "iso_sha256": "a" * 64,
+            "raw_trace": "candidate-smoke.log",
+        }
+        errors = check_evidence(data)
+        self.assertTrue(any("unexpected non-production case 'candidate-live-qemu'" in e for e in errors))
 
     def test_candidate_smoke_cannot_replace_production(self):
         data = valid_evidence()

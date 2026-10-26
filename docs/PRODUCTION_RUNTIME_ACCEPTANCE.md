@@ -201,3 +201,58 @@ Required implementation is a process-owned exec/spawn + wait/exit/reap contract 
 - OctavianOS's vendored checker previously had no equivalent raw-trace semantic validation. It now mirrors the strict Chimera DAPS implementation in `0727220c0d33a8224f2834be552e9b6454e6748e`, and its vendored regression suite is synchronized in `f941eca95130d5896382a326a3f59d9add76e105` and `67fa4306222573cac61479dbfe1ec94b266785fd`.
 - Added `docs/LINUX_TO_KORONOS_PORTING_MAP.md` in `ea76dc46f420dda107a85839ec7265e4a15219d2`. It maps Linux boot/memory/ELF/syscall/process/VFS/init/service/block/SMP/display concepts to Koronos closure tasks and records source import/license rules. This is a porting plan, not a claim that Linux code was imported or that Koronos now boots fully.
 - These are release-gate integrity fixes. Native init still intentionally exits 78 while services are unavailable; installer persistence, the six actual production ISO cases, Aurora health, recovery repair, and AP-backed SMP remain unverified. Fresh CI and runtime acceptance are required.
+
+
+## 2026-10-23 — strict trace binding and driver probe correctness
+
+- DAPS now requires every production target's raw boot trace to contain `PRODUCTION ISO SHA-256: <64-hex-digest>` and compares it with the verified digest for that case. This closes the stale-trace pairing gap: a manifest can name an ISO correctly while a raw log may have come from a different boot. The real production boot harness must stamp the digest of the exact ISO it launches. Candidate traces remain non-production and must not be promoted.
+- DAPS uses strict UTF-8 decoding for raw target traces, VM/swap evidence, and evidence JSON. Invalid bytes are reported as a validation failure instead of being replaced or escaping as an uncaught decoding exception.
+- Source audit found that `chimera_driver_probe_all()` previously counted a matching driver descriptor as successfully bound even when it had no probe callback or when its callback failed. This could make catalog metadata look like a functional driver. The probe path now counts only callbacks that succeed, continues trying later matching drivers after a failed probe, and does not re-invoke probe callbacks with a null device during `chimera_driver_start_all()`.
+- Regression tests were added for trace-to-ISO hash binding and driver probe semantics. Dedicated DAPS CI and the Koronos kernel workflow were updated to run those tests. Their exact-head jobs are queued at the latest status check; test success is not yet established.
+- This is a verifier integrity fix and a driver-discovery correctness fix, not a production storage implementation. Functional virtio/block I/O and swap registration, AP startup and real SMP, pager wait/wake, acknowledged all-CPU TLB shootdown, complete services, Aurora, installer persistence, recovery repair, and all six actual production ISO/firmware cases remain release blockers.
+
+**Decision remains BLOCKED.** Do not merge or publish a production ISO until exact-head CI passes and genuine, hash-bound runtime evidence satisfies the unchanged production closeout gate.
+
+
+## 2026-10-23 — Check/Plan/Do/Act production blocker re-audit
+
+### Confirmed runtime findings
+
+- **Live/Recovery rootfs:** the previous CPIO symlink rejection is corrected by bounded symlink extraction and regression coverage. Runtime evidence from the full-ISO trace confirms rootfs publication, read-only `/`, writable bounded `/tmp`, ring-3 syscall acknowledgement, kernel-owned init PID, and the create/write/seek/read/close self-test.
+- **Live/Recovery service lifecycle:** `kernel/userspace/native_init.c` deliberately exits with status 78 after the VFS self-test because the native filesystem/process/device/graphics service set is unavailable. This is the immediate reason the production readiness marker is absent. Do not replace the exit with a marker.
+- **Service manager:** `kernel/core/service.cpp` validates manifests and resolves dependency order, but `chimera_kore_bootstrap()` only marks device, storage, security, and logging as blocked and Kore as running. This is a registry/bootstrap primitive, not a service process supervisor: no production spawn/wait/reap, health probes, restart/backoff, dependency-aware start/stop, or target readiness contract is wired into it.
+- **Installer:** `kernel/core/target_launch.cpp` classifies the installer payload as a disk image and intentionally returns `-15` because a storage-backed installer root namespace is not mounted. Installer boot must not be reported as ready until block-device discovery, partition/filesystem mounting, installer namespace publication, and durable write/sync/readback are implemented and tested.
+- **Aurora:** the VFS self-test does not establish framebuffer mode selection, input/display service availability, compositor startup, or session handoff. The production `aurora-session` health handshake must be emitted only after those operations succeed.
+- **Recovery:** recovery init has no proven repair transaction and verified postcondition yet. A recovery shell or a successful ring-3 probe is insufficient.
+- **SMP:** candidate single-process probes do not prove AP startup or overlapping execution on distinct CPU IDs. The AP bootstrap and per-CPU work evidence remain absent.
+- **DAPS:** the existing `tools/production-closeout-daps.py` remains the production gate. It requires the exact ISO hash in every raw trace, all six target/firmware cases, matching positive syscall/readiness PIDs, rootfs/tmpfs operations, display/Aurora, installer cold-reboot persistence, recovery postconditions, SMP, and VM/swap evidence. Do not replace it with a marker-only checker.
+
+### Actions taken in this remediation pass
+
+1. Reconfirmed the RAMFS symlink extraction regression and kernel/DAPS CI green results.
+2. Audited OctavianOS source pinning. A transient workflow-only update to `579fe94f63770358f6d5efef1b037e4e0c46e69b` was subsequently reverted by the branch's newer commit `77cfc0b65b393e641d580b515abfe5c2228dccb9`, which deliberately restores `24b48f7ddf2b1f244e8f95a9d6b041ac44549889` to match `vendor/chimera-ii-os/UPSTREAM_REVISION`. The current workflow therefore preserves vendor parity. To validate newer Chimera source in OctavianOS, synchronize the complete vendor snapshot and revision marker together; changing only the workflow pin would create a false source-parity failure.
+3. Kept production status fail-closed. No production readiness, installer persistence, Aurora, recovery repair, AP-backed SMP, or six-case ISO-hash-bound closeout is claimed.
+
+### Release decision
+
+**BLOCKED.** The source/build regression fixes are publishable on their review branches, but a production ISO is not. The next implementation work is the real service supervisor and its process/health contracts, installer block-device/root namespace lifecycle, Aurora runtime/compositor handoff, recovery repair transaction, AP startup/concurrent per-CPU proof, and the six-case production harness. Each must be implemented against the repository's real APIs and pass DAPS on raw evidence bound to the exact ISO digest.
+
+
+## 2026-10-23 — Service supervisor implementation pass
+
+### Implemented on the review branch
+
+- Added a backend-neutral service supervisor API with bounded service count, dependency validation and topological start order, per-service health probes, nonblocking process-exit observation, bounded restart budgets/backoff, critical-service rollback, and reverse-dependency stop.
+- Added a deterministic fake-backend regression covering dependency-ordered start, health-confirmed RUNNING state, process exit detection, bounded restart, and reverse-order shutdown.
+- Added a dedicated GitHub Actions service supervisor contract workflow and included the same regression in the DAPS regression workflow.
+- Changed early Kore bootstrap to mark device, storage, security, logging, and Kore as BLOCKED until a real backend starts them and reports healthy. Registration/bootstrap can no longer manufacture RUNNING status.
+
+### Important integration boundary
+
+The supervisor implementation is not yet wired to a production process-spawn/wait/reap backend in the kernel, and no target-specific service manifests are connected to it. The unit test uses a deterministic fake backend and validates supervisor policy only. It is not evidence that the Live filesystem/process/device/display/Aurora services are running in the ISO.
+
+Installer block-device discovery/mount and durable storage readback, recovery repair postconditions, Aurora compositor/session handoff, AP startup/concurrent SMP, and the six ISO-hash-bound production traces remain unverified. Do not remove native init's explicit unavailable-service exit or relax DAPS to compensate.
+
+### Current acceptance decision
+
+**BLOCKED.** The lifecycle supervisor code and contract tests are now present on this review branch; CI execution and production backend integration are still required. Release remains prohibited until the actual six-case production DAPS evidence passes.

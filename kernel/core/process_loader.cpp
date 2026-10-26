@@ -7,10 +7,22 @@ static uint64_t align_down(uint64_t x){return x&~(CHIMERA_ELF_PAGE_SIZE-1u);}
 static bool inside(uint64_t o,uint64_t n,uint64_t z){uint64_t e=0;return add_ok(o,n,&e)&&e<=z;}
 static bool user_addr(uint64_t a){return a<CHIMERA_ELF_USER_LIMIT;}
 struct Plan{koronos_elf64_phdr ph;uint64_t base,size,delta,end;};
+static int rollback(const chimera_elf_load_ops *ops, void *context, void *as,
+                    int original_error, uint32_t mapped_regions,
+                    chimera_loaded_elf *out) {
+    if (ops->destroy_address_space(context, as) == 0) return original_error;
+    // A failed teardown is not a normal load failure: return the still-owned
+    // address-space handle so the caller can quarantine it and retry cleanup.
+    out->abi = CHIMERA_ELF_LOADER_ABI;
+    out->segment_count = mapped_regions;
+    out->address_space = as;
+    return -17;
+}
 }
 extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,uint16_t machine,
  uint64_t stack_top,uint64_t stack_size,const chimera_elf_load_ops*ops,void*context,chimera_loaded_elf*out){
  if(!image||!out||!ops||!ops->create_address_space||!ops->map_pages||!ops->destroy_address_space)return -1;
+ *out = {}; // Failure leaves an empty result unless rollback itself fails.
  if(image_size<sizeof(koronos_elf64_ehdr))return -2;
  koronos_elf64_ehdr h{};__builtin_memcpy(&h,image,sizeof(h));
  if(!koronos_elf64_valid(&h)||h.e_version!=1u||h.e_ehsize!=sizeof(h)||h.e_machine!=machine||h.e_type!=KORONOS_ET_EXEC||
@@ -49,12 +61,19 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  void*as=ops->create_address_space(context);if(!as)return -13;
  for(uint32_t i=0;i<count;i++){
   const Plan&p=plans[i];void*alias=nullptr;
-  if(ops->map_pages(context,as,p.base,p.size,p.ph.p_flags,&alias)!=0||!alias){ops->destroy_address_space(context,as);return -14;}
+  if(ops->map_pages(context,as,p.base,p.size,p.ph.p_flags,&alias)!=0||!alias){return rollback(ops,context,as,-14,i+1u,out);}
+  if (ops->set_backing) {
+   if (p.ph.p_offset < p.delta ||
+       ops->set_backing(context,as,p.base,p.size,CHIMERA_ELF_BACKING_IMAGE,
+                        reinterpret_cast<uintptr_t>(image),p.ph.p_offset-p.delta)!=0) {
+    return rollback(ops,context,as,-16,i+1u,out);
+   }
+  }
   auto*dst=static_cast<uint8_t*>(alias);__builtin_memset(dst,0,(size_t)p.size);
   if(p.ph.p_filesz)__builtin_memcpy(dst+p.delta,bytes+p.ph.p_offset,(size_t)p.ph.p_filesz);
  }
  void*stack_alias=nullptr;
- if(ops->map_pages(context,as,stack_base,stack_size,PF_R|PF_W,&stack_alias)!=0||!stack_alias){ops->destroy_address_space(context,as);return -15;}
+ if(ops->map_pages(context,as,stack_base,stack_size,PF_R|PF_W,&stack_alias)!=0||!stack_alias){return rollback(ops,context,as,-15,count+1u,out);}
  __builtin_memset(stack_alias,0,(size_t)stack_size);
  chimera_loaded_elf result{};result.abi=CHIMERA_ELF_LOADER_ABI;result.segment_count=count;result.address_space=as;
  result.entry=h.e_entry;result.user_stack_top=stack_top;result.image_low=low;result.image_high=high;result.loaded_file_bytes=file_bytes;

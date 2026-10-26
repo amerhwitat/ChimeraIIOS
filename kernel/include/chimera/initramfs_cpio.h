@@ -11,7 +11,7 @@ typedef enum chimera_cpio_status {
   CHIMERA_CPIO_OK=0, CHIMERA_CPIO_E_ARGUMENT=-1, CHIMERA_CPIO_E_LIMIT=-2,
   CHIMERA_CPIO_E_HEADER=-3, CHIMERA_CPIO_E_BOUNDS=-4, CHIMERA_CPIO_E_PATH=-5,
   CHIMERA_CPIO_E_TYPE=-6, CHIMERA_CPIO_E_CHECKSUM=-7, CHIMERA_CPIO_E_TRAILER=-8,
-  CHIMERA_CPIO_E_COMPRESSION=-9
+  CHIMERA_CPIO_E_COMPRESSION=-9, CHIMERA_CPIO_E_NOT_FOUND=-10
 } chimera_cpio_status;
 typedef struct chimera_cpio_summary {
   uint32_t entries;
@@ -21,11 +21,20 @@ typedef struct chimera_cpio_summary {
   uint64_t archive_bytes;
   uint32_t has_init;
 } chimera_cpio_summary;
+typedef struct chimera_cpio_entry {
+  uint32_t mode;
+  uint64_t size;
+  const void *data;
+} chimera_cpio_entry;
 /* Validate a raw newc/crc CPIO archive without allocating or extracting it.
    Compressed archives are rejected explicitly; callers must decompress with a
    separately bounded decoder before calling this function. */
 int chimera_cpio_validate_newc(const void *archive, uint64_t archive_size,
                                chimera_cpio_summary *summary);
+int chimera_cpio_lookup_newc(const void *archive, uint64_t archive_size,
+                             const char *path, chimera_cpio_entry *entry);
+int chimera_cpio_lookup_executable_newc(const void *archive, uint64_t archive_size,
+                                        const char *path, chimera_cpio_entry *entry);
 #ifdef __cplusplus
 }
 #endif
