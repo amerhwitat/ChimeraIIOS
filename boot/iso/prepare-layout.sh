@@ -292,4 +292,38 @@ and the compressed source archive under /src.
 The canonical project documentation is staged as /chimera/docs/README.md.
 EOF
 
+# Build one provenance-checked bundle from real build outputs and the complete
+# repository Library artwork. Command payloads are copied into actual /bin and
+# /sbin ISO paths, while the original files and hashes remain in the manifest.
+ASSET_BUNDLE="$ROOT/build/os-asset-bundle"
+python3 "$ROOT/tools/package_os_assets.py" \
+  --root "$ROOT" --output "$ASSET_BUNDLE" \
+  --binary-root "$ROOT/build" --binary-root "$BOOT_ART" \
+  --command-root "$ROOT" --command-root "$DIST" --command-root "$BOOT_ART" \
+  --require-elf --require-commands
+mkdir -p "$DIST/boot/visual" "$DIST/boot/chimera/native-binaries" \
+         "$DIST/usr/share/chimera/assets/offline-artwork" "$DIST/bin" "$DIST/sbin"
+install -m 0644 "$ASSET_BUNDLE/embedded-artwork.json" "$DIST/boot/visual/embedded-artwork.json"
+cp -a "$ASSET_BUNDLE/artwork/." "$DIST/usr/share/chimera/assets/offline-artwork/"
+cp -a "$ASSET_BUNDLE/binaries/." "$DIST/boot/chimera/native-binaries/"
+cp -a "$ASSET_BUNDLE/commands/bin/." "$DIST/bin/" 2>/dev/null || true
+cp -a "$ASSET_BUNDLE/commands/sbin/." "$DIST/sbin/" 2>/dev/null || true
+install -m 0644 "$ASSET_BUNDLE/binary-manifest.json" "$DIST/boot/chimera/native-binaries/binary-manifest.json"
+python3 - "$ASSET_BUNDLE" "$DIST" <<'PY_ASSET_VERIFY'
+import hashlib, json, pathlib, sys
+bundle, iso = map(pathlib.Path, sys.argv[1:])
+art = json.loads((bundle / "embedded-artwork.json").read_text(encoding="utf-8"))
+manifest = json.loads((bundle / "binary-manifest.json").read_text(encoding="utf-8"))
+assert art["assets"], "embedded artwork inventory is empty"
+assert manifest["elf_count"] > 0, "no valid ELF binaries bundled"
+assert manifest["command_count"] > 0, "no executable command files bundled"
+for entry in manifest["commands"]:
+    src = bundle / entry["path"]
+    assert src.is_file() and hashlib.sha256(src.read_bytes()).hexdigest() == entry["sha256"], entry
+    dest = iso / entry["install_path"].lstrip("/")
+    assert dest.is_file(), f"command missing from ISO root: {entry['install_path']}"
+    assert hashlib.sha256(dest.read_bytes()).hexdigest() == entry["sha256"], f"command hash mismatch: {dest}"
+print(f"ISO COMMAND/ARTWORK PASS: artwork={len(art['assets'])} ELF={manifest['elf_count']} EFI={manifest['efi_count']} commands={manifest['command_count']}")
+PY_ASSET_VERIFY
+
 python3 "$ROOT/boot/iso/validate-iso.py" --tree "$DIST" --write-manifest "$DIST/checksums/SHA256SUMS"
