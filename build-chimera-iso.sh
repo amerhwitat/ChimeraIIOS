@@ -698,6 +698,48 @@ prepare_branding(){
            "$ISO_DIR/boot/visual" \
            "$ISO_DIR/boot/grub"
 
+  # Release builds preserve the two exact dual-brand session wallpapers and
+  # embed their original bytes for offline desktop startup. Explicitly setting
+  # CHIMERA_REQUIRE_SESSION_BRANDING=0 is only for non-release development.
+  local require_session_branding="${CHIMERA_REQUIRE_SESSION_BRANDING:-1}"
+  case "$require_session_branding" in
+    0) log_warning "Exact session-branding gate disabled for development build." ;;
+    1)
+      local session_branding_source="$SCRIPT_DIR/desktop/aurora/assets/library"
+      local session_branding_tool="$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py"
+      [[ -s "$session_branding_source/Duck-ai-image-2026-10-18-07-06(1).jpeg" ]] || {
+        log_error "Required original session wallpaper is missing: Duck-ai-image-2026-10-18-07-06(1).jpeg"
+        return 1
+      }
+      [[ -s "$session_branding_source/Duck-ai-image-2026-10-18-06-36.jpeg" ]] || {
+        log_error "Required original session wallpaper is missing: Duck-ai-image-2026-10-18-06-36.jpeg"
+        return 1
+      }
+      [[ -s "$session_branding_tool" ]] || {
+        log_error "Session wallpaper embedder is missing: $session_branding_tool"
+        return 1
+      }
+      local session_branding_out="$BUILD_DIR/session-branding"
+      mkdir -p "$session_branding_out"
+      python3 "$session_branding_tool" --session-branding \
+        --source-dir "$session_branding_source" \
+        --css "$session_branding_out/embedded-session-branding.css" \
+        --manifest "$session_branding_out/embedded-session-branding.json" || {
+          log_error "Exact session wallpaper validation/embedding failed."
+          return 1
+        }
+      cp -f "$session_branding_out/embedded-session-branding.css" \
+        "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-session-branding.css"
+      cp -f "$session_branding_out/embedded-session-branding.json" \
+        "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-session-branding.json"
+      cp -f "$session_branding_out/embedded-session-branding.css" \
+        "$ISO_DIR/boot/visual/embedded-session-branding.css"
+      cp -f "$session_branding_out/embedded-session-branding.json" \
+        "$ISO_DIR/boot/visual/embedded-session-branding.json"
+      ;;
+    *) log_error "CHIMERA_REQUIRE_SESSION_BRANDING must be 0 or 1"; return 2 ;;
+  esac
+
   # Build the complete deterministic Aurora visual set. Supplied Library artwork
   # wins; generated SVG artwork remains the offline fallback.
   local visual="$BUILD_DIR/aurora-media"
