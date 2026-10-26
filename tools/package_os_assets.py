@@ -1,57 +1,57 @@
 #!/usr/bin/env python3
-"""Package offline artwork and genuine build-produced ELF/EFI binaries.
+"""Create a byte-preserving offline artwork, executable-command, ELF and EFI bundle.
 
-The generated bundle is a build artifact, not a substitute for source files.
-Artwork is embedded as Base64 for offline consumers; executable binaries are
-copied byte-for-byte with SHA-256 and format validation. Missing EFI payloads
-fail closed when --require-efi is supplied.
+Only files discovered in repository artwork roots and explicit build/command roots
+are included. Each copied file is hashed; conflicting command names fail closed.
 """
 from __future__ import annotations
 import argparse
 import base64
 import hashlib
 import json
+import os
 import shutil
+import stat
 import struct
 import sys
 from pathlib import Path
 
 ART_EXTS = {".svg", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".mp4", ".avif"}
-BIN_EXTS = {".elf", ".efi"}
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 def is_elf(data: bytes) -> bool:
-    return data.startswith(b"\x7fELF")
+    return data.startswith(b"\\x7fELF")
 
 def is_pe(data: bytes) -> bool:
     if len(data) < 0x40 or data[:2] != b"MZ":
         return False
     off = struct.unpack_from("<I", data, 0x3C)[0]
-    return off + 4 <= len(data) and data[off:off+4] == b"PE\0\0"
+    return off + 4 <= len(data) and data[off:off+4] == b"PE\\0\\0"
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--root", type=Path, default=Path.cwd())
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--binary-root", action="append", type=Path, default=[])
+    ap.add_argument("--command-root", action="append", type=Path, default=[])
     ap.add_argument("--require-efi", action="store_true")
     ap.add_argument("--require-elf", action="store_true")
+    ap.add_argument("--require-commands", action="store_true")
     args = ap.parse_args()
-    root = args.root.resolve()
-    out = args.output.resolve()
-    if out == root or root in out.parents:
-        # Output under root is allowed, but never scan it as input.
-        pass
+    root, out = args.root.resolve(), args.output.resolve()
     art_roots = [
+        root / "Library", root / "library",
         root / "desktop/aurora/assets", root / "desktop/marine/assets",
         root / "boot/splash", root / "boot/visual",
+        root / "vendor/chimera-ii-os/source/Library",
+        root / "vendor/chimera-ii-os/source/library",
         root / "vendor/chimera-ii-os/source/desktop/aurora/assets",
+        root / "vendor/chimera-ii-os/source/desktop/marine/assets",
         root / "vendor/chimera-ii-os/source/boot/splash",
         root / "vendor/chimera-ii-os/source/boot/visual",
     ]
-    artwork = []
-    seen_art = set()
+    artwork, seen_art = [], set()
     for base in art_roots:
         if not base.is_dir():
             continue
@@ -71,58 +71,104 @@ def main() -> int:
             shutil.copyfile(path, original)
             artwork.append({"path": rel, "packaged_path": original.relative_to(out).as_posix(),
                             "media_type": path.suffix.lower(), "size_bytes": len(raw),
-                            "sha256": sha256(raw),
-                            "base64": base64.b64encode(raw).decode("ascii")})
+                            "sha256": sha256(raw), "base64": base64.b64encode(raw).decode("ascii")})
             seen_art.add(rel)
     if not artwork:
         raise ValueError("no artwork assets found; refusing to emit an empty offline bundle")
 
     binary_roots = [p.resolve() for p in args.binary_root]
-    defaults = [root / "build", root / "vendor/chimera-ii-os/source/build"]
-    binary_roots.extend(p.resolve() for p in defaults if p.is_dir() and p.resolve() not in binary_roots)
+    for candidate in (root / "build", root / "vendor/chimera-ii-os/source/build"):
+        if candidate.is_dir() and candidate.resolve() not in binary_roots:
+            binary_roots.append(candidate.resolve())
     found = {}
     for base in binary_roots:
         if not base.is_dir():
             continue
         for path in sorted(base.rglob("*")):
-            if not path.is_file() or path.suffix.lower() not in BIN_EXTS:
+            if not path.is_file() or out == path or out in path.parents:
                 continue
-            if out == path or out in path.parents:
+            try:
+                raw = path.read_bytes()
+            except OSError:
                 continue
-            raw = path.read_bytes()
-            ext = path.suffix.lower()
-            valid = is_elf(raw) if ext == ".elf" else is_pe(raw)
-            if not valid:
-                # Build trees sometimes contain test fixtures; never package a
-                # mislabeled or non-executable file as a boot payload.
+            if is_elf(raw):
+                fmt = "ELF"
+            elif is_pe(raw):
+                fmt = "PE/COFF"
+            else:
                 continue
-            key = sha256(raw)
-            if key in found:
+            digest = sha256(raw)
+            if digest in found:
                 continue
-            name = path.name
-            dest = out / "binaries" / key[:12] / name
+            dest = out / "binaries" / digest[:12] / path.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(path, dest)
-            found[key] = {"source": str(path.relative_to(root)) if root in path.parents else str(path),
-                          "path": dest.relative_to(out).as_posix(),
-                          "format": "ELF" if ext == ".elf" else "PE/COFF",
-                          "size_bytes": len(raw), "sha256": key}
+            found[digest] = {"source": str(path.relative_to(root)) if root in path.parents else str(path),
+                             "path": dest.relative_to(out).as_posix(), "format": fmt,
+                             "size_bytes": len(raw), "sha256": digest}
+
+    # Collect executable command files from root and staging trees. /usr/bin maps
+    # to /bin and /usr/sbin maps to /sbin for the requested root-level command layout.
+    command_roots = [p.resolve() for p in args.command_root]
+    for candidate in (root, root / "rootfs", root / "vendor/chimera-ii-os/source/rootfs"):
+        if candidate.is_dir() and candidate.resolve() not in command_roots:
+            command_roots.append(candidate.resolve())
+    commands = {}
+    for base in command_roots:
+        if not base.is_dir():
+            continue
+        for subdir, destdir in (("bin", "bin"), ("sbin", "sbin"),
+                                ("usr/bin", "bin"), ("usr/sbin", "sbin")):
+            srcdir = base / subdir
+            if not srcdir.is_dir():
+                continue
+            for path in sorted(srcdir.iterdir()):
+                if not path.is_file():
+                    continue
+                try:
+                    mode = path.stat().st_mode
+                    if not (mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)):
+                        continue
+                    raw = path.read_bytes()
+                except OSError:
+                    continue
+                target = f"{destdir}/{path.name}"
+                digest = sha256(raw)
+                prior = commands.get(target)
+                if prior and prior["sha256"] != digest:
+                    raise ValueError(f"conflicting command implementations for /{target}: {prior['source']} and {path}")
+                if prior:
+                    continue
+                dest = out / "commands" / target
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(path, dest)
+                dest.chmod(mode & 0o777)
+                commands[target] = {
+                    "source": str(path.relative_to(root)) if root in path.parents else str(path),
+                    "path": dest.relative_to(out).as_posix(), "install_path": "/" + target,
+                    "size_bytes": len(raw), "sha256": digest, "mode": oct(mode & 0o777),
+                    "format": "ELF" if is_elf(raw) else ("PE/COFF" if is_pe(raw) else "script-or-other-executable"),
+                }
+
     elfs = [x for x in found.values() if x["format"] == "ELF"]
     efis = [x for x in found.values() if x["format"] == "PE/COFF"]
     if args.require_elf and not elfs:
         raise ValueError("no valid build-produced ELF binaries found")
     if args.require_efi and not efis:
         raise ValueError("no valid PE/COFF EFI binaries found")
+    if args.require_commands and not commands:
+        raise ValueError("no executable command files found in /bin, /sbin, /usr/bin or /usr/sbin roots")
     out.mkdir(parents=True, exist_ok=True)
     (out / "embedded-artwork.json").write_text(
-        json.dumps({"schema":"OS-OFFLINE-ARTWORK-BASE64-1","assets":artwork},
-                   ensure_ascii=False, separators=(",",":")) + "\n", encoding="utf-8")
-    manifest = {"schema":"OS-BUILD-BINARY-BUNDLE-1","elf_count":len(elfs),
+        json.dumps({"schema":"OS-OFFLINE-ARTWORK-BASE64-2","assets":artwork},
+                   ensure_ascii=False, separators=(",",":")) + "\\n", encoding="utf-8")
+    manifest = {"schema":"OS-BUILD-BINARY-BUNDLE-2","elf_count":len(elfs),
                 "efi_count":len(efis),"artwork_count":len(artwork),
-                "binaries":sorted(found.values(), key=lambda x:x["path"])}
-    (out / "binary-manifest.json").write_text(json.dumps(manifest, indent=2)+"\n", encoding="utf-8")
-    print(f"ASSET BUNDLE PASS: artwork={len(artwork)} embedded_base64_bytes="
-          f"{(out/'embedded-artwork.json').stat().st_size} elf={len(elfs)} efi={len(efis)}")
+                "command_count":len(commands),
+                "binaries":sorted(found.values(), key=lambda x:x["path"]),
+                "commands":sorted(commands.values(), key=lambda x:x["install_path"])}
+    (out / "binary-manifest.json").write_text(json.dumps(manifest, indent=2)+"\\n", encoding="utf-8")
+    print(f"ASSET BUNDLE PASS: artwork={len(artwork)} ELF={len(elfs)} EFI={len(efis)} commands={len(commands)}")
     return 0
 
 if __name__ == "__main__":
