@@ -180,7 +180,7 @@ def main() -> int:
                 "command_count":len(commands),
                 "binaries":sorted(found.values(), key=lambda x:x["path"]),
                 "commands":sorted(commands.values(), key=lambda x:x["install_path"])}
-    (out / "binary-manifest.json").write_text(json.dumps(manifest, indent=2)+"\\n", encoding="utf-8")
+    (out / "binary-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(f"ASSET BUNDLE PASS: artwork={len(artwork)} ELF={len(elfs)} EFI={len(efis)} commands={len(commands)}")
     return 0
 
