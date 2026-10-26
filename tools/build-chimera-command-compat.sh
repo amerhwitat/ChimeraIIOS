@@ -553,24 +553,52 @@ run_native() {
     case "$command" in
         cd)
             builtin cd -- "$@"
-            ;;
-        *)
-            local root_prefix="${CHIMERA_ROOT_PREFIX:-}"
-
-            if [[ -x "${root_prefix}/usr/bin/$command" ]]; then
-                exec "${root_prefix}/usr/bin/$command" "$@"
-            fi
-
-            if command -v "$command" >/dev/null 2>&1; then
-                exec "$command" "$@"
-            fi
-
-            echo "chimera: native command unavailable: $command" >&2
-            return 127
+            return $?
             ;;
     esac
-}
 
+    local root_prefix="${CHIMERA_ROOT_PREFIX:-}"
+    local candidate="${root_prefix}/usr/bin/$command"
+    local stderr_file status
+    stderr_file="$(mktemp "${TMPDIR:-/tmp}/chimera-native.XXXXXX")"
+    if [[ -x "$candidate" ]]; then
+        "$candidate" "$@" 2>"$stderr_file"
+        status=$?
+        if [[ $status -ne 126 && $status -ne 127 ]] ||
+           ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found' "$stderr_file"; then
+            cat "$stderr_file" >&2
+            rm -f "$stderr_file"
+            return "$status"
+        fi
+        cat "$stderr_file" >&2
+    elif command -v "$command" >/dev/null 2>&1; then
+        "$command" "$@" 2>"$stderr_file"
+        status=$?
+        if [[ $status -ne 126 && $status -ne 127 ]] ||
+           ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found' "$stderr_file"; then
+            cat "$stderr_file" >&2
+            rm -f "$stderr_file"
+            return "$status"
+        fi
+        cat "$stderr_file" >&2
+    fi
+    rm -f "$stderr_file"
+
+    # Compatibility fallback is only used when the executable is missing or
+    # the OS explicitly reports that it cannot be loaded. Ordinary command
+    # failures (including nonzero application exit codes) are preserved.
+    if command -v "$command" >/dev/null 2>&1; then
+        echo "chimera: native launch failed; retrying through POSIX compatibility: $command" >&2
+        run_compat linux "$command" "$@"
+        return $?
+    fi
+    if [[ -x "$candidate" ]]; then
+        echo "chimera: native launch failed; dispatching by executable format: $candidate" >&2
+        exec "${root_prefix}/usr/bin/chimera-exec" "$candidate" "$@"
+    fi
+    echo "chimera: command unavailable in native and compatibility modes: $command" >&2
+    return 127
+}
 run_compat() {
     local mode="$1"
     local command="$2"
@@ -586,7 +614,10 @@ run_compat() {
             if command -v "$command" >/dev/null 2>&1; then
                 exec "$command" "$@"
             fi
-
+            if [[ -n "${CHIMERA_MACOS_RUNTIME:-}" ]] &&
+               command -v "${CHIMERA_MACOS_RUNTIME}" >/dev/null 2>&1; then
+                exec "${CHIMERA_MACOS_RUNTIME}" "$command" "$@"
+            fi
             echo "chimera: macOS command unavailable: $command" >&2
             echo "Install/configure a macOS compatibility runtime." >&2
             return 126
