@@ -48,7 +48,7 @@ def main() -> int:
         "static int destroy_address_space(void *, void *opaque)",
     )
     required_loader_header = ("int (*destroy_address_space)(void *context, void *address_space);",)
-    required_loader = ("==0 ? -14 : -17", "==0 ? -16 : -17", "==0 ? -15 : -17")
+    # Assert rollback semantics rather than a particular ternary spelling: the\n    # implementation now centralizes ownership retention in rollback().\n    required_loader = (\n        "if (ops->destroy_address_space(context, as) == 0) return original_error;",\n        "return -17;",\n        "return rollback(ops,context,as,-14,i+1u,out);",\n        "return rollback(ops,context,as,-16,i+1u,out);",\n        "return rollback(ops,context,as,-15,count+1u,out);",\n    )
     required_target = (
         "const int destroy_rc = ops->destroy_address_space(nullptr,loaded.address_space);",
         "chimera_process_mark_resources_released(exited_pid)",
