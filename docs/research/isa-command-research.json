@@ -1,6 +1,6 @@
 {
   "schema": "CHIMERA-RESEARCH-CATALOG-1",
-  "generated_at": "2026-10-22T18:32:03.048175+00:00",
+  "generated_at": "2026-10-25T06:07:54.876648+00:00",
   "policy": {
     "discovery_only": true,
     "remote_code_execution": false,
@@ -1022,8 +1022,8 @@
     },
     {
       "path": "docs/research/isa-command-research.json",
-      "bytes": 254201,
-      "sha256": "8785c937825f271510565b83ef475336c2e3ac449a88e9ea5852e049496b26d0"
+      "bytes": 252341,
+      "sha256": "5b9c57a446b11f0abb69839c9f6188345134574f2d34ae374edaf0ce9dc78cad"
     },
     {
       "path": "docs/research/ISA_CANDIDATE_EXECUTION.md",
@@ -1032,8 +1032,8 @@
     },
     {
       "path": "docs/research/ISA_COMMAND_RESEARCH.md",
-      "bytes": 51400,
-      "sha256": "b9ff4c0ba713c0542fc0c784dd06e588b9b8f3dcc5f019137615ea6dd093f9b3"
+      "bytes": 50485,
+      "sha256": "a4d42087897059b244f2e8dbe6d92e762e6aaf6b8b8cf16e2e4f32a473c0017a"
     },
     {
       "path": "docs/toolchains/managed-and-apple-compatibility.md",
@@ -1387,7 +1387,7 @@
       "url": "https://docs.riscv.org/reference/isa/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:29:14.480529+00:00",
+      "checked_at": "2026-10-25T06:05:07.588404+00:00",
       "sha256": "f095c7c98f7bb5d8526f8b04206fd25aeb441b5b9cbad5d19b51d862a20e46b0",
       "snippet": "Redirecting to isa v20260120 \n   \n   \n     Redirecting to the latest version:  isa v20260120",
       "recursive_discovery": {
@@ -1541,7 +1541,7 @@
       "url": "https://docs.kernel.org/",
       "topic": "kernel",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:29:45.727186+00:00",
+      "checked_at": "2026-10-25T06:05:37.674567+00:00",
       "sha256": "90114396b603caa65d2d9603a22a9c85605b730ca8b9352d91059d6e3db83b04",
       "snippet": "The Linux Kernel documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process "
     },
@@ -1550,7 +1550,7 @@
       "url": "https://docs.kernel.org/arch/x86/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:29:46.028684+00:00",
+      "checked_at": "2026-10-25T06:05:38.115992+00:00",
       "sha256": "f3a6ad4c59dffa82e5ff65d24f96b6eaed659b1b441f283b1bd6687b5a09d925",
       "snippet": "x86-specific Documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development proces",
       "recursive_discovery": {
@@ -2066,7 +2066,7 @@
       "url": "https://docs.kernel.org/arch/arm64/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:30:11.407169+00:00",
+      "checked_at": "2026-10-25T06:06:04.515951+00:00",
       "sha256": "312bce195f5fe7d0ef502cc41ef2ab6985c78cc889e8e4ec33cf04bd5b6e574f",
       "snippet": "ARM64 Architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Su",
       "recursive_discovery": {
@@ -2582,7 +2582,7 @@
       "url": "https://docs.kernel.org/arch/riscv/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:30:34.529968+00:00",
+      "checked_at": "2026-10-25T06:06:27.205034+00:00",
       "sha256": "6d7b18b8897dd9b9b4d5cf825b26e062cd257855671e1ca90a12d59f30481a1c",
       "snippet": "RISC-V architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  S",
       "recursive_discovery": {
@@ -3098,7 +3098,7 @@
       "url": "https://docs.kernel.org/driver-api/",
       "topic": "drivers",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:30:58.293378+00:00",
+      "checked_at": "2026-10-25T06:06:49.469609+00:00",
       "sha256": "40e335a272a683625e788db9f21fc0365fad00c0247e819eb751bce0a543f4af",
       "snippet": "Driver implementer’s API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development pr"
     },
@@ -3107,7 +3107,7 @@
       "url": "https://docs.kernel.org/scheduler/",
       "topic": "scheduler",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:30:58.574030+00:00",
+      "checked_at": "2026-10-25T06:06:49.750631+00:00",
       "sha256": "f37ac2de8905476d3fec5a9472f8825cdf176caaddc4edc36db8e03ceb87367d",
       "snippet": "Scheduler &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Submitting "
     },
@@ -3116,7 +3116,7 @@
       "url": "https://docs.kernel.org/userspace-api/",
       "topic": "syscalls",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:30:58.825519+00:00",
+      "checked_at": "2026-10-25T06:06:50.003846+00:00",
       "sha256": "7faf0ddcb40d3ceb6435d17e053bf01c32fc1b62abf8e5d60e40f603b91afa7e",
       "snippet": "The Linux kernel user-space API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Develop"
     },
@@ -3125,8 +3125,8 @@
       "url": "https://source.android.com/docs/core/architecture/kernel",
       "topic": "mobile-os",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:30:59.684858+00:00",
-      "sha256": "b5703617e36866dd9f3c96212c07b1667a604ba4a47f73d34575d484bbd5dbe5",
+      "checked_at": "2026-10-25T06:06:51.027989+00:00",
+      "sha256": "e5f307c7a4355e146d4bca7fa863f78c6d8c565a0a171c4ce278a3101f1d9e12",
       "snippet": "Kernel overview &nbsp;|&nbsp; Android OS core topics &nbsp;|&nbsp; Android Open Source Project \n\n    \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"Article\",\n    \n    \"headline\": \"Kernel overview\"\n  }\n  \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"BreadcrumbList\",\n    \"itemListElement\": [{\n      \"@type\": \"ListItem\",\n      \"position\": 1,\n      \"name\": \"Docs\",\n      \"item\": \"https://source.android.com/docs\"\n    },{\n      \"@type\": \"ListItem\",\n      \"position\": 2,\n      \"name\":"
     },
     {
@@ -3134,7 +3134,7 @@
       "url": "https://support.arm.com/documentation",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:31:00.576685+00:00",
+      "checked_at": "2026-10-25T06:06:52.185010+00:00",
       "sha256": "8cee92dffdb3a5499ca8a3a56b2399d5bb54866a09aad813342b3b73eee1e06d",
       "snippet": "window.docsHubConfig={\"REACT_APP_2FA_ACR\":\"B2C_1A_HV.SIGN-IN-CONF.1.1.0\",\"REACT_APP_2FA_AUTHORITY\":\"https://account.arm.com/tfp/armb2c.onmicrosoft.com/B2C_1A_HV.SIGN-IN-CONF.1.1.0/v2.0/\",\"REACT_APP_2FA_CLIENT_ID\":\"da089d53-3538-4d3e-8ea0-73dfe483f321\",\"REACT_APP_2FA_SCOPE\":\"openid https://armb2c.onmicrosoft.com/docsHub/read\",\"REACT_APP_ADOBE_LAUNCH_URL\":\"https://support.arm.com/arm-tag-manager/support.arm.com/atm.js\",\"REACT_APP_AI_ASSISTANCE_ENABLED\":\"true\",\"REACT_APP_ARM_DOCUMENTATION_IMAGE_ASS",
       "recursive_discovery": {
@@ -3149,8 +3149,8 @@
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:31:01.287829+00:00",
-      "sha256": "088b9285035c50dde38c35773fc16f61b3237264fdf07af5766101c16562981e",
+      "checked_at": "2026-10-25T06:06:53.007460+00:00",
+      "sha256": "199383dc6fb3dc52f87043362ae87be8678bc213a6985f7c21f865309331f91b",
       "snippet": "Manuals for Intel® 64 and IA-32 Architectures \n    \n    \n    \n\n\n\n\n\n\n\n\n\n \n \n \n\n     \n     \n\n     \n     \n\n\n\n\n\n     \n      \n     \n      \n     \n      \n\n\n    \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    \n    \n        \n    \n\n\n\n\n    \n    \n    \n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n \n    var cq_tms = {\n        wa_emtcontenttype: \"emtcontenttype:designanddevelopmentreference/developerguide/developeruserguide,emtcontenttype:designanddevelopmentreference/developerguide,emtcontent",
       "recursive_discovery": {
         "pages_visited": 80,
@@ -3342,8 +3342,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-edge-ai-turns-football-crowd-data-into-revenue.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/amd-intel-simplify-x86-ai-development-with-pytorch.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-massrobotics-physical-ai-startup-speed.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-offers-day-0-support-for-meta-muse-spark-open.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-inference-microservices-tuned-llm-processors.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/deep-underground-intel-powered-robots-make-mining-safer.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-accelerates-open-infrastructure-agentic-ai-era.html",
@@ -3362,8 +3362,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/foundation-pltw-expand-semiconductor-careers.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ai-infra-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-outlines-architectures-for-agentic-ai-at-hot-chips-2026.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/6-in-10-leaders-bet-big-on-robots-only-4-in-10-are-ready.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/count-the-work-not-just-the-cores.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/6-in-10-leaders-bet-big-on-robots-only-4-in-10-are-ready.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-corporation-to-participate-in-upcoming-investor-conference-august-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-upsize-and-pricing-of-20-billion-common-stock-offering.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-proposed-15-billion-common-stock-offering.html",
@@ -3467,8 +3467,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-the-ultimate-factory-tour.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-foundry-gathers-customers-partners-outlines-priorities.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-chip-roams-intel-factories.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/direct-connect-2025-keynote-livestream-replay.html",
           "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/direct-connect-2025-keynote-livestream-replay.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-ceo-lip-bu-tan-headline-intel-foundry-direct-connect.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/how-intel-optimized-openclaw-runs-securely-cost-efficiently-intel-based-ai-pcs.html",
           "https://www.intel.com/content/www/us/en/newsroom/tech101/manufacturing/understanding-moores-law.html",
@@ -3665,7 +3665,7 @@
       "url": "https://www.amd.com/en/search/documentation",
       "topic": "isa",
       "http_status": 0,
-      "checked_at": "2026-10-22T18:31:52.614770+00:00",
+      "checked_at": "2026-10-25T06:07:43.998825+00:00",
       "sha256": "0738e1d53e03cdde4e379859b024fb665340ccc62ac4ed215101772e5d81327b",
       "snippet": "HTTP Error 404: Not Found"
     },
@@ -3674,7 +3674,7 @@
       "url": "https://uefi.org/specifications",
       "topic": "firmware",
       "http_status": 0,
-      "checked_at": "2026-10-22T18:31:52.930590+00:00",
+      "checked_at": "2026-10-25T06:07:44.458281+00:00",
       "sha256": "2fbdaaa36a31ec4853f2062504fc20ecfc24512cfe648271bc840f246a542911",
       "snippet": "HTTP Error 403: Forbidden"
     },
@@ -3683,7 +3683,7 @@
       "url": "https://docs.freebsd.org/en/books/handbook/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:31:53.549529+00:00",
+      "checked_at": "2026-10-25T06:07:45.064674+00:00",
       "sha256": "109a95818d0d231bf26df6ab14366cb92c08d121416b71d4d2caddad6c2bcb3c",
       "snippet": "FreeBSD Handbook | FreeBSD Documentation Portal                     {\"@context\":\"http://schema.org\",\"@type\":\"Article\",\"url\":\"https:\\/\\/docs.freebsd.org\\/en\\/books\\/handbook\\/\",\"name\":\"FreeBSD Documentation Portal\",\"headline\":\"FreeBSD Documentation Portal\",\"description\":\"FreeBSD Documentation Portal\"}          \n           \n About\n      About    FreeBSD    FreeBSD Foundation    Code of Conduct      \n Get FreeBSD\n      Get FreeBSD    Release Information    Release Engineering    Security Advisories"
     },
@@ -3692,8 +3692,8 @@
       "url": "https://www.netbsd.org/docs/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-10-22T18:31:54.833296+00:00",
-      "sha256": "3efa17d6501c0bb3b2c0a7f5ccfe34ee9302e089d877226645600c4c9a08ebdb",
+      "checked_at": "2026-10-25T06:07:46.632988+00:00",
+      "sha256": "558c5fd65ec6d366b5728368c67678df09c238eb34d0ca2d716a03fb86dfcbaa",
       "snippet": "NetBSD Documentation \n   \n \n  \n  Skip to main content.  \n          \n  \n     \n     \n  \n  \n \n\t  Navigation:\n\t  \n \n \n\t  Home  \n  \n\t    Recent changes  \n  \n\t    NetBSD blog  \n  \n\t    Presentations  \n \n \n \n \n\t  About  \n  \n\t    Developers  \n  \n\t    Gallery  \n  \n\t    Ports  \n  \n\t    Packages  \n \n \n \n \n\t  Documentation  \n  \n\t    FAQ &amp; HOWTOs  \n  \n\t    The Guide  \n  \n\t    Manual pages  \n  \n\t    Wiki  \n \n \n \n \n\t  Support  \n  \n\t    Community  \n  \n\t    Mailing lists  \n  \n\t    Bug reports  \n  \n\t    Secur"
     }
   ],
@@ -3771,14 +3771,14 @@
       "status": 200,
       "url": "https://api.github.com/search/repositories?q=android+common+kernel&sort=updated&order=desc&per_page=8",
       "repositories": [
-        "Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers",
-        "Duy-Thanh/android_kernel_common",
-        "SavoryBanana/sailfish-linux-6.18",
-        "itswill00/fearless-kernel",
-        "samw662/android_kernel_motorola_sm6375-common",
+        "SylveonDeko/ack-tegra",
+        "naifi1954/android_kernel_common",
+        "GoRhanHee/android_kernel_samsung_sm8550_common",
+        "vlxlxlv/android-kernel-common-5.10",
         "Kyura-Ground/android_device_asus_sdm660-common-4.19",
+        "Duy-Thanh/android_kernel_common",
         "xfwdrev/android_kernel_samsung_sm8475",
-        "vlxlxlv/android-kernel-common-5.10"
+        "MillenniumOSS/android_kernel_common_millennium_android12-5.10"
       ]
     },
     {
@@ -3791,10 +3791,14 @@
     },
     {
       "query": "syscall compatibility layer",
-      "status": 0,
+      "status": 200,
       "url": "https://api.github.com/search/repositories?q=syscall+compatibility+layer&sort=updated&order=desc&per_page=8",
-      "repositories": [],
-      "error": "HTTP Error 403: rate limit exceeded"
+      "repositories": [
+        "suhteevah/linux-compat-nostd",
+        "jdhruv1503/LinuxCompatibilityLayer",
+        "dyber-pqc/bsdulator",
+        "Starry-Old/linux_syscall_api"
+      ]
     }
   ],
   "repositories": [
@@ -3837,7 +3841,18 @@
       "description": "v1llhaze! GKI Custom Kernel for 5.10 based (android12)",
       "language": "C",
       "stars": 17,
-      "updated_at": "2026-10-19T11:48:59Z",
+      "updated_at": "2026-10-24T11:23:41Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "GoRhanHee/android_kernel_samsung_sm8550_common",
+      "url": "https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common",
+      "description": "Samsung SM8550 Platform Common Kernel Source",
+      "language": "C",
+      "stars": 7,
+      "updated_at": "2026-10-24T18:37:31Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
@@ -3942,13 +3957,13 @@
       "review_required": true
     },
     {
-      "name": "samw662/android_kernel_motorola_sm6375-common",
-      "url": "https://github.com/samw662/android_kernel_motorola_sm6375-common",
-      "description": "motorola sm6375 series unified tree",
+      "name": "Duy-Thanh/android_kernel_common",
+      "url": "https://github.com/Duy-Thanh/android_kernel_common",
+      "description": "",
       "language": "C",
       "stars": 1,
-      "updated_at": "2026-10-22T03:05:57Z",
-      "license": "GPL-2.0",
+      "updated_at": "2026-10-23T16:02:42Z",
+      "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
     },
@@ -4195,45 +4210,23 @@
       "review_required": true
     },
     {
-      "name": "Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers",
-      "url": "https://github.com/Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers",
-      "description": "",
+      "name": "SylveonDeko/ack-tegra",
+      "url": "https://github.com/SylveonDeko/ack-tegra",
+      "description": "Android common kernel for Tegra with Nintendo Switch fixes",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-22T13:15:51Z",
-      "license": null,
-      "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "Duy-Thanh/android_kernel_common",
-      "url": "https://github.com/Duy-Thanh/android_kernel_common",
-      "description": "",
-      "language": "C",
-      "stars": 0,
-      "updated_at": "2026-10-22T10:47:29Z",
-      "license": null,
-      "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "SavoryBanana/sailfish-linux-6.18",
-      "url": "https://github.com/SavoryBanana/sailfish-linux-6.18",
-      "description": "Android Common Kernel 6.18 (Android 17) backport for Google Pixel (sailfish)",
-      "language": "C",
-      "stars": 0,
-      "updated_at": "2026-10-22T09:24:01Z",
+      "updated_at": "2026-10-25T04:02:38Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
     },
     {
-      "name": "itswill00/fearless-kernel",
-      "url": "https://github.com/itswill00/fearless-kernel",
-      "description": "Fearless Kernel - custom Android kernel based on Android Common Kernel 5.10.270 (android12-5.10-lts) for Redmi Note 14 4G (tanzanite)",
+      "name": "naifi1954/android_kernel_common",
+      "url": "https://github.com/naifi1954/android_kernel_common",
+      "description": "",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-22T08:12:06Z",
+      "updated_at": "2026-10-24T19:04:47Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
@@ -4244,7 +4237,7 @@
       "description": "Common device tree for ASUS SDM660-Kernel-4.19",
       "language": "C++",
       "stars": 0,
-      "updated_at": "2026-10-22T00:38:43Z",
+      "updated_at": "2026-10-24T09:19:25Z",
       "license": null,
       "query": "android common kernel",
       "review_required": true
@@ -4255,9 +4248,64 @@
       "description": "Upstreamed common kernel from ACK and msm kernel from Linaro for Samsung Galaxy Z Flip4 (b4q)",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-22T00:37:08Z",
+      "updated_at": "2026-10-23T11:14:38Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "MillenniumOSS/android_kernel_common_millennium_android12-5.10",
+      "url": "https://github.com/MillenniumOSS/android_kernel_common_millennium_android12-5.10",
+      "description": "MillenniumOSS Common Kernel Source",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-23T02:28:46Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "suhteevah/linux-compat-nostd",
+      "url": "https://github.com/suhteevah/linux-compat-nostd",
+      "description": "no_std Linux syscall compatibility layer — run Linux binaries on bare metal",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2026-05-30T06:06:50Z",
+      "license": "Apache-2.0",
+      "query": "syscall compatibility layer",
+      "review_required": true
+    },
+    {
+      "name": "jdhruv1503/LinuxCompatibilityLayer",
+      "url": "https://github.com/jdhruv1503/LinuxCompatibilityLayer",
+      "description": "Run Linux syscalls on non-Linux environments — compatibility shim layer",
+      "language": "Python",
+      "stars": 0,
+      "updated_at": "2026-06-20T05:20:11Z",
+      "license": null,
+      "query": "syscall compatibility layer",
+      "review_required": true
+    },
+    {
+      "name": "dyber-pqc/bsdulator",
+      "url": "https://github.com/dyber-pqc/bsdulator",
+      "description": "FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-10-10T21:10:56Z",
+      "license": "NOASSERTION",
+      "query": "syscall compatibility layer",
+      "review_required": true
+    },
+    {
+      "name": "Starry-Old/linux_syscall_api",
+      "url": "https://github.com/Starry-Old/linux_syscall_api",
+      "description": "The project, written by Rust, is a compatibility layer for linux syscalls on different operating systems.",
+      "language": "Rust",
+      "stars": 0,
+      "updated_at": "2025-09-03T09:02:38Z",
+      "license": null,
+      "query": "syscall compatibility layer",
       "review_required": true
     }
   ]

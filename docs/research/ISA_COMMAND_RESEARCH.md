@@ -1,6 +1,6 @@
 # ISA, command, kernel and mobile OS research
 
-Generated: 2026-10-22T18:32:03.048175+00:00
+Generated: 2026-10-25T06:07:54.876648+00:00
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -28,6 +28,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [pkgw/elfx86exts](https://github.com/pkgw/elfx86exts) — Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.; language Rust; stars 230; license MIT
 - [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 25; license MIT
 - [vlxlxlv/android-kernel-common-5.10](https://github.com/vlxlxlv/android-kernel-common-5.10) — v1llhaze! GKI Custom Kernel for 5.10 based (android12); language C; stars 17; license NOASSERTION
+- [GoRhanHee/android_kernel_samsung_sm8550_common](https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common) — Samsung SM8550 Platform Common Kernel Source; language C; stars 7; license NOASSERTION
 - [fzi-forschungszentrum-informatik/riscv-etrace](https://github.com/fzi-forschungszentrum-informatik/riscv-etrace) — Decoder and tracer for RISC-V efficient instruction tracing.; language Rust; stars 5; license Apache-2.0
 - [malfallah/symrisc](https://github.com/malfallah/symrisc) — A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.; language Python; stars 2; license Apache-2.0
 - [FISC-Project/FISC-LLVM](https://github.com/FISC-Project/FISC-LLVM) — FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64; language C++; stars 2; license unspecified
@@ -37,7 +38,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [kobby-pentangeli/lc3box](https://github.com/kobby-pentangeli/lc3box) — Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture; language Rust; stars 1; license Apache-2.0
 - [gpellicci/InstructionSetArchitecture-code-assembler](https://github.com/gpellicci/InstructionSetArchitecture-code-assembler) — Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside; language Java; stars 1; license unspecified
 - [BengalEmpire/Bengal-Tiger-OS](https://github.com/BengalEmpire/Bengal-Tiger-OS) — Bengal Tiger OS is a 32-bit x86 (i386) open-source operating system written in ANSI C and x86 Assembly. Designed with modular architecture, hardware abstraction layers, VBE graphics, FAT filesystem persistence, Realtek network drivers, and a preemptive task scheduler,; language C; stars 1; license MIT
-- [samw662/android_kernel_motorola_sm6375-common](https://github.com/samw662/android_kernel_motorola_sm6375-common) — motorola sm6375 series unified tree; language C; stars 1; license GPL-2.0
+- [Duy-Thanh/android_kernel_common](https://github.com/Duy-Thanh/android_kernel_common) — No description; language C; stars 1; license NOASSERTION
 - [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
 - [ArianaDadgostar/Instruction-Set-Architecture](https://github.com/ArianaDadgostar/Instruction-Set-Architecture) — This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.; language C#; stars 0; license unspecified
 - [BrandonDao/ProjectISA](https://github.com/BrandonDao/ProjectISA) — A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress); language C#; stars 0; license unspecified
@@ -60,12 +61,15 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
 - [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
 - [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
-- [Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers](https://github.com/Lineage-Amlogic-5-15-fork/android_kernel_amlogic_common_drivers) — No description; language C; stars 0; license unspecified
-- [Duy-Thanh/android_kernel_common](https://github.com/Duy-Thanh/android_kernel_common) — No description; language C; stars 0; license unspecified
-- [SavoryBanana/sailfish-linux-6.18](https://github.com/SavoryBanana/sailfish-linux-6.18) — Android Common Kernel 6.18 (Android 17) backport for Google Pixel (sailfish); language C; stars 0; license NOASSERTION
-- [itswill00/fearless-kernel](https://github.com/itswill00/fearless-kernel) — Fearless Kernel - custom Android kernel based on Android Common Kernel 5.10.270 (android12-5.10-lts) for Redmi Note 14 4G (tanzanite); language C; stars 0; license NOASSERTION
+- [SylveonDeko/ack-tegra](https://github.com/SylveonDeko/ack-tegra) — Android common kernel for Tegra with Nintendo Switch fixes; language C; stars 0; license NOASSERTION
+- [naifi1954/android_kernel_common](https://github.com/naifi1954/android_kernel_common) — No description; language C; stars 0; license NOASSERTION
 - [Kyura-Ground/android_device_asus_sdm660-common-4.19](https://github.com/Kyura-Ground/android_device_asus_sdm660-common-4.19) — Common device tree for ASUS SDM660-Kernel-4.19; language C++; stars 0; license unspecified
 - [xfwdrev/android_kernel_samsung_sm8475](https://github.com/xfwdrev/android_kernel_samsung_sm8475) — Upstreamed common kernel from ACK and msm kernel from Linaro for Samsung Galaxy Z Flip4 (b4q); language C; stars 0; license NOASSERTION
+- [MillenniumOSS/android_kernel_common_millennium_android12-5.10](https://github.com/MillenniumOSS/android_kernel_common_millennium_android12-5.10) — MillenniumOSS Common Kernel Source; language C; stars 0; license NOASSERTION
+- [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
+- [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
+- [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
+- [Starry-Old/linux_syscall_api](https://github.com/Starry-Old/linux_syscall_api) — The project, written by Rust, is a compatibility layer for linux syscalls on different operating systems.; language Rust; stars 0; license unspecified
 
 ## Local and Library-exported files
 
@@ -271,9 +275,9 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
-- docs/research/isa-command-research.json — 254201 bytes; SHA-256 8785c937825f271510565b83ef475336c2e3ac449a88e9ea5852e049496b26d0
+- docs/research/isa-command-research.json — 252341 bytes; SHA-256 5b9c57a446b11f0abb69839c9f6188345134574f2d34ae374edaf0ce9dc78cad
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
-- docs/research/ISA_COMMAND_RESEARCH.md — 51400 bytes; SHA-256 b9ff4c0ba713c0542fc0c784dd06e588b9b8f3dcc5f019137615ea6dd093f9b3
+- docs/research/ISA_COMMAND_RESEARCH.md — 50485 bytes; SHA-256 a4d42087897059b244f2e8dbe6d92e762e6aaf6b8b8cf16e2e4f32a473c0017a
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
