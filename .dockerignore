@@ -37,3 +37,8 @@ chimera-build/
 chimera-output/
 rootfs/
 *.sha256
+
+# The ISO runner image needs the just-built candidate as its sole generated payload.
+# Keep other build outputs excluded from the general Docker context.
+!dist/
+!dist/output.iso
