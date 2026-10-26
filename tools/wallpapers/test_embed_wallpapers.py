@@ -100,7 +100,7 @@ class WallpaperEmbedContract(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "Aurora Wayland Desktop - boot background.jpg").write_bytes(fake_jpeg(1600, 900))
-            (root / "Aurora Wayland Desktop Showcase.png").write_bytes(fake_jpeg(1920, 1080))
+            (root / "Aurora Wayland Desktop Showcase.png").write_bytes(fake_png(1920, 1080))
             result = generate(root, root / "out.css", root / "out.json")
             manifest = json.loads((root / "out.json").read_text())
             self.assertEqual(len(result["wallpapers"]), 2)
