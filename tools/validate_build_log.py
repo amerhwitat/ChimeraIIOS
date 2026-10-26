@@ -7,7 +7,7 @@ Accepted records:
   [VALIDATION FAIL] exit=<nonzero integer> command=<same command>
 
 Non-validation command output is permitted between records. Lines beginning with
-"[VALIDATION " must match the record grammar exactly. Every RUN must have one
+"[VALIDATION" must match the record grammar exactly. Every RUN must have one
 matching result, no result may be orphaned, and required command fragments must
 appear in successful records. This verifies log integrity, not artifact runtime.
 """
@@ -20,7 +20,7 @@ from pathlib import Path
 
 RUN_RE = re.compile(r"^\[VALIDATION RUN\] command=(.+)$")
 RESULT_RE = re.compile(r"^\[VALIDATION (PASS|FAIL)\] exit=([0-9]+) command=(.+)$")
-PREFIX = "[VALIDATION "
+PREFIX = "[VALIDATION"
 
 
 class LogValidationError(ValueError):
@@ -53,7 +53,13 @@ def parse_validation_log(text: str, required: tuple[str, ...] = ()) -> dict:
         if not result:
             raise LogValidationError(f"line {line_no}: malformed validation record")
         kind, exit_text, command = result.groups()
+        # Shell process exit statuses are in the range 0..255. Bound the
+        # parsed value explicitly so hostile logs cannot trigger huge-int errors.
+        if len(exit_text) > 3:
+            raise LogValidationError(f"line {line_no}: exit code out of range")
         exit_code = int(exit_text)
+        if exit_code > 255:
+            raise LogValidationError(f"line {line_no}: exit code out of range: {exit_code}")
         if command not in pending:
             raise LogValidationError(f"line {line_no}: orphan {kind} result: {command}")
         del pending[command]
