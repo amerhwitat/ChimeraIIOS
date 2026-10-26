@@ -8,6 +8,7 @@ on:
       - '.github/workflows/boot-artifacts.yml'
       - 'tools/tests/**'
       - 'tools/build-boot-artifacts.sh'
+      - 'tools/package_os_assets.py'
       - 'boot/iso/**'
       - 'tools/boot/verify-production-init-elfs.py'
       - 'tests/boot/test_production_init_elf_validator.py'
@@ -56,3 +57,25 @@ jobs:
           PY
       - name: Validate Koronos Multiboot2 header
         run: grub-file --is-x86-multiboot2 build/boot-artifacts/koronos/koronos.elf
+      - name: Embed all artwork and package built ELF/EFI payloads
+        run: |
+          set -euo pipefail
+          python3 tools/package_os_assets.py --root . --output build/os-asset-bundle --binary-root build/boot-artifacts --require-elf --require-efi
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("build/os-asset-bundle")
+          a=json.loads((p/"embedded-artwork.json").read_text())
+          b=json.loads((p/"binary-manifest.json").read_text())
+          assert a["assets"], "embedded artwork manifest is empty"
+          assert b["elf_count"] > 0, "no ELF payloads packaged"
+          assert b["efi_count"] > 0, "no EFI payloads packaged"
+          print(f"packaged artwork={len(a['assets'])} ELF={b['elf_count']} EFI={b['efi_count']}")
+          PY
+      - name: Upload offline artwork and native boot binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-offline-artwork-elf-efi-bundle
+          path: build/os-asset-bundle/
+          if-no-files-found: error
+          retention-days: 14
