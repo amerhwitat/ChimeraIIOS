@@ -26,7 +26,7 @@ set -Eeuo pipefail
 # Canonical system block-size contract shared by every boot and ISO stage.
 # Preserve an explicit caller value, accept the legacy SYSTEM_BLOCK_SIZE alias,
 # and reject malformed values before any artifacts are built.
-CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-512}}"
+CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
 if [[ ! "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]]; then
   printf '[ERROR] CHIMERA_SYSTEM_BLOCK_SIZE must be a positive integer (got: %s)\n' "$CHIMERA_SYSTEM_BLOCK_SIZE" >&2
   exit 2
@@ -1129,8 +1129,8 @@ build_native_iso_pipeline(){
   local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
   [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
   # Forward the target system block size through the canonical native ISO boundary.
-  # 512 bytes is the conventional default; callers may override it explicitly.
-  local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-512}"
+  # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
+  local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-4096}"
   [[ "$system_block_size" =~ ^[1-9][0-9]*$ ]] || { log_error "Invalid CHIMERA_SYSTEM_BLOCK_SIZE: $system_block_size"; return 2; }
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
