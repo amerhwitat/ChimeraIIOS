@@ -21,13 +21,13 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 def is_elf(data: bytes) -> bool:
-    return data.startswith(b"\\x7fELF")
+    return data.startswith(b"\x7fELF")
 
 def is_pe(data: bytes) -> bool:
     if len(data) < 0x40 or data[:2] != b"MZ":
         return False
     off = struct.unpack_from("<I", data, 0x3C)[0]
-    return off + 4 <= len(data) and data[off:off+4] == b"PE\\0\\0"
+    return off + 4 <= len(data) and data[off:off+4] == b"PE\0\0"
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
