@@ -7,6 +7,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 MATRIX = runpy.run_path(str(ROOT / "tools/run-production-qemu-matrix.py"), run_name="matrix_test")
 target_marker_errors = MATRIX["target_marker_errors"]
+target_key_commands = MATRIX["target_key_commands"]
 
 
 class ProductionQemuMatrixContract(unittest.TestCase):
@@ -16,6 +17,20 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         self.assertIn('"target_boot_matrix":', source)
         self.assertIn('"qemu_started": process is not None', source)
         self.assertIn('"qemu_started": False', source)
+
+    def test_target_selection_resets_grub_menu_before_navigation(self):
+        self.assertEqual(target_key_commands("live"), ["sendkey home", "sendkey ret"])
+        self.assertEqual(
+            target_key_commands("installer"),
+            ["sendkey home", "sendkey down", "sendkey down", "sendkey ret"],
+        )
+        self.assertEqual(
+            target_key_commands("recovery"),
+            ["sendkey home", "sendkey down", "sendkey down", "sendkey down",
+             "sendkey down", "sendkey down", "sendkey ret"],
+        )
+        with self.assertRaises(ValueError):
+            target_key_commands("unknown")
 
     def test_matching_real_runtime_markers_are_accepted_by_parser(self):
         trace = """[KRN ] KORONOS READY
