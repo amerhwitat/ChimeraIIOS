@@ -46,6 +46,8 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         diagnostics = grub.split('menuentry "Chimera II OS — Diagnostics [progress]" --id diagnostics {', 1)[1].split('menuentry "Chimera II OS — Retro Computer Center" --id retro {', 1)[0]
         self.assertIn("chm.progress=events target=recovery", diagnostics)
         self.assertIn("/boot/recovery/user-init-recovery.elf", diagnostics)
+        self.assertNotIn("/boot/live/user-init-live.elf", diagnostics)
+        self.assertEqual(diagnostics.count("chimera-user-init-elf"), 1)
 
     def test_matching_real_runtime_markers_are_accepted_by_parser(self):
         trace = """[KRN ] KORONOS READY
