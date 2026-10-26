@@ -1012,6 +1012,14 @@ MODE_CONFIG=$CMDROOT/modes.conf
 RUNTIME_CONFIG=$ETC/runtime.conf
 EOF
 
+# Establish the canonical /usr layout after all command binaries are staged.
+# /bin and /sbin become absolute symlinks; collisions fail closed.
+if [[ -x "$ROOT/tools/prepare-usr-merge-rootfs.sh" ]]; then
+    CHIMERA_ROOTFS_DIR="$OUT" "$ROOT/tools/prepare-usr-merge-rootfs.sh"
+else
+    die "Missing usr-merge rootfs helper: tools/prepare-usr-merge-rootfs.sh"
+fi
+
 log "Command compatibility subsystem installed."
 
 printf '\n'
