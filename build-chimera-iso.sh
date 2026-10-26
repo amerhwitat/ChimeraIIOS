@@ -654,11 +654,28 @@ prepare_branding(){
   if [[ -s "$artwork_manifest" ]]; then
     log_info "Discovered $(wc -l < "$artwork_manifest" | tr -d ' ') artwork files recursively."
     mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork" \
+             "$ISO_DIR/desktop/aurora/assets/library/repository-artwork" \
+             "$ROOTFS_DIR/usr/share/chimera/branding/artwork-library" \
+             "$ISO_DIR/system/branding/artwork-library" \
              "$ISO_DIR/desktop/aurora/assets/library/repository-artwork"
+    # Keep a complete offline copy in the desktop library AND the canonical
+    # branding namespace, so boot/installer/desktop consumers never need network
+    # access or a particular source-tree layout.
     cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork/"
     cp -a "$artwork_stage/." "$ISO_DIR/desktop/aurora/assets/library/repository-artwork/"
+    cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/branding/artwork-library/"
+    cp -a "$artwork_stage/." "$ISO_DIR/system/branding/artwork-library/"
     cp -f "$artwork_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork-index.txt"
     cp -f "$artwork_manifest" "$ISO_DIR/desktop/aurora/assets/library/repository-artwork-index.txt"
+    cp -f "$artwork_manifest" "$ROOTFS_DIR/usr/share/chimera/branding/artwork-index.txt"
+    cp -f "$artwork_manifest" "$ISO_DIR/system/branding/artwork-index.txt"
+    # Record hashes for reproducible offline auditing and detect damaged assets.
+    if command -v sha256sum >/dev/null 2>&1; then
+      (cd "$artwork_stage" && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) \
+        > "$ISO_DIR/system/branding/artwork-sha256.txt"
+      cp -f "$ISO_DIR/system/branding/artwork-sha256.txt" \
+        "$ROOTFS_DIR/usr/share/chimera/branding/artwork-sha256.txt"
+    fi
   else
     log_warning "No raster/SVG artwork files found by recursive scan; generated Aurora artwork remains the fallback."
   fi
