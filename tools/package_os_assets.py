@@ -118,17 +118,23 @@ def main() -> int:
         if not base.is_dir():
             continue
         for subdir, destdir in (("bin", "bin"), ("sbin", "sbin"),
-                                ("usr/bin", "bin"), ("usr/sbin", "sbin")):
+                                ("usr/bin", "bin"), ("usr/sbin", "sbin"),
+                                ("all-bin", "bin"), ("all-sbin", "sbin"),
+                                ("boot/chimera/bin", "bin"), ("boot/chimera/sbin", "sbin"),
+                                ("compat/bin", "bin"), ("compat/sbin", "sbin"),
+                                ("tools/commands", "bin"), ("tools/kali", "sbin"),
+                                ("userland/bin", "bin"), ("userland/sbin", "sbin"),
+                                ("userspace/bin", "bin"), ("userspace/sbin", "sbin")):
             srcdir = base / subdir
             if not srcdir.is_dir():
                 continue
             for path in sorted(srcdir.iterdir()):
                 if not path.is_file():
                     continue
+                if path.name.startswith(".") or path.suffix.lower() in {".json", ".md", ".txt", ".csv", ".yaml", ".yml"}:
+                    continue
                 try:
                     mode = path.stat().st_mode
-                    if not (mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)):
-                        continue
                     raw = path.read_bytes()
                 except OSError:
                     continue
@@ -142,11 +148,11 @@ def main() -> int:
                 dest = out / "commands" / target
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(path, dest)
-                dest.chmod(mode & 0o777)
+                dest.chmod((mode & 0o777) | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
                 commands[target] = {
                     "source": str(path.relative_to(root)) if root in path.parents else str(path),
                     "path": dest.relative_to(out).as_posix(), "install_path": "/" + target,
-                    "size_bytes": len(raw), "sha256": digest, "mode": oct(mode & 0o777),
+                    "size_bytes": len(raw), "sha256": digest, "mode": oct((mode & 0o777) | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH),
                     "format": "ELF" if is_elf(raw) else ("PE/COFF" if is_pe(raw) else "script-or-other-executable"),
                 }
 
