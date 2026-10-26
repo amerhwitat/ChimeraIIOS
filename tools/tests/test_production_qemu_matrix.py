@@ -43,6 +43,9 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         self.assertEqual(ids[5], "recovery")  # nested menu; do not select for matrix
         self.assertEqual(ids[8], "diagnostics")  # direct recovery initramfs boot
         self.assertEqual(MATRIX["TARGETS"], {"live": 0, "installer": 2, "recovery": 8})
+        diagnostics = grub.split('menuentry "Chimera II OS — Diagnostics [progress]" --id diagnostics {', 1)[1].split('menuentry "Chimera II OS — Retro Computer Center" --id retro {', 1)[0]
+        self.assertIn("chm.progress=events target=recovery", diagnostics)
+        self.assertIn("/boot/recovery/user-init-recovery.elf", diagnostics)
 
     def test_matching_real_runtime_markers_are_accepted_by_parser(self):
         trace = """[KRN ] KORONOS READY
