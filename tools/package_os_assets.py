@@ -174,7 +174,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     (out / "embedded-artwork.json").write_text(
         json.dumps({"schema":"OS-OFFLINE-ARTWORK-BASE64-2","assets":artwork},
-                   ensure_ascii=False, separators=(",",":")) + "\\n", encoding="utf-8")
+                   ensure_ascii=False, separators=(",",":")) + "\n", encoding="utf-8")
     manifest = {"schema":"OS-BUILD-BINARY-BUNDLE-2","elf_count":len(elfs),
                 "efi_count":len(efis),"artwork_count":len(artwork),
                 "command_count":len(commands),
