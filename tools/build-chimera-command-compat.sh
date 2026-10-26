@@ -330,6 +330,36 @@ xcode-select	اختيار_إكس_كود	macos	xcode-select	SS64/macOS
 open	فتح	macos	open	SS64/macOS
 REGISTRY
 
+# Deduplicate registry rows by canonical command name. Exact duplicates are
+# removed; conflicting definitions stop the build rather than selecting an
+# arbitrary implementation.
+python3 - "$CMDROOT/registry.tsv" <<'PY'
+import sys
+from pathlib import Path
+p = Path(sys.argv[1])
+rows = []
+seen = {}
+for line in p.read_text(encoding="utf-8").splitlines():
+    if not line or line.startswith("#"):
+        rows.append(line)
+        continue
+    fields = line.split("\\t")
+    if len(fields) < 5:
+        raise SystemExit(f"invalid command registry row: {line!r}")
+    name = fields[0]
+    prior = seen.get(name)
+    if prior is None:
+        seen[name] = fields
+        rows.append(line)
+    elif prior == fields:
+        continue
+    else:
+        raise SystemExit(
+            f"conflicting duplicate command {name!r}: {prior!r} vs {fields!r}"
+        )
+p.write_text("\\n".join(rows) + "\\n", encoding="utf-8")
+PY
+
 ###############################################################################
 # 6. Native/compatibility modes
 ###############################################################################
@@ -562,8 +592,8 @@ run_native() {
     local stderr_file status
     stderr_file="$(mktemp "${TMPDIR:-/tmp}/chimera-native.XXXXXX")"
     if [[ -x "$candidate" ]]; then
-        "$candidate" "$@" 2>"$stderr_file"
-        status=$?
+        status=0
+        "$candidate" "$@" 2>"$stderr_file" || status=$?
         if [[ $status -ne 126 && $status -ne 127 ]] ||
            ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found' "$stderr_file"; then
             cat "$stderr_file" >&2
@@ -572,8 +602,8 @@ run_native() {
         fi
         cat "$stderr_file" >&2
     elif command -v "$command" >/dev/null 2>&1; then
-        "$command" "$@" 2>"$stderr_file"
-        status=$?
+        status=0
+        "$command" "$@" 2>"$stderr_file" || status=$?
         if [[ $status -ne 126 && $status -ne 127 ]] ||
            ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found' "$stderr_file"; then
             cat "$stderr_file" >&2
