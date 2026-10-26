@@ -119,8 +119,6 @@ def main() -> int:
             continue
         for subdir, destdir in (("bin", "bin"), ("sbin", "sbin"),
                                 ("usr/bin", "bin"), ("usr/sbin", "sbin"),
-                                ("all-bin", "bin"), ("all-sbin", "sbin"),
-                                ("boot/chimera/bin", "bin"), ("boot/chimera/sbin", "sbin"),
                                 ("compat/bin", "bin"), ("compat/sbin", "sbin"),
                                 ("tools/commands", "bin"), ("tools/kali", "sbin"),
                                 ("userland/bin", "bin"), ("userland/sbin", "sbin"),
@@ -132,6 +130,13 @@ def main() -> int:
                 if not path.is_file():
                     continue
                 if path.name.startswith(".") or path.suffix.lower() in {".json", ".md", ".txt", ".csv", ".yaml", ".yml"}:
+                    continue
+                if subdir == "tools/commands" and (path.name.startswith("test") or path.name in {
+                    "crawl_ss64.py", "dos-payload-builder.py", "generate_runtime_manifest.py",
+                    "import_command_candidates.py",
+                }):
+                    continue
+                if subdir == "tools/kali" and not path.name.startswith("chimera-kali"):
                     continue
                 try:
                     mode = path.stat().st_mode
