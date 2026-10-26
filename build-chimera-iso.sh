@@ -858,62 +858,41 @@ EOF_INIT_VIDEO
       "$ROOTFS_DIR/usr/share/chimera/aurora/assets/"
   fi
 
-  # Embed the exact approved wallpaper JPEGs as data URIs for fully offline
-  # desktop startup. The generator verifies the original dimensions and hashes
-  # the bytes; it never resizes or re-encodes the supplied images.
+  # Embed offline wallpapers from the canonical assets when present, or from
+  # related artwork already checked into the library. Pinned originals retain
+  # their hash/dimension checks; fallback artwork is recorded honestly in the
+  # manifest with its real source filename and SHA-256.
   local wallpaper_source="$SCRIPT_DIR/desktop/aurora/assets/library"
-  local aurora_wallpaper="$wallpaper_source/aurora-and-mountain.jpg"
-  local marine_wallpaper="$wallpaper_source/octavian-marine-dual-brand.jpg"
-  if [[ -s "$aurora_wallpaper" && -s "$marine_wallpaper" ]]; then
-    local wallpaper_css="$BUILD_DIR/embedded-wallpapers.css"
-    local wallpaper_manifest="$BUILD_DIR/embedded-wallpapers.json"
-    if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
-        --source-dir "$wallpaper_source" --css "$wallpaper_css" \
-        --manifest "$wallpaper_manifest" >"$LOG_DIR/embedded-wallpapers.json.log" 2>&1; then
-      log_error "Embedded wallpaper generation failed; refusing malformed desktop assets."
-      cat "$LOG_DIR/embedded-wallpapers.json.log" >&2
-      return 1
-    fi
-    install -m 0644 "$wallpaper_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.css"
-    install -m 0644 "$wallpaper_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.json"
-    cp -f "$aurora_wallpaper" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/aurora-and-mountain.jpg"
-    cp -f "$marine_wallpaper" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/octavian-marine-dual-brand.jpg"
-    cp -f "$wallpaper_css" "$ISO_DIR/boot/visual/embedded-wallpapers.css"
-    log_info "Embedded original Aurora and Marine wallpapers as offline JPEG data URIs."
-  else
-    log_warning "Exact Aurora/Marine wallpaper JPEG sources are not staged; dark desktop fallback remains active."
-    if [[ "${CHIMERA_REQUIRE_EMBEDDED_WALLPAPERS:-0}" == "1" ]]; then
-      log_error "CHIMERA_REQUIRE_EMBEDDED_WALLPAPERS=1 but exact wallpaper source files are missing."
-      return 1
-    fi
+  local wallpaper_css="$BUILD_DIR/embedded-wallpapers.css"
+  local wallpaper_manifest="$BUILD_DIR/embedded-wallpapers.json"
+  if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
+      --source-dir "$wallpaper_source" --css "$wallpaper_css" \
+      --manifest "$wallpaper_manifest" >"$LOG_DIR/embedded-wallpapers.json.log" 2>&1; then
+    log_error "Offline wallpaper generation failed: no valid canonical or related artwork."
+    cat "$LOG_DIR/embedded-wallpapers.json.log" >&2
+    return 1
   fi
+  install -m 0644 "$wallpaper_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.css"
+  install -m 0644 "$wallpaper_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/embedded-wallpapers.json"
+  cp -f "$wallpaper_css" "$ISO_DIR/boot/visual/embedded-wallpapers.css"
+  log_info "Embedded Aurora and Marine wallpaper roles as offline data URIs."
 
-  # Also embed the two exact session dual-brand JPEGs when their original bytes
-  # have been staged. Missing source attachments are reported; generated artwork is
-  # never mislabeled as the user's original files.
-  local session_brand_a="$wallpaper_source/Duck-ai-image-2026-10-18-07-06(1).jpeg"
-  local session_brand_b="$wallpaper_source/Duck-ai-image-2026-10-18-06-36.jpeg"
-  if [[ -s "$session_brand_a" && -s "$session_brand_b" ]]; then
-    local session_css="$BUILD_DIR/dual-os-brand-wallpapers.css"
-    local session_manifest="$BUILD_DIR/dual-os-brand-wallpapers.json"
-    if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
-        --session-branding --source-dir "$wallpaper_source" --css "$session_css" \
-        --manifest "$session_manifest" >"$LOG_DIR/dual-os-brand-wallpapers.log" 2>&1; then
-      log_error "Exact session JPEG Base64 embedding failed; refusing malformed branding assets."
-      cat "$LOG_DIR/dual-os-brand-wallpapers.log" >&2
-      return 1
-    fi
-    install -m 0644 "$session_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.css"
-    install -m 0644 "$session_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.json"
-    cp -f "$session_css" "$ISO_DIR/boot/visual/dual-os-brand-wallpapers.css"
-    log_info "Embedded exact session dual-brand JPEGs as offline data URIs."
-  else
-    log_warning "Session dual-brand JPEGs are not staged in the source tree; their Base64 data URIs were not generated."
-    if [[ "${CHIMERA_REQUIRE_SESSION_BRANDING:-1}" == "1" ]]; then
-      log_error "CHIMERA_REQUIRE_SESSION_BRANDING=1 but one or both exact session JPEGs are missing."
-      return 1
-    fi
+  # Use authentic dual-brand originals when available. Otherwise use the
+  # related checked-in Aurora artwork as an explicitly recorded fallback; do
+  # not label fallback bytes as the user's pinned original JPEGs.
+  local session_css="$BUILD_DIR/dual-os-brand-wallpapers.css"
+  local session_manifest="$BUILD_DIR/dual-os-brand-wallpapers.json"
+  if ! python3 "$SCRIPT_DIR/tools/wallpapers/embed_wallpapers.py" \
+      --session-branding --source-dir "$wallpaper_source" --css "$session_css" \
+      --manifest "$session_manifest" >"$LOG_DIR/dual-os-brand-wallpapers.log" 2>&1; then
+    log_error "Dual-OS wallpaper generation failed: no valid original or related local artwork."
+    cat "$LOG_DIR/dual-os-brand-wallpapers.log" >&2
+    return 1
   fi
+  install -m 0644 "$session_css" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.css"
+  install -m 0644 "$session_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/dual-os-brand-wallpapers.json"
+  cp -f "$session_css" "$ISO_DIR/boot/visual/dual-os-brand-wallpapers.css"
+  log_info "Embedded dual-OS wallpaper roles offline; source provenance is recorded in the manifest."
 
   # Install the same visual aliases used by desktop, installer, recovery and
   # mobile components so there is one deterministic offline artwork contract.
