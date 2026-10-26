@@ -54,8 +54,9 @@ def main() -> int:
         return fail("mount syscall was added; require an implementation and runtime tests before changing fail-closed init")
     if re.search(r"call[0-6]\(10\)", native_init):
         return fail("native init must not treat syscall 10 (MMAP) as a mount operation")
-    if "call1(1, 78)" not in native_init or "NATIVE INIT BLOCKED:" not in native_init:
-        return fail("bootstrap must retain its explicit unavailable-service exit")
+    if ("fail_closed(78)" not in native_init or "call1(1, code)" not in native_init
+            or "NATIVE INIT BLOCKED:" not in native_init):
+        return fail("bootstrap must retain its explicit unavailable-service exit 78 through fail_closed()")
 
     archive_guard = launch.split(
         "if (payload_count==1u && (target==TARGET_LIVE || target==TARGET_RECOVERY))", 1
