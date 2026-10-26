@@ -38,6 +38,14 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Canonical system block-size contract. Forward this unchanged into the kernel
+# build and all downstream ISO stages; never silently accept malformed values.
+CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-512}}"
+if [[ ! "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]]; then
+  echo "ERROR: CHIMERA_SYSTEM_BLOCK_SIZE must be a positive integer (got: $CHIMERA_SYSTEM_BLOCK_SIZE)" >&2
+  exit 2
+fi
+export CHIMERA_SYSTEM_BLOCK_SIZE SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
 ISO_ROOT="$ROOT/boot/iso"
 DIST="$ISO_ROOT/dist"
 WORK="$ISO_ROOT/work"
@@ -46,7 +54,7 @@ mkdir -p "$DIST" "$WORK/tmp"
 export TMPDIR="$WORK/tmp"
 
 printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
-bash "$ROOT/kernel/build-koronos.sh"
+CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" bash "$ROOT/kernel/build-koronos.sh"
 KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
 command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
