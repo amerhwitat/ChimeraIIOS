@@ -22,7 +22,7 @@ int main() {
   uint8_t bytes[128]; koronos_acpi_topology topo{};
   uint32_t n=make_table(bytes);
   assert(koronos_acpi_madt_parse(bytes,n,&topo)==0);
-  assert(topo.count==3 && topo.enabled_count==2 && topo.online_capable_count==0);
+  assert(topo.count==3 && topo.enabled_count==2 && topo.online_capable_count==1);
   assert(topo.local_apic_address==0xfee00000);
   assert(topo.cpus[0].apic_id==2 && topo.cpus[1].apic_id==4);
   assert(topo.cpus[2].x2apic==1 && topo.cpus[2].apic_id==0x123);
