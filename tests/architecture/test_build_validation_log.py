@@ -1,5 +1,8 @@
+import contextlib
 import importlib.util
+import io
 import pathlib
+import tempfile
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -23,6 +26,21 @@ validator output
         self.assertEqual(result["records"], 4)
         self.assertEqual(len(result["passed"]), 2)
 
+    def test_accepts_complete_final_record_without_trailing_newline(self):
+        log = (
+            "[VALIDATION RUN] command=validator kernel.elf\n"
+            "[VALIDATION PASS] exit=0 command=validator kernel.elf"
+        )
+        result = MODULE.parse_validation_log(log, ("kernel.elf",))
+        self.assertEqual(result["passed"], ["validator kernel.elf"])
+
+    def test_accepts_crlf_records(self):
+        log = (
+            "[VALIDATION RUN] command=validator kernel.elf\r\n"
+            "[VALIDATION PASS] exit=0 command=validator kernel.elf\r\n"
+        )
+        self.assertEqual(MODULE.parse_validation_log(log)["records"], 2)
+
     def test_rejects_empty_log(self):
         with self.assertRaisesRegex(MODULE.LogValidationError, "no validation records"):
             MODULE.parse_validation_log("builder output only\n")
@@ -42,6 +60,26 @@ validator output
     def test_rejects_malformed_validation_record(self):
         with self.assertRaisesRegex(MODULE.LogValidationError, "malformed"):
             MODULE.parse_validation_log("[VALIDATION PASS] command=validator\n")
+
+    def test_rejects_truncated_validation_prefix(self):
+        for line in ("[VALIDATION", "[VALIDATION RUN]", "[VALIDATION PASS]"):
+            with self.subTest(line=line):
+                with self.assertRaisesRegex(MODULE.LogValidationError, "malformed"):
+                    MODULE.parse_validation_log(line)
+
+    def test_rejects_truncated_result_at_end_of_log(self):
+        with self.assertRaisesRegex(MODULE.LogValidationError, "malformed"):
+            MODULE.parse_validation_log(
+                "[VALIDATION RUN] command=validator kernel.elf\n"
+                "[VALIDATION PASS] exit="
+            )
+
+    def test_rejects_result_for_different_command(self):
+        with self.assertRaisesRegex(MODULE.LogValidationError, "orphan"):
+            MODULE.parse_validation_log(
+                "[VALIDATION RUN] command=validator kernel.elf\n"
+                "[VALIDATION PASS] exit=0 command=validator other.elf\n"
+            )
 
     def test_rejects_duplicate_run_before_result(self):
         with self.assertRaisesRegex(MODULE.LogValidationError, "duplicate RUN"):
@@ -72,6 +110,25 @@ validator output
                 "[VALIDATION RUN] command=validator kernel.elf\n"
                 "[VALIDATION FAIL] exit=0 command=validator kernel.elf\n"
             )
+
+    def test_rejects_exit_code_outside_shell_status_range(self):
+        for code in ("256", "999", "9" * 5000):
+            with self.subTest(code_length=len(code)):
+                with self.assertRaisesRegex(MODULE.LogValidationError, "exit code out of range"):
+                    MODULE.parse_validation_log(
+                        "[VALIDATION RUN] command=validator kernel.elf\n"
+                        f"[VALIDATION FAIL] exit={code} command=validator kernel.elf\n"
+                    )
+
+    def test_cli_fails_closed_on_invalid_utf8_bytes(self):
+        with tempfile.NamedTemporaryFile() as log_file:
+            log_file.write(b"[VALIDATION RUN] command=validator\xff\n")
+            log_file.flush()
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                result = MODULE.main([log_file.name])
+        self.assertEqual(result, 1)
+        self.assertIn("[VALIDATION LOG FAIL]", stderr.getvalue())
 
     def test_rejects_missing_required_successful_artifact(self):
         with self.assertRaisesRegex(MODULE.LogValidationError, "required successful"):
