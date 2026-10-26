@@ -1,6 +1,6 @@
 # ISA, command, kernel and mobile OS research
 
-Generated: 2026-10-16T17:26:39.777820+00:00
+Generated: 2026-10-26T11:35:19.560752+00:00
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -26,9 +26,9 @@ Generated: 2026-10-16T17:26:39.777820+00:00
 Search is broad but not exhaustive: results are capped per query and subject to GitHub API rate limits.
 - [Jamesits/dropWPBT](https://github.com/Jamesits/dropWPBT) — Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.; language C; stars 447; license BSD-2-Clause
 - [pkgw/elfx86exts](https://github.com/pkgw/elfx86exts) — Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.; language Rust; stars 230; license MIT
-- [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 24; license MIT
+- [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 25; license MIT
 - [vlxlxlv/android-kernel-common-5.10](https://github.com/vlxlxlv/android-kernel-common-5.10) — v1llhaze! GKI Custom Kernel for 5.10 based (android12); language C; stars 17; license NOASSERTION
-- [ramabondanp/android_kernel_common-5.10](https://github.com/ramabondanp/android_kernel_common-5.10) — android common kernel; language C; stars 15; license NOASSERTION
+- [GoRhanHee/android_kernel_samsung_sm8550_common](https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common) — Samsung SM8550 Platform Common Kernel Source; language C; stars 7; license NOASSERTION
 - [fzi-forschungszentrum-informatik/riscv-etrace](https://github.com/fzi-forschungszentrum-informatik/riscv-etrace) — Decoder and tracer for RISC-V efficient instruction tracing.; language Rust; stars 5; license Apache-2.0
 - [malfallah/symrisc](https://github.com/malfallah/symrisc) — A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.; language Python; stars 2; license Apache-2.0
 - [FISC-Project/FISC-LLVM](https://github.com/FISC-Project/FISC-LLVM) — FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64; language C++; stars 2; license unspecified
@@ -37,10 +37,8 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [codeswithdev/DEV-OS](https://github.com/codeswithdev/DEV-OS) — 🚀 DevOS is an ambitious open-source initiative to build India’s first fully independent operating system from absolute scratch — including a custom bootloader, kernel, memory management, scheduler, drivers, filesystem, and future AI-native architecture. No wrappers. Built from bare metal.; language C; stars 2; license MIT
 - [kobby-pentangeli/lc3box](https://github.com/kobby-pentangeli/lc3box) — Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture; language Rust; stars 1; license Apache-2.0
 - [gpellicci/InstructionSetArchitecture-code-assembler](https://github.com/gpellicci/InstructionSetArchitecture-code-assembler) — Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside; language Java; stars 1; license unspecified
-- [IITian-Ankit/RISCV_5_staged_Pipeline_Core](https://github.com/IITian-Ankit/RISCV_5_staged_Pipeline_Core) — RISC-V 5-Stage Pipelined Processor implementing the RV32I instruction set in Verilog. Features Instruction Fetch, Decode, Execute, Memory, and Write Back stages, with hazard detection, forwarding, and branch handling for efficient execution.; language Verilog; stars 1; license unspecified
 - [BengalEmpire/Bengal-Tiger-OS](https://github.com/BengalEmpire/Bengal-Tiger-OS) — Bengal Tiger OS is a 32-bit x86 (i386) open-source operating system written in ANSI C and x86 Assembly. Designed with modular architecture, hardware abstraction layers, VBE graphics, FAT filesystem persistence, Realtek network drivers, and a preemptive task scheduler,; language C; stars 1; license MIT
-- [mt6768-S/android_kernel_xiaomi_mt6768](https://github.com/mt6768-S/android_kernel_xiaomi_mt6768) — mt6768 common kernel; language C; stars 1; license NOASSERTION
-- [lrqtech/android_kernel_xiaomi_warsaw_lineage24](https://github.com/lrqtech/android_kernel_xiaomi_warsaw_lineage24) — Android common kernel for Xiaomi warsaw on LineageOS 24.; language C; stars 1; license NOASSERTION
+- [Duy-Thanh/android_kernel_common](https://github.com/Duy-Thanh/android_kernel_common) — No description; language C; stars 1; license NOASSERTION
 - [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
 - [ArianaDadgostar/Instruction-Set-Architecture](https://github.com/ArianaDadgostar/Instruction-Set-Architecture) — This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.; language C#; stars 0; license unspecified
 - [BrandonDao/ProjectISA](https://github.com/BrandonDao/ProjectISA) — A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress); language C#; stars 0; license unspecified
@@ -50,8 +48,9 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Daan-25/img4-macos-arm64](https://github.com/Daan-25/img4-macos-arm64) — A lightweight command-line utility for encoding, decoding, and signing Apple img4 firmware containers, built with support for macOS ARM architecture. Includes source code and build instructions.; language C; stars 0; license MIT
 - [wuzw10/arm64-shadow-monitor](https://github.com/wuzw10/arm64-shadow-monitor) — ARM64 Shadow Memory Monitor — intercepts store instructions via SIGSEGV and mprotect. Write to read-protected VA_A triggers handler that decodes the instruction and redirects the store to shadow VA_B. Supports STR/STRH/STRB/STP.; language C; stars 0; license unspecified
 - [MeshacOkello/arm64-simulator](https://github.com/MeshacOkello/arm64-simulator) — A browser-based ARM64 (AArch64) CPU simulator — instruction decoding, a deterministic cycle-stepped execution engine, and a live view of registers, stack, heap, BSS and rodata.; language TypeScript; stars 0; license unspecified
+- [JignasuShah/riscv-processor](https://github.com/JignasuShah/riscv-processor) — Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.; language SystemVerilog; stars 0; license unspecified
+- [rishikezz/riscv32i-cpu-core-tlverilog](https://github.com/rishikezz/riscv32i-cpu-core-tlverilog) — RISC-V RV32I CPU core implemented in TL-Verilog using Makerchip, featuring instruction decoding, ALU operations, memory access and simulation visualization.; language TL-Verilog; stars 0; license unspecified
 - [Anas-Gebreel/riscv-ldpc-cfu-accelerator](https://github.com/Anas-Gebreel/riscv-ldpc-cfu-accelerator) — RISC-V (NEORV32) custom-instruction accelerator for fixed-point min-sum LDPC decoding on the Terasic DE2-115 (Cyclone IV E).; language C; stars 0; license MIT
-- [JignasuShah/riscv-processor](https://github.com/JignasuShah/riscv-processor) — Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.; language unknown; stars 0; license unspecified
 - [Pikachu287/RiscV_ISA_Sim](https://github.com/Pikachu287/RiscV_ISA_Sim) — Decoding all RV32I instructions and simulating them; language C; stars 0; license unspecified
 - [Ruthik85/pipelined-16bit-riscv-core](https://github.com/Ruthik85/pipelined-16bit-riscv-core) — A 16-bit pipelined RISC-V processor core written in SystemVerilog, featuring modular instruction fetch, decode, and execute stages along with a hazard forwarding unit.; language SystemVerilog; stars 0; license unspecified
 - [DharanidharanRavikumar/riscv-decoder](https://github.com/DharanidharanRavikumar/riscv-decoder) — A C-based RISC-V RV32I instruction decoder with opcode, register, immediate, and instruction identification support.; language C; stars 0; license unspecified
@@ -62,10 +61,11 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
 - [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
 - [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
-- [LDLDL-Android/android_kernel_common](https://github.com/LDLDL-Android/android_kernel_common) — Android common kernel downstream branches for LDLDL-Android devices; language C; stars 0; license NOASSERTION
-- [LineageOS/android_kernel_ayn_common-modules](https://github.com/LineageOS/android_kernel_ayn_common-modules) — No description; language C; stars 0; license GPL-2.0
+- [dobraeuyan/android_kernel_qcom_msm8909-common](https://github.com/dobraeuyan/android_kernel_qcom_msm8909-common) — Linux 4.9 kernel source tree for Snapdragon 205/210/212; language C; stars 0; license NOASSERTION
+- [ramabondanp/android_kernel_common-6.12](https://github.com/ramabondanp/android_kernel_common-6.12) — No description; language C; stars 0; license NOASSERTION
 - [SylveonDeko/ack-tegra](https://github.com/SylveonDeko/ack-tegra) — Android common kernel for Tegra with Nintendo Switch fixes; language C; stars 0; license NOASSERTION
-- [SB233-Kanger/android_kernel_common_oneplus_sm8845](https://github.com/SB233-Kanger/android_kernel_common_oneplus_sm8845) — No description; language unknown; stars 0; license unspecified
+- [naifi1954/android_kernel_common](https://github.com/naifi1954/android_kernel_common) — No description; language C; stars 0; license NOASSERTION
+- [Kyura-Ground/android_device_asus_sdm660-common-4.19](https://github.com/Kyura-Ground/android_device_asus_sdm660-common-4.19) — Common device tree for ASUS SDM660-Kernel-4.19; language C++; stars 0; license unspecified
 - [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
 - [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
 - [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
@@ -81,7 +81,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - isa/world_architectures.json — 13737 bytes; SHA-256 45e5348e07c40210aa9310d1fce48a460d4c2800c2ebe582bdf89dd359040152
 - isa/generated/isa-encoding-registry.json — 85838 bytes; SHA-256 79e37220e6db627592cb5b8412552e87b036ecbb660906fb3824b0e70a5a4e7b
 - isa/generated/isa-encoding-samples.json — 17344 bytes; SHA-256 66e897b22dffc1e58daf328803cb85d5137098b3e531f8a1519830bc555cd2cf
-- isa/generated/source-discovery-index.json — 8018 bytes; SHA-256 13b8ca7467833578e0b4a8406947f57bb9658514dd446165966ffa7509620b4f
+- isa/generated/source-discovery-index.json — 8018 bytes; SHA-256 09ce09761ac144265e546953ee403fcc91520206c055a07d508b381d3d652d45
 - isa/koronos/architecture.json — 981 bytes; SHA-256 089e7239564a37725abb8166eaa507bf25796b527e5b05aa1558d369471b69fe
 - isa/koronos/README.md — 646 bytes; SHA-256 e5ce016b1ae4738b5764efd44fb93120ea9ce867d96669d5cf049e121b444626
 - isa/sources/isa-source-manifest.json — 2996 bytes; SHA-256 027732ee4b23c3ad70e8930ab290b83d7bb6aba80c3d279a09c7a56ac1a0e1d3
@@ -95,6 +95,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - tools/isa/isa_bitfields.schema.json — 1985 bytes; SHA-256 7c0a19343bbd70a0833e217522cf2d18b86252320a93230fbfac367cf11fff51
 - tools/isa/local_isa_catalog.json — 13121 bytes; SHA-256 5548bdf21dad97febce4ea4ef7b9f2cd39588d94353fb8f259496fce56136aff
 - tools/isa/MACHINE-CODE-TOOLCHAIN.md — 2337 bytes; SHA-256 93bb668aecd7cdf7bd7779efd1103b62f927a582a0a9a6f667455290a623f1bb
+- tools/isa/rv32-machine-tested-subset.json — 6394 bytes; SHA-256 feff2a76f7b2cac9f33c8b79863a9cbc5fc6b0fb7124ba0d649c9f24a6421b46
 - tools/isa/rv32i-coverage.json — 13202 bytes; SHA-256 e4de04dbf584543e3aa879906b49f0d599d29b9898fe6a6c29bbd477cc80aa70
 - config/foreign-runtime-sources.json — 2916 bytes; SHA-256 dcefc4f1c792b8f3d1756f477646bd20a3efdb578014a8c5c2480a5cba47aaac
 - config/linux-command-registry.json — 1857 bytes; SHA-256 d3c14dba25a56ba5c96efde188ee1b6d1cd1f8764f2340c6863c33ca80cf1935
@@ -121,7 +122,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/aurora-game-center.md — 1252 bytes; SHA-256 be718423afeb7d6c93605e9a30a1b0e7823b4b39e471849744e4255c2b5fb6d5
 - docs/aurora-multilingual-media.md — 1340 bytes; SHA-256 5aebbf6a09fa1cf38c70d330fd55b6f83c3017ee85d89e82cd7157e13999d3bf
 - docs/AURORA_ARCHITECTURE_DISCOVERY.md — 4096 bytes; SHA-256 02dc2b8f066e4710f098d03e80f12486c783650b11c8c9e99c2fc4427462c095
-- docs/AURORA_GLASS_DESKTOP_AND_TERMINAL.md — 4209 bytes; SHA-256 0932d8f52fc56300620a8d282582aaf378e3bf1d8c6e21b57791bde7850e6f44
+- docs/AURORA_GLASS_DESKTOP_AND_TERMINAL.md — 5582 bytes; SHA-256 85c833b22378b5117532e06422e585870b6ce1ec5ba51eced844cbc8603bd999
 - docs/AURORA_NATIVE_WEB_PARITY.md — 2204 bytes; SHA-256 e4492bace24c20101361b903dcdf9a9b97ea85d45b357a796f08bf93edfb2780
 - docs/AURORA_SETTINGS.md — 1565 bytes; SHA-256 167bd6165f1f67d84fe1dbdcd8342ea2741a683fdc1f895e2565ac929ffb538f
 - docs/AURORA_TERMINALS_SHELLS_BUILD.md — 2282 bytes; SHA-256 bbaf2e549f83459127c06036e8327ca78f4cdafc0ac212d84e53ba1e9855d581
@@ -177,10 +178,12 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/DEEP_RUNTIME_GAP_AUDIT.md — 1894 bytes; SHA-256 6abe5348e9d06f7396cc697fb479a3bfd8603cfd6cab7ec8fd72138211c55680
 - docs/DEEP_WEB_RESEARCH_AND_ENGAGEMENT.md — 11756 bytes; SHA-256 229fc4fa4c3ba3f0909bdcea679977c6cdbd9e6480f8a02031d53c8ac6fee0cf
 - docs/DESKTOP_COMPATIBILITY.md — 2483 bytes; SHA-256 f2df0c4cd77e127e9e41995776962cc550b283dafa9418bc9160d5f2d1805f30
+- docs/DESKTOP_PARITY_IMPLEMENTATION_PLAN.md — 5319 bytes; SHA-256 85fabfa03cee2ad4d1a475ee8c2ea6df096f70745ee218118723e7c5fff39094
 - docs/DRIVER_ACQUISITION.md — 2679 bytes; SHA-256 e19954eb18295a44703c4c3896ebd59b26094220f1fd86b2a5dba2976a42dc40
 - docs/DRIVER_ARCHITECTURE.md — 1820 bytes; SHA-256 5b323f33ac7abc88101f72637bfd57aa81837fc16c91f4b1cde3384c97f35310
 - docs/DRIVER_WINDOWS_LINUX_UNIX.md — 1076 bytes; SHA-256 00bc91acbc571cb40ac141c785dc576befe984db6fb7810edef9c626daec098e
 - docs/EXTERNAL_BUILDING_BLOCKS.md — 3338 bytes; SHA-256 fbd7a8d8ac844da36c18f6f7a771a5b7bf1c9a38a5caed4ed8731d6e9ec9c521
+- docs/FILESYSTEM_SUPPORT_MATRIX.md — 6995 bytes; SHA-256 3c3729a8bcee6f4d81659eda697f0e3973747aaf67bd746e4cb6f2194e8007fa
 - docs/FREE_HOSTING_AND_MEDIA_DISTRIBUTION.md — 5435 bytes; SHA-256 6a60b3d76d8b44c1e1880445c1869b1bec60115b26441393dae90bea1045c4a7
 - docs/HARDWARE_DRIVER_SOURCE_PROVENANCE.md — 1792 bytes; SHA-256 c576c8ba07c3043fb407e3284447dff3830d9caf9c7f4690070ec90ee00b04d8
 - docs/HARDWARE_NBIT_BOOT_INSTALL_FLOW.md — 5694 bytes; SHA-256 d62190349cd32ad1be97c7cdb026bd4ffbfbb98a57c887845ad7887b4b574a34
@@ -208,7 +211,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/ISA_EXTENSION_0092_011C.md — 4592 bytes; SHA-256 dea30c0e2b712b92c288b7fcaae125965659b7f70d70ddf22bc45cf0aca5e28a
 - docs/ISA_FOREIGN_ARCHITECTURE_MATRIX.md — 2570 bytes; SHA-256 f1f4035ca7e0adb2bc21679486bc44f89c153977e1f4b2ea39eb22420a5e191f
 - docs/ISA_RESEARCH_PIPELINE.md — 2257 bytes; SHA-256 92ac5dd362cc2dd0f479c9005273be7977f5f44e7eabc4babef7feb30dd8f27b
-- docs/ISA_RNN_LLM_MAPPING.md — 2545 bytes; SHA-256 d8e35baaafb582c10961c1c4777b37604a2d344371ff1fcda37d367cf315ac1d
+- docs/ISA_RNN_LLM_MAPPING.md — 9944 bytes; SHA-256 dd0fc360d1daf9384292aac65a1bda348e6b57773b051bee0443471d97b0e151
 - docs/ISA_TOOLCHAIN_AND_UNIX_COMPATIBILITY.md — 4938 bytes; SHA-256 8cf41b87286e521a759296594b2727c5c13710056b64283462dbd401aaa86e82
 - docs/JAVA_PORTFOLIO_MIGRATION.md — 25103 bytes; SHA-256 fb409e954e053b0bfea25a0583b524d71c45b950c0ccd3f5d66a4bfe873c90d5
 - docs/kernel-desktop-implementation.md — 2475 bytes; SHA-256 bec9fe11b263e06f2da078c653d3f70174f974271169c36b49904ee43b1a78ab
@@ -217,16 +220,20 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/koronos-32bit-bringup.md — 3797 bytes; SHA-256 93c9ed7bc293d04e270eef6150e10ca81824def9cce624931fa644cb85ac9b95
 - docs/KORONOS_HARDWARE_DRIVER_FIRMWARE_FLOW.md — 3028 bytes; SHA-256 a5710811108358b2d74cb5065ee7a9b1a48ac383926b1beb58c5b387ff986340
 - docs/KORONOS_MICROKERNEL_2.md — 1502 bytes; SHA-256 b292d90127d288f0620b6e1b4d2bd0a4b888d1ca3dce80638fffb88f7d0f4209
-- docs/KORONOS_USERSPACE_HANDOFF_DIAGNOSIS.md — 3943 bytes; SHA-256 c410cd231e20752455dd5794b89eb28888988492161f64f76b3579990a9c26f2
+- docs/KORONOS_TASK_CONTEXT_SWITCH_PLAN.md — 5323 bytes; SHA-256 850e46298511fee03c895f8ce25536b05be15c96538567fc301cd70b7a05001e
+- docs/KORONOS_USERSPACE_HANDOFF_DIAGNOSIS.md — 10719 bytes; SHA-256 2c7da013acea248c04118cc8a8a9ce5bedd11f5a52d818e73f416a18ea32107e
 - docs/KORONOS_VMWARE_BOOT_FIX.md — 1873 bytes; SHA-256 b9717b0f3764e43366e23765b88694843658eb0bf5b16138ecda67122e139a25
 - docs/KOTLIN_MOBILE_PORTFOLIO.md — 3414 bytes; SHA-256 d01ae034aae7c80d08dcb97b961fa9ec3c0f361722276b9343aaa44d12a88d9d
 - docs/LANGUAGE_QUANTUM_COMPATIBILITY.md — 547 bytes; SHA-256 3a64a50fe9b8edbafc6268fd197277fb32d3168879d24d32fbbc5e560c9967e4
 - docs/LEGAL_AND_PROVENANCE.md — 794 bytes; SHA-256 4d2e48b1892d182a4e3c5b7769d4fa528e81af77001bdd8b7bd2445d639ef772
 - docs/LIBRARY_RESEARCH_ARCHIVE_INDEX.md — 3030 bytes; SHA-256 52270066925225f295baeb26e85442690fb6499c6d105f482f9713f4a2042916
+- docs/linux-kernel-feature-parity-audit-2026-10.md — 8586 bytes; SHA-256 a3370a97fe5ef17593defaf211d3c57d5b51184c9293eab323b7bdfacf336dd9
 - docs/LINUX_7X_CROSSWALK.md — 1942 bytes; SHA-256 2d016a0d42d297f0cdef6a1ec4d59d836b7a5a32f886b704e1505721dab103aa
 - docs/LINUX_COMMANDS_SOURCE_CATALOG.md — 5476 bytes; SHA-256 1215968ccecc818dd433ff76307ae2f60922f40786b126e5518e56711e49a109
 - docs/LINUX_COMMAND_AND_STORAGE_COMPATIBILITY.md — 2604 bytes; SHA-256 0c68e7960615b1cf62f8a5dd6659525fdf35ca129a8338f8e18d7fecdd85f0c0
 - docs/LINUX_DISTRIBUTION_PROFILES.md — 1740 bytes; SHA-256 bba425fb04f6394c58224620cbf2ea58090162ae716e850981726b76ecc2cc3a
+- docs/LINUX_TO_KORONOS_BOOTABILITY_GAP_ANALYSIS.md — 7028 bytes; SHA-256 b9750232ed3019bef6d0eb7b6d53e3a9e961ea1fc651cfd896f4223a4c9f8b1b
+- docs/LINUX_TO_KORONOS_PORTING_MAP.md — 7870 bytes; SHA-256 e5cd0a1906ede77e76823b3d3533d9c5dd3aa8ba8faeb325fff88f9bd52bddff
 - docs/LIVE_CD_INSTALLER_ARCHITECTURE.md — 1950 bytes; SHA-256 a85e77779f699b760e51ec4667304d6f0f9a32df3262acc213e5e8d4d1314853
 - docs/MASTER_SOURCE_MAP.md — 2226 bytes; SHA-256 8ae50f9f1cae9c87adb22c85b70cacbe60e36508bbdbe7586c5af7fadeaa9fae
 - docs/MOBILE_COMMUNICATIONS.md — 1282 bytes; SHA-256 34795dd3d30c0861f328502b40fe51ddd9b6a82845fe54675922f02cc08a9523
@@ -238,45 +245,61 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/PERFORMANCE_AND_PORTABILITY.md — 2736 bytes; SHA-256 1089a12a043f15c1591945886a30be49c0e0f963b6ff92e4705b2525ffaa3fda
 - docs/playstation-and-crash-recovery.md — 1867 bytes; SHA-256 c4eab9a9d32ca9cc218652edb24ad411d45b6568f7ab37bf1ca5f4d902d33909
 - docs/playstation-rom-search.md — 1499 bytes; SHA-256 2ca0196132c7fc70ee489b25be6bd6b41563601910dac3f4e29440a3b112efc3
+- docs/PROCESS_LIFECYCLE_ROOT_CAUSE_2026-10-23.md — 5033 bytes; SHA-256 eab5a0cc572d87f1be3c94cf7b4a6ec30881c60d1e04925052fe6504228c7685
+- docs/PRODUCTION_DAPS.md — 5582 bytes; SHA-256 a0e6d1175208cf0bf05033d8282ec667b89c637f6e153b6685d44e5d5d42c7d0
+- docs/PRODUCTION_RUNTIME_ACCEPTANCE.md — 33432 bytes; SHA-256 e188b1da8142e9e86f726f712ca2056ef4792e99813f08b5c7694397abf0b7a5
+- docs/PRODUCTION_RUNTIME_FOLLOWUP_2026-10-22.md — 15759 bytes; SHA-256 ffb6818399620db8122a9fd95767ceb71cc45b9d3358e636c355e8afd94bc14e
+- docs/PRODUCTION_RUNTIME_GAP_AUDIT_2026-10-22.md — 11156 bytes; SHA-256 a927fc04c835307af2b72ba4bad75f4903fbb8dae0ae9fa99a90d8bb9d94256d
 - docs/PROVENANCE.md — 1672 bytes; SHA-256 32f1f852f29ec848d5e1ee97b84a135db7a37860740d37f59e5c591486b6e957
 - docs/PUBLICATION_ACCOUNTS_AND_AUTH.md — 2861 bytes; SHA-256 d9d7f9c6b11572e789d2dc4552ea5393eb50a55acfea9d18193825f524117a6e
 - docs/PUBLICATION_AND_MEDIA_DISTRIBUTION.md — 10500 bytes; SHA-256 6baa397c277df50a14e1d8069f3962141f8c17943a058298d7ce9c0262eeb459
 - docs/recovery-runtime-levels.md — 1603 bytes; SHA-256 2755e63b07ee3663406590490d249b3c3e0b78256fa9a096237ef524ab9c5756
 - docs/runtime-asset-deduplication.md — 1668 bytes; SHA-256 a6d9d36da1608fcfcdd00a139791f924f0e9bcb88aef685fef878443a400ac12
+- docs/RUNTIME_BLOCKER_AUDIT_2026-10-24.md — 5046 bytes; SHA-256 d953fd4dd7a33f3b62de36a35ec34bb42632e6e32f6f57a2db43d7aeb2b58c5a
 - docs/RUST_IMPLEMENTATION.md — 1902 bytes; SHA-256 a1f3f45bbece7f27ff8cfcb703e155bb3b9af18a7d67b62857c41d71a37cfe62
 - docs/SCRIPTING_AND_PATTERN_COMPATIBILITY.md — 1541 bytes; SHA-256 998f0a4a97f22c898d8a107b4b1b7355ec34b4f52b98fd5133e20ca6fe21e290
 - docs/SERVICES_COMPATIBILITY.md — 762 bytes; SHA-256 ebafa7c5f3af7ec30e85d648ca081ec8c8701c246d170bcbbac67060db1c6465
+- docs/SMP_IMPLEMENTATION_AUDIT_20261025.md — 6606 bytes; SHA-256 3305ac3acdd9faf72945e01fbf30829d358cc9333b078daab65eecc243f9f401
 - docs/SOURCE_IMPORT_POLICY.md — 3048 bytes; SHA-256 d9c27cf68a654f01b529b2f0c13c8b253eaa5a0fde8aac12a9ee10caff1153e9
 - docs/SOURCE_LICENSE_BOUNDARIES.md — 1006 bytes; SHA-256 979f4934895fdc396a51f6f468c02d21c3f7f3ada08612b869320c7caada1a22
 - docs/STRUCTURED_ISO_BUILD.md — 2270 bytes; SHA-256 c9bedab8f96530797e6f0846d5354cb447fb5597d5482f09cd4adb232a880a42
 - docs/THAMUDIC_HISTORICAL_OBJECT_CATALOG.md — 5247 bytes; SHA-256 63cbfcf9a7587d51a669e955e466cd3562e584dd184ce19020d4c65d190644c2
+- docs/TRANSACTIONAL_RAMFS_IMPLEMENTATION_REVIEW.md — 7385 bytes; SHA-256 ada5258f13d216ec07d8707d65518abed2f85437b090eef6bd67484a4ae09ee5
 - docs/UNIVERSAL_ISA_AND_CPU_ARCHITECTURE.md — 2646 bytes; SHA-256 b65b71d58a054c378e3d65c9344aa48b6440111a53182e1b29ec57378c3fe976
 - docs/VERIFICATION_EVIDENCE_CONTRACT.md — 6711 bytes; SHA-256 2bd43d107b31cf0fa8eb7d63cdb8dbc5460da98506860266b1fa6cedfad6eec7
 - docs/W2K-ASM_IMPORT.md — 1124 bytes; SHA-256 1a75dc3a3ec9a8a8e5da414aed99851ec5f6cc73c1cdf0acc21bd747dfb3cc87
 - docs/WEB_REPO_AUDIT_2026-10-07.md — 2326 bytes; SHA-256 1f163b67240cc593a9aaa530e154d37a98a1049355a13c5faabb850393357d8c
 - docs/WEB_UI_ECOSYSTEM.md — 839 bytes; SHA-256 ef4dd47a0f10e0fe452c95bf68465217d9ec2c9835946303e2537c2cfb5e32e3
 - docs/Windows_Kernel_Dev_and_Snippets.md — 3355 bytes; SHA-256 94630683629676e912bf0801493a88a2d40b3c036c4fefb83d66f33ba7c82031
+- docs/WINDOWS_LINUX_SERVICE_PARITY.md — 7677 bytes; SHA-256 be6ff97713dee433a622312f8c2c6aadccbca07b68daaa0da1f1c200f81210cc
 - docs/ai/2026-research-and-package-architecture.md — 2407 bytes; SHA-256 4baac38a4885e15683c257314e54405f36b850bf7d1fc80010c7df3f14fc5f98
 - docs/ai/NEURAL_DIMENSIONAL_STATUS.md — 3906 bytes; SHA-256 ea90b15bb4b439f8778536b990d60e68038596e0b6b052bbf8d16b70c1addd3a
 - docs/ai/nextgen-2026.md — 3835 bytes; SHA-256 cc0d616d0264d950e3f8a409d6aed2dd31c820adc7a831f8ef0d64343fb7475c
+- docs/architecture/AARCH64_LINKER_ENTRY_ABI.md — 3909 bytes; SHA-256 c9262546d0340ae4f04f42aaa3b16a0db3628531bdb411fb5f116284c4ed6b0c
 - docs/architecture/chimera-native-binary-format.md — 2055 bytes; SHA-256 3569181404474955f6b2c4f9369944d7faba49181abfc2fb480e76a4828bd48c
 - docs/architecture/chimera-native-ide-toolchain.md — 1850 bytes; SHA-256 de0a5ecadd19efe8813b835ecd6a8410ac466f810bee3f6e48b300d0f60bd913
 - docs/architecture/chimera-nbit-native-isa.md — 2101 bytes; SHA-256 b502dd563bf75f1ba0e953b870036c4e475afc672e117ca42e5e9be8ac05b250
 - docs/architecture/chimera-virtual-memory-swap.md — 1686 bytes; SHA-256 332feba1561f9693b74176fb3c80b7827766d6a802c9883c03ce4ba5cb41e8cf
+- docs/architecture/EFI_PE_COFF_VALIDATION.md — 1335 bytes; SHA-256 3a10737d66e212c2c0ee295661adeee43a47a6da76a1cd87ffe9082d3767995f
+- docs/architecture/ELF_EFI_ARCHITECTURE_ARTIFACT_CONTRACT.md — 10488 bytes; SHA-256 71edbf2d83c8ee1832838856a23fbac321dca57c89354ff89a83d6c041fc1d31
 - docs/architecture/memory-bus.md — 1498 bytes; SHA-256 a8b2d7045e8c9b3dc91ec25dd58c73eb7b2aa9a17051d281aee78a8e741e63e6
 - docs/architecture/registern-and-data-stack.md — 1316 bytes; SHA-256 9ac7e94201edc1a59b0923c661180e2cc05936e7edfb2eb02ea9dd3aa150437e
+- docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md — 3344 bytes; SHA-256 32685f87f749628766c1ef0aa3f89111f13f037c214564fb477454477f9112bf
 - docs/cloud/OPERATIONS.md — 1634 bytes; SHA-256 7e5573d80265182956b1b7dfa4670f0dabbbd655b1d380e1b6063d613328d536
 - docs/help/README.md — 1414 bytes; SHA-256 57a9cdaf50b41fd068e1b724233b85867cc126001e9ac92521670535dcbb36ae
 - docs/isa/SOURCE_BACKED_INGESTION_STATUS.md — 2444 bytes; SHA-256 d9dd57321a3cf5eb1309ff8d06d4d10716087a06d2aaac8e2356de5e0b938b39
 - docs/isa/SOURCE_DISCOVERY_AND_REGISTER_MAPPING.md — 3162 bytes; SHA-256 a9e4aacc53b1f64bab6756c87eb84810fdfca1c5977cd1b28a12e80f0cca8166
 - docs/isa/universal-lowering.md — 2410 bytes; SHA-256 e6424d03dec7b8a50554aea440d0611c5c321f90563e53a3524ce4a1031998cf
 - docs/isa/UNIVERSAL_ISA_INGESTION.md — 3336 bytes; SHA-256 d5736c9c533a63e6d4cc73d4802dbac60b959f166de1050327f36dde0f423dc7
+- docs/kernel/ATTACHED_RUNTIME_REMEDIATION_REVIEW.md — 5687 bytes; SHA-256 edab741914f7f55342d93f9cc0cecdcf0382cc9acd338502c401034727fb1039
+- docs/kernel/KORONOS_SYSCALL_COMPATIBILITY_AUDIT.md — 13278 bytes; SHA-256 23fbc2b9b1989dab42ba62bd7dfe2163dafce014ee62b8633bb47b44cbc5b6ce
+- docs/kernel/KORONOS_VM_SWAP_STATUS.md — 8328 bytes; SHA-256 a6338af223f2d3b49d5e22c2b0f1312cfb2fa036a5b6cb89f6b45ac90842826b
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
-- docs/research/isa-command-research.json — 254096 bytes; SHA-256 321903f9c4f2dd8e1e65604931e3feb04f8b2a43c4bd52ee7465cc48b4ccbed1
+- docs/research/isa-command-research.json — 253872 bytes; SHA-256 25f5ccd243c70f242e5707b9b2fb2d05c032ac24b4d189bf6a329b6679a658ce
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
-- docs/research/ISA_COMMAND_RESEARCH.md — 51063 bytes; SHA-256 5b257281fa61092edfce252bc703d7a7c4b113e8afe7ccb97bbb6062fe1a05a1
+- docs/research/ISA_COMMAND_RESEARCH.md — 51176 bytes; SHA-256 f6a6b429255cdf939c819168a8cf0bd5a0ab8c96217c53b1adea4366257360e6
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
@@ -321,12 +344,12 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - system/architecture/endianness.json — 5650 bytes; SHA-256 4206b2bf44ee35de1aee86caf9465ae3437d7148cd9faf050c08ef7b704b4cd8
 - system/aurora/chimera-log-window.json — 974 bytes; SHA-256 0b8c5ca38744b9f7e44e0c765bb59b28e9f83870aa340c46e6ee11856ed9976b
 - system/aurora/README.md — 560 bytes; SHA-256 cbf7f5b1c5a528d990aec01b6827d5c9b13e477621aa2ec30c666c0ab1bca802
-- system/commands/chimera-arabic.json — 15130 bytes; SHA-256 01fa7fe0ce65bfe4e808858daaaa2a0349992c2741fc8744c59d020cc20fab78
+- system/commands/chimera-arabic.json — 15130 bytes; SHA-256 41b972dcbcb28deba30c4101bac6e5cfc4f04b5b7ab14050a7fd77b844933795
 - system/commands/chimera-command-list.json — 18321 bytes; SHA-256 d341f12a03c50562c14a687ccba43fdf7744cd8a11fb1ca0cef8c0de59a10be2
-- system/commands/command-runtime-capabilities.json — 1495886 bytes; SHA-256 f5da8bc63d649c4b050e05f1540eb25a57db1eeea76a784bb89cd75601f1f3c0
+- system/commands/command-runtime-capabilities.json — 1504211 bytes; SHA-256 4d5324f39f67c6aae2ebf379064230e79f35a2901ddecee8ce785e460cfe4212
 - system/commands/compatibility-binary-policy.json — 2614 bytes; SHA-256 1ce577b4bf47de8c6714477f9ab0ea606c3c00ee8dff2c2d09ea42dbcd48e2e8
-- system/commands/online-command-catalog.json — 1479924 bytes; SHA-256 fe6099fef55e5b20473693bd2af811b039db6e7fae8e08b55b2fc7cf195397f0
-- system/commands/ss64-command-catalog.ar.json — 859977 bytes; SHA-256 455c7666e96c6cbae70dc78901aea3c3b82740e7b44f26bf623f39aebb804d32
+- system/commands/online-command-catalog.json — 1491009 bytes; SHA-256 2ac035a488be06a80c06033b72c48b2682a74b0b566a2a42f94a385ef03c3d36
+- system/commands/ss64-command-catalog.ar.json — 864753 bytes; SHA-256 c1a7c52e138a839374af02272fac6f6df25e622ee7dd6d76f3e442135f9ba0b9
 - system/hardware/chimera-hardware-profile.json — 524 bytes; SHA-256 884360f762b99759b446f4c61788f61a8528d362203f3f85383c5de44867c343
 - system/hardware/compatibility-modes.json — 5990 bytes; SHA-256 06a4b6bc1d6def4e225f12afde786cbed04b7330806b514f60eff7b33a3fe8e5
 - system/hosted/compatibility-matrix.json — 6671 bytes; SHA-256 689ca9caf01845e1aaff4aba8516dce28cdbcde22230285ade642c01d79dd76a
