@@ -66,8 +66,12 @@ def main() -> int:
             raw = path.read_bytes()
             if not raw:
                 raise ValueError(f"empty artwork asset: {rel}")
-            artwork.append({"path": rel, "media_type": path.suffix.lower(),
-                            "size_bytes": len(raw), "sha256": sha256(raw),
+            original = out / "artwork" / rel
+            original.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, original)
+            artwork.append({"path": rel, "packaged_path": original.relative_to(out).as_posix(),
+                            "media_type": path.suffix.lower(), "size_bytes": len(raw),
+                            "sha256": sha256(raw),
                             "base64": base64.b64encode(raw).decode("ascii")})
             seen_art.add(rel)
     if not artwork:
