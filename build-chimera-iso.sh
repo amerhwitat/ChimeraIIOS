@@ -623,6 +623,71 @@ prepare_branding(){
            "$ISO_DIR/boot/visual" \
            "$ISO_DIR/boot/grub"
 
+  # Discover and stage repository artwork recursively. Do not assume that
+  # user-supplied artwork lives in one hard-coded directory: repositories often
+  # contain artwork under desktop, assets, docs, mobile, themes, and app folders.
+  # Keep original filenames/relative paths, exclude VCS/build/vendor caches, and
+  # prefer the named original session wallpaper when present. If it is absent,
+  # keep the generated offline artwork rather than failing on a stale filename.
+  local artwork_stage="$BUILD_DIR/aurora-artwork-library"
+  local artwork_manifest="$artwork_stage/artwork-index.txt"
+  local preferred_wallpaper=""
+  rm -rf -- "$artwork_stage"
+  mkdir -p "$artwork_stage"
+  : > "$artwork_manifest"
+  while IFS= read -r -d '' asset; do
+    local rel dest
+    rel="${asset#"$SCRIPT_DIR"/}"
+    dest="$artwork_stage/$rel"
+    mkdir -p "$(dirname "$dest")"
+    if cp -p -- "$asset" "$dest"; then
+      printf '%s\\n' "$rel" >> "$artwork_manifest"
+      case "$(basename "$asset" | tr '[:upper:]' '[:lower:]')" in
+        duck-ai-image-2026-10-18-06-36.jpeg)
+          preferred_wallpaper="$dest"
+          ;;
+      esac
+    fi
+  done < <(find "$SCRIPT_DIR" \\
+    \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \\
+    \( -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.gif' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.svg' -o -iname '*.avif' \) -print0 \) 2>/dev/null)
+  if [[ -s "$artwork_manifest" ]]; then
+    log_info "Discovered $(wc -l < "$artwork_manifest" | tr -d ' ') artwork files recursively."
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork" \\
+             "$ISO_DIR/desktop/aurora/assets/library/repository-artwork"
+    cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork/"
+    cp -a "$artwork_stage/." "$ISO_DIR/desktop/aurora/assets/library/repository-artwork/"
+    cp -f "$artwork_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork-index.txt"
+    cp -f "$artwork_manifest" "$ISO_DIR/desktop/aurora/assets/library/repository-artwork-index.txt"
+  else
+    log_warning "No raster/SVG artwork files found by recursive scan; generated Aurora artwork remains the fallback."
+  fi
+
+  # Resolve the default wallpaper without depending on a single legacy filename.
+  # Explicit CHIMERA_AURORA_ASSET has priority, then the original session image,
+  # then descriptive wallpaper/background names; generated assets remain fallback.
+  local discovered_wallpaper=""
+  if [[ -n "${CHIMERA_AURORA_ASSET:-}" && -s "${CHIMERA_AURORA_ASSET}" ]]; then
+    discovered_wallpaper="$CHIMERA_AURORA_ASSET"
+  elif [[ -n "$preferred_wallpaper" && -s "$preferred_wallpaper" ]]; then
+    discovered_wallpaper="$preferred_wallpaper"
+  else
+    while IFS= read -r -d '' asset; do
+      case "$(basename "$asset" | tr '[:upper:]' '[:lower:]')" in
+        *wallpaper*|*background*|*aurora*desktop*)
+          discovered_wallpaper="$asset"
+          break
+          ;;
+      esac
+    done < <(find "$SCRIPT_DIR" \\
+      \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \\
+      \( -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.avif' \) -print0 \) 2>/dev/null)
+  fi
+  if [[ -n "$discovered_wallpaper" && -s "$discovered_wallpaper" ]]; then
+    export CHIMERA_AURORA_ASSET="$discovered_wallpaper"
+    log_info "Selected recursively discovered Aurora wallpaper: ${discovered_wallpaper#"$SCRIPT_DIR"/}"
+  fi
+
   # Build the complete deterministic Aurora visual set. Supplied Library artwork
   # wins; generated SVG artwork remains the offline fallback.
   local visual="$BUILD_DIR/aurora-media"
