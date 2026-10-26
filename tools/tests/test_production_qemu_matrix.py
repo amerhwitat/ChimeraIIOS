@@ -27,7 +27,8 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         self.assertEqual(
             target_key_commands("recovery"),
             ["sendkey home", "sendkey down", "sendkey down", "sendkey down",
-             "sendkey down", "sendkey down", "sendkey ret"],
+             "sendkey down", "sendkey down", "sendkey down", "sendkey down",
+             "sendkey down", "sendkey ret"],
         )
         with self.assertRaises(ValueError):
             target_key_commands("unknown")
