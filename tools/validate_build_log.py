@@ -1,105 +1,103 @@
 #!/usr/bin/env python3
-"""Fail-closed parser for boot/ISO artifact validation logs.
+"""Fail-closed parser for boot/ISO artifact validation records.
 
-Accepted records:
-  [VALIDATION RUN] command=<non-empty command>
-  [VALIDATION PASS] exit=0 command=<same command>
-  [VALIDATION FAIL] exit=<nonzero integer> command=<same command>
-
-Non-validation command output is permitted between records. Lines beginning with
-"[VALIDATION" must match the record grammar exactly. Every RUN must have one
-matching result, no result may be orphaned, and required command fragments must
-appear in successful records. This verifies log integrity, not artifact runtime.
+This checks validation-log integrity, not whether the artifacts boot at runtime.
 """
 from __future__ import annotations
 
-import argparse
 import re
 import sys
 from pathlib import Path
+from typing import Iterable
 
-RUN_RE = re.compile(r"^\[VALIDATION RUN\] command=(.+)$")
-RESULT_RE = re.compile(r"^\[VALIDATION (PASS|FAIL)\] exit=([0-9]+) command=(.+)$")
-PREFIX = "[VALIDATION"
+_PREFIX = "[VALIDATION"
+_RUN = re.compile(r"^\[VALIDATION RUN\] command=(.+)$")
+_RESULT = re.compile(r"^\[VALIDATION (PASS|FAIL)\] exit=([0-9]+) command=(.+)$")
 
 
 class LogValidationError(ValueError):
-    pass
+    """Raised when validation records are malformed or incomplete."""
 
 
-def parse_validation_log(text: str, required: tuple[str, ...] = ()) -> dict:
+def parse_validation_log(text: str, required: Iterable[str] = ()) -> dict:
     pending: dict[str, int] = {}
     passed: list[str] = []
     failed: list[tuple[str, int]] = []
-    seen_commands: set[str] = set()
+    commands: set[str] = set()
     records = 0
 
     for line_no, raw in enumerate(text.splitlines(), 1):
         line = raw.rstrip("\r")
-        if not line.startswith(PREFIX):
+        if not line.startswith(_PREFIX):
             continue
-        run = RUN_RE.fullmatch(line)
-        result = RESULT_RE.fullmatch(line)
+        run = _RUN.fullmatch(line)
+        result = _RESULT.fullmatch(line)
         if run:
             command = run.group(1).strip()
             if not command:
-                raise LogValidationError(f"line {line_no}: empty RUN command")
+                raise LogValidationError(f"malformed validation record on line {line_no}")
             if command in pending:
-                raise LogValidationError(f"line {line_no}: duplicate RUN before result: {command}")
+                raise LogValidationError(f"duplicate RUN before result: {command}")
             pending[command] = line_no
-            seen_commands.add(command)
+            commands.add(command)
             records += 1
             continue
         if not result:
-            raise LogValidationError(f"line {line_no}: malformed validation record")
+            raise LogValidationError(f"malformed validation record on line {line_no}")
         kind, exit_text, command = result.groups()
-        # Shell process exit statuses are in the range 0..255. Bound the
-        # parsed value explicitly so hostile logs cannot trigger huge-int errors.
         if len(exit_text) > 3:
-            raise LogValidationError(f"line {line_no}: exit code out of range")
-        exit_code = int(exit_text)
-        if exit_code > 255:
-            raise LogValidationError(f"line {line_no}: exit code out of range: {exit_code}")
+            raise LogValidationError(f"exit code out of range on line {line_no}")
+        code = int(exit_text)
+        if code > 255:
+            raise LogValidationError(f"exit code out of range on line {line_no}")
+        if kind == "PASS" and code != 0:
+            raise LogValidationError("PASS requires exit=0")
+        if kind == "FAIL" and code == 0:
+            raise LogValidationError("FAIL requires nonzero exit")
         if command not in pending:
-            raise LogValidationError(f"line {line_no}: orphan {kind} result: {command}")
+            raise LogValidationError(f"orphan {kind} result for {command!r}")
         del pending[command]
         records += 1
         if kind == "PASS":
-            if exit_code != 0:
-                raise LogValidationError(f"line {line_no}: PASS requires exit=0")
             passed.append(command)
         else:
-            if exit_code == 0:
-                raise LogValidationError(f"line {line_no}: FAIL requires nonzero exit")
-            failed.append((command, exit_code))
+            failed.append((command, code))
 
-    if pending:
-        details = ", ".join(f"{cmd!r} (RUN line {line})" for cmd, line in pending.items())
-        raise LogValidationError(f"missing result for RUN record(s): {details}")
     if records == 0:
         raise LogValidationError("no validation records found")
+    if pending:
+        command, line_no = next(iter(pending.items()))
+        raise LogValidationError(f"missing result for {command!r} (RUN on line {line_no})")
     if failed:
-        details = "; ".join(f"{cmd!r} exited {code}" for cmd, code in failed)
-        raise LogValidationError(f"validator failure(s): {details}")
-
-    missing = [fragment for fragment in required
-               if not any(fragment in command for command in passed)]
+        command, code = failed[0]
+        raise LogValidationError(f"validation command {command!r} exited {code}")
+    missing = [item for item in required if not any(item in cmd for cmd in passed)]
     if missing:
-        raise LogValidationError("required successful validation missing for: " +
-                                 ", ".join(repr(item) for item in missing))
+        raise LogValidationError(
+            "missing required successful validation for: " + ", ".join(missing)
+        )
     return {"records": records, "passed": passed, "failed": failed,
-            "commands": sorted(seen_commands)}
+            "commands": sorted(commands)}
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("log", type=Path, help="validation log to inspect")
-    parser.add_argument("--require", action="append", default=[], metavar="TEXT",
-                        help="require a successful command containing TEXT; repeatable")
-    args = parser.parse_args(argv)
+    args = list(sys.argv[1:] if argv is None else argv)
+    if not args or args[0] in ("-h", "--help"):
+        print("usage: validate_build_log.py LOG [REQUIRED_ARTIFACT ...]", file=sys.stderr)
+        return 2 if not args else 0
+    path = Path(args[0])
+    required: list[str] = []
+    index = 1
+    while index < len(args):
+        if args[index] == "--require" and index + 1 < len(args):
+            required.append(args[index + 1])
+            index += 2
+        else:
+            required.append(args[index])
+            index += 1
     try:
-        text = args.log.read_text(encoding="utf-8")
-        result = parse_validation_log(text, tuple(args.require))
+        log = path.read_bytes().decode("utf-8", errors="strict")
+        result = parse_validation_log(log, required)
     except (OSError, UnicodeError, LogValidationError) as exc:
         print(f"[VALIDATION LOG FAIL] {exc}", file=sys.stderr)
         return 1
