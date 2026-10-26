@@ -172,6 +172,10 @@ cat > "$ISO/system/branding/chimera-background.json" <<'EOF'
     "/install/installer-background.png",
     "/install/library-background.png"
   ],
+  "artwork_library": "/system/branding/artwork-library",
+  "artwork_index": "/system/branding/artwork-index.txt",
+  "artwork_sha256": "/system/branding/artwork-sha256.txt",
+  "offline_artwork": true,
   "changeable": true
 }
 EOF
