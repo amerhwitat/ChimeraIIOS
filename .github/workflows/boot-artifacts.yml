@@ -70,7 +70,11 @@ jobs:
           assert a["assets"], "embedded artwork manifest is empty"
           assert b["elf_count"] > 0, "no ELF payloads packaged"
           assert b["efi_count"] > 0, "no EFI payloads packaged"
-          print(f"packaged artwork={len(a['assets'])} ELF={b['elf_count']} EFI={b['efi_count']}")
+          assert b["command_count"] > 0, "no executable commands bundled"
+          for entry in b["commands"]:
+              f = p / entry["path"]
+              assert f.is_file() and hashlib.sha256(f.read_bytes()).hexdigest() == entry["sha256"], entry
+          print(f"packaged artwork={len(a['assets'])} ELF={b['elf_count']} EFI={b['efi_count']} commands={b['command_count']}")
           PY
       - name: Upload offline artwork and native boot binaries
         uses: actions/upload-artifact@v4
