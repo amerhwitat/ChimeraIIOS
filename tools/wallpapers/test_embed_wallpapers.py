@@ -21,6 +21,12 @@ def fake_jpeg(width: int, height: int) -> bytes:
     return b"\xff\xd8" + segment + b"\xff\xd9"
 
 
+def fake_png(width: int, height: int) -> bytes:
+    # Minimal PNG signature + IHDR fields for dimension-contract tests.
+    return (bytes.fromhex("89504e470d0a1a0a") + b"\\x00\\x00\\x00\\x0dIHDR"
+            + width.to_bytes(4, "big") + height.to_bytes(4, "big"))
+
+
 class WallpaperEmbedContract(unittest.TestCase):
     def test_jpeg_dimensions(self):
         self.assertEqual(jpeg_dimensions(fake_jpeg(2048, 1152)), (2048, 1152))
@@ -77,7 +83,7 @@ class WallpaperEmbedContract(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "Aurora-Wayland-Glass-Desktop.png(1).jpg").write_bytes(fake_jpeg(1600, 900))
-            (root / "Aurora Wayland Desktop Showcase.png").write_bytes(fake_jpeg(1920, 1080))
+            (root / "Aurora Wayland Desktop Showcase.png").write_bytes(fake_png(1920, 1080))
             result = generate_session_branding(root, root / "out.css", root / "out.json")
             css = (root / "out.css").read_text()
             manifest = json.loads((root / "out.json").read_text())
