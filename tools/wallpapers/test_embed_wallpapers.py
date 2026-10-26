@@ -25,6 +25,10 @@ class WallpaperEmbedContract(unittest.TestCase):
     def test_jpeg_dimensions(self):
         self.assertEqual(jpeg_dimensions(fake_jpeg(2048, 1152)), (2048, 1152))
 
+    def test_rejects_truncated_jpeg(self):
+        with self.assertRaisesRegex(ValueError, "SOI/EOI"):
+            jpeg_dimensions(b"\xff\xd8\xff\xc0\x00\x11")
+
     def test_generates_default_data_uri_css_and_hash_manifest(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -38,27 +42,25 @@ class WallpaperEmbedContract(unittest.TestCase):
             self.assertIn("data:image/jpeg;base64,", css)
             self.assertIn(".aurora-wallpaper--default", css)
             self.assertIn(".marine-wallpaper--default", css)
-            self.assertIn("background-size: cover", css) if "background-size: cover" in css else None
+            self.assertIn("background-size: cover", css)
             self.assertTrue(manifest["wallpapers"][0]["offline"])
             self.assertEqual(len(result["wallpapers"]), 2)
 
     def test_session_attachments_embed_exact_bytes_as_data_uris(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            source = root / "source"
-            source.mkdir()
             expected_bytes = {}
             fixture_specs = {}
             for filename, spec in SESSION_BRANDING.items():
                 data = fake_jpeg(1672, 941)
                 expected_bytes[filename] = data
-                (source / filename).write_bytes(data)
+                (root / filename).write_bytes(data)
                 fixture_specs[filename] = {**spec, "expected_sha256": hashlib.sha256(data).hexdigest()}
             css_path, manifest_path = root / "session.css", root / "session.json"
             original_specs = embed_module.SESSION_BRANDING
             try:
                 embed_module.SESSION_BRANDING = fixture_specs
-                result = generate_session_branding(source, css_path, manifest_path)
+                result = generate_session_branding(root, css_path, manifest_path)
             finally:
                 embed_module.SESSION_BRANDING = original_specs
             css = css_path.read_text()
@@ -69,7 +71,7 @@ class WallpaperEmbedContract(unittest.TestCase):
             self.assertEqual(len(result["wallpapers"]), 2)
             self.assertTrue(all(entry["embedded"] and entry["offline"] for entry in manifest["wallpapers"]))
             self.assertEqual([entry["sha256"] for entry in manifest["wallpapers"]],
-                             [__import__("hashlib").sha256(data).hexdigest() for data in expected_bytes.values()])
+                             [hashlib.sha256(data).hexdigest() for data in expected_bytes.values()])
 
     def test_session_branding_rejects_same_dimensions_with_wrong_original_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -92,8 +94,10 @@ class WallpaperEmbedContract(unittest.TestCase):
     def test_missing_exact_session_attachment_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / next(iter(SESSION_BRANDING))).write_bytes(fake_jpeg(1672, 941))
-            with self.assertRaises(FileNotFoundError):
+            # Leave the first required original absent. A fabricated same-size
+            # JPEG is not a missing-file fixture: it must fail the hash check.
+            (root / "Duck-ai-image-2026-10-18-06-36.jpeg").write_bytes(fake_jpeg(1672, 941))
+            with self.assertRaisesRegex(FileNotFoundError, "required original JPEG is missing"):
                 generate_session_branding(root, root / "out.css", root / "out.json")
 
     def test_missing_default_source_fails_closed(self):
