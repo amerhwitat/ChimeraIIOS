@@ -142,9 +142,9 @@ jobs:
           clean_exit_line="$(grep -nF "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG" | head -n 1 | cut -d: -f1)"
           test -n "$kernel_line" && test -n "$ack_order_line" && test -n "$ring3_return_line" && test -n "$ready_order_line" && test -n "$clean_exit_line"
           test "$kernel_line" -lt "$ack_order_line"
-          test "$ack_order_line" -lt "$ring3_return_line"
-          test "$ring3_return_line" -lt "$ready_order_line"
-          test "$ready_order_line" -lt "$clean_exit_line"
+          test "$ack_order_line" -lt "$ready_order_line"
+          test "$ready_order_line" -lt "$ring3_return_line"
+          test "$ring3_return_line" -lt "$clean_exit_line"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
           echo "Candidate ring-3 launch smoke passed target=$TARGET firmware=$FIRMWARE qemu_exit=$qemu_rc (production payload acceptance remains separate)"
       - name: Prove in-kernel timeout aborts a non-returning ring-3 process
