@@ -23,6 +23,16 @@ CHIMERA_HELP
 fi
 set -Eeuo pipefail
 
+# Canonical system block-size contract shared by every boot and ISO stage.
+# Preserve an explicit caller value, accept the legacy SYSTEM_BLOCK_SIZE alias,
+# and reject malformed values before any artifacts are built.
+CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-512}}"
+if [[ ! "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]]; then
+  printf '[ERROR] CHIMERA_SYSTEM_BLOCK_SIZE must be a positive integer (got: %s)\n' "$CHIMERA_SYSTEM_BLOCK_SIZE" >&2
+  exit 2
+fi
+export CHIMERA_SYSTEM_BLOCK_SIZE SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
+
 # CHIMERA_ROOTFS_EXPORT_V3
 chimera_export_docker_rootfs() {
     local image="${1:-${CHIMERA_DOCKER_IMAGE:-${DOCKER_IMAGE:-}}}"
@@ -573,7 +583,7 @@ create_boot_menu(){
   else
     log_info "ISA research refresh skipped by CHIMERA_ISA_RESEARCH=0."
   fi
-  "$SCRIPT_DIR/kernel/build-koronos.sh"
+  CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" bash "$SCRIPT_DIR/kernel/build-koronos.sh"
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
