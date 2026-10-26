@@ -8,12 +8,12 @@ ROOTFS="${CHIMERA_ROOTFS_DIR:-${1:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/..
 mkdir -p "$ROOTFS/usr/bin" "$ROOTFS/usr/sbin"
 
 merge_legacy_dir() {
-  local legacy="$1" canonical="$2" entry name
+  local legacy="$1" canonical="$2" link_target="$3" entry name
   if [[ -L "$legacy" ]]; then
     local target
     target="$(readlink "$legacy")"
-    [[ "$target" == "$canonical" ]] || {
-      echo "usr-merge: refusing unexpected symlink $legacy -> $target (expected $canonical)" >&2
+    [[ "$target" == "$link_target" ]] || {
+      echo "usr-merge: refusing unexpected symlink $legacy -> $target (expected $link_target)" >&2
       return 1
     }
     return 0
@@ -40,11 +40,11 @@ merge_legacy_dir() {
     done
     rmdir "$legacy"
   fi
-  ln -s "$canonical" "$legacy"
+  ln -s "$link_target" "$legacy"
 }
 
-merge_legacy_dir "$ROOTFS/bin" "/usr/bin"
-merge_legacy_dir "$ROOTFS/sbin" "/usr/sbin"
+merge_legacy_dir "$ROOTFS/bin" "$ROOTFS/usr/bin" "/usr/bin"
+merge_legacy_dir "$ROOTFS/sbin" "$ROOTFS/usr/sbin" "/usr/sbin"
 
 [[ -L "$ROOTFS/bin" && "$(readlink "$ROOTFS/bin")" == "/usr/bin" ]]
 [[ -L "$ROOTFS/sbin" && "$(readlink "$ROOTFS/sbin")" == "/usr/sbin" ]]
