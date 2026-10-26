@@ -26,7 +26,8 @@ class DesktopShowcaseContractTests(unittest.TestCase):
         for capability in self.matrix["shared_preview_capabilities"]:
             self.assertTrue(capability, "empty capability")
         for token in ("data-menu", "data-app", "aria-live", "prefers-reduced-motion",
-                      "Escape", "wallpaper", "Screen Savers"):
+                      "Escape", "data-wallpaper", "data-saver", "setInterval",
+                      "wallpaper", "Screen Savers"):
             self.assertIn(token.lower(), self.html.lower())
 
     def test_native_readiness_is_not_overclaimed(self):
@@ -39,6 +40,14 @@ class DesktopShowcaseContractTests(unittest.TestCase):
             self.assertTrue(item["ui"], item["id"])
             self.assertIn("native_session", item)
             self.assertNotEqual("production-ready", item["native_session"])
+
+    def test_wallpaper_and_screensaver_controls_are_interactive(self):
+        self.assertIn('data-wallpaper="aurora"', self.html)
+        self.assertIn('data-wallpaper="space"', self.html)
+        self.assertIn('data-saver="galaxy"', self.html)
+        self.assertIn('data-saver="off"', self.html)
+        self.assertIn('document.body.classList.add("saver-on")', self.html)
+        self.assertIn('document.body.classList.remove("saver-on")', self.html)
 
 
 if __name__ == "__main__":
