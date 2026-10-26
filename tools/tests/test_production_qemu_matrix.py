@@ -33,6 +33,17 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         with self.assertRaises(ValueError):
             target_key_commands("unknown")
 
+    def test_target_indices_match_top_level_grub_boot_entries(self):
+        import re
+
+        grub = (ROOT / "boot/iso/grub.cfg").read_text()
+        ids = re.findall(r'^menuentry ".*?" --id ([A-Za-z0-9_-]+) \\{', grub, re.M)
+        self.assertEqual(ids[0], "aurora-live")
+        self.assertEqual(ids[2], "install")
+        self.assertEqual(ids[5], "recovery")  # nested menu; do not select for matrix
+        self.assertEqual(ids[8], "diagnostics")  # direct recovery initramfs boot
+        self.assertEqual(MATRIX["TARGETS"], {"live": 0, "installer": 2, "recovery": 8})
+
     def test_matching_real_runtime_markers_are_accepted_by_parser(self):
         trace = """[KRN ] KORONOS READY
 USER INIT SYSCALL: target=live init_pid=12
