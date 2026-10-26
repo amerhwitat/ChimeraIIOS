@@ -306,8 +306,8 @@ mkdir -p "$DIST/boot/visual" "$DIST/boot/chimera/native-binaries" \
 install -m 0644 "$ASSET_BUNDLE/embedded-artwork.json" "$DIST/boot/visual/embedded-artwork.json"
 cp -a "$ASSET_BUNDLE/artwork/." "$DIST/usr/share/chimera/assets/offline-artwork/"
 cp -a "$ASSET_BUNDLE/binaries/." "$DIST/boot/chimera/native-binaries/"
-cp -a "$ASSET_BUNDLE/commands/bin/." "$DIST/bin/" 2>/dev/null || true
-cp -a "$ASSET_BUNDLE/commands/sbin/." "$DIST/sbin/" 2>/dev/null || true
+if [[ -d "$ASSET_BUNDLE/commands/bin" ]]; then cp -a "$ASSET_BUNDLE/commands/bin/." "$DIST/bin/"; fi
+if [[ -d "$ASSET_BUNDLE/commands/sbin" ]]; then cp -a "$ASSET_BUNDLE/commands/sbin/." "$DIST/sbin/"; fi
 install -m 0644 "$ASSET_BUNDLE/binary-manifest.json" "$DIST/boot/chimera/native-binaries/binary-manifest.json"
 python3 - "$ASSET_BUNDLE" "$DIST" <<'PY_ASSET_VERIFY'
 import hashlib, json, pathlib, sys
