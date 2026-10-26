@@ -51,6 +51,13 @@ def ovmf_pair() -> tuple[Path, Path] | None:
     return None
 
 
+def target_key_commands(target: str) -> list[str]:
+    """Select a GRUB target from a known menu origin, not its saved/default entry."""
+    if target not in TARGETS:
+        raise ValueError(f"unknown target: {target}")
+    return ["sendkey home", *([ "sendkey down" ] * TARGETS[target]), "sendkey ret"]
+
+
 def monitor_send(sock_path: Path, commands: list[str], wait_seconds: float = 0.15) -> None:
     deadline = time.monotonic() + 8
     conn = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -170,10 +177,11 @@ def run_case(iso: Path, output: Path, digest: str, target: str, firmware: str,
     stderr_stream = stderr_log.open("w", encoding="utf-8")
     try:
         process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=stderr_stream, text=True)
-        # GRUB's checked-in menu timeout is eight seconds. Navigate the actual
-        # ISO menu, not a reconstructed target ISO or probe ELF.
+        # GRUB may retain a saved selection despite set default=0. Reset the
+        # actual ISO menu to its first entry before selecting the requested target.
+        # This still boots the exact ISO; it does not replace the target payload.
         time.sleep(2.0)
-        key_commands = ["sendkey down"] * TARGETS[target] + ["sendkey ret"]
+        key_commands = target_key_commands(target)
         try:
             monitor_send(monitor, key_commands)
         except (TimeoutError, OSError) as exc:
