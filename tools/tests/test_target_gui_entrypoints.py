@@ -19,7 +19,7 @@ assert '-DCHIMERA_INIT_TARGET_ID="$target_id"' in builder
 assert 'open_readonly(CHIMERA_GUI_ENTRYPOINT)' in source
 assert 'NATIVE INIT GUI ENTRYPOINT MISSING' in source
 assert 'EXECVE/GRAPHICS BACKEND IS UNAVAILABLE' in source
-assert 'call1(1, 78)' in source
+assert 'fail_closed(78)' in source and 'call1(1, code)' in source
 # A component lookup is explicitly not a readiness claim.
 assert 'USERSPACE TARGET READY:' not in source
 print("PASS: Live/Installer/Recovery GUI entrypoint mapping is target-specific and fails closed.")
