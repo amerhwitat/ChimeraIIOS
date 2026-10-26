@@ -23,7 +23,7 @@ def fake_jpeg(width: int, height: int) -> bytes:
 
 def fake_png(width: int, height: int) -> bytes:
     # Minimal PNG signature + IHDR fields for dimension-contract tests.
-    return (bytes.fromhex("89504e470d0a1a0a") + b"\\x00\\x00\\x00\\x0dIHDR"
+    return (bytes.fromhex("89504e470d0a1a0a") + bytes([0, 0, 0, 13]) + b"IHDR"
             + width.to_bytes(4, "big") + height.to_bytes(4, "big"))
 
 
