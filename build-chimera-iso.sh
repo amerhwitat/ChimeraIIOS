@@ -705,12 +705,46 @@ prepare_branding(){
     log_info "Selected recursively discovered Aurora wallpaper: ${discovered_wallpaper#"$SCRIPT_DIR"/}"
   fi
 
-  # Build the complete deterministic Aurora visual set. Supplied Library artwork
-  # wins; generated SVG artwork remains the offline fallback.
+  # Build the deterministic Aurora visual set, then actively apply the selected
+  # repository artwork to boot + desktop + showcase + menu surfaces. Discovery
+  # alone is not enough: each consumer needs a normalized raster image staged
+  # under the exact filename it loads at boot/runtime.
   local visual="$BUILD_DIR/aurora-media"
   rm -rf -- "$visual"
   if [[ -x "$SCRIPT_DIR/tools/aurora/build-visual-assets.sh" ]]; then
     bash "$SCRIPT_DIR/tools/aurora/build-visual-assets.sh" "$visual"
+  fi
+
+  if [[ -n "${CHIMERA_AURORA_ASSET:-}" && -s "$CHIMERA_AURORA_ASSET" ]]; then
+    local selected_art="$CHIMERA_AURORA_ASSET"
+    local applied_art="$BUILD_DIR/aurora-selected-artwork.png"
+    local png_magic
+    png_magic="$(head -c 8 "$selected_art" 2>/dev/null | od -An -tx1 | tr -d ' \\n')"
+    if [[ "$png_magic" == "89504e470d0a1a0a" ]]; then
+      cp -f -- "$selected_art" "$applied_art"
+    elif command -v convert >/dev/null 2>&1; then
+      if ! convert "$selected_art" -resize 1920x1080^ -gravity center -extent 1920x1080 "PNG32:$applied_art" 2>"$LOG_DIR/aurora-selected-artwork-convert.log"; then
+        rm -f "$applied_art"
+      fi
+    elif command -v magick >/dev/null 2>&1; then
+      if ! magick "$selected_art" -resize 1920x1080^ -gravity center -extent 1920x1080 "PNG32:$applied_art" 2>"$LOG_DIR/aurora-selected-artwork-convert.log"; then
+        rm -f "$applied_art"
+      fi
+    fi
+
+    if [[ -s "$applied_art" ]] && [[ "$(head -c 8 "$applied_art" | od -An -tx1 | tr -d ' \\n')" == "89504e470d0a1a0a" ]]; then
+      for surface in \
+        "$visual/backgrounds/boot.png" \
+        "$visual/backgrounds/desktop.png" \
+        "$visual/backgrounds/showcase.png" \
+        "$visual/menus/default.png"; do
+        mkdir -p "$(dirname "$surface")"
+        cp -f "$applied_art" "$surface"
+      done
+      log_info "Applied discovered artwork to Aurora boot, desktop, showcase, and menu surfaces."
+    else
+      log_warning "Selected artwork could not be normalized to PNG; retaining generated Aurora surfaces."
+    fi
   fi
 
   # Stage every boot/menu screen explicitly. GRUB/Jasper/Spit Fire only consume
