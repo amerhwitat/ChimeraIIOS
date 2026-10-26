@@ -19,7 +19,10 @@ import socket
 import subprocess
 import time
 
-TARGETS = {"live": 0, "installer": 2, "recovery": 5}
+# Indices are for the top-level GRUB menu. The visible Repair Terminal / Recovery
+# entry opens a nested config and is not itself a boot target. The top-level
+# Diagnostics entry (index 8) directly loads the recovery initramfs.
+TARGETS = {"live": 0, "installer": 2, "recovery": 8}
 COMPONENTS = {
     "live": "aurora-session",
     "installer": "install-executor",
