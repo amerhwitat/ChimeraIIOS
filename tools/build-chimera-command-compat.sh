@@ -453,6 +453,10 @@ format="$(detect_format "$file")"
 case "$format" in
 
     ELF)
+        if [[ -n "${CHIMERA_LINUX_RUNTIME:-}" ]] &&
+           command -v "${CHIMERA_LINUX_RUNTIME}" >/dev/null 2>&1; then
+            exec "${CHIMERA_LINUX_RUNTIME}" "$file" "${@:2}"
+        fi
         exec "$file" "${@:2}"
         ;;
 
@@ -617,7 +621,8 @@ run_native() {
     # Compatibility fallback is only used when the executable is missing or
     # the OS explicitly reports that it cannot be loaded. Ordinary command
     # failures (including nonzero application exit codes) are preserved.
-    if command -v "$command" >/dev/null 2>&1; then
+    if command -v "$command" >/dev/null 2>&1 &&
+       "$(command -v "$command")" != "$candidate"; then
         echo "chimera: native launch failed; retrying through POSIX compatibility: $command" >&2
         run_compat linux "$command" "$@"
         return $?
