@@ -37,7 +37,7 @@ class ProductionQemuMatrixContract(unittest.TestCase):
         import re
 
         grub = (ROOT / "boot/iso/grub.cfg").read_text()
-        ids = re.findall(r'^menuentry ".*?" --id ([A-Za-z0-9_-]+) \\{', grub, re.M)
+        ids = re.findall(r'^menuentry ".*?" --id ([A-Za-z0-9_-]+) \{', grub, re.M)
         self.assertEqual(ids[0], "aurora-live")
         self.assertEqual(ids[2], "install")
         self.assertEqual(ids[5], "recovery")  # nested menu; do not select for matrix
