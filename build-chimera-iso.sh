@@ -641,19 +641,19 @@ prepare_branding(){
     dest="$artwork_stage/$rel"
     mkdir -p "$(dirname "$dest")"
     if cp -p -- "$asset" "$dest"; then
-      printf '%s\\n' "$rel" >> "$artwork_manifest"
+      printf '%s\n' "$rel" >> "$artwork_manifest"
       case "$(basename "$asset" | tr '[:upper:]' '[:lower:]')" in
         duck-ai-image-2026-10-18-06-36.jpeg)
           preferred_wallpaper="$dest"
           ;;
       esac
     fi
-  done < <(find "$SCRIPT_DIR" \\
-    \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \\
+  done < <(find "$SCRIPT_DIR" \
+    \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \
     \( -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.gif' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.svg' -o -iname '*.avif' \) -print0 \) 2>/dev/null)
   if [[ -s "$artwork_manifest" ]]; then
     log_info "Discovered $(wc -l < "$artwork_manifest" | tr -d ' ') artwork files recursively."
-    mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork" \\
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork" \
              "$ISO_DIR/desktop/aurora/assets/library/repository-artwork"
     cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork/"
     cp -a "$artwork_stage/." "$ISO_DIR/desktop/aurora/assets/library/repository-artwork/"
@@ -679,8 +679,8 @@ prepare_branding(){
           break
           ;;
       esac
-    done < <(find "$SCRIPT_DIR" \\
-      \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \\
+    done < <(find "$SCRIPT_DIR" \
+      \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \
       \( -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.avif' \) -print0 \) 2>/dev/null)
   fi
   if [[ -n "$discovered_wallpaper" && -s "$discovered_wallpaper" ]]; then
