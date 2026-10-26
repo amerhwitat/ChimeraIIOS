@@ -26,7 +26,9 @@ if compile_line is None or compile_line + 1 >= len(lines):
 if lines[compile_line + 1].strip() != '"$BUILD/block-device-iso9660-test"':
     print("FAIL: ISO9660 test executable must run as a separate shell command", file=sys.stderr)
     raise SystemExit(1)
-if "sources=(block_device iso9660 " not in source:
+sources_match = __import__("re").search(r"(?m)^sources=\(([^)]*)\)", source)
+source_objects = set(sources_match.group(1).split()) if sources_match else set()
+if not {"block_device", "iso9660"}.issubset(source_objects):
     print("FAIL: block-device and ISO9660 objects are not part of the kernel build", file=sys.stderr)
     raise SystemExit(1)
 
