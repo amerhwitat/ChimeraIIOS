@@ -60,9 +60,9 @@ jobs:
       - name: Embed all artwork and package built ELF/EFI payloads
         run: |
           set -euo pipefail
-          python3 tools/package_os_assets.py --root . --output build/os-asset-bundle --binary-root build/boot-artifacts --require-elf --require-efi
+          python3 tools/package_os_assets.py --root . --output build/os-asset-bundle --binary-root build/boot-artifacts --command-root . --command-root build/boot-artifacts --require-elf --require-efi --require-commands
           python3 - <<'PY'
-          import json
+          import json, hashlib
           from pathlib import Path
           p=Path("build/os-asset-bundle")
           a=json.loads((p/"embedded-artwork.json").read_text())
