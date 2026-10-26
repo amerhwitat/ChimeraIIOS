@@ -650,23 +650,28 @@ prepare_branding(){
     fi
   done < <(find "$SCRIPT_DIR" \
     \( -type d \( -name .git -o -name .github -o -name node_modules -o -name vendor -o -name build -o -name dist -o -name target -o -name .venv -o -name __pycache__ \) -prune \) -o \
-    \( -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.gif' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.svg' -o -iname '*.avif' \) -print0 \) 2>/dev/null)
+    \( -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.gif' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.svg' -o -iname '*.avif' -o -iname '*.heic' -o -iname '*.heif' -o -iname '*.jxl' -o -iname '*.ico' -o -iname '*.icns' \) -print0 \) 2>/dev/null)
   if [[ -s "$artwork_manifest" ]]; then
     log_info "Discovered $(wc -l < "$artwork_manifest" | tr -d ' ') artwork files recursively."
     mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork" \
              "$ISO_DIR/desktop/aurora/assets/library/repository-artwork" \
+             "$ROOTFS_DIR/usr/share/chimera/aurora/branding/artwork-library" \
+             "$ISO_DIR/desktop/aurora/branding/artwork-library" \
              "$ROOTFS_DIR/usr/share/chimera/branding/artwork-library" \
-             "$ISO_DIR/system/branding/artwork-library" \
-             "$ISO_DIR/desktop/aurora/assets/library/repository-artwork"
+             "$ISO_DIR/system/branding/artwork-library"
     # Keep a complete offline copy in the desktop library AND the canonical
     # branding namespace, so boot/installer/desktop consumers never need network
     # access or a particular source-tree layout.
     cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork/"
     cp -a "$artwork_stage/." "$ISO_DIR/desktop/aurora/assets/library/repository-artwork/"
+    cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/aurora/branding/artwork-library/"
+    cp -a "$artwork_stage/." "$ISO_DIR/desktop/aurora/branding/artwork-library/"
     cp -a "$artwork_stage/." "$ROOTFS_DIR/usr/share/chimera/branding/artwork-library/"
     cp -a "$artwork_stage/." "$ISO_DIR/system/branding/artwork-library/"
     cp -f "$artwork_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library/repository-artwork-index.txt"
     cp -f "$artwork_manifest" "$ISO_DIR/desktop/aurora/assets/library/repository-artwork-index.txt"
+    cp -f "$artwork_manifest" "$ROOTFS_DIR/usr/share/chimera/aurora/branding/artwork-index.txt"
+    cp -f "$artwork_manifest" "$ISO_DIR/desktop/aurora/branding/artwork-index.txt"
     cp -f "$artwork_manifest" "$ROOTFS_DIR/usr/share/chimera/branding/artwork-index.txt"
     cp -f "$artwork_manifest" "$ISO_DIR/system/branding/artwork-index.txt"
     # Record hashes for reproducible offline auditing and detect damaged assets.
@@ -675,6 +680,10 @@ prepare_branding(){
         > "$ISO_DIR/system/branding/artwork-sha256.txt"
       cp -f "$ISO_DIR/system/branding/artwork-sha256.txt" \
         "$ROOTFS_DIR/usr/share/chimera/branding/artwork-sha256.txt"
+      cp -f "$ISO_DIR/system/branding/artwork-sha256.txt" \
+        "$ROOTFS_DIR/usr/share/chimera/aurora/branding/artwork-sha256.txt"
+      cp -f "$ISO_DIR/system/branding/artwork-sha256.txt" \
+        "$ISO_DIR/desktop/aurora/branding/artwork-sha256.txt"
     fi
   else
     log_warning "No raster/SVG artwork files found by recursive scan; generated Aurora artwork remains the fallback."
