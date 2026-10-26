@@ -87,6 +87,8 @@ def main() -> int:
         for path in sorted(base.rglob("*")):
             if not path.is_file() or out == path or out in path.parents:
                 continue
+            if any(part in {"offline-assets", "os-asset-bundle"} for part in path.parts):
+                continue
             try:
                 raw = path.read_bytes()
             except OSError:
