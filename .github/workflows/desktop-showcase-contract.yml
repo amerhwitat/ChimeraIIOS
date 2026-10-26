@@ -1,0 +1,25 @@
+name: Desktop showcase contract tests
+on:
+  push:
+    paths:
+      - 'desktop/showcase/**'
+      - 'tests/desktop/**'
+      - '.github/workflows/desktop-showcase-contract.yml'
+  pull_request:
+    paths:
+      - 'desktop/showcase/**'
+      - 'tests/desktop/**'
+      - '.github/workflows/desktop-showcase-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-showcase-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run desktop showcase contract tests
+        run: python -m unittest discover -s tests/desktop -v
