@@ -595,7 +595,7 @@ run_native() {
         status=0
         "$candidate" "$@" 2>"$stderr_file" || status=$?
         if [[ $status -ne 126 && $status -ne 127 ]] ||
-           ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found' "$stderr_file"; then
+           ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found|error while loading shared libraries|wrong ELF class|symbol lookup error|cannot open shared object' "$stderr_file"; then
             cat "$stderr_file" >&2
             rm -f "$stderr_file"
             return "$status"
