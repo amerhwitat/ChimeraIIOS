@@ -73,6 +73,34 @@ class WallpaperEmbedContract(unittest.TestCase):
             self.assertEqual([entry["sha256"] for entry in manifest["wallpapers"]],
                              [hashlib.sha256(data).hexdigest() for data in expected_bytes.values()])
 
+    def test_related_checked_in_artwork_is_used_when_originals_are_absent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "Aurora-Wayland-Glass-Desktop.png(1).jpg").write_bytes(fake_jpeg(1600, 900))
+            (root / "Aurora Wayland Desktop Showcase.png").write_bytes(fake_jpeg(1920, 1080))
+            result = generate_session_branding(root, root / "out.css", root / "out.json")
+            css = (root / "out.css").read_text()
+            manifest = json.loads((root / "out.json").read_text())
+            self.assertIn("data:image/jpeg;base64,", css)
+            self.assertEqual(len(result["wallpapers"]), 2)
+            self.assertTrue(all(entry["related_artwork_fallback"] for entry in manifest["wallpapers"]))
+            self.assertEqual(
+                [entry["file"] for entry in manifest["wallpapers"]],
+                ["Aurora-Wayland-Glass-Desktop.png(1).jpg", "Aurora Wayland Desktop Showcase.png"],
+            )
+            self.assertTrue(all(len(entry["sha256"]) == 64 for entry in manifest["wallpapers"]))
+
+    def test_default_wallpaper_roles_use_related_artwork_when_canonical_files_are_absent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "Aurora Wayland Desktop - boot background.jpg").write_bytes(fake_jpeg(1600, 900))
+            (root / "Aurora Wayland Desktop Showcase.png").write_bytes(fake_jpeg(1920, 1080))
+            result = generate(root, root / "out.css", root / "out.json")
+            manifest = json.loads((root / "out.json").read_text())
+            self.assertEqual(len(result["wallpapers"]), 2)
+            self.assertTrue(all(entry["related_artwork_fallback"] for entry in manifest["wallpapers"]))
+            self.assertEqual([entry["width"] for entry in manifest["wallpapers"]], [1600, 1920])
+
     def test_session_branding_rejects_same_dimensions_with_wrong_original_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -97,7 +125,7 @@ class WallpaperEmbedContract(unittest.TestCase):
             # Leave the first required original absent. A fabricated same-size
             # JPEG is not a missing-file fixture: it must fail the hash check.
             (root / "Duck-ai-image-2026-10-18-06-36.jpeg").write_bytes(fake_jpeg(1672, 941))
-            with self.assertRaisesRegex(FileNotFoundError, "required original JPEG is missing"):
+            with self.assertRaisesRegex(FileNotFoundError, "no source artwork"):
                 generate_session_branding(root, root / "out.css", root / "out.json")
 
     def test_missing_default_source_fails_closed(self):
