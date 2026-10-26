@@ -72,4 +72,4 @@ jobs:
           test -s web/chimera-hub.css
           test ! -e web/amiga-core
           test ! -e web/local-core
-          ! grep -R -E 'puae_libretro|\.so|\.dll|\.dylib' web --include='*.html' --include='*.js' --include='*.css'
+          ! grep -R -E 'puae_libretro|[.]so([^[:alnum:]_]|$)|[.]dll([^[:alnum:]_]|$)|[.]dylib([^[:alnum:]_]|$)' web --include='*.html' --include='*.js' --include='*.css'
