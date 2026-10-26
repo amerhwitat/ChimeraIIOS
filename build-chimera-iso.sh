@@ -1132,7 +1132,10 @@ build_native_iso_pipeline(){
   # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
   local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-4096}"
   [[ "$system_block_size" =~ ^[1-9][0-9]*$ ]] || { log_error "Invalid CHIMERA_SYSTEM_BLOCK_SIZE: $system_block_size"; return 2; }
+  # Pass both the canonical name and the compatibility alias explicitly: the
+  # native ISO builder and its contract verifier must see the same 4 KiB default.
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
+    SYSTEM_BLOCK_SIZE="$system_block_size" \
     CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
