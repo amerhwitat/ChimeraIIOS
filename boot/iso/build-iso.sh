@@ -40,7 +40,7 @@ chimera_copy_if_distinct() {
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # Canonical system block-size contract. Forward this unchanged into the kernel
 # build and all downstream ISO stages; never silently accept malformed values.
-CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-512}}"
+CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
 if [[ ! "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]]; then
   echo "ERROR: CHIMERA_SYSTEM_BLOCK_SIZE must be a positive integer (got: $CHIMERA_SYSTEM_BLOCK_SIZE)" >&2
   exit 2
