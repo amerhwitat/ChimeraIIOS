@@ -43,24 +43,96 @@
       {
         "id": "chimeraAurora",
         "mime": "image/svg+xml",
-        "source": "desktop/aurora/assets/chimera-infinite-research-horizon-3840x2160.svg"
+        "source": "desktop/aurora/assets/chimera-infinite-research-horizon-3840x2160.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
       },
       {
         "id": "octavianAurora",
         "mime": "image/svg+xml",
-        "source": "OctavianOS desktop/aurora/assets/octavian-octopus-aurora.svg"
+        "source": "OctavianOS/desktop/aurora/assets/octavian-octopus-aurora.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
       },
       {
         "id": "marine",
         "mime": "image/svg+xml",
-        "source": "OctavianOS desktop/marine/assets/marine-desktop.svg"
+        "source": "OctavianOS/desktop/marine/assets/marine-desktop.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
       },
       {
         "id": "auroraGlassJpeg",
         "mime": "image/jpeg",
-        "source": "boot/visual/aurora-wayland-glass.jpg.b64"
+        "source": "boot/visual/aurora-wayland-glass.jpg.b64",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "chimeraAuroraDesktop",
+        "mime": "image/svg+xml",
+        "source": "desktop/aurora/assets/aurora-desktop.svg",
+        "browser_consumer": "web/index.html",
+        "integration_status": "browser-consumer-wired"
+      },
+      {
+        "id": "chimeraInstaller",
+        "mime": "image/svg+xml",
+        "source": "desktop/aurora/assets/aurora-installer.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "chimeraLibrary",
+        "mime": "image/svg+xml",
+        "source": "desktop/aurora/assets/aurora-library.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "chimeraWaylandGlassSvg",
+        "mime": "image/svg+xml",
+        "source": "desktop/aurora/assets/aurora-wayland-glass.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "chimeraBootSplash",
+        "mime": "image/svg+xml",
+        "source": "boot/splash/aurora_boot_splash.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "jasperBoot",
+        "mime": "image/svg+xml",
+        "source": "boot/splash/jasper_background.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "spitfireBoot",
+        "mime": "image/svg+xml",
+        "source": "boot/splash/spitfire_background.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "chimeraMobile",
+        "mime": "image/svg+xml",
+        "source": "web/mobile-landing.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
+      },
+      {
+        "id": "chimeraHorizon",
+        "mime": "image/svg+xml",
+        "source": "desktop/aurora/assets/chimera-infinite-research-horizon.svg",
+        "browser_consumer": null,
+        "integration_status": "embedded-bundle-only"
       }
     ],
-    "activation": "Add data-embedded-wallpaper=<asset id> to an img or background container; bundle exports OS_EMBEDDED_ARTWORK and applyOSEmbeddedArtwork."
+    "activation": "Add data-embedded-wallpaper=<asset id> to an img or background container; bundle exports OS_EMBEDDED_ARTWORK and applyOSEmbeddedArtwork.",
+    "consumer_note": "The JS bundle is consumed only by the listed browser preview(s). Embedded boot-stage SVG keys are not a substitute for GRUB/ISO raster staging; native/firmware runtime acceptance remains unverified."
   }
 }
