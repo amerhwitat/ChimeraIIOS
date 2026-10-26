@@ -343,7 +343,7 @@ for line in p.read_text(encoding="utf-8").splitlines():
     if not line or line.startswith("#"):
         rows.append(line)
         continue
-    fields = line.split("\\t")
+    fields = line.split("\t")
     if len(fields) < 5:
         raise SystemExit(f"invalid command registry row: {line!r}")
     name = fields[0]
@@ -357,7 +357,7 @@ for line in p.read_text(encoding="utf-8").splitlines():
         raise SystemExit(
             f"conflicting duplicate command {name!r}: {prior!r} vs {fields!r}"
         )
-p.write_text("\\n".join(rows) + "\\n", encoding="utf-8")
+p.write_text("\n".join(rows) + "\n", encoding="utf-8")
 PY
 
 ###############################################################################
@@ -605,7 +605,7 @@ run_native() {
         status=0
         "$command" "$@" 2>"$stderr_file" || status=$?
         if [[ $status -ne 126 && $status -ne 127 ]] ||
-           ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found' "$stderr_file"; then
+           ! grep -Eiq 'exec format|cannot execute|bad interpreter|no such file|not found|error while loading shared libraries|wrong ELF class|symbol lookup error|cannot open shared object' "$stderr_file"; then
             cat "$stderr_file" >&2
             rm -f "$stderr_file"
             return "$status"
