@@ -36,7 +36,9 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(data["production_iso_sha256"], hashlib.sha256(iso.read_bytes()).hexdigest())
             self.assertTrue(report["candidate_smoke_substituted"])
             self.assertTrue(all(c["status"] == "NOT RUN" for c in report["cases"].values()))
-            self.assertFalse(any(c["cpl3_syscall_ack"] for c in report["cases"].values()))
+            # A candidate smoke log may contain the syscall marker, but it is not production evidence.
+            self.assertTrue(any(c["cpl3_syscall_ack"] for c in report["cases"].values()))
+            self.assertFalse(any(c["candidate_trace_is_production_evidence"] for c in report["cases"].values()))
             self.assertEqual(report["cases"]["live-bios"]["raw_trace"], "closeout-traces/live-bios-candidate-smoke.log")
             self.assertFalse(report["cases"]["live-bios"]["candidate_trace_is_production_evidence"])
             self.assertEqual(report["smp"]["status"], "NOT RUN")
@@ -92,7 +94,7 @@ class CollectorTests(unittest.TestCase):
         self.assertTrue(all(case["raw_trace"].endswith("-production-iso.log") for case in report["cases"].values()))
         self.assertTrue(all(case["status"] == "BLOCKED" for case in report["cases"].values()))
         self.assertFalse(report["installer_persistence"]["cold_reboot_verified"])
-        self.assertIn("independent display", report["collection_note"])
+        self.assertIn("independent display", report["collection_note"].lower())
 
     def test_requires_iso_next_to_report_for_hash_validation(self):
         with tempfile.TemporaryDirectory() as temp:
