@@ -20,7 +20,7 @@ static void build_elf(uint8_t *b, size_t n) {
     put16(b + 16, KORONOS_ET_EXEC);
     put16(b + 18, KORONOS_EM_X86_64);
     put32(b + 20, 1);
-    put64(b + 24, 0x400100);
+    put64(b + 24, 0x100400100);
     put64(b + 32, 64);
     put16(b + 52, 64);
     put16(b + 54, 56);
@@ -28,7 +28,7 @@ static void build_elf(uint8_t *b, size_t n) {
     put32(b + 64, 1);       // PT_LOAD
     put32(b + 68, 5);       // PF_R | PF_X
     put64(b + 72, 0x100);   // file offset
-    put64(b + 80, 0x400100);
+    put64(b + 80, 0x100400100);
     put64(b + 96, 4);
     put64(b + 104, 4096);
     put64(b + 112, 4096);
@@ -50,16 +50,16 @@ int main() {
     chimera_process_image admitted{};
     assert(chimera_process_init() == 0);
     int pid = chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
-                                        0x700000, &admitted);
+                                        0x100700000, &admitted);
     assert(pid > 0 && admitted.pid == static_cast<uint32_t>(pid));
     assert(admitted.state == CHIMERA_PROCESS_ADMITTED);
-    assert(admitted.segment_count == 1 && admitted.entry == 0x400100);
+    assert(admitted.segment_count == 1 && admitted.entry == 0x100400100);
 
     // An entry point in a non-executable PT_LOAD is not a runnable ELF image.
     put32(elf + 68, 6); // PF_R | PF_W
     chimera_process_image rejected{};
     assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
-                                     0x700000, &rejected) < 0);
+                                     0x100700000, &rejected) < 0);
     puts("ELF64 validation/admission: bounds and executable-entry checks passed");
     return 0;
 }
