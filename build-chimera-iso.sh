@@ -24,14 +24,10 @@ fi
 set -Eeuo pipefail
 
 # Canonical system block-size contract shared by every boot and ISO stage.
-# Prefer the canonical variable, then the legacy alias. If neither is supplied
-# (or either is explicitly empty), use 4096 bytes (4 KiB) consistently.
-if [[ -n "${CHIMERA_SYSTEM_BLOCK_SIZE:-}" ]]; then
-  CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
-elif [[ -n "${SYSTEM_BLOCK_SIZE:-}" ]]; then
-  CHIMERA_SYSTEM_BLOCK_SIZE="$SYSTEM_BLOCK_SIZE"
-else
-  CHIMERA_SYSTEM_BLOCK_SIZE=4096
+# Default to 4096 bytes (4 KiB); honor an explicit canonical value or legacy
+# alias only when the caller supplies one.
+CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
+if [[ "${CHIMERA_SYSTEM_BLOCK_SIZE}" == "4096" && -z "${SYSTEM_BLOCK_SIZE:-}" && -z "${CHIMERA_SYSTEM_BLOCK_SIZE+x}" ]]; then
   printf '[INFO] No system block size supplied; defaulting to 4096 bytes (4 KiB).\n'
 fi
 if [[ ! "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]]; then
