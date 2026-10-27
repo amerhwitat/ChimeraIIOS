@@ -24,14 +24,23 @@ fi
 set -Eeuo pipefail
 
 # Canonical system block-size contract shared by every boot and ISO stage.
-# Preserve an explicit caller value, accept the legacy SYSTEM_BLOCK_SIZE alias,
-# and reject malformed values before any artifacts are built.
-CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
+# Prefer the canonical variable, then the legacy alias. If neither is supplied
+# (or either is explicitly empty), use 4096 bytes (4 KiB) consistently.
+if [[ -n "${CHIMERA_SYSTEM_BLOCK_SIZE:-}" ]]; then
+  CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
+elif [[ -n "${SYSTEM_BLOCK_SIZE:-}" ]]; then
+  CHIMERA_SYSTEM_BLOCK_SIZE="$SYSTEM_BLOCK_SIZE"
+else
+  CHIMERA_SYSTEM_BLOCK_SIZE=4096
+  printf '[INFO] No system block size supplied; defaulting to 4096 bytes (4 KiB).\n'
+fi
 if [[ ! "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]]; then
   printf '[ERROR] CHIMERA_SYSTEM_BLOCK_SIZE must be a positive integer (got: %s)\n' "$CHIMERA_SYSTEM_BLOCK_SIZE" >&2
   exit 2
 fi
-export CHIMERA_SYSTEM_BLOCK_SIZE SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
+# Export both names so all downstream scripts and legacy contract checks agree.
+SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
+export CHIMERA_SYSTEM_BLOCK_SIZE SYSTEM_BLOCK_SIZE
 
 # CHIMERA_ROOTFS_EXPORT_V3
 chimera_export_docker_rootfs() {
