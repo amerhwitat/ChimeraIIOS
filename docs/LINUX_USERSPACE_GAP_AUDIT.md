@@ -47,3 +47,37 @@ For each target `live`, `installer`, and `recovery`:
 ## Linux compatibility statement
 
 Until the ABI, process lifecycle, VFS, IPC, device, networking and runtime tests above pass, describe ChimeraIIOS as a native experimental OS with partial Linux-inspired interfaces—not as a Linux userspace replacement. Do not weaken release gates to make the matrix green.
+
+
+## systemd comparison: what “services, modules, and targets” actually means
+
+Linux and systemd divide responsibilities across layers:
+
+- **Linux kernel:** processes/threads, virtual memory, scheduler, syscalls, VFS, devices, networking and security primitives. The kernel does not itself implement systemd targets.
+- **PID 1 / systemd manager:** parses unit files, builds a dependency graph, schedules jobs, launches processes, tracks exit/health state, restarts according to policy, handles ordering/conflicts, and coordinates shutdown.
+- **Units:** `.service` processes, `.socket` activation, `.mount`/ `.automount`, `.device`, `.timer`, `.path`, `.slice`, `.scope`, and `.target` aggregation/synchronization. Kernel modules are generally loaded by userspace tooling (such as `modprobe`) and are not synonymous with systemd service units.
+- **Targets:** named synchronization points / groups of units, e.g. `multi-user.target` and `graphical.target`. A target is not an executable and is not “ready” merely because its name was registered.
+- **Health and failure:** process exit state and service-specific readiness checks are distinct. `active (exited)` can be valid for oneshot units, but must not be generalized into proof that a long-running daemon is healthy.
+
+Koronos should adopt the same separation of concerns without pretending to implement systemd's full unit compatibility:
+
+1. Kernel primitives must provide real process creation/exec/exit/reap, scheduling, address spaces, syscalls, VFS and device interfaces.
+2. A userspace init/service manager owns the service graph and starts real process images. A registry entry is metadata, not a process.
+3. Service descriptors should declare stable ID, executable/module path, arguments, dependencies, target membership, criticality, restart policy, readiness probe, shutdown policy and resource/security constraints.
+4. The manager validates the full graph (unknown/self/duplicate dependencies and cycles), resolves ordering, starts dependencies before dependents, checks readiness, and rolls back newly started services when a critical dependency fails.
+5. Runtime state transitions must be driven by observed process and health events: DECLARED → BLOCKED/STARTING → RUNNING only after successful launch and readiness; then STOPPING/STOPPED, or FAILED/RECOVERING according to policy. Never set RUNNING from registration alone.
+6. Targets should aggregate required services and declare explicit postconditions. `live.target`, `installer.target`, `recovery.target`, and `graphical.target` are proposed Koronos concepts, not claims of existing implementation.
+7. “Module” must be unambiguous: a Multiboot2 boot module, a loadable kernel module/driver, and a userspace service executable are different object types with separate validation and lifecycles.
+8. Add manager tests for dependency order/cycles, launch failures, readiness timeout, unexpected exit/restart budget, shutdown ordering, duplicate instances, and critical-service rollback.
+
+## Proposed Koronos service/target contract (design, not implemented behavior)
+
+- `koronos-init` is the real PID 1 userspace executable; it must execute through the supported user-mode entry path.
+- A target manifest binds a target ID to a validated set of service descriptors and required health postconditions.
+- A service is READY only when its actual process identity is tracked and its configured readiness check passes.
+- A target is READY only when every required service is READY and target-level postconditions pass.
+- Logs include monotonic timestamps, target/service IDs, PID, state transition, exit status, restart count and failure reason.
+- Missing executable, invalid manifest, cyclic dependency, failed required service, timeout, or missing display/storage capability prevents target readiness and returns a diagnostic failure.
+- Service manager unit tests are necessary but insufficient: the release verifier must also observe these transitions in the booted candidate ISO.
+
+This is a design recommendation. The current registry/plan code must not be represented as a complete systemd-equivalent service manager until process launch, health monitoring, restart/shutdown, and target postconditions are implemented and tested.
