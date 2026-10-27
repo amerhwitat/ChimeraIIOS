@@ -44,8 +44,12 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
 
     switch (id.canonical) {
         case CHM_SYS_GETPID:
-            *return_value = 1u;
-            return 0;
+            /* This compatibility dispatcher has no active process context.
+             * Never fabricate PID 1: GETPID is supported only through the
+             * process-bound native syscall path. */
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_YIELD:
             chimera_sched_yield();
             *return_value = 0;
@@ -55,11 +59,13 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
             return 0;
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
-            /* Process teardown is deliberately owned by the process manager;
-             * this early dispatcher only acknowledges the semantic operation. */
+            /* A semantic translation is not process teardown. This dispatcher
+             * has no caller identity or lifecycle hook, so report ENOSYS until
+             * the process-bound native entry can terminate the actual caller. */
             (void)args;
-            *return_value = 0;
-            return 0;
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         default:
             ++g_rejected;
             *return_value = error_value();
