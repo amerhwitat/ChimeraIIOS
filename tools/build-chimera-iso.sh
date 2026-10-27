@@ -19,6 +19,21 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
+
+# Public system block-size contract for the primary ISO builder.
+# Default to 4096 bytes (4 KiB), accept the legacy alias, validate once,
+# then export both names to every downstream build stage.
+if [[ -z "${CHIMERA_SYSTEM_BLOCK_SIZE:-}" && -z "${SYSTEM_BLOCK_SIZE:-}" ]]; then
+  printf '[INFO] No system block size supplied; defaulting to 4096 bytes (4 KiB).\n'
+fi
+CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
+[[ "$CHIMERA_SYSTEM_BLOCK_SIZE" =~ ^[1-9][0-9]*$ ]] || {
+  printf '[ERROR] CHIMERA_SYSTEM_BLOCK_SIZE must be a positive integer (got: %s)\n' "$CHIMERA_SYSTEM_BLOCK_SIZE" >&2
+  exit 2
+}
+SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE"
+export CHIMERA_SYSTEM_BLOCK_SIZE SYSTEM_BLOCK_SIZE
+printf '[INFO] ISO build system block size: %s bytes\n' "$CHIMERA_SYSTEM_BLOCK_SIZE"
 LOG_DIR="$ROOT/build/logs"
 mkdir -p "$LOG_DIR"
 LOG="$LOG_DIR/chimera-iso-build.log"
@@ -105,7 +120,7 @@ done
 "$ROOT/tools/build-desktop-binaries.sh"
 "$ROOT/tools/build-live-boot-binaries.sh"
 say ISO "Generating BIOS/UEFI ISO"
-"$ROOT/boot/iso/build-iso.sh"
+CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" "$ROOT/boot/iso/build-iso.sh"
 FINAL="$ROOT/boot/iso/dist/output.iso"
 TARGET="$ROOT/build/iso/chimera-ii-os.iso"
 [ -s "$FINAL" ] || die "ISO not produced: $FINAL"
