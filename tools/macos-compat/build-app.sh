@@ -25,15 +25,18 @@ case "$profile" in
     command -v gnustep-config >/dev/null || { echo "ERROR: GNUstep is required for Foundation-style portable apps. Install GNUstep Base development packages for this host." >&2; exit 5; }
     objc_include="$(gcc -print-file-name=include 2>/dev/null || true)"
     [[ -f "$objc_include/objc/objc.h" ]] || { echo "ERROR: Objective-C runtime headers not found; install the host GNU Objective-C compiler development package." >&2; exit 6; }
+    objc_library="$(gcc -print-file-name=libobjc.so 2>/dev/null || true)"
+    [[ -f "$objc_library" ]] || { echo "ERROR: Objective-C runtime linker library not found; install the host libobjc development package." >&2; exit 7; }
+    objc_library_dir="$(dirname "$objc_library")"
     case "$source" in
       *.m)
-        # GNUstep flags come from the trusted local tool; Clang needs GCC's Objective-C runtime include path on Ubuntu.
+        # GNUstep flags come from the trusted local tool; Clang needs GCC's Objective-C include and library paths on Ubuntu.
         # shellcheck disable=SC2046
-        clang -I"$objc_include" $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
+        clang -I"$objc_include" -L"$objc_library_dir" $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
         ;;
       *.mm)
         # shellcheck disable=SC2046
-        clang++ -I"$objc_include" $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
+        clang++ -I"$objc_include" -L"$objc_library_dir" $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
         ;;
       *.c|*.cpp) clang "$source" -o "$output" ;;
       *) echo "ERROR: unsupported source extension: $source" >&2; exit 65 ;;
