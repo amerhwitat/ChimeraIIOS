@@ -28,5 +28,5 @@ if [[ "$mode" == "portable" ]]; then
   echo "PORTABLE_TOOLCHAIN_READY=1"
   exit 0
 fi
-if [[ "$host" == "Darwin" ]]; then exec "$0" apple-sdk; fi
-exec "$0" portable
+if [[ "$host" == "Darwin" ]]; then exec bash "$0" apple-sdk; fi
+exec bash "$0" portable
