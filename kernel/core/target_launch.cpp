@@ -88,7 +88,7 @@ static bool parse_target_pid_line(const char *bytes, uint64_t length, const char
             ++k; ++digits;
         }
         if (digits && parsed == pid &&
-            (k == length || bytes[k] == '\\n' || bytes[k] == '\\r' || bytes[k] == ' ')) return true;
+            (k == length || bytes[k] == '\n' || bytes[k] == '\\r' || bytes[k] == ' ')) return true;
     }
     return false;
 }
