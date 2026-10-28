@@ -20,25 +20,25 @@ References: [Apple Xcode and SDK agreement](https://www.apple.com/legal/sla/docs
 Check the host and available toolchain:
 
 ```sh
-tools/macos-compat/check-sdk.sh auto
+bash tools/macos-compat/check-sdk.sh auto
 ```
 
 Build on licensed macOS hardware:
 
 ```sh
-tools/macos-compat/build-app.sh apple-macos src/main.m build/macos/my-app
+bash tools/macos-compat/build-app.sh apple-macos src/main.m build/macos/my-app
 ```
 
 Build a portable Foundation-style Objective-C app on a GNUstep-enabled host:
 
 ```sh
-tools/macos-compat/build-app.sh portable-gnustep src/main.m build/portable/my-app
+bash tools/macos-compat/build-app.sh portable-gnustep src/main.m build/portable/my-app
 ```
 
 Run a compatible native/portable application:
 
 ```sh
-tools/macos-compat/run-app.sh build/portable/my-app [arguments...]
+bash tools/macos-compat/run-app.sh build/portable/my-app [arguments...]
 ```
 
 A successful compile is not proof that the app runs on ChimeraIIOS or OctavianOS. The kernel/runtime must provide the needed executable format, syscalls, libraries, GUI APIs, graphics/input integration, and security semantics. The current wrapper does not implement Darwin syscalls, Mach-O loading, Cocoa/AppKit, Metal, CoreGraphics, launch services, code signing, or macOS sandbox semantics. It refuses Mach-O binaries instead of falsely reporting compatibility.
