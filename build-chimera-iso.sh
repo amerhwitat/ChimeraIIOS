@@ -1234,7 +1234,38 @@ EOF
   log_success "Native installer initramfs created: $ISO_DIR/install/installer/installation.img"
 }
 
+# Native Koronos boot contract: the SquashFS rootfs is an application/runtime payload,
+# not the boot device. Do not require a Linux vmlinuz/initrd inside the exported
+# container rootfs; GRUB loads Koronos and supplies the live initramfs as a module.
+verify_native_boot_inputs(){
+  local required
+  local inputs=(
+    "$ISO_DIR/boot/koronos/koronos.elf"
+    "$ISO_DIR/boot/live/chimera-live-initramfs.img"
+    "$ISO_DIR/boot/live/live-manifest.json"
+    "$ISO_DIR/boot/grub/grub.cfg"
+    "$ISO_DIR/EFI/BOOT/BOOTX64.EFI"
+  )
+  for required in "${inputs[@]}"; do
+    if [[ ! -s "$required" ]]; then
+      log_error "Native boot input is missing before SquashFS stage: $required"
+      log_error "Build Koronos/live-boot/UEFI artifacts first; rootfs/boot/vmlinuz is not the native boot contract."
+      return 1
+    fi
+  done
+  grep -Fq 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || {
+    log_error "GRUB configuration does not select the native Koronos ELF via Multiboot2."
+    return 1
+  }
+  grep -Fq 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || {
+    log_error "GRUB configuration does not pass the live initramfs to Koronos."
+    return 1
+  }
+  log_info "Native boot inputs verified; SquashFS remains the app/runtime rootfs payload."
+}
+
 build_squashfs(){
+  verify_native_boot_inputs || return 1
   header 'STEP 8: BUILD ROOTFS SQUASHFS'
   [[ -d "$ROOTFS_DIR" ]] || { log_error "SquashFS source rootfs is missing: $ROOTFS_DIR"; exit 1; }
   mkdir -p "$ISO_DIR/live" "$ISO_TMP_DIR" "$LOG_DIR"
