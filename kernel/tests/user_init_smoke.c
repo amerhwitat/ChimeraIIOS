@@ -63,6 +63,29 @@ __attribute__((noreturn, used)) void _start(void) {
     while (digits) ready_message[used++] = reversed[--digits];
     ready_message[used++] = '\n';
 
+    /* Probe-only diagnostic: report the real GETPID return before readiness. */
+    char pid_message[96];
+    const char pid_prefix[] = "NATIVE INIT PID: target=" CHIMERA_TARGET_NAME " pid=";
+    size_t pid_used = 0;
+    for (size_t i = 0; i < sizeof(pid_prefix) - 1u; ++i)
+        pid_message[pid_used++] = pid_prefix[i];
+    char pid_reversed[20];
+    size_t pid_digits = 0;
+    unsigned long diagnostic_pid = (unsigned long)number;
+    while (diagnostic_pid && pid_digits < sizeof(pid_reversed)) {
+        pid_reversed[pid_digits++] = (char)('0' + (diagnostic_pid % 10u));
+        diagnostic_pid /= 10u;
+    }
+    while (pid_digits) pid_message[pid_used++] = pid_reversed[--pid_digits];
+    pid_message[pid_used++] = '\\n';
+    register long pid_write_number __asm__("rax") = 9;
+    register long pid_write_fd __asm__("rdi") = 1;
+    register const char *pid_write_buffer __asm__("rsi") = pid_message;
+    register long pid_write_length __asm__("rdx") = (long)pid_used;
+    __asm__ volatile("syscall"
+                     : "+a"(pid_write_number)
+                     : "D"(pid_write_fd), "S"(pid_write_buffer), "d"(pid_write_length)
+                     : "rcx", "r11", "memory");
     number = 9; /* CHM_SYS_WRITE */
     register long fd __asm__("rdi") = 1;
     register const char *buffer __asm__("rsi") = ready_message;
