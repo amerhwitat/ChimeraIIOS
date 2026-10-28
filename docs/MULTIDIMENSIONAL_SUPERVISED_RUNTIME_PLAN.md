@@ -85,3 +85,21 @@ For neural/tensor workers, supervise separately from the kernel. Use bounded que
 - Are tensor/graph workers isolated from kernel privilege and bounded against malformed shapes, runaway contractions and queue exhaustion?
 
 A question is not a pass. Each answer must point to source, executable test and runtime evidence. Do not infer completion from source presence, a successful compile, a generated catalog, or a boot banner.
+
+
+## 7. Repository reconciliation snapshot (2026-10-28)
+
+The research branch is currently three commits ahead of `main` and zero commits behind in each repository; the diff from `main` is only the two research files listed in its PR. This makes it safe to review the research branch as an isolated addition, but it is not a reconciliation of the production runtime.
+
+The following existing branches were found and compared against each repository's `main`:
+
+- ChimeraIIOS `feat/service-lifecycle-linux-parity-main-20261020`: diverged (22 commits ahead, 44 behind); touches `kernel/build-koronos.sh`, `kernel/core/koronos.cpp`, `kernel/core/multiboot_modules.cpp`, `kernel/core/service.cpp`, service headers and tests.
+- ChimeraIIOS `feat/koronos-userspace-handoff-acceptance`: diverged (2 ahead, 215 behind); contains handoff verifier/tests.
+- OctavianOS `fix/koronos-production-process-runtime-2026-10-28`: 16 commits ahead, 0 behind; includes vendored process, syscall and target-launch sources, a userspace handoff verifier test and a six-case acceptance workflow.
+- OctavianOS `fix/koronos-runtime-vfs-integration-2026-10-28`: diverged (203 ahead, 26 behind); includes broad vendored kernel/build/boot changes.
+- OctavianOS `fix/koronos-production-vfs-syscalls`: diverged (175 ahead, 26 behind).
+- OctavianOS `fix/koronos-smp-fail-closed`: diverged (5 ahead, 71 behind).
+
+Do not merge any of the diverged branches wholesale. They need a file-by-file reconciliation against the current base, tests and release policy; commit counts do not establish correctness. The OctavianOS process-runtime branch is a more tractable review candidate because it is directly ahead of main, but its CI status and runtime evidence must still be checked. Its existence is not proof that all six target/firmware combinations pass.
+
+The current environment cannot access the user's local WSL path `/mnt/c/tmp/ChimeraIIOS`. Thus this snapshot describes remote GitHub refs only and cannot claim local uncommitted changes were reconciled or preserved by an actual local operation.
