@@ -21,12 +21,12 @@ class MacOSCompatibilityContract(unittest.TestCase):
         # The current CI runners are Linux; don't access or install Apple's SDK here.
         if subprocess.check_output(["uname", "-s"], text=True).strip() == "Darwin":
             self.skipTest("Apple-host behavior is validated by the native macOS runner")
-        p = subprocess.run([str(CHECK), "apple-sdk"], text=True, capture_output=True)
+        p = subprocess.run(["bash", str(CHECK), "apple-sdk"], text=True, capture_output=True)
         self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
         self.assertIn("Apple-branded macOS", p.stderr)
 
     def test_unknown_build_profile_fails_closed(self):
-        p = subprocess.run([str(BUILD), "unknown", "missing.c", "/tmp/out"], text=True, capture_output=True)
+        p = subprocess.run(["bash", str(BUILD), "unknown", "missing.c", "/tmp/out"], text=True, capture_output=True)
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("unknown profile", p.stderr)
 
