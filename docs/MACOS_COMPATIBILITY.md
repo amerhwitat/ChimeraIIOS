@@ -19,7 +19,7 @@ bash tools/macos-compat/install-sdk.sh check
 bash tools/macos-compat/check-sdk.sh apple-sdk
 ```
 
-The `install` mode invokes `xcode-select --install` and then exits for the user to complete Apple's interactive installation and license prompts.
+The `install` mode invokes `xcode-select --install` and then exits for the user to complete Apple's interactive installation and license prompts. The installer returns status `10` to indicate that the interactive handoff needs user completion; this is not a verified SDK-ready result. After the install finishes, rerun the `check` command.
 For the integrated Chimera ISO builder, the equivalent opt-in entry point is `bash build-chimera-iso.sh --install-macos-sdk`; it performs the host-toolchain request and exits without building an ISO. It does not bypass the agreement or claim the SDK is ready until a later check finds both `xcrun` and a valid macOS SDK. If full Xcode is installed, select it using Xcode's Locations settings or `xcode-select --switch /Applications/Xcode.app/Contents/Developer` (adjust the path to the actual installation).
 
 On Linux/Windows, the install command fails closed with an explanation. Install the portable GNUstep toolchain through the host package manager instead; GNUstep is not the Apple macOS SDK. ISO builds do not need Apple SDK contents.
