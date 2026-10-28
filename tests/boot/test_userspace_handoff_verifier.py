@@ -42,6 +42,10 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = READY.format(target="live", pid=1) + ENTRY.format(target="live", pid=1) + KERNEL
         self.assertEqual(run("live", trace).returncode, 1)
 
+    def test_rejects_stale_readiness_format_not_emitted_by_init(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=1) + "USERSPACE READY: target=live init_pid=1\\n"
+        self.assertEqual(run("live", trace).returncode, 1)
+
     def test_accepts_live_with_user_originated_syscall_and_matching_pid(self):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
         self.assertEqual(run("live", trace).returncode, 0)
