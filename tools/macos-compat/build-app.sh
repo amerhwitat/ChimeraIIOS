@@ -5,6 +5,7 @@ if [[ $# -lt 3 ]]; then
   exit 64
 fi
 profile="$1"; source="$2"; output="$3"
+case "$profile" in apple-macos|portable-gnustep) ;; *) echo "ERROR: unknown profile." >&2; exit 64 ;; esac
 [[ -f "$source" ]] || { echo "ERROR: source file not found: $source" >&2; exit 66; }
 mkdir -p "$(dirname "$output")"
 case "$profile" in
