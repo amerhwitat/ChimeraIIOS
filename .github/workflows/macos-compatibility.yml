@@ -1,0 +1,39 @@
+name: macOS SDK and compatibility contracts
+on:
+  pull_request:
+    paths:
+      - "tools/macos-compat/**"
+      - "docs/MACOS_COMPATIBILITY.md"
+      - "tests/macos_compat/**"
+      - ".github/workflows/macos-compatibility.yml"
+  push:
+    branches: [main, "feat/perception-cv-bridge-2026-10"]
+    paths:
+      - "tools/macos-compat/**"
+      - "docs/MACOS_COMPATIBILITY.md"
+      - "tests/macos_compat/**"
+      - ".github/workflows/macos-compatibility.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify shell syntax
+        run: bash -n tools/macos-compat/check-sdk.sh tools/macos-compat/build-app.sh tools/macos-compat/run-app.sh
+      - name: Verify script permissions and syntax
+        run: |
+          chmod +x tools/macos-compat/*.sh
+          python3 -m unittest discover -s tests/macos_compat -v
+      - name: Verify license guard
+        run: |
+          if tools/macos-compat/check-sdk.sh apple-sdk; then
+            echo "ERROR: Linux runner unexpectedly accepted Apple SDK profile" >&2
+            exit 1
+          else
+            status=$?
+            test "$status" -eq 2
+          fi
