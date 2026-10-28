@@ -25,7 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify shell syntax
-        run: bash -n tools/macos-compat/check-sdk.sh tools/macos-compat/install-sdk.sh tools/macos-compat/build-app.sh tools/macos-compat/run-app.sh
+        run: |
+          bash -n tools/macos-compat/check-sdk.sh tools/macos-compat/install-sdk.sh tools/macos-compat/build-app.sh tools/macos-compat/run-app.sh
+          for builder in build-chimera-iso.sh vendor/chimera-ii-os/source/build-chimera-iso.sh; do
+            if [[ -f "$builder" ]]; then bash -n "$builder"; fi
+          done
       - name: Install portable Foundation toolchain
         run: |
           sudo apt-get update
