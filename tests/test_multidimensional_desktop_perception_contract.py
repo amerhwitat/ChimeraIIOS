@@ -17,7 +17,7 @@ class PerceptionContract(unittest.TestCase):
 
     def test_capture_is_opt_in_and_revocable(self):
         self.assertIn("Capture disabled until granted", self.text)
-        self.assertIn("permission revocation", self.text.lower())
+        self.assertIn("permission withdrawal", self.text.lower())
         self.assertIn("lock screen", self.text.lower())
 
     def test_worker_is_isolated(self):
