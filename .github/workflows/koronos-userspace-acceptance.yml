@@ -97,6 +97,7 @@ jobs:
           # A healthy test init exits to the kernel, which then idles. Timeout
           # is therefore expected; the marker and clean-exit diagnostics are the
           # acceptance evidence, not the QEMU process exit code.
+          if [ -f "$LOG" ]; then cat "$LOG"; else echo "ERROR: no debugcon trace at $LOG"; fi
           grep -Fq "[KRN ] KORONOS READY" "$LOG"
           # Require a real, nonzero PID supplied by the running probe, not a
           # literal pid=1 baked into the image or a kernel-authored marker.
