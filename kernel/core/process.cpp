@@ -13,11 +13,13 @@ constexpr uint32_t PT_LOAD = 1, PF_W = 2, PF_X = 1;
 
 struct Slot {
     chimera_process_image image{};
+    chimera_process_runtime runtime{};
     bool used = false;
 };
 
 Slot slots[CHIMERA_PROCESS_MAX];
-uint32_t next_pid = 1, count = 0;
+uint64_t next_pid = 1;
+uint32_t count = 0;
 
 static bool add_ok(uint64_t a, uint64_t b, uint64_t *out) {
     if (a > UINT64_MAX - b) return false;
@@ -104,8 +106,10 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (!slots[i].used) {
-            p.pid = next_pid++;
-            if (!next_pid) next_pid = 1;
+            /* PIDs are never wrapped or reused until a real reap/reuse
+             * protocol exists. Exhaustion is a hard admission failure. */
+            if (next_pid == 0 || next_pid > 0x7FFFFFFFu) return -10;
+            p.pid = static_cast<uint32_t>(next_pid++);
             p.state = CHIMERA_PROCESS_ADMITTED;
             slots[i].image = p;
             slots[i].used = true;
@@ -134,6 +138,26 @@ extern "C" int chimera_process_set_state(uint32_t pid,
         state > CHIMERA_PROCESS_FAULTED) return -1;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
         if (slots[i].used && slots[i].image.pid == pid) {
+            const chimera_process_state current = static_cast<chimera_process_state>(slots[i].image.state);
+            const bool terminal = current == CHIMERA_PROCESS_EXITED || current == CHIMERA_PROCESS_FAULTED;
+            if (terminal) return -3;
+            const bool allowed =
+                state == current ||
+                (current == CHIMERA_PROCESS_ADMITTED &&
+                    (state == CHIMERA_PROCESS_READY || state == CHIMERA_PROCESS_RUNNING ||
+                     state == CHIMERA_PROCESS_FAULTED)) ||
+                (current == CHIMERA_PROCESS_READY &&
+                    (state == CHIMERA_PROCESS_RUNNING || state == CHIMERA_PROCESS_FAULTED)) ||
+                (current == CHIMERA_PROCESS_RUNNING &&
+                    (state == CHIMERA_PROCESS_BLOCKED || state == CHIMERA_PROCESS_EXITED ||
+                     state == CHIMERA_PROCESS_FAULTED)) ||
+                (current == CHIMERA_PROCESS_BLOCKED &&
+                    (state == CHIMERA_PROCESS_READY || state == CHIMERA_PROCESS_RUNNING ||
+                     state == CHIMERA_PROCESS_EXITED || state == CHIMERA_PROCESS_FAULTED));
+            if (!allowed) return -4;
+            if (state == CHIMERA_PROCESS_RUNNING && !slots[i].runtime.bound) return -5;
+            if ((state == CHIMERA_PROCESS_EXITED || state == CHIMERA_PROCESS_FAULTED) &&
+                slots[i].runtime.bound) return -6;
             slots[i].image.state = state;
             return 0;
         }
@@ -142,3 +166,56 @@ extern "C" int chimera_process_set_state(uint32_t pid,
 }
 
 extern "C" uint32_t chimera_process_count(void) { return count; }
+extern "C" int chimera_process_bind_runtime(uint32_t pid, void *address_space,
+                                                   uint64_t root, uint64_t entry,
+                                                   uint64_t stack_top) {
+    if (!pid || !address_space || !root || (root & (PAGE - 1)) ||
+        entry < 0x0000000100000000ull || entry >= 0x0000800000000000ull ||
+        stack_top < 0x0000000100000000ull || stack_top >= 0x0000800000000000ull ||
+        (stack_top & 0xFu)) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        Slot &slot = slots[i];
+        if (!slot.used || slot.image.pid != pid) continue;
+        if (slot.runtime.bound ||
+            (slot.image.state != CHIMERA_PROCESS_ADMITTED &&
+             slot.image.state != CHIMERA_PROCESS_READY) ||
+            slot.image.entry != entry) return -2;
+        bool executable = false;
+        for (uint32_t j = 0; j < slot.image.segment_count; ++j) {
+            const chimera_elf_load_segment &segment = slot.image.segments[j];
+            uint64_t segment_end = 0;
+            if ((segment.flags & PF_X) &&
+                add_ok(segment.virtual_address, segment.memory_size, &segment_end) &&
+                entry >= segment.virtual_address && entry < segment_end) {
+                executable = true;
+                break;
+            }
+        }
+        if (!executable) return -3;
+        slot.runtime = {address_space, root, entry, stack_top, 1u, 0u};
+        return 0;
+    }
+    return -4;
+}
+
+extern "C" int chimera_process_get_runtime(uint32_t pid, chimera_process_runtime *out) {
+    if (!pid || !out) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        if (slots[i].used && slots[i].image.pid == pid) {
+            *out = slots[i].runtime;
+            return 0;
+        }
+    }
+    return -2;
+}
+
+extern "C" int chimera_process_unbind_runtime(uint32_t pid) {
+    if (!pid) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        if (slots[i].used && slots[i].image.pid == pid) {
+            slots[i].runtime = {};
+            return 0;
+        }
+    }
+    return -2;
+}

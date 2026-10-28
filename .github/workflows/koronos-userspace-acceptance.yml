@@ -97,16 +97,26 @@ jobs:
           # A healthy test init exits to the kernel, which then idles. Timeout
           # is therefore expected; the marker and clean-exit diagnostics are the
           # acceptance evidence, not the QEMU process exit code.
+          if [ -f "$LOG" ]; then cat "$LOG"; else echo "ERROR: no debugcon trace at $LOG"; fi
           grep -Fq "[KRN ] KORONOS READY" "$LOG"
           # Require a real, nonzero PID supplied by the running probe, not a
           # literal pid=1 baked into the image or a kernel-authored marker.
-          ready_line="$(grep -Eo "USERSPACE READY: ${TARGET} init pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
+          ready_line="$(grep -Eo "USERSPACE READY: target=${TARGET} init_pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
           ack_line="$(grep -Eo "USER INIT SYSCALL: target=${TARGET} init_pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
+          pid_line="$(grep -Eo "NATIVE INIT PID: target=${TARGET} pid=[1-9][0-9]*" "$LOG" | tail -n 1)"
           test -n "$ready_line"
           test -n "$ack_line"
+          test -n "$pid_line"
           ready_pid="${ready_line##*=}"
           ack_pid="${ack_line##*=}"
+          diagnostic_pid="${pid_line##*=}"
           test "$ready_pid" = "$ack_pid"
+          test "$ready_pid" = "$diagnostic_pid"
+          ack_line_number="$(grep -nF "$ack_line" "$LOG" | tail -n 1 | cut -d: -f1)"
+          pid_line_number="$(grep -nF "$pid_line" "$LOG" | tail -n 1 | cut -d: -f1)"
+          ready_line_number="$(grep -nF "$ready_line" "$LOG" | tail -n 1 | cut -d: -f1)"
+          test "$ack_line_number" -lt "$pid_line_number"
+          test "$pid_line_number" -lt "$ready_line_number"
           grep -Fq "USERSPACE SYSCALL RETURNED TO RING3" "$LOG"
           grep -Fq "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly" "$LOG"
           grep -Fq "[MM  ] Process page-table self-test passed" "$LOG"
