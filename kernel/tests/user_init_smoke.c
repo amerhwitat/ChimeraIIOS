@@ -77,7 +77,7 @@ __attribute__((noreturn, used)) void _start(void) {
         diagnostic_pid /= 10u;
     }
     while (pid_digits) pid_message[pid_used++] = pid_reversed[--pid_digits];
-    pid_message[pid_used++] = '\\n';
+    pid_message[pid_used++] = '\n';
     register long pid_write_number __asm__("rax") = 9;
     register long pid_write_fd __asm__("rdi") = 1;
     register const char *pid_write_buffer __asm__("rsi") = pid_message;
