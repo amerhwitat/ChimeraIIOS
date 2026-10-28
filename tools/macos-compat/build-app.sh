@@ -5,7 +5,7 @@ if [[ $# -lt 3 ]]; then
   exit 64
 fi
 profile="$1"; source="$2"; output="$3"
-case "$profile" in apple-macos|portable-gnustep) ;; *) echo "ERROR: unknown profile." >&2; exit 64 ;; esac
+case "$profile" in apple-macos|portable-gnustep) ;; *) echo "ERROR: unknown profile '$profile'." >&2; exit 64 ;; esac
 [[ -f "$source" ]] || { echo "ERROR: source file not found: $source" >&2; exit 66; }
 mkdir -p "$(dirname "$output")"
 case "$profile" in
@@ -23,19 +23,21 @@ case "$profile" in
   portable-gnustep)
     command -v clang >/dev/null || { echo "ERROR: clang not found." >&2; exit 4; }
     command -v gnustep-config >/dev/null || { echo "ERROR: GNUstep is required for Foundation-style portable apps. Install GNUstep Base development packages for this host." >&2; exit 5; }
+    objc_include="$(gcc -print-file-name=include 2>/dev/null || true)"
+    [[ -f "$objc_include/objc/objc.h" ]] || { echo "ERROR: Objective-C runtime headers not found; install the host GNU Objective-C compiler development package." >&2; exit 6; }
     case "$source" in
-      *.m) # GNUstep flags are intentionally evaluated as shell words from the trusted local tool.
+      *.m)
+        # GNUstep flags come from the trusted local tool; Clang needs GCC's Objective-C runtime include path on Ubuntu.
         # shellcheck disable=SC2046
-        clang $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
+        clang -I"$objc_include" $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
         ;;
       *.mm)
         # shellcheck disable=SC2046
-        clang++ $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
+        clang++ -I"$objc_include" $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
         ;;
       *.c|*.cpp) clang "$source" -o "$output" ;;
       *) echo "ERROR: unsupported source extension: $source" >&2; exit 65 ;;
     esac
     ;;
-  *) echo "ERROR: unknown profile '$profile'." >&2; exit 64 ;;
 esac
 printf 'BUILD_PROFILE=%s\nOUTPUT=%s\n' "$profile" "$output"
