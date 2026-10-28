@@ -30,9 +30,9 @@ def features(p: Path):
       "size": p.stat().st_size,
       "entropy": round(_entropy(b),4) if b else 0.0,
       "pe": b[:2]==b"MZ",
-      "elf": b[:4]==b"\\x7fELF",
+      "elf": b[:4]==b"\x7fELF",
       "script": p.suffix.lower() in {".ps1",".vbs",".vbe",".js",".jse",".wsf",".hta",".sh",".bat",".cmd"},
-      "double_ext": bool(re.search(r"\\.(pdf|docx?|xlsx?|jpg|png|txt)\\.(exe|scr|com|js|vbs|bat|cmd)$",p.name,re.I)),
+      "double_ext": bool(re.search(r"\.(pdf|docx?|xlsx?|jpg|png|txt)\.(exe|scr|com|js|vbs|bat|cmd)$",p.name,re.I)),
     }
 
 def _entropy(b):
@@ -71,7 +71,14 @@ def scan(path, db=None, yara=True, clamav=True):
             try: os.unlink(rule)
             except OSError: pass
     result["score"]=min(1.0,0.25*len(result["detections"]))
-    if result["detections"]: result["verdict"]="malicious" if result["score"]>=0.5 else "suspicious"
+    # Exact malware signatures and locally trusted threat hashes are high-confidence
+    # detections: do not downgrade them merely because only one rule matched.
+    high_confidence = any(
+        item in {"EICAR-test-signature", "known-malicious-sha256"}
+        for item in result["detections"]
+    )
+    if result["detections"]:
+        result["verdict"] = "malicious" if high_confidence or result["score"] >= 0.5 else "suspicious"
     result["sha256"]=digest
     result["features"]=f
     return result
