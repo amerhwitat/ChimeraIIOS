@@ -28,6 +28,11 @@ jobs:
         run: |
           chmod +x tools/macos-compat/*.sh
           python3 -m unittest discover -s tests/macos_compat -v
+      - name: Compile and execute portable Foundation smoke app
+        run: |
+          bash tools/macos-compat/build-app.sh portable-gnustep tests/macos_compat/hello_foundation.m /tmp/macos-compat-foundation-smoke
+          /tmp/macos-compat-foundation-smoke 2>&1 | tee /tmp/macos-compat-foundation.log
+          grep -q MACOS_COMPAT_SMOKE_OK /tmp/macos-compat-foundation.log
       - name: Verify license guard
         run: |
           if bash tools/macos-compat/check-sdk.sh apple-sdk; then
