@@ -14,7 +14,8 @@ case "$profile" in
     sdk="$(xcrun --sdk macosx --show-sdk-path)"
     [[ -f "$sdk/SDKSettings.plist" ]] || { echo "ERROR: macOS SDK not found; install Xcode Command Line Tools." >&2; exit 3; }
     case "$source" in
-      *.m|*.mm) clang -isysroot "$sdk" -mmacosx-version-min="${MACOSX_DEPLOYMENT_TARGET:-12.0}" "$source" -o "$output" ;;
+      *.m) clang -isysroot "$sdk" -mmacosx-version-min="${MACOSX_DEPLOYMENT_TARGET:-12.0}" "$source" -framework Foundation -o "$output" ;;
+      *.mm) clang++ -isysroot "$sdk" -mmacosx-version-min="${MACOSX_DEPLOYMENT_TARGET:-12.0}" "$source" -framework Foundation -o "$output" ;;
       *.c|*.cpp) clang -isysroot "$sdk" -mmacosx-version-min="${MACOSX_DEPLOYMENT_TARGET:-12.0}" "$source" -o "$output" ;;
       *) echo "ERROR: unsupported source extension: $source" >&2; exit 65 ;;
     esac
@@ -23,9 +24,13 @@ case "$profile" in
     command -v clang >/dev/null || { echo "ERROR: clang not found." >&2; exit 4; }
     command -v gnustep-config >/dev/null || { echo "ERROR: GNUstep is required for Foundation-style portable apps. Install GNUstep Base development packages for this host." >&2; exit 5; }
     case "$source" in
-      *.m|*.mm) # GNUstep flags are intentionally evaluated as shell words from the trusted local tool.
+      *.m) # GNUstep flags are intentionally evaluated as shell words from the trusted local tool.
         # shellcheck disable=SC2046
         clang $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
+        ;;
+      *.mm)
+        # shellcheck disable=SC2046
+        clang++ $(gnustep-config --objc-flags) "$source" -o "$output" $(gnustep-config --base-libs)
         ;;
       *.c|*.cpp) clang "$source" -o "$output" ;;
       *) echo "ERROR: unsupported source extension: $source" >&2; exit 65 ;;
