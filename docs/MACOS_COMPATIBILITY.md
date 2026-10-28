@@ -9,11 +9,21 @@
 | `portable-posix` | Run a native ELF/portable app with compatibility environment variables | Only the app's existing POSIX/runtime dependencies are supported |
 | `darwin-mach-o` | Run an existing macOS Mach-O executable | NOT IMPLEMENTED / NOT RELEASE-READY; the launcher rejects it unless an explicitly supplied runtime exists |
 
-## Why the SDK is not vendored
+## Install or verify Apple's macOS SDK
 
-Apple's Xcode/SDK terms restrict use of Apple software and SDKs. Do not copy proprietary SDK headers, frameworks, binaries, or SDK archives into either repository, ISO, CI artifact, or public app catalog. On a licensed Apple Mac, install Xcode/Command Line Tools and let `xcrun --sdk macosx --show-sdk-path` locate the SDK locally. The scripts deliberately refuse Apple SDK builds on non-macOS hosts.
+The repository never vendors or downloads Apple SDK files. Use Apple's installer on a compatible Mac:
 
-References: [Apple Xcode and SDK agreement](https://www.apple.com/legal/sla/docs/xcode.pdf), [Apple Developer Program License Agreement](https://developer.apple.com/support/terms/apple-developer-program-license-agreement/).
+```sh
+bash tools/macos-compat/install-sdk.sh install
+bash tools/macos-compat/install-sdk.sh check
+bash tools/macos-compat/check-sdk.sh apple-sdk
+```
+
+The `install` mode invokes `xcode-select --install` and then exits for the user to complete Apple's interactive installation and license prompts. It does not bypass the agreement or claim the SDK is ready until a later check finds both `xcrun` and a valid macOS SDK. If full Xcode is installed, select it using Xcode's Locations settings or `xcode-select --switch /Applications/Xcode.app/Contents/Developer` (adjust the path to the actual installation).
+
+On Linux/Windows, the install command fails closed with an explanation. Install the portable GNUstep toolchain through the host package manager instead; GNUstep is not the Apple macOS SDK. ISO builds do not need Apple SDK contents.
+
+Apple references: [Xcode and Apple SDKs Agreement](https://www.apple.com/legal/sla/docs/xcode.pdf), [installing Xcode Command Line Tools](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools/).
 
 ## Build
 
