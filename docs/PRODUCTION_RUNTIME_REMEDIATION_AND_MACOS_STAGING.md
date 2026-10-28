@@ -58,3 +58,25 @@ The copy is additive and does not remove stale destination files. Review symlink
 ## Completion rule
 
 Mark a stage complete only after its implementation, regression tests, and relevant runtime evidence pass. Record failures honestly and retain the release block until every required acceptance case passes.
+
+
+## Source audit findings (GitHub main snapshot inspected 2026-10-28)
+
+These findings are source-level observations, not runtime test results:
+
+- `kernel/core/scheduler.cpp` stores a task callback and argument plus metadata, and dispatches callbacks. That is a cooperative callback scheduler; it does not itself establish saved architectural trap contexts, per-task kernel stacks, or an address-space switch.
+- `kernel/include/chimera/scheduler.h` explicitly describes `chimera_sched_run_serial_range` as serial stepping and `chimera_sched_run_parallel` as returning zero until AP startup and independent per-CPU workers exist. Do not count serial stepping as SMP evidence.
+- `kernel/core/syscall.cpp` explicitly rejects GETPID in the compatibility dispatcher because there is no active process context, and rejects EXIT/EXIT_GROUP because that path has no caller identity or process teardown hook. These are intentionally fail-closed compatibility semantics, not implemented process lifecycle syscalls.
+- `kernel/core/process.cpp` maintains process-image records and validates/admit ELF images. Admission metadata alone is not proof of a transactional executable loader that maps pages, switches address spaces, enters user mode, and safely reaps processes.
+- Therefore the next code task is not to weaken the release verifier. First identify/implement the architecture trap-frame and context-switch ABI and its per-task memory ownership; then add process-bound syscall context and lifecycle semantics, followed by runtime tests. Keep the exit-78 guard until persistent service supervision and target-specific health checks are real.
+
+## Required implementation PR breakdown
+
+A. Architecture context-switch ABI + per-task kernel stack/address-space ownership and tests.
+B. Process-bound syscall context, transactional exec/load, fork semantics, wait queues, wakeup, and reaping tests.
+C. Descriptor ownership, fault-safe user memory access, VFS open/read/write/close and writable temporary filesystem tests.
+D. PID 1 service supervision, health/dependency state machine, and target-specific readiness.
+E. Aurora/Marine runtime health, installer cold-boot persistence, and recovery repair postconditions.
+F. AP startup, CPU identity and overlap evidence, then all six immutable target/firmware acceptance traces.
+
+Each PR must build and run relevant tests. Do not combine a source-contract test pass with claims of production acceptance.
