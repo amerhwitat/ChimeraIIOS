@@ -30,7 +30,7 @@ jobs:
           python3 -m unittest discover -s tests/macos_compat -v
       - name: Verify license guard
         run: |
-          if tools/macos-compat/check-sdk.sh apple-sdk; then
+          if bash tools/macos-compat/check-sdk.sh apple-sdk; then
             echo "ERROR: Linux runner unexpectedly accepted Apple SDK profile" >&2
             exit 1
           else
