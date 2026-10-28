@@ -10,6 +10,10 @@ INSTALL = ROOT / "tools/macos-compat/install-sdk.sh"
 BUILD = ROOT / "tools/macos-compat/build-app.sh"
 RUN = ROOT / "tools/macos-compat/run-app.sh"
 DOC = ROOT / "docs/MACOS_COMPATIBILITY.md"
+BUILDERS = [
+    ROOT / "build-chimera-iso.sh",
+    ROOT / "vendor/chimera-ii-os/source/build-chimera-iso.sh",
+]
 
 class MacOSCompatibilityContract(unittest.TestCase):
     def test_scripts_exist_and_document_limits(self):
@@ -19,6 +23,14 @@ class MacOSCompatibilityContract(unittest.TestCase):
         self.assertIn("NOT IMPLEMENTED", text)
         self.assertIn("Do not promote an app", text)
         self.assertIn("install-sdk.sh install", text)
+
+    def test_available_iso_builder_exposes_sdk_install_option(self):
+        available = [p for p in BUILDERS if p.is_file()]
+        self.assertTrue(available, "No integrated ISO builder found")
+        for builder in available:
+            source = builder.read_text()
+            self.assertIn("--install-macos-sdk", source, str(builder))
+            self.assertIn("install-sdk.sh", source, str(builder))
 
     @unittest.skipUnless(sys.platform == "linux", "host guard is Linux-specific")
     def test_non_apple_host_refuses_apple_sdk_profile(self):
