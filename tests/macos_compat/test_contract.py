@@ -18,16 +18,14 @@ class MacOSCompatibilityContract(unittest.TestCase):
         self.assertIn("NOT IMPLEMENTED", text)
         self.assertIn("Do not promote an app", text)
 
+    @unittest.skipUnless(sys.platform == "linux", "shell execution contract requires a Linux host")
     def test_non_apple_host_refuses_apple_sdk_profile(self):
-        # This contract invokes a POSIX shell and is exercised on Linux CI.
-        # Native macOS behavior belongs on a licensed Apple-hosted runner.
-        if sys.platform != "linux":
-            self.skipTest("Linux-only contract; macOS and Windows use dedicated validation")
         p = subprocess.run(["bash", str(CHECK), "apple-sdk"], text=True, capture_output=True)
         output = p.stdout + p.stderr
         self.assertEqual(p.returncode, 2, output)
         self.assertIn("Apple-branded macOS", output)
 
+    @unittest.skipUnless(sys.platform == "linux", "shell execution contract requires a Linux host")
     def test_unknown_build_profile_fails_closed(self):
         p = subprocess.run(["bash", str(BUILD), "unknown", "missing.c", "/tmp/out"], text=True, capture_output=True)
         output = p.stdout + p.stderr
