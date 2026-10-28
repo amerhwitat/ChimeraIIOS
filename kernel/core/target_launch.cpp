@@ -19,6 +19,7 @@ static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
 static uint32_t syscall_ack_seen = 0;
+static uint32_t pid_diagnostic_seen = 0;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
@@ -65,34 +66,37 @@ static void log_user_init_syscall(Target target, uint32_t pid) {
     message[used] = 0;
     koronos_target_log(message);
 }
-static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
+static bool parse_target_pid_line(const char *bytes, uint64_t length, const char *label,
+                                  const char *suffix, Target target, uint32_t pid) {
     const char *name = target_name(target);
     char prefix[80];
-    uint64_t p=0;
-    const char *a="USERSPACE READY: target=";
-    while (*a) prefix[p++]=*a++;
-    while (*name) prefix[p++]=*name++;
-    const char *b=" init_pid=";
-    while (*b) prefix[p++]=*b++;
-    if (length < p+2u) return false;
-    bool found=false;
-    for (uint64_t i=0; i+p<length; ++i) {
-        uint64_t j=0;
-        while (j<p && bytes[i+j]==prefix[j]) ++j;
-        if (j!=p) continue;
-        uint64_t k=i+p;
-        uint32_t parsed=0, digits=0;
-        while (k<length && bytes[k]>='0' && bytes[k]<='9') {
-            const uint32_t digit=(uint32_t)(bytes[k]-'0');
-            if (parsed > (UINT32_MAX-digit)/10u) return false;
-            parsed=parsed*10u+digit;
+    uint64_t p = 0;
+    while (*label) prefix[p++] = *label++;
+    while (*name) prefix[p++] = *name++;
+    while (*suffix) prefix[p++] = *suffix++;
+    if (length < p + 2u) return false;
+    for (uint64_t i = 0; i + p < length; ++i) {
+        uint64_t j = 0;
+        while (j < p && bytes[i + j] == prefix[j]) ++j;
+        if (j != p) continue;
+        uint64_t k = i + p;
+        uint32_t parsed = 0, digits = 0;
+        while (k < length && bytes[k] >= '0' && bytes[k] <= '9') {
+            const uint32_t digit = (uint32_t)(bytes[k] - '0');
+            if (parsed > (UINT32_MAX - digit) / 10u) return false;
+            parsed = parsed * 10u + digit;
             ++k; ++digits;
         }
-        if (digits && parsed==pid && (k==length || bytes[k]=='\n' || bytes[k]=='\r' || bytes[k]==' ')) {
-            found=true; break;
-        }
+        if (digits && parsed == pid &&
+            (k == length || bytes[k] == '\\n' || bytes[k] == '\\r' || bytes[k] == ' ')) return true;
     }
-    return found;
+    return false;
+}
+static bool target_pid_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
+    return parse_target_pid_line(bytes, length, "NATIVE INIT PID: target=", " pid=", target, pid);
+}
+static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
+    return parse_target_pid_line(bytes, length, "USERSPACE READY: target=", " init_pid=", target, pid);
 }
 }
 
@@ -132,9 +136,14 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
        issued a syscall through the DPL3 gate and the kernel verified its
        saved CS.RPL, RIP and CR3. A write that arrives first cannot satisfy
        the readiness half of the acceptance handshake. */
-    if (syscall_ack_seen && active_pid &&
-        target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
-        ready_seen=1;
+    if (!syscall_ack_seen || !active_pid) return 0;
+    const Target target = static_cast<Target>(active_target);
+    if (target_pid_marker(bytes, length, target, active_pid)) {
+        pid_diagnostic_seen = 1;
+        return 0;
+    }
+    if (pid_diagnostic_seen && target_marker(bytes, length, target, active_pid)) {
+        ready_seen = 1;
         return 1;
     }
     return 0;
@@ -205,6 +214,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
     syscall_ack_seen=0;
+    pid_diagnostic_seen=0;
     ready_seen=0;
     if (chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING) != 0) {
         (void)chimera_process_unbind_runtime(active_pid);
