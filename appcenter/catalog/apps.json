@@ -795,6 +795,134 @@
       "install": "external-store",
       "availability": "catalog-only",
       "note": "Not bundled or verified by this catalog entry; install only through the official project/provider after target compatibility and license checks."
+    },
+    {
+      "id": "paint-studio",
+      "name": "Paint Studio",
+      "version": "web-prototype",
+      "category": "graphics",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/paint-studio.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser canvas paint prototype; not a native graphics application."
+    },
+    {
+      "id": "media-deck",
+      "name": "Media Deck",
+      "version": "web-prototype",
+      "category": "media",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/media-deck.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser local media player prototype; supported codecs depend on the browser."
+    },
+    {
+      "id": "document-desk",
+      "name": "Document Desk",
+      "version": "web-prototype",
+      "category": "office",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/document-desk.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser text and PDF-preview prototype; not a full office or native PDF stack."
+    },
+    {
+      "id": "snake-arcade",
+      "name": "Snake Arcade",
+      "version": "web-prototype",
+      "category": "games",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/snake-arcade.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser canvas game prototype; not a native game runtime."
+    },
+    {
+      "id": "vector-studio",
+      "name": "Vector Studio",
+      "version": "web-prototype",
+      "category": "graphics",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/vector-studio.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser SVG editor prototype; not a native graphics application."
+    },
+    {
+      "id": "sheet-desk",
+      "name": "Sheet Desk",
+      "version": "web-prototype",
+      "category": "office",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/sheet-desk.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser CSV grid prototype; no XLSX, formulas, macros, or native spreadsheet runtime."
+    },
+    {
+      "id": "file-toolkit",
+      "name": "File Toolkit",
+      "version": "web-prototype",
+      "category": "utilities",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/file-toolkit.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser-local file metadata and SHA-256 tool; filesystem access is limited to user-selected files."
+    },
+    {
+      "id": "code-workbench",
+      "name": "Code Workbench",
+      "version": "web-prototype",
+      "category": "development",
+      "license": "MIT",
+      "provider": "web",
+      "architectures": [
+        "x86_64",
+        "aarch64"
+      ],
+      "homepage": "https://amerhwitat.github.io/apps/octavianos/code-workbench.html",
+      "sandbox": "browser",
+      "install": "web",
+      "note": "Browser HTML/CSS/JS editor with sandboxed preview; not a native compiler or debugger."
     }
   ]
 }
