@@ -24,6 +24,7 @@ mkdir -p "$BUILD"
 
 bash "$ROOT/kernel/tests/frame-allocator-unit.sh"
 bash "$ROOT/kernel/tests/process-loader-unit.sh"
+bash "$ROOT/kernel/tests/process-admission-unit.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
