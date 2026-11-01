@@ -8,6 +8,7 @@
 #include "chimera/address_space.h"
 #include "chimera/elf64.h"
 #include "chimera/frame_allocator.h"
+#include "chimera/vfs.h"
 
 namespace {
 constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull; // Loader requires a page-aligned stack ceiling
@@ -95,6 +96,25 @@ static bool target_marker(const char *bytes, uint64_t length, Target target, uin
 }
 
 extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
+extern "C" int koronos_target_mount_initramfs(void) {
+    const chimera_boot_module *selected = nullptr;
+    Target target = TARGET_NONE;
+    for (uint32_t i=0; i<chimera_multiboot_module_count(); ++i) {
+        const chimera_boot_module *m=chimera_multiboot_module(i);
+        if (!m || m->kind!=CHIMERA_MODULE_USER_INIT_ELF) continue;
+        if (selected) return -1;
+        selected=m;
+    }
+    if (!selected) return -2;
+    target=parse_target(selected->cmdline);
+    const uint32_t kind = target==TARGET_LIVE ? CHIMERA_MODULE_LIVE_INITRAMFS :
+        (target==TARGET_RECOVERY ? CHIMERA_MODULE_RECOVERY_INITRAMFS :
+        (target==TARGET_INSTALLER ? CHIMERA_MODULE_INSTALL_INITRAMFS : CHIMERA_MODULE_UNKNOWN));
+    if (kind==CHIMERA_MODULE_UNKNOWN) return -3;
+    const chimera_boot_module *root=chimera_multiboot_find(kind);
+    if (!root || !root->base || !root->size) return -4;
+    return koronos_vfs_mount_cpio(reinterpret_cast<const void *>(static_cast<uintptr_t>(root->base)),root->size);
+}
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
