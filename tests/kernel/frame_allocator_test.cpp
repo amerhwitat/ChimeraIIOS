@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-static chimera_boot_module modules[1];
 extern "C" uint32_t chimera_multiboot_module_count(void) { return 0; }
 extern "C" const chimera_boot_module *chimera_multiboot_module(uint32_t) { return nullptr; }
 
