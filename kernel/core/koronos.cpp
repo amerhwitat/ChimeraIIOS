@@ -416,6 +416,12 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     const int frame_status = koronos_frame_allocator_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
     if (frame_status == 0) {
         console_write("[MM  ] Physical frame allocator initialized (4-GiB ceiling enforced)");
+        const uint64_t frame_probe = koronos_frame_alloc_contiguous(2u);
+        if (frame_probe && koronos_frame_free_contiguous(frame_probe, 2u) == 0) {
+            console_write("[MM  ] Frame allocation/free self-test passed");
+        } else {
+            console_write("[MM  ] ERROR: frame allocation/free self-test failed");
+        }
     } else {
         console_write("[MM  ] FRAME ALLOCATOR UNAVAILABLE: unsupported or invalid Multiboot2 memory map");
     }
