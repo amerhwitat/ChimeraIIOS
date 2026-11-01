@@ -57,3 +57,8 @@ The Koronos build uses selectable GCC/G++ and Clang/Clang++ toolchains (plus NAS
 - Run BIOS and UEFI boot matrices.
 - Keep astronomy apps marked unavailable until a native package, dependencies, successful build, desktop launch and license notices are verified.
 - Do not publish a production ISO from source-level or synthetic-test evidence alone.
+
+
+## Follow-up: real high-memory access probe
+
+The kernel now exposes `koronos_frame_allocator_highmem_self_test()`. On a machine with usable memory above 4 GiB it allocates a frame above 4 GiB, writes and reads two 64-bit patterns through the identity/direct map, and frees the frame. If no usable RAM exists above 4 GiB the probe reports a skip; if the read/write/free test fails, Koronos marks frame initialization failed so the address-space backend remains disabled. Both repositories' Koronos boot workflows now request a 5-GiB QEMU guest and require the high-memory pass marker. The Octavian native build workflow also rebuilds with Clang/Clang++ after GCC/G++ and runs the synthetic allocator regression.
