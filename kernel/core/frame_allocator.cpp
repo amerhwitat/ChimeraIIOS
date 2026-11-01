@@ -104,8 +104,11 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
         if (next <= off || next > total) return false;
         off = static_cast<uint32_t>(next);
     }
+    if (!found_map || !found_end) return false;
+    for (uint32_t i = 0; i < framebuffer_count; ++i)
+        reserve_range(framebuffer_base[i], framebuffer_size[i]);
     *total_out = total;
-    return found_map && found_end;
+    return true;
 }
 }
 
