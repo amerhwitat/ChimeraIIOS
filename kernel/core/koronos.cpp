@@ -479,7 +479,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     if (address_space_test == 0 && user_entry_init == 0) {
         console_write("[MM  ] Process page-table self-test passed: kernel identity mappings preserved; user U/RW/NX permissions verified; frames reclaimed");
         console_write("[ARCH] GDT/TSS RSP0 and native SYSCALL entry initialized; user-image launch remains gated on target payload acceptance");
-        console_write("[MM  ] User virtual addresses must begin at or above 4 GiB to avoid the bootstrap identity map");
+        console_write("[MM  ] User virtual addresses must begin at or above 64 GiB to avoid the bootstrap identity map");
     } else {
         console_write("[MM  ] ERROR: process address-space or ring-3 entry setup failed; user-image launch remains disabled");
     }
