@@ -121,6 +121,26 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
     *total_out = total;
     return true;
 }
+static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
+    const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
+    for (uint32_t off = 8u; off <= total - 8u;) {
+        const Tag *tag = reinterpret_cast<const Tag *>(base + off);
+        if (tag->size < 8u || tag->size > total - off) return false;
+        if (tag->type == MB2_TAG_END) return tag->size == 8u;
+        if (tag->type == 3u) {
+            if (tag->size < 16u) return false;
+            const uint32_t module_start = *reinterpret_cast<const uint32_t *>(base + off + 8u);
+            const uint32_t module_end = *reinterpret_cast<const uint32_t *>(base + off + 12u);
+            if (module_end < module_start) return false;
+            if (module_end > module_start)
+                reserve_range(module_start, static_cast<uint64_t>(module_end - module_start));
+        }
+        const uint64_t next = (static_cast<uint64_t>(off) + tag->size + 7u) & ~7ull;
+        if (next <= off || next > total) return false;
+        off = static_cast<uint32_t>(next);
+    }
+    return false;
+}
 }
 
 extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base, uint64_t kernel_end) {
@@ -139,6 +159,7 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     reserve_range(0, 0x100000u);
     reserve_range(kernel_base, kernel_end - kernel_base);
     reserve_range(info, info_size);
+    if (!reserve_multiboot_modules(info, info_size)) return -5;
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
         if (!module || !module->size) continue;
