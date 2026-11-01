@@ -34,3 +34,11 @@ The next layer must make page-table frame ownership transactional, preserve kern
 The adjacent `process_loader.cpp` now enforces a user virtual-address floor of 4 GiB and requires page-aligned stack sizes. It validates the complete PT_LOAD plan before creating an address space, rejects W+X and page-rounded overlaps, zeroes BSS and stack memory, and destroys the staged address space if any segment or stack mapping fails. Its output structure is published only after the complete image has been prepared.
 
 Host regressions cover successful copy/BSS/stack setup, segment-map failure, stack-map failure, invalid stack alignment, W+X, page overlap and low-address rejection. The tests use a mock mapper: they validate loader transaction behavior, not real page-table teardown or hardware TLB behavior.
+
+## Page-table address-space backend
+
+The first bounded address-space backend is now compiled into the canonical Koronos ELF. It clones the verified four-GiB bootstrap supervisor map into an owned PML4/PDPT/four-PD hierarchy, allocates page-table and user frames from the frame allocator, maps user pages with U/RW/NX permissions, and exposes loader operations through the existing `chimera_elf_load_ops` ABI. All physical table/frame aliases pass through `koronos_phys_to_virt`.
+
+Boot runs an address-space self-test after CPU feature discovery. The test checks that supervisor identity leaves remain inaccessible to CPL3, verifies user code is U/RX and stack is U/RW/NX, checks read/write access policy, and confirms allocated frames are reclaimed after destroying the inactive test address space.
+
+This is a bootstrap backend, not a complete process VM subsystem. Address spaces are not yet activated for scheduled tasks; there is no TLB shootdown/deferred free path, SMP ownership, per-task kernel stack, or safe concurrent teardown. The synchronous test address space is never loaded into CR3.
