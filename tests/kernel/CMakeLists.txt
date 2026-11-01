@@ -105,3 +105,16 @@ endif()
 add_test(NAME chimera_frame_allocator COMMAND chimera_frame_allocator_test)
 add_test(NAME chimera_frame_allocator_rejects_above_4g
   COMMAND chimera_frame_allocator_test above4g)
+
+add_executable(chimera_physmap_range_test
+  physmap_range_test.cpp
+  ../../kernel/core/physmap.cpp
+)
+target_include_directories(chimera_physmap_range_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_physmap_range_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_physmap_range_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME chimera_physmap_range COMMAND chimera_physmap_range_test)
