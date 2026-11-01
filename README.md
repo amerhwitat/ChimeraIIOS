@@ -176,3 +176,8 @@ The canonical rules are defined in [`system/architecture/endianness.json`](syste
 ## Koronos kernel and userspace parity audit
 
 The current evidence-based comparison against the Linux kernel and Arch Linux userspace, including the distinction between source presence, candidate ring-3 tests, and production acceptance, is documented in [docs/KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md](docs/KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md). This is an implementation roadmap, not a claim of Linux compatibility or release readiness.
+
+
+## Koronos runtime status
+
+- Koronos runtime implementation status and Linux/Arch parity audit (2026-11-01): docs/KORONOS_RUNTIME_IMPLEMENTATION_STATUS_2026-11-01.md
