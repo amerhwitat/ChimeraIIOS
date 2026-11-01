@@ -112,9 +112,9 @@ static bool clone_bootstrap_map(AddressSpace *space) {
     uint64_t *new_pdpt = table_ptr(pdpt);
     new_root[0] = pdpt | (src_root[0] & 0xFFFu) | ENTRY_USER;
 
-    // Clone all four 1-GiB bootstrap PDs. The 2-MiB identity leaves remain
-    // supervisor-only; user mappings are placed above the 4-GiB identity span.
-    for (uint32_t i = 0; i < 4u; ++i) {
+    // Clone all 64 1-GiB bootstrap PDs. The 2-MiB identity leaves remain
+    // supervisor-only; user mappings begin at the 64-GiB direct-map boundary.
+    for (uint32_t i = 0; i < 64u; ++i) {
         if (!(old_pdpt[i] & ENTRY_PRESENT) || (old_pdpt[i] & ENTRY_LARGE)) return false;
         const uint64_t old_pd_phys = old_pdpt[i] & ENTRY_ADDRESS_MASK;
         const uint64_t *old_pd = table_ptr(old_pd_phys);
@@ -124,7 +124,7 @@ static bool clone_bootstrap_map(AddressSpace *space) {
         copy_bytes(table_ptr(pd), old_pd, PAGE_SIZE);
         new_pdpt[i] = pd | (old_pdpt[i] & 0xFFFu) | ENTRY_USER;
     }
-    for (uint32_t i = 4u; i < 512u; ++i) {
+    for (uint32_t i = 64u; i < 512u; ++i) {
         if (old_pdpt[i] & ENTRY_PRESENT) return false;
     }
     return true;
@@ -172,7 +172,7 @@ static uint64_t *ensure_pte(AddressSpace *space, uint64_t virtual_address) {
         pd[pd_i] = child | ENTRY_PRESENT | ENTRY_WRITE | ENTRY_USER;
         entry = pd[pd_i];
     } else {
-        // User virtual addresses below 4 GiB are rejected, so a present large
+        // User virtual addresses below 64 GiB are rejected, so a present large
         // identity leaf here would be an unexpected overlap and must fail closed.
         if (entry & ENTRY_LARGE) return nullptr;
         pd[pd_i] |= ENTRY_USER | ENTRY_WRITE;
