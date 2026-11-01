@@ -13,6 +13,8 @@ uint64_t koronos_frame_alloc_contiguous(uint32_t page_count);
 int koronos_frame_free(uint64_t physical_address);
 int koronos_frame_free_contiguous(uint64_t physical_address, uint32_t page_count);
 uint64_t koronos_frame_free_count(void);
+/* Writes/reads/frees one usable frame above 4 GiB through the bootstrap direct map. */
+int koronos_frame_allocator_highmem_self_test(void);
 #ifdef __cplusplus
 }
 #endif
