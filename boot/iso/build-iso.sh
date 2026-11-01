@@ -114,6 +114,17 @@ fi
 if [[ -n "${CHIMERA_BOOT_ARTWORK_MANIFEST:-}" ]]; then
   test -s "$CHIMERA_BOOT_ARTWORK_MANIFEST" || { echo "ERROR: boot artwork manifest override is missing." >&2; exit 2; }
   cp -f "$CHIMERA_BOOT_ARTWORK_MANIFEST" "$VISUAL_OUT/octavian-artwork-manifest.json"
+  if [[ -n "${CHIMERA_BOOT_ARTWORK_OVERRIDE:-}" ]]; then
+    python3 - "$CHIMERA_BOOT_ARTWORK_OVERRIDE" "$CHIMERA_BOOT_ARTWORK_MANIFEST" <<'PY'
+import hashlib, json, pathlib, sys
+image = pathlib.Path(sys.argv[1]).read_bytes()
+manifest = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
+expected = manifest.get("boot_artwork", {}).get("sha256")
+actual = hashlib.sha256(image).hexdigest()
+if not expected or actual != expected:
+    raise SystemExit(f"ERROR: boot artwork SHA-256 mismatch: expected={expected!r} actual={actual}")
+PY
+  fi
 fi
 cp -f "$MEDIA/backgrounds/desktop.png" "$VISUAL_OUT/aurora-desktop.png"
 cp -f "$MEDIA/menus/default.png" "$VISUAL_OUT/aurora-menu.png"
