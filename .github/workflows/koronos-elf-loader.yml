@@ -6,6 +6,8 @@ on:
       - "kernel/core/process_loader.cpp"
       - "kernel/include/chimera/process_loader.h"
       - "tests/kernel/process_loader_transaction_test.cpp"
+      - "kernel/tests/process_loader_test.cpp"
+      - "tests/kernel/CMakeLists.txt"
       - ".github/workflows/koronos-elf-loader.yml"
   push:
     branches: [main]
@@ -32,5 +34,14 @@ jobs:
             -o /tmp/koronos-elf-loader-test
       - name: Run mapping and rollback tests
         run: /tmp/koronos-elf-loader-test
+
+      - name: Compile existing process-loader compatibility regression
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror \
+            -Ikernel/include kernel/tests/process_loader_test.cpp \
+            kernel/core/process_loader.cpp kernel/core/elf64.cpp \
+            -o /tmp/koronos-elf-loader-existing-test
+      - name: Run existing process-loader regression
+        run: /tmp/koronos-elf-loader-existing-test
       - name: Validate canonical kernel build script syntax
         run: bash -n kernel/build-koronos.sh
