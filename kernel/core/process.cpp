@@ -19,7 +19,7 @@ static Slot *find_slot(uint32_t pid){if(!pid)return nullptr;for(uint32_t i=0;i<C
 }
 extern "C" int chimera_process_init(void){for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)slots[i]={};next_pid=1;count=0;return 0;}
 extern "C" int chimera_process_admit_elf(const void*image,uint64_t size,uint16_t machine,uint64_t stack,chimera_process_image*out){
- if(!image||!out||stack<PAGE)return -1;
+ if(!image||!out||stack<=USER_MIN||stack>=USER_LIMIT||(stack&(PAGE-1)))return -1;
  if(!koronos_elf64_validate(image,size,machine))return -2;
  koronos_elf64_ehdr h{};__builtin_memcpy(&h,image,sizeof(h));
  if(h.e_type!=KORONOS_ET_EXEC||h.e_phnum==0||h.e_phnum>4096u)return -2;
