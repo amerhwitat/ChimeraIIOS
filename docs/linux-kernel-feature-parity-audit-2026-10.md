@@ -1,5 +1,8 @@
 # Linux kernel feature-parity audit and implementation program
 
+> **Current implementation/evidence update (2026-11-01):** See the [Koronos vs Linux/Arch runtime audit (2026-11-01)](KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md) for the source-level comparison, current CI evidence, Octavian/Chimera divergence, targeted ISO artwork remediation, and fail-closed production gates.
+
+
 **Status:** planning / inventory baseline only. This document does not claim Linux feature parity, a complete recursive source audit, implementation, build success, or release readiness.
 
 **Reference source:** https://elixir.bootlin.com/linux/v7.2.2/source  
