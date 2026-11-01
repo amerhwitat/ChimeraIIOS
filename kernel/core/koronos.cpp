@@ -290,6 +290,7 @@ static void task_recovery(void *) {
 }
 
 static void task_installer(void *) {
+    static bool installer_vfs_attempted = false;
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
     const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
     const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
@@ -303,13 +304,16 @@ static void task_installer(void *) {
         return;
     }
 
-    const chimera_boot_module *installer_root = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_INITRAMFS);
-    if (installer_root) {
+    if (!installer_vfs_attempted) {
+        installer_vfs_attempted = true;
+        const chimera_boot_module *installer_root = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_INITRAMFS);
+        if (installer_root) {
         const int vfs_rc = koronos_vfs_mount_cpio(reinterpret_cast<const void *>(static_cast<uintptr_t>(installer_root->base)), installer_root->size);
         if (vfs_rc == 0) console_write("[VFS ] Installer initramfs mounted read-only; /tmp RAM overlay available");
         else console_write("[VFS ] ERROR: Installer CPIO mount failed; installer userspace remains withheld");
     } else {
-        console_write("[VFS ] Installer CPIO module missing; installer userspace remains withheld");
+            console_write("[VFS ] Installer CPIO module missing; installer userspace remains withheld");
+        }
     }
 
     switch (installer_phase++) {
