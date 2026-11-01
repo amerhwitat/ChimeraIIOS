@@ -28,18 +28,24 @@ static bool validate_boot_tables(uint64_t root_physical) {
     for (uint32_t i = 1; i < 512u; ++i) if (root[i] & PRESENT) return false;
 
     const auto *pdpt = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(pdpt_physical));
-    uint64_t pd_physical = 0;
-    if (!table_address(pdpt[0], &pd_physical)) return false;
-    for (uint32_t i = 1; i < 512u; ++i) if (pdpt[i] & PRESENT) return false;
-
-    const auto *pd = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(pd_physical));
-    for (uint32_t i = 0; i < LARGE_PAGE_COUNT; ++i) {
-        const uint64_t entry = pd[i];
-        if ((entry & (PRESENT | WRITABLE | LARGE)) != (PRESENT | WRITABLE | LARGE) ||
-            (entry & USER) ||
-            (entry & LARGE_ADDRESS_MASK) != static_cast<uint64_t>(i) * LARGE_PAGE_SIZE)
+    uint64_t first_pd_physical = 0;
+    for (uint32_t pdpt_index = 0; pdpt_index < 4u; ++pdpt_index) {
+        uint64_t pd_physical = 0;
+        if (!table_address(pdpt[pdpt_index], &pd_physical)) return false;
+        if (pdpt_index == 0) first_pd_physical = pd_physical;
+        else if (pd_physical != first_pd_physical + static_cast<uint64_t>(pdpt_index) * 4096u)
             return false;
+        const auto *pd = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(pd_physical));
+        for (uint32_t pd_index = 0; pd_index < 512u; ++pd_index) {
+            const uint32_t global_index = pdpt_index * 512u + pd_index;
+            const uint64_t entry = pd[pd_index];
+            if ((entry & (PRESENT | WRITABLE | LARGE)) != (PRESENT | WRITABLE | LARGE) ||
+                (entry & USER) ||
+                (entry & LARGE_ADDRESS_MASK) != static_cast<uint64_t>(global_index) * LARGE_PAGE_SIZE)
+                return false;
+        }
     }
+    for (uint32_t i = 4u; i < 512u; ++i) if (pdpt[i] & PRESENT) return false;
     return true;
 }
 }
