@@ -60,7 +60,7 @@ extern "C" uint32_t koronos_vfs_file_count(void){return count;}
 extern "C" int koronos_vfs_open(const char*path,uint32_t flags){
  if(!mounted||!path||(flags&~OPEN_WRITE))return -9;
  char normalized[PATH_BYTES];if(!normalize(path,normalized))return -22;
- if(normalized[0]=='/'&&normalized[1]=='t'&&normalized[2]=='m'&&(normalized[3]=='/'||normalized[3]==0)){
+ if(normalized[0]=='/'&&normalized[1]=='t'&&normalized[2]=='m'&&normalized[3]=='p'&&(normalized[4]=='/'||normalized[4]==0)){
   int t=find_temp(normalized);if(t<0&&(flags&OPEN_WRITE)){for(uint32_t i=0;i<TEMP_FILES;i++)if(!temps[i].used){t=(int)i;temps[i].used=1;uint32_t j=0;while(normalized[j]&&j<PATH_BYTES-1){temps[i].path[j]=normalized[j];j++;}temps[i].path[j]=0;break;}}
   if(t>=0)return alloc_fd(-100-t,(flags&OPEN_WRITE)!=0);return -2;
  }
