@@ -11,7 +11,7 @@ This change adds a bitmap physical-frame allocator to ChimeraIIOS main and wires
 - Usable frames come only from Multiboot2 memory-map entries whose type is usable RAM.
 - Low 1 MiB, the kernel image, the Multiboot2 information block, boot modules and framebuffer memory are reserved before allocation is enabled.
 - Allocation marks every frame allocated under a spinlock. Free validates the complete requested run before changing any bit, so partial frees cannot occur.
-- Double-free, unaligned, low-memory and out-of-range frees are rejected.
+- Double-free, unaligned, low-memory and out-of-range frees are rejected. Reserved kernel pages are reported as not allocator-owned and cannot be returned to the free pool.
 - Overlapping usable memory-map entries cannot inflate the free-page count because already-free/allocated bits are checked.
 - Framebuffer reservations are applied after memory-map discovery, so Multiboot2 tag ordering does not accidentally make the framebuffer allocatable.
 - Malformed tags, malformed entry sizes, arithmetic overflow, missing memory map/end tags and unsupported RAM above the 4-GiB limit fail initialization.
