@@ -27,6 +27,7 @@ int main() {
  const uint64_t one=koronos_frame_alloc(); assert(one==0x200000);
  assert(koronos_frame_free(one)==0); assert(koronos_frame_free(one)==-2);
  make_map(info,0x100000,0x3f00000,0x100000000ull,0x2000);
+ info.mmap.entries[1].type=1; // usable RAM above the supported ceiling
  assert(koronos_frame_allocator_init(info_address,0x100000,0x200000)==-1);
  assert(koronos_frame_free_count()==0);
  make_map(info,UINT64_MAX-0x7ff,0x2000,0,0);
