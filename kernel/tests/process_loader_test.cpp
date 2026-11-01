@@ -33,6 +33,7 @@ int main(){
  put32(elf+68,7);Mock bad{};chimera_loaded_elf untouched{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad,&untouched)<0);
  assert(bad.count==0);
+ put32(elf+68,5); // Restore RX permissions before exercising mapper failure.
  // Inject failure while mapping the stack after the PT_LOAD mapping succeeded.
  // The loader must destroy the partially built address space and leave the
  // caller's output object untouched.
