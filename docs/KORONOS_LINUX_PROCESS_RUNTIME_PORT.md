@@ -57,3 +57,27 @@ These constraints must be resolved or explicitly bounded by boot-time validation
 ## Release policy
 
 Keep native init fail-closed. Do not remove native-init exit status 78 or emit readiness markers unless the target process has actually executed in CPL3, completed the required syscalls, and its target-specific postconditions have been observed. A successful compile, source-presence test, or ring-3 smoke probe alone is not production acceptance.
+
+## Current-main integration audit (2026-11-01)
+
+The following facts were verified directly against the ChimeraIIOS main branch during this follow-up:
+
+- `kernel/include/chimera/process.h` defines `CHIMERA_PROCESS_LOAD_PLAN_ONLY` and the process image contains ELF segment metadata, but no owned address-space handle, kernel stack, saved register context or parent/wait state.
+- `kernel/core/process.cpp` validates and records an ELF load plan and allocates a PID. It does not allocate page frames, create page tables, copy an ELF into user mappings, or enter CPL3.
+- `kernel/core/syscall.cpp` explicitly rejects GETPID, EXIT and EXIT_GROUP in its compatibility dispatcher because it has no active process identity/lifecycle hook. This fail-closed behavior must not be bypassed.
+- `kernel/core/interrupt.cpp` installs IDT gates with DPL0 (0x8E). Its comments explicitly defer ring-3 syscall exposure until TSS/user-stack/address-space support is installed.
+- `kernel/build-koronos.sh` currently compiles this core source list: `koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model`. It does not compile a frame allocator, address-space backend, target launcher or dedicated user-entry assembly from the proposed candidate set.
+- `kernel/CMakeLists.txt` delegates the canonical Koronos build to `kernel/build-koronos.sh`; adding files to a separate test or CMake list alone would not put them in the actual ELF.
+
+Therefore the implementation must first introduce and test the memory/architecture primitives, then wire them into this exact canonical source list and linker. It is unsafe to mark process admission as executable or change the IDT gate privilege before the corresponding per-process kernel-stack and user-memory protections are active.
+
+## Minimum source-level exit criteria before enabling CPL3
+
+- Remove the load-plan-only label only in the same change that introduces a real owned address-space/process object and transactional ELF loader.
+- Every allocated frame has a single owner and an explicit release path; all mapping failures unwind both data and page-table frames.
+- The bootstrap/kernel mappings are preserved by a documented physical-to-virtual mapping contract; no physical address is dereferenced as a pointer unless the mapping is proven.
+- Each CPU has independent TSS/RSP0 and syscall transition state; a process has its own kernel stack and saved trap frame.
+- CR3 changes, kernel-stack selection, active PID and syscall identity cannot disagree, including on interrupts and faults.
+- User entry is exposed only after the GDT selectors, IDT privilege, TSS descriptor, canonical-address checks, NX policy and syscall return frame are validated together.
+- The scheduler owns the task from first entry through exit; no synchronous launcher may free an address space while it is active.
+- Fault-injection tests cover every allocation/mapping failure point and prove no leaks, double frees or stale active mappings.
