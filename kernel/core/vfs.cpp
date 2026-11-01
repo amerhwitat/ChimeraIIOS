@@ -76,15 +76,15 @@ extern "C" int64_t koronos_vfs_read(int fd,void*buffer,uint64_t length){
  uint8_t*out=(uint8_t*)buffer;for(uint64_t i=0;i<n;i++)out[i]=data[d.position+i];d.position+=(uint32_t)n;return (int64_t)n;
 }
 extern "C" int64_t koronos_vfs_write(int fd,const void*buffer,uint64_t length){
- if(fd<0||fd>=(int)KORONOS_VFS_MAX_FDS||!fds[fd].used||!fds[fd].writable||(!buffer&&length))return -9;
- Fd&d=fds[fd];if(d.file>-100)return -30;Temp&t=temps[-100-d.file];
+ if(fd<0||fd<3||fd>=(int)KORONOS_VFS_MAX_FDS+3||!fds[fd-3].used||!fds[fd].writable||(!buffer&&length))return -9;
+ Fd&d=fds[fd-3];if(d.file>-100)return -30;Temp&t=temps[-100-d.file];
  if(length>TEMP_BYTES-d.position)return -28;const uint8_t*in=(const uint8_t*)buffer;
  for(uint64_t i=0;i<length;i++)t.data[d.position+i]=in[i];d.position+=(uint32_t)length;if(d.position>t.size)t.size=d.position;return (int64_t)length;
 }
 extern "C" int64_t koronos_vfs_seek(int fd,int64_t offset,uint32_t whence){
- if(fd<0||fd>=(int)KORONOS_VFS_MAX_FDS||!fds[fd].used)return -9;
- Fd&d=fds[fd];uint64_t size=d.file<=-100?temps[-100-d.file].size:files[d.file].size;
+ if(fd<0||fd<3||fd>=(int)KORONOS_VFS_MAX_FDS+3||!fds[fd-3].used)return -9;
+ Fd&d=fds[fd-3];uint64_t size=d.file<=-100?temps[-100-d.file].size:files[d.file].size;
  int64_t base=whence==SEEK_SET?0:(whence==SEEK_CUR?(int64_t)d.position:(whence==SEEK_END?(int64_t)size:-1));
  if(base<0||offset< -base||offset>INT32_MAX-base)return -22;d.position=(uint32_t)(base+offset);return (int64_t)d.position;
 }
-extern "C" int koronos_vfs_close(int fd){if(fd<0||fd>=(int)KORONOS_VFS_MAX_FDS||!fds[fd].used)return -9;fds[fd-3]={};return 0;}
+extern "C" int koronos_vfs_close(int fd){if(fd<0||fd<3||fd>=(int)KORONOS_VFS_MAX_FDS+3||!fds[fd-3].used)return -9;fds[fd-3]={};return 0;}
