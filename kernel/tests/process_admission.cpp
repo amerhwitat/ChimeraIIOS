@@ -23,14 +23,15 @@ int main(){
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x00007FFFFFFFE000ull,&p)>0);
   assert(p.segment_count==1 && p.entry==0x100000100ull && p.image_low==0x100000000ull);
   uint32_t pid=p.pid;
-  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
   chimera_process_image q{};
-  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
+  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_ADMITTED);
   assert(q.address_space==nullptr && q.address_space_root==0 && q.kernel_stack_top==0 && q.saved_rsp==0);
   uint8_t fake_space=0;
   assert(chimera_process_bind_address_space(pid,&fake_space,0x300000ull,p.entry,p.user_stack_top)==0);
   assert(chimera_process_bind_address_space(pid,&fake_space,0x300000ull,p.entry,p.user_stack_top)<0);
   assert(chimera_process_get(pid,&q)==0 && q.address_space==&fake_space && q.address_space_root==0x300000ull);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
+  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_RUNNING)==0);
   assert(chimera_process_clear_address_space(pid,&fake_space)==-2);
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_EXITED)==0);
