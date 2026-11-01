@@ -32,7 +32,7 @@ This status covers the ChimeraIIOS and OctavianOS runtime remediation branches. 
 - Service dependency ordering exists as metadata, but there is no production PID 1 service supervisor comparable to systemd: no reliable spawn/monitor/restart/stop lifecycle, readiness protocol for all services, or shutdown transaction.
 - AP bring-up and measured SMP overlap on at least two CPUs remain unimplemented/unverified.
 - Installer disk discovery/partitioning/filesystem creation/persistent install and cold-boot verification remain unimplemented. Recovery repair postconditions remain unverified.
-- The user-supplied wallpaper PNG bytes are not yet committed in the repositories or installed in the native desktop image. The artwork manifest/hash gate is present, but the current renderer fallback does not match the supplied image hash; the ISO build correctly fails closed rather than claiming the uploaded artwork is embedded.
+- Aurora and Marine desktop selectors now expose both supplied wallpaper paths with safe existing-SVG fallbacks. The actual user-supplied PNG bytes are not yet committed in the repositories or installed in the native desktop image. The artwork manifest/hash gate is present, but the current renderer fallback does not match the supplied image hash; the ISO build correctly fails closed rather than claiming the uploaded artwork is embedded.
 - Aurora and Marine web desktop prototypes are not native Wayland compositors/window managers. The native desktop session, compositor, input, GPU and session-service lifecycle require separate runtime verification.
 
 ## Linux kernel, Arch Linux and desktop comparison
