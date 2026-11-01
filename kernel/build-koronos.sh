@@ -83,3 +83,8 @@ done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
 printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
+HOST_CXX="${HOST_CXX:-g++}"
+"$HOST_CXX" -std=c++17 -Wall -Wextra -Werror -I"$ROOT/kernel/include" \
+  "$ROOT/kernel/tests/frame_allocator_highmem_test.cpp" \
+  "$ROOT/kernel/core/frame_allocator.cpp" -o "$BUILD/frame-allocator-highmem-test"
+"$BUILD/frame-allocator-highmem-test"
