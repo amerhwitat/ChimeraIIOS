@@ -6,6 +6,7 @@
 #include <string.h>
 
 struct TestContext {
+    uint32_t create_calls;
     uint32_t map_calls;
     uint32_t destroy_calls;
     uint32_t fail_on_map;
@@ -42,7 +43,7 @@ static void build_elf(uint8_t *b, size_t size, uint32_t flags, uint16_t phnum) {
     }
 }
 
-static void *create_as(void *opaque) { return opaque; }
+static void *create_as(void *opaque) { ++static_cast<TestContext *>(opaque)->create_calls; return opaque; }
 static int map_pages(void *opaque, void *, uint64_t, uint64_t size,
                      uint32_t, void **alias) {
     TestContext *ctx = static_cast<TestContext *>(opaque);
@@ -82,6 +83,14 @@ int main() {
     destroy_as(&ctx, loaded.address_space);
     assert(ctx.destroy_calls == 1);
 
+    /* A failure mapping the first segment must also destroy the staged address space. */
+    TestContext failed_segment{}; failed_segment.fail_on_map = 1;
+    chimera_loaded_elf untouched{}; untouched.abi = 0xDEADBEEFu;
+    assert(chimera_elf_load_user_image(image, sizeof(image), KORONOS_EM_X86_64,
+        0x100800000ull, 4096, &ops, &failed_segment, &untouched) == -14);
+    assert(failed_segment.create_calls == 1 && failed_segment.destroy_calls == 1);
+    assert(untouched.abi == 0xDEADBEEFu);
+
     /* A failure mapping the stack must destroy the staged image and leave out untouched. */
     TestContext failed{}; failed.fail_on_map = 2;
     chimera_loaded_elf sentinel{}; sentinel.abi = 0xDEADBEEFu;
@@ -89,6 +98,12 @@ int main() {
         0x100800000ull, 4096, &ops, &failed, &sentinel) == -15);
     assert(failed.destroy_calls == 1 && failed.blocks[0] == nullptr);
     assert(sentinel.abi == 0xDEADBEEFu);
+
+    /* A non-page-aligned stack is rejected before allocating an address space. */
+    TestContext bad_stack{};
+    assert(chimera_elf_load_user_image(image, sizeof(image), KORONOS_EM_X86_64,
+        0x100800000ull, 4097, &ops, &bad_stack, &sentinel) == -5);
+    assert(bad_stack.create_calls == 0 && bad_stack.map_calls == 0);
 
     /* W+X and page-rounded overlapping PT_LOAD segments fail before allocation. */
     build_elf(image, sizeof(image), 7u, 1u);
