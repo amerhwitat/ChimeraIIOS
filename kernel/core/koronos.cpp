@@ -11,6 +11,7 @@
 #include "chimera/process.h"
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
+#include "chimera/address_space.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -437,7 +438,14 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
-    console_progress(25, "Architecture and interrupt setup complete");
+    const int address_space_init = (frame_status == 0) ? koronos_address_space_init() : -1;
+    const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
+    if (address_space_test == 0) {
+        console_write("[MM  ] Address-space self-test passed: kernel identity mappings preserved; user U/RW/NX permissions verified; frames reclaimed");
+    } else {
+        console_write("[MM  ] ERROR: address-space backend unavailable or self-test failed; userspace launch remains disabled");
+    }
+    console_progress(25, "Architecture, physmap and address-space safety checks complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
