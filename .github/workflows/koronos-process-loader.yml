@@ -19,6 +19,11 @@ on:
       - '.github/workflows/koronos-process-loader.yml'
   pull_request:
     paths:
+      - 'kernel/core/vfs.cpp'
+      - 'kernel/include/chimera/vfs.h'
+      - 'kernel/tests/vfs_cpio_test.cpp'
+      - 'kernel/core/process.cpp'
+      - 'kernel/tests/process_admission.cpp'
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
