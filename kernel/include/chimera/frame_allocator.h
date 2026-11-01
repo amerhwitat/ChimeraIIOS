@@ -7,7 +7,7 @@ extern "C" {
 
 #define KORONOS_FRAME_SIZE 4096ull
 /* Current x86-64 bootstrap contract: physical frames must be below 4 GiB.
-   Boot is rejected if the Multiboot2 map advertises usable RAM above this
+   Allocator initialization fails if the Multiboot2 map advertises usable RAM above this
    ceiling; memory is never silently truncated. */
 #define KORONOS_FRAME_PHYS_LIMIT 0x100000000ull
 
