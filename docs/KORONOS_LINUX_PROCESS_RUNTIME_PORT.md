@@ -81,3 +81,12 @@ Therefore the implementation must first introduce and test the memory/architectu
 - User entry is exposed only after the GDT selectors, IDT privilege, TSS descriptor, canonical-address checks, NX policy and syscall return frame are validated together.
 - The scheduler owns the task from first entry through exit; no synchronous launcher may free an address space while it is active.
 - Fault-injection tests cover every allocation/mapping failure point and prove no leaks, double frees or stale active mappings.
+
+
+## Existing candidate implementation and CI evidence (2026-11-02)
+
+A follow-up review located the older target-launch implementation in PR #125, branch `koronos/userspace-target-launch`, head `506c76baafcc45fc08dd14fad5b1723f2d0fd24b`. Its canonical build includes `frame_allocator.cpp`, `address_space.cpp`, `process_loader.cpp`, `target_launch.cpp` and `arch/x86_64/user_entry.asm`. The associated recorded GitHub Actions runs for that commit completed successfully, including the Koronos kernel build, ELF loader unit tests, boot/ISO validation, and the Koronos userspace acceptance workflow.
+
+Those green workflow conclusions are bounded to that candidate's checks; they do not establish the missing architectural properties below. The candidate allocator uses a fixed 4-GiB physical limit and direct physical-address dereferences. The address-space backend also treats physical frame addresses as kernel pointers and clones only a specific low identity-map shape. User-entry assembly holds a single global TSS, syscall stack and transition state. The target launcher is a synchronous bootstrap call; its YIELD syscall is a no-op until scheduler-owned address-space switching exists. The process record remains marked `CHIMERA_PROCESS_LOAD_PLAN_ONLY`.
+
+Consequently, passing build and probe workflows must not be conflated with the requested upgrades: a >4-GiB-safe allocator, a real physical-to-virtual mapping abstraction, per-CPU privilege-transition state, scheduler-owned independent tasks, wait/exit semantics, or AP/SMP safety. The implementation port remains gated on those properties and corresponding fault-injection and QEMU tests.
