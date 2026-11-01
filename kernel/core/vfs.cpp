@@ -76,7 +76,7 @@ extern "C" int64_t koronos_vfs_read(int fd,void*buffer,uint64_t length){
  uint8_t*out=(uint8_t*)buffer;for(uint64_t i=0;i<n;i++)out[i]=data[d.position+i];d.position+=(uint32_t)n;return (int64_t)n;
 }
 extern "C" int64_t koronos_vfs_write(int fd,const void*buffer,uint64_t length){
- if(fd<0||fd<3||fd>=(int)KORONOS_VFS_MAX_FDS+3||!fds[fd-3].used||!fds[fd].writable||(!buffer&&length))return -9;
+ if(fd<0||fd<3||fd>=(int)KORONOS_VFS_MAX_FDS+3||!fds[fd-3].used||!fds[fd-3].writable||(!buffer&&length))return -9;
  Fd&d=fds[fd-3];if(d.file>-100)return -30;Temp&t=temps[-100-d.file];
  if(length>TEMP_BYTES-d.position)return -28;const uint8_t*in=(const uint8_t*)buffer;
  for(uint64_t i=0;i<length;i++)t.data[d.position+i]=in[i];d.position+=(uint32_t)length;if(d.position>t.size)t.size=d.position;return (int64_t)length;
