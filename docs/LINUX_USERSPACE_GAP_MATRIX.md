@@ -1,5 +1,8 @@
 # Linux userspace parity gap matrix
 
+> **Current implementation/evidence update (2026-11-01):** See the [Koronos vs Linux/Arch runtime audit (2026-11-01)](KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md) for the source-level comparison, current CI evidence, Octavian/Chimera divergence, targeted ISO artwork remediation, and fail-closed production gates.
+
+
 **Scope:** native Koronos userspace in ChimeraIIOS and the vendored Koronos userspace in OctavianOS, compared with the Linux userspace boot/runtime contract. This is an engineering gap inventory, not a claim of Linux ABI compatibility or production acceptance.
 
 ## Linux baseline
