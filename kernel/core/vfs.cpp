@@ -37,7 +37,7 @@ extern "C" int koronos_vfs_mount_cpio(const void*archive,uint64_t length){
   if(!ok||namesize<1||namesize>PATH_BYTES||!add(off,110,&nameoff)||!add(nameoff,namesize,&next)||!align4(next,&dataoff)||dataoff>length||filesize>length-dataoff)break;
   if(h[110+namesize-1]!=0)break;
   char path[PATH_BYTES];uint32_t n=namesize-1;
-  if(n==10&&h[110]=='T'&&h[111]=='R'&&h[112]=='A'&&h[113]=='I'&&h[114]=='L'&&h[115]=='E'&&h[116]=='R'&&h[117]=='!'&&h[118]=='!'&&h[119]==0){trailer=true;off=dataoff+filesize;break;}
+  if(n==10&&h[110]=='T'&&h[111]=='R'&&h[112]=='A'&&h[113]=='I'&&h[114]=='L'&&h[115]=='E'&&h[116]=='R'&&h[117]=='!'&&h[118]=='!'&&h[120]==0){trailer=true;off=dataoff+filesize;break;}
   if(n>=2&&h[110]=='.'&&h[111]=='/') {for(uint32_t i=0;i<n-2;i++)path[i]=(char)h[112+i];path[n-2]=0;}
   else {for(uint32_t i=0;i<n;i++)path[i]=(char)h[110+i];path[n]=0;}
   char normalized[PATH_BYTES];if(!normalize(path,normalized))break;
