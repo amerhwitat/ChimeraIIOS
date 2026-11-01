@@ -463,6 +463,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[MB2 ] Scanned Multiboot2 modules");
     const int frame_init = koronos_frame_allocator_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
     if (frame_init == 0) {
+        const int highmem_test = koronos_frame_allocator_highmem_self_test();
+        if (highmem_test == 0) console_write("[MM  ] High-memory read/write/free self-test passed above 4 GiB");
+        else if (highmem_test == 1) console_write("[MM  ] High-memory self-test skipped: no usable RAM above 4 GiB");
+        else console_write("[MM  ] ERROR: high-memory direct-map self-test failed");
         console_write("[MM  ] Physical frame allocator initialized; free 4 KiB frames: ");
         console_u32(static_cast<uint32_t>(koronos_frame_free_count()));
     } else {
