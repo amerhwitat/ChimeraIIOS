@@ -181,3 +181,6 @@ The current evidence-based comparison against the Linux kernel and Arch Linux us
 ## Koronos runtime status
 
 - Koronos runtime implementation status and Linux/Arch parity audit (2026-11-01): docs/KORONOS_RUNTIME_IMPLEMENTATION_STATUS_2026-11-01.md
+
+
+> **Memory/astronomy/compiler update (2026-11-01):** See [Koronos memory, astronomy and compiler parity audit](docs/KORONOS_MEMORY_ASTRONOMY_COMPILER_AUDIT_2026-11-01.md) for the initial 64-GiB direct-map uplift, high-memory allocator regression, open-source astronomy catalog and GCC/Clang build status. This does not claim >64-GiB, QEMU high-memory, native astronomy-app or self-hosted compiler acceptance.
