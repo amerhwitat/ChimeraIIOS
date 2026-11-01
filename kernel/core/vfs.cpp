@@ -18,7 +18,7 @@ static void zero(void *p,uint64_t n){uint8_t*d=(uint8_t*)p;for(uint64_t i=0;i<n;
 static uint32_t hex8(const uint8_t*p,bool*ok){uint32_t v=0;for(uint32_t i=0;i<8;i++){uint8_t c=p[i];uint32_t d;if(c>='0'&&c<='9')d=c-'0';else if(c>='a'&&c<='f')d=c-'a'+10;else if(c>='A'&&c<='F')d=c-'A'+10;else{*ok=false;return 0;}v=(v<<4)|d;}return v;}
 static bool add(uint64_t a,uint64_t b,uint64_t*out){if(a>UINT64_MAX-b)return false;*out=a+b;return true;}
 static bool align4(uint64_t n,uint64_t*out){uint64_t t;if(!add(n,3,&t))return false;*out=t&~3ull;return true;}
-static bool normalize(const char*in,char*out){if(!in)return false;uint32_t i=0,o=0;while(in[i]=='/')i++;if(!in[i]){out[0]='/';out[1]=0;return true;}while(in[i]){uint32_t start=i;while(in[i]&&in[i]!='/'){if(o>=PATH_BYTES-2)return false;out[o++]=in[i++];}uint32_t n=i-start;if((n==1&&out[o-1]=='.')||(n==2&&out[o-2]=='.'&&out[o-1]=='.'))return false;if(in[i]=='/'){while(in[i]=='/')i++;if(in[i])out[o++]='/';}}out[o]=0;return o>0;}
+static bool normalize(const char*in,char*out){if(!in)return false;uint32_t i=0,o=0;while(in[i]=='/')i++;if(!in[i]){out[0]='/';out[1]=0;return true;}out[o++]='/';while(in[i]){uint32_t start=i;while(in[i]&&in[i]!='/'){if(o>=PATH_BYTES-2)return false;out[o++]=in[i++];}uint32_t n=i-start;if((n==1&&out[o-1]=='.')||(n==2&&out[o-2]=='.'&&out[o-1]=='.'))return false;if(in[i]=='/'){while(in[i]=='/')i++;if(in[i])out[o++]='/';}}out[o]=0;return o>0;}
 static int find_file(const char*p){for(uint32_t i=0;i<count;i++){const char*a=files[i].path;uint32_t j=0;while(a[j]&&p[j]&&a[j]==p[j])j++;if(!a[j]&&!p[j])return (int)i;}return -1;}
 static int find_temp(const char*p){for(uint32_t i=0;i<TEMP_FILES;i++)if(temps[i].used){uint32_t j=0;while(temps[i].path[j]&&p[j]&&temps[i].path[j]==p[j])j++;if(!temps[i].path[j]&&!p[j])return (int)i;}return -1;}
 static int alloc_fd(int file,bool writable){for(uint32_t i=0;i<KORONOS_VFS_MAX_FDS;i++)if(!fds[i].used){fds[i]={file,0,1,(uint8_t)writable};return (int)i;}return -24;}
@@ -61,8 +61,8 @@ extern "C" int koronos_vfs_open(const char*path,uint32_t flags){
  if(!mounted||!path||(flags&~OPEN_WRITE))return -9;
  char normalized[PATH_BYTES];if(!normalize(path,normalized))return -22;
  if(normalized[0]=='/'&&normalized[1]=='t'&&normalized[2]=='m'&&(normalized[3]=='/'||normalized[3]==0)){
-  int t=find_temp(normalized);if(t<0){for(uint32_t i=0;i<TEMP_FILES;i++)if(!temps[i].used){t=(int)i;temps[i].used=1;uint32_t j=0;while(normalized[j]&&j<PATH_BYTES-1){temps[i].path[j]=normalized[j];j++;}temps[i].path[j]=0;break;}}
-  if(t>=0)return alloc_fd(-100-t,true);return -28;
+  int t=find_temp(normalized);if(t<0&&(flags&OPEN_WRITE)){for(uint32_t i=0;i<TEMP_FILES;i++)if(!temps[i].used){t=(int)i;temps[i].used=1;uint32_t j=0;while(normalized[j]&&j<PATH_BYTES-1){temps[i].path[j]=normalized[j];j++;}temps[i].path[j]=0;break;}}
+  if(t>=0)return alloc_fd(-100-t,(flags&OPEN_WRITE)!=0);return -2;
  }
  int f=find_file(normalized);if(f<0||((files[f].mode&MODE_TYPE)!=MODE_REG))return -2;
  if(flags&OPEN_WRITE)return -30;
