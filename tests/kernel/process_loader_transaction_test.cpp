@@ -109,7 +109,7 @@ int main() {
     put64(image + 64 + 16, 0x400000ull);
     TestContext low{};
     assert(chimera_elf_load_user_image(image, sizeof(image), KORONOS_EM_X86_64,
-        0x800000ull, 4096, &ops, &low, &sentinel) == -7);
+        0x100800000ull, 4096, &ops, &low, &sentinel) == -7);
     assert(low.map_calls == 0);
 
     puts("Koronos transactional ELF loader: mapping, BSS, stack, W^X, overlap and rollback passed");
