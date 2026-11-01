@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     assert(koronos_frame_free(first) == 0);
     assert(koronos_frame_free(first) == -2);
     assert(koronos_frame_free(first + 1) == -1);
-    assert(koronos_frame_free(0x100000) == -1);
+    assert(koronos_frame_free(0x100000) == -2); // reserved kernel page is not owned by the allocator
 
     /* The 1-MiB framebuffer range must remain reserved even though it lies in
        the firmware's reported usable range. */
