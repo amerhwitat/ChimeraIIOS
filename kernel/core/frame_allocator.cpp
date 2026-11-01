@@ -18,6 +18,14 @@ uint32_t reserved_bitmap[BITMAP_WORDS];
 volatile uint32_t allocator_lock = 0;
 bool initialized = false;
 uint64_t free_pages = 0;
+koronos_frame_map_fn frame_mapper = nullptr;
+void *frame_mapper_context = nullptr;
+
+static void *identity_map(uint64_t physical, uint64_t length, void *) {
+    if (!length || physical >= KORONOS_FRAME_PHYS_LIMIT ||
+        length > KORONOS_FRAME_PHYS_LIMIT - physical) return nullptr;
+    return reinterpret_cast<void *>(static_cast<uintptr_t>(physical));
+}
 
 struct Mb2Tag { uint32_t type, size; };
 struct Mb2MmapTag { uint32_t type, size, entry_size, entry_version; };
@@ -128,6 +136,8 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     }
     free_pages = 0;
     initialized = false;
+    frame_mapper = nullptr;
+    frame_mapper_context = nullptr;
     if (!parse_mmap(info)) return -1;
 
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
@@ -141,6 +151,7 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
         if (module) reserve_range(module->base, module->size);
     }
     initialized = free_pages != 0;
+    if (initialized) frame_mapper = identity_map;
     return initialized ? 0 : -2;
 }
 
@@ -201,4 +212,22 @@ extern "C" uint64_t koronos_frame_free_count(void) {
     const uint64_t result = free_pages;
     unlock();
     return result;
+}
+
+extern "C" int koronos_frame_set_mapper(koronos_frame_map_fn mapper, void *context) {
+    if (!initialized || !mapper) return -1;
+    lock();
+    frame_mapper = mapper;
+    frame_mapper_context = context;
+    unlock();
+    return 0;
+}
+extern "C" void *koronos_frame_phys_to_virt(uint64_t physical, uint64_t length) {
+    if (!initialized || !length || physical >= KORONOS_FRAME_PHYS_LIMIT ||
+        length > KORONOS_FRAME_PHYS_LIMIT - physical) return nullptr;
+    lock();
+    koronos_frame_map_fn mapper = frame_mapper;
+    void *context = frame_mapper_context;
+    unlock();
+    return mapper ? mapper(physical, length, context) : nullptr;
 }
