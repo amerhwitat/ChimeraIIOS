@@ -129,6 +129,6 @@ target_include_directories(chimera_process_loader_transaction_test PRIVATE
 )
 target_compile_features(chimera_process_loader_transaction_test PRIVATE cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  target_compile_options(chimera_process_loader_transaction_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(chimera_process_loader_transaction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
 endif()
 add_test(NAME chimera_process_loader_transaction COMMAND chimera_process_loader_transaction_test)
