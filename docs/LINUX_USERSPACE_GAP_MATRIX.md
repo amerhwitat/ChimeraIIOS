@@ -45,3 +45,6 @@ The production gate remains fail-closed. Required evidence is a native build and
 ## Linux source mapping
 
 Use Linux as a behavioral reference, not as code to copy wholesale: initramfs and rootfs handling (init/initramfs.c, fs/), process creation and exit (kernel/fork.c, kernel/exit.c), syscall entry and dispatch (arch/x86/entry/, kernel/sys.c), scheduler (kernel/sched/), and procfs (fs/proc/). Exact Linux APIs and source paths vary by kernel release and architecture.
+
+
+> **Memory/astronomy/compiler update (2026-11-01):** See [Koronos memory, astronomy and compiler parity audit](docs/KORONOS_MEMORY_ASTRONOMY_COMPILER_AUDIT_2026-11-01.md) for the initial 64-GiB direct-map uplift, high-memory allocator regression, open-source astronomy catalog and GCC/Clang build status. This does not claim >64-GiB, QEMU high-memory, native astronomy-app or self-hosted compiler acceptance.
