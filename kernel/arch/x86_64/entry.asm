@@ -146,7 +146,9 @@ gdt64_end:
 section .bss
 alignb 4096
 page_table_base:
-pml4_table: resb 4096
+global koronos_bootstrap_pml4
+pml4_table:
+koronos_bootstrap_pml4: resb 4096
 pdpt_table: resb 4096
 pd_table: resb 16384
 alignb 16
