@@ -70,7 +70,10 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
     const uint32_t total = *reinterpret_cast<const uint32_t *>(base);
     if (total < 16u || total > 16u * 1024u * 1024u) return false;
-    bool found_map = false, found_end = false;\n    uint64_t framebuffer_base[8]{};\n    uint64_t framebuffer_size[8]{};\n    uint32_t framebuffer_count = 0;
+    bool found_map = false, found_end = false;
+    uint64_t framebuffer_base[8]{};
+    uint64_t framebuffer_size[8]{};
+    uint32_t framebuffer_count = 0;
     for (uint32_t off = 8u; off <= total - 8u;) {
         const Tag *tag = reinterpret_cast<const Tag *>(base + off);
         if (tag->size < 8u || tag->size > total - off) return false;
@@ -98,7 +101,10 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
             const uint32_t pitch = *reinterpret_cast<const uint32_t *>(base + off + 16u);
             const uint32_t height = *reinterpret_cast<const uint32_t *>(base + off + 24u);
             if (pitch && height && static_cast<uint64_t>(pitch) > UINT64_MAX / height) return false;
-            if (framebuffer_count >= 8u) return false;\n            framebuffer_base[framebuffer_count] = address;\n            framebuffer_size[framebuffer_count] = static_cast<uint64_t>(pitch) * height;\n            ++framebuffer_count;
+            if (framebuffer_count >= 8u) return false;
+            framebuffer_base[framebuffer_count] = address;
+            framebuffer_size[framebuffer_count] = static_cast<uint64_t>(pitch) * height;
+            ++framebuffer_count;
         }
         const uint64_t next = (static_cast<uint64_t>(off) + tag->size + 7u) & ~7ull;
         if (next <= off || next > total) return false;
