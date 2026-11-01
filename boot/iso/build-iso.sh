@@ -96,7 +96,7 @@ if [[ -n "${CHIMERA_BOOT_ARTWORK_OVERRIDE:-}" ]]; then
   python3 - "$CHIMERA_BOOT_ARTWORK_OVERRIDE" <<'PY'
 import pathlib, sys
 data = pathlib.Path(sys.argv[1]).read_bytes()
-if not data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+if data[:8] != bytes.fromhex("89504e470d0a1a0a"):
     raise SystemExit("ERROR: boot artwork override is not a PNG")
 PY
   cp -f "$CHIMERA_BOOT_ARTWORK_OVERRIDE" "$MEDIA/backgrounds/boot.png"
