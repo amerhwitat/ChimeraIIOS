@@ -101,10 +101,15 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
             const uint32_t pitch = *reinterpret_cast<const uint32_t *>(base + off + 16u);
             const uint32_t height = *reinterpret_cast<const uint32_t *>(base + off + 24u);
             if (pitch && height && static_cast<uint64_t>(pitch) > UINT64_MAX / height) return false;
-            if (framebuffer_count >= 8u) return false;
-            framebuffer_base[framebuffer_count] = address;
-            framebuffer_size[framebuffer_count] = static_cast<uint64_t>(pitch) * height;
-            ++framebuffer_count;
+            const uint64_t framebuffer_bytes = static_cast<uint64_t>(pitch) * height;
+            uint64_t framebuffer_end = 0;
+            if (framebuffer_bytes && !range_end(address, framebuffer_bytes, &framebuffer_end)) return false;
+            if (framebuffer_bytes) {
+                if (framebuffer_count >= 8u) return false;
+                framebuffer_base[framebuffer_count] = address;
+                framebuffer_size[framebuffer_count] = framebuffer_bytes;
+                ++framebuffer_count;
+            }
         }
         const uint64_t next = (static_cast<uint64_t>(off) + tag->size + 7u) & ~7ull;
         if (next <= off || next > total) return false;
