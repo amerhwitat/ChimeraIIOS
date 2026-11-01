@@ -2,7 +2,7 @@
   "$schema": "CHM-OPTIONAL-APP-CATALOG-1",
   "title": "Cross-platform Optional Application Catalog",
   "purpose": "Discover optional desktop software associated with Windows, Linux and macOS. Entries are upstream references and package/provider integration targets, not proof that an app is installed, ported, licensed for redistribution, or executable on ChimeraIIOS or OctavianOS.",
-  "updated": "2026-10-22",
+  "updated": "2026-11-01",
   "platforms": [
     "Windows",
     "Linux",
@@ -1286,6 +1286,197 @@
       "panel": "Documents",
       "web_preview": "https://amerhwitat.github.io/apps/pdf-reader.html",
       "notes": "Browser preview is view-only. Native PDF processing, OCR, extraction, and OS launcher support require separate provider verification."
+    },
+    {
+      "id": "stellarium",
+      "name": "Stellarium",
+      "category": "astronomy",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://stellarium.org/",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Astronomy",
+      "notes": "Open-source real-time planetarium; Koronos native port and OpenGL stack not verified.",
+      "build": {
+        "build_system": "CMake",
+        "source": "https://github.com/stellarium/stellarium",
+        "native_dependencies": [
+          "Qt",
+          "OpenGL",
+          "CMake",
+          "C++ compiler"
+        ],
+        "native_compilation": "not-run-on-Koronos",
+        "status": "catalog-only"
+      }
+    },
+    {
+      "id": "kstars",
+      "name": "KStars + Ekos",
+      "category": "astronomy",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://apps.kde.org/kstars/",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Astronomy",
+      "notes": "Planetarium, observing planner and telescope control; Qt/KDE/INDI dependencies not ported.",
+      "build": {
+        "build_system": "CMake",
+        "source": "https://github.com/KDE/kstars",
+        "native_dependencies": [
+          "Qt 6",
+          "KDE Frameworks",
+          "Eigen",
+          "CFITSIO",
+          "StellarSolver",
+          "C++ compiler"
+        ],
+        "native_compilation": "not-run-on-Koronos",
+        "status": "catalog-only"
+      }
+    },
+    {
+      "id": "celestia",
+      "name": "Celestia",
+      "category": "astronomy",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://celestiaproject.space/",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Astronomy",
+      "notes": "Interactive 3D space simulator; OpenGL and graphics driver compatibility not verified.",
+      "build": {
+        "build_system": "CMake",
+        "source": "https://github.com/CelestiaProject/Celestia",
+        "native_dependencies": [
+          "Qt or GTK frontend",
+          "OpenGL",
+          "CMake",
+          "C++ compiler"
+        ],
+        "native_compilation": "not-run-on-Koronos",
+        "status": "catalog-only"
+      }
+    },
+    {
+      "id": "gaiasky",
+      "name": "Gaia Sky",
+      "category": "astronomy",
+      "license": "MPL-2.0",
+      "upstream": "https://gaiasky.space/",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Astronomy",
+      "notes": "Scientific 3D universe visualizer; Java runtime, OpenGL and catalog datasets required.",
+      "build": {
+        "build_system": "Gradle",
+        "source": "https://codeberg.org/gaiasky/gaiasky",
+        "native_dependencies": [
+          "Java LTS JDK",
+          "Gradle wrapper",
+          "OpenGL"
+        ],
+        "native_compilation": "not-run-on-Koronos",
+        "status": "catalog-only"
+      }
+    },
+    {
+      "id": "siril",
+      "name": "Siril",
+      "category": "astronomy",
+      "license": "GPL-3.0-or-later",
+      "upstream": "https://siril.org/",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Astronomy",
+      "notes": "Astronomical image processing; GTK, CFITSIO and OpenMP dependencies not ported.",
+      "build": {
+        "build_system": "CMake",
+        "source": "https://github.com/AstrocatApp/siril",
+        "native_dependencies": [
+          "GTK",
+          "CFITSIO",
+          "OpenMP",
+          "CMake",
+          "C/C++ compiler"
+        ],
+        "native_compilation": "not-run-on-Koronos",
+        "status": "catalog-only"
+      }
+    },
+    {
+      "id": "gpredict",
+      "name": "Gpredict",
+      "category": "astronomy",
+      "license": "GPL-2.0-or-later",
+      "upstream": "https://github.com/csete/gpredict",
+      "platforms": [
+        "Linux",
+        "Windows"
+      ],
+      "integration": "external-package-or-provider",
+      "default_installed": false,
+      "launchability": "not-guaranteed",
+      "panel": "Astronomy",
+      "notes": "Satellite tracking and pass prediction; GTK and orbital-data integration not verified.",
+      "build": {
+        "build_system": "Autotools",
+        "source": "https://github.com/csete/gpredict",
+        "native_dependencies": [
+          "GTK",
+          "GLib",
+          "Autotools",
+          "C compiler"
+        ],
+        "native_compilation": "not-run-on-Koronos",
+        "status": "catalog-only"
+      }
     }
+  ],
+  "categories": [
+    "astronomy",
+    "communication",
+    "compatibility",
+    "creative",
+    "development",
+    "documents",
+    "games",
+    "internet",
+    "media",
+    "network",
+    "productivity",
+    "security",
+    "system",
+    "utilities"
   ]
 }
