@@ -42,27 +42,42 @@ _start:
     mov al, 'E'
     out dx, al
 
-    ; Build the minimal identity paging structures needed to enter long mode.
+    ; Build a 64-GiB identity/direct map using 64 one-GiB PDPT windows.
+    ; The 64-GiB bound matches the x86-64 architectural minimum of 36
+    ; physical-address bits and makes RAM above 4 GiB directly addressable.
     mov edi, page_table_base
     xor eax, eax
-    mov ecx, 6 * 4096 / 4
+    mov ecx, 66 * 4096 / 4
     rep stosd
 
-    ; Materialize relocatable table addresses before applying page flags.
     lea eax, [pdpt_table]
     or eax, 0x003
     mov [pml4_table], eax
+
+    ; Link all 64 PDPT slots to the 64 page directories.
+    lea edi, [pdpt_table]
     lea eax, [pd_table]
-    or eax, 0x003
-    mov [pdpt_table], eax
-    ; Populate 2048 2 MiB PDEs at runtime.  The page-table storage is BSS,
-    ; so it must not contain assembler-time initializers.
+    mov ecx, 64
+.fill_pdpt:
+    mov edx, eax
+    or edx, 0x003
+    mov [edi], edx
+    mov dword [edi + 4], 0
+    add eax, 4096
+    add edi, 8
+    loop .fill_pdpt
+
+    ; Populate 32768 2-MiB PDEs. Carry into EDX to retain address bits above
+    ; 4 GiB while still executing in the 32-bit boot phase.
     lea edi, [pd_table]
     mov eax, 0x00000083
-    mov ecx, 2048
+    xor edx, edx
+    mov ecx, 32768
 .fill_pd:
     mov [edi], eax
+    mov [edi + 4], edx
     add eax, 0x00200000
+    adc edx, 0
     add edi, 8
     loop .fill_pd
 
@@ -150,7 +165,7 @@ page_table_base:
 pml4_table:
 koronos_bootstrap_pml4: resb 4096
 pdpt_table: resb 4096
-pd_table: resb 16384
+pd_table: resb 64 * 4096
 alignb 16
 boot_context: resb 88
 multiboot_magic: resd 1
