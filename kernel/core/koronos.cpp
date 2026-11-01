@@ -13,6 +13,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/vfs.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -244,6 +245,13 @@ static void task_modules(void *) {
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
         if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+            const int mount_rc = koronos_target_mount_initramfs();
+            if (mount_rc != 0) {
+                console_write("[VFS ] ERROR: target initramfs CPIO-newc mount failed; init launch withheld");
+                chimera_sched_block();
+                return;
+            }
+            console_write("[VFS ] Target initramfs mounted; read-only archive and /tmp RAM overlay ready");
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
                 console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
