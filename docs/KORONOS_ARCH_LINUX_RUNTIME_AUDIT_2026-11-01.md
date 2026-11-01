@@ -69,6 +69,8 @@ Do not silently assume vendored Octavian fixes are upstreamed to ChimeraIIOS. Po
 
 The shared ISO builder now accepts optional, validated `CHIMERA_BOOT_ARTWORK_OVERRIDE` and `CHIMERA_BOOT_ARTWORK_MANIFEST` inputs. Default Chimera builds retain their existing artwork. Octavian's native ISO workflow supplies its rendered PNG and original-artwork manifest, so the same Octavian image is staged as the visual boot image and in Spit Fire/Jasper/GRUB/Koronos namespaces. The final-ISO verifier remains strict; the test is not weakened.
 
+The ISO builders in both repositories now accept the same opt-in override contract; the Octavian workflow supplies its generated PNG and manifest. This change is carried in [PR #215](https://github.com/amerhwitat/ChimeraIIOS/pull/215). The updated [Boot and ISO validation run #41325458852](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41325458852) and [Koronos boot matrix #41325458655](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41325458655) were still running at the time of this audit; the fix is not yet CI-verified.
+
 This change must pass a fresh native ISO workflow before the artwork gate is considered fixed.
 
 ## 6. Ordered Koronos implementation plan against Linux/Arch
