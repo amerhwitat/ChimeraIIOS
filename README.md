@@ -171,3 +171,8 @@ An isolated Multiboot/ELF32 serial probe is available under `kernel/arch/x86_32/
 ## Endianness across Koronos, microkernel, compatibility and mobile
 
 The canonical rules are defined in [`system/architecture/endianness.json`](system/architecture/endianness.json), with freestanding byte-order helpers in [`kernel/include/chimera/endianness.h`](kernel/include/chimera/endianness.h). x86 real16/protected32/long64 are little-endian; ARM32/AArch64 depend on target architecture and active controls; RISC-V uses the standard little-endian profile unless a concrete supported platform specifies otherwise; MIPS/PowerPC are target-ABI-selected; s390x is big-endian. The boot handoff carries explicit endian metadata. Serialized microkernel IPC and fixed-width boot fields use canonical little-endian encoding, while native in-memory structures remain ABI-specific. Emulation and compatibility modes must preserve guest byte order independently of host order. See also the [mobile sync contract](mobile/mobile-sync.json) and [compatibility-mode matrix](system/hardware/compatibility-modes.json). Contract and static tests are not proof of each CPU backend's correctness; backend conformance and big-endian-host execution remain required.
+
+
+## Koronos kernel and userspace parity audit
+
+The current evidence-based comparison against the Linux kernel and Arch Linux userspace, including the distinction between source presence, candidate ring-3 tests, and production acceptance, is documented in [docs/KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md](docs/KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md). This is an implementation roadmap, not a claim of Linux compatibility or release readiness.
