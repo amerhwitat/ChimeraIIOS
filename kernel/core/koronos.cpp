@@ -10,6 +10,7 @@
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
 #include "chimera/frame_allocator.h"
+#include "chimera/address_space.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -427,6 +428,16 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
+    const int address_space_init = (frame_allocator_status == 0)
+        ? koronos_address_space_init() : -1;
+    const int address_space_test = (address_space_init == 0)
+        ? koronos_address_space_self_test() : -1;
+    if (address_space_test == 0) {
+        console_write("[MM  ] Address-space self-test passed: user/supervisor and W^X mappings validated; frames reclaimed");
+        console_write("[MM  ] Page-table accesses use the physical-to-virtual mapper (current default: low-4-GiB identity map)");
+    } else {
+        console_write("[MM  ] ADDRESS-SPACE BACKEND BLOCKED: user-image launch remains disabled");
+    }
     console_progress(25, "Architecture and interrupt setup complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
