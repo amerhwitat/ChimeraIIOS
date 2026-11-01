@@ -5,7 +5,7 @@ static bool add_ok(uint64_t a,uint64_t b,uint64_t*out){if(a>UINT64_MAX-b)return 
 static bool align_up(uint64_t x,uint64_t*out){if(x>UINT64_MAX-(CHIMERA_ELF_PAGE_SIZE-1u))return false;*out=(x+CHIMERA_ELF_PAGE_SIZE-1u)&~(CHIMERA_ELF_PAGE_SIZE-1u);return true;}
 static uint64_t align_down(uint64_t x){return x&~(CHIMERA_ELF_PAGE_SIZE-1u);}
 static bool inside(uint64_t o,uint64_t n,uint64_t z){uint64_t e=0;return add_ok(o,n,&e)&&e<=z;}
-static bool user_addr(uint64_t a){return a<CHIMERA_ELF_USER_LIMIT;}
+static bool user_addr(uint64_t a){return a>=CHIMERA_ELF_USER_MIN&&a<CHIMERA_ELF_USER_LIMIT;}
 struct Plan{koronos_elf64_phdr ph;uint64_t base,size,delta,end;};
 }
 extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,uint16_t machine,
