@@ -21,7 +21,7 @@ static bool align4(uint64_t n,uint64_t*out){uint64_t t;if(!add(n,3,&t))return fa
 static bool normalize(const char*in,char*out){if(!in)return false;uint32_t i=0,o=0;while(in[i]=='/')i++;if(!in[i]){out[0]='/';out[1]=0;return true;}out[o++]='/';while(in[i]){uint32_t start=i;while(in[i]&&in[i]!='/'){if(o>=PATH_BYTES-2)return false;out[o++]=in[i++];}uint32_t n=i-start;if((n==1&&out[o-1]=='.')||(n==2&&out[o-2]=='.'&&out[o-1]=='.'))return false;if(in[i]=='/'){while(in[i]=='/')i++;if(in[i])out[o++]='/';}}out[o]=0;return o>0;}
 static int find_file(const char*p){for(uint32_t i=0;i<count;i++){const char*a=files[i].path;uint32_t j=0;while(a[j]&&p[j]&&a[j]==p[j])j++;if(!a[j]&&!p[j])return (int)i;}return -1;}
 static int find_temp(const char*p){for(uint32_t i=0;i<TEMP_FILES;i++)if(temps[i].used){uint32_t j=0;while(temps[i].path[j]&&p[j]&&temps[i].path[j]==p[j])j++;if(!temps[i].path[j]&&!p[j])return (int)i;}return -1;}
-static int alloc_fd(int file,bool writable){for(uint32_t i=0;i<KORONOS_VFS_MAX_FDS;i++)if(!fds[i].used){fds[i]={file,0,1,(uint8_t)writable};return (int)i;}return -24;}
+static int alloc_fd(int file,bool writable){for(uint32_t i=0;i<KORONOS_VFS_MAX_FDS;i++)if(!fds[i].used){fds[i]={file,0,1,(uint8_t)writable};return (int)i+3;}return -24;}
 }
 extern "C" int koronos_vfs_mount_cpio(const void*archive,uint64_t length){
  if(!archive||length<110||length>256ull*1024ull*1024ull||archive_busy)return -1;
@@ -69,8 +69,8 @@ extern "C" int koronos_vfs_open(const char*path,uint32_t flags){
  return alloc_fd(f,false);
 }
 extern "C" int64_t koronos_vfs_read(int fd,void*buffer,uint64_t length){
- if(fd<0||fd>=(int)KORONOS_VFS_MAX_FDS||!fds[fd].used||(!buffer&&length))return -9;
- Fd&d=fds[fd];const uint8_t*data=nullptr;uint64_t size=0;
+ if(fd<0||fd<3||fd>=(int)KORONOS_VFS_MAX_FDS+3||!fds[fd-3].used||(!buffer&&length))return -9;
+ Fd&d=fds[fd-3];const uint8_t*data=nullptr;uint64_t size=0;
  if(d.file<=-100){Temp&t=temps[-100-d.file];data=t.data;size=t.size;}else{File&f=files[d.file];data=f.data;size=f.size;}
  if(d.position>=size)return 0;uint64_t n=length<size-d.position?length:size-d.position;
  uint8_t*out=(uint8_t*)buffer;for(uint64_t i=0;i<n;i++)out[i]=data[d.position+i];d.position+=(uint32_t)n;return (int64_t)n;
@@ -87,4 +87,4 @@ extern "C" int64_t koronos_vfs_seek(int fd,int64_t offset,uint32_t whence){
  int64_t base=whence==SEEK_SET?0:(whence==SEEK_CUR?(int64_t)d.position:(whence==SEEK_END?(int64_t)size:-1));
  if(base<0||offset< -base||offset>INT32_MAX-base)return -22;d.position=(uint32_t)(base+offset);return (int64_t)d.position;
 }
-extern "C" int koronos_vfs_close(int fd){if(fd<0||fd>=(int)KORONOS_VFS_MAX_FDS||!fds[fd].used)return -9;fds[fd]={};return 0;}
+extern "C" int koronos_vfs_close(int fd){if(fd<0||fd>=(int)KORONOS_VFS_MAX_FDS||!fds[fd].used)return -9;fds[fd-3]={};return 0;}
