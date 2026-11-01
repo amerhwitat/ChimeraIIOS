@@ -62,3 +62,18 @@ The Koronos build uses selectable GCC/G++ and Clang/Clang++ toolchains (plus NAS
 ## Follow-up: real high-memory access probe
 
 The kernel now exposes `koronos_frame_allocator_highmem_self_test()`. On a machine with usable memory above 4 GiB it allocates a frame above 4 GiB, writes and reads two 64-bit patterns through the identity/direct map, and frees the frame. If no usable RAM exists above 4 GiB the probe reports a skip; if the read/write/free test fails, Koronos marks frame initialization failed so the address-space backend remains disabled. Both repositories' Koronos boot workflows now request a 5-GiB QEMU guest and require the high-memory pass marker. The Octavian native build workflow also rebuilds with Clang/Clang++ after GCC/G++ and runs the synthetic allocator regression.
+
+
+## Desktop and application-framework comparison
+
+| Area | Windows implementation | Linux desktop implementation | Current Chimera/Octavian implementation |
+|---|---|---|---|
+| Shell/desktop | Explorer shell, Start menu, taskbar and Win32 window manager | GNOME Shell/KDE Plasma over Wayland or X11 | Aurora and Marine are HTML/CSS/JS desktop prototypes; Marine now exposes astronomy project links and Aurora consumes the optional-app catalog |
+| App discovery | Start menu, MSIX/winget and registered application links | XDG desktop entries, package managers, Flatpak/AppImage and portals | JSON optional-app catalog with explicit external-provider/catalog-only states; no native astronomy package provider yet |
+| Window/compositor | DWM, Win32 windowing and graphics stack | Wayland compositor, XDG portals and toolkit backends | Native compositor/window protocol and GPU driver integration remain incomplete |
+| Background services | Windows Service Control Manager | systemd service units and D-Bus activation | Koronos service manifest/dependency state only; full process supervision is not complete |
+| Astronomy apps | Windows builds exist for Stellarium, KStars, Celestia, Gaia Sky and Siril | Linux packages/source builds exist for the listed projects | Upstream links and build recipes are catalogued; no app is yet ported/compiled/launched natively |
+
+The comparison is architectural rather than a claim of binary compatibility. Windows uses the Service Control Manager to maintain service records and start/stop service and driver processes; Linux VFS and desktop stacks rely on process-context filesystem calls, XDG launch metadata and compositor protocols. The OS desktop pages should not be described as equivalent to Explorer, GNOME or Plasma until their native window manager, compositor, accessibility, input, file associations, application lifecycle and package-provider contracts are implemented and tested.
+
+References: https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager ; https://docs.kernel.org/filesystems/vfs.html ; https://apps.kde.org/kstars/ ; https://stellarium.org/ .
