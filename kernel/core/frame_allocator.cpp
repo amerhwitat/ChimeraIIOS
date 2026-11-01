@@ -191,3 +191,29 @@ extern "C" uint64_t koronos_frame_free_count(void) {
     unlock();
     return result;
 }
+extern "C" int koronos_frame_allocator_highmem_self_test(void) {
+    if (!initialized) return -1;
+    const uint32_t first_high_page = static_cast<uint32_t>(0x100000000ull / KORONOS_FRAME_SIZE);
+    uint32_t selected = PAGE_COUNT;
+    lock();
+    for (uint32_t i = first_high_page; i < PAGE_COUNT; ++i) {
+        if (bit(free_bitmap, i)) {
+            clear_bit(free_bitmap, i);
+            set_bit(allocated_bitmap, i);
+            --free_pages;
+            selected = i;
+            break;
+        }
+    }
+    unlock();
+    if (selected == PAGE_COUNT) return 1; /* No usable RAM above 4 GiB. */
+
+    const uint64_t physical = static_cast<uint64_t>(selected) * KORONOS_FRAME_SIZE;
+    volatile uint64_t *probe = reinterpret_cast<volatile uint64_t *>(static_cast<uintptr_t>(physical));
+    probe[0] = 0x4B4F524F4E4F5348ull;
+    probe[1] = ~0x4B4F524F4E4F5348ull;
+    const bool ok = probe[0] == 0x4B4F524F4E4F5348ull &&
+                    probe[1] == ~0x4B4F524F4E4F5348ull;
+    const int free_rc = koronos_frame_free(physical);
+    return ok && free_rc == 0 ? 0 : -2;
+}
