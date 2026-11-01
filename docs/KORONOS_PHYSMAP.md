@@ -28,3 +28,9 @@ OctavianOS has the same source/header and uses this API for address-space page-t
 ## Remaining work
 
 The next layer must make page-table frame ownership transactional, preserve kernel mappings intentionally, and guarantee rollback on every allocation or mapping failure. Then the ELF loader, user entry and scheduler-owned task lifecycle can be integrated. No readiness gate is changed by this work.
+
+## Transactional ELF loader dependency
+
+The adjacent `process_loader.cpp` now enforces a user virtual-address floor of 4 GiB and requires page-aligned stack sizes. It validates the complete PT_LOAD plan before creating an address space, rejects W+X and page-rounded overlaps, zeroes BSS and stack memory, and destroys the staged address space if any segment or stack mapping fails. Its output structure is published only after the complete image has been prepared.
+
+Host regressions cover successful copy/BSS/stack setup, segment-map failure, stack-map failure, invalid stack alignment, W+X, page overlap and low-address rejection. The tests use a mock mapper: they validate loader transaction behavior, not real page-table teardown or hardware TLB behavior.
