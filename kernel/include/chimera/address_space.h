@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define KORONOS_USER_VIRTUAL_MIN 0x0000000100000000ull
+#define KORONOS_USER_VIRTUAL_MIN 0x0000001000000000ull
 #define KORONOS_ADDRESS_SPACE_ABI 1u
 
 /* Enables the process address-space backend after the physical allocator and
