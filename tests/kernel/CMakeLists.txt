@@ -118,3 +118,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_physmap_range_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME chimera_physmap_range COMMAND chimera_physmap_range_test)
+
+add_executable(chimera_process_loader_transaction_test
+  process_loader_transaction_test.cpp
+  ../../kernel/core/process_loader.cpp
+  ../../kernel/core/elf64.cpp
+)
+target_include_directories(chimera_process_loader_transaction_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_process_loader_transaction_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_process_loader_transaction_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME chimera_process_loader_transaction COMMAND chimera_process_loader_transaction_test)
