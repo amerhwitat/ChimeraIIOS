@@ -9,6 +9,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/frame_allocator.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -412,7 +413,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
-    console_progress(15, "Multiboot2 modules scanned");
+    const int frame_status = koronos_frame_allocator_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
+    if (frame_status == 0) {
+        console_write("[MM  ] Physical frame allocator initialized (4-GiB ceiling enforced)");
+    } else {
+        console_write("[MM  ] FRAME ALLOCATOR UNAVAILABLE: unsupported or invalid Multiboot2 memory map");
+    }
+    console_progress(15, "Multiboot2 modules and physical memory map processed");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
