@@ -21,7 +21,7 @@ int main(){
  assert(koronos_vfs_mount_cpio(archive,used)==0);
  assert(koronos_vfs_is_mounted()==1&&koronos_vfs_file_count()==1);
  int fd=koronos_vfs_open("/etc/os-release",0);assert(fd>=0);
- char out[64]{};assert(koronos_vfs_read(fd,out,sizeof(out))==27);
+ char out[64]{};assert(koronos_vfs_read(fd,out,sizeof(out))==23);
  assert(std::strcmp(out,"NAME=Chimera\nVERSION=2\n")==0);
  assert(koronos_vfs_seek(fd,5,0)==5);std::memset(out,0,sizeof(out));
  assert(koronos_vfs_read(fd,out,4)==4&&std::strcmp(out,"Chim")==0);
