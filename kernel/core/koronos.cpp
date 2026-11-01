@@ -278,8 +278,11 @@ static void task_live(void *) {
 static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
-        console_write("[REC ] Recovery initramfs module recognized");
-        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+        console_write("[REC ] Recovery CPIO-newc initramfs module recognized");
+        const int vfs_rc = koronos_vfs_mount_cpio(reinterpret_cast<const void *>(static_cast<uintptr_t>(image->base)), image->size);
+        if (vfs_rc == 0) console_write("[VFS ] Recovery initramfs mounted read-only; /tmp RAM overlay available");
+        else console_write("[VFS ] ERROR: Recovery initramfs CPIO mount failed; recovery userspace remains withheld");
+        console_write("[USER] Recovery handoff withheld: native recovery init ELF and repair service lifecycle are not yet wired");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
