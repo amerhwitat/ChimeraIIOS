@@ -4,10 +4,10 @@
 extern "C" {
 #endif
 #define KORONOS_FRAME_SIZE 4096ull
-#define KORONOS_FRAME_PHYS_LIMIT 0x100000000ull
+#define KORONOS_FRAME_PHYS_LIMIT 0x1000000000ull
 /* Initialize from the Multiboot2 memory-map tag. Must run after module scan. */
 int koronos_frame_allocator_init(uint64_t multiboot_info, uint64_t kernel_base, uint64_t kernel_end);
-/* Returned physical addresses are identity-mapped by the bootstrap map. */
+/* Returned physical addresses are identity-mapped by the 64-GiB bootstrap direct map. */
 uint64_t koronos_frame_alloc(void);
 uint64_t koronos_frame_alloc_contiguous(uint32_t page_count);
 int koronos_frame_free(uint64_t physical_address);
