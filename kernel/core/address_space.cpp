@@ -315,6 +315,21 @@ static bool address_space_self_test() {
              koronos_address_space_validate_user_range(space->root_physical,
                  0x00100000ull, 1u, 0u) != 0;
     }
+    if (ok) {
+#if defined(__x86_64__)
+        uint64_t kernel_cr3 = 0;
+        __asm__ volatile("mov %%cr3, %0" : "=r"(kernel_cr3));
+        const uint64_t user_root = space->root_physical;
+        __asm__ volatile("mov %0, %%cr3" : : "r"(user_root) : "memory");
+        destroy_address_space(nullptr, space);
+        const bool active_root_retained = space_valid(space) &&
+            koronos_frame_free_count() < before;
+        __asm__ volatile("mov %0, %%cr3" : : "r"(kernel_cr3) : "memory");
+        ok = active_root_retained;
+#else
+        ok = false;
+#endif
+    }
     destroy_address_space(nullptr, space);
     return ok && koronos_frame_free_count() == before;
 }
