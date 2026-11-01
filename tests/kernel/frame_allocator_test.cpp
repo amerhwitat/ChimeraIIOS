@@ -23,6 +23,10 @@ static size_t make_info(uint8_t *b, bool above4g, bool framebuffer) {
         put32(b + off + 56, 1); put32(b + off + 60, 0);
     }
     off += above4g ? 64 : 40;
+    put32(b + off, 3); put32(b + off + 4, 20);
+    put32(b + off + 8, 0x300000); put32(b + off + 12, 0x400000);
+    memcpy(b + off + 16, "mod", 4);
+    off += 24;
     if (framebuffer) {
         put32(b + off, 8); put32(b + off + 4, 32);
         put64(b + off + 8, 0x1000000);
@@ -59,9 +63,15 @@ int main(int argc, char **argv) {
     assert(koronos_frame_free(first + 1) == -1);
     assert(koronos_frame_free(0x100000) == -2); // reserved kernel page is not owned by the allocator
 
-    /* The 1-MiB framebuffer range must remain reserved even though it lies in
-       the firmware's reported usable range. */
+    /* Module payloads must be reserved even if the bounded module registry
+       did not enumerate them. */
     uint64_t address = 0;
+    do {
+        address = koronos_frame_alloc();
+        assert(address != 0);
+    } while (address < 0x400000);
+    assert(address >= 0x400000);
+    /* The framebuffer range must remain reserved despite usable-RAM overlap. */
     do {
         address = koronos_frame_alloc();
         assert(address != 0);
