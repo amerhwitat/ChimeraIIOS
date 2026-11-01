@@ -8,7 +8,7 @@ static size_t used=0;
 static void pad4(){while(used&3u)archive[used++]=0;}
 static void entry(const char*name,uint32_t mode,const char*data){
  char h[111];std::memset(h,'0',110);std::memcpy(h,"070701",6);
- auto hex=[&](unsigned off,uint32_t v){std::snprintf(h+off,9,"%08x",v);};
+ auto hex=[&](unsigned off,uint32_t v){static const char digits[]="0123456789abcdef";for(int i=7;i>=0;--i){h[off+i]=digits[v&15u];v>>=4;}};
  hex(6,1);hex(14,mode);hex(22,0);hex(30,0);hex(38,1);hex(46,0);
  uint32_t n=(uint32_t)std::strlen(name)+1,z=(uint32_t)std::strlen(data);
  hex(54,z);hex(62,0);hex(70,0);hex(78,0);hex(86,0);hex(94,n);hex(102,0);
