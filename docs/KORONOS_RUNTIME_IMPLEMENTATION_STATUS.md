@@ -261,3 +261,22 @@ This confirms the BSP TSS load and CR3 address-space primitive execute in QEMU, 
 Octavian's final vendored boot-routing validation after synchronizing the missing live/full builder scripts and original Chimera wallpaper/manifest passed in run 41376946110, including language catalog validation, GRUB parsing, target graph, installer routing, ISO payload validator, splash contracts, shell syntax and desktop companion smoke. Earlier partial-sync failures were superseded by this final-head success.
 
 The latest Full ISO workflow run 41376751779 remains pending at this ledger update. ISO composition and target-specific Live/Installer/Recovery handoff on the final head are therefore not yet verified. The production release gate remains closed.
+
+## 13. Multiboot2 framebuffer console — implementation slice (2026-11-02)
+
+- Added an optional Multiboot2 800x600x32 direct-RGB framebuffer request to the x86-64 entry header. GRUB's boot policy remains 800x600 with 640x480 fallback.
+- Added a bounded Multiboot2 framebuffer-tag parser. It validates total/tag sizes, direct-RGB type, 24/32-bpp format, dimensions, pitch, non-overlapping RGB fields, and the complete framebuffer range against the currently mapped low-4-GiB physical window.
+- Added a freestanding RGB framebuffer text renderer with scrolling. Koronos sends normal log lines, raw progress text and line endings to the framebuffer while retaining VGA text and COM1/debugcon fallback.
+- Added malformed-tag, invalid-pitch, out-of-range framebuffer, unsupported-format and invalid-total-size host tests to the canonical Koronos build.
+- Added Aurora desktop mode preference ordering: 5120x2880, 1024x768, 640x480, then other detected modes. This is a preference, not a claim that the GPU supports those modes.
+- Kernel Build run 41378074124 passed on code commit `c8340349ad9e081b0a06ca38aea49af5bb649b9e`, including the canonical build and framebuffer unit runner. Boot and ISO validation run 41378074011 passed on that same revision. The QEMU boot matrix and Full ISO workflow were still running when this ledger update was prepared; their final result must be read from the exact-head workflow before treating visual boot as verified.
+
+### Explicitly not implemented by this slice
+
+- Native GPU modesetting, EDID mode enumeration, vendor driver programming, or framebuffer replacement.
+- Target-ready event production and mode transition gates for Live, Installer, Recovery and the desktop compositor.
+- Visual BIOS and UEFI screenshots, unavailable-mode fallback evidence, and real 5120x2880 hardware validation.
+- AP startup, task-owned kernel stacks, saved contexts/context switching, CPL3 entry/return, process-bound syscalls, production VFS, production Installer init ELF, storage-backed installation, or six-case disposable-disk persistence acceptance.
+
+The framebuffer console is an early boot display facility only. It does not change native-init exit 78, process/user readiness, installer/recovery readiness, or the production release decision. Keep this work in a draft PR until exact-head QEMU/ISO results and review are complete.
+
