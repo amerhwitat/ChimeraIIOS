@@ -480,7 +480,14 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     } else {
         console_write("[MM  ] ERROR: address-space backend unavailable or self-test failed; userspace launch remains disabled");
     }
-    console_progress(25, "Architecture, physmap and address-space safety checks complete");
+    const int context_switch_test = (address_space_test == 0 && cpu_state_status == 0)
+        ? context_switch_self_test() : -1;
+    if (context_switch_test == 0) {
+        console_write("[SCH ] BSP same-CR3 saved-context switch self-test passed; process scheduling remains disabled");
+    } else {
+        console_write("[SCH ] ERROR: saved-context switch self-test failed; process scheduling remains disabled");
+    }
+    console_progress(25, "Architecture, physmap, address-space and context checks complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");
