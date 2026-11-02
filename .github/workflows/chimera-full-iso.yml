@@ -247,6 +247,11 @@ jobs:
               accepted=false
               continue
             fi
+            if ! grep -Fq '[MM  ] Address-space self-test passed: CR3 switch/restore' "$trace"; then
+              echo "::warning::$target target did not verify CR3 address-space switching"
+              accepted=false
+              continue
+            fi
             if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
               echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
               accepted=false
