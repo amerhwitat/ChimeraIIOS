@@ -416,7 +416,10 @@ static void context_test_entry(void *) {
         chimera_x86_64_cpu_kernel_stack(0) == context_test_child.kernel_stack_top;
     const bool child_pid_active =
         chimera_x86_64_cpu_current_pid(0) == context_test_child.pid;
-    context_test_result = child_stack_active && child_pid_active ? 1u : 2u;
+    const bool child_root_active =
+        koronos_address_space_current_root() == context_test_child.cr3;
+    context_test_result =
+        child_stack_active && child_pid_active && child_root_active ? 1u : 2u;
     if (koronos_x86_64_context_switch(&context_test_child, &context_test_main) != 0)
         context_test_result = 3u;
     for (;;) __asm__ volatile("cli; hlt" ::: "memory");
@@ -424,35 +427,52 @@ static void context_test_entry(void *) {
 
 static int context_switch_self_test() {
     const uint64_t root = koronos_address_space_current_root();
-    if (!root) return -1;
+    const chimera_elf_load_ops *ops = koronos_address_space_loader_ops();
+    if (!root || !ops || !ops->create_address_space || !ops->destroy_address_space)
+        return -1;
+    void *child_space = ops->create_address_space(nullptr);
+    if (!child_space) return -2;
+    const uint64_t child_root = koronos_address_space_root(child_space);
+    if (!child_root || child_root == root) {
+        ops->destroy_address_space(nullptr, child_space);
+        return -3;
+    }
+
     koronos_kernel_stack stack{};
-    if (koronos_kernel_stack_allocate(&stack) != 0) return -2;
+    if (koronos_kernel_stack_allocate(&stack) != 0) {
+        ops->destroy_address_space(nullptr, child_space);
+        return -4;
+    }
 
     context_test_main = {};
     context_test_child = {};
+    context_test_main.cr3 = root;
     context_test_main.kernel_stack_top = chimera_x86_64_cpu_kernel_stack(0);
     context_test_main.pid = chimera_x86_64_cpu_current_pid(0);
     context_test_result = 0;
     if (!context_test_main.kernel_stack_top ||
         koronos_x86_64_context_prepare(
             &context_test_child, stack.base, stack.top - stack.base,
-            root, context_test_entry, nullptr) != 0) {
+            child_root, context_test_entry, nullptr) != 0) {
         (void)koronos_kernel_stack_release(&stack);
-        return -3;
+        ops->destroy_address_space(nullptr, child_space);
+        return -5;
     }
     context_test_child.kernel_stack_top = stack.top;
     context_test_child.pid = 0x7FFF0001u;
 
     if (koronos_x86_64_context_switch(&context_test_main, &context_test_child) != 0) {
         (void)koronos_kernel_stack_release(&stack);
-        return -4;
+        ops->destroy_address_space(nullptr, child_space);
+        return -6;
     }
-    const bool restored = chimera_x86_64_cpu_kernel_stack(0) ==
-            context_test_main.kernel_stack_top &&
+    const bool restored = koronos_address_space_current_root() == root &&
+        chimera_x86_64_cpu_kernel_stack(0) == context_test_main.kernel_stack_top &&
         chimera_x86_64_cpu_current_pid(0) == context_test_main.pid;
     const bool child_ran = context_test_result == 1u;
+    ops->destroy_address_space(nullptr, child_space);
     const int release = koronos_kernel_stack_release(&stack);
-    return restored && child_ran && release == 0 ? 0 : -5;
+    return restored && child_ran && release == 0 ? 0 : -7;
 }
 
 extern "C" void chimera_register_virtio_drivers(void);
