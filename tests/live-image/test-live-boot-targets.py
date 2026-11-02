@@ -42,6 +42,13 @@ class UnifiedBootTargetTests(unittest.TestCase):
                 self.assertIn("5120x2880", config)
                 self.assertIn("set gfxpayload=keep", config)
                 self.assertIn("set debug=all", config)
+        self.assertIn("--id install", NATIVE_GRUB)
+        self.assertIn("--id recovery", NATIVE_GRUB)
+        self.assertIn("Install", JASPER)
+        self.assertIn("Recovery", JASPER)
+        self.assertIn("Live", SPITFIRE)
+        self.assertIn("Install", SPITFIRE)
+        self.assertIn("Recovery", SPITFIRE)
 
     def test_installer_fails_closed_without_native_payload(self):
         start = MENU.index("--id installer")
