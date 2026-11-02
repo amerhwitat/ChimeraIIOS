@@ -69,7 +69,7 @@ extern "C" int chimera_x86_64_cpu_set_kernel_stack(
      * current-CPU binding is not implemented by this layer. */
     uint64_t rflags = 0;
     __asm__ volatile("pushfq; popq %0" : "=r"(rflags) :: "memory");
-    if (rflags & (1ull << 9)) return -3;
+    if (!chimera_x86_64_tss_update_allowed(rflags)) return -3;
     cpus[cpu_id].tss.rsp0 = stack_top;
     __asm__ volatile("" ::: "memory");
     return 0;
