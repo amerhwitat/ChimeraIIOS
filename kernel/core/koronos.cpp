@@ -336,37 +336,45 @@ static const char *task_state_name(uint32_t state) {
 }
 
 static void task_monitor(void *) {
-    static uint32_t ticks = 0;
-    // The scheduler is a tight cooperative loop; sampling every 10 dispatches
-    // floods VGA/serial output and makes a healthy kernel look hung. Keep the
-    // monitor live, but emit a full snapshot only once per 1000 monitor runs.
-    // This is currently a diagnostic snapshot, not a timer-driven service.
-    // Emit it once; repeated polling here floods VGA/serial and obscures the
-    // actual handoff state. A timer/event source can wake a periodic monitor later.
-    if (++ticks > 1u) { chimera_sched_block(); return; }
-    chimera_task_info info[32]{};
-    uint32_t n = chimera_sched_snapshot(info, 32);
-    console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
-    console_write("[MON ] CPUs: ");
-    console_u32(chimera_sched_cpu_count());
-    console_write("[MON ] Runnable: ");
-    console_u32(chimera_sched_runnable_count());
-    for (uint32_t i = 0; i < n; ++i) {
-        // Keep each process record on one VGA/serial line. The previous
-        // label/value-per-line format made the monitor look corrupted once
-        // the 25-row VGA console started scrolling.
-        console_raw("[PROC] id=");
-        console_u32_raw(info[i].id);
-        console_raw(" cpu=");
-        console_u32_raw(info[i].cpu);
-        console_raw(" state=");
-        console_raw(task_state_name(info[i].state));
-        console_raw(" priority=");
-        console_u32_raw(info[i].priority);
-        console_raw(" runs=");
-        console_u32_raw((uint32_t)info[i].runs);
-        console_endline();
+    static uint32_t phase = 0;
+    if (phase++ == 0) {
+        chimera_task_info info[32]{};
+        uint32_t n = chimera_sched_snapshot(info, 32);
+        console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
+        console_write("[MON ] CPUs: ");
+        console_u32(chimera_sched_cpu_count());
+        console_write("[MON ] Runnable: ");
+        console_u32(chimera_sched_runnable_count());
+        for (uint32_t i = 0; i < n; ++i) {
+            console_raw("[PROC] id=");
+            console_u32_raw(info[i].id);
+            console_raw(" cpu=");
+            console_u32_raw(info[i].cpu);
+            console_raw(" state=");
+            console_raw(task_state_name(info[i].state));
+            console_raw(" priority=");
+            console_u32_raw(info[i].priority);
+            console_raw(" runs=");
+            console_u32_raw((uint32_t)info[i].runs);
+            console_endline();
+        }
+        chimera_sched_yield();
+        debugcon_write("[SCH ] BSP callback resumed after cooperative yield");
+        chimera_sched_block();
+        debugcon_write("[SCH ] BSP callback resumed after wake");
     }
+}
+
+static void task_wake_monitor(void *argument) {
+    static uint32_t phase = 0;
+    const uint32_t monitor_id = static_cast<uint32_t>(
+        reinterpret_cast<uintptr_t>(argument));
+    if (phase++ == 0) {
+        chimera_sched_yield();
+        return;
+    }
+    chimera_sched_wake(monitor_id);
+    debugcon_write("[SCH ] BSP callback woke blocked monitor task");
 }
 
 static void task_kore(void *) {
@@ -390,9 +398,11 @@ static void koronos_submit_bootstrap_tasks() {
     int recovery = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
+    int w = chimera_sched_submit(task_wake_monitor,
+        reinterpret_cast<void *>(static_cast<uintptr_t>(m)), 55);
     console_write("[SCH ] Bootstrap tasks submitted");
     console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0)
+    if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0 || w < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
     }
