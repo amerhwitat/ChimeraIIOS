@@ -6,12 +6,39 @@
 #endif
 #endif
 #include "chimera/scheduler.h"
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+#include "chimera/address_space.h"
+#include "chimera/kernel_stack.h"
+#include "chimera/x86_64_cpu.h"
+#endif
 namespace {
 constexpr uint32_t MAX_CPUS=256,MAX_TASKS=1024;
 enum PendingAction : uint8_t { ACTION_NONE=0, ACTION_YIELD=1, ACTION_BLOCK=2, ACTION_EXIT=3 };
-struct Task { chimera_task_fn fn; void* arg; chimera_task_info info; uint32_t round_seen=0; uint8_t pending_action=ACTION_NONE; };
+struct Task {
+    chimera_task_fn fn;
+    void* arg;
+    chimera_task_info info;
+    uint32_t round_seen=0;
+    uint8_t pending_action=ACTION_NONE;
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    koronos_kernel_stack kernel_stack{};
+    chimera_x86_64_context context{};
+    bool stack_ready=false;
+#endif
+};
 Task tasks[MAX_TASKS]; uint32_t count=0,next_id=1,rr=0,dispatch_round=1,cpus=1,lock_word=0;
 volatile int32_t current_index[MAX_CPUS];
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+static chimera_x86_64_context scheduler_context{};
+static void task_context_entry(void *opaque) {
+    Task *task = static_cast<Task *>(opaque);
+    if (!task || !task->fn) for (;;) __asm__ volatile("cli; hlt" ::: "memory");
+    task->fn(task->arg);
+    if (koronos_x86_64_context_switch(&task->context, &scheduler_context) != 0)
+        for (;;) __asm__ volatile("cli; hlt" ::: "memory");
+    for (;;) __asm__ volatile("cli; hlt" ::: "memory");
+}
+#endif
 static void lock(){while(__sync_lock_test_and_set(&lock_word,1u)){} }
 static void unlock(){__sync_lock_release(&lock_word);}
 static bool cpu_allowed(const chimera_task_info& info,uint32_t cpu){
@@ -67,6 +94,11 @@ static void legacy_action(uint8_t action) {
 }
 }
 extern "C" void chimera_sched_init(uint32_t n){
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    for(uint32_t i=0;i<count;i++)
+        if(tasks[i].stack_ready) (void)koronos_kernel_stack_release(&tasks[i].kernel_stack);
+    scheduler_context = {};
+#endif
     lock(); cpus=n?n:1;if(cpus>MAX_CPUS)cpus=MAX_CPUS;
     count=0;rr=0;dispatch_round=1;next_id=1;
     for(uint32_t i=0;i<MAX_TASKS;i++) tasks[i]={};
@@ -76,9 +108,24 @@ extern "C" void chimera_sched_init(uint32_t n){
 extern "C" uint32_t chimera_sched_cpu_count(){lock();uint32_t n=cpus;unlock();return n;}
 extern "C" int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priority){
     if(!fn)return -1;
-    lock();if(count>=MAX_TASKS){unlock();return -2;}
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    koronos_kernel_stack stack{};
+    if(!koronos_address_space_ready() || !chimera_x86_64_cpu_is_ready(0) ||
+       koronos_kernel_stack_allocate(&stack)!=0) return -3;
+#endif
+    lock();
+    if(count>=MAX_TASKS){
+        unlock();
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+        (void)koronos_kernel_stack_release(&stack);
+#endif
+        return -2;
+    }
     uint32_t i=count++;tasks[i]={};tasks[i].fn=fn;tasks[i].arg=arg;
     tasks[i].info={next_id++,0,CHIMERA_TASK_READY,priority,0ull,0,0};
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    tasks[i].kernel_stack=stack;tasks[i].stack_ready=true;
+#endif
     int id=(int)tasks[i].info.id;unlock();return id;
 }
 extern "C" int chimera_sched_set_affinity(uint32_t task_id,uint64_t mask){
@@ -102,7 +149,30 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     tasks[index].info.state=CHIMERA_TASK_RUNNING;tasks[index].info.cpu=cpu;
     tasks[index].pending_action=ACTION_NONE;current_index[cpu]=(int32_t)index;
     fn=tasks[index].fn;arg=tasks[index].arg;unlock();
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    if(cpu!=0 || !tasks[index].stack_ready) {
+        lock();tasks[index].info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
+        return 0;
+    }
+    const uint64_t root=koronos_address_space_current_root();
+    Task &selected_task=tasks[index];
+    selected_task.context={};
+    if(!root || koronos_x86_64_context_prepare(
+        &selected_task.context, selected_task.kernel_stack.base,
+        selected_task.kernel_stack.top-selected_task.kernel_stack.base,
+        root, task_context_entry, &selected_task)!=0) {
+        lock();selected_task.info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
+        return 0;
+    }
+    selected_task.context.kernel_stack_top=selected_task.kernel_stack.top;
+    selected_task.context.pid=selected_task.info.id;
+    if(koronos_x86_64_context_switch(&scheduler_context,&selected_task.context)!=0) {
+        lock();selected_task.info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
+        return 0;
+    }
+#else
     fn(arg);
+#endif
     lock();
     Task &t=tasks[index];t.info.runs++;t.info.ticks++;
     switch(t.pending_action){
