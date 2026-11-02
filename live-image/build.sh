@@ -147,9 +147,9 @@ elif [ "$ED" = "octavian" ] && [ -s "$REPO_DIR/vendor/chimera-ii-os/source/deskt
 fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
-python3 - "$ART" "$PAY" <<'PY'
-import json, os, subprocess, sys
-src, pay = sys.argv[1], sys.argv[2]
+python3 - "$ART" "$PAY" "$REPO_DIR/desktop/marine/assets/marine-desktop.svg" "$ED" <<'PY'
+import json, os, shutil, subprocess, sys
+src, pay, marine_asset, edition = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 manifest = json.load(open(os.path.join(src, "manifest.json")))
 out = []
 for item in manifest:
@@ -158,6 +158,11 @@ for item in manifest:
                     "-resize", "2560x2560>", "-strip", "-quality", "88", dst], check=True)
     out.append({"name": item["name"], "file": item["file"], "url": item["file"],
                 "source": item.get("source", "")})
+if edition == "chimera" and os.path.isfile(marine_asset):
+    marine_name = "marine-desktop.svg"
+    shutil.copy2(marine_asset, os.path.join(pay, "wallpapers", marine_name))
+    out.append({"name": "Marine Desktop — Deep Current", "file": marine_name,
+                "url": marine_name, "source": "desktop/marine/assets/marine-desktop.svg"})
 json.dump(out, open(os.path.join(pay, "wallpapers", "index.json"), "w"), indent=1)
 print("wallpapers:", len(out))
 PY
