@@ -303,3 +303,21 @@ The target trace artifact 13111368542 from Full ISO candidate run 41377107501 co
 These are three different hashes. The artifact therefore cannot be used as evidence that BIOS and UEFI Live/Installer/Recovery all booted from one immutable ISO SHA. It remains useful for target-specific diagnostic traces only. The six-case same-ISO production acceptance requirement remains unmet.
 
 The boot-claims regression test was also extended to assert BSP-only scheduler initialization and the truthful build banner (commit `e4eff82e26be219e4f61c806806c4c262757d78e`). Revalidation run 41378733537 and related checks were queued/in progress at the time of this ledger update.
+
+
+## 12.9 Guarded shared kernel stacks and process ownership bridge (2026-11-02)
+
+Implemented on the current memory-foundation branch:
+
+- Address-space initialization allocates a shared supervisor-only high-half page-table subtree at PML4[511]. The bootstrap root owns it, and each newly created process root inherits the same subtree. Other unknown higher-half entries remain rejected.
+- A bounded 32-slot arena provides one unmapped guard page below eight supervisor writable/NX pages per stack. Stack allocation maps physical frames with rollback on partial failure; release checks that no initialized CPU has the stack top installed as TSS.RSP0.
+- Process records now support attaching, retrieving and detaching a guarded-stack handle. A separate process-stack bridge creates and releases stacks while preserving the handle if release is refused.
+- The boot self-test verifies guard absence, visibility through a second address-space root, and BSP TSS.RSP0 install/restore. It is not a task switch and does not prove the current task has stopped executing on the stack.
+
+Validation on head `4906080184df934318adfaee26b02925eee78b91`:
+- Koronos Kernel Build run [41397184627](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41397184627): PASS.
+- QEMU VMware/boot matrix run [41397184684](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41397184684): PASS; trace contains the exact guarded-stack/TSS self-test success line and KORONOS READY.
+- ELF process-loader unit tests and frame-allocator host tests: PASS.
+- Windows CI/CD run [41397184702](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41397184702): Windows Build and Test PASS.
+
+Still not implemented: scheduler-owned contexts, atomic CR3/RSP0/current-PID handoff, cross-CR3 switching, timer preemption, blocking/wakeup/wait/exit/reap, AP startup, inter-processor TLB shootdowns, and deferred address-space reclamation. Mapping mutations are BSP-only. The process-stack bridge is not called automatically by ELF admission, and no CPL3 execution is enabled. Keep native-init exit 78 and all production release gates fail-closed.
