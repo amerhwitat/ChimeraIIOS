@@ -40,7 +40,12 @@ if [[ -z "$window_id" ]]; then
   exit 1
 fi
 
-state="$(xprop -id "$window_id" _NET_WM_STATE 2>/dev/null || true)"
+state=""
+for attempt in $(seq 1 50); do
+  state="$(xprop -id "$window_id" _NET_WM_STATE 2>/dev/null || true)"
+  grep -q '_NET_WM_STATE_FULLSCREEN' <<<"$state" && break
+  sleep 0.1
+done
 if ! grep -q '_NET_WM_STATE_FULLSCREEN' <<<"$state"; then
   cat "$log_dir/kiosk.log" >&2
   echo "Aurora kiosk did not enter EWMH fullscreen state: $state" >&2
