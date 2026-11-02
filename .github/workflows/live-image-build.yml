@@ -59,6 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
+          python3 tests/live-image/test-live-boot-targets.py
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
           if [[ "chimera" == "chimera" ]]; then
             python3 -m json.tool applications/catalog.json >/dev/null
