@@ -61,6 +61,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 tests/boot/test_iso_target_routing_artwork.py
+          bash -n tests/boot/test-boot-artifact-regressions.sh
+          bash tests/boot/test-boot-artifact-regressions.sh
           for cfg in boot/iso/grub.cfg boot/jasper/*.cfg boot/installation/*.cfg boot/spitfire/*.cfg; do
             grub-script-check "$cfg"
           done
