@@ -414,10 +414,10 @@ PY
 
 # Optional native artifacts are staged only when supplied. No test ELF or
 # missing initramfs is promoted into a production Installer/Recovery target.
-KORONOS_ELF="\${KORONOS_ELF:-$REPO_DIR/build/koronos/x86_64/koronos.elf}"
-INSTALLER_INITRAMFS="\${INSTALLER_INITRAMFS:-}"
-INSTALLATION_IMAGE="\${INSTALLATION_IMAGE:-}"
-RECOVERY_INITRAMFS="\${RECOVERY_INITRAMFS:-}"
+KORONOS_ELF="${KORONOS_ELF:-$REPO_DIR/build/koronos/x86_64/koronos.elf}"
+INSTALLER_INITRAMFS="${INSTALLER_INITRAMFS:-}"
+INSTALLATION_IMAGE="${INSTALLATION_IMAGE:-}"
+RECOVERY_INITRAMFS="${RECOVERY_INITRAMFS:-}"
 if [ -s "$KORONOS_ELF" ]; then install -m644 "$KORONOS_ELF" "$ISODIR/boot/koronos/koronos.elf"; fi
 if [ -n "$INSTALLER_INITRAMFS" ] && [ -s "$INSTALLER_INITRAMFS" ]; then install -m644 "$INSTALLER_INITRAMFS" "$ISODIR/boot/installer/installer-initrd.img"; fi
 if [ -n "$INSTALLATION_IMAGE" ] && [ -s "$INSTALLATION_IMAGE" ]; then install -m644 "$INSTALLATION_IMAGE" "$ISODIR/install/installer/installation.img"; fi
