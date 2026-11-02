@@ -78,3 +78,44 @@ extern "C" uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id) {
     if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return 0;
     return cpus[cpu_id].tss.rsp0;
 }
+
+extern "C" void koronos_x86_64_context_trampoline();
+
+extern "C" int koronos_x86_64_context_prepare(
+    chimera_x86_64_context *context, uint64_t stack_base, uint64_t stack_size,
+    uint64_t cr3, void (*entry)(void *), void *argument) {
+    constexpr uint64_t page_mask = 0xFFFull;
+    constexpr uint64_t physical_limit = 0x100000000ull;
+    if (!context || !entry || !stack_base || stack_size < CHIMERA_X86_64_CONTEXT_FRAME_SIZE ||
+        stack_base > UINT64_MAX - stack_size || !cr3 || cr3 >= physical_limit ||
+        (cr3 & page_mask) != 0) return -1;
+
+    const uint64_t stack_end = stack_base + stack_size;
+    const uint64_t aligned_top = stack_end & ~0xFull;
+    if (aligned_top < stack_base ||
+        aligned_top - stack_base < CHIMERA_X86_64_CONTEXT_FRAME_SIZE ||
+        !canonical(stack_base) || !canonical(aligned_top - 1u)) return -2;
+
+    const uint64_t entry_address = reinterpret_cast<uint64_t>(entry);
+    const uint64_t trampoline_address =
+        reinterpret_cast<uint64_t>(&koronos_x86_64_context_trampoline);
+    if (!canonical(entry_address) || !canonical(trampoline_address)) return -3;
+
+    /* Layout consumed by cpu_state.asm:
+     * r15, r14, r13(entry), r12(argument), rbx, rbp, return RIP, padding.
+     * The first RET leaves RSP at 8 mod 16, as required by the SysV ABI. */
+    auto *frame = reinterpret_cast<uint64_t *>(
+        aligned_top - CHIMERA_X86_64_CONTEXT_FRAME_SIZE);
+    frame[0] = 0;
+    frame[1] = 0;
+    frame[2] = entry_address;
+    frame[3] = reinterpret_cast<uint64_t>(argument);
+    frame[4] = 0;
+    frame[5] = 0;
+    frame[6] = trampoline_address;
+    frame[7] = 0;
+
+    context->rsp = reinterpret_cast<uint64_t>(frame);
+    context->cr3 = cr3;
+    return 0;
+}
