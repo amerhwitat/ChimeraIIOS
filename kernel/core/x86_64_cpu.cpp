@@ -24,8 +24,9 @@ static CpuState cpus[CHIMERA_X86_64_MAX_CPUS];
 extern "C" void koronos_x86_64_load_gdt_tss(
     const chimera_x86_64_gdtr *gdtr, uint16_t selector);
 
-static bool canonical_kernel(uint64_t address) {
-    return address != 0 && (address >> 47) == 0x1FFFFu;
+static bool canonical_stack(uint64_t address) {
+    const uint64_t upper = address >> 47;
+    return address != 0 && (upper == 0 || upper == 0x1FFFFu);
 }
 
 static uint64_t read_msr(uint32_t msr) {
@@ -83,7 +84,7 @@ extern "C" int chimera_x86_64_cpu_init(uint32_t cpu_id) {
 
     const uint64_t stack_top =
         (uint64_t)(uintptr_t)(cpu.entry_stack + sizeof(cpu.entry_stack));
-    if ((stack_top & 0xFu) != 0 || !canonical_kernel(stack_top)) return -3;
+    if ((stack_top & 0xFu) != 0 || !canonical_stack(stack_top)) return -3;
 
     cpu.tss = {};
     cpu.tss.rsp0 = stack_top;
@@ -127,7 +128,7 @@ extern "C" int chimera_x86_64_cpu_set_kernel_stack(
     if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready)
         return -1;
     if (current_logical_id() != cpu_id) return -4;
-    if (!stack_top || (stack_top & 0xFu) != 0 || !canonical_kernel(stack_top))
+    if (!stack_top || (stack_top & 0xFu) != 0 || !canonical_stack(stack_top))
         return -2;
     uint64_t rflags = 0;
     __asm__ volatile("pushfq; popq %0" : "=r"(rflags) :: "memory");
