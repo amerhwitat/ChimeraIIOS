@@ -102,7 +102,7 @@
       "label": "Native C/C++ and Assembly",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py native-core --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py native-core --dry-run",
       "description": "GCC, Clang/LLVM, Binutils, NASM, YASM and build utilities",
       "status": "optional-explicit-install"
     },
@@ -111,7 +111,7 @@
       "label": "Systems languages",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py systems --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py systems --dry-run",
       "description": "Rust, Go, Zig, Fortran, Ada and D",
       "status": "optional-explicit-install"
     },
@@ -120,7 +120,7 @@
       "label": "Managed and JVM languages",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py managed --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py managed --dry-run",
       "description": "Java, Kotlin, Scala, Groovy, C#, F# and Visual Basic .NET",
       "status": "optional-explicit-install"
     },
@@ -129,7 +129,7 @@
       "label": "Scripting and web languages",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py scripting --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py scripting --dry-run",
       "description": "Python, PyPy, JavaScript, TypeScript, PHP, Ruby, Perl, Lua, R and Tcl",
       "status": "optional-explicit-install"
     },
@@ -138,7 +138,7 @@
       "label": "Functional and scientific languages",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py functional-scientific --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py functional-scientific --dry-run",
       "description": "Haskell, OCaml, Pascal, COBOL, Elixir, Erlang, Clojure, Lisp, Scheme and Prolog",
       "status": "optional-explicit-install"
     },
@@ -147,7 +147,7 @@
       "label": "Assembly and reverse engineering",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py assembly-analysis --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py assembly-analysis --dry-run",
       "description": "FASM, NASM, YASM, Capstone, radare2 and binary utilities",
       "status": "optional-explicit-install"
     },
@@ -156,7 +156,7 @@
       "label": "WebAssembly development",
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
-      "install_command": "tools/toolchain/install-language-profile.py webassembly --dry-run",
+      "install_command": "python3 tools/toolchain/install-language-profile.py webassembly --dry-run",
       "description": "WASI/Clang, wasm-ld, WABT and Binaryen",
       "status": "optional-explicit-install"
     }
