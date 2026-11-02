@@ -16,6 +16,9 @@ int koronos_address_space_ready(void);
 int koronos_address_space_self_test(void);
 const chimera_elf_load_ops *koronos_address_space_loader_ops(void);
 uint64_t koronos_address_space_root(const void *address_space);
+int koronos_address_space_activate(const void *address_space, uint64_t *previous_root);
+int koronos_address_space_restore(uint64_t root_physical);
+uint64_t koronos_address_space_current_root(void);
 int koronos_address_space_validate_user_range(uint64_t root_physical, uint64_t address,
                                               uint64_t length, uint32_t write_access);
 uint64_t koronos_address_space_count(void);
