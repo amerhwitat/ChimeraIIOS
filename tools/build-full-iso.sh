@@ -123,7 +123,10 @@ cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
 # Embed boot artwork and splash media in the ISO itself: no network or host
 # filesystem lookup is allowed for early boot visuals.
-mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets"
+mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets" "$STAGE/desktop/marine/assets"
+if [[ -d "$ROOT/desktop/marine/assets" ]]; then
+  cp -a "$ROOT/desktop/marine/assets/." "$STAGE/desktop/marine/assets/"
+fi
 for art in aurora_boot_splash.svg; do
   [[ -s "$ROOT/boot/splash/$art" ]] && cp -f "$ROOT/boot/splash/$art" "$STAGE/boot/visual/$art"
 done
