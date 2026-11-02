@@ -1,6 +1,9 @@
 #include "chimera/x86_64_cpu.h"
 
 namespace {
+static_assert(sizeof(chimera_x86_64_tss) == 104,
+              "x86-64 architectural TSS layout must remain 104 bytes");
+
 struct __attribute__((aligned(16))) CpuState {
     uint64_t gdt[7];
     chimera_x86_64_gdtr gdtr;
