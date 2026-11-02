@@ -20,7 +20,7 @@ def validate(data):
     assert policy["proprietary_tools"] == "external-installation-only"
     names = [entry["name"] for entry in data["languages"]]
     assert len(names) == len(set(names)), "duplicate language names"
-    assert len(names) >= 40, "language catalog unexpectedly incomplete"
+    assert len(names) >= 60, "language catalog unexpectedly incomplete"
     for entry in data["languages"]:
         assert entry["name"].strip()
         assert entry["compiler"] or entry["interpreter"], entry["name"]
@@ -41,6 +41,13 @@ def validate(data):
     profiles = data["install_profiles"]
     assert {"native-core", "systems", "managed", "scripting",
             "functional-scientific", "assembly-analysis", "webassembly"}.issubset(profiles)
+    assert "hardware-description" in profiles
+    systems = data["operating_systems"]
+    assert {"ChimeraIIOS", "OctavianOS"}.issubset(systems)
+    for system in systems.values():
+        assert system["shared_capability_contract"] == "CHM-LANGUAGE-TOOLCHAIN-1"
+        assert system["catalog_path"] and system["profile_installer"]
+        assert "hardware-description" in system["optional_provider_profiles"]
     for profile in profiles.values():
         assert profile["description"].strip()
         assert {"apt", "dnf", "pacman"}.issubset(profile["packages"])
