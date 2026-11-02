@@ -89,7 +89,7 @@ if [[ "$target_seen" -ne 1 ]]; then
   exit 1
 fi
 read -r width height < <(identify -format '%w %h' "$OUT/$TARGET-boot.png")
-[[ "$width" -ge 640 && "$height" -ge 480 ]] || {
+[[ "$width" -ge 800 && "$height" -ge 600 ]] || {
   echo "QEMU framebuffer unexpectedly small: $width x $height" >&2
   exit 1
 }
