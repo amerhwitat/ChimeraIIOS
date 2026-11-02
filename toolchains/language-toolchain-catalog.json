@@ -1,0 +1,1070 @@
+{
+  "schema": "CHM-LANGUAGE-TOOLCHAIN-1",
+  "version": 1,
+  "purpose": "Unified language, compiler, interpreter, assembler, disassembler and binary-tool capability catalog shared by ChimeraIIOS and OctavianOS.",
+  "policy": {
+    "catalog_is_not_installation_proof": true,
+    "install_mode": "explicit-user-request",
+    "default_iso_payload": "core-native-toolchain-only",
+    "optional_language_profiles": "package-manager-or-signed-provider",
+    "verify_package_signature_or_digest": true,
+    "proprietary_tools": "external-installation-only",
+    "do_not_claim_native_abi_without_runtime_and_sysroot": true,
+    "cross_compile_requires_target_backend_sysroot_and_linker": true,
+    "wasm_is_not_a_native_cpu_abi": true
+  },
+  "languages": [
+    {
+      "name": "C",
+      "compiler": [
+        "gcc",
+        "clang"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "gcc",
+        "clang"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "C++",
+      "compiler": [
+        "g++",
+        "clang++"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "g++",
+        "clang++"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Objective-C",
+      "compiler": [
+        "gcc",
+        "clang"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "gcc",
+        "clang"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Objective-C++",
+      "compiler": [
+        "g++",
+        "clang++"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "g++",
+        "clang++"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Rust",
+      "compiler": [
+        "rustc"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "rustc",
+        "cargo"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Go",
+      "compiler": [
+        "go"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "go"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Java",
+      "compiler": [
+        "javac",
+        "ecj"
+      ],
+      "interpreter": [
+        "java"
+      ],
+      "execution_model": "jvm",
+      "package_hints": [
+        "openjdk"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Kotlin",
+      "compiler": [
+        "kotlinc"
+      ],
+      "interpreter": [
+        "kotlin"
+      ],
+      "execution_model": "jvm-and-native",
+      "package_hints": [
+        "kotlin"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Scala",
+      "compiler": [
+        "scalac"
+      ],
+      "interpreter": [
+        "scala"
+      ],
+      "execution_model": "jvm",
+      "package_hints": [
+        "scala"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Groovy",
+      "compiler": [
+        "groovyc"
+      ],
+      "interpreter": [
+        "groovy"
+      ],
+      "execution_model": "jvm",
+      "package_hints": [
+        "groovy"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "C#",
+      "compiler": [
+        "dotnet build",
+        "csc"
+      ],
+      "interpreter": [
+        "dotnet"
+      ],
+      "execution_model": "dotnet-cli",
+      "package_hints": [
+        "dotnet-sdk"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "F#",
+      "compiler": [
+        "dotnet fsc"
+      ],
+      "interpreter": [
+        "dotnet"
+      ],
+      "execution_model": "dotnet-cli",
+      "package_hints": [
+        "dotnet-sdk"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Visual Basic .NET",
+      "compiler": [
+        "vbc"
+      ],
+      "interpreter": [
+        "dotnet"
+      ],
+      "execution_model": "dotnet-cli",
+      "package_hints": [
+        "dotnet-sdk"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Swift",
+      "compiler": [
+        "swiftc"
+      ],
+      "interpreter": [
+        "swift"
+      ],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "swift"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Fortran",
+      "compiler": [
+        "gfortran",
+        "flang"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "gfortran",
+        "flang"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Ada",
+      "compiler": [
+        "gnatmake",
+        "gnatgcc"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "gnat"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "D",
+      "compiler": [
+        "gdc",
+        "ldc2",
+        "dmd"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "gdc",
+        "ldc",
+        "dmd"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Zig",
+      "compiler": [
+        "zig"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "zig"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Nim",
+      "compiler": [
+        "nim"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "nim"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Crystal",
+      "compiler": [
+        "crystal"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "crystal"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Haskell",
+      "compiler": [
+        "ghc"
+      ],
+      "interpreter": [
+        "runghc"
+      ],
+      "execution_model": "native-and-bytecode",
+      "package_hints": [
+        "ghc"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "OCaml",
+      "compiler": [
+        "ocamlc",
+        "ocamlopt"
+      ],
+      "interpreter": [
+        "ocaml"
+      ],
+      "execution_model": "native-and-bytecode",
+      "package_hints": [
+        "ocaml"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Pascal / Object Pascal",
+      "compiler": [
+        "fpc"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "fp-compiler"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "COBOL",
+      "compiler": [
+        "cobc"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "gnucobol"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Python",
+      "compiler": [],
+      "interpreter": [
+        "python3",
+        "pypy3"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "python3",
+        "pypy3"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "JavaScript",
+      "compiler": [],
+      "interpreter": [
+        "node",
+        "deno",
+        "bun"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "nodejs",
+        "deno",
+        "bun"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "TypeScript",
+      "compiler": [
+        "tsc",
+        "swc",
+        "esbuild"
+      ],
+      "interpreter": [
+        "tsx",
+        "ts-node"
+      ],
+      "execution_model": "transpiled-and-runtime",
+      "package_hints": [
+        "typescript"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "PHP",
+      "compiler": [
+        "php"
+      ],
+      "interpreter": [
+        "php"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "php-cli"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Ruby",
+      "compiler": [
+        "ruby"
+      ],
+      "interpreter": [
+        "ruby"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "ruby"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Perl",
+      "compiler": [
+        "perl"
+      ],
+      "interpreter": [
+        "perl"
+      ],
+      "execution_model": "interpreted",
+      "package_hints": [
+        "perl"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Lua",
+      "compiler": [
+        "luac"
+      ],
+      "interpreter": [
+        "lua",
+        "luajit"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "lua",
+        "luajit"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "R",
+      "compiler": [],
+      "interpreter": [
+        "Rscript"
+      ],
+      "execution_model": "interpreted",
+      "package_hints": [
+        "r-base"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Julia",
+      "compiler": [],
+      "interpreter": [
+        "julia"
+      ],
+      "execution_model": "jit",
+      "package_hints": [
+        "julia"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Dart",
+      "compiler": [
+        "dart compile"
+      ],
+      "interpreter": [
+        "dart"
+      ],
+      "execution_model": "jit-and-aot",
+      "package_hints": [
+        "dart"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Elixir",
+      "compiler": [
+        "elixirc"
+      ],
+      "interpreter": [
+        "iex"
+      ],
+      "execution_model": "beam-vm",
+      "package_hints": [
+        "elixir"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Erlang",
+      "compiler": [
+        "erlc"
+      ],
+      "interpreter": [
+        "erl"
+      ],
+      "execution_model": "beam-vm",
+      "package_hints": [
+        "erlang"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Clojure",
+      "compiler": [
+        "clojure"
+      ],
+      "interpreter": [
+        "clojure"
+      ],
+      "execution_model": "jvm",
+      "package_hints": [
+        "clojure"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Common Lisp",
+      "compiler": [
+        "sbcl",
+        "clisp"
+      ],
+      "interpreter": [
+        "sbcl",
+        "clisp"
+      ],
+      "execution_model": "native-and-bytecode",
+      "package_hints": [
+        "sbcl",
+        "clisp"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Scheme",
+      "compiler": [
+        "guile",
+        "chezscheme"
+      ],
+      "interpreter": [
+        "guile",
+        "chezscheme"
+      ],
+      "execution_model": "native-and-bytecode",
+      "package_hints": [
+        "guile",
+        "chezscheme"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Prolog",
+      "compiler": [
+        "swipl"
+      ],
+      "interpreter": [
+        "swipl"
+      ],
+      "execution_model": "interpreted",
+      "package_hints": [
+        "swi-prolog"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Tcl",
+      "compiler": [],
+      "interpreter": [
+        "tclsh"
+      ],
+      "execution_model": "interpreted",
+      "package_hints": [
+        "tcl"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "PowerShell",
+      "compiler": [],
+      "interpreter": [
+        "pwsh"
+      ],
+      "execution_model": "interpreted",
+      "package_hints": [
+        "powershell"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Bash",
+      "compiler": [],
+      "interpreter": [
+        "bash"
+      ],
+      "execution_model": "shell",
+      "package_hints": [
+        "bash"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Zsh",
+      "compiler": [],
+      "interpreter": [
+        "zsh"
+      ],
+      "execution_model": "shell",
+      "package_hints": [
+        "zsh"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Fish",
+      "compiler": [],
+      "interpreter": [
+        "fish"
+      ],
+      "execution_model": "shell",
+      "package_hints": [
+        "fish"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "AWK",
+      "compiler": [],
+      "interpreter": [
+        "awk",
+        "gawk",
+        "mawk"
+      ],
+      "execution_model": "interpreted",
+      "package_hints": [
+        "gawk",
+        "mawk"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "SQL",
+      "compiler": [
+        "sqlite3 CLI",
+        "database-specific compilers"
+      ],
+      "interpreter": [
+        "sqlite3",
+        "psql",
+        "mysql"
+      ],
+      "execution_model": "database-runtime",
+      "package_hints": [
+        "sqlite3",
+        "postgresql-client",
+        "mariadb-client"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "WebAssembly",
+      "compiler": [
+        "clang --target=wasm",
+        "wasi-sdk"
+      ],
+      "interpreter": [
+        "wasmtime",
+        "wasmer",
+        "wasm3"
+      ],
+      "execution_model": "bytecode-and-jit",
+      "package_hints": [
+        "wasi-sdk",
+        "wasmtime",
+        "wabt"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    }
+  ],
+  "assemblers": [
+    {
+      "name": "GNU assembler",
+      "commands": [
+        "as"
+      ],
+      "targets": "GNU Binutils targets",
+      "formats": [
+        "ELF",
+        "COFF",
+        "Mach-O"
+      ],
+      "license": "GPL"
+    },
+    {
+      "name": "LLVM Machine Code",
+      "commands": [
+        "llvm-mc"
+      ],
+      "targets": "LLVM targets",
+      "formats": [
+        "ELF",
+        "COFF",
+        "Mach-O"
+      ],
+      "license": "Apache-2.0 WITH LLVM-exception"
+    },
+    {
+      "name": "NASM",
+      "commands": [
+        "nasm"
+      ],
+      "targets": [
+        "x86",
+        "x86-64"
+      ],
+      "formats": [
+        "ELF",
+        "COFF",
+        "Mach-O",
+        "raw"
+      ],
+      "license": "BSD-2-Clause"
+    },
+    {
+      "name": "YASM",
+      "commands": [
+        "yasm"
+      ],
+      "targets": [
+        "x86",
+        "x86-64"
+      ],
+      "formats": [
+        "ELF",
+        "COFF",
+        "Mach-O",
+        "raw"
+      ],
+      "license": "BSD-like"
+    },
+    {
+      "name": "FASM",
+      "commands": [
+        "fasm"
+      ],
+      "targets": [
+        "x86",
+        "x86-64"
+      ],
+      "formats": [
+        "ELF",
+        "PE",
+        "raw"
+      ],
+      "license": "BSD-like"
+    },
+    {
+      "name": "GNU ARM Embedded assembler",
+      "commands": [
+        "arm-none-eabi-as"
+      ],
+      "targets": [
+        "ARM",
+        "Thumb"
+      ],
+      "formats": [
+        "ELF"
+      ],
+      "license": "GPL"
+    },
+    {
+      "name": "GNU AArch64 assembler",
+      "commands": [
+        "aarch64-linux-gnu-as"
+      ],
+      "targets": [
+        "AArch64"
+      ],
+      "formats": [
+        "ELF"
+      ],
+      "license": "GPL"
+    },
+    {
+      "name": "GNU RISC-V assembler",
+      "commands": [
+        "riscv64-linux-gnu-as",
+        "riscv32-unknown-elf-as"
+      ],
+      "targets": [
+        "RISC-V"
+      ],
+      "formats": [
+        "ELF"
+      ],
+      "license": "GPL"
+    },
+    {
+      "name": "Microsoft MASM",
+      "commands": [
+        "ml",
+        "ml64"
+      ],
+      "targets": [
+        "x86",
+        "x86-64"
+      ],
+      "formats": [
+        "COFF",
+        "PE"
+      ],
+      "license": "proprietary-external",
+      "distribution": "external-installation-only"
+    },
+    {
+      "name": "Chimera ISA assembler",
+      "commands": [
+        "chimera-as",
+        "chimera-ncb-as.sh"
+      ],
+      "targets": [
+        "CHIMERA-C8192",
+        "CHIMERA-R8192"
+      ],
+      "formats": [
+        "CHIR-NIR-1",
+        "NCB"
+      ],
+      "license": "Chimera integration"
+    }
+  ],
+  "disassemblers": [
+    {
+      "name": "GNU objdump",
+      "commands": [
+        "objdump"
+      ],
+      "targets": "GNU Binutils targets",
+      "formats": [
+        "ELF",
+        "COFF",
+        "PE",
+        "Mach-O"
+      ],
+      "license": "GPL"
+    },
+    {
+      "name": "LLVM objdump",
+      "commands": [
+        "llvm-objdump"
+      ],
+      "targets": "LLVM targets",
+      "formats": [
+        "ELF",
+        "COFF",
+        "PE",
+        "Mach-O"
+      ],
+      "license": "Apache-2.0 WITH LLVM-exception"
+    },
+    {
+      "name": "GNU readelf",
+      "commands": [
+        "readelf"
+      ],
+      "targets": "ELF",
+      "formats": [
+        "ELF"
+      ],
+      "license": "GPL"
+    },
+    {
+      "name": "LLVM readobj",
+      "commands": [
+        "llvm-readobj"
+      ],
+      "targets": "LLVM object formats",
+      "formats": [
+        "ELF",
+        "COFF",
+        "Mach-O"
+      ],
+      "license": "Apache-2.0 WITH LLVM-exception"
+    },
+    {
+      "name": "NASM disassembler",
+      "commands": [
+        "ndisasm"
+      ],
+      "targets": [
+        "x86",
+        "x86-64"
+      ],
+      "formats": [
+        "raw"
+      ],
+      "license": "BSD-2-Clause"
+    },
+    {
+      "name": "Capstone",
+      "commands": [
+        "cstool"
+      ],
+      "targets": "multi-architecture",
+      "formats": [
+        "machine-code"
+      ],
+      "license": "BSD-3-Clause"
+    },
+    {
+      "name": "radare2",
+      "commands": [
+        "r2"
+      ],
+      "targets": "multi-architecture",
+      "formats": [
+        "ELF",
+        "PE",
+        "Mach-O",
+        "raw"
+      ],
+      "license": "LGPL-3.0"
+    },
+    {
+      "name": "Ghidra",
+      "commands": [
+        "analyzeHeadless"
+      ],
+      "targets": "multi-architecture",
+      "formats": [
+        "ELF",
+        "PE",
+        "Mach-O",
+        "DEX"
+      ],
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "Chimera ISA disassembler",
+      "commands": [
+        "chimera-dis",
+        "chimera-ncb-dis.py"
+      ],
+      "targets": [
+        "CHIMERA-C8192",
+        "CHIMERA-R8192"
+      ],
+      "formats": [
+        "CHIR-NIR-1",
+        "NCB"
+      ],
+      "license": "Chimera integration"
+    }
+  ],
+  "linkers": [
+    "GNU ld",
+    "gold",
+    "LLVM lld",
+    "mold",
+    "wasm-ld",
+    "MSVC link.exe (external)"
+  ],
+  "binary_utilities": [
+    "ar",
+    "ranlib",
+    "nm",
+    "objcopy",
+    "objdump",
+    "readelf",
+    "strip",
+    "addr2line",
+    "c++filt",
+    "patchelf",
+    "chrpath",
+    "file",
+    "strings",
+    "xxd"
+  ],
+  "build_systems": [
+    "make",
+    "CMake",
+    "Ninja",
+    "Meson",
+    "Bazel",
+    "Autotools",
+    "Cargo",
+    "Go modules",
+    "Maven",
+    "Gradle",
+    "MSBuild",
+    "SwiftPM",
+    "Xcodebuild"
+  ],
+  "cross_targets": [
+    "x86_64",
+    "i686",
+    "aarch64",
+    "armv7",
+    "riscv32",
+    "riscv64",
+    "mips64",
+    "ppc64le",
+    "s390x",
+    "loongarch64",
+    "wasm32",
+    "wasm64",
+    "avr",
+    "bpf",
+    "chimera8192"
+  ]
+}
