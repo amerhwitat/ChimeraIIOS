@@ -19,6 +19,7 @@ uint32_t allocated_bitmap[BITMAP_WORDS];
 volatile uint32_t allocator_lock;
 bool initialized;
 uint64_t free_pages;
+uint32_t allocation_hint = FIRST_ALLOCATABLE_PAGE;
 
 struct Tag { uint32_t type, size; };
 struct MmapTag { uint32_t type, size, entry_size, entry_version; };
@@ -43,6 +44,24 @@ static bool bit(const uint32_t *map, uint32_t i) {
 }
 static void set_bit(uint32_t *map, uint32_t i) { map[i / WORD_BITS] |= 1u << (i % WORD_BITS); }
 static void clear_bit(uint32_t *map, uint32_t i) { map[i / WORD_BITS] &= ~(1u << (i % WORD_BITS)); }
+
+static bool find_contiguous_run(uint32_t begin, uint32_t end, uint32_t count,
+                                uint32_t *first_out) {
+    uint32_t run = 0;
+    uint32_t first = begin;
+    for (uint32_t i = begin; i < end; ++i) {
+        if (bit(free_bitmap, i)) {
+            if (!run) first = i;
+            if (++run == count) {
+                *first_out = first;
+                return true;
+            }
+        } else {
+            run = 0;
+        }
+    }
+    return false;
+}
 
 static bool range_end(uint64_t start, uint64_t length, uint64_t *end) {
     if (!length || start > UINT64_MAX - length) return false;
@@ -165,6 +184,7 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
         allocated_bitmap[i] = 0;
     }
     free_pages = 0;
+    allocation_hint = FIRST_ALLOCATABLE_PAGE;
     allocator_lock = 0;
     uint32_t info_size = 0;
     if (!parse_multiboot(info, &info_size)) return -2;
@@ -188,22 +208,25 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
 extern "C" uint64_t koronos_frame_alloc_contiguous(uint32_t count) {
     if (!initialized || !count || count > PAGE_COUNT - FIRST_ALLOCATABLE_PAGE) return 0;
     lock();
-    uint32_t run = 0, first = FIRST_ALLOCATABLE_PAGE;
-    for (uint32_t i = FIRST_ALLOCATABLE_PAGE; i < PAGE_COUNT; ++i) {
-        if (bit(free_bitmap, i)) {
-            if (!run) first = i;
-            if (++run == count) {
-                for (uint32_t p = first; p < first + count; ++p) {
-                    clear_bit(free_bitmap, p); set_bit(allocated_bitmap, p);
-                }
-                free_pages -= count;
-                unlock();
-                return static_cast<uint64_t>(first) * KORONOS_FRAME_SIZE;
-            }
-        } else run = 0;
+    uint32_t first = FIRST_ALLOCATABLE_PAGE;
+    uint32_t hint = allocation_hint;
+    if (hint < FIRST_ALLOCATABLE_PAGE || hint >= PAGE_COUNT) hint = FIRST_ALLOCATABLE_PAGE;
+    bool found = find_contiguous_run(hint, PAGE_COUNT, count, &first);
+    if (!found && hint > FIRST_ALLOCATABLE_PAGE)
+        found = find_contiguous_run(FIRST_ALLOCATABLE_PAGE, hint, count, &first);
+    if (!found) {
+        unlock();
+        return 0;
     }
+    for (uint32_t p = first; p < first + count; ++p) {
+        clear_bit(free_bitmap, p);
+        set_bit(allocated_bitmap, p);
+    }
+    free_pages -= count;
+    allocation_hint = first + count;
+    if (allocation_hint >= PAGE_COUNT) allocation_hint = FIRST_ALLOCATABLE_PAGE;
     unlock();
-    return 0;
+    return static_cast<uint64_t>(first) * KORONOS_FRAME_SIZE;
 }
 extern "C" uint64_t koronos_frame_alloc(void) { return koronos_frame_alloc_contiguous(1); }
 extern "C" int koronos_frame_free_contiguous(uint64_t address, uint32_t count) {
@@ -220,6 +243,7 @@ extern "C" int koronos_frame_free_contiguous(uint64_t address, uint32_t count) {
         clear_bit(allocated_bitmap, p); set_bit(free_bitmap, p);
     }
     free_pages += count;
+    if (first < allocation_hint) allocation_hint = first;
     unlock();
     return 0;
 }
