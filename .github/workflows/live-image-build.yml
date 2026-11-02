@@ -141,7 +141,7 @@ jobs:
 
   publish:
     name: Publish verified Chimera II OS live ISO
-    needs: [build]
+    needs: [build, qemu-boot]
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
     runs-on: ubuntu-latest
     steps:
@@ -165,3 +165,30 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "Chimera II OS ${version} — fullscreen desktop fix" \
             --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
+
+  qemu-boot:
+    name: Boot the live ISO in QEMU and inspect the graphical console
+    needs: [build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Download the exact ISO built by this workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: chimera-ii-os-live-desktop-fixed
+          path: candidate
+      - name: Install QEMU and screenshot inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes qemu-system-x86 socat imagemagick tesseract-ocr
+      - name: Boot ISO and require visible Aurora desktop evidence
+        run: |
+          chmod +x tests/live-image/test-qemu-live-boot.sh
+          tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence"
+      - name: Upload QEMU boot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-qemu-live-boot-evidence
+          path: ${{ runner.temp }}/qemu-evidence
+          if-no-files-found: error
+          retention-days: 30
