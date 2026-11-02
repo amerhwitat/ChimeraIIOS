@@ -37,6 +37,9 @@ and privileged RFLAGS states.
 This change does **not** enable the syscall IDT gate at DPL3, execute IRETQ into
 a user process, switch CR3, identify the current process from trusted per-CPU
 state, dispatch process-bound syscalls, or implement process exit/reaping.
+The per-CPU TSS stack setter now rejects updates while IF is set, preventing
+maskable interrupts from observing a stack transition. It still relies on the
+caller to target the owning CPU; APIC current-CPU binding is not implemented.
 The existing DPL0 IDT policy and native-init exit-78/DAPS release gates remain
 unchanged. A later integration must bind the frame to the current process,
 activate that process's kernel stack in the owning CPU's TSS with interrupts
