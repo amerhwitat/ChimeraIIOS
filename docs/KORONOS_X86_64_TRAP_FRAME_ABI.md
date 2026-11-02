@@ -35,8 +35,8 @@ and privileged RFLAGS states.
 ## Deliberately not enabled
 
 This change does **not** enable the syscall IDT gate at DPL3, execute IRETQ into
-a user process, switch CR3, identify the current process from trusted per-CPU
-state, dispatch process-bound syscalls, or implement process exit/reaping.
+a user process, switch to a process CR3 as part of a process context switch,
+identify the current process from trusted per-CPU state, dispatch process-bound syscalls, or implement process exit/reaping.
 The per-CPU TSS stack setter verifies the GS/APIC identity of the executing CPU,
 rejects remote-CPU requests, and refuses updates while IF is set, preventing
 maskable interrupts from observing a stack transition. Secondary-CPU startup
