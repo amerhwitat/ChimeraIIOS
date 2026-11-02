@@ -31,6 +31,8 @@ void chimera_sched_wake(uint32_t task_id);
 void chimera_sched_exit(void);
 uint32_t chimera_sched_snapshot(chimera_task_info* out,uint32_t capacity);
 uint32_t chimera_sched_runnable_count(void);
+/* Counts real BSP stack switches in the freestanding kernel; host callback tests return zero. */
+uint64_t chimera_sched_context_switch_count(void);
 #ifdef __cplusplus
 }
 #endif
