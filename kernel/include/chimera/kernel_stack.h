@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #define KORONOS_KERNEL_STACK_ABI 1u
+#define KORONOS_KERNEL_STACK_SLOT_COUNT 32u
 
 typedef struct koronos_kernel_stack {
     uint32_t slot;
