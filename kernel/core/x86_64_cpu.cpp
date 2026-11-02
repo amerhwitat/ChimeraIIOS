@@ -7,6 +7,7 @@ struct __attribute__((aligned(16))) CpuState {
     chimera_x86_64_tss tss;
     uint8_t entry_stack[CHIMERA_X86_64_ENTRY_STACK_SIZE] __attribute__((aligned(16)));
     volatile uint32_t ready;
+    volatile uint32_t current_pid;
 };
 
 static_assert((__builtin_offsetof(CpuState, entry_stack) & 0xFu) == 0,
@@ -77,5 +78,17 @@ extern "C" int chimera_x86_64_cpu_is_ready(uint32_t cpu_id) {
 extern "C" uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id) {
     if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return 0;
     return cpus[cpu_id].tss.rsp0;
+}
+
+extern "C" int chimera_x86_64_cpu_set_current_pid(uint32_t cpu_id, uint32_t pid) {
+    if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return -1;
+    cpus[cpu_id].current_pid = pid;
+    __asm__ volatile("" ::: "memory");
+    return 0;
+}
+
+extern "C" uint32_t chimera_x86_64_cpu_current_pid(uint32_t cpu_id) {
+    if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return 0;
+    return cpus[cpu_id].current_pid;
 }
 
