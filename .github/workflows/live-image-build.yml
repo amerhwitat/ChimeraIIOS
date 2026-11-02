@@ -90,6 +90,7 @@ jobs:
 
       - name: Validate ISO checksum, firmware boot entries and embedded application bundle
         env:
+          OUT_DIR: ${{ runner.temp }}/aurora-live-output
           ISO_NAME: chimera-ii-os-live-amd64.iso
         run: |
           set -euo pipefail
