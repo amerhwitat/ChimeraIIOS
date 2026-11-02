@@ -34,9 +34,9 @@ int main(){
          observed.base == owned.base && observed.top == owned.top);
   assert(chimera_process_detach_kernel_stack(pid, &observed) == 0);
   assert(chimera_process_get_kernel_stack(pid, &observed) < 0);
-  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==-3);
   chimera_process_image q{};
-  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
+  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_ADMITTED);
   make_elf(image,true);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x100800000,&q)<0);
   return 0;
