@@ -734,6 +734,29 @@
       ],
       "capability_status": "available-when-provider-installed",
       "native_abi_claim": false
+    },
+    {
+      "name": "Assembly",
+      "compiler": [
+        "GNU as",
+        "LLVM MC",
+        "NASM",
+        "YASM",
+        "FASM",
+        "MASM",
+        "chimera-as"
+      ],
+      "interpreter": [],
+      "execution_model": "architecture-specific-machine-code",
+      "package_hints": [
+        "binutils",
+        "llvm",
+        "nasm",
+        "yasm",
+        "fasm"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
     }
   ],
   "assemblers": [
