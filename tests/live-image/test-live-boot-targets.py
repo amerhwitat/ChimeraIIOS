@@ -72,7 +72,7 @@ class UnifiedBootTargetTests(unittest.TestCase):
         gates = json.loads(GATES_PATH.read_text())
         for action in ("live", "install", "koronos", "recovery"):
             self.assertIn(action, gates["actions"])
-        self.assertEqual(gates["actions"]["live"]["command"], "grub-reboot live-linux")
+        self.assertEqual(gates["actions"]["live"]["command"], "grub-reboot aurora-live")
         self.assertEqual(gates["actions"]["koronos"]["command"], "grub-reboot koronos")
         self.assertEqual(gates["boot_targets"]["default"], "live-linux")
         self.assertTrue(gates["boot_targets"]["fail_closed"])
