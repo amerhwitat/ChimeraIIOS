@@ -53,7 +53,8 @@ The CPU initializer now records the executing CPU's APIC identity, rejects a
 duplicate APIC identity among registered logical CPUs, installs a CPU-local
 GS base pointing at that CPU's state, and verifies the logical CPU ID through
 GS before marking the CPU ready. The current-CPU APIs cross-check the GS
-logical ID against the APIC identity. TSS stack updates reject remote-CPU
+logical ID against a fresh hardware APIC-ID read; the CPU is marked ready only
+after the GS anchor and APIC identity both verify. TSS stack updates reject remote-CPU
 requests and require IF=0. AP startup and registration for secondary CPUs are
 still not implemented; the current boot path initializes the BSP only.
 
