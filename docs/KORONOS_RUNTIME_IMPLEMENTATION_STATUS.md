@@ -308,3 +308,25 @@ The framebuffer console is an early boot display facility only. It does not chan
 ## 14. Latest CI queue and scheduler-claim cleanup — 2026-11-02
 
 The final Koronos build banner was corrected to identify the BSP scheduler callback runner and explicitly state that no SMP execution is present (commit `a5be7d9419b1e8208015347879265d19ba9e96a0`). New Full ISO validation run 41378389423 is pending. CI/CD run 41378389406 has its Linux build/tests, code generation and infrastructure validation completed successfully; Windows CI is still in progress. This is a diagnostic accuracy change only. It does not implement AP startup, independent per-CPU scheduler workers or overlapping task execution.
+
+## 14. BSP stackful kernel-task context switching — implementation slice (2026-11-02)
+
+- The freestanding x86-64 scheduler now allocates a separate four-page kernel stack for each submitted kernel task from the physical frame allocator and maps it through the verified identity physmap.
+- Added an x86-64 context-switch assembly routine that saves/restores RSP, callee-saved registers, and RFLAGS. New task frames enter through a SysV-aligned trampoline with a stable scheduler-slot argument.
+- yield, block, and exit now switch from the task-owned stack to the scheduler stack in the freestanding build. A task resumes at the instruction following its previous switch when selected again.
+- Exited task stacks are reclaimed only after control has returned to the scheduler stack, never while executing on the stack being freed.
+- Installer metadata diagnostics now loop across actual task yields; one-shot service tasks block/exit instead of relying on callback reinvocation.
+- QEMU boot-matrix acceptance now requires a runtime debugcon event emitted only after at least one scheduler-to-task and task-to-scheduler stack switch.
+- Host scheduler unit tests retain their deterministic callback-boundary mode; they do not emulate or claim hardware context switching. The freestanding QEMU marker is the architecture/runtime check.
+
+### Boundary and remaining lifecycle work
+
+This slice implements **BSP kernel-task** stacks and cooperative context switching. It is not yet a complete user-process lifecycle:
+- Process records remain ELF admission/load plans; they do not yet own an address space, user stack, kernel stack, trap frame, parent/child relationship, or file descriptor table as one process object.
+- No validated CPL3 iretq entry/return or syscall-originated process exit exists yet.
+- No blocking wait, wakeup by child completion, PID generation/reuse policy, fault-to-process termination, or complete per-process resource reaping exists yet.
+- AP startup, AP-specific GDT/TSS load, per-CPU scheduler ownership, SMP synchronization and TLB shootdowns remain incomplete. The scheduler remains BSP-only and run_parallel still returns zero.
+- VFS process binding, production Installer init, storage-backed installation, Recovery runtime, GPU modesetting, physical BIOS/UEFI visual acceptance and the six-case persistence matrix remain open.
+
+Do not describe this slice as production process execution or userspace readiness. Keep the native-init fail-closed gate and exit-78 behavior unchanged until the full process/VFS/runtime contract is implemented and verified.
+
