@@ -31,7 +31,7 @@ jobs:
         run: |
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
             tests/kernel/elf64_admission_test.cpp \
-            kernel/core/elf64.cpp kernel/core/process.cpp \
+            kernel/core/elf64.cpp kernel/core/process_loader.cpp kernel/core/process.cpp \
             -o /tmp/chimera-elf64-admission-test
       - name: Run ELF64 validation/admission regression
         run: /tmp/chimera-elf64-admission-test

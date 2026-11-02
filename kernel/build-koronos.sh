@@ -24,6 +24,7 @@ mkdir -p "$BUILD"
 # Fail the kernel build if boot claims or the nine-menu SVGA policy regress.
 python3 "$ROOT/tests/boot/test_koronos_boot_claims.py"
 bash "$ROOT/kernel/tests/scheduler-runtime-unit.sh"
+bash "$ROOT/kernel/tests/process-runtime-unit.sh"
 bash "$ROOT/kernel/tests/x86_64-cpu-state-unit.sh"
 bash "$ROOT/kernel/tests/framebuffer-unit.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"

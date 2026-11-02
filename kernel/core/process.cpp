@@ -1,24 +1,23 @@
 #include "../include/chimera/process.h"
+#if defined(KORONOS_FREESTANDING)
+#include "chimera/frame_allocator.h"
+#include "chimera/physmap.h"
+#include "chimera/address_space.h"
+#endif
 
 namespace {
 constexpr uint32_t MAX_SEGMENTS = 16;
+constexpr uint64_t PAGE = 4096;
+constexpr uint32_t PT_LOAD = 1, PF_W = 2, PF_X = 1;
+#if defined(KORONOS_FREESTANDING)
+constexpr uint32_t PROCESS_KERNEL_STACK_PAGES = 4;
+#endif
 
 static void copy_bytes(void *destination, const void *source, uint64_t length) {
     auto *dst = static_cast<uint8_t *>(destination);
     const auto *src = static_cast<const uint8_t *>(source);
     for (uint64_t i = 0; i < length; ++i) dst[i] = src[i];
 }
-constexpr uint64_t PAGE = 4096;
-constexpr uint32_t PT_LOAD = 1, PF_W = 2, PF_X = 1;
-
-struct Slot {
-    chimera_process_image image{};
-    bool used = false;
-};
-
-Slot slots[CHIMERA_PROCESS_MAX];
-uint32_t next_pid = 1, count = 0;
-
 static bool add_ok(uint64_t a, uint64_t b, uint64_t *out) {
     if (a > UINT64_MAX - b) return false;
     *out = a + b;
@@ -35,13 +34,28 @@ static bool in(uint64_t offset, uint64_t length, uint64_t size) {
     return add_ok(offset, length, &end) && end <= size;
 }
 
+struct Slot {
+    chimera_process_image image{};
+    chimera_loaded_elf loaded{};
+    chimera_elf_load_ops load_ops{};
+    void *load_context = nullptr;
+    uint64_t kernel_stack_physical = 0;
+    uint32_t kernel_stack_pages = 0;
+    uint64_t kernel_stack_top = 0;
+    uint64_t saved_kernel_rsp = 0;
+    bool used = false;
+    bool loaded_ok = false;
+    bool execution_context_ready = false;
+};
+Slot slots[CHIMERA_PROCESS_MAX];
+uint32_t next_pid = 1, count = 0;
+
 static bool pid_in_use(uint32_t pid) {
     if (!pid) return true;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i)
         if (slots[i].used && slots[i].image.pid == pid) return true;
     return false;
 }
-
 /* Never wrap PID allocation onto an existing live process record. */
 static uint32_t allocate_pid() {
     for (uint32_t attempt = 0; attempt < CHIMERA_PROCESS_MAX + 1u; ++attempt) {
@@ -51,9 +65,58 @@ static uint32_t allocate_pid() {
     }
     return 0;
 }
+static Slot *find_slot(uint32_t pid) {
+    if (!pid) return nullptr;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i)
+        if (slots[i].used && slots[i].image.pid == pid) return &slots[i];
+    return nullptr;
+}
+#if defined(KORONOS_FREESTANDING)
+static bool allocate_kernel_stack(Slot *slot) {
+    if (!slot || !koronos_physmap_ready()) return false;
+    const uint64_t physical = koronos_frame_alloc_contiguous(PROCESS_KERNEL_STACK_PAGES);
+    if (!physical) return false;
+    const uint64_t bytes = (uint64_t)PROCESS_KERNEL_STACK_PAGES * KORONOS_FRAME_SIZE;
+    auto *base = static_cast<uint8_t *>(koronos_phys_to_virt(physical, bytes));
+    if (!base) {
+        (void)koronos_frame_free_contiguous(physical, PROCESS_KERNEL_STACK_PAGES);
+        return false;
+    }
+    for (uint64_t i = 0; i < bytes; ++i) base[i] = 0;
+    slot->kernel_stack_physical = physical;
+    slot->kernel_stack_pages = PROCESS_KERNEL_STACK_PAGES;
+    slot->kernel_stack_top =
+        (reinterpret_cast<uint64_t>(base) + bytes) & ~static_cast<uint64_t>(0xFu);
+    return slot->kernel_stack_top != 0;
+}
+static void release_kernel_stack(Slot *slot) {
+    if (!slot) return;
+    if (slot->kernel_stack_physical && slot->kernel_stack_pages)
+        (void)koronos_frame_free_contiguous(slot->kernel_stack_physical,
+                                            slot->kernel_stack_pages);
+    slot->kernel_stack_physical = 0;
+    slot->kernel_stack_pages = 0;
+    slot->kernel_stack_top = 0;
+}
+#else
+static bool allocate_kernel_stack(Slot *) { return true; }
+static void release_kernel_stack(Slot *) {}
+#endif
+static void destroy_loaded(Slot *slot) {
+    if (!slot || !slot->loaded_ok) return;
+    if (slot->load_ops.destroy_address_space)
+        slot->load_ops.destroy_address_space(slot->load_context,
+                                             slot->loaded.address_space);
+    slot->loaded = {};
+    slot->load_ops = {};
+    slot->load_context = nullptr;
+    slot->loaded_ok = false;
+    slot->saved_kernel_rsp = 0;
+}
 }
 
 extern "C" int chimera_process_init(void) {
+    /* Initialization is a one-shot boot operation before any process is loaded. */
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) slots[i] = {};
     next_pid = 1;
     count = 0;
@@ -103,7 +166,6 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
         d.file_offset = s.p_offset;
         d.virtual_address = down(s.p_vaddr);
         d.file_size = s.p_filesz;
-        // Include the leading page offset without recomputing an unchecked sum.
         d.memory_size = end - d.virtual_address;
         d.flags = s.p_flags;
         d.align = s.p_align ? s.p_align : PAGE;
@@ -111,8 +173,6 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
         if (d.virtual_address < low) low = d.virtual_address;
         uint64_t aligned_end = 0;
         if (!up(end, &aligned_end)) return -8;
-        /* The current mapper has no safe permission-merging policy for
-         * page-overlapping PT_LOAD segments; reject them before loading. */
         for (uint32_t j = 0; j + 1u < n; ++j) {
             uint64_t prior_end = 0;
             if (!add_ok(p.segments[j].virtual_address,
@@ -137,6 +197,7 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
             p.pid = allocate_pid();
             if (!p.pid) return -10;
             p.state = CHIMERA_PROCESS_ADMITTED;
+            slots[i] = {};
             slots[i].image = p;
             slots[i].used = true;
             ++count;
@@ -147,28 +208,97 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
     return -10;
 }
 
+extern "C" int chimera_process_load_elf(uint32_t pid, const void *image,
+                                         uint64_t image_size, uint16_t machine,
+                                         uint64_t stack_top, uint64_t stack_size,
+                                         const chimera_elf_load_ops *ops,
+                                         void *context) {
+    Slot *slot = find_slot(pid);
+    if (!slot || !image || !ops || slot->loaded_ok ||
+        slot->image.state != CHIMERA_PROCESS_ADMITTED) return -1;
+    chimera_loaded_elf loaded{};
+    const int rc = chimera_elf_load_user_image(image, image_size, machine,
+                                               stack_top, stack_size, ops,
+                                               context, &loaded);
+    if (rc != 0) return rc;
+    slot->loaded = loaded;
+    slot->load_ops = *ops;
+    slot->load_context = context;
+    slot->loaded_ok = true;
+    if (!allocate_kernel_stack(slot)) {
+        destroy_loaded(slot);
+        return -20;
+    }
+#if defined(KORONOS_FREESTANDING)
+    slot->loaded.address_space = loaded.address_space;
+#endif
+    /* Deliberately remain ADMITTED: no validated CPL3 frame/iretq entry has
+       been connected, so a mapped ELF is not yet a runnable process. */
+    return 0;
+}
+
+extern "C" int chimera_process_get_runtime(uint32_t pid,
+                                            chimera_process_runtime *out) {
+    if (!out) return -1;
+    Slot *slot = find_slot(pid);
+    if (!slot) return -2;
+    chimera_process_runtime result{};
+    result.abi = CHIMERA_PROCESS_RUNTIME_ABI;
+    result.loaded = slot->loaded_ok ? 1u : 0u;
+    result.execution_context_ready = slot->execution_context_ready ? 1u : 0u;
+    if (slot->loaded_ok) {
+        result.address_space = slot->loaded.address_space;
+        result.entry = slot->loaded.entry;
+        result.user_stack_top = slot->loaded.user_stack_top;
+#if defined(KORONOS_FREESTANDING)
+        result.address_space_root =
+            koronos_address_space_root(slot->loaded.address_space);
+        result.kernel_stack_top = slot->kernel_stack_top;
+#endif
+        result.saved_kernel_rsp = slot->saved_kernel_rsp;
+    }
+    *out = result;
+    return 0;
+}
+
+extern "C" int chimera_process_release(uint32_t pid) {
+    Slot *slot = find_slot(pid);
+    if (!slot) return -1;
+    if (slot->image.state != CHIMERA_PROCESS_ADMITTED &&
+        slot->image.state != CHIMERA_PROCESS_EXITED &&
+        slot->image.state != CHIMERA_PROCESS_FAULTED) return -2;
+    destroy_loaded(slot);
+    release_kernel_stack(slot);
+    *slot = {};
+    if (count) --count;
+    return 0;
+}
+
 extern "C" int chimera_process_get(uint32_t pid, chimera_process_image *out) {
     if (!out || !pid) return -1;
-    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
-        if (slots[i].used && slots[i].image.pid == pid) {
-            *out = slots[i].image;
-            return 0;
-        }
-    }
-    return -2;
+    Slot *slot = find_slot(pid);
+    if (!slot) return -2;
+    *out = slot->image;
+    return 0;
 }
 
 extern "C" int chimera_process_set_state(uint32_t pid,
                                           chimera_process_state state) {
     if (!pid || state < CHIMERA_PROCESS_ADMITTED ||
         state > CHIMERA_PROCESS_FAULTED) return -1;
-    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
-        if (slots[i].used && slots[i].image.pid == pid) {
-            slots[i].image.state = state;
-            return 0;
-        }
-    }
-    return -2;
+    Slot *slot = find_slot(pid);
+    if (!slot) return -2;
+    /* Never expose a mapped-but-unentered image as runnable. The future
+       trap-frame/iret integration must set this internal bit only after it
+       has built and validated the complete execution context. */
+    if ((state == CHIMERA_PROCESS_READY || state == CHIMERA_PROCESS_RUNNING ||
+         state == CHIMERA_PROCESS_BLOCKED) &&
+        (!slot->loaded_ok || !slot->execution_context_ready)) return -3;
+    if ((state == CHIMERA_PROCESS_EXITED || state == CHIMERA_PROCESS_FAULTED) &&
+        slot->image.state != CHIMERA_PROCESS_ADMITTED)
+        return -4; // READY/BLOCKED/RUNNING require a scheduler-owned detach/reap path
+    slot->image.state = state;
+    return 0;
 }
 
 extern "C" uint32_t chimera_process_count(void) { return count; }
