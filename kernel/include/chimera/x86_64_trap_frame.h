@@ -2,7 +2,9 @@
 #define CHIMERA_X86_64_TRAP_FRAME_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include "x86_64_cpu.h"
+#include "interrupt.h"
 
 #ifdef __cplusplus
 extern "C" {
