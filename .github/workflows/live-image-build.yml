@@ -1,0 +1,167 @@
+name: Chimera II OS live ISO and fullscreen desktop validation
+
+on:
+  push:
+    branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
+    paths:
+      - 'live-image/**'
+      - 'tests/live-image/**'
+      - 'web/**'
+      - 'desktop/**'
+      - 'apps/**'
+      - 'applications/**'
+      - 'appcenter/**'
+      - 'iso/manifests/**'
+      - '.github/workflows/live-image-build.yml'
+  pull_request:
+    paths:
+      - 'live-image/**'
+      - 'tests/live-image/**'
+      - 'web/**'
+      - 'desktop/**'
+      - 'apps/**'
+      - 'applications/**'
+      - 'appcenter/**'
+      - 'iso/manifests/**'
+      - '.github/workflows/live-image-build.yml'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a GitHub Release after all ISO and desktop checks pass
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-image-chimera-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Chimera II OS live ISO
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host ISO and graphical smoke-test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+
+      - name: Validate desktop source and application catalogs
+        run: |
+          set -euo pipefail
+          python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
+          python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
+          if [[ "chimera" == "chimera" ]]; then
+            python3 -m json.tool applications/catalog.json >/dev/null
+            python3 -m json.tool appcenter/catalog/apps.json >/dev/null
+          else
+            python3 -m json.tool apps/desktop-application-catalog.json >/dev/null
+            python3 -m json.tool vendor/chimera-ii-os/source/desktop/optional_apps_catalog.json >/dev/null
+          fi
+
+      - name: Verify kiosk fullscreen at 1280x720
+        run: |
+          chmod +x tests/live-image/test-aurora-fullscreen.sh
+          xvfb-run -a -s "-screen 0 1280x720x24" \
+            tests/live-image/test-aurora-fullscreen.sh "file://${GITHUB_WORKSPACE}/web/index.html"
+
+      - name: Verify kiosk fullscreen at 1920x1080
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" \
+            tests/live-image/test-aurora-fullscreen.sh "file://${GITHUB_WORKSPACE}/web/index.html"
+
+      - name: Build the complete live ISO from this repository revision
+        env:
+          BUILD_ROOT: ${{ runner.temp }}/aurora-live-build
+          OUT_DIR: ${{ runner.temp }}/aurora-live-output
+        run: |
+          set -euo pipefail
+          sudo -E bash live-image/build.sh chimera
+          # The builder runs as root to configure the chroot; restore runner
+          # ownership so the validation and artifact-upload steps can read it.
+          sudo chown -R "$(id -u):$(id -g)" "$OUT_DIR"
+          test -s "$OUT_DIR/chimera-ii-os-live-amd64.iso"
+
+      - name: Validate ISO checksum, firmware boot entries and embedded application bundle
+        env:
+          OUT_DIR: ${{ runner.temp }}/aurora-live-output
+          ISO_NAME: chimera-ii-os-live-amd64.iso
+        run: |
+          set -euo pipefail
+          iso="$OUT_DIR/$ISO_NAME"
+          (cd "$OUT_DIR" && sha256sum --check "$ISO_NAME.sha256")
+          xorriso -indev "$iso" -report_el_torito plain -report_system_area plain -print '' | tee "$OUT_DIR/ISO-BOOT-REPORT.txt"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
+          unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
+          root="$tmp/root"
+          test -x "$root/usr/bin/openbox"
+          test -x "$root/usr/bin/xprop"
+          test -x "$root/usr/local/bin/aurora-session"
+          test -s "$root/opt/aurora/application-bundle.json"
+          test -d "$root/opt/aurora/app-catalogs"
+          test -d "$root/opt/aurora/apps/native/aurora"
+          grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
+          python3 - "$root/opt/aurora" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          manifest = json.loads((root / "application-bundle.json").read_text())
+          assert manifest["schema"] == "aurora-offline-application-bundle-v1"
+          for relative in manifest["catalog_files"]:
+              path = root / "app-catalogs" / relative
+              assert path.is_file(), f"missing catalog: {relative}"
+              if path.suffix == ".json":
+                  json.loads(path.read_text())
+          assert (root / "repo").is_dir(), "full source snapshot missing"
+          print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
+          PY
+          cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
+          cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
+
+      - name: Upload verified live ISO candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-os-live-desktop-fixed
+          path: |
+            ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
+            ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
+            ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish verified Chimera II OS live ISO
+    needs: [build]
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: chimera-ii-os-live-desktop-fixed
+          path: release-assets
+      - name: Create versioned GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          iso="$(find release-assets -maxdepth 1 -type f -name '*.iso' ! -name '*.sha256' -print -quit)"
+          checksum="$(find release-assets -maxdepth 1 -type f -name '*.iso.sha256' -print -quit)"
+          report="$(find release-assets -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
+          test -s "$iso" && test -s "$checksum" && test -s "$report"
+          version="$(date -u +%Y.%m.%d)"
+          short="${GITHUB_SHA:0:12}"
+          tag="chimera-ii-os-live-${version}-desktop-${short}"
+          gh release create "$tag" "$iso" "$checksum" "$report" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Chimera II OS ${version} — fullscreen desktop fix" \
+            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
