@@ -195,3 +195,26 @@ The x86-64 kernel now has a concrete BSP GDT/TSS initialization layer:
 The kernel build on the initial TSS commit passed, including the new descriptor-layout test and NASM assembly. The first QEMU run exposed that the entry-stack member was not 16-byte aligned; initialization correctly refused to load the TSS. The member now has explicit 16-byte alignment and a compile-time offset assertion. The unused-variable warning was also removed. The new QEMU workflow now requires the explicit BSP GDT/TSS initialization marker; rerun evidence is pending.
 
 **Not completed by this section:** AP startup/per-CPU initialization, process-owned kernel stacks, saved register/trap contexts, CR3 switching, user-mode IRETQ entry/return, syscall frame validation, or VFS/file descriptors. Ring 3 remains disabled and userspace readiness remains withheld until these are implemented and tested together.
+
+
+## 12.10 Validated CR3 address-space activation primitive (2026-11-02)
+
+The address-space backend now exposes `koronos_address_space_activate`,
+`koronos_address_space_restore`, and `koronos_address_space_current_root`.
+Activation accepts only an active backend-owned address space; restore accepts
+only the bootstrap root or another active backend-owned root. Both reject
+unaligned/out-of-range roots, preserve the caller's interrupt-enable state,
+and switch CR3 only after validating the root. The address-space self-test now
+switches from the bootstrap PML4 to a newly created user address space, verifies
+CR3 readback, restores the original root, and verifies restoration before
+reclaiming the test address space.
+
+The QEMU boot-matrix and Full ISO target checks now require the explicit
+`[MM  ] Address-space self-test passed: CR3 switch/restore` diagnostic in
+addition to the BSP GDT/TSS marker. This makes a build that merely compiles the
+switch primitive insufficient for this test.
+
+This is still not a process scheduler context switch: no per-process saved
+register/trap frame is restored, no process-owned kernel stack is selected by
+the scheduler, and no user-mode IRETQ transition is enabled. Ring 3 remains
+disabled until those pieces and process-bound syscall/VFS handling are complete.
