@@ -18,3 +18,66 @@ koronos_x86_64_load_gdt_tss:
     mov ax, si
     ltr ax
     ret
+
+; int koronos_x86_64_context_switch(context *from, const context *to)
+; context ABI: +0 saved RSP, +8 CR3 root.  Save/restore SysV callee-saved
+; registers and switch CR3 before installing the target stack.
+global koronos_x86_64_context_switch
+koronos_x86_64_context_switch:
+    test rdi, rdi
+    jz .context_invalid
+    test rsi, rsi
+    jz .context_invalid
+    cmp rdi, rsi
+    je .context_same
+
+    mov rax, [rsi]
+    test rax, rax
+    jz .context_invalid
+    mov rcx, [rsi + 8]
+    test rcx, rcx
+    jz .context_invalid
+    test rcx, 0xFFF
+    jnz .context_invalid
+
+    push rbp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rax, cr3
+    mov [rdi + 8], rax
+    mov [rdi], rsp
+
+    cmp rax, rcx
+    je .context_same_root
+    mov cr3, rcx
+.context_same_root:
+    mov rsp, [rsi]
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    xor eax, eax
+    ret
+
+.context_same:
+    xor eax, eax
+    ret
+.context_invalid:
+    mov eax, -1
+    ret
+
+; First-entry frame prepared by koronos_x86_64_context_prepare().
+; R13 holds the entry point and R12 its argument.
+global koronos_x86_64_context_trampoline
+koronos_x86_64_context_trampoline:
+    mov rdi, r12
+    sub rsp, 8
+    call r13
+    add rsp, 8
+    ud2
