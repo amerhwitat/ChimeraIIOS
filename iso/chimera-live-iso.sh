@@ -85,7 +85,10 @@ cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
 cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
 # Keep all early-boot visuals self-contained in the ISO.
-mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets"
+mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets" "$STAGE/desktop/marine/assets"
+if [[ -d "$ROOT/desktop/marine/assets" ]]; then
+  cp -a "$ROOT/desktop/marine/assets/." "$STAGE/desktop/marine/assets/"
+fi
 for art in aurora-wayland-glass.jpg.b64; do
   if [[ -s "$ROOT/boot/visual/$art" ]]; then
     base64 -d "$ROOT/boot/visual/$art" > "$STAGE/boot/visual/aurora-wayland-glass.jpg"
