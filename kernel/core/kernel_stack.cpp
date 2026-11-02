@@ -24,14 +24,9 @@ static volatile uint32_t stack_lock = 0;
 static void lock() { while (__sync_lock_test_and_set(&stack_lock, 1u)) {} }
 static void unlock() { __sync_lock_release(&stack_lock); }
 
-static uint64_t slot_guard(uint32_t slot) {
-    return KORONOS_KERNEL_STACK_ARENA_BASE +
-        static_cast<uint64_t>(slot) * SLOT_PAGES * PAGE_SIZE +
-        static_cast<uint64_t>(slot) * PAGE_SIZE;
-}
 static uint64_t slot_base(uint32_t slot) {
     return KORONOS_KERNEL_STACK_ARENA_BASE +
-        (static_cast<uint64_t>(slot) * SLOT_PAGES + slot) * PAGE_SIZE + PAGE_SIZE;
+        (static_cast<uint64_t>(slot) * SLOT_PAGES + 1u) * PAGE_SIZE;
 }
 static uint64_t slot_top(uint32_t slot) {
     return slot_base(slot) + static_cast<uint64_t>(STACK_PAGES) * PAGE_SIZE;
