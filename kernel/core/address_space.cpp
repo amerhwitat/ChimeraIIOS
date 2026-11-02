@@ -4,6 +4,7 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
 #include "chimera/koronos_abi.h"
+#include "chimera/x86_64_cpu.h"
 extern "C" uint8_t koronos_bootstrap_pml4[];
 namespace {
 constexpr uint64_t PAGE_SIZE = 4096ull;
@@ -291,13 +292,18 @@ static bool known_root(uint64_t root) {
 
 static int switch_root(uint64_t root, uint64_t *previous_root) {
 #if defined(__x86_64__)
+    /* CR3 is CPU-local state. Refuse the transition unless this CPU has a
+       verified GS/APIC identity and its GDT/TSS are initialized. */
+    if (chimera_x86_64_cpu_current_id() < 0) return -4;
     if (!known_root(root)) return -1;
     const uint64_t old = read_cr3();
     if (!known_root(old)) return -2;
     if (previous_root) *previous_root = old;
     uint64_t flags = 0;
     __asm__ volatile("pushfq; pop %0; cli" : "=r"(flags) : : "memory");
+    __sync_synchronize();
     __asm__ volatile("mov %0, %%cr3" : : "r"(root) : "memory");
+    __sync_synchronize();
     __asm__ volatile("push %0; popfq" : : "r"(flags) : "memory", "cc");
     return 0;
 #else
