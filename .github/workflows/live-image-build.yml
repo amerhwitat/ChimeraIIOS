@@ -162,6 +162,8 @@ jobs:
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
           test -s "$root/usr/share/chimera/marine/assets/marine-desktop.svg"
+          test -s "$root/opt/aurora/wallpapers/marine-desktop.svg"
+          grep -Fq 'marine-desktop.svg' "$root/opt/aurora/wallpapers/index.json"
           test -s "$root/usr/share/chimera/aurora/assets/Init.mp4"
           test -x "$root/usr/local/bin/aurora-init-splash.sh"
           test -x "$root/usr/bin/mpv"
