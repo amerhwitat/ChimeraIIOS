@@ -371,7 +371,11 @@ static void task_wake_monitor(void *argument) {
         reinterpret_cast<uintptr_t>(argument));
     if (phase++ == 0) {
         chimera_sched_yield();
+#if !defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+        /* Host callback tests re-enter the function on a later dispatch.
+           The freestanding stackful path resumes after yield and falls through. */
         return;
+#endif
     }
     chimera_sched_wake(monitor_id);
     debugcon_write("[SCH ] BSP callback woke blocked monitor task");
