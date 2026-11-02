@@ -28,6 +28,15 @@ class KoronosBootClaimTests(unittest.TestCase):
         self.assertIn("Storage/security/logging backends remain DECLARED, not RUNNING", self.source)
         self.assertIn("No production installer init ELF is present; refusing readiness", self.source)
 
+    def test_scheduler_is_explicitly_bsp_only_until_ap_startup(self):
+        self.assertIn("chimera_sched_init(1)", self.source)
+        self.assertIn("chimera_learning_init(1)", self.source)
+        self.assertIn("Online scheduler CPUs: 1 (AP startup not implemented)", self.source)
+        self.assertNotIn("chimera_sched_init(f->logical_cpus)", self.source)
+        build_script = (ROOT / "kernel" / "build-koronos.sh").read_text(encoding="utf-8")
+        self.assertIn("BSP scheduler callback runner (no SMP execution)", build_script)
+        self.assertNotIn("SMP-safe scheduler", build_script)
+
     def test_bootloader_keeps_svga_until_target_handoff(self):
         boot_configs = (
             "boot/iso/grub.cfg",
