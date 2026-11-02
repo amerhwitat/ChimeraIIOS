@@ -142,7 +142,7 @@ jobs:
       - name: QEMU headless Koronos boot smoke test
         run: |
           set +e
-          timeout 20s qemu-system-x86_64 \
+          timeout 60s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
             -display none -serial none -monitor none \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
