@@ -149,7 +149,7 @@ PY
 
 # verbatim source snapshot for provenance (excluding build output)
 mkdir -p "$PAY/repo"
-tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . 2>/dev/null \
+tar -C "$REPO_DIR" --exclude=./.git --exclude=./build --exclude=./vendor/chimera-ii-os/source/build --exclude=./live-image/.build -cf - . 2>/dev/null \
   | tar -C "$PAY/repo" -xf - 2>/dev/null || true
 
 # Stage every repository-owned application catalog for offline discovery.
