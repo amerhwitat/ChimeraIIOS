@@ -261,3 +261,27 @@ This confirms the BSP TSS load and CR3 address-space primitive execute in QEMU, 
 Octavian's final vendored boot-routing validation after synchronizing the missing live/full builder scripts and original Chimera wallpaper/manifest passed in run 41376946110, including language catalog validation, GRUB parsing, target graph, installer routing, ISO payload validator, splash contracts, shell syntax and desktop companion smoke. Earlier partial-sync failures were superseded by this final-head success.
 
 The latest Full ISO workflow run 41376751779 remains pending at this ledger update. ISO composition and target-specific Live/Installer/Recovery handoff on the final head are therefore not yet verified. The production release gate remains closed.
+
+
+## 13. CI and trace revalidation — 2026-11-02 (latest observed)
+
+### ChimeraIIOS PR #218 candidate
+
+- Full ISO workflow [41377107501](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41377107501) completed the freestanding build, ISO composition, payload/artwork validation, QEMU boot smoke, trace collection and ISO artifact upload. Candidate artifact: [13111808525](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41377107501/artifacts/13111808525). Target trace artifact: [13111368542](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41377107501/artifacts/13111368542).
+- The three captured target traces are explicit non-acceptance evidence: Live says the initramfs is registered but no executable ring-3 entry path is connected; Installer says no verified process context/ring-3 transition; Recovery says the repair shell has not been entered. The traces also confirm BSP GDT/TSS initialization and CR3 switch/restore self-test, while explicitly withholding user readiness.
+- The workflow can complete as a candidate build while keeping its publication step skipped. Its green build result must not be described as a production userspace pass or as the six-case immutable-ISO acceptance matrix.
+- On this candidate, core service logs now state that service identities are registered and storage/security/logging backends are declared but not running. This is the required truthful state.
+
+### OctavianOS PR #145 candidate
+
+- Native Koronos compilation, ELF/Multiboot2 validation, scheduler runtime regression, module classification tests, QEMU kernel readiness, initramfs composition and candidate ISO upload completed successfully in [run 41377614672](https://github.com/amerhwitat/OctavianOS/actions/runs/41377614672). Candidate ISO artifact: [13111962681](https://github.com/amerhwitat/OctavianOS/actions/runs/41377614672/artifacts/13111962681); kernel ELF artifact: [13111833006](https://github.com/amerhwitat/OctavianOS/actions/runs/41377614672/artifacts/13111833006).
+- The separate full-ISO production handoff verifier in that run failed for Live, Installer and Recovery: all three traces lacked a user-originated CPL3 init syscall acknowledgement and actual init PID readiness marker. Prerelease publication was skipped.
+- The separate six-case candidate probe workflow [41377614738](https://github.com/amerhwitat/OctavianOS/actions/runs/41377614738) completed 6/6. These are target-routing/test-init probes, not the production init/service payloads, and do not override the failed full-ISO handoff verifier.
+- PR #145 contains a scheduler correctness/truthfulness fix only. The parallel API remains fail-closed; the serial range helper is explicitly sequential. This is not AP startup or SMP scheduling.
+
+### Windows and release state
+
+- Chimera CI/CD run [41377107596](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41377107596): Linux build/tests and infrastructure/code-generation jobs completed successfully; Windows Configure and Build passed, while the Windows Test step was still running at the last poll.
+- Keep PRs #217/#218 and Octavian PR #142 as drafts. Do not merge or publish based solely on host tests, QEMU kernel readiness, candidate probes, or ISO artifact creation.
+- The production dependency order remains: process-owned guarded kernel stacks and saved trap contexts; architecture context switch with CR3 ownership; timer/preemption and real blocking/wait/exit/reap; AP startup and per-CPU workers; IPI TLB shootdowns/deferred reclamation; process-bound VFS/initramfs/syscalls and production init/service supervision; framebuffer and readiness-gated modesetting; then six production BIOS/UEFI cases on one immutable ISO SHA.
+- Native-init exit 78 and all fail-closed gates remain unchanged.
