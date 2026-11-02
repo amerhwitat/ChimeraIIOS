@@ -415,6 +415,9 @@ PY
 # Optional native artifacts are staged only when supplied. No test ELF or
 # missing initramfs is promoted into a production Installer/Recovery target.
 KORONOS_ELF="${KORONOS_ELF:-$REPO_DIR/build/koronos/x86_64/koronos.elf}"
+if [ ! -s "$KORONOS_ELF" ] && [ -s "$REPO_DIR/vendor/chimera-ii-os/source/build/koronos/x86_64/koronos.elf" ]; then
+  KORONOS_ELF="$REPO_DIR/vendor/chimera-ii-os/source/build/koronos/x86_64/koronos.elf"
+fi
 INSTALLER_INITRAMFS="${INSTALLER_INITRAMFS:-}"
 INSTALLATION_IMAGE="${INSTALLATION_IMAGE:-}"
 RECOVERY_INITRAMFS="${RECOVERY_INITRAMFS:-}"
