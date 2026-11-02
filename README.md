@@ -171,3 +171,21 @@ An isolated Multiboot/ELF32 serial probe is available under `kernel/arch/x86_32/
 ## Endianness across Koronos, microkernel, compatibility and mobile
 
 The canonical rules are defined in [`system/architecture/endianness.json`](system/architecture/endianness.json), with freestanding byte-order helpers in [`kernel/include/chimera/endianness.h`](kernel/include/chimera/endianness.h). x86 real16/protected32/long64 are little-endian; ARM32/AArch64 depend on target architecture and active controls; RISC-V uses the standard little-endian profile unless a concrete supported platform specifies otherwise; MIPS/PowerPC are target-ABI-selected; s390x is big-endian. The boot handoff carries explicit endian metadata. Serialized microkernel IPC and fixed-width boot fields use canonical little-endian encoding, while native in-memory structures remain ABI-specific. Emulation and compatibility modes must preserve guest byte order independently of host order. See also the [mobile sync contract](mobile/mobile-sync.json) and [compatibility-mode matrix](system/hardware/compatibility-modes.json). Contract and static tests are not proof of each CPU backend's correctness; backend conformance and big-endian-host execution remain required.
+
+## Live ISO images
+
+`live-image/` builds a bootable hybrid BIOS/UEFI x86_64 live ISO whose session renders
+this repository's own HTML desktop fullscreen (WebKit2GTK kiosk) with the shipped
+artwork available as desktop backgrounds:
+
+```sh
+sudo ./live-image/build.sh chimera     # -> live-image/.build/out/chimera-ii-os-live-amd64.iso
+```
+
+The builder bootstraps its own Debian rootfs (`debootstrap`), stages the desktop payload,
+the wallpaper set and a verbatim source snapshot, patches every page's background picker,
+and produces the ISO with `grub-mkrescue`. See `live-image/README.md`.
+
+Scope: the image boots a Linux kernel plus this project's userland. The native
+Spit Fire/Koronos microkernel is not in the boot path, because upstream remains blocked
+on the userspace handoff gate that the ISO release acceptance workflow enforces.
