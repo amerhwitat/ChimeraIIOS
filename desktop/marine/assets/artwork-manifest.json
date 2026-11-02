@@ -1,0 +1,17 @@
+{
+  "schema": "CHM-MARINE-ART-1",
+  "edition": "Marine Desktop",
+  "assets": [
+    {
+      "path": "desktop/marine/assets/marine-desktop.svg",
+      "role": ["desktop-wallpaper", "login-background", "live-preview"],
+      "title": "Marine Desktop — Deep Current",
+      "format": "SVG",
+      "dimensions": "1920x1080",
+      "origin": "original project artwork",
+      "license": "CC0-1.0",
+      "offline": true
+    }
+  ],
+  "runtime_note": "Vector desktop artwork is embedded as an offline SVG source. GRUB firmware-stage rendering requires a separately generated PNG/JPEG derivative; this manifest does not claim that a GRUB raster derivative is present."
+}
