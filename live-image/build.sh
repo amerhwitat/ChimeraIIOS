@@ -394,14 +394,23 @@ done
 [ ! -f "$REPO_DIR/boot/spitfire/spitfire-menu.cfg" ] || install -m644 "$REPO_DIR/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
 # On this Linux-kernel ISO Jasper and Spit Fire are menu adapters. The native
 # source-tree menus remain available in the source snapshot and native ISO flow.
-cat > "$ISODIR/boot/jasper/jasper.cfg" <<'EOF'
-echo "[JASPER] Unified target manager — Live / Installer / Koronos / Recovery"
-configfile /boot/jasper/live-image.cfg
-EOF
-cat > "$ISODIR/boot/spitfire/spitfire-menu.cfg" <<'EOF'
-echo "[SPIT FIRE] Firmware handoff adapter -> Jasper target manager"
-configfile /boot/jasper/live-image.cfg
-EOF
+python3 - "$ISODIR/boot/jasper/live-image.cfg" "$ISODIR/boot/jasper/jasper.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg" <<'PY'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text().splitlines()
+out, skipping = [], False
+for line in source:
+    if line.startswith('menuentry "Jasper Boot Manager') or line.startswith('menuentry "Spit Fire Firmware Path'):
+        skipping = True
+        continue
+    if skipping:
+        if line == "}":
+            skipping = False
+        continue
+    out.append(line)
+adapter = "\n".join(out) + "\n"
+for target in sys.argv[2:]:
+    pathlib.Path(target).write_text(adapter)
+PY
 
 # Optional native artifacts are staged only when supplied. No test ELF or
 # missing initramfs is promoted into a production Installer/Recovery target.
@@ -450,6 +459,7 @@ insmod jpeg
 insmod font
 set gfxmode=5120x2880,3840x2160,2560x1440,1920x1200,1920x1080,1680x1050,1600x1200,1600x900,1440x900,1366x768,1280x1024,1280x720,1024x768,800x600,640x480,auto
 set gfxpayload=keep
+set debug=all
 terminal_output gfxterm
 if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
 echo "[BOOT] $TITLE $VERSION — verbose target menu"
