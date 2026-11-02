@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ $# -ne 2 ]]; then
-  echo "usage: $0 <live-iso> <evidence-directory>" >&2
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+  echo "usage: $0 <live-iso> <evidence-directory> [live|recovery]" >&2
   exit 2
 fi
 ISO="$(realpath "$1")"
 OUT="$2"
+TARGET=live
+if [[ $# -eq 3 ]]; then TARGET="$3"; fi
+case "$TARGET" in live|recovery) ;; *) echo "unsupported target: $TARGET" >&2; exit 2 ;; esac
 mkdir -p "$OUT"
 test -s "$ISO"
 command -v qemu-system-x86_64 >/dev/null
@@ -39,48 +42,69 @@ for attempt in $(seq 1 100); do
   sleep 0.2
 done
 [[ -S "$monitor" ]] || { echo "QEMU monitor socket did not appear" >&2; exit 1; }
-desktop_seen=0
+
+# The menu order is Live, Installer, Koronos, Recovery. Select Recovery
+# explicitly before the eight-second default timeout when requested.
+if [[ "$TARGET" == recovery ]]; then
+  sleep 3
+  {
+    printf 'sendkey down\n'
+    sleep 0.1
+    printf 'sendkey down\n'
+    sleep 0.1
+    printf 'sendkey down\n'
+    sleep 0.1
+    printf 'sendkey ret\n'
+  } | socat - "UNIX-CONNECT:$monitor" >>"$qemu_log" 2>&1
+fi
+
+target_seen=0
 for attempt in $(seq 1 18); do
   sleep 10
   kill -0 "$pid" 2>/dev/null || { cat "$qemu_log" >&2; exit 1; }
-  ppm="$OUT/desktop-attempt-$attempt.ppm"
-  png="$OUT/desktop-attempt-$attempt.png"
+  ppm="$OUT/$TARGET-attempt-$attempt.ppm"
+  png="$OUT/$TARGET-attempt-$attempt.png"
   printf 'screendump %s\n' "$ppm" | socat - "UNIX-CONNECT:$monitor" >>"$qemu_log" 2>&1 || true
   if [[ ! -s "$ppm" ]]; then continue; fi
   convert "$ppm" -strip "$png"
   identify "$png" >>"$OUT/screenshot-metadata.txt"
-  tesseract "$png" "$OUT/desktop-attempt-$attempt" 2>/dev/null || true
-  ocr="$OUT/desktop-attempt-$attempt.txt"
-  if [[ -s "$ocr" ]] && grep -Eiq 'Aurora|Desktop|Chimera|Octavian|Application' "$ocr"; then
-    cp "$png" "$OUT/desktop-boot.png"
-    cp "$ocr" "$OUT/desktop-boot-ocr.txt"
-    desktop_seen=1
+  tesseract "$png" "$OUT/$TARGET-attempt-$attempt" 2>/dev/null || true
+  ocr="$OUT/$TARGET-attempt-$attempt.txt"
+  if [[ "$TARGET" == live ]]; then
+    match='Aurora|Desktop|Chimera|Octavian|Application'
+  else
+    match='RESCUE SHELL|No disk is modified'
+  fi
+  if [[ -s "$ocr" ]] && grep -Eiq "$match" "$ocr"; then
+    cp "$png" "$OUT/$TARGET-boot.png"
+    cp "$ocr" "$OUT/$TARGET-boot-ocr.txt"
+    target_seen=1
     break
   fi
 done
-if [[ "$desktop_seen" -ne 1 ]]; then
-  echo "QEMU did not show OCR-verifiable Aurora desktop content within 180 seconds." >&2
+if [[ "$target_seen" -ne 1 ]]; then
+  echo "QEMU did not show expected $TARGET target evidence within 180 seconds." >&2
   [[ -f "$OUT/screenshot-metadata.txt" ]] && cat "$OUT/screenshot-metadata.txt" >&2
   for f in "$OUT"/*.txt; do [[ -f "$f" ]] && { echo "---- $f"; cat "$f"; }; done
   exit 1
 fi
-read -r width height < <(identify -format '%w %h' "$OUT/desktop-boot.png")
+read -r width height < <(identify -format '%w %h' "$OUT/$TARGET-boot.png")
 [[ "$width" -ge 640 && "$height" -ge 480 ]] || {
-  echo "QEMU framebuffer unexpectedly small: \${width}x\${height}" >&2
+  echo "QEMU framebuffer unexpectedly small: $width x $height" >&2
   exit 1
 }
-colors="$(convert "$OUT/desktop-boot.png" -colors 64 -format '%k' info:)"
+colors="$(convert "$OUT/$TARGET-boot.png" -colors 64 -format '%k' info:)"
 [[ "$colors" -ge 16 ]] || {
   echo "QEMU framebuffer is effectively blank ($colors colors)" >&2
   exit 1
 }
 cat >"$OUT/RESULT.txt" <<EOF
-QEMU live boot: PASS
+QEMU $TARGET boot: PASS
 ISO: $ISO
-Framebuffer: \${width}x\${height}
+Framebuffer: $width x $height
 Distinct colors (quantized to 64): $colors
-Desktop OCR evidence: $(tr '\n' ' ' <"$OUT/desktop-boot-ocr.txt")
+Target OCR evidence: $(tr '\n' ' ' <"$OUT/$TARGET-boot-ocr.txt")
+Native Koronos ELF: bundled separately; native kernel boot not tested by this target test.
 Physical-machine boot: NOT TESTED
-Native Koronos kernel: NOT TESTED; this is a Linux-kernel live edition.
 EOF
 cat "$OUT/RESULT.txt"
