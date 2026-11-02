@@ -119,17 +119,23 @@ static bool clone_bootstrap_map(AddressSpace *space) {
     copy_bytes(new_pdpt, old_pdpt, PAGE_SIZE);
     new_root[0] = pdpt | (src_root[0] & 0xFFFu) | ENTRY_USER;
 
-    // Clone all four 1-GiB bootstrap PDs. The 2-MiB identity leaves remain
-    // supervisor-only; user mappings are placed above the 4-GiB identity span.
+    // Share the four bootstrap page directories containing the 0..4-GiB
+    // supervisor identity map. Their 2-MiB leaves are supervisor-only and
+    // immutable after bootstrap. User mappings start at 4 GiB (PDPT index 4),
+    // so no process ever edits these shared page-directory pages.
     for (uint32_t i = 0; i < 4u; ++i) {
         if (!(old_pdpt[i] & ENTRY_PRESENT) || (old_pdpt[i] & ENTRY_LARGE)) return false;
         const uint64_t old_pd_phys = old_pdpt[i] & ENTRY_ADDRESS_MASK;
         const uint64_t *old_pd = table_ptr(old_pd_phys);
         if (!old_pd) return false;
-        const uint64_t pd = new_table(space);
-        if (!pd) return false;
-        copy_bytes(table_ptr(pd), old_pd, PAGE_SIZE);
-        new_pdpt[i] = pd | (old_pdpt[i] & 0xFFFu) | ENTRY_USER;
+        for (uint32_t j = 0; j < 512u; ++j) {
+            const uint64_t leaf = old_pd[j];
+            if ((leaf & (ENTRY_PRESENT | ENTRY_LARGE | ENTRY_USER)) !=
+                (ENTRY_PRESENT | ENTRY_LARGE)) return false;
+        }
+        // Only the cloned parent entry receives U/S=1 so the PML4 path can
+        // reach user mappings at index >=4; the shared large leaves remain U/S=0.
+        new_pdpt[i] = old_pdpt[i] | ENTRY_USER;
     }
     for (uint32_t i = 4u; i < 512u; ++i) {
         if (old_pdpt[i] & ENTRY_PRESENT) return false;
@@ -342,9 +348,16 @@ static bool address_space_self_test() {
         uint64_t *root = table_ptr(space->root_physical);
         uint64_t *pdpt = root ? table_ptr(root[0] & ENTRY_ADDRESS_MASK) : nullptr;
         uint64_t *pd = pdpt ? table_ptr(pdpt[0] & ENTRY_ADDRESS_MASK) : nullptr;
-        // Existing 2-MiB identity leaves must remain supervisor-only even though
-        // their parent entries are user-capable for high user mappings.
-        ok = code_pte && stack_pte && root && pdpt && pd &&
+        const uint64_t bootstrap_root_phys = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+        const uint64_t *bootstrap_root = table_ptr(bootstrap_root_phys);
+        const uint64_t *bootstrap_pdpt = bootstrap_root
+            ? table_ptr(bootstrap_root[0] & ENTRY_ADDRESS_MASK) : nullptr;
+        // The supervisor identity-map PDs are physically shared with bootstrap,
+        // while user leaves remain in separate page-table subtrees.
+        const bool shared_supervisor_pd =
+            bootstrap_pdpt && ((pdpt[0] & ENTRY_ADDRESS_MASK) ==
+                               (bootstrap_pdpt[0] & ENTRY_ADDRESS_MASK));
+        ok = code_pte && stack_pte && root && pdpt && pd && shared_supervisor_pd &&
              (*code_pte & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
              (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
              (*stack_pte & (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX)) ==
