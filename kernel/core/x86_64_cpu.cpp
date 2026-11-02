@@ -103,7 +103,11 @@ extern "C" int chimera_x86_64_cpu_init(uint32_t cpu_id) {
     /* IA32_GS_BASE is the trusted current-CPU anchor. This is installed on
        the CPU that is executing this initializer, never on a remote CPU. */
     write_msr(0xC0000101u, reinterpret_cast<uint64_t>(&cpu));
-    if (current_logical_id() != cpu_id) return -6;
+    uint32_t verified_apic_id = 0;
+    if (current_logical_id() != cpu_id ||
+        !read_current_apic_id(&verified_apic_id) ||
+        verified_apic_id != apic_id) return -6;
+    __sync_synchronize();
     cpu.ready = 1;
     return 0;
 }
@@ -136,7 +140,7 @@ extern "C" int chimera_x86_64_cpu_set_kernel_stack(
     uint32_t cpu_id, uint64_t stack_top) {
     if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready)
         return -1;
-    if (current_logical_id() != cpu_id) return -4;
+    if (chimera_x86_64_cpu_current_id() != static_cast<int>(cpu_id)) return -4;
     if (!stack_top || (stack_top & 0xFu) != 0 || !canonical_stack(stack_top))
         return -2;
     uint64_t rflags = 0;
@@ -153,6 +157,6 @@ extern "C" int chimera_x86_64_cpu_is_ready(uint32_t cpu_id) {
 
 extern "C" uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id) {
     if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return 0;
-    if (current_logical_id() != cpu_id) return 0;
+    if (chimera_x86_64_cpu_current_id() != static_cast<int>(cpu_id)) return 0;
     return cpus[cpu_id].tss.rsp0;
 }
