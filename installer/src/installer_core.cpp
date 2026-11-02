@@ -103,7 +103,19 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   std::cout<<"Chimera II Setup — Koronos installation transaction\n";
   for(const auto&s:build_plan(p)) std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
   if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
-  if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
+  if(!confirmed || p.destructive_confirmation_token!="ERASE-AND-INSTALL"){std::cerr<<"Explicit destructive confirmation token required.\n";return 3;}
+#ifndef _WIN32
+  auto is_block_device=[](const fs::path& path){ std::error_code ec; return !path.empty() && fs::exists(path,ec) && !ec && fs::is_block_file(path,ec) && !ec; };
+  if(p.boot_device.empty() || p.root_partition.empty() || !is_block_device(p.boot_device) || !is_block_device(p.root_partition)) { std::cerr<<"Selected boot disk and root partition must be existing block devices.\n"; return 5; }
+  if(p.firmware==Firmware::Unknown || p.firmware!=detect_hardware().firmware) { std::cerr<<"Firmware selection must match the running firmware mode.\n"; return 5; }
+  if(p.firmware==Firmware::UEFI && (p.efi_partition.empty() || !is_block_device(p.efi_partition))) { std::cerr<<"UEFI installation requires an existing EFI System Partition block device.\n"; return 5; }
+#else
+  std::cerr<<"Native disk installation is not supported by this backend.\n"; return 5;
+#endif
+  // Fail closed until a tested partition/mount/deploy/verify/GRUB transaction backend is linked.
+  // Never copy an installation tree into an arbitrary host directory and call it installed.
+  std::cerr<<"STORAGE TRANSACTION BLOCKED: partitioning, formatting, mount ownership, installed initramfs verification, GRUB installation and rollback backend are not integrated. No disk was modified.\n";
+  return 6;
   if(copy_tree(p.source_root,p.target_root)!=0) return 4;
   if(p.deep_driver_search){
     fs::create_directories(p.target_root/"var/lib/chimera/drivers");
