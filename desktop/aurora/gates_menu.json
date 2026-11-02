@@ -80,25 +80,25 @@
     "native_bootloader": "Spit Fire",
     "boot_manager": "Jasper",
     "firmware_fallback": "GRUB2",
-    "live_entry": "GRUB id live-linux (Linux-kernel live edition)",
-    "installation_entry": "GRUB id installer (native Koronos installer payload gated)",
-    "recovery_entry": "GRUB id recovery (Linux rescue shell); recovery-koronos requires native recovery payload",
+    "live_entry": "GRUB id aurora-live (native Koronos live target)",
+    "installation_entry": "GRUB id install (native installer contract-gated)",
+    "recovery_entry": "GRUB id recovery (dedicated native recovery menu)",
     "diagnostics_entry": "/boot/jasper/diagnostics.cfg",
-    "vmlinuz": true,
-    "koronos_entry": "GRUB id koronos (native kernel diagnostics; experimental)",
+    "vmlinuz": false,
+    "koronos_entry": "GRUB id koronos (experimental native kernel diagnostics)",
     "display": "5120x2880 preferred; highest firmware-supported fallback; gfxpayload=keep",
     "logging": "verbose GRUB, kernel loglevel=7, ignore_loglevel, printk timestamps, systemd debug/status",
-    "linux_live_edition": true
+    "linux_live_edition": "separate Linux-kernel ISO boot path; default target id live-linux"
   },
   "actions": {
     "live": {
       "label": "Boot Live Aurora Desktop",
-      "command": "grub-reboot live-linux",
+      "command": "grub-reboot aurora-live",
       "requires": "bootloader"
     },
     "install": {
       "label": "Native Koronos Installer (requires staged installer runtime)",
-      "command": "grub-reboot installer",
+      "command": "grub-reboot install",
       "requires": "bootloader"
     },
     "recovery": {
@@ -138,7 +138,7 @@
     },
     "native_recovery": {
       "label": "Native Koronos Recovery (requires staged recovery runtime)",
-      "command": "grub-reboot recovery-koronos",
+      "command": "grub-reboot recovery",
       "requires": "bootloader"
     }
   },
