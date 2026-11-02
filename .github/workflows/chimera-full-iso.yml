@@ -242,6 +242,11 @@ jobs:
               accepted=false
               continue
             fi
+            if ! grep -Fq '[CPU ] BSP GDT/TSS initialized' "$trace"; then
+              echo "::warning::$target target did not load the BSP GDT/TSS"
+              accepted=false
+              continue
+            fi
             if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
               echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
               accepted=false
