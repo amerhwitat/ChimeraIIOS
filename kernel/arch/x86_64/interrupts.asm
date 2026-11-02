@@ -5,14 +5,21 @@ extern chimera_interrupt_dispatch
 global chimera_interrupt_common
 global chimera_isr_table
 
-; Every vector has a dedicated entry point so the vector number is preserved.
-; Exceptions which push a CPU error code are identified by vector in the common
-; epilogue and the CPU-provided error code is removed before IRETQ.
+; Normalize every vector to one stack contract:
+;   [GPRs r15..rax][vector][error][RIP][CS][RFLAGS][old RSP][old SS]
+; The CPU supplies error for the architecturally-defined error-code vectors.
+; All other stubs synthesize a zero error slot. RSP/SS are present only when
+; the interrupted context was CPL3; the DPL0 gate keeps user entry disabled.
 %assign v 0
 %rep 256
 global chimera_isr_%+v
 chimera_isr_%+v:
+%if v = 8 || v = 10 || v = 11 || v = 12 || v = 13 || v = 14 || v = 17 || v = 21 || v = 29 || v = 30
     push qword v
+%else
+    push qword 0
+    push qword v
+%endif
     jmp chimera_interrupt_common
 %assign v v+1
 %endrep
@@ -34,31 +41,17 @@ chimera_interrupt_common:
     push r14
     push r15
 
+    ; chimera_x86_64_trap_frame: vector is byte offset 120.
     mov rdi, [rsp + 120]
     mov rsi, rsp
+    ; Interrupts may arrive at any interrupted RSP alignment. Preserve the
+    ; normalized frame in rsi and align the call stack for the SysV ABI.
+    ; r12's interrupted value is already saved in the frame above.
+    mov r12, rsp
+    cld                         ; C ABI requires DF=0; IRETQ restores saved user flags.
+    and rsp, -16
     call chimera_interrupt_dispatch
-
-    mov rax, [rsp + 120]
-    cmp eax, 8
-    je .error_code
-    cmp eax, 10
-    je .error_code
-    cmp eax, 11
-    je .error_code
-    cmp eax, 12
-    je .error_code
-    cmp eax, 13
-    je .error_code
-    cmp eax, 14
-    je .error_code
-    cmp eax, 17
-    je .error_code
-    cmp eax, 21
-    je .error_code
-    cmp eax, 29
-    je .error_code
-    cmp eax, 30
-    je .error_code
+    mov rsp, r12
 
     pop r15
     pop r14
@@ -75,25 +68,7 @@ chimera_interrupt_common:
     pop rdx
     pop rcx
     pop rax
-    add rsp, 8
-    iretq
-
-.error_code:
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop r11
-    pop r10
-    pop r9
-    pop r8
-    pop rdi
-    pop rsi
-    pop rbp
-    pop rbx
-    pop rdx
-    pop rcx
-    pop rax
+    ; Always discard normalized vector + error slots, including exceptions.
     add rsp, 16
     iretq
 

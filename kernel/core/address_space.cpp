@@ -4,6 +4,7 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
 #include "chimera/koronos_abi.h"
+#include "chimera/x86_64_cpu.h"
 extern "C" uint8_t koronos_bootstrap_pml4[];
 namespace {
 constexpr uint64_t PAGE_SIZE = 4096ull;
@@ -118,17 +119,23 @@ static bool clone_bootstrap_map(AddressSpace *space) {
     copy_bytes(new_pdpt, old_pdpt, PAGE_SIZE);
     new_root[0] = pdpt | (src_root[0] & 0xFFFu) | ENTRY_USER;
 
-    // Clone all four 1-GiB bootstrap PDs. The 2-MiB identity leaves remain
-    // supervisor-only; user mappings are placed above the 4-GiB identity span.
+    // Share the four bootstrap page directories containing the 0..4-GiB
+    // supervisor identity map. Their 2-MiB leaves are supervisor-only and
+    // immutable after bootstrap. User mappings start at 4 GiB (PDPT index 4),
+    // so no process ever edits these shared page-directory pages.
     for (uint32_t i = 0; i < 4u; ++i) {
         if (!(old_pdpt[i] & ENTRY_PRESENT) || (old_pdpt[i] & ENTRY_LARGE)) return false;
         const uint64_t old_pd_phys = old_pdpt[i] & ENTRY_ADDRESS_MASK;
         const uint64_t *old_pd = table_ptr(old_pd_phys);
         if (!old_pd) return false;
-        const uint64_t pd = new_table(space);
-        if (!pd) return false;
-        copy_bytes(table_ptr(pd), old_pd, PAGE_SIZE);
-        new_pdpt[i] = pd | (old_pdpt[i] & 0xFFFu) | ENTRY_USER;
+        for (uint32_t j = 0; j < 512u; ++j) {
+            const uint64_t leaf = old_pd[j];
+            if ((leaf & (ENTRY_PRESENT | ENTRY_LARGE | ENTRY_USER)) !=
+                (ENTRY_PRESENT | ENTRY_LARGE)) return false;
+        }
+        // Only the cloned parent entry receives U/S=1 so the PML4 path can
+        // reach user mappings at index >=4; the shared large leaves remain U/S=0.
+        new_pdpt[i] = old_pdpt[i] | ENTRY_USER;
     }
     for (uint32_t i = 4u; i < 512u; ++i) {
         if (old_pdpt[i] & ENTRY_PRESENT) return false;
@@ -244,29 +251,34 @@ static void destroy_address_space(void *, void *opaque) {
     if (space_valid(space)) destroy_locked(space);
     unlock_backend();
 }
-static bool user_page_access(uint64_t root_physical, uint64_t va, bool write_access) {
+static bool user_page_access(uint64_t root_physical, uint64_t va,
+                             bool write_access, bool execute_access) {
     uint64_t *root = table_ptr(root_physical & ENTRY_ADDRESS_MASK);
     if (!root) return false;
     uint64_t entry = root[(va >> 39) & 0x1FFu];
     if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
-        (write_access && !(entry & ENTRY_WRITE)) || (entry & ENTRY_LARGE)) return false;
+        (write_access && !(entry & ENTRY_WRITE)) ||
+        (execute_access && (entry & ENTRY_NX)) || (entry & ENTRY_LARGE)) return false;
     uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
     if (!pdpt) return false;
     entry = pdpt[(va >> 30) & 0x1FFu];
     if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
-        (write_access && !(entry & ENTRY_WRITE))) return false;
+        (write_access && !(entry & ENTRY_WRITE)) ||
+        (execute_access && (entry & ENTRY_NX))) return false;
     if (entry & ENTRY_LARGE) return true;
     uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
     if (!pd) return false;
     entry = pd[(va >> 21) & 0x1FFu];
     if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
-        (write_access && !(entry & ENTRY_WRITE))) return false;
+        (write_access && !(entry & ENTRY_WRITE)) ||
+        (execute_access && (entry & ENTRY_NX))) return false;
     if (entry & ENTRY_LARGE) return true;
     uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
     if (!pt) return false;
     entry = pt[(va >> 12) & 0x1FFu];
     return (entry & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
-           (!write_access || (entry & ENTRY_WRITE));
+           (!write_access || (entry & ENTRY_WRITE)) &&
+           (!execute_access || !(entry & ENTRY_NX));
 }
 
 static uint64_t read_cr3() {
@@ -291,13 +303,18 @@ static bool known_root(uint64_t root) {
 
 static int switch_root(uint64_t root, uint64_t *previous_root) {
 #if defined(__x86_64__)
+    /* CR3 is CPU-local state. Refuse the transition unless this CPU has a
+       verified GS/APIC identity and its GDT/TSS are initialized. */
+    if (chimera_x86_64_cpu_current_id() < 0) return -4;
     if (!known_root(root)) return -1;
     const uint64_t old = read_cr3();
     if (!known_root(old)) return -2;
     if (previous_root) *previous_root = old;
     uint64_t flags = 0;
     __asm__ volatile("pushfq; pop %0; cli" : "=r"(flags) : : "memory");
+    __sync_synchronize();
     __asm__ volatile("mov %0, %%cr3" : : "r"(root) : "memory");
+    __sync_synchronize();
     __asm__ volatile("push %0; popfq" : : "r"(flags) : "memory", "cc");
     return 0;
 #else
@@ -336,9 +353,20 @@ static bool address_space_self_test() {
         uint64_t *root = table_ptr(space->root_physical);
         uint64_t *pdpt = root ? table_ptr(root[0] & ENTRY_ADDRESS_MASK) : nullptr;
         uint64_t *pd = pdpt ? table_ptr(pdpt[0] & ENTRY_ADDRESS_MASK) : nullptr;
-        // Existing 2-MiB identity leaves must remain supervisor-only even though
-        // their parent entries are user-capable for high user mappings.
-        ok = code_pte && stack_pte && root && pdpt && pd &&
+        const uint64_t bootstrap_root_phys = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+        const uint64_t *bootstrap_root = table_ptr(bootstrap_root_phys);
+        const uint64_t *bootstrap_pdpt = bootstrap_root
+            ? table_ptr(bootstrap_root[0] & ENTRY_ADDRESS_MASK) : nullptr;
+        // The supervisor identity-map PDs are physically shared with bootstrap,
+        // while user leaves remain in separate page-table subtrees.
+        bool shared_supervisor_pd = bootstrap_pdpt != nullptr;
+        for (uint32_t i = 0; i < 4u && shared_supervisor_pd; ++i) {
+            shared_supervisor_pd =
+                (pdpt[i] & ENTRY_ADDRESS_MASK) ==
+                    (bootstrap_pdpt[i] & ENTRY_ADDRESS_MASK) &&
+                (pdpt[i] & ENTRY_USER) != 0;
+        }
+        ok = code_pte && stack_pte && root && pdpt && pd && shared_supervisor_pd &&
              (*code_pte & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
              (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
              (*stack_pte & (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX)) ==
@@ -346,12 +374,20 @@ static bool address_space_self_test() {
              (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
                  KORONOS_USER_VIRTUAL_MIN, 1u, 0u) == 0 &&
+             koronos_address_space_validate_user_executable_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u) == 0 &&
+             koronos_address_space_validate_user_executable_range(space->root_physical,
+                 0x00007FFFFFFFE000ull, 1u) != 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
                  KORONOS_USER_VIRTUAL_MIN, 1u, 1u) != 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
                  0x00007FFFFFFFE000ull, 1u, 1u) == 0 &&
              koronos_address_space_validate_user_range(space->root_physical,
-                 0x00100000ull, 1u, 0u) != 0;
+                 0x00100000ull, 1u, 0u) != 0 &&
+             koronos_address_space_validate_kernel_range(space->root_physical,
+                 0x000B8000ull, 1u, 1u) == 0 &&
+             koronos_address_space_validate_kernel_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 0u) != 0;
     }
     destroy_address_space(nullptr, space);
     return ok && koronos_frame_free_count() == before;
@@ -419,10 +455,66 @@ extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
     const uint64_t end = address + length;
     uint64_t page = address & ~PAGE_MASK;
     while (page < end) {
-        if (!user_page_access(root_physical, page, write_access != 0)) return -2;
+        if (!user_page_access(root_physical, page, write_access != 0, false)) return -2;
         if (page > UINT64_MAX - PAGE_SIZE) return -3;
         page += PAGE_SIZE;
     }
     return 0;
 }
+extern "C" int koronos_address_space_validate_user_executable_range(
+    uint64_t root_physical, uint64_t address, uint64_t length) {
+    if (length == 0 || address < KORONOS_USER_VIRTUAL_MIN ||
+        address >= CHIMERA_ELF_USER_LIMIT ||
+        length > CHIMERA_ELF_USER_LIMIT - address) return -1;
+    const uint64_t end = address + length;
+    uint64_t page = address & ~PAGE_MASK;
+    while (page < end) {
+        if (!user_page_access(root_physical, page, false, true)) return -2;
+        if (page > UINT64_MAX - PAGE_SIZE) return -3;
+        page += PAGE_SIZE;
+    }
+    return 0;
+}
+extern "C" int koronos_address_space_validate_kernel_range(
+    uint64_t root_physical, uint64_t address, uint64_t length,
+    uint32_t write_access) {
+    if (!length || !known_root(root_physical) ||
+        address >= KORONOS_PHYSMAP_LIMIT ||
+        length > KORONOS_PHYSMAP_LIMIT - address) return -1;
+    const uint64_t end = address + length;
+    uint64_t page = address & ~PAGE_MASK;
+    while (page < end) {
+        uint64_t *root = table_ptr(root_physical);
+        if (!root) return -2;
+        uint64_t entry = root[(page >> 39) & 0x1FFu];
+        if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_LARGE)) return -3;
+        uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+        if (!pdpt) return -4;
+        entry = pdpt[(page >> 30) & 0x1FFu];
+        if (!(entry & ENTRY_PRESENT)) return -5;
+        if (entry & ENTRY_LARGE) {
+            if (entry & ENTRY_USER) return -6;
+            if (write_access && !(entry & ENTRY_WRITE)) return -7;
+        } else {
+            uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
+            if (!pd) return -8;
+            entry = pd[(page >> 21) & 0x1FFu];
+            if (!(entry & ENTRY_PRESENT)) return -9;
+            if (entry & ENTRY_LARGE) {
+                if (entry & ENTRY_USER) return -10;
+                if (write_access && !(entry & ENTRY_WRITE)) return -11;
+            } else {
+                uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+                if (!pt) return -12;
+                entry = pt[(page >> 12) & 0x1FFu];
+                if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_USER)) return -13;
+                if (write_access && !(entry & ENTRY_WRITE)) return -14;
+            }
+        }
+        if (page > UINT64_MAX - PAGE_SIZE) return -15;
+        page += PAGE_SIZE;
+    }
+    return 0;
+}
+
 extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }

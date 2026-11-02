@@ -27,6 +27,8 @@ class KoronosBootClaimTests(unittest.TestCase):
         self.assertIn("no process-backed installer workers are connected", self.source)
         self.assertIn("Storage/security/logging backends remain DECLARED, not RUNNING", self.source)
         self.assertIn("No production installer init ELF is present; refusing readiness", self.source)
+        self.assertIn("Trusted per-CPU GS identity installed", self.source)
+        self.assertIn("BSP identity logical=0 APIC=", self.source)
 
     def test_bootloader_keeps_svga_until_target_handoff(self):
         boot_configs = (

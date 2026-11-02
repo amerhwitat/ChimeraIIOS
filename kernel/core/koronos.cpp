@@ -425,7 +425,17 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     }
     const int cpu_state_status = chimera_x86_64_cpu_init(0);
     if (cpu_state_status == 0 && chimera_x86_64_cpu_is_ready(0)) {
+        uint32_t apic_id = 0;
         console_write("[CPU ] BSP GDT/TSS initialized; ring-3 entry remains disabled pending process contexts");
+        console_write("[CPU ] Trusted per-CPU GS identity installed");
+        if (chimera_x86_64_cpu_current_id() == 0 &&
+            chimera_x86_64_cpu_current_apic_id(&apic_id) == 0) {
+            console_raw("[CPU ] BSP identity logical=0 APIC=");
+            console_u32_raw(apic_id);
+            console_endline();
+        } else {
+            console_write("[CPU ] ERROR: per-CPU identity verification failed; user entry remains disabled");
+        }
     } else {
         console_write("[CPU ] ERROR: BSP GDT/TSS initialization failed; userspace remains disabled");
     }
@@ -468,7 +478,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     const int address_space_init = (frame_status == 0) ? koronos_address_space_init() : -1;
     const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
     if (address_space_test == 0) {
-        console_write("[MM  ] Address-space self-test passed: CR3 switch/restore, kernel identity mappings, user U/RW/NX permissions and frame rollback verified");
+        console_write("[MM  ] Address-space self-test passed: CR3 switch/restore, shared supervisor page directories, user U/RW/NX permissions and frame rollback verified");
     } else {
         console_write("[MM  ] ERROR: address-space backend unavailable or self-test failed; userspace launch remains disabled");
     }

@@ -133,3 +133,27 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_process_loader_transaction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
 endif()
 add_test(NAME chimera_process_loader_transaction COMMAND chimera_process_loader_transaction_test)
+
+add_executable(chimera_x86_64_trap_frame_test
+  x86_64_trap_frame_test.cpp
+)
+target_include_directories(chimera_x86_64_trap_frame_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_x86_64_trap_frame_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_x86_64_trap_frame_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME chimera_x86_64_trap_frame COMMAND chimera_x86_64_trap_frame_test)
+
+add_executable(chimera_x86_64_tss_stack_guard_test
+  x86_64_tss_stack_guard_test.cpp
+)
+target_include_directories(chimera_x86_64_tss_stack_guard_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_x86_64_tss_stack_guard_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_x86_64_tss_stack_guard_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME chimera_x86_64_tss_stack_guard COMMAND chimera_x86_64_tss_stack_guard_test)

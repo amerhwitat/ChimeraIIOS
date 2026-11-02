@@ -1,4 +1,5 @@
 #include "../include/chimera/process.h"
+#include "chimera/x86_64_trap_frame.h"
 #if defined(KORONOS_FREESTANDING)
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
@@ -42,6 +43,8 @@ struct Slot {
     uint64_t kernel_stack_physical = 0;
     uint32_t kernel_stack_pages = 0;
     uint64_t kernel_stack_top = 0;
+    uint64_t user_stack_size = 0;
+    uint64_t initial_trap_frame_rsp = 0;
     uint64_t saved_kernel_rsp = 0;
     bool used = false;
     bool loaded_ok = false;
@@ -83,10 +86,16 @@ static bool allocate_kernel_stack(Slot *slot) {
         return false;
     }
     for (uint64_t i = 0; i < bytes; ++i) base[i] = 0;
+    /* Process roots currently share only the supervisor identity map below
+       4 GiB. The stack pointer used by TSS.RSP0 must therefore be an identity
+       VA present under every process CR3, not the physmap alias. */
+    if (physical >= 0x100000000ull || bytes > 0x100000000ull - physical) {
+        (void)koronos_frame_free_contiguous(physical, PROCESS_KERNEL_STACK_PAGES);
+        return false;
+    }
     slot->kernel_stack_physical = physical;
     slot->kernel_stack_pages = PROCESS_KERNEL_STACK_PAGES;
-    slot->kernel_stack_top =
-        (reinterpret_cast<uint64_t>(base) + bytes) & ~static_cast<uint64_t>(0xFu);
+    slot->kernel_stack_top = (physical + bytes) & ~static_cast<uint64_t>(0xFu);
     return slot->kernel_stack_top != 0;
 }
 static void release_kernel_stack(Slot *slot) {
@@ -112,6 +121,8 @@ static void destroy_loaded(Slot *slot) {
     slot->load_context = nullptr;
     slot->loaded_ok = false;
     slot->saved_kernel_rsp = 0;
+    slot->initial_trap_frame_rsp = 0;
+    slot->user_stack_size = 0;
 }
 }
 
@@ -222,6 +233,7 @@ extern "C" int chimera_process_load_elf(uint32_t pid, const void *image,
                                                context, &loaded);
     if (rc != 0) return rc;
     slot->loaded = loaded;
+    slot->user_stack_size = stack_size;
     slot->load_ops = *ops;
     slot->load_context = context;
     slot->loaded_ok = true;
@@ -231,9 +243,71 @@ extern "C" int chimera_process_load_elf(uint32_t pid, const void *image,
     }
 #if defined(KORONOS_FREESTANDING)
     slot->loaded.address_space = loaded.address_space;
+    const uint64_t kernel_stack_bytes =
+        (uint64_t)slot->kernel_stack_pages * KORONOS_FRAME_SIZE;
+    const uint64_t root = koronos_address_space_root(loaded.address_space);
+    if (!root || koronos_address_space_validate_kernel_range(
+            root, slot->kernel_stack_physical, kernel_stack_bytes, 1u) != 0) {
+        release_kernel_stack(slot);
+        destroy_loaded(slot);
+        return -21;
+    }
 #endif
     /* Deliberately remain ADMITTED: no validated CPL3 frame/iretq entry has
        been connected, so a mapped ELF is not yet a runnable process. */
+    return 0;
+}
+
+extern "C" int chimera_process_prepare_initial_context(uint32_t pid) {
+    Slot *slot = find_slot(pid);
+    if (!slot || !slot->loaded_ok ||
+        slot->image.state != CHIMERA_PROCESS_ADMITTED) return -1;
+    if (slot->initial_trap_frame_rsp) return -2;
+#if !defined(KORONOS_FREESTANDING)
+    return -3;
+#else
+    if (!slot->kernel_stack_top || !slot->kernel_stack_pages ||
+        !slot->user_stack_size || !slot->loaded.address_space) return -4;
+    if (slot->loaded.user_stack_top < slot->user_stack_size) return -5;
+    const uint64_t root = koronos_address_space_root(slot->loaded.address_space);
+    const uint64_t stack_base = slot->loaded.user_stack_top - slot->user_stack_size;
+    if (!root ||
+        koronos_address_space_validate_user_executable_range(root, slot->loaded.entry, 1u) != 0 ||
+        koronos_address_space_validate_user_range(root, stack_base, slot->user_stack_size, 1u) != 0)
+        return -6;
+    const uint64_t kernel_bytes = (uint64_t)slot->kernel_stack_pages * KORONOS_FRAME_SIZE;
+    if (koronos_address_space_validate_kernel_range(root, slot->kernel_stack_physical, kernel_bytes, 1u) != 0)
+        return -7;
+    auto *kernel_alias = static_cast<uint8_t *>(koronos_phys_to_virt(slot->kernel_stack_physical, kernel_bytes));
+    if (!kernel_alias) return -8;
+    const uint64_t stack_top = slot->kernel_stack_top;
+    const uint64_t base_address = slot->kernel_stack_physical;
+    if ((stack_top & 0xFu) != 0 || stack_top < base_address ||
+        stack_top - base_address < sizeof(chimera_x86_64_trap_frame)) return -9;
+    const uint64_t frame_address = (stack_top - sizeof(chimera_x86_64_trap_frame)) & ~0xFull;
+    auto *frame = reinterpret_cast<chimera_x86_64_trap_frame *>(frame_address);
+    *frame = {};
+    frame->rip = slot->loaded.entry;
+    frame->cs = CHIMERA_X86_64_USER_CODE_SELECTOR;
+    frame->rflags = CHIMERA_X86_64_RFLAGS_FIXED | CHIMERA_X86_64_RFLAGS_IF;
+    frame->user_rsp = slot->loaded.user_stack_top;
+    frame->user_ss = CHIMERA_X86_64_USER_DATA_SELECTOR;
+    if (!chimera_x86_64_trap_frame_is_user(frame) ||
+        frame_address < base_address || frame_address > stack_top ||
+        sizeof(*frame) > stack_top - frame_address ||
+        frame_address - base_address > kernel_bytes ||
+        sizeof(*frame) > kernel_bytes - (frame_address - base_address)) return -10;
+    slot->initial_trap_frame_rsp = frame_address;
+    /* Not the scheduler's saved context: that ABI remains intentionally unset. */
+    return 0;
+#endif
+}
+
+extern "C" int chimera_process_get_initial_trap_frame(uint32_t pid, uint64_t *out_rsp) {
+    if (!out_rsp) return -1;
+    Slot *slot = find_slot(pid);
+    if (!slot || !slot->initial_trap_frame_rsp) return -2;
+    *out_rsp = slot->initial_trap_frame_rsp;
     return 0;
 }
 

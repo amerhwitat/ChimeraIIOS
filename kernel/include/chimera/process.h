@@ -26,6 +26,8 @@ int chimera_process_init(void);
 int chimera_process_admit_elf(const void*,uint64_t,uint16_t,uint64_t,chimera_process_image*);
 int chimera_process_load_elf(uint32_t,const void*,uint64_t,uint16_t,uint64_t,uint64_t,const chimera_elf_load_ops*,void*);
 int chimera_process_get_runtime(uint32_t,chimera_process_runtime*);
+int chimera_process_prepare_initial_context(uint32_t);
+int chimera_process_get_initial_trap_frame(uint32_t,uint64_t*);
 int chimera_process_release(uint32_t);
 int chimera_process_get(uint32_t,chimera_process_image*);
 int chimera_process_set_state(uint32_t,chimera_process_state);
