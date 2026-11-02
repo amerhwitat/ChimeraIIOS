@@ -40,3 +40,26 @@ Graphical applications:
 - `/usr/bin/chimera-display-settings.py`
 - `/usr/bin/chimera-gpu-driver-manager`
 - `/usr/bin/chimera-desktop-action`
+
+## Koronos boot framebuffer and resolution policy
+
+The x86-64 Multiboot2 header requests an optional 800x600x32 direct-RGB framebuffer. GRUB retains the existing 800x600 SVGA boot preference and 640x480 fallback. Koronos validates the Multiboot2 framebuffer tag, pitch, dimensions, RGB component masks, pixel depth and the framebuffer's full physical range before writing pixels. If the tag is absent or unsupported, VGA text and serial/debugcon remain available.
+
+The kernel console renders into the firmware/GRUB-provided framebuffer and retains it throughout kernel initialization. This is framebuffer use, not GPU modesetting: Koronos does not yet enumerate EDID modes or program vendor GPU registers. No kernel resolution change is performed during early initialization.
+
+Aurora's desktop preference order is 5120x2880, 1024x768, then 640x480. Only modes actually reported by the active display backend are offered; other detected modes remain available as additional choices. The preference does not imply that a display or GPU supports 5120x2880.
+
+### Readiness-gated transition requirement
+
+A future kernel/display backend may replace the boot framebuffer only after the selected target's genuine readiness event:
+- Live: userspace-originated init syscall acknowledgement, matching nonzero PID, root filesystem and writable /tmp checks, then verified desktop/service readiness.
+- Installer: actual Installer init process, process-bound syscall/VFS readiness, and storage backend readiness.
+- Recovery: actual Recovery init process and verified repair environment readiness.
+- Desktop: compositor/display backend initialized and a valid output/mode list returned.
+
+A module registration, process load plan, kernel marker, service identity, or framebuffer initialization is not a target-ready event. If the preferred mode cannot be set or verified, retain the current framebuffer and report the failure. BIOS and UEFI visual tests must capture both successful transitions and fallback behavior on the same ISO SHA.
+
+### Current implementation boundary
+
+The Multiboot2 RGB console is implemented and covered by host parser tests and the Koronos build. Native GPU modesetting, EDID enumeration, the target-readiness event producer, compositor handoff, BIOS/UEFI visual evidence, and real 5120x2880 hardware validation remain outstanding. Do not infer these capabilities from the framebuffer console.
+
