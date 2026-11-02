@@ -40,6 +40,8 @@ koronos_x86_64_context_switch:
     test rcx, 0xFFF
     jnz .context_invalid
 
+    pushfq
+    cli
     push rbp
     push rbx
     push r12
@@ -62,6 +64,7 @@ koronos_x86_64_context_switch:
     pop r12
     pop rbx
     pop rbp
+    popfq
     xor eax, eax
     ret
 
