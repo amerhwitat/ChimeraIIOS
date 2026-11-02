@@ -86,6 +86,27 @@ class UnifiedBootTargetTests(unittest.TestCase):
                        "boot/jasper/jasper.cfg", "boot/spitfire/spitfire-menu.cfg"):
             self.assertIn(marker, BUILDER)
 
+    def test_marine_artwork_is_original_and_staged_offline(self):
+        manifest_path = ROOT / "desktop/marine/assets/artwork-manifest.json"
+        artwork_path = ROOT / "desktop/marine/assets/marine-desktop.svg"
+        self.assertTrue(artwork_path.is_file())
+        self.assertGreater(artwork_path.stat().st_size, 1000)
+        manifest = json.loads(manifest_path.read_text())
+        self.assertTrue(any(item.get("path") == "desktop/marine/assets/marine-desktop.svg"
+                            for item in manifest["assets"]))
+        self.assertIn("desktop/marine/assets", BUILDER)
+        self.assertIn("/usr/share/chimera/marine/assets", BUILDER)
+
+    def test_init_mp4_is_played_after_window_manager_before_kiosk(self):
+        self.assertIn("mpv", BUILDER)
+        self.assertIn("Init.mp4", BUILDER)
+        self.assertIn("aurora-init-splash.sh", BUILDER)
+        wm_ready = BUILDER.index("Openbox window manager ready; starting fullscreen desktop.")
+        splash = BUILDER.index("/usr/local/bin/aurora-init-splash.sh", wm_ready)
+        kiosk = BUILDER.index("exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py", wm_ready)
+        self.assertLess(wm_ready, splash)
+        self.assertLess(splash, kiosk)
+
     def test_gates_exposes_matching_grub_actions(self):
         self.assertIsNotNone(GATES_PATH, "Gates menu JSON is required")
         gates = json.loads(GATES_PATH.read_text())
