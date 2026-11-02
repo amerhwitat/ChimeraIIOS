@@ -130,6 +130,15 @@ if [ -d "$REPO_DIR/desktop/marine/assets" ]; then
   mkdir -p "$WORK/usr/share/chimera/marine/assets"
   cp -a "$REPO_DIR/desktop/marine/assets/." "$WORK/usr/share/chimera/marine/assets/"
 fi
+# The Linux Live edition plays the supplied MP4 after the window manager is
+# ready and before the kiosk desktop appears. GRUB itself never attempts MP4
+# decoding; this is a real userspace playback stage.
+if [ -s "$REPO_DIR/desktop/aurora/assets/Init.mp4" ]; then
+  install -D -m 0644 "$REPO_DIR/desktop/aurora/assets/Init.mp4" \
+    "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
+fi
+install -D -m 0755 "$REPO_DIR/desktop/aurora/aurora-init-splash.sh" \
+  "$WORK/usr/local/bin/aurora-init-splash.sh"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 if [ "$ED" = "chimera" ] && [ -s "$REPO_DIR/desktop/aurora/gates_menu.json" ]; then
   install -m644 "$REPO_DIR/desktop/aurora/gates_menu.json" "$PAY/gates_menu.json"
@@ -297,6 +306,11 @@ if [ "$wm_ready" -ne 1 ]; then
   exit 1
 fi
 echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
+if [[ -x /usr/local/bin/aurora-init-splash.sh && -s /usr/share/chimera/aurora/assets/Init.mp4 ]] && command -v mpv >/dev/null 2>&1; then
+  CHIMERA_INIT_VIDEO=/usr/share/chimera/aurora/assets/Init.mp4 \
+    CHIMERA_SPLASH_MAX_SECONDS=12 \
+    /usr/local/bin/aurora-init-splash.sh || echo "[Aurora] Optional startup video failed; continuing to desktop."
+fi
 exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
 EOF
 echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
