@@ -281,55 +281,57 @@ static void task_recovery(void *) {
 }
 
 static void task_installer(void *) {
-    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
-    const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
-    const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
-    const chimera_boot_module *phases = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PHASES);
-    const chimera_boot_module *profiles = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PROFILES);
+    for (;;) {
+        const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
+        const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
+        const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
+        const chimera_boot_module *phases = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PHASES);
+        const chimera_boot_module *profiles = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PROFILES);
 
-    if (!image && !manifest && !contract && !phases && !profiles) {
-        if (installer_phase++ == 0)
-            console_write("[INST] Installer target not selected: no installer modules");
-        chimera_sched_block();
-        return;
-    }
+        if (!image && !manifest && !contract && !phases && !profiles) {
+            if (installer_phase++ == 0)
+                console_write("[INST] Installer target not selected: no installer modules");
+            chimera_sched_block();
+            return;
+        }
 
-    switch (installer_phase++) {
-        case 0:
-            console_write("[INST] Installer target detected");
-            if (image) console_write("[INST] Installation image accepted");
-            else console_write("[INST] ERROR: installation image module missing");
-            if (manifest) console_write("[INST] Installation manifest accepted");
-            else console_write("[INST] WARNING: installation manifest module missing");
-            if (contract) console_write("[INST] Installer contract accepted");
-            else console_write("[INST] WARNING: installer contract module missing");
-            break;
-        case 1:
-            console_write("[INST] Installer metadata phase entered; no installer userspace runtime is initialized");
-            console_write("[INST] Service start withheld: no process-backed installer workers are connected");
-            break;
-        case 2:
-            console_write("[INST] Kernel hardware inventory is diagnostic only; no installer worker is running");
-            console_write("[INST] Storage backend is not mounted; installer worker is not running");
-            break;
-        case 3:
-            if (phases) console_write("[INST] Installation phases loaded");
-            if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer metadata parsed; graphical installer userspace is not running");
-            console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
-            break;
-        case 4:
-            console_write("[INST] Installer metadata inspection complete; installation execution remains unavailable");
-            console_write("[INST] No production installer init ELF is present; refusing readiness");
-            chimera_sched_block();
-            break;
-        default:
-            chimera_sched_block();
-            break;
+        switch (installer_phase++) {
+            case 0:
+                console_write("[INST] Installer target detected");
+                if (image) console_write("[INST] Installation image accepted");
+                else console_write("[INST] ERROR: installation image module missing");
+                if (manifest) console_write("[INST] Installation manifest accepted");
+                else console_write("[INST] WARNING: installation manifest module missing");
+                if (contract) console_write("[INST] Installer contract accepted");
+                else console_write("[INST] WARNING: installer contract module missing");
+                break;
+            case 1:
+                console_write("[INST] Installer metadata phase entered; no installer userspace runtime is initialized");
+                console_write("[INST] Service start withheld: no process-backed installer workers are connected");
+                break;
+            case 2:
+                console_write("[INST] Kernel hardware inventory is diagnostic only; no installer worker is running");
+                console_write("[INST] Storage backend is not mounted; installer worker is not running");
+                break;
+            case 3:
+                if (phases) console_write("[INST] Installation phases loaded");
+                if (profiles) console_write("[INST] Installer profiles loaded");
+                console_write("[INST] Installer metadata parsed; graphical installer userspace is not running");
+                console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
+                break;
+            case 4:
+                console_write("[INST] Installer metadata inspection complete; installation execution remains unavailable");
+                console_write("[INST] No production installer init ELF is present; refusing readiness");
+                chimera_sched_block();
+                return;
+            default:
+                chimera_sched_block();
+                return;
+        }
+        // Continue the staged diagnostic sequence only after this task is
+        // selected again; never return to the scheduler between phases.
+        chimera_sched_yield();
     }
-    // Preserve the installer's staged diagnostic sequence across real task
-    // context switches. Returning from this entry would terminate the worker.
-    if (installer_phase <= 4u) chimera_sched_yield();
 }
 
 static const char *task_state_name(uint32_t state) {
