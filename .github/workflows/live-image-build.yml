@@ -196,6 +196,14 @@ jobs:
         with:
           name: chimera-ii-os-live-desktop-fixed
           path: release-assets
+      - name: Download QEMU Live and Recovery evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: chimera-qemu-live-boot-evidence
+          path: release-assets/qemu-evidence
+      - name: Package QEMU acceptance evidence
+        run: |
+          tar -czf release-assets/QEMU-BOOT-EVIDENCE.tar.gz -C release-assets qemu-evidence
       - name: Create versioned GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -204,7 +212,8 @@ jobs:
           iso="$(find release-assets -maxdepth 1 -type f -name '*.iso' ! -name '*.sha256' -print -quit)"
           checksum="$(find release-assets -maxdepth 1 -type f -name '*.iso.sha256' -print -quit)"
           report="$(find release-assets -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
-          test -s "$iso" && test -s "$checksum" && test -s "$report"
+          evidence="release-assets/QEMU-BOOT-EVIDENCE.tar.gz"
+          test -s "$iso" && test -s "$checksum" && test -s "$report" && test -s "$evidence"
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
           tag="chimera-ii-os-live-${version}-desktop-${short}"
