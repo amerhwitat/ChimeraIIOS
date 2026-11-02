@@ -73,7 +73,7 @@ fi
 grep -Fq '[INST] Installer metadata phase entered; no installer userspace runtime is initialized' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: installer non-readiness diagnostic is missing from source" >&2; exit 1; }
 grep -Fq 'static void task_installer(void *)' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: installer task implementation is missing from source" >&2; exit 1; }
 grep -Fq 'chimera_sched_submit(task_installer, 0, 80)' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: installer task is not registered with Koronos bootstrap" >&2; exit 1; }
-grep -Fq '[INST] No production installer init ELF is present; refusing readiness' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: fail-closed production installer diagnostic is missing" >&2; exit 1; }
+grep -Fq '[INST] Installer contract processing complete; installer execution is not verified' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: fail-closed installer execution diagnostic is missing" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -Fq '[KORE] Core service identities registered; no service start callbacks are installed' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: Kore service-identity diagnostic is missing from source" >&2; exit 1; }
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
