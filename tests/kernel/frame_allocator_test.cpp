@@ -1,5 +1,10 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/multiboot_modules.h"
+/* These tests intentionally exercise side-effecting expressions in assert().
+   Keep assertions enabled in Release configurations so setup and checks execute. */
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
