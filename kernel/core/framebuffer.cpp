@@ -8,8 +8,6 @@ static uint32_t r32(const uint8_t*p){return (uint32_t)p[0]|((uint32_t)p[1]<<8)|(
 static uint64_t r64(const uint8_t*p){return (uint64_t)r32(p)|((uint64_t)r32(p+4)<<32);}
 static uint32_t mask(uint8_t p,uint8_t n){return ((1u<<n)-1u)<<p;}
 static bool field_ok(uint8_t p,uint8_t n,uint8_t b){return n&&n<=8&&p<b&&(uint32_t)p+n<=b;}
-static uint32_t scale(uint8_t v,uint8_t n){return ((uint32_t)v*((1u<<n)-1u)+127u)/255u;}
-static uint32_t rgb(uint8_t r,uint8_t g,uint8_t b){return (scale(r,fb.red_size)<<fb.red_position)|(scale(g,fb.green_size)<<fb.green_position)|(scale(b,fb.blue_size)<<fb.blue_position);}
 static void put_pixel(uint32_t x,uint32_t y,uint32_t c){
  if(x>=fb.width||y>=fb.height)return;
  volatile uint8_t*p=(volatile uint8_t*)(uintptr_t)fb.address+(uint64_t)y*fb.pitch+(uint64_t)x*fb.bytes_per_pixel;
@@ -90,7 +88,7 @@ extern "C" int koronos_framebuffer_parse_multiboot2(uint64_t address,koronos_fra
    v.red_position=b[off+32u];v.red_size=b[off+33u];v.green_position=b[off+34u];v.green_size=b[off+35u];v.blue_position=b[off+36u];v.blue_size=b[off+37u];
    if(v.bits_per_pixel!=24u&&v.bits_per_pixel!=32u)return -6;
    v.bytes_per_pixel=(uint8_t)(v.bits_per_pixel/8u);
-   if(!v.width||!v.height||v.width>8192u||v.height>8192u)return -7;
+   if(v.width<CELL_W||v.height<CELL_H||v.width>8192u||v.height>8192u)return -7;
    if(v.pitch<(uint64_t)v.width*v.bytes_per_pixel)return -8;
    if(!field_ok(v.red_position,v.red_size,v.bits_per_pixel)||!field_ok(v.green_position,v.green_size,v.bits_per_pixel)||!field_ok(v.blue_position,v.blue_size,v.bits_per_pixel))return -9;
    uint32_t rm=mask(v.red_position,v.red_size),gm=mask(v.green_position,v.green_size),bm=mask(v.blue_position,v.blue_size);
