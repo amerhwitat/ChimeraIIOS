@@ -117,9 +117,11 @@ static void vga_write(const char *s) {
 }
 
 static void console_write(const char *s) {
-    /* Never let a diagnostic UART hold up the visible kernel console. */
+    /* The retained framebuffer is the primary visible console when supplied. */
+    koronos_fb_console_write(s);
+    koronos_fb_console_write("\\r\\n");
     vga_write(s);
-    vga_write("\r\n");
+    vga_write("\\r\\n");
     serial_write(s);
 }
 
