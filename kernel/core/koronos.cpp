@@ -245,8 +245,8 @@ static void task_live(void *) {
     if (live_task_runs++ == 0) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
-            console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] Live initramfs module registered");
+            console_write("[LIVE] Handoff unavailable: no native ring-3 init entry path is connected");
             console_write("[USER] USERSPACE HANDOFF NOT VERIFIED: initramfs is registered but no executable ring-3 entry path is connected");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
@@ -265,7 +265,7 @@ static void task_recovery(void *) {
     if (recovery_task_runs++ == 0) {
         const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
         if (image) {
-            console_write("[REC ] Recovery initramfs module accepted");
+            console_write("[REC ] Recovery initramfs module registered");
             console_write("[REC ] USERSPACE HANDOFF NOT VERIFIED: repair shell has not been entered");
         } else {
             console_write("[REC ] Recovery target not selected: no recovery initramfs module");
@@ -299,12 +299,12 @@ static void task_installer(void *) {
             else console_write("[INST] WARNING: installer contract module missing");
             break;
         case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
+            console_write("[INST] Installer metadata phase entered; no installer userspace runtime is initialized");
+            console_write("[INST] Service start withheld: no process-backed installer workers are connected");
             break;
         case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
+            console_write("[INST] Kernel hardware inventory is diagnostic only; no installer worker is running");
+            console_write("[INST] Storage backend is not mounted; installer worker is not running");
             break;
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
@@ -313,8 +313,8 @@ static void task_installer(void *) {
             console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
             break;
         case 4:
-            console_write("[INST] Installer contract processing complete; installer execution is not verified");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] Installer metadata inspection complete; installation execution remains unavailable");
+            console_write("[INST] No production installer init ELF is present; refusing readiness");
             chimera_sched_block();
             break;
         default:
@@ -372,8 +372,8 @@ static void task_kore(void *) {
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
-        console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Core storage/security/logging services active");
+        console_write("[KORE] Core service identities registered; no service start callbacks are installed");
+        console_write("[KORE] Storage/security/logging backends remain DECLARED, not RUNNING");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
