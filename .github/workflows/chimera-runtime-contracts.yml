@@ -43,7 +43,7 @@ jobs:
           PY
       - name: Compile process admission regression
         run: |
-          g++ -std=c++17 -I kernel/include             kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp             -o /tmp/chimera-process-admission
+          g++ -std=c++17 -I kernel/include             kernel/core/elf64.cpp kernel/core/process_loader.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp             -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
       - name: Compile Aurora launcher
         run: |
