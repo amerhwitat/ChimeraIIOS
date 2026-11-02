@@ -269,6 +269,43 @@ static bool user_page_access(uint64_t root_physical, uint64_t va, bool write_acc
            (!write_access || (entry & ENTRY_WRITE));
 }
 
+static uint64_t read_cr3() {
+#if defined(__x86_64__)
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    return root & ENTRY_ADDRESS_MASK;
+#else
+    return 0;
+#endif
+}
+
+static bool known_root(uint64_t root) {
+    if (!root || (root & PAGE_MASK) || root >= KORONOS_FRAME_PHYS_LIMIT)
+        return false;
+    const uint64_t bootstrap = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+    if (root == bootstrap) return true;
+    for (uint32_t i = 0; i < MAX_ADDRESS_SPACES; ++i)
+        if (space_valid(&spaces[i]) && spaces[i].root_physical == root) return true;
+    return false;
+}
+
+static int switch_root(uint64_t root, uint64_t *previous_root) {
+#if defined(__x86_64__)
+    if (!known_root(root)) return -1;
+    const uint64_t old = read_cr3();
+    if (!known_root(old)) return -2;
+    if (previous_root) *previous_root = old;
+    uint64_t flags = 0;
+    __asm__ volatile("pushfq; pop %0; cli" : "=r"(flags) : : "memory");
+    __asm__ volatile("mov %0, %%cr3" : : "r"(root) : "memory");
+    __asm__ volatile("push %0; popfq" : : "r"(flags) : "memory", "cc");
+    return 0;
+#else
+    (void)root; (void)previous_root;
+    return -3;
+#endif
+}
+
 static bool address_space_self_test() {
     const uint64_t before = koronos_frame_free_count();
     AddressSpace *space = static_cast<AddressSpace *>(create_address_space(nullptr));
@@ -280,6 +317,15 @@ static bool address_space_self_test() {
         ? map_pages(nullptr, space, 0x00007FFFFFFFE000ull, PAGE_SIZE, 6u, &stack_alias)
         : -1;
     bool ok = code_rc == 0 && stack_rc == 0 && code_alias && stack_alias;
+    if (ok) {
+        const uint64_t original_root = read_cr3();
+        uint64_t previous_root = 0;
+        ok = switch_root(space->root_physical, &previous_root) == 0 &&
+             read_cr3() == space->root_physical &&
+             previous_root == original_root &&
+             switch_root(previous_root, nullptr) == 0 &&
+             read_cr3() == original_root;
+    }
     if (ok) {
         uint64_t *code_pte = ensure_pte(space, KORONOS_USER_VIRTUAL_MIN);
         uint64_t *stack_pte = ensure_pte(space, 0x00007FFFFFFFE000ull);
@@ -344,6 +390,21 @@ extern "C" const chimera_elf_load_ops *koronos_address_space_loader_ops(void) {
 extern "C" uint64_t koronos_address_space_root(const void *opaque) {
     const AddressSpace *space = static_cast<const AddressSpace *>(opaque);
     return space_valid(space) ? space->root_physical : 0;
+}
+
+extern "C" int koronos_address_space_activate(const void *opaque,
+                                                  uint64_t *previous_root) {
+    const AddressSpace *space = static_cast<const AddressSpace *>(opaque);
+    if (!space_valid(space)) return -1;
+    return switch_root(space->root_physical, previous_root);
+}
+
+extern "C" int koronos_address_space_restore(uint64_t root_physical) {
+    return switch_root(root_physical, nullptr);
+}
+
+extern "C" uint64_t koronos_address_space_current_root(void) {
+    return read_cr3();
 }
 extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
                                                         uint64_t address, uint64_t length,
