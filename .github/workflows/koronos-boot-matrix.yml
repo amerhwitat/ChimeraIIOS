@@ -78,6 +78,7 @@ jobs:
           echo "=== QEMU debugcon log ==="
           cat qemu-debug.log
           grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
+          grep -Fq "[CPU ] BSP GDT/TSS initialized" qemu-debug.log
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
       - name: Upload diagnostics
         if: always()
