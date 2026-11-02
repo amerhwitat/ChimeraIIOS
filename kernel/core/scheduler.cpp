@@ -30,10 +30,23 @@ Task tasks[MAX_TASKS]; uint32_t count=0,next_id=1,rr=0,dispatch_round=1,cpus=1,l
 volatile int32_t current_index[MAX_CPUS];
 #if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
 static chimera_x86_64_context scheduler_context{};
+static volatile uint32_t context_dispatches = 0;
+static volatile uint32_t context_dispatch_faults = 0;
 static void task_context_entry(void *opaque) {
     Task *task = static_cast<Task *>(opaque);
     if (!task || !task->fn) for (;;) __asm__ volatile("cli; hlt" ::: "memory");
-    task->fn(task->arg);
+    uint64_t rsp = 0;
+    __asm__ volatile("mov %%rsp, %0" : "=r"(rsp));
+    const bool valid = chimera_x86_64_cpu_kernel_stack(0) == task->kernel_stack.top &&
+        chimera_x86_64_cpu_current_pid(0) == task->info.id &&
+        rsp >= task->kernel_stack.base && rsp < task->kernel_stack.top;
+    if (!valid) {
+        ++context_dispatch_faults;
+        task->pending_action = ACTION_EXIT;
+    } else {
+        ++context_dispatches;
+        task->fn(task->arg);
+    }
     if (koronos_x86_64_context_switch(&task->context, &scheduler_context) != 0)
         for (;;) __asm__ volatile("cli; hlt" ::: "memory");
     for (;;) __asm__ volatile("cli; hlt" ::: "memory");
@@ -98,6 +111,8 @@ extern "C" void chimera_sched_init(uint32_t n){
     for(uint32_t i=0;i<count;i++)
         if(tasks[i].stack_ready) (void)koronos_kernel_stack_release(&tasks[i].kernel_stack);
     scheduler_context = {};
+    context_dispatches = 0;
+    context_dispatch_faults = 0;
 #endif
     lock(); cpus=n?n:1;if(cpus>MAX_CPUS)cpus=MAX_CPUS;
     count=0;rr=0;dispatch_round=1;next_id=1;
@@ -243,4 +258,19 @@ extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap)
     }
     unlock();
     return n;
+}
+
+extern "C" uint32_t chimera_sched_context_dispatch_count(void) {
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    return context_dispatches;
+#else
+    return 0;
+#endif
+}
+extern "C" uint32_t chimera_sched_context_fault_count(void) {
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    return context_dispatch_faults;
+#else
+    return 0;
+#endif
 }
