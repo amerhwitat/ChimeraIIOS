@@ -143,3 +143,9 @@ The Live and Recovery initramfs images do contain shell /init scripts, but those
 
 Thus the target verifier correctly leaves accepted=false and publication is skipped. The job step is green because it records the false gate and allows candidate artifacts to be uploaded for engineering review; it is not a passing target acceptance result. Full ISO candidate artifact 13107437782 (ZIP containing compressed ISO and checksums) is available from workflow run 41367322786, but it must not be described as a production release.
 
+
+
+### 12.6 Truthful boot-state diagnostics
+
+Chimera commit 87458f70367ab6350476d77c957a2019024deeb5 corrects boot diagnostics that previously said installer services were started/in parallel and core storage/security/logging were active even though only declarations existed. Commit 0bd2637f55a12606334f691eadc2ea0eace905f4 adds tests/boot/test_koronos_boot_claims.py, and workflow commit b5c25d0a584ffdca32ad483eaec313a3f41f178e runs it in Full ISO validation.
+These changes improve diagnostic integrity only. They do not start services or create a userspace execution path. The native init, VFS/syscall, task-context, per-CPU and SMP gates above remain blocked until their real implementations and runtime evidence exist.
