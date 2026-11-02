@@ -13,6 +13,8 @@ constexpr uint32_t PT_LOAD = 1, PF_W = 2, PF_X = 1;
 
 struct Slot {
     chimera_process_image image{};
+    koronos_kernel_stack kernel_stack{};
+    bool has_kernel_stack = false;
     bool used = false;
 };
 
@@ -169,6 +171,47 @@ extern "C" int chimera_process_set_state(uint32_t pid,
         }
     }
     return -2;
+}
+
+extern "C" int chimera_process_attach_kernel_stack(
+    uint32_t pid, const koronos_kernel_stack *stack) {
+    if (!pid || !stack || stack->slot >= KORONOS_KERNEL_STACK_SLOTS ||
+        !stack->generation || !stack->base || stack->top <= stack->base ||
+        (stack->base & 0xFu) || (stack->top & 0xFu)) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        if (!slots[i].used || slots[i].image.pid != pid) continue;
+        if (slots[i].has_kernel_stack) return -2;
+        slots[i].kernel_stack = *stack;
+        slots[i].has_kernel_stack = true;
+        return 0;
+    }
+    return -3;
+}
+
+extern "C" int chimera_process_get_kernel_stack(
+    uint32_t pid, koronos_kernel_stack *out_stack) {
+    if (!pid || !out_stack) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        if (!slots[i].used || slots[i].image.pid != pid) continue;
+        if (!slots[i].has_kernel_stack) return -2;
+        *out_stack = slots[i].kernel_stack;
+        return 0;
+    }
+    return -3;
+}
+
+extern "C" int chimera_process_detach_kernel_stack(
+    uint32_t pid, koronos_kernel_stack *out_stack) {
+    if (!pid || !out_stack) return -1;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
+        if (!slots[i].used || slots[i].image.pid != pid) continue;
+        if (!slots[i].has_kernel_stack) return -2;
+        *out_stack = slots[i].kernel_stack;
+        slots[i].kernel_stack = {};
+        slots[i].has_kernel_stack = false;
+        return 0;
+    }
+    return -3;
 }
 
 extern "C" uint32_t chimera_process_count(void) { return count; }
