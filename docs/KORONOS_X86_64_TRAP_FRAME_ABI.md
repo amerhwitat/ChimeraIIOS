@@ -45,3 +45,20 @@ unchanged. A later integration must bind the frame to the current process,
 activate that process's kernel stack in the owning CPU's TSS with interrupts
 disabled, validate address-space mappings, and implement scheduler-owned
 deferred teardown before CPL3 is enabled.
+
+## Per-CPU ownership and kernel-stack mapping checks
+
+The CPU initializer now records the executing CPU's APIC identity, rejects a
+duplicate APIC identity among registered logical CPUs, installs a CPU-local
+GS base pointing at that CPU's state, and verifies the logical CPU ID through
+GS before marking the CPU ready. The current-CPU APIs cross-check the GS
+logical ID against the APIC identity. TSS stack updates reject remote-CPU
+requests and require IF=0. AP startup and registration for secondary CPUs are
+still not implemented; the current boot path initializes the BSP only.
+
+Address-space validation now includes a supervisor-kernel-range check. Process
+ELF loading verifies that the newly allocated kernel stack is present,
+supervisor-only at the leaf mapping, and writable in the process address space
+before retaining the loaded process. This verifies the existing four-GiB
+supervisor identity-map contract; it does not yet provide a shared higher-half
+kernel mapping or activate a process CR3/TSS pair.
