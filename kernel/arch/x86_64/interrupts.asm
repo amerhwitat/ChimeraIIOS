@@ -44,7 +44,13 @@ chimera_interrupt_common:
     ; chimera_x86_64_trap_frame: vector is byte offset 120.
     mov rdi, [rsp + 120]
     mov rsi, rsp
+    ; Interrupts may arrive at any interrupted RSP alignment. Preserve the
+    ; normalized frame in rsi and align the call stack for the SysV ABI.
+    ; r12's interrupted value is already saved in the frame above.
+    mov r12, rsp
+    and rsp, -16
     call chimera_interrupt_dispatch
+    mov rsp, r12
 
     pop r15
     pop r14
