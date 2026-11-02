@@ -320,11 +320,15 @@ static bool address_space_self_test() {
     if (ok) {
         const uint64_t original_root = read_cr3();
         uint64_t previous_root = 0;
-        ok = switch_root(space->root_physical, &previous_root) == 0 &&
-             read_cr3() == space->root_physical &&
-             previous_root == original_root &&
-             switch_root(previous_root, nullptr) == 0 &&
-             read_cr3() == original_root;
+        const int activate_rc = switch_root(space->root_physical, &previous_root);
+        if (activate_rc != 0) {
+            ok = false;
+        } else {
+            const bool switched = read_cr3() == space->root_physical &&
+                                  previous_root == original_root;
+            const int restore_rc = switch_root(previous_root, nullptr);
+            ok = switched && restore_rc == 0 && read_cr3() == original_root;
+        }
     }
     if (ok) {
         uint64_t *code_pte = ensure_pte(space, KORONOS_USER_VIRTUAL_MIN);
