@@ -83,6 +83,9 @@ jobs:
           grep -Fq "[PROC] Shared supervisor mappings, guarded process-owned kernel stacks and BSP TSS.RSP0 handoff self-test passed" qemu-debug.log
           grep -Fq "[SCH ] BSP same-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; process scheduling remains disabled" qemu-debug.log
           grep -Fq "[SCH ] BSP scheduler callback executed on owned guarded stack; TSS.RSP0/PID verified" qemu-debug.log || { echo "::error::Scheduler did not execute a callback on its owned guarded stack"; exit 1; }
+          grep -Fq "[SCH ] BSP callback resumed after cooperative yield" qemu-debug.log || { echo "::error::Saved callback did not resume after yield"; exit 1; }
+          grep -Fq "[SCH ] BSP callback woke blocked monitor task" qemu-debug.log || { echo "::error::Blocked callback was not woken"; exit 1; }
+          grep -Fq "[SCH ] BSP callback resumed after wake" qemu-debug.log || { echo "::error::Saved callback did not resume after wake"; exit 1; }
           if grep -Fq "[SCH ] ERROR: guarded callback context stack/TSS/PID validation failed" qemu-debug.log; then echo "::error::Guarded callback context validation failed"; exit 1; fi
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
       - name: Upload diagnostics
