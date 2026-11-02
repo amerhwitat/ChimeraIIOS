@@ -327,6 +327,9 @@ static void task_installer(void *) {
             chimera_sched_block();
             break;
     }
+    // Preserve the installer's staged diagnostic sequence across real task
+    // context switches. Returning from this entry would terminate the worker.
+    if (installer_phase <= 4u) chimera_sched_yield();
 }
 
 static const char *task_state_name(uint32_t state) {
