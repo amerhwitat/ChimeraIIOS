@@ -51,6 +51,17 @@ class IsoTargetRoutingTests(unittest.TestCase):
             self.assertIn('"$STAGE/boot/grub/Init.mp4"', builder)
             self.assertIn("library-artwork-manifest.json", builder)
 
+    def test_marine_artwork_is_embedded_by_both_iso_builders(self):
+        for builder in (FULL_BUILDER, LIVE_BUILDER):
+            with self.subTest(builder="full" if builder is FULL_BUILDER else "live"):
+                self.assertIn("desktop/marine/assets", builder)
+        self.assertIn("marine-desktop.svg", FULL_BUILDER)
+        self.assertIn("marine-desktop.svg", LIVE_BUILDER)
+
+    def test_mp4_is_not_claimed_as_grub_playback(self):
+        self.assertIn("userspace playback follows kernel startup", GRUB)
+        self.assertNotIn("GRUB intro media ready", GRUB)
+
     def test_original_chimera_wallpaper_and_manifest_are_staged(self):
         art = ROOT / "desktop/aurora/assets/chimera-infinite-research-horizon.svg"
         manifest = ROOT / "desktop/aurora/assets/chimera-artwork-manifest.json"
