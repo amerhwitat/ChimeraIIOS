@@ -41,7 +41,7 @@ static void write_msr(uint32_t msr, uint64_t value) {
     __asm__ volatile("wrmsr" : : "c"(msr), "a"(lo), "d"(hi) : "memory");
 }
 
-static bool current_apic_id(uint32_t *out) {
+static bool read_current_apic_id(uint32_t *out) {
     if (!out) return false;
     uint32_t a = 1, b = 0, c = 0, d = 0;
     __asm__ volatile("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "a"(1));
@@ -68,7 +68,7 @@ extern "C" int chimera_x86_64_cpu_init(uint32_t cpu_id) {
     if (cpu.ready) return -2;
 
     uint32_t apic_id = 0;
-    if (!current_apic_id(&apic_id)) return -4;
+    if (!read_current_apic_id(&apic_id)) return -4;
     for (uint32_t i = 0; i < CHIMERA_X86_64_MAX_CPUS; ++i) {
         if (i != cpu_id && cpus[i].ready && cpus[i].apic_id == apic_id)
             return -5;
@@ -108,18 +108,27 @@ extern "C" int chimera_x86_64_cpu_init(uint32_t cpu_id) {
     return 0;
 }
 
+static bool current_identity(uint32_t *logical_id, uint32_t *apic_id) {
+    const uint32_t logical = current_logical_id();
+    if (logical >= CHIMERA_X86_64_MAX_CPUS || !cpus[logical].ready) return false;
+    uint32_t hardware_apic = 0;
+    if (!read_current_apic_id(&hardware_apic) ||
+        hardware_apic != cpus[logical].apic_id) return false;
+    if (logical_id) *logical_id = logical;
+    if (apic_id) *apic_id = hardware_apic;
+    return true;
+}
+
 extern "C" int chimera_x86_64_cpu_current_id(void) {
-    const uint32_t id = current_logical_id();
-    if (id >= CHIMERA_X86_64_MAX_CPUS || !cpus[id].ready) return -1;
-    return static_cast<int>(id);
+    uint32_t logical = 0;
+    return current_identity(&logical, nullptr) ? static_cast<int>(logical) : -1;
 }
 
 extern "C" int chimera_x86_64_cpu_current_apic_id(uint32_t *out) {
-    if (!out || chimera_x86_64_cpu_current_id() < 0) return -1;
-    uint32_t id = 0;
-    if (!current_apic_id(&id)) return -2;
-    if (id != cpus[current_logical_id()].apic_id) return -3;
-    *out = id;
+    if (!out) return -1;
+    uint32_t apic = 0;
+    if (!current_identity(nullptr, &apic)) return -2;
+    *out = apic;
     return 0;
 }
 
