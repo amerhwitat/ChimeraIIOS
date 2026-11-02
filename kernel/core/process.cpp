@@ -175,7 +175,7 @@ extern "C" int chimera_process_set_state(uint32_t pid,
 
 extern "C" int chimera_process_attach_kernel_stack(
     uint32_t pid, const koronos_kernel_stack *stack) {
-    if (!pid || !stack || stack->slot >= KORONOS_KERNEL_STACK_SLOTS ||
+    if (!pid || !stack || stack->slot >= KORONOS_KERNEL_STACK_SLOT_COUNT ||
         !stack->generation || !stack->base || stack->top <= stack->base ||
         (stack->base & 0xFu) || (stack->top & 0xFu)) return -1;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
