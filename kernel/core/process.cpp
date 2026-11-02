@@ -1,6 +1,11 @@
 #include "chimera/process.h"
 #include <stddef.h>
 namespace {
+static void copy_bytes(void *destination, const void *source, uint64_t length) {
+    auto *dst = static_cast<uint8_t *>(destination);
+    const auto *src = static_cast<const uint8_t *>(source);
+    for (uint64_t i = 0; i < length; ++i) dst[i] = src[i];
+}
 constexpr uint32_t MAX_SEGMENTS=16;
 constexpr uint64_t PAGE=4096;
 constexpr uint64_t USER_MIN=0x0000000100000000ull;
@@ -21,13 +26,13 @@ extern "C" int chimera_process_init(void){for(uint32_t i=0;i<CHIMERA_PROCESS_MAX
 extern "C" int chimera_process_admit_elf(const void*image,uint64_t size,uint16_t machine,uint64_t stack,chimera_process_image*out){
  if(!image||!out||stack<=USER_MIN||stack>=USER_LIMIT||(stack&(PAGE-1)))return -1;
  if(!koronos_elf64_validate(image,size,machine))return -2;
- koronos_elf64_ehdr h{};__builtin_memcpy(&h,image,sizeof(h));
+ koronos_elf64_ehdr h{};copy_bytes(&h,image,sizeof(h));
  if(h.e_type!=KORONOS_ET_EXEC||h.e_phnum==0||h.e_phnum>4096u)return -2;
  const auto*bytes=static_cast<const uint8_t*>(image);chimera_process_image p{};p.entry=h.e_entry;p.user_stack_top=down(stack);
  uint32_t n=0;uint64_t low=UINT64_MAX,high=0;bool entry_x=false;
  for(uint16_t i=0;i<h.e_phnum;i++){
   koronos_elf64_phdr s{};const uint64_t offset=h.e_phoff+(uint64_t)i*sizeof(koronos_elf64_phdr);
-  __builtin_memcpy(&s,bytes+offset,sizeof(s));if(s.p_type!=PT_LOAD)continue;
+  copy_bytes(&s,bytes+offset,sizeof(s));if(s.p_type!=PT_LOAD)continue;
   if(s.p_memsz<s.p_filesz||!in(s.p_offset,s.p_filesz,size))return -3;
   uint64_t end=0;if(!add_ok(s.p_vaddr,s.p_memsz,&end)||s.p_memsz==0||
     s.p_vaddr<USER_MIN||s.p_vaddr>=USER_LIMIT||end>stack||end>USER_LIMIT)return -4;
