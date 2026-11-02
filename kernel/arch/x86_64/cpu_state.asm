@@ -53,7 +53,7 @@ koronos_x86_64_context_switch_raw:
     push r14
     push r15
 
-    mov [rdi + 8], rdx
+    ; The wrapper stored the outgoing CR3 before changing CR3.
     mov [rdi], rsp
     mov rsp, rax
     pop r15
