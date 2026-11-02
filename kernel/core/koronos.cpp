@@ -431,7 +431,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         if (chimera_x86_64_cpu_current_id() == 0 &&
             chimera_x86_64_cpu_current_apic_id(&apic_id) == 0) {
             console_raw("[CPU ] BSP identity logical=0 APIC=");
-            console_hex32(apic_id);
+            console_u32_raw(apic_id);
             console_endline();
         } else {
             console_write("[CPU ] ERROR: per-CPU identity verification failed; user entry remains disabled");
