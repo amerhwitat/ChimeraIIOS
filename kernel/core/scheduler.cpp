@@ -79,11 +79,12 @@ static bool allocate_stack(Task *task,uint32_t index) {
     uintptr_t top=(reinterpret_cast<uintptr_t>(base)+bytes)&~static_cast<uintptr_t>(0xFu);
     // Context-switch ABI: r15,r14,r13,r12,rbx,rbp,return-address,padding.
     // The trampoline enters with SysV RSP%16 == 8, as if called normally.
-    uint64_t *frame=reinterpret_cast<uint64_t*>(top-8u*sizeof(uint64_t));
+    uint64_t *frame=reinterpret_cast<uint64_t*>(top-9u*sizeof(uint64_t));
     frame[0]=0; frame[1]=0; frame[2]=0; frame[3]=index;
     frame[4]=0; frame[5]=0;
-    frame[6]=reinterpret_cast<uint64_t>(&koronos_scheduler_task_trampoline);
-    frame[7]=0;
+    frame[6]=0x2u; // RFLAGS reserved bit set; interrupts stay disabled for first entry.
+    frame[7]=reinterpret_cast<uint64_t>(&koronos_scheduler_task_trampoline);
+    frame[8]=0;
     task->saved_rsp=reinterpret_cast<uint64_t>(frame);
     task->stack_physical=physical;
     task->stack_pages=TASK_STACK_PAGES;
@@ -109,6 +110,7 @@ static int request_action(uint32_t cpu, uint8_t action) {
     unlock();
     // Save this task's callee-saved register set and RSP; resume the scheduler
     // on its own bootstrap stack. This call returns only when this task is run again.
+    __sync_fetch_and_add(&context_switches,1ull);
     koronos_context_switch(&t.saved_rsp,scheduler_rsp[cpu]);
     return 0;
 #else
@@ -160,13 +162,11 @@ extern "C" int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priori
     tasks[i].info={next_id++,0,CHIMERA_TASK_READY,priority,0ull,0,0};
 #if defined(KORONOS_FREESTANDING)
     // The stack's first frame stores the stable scheduler slot, not the PID.
-    uintptr_t top=static_cast<uintptr_t>(prepared.saved_rsp)+8u* sizeof(uint64_t);
     uint64_t *frame=reinterpret_cast<uint64_t*>(prepared.saved_rsp);
     frame[3]=i;
     tasks[i].saved_rsp=prepared.saved_rsp;
     tasks[i].stack_physical=prepared.stack_physical;
     tasks[i].stack_pages=prepared.stack_pages;
-    (void)top;
 #endif
     int id=(int)tasks[i].info.id;unlock();return id;
 }
@@ -192,6 +192,7 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
 #if defined(KORONOS_FREESTANDING)
     const uint64_t new_rsp=tasks[index].saved_rsp;
     unlock();
+    __sync_fetch_and_add(&context_switches,1ull);
     koronos_context_switch(&scheduler_rsp[cpu],new_rsp);
     uint64_t dead_stack=0; uint32_t dead_pages=0;
     lock();
@@ -235,9 +236,7 @@ extern "C" void chimera_sched_task_start(uint32_t index) {
     for(;;) __asm__ volatile("pause" ::: "memory");
 }
 extern "C" uint64_t chimera_sched_context_switch_count(void) {
-    static volatile uint64_t switches=0;
-    __sync_fetch_and_add(&switches,1ull);
-    return switches;
+    return context_switches;
 }
 #endif
 extern "C" uint32_t chimera_sched_run_serial_range(uint32_t first_cpu,uint32_t n){
