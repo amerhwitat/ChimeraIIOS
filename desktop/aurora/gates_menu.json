@@ -163,6 +163,7 @@
       "/boot/koronos/koronos.elf",
       "/boot/installer/installer-initrd.img",
       "/install/installer/installation.img",
+      "/install/installer/installation-manifest.json",
       "/install/installer/installer-contract.json",
       "/install/installer/installation_phases.json",
       "/install/installer/installer_profiles.json"
