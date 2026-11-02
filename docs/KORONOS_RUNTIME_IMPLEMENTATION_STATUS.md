@@ -62,3 +62,12 @@ A successful kernel boot or self-test is not full userspace production acceptanc
 ## Release boundary
 
 Keep native-init fail-closed behavior and exit status 78 until all process-memory, entry, syscall, scheduler and target postconditions are verified. Do not mark either OS production-ready based on source presence, host tests or an address-space self-test alone.
+
+
+## 13. Branch scope and latest downstream evidence — 2026-11-02
+
+This PR branch carries the memory/process ownership foundation only. The BSP GDT/TSS and CR3 activation primitives described in the later Koronos implementation ledger are in the separate PR #218 branch, not this PR #217 branch. Neither branch yet provides process-owned guarded kernel stacks, saved CPU/trap contexts or a real task context switch.
+
+Latest related candidate evidence is recorded in PR #218 and Octavian PR #142. The Chimera Full ISO candidate run 41377107501 built and uploaded artifacts, but its traces explicitly withhold Live, Installer and Recovery user handoff. Octavian's native build completed in run 41377614672, while its full-ISO production verifier failed for all three targets; the independent six-case candidate probe run 41377614738 is test-only and is not production acceptance. See the companion PR comments and the shared status ledger for artifact references and exact trace outcomes.
+
+Keep this PR draft and unmerged until its branch-specific checks complete and the dependent process runtime work is implemented. Native-init exit 78 and all production release gates remain in force.
