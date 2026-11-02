@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
 #include "chimera/frame_allocator.h"
 #include "chimera/multiboot_modules.h"
 
@@ -21,8 +24,20 @@ struct Tag { uint32_t type, size; };
 struct MmapTag { uint32_t type, size, entry_size, entry_version; };
 struct MmapEntry { uint64_t address, length; uint32_t type, reserved; };
 
-static void lock() { while (__sync_lock_test_and_set(&allocator_lock, 1u)) {} }
-static void unlock() { __sync_lock_release(&allocator_lock); }
+static void lock() {
+#if defined(_MSC_VER)
+    while (_InterlockedExchange(reinterpret_cast<volatile long *>(&allocator_lock), 1) != 0) {}
+#else
+    while (__sync_lock_test_and_set(&allocator_lock, 1u)) {}
+#endif
+}
+static void unlock() {
+#if defined(_MSC_VER)
+    (void)_InterlockedExchange(reinterpret_cast<volatile long *>(&allocator_lock), 0);
+#else
+    __sync_lock_release(&allocator_lock);
+#endif
+}
 static bool bit(const uint32_t *map, uint32_t i) {
     return (map[i / WORD_BITS] & (1u << (i % WORD_BITS))) != 0;
 }
