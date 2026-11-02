@@ -43,7 +43,7 @@ static void write_msr(uint32_t msr, uint64_t value) {
 static bool current_apic_id(uint32_t *out) {
     if (!out) return false;
     uint32_t a = 1, b = 0, c = 0, d = 0;
-    __asm__ volatile("cpuid" : "+a"(a), "=b"(b), "=c"(c), "=d"(d) : "c"(0));
+    __asm__ volatile("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "a"(1));
     if ((d & (1u << 9)) == 0) return false;
     const uint64_t apic_base = read_msr(0x1Bu);
     if (apic_base & (1ull << 10)) {
