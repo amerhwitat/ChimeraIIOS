@@ -16,13 +16,14 @@ GATES_PATH = next((p for p in GATES_CANDIDATES if p.is_file()), None)
 
 class UnifiedBootTargetTests(unittest.TestCase):
     def test_all_four_requested_targets_are_visible(self):
-        for target_id in ("live-linux", "installer", "koronos", "recovery"):
+        for target_id in ("live-linux", "installer", "koronos", "recovery", "recovery-koronos", "jasper", "spitfire"):
             with self.subTest(target=target_id):
                 self.assertIn(f"--id {target_id}", MENU)
 
     def test_highest_first_svga_and_framebuffer_handoff(self):
         self.assertIn("5120x2880,3840x2160", MENU)
         self.assertIn("set gfxpayload=keep", MENU)
+        self.assertIn("set debug=all", MENU)
         self.assertIn("1024x768,800x600,640x480", MENU)
 
     def test_verbose_boot_is_default_not_hidden_by_quiet(self):
@@ -36,7 +37,7 @@ class UnifiedBootTargetTests(unittest.TestCase):
         end = MENU.index("\n}", start)
         entry = MENU[start:end]
         for required in ("koronos.elf", "installer-initrd.img", "installation.img",
-                         "installer-contract.json", "installation_phases.json",
+                         "installation-manifest.json", "installer-contract.json", "installation_phases.json",
                          "installer_profiles.json"):
             self.assertIn(required, entry)
         self.assertIn("[INST BLOCKED]", entry)
