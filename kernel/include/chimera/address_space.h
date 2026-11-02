@@ -22,6 +22,15 @@ uint64_t koronos_address_space_current_root(void);
 int koronos_address_space_validate_user_range(uint64_t root_physical, uint64_t address,
                                               uint64_t length, uint32_t write_access);
 uint64_t koronos_address_space_count(void);
+/* Shared supervisor-only kernel-stack window. Mapping changes are BSP-only
+ * until AP startup and TLB shootdown acknowledgements are implemented. */
+#define KORONOS_KERNEL_STACK_ARENA_BASE 0xFFFFFF8000000000ull
+#define KORONOS_KERNEL_STACK_SLOT_PAGES 9u
+#define KORONOS_KERNEL_STACK_USABLE_PAGES 8u
+#define KORONOS_KERNEL_STACK_SLOTS 32u
+int koronos_address_space_map_kernel_page(uint64_t virtual_address, uint64_t physical_address);
+int koronos_address_space_unmap_kernel_page(uint64_t virtual_address, uint64_t physical_address);
+int koronos_address_space_kernel_page_mapped(uint64_t root_physical, uint64_t virtual_address);
 
 #ifdef __cplusplus
 }
