@@ -5,9 +5,12 @@ struct __attribute__((aligned(16))) CpuState {
     uint64_t gdt[7];
     chimera_x86_64_gdtr gdtr;
     chimera_x86_64_tss tss;
-    uint8_t entry_stack[CHIMERA_X86_64_ENTRY_STACK_SIZE];
+    uint8_t entry_stack[CHIMERA_X86_64_ENTRY_STACK_SIZE] __attribute__((aligned(16)));
     volatile uint32_t ready;
 };
+
+static_assert((__builtin_offsetof(CpuState, entry_stack) & 0xFu) == 0,
+              "per-CPU privilege-entry stack must be 16-byte aligned");
 
 static CpuState cpus[CHIMERA_X86_64_MAX_CPUS];
 
