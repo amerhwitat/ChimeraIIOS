@@ -41,6 +41,7 @@ class UnifiedBootTargetTests(unittest.TestCase):
                          "installer_profiles.json"):
             self.assertIn(required, entry)
         self.assertIn("[INST BLOCKED]", entry)
+        self.assertIn("module2 /install/installer/installation-manifest.json", entry)
 
     def test_koronos_is_not_claimed_as_production_userspace(self):
         start = MENU.index("--id koronos")
