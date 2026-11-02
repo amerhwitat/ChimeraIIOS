@@ -23,3 +23,12 @@ Chimera II OS now ships an integration layer for the native open toolchain:
 The drivers do not replace GCC, LLVM, Binutils or NASM. They establish a stable Chimera SDK command contract and preserve the upstream licensing of each underlying component. GCC documents the normal C/C++ compilation pipeline and Binutils supplies the assembler/linker/object-tool layer; Clang documents the same compiler-to-assembler/linker pipeline and LLD is available as an LLVM linker. citeturn0search0turn0search2turn1search12
 
 Native mode produces host-native executables. Cross compilation is selected explicitly with a target compiler/sysroot; it is not a claim that physical x86-64, AArch64 or RISC-V processors contain Chimera's virtual RegisterN-wide registers.
+
+
+## Expanded language and HDL provider coverage
+
+The shared catalog now includes 66 language/runtime families, including V, Odin, experimental Carbon, MATLAB/Octave, Wolfram Language, SAS, Raku, Elm, Haxe, ReScript, Solidity, Vyper, Move, Verilog, SystemVerilog and VHDL. It separately inventories 13 assemblers and 11 disassembly/reverse-engineering providers, including LLVM ML, external ARM/IAR assemblers, MSVC dumpbin and Apple Mach-O inspection tools.
+
+ChimeraIIOS and OctavianOS consume the same `CHM-LANGUAGE-TOOLCHAIN-1` contract. Octavian's canonical copy is under `vendor/chimera-ii-os/source/`. The catalog describes discoverable providers and install profiles; it does not imply that every optional compiler, commercial license, runtime, SDK, CPU backend or sysroot is included in the ISO. Proprietary MATLAB, Wolfram, SAS, MASM, ARM Compiler, IAR and Apple tooling remains externally installed. Carbon is explicitly experimental. Verilog/SystemVerilog/VHDL tools are hardware-description-language tools, not general-purpose CPU compilers.
+
+The optional `hardware-description` profile adds Icarus Verilog, Verilator, GHDL and Yosys package mappings. Installation remains explicit and package-manager-dependent. The profile installer validates the package plan but does not turn provider metadata into proof of successful compilation; CI must run provider-specific smoke tests on hosts where the tools are installed.
