@@ -77,6 +77,22 @@ int main(int argc, char **argv) {
         assert(address != 0);
     } while (address < 0x1100000);
     assert(address >= 0x1100000);
-    puts("frame allocator: ownership, double-free, alignment and framebuffer reservations passed");
+
+    /* Next-fit must wrap to an earlier freed frame without rescanning every
+       allocated frame, and contiguous ownership must remain transactional. */
+    const uint64_t free_before_reuse = koronos_frame_free_count();
+    assert(koronos_frame_free(first) == 0);
+    const uint64_t recycled = koronos_frame_alloc();
+    assert(recycled == first);
+    assert(koronos_frame_free(recycled) == 0);
+
+    const uint64_t block = koronos_frame_alloc_contiguous(4);
+    assert(block != 0);
+    assert((block & (KORONOS_FRAME_SIZE - 1u)) == 0);
+    assert(koronos_frame_free_contiguous(block, 4) == 0);
+    assert(koronos_frame_free_contiguous(block, 4) == -2);
+    assert(koronos_frame_free_count() == free_before_reuse);
+
+    puts("frame allocator: next-fit wraparound, contiguous ownership, double-free, alignment and framebuffer reservations passed");
     return 0;
 }
