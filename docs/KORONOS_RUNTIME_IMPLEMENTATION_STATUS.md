@@ -218,3 +218,12 @@ This is still not a process scheduler context switch: no per-process saved
 register/trap frame is restored, no process-owned kernel stack is selected by
 the scheduler, and no user-mode IRETQ transition is enabled. Ring 3 remains
 disabled until those pieces and process-bound syscall/VFS handling are complete.
+
+
+## 12.11 SVGA boot-display policy (2026-11-02)
+
+All shipped GRUB/Jasper/Spit Fire target menus now request only 800x600 SVGA, with 640x480 as the sole fallback, and set `gfxpayload=keep`. The policy is applied to the primary ISO menu, Jasper root/live/installer/recovery/diagnostics/retro menus, Spit Fire, and the installation menu. This prevents the bootloader from selecting 1024x768, HD, 4K, or an adapter-dependent `auto` mode during boot.
+
+The policy is intentionally retained across the Multiboot2 handoff. It does **not** claim that the final desktop can already switch modes: the current Koronos bootstrap writes to VGA text memory and registers display drivers, but it does not yet provide a verified native GPU modeset/KMS path or a target-readiness-gated resolution transition. Multiboot2's framebuffer handoff describes the current framebuffer; it is not itself a firmware mode-setting API. Keep SVGA active until a real target is healthy, then enable the final desktop mode only after a native display backend can safely modeset and restore the SVGA fallback on failure.
+
+The existing boot-claims regression suite now checks all nine shipped boot-menu configurations for the exact SVGA/fallback mode and `gfxpayload=keep`. QEMU BIOS/UEFI runtime confirmation and target-gated desktop modesetting remain pending; no graphical target readiness or production acceptance is inferred from the configuration test.
