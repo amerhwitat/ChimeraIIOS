@@ -150,6 +150,7 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     tasks[index].pending_action=ACTION_NONE;current_index[cpu]=(int32_t)index;
     fn=tasks[index].fn;arg=tasks[index].arg;unlock();
 #if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    (void)fn; (void)arg;
     if(cpu!=0 || !tasks[index].stack_ready) {
         lock();tasks[index].info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
         return 0;
@@ -173,6 +174,10 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
 #else
     fn(arg);
 #endif
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    koronos_kernel_stack retired_stack{};
+    bool retire_stack=false;
+#endif
     lock();
     Task &t=tasks[index];t.info.runs++;t.info.ticks++;
     switch(t.pending_action){
@@ -182,8 +187,24 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
         default:if(t.info.state==CHIMERA_TASK_RUNNING)t.info.state=CHIMERA_TASK_READY;break;
     }
     t.pending_action=ACTION_NONE;
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    if(t.info.state==CHIMERA_TASK_EXITED && t.stack_ready) {
+        retired_stack=t.kernel_stack;
+        t.stack_ready=false;
+        retire_stack=true;
+    }
+#endif
     if(current_index[cpu]==(int32_t)index)current_index[cpu]=-1;
-    unlock();return 1;
+    unlock();
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    if(retire_stack && koronos_kernel_stack_release(&retired_stack)!=0) {
+        lock();
+        t.kernel_stack=retired_stack;
+        t.stack_ready=true;
+        unlock();
+    }
+#endif
+    return 1;
 }
 extern "C" uint32_t chimera_sched_run_serial_range(uint32_t first_cpu,uint32_t n){
     lock();uint32_t total=cpus;unlock();
