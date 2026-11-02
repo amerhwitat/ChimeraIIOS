@@ -71,7 +71,9 @@ for attempt in $(seq 1 18); do
   tesseract "$png" "$OUT/$TARGET-attempt-$attempt" 2>/dev/null || true
   ocr="$OUT/$TARGET-attempt-$attempt.txt"
   if [[ "$TARGET" == live ]]; then
-    match='Aurora|Desktop|Chimera|Octavian|Application'
+    # Do not accept the MP4 splash's project logo as desktop readiness.
+    # Require an Aurora/desktop UI label after the splash has completed.
+    match='Aurora|Desktop|Application'
   else
     match='RESCUE SHELL|No disk is modified'
   fi
