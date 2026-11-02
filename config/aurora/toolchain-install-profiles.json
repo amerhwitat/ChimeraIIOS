@@ -112,7 +112,7 @@
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
       "install_command": "python3 tools/toolchain/install-language-profile.py systems --dry-run",
-      "description": "Rust, Go, Zig, Fortran, Ada and D",
+      "description": "Rust, Go, Zig, Swift, Fortran, Ada, D, V and Odin; experimental Carbon remains provider-managed",
       "status": "optional-explicit-install"
     },
     {
@@ -130,7 +130,7 @@
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
       "install_command": "python3 tools/toolchain/install-language-profile.py scripting --dry-run",
-      "description": "Python, PyPy, JavaScript, TypeScript, PHP, Ruby, Perl, Lua, R and Tcl",
+      "description": "Python, PyPy, JavaScript, TypeScript, PHP, Ruby, Perl, Lua, R, Tcl, Raku and GNU Octave",
       "status": "optional-explicit-install"
     },
     {
@@ -139,7 +139,7 @@
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
       "install_command": "python3 tools/toolchain/install-language-profile.py functional-scientific --dry-run",
-      "description": "Haskell, OCaml, Pascal, COBOL, Elixir, Erlang, Clojure, Lisp, Scheme and Prolog",
+      "description": "Haskell, OCaml, Pascal, COBOL, Elixir, Erlang, Clojure, Lisp, Scheme, Prolog, MATLAB/Wolfram/SAS external providers",
       "status": "optional-explicit-install"
     },
     {
@@ -148,7 +148,7 @@
       "tools": [],
       "catalog": "toolchains/language-toolchain-catalog.json",
       "install_command": "python3 tools/toolchain/install-language-profile.py assembly-analysis --dry-run",
-      "description": "FASM, NASM, YASM, Capstone, radare2 and binary utilities",
+      "description": "GNU/LLVM, NASM, YASM, FASM, LLVM ML, Capstone, radare2, Ghidra and external MASM/ARM/IAR tools",
       "status": "optional-explicit-install"
     },
     {
@@ -158,6 +158,20 @@
       "catalog": "toolchains/language-toolchain-catalog.json",
       "install_command": "python3 tools/toolchain/install-language-profile.py webassembly --dry-run",
       "description": "WASI/Clang, wasm-ld, WABT and Binaryen",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-hardware-description",
+      "label": "Hardware description languages",
+      "tools": [
+        "iverilog",
+        "verilator",
+        "ghdl",
+        "nvc",
+        "yosys"
+      ],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py hardware-description --dry-run",
       "status": "optional-explicit-install"
     }
   ]
