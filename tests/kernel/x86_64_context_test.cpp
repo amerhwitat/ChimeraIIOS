@@ -26,8 +26,9 @@ int main() {
     assert(frame[3] == reinterpret_cast<uint64_t>(&argument)); // r12
     assert(frame[4] == 0); // rbx
     assert(frame[5] == 0); // rbp
-    assert(frame[6] == reinterpret_cast<uint64_t>(&koronos_x86_64_context_trampoline));
-    assert(frame[7] == 0); // alignment padding
+    assert(frame[6] == 0x2u); // safe initial RFLAGS: IF remains clear
+    assert(frame[7] == reinterpret_cast<uint64_t>(&koronos_x86_64_context_trampoline));
+    assert(frame[8] == 0); // alignment padding
 
     assert(koronos_x86_64_context_prepare(nullptr, base, sizeof(stack),
                                           0x2000u, sample_entry, &argument) == -1);
