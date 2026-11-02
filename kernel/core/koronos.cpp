@@ -542,7 +542,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
                                      kernel_stack_test == 0)
         ? context_switch_self_test() : -1;
     if (context_switch_test == 0) {
-        console_write("[SCH ] BSP same-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; process scheduling remains disabled");
+        console_write("[SCH ] BSP guarded cross-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; AP scheduling remains disabled");
     } else {
         console_write("[SCH ] ERROR: saved-context switch self-test failed; process scheduling remains disabled");
     }
