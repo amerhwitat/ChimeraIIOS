@@ -157,3 +157,25 @@ These changes improve diagnostic integrity only. They do not start services or c
 - On that commit, Koronos Kernel Build run 41368394157 passed compile, protected-process admission, ELF64 validation and unresolved-symbol checks. ELF64 admission/scheduler regression run 41368394195 passed; transactional ELF loader tests 41368394087 passed; physical mapping tests 41368394075 passed.
 - Boot and ISO validation run 41368394173 passed after the stale marker assertion was fixed. Full ISO run 41368394073 was cancelled when a newer PR-head update superseded it. The replacement Full ISO run 41368476616 is currently installing dependencies; the new boot-claims regression is wired into this run but has not yet been verified.
 - Latest CI/CD run 41368476612 has Windows Configure passed and Build in progress; Test is pending. Earlier Windows retries were cancelled before completing tests. Do not claim Windows tests passed.
+
+
+## 12.8 Installer loader blocker re-audit (2026-11-02)
+
+The automatic GRUB selection change does not complete the Installer loader. A source-level re-audit of the current PR head (`863b6b89d5f3400fe226ee3aff468be5d24bdd88`) confirms the following hard boundaries:
+
+- `boot/iso/grub.cfg` selects the Installer menu entry without a timeout and passes the compressed `installation.img` plus installer metadata as Multiboot2 modules. It does **not** pass a module tagged `chimera-user-init-elf`.
+- `tools/chimera-stage-installer-media.sh` creates a BusyBox CPIO initramfs with an executable shell script at `/init`. That script mounts devtmpfs/proc/sysfs/tmpfs, invokes the optional shell installer runtime, and falls back to an interactive BusyBox shell. It is an initramfs script, **not** a native ELF process image. The current Koronos boot path does not mount this CPIO image or execute its `/init`.
+- `kernel/include/chimera/process_loader.h` explicitly documents that `chimera_elf_load_user_image()` prepares mappings but does not switch to ring 3. `kernel/core/process.cpp` records `CHIMERA_PROCESS_ADMITTED` load-plan records; it does not create runnable CPU contexts.
+- `kernel/core/syscall.cpp` has no process-bound filesystem syscall path. GETPID and EXIT/EXIT_GROUP are rejected with ENOSYS in the compatibility dispatcher; only YIELD and TIME_TICKS are handled there.
+- `kernel/core/koronos.cpp::task_installer` parses the installer module/metadata phases, then reports that no production init ELF is present and blocks. This is an intentional fail-closed state, not a loader timeout that can be repaired by increasing GRUB timeouts or by adding a shell marker.
+
+### Required implementation before Installer handoff can be called fixed
+
+1. Implement per-CPU GDT/TSS and a validated user-mode entry/return path, with a process-owned kernel stack and saved register context.
+2. Turn ELF mapping into a process-creation transaction: own the address space, mapped frames, stack, PID, and rollback on every failure; commit only when a runnable context is complete.
+3. Add process-bound syscall dispatch and real VFS/file-descriptor operations needed by init (`OPEN/READ/WRITE/SEEK/CLOSE`), plus writable `/tmp` and a verified `/etc/os-release`.
+4. Build a freestanding, architecture-matched Installer init ELF with a defined ABI and no dependency on hosted libc. Package it as a distinct Multiboot2 module (`chimera-user-init-elf`), hash/validate it during ISO construction, and reject a missing or invalid ELF before boot handoff.
+5. Implement actual installer service supervision, device/storage discovery, partition/format/copy/bootloader operations, and an explicit destructive-action confirmation policy. A text shell or metadata planner is not the graphical installer.
+6. Add QEMU tests proving CPL3 entry, a user-originated syscall, real PID, VFS operations, writable `/tmp`, installer UI/service startup, and persistence on a disposable virtual disk. Exercise BIOS and UEFI using the same ISO SHA.
+
+No native Installer init ELF, process context switch, filesystem syscall implementation, storage-backed installer, or graphical Installer runtime was added by the GRUB-only change. The current Full ISO workflow is still a development-candidate build; its successful packaging status cannot satisfy these runtime acceptance requirements. Keep PR #218 draft and the production release gate closed until the evidence above exists.
