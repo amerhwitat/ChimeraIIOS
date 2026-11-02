@@ -192,6 +192,6 @@ The x86-64 kernel now has a concrete BSP GDT/TSS initialization layer:
 - `chimera_x86_64_cpu_set_kernel_stack` provides the later scheduler integration point for replacing the per-CPU entry stack with a process-owned kernel stack. Its caller must run on the owning CPU with interrupts disabled; that ownership/lifecycle integration is not yet implemented.
 - Host-side descriptor-layout tests run before the freestanding kernel build.
 
-The kernel build on the initial TSS commit passed, including the new descriptor-layout test and NASM assembly. A follow-up removes an unused-variable warning. QEMU execution of the new LTR path is still pending the current Full ISO/QEMU run.
+The kernel build on the initial TSS commit passed, including the new descriptor-layout test and NASM assembly. The first QEMU run exposed that the entry-stack member was not 16-byte aligned; initialization correctly refused to load the TSS. The member now has explicit 16-byte alignment and a compile-time offset assertion. The unused-variable warning was also removed. The new QEMU workflow now requires the explicit BSP GDT/TSS initialization marker; rerun evidence is pending.
 
 **Not completed by this section:** AP startup/per-CPU initialization, process-owned kernel stacks, saved register/trap contexts, CR3 switching, user-mode IRETQ entry/return, syscall frame validation, or VFS/file descriptors. Ring 3 remains disabled and userspace readiness remains withheld until these are implemented and tested together.
