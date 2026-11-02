@@ -394,6 +394,34 @@ static void koronos_submit_bootstrap_tasks() {
     if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
+    }
+
+alignas(16) static uint8_t context_test_stack[16384];
+static chimera_x86_64_context context_test_main{};
+static chimera_x86_64_context context_test_child{};
+static volatile uint32_t context_test_result = 0;
+
+static void context_test_entry(void *) {
+    context_test_result = 1;
+    if (koronos_x86_64_context_switch(&context_test_child, &context_test_main) != 0)
+        context_test_result = 2;
+    for (;;) __asm__ volatile("cli; hlt" ::: "memory");
+}
+
+static int context_switch_self_test() {
+    const uint64_t root = koronos_address_space_current_root();
+    if (!root) return -1;
+    context_test_main = {};
+    context_test_child = {};
+    context_test_result = 0;
+    if (koronos_x86_64_context_prepare(
+            &context_test_child,
+            reinterpret_cast<uint64_t>(context_test_stack),
+            sizeof(context_test_stack), root, context_test_entry, nullptr) != 0)
+        return -2;
+    if (koronos_x86_64_context_switch(&context_test_main, &context_test_child) != 0)
+        return -3;
+    return context_test_result == 1 ? 0 : -4;
 }
 
 extern "C" void chimera_register_virtio_drivers(void);
