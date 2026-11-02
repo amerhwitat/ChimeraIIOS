@@ -127,3 +127,17 @@ Therefore, creating three ELF files or wiring GRUB module names alone would be u
 ### 12.4 Release gate
 
 Do not weaken the verifier, add the test-only smoke ELF to production media, synthesize PID/readiness output, or remove native-init exit 78. A successful compile or ISO file is only a build candidate; it is not production acceptance. Keep both PRs draft/unmerged until the complete matrix above passes.
+
+### 12.5 Full ISO candidate trace audit (2026-11-02)
+
+Full ISO run 41367322786 completed the build, ISO payload checks, QEMU kernel boot smoke, trace upload and compressed-artifact upload. The workflow run itself is green because the target acceptance gate is deliberately non-fatal for reviewable candidate builds; the release step was skipped because the gate output was not true. Do not interpret the green workflow result as userspace acceptance.
+
+The uploaded chimera-target-userspace-traces artifact (artifact 13106904729, SHA-256 3c9868bba3dae99f0ea46b6d516fda0244b9913a85e9638a0c6262854a9d43a9) was downloaded and inspected:
+
+- Live trace: initramfs and manifest modules are registered; kernel prints USERSPACE READY withheld because ELF load-plan admission is not a process execution context; target task prints that no executable ring-3 entry path is connected.
+- Installer trace: the five installer metadata/image modules are registered; kernel withholds USERSPACE READY; installer task prints that graphical installer userspace is not running and no verified process context/ring-3 transition exists.
+- Recovery trace: recovery initramfs and manifest modules are registered; kernel withholds USERSPACE READY; recovery task prints that the repair shell has not been entered.
+- All three traces lack USER INIT SYSCALL target/PID and USERSPACE READY target/PID records. None contains a production chimera-user-init-elf module. The three test ISO GRUB configs only pass their respective initramfs/metadata modules.
+
+Thus the target verifier correctly leaves accepted=false and publication is skipped. The job step is green because it records the false gate and allows candidate artifacts to be uploaded for engineering review; it is not a passing target acceptance result. Full ISO candidate artifact 13107437782 (ZIP containing compressed ISO and checksums) is available from workflow run 41367322786, but it must not be described as a production release.
+
