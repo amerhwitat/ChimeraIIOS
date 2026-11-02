@@ -64,7 +64,9 @@ int koronos_x86_64_context_prepare(chimera_x86_64_context *context,
                                    uint64_t stack_base, uint64_t stack_size,
                                    uint64_t cr3, void (*entry)(void *), void *argument);
 /* Save the current callee-saved context and CR3, then restore the next one.
- * This low-level primitive is not wired into the callback scheduler yet. */
+ * Returns -2 without switching when the CR3 roots differ: shared supervisor
+ * mappings and TLB shootdowns are prerequisites for cross-address-space use.
+ * This primitive is not wired into the callback scheduler yet. */
 int koronos_x86_64_context_switch(chimera_x86_64_context *from,
                                   const chimera_x86_64_context *to);
 
