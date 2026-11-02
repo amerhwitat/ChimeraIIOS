@@ -4,6 +4,19 @@ The initial cross-repository Java audit, parity rules, and phased conversion pla
 
 # Chimera II OS
 
+## Live ISO download
+
+A bootable amd64 live image is published from this repository:
+
+- **Chimera II OS 2026.11.02** — [`chimera-ii-os-live-amd64.iso`](https://github.com/amerhwitat/ChimeraIIOS/releases/download/chimera-ii-os-2026.11.02/chimera-ii-os-live-amd64.iso) · 467 MiB · SHA-256 `e599df3c6b82bc7e98f152edf1d4ee26b988c842c4eace65df6b0138f4007de8`
+- Release notes, checksums and build evidence: [`docs/releases/chimera-ii-os-2026.11.02/RELEASE.md`](docs/releases/chimera-ii-os-2026.11.02/RELEASE.md)
+- Mirror / download index: https://amerhwitat.github.io/downloads/
+
+Boots BIOS and UEFI, live login `live` / `live`, Aurora WebKit kiosk on tty1, 26 offline
+wallpapers. The image runs the Debian Linux kernel plus this repository's Aurora desktop and
+userspace payload — see the release notes for exactly what it does and does not prove about
+the native Koronos kernel.
+
 > **Verification policy:** documented, cataloged, compiled, booted, userspace-ready, conformance-tested, and SMP-verified are distinct evidence levels. See [the verification evidence contract](docs/VERIFICATION_EVIDENCE_CONTRACT.md); do not infer a higher level from a lower one.
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.
