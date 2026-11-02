@@ -149,3 +149,11 @@ Thus the target verifier correctly leaves accepted=false and publication is skip
 
 Chimera commit 87458f70367ab6350476d77c957a2019024deeb5 corrects boot diagnostics that previously said installer services were started/in parallel and core storage/security/logging were active even though only declarations existed. Commit 0bd2637f55a12606334f691eadc2ea0eace905f4 adds tests/boot/test_koronos_boot_claims.py, and workflow commit b5c25d0a584ffdca32ad483eaec313a3f41f178e runs it in Full ISO validation.
 These changes improve diagnostic integrity only. They do not start services or create a userspace execution path. The native init, VFS/syscall, task-context, per-CPU and SMP gates above remain blocked until their real implementations and runtime evidence exist.
+
+
+### 12.7 CI after truthful boot-log changes (2026-11-02)
+
+- The first follow-up boot-validation run (41368300847) caught a stale build-script string assertion: kernel/build-koronos.sh still expected the old “Installer runtime initialization” marker after the log was correctly made explicit that installer userspace is not initialized. The assertion was updated in commit 1171a1362609a1b056ea34316a00a129091a24c4 to require the new truthful message (and the new service-declaration message).
+- On that commit, Koronos Kernel Build run 41368394157 passed compile, protected-process admission, ELF64 validation and unresolved-symbol checks. ELF64 admission/scheduler regression run 41368394195 passed; transactional ELF loader tests 41368394087 passed; physical mapping tests 41368394075 passed.
+- Boot and ISO validation run 41368394173 and Full ISO run 41368394073 were pending/in progress at the last poll. The Windows CI/CD retry (run 41368394145) was pending; the prior Windows retry had been cancelled before tests. Do not claim Windows tests passed.
+- The new boot-claims regression is wired into the Full ISO workflow; its result is pending with that workflow.
