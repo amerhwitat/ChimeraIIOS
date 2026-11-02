@@ -2,7 +2,7 @@ name: Chimera II OS live ISO and fullscreen desktop validation
 
 on:
   push:
-    branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
+    branches: [main, 'fix/live-image-fullscreen-app-bundle-*', 'test/qemu-live-desktop-acceptance-20261102']
     paths:
       - 'live-image/**'
       - 'boot/**'
