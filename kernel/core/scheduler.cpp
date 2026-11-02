@@ -135,6 +135,9 @@ static void legacy_action(uint8_t action) {
 extern "C" void chimera_sched_init(uint32_t n){
     lock(); cpus=n?n:1;if(cpus>MAX_CPUS)cpus=MAX_CPUS;
     count=0;rr=0;dispatch_round=1;next_id=1;
+#if defined(KORONOS_FREESTANDING)
+    context_switches=0;
+#endif
     for(uint32_t i=0;i<MAX_TASKS;i++) tasks[i]={};
     for(uint32_t i=0;i<MAX_CPUS;i++) {
         current_index[i]=-1;
@@ -190,9 +193,9 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     tasks[index].info.state=CHIMERA_TASK_RUNNING;
     tasks[index].info.cpu=cpu;
     tasks[index].pending_action=ACTION_NONE;
-    tasks[index].info.runs++;
     current_index[cpu]=(int32_t)index;
 #if defined(KORONOS_FREESTANDING)
+    tasks[index].info.runs++;
     const uint64_t new_rsp=tasks[index].saved_rsp;
     unlock();
     __sync_fetch_and_add(&context_switches,1ull);
