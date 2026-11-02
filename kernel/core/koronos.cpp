@@ -12,6 +12,7 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
 #include "chimera/address_space.h"
+#include "chimera/x86_64_cpu.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -402,6 +403,12 @@ extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     debugcon_write("[KRN ] koronos_boot entered");
     serial_init();
+    const int cpu_state_status = chimera_x86_64_cpu_init(0);
+    if (cpu_state_status == 0 && chimera_x86_64_cpu_is_ready(0)) {
+        console_write("[CPU ] BSP GDT/TSS initialized; ring-3 entry remains disabled pending process contexts");
+    } else {
+        console_write("[CPU ] ERROR: BSP GDT/TSS initialization failed; userspace remains disabled");
+    }
     console_write("CHIMERA II OS / KORONOS");
     console_write("[BOOT] Boot handoff: ");
     if (!ctx || ctx->magic != KORONOS_BOOTINFO_MAGIC || ctx->version != KORONOS_ABI_VERSION) {
