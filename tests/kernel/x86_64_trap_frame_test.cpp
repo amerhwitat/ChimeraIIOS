@@ -33,6 +33,15 @@ int main() {
     f.rflags |= CHIMERA_X86_64_RFLAGS_NT;
     assert(chimera_x86_64_trap_frame_is_user(&f) == 0);
     f.rflags &= ~CHIMERA_X86_64_RFLAGS_NT;
+    f.rflags |= CHIMERA_X86_64_RFLAGS_TF;
+    assert(chimera_x86_64_trap_frame_is_user(&f) == 0);
+    f.rflags &= ~CHIMERA_X86_64_RFLAGS_TF;
+    f.rflags |= CHIMERA_X86_64_RFLAGS_DF;
+    assert(chimera_x86_64_trap_frame_is_user(&f) == 0);
+    f.rflags &= ~CHIMERA_X86_64_RFLAGS_DF;
+    f.rflags |= CHIMERA_X86_64_RFLAGS_AC;
+    assert(chimera_x86_64_trap_frame_is_user(&f) == 0);
+    f.rflags &= ~CHIMERA_X86_64_RFLAGS_AC;
     f.rflags &= ~CHIMERA_X86_64_RFLAGS_IF;
     assert(chimera_x86_64_trap_frame_is_user(&f) == 0);
     assert(chimera_x86_64_trap_frame_is_user(nullptr) == 0);
