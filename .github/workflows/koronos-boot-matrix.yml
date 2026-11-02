@@ -34,13 +34,18 @@ jobs:
       - name: Install kernel/ISO test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+          sudo apt-get install -y g++ clang nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
       - name: Build Koronos
         run: |
           chmod +x kernel/build-koronos.sh tools/build-desktop-binaries.sh tools/build-koronos-targets.sh
           ./kernel/build-koronos.sh
           grub-file --is-x86-multiboot2 build/koronos/x86_64/koronos.elf
           file build/koronos/x86_64/koronos.elf
+      - name: Rebuild Koronos with Clang
+        run: |
+          set -euo pipefail
+          CXX=clang++ CC=clang ./kernel/build-koronos.sh
+          grub-file --is-x86-multiboot2 build/koronos/x86_64/koronos.elf
       - name: Build desktop artifacts
         run: ./tools/build-desktop-binaries.sh
       - name: Build minimal Multiboot2 test ISO
@@ -65,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+          timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 5G \
             -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
             -debugcon file:qemu-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-koronos.log
@@ -79,6 +84,7 @@ jobs:
           cat qemu-debug.log
           grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
+          grep -Fq "[MM  ] High-memory read/write/free self-test passed above 4 GiB" qemu-debug.log
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4

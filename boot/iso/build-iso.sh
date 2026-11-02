@@ -88,6 +88,19 @@ VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
 bash "$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
 MEDIA="$ROOT/build/aurora-media"
+# Optional distribution-specific boot artwork override. The default Chimera
+# artwork pipeline remains unchanged; downstream distributions may provide a
+# pre-rendered, validated PNG so the exact branded image is embedded offline.
+if [[ -n "${CHIMERA_BOOT_ARTWORK_OVERRIDE:-}" ]]; then
+  test -s "$CHIMERA_BOOT_ARTWORK_OVERRIDE" || { echo "ERROR: boot artwork override is missing." >&2; exit 2; }
+  python3 - "$CHIMERA_BOOT_ARTWORK_OVERRIDE" <<'PY'
+import pathlib, sys
+data = pathlib.Path(sys.argv[1]).read_bytes()
+if data[:8] != bytes.fromhex("89504e470d0a1a0a"):
+    raise SystemExit("ERROR: boot artwork override is not a PNG")
+PY
+  cp -f "$CHIMERA_BOOT_ARTWORK_OVERRIDE" "$MEDIA/backgrounds/boot.png"
+fi
 test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/visual/aurora-media"
 cp -a "$MEDIA/." "$DIST/iso/boot/visual/aurora-media/"
@@ -95,6 +108,24 @@ for f in   backgrounds/boot.png   backgrounds/desktop.png   menus/default.png   
   test -s "$MEDIA/$f" || { echo "ERROR: Aurora asset missing: $MEDIA/$f" >&2; exit 2; }
 done
 cp -f "$MEDIA/backgrounds/boot.png" "$VISUAL_OUT/aurora-boot.png"
+if [[ -n "${CHIMERA_BOOT_ARTWORK_OVERRIDE:-}" ]]; then
+  cp -f "$CHIMERA_BOOT_ARTWORK_OVERRIDE" "$VISUAL_OUT/octavian-octopus-aurora.png"
+fi
+if [[ -n "${CHIMERA_BOOT_ARTWORK_MANIFEST:-}" ]]; then
+  test -s "$CHIMERA_BOOT_ARTWORK_MANIFEST" || { echo "ERROR: boot artwork manifest override is missing." >&2; exit 2; }
+  cp -f "$CHIMERA_BOOT_ARTWORK_MANIFEST" "$VISUAL_OUT/octavian-artwork-manifest.json"
+  if [[ -n "${CHIMERA_BOOT_ARTWORK_OVERRIDE:-}" ]]; then
+    python3 - "$CHIMERA_BOOT_ARTWORK_OVERRIDE" "$CHIMERA_BOOT_ARTWORK_MANIFEST" <<'PY'
+import hashlib, json, pathlib, sys
+image = pathlib.Path(sys.argv[1]).read_bytes()
+manifest = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
+expected = manifest.get("boot_artwork", {}).get("sha256")
+actual = hashlib.sha256(image).hexdigest()
+if not expected or actual != expected:
+    raise SystemExit(f"ERROR: boot artwork SHA-256 mismatch: expected={expected!r} actual={actual}")
+PY
+  fi
+fi
 cp -f "$MEDIA/backgrounds/desktop.png" "$VISUAL_OUT/aurora-desktop.png"
 cp -f "$MEDIA/menus/default.png" "$VISUAL_OUT/aurora-menu.png"
 cp -f "$MEDIA/splash/aurora-splash.png" "$VISUAL_OUT/aurora-splash.png"

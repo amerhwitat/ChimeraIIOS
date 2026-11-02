@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'kernel/core/process_loader.cpp'
+      - 'kernel/core/vfs.cpp'
+      - 'kernel/include/chimera/vfs.h'
+      - 'kernel/tests/vfs_cpio_test.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
       - 'kernel/tests/multiboot_modules_test.cpp'
@@ -16,6 +19,11 @@ on:
       - '.github/workflows/koronos-process-loader.yml'
   pull_request:
     paths:
+      - 'kernel/core/vfs.cpp'
+      - 'kernel/include/chimera/vfs.h'
+      - 'kernel/tests/vfs_cpio_test.cpp'
+      - 'kernel/core/process.cpp'
+      - 'kernel/tests/process_admission.cpp'
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
@@ -39,6 +47,10 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp -o /tmp/chimera-multiboot-modules-test
           /tmp/chimera-multiboot-modules-test
+      - name: Compile and run CPIO-newc initramfs VFS tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -I kernel/include kernel/tests/vfs_cpio_test.cpp kernel/core/vfs.cpp -o /tmp/koronos-vfs-cpio-test
+          /tmp/koronos-vfs-cpio-test
       - name: Test fail-closed userspace handoff marker verifier
         run: python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
       - name: Compile and validate freestanding Koronos

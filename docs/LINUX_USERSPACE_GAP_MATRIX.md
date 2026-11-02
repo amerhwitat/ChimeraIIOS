@@ -1,5 +1,8 @@
 # Linux userspace parity gap matrix
 
+> **Current implementation/evidence update (2026-11-01):** See the [Koronos vs Linux/Arch runtime audit (2026-11-01)](KORONOS_ARCH_LINUX_RUNTIME_AUDIT_2026-11-01.md) for the source-level comparison, current CI evidence, Octavian/Chimera divergence, targeted ISO artwork remediation, and fail-closed production gates.
+
+
 **Scope:** native Koronos userspace in ChimeraIIOS and the vendored Koronos userspace in OctavianOS, compared with the Linux userspace boot/runtime contract. This is an engineering gap inventory, not a claim of Linux ABI compatibility or production acceptance.
 
 ## Linux baseline
@@ -42,3 +45,6 @@ The production gate remains fail-closed. Required evidence is a native build and
 ## Linux source mapping
 
 Use Linux as a behavioral reference, not as code to copy wholesale: initramfs and rootfs handling (init/initramfs.c, fs/), process creation and exit (kernel/fork.c, kernel/exit.c), syscall entry and dispatch (arch/x86/entry/, kernel/sys.c), scheduler (kernel/sched/), and procfs (fs/proc/). Exact Linux APIs and source paths vary by kernel release and architecture.
+
+
+> **Memory/astronomy/compiler update (2026-11-01):** See [Koronos memory, astronomy and compiler parity audit](docs/KORONOS_MEMORY_ASTRONOMY_COMPILER_AUDIT_2026-11-01.md) for the initial 64-GiB direct-map uplift, high-memory allocator regression, open-source astronomy catalog and GCC/Clang build status. This does not claim >64-GiB, QEMU high-memory, native astronomy-app or self-hosted compiler acceptance.

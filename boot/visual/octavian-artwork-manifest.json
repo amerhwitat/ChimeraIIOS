@@ -1,0 +1,34 @@
+{
+  "schema": "OCTAVIANOS-ARTWORK-2",
+  "boot_artwork": {
+    "path": "/boot/visual/octavian-octopus-aurora.png",
+    "format": "PNG",
+    "resolution": "1920x1080",
+    "sha256": "fb6810dbb790375e37adaea0982581deeb2f395e4505db7a83256fccfd4dd51c",
+    "source": "user-provided northern-lights landscape"
+  },
+  "desktop_wallpapers": [
+    {
+      "id": "aurora-landscape",
+      "title": "Aurora over the Frozen Lake",
+      "path": "desktop/aurora/assets/wallpapers/aurora-landscape.png",
+      "format": "PNG",
+      "resolution": "1920x1080",
+      "sha256": "fb6810dbb790375e37adaea0982581deeb2f395e4505db7a83256fccfd4dd51c"
+    },
+    {
+      "id": "cosmic-planet",
+      "title": "The Blue Planet",
+      "path": "desktop/aurora/assets/wallpapers/cosmic-planet.png",
+      "format": "PNG",
+      "resolution": "1920x1080",
+      "sha256": "c6b9e89931fca33b49bdc99d10c2d89e95d8d5307a68fa262102e25fa83f0eda"
+    }
+  ],
+  "desktop_targets": [
+    "Aurora Wayland Glass Desktop",
+    "Marine Desktop"
+  ],
+  "offline_required": true,
+  "note": "Binary artwork is supplied in octavian-wallpaper-pack.zip. The repository/ISO staging step must copy the PNGs to the declared paths and verify SHA-256 before release."
+}
