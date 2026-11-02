@@ -21,6 +21,9 @@ extern "C" {
 typedef struct chimera_x86_64_context {
     uint64_t rsp;
     uint64_t cr3;
+    uint64_t kernel_stack_top;
+    uint32_t pid;
+    uint32_t reserved;
 } chimera_x86_64_context;
 
 #define CHIMERA_X86_64_CONTEXT_FRAME_SIZE 72u
@@ -68,6 +71,8 @@ int chimera_x86_64_cpu_init(uint32_t cpu_id);
 int chimera_x86_64_cpu_set_kernel_stack(uint32_t cpu_id, uint64_t stack_top);
 int chimera_x86_64_cpu_is_ready(uint32_t cpu_id);
 uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id);
+int chimera_x86_64_cpu_set_current_pid(uint32_t cpu_id, uint32_t pid);
+uint32_t chimera_x86_64_cpu_current_pid(uint32_t cpu_id);
 
 /* Prepare an initial kernel entry frame inside caller-supplied mapped memory.
  * The caller remains responsible for allocating a process-owned stack and
@@ -75,10 +80,10 @@ uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id);
 int koronos_x86_64_context_prepare(chimera_x86_64_context *context,
                                    uint64_t stack_base, uint64_t stack_size,
                                    uint64_t cr3, void (*entry)(void *), void *argument);
-/* Save the current callee-saved context and CR3, then restore the next one.
- * Returns -2 without switching when the CR3 roots differ: shared supervisor
- * mappings and TLB shootdowns are prerequisites for cross-address-space use.
- * This primitive is not wired into the callback scheduler yet. */
+/* Save/restore a BSP context, including CR3, TSS.RSP0 and current PID. Cross-
+ * address-space switches require a known address-space root and a mapped
+ * shared supervisor stack. Refuses cross-CR3 switching if any AP is online;
+ * SMP TLB shootdowns are not implemented. Not yet wired into the scheduler. */
 int koronos_x86_64_context_switch(chimera_x86_64_context *from,
                                   const chimera_x86_64_context *to);
 
