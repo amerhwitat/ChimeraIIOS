@@ -182,7 +182,7 @@ extern "C" uint64_t koronos_frame_alloc_contiguous(uint32_t count) {
     if (hint < FIRST_ALLOCATABLE_PAGE || hint >= PAGE_COUNT) hint = FIRST_ALLOCATABLE_PAGE;
     bool found = find_contiguous_run(hint, PAGE_COUNT, count, &first);
     if (!found && hint > FIRST_ALLOCATABLE_PAGE)
-        found = find_contiguous_run(FIRST_ALLOCATABLE_PAGE, hint, count, &first);
+        found = find_contiguous_run(FIRST_ALLOCATABLE_PAGE, PAGE_COUNT, count, &first);
     if (!found) {
         unlock();
         return 0;
