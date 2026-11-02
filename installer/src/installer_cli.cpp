@@ -12,7 +12,8 @@ int main(int argc,char**argv){
   std::cout<<"Target whole-disk device (e.g. /dev/nvme0n1; blank for dry-run): "; std::getline(std::cin,a); p.boot_device=a;
   std::cout<<"Root partition (e.g. /dev/nvme0n1p2): "; std::getline(std::cin,a); p.root_partition=a;
   if(h.firmware==chimera::installer::Firmware::UEFI){ std::cout<<"EFI System Partition (e.g. /dev/nvme0n1p1): "; std::getline(std::cin,a); p.efi_partition=a; }
-  p.firmware=h.firmware;
+  std::cout<<"Firmware mode detected as "<<chimera::installer::Installer::firmware_name(h.firmware)<<". Type BIOS or UEFI to confirm: "; std::getline(std::cin,a);
+  if(a=="BIOS") p.firmware=chimera::installer::Firmware::BIOS; else if(a=="UEFI") p.firmware=chimera::installer::Firmware::UEFI; else { std::cerr<<"Invalid firmware selection.\\n"; return 2; }
   std::cout<<"Start installation plan? [y/N] "; std::getline(std::cin,a);
   if(a!="y"&&a!="Y") return 0;
   std::cout<<"Type ERASE-AND-INSTALL to authorize destructive storage operations, anything else for dry-run: "; std::getline(std::cin,a);
