@@ -147,6 +147,61 @@ mkdir -p "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . 2>/dev/null \
   | tar -C "$PAY/repo" -xf - 2>/dev/null || true
 
+# Stage every repository-owned application catalog for offline discovery.
+# Catalog-only upstream references remain distinct from installed executables.
+mkdir -p "$PAY/app-catalogs" "$PAY/apps/native/aurora"
+stage_catalog() {
+  local rel="$1"
+  if [ -f "$REPO_DIR/$rel" ]; then
+    mkdir -p "$PAY/app-catalogs/$(dirname "$rel")"
+    cp -f "$REPO_DIR/$rel" "$PAY/app-catalogs/$rel"
+  fi
+}
+for rel in \
+  applications/catalog.json \
+  desktop/optional_apps_catalog.json \
+  appcenter/catalog/apps.json \
+  appcenter/catalog/external-integrations.json \
+  iso/manifests/application-catalog.txt \
+  apps/desktop-application-catalog.json; do
+  stage_catalog "$rel"
+done
+if [ "$ED" = "octavian" ]; then
+  for rel in \
+    vendor/chimera-ii-os/source/applications/catalog.json \
+    vendor/chimera-ii-os/source/desktop/optional_apps_catalog.json \
+    vendor/chimera-ii-os/source/appcenter/catalog/apps.json \
+    vendor/chimera-ii-os/source/appcenter/catalog/external-integrations.json \
+    vendor/chimera-ii-os/source/iso/manifests/application-catalog.txt; do
+    stage_catalog "$rel"
+  done
+  if [ -d "$REPO_DIR/vendor/chimera-ii-os/source/desktop/aurora/apps" ]; then
+    cp -a "$REPO_DIR/vendor/chimera-ii-os/source/desktop/aurora/apps/." "$PAY/apps/native/aurora/"
+  fi
+else
+  if [ -d "$REPO_DIR/desktop/aurora/apps" ]; then
+    cp -a "$REPO_DIR/desktop/aurora/apps/." "$PAY/apps/native/aurora/"
+  fi
+  mkdir -p "$PAY/apps/native/aurora/launchers"
+  find "$REPO_DIR/desktop/aurora" -maxdepth 1 -type f -name '*.desktop' \
+    -exec cp -f {} "$PAY/apps/native/aurora/launchers/" \;
+fi
+python3 - "$PAY/app-catalogs" "$PAY" "$ED" <<'PY'
+import json, pathlib, sys
+catalog_root, payload, edition = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
+files = sorted(str(p.relative_to(catalog_root)) for p in catalog_root.rglob("*") if p.is_file())
+manifest = {
+    "schema": "aurora-offline-application-bundle-v1",
+    "edition": edition,
+    "catalog_files": files,
+    "native_app_source": "apps/native/aurora",
+    "source_snapshot": "repo",
+    "policy": "Catalog references are not claims of installation or runtime compatibility. First-party source is bundled; third-party packages remain subject to provider, license, and compatibility checks."
+}
+(payload / "application-bundle.json").write_text(json.dumps(manifest, indent=2) + "\n")
+print("application catalogs:", len(files), "first-party source:", manifest["native_app_source"])
+PY
+
 python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
 
 cat > "$PAY/PROJECT.md" <<EOF
@@ -162,8 +217,11 @@ cat > "$PAY/PROJECT.md" <<EOF
 shell (WebKit2GTK). \`wallpapers/\` holds the artwork shipped with this build, wired into
 every page's background picker. \`repo/\` is a verbatim snapshot of the source tree.
 
-The image boots a Linux kernel: the project's native Spit Fire/Koronos kernel is
-documented upstream as not yet reaching a verified userspace handoff.
+The image boots a Linux kernel. Openbox manages the Aurora kiosk fullscreen state.
+Offline application catalogs and first-party application sources are staged under
+app-catalogs/ and apps/native/; catalog-only upstream entries are not misrepresented
+as installed applications. The native Spit Fire/Koronos kernel remains a separate
+release track until its userspace handoff is verified.
 EOF
 
 cat > "$PAY/README.txt" <<EOF
@@ -174,6 +232,7 @@ Keys    : Ctrl+Q quit kiosk · Ctrl+R reload · Ctrl+Alt+F2 text console
 Console : login live / live (passwordless sudo)
 Menu    : "Classic X session" boots openbox + xterm
 Artwork : /opt/aurora/wallpapers and /usr/share/backgrounds/$SHORT
+Apps    : /opt/aurora/app-catalogs and /opt/aurora/apps/native
 Source  : $REPO_URL
 EOF
 
@@ -197,6 +256,36 @@ if grep -q "session=classic" /proc/cmdline 2>/dev/null; then
   for w in /usr/share/backgrounds/*/wp01.jpg; do [ -f "$w" ] && feh --bg-fill "$w"; done
   exec openbox
 fi
+
+# GTK's fullscreen request is an EWMH message. Without a window manager the
+# request is ignored and the undecorated WebView remains at GTK's small default
+# size in the upper-left corner in the live session.
+if ! command -v openbox >/dev/null 2>&1 || ! command -v xprop >/dev/null 2>&1; then
+  echo "[Aurora][FATAL] Openbox and xprop are required for fullscreen desktop mode." >&2
+  exit 1
+fi
+openbox --sm-disable >/tmp/aurora-openbox.log 2>&1 &
+wm_pid=$!
+wm_ready=0
+for attempt in $(seq 1 50); do
+  if xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null | grep -Eq 'window id # 0x[[:xdigit:]]+'; then
+    wm_ready=1
+    break
+  fi
+  if ! kill -0 "$wm_pid" 2>/dev/null; then
+    cat /tmp/aurora-openbox.log >&2 || true
+    echo "[Aurora][FATAL] Openbox exited before registering as the window manager." >&2
+    exit 1
+  fi
+  sleep 0.1
+done
+if [ "$wm_ready" -ne 1 ]; then
+  cat /tmp/aurora-openbox.log >&2 || true
+  echo "[Aurora][FATAL] Openbox did not become ready; refusing to start a windowed desktop." >&2
+  kill "$wm_pid" 2>/dev/null || true
+  exit 1
+fi
+echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
 exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
 EOF
 echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
