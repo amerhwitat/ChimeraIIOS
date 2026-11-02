@@ -13,7 +13,10 @@
 
 namespace {
 constexpr uint32_t MAX_CPUS=256,MAX_TASKS=1024;
+#if defined(KORONOS_FREESTANDING)
 constexpr uint32_t TASK_STACK_PAGES=4;
+volatile uint64_t context_switches=0;
+#endif
 enum PendingAction : uint8_t { ACTION_NONE=0, ACTION_YIELD=1, ACTION_BLOCK=2, ACTION_EXIT=3 };
 struct Task {
     chimera_task_fn fn=nullptr;
