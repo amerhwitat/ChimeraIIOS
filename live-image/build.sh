@@ -101,7 +101,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 \
-      openbox xterm feh \
+      openbox xterm feh mpv \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
@@ -124,6 +124,12 @@ mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mn
 log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
+# Install Marine's original vector wallpaper as a separate offline desktop
+# profile asset; it is not substituted for Aurora's GRUB raster background.
+if [ -d "$REPO_DIR/desktop/marine/assets" ]; then
+  mkdir -p "$WORK/usr/share/chimera/marine/assets"
+  cp -a "$REPO_DIR/desktop/marine/assets/." "$WORK/usr/share/chimera/marine/assets/"
+fi
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 if [ "$ED" = "chimera" ] && [ -s "$REPO_DIR/desktop/aurora/gates_menu.json" ]; then
   install -m644 "$REPO_DIR/desktop/aurora/gates_menu.json" "$PAY/gates_menu.json"
