@@ -12,6 +12,21 @@ LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
+    def test_iso_and_jasper_boot_automatically_into_installer_without_countdown(self):
+        jasper = (ROOT / "boot/jasper/jasper.cfg").read_text()
+        installer = (ROOT / "boot/jasper/install.cfg").read_text()
+        install_menu = (ROOT / "boot/installation/menu.cfg").read_text()
+        self.assertRegex(GRUB, r"(?m)^set timeout=0$")
+        self.assertRegex(GRUB, r"(?m)^set default=2$")
+        self.assertRegex(jasper, r"(?m)^set timeout=0$")
+        self.assertRegex(jasper, r"(?m)^set default=1$")
+        self.assertRegex(installer, r"(?m)^set timeout=0$")
+        self.assertRegex(installer, r"(?m)^set default=0$")
+        self.assertRegex(install_menu, r"(?m)^set timeout=0$")
+        self.assertRegex(install_menu, r"(?m)^set default=0$")
+        self.assertNotRegex(GRUB, r"(?m)^set timeout=[1-9]")
+        self.assertNotRegex(jasper, r"(?m)^set timeout=[1-9]")
+
     def test_installer_menu_passes_installer_modules_to_koronos(self):
         start = GRUB.index('--id install {')
         end = GRUB.index('\n}', start)
