@@ -478,7 +478,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     const int address_space_init = (frame_status == 0) ? koronos_address_space_init() : -1;
     const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
     if (address_space_test == 0) {
-        console_write("[MM  ] Address-space self-test passed: CR3 switch/restore, kernel identity mappings, user U/RW/NX permissions and frame rollback verified");
+        console_write("[MM  ] Address-space self-test passed: CR3 switch/restore, shared supervisor page directories, user U/RW/NX permissions and frame rollback verified");
     } else {
         console_write("[MM  ] ERROR: address-space backend unavailable or self-test failed; userspace launch remains disabled");
     }
