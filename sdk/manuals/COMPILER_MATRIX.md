@@ -49,7 +49,7 @@ tools/toolchain/install-language-profile.py systems --dry-run
 Install only after reviewing the package plan and confirming explicitly:
 
 ```sh
-sudo tools/toolchain/install-language-profile.py systems --yes
+sudo python3 tools/toolchain/install-language-profile.py systems --yes
 ```
 
 The installer supports apt, dnf and pacman package managers. Package
