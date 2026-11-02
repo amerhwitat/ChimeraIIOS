@@ -31,8 +31,8 @@ extern "C" int koronos_x86_64_context_prepare(
     if (!canonical(entry_address) || !canonical(trampoline_address)) return -3;
 
     /* Layout consumed by cpu_state.asm:
-     * r15, r14, r13(entry), r12(argument), rbx, rbp, return RIP, padding.
-     * The first RET leaves RSP at 8 mod 16, as required by the SysV ABI. */
+     * r15, r14, r13(entry), r12(argument), rbx, rbp, RFLAGS, return RIP,
+     * padding. Initial IF is clear; the first RET leaves RSP at 8 mod 16. */
     auto *frame = reinterpret_cast<uint64_t *>(
         aligned_top - CHIMERA_X86_64_CONTEXT_FRAME_SIZE);
     frame[0] = 0;
