@@ -15,7 +15,6 @@ extern "C" void koronos_x86_64_load_gdt_tss(
     const chimera_x86_64_gdtr *gdtr, uint16_t selector);
 
 static bool canonical(uint64_t address) {
-    const uint64_t upper = address >> 48;
     return (address >> 47) == 0 || (address >> 47) == 0x1FFFFu;
 }
 }
