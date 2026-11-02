@@ -24,6 +24,14 @@ on:
   pull_request:
     paths:
       - 'live-image/**'
+      - 'boot/**'
+      - 'install/**'
+      - 'installer/**'
+      - 'kernel/**'
+      - 'vendor/chimera-ii-os/source/boot/**'
+      - 'vendor/chimera-ii-os/source/kernel/**'
+      - 'vendor/chimera-ii-os/source/install/**'
+      - 'vendor/chimera-ii-os/source/installer/**'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
