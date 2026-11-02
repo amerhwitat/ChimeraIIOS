@@ -26,6 +26,12 @@ def parse():
         if rows: return rows,"xrandr"
     return [],"none"
 
+def ordered_modes(values):
+    unique=set(values)
+    preferred=[m for m in ("5120x2880","1024x768","640x480") if m in unique]
+    remaining=sorted(unique.difference(preferred),key=lambda x:(int(x.split("x")[0]),int(x.split("x")[1])),reverse=True)
+    return preferred+remaining
+
 def apply(output,mode):
     try:
         subprocess.check_call(["chimera-display","set",output,mode],timeout=20)
@@ -42,8 +48,8 @@ if not rows:
     ttk.Label(root,text="No display modes were detected.\nInstall/enable the graphics driver first.",justify="center").pack(pady=35)
     ttk.Button(root,text="Close / إغلاق",command=root.destroy).pack(); root.mainloop(); raise SystemExit
 outputs=sorted(dict.fromkeys(x[0] for x in rows))
-modes=sorted(dict.fromkeys(x[1] for x in rows),key=lambda x:(int(x.split("x")[0]),int(x.split("x")[1])))
-ov=tk.StringVar(value=outputs[0]); mv=tk.StringVar(value=modes[-1])
+modes=ordered_modes(x[1] for x in rows)
+ov=tk.StringVar(value=outputs[0]); mv=tk.StringVar(value=modes[0])
 frame=ttk.Frame(root,padding=20); frame.pack(fill="both",expand=True); frame.columnconfigure(1,weight=1)
 ttk.Label(frame,text="Output / الشاشة").grid(row=0,column=0,sticky="w",pady=8)
 ttk.Combobox(frame,textvariable=ov,values=outputs,state="readonly").grid(row=0,column=1,sticky="ew",pady=8)
