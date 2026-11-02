@@ -1,6 +1,6 @@
 #include "chimera/x86_64_trap_frame.h"
 #include <assert.h>
-#include <stdio.h>
+
 
 int main() {
     chimera_x86_64_trap_frame f{};
@@ -33,6 +33,5 @@ int main() {
     f.rflags &= ~CHIMERA_X86_64_RFLAGS_IF;
     assert(chimera_x86_64_trap_frame_is_user(&f) == 0);
     assert(chimera_x86_64_trap_frame_is_user(nullptr) == 0);
-    puts("x86_64 trap-frame ABI: normalized offsets and CPL3 return-frame validation passed");
     return 0;
 }
