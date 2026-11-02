@@ -13,6 +13,7 @@
 #include "chimera/physmap.h"
 #include "chimera/address_space.h"
 #include "chimera/x86_64_cpu.h"
+#include "chimera/framebuffer.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -124,6 +125,7 @@ static void console_write(const char *s) {
 
 static void console_raw(const char *s) {
     if (!s) return;
+    koronos_fb_console_write(s);
     vga_write(s);
     while (*s) serial_write8((uint8_t)*s++);
 }
@@ -403,6 +405,16 @@ extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     debugcon_write("[KRN ] koronos_boot entered");
     serial_init();
+    if (ctx && ctx->magic == KORONOS_BOOTINFO_MAGIC &&
+        ctx->version == KORONOS_ABI_VERSION) {
+        if (koronos_fb_console_init(ctx->boot_info) == 0) {
+            console_write("[FB  ] Multiboot2 RGB framebuffer console initialized");
+        } else {
+            console_write("[FB  ] No supported Multiboot2 RGB framebuffer; retaining VGA text console");
+        }
+    } else {
+        debugcon_write("[FB  ] Boot context unavailable; framebuffer console not initialized");
+    }
     const int cpu_state_status = chimera_x86_64_cpu_init(0);
     if (cpu_state_status == 0 && chimera_x86_64_cpu_is_ready(0)) {
         console_write("[CPU ] BSP GDT/TSS initialized; ring-3 entry remains disabled pending process contexts");
@@ -526,7 +538,9 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[PLT ] Native platform feature registry ready");
     debugcon_write("[KRN ] KORONOS READY");
     console_write("[KRN ] KORONOS READY");
-    console_write("[IO  ] Console: VGA text + COM1");
+    console_write(koronos_fb_console_ready()
+        ? "[IO  ] Console: Multiboot2 RGB framebuffer + VGA fallback + COM1"
+        : "[IO  ] Console: VGA text + COM1 (framebuffer unavailable)");
     koronos_submit_bootstrap_tasks();
     console_progress(90, "Bootstrap services registered");
     console_write("[RUN ] Starting cooperative scheduler runtime...");
