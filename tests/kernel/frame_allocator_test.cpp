@@ -1,3 +1,8 @@
+/* This regression test must keep assertions enabled in Release builds: its
+ * allocation loops intentionally rely on failed-allocation checks to terminate. */
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include "chimera/frame_allocator.h"
 #include "chimera/multiboot_modules.h"
 #include <assert.h>
