@@ -757,6 +757,261 @@
       ],
       "capability_status": "available-when-provider-installed",
       "native_abi_claim": false
+    },
+    {
+      "name": "V",
+      "compiler": [
+        "v"
+      ],
+      "interpreter": [
+        "v"
+      ],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "vlang"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Odin",
+      "compiler": [
+        "odin"
+      ],
+      "interpreter": [],
+      "execution_model": "native-and-cross",
+      "package_hints": [
+        "odin"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Carbon (experimental)",
+      "compiler": [
+        "carbon"
+      ],
+      "interpreter": [],
+      "execution_model": "experimental-native-and-cross",
+      "package_hints": [
+        "carbon-lang"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "MATLAB",
+      "compiler": [
+        "mex",
+        "matlab -batch"
+      ],
+      "interpreter": [
+        "matlab"
+      ],
+      "execution_model": "proprietary-runtime",
+      "package_hints": [
+        "MATLAB (external installer)"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false,
+      "distribution": "external-installation-only"
+    },
+    {
+      "name": "GNU Octave",
+      "compiler": [
+        "mkoctfile"
+      ],
+      "interpreter": [
+        "octave"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "octave"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Wolfram Language",
+      "compiler": [
+        "wolframscript"
+      ],
+      "interpreter": [
+        "wolframscript"
+      ],
+      "execution_model": "proprietary-runtime",
+      "package_hints": [
+        "Wolfram Engine (external installer)"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false,
+      "distribution": "external-installation-only"
+    },
+    {
+      "name": "SAS",
+      "compiler": [
+        "sas"
+      ],
+      "interpreter": [
+        "sas"
+      ],
+      "execution_model": "proprietary-runtime",
+      "package_hints": [
+        "SAS (external installer)"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false,
+      "distribution": "external-installation-only"
+    },
+    {
+      "name": "Raku",
+      "compiler": [
+        "rakudo"
+      ],
+      "interpreter": [
+        "raku"
+      ],
+      "execution_model": "interpreted-and-jit",
+      "package_hints": [
+        "rakudo"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Elm",
+      "compiler": [
+        "elm"
+      ],
+      "interpreter": [
+        "elm repl"
+      ],
+      "execution_model": "transpiled-to-javascript",
+      "package_hints": [
+        "elm-compiler"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Haxe",
+      "compiler": [
+        "haxe"
+      ],
+      "interpreter": [
+        "haxe --interp"
+      ],
+      "execution_model": "transpiled-and-bytecode",
+      "package_hints": [
+        "haxe"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Reason / ReScript",
+      "compiler": [
+        "rescript"
+      ],
+      "interpreter": [
+        "rescript"
+      ],
+      "execution_model": "transpiled-to-javascript",
+      "package_hints": [
+        "rescript"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Solidity",
+      "compiler": [
+        "solc"
+      ],
+      "interpreter": [],
+      "execution_model": "bytecode-and-vm",
+      "package_hints": [
+        "solc"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Vyper",
+      "compiler": [
+        "vyper"
+      ],
+      "interpreter": [],
+      "execution_model": "bytecode-and-vm",
+      "package_hints": [
+        "vyper"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Move",
+      "compiler": [
+        "move"
+      ],
+      "interpreter": [],
+      "execution_model": "bytecode-and-vm",
+      "package_hints": [
+        "move-cli"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "Verilog",
+      "compiler": [
+        "iverilog",
+        "verilator"
+      ],
+      "interpreter": [
+        "iverilog -o"
+      ],
+      "execution_model": "hardware-description",
+      "package_hints": [
+        "iverilog",
+        "verilator"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "SystemVerilog",
+      "compiler": [
+        "verilator",
+        "iverilog"
+      ],
+      "interpreter": [
+        "verilator --binary"
+      ],
+      "execution_model": "hardware-description",
+      "package_hints": [
+        "verilator",
+        "iverilog"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
+    },
+    {
+      "name": "VHDL",
+      "compiler": [
+        "ghdl",
+        "nvc"
+      ],
+      "interpreter": [
+        "ghdl -r"
+      ],
+      "execution_model": "hardware-description",
+      "package_hints": [
+        "ghdl",
+        "nvc"
+      ],
+      "capability_status": "available-when-provider-installed",
+      "native_abi_claim": false
     }
   ],
   "assemblers": [
@@ -909,6 +1164,57 @@
         "NCB"
       ],
       "license": "Chimera integration"
+    },
+    {
+      "name": "LLVM Microsoft assembler",
+      "commands": [
+        "llvm-ml"
+      ],
+      "targets": [
+        "x86",
+        "x86-64"
+      ],
+      "formats": [
+        "COFF",
+        "PE"
+      ],
+      "license": "Apache-2.0 WITH LLVM-exception"
+    },
+    {
+      "name": "ARM Compiler armasm",
+      "commands": [
+        "armasm"
+      ],
+      "targets": [
+        "ARM",
+        "Thumb",
+        "AArch64"
+      ],
+      "formats": [
+        "ELF",
+        "Object"
+      ],
+      "license": "proprietary-external",
+      "distribution": "external-installation-only"
+    },
+    {
+      "name": "IAR assembler",
+      "commands": [
+        "iasm"
+      ],
+      "targets": [
+        "ARM",
+        "AArch64",
+        "AVR",
+        "MSP430",
+        "RISC-V"
+      ],
+      "formats": [
+        "ELF",
+        "Object"
+      ],
+      "license": "proprietary-external",
+      "distribution": "external-installation-only"
     }
   ],
   "disassemblers": [
@@ -1032,6 +1338,38 @@
         "NCB"
       ],
       "license": "Chimera integration"
+    },
+    {
+      "name": "Microsoft dumpbin disassembler",
+      "commands": [
+        "dumpbin /DISASM"
+      ],
+      "targets": [
+        "x86",
+        "x86-64",
+        "ARM64"
+      ],
+      "formats": [
+        "COFF",
+        "PE"
+      ],
+      "license": "proprietary-external",
+      "distribution": "external-installation-only"
+    },
+    {
+      "name": "Apple Mach-O tools",
+      "commands": [
+        "otool -tvV"
+      ],
+      "targets": [
+        "x86-64",
+        "AArch64"
+      ],
+      "formats": [
+        "Mach-O"
+      ],
+      "license": "Apple platform tools",
+      "distribution": "external-installation-only"
     }
   ],
   "linkers": [
@@ -1218,7 +1556,8 @@
           "perl",
           "lua5.4",
           "r-base",
-          "tcl"
+          "tcl",
+          "octave"
         ],
         "dnf": [
           "python3",
@@ -1231,7 +1570,8 @@
           "perl",
           "lua",
           "R",
-          "tcl"
+          "tcl",
+          "octave"
         ],
         "pacman": [
           "python",
@@ -1244,7 +1584,8 @@
           "perl",
           "lua",
           "r",
-          "tcl"
+          "tcl",
+          "octave"
         ]
       }
     },
@@ -1343,6 +1684,75 @@
           "binaryen"
         ]
       }
+    },
+    "hardware-description": {
+      "description": "Open-source Verilog, SystemVerilog and VHDL simulators/synthesis tools",
+      "packages": {
+        "apt": [
+          "iverilog",
+          "verilator",
+          "yosys",
+          "ghdl"
+        ],
+        "dnf": [
+          "iverilog",
+          "verilator",
+          "yosys",
+          "ghdl"
+        ],
+        "pacman": [
+          "iverilog",
+          "verilator",
+          "yosys",
+          "ghdl"
+        ]
+      }
+    }
+  },
+  "operating_systems": {
+    "ChimeraIIOS": {
+      "catalog_path": "toolchains/language-toolchain-catalog.json",
+      "profile_installer": "tools/toolchain/install-language-profile.py",
+      "aurora_profile_registry": "config/aurora/toolchain-install-profiles.json",
+      "shared_capability_contract": "CHM-LANGUAGE-TOOLCHAIN-1",
+      "native_driver_scope": [
+        "C",
+        "C++",
+        "Assembly"
+      ],
+      "optional_provider_profiles": [
+        "native-core",
+        "systems",
+        "managed",
+        "scripting",
+        "functional-scientific",
+        "assembly-analysis",
+        "webassembly",
+        "hardware-description"
+      ],
+      "status": "shared-registry-and-profile-integration; runtime availability requires verified providers"
+    },
+    "OctavianOS": {
+      "catalog_path": "vendor/chimera-ii-os/source/toolchains/language-toolchain-catalog.json",
+      "profile_installer": "vendor/chimera-ii-os/source/tools/toolchain/install-language-profile.py",
+      "aurora_profile_registry": "vendor/chimera-ii-os/source/config/aurora/toolchain-install-profiles.json",
+      "shared_capability_contract": "CHM-LANGUAGE-TOOLCHAIN-1",
+      "native_driver_scope": [
+        "C",
+        "C++",
+        "Assembly"
+      ],
+      "optional_provider_profiles": [
+        "native-core",
+        "systems",
+        "managed",
+        "scripting",
+        "functional-scientific",
+        "assembly-analysis",
+        "webassembly",
+        "hardware-description"
+      ],
+      "status": "vendored-shared-registry-and-profile-integration; runtime availability requires verified providers"
     }
   }
 }
