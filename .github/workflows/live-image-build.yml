@@ -212,7 +212,7 @@ jobs:
     name: Boot the live ISO in QEMU and inspect the graphical console
     needs: [build]
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Download the exact ISO built by this workflow
         uses: actions/download-artifact@v4
@@ -226,11 +226,15 @@ jobs:
       - name: Boot ISO and require visible Aurora desktop evidence
         run: |
           chmod +x tests/live-image/test-qemu-live-boot.sh
-          tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence"
+          mkdir -p "${{ runner.temp }}/qemu-live" "${{ runner.temp }}/qemu-recovery"
+          tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-live" live
+          tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-recovery" recovery
       - name: Upload QEMU boot evidence
         uses: actions/upload-artifact@v4
         with:
           name: chimera-qemu-live-boot-evidence
-          path: ${{ runner.temp }}/qemu-evidence
+          path: |
+            ${{ runner.temp }}/qemu-live
+            ${{ runner.temp }}/qemu-recovery
           if-no-files-found: error
           retention-days: 30
