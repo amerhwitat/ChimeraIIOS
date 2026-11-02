@@ -24,13 +24,13 @@ grep -Eq '^global[[:space:]]+start([[:space:]]|$)' "$ROOT/boot/spitfire/sf1_long
 grep -Eq '^ENTRY\(start\)' "$ROOT/boot/spitfire/spitfire.ld"
 grep -Eq 'ignore-garbage|tr[[:space:]]+-d.*base64|base64\.b64decode' "$ROOT/tools/branding/stage-aurora-image.sh"
 grep -Eq 'PNG|png|aurora-default\.png' "$ROOT/tools/branding/stage-aurora-image.sh"
-# GRUB must remain interactive and must never auto-select Installer.
+# GRUB must remain interactive and keep a non-destructive Live default.
 for cfg in boot/iso/grub.cfg boot/jasper/jasper.cfg; do
-  grep -Fqx 'set timeout=30' "$ROOT/$cfg"
-  grep -Fqx 'set default=0' "$ROOT/$cfg"
+  grep -Eq '^set timeout=30$' "$ROOT/$cfg"
+  grep -Eq '^set default=0$' "$ROOT/$cfg"
 done
 for cfg in boot/jasper/install.cfg boot/installation/menu.cfg; do
-  grep -Fqx 'set timeout=30' "$ROOT/$cfg"
-  grep -Fqx 'set default=2' "$ROOT/$cfg"
+  grep -Eq '^set timeout=30$' "$ROOT/$cfg"
+  grep -Eq '^set default=2$' "$ROOT/$cfg"
 done
 echo "boot artifact regressions: OK"
