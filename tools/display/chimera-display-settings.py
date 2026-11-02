@@ -29,7 +29,7 @@ def parse():
 def ordered_modes(values):
     unique=set(values)
     preferred=[m for m in ("5120x2880","1024x768","640x480") if m in unique]
-    remaining=sorted(unique-preferred,key=lambda x:(int(x.split("x")[0]),int(x.split("x")[1])),reverse=True)
+    remaining=sorted(unique.difference(preferred),key=lambda x:(int(x.split("x")[0]),int(x.split("x")[1])),reverse=True)
     return preferred+remaining
 
 def apply(output,mode):
