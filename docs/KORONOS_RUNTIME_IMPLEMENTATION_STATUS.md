@@ -139,5 +139,7 @@ The uploaded chimera-target-userspace-traces artifact (artifact 13106904729, SHA
 - Recovery trace: recovery initramfs and manifest modules are registered; kernel withholds USERSPACE READY; recovery task prints that the repair shell has not been entered.
 - All three traces lack USER INIT SYSCALL target/PID and USERSPACE READY target/PID records. None contains a production chimera-user-init-elf module. The three test ISO GRUB configs only pass their respective initramfs/metadata modules.
 
+The Live and Recovery initramfs images do contain shell /init scripts, but those scripts are not executed by the current kernel path; their embedded USERSPACE READY shell output is therefore not present in the QEMU traces and cannot be counted as a native CPL3 init acknowledgement.
+
 Thus the target verifier correctly leaves accepted=false and publication is skipped. The job step is green because it records the false gate and allows candidate artifacts to be uploaded for engineering review; it is not a passing target acceptance result. Full ISO candidate artifact 13107437782 (ZIP containing compressed ISO and checksums) is available from workflow run 41367322786, but it must not be described as a production release.
 
