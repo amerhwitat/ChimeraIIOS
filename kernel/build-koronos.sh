@@ -85,5 +85,5 @@ for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" "$BUILD/nbit-note-$bits.o" -o "$BUILD/nbit/koronos-nbit-$bits.elf"
 done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
-printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
+printf 'Koronos + native Kore + OOP object model + BSP scheduler callback runner (no SMP execution) + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
