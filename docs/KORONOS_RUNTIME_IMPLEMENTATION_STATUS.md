@@ -285,3 +285,8 @@ The latest Full ISO workflow run 41376751779 remains pending at this ledger upda
 - Keep PRs #217/#218 and Octavian PR #142 as drafts. Do not merge or publish based solely on host tests, QEMU kernel readiness, candidate probes, or ISO artifact creation.
 - The production dependency order remains: process-owned guarded kernel stacks and saved trap contexts; architecture context switch with CR3 ownership; timer/preemption and real blocking/wait/exit/reap; AP startup and per-CPU workers; IPI TLB shootdowns/deferred reclamation; process-bound VFS/initramfs/syscalls and production init/service supervision; framebuffer and readiness-gated modesetting; then six production BIOS/UEFI cases on one immutable ISO SHA.
 - Native-init exit 78 and all fail-closed gates remain unchanged.
+
+
+## 14. Latest CI queue and scheduler-claim cleanup — 2026-11-02
+
+The final Koronos build banner was corrected to identify the BSP scheduler callback runner and explicitly state that no SMP execution is present (commit `a5be7d9419b1e8208015347879265d19ba9e96a0`). New Full ISO validation run 41378389423 is pending. CI/CD run 41378389406 has its Linux build/tests, code generation and infrastructure validation completed successfully; Windows CI is still in progress. This is a diagnostic accuracy change only. It does not implement AP startup, independent per-CPU scheduler workers or overlapping task execution.
