@@ -44,6 +44,9 @@ int main(){
     chimera_process_image snapshot{};
     assert(chimera_process_get((uint32_t)pid,&snapshot)==0);
     assert(snapshot.state==CHIMERA_PROCESS_ADMITTED); // mapped is not runnable
+    assert(chimera_process_set_state((uint32_t)pid,CHIMERA_PROCESS_READY)==-3);
+    assert(chimera_process_get_runtime((uint32_t)pid,&runtime)==0);
+    assert(runtime.execution_context_ready==0&&runtime.saved_kernel_rsp==0);
     assert(chimera_process_release((uint32_t)pid)==0&&mock.destroyed);
     assert(chimera_process_count()==0);
     puts("process runtime: process-owned address-space load, explicit not-runnable boundary, and teardown passed");
