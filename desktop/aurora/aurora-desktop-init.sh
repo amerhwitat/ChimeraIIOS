@@ -41,13 +41,21 @@ if command -v wireplumber >/dev/null 2>&1 && ! pgrep -u "$(id -u)" -x wireplumbe
   wireplumber >/tmp/aurora-wireplumber.log 2>&1 &
 fi
 
-# Optional initialization video. It is launched only after Wayland is ready and
-# never blocks the desktop if video playback is unavailable.
+# Optional initialization video. Launch it after the graphical session is
+# available; MPV plays the embedded MP4 fullscreen without blocking the desktop.
 if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then
   CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
-  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4" \
-    CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
-    bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+  if [[ ! -s "$CHIMERA_INIT_VIDEO" ]]; then
+    CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4"
+  fi
+  if [[ -s "$CHIMERA_INIT_VIDEO" ]]; then
+    CHIMERA_INIT_VIDEO="$CHIMERA_INIT_VIDEO" \
+      CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
+      bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+    log "initialization video launched: $CHIMERA_INIT_VIDEO"
+  else
+    log "initialization video unavailable; continuing without splash"
+  fi
 fi
 
 if command -v swaybg >/dev/null 2>&1; then
