@@ -16,6 +16,15 @@ extern "C" {
 #define CHIMERA_X86_64_USER_DATA_SELECTOR 0x23u
 #define CHIMERA_X86_64_TSS_SELECTOR 0x28u
 
+/* Architecture switch record. rsp points at the callee-saved register frame
+ * consumed by cpu_state.asm; cr3 is the physical PML4 root for this context. */
+typedef struct chimera_x86_64_context {
+    uint64_t rsp;
+    uint64_t cr3;
+} chimera_x86_64_context;
+
+#define CHIMERA_X86_64_CONTEXT_FRAME_SIZE 64u
+
 typedef struct __attribute__((packed)) chimera_x86_64_tss {
     uint32_t reserved0;
     uint64_t rsp0, rsp1, rsp2;
@@ -47,6 +56,17 @@ int chimera_x86_64_cpu_init(uint32_t cpu_id);
 int chimera_x86_64_cpu_set_kernel_stack(uint32_t cpu_id, uint64_t stack_top);
 int chimera_x86_64_cpu_is_ready(uint32_t cpu_id);
 uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id);
+
+/* Prepare an initial kernel entry frame inside caller-supplied mapped memory.
+ * The caller remains responsible for allocating a process-owned stack and
+ * leaving an unmapped guard page adjacent to it. No CPL3 readiness is implied. */
+int koronos_x86_64_context_prepare(chimera_x86_64_context *context,
+                                   uint64_t stack_base, uint64_t stack_size,
+                                   uint64_t cr3, void (*entry)(void *), void *argument);
+/* Save the current callee-saved context and CR3, then restore the next one.
+ * This low-level primitive is not wired into the callback scheduler yet. */
+int koronos_x86_64_context_switch(chimera_x86_64_context *from,
+                                  const chimera_x86_64_context *to);
 
 #ifdef __cplusplus
 }
