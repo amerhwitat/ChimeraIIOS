@@ -397,32 +397,52 @@ static void koronos_submit_bootstrap_tasks() {
 }
     }
 
-alignas(16) static uint8_t context_test_stack[16384];
 static chimera_x86_64_context context_test_main{};
 static chimera_x86_64_context context_test_child{};
 static volatile uint32_t context_test_result = 0;
 
 static void context_test_entry(void *) {
-    context_test_result = 1;
+    const bool child_stack_active =
+        chimera_x86_64_cpu_kernel_stack(0) == context_test_child.kernel_stack_top;
+    const bool child_pid_active =
+        chimera_x86_64_cpu_current_pid(0) == context_test_child.pid;
+    context_test_result = child_stack_active && child_pid_active ? 1u : 2u;
     if (koronos_x86_64_context_switch(&context_test_child, &context_test_main) != 0)
-        context_test_result = 2;
+        context_test_result = 3u;
     for (;;) __asm__ volatile("cli; hlt" ::: "memory");
 }
 
 static int context_switch_self_test() {
     const uint64_t root = koronos_address_space_current_root();
     if (!root) return -1;
+    koronos_kernel_stack stack{};
+    if (koronos_kernel_stack_allocate(&stack) != 0) return -2;
+
     context_test_main = {};
     context_test_child = {};
+    context_test_main.kernel_stack_top = chimera_x86_64_cpu_kernel_stack(0);
+    context_test_main.pid = chimera_x86_64_cpu_current_pid(0);
     context_test_result = 0;
-    if (koronos_x86_64_context_prepare(
-            &context_test_child,
-            reinterpret_cast<uint64_t>(context_test_stack),
-            sizeof(context_test_stack), root, context_test_entry, nullptr) != 0)
-        return -2;
-    if (koronos_x86_64_context_switch(&context_test_main, &context_test_child) != 0)
+    if (!context_test_main.kernel_stack_top ||
+        koronos_x86_64_context_prepare(
+            &context_test_child, stack.base, stack.top - stack.base,
+            root, context_test_entry, nullptr) != 0) {
+        (void)koronos_kernel_stack_release(&stack);
         return -3;
-    return context_test_result == 1 ? 0 : -4;
+    }
+    context_test_child.kernel_stack_top = stack.top;
+    context_test_child.pid = 0x7FFF0001u;
+
+    if (koronos_x86_64_context_switch(&context_test_main, &context_test_child) != 0) {
+        (void)koronos_kernel_stack_release(&stack);
+        return -4;
+    }
+    const bool restored = chimera_x86_64_cpu_kernel_stack(0) ==
+            context_test_main.kernel_stack_top &&
+        chimera_x86_64_cpu_current_pid(0) == context_test_main.pid;
+    const bool child_ran = context_test_result == 1u;
+    const int release = koronos_kernel_stack_release(&stack);
+    return restored && child_ran && release == 0 ? 0 : -5;
 }
 
 extern "C" void chimera_register_virtio_drivers(void);
