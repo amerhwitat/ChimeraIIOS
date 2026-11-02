@@ -303,6 +303,14 @@ extern "C" int chimera_process_prepare_initial_context(uint32_t pid) {
 #endif
 }
 
+extern "C" int chimera_process_get_initial_trap_frame(uint32_t pid, uint64_t *out_rsp) {
+    if (!out_rsp) return -1;
+    Slot *slot = find_slot(pid);
+    if (!slot || !slot->initial_trap_frame_rsp) return -2;
+    *out_rsp = slot->initial_trap_frame_rsp;
+    return 0;
+}
+
 extern "C" int chimera_process_get_runtime(uint32_t pid,
                                             chimera_process_runtime *out) {
     if (!out) return -1;
