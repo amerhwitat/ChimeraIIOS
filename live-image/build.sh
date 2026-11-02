@@ -69,24 +69,26 @@ if [ ! -x "$BASE/bin/bash" ] || [ "${REBUILD_BASE:-0}" = "1" ]; then
 fi
 
 mount_chroot() {
-  mkdir -p "$WORK/proc" "$WORK/sys" "$WORK/dev/pts"
-  mountpoint -q "$WORK/proc"    || mount -t proc proc "$WORK/proc"
-  mountpoint -q "$WORK/sys"     || mount -t sysfs sys "$WORK/sys"
-  mountpoint -q "$WORK/dev"     || mount --bind /dev "$WORK/dev"
-  mountpoint -q "$WORK/dev/pts" || mount --bind /dev/pts "$WORK/dev/pts"
-  cp -f /etc/resolv.conf "$WORK/etc/resolv.conf"
+  local T="${1:-$WORK}"
+  mkdir -p "$T/proc" "$T/sys" "$T/dev/pts"
+  mountpoint -q "$T/proc"    || mount -t proc proc "$T/proc"
+  mountpoint -q "$T/sys"     || mount -t sysfs sys "$T/sys"
+  mountpoint -q "$T/dev"     || mount --bind /dev "$T/dev"
+  mountpoint -q "$T/dev/pts" || mount --bind /dev/pts "$T/dev/pts"
+  cp -f /etc/resolv.conf "$T/etc/resolv.conf"
 }
 umount_chroot() {
+  local T="${1:-$WORK}"
   for d in dev/pts dev sys proc; do
-    mountpoint -q "$WORK/$d" && umount -l "$WORK/$d" || true
+    mountpoint -q "$T/$d" && umount -l "$T/$d" || true
   done
 }
-trap umount_chroot EXIT
+trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
 if [ ! -f "$BASE/.packages-installed" ]; then
   log "installing shared package set (one-off)"
-  mount_chroot
+  mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
     export DEBIAN_FRONTEND=noninteractive
@@ -107,7 +109,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
-  umount_chroot
+  umount_chroot "$BASE"
   touch "$BASE/.packages-installed"
 fi
 
@@ -134,7 +136,8 @@ for item in manifest:
     dst = os.path.join(pay, "wallpapers", item["file"])
     subprocess.run(["convert", os.path.join(src, item["file"]),
                     "-resize", "2560x2560>", "-strip", "-quality", "88", dst], check=True)
-    out.append({"name": item["name"], "file": item["file"], "source": item.get("source", "")})
+    out.append({"name": item["name"], "file": item["file"], "url": item["file"],
+                "source": item.get("source", "")})
 json.dump(out, open(os.path.join(pay, "wallpapers", "index.json"), "w"), indent=1)
 print("wallpapers:", len(out))
 PY
@@ -255,7 +258,9 @@ mkdir -p "$WORK/usr/share/backgrounds/$SHORT"
 cp -a "$PAY/wallpapers/." "$WORK/usr/share/backgrounds/$SHORT/"
 
 printf 'MODULES=most\nCOMPRESS=gzip\n' > "$WORK/etc/initramfs-tools/conf.d/live.conf"
+mount_chroot "$WORK"
 chroot "$WORK" /bin/bash -c "update-initramfs -u -k all" >/dev/null
+umount_chroot "$WORK"
 
 # ------------------------------------------------------------- shrink
 log "trimming"
@@ -293,19 +298,19 @@ terminal_output gfxterm
 if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
 
 menuentry "$TITLE $VERSION — Live desktop" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live quiet loglevel=3
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Classic X session (openbox)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic quiet loglevel=3
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Safe graphics (nomodeset)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live nomodeset quiet loglevel=3
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live nomodeset console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Verbose boot" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8
   initrd /live/initrd.img
 }
 menuentry "Reboot" { reboot }

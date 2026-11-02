@@ -125,3 +125,6 @@ docker-build.log
 
 # ChimeraIIOS emulator inventories (local-only)
 emulation/catalog/*.local.json
+
+# live-image build helpers must be tracked (repo-wide lib/ rule above)
+!live-image/lib/
