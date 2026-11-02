@@ -63,8 +63,13 @@ extern "C" int chimera_x86_64_cpu_set_kernel_stack(
         return -1;
     if (!stack_top || (stack_top & 0xFu) != 0 || !canonical(stack_top))
         return -2;
-    /* Caller must invoke this on the owning CPU with interrupts disabled.
-     * Scheduler/process integration will provide owned stacks before CPL3. */
+    /* Do not permit a TSS privilege-stack mutation while maskable interrupts
+     * are enabled: an interrupt could observe a partially transitioned task
+     * stack. The caller must still identify and target the owning CPU; APIC
+     * current-CPU binding is not implemented by this layer. */
+    uint64_t rflags = 0;
+    __asm__ volatile("pushfq; popq %0" : "=r"(rflags) :: "memory");
+    if (rflags & (1ull << 9)) return -3;
     cpus[cpu_id].tss.rsp0 = stack_top;
     __asm__ volatile("" ::: "memory");
     return 0;
