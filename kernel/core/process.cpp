@@ -1,4 +1,8 @@
 #include "../include/chimera/process.h"
+#if defined(KORONOS_FREESTANDING)
+#include "chimera/address_space.h"
+#include "chimera/process_stack.h"
+#endif
 
 namespace {
 constexpr uint32_t MAX_SEGMENTS = 16;
@@ -13,8 +17,14 @@ constexpr uint32_t PT_LOAD = 1, PF_W = 2, PF_X = 1;
 
 struct Slot {
     chimera_process_image image{};
+    chimera_loaded_elf loaded{};
+    chimera_elf_load_ops load_ops{};
+    void *load_context = nullptr;
     koronos_kernel_stack kernel_stack{};
+    uint64_t saved_kernel_rsp = 0;
     bool has_kernel_stack = false;
+    bool loaded_ok = false;
+    bool execution_context_ready = false;
     bool used = false;
 };
 
@@ -52,6 +62,24 @@ static uint32_t allocate_pid() {
         if (candidate && !pid_in_use(candidate)) return candidate;
     }
     return 0;
+}
+static Slot *find_slot(uint32_t pid) {
+    if (!pid) return nullptr;
+    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i)
+        if (slots[i].used && slots[i].image.pid == pid) return &slots[i];
+    return nullptr;
+}
+static void destroy_loaded(Slot *slot) {
+    if (!slot || !slot->loaded_ok) return;
+    if (slot->load_ops.destroy_address_space)
+        slot->load_ops.destroy_address_space(slot->load_context,
+                                             slot->loaded.address_space);
+    slot->loaded = {};
+    slot->load_ops = {};
+    slot->load_context = nullptr;
+    slot->loaded_ok = false;
+    slot->saved_kernel_rsp = 0;
+    slot->execution_context_ready = false;
 }
 }
 
@@ -149,6 +177,77 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
     return -10;
 }
 
+extern "C" int chimera_process_load_elf(uint32_t pid, const void *image,
+                                         uint64_t image_size, uint16_t machine,
+                                         uint64_t stack_top, uint64_t stack_size,
+                                         const chimera_elf_load_ops *ops,
+                                         void *context) {
+    Slot *slot = find_slot(pid);
+    if (!slot || !image || !ops || slot->loaded_ok ||
+        slot->image.state != CHIMERA_PROCESS_ADMITTED) return -1;
+    chimera_loaded_elf loaded{};
+    const int rc = chimera_elf_load_user_image(image, image_size, machine,
+                                               stack_top, stack_size, ops,
+                                               context, &loaded);
+    if (rc != 0) return rc;
+    slot->loaded = loaded;
+    slot->load_ops = *ops;
+    slot->load_context = context;
+    slot->loaded_ok = true;
+#if defined(KORONOS_FREESTANDING)
+    if (chimera_process_create_kernel_stack(pid) != 0) {
+        destroy_loaded(slot);
+        return -20;
+    }
+#endif
+    /* A mapped ELF remains ADMITTED until a validated user trap frame and
+       IRETQ entry/return path are connected. */
+    return 0;
+}
+
+extern "C" int chimera_process_get_runtime(uint32_t pid,
+                                            chimera_process_runtime *out) {
+    if (!out) return -1;
+    Slot *slot = find_slot(pid);
+    if (!slot) return -2;
+    chimera_process_runtime result{};
+    result.abi = CHIMERA_PROCESS_RUNTIME_ABI;
+    result.loaded = slot->loaded_ok ? 1u : 0u;
+    result.execution_context_ready = slot->execution_context_ready ? 1u : 0u;
+    if (slot->loaded_ok) {
+        result.address_space = slot->loaded.address_space;
+        result.entry = slot->loaded.entry;
+        result.user_stack_top = slot->loaded.user_stack_top;
+#if defined(KORONOS_FREESTANDING)
+        result.address_space_root =
+            koronos_address_space_root(slot->loaded.address_space);
+        if (slot->has_kernel_stack) {
+            result.kernel_stack_base = slot->kernel_stack.base;
+            result.kernel_stack_top = slot->kernel_stack.top;
+        }
+#endif
+        result.saved_kernel_rsp = slot->saved_kernel_rsp;
+    }
+    *out = result;
+    return 0;
+}
+
+extern "C" int chimera_process_release(uint32_t pid) {
+    Slot *slot = find_slot(pid);
+    if (!slot) return -1;
+    if (slot->image.state != CHIMERA_PROCESS_ADMITTED &&
+        slot->image.state != CHIMERA_PROCESS_EXITED &&
+        slot->image.state != CHIMERA_PROCESS_FAULTED) return -2;
+#if defined(KORONOS_FREESTANDING)
+    if (slot->has_kernel_stack && chimera_process_release_kernel_stack(pid) != 0)
+        return -3; // Keep the process record and address space if stack release fails.
+#endif
+    destroy_loaded(slot);
+    *slot = {};
+    if (count) --count;
+    return 0;
+}
+
 extern "C" int chimera_process_get(uint32_t pid, chimera_process_image *out) {
     if (!out || !pid) return -1;
     for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
@@ -164,13 +263,18 @@ extern "C" int chimera_process_set_state(uint32_t pid,
                                           chimera_process_state state) {
     if (!pid || state < CHIMERA_PROCESS_ADMITTED ||
         state > CHIMERA_PROCESS_FAULTED) return -1;
-    for (uint32_t i = 0; i < CHIMERA_PROCESS_MAX; ++i) {
-        if (slots[i].used && slots[i].image.pid == pid) {
-            slots[i].image.state = state;
-            return 0;
-        }
-    }
-    return -2;
+    Slot *slot = find_slot(pid);
+    if (!slot) return -2;
+    /* A loaded image is not runnable until a complete saved user context is
+       validated. Terminal transitions from active states require a scheduler
+       detach/reap path, which is not yet implemented. */
+    if ((state == CHIMERA_PROCESS_READY || state == CHIMERA_PROCESS_RUNNING ||
+         state == CHIMERA_PROCESS_BLOCKED) &&
+        (!slot->loaded_ok || !slot->execution_context_ready)) return -3;
+    if ((state == CHIMERA_PROCESS_EXITED || state == CHIMERA_PROCESS_FAULTED) &&
+        slot->image.state != CHIMERA_PROCESS_ADMITTED) return -4;
+    slot->image.state = state;
+    return 0;
 }
 
 extern "C" int chimera_process_attach_kernel_stack(
