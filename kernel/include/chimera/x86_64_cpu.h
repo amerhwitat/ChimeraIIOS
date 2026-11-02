@@ -16,7 +16,14 @@ extern "C" {
 #define CHIMERA_X86_64_USER_DATA_SELECTOR 0x23u
 #define CHIMERA_X86_64_TSS_SELECTOR 0x28u
 
-typedef struct __attribute__((packed)) chimera_x86_64_tss {
+#if defined(_MSC_VER)
+#pragma pack(push, 1)
+#define CHIMERA_X86_64_PACKED
+#else
+#define CHIMERA_X86_64_PACKED __attribute__((packed))
+#endif
+
+typedef struct CHIMERA_X86_64_PACKED chimera_x86_64_tss {
     uint32_t reserved0;
     uint64_t rsp0, rsp1, rsp2;
     uint64_t reserved1;
@@ -26,10 +33,15 @@ typedef struct __attribute__((packed)) chimera_x86_64_tss {
     uint16_t io_map_base;
 } chimera_x86_64_tss;
 
-typedef struct __attribute__((packed)) chimera_x86_64_gdtr {
+typedef struct CHIMERA_X86_64_PACKED chimera_x86_64_gdtr {
     uint16_t limit;
     uint64_t base;
 } chimera_x86_64_gdtr;
+
+#if defined(_MSC_VER)
+#pragma pack(pop)
+#endif
+#undef CHIMERA_X86_64_PACKED
 
 /* Pure policy helper shared with host-side TSS guard tests. */
 #define CHIMERA_X86_64_RFLAGS_IF (1ull << 9)
