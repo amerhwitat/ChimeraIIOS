@@ -16,6 +16,7 @@ EFI_DIR=${4:-"$ROOT/boot/efi"}
 [[ -b "$BOOT_DEVICE" ]] || fail "boot device must be an existing block device"
 command -v grub-install >/dev/null || fail "grub-install is not installed"
 command -v blkid >/dev/null || fail "blkid is required"
+command -v grub-script-check >/dev/null || fail "grub-script-check is required"
 
 ROOT_SOURCE=$(findmnt -n -o SOURCE --target "$ROOT" 2>/dev/null || true)
 [[ -n "$ROOT_SOURCE" ]] || fail "cannot identify the filesystem containing target root"
@@ -67,6 +68,8 @@ menuentry "Chimera II OS — Recovery" --id chimera-recovery {
 menuentry "Reboot" { reboot }
 menuentry "Power off" { halt }
 CFG
+
+grub-script-check "$ROOT/boot/grub/grub.cfg" || fail "generated GRUB configuration failed syntax validation"
 
 case "$FIRMWARE" in
   bios)
