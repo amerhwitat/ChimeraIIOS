@@ -96,6 +96,8 @@ class UnifiedBootTargetTests(unittest.TestCase):
                             for item in manifest["assets"]))
         self.assertIn("desktop/marine/assets", BUILDER)
         self.assertIn("/usr/share/chimera/marine/assets", BUILDER)
+        self.assertIn("Marine Desktop — Deep Current", BUILDER)
+        self.assertIn("marine-desktop.svg", BUILDER)
 
     def test_init_mp4_is_played_after_window_manager_before_kiosk(self):
         self.assertIn("mpv", BUILDER)
