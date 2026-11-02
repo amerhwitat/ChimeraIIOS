@@ -21,6 +21,10 @@ int koronos_address_space_restore(uint64_t root_physical);
 uint64_t koronos_address_space_current_root(void);
 int koronos_address_space_validate_user_range(uint64_t root_physical, uint64_t address,
                                               uint64_t length, uint32_t write_access);
+/* Requires every page to be user-accessible and executable (NX clear at every paging level). */
+int koronos_address_space_validate_user_executable_range(uint64_t root_physical,
+                                                          uint64_t address,
+                                                          uint64_t length);
 /* Confirms a range is present, supervisor-only at the leaf, and optionally writable. */
 int koronos_address_space_validate_kernel_range(uint64_t root_physical, uint64_t address,
                                                 uint64_t length, uint32_t write_access);
