@@ -21,7 +21,8 @@ koronos_x86_64_load_gdt_tss:
 
 ; int koronos_x86_64_context_switch(context *from, const context *to)
 ; context ABI: +0 saved RSP, +8 CR3 root.  Save/restore SysV callee-saved
-; registers and switch CR3 before installing the target stack.
+; registers within one address space. Distinct CR3 roots are rejected until the
+; kernel mapping is shared across roots and TLB shootdowns are implemented.
 global koronos_x86_64_context_switch
 koronos_x86_64_context_switch:
     test rdi, rdi
@@ -39,6 +40,9 @@ koronos_x86_64_context_switch:
     jz .context_invalid
     test rcx, 0xFFF
     jnz .context_invalid
+    mov rdx, cr3
+    cmp rcx, rdx
+    jne .context_space_mismatch
 
     pushfq
     cli
@@ -49,15 +53,9 @@ koronos_x86_64_context_switch:
     push r14
     push r15
 
-    mov rax, cr3
-    mov [rdi + 8], rax
+    mov [rdi + 8], rdx
     mov [rdi], rsp
-
-    cmp rax, rcx
-    je .context_same_root
-    mov cr3, rcx
-.context_same_root:
-    mov rsp, [rsi]
+    mov rsp, rax
     pop r15
     pop r14
     pop r13
@@ -70,6 +68,9 @@ koronos_x86_64_context_switch:
 
 .context_same:
     xor eax, eax
+    ret
+.context_space_mismatch:
+    mov eax, -2
     ret
 .context_invalid:
     mov eax, -1
