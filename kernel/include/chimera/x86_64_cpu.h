@@ -81,10 +81,10 @@ uint32_t chimera_x86_64_cpu_current_pid(uint32_t cpu_id);
 int koronos_x86_64_context_prepare(chimera_x86_64_context *context,
                                    uint64_t stack_base, uint64_t stack_size,
                                    uint64_t cr3, void (*entry)(void *), void *argument);
-/* Save/restore a BSP context, including CR3, TSS.RSP0 and current PID. Cross-
- * address-space switches require a known address-space root and a mapped
- * shared supervisor stack. Refuses cross-CR3 switching if any AP is online;
- * SMP TLB shootdowns are not implemented. Not yet wired into the scheduler. */
+/* Save/restore a BSP context, including CR3, TSS.RSP0 and current PID. The
+ * wrapper validates a shared supervisor stack and permits local cross-CR3
+ * switching only while no AP is online. AP-backed TLB shootdowns and deferred
+ * reclamation remain unimplemented; this does not enable CPL3 entry. */
 int koronos_x86_64_context_switch(chimera_x86_64_context *from,
                                   const chimera_x86_64_context *to);
 
