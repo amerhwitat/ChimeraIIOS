@@ -80,6 +80,7 @@ add_test(NAME chimera_scheduler_runtime COMMAND chimera_scheduler_runtime_test)
 add_executable(chimera_elf64_admission_test
   elf64_admission_test.cpp
   ../../kernel/core/elf64.cpp
+  ../../kernel/core/process_loader.cpp
   ../../kernel/core/process.cpp
 )
 target_include_directories(chimera_elf64_admission_test PRIVATE
