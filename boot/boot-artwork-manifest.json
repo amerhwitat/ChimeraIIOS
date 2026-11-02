@@ -13,7 +13,8 @@
     "desktop/aurora/assets/aurora-wayland-glass.svg",
     "desktop/aurora/assets/aurora-installer.svg",
     "desktop/aurora/assets/aurora-library.svg",
-    "desktop/aurora/assets/aurora-desktop.svg"
+    "desktop/aurora/assets/aurora-desktop.svg",
+    "desktop/marine/assets/marine-desktop.svg"
   ],
   "runtime_targets": {
     "grub": "/boot/grub/aurora-wayland-glass.jpg",
@@ -34,9 +35,10 @@
     "spitfire_init_video": "/boot/spitfire/Init.mp4",
     "jasper_init_video": "/boot/jasper/Init.mp4",
     "grub_init_video": "/boot/grub/Init.mp4",
-    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4"
+    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4",
+    "marine_desktop": "/usr/share/chimera/marine/assets/marine-desktop.svg"
   },
-  "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
+  "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction. Marine's original SVG is embedded for the Marine desktop profile; the Aurora JPEG remains the current GRUB firmware-stage fallback.",
   "fallback": "desktop/aurora/assets/aurora-desktop.svg",
   "splash_video": {
     "source": "desktop/aurora/assets/Init.mp4",
