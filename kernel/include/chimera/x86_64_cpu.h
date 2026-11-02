@@ -31,6 +31,12 @@ typedef struct __attribute__((packed)) chimera_x86_64_gdtr {
     uint64_t base;
 } chimera_x86_64_gdtr;
 
+/* Pure policy helper shared with host-side TSS guard tests. */
+#define CHIMERA_X86_64_RFLAGS_IF (1ull << 9)
+static inline int chimera_x86_64_tss_update_allowed(uint64_t rflags) {
+    return (rflags & CHIMERA_X86_64_RFLAGS_IF) == 0;
+}
+
 /* Pure helper shared with host-side descriptor-layout tests. */
 static inline void chimera_x86_64_encode_tss_descriptor(
     uint64_t base, uint32_t limit, uint64_t *low, uint64_t *high) {
