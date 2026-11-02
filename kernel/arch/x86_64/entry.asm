@@ -14,6 +14,15 @@ mb2_header:
     dd 0
     dd mb2_header_end - mb2_header
     dd -(MULTIBOOT2_MAGIC + 0 + (mb2_header_end - mb2_header))
+    ; Optional Multiboot2 RGB framebuffer request: retain 800x600 SVGA boot.
+    ; GRUB may keep its 640x480 fallback when 800x600 is unavailable.
+    dw 5
+    dw 1
+    dd 20
+    dd 800
+    dd 600
+    dd 32
+    dd 0                    ; align the following header tag to 8 bytes
     dw 0
     dw 0
     dd 8
