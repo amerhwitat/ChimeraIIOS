@@ -309,7 +309,7 @@ The framebuffer console is an early boot display facility only. It does not chan
 
 The final Koronos build banner was corrected to identify the BSP scheduler callback runner and explicitly state that no SMP execution is present (commit `a5be7d9419b1e8208015347879265d19ba9e96a0`). New Full ISO validation run 41378389423 is pending. CI/CD run 41378389406 has its Linux build/tests, code generation and infrastructure validation completed successfully; Windows CI is still in progress. This is a diagnostic accuracy change only. It does not implement AP startup, independent per-CPU scheduler workers or overlapping task execution.
 
-## 14. BSP stackful kernel-task context switching — implementation slice (2026-11-02)
+## 15. BSP stackful kernel-task context switching — implementation slice (2026-11-02)
 
 - The freestanding x86-64 scheduler now allocates a separate four-page kernel stack for each submitted kernel task from the physical frame allocator and maps it through the verified identity physmap.
 - Added an x86-64 context-switch assembly routine that saves/restores RSP, callee-saved registers, and RFLAGS. New task frames enter through a SysV-aligned trampoline with a stable scheduler-slot argument.
