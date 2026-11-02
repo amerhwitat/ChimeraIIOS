@@ -24,6 +24,7 @@ struct Task {
     koronos_kernel_stack kernel_stack{};
     chimera_x86_64_context context{};
     bool stack_ready=false;
+    bool context_ready=false;
 #endif
 };
 Task tasks[MAX_TASKS]; uint32_t count=0,next_id=1,rr=0,dispatch_round=1,cpus=1,lock_word=0;
@@ -43,12 +44,15 @@ static void task_context_entry(void *opaque) {
     if (!valid) {
         ++context_dispatch_faults;
         task->pending_action = ACTION_EXIT;
+        if (koronos_x86_64_context_switch(&task->context, &scheduler_context) != 0)
+            for (;;) __asm__ volatile("cli; hlt" ::: "memory");
     } else {
         ++context_dispatches;
         task->fn(task->arg);
+        /* A callback that returns has completed; never restart it as a new
+         * invocation. The saved task context is retired by the scheduler. */
+        chimera_sched_exit();
     }
-    if (koronos_x86_64_context_switch(&task->context, &scheduler_context) != 0)
-        for (;;) __asm__ volatile("cli; hlt" ::: "memory");
     for (;;) __asm__ volatile("cli; hlt" ::: "memory");
 }
 #endif
@@ -99,11 +103,26 @@ static int request_action(uint32_t cpu, uint8_t action) {
         t.pending_action=action;
     unlock();return 0;
 }
+static int yield_to_scheduler(uint32_t cpu) {
+#if defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+    if (cpu != 0) return -1;
+    const int32_t index = current_index[cpu];
+    if (index < 0 || static_cast<uint32_t>(index) >= count) return -2;
+    return koronos_x86_64_context_switch(
+        &tasks[static_cast<uint32_t>(index)].context, &scheduler_context);
+#else
+    (void)cpu;
+    return 0;
+#endif
+}
 static void legacy_action(uint8_t action) {
     lock(); int32_t owner=-1; uint32_t active=0;
     for(uint32_t cpu=0;cpu<cpus;cpu++) if(current_index[cpu]>=0) {owner=(int32_t)cpu;++active;}
     unlock();
-    if(active==1) (void)request_action((uint32_t)owner,action);
+    if(active==1) {
+        const uint32_t cpu = static_cast<uint32_t>(owner);
+        if (request_action(cpu, action) == 0) (void)yield_to_scheduler(cpu);
+    }
 }
 }
 extern "C" void chimera_sched_init(uint32_t n){
@@ -172,16 +191,19 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     }
     const uint64_t root=koronos_address_space_current_root();
     Task &selected_task=tasks[index];
-    selected_task.context={};
-    if(!root || koronos_x86_64_context_prepare(
-        &selected_task.context, selected_task.kernel_stack.base,
-        selected_task.kernel_stack.top-selected_task.kernel_stack.base,
-        root, task_context_entry, &selected_task)!=0) {
-        lock();selected_task.info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
-        return 0;
+    if (!selected_task.context_ready) {
+        selected_task.context={};
+        if(!root || koronos_x86_64_context_prepare(
+            &selected_task.context, selected_task.kernel_stack.base,
+            selected_task.kernel_stack.top-selected_task.kernel_stack.base,
+            root, task_context_entry, &selected_task)!=0) {
+            lock();selected_task.info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
+            return 0;
+        }
+        selected_task.context.kernel_stack_top=selected_task.kernel_stack.top;
+        selected_task.context.pid=selected_task.info.id;
+        selected_task.context_ready=true;
     }
-    selected_task.context.kernel_stack_top=selected_task.kernel_stack.top;
-    selected_task.context.pid=selected_task.info.id;
     if(koronos_x86_64_context_switch(&scheduler_context,&selected_task.context)!=0) {
         lock();selected_task.info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
         return 0;
@@ -206,6 +228,8 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     if(t.info.state==CHIMERA_TASK_EXITED && t.stack_ready) {
         retired_stack=t.kernel_stack;
         t.stack_ready=false;
+        t.context_ready=false;
+        t.context={};
         retire_stack=true;
     }
 #endif
@@ -234,9 +258,18 @@ extern "C" uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t n){
     (void)first_cpu;(void)n;
     return 0;
 }
-extern "C" int chimera_sched_yield_on_cpu(uint32_t cpu){return request_action(cpu,ACTION_YIELD);}
-extern "C" int chimera_sched_block_on_cpu(uint32_t cpu){return request_action(cpu,ACTION_BLOCK);}
-extern "C" int chimera_sched_exit_on_cpu(uint32_t cpu){return request_action(cpu,ACTION_EXIT);}
+extern "C" int chimera_sched_yield_on_cpu(uint32_t cpu){
+    const int rc=request_action(cpu,ACTION_YIELD);
+    return rc==0 ? yield_to_scheduler(cpu) : rc;
+}
+extern "C" int chimera_sched_block_on_cpu(uint32_t cpu){
+    const int rc=request_action(cpu,ACTION_BLOCK);
+    return rc==0 ? yield_to_scheduler(cpu) : rc;
+}
+extern "C" int chimera_sched_exit_on_cpu(uint32_t cpu){
+    const int rc=request_action(cpu,ACTION_EXIT);
+    return rc==0 ? yield_to_scheduler(cpu) : rc;
+}
 extern "C" void chimera_sched_yield(void){legacy_action(ACTION_YIELD);}
 extern "C" void chimera_sched_block(void){legacy_action(ACTION_BLOCK);}
 extern "C" void chimera_sched_wake(uint32_t id){
