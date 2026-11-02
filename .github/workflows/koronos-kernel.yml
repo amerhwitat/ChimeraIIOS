@@ -11,6 +11,7 @@ on:
   pull_request:
     paths:
       - "kernel/**"
+      - "tests/kernel/**"
       - "isa/koronos/**"
       - "tools/koronos/**"
       - ".github/workflows/koronos-kernel.yml"
