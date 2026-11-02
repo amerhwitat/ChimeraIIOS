@@ -214,7 +214,7 @@ extern "C" int chimera_process_load_elf(uint32_t pid, const void *image,
                                          void *context) {
     Slot *slot = find_slot(pid);
     if (!slot || !image || !ops || slot->loaded_ok ||
-        slot->image.state == CHIMERA_PROCESS_RUNNING) return -1;
+        slot->image.state != CHIMERA_PROCESS_ADMITTED) return -1;
     chimera_loaded_elf loaded{};
     const int rc = chimera_elf_load_user_image(image, image_size, machine,
                                                stack_top, stack_size, ops,
@@ -263,7 +263,9 @@ extern "C" int chimera_process_get_runtime(uint32_t pid,
 extern "C" int chimera_process_release(uint32_t pid) {
     Slot *slot = find_slot(pid);
     if (!slot) return -1;
-    if (slot->image.state == CHIMERA_PROCESS_RUNNING) return -2;
+    if (slot->image.state != CHIMERA_PROCESS_ADMITTED &&
+        slot->image.state != CHIMERA_PROCESS_EXITED &&
+        slot->image.state != CHIMERA_PROCESS_FAULTED) return -2;
     destroy_loaded(slot);
     release_kernel_stack(slot);
     *slot = {};
