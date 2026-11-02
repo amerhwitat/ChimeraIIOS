@@ -38,6 +38,14 @@ def validate(data):
             assert entry["license"]
             if entry["license"] == "proprietary-external":
                 assert entry.get("distribution") == "external-installation-only"
+    profiles = data["install_profiles"]
+    assert {"native-core", "systems", "managed", "scripting",
+            "functional-scientific", "assembly-analysis", "webassembly"}.issubset(profiles)
+    for profile in profiles.values():
+        assert profile["description"].strip()
+        assert {"apt", "dnf", "pacman"}.issubset(profile["packages"])
+        for packages in profile["packages"].values():
+            assert packages and len(packages) == len(set(packages))
     assert {"GNU ld", "LLVM lld", "wasm-ld"}.issubset(set(data["linkers"]))
     assert {"x86_64", "aarch64", "riscv64", "wasm32", "chimera8192"}.issubset(
         set(data["cross_targets"])
