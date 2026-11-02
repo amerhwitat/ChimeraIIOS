@@ -16,7 +16,7 @@ extern "C" void koronos_x86_64_load_gdt_tss(
 
 static bool canonical(uint64_t address) {
     const uint64_t upper = address >> 48;
-    return upper == 0 || upper == 0xFFFFu;
+    return (address >> 47) == 0 || (address >> 47) == 0x1FFFFu;
 }
 }
 
