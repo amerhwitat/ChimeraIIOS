@@ -125,6 +125,11 @@ log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+if [ "$ED" = "chimera" ] && [ -s "$REPO_DIR/desktop/aurora/gates_menu.json" ]; then
+  install -m644 "$REPO_DIR/desktop/aurora/gates_menu.json" "$PAY/gates_menu.json"
+elif [ "$ED" = "octavian" ] && [ -s "$REPO_DIR/vendor/chimera-ii-os/source/desktop/aurora/gates_menu.json" ]; then
+  install -m644 "$REPO_DIR/vendor/chimera-ii-os/source/desktop/aurora/gates_menu.json" "$PAY/gates_menu.json"
+fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
 python3 - "$ART" "$PAY" <<'PY'
@@ -387,6 +392,16 @@ for cfg in jasper.cfg live.cfg install.cfg recovery.cfg diagnostics.cfg; do
   [ ! -f "$REPO_DIR/boot/jasper/$cfg" ] || install -m644 "$REPO_DIR/boot/jasper/$cfg" "$ISODIR/boot/jasper/$cfg"
 done
 [ ! -f "$REPO_DIR/boot/spitfire/spitfire-menu.cfg" ] || install -m644 "$REPO_DIR/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+# On this Linux-kernel ISO Jasper and Spit Fire are menu adapters. The native
+# source-tree menus remain available in the source snapshot and native ISO flow.
+cat > "$ISODIR/boot/jasper/jasper.cfg" <<'EOF'
+echo "[JASPER] Unified target manager — Live / Installer / Koronos / Recovery"
+configfile /boot/jasper/live-image.cfg
+EOF
+cat > "$ISODIR/boot/spitfire/spitfire-menu.cfg" <<'EOF'
+echo "[SPIT FIRE] Firmware handoff adapter -> Jasper target manager"
+configfile /boot/jasper/live-image.cfg
+EOF
 
 # Optional native artifacts are staged only when supplied. No test ELF or
 # missing initramfs is promoted into a production Installer/Recovery target.
