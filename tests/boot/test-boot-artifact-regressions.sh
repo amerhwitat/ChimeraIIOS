@@ -26,15 +26,11 @@ grep -Eq 'ignore-garbage|tr[[:space:]]+-d.*base64|base64\.b64decode' "$ROOT/tool
 grep -Eq 'PNG|png|aurora-default\.png' "$ROOT/tools/branding/stage-aurora-image.sh"
 # GRUB must remain interactive and must never auto-select Installer.
 for cfg in boot/iso/grub.cfg boot/jasper/jasper.cfg; do
-  grep -Eq '^set timeout=30
- "$ROOT/$cfg"
-  grep -Eq '^set default=0
- "$ROOT/$cfg"
+  grep -Fqx 'set timeout=30' "$ROOT/$cfg"
+  grep -Fqx 'set default=0' "$ROOT/$cfg"
 done
 for cfg in boot/jasper/install.cfg boot/installation/menu.cfg; do
-  grep -Eq '^set timeout=30
- "$ROOT/$cfg"
-  grep -Eq '^set default=2
- "$ROOT/$cfg"
+  grep -Fqx 'set timeout=30' "$ROOT/$cfg"
+  grep -Fqx 'set default=2' "$ROOT/$cfg"
 done
 echo "boot artifact regressions: OK"
