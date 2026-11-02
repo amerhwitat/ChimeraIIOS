@@ -1,4 +1,7 @@
 #include "chimera/x86_64_cpu.h"
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <assert.h>
 
 
