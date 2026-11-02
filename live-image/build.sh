@@ -314,7 +314,7 @@ if grep -qw 'chimera.mode=recovery' /proc/cmdline 2>/dev/null; then
   echo "CHIMERA / OCTAVIAN LINUX RESCUE SHELL — verbose diagnostics enabled"
   echo "Available: lsblk blkid fsck e2fsck parted gdisk mount chroot ip ping journalctl dmesg"
   echo "No disk is modified automatically; inspect devices and confirm every repair."
-  exec bash --login
+  return 0
 fi
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
   exec startx
