@@ -321,3 +321,12 @@ Validation on head `4906080184df934318adfaee26b02925eee78b91`:
 - Windows CI/CD run [41397184702](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41397184702): Windows Build and Test PASS.
 
 Still not implemented: scheduler-owned contexts, atomic CR3/RSP0/current-PID handoff, cross-CR3 switching, timer preemption, blocking/wakeup/wait/exit/reap, AP startup, inter-processor TLB shootdowns, and deferred address-space reclamation. Mapping mutations are BSP-only. The process-stack bridge is not called automatically by ELF admission, and no CPL3 execution is enabled. Keep native-init exit 78 and all production release gates fail-closed.
+
+
+## BSP guarded-stack context handoff (2026-11-02)
+
+The guarded-stack implementation now has a BSP context-switch wrapper around the x86-64 assembly stack-frame exchange. With interrupts disabled, the wrapper validates that the target uses the active CR3 and that its RSP is within the eight mapped supervisor RW/NX pages (with the adjacent guard page still unmapped), or is the immutable BSP bootstrap stack. It records the outgoing CR3, TSS.RSP0 and PID, installs the target RSP0/PID, then performs the same-CR3 saved-register switch. On a failed low-level switch it restores the prior CPU stack/PID state.
+
+The x86-64 assembly primitive continues to reject cross-CR3 switches. This is intentional: AP startup, TLB shootdown acknowledgements, and a fully proven shared supervisor mapping contract for all kernel execution paths are not available. The QEMU boot-matrix passed on the implementation head and its trace showed the guarded stack and saved-context tests succeeding. A follow-up CI run now requires the explicit TSS.RSP0/PID success marker: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41415536733.
+
+This is not scheduler integration. The scheduler remains a BSP callback runner; no process context is selected by it, no blocking/wakeup/wait/exit/reap lifecycle runs on saved contexts, and CPL3 entry/return remains disabled. The process stack attach/get/detach APIs exist, but process admission still produces a load plan and does not launch a task. VFS file syscalls, writable /tmp, production init/service supervision, AP startup/SMP and six-case same-ISO acceptance remain blocked. Keep native-init exit 78 and all release gates intact.
