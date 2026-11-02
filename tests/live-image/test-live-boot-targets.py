@@ -49,6 +49,7 @@ class UnifiedBootTargetTests(unittest.TestCase):
         self.assertIn("Live", SPITFIRE)
         self.assertIn("Install", SPITFIRE)
         self.assertIn("Recovery", SPITFIRE)
+        self.assertIn("--id koronos", SPITFIRE)
 
     def test_installer_fails_closed_without_native_payload(self):
         start = MENU.index("--id installer")
