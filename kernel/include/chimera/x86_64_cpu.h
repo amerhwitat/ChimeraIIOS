@@ -23,7 +23,7 @@ typedef struct chimera_x86_64_context {
     uint64_t cr3;
 } chimera_x86_64_context;
 
-#define CHIMERA_X86_64_CONTEXT_FRAME_SIZE 64u
+#define CHIMERA_X86_64_CONTEXT_FRAME_SIZE 72u
 
 typedef struct __attribute__((packed)) chimera_x86_64_tss {
     uint32_t reserved0;
