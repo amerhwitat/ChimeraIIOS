@@ -119,6 +119,23 @@ jobs:
           xorriso -indev "$iso" -report_el_torito plain -report_system_area plain -print '' | tee "$OUT_DIR/ISO-BOOT-REPORT.txt"
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
+          xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$tmp/grub.cfg" -extract /boot/jasper/live-image.cfg "$tmp/live-image.cfg" -extract /boot/boot-targets.json "$tmp/boot-targets.json" -extract /boot/koronos/koronos.elf "$tmp/koronos.elf" >/dev/null
+          grep -Fq 'configfile /boot/jasper/live-image.cfg' "$tmp/grub.cfg"
+          for target in live-linux installer koronos recovery; do grep -Fq -- "--id $target" "$tmp/live-image.cfg"; done
+          grep -Fq '5120x2880' "$tmp/live-image.cfg"
+          grep -Fq 'set gfxpayload=keep' "$tmp/live-image.cfg"
+          grep -Fq 'set debug=all' "$tmp/live-image.cfg"
+          readelf -h "$tmp/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
+          python3 - "$tmp/boot-targets.json" <<'PY'
+          import json, sys
+          m=json.load(open(sys.argv[1]))
+          assert m["default"] == "live-linux"
+          assert m["targets"]["live"]["available"] is True
+          assert m["targets"]["koronos"]["available"] is True
+          assert m["targets"]["recovery"]["available"] is True
+          assert m["targets"]["installer"]["available"] is False, "incomplete native installer must stay gated"
+          print("Boot targets:", {k:v["available"] for k,v in m["targets"].items()})
+          PY
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
           unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
