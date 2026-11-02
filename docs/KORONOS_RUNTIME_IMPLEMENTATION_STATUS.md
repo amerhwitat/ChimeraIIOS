@@ -338,7 +338,7 @@ Do not describe this slice as production process execution or userspace readines
 - An admitted ELF can be transactionally mapped through the existing ELF loader into an address space retained by its process slot.
 - In the freestanding kernel, a successful load also allocates a zeroed four-page kernel stack from the physical frame allocator and records its top.
 - The process slot retains the loader callbacks/context required to destroy the exact address space it owns.
-- Added process runtime inspection and release APIs. Release refuses a RUNNING process and tears down the address space and kernel stack before reusing the slot.
+- Added process runtime inspection and release APIs. Release is restricted to ADMITTED or scheduler-reaped terminal records; READY, BLOCKED and RUNNING records cannot have resources freed.
 - Added a host regression for address-space mapping, explicit ADMITTED/not-runnable state, runtime inspection, and resource teardown. The Koronos build now executes this regression.
 
 ### Boundary and remaining lifecycle work
@@ -347,3 +347,10 @@ Do not describe this slice as production process execution or userspace readines
 - The current process manager remains BSP-only and is not yet synchronized for concurrent process mutation.
 - Process-bound VFS/file descriptors, user-pointer syscall dispatch, exit/wait/reap, fault cleanup, Installer/Recovery init, storage persistence, AP startup/SMP and six-case BIOS/UEFI acceptance remain incomplete.
 - Keep native-init exit-78 and all DAPS/release gates unchanged. Do not treat a mapped ELF or allocated kernel stack as userspace readiness.
+
+
+### Exact-head CI correction (2026-11-02)
+
+- PR #223 exposed stale host-test link lists: process admission tests compiled `process.cpp` but omitted `process_loader.cpp`, leaving `chimera_elf_load_user_image` unresolved.
+- Updated the ELF64 admission workflow, Koronos kernel workflow, runtime-contract workflow and CMake admission target to link the transactional process loader explicitly.
+- The freestanding Koronos build and the new process-runtime host test had passed before this correction; the affected host link targets and dependent Full ISO build were red. Re-run all exact-head checks before considering the process ownership increment validated.
