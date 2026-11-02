@@ -62,6 +62,9 @@ static inline void chimera_x86_64_encode_tss_descriptor(
 }
 
 int chimera_x86_64_cpu_init(uint32_t cpu_id);
+/* Current CPU identity is read from the CPU-local GS anchor installed during init. */
+int chimera_x86_64_cpu_current_id(void);
+int chimera_x86_64_cpu_current_apic_id(uint32_t *out);
 int chimera_x86_64_cpu_set_kernel_stack(uint32_t cpu_id, uint64_t stack_top);
 int chimera_x86_64_cpu_is_ready(uint32_t cpu_id);
 uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id);
