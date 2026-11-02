@@ -12,6 +12,7 @@
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
 #include "chimera/address_space.h"
+#include "chimera/kernel_stack.h"
 #include "chimera/x86_64_cpu.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
@@ -480,7 +481,15 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     } else {
         console_write("[MM  ] ERROR: address-space backend unavailable or self-test failed; userspace launch remains disabled");
     }
-    const int context_switch_test = (address_space_test == 0 && cpu_state_status == 0)
+    const int kernel_stack_test = (address_space_test == 0 && cpu_state_status == 0)
+        ? koronos_kernel_stack_self_test() : -1;
+    if (kernel_stack_test == 0) {
+        console_write("[PROC] Shared supervisor mappings, guarded process-owned kernel stacks and BSP TSS.RSP0 handoff self-test passed");
+    } else {
+        console_write("[PROC] ERROR: guarded kernel stack/TSS handoff self-test failed; process scheduling remains disabled");
+    }
+    const int context_switch_test = (address_space_test == 0 && cpu_state_status == 0 &&
+                                     kernel_stack_test == 0)
         ? context_switch_self_test() : -1;
     if (context_switch_test == 0) {
         console_write("[SCH ] BSP same-CR3 saved-context switch self-test passed; process scheduling remains disabled");
