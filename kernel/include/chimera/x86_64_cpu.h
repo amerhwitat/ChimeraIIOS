@@ -71,6 +71,7 @@ int chimera_x86_64_cpu_init(uint32_t cpu_id);
 int chimera_x86_64_cpu_set_kernel_stack(uint32_t cpu_id, uint64_t stack_top);
 int chimera_x86_64_cpu_is_ready(uint32_t cpu_id);
 uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id);
+uint64_t chimera_x86_64_cpu_bootstrap_kernel_stack(uint32_t cpu_id);
 int chimera_x86_64_cpu_set_current_pid(uint32_t cpu_id, uint32_t pid);
 uint32_t chimera_x86_64_cpu_current_pid(uint32_t cpu_id);
 
