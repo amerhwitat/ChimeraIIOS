@@ -81,7 +81,7 @@ jobs:
           grep -Fq "[CPU ] BSP GDT/TSS initialized" qemu-debug.log
           grep -Fq "[MM  ] Address-space self-test passed: CR3 switch/restore" qemu-debug.log
           grep -Fq "[PROC] Shared supervisor mappings, guarded process-owned kernel stacks and BSP TSS.RSP0 handoff self-test passed" qemu-debug.log
-          grep -Fq "[SCH ] BSP same-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; process scheduling remains disabled" qemu-debug.log
+          grep -Fq "[SCH ] BSP guarded cross-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; AP scheduling remains disabled" qemu-debug.log
           grep -Fq "[SCH ] BSP scheduler callback executed on owned guarded stack; TSS.RSP0/PID verified" qemu-debug.log || { echo "::error::Scheduler did not execute a callback on its owned guarded stack"; exit 1; }
           grep -Fq "[SCH ] BSP callback resumed after cooperative yield" qemu-debug.log || { echo "::error::Saved callback did not resume after yield"; exit 1; }
           grep -Fq "[SCH ] BSP callback woke blocked monitor task" qemu-debug.log || { echo "::error::Blocked callback was not woken"; exit 1; }
