@@ -161,7 +161,12 @@ jobs:
           test -s "$root/opt/aurora/application-bundle.json"
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
+          test -s "$root/usr/share/chimera/marine/assets/marine-desktop.svg"
+          test -s "$root/usr/share/chimera/aurora/assets/Init.mp4"
+          test -x "$root/usr/local/bin/aurora-init-splash.sh"
+          test -x "$root/usr/bin/mpv"
           grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
+          grep -Fq '/usr/local/bin/aurora-init-splash.sh' "$root/usr/local/bin/aurora-session"
           python3 - "$root/opt/aurora" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
