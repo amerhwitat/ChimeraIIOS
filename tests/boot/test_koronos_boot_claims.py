@@ -28,6 +28,25 @@ class KoronosBootClaimTests(unittest.TestCase):
         self.assertIn("Storage/security/logging backends remain DECLARED, not RUNNING", self.source)
         self.assertIn("No production installer init ELF is present; refusing readiness", self.source)
 
+    def test_bootloader_keeps_svga_until_target_handoff(self):
+        boot_configs = (
+            "boot/iso/grub.cfg",
+            "boot/jasper/jasper.cfg",
+            "boot/jasper/live.cfg",
+            "boot/jasper/install.cfg",
+            "boot/jasper/recovery.cfg",
+            "boot/jasper/diagnostics.cfg",
+            "boot/jasper/retro.cfg",
+            "boot/spitfire/spitfire-menu.cfg",
+            "boot/installation/menu.cfg",
+        )
+        for relative in boot_configs:
+            with self.subTest(config=relative):
+                config = (ROOT / relative).read_text(encoding="utf-8")
+                self.assertIn("set gfxmode=800x600,640x480", config)
+                self.assertIn("set gfxpayload=keep", config)
+                self.assertNotRegex(config, r"(?m)^set gfxmode=.*(?:1024x768|1280x|1366x|1440x|1600x|1920x|2560x|3840x|5120x|,auto)")
+
 
 if __name__ == "__main__":
     unittest.main()
