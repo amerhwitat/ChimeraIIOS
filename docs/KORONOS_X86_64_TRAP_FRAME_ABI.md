@@ -62,3 +62,14 @@ supervisor-only at the leaf mapping, and writable in the process address space
 before retaining the loaded process. This verifies the existing four-GiB
 supervisor identity-map contract; it does not yet provide a shared higher-half
 kernel mapping or activate a process CR3/TSS pair.
+
+## CR3 transition guard
+
+Address-space activation and restoration now require a verified current-CPU
+GS/APIC identity. The transition preserves the prior RFLAGS, masks interrupts
+for the CR3 write, places compiler/memory barriers around the root switch, and
+restores the caller's interrupt state. The address-space self-test exercises
+the switch and restore on the initialized BSP. The current supervisor mapping
+contract remains the verified four-GiB identity map cloned into each process
+root; shared higher-half kernel page-table subtrees and AP startup are still
+future work.
