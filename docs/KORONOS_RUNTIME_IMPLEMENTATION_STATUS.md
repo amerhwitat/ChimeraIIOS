@@ -337,3 +337,26 @@ The cooperative scheduler already switches BSP kernel callback tasks onto their 
 The kernel build now enables a BSP-only guarded-context mode for the existing cooperative callback scheduler. Each submitted kernel callback receives an eight-page guarded kernel stack. Dispatch prepares an initial saved context, switches from the scheduler stack into the task stack, validates at entry that RSP lies within the owned stack and that TSS.RSP0/current PID match the selected task, executes the callback, and switches back to the scheduler. Exited callbacks release their stack only after returning to the bootstrap scheduler stack. QEMU diagnostics expose dispatch/fault counters, and the boot-matrix now requires the successful stack/TSS/PID trace.
 
 This is **kernel callback context execution**, not user-process scheduling. Kernel callback contexts are now preserved across cooperative yield/block: the saved context resumes at the call site when selected again or woken. A callback that returns or explicitly exits becomes EXITED, and its stack is released after control is back on the scheduler stack. This is still not a user-process continuation, timer-preemptive scheduler, process wait/reap lifecycle, CPL3 transition or process-owned CR3 selection. The scheduler is still BSP-only; parallel execution remains fail-closed and AP startup/TLB shootdowns are absent. Validated on head 37ab44f1d80f8b8934e9d3d729a98a7f8febe376: Koronos Kernel Build run 41417399132 passed (freestanding link, host scheduler/context tests, ELF validation and no unresolved symbols), and QEMU boot run 41417399060 passed. Its debugcon trace explicitly records the BSP callback executing on its owned guarded stack with matching TSS.RSP0/PID, with no context-fault marker. This is a single QEMU serial smoke configuration, not the six-case BIOS/UEFI production matrix.
+## Consolidated runtime status — 2026-11-02 (supersedes earlier point-in-time sections)
+
+This section is the current implementation/evidence snapshot. Historical sections above record the state at the time of each earlier change and must not be read as the latest state.
+
+### Implemented foundation (BSP-only; not production userspace)
+
+- **Shared supervisor stack mappings:** a supervisor-only PML4 subtree is shared with newly created address spaces. The stack arena has 32 slots; each slot has one unmapped guard page followed by eight supervisor RW/NX pages. Stack mapping mutation is BSP-only.
+- **Process-owned guarded kernel stacks:** the guarded-stack allocator validates generation-tagged handles, rolls back partial allocations, rejects release while a CPU TSS owns the stack top, and is connected to the freestanding transactional ELF process-load path. The process release path drops the guarded stack before destroying its owned address space and retains ownership if stack release fails.
+- **BSP TSS handoff:** saved-context switching validates backend-owned roots and the target guarded-stack mapping, disables interrupts while changing the local CR3/TSS.RSP0/current-PID tuple, and restores the outgoing tuple on pre-switch failure. Cross-CR3 switching is restricted to the BSP and refused if any AP is initialized. This local CR3 switch is not a multi-CPU TLB-shootdown protocol.
+- **Cooperative kernel callback contexts:** the BSP scheduler allocates a guarded stack per callback, prepares a saved context, checks the active RSP/TSS.RSP0/PID on first entry, and switches back to a dispatcher continuation on yield/block/exit. Exited callback stacks are released after returning to the dispatcher. This is kernel callback scheduling, not user-process scheduling or preemptive scheduling.
+- **Process-load state remains fail-closed:** loading an ELF and owning its address space/guarded kernel stack does not make it runnable. READY/RUNNING/BLOCKED remain rejected until a validated user trap frame and IRETQ entry/return path exist.
+
+### Still not implemented or not accepted
+
+- Validated initial CPL3 trap frame, IRETQ user entry/return, process-bound syscall identity, and production Live/Installer/Recovery init ELFs.
+- Process wait/parent notification/reap and safe process teardown after asynchronous CPU use.
+- Timer preemption, interrupt-driven blocking/wakeup integration, AP startup, independent per-CPU scheduler contexts, reschedule IPIs, acknowledged TLB shootdowns and deferred address-space reclamation.
+- Process-bound VFS OPEN/READ/WRITE/SEEK/CLOSE, mounted root filesystem, writable /tmp, and production service supervision.
+- Full BIOS/UEFI × Live/Installer/Recovery acceptance on one immutable ISO SHA, including nonzero PID/CPL3 syscall proof, installer persistence, recovery repair, Aurora/Marine runtime health and verified SMP overlap.
+
+### Verification boundary
+
+The saved-context frame and guarded-stack/TSS/cross-CR3 self-tests are foundation tests, not proof of user-process execution. The latest QEMU scheduler wake/resume assertion failed before the dispatcher-continuation fix; exact-head QEMU revalidation after that fix is pending. Octavian must pass its own native workflow on its own vendored source head; Chimera results are not Octavian evidence. Keep PRs unmerged and production publication disabled until the relevant exact-head tests and six-case acceptance pass. Preserve native-init exit 78 and do not promote test-only init payloads.
