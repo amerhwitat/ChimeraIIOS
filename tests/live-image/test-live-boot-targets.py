@@ -7,6 +7,9 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 MENU = (ROOT / "boot/jasper/live-image.cfg").read_text()
 BUILDER = (ROOT / "live-image/build.sh").read_text()
+NATIVE_GRUB = (ROOT / "boot/iso/grub.cfg").read_text()
+JASPER = (ROOT / "boot/jasper/jasper.cfg").read_text()
+SPITFIRE = (ROOT / "boot/spitfire/spitfire-menu.cfg").read_text()
 GATES_CANDIDATES = [
     ROOT / "desktop/aurora/gates_menu.json",
     ROOT / "vendor/chimera-ii-os/source/desktop/aurora/gates_menu.json",
@@ -31,6 +34,14 @@ class UnifiedBootTargetTests(unittest.TestCase):
         self.assertIn("systemd.log_level=debug", MENU)
         self.assertIn("systemd.show_status=1", MENU)
         self.assertNotIn(" quiet ", MENU)
+
+    def test_native_grub_jasper_spitfire_expose_koronos_and_verbose_graphics(self):
+        for name, config in (("GRUB 2", NATIVE_GRUB), ("Jasper", JASPER), ("Spit Fire", SPITFIRE)):
+            with self.subTest(menu=name):
+                self.assertIn("--id koronos", config)
+                self.assertIn("5120x2880", config)
+                self.assertIn("set gfxpayload=keep", config)
+                self.assertIn("set debug=all", config)
 
     def test_installer_fails_closed_without_native_payload(self):
         start = MENU.index("--id installer")
