@@ -5,6 +5,7 @@ struct __attribute__((aligned(16))) CpuState {
     uint64_t gdt[7];
     chimera_x86_64_gdtr gdtr;
     chimera_x86_64_tss tss;
+    uint64_t bootstrap_rsp0;
     uint8_t entry_stack[CHIMERA_X86_64_ENTRY_STACK_SIZE] __attribute__((aligned(16)));
     volatile uint32_t ready;
     volatile uint32_t current_pid;
@@ -40,6 +41,7 @@ extern "C" int chimera_x86_64_cpu_init(uint32_t cpu_id) {
 
     cpu.tss = {};
     cpu.tss.rsp0 = stack_top;
+    cpu.bootstrap_rsp0 = stack_top;
     cpu.tss.io_map_base = sizeof(chimera_x86_64_tss);
     uint64_t tss_low = 0, tss_high = 0;
     chimera_x86_64_encode_tss_descriptor(
@@ -78,6 +80,11 @@ extern "C" int chimera_x86_64_cpu_is_ready(uint32_t cpu_id) {
 extern "C" uint64_t chimera_x86_64_cpu_kernel_stack(uint32_t cpu_id) {
     if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return 0;
     return cpus[cpu_id].tss.rsp0;
+}
+
+extern "C" uint64_t chimera_x86_64_cpu_bootstrap_kernel_stack(uint32_t cpu_id) {
+    if (cpu_id >= CHIMERA_X86_64_MAX_CPUS || !cpus[cpu_id].ready) return 0;
+    return cpus[cpu_id].bootstrap_rsp0;
 }
 
 extern "C" int chimera_x86_64_cpu_set_current_pid(uint32_t cpu_id, uint32_t pid) {
