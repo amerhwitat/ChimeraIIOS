@@ -330,3 +330,20 @@ This slice implements **BSP kernel-task** stacks and cooperative context switchi
 
 Do not describe this slice as production process execution or userspace readiness. Keep the native-init fail-closed gate and exit-78 behavior unchanged until the full process/VFS/runtime contract is implemented and verified.
 
+
+
+## 16. Process-owned ELF runtime resources — implementation slice (2026-11-02)
+
+- Process admission records remain ABI-compatible and are now paired with a separate runtime ownership record.
+- An admitted ELF can be transactionally mapped through the existing ELF loader into an address space retained by its process slot.
+- In the freestanding kernel, a successful load also allocates a zeroed four-page kernel stack from the physical frame allocator and records its top.
+- The process slot retains the loader callbacks/context required to destroy the exact address space it owns.
+- Added process runtime inspection and release APIs. Release refuses a RUNNING process and tears down the address space and kernel stack before reusing the slot.
+- Added a host regression for address-space mapping, explicit ADMITTED/not-runnable state, runtime inspection, and resource teardown. The Koronos build now executes this regression.
+
+### Boundary and remaining lifecycle work
+
+- A loaded ELF intentionally remains ADMITTED. No initial user trap frame, validated CPL3 iretq entry, syscall return path, or process scheduler context is constructed; execution_context_ready remains false and saved_kernel_rsp remains zero.
+- The current process manager remains BSP-only and is not yet synchronized for concurrent process mutation.
+- Process-bound VFS/file descriptors, user-pointer syscall dispatch, exit/wait/reap, fault cleanup, Installer/Recovery init, storage persistence, AP startup/SMP and six-case BIOS/UEFI acceptance remain incomplete.
+- Keep native-init exit-78 and all DAPS/release gates unchanged. Do not treat a mapped ELF or allocated kernel stack as userspace readiness.
