@@ -425,7 +425,17 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     }
     const int cpu_state_status = chimera_x86_64_cpu_init(0);
     if (cpu_state_status == 0 && chimera_x86_64_cpu_is_ready(0)) {
+        uint32_t apic_id = 0;
         console_write("[CPU ] BSP GDT/TSS initialized; ring-3 entry remains disabled pending process contexts");
+        console_write("[CPU ] Trusted per-CPU GS identity installed");
+        if (chimera_x86_64_cpu_current_id() == 0 &&
+            chimera_x86_64_cpu_current_apic_id(&apic_id) == 0) {
+            console_raw("[CPU ] BSP identity logical=0 APIC=");
+            console_hex32(apic_id);
+            console_endline();
+        } else {
+            console_write("[CPU ] ERROR: per-CPU identity verification failed; user entry remains disabled");
+        }
     } else {
         console_write("[CPU ] ERROR: BSP GDT/TSS initialization failed; userspace remains disabled");
     }
