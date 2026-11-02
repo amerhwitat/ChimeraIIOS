@@ -131,7 +131,7 @@ extern "C" int koronos_kernel_stack_self_test(void) {
                 static_cast<uint64_t>(i) * PAGE_SIZE) == 1;
 
     const chimera_elf_load_ops *ops = koronos_address_space_loader_ops();
-    void *other_space = ops && ops->create ? ops->create(nullptr) : nullptr;
+    void *other_space = ops && ops->create_address_space ? ops->create_address_space(nullptr) : nullptr;
     if (!other_space) ok = false;
     if (other_space) {
         const uint64_t other_root = koronos_address_space_root(other_space);
@@ -139,7 +139,7 @@ extern "C" int koronos_kernel_stack_self_test(void) {
         for (uint32_t i = 0; ok && i < STACK_PAGES; ++i)
             ok = koronos_address_space_kernel_page_mapped(other_root, stack.base +
                 static_cast<uint64_t>(i) * PAGE_SIZE) == 1;
-        if (ops && ops->destroy) ops->destroy(nullptr, other_space);
+        if (ops && ops->destroy_address_space) ops->destroy_address_space(nullptr, other_space);
     }
 
     const uint64_t old_rsp0 = chimera_x86_64_cpu_kernel_stack(0);
