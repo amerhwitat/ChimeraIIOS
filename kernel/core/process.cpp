@@ -45,6 +45,7 @@ struct Slot {
     uint64_t saved_kernel_rsp = 0;
     bool used = false;
     bool loaded_ok = false;
+    bool execution_context_ready = false;
 };
 Slot slots[CHIMERA_PROCESS_MAX];
 uint32_t next_pid = 1, count = 0;
@@ -244,7 +245,7 @@ extern "C" int chimera_process_get_runtime(uint32_t pid,
     chimera_process_runtime result{};
     result.abi = CHIMERA_PROCESS_RUNTIME_ABI;
     result.loaded = slot->loaded_ok ? 1u : 0u;
-    result.execution_context_ready = 0;
+    result.execution_context_ready = slot->execution_context_ready ? 1u : 0u;
     if (slot->loaded_ok) {
         result.address_space = slot->loaded.address_space;
         result.entry = slot->loaded.entry;
@@ -287,6 +288,12 @@ extern "C" int chimera_process_set_state(uint32_t pid,
         state > CHIMERA_PROCESS_FAULTED) return -1;
     Slot *slot = find_slot(pid);
     if (!slot) return -2;
+    /* Never expose a mapped-but-unentered image as runnable. The future
+       trap-frame/iret integration must set this internal bit only after it
+       has built and validated the complete execution context. */
+    if ((state == CHIMERA_PROCESS_READY || state == CHIMERA_PROCESS_RUNNING ||
+         state == CHIMERA_PROCESS_BLOCKED) &&
+        (!slot->loaded_ok || !slot->execution_context_ready)) return -3;
     slot->image.state = state;
     return 0;
 }
