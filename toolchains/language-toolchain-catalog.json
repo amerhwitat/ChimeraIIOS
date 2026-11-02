@@ -1089,5 +1089,260 @@
     "avr",
     "bpf",
     "chimera8192"
-  ]
+  ],
+  "install_profiles": {
+    "native-core": {
+      "description": "C/C++, GNU/LLVM assembler/linker and core build tools",
+      "packages": {
+        "apt": [
+          "gcc",
+          "g++",
+          "clang",
+          "llvm",
+          "lld",
+          "binutils",
+          "nasm",
+          "yasm",
+          "cmake",
+          "ninja-build",
+          "make",
+          "pkg-config"
+        ],
+        "dnf": [
+          "gcc",
+          "gcc-c++",
+          "clang",
+          "llvm",
+          "lld",
+          "binutils",
+          "nasm",
+          "yasm",
+          "cmake",
+          "ninja-build",
+          "make",
+          "pkgconf-pkg-config"
+        ],
+        "pacman": [
+          "base-devel",
+          "gcc",
+          "clang",
+          "llvm",
+          "lld",
+          "binutils",
+          "nasm",
+          "yasm",
+          "cmake",
+          "ninja",
+          "pkgconf"
+        ]
+      }
+    },
+    "systems": {
+      "description": "Rust, Go, Zig, Fortran, Ada and D-family toolchains where packaged",
+      "packages": {
+        "apt": [
+          "rustc",
+          "cargo",
+          "golang-go",
+          "zig",
+          "gfortran",
+          "gnat",
+          "gccgo",
+          "gdc"
+        ],
+        "dnf": [
+          "rust",
+          "cargo",
+          "golang",
+          "zig",
+          "gcc-gfortran",
+          "gcc-gnat",
+          "gcc-go",
+          "gcc-gdc"
+        ],
+        "pacman": [
+          "rust",
+          "cargo",
+          "go",
+          "zig",
+          "gcc-fortran",
+          "gcc-ada",
+          "gcc-go",
+          "gcc-d"
+        ]
+      }
+    },
+    "managed": {
+      "description": "JVM, Kotlin/Scala/Groovy and .NET/Mono toolchains",
+      "packages": {
+        "apt": [
+          "default-jdk",
+          "maven",
+          "gradle",
+          "kotlin",
+          "scala",
+          "groovy",
+          "mono-devel"
+        ],
+        "dnf": [
+          "java-latest-openjdk-devel",
+          "maven",
+          "gradle",
+          "kotlin",
+          "scala",
+          "groovy",
+          "dotnet-sdk"
+        ],
+        "pacman": [
+          "jdk-openjdk",
+          "maven",
+          "gradle",
+          "kotlin",
+          "scala",
+          "groovy",
+          "dotnet-sdk"
+        ]
+      }
+    },
+    "scripting": {
+      "description": "Python, JavaScript, PHP, Ruby, Perl, Lua, R and Tcl runtimes",
+      "packages": {
+        "apt": [
+          "python3",
+          "python3-pip",
+          "pypy3",
+          "nodejs",
+          "npm",
+          "php-cli",
+          "ruby",
+          "perl",
+          "lua5.4",
+          "r-base",
+          "tcl"
+        ],
+        "dnf": [
+          "python3",
+          "python3-pip",
+          "pypy3",
+          "nodejs",
+          "npm",
+          "php-cli",
+          "ruby",
+          "perl",
+          "lua",
+          "R",
+          "tcl"
+        ],
+        "pacman": [
+          "python",
+          "python-pip",
+          "pypy3",
+          "nodejs",
+          "npm",
+          "php",
+          "ruby",
+          "perl",
+          "lua",
+          "r",
+          "tcl"
+        ]
+      }
+    },
+    "functional-scientific": {
+      "description": "Haskell, OCaml, Pascal, COBOL, Elixir, Erlang, Clojure, Lisp, Scheme and Prolog",
+      "packages": {
+        "apt": [
+          "ghc",
+          "ocaml",
+          "dune",
+          "fp-compiler",
+          "gnucobol",
+          "elixir",
+          "erlang-base",
+          "clojure",
+          "sbcl",
+          "guile-3.0",
+          "swi-prolog"
+        ],
+        "dnf": [
+          "ghc",
+          "ocaml",
+          "dune",
+          "fpc",
+          "gnucobol",
+          "elixir",
+          "erlang",
+          "clojure",
+          "sbcl",
+          "guile",
+          "swi-prolog"
+        ],
+        "pacman": [
+          "ghc",
+          "ocaml",
+          "dune",
+          "fpc",
+          "gnucobol",
+          "elixir",
+          "erlang",
+          "clojure",
+          "sbcl",
+          "guile",
+          "swi-prolog"
+        ]
+      }
+    },
+    "assembly-analysis": {
+      "description": "Additional assemblers, disassemblers and binary reverse-engineering tools",
+      "packages": {
+        "apt": [
+          "nasm",
+          "yasm",
+          "fasm",
+          "binutils",
+          "capstone-tool",
+          "radare2"
+        ],
+        "dnf": [
+          "nasm",
+          "yasm",
+          "fasm",
+          "binutils",
+          "capstone",
+          "radare2"
+        ],
+        "pacman": [
+          "nasm",
+          "yasm",
+          "fasm",
+          "binutils",
+          "capstone",
+          "radare2"
+        ]
+      }
+    },
+    "webassembly": {
+      "description": "WebAssembly compiler, linker, inspection and runtime utilities",
+      "packages": {
+        "apt": [
+          "clang",
+          "lld",
+          "wabt",
+          "binaryen"
+        ],
+        "dnf": [
+          "clang",
+          "lld",
+          "wabt",
+          "binaryen"
+        ],
+        "pacman": [
+          "clang",
+          "lld",
+          "wabt",
+          "binaryen"
+        ]
+      }
+    }
+  }
 }
