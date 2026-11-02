@@ -8,7 +8,7 @@ static void make_elf(uint8_t* b,bool wx){
   auto* h=(koronos_elf64_ehdr*)b;
   h->e_ident[0]=0x7f; h->e_ident[1]='E'; h->e_ident[2]='L'; h->e_ident[3]='F';
   h->e_ident[4]=2; h->e_ident[5]=1; h->e_ident[6]=1; h->e_type=KORONOS_ET_EXEC; h->e_machine=KORONOS_EM_X86_64;
-  h->e_version=1; h->e_entry=0x400100; h->e_ehsize=sizeof(*h); h->e_phoff=sizeof(*h);
+  h->e_version=1; h->e_entry=0x0000004000000100ull; h->e_ehsize=sizeof(*h); h->e_phoff=sizeof(*h);
   h->e_phentsize=sizeof(koronos_elf64_phdr); h->e_phnum=1;
   auto* p=(koronos_elf64_phdr*)(b+h->e_phoff);
   p->p_type=1; p->p_flags=wx?3:5; p->p_offset=0x1000; p->p_vaddr=0x0000004000000000ull;
