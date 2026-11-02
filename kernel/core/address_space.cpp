@@ -466,6 +466,10 @@ extern "C" uint64_t koronos_address_space_current_root(void) {
 extern "C" int koronos_address_space_root_valid(uint64_t root_physical) {
     return backend_ready && known_root(root_physical) ? 1 : 0;
 }
+
+extern "C" uint64_t koronos_address_space_bootstrap_root(void) {
+    return reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+}
 extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
                                                         uint64_t address, uint64_t length,
                                                         uint32_t write_access) {
