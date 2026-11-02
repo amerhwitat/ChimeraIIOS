@@ -81,6 +81,7 @@ jobs:
           grep -Fq "[CPU ] BSP GDT/TSS initialized" qemu-debug.log
           grep -Fq "[MM  ] Address-space self-test passed: CR3 switch/restore" qemu-debug.log
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
+          grep -Fq "[SCH ] Stackful kernel task context switch round-trip verified" qemu-debug.log
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
