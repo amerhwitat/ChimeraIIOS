@@ -305,6 +305,12 @@ chmod 440 "$WORK/etc/sudoers.d/90-live"
 
 cp "$WORK/etc/xinitrc" "$WORK/home/live/.xinitrc"
 cat > "$WORK/home/live/.bash_profile" <<'EOF'
+if grep -qw 'chimera.mode=recovery' /proc/cmdline 2>/dev/null; then
+  echo "CHIMERA / OCTAVIAN LINUX RESCUE SHELL — verbose diagnostics enabled"
+  echo "Available: lsblk blkid fsck e2fsck parted gdisk mount chroot ip ping journalctl dmesg"
+  echo "No disk is modified automatically; inspect devices and confirm every repair."
+  exec bash --login
+fi
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
   exec startx
 fi
@@ -373,39 +379,68 @@ mkdir -p "$ISODIR/boot/grub"
 convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
   -strip -quality 90 "$ISODIR/boot/grub/background.jpg"
 
+# Stage the shared target menu and Jasper/Spit Fire adapters in both editions.
+mkdir -p "$ISODIR/boot/jasper" "$ISODIR/boot/spitfire" "$ISODIR/boot/koronos" \
+         "$ISODIR/boot/installer" "$ISODIR/boot/recovery" "$ISODIR/install/installer"
+install -m644 "$REPO_DIR/boot/jasper/live-image.cfg" "$ISODIR/boot/jasper/live-image.cfg"
+for cfg in jasper.cfg live.cfg install.cfg recovery.cfg diagnostics.cfg; do
+  [ ! -f "$REPO_DIR/boot/jasper/$cfg" ] || install -m644 "$REPO_DIR/boot/jasper/$cfg" "$ISODIR/boot/jasper/$cfg"
+done
+[ ! -f "$REPO_DIR/boot/spitfire/spitfire-menu.cfg" ] || install -m644 "$REPO_DIR/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+
+# Optional native artifacts are staged only when supplied. No test ELF or
+# missing initramfs is promoted into a production Installer/Recovery target.
+KORONOS_ELF="\${KORONOS_ELF:-$REPO_DIR/build/koronos/x86_64/koronos.elf}"
+INSTALLER_INITRAMFS="\${INSTALLER_INITRAMFS:-}"
+INSTALLATION_IMAGE="\${INSTALLATION_IMAGE:-}"
+RECOVERY_INITRAMFS="\${RECOVERY_INITRAMFS:-}"
+if [ -s "$KORONOS_ELF" ]; then install -m644 "$KORONOS_ELF" "$ISODIR/boot/koronos/koronos.elf"; fi
+if [ -n "$INSTALLER_INITRAMFS" ] && [ -s "$INSTALLER_INITRAMFS" ]; then install -m644 "$INSTALLER_INITRAMFS" "$ISODIR/boot/installer/installer-initrd.img"; fi
+if [ -n "$INSTALLATION_IMAGE" ] && [ -s "$INSTALLATION_IMAGE" ]; then install -m644 "$INSTALLATION_IMAGE" "$ISODIR/install/installer/installation.img"; fi
+if [ -n "$RECOVERY_INITRAMFS" ] && [ -s "$RECOVERY_INITRAMFS" ]; then install -m644 "$RECOVERY_INITRAMFS" "$ISODIR/boot/recovery/recovery-initramfs.img"; fi
+
+# Stage contracts as metadata; they are not executable installer payloads.
+if [ -s "$REPO_DIR/install/installer-contract.json" ]; then install -m644 "$REPO_DIR/install/installer-contract.json" "$ISODIR/install/installer/installer-contract.json"; fi
+for item in installation_phases.json installer_profiles.json; do
+  [ ! -s "$REPO_DIR/installer/$item" ] || install -m644 "$REPO_DIR/installer/$item" "$ISODIR/install/installer/$item"
+done
+[ ! -s "$REPO_DIR/boot/recovery/recovery-manifest.json" ] || install -m644 "$REPO_DIR/boot/recovery/recovery-manifest.json" "$ISODIR/boot/recovery/recovery-manifest.json"
+
+python3 - "$ISODIR" "$ED" <<'PY'
+import json, pathlib, sys
+root, edition = pathlib.Path(sys.argv[1]), sys.argv[2]
+exists = lambda p: (root / p).is_file()
+state = {
+ "schema": "chimera-boot-targets-v1", "edition": edition, "default": "live-linux",
+ "targets": {
+  "live": {"id": "live-linux", "available": exists("live/vmlinuz") and exists("live/initrd.img"), "kind": "linux-live-desktop"},
+  "installer": {"id": "installer", "available": all(exists(p) for p in ("boot/koronos/koronos.elf", "boot/installer/installer-initrd.img", "install/installer/installation.img", "install/installer/installer-contract.json", "install/installer/installation_phases.json", "install/installer/installer_profiles.json")), "kind": "native-koronos-installer"},
+  "koronos": {"id": "koronos", "available": exists("boot/koronos/koronos.elf"), "kind": "native-koronos-diagnostics"},
+  "recovery": {"id": "recovery", "available": exists("live/vmlinuz") and exists("live/initrd.img"), "kind": "linux-rescue-shell"},
+  "native_recovery": {"id": "recovery-koronos", "available": all(exists(p) for p in ("boot/koronos/koronos.elf", "boot/recovery/recovery-initramfs.img", "boot/recovery/recovery-manifest.json")), "kind": "native-koronos-recovery"}
+ },
+ "graphics": {"preferred": "5120x2880", "fallbacks": ["3840x2160","2560x1440","1920x1200","1920x1080","1680x1050","1600x1200","1600x900","1440x900","1366x768","1280x1024","1280x720","1024x768","800x600","640x480"], "grub_payload": "keep"},
+ "logging": {"grub": "visible", "kernel": "loglevel=7 ignore_loglevel printk.time=1", "systemd": "debug/status to console"},
+ "policy": "Native targets remain unavailable unless every required runtime artifact is staged. Linux rescue is not represented as native Koronos recovery."
+}
+(root / "boot/boot-targets.json").write_text(json.dumps(state, indent=2) + "\n")
+PY
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
 set default=0
-set timeout=10
+set timeout=8
 insmod all_video
 insmod gfxterm
 insmod png
 insmod jpeg
 insmod font
-set gfxmode=1920x1080,1280x1024,1024x768,auto
+set gfxmode=5120x2880,3840x2160,2560x1440,1920x1200,1920x1080,1680x1050,1600x1200,1600x900,1440x900,1366x768,1280x1024,1280x720,1024x768,800x600,640x480,auto
 set gfxpayload=keep
 terminal_output gfxterm
 if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
-
-menuentry "$TITLE $VERSION — Live desktop" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8 quiet loglevel=3
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Classic X session (openbox)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic console=tty0 console=ttyS0,115200n8 quiet loglevel=3
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Safe graphics (nomodeset)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live nomodeset console=tty0 console=ttyS0,115200n8 quiet loglevel=3
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Verbose boot" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8
-  initrd /live/initrd.img
-}
-menuentry "Reboot" { reboot }
-menuentry "Power off" { halt }
+echo "[BOOT] $TITLE $VERSION — verbose target menu"
+echo "[BOOT] Highest firmware-supported SVGA/HD mode; gfxpayload=keep"
+configfile /boot/jasper/live-image.cfg
 EOF
-
 log "iso"
 rm -f "$OUT/$ISO_NAME"
 grub-mkrescue --compress=xz -o "$OUT/$ISO_NAME" "$ISODIR" -- -volid "$VOLID"
