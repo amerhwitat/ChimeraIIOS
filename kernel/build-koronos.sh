@@ -33,7 +33,7 @@ rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
 sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_stack process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry x86_64_cpu x86_64_context x86_64_context_switch ai_model frame_allocator physmap address_space kernel_stack)
 for src in "${sources[@]}"; do
-  if [[ "$src" == "scheduler" ]]; then
+  if [[ "$src" == "scheduler" || "$src" == "koronos" ]]; then
     "$CXX" "${CXXFLAGS[@]}" -DCHIMERA_ENABLE_CONTEXT_SCHEDULER -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
   else
     "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
