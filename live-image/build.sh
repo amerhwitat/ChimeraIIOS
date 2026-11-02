@@ -423,12 +423,18 @@ if [ -n "$INSTALLER_INITRAMFS" ] && [ -s "$INSTALLER_INITRAMFS" ]; then install 
 if [ -n "$INSTALLATION_IMAGE" ] && [ -s "$INSTALLATION_IMAGE" ]; then install -m644 "$INSTALLATION_IMAGE" "$ISODIR/install/installer/installation.img"; fi
 if [ -n "$RECOVERY_INITRAMFS" ] && [ -s "$RECOVERY_INITRAMFS" ]; then install -m644 "$RECOVERY_INITRAMFS" "$ISODIR/boot/recovery/recovery-initramfs.img"; fi
 
-# Stage contracts as metadata; they are not executable installer payloads.
-if [ -s "$REPO_DIR/install/installer-contract.json" ]; then install -m644 "$REPO_DIR/install/installer-contract.json" "$ISODIR/install/installer/installer-contract.json"; fi
+# Stage native installer/recovery contracts from the owning source tree.
+if [ "$ED" = "octavian" ]; then
+  NATIVE_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source"
+else
+  NATIVE_SOURCE="$REPO_DIR"
+fi
+if [ -s "$NATIVE_SOURCE/install/installer-contract.json" ]; then install -m644 "$NATIVE_SOURCE/install/installer-contract.json" "$ISODIR/install/installer/installer-contract.json"; fi
+if [ -s "$NATIVE_SOURCE/installer/installer-manifest.json" ]; then install -m644 "$NATIVE_SOURCE/installer/installer-manifest.json" "$ISODIR/install/installer/installation-manifest.json"; fi
 for item in installation_phases.json installer_profiles.json; do
-  [ ! -s "$REPO_DIR/installer/$item" ] || install -m644 "$REPO_DIR/installer/$item" "$ISODIR/install/installer/$item"
+  [ ! -s "$NATIVE_SOURCE/installer/$item" ] || install -m644 "$NATIVE_SOURCE/installer/$item" "$ISODIR/install/installer/$item"
 done
-[ ! -s "$REPO_DIR/boot/recovery/recovery-manifest.json" ] || install -m644 "$REPO_DIR/boot/recovery/recovery-manifest.json" "$ISODIR/boot/recovery/recovery-manifest.json"
+[ ! -s "$NATIVE_SOURCE/boot/recovery/recovery-manifest.json" ] || install -m644 "$NATIVE_SOURCE/boot/recovery/recovery-manifest.json" "$ISODIR/boot/recovery/recovery-manifest.json"
 
 python3 - "$ISODIR" "$ED" <<'PY'
 import json, pathlib, sys
