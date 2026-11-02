@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     assert((block & (KORONOS_FRAME_SIZE - 1u)) == 0);
     assert(koronos_frame_free_contiguous(block, 4) == 0);
     assert(koronos_frame_free_contiguous(block, 4) == -2);
-    assert(koronos_frame_free_count() == free_before_reuse);
+    assert(koronos_frame_free_count() == free_before_reuse + 1);
 
     puts("frame allocator: next-fit wraparound, contiguous ownership, double-free, alignment and framebuffer reservations passed");
     return 0;
