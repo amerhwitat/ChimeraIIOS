@@ -217,10 +217,10 @@ jobs:
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
           tag="chimera-ii-os-live-${version}-desktop-${short}"
-          gh release create "$tag" "$iso" "$checksum" "$report" \
+          gh release create "$tag" "$iso" "$checksum" "$report" "$evidence" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Chimera II OS ${version} — fullscreen desktop fix" \
-            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
+            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. QEMU Live desktop and Linux Rescue Shell boots passed and their screenshots/logs are attached as QEMU-BOOT-EVIDENCE.tar.gz. Physical-machine boot and native Koronos userspace handoff remain unverified; this is not a native Koronos production release."
 
   qemu-boot:
     name: Boot the live ISO in QEMU and inspect the graphical console
