@@ -444,7 +444,7 @@ state = {
  "schema": "chimera-boot-targets-v1", "edition": edition, "default": "live-linux",
  "targets": {
   "live": {"id": "live-linux", "available": exists("live/vmlinuz") and exists("live/initrd.img"), "kind": "linux-live-desktop"},
-  "installer": {"id": "installer", "available": all(exists(p) for p in ("boot/koronos/koronos.elf", "boot/installer/installer-initrd.img", "install/installer/installation.img", "install/installer/installer-contract.json", "install/installer/installation_phases.json", "install/installer/installer_profiles.json")), "kind": "native-koronos-installer"},
+  "installer": {"id": "installer", "available": all(exists(p) for p in ("boot/koronos/koronos.elf", "boot/installer/installer-initrd.img", "install/installer/installation.img", "install/installer/installation-manifest.json", "install/installer/installer-contract.json", "install/installer/installation_phases.json", "install/installer/installer_profiles.json")), "kind": "native-koronos-installer"},
   "koronos": {"id": "koronos", "available": exists("boot/koronos/koronos.elf"), "kind": "native-koronos-diagnostics"},
   "recovery": {"id": "recovery", "available": exists("live/vmlinuz") and exists("live/initrd.img"), "kind": "linux-rescue-shell"},
   "native_recovery": {"id": "recovery-koronos", "available": all(exists(p) for p in ("boot/koronos/koronos.elf", "boot/recovery/recovery-initramfs.img", "boot/recovery/recovery-manifest.json")), "kind": "native-koronos-recovery"}
