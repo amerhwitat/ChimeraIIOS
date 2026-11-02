@@ -26,7 +26,7 @@ the second dispatcher argument.
 
 `chimera_x86_64_trap_frame_is_user()` is a pure validation helper. It requires
 the configured ring-3 code/data selectors, nonzero 48-bit canonical RIP/RSP,
-RFLAGS bit 1 and IF, and rejects IOPL, NT, and VM. The policy is deliberately
+RFLAGS bit 1 and IF, and rejects TF, IOPL, DF, NT, AC, and VM. The ISR executes CLD before entering C so a user-supplied direction flag cannot violate the kernel's SysV C ABI; IRETQ restores the saved user flags. The policy is deliberately
 conservative; LA57 user addresses are not accepted by this ABI.
 
 Host tests cover the exact structure offsets and invalid selectors, addresses,
