@@ -290,3 +290,16 @@ The latest Full ISO workflow run 41376751779 remains pending at this ledger upda
 ## 14. Latest CI queue and scheduler-claim cleanup — 2026-11-02
 
 The final Koronos build banner was corrected to identify the BSP scheduler callback runner and explicitly state that no SMP execution is present (commit `a5be7d9419b1e8208015347879265d19ba9e96a0`). New Full ISO validation run 41378389423 is pending. CI/CD run 41378389406 has its Linux build/tests, code generation and infrastructure validation completed successfully; Windows CI is still in progress. This is a diagnostic accuracy change only. It does not implement AP startup, independent per-CPU scheduler workers or overlapping task execution.
+
+
+## 15. Immutable ISO identity check on target traces — 2026-11-02
+
+The target trace artifact 13111368542 from Full ISO candidate run 41377107501 contains three separately composed target-specific test ISOs. Their SHA-256 values are:
+
+- Live target test ISO: `78e7d431f2af571fc87042023e51e60014230f7e8ed5a60a347d6c3f2ca691a1`
+- Installer target test ISO: `f77a0ac4569ec0061157a803e512071398d24ce73e4c96f2b6d8d253da0f3460`
+- Recovery target test ISO: `ab38b559f11a80697b36ba06421a7085dc6b2c0393ece73f7a8f3b800e5e4a4b`
+
+These are three different hashes. The artifact therefore cannot be used as evidence that BIOS and UEFI Live/Installer/Recovery all booted from one immutable ISO SHA. It remains useful for target-specific diagnostic traces only. The six-case same-ISO production acceptance requirement remains unmet.
+
+The boot-claims regression test was also extended to assert BSP-only scheduler initialization and the truthful build banner (commit `e4eff82e26be219e4f61c806806c4c262757d78e`). Revalidation run 41378733537 and related checks were queued/in progress at the time of this ledger update.
