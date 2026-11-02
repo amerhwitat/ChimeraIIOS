@@ -14,5 +14,11 @@
     "xrandr"
   ],
   "fallback": "show driver diagnostics and offer graphics-driver repair",
-  "note": "Wayland requires a compositor implementing wlr-output-management; X11 uses RandR."
+  "note": "Wayland requires a compositor implementing wlr-output-management; X11 uses RandR.",
+  "preferred_modes": [
+    "5120x2880",
+    "1024x768",
+    "640x480"
+  ],
+  "mode_selection_policy": "Use the first available preferred mode in order; retain all other hardware-reported modes as additional choices."
 }
