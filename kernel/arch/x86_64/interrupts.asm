@@ -48,6 +48,7 @@ chimera_interrupt_common:
     ; normalized frame in rsi and align the call stack for the SysV ABI.
     ; r12's interrupted value is already saved in the frame above.
     mov r12, rsp
+    cld                         ; C ABI requires DF=0; IRETQ restores saved user flags.
     and rsp, -16
     call chimera_interrupt_dispatch
     mov rsp, r12
