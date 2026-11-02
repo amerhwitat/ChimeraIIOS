@@ -112,18 +112,25 @@ jobs:
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          extract /desktop/marine/assets/marine-desktop.svg "$tmp/marine-desktop.svg"
+          extract /desktop/marine/assets/artwork-manifest.json "$tmp/marine-artwork-manifest.json"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
           for name in ("live-manifest.json", "recovery-manifest.json",
                        "installation-manifest.json", "installer-contract.json",
-                       "chimera-artwork-manifest.json"):
+                       "chimera-artwork-manifest.json", "marine-artwork-manifest.json"):
               json.loads((root / name).read_text())
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
           if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
+          marine = json.loads((root / "marine-artwork-manifest.json").read_text())
+          if not any(item.get("path") == "desktop/marine/assets/marine-desktop.svg" for item in marine.get("assets", [])):
+              raise SystemExit("Marine artwork manifest does not declare its embedded wallpaper")
+          if "Marine Desktop" not in (root / "marine-desktop.svg").read_text():
+              raise SystemExit("embedded Marine wallpaper does not contain its expected title")
           grub = (root / "grub.cfg").read_text()
           for target in ("aurora-live", "install", "recovery"):
               if f"--id {target}" not in grub:
