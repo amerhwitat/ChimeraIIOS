@@ -116,7 +116,8 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   // Never copy an installation tree into an arbitrary host directory and call it installed.
   std::cerr<<"STORAGE TRANSACTION BLOCKED: partitioning, formatting, mount ownership, installed initramfs verification, GRUB installation and rollback backend are not integrated. No disk was modified.\n";
   return 6;
-  if(copy_tree(p.source_root,p.target_root)!=0) return 4;
+}
+
   if(p.deep_driver_search){
     fs::create_directories(p.target_root/"var/lib/chimera/drivers");
     fs::create_directories(p.target_root/"lib/firmware");
