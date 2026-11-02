@@ -19,12 +19,12 @@ koronos_x86_64_load_gdt_tss:
     ltr ax
     ret
 
-; int koronos_x86_64_context_switch(context *from, const context *to)
-; context ABI: +0 saved RSP, +8 CR3 root.  Save/restore SysV callee-saved
-; registers within one address space. Distinct CR3 roots are rejected until the
-; kernel mapping is shared across roots and TLB shootdowns are implemented.
-global koronos_x86_64_context_switch
-koronos_x86_64_context_switch:
+; int koronos_x86_64_context_switch_raw(context *from, const context *to)
+; The C wrapper validates BSP ownership and performs the paired TSS.RSP0/PID
+; handoff with interrupts disabled. This primitive only exchanges stack frames.
+; It deliberately refuses a different CR3 until TLB shootdown support exists.
+global koronos_x86_64_context_switch_raw
+koronos_x86_64_context_switch_raw:
     test rdi, rdi
     jz .context_invalid
     test rsi, rsi
