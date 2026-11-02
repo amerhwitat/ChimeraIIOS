@@ -17,6 +17,8 @@ class IsoTargetRoutingTests(unittest.TestCase):
         end = GRUB.index('\n}', start)
         entry = GRUB[start:end]
         self.assertIn("multiboot2 /boot/koronos/koronos.elf", entry)
+        self.assertIn("/boot/installer/installer-initrd.img", entry)
+        self.assertIn("module2 /boot/installer/installer-initrd.img chimera-installer-initrd", entry)
         self.assertIn("module2 /install/installer/installation.img chimera-installation-image", entry)
         self.assertIn("module2 /install/installer/installation-manifest.json chimera-installation-manifest", entry)
         self.assertIn("module2 /install/installer/installer-contract.json chimera-installer-contract", entry)
