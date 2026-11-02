@@ -294,6 +294,9 @@ extern "C" int chimera_process_set_state(uint32_t pid,
     if ((state == CHIMERA_PROCESS_READY || state == CHIMERA_PROCESS_RUNNING ||
          state == CHIMERA_PROCESS_BLOCKED) &&
         (!slot->loaded_ok || !slot->execution_context_ready)) return -3;
+    if (slot->image.state == CHIMERA_PROCESS_RUNNING &&
+        (state == CHIMERA_PROCESS_EXITED || state == CHIMERA_PROCESS_FAULTED))
+        return -4; // a live execution context must first return to the scheduler
     slot->image.state = state;
     return 0;
 }
