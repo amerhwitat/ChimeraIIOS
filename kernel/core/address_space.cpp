@@ -455,7 +455,7 @@ extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
     const uint64_t end = address + length;
     uint64_t page = address & ~PAGE_MASK;
     while (page < end) {
-        if (!user_page_access(root_physical, page, write_access != 0)) return -2;
+        if (!user_page_access(root_physical, page, write_access != 0, false)) return -2;
         if (page > UINT64_MAX - PAGE_SIZE) return -3;
         page += PAGE_SIZE;
     }
