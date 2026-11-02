@@ -76,29 +76,33 @@
     "properties": true
   },
   "boot_contract": {
-    "kernel": "Koronos",
+    "kernel": "Koronos (native target only when ELF and runtime are staged)",
     "native_bootloader": "Spit Fire",
     "boot_manager": "Jasper",
     "firmware_fallback": "GRUB2",
-    "live_entry": "multiboot2 /boot/koronos/koronos.elf",
-    "installation_entry": "/boot/installation/menu.cfg",
-    "recovery_entry": "/boot/jasper/recovery.cfg",
+    "live_entry": "GRUB id live-linux (Linux-kernel live edition)",
+    "installation_entry": "GRUB id installer (native Koronos installer payload gated)",
+    "recovery_entry": "GRUB id recovery (Linux rescue shell); recovery-koronos requires native recovery payload",
     "diagnostics_entry": "/boot/jasper/diagnostics.cfg",
-    "vmlinuz": false
+    "vmlinuz": true,
+    "koronos_entry": "GRUB id koronos (native kernel diagnostics; experimental)",
+    "display": "5120x2880 preferred; highest firmware-supported fallback; gfxpayload=keep",
+    "logging": "verbose GRUB, kernel loglevel=7, ignore_loglevel, printk timestamps, systemd debug/status",
+    "linux_live_edition": true
   },
   "actions": {
     "live": {
-      "label": "Boot Live Aurora / Koronos",
-      "command": "grub-reboot aurora-live",
+      "label": "Boot Live Aurora Desktop",
+      "command": "grub-reboot live-linux",
       "requires": "bootloader"
     },
     "install": {
-      "label": "Install Chimera II OS",
-      "command": "grub-reboot install",
+      "label": "Native Koronos Installer (requires staged installer runtime)",
+      "command": "grub-reboot installer",
       "requires": "bootloader"
     },
     "recovery": {
-      "label": "Recovery",
+      "label": "Linux Rescue Shell",
       "command": "grub-reboot recovery",
       "requires": "bootloader"
     },
@@ -108,12 +112,12 @@
       "requires": "bootloader"
     },
     "jasper": {
-      "label": "Jasper Boot Manager",
+      "label": "Jasper Unified Boot Manager",
       "command": "grub-reboot jasper",
       "requires": "bootloader"
     },
     "spitfire": {
-      "label": "Spit Fire Native Boot",
+      "label": "Spit Fire Firmware Adapter",
       "command": "grub-reboot spitfire",
       "requires": "bootloader"
     },
@@ -126,6 +130,16 @@
       "label": "Aurora Flash Tool",
       "command": "aurora-flash-tool",
       "requires": "desktop"
+    },
+    "koronos": {
+      "label": "Koronos Kernel Diagnostics (experimental)",
+      "command": "grub-reboot koronos",
+      "requires": "bootloader"
+    },
+    "native_recovery": {
+      "label": "Native Koronos Recovery (requires staged recovery runtime)",
+      "command": "grub-reboot recovery-koronos",
+      "requires": "bootloader"
     }
   },
   "playstation_emulator_hub": {
@@ -138,6 +152,25 @@
       "PS3",
       "PS4",
       "PS5"
+    ]
+  },
+  "boot_targets": {
+    "menu": "/boot/jasper/live-image.cfg",
+    "manifest": "/boot/boot-targets.json",
+    "default": "live-linux",
+    "fail_closed": true,
+    "native_installer_requires": [
+      "/boot/koronos/koronos.elf",
+      "/boot/installer/installer-initrd.img",
+      "/install/installer/installation.img",
+      "/install/installer/installer-contract.json",
+      "/install/installer/installation_phases.json",
+      "/install/installer/installer_profiles.json"
+    ],
+    "native_recovery_requires": [
+      "/boot/koronos/koronos.elf",
+      "/boot/recovery/recovery-initramfs.img",
+      "/boot/recovery/recovery-manifest.json"
     ]
   }
 }
