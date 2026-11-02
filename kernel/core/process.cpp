@@ -231,6 +231,15 @@ extern "C" int chimera_process_load_elf(uint32_t pid, const void *image,
     }
 #if defined(KORONOS_FREESTANDING)
     slot->loaded.address_space = loaded.address_space;
+    const uint64_t kernel_stack_bytes =
+        (uint64_t)slot->kernel_stack_pages * KORONOS_FRAME_SIZE;
+    const uint64_t root = koronos_address_space_root(loaded.address_space);
+    if (!root || koronos_address_space_validate_kernel_range(
+            root, slot->kernel_stack_physical, kernel_stack_bytes, 1u) != 0) {
+        release_kernel_stack(slot);
+        destroy_loaded(slot);
+        return -21;
+    }
 #endif
     /* Deliberately remain ADMITTED: no validated CPL3 frame/iretq entry has
        been connected, so a mapped ELF is not yet a runnable process. */
