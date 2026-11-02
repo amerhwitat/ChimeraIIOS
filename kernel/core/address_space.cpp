@@ -354,9 +354,13 @@ static bool address_space_self_test() {
             ? table_ptr(bootstrap_root[0] & ENTRY_ADDRESS_MASK) : nullptr;
         // The supervisor identity-map PDs are physically shared with bootstrap,
         // while user leaves remain in separate page-table subtrees.
-        const bool shared_supervisor_pd =
-            bootstrap_pdpt && ((pdpt[0] & ENTRY_ADDRESS_MASK) ==
-                               (bootstrap_pdpt[0] & ENTRY_ADDRESS_MASK));
+        bool shared_supervisor_pd = bootstrap_pdpt != nullptr;
+        for (uint32_t i = 0; i < 4u && shared_supervisor_pd; ++i) {
+            shared_supervisor_pd =
+                (pdpt[i] & ENTRY_ADDRESS_MASK) ==
+                    (bootstrap_pdpt[i] & ENTRY_ADDRESS_MASK) &&
+                (pdpt[i] & ENTRY_USER) != 0;
+        }
         ok = code_pte && stack_pte && root && pdpt && pd && shared_supervisor_pd &&
              (*code_pte & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
              (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
