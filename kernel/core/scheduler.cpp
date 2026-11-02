@@ -189,6 +189,11 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
         lock();tasks[index].info.state=CHIMERA_TASK_READY;current_index[cpu]=-1;unlock();
         return 0;
     }
+    /* run_once returns to its caller after a task yields. The previous
+       scheduler_context therefore points into a retired run_once stack frame.
+       Start a fresh dispatcher continuation for every dispatch before saving
+       the current frame into it. */
+    scheduler_context = {};
     const uint64_t root=koronos_address_space_current_root();
     Task &selected_task=tasks[index];
     if (!selected_task.context_ready) {
