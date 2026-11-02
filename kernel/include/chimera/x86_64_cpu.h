@@ -2,6 +2,7 @@
 #define CHIMERA_X86_64_CPU_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +43,10 @@ typedef struct CHIMERA_X86_64_PACKED chimera_x86_64_gdtr {
 #pragma pack(pop)
 #endif
 #undef CHIMERA_X86_64_PACKED
+
+static_assert(sizeof(chimera_x86_64_tss) == 104, "x86-64 TSS must be 104 bytes");
+static_assert(offsetof(chimera_x86_64_tss, rsp0) == 4, "TSS RSP0 offset must be 4");
+static_assert(sizeof(chimera_x86_64_gdtr) == 10, "GDTR must be 10 bytes");
 
 /* Pure policy helper shared with host-side TSS guard tests. */
 #define CHIMERA_X86_64_RFLAGS_IF (1ull << 9)
