@@ -41,8 +41,9 @@ extern "C" int koronos_x86_64_context_prepare(
     frame[3] = reinterpret_cast<uint64_t>(argument);
     frame[4] = 0;
     frame[5] = 0;
-    frame[6] = trampoline_address;
-    frame[7] = 0;
+    frame[6] = 0x2u; // Reserved RFLAGS bit; interrupts remain disabled on first entry.
+    frame[7] = trampoline_address;
+    frame[8] = 0;
 
     context->rsp = reinterpret_cast<uint64_t>(frame);
     context->cr3 = cr3;
