@@ -12,7 +12,10 @@ extern "C" {
 
 #define CHIMERA_X86_64_TRAP_FRAME_ABI 1u
 #define CHIMERA_X86_64_RFLAGS_FIXED (1ull << 1)
+#define CHIMERA_X86_64_RFLAGS_TF (1ull << 8)
 #define CHIMERA_X86_64_RFLAGS_IF (1ull << 9)
+#define CHIMERA_X86_64_RFLAGS_DF (1ull << 10)
+#define CHIMERA_X86_64_RFLAGS_AC (1ull << 18)
 #define CHIMERA_X86_64_RFLAGS_IOPL (3ull << 12)
 #define CHIMERA_X86_64_RFLAGS_NT (1ull << 14)
 #define CHIMERA_X86_64_RFLAGS_VM (1ull << 17)
@@ -42,8 +45,11 @@ static inline int chimera_x86_64_trap_frame_is_user(
         !chimera_x86_64_is_canonical_user_address(frame->user_rsp)) return 0;
     if ((frame->rflags & CHIMERA_X86_64_RFLAGS_FIXED) == 0 ||
         (frame->rflags & CHIMERA_X86_64_RFLAGS_IF) == 0) return 0;
-    if (frame->rflags & (CHIMERA_X86_64_RFLAGS_IOPL |
+    if (frame->rflags & (CHIMERA_X86_64_RFLAGS_TF |
+                         CHIMERA_X86_64_RFLAGS_IOPL |
+                         CHIMERA_X86_64_RFLAGS_DF |
                          CHIMERA_X86_64_RFLAGS_NT |
+                         CHIMERA_X86_64_RFLAGS_AC |
                          CHIMERA_X86_64_RFLAGS_VM)) return 0;
     return 1;
 }
