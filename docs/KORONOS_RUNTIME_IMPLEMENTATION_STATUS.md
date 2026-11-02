@@ -244,3 +244,20 @@ The latest Full ISO run before the timeout correction (41375361717) passed ASM/C
 Both `.github/workflows/chimera-full-iso.yml` and `.github/workflows/koronos-boot-matrix.yml` now allow 60 seconds for QEMU, retaining the interactive menu rather than changing production boot policy. On the latest branch head `620a1b9fa69cb54d3b5abfe735c2f4ce60779aa9`, Koronos Kernel Build run 41376510340 passed, Boot Artifact Validation run 41376510225 passed, Runtime Contracts run 41376510233 passed, and the ISA/installer/command conformance run 41376510197 passed. The new Full ISO run 41376510227 is pending; the two-CPU boot-matrix run 41376510275 is still running. The timeout fix has not yet been validated by a completed QEMU run.
 
 The 60-second timeout fixes only the harness/menu timing mismatch. It does not prove a CPL3 handoff, a working Live/Installer/Recovery userspace, storage persistence, or publication. Keep the production release gate fail-closed.
+
+
+## 12.14 QEMU boot-matrix confirmation after interactive-menu timeout fix (2026-11-02)
+
+The 60-second QEMU timeout is now exercised successfully by Koronos VMware/QEMU Boot Matrix run 41376751858. Its x86_64 boot job completed successfully, including Koronos build, desktop artifacts, minimal Multiboot2 ISO creation, and QEMU serial/debugcon boot smoke. The captured trace confirms:
+
+- `[CPU ] BSP GDT/TSS initialized; ring-3 entry remains disabled pending process contexts`
+- `[MM  ] Address-space self-test passed: CR3 switch/restore, kernel identity mappings, user U/RW/NX permissions and frame rollback verified`
+- `[KRN ] KORONOS READY`
+- `[USER] USERSPACE READY is withheld: ELF load-plan admission is not a process execution context`
+- `[CPU ] Online scheduler CPUs: 1 (AP startup not implemented)`
+
+This confirms the BSP TSS load and CR3 address-space primitive execute in QEMU, not just host-side descriptor tests. It does **not** demonstrate CPL3 execution, process-owned kernel stacks, process context switching, VFS, init PID, desktop readiness, or SMP. The diagnostic artifact is [run 41376751858 / artifact 13112115406](https://github.com/amerhwitat/ChimeraIIOS/actions/runs/41376751858/artifacts/13112115406).
+
+Octavian's final vendored boot-routing validation after synchronizing the missing live/full builder scripts and original Chimera wallpaper/manifest passed in run 41376946110, including language catalog validation, GRUB parsing, target graph, installer routing, ISO payload validator, splash contracts, shell syntax and desktop companion smoke. Earlier partial-sync failures were superseded by this final-head success.
+
+The latest Full ISO workflow run 41376751779 remains pending at this ledger update. ISO composition and target-specific Live/Installer/Recovery handoff on the final head are therefore not yet verified. The production release gate remains closed.
