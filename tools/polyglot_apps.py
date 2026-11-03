@@ -126,4 +126,9 @@ def main():
     else:
         py,java,web=inventory(root);data={"schema":"chimera-polyglot-apps/v1","platform_build":"inventory-only","python_source_count":len(py),"python_entrypoints":sum(x["kind"]=="python-entrypoint" for x in py),"java_source_count":len(java),"web_source_count":len(web),"python":py,"java_sources":java,"web_sources":web};a.output.mkdir(parents=True,exist_ok=True);(a.output/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n")
     print(json.dumps({k:v for k,v in data.items() if k not in {"python","java_sources","web_sources"}},indent=2))
+    if a.build:
+        failed=[x["source"] for x in data["python"] if x["kind"]=="python-entrypoint" and x.get("build")!="built"]
+        if failed or data.get("panel_build")!="built" or (data["java_source_count"] and data.get("java_build")=="Maven project build failed"):
+            print("ERROR: one or more application build gates failed",file=sys.stderr)
+            raise SystemExit(1)
 if __name__=="__main__":main()
