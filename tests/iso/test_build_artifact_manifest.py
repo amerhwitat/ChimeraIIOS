@@ -69,14 +69,15 @@ class ArtifactManifestTests(unittest.TestCase):
             "boot/iso/prepare-layout.sh": 'BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"',
             "boot/iso/build-iso.sh": 'BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"',
             "build-chimera-iso.sh": 'export CHIMERA_BUILD_DIR="$BUILD_DIR"',
-            "boot/iso/build-iso.sh": 'NATIVE_ISO_ROOT="${CHIMERA_NATIVE_ISO_ROOT:-$ISO_ROOT}"',
-            "boot/iso/prepare-layout.sh": 'NATIVE_ISO_ROOT="${CHIMERA_NATIVE_ISO_ROOT:-$ROOT/boot/iso}"',
         }
         for relative, required in expected.items():
             source = (root / relative).read_text()
             self.assertIn(required, source, relative)
             self.assertNotIn('"$ROOT/build/', source, relative)
         prepare = (root / "boot/iso/prepare-layout.sh").read_text()
+        build_iso = (root / "boot/iso/build-iso.sh").read_text()
+        self.assertIn('NATIVE_ISO_ROOT="${CHIMERA_NATIVE_ISO_ROOT:-$ISO_ROOT}"', build_iso)
+        self.assertIn('NATIVE_ISO_ROOT="${CHIMERA_NATIVE_ISO_ROOT:-$ROOT/boot/iso}"', prepare)
         main_builder = (root / "build-chimera-iso.sh").read_text()
         self.assertIn('local native_root="$BUILD_DIR/native-iso"', main_builder)
         self.assertIn('install -m 0644 "$UEFI_LOADER" "$DIST/EFI/BOOT/BOOTX64.EFI"', prepare)
