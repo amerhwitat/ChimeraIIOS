@@ -331,7 +331,7 @@ if source.count(exec_line) != 1:
 if "AURORA_DESKTOP_URI=" in source:
     raise SystemExit("Aurora desktop URI must be injected exactly once")
 uri_line = f'export AURORA_DESKTOP_URI="file:///opt/aurora/{entry}"'
-source = source.replace(exec_line, uri_line + "\\n" + exec_line, 1)
+source = source.replace(exec_line, uri_line + "\n" + exec_line, 1)
 launcher.write_text(source)
 PY
 # The generated URI must point at a real page in this edition's staged payload.
