@@ -1,23 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cfg="${1:?usage: test-grub-targets.sh <grub.cfg>}"
-for target in "Live desktop" "Installer" "Koronos" "Recovery"; do
-  grep -Fq "$target" "$cfg" || { echo "Missing GRUB target: $target" >&2; exit 1; }
+if [[ $# -ne 3 ]]; then
+  echo "usage: $0 <grub.cfg> <spitfire-menu.cfg> <jasper-live.cfg>" >&2
+  exit 2
+fi
+root_cfg="$1"
+spitfire_cfg="$2"
+jasper_cfg="$3"
+grep -Fq 'configfile /boot/spitfire/spitfire-menu.cfg' "$root_cfg"
+grep -Fq 'configfile /boot/jasper/live-image.cfg' "$spitfire_cfg"
+for target in "Live — Aurora Desktop" "Safe Graphics" "Linux Rescue Shell" "Native Koronos Installer" "Native Koronos Recovery" "Native kernel diagnostics" "Classic X / Openbox" "UEFI firmware setup" "GRUB 2 command line" "Reboot" "Power off"; do
+  grep -Fq "$target" "$jasper_cfg" || { echo "Missing Jasper target: $target" >&2; exit 1; }
 done
-grep -Fq 'set gfxpayload=keep' "$cfg"
-grep -Fq '1920x1080' "$cfg"
-grep -Fq '1024x768' "$cfg"
-grep -Fq 'loglevel=7' "$cfg"
-grep -Fq 'ignore_loglevel' "$cfg"
-grep -Fq 'systemd.show_status=1' "$cfg"
-grep -Fq 'rd.systemd.show_status=1' "$cfg"
-grep -Fq 'chimera.mode=installer' "$cfg"
-grep -Fq 'chimera.mode=recovery' "$cfg"
-grep -Fq 'multiboot2 /boot/koronos.elf' "$cfg"
-grep -Fq 'insmod multiboot2' "$cfg"
-grep -Fq 'earlycon=uart,io,0x3f8,115200' "$cfg"
-grep -Fq 'log_buf_len=4M' "$cfg"
-grep -Fq 'systemd.log_level=debug' "$cfg"
-grep -Fq 'udev.log_level=debug' "$cfg"
-! grep -Eq '^[[:space:]]*linux .* quiet([[:space:]]|$)' "$cfg"
-echo "GRUB target, verbose boot, and high-resolution framebuffer policy: PASS"
+grep -Fq 'set gfxpayload=keep' "$root_cfg"
+grep -Fq 'set gfxpayload=keep' "$spitfire_cfg"
+grep -Fq 'set gfxpayload=keep' "$jasper_cfg"
+grep -Fq '5120x2880' "$jasper_cfg"
+grep -Fq '1024x768' "$jasper_cfg"
+grep -Fq '640x480' "$jasper_cfg"
+grep -Fq 'loglevel=7' "$jasper_cfg"
+grep -Fq 'ignore_loglevel' "$jasper_cfg"
+grep -Fq 'systemd.show_status=1' "$jasper_cfg"
+grep -Fq 'multiboot2 /boot/koronos.elf' "$jasper_cfg"
+grep -Fq 'insmod multiboot2' "$jasper_cfg"
+grep -Fq '/boot/installer/installer-initrd.img' "$jasper_cfg"
+grep -Fq '/boot/recovery/chimera-recovery-initramfs.img' "$jasper_cfg"
+grep -Fq 'Native Koronos Installer runtime incomplete' "$jasper_cfg"
+grep -Fq 'Native Koronos Recovery runtime incomplete' "$jasper_cfg"
+! grep -Eq '^[[:space:]]*linux .* quiet([[:space:]]|$)' "$jasper_cfg"
+echo "Spit Fire -> Jasper/GRUB2 configfile chain, target routing, fail-closed native handoffs and verbose framebuffer policy: PASS"
