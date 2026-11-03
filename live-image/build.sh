@@ -435,7 +435,7 @@ terminal_output gfxterm
 if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
 
 menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Live desktop" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=live console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=live console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 log_buf_len=4M earlycon=uart,io,0x3f8,115200 systemd.show_status=1 rd.systemd.show_status=1 systemd.log_level=debug systemd.log_target=console rd.systemd.log_level=debug udev.log_level=debug plymouth.enable=0 fbcon=nodefer
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Installer" {
