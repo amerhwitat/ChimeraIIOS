@@ -27,6 +27,10 @@ for f in chimera-logd.sh chimera-logrotate.sh chimera-driver-manager.sh chimera-
   [ -f "$SRC/tools/$f" ] && cp -f "$SRC/tools/$f" "$DEST/usr/bin/$f" && chmod +x "$DEST/usr/bin/$f"
 done
 [ -f "$SRC/tools/chimera-driver-center.sh" ] && cp -f "$SRC/tools/chimera-driver-center.sh" "$DEST/usr/bin/chimera-driver-center" && chmod +x "$DEST/usr/bin/chimera-driver-center"
+[ -f "$SRC/desktop/aurora/network-applications.desktop" ] && cp -f "$SRC/desktop/aurora/network-applications.desktop" "$DEST/usr/share/applications/"
+[ -f "$SRC/desktop/aurora/voiceconnect.desktop" ] && cp -f "$SRC/desktop/aurora/voiceconnect.desktop" "$DEST/usr/share/applications/"
+[ -f "$SRC/desktop/aurora/networking_panel.json" ] && cp -f "$SRC/desktop/aurora/networking_panel.json" "$DEST/usr/share/chimera/aurora/"
+[ -f "$SRC/desktop/aurora/network-applications.py" ] && cp -f "$SRC/desktop/aurora/network-applications.py" "$DEST/usr/bin/chimera-network-applications" && chmod +x "$DEST/usr/bin/chimera-network-applications"
 [ -f "$SRC/system/aurora/chimera-driver-center.desktop" ] && cp -f "$SRC/system/aurora/chimera-driver-center.desktop" "$DEST/usr/share/applications/"
 [ -f "$SRC/system/aurora/chimera-playstation.desktop" ] && cp -f "$SRC/system/aurora/chimera-playstation.desktop" "$DEST/usr/share/applications/"
 [ -f "$SRC/system/aurora/chimera-rom-search.desktop" ] && cp -f "$SRC/system/aurora/chimera-rom-search.desktop" "$DEST/usr/share/applications/"
@@ -42,7 +46,7 @@ done
 [ -f "$SRC/config/drivers/driver-repositories.json" ] && cp -f "$SRC/config/drivers/driver-repositories.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/config/drivers/driver-policy.json" ] && cp -f "$SRC/config/drivers/driver-policy.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/system/boot/chimera-logging.conf" ] && cp -f "$SRC/system/boot/chimera-logging.conf" "$DEST/etc/chimera/logging.conf"
-for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh aurora-event-sound.sh aurora-init-splash.sh; do
+for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh aurora-event-sound.sh aurora-init-splash.sh voiceconnect-launcher.sh; do
   if [ -f "$SRC/desktop/aurora/$f" ]; then
     cp -f "$SRC/desktop/aurora/$f" "$DEST/usr/share/chimera/aurora/$f"
     chmod +x "$DEST/usr/share/chimera/aurora/$f"
