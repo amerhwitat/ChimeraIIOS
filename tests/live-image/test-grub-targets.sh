@@ -10,6 +10,8 @@ gates_cfg="$3"
 jasper_cfg="$4"
 grep -Fq 'configfile /boot/spitfire/spitfire-menu.cfg' "$root_cfg"
 grep -Fq 'configfile /boot/gates/gates-menu.cfg' "$spitfire_cfg"
+grep -Fq 'direct-gates' "$spitfire_cfg"
+grep -Fq 'direct-jasper' "$spitfire_cfg"
 grep -Fq 'configfile /boot/jasper/live-image.cfg' "$gates_cfg"
 for target in "Live — Aurora Desktop" "Safe Graphics" "Linux Rescue Shell" "Native Koronos Installer" "Native Koronos Recovery" "Native kernel diagnostics" "Classic X / Openbox" "UEFI firmware setup" "GRUB 2 command line" "Reboot" "Power off"; do
   grep -Fq "$target" "$jasper_cfg" || { echo "Missing Jasper target: $target" >&2; exit 1; }
