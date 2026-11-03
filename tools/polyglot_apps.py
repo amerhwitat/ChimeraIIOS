@@ -58,7 +58,7 @@ def build(root,out,platform):
         r=call([tool,"--noconfirm","--clean","--onefile","--windowed","--name",name,"--distpath",str(dist),"--add-data",str(source_tree)+sep+"python-source",str(wrapper)],root)
         app["build"]="built" if r.returncode==0 else "failed";app["log"]=r.stdout[-2000:]
         app["artifact"]=str((dist/(name+(".exe" if platform=="windows" else ""))).relative_to(out)) if r.returncode==0 else None
-    pom=next(iter(root.rglob("pom.xml")),None);java_status="sources inventoried; no Maven project" if java else "no Java sources"
+    poms=[p for p in root.rglob("pom.xml") if not any(part in SKIP for part in p.relative_to(root).parts)];pom=poms[0] if poms else None;java_status="sources inventoried; no Maven project" if java else "no Java sources"
     if pom and shutil.which("mvn"):
         r=call(["mvn","-B","-f",str(pom),"package","-DskipTests"],root);java_status="built" if r.returncode==0 else "failed"
     elif java and not shutil.which("javac"):java_status="sources inventoried; JDK unavailable"
@@ -73,9 +73,18 @@ def gui(root,manifest):
     frame=ttk.Frame(w);frame.pack(fill="both",expand=True,padx=18,pady=12);listing=tk.Listbox(frame,width=50);listing.pack(side="left",fill="y");output=tk.Text(frame,wrap="word");output.pack(side="left",fill="both",expand=True,padx=12)
     apps=[a for a in data["python"] if a["kind"]=="python-entrypoint"]
     for a in apps:listing.insert("end",a["name"]+" — "+a["source"])
+    windows_dir=manifest.parent/"windows"
+    windows_apps=sorted(windows_dir.glob("*.exe")) if windows_dir.is_dir() else []
+    for exe in windows_apps:listing.insert("end",exe.stem+" — Windows executable (Wine)")
+    apps.extend([{"kind":"windows-exe","name":exe.stem,"source":str(exe)} for exe in windows_apps])
     def launch():
         if not listing.curselection():return
-        a=apps[listing.curselection()[0]];src=root/a["source"]
+        a=apps[listing.curselection()[0]]
+        if a["kind"]=="windows-exe":
+            wine=shutil.which("wine") or shutil.which("wine64")
+            if not wine:messagebox.showerror("Wine unavailable","Install the optional Wine 32/64-bit compatibility runtime to launch Windows executables.");return
+            subprocess.Popen([wine,a["source"]]);return
+        src=root/a["source"]
         if not src.is_file():messagebox.showerror("Missing source",str(src));return
         output.delete("1.0","end");output.insert("end","Launching "+a["name"]+"\n")
         p=subprocess.Popen([sys.executable,str(src)],cwd=str(src.parent),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);text,_=p.communicate();output.insert("end",(text or "No console output.")+"\nExit code: "+str(p.returncode))
