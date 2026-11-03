@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 echo
-echo "=== Chimera / Octavian Recovery Environment ==="
-echo "Read-only inspection is the default. Filesystems are never modified automatically."
+echo "=== RESCUE SHELL — Chimera / Octavian Recovery Environment ==="
+echo "No disk is modified automatically. Inspection is read-only; repair requires typed confirmation."
 echo
 while true; do
   echo "Recovery actions:"
@@ -16,9 +16,9 @@ while true; do
         if [[ -z "$device" ]]; then echo "Cancelled."; break; fi
         if [[ ! -b "$device" ]]; then echo "Refusing: $device is not a block device."; break; fi
         read -r -p "Run fsck -f on $device? This may modify filesystem metadata. Type CHECK to continue: " confirm
-        if [[ "$confirm" == "CHECK" ]]; then fsck -f "$device"; else echo "Cancelled."; fi
+        if [[ "$confirm" == "CHECK" ]]; then sudo fsck -f "$device"; else echo "Cancelled."; fi
         break ;;
-      4) exec /bin/bash -l ;;
+      4) exec sudo -i ;;
       5) systemctl reboot ;;
       *) echo "Choose a listed action."; break ;;
     esac
