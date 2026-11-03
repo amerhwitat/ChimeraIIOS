@@ -14,6 +14,7 @@ A bootable amd64 live image is published from this repository:
 - Previous: **Chimera II OS 2026.11.02** — [`chimera-ii-os-live-amd64.iso`](https://github.com/amerhwitat/ChimeraIIOS/releases/download/chimera-ii-os-2026.11.02/chimera-ii-os-live-amd64.iso) · 467 MiB · SHA-256 `e599df3c6b82bc7e98f152edf1d4ee26b988c842c4eace65df6b0138f4007de8`
 - Release notes, checksums and build evidence: [`docs/releases/chimera-ii-os-2026.11.02/RELEASE.md`](docs/releases/chimera-ii-os-2026.11.02/RELEASE.md)
 - Mirror / download index: https://amerhwitat.github.io/downloads/
+- Named desktop gallery: [`web/desktop-showcase/index.html`](web/desktop-showcase/index.html) — offline HTML/CSS desktop previews with project names; browser concepts are not native Koronos verification.
 
 Boots BIOS and UEFI, live login `live` / `live`, Aurora WebKit kiosk on tty1, 26 offline
 wallpapers. The image runs the Debian Linux kernel plus this repository's Aurora desktop and
