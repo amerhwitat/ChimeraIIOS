@@ -1,0 +1,10 @@
+[Unit]
+Description=Chimera II OS / OctavianOS live session target
+Documentation=man:systemd.special(7)
+Requires=multi-user.target
+Wants=systemd-networkd.service systemd-networkd.socket getty@tty1.service
+After=multi-user.target systemd-networkd.service
+AllowIsolate=yes
+
+[Install]
+Alias=default.target
