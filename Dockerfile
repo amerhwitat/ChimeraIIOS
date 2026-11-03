@@ -80,7 +80,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lvm2 mdadm cryptsetup-bin parted gdisk nvme-cli smartmontools \
     systemd systemd-sysv dosbox geany vim emacs-nox gcc g++ clang lld make cmake ninja-build pkg-config libgtk-4-dev \
     openjdk-21-jdk-headless python3-venv python3-dev rustc cargo golang gfortran nodejs npm ruby php-cli lua5.4 \
-    && for optional_package in frr bird2 openvswitch-switch strongswan udftools bluefish thonny gdb-multiarch lldb iputils-tracepath; do \
+    && for optional_package in frr bird2 openvswitch-switch strongswan udftools bluefish thonny gdb-multiarch lldb iputils-tracepath gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu binutils-riscv64-linux-gnu; do \
       if apt-cache show "$optional_package" >/dev/null 2>&1; then \
         apt-get install -y --no-install-recommends "$optional_package" || echo "[WARN] optional package unavailable: $optional_package"; \
       else \
