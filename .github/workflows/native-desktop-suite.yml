@@ -62,6 +62,7 @@ jobs:
             $(pkg-config --libs gtk4) -o "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell"
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=aurora --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=marine --self-test
+          python3 -m unittest discover -s tests/desktop -p test_native_shell_interactions.py -v
           if "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=invalid --self-test; then
             echo "invalid desktop profile was accepted" >&2
             exit 1
