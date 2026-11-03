@@ -52,7 +52,7 @@ jobs:
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick busybox-static cpio python3 python3-gi gir1.2-gtk-3.0 \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 g++ nasm binutils
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 g++ nasm binutils busybox cpio ffmpeg
 
       - name: Validate desktop source and application catalogs
         run: |
@@ -118,8 +118,24 @@ jobs:
           print("Embedded Koronos ELF64 Multiboot2 header: PASS")
           PY
           xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$OUT_DIR/grub.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-menu.cfg "$OUT_DIR/spitfire-menu.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/jasper/live-image.cfg "$OUT_DIR/jasper-live.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$OUT_DIR/native-runtime-candidates.json" >/dev/null
           chmod +x tests/live-image/test-grub-targets.sh
-          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg"
+          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json"
+          for artifact in \
+            /boot/candidates/installer/installer-initrd.img \
+            /boot/candidates/installer/installation.img \
+            /boot/candidates/installer/installation-manifest.json \
+            /boot/candidates/installer/installer-contract.json \
+            /boot/candidates/installer/installation_phases.json \
+            /boot/candidates/installer/installer_profiles.json \
+            /boot/candidates/recovery/chimera-recovery-initramfs.img \
+            /boot/candidates/recovery/recovery-manifest.json; do
+            name="$(basename "$artifact")"
+            xorriso -osirrox on -indev "$iso" -extract "$artifact" "$OUT_DIR/$name" >/dev/null
+            test -s "$OUT_DIR/$name"
+          done
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
@@ -130,6 +146,9 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-boot-mode"
           test -x "$root/usr/local/sbin/chimera-recovery"
+          test -x "$root/usr/local/bin/aurora-init-splash.sh"
+          test -s "$root/usr/share/chimera/aurora/assets/Init.mp4"
+          grep -Fq 'aurora-init-splash.sh' "$root/usr/local/bin/aurora-session"
           test -s "$root/opt/aurora/application-bundle.json"
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
@@ -181,7 +200,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x tests/live-image/test-qemu-live-boot.sh
-          for target in live installer koronos recovery; do
+          for target in live installer koronos recovery linux-rescue; do
             tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence/$target" "$target"
           done
       - name: Upload QEMU boot evidence
