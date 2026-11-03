@@ -51,46 +51,10 @@ int visit(void* opaque, const char* path, uint32_t mode, uint32_t,
           uint32_t, const void*, uint32_t) {
     auto& visitor = *static_cast<Visitor*>(opaque);
     for (const auto& old : visitor.paths)
-        if (old == path) return -1; // VFS duplicate-path policy.
+        if (old == path) return -1;
     visitor.paths.emplace_back(path);
     if ((mode & 0170000u) == 0100000u) ++visitor.files;
     if ((mode & 0170000u) == 0040000u) ++visitor.directories;
-    const auto good = archive({
-        {"./", 0040755u, "", 0u, false, UINT32_MAX},
-        {"./init", 0100755u, "hello", 5u, false, UINT32_MAX},
-        {"./etc", 0040755u, "", 0u, false, UINT32_MAX}
-    });
-    Visitor visitor;
-    chimera_cpio_newc_ops ops{visit};
-    chimera_cpio_newc_summary summary{};
-    assert(chimera_cpio_newc_walk(good.data(), good.size(), &ops, &visitor, &summary) == 0);
-    assert(summary.abi == CHIMERA_CPIO_NEWC_ABI);
-    assert(summary.entries == 3u && summary.regular_files == 1u && summary.directories == 2u);
-    assert(summary.data_bytes == 5u && visitor.files == 1u && visitor.directories == 2u);
-    assert(visitor.paths[0].empty());
-    assert(visitor.paths[1] == "init");
-
-    const auto traversal = archive({{"../escape", 0100644u, "x", 1u, false, UINT32_MAX}});
-    Visitor bad_path;
-    assert(chimera_cpio_newc_walk(traversal.data(), traversal.size(), &ops, &bad_path, &summary) == -4);
-    const auto absolute = archive({{"/etc/passwd", 0100644u, "x", 1u, false, UINT32_MAX}});
-    assert(chimera_cpio_newc_walk(absolute.data(), absolute.size(), &ops, &bad_path, &summary) == -4);
-
-    const auto bad_crc = archive({{"./init", 0100755u, "hello", 5u, true, 0u}});
-    assert(chimera_cpio_newc_walk(bad_crc.data(), bad_crc.size(), &ops, &bad_path, &summary) == -7);
-    const auto unsupported = archive({{"./dev/null", 0020666u, "", 0u, false, UINT32_MAX}});
-    assert(chimera_cpio_newc_walk(unsupported.data(), unsupported.size(), &ops, &bad_path, &summary) == -6);
-    const auto duplicate = archive({
-        {"./init", 0100755u, "a", 1u, false, UINT32_MAX},
-        {"./init", 0100755u, "b", 1u, false, UINT32_MAX}
-    });
-    Visitor duplicate_visitor;
-    assert(chimera_cpio_newc_walk(duplicate.data(), duplicate.size(), &ops, &duplicate_visitor, &summary) == -9);
-    assert(summary.entries == 1u);
-
-    auto truncated = good;
-    truncated.pop_back();
-    assert(chimera_cpio_newc_walk(truncated.data(), truncated.size(), &ops, &bad_path, &summary) == -5);
     return 0;
 }
 std::vector<uint8_t> archive(std::initializer_list<ArchiveEntry> entries) {
@@ -148,5 +112,42 @@ int main() {
     assert(chimera_service_set_state("chimera.device", CHM_SVC_RUNNING) == 0);
     assert(chimera_service_get_state("chimera.device") == CHM_SVC_RUNNING);
     assert(chimera_service_set_state("bad", 999u) == -1);
+
+    const auto good = archive({
+        {"./", 0040755u, "", 0u, false, UINT32_MAX},
+        {"./init", 0100755u, "hello", 5u, false, UINT32_MAX},
+        {"./etc", 0040755u, "", 0u, false, UINT32_MAX}
+    });
+    Visitor visitor;
+    chimera_cpio_newc_ops ops{visit};
+    chimera_cpio_newc_summary summary{};
+    assert(chimera_cpio_newc_walk(good.data(), good.size(), &ops, &visitor, &summary) == 0);
+    assert(summary.abi == CHIMERA_CPIO_NEWC_ABI);
+    assert(summary.entries == 3u && summary.regular_files == 1u && summary.directories == 2u);
+    assert(summary.data_bytes == 5u && visitor.files == 1u && visitor.directories == 2u);
+    assert(visitor.paths[0].empty());
+    assert(visitor.paths[1] == "init");
+
+    const auto traversal = archive({{"../escape", 0100644u, "x", 1u, false, UINT32_MAX}});
+    Visitor bad_path;
+    assert(chimera_cpio_newc_walk(traversal.data(), traversal.size(), &ops, &bad_path, &summary) == -4);
+    const auto absolute = archive({{"/etc/passwd", 0100644u, "x", 1u, false, UINT32_MAX}});
+    assert(chimera_cpio_newc_walk(absolute.data(), absolute.size(), &ops, &bad_path, &summary) == -4);
+
+    const auto bad_crc = archive({{"./init", 0100755u, "hello", 5u, true, 0u}});
+    assert(chimera_cpio_newc_walk(bad_crc.data(), bad_crc.size(), &ops, &bad_path, &summary) == -7);
+    const auto unsupported = archive({{"./dev/null", 0020666u, "", 0u, false, UINT32_MAX}});
+    assert(chimera_cpio_newc_walk(unsupported.data(), unsupported.size(), &ops, &bad_path, &summary) == -6);
+    const auto duplicate = archive({
+        {"./init", 0100755u, "a", 1u, false, UINT32_MAX},
+        {"./init", 0100755u, "b", 1u, false, UINT32_MAX}
+    });
+    Visitor duplicate_visitor;
+    assert(chimera_cpio_newc_walk(duplicate.data(), duplicate.size(), &ops, &duplicate_visitor, &summary) == -9);
+    assert(summary.entries == 1u);
+
+    auto truncated = good;
+    truncated.pop_back();
+    assert(chimera_cpio_newc_walk(truncated.data(), truncated.size(), &ops, &bad_path, &summary) == -5);
     return 0;
 }
