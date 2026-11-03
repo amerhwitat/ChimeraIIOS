@@ -42,7 +42,7 @@ mkdir -p "$SMOKE"
 
 if command -v clang >/dev/null 2>&1 && command -v gnustep-config >/dev/null 2>&1; then
   read -r -a OBJC_FLAGS <<< "$(gnustep-config --objc-flags)"
-  clang "\${OBJC_FLAGS[@]}" -I"$ROOT/objective-c" -c "$ROOT/objective-c/ChimeraSDK.m" -o "$SMOKE/chimera-objective-c.o"
+  clang "${OBJC_FLAGS[@]}" -I"$ROOT/objective-c" -c "$ROOT/objective-c/ChimeraSDK.m" -o "$SMOKE/chimera-objective-c.o"
   echo "objective-c=PASS (GNUstep Foundation)" >> "$SMOKE/status.txt"
 elif command -v xcrun >/dev/null 2>&1 && command -v clang >/dev/null 2>&1; then
   if OBJC_SDK="$(xcrun --sdk macosx --show-sdk-path 2>/dev/null)"; then
