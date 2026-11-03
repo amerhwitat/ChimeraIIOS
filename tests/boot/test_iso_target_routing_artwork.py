@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Static regressions for the GRUB2 -> Spit Fire -> Jasper boot chain."""
+"""Static regressions for GRUB2 -> Spit Fire -> Gates -> Jasper routing."""
 from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 GRUB = (ROOT / "boot/iso/grub.cfg").read_text()
 SPITFIRE = (ROOT / "boot/spitfire/spitfire-menu.cfg").read_text()
-JASPER = (ROOT / "boot/jasper/jasper.cfg").read_text()
+GATES = (ROOT / "boot/gates/gates-menu.cfg").read_text()
+JASPER = (ROOT / "boot/jasper/live-image.cfg").read_text()
 INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
@@ -14,13 +15,20 @@ LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
-    def test_firmware_grub_spitfire_jasper_handoff_is_explicit(self):
+    def test_firmware_grub_spitfire_gates_jasper_handoff_is_explicit(self):
         self.assertIn("configfile /boot/spitfire/spitfire-menu.cfg", GRUB)
-        self.assertIn("configfile /boot/jasper/jasper.cfg", SPITFIRE)
+        self.assertIn("configfile /boot/gates/gates-menu.cfg", SPITFIRE)
+        self.assertIn("configfile /boot/jasper/live-image.cfg", GATES)
         self.assertIn("menuentry", JASPER)
-        self.assertIn("set gfxpayload=keep", GRUB)
-        self.assertIn("set gfxpayload=keep", SPITFIRE)
-        self.assertIn("set gfxpayload=keep", JASPER)
+        for config in (GRUB, SPITFIRE, GATES, JASPER):
+            self.assertIn("gfxpayload=keep", config)
+
+    def test_jasper_offers_linux_live_and_separate_linux_rescue(self):
+        self.assertIn("--id live-linux", JASPER)
+        self.assertIn("--id linux-rescue", JASPER)
+        self.assertIn("chimera.mode=recovery", JASPER)
+        self.assertIn("/live/vmlinuz", JASPER)
+        self.assertIn("/live/initrd.img", JASPER)
 
     def test_native_installer_requires_its_own_certified_runtime(self):
         self.assertIn("native-installer-runtime.ready", INSTALL)
@@ -65,7 +73,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
 
     def test_no_synthetic_boot_progress_percentages(self):
         for path in ("boot/iso/grub.cfg", "boot/spitfire/spitfire-menu.cfg",
-                     "boot/jasper/jasper.cfg", "boot/jasper/live.cfg",
+                     "boot/gates/gates-menu.cfg", "boot/jasper/live-image.cfg",
                      "boot/jasper/install.cfg", "boot/jasper/recovery.cfg"):
             self.assertNotRegex((ROOT / path).read_text(), r"\b(?:25|40|50|60|75|90|100)%")
 
