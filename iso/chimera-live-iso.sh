@@ -219,7 +219,7 @@ m={
  "activation_policy":"Candidate archives remain outside active native boot paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot acceptance pass.",
  "status":"prototype-built-not-native-koronos-runtime"
 }
-(root/"native-runtime-candidates.json").write_text(json.dumps(m,indent=2)+"\\n")
+(root/"native-runtime-candidates.json").write_text(json.dumps(m,indent=2)+"\n")
 PY
 
 # Verify mformat can create a FAT image in the native temporary filesystem before
