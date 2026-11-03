@@ -38,6 +38,11 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Use the same selected build volume as the parent ISO builder. The live
+# artifact producer and every consumer must resolve one canonical directory.
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+LIVE_BOOT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
+export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_LIVE_BOOT_DIR="$LIVE_BOOT"
 DIST="$ROOT/boot/iso/dist/iso"
 rm -rf "$DIST"
 mkdir -p "$DIST/boot/grub" "$DIST/boot/jasper" "$DIST/boot/spitfire" "$DIST/boot/koronos" "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA"
@@ -154,7 +159,6 @@ else
   echo "Live boot builder missing: $ROOT/tools/build-live-boot-binaries.sh" >&2
   exit 2
 fi
-LIVE_BOOT="$ROOT/build/live-boot"
 for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
   "$LIVE_BOOT/boot/live/live-manifest.json"; do
@@ -193,7 +197,7 @@ cp "$ROOT/boot/recovery/recovery-manifest.json" "$DIST/boot/recovery/recovery-ma
 cp "$ROOT/boot/diagnostics/diagnostics-manifest.json" "$DIST/boot/diagnostics/diagnostics-manifest.json"
 cp "$ROOT/boot/boot-menu-contract.json" "$DIST/boot/boot-menu-contract.json"
 cp "$ROOT/boot/livecd/live-manifest.json" "$DIST/boot/live-manifest.json"
-if [[ -d "$ROOT/build/live-boot/boot/live" ]]; then cp -a "$ROOT/build/live-boot/boot/live" "$DIST/boot/"; fi
+if [[ -d "$LIVE_BOOT/boot/live" ]]; then cp -a "$LIVE_BOOT/boot/live" "$DIST/boot/"; fi
 
 cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
 set timeout=5
