@@ -1,0 +1,186 @@
+{
+  "schema": "CHM-OPEN-SOURCE-MEDIA-APPLICATIONS-1",
+  "status": "catalog-and-association-contract; package/runtime availability must be verified per ISO and architecture",
+  "policy": {
+    "upstream_licenses_authoritative": true,
+    "source_pinned_builds_required": true,
+    "license_sbom_required": true,
+    "do_not_claim_bundled_without_iso_manifest": true,
+    "external_codecs_license_review": true
+  },
+  "applications": [
+    {
+      "id": "vlc",
+      "name": "VLC",
+      "category": "audio-video-player",
+      "license": "GPL-2.0-or-later",
+      "url": "https://github.com/videolan/vlc",
+      "formats": [
+        "audio/*",
+        "video/*",
+        "application/ogg",
+        "application/vnd.apple.mpegurl"
+      ]
+    },
+    {
+      "id": "mpv",
+      "name": "mpv",
+      "category": "audio-video-player",
+      "license": "GPL-2.0-or-later",
+      "url": "https://github.com/mpv-player/mpv",
+      "formats": [
+        "audio/*",
+        "video/*",
+        "application/ogg"
+      ]
+    },
+    {
+      "id": "audacious",
+      "name": "Audacious",
+      "category": "audio-player",
+      "license": "BSD-2-Clause plus component licenses",
+      "url": "https://github.com/audacious-media-player/audacious",
+      "formats": [
+        "audio/*"
+      ]
+    },
+    {
+      "id": "rhythmbox",
+      "name": "Rhythmbox",
+      "category": "music-library",
+      "license": "GPL-2.0-or-later",
+      "url": "https://gitlab.gnome.org/GNOME/rhythmbox",
+      "formats": [
+        "audio/*"
+      ]
+    },
+    {
+      "id": "strawberry",
+      "name": "Strawberry",
+      "category": "music-library",
+      "license": "GPL-3.0-or-later",
+      "url": "https://github.com/strawberrymusicplayer/strawberry",
+      "formats": [
+        "audio/*"
+      ]
+    },
+    {
+      "id": "obs-studio",
+      "name": "OBS Studio",
+      "category": "recording-streaming",
+      "license": "GPL-2.0-or-later",
+      "url": "https://github.com/obsproject/obs-studio",
+      "formats": []
+    },
+    {
+      "id": "audacity",
+      "name": "Audacity",
+      "category": "audio-editor",
+      "license": "GPL-3.0-or-later",
+      "url": "https://github.com/audacity/audacity",
+      "formats": [
+        "audio/*"
+      ]
+    },
+    {
+      "id": "ardour",
+      "name": "Ardour",
+      "category": "daw",
+      "license": "GPL-2.0-or-later",
+      "url": "https://github.com/Ardour/ardour",
+      "formats": [
+        "audio/*",
+        "audio/midi"
+      ]
+    },
+    {
+      "id": "kdenlive",
+      "name": "Kdenlive",
+      "category": "video-editor",
+      "license": "GPL-2.0-or-later",
+      "url": "https://invent.kde.org/multimedia/kdenlive",
+      "formats": [
+        "video/*"
+      ]
+    },
+    {
+      "id": "shotcut",
+      "name": "Shotcut",
+      "category": "video-editor",
+      "license": "GPL-3.0-or-later",
+      "url": "https://github.com/mltframework/shotcut",
+      "formats": [
+        "video/*"
+      ]
+    },
+    {
+      "id": "blender",
+      "name": "Blender",
+      "category": "3d-vfx-video",
+      "license": "GPL-2.0-or-later",
+      "url": "https://github.com/blender/blender",
+      "formats": [
+        "video/*",
+        "image/*"
+      ]
+    },
+    {
+      "id": "ffmpeg",
+      "name": "FFmpeg",
+      "category": "media-framework",
+      "license": "LGPL-2.1-or-later with optional GPL components",
+      "url": "https://git.ffmpeg.org/ffmpeg.git",
+      "formats": [
+        "audio/*",
+        "video/*",
+        "image/*"
+      ]
+    }
+  ],
+  "associations": [
+    {
+      "mime": "audio/*",
+      "preferred": [
+        "vlc",
+        "mpv",
+        "audacious",
+        "rhythmbox",
+        "strawberry"
+      ],
+      "default": "aurora.media"
+    },
+    {
+      "mime": "video/*",
+      "preferred": [
+        "vlc",
+        "mpv",
+        "kdenlive",
+        "shotcut"
+      ],
+      "default": "aurora.media"
+    },
+    {
+      "mime": "image/*",
+      "preferred": [
+        "blender"
+      ],
+      "default": "aurora.image"
+    },
+    {
+      "mime": "application/ogg",
+      "preferred": [
+        "vlc",
+        "mpv"
+      ],
+      "default": "aurora.media"
+    },
+    {
+      "mime": "application/vnd.apple.mpegurl",
+      "preferred": [
+        "vlc",
+        "mpv"
+      ],
+      "default": "aurora.media"
+    }
+  ]
+}
