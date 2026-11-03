@@ -318,7 +318,24 @@ if [[ -x /usr/local/bin/aurora-init-splash.sh && -s /usr/share/chimera/aurora/as
 fi
 exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
 EOF
-echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
+# Bind the edition-specific desktop URI before exec replaces this shell.
+python3 - "$WORK/usr/local/bin/aurora-session" "$ENTRY" <<'PY'
+from pathlib import Path
+import sys
+launcher = Path(sys.argv[1])
+entry = sys.argv[2]
+source = launcher.read_text()
+exec_line = "exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py"
+if source.count(exec_line) != 1:
+    raise SystemExit("Aurora launcher must contain exactly one kiosk exec line")
+if "AURORA_DESKTOP_URI=" in source:
+    raise SystemExit("Aurora desktop URI must be injected exactly once")
+uri_line = f'export AURORA_DESKTOP_URI="file:///opt/aurora/{entry}"'
+source = source.replace(exec_line, uri_line + "\\n" + exec_line, 1)
+launcher.write_text(source)
+PY
+# The generated URI must point at a real page in this edition's staged payload.
+test -s "$PAY/$ENTRY"
 chmod 755 "$WORK/usr/local/bin/aurora-session"
 
 printf '#!/bin/sh\nexec /usr/local/bin/aurora-session\n' > "$WORK/etc/xinitrc"
