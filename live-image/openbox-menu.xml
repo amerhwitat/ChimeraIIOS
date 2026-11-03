@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu xmlns="http://openbox.org/3.4/menu">
+  <menu id="root-menu" label="Chimera / Octavian">
+    <menu id="development-menu" label="Open-source Development IDEs">
+      <item label="Geany"><action name="Execute"><command>geany</command></action></item>
+      <item label="GNOME Builder"><action name="Execute"><command>gnome-builder</command></action></item>
+      <item label="KDevelop"><action name="Execute"><command>kdevelop</command></action></item>
+      <item label="Thonny"><action name="Execute"><command>thonny</command></action></item>
+      <item label="Python IDLE"><action name="Execute"><command>idle</command></action></item>
+      <item label="Lazarus IDE"><action name="Execute"><command>lazarus-ide</command></action></item>
+      <item label="GNU Emacs"><action name="Execute"><command>emacs</command></action></item>
+      <item label="Vim GTK"><action name="Execute"><command>gvim</command></action></item>
+      <item label="SciTE"><action name="Execute"><command>scite</command></action></item>
+      <item label="Bluefish"><action name="Execute"><command>bluefish</command></action></item>
+    </menu>
+    <separator/>
+    <item label="Terminal"><action name="Execute"><command>xterm</command></action></item>
+    <item label="Reconfigure Openbox"><action name="Reconfigure"/></item>
+    <item label="Exit Openbox"><action name="Exit"/></item>
+  </menu>
+</openbox_menu>
