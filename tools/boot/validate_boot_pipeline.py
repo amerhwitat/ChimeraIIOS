@@ -13,9 +13,9 @@ def main():
     expected=["firmware","grub","spitfire","gates","jasper","menus","koronos","aurora"]
     chain=manifest.get("boot_chain",{})
     require(list(chain)==expected,"boot chain order must be firmware -> GRUB2 -> Spit Fire -> Jasper -> menus -> Koronos -> Aurora")
-    require(menu.get("kernel")=="Koronos" and menu.get("primary_loader")=="GRUB2 BIOS/UEFI El Torito","boot menu identity mismatch")
+    require("Koronos" in menu.get("kernel","") and "Linux Live" in menu.get("kernel","") and menu.get("primary_loader")=="GRUB2 BIOS/UEFI El Torito","boot menu identity mismatch")
     require(menu.get("firmware_menu")=="Spit Fire" and menu.get("policy_menu")=="Gates","Spit Fire/Gates menu identity mismatch")
-    require(menu.get("menu_manager")=="Jasper" and menu.get("firmware_menu")=="Gates","Jasper/Gates menu identity mismatch")
+    require(menu.get("menu_manager")=="Jasper" and menu.get("firmware_menu")=="Spit Fire" and menu.get("policy_menu")=="Gates","Jasper/Gates menu identity mismatch")
     handoff=menu.get("handoff","")
     for stage in ["GRUB2","Spit Fire","Gates","Jasper","Koronos","Aurora"]:
         require(stage in handoff,f"canonical handoff omits {stage}")
