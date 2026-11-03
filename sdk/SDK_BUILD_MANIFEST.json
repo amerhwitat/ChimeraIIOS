@@ -13,7 +13,12 @@
     "Objective-C",
     "Java",
     "Python",
-    "Rust"
+    "Rust",
+    "Zig",
+    "Go",
+    "Fortran",
+    "Swift",
+    "Assembly"
   ],
   "artifacts": [
     "native-library",
@@ -26,8 +31,21 @@
     "examples",
     "manuals",
     "rust-static-library",
-    "rust-cdylib"
+    "rust-cdylib",
+    "optional-toolchain-smoke-artifacts",
+    "toolchain-smoke-status"
   ],
   "iso_destination": "/opt/chimera-sdk",
-  "source_destination": "/opt/chimera-sdk/source"
+  "source_destination": "/opt/chimera-sdk/source",
+  "optional_toolchains": {
+    "build_policy": "Compile a smoke artifact when the upstream compiler is installed; record SKIP otherwise; never download compilers during ISO builds.",
+    "languages": [
+      "Assembly",
+      "Objective-C",
+      "Zig",
+      "Go",
+      "Fortran",
+      "Swift"
+    ]
+  }
 }
