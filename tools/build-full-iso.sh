@@ -136,10 +136,15 @@ for art in aurora-wayland-glass.jpg.b64; do
     cp -f "$STAGE/boot/visual/aurora-wayland-glass.jpg" "$STAGE/boot/grub/aurora-wayland-glass.jpg"
   fi
 done
-if [[ -s "$ROOT/desktop/aurora/assets/Init.mp4" ]]; then
-  cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/boot/grub/Init.mp4"
-  cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/desktop/aurora/assets/Init.mp4"
+INIT_VIDEO_SOURCE="$ROOT/desktop/aurora/assets/Init.mp4"
+if [[ ! -s "$INIT_VIDEO_SOURCE" ]]; then
+  INIT_VIDEO_SOURCE="$ROOT/desktop/aurora/assets/library/Init.mp4"
 fi
+[[ -s "$INIT_VIDEO_SOURCE" ]] || { echo "ERROR: canonical Aurora Init.mp4 is missing." >&2; exit 2; }
+for boot_stage in visual spitfire jasper grub; do
+  install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/boot/$boot_stage/Init.mp4"
+done
+install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/desktop/aurora/assets/Init.mp4"
 if [[ -s "$ROOT/desktop/aurora/assets/library-artwork-manifest.json" ]]; then
   cp -f "$ROOT/desktop/aurora/assets/library-artwork-manifest.json" "$STAGE/desktop/aurora/assets/library-artwork-manifest.json"
 fi
