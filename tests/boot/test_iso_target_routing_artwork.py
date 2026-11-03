@@ -62,14 +62,27 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
-    def test_generated_live_and_recovery_userspace_emit_distinct_handoff_markers(self):
+    def test_initramfs_shells_never_emit_native_userspace_ready_markers(self):
         builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
-        self.assertIn("USERSPACE READY: target=live init_pid=%s", builder)
-        self.assertIn("USERSPACE READY: target=recovery init_pid=%s", builder)
+        self.assertNotIn("USERSPACE READY: target=live", builder)
+        self.assertNotIn("USERSPACE READY: target=recovery", builder)
+        self.assertIn("INITRAMFS DIAGNOSTIC SHELL", builder)
+        self.assertIn("Koronos userspace handoff NOT VERIFIED", builder)
         self.assertIn("exec /bin/sh -i", builder)
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
         # A shell handoff is not evidence that the Aurora desktop is ready.
         self.assertIn("Aurora desktop readiness is separate", builder)
+
+    def test_installer_loader_fails_closed_without_executable_init_context(self):
+        kernel = (ROOT / "kernel/core/koronos.cpp").read_text()
+        installer = (ROOT / "tools/chimera-stage-installer-media.sh").read_text()
+        process_api = (ROOT / "kernel/include/chimera/process.h").read_text()
+        self.assertIn("CHIMERA_MODULE_USER_INIT_ELF", kernel)
+        self.assertIn("KORONOS INSTALLER LOADER BLOCKED", kernel)
+        self.assertIn("no executable installer init ELF module was supplied", kernel)
+        self.assertIn("INITRAMFS DIAGNOSTIC SHELL READY", installer)
+        self.assertIn("USERSPACE HANDOFF NOT VERIFIED", installer)
+        self.assertIn("CHIMERA_PROCESS_LOAD_PLAN_ONLY", process_api)
 
 
 if __name__ == "__main__":
