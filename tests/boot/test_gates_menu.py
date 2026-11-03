@@ -24,9 +24,7 @@ class GatesMenuContractTests(unittest.TestCase):
     def test_canonical_iso_builder_stages_and_requires_gates(self):
         builder = (ROOT / "boot/iso/build-iso.sh").read_text()
         validator = (ROOT / "boot/iso/validate-iso.py").read_text()
-        self.assertIn("boot/gates/gates.cfg", builder)
-        layout = (ROOT / "boot/iso/prepare-layout.sh").read_text()
-        self.assertIn("boot/gates/gates.cfg", layout)
+        self.assertIn("prepare-layout.sh", builder)
         layout = (ROOT / "boot/iso/prepare-layout.sh").read_text()
         self.assertIn("boot/gates/gates.cfg", layout)
         self.assertIn("boot/gates/gates.cfg", validator)
