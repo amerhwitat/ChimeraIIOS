@@ -104,7 +104,8 @@ jobs:
           extract /boot/spitfire/spitfire-menu.cfg "$tmp/spitfire-menu.cfg"
           extract /boot/spitfire/spitfire-sf0-mbr.bin "$tmp/spitfire-sf0-mbr.bin"
           extract /boot/spitfire/spitfire-stage2.bin "$tmp/spitfire-stage2.bin"
-          extract /boot/jasper/jasper.cfg "$tmp/jasper.cfg"
+          extract /boot/gates/gates-menu.cfg "$tmp/gates-menu.cfg"
+          extract /boot/jasper/live-image.cfg "$tmp/jasper-live-image.cfg"
           extract /boot/jasper/install.cfg "$tmp/install.cfg"
           extract /boot/jasper/recovery.cfg "$tmp/recovery.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
@@ -139,11 +140,15 @@ jobs:
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
           grub=(root / "grub.cfg").read_text()
           spit=(root / "spitfire-menu.cfg").read_text()
-          jasper=(root / "jasper.cfg").read_text()
+          gates=(root / "gates-menu.cfg").read_text()
+          jasper=(root / "jasper-live-image.cfg").read_text()
           installer=(root / "install.cfg").read_text()
           recovery=(root / "recovery.cfg").read_text()
           assert "configfile /boot/spitfire/spitfire-menu.cfg" in grub
-          assert "configfile /boot/jasper/jasper.cfg" in spit
+          assert "configfile /boot/gates/gates-menu.cfg" in spit
+          assert "configfile /boot/jasper/live-image.cfg" in gates
+          assert "Live — Aurora Desktop" in jasper
+          assert "Linux Rescue Shell" in jasper
           assert "native-installer-runtime.ready" in installer
           assert "native-recovery-runtime.ready" in recovery
           assert "Native Koronos Installer" in installer
