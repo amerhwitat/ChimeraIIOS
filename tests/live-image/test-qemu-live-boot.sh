@@ -44,14 +44,17 @@ for attempt in $(seq 1 100); do
 done
 [[ -S "$monitor" ]] || { echo "QEMU monitor socket did not appear" >&2; exit 1; }
 
-# GRUB order: Live, Installer, Koronos, Recovery.
+# First menu is Spit Fire. Its default item hands off to the Jasper/GRUB2
+# target menu. Then select the requested Jasper item.
+sleep 3
+printf 'sendkey ret\n' | socat - "UNIX-CONNECT:$monitor" >>"$qemu_log" 2>&1
+sleep 2
 if [[ "$TARGET" != live ]]; then
   case "$TARGET" in
-    installer) downs=1 ;;
-    koronos) downs=2 ;;
-    recovery) downs=3 ;;
+    recovery) downs=2 ;;  # Linux Rescue Shell
+    installer) downs=3 ;; # Native Installer; must refuse incomplete payloads
+    koronos) downs=5 ;;   # Native Koronos diagnostics
   esac
-  sleep 3
   {
     for ((i=0; i<downs; i++)); do printf 'sendkey down\n'; sleep 0.1; done
     printf 'sendkey ret\n'
@@ -60,7 +63,7 @@ fi
 
 case "$TARGET" in
   live) match='Aurora|Application' ;;
-  installer) match='INSTALLER NOT CONFIGURED|No disk changes were made' ;;
+  installer) match='Native Koronos Installer runtime incomplete|No Linux fallback is called an installer' ;;
   koronos)
     # Kernel entry emits E (32-bit), L (long mode), B (kernel entry), C (idle loop) to port 0xE9.
     for attempt in $(seq 1 30); do
@@ -80,12 +83,22 @@ EOF
     cat "$OUT/debugcon.log" 2>/dev/null || true
     exit 1
     ;;
-  recovery) match='RESCUE SHELL|No disk is modified' ;;
+  recovery) match='RESCUE SHELL|Recovery shell|No disk is modified' ;;
 esac
+
 target_seen=0
-if [[ "$TARGET" != koronos ]]; then sleep 25; fi
-for attempt in $(seq 1 18); do
-  sleep 10
+if [[ "$TARGET" == installer ]]; then
+  initial_wait=1
+  poll_attempts=10
+  poll_interval=1
+else
+  initial_wait=25
+  poll_attempts=18
+  poll_interval=10
+fi
+sleep "$initial_wait"
+for attempt in $(seq 1 "$poll_attempts"); do
+  sleep "$poll_interval"
   kill -0 "$pid" 2>/dev/null || { cat "$qemu_log" >&2; exit 1; }
   ppm="$OUT/$TARGET-attempt-$attempt.ppm"
   png="$OUT/$TARGET-attempt-$attempt.png"
@@ -103,7 +116,7 @@ for attempt in $(seq 1 18); do
   fi
 done
 if [[ "$target_seen" -ne 1 ]]; then
-  echo "QEMU did not show expected $TARGET target evidence within 180 seconds." >&2
+  echo "QEMU did not show expected $TARGET target evidence within the target-specific timeout." >&2
   [[ -f "$OUT/screenshot-metadata.txt" ]] && cat "$OUT/screenshot-metadata.txt" >&2
   for f in "$OUT"/*.txt; do [[ -f "$f" ]] && { echo "---- $f"; cat "$f"; }; done
   exit 1
@@ -125,6 +138,8 @@ Framebuffer: $width x $height
 Distinct colors (quantized to 64): $colors
 Target OCR evidence: $(tr '\n' ' ' <"$OUT/$TARGET-boot-ocr.txt")
 Native Koronos ELF boot: only certified when a real compatible ELF is supplied.
+Installer acceptance here proves fail-closed refusal when the native runtime is incomplete; it does not certify a working native installer.
+Recovery acceptance here verifies the separate Linux rescue shell, not native Koronos Recovery.
 Physical-machine boot: NOT TESTED
 EOF
 cat "$OUT/RESULT.txt"
