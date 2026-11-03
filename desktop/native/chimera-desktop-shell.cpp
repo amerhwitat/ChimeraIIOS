@@ -13,6 +13,7 @@ bool self_test = false;
 GtkLabel* status_label = nullptr;
 GtkWindow* main_window = nullptr;
 GtkWidget* selected_card = nullptr;
+guint pending_open_source = 0;
 
 const char* desktop_name() {
   return std::strcmp(desktop_id, "marine") == 0
@@ -199,9 +200,20 @@ void card_pressed(GtkGestureClick* gesture,int presses,double,double,gpointer da
   while(sibling){gtk_widget_remove_css_class(sibling,"selected");sibling=gtk_widget_get_next_sibling(sibling);}
   gtk_widget_add_css_class(card,"selected");
   if(presses==2){
-    GtkWidget* open=static_cast<GtkWidget*>(g_object_get_data(G_OBJECT(card),"open-button"));
-    if(open){play_sound("complete");g_signal_emit_by_name(open,"clicked");}
-  }else if(presses>=3){play_sound("dialog-information");show_properties(card,"Selected application");}
+    if(pending_open_source)g_source_remove(pending_open_source);
+    pending_open_source=g_timeout_add(280,[](gpointer data)->gboolean{
+      GtkWidget* target=GTK_WIDGET(data);
+      pending_open_source=0;
+      GtkWidget* open=static_cast<GtkWidget*>(g_object_get_data(G_OBJECT(target),"open-button"));
+      if(open){play_sound("complete");g_signal_emit_by_name(open,"clicked");}
+      return G_SOURCE_REMOVE;
+    },card);
+  }else if(presses>=3){
+    if(pending_open_source){g_source_remove(pending_open_source);pending_open_source=0;}
+    play_sound("dialog-information");
+    GtkWidget* label=GTK_WIDGET(g_object_get_data(G_OBJECT(card),"name-label"));
+    show_properties(card,label?gtk_label_get_text(GTK_LABEL(label)):"Selected application");
+  }
 }
 
 void install_style() {
