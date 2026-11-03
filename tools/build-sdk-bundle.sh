@@ -20,7 +20,7 @@ status = {"schema":"CHIMERA-SDK-BUILD-STATUS-1","native_c_cpp":"built-and-cteste
 for tool in tools:
     status["optional_toolchains"][tool] = shutil.which(tool) or "unavailable"
 jobs = [
-    ("sdk/java/build.sh", ["bash", str(root/"sdk/java/build.sh")], "bash"),
+    ("sdk/java/build.sh", ["bash", str(root/"sdk/java/build.sh")], "javac"),
     ("sdk/csharp/Chimera.Sdk.csproj", ["dotnet","build",str(root/"sdk/csharp/Chimera.Sdk.csproj"),"-c","Release"], "dotnet"),
     ("sdk/rust/chimera-runtime/Cargo.toml", ["cargo","build","--manifest-path",str(root/"sdk/rust/chimera-runtime/Cargo.toml"),"--release"], "cargo")
 ]
