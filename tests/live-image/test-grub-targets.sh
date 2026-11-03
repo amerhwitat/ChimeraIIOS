@@ -8,7 +8,7 @@ root_cfg="$1"
 spitfire_cfg="$2"
 gates_cfg="$3"
 jasper_cfg="$4"
-candidate_manifest="$5"
+candidate_manifest="$5"\nboot_contract="$6"
 
 grep -Fq 'configfile /boot/spitfire/spitfire-menu.cfg' "$root_cfg"
 grep -Fq 'configfile /boot/gates/gates-menu.cfg' "$spitfire_cfg"
@@ -45,9 +45,18 @@ grep -Fq '/boot/candidates/recovery/chimera-recovery-initramfs.img' "$jasper_cfg
 grep -Fq 'multiboot2 /boot/koronos.elf' "$jasper_cfg"
 ! grep -Eq '^[[:space:]]*linux .* quiet([[:space:]]|$)' "$jasper_cfg"
 
-python3 - "$candidate_manifest" <<'PY'
+python3 - "$candidate_manifest" "$boot_contract" <<'PY'
 import json, pathlib, sys
 m = json.loads(pathlib.Path(sys.argv[1]).read_text())
+contract = json.loads(pathlib.Path(sys.argv[2]).read_text())
+assert contract["primary_loader"] == "GRUB2 BIOS/UEFI El Torito"
+assert contract["firmware_menu"] == "Spit Fire"
+assert contract["policy_menu"] == "Gates"
+assert contract["menu_manager"] == "Jasper"
+assert contract["linux_vmlinuz"] is True
+assert "Spit Fire menu -> Gates policy menu -> Jasper target menu" in contract["spitfire_artifacts"]["menu"]
+assert contract["runtime_candidates"]["installer"].endswith("bootable_by_koronos=false")
+assert contract["runtime_candidates"]["recovery"].endswith("bootable_by_koronos=false")
 assert m["schema"] == "koronos-native-runtime-candidates-v1"
 assert m["status"] == "prototype-built-not-native-koronos-runtime"
 for target in ("installer", "recovery"):
