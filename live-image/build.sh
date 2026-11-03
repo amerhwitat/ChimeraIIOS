@@ -154,6 +154,10 @@ POLYGLOT_ARGS=(--root "$REPO_DIR" --output "$POLYGLOT_OUT" --platform linux)
 if command -v pyinstaller >/dev/null 2>&1; then POLYGLOT_ARGS+=(--build); fi
 python3 "$REPO_DIR/tools/polyglot_apps.py" "${POLYGLOT_ARGS[@]}"
 cp -a "$POLYGLOT_OUT/polyglot-apps.json" "$PAY/apps/polyglot/polyglot-apps.json"
+mkdir -p "$PAY/apps/polyglot/java"
+if command -v mvn >/dev/null 2>&1; then
+  find "$REPO_DIR" -path '*/target/*.jar' -type f -not -path '*/vendor/*/target/*' -print0 | while IFS= read -r -d '' jar; do install -D -m 0644 "$jar" "$PAY/apps/polyglot/java/$(basename "$jar")"; done
+fi
 if [ -d "$POLYGLOT_OUT/dist" ]; then cp -a "$POLYGLOT_OUT/dist/." "$PAY/apps/polyglot/linux/"; fi
 python3 - "$REPO_DIR" "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/polyglot-apps.json" <<'PY_POLYGLOT_COPY'
 import json,pathlib,shutil,sys
@@ -174,12 +178,20 @@ if [ -n "${WINDOWS_APP_BUNDLE_DIR:-}" ] && [ -d "$WINDOWS_APP_BUNDLE_DIR" ]; the
   cp -a "$WINDOWS_APP_BUNDLE_DIR/." "$PAY/apps/polyglot/windows/"
 fi
 install -D -m 0644 /dev/null "$WORK/usr/share/applications/aurora-polyglot-apps.desktop"
+cat > "$WORK/usr/local/bin/aurora-polyglot-apps" <<'EOF_POLYGLOT_LAUNCH'
+#!/bin/sh
+set -eu
+APP=/opt/aurora/apps/polyglot/linux/PolyglotAppsPanel
+if [ -x "$APP" ]; then exec "$APP"; fi
+exec python3 /opt/aurora/apps/polyglot/polyglot_apps.py --gui --root /opt/aurora/apps/polyglot/source-tree --manifest /opt/aurora/apps/polyglot/polyglot-apps.json
+EOF_POLYGLOT_LAUNCH
+chmod 0755 "$WORK/usr/local/bin/aurora-polyglot-apps"
 cat > "$WORK/usr/share/applications/aurora-polyglot-apps.desktop" <<'EOF_POLYGLOT'
 [Desktop Entry]
 Type=Application
 Name=Python, Java and Web Apps
 Comment=Open the cross-language application inventory and GUI launcher
-Exec=python3 /opt/aurora/apps/polyglot/polyglot_apps.py --gui --root /opt/aurora/apps/polyglot/source-tree --manifest /opt/aurora/apps/polyglot/polyglot-apps.json
+Exec=/usr/local/bin/aurora-polyglot-apps
 Icon=applications-development
 Terminal=false
 Categories=Development;Utility;
