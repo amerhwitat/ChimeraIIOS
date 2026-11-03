@@ -496,13 +496,54 @@ preflight(){
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
 }
 state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
-state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."; }
+state_fingerprint(){
+  local head diff
+  head="$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || printf 'no-git')"
+  diff="$(git -C "$SCRIPT_DIR" diff --binary HEAD -- . 2>/dev/null | sha256sum | awk '{print $1}')"
+  printf '%s:%s' "$head" "${diff:-no-diff}"
+}
+state_mark(){
+  local fingerprint
+  fingerprint="$(state_fingerprint)"
+  printf 'schema=3\ncompleted=%s\nfingerprint=%s\nupdated=%s\n' "$1" "$fingerprint" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."
+}
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
+resume_artifacts_present(){
+  case "$1" in
+    docker) docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 ;;
+    rootfs) [[ -d "$ROOTFS_DIR/etc" ]] ;;
+    commands) [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] ;;
+    docker-publish) return 1 ;; # Re-publish idempotently rather than trusting an old push marker.
+    boot) [[ -s "$ISO_DIR/boot/grub/grub.cfg" || -s "$ISO_DIR/boot/grub.cfg" ]] ;;
+    installer) [[ -s "$ISO_DIR/install/installer/installation.img" ]] ;;
+    branding) [[ -d "$ISO_DIR/boot/visual" ]] ;;
+    apache|features|package-managers|games) [[ -d "$ROOTFS_DIR/etc" ]] ;;
+    squashfs) [[ -s "$ISO_DIR/live/filesystem.squashfs" ]] ;;
+    iso) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso" ]] ;;
+    verify) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso.sha256" && -s "$LOG_DIR/iso-el-torito.log" ]] ;;
+    native-iso|report) return 1 ;;
+    *) return 1 ;;
+  esac
+}
 state_done(){
+<<<<<<< HEAD
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
   local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games extended linuxboot scripts squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
+=======
+  local completed="$1" target="$2" stored_fingerprint current_fingerprint
+  [[ -n "$completed" && -f "$STATE_FILE" ]] || return 1
+  stored_fingerprint="$(sed -n 's/^fingerprint=//p' "$STATE_FILE" | tail -1)"
+  current_fingerprint="$(state_fingerprint)"
+  # Older state files or changed source trees are deliberately not trusted.
+  [[ -n "$stored_fingerprint" && "$stored_fingerprint" == "$current_fingerprint" ]] || return 1
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
+  ci=$(printf '%s\n' "$order" | awk -v x="$completed" '{for(i=1;i<=NF;i++)if($i==x)print i}')
+  ti=$(printf '%s\n' "$order" | awk -v x="$target" '{for(i=1;i<=NF;i++)if($i==x)print i}')
+  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]] || return 1
+  resume_artifacts_present "$target"
+>>>>>>> 181e59f46 (Validate saved build state before resuming completed stages)
 }
 run_stage(){
   local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
