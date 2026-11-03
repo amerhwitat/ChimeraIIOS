@@ -177,6 +177,9 @@ cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$RO
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
 cp "$ROOT/boot/jasper/jasper.cfg" "$DIST/boot/jasper/jasper.cfg"
+cp "$ROOT/boot/jasper/live-image.cfg" "$DIST/boot/jasper/live-image.cfg"
+mkdir -p "$DIST/boot/gates"
+cp "$ROOT/boot/gates/gates-menu.cfg" "$DIST/boot/gates/gates-menu.cfg"
 # Legacy Jasper contract: older installers and recovery tooling look for
 # /boot/jasper/grub.cfg. Keep it synchronized with the canonical GRUB entry.
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/grub.cfg"
