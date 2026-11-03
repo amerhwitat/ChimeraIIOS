@@ -5,6 +5,10 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 class AuroraSessionSelectorTests(unittest.TestCase):
+    def test_selector_is_installed_by_cmake(self):
+        cmake = (ROOT / "CMakeLists.txt").read_text()
+        self.assertIn("desktop/aurora/aurora-session-select.sh", cmake)
+
     def test_selector_is_staged_into_live_runtime(self):
         stage = (ROOT / "tools/stage-chimera-runtime.sh").read_text()
         self.assertIn("aurora-session-select.sh", stage)
