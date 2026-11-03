@@ -36,8 +36,9 @@ with nosuid,nodev,noexec. No automatic format or repair occurs.
 
 ## Architecture dispatch
 
-The canonical ISO currently emits x86_64 only. AArch64 and RV64 source folders
-are port scaffolding, not bootable targets. Each architecture needs matching
+The canonical ISO currently emits x86_64 only. AArch64 and RV64 source folders are port scaffolding; the integration build can cross-compile
+architecture/hardware probe objects when cross toolchains are present, but those objects are
+not linked into a kernel and are not bootable targets. Each architecture needs matching
 entry/EFI/ELF artifacts, ABI checks, interrupt controller, timers, MMU, DMA
 and device enumeration before target selection can be enabled.
 
