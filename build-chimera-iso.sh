@@ -10,6 +10,8 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
+  --verbose     Enable detailed build diagnostics (default; secret values are never traced).
+  --quiet       Reduce debug-only console chatter; full logs are still retained.
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
@@ -132,6 +134,8 @@ BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+CHIMERA_VERBOSE="${CHIMERA_VERBOSE:-1}"
+CHIMERA_CAPTURE_CONSOLE="${CHIMERA_CAPTURE_CONSOLE:-1}"
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -174,12 +178,55 @@ ensure_log_dir(){
 ensure_log_dir
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
-log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
-log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
-log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
-log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_file(){ ensure_log_dir || return 0; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log" 2>/dev/null || true; }
-log_both(){ log_info "$*"; log_file "$*"; }
+log_info(){ printf "${BLUE}[%s INFO]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "INFO $*"; }
+log_success(){ printf "${GREEN}[%s SUCCESS]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "SUCCESS $*"; }
+log_warning(){ printf "${YELLOW}[%s WARNING]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "WARNING $*"; }
+log_error(){ printf "${RED}[%s ERROR]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*" >&2; log_file "ERROR $*"; }
+log_debug(){ [[ "$CHIMERA_VERBOSE" == 1 ]] || return 0; printf "[%s DEBUG] %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "DEBUG $*"; }
+log_both(){ log_info "$*"; }
+
+# Capture all child-tool output for post-failure diagnosis. Avoid `set -x`:
+# shell tracing can disclose expanded registry tokens and other credentials.
+if [[ "$CHIMERA_CAPTURE_CONSOLE" == 1 ]]; then
+  BUILD_CONSOLE_LOG="$LOG_DIR/build-console.log"
+  if touch "$BUILD_CONSOLE_LOG" 2>/dev/null; then
+    exec > >(tee -a "$BUILD_CONSOLE_LOG") 2>&1
+  else
+    log_warning "Could not enable full console capture at $BUILD_CONSOLE_LOG"
+  fi
+fi
+emit_build_diagnostics(){
+  header 'VERBOSE HOST / TOOLCHAIN / SOURCE DIAGNOSTICS'
+  log_info "UTC timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  log_info "Script: $SCRIPT_DIR/build-chimera-iso.sh"
+  log_info "Build=$BUILD_DIR Rootfs=$ROOTFS_DIR ISO-stage=$ISO_DIR ISO-output=$ISO_OUTPUT_DIR Temp=$ISO_TMP_DIR"
+  log_info "Host=$HOST_ARCH Target=$TARGET_ARCH Media=$MEDIA_FS_PROFILE Block-size=$CHIMERA_SYSTEM_BLOCK_SIZE"
+  log_info "Verbose=$CHIMERA_VERBOSE Console-capture=$CHIMERA_CAPTURE_CONSOLE"
+  log_info "Kernel: $(uname -srmo 2>/dev/null || uname -a)"
+  log_info "Distribution: $(. /etc/os-release 2>/dev/null; printf '%s %s' "${PRETTY_NAME:-unknown}" "${VERSION_ID:-}")"
+  log_info "CPU count: $(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo unknown)"
+  if command -v git >/dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    log_info "Source commit: $(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+    log_info "Source branch: $(git -C "$SCRIPT_DIR" branch --show-current 2>/dev/null || echo detached)"
+    log_info "Worktree change rows: $(git -C "$SCRIPT_DIR" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
+  fi
+  for tool in docker cmake ctest ninja make gcc g++ clang clang++ nasm yasm grub-mkrescue grub-script-check xorriso mksquashfs cpio busybox python3 rustc cargo go javac java dotnet node npm qemu-system-x86_64; do
+    if command -v "$tool" >/dev/null 2>&1; then
+      local version_line
+      version_line="$("$tool" --version 2>&1 | head -n 1 || true)"
+      log_debug "tool=$tool version=${version_line:-available} path=$(command -v "$tool")"
+    else
+      log_debug "tool=$tool unavailable"
+    fi
+  done
+  for path in "$BUILD_DIR" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; do
+    [[ -e "$path" ]] || mkdir -p "$path" 2>/dev/null || true
+    log_info "Storage $path: $(df -h "$path" 2>/dev/null | awk 'NR==2 {print "size=" $2 " used=" $3 " free=" $4 " mount=" $6}')"
+  done
+  log_info "Console log: ${BUILD_CONSOLE_LOG:-disabled}; structured log: $LOG_DIR/chimera-build.log"
+}
+
 process_snapshot(){
   ensure_log_dir || return 0
   {
@@ -216,6 +263,8 @@ DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh-online-catalogs|--refresh-isa-catalog) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --verbose|--debug) CHIMERA_VERBOSE=1; shift;;
+    --quiet) CHIMERA_VERBOSE=0; shift;;
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
@@ -371,6 +420,7 @@ choose_storage(){
   log_success "Build storage switched to $best"
 }
 preflight(){
+  emit_build_diagnostics
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
   header 'CPU / MEDIA PROFILE'
@@ -418,7 +468,26 @@ state_done(){
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
-run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark "$1"; CURRENT_STAGE=""; }
+run_stage(){
+  local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
+  started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  CURRENT_STAGE="$stage"
+  header "BEGIN STAGE: $stage"
+  log_info "Stage started=$started_utc function=$fn pid=$"
+  if "$fn"; then
+    elapsed=$((SECONDS-started))
+    state_mark "$stage"
+    log_success "Stage completed=$stage duration=${elapsed}s"
+    log_file "STAGE_COMPLETE stage=$stage duration_seconds=$elapsed finished=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    CURRENT_STAGE=""
+  else
+    rc=$?
+    elapsed=$((SECONDS-started))
+    log_error "Stage failed=$stage exit=$rc duration=${elapsed}s function=$fn"
+    log_file "STAGE_FAILED stage=$stage exit=$rc duration_seconds=$elapsed"
+    return "$rc"
+  fi
+}
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
@@ -1960,5 +2029,5 @@ main(){
   cleanup_final_success_artifacts
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: $"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
