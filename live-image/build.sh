@@ -104,7 +104,7 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh mpv \
-      ${idePackages} \
+      geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish \
       build-essential cmake ninja-build git gdb clang lld pkg-config nasm binutils \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
@@ -311,11 +311,11 @@ if source.count(exec_line) != 1:
 if "AURORA_DESKTOP_URI=" in source:
     raise SystemExit("Aurora desktop URI must be injected exactly once")
 before_exec = (
-    'export AURORA_DESKTOP_URI="file:///opt/aurora/' + entry + '"\\n'
-    'feh --bg-fill /usr/share/backgrounds/aurora-default.jpg 2>/dev/null || true\\n'
-    'if [[ -x /usr/local/bin/aurora-init-splash.sh && -s /usr/share/chimera/aurora/assets/Init.mp4 ]] && command -v mpv >/dev/null 2>&1; then\\n'
-    '  CHIMERA_INIT_VIDEO=/usr/share/chimera/aurora/assets/Init.mp4 CHIMERA_SPLASH_MAX_SECONDS=12 /usr/local/bin/aurora-init-splash.sh || echo "[Aurora] Splash failed; continuing."\\n'
-    'fi\\n'
+    'export AURORA_DESKTOP_URI="file:///opt/aurora/' + entry + '"\n'
+    'feh --bg-fill /usr/share/backgrounds/aurora-default.jpg 2>/dev/null || true\n'
+    'if [[ -x /usr/local/bin/aurora-init-splash.sh && -s /usr/share/chimera/aurora/assets/Init.mp4 ]] && command -v mpv >/dev/null 2>&1; then\n'
+    '  CHIMERA_INIT_VIDEO=/usr/share/chimera/aurora/assets/Init.mp4 CHIMERA_SPLASH_MAX_SECONDS=12 /usr/local/bin/aurora-init-splash.sh || echo "[Aurora] Splash failed; continuing."\n'
+    'fi\n'
 )
 source = source.replace(exec_line, before_exec + exec_line, 1)
 launcher.write_text(source)
