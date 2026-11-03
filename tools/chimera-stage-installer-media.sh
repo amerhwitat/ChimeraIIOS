@@ -40,7 +40,9 @@ mount -t tmpfs tmpfs /run 2>/dev/null || true
 mount -t tmpfs tmpfs /tmp 2>/dev/null || true
 echo "[INSTALL] Chimera II OS installer environment"
 if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh || echo "[INSTALL] Runtime initialization returned a nonzero status"; fi
-echo "[INSTALL] Interactive recovery shell ready; disk operations remain disabled until an explicit install backend is configured."
+echo "[INSTALL] INITRAMFS DIAGNOSTIC SHELL READY; this is not a Koronos CPL3 installer process."
+echo "[INSTALL] USERSPACE HANDOFF NOT VERIFIED: no executable installer init ELF or native process context is provided."
+echo "[INSTALL] Disk operations remain disabled until a verified OS-specific install backend is configured."
 exec /bin/sh
 EOF
 chmod +x "$P/init"
