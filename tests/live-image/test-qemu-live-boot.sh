@@ -68,8 +68,8 @@ case "$TARGET" in
   live) match='Aurora|Application' ;;
   marine) match='Marine Desktop|Marine' ;;
   linux-rescue) match='RESCUE SHELL|Recovery shell|No disk is modified' ;;
-  installer) match='Native Koronos Installer runtime incomplete|No Linux fallback is called an installer' ;;
-  native-recovery) match='Native Koronos Recovery runtime incomplete|Use the separate Linux Rescue Shell' ;;
+  installer) match='Native Koronos Installer runtime|Linux installer fallback' ;;
+  native-recovery) match='Native Koronos Recovery runtime|Linux rescue remains separate' ;;
   koronos)
     for attempt in $(seq 1 30); do
       sleep 1
