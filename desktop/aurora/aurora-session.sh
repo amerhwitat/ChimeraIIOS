@@ -53,7 +53,7 @@ export CHIMERA_BOOT_LOG="${CHIMERA_BOOT_LOG:-/run/chimera/boot.log}"
 
 # Offer installed desktop sessions before starting the compositor. The chooser
 # never lists a session unless its launch command is present on this image.
-SELECTOR="$ROOT/desktop/aurora/aurora-session-select.sh"
+SELECTOR="$SCRIPT_DIR/aurora-session-select.sh"
 if [ -r "$SELECTOR" ]; then
   # shellcheck source=aurora-session-select.sh
   . "$SELECTOR"
