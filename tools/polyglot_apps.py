@@ -72,7 +72,7 @@ def build(root,out,platform):
     (out/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n")
     panel=out/"polyglot-panel.py"
     panel.write_text("""import os,pathlib,runpy,sys
-os.environ.setdefault("CHIMERA_WINDOWS_APPS_DIR","/opt/aurora/apps/polyglot/windows")
+if sys.platform.startswith("linux"): os.environ.setdefault("CHIMERA_WINDOWS_APPS_DIR","/opt/aurora/apps/polyglot/windows")
 base=pathlib.Path(getattr(sys,"_MEIPASS",pathlib.Path(__file__).resolve().parent))
 sys.argv=["polyglot_apps.py","--gui","--root",str(base/"python-source"),"--manifest",str(base/"polyglot-apps.json")]
 runpy.run_path(str(base/"python-source"/"tools"/"polyglot_apps.py"),run_name="__main__")
