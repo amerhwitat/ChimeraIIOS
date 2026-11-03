@@ -159,6 +159,21 @@ m={
  "schema":"koronos-native-runtime-candidates-v1",
  "installer":{"artifacts":entries(root/"installer"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
  "recovery":{"artifacts":entries(root/"recovery"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "activation_policy":"Candidate archives remain outside active native boot paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot acceptance pass.",
+ "status":"prototype-built-not-native-koronos-runtime"
+}
+(root/"native-runtime-candidates.json").write_text(json.dumps(m,indent=2)+"\n")
+PY
+python3 - "$DIST/iso/boot/candidates" <<'PY'
+import hashlib, json, pathlib, sys
+root=pathlib.Path(sys.argv[1])
+def entries(p):
+    return [{"path":x.name,"size":x.stat().st_size,"sha256":hashlib.sha256(x.read_bytes()).hexdigest()}
+            for x in sorted(p.iterdir()) if x.is_file()]
+m={
+ "schema":"koronos-native-runtime-candidates-v1",
+ "installer":{"artifacts":entries(root/"installer"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "recovery":{"artifacts":entries(root/"recovery"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
  "activation_policy":"No candidate is copied to active native boot paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot acceptance pass.",
  "status":"prototype-built-not-native-koronos-runtime"
 }
@@ -179,6 +194,7 @@ grep -q '/boot/live/live-manifest.json' "$ROOT/boot/jasper/live.cfg"
 grep -q '/boot/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recovery.cfg"
 grep -q 'Recovery Terminal' "$ROOT/boot/jasper/recovery.cfg"
 
+test -s "$DIST/iso/boot/candidates/native-runtime-candidates.json"
 for contract in \
   "$DIST/iso/boot/candidates/installer/installation.img" \
   "$DIST/iso/boot/candidates/installer/installer-initrd.img" \
