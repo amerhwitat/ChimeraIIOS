@@ -263,5 +263,5 @@ jobs:
           path: |
             ${{ runner.temp }}/qemu-live
             ${{ runner.temp }}/qemu-recovery
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
