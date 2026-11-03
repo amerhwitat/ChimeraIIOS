@@ -81,6 +81,8 @@ class ArtifactManifestTests(unittest.TestCase):
         main_builder = (root / "build-chimera-iso.sh").read_text()
         self.assertIn('local native_root="$BUILD_DIR/native-iso"', main_builder)
         self.assertIn('install -m 0644 "$UEFI_LOADER" "$DIST/EFI/BOOT/BOOTX64.EFI"', prepare)
+        self.assertIn('BOOT_ART="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}"', prepare)
+        self.assertIn('local generated_uefi_loader="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}/uefi/BOOTX64.EFI"', main_builder)
 
 if __name__ == "__main__":
     unittest.main()
