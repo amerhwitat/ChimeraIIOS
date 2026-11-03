@@ -1,8 +1,8 @@
 # Spit Fire / Jasper / GRUB 2 / Gates boot targets
 
-The ISO's firmware-facing loader remains GRUB 2 (El Torito BIOS plus the GRUB EFI image for UEFI). Its top-level GRUB configuration opens the Spit Fire menu, which routes into the Jasper target manager. The separately assembled Spit Fire SF0 MBR and SF1/SF2 BIOS bootstrap artifacts are built and included under `/boot/spitfire/`; they are experimental raw-disk bootstrap outputs, not written over the ISO's El Torito boot sectors and not yet the ISO's active firmware loader. Jasper/GRUB 2 performs the actual ISO kernel and initramfs loading.
+The ISO's firmware-facing loader remains GRUB 2 (El Torito BIOS plus the GRUB EFI image for UEFI). Its top-level GRUB configuration opens the Spit Fire menu, which routes through the Gates policy menu into the Jasper target manager. The separately assembled Spit Fire SF0 MBR and SF1/SF2 BIOS bootstrap artifacts are built and included under `/boot/spitfire/`; they are experimental raw-disk bootstrap outputs, not written over the ISO's El Torito boot sectors and not yet the ISO's active firmware loader. Jasper/GRUB 2 performs the actual ISO kernel and initramfs loading.
 
-## Menu entries
+The Gates menu supplies a separate policy/diagnostics layer, UEFI setup, GRUB shell and return path; it delegates actual target selection to Jasper.\n\n## Menu entries
 
 - **Live — Aurora Desktop** — Debian Linux kernel, live initramfs, verbose diagnostics, then the Aurora startup splash and desktop.
 - **Live — Safe Graphics** — Linux live environment with conservative 1024x768/800x600/640x480 graphics fallbacks and `nomodeset`.
