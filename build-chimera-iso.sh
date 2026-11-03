@@ -14,6 +14,8 @@ Options:
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --verbose                   Enable timestamped stage, resource, tool and storage diagnostics (default).
+  --quiet                     Suppress detail-level telemetry; stage summaries and errors remain visible.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -189,7 +191,7 @@ log_both(){ log_info "$*"; }
 log_stage_diagnostics(){
   [[ "$CHIMERA_BUILD_VERBOSE" == 1 ]] || return 0
   local stage="$1"
-  log_detail "Stage=$stage PID=$ PPID=$PPID Bash=$BASH_VERSION Host=$(hostname 2>/dev/null || echo unknown)"
+  log_detail "Stage=$stage PID=${BASHPID} PPID=${PPID} Bash=$BASH_VERSION Host=$(hostname 2>/dev/null || echo unknown)"
   log_detail "Paths: SCRIPT_DIR=$SCRIPT_DIR BUILD_DIR=$BUILD_DIR ROOTFS_DIR=$ROOTFS_DIR ISO_DIR=$ISO_DIR ISO_OUTPUT_DIR=$ISO_OUTPUT_DIR LOG_DIR=$LOG_DIR"
   log_detail "Modes: HOST_ARCH=$HOST_ARCH TARGET_ARCH=$TARGET_ARCH MEDIA_FS_PROFILE=$MEDIA_FS_PROFILE BUILD_DOCKER=$BUILD_DOCKER BUILD_ISO=$BUILD_ISO RESUME_BUILD=$RESUME_BUILD"
   log_detail "Storage: $(df -h "$BUILD_DIR" "$ISO_OUTPUT_DIR" 2>/dev/null | tail -n +2 | tr '\n' ';' || true)"
@@ -249,6 +251,8 @@ while [[ $# -gt 0 ]]; do
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
+    --verbose) CHIMERA_BUILD_VERBOSE=1; export CHIMERA_BUILD_VERBOSE; shift;;
+    --quiet) CHIMERA_BUILD_VERBOSE=0; export CHIMERA_BUILD_VERBOSE; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
@@ -434,7 +438,7 @@ run_stage(){
   CURRENT_STAGE="$stage"
   started="$(date +%s)"
   header "BEGIN STAGE: $stage"
-  log_info "Starting stage '$stage' via function '$fn' (pid=$)"
+  log_info "Starting stage '$stage' via function '$fn' (pid=${BASHPID})"
   log_stage_diagnostics "$stage"
   if "$fn"; then
     ended="$(date +%s)"; elapsed=$((ended-started))
@@ -1517,6 +1521,12 @@ build_command_runtime(){
 }
 
 main(){
+  header "CHIMERA II OS COMPREHENSIVE BUILD — VERBOSE MODE: ${CHIMERA_BUILD_VERBOSE}"
+  log_info "Build invocation: $0 $*"
+  log_info "UTC start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  log_info "Build log: $LOG_DIR/chimera-build.log"
+  log_info "Process snapshots: $LOG_DIR/process-snapshots.log"
+  log_stage_diagnostics "startup"
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
   if [[ "$BUILD_ISO" == 0 ]]; then
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
