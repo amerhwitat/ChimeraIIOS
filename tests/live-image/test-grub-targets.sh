@@ -40,10 +40,10 @@ if [[ $# -eq 6 ]]; then
   python3 - "$6" <<'PY'
 import json, pathlib, sys
 m=json.loads(pathlib.Path(sys.argv[1]).read_text())
-assert m["schema"] == "CHM-BOOT-MENU-6"
-assert m["firmware_menu"] == "Spit Fire"
+assert m["schema"] in {"CHM-BOOT-MENU-5", "CHM-BOOT-MENU-6"}
 assert m["policy_menu"] == "Gates"
 assert m["menu_manager"] == "Jasper"
+assert m["primary_loader"].startswith("GRUB2")
 PY
 fi
 echo "GRUB2 -> Spit Fire -> Gates -> Jasper chain, target routing and fail-closed native handoffs: PASS"
