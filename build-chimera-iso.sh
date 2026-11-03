@@ -1119,7 +1119,7 @@ stage_package_managers(){
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
   # Install the shared professional desktop experience and Network Applications panel.
   local shared="$SCRIPT_DIR/desktop/shared"
-  for f in desktop-experience.js network-applications.html network-applications.json network-applications.desktop voiceconnect-project.desktop voiceconnect-launcher.sh; do
+  for f in desktop-experience.js network-applications.html network-applications.json network-applications.desktop linux-workspace.desktop voiceconnect-project.desktop voiceconnect-launcher.sh; do
     [[ -s "$shared/$f" ]] || { log_error "Desktop experience payload missing: $shared/$f"; return 1; }
   done
   mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/shared" "$ROOTFS_DIR/opt/aurora/desktop/shared" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ISO_DIR/desktop/shared"
@@ -1130,6 +1130,7 @@ stage_package_managers(){
   cp -a "$SCRIPT_DIR/desktop/plasma/." "$ROOTFS_DIR/opt/aurora/desktop/plasma/"
   cp -a "$SCRIPT_DIR/desktop/plasma/." "$ISO_DIR/desktop/plasma/"
   install -m 0644 "$shared/network-applications.desktop" "$ROOTFS_DIR/usr/share/applications/aurora-network-applications.desktop"
+  install -m 0644 "$shared/linux-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/nebula-linux-workspace.desktop"
   install -m 0644 "$shared/voiceconnect-project.desktop" "$ROOTFS_DIR/usr/share/applications/voiceconnect-project.desktop"
   install -m 0755 "$shared/voiceconnect-launcher.sh" "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
   bash -n "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
