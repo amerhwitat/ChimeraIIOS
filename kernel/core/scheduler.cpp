@@ -141,7 +141,11 @@ extern "C" uint32_t chimera_sched_runnable_count(void){
     lock();uint32_t n=0;for(uint32_t i=0;i<count;i++)if(tasks[i].info.state==CHIMERA_TASK_READY)++n;unlock();return n;
 }
 extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
+<<<<<<< HEAD
     if (out == nullptr) {
+=======
+    if (!out) {
+>>>>>>> 1dbb465c6 (Fix misleading indentation in scheduler snapshot)
         return 0;
     }
 
