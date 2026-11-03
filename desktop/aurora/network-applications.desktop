@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Network Applications
+Comment=Authorized network discovery and administration tools
+Exec=/usr/bin/chimera-network-applications
+Icon=network-workgroup
+Categories=Network;System;
+Terminal=false
