@@ -174,12 +174,29 @@ ensure_log_dir(){
 ensure_log_dir
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
-log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
-log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
-log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
-log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
+# Verbose, timestamped build diagnostics are enabled by default. Set
+# CHIMERA_BUILD_VERBOSE=0 to suppress detail-level telemetry (stage summaries
+# and errors remain visible). Secrets and arbitrary environment values are
+# deliberately never dumped.
+CHIMERA_BUILD_VERBOSE="${CHIMERA_BUILD_VERBOSE:-1}"
 log_file(){ ensure_log_dir || return 0; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log" 2>/dev/null || true; }
-log_both(){ log_info "$*"; log_file "$*"; }
+log_info(){ local msg; msg="[$(date -u +%Y-%m-%dT%H:%M:%SZ)] [INFO] $*"; echo -e "${BLUE}$msg${NC}"; log_file "$msg"; }
+log_success(){ local msg; msg="[$(date -u +%Y-%m-%dT%H:%M:%SZ)] [SUCCESS] $*"; echo -e "${GREEN}$msg${NC}"; log_file "$msg"; }
+log_warning(){ local msg; msg="[$(date -u +%Y-%m-%dT%H:%M:%SZ)] [WARNING] $*"; echo -e "${YELLOW}$msg${NC}" >&2; log_file "$msg"; }
+log_error(){ local msg; msg="[$(date -u +%Y-%m-%dT%H:%M:%SZ)] [ERROR] $*"; echo -e "${RED}$msg${NC}" >&2; log_file "$msg"; }
+log_detail(){ [[ "$CHIMERA_BUILD_VERBOSE" == 1 ]] || return 0; log_info "[DETAIL] $*"; }
+log_both(){ log_info "$*"; }
+log_stage_diagnostics(){
+  [[ "$CHIMERA_BUILD_VERBOSE" == 1 ]] || return 0
+  local stage="$1"
+  log_detail "Stage=$stage PID=$ PPID=$PPID Bash=$BASH_VERSION Host=$(hostname 2>/dev/null || echo unknown)"
+  log_detail "Paths: SCRIPT_DIR=$SCRIPT_DIR BUILD_DIR=$BUILD_DIR ROOTFS_DIR=$ROOTFS_DIR ISO_DIR=$ISO_DIR ISO_OUTPUT_DIR=$ISO_OUTPUT_DIR LOG_DIR=$LOG_DIR"
+  log_detail "Modes: HOST_ARCH=$HOST_ARCH TARGET_ARCH=$TARGET_ARCH MEDIA_FS_PROFILE=$MEDIA_FS_PROFILE BUILD_DOCKER=$BUILD_DOCKER BUILD_ISO=$BUILD_ISO RESUME_BUILD=$RESUME_BUILD"
+  log_detail "Storage: $(df -h "$BUILD_DIR" "$ISO_OUTPUT_DIR" 2>/dev/null | tail -n +2 | tr '\n' ';' || true)"
+  log_detail "Memory: $(free -h 2>/dev/null | awk 'NR<=2 {printf "%s ",$0}' || true)"
+  log_detail "Tools: docker=$(command -v docker 2>/dev/null || echo missing) gcc=$(command -v gcc 2>/dev/null || echo missing) nasm=$(command -v nasm 2>/dev/null || echo missing) grub-mkrescue=$(command -v grub-mkrescue 2>/dev/null || echo missing) xorriso=$(command -v xorriso 2>/dev/null || echo missing) mksquashfs=$(command -v mksquashfs 2>/dev/null || echo missing)"
+  log_detail "Resume marker: $(state_get 2>/dev/null || echo none); failed marker: $(cat "$FAILED_FILE" 2>/dev/null || echo none)"
+}
 process_snapshot(){
   ensure_log_dir || return 0
   {
@@ -208,7 +225,7 @@ start_watchdog(){
 stop_watchdog(){
   if [[ -n "$WATCHDOG_PID" ]]; then kill "$WATCHDOG_PID" 2>/dev/null || true; wait "$WATCHDOG_PID" 2>/dev/null || true; WATCHDOG_PID=""; fi
 }
-header(){ printf '\n==================================================================\n%s\n==================================================================\n' "$*"; }
+header(){ printf '\n==================================================================\n[%s] %s\n==================================================================\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"; log_file "===== $* ====="; }
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
 DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
@@ -412,7 +429,29 @@ state_done(){
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
-run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark "$1"; CURRENT_STAGE=""; }
+run_stage(){
+  local stage="$1" fn="$2" started ended elapsed rc
+  CURRENT_STAGE="$stage"
+  started="$(date +%s)"
+  header "BEGIN STAGE: $stage"
+  log_info "Starting stage '$stage' via function '$fn' (pid=$)"
+  log_stage_diagnostics "$stage"
+  if "$fn"; then
+    ended="$(date +%s)"; elapsed=$((ended-started))
+    state_mark "$stage"
+    log_success "Stage '$stage' completed successfully in ${elapsed}s."
+    log_detail "Completed stage '$stage'; persisted resume checkpoint: $(state_get)"
+    CURRENT_STAGE=""
+    return 0
+  else
+    rc=$?
+    ended="$(date +%s)"; elapsed=$((ended-started))
+    log_error "Stage '$stage' failed in ${elapsed}s with exit status $rc."
+    log_error "Inspect $LOG_DIR/chimera-build.log and stage-specific logs under $LOG_DIR."
+    CURRENT_STAGE="$stage"
+    return "$rc"
+  fi
+}
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
