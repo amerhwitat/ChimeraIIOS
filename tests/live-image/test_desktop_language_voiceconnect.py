@@ -52,6 +52,35 @@ class DesktopLanguageVoiceConnectTests(unittest.TestCase):
         self.assertIn('app:"voiceconnect"', source)
         self.assertIn("turn_credentials_embedded", builder)
 
+    def test_reference_design_and_user_shortcuts_are_staged(self):
+        design = ROOT / ("desktop/desktop-ecosystem-design.json" if IS_CHIMERA else "desktop/ecosystem-design.json")
+        shortcut = ROOT / "desktop/shared/desktop-shortcuts.js"
+        spec = json.loads(self.read(design))
+        self.assertEqual({x["id"] for x in spec["desktops"]}, {"chimera", "octavian", "aurora", "koronos", "nova", "mobile"})
+        self.assertTrue(spec["interaction"]["desktopShortcuts"]["create"])
+        js = self.read(shortcut)
+        for token in ("application", "document", "contextmenu", "localStorage", "noopener"):
+            self.assertIn(token, js)
+
+    def test_suno_collection_has_all_unique_user_links_and_language_groups(self):
+        music = ROOT / ("desktop/aurora/media/suno-library.json" if IS_CHIMERA else "apps/suno-library.json")
+        catalog = json.loads(self.read(music))
+        urls = [track["url"] for track in catalog["tracks"]]
+        self.assertEqual(len(urls), 57)
+        self.assertEqual(len(urls), len(set(urls)))
+        self.assertEqual(catalog["count"], 57)
+        self.assertIn("Japanese", {group["language"] for group in catalog["groups"]})
+        self.assertIn("Arabic", {group["language"] for group in catalog["groups"]})
+        self.assertTrue(all(url.startswith("https://suno.com/") for url in urls))
+
+    def test_media_deck_exposes_suno_library_and_open_source_media_catalog(self):
+        deck = ROOT / ("appcenter/media-deck.html" if IS_CHIMERA else "apps/media-deck.html")
+        catalog = ROOT / ("desktop/aurora/media/open-source-media-apps.json" if IS_CHIMERA else "apps/open-source-media-apps.json")
+        self.assertIn("suno-library.js", self.read(deck))
+        self.assertIn("id=\"suno-tracks\"", self.read(deck))
+        media = json.loads(self.read(catalog))
+        self.assertTrue({"vlc", "mpv", "audacious", "obs-studio", "audacity", "ardour", "kdenlive", "ffmpeg"}.issubset({x["id"] for x in media["applications"]}))
+
     def test_real_init_video_is_available(self):
         self.assertTrue(INIT.is_file(), f"Missing Init.mp4 at {INIT}")
         self.assertGreater(INIT.stat().st_size, 0)
