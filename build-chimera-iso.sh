@@ -1213,7 +1213,7 @@ echo "[INST] Aurora installation contracts loaded"
 if [ -x /bin/chimera-installer-runtime.sh ]; then
   /bin/chimera-installer-runtime.sh /
 fi
-echo "[INST] INITRAMFS DIAGNOSTIC SHELL READY; no Koronos CPL3 installer process has been started."
+echo "[INST] INITRAMFS DIAGNOSTIC SHELL READY; No Koronos CPL3 installer process has been started."
 echo "[INST] USERSPACE HANDOFF NOT VERIFIED: no executable installer init ELF or native process context is provided."
 echo "[INST] Disk operations remain disabled until a verified OS-specific install backend is configured."
 exec /bin/sh
