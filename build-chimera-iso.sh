@@ -232,11 +232,11 @@ process_snapshot(){
   {
     echo "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) PROCESS SNAPSHOT ====="
     echo "-- host processes --"
-    ps -eo pid,ppid,stat,%cpu,%mem,etime,cmd --sort=-%cpu 2>/dev/null || true
+    ps -eo pid,ppid,stat,%cpu,%mem,etime,comm --sort=-%cpu 2>/dev/null || true
     echo "-- process tree --"
-    pstree -ap $$ 2>/dev/null | head -n 80 || true
+    pstree -p $ 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
-    docker ps -a --no-trunc 2>/dev/null || true
+    docker ps -a --no-trunc --format '{{.ID}} {{.Image}} {{.Status}} {{.Names}}' 2>/dev/null || true
     echo "-- docker disk usage --"
     docker system df 2>/dev/null || true
     echo "-- storage --"
@@ -2029,5 +2029,5 @@ main(){
   cleanup_final_success_artifacts
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
