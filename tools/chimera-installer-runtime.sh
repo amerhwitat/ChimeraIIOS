@@ -37,6 +37,6 @@ if [ -x "$ROOT/usr/bin/chimera-driver-manager.sh" ]; then
 fi
 progress 65 'Storage' 'Preparing filesystem and installation targets'
 if [ -x "$ROOT/usr/bin/chimera-logrotate.sh" ]; then "$ROOT/usr/bin/chimera-logrotate.sh" || true; fi
-progress 80 'Aurora' 'Preparing graphical session and desktop assets'
-progress 95 'Validation' 'Final boot, driver and recovery checks'
-progress 100 'Installer' 'Installation environment ready'
+progress 80 'Aurora' 'Graphical installer userspace is not available in this initramfs shell'
+progress 95 'Validation' 'Installer metadata and diagnostic environment checks complete'
+progress 100 'Diagnostic shell' 'No Koronos CPL3 installer process or disk deployment has been started'
