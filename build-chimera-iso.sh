@@ -1207,13 +1207,15 @@ mkdir -p /proc /sys /dev /run /tmp /mnt /target
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-echo "CHIMERA II OS — NATIVE INSTALLER"
-echo "[INST] Koronos installer environment online"
+echo "CHIMERA II OS — INSTALLER INITRAMFS DIAGNOSTIC SHELL"
+echo "[INST] Installer metadata environment online"
 echo "[INST] Aurora installation contracts loaded"
 if [ -x /bin/chimera-installer-runtime.sh ]; then
   /bin/chimera-installer-runtime.sh /
 fi
-echo "[INST] Installation environment ready"
+echo "[INST] INITRAMFS DIAGNOSTIC SHELL READY; no Koronos CPL3 installer process has been started."
+echo "[INST] USERSPACE HANDOFF NOT VERIFIED: no executable installer init ELF or native process context is provided."
+echo "[INST] Disk operations remain disabled until a verified OS-specific install backend is configured."
 exec /bin/sh
 EOF
   chmod +x "$p/init"
