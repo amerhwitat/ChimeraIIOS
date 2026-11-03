@@ -19,11 +19,11 @@ case "$boot_mode" in
     echo "No OS-specific Calamares configuration is installed. No disk changes were made."
     echo "Production installation requires partition, EFI, bootloader, target-root"
     echo "and post-install validation modules for this operating system."
-    exec xterm -e /bin/bash -lc 'echo "Installer unavailable: OS-specific settings/modules are missing."; echo "No disk changes were made."; exec bash -l'
+    exec xterm -fullscreen -e /bin/bash -lc 'echo "Installer unavailable: OS-specific settings/modules are missing."; echo "No disk changes were made."; exec bash -l'
     ;;
-  recovery) exec xterm -e /usr/local/sbin/chimera-recovery ;;
+  recovery) exec xterm -fullscreen -e /usr/local/sbin/chimera-recovery ;;
   *)
     echo "[Boot] Unknown chimera.mode=$boot_mode; refusing implicit action." >&2
-    exec xterm -e /bin/bash -lc 'echo "Unknown boot mode. No disk changes were made."; exec bash -l'
+    exec xterm -fullscreen -e /bin/bash -lc 'echo "Unknown boot mode. No disk changes were made."; exec bash -l'
     ;;
 esac
