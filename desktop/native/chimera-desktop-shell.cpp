@@ -10,6 +10,8 @@ namespace {
 const char* desktop_id = "aurora";
 bool self_test = false;
 GtkLabel* status_label = nullptr;
+GtkWindow* main_window = nullptr;
+GtkWidget* selected_card = nullptr;
 
 const char* desktop_name() {
   return std::strcmp(desktop_id, "marine") == 0
@@ -94,8 +96,63 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
   gtk_box_append(GTK_BOX(card), icon);
   gtk_box_append(GTK_BOX(card), name);
   gtk_box_append(GTK_BOX(card), description);
-  gtk_box_append(GTK_BOX(card), action_button("Open", action, "accent"));
+  GtkWidget* open=action_button("Open", action, "accent");
+  g_object_set_data(G_OBJECT(card),"open-button",open);
+  gtk_box_append(GTK_BOX(card),open);
+  GtkGesture* click=gtk_gesture_click_new();
+  gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click),0);
+  g_signal_connect(click,"pressed",G_CALLBACK(card_pressed),card);
+  gtk_widget_add_controller(card,GTK_EVENT_CONTROLLER(click));
   return card;
+}
+
+
+void show_properties(GtkWidget* parent, const char* title) {
+  GtkWidget* dialog=gtk_dialog_new();
+  gtk_window_set_title(GTK_WINDOW(dialog),"Item Properties");
+  gtk_window_set_transient_for(GTK_WINDOW(dialog),main_window);
+  gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
+  gtk_window_set_default_size(GTK_WINDOW(dialog),380,180);
+  GtkWidget* content=gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  GtkWidget* label=gtk_label_new((std::string("Application: ")+title+
+      "\\nLaunch target is delegated to the host session. File operations are not implied.").c_str());
+  gtk_label_set_wrap(GTK_LABEL(label),TRUE);
+  gtk_widget_set_margin_top(label,20);gtk_widget_set_margin_bottom(label,20);
+  gtk_widget_set_margin_start(label,20);gtk_widget_set_margin_end(label,20);
+  gtk_box_append(GTK_BOX(content),label);
+  gtk_dialog_add_button(GTK_DIALOG(dialog),"Close",GTK_RESPONSE_CLOSE);
+  g_signal_connect(dialog,"response",G_CALLBACK(+[](GtkDialog* d,int,GtkWidget*){gtk_window_destroy(GTK_WINDOW(d));}),nullptr);
+  gtk_window_present(GTK_WINDOW(dialog));
+}
+void context_action(GtkButton*,gpointer data){
+  const char* action=static_cast<const char*>(data);
+  if(std::strcmp(action,"properties")==0)show_properties(selected_card,"Selected application");
+  else if(std::strcmp(action,"rename")==0)set_status("Rename is available for session-local desktop labels; host files are not modified.");
+  else if(std::strcmp(action,"open")==0)set_status("Double-click an application card or use its Open button.");
+}
+void card_pressed(GtkGestureClick* gesture,int presses,double,double,gpointer data){
+  GtkWidget* card=GTK_WIDGET(data);
+  const guint button=gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(gesture));
+  if(button==3){
+    selected_card=card;
+    GtkWidget* pop=gtk_popover_new();
+    GtkWidget* list=gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
+    for(const auto& item : {std::pair<const char*,const char*>{"Open","open"},{"Rename","rename"},{"Properties","properties"}}){
+      GtkWidget* b=gtk_button_new_with_label(item.first);
+      g_signal_connect(b,"clicked",G_CALLBACK(context_action),const_cast<char*>(item.second));
+      gtk_box_append(GTK_BOX(list),b);
+    }
+    gtk_popover_set_child(GTK_POPOVER(pop),list);
+    gtk_widget_set_parent(pop,card);gtk_popover_popup(GTK_POPOVER(pop));
+    return;
+  }
+  if(button!=1)return;
+  selected_card=card;
+  gtk_widget_add_css_class(card,"selected");
+  if(presses==2){
+    GtkWidget* open=static_cast<GtkWidget*>(g_object_get_data(G_OBJECT(card),"open-button"));
+    if(open)gtk_widget_activate(open);
+  }else if(presses>=3)show_properties(card,"Selected application");
 }
 
 void install_style() {
@@ -109,6 +166,9 @@ void install_style() {
     .hero { color: #f2f7ff; font-size: 28px; font-weight: 800; }
     .muted { color: #9fb0c8; }
     .app-card { background: #1b293b; border: 1px solid #31455e; border-radius: 16px; padding: 18px; min-width: 170px; }
+    .app-card.selected { border: 2px solid #8fe5ee; box-shadow: 0 8px 24px #0008; }
+    .app-card button { transition: background 120ms ease, box-shadow 120ms ease; }
+    .app-card button:active { box-shadow: inset 0 2px 6px #0008; }
     .app-glyph { color: #8fe5ee; font-size: 28px; padding: 8px; }
     .app-name { color: #f4f7ff; font-size: 17px; font-weight: 700; }
     .app-detail { color: #afbdd1; min-height: 48px; }
@@ -136,6 +196,7 @@ void activate(GtkApplication* app, gpointer) {
   GtkWidget* window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), desktop_name());
   gtk_window_set_default_size(GTK_WINDOW(window), 1280, 800);
+  main_window=GTK_WINDOW(window);
   gtk_widget_add_css_class(window, std::strcmp(desktop_id, "marine") == 0
                                       ? "marine" : "aurora");
 
@@ -173,13 +234,17 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_add_css_class(side_status, "muted");
   gtk_box_append(GTK_BOX(sidebar), side_status);
 
+  GtkWidget* scroller=gtk_scrolled_window_new();
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroller),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+  gtk_widget_set_hexpand(scroller,TRUE);gtk_widget_set_vexpand(scroller,TRUE);
+  gtk_box_append(GTK_BOX(body),scroller);
   GtkWidget* content = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
   gtk_widget_set_hexpand(content, TRUE);
   gtk_widget_set_margin_top(content, 28);
   gtk_widget_set_margin_bottom(content, 24);
   gtk_widget_set_margin_start(content, 30);
   gtk_widget_set_margin_end(content, 30);
-  gtk_box_append(GTK_BOX(body), content);
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroller),content);
   GtkWidget* heading = gtk_label_new(std::strcmp(desktop_id, "marine") == 0
                                          ? "Your workspace, at a glance"
                                          : "A calmer place to work");
