@@ -1,5 +1,6 @@
 """Regression checks for the desktop locale, input and VoiceConnect ISO slice."""
 from pathlib import Path
+import json
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
