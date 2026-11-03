@@ -55,6 +55,8 @@ VERSION="$(date -u +%Y.%m.%d)"
 COMMIT="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo snapshot)"
 BRANCH="$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || echo main)"
 REPO_URL="$(git -C "$REPO_DIR" config --get remote.origin.url 2>/dev/null | sed 's/\.git$//' || true)"
+NATIVE_SOURCE="$REPO_DIR"
+if [ "$ED" = "octavian" ]; then NATIVE_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source"; fi
 [ -n "$REPO_URL" ] || REPO_URL="https://github.com/amerhwitat/$(basename "$REPO_DIR")"
 
 log() { printf '\n== [%s] %s\n' "$ED" "$*"; }
@@ -86,7 +88,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
+if [ ! -f "$BASE/.packages-installed-v2" ]; then
   log "installing shared package set (one-off)"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
@@ -101,7 +103,9 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 \
-      openbox xterm feh \
+      openbox xterm feh mpv \
+      ${idePackages} \
+      build-essential cmake ninja-build git gdb clang lld pkg-config nasm binutils \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
@@ -110,7 +114,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  touch "$BASE/.packages-installed-v2"
 fi
 
 # ------------------------------------------------------------- rootfs copy
@@ -150,6 +154,7 @@ tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . 2>/dev
 # Stage every repository-owned application catalog for offline discovery.
 # Catalog-only upstream references remain distinct from installed executables.
 mkdir -p "$PAY/app-catalogs" "$PAY/apps/native/aurora"
+install -m 0644 "$HERE/ide-catalog.json" "$PAY/app-catalogs/ide-catalog.json"
 stage_catalog() {
   local rel="$1"
   if [ -f "$REPO_DIR/$rel" ]; then
@@ -241,6 +246,10 @@ log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 install -Dm755 "$HERE/lib/chimera-boot-mode.sh" "$WORK/usr/local/bin/chimera-boot-mode"
 install -Dm755 "$HERE/lib/chimera-recovery.sh" "$WORK/usr/local/sbin/chimera-recovery"
+if [ -s "$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4" ]; then
+  install -D -m 0644 "$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4" "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
+  install -D -m 0755 "$NATIVE_SOURCE/desktop/aurora/aurora-init-splash.sh" "$WORK/usr/local/bin/aurora-init-splash.sh"
+fi
 
 cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
 #!/bin/bash
@@ -290,7 +299,28 @@ fi
 echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
 exec /usr/local/bin/chimera-boot-mode
 EOF
-echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
+python3 - "$WORK/usr/local/bin/aurora-session" "$ENTRY" <<'PY'
+from pathlib import Path
+import sys
+launcher = Path(sys.argv[1])
+entry = sys.argv[2]
+source = launcher.read_text()
+exec_line = "exec /usr/local/bin/chimera-boot-mode"
+if source.count(exec_line) != 1:
+    raise SystemExit("Aurora session must have exactly one final boot-mode exec")
+if "AURORA_DESKTOP_URI=" in source:
+    raise SystemExit("Aurora desktop URI must be injected exactly once")
+before_exec = (
+    'export AURORA_DESKTOP_URI="file:///opt/aurora/' + entry + '"\\n'
+    'feh --bg-fill /usr/share/backgrounds/aurora-default.jpg 2>/dev/null || true\\n'
+    'if [[ -x /usr/local/bin/aurora-init-splash.sh && -s /usr/share/chimera/aurora/assets/Init.mp4 ]] && command -v mpv >/dev/null 2>&1; then\\n'
+    '  CHIMERA_INIT_VIDEO=/usr/share/chimera/aurora/assets/Init.mp4 CHIMERA_SPLASH_MAX_SECONDS=12 /usr/local/bin/aurora-init-splash.sh || echo "[Aurora] Splash failed; continuing."\\n'
+    'fi\\n'
+)
+source = source.replace(exec_line, before_exec + exec_line, 1)
+launcher.write_text(source)
+PY
+test -s "$PAY/$ENTRY"
 chmod 755 "$WORK/usr/local/bin/aurora-session"
 
 printf '#!/bin/sh\nexec /usr/local/bin/aurora-session\n' > "$WORK/etc/xinitrc"
@@ -347,6 +377,7 @@ ln -sfn /lib/systemd/system/systemd-networkd.socket \
 
 mkdir -p "$WORK/usr/share/backgrounds/$SHORT"
 cp -a "$PAY/wallpapers/." "$WORK/usr/share/backgrounds/$SHORT/"
+install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$WORK/usr/share/backgrounds/aurora-default.jpg"
 
 printf 'MODULES=most\nCOMPRESS=gzip\n' > "$WORK/etc/initramfs-tools/conf.d/live.conf"
 mount_chroot "$WORK"
@@ -419,54 +450,38 @@ print("Validated Multiboot2 x86-64 Koronos ELF:", p)
 PY
   install -Dm644 "$KORONOS_ELF" "$ISODIR/boot/koronos.elf"
 fi
+# Build and stage the native Spit Fire BIOS artifacts. GRUB2 remains the
+# El Torito/UEFI ISO loader; these MBR artifacts are not written to ISO boot sectors.
+SPITFIRE_OUT="$BUILD/spitfire"
+mkdir -p "$SPITFIRE_OUT" "$ISODIR/boot/spitfire" "$ISODIR/boot/jasper"
+for tool in nasm g++ ld nm; do command -v "$tool" >/dev/null 2>&1 || { echo "ERROR: Spit Fire build requires $tool" >&2; exit 2; }; done
+bash "$NATIVE_SOURCE/boot/spitfire/build-spitfire.sh" "$SPITFIRE_OUT" "$KORONOS_ELF"
+for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o BUILD-MANIFEST.txt SHA256SUMS; do
+  test -s "$SPITFIRE_OUT/$artifact" || { echo "ERROR: missing Spit Fire artifact $artifact" >&2; exit 2; }
+  install -m 0644 "$SPITFIRE_OUT/$artifact" "$ISODIR/boot/spitfire/$artifact"
+done
+install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/native-koronos-menu.cfg"
+install -m 0644 "$HERE/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+install -m 0644 "$HERE/jasper-live.cfg" "$ISODIR/boot/jasper/live-image.cfg"
+install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$ISODIR/boot/grub/background.jpg"
+
 
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
 set default=0
-set timeout=15
-set timeout_style=menu
+set timeout=8
 insmod all_video
 insmod gfxterm
 insmod png
 insmod jpeg
 insmod font
-set gfxmode=1920x1080,1680x1050,1600x900,1366x768,1280x1024,1280x720,1024x768,800x600,auto
+set gfxmode=5120x2880,3840x2160,2560x1440,1920x1200,1920x1080,1680x1050,1600x1200,1600x900,1440x900,1366x768,1280x1024,1280x720,1024x768,800x600,640x480,auto
 set gfxpayload=keep
+set debug=all
 terminal_output gfxterm
-if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
-
-menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Live desktop" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=live console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 log_buf_len=4M earlycon=uart,io,0x3f8,115200 systemd.show_status=1 rd.systemd.show_status=1 systemd.log_level=debug systemd.log_target=console rd.systemd.log_level=debug udev.log_level=debug plymouth.enable=0 fbcon=nodefer
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Installer" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=installer console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Koronos native kernel" {
-  if [ -f /boot/koronos.elf ]; then
-    insmod multiboot2
-    multiboot2 /boot/koronos.elf
-    boot
-  else
-    echo "Koronos kernel not bundled: build with KORONOS_ELF=/path/to/multiboot2-koronos.elf"
-    echo "This ISO remains the Linux-kernel live edition; no native-kernel claim is made."
-    sleep 12
-  fi
-}
-menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Recovery" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=recovery console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Classic X session (Openbox)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Safe graphics (nomodeset)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live nomodeset console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0
-  initrd /live/initrd.img
-}
-menuentry "Reboot" { reboot }
-menuentry "Power off" { halt }
+if [ -f /boot/grub/background.jpg ]; then background_image --mode stretch /boot/grub/background.jpg; fi
+echo "[SPIT FIRE] $TITLE $VERSION — firmware handoff"
+echo "[SPIT FIRE] Next: Jasper / GRUB 2 target manager"
+configfile /boot/spitfire/spitfire-menu.cfg
 EOF
 
 log "iso"
