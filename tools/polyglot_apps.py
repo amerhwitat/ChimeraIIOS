@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Inventory, GUI launcher and PyInstaller packager for first-party Python/Java/Web apps."""
 from __future__ import annotations
-import argparse,json,os,pathlib,re,shutil,subprocess,sys
+import argparse,json,os,pathlib,re,shutil,subprocess,sys,webbrowser
 SKIP={".git",".venv","venv","__pycache__","node_modules","vendor","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups"}
 WEB={".html",".htm",".js",".jsx",".ts",".tsx",".css"}
 def inventory(root):
@@ -84,8 +84,12 @@ def gui(root,manifest):
     ttk.Label(w,text="Apps Panel",font=("Segoe UI",22,"bold")).pack(anchor="w",padx=18,pady=12)
     ttk.Label(w,text=str(data["python_source_count"])+" Python · "+str(data["java_source_count"])+" Java · "+str(data["web_source_count"])+" Web sources").pack(anchor="w",padx=18)
     frame=ttk.Frame(w);frame.pack(fill="both",expand=True,padx=18,pady=12);listing=tk.Listbox(frame,width=50);listing.pack(side="left",fill="y");output=tk.Text(frame,wrap="word");output.pack(side="left",fill="both",expand=True,padx=12)
-    apps=[a for a in data["python"] if a["kind"]=="python-entrypoint"]
-    for a in apps:listing.insert("end",a["name"]+" — "+a["source"])
+    apps=list(data["python"])
+    for a in apps:listing.insert("end",a["name"]+" — "+a["kind"]+" · "+a["source"])
+    for source in data.get("java_sources",[]):
+        item={"kind":"java-source","name":pathlib.Path(source).name,"source":source};apps.append(item);listing.insert("end",item["name"]+" — Java source")
+    for source in data.get("web_sources",[]):
+        item={"kind":"web-source","name":pathlib.Path(source).name,"source":source};apps.append(item);listing.insert("end",item["name"]+" — Web source")
     windows_dir=pathlib.Path(os.environ.get("CHIMERA_WINDOWS_APPS_DIR",str(manifest.parent/"windows")) )
     windows_apps=sorted(windows_dir.glob("*.exe")) if windows_dir.is_dir() else []
     for exe in windows_apps:listing.insert("end",exe.stem+" — Windows executable (Wine)")
