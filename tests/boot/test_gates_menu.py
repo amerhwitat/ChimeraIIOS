@@ -21,6 +21,12 @@ class GatesMenuContractTests(unittest.TestCase):
         self.assertIn("gates", contract["entries"])
         self.assertEqual(contract["gates_config"], "/boot/gates/gates.cfg")
 
+    def test_canonical_iso_builder_stages_and_requires_gates(self):
+        builder = (ROOT / "boot/iso/build-iso.sh").read_text()
+        validator = (ROOT / "boot/iso/validate-iso.py").read_text()
+        self.assertIn("boot/gates/gates.cfg", builder)
+        self.assertIn("boot/gates/gates.cfg", validator)
+
     def test_gates_menu_guards_uefi_chainloading(self):
         gates = (ROOT / "boot/gates/gates.cfg").read_text()
         self.assertIn('if [ "$grub_platform" = efi ]', gates)
