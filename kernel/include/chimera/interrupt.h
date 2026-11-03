@@ -24,7 +24,7 @@ typedef struct chimera_interrupt_frame {
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8;
     uint64_t rdi, rsi, rbp, rbx, rdx, rcx, rax;
     uint64_t vector;
-    uint64_t cpu_frame[5];
+    uint64_t cpu_frame[6];
 } chimera_interrupt_frame;
 
 static inline uint32_t chimera_interrupt_vector_has_error_code(uint64_t vector) {
