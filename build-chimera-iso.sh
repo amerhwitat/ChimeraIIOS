@@ -1404,13 +1404,14 @@ mkdir -p /proc /sys /dev /run /tmp /mnt /target
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-echo "CHIMERA II OS — NATIVE INSTALLER"
+echo "CHIMERA II OS — INSTALLER SHELL (DISK INSTALLATION DISABLED)"
 echo "[INST] Koronos installer environment online"
 echo "[INST] Aurora installation contracts loaded"
+echo "[INST] Disk installation is fail-closed: no OS-specific partition/deployment backend is configured."
 if [ -x /bin/chimera-installer-runtime.sh ]; then
   /bin/chimera-installer-runtime.sh /
 fi
-echo "[INST] Installation environment ready"
+echo "[INST] Installer diagnostic shell ready; no disk changes have been made."
 exec /bin/sh
 EOF
   chmod +x "$p/init"
@@ -1932,6 +1933,8 @@ verify_iso(){
     /boot/koronos/koronos.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
+    /boot/recovery/chimera-recovery-initramfs.img
+    /boot/recovery/recovery-manifest.json
     /boot/grub/aurora-theme.txt
     /boot/visual/aurora-boot.png
     /boot/visual/aurora-menu.png
@@ -1958,7 +1961,13 @@ verify_iso(){
     fi
   done
   xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
-  log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    if ! xorriso -indev "$iso" -find /install/sdk/SDK_BUILD_MANIFEST.json -type f | grep -q .; then
+      log_error "Full ISO is missing the staged native SDK build manifest."
+      exit 1
+    fi
+  fi
+  log_success "BIOS/UEFI boot files, Live/Recovery payloads, installer shell and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
     log_info 'Launching a non-asserting QEMU firmware smoke probe; timeout is not proof of boot success.'
     local qemu_probe_rc=0
