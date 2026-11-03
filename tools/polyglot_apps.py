@@ -30,7 +30,7 @@ def main():
  out=tk.Text(w,wrap="word");out.pack(fill="both",expand=True,padx=16,pady=8)
  def launch():
   if not SOURCE.is_file():messagebox.showerror("Missing source",str(SOURCE));return
-  sys.path.insert(0,str(SOURCE.parent));buf=io.StringIO()
+  sys.path.insert(0,str(BUNDLE/"python-source"));sys.path.insert(0,str(SOURCE.parent));buf=io.StringIO()
   try:
    with contextlib.redirect_stdout(buf),contextlib.redirect_stderr(buf):runpy.run_path(str(SOURCE),run_name="__main__")
    code=0
@@ -60,7 +60,7 @@ def build(root,out,platform):
         app["artifact"]=str((dist/(name+(".exe" if platform=="windows" else ""))).relative_to(out)) if r.returncode==0 else None
     poms=[p for p in root.rglob("pom.xml") if not any(part in SKIP for part in p.relative_to(root).parts)];pom=poms[0] if poms else None;java_status="sources inventoried; no Maven project" if java else "no Java sources"
     if pom and shutil.which("mvn"):
-        r=call(["mvn","-B","-f",str(pom),"package","-DskipTests"],root);java_status="built" if r.returncode==0 else "failed"
+        r=call(["mvn","-B","-f",str(pom),"package","-DskipTests"],root);java_status=("selected Maven project built; other Java sources catalogued" if r.returncode==0 else "Maven project build failed")
     elif java and not shutil.which("javac"):java_status="sources inventoried; JDK unavailable"
     data={"schema":"chimera-polyglot-apps/v1","platform_build":platform,"python_source_count":len(py),"python_entrypoints":sum(a["kind"]=="python-entrypoint" for a in py),"java_source_count":len(java),"web_source_count":len(web),"java_build":java_status,"python":py,"java_sources":java,"web_sources":web,"compatibility":{"windows":"Build PyInstaller .exe on Windows; Windows binaries are not Linux executables.","wine":"Optional Wine runtime may launch compatible Windows .exe files; not guaranteed for every app.","linux":"Build separate Linux-native PyInstaller artifacts."}}
     (out/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n");return data
