@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <initializer_list>
 #include <string>
 #include <vector>
 #include "chimera/cpio_newc.h"
@@ -116,7 +117,7 @@ int main() {
     const auto good = archive({
         {"./", 0040755u, "", 0u, false, UINT32_MAX},
         {"./init", 0100755u, "hello", 5u, false, UINT32_MAX},
-        {"./etc", 0040755u, "", 0u, false, UINT32_MAX}
+        {"./etc/", 0040755u, "", 0u, false, UINT32_MAX}
     });
     Visitor visitor;
     chimera_cpio_newc_ops ops{visit};
