@@ -118,7 +118,7 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
         available_ide_packages+=("$package")
       fi
     done
-    if (("${#available_ide_packages[@]}" > 0)); then
+    if ((${#available_ide_packages[@]} > 0)); then
       apt-get install -y -qq --no-install-recommends "${available_ide_packages[@]}"
     fi
     apt-get clean
