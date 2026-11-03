@@ -111,6 +111,8 @@ else
   ls -l /dev/sr* /dev/vd* /dev/sd* /dev/mmcblk* 2>/dev/null || true
 fi
 # This is an initramfs diagnostic shell, not a Koronos CPL3 process.
+# A shell handoff is not evidence that the Aurora desktop is ready.
+# Aurora desktop readiness is separate from the initramfs diagnostic shell.
 # Never emit USERSPACE READY here: that marker is reserved for the executing
 # native init ELF after a verified user-originated syscall and readiness handshake.
 printf '[LIVE] INITRAMFS DIAGNOSTIC SHELL; Koronos userspace handoff NOT VERIFIED\n' > /dev/console 2>/dev/null || printf '[LIVE] INITRAMFS DIAGNOSTIC SHELL; Koronos userspace handoff NOT VERIFIED\n'
