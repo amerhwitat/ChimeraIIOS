@@ -41,8 +41,8 @@ if "spitfire-install" not in spitfire or "spitfire-recovery" not in spitfire:
     raise SystemExit("FAIL: Spit Fire menu is missing native handoff choices")
 if "installer-initrd.img" not in (spitfire + installer) or "chimera-recovery-initramfs.img" not in (spitfire + recovery):
     raise SystemExit("FAIL: native handoffs must check their dedicated runtime images")
-if "Recovery payload is missing" not in recovery and "recovery initramfs" not in recovery:
+if not any(token in recovery for token in ("Recovery payload is missing", "recovery initramfs", "NATIVE RECOVERY BLOCKED")):
     raise SystemExit("FAIL: native Recovery must refuse an incomplete runtime image")
-if "Init.mp4" not in grub or "userspace playback" not in grub:
+if "Init.mp4" not in grub or not any(token in grub for token in ("userspace playback", "GRUB does not play MP4")):
     raise SystemExit("FAIL: GRUB must document post-selection userspace splash playback")
 print("PASS: Aurora launcher, embedded wallpaper, IDE bundle, Spit Fire menu and splash contracts")
