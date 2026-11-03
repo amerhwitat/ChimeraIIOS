@@ -1,0 +1,694 @@
+{
+  "schema": "CHM-MEDIA-LIBRARY-1",
+  "title": "User Suno Collection",
+  "description": "User-supplied Suno links grouped by the language or mix label supplied by the user. Track names are intentionally neutral until Suno metadata can be read.",
+  "policy": "Links open on Suno. No audio is copied, downloaded, cached, or embedded by this catalog. Playback, availability, account access and reuse rights are controlled by Suno and the track owner.",
+  "count": 57,
+  "duplicates_removed": 1,
+  "groups": [
+    {
+      "language": "English-Hindi-French-German-Russian",
+      "tracks": [
+        "suno-01",
+        "suno-11",
+        "suno-21",
+        "suno-31",
+        "suno-41",
+        "suno-51",
+        "suno-61",
+        "suno-71",
+        "suno-81",
+        "suno-91",
+        "suno-101",
+        "suno-111"
+      ]
+    },
+    {
+      "language": "Turkish · Hasbuna Allah",
+      "tracks": [
+        "suno-121",
+        "suno-131",
+        "suno-141",
+        "suno-151"
+      ]
+    },
+    {
+      "language": "Russian",
+      "tracks": [
+        "suno-161",
+        "suno-171",
+        "suno-201",
+        "suno-211",
+        "suno-221",
+        "suno-231",
+        "suno-241",
+        "suno-251",
+        "suno-261",
+        "suno-271"
+      ]
+    },
+    {
+      "language": "Turkish",
+      "tracks": [
+        "suno-181",
+        "suno-191"
+      ]
+    },
+    {
+      "language": "English",
+      "tracks": [
+        "suno-281",
+        "suno-291",
+        "suno-301",
+        "suno-311",
+        "suno-421",
+        "suno-431"
+      ]
+    },
+    {
+      "language": "Multilingual mix",
+      "tracks": [
+        "suno-321",
+        "suno-331"
+      ]
+    },
+    {
+      "language": "Japanese",
+      "tracks": [
+        "suno-341",
+        "suno-351",
+        "suno-361",
+        "suno-371",
+        "suno-381",
+        "suno-391",
+        "suno-401",
+        "suno-411"
+      ]
+    },
+    {
+      "language": "Spanish",
+      "tracks": [
+        "suno-441",
+        "suno-451"
+      ]
+    },
+    {
+      "language": "Arabic-English mix",
+      "tracks": [
+        "suno-461",
+        "suno-471"
+      ]
+    },
+    {
+      "language": "Korean-Arabic mix",
+      "tracks": [
+        "suno-481",
+        "suno-491",
+        "suno-501",
+        "suno-511"
+      ]
+    },
+    {
+      "language": "Arabic",
+      "tracks": [
+        "suno-521",
+        "suno-531",
+        "suno-541",
+        "suno-551",
+        "suno-561"
+      ]
+    }
+  ],
+  "tracks": [
+    {
+      "id": "suno-01",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 1",
+      "provider": "Suno",
+      "url": "https://suno.com/s/JABdsgX7W2HHjBFk",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-11",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 2",
+      "provider": "Suno",
+      "url": "https://suno.com/s/7VsOLujxqXqOWpwHw",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-21",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 3",
+      "provider": "Suno",
+      "url": "https://suno.com/s/2QTPs6JD4kpALd7G",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-31",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 4",
+      "provider": "Suno",
+      "url": "https://suno.com/s/VtN4B9WR6I5LTpRJ",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-41",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 5",
+      "provider": "Suno",
+      "url": "https://suno.com/s/n29ruKfBGd6iUsyB",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-51",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 6",
+      "provider": "Suno",
+      "url": "https://suno.com/s/hKUmb6yIfy8IL6ku",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-61",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 7",
+      "provider": "Suno",
+      "url": "https://suno.com/s/0j6EwJDlSPRPHECh",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-71",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 8",
+      "provider": "Suno",
+      "url": "https://suno.com/s/DHTkXmDQwp0rBfZm",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-81",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 9",
+      "provider": "Suno",
+      "url": "https://suno.com/s/3quA3f5F5OdIHWCF",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-91",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 10",
+      "provider": "Suno",
+      "url": "https://suno.com/s/V9ERjzmOhK6eZUck",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-101",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 11",
+      "provider": "Suno",
+      "url": "https://suno.com/s/G4ThBK0wgkp8YreK",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-111",
+      "language": "English-Hindi-French-German-Russian",
+      "title": "Suno track 12",
+      "provider": "Suno",
+      "url": "https://suno.com/s/HWshPFXyfr3u0zUB",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-121",
+      "language": "Turkish · Hasbuna Allah",
+      "title": "Suno track 13",
+      "provider": "Suno",
+      "url": "https://suno.com/s/HjfBZbrVMcIcCF4V",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-131",
+      "language": "Turkish · Hasbuna Allah",
+      "title": "Suno track 14",
+      "provider": "Suno",
+      "url": "https://suno.com/s/oJqfJphvJMXo7CBr",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-141",
+      "language": "Turkish · Hasbuna Allah",
+      "title": "Suno track 15",
+      "provider": "Suno",
+      "url": "https://suno.com/s/fs0IPyursl3KTJS9",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-151",
+      "language": "Turkish · Hasbuna Allah",
+      "title": "Suno track 16",
+      "provider": "Suno",
+      "url": "https://suno.com/s/uevdvFnB3N1Xo4gz",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-161",
+      "language": "Russian",
+      "title": "Suno track 17",
+      "provider": "Suno",
+      "url": "https://suno.com/s/MJ9vwUaSzjEMfaWQ",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-171",
+      "language": "Russian",
+      "title": "Suno track 18",
+      "provider": "Suno",
+      "url": "https://suno.com/s/LZOQV1CBl6Kks1Y8",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-181",
+      "language": "Turkish",
+      "title": "Suno track 19",
+      "provider": "Suno",
+      "url": "https://suno.com/s/bpv9blZ1fVQtRGEK",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-191",
+      "language": "Turkish",
+      "title": "Suno track 20",
+      "provider": "Suno",
+      "url": "https://suno.com/s/8IobijPIJv1bXAe0",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-201",
+      "language": "Russian",
+      "title": "Suno track 21",
+      "provider": "Suno",
+      "url": "https://suno.com/s/qN3D3X4BNPgXKCmv",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-211",
+      "language": "Russian",
+      "title": "Suno track 22",
+      "provider": "Suno",
+      "url": "https://suno.com/s/wFK0phXtYRMqGeAm",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-221",
+      "language": "Russian",
+      "title": "Suno track 23",
+      "provider": "Suno",
+      "url": "https://suno.com/s/Q1XG1vN30tT3sQ6V",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-231",
+      "language": "Russian",
+      "title": "Suno track 24",
+      "provider": "Suno",
+      "url": "https://suno.com/s/q5hb9HWVUuKi0zN9",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-241",
+      "language": "Russian",
+      "title": "Suno track 25",
+      "provider": "Suno",
+      "url": "https://suno.com/s/XEn4v5IfKuEKmDGo",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-251",
+      "language": "Russian",
+      "title": "Suno track 26",
+      "provider": "Suno",
+      "url": "https://suno.com/s/WbFJZOro5zAfsV40",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-261",
+      "language": "Russian",
+      "title": "Suno track 27",
+      "provider": "Suno",
+      "url": "https://suno.com/s/oDBaCGWPX6XX6l5e",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-271",
+      "language": "Russian",
+      "title": "Suno track 28",
+      "provider": "Suno",
+      "url": "https://suno.com/s/fNIjCIQa64T5hZ9W",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-281",
+      "language": "English",
+      "title": "Suno track 29",
+      "provider": "Suno",
+      "url": "https://suno.com/s/Jqi68bUGWsDb0gUY",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-291",
+      "language": "English",
+      "title": "Suno track 30",
+      "provider": "Suno",
+      "url": "https://suno.com/s/dc5Oz1d1DEFS6g6h",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-301",
+      "language": "English",
+      "title": "Suno track 31",
+      "provider": "Suno",
+      "url": "https://suno.com/s/e0KfjnhRu1TxjATu",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-311",
+      "language": "English",
+      "title": "Suno track 32",
+      "provider": "Suno",
+      "url": "https://suno.com/s/8xkTjmAhxzQ56I4G",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-321",
+      "language": "Multilingual mix",
+      "title": "Suno track 33",
+      "provider": "Suno",
+      "url": "https://suno.com/s/ntp7uaEidNAqGAWy",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-331",
+      "language": "Multilingual mix",
+      "title": "Suno track 34",
+      "provider": "Suno",
+      "url": "https://suno.com/s/D6aw7eWUqoaJJfxp",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-341",
+      "language": "Japanese",
+      "title": "Suno track 35",
+      "provider": "Suno",
+      "url": "https://suno.com/s/KbIgTMutSpn3K5jw",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-351",
+      "language": "Japanese",
+      "title": "Suno track 36",
+      "provider": "Suno",
+      "url": "https://suno.com/s/Tz7wXYJ83XqKAcne",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-361",
+      "language": "Japanese",
+      "title": "Suno track 37",
+      "provider": "Suno",
+      "url": "https://suno.com/s/GUCnvnS0LigbG0IK",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-371",
+      "language": "Japanese",
+      "title": "Suno track 38",
+      "provider": "Suno",
+      "url": "https://suno.com/s/5xx0TH94V9Hxh0YY",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-381",
+      "language": "Japanese",
+      "title": "Suno track 39",
+      "provider": "Suno",
+      "url": "https://suno.com/s/4BwtXdRNyLvovtHI",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-391",
+      "language": "Japanese",
+      "title": "Suno track 40",
+      "provider": "Suno",
+      "url": "https://suno.com/s/FZ38UU7Wtt5OjzDJ",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-401",
+      "language": "Japanese",
+      "title": "Suno track 41",
+      "provider": "Suno",
+      "url": "https://suno.com/s/US6VSHkXCw71z9Zy",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-411",
+      "language": "Japanese",
+      "title": "Suno track 42",
+      "provider": "Suno",
+      "url": "https://suno.com/s/dkvT0l9qqT9nRrco",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-421",
+      "language": "English",
+      "title": "Suno track 43",
+      "provider": "Suno",
+      "url": "https://suno.com/s/CGW9cteIUVIuC5RO",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-431",
+      "language": "English",
+      "title": "Suno track 44",
+      "provider": "Suno",
+      "url": "https://suno.com/s/Ne6YCIfmHA8YBlvf",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-441",
+      "language": "Spanish",
+      "title": "Suno track 45",
+      "provider": "Suno",
+      "url": "https://suno.com/song/7a66554d-bd11-4d6f-b125-75a7cf004744",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-451",
+      "language": "Spanish",
+      "title": "Suno track 46",
+      "provider": "Suno",
+      "url": "https://suno.com/song/7b276cdd-5ab4-4de0-a382-ea9127990773",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-461",
+      "language": "Arabic-English mix",
+      "title": "Suno track 47",
+      "provider": "Suno",
+      "url": "https://suno.com/s/gDpuJMn8LfbnJ2Xj",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-471",
+      "language": "Arabic-English mix",
+      "title": "Suno track 48",
+      "provider": "Suno",
+      "url": "https://suno.com/song/cbde7c58-6caa-474a-a029-7b7e72421e74",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-481",
+      "language": "Korean-Arabic mix",
+      "title": "Suno track 49",
+      "provider": "Suno",
+      "url": "https://suno.com/s/m3QN5njNXGIwUx2u",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-491",
+      "language": "Korean-Arabic mix",
+      "title": "Suno track 50",
+      "provider": "Suno",
+      "url": "https://suno.com/s/dEQkWFYkjnaHB92T",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-501",
+      "language": "Korean-Arabic mix",
+      "title": "Suno track 51",
+      "provider": "Suno",
+      "url": "https://suno.com/s/hBvpS8eT7PvqBrts",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-511",
+      "language": "Korean-Arabic mix",
+      "title": "Suno track 52",
+      "provider": "Suno",
+      "url": "https://suno.com/s/K8zHxaLQaoupGMr4",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-521",
+      "language": "Arabic",
+      "title": "Suno track 53",
+      "provider": "Suno",
+      "url": "https://suno.com/s/7GFNJQh95PJF0bQ2",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-531",
+      "language": "Arabic",
+      "title": "Suno track 54",
+      "provider": "Suno",
+      "url": "https://suno.com/s/L2DHQar6g9Qmv4Ym",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-541",
+      "language": "Arabic",
+      "title": "Suno track 55",
+      "provider": "Suno",
+      "url": "https://suno.com/song/3e437f43-86c9-4b3b-9c06-739054bed994",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-551",
+      "language": "Arabic",
+      "title": "Suno track 56",
+      "provider": "Suno",
+      "url": "https://suno.com/song/6f9d170a-8cff-48e0-b267-066376b5fd60",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    },
+    {
+      "id": "suno-561",
+      "language": "Arabic",
+      "title": "Suno track 57",
+      "provider": "Suno",
+      "url": "https://suno.com/song/2b1d4f53-a6e6-47de-b4da-0cf7b0ab70ec",
+      "availability": "external-link",
+      "playback": "Open on Suno",
+      "user_supplied": true
+    }
+  ]
+}
