@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ $# -ne 5 ]]; then
-  echo "usage: $0 <grub.cfg> <spitfire-menu.cfg> <gates-menu.cfg> <jasper-live.cfg> <native-runtime-candidates.json>" >&2
+if [[ $# -ne 6 ]]; then
+  echo "usage: $0 <grub.cfg> <spitfire-menu.cfg> <gates-menu.cfg> <jasper-live.cfg> <native-runtime-candidates.json> <boot-menu-contract.json>" >&2
   exit 2
 fi
 root_cfg="$1"
