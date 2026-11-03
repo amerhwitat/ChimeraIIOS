@@ -607,6 +607,14 @@ create_boot_menu(){
   cp "$SCRIPT_DIR/docs/recovery-runtime-levels.md" "$ISO_DIR/recovery/"
   [[ -s "$BUILD_DIR/live-boot/boot/vmlinuz" ]] && chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/vmlinuz" "$ISO_DIR/boot/live/vmlinuz" || true
   [[ -f "$SCRIPT_DIR/boot/iso/grub.cfg" ]] && cp "$SCRIPT_DIR/boot/iso/grub.cfg" "$ISO_DIR/boot/grub/grub.cfg"
+  # Stage Gates firmware/chainload menu contracts.
+  if [[ -d "$SCRIPT_DIR/boot/gates" ]]; then
+    mkdir -p "$ISO_DIR/boot/gates"
+    for f in "$SCRIPT_DIR/boot/gates/"*.cfg; do
+      [[ -f "$f" ]] || continue
+      cp -f "$f" "$ISO_DIR/boot/gates/$(basename "$f")"
+    done
+  fi
   # Stage every canonical Jasper, installation and Spit Fire menu contract.
   for f in "$SCRIPT_DIR/boot/jasper/"*.cfg; do
     [[ -f "$f" ]] || continue
@@ -1358,6 +1366,7 @@ verify_iso(){
     /boot/visual/Init.mp4
     /boot/visual/chimera-intro.mp4
     /boot/jasper/jasper.cfg
+    /boot/gates/gates.cfg
     /boot/jasper/install.cfg
     /boot/jasper/retro.cfg
     /boot/installation/menu.cfg
