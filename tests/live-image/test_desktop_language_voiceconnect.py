@@ -30,13 +30,14 @@ class DesktopLanguageVoiceConnectTests(unittest.TestCase):
         source = self.read(JS)
         for token in ('"ar"', '"fa"', '"he"', '"ur"', '"yi"', "supportedLocales", "BCP-47", "auroraDisplaySelect"):
             self.assertIn(token, source)
-        self.assertIn("document.documentElement.dir = rtl.has(base) ? \"rtl\" : \"ltr\"", source)
+        self.assertIn('document.documentElement.dir = rtl.has(base) ? "rtl" : "ltr"', source)
 
     def test_native_input_bridge_is_allowlisted(self):
         kiosk = self.read(KIOSK)
         self.assertIn("setxkbmap", kiosk)
         self.assertIn("XKB_LAYOUTS", kiosk)
-        self.assertIn("payload.get(\"type\") == \"set-input-layout\"", kiosk)
+        self.assertTrue('payload.get("type") == "set-input-layout"' in kiosk or
+                        'payload.get("type")=="set-input-layout"' in kiosk)
         self.assertNotIn("shell=True", kiosk)
 
     def test_voiceconnect_is_pinned_and_loopback_only(self):
@@ -46,7 +47,7 @@ class DesktopLanguageVoiceConnectTests(unittest.TestCase):
         self.assertIn(VOICECONNECT_COMMIT, builder)
         self.assertIn("npm ci --omit=dev --ignore-scripts", builder)
         self.assertIn("Node.js >=24", builder)
-        self.assertIn('"HOST": "127.0.0.1"', kiosk)
+        self.assertTrue('"HOST": "127.0.0.1"' in kiosk or '"HOST":"127.0.0.1"' in kiosk)
         self.assertIn("127.0.0.1:8787", kiosk)
         self.assertIn('app:"voiceconnect"', source)
         self.assertIn("turn_credentials_embedded", builder)
