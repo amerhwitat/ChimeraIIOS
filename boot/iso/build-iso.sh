@@ -42,10 +42,13 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # live-boot builder when --storage/CHIMERA_BUILD_DIR selects another volume.
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
 LIVE_BOOT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
+<<<<<<< HEAD
 # Child ISO stages must inherit the selected storage paths. Without these
 # exports prepare-layout.sh falls back to $ROOT/build and misses artifacts
 # produced on the selected build volume.
 export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_LIVE_BOOT_DIR="$LIVE_BOOT"
+=======
+>>>>>>> 1249d7c4d (Align Jasper recovery staging with selected build storage)
 # Canonical system block-size contract. Forward this unchanged into the kernel
 # build and all downstream ISO stages; never silently accept malformed values.
 CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
