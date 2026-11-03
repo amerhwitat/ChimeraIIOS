@@ -475,7 +475,7 @@ SPITFIRE_OUT="$BUILD/spitfire"
 mkdir -p "$SPITFIRE_OUT" "$ISODIR/boot/spitfire" "$ISODIR/boot/jasper"
 for tool in nasm g++ ld nm; do command -v "$tool" >/dev/null 2>&1 || { echo "ERROR: Spit Fire build requires $tool" >&2; exit 2; }; done
 bash "$NATIVE_SOURCE/boot/spitfire/build-spitfire.sh" "$SPITFIRE_OUT" "$KORONOS_ELF"
-for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o BUILD-MANIFEST.txt SHA256SUMS; do
+for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o koronos.elf.sha256 BUILD-MANIFEST.txt SHA256SUMS; do
   test -s "$SPITFIRE_OUT/$artifact" || { echo "ERROR: missing Spit Fire artifact $artifact" >&2; exit 2; }
   install -m 0644 "$SPITFIRE_OUT/$artifact" "$ISODIR/boot/spitfire/$artifact"
 done
