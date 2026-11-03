@@ -81,6 +81,7 @@ mkdir -p "$DIST/iso/boot/candidates/recovery"
 cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img" "$DIST/iso/boot/candidates/recovery/"
 cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/candidates/recovery/" 2>/dev/null || true
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/candidates/recovery/"
+rm -f "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img" "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/recovery/recovery-manifest.json"
 
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
