@@ -75,13 +75,12 @@ cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 # prepare-layout, whose legacy recovery.cfg generation is intentionally kept
 # compatible with older installations.
 RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
-test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
-test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
-mkdir -p "$DIST/iso/boot/recovery"
-cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img" "$DIST/iso/boot/recovery/"
-cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/recovery/" 2>/dev/null || true
-cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
-cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
+test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Recovery prototype initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
+test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Recovery prototype manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
+mkdir -p "$DIST/iso/boot/candidates/recovery"
+cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img" "$DIST/iso/boot/candidates/recovery/"
+cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/candidates/recovery/" 2>/dev/null || true
+cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/candidates/recovery/"
 
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
@@ -145,9 +144,29 @@ for stage in spitfire jasper grub koronos; do
 done
 
 # Stage a real installer initramfs and the canonical installer JSON contracts.
-bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
+INSTALLER_STAGE="$WORK/installer-prototype"
+mkdir -p "$INSTALLER_STAGE" "$DIST/iso/boot/candidates/installer"
+bash "$ROOT/tools/chimera-stage-installer-media.sh" "$INSTALLER_STAGE"
+cp -a "$INSTALLER_STAGE/install/installer/." "$DIST/iso/boot/candidates/installer/"
+rm -rf "$INSTALLER_STAGE"
+python3 - "$DIST/iso/boot/candidates" <<'PY'
+import hashlib, json, pathlib, sys
+root=pathlib.Path(sys.argv[1])
+def entries(p):
+    return [{"path":x.name,"size":x.stat().st_size,"sha256":hashlib.sha256(x.read_bytes()).hexdigest()}
+            for x in sorted(p.iterdir()) if x.is_file()]
+m={
+ "schema":"koronos-native-runtime-candidates-v1",
+ "installer":{"artifacts":entries(root/"installer"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "recovery":{"artifacts":entries(root/"recovery"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "activation_policy":"No candidate is copied to active native boot paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot acceptance pass.",
+ "status":"prototype-built-not-native-koronos-runtime"
+}
+(root/"native-runtime-candidates.json").write_text(json.dumps(m,indent=2)+"\n")
+PY
 
-grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
+grep -q 'configfile /boot/spitfire/spitfire-menu.cfg' "$ROOT/boot/iso/grub.cfg"
+grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/jasper/live.cfg"
 grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$ROOT/boot/iso/grub.cfg"
 grep -q '"native_execution_order"' "$DIST/iso/boot/chimera/manifests/boot-execution-order.json"
 
@@ -161,11 +180,12 @@ grep -q '/boot/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recov
 grep -q 'Recovery Terminal' "$ROOT/boot/jasper/recovery.cfg"
 
 for contract in \
-  "$DIST/iso/install/installer/installation.img" \
-  "$DIST/iso/install/installer/installation-manifest.json" \
-  "$DIST/iso/install/installer/installer-contract.json" \
-  "$DIST/iso/install/installer/installation_phases.json" \
-  "$DIST/iso/install/installer/installer_profiles.json"; do
+  "$DIST/iso/boot/candidates/installer/installation.img" \
+  "$DIST/iso/boot/candidates/installer/installer-initrd.img" \
+  "$DIST/iso/boot/candidates/installer/installation-manifest.json" \
+  "$DIST/iso/boot/candidates/installer/installer-contract.json" \
+  "$DIST/iso/boot/candidates/installer/installation_phases.json" \
+  "$DIST/iso/boot/candidates/installer/installer_profiles.json"; do
   if [[ ! -s "$contract" ]]; then
     echo "ERROR: required installer contract missing: $contract" >&2
     exit 2
