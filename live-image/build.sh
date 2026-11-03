@@ -150,12 +150,21 @@ if command -v pyinstaller >/dev/null 2>&1; then POLYGLOT_ARGS+=(--build); fi
 python3 "$REPO_DIR/tools/polyglot_apps.py" "${POLYGLOT_ARGS[@]}"
 cp -a "$POLYGLOT_OUT/polyglot-apps.json" "$PAY/apps/polyglot/polyglot-apps.json"
 if [ -d "$POLYGLOT_OUT/dist" ]; then cp -a "$POLYGLOT_OUT/dist/." "$PAY/apps/polyglot/linux/"; fi
-find "$REPO_DIR" -type f -name '*.py' -not -path '*/vendor/*' -not -path '*/tests/*' -not -path '*/.git/*' -not -path '*/.chimera-fix-backups/*' -print0 |
-  while IFS= read -r -d '' src; do rel="${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
-find "$REPO_DIR" -type f -name '*.java' -not -path '*/vendor/*' -not -path '*/.git/*' -print0 |
-  while IFS= read -r -d '' src; do rel="${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
-find "$REPO_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css' \) -not -path '*/vendor/*' -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 |
-  while IFS= read -r -d '' src; do rel="${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+python3 - "$REPO_DIR" "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/polyglot-apps.json" <<'PY_POLYGLOT_COPY'
+import json,pathlib,shutil,sys
+root,dest,manifest=map(pathlib.Path,sys.argv[1:])
+data=json.loads(manifest.read_text())
+paths=[x["source"] for x in data.get("python",[])]
+paths+=data.get("java_sources",[])+data.get("web_sources",[])
+for rel in sorted(set(paths)):
+    src=root/rel
+    if not src.is_file():
+        raise SystemExit(f"missing inventoried source: {rel}")
+    target=dest/rel
+    target.parent.mkdir(parents=True,exist_ok=True)
+    shutil.copy2(src,target)
+print("staged",len(set(paths)),"Python/Java/Web source files")
+PY_POLYGLOT_COPY
 if [ -n "${WINDOWS_APP_BUNDLE_DIR:-}" ] && [ -d "$WINDOWS_APP_BUNDLE_DIR" ]; then
   cp -a "$WINDOWS_APP_BUNDLE_DIR/." "$PAY/apps/polyglot/windows/"
 fi
