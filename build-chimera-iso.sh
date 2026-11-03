@@ -9,17 +9,37 @@ Usage:
   build-chimera-iso.sh [options] [arguments]
 
 Options:
-  -h, --help    Show this help and exit successfully.
-  --verbose     Enable detailed build diagnostics (default; secret values are never traced).
-  --quiet       Reduce debug-only console chatter; full logs are still retained.
-  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
-  --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
-  --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
-  --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  -h, --help                  Show this help and exit successfully.
+  --verbose, --debug          Emit detailed stage diagnostics (default).
+  --quiet                     Reduce console output; logs remain enabled.
+  --resume, --resume-auto     Resume after the last recorded completed stage.
+  --clean-state               Clear saved resume/failure state before building.
+  --storage-auto, --auto-storage
+                              Automatically select writable storage with >=20 GiB free.
+  --no-storage-prompt         Fail instead of prompting when storage is insufficient.
+  --storage PATH              Use PATH/chimera-build and PATH/chimera-output.
+  --docker-only               Build/publish only the Docker image.
+  --iso-only                  Build an ISO from an existing Docker image.
+  --tag TAG                   Docker image tag (default: latest).
+  --background PATH           Aurora background artwork asset.
+  --skip-apache               Skip Apache ecosystem integration.
+  --apache-ecosystem          Enable Apache ecosystem integration.
+  --push / --no-push          Enable/disable Docker Hub image publishing.
+  --registry NAME             Set the package registry name.
+  --refresh-online-catalogs,
+  --refresh-isa-catalog       Refresh online ISA/OS catalogs.
+  --sync-dos-payloads         Fetch eligible DOS payloads for ISO staging.
+  --skip-native-iso           Skip the additional native boot/ISO pipeline.
+  --install-build-deps        Opt in to installing missing host build tools.
 
-Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
-  The script's existing command-line interface and environment variables remain unchanged.
+Environment:
+  CHIMERA_BUILD_DIR, CHIMERA_ROOTFS_DIR, CHIMERA_ISO_OUTPUT_DIR,
+  CHIMERA_BUILD_STORAGE_ROOT, CHIMERA_STORAGE_AUTO, CHIMERA_STORAGE_PROMPT,
+  CHIMERA_BUILD_STATE_FILE, CHIMERA_FAILED_STAGE_FILE, CHIMERA_PUSH,
+  CHIMERA_VERBOSE, CHIMERA_SQUASHFS_PROCESSORS and CHIMERA_* build controls.
+
+Resume safety:
+  Resume state is advisory. Use --clean-state to force a complete rebuild.
 CHIMERA_HELP
   exit 0
 fi
@@ -260,6 +280,10 @@ header(){ printf '\n============================================================
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
 DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
 
+require_option_value() {
+  local option="$1" value="${2:-}"
+  [[ -n "$value" && "$value" != --* ]] || { log_error "$option requires a value"; exit 2; }
+}
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh-online-catalogs|--refresh-isa-catalog) REFRESH_ONLINE_CATALOGS=1; shift;;
@@ -268,26 +292,29 @@ while [[ $# -gt 0 ]]; do
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
-    --resume) RESUME_BUILD=1; shift;;
+    --resume|--resume-auto) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
-    --storage-auto) STORAGE_AUTO=1; shift;;
+    --storage-auto|--auto-storage) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
-    --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
-    --tag) DOCKER_TAG="$2"; shift 2;;
-    --background) export CHIMERA_AURORA_ASSET="$2"; shift 2;;
+    --storage) require_option_value "$1" "${2:-}"; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
+    --tag) require_option_value "$1" "${2:-}"; DOCKER_TAG="$2"; shift 2;;
+    --background) require_option_value "$1" "${2:-}"; export CHIMERA_AURORA_ASSET="$2"; shift 2;;
     --skip-apache) export APACHE_ECOSYSTEM=0; shift;;
     --apache-ecosystem) export APACHE_ECOSYSTEM=1; shift;;
     --push) export CHIMERA_PUSH=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
-    --registry) export REGISTRY_NAME="$2"; shift 2;;
+    --registry) require_option_value "$1" "${2:-}"; export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
+  [[ -n "$root" && -d "$root" && -w "$root" ]] || { log_error "Storage root must exist and be writable: $root"; exit 2; }
+  probe="$(mktemp "$root/.chimera-storage-test.XXXXXX" 2>/dev/null)" || { log_error "Storage root failed a write test: $root"; exit 2; }
+  rm -f "$probe"
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
   mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
   export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
@@ -432,11 +459,20 @@ preflight(){
   mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
   local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
+<<<<<<< HEAD
   if [[ "${CHIMERA_SKIP_SPACE_CHECKS:-0}" == 1 ]]; then
     log_info 'Storage preflight skipped (CHIMERA_SKIP_SPACE_CHECKS=1).'
   else
   local need="${CHIMERA_MIN_FREE_GIB:-20}"
   if ((rg<need || og<need)); then
+=======
+  # --storage-auto is an explicit request to select a suitable writable volume.
+  if [[ "$STORAGE_AUTO" == 1 && -z "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
+    choose_storage 20 || { log_error 'No suitable writable storage with at least 20 GiB free was found'; log_error 'Read-only WSL /mnt mounts are never selected.'; exit 1; }
+    rg="$(free_gib "$ROOTFS_DIR")"; og="$(free_gib "$ISO_OUTPUT_DIR")"
+    log_info "Automatic storage selected; rootfs free=${rg} GiB output free=${og} GiB"
+  elif ((rg<20 || og<20)); then
+>>>>>>> bfa2171b7 (Restore full builder CLI and improve resume/storage handling)
     if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable writable storage with enough free space found'; log_error 'A read-only /mnt drive is never selected automatically.'; exit 1; }
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
