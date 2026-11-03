@@ -464,6 +464,43 @@ install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/s
 install -m 0644 "$HERE/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
 install -m 0644 "$HERE/jasper-live.cfg" "$ISODIR/boot/jasper/live-image.cfg"
 install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$ISODIR/boot/grub/background.jpg"
+# Build separate native Koronos Installer and Recovery initramfs candidates.
+# They are deliberately staged outside the active boot paths: the current
+# native CPL3/userspace acceptance gate has not certified these runtimes.
+CANDIDATE_ROOT="$BUILD/native-runtime-candidates"
+mkdir -p "$CANDIDATE_ROOT/installer-stage" "$ISODIR/boot/candidates/installer" "$ISODIR/boot/candidates/recovery"
+CHIMERA_BUILD_DIR="$NATIVE_SOURCE/build" CHIMERA_KORONOS_KERNEL="$KORONOS_ELF" \
+  bash "$NATIVE_SOURCE/tools/build-live-boot-binaries.sh"
+bash "$NATIVE_SOURCE/tools/chimera-stage-installer-media.sh" "$CANDIDATE_ROOT/installer-stage"
+for artifact in installation.img installer-initrd.img installation-manifest.json installer-contract.json installation_phases.json installer_profiles.json; do
+  src="$CANDIDATE_ROOT/installer-stage/install/installer/$artifact"
+  if [ -s "$src" ]; then install -m 0644 "$src" "$ISODIR/boot/candidates/installer/$artifact"; fi
+done
+RECOVERY_CANDIDATE="$NATIVE_SOURCE/build/live-boot/boot/recovery"
+for artifact in chimera-recovery-initramfs.img chimera-recovery-initramfs.img.sha256 recovery-manifest.json; do
+  if [ -s "$RECOVERY_CANDIDATE/$artifact" ]; then install -m 0644 "$RECOVERY_CANDIDATE/$artifact" "$ISODIR/boot/candidates/recovery/$artifact"; fi
+done
+python3 - "$ISODIR/boot/candidates" "$ED" <<'PY'
+import hashlib, json, pathlib, sys
+root, edition = pathlib.Path(sys.argv[1]), sys.argv[2]
+def files(path):
+    out=[]
+    for p in sorted(path.rglob("*")):
+        if p.is_file():
+            out.append({"path":str(p.relative_to(root)),"size":p.stat().st_size,
+                        "sha256":hashlib.sha256(p.read_bytes()).hexdigest()})
+    return out
+manifest={
+ "schema":"koronos-native-runtime-candidates-v1",
+ "edition":edition,
+ "installer":{"artifacts":files(root/"installer"),"bootable":False},
+ "recovery":{"artifacts":files(root/"recovery"),"bootable":False},
+ "activation_policy":"Candidate images are not copied to the active GRUB/Koronos handoff paths. Native installer/recovery remain blocked until the CPL3 syscall/PID readiness and target-specific cold-boot verifiers pass.",
+ "status":"built-candidate-not-production-runtime"
+}
+(root/"native-runtime-candidates.json").write_text(json.dumps(manifest,indent=2)+"\\n")
+PY
+
 
 
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
