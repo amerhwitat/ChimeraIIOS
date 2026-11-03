@@ -156,7 +156,7 @@ python3 "$REPO_DIR/tools/polyglot_apps.py" "${POLYGLOT_ARGS[@]}"
 cp -a "$POLYGLOT_OUT/polyglot-apps.json" "$PAY/apps/polyglot/polyglot-apps.json"
 mkdir -p "$PAY/apps/polyglot/java"
 if command -v mvn >/dev/null 2>&1; then
-  find "$REPO_DIR" -path '*/target/*.jar' -type f -not -path '*/vendor/*/target/*' -print0 | while IFS= read -r -d '' jar; do install -D -m 0644 "$jar" "$PAY/apps/polyglot/java/$(basename "$jar")"; done
+  find "$REPO_DIR" -path '*/target/*.jar' -type f -print0 | while IFS= read -r -d '' jar; do install -D -m 0644 "$jar" "$PAY/apps/polyglot/java/$(basename "$jar")"; done
 fi
 if [ -d "$POLYGLOT_OUT/dist" ]; then cp -a "$POLYGLOT_OUT/dist/." "$PAY/apps/polyglot/linux/"; fi
 python3 - "$REPO_DIR" "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/polyglot-apps.json" <<'PY_POLYGLOT_COPY'
