@@ -83,7 +83,7 @@ jobs:
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 g++ nasm binutils
 
       - name: Validate desktop source and application catalogs
         run: |
@@ -131,6 +131,23 @@ jobs:
           iso="$OUT_DIR/$ISO_NAME"
           (cd "$OUT_DIR" && sha256sum --check "$ISO_NAME.sha256")
           xorriso -indev "$iso" -report_el_torito plain -report_system_area plain -print '' | tee "$OUT_DIR/ISO-BOOT-REPORT.txt"
+          xorriso -osirrox on -indev "$iso" -extract /boot/koronos.elf "$OUT_DIR/koronos.elf" >/dev/null
+          python3 - "$OUT_DIR/koronos.elf" <<'PY'
+          import pathlib, struct, sys
+          data = pathlib.Path(sys.argv[1]).read_bytes()
+          assert data[:4] == b"\x7fELF" and data[4] == 2 and data[5] == 1, "Koronos must be ELF64 little-endian"
+          assert struct.unpack_from("<H", data, 18)[0] == 62, "Koronos must target x86-64"
+          magic = 0xE85250D6
+          found = False
+          for off in range(0, min(len(data), 32768) - 16, 8):
+              if struct.unpack_from("<I", data, off)[0] == magic:
+                  arch, size, checksum = struct.unpack_from("<III", data, off + 4)
+                  if arch == 0 and size >= 16 and off + size <= len(data) and ((magic + arch + size + checksum) & 0xffffffff) == 0:
+                      found = True
+                      break
+          assert found, "Koronos Multiboot2 header missing or invalid"
+          print("Embedded Koronos ELF64 Multiboot2 header: PASS")
+          PY
           xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$OUT_DIR/grub.cfg" >/dev/null
           chmod +x tests/live-image/test-grub-targets.sh
           tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg"
