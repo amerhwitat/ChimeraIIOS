@@ -393,7 +393,7 @@ fi
 KORONOS_ELF="$(realpath "$KORONOS_ELF")"
 test -s "$KORONOS_ELF" || { echo "ERROR: Koronos ELF missing: $KORONOS_ELF" >&2; exit 1; }
 
-# Optionally embed only a real, Multiboot2-compatible x86-64 Koronos kernel.
+# Embed only a validated Multiboot2-compatible x86-64 Koronos kernel.
 if [[ -n "${KORONOS_ELF:-}" ]]; then
   test -s "$KORONOS_ELF" || { echo "KORONOS_ELF is set but the file is missing/empty" >&2; exit 1; }
   python3 - "$KORONOS_ELF" <<'PY'
