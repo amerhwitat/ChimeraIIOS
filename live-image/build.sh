@@ -104,7 +104,7 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh mpv \
-      geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish \
+      geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish codeblocks codeblocks-contrib qtcreator arduino fp-ide \
       build-essential cmake ninja-build git gdb clang lld pkg-config nasm binutils \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
