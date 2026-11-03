@@ -139,6 +139,26 @@ log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+
+# Stage the six-desktop design contract, user shortcuts and language-grouped
+# Suno collection into the ISO payload. The music items remain Suno links.
+mkdir -p "$PAY/desktop/shared" "$PAY/apps/media"
+if [ "$ED" = "chimera" ]; then
+  cp -a "$REPO_DIR/desktop/shared/desktop-shortcuts.js" "$PAY/desktop/shared/desktop-shortcuts.js"
+  cp -a "$REPO_DIR/desktop/desktop-ecosystem-design.json" "$PAY/desktop/desktop-ecosystem-design.json"
+  cp -a "$REPO_DIR/desktop/aurora/media/suno-library.json" "$PAY/apps/media/suno-library.json"
+  cp -a "$REPO_DIR/desktop/aurora/media/open-source-media-apps.json" "$PAY/apps/media/open-source-media-apps.json"
+  cp -a "$REPO_DIR/appcenter/suno-library.js" "$PAY/apps/media/suno-library.js"
+  cp -a "$REPO_DIR/appcenter/media-deck.html" "$PAY/apps/media/media-deck.html"
+else
+  cp -a "$REPO_DIR/desktop/shared/desktop-shortcuts.js" "$PAY/desktop/shared/desktop-shortcuts.js"
+  cp -a "$REPO_DIR/desktop/desktop-ecosystem-design.json" "$PAY/desktop/desktop-ecosystem-design.json"
+  cp -a "$REPO_DIR/desktop/aurora/media/suno-library.json" "$PAY/apps/media/suno-library.json"
+  cp -a "$REPO_DIR/desktop/aurora/media/open-source-media-apps.json" "$PAY/apps/media/open-source-media-apps.json"
+  cp -a "$REPO_DIR/appcenter/suno-library.js" "$PAY/apps/media/suno-library.js"
+  cp -a "$REPO_DIR/appcenter/media-deck.html" "$PAY/apps/media/media-deck.html"
+fi
+
 # Package VoiceConnect from its reviewed, immutable source revision. No TURN or
 # signaling secrets are embedded; the local signaling listener binds loopback.
 VOICECONNECT_COMMIT="c3f0df816099b042486f5c5ec4405e2690690dc8"
