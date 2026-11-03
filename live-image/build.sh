@@ -148,6 +148,7 @@ mkdir -p "$PAY/desktop/plasma"
 cp -a "$REPO_DIR/desktop/plasma/." "$PAY/desktop/plasma/"
 cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/desktop/shared/"
 install -m 0644 "$REPO_DIR/desktop/shared/network-applications.desktop" "$WORK/usr/share/applications/aurora-network-applications.desktop"
+install -m 0644 "$REPO_DIR/desktop/shared/linux-workspace.desktop" "$WORK/usr/share/applications/nebula-linux-workspace.desktop"
 install -m 0644 "$REPO_DIR/desktop/shared/voiceconnect-project.desktop" "$WORK/usr/share/applications/voiceconnect-project.desktop"
 install -m 0755 "$REPO_DIR/desktop/shared/voiceconnect-launcher.sh" "$WORK/usr/local/bin/voiceconnect-launcher"
 # Discover and compile SDK projects before packaging; vendor and generated trees
