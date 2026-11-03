@@ -44,11 +44,13 @@ for attempt in $(seq 1 100); do
 done
 [[ -S "$monitor" ]] || { echo "QEMU monitor socket did not appear" >&2; exit 1; }
 
-# First menu is Spit Fire. Its default item hands off to Jasper/GRUB2.
-# Jasper order: Live, Safe Graphics, Linux Rescue, Native Installer,
-# Native Recovery, Koronos diagnostics, Classic X, diagnostics, return,
-# firmware setup, command line, reboot, power off.
+# Spit Fire -> Gates -> Jasper. The first two menus both default to their
+# explicit continuation entries; Jasper's order is Live, Safe Graphics,
+# Linux Rescue, Native Installer, Native Recovery, Koronos diagnostics,
+# Classic X, diagnostics, return, firmware setup, command line, reboot, poweroff.
 sleep 3
+printf 'sendkey ret\n' | socat - "UNIX-CONNECT:$monitor" >>"$qemu_log" 2>&1
+sleep 2
 printf 'sendkey ret\n' | socat - "UNIX-CONNECT:$monitor" >>"$qemu_log" 2>&1
 sleep 2
 if [[ "$TARGET" != live ]]; then
@@ -70,7 +72,6 @@ case "$TARGET" in
   recovery) match='Native Koronos Recovery runtime incomplete|separate Linux Rescue Shell' ;;
   linux-rescue) match='RESCUE SHELL|No disk is modified automatically' ;;
   koronos)
-    # Kernel entry emits E (32-bit), L (long mode), B (kernel entry), C (idle loop) to port 0xE9.
     for attempt in $(seq 1 30); do
       sleep 1
       if [[ -s "$OUT/debugcon.log" ]] && grep -q "ELBC" "$OUT/debugcon.log"; then
