@@ -100,7 +100,7 @@ if [ ! -f "$BASE/.packages-installed-v3" ]; then
       systemd systemd-sysv dbus dbus-x11 udev kbd console-setup x11-xkb-utils xkb-data \
       xserver-xorg-core xserver-xorg-legacy xserver-xorg-input-libinput \
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
-      xinit xauth x11-xserver-utils x11-utils xfonts-base \
+      xinit xauth x11-xserver-utils x11-utils xdg-utils xfonts-base \
       python3 python3-tk python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 default-jdk-headless maven \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh mpv \
@@ -139,6 +139,23 @@ log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+
+# Keep shared desktop UX and Network Applications assets reachable from both
+# Aurora layouts (the Chimera web preview and Octavian's desktop profiles).
+mkdir -p "$PAY/desktop/shared" "$PAY/desktop/desktop/shared" "$WORK/usr/share/applications"
+cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/shared/"
+cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/desktop/shared/"
+install -m 0644 "$REPO_DIR/desktop/shared/network-applications.desktop" "$WORK/usr/share/applications/aurora-network-applications.desktop"
+install -m 0644 "$REPO_DIR/desktop/shared/voiceconnect-project.desktop" "$WORK/usr/share/applications/voiceconnect-project.desktop"
+# Discover and compile SDK projects before packaging; vendor and generated trees
+# are excluded and all outcomes are recorded in build/sdk-build-results.tsv.
+if [[ "${CHIMERA_BUILD_REPO_SDKS:-1}" == "1" ]]; then
+  mkdir -p "$BUILD/sdk-build"
+  CHIMERA_SDK_BUILD_DIR="$BUILD/sdk-build" bash "$REPO_DIR/tools/build-repository-sdks.sh" >>"$BUILD/sdk-build/live-image-$ED.log" 2>&1 || {
+    echo "[WARN] One or more optional SDK builds failed; inspect $BUILD/sdk-build/sdk-build-results.tsv"
+    [[ "${CHIMERA_SDK_BUILD_STRICT:-0}" != "1" ]] || exit 1
+  }
+fi
 
 # Build and stage first-party Python, Java and Web implementations for the Apps Panel.
 # Python sources are copied with their repository-relative paths; tests/vendor snapshots
