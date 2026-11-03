@@ -192,8 +192,8 @@ grep -q '"native_execution_order"' "$DIST/iso/boot/chimera/manifests/boot-execut
 
 test -s "$DIST/iso/boot/live/chimera-live-initramfs.img" || { echo "Live initramfs missing from ISO staging tree." >&2; exit 1; }
 test -s "$DIST/iso/boot/live/live-manifest.json" || { echo "Live manifest missing from ISO staging tree." >&2; exit 1; }
-test -s "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img" || { echo "Recovery initramfs missing from ISO staging tree." >&2; exit 1; }
-test -s "$DIST/iso/boot/recovery/recovery-manifest.json" || { echo "Recovery manifest missing from ISO staging tree." >&2; exit 1; }
+test -s "$DIST/iso/boot/candidates/recovery/chimera-recovery-initramfs.img" || { echo "Recovery candidate initramfs missing from ISO staging tree." >&2; exit 1; }
+test -s "$DIST/iso/boot/candidates/recovery/recovery-manifest.json" || { echo "Recovery candidate manifest missing from ISO staging tree." >&2; exit 1; }
 grep -q '/boot/live/chimera-live-initramfs.img' "$ROOT/boot/jasper/live.cfg"
 grep -q '/boot/live/live-manifest.json' "$ROOT/boot/jasper/live.cfg"
 grep -q '/boot/candidates/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recovery.cfg"
