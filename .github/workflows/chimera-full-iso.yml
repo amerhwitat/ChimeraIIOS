@@ -156,25 +156,40 @@ jobs:
           print("ISO payload check passed: GRUB2 -> Spit Fire -> Jasper, Spit Fire BIOS artifacts, and fail-closed runtime prototypes are embedded.")
           PY
 
-      - name: QEMU headless Koronos boot smoke test
+      - name: QEMU headless Koronos kernel-entry smoke test
         run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          mkdir -p "$tmp/boot/koronos" "$tmp/boot/grub"
+          xorriso -osirrox on -indev build/iso/chimera-ii-os.iso -extract /boot/koronos/koronos.elf "$tmp/boot/koronos/koronos.elf" >/dev/null 2>&1
+          cat > "$tmp/boot/grub/grub.cfg" <<'GRUB'
+          set timeout=0
+          set default=0
+          terminal_output console
+          menuentry "Koronos native kernel entry smoke" {
+            multiboot2 /boot/koronos/koronos.elf chm.mode=diagnostics chm.log=verbose
+            boot
+          }
+          GRUB
+          grub-mkrescue -o "$tmp/koronos-smoke.iso" "$tmp" >/dev/null 2>&1
           set +e
           timeout 45s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
             -display none -serial none -monitor none \
-            -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
-            -debugcon file:/tmp/chimera-qemu-debugcon.log \
-            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+            -no-reboot -no-shutdown -cdrom "$tmp/koronos-smoke.iso" \
+            -debugcon "file:$tmp/debugcon.log" \
+            -global isa-debugcon.iobase=0xe9 >"$tmp/qemu.log" 2>&1
           qemu_rc=$?
           set -e
-          cat /tmp/chimera-qemu.log
-          if [ -f /tmp/chimera-qemu-debugcon.log ]; then
-            python3 - <<'PY'
+          cat "$tmp/qemu.log"
+          if [ -f "$tmp/debugcon.log" ]; then
+            python3 - "$tmp/debugcon.log" <<'PY'
           from pathlib import Path
-          data = Path("/tmp/chimera-qemu-debugcon.log").read_bytes().decode("latin1")
-          markers = "ELBC"
+          import sys
+          data = Path(sys.argv[1]).read_bytes().decode("latin1")
           cursor = 0
-          for marker in markers:
+          for marker in "ELBC":
               found = data.find(marker, cursor)
               if found < 0:
                   raise SystemExit(f"QEMU did not reach Koronos marker {marker!r}; debugcon={data!r}")
@@ -185,7 +200,6 @@ jobs:
             echo "QEMU produced no debugcon output (exit $qemu_rc)" >&2
             exit 1
           fi
-
       - name: Verify native Live userspace and fail-closed Installer/Recovery gates
         id: userspace_gate
         shell: bash
