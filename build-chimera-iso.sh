@@ -1145,6 +1145,28 @@ build_native_iso_pipeline(){
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
+  # Embed the canonical native ISO and its complete boot payload in the outer
+  # ISO. The archive preserves every .img, kernel/ELF, EFI loader, Spit Fire
+  # binary, Jasper payload and manifest for offline inspection and recovery.
+  local candidate_dir="$ISO_DIR/boot/candidates"
+  local native_dist="$SCRIPT_DIR/boot/iso/dist"
+  mkdir -p "$candidate_dir"
+  cp -f "$native_iso" "$candidate_dir/ChimeraIIOS-native.iso"
+  cp -f "$native_iso.sha256" "$candidate_dir/ChimeraIIOS-native.iso.sha256"
+  [[ -d "$native_dist/iso" && -d "$native_dist/bootloaders" ]] || {
+    log_error "Canonical native ISO payload tree or bootloader directory is missing"
+    return 1
+  }
+  tar -czf "$candidate_dir/native-boot-payload.tar.gz" -C "$native_dist" iso bootloaders
+  [[ -s "$candidate_dir/native-boot-payload.tar.gz" ]] || {
+    log_error "Canonical native boot payload archive is empty"
+    return 1
+  }
+  sha256sum "$candidate_dir/native-boot-payload.tar.gz" > "$candidate_dir/native-boot-payload.tar.gz.sha256"
+  python3 "$SCRIPT_DIR/tools/iso/build_artifact_manifest.py" \
+    --root "$native_dist/iso" \
+    --manifest "$candidate_dir/native-iso-artifact-manifest.json"
+  log_success "Embedded canonical native ISO, boot payload archive and native artifact inventory."
   log_success "Canonical native ISO and checksum verified: $native_iso"
 }
 
@@ -1315,6 +1337,14 @@ build_iso(){
     exit 1
   fi
 
+  # Generate the final tree inventory after the native ISO and all boot payloads
+  # have been staged. The manifest excludes itself and SHA256SUMS to avoid
+  # recursive hashing; every other regular file is SHA-256 bound.
+  python3 "$SCRIPT_DIR/tools/iso/build_artifact_manifest.py" \
+    --root "$ISO_DIR" \
+    --manifest "$ISO_DIR/boot/artifact-manifest.json" \
+    --checksums "$ISO_DIR/boot/SHA256SUMS"
+
   grub-mkrescue \
       -o "$iso" \
       "$ISO_DIR" \
@@ -1346,6 +1376,7 @@ verify_iso(){
   # Verify the complete graphical boot/installer contract, not only the kernel.
   local required_iso_paths=(
     /boot/grub/grub.cfg
+    /boot/artifact-manifest.json
     /boot/koronos/koronos.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
@@ -1366,6 +1397,11 @@ verify_iso(){
     /install/installer/installation.img
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
+    /boot/candidates/ChimeraIIOS-native.iso
+    /boot/candidates/ChimeraIIOS-native.iso.sha256
+    /boot/candidates/native-boot-payload.tar.gz
+    /boot/candidates/native-boot-payload.tar.gz.sha256
+    /boot/candidates/native-iso-artifact-manifest.json
   )
   local required_path
   for required_path in "${required_iso_paths[@]}"; do
@@ -1515,7 +1551,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games native-iso squashfs iso verify report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
