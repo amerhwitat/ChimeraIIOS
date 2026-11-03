@@ -144,6 +144,8 @@ cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 # Aurora layouts (the Chimera web preview and Octavian's desktop profiles).
 mkdir -p "$PAY/desktop/shared" "$PAY/desktop/desktop/shared" "$WORK/usr/share/applications"
 cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/shared/"
+mkdir -p "$PAY/desktop/plasma"
+cp -a "$REPO_DIR/desktop/plasma/." "$PAY/desktop/plasma/"
 cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/desktop/shared/"
 install -m 0644 "$REPO_DIR/desktop/shared/network-applications.desktop" "$WORK/usr/share/applications/aurora-network-applications.desktop"
 install -m 0644 "$REPO_DIR/desktop/shared/voiceconnect-project.desktop" "$WORK/usr/share/applications/voiceconnect-project.desktop"
