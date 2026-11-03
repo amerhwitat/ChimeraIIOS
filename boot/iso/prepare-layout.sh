@@ -45,12 +45,16 @@ LIVE_BOOT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
 export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_LIVE_BOOT_DIR="$LIVE_BOOT"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 printf '[CHIMERA] ISO artifact paths: BUILD_DIR=%s LIVE_BOOT=%s\n' "$BUILD_DIR" "$LIVE_BOOT"
 =======
 >>>>>>> fb351d0c1 (Use canonical build storage for live boot staging)
 =======
 printf '[CHIMERA] ISO artifact paths: BUILD_DIR=%s LIVE_BOOT=%s\\n' "$BUILD_DIR" "$LIVE_BOOT"
 >>>>>>> 0cb279ca5 (Use canonical storage paths for ISO staging)
+=======
+printf '[CHIMERA] ISO artifact paths: BUILD_DIR=%s LIVE_BOOT=%s\n' "$BUILD_DIR" "$LIVE_BOOT"
+>>>>>>> 059ab85fd (Correct ISO path diagnostic newline)
 DIST="$ROOT/boot/iso/dist/iso"
 rm -rf "$DIST"
 mkdir -p "$DIST/boot/grub" "$DIST/boot/jasper" "$DIST/boot/spitfire" "$DIST/boot/koronos" "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA"
