@@ -12,7 +12,8 @@
     "Zig",
     "Go",
     "Fortran",
-    "Swift"
+    "Swift",
+    "Assembly"
   ],
   "components": [
     "headers",
@@ -37,7 +38,8 @@
     "zig": "zig",
     "go": "Go",
     "fortran": "GNU Fortran",
-    "swift": "Swift compiler"
+    "swift": "Swift compiler",
+    "asm": "NASM/Chimera assembler"
   },
   "iso_path": "/opt/chimera-sdk",
   "optional_toolchain_policy": "Build compile smoke artifacts only when the corresponding upstream compiler is present; record explicit SKIP status otherwise."
