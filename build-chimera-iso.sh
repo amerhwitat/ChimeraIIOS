@@ -1352,7 +1352,7 @@ build_iso(){
   # ISO staging tree. Never delete EFI/BOOT here: doing so silently discarded
   # BOOTX64.EFI immediately before grub-mkrescue packaged the tree.
   local uefi_loader="$ISO_DIR/EFI/BOOT/BOOTX64.EFI"
-  local generated_uefi_loader="$BUILD_DIR/boot-artifacts/uefi/BOOTX64.EFI"
+  local generated_uefi_loader="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}/uefi/BOOTX64.EFI"
   if [[ ! -s "$uefi_loader" && -s "$generated_uefi_loader" ]]; then
     mkdir -p "$ISO_DIR/EFI/BOOT"
     cp -f "$generated_uefi_loader" "$uefi_loader"
