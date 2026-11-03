@@ -41,7 +41,8 @@ class PlatformBundleContracts(unittest.TestCase):
         for contract in ("gtk_popover_menu_bar_new_from_model", "Tile Windows", "Cascade Windows",
                          "gtk_scrolled_window_new", "gtk_gesture_click_new", "gtk_popover_new",
                          "presses==2", "presses>=3", "Item Properties",
-                         "play_sound", "canberra-gtk-play", "gtk_window_minimize", "gtk_window_maximize"):
+                         "play_sound", "canberra-gtk-play", "gtk_window_minimize", "gtk_window_maximize",
+                         "rename_card", "gtk_editable_get_text", "g_timeout_add(280"):
             self.assertIn(contract, source)
 
     def test_architecture_boot_claims_are_bounded(self):
