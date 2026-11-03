@@ -123,3 +123,38 @@ The latest review of the x86-64 source separates acceptance tests from actual ex
 The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
 
 Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
+
+
+## Installer-loader runtime correction — 2026-11-03
+
+A source audit found that the installer path currently stages a gzip-compressed
+BusyBox CPIO initramfs and its JSON contracts. That is an interactive diagnostic
+shell, not an executable Koronos installer ELF. The process API is explicitly
+`CHIMERA_PROCESS_LOAD_PLAN_ONLY`; the ELF mapping helper prepares PT_LOAD
+segments through callbacks but does not activate an address space or enter CPL3.
+The kernel's installer task therefore cannot truthfully claim that installer
+userspace is running.
+
+The runtime output has been corrected to make the boundary explicit:
+
+- The Live and Recovery initramfs shells emit target-specific
+  `INITRAMFS DIAGNOSTIC SHELL` messages, never the reserved
+  `USERSPACE READY` marker.
+- The installer initramfs reports that no Koronos CPL3 installer process or
+  disk deployment has started. Installer runtime progress no longer claims
+  graphical installer readiness.
+- Koronos now checks for a distinct `CHIMERA_MODULE_USER_INIT_ELF` module and
+  reports a specific blocker when it is absent. Even if such a module is
+  supplied, the kernel reports that process-context activation/CPL3 entry is
+  still unavailable rather than treating module discovery as execution.
+- Regression coverage rejects initramfs-shell readiness masquerading as native
+  userspace readiness and checks the fail-closed installer-loader diagnostics.
+
+This is a runtime-reporting and acceptance-integrity fix, not completion of the
+native installer loader. Remaining implementation dependencies are a real
+installer init ELF and ABI/sysroot, safe CPIO extraction into a published VFS
+root, hardware-backed user page tables and segment permissions, process-owned
+kernel stack and saved context, scheduler context switch, TSS.RSP0, verified
+CPL3 entry, syscall identity/exit semantics, and a user-originated installer
+readiness handshake. Disk deployment remains disabled. No release marker may
+be emitted until the executing native installer process proves readiness.
