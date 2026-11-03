@@ -221,6 +221,8 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /boot "$OUT_DIR/boot-artifacts/boot" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /live/vmlinuz "$OUT_DIR/boot-artifacts/live/vmlinuz" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /live/initrd.img "$OUT_DIR/boot-artifacts/live/initrd.img" >/dev/null
+          test ! -e "$OUT_DIR/boot-artifacts/boot/candidates/installer/native-installer-runtime.ready"
+          test ! -e "$OUT_DIR/boot-artifacts/boot/candidates/recovery/native-recovery-runtime.ready"
           tar -C "$OUT_DIR/boot-artifacts" -czf "$OUT_DIR/chimera-boot-artifacts.tar.gz" .
           sha256sum "$OUT_DIR/chimera-boot-artifacts.tar.gz" > "$OUT_DIR/chimera-boot-artifacts.tar.gz.sha256"
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
