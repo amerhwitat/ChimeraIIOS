@@ -247,10 +247,28 @@ install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 install -Dm755 "$HERE/lib/chimera-boot-mode.sh" "$WORK/usr/local/bin/chimera-boot-mode"
 install -Dm755 "$HERE/lib/chimera-recovery.sh" "$WORK/usr/local/sbin/chimera-recovery"
 install -D -m 0644 "$HERE/openbox-menu.xml" "$WORK/etc/xdg/openbox/menu.xml"
-if [ -s "$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4" ]; then
-  install -D -m 0644 "$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4" "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
-  install -D -m 0755 "$NATIVE_SOURCE/desktop/aurora/aurora-init-splash.sh" "$WORK/usr/local/bin/aurora-init-splash.sh"
+install -d "$WORK/usr/share/chimera/aurora/assets"
+INIT_VIDEO_SOURCE="$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4"
+if [ -s "$INIT_VIDEO_SOURCE" ]; then
+  install -m 0644 "$INIT_VIDEO_SOURCE" "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
+else
+  # The tracked Init.mp4 placeholder may be empty in source snapshots. Build a
+  # deterministic short intro from the ISO's embedded wallpapers rather than
+  # silently omitting the requested boot splash.
+  command -v ffmpeg >/dev/null 2>&1 || { echo "ERROR: ffmpeg is required to synthesize Init.mp4 from embedded artwork." >&2; exit 2; }
+  for image in wp01.jpg wp02.jpg wp03.jpg; do
+    test -s "$PAY/wallpapers/$image" || { echo "ERROR: missing embedded splash frame $image" >&2; exit 2; }
+  done
+  ffmpeg -hide_banner -loglevel error -y \
+    -loop 1 -framerate 30 -t 2 -i "$PAY/wallpapers/wp01.jpg" \
+    -loop 1 -framerate 30 -t 2 -i "$PAY/wallpapers/wp02.jpg" \
+    -loop 1 -framerate 30 -t 2 -i "$PAY/wallpapers/wp03.jpg" \
+    -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[v0];[1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[v1];[2:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[v2];[v0][v1][v2]concat=n=3:v=1:a=0,format=yuv420p[v]" \
+    -map "[v]" -t 6 -r 30 -c:v libx264 -preset veryfast -crf 22 \
+    -movflags +faststart "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
 fi
+test -s "$WORK/usr/share/chimera/aurora/assets/Init.mp4" || { echo "ERROR: Init.mp4 was not built." >&2; exit 2; }
+install -D -m 0755 "$NATIVE_SOURCE/desktop/aurora/aurora-init-splash.sh" "$WORK/usr/local/bin/aurora-init-splash.sh"
 
 cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
 #!/bin/bash
@@ -475,11 +493,14 @@ CHIMERA_BUILD_DIR="$NATIVE_SOURCE/build" CHIMERA_KORONOS_KERNEL="$KORONOS_ELF" \
 bash "$NATIVE_SOURCE/tools/chimera-stage-installer-media.sh" "$CANDIDATE_ROOT/installer-stage"
 for artifact in installation.img installer-initrd.img installation-manifest.json installer-contract.json installation_phases.json installer_profiles.json; do
   src="$CANDIDATE_ROOT/installer-stage/install/installer/$artifact"
-  if [ -s "$src" ]; then install -m 0644 "$src" "$ISODIR/boot/candidates/installer/$artifact"; fi
+  test -s "$src" || { echo "ERROR: required native Installer candidate artifact missing: $src" >&2; exit 2; }
+  install -m 0644 "$src" "$ISODIR/boot/candidates/installer/$artifact"
 done
 RECOVERY_CANDIDATE="$NATIVE_SOURCE/build/live-boot/boot/recovery"
 for artifact in chimera-recovery-initramfs.img chimera-recovery-initramfs.img.sha256 recovery-manifest.json; do
-  if [ -s "$RECOVERY_CANDIDATE/$artifact" ]; then install -m 0644 "$RECOVERY_CANDIDATE/$artifact" "$ISODIR/boot/candidates/recovery/$artifact"; fi
+  src="$RECOVERY_CANDIDATE/$artifact"
+  test -s "$src" || { echo "ERROR: required native Recovery candidate artifact missing: $src" >&2; exit 2; }
+  install -m 0644 "$src" "$ISODIR/boot/candidates/recovery/$artifact"
 done
 python3 - "$ISODIR/boot/candidates" "$ED" <<'PY'
 import hashlib, json, pathlib, sys
