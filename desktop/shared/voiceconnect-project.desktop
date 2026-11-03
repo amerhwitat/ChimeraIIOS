@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=VoiceConnect Project
-Comment=Open VoiceConnect development branch and release-gate status
-Exec=xdg-open https://github.com/amerhwitat/test/tree/feat/voiceconnect-p2p-camera
+Name=VoiceConnect
+Comment=Launch VoiceConnect if installed, otherwise open its development project
+Exec=/usr/local/bin/voiceconnect-launcher
 Icon=call-start
 Terminal=false
 Categories=Network;Chat;
