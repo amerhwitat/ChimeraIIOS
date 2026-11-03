@@ -25,6 +25,8 @@ class GatesMenuContractTests(unittest.TestCase):
         builder = (ROOT / "boot/iso/build-iso.sh").read_text()
         validator = (ROOT / "boot/iso/validate-iso.py").read_text()
         self.assertIn("boot/gates/gates.cfg", builder)
+        layout = (ROOT / "boot/iso/prepare-layout.sh").read_text()
+        self.assertIn("boot/gates/gates.cfg", layout)
         self.assertIn("boot/gates/gates.cfg", validator)
 
     def test_gates_menu_guards_uefi_chainloading(self):
