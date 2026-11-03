@@ -1,6 +1,7 @@
 #ifndef CHIMERA_INTERRUPT_H
 #define CHIMERA_INTERRUPT_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
