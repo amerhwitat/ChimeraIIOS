@@ -33,6 +33,8 @@ class PlatformBundleContracts(unittest.TestCase):
         self.assertIn("tools/build-sdk-bundle.sh", script)
         self.assertIn("tools/build-desktop-binaries.sh", script)
         self.assertIn("chimera-desktop-shell.cpp", script)
+        self.assertIn("tools/build-koronos-targets.sh", script)
+        self.assertIn("koronos-port-build.log", script)
 
     def test_architecture_boot_claims_are_bounded(self):
         data = json.loads((ROOT / "kernel/arch/koronos-architecture-profiles.json").read_text())
