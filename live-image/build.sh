@@ -314,6 +314,7 @@ if [ "$wm_ready" -ne 1 ]; then
   exit 1
 fi
 echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
+feh --bg-fill /usr/share/backgrounds/aurora-default.jpg 2>/dev/null || true
 if [[ -x /usr/local/bin/aurora-init-splash.sh && -s /usr/share/chimera/aurora/assets/Init.mp4 ]] && command -v mpv >/dev/null 2>&1; then
   CHIMERA_INIT_VIDEO=/usr/share/chimera/aurora/assets/Init.mp4 \
     CHIMERA_SPLASH_MAX_SECONDS=12 \
@@ -497,7 +498,11 @@ for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o
   test -s "$SPITFIRE_OUT/$artifact" || { echo "ERROR: missing Spit Fire artifact $artifact" >&2; exit 2; }
   install -m 0644 "$SPITFIRE_OUT/$artifact" "$ISODIR/boot/spitfire/$artifact"
 done
-install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/native-koronos-menu.cfg"
+install -m 0644 "$HERE/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+install -m 0644 "$HERE/jasper-live.cfg" "$ISODIR/boot/jasper/live-image.cfg"
+install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$ISODIR/boot/grub/background.jpg"
+install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$WORK/usr/share/backgrounds/aurora-default.jpg"
 install -m 0644 "$NATIVE_SOURCE/boot/jasper/jasper.cfg" "$ISODIR/boot/jasper/native-jasper.cfg"
 python3 - "$ISODIR" "$ED" <<'PY'
 import json, pathlib, sys
@@ -530,10 +535,10 @@ set gfxmode=5120x2880,3840x2160,2560x1440,1920x1200,1920x1080,1680x1050,1600x120
 set gfxpayload=keep
 set debug=all
 terminal_output gfxterm
-if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
-echo "[BOOT] $TITLE $VERSION — verbose target menu"
-echo "[BOOT] Highest firmware-supported SVGA/HD mode; gfxpayload=keep"
-configfile /boot/jasper/live-image.cfg
+if [ -f /boot/grub/background.jpg ]; then background_image --mode stretch /boot/grub/background.jpg; fi
+echo "[SPIT FIRE] $TITLE $VERSION — firmware handoff"
+echo "[SPIT FIRE] Next: Jasper / GRUB 2 target manager"
+configfile /boot/spitfire/spitfire-menu.cfg
 EOF
 log "iso"
 rm -f "$OUT/$ISO_NAME"
