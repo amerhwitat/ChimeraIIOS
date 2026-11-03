@@ -39,7 +39,8 @@ chimera_copy_if_distinct() {
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
-DIST="$ROOT/boot/iso/dist/iso"
+NATIVE_ISO_ROOT="${CHIMERA_NATIVE_ISO_ROOT:-$ROOT/boot/iso}"
+DIST="$NATIVE_ISO_ROOT/dist/iso"
 rm -rf "$DIST"
 mkdir -p "$DIST/boot/grub" "$DIST/boot/jasper" "$DIST/boot/spitfire" "$DIST/boot/koronos" "$DIST/EFI/BOOT" "$DIST/EFI/CHIMERA"
 mkdir -p "$DIST/boot/chimera/elf" "$DIST/boot/chimera/bin" "$DIST/boot/chimera/manifests" "$DIST/boot/chimera/spitfire" "$DIST/boot/chimera/jasper" "$DIST/boot/chimera/grub"
