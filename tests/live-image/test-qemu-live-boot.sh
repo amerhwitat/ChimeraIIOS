@@ -8,7 +8,7 @@ ISO="$(realpath "$1")"
 OUT="$2"
 TARGET=live
 if [[ $# -eq 3 ]]; then TARGET="$3"; fi
-case "$TARGET" in live|installer|koronos|recovery) ;; *) echo "unsupported target: $TARGET" >&2; exit 2 ;; esac
+case "$TARGET" in live|installer|koronos|recovery|linux-rescue) ;; *) echo "unsupported target: $TARGET" >&2; exit 2 ;; esac
 mkdir -p "$OUT"
 test -s "$ISO"
 command -v qemu-system-x86_64 >/dev/null
