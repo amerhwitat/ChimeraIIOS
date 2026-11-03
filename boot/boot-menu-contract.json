@@ -4,7 +4,7 @@
   "primary_loader": "GRUB2 BIOS/UEFI El Torito",
   "menu_manager": "Jasper",
   "firmware_menu": "Gates",
-  "fallback_loader": null,
+  "fallback_loader": "none; GRUB2 is the primary BIOS/UEFI ISO loader",
   "installation_menu": "/boot/installation/menu.cfg",
   "entries": [
     "spitfire-to-jasper",
