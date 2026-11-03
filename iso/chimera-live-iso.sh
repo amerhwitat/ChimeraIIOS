@@ -178,6 +178,7 @@ for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o
 done
 # Move Linux BusyBox recovery prototypes to candidate storage; never enable them as Koronos Recovery.
 mkdir -p "$STAGE/boot/candidates/recovery"
+if [[ -s "$STAGE/boot/recovery/recovery-manifest.json" ]]; then cp -f "$STAGE/boot/recovery/recovery-manifest.json" "$STAGE/boot/candidates/recovery/"; rm -f "$STAGE/boot/recovery/recovery-manifest.json"; fi
 for artifact in chimera-recovery-initramfs.img chimera-recovery-initramfs.img.sha256 recovery-manifest.json; do
   if [[ -s "$LIVE_BOOT/boot/recovery/$artifact" ]]; then
     cp -f "$LIVE_BOOT/boot/recovery/$artifact" "$STAGE/boot/candidates/recovery/$artifact"
