@@ -213,9 +213,9 @@ cat > "$PAY/PROJECT.md" <<EOF
 - Build date: $VERSION (UTC)
 - Volume label: $VOLID
 
-\`desktop/\` is the project's own HTML desktop, rendered fullscreen by the Aurora kiosk
-shell (WebKit2GTK). \`wallpapers/\` holds the artwork shipped with this build, wired into
-every page's background picker. \`repo/\` is a verbatim snapshot of the source tree.
+`desktop/` is the project's own HTML desktop, rendered fullscreen by the Aurora kiosk
+shell (WebKit2GTK). `wallpapers/` holds the artwork shipped with this build, wired into
+every page's background picker. `repo/` is a verbatim snapshot of the source tree.
 
 The image boots a Linux kernel. Openbox manages the Aurora kiosk fullscreen state.
 Offline application catalogs and first-party application sources are staged under
@@ -377,7 +377,7 @@ convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
 
 # Build the repository's native Koronos kernel by default. An externally
 # built ELF may be supplied explicitly, but it must satisfy the same checks.
-if [[ -z "\${KORONOS_ELF:-}" ]]; then
+if [[ -z "${KORONOS_ELF:-}" ]]; then
   if [[ -f "$REPO_DIR/kernel/build-koronos.sh" ]]; then
     KERNEL_ROOT="$REPO_DIR"
   elif [[ -f "$REPO_DIR/vendor/chimera-ii-os/source/kernel/build-koronos.sh" ]]; then
@@ -394,13 +394,13 @@ KORONOS_ELF="$(realpath "$KORONOS_ELF")"
 test -s "$KORONOS_ELF" || { echo "ERROR: Koronos ELF missing: $KORONOS_ELF" >&2; exit 1; }
 
 # Optionally embed only a real, Multiboot2-compatible x86-64 Koronos kernel.
-if [[ -n "\${KORONOS_ELF:-}" ]]; then
+if [[ -n "${KORONOS_ELF:-}" ]]; then
   test -s "$KORONOS_ELF" || { echo "KORONOS_ELF is set but the file is missing/empty" >&2; exit 1; }
   python3 - "$KORONOS_ELF" <<'PY'
 import pathlib, struct, sys
 p = pathlib.Path(sys.argv[1])
 d = p.read_bytes()
-if len(d) < 64 or d[:4] != b'\\x7fELF' or d[4] != 2 or d[5] != 1:
+if len(d) < 64 or d[:4] != b'\x7fELF' or d[4] != 2 or d[5] != 1:
     raise SystemExit("Koronos artifact must be a little-endian ELF64 image")
 if struct.unpack_from("<H", d, 18)[0] != 62:
     raise SystemExit("Koronos artifact must target x86-64 (EM_X86_64)")
