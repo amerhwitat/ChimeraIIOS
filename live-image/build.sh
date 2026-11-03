@@ -112,13 +112,13 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
     # Optional packages are feature-detected so a missing package never breaks the base ISO.
     optional_ide_packages=(qtcreator codeblocks eclipse-platform eric spyder gambas3-ide arduino fp-ide)
     available_ide_packages=()
-    for package in "\${optional_ide_packages[@]}"; do
+    for package in "${optional_ide_packages[@]}"; do
       if apt-cache show "$package" >/dev/null 2>&1; then
         available_ide_packages+=("$package")
       fi
     done
-    if (\${#available_ide_packages[@]} > 0); then
-      apt-get install -y -qq --no-install-recommends "\${available_ide_packages[@]}"
+    if ((${#available_ide_packages[@]} > 0)); then
+      apt-get install -y -qq --no-install-recommends "${available_ide_packages[@]}"
     fi
     apt-get clean
     rm -rf /var/lib/apt/lists/*
@@ -253,7 +253,7 @@ print("application catalogs:", len(files), "first-party source:", manifest["nati
 PY
 
 # Record the IDEs actually present in this rootfs; catalog entries alone are not proof of installation.
-chroot "$WORK" /usr/bin/dpkg-query -W -f='\${binary:Package}\\t\${Version}\\n' \\
+chroot "$WORK" /usr/bin/dpkg-query -W -f='${binary:Package}\t${Version}\n' \
   > "$PAY/ide-packages-installed.tsv"
 
 python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
