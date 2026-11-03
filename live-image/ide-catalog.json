@@ -129,5 +129,35 @@
     "nasm",
     "binutils"
   ],
-  "note": "These are packaged binary IDEs from Debian; the ISO builder does not claim to rebuild every upstream IDE from source."
+  "note": "The base IDE bundle is installed from Debian signed packages. Optional IDEs are feature-detected against the configured Debian Trixie repository. Each image records exact installed package versions in /opt/aurora/ide-packages-installed.tsv; catalog entries are not proof of installation.",
+  "optional_packages": [
+    {
+      "id": "eclipse-platform",
+      "name": "Eclipse Platform",
+      "package": "eclipse-platform",
+      "category": "Extensible IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    },
+    {
+      "id": "eric",
+      "name": "eric",
+      "package": "eric",
+      "category": "Python IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    },
+    {
+      "id": "spyder",
+      "name": "Spyder",
+      "package": "spyder",
+      "category": "Scientific Python IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    },
+    {
+      "id": "gambas3-ide",
+      "name": "Gambas",
+      "package": "gambas3-ide",
+      "category": "Basic IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    }
+  ]
 }
