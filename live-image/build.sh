@@ -110,6 +110,17 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    # Add optional open-source IDEs only when the signed Debian repository provides them.
+    optional_ide_packages=(eclipse-platform eric spyder gambas3-ide)
+    available_ide_packages=()
+    for package in "${optional_ide_packages[@]}"; do
+      if apt-cache show "$package" >/dev/null 2>&1; then
+        available_ide_packages+=("$package")
+      fi
+    done
+    if (("${#available_ide_packages[@]}" > 0)); then
+      apt-get install -y -qq --no-install-recommends "${available_ide_packages[@]}"
+    fi
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
@@ -145,6 +156,18 @@ for item in manifest:
 json.dump(out, open(os.path.join(pay, "wallpapers", "index.json"), "w"), indent=1)
 print("wallpapers:", len(out))
 PY
+
+# Use the embedded artwork as the deterministic offline desktop default.
+mkdir -p "$WORK/usr/share/backgrounds"
+if [ -s "$PAY/wallpapers/wp01.jpg" ]; then
+  install -m 0644 "$PAY/wallpapers/wp01.jpg" "$WORK/usr/share/backgrounds/aurora-default.jpg"
+else
+  echo "ERROR: embedded default wallpaper wp01.jpg is missing." >&2
+  exit 2
+fi
+
+# Record the exact IDE binaries/versions actually installed in this rootfs.
+chroot "$WORK" dpkg-query -W -f='${binary:Package}\\t${Version}\\n' > "$PAY/ide-packages-installed.tsv"
 
 # verbatim source snapshot for provenance (excluding build output)
 mkdir -p "$PAY/repo"
