@@ -1,14 +1,46 @@
 {
-  "schema":"CHM-BOOT-MENU-4",
-  "kernel":"Koronos",
-  "primary_loader":"Spit Fire",
-  "menu_manager":"Jasper",
-  "firmware_menu":"Gates",
-  "fallback_loader":"GRUB2",
-  "installation_menu":"/boot/installation/menu.cfg",
-  "entries":["live","safe-graphics","install","recovery","diagnostics","spitfire","firmware","reboot","poweroff"],
-  "kernel_policy":{"live":"multiboot2 /boot/koronos/koronos.elf","safe-graphics":"multiboot2 /boot/koronos/koronos.elf","install":"multiboot2 /boot/koronos/koronos.elf","recovery":"multiboot2 /boot/koronos/koronos.elf","diagnostics":"multiboot2 /boot/koronos/koronos.elf"},
-  "artwork_policy":{"canonical":"/boot/visual/aurora-wayland-glass.jpg","desktop":"/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg","fallback":"desktop/aurora/assets/aurora-desktop.svg"},
-  "handoff":"Spit Fire -> Jasper/Gates -> Multiboot2/CHMBOOT1 -> Koronos -> hardware/driver discovery -> Aurora session",
-  "linux_vmlinuz":false
+  "schema": "CHM-BOOT-MENU-5",
+  "kernel": "Koronos",
+  "primary_loader": "GRUB2 BIOS/UEFI El Torito",
+  "menu_manager": "Jasper",
+  "firmware_menu": "Gates",
+  "fallback_loader": null,
+  "installation_menu": "/boot/installation/menu.cfg",
+  "entries": [
+    "spitfire-to-jasper",
+    "live",
+    "safe-graphics",
+    "native-installer",
+    "native-recovery",
+    "diagnostics",
+    "firmware",
+    "grub-command-line",
+    "reboot",
+    "poweroff"
+  ],
+  "kernel_policy": {
+    "live": "multiboot2 /boot/koronos/koronos.elf",
+    "safe-graphics": "multiboot2 /boot/koronos/koronos.elf",
+    "native-installer": "BLOCKED unless /boot/candidates/installer/native-installer-runtime.ready and every dedicated native installer artifact exists",
+    "native-recovery": "BLOCKED unless /boot/candidates/recovery/native-recovery-runtime.ready and every dedicated native recovery artifact exists",
+    "diagnostics": "multiboot2 /boot/koronos/koronos.elf"
+  },
+  "artwork_policy": {
+    "canonical": "/boot/visual/aurora-wayland-glass.jpg",
+    "desktop": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
+    "fallback": "desktop/aurora/assets/aurora-desktop.svg"
+  },
+  "handoff": "Firmware -> GRUB2 BIOS/UEFI loader -> Spit Fire menu -> Jasper target manager -> Gates/selected boot target -> Multiboot2 -> Koronos -> hardware/driver discovery -> userspace",
+  "linux_vmlinuz": false,
+  "boot_policy_stage": "Spit Fire GRUB menu",
+  "spitfire_artifacts": {
+    "bios": "SF0 MBR and SF2 stage-two binaries are assembled/linked and packaged; they are not the executable El Torito/UEFI ISO loader",
+    "uefi": "sfu_uefi.c remains a source placeholder; GRUB2 performs the actual UEFI boot",
+    "menu": "GRUB2 Spit Fire menu config hands off to /boot/jasper/jasper.cfg"
+  },
+  "runtime_candidates": {
+    "installer": "BusyBox/Linux prototype only; bootable_by_koronos=false",
+    "recovery": "BusyBox/Linux prototype only; bootable_by_koronos=false",
+    "activation": "No native handoff until dedicated native init, filesystem/process services, CPL3/PID readiness and cold-boot acceptance are verified"
+  }
 }
