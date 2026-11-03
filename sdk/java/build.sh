@@ -19,8 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname "$0")" && pwd)"
-OUT="$ROOT/build/classes"
-rm -rf "$OUT" "$ROOT/chimera-sdk.jar"
+OUT="${CHIMERA_SDK_JAVA_BUILD_DIR:-$ROOT/build/classes}"
+JAR="${CHIMERA_SDK_JAVA_JAR:-$ROOT/chimera-sdk.jar}"
+rm -rf "$OUT" "$JAR"
 mkdir -p "$OUT"
 javac -d "$OUT" "$ROOT"/src/org/chimera/sdk/*.java
-jar --create --file "$ROOT/chimera-sdk.jar" -C "$OUT" .
+jar --create --file "$JAR" -C "$OUT" .
