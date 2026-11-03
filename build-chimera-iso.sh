@@ -1161,7 +1161,41 @@ stage_sdk_bundle(){
   cp -f "$sdk_stage/sdk-build-status.json" "$ISO_DIR/system/sdk/"
   cp -f "$SCRIPT_DIR/sdk/SDK_BUILD_MANIFEST.json" "$ISO_DIR/system/sdk/"
   cp -f "$SCRIPT_DIR/sdk/third-party-sdk-manifest.json" "$ISO_DIR/system/sdk/"
-  log_success "SDK library, headers, examples, manuals and available language builds staged."
+
+  # Compile repository-owned desktop application binaries and the GTK4 shell.
+  local desktop_stage="$BUILD_DIR/desktop-binaries"
+  CHIMERA_DESKTOP_BUILD_DIR="$desktop_stage" bash "$SCRIPT_DIR/tools/build-desktop-binaries.sh" 2>&1 | tee "$LOG_DIR/desktop-binaries.log"
+  mkdir -p "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/chimera/desktop" "$ROOTFS_DIR/usr/share/applications" "$ISO_DIR/system/desktop"
+  if [[ -d "$desktop_stage/bin" ]]; then
+    cp -a "$desktop_stage/bin/." "$ROOTFS_DIR/usr/local/bin/"
+  fi
+  if [[ -s "$desktop_stage/manifests/desktop-build-manifest.json" ]]; then
+    cp -f "$desktop_stage/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"
+    cp -f "$desktop_stage/manifests/desktop-build-manifest.json" "$ISO_DIR/system/desktop/"
+  fi
+  if [[ -s "$SCRIPT_DIR/desktop/native/chimera-desktop-shell.cpp" ]]; then
+    install -D -m 0644 "$SCRIPT_DIR/desktop/native/chimera-desktop-shell.cpp" "$ROOTFS_DIR/tmp/chimera-desktop-shell.cpp"
+    chroot "$ROOTFS_DIR" /bin/bash -c 'c++ -std=c++20 -O2 -Wall -Wextra $(pkg-config --cflags gtk4) /tmp/chimera-desktop-shell.cpp $(pkg-config --libs gtk4) -o /usr/local/bin/chimera-desktop-shell'
+    rm -f "$ROOTFS_DIR/tmp/chimera-desktop-shell.cpp"
+    cat > "$ROOTFS_DIR/usr/share/applications/chimera-aurora-shell.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Aurora Native Shell
+Exec=/usr/local/bin/chimera-desktop-shell --desktop=aurora
+Terminal=false
+Categories=System;DesktopSettings;
+EOF
+    cat > "$ROOTFS_DIR/usr/share/applications/chimera-marine-shell.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Marine Native Shell
+Exec=/usr/local/bin/chimera-desktop-shell --desktop=marine
+Terminal=false
+Categories=System;DesktopSettings;
+EOF
+    cp -f "$ROOTFS_DIR/usr/local/bin/chimera-desktop-shell" "$ISO_DIR/system/desktop/"
+  fi
+  log_success "SDK and compiled desktop applications staged; optional toolchains remain explicitly reported."
 }
 
 stage_storage_network_runtime(){
