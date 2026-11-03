@@ -2,7 +2,7 @@
 """Inventory, GUI launcher and PyInstaller packager for first-party Python/Java/Web apps."""
 from __future__ import annotations
 import argparse,json,os,pathlib,re,shutil,subprocess,sys,webbrowser
-SKIP={".git",".venv","venv","__pycache__","node_modules","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups"}
+SKIP={".git",".venv","venv","__pycache__","node_modules","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups","target",".gradle",".idea"}
 def excluded(rel):
     parts=rel.parts
     if any(part in SKIP for part in parts):return True
