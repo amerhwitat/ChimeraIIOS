@@ -6,6 +6,8 @@ root = Path(__file__).resolve().parents[2]
 builder = (root / "live-image/build.sh").read_text()
 grub = (root / "boot/iso/grub.cfg").read_text()
 spitfire = (root / "boot/spitfire/spitfire-menu.cfg").read_text()
+installer = (root / "boot/jasper/install.cfg").read_text()
+recovery = (root / "boot/jasper/recovery.cfg").read_text()
 
 required_builder = [
     'AURORA_SOURCE="$REPO_DIR/desktop/aurora"',
@@ -35,10 +37,12 @@ if "AURORA_DESKTOP_URI=" not in builder or 'test -s "$PAY/$ENTRY"' not in builde
     raise SystemExit("FAIL: edition-specific desktop URI/page validation is missing")
 if "background_image --mode stretch" not in grub:
     raise SystemExit("FAIL: Jasper/GRUB background selection is missing")
-if "Native Installer" not in spitfire or "Native Recovery" not in spitfire:
+if "spitfire-install" not in spitfire or "spitfire-recovery" not in spitfire:
     raise SystemExit("FAIL: Spit Fire menu is missing native handoff choices")
-if "installer-initrd.img" not in spitfire or "chimera-recovery-initramfs.img" not in spitfire:
-    raise SystemExit("FAIL: Spit Fire native handoffs must check their runtime images")
+if "installer-initrd.img" not in (spitfire + installer) or "chimera-recovery-initramfs.img" not in (spitfire + recovery):
+    raise SystemExit("FAIL: native handoffs must check their dedicated runtime images")
+if "Recovery payload is missing" not in recovery and "recovery initramfs" not in recovery:
+    raise SystemExit("FAIL: native Recovery must refuse an incomplete runtime image")
 if "Init.mp4" not in grub or "userspace playback" not in grub:
     raise SystemExit("FAIL: GRUB must document post-selection userspace splash playback")
 print("PASS: Aurora launcher, embedded wallpaper, IDE bundle, Spit Fire menu and splash contracts")
