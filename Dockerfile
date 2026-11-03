@@ -74,9 +74,19 @@ FROM ubuntu:${UBUNTU_VERSION} AS runtime
 ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates python3 sudo passwd util-linux udev dbus pciutils usbutils dmidecode lshw cpuid iproute2 iputils-ping iputils-tracepath ethtool bridge-utils nftables tcpdump dnsutils traceroute iperf3 wireguard-tools openvpn strongswan frr bird2 openvswitch-switch \\
-    e2fsprogs dosfstools exfatprogs ntfs-3g xfsprogs btrfs-progs f2fs-tools squashfs-tools udftools nfs-common cifs-utils sshfs lvm2 mdadm cryptsetup-bin parted gdisk nvme-cli smartmontools \\
-    systemd systemd-sysv dosbox geany vim emacs-nox thonny bluefish gdb gdb-multiarch lldb gcc g++ clang lld make cmake ninja-build pkg-config openjdk-21-jdk-headless python3-venv python3-dev rustc cargo golang gfortran nodejs npm ruby php-cli lua5.4
+    bash ca-certificates python3 sudo passwd util-linux udev dbus pciutils usbutils dmidecode lshw cpuid \
+    iproute2 iputils-ping ethtool bridge-utils nftables tcpdump dnsutils traceroute iperf3 wireguard-tools openvpn \
+    e2fsprogs dosfstools exfatprogs ntfs-3g xfsprogs btrfs-progs f2fs-tools squashfs-tools nfs-common cifs-utils sshfs \
+    lvm2 mdadm cryptsetup-bin parted gdisk nvme-cli smartmontools \
+    systemd systemd-sysv dosbox geany vim emacs-nox gcc g++ clang lld make cmake ninja-build pkg-config \
+    openjdk-21-jdk-headless python3-venv python3-dev rustc cargo golang gfortran nodejs npm ruby php-cli lua5.4 \
+    && for optional_package in frr bird2 openvswitch-switch strongswan udftools bluefish thonny gdb-multiarch lldb iputils-tracepath; do \
+      if apt-cache show "$optional_package" >/dev/null 2>&1; then \
+        apt-get install -y --no-install-recommends "$optional_package" || echo "[WARN] optional package unavailable: $optional_package"; \
+      else \
+        echo "[SKIP] optional package not in configured Ubuntu repositories: $optional_package"; \
+      fi; \
+    done \
     && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
