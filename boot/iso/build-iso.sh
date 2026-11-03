@@ -65,6 +65,20 @@ bash "$ROOT/boot/spitfire/build-spitfire.sh" "$DIST/bootloaders" "$KORONOS_ELF"
 
 printf '%s\n' '[3/7] Prepare ISO tree'
 bash "$ISO_ROOT/prepare-layout.sh"
+
+# Include the compiled SDK in the canonical ISO tree. The primary builder
+# stages it in the rootfs first; direct boot/iso/build-iso.sh invocations build
+# it here so the final ISO never silently omits the developer SDK.
+SDK_ROOTFS="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/opt/chimera-sdk"
+if [[ -d "$SDK_ROOTFS" ]]; then
+  mkdir -p "$DIST/iso/opt"
+  cp -a "$SDK_ROOTFS" "$DIST/iso/opt/chimera-sdk"
+else
+  CHIMERA_SDK_BUILD_DIR="$ROOT/build/sdk-direct" \\
+    CHIMERA_SDK_DESTDIR="$DIST/iso" \\
+    CHIMERA_SDK_PREFIX="/opt/chimera-sdk" \\
+    bash "$ROOT/sdk/tools/build-sdk.sh"
+fi
 cp "$DIST/bootloaders/spitfire-sf0-mbr.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-stage2.bin" "$DIST/iso/boot/spitfire/"
 cp "$DIST/bootloaders/spitfire-sf1-longmode.o" "$DIST/iso/boot/spitfire/"
