@@ -6,9 +6,8 @@ FROM ubuntu:${UBUNTU_VERSION} AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ binutils clang llvm lld nasm make cmake ninja-build \
-    python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless \
-    rustc cargo perl pciutils usbutils dmidecode iproute2 procps \
+    bash ca-certificates git gcc g++ gcc-multilib gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu binutils binutils-aarch64-linux-gnu binutils-riscv64-linux-gnu clang llvm lld nasm make cmake ninja-build gfortran golang \\
+    python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless rustc cargo perl pciutils usbutils dmidecode iproute2 procps
     systemd systemd-sysv dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
@@ -75,8 +74,9 @@ FROM ubuntu:${UBUNTU_VERSION} AS runtime
 ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates python3 pciutils usbutils dmidecode iproute2 procps \
-    systemd systemd-sysv dosbox \
+    bash ca-certificates python3 sudo passwd util-linux udev dbus pciutils usbutils dmidecode lshw cpuid iproute2 iputils-ping iputils-tracepath ethtool bridge-utils nftables tcpdump dnsutils traceroute iperf3 wireguard-tools openvpn strongswan frr bird2 openvswitch-switch \\
+    e2fsprogs dosfstools exfatprogs ntfs-3g xfsprogs btrfs-progs f2fs-tools squashfs-tools udftools nfs-common cifs-utils sshfs lvm2 mdadm cryptsetup-bin parted gdisk nvme-cli smartmontools \\
+    systemd systemd-sysv dosbox geany vim emacs-nox thonny bluefish gdb gdb-multiarch lldb gcc g++ clang lld make cmake ninja-build pkg-config openjdk-21-jdk-headless python3-venv python3-dev rustc cargo golang gfortran nodejs npm ruby php-cli lua5.4
     && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
@@ -92,6 +92,9 @@ RUN set -eux; \
     sed -i '1s/\r$//' /app/docker/entrypoint.sh; \
     chmod +x /app/docker/entrypoint.sh /app/hardware/host_scanner.py /app/desktop/aurora/gui_server.py; \
     useradd -m -u 10001 appuser; \
+    usermod -aG sudo appuser; \
+    passwd -l root; \
+    mkdir -p /media /mnt /dev /proc /sys /tmp; chmod 1777 /tmp; \
     chown -R appuser:appuser /app; \
     chown root:root /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
     chmod 0755 /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
