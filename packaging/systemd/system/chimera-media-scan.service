@@ -1,0 +1,8 @@
+[Unit]
+Description=Discover and safely mount removable media for Chimera
+After=local-fs.target systemd-udev-settle.service
+ConditionPathExists=/usr/lib/chimera/chimera-media-manager.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/chimera/chimera-media-manager.sh --scan
