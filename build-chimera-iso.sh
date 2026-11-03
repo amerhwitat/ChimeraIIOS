@@ -314,6 +314,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ "$FULL_BUILD" == 1 ]]; then
+  # --full is an explicit complete-build request, regardless of option order.
+  BUILD_DOCKER=1
+  BUILD_ISO=1
+  RESUME_BUILD=0
+  CLEAN_STATE=1
+  export CHIMERA_FULL_BUILD=1 CHIMERA_BUILD_NATIVE_ISO_PIPELINE=1
+fi
+
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
   [[ -n "$root" && -d "$root" && -w "$root" ]] || { log_error "Storage root must exist and be writable: $root"; exit 2; }
