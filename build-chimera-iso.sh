@@ -1175,7 +1175,8 @@ build_native_iso_pipeline(){
   fi
   header 'STEP 11: RUN CANONICAL NATIVE ISO PIPELINE'
   local native_script="$SCRIPT_DIR/boot/iso/build-iso.sh"
-  local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
+  local native_root="$BUILD_DIR/native-iso"
+  local native_iso="$native_root/dist/output.iso"
   [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
   # Forward the target system block size through the canonical native ISO boundary.
   # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
@@ -1185,7 +1186,7 @@ build_native_iso_pipeline(){
   # native ISO builder and its contract verifier must see the same 4 KiB default.
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     SYSTEM_BLOCK_SIZE="$system_block_size" \
-    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_NATIVE_ISO_ROOT="$native_root" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
@@ -1193,7 +1194,7 @@ build_native_iso_pipeline(){
   # ISO. The archive preserves every .img, kernel/ELF, EFI loader, Spit Fire
   # binary, Jasper payload and manifest for offline inspection and recovery.
   local candidate_dir="$ISO_DIR/boot/candidates"
-  local native_dist="$SCRIPT_DIR/boot/iso/dist"
+  local native_dist="$native_root/dist"
   mkdir -p "$candidate_dir"
   cp -f "$native_iso" "$candidate_dir/ChimeraIIOS-native.iso"
   sha256sum "$candidate_dir/ChimeraIIOS-native.iso" > "$candidate_dir/ChimeraIIOS-native.iso.sha256"
