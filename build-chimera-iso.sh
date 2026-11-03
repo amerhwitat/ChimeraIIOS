@@ -239,21 +239,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Discover and compile first-party SDK projects before ISO composition. The
-# helper excludes vendored/dependency/build trees and records every PASS/FAIL/SKIP.
-# Best-effort is the default so an optional SDK does not mask a later ISO failure;
-# set CHIMERA_SDK_BUILD_STRICT=1 to make any discovered SDK failure fatal.
-if [[ "${CHIMERA_BUILD_REPO_SDKS:-1}" == "1" ]]; then
-  export CHIMERA_SDK_BUILD_DIR="$BUILD_DIR/sdk-build"
-  log_both "Building repository SDKs (CMake, Cargo, Go, Maven, npm and Gradle)"
-  if ! bash "$SCRIPT_DIR/tools/build-repository-sdks.sh" >>"$LOG_DIR/sdk-build.log" 2>&1; then
-    log_error "Repository SDK build runner failed; see $LOG_DIR/sdk-build.log"
-    [[ "${CHIMERA_SDK_BUILD_STRICT:-0}" != "1" ]] || exit 1
-  fi
-else
-  log_both "Repository SDK build discovery disabled by CHIMERA_BUILD_REPO_SDKS=0"
-fi
-
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
@@ -406,6 +391,21 @@ preflight(){
       export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
   fi
+# Discover and compile first-party SDK projects before ISO composition. The
+# helper excludes vendored/dependency/build trees and records every PASS/FAIL/SKIP.
+# Best-effort is the default so an optional SDK does not mask a later ISO failure;
+# set CHIMERA_SDK_BUILD_STRICT=1 to make any discovered SDK failure fatal.
+if [[ "${CHIMERA_BUILD_REPO_SDKS:-1}" == "1" ]]; then
+  export CHIMERA_SDK_BUILD_DIR="$BUILD_DIR/sdk-build"
+  log_both "Building repository SDKs (CMake, Cargo, Go, Maven, npm and Gradle)"
+  if ! bash "$SCRIPT_DIR/tools/build-repository-sdks.sh" >>"$LOG_DIR/sdk-build.log" 2>&1; then
+    log_error "Repository SDK build runner failed; see $LOG_DIR/sdk-build.log"
+    [[ "${CHIMERA_SDK_BUILD_STRICT:-0}" != "1" ]] || exit 1
+  fi
+else
+  log_both "Repository SDK build discovery disabled by CHIMERA_BUILD_REPO_SDKS=0"
+fi
+
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
   # Network research is opt-in; failures do not silently promote support claims.
   if [[ "${CHIMERA_ARCH_DISCOVERY:-1}" == 1 && -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
