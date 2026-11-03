@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "chimera/cpio_newc.h"
+#include "chimera/vfs.h"
 #include "chimera/interrupt.h"
 #include "chimera/service.h"
 
@@ -118,22 +119,36 @@ int main() {
         {"./", 0040755u, "", 0u, false, UINT32_MAX},
         {"./init", 0100755u, "hello", 5u, false, UINT32_MAX},
         {"./crc", 0100644u, "ok", 2u, true, UINT32_MAX},
-        {"./etc/", 0040755u, "", 0u, false, UINT32_MAX}
+        {"./etc/", 0040755u, "", 0u, false, UINT32_MAX},
+        {"./etc/config", 0100644u, "conf", 4u, false, UINT32_MAX}
     });
     Visitor visitor;
     chimera_cpio_newc_ops ops{visit};
     chimera_cpio_newc_summary summary{};
     assert(chimera_cpio_newc_walk(good.data(), good.size(), &ops, &visitor, &summary) == 0);
     assert(summary.abi == CHIMERA_CPIO_NEWC_ABI);
-    assert(summary.entries == 4u && summary.regular_files == 2u && summary.directories == 2u);
-    assert(summary.data_bytes == 7u && visitor.files == 2u && visitor.directories == 2u);
+    assert(summary.entries == 5u && summary.regular_files == 3u && summary.directories == 2u);
+    assert(summary.data_bytes == 11u && visitor.files == 3u && visitor.directories == 2u);
     assert(visitor.paths[0].empty());
     assert(visitor.paths[1] == "init");
 
+    chimera_vfs_tree published_tree{};
+    chimera_vfs_node published_nodes[8]{};
+    assert(chimera_vfs_mount_newc(good.data(), good.size(), &published_tree,
+                                  published_nodes, 8u) == 0);
+    assert(chimera_vfs_root() == &published_tree);
+    const chimera_vfs_node *init_node = chimera_vfs_lookup("/init");
+    assert(init_node && init_node->kind == CHIMERA_VFS_REGULAR);
+    assert(init_node->size == 5u && std::memcmp(init_node->data, "hello", 5u) == 0);
+    const chimera_vfs_node *etc_node = chimera_vfs_lookup("etc");
+    assert(etc_node && etc_node->kind == CHIMERA_VFS_DIRECTORY);
+    const chimera_vfs_node *config_node = chimera_vfs_lookup("/etc/config");
+    assert(config_node && config_node->size == 4u);
+
+    Visitor bad_path;
     const auto empty_name = archive({{"", 0100644u, "x", 1u, false, UINT32_MAX}});
     assert(chimera_cpio_newc_walk(empty_name.data(), empty_name.size(), &ops, &bad_path, &summary) == -4);
     const auto traversal = archive({{"../escape", 0100644u, "x", 1u, false, UINT32_MAX}});
-    Visitor bad_path;
     assert(chimera_cpio_newc_walk(traversal.data(), traversal.size(), &ops, &bad_path, &summary) == -4);
     const auto absolute = archive({{"/etc/passwd", 0100644u, "x", 1u, false, UINT32_MAX}});
     assert(chimera_cpio_newc_walk(absolute.data(), absolute.size(), &ops, &bad_path, &summary) == -4);
@@ -153,5 +168,12 @@ int main() {
     auto truncated = good;
     truncated.pop_back();
     assert(chimera_cpio_newc_walk(truncated.data(), truncated.size(), &ops, &bad_path, &summary) == -5);
+
+    chimera_vfs_tree rejected_tree{};
+    chimera_vfs_node rejected_nodes[8]{};
+    assert(chimera_vfs_mount_newc(traversal.data(), traversal.size(), &rejected_tree,
+                                  rejected_nodes, 8u) != 0);
+    assert(chimera_vfs_root() == &published_tree);
+    assert(chimera_vfs_lookup("/init") == init_node);
     return 0;
 }
