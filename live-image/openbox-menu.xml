@@ -3,6 +3,7 @@
   <menu id="root-menu" label="Chimera / Octavian">
     <menu id="network-menu" label="Network Applications">
     <item label="Network Applications Panel"><action name="Execute"><command>xdg-open /opt/aurora/desktop/shared/network-applications.html</command></action></item>
+    <item label="Nebula Linux Workspace"><action name="Execute"><command>xdg-open /opt/aurora/desktop/plasma/index.html</command></action></item>
     <item label="VoiceConnect Project"><action name="Execute"><command>xdg-open https://github.com/amerhwitat/test/tree/feat/voiceconnect-p2p-camera</command></action></item>
     <item label="Firefox"><action name="Execute"><command>firefox</command></action></item>
     <item label="Thunderbird"><action name="Execute"><command>thunderbird</command></action></item>
