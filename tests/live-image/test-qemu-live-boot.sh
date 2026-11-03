@@ -66,6 +66,7 @@ fi
 
 case "$TARGET" in
   live) match='Aurora|Application' ;;
+  marine) match='Marine Desktop|Marine' ;;
   installer) match='Native Koronos Installer runtime incomplete|acceptance-certified' ;;
   recovery) match='Native Koronos Recovery runtime incomplete|separate Linux Rescue Shell' ;;
   linux-rescue) match='RESCUE SHELL|No disk is modified automatically' ;;
