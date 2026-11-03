@@ -191,7 +191,7 @@ path.write_text(json.dumps({
     "local_listener":"127.0.0.1:8787",
     "turn_credentials_embedded":False,
     "production_signaling_configured":False
-}, indent=2) + "\\n")
+}, indent=2))
 PY_VOICE
 
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
