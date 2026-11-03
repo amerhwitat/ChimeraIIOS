@@ -19,6 +19,13 @@ jobs:
       - name: Validate platform contracts
         run: python3 -m unittest discover -s tests/platform -v
       - name: Cross-compile AArch64 and RV64 hardware/architecture probes
-        run: bash tools/build-koronos-targets.sh
+        run: |
+          bash tools/build-koronos-targets.sh
+          test -s build/koronos/ports/aarch64-arch_init.o
+          test -s build/koronos/ports/aarch64-hardware.o
+          test -s build/koronos/ports/riscv64-arch_init.o
+          test -s build/koronos/ports/riscv64-hardware.o
+          readelf -h build/koronos/ports/aarch64-arch_init.o | grep -q AArch64
+          readelf -h build/koronos/ports/riscv64-arch_init.o | grep -q RISC-V
       - name: Compile and test the native SDK
         run: bash tools/build-sdk-bundle.sh "$RUNNER_TEMP/chimera-sdk"
