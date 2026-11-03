@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cfg="\${1:?usage: test-grub-targets.sh <grub.cfg>}"
+cfg="${1:?usage: test-grub-targets.sh <grub.cfg>}"
 for target in "Live desktop" "Installer" "Koronos" "Recovery"; do
   grep -Fq "$target" "$cfg" || { echo "Missing GRUB target: $target" >&2; exit 1; }
 done
