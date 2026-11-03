@@ -29,7 +29,7 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         self.assertIn("user-originated init syscall acknowledgement", result.stdout)
 
     def test_initramfs_diagnostic_shell_is_not_native_userspace_readiness(self):
-        trace = KERNEL + "[LIVE] INITRAMFS DIAGNOSTIC SHELL; Koronos userspace handoff NOT VERIFIED\\n"
+        trace = KERNEL + "[LIVE] INITRAMFS DIAGNOSTIC SHELL; Koronos userspace handoff NOT VERIFIED\n"
         result = run("live", trace)
         self.assertEqual(result.returncode, 1)
         self.assertIn("user-originated init syscall acknowledgement", result.stdout)
