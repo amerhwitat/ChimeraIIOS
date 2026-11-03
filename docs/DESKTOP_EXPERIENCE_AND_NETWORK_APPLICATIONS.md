@@ -8,7 +8,7 @@ The Aurora Wayland Glass and Marine Desktop front ends load the shared desktop e
 - Single click selects; a second click on the selected item starts inline rename after the double-click window.
 - Double-click opens the selected item.
 - F2 renames the selected item; Alt+Enter opens Properties; Delete removes a selected shortcut after confirmation.
-- Ctrl+Alt+E opens Applications; Ctrl+Alt+N opens Network Apps; Ctrl+Alt+V opens VoiceConnect project; Ctrl+Alt+S opens Settings; Ctrl+Alt+D opens Desktop Profiles.
+- Ctrl+Alt+E opens Applications; Ctrl+Alt+N opens Network Apps; Ctrl+Alt+V opens VoiceConnect project; Ctrl+Alt+S opens Settings; Ctrl+Alt+D opens Desktop Profiles; Ctrl+Alt+L opens Nebula Linux Workspace.
 - Ctrl+Alt+F opens Files; Ctrl+Alt+T opens Terminal; Ctrl+Alt+B opens Browser. Ctrl+Shift+N creates a shortcut through the existing shortcut manager. Meta/Command modifiers are accepted on macOS; Ctrl modifiers work on Windows and Linux.
 - The top-right panel buttons remain visible as desktop-level icons/actions.
 
