@@ -117,6 +117,7 @@ int main() {
     const auto good = archive({
         {"./", 0040755u, "", 0u, false, UINT32_MAX},
         {"./init", 0100755u, "hello", 5u, false, UINT32_MAX},
+        {"./crc", 0100644u, "ok", 2u, true, UINT32_MAX},
         {"./etc/", 0040755u, "", 0u, false, UINT32_MAX}
     });
     Visitor visitor;
@@ -124,11 +125,13 @@ int main() {
     chimera_cpio_newc_summary summary{};
     assert(chimera_cpio_newc_walk(good.data(), good.size(), &ops, &visitor, &summary) == 0);
     assert(summary.abi == CHIMERA_CPIO_NEWC_ABI);
-    assert(summary.entries == 3u && summary.regular_files == 1u && summary.directories == 2u);
-    assert(summary.data_bytes == 5u && visitor.files == 1u && visitor.directories == 2u);
+    assert(summary.entries == 4u && summary.regular_files == 2u && summary.directories == 2u);
+    assert(summary.data_bytes == 7u && visitor.files == 2u && visitor.directories == 2u);
     assert(visitor.paths[0].empty());
     assert(visitor.paths[1] == "init");
 
+    const auto empty_name = archive({{"", 0100644u, "x", 1u, false, UINT32_MAX}});
+    assert(chimera_cpio_newc_walk(empty_name.data(), empty_name.size(), &ops, &bad_path, &summary) == -4);
     const auto traversal = archive({{"../escape", 0100644u, "x", 1u, false, UINT32_MAX}});
     Visitor bad_path;
     assert(chimera_cpio_newc_walk(traversal.data(), traversal.size(), &ops, &bad_path, &summary) == -4);
