@@ -2,14 +2,20 @@
 """Inventory, GUI launcher and PyInstaller packager for first-party Python/Java/Web apps."""
 from __future__ import annotations
 import argparse,json,os,pathlib,re,shutil,subprocess,sys,webbrowser
-SKIP={".git",".venv","venv","__pycache__","node_modules","vendor","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups"}
+SKIP={".git",".venv","venv","__pycache__","node_modules","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups"}
+def excluded(rel):
+    parts=rel.parts
+    if any(part in SKIP for part in parts):return True
+    if "vendor" in parts:
+        return not (parts[:3]==("vendor","chimera-ii-os","source") and "vendor" not in parts[3:])
+    return False
 WEB={".html",".htm",".js",".jsx",".ts",".tsx",".css"}
 def inventory(root):
     py=[];java=[];web=[]
     for p in sorted(root.rglob("*")):
         if not p.is_file():continue
         rel=p.relative_to(root)
-        if any(x in SKIP for x in rel.parts):continue
+        if excluded(rel):continue
         if p.suffix==".py":
             src=p.read_text(encoding="utf-8",errors="replace")
             entry=p.name in {"main.py","__main__.py"} or p.name.startswith("launch") or bool(re.search(r"""if\s+__name__\s*==\s*["']__main__["']""",src))
@@ -47,7 +53,7 @@ def build(root,out,platform):
     py,java,web=inventory(root);out.mkdir(parents=True,exist_ok=True);dist=out/"dist";dist.mkdir(exist_ok=True);tool=shutil.which("pyinstaller");source_tree=out/"python-source";source_tree.mkdir(exist_ok=True)
     for source in root.rglob("*.py"):
         rel=source.relative_to(root)
-        if not any(part in SKIP for part in rel.parts):
+        if not excluded(rel):
             target=source_tree/rel;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
     for app in py:
         if app["kind"]!="python-entrypoint":continue
