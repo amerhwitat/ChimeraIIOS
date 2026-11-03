@@ -52,13 +52,26 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install PyInstaller
-        run: python -m pip install --upgrade pip pyinstaller
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Maven and PyInstaller
+        shell: pwsh
+        run: |
+          choco install maven -y --no-progress
+          python -m pip install --upgrade pip pyinstaller
       - name: Build Windows GUI executables
         shell: pwsh
         run: |
           python tools/polyglot_apps.py --root . --output build/polyglot-windows --platform windows --build
           python -c "import json,pathlib,py_compile; d=json.loads(pathlib.Path('build/polyglot-windows/polyglot-apps.json').read_text()); [py_compile.compile(x['source'],doraise=True) for x in d['python']]; assert d['panel_build']=='built', d.get('panel_build_log')"
+          $manifest = Get-Content build/polyglot-windows/polyglot-apps.json | ConvertFrom-Json
+          if ($manifest.java_build -eq "failed") { throw "One or more Java projects failed compilation" }
+          if ($manifest.web_validation.javascript_checked -lt 0) { throw "Invalid JavaScript validation count" }
           if (!(Test-Path build/polyglot-windows/dist/PolyglotAppsPanel.exe)) { throw "Missing Windows Apps Panel executable" }
       - uses: actions/upload-artifact@v4
         with:
