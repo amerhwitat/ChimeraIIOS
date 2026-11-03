@@ -9,6 +9,7 @@ class NativeDesktopInteractionTests(unittest.TestCase):
         source = (ROOT / "desktop/native/chimera-desktop-shell.cpp").read_text(encoding="utf-8")
         for token in (
             "show_app_context_menu", "show_app_properties", "rename_app_card",
+            "desktop_menu_bar", "gtk_menu_button_new", "desktop_menu_action",
             "card_pointer_pressed", "n_press == 2", "GDK_KEY_F2",
             "GDK_KEY_Return", "GDK_KEY_F10",
         ):
