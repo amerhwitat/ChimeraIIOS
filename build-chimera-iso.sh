@@ -13,6 +13,7 @@ Options:
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
+  --skip-sdk-builds            Skip repository-wide SDK discovery and compilation.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
 Notes:
