@@ -86,7 +86,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
+if [ ! -f "$BASE/.packages-installed-v2" ]; then
   log "installing shared package set (one-off)"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
@@ -102,6 +102,8 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh mpv \
+      geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish \
+      build-essential cmake ninja-build git gdb clang lld pkg-config nasm binutils \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
@@ -110,7 +112,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  touch "$BASE/.packages-installed-v2"
 fi
 
 # ------------------------------------------------------------- rootfs copy
@@ -175,6 +177,7 @@ tar -C "$REPO_DIR" --exclude=./.git --exclude=./build --exclude=./vendor/chimera
 # Stage every repository-owned application catalog for offline discovery.
 # Catalog-only upstream references remain distinct from installed executables.
 mkdir -p "$PAY/app-catalogs" "$PAY/apps/native/aurora"
+install -D -m 0644 "$HERE/ide-catalog.json" "$PAY/app-catalogs/ide-catalog.json"
 stage_catalog() {
   local rel="$1"
   if [ -f "$REPO_DIR/$rel" ]; then
@@ -481,6 +484,21 @@ for item in installation_phases.json installer_profiles.json; do
 done
 [ ! -s "$NATIVE_SOURCE/boot/recovery/recovery-manifest.json" ] || install -m644 "$NATIVE_SOURCE/boot/recovery/recovery-manifest.json" "$ISODIR/boot/recovery/recovery-manifest.json"
 
+# Compile and link the native Spit Fire BIOS stages for both editions.
+# GRUB2 remains the actual El Torito/UEFI ISO loader; the raw MBR image is a
+# separately packaged disk-boot artifact and is not written into the ISO boot
+# catalog. The current UEFI C stub is retained as source only, not advertised
+# as a functional UEFI chainloader.
+SPITFIRE_OUT="$BUILD/spitfire"
+mkdir -p "$SPITFIRE_OUT" "$ISODIR/boot/spitfire" "$ISODIR/boot/jasper"
+for tool in nasm g++ ld nm; do command -v "$tool" >/dev/null 2>&1 || { echo "ERROR: Spit Fire build requires $tool" >&2; exit 2; }; done
+bash "$NATIVE_SOURCE/boot/spitfire/build-spitfire.sh" "$SPITFIRE_OUT"
+for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o BUILD-MANIFEST.txt SHA256SUMS; do
+  test -s "$SPITFIRE_OUT/$artifact" || { echo "ERROR: missing Spit Fire artifact $artifact" >&2; exit 2; }
+  install -m 0644 "$SPITFIRE_OUT/$artifact" "$ISODIR/boot/spitfire/$artifact"
+done
+install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+install -m 0644 "$NATIVE_SOURCE/boot/jasper/jasper.cfg" "$ISODIR/boot/jasper/native-jasper.cfg"
 python3 - "$ISODIR" "$ED" <<'PY'
 import json, pathlib, sys
 root, edition = pathlib.Path(sys.argv[1]), sys.argv[2]
