@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ $# -lt 4 || $# -gt 5 ]]; then
-  echo "usage: $0 <grub.cfg> <spitfire-menu.cfg> <gates-menu.cfg> <jasper-live.cfg> [native-runtime-candidates.json]" >&2
+if [[ $# -lt 4 || $# -gt 6 ]]; then
+  echo "usage: $0 <grub.cfg> <spitfire-menu.cfg> <gates-menu.cfg> <jasper-live.cfg> [native-runtime-candidates.json] [boot-menu-contract.json]" >&2
   exit 2
 fi
 root_cfg="$1"
@@ -27,13 +27,23 @@ grep -Fq 'multiboot2 /boot/koronos.elf' "$jasper_cfg"
 grep -Fq 'native-installer-runtime.ready' "$jasper_cfg"
 grep -Fq 'native-recovery-runtime.ready' "$jasper_cfg"
 ! grep -Eq '^[[:space:]]*linux .* quiet([[:space:]]|$)' "$jasper_cfg"
-if [[ $# -eq 5 ]]; then
+if [[ $# -ge 5 ]]; then
   python3 - "$5" <<'PY'
 import json, pathlib, sys
 m=json.loads(pathlib.Path(sys.argv[1]).read_text())
 assert m["status"] == "prototype-built-not-native-koronos-runtime"
 assert m["installer"]["bootable_by_koronos"] is False
 assert m["recovery"]["bootable_by_koronos"] is False
+PY
+fi
+if [[ $# -eq 6 ]]; then
+  python3 - "$6" <<'PY'
+import json, pathlib, sys
+m=json.loads(pathlib.Path(sys.argv[1]).read_text())
+assert m["schema"] == "CHM-BOOT-MENU-6"
+assert m["firmware_menu"] == "Spit Fire"
+assert m["policy_menu"] == "Gates"
+assert m["menu_manager"] == "Jasper"
 PY
 fi
 echo "GRUB2 -> Spit Fire -> Gates -> Jasper chain, target routing and fail-closed native handoffs: PASS"
