@@ -661,7 +661,9 @@ build_docker(){
   header 'STEP 1: BUILD DOCKER IMAGE'
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
   start_watchdog "Docker BuildKit image build"; set +e
-  BUILDKIT_PROGRESS=plain docker build --progress=plain -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  local -a docker_build_args=()
+  [[ "$FULL_BUILD" == 1 ]] && docker_build_args+=(--no-cache)
+  BUILDKIT_PROGRESS=plain docker build --progress=plain "${docker_build_args[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
 
@@ -2061,6 +2063,7 @@ build_native_sdk(){
   [[ -s "$sdk_src/CMakeLists.txt" ]] || { log_error "SDK CMake project is missing: $sdk_src/CMakeLists.txt"; return 1; }
   command -v cmake >/dev/null 2>&1 || { log_error "CMake is required for --full SDK compilation"; return 2; }
   command -v ctest >/dev/null 2>&1 || { log_error "CTest is required for --full SDK validation"; return 2; }
+  rm -rf -- "$sdk_build"
   mkdir -p "$sdk_build" "$sdk_dest" "$ISO_DIR/install/sdk"
   cmake -S "$sdk_src" -B "$sdk_build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/chimera-sdk
   cmake --build "$sdk_build" --parallel "${CHIMERA_BUILD_JOBS:-2}"
