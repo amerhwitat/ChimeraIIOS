@@ -8,6 +8,7 @@ on:
       - 'tools/polyglot_apps.py'
       - 'tools/build-repository-sdks.sh'
       - 'build-chimera-iso.sh'
+      - 'build-chimera-iso.sh'
       - 'boot/**'
       - 'tools/build-live-boot-binaries.sh'
       - 'tools/chimera-stage-installer-media.sh'
