@@ -120,6 +120,8 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$OUT_DIR/grub.cfg" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-menu.cfg "$OUT_DIR/spitfire-menu.cfg" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/jasper/live-image.cfg "$OUT_DIR/jasper-live.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-sf0-mbr.bin "$OUT_DIR/spitfire-sf0-mbr.bin" >/dev/null
+          test "$(stat -c%s "$OUT_DIR/spitfire-sf0-mbr.bin")" -eq 512
           xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$OUT_DIR/native-runtime-candidates.json" >/dev/null
           chmod +x tests/live-image/test-grub-targets.sh
           tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json"
@@ -149,6 +151,18 @@ jobs:
           test -x "$root/usr/local/bin/aurora-init-splash.sh"
           test -s "$root/usr/share/chimera/aurora/assets/Init.mp4"
           grep -Fq 'aurora-init-splash.sh' "$root/usr/local/bin/aurora-session"
+          test -s "$root/opt/aurora/app-catalogs/ide-catalog.json"
+          test -s "$root/usr/share/backgrounds/aurora-default.jpg"
+          test -s "$root/etc/xdg/openbox/menu.xml"
+          for package in geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish codeblocks codeblocks-contrib qtcreator arduino fp-ide; do
+            grep -Fq "Package: $package" "$root/var/lib/dpkg/status" || { echo "IDE package missing from live root: $package" >&2; exit 1; }
+          done
+          python3 - "$root/usr/local/bin/aurora-session" <<'PY'
+          import pathlib, sys
+          s=pathlib.Path(sys.argv[1]).read_text()
+          assert s.index("AURORA_DESKTOP_URI=") < s.index("exec /usr/local/bin/chimera-boot-mode")
+          assert "aurora-init-splash.sh" in s and "CHIMERA_INIT_VIDEO=" in s
+          PY
           test -s "$root/opt/aurora/application-bundle.json"
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
