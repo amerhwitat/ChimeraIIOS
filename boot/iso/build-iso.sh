@@ -196,8 +196,8 @@ test -s "$DIST/iso/boot/recovery/chimera-recovery-initramfs.img" || { echo "Reco
 test -s "$DIST/iso/boot/recovery/recovery-manifest.json" || { echo "Recovery manifest missing from ISO staging tree." >&2; exit 1; }
 grep -q '/boot/live/chimera-live-initramfs.img' "$ROOT/boot/jasper/live.cfg"
 grep -q '/boot/live/live-manifest.json' "$ROOT/boot/jasper/live.cfg"
-grep -q '/boot/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recovery.cfg"
-grep -q 'Recovery Terminal' "$ROOT/boot/jasper/recovery.cfg"
+grep -q '/boot/candidates/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recovery.cfg"
+grep -q 'Native Koronos Recovery runtime incomplete' "$ROOT/boot/jasper/recovery.cfg"
 
 test -s "$DIST/iso/boot/candidates/native-runtime-candidates.json"
 for contract in \
