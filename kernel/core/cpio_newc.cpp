@@ -42,9 +42,9 @@ static bool safe_name(const char *name, uint32_t size, uint32_t mode,
 
     const char *path = name;
     if (size >= 3u && path[0] == '.' && path[1] == '/') path += 2;
-    if (path[0] == 0) {
+    if (path[0] == 0 || (path[0] == '.' && path[1] == 0)) {
         if ((mode & S_IFMT) != S_IFDIR) return false;
-        *normalized = path;
+        *normalized = path[0] == '.' ? path + 1 : path;
         return true;
     }
 
