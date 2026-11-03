@@ -36,6 +36,13 @@ class PlatformBundleContracts(unittest.TestCase):
         self.assertIn("tools/build-koronos-targets.sh", script)
         self.assertIn("koronos-port-build.log", script)
 
+    def test_native_desktop_has_menus_scrolling_and_pointer_contracts(self):
+        source = (ROOT / "desktop/native/chimera-desktop-shell.cpp").read_text(encoding="utf-8")
+        for contract in ("gtk_popover_menu_bar_new_from_model", "Tile Windows", "Cascade Windows",
+                         "gtk_scrolled_window_new", "gtk_gesture_click_new", "gtk_popover_new",
+                         "presses==2", "presses>=3", "Item Properties"):
+            self.assertIn(contract, source)
+
     def test_architecture_boot_claims_are_bounded(self):
         data = json.loads((ROOT / "kernel/arch/koronos-architecture-profiles.json").read_text())
         by_id = {item["id"]: item for item in data["profiles"]}
