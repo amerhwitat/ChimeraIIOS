@@ -17,7 +17,8 @@
     "Zig",
     "Go",
     "Fortran",
-    "Swift"
+    "Swift",
+    "Assembly"
   ],
   "artifacts": [
     "native-library",
@@ -39,6 +40,7 @@
   "optional_toolchains": {
     "build_policy": "Compile a smoke artifact when the upstream compiler is installed; record SKIP otherwise; never download compilers during ISO builds.",
     "languages": [
+      "Assembly",
       "Objective-C",
       "Zig",
       "Go",
