@@ -21,7 +21,7 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VIDEO="${CHIMERA_INIT_VIDEO:-$ROOT/assets/Init.mp4}"
 [[ -s "$VIDEO" ]] || VIDEO="$ROOT/assets/init.mp4"
-PROGRESS="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
+PROGRESS="${CHIMERA_PROGRESS_FILE:-/run/chimera/progress.state}"
 PID_FILE="${XDG_RUNTIME_DIR:-/run}/chimera-aurora-splash.pid"
 MAX_SECONDS="${CHIMERA_SPLASH_MAX_SECONDS:-15}"
 
@@ -73,6 +73,12 @@ trap cleanup EXIT INT TERM
 play_video || exit 0
 start="$(date +%s)"
 while :; do
+  if [[ -f "$PID_FILE" ]]; then
+    player_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+    if [[ -n "$player_pid" ]] && ! kill -0 "$player_pid" 2>/dev/null; then
+      break
+    fi
+  fi
   p="$(read_percent)"
   [[ "$p" == 100 ]] && break
   now="$(date +%s)"
