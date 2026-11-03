@@ -271,7 +271,8 @@
         "Linux",
         "Windows",
         "macOS"
-      ]
+      ],
+      "project": "https://github.com/amerhwitat/test/tree/feat/voiceconnect-p2p-camera"
     },
     {
       "id": "curl",
