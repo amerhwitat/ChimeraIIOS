@@ -10,7 +10,7 @@ KIOSK = ROOT / "live-image/lib/aurora-kiosk.py"
 BUILDER = ROOT / "live-image/build.sh"
 DESKTOP = ROOT / ("web/aurora_3d_desktop.html" if IS_CHIMERA else "desktop/aurora-wayland-glass/index.html")
 INIT = ROOT / ("desktop/aurora/assets/Init.mp4" if IS_CHIMERA else "vendor/chimera-ii-os/source/desktop/aurora/assets/Init.mp4")
-VOICECONNECT_COMMIT = "c3f0df816099b042486f5c5ec4405e2690690dc8"
+VOICECONNECT_COMMIT = "b72a6854a1fe3077a87aa9adf0f1a49c02c3a002"
 
 
 class DesktopLanguageVoiceConnectTests(unittest.TestCase):
