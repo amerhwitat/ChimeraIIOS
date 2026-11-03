@@ -1129,7 +1129,7 @@ stage_package_managers(){
   install -m 0644 "$shared/voiceconnect-project.desktop" "$ROOTFS_DIR/usr/share/applications/voiceconnect-project.desktop"
   install -m 0755 "$shared/voiceconnect-launcher.sh" "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
   bash -n "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
-  node --check "$shared/desktop-experience.js"
+  if command -v node >/dev/null 2>&1; then node --check "$shared/desktop-experience.js"; else log_warning "Node.js unavailable on host; desktop JS syntax is checked by CI."; fi
   python3 -m json.tool "$shared/network-applications.json" >/dev/null
   log_info "Professional desktop interaction layer, Network Applications and VoiceConnect project launcher staged."
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
