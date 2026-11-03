@@ -95,9 +95,15 @@ done
 for art in aurora-desktop.svg aurora-installer.svg aurora-library.svg aurora-wayland-glass.svg aurora-wayland-glass.png chimera-infinite-research-horizon.svg chimera-artwork-manifest.json Init.mp4 library-artwork-manifest.json; do
   [[ -s "$ROOT/desktop/aurora/assets/$art" ]] && cp -f "$ROOT/desktop/aurora/assets/$art" "$STAGE/desktop/aurora/assets/$art"
 done
-if [[ -s "$ROOT/desktop/aurora/assets/Init.mp4" ]]; then
-  cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/boot/grub/Init.mp4"
+INIT_VIDEO_SOURCE="$ROOT/desktop/aurora/assets/Init.mp4"
+if [[ ! -s "$INIT_VIDEO_SOURCE" ]]; then
+  INIT_VIDEO_SOURCE="$ROOT/desktop/aurora/assets/library/Init.mp4"
 fi
+[[ -s "$INIT_VIDEO_SOURCE" ]] || { echo "ERROR: canonical Aurora Init.mp4 is missing." >&2; exit 2; }
+for boot_stage in visual spitfire jasper grub; do
+  install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/boot/$boot_stage/Init.mp4"
+done
+install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/desktop/aurora/assets/Init.mp4"
 
 install_iso_dependencies() {
   local missing=()
