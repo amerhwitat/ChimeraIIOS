@@ -139,6 +139,61 @@ log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+# Package VoiceConnect from its reviewed, immutable source revision. No TURN or
+# signaling secrets are embedded; the local signaling listener binds loopback.
+VOICECONNECT_COMMIT="c3f0df816099b042486f5c5ec4405e2690690dc8"
+VOICECONNECT_SOURCE="${VOICECONNECT_SOURCE_DIR:-$BUILD/voiceconnect-source}"
+NODE_BINARY="${NODE_BINARY:-$(command -v node || true)}"
+NPM_BINARY="${NPM_BINARY:-$(command -v npm || true)}"
+if [[ -z "$NODE_BINARY" || ! -x "$NODE_BINARY" || -z "$NPM_BINARY" || ! -x "$NPM_BINARY" ]]; then
+  echo "ERROR: VoiceConnect ISO packaging requires the pinned Node.js 24 runtime and npm." >&2
+  exit 2
+fi
+NODE_MAJOR="$("$NODE_BINARY" -p 'Number(process.versions.node.split(".")[0])')"
+if [[ "$NODE_MAJOR" -lt 24 ]]; then
+  echo "ERROR: VoiceConnect requires Node.js >=24; found $("$NODE_BINARY" --version)." >&2
+  exit 2
+fi
+if [[ ! -d "$VOICECONNECT_SOURCE/.git" ]]; then
+  rm -rf "$VOICECONNECT_SOURCE"
+  git clone --quiet --branch feat/voiceconnect-p2p-camera --single-branch \
+    https://github.com/amerhwitat/test.git "$VOICECONNECT_SOURCE"
+fi
+git -C "$VOICECONNECT_SOURCE" fetch --quiet origin feat/voiceconnect-p2p-camera
+git -C "$VOICECONNECT_SOURCE" checkout --quiet --detach "$VOICECONNECT_COMMIT"
+ACTUAL_VOICECONNECT_COMMIT="$(git -C "$VOICECONNECT_SOURCE" rev-parse HEAD)"
+[[ "$ACTUAL_VOICECONNECT_COMMIT" == "$VOICECONNECT_COMMIT" ]] || {
+  echo "ERROR: VoiceConnect source revision mismatch: $ACTUAL_VOICECONNECT_COMMIT" >&2; exit 2;
+}
+VOICECONNECT_APP="$VOICECONNECT_SOURCE/voiceconnect-p2p"
+test -s "$VOICECONNECT_APP/package.json" && test -s "$VOICECONNECT_APP/package-lock.json" && test -s "$VOICECONNECT_APP/server.js"
+(cd "$VOICECONNECT_APP" && "$NPM_BINARY" ci --omit=dev --ignore-scripts)
+mkdir -p "$WORK/opt/voiceconnect" "$WORK/usr/local/lib/voiceconnect"
+cp -a "$VOICECONNECT_APP/." "$WORK/opt/voiceconnect/"
+install -m 0755 "$NODE_BINARY" "$WORK/usr/local/lib/voiceconnect/node"
+cat > "$WORK/usr/local/bin/voiceconnect-server" <<'EOF_VOICE'
+#!/bin/sh
+set -eu
+export HOST=127.0.0.1 PORT=8787 NODE_ENV=development
+export ALLOWED_ORIGINS=http://127.0.0.1:8787
+export VOICECONNECT_REGISTRY=/var/lib/voiceconnect/peers.json
+exec /usr/local/lib/voiceconnect/node /opt/voiceconnect/server.js
+EOF_VOICE
+chmod 0755 "$WORK/usr/local/bin/voiceconnect-server"
+python3 - "$WORK/opt/voiceconnect/BUILD-MANIFEST.json" "$VOICECONNECT_COMMIT" <<'PY_VOICE'
+import json, pathlib, sys
+path, commit = pathlib.Path(sys.argv[1]), sys.argv[2]
+path.write_text(json.dumps({
+    "schema":"voiceconnect-iso-bundle-v1",
+    "source_repository":"https://github.com/amerhwitat/test",
+    "source_commit":commit,
+    "node_requirement":">=24",
+    "local_listener":"127.0.0.1:8787",
+    "turn_credentials_embedded":False,
+    "production_signaling_configured":False
+}, indent=2) + "\\n")
+PY_VOICE
+
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
 python3 - "$ART" "$PAY" <<'PY'
