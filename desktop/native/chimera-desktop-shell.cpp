@@ -74,6 +74,12 @@ void launch_clicked(GtkButton*, gpointer data) {
       set_status("Host settings opened.");
       return;
     }
+  } else if (std::strcmp(action, "voiceconnect") == 0) {
+    if (spawn_command("/usr/share/chimera/aurora/voiceconnect-launcher.sh", nullptr) ||
+        spawn_command("xdg-open", "https://github.com/amerhwitat/test/tree/feat/voiceconnect-p2p-camera")) {
+      set_status("VoiceConnect launch requested; installed-package status is handled by its launcher.");
+      return;
+    }
   }
   set_status(std::string(action) +
              ": no supported host application is installed.");
@@ -367,6 +373,8 @@ void activate(GtkApplication* app, gpointer) {
       "Open a URL using the configured browser handler.", "browser"), 2, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(grid), app_card("⚙", "Settings",
       "Open host settings when the provider is installed.", "settings"), 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("🎙", "VoiceConnect",
+      "Launch an installed optional package or open its upstream project page.", "voiceconnect"), 1, 1, 1, 1);
 
   GtkWidget* footer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
   gtk_widget_add_css_class(footer, "footer");
