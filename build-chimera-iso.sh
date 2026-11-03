@@ -1468,6 +1468,23 @@ if d.get("mode_counts",{}).get("native") != len(expected_native):
 print(f"[COMMANDS] catalogued={len(rows)} native={len(actual_native)} compatibility={d['mode_counts'].get('compatibility-provider-required',0)}")
 PYCOMMANDS
 }
+build_sdk(){
+  log_info "Compiling and testing the Chimera developer SDK"
+  CHIMERA_SDK_BUILD_DIR="$BUILD_DIR/sdk" \
+    CHIMERA_SDK_DESTDIR="$ROOTFS_DIR" \
+    CHIMERA_SDK_PREFIX="/opt/chimera-sdk" \
+    bash "$SCRIPT_DIR/sdk/tools/build-sdk.sh"
+  [[ -s "$ROOTFS_DIR/opt/chimera-sdk/include/chimera/sdk.h" ]] || {
+    log_error "SDK headers were not staged into the ISO rootfs"; return 1;
+  }
+  find "$ROOTFS_DIR/opt/chimera-sdk" -maxdepth 3 -type f -print | sort \
+    > "$LOG_DIR/sdk-staged-files.txt"
+  [[ -s "$LOG_DIR/sdk-staged-files.txt" ]] || {
+    log_error "SDK staging manifest is empty"; return 1;
+  }
+  log_success "SDK compiled, tested and staged at /opt/chimera-sdk"
+}
+
 build_command_runtime(){
   log_info "Compiling and staging native command multicall binary and compatibility registry"
   CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
@@ -1515,7 +1532,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands sdk docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1524,6 +1541,7 @@ main(){
       docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
+      sdk) run_stage sdk build_sdk;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
