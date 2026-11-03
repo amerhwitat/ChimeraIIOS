@@ -27,7 +27,7 @@ while true; do
         fi
         break ;;
       4) exec sudo -i ;;
-      5) systemctl reboot ;;
+      5) sudo systemctl reboot ;;
       *) echo "Choose a listed action."; break ;;
     esac
   done
