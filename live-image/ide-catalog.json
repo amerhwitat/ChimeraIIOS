@@ -1,0 +1,98 @@
+{
+  "schema": "aurora-ide-bundle-v1",
+  "title": "Open-source IDE and developer tool bundle",
+  "source": "Debian Trixie main repository",
+  "policy": "Installed packages are built from Debian's signed repositories. Package presence is not a claim that every project language or target SDK is preconfigured.",
+  "packages": [
+    {
+      "id": "geany",
+      "name": "Geany",
+      "package": "geany",
+      "license": "GPL-2.0-or-later",
+      "category": "IDE"
+    },
+    {
+      "id": "geany-plugins",
+      "name": "Geany Plugins",
+      "package": "geany-plugins",
+      "license": "GPL-2.0-or-later",
+      "category": "IDE extensions"
+    },
+    {
+      "id": "gnome-builder",
+      "name": "GNOME Builder",
+      "package": "gnome-builder",
+      "license": "GPL-3.0-or-later",
+      "category": "IDE"
+    },
+    {
+      "id": "kdevelop",
+      "name": "KDevelop",
+      "package": "kdevelop",
+      "license": "GPL-2.0-or-later",
+      "category": "IDE"
+    },
+    {
+      "id": "thonny",
+      "name": "Thonny",
+      "package": "thonny",
+      "license": "MIT",
+      "category": "Python IDE"
+    },
+    {
+      "id": "idle",
+      "name": "IDLE",
+      "package": "idle",
+      "license": "PSF",
+      "category": "Python IDE"
+    },
+    {
+      "id": "lazarus",
+      "name": "Lazarus IDE",
+      "package": "lazarus",
+      "license": "GPL-2.0-or-later with component licenses",
+      "category": "Pascal IDE"
+    },
+    {
+      "id": "emacs",
+      "name": "GNU Emacs",
+      "package": "emacs-gtk",
+      "license": "GPL-3.0-or-later",
+      "category": "Extensible IDE"
+    },
+    {
+      "id": "vim",
+      "name": "Vim GTK",
+      "package": "vim-gtk3",
+      "license": "Vim license",
+      "category": "Extensible IDE"
+    },
+    {
+      "id": "scite",
+      "name": "SciTE",
+      "package": "scite",
+      "license": "HPND",
+      "category": "Programmer editor"
+    },
+    {
+      "id": "bluefish",
+      "name": "Bluefish",
+      "package": "bluefish",
+      "license": "GPL-3.0-or-later",
+      "category": "Web development IDE"
+    }
+  ],
+  "toolchain": [
+    "build-essential",
+    "cmake",
+    "ninja-build",
+    "git",
+    "gdb",
+    "clang",
+    "lld",
+    "pkg-config",
+    "nasm",
+    "binutils"
+  ],
+  "note": "These are packaged binary IDEs from Debian; the ISO builder does not claim to rebuild every upstream IDE from source."
+}
