@@ -1,0 +1,67 @@
+{
+  "schema": "CHIMERA-NETWORK-STACK-1",
+  "kernel_backend": "Linux kernel networking in live edition; Koronos native network stack is not yet integrated",
+  "base": [
+    "IPv4",
+    "IPv6",
+    "TCP",
+    "UDP",
+    "ICMP",
+    "ICMPv6",
+    "ARP",
+    "NDP",
+    "DHCPv4",
+    "DHCPv6",
+    "DNS",
+    "SLAAC"
+  ],
+  "cli": [
+    "ip",
+    "ss",
+    "bridge",
+    "tc",
+    "nft",
+    "ethtool",
+    "ping",
+    "traceroute",
+    "tcpdump",
+    "resolvectl"
+  ],
+  "routing": [
+    "static",
+    "policy-routing",
+    "ECMP",
+    "RIP",
+    "RIPng",
+    "OSPFv2",
+    "OSPFv3",
+    "IS-IS",
+    "BGP",
+    "BFD",
+    "VRRP",
+    "PIM",
+    "MPLS",
+    "Segment-Routing-v6",
+    "VXLAN",
+    "GRE"
+  ],
+  "sdn": [
+    "OpenFlow",
+    "Open vSwitch",
+    "P4Runtime-tooling",
+    "NETCONF",
+    "RESTCONF",
+    "gNMI"
+  ],
+  "security": [
+    "nftables",
+    "WireGuard",
+    "IPsec",
+    "OpenVPN"
+  ],
+  "daemons": [
+    "FRRouting",
+    "BIRD"
+  ],
+  "policy": "Do not enable dynamic routing daemons by default. Install tooling, require explicit configuration, and apply versioned/atomic route policy."
+}
