@@ -5,6 +5,11 @@ on:
     branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
     paths:
       - 'live-image/**'
+      - 'boot/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'install/installation-manifest.json'
+      - 'docs/BOOT_TARGETS.md'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -16,6 +21,11 @@ on:
   pull_request:
     paths:
       - 'live-image/**'
+      - 'boot/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'install/installation-manifest.json'
+      - 'docs/BOOT_TARGETS.md'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -60,7 +70,8 @@ jobs:
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
           bash -n live-image/build.sh boot/spitfire/build-spitfire.sh tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh
           bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh desktop/aurora/aurora-init-splash.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
-          python3 -m json.tool install/installation-manifest.json >/dev/null\n          python3 -m json.tool boot/boot-menu-contract.json >/dev/null
+          python3 -m json.tool install/installation-manifest.json >/dev/null
+          python3 -m json.tool boot/boot-menu-contract.json >/dev/null
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
           if [[ "chimera" == "chimera" ]]; then
             python3 -m json.tool applications/catalog.json >/dev/null
