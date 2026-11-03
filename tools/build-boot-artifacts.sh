@@ -178,7 +178,7 @@ else
   exit 2
 fi
 
-find "$BUILD_DIR" -type f \( -name "*.elf" -o -name "*.bin" -o -name "*.efi" -o -name "*.img" \) -not -path "$BUILD_DIR/iso/*" -not -path "$BUILD_DIR/boot-artifacts/*" -print0 2>/dev/null | while IFS= read -r -d "" f; do
+find "$BUILD_DIR" -type f \( -name "*.elf" -o -name "*.bin" -o -name "*.efi" -o -name "*.img" \) -not -path "$BUILD_DIR/iso/*" -not -path "$BUILD_DIR/native-iso/*" -not -path "$BUILD_DIR/boot-artifacts/*" -print0 2>/dev/null | while IFS= read -r -d "" f; do
   base="$(basename "$f")"
   case "$f" in *.elf) cp -f "$f" "$OUT/all-elf/$base";; *) cp -f "$f" "$OUT/all-bin/$base";; esac
 done
@@ -187,7 +187,7 @@ cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
 cp -f "$OUT/uefi/BOOTX64.EFI" "$OUT/all-bin/BOOTX64.EFI"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
-find "$BUILD_DIR" -type f -not -path "$BUILD_DIR/iso/*" -not -path "$BUILD_DIR/boot-artifacts/*" -not -path "$BUILD_DIR/full/cmake/*" -not -path "$BUILD_DIR/*/CMakeFiles/*" -print0 2>/dev/null |
+find "$BUILD_DIR" -type f -not -path "$BUILD_DIR/iso/*" -not -path "$BUILD_DIR/native-iso/*" -not -path "$BUILD_DIR/boot-artifacts/*" -not -path "$BUILD_DIR/full/cmake/*" -not -path "$BUILD_DIR/*/CMakeFiles/*" -print0 2>/dev/null |
 while IFS= read -r -d "" f; do
   kind="$(file -b "$f" 2>/dev/null || true)"
   case "$kind" in
