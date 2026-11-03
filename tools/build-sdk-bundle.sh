@@ -25,11 +25,15 @@ jobs = [
     ("sdk/rust/chimera-runtime/Cargo.toml", ["cargo","build","--manifest-path",str(root/"sdk/rust/chimera-runtime/Cargo.toml"),"--release"], "cargo")
 ]
 for rel, cmd, tool in jobs:
-    if shutil.which(tool):
+    available = bool(shutil.which(tool))
+    if tool == "dotnet" and available:
+        installed = subprocess.check_output(["dotnet","--list-sdks"],text=True,stderr=subprocess.DEVNULL)
+        available = any(line.split()[0].startswith("10.") for line in installed.splitlines() if line.split())
+    if available:
         subprocess.run(cmd, cwd=root, check=True)
         status["optional_builds"][rel] = "passed"
     else:
-        status["optional_builds"][rel] = "skipped-toolchain-unavailable"
+        status["optional_builds"][rel] = "skipped-compatible-toolchain-unavailable"
 subprocess.run([sys.executable,"-m","compileall","-q",str(root/"sdk/python")],check=True)
 status["optional_builds"]["sdk/python"] = "passed"
 if shutil.which("gnustep-config") and shutil.which("clang"):
