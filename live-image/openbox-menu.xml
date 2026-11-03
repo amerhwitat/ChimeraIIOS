@@ -12,6 +12,10 @@
       <item label="Vim GTK"><action name="Execute"><command>gvim</command></action></item>
       <item label="SciTE"><action name="Execute"><command>scite</command></action></item>
       <item label="Bluefish"><action name="Execute"><command>bluefish</command></action></item>
+      <item label="Code::Blocks"><action name="Execute"><command>codeblocks</command></action></item>
+      <item label="Qt Creator"><action name="Execute"><command>qtcreator</command></action></item>
+      <item label="Arduino IDE"><action name="Execute"><command>arduino</command></action></item>
+      <item label="Free Pascal IDE"><action name="Execute"><command>fp</command></action></item>
     </menu>
     <separator/>
     <item label="Terminal"><action name="Execute"><command>xterm</command></action></item>
