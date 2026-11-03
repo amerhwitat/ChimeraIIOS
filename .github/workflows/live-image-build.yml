@@ -205,7 +205,7 @@ jobs:
           # Export the complete boot tree separately so Spit Fire binaries,
           # Jasper/Gates menus, candidate runtimes and checksums are individually
           # available alongside the ISO.
-          mkdir -p "$OUT_DIR/boot-artifacts"
+          mkdir -p "$OUT_DIR/boot-artifacts/live"
           xorriso -osirrox on -indev "$iso" -extract /boot "$OUT_DIR/boot-artifacts/boot" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /live/vmlinuz "$OUT_DIR/boot-artifacts/live/vmlinuz" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /live/initrd.img "$OUT_DIR/boot-artifacts/live/initrd.img" >/dev/null
@@ -282,7 +282,7 @@ jobs:
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
           tag="chimera-ii-os-live-${version}-desktop-${short}"
-          gh release create "$tag" "$iso" "$checksum" "$report" \
+          gh release create "$tag" "$iso" "$checksum" "$report" "$boot_assets" "$boot_assets_sha" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Chimera II OS ${version} — Jasper multi-target boot and verbose SVGA desktop" \
             --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. GRUB routes through Spit Fire, Gates and Jasper; the boot-artifacts archive contains Spit Fire SF0/SF1/SF2 binaries, menus, native Installer/Recovery candidate images and checksums. The Linux Live ISO prefers 5120x2880 with supported SVGA fallbacks, preserves the framebuffer, and enables verbose kernel/systemd diagnostics. The ISO embeds a validated native Koronos Multiboot2 ELF; QEMU verifies its early entry/idle-loop markers, not CPL3 userspace readiness or production-kernel acceptance. Installer mode remains fail-closed until OS-specific installation modules are provided; Recovery is read-only-first. The default Live edition uses the Debian Linux kernel. Physical-machine boot is not certified by this workflow. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source; catalog-only entries are not represented as installed applications."
