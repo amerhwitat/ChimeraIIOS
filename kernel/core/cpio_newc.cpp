@@ -48,19 +48,21 @@ static bool safe_name(const char *name, uint32_t size, uint32_t mode,
         return true;
     }
 
+    uint32_t path_size = (uint32_t)__builtin_strlen(path);
+    if (path_size && path[path_size - 1u] == '/') {
+        if ((mode & S_IFMT) != S_IFDIR) return false;
+        --path_size;
+    }
+    if (!path_size) return false;
     uint32_t component_start = 0;
-    for (uint32_t i = 0; path[i]; ++i) {
-        if (path[i] != '/') continue;
+    for (uint32_t i = 0; i <= path_size; ++i) {
+        if (i != path_size && path[i] != '/') continue;
         const uint32_t length = i - component_start;
         if (length == 0u || (length == 1u && path[component_start] == '.') ||
             (length == 2u && path[component_start] == '.' && path[component_start + 1u] == '.'))
             return false;
         component_start = i + 1u;
     }
-    const uint32_t length = (uint32_t)__builtin_strlen(path) - component_start;
-    if (length == 0u || (length == 1u && path[component_start] == '.') ||
-        (length == 2u && path[component_start] == '.' && path[component_start + 1u] == '.'))
-        return false;
     *normalized = path;
     return true;
 }
