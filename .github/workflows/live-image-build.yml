@@ -35,7 +35,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: live-image-chimera-${{ github.ref }}
+  group: live-image-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
