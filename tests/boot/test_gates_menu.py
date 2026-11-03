@@ -11,6 +11,19 @@ class GatesMenuContractTests(unittest.TestCase):
         self.assertIn("configfile /boot/gates/gates.cfg", jasper)
         self.assertIn("configfile /boot/gates/gates.cfg", grub)
 
+    def test_jasper_and_gates_are_single_top_level_grub_entries(self):
+        grub = (ROOT / "boot/iso/grub.cfg").read_text()
+        self.assertEqual(grub.count("--id jasper"), 1)
+        self.assertEqual(grub.count("--id gates"), 1)
+        jasper_at = grub.index('--id jasper')
+        firmware_guards = [i for i in range(len(grub))
+                           if grub.startswith('if [ "$grub_platform" = efi ]; then', i)]
+        self.assertGreaterEqual(len(firmware_guards), 2)
+        # The Jasper menu must precede the EFI-only submenu block so BIOS users
+        # can also enter Jasper. The first guard only loads EFI GRUB modules.
+        self.assertLess(jasper_at, firmware_guards[1])
+        self.assertIn("configfile /boot/jasper/jasper.cfg", grub)
+
     def test_gates_menu_is_staged_and_verified(self):
         build = (ROOT / "build-chimera-iso.sh").read_text()
         self.assertIn('"$SCRIPT_DIR/boot/gates"', build)
