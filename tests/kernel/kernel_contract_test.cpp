@@ -1,8 +1,105 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
+#include "chimera/cpio_newc.h"
 #include "chimera/interrupt.h"
 #include "chimera/service.h"
+
+namespace {
+struct ArchiveEntry {
+    const char* name;
+    uint32_t mode;
+    const char* data;
+    uint32_t size;
+    bool crc;
+    uint32_t check_override;
+};
+void pad4(std::vector<uint8_t>& out) {
+    while (out.size() & 3u) out.push_back(0);
+}
+void append_entry(std::vector<uint8_t>& out, const ArchiveEntry& entry) {
+    char header[111]{};
+    std::memcpy(header, entry.crc ? "070702" : "070701", 6);
+    const uint32_t namesize = static_cast<uint32_t>(std::strlen(entry.name) + 1u);
+    uint32_t sum = 0;
+    for (uint32_t i = 0; i < entry.size; ++i)
+        sum += static_cast<uint8_t>(entry.data[i]);
+    const uint32_t fields[13] = {
+        1u, entry.mode, 0u, 0u, 1u, 0u, entry.size,
+        0u, 0u, 0u, 0u, namesize,
+        entry.check_override == UINT32_MAX ? (entry.crc ? sum : 0u) : entry.check_override
+    };
+    for (uint32_t i = 0; i < 13u; ++i)
+        std::snprintf(header + 6u + i * 8u, 9u, "%08X", fields[i]);
+    out.insert(out.end(), header, header + 110);
+    out.insert(out.end(), entry.name, entry.name + namesize);
+    pad4(out);
+    if (entry.size)
+        out.insert(out.end(), entry.data, entry.data + entry.size);
+    pad4(out);
+}
+struct Visitor {
+    std::vector<std::string> paths;
+    uint32_t files = 0;
+    uint32_t directories = 0;
+};
+int visit(void* opaque, const char* path, uint32_t mode, uint32_t,
+          uint32_t, const void*, uint32_t) {
+    auto& visitor = *static_cast<Visitor*>(opaque);
+    for (const auto& old : visitor.paths)
+        if (old == path) return -1; // VFS duplicate-path policy.
+    visitor.paths.emplace_back(path);
+    if ((mode & 0170000u) == 0100000u) ++visitor.files;
+    if ((mode & 0170000u) == 0040000u) ++visitor.directories;
+    const auto good = archive({
+        {"./", 0040755u, "", 0u, false, UINT32_MAX},
+        {"./init", 0100755u, "hello", 5u, false, UINT32_MAX},
+        {"./etc", 0040755u, "", 0u, false, UINT32_MAX}
+    });
+    Visitor visitor;
+    chimera_cpio_newc_ops ops{visit};
+    chimera_cpio_newc_summary summary{};
+    assert(chimera_cpio_newc_walk(good.data(), good.size(), &ops, &visitor, &summary) == 0);
+    assert(summary.abi == CHIMERA_CPIO_NEWC_ABI);
+    assert(summary.entries == 3u && summary.regular_files == 1u && summary.directories == 2u);
+    assert(summary.data_bytes == 5u && visitor.files == 1u && visitor.directories == 2u);
+    assert(visitor.paths[0].empty());
+    assert(visitor.paths[1] == "init");
+
+    const auto traversal = archive({{"../escape", 0100644u, "x", 1u, false, UINT32_MAX}});
+    Visitor bad_path;
+    assert(chimera_cpio_newc_walk(traversal.data(), traversal.size(), &ops, &bad_path, &summary) == -4);
+    const auto absolute = archive({{"/etc/passwd", 0100644u, "x", 1u, false, UINT32_MAX}});
+    assert(chimera_cpio_newc_walk(absolute.data(), absolute.size(), &ops, &bad_path, &summary) == -4);
+
+    const auto bad_crc = archive({{"./init", 0100755u, "hello", 5u, true, 0u}});
+    assert(chimera_cpio_newc_walk(bad_crc.data(), bad_crc.size(), &ops, &bad_path, &summary) == -7);
+    const auto unsupported = archive({{"./dev/null", 0020666u, "", 0u, false, UINT32_MAX}});
+    assert(chimera_cpio_newc_walk(unsupported.data(), unsupported.size(), &ops, &bad_path, &summary) == -6);
+    const auto duplicate = archive({
+        {"./init", 0100755u, "a", 1u, false, UINT32_MAX},
+        {"./init", 0100755u, "b", 1u, false, UINT32_MAX}
+    });
+    Visitor duplicate_visitor;
+    assert(chimera_cpio_newc_walk(duplicate.data(), duplicate.size(), &ops, &duplicate_visitor, &summary) == -9);
+    assert(summary.entries == 1u);
+
+    auto truncated = good;
+    truncated.pop_back();
+    assert(chimera_cpio_newc_walk(truncated.data(), truncated.size(), &ops, &bad_path, &summary) == -5);
+    return 0;
+}
+std::vector<uint8_t> archive(std::initializer_list<ArchiveEntry> entries) {
+    std::vector<uint8_t> out;
+    for (const auto& entry : entries) append_entry(out, entry);
+    append_entry(out, {"TRAILER!!!", 0u, "", 0u, false, UINT32_MAX});
+    return out;
+}
+}
 
 int main() {
     static_assert(offsetof(chimera_interrupt_frame, vector) == 120u);
