@@ -59,4 +59,7 @@ if [[ -d "$ROOT/sdk/csharp/bin/Release" ]]; then
   mkdir -p "$DEST/rootfs/opt/chimera-sdk/lib/dotnet"
   find "$ROOT/sdk/csharp/bin/Release" -type f \( -name '*.dll' -o -name '*.xml' \) -exec cp -f {} "$DEST/rootfs/opt/chimera-sdk/lib/dotnet/" \;
 fi
+if [[ -s "$BUILD/chimera-sdk-objc.o" ]]; then
+  install -D -m 0644 "$BUILD/chimera-sdk-objc.o" "$DEST/rootfs/opt/chimera-sdk/lib/objective-c/chimera-sdk-objc.o"
+fi
 printf 'SDK bundle staged at %s/rootfs/opt/chimera-sdk\n' "$DEST"
