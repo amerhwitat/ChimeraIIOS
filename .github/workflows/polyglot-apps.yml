@@ -24,7 +24,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y default-jdk-headless maven python3-tk
           python -m pip install --upgrade pip pyinstaller
-      - name: Compile Python sources and validate Java and Web toolchains
+      - name: Compile sources and build Linux applications
         run: |
           set -euo pipefail
           python tools/polyglot_apps.py --root . --output build/polyglot-linux --platform linux --build
@@ -33,9 +33,10 @@ jobs:
           data=json.loads(pathlib.Path('build/polyglot-linux/polyglot-apps.json').read_text())
           for app in data['python']:
               py_compile.compile(app['source'], doraise=True)
-          print('Compiled',len(data['python']),'first-party Python source files')
-          print('Java source files:',data['java_source_count'],'build:',data['java_build'])
-          print('Web source files:',data['web_source_count'])
+          assert data['panel_build']=='built', data.get('panel_build_log','GUI panel was not built')
+          print('Compiled',len(data['python']),'first-party Python sources')
+          print('Java sources:',data['java_source_count'],'Java build:',data['java_build'])
+          print('Web sources:',data['web_source_count'])
           PY
           while IFS= read -r -d '' file; do node --check "$file"; done < <(find . -path '*/vendor/*' -prune -o -path '*/node_modules/*' -prune -o -path '*/.git/*' -prune -o -name '*.js' -type f -print0)
           test -s build/polyglot-linux/polyglot-apps.json
@@ -51,9 +52,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build Windows GUI executables with PyInstaller
+      - name: Install PyInstaller
         run: python -m pip install --upgrade pip pyinstaller
-      - name: Compile Python sources and package Windows entrypoints
+      - name: Build Windows GUI executables
         shell: pwsh
         run: |
           python tools/polyglot_apps.py --root . --output build/polyglot-windows --platform windows --build
@@ -62,9 +63,11 @@ jobs:
           data=json.loads(pathlib.Path('build/polyglot-windows/polyglot-apps.json').read_text())
           for app in data['python']:
               py_compile.compile(app['source'], doraise=True)
-          print('Compiled',len(data['python']),'first-party Python source files')
+          assert data['panel_build']=='built', data.get('panel_build_log','GUI panel was not built')
+          print('Compiled',len(data['python']),'first-party Python sources')
           PY
           if (!(Test-Path build/polyglot-windows/polyglot-apps.json)) { throw "Missing manifest" }
+          if (!(Test-Path build/polyglot-windows/dist/PolyglotAppsPanel.exe)) { throw "Missing Windows Apps Panel executable" }
       - uses: actions/upload-artifact@v4
         with:
           name: polyglot-windows-executables
