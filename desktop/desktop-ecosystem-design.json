@@ -1,0 +1,167 @@
+{
+  "schema": "CHIMERA-OS-ECOSYSTEM-DESKTOP-DESIGN-1",
+  "reference": {
+    "user_upload": "Futuristic OS Ecosystem Showcase(2).png",
+    "dimensions": "1536x1024",
+    "role": "visual-design-reference",
+    "license": "user-provided reference; do not redistribute outside project"
+  },
+  "designTokens": {
+    "surface": "#061426",
+    "panel": "#0b2038cc",
+    "glass": "#102943cc",
+    "line": "#89eaf055",
+    "accent": "#58e9ff",
+    "violet": "#a18cff",
+    "text": "#eff7ff",
+    "muted": "#a9bed5",
+    "radius": "16px",
+    "blur": "18px",
+    "shadow": "0 18px 50px #0008"
+  },
+  "sharedComponents": [
+    "wallpaper-stage",
+    "desktop-brand-header",
+    "clock-weather-widget",
+    "left-rail-shortcuts",
+    "glass-start-menu",
+    "application-dock",
+    "quick-settings",
+    "wallpaper-gallery",
+    "screensaver-gallery",
+    "media-panel",
+    "desktop-shortcut-manager",
+    "language-input-switcher"
+  ],
+  "desktops": [
+    {
+      "id": "chimera",
+      "name": "ChimeraIIOS Desktop",
+      "owner": "ChimeraIIOS",
+      "wallpaper": "alpine-lake-dusk",
+      "menu": "glass-start",
+      "dock": "centered-glass",
+      "accent": "#55c7ff",
+      "features": [
+        "applications",
+        "system",
+        "settings",
+        "games",
+        "network",
+        "power",
+        "media"
+      ]
+    },
+    {
+      "id": "octavian",
+      "name": "OctavianOS Desktop",
+      "owner": "OctavianOS",
+      "wallpaper": "cosmic-planet-sunrise",
+      "menu": "glass-start",
+      "dock": "centered-glass",
+      "accent": "#258cff",
+      "features": [
+        "applications",
+        "system",
+        "office",
+        "multimedia",
+        "internet",
+        "settings",
+        "power"
+      ]
+    },
+    {
+      "id": "aurora",
+      "name": "Aurora Desktop",
+      "owner": "ChimeraIIOS",
+      "wallpaper": "green-aurora-alpine-lake",
+      "menu": "glass-start",
+      "dock": "centered-glass",
+      "accent": "#35e5d0",
+      "features": [
+        "graphics",
+        "media",
+        "development",
+        "games",
+        "system",
+        "settings",
+        "power"
+      ]
+    },
+    {
+      "id": "koronos",
+      "name": "Koronos Desktop",
+      "owner": "ChimeraIIOS",
+      "wallpaper": "city-night",
+      "menu": "glass-start",
+      "dock": "centered-glass",
+      "accent": "#54baff",
+      "features": [
+        "applications",
+        "office",
+        "system",
+        "administration",
+        "network",
+        "security",
+        "settings",
+        "power"
+      ]
+    },
+    {
+      "id": "nova",
+      "name": "Nova Desktop",
+      "owner": "ChimeraIIOS",
+      "wallpaper": "blue-alpine-lake",
+      "menu": "glass-start",
+      "dock": "centered-glass",
+      "accent": "#38dca2",
+      "features": [
+        "applications",
+        "internet",
+        "multimedia",
+        "productivity",
+        "graphics",
+        "utilities",
+        "settings",
+        "power"
+      ]
+    },
+    {
+      "id": "mobile",
+      "name": "Mobile OS",
+      "owner": "ChimeraIIOS+OctavianOS",
+      "wallpaper": "coastal-mountain",
+      "menu": "touch-launcher",
+      "dock": "touch-dock",
+      "accent": "#4ebdff",
+      "features": [
+        "browser",
+        "mail",
+        "calendar",
+        "photos",
+        "camera",
+        "maps",
+        "music",
+        "videos",
+        "settings",
+        "files"
+      ]
+    }
+  ],
+  "interaction": {
+    "desktopShortcuts": {
+      "create": true,
+      "application": true,
+      "document": true,
+      "webLink": true,
+      "dragDrop": true,
+      "rename": true,
+      "remove": true,
+      "contextMenu": true,
+      "persistence": "per-origin local storage in browser prototypes; native shell persistence requires desktop-session integration"
+    },
+    "menu": "click-to-open; right-click context menu; keyboard accessible",
+    "dock": "pinned apps and user shortcuts",
+    "mobile": "touch targets >=44px"
+  }
+}
