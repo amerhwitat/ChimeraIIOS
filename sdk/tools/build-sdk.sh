@@ -33,6 +33,57 @@ else
 fi
 PYTHONPYCACHEPREFIX="$BUILD/python-pycache" python3 -m compileall -q "$ROOT/python/chimera_sdk"
 
+# Optional frontends advertised by the repository language registry. Build a
+# real smoke artifact when the upstream compiler exists; never download a
+# toolchain or silently claim a skipped language was built.
+SMOKE="$BUILD/toolchain-smoke"
+mkdir -p "$SMOKE"
+: > "$SMOKE/status.txt"
+
+if command -v clang >/dev/null 2>&1 && command -v gnustep-config >/dev/null 2>&1; then
+  read -r -a OBJC_FLAGS <<< "$(gnustep-config --objc-flags)"
+  clang "\${OBJC_FLAGS[@]}" -I"$ROOT/objective-c" -c "$ROOT/objective-c/ChimeraSDK.m" -o "$SMOKE/chimera-objective-c.o"
+  echo "objective-c=PASS (GNUstep Foundation)" >> "$SMOKE/status.txt"
+elif command -v xcrun >/dev/null 2>&1 && command -v clang >/dev/null 2>&1; then
+  if OBJC_SDK="$(xcrun --sdk macosx --show-sdk-path 2>/dev/null)"; then
+    clang -fobjc-arc -isysroot "$OBJC_SDK" -I"$ROOT/objective-c" -c "$ROOT/objective-c/ChimeraSDK.m" -o "$SMOKE/chimera-objective-c.o"
+    echo "objective-c=PASS (Apple Foundation SDK)" >> "$SMOKE/status.txt"
+  else
+    echo "objective-c=SKIP (Foundation SDK unavailable)" >> "$SMOKE/status.txt"
+  fi
+else
+  echo "objective-c=SKIP (GNUstep or Apple Foundation SDK unavailable)" >> "$SMOKE/status.txt"
+fi
+
+if command -v zig >/dev/null 2>&1; then
+  zig build-obj "$ROOT/tests/toolchain-smoke/smoke.zig" -O ReleaseFast -femit-bin="$SMOKE/chimera-zig-smoke.o"
+  echo "zig=PASS" >> "$SMOKE/status.txt"
+else
+  echo "zig=SKIP (zig compiler unavailable)" >> "$SMOKE/status.txt"
+fi
+if command -v go >/dev/null 2>&1; then
+  go build -o "$SMOKE/chimera-go-smoke" "$ROOT/tests/toolchain-smoke/main.go"
+  echo "go=PASS" >> "$SMOKE/status.txt"
+else
+  echo "go=SKIP (go compiler unavailable)" >> "$SMOKE/status.txt"
+fi
+if command -v gfortran >/dev/null 2>&1; then
+  gfortran -c "$ROOT/tests/toolchain-smoke/smoke.f90" -o "$SMOKE/chimera-fortran-smoke.o"
+  echo "fortran=PASS" >> "$SMOKE/status.txt"
+else
+  echo "fortran=SKIP (gfortran unavailable)" >> "$SMOKE/status.txt"
+fi
+if command -v swiftc >/dev/null 2>&1; then
+  swiftc -emit-library -emit-module -module-name ChimeraSDKSmoke \
+    -emit-module-path "$SMOKE/ChimeraSDKSmoke.swiftmodule" \
+    "$ROOT/tests/toolchain-smoke/smoke.swift" -o "$SMOKE/libchimera-swift-smoke.so"
+  echo "swift=PASS" >> "$SMOKE/status.txt"
+else
+  echo "swift=SKIP (swiftc unavailable)" >> "$SMOKE/status.txt"
+fi
+cat "$SMOKE/status.txt"
+
+
 if [[ -n "$DESTDIR" ]]; then
   mkdir -p "$DESTDIR"
   DESTDIR="$DESTDIR" cmake --install "$BUILD/cmake-sdk" --prefix "$PREFIX"
@@ -51,6 +102,10 @@ if [[ -n "$DESTDIR" ]]; then
   fi
   if [[ -s "$BUILD/rust-target/release/libchimera_runtime.so" ]]; then
     install -D -m 0644 "$BUILD/rust-target/release/libchimera_runtime.so" "$DESTDIR$PREFIX/lib/libchimera_runtime.so"
+  fi
+  if [[ -s "$SMOKE/status.txt" ]]; then
+    mkdir -p "$DESTDIR$PREFIX/share/chimera/toolchain-smoke"
+    cp -a "$SMOKE/." "$DESTDIR$PREFIX/share/chimera/toolchain-smoke/"
   fi
 fi
 
