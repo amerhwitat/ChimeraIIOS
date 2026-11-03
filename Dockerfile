@@ -104,7 +104,8 @@ RUN set -eux; \
     useradd -m -u 10001 appuser; \
     usermod -aG sudo appuser; \
     passwd -l root; \
-    mkdir -p /media /mnt /dev /proc /sys /tmp; chmod 1777 /tmp; \
+    mkdir -p /etc/sudoers.d /media /mnt /dev /proc /sys /tmp; chmod 1777 /tmp; \
+    printf 'appuser ALL=(ALL) NOPASSWD:ALL\\n' > /etc/sudoers.d/90-appuser; chmod 0440 /etc/sudoers.d/90-appuser; \
     chown -R appuser:appuser /app; \
     chown root:root /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
     chmod 0755 /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
