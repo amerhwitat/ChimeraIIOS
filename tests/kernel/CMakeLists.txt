@@ -95,6 +95,7 @@ add_test(NAME chimera_elf64_admission COMMAND chimera_elf64_admission_test)
 add_executable(chimera_kernel_contract_test
   kernel_contract_test.cpp
   ../../kernel/core/service.cpp
+  ../../kernel/core/cpio_newc.cpp
 )
 target_include_directories(chimera_kernel_contract_test PRIVATE
   ${CMAKE_SOURCE_DIR}/kernel/include
