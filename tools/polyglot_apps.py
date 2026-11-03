@@ -72,7 +72,9 @@ def build(root,out,platform):
     (out/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n")
     panel=out/"polyglot-panel.py"
     panel.write_text("""import os,pathlib,runpy,sys
-if sys.platform.startswith("linux"): os.environ.setdefault("CHIMERA_WINDOWS_APPS_DIR","/opt/aurora/apps/polyglot/windows")
+if sys.platform.startswith("linux"):
+ os.environ.setdefault("CHIMERA_WINDOWS_APPS_DIR","/opt/aurora/apps/polyglot/windows")
+ os.environ.setdefault("CHIMERA_LINUX_APPS_DIR","/opt/aurora/apps/polyglot/linux")
 base=pathlib.Path(getattr(sys,"_MEIPASS",pathlib.Path(__file__).resolve().parent))
 sys.argv=["polyglot_apps.py","--gui","--root",str(base/"python-source"),"--manifest",str(base/"polyglot-apps.json")]
 runpy.run_path(str(base/"python-source"/"tools"/"polyglot_apps.py"),run_name="__main__")
@@ -96,8 +98,8 @@ def gui(root,manifest):
         item={"kind":"java-source","name":pathlib.Path(source).name,"source":source};apps.append(item);listing.insert("end",item["name"]+" — Java source")
     for source in data.get("web_sources",[]):
         item={"kind":"web-source","name":pathlib.Path(source).name,"source":source};apps.append(item);listing.insert("end",item["name"]+" — Web source")
-    windows_dir=pathlib.Path(os.environ.get("CHIMERA_WINDOWS_APPS_DIR",str(manifest.parent/"windows")) )
-    windows_apps=sorted(windows_dir.glob("*.exe")) if windows_dir.is_dir() else []
+    windows_dir=(pathlib.Path(sys.executable).resolve().parent if sys.platform=="win32" else pathlib.Path(os.environ.get("CHIMERA_WINDOWS_APPS_DIR",str(manifest.parent/"windows"))))
+    windows_apps=sorted(x for x in windows_dir.glob("*.exe") if x.resolve()!=pathlib.Path(sys.executable).resolve()) if windows_dir.is_dir() else []
     for exe in windows_apps:listing.insert("end",exe.stem+" — Windows executable (Wine)")
     apps.extend([{"kind":"windows-exe","name":exe.stem,"source":str(exe)} for exe in windows_apps])
     def launch():
