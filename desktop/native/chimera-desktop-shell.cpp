@@ -10,6 +10,14 @@ namespace {
 const char* desktop_id = "aurora";
 bool self_test = false;
 GtkLabel* status_label = nullptr;
+GtkWidget* selected_app_card = nullptr;
+
+struct AppCardInfo {
+  std::string title;
+  std::string detail;
+  const char* action;
+  GtkLabel* title_label;
+};
 
 const char* desktop_name() {
   return std::strcmp(desktop_id, "marine") == 0
@@ -80,6 +88,145 @@ GtkWidget* action_button(const char* label, const char* action,
   return button;
 }
 
+
+AppCardInfo* card_info(GtkWidget* card) {
+  return static_cast<AppCardInfo*>(g_object_get_data(G_OBJECT(card), "chimera-app-card-info"));
+}
+
+void show_app_properties(GtkWidget* card) {
+  AppCardInfo* info = card_info(card);
+  if (!info) return;
+  GtkRoot* root = gtk_widget_get_root(card);
+  GtkWindow* parent = root && GTK_IS_WINDOW(root) ? GTK_WINDOW(root) : nullptr;
+  GtkWidget* dialog = gtk_message_dialog_new(
+      parent, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
+      "%s", info->title.c_str());
+  gtk_message_dialog_format_secondary_text(
+      GTK_MESSAGE_DIALOG(dialog), "%s\nAction: %s\n%s",
+      info->detail.c_str(), info->action,
+      "Shortcut properties describe this shell card; they are not filesystem metadata.");
+  g_signal_connect_swapped(dialog, "response", G_CALLBACK(gtk_window_destroy), dialog);
+  gtk_window_present(GTK_WINDOW(dialog));
+}
+
+void rename_response(GtkDialog* dialog, int response, gpointer) {
+  GtkWidget* card = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "chimera-card"));
+  GtkWidget* entry = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "chimera-rename-entry"));
+  AppCardInfo* info = card ? card_info(card) : nullptr;
+  if (response == GTK_RESPONSE_ACCEPT && info && entry) {
+    const char* value = gtk_editable_get_text(GTK_EDITABLE(entry));
+    if (value && value[0]) {
+      info->title = value;
+      gtk_label_set_text(info->title_label, info->title.c_str());
+      set_status("Shortcut label renamed in this desktop session.");
+    }
+  }
+  gtk_window_destroy(GTK_WINDOW(dialog));
+}
+
+void rename_app_card(GtkWidget* card) {
+  AppCardInfo* info = card_info(card);
+  if (!info) return;
+  GtkRoot* root = gtk_widget_get_root(card);
+  GtkWindow* parent = root && GTK_IS_WINDOW(root) ? GTK_WINDOW(root) : nullptr;
+  GtkWidget* dialog = gtk_dialog_new_with_buttons(
+      "Rename shortcut", parent, GTK_DIALOG_MODAL,
+      "_Cancel", GTK_RESPONSE_CANCEL, "_Rename", GTK_RESPONSE_ACCEPT, nullptr);
+  GtkWidget* entry = gtk_entry_new();
+  gtk_editable_set_text(GTK_EDITABLE(entry), info->title.c_str());
+  gtk_widget_set_margin_top(entry, 12);
+  gtk_widget_set_margin_bottom(entry, 12);
+  gtk_widget_set_margin_start(entry, 12);
+  gtk_widget_set_margin_end(entry, 12);
+  gtk_box_append(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), entry);
+  g_object_set_data(G_OBJECT(dialog), "chimera-card", card);
+  g_object_set_data(G_OBJECT(dialog), "chimera-rename-entry", entry);
+  g_signal_connect(dialog, "response", G_CALLBACK(rename_response), nullptr);
+  gtk_window_present(GTK_WINDOW(dialog));
+  gtk_widget_grab_focus(entry);
+  gtk_editable_select_region(GTK_EDITABLE(entry), 0, -1);
+}
+
+void context_open_clicked(GtkButton*, gpointer data) {
+  GtkWidget* card = GTK_WIDGET(data);
+  AppCardInfo* info = card_info(card);
+  if (info) launch_clicked(nullptr, const_cast<char*>(info->action));
+}
+void context_properties_clicked(GtkButton*, gpointer data) {
+  show_app_properties(GTK_WIDGET(data));
+}
+void context_rename_clicked(GtkButton*, gpointer data) {
+  rename_app_card(GTK_WIDGET(data));
+}
+void context_popover_closed(GtkPopover* popover, gpointer) {
+  gtk_widget_unparent(GTK_WIDGET(popover));
+}
+void show_app_context_menu(GtkWidget* card, double x, double y) {
+  GtkWidget* popover = gtk_popover_new();
+  GtkWidget* actions = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+  gtk_widget_add_css_class(actions, "context-actions");
+  gtk_popover_set_child(GTK_POPOVER(popover), actions);
+  gtk_widget_set_parent(popover, card);
+  const struct { const char* label; GCallback callback; } entries[] = {
+      {"Open", G_CALLBACK(context_open_clicked)},
+      {"Rename", G_CALLBACK(context_rename_clicked)},
+      {"Properties", G_CALLBACK(context_properties_clicked)}
+  };
+  for (const auto& entry : entries) {
+    GtkWidget* button = gtk_button_new_with_label(entry.label);
+    gtk_widget_add_css_class(button, "context-action");
+    g_signal_connect(button, "clicked", entry.callback, card);
+    gtk_box_append(GTK_BOX(actions), button);
+  }
+  GdkRectangle rect{static_cast<int>(x), static_cast<int>(y), 1, 1};
+  gtk_popover_set_pointing_to(GTK_POPOVER(popover), &rect);
+  g_signal_connect(popover, "closed", G_CALLBACK(context_popover_closed), nullptr);
+  gtk_popover_popup(GTK_POPOVER(popover));
+}
+void card_pointer_pressed(GtkGestureClick* gesture, int n_press,
+                          double x, double y, gpointer data) {
+  GtkWidget* card = GTK_WIDGET(data);
+  selected_app_card = card;
+  if (gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(gesture)) == GDK_BUTTON_SECONDARY) {
+    show_app_context_menu(card, x, y);
+    return;
+  }
+  if (n_press == 2) {
+    AppCardInfo* info = card_info(card);
+    if (info) launch_clicked(nullptr, const_cast<char*>(info->action));
+  }
+}
+gboolean shell_key_pressed(GtkEventControllerKey*, guint keyval, guint,
+                           GdkModifierType state, gpointer) {
+  if (keyval == GDK_KEY_F2 && selected_app_card) {
+    rename_app_card(selected_app_card);
+    return TRUE;
+  }
+  if (keyval == GDK_KEY_Return && selected_app_card) {
+    AppCardInfo* info = card_info(selected_app_card);
+    if (info) launch_clicked(nullptr, const_cast<char*>(info->action));
+    return TRUE;
+  }
+  if (keyval == GDK_KEY_F10 && (state & GDK_SHIFT_MASK) && selected_app_card) {
+    show_app_context_menu(selected_app_card, 16, 16);
+    return TRUE;
+  }
+  if ((state & (GDK_CONTROL_MASK | GDK_ALT_MASK)) ==
+      (GDK_CONTROL_MASK | GDK_ALT_MASK) && keyval == GDK_KEY_t) {
+    launch_clicked(nullptr, const_cast<char*>("terminal"));
+    return TRUE;
+  }
+  if ((state & (GDK_SUPER_MASK | GDK_META_MASK)) && keyval == GDK_KEY_e) {
+    launch_clicked(nullptr, const_cast<char*>("files"));
+    return TRUE;
+  }
+  if (keyval == GDK_KEY_Escape) {
+    set_status("Dismissed desktop popup.");
+    return FALSE;
+  }
+  return FALSE;
+}
+
 GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
                     const char* action) {
   GtkWidget* card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
@@ -91,10 +238,17 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
   GtkWidget* description = gtk_label_new(detail);
   gtk_label_set_wrap(GTK_LABEL(description), TRUE);
   gtk_widget_add_css_class(description, "app-detail");
+  auto* info = new AppCardInfo{title, detail, action, GTK_LABEL(name)};
+  g_object_set_data_full(G_OBJECT(card), "chimera-app-card-info", info,
+      [](gpointer value) { delete static_cast<AppCardInfo*>(value); });
   gtk_box_append(GTK_BOX(card), icon);
   gtk_box_append(GTK_BOX(card), name);
   gtk_box_append(GTK_BOX(card), description);
   gtk_box_append(GTK_BOX(card), action_button("Open", action, "accent"));
+  GtkGesture* pointer = gtk_gesture_click_new();
+  gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(pointer), 0);
+  g_signal_connect(pointer, "pressed", G_CALLBACK(card_pointer_pressed), card);
+  gtk_widget_add_controller(card, GTK_EVENT_CONTROLLER(pointer));
   return card;
 }
 
@@ -108,11 +262,16 @@ void install_style() {
     .nav-button:hover { background: #263850; }
     .hero { color: #f2f7ff; font-size: 28px; font-weight: 800; }
     .muted { color: #9fb0c8; }
-    .app-card { background: #1b293b; border: 1px solid #31455e; border-radius: 16px; padding: 18px; min-width: 170px; }
+    .app-card { background: linear-gradient(155deg,#263c56,#18283b 58%,#101b2a); border: 1px solid #526a86; border-radius: 16px; padding: 18px; min-width: 170px; box-shadow: 0 6px 0 #07101b,0 15px 28px #0008; }
+    .app-card:hover { border-color: #8fe5ee; }
+    .context-actions { background: #17283c; padding: 7px; border: 1px solid #68839d; border-radius: 12px; }
+    button.context-action { background: #243b54; color: #f4f8ff; border: 1px solid #49637d; border-radius: 8px; padding: 8px 14px; }
+    button.context-action:hover { background: #315675; }
     .app-glyph { color: #8fe5ee; font-size: 28px; padding: 8px; }
     .app-name { color: #f4f7ff; font-size: 17px; font-weight: 700; }
     .app-detail { color: #afbdd1; min-height: 48px; }
-    button.accent { background: #367c91; color: white; border-radius: 10px; padding: 8px 16px; }
+    button.accent { background: linear-gradient(160deg,#56a8bb,#28657d 65%,#19445b); color: white; border-radius: 10px; padding: 8px 16px; box-shadow: 0 4px 0 #102c3b,0 8px 16px #0005; transition: transform .12s ease,box-shadow .12s ease,filter .12s ease; }
+    button.accent:active { transform: translateY(2px); box-shadow: 0 1px 0 #102c3b,0 3px 7px #0005; }
     button.accent:hover { background: #459bb1; }
     .footer { background: #121d2c; padding: 12px 24px; }
     .window-title { font-weight: 700; }
@@ -136,6 +295,9 @@ void activate(GtkApplication* app, gpointer) {
   GtkWidget* window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), desktop_name());
   gtk_window_set_default_size(GTK_WINDOW(window), 1280, 800);
+  GtkEventController* key_controller = gtk_event_controller_key_new();
+  g_signal_connect(key_controller, "key-pressed", G_CALLBACK(shell_key_pressed), nullptr);
+  gtk_widget_add_controller(window, key_controller);
   gtk_widget_add_css_class(window, std::strcmp(desktop_id, "marine") == 0
                                       ? "marine" : "aurora");
 
