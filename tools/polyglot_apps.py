@@ -101,7 +101,12 @@ def gui(root,manifest):
             wine=shutil.which("wine") or shutil.which("wine64")
             if not wine:messagebox.showerror("Wine unavailable","Install the optional Wine 32/64-bit compatibility runtime to launch Windows executables.");return
             subprocess.Popen([wine,a["source"]]);return
+        if a["kind"]=="python-module":messagebox.showinfo("Python module","This file is a library/module, not a standalone application entrypoint.");return
+        if a["kind"]=="java-source":messagebox.showinfo("Java source","Source is included; only configured Java projects are compiled into runnable artifacts.");return
         src=root/a["source"]
+        if a["kind"]=="web-source":
+            if src.suffix.lower() in {".html",".htm"}:webbrowser.open(src.resolve().as_uri())
+            else:messagebox.showinfo("Web asset","This JavaScript/CSS asset is loaded by its parent web application.");return
         if not src.is_file():messagebox.showerror("Missing source",str(src));return
         output.delete("1.0","end");output.insert("end","Launching "+a["name"]+"\n")
         p=subprocess.Popen([sys.executable,str(src)],cwd=str(src.parent),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);text,_=p.communicate();output.insert("end",(text or "No console output.")+"\nExit code: "+str(p.returncode))
