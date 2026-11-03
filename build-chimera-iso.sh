@@ -1152,7 +1152,7 @@ build_native_iso_pipeline(){
   local native_dist="$SCRIPT_DIR/boot/iso/dist"
   mkdir -p "$candidate_dir"
   cp -f "$native_iso" "$candidate_dir/ChimeraIIOS-native.iso"
-  cp -f "$native_iso.sha256" "$candidate_dir/ChimeraIIOS-native.iso.sha256"
+  sha256sum "$candidate_dir/ChimeraIIOS-native.iso" > "$candidate_dir/ChimeraIIOS-native.iso.sha256"
   [[ -d "$native_dist/iso" && -d "$native_dist/bootloaders" ]] || {
     log_error "Canonical native ISO payload tree or bootloader directory is missing"
     return 1
@@ -1397,12 +1397,16 @@ verify_iso(){
     /install/installer/installation.img
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
-    /boot/candidates/ChimeraIIOS-native.iso
-    /boot/candidates/ChimeraIIOS-native.iso.sha256
-    /boot/candidates/native-boot-payload.tar.gz
-    /boot/candidates/native-boot-payload.tar.gz.sha256
-    /boot/candidates/native-iso-artifact-manifest.json
   )
+  if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" != 0 ]]; then
+    required_iso_paths+=(
+      /boot/candidates/ChimeraIIOS-native.iso
+      /boot/candidates/ChimeraIIOS-native.iso.sha256
+      /boot/candidates/native-boot-payload.tar.gz
+      /boot/candidates/native-boot-payload.tar.gz.sha256
+      /boot/candidates/native-iso-artifact-manifest.json
+    )
+  fi
   local required_path
   for required_path in "${required_iso_paths[@]}"; do
     if ! xorriso -indev "$iso" -find "$required_path" -type f | grep -q .; then
