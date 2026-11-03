@@ -108,6 +108,18 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    # Install additional open-source IDEs when present in the signed Debian Trixie repository.
+    # Optional packages are feature-detected so a missing package never breaks the base ISO.
+    optional_ide_packages=(qtcreator codeblocks eclipse-platform eric spyder gambas3-ide arduino fp-ide)
+    available_ide_packages=()
+    for package in "\${optional_ide_packages[@]}"; do
+      if apt-cache show "$package" >/dev/null 2>&1; then
+        available_ide_packages+=("$package")
+      fi
+    done
+    if (\${#available_ide_packages[@]} > 0); then
+      apt-get install -y -qq --no-install-recommends "\${available_ide_packages[@]}"
+    fi
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
@@ -169,6 +181,16 @@ json.dump(out, open(os.path.join(pay, "wallpapers", "index.json"), "w"), indent=
 print("wallpapers:", len(out))
 PY
 
+# Make the first embedded wallpaper the actual offline desktop default.
+# The session launcher references this exact path; fail the image build if it is absent.
+mkdir -p "$WORK/usr/share/backgrounds"
+if [ -s "$PAY/wallpapers/wp01.jpg" ]; then
+  install -m 0644 "$PAY/wallpapers/wp01.jpg" "$WORK/usr/share/backgrounds/aurora-default.jpg"
+else
+  echo "[FATAL] Embedded default wallpaper wp01.jpg is missing; refusing to build a blank desktop." >&2
+  exit 1
+fi
+
 # verbatim source snapshot for provenance (excluding build output)
 mkdir -p "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./build --exclude=./vendor/chimera-ii-os/source/build --exclude=./live-image/.build -cf - . 2>/dev/null \
@@ -229,6 +251,10 @@ manifest = {
 (payload / "application-bundle.json").write_text(json.dumps(manifest, indent=2) + "\n")
 print("application catalogs:", len(files), "first-party source:", manifest["native_app_source"])
 PY
+
+# Record the IDEs actually present in this rootfs; catalog entries alone are not proof of installation.
+chroot "$WORK" /usr/bin/dpkg-query -W -f='\${binary:Package}\\t\${Version}\\n' \\
+  > "$PAY/ide-packages-installed.tsv"
 
 python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
 
