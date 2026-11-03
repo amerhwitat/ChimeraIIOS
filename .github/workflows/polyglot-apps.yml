@@ -1,10 +1,10 @@
 name: Polyglot Python Windows and Linux packaging
 on:
   pull_request:
-    paths: ['tools/polyglot_apps.py','**/*.py','**/*.java','**/*.html','**/*.js','.github/workflows/polyglot-apps.yml']
+    paths: ['tools/polyglot_apps.py','live-image/build.sh','**/*.py','**/*.java','**/*.html','**/*.js','.github/workflows/polyglot-apps.yml']
   push:
     branches: [main, 'feat/jasper-multimode-verbose-svga-20261103']
-    paths: ['tools/polyglot_apps.py','**/*.py','**/*.java','**/*.html','**/*.js','.github/workflows/polyglot-apps.yml']
+    paths: ['tools/polyglot_apps.py','live-image/build.sh','**/*.py','**/*.java','**/*.html','**/*.js','.github/workflows/polyglot-apps.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,14 +14,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - run: |
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install native build toolchains
+        run: |
           sudo apt-get update
           sudo apt-get install -y default-jdk-headless maven python3-tk
           python -m pip install --upgrade pip pyinstaller
-      - run: |
+      - name: Compile Python sources and validate Java and Web toolchains
+        run: |
+          set -euo pipefail
           python tools/polyglot_apps.py --root . --output build/polyglot-linux --platform linux --build
-          python -m py_compile tools/polyglot_apps.py
+          python - <<'PY'
+          import json, pathlib, py_compile
+          data=json.loads(pathlib.Path('build/polyglot-linux/polyglot-apps.json').read_text())
+          for app in data['python']:
+              py_compile.compile(app['source'], doraise=True)
+          print('Compiled',len(data['python']),'first-party Python source files')
+          print('Java source files:',data['java_source_count'],'build:',data['java_build'])
+          print('Web source files:',data['web_source_count'])
+          PY
+          while IFS= read -r -d '' file; do node --check "$file"; done < <(find . -path '*/vendor/*' -prune -o -path '*/node_modules/*' -prune -o -path '*/.git/*' -prune -o -name '*.js' -type f -print0)
           test -s build/polyglot-linux/polyglot-apps.json
       - uses: actions/upload-artifact@v4
         with:
@@ -33,12 +49,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - run: python -m pip install --upgrade pip pyinstaller
-      - shell: pwsh
+        with:
+          python-version: '3.12'
+      - name: Build Windows GUI executables with PyInstaller
+        run: python -m pip install --upgrade pip pyinstaller
+      - name: Compile Python sources and package Windows entrypoints
+        shell: pwsh
         run: |
           python tools/polyglot_apps.py --root . --output build/polyglot-windows --platform windows --build
-          python -m py_compile tools/polyglot_apps.py
+          python - <<'PY'
+          import json, pathlib, py_compile
+          data=json.loads(pathlib.Path('build/polyglot-windows/polyglot-apps.json').read_text())
+          for app in data['python']:
+              py_compile.compile(app['source'], doraise=True)
+          print('Compiled',len(data['python']),'first-party Python source files')
+          PY
           if (!(Test-Path build/polyglot-windows/polyglot-apps.json)) { throw "Missing manifest" }
       - uses: actions/upload-artifact@v4
         with:
