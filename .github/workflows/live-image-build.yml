@@ -58,7 +58,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
-          bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
+          bash -n live-image/build.sh boot/spitfire/build-spitfire.sh tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh
+          bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh desktop/aurora/aurora-init-splash.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
+          python3 -m json.tool install/installation-manifest.json >/dev/null
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
           if [[ "chimera" == "chimera" ]]; then
             python3 -m json.tool applications/catalog.json >/dev/null
@@ -200,6 +202,15 @@ jobs:
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
           PY
+          # Export the complete boot tree separately so Spit Fire binaries,
+          # Jasper/Gates menus, candidate runtimes and checksums are individually
+          # available alongside the ISO.
+          mkdir -p "$OUT_DIR/boot-artifacts"
+          xorriso -osirrox on -indev "$iso" -extract /boot "$OUT_DIR/boot-artifacts/boot" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /live/vmlinuz "$OUT_DIR/boot-artifacts/live/vmlinuz" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /live/initrd.img "$OUT_DIR/boot-artifacts/live/initrd.img" >/dev/null
+          tar -C "$OUT_DIR/boot-artifacts" -czf "$OUT_DIR/chimera-boot-artifacts.tar.gz" .
+          sha256sum "$OUT_DIR/chimera-boot-artifacts.tar.gz" > "$OUT_DIR/chimera-boot-artifacts.tar.gz.sha256"
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
 
@@ -211,6 +222,8 @@ jobs:
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
             ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT.txt
+            ${{ runner.temp }}/aurora-live-output/chimera-boot-artifacts.tar.gz
+            ${{ runner.temp }}/aurora-live-output/chimera-boot-artifacts.tar.gz.sha256
           if-no-files-found: error
           retention-days: 30
 
@@ -262,11 +275,14 @@ jobs:
           iso="$(find release-assets -maxdepth 1 -type f -name '*.iso' ! -name '*.sha256' -print -quit)"
           checksum="$(find release-assets -maxdepth 1 -type f -name '*.iso.sha256' -print -quit)"
           report="$(find release-assets -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
-          test -s "$iso" && test -s "$checksum" && test -s "$report"
+          boot_assets="$(find release-assets -maxdepth 1 -type f -name 'chimera-boot-artifacts.tar.gz' -print -quit)"
+          boot_assets_sha="$(find release-assets -maxdepth 1 -type f -name 'chimera-boot-artifacts.tar.gz.sha256' -print -quit)"
+          test -s "$iso" && test -s "$checksum" && test -s "$report" && test -s "$boot_assets" && test -s "$boot_assets_sha"
+          (cd "$(dirname "$boot_assets")" && sha256sum --check "$(basename "$boot_assets_sha")")
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
           tag="chimera-ii-os-live-${version}-desktop-${short}"
           gh release create "$tag" "$iso" "$checksum" "$report" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Chimera II OS ${version} — Jasper multi-target boot and verbose SVGA desktop" \
-            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. GRUB exposes Live, Installer, Koronos and Recovery targets, prefers 1920x1080 with supported SVGA fallbacks, preserves the framebuffer, and enables verbose kernel/systemd diagnostics. The ISO embeds a validated native Koronos Multiboot2 ELF; QEMU verifies its early entry/idle-loop markers, not CPL3 userspace readiness or production-kernel acceptance. Installer mode remains fail-closed until OS-specific installation modules are provided; Recovery is read-only-first. The default Live edition uses the Debian Linux kernel. Physical-machine boot is not certified by this workflow. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source; catalog-only entries are not represented as installed applications."
+            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. GRUB routes through Spit Fire, Gates and Jasper; the boot-artifacts archive contains Spit Fire SF0/SF1/SF2 binaries, menus, native Installer/Recovery candidate images and checksums. The Linux Live ISO prefers 5120x2880 with supported SVGA fallbacks, preserves the framebuffer, and enables verbose kernel/systemd diagnostics. The ISO embeds a validated native Koronos Multiboot2 ELF; QEMU verifies its early entry/idle-loop markers, not CPL3 userspace readiness or production-kernel acceptance. Installer mode remains fail-closed until OS-specific installation modules are provided; Recovery is read-only-first. The default Live edition uses the Debian Linux kernel. Physical-machine boot is not certified by this workflow. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source; catalog-only entries are not represented as installed applications."
