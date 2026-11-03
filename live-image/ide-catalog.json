@@ -80,6 +80,41 @@
       "package": "bluefish",
       "license": "GPL-3.0-or-later",
       "category": "Web development IDE"
+    },
+    {
+      "id": "codeblocks",
+      "name": "Code::Blocks",
+      "package": "codeblocks",
+      "license": "GPL-3.0-or-later",
+      "category": "C/C++ IDE"
+    },
+    {
+      "id": "codeblocks-contrib",
+      "name": "Code::Blocks Plugins",
+      "package": "codeblocks-contrib",
+      "license": "GPL-compatible",
+      "category": "IDE extensions"
+    },
+    {
+      "id": "qtcreator",
+      "name": "Qt Creator",
+      "package": "qtcreator",
+      "license": "GPL-3.0",
+      "category": "C++/Qt IDE"
+    },
+    {
+      "id": "arduino",
+      "name": "Arduino IDE",
+      "package": "arduino",
+      "license": "GPL-2.0-or-later",
+      "category": "Embedded IDE"
+    },
+    {
+      "id": "fp-ide",
+      "name": "Free Pascal IDE",
+      "package": "fp-ide",
+      "license": "GPL-2.0-or-later",
+      "category": "Pascal IDE"
     }
   ],
   "toolchain": [
