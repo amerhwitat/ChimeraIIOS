@@ -151,6 +151,7 @@ if [ "$ED" = "chimera" ]; then
   cp -a "$REPO_DIR/appcenter/suno-library.js" "$PAY/apps/media/suno-library.js"
   cp -a "$REPO_DIR/appcenter/media-deck.html" "$PAY/apps/media/media-deck.html"
   cp -a "$REPO_DIR/appcenter/open-source-media-apps.json" "$PAY/apps/media/open-source-media-apps.json"
+  install -D -m 0644 "$REPO_DIR/appcenter/media-deck.desktop" "$WORK/usr/share/applications/aurora-media-deck.desktop"
 else
   cp -a "$REPO_DIR/desktop/shared/desktop-shortcuts.js" "$PAY/desktop/shared/desktop-shortcuts.js"
   cp -a "$REPO_DIR/desktop/desktop-ecosystem-design.json" "$PAY/desktop/desktop-ecosystem-design.json"
