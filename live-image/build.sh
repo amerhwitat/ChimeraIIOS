@@ -51,6 +51,13 @@ case "$ED" in
     ISO_NAME="octavian-os-live-amd64.iso"
     ;;
 esac
+
+# Octavian consumes the shared Aurora splash runtime/assets from its vendored Chimera source.
+AURORA_SOURCE="$REPO_DIR/desktop/aurora"
+if [ ! -s "$AURORA_SOURCE/aurora-init-splash.sh" ] && [ -d "$REPO_DIR/vendor/chimera-ii-os/source/desktop/aurora" ]; then
+  AURORA_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source/desktop/aurora"
+fi
+[[ -s "$AURORA_SOURCE/aurora-init-splash.sh" ]] || { echo "[FATAL] Aurora startup splash helper is missing: $AURORA_SOURCE/aurora-init-splash.sh" >&2; exit 2; }
 VERSION="$(date -u +%Y.%m.%d)"
 COMMIT="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo snapshot)"
 BRANCH="$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || echo main)"
@@ -147,11 +154,11 @@ fi
 # The Linux Live edition plays the supplied MP4 after the window manager is
 # ready and before the kiosk desktop appears. GRUB itself never attempts MP4
 # decoding; this is a real userspace playback stage.
-if [ -s "$REPO_DIR/desktop/aurora/assets/Init.mp4" ]; then
-  install -D -m 0644 "$REPO_DIR/desktop/aurora/assets/Init.mp4" \
+if [ -s "$AURORA_SOURCE/assets/Init.mp4" ]; then
+  install -D -m 0644 "$AURORA_SOURCE/assets/Init.mp4" \
     "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
 fi
-install -D -m 0755 "$REPO_DIR/desktop/aurora/aurora-init-splash.sh" \
+install -D -m 0755 "$AURORA_SOURCE/aurora-init-splash.sh" \
   "$WORK/usr/local/bin/aurora-init-splash.sh"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 if [ "$ED" = "chimera" ] && [ -s "$REPO_DIR/desktop/aurora/gates_menu.json" ]; then
