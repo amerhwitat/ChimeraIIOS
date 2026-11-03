@@ -94,5 +94,63 @@
     "nasm",
     "binutils"
   ],
-  "note": "All IDEs are installed in the Live root filesystem and are available through their upstream desktop entries. The IDEs are not compiled from source during ISO mastering; Debian's reproducible package builds supply the binaries."
+  "note": "The base IDE set is installed from Debian signed packages. Optional IDEs are installed when their package is present in the configured Debian Trixie repository. The build records the exact installed package/version inventory in ide-packages-installed.tsv. Packages are not rebuilt from source during ISO mastering; upstream Debian package builds supply the binaries.",
+  "optional_packages": [
+    {
+      "id": "qtcreator",
+      "name": "Qt Creator",
+      "package": "qtcreator",
+      "category": "C++/Qt IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "codeblocks",
+      "name": "Code::Blocks",
+      "package": "codeblocks",
+      "category": "C/C++ IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "eclipse-platform",
+      "name": "Eclipse Platform",
+      "package": "eclipse-platform",
+      "category": "Extensible IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "eric",
+      "name": "eric",
+      "package": "eric",
+      "category": "Python IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "spyder",
+      "name": "Spyder",
+      "package": "spyder",
+      "category": "Scientific Python IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "gambas3-ide",
+      "name": "Gambas",
+      "package": "gambas3-ide",
+      "category": "Basic IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "arduino",
+      "name": "Arduino IDE",
+      "package": "arduino",
+      "category": "Embedded development IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    },
+    {
+      "id": "fp-ide",
+      "name": "Lazarus/FPC IDE",
+      "package": "fp-ide",
+      "category": "Pascal IDE",
+      "install_policy": "install when available in signed Debian Trixie repository"
+    }
+  ]
 }
