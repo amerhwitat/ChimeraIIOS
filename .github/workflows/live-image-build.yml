@@ -119,12 +119,13 @@ jobs:
           PY
           xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$OUT_DIR/grub.cfg" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-menu.cfg "$OUT_DIR/spitfire-menu.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/gates/gates-menu.cfg "$OUT_DIR/gates-menu.cfg" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/jasper/live-image.cfg "$OUT_DIR/jasper-live.cfg" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-sf0-mbr.bin "$OUT_DIR/spitfire-sf0-mbr.bin" >/dev/null
           test "$(stat -c%s "$OUT_DIR/spitfire-sf0-mbr.bin")" -eq 512
           xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$OUT_DIR/native-runtime-candidates.json" >/dev/null
           chmod +x tests/live-image/test-grub-targets.sh
-          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json"
+          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/gates-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json"
           for artifact in \
             /boot/candidates/installer/installer-initrd.img \
             /boot/candidates/installer/installation.img \
@@ -138,6 +139,14 @@ jobs:
             xorriso -osirrox on -indev "$iso" -extract "$artifact" "$OUT_DIR/$name" >/dev/null
             test -s "$OUT_DIR/$name"
           done
+          ! cmp -s "$OUT_DIR/installer-initrd.img" "$OUT_DIR/installation.img"
+          python3 - "$OUT_DIR/installation-manifest.json" "$OUT_DIR/recovery-manifest.json" <<'PY'
+          import json, pathlib, sys
+          installer = json.loads(pathlib.Path(sys.argv[1]).read_text())
+          recovery = json.loads(pathlib.Path(sys.argv[2]).read_text())
+          assert installer["bootable"] is False
+          assert recovery["bootable"] is False
+          PY
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
