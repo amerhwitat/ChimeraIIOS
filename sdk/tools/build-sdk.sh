@@ -40,6 +40,13 @@ SMOKE="$BUILD/toolchain-smoke"
 mkdir -p "$SMOKE"
 : > "$SMOKE/status.txt"
 
+if command -v nasm >/dev/null 2>&1; then
+  nasm -f elf64 "$ROOT/tests/toolchain-smoke/smoke.asm" -o "$SMOKE/chimera-asm-smoke.o"
+  echo "asm=PASS (NASM x86_64)" >> "$SMOKE/status.txt"
+else
+  echo "asm=SKIP (nasm unavailable)" >> "$SMOKE/status.txt"
+fi
+
 if command -v clang >/dev/null 2>&1 && command -v gnustep-config >/dev/null 2>&1; then
   read -r -a OBJC_FLAGS <<< "$(gnustep-config --objc-flags)"
   clang "${OBJC_FLAGS[@]}" -I"$ROOT/objective-c" -c "$ROOT/objective-c/ChimeraSDK.m" -o "$SMOKE/chimera-objective-c.o"
