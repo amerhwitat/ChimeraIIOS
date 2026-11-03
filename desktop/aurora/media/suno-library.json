@@ -69,7 +69,9 @@
       "language": "Multilingual mix",
       "tracks": [
         "suno-321",
-        "suno-331"
+        "suno-331",
+        "suno-301",
+        "suno-311"
       ]
     },
     {
@@ -428,7 +430,10 @@
       "url": "https://suno.com/s/e0KfjnhRu1TxjATu",
       "availability": "external-link",
       "playback": "Open on Suno",
-      "user_supplied": true
+      "user_supplied": true,
+      "also_in": [
+        "Multilingual mix"
+      ]
     },
     {
       "id": "suno-311",
@@ -438,7 +443,10 @@
       "url": "https://suno.com/s/8xkTjmAhxzQ56I4G",
       "availability": "external-link",
       "playback": "Open on Suno",
-      "user_supplied": true
+      "user_supplied": true,
+      "also_in": [
+        "Multilingual mix"
+      ]
     },
     {
       "id": "suno-321",
