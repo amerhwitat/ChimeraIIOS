@@ -333,7 +333,10 @@ EOF
 echo "$SHORT" > "$WORK/etc/hostname"
 printf '127.0.0.1 localhost\n127.0.1.1 %s\n::1 localhost ip6-localhost ip6-loopback\n' "$SHORT" > "$WORK/etc/hosts"
 
-ln -sfn /lib/systemd/system/multi-user.target "$WORK/etc/systemd/system/default.target"
+# Use a named systemd target so the live edition follows normal unit
+# dependency ordering rather than relying on a shell profile as its boot graph.
+install -Dm644 "$HERE/systemd/chimera-live.target" "$WORK/etc/systemd/system/chimera-live.target"
+ln -sfn /etc/systemd/system/chimera-live.target "$WORK/etc/systemd/system/default.target"
 mkdir -p "$WORK/etc/systemd/network" \
          "$WORK/etc/systemd/system/multi-user.target.wants" \
          "$WORK/etc/systemd/system/sockets.target.wants"
