@@ -6,11 +6,11 @@ FROM ubuntu:${UBUNTU_VERSION} AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ gcc-multilib gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu binutils binutils-aarch64-linux-gnu binutils-riscv64-linux-gnu clang llvm lld nasm make cmake ninja-build gfortran golang \\
-    python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless rustc cargo perl pciutils usbutils dmidecode iproute2 procps
+    bash ca-certificates git gcc g++ gcc-multilib gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu \
+    binutils binutils-aarch64-linux-gnu binutils-riscv64-linux-gnu clang llvm lld nasm make cmake ninja-build gfortran golang \
+    python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless rustc cargo perl pciutils usbutils dmidecode iproute2 procps \
     systemd systemd-sysv dos2unix \
     && rm -rf /var/lib/apt/lists/*
-
 # Ubuntu 24.04 uses PEP 668. Keep Python application dependencies in an
 # isolated virtual environment and prefer prebuilt wheels for architecture safety.
 ENV VIRTUAL_ENV=/opt/chimera-venv
