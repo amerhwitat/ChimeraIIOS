@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Inventory, GUI launcher and PyInstaller packager for first-party Python/Java/Web apps."""
 from __future__ import annotations
-import argparse,json,pathlib,re,shutil,subprocess,sys
+import argparse,json,os,pathlib,re,shutil,subprocess,sys
 SKIP={".git",".venv","venv","__pycache__","node_modules","vendor","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups"}
 WEB={".html",".htm",".js",".jsx",".ts",".tsx",".css"}
 def inventory(root):
@@ -65,7 +65,8 @@ def build(root,out,platform):
     data={"schema":"chimera-polyglot-apps/v1","platform_build":platform,"python_source_count":len(py),"python_entrypoints":sum(a["kind"]=="python-entrypoint" for a in py),"java_source_count":len(java),"web_source_count":len(web),"java_build":java_status,"python":py,"java_sources":java,"web_sources":web,"compatibility":{"windows":"Build PyInstaller .exe on Windows; Windows binaries are not Linux executables.","wine":"Optional Wine runtime may launch compatible Windows .exe files; not guaranteed for every app.","linux":"Build separate Linux-native PyInstaller artifacts."}}
     (out/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n")
     panel=out/"polyglot-panel.py"
-    panel.write_text("""import pathlib,runpy,sys
+    panel.write_text("""import os,pathlib,runpy,sys
+os.environ.setdefault("CHIMERA_WINDOWS_APPS_DIR","/opt/aurora/apps/polyglot/windows")
 base=pathlib.Path(getattr(sys,"_MEIPASS",pathlib.Path(__file__).resolve().parent))
 sys.argv=["polyglot_apps.py","--gui","--root",str(base/"python-source"),"--manifest",str(base/"polyglot-apps.json")]
 runpy.run_path(str(base/"python-source"/"tools"/"polyglot_apps.py"),run_name="__main__")
@@ -85,7 +86,7 @@ def gui(root,manifest):
     frame=ttk.Frame(w);frame.pack(fill="both",expand=True,padx=18,pady=12);listing=tk.Listbox(frame,width=50);listing.pack(side="left",fill="y");output=tk.Text(frame,wrap="word");output.pack(side="left",fill="both",expand=True,padx=12)
     apps=[a for a in data["python"] if a["kind"]=="python-entrypoint"]
     for a in apps:listing.insert("end",a["name"]+" — "+a["source"])
-    windows_dir=manifest.parent/"windows"
+    windows_dir=pathlib.Path(os.environ.get("CHIMERA_WINDOWS_APPS_DIR",str(manifest.parent/"windows")) )
     windows_apps=sorted(windows_dir.glob("*.exe")) if windows_dir.is_dir() else []
     for exe in windows_apps:listing.insert("end",exe.stem+" — Windows executable (Wine)")
     apps.extend([{"kind":"windows-exe","name":exe.stem,"source":str(exe)} for exe in windows_apps])
