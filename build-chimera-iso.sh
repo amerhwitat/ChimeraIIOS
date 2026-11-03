@@ -1122,8 +1122,9 @@ stage_package_managers(){
   for f in desktop-experience.js network-applications.html network-applications.json network-applications.desktop voiceconnect-project.desktop voiceconnect-launcher.sh; do
     [[ -s "$shared/$f" ]] || { log_error "Desktop experience payload missing: $shared/$f"; return 1; }
   done
-  mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/shared" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ISO_DIR/desktop/shared"
+  mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/shared" "$ROOTFS_DIR/opt/aurora/desktop/shared" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ISO_DIR/desktop/shared"
   cp -a "$shared/." "$ROOTFS_DIR/usr/share/chimera/desktop/shared/"
+  cp -a "$shared/." "$ROOTFS_DIR/opt/aurora/desktop/shared/"
   cp -a "$shared/." "$ISO_DIR/desktop/shared/"
   install -m 0644 "$shared/network-applications.desktop" "$ROOTFS_DIR/usr/share/applications/aurora-network-applications.desktop"
   install -m 0644 "$shared/voiceconnect-project.desktop" "$ROOTFS_DIR/usr/share/applications/voiceconnect-project.desktop"
