@@ -40,7 +40,8 @@ class PlatformBundleContracts(unittest.TestCase):
         source = (ROOT / "desktop/native/chimera-desktop-shell.cpp").read_text(encoding="utf-8")
         for contract in ("gtk_popover_menu_bar_new_from_model", "Tile Windows", "Cascade Windows",
                          "gtk_scrolled_window_new", "gtk_gesture_click_new", "gtk_popover_new",
-                         "presses==2", "presses>=3", "Item Properties"):
+                         "presses==2", "presses>=3", "Item Properties",
+                         "play_sound", "canberra-gtk-play", "gtk_window_minimize", "gtk_window_maximize"):
             self.assertIn(contract, source)
 
     def test_architecture_boot_claims_are_bounded(self):
