@@ -12,6 +12,11 @@ LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
+    def test_grub_menu_waits_30_seconds_for_user_selection(self):
+        self.assertIn("set timeout_style=menu", GRUB)
+        self.assertIn("set timeout=30", GRUB)
+        self.assertIn("set default=0", GRUB)
+
     def test_installer_menu_passes_installer_modules_to_koronos(self):
         start = GRUB.index('--id install {')
         end = GRUB.index('\n}', start)
@@ -46,7 +51,8 @@ class IsoTargetRoutingTests(unittest.TestCase):
                 or 'aurora-wayland-glass.jpg' in builder,
                 "builder must stage the Aurora background"
             )
-            self.assertIn('"$STAGE/boot/grub/Init.mp4"', builder)
+            self.assertIn("for boot_stage in visual spitfire jasper grub; do", builder)
+            self.assertIn('install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/boot/$boot_stage/Init.mp4"', builder)
             self.assertIn("library-artwork-manifest.json", builder)
 
     def test_original_chimera_wallpaper_and_manifest_are_staged(self):
@@ -62,14 +68,46 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_misleading_live_readiness_label_removed(self):
         self.assertNotIn("[100% path ready]", GRUB)
 
-    def test_generated_live_and_recovery_userspace_emit_distinct_handoff_markers(self):
+    def test_initramfs_shells_never_emit_native_userspace_ready_markers(self):
         builder = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
-        self.assertIn("USERSPACE READY: target=live init_pid=%s", builder)
-        self.assertIn("USERSPACE READY: target=recovery init_pid=%s", builder)
+        self.assertNotIn("USERSPACE READY: target=live", builder)
+        self.assertNotIn("USERSPACE READY: target=recovery", builder)
+        self.assertIn("INITRAMFS DIAGNOSTIC SHELL", builder)
+        self.assertIn("Koronos userspace handoff NOT VERIFIED", builder)
         self.assertIn("exec /bin/sh -i", builder)
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
         # A shell handoff is not evidence that the Aurora desktop is ready.
         self.assertIn("Aurora desktop readiness is separate", builder)
+
+    def test_installer_loader_fails_closed_without_executable_init_context(self):
+        kernel = (ROOT / "kernel/core/koronos.cpp").read_text()
+        installer = (ROOT / "tools/chimera-stage-installer-media.sh").read_text()
+        full_builder = (ROOT / "build-chimera-iso.sh").read_text()
+        runtime = (ROOT / "tools/chimera-installer-runtime.sh").read_text()
+        process_api = (ROOT / "kernel/include/chimera/process.h").read_text()
+        self.assertIn("CHIMERA_MODULE_USER_INIT_ELF", kernel)
+        self.assertIn("KORONOS INSTALLER LOADER BLOCKED", kernel)
+        self.assertIn("no executable installer init ELF module was supplied", kernel)
+        self.assertIn("INITRAMFS DIAGNOSTIC SHELL READY", installer)
+        self.assertIn("USERSPACE HANDOFF NOT VERIFIED", installer)
+        self.assertIn("INITRAMFS DIAGNOSTIC SHELL READY", full_builder)
+        self.assertIn("USERSPACE HANDOFF NOT VERIFIED", full_builder)
+        self.assertIn("No Koronos CPL3 installer process", full_builder)
+        self.assertIn("No Koronos CPL3 installer process", runtime)
+        self.assertIn("CHIMERA_PROCESS_LOAD_PLAN_ONLY", process_api)
+
+    def test_init_video_is_started_after_wayland_and_uses_existing_asset(self):
+        desktop_init = (ROOT / "desktop/aurora/aurora-desktop-init.sh").read_text()
+        labwc_autostart = (ROOT / "desktop/aurora/labwc/autostart").read_text()
+        splash = (ROOT / "desktop/aurora/aurora-init-splash.sh").read_text()
+        runtime_stage = (ROOT / "tools/stage-chimera-runtime.sh").read_text()
+        self.assertIn("exec /usr/share/chimera/aurora/aurora-desktop-init.sh", labwc_autostart)
+        self.assertIn('CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"', desktop_init)
+        self.assertIn("export CHIMERA_INIT_VIDEO CHIMERA_PROGRESS_FILE", desktop_init)
+        self.assertIn('bash "$AURORA/aurora-init-splash.sh"', desktop_init)
+        self.assertIn("mpv --fs", splash)
+        self.assertIn("ffplay -fs", splash)
+        self.assertIn('"$DEST/usr/share/chimera/aurora/assets/"', runtime_stage)
 
 
 if __name__ == "__main__":

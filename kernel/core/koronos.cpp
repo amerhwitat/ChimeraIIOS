@@ -277,8 +277,9 @@ static void task_installer(void *) {
     const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
     const chimera_boot_module *phases = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PHASES);
     const chimera_boot_module *profiles = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PROFILES);
+    const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
 
-    if (!image && !manifest && !contract && !phases && !profiles) {
+    if (!image && !manifest && !contract && !phases && !profiles && !user_init) {
         if (installer_phase++ == 0)
             console_write("[INST] Installer target not selected: no installer modules");
         chimera_sched_block();
@@ -307,11 +308,18 @@ static void task_installer(void *) {
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
             console_write("[INST] Installer metadata parsed; graphical installer userspace is not running");
-            console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
+            if (user_init) {
+                console_write("[INST] Executable installer ELF module detected");
+                console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: process execution context is not connected");
+            } else {
+                console_write("[INST] BLOCKED: no executable installer init ELF module was supplied");
+                console_write("[INST] Current installation.img is an initramfs diagnostic shell, not a Koronos process image");
+            }
+            console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: ELF admission/load-plan is not a runnable process");
             break;
         case 4:
             console_write("[INST] Installer contract processing complete; installer execution is not verified");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] KORONOS INSTALLER LOADER BLOCKED: address-space activation, saved user context, and CPL3 entry are not implemented");
             chimera_sched_block();
             break;
         default:

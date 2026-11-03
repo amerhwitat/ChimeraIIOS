@@ -23,5 +23,10 @@ s = Path("build-chimera-iso.sh").read_text()
 expected = '"$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso"'
 assert s.count(expected) >= 2, "build_iso and verify_iso must use architecture-suffixed ISO paths"
 assert 'CHIMERA_MEDIA_FS_PROFILE' in s and 'iso9660+squashfs' in s
+assert 'CHIMERA_BUILD_VERBOSE="${CHIMERA_BUILD_VERBOSE:-1}"' in s, "verbose diagnostics must be enabled by default"
+assert '--verbose)' in s and '--quiet)' in s, "verbose and quiet CLI controls must exist"
+assert 'log_stage_diagnostics' in s and "completed successfully in" in s, "stage diagnostics and elapsed timing are required"
+assert 'date -u +%Y-%m-%dT%H:%M:%SZ' in s, "diagnostics must use UTC timestamps"
+assert 'process-snapshots.log' in s and 'chimera-build.log' in s, "diagnostic log destinations must be reported"
 print("CPU-aware ISO selection contract: PASS")
 PY
