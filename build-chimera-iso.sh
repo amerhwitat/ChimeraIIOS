@@ -1195,7 +1195,16 @@ Categories=System;DesktopSettings;
 EOF
     cp -f "$ROOTFS_DIR/usr/local/bin/chimera-desktop-shell" "$ISO_DIR/system/desktop/"
   fi
-  log_success "SDK and compiled desktop applications staged; optional toolchains remain explicitly reported."
+  # Cross-compile architecture probe objects when the optional GNU toolchains
+  # are available in the rootfs. These are not bootable kernels or EFI images.
+  chroot "$ROOTFS_DIR" /bin/bash -c 'bash /app/tools/build-koronos-targets.sh' 2>&1 | tee "$LOG_DIR/koronos-port-build.log"
+  mkdir -p "$ROOTFS_DIR/usr/lib/chimera/koronos/ports" "$ISO_DIR/system/architecture/ports"
+  if compgen -G "$ROOTFS_DIR/app/build/koronos/ports/*.o" >/dev/null; then
+    cp -f "$ROOTFS_DIR"/app/build/koronos/ports/*.o "$ROOTFS_DIR/usr/lib/chimera/koronos/ports/"
+    cp -f "$ROOTFS_DIR"/app/build/koronos/ports/*.o "$ISO_DIR/system/architecture/ports/"
+  fi
+  cp -f "$LOG_DIR/koronos-port-build.log" "$ISO_DIR/system/architecture/ports-build-status.txt"
+  log_success "SDK, desktop applications and available architecture probe objects staged; port objects are not bootable targets."
 }
 
 stage_storage_network_runtime(){
