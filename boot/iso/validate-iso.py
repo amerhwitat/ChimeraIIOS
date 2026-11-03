@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse, hashlib, json, pathlib, sys
 
-REQUIRED_DIRS = ('boot/spitfire','boot/jasper','boot/koronos','EFI/BOOT','EFI/CHIMERA','chimera','src','checksums')
-REQUIRED_FILES = ('boot/spitfire/sf0_mbr.asm','boot/spitfire/sf1_longmode.asm','boot/spitfire/sf2_loader.cpp','boot/jasper/grub.cfg','chimera/README.txt')
+REQUIRED_DIRS = ('opt/chimera-sdk/include/chimera','boot/gates','boot/spitfire','boot/jasper','boot/koronos','EFI/BOOT','EFI/CHIMERA','chimera','src','checksums')
+REQUIRED_FILES = ('opt/chimera-sdk/include/chimera/sdk.h','boot/gates/gates.cfg','boot/spitfire/sf0_mbr.asm','boot/spitfire/sf1_longmode.asm','boot/spitfire/sf2_loader.cpp','boot/jasper/grub.cfg','chimera/README.txt')
 
 def sha256(path: pathlib.Path) -> str:
     h=hashlib.sha256()
