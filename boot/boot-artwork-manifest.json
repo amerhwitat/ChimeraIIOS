@@ -61,6 +61,11 @@
       "event": "Spit Fire menu configuration is loaded and the Jasper target menu is offered; BIOS stage artifacts are packaged but not the ISO's executable loader",
       "video": "/boot/visual/Init.mp4"
     },
+    "gates": {
+      "artwork": "/boot/visual/aurora-wayland-glass.jpg",
+      "event": "Gates policy menu validates and dispatches the selected Jasper target; it does not claim kernel or userspace readiness",
+      "video": "/boot/visual/Init.mp4"
+    },
     "jasper": {
       "artwork": "/boot/visual/jasper_background.svg",
       "event": "Jasper target manager loads and displays explicit boot choices; native targets remain acceptance-gated",
