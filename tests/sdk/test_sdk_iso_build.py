@@ -16,6 +16,11 @@ class SDKIsoBuildContract(unittest.TestCase):
         self.assertIn("ctest --test-dir", script)
         self.assertIn("cmake --install", script)
         self.assertIn("cargo test", script)
+        canonical = (ROOT / "boot/iso/build-iso.sh").read_text()
+        validator = (ROOT / "boot/iso/validate-iso.py").read_text()
+        self.assertIn("SDK_ROOTFS", canonical)
+        self.assertIn("sdk/tools/build-sdk.sh", canonical)
+        self.assertIn("opt/chimera-sdk/include/chimera/sdk.h", validator)
         self.assertIn("python3 -m compileall", script)
 
     def test_rust_sdk_lockfile_is_present(self):
