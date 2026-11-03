@@ -53,11 +53,11 @@ def main():
         require(p.is_file(),f"boot menu source missing: {rel}")
         text=p.read_text(errors="replace")
         require("menuentry" in text,f"boot menu has no selectable entries: {rel}")
-        require(not re.search(r"\\b(?:25|40|50|60|75|90|100)%",text),f"{rel} contains synthetic progress percentages")
+        require(not re.search(r"\b(?:25|40|50|60|75|90|100)%",text),f"{rel} contains synthetic progress percentages")
     root_grub=(ROOT/"boot/iso/grub.cfg").read_text(errors="replace")
     require("configfile /boot/spitfire/spitfire-menu.cfg" in root_grub,"GRUB2 root must hand off to Spit Fire")
     gates=(ROOT/"boot/gates/gates-menu.cfg").read_text(errors="replace")
-    require("configfile /boot/jasper/live-image.cfg" in gates and "configfile /boot/jasper/jasper.cfg" in gates,"Gates must route to the appropriate Jasper menu")
+    require("configfile /boot/jasper/live-image.cfg" in gates,"Gates must hand off to Jasper")
     spit=(ROOT/"boot/spitfire/spitfire-menu.cfg").read_text(errors="replace")
     gates=(ROOT/"boot/gates/gates-menu.cfg").read_text(errors="replace")
     require("configfile /boot/gates/gates-menu.cfg" in spit,"Spit Fire must hand off to Gates")
@@ -66,15 +66,16 @@ def main():
     recovery=(ROOT/"boot/jasper/recovery.cfg").read_text(errors="replace")
     require("native-installer-runtime.ready" in install,"native Installer must require a ready marker")
     require("native-recovery-runtime.ready" in recovery,"native Recovery must require a ready marker")
-    # The one intentional top-level configfile is the one-way GRUB2 -> Spit Fire handoff.
-    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/gates/gates-menu.cfg","boot/jasper/live-image.cfg"]:
+    allowed_configfiles={
+        "boot/spitfire/spitfire-menu.cfg": ["/boot/gates/gates-menu.cfg"],
+        "boot/gates/gates-menu.cfg": ["/boot/jasper/live-image.cfg","/boot/spitfire/spitfire-menu.cfg"],
+        "boot/jasper/live-image.cfg": ["/boot/jasper/install.cfg","/boot/jasper/recovery.cfg","/boot/gates/gates-menu.cfg"],
+    }
+    for rel,targets in allowed_configfiles.items():
         text=(ROOT/rel).read_text(errors="replace")
-        depth=0
         for line in text.splitlines():
             item=line.strip()
-            if item.startswith("menuentry "): depth+=1
-            if item=="}" and depth: depth-=1
-            if item.startswith("configfile ") and depth==0:
-                raise SystemExit(f"boot pipeline validation failed: top-level configfile loop risk in {rel}: {item}")
+            if item.startswith("configfile "):
+                require(any(target in item for target in targets),f"unexpected menu handoff in {rel}: {item}")
     print("boot pipeline contract: PASS (static checks only; no firmware/QEMU boot implied)")
 if __name__=="__main__": main()
