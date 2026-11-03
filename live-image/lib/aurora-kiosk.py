@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Aurora kiosk shell: render the project's HTML desktop across the full display."""
+"""Aurora kiosk shell with a restricted native keyboard-layout bridge."""
+import json
 import os
+import subprocess
 import sys
 
 import gi
@@ -11,6 +13,10 @@ gi.require_version("WebKit2", "4.1")
 from gi.repository import Gdk, Gtk, GLib, WebKit2  # noqa: E402
 
 DEFAULT_URI = "file:///opt/aurora/desktop/index.html"
+XKB_LAYOUTS = {
+    "us", "gb", "ara", "il", "fr", "de", "es", "ru", "gr", "tr",
+    "ir", "pk", "in", "bd", "jp", "kr", "br", "it", "nl", "pl",
+}
 
 
 def display_geometry():
@@ -26,6 +32,30 @@ def display_geometry():
     if screen is not None:
         return 0, 0, screen.get_width(), screen.get_height()
     return 0, 0, 1024, 768
+
+
+def handle_host_message(_manager, result):
+    """Accept only the explicit XKB layout allowlist; never execute page text."""
+    try:
+        raw = result.get_js_value().to_string()
+        payload = json.loads(raw)
+        if not isinstance(payload, dict) or payload.get("type") != "set-input-layout":
+            return
+        layout = payload.get("layout")
+        if layout not in XKB_LAYOUTS:
+            print("[Aurora] rejected unknown keyboard layout", flush=True)
+            return
+        subprocess.run(
+            ["setxkbmap", "-layout", layout],
+            check=True,
+            timeout=8,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        print(f"[Aurora] keyboard layout applied: {layout}", flush=True)
+    except (ValueError, TypeError, OSError, subprocess.SubprocessError) as exc:
+        print(f"[Aurora] keyboard layout request failed: {exc}", flush=True)
 
 
 def main():
@@ -46,7 +76,10 @@ def main():
     win.set_default_size(width, height)
     win.set_position(Gtk.WindowPosition.CENTER)
 
-    view = WebKit2.WebView()
+    manager = WebKit2.UserContentManager()
+    manager.register_script_message_handler("auroraHost")
+    manager.connect("script-message-received::auroraHost", handle_host_message)
+    view = WebKit2.WebView.new_with_user_content_manager(manager)
     view.set_hexpand(True)
     view.set_vexpand(True)
     try:
@@ -77,8 +110,6 @@ def main():
         return False
 
     def request_fullscreen():
-        # EWMH fullscreen requests are handled by the window manager. Run after
-        # the window is mapped so the WM can apply the state before first paint.
         if win.get_realized():
             win.fullscreen()
             win.present()
@@ -87,10 +118,7 @@ def main():
     win.add(view)
     win.connect("key-press-event", on_key)
     win.connect("destroy", Gtk.main_quit)
-    win.connect(
-        "map-event",
-        lambda *_args: GLib.idle_add(request_fullscreen),
-    )
+    win.connect("map-event", lambda *_args: GLib.idle_add(request_fullscreen))
     win.show_all()
     win.present()
     GLib.idle_add(request_fullscreen)
