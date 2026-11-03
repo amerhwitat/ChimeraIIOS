@@ -6,6 +6,7 @@
   "embedded_source_dimensions": "480x268",
   "source_image": "Aurora-Wayland-Glass-Desktop.png.jpg",
   "sources": [
+    "boot/gates/gates-menu.cfg",
     "boot/visual/aurora-wayland-glass.jpg",
     "boot/splash/aurora_boot_splash.svg",
     "boot/splash/jasper_background.svg",
@@ -34,7 +35,9 @@
     "spitfire_init_video": "/boot/spitfire/Init.mp4",
     "jasper_init_video": "/boot/jasper/Init.mp4",
     "grub_init_video": "/boot/grub/Init.mp4",
-    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4"
+    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4",
+    "gates": "/boot/gates/aurora-wayland-glass.jpg",
+    "gates_background": "/boot/visual/aurora-wayland-glass.jpg"
   },
   "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
   "fallback": "desktop/aurora/assets/aurora-desktop.svg",
@@ -58,17 +61,17 @@
     },
     "spitfire": {
       "artwork": "/boot/visual/spitfire_background.svg",
-      "event": "Spit Fire menu configuration is loaded and the Jasper target menu is offered; BIOS stage artifacts are packaged but not the ISO's executable loader",
+      "event": "Spit Fire menu configuration is loaded and hands off to the Gates policy menu; BIOS stage artifacts are packaged but not the ISO's executable loader",
       "video": "/boot/visual/Init.mp4"
     },
     "gates": {
       "artwork": "/boot/visual/aurora-wayland-glass.jpg",
-      "event": "Gates policy menu validates and dispatches the selected Jasper target; it does not claim kernel or userspace readiness",
+      "event": "Gates policy menu is loaded and selects the Jasper target manager or returns to Spit Fire; no kernel readiness is implied",
       "video": "/boot/visual/Init.mp4"
     },
     "jasper": {
       "artwork": "/boot/visual/jasper_background.svg",
-      "event": "Jasper target manager loads and displays explicit boot choices; native targets remain acceptance-gated",
+      "event": "Jasper target manager loads and displays explicit Linux and native Koronos boot choices; native Installer/Recovery remain acceptance-gated",
       "video": "/boot/visual/Init.mp4"
     },
     "menus": {
