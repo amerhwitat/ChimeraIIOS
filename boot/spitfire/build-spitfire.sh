@@ -27,7 +27,7 @@ python3 - "$KERNEL" <<'PY'
 import pathlib, struct, sys
 p = pathlib.Path(sys.argv[1])
 d = p.read_bytes()
-if len(d) < 64 or d[:4] != b"\\x7fELF" or d[4] != 2 or d[5] != 1:
+if len(d) < 64 or d[:4] != bytes((0x7f, 0x45, 0x4c, 0x46)) or d[4] != 2 or d[5] != 1:
     raise SystemExit("Spit Fire requires a little-endian ELF64 Koronos kernel")
 if struct.unpack_from("<H", d, 18)[0] != 62:
     raise SystemExit("Spit Fire requires an x86-64 Koronos kernel")
