@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Link
+Name=VoiceConnect
+Comment=Open the VoiceConnect project and current development status
+URL=https://github.com/amerhwitat/test/tree/feat/voiceconnect-p2p-camera
+Icon=call-start
+Categories=Network;Chat;
