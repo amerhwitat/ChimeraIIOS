@@ -1316,11 +1316,15 @@ build_native_iso_pipeline(){
   # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
   local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-4096}"
   [[ "$system_block_size" =~ ^[1-9][0-9]*$ ]] || { log_error "Invalid CHIMERA_SYSTEM_BLOCK_SIZE: $system_block_size"; return 2; }
-  # Pass both the canonical name and the compatibility alias explicitly: the
-  # native ISO builder and its contract verifier must see the same 4 KiB default.
+  # Pass the complete artifact path contract explicitly across this process
+  # boundary. The child builder re-exports these values to prepare-layout.sh
+  # and the Live producer; no stage should silently fall back to $SCRIPT_DIR/build.
+  local live_boot_dir="$BUILD_DIR/live-boot"
+  log_info "Native ISO artifact paths: BUILD_DIR=$BUILD_DIR LIVE_BOOT=$live_boot_dir"
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     SYSTEM_BLOCK_SIZE="$system_block_size" \
-    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" \
+    CHIMERA_LIVE_BOOT_DIR="$live_boot_dir" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
