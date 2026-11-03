@@ -88,7 +88,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed-v2" ]; then
+if [ ! -f "$BASE/.packages-installed-v3" ]; then
   log "installing shared package set (one-off)"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
@@ -101,7 +101,7 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
       xserver-xorg-core xserver-xorg-legacy xserver-xorg-input-libinput \
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
-      python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
+      python3 python3-tk python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 default-jdk-headless maven \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh mpv \
       build-essential cmake ninja-build git gdb clang lld pkg-config nasm binutils \
@@ -139,6 +139,43 @@ log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+
+# Build and stage first-party Python, Java and Web implementations for the Apps Panel.
+# Python sources are copied with their repository-relative paths; tests/vendor snapshots
+# are excluded from the runnable inventory. PyInstaller artifacts are platform-specific.
+POLYGLOT_OUT="$BUILD/polyglot-apps-$ED"
+mkdir -p "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/linux" "$PAY/apps/polyglot/windows"
+POLYGLOT_ARGS=(--root "$REPO_DIR" --output "$POLYGLOT_OUT" --platform linux)
+if command -v pyinstaller >/dev/null 2>&1; then POLYGLOT_ARGS+=(--build); fi
+python3 "$REPO_DIR/tools/polyglot_apps.py" "\${POLYGLOT_ARGS[@]}"
+cp -a "$POLYGLOT_OUT/polyglot-apps.json" "$PAY/apps/polyglot/polyglot-apps.json"
+if [ -d "$POLYGLOT_OUT/dist" ]; then cp -a "$POLYGLOT_OUT/dist/." "$PAY/apps/polyglot/linux/"; fi
+find "$REPO_DIR" -type f -name '*.py' -not -path '*/vendor/*' -not -path '*/tests/*' -not -path '*/.git/*' -not -path '*/.chimera-fix-backups/*' -print0 |
+  while IFS= read -r -d '' src; do rel="\${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+find "$REPO_DIR" -type f -name '*.java' -not -path '*/vendor/*' -not -path '*/.git/*' -print0 |
+  while IFS= read -r -d '' src; do rel="\${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+find "$REPO_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css' \) -not -path '*/vendor/*' -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 |
+  while IFS= read -r -d '' src; do rel="\${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+if [ -n "\${WINDOWS_APP_BUNDLE_DIR:-}" ] && [ -d "$WINDOWS_APP_BUNDLE_DIR" ]; then
+  cp -a "$WINDOWS_APP_BUNDLE_DIR/." "$PAY/apps/polyglot/windows/"
+fi
+install -D -m 0644 /dev/null "$WORK/usr/share/applications/aurora-polyglot-apps.desktop"
+cat > "$WORK/usr/share/applications/aurora-polyglot-apps.desktop" <<'EOF_POLYGLOT'
+[Desktop Entry]
+Type=Application
+Name=Python, Java and Web Apps
+Comment=Open the cross-language application inventory and GUI launcher
+Exec=python3 /opt/aurora/apps/polyglot/polyglot_apps.py --gui --root /opt/aurora/apps/polyglot/source-tree --manifest /opt/aurora/apps/polyglot/polyglot-apps.json
+Icon=applications-development
+Terminal=false
+Categories=Development;Utility;
+EOF_POLYGLOT
+install -m 0644 "$REPO_DIR/tools/polyglot_apps.py" "$PAY/apps/polyglot/polyglot_apps.py"
+if [ "\${INSTALL_WINE_COMPAT:-0}" = "1" ]; then
+  mount_chroot "$WORK"
+  chroot "$WORK" /bin/bash -lc 'dpkg --add-architecture i386; apt-get update -qq; apt-get install -y --no-install-recommends wine wine64 wine32'
+  umount_chroot "$WORK"
+fi
 
 # Stage the six-desktop design contract, user shortcuts and language-grouped
 # Suno collection into the ISO payload. The music items remain Suno links.
