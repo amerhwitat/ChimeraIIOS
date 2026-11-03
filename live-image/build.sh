@@ -239,6 +239,8 @@ EOF
 # ------------------------------------------------------------- system config
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
+install -Dm755 "$HERE/lib/chimera-boot-mode.sh" "$WORK/usr/local/bin/chimera-boot-mode"
+install -Dm755 "$HERE/lib/chimera-recovery.sh" "$WORK/usr/local/sbin/chimera-recovery"
 
 cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
 #!/bin/bash
@@ -286,7 +288,7 @@ if [ "$wm_ready" -ne 1 ]; then
   exit 1
 fi
 echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
-exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
+exec /usr/local/bin/chimera-boot-mode
 EOF
 echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
 chmod 755 "$WORK/usr/local/bin/aurora-session"
@@ -373,33 +375,75 @@ mkdir -p "$ISODIR/boot/grub"
 convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
   -strip -quality 90 "$ISODIR/boot/grub/background.jpg"
 
+# Optionally embed only a real, Multiboot2-compatible x86-64 Koronos kernel.
+if [[ -n "\${KORONOS_ELF:-}" ]]; then
+  test -s "$KORONOS_ELF" || { echo "KORONOS_ELF is set but the file is missing/empty" >&2; exit 1; }
+  python3 - "$KORONOS_ELF" <<'PY'
+import pathlib, struct, sys
+p = pathlib.Path(sys.argv[1])
+d = p.read_bytes()
+if len(d) < 64 or d[:4] != b'\\x7fELF' or d[4] != 2 or d[5] != 1:
+    raise SystemExit("Koronos artifact must be a little-endian ELF64 image")
+if struct.unpack_from("<H", d, 18)[0] != 62:
+    raise SystemExit("Koronos artifact must target x86-64 (EM_X86_64)")
+magic = 0xE85250D6
+valid = False
+for off in range(0, min(len(d), 32768) - 16, 8):
+    if struct.unpack_from("<I", d, off)[0] != magic:
+        continue
+    arch, length, checksum = struct.unpack_from("<III", d, off + 4)
+    if arch == 0 and length >= 16 and off + length <= len(d) and ((magic + arch + length + checksum) & 0xffffffff) == 0:
+        valid = True
+        break
+if not valid:
+    raise SystemExit("Koronos ELF has no valid Multiboot2 header in its first 32 KiB")
+print("Validated Multiboot2 x86-64 Koronos ELF:", p)
+PY
+  install -Dm644 "$KORONOS_ELF" "$ISODIR/boot/koronos.elf"
+fi
+
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
 set default=0
-set timeout=10
+set timeout=15
+set timeout_style=menu
 insmod all_video
 insmod gfxterm
 insmod png
 insmod jpeg
 insmod font
-set gfxmode=1920x1080,1280x1024,1024x768,auto
+set gfxmode=1920x1080,1680x1050,1600x900,1366x768,1280x1024,1280x720,1024x768,800x600,auto
 set gfxpayload=keep
 terminal_output gfxterm
 if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
 
-menuentry "$TITLE $VERSION — Live desktop" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Live desktop" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=live console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
   initrd /live/initrd.img
 }
-menuentry "$TITLE $VERSION — Classic X session (openbox)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Installer" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=installer console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Koronos native kernel" {
+  if [ -f /boot/koronos.elf ]; then
+    multiboot2 /boot/koronos.elf
+    boot
+  else
+    echo "Koronos kernel not bundled: build with KORONOS_ELF=/path/to/multiboot2-koronos.elf"
+    echo "This ISO remains the Linux-kernel live edition; no native-kernel claim is made."
+    sleep 12
+  fi
+}
+menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Recovery" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live chimera.mode=recovery console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Classic X session (Openbox)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0 fbcon=nodefer
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Safe graphics (nomodeset)" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live nomodeset console=tty0 console=ttyS0,115200n8 quiet loglevel=3
-  initrd /live/initrd.img
-}
-menuentry "$TITLE $VERSION — Verbose boot" {
-  linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live nomodeset console=tty0 console=ttyS0,115200n8 loglevel=7 ignore_loglevel printk.time=1 systemd.show_status=1 rd.systemd.show_status=1 plymouth.enable=0
   initrd /live/initrd.img
 }
 menuentry "Reboot" { reboot }
