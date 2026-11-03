@@ -143,13 +143,15 @@ jobs:
           set +e
           timeout 30s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
-            -boot order=d -display none -serial none -monitor none \
+            -boot order=d -display none -serial file:/tmp/chimera-qemu-serial.log -monitor none \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
             -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
           qemu_rc=$?
           set -e
           cat /tmp/chimera-qemu.log
+          echo "=== GRUB / kernel serial log ==="
+          cat /tmp/chimera-qemu-serial.log 2>/dev/null || true
           if [ -f /tmp/chimera-qemu-debugcon.log ]; then
             python3 - <<'PY'
           from pathlib import Path
