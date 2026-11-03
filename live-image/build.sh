@@ -104,14 +104,13 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh mpv \
-      geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish codeblocks codeblocks-contrib qtcreator arduino fp-ide \
       build-essential cmake ninja-build git gdb clang lld pkg-config nasm binutils \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
     # Add optional open-source IDEs only when the signed Debian repository provides them.
-    optional_ide_packages=(eclipse-platform eric spyder gambas3-ide)
+    optional_ide_packages=(geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish codeblocks codeblocks-contrib qtcreator arduino fp-ide eclipse-platform eric spyder gambas3-ide)
     available_ide_packages=()
     for package in "${optional_ide_packages[@]}"; do
       if apt-cache show "$package" >/dev/null 2>&1; then
