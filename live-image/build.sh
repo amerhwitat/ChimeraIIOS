@@ -147,6 +147,7 @@ cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/shared/"
 cp -a "$REPO_DIR/desktop/shared/." "$PAY/desktop/desktop/shared/"
 install -m 0644 "$REPO_DIR/desktop/shared/network-applications.desktop" "$WORK/usr/share/applications/aurora-network-applications.desktop"
 install -m 0644 "$REPO_DIR/desktop/shared/voiceconnect-project.desktop" "$WORK/usr/share/applications/voiceconnect-project.desktop"
+install -m 0755 "$REPO_DIR/desktop/shared/voiceconnect-launcher.sh" "$WORK/usr/local/bin/voiceconnect-launcher"
 # Discover and compile SDK projects before packaging; vendor and generated trees
 # are excluded and all outcomes are recorded in build/sdk-build-results.tsv.
 if [[ "${CHIMERA_BUILD_REPO_SDKS:-1}" == "1" ]]; then
