@@ -76,12 +76,18 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_installer_loader_fails_closed_without_executable_init_context(self):
         kernel = (ROOT / "kernel/core/koronos.cpp").read_text()
         installer = (ROOT / "tools/chimera-stage-installer-media.sh").read_text()
+        full_builder = (ROOT / "build-chimera-iso.sh").read_text()
+        runtime = (ROOT / "tools/chimera-installer-runtime.sh").read_text()
         process_api = (ROOT / "kernel/include/chimera/process.h").read_text()
         self.assertIn("CHIMERA_MODULE_USER_INIT_ELF", kernel)
         self.assertIn("KORONOS INSTALLER LOADER BLOCKED", kernel)
         self.assertIn("no executable installer init ELF module was supplied", kernel)
         self.assertIn("INITRAMFS DIAGNOSTIC SHELL READY", installer)
         self.assertIn("USERSPACE HANDOFF NOT VERIFIED", installer)
+        self.assertIn("INITRAMFS DIAGNOSTIC SHELL READY", full_builder)
+        self.assertIn("USERSPACE HANDOFF NOT VERIFIED", full_builder)
+        self.assertIn("No Koronos CPL3 installer process", full_builder)
+        self.assertIn("No Koronos CPL3 installer process", runtime)
         self.assertIn("CHIMERA_PROCESS_LOAD_PLAN_ONLY", process_api)
 
 
