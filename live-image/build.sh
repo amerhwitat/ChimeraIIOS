@@ -147,16 +147,16 @@ POLYGLOT_OUT="$BUILD/polyglot-apps-$ED"
 mkdir -p "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/linux" "$PAY/apps/polyglot/windows"
 POLYGLOT_ARGS=(--root "$REPO_DIR" --output "$POLYGLOT_OUT" --platform linux)
 if command -v pyinstaller >/dev/null 2>&1; then POLYGLOT_ARGS+=(--build); fi
-python3 "$REPO_DIR/tools/polyglot_apps.py" "\${POLYGLOT_ARGS[@]}"
+python3 "$REPO_DIR/tools/polyglot_apps.py" "${POLYGLOT_ARGS[@]}"
 cp -a "$POLYGLOT_OUT/polyglot-apps.json" "$PAY/apps/polyglot/polyglot-apps.json"
 if [ -d "$POLYGLOT_OUT/dist" ]; then cp -a "$POLYGLOT_OUT/dist/." "$PAY/apps/polyglot/linux/"; fi
 find "$REPO_DIR" -type f -name '*.py' -not -path '*/vendor/*' -not -path '*/tests/*' -not -path '*/.git/*' -not -path '*/.chimera-fix-backups/*' -print0 |
-  while IFS= read -r -d '' src; do rel="\${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+  while IFS= read -r -d '' src; do rel="${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
 find "$REPO_DIR" -type f -name '*.java' -not -path '*/vendor/*' -not -path '*/.git/*' -print0 |
-  while IFS= read -r -d '' src; do rel="\${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+  while IFS= read -r -d '' src; do rel="${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
 find "$REPO_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css' \) -not -path '*/vendor/*' -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 |
-  while IFS= read -r -d '' src; do rel="\${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
-if [ -n "\${WINDOWS_APP_BUNDLE_DIR:-}" ] && [ -d "$WINDOWS_APP_BUNDLE_DIR" ]; then
+  while IFS= read -r -d '' src; do rel="${src#"$REPO_DIR"/}"; install -D -m 0644 "$src" "$PAY/apps/polyglot/source-tree/$rel"; done
+if [ -n "${WINDOWS_APP_BUNDLE_DIR:-}" ] && [ -d "$WINDOWS_APP_BUNDLE_DIR" ]; then
   cp -a "$WINDOWS_APP_BUNDLE_DIR/." "$PAY/apps/polyglot/windows/"
 fi
 install -D -m 0644 /dev/null "$WORK/usr/share/applications/aurora-polyglot-apps.desktop"
@@ -171,7 +171,7 @@ Terminal=false
 Categories=Development;Utility;
 EOF_POLYGLOT
 install -m 0644 "$REPO_DIR/tools/polyglot_apps.py" "$PAY/apps/polyglot/polyglot_apps.py"
-if [ "\${INSTALL_WINE_COMPAT:-0}" = "1" ]; then
+if [ "${INSTALL_WINE_COMPAT:-0}" = "1" ]; then
   mount_chroot "$WORK"
   chroot "$WORK" /bin/bash -lc 'dpkg --add-architecture i386; apt-get update -qq; apt-get install -y --no-install-recommends wine wine64 wine32'
   umount_chroot "$WORK"
