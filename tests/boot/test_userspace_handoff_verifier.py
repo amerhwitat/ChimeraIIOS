@@ -28,6 +28,13 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("user-originated init syscall acknowledgement", result.stdout)
 
+    def test_initramfs_diagnostic_shell_is_not_native_userspace_readiness(self):
+        trace = KERNEL + "[LIVE] INITRAMFS DIAGNOSTIC SHELL; Koronos userspace handoff NOT VERIFIED\\n"
+        result = run("live", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("user-originated init syscall acknowledgement", result.stdout)
+        self.assertIn("actual init PID readiness marker", result.stdout)
+
     def test_requires_matching_target(self):
         trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
         result = run("installer", trace)
