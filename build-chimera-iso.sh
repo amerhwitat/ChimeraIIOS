@@ -254,7 +254,7 @@ process_snapshot(){
     echo "-- host processes --"
     ps -eo pid,ppid,stat,%cpu,%mem,etime,comm --sort=-%cpu 2>/dev/null || true
     echo "-- process tree --"
-    pstree -p $ 2>/dev/null | head -n 80 || true
+    pstree -p "$" 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
     docker ps -a --no-trunc --format '{{.ID}} {{.Image}} {{.Status}} {{.Names}}' 2>/dev/null || true
     echo "-- docker disk usage --"
@@ -498,10 +498,13 @@ preflight(){
 }
 state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
 state_fingerprint(){
-  local head diff
+  local head diff untracked
   head="$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || printf 'no-git')"
   diff="$(git -C "$SCRIPT_DIR" diff --binary HEAD -- . 2>/dev/null | sha256sum | awk '{print $1}')"
-  printf '%s:%s' "$head" "${diff:-no-diff}"
+  # Include untracked source/assets too: otherwise a newly added file could
+  # change the build inputs without invalidating a saved resume checkpoint.
+  untracked="$(git -C "$SCRIPT_DIR" ls-files --others --exclude-standard -z 2>/dev/null | xargs -0 -r sha256sum 2>/dev/null | sha256sum | awk '{print $1}')"
+  printf '%s:%s:%s' "$head" "${diff:-no-diff}" "${untracked:-no-untracked}"
 }
 state_mark(){
   local fingerprint
