@@ -20,6 +20,7 @@ Options:
   --storage PATH              Use PATH/chimera-build and PATH/chimera-output.
   --docker-only               Build/publish only the Docker image.
   --iso-only                  Build an ISO from an existing Docker image.
+  --full                      Force a clean full build, including native SDK compilation/tests and ISO staging.
   --tag TAG                   Docker image tag (default: latest).
   --background PATH           Aurora background artwork asset.
   --skip-apache               Skip Apache ecosystem integration.
@@ -279,6 +280,7 @@ header(){ printf '\n============================================================
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
 DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
+FULL_BUILD=0
 
 require_option_value() {
   local option="$1" value="${2:-}"
@@ -293,6 +295,7 @@ while [[ $# -gt 0 ]]; do
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
+    --full) FULL_BUILD=1; RESUME_BUILD=0; CLEAN_STATE=1; export CHIMERA_FULL_BUILD=1 CHIMERA_BUILD_NATIVE_ISO_PIPELINE=1; shift;;
     --resume|--resume-auto) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
     --storage-auto|--auto-storage) STORAGE_AUTO=1; shift;;
@@ -2043,6 +2046,25 @@ build_command_runtime(){
   [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
 }
+build_native_sdk(){
+  header 'FULL BUILD: COMPILE, TEST AND STAGE CHIMERA SDK'
+  local sdk_src="$SCRIPT_DIR/sdk" sdk_build="$BUILD_DIR/sdk" sdk_dest="$ROOTFS_DIR/opt/chimera-sdk"
+  [[ -s "$sdk_src/CMakeLists.txt" ]] || { log_error "SDK CMake project is missing: $sdk_src/CMakeLists.txt"; return 1; }
+  command -v cmake >/dev/null 2>&1 || { log_error "CMake is required for --full SDK compilation"; return 2; }
+  command -v ctest >/dev/null 2>&1 || { log_error "CTest is required for --full SDK validation"; return 2; }
+  mkdir -p "$sdk_build" "$sdk_dest" "$ISO_DIR/install/sdk"
+  cmake -S "$sdk_src" -B "$sdk_build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/chimera-sdk
+  cmake --build "$sdk_build" --parallel "${CHIMERA_BUILD_JOBS:-2}"
+  ctest --test-dir "$sdk_build" --output-on-failure
+  DESTDIR="$ROOTFS_DIR" cmake --install "$sdk_build"
+  mkdir -p "$ISO_DIR/install/sdk/source"
+  cp -a "$sdk_src/." "$ISO_DIR/install/sdk/source/"
+  for manifest in manifest.json SDK_BUILD_MANIFEST.json runtime-profiles.json; do
+    [[ -s "$sdk_src/$manifest" ]] && cp -f "$sdk_src/$manifest" "$ISO_DIR/install/sdk/"
+  done
+  [[ -s "$sdk_dest/share/chimera/sdk/SDK_BUILD_MANIFEST.json" ]] || { log_error "Installed SDK build manifest missing from rootfs"; return 1; }
+  log_success "Native SDK compiled, CTest-validated, installed into rootfs and staged in ISO."
+}
 
 main(){
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
@@ -2084,7 +2106,17 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
+<<<<<<< HEAD
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games extended linuxboot scripts squashfs iso verify native-iso report; do
+=======
+  local -a build_stages=(docker rootfs commands)
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    build_stages+=(sdk)
+    log_info "--full enabled: clean rebuild plus native SDK compilation, CTest and ISO staging."
+  fi
+  build_stages+=(docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report)
+  for stage in "${build_stages[@]}"; do
+>>>>>>> 80664aff1 (build: add clean --full SDK build and ISO staging)
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -2093,6 +2125,7 @@ main(){
       docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
+      sdk) run_stage sdk build_native_sdk;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
