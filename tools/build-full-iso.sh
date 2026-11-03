@@ -127,6 +127,10 @@ mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets" 
 if [[ -d "$ROOT/desktop/marine/assets" ]]; then
   cp -a "$ROOT/desktop/marine/assets/." "$STAGE/desktop/marine/assets/"
 fi
+# Keep the named offline wallpaper and its manifest explicit in the ISO contract.
+for art in marine-desktop.svg artwork-manifest.json; do
+  [[ -s "$ROOT/desktop/marine/assets/$art" ]] && cp -f "$ROOT/desktop/marine/assets/$art" "$STAGE/desktop/marine/assets/$art"
+done
 for art in aurora_boot_splash.svg; do
   [[ -s "$ROOT/boot/splash/$art" ]] && cp -f "$ROOT/boot/splash/$art" "$STAGE/boot/visual/$art"
 done
