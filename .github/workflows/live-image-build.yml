@@ -261,7 +261,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x tests/live-image/test-qemu-live-boot.sh
-          for target in live installer koronos recovery linux-rescue; do
+          for target in live linux-rescue installer native-recovery koronos; do
             tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence/$target" "$target"
           done
       - name: Upload QEMU boot evidence
