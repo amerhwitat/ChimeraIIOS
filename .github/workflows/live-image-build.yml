@@ -60,7 +60,7 @@ jobs:
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
           bash -n live-image/build.sh boot/spitfire/build-spitfire.sh tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh
           bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh desktop/aurora/aurora-init-splash.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
-          python3 -m json.tool install/installation-manifest.json >/dev/null
+          python3 -m json.tool install/installation-manifest.json >/dev/null\n          python3 -m json.tool boot/boot-menu-contract.json >/dev/null
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
           if [[ "chimera" == "chimera" ]]; then
             python3 -m json.tool applications/catalog.json >/dev/null
@@ -126,10 +126,11 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-sf0-mbr.bin "$OUT_DIR/spitfire-sf0-mbr.bin" >/dev/null
           test "$(stat -c%s "$OUT_DIR/spitfire-sf0-mbr.bin")" -eq 512
           xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$OUT_DIR/native-runtime-candidates.json" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/boot-menu-contract.json "$OUT_DIR/boot-menu-contract.json" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/Init.mp4 "$OUT_DIR/boot-Init.mp4" >/dev/null
           test -s "$OUT_DIR/boot-Init.mp4"
           chmod +x tests/live-image/test-grub-targets.sh
-          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/gates-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json"
+          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/gates-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json" "$OUT_DIR/boot-menu-contract.json"
           for artifact in \
             /boot/candidates/installer/installer-initrd.img \
             /boot/candidates/installer/installation.img \
