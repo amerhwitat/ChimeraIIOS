@@ -89,6 +89,9 @@ mkdir -p "$STAGE/boot/visual" "$STAGE/boot/grub" "$STAGE/desktop/aurora/assets" 
 if [[ -d "$ROOT/desktop/marine/assets" ]]; then
   cp -a "$ROOT/desktop/marine/assets/." "$STAGE/desktop/marine/assets/"
 fi
+for art in marine-desktop.svg artwork-manifest.json; do
+  [[ -s "$ROOT/desktop/marine/assets/$art" ]] && cp -f "$ROOT/desktop/marine/assets/$art" "$STAGE/desktop/marine/assets/$art"
+done
 for art in aurora-wayland-glass.jpg.b64; do
   if [[ -s "$ROOT/boot/visual/$art" ]]; then
     base64 -d "$ROOT/boot/visual/$art" > "$STAGE/boot/visual/aurora-wayland-glass.jpg"
