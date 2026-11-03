@@ -78,6 +78,8 @@ cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
+mkdir -p "$STAGE/boot/gates"
+cp -a "$ROOT/boot/gates/." "$STAGE/boot/gates/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
