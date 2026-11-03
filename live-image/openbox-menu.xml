@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openbox_menu xmlns="http://openbox.org/3.4/menu">
   <menu id="root-menu" label="Chimera / Octavian">
-    <menu id="development-menu" label="Open-source Development IDEs">
+    <menu id="network-menu" label="Network Applications">
+    <item label="Network Applications Panel"><action name="Execute"><command>xdg-open /opt/aurora/desktop/shared/network-applications.html</command></action></item>
+    <item label="VoiceConnect Project"><action name="Execute"><command>xdg-open https://github.com/amerhwitat/test/tree/feat/voiceconnect-p2p-camera</command></action></item>
+    <item label="Firefox"><action name="Execute"><command>firefox</command></action></item>
+    <item label="Thunderbird"><action name="Execute"><command>thunderbird</command></action></item>
+    <item label="Remmina"><action name="Execute"><command>remmina</command></action></item>
+    <item label="Syncthing"><action name="Execute"><command>syncthing</command></action></item>
+    <item label="Wireshark"><action name="Execute"><command>wireshark</command></action></item>
+    <item label="OpenSSH Terminal"><action name="Execute"><command>xterm -e ssh</command></action></item>
+  </menu>
+  <menu id="development-menu" label="Open-source Development IDEs">
       <item label="Geany"><action name="Execute"><command>geany</command></action></item>
       <item label="GNOME Builder"><action name="Execute"><command>gnome-builder</command></action></item>
       <item label="KDevelop"><action name="Execute"><command>kdevelop</command></action></item>
