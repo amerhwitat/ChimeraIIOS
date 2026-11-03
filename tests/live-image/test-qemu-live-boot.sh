@@ -32,7 +32,8 @@ cleanup() {
 trap cleanup EXIT
 qemu-system-x86_64 \
   -machine pc,accel=tcg -cpu max -m 4096 -smp 2 -vga std -display none \
-  -serial "file:$serial" -monitor "unix:$monitor,server,nowait" \
+  -serial "file:$serial" -debugcon "file:$OUT/debugcon.log" -global isa-debugcon.iobase=0xe9 \
+  -monitor "unix:$monitor,server,nowait" \
   -netdev user,id=net0 -device e1000,netdev=net0 -boot order=d -no-reboot \
   -cdrom "$ISO" >"$qemu_log" 2>&1 &
 pid=$!
@@ -60,7 +61,25 @@ fi
 case "$TARGET" in
   live) match='Aurora|Application' ;;
   installer) match='INSTALLER NOT CONFIGURED|No disk changes were made' ;;
-  koronos) match='Koronos kernel not bundled|Linux-kernel live edition' ;;
+  koronos)
+    # Kernel entry emits E (32-bit), L (long mode), B (kernel entry), C (idle loop) to port 0xE9.
+    for attempt in $(seq 1 30); do
+      sleep 1
+      if [[ -s "$OUT/debugcon.log" ]] && grep -q "ELBC" "$OUT/debugcon.log"; then
+        cat >"$OUT/RESULT.txt" <<EOF
+QEMU native Koronos Multiboot2 boot: PASS
+Observed debug-port sequence: $(cat "$OUT/debugcon.log")
+Physical-machine boot: NOT TESTED
+CPL3 userspace readiness: NOT IMPLIED BY THIS ENTRY MARKER.
+EOF
+        cat "$OUT/RESULT.txt"
+        exit 0
+      fi
+    done
+    echo "Koronos did not emit the complete ELBC entry sequence." >&2
+    cat "$OUT/debugcon.log" 2>/dev/null || true
+    exit 1
+    ;;
   recovery) match='RESCUE SHELL|No disk is modified' ;;
 esac
 target_seen=0
