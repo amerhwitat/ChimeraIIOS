@@ -44,7 +44,18 @@ echo "[INSTALL] Interactive recovery shell ready; disk operations remain disable
 exec /bin/sh
 EOF
 chmod +x "$P/init"
-( cd "$P" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installation.img"
-cp -f "$DEST/install/installer/installation.img" "$DEST/install/installer/installer-initrd.img"
+# The native initramfs and installer payload are separate artifacts. The
+# initramfs contains its own /init and BusyBox runtime; installation.img is
+# the OS-specific contract/phase/profile payload supplied as a second module.
+( cd "$P" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installer-initrd.img"
+PAYLOAD="$WORK/installation-payload"
+mkdir -p "$PAYLOAD/install/installer"
+for f in "$ROOT/install/installation-manifest.json" "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do
+  [[ -f "$f" ]] || { echo "ERROR: required Installer payload manifest missing: $f" >&2; exit 2; }
+  cp -f "$f" "$PAYLOAD/install/installer/"
+done
+( cd "$PAYLOAD" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installation.img"
+test -s "$DEST/install/installer/installer-initrd.img"
+test -s "$DEST/install/installer/installation.img"
 for f in "$ROOT/install/installation-manifest.json" "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$DEST/install/installer/"; done
 printf '[INFO] Installer media staged in %s/install/installer\n' "$DEST"
