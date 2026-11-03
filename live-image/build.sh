@@ -483,6 +483,9 @@ install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/s
 install -m 0644 "$HERE/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
 install -m 0644 "$HERE/jasper-live.cfg" "$ISODIR/boot/jasper/live-image.cfg"
 install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$ISODIR/boot/grub/background.jpg"
+# Ship the intro beside the menu for diagnostics/provenance. GRUB does not
+# decode MP4; playback begins after the selected Linux target starts Openbox.
+install -D -m 0644 "$WORK/usr/share/chimera/aurora/assets/Init.mp4" "$ISODIR/boot/spitfire/Init.mp4"
 # Build separate native Koronos Installer and Recovery initramfs candidates.
 # They are deliberately staged outside the active boot paths: the current
 # native CPL3/userspace acceptance gate has not certified these runtimes.
