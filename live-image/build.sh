@@ -66,6 +66,8 @@ REPO_URL="$(git -C "$REPO_DIR" config --get remote.origin.url 2>/dev/null | sed 
 
 log() { printf '\n== [%s] %s\n' "$ED" "$*"; }
 
+python3 "$HERE/tests/test-image-bundle-contract.py"
+
 # ---------------------------------------------------------------- base rootfs
 if [ ! -x "$BASE/bin/bash" ] || [ "${REBUILD_BASE:-0}" = "1" ]; then
   log "debootstrap trixie -> $BASE"
