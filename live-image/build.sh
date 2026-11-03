@@ -494,10 +494,10 @@ def files(path):
 manifest={
  "schema":"koronos-native-runtime-candidates-v1",
  "edition":edition,
- "installer":{"artifacts":files(root/"installer"),"bootable":False},
- "recovery":{"artifacts":files(root/"recovery"),"bootable":False},
- "activation_policy":"Candidate images are not copied to the active GRUB/Koronos handoff paths. Native installer/recovery remain blocked until the CPL3 syscall/PID readiness and target-specific cold-boot verifiers pass.",
- "status":"built-candidate-not-production-runtime"
+ "installer":{"artifacts":files(root/"installer"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "recovery":{"artifacts":files(root/"recovery"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "activation_policy":"These prototype archives contain a Linux BusyBox userspace and are NOT native Koronos runtimes. They are not copied to active GRUB/Koronos handoff paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot verifiers pass.",
+ "status":"prototype-built-not-native-koronos-runtime"
 }
 (root/"native-runtime-candidates.json").write_text(json.dumps(manifest,indent=2)+"\n")
 PY
