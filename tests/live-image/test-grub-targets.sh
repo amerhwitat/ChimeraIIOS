@@ -51,8 +51,8 @@ import json, pathlib, sys
 m = json.loads(pathlib.Path(sys.argv[1]).read_text())
 contract = json.loads(pathlib.Path(sys.argv[2]).read_text())
 assert contract["primary_loader"] == "GRUB2 BIOS/UEFI El Torito"
-assert contract["firmware_menu"] == "Spit Fire"
-assert contract["policy_menu"] == "Gates"
+assert contract["firmware_menu"] == "Gates"
+assert contract["policy_menu"] == "Gates"\nassert contract["boot_policy_stage"] == "Spit Fire GRUB menu"
 assert contract["menu_manager"] == "Jasper"
 assert contract["linux_vmlinuz"] is True
 assert "/boot/gates/gates-menu.cfg" in contract["spitfire_artifacts"]["menu"]
