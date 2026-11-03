@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 #include <cstring>
 #include <string>
+#include <utility>
 
 namespace {
 const char* desktop_id = "aurora";
@@ -151,7 +152,7 @@ void card_pressed(GtkGestureClick* gesture,int presses,double,double,gpointer da
   gtk_widget_add_css_class(card,"selected");
   if(presses==2){
     GtkWidget* open=static_cast<GtkWidget*>(g_object_get_data(G_OBJECT(card),"open-button"));
-    if(open)gtk_widget_activate(open);
+    if(open)g_signal_emit_by_name(open,"clicked");
   }else if(presses>=3)show_properties(card,"Selected application");
 }
 
@@ -191,6 +192,54 @@ void install_style() {
   g_object_unref(provider);
 }
 
+
+void desktop_menu_action(GSimpleAction* action,GVariant*,gpointer data){
+  GtkApplication* app=GTK_APPLICATION(data);
+  const char* name=g_action_get_name(G_ACTION(action));
+  if(std::strcmp(name,"files")==0){launch_clicked(nullptr,const_cast<char*>("files"));return;}
+  if(std::strcmp(name,"terminal")==0){launch_clicked(nullptr,const_cast<char*>("terminal"));return;}
+  if(std::strcmp(name,"browser")==0){launch_clicked(nullptr,const_cast<char*>("browser"));return;}
+  if(std::strcmp(name,"settings")==0){launch_clicked(nullptr,const_cast<char*>("settings"));return;}
+  if(std::strcmp(name,"minimize")==0){if(main_window)gtk_window_minimize(main_window);return;}
+  if(std::strcmp(name,"maximize")==0){if(main_window){if(gtk_window_is_maximized(main_window))gtk_window_unmaximize(main_window);else gtk_window_maximize(main_window);}return;}
+  if(std::strcmp(name,"close")==0){if(main_window)gtk_window_close(main_window);return;}
+  if(std::strcmp(name,"tile")==0||std::strcmp(name,"cascade")==0){set_status("Window tiling/cascading across applications is provided by the active Wayland compositor. Use its window overview or keyboard shortcuts.");return;}
+  if(std::strcmp(name,"rename")==0){set_status("Select a desktop item; host filesystem rename is delegated to a real file manager.");return;}
+  if(std::strcmp(name,"properties")==0){show_properties(GTK_WIDGET(main_window),"Desktop workspace");return;}
+  if(std::strcmp(name,"about")==0){show_properties(GTK_WIDGET(main_window),desktop_name());return;}
+  if(std::strcmp(name,"refresh")==0){set_status("Desktop shell refreshed.");return;}
+  (void)app;
+}
+void add_menu_action(GtkApplication* app,const char* name){
+  GSimpleAction* action=g_simple_action_new(name,nullptr);
+  g_signal_connect(action,"activate",G_CALLBACK(desktop_menu_action),app);
+  g_action_map_add_action(G_ACTION_MAP(app),G_ACTION(action));
+  g_object_unref(action);
+}
+GtkWidget* build_menu_bar(GtkApplication* app){
+  const char* names[]={"files","terminal","browser","settings","rename","properties","refresh","tile","cascade","minimize","maximize","close","about"};
+  for(const char* name:names)add_menu_action(app,name);
+  GMenu* root=g_menu_new();
+  const struct MenuDef{const char* title;const char* label;const char* action;} entries[]={
+    {"File","Open Files","app.files"},{"File","Open Terminal","app.terminal"},
+    {"Edit","Rename Selected","app.rename"},{"Edit","Properties","app.properties"},
+    {"View","Refresh Desktop","app.refresh"},{"Window","Tile Windows","app.tile"},
+    {"Window","Cascade Windows","app.cascade"},{"Window","Minimize","app.minimize"},
+    {"Window","Maximize / Restore","app.maximize"},{"Window","Close","app.close"},
+    {"Help","About","app.about"}};
+  for(const char* menuName:{"File","Edit","View","Window","Help"}){
+    GMenu* submenu=g_menu_new();
+    for(const auto& entry:entries)if(std::strcmp(entry.title,menuName)==0)
+      g_menu_append(submenu,entry.label,entry.action);
+    if(std::strcmp(menuName,"File")==0){g_menu_append(submenu,"Open Browser","app.browser");g_menu_append(submenu,"Open Settings","app.settings");}
+    g_menu_append_submenu(root,menuName,G_MENU_MODEL(submenu));
+    g_object_unref(submenu);
+  }
+  GtkWidget* bar=gtk_popover_menu_bar_new_from_model(G_MENU_MODEL(root));
+  g_object_unref(root);
+  return bar;
+}
+
 void activate(GtkApplication* app, gpointer) {
   install_style();
   GtkWidget* window = gtk_application_window_new(app);
@@ -208,6 +257,7 @@ void activate(GtkApplication* app, gpointer) {
   gtk_header_bar_set_title_widget(GTK_HEADER_BAR(header), title);
   gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(header), TRUE);
   gtk_box_append(GTK_BOX(root), header);
+  gtk_box_append(GTK_BOX(root),build_menu_bar(app));
 
   GtkWidget* body = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_set_vexpand(body, TRUE);
