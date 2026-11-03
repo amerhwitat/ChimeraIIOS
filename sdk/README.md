@@ -28,7 +28,7 @@ Zig, Go, Fortran and Swift are exposed through toolchain drivers and the common 
 ## Build coverage
 
 `tools/build-sdk.sh` compiles and tests the C/C++ CMake SDK, Java/JAR, C#/.NET,
-Rust/Cargo and Python package sources. It also probes Objective-C/Foundation, Zig,
+Rust/Cargo and Python package sources. It also probes NASM assembly, Objective-C/Foundation, Zig,
 Go, GNU Fortran and Swift compilers and builds a small compile artifact for each
 available frontend. Missing optional toolchains are recorded as explicit
 `SKIP` entries in `share/chimera/toolchain-smoke/status.txt`; the ISO builder
