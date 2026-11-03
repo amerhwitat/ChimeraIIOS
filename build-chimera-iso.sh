@@ -1486,6 +1486,9 @@ build_sdk(){
   [[ -s "$ROOTFS_DIR/opt/chimera-sdk/include/chimera/sdk.h" ]] || {
     log_error "SDK headers were not staged into the ISO rootfs"; return 1;
   }
+  [[ -s "$ROOTFS_DIR/opt/chimera-sdk/share/chimera/toolchain-smoke/status.txt" ]] || {
+    log_error "SDK toolchain smoke status was not staged into the ISO rootfs"; return 1;
+  }
   find "$ROOTFS_DIR/opt/chimera-sdk" -maxdepth 3 -type f -print | sort \
     > "$LOG_DIR/sdk-staged-files.txt"
   [[ -s "$LOG_DIR/sdk-staged-files.txt" ]] || {
