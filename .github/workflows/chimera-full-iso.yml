@@ -146,8 +146,8 @@ jobs:
           assert "configfile /boot/jasper/jasper.cfg" in spit
           assert "native-installer-runtime.ready" in installer
           assert "native-recovery-runtime.ready" in recovery
-          assert "Native Koronos Installer" in jasper
-          assert "Native Koronos Recovery" in jasper
+          assert "Native Koronos Installer" in installer
+          assert "Native Koronos Recovery" in recovery
           print("ISO payload check passed: GRUB2 -> Spit Fire -> Jasper, Spit Fire BIOS artifacts, and fail-closed runtime prototypes are embedded.")
           PY
 
