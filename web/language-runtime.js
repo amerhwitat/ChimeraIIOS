@@ -57,7 +57,22 @@
   const panel = document.createElement("section");
   panel.id = "auroraLanguagePanel"; panel.hidden = true; panel.setAttribute("role","dialog"); panel.setAttribute("aria-modal","false");
   panel.innerHTML = '<h2 id="auroraLanguageTitle"></h2><label id="auroraDisplayLabel" for="auroraDisplaySelect"></label><select id="auroraDisplaySelect"></select><label id="auroraCustomLabel" for="auroraCustomLocale"></label><div class="actions"><input id="auroraCustomLocale" type="text" maxlength="64" placeholder="fr-CA" autocomplete="off"><button id="auroraApplyCustom" type="button"></button></div><label id="auroraInputLabel" for="auroraInputSelect"></label><select id="auroraInputSelect"></select><div class="actions"><button id="auroraSpeak" type="button"></button><button id="auroraDictate" type="button"></button><button id="auroraClose" type="button"></button></div><p id="auroraLanguageStatus" class="status" role="status" aria-live="polite"></p>';
-  document.body.append(button, panel);
+  const voiceButton = document.createElement("button");
+  voiceButton.id = "auroraVoiceConnectButton";
+  voiceButton.type = "button";
+  voiceButton.textContent = "VoiceConnect";
+  voiceButton.setAttribute("aria-label", "Launch VoiceConnect P2P");
+  voiceButton.style.cssText = "position:fixed;top:44px;left:18px;z-index:10001;border:1px solid #ffffff55;border-radius:11px;padding:8px 13px;background:#102943ef;color:#fff;font:600 12px system-ui;cursor:pointer;box-shadow:0 5px 22px #0005";
+  voiceButton.addEventListener("click", () => {
+    const bridge = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.auroraHost;
+    if (bridge) {
+      bridge.postMessage(JSON.stringify({type:"launch-app",app:"voiceconnect"}));
+      status("Starting the local VoiceConnect interface. Call readiness depends on network and peer connectivity.");
+    } else {
+      status("VoiceConnect is packaged for the live desktop session; the native launch bridge is unavailable here.");
+    }
+  });
+  document.body.append(button, panel, voiceButton);
   const $ = id => document.getElementById(id);
   const display = $("auroraDisplaySelect"), input = $("auroraInputSelect");
   languages.forEach(([tag,name,layout]) => {
