@@ -41,13 +41,23 @@ if command -v wireplumber >/dev/null 2>&1 && ! pgrep -u "$(id -u)" -x wireplumbe
   wireplumber >/tmp/aurora-wireplumber.log 2>&1 &
 fi
 
-# Optional initialization video. It is launched only after Wayland is ready and
-# never blocks the desktop if video playback is unavailable.
-if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then
+# Play the existing Init.mp4 boot indicator only after labwc has started
+# Wayland. GRUB/Jasper cannot decode MP4; early boot remains on its native
+# framebuffer/SVG/text progress path until Aurora graphical userspace is ready.
+# Playback is optional and must never block or prevent the desktop from starting.
+if [[ -x "$AURORA/aurora-init-splash.sh" ]]; then
   CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
-  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4" \
-    CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
+  if [[ ! -s "$CHIMERA_INIT_VIDEO" ]]; then
+    CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4"
+  fi
+  CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}"
+  export CHIMERA_INIT_VIDEO CHIMERA_PROGRESS_FILE
+  if [[ -s "$CHIMERA_INIT_VIDEO" ]]; then
     bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+    log "Init.mp4 boot indicator launched after Wayland became ready: $CHIMERA_INIT_VIDEO"
+  else
+    log "Init.mp4 boot indicator unavailable; continuing with Aurora background and text progress"
+  fi
 fi
 
 if command -v swaybg >/dev/null 2>&1; then
