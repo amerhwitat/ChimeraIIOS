@@ -54,7 +54,8 @@ assert contract["firmware_menu"] == "Spit Fire"
 assert contract["policy_menu"] == "Gates"
 assert contract["menu_manager"] == "Jasper"
 assert contract["linux_vmlinuz"] is True
-assert "/boot/gates/gates-menu.cfg" in contract["spitfire_artifacts"]["menu"]\nassert "/boot/jasper/live-image.cfg" in contract["spitfire_artifacts"]["menu"]
+assert "/boot/gates/gates-menu.cfg" in contract["spitfire_artifacts"]["menu"]
+assert "/boot/jasper/live-image.cfg" in contract["spitfire_artifacts"]["menu"]
 assert contract["runtime_candidates"]["installer"].endswith("bootable_by_koronos=false")
 assert contract["runtime_candidates"]["recovery"].endswith("bootable_by_koronos=false")
 assert m["schema"] == "koronos-native-runtime-candidates-v1"
