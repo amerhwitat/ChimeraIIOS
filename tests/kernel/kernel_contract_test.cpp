@@ -175,5 +175,14 @@ int main() {
                                   rejected_nodes, 8u) != 0);
     assert(chimera_vfs_root() == &published_tree);
     assert(chimera_vfs_lookup("/init") == init_node);
+
+    const auto missing_parent = archive({
+        {"./etc/settings", 0100644u, "x", 1u, false, UINT32_MAX}
+    });
+    chimera_vfs_tree orphan_tree{};
+    chimera_vfs_node orphan_nodes[8]{};
+    assert(chimera_vfs_mount_newc(missing_parent.data(), missing_parent.size(),
+                                  &orphan_tree, orphan_nodes, 8u) != 0);
+    assert(chimera_vfs_root() == &published_tree);
     return 0;
 }
