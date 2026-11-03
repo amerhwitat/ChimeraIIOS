@@ -34,7 +34,7 @@ static int hex32(const uint8_t *p, uint32_t *out) {
 }
 static bool safe_name(const char *name, uint32_t size, uint32_t mode,
                       const char **normalized) {
-    if (!name || !normalized || size == 0u ||
+    if (!name || !normalized || size < 2u ||
         size > CHIMERA_CPIO_NEWC_MAX_NAME || name[size - 1u] != 0) return false;
     for (uint32_t i = 0; i + 1u < size; ++i)
         if (name[i] == 0) return false;
