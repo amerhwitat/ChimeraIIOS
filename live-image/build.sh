@@ -505,6 +505,7 @@ install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/s
 install -m 0644 "$HERE/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
 install -m 0644 "$HERE/gates-menu.cfg" "$ISODIR/boot/gates/gates-menu.cfg"
 install -m 0644 "$HERE/jasper-live.cfg" "$ISODIR/boot/jasper/live-image.cfg"
+install -D -m 0644 "$NATIVE_SOURCE/boot/boot-menu-contract.json" "$ISODIR/boot/boot-menu-contract.json"
 install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$ISODIR/boot/grub/background.jpg"
 # Ship the intro beside the menu for diagnostics/provenance. GRUB does not
 # decode MP4; playback begins after the selected Linux target starts Openbox.
