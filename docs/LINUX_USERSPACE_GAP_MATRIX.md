@@ -10,8 +10,8 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 
 | Area | Linux behavior | ChimeraIIOS evidence/state | Required implementation / acceptance |
 |---|---|---|---|
-| Boot payload | Kernel consumes initramfs and executes its /init as PID 1 | Multiboot2 module scanner classifies init ELF and Live/Recovery payloads; a bounded CPIO-newc walker now validates 070701/070702 headers, CRC, paths, file types and trailer, but is not yet connected to a root VFS | Verify target-specific module identity/hash; connect the bounded parser to VFS extraction; reject duplicate paths, malformed headers and truncated archives |
-| Root filesystem/VFS | Initramfs entries are published as a root mount; mount namespace and VFS mediate path lookup | Existing build/initramfs code does not prove a production root was published through a kernel VFS | Connect the tested archive walker to a transactional VFS publisher; reject duplicate paths at the VFS boundary; mount / and verify /init, /dev, /proc and writable /tmp; fail closed on partial mount |
+| Boot payload | Kernel consumes initramfs and executes its /init as PID 1 | Multiboot2 module scanner classifies init ELF and Live/Recovery payloads; bounded CPIO-newc parsing now feeds a transactional VFS tree and atomically publishes the root for raw 070701/070702 modules; compressed archives are still rejected explicitly | Verify target-specific module identity/hash; connect the bounded parser to VFS extraction; reject duplicate paths, malformed headers and truncated archives |
+| Root filesystem/VFS | Initramfs entries are published as a root mount; mount namespace and VFS mediate path lookup | A bounded, allocation-free initramfs snapshot now publishes a root pointer only after complete archive, duplicate-path, parent-directory and symlink traversal validation; Live/Recovery tasks attempt the mount for raw CPIO modules | Add the decompressor(s) matching the produced initramfs format; then implement VFS inode/dentry/file operations, mount points and rootfs semantics; mount /dev, /proc, /sys and bounded writable /tmp; verify /init and fail closed on partial mount |
 | ELF/process | execve maps PT_LOAD, BSS, stack/auxv, permissions, then enters user mode | ELF admission and callback-based load planning exist; they are not equivalent to scheduled ring-3 execution | Connect address-space mapper, context/trampoline, TSS/RSP0, per-process CR3, guarded user stack, scheduler and cleanup |
 | Syscalls | Syscalls operate on the calling task and validate user pointers | Compatibility semantic dispatcher had fabricated PID 1 and acknowledged exit without teardown; this commit changes those cases to ENOSYS | Route native syscall entry to active process context; validate user memory; implement real PID, read/write, mmap/munmap, wait, exit/exit_group |
 | Process lifecycle | fork/clone, exec, wait/reap, signals and exit status have defined semantics | Process records exist, but process records alone do not provide runnable contexts or parent/child lifecycle | Add context-owned task/process association, child creation, exit/reap, wait queues, signals and fault cleanup; test races and stale PID/handle reuse |
@@ -27,7 +27,7 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 
 ## Immediate implementation order
 
-1. Rootfs archive extraction and actual VFS root publication.
+1. Complete rootfs ingestion: compressed CPIO decoding, VFS operations/mount points and /dev, /proc, /sys, /tmp.
 2. Kernel-owned process context connected to ELF loader, ring-3 entry and syscall entry.
 3. Real PID/exit/wait semantics and fd/VFS syscall path.
 4. Runnable init/service manager and health-checked Live/Installer/Recovery targets.
@@ -42,3 +42,24 @@ The production gate remains fail-closed. Required evidence is a native build and
 ## Linux source mapping
 
 Use Linux as a behavioral reference, not as code to copy wholesale: initramfs and rootfs handling (init/initramfs.c, fs/), process creation and exit (kernel/fork.c, kernel/exit.c), syscall entry and dispatch (arch/x86/entry/, kernel/sys.c), scheduler (kernel/sched/), and procfs (fs/proc/). Exact Linux APIs and source paths vary by kernel release and architecture.
+
+
+## Linux 7.x behavior comparison
+
+The current Linux 7.x reference workflow is not just a CPIO parser: the kernel expands a
+compressed CPIO initramfs into rootfs, then executes `/init` as PID 1. The init process
+mounts the required pseudo-filesystems, locates or switches to the real root when needed,
+and continues boot. Linux VFS then mediates path lookup through filesystem objects and
+operations; it is not a flat archive index. The PID 1 service manager is a userspace
+program, not a kernel service.
+
+The new Koronos VFS is a deliberately smaller first step: it validates and indexes raw
+newc entries in caller-owned bounded storage, retains the archive as backing memory, and
+publishes one root pointer transactionally. It does not yet decompress the ISO's initramfs,
+implement Linux-like inode/dentry/file/mount semantics, provide pseudo-filesystems, or
+execute `/init`. Do not call this Linux VFS parity.
+
+Reference documentation:
+- [Linux 7.2 ramfs, rootfs and initramfs](https://docs.kernel.org/7.2/filesystems/ramfs-rootfs-initramfs.html)
+- [Linux VFS and filesystem documentation](https://www.kernel.org/doc/html/latest/filesystems/)
+- [Linux 7.2 filesystem documentation index](https://docs.kernel.org/7.2/filesystems/index.html)

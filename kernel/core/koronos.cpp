@@ -9,11 +9,17 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/vfs.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 namespace {
 volatile uint32_t koronos_state = 0;
+constexpr uint32_t INITRAMFS_VFS_NODE_CAPACITY = 2048u;
+chimera_vfs_node live_vfs_nodes[INITRAMFS_VFS_NODE_CAPACITY];
+chimera_vfs_node recovery_vfs_nodes[INITRAMFS_VFS_NODE_CAPACITY];
+chimera_vfs_tree live_vfs_tree{};
+chimera_vfs_tree recovery_vfs_tree{};
 
 static uint8_t serial_in8(uint16_t port) {
     uint8_t v;
@@ -217,6 +223,35 @@ static void console_modules() {
     }
 }
 
+
+static bool mount_initramfs_vfs(const chimera_boot_module *module,
+                                chimera_vfs_tree *tree,
+                                chimera_vfs_node *nodes,
+                                const char *target) {
+    if (!module || !module->base || module->size < 6u) return false;
+    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(module->base));
+    const bool raw_newc = bytes[0] == '0' && bytes[1] == '7' && bytes[2] == '0' &&
+                          bytes[3] == '7' && bytes[4] == '0' &&
+                          (bytes[5] == '1' || bytes[5] == '2');
+    if (!raw_newc) {
+        console_write("[VFS ] Initramfs is not raw CPIO newc; compressed decoding is not connected");
+        return false;
+    }
+    const int result = chimera_vfs_mount_newc(bytes, module->size, tree, nodes,
+                                               INITRAMFS_VFS_NODE_CAPACITY);
+    if (result != 0) {
+        console_write("[VFS ] Transactional CPIO-to-VFS mount rejected; previous root preserved");
+        console_write("[VFS ] Mount error: ");
+        console_u32(static_cast<uint32_t>(-result));
+        return false;
+    }
+    console_write("[VFS ] Transactional initramfs root published for ");
+    console_write(target);
+    console_write("[VFS ] Published nodes: ");
+    console_u32(tree->count);
+    return true;
+}
+
 static volatile uint32_t console_task_runs = 0;
 static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
@@ -243,6 +278,7 @@ static void task_live(void *) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
             console_write("[LIVE] Live initramfs module accepted");
+            mount_initramfs_vfs(m, &live_vfs_tree, live_vfs_nodes, "LIVE");
             console_write("[LIVE] Runtime handoff queued");
             console_write("[USER] USERSPACE HANDOFF NOT VERIFIED: initramfs is registered but no executable ring-3 entry path is connected");
             chimera_sched_block();
@@ -263,6 +299,7 @@ static void task_recovery(void *) {
         const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
         if (image) {
             console_write("[REC ] Recovery initramfs module accepted");
+            mount_initramfs_vfs(image, &recovery_vfs_tree, recovery_vfs_nodes, "RECOVERY");
             console_write("[REC ] USERSPACE HANDOFF NOT VERIFIED: repair shell has not been entered");
         } else {
             console_write("[REC ] Recovery target not selected: no recovery initramfs module");
