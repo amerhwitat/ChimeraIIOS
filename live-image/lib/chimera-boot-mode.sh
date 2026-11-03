@@ -4,7 +4,7 @@ cmdline="$(cat /proc/cmdline 2>/dev/null || true)"
 boot_mode="live"
 for token in $cmdline; do
   case "$token" in
-    chimera.mode=*) boot_mode="\${token#chimera.mode=}" ;;
+    chimera.mode=*) boot_mode="${token#chimera.mode=}" ;;
   esac
 done
 case "$boot_mode" in
