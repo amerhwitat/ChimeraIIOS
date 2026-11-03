@@ -25,6 +25,8 @@ class SDKIsoBuildContract(unittest.TestCase):
         self.assertIn("sdk/tools/build-sdk.sh", canonical)
         self.assertIn("opt/chimera-sdk/include/chimera/sdk.h", validator)
         self.assertIn("python3 -m compileall", script)
+        self.assertIn("CARGO_TARGET_DIR", script)
+        self.assertIn("CHIMERA_SDK_JAVA_BUILD_DIR", script)
 
     def test_rust_sdk_lockfile_is_present(self):
         lock = ROOT / "sdk/rust/chimera-runtime/Cargo.lock"
