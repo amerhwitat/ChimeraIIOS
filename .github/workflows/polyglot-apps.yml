@@ -34,6 +34,10 @@ jobs:
           for app in data['python']:
               py_compile.compile(app['source'], doraise=True)
           assert data['panel_build']=='built', data.get('panel_build_log','GUI panel was not built')
+          assert data['java_build'] != 'failed', data.get('java_projects')
+          assert all(project['status']=='built' for project in data.get('java_projects', [])), data.get('java_projects')
+          assert data['web_validation']['javascript_checked'] >= 0
+          assert data['web_validation']['html_parsed'] >= 0
           print('Compiled',len(data['python']),'first-party Python sources')
           print('Java sources:',data['java_source_count'],'Java build:',data['java_build'])
           print('Web source files:',data['web_source_count'])
