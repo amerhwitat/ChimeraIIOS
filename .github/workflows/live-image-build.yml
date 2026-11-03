@@ -108,7 +108,7 @@ jobs:
           node --check web/language-runtime.js
           node --check desktop/shared/desktop-experience.js
           python3 -m json.tool desktop/shared/network-applications.json >/dev/null
-          bash -n tools/build-repository-sdks.sh
+          bash -n tools/build-repository-sdks.sh desktop/shared/voiceconnect-launcher.sh
           python3 -m unittest discover -s tests/live-image -p 'test_desktop_*.py'
           bash -n live-image/build.sh boot/spitfire/build-spitfire.sh tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh
           bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh desktop/aurora/aurora-init-splash.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
