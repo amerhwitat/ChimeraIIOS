@@ -17,6 +17,10 @@ class DesktopExperienceContract(unittest.TestCase):
         for app in ("voiceconnect", "firefox", "openssh", "wireguard", "syncthing", "wireshark", "nmap"):
             self.assertIn(app, apps)
         self.assertIn("Messaging & calls", apps["voiceconnect"]["category"])
+        launcher = (ROOT / "desktop/shared/voiceconnect-launcher.sh").read_text()
+        self.assertIn("https://github.com/amerhwitat/test", launcher)
+        desktop = (ROOT / "desktop/shared/voiceconnect-project.desktop").read_text()
+        self.assertIn("Exec=/usr/local/bin/voiceconnect-launcher", desktop)
 
     def test_sdk_builder_is_fail_closed_when_strict(self):
         source = (ROOT / "tools/build-repository-sdks.sh").read_text()
