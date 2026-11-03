@@ -514,6 +514,9 @@ install -D -m 0644 "$WORK/usr/share/chimera/aurora/assets/Init.mp4" "$ISODIR/boo
 # They are deliberately staged outside the active boot paths: the current
 # native CPL3/userspace acceptance gate has not certified these runtimes.
 CANDIDATE_ROOT="$BUILD/native-runtime-candidates"
+# Never let a stale acceptance sentinel from a previous build activate a
+# candidate runtime in a newly mastered ISO.
+rm -rf "$CANDIDATE_ROOT" "$ISODIR/boot/candidates" "$ISODIR/boot/installer" "$ISODIR/boot/recovery"
 mkdir -p "$CANDIDATE_ROOT/installer-stage" "$ISODIR/boot/candidates/installer" "$ISODIR/boot/candidates/recovery"
 CHIMERA_BUILD_DIR="$NATIVE_SOURCE/build" CHIMERA_KORONOS_KERNEL="$KORONOS_ELF" \
   bash "$NATIVE_SOURCE/tools/build-live-boot-binaries.sh"
