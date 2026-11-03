@@ -286,6 +286,7 @@ require_option_value() {
 }
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -h|--help) sed -n '/^Chimera II OS script:/,/^CHIMERA_HELP$/p' "$0"; exit 0;;
     --refresh-online-catalogs|--refresh-isa-catalog) REFRESH_ONLINE_CATALOGS=1; shift;;
     --verbose|--debug) CHIMERA_VERBOSE=1; shift;;
     --quiet) CHIMERA_VERBOSE=0; shift;;
@@ -516,8 +517,8 @@ resume_artifacts_present(){
     docker-publish) return 1 ;; # Re-publish idempotently rather than trusting an old push marker.
     boot) [[ -s "$ISO_DIR/boot/grub/grub.cfg" || -s "$ISO_DIR/boot/grub.cfg" ]] ;;
     installer) [[ -s "$ISO_DIR/install/installer/installation.img" ]] ;;
-    branding) [[ -d "$ISO_DIR/boot/visual" ]] ;;
-    apache|features|package-managers|games) [[ -d "$ROOTFS_DIR/etc" ]] ;;
+    branding) [[ -d "$ISO_DIR/boot/visual" && -n "$(find "$ISO_DIR/boot/visual" -maxdepth 1 -type f -print -quit 2>/dev/null)" ]] ;;
+    apache|features|package-managers|games) return 1 ;; # Re-run until each stage has a dedicated completion manifest.
     squashfs) [[ -s "$ISO_DIR/live/filesystem.squashfs" ]] ;;
     iso) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso" ]] ;;
     verify) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso.sha256" && -s "$LOG_DIR/iso-el-torito.log" ]] ;;
