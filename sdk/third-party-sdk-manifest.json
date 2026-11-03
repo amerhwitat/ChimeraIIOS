@@ -1,0 +1,112 @@
+{
+  "schema": "CHIMERA-THIRD-PARTY-SDKS-1",
+  "policy": "No proprietary SDK payload is redistributed by this repository. Fetch or use only under the applicable license.",
+  "sdks": [
+    {
+      "id": "llvm",
+      "license": "Apache-2.0 WITH LLVM-exception",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "gnu-binutils",
+      "license": "GPL-3.0-or-later",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "gnu-gcc",
+      "license": "GPL-3.0-or-later with runtime exceptions",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "rust",
+      "license": "MIT OR Apache-2.0",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "go",
+      "license": "BSD-3-Clause",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ]
+    },
+    {
+      "id": "java-openjdk",
+      "license": "GPL-2.0-only WITH Classpath-exception-2.0",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "hosted"
+      ]
+    },
+    {
+      "id": "dotnet",
+      "license": "MIT",
+      "mode": "pinned-open-source-toolchain",
+      "targets": [
+        "hosted"
+      ]
+    },
+    {
+      "id": "apple-macos-sdk",
+      "license": "Apple proprietary terms",
+      "mode": "external-local-only",
+      "environment": "APPLE_SDKROOT",
+      "redistribute": false,
+      "targets": [
+        "darwin"
+      ]
+    },
+    {
+      "id": "apple-xcode-clang",
+      "license": "Apple proprietary terms",
+      "mode": "external-local-only",
+      "environment": "DEVELOPER_DIR",
+      "redistribute": false,
+      "targets": [
+        "darwin"
+      ]
+    },
+    {
+      "id": "windows-sdk-wdk",
+      "license": "Microsoft SDK/WDK terms",
+      "mode": "external-local-only",
+      "environment": "WINDOWS_SDK_ROOT",
+      "redistribute": false,
+      "targets": [
+        "windows"
+      ]
+    },
+    {
+      "id": "android-ndk",
+      "license": "Android NDK license",
+      "mode": "external-local-only",
+      "environment": "ANDROID_NDK_HOME",
+      "redistribute": false,
+      "targets": [
+        "android"
+      ]
+    }
+  ]
+}
