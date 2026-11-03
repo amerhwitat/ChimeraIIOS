@@ -426,6 +426,7 @@ menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Installer" {
 }
 menuentry "$TITLE $VERSION — Jasper / GRUB 2 / Gates — Koronos native kernel" {
   if [ -f /boot/koronos.elf ]; then
+    insmod multiboot2
     multiboot2 /boot/koronos.elf
     boot
   else
