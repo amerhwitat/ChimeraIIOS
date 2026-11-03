@@ -25,6 +25,19 @@ C/C++ continue to use `chimera-ncc`, CMake, LLVM/Clang or GCC and the installed 
 
 Zig, Go, Fortran and Swift are exposed through toolchain drivers and the common C ABI where the corresponding upstream compiler is installed.
 
+## Build coverage
+
+`tools/build-sdk.sh` compiles and tests the C/C++ CMake SDK, Java/JAR, C#/.NET,
+Rust/Cargo and Python package sources. It also probes NASM assembly, Objective-C/Foundation, Zig,
+Go, GNU Fortran and Swift compilers and builds a small compile artifact for each
+available frontend. Missing optional toolchains are recorded as explicit
+`SKIP` entries in `share/chimera/toolchain-smoke/status.txt`; the ISO builder
+does not download compilers or label skipped languages as built.
+
+The top-level `build-chimera-iso.sh` SDK stage invokes this script and stages the
+SDK headers, libraries, language sources, manifests and available toolchain smoke
+artifacts under `/opt/chimera-sdk`.
+
 ## Ecosystem libraries
 
 The OS/package layer may integrate established libraries such as Python NumPy/SciPy/PyTorch/JAX, Rust crates, Java Maven/Gradle dependencies and C/C++ pkg-config/CMake packages when a target-compatible build and license are available. These projects are not silently vendored into the Chimera source tree; package metadata records provenance, license, ABI and target compatibility.

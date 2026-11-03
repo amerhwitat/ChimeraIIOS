@@ -8,7 +8,12 @@
     "Objective-C",
     "Java",
     "Python",
-    "Rust"
+    "Rust",
+    "Zig",
+    "Go",
+    "Fortran",
+    "Swift",
+    "Assembly"
   ],
   "components": [
     "headers",
@@ -29,7 +34,13 @@
     "objective-c": "Clang",
     "java": "OpenJDK",
     "python": "CPython",
-    "rust": "Cargo/rustc"
+    "rust": "Cargo/rustc",
+    "zig": "zig",
+    "go": "Go",
+    "fortran": "GNU Fortran",
+    "swift": "Swift compiler",
+    "asm": "NASM/Chimera assembler"
   },
-  "iso_path": "/opt/chimera-sdk"
+  "iso_path": "/opt/chimera-sdk",
+  "optional_toolchain_policy": "Build compile smoke artifacts only when the corresponding upstream compiler is present; record explicit SKIP status otherwise."
 }
