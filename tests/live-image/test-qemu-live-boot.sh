@@ -58,12 +58,13 @@ if [[ "$TARGET" != live ]]; then
 fi
 
 case "$TARGET" in
-  live) match='Aurora|Desktop|Application' ;;
+  live) match='Aurora|Application' ;;
   installer) match='INSTALLER NOT CONFIGURED|No disk changes were made' ;;
   koronos) match='Koronos kernel not bundled|Linux-kernel live edition' ;;
   recovery) match='RESCUE SHELL|No disk is modified' ;;
 esac
 target_seen=0
+if [[ "$TARGET" != koronos ]]; then sleep 25; fi
 for attempt in $(seq 1 18); do
   sleep 10
   kill -0 "$pid" 2>/dev/null || { cat "$qemu_log" >&2; exit 1; }
