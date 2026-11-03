@@ -78,7 +78,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iproute2 iputils-ping ethtool bridge-utils nftables tcpdump dnsutils traceroute iperf3 wireguard-tools openvpn \
     e2fsprogs dosfstools exfatprogs ntfs-3g xfsprogs btrfs-progs f2fs-tools squashfs-tools nfs-common cifs-utils sshfs \
     lvm2 mdadm cryptsetup-bin parted gdisk nvme-cli smartmontools \
-    systemd systemd-sysv dosbox geany vim emacs-nox gcc g++ clang lld make cmake ninja-build pkg-config \
+    systemd systemd-sysv dosbox geany vim emacs-nox gcc g++ clang lld make cmake ninja-build pkg-config libgtk-4-dev \
     openjdk-21-jdk-headless python3-venv python3-dev rustc cargo golang gfortran nodejs npm ruby php-cli lua5.4 \
     && for optional_package in frr bird2 openvswitch-switch strongswan udftools bluefish thonny gdb-multiarch lldb iputils-tracepath; do \
       if apt-cache show "$optional_package" >/dev/null 2>&1; then \
