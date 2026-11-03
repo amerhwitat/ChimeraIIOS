@@ -90,6 +90,19 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("No Koronos CPL3 installer process", runtime)
         self.assertIn("CHIMERA_PROCESS_LOAD_PLAN_ONLY", process_api)
 
+    def test_init_video_is_started_after_wayland_and_uses_existing_asset(self):
+        desktop_init = (ROOT / "desktop/aurora/aurora-desktop-init.sh").read_text()
+        labwc_autostart = (ROOT / "desktop/aurora/labwc/autostart").read_text()
+        splash = (ROOT / "desktop/aurora/aurora-init-splash.sh").read_text()
+        runtime_stage = (ROOT / "tools/stage-chimera-runtime.sh").read_text()
+        self.assertIn("exec /usr/share/chimera/aurora/aurora-desktop-init.sh", labwc_autostart)
+        self.assertIn('CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"', desktop_init)
+        self.assertIn("export CHIMERA_INIT_VIDEO CHIMERA_PROGRESS_FILE", desktop_init)
+        self.assertIn('bash "$AURORA/aurora-init-splash.sh"', desktop_init)
+        self.assertIn("mpv --fs", splash)
+        self.assertIn("ffplay -fs", splash)
+        self.assertIn('"$DEST/usr/share/chimera/aurora/assets/"', runtime_stage)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
