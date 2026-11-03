@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nebula Linux Workspace
+Comment=Open the Plasma-inspired Linux desktop profile
+Exec=xdg-open /opt/aurora/desktop/plasma/index.html
+Icon=preferences-desktop-theme
+Terminal=false
+Categories=System;DesktopSettings;
