@@ -2,7 +2,7 @@
 """Inventory, GUI launcher and PyInstaller packager for first-party Python/Java/Web apps."""
 from __future__ import annotations
 import argparse,json,pathlib,re,shutil,subprocess,sys
-SKIP={".git",".venv","venv","__pycache__","node_modules","vendor","tests","test","build","dist",".pytest_cache",".chimera-fix-backups"}
+SKIP={".git",".venv","venv","__pycache__","node_modules","vendor","tests","test",".build","build","dist","out",".pytest_cache",".chimera-fix-backups"}
 WEB={".html",".htm",".js",".jsx",".ts",".tsx",".css"}
 def inventory(root):
     py=[];java=[];web=[]
@@ -44,7 +44,11 @@ def main():
 if __name__=="__main__":main()
 """
 def build(root,out,platform):
-    py,java,web=inventory(root);out.mkdir(parents=True,exist_ok=True);dist=out/"dist";dist.mkdir(exist_ok=True);tool=shutil.which("pyinstaller")
+    py,java,web=inventory(root);out.mkdir(parents=True,exist_ok=True);dist=out/"dist";dist.mkdir(exist_ok=True);tool=shutil.which("pyinstaller");source_tree=out/"python-source";source_tree.mkdir(exist_ok=True)
+    for source in root.rglob("*.py"):
+        rel=source.relative_to(root)
+        if not any(part in SKIP for part in rel.parts):
+            target=source_tree/rel;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
     for app in py:
         if app["kind"]!="python-entrypoint":continue
         app["build"]="source-only: PyInstaller unavailable"
