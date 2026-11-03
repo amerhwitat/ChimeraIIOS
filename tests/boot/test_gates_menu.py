@@ -2,7 +2,7 @@ import json
 import pathlib
 import unittest
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 class GatesMenuContractTests(unittest.TestCase):
     def test_gates_menu_is_referenced_by_jasper_and_grub(self):
