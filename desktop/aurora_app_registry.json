@@ -261,6 +261,34 @@
       ],
       "launch_mode": "hosted-web-panel",
       "availability": "catalog-only-until-provider-probe"
+    },
+    {
+      "id": "network-applications",
+      "category": "network",
+      "entry": "desktop/aurora/network-applications.py",
+      "desktop_id": "network-applications.desktop",
+      "capabilities": [
+        "network-discovery",
+        "dns",
+        "routes",
+        "sockets",
+        "authorized-smb-nfs-ssh",
+        "nmap"
+      ]
+    },
+    {
+      "id": "voiceconnect",
+      "category": "communication",
+      "entry": "desktop/aurora/voiceconnect-launcher.sh",
+      "desktop_id": "voiceconnect.desktop",
+      "capabilities": [
+        "peer-to-peer-audio",
+        "peer-to-peer-video",
+        "consent-based-screen-sharing",
+        "secure-file-transfer"
+      ],
+      "external_source": "https://github.com/amerhwitat/test",
+      "installation": "optional-verified-package"
     }
   ],
   "compatibility_apps": [
