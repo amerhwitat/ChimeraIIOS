@@ -36,7 +36,7 @@ jobs:
           assert data['panel_build']=='built', data.get('panel_build_log','GUI panel was not built')
           print('Compiled',len(data['python']),'first-party Python sources')
           print('Java sources:',data['java_source_count'],'Java build:',data['java_build'])
-          print('Web sources:',data['web_source_count'])
+          print('Web source files:',data['web_source_count'])
           PY
           while IFS= read -r -d '' file; do node --check "$file"; done < <(find . -path '*/vendor/*' -prune -o -path '*/node_modules/*' -prune -o -path '*/.git/*' -prune -o -name '*.js' -type f -print0)
           test -s build/polyglot-linux/polyglot-apps.json
@@ -58,15 +58,7 @@ jobs:
         shell: pwsh
         run: |
           python tools/polyglot_apps.py --root . --output build/polyglot-windows --platform windows --build
-          python - <<'PY'
-          import json, pathlib, py_compile
-          data=json.loads(pathlib.Path('build/polyglot-windows/polyglot-apps.json').read_text())
-          for app in data['python']:
-              py_compile.compile(app['source'], doraise=True)
-          assert data['panel_build']=='built', data.get('panel_build_log','GUI panel was not built')
-          print('Compiled',len(data['python']),'first-party Python sources')
-          PY
-          if (!(Test-Path build/polyglot-windows/polyglot-apps.json)) { throw "Missing manifest" }
+          python -c "import json,pathlib,py_compile; d=json.loads(pathlib.Path('build/polyglot-windows/polyglot-apps.json').read_text()); [py_compile.compile(x['source'],doraise=True) for x in d['python']]; assert d['panel_build']=='built', d.get('panel_build_log')"
           if (!(Test-Path build/polyglot-windows/dist/PolyglotAppsPanel.exe)) { throw "Missing Windows Apps Panel executable" }
       - uses: actions/upload-artifact@v4
         with:
