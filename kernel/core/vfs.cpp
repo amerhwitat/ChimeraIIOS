@@ -55,7 +55,7 @@ static bool safe_symlink(const void *raw, uint32_t size, uint32_t parent_depth) 
     }
     return true;
 }
-struct BuildContext { chimera_vfs_tree *tree; };
+struct BuildContext { chimera_vfs_tree *tree; bool root_seen; };
 static int append_entry(void *opaque, const char *path, uint32_t mode,
                         uint32_t uid, uint32_t gid, const void *data,
                         uint32_t size) {
@@ -65,7 +65,8 @@ static int append_entry(void *opaque, const char *path, uint32_t mode,
     const uint32_t kind = node_kind(mode);
     if (!kind) return -1;
     if (length == 0) {
-        if (kind != CHIMERA_VFS_DIRECTORY || size != 0) return -1;
+        if (kind != CHIMERA_VFS_DIRECTORY || size != 0 || ctx->root_seen) return -1;
+        ctx->root_seen = true;
         tree->nodes[0].mode = mode;
         tree->nodes[0].uid = uid;
         tree->nodes[0].gid = gid;
@@ -125,7 +126,7 @@ extern "C" int chimera_vfs_mount_newc(const void *archive, uint64_t archive_size
     staging->nodes = node_storage;
     staging->nodes[0] = {"", nullptr, 0u, 0040755u, 0u, 0u, 0u, CHIMERA_VFS_DIRECTORY};
 
-    BuildContext context{staging};
+    BuildContext context{staging, false};
     const chimera_cpio_newc_ops ops{append_entry};
     chimera_cpio_newc_summary summary{};
     const int walked = chimera_cpio_newc_walk(archive, archive_size, &ops, &context, &summary);
