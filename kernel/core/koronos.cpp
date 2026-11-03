@@ -370,7 +370,7 @@ static void task_kore(void *) {
         started = true;
         chimera_kore_bootstrap();
         console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Core storage/security/logging services active");
+        console_write("[KORE] Core service identities declared; process-backed supervisor is not connected");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
