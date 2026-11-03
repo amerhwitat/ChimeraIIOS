@@ -22,6 +22,11 @@ class AuroraSessionSelectorTests(unittest.TestCase):
             self.assertIn(f"command -v {command}", selector)
             self.assertIn(profile, selector)
 
+    def test_labwc_fast_workspace_shortcuts(self):
+        config = (ROOT / "desktop/aurora/labwc/rc.xml").read_text()
+        for key in ("W-1", "W-2", "W-3", "W-4", "W-S-1", "W-S-2", "W-S-3", "W-S-4", "W-Tab"):
+            self.assertIn(f'key="{key}"', config)
+
     def test_selector_shell_syntax(self):
         subprocess.run(["bash", "-n", str(ROOT / "desktop/aurora/aurora-session-select.sh")], check=True)
         subprocess.run(["bash", "-n", str(ROOT / "desktop/aurora/aurora-session.sh")], check=True)
