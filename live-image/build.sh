@@ -97,7 +97,7 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
     apt-get update -qq
     apt-get install -y -qq --no-install-recommends \
       linux-image-amd64 initramfs-tools live-boot live-boot-initramfs-tools \
-      systemd systemd-sysv dbus dbus-x11 udev kbd console-setup \
+      systemd systemd-sysv dbus dbus-x11 udev kbd console-setup x11-xkb-utils xkb-data \
       xserver-xorg-core xserver-xorg-legacy xserver-xorg-input-libinput \
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
