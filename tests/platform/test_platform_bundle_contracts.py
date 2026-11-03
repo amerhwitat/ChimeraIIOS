@@ -23,7 +23,7 @@ class PlatformBundleContracts(unittest.TestCase):
         self.assertEqual(data["native_koronos"]["write_delete"], "not-available-until-VFS-backend-and-persistence-tests-pass")
 
     def test_media_and_sdk_scripts_parse(self):
-        for path in ("tools/chimera-media-manager.sh", "tools/build-sdk-bundle.sh", "build-chimera-iso.sh"):
+        for path in ("tools/chimera-media-manager.sh", "tools/build-sdk-bundle.sh", "tools/build-koronos-targets.sh", "build-chimera-iso.sh"):
             subprocess.run(["bash", "-n", str(ROOT / path)], check=True)
 
     def test_iso_pipeline_has_sdk_and_media_stages(self):
