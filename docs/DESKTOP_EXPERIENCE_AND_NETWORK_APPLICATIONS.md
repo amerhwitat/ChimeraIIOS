@@ -9,7 +9,7 @@ The Aurora Wayland Glass and Marine Desktop front ends load the shared desktop e
 - Double-click opens the selected item.
 - F2 renames the selected item; Alt+Enter opens Properties; Delete removes a selected shortcut after confirmation.
 - Ctrl+Alt+E opens Applications; Ctrl+Alt+N opens Network Apps; Ctrl+Alt+V opens VoiceConnect project; Ctrl+Alt+S opens Settings; Ctrl+Alt+D opens Desktop Profiles.
-- Ctrl+Shift+N creates a shortcut through the existing shortcut manager.
+- Ctrl+Alt+F opens Files; Ctrl+Alt+T opens Terminal; Ctrl+Alt+B opens Browser. Ctrl+Shift+N creates a shortcut through the existing shortcut manager. Meta/Command modifiers are accepted on macOS; Ctrl modifiers work on Windows and Linux.
 - The top-right panel buttons remain visible as desktop-level icons/actions.
 
 The shared UI uses original Aurora/Marine styling cues—glass, layered gradients, depth, shadows and motion—rather than copying proprietary OS assets or claiming parity with Windows/macOS internals.
@@ -22,7 +22,7 @@ The panel is installed in the live image at /opt/aurora/desktop/shared/ and expo
 
 ### VoiceConnect integration boundary
 
-VoiceConnect is connected as a project entry pointing to https://github.com/amerhwitat/test. Its source repository contains the Electron/WebRTC application and cross-platform packaging workflows. The desktop entry is a project launcher, not a bundled native VoiceConnect executable. Bundling the app requires a successful exact-head build artifact and validation of its GUI/click tests. Physical-device calls, TURN, signing, production deployment and independent review remain separate acceptance gates.
+VoiceConnect is connected as a project entry pointing to https://github.com/amerhwitat/test. Its source repository contains the Electron/WebRTC application and cross-platform packaging workflows. The desktop entry invokes a safe launcher that starts a locally installed VoiceConnect binary when present and otherwise opens the project page. It is not a bundled native VoiceConnect executable. Bundling the app requires a successful exact-head build artifact and validation of its GUI/click tests. Physical-device calls, TURN, signing, production deployment and independent review remain separate acceptance gates.
 
 ### Repository SDK build discovery
 
