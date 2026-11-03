@@ -159,7 +159,7 @@ def main():
         ctrl = bool(event.state & Gdk.ModifierType.CONTROL_MASK)
         alt = bool(event.state & Gdk.ModifierType.MOD1_MASK)
         if ctrl and event.keyval in (Gdk.KEY_q, Gdk.KEY_Q):
-            Gtk.main_quit()
+            win.destroy()
             return True
         if ctrl and event.keyval in (Gdk.KEY_r, Gdk.KEY_R):
             view.reload()
