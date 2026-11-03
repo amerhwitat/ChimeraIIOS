@@ -48,7 +48,8 @@ static bool safe_name(const char *name, uint32_t size, uint32_t mode,
         return true;
     }
 
-    uint32_t path_size = (uint32_t)__builtin_strlen(path);
+    uint32_t path_size = 0;
+    while (path[path_size]) ++path_size;
     if (path_size && path[path_size - 1u] == '/') {
         if ((mode & S_IFMT) != S_IFDIR) return false;
         --path_size;
