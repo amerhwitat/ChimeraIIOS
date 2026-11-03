@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  cat <<'HELP'
+Build compile-checked Koronos architecture probe objects.
+
+Usage: tools/build-koronos-targets.sh
+
+This builds only AArch64/RV64 arch_init and hardware probe objects when their
+cross-compilers are installed. It does not produce bootable kernels or EFI apps.
+HELP
+  exit 0
+fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="$ROOT/build/koronos/ports"
