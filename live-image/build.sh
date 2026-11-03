@@ -33,6 +33,14 @@ if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
 fi
 
+# The polyglot build runs on the host (not inside the target rootfs), so
+# install its compiler toolchains here before compiling Python, Java and JS.
+if [[ "${INSTALL_POLYGLOT_BUILD_DEPS:-1}" == "1" ]]; then
+  apt-get update -qq
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3-venv python3-tk default-jdk-headless maven nodejs npm
+fi
+
 case "$ED" in
   chimera)
     TITLE="Chimera II OS"
@@ -164,15 +172,14 @@ fi
 # Build and stage first-party Python, Java and Web implementations for the Apps Panel.
 # Python sources are copied with their repository-relative paths; tests/vendor snapshots
 # are excluded from the runnable inventory. PyInstaller artifacts are platform-specific.
-if [ "${BUILD_PYINSTALLER:-0}" = "1" ] && ! command -v pyinstaller >/dev/null 2>&1; then
+if [ "${BUILD_PYINSTALLER:-1}" = "1" ] && ! command -v pyinstaller >/dev/null 2>&1; then
   python3 -m venv "$BUILD/polyglot-venv"
   "$BUILD/polyglot-venv/bin/pip" install --upgrade pyinstaller
   export PATH="$BUILD/polyglot-venv/bin:$PATH"
 fi
 POLYGLOT_OUT="$BUILD/polyglot-apps-$ED"
 mkdir -p "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/linux" "$PAY/apps/polyglot/windows"
-POLYGLOT_ARGS=(--root "$REPO_DIR" --output "$POLYGLOT_OUT" --platform linux)
-if command -v pyinstaller >/dev/null 2>&1; then POLYGLOT_ARGS+=(--build); fi
+POLYGLOT_ARGS=(--root "$REPO_DIR" --output "$POLYGLOT_OUT" --platform linux --build)
 python3 "$REPO_DIR/tools/polyglot_apps.py" "${POLYGLOT_ARGS[@]}"
 cp -a "$POLYGLOT_OUT/polyglot-apps.json" "$PAY/apps/polyglot/polyglot-apps.json"
 mkdir -p "$PAY/apps/polyglot/java"
