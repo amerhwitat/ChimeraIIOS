@@ -17,6 +17,10 @@ class DesktopExperienceContract(unittest.TestCase):
         for app in ("voiceconnect", "firefox", "openssh", "wireguard", "syncthing", "wireshark", "nmap"):
             self.assertIn(app, apps)
         self.assertIn("Messaging & calls", apps["voiceconnect"]["category"])
+        self.assertIn("feat/voiceconnect-p2p-camera", apps["voiceconnect"]["project"])
+        panel = (ROOT / "desktop/shared/network-applications.html").read_text()
+        self.assertIn("Copy launch command", panel)
+        self.assertIn("Development branch", panel)
         self.assertTrue((ROOT / "desktop/plasma/index.html").is_file())
         self.assertTrue((ROOT / "desktop/shared/linux-workspace.desktop").is_file())
         launcher = (ROOT / "desktop/shared/voiceconnect-launcher.sh").read_text()
