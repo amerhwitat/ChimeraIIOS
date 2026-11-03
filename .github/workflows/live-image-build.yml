@@ -124,6 +124,8 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-sf0-mbr.bin "$OUT_DIR/spitfire-sf0-mbr.bin" >/dev/null
           test "$(stat -c%s "$OUT_DIR/spitfire-sf0-mbr.bin")" -eq 512
           xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$OUT_DIR/native-runtime-candidates.json" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/Init.mp4 "$OUT_DIR/boot-Init.mp4" >/dev/null
+          test -s "$OUT_DIR/boot-Init.mp4"
           chmod +x tests/live-image/test-grub-targets.sh
           tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/gates-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json"
           for artifact in \
@@ -159,6 +161,7 @@ jobs:
           test -x "$root/usr/local/sbin/chimera-recovery"
           test -x "$root/usr/local/bin/aurora-init-splash.sh"
           test -s "$root/usr/share/chimera/aurora/assets/Init.mp4"
+          cmp -s "$OUT_DIR/boot-Init.mp4" "$root/usr/share/chimera/aurora/assets/Init.mp4"
           ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json "$root/usr/share/chimera/aurora/assets/Init.mp4" > "$OUT_DIR/init-video.json"
           python3 - "$OUT_DIR/init-video.json" <<'PY'
           import json, sys
