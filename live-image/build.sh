@@ -246,6 +246,7 @@ log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 install -Dm755 "$HERE/lib/chimera-boot-mode.sh" "$WORK/usr/local/bin/chimera-boot-mode"
 install -Dm755 "$HERE/lib/chimera-recovery.sh" "$WORK/usr/local/sbin/chimera-recovery"
+install -D -m 0644 "$HERE/openbox-menu.xml" "$WORK/etc/xdg/openbox/menu.xml"
 if [ -s "$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4" ]; then
   install -D -m 0644 "$NATIVE_SOURCE/desktop/aurora/assets/Init.mp4" "$WORK/usr/share/chimera/aurora/assets/Init.mp4"
   install -D -m 0755 "$NATIVE_SOURCE/desktop/aurora/aurora-init-splash.sh" "$WORK/usr/local/bin/aurora-init-splash.sh"
