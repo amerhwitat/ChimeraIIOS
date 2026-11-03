@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ $# -lt 2 || $# -gt 3 ]]; then
-  echo "usage: $0 <live-iso> <evidence-directory> [live|installer|koronos|recovery]" >&2
+  echo "usage: $0 <live-iso> <evidence-directory> [live|installer|koronos|recovery|linux-rescue]" >&2
   exit 2
 fi
 ISO="$(realpath "$1")"
@@ -44,16 +44,19 @@ for attempt in $(seq 1 100); do
 done
 [[ -S "$monitor" ]] || { echo "QEMU monitor socket did not appear" >&2; exit 1; }
 
-# First menu is Spit Fire. Its default item hands off to the Jasper/GRUB2
-# target menu. Then select the requested Jasper item.
+# First menu is Spit Fire. Its default item hands off to Jasper/GRUB2.
+# Jasper order: Live, Safe Graphics, Linux Rescue, Native Installer,
+# Native Recovery, Koronos diagnostics, Classic X, diagnostics, return,
+# firmware setup, command line, reboot, power off.
 sleep 3
 printf 'sendkey ret\n' | socat - "UNIX-CONNECT:$monitor" >>"$qemu_log" 2>&1
 sleep 2
 if [[ "$TARGET" != live ]]; then
   case "$TARGET" in
-    recovery) downs=2 ;;  # Linux Rescue Shell
-    installer) downs=3 ;; # Native Installer; must refuse incomplete payloads
-    koronos) downs=5 ;;   # Native Koronos diagnostics
+    linux-rescue) downs=2 ;;
+    installer) downs=3 ;;
+    recovery) downs=4 ;;
+    koronos) downs=5 ;;
   esac
   {
     for ((i=0; i<downs; i++)); do printf 'sendkey down\n'; sleep 0.1; done
@@ -63,7 +66,9 @@ fi
 
 case "$TARGET" in
   live) match='Aurora|Application' ;;
-  installer) match='Native Koronos Installer runtime incomplete|No Linux fallback is called an installer' ;;
+  installer) match='Native Koronos Installer runtime incomplete|acceptance-certified' ;;
+  recovery) match='Native Koronos Recovery runtime incomplete|separate Linux Rescue Shell' ;;
+  linux-rescue) match='RESCUE SHELL|No disk is modified automatically' ;;
   koronos)
     # Kernel entry emits E (32-bit), L (long mode), B (kernel entry), C (idle loop) to port 0xE9.
     for attempt in $(seq 1 30); do
@@ -83,19 +88,13 @@ EOF
     cat "$OUT/debugcon.log" 2>/dev/null || true
     exit 1
     ;;
-  recovery) match='RESCUE SHELL|Recovery shell|No disk is modified' ;;
 esac
 
 target_seen=0
-if [[ "$TARGET" == installer ]]; then
-  initial_wait=1
-  poll_attempts=10
-  poll_interval=1
-else
-  initial_wait=25
-  poll_attempts=18
-  poll_interval=10
-fi
+case "$TARGET" in
+  installer|recovery) initial_wait=1; poll_attempts=12; poll_interval=1 ;;
+  *) initial_wait=25; poll_attempts=18; poll_interval=10 ;;
+esac
 sleep "$initial_wait"
 for attempt in $(seq 1 "$poll_attempts"); do
   sleep "$poll_interval"
@@ -132,14 +131,14 @@ colors="$(convert "$OUT/$TARGET-boot.png" -colors 64 -format '%k' info:)"
   exit 1
 }
 cat >"$OUT/RESULT.txt" <<EOF
-QEMU $TARGET boot: PASS
+QEMU $TARGET boot/menu acceptance: PASS
 ISO: $ISO
 Framebuffer: $width x $height
 Distinct colors (quantized to 64): $colors
 Target OCR evidence: $(tr '\n' ' ' <"$OUT/$TARGET-boot-ocr.txt")
 Native Koronos ELF boot: only certified when a real compatible ELF is supplied.
-Installer acceptance here proves fail-closed refusal when the native runtime is incomplete; it does not certify a working native installer.
-Recovery acceptance here verifies the separate Linux rescue shell, not native Koronos Recovery.
-Physical-machine boot: NOT TESTED
+Installer test verifies fail-closed refusal while its native runtime is uncertified; it does not certify installation.
+Native Recovery test verifies fail-closed refusal; Linux Rescue is tested separately.
+Physical-machine BIOS/UEFI boot: NOT TESTED
 EOF
 cat "$OUT/RESULT.txt"
