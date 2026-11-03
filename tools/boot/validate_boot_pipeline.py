@@ -12,7 +12,7 @@ def main():
     require(menu.get("schema") in {"CHM-BOOT-MENU-5","CHM-BOOT-MENU-6"},"unknown boot menu contract schema")
     expected=["firmware","grub","spitfire","gates","jasper","menus","koronos","aurora"]
     chain=manifest.get("boot_chain",{})
-    require(list(chain)==expected,"boot chain order must be firmware -> GRUB2 -> Spit Fire -> Jasper -> menus -> Koronos -> Aurora")
+    require(list(chain)==expected,"boot chain order must be firmware -> GRUB2 -> Spit Fire -> Gates -> Jasper -> menus -> Koronos -> Aurora")
     require("Koronos" in menu.get("kernel","") and "Linux Live" in menu.get("kernel","") and menu.get("primary_loader")=="GRUB2 BIOS/UEFI El Torito","boot menu identity mismatch")
     require(menu.get("policy_menu")=="Gates" and menu.get("firmware_menu") in {"Spit Fire","Gates"},"Spit Fire/Gates menu identity mismatch")
     require(menu.get("menu_manager")=="Jasper" and menu.get("policy_menu")=="Gates","Jasper/Gates menu identity mismatch")
