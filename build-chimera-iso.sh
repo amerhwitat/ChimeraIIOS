@@ -1117,6 +1117,21 @@ stage_package_managers(){
   cp -f "$catalog" "$ISO_DIR/system/appcenter/catalog/package-managers.json"
   chmod +x "$ROOTFS_DIR/usr/bin/chimera-pkg"
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  # Install the shared professional desktop experience and Network Applications panel.
+  local shared="$SCRIPT_DIR/desktop/shared"
+  for f in desktop-experience.js network-applications.html network-applications.json network-applications.desktop voiceconnect-project.desktop voiceconnect-launcher.sh; do
+    [[ -s "$shared/$f" ]] || { log_error "Desktop experience payload missing: $shared/$f"; return 1; }
+  done
+  mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/shared" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ISO_DIR/desktop/shared"
+  cp -a "$shared/." "$ROOTFS_DIR/usr/share/chimera/desktop/shared/"
+  cp -a "$shared/." "$ISO_DIR/desktop/shared/"
+  install -m 0644 "$shared/network-applications.desktop" "$ROOTFS_DIR/usr/share/applications/aurora-network-applications.desktop"
+  install -m 0644 "$shared/voiceconnect-project.desktop" "$ROOTFS_DIR/usr/share/applications/voiceconnect-project.desktop"
+  install -m 0755 "$shared/voiceconnect-launcher.sh" "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
+  bash -n "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
+  node --check "$shared/desktop-experience.js"
+  python3 -m json.tool "$shared/network-applications.json" >/dev/null
+  log_info "Professional desktop interaction layer, Network Applications and VoiceConnect project launcher staged."
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/database/databases.json" >/dev/null
