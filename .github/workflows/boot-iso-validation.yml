@@ -76,7 +76,7 @@ jobs:
           bash -n boot/iso/prepare-layout.sh
           bash -n boot/spitfire/build-spitfire.sh
           bash -n kernel/build-koronos.sh
-          bash -n tools/build-boot-artifacts.sh tools/build-live-boot-binaries.sh tools/aurora/build-visual-assets.sh
+          for script in tools/build-boot-artifacts.sh tools/build-live-boot-binaries.sh tools/aurora/build-visual-assets.sh; do bash -n "$script"; done
       - name: Validate artwork XML and manifests
         run: |
           python3 - <<'PY'
