@@ -272,6 +272,74 @@
         "Windows",
         "macOS"
       ]
+    },
+    {
+      "id": "curl",
+      "name": "curl",
+      "category": "Network utilities",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "kind": "http-client",
+      "upstream": "https://github.com/curl/curl",
+      "command": "curl",
+      "license": "curl"
+    },
+    {
+      "id": "putty",
+      "name": "PuTTY",
+      "category": "Remote access",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "kind": "ssh-client",
+      "upstream": "https://www.chiark.greenend.org.uk/~sgtatham/putty/",
+      "command": "putty",
+      "license": "MIT-style permissive; verify upstream"
+    },
+    {
+      "id": "winscp",
+      "name": "WinSCP",
+      "category": "File transfer & sync",
+      "platforms": [
+        "Windows"
+      ],
+      "kind": "sftp",
+      "upstream": "https://winscp.net/",
+      "command": "winscp",
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "category": "File transfer & sync",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "kind": "p2p-transfer",
+      "upstream": "https://www.qbittorrent.org/",
+      "command": "qbittorrent",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "id": "proton-vpn",
+      "name": "Proton VPN",
+      "category": "VPN & privacy",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ],
+      "kind": "vpn",
+      "upstream": "https://protonvpn.com/",
+      "command": "protonvpn-app",
+      "license": "GPL-3.0-or-later for relevant client components; verify each package"
     }
   ]
 }
