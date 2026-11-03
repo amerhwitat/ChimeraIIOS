@@ -498,7 +498,7 @@ manifest={
  "activation_policy":"Candidate images are not copied to the active GRUB/Koronos handoff paths. Native installer/recovery remain blocked until the CPL3 syscall/PID readiness and target-specific cold-boot verifiers pass.",
  "status":"built-candidate-not-production-runtime"
 }
-(root/"native-runtime-candidates.json").write_text(json.dumps(manifest,indent=2)+"\\n")
+(root/"native-runtime-candidates.json").write_text(json.dumps(manifest,indent=2)+"\n")
 PY
 
 
