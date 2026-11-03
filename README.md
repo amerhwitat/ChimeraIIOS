@@ -8,9 +8,9 @@ The initial cross-repository Java audit, parity rules, and phased conversion pla
 
 A bootable amd64 live image is published from this repository:
 
-- **Latest: Chimera II OS 2026.11.03 — named desktop gallery** — [`chimera-ii-os-live-amd64.iso`](https://github.com/amerhwitat/ChimeraIIOS/releases/download/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913/chimera-ii-os-live-amd64.iso) · 486 MiB · SHA-256 `9b956160fc8a35c00d9e124cbce419fc696aa30ba7efdee38f2782dc3fe016a1`
-- Release notes, checksum and BIOS/UEFI boot report: [2026.11.03 gallery release](https://github.com/amerhwitat/ChimeraIIOS/releases/tag/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913)
-- Local copy of the release note, checksum and boot report: [`docs/releases/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913/RELEASE.md`](docs/releases/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913/RELEASE.md)
+- **Latest: Chimera II OS 2026.11.03 — 26-wallpaper build** — [`chimera-ii-os-live-amd64.iso`](https://github.com/amerhwitat/ChimeraIIOS/releases/download/chimera-ii-os-live-2026.11.03-desktop-5c5ecae/chimera-ii-os-live-amd64.iso) · 467 MiB · SHA-256 `5fec26dd53a3c90b124ca58437fd6552ebb4263b8bdeb865b01ad14d8a4e5a70`
+- Release notes, checksum and BIOS/UEFI boot report: [2026.11.03 26-wallpaper release](https://github.com/amerhwitat/ChimeraIIOS/releases/tag/chimera-ii-os-live-2026.11.03-desktop-5c5ecae)
+- Local copy of the release note, checksum and boot report: [`docs/releases/chimera-ii-os-live-2026.11.03-desktop-5c5ecae/RELEASE.md`](docs/releases/chimera-ii-os-live-2026.11.03-desktop-5c5ecae/RELEASE.md)
 - Previous: **Chimera II OS 2026.11.02** — [`chimera-ii-os-live-amd64.iso`](https://github.com/amerhwitat/ChimeraIIOS/releases/download/chimera-ii-os-2026.11.02/chimera-ii-os-live-amd64.iso) · 467 MiB · SHA-256 `e599df3c6b82bc7e98f152edf1d4ee26b988c842c4eace65df6b0138f4007de8`
 - Release notes, checksums and build evidence: [`docs/releases/chimera-ii-os-2026.11.02/RELEASE.md`](docs/releases/chimera-ii-os-2026.11.02/RELEASE.md)
 - Mirror / download index: https://amerhwitat.github.io/downloads/
