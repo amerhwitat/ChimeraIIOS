@@ -60,5 +60,22 @@ class ArtifactManifestTests(unittest.TestCase):
             self.assertIn("required ISO artifacts missing", result.stderr)
             self.assertFalse(manifest.exists())
 
+    def test_native_build_stages_use_the_selected_build_directory(self):
+        root = Path(__file__).resolve().parents[2]
+        expected = {
+            "kernel/build-koronos.sh": 'BUILD="${CHIMERA_BUILD_DIR:-$ROOT/build}/koronos/x86_64"',
+            "tools/build-boot-artifacts.sh": 'BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"',
+            "tools/build-live-boot-binaries.sh": 'BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"',
+            "boot/iso/prepare-layout.sh": 'BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"',
+            "boot/iso/build-iso.sh": 'BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"',
+            "build-chimera-iso.sh": 'export CHIMERA_BUILD_DIR="$BUILD_DIR"',
+        }
+        for relative, required in expected.items():
+            source = (root / relative).read_text()
+            self.assertIn(required, source, relative)
+            self.assertNotIn('"$ROOT/build/', source, relative)
+        prepare = (root / "boot/iso/prepare-layout.sh").read_text()
+        self.assertIn('install -m 0644 "$UEFI_LOADER" "$DIST/EFI/BOOT/BOOTX64.EFI"', prepare)
+
 if __name__ == "__main__":
     unittest.main()
