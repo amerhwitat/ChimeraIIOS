@@ -63,6 +63,18 @@ def build(root,out,platform):
         r=call(["mvn","-B","-f",str(pom),"package","-DskipTests"],root);java_status=("selected Maven project built; other Java sources catalogued" if r.returncode==0 else "Maven project build failed")
     elif java and not shutil.which("javac"):java_status="sources inventoried; JDK unavailable"
     data={"schema":"chimera-polyglot-apps/v1","platform_build":platform,"python_source_count":len(py),"python_entrypoints":sum(a["kind"]=="python-entrypoint" for a in py),"java_source_count":len(java),"web_source_count":len(web),"java_build":java_status,"python":py,"java_sources":java,"web_sources":web,"compatibility":{"windows":"Build PyInstaller .exe on Windows; Windows binaries are not Linux executables.","wine":"Optional Wine runtime may launch compatible Windows .exe files; not guaranteed for every app.","linux":"Build separate Linux-native PyInstaller artifacts."}}
+    (out/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n")
+    panel=out/"polyglot-panel.py"
+    panel.write_text("""import pathlib,runpy,sys
+base=pathlib.Path(getattr(sys,"_MEIPASS",pathlib.Path(__file__).resolve().parent))
+sys.argv=["polyglot_apps.py","--gui","--root",str(base/"python-source"),"--manifest",str(base/"polyglot-apps.json")]
+runpy.run_path(str(base/"python-source"/"tools"/"polyglot_apps.py"),run_name="__main__")
+""")
+    sep=";" if platform=="windows" else ":"
+    r=call([tool,"--noconfirm","--clean","--onefile","--windowed","--name","PolyglotAppsPanel","--distpath",str(dist),"--add-data",str(source_tree)+sep+"python-source","--add-data",str(out/"polyglot-apps.json")+sep+".",str(panel)],root) if tool else None
+    data["panel_build"]=("built" if r and r.returncode==0 else "source-only: PyInstaller unavailable" if not tool else "failed")
+    data["panel_artifact"]=str((dist/("PolyglotAppsPanel"+(".exe" if platform=="windows" else ""))).relative_to(out)) if r and r.returncode==0 else None
+    if r and r.returncode!=0:data["panel_build_log"]=r.stdout[-2000:]
     (out/"polyglot-apps.json").write_text(json.dumps(data,indent=2)+"\n");return data
 def gui(root,manifest):
     data=json.loads(manifest.read_text());import tkinter as tk
