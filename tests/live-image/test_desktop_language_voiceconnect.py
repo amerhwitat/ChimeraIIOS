@@ -15,7 +15,7 @@ VOICECONNECT_COMMIT = "c3f0df816099b042486f5c5ec4405e2690690dc8"
 class DesktopLanguageVoiceConnectTests(unittest.TestCase):
     def read(self, path):
         data = path.read_bytes()
-        self.assertNotIn(b"\\r\\n", data, f"CRLF line ending found in {path.relative_to(ROOT)}")
+        self.assertNotIn(b"\r\n", data, f"CRLF line ending found in {path.relative_to(ROOT)}")
         return data.decode("utf-8")
 
     def test_desktop_loads_shared_locale_runtime(self):
