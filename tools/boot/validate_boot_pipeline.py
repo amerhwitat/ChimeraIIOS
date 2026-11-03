@@ -56,6 +56,8 @@ def main():
         require(not re.search(r"\\b(?:25|40|50|60|75|90|100)%",text),f"{rel} contains synthetic progress percentages")
     root_grub=(ROOT/"boot/iso/grub.cfg").read_text(errors="replace")
     require("configfile /boot/spitfire/spitfire-menu.cfg" in root_grub,"GRUB2 root must hand off to Spit Fire")
+    gates=(ROOT/"boot/gates/gates-menu.cfg").read_text(errors="replace")
+    require("configfile /boot/jasper/live-image.cfg" in gates and "configfile /boot/jasper/jasper.cfg" in gates,"Gates must route to the appropriate Jasper menu")
     spit=(ROOT/"boot/spitfire/spitfire-menu.cfg").read_text(errors="replace")
     gates=(ROOT/"boot/gates/gates-menu.cfg").read_text(errors="replace")
     require("configfile /boot/gates/gates-menu.cfg" in spit,"Spit Fire must hand off to Gates")
