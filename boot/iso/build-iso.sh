@@ -173,6 +173,14 @@ for contract in \
 done
 
 python3 "$ISO_ROOT/validate-iso.py" --tree "$DIST/iso" --write-manifest "$DIST/iso/checksums/SHA256SUMS"
+# Inventory every staged kernel, loader, initramfs, installer image and metadata
+# file before mastering. The manifest excludes itself and the checksum file to
+# avoid recursive hashes; SHA256SUMS is regenerated from the complete tree.
+python3 "$ROOT/tools/iso/build_artifact_manifest.py" \
+  --root "$DIST/iso" \
+  --manifest "$DIST/iso/boot/artifact-manifest.json" \
+  --checksums "$DIST/iso/checksums/SHA256SUMS"
+
 
 printf '%s\n' '[6/7] Master BIOS + UEFI hybrid ISO'
 command -v grub-mkrescue >/dev/null || { echo "grub-mkrescue is required." >&2; exit 2; }
