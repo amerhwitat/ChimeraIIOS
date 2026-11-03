@@ -108,6 +108,15 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
 }
 
 
+void play_sound(const char* event){
+  gchar* executable=g_find_program_in_path("canberra-gtk-play");
+  if(!executable)return;
+  gchar* argv[]={executable,const_cast<gchar*>("-i"),const_cast<gchar*>(event),nullptr};
+  GError* error=nullptr;
+  g_spawn_async(nullptr,argv,nullptr,G_SPAWN_SEARCH_PATH,nullptr,nullptr,nullptr,&error);
+  if(error)g_error_free(error);
+  g_free(executable);
+}
 void show_properties(GtkWidget* parent, const char* title) {
   GtkWidget* dialog=gtk_dialog_new();
   gtk_window_set_title(GTK_WINDOW(dialog),"Item Properties");
@@ -135,7 +144,7 @@ void card_pressed(GtkGestureClick* gesture,int presses,double,double,gpointer da
   GtkWidget* card=GTK_WIDGET(data);
   const guint button=gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(gesture));
   if(button==3){
-    selected_card=card;
+    selected_card=card;play_sound("menu-popup");
     GtkWidget* pop=gtk_popover_new();
     GtkWidget* list=gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
     for(const auto& item : {std::pair<const char*,const char*>{"Open","open"},{"Rename","rename"},{"Properties","properties"}}){
@@ -148,12 +157,14 @@ void card_pressed(GtkGestureClick* gesture,int presses,double,double,gpointer da
     return;
   }
   if(button!=1)return;
-  selected_card=card;
+  selected_card=card;play_sound("click");
+  GtkWidget* sibling=gtk_widget_get_first_child(gtk_widget_get_parent(card));
+  while(sibling){gtk_widget_remove_css_class(sibling,"selected");sibling=gtk_widget_get_next_sibling(sibling);}
   gtk_widget_add_css_class(card,"selected");
   if(presses==2){
     GtkWidget* open=static_cast<GtkWidget*>(g_object_get_data(G_OBJECT(card),"open-button"));
-    if(open)g_signal_emit_by_name(open,"clicked");
-  }else if(presses>=3)show_properties(card,"Selected application");
+    if(open){play_sound("complete");g_signal_emit_by_name(open,"clicked");}
+  }else if(presses>=3){play_sound("dialog-information");show_properties(card,"Selected application");}
 }
 
 void install_style() {
