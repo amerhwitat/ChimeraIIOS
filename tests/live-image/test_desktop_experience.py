@@ -7,7 +7,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 class DesktopExperienceContract(unittest.TestCase):
     def test_interaction_runtime_and_shortcuts_are_present(self):
         source = (ROOT / "desktop/shared/desktop-experience.js").read_text()
-        for token in ("contextmenu", "dblclick", "renameTimer", '"F2"', '"Enter"', "chm-properties", "Network Apps", "VoiceConnect"):
+        for token in ("contextmenu", "dblclick", "renameTimer", '"F2"', '"Enter"', "chm-properties", "Network Apps", "VoiceConnect", 'else if(k==="t")', 'else if(k==="f")'):
             self.assertIn(token, source)
         self.assertIn("network-applications.html", source)
 
