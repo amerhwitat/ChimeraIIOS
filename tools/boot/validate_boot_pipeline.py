@@ -9,15 +9,15 @@ def main():
     manifest=json.loads((ROOT/"boot/boot-artwork-manifest.json").read_text())
     menu=json.loads((ROOT/"boot/boot-menu-contract.json").read_text())
     require(manifest.get("schema")=="CHM-BOOT-ARTWORK-3","unknown artwork manifest schema")
-    require(menu.get("schema")=="CHM-BOOT-MENU-5","unknown boot menu contract schema")
-    expected=["firmware","grub","spitfire","jasper","menus","koronos","aurora"]
+    require(menu.get("schema")=="CHM-BOOT-MENU-6","unknown boot menu contract schema")
+    expected=["firmware","grub","spitfire","gates","jasper","menus","koronos","aurora"]
     chain=manifest.get("boot_chain",{})
     require(list(chain)==expected,"boot chain order must be firmware -> GRUB2 -> Spit Fire -> Jasper -> menus -> Koronos -> Aurora")
     require(menu.get("kernel")=="Koronos" and menu.get("primary_loader")=="GRUB2 BIOS/UEFI El Torito","boot menu identity mismatch")
-    require(menu.get("boot_policy_stage")=="Spit Fire GRUB menu","Spit Fire policy stage mismatch")
+    require(menu.get("firmware_menu")=="Spit Fire" and menu.get("policy_menu")=="Gates","Spit Fire/Gates menu identity mismatch")
     require(menu.get("menu_manager")=="Jasper" and menu.get("firmware_menu")=="Gates","Jasper/Gates menu identity mismatch")
     handoff=menu.get("handoff","")
-    for stage in ["GRUB2","Spit Fire","Jasper","Koronos","Aurora"]:
+    for stage in ["GRUB2","Spit Fire","Gates","Jasper","Koronos","Aurora"]:
         require(stage in handoff,f"canonical handoff omits {stage}")
     for key in expected:
         stage=chain[key]
@@ -48,7 +48,7 @@ def main():
         if rel=="boot/visual/aurora-wayland-glass.jpg" and not p.is_file():
             continue
         require(p.is_file(),f"declared artwork source missing: {rel}")
-    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/jasper/jasper.cfg","boot/jasper/live.cfg","boot/jasper/install.cfg","boot/jasper/recovery.cfg"]:
+    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/gates/gates-menu.cfg","boot/jasper/live-image.cfg","boot/jasper/install.cfg","boot/jasper/recovery.cfg"]:
         p=ROOT/rel
         require(p.is_file(),f"boot menu source missing: {rel}")
         text=p.read_text(errors="replace")
@@ -56,12 +56,16 @@ def main():
         require(not re.search(r"\\b(?:25|40|50|60|75|90|100)%",text),f"{rel} contains synthetic progress percentages")
     root_grub=(ROOT/"boot/iso/grub.cfg").read_text(errors="replace")
     require("configfile /boot/spitfire/spitfire-menu.cfg" in root_grub,"GRUB2 root must hand off to Spit Fire")
+    spit=(ROOT/"boot/spitfire/spitfire-menu.cfg").read_text(errors="replace")
+    gates=(ROOT/"boot/gates/gates-menu.cfg").read_text(errors="replace")
+    require("configfile /boot/gates/gates-menu.cfg" in spit,"Spit Fire must hand off to Gates")
+    require("configfile /boot/jasper/live-image.cfg" in gates,"Gates must hand off to Jasper")
     install=(ROOT/"boot/jasper/install.cfg").read_text(errors="replace")
     recovery=(ROOT/"boot/jasper/recovery.cfg").read_text(errors="replace")
     require("native-installer-runtime.ready" in install,"native Installer must require a ready marker")
     require("native-recovery-runtime.ready" in recovery,"native Recovery must require a ready marker")
     # The one intentional top-level configfile is the one-way GRUB2 -> Spit Fire handoff.
-    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/jasper/jasper.cfg"]:
+    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/gates/gates-menu.cfg","boot/jasper/live-image.cfg"]:
         text=(ROOT/rel).read_text(errors="replace")
         depth=0
         for line in text.splitlines():
