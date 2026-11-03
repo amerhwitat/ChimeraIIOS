@@ -117,8 +117,16 @@ def gui(root,manifest):
             else:messagebox.showinfo("Web asset","This JavaScript/CSS asset is loaded by its parent web application.")
             return
         if not src.is_file():messagebox.showerror("Missing source",str(src));return
-        output.delete("1.0","end");output.insert("end","Launching "+a["name"]+"\n")
-        p=subprocess.Popen([sys.executable,str(src)],cwd=str(src.parent),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);text,_=p.communicate();output.insert("end",(text or "No console output.")+"\nExit code: "+str(p.returncode))
+        if a["kind"]=="python-entrypoint":
+            artifact=a.get("artifact")
+            if artifact:
+                exe_name=pathlib.Path(artifact).name
+                candidate=(pathlib.Path(sys.executable).resolve().parent/exe_name if sys.platform=="win32" else pathlib.Path(os.environ.get("CHIMERA_LINUX_APPS_DIR",str(manifest.parent/"linux")))/exe_name)
+                if candidate.is_file():subprocess.Popen([str(candidate)]);return
+            interpreter=shutil.which("python3") or shutil.which("python")
+            if not interpreter:messagebox.showerror("Python unavailable","No native Python runtime or built executable is available for this entrypoint.");return
+            subprocess.Popen([interpreter,str(src)],cwd=str(src.parent));return
+        output.delete("1.0","end");output.insert("end","Source is present; no standalone launcher is defined for this item.")
     ttk.Button(w,text="Run selected app",command=launch).pack(anchor="w",padx=18,pady=12);w.mainloop()
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--root",type=pathlib.Path,default=pathlib.Path(__file__).resolve().parents[1]);ap.add_argument("--output",type=pathlib.Path,default=pathlib.Path("build/polyglot"));ap.add_argument("--platform",choices=["linux","windows"],default="linux");ap.add_argument("--build",action="store_true");ap.add_argument("--gui",action="store_true");ap.add_argument("--manifest",type=pathlib.Path)
