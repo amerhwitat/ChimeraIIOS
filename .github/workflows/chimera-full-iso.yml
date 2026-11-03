@@ -153,7 +153,7 @@ jobs:
           assert "native-recovery-runtime.ready" in recovery
           assert "Native Koronos Installer" in installer
           assert "Native Koronos Recovery" in recovery
-          print("ISO payload check passed: GRUB2 -> Spit Fire -> Jasper, Spit Fire BIOS artifacts, and fail-closed runtime prototypes are embedded.")
+          print("ISO payload check passed: GRUB2 -> Spit Fire -> Gates -> Jasper, Spit Fire BIOS artifacts, and fail-closed runtime prototypes are embedded.")
           PY
 
       - name: QEMU headless Koronos kernel-entry smoke test
