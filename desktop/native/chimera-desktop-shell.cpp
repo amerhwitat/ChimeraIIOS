@@ -265,6 +265,85 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
   return card;
 }
 
+
+void desktop_menu_action(GtkButton* button, gpointer data) {
+  const char* action = static_cast<const char*>(data);
+  GtkWidget* popover = gtk_widget_get_ancestor(GTK_WIDGET(button), GTK_TYPE_POPOVER);
+  if (popover) gtk_popover_popdown(GTK_POPOVER(popover));
+  if (std::strcmp(action, "files") == 0) {
+    launch_clicked(nullptr, const_cast<char*>("files"));
+  } else if (std::strcmp(action, "terminal") == 0) {
+    launch_clicked(nullptr, const_cast<char*>("terminal"));
+  } else if (std::strcmp(action, "rename") == 0) {
+    if (selected_app_card) rename_app_card(selected_app_card);
+    else set_status("Select an application shortcut before renaming.");
+  } else if (std::strcmp(action, "properties") == 0) {
+    if (selected_app_card) show_app_properties(selected_app_card);
+    else set_status("Select an application shortcut to view Properties.");
+  } else if (std::strcmp(action, "refresh") == 0) {
+    GtkRoot* root = gtk_widget_get_root(GTK_WIDGET(button));
+    if (root) gtk_widget_queue_draw(GTK_WIDGET(root));
+    set_status("Desktop view refreshed.");
+  } else if (std::strcmp(action, "backgrounds") == 0) {
+    set_status("Background selection requires the native compositor wallpaper provider.");
+  } else if (std::strcmp(action, "apps") == 0) {
+    set_status("Applications workspace is shown below.");
+  } else if (std::strcmp(action, "showdesktop") == 0) {
+    selected_app_card = nullptr;
+    set_status("Desktop overview selected.");
+  } else if (std::strcmp(action, "shortcuts") == 0) {
+    set_status("Shortcuts: F2 rename · Enter open · Shift+F10 context menu · Ctrl+Alt+T Terminal · Super/Meta+E Files.");
+  } else if (std::strcmp(action, "about") == 0) {
+    set_status("Chimera II Aurora/Marine GTK4 shell. Koronos native userspace readiness is a separate release gate.");
+  } else if (std::strcmp(action, "quit") == 0) {
+    GtkRoot* root = gtk_widget_get_root(GTK_WIDGET(button));
+    if (root && GTK_IS_WINDOW(root)) gtk_window_close(GTK_WINDOW(root));
+  }
+}
+
+GtkWidget* desktop_menu_button(const char* title,
+                               const char* const* labels,
+                               const char* const* actions,
+                               int count) {
+  GtkWidget* menu_button = gtk_menu_button_new();
+  gtk_menu_button_set_label(GTK_MENU_BUTTON(menu_button), title);
+  gtk_widget_add_css_class(menu_button, "desktop-menu-button");
+  GtkWidget* popover = gtk_popover_new();
+  GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+  gtk_widget_add_css_class(box, "desktop-menu-actions");
+  for (int i = 0; i < count; ++i) {
+    GtkWidget* item = gtk_button_new_with_label(labels[i]);
+    gtk_widget_add_css_class(item, "context-action");
+    g_signal_connect(item, "clicked", G_CALLBACK(desktop_menu_action),
+                     const_cast<char*>(actions[i]));
+    gtk_box_append(GTK_BOX(box), item);
+  }
+  gtk_popover_set_child(GTK_POPOVER(popover), box);
+  gtk_menu_button_set_popover(GTK_MENU_BUTTON(menu_button), popover);
+  return menu_button;
+}
+
+GtkWidget* desktop_menu_bar() {
+  GtkWidget* bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+  gtk_widget_add_css_class(bar, "desktop-menubar");
+  const char* file_labels[] = {"Open Files", "Open Terminal", "Quit"};
+  const char* file_actions[] = {"files", "terminal", "quit"};
+  const char* edit_labels[] = {"Rename Selected", "Properties"};
+  const char* edit_actions[] = {"rename", "properties"};
+  const char* view_labels[] = {"Refresh Desktop", "Backgrounds"};
+  const char* view_actions[] = {"refresh", "backgrounds"};
+  const char* window_labels[] = {"Applications", "Show Desktop"};
+  const char* window_actions[] = {"apps", "showdesktop"};
+  const char* help_labels[] = {"Keyboard Shortcuts", "About"};
+  const char* help_actions[] = {"shortcuts", "about"};
+  gtk_box_append(GTK_BOX(bar), desktop_menu_button("File", file_labels, file_actions, 3));
+  gtk_box_append(GTK_BOX(bar), desktop_menu_button("Edit", edit_labels, edit_actions, 2));
+  gtk_box_append(GTK_BOX(bar), desktop_menu_button("View", view_labels, view_actions, 2));
+  gtk_box_append(GTK_BOX(bar), desktop_menu_button("Window", window_labels, window_actions, 2));
+  gtk_box_append(GTK_BOX(bar), desktop_menu_button("Help", help_labels, help_actions, 2));
+  return bar;
+}
+
 void install_style() {
   const char* css = R"CSS(
     window { background: #101723; color: #eef4ff; }
@@ -278,6 +357,9 @@ void install_style() {
     .app-card { background: linear-gradient(155deg,#263c56,#18283b 58%,#101b2a); border: 1px solid #526a86; border-radius: 16px; padding: 18px; min-width: 170px; box-shadow: 0 6px 0 #07101b,0 15px 28px #0008; }
     .app-card:hover { border-color: #8fe5ee; }
     .context-actions { background: #17283c; padding: 7px; border: 1px solid #68839d; border-radius: 12px; }
+    .desktop-menubar { background: #152338; padding: 6px 12px; border-bottom: 1px solid #344d68; }
+    .desktop-menu-button { background: transparent; color: #eaf4ff; border: 1px solid transparent; border-radius: 8px; padding: 6px 12px; }
+    .desktop-menu-button:hover { background: #2a405b; border-color: #54728e; }
     button.context-action { background: #243b54; color: #f4f8ff; border: 1px solid #49637d; border-radius: 8px; padding: 8px 14px; }
     button.context-action:hover { background: #315675; }
     .app-glyph { color: #8fe5ee; font-size: 28px; padding: 8px; }
@@ -322,6 +404,7 @@ void activate(GtkApplication* app, gpointer) {
   gtk_header_bar_set_title_widget(GTK_HEADER_BAR(header), title);
   gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(header), TRUE);
   gtk_box_append(GTK_BOX(root), header);
+  gtk_box_append(GTK_BOX(root), desktop_menu_bar());
 
   GtkWidget* body = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_set_vexpand(body, TRUE);
