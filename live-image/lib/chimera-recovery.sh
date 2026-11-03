@@ -16,7 +16,15 @@ while true; do
         if [[ -z "$device" ]]; then echo "Cancelled."; break; fi
         if [[ ! -b "$device" ]]; then echo "Refusing: $device is not a block device."; break; fi
         read -r -p "Run fsck -f on $device? This may modify filesystem metadata. Type CHECK to continue: " confirm
-        if [[ "$confirm" == "CHECK" ]]; then sudo fsck -f "$device"; else echo "Cancelled."; fi
+        if [[ "$confirm" == "CHECK" ]]; then
+          if findmnt -rn -S "$device" >/dev/null; then
+            echo "Refusing: $device is mounted. Unmount it before repair."
+          else
+            sudo fsck -f "$device"
+          fi
+        else
+          echo "Cancelled."
+        fi
         break ;;
       4) exec sudo -i ;;
       5) systemctl reboot ;;
