@@ -231,11 +231,27 @@ while [[ $# -gt 0 ]]; do
     --push) export CHIMERA_PUSH=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
+    --skip-sdk-builds) export CHIMERA_BUILD_REPO_SDKS=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# Discover and compile first-party SDK projects before ISO composition. The
+# helper excludes vendored/dependency/build trees and records every PASS/FAIL/SKIP.
+# Best-effort is the default so an optional SDK does not mask a later ISO failure;
+# set CHIMERA_SDK_BUILD_STRICT=1 to make any discovered SDK failure fatal.
+if [[ "${CHIMERA_BUILD_REPO_SDKS:-1}" == "1" ]]; then
+  export CHIMERA_SDK_BUILD_DIR="$BUILD_DIR/sdk-build"
+  log_both "Building repository SDKs (CMake, Cargo, Go, Maven, npm and Gradle)"
+  if ! bash "$SCRIPT_DIR/tools/build-repository-sdks.sh" >>"$LOG_DIR/sdk-build.log" 2>&1; then
+    log_error "Repository SDK build runner failed; see $LOG_DIR/sdk-build.log"
+    [[ "${CHIMERA_SDK_BUILD_STRICT:-0}" != "1" ]] || exit 1
+  fi
+else
+  log_both "Repository SDK build discovery disabled by CHIMERA_BUILD_REPO_SDKS=0"
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
