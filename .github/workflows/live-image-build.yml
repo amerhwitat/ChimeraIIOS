@@ -55,6 +55,13 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+      - name: Export Node.js 24 runtime for the ISO bundle
+        run: |
+          echo "NODE_BINARY=$(command -v node)" >> "$GITHUB_ENV"
+          echo "NPM_BINARY=$(command -v npm)" >> "$GITHUB_ENV"
 
       - name: Install host ISO and graphical smoke-test dependencies
         run: |
@@ -68,6 +75,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
+          node --check web/language-runtime.js
           bash -n live-image/build.sh boot/spitfire/build-spitfire.sh tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh
           bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh desktop/aurora/aurora-init-splash.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
           python3 -m json.tool install/installation-manifest.json >/dev/null
