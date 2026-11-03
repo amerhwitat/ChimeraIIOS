@@ -1149,6 +1149,53 @@ build_native_iso_pipeline(){
 }
 
 
+stage_sdk_bundle(){
+  header 'BUILD AND STAGE NATIVE SDK + AVAILABLE LANGUAGE TOOLCHAINS'
+  local sdk_stage="$BUILD_DIR/sdk-bundle"
+  bash "$SCRIPT_DIR/tools/build-sdk-bundle.sh" "$sdk_stage" 2>&1 | tee "$LOG_DIR/sdk-bundle.log"
+  [[ -s "$sdk_stage/sdk-build-status.json" ]] || { log_error "SDK status manifest missing"; return 1; }
+  mkdir -p "$ROOTFS_DIR/opt/chimera-sdk" "$ROOTFS_DIR/usr/share/chimera/sdk" "$ISO_DIR/system/sdk"
+  cp -a "$sdk_stage/rootfs/opt/chimera-sdk/." "$ROOTFS_DIR/opt/chimera-sdk/"
+  cp -f "$SCRIPT_DIR/sdk/third-party-sdk-manifest.json" "$ROOTFS_DIR/usr/share/chimera/sdk/"
+  cp -f "$sdk_stage/sdk-build-status.json" "$ROOTFS_DIR/opt/chimera-sdk/"
+  cp -f "$sdk_stage/sdk-build-status.json" "$ISO_DIR/system/sdk/"
+  cp -f "$SCRIPT_DIR/sdk/SDK_BUILD_MANIFEST.json" "$ISO_DIR/system/sdk/"
+  cp -f "$SCRIPT_DIR/sdk/third-party-sdk-manifest.json" "$ISO_DIR/system/sdk/"
+  log_success "SDK library, headers, examples, manuals and available language builds staged."
+}
+
+stage_storage_network_runtime(){
+  header 'STAGE STORAGE, DEVICE, NETWORK AND ARCHITECTURE CONTRACTS'
+  local bin="$ROOTFS_DIR/usr/lib/chimera" share="$ROOTFS_DIR/usr/share/chimera"
+  install -D -m 0755 "$SCRIPT_DIR/tools/chimera-media-manager.sh" "$bin/chimera-media-manager.sh"
+  install -D -m 0644 "$SCRIPT_DIR/packaging/systemd/system/chimera-media-scan.service" "$ROOTFS_DIR/etc/systemd/system/chimera-media-scan.service"
+  install -D -m 0644 "$SCRIPT_DIR/packaging/udev/rules.d/90-chimera-media.rules" "$ROOTFS_DIR/etc/udev/rules.d/90-chimera-media.rules"
+  mkdir -p "$ROOTFS_DIR"/{dev,proc,sys,run,mnt,media,tmp} "$ROOTFS_DIR/etc/systemd/system/multi-user.target.wants" "$share/storage" "$share/network" "$share/architecture"
+  chmod 1777 "$ROOTFS_DIR/tmp"
+  ln -sfn ../chimera-media-scan.service "$ROOTFS_DIR/etc/systemd/system/multi-user.target.wants/chimera-media-scan.service"
+  cp -f "$SCRIPT_DIR/filesystems/runtime-capabilities.json" "$share/storage/runtime-capabilities.json"
+  cp -f "$SCRIPT_DIR/network/runtime-stack-manifest.json" "$share/network/runtime-stack-manifest.json"
+  cp -f "$SCRIPT_DIR/kernel/arch/koronos-architecture-profiles.json" "$share/architecture/koronos-architecture-profiles.json"
+  cp -f "$SCRIPT_DIR/sdk/third-party-sdk-manifest.json" "$share/third-party-sdk-manifest.json"
+  cp -f "$SCRIPT_DIR/filesystems/runtime-capabilities.json" "$ISO_DIR/system/"
+  cp -f "$SCRIPT_DIR/network/runtime-stack-manifest.json" "$ISO_DIR/system/"
+  cp -f "$SCRIPT_DIR/kernel/arch/koronos-architecture-profiles.json" "$ISO_DIR/system/"
+  # Keep the administrative root account present but locked; normal desktop
+  # access is through an unprivileged account and explicit sudo authorization.
+  if [[ -f "$ROOTFS_DIR/etc/shadow" ]]; then
+    python3 - "$ROOTFS_DIR/etc/shadow" <<'PY'
+import pathlib,sys
+p=pathlib.Path(sys.argv[1]); lines=p.read_text().splitlines(); out=[]
+for line in lines:
+    fields=line.split(":")
+    if fields and fields[0]=="root" and len(fields)>1 and not fields[1].startswith(("!","*")):
+        fields[1]="!"+fields[1]
+    out.append(":".join(fields))
+p.write_text("\n".join(out)+"\n")
+PY
+  fi
+  log_success "Linux live media discovery and system integration contracts staged; Koronos-native VFS remains a separate acceptance gate."
+}
 stage_games(){ local d="$ISO_DIR/games"; mkdir -p "$d"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-registry.json" "$d/"; [[ -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" ]] && cp -f "$SCRIPT_DIR/appcenter/catalog/game-capability-policy.json" "$d/"; [[ -d "$SCRIPT_DIR/games" ]] && cp -a "$SCRIPT_DIR/games/." "$d/" 2>/dev/null || true; }
 
 create_installer(){
@@ -1515,7 +1562,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands sdk media docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1524,6 +1571,8 @@ main(){
       docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
+      sdk) run_stage sdk stage_sdk_bundle;;
+      media) run_stage media stage_storage_network_runtime;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
