@@ -10,7 +10,7 @@
 #   SKIP_DEBOOTSTRAP=1 reuse an existing base rootfs
 #
 # Requires (Debian/Ubuntu host): debootstrap xorriso squashfs-tools grub-pc-bin
-# grub-efi-amd64-bin mtools dosfstools imagemagick python3.
+# grub-efi-amd64-bin mtools dosfstools imagemagick python3 g++ nasm binutils.
 set -euo pipefail
 
 ED="${1:-}"
@@ -374,6 +374,24 @@ cp "$WORK"/boot/initrd.img-* "$ISODIR/live/initrd.img"
 mkdir -p "$ISODIR/boot/grub"
 convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
   -strip -quality 90 "$ISODIR/boot/grub/background.jpg"
+
+# Build the repository's native Koronos kernel by default. An externally
+# built ELF may be supplied explicitly, but it must satisfy the same checks.
+if [[ -z "\${KORONOS_ELF:-}" ]]; then
+  if [[ -f "$REPO_DIR/kernel/build-koronos.sh" ]]; then
+    KERNEL_ROOT="$REPO_DIR"
+  elif [[ -f "$REPO_DIR/vendor/chimera-ii-os/source/kernel/build-koronos.sh" ]]; then
+    KERNEL_ROOT="$REPO_DIR/vendor/chimera-ii-os/source"
+  else
+    echo "ERROR: native Koronos source/build script is missing; refusing to emit a misleading Koronos boot entry." >&2
+    exit 1
+  fi
+  log "building native Koronos kernel from $KERNEL_ROOT"
+  bash "$KERNEL_ROOT/kernel/build-koronos.sh"
+  KORONOS_ELF="$KERNEL_ROOT/build/koronos/x86_64/koronos.elf"
+fi
+KORONOS_ELF="$(realpath "$KORONOS_ELF")"
+test -s "$KORONOS_ELF" || { echo "ERROR: Koronos ELF missing: $KORONOS_ELF" >&2; exit 1; }
 
 # Optionally embed only a real, Multiboot2-compatible x86-64 Koronos kernel.
 if [[ -n "\${KORONOS_ELF:-}" ]]; then
