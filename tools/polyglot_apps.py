@@ -19,18 +19,24 @@ def inventory(root):
     return py,java,web
 def call(cmd,cwd):return subprocess.run(cmd,cwd=cwd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 def make_wrapper(source,name):
-    return """import pathlib,subprocess,sys,tkinter as tk
+    return """import pathlib,subprocess,sys,tkinter as tk,runpy,contextlib,io
 from tkinter import ttk,messagebox
 ROOT=pathlib.Path(__file__).resolve().parent
-SOURCE=ROOT/"""+repr(source)+"""
+BUNDLE=pathlib.Path(getattr(sys,"_MEIPASS",ROOT))
+SOURCE=BUNDLE/"python-source"/"""+repr(source)+"""
 def main():
  w=tk.Tk();w.title("""+repr(name)+"""+" — App");w.geometry("900x620")
  ttk.Label(w,text="""+repr(name)+""",font=("Segoe UI",16,"bold")).pack(anchor="w",padx=16,pady=12)
  out=tk.Text(w,wrap="word");out.pack(fill="both",expand=True,padx=16,pady=8)
  def launch():
   if not SOURCE.is_file():messagebox.showerror("Missing source",str(SOURCE));return
-  p=subprocess.Popen([sys.executable,str(SOURCE)],cwd=str(SOURCE.parent),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
-  text,_=p.communicate();out.insert("end",(text or "No console output.")+"\\nExit code: "+str(p.returncode)+"\\n")
+  sys.path.insert(0,str(SOURCE.parent));buf=io.StringIO()
+  try:
+   with contextlib.redirect_stdout(buf),contextlib.redirect_stderr(buf):runpy.run_path(str(SOURCE),run_name="__main__")
+   code=0
+  except SystemExit as exc:code=exc.code if isinstance(exc.code,int) else 1
+  except Exception as exc:buf.write(str(exc));code=1
+  out.insert("end",(buf.getvalue() or "No console output.")+"\\nExit code: "+str(code)+"\\n")
  bar=ttk.Frame(w);bar.pack(fill="x",padx=16,pady=12)
  ttk.Button(bar,text="Run",command=launch).pack(side="left")
  ttk.Button(bar,text="Close",command=w.destroy).pack(side="right")
@@ -44,7 +50,8 @@ def build(root,out,platform):
         app["build"]="source-only: PyInstaller unavailable"
         if not tool:continue
         wrapper=out/(app["id"]+".py");wrapper.write_text(make_wrapper(app["source"],app["name"]));name=app["id"][3:]
-        r=call([tool,"--noconfirm","--clean","--onefile","--windowed","--name",name,"--distpath",str(dist),str(wrapper)],root)
+        sep=";" if platform=="windows" else ":"
+        r=call([tool,"--noconfirm","--clean","--onefile","--windowed","--name",name,"--distpath",str(dist),"--add-data",str(source_tree)+sep+"python-source",str(wrapper)],root)
         app["build"]="built" if r.returncode==0 else "failed";app["log"]=r.stdout[-2000:]
         app["artifact"]=str((dist/(name+(".exe" if platform=="windows" else ""))).relative_to(out)) if r.returncode==0 else None
     pom=next(iter(root.rglob("pom.xml")),None);java_status="sources inventoried; no Maven project" if java else "no Java sources"
