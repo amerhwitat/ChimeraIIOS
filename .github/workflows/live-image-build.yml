@@ -26,42 +26,11 @@ on:
       - '.github/workflows/live-image-build.yml'
   workflow_dispatch:
     inputs:
-      qemu-boot:
-    name: QEMU boot all Jasper targets
-    needs: [build]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download the exact ISO built by this workflow
-        uses: actions/download-artifact@v4
-        with:
-          name: chimera-ii-os-live-desktop-fixed
-          path: candidate
-      - name: Install QEMU and screenshot inspection tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes qemu-system-x86 socat imagemagick tesseract-ocr
-      - name: Boot Live, Installer, Koronos guard and Recovery targets
-        run: |
-          set -euo pipefail
-          chmod +x tests/live-image/test-qemu-live-boot.sh
-          for target in live installer koronos recovery; do
-            tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence/$target" "$target"
-          done
-      - name: Upload QEMU boot evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: chimera-jasper-qemu-boot-evidence
-          path: ${{ runner.temp }}/qemu-evidence
-          if-no-files-found: error
-          retention-days: 30
-  publish:
+      publish:
         description: Publish a GitHub Release after all ISO and desktop checks pass
         required: true
         type: boolean
         default: false
-
 permissions:
   contents: write
 
@@ -192,6 +161,36 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  qemu-boot:
+    name: QEMU boot all Jasper targets
+    needs: [build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the exact ISO built by this workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: chimera-ii-os-live-desktop-fixed
+          path: candidate
+      - name: Install QEMU and screenshot inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes qemu-system-x86 socat imagemagick tesseract-ocr
+      - name: Boot Live, Installer, Koronos and Recovery targets
+        run: |
+          set -euo pipefail
+          chmod +x tests/live-image/test-qemu-live-boot.sh
+          for target in live installer koronos recovery; do
+            tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence/$target" "$target"
+          done
+      - name: Upload QEMU boot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-jasper-qemu-boot-evidence
+          path: ${{ runner.temp }}/qemu-evidence
+          if-no-files-found: error
+          retention-days: 30
   publish:
     name: Publish verified Chimera II OS live ISO
     needs: [build, qemu-boot]
