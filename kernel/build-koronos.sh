@@ -19,7 +19,7 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BUILD="$ROOT/build/koronos/x86_64"
+BUILD="${CHIMERA_BUILD_DIR:-$ROOT/build}/koronos/x86_64"
 mkdir -p "$BUILD"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
