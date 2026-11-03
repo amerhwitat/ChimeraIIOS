@@ -46,7 +46,6 @@ class IsoTargetRoutingTests(unittest.TestCase):
                 or 'aurora-wayland-glass.jpg' in builder,
                 "builder must stage the Aurora background"
             )
-            self.assertIn('"$STAGE/boot/grub/Init.mp4"', builder)
             self.assertIn("for boot_stage in visual spitfire jasper grub; do", builder)
             self.assertIn('install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/boot/$boot_stage/Init.mp4"', builder)
             self.assertIn("library-artwork-manifest.json", builder)
