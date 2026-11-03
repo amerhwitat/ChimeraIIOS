@@ -42,13 +42,19 @@ static bool pid_in_use(uint32_t pid) {
     return false;
 }
 
-/* Never wrap PID allocation onto an existing live process record. */
+/* Never wrap PID allocation onto a live or previously issued identity.
+ * This registry has no safe PID-reuse/reaping protocol yet. */
 static uint32_t allocate_pid() {
-    for (uint32_t attempt = 0; attempt < CHIMERA_PROCESS_MAX + 1u; ++attempt) {
-        if (!next_pid || next_pid > 0x7fffffffu) next_pid = 1;
-        const uint32_t candidate = next_pid++;
-        if (candidate && !pid_in_use(candidate)) return candidate;
+    constexpr uint32_t MAX_PID = 0x7fffffffu;
+
+    while (next_pid != 0 && next_pid <= MAX_PID) {
+        const uint32_t candidate = next_pid;
+        next_pid = (candidate == MAX_PID) ? 0 : candidate + 1;
+
+        if (!pid_in_use(candidate))
+            return candidate;
     }
+
     return 0;
 }
 }
