@@ -38,6 +38,8 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_DIR"
 # Canonical system block-size contract. Forward this unchanged into the kernel
 # build and all downstream ISO stages; never silently accept malformed values.
 CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
@@ -54,8 +56,8 @@ mkdir -p "$DIST" "$WORK/tmp"
 export TMPDIR="$WORK/tmp"
 
 printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
-CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" bash "$ROOT/kernel/build-koronos.sh"
-KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
+CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" bash "$ROOT/kernel/build-koronos.sh"
+KORONOS_ELF="$BUILD_DIR/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
 command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
 grub-file --is-x86-multiboot2 "$KORONOS_ELF"
@@ -74,7 +76,7 @@ cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 # Stage its dedicated initramfs and the canonical recovery menu after
 # prepare-layout, whose legacy recovery.cfg generation is intentionally kept
 # compatible with older installations.
-RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
+RECOVERY_BOOT="$BUILD_DIR/live-boot/boot/recovery"
 test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
 test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/recovery"
@@ -86,8 +88,8 @@ cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
-bash "$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
-MEDIA="$ROOT/build/aurora-media"
+bash "$ROOT/tools/aurora/build-visual-assets.sh" "$BUILD_DIR/aurora-media"
+MEDIA="$BUILD_DIR/aurora-media"
 test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/visual/aurora-media"
 cp -a "$MEDIA/." "$DIST/iso/boot/visual/aurora-media/"
@@ -123,7 +125,7 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/grub/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/koronos/"
 # Mirror the same contract into the installed/live Aurora runtime when a rootfs is present.
-RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera/aurora"
+RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$BUILD_DIR/rootfs}/usr/share/chimera/aurora"
 if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
   mkdir -p "$RUNTIME_AURORA_ROOT"
   cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
