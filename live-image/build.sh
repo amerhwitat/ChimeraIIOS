@@ -472,7 +472,7 @@ fi
 # Build and stage the native Spit Fire BIOS artifacts. GRUB2 remains the
 # El Torito/UEFI ISO loader; these MBR artifacts are not written to ISO boot sectors.
 SPITFIRE_OUT="$BUILD/spitfire"
-mkdir -p "$SPITFIRE_OUT" "$ISODIR/boot/spitfire" "$ISODIR/boot/jasper"
+mkdir -p "$SPITFIRE_OUT" "$ISODIR/boot/spitfire" "$ISODIR/boot/gates" "$ISODIR/boot/jasper"
 for tool in nasm g++ ld nm; do command -v "$tool" >/dev/null 2>&1 || { echo "ERROR: Spit Fire build requires $tool" >&2; exit 2; }; done
 bash "$NATIVE_SOURCE/boot/spitfire/build-spitfire.sh" "$SPITFIRE_OUT" "$KORONOS_ELF"
 for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o koronos.elf.sha256 BUILD-MANIFEST.txt SHA256SUMS; do
@@ -481,6 +481,7 @@ for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o
 done
 install -m 0644 "$NATIVE_SOURCE/boot/spitfire/spitfire-menu.cfg" "$ISODIR/boot/spitfire/native-koronos-menu.cfg"
 install -m 0644 "$HERE/spitfire-menu.cfg" "$ISODIR/boot/spitfire/spitfire-menu.cfg"
+install -m 0644 "$HERE/gates-menu.cfg" "$ISODIR/boot/gates/gates-menu.cfg"
 install -m 0644 "$HERE/jasper-live.cfg" "$ISODIR/boot/jasper/live-image.cfg"
 install -D -m 0644 "$PAY/wallpapers/wp01.jpg" "$ISODIR/boot/grub/background.jpg"
 # Ship the intro beside the menu for diagnostics/provenance. GRUB does not
