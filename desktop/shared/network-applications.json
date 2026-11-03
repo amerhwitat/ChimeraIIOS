@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "title": "Network Applications Panel",
+  "applications": [
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "category": "Web & browsing",
+      "upstream": "https://www.mozilla.org/firefox/",
+      "command": "firefox",
+      "license": "MPL-2.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "chromium",
+      "name": "Chromium",
+      "category": "Web & browsing",
+      "upstream": "https://www.chromium.org/",
+      "command": "chromium",
+      "license": "BSD-3-Clause",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "thunderbird",
+      "name": "Thunderbird",
+      "category": "Email & collaboration",
+      "upstream": "https://www.thunderbird.net/",
+      "command": "thunderbird",
+      "license": "MPL-2.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "element",
+      "name": "Element",
+      "category": "Messaging & calls",
+      "upstream": "https://element.io/download",
+      "command": "element-desktop",
+      "license": "AGPL-3.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS",
+        "Web"
+      ]
+    },
+    {
+      "id": "signal",
+      "name": "Signal Desktop",
+      "category": "Messaging & calls",
+      "upstream": "https://signal.org/download/",
+      "command": "signal-desktop",
+      "license": "AGPL-3.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "jitsi",
+      "name": "Jitsi Meet",
+      "category": "Messaging & calls",
+      "upstream": "https://jitsi.org/jitsi-meet/",
+      "command": null,
+      "license": "Apache-2.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS",
+        "Web"
+      ]
+    },
+    {
+      "id": "remmina",
+      "name": "Remmina",
+      "category": "Remote access",
+      "upstream": "https://remmina.org/",
+      "command": "remmina",
+      "license": "GPL-2.0-or-later",
+      "platforms": [
+        "Linux"
+      ]
+    },
+    {
+      "id": "rustdesk",
+      "name": "RustDesk",
+      "category": "Remote access",
+      "upstream": "https://rustdesk.com/",
+      "command": "rustdesk",
+      "license": "AGPL-3.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "openssh",
+      "name": "OpenSSH",
+      "category": "Remote access",
+      "upstream": "https://www.openssh.com/",
+      "command": "ssh",
+      "license": "BSD",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "wireguard",
+      "name": "WireGuard",
+      "category": "VPN & privacy",
+      "upstream": "https://www.wireguard.com/",
+      "command": "wg",
+      "license": "GPL-2.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "openvpn",
+      "name": "OpenVPN",
+      "category": "VPN & privacy",
+      "upstream": "https://openvpn.net/community-downloads/",
+      "command": "openvpn",
+      "license": "GPL-2.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "category": "File transfer & sync",
+      "upstream": "https://syncthing.net/",
+      "command": "syncthing",
+      "license": "MPL-2.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "category": "File transfer & sync",
+      "upstream": "https://nextcloud.com/install/",
+      "command": null,
+      "license": "AGPL-3.0",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS",
+        "Web"
+      ]
+    },
+    {
+      "id": "filezilla",
+      "name": "FileZilla",
+      "category": "File transfer & sync",
+      "upstream": "https://filezilla-project.org/",
+      "command": "filezilla",
+      "license": "GPL-2.0-or-later",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "wireshark",
+      "name": "Wireshark",
+      "category": "Diagnostics & monitoring",
+      "upstream": "https://www.wireshark.org/download.html",
+      "command": "wireshark",
+      "license": "GPL-2.0-or-later",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "nmap",
+      "name": "Nmap",
+      "category": "Diagnostics & monitoring",
+      "upstream": "https://nmap.org/download.html",
+      "command": "nmap",
+      "license": "NPSL",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "tcpdump",
+      "name": "tcpdump",
+      "category": "Diagnostics & monitoring",
+      "upstream": "https://www.tcpdump.org/",
+      "command": "tcpdump",
+      "license": "BSD",
+      "platforms": [
+        "Linux",
+        "macOS"
+      ]
+    },
+    {
+      "id": "networkmanager",
+      "name": "NetworkManager",
+      "category": "Network configuration",
+      "upstream": "https://networkmanager.dev/",
+      "command": "nm-connection-editor",
+      "license": "GPL-2.0-or-later",
+      "platforms": [
+        "Linux"
+      ]
+    },
+    {
+      "id": "kdeconnect",
+      "name": "KDE Connect",
+      "category": "Device integration",
+      "upstream": "https://kdeconnect.kde.org/",
+      "command": "kdeconnect-app",
+      "license": "GPL-2.0-or-later",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "Android"
+      ]
+    },
+    {
+      "id": "transmission",
+      "name": "Transmission",
+      "category": "File transfer & sync",
+      "upstream": "https://transmissionbt.com/",
+      "command": "transmission-gtk",
+      "license": "GPL-2.0-or-later",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    },
+    {
+      "id": "voiceconnect",
+      "name": "VoiceConnect",
+      "category": "Messaging & calls",
+      "upstream": "https://github.com/amerhwitat/test",
+      "command": null,
+      "license": "Project-specific; see repository",
+      "platforms": [
+        "Linux",
+        "Windows",
+        "macOS"
+      ]
+    }
+  ]
+}
