@@ -143,6 +143,11 @@ cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 # Build and stage first-party Python, Java and Web implementations for the Apps Panel.
 # Python sources are copied with their repository-relative paths; tests/vendor snapshots
 # are excluded from the runnable inventory. PyInstaller artifacts are platform-specific.
+if [ "${BUILD_PYINSTALLER:-0}" = "1" ] && ! command -v pyinstaller >/dev/null 2>&1; then
+  python3 -m venv "$BUILD/polyglot-venv"
+  "$BUILD/polyglot-venv/bin/pip" install --upgrade pyinstaller
+  export PATH="$BUILD/polyglot-venv/bin:$PATH"
+fi
 POLYGLOT_OUT="$BUILD/polyglot-apps-$ED"
 mkdir -p "$PAY/apps/polyglot/source-tree" "$PAY/apps/polyglot/linux" "$PAY/apps/polyglot/windows"
 POLYGLOT_ARGS=(--root "$REPO_DIR" --output "$POLYGLOT_OUT" --platform linux)
