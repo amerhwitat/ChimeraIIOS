@@ -12,7 +12,7 @@ The Aurora Wayland Glass and Marine Desktop front ends load the shared desktop e
 - Ctrl+Alt+F opens Files; Ctrl+Alt+T opens Terminal; Ctrl+Alt+B opens Browser. Ctrl+Shift+N creates a shortcut through the existing shortcut manager. Meta/Command modifiers are accepted on macOS; Ctrl modifiers work on Windows and Linux.
 - The top-right panel buttons remain visible as desktop-level icons/actions.
 
-The shared UI uses original Aurora/Marine styling cues—glass, layered gradients, depth, shadows and motion—rather than copying proprietary OS assets or claiming parity with Windows/macOS internals.
+The profile set now includes Aurora Glass (macOS-inspired), Marine Fluent (Windows-inspired) and Nebula Linux Workspace (Plasma-inspired), with original artwork and styling rather than copied proprietary assets. The shared UI uses layered gradients, depth, shadows and motion without claiming parity with proprietary OS internals.
 
 ### Network Applications Panel
 
