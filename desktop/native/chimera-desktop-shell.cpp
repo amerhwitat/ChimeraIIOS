@@ -153,15 +153,22 @@ void rename_app_card(GtkWidget* card) {
   gtk_editable_select_region(GTK_EDITABLE(entry), 0, -1);
 }
 
-void context_open_clicked(GtkButton*, gpointer data) {
+void close_card_context(GtkButton* button) {
+  GtkWidget* popover = gtk_widget_get_ancestor(GTK_WIDGET(button), GTK_TYPE_POPOVER);
+  if (popover) gtk_popover_popdown(GTK_POPOVER(popover));
+}
+void context_open_clicked(GtkButton* button, gpointer data) {
+  close_card_context(button);
   GtkWidget* card = GTK_WIDGET(data);
   AppCardInfo* info = card_info(card);
   if (info) launch_clicked(nullptr, const_cast<char*>(info->action));
 }
-void context_properties_clicked(GtkButton*, gpointer data) {
+void context_properties_clicked(GtkButton* button, gpointer data) {
+  close_card_context(button);
   show_app_properties(GTK_WIDGET(data));
 }
-void context_rename_clicked(GtkButton*, gpointer data) {
+void context_rename_clicked(GtkButton* button, gpointer data) {
+  close_card_context(button);
   rename_app_card(GTK_WIDGET(data));
 }
 void context_popover_closed(GtkPopover* popover, gpointer) {
