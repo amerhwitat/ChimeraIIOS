@@ -23,8 +23,13 @@ safe_target(){
 }
 default_target(){ local n="$1"; n="${n##*/}"; n="${n//[^A-Za-z0-9._-]/_}"; printf '/mnt/chimera/media/%s' "$n"; }
 list_media(){
-  command -v lsblk >/dev/null 2>&1 && lsblk -o NAME,TYPE,FSTYPE,LABEL,SIZE,RO,MOUNTPOINTS || true
-  command -v findmnt >/dev/null 2>&1 && { echo "== Chimera media mounts =="; findmnt -rn -o SOURCE,TARGET,FSTYPE,OPTIONS | awk '$2 ~ /^\\/mnt\\/chimera\\/media\\//'; } || true
+  if command -v lsblk >/dev/null 2>&1; then
+    lsblk -o NAME,TYPE,FSTYPE,LABEL,SIZE,RO,MOUNTPOINTS
+  fi
+  if command -v findmnt >/dev/null 2>&1; then
+    echo "== Chimera media mounts =="
+    findmnt -rn -o SOURCE,TARGET,FSTYPE,OPTIONS | grep -F '/mnt/chimera/media/' || true
+  fi
 }
 mount_iso(){
   root; need mount; need file
