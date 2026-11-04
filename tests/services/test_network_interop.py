@@ -1,4 +1,6 @@
-import importlib.util,unittest
+import importlib.util,unittest,os,tempfile,contextlib,io,sys
+from types import SimpleNamespace
+from unittest import mock
 from pathlib import Path
 ROOT=Path(__file__).parents[2]
 def load(name,path):
@@ -20,4 +22,26 @@ class NetworkInteropTests(unittest.TestCase):
  def test_ldap_uri_validation(self):
   self.assertTrue(directory.valid_ldap_uri("ldaps://ldap.corp.example:636"));self.assertTrue(directory.valid_ldap_uri("ldap://ldap.corp.example:389"))
   self.assertFalse(directory.valid_ldap_uri("ldap://ldap.corp.example:99999"));self.assertFalse(directory.valid_ldap_uri("ldap://user:pass@ldap.corp.example"))
+    @mock.patch.object(directory.shutil, "which", return_value="/usr/bin/pkexec")
+    @mock.patch.object(directory, "run", side_effect=[
+        SimpleNamespace(returncode=0, stdout="", stderr=""),
+        SimpleNamespace(returncode=0, stdout="joined", stderr="")
+    ])
+    def test_ad_join_elevates_with_existing_private_ticket_cache(self, mocked, _which):
+        old_argv = sys.argv
+        with tempfile.NamedTemporaryFile() as cache:
+            os.chmod(cache.name, 0o600)
+            try:
+                sys.argv = ["directoryctl.py", "join", "example.org", "--user",
+                            "admin@example.org", "--elevate"]
+                with mock.patch.dict(os.environ, {"KRB5CCNAME": "FILE:" + cache.name}):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(directory.main(), 0)
+            finally:
+                sys.argv = old_argv
+        command = mocked.call_args_list[1].args[0]
+        self.assertEqual(command[:3], ["/usr/bin/pkexec", "/usr/bin/env",
+                                       "KRB5CCNAME=FILE:" + cache.name])
+        self.assertIn("--no-password", command)
+        self.assertNotIn("--password", command)
 if __name__=="__main__":unittest.main()
