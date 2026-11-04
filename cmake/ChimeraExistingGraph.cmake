@@ -220,10 +220,14 @@ if(CHIMERA_ENABLE_CVEL)
   add_test(NAME chimera_cvel COMMAND chimera_cvel_test)
 endif()
 if(Python3_Interpreter_FOUND)
-  add_test(NAME chimera_registry_host
-    COMMAND bash ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
-  add_test(NAME chimera_registry_network_storage_integrations
-    COMMAND ${Python3_EXECUTABLE} -m unittest discover -s ${CMAKE_SOURCE_DIR}/tests/integrations -v)
+  if(UNIX)
+    add_test(NAME chimera_registry_host
+      COMMAND bash ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
+    add_test(NAME chimera_registry_network_storage_integrations
+      COMMAND ${Python3_EXECUTABLE} -m unittest discover -s ${CMAKE_SOURCE_DIR}/tests/integrations -v)
+    add_test(NAME chimera_fhs_layout_shell_syntax
+      COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/storage/create-fhs-layout.sh)
+  endif()
   add_test(NAME chimera_network_storage_python_syntax
     COMMAND ${Python3_EXECUTABLE} -m py_compile
       ${CMAKE_SOURCE_DIR}/services/registry/registryd.py
@@ -231,8 +235,6 @@ if(Python3_Interpreter_FOUND)
       ${CMAKE_SOURCE_DIR}/services/network/directoryctl.py
       ${CMAKE_SOURCE_DIR}/services/storage/mount-image.py
       ${CMAKE_SOURCE_DIR}/live-image/lib/aurora-kiosk.py)
-  add_test(NAME chimera_fhs_layout_shell_syntax
-    COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/storage/create-fhs-layout.sh)
   # Regenerate metadata whenever the generator target is requested so stale
   # build-tree ISA JSON cannot shadow the canonical CSV/CPP metadata.
   add_custom_target(chimera_generate_isa_bitfields
