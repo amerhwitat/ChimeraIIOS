@@ -15,6 +15,21 @@ GtkWindow* main_window = nullptr;
 GtkWidget* selected_card = nullptr;
 guint pending_open_source = 0;
 
+void card_pressed(GtkGestureClick*, int, double, double, gpointer);
+
+struct RenameData { GtkWidget* label; GtkWidget* entry; };
+
+void rename_response(GtkDialog* dialog, int response, gpointer user_data) {
+  auto* data = static_cast<RenameData*>(user_data);
+  if (response == GTK_RESPONSE_ACCEPT && data) {
+    const char* value = gtk_editable_get_text(GTK_EDITABLE(data->entry));
+    if (value && *value) gtk_label_set_text(GTK_LABEL(data->label), value);
+    set_status("Desktop label updated for this session only; host files were not renamed.");
+  }
+  delete data;
+  gtk_window_destroy(GTK_WINDOW(dialog));
+}
+
 const char* desktop_name() {
   return std::strcmp(desktop_id, "marine") == 0
       ? "Marine Desktop" : "Aurora Wayland Glass Desktop";
@@ -154,16 +169,8 @@ void rename_card(GtkWidget* card){
   gtk_box_append(GTK_BOX(area),entry);
   gtk_dialog_add_button(GTK_DIALOG(dialog),"Cancel",GTK_RESPONSE_CANCEL);
   gtk_dialog_add_button(GTK_DIALOG(dialog),"Rename",GTK_RESPONSE_ACCEPT);
-  g_signal_connect(dialog,"response",G_CALLBACK(+[](GtkDialog* d,int response,gpointer user_data){
-    if(response==GTK_RESPONSE_ACCEPT){
-      auto* pair=static_cast<std::pair<GtkWidget*,GtkWidget*>*>(user_data);
-      const char* value=gtk_editable_get_text(GTK_EDITABLE(pair->second));
-      if(value&&*value)gtk_label_set_text(GTK_LABEL(pair->first),value);
-      set_status("Desktop label updated for this session only; host files were not renamed.");
-      delete pair;
-    }else delete static_cast<std::pair<GtkWidget*,GtkWidget*>*>(user_data);
-    gtk_window_destroy(GTK_WINDOW(d));
-  }),new std::pair<GtkWidget*,GtkWidget*>(label,entry));
+  auto* rename_data = new RenameData{label, entry};
+  g_signal_connect(dialog, "response", G_CALLBACK(rename_response), rename_data);
   gtk_window_present(GTK_WINDOW(dialog));
 }
 void context_action(GtkButton*,gpointer data){
