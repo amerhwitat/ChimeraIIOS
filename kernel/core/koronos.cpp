@@ -342,8 +342,6 @@ static const char *task_state_name(uint32_t state) {
 }
 
 static void task_monitor(void *) {
-    static uint32_t ticks = 0;
-    (void)ticks;
     // One diagnostic snapshot per explicit idle-loop wake. Always block after
     // printing so the monitor cannot monopolize the cooperative dispatcher.
     chimera_task_info info[32]{};
