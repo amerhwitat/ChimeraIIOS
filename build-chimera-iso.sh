@@ -249,6 +249,10 @@ if [[ "$RELEASE_BUILD" == 1 && "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" == 0 ]]
   log_error "--release cannot skip the canonical native Koronos ISO pipeline."
   exit 2
 fi
+if [[ "$RELEASE_BUILD" == 1 && "$RUN_NATIVE_SIX_CASE_DIAGNOSTICS" != 1 ]]; then
+  log_error "--release cannot skip same-ISO BIOS/UEFI six-case runtime verification."
+  exit 2
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
@@ -1204,9 +1208,11 @@ build_native_iso_pipeline(){
         fi
       else
         log_warning "QEMU is installed but OVMF_CODE/OVMF_VARS were not found; skipping six-case diagnostics (no UEFI evidence claimed)."
+        [[ "$RELEASE_BUILD" == 0 ]] || { log_error "Release mode requires a matching OVMF_CODE/OVMF_VARS pair."; return 1; }
       fi
     else
       log_info "QEMU + OVMF six-case diagnostic prerequisites unavailable; skipping optional local trace collection."
+      [[ "$RELEASE_BUILD" == 0 ]] || { log_error "Release mode requires QEMU and OVMF for all six same-ISO cases."; return 1; }
     fi
   fi
 
