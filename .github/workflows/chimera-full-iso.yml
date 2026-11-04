@@ -58,12 +58,20 @@ jobs:
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
-        run: python3 tests/boot/test_iso_target_routing_artwork.py
+        run: |
+          set -euo pipefail
+          python3 tests/boot/test_iso_target_routing_artwork.py
+          bash -n tests/boot/test-boot-artifact-regressions.sh
+          bash tests/boot/test-boot-artifact-regressions.sh
+          for cfg in boot/iso/grub.cfg boot/jasper/*.cfg boot/installation/*.cfg boot/spitfire/*.cfg; do
+            grub-script-check "$cfg"
+          done
 
       - name: Test fail-closed userspace handoff evidence verifier and release gate
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
+          python3 -m unittest discover -s tests/boot -p "test_koronos_boot_claims.py" -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
@@ -134,7 +142,7 @@ jobs:
       - name: QEMU headless Koronos boot smoke test
         run: |
           set +e
-          timeout 20s qemu-system-x86_64 \
+          timeout 60s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
             -display none -serial none -monitor none \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
@@ -233,6 +241,16 @@ jobs:
             fi
             if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
               echo "::warning::$target target did not reach Koronos readiness"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[CPU ] BSP GDT/TSS initialized' "$trace"; then
+              echo "::warning::$target target did not load the BSP GDT/TSS"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[MM  ] Address-space self-test passed: CR3 switch/restore' "$trace"; then
+              echo "::warning::$target target did not verify CR3 address-space switching"
               accepted=false
               continue
             fi

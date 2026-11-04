@@ -194,5 +194,19 @@
     "wasm32",
     "wasm64",
     "chimera8192"
-  ]
+  ],
+  "optional_language_toolchains": {
+    "catalog": "toolchains/language-toolchain-catalog.json",
+    "profile_installer": "tools/toolchain/install-language-profile.py",
+    "profiles": [
+      "native-core",
+      "systems",
+      "managed",
+      "scripting",
+      "functional-scientific",
+      "assembly-analysis",
+      "webassembly"
+    ],
+    "policy": "The native driver map below lists integrated drivers only. Other catalogued languages require their own installed upstream provider and compatible runtime; catalog presence is not native ABI support."
+  }
 }

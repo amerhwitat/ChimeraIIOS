@@ -4,12 +4,14 @@ on:
     branches: [ main ]
     paths:
       - "kernel/**"
+      - "tests/kernel/**"
       - "isa/koronos/**"
       - "tools/koronos/**"
       - ".github/workflows/koronos-kernel.yml"
   pull_request:
     paths:
       - "kernel/**"
+      - "tests/kernel/**"
       - "isa/koronos/**"
       - "tools/koronos/**"
       - ".github/workflows/koronos-kernel.yml"
@@ -27,9 +29,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
       - name: Build Koronos ELF64
         run: bash kernel/build-koronos.sh
+      - name: Test x86_64 saved-context frame contract
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -I kernel/include \
+            kernel/core/x86_64_context.cpp tests/kernel/x86_64_context_test.cpp \
+            -o /tmp/chimera-x86_64-context-test
+          /tmp/chimera-x86_64-context-test
       - name: Test protected-process admission
         run: |
-          g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
+          g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process_loader.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
       - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf

@@ -1,0 +1,39 @@
+#pragma once
+#include <stdint.h>
+#include "chimera/process_loader.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define KORONOS_USER_VIRTUAL_MIN 0x0000000100000000ull
+#define KORONOS_ADDRESS_SPACE_ABI 1u
+
+/* Enables the process address-space backend after the physical allocator and
+   CPU feature discovery have completed. Fails closed if NX is unavailable. */
+int koronos_address_space_init(void);
+int koronos_address_space_ready(void);
+int koronos_address_space_self_test(void);
+const chimera_elf_load_ops *koronos_address_space_loader_ops(void);
+uint64_t koronos_address_space_root(const void *address_space);
+int koronos_address_space_activate(const void *address_space, uint64_t *previous_root);
+int koronos_address_space_restore(uint64_t root_physical);
+uint64_t koronos_address_space_current_root(void);
+int koronos_address_space_root_valid(uint64_t root_physical);
+uint64_t koronos_address_space_bootstrap_root(void);
+int koronos_address_space_validate_user_range(uint64_t root_physical, uint64_t address,
+                                              uint64_t length, uint32_t write_access);
+uint64_t koronos_address_space_count(void);
+/* Shared supervisor-only kernel-stack window. Mapping changes are BSP-only
+ * until AP startup and TLB shootdown acknowledgements are implemented. */
+#define KORONOS_KERNEL_STACK_ARENA_BASE 0xFFFFFF8000000000ull
+#define KORONOS_KERNEL_STACK_SLOT_PAGES 9u
+#define KORONOS_KERNEL_STACK_USABLE_PAGES 8u
+#define KORONOS_KERNEL_STACK_SLOTS 32u
+int koronos_address_space_map_kernel_page(uint64_t virtual_address, uint64_t physical_address);
+int koronos_address_space_unmap_kernel_page(uint64_t virtual_address, uint64_t physical_address);
+int koronos_address_space_kernel_page_mapped(uint64_t root_physical, uint64_t virtual_address);
+
+#ifdef __cplusplus
+}
+#endif

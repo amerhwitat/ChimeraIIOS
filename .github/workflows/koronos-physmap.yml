@@ -1,0 +1,34 @@
+name: Koronos physical mapping contract
+
+on:
+  pull_request:
+    paths:
+      - "kernel/core/physmap.cpp"
+      - "kernel/include/chimera/physmap.h"
+      - "tests/kernel/physmap_range_test.cpp"
+      - ".github/workflows/koronos-physmap.yml"
+  push:
+    branches: [main]
+    paths:
+      - "kernel/core/physmap.cpp"
+      - "kernel/include/chimera/physmap.h"
+      - "tests/kernel/physmap_range_test.cpp"
+      - ".github/workflows/koronos-physmap.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  range-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile physical mapping range test
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror \
+            -Ikernel/include tests/kernel/physmap_range_test.cpp \
+            kernel/core/physmap.cpp -o /tmp/koronos-physmap-test
+      - name: Test bounds and uninitialized access rejection
+        run: /tmp/koronos-physmap-test
+      - name: Validate canonical kernel build script syntax
+        run: bash -n kernel/build-koronos.sh

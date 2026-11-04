@@ -64,19 +64,19 @@ std::vector<Step> Installer::build_plan(const InstallPlan&) const {
     {"source","Installation source","Live ISO, local repository, HTTP/HTTPS, NFS and network-share sources"},
     {"network","Network / Proxy","DHCP, static IPv4/IPv6, VLAN, bond, bridge and proxy"},
     {"software","Software Selection","Base system, development, compatibility, desktop and optional package groups"},
-    {"partition","Storage layout","Guided/custom partitioning, GPT/MBR, NVMe/SATA/HDD/USB, LVM, RAID, iSCSI and multipath"},
-    {"format","Filesystem / Encryption","Create/mount qfs, xfs, zfs, ext4, btrfs, ntfs, FAT and optional LUKS2"},
-    {"copy","System deployment","Copy Koronos, Spit Fire/Jasper, Kore, Aurora, userland and compatibility payloads"},
-    {"boot","Bootloader / Secure Boot","Install Spit Fire/Jasper/GRUB2, BIOS/UEFI fallback, Secure Boot and bootloader target"},
+    {"partition","Storage layout (planned; backend unavailable)","Selection is collected and validated only; GPT/MBR creation, device topology checks, RAID/LVM and partition mutation are blocked"},
+    {"format","Filesystem / Encryption (planned; backend unavailable)","No filesystem is created or mounted; formats and encryption are offered only when a verified backend exists"},
+    {"copy","System deployment (blocked)","Requires verified production Koronos ELF, installed-system initramfs and signed/hash-checked payload manifest"},
+    {"boot","Bootloader / Secure Boot (blocked)","GRUB BIOS/UEFI installation is not integrated into this transaction; no boot sector or EFI variable is changed"},
     {"configure","System configuration","Hostname, services, firewall, security policy, SSH, shells, desktops, drivers and compatibility profiles"},
     {"accounts","Accounts / SSH","Create administrator/user accounts, password policy and optional SSH keys/server"},
     {"toolchain","Compiler / Assembler / JIT / Runtime","Install the staged multi-language toolchain bundle, cross-toolchains, binary utilities, debuggers and runtime libraries"},
     {"sdk","Developer SDK","Install Chimera C/C++/C#/Objective-C/Java/Python SDK, source and manuals"},
     {"recovery","Recovery / Backup","Recovery partition, rescue environment, rollback plan and backup configuration"},
     {"review","Review","Summarize every selected disk, partition, package, desktop, security and boot option before commit"},
-    {"verify","Verification","Check required binaries, manifests, hashes, filesystem, boot configuration and post-install boot path"},
+    {"verify","Verification (required before commit)","Must verify installed ELF/initramfs hashes, filesystem mounts, boot configuration and durable post-install state before success"},
     {"logs","Installation logs","Persist hardware, storage, network, transaction and verification logs"},
-    {"finish","Finish","Flush, unmount, offer first-boot setup and reboot"}
+    {"finish","Finish (gated)","Flush and unmount only transaction-owned mounts; reboot may be offered only after durable verification and cleanup"}
   };
 }
 int Installer::run(const std::string& cmd,bool allow_failure) const {
@@ -103,60 +103,18 @@ int Installer::execute(const InstallPlan& p,bool confirmed) {
   std::cout<<"Chimera II Setup — Koronos installation transaction\n";
   for(const auto&s:build_plan(p)) std::cout<<"["<<s.id<<"] "<<s.title<<" — "<<s.detail<<"\n";
   if(p.dry_run){std::cout<<"Dry-run: no disk changes.\n";return 0;}
-  if(!confirmed){std::cerr<<"Explicit destructive confirmation required.\n";return 3;}
-  if(copy_tree(p.source_root,p.target_root)!=0) return 4;
-  if(p.deep_driver_search){
-    fs::create_directories(p.target_root/"var/lib/chimera/drivers");
-    fs::create_directories(p.target_root/"lib/firmware");
-    fs::create_directories(p.target_root/"usr/lib/chimera/drivers");
-    fs::path manifest=p.source_root/"drivers/driver-manifest.json";
-    if(fs::exists(manifest)) fs::copy_file(manifest,p.target_root/"var/lib/chimera/drivers/driver-manifest.json",fs::copy_options::overwrite_existing);
-    std::ofstream log(p.target_root/"var/lib/chimera/drivers/installation-plan.txt");
-    log<<"deep_driver_search="<<p.deep_driver_search<<"\\n";
-    log<<"download_driver_binaries="<<p.download_driver_binaries<<"\\n";
-    log<<"install_detected_drivers="<<p.install_detected_drivers<<"\\n";
-    log<<"verify_driver_signatures="<<p.verify_driver_signatures<<"\\n";
-    log<<"Driver binaries are installed only after device-ID matching and verification.\\n";
-  }
-  fs::path network_tools = p.source_root/"build/network-tools";
-  if(!fs::exists(network_tools)) network_tools = p.source_root/"network-tools";
-  if(fs::exists(network_tools)) { fs::remove_all(p.target_root/"opt/chimera/network-tools"); if(copy_tree(network_tools,p.target_root/"opt/chimera/network-tools")!=0) return 7; }
-  fs::create_directories(p.target_root/"etc/chimera");
-  if(fs::exists(p.source_root/"services/network")) copy_tree(p.source_root/"services/network",p.target_root/"usr/lib/chimera/network");
-  fs::path toolchains = p.source_root/"build/toolchains";
-  if(!fs::exists(toolchains)) toolchains = p.source_root/"toolchains";
-  if(fs::exists(toolchains)) { fs::remove_all(p.target_root/"opt/chimera/toolchains"); if(copy_tree(toolchains,p.target_root/"opt/chimera/toolchains")!=0) return 6; }
-  fs::create_directories(p.target_root/"etc/profile.d");
-  { std::ofstream env(p.target_root/"etc/profile.d/chimera-toolchains.sh"); env<<"export CHIMERA_TOOLCHAIN_ROOT=/opt/chimera/toolchains\\nexport PATH=/opt/chimera/toolchains/bin:$PATH\\nexport LD_LIBRARY_PATH=/opt/chimera/toolchains/lib:/opt/chimera/toolchains/lib64:$LD_LIBRARY_PATH\\n"; }
-  fs::path sdk = p.source_root/"sdk";
-  if(fs::exists(sdk)) { fs::remove_all(p.target_root/"opt/chimera-sdk"); if(copy_tree(sdk,p.target_root/"opt/chimera-sdk")!=0) return 5; }
-  fs::create_directories(p.target_root/"etc/chimera");
-  std::ofstream f(p.target_root/"etc/chimera/install.conf");
-  f<<"kernel="<<p.kernel<<"\nbootloader="<<p.bootloader<<"\nfilesystem="<<p.filesystem<<"\n";
-  Hardware hw=detect_hardware();
-  f<<"cpu_architecture="<<hw.architecture<<"\ncpu_vendor="<<hw.cpu_vendor<<"\ncpu_cores="<<hw.cpu_cores<<"\nkoronos_compatibility="<<(hw.koronos_compatibility?1:0)<<"\n";
-  f<<"firmware="<<firmware_name(hw.firmware)<<"\n";
-  f<<"driver_selection_order=native-koronos,linux-compatible,windows-compatible,macos-compatible,generic\n";
-  f<<"storage_driver_required_before_install=1\n";
-  f<<"foreign_driver_execution=adapter-only\n";
-  fs::create_directories(p.target_root/"var/lib/chimera/drivers");
-  std::ofstream rec(p.target_root/"var/lib/chimera/drivers/installer-recommendations.json");
-  rec<<"{\n  \"firmware\": \""<<firmware_name(hw.firmware)<<"\",\n";
-  rec<<"  \"storage\": \""<<(hw.nvme||hw.sata?"detected-native-or-catalog-match":"unresolved")<<"\",\n";
-  rec<<"  \"network\": \""<<(hw.network?"detected":"unresolved")<<"\",\n";
-  rec<<"  \"graphics\": \""<<(hw.graphics?"detected":"unresolved")<<"\",\n";
-  rec<<"  \"policy\": \"native-first-with-verified-compatibility-adapters\"\n}\n";
-  if(p.deep_driver_search){
-    const std::string pci=capture_command("lspci -Dnnk 2>/dev/null");
-    const std::string usb=capture_command("lsusb -nn 2>/dev/null");
-    std::ofstream evidence(p.target_root/"var/lib/chimera/drivers/hardware-evidence.txt");
-    evidence<<"=== PCI / driver bindings ===\n"<<pci<<"\n=== USB ===\n"<<usb<<"\n";
-    if(fs::exists("/sys/class/dmi/id")){
-      const char* keys[]={"sys_vendor","product_name","board_vendor","board_name","bios_vendor","bios_version"};
-      for(const char* key:keys){std::ifstream in(std::string("/sys/class/dmi/id/")+key);std::string v;std::getline(in,v);evidence<<key<<"="<<v<<"\n";}
-    }
-  }
-  std::cout<<"Payload deployed. Platform-specific partition/boot operations are selected by the backend.\n";
-  return 0;
+  if(!confirmed || p.destructive_confirmation_token!="ERASE-AND-INSTALL"){std::cerr<<"Explicit destructive confirmation token required.\n";return 3;}
+#ifndef _WIN32
+  auto is_block_device=[](const fs::path& path){ std::error_code ec; return !path.empty() && fs::exists(path,ec) && !ec && fs::is_block_file(path,ec) && !ec; };
+  if(p.boot_device.empty() || p.root_partition.empty() || !is_block_device(p.boot_device) || !is_block_device(p.root_partition)) { std::cerr<<"Selected boot disk and root partition must be existing block devices.\n"; return 5; }
+  if(p.firmware==Firmware::Unknown || p.firmware!=detect_hardware().firmware) { std::cerr<<"Firmware selection must match the running firmware mode.\n"; return 5; }
+  if(p.firmware==Firmware::UEFI && (p.efi_partition.empty() || !is_block_device(p.efi_partition))) { std::cerr<<"UEFI installation requires an existing EFI System Partition block device.\n"; return 5; }
+#else
+  std::cerr<<"Native disk installation is not supported by this backend.\n"; return 5;
+#endif
+  // Fail closed until a tested partition/mount/deploy/verify/GRUB transaction backend is linked.
+  // Never copy an installation tree into an arbitrary host directory and call it installed.
+  std::cerr<<"STORAGE TRANSACTION BLOCKED: partitioning, formatting, mount ownership, installed initramfs verification, GRUB installation and rollback backend are not integrated. No disk was modified.\n";
+  return 6;
 }
 }

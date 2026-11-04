@@ -21,14 +21,23 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+# Fail the kernel build if boot claims or the nine-menu SVGA policy regress.
+python3 "$ROOT/tests/boot/test_koronos_boot_claims.py"
+bash "$ROOT/kernel/tests/scheduler-runtime-unit.sh"
+bash "$ROOT/kernel/tests/process-runtime-unit.sh"
+bash "$ROOT/kernel/tests/x86_64-cpu-state-unit.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
+sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_stack process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry x86_64_cpu x86_64_context x86_64_context_switch ai_model frame_allocator physmap address_space kernel_stack)
 for src in "${sources[@]}"; do
-  "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
+  if [[ "$src" == "scheduler" || "$src" == "koronos" ]]; then
+    "$CXX" "${CXXFLAGS[@]}" -DCHIMERA_ENABLE_CONTEXT_SCHEDULER -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
+  else
+    "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
+  fi
 done
 "$CXX" "${CXXFLAGS[@]}" -DCHIMERA_NBIT_IMAGE_BITS=64 -c "$ROOT/kernel/core/nbit_note.cpp" -o "$BUILD/nbit-note-64.o"
 "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/drivers/builtin/virtio.cpp" -o "$BUILD/virtio-driver.o"
@@ -38,9 +47,10 @@ done
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/io.asm" -o "$BUILD/io.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/mode_switch.asm" -o "$BUILD/mode_switch.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/interrupts.asm" -o "$BUILD/interrupts.o"
+"$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/cpu_state.asm" -o "$BUILD/cpu_state.o"
 "$NASM" -f elf64 "$ROOT/kernel/modules/koronos_test_module.asm" -o "$BUILD/module-test.o"
 
-link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o")
+link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o" "$BUILD/cpu_state.o")
 for src in "${sources[@]}"; do link_objects+=("$BUILD/$src.o"); done
 link_objects+=("$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/pci-generic-driver.o" "$BUILD/module-test.o")
 for obj in "${link_objects[@]}"; do
@@ -58,7 +68,7 @@ if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not ELF64" >&2; exit 1; }
 fi
 if command -v nm >/dev/null 2>&1; then
-  required_symbols=(koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove)
+  required_symbols=(koronos_idle_loop koronos_frame_allocator_init koronos_frame_alloc koronos_frame_alloc_contiguous koronos_frame_free koronos_frame_free_contiguous koronos_frame_free_count koronos_frame_managed_limit koronos_physmap_init koronos_physmap_validate_range koronos_phys_to_virt koronos_physmap_ready koronos_address_space_init koronos_address_space_ready koronos_address_space_self_test koronos_address_space_loader_ops koronos_address_space_root koronos_address_space_activate koronos_address_space_restore koronos_address_space_current_root koronos_address_space_root_valid koronos_address_space_validate_user_range koronos_address_space_count koronos_address_space_map_kernel_page koronos_address_space_unmap_kernel_page koronos_address_space_kernel_page_mapped koronos_kernel_stack_allocate koronos_kernel_stack_release koronos_kernel_stack_self_test chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_process_load_elf chimera_process_get_runtime chimera_process_release chimera_process_attach_kernel_stack chimera_process_get_kernel_stack chimera_process_detach_kernel_stack chimera_process_create_kernel_stack chimera_process_release_kernel_stack chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_sched_context_dispatch_count chimera_sched_context_fault_count chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_x86_64_cpu_init chimera_x86_64_cpu_set_kernel_stack chimera_x86_64_cpu_is_ready chimera_x86_64_cpu_kernel_stack koronos_x86_64_context_prepare koronos_x86_64_context_switch koronos_x86_64_context_trampoline chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove)
   for symbol in "${required_symbols[@]}"; do
     nm -a --defined-only "$BUILD/koronos.elf" | awk -v sym="$symbol" '$NF == sym { found=1 } END { exit !found }' || {
       echo "ERROR: $symbol is not linked" >&2; nm -a "$BUILD/koronos.elf" 2>/dev/null | awk -v sym="$symbol" '$NF == sym || index($0,sym)' >&2 || true; exit 1;
@@ -66,13 +76,16 @@ if command -v nm >/dev/null 2>&1; then
   done
 fi
 
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -Fq '[INST] Installer metadata phase entered; no installer userspace runtime is initialized' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: installer non-readiness diagnostic is missing from source" >&2; exit 1; }
+grep -Fq 'static void task_installer(void *)' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: installer task implementation is missing from source" >&2; exit 1; }
+grep -Fq 'chimera_sched_submit(task_installer, 0, 80)' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: installer task is not registered with Koronos bootstrap" >&2; exit 1; }
+grep -Fq '[INST] No production installer init ELF is present; refusing readiness' "$ROOT/kernel/core/koronos.cpp" || { echo "ERROR: fail-closed production installer diagnostic is missing" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
-grep -aF '[KORE] Service orchestration online' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[KORE] Core service identities registered; no service start callbacks are installed' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
 auto_banner=''
-printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
+printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + BSP scheduler callback runner + syscall/interrupt compatibility linked.'
 cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
 mkdir -p "$BUILD/nbit"
 for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
@@ -80,5 +93,5 @@ for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" "$BUILD/nbit-note-$bits.o" -o "$BUILD/nbit/koronos-nbit-$bits.elf"
 done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
-printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
+printf 'Koronos + native Kore + OOP object model + BSP scheduler callback runner (no SMP execution) + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"

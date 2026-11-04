@@ -9,6 +9,11 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/frame_allocator.h"
+#include "chimera/physmap.h"
+#include "chimera/address_space.h"
+#include "chimera/kernel_stack.h"
+#include "chimera/x86_64_cpu.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -242,8 +247,8 @@ static void task_live(void *) {
     if (live_task_runs++ == 0) {
         const chimera_boot_module *m = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS);
         if (m) {
-            console_write("[LIVE] Live initramfs module accepted");
-            console_write("[LIVE] Runtime handoff queued");
+            console_write("[LIVE] Live initramfs module registered");
+            console_write("[LIVE] Handoff unavailable: no native ring-3 init entry path is connected");
             console_write("[USER] USERSPACE HANDOFF NOT VERIFIED: initramfs is registered but no executable ring-3 entry path is connected");
             chimera_sched_block();
         } else if (!chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE)) {
@@ -262,7 +267,7 @@ static void task_recovery(void *) {
     if (recovery_task_runs++ == 0) {
         const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
         if (image) {
-            console_write("[REC ] Recovery initramfs module accepted");
+            console_write("[REC ] Recovery initramfs module registered");
             console_write("[REC ] USERSPACE HANDOFF NOT VERIFIED: repair shell has not been entered");
         } else {
             console_write("[REC ] Recovery target not selected: no recovery initramfs module");
@@ -296,12 +301,12 @@ static void task_installer(void *) {
             else console_write("[INST] WARNING: installer contract module missing");
             break;
         case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
+            console_write("[INST] Installer metadata phase entered; no installer userspace runtime is initialized");
+            console_write("[INST] Service start withheld: no process-backed installer workers are connected");
             break;
         case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
+            console_write("[INST] Kernel hardware inventory is diagnostic only; no installer worker is running");
+            console_write("[INST] Storage backend is not mounted; installer worker is not running");
             break;
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
@@ -310,8 +315,8 @@ static void task_installer(void *) {
             console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no verified process context / ring-3 transition");
             break;
         case 4:
-            console_write("[INST] Installer contract processing complete; installer execution is not verified");
-            console_write("[INST] Waiting for the Koronos userspace installer loader");
+            console_write("[INST] Installer metadata inspection complete; installation execution remains unavailable");
+            console_write("[INST] No production installer init ELF is present; refusing readiness");
             chimera_sched_block();
             break;
         default:
@@ -331,37 +336,51 @@ static const char *task_state_name(uint32_t state) {
 }
 
 static void task_monitor(void *) {
-    static uint32_t ticks = 0;
-    // The scheduler is a tight cooperative loop; sampling every 10 dispatches
-    // floods VGA/serial output and makes a healthy kernel look hung. Keep the
-    // monitor live, but emit a full snapshot only once per 1000 monitor runs.
-    // This is currently a diagnostic snapshot, not a timer-driven service.
-    // Emit it once; repeated polling here floods VGA/serial and obscures the
-    // actual handoff state. A timer/event source can wake a periodic monitor later.
-    if (++ticks > 1u) { chimera_sched_block(); return; }
-    chimera_task_info info[32]{};
-    uint32_t n = chimera_sched_snapshot(info, 32);
-    console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
-    console_write("[MON ] CPUs: ");
-    console_u32(chimera_sched_cpu_count());
-    console_write("[MON ] Runnable: ");
-    console_u32(chimera_sched_runnable_count());
-    for (uint32_t i = 0; i < n; ++i) {
-        // Keep each process record on one VGA/serial line. The previous
-        // label/value-per-line format made the monitor look corrupted once
-        // the 25-row VGA console started scrolling.
-        console_raw("[PROC] id=");
-        console_u32_raw(info[i].id);
-        console_raw(" cpu=");
-        console_u32_raw(info[i].cpu);
-        console_raw(" state=");
-        console_raw(task_state_name(info[i].state));
-        console_raw(" priority=");
-        console_u32_raw(info[i].priority);
-        console_raw(" runs=");
-        console_u32_raw((uint32_t)info[i].runs);
-        console_endline();
+    static uint32_t phase = 0;
+    if (phase++ == 0) {
+        chimera_task_info info[32]{};
+        uint32_t n = chimera_sched_snapshot(info, 32);
+        console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
+        console_write("[MON ] CPUs: ");
+        console_u32(chimera_sched_cpu_count());
+        console_write("[MON ] Runnable: ");
+        console_u32(chimera_sched_runnable_count());
+        for (uint32_t i = 0; i < n; ++i) {
+            console_raw("[PROC] id=");
+            console_u32_raw(info[i].id);
+            console_raw(" cpu=");
+            console_u32_raw(info[i].cpu);
+            console_raw(" state=");
+            console_raw(task_state_name(info[i].state));
+            console_raw(" priority=");
+            console_u32_raw(info[i].priority);
+            console_raw(" runs=");
+            console_u32_raw((uint32_t)info[i].runs);
+            console_endline();
+        }
+        chimera_sched_yield();
+        debugcon_write("[SCH ] BSP callback resumed after cooperative yield");
+        chimera_sched_block();
+        debugcon_write("[SCH ] BSP callback resumed after wake");
     }
+}
+
+static void task_wake_monitor(void *argument) {
+    static uint32_t phase = 0;
+    const uint32_t monitor_id = static_cast<uint32_t>(
+        reinterpret_cast<uintptr_t>(argument));
+    if (phase++ == 0) {
+        debugcon_write("[SCH ] BSP wake-monitor task entered");
+        chimera_sched_yield();
+#if !defined(CHIMERA_ENABLE_CONTEXT_SCHEDULER)
+        /* Host callback tests re-enter the function on a later dispatch.
+           The freestanding stackful path resumes after yield and falls through. */
+        return;
+#endif
+        debugcon_write("[SCH ] BSP wake-monitor task resumed after yield");
+    }
+    chimera_sched_wake(monitor_id);
+    debugcon_write("[SCH ] BSP callback woke blocked monitor task");
 }
 
 static void task_kore(void *) {
@@ -369,8 +388,8 @@ static void task_kore(void *) {
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
-        console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Core storage/security/logging services active");
+        console_write("[KORE] Core service identities registered; no service start callbacks are installed");
+        console_write("[KORE] Storage/security/logging backends remain DECLARED, not RUNNING");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
@@ -385,11 +404,81 @@ static void koronos_submit_bootstrap_tasks() {
     int recovery = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
+    int w = chimera_sched_submit(task_wake_monitor,
+        reinterpret_cast<void *>(static_cast<uintptr_t>(m)), 55);
     console_write("[SCH ] Bootstrap tasks submitted");
     console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
-    if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0)
+    if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0 || w < 0)
         console_write("[SCH ] WARNING: bootstrap task registration incomplete");
 }
+    }
+
+static chimera_x86_64_context context_test_main{};
+static chimera_x86_64_context context_test_child{};
+static volatile uint32_t context_test_result = 0;
+
+static void context_test_entry(void *) {
+    const bool child_stack_active =
+        chimera_x86_64_cpu_kernel_stack(0) == context_test_child.kernel_stack_top;
+    const bool child_pid_active =
+        chimera_x86_64_cpu_current_pid(0) == context_test_child.pid;
+    const bool child_root_active =
+        koronos_address_space_current_root() == context_test_child.cr3;
+    context_test_result =
+        child_stack_active && child_pid_active && child_root_active ? 1u : 2u;
+    if (koronos_x86_64_context_switch(&context_test_child, &context_test_main) != 0)
+        context_test_result = 3u;
+    for (;;) __asm__ volatile("cli; hlt" ::: "memory");
+}
+
+static int context_switch_self_test() {
+    const uint64_t root = koronos_address_space_current_root();
+    const chimera_elf_load_ops *ops = koronos_address_space_loader_ops();
+    if (!root || !ops || !ops->create_address_space || !ops->destroy_address_space)
+        return -1;
+    void *child_space = ops->create_address_space(nullptr);
+    if (!child_space) return -2;
+    const uint64_t child_root = koronos_address_space_root(child_space);
+    if (!child_root || child_root == root) {
+        ops->destroy_address_space(nullptr, child_space);
+        return -3;
+    }
+
+    koronos_kernel_stack stack{};
+    if (koronos_kernel_stack_allocate(&stack) != 0) {
+        ops->destroy_address_space(nullptr, child_space);
+        return -4;
+    }
+
+    context_test_main = {};
+    context_test_child = {};
+    context_test_main.cr3 = root;
+    context_test_main.kernel_stack_top = chimera_x86_64_cpu_kernel_stack(0);
+    context_test_main.pid = chimera_x86_64_cpu_current_pid(0);
+    context_test_result = 0;
+    if (!context_test_main.kernel_stack_top ||
+        koronos_x86_64_context_prepare(
+            &context_test_child, stack.base, stack.top - stack.base,
+            child_root, context_test_entry, nullptr) != 0) {
+        (void)koronos_kernel_stack_release(&stack);
+        ops->destroy_address_space(nullptr, child_space);
+        return -5;
+    }
+    context_test_child.kernel_stack_top = stack.top;
+    context_test_child.pid = 0x7FFF0001u;
+
+    if (koronos_x86_64_context_switch(&context_test_main, &context_test_child) != 0) {
+        (void)koronos_kernel_stack_release(&stack);
+        ops->destroy_address_space(nullptr, child_space);
+        return -6;
+    }
+    const bool restored = koronos_address_space_current_root() == root &&
+        chimera_x86_64_cpu_kernel_stack(0) == context_test_main.kernel_stack_top &&
+        chimera_x86_64_cpu_current_pid(0) == context_test_main.pid;
+    const bool child_ran = context_test_result == 1u;
+    ops->destroy_address_space(nullptr, child_space);
+    const int release = koronos_kernel_stack_release(&stack);
+    return restored && child_ran && release == 0 ? 0 : -7;
 }
 
 extern "C" void chimera_register_virtio_drivers(void);
@@ -399,6 +488,12 @@ extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     debugcon_write("[KRN ] koronos_boot entered");
     serial_init();
+    const int cpu_state_status = chimera_x86_64_cpu_init(0);
+    if (cpu_state_status == 0 && chimera_x86_64_cpu_is_ready(0)) {
+        console_write("[CPU ] BSP GDT/TSS initialized; ring-3 entry remains disabled pending process contexts");
+    } else {
+        console_write("[CPU ] ERROR: BSP GDT/TSS initialization failed; userspace remains disabled");
+    }
     console_write("CHIMERA II OS / KORONOS");
     console_write("[BOOT] Boot handoff: ");
     if (!ctx || ctx->magic != KORONOS_BOOTINFO_MAGIC || ctx->version != KORONOS_ABI_VERSION) {
@@ -412,11 +507,52 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
-    console_progress(15, "Multiboot2 modules scanned");
+    const int physmap_status = koronos_physmap_init();
+    if (physmap_status == 0) {
+        console_write("[MM  ] Verified four-GiB supervisor identity map");
+    } else {
+        console_write("[MM  ] ERROR: bootstrap physical mapping contract is invalid");
+    }
+    const int frame_status = (physmap_status == 0)
+        ? koronos_frame_allocator_init(ctx->boot_info, ctx->kernel_base, ctx->kernel_end) : -6;
+    if (frame_status == 0) {
+        console_write("[MM  ] Physical frame allocator initialized (4-GiB ceiling enforced)");
+        const uint64_t frame_probe = koronos_frame_alloc_contiguous(2u);
+        if (frame_probe && koronos_frame_free_contiguous(frame_probe, 2u) == 0) {
+            console_write("[MM  ] Frame allocation/free self-test passed");
+        } else {
+            console_write("[MM  ] ERROR: frame allocation/free self-test failed");
+        }
+    } else {
+        console_write("[MM  ] FRAME ALLOCATOR UNAVAILABLE: unsupported or invalid Multiboot2 memory map");
+    }
+    console_progress(15, "Multiboot2 modules and physical memory map processed");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
-    console_progress(25, "Architecture and interrupt setup complete");
+    const int address_space_init = (frame_status == 0) ? koronos_address_space_init() : -1;
+    const int address_space_test = (address_space_init == 0) ? koronos_address_space_self_test() : -1;
+    if (address_space_test == 0) {
+        console_write("[MM  ] Address-space self-test passed: CR3 switch/restore, kernel identity mappings, user U/RW/NX permissions and frame rollback verified");
+    } else {
+        console_write("[MM  ] ERROR: address-space backend unavailable or self-test failed; userspace launch remains disabled");
+    }
+    const int kernel_stack_test = (address_space_test == 0 && cpu_state_status == 0)
+        ? koronos_kernel_stack_self_test() : -1;
+    if (kernel_stack_test == 0) {
+        console_write("[PROC] Shared supervisor mappings, guarded process-owned kernel stacks and BSP TSS.RSP0 handoff self-test passed");
+    } else {
+        console_write("[PROC] ERROR: guarded kernel stack/TSS handoff self-test failed; process scheduling remains disabled");
+    }
+    const int context_switch_test = (address_space_test == 0 && cpu_state_status == 0 &&
+                                     kernel_stack_test == 0)
+        ? context_switch_self_test() : -1;
+    if (context_switch_test == 0) {
+        console_write("[SCH ] BSP guarded cross-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; AP scheduling remains disabled");
+    } else {
+        console_write("[SCH ] ERROR: saved-context switch self-test failed; process scheduling remains disabled");
+    }
+    console_progress(25, "Architecture, physmap, address-space and context checks complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();
     console_write("[CPU ] ");

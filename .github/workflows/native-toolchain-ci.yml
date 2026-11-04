@@ -16,6 +16,9 @@ on:
       - 'docs/architecture/chimera-native-ide-toolchain.md'
       - 'tools/build-toolchain-bundle.sh'
       - 'toolchains/**'
+      - 'tools/toolchain/validate_language_catalog.py'
+      - 'tools/toolchain/install-language-profile.py'
+      - 'tests/toolchain/test_language_toolchain_catalog.py'
       - 'tests/toolchain/test_native_toolchain.sh'
       - 'CMakeLists.txt'
       - 'Dockerfile'
@@ -48,6 +51,12 @@ jobs:
           sudo apt-get install -y --no-install-recommends gcc g++ binutils clang llvm lld nasm cmake
       - name: Validate registry
         run: python3 tools/toolchain/validate_registry.py
+      - name: Validate language, compiler, assembler and disassembler catalog
+        run: |
+          python3 tools/toolchain/validate_language_catalog.py
+          python3 tools/toolchain/install-language-profile.py --list
+          python3 tools/toolchain/install-language-profile.py native-core --dry-run
+          python3 -m unittest discover -s tests/toolchain -p 'test_language_toolchain_catalog.py' -v
       - name: Validate shell scripts
         run: |
           bash -n tools/toolchain/chimera-cc

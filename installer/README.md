@@ -73,3 +73,11 @@ Cross-architecture builds require the appropriate compiler/toolchain; the build 
 ## Reboot
 
 The final page provides `Reboot`, `Return to Live`, and `Shutdown`. Before reboot, the installer validates the boot configuration and flushes storage operations.
+
+## Native disk installer safety boundary (2026-11-02)
+
+The native CLI now collects the whole-disk device, root partition, EFI System Partition when UEFI is selected, and an explicit BIOS/UEFI confirmation. Non-dry-run requests require the exact destructive token `ERASE-AND-INSTALL`; on Linux, selected disk/partition paths must already exist as block devices, and UEFI requires an existing ESP block device.
+
+**This is intentionally not a disk installer yet.** The execution path fails closed before copying or modifying anything because the tested storage transaction backend is not integrated. No partitioning, formatting, mounting, GRUB installation, reboot, or installed-system handoff is claimed. This removes the previous unsafe behavior that copied files into an arbitrary target directory and printed a successful deployment message.
+
+Before enabling destructive execution, implement and test a transaction backend with device identity/parent-child checks, GPT/ESP/root layout, filesystem creation, mount ownership and cleanup, verified Koronos ELF plus installed-system initramfs, GRUB BIOS/UEFI installation, rollback journal, and disposable-disk QEMU cold boots. Do not bypass the fail-closed return.

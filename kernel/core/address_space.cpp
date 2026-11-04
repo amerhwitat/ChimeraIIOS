@@ -1,0 +1,565 @@
+#include <stdint.h>
+#include <stddef.h>
+#include "chimera/address_space.h"
+#include "chimera/frame_allocator.h"
+#include "chimera/physmap.h"
+#include "chimera/koronos_abi.h"
+extern "C" uint8_t koronos_bootstrap_pml4[];
+namespace {
+constexpr uint64_t PAGE_SIZE = 4096ull;
+constexpr uint64_t PAGE_MASK = PAGE_SIZE - 1ull;
+constexpr uint64_t ENTRY_ADDRESS_MASK = 0x000FFFFFFFFFF000ull;
+constexpr uint64_t ENTRY_PRESENT = 1ull;
+constexpr uint64_t ENTRY_WRITE = 2ull;
+constexpr uint64_t ENTRY_USER = 4ull;
+constexpr uint64_t ENTRY_LARGE = 0x80ull;
+constexpr uint64_t ENTRY_NX = 1ull << 63;
+constexpr uint32_t MAX_ADDRESS_SPACES = 8u;
+constexpr uint32_t MAX_TABLE_FRAMES = 4096u;
+constexpr uint32_t MAX_MAPPED_BLOCKS = CHIMERA_ELF_LOADER_MAX_SEGMENTS + 1u;
+constexpr uint64_t MAX_USER_PAGES = 131072ull; // 512 MiB per address space.
+constexpr uint64_t SPACE_MAGIC = 0x43484D4153504143ull; // "CHMASPAC"
+
+
+
+struct FrameBlock { uint64_t physical; uint32_t pages; };
+struct AddressSpace {
+    uint64_t magic;
+    uint64_t root_physical;
+    uint64_t table_frames[MAX_TABLE_FRAMES];
+    FrameBlock mapped[MAX_MAPPED_BLOCKS];
+    uint32_t table_count;
+    uint32_t mapped_count;
+    uint64_t user_pages;
+    uint8_t active;
+};
+static AddressSpace spaces[MAX_ADDRESS_SPACES]{};
+static volatile uint32_t backend_ready = 0;
+static volatile uint32_t backend_lock = 0;
+static uint64_t created_spaces = 0;
+static uint64_t shared_kernel_root_entry = 0;
+static uint64_t shared_kernel_pdpt_physical = 0;
+static uint64_t shared_kernel_pd_physical = 0;
+static uint64_t shared_kernel_pt_physical = 0;
+static uint64_t *shared_kernel_pt = nullptr;
+
+static void lock_backend() {
+    while (__sync_lock_test_and_set(&backend_lock, 1u)) {}
+}
+static void unlock_backend() { __sync_lock_release(&backend_lock); }
+
+static void zero_bytes(void *ptr, size_t n) {
+    uint8_t *p = static_cast<uint8_t *>(ptr);
+    for (size_t i = 0; i < n; ++i) p[i] = 0;
+}
+static void copy_bytes(void *dst, const void *src, size_t n) {
+    uint8_t *d = static_cast<uint8_t *>(dst);
+    const uint8_t *s = static_cast<const uint8_t *>(src);
+    for (size_t i = 0; i < n; ++i) d[i] = s[i];
+}
+static uint64_t *table_ptr(uint64_t physical) {
+    if (!physical || physical >= KORONOS_FRAME_PHYS_LIMIT || (physical & PAGE_MASK)) return nullptr;
+    return static_cast<uint64_t *>(koronos_phys_to_virt(physical, PAGE_SIZE));
+}
+static bool track_table(AddressSpace *space, uint64_t physical) {
+    if (!space || !physical || space->table_count >= MAX_TABLE_FRAMES) return false;
+    space->table_frames[space->table_count++] = physical;
+    return true;
+}
+static uint64_t new_table(AddressSpace *space) {
+    uint64_t physical = koronos_frame_alloc();
+    if (!physical) return 0;
+    if (!track_table(space, physical)) {
+        (void)koronos_frame_free(physical);
+        return 0;
+    }
+    void *alias = koronos_phys_to_virt(physical, PAGE_SIZE);
+    if (!alias) return 0;
+    zero_bytes(alias, PAGE_SIZE);
+    return physical;
+}
+static bool space_valid(const AddressSpace *space) {
+    return space && space->magic == SPACE_MAGIC && space->active && space->root_physical;
+}
+static void destroy_locked(AddressSpace *space) {
+    if (!space || space->magic != SPACE_MAGIC) return;
+    for (uint32_t i = 0; i < space->mapped_count; ++i) {
+        if (space->mapped[i].physical && space->mapped[i].pages)
+            (void)koronos_frame_free_contiguous(space->mapped[i].physical, space->mapped[i].pages);
+    }
+    for (uint32_t i = space->table_count; i > 0; --i)
+        (void)koronos_frame_free(space->table_frames[i - 1]);
+    space->magic = 0;
+    space->active = 0;
+    space->root_physical = 0;
+    space->table_count = 0;
+    space->mapped_count = 0;
+    space->user_pages = 0;
+}
+static bool initialize_shared_kernel_mapping() {
+    const uint64_t bootstrap = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+    uint64_t *root = table_ptr(bootstrap);
+    if (!root || root[511] != 0) return false;
+    const uint64_t pdpt = koronos_frame_alloc();
+    if (!pdpt) return false;
+    const uint64_t pd = koronos_frame_alloc();
+    if (!pd) { (void)koronos_frame_free(pdpt); return false; }
+    const uint64_t pt = koronos_frame_alloc();
+    if (!pt) {
+        (void)koronos_frame_free(pd);
+        (void)koronos_frame_free(pdpt);
+        return false;
+    }
+    uint64_t *pdpt_alias = table_ptr(pdpt);
+    uint64_t *pd_alias = table_ptr(pd);
+    uint64_t *pt_alias = table_ptr(pt);
+    if (!pdpt_alias || !pd_alias || !pt_alias) {
+        (void)koronos_frame_free(pt);
+        (void)koronos_frame_free(pd);
+        (void)koronos_frame_free(pdpt);
+        return false;
+    }
+    zero_bytes(pdpt_alias, PAGE_SIZE);
+    zero_bytes(pd_alias, PAGE_SIZE);
+    zero_bytes(pt_alias, PAGE_SIZE);
+    const uint64_t base = KORONOS_KERNEL_STACK_ARENA_BASE;
+    const uint32_t pdpt_i = static_cast<uint32_t>((base >> 30) & 0x1FFu);
+    const uint32_t pd_i = static_cast<uint32_t>((base >> 21) & 0x1FFu);
+    pdpt_alias[pdpt_i] = pd | ENTRY_PRESENT | ENTRY_WRITE;
+    pd_alias[pd_i] = pt | ENTRY_PRESENT | ENTRY_WRITE;
+    const uint64_t root_entry = pdpt | ENTRY_PRESENT | ENTRY_WRITE;
+    root[511] = root_entry;
+    shared_kernel_root_entry = root_entry;
+    shared_kernel_pdpt_physical = pdpt;
+    shared_kernel_pd_physical = pd;
+    shared_kernel_pt_physical = pt;
+    shared_kernel_pt = pt_alias;
+    return true;
+}
+
+static bool clone_bootstrap_map(AddressSpace *space) {
+    const uint64_t bootstrap = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+    if (!bootstrap || (bootstrap & PAGE_MASK) || bootstrap >= KORONOS_FRAME_PHYS_LIMIT) return false;
+    const uint64_t *src_root = table_ptr(bootstrap);
+    if (!src_root || !(src_root[0] & ENTRY_PRESENT)) return false;
+    // Share exactly the supervisor-only kernel stack subtree. All other
+    // higher-half entries remain rejected until their ownership is explicit.
+    if (!shared_kernel_root_entry || src_root[511] != shared_kernel_root_entry ||
+        (src_root[511] & ENTRY_USER)) return false;
+    for (uint32_t i = 1; i < 511u; ++i) if (src_root[i] & ENTRY_PRESENT) return false;
+
+    const uint64_t root = new_table(space);
+    if (!root) return false;
+    uint64_t *root_alias = table_ptr(root);
+    if (!root_alias) return false;
+    copy_bytes(root_alias, src_root, PAGE_SIZE);
+    space->root_physical = root;
+
+    const uint64_t old_pdpt_phys = src_root[0] & ENTRY_ADDRESS_MASK;
+    const uint64_t *old_pdpt = table_ptr(old_pdpt_phys);
+    if (!old_pdpt) return false;
+    const uint64_t pdpt = new_table(space);
+    if (!pdpt) return false;
+    uint64_t *new_pdpt = table_ptr(pdpt);
+    uint64_t *new_root = table_ptr(root);
+    if (!new_root || !new_pdpt) return false;
+    copy_bytes(new_pdpt, old_pdpt, PAGE_SIZE);
+    new_root[0] = pdpt | (src_root[0] & 0xFFFu) | ENTRY_USER;
+
+    // Clone all four 1-GiB bootstrap PDs. The 2-MiB identity leaves remain
+    // supervisor-only; user mappings are placed above the 4-GiB identity span.
+    for (uint32_t i = 0; i < 4u; ++i) {
+        if (!(old_pdpt[i] & ENTRY_PRESENT) || (old_pdpt[i] & ENTRY_LARGE)) return false;
+        const uint64_t old_pd_phys = old_pdpt[i] & ENTRY_ADDRESS_MASK;
+        const uint64_t *old_pd = table_ptr(old_pd_phys);
+        if (!old_pd) return false;
+        const uint64_t pd = new_table(space);
+        if (!pd) return false;
+        copy_bytes(table_ptr(pd), old_pd, PAGE_SIZE);
+        new_pdpt[i] = pd | (old_pdpt[i] & 0xFFFu) | ENTRY_USER;
+    }
+    for (uint32_t i = 4u; i < 512u; ++i) {
+        if (old_pdpt[i] & ENTRY_PRESENT) return false;
+    }
+    return true;
+}
+static uint64_t *ensure_pte(AddressSpace *space, uint64_t virtual_address) {
+    if (!space_valid(space) || virtual_address < KORONOS_USER_VIRTUAL_MIN ||
+        virtual_address >= CHIMERA_ELF_USER_LIMIT || (virtual_address & PAGE_MASK)) return nullptr;
+    const uint32_t pml4_i = static_cast<uint32_t>((virtual_address >> 39) & 0x1FFu);
+    const uint32_t pdpt_i = static_cast<uint32_t>((virtual_address >> 30) & 0x1FFu);
+    const uint32_t pd_i = static_cast<uint32_t>((virtual_address >> 21) & 0x1FFu);
+    const uint32_t pt_i = static_cast<uint32_t>((virtual_address >> 12) & 0x1FFu);
+    uint64_t *root = table_ptr(space->root_physical);
+    if (!root) return nullptr;
+
+    uint64_t entry = root[pml4_i];
+    if (!(entry & ENTRY_PRESENT)) {
+        const uint64_t child = new_table(space);
+        if (!child) return nullptr;
+        root[pml4_i] = child | ENTRY_PRESENT | ENTRY_WRITE | ENTRY_USER;
+        entry = root[pml4_i];
+    } else {
+        if (entry & ENTRY_LARGE) return nullptr;
+        root[pml4_i] |= ENTRY_USER | ENTRY_WRITE;
+    }
+    uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pdpt) return nullptr;
+
+    entry = pdpt[pdpt_i];
+    if (!(entry & ENTRY_PRESENT)) {
+        const uint64_t child = new_table(space);
+        if (!child) return nullptr;
+        pdpt[pdpt_i] = child | ENTRY_PRESENT | ENTRY_WRITE | ENTRY_USER;
+        entry = pdpt[pdpt_i];
+    } else {
+        if (entry & ENTRY_LARGE) return nullptr;
+        pdpt[pdpt_i] |= ENTRY_USER | ENTRY_WRITE;
+    }
+    uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pd) return nullptr;
+
+    entry = pd[pd_i];
+    if (!(entry & ENTRY_PRESENT)) {
+        const uint64_t child = new_table(space);
+        if (!child) return nullptr;
+        pd[pd_i] = child | ENTRY_PRESENT | ENTRY_WRITE | ENTRY_USER;
+        entry = pd[pd_i];
+    } else {
+        // User virtual addresses below 4 GiB are rejected, so a present large
+        // identity leaf here would be an unexpected overlap and must fail closed.
+        if (entry & ENTRY_LARGE) return nullptr;
+        pd[pd_i] |= ENTRY_USER | ENTRY_WRITE;
+    }
+    uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    return pt ? &pt[pt_i] : nullptr;
+}
+
+static void *create_address_space(void *) {
+    if (!backend_ready) return nullptr;
+    lock_backend();
+    AddressSpace *space = nullptr;
+    for (uint32_t i = 0; i < MAX_ADDRESS_SPACES; ++i) {
+        if (!spaces[i].active && spaces[i].magic == 0) { space = &spaces[i]; break; }
+    }
+    if (!space) { unlock_backend(); return nullptr; }
+    zero_bytes(space, sizeof(AddressSpace));
+    space->magic = SPACE_MAGIC;
+    space->active = 1;
+    if (!clone_bootstrap_map(space)) {
+        destroy_locked(space);
+        unlock_backend();
+        return nullptr;
+    }
+    ++created_spaces;
+    unlock_backend();
+    return space;
+}
+static int map_pages(void *, void *opaque, uint64_t virtual_base, uint64_t size,
+                     uint32_t elf_flags, void **kernel_alias) {
+    if (!kernel_alias || !size || (virtual_base & PAGE_MASK) || (size & PAGE_MASK) ||
+        virtual_base < KORONOS_USER_VIRTUAL_MIN || virtual_base >= CHIMERA_ELF_USER_LIMIT ||
+        size > CHIMERA_ELF_USER_LIMIT - virtual_base) return -1;
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    if (!space_valid(space) || space->mapped_count >= MAX_MAPPED_BLOCKS ||
+        (elf_flags & ~7u) != 0u || (elf_flags & 2u && elf_flags & 1u)) return -2;
+    const uint64_t pages64 = size / PAGE_SIZE;
+    if (!pages64 || pages64 > UINT32_MAX || pages64 > MAX_USER_PAGES - space->user_pages) return -3;
+    lock_backend();
+    const uint64_t physical = koronos_frame_alloc_contiguous(static_cast<uint32_t>(pages64));
+    if (!physical) { unlock_backend(); return -4; }
+    void *alias = koronos_phys_to_virt(physical, size);
+    if (!alias) { (void)koronos_frame_free_contiguous(physical, static_cast<uint32_t>(pages64)); unlock_backend(); return -6; }
+    FrameBlock &block = space->mapped[space->mapped_count++];
+    block.physical = physical;
+    block.pages = static_cast<uint32_t>(pages64);
+    space->user_pages += pages64;
+    const uint64_t leaf_flags = ENTRY_PRESENT | ENTRY_USER |
+        ((elf_flags & 2u) ? ENTRY_WRITE : 0u) |
+        ((elf_flags & 1u) ? 0u : ENTRY_NX);
+    for (uint64_t i = 0; i < pages64; ++i) {
+        uint64_t *pte = ensure_pte(space, virtual_base + i * PAGE_SIZE);
+        if (!pte || (*pte & ENTRY_PRESENT)) { unlock_backend(); return -5; }
+        *pte = (physical + i * PAGE_SIZE) | leaf_flags;
+    }
+    *kernel_alias = alias;
+    unlock_backend();
+    return 0;
+}
+static void destroy_address_space(void *, void *opaque) {
+    AddressSpace *space = static_cast<AddressSpace *>(opaque);
+    lock_backend();
+    if (space_valid(space)) destroy_locked(space);
+    unlock_backend();
+}
+static bool user_page_access(uint64_t root_physical, uint64_t va, bool write_access) {
+    uint64_t *root = table_ptr(root_physical & ENTRY_ADDRESS_MASK);
+    if (!root) return false;
+    uint64_t entry = root[(va >> 39) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
+        (write_access && !(entry & ENTRY_WRITE)) || (entry & ENTRY_LARGE)) return false;
+    uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pdpt) return false;
+    entry = pdpt[(va >> 30) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
+        (write_access && !(entry & ENTRY_WRITE))) return false;
+    if (entry & ENTRY_LARGE) return true;
+    uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pd) return false;
+    entry = pd[(va >> 21) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || !(entry & ENTRY_USER) ||
+        (write_access && !(entry & ENTRY_WRITE))) return false;
+    if (entry & ENTRY_LARGE) return true;
+    uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pt) return false;
+    entry = pt[(va >> 12) & 0x1FFu];
+    return (entry & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
+           (!write_access || (entry & ENTRY_WRITE));
+}
+
+static uint64_t read_cr3() {
+#if defined(__x86_64__)
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    return root & ENTRY_ADDRESS_MASK;
+#else
+    return 0;
+#endif
+}
+
+static bool known_root(uint64_t root) {
+    if (!root || (root & PAGE_MASK) || root >= KORONOS_FRAME_PHYS_LIMIT)
+        return false;
+    const uint64_t bootstrap = reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+    if (root == bootstrap) return true;
+    for (uint32_t i = 0; i < MAX_ADDRESS_SPACES; ++i)
+        if (space_valid(&spaces[i]) && spaces[i].root_physical == root) return true;
+    return false;
+}
+
+static int switch_root(uint64_t root, uint64_t *previous_root) {
+#if defined(__x86_64__)
+    if (!known_root(root)) return -1;
+    const uint64_t old = read_cr3();
+    if (!known_root(old)) return -2;
+    if (previous_root) *previous_root = old;
+    uint64_t flags = 0;
+    __asm__ volatile("pushfq; pop %0; cli" : "=r"(flags) : : "memory");
+    __asm__ volatile("mov %0, %%cr3" : : "r"(root) : "memory");
+    __asm__ volatile("push %0; popfq" : : "r"(flags) : "memory", "cc");
+    return 0;
+#else
+    (void)root; (void)previous_root;
+    return -3;
+#endif
+}
+
+static bool address_space_self_test() {
+    const uint64_t before = koronos_frame_free_count();
+    AddressSpace *space = static_cast<AddressSpace *>(create_address_space(nullptr));
+    if (!space) return false;
+    void *code_alias = nullptr;
+    void *stack_alias = nullptr;
+    const int code_rc = map_pages(nullptr, space, KORONOS_USER_VIRTUAL_MIN, PAGE_SIZE, 5u, &code_alias);
+    const int stack_rc = code_rc == 0
+        ? map_pages(nullptr, space, 0x00007FFFFFFFE000ull, PAGE_SIZE, 6u, &stack_alias)
+        : -1;
+    bool ok = code_rc == 0 && stack_rc == 0 && code_alias && stack_alias;
+    if (ok) {
+        const uint64_t original_root = read_cr3();
+        uint64_t previous_root = 0;
+        const int activate_rc = switch_root(space->root_physical, &previous_root);
+        if (activate_rc != 0) {
+            ok = false;
+        } else {
+            const bool switched = read_cr3() == space->root_physical &&
+                                  previous_root == original_root;
+            const int restore_rc = switch_root(previous_root, nullptr);
+            ok = switched && restore_rc == 0 && read_cr3() == original_root;
+        }
+    }
+    if (ok) {
+        uint64_t *code_pte = ensure_pte(space, KORONOS_USER_VIRTUAL_MIN);
+        uint64_t *stack_pte = ensure_pte(space, 0x00007FFFFFFFE000ull);
+        uint64_t *root = table_ptr(space->root_physical);
+        uint64_t *pdpt = root ? table_ptr(root[0] & ENTRY_ADDRESS_MASK) : nullptr;
+        uint64_t *pd = pdpt ? table_ptr(pdpt[0] & ENTRY_ADDRESS_MASK) : nullptr;
+        // Existing 2-MiB identity leaves must remain supervisor-only even though
+        // their parent entries are user-capable for high user mappings.
+        ok = code_pte && stack_pte && root && pdpt && pd &&
+             (*code_pte & (ENTRY_PRESENT | ENTRY_USER)) == (ENTRY_PRESENT | ENTRY_USER) &&
+             (*code_pte & ENTRY_WRITE) == 0 && (*code_pte & ENTRY_NX) == 0 &&
+             (*stack_pte & (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX)) ==
+                 (ENTRY_PRESENT | ENTRY_USER | ENTRY_WRITE | ENTRY_NX) &&
+             (pd[0] & ENTRY_LARGE) != 0 && (pd[0] & ENTRY_USER) == 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 0u) == 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 KORONOS_USER_VIRTUAL_MIN, 1u, 1u) != 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 0x00007FFFFFFFE000ull, 1u, 1u) == 0 &&
+             koronos_address_space_validate_user_range(space->root_physical,
+                 0x00100000ull, 1u, 0u) != 0;
+    }
+    destroy_address_space(nullptr, space);
+    return ok && koronos_frame_free_count() == before;
+}
+static const chimera_elf_load_ops loader_ops = {
+    create_address_space, map_pages, destroy_address_space
+};
+}
+
+extern "C" int koronos_address_space_init(void) {
+    const koronos_cpu_features *features = koronos_get_cpu_features();
+    if (!koronos_physmap_ready() || !features || !features->long_mode || !features->nx) {
+        backend_ready = 0;
+        return -1;
+    }
+#if defined(__x86_64__)
+    uint32_t lo = 0, hi = 0;
+    __asm__ volatile("rdmsr" : "=a"(lo), "=d"(hi) : "c"(0xC0000080u));
+    lo |= (1u << 11); // EFER.NXE: required before installing NX PTE bits.
+    __asm__ volatile("wrmsr" : : "a"(lo), "d"(hi), "c"(0xC0000080u));
+    if (!initialize_shared_kernel_mapping()) {
+        backend_ready = 0;
+        return -4;
+    }
+    backend_ready = 1;
+    return 0;
+#else
+    backend_ready = 0;
+    return -2;
+#endif
+}
+extern "C" int koronos_address_space_ready(void) { return backend_ready ? 1 : 0; }
+extern "C" int koronos_address_space_self_test(void) {
+    if (!backend_ready) return -1;
+    if (!address_space_self_test()) {
+        backend_ready = 0;
+        return -2;
+    }
+    return 0;
+}
+extern "C" const chimera_elf_load_ops *koronos_address_space_loader_ops(void) {
+    return backend_ready ? &loader_ops : nullptr;
+}
+extern "C" uint64_t koronos_address_space_root(const void *opaque) {
+    const AddressSpace *space = static_cast<const AddressSpace *>(opaque);
+    return space_valid(space) ? space->root_physical : 0;
+}
+
+extern "C" int koronos_address_space_activate(const void *opaque,
+                                                  uint64_t *previous_root) {
+    const AddressSpace *space = static_cast<const AddressSpace *>(opaque);
+    if (!space_valid(space)) return -1;
+    return switch_root(space->root_physical, previous_root);
+}
+
+extern "C" int koronos_address_space_restore(uint64_t root_physical) {
+    return switch_root(root_physical, nullptr);
+}
+
+extern "C" uint64_t koronos_address_space_current_root(void) {
+    return read_cr3();
+}
+
+extern "C" int koronos_address_space_root_valid(uint64_t root_physical) {
+    return backend_ready && known_root(root_physical) ? 1 : 0;
+}
+
+extern "C" uint64_t koronos_address_space_bootstrap_root(void) {
+    return reinterpret_cast<uint64_t>(koronos_bootstrap_pml4);
+}
+extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
+                                                        uint64_t address, uint64_t length,
+                                                        uint32_t write_access) {
+    if (length == 0) return 0;
+    if (address < KORONOS_USER_VIRTUAL_MIN || address >= CHIMERA_ELF_USER_LIMIT ||
+        length > CHIMERA_ELF_USER_LIMIT - address) return -1;
+    const uint64_t end = address + length;
+    uint64_t page = address & ~PAGE_MASK;
+    while (page < end) {
+        if (!user_page_access(root_physical, page, write_access != 0)) return -2;
+        if (page > UINT64_MAX - PAGE_SIZE) return -3;
+        page += PAGE_SIZE;
+    }
+    return 0;
+}
+extern "C" int koronos_address_space_map_kernel_page(uint64_t virtual_address,
+                                                       uint64_t physical_address) {
+    const uint64_t arena_bytes = static_cast<uint64_t>(KORONOS_KERNEL_STACK_SLOTS) *
+        KORONOS_KERNEL_STACK_SLOT_PAGES * PAGE_SIZE;
+    if (!backend_ready || !shared_kernel_pt ||
+        (virtual_address & PAGE_MASK) || (physical_address & PAGE_MASK) ||
+        virtual_address < KORONOS_KERNEL_STACK_ARENA_BASE ||
+        virtual_address >= KORONOS_KERNEL_STACK_ARENA_BASE + arena_bytes ||
+        physical_address >= KORONOS_FRAME_PHYS_LIMIT ||
+        koronos_physmap_validate_range(physical_address, PAGE_SIZE) != 0) return -1;
+    lock_backend();
+    const uint32_t index = static_cast<uint32_t>((virtual_address >> 12) & 0x1FFu);
+    if (shared_kernel_pt[index] & ENTRY_PRESENT) {
+        unlock_backend();
+        return -2;
+    }
+    shared_kernel_pt[index] = physical_address | ENTRY_PRESENT | ENTRY_WRITE | ENTRY_NX;
+#if defined(__x86_64__)
+    __asm__ volatile("invlpg (%0)" : : "r"(virtual_address) : "memory");
+#endif
+    unlock_backend();
+    return 0;
+}
+
+extern "C" int koronos_address_space_unmap_kernel_page(uint64_t virtual_address,
+                                                         uint64_t physical_address) {
+    const uint64_t arena_bytes = static_cast<uint64_t>(KORONOS_KERNEL_STACK_SLOTS) *
+        KORONOS_KERNEL_STACK_SLOT_PAGES * PAGE_SIZE;
+    if (!backend_ready || !shared_kernel_pt ||
+        (virtual_address & PAGE_MASK) || (physical_address & PAGE_MASK) ||
+        virtual_address < KORONOS_KERNEL_STACK_ARENA_BASE ||
+        virtual_address >= KORONOS_KERNEL_STACK_ARENA_BASE + arena_bytes) return -1;
+    lock_backend();
+    const uint32_t index = static_cast<uint32_t>((virtual_address >> 12) & 0x1FFu);
+    const uint64_t entry = shared_kernel_pt[index];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_ADDRESS_MASK) != physical_address ||
+        (entry & ENTRY_USER)) {
+        unlock_backend();
+        return -2;
+    }
+    shared_kernel_pt[index] = 0;
+#if defined(__x86_64__)
+    __asm__ volatile("invlpg (%0)" : : "r"(virtual_address) : "memory");
+#endif
+    unlock_backend();
+    return 0;
+}
+
+extern "C" int koronos_address_space_kernel_page_mapped(uint64_t root_physical,
+                                                          uint64_t virtual_address) {
+    const uint64_t arena_bytes = static_cast<uint64_t>(KORONOS_KERNEL_STACK_SLOTS) *
+        KORONOS_KERNEL_STACK_SLOT_PAGES * PAGE_SIZE;
+    if ((virtual_address & PAGE_MASK) ||
+        virtual_address < KORONOS_KERNEL_STACK_ARENA_BASE ||
+        virtual_address >= KORONOS_KERNEL_STACK_ARENA_BASE + arena_bytes) return 0;
+    uint64_t *root = table_ptr(root_physical & ENTRY_ADDRESS_MASK);
+    if (!root) return 0;
+    uint64_t entry = root[511];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_USER) ||
+        (entry & ENTRY_ADDRESS_MASK) != shared_kernel_pdpt_physical) return 0;
+    uint64_t *pdpt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pdpt) return 0;
+    entry = pdpt[(virtual_address >> 30) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_USER) ||
+        (entry & ENTRY_ADDRESS_MASK) != shared_kernel_pd_physical) return 0;
+    uint64_t *pd = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pd) return 0;
+    entry = pd[(virtual_address >> 21) & 0x1FFu];
+    if (!(entry & ENTRY_PRESENT) || (entry & ENTRY_USER) ||
+        (entry & ENTRY_ADDRESS_MASK) != shared_kernel_pt_physical) return 0;
+    uint64_t *pt = table_ptr(entry & ENTRY_ADDRESS_MASK);
+    if (!pt) return 0;
+    entry = pt[(virtual_address >> 12) & 0x1FFu];
+    return (entry & (ENTRY_PRESENT | ENTRY_WRITE | ENTRY_NX | ENTRY_USER)) ==
+           (ENTRY_PRESENT | ENTRY_WRITE | ENTRY_NX) ? 1 : 0;
+}
+
+extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }

@@ -1,0 +1,40 @@
+name: Koronos frame allocator tests
+
+on:
+  pull_request:
+    paths:
+      - "kernel/core/frame_allocator.cpp"
+      - "kernel/include/chimera/frame_allocator.h"
+      - "tests/kernel/frame_allocator_test.cpp"
+      - "tests/kernel/CMakeLists.txt"
+      - ".github/workflows/koronos-frame-allocator.yml"
+  push:
+    branches: [main]
+    paths:
+      - "kernel/core/frame_allocator.cpp"
+      - "kernel/include/chimera/frame_allocator.h"
+      - "tests/kernel/frame_allocator_test.cpp"
+      - "tests/kernel/CMakeLists.txt"
+      - ".github/workflows/koronos-frame-allocator.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile frame allocator host tests
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror \
+            -Ikernel/include \
+            tests/kernel/frame_allocator_test.cpp \
+            kernel/core/frame_allocator.cpp \
+            -o /tmp/koronos-frame-allocator-test
+      - name: Test allocation ownership and reservations
+        run: /tmp/koronos-frame-allocator-test
+      - name: Test explicit rejection above 4 GiB
+        run: /tmp/koronos-frame-allocator-test above4g
+      - name: Validate canonical kernel build script syntax
+        run: bash -n kernel/build-koronos.sh

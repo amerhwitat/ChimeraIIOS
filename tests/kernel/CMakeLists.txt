@@ -80,6 +80,7 @@ add_test(NAME chimera_scheduler_runtime COMMAND chimera_scheduler_runtime_test)
 add_executable(chimera_elf64_admission_test
   elf64_admission_test.cpp
   ../../kernel/core/elf64.cpp
+  ../../kernel/core/process_loader.cpp
   ../../kernel/core/process.cpp
 )
 target_include_directories(chimera_elf64_admission_test PRIVATE
@@ -90,3 +91,58 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_elf64_admission_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_elf64_admission COMMAND chimera_elf64_admission_test)
+
+add_executable(chimera_frame_allocator_test
+  frame_allocator_test.cpp
+  ../../kernel/core/frame_allocator.cpp
+)
+target_include_directories(chimera_frame_allocator_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_frame_allocator_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_frame_allocator_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_frame_allocator COMMAND chimera_frame_allocator_test)
+add_test(NAME chimera_frame_allocator_rejects_above_4g
+  COMMAND chimera_frame_allocator_test above4g)
+
+add_executable(chimera_physmap_range_test
+  physmap_range_test.cpp
+  ../../kernel/core/physmap.cpp
+)
+target_include_directories(chimera_physmap_range_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_physmap_range_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_physmap_range_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME chimera_physmap_range COMMAND chimera_physmap_range_test)
+
+add_executable(chimera_process_loader_transaction_test
+  process_loader_transaction_test.cpp
+  ../../kernel/core/process_loader.cpp
+  ../../kernel/core/elf64.cpp
+)
+target_include_directories(chimera_process_loader_transaction_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_process_loader_transaction_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_process_loader_transaction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+endif()
+add_test(NAME chimera_process_loader_transaction COMMAND chimera_process_loader_transaction_test)
+
+add_executable(chimera_x86_64_context_test
+  x86_64_context_test.cpp
+  ../../kernel/core/x86_64_context.cpp
+)
+target_include_directories(chimera_x86_64_context_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_x86_64_context_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_x86_64_context_test PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+endif()
+add_test(NAME chimera_x86_64_context COMMAND chimera_x86_64_context_test)

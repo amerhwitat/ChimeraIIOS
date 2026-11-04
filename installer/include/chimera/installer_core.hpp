@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -19,6 +20,12 @@ struct InstallPlan {
   std::string bootloader{"spitfire"};
   std::string kernel{"koronos"};
   std::string filesystem{"qfs"};
+  // Explicit storage selection. Empty values are never inferred for destructive installs.
+  std::filesystem::path boot_device;
+  std::filesystem::path root_partition;
+  std::filesystem::path efi_partition;
+  Firmware firmware{Firmware::Unknown};
+  std::string destructive_confirmation_token;
   bool install_aurora{true}, install_kore{true}, install_compatibility{true};
   bool deep_driver_search{true};
   bool download_driver_binaries{true};

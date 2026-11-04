@@ -5,6 +5,9 @@ on:
     paths:
       - "kernel/core/elf64.cpp"
       - "kernel/core/process.cpp"
+      - "kernel/core/process_loader.cpp"
+      - "kernel/tests/process-runtime-unit.sh"
+      - "kernel/tests/process_runtime_test.cpp"
       - "kernel/core/scheduler.cpp"
       - "kernel/core/multiboot_modules.cpp"
       - "kernel/include/chimera/multiboot_modules.h"
@@ -31,10 +34,12 @@ jobs:
         run: |
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
             tests/kernel/elf64_admission_test.cpp \
-            kernel/core/elf64.cpp kernel/core/process.cpp \
+            kernel/core/elf64.cpp kernel/core/process_loader.cpp kernel/core/process.cpp \
             -o /tmp/chimera-elf64-admission-test
       - name: Run ELF64 validation/admission regression
         run: /tmp/chimera-elf64-admission-test
+      - name: Run process runtime ownership regression
+        run: bash kernel/tests/process-runtime-unit.sh
       - name: Build and run Multiboot2 live/recovery module classification regression
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror -Ikernel/include kernel/tests/multiboot_modules_test.cpp kernel/core/multiboot_modules.cpp -o /tmp/chimera-multiboot-modules-test

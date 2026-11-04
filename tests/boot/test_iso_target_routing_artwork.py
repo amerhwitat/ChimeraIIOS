@@ -12,6 +12,26 @@ LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
+    def test_iso_and_jasper_keep_interactive_live_safe_default(self):
+        jasper = (ROOT / "boot/jasper/jasper.cfg").read_text()
+        installer = (ROOT / "boot/jasper/install.cfg").read_text()
+        install_menu = (ROOT / "boot/installation/menu.cfg").read_text()
+        # The top-level menus remain interactive and select Live by default.
+        self.assertRegex(GRUB, r"(?m)^set timeout=30$")
+        self.assertRegex(GRUB, r"(?m)^set default=0$")
+        self.assertRegex(jasper, r"(?m)^set timeout=30$")
+        self.assertRegex(jasper, r"(?m)^set default=0$")
+        # Nested installer menus also remain interactive and default to their
+        # non-destructive Live/return entry, not an automatic disk operation.
+        self.assertRegex(installer, r"(?m)^set timeout=30$")
+        self.assertRegex(installer, r"(?m)^set default=2$")
+        self.assertRegex(install_menu, r"(?m)^set timeout=30$")
+        self.assertRegex(install_menu, r"(?m)^set default=2$")
+        self.assertIn('--id install {', GRUB)
+        self.assertIn('--id chimera-install ', jasper)
+        self.assertIn('--id installer {', installer)
+        self.assertIn('--id install-guided {', install_menu)
+
     def test_installer_menu_passes_installer_modules_to_koronos(self):
         start = GRUB.index('--id install {')
         end = GRUB.index('\n}', start)

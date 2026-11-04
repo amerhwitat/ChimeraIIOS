@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+          timeout 60s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
             -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
             -debugcon file:qemu-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-koronos.log
@@ -78,6 +78,15 @@ jobs:
           echo "=== QEMU debugcon log ==="
           cat qemu-debug.log
           grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
+          grep -Fq "[CPU ] BSP GDT/TSS initialized" qemu-debug.log
+          grep -Fq "[MM  ] Address-space self-test passed: CR3 switch/restore" qemu-debug.log
+          grep -Fq "[PROC] Shared supervisor mappings, guarded process-owned kernel stacks and BSP TSS.RSP0 handoff self-test passed" qemu-debug.log
+          grep -Fq "[SCH ] BSP guarded cross-CR3 saved-context + TSS.RSP0/PID handoff self-test passed; AP scheduling remains disabled" qemu-debug.log
+          grep -Fq "[SCH ] BSP scheduler callback executed on owned guarded stack; TSS.RSP0/PID verified" qemu-debug.log || { echo "::error::Scheduler did not execute a callback on its owned guarded stack"; exit 1; }
+          grep -Fq "[SCH ] BSP callback resumed after cooperative yield" qemu-debug.log || { echo "::error::Saved callback did not resume after yield"; exit 1; }
+          grep -Fq "[SCH ] BSP callback woke blocked monitor task" qemu-debug.log || { echo "::error::Blocked callback was not woken"; exit 1; }
+          grep -Fq "[SCH ] BSP callback resumed after wake" qemu-debug.log || { echo "::error::Saved callback did not resume after wake"; exit 1; }
+          if grep -Fq "[SCH ] ERROR: guarded callback context stack/TSS/PID validation failed" qemu-debug.log; then echo "::error::Guarded callback context validation failed"; exit 1; fi
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
       - name: Upload diagnostics
         if: always()

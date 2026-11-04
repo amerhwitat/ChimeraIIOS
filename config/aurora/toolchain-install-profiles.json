@@ -9,18 +9,36 @@
     "show_disk_and_download_size_when_known": true,
     "prefer_configured_native_package_provider": true,
     "fallback": "offer-only-after-architecture-and-dependency-check",
-    "unknown_package_sources": "block-by-default"
+    "unknown_package_sources": "block-by-default",
+    "proprietary_tools": "external-installation-only",
+    "catalog_is_not_installation_proof": true
   },
   "profiles": [
     {
       "id": "c-cpp-asm",
       "label": "C, C++, and Assembly",
-      "tools": ["clang", "llvm", "gcc", "binutils", "nasm", "cmake", "ninja", "make", "gdb", "lldb"]
+      "tools": [
+        "clang",
+        "llvm",
+        "gcc",
+        "binutils",
+        "nasm",
+        "cmake",
+        "ninja",
+        "make",
+        "gdb",
+        "lldb"
+      ]
     },
     {
       "id": "dotnet",
       "label": ".NET and C#",
-      "tools": ["dotnet-sdk", "dotnet-runtime", "aspnetcore-runtime", "nuget"],
+      "tools": [
+        "dotnet-sdk",
+        "dotnet-runtime",
+        "aspnetcore-runtime",
+        "nuget"
+      ],
       "driver": "tools/chimera-toolchain/chimera-csharp",
       "project": "sdk/csharp/Chimera.Sdk.csproj",
       "status": "driver-added-runtime-package-required"
@@ -28,24 +46,133 @@
     {
       "id": "systems-languages",
       "label": "Rust, Go, Zig, Swift, Fortran",
-      "tools": ["rustc", "cargo", "go", "zig", "swift", "gfortran"]
+      "tools": [
+        "rustc",
+        "cargo",
+        "go",
+        "zig",
+        "swift",
+        "gfortran"
+      ]
     },
     {
       "id": "managed-jvm",
       "label": "Java and Kotlin",
-      "tools": ["openjdk", "javac", "maven", "gradle", "kotlinc"]
+      "tools": [
+        "openjdk",
+        "javac",
+        "maven",
+        "gradle",
+        "kotlinc"
+      ]
     },
     {
       "id": "scripting",
       "label": "Scripting and web runtimes",
-      "tools": ["python3", "pypy3", "nodejs", "npm", "corepack", "php", "ruby", "lua", "perl", "tcl", "r", "julia", "powershell"]
+      "tools": [
+        "python3",
+        "pypy3",
+        "nodejs",
+        "npm",
+        "corepack",
+        "php",
+        "ruby",
+        "lua",
+        "perl",
+        "tcl",
+        "r",
+        "julia",
+        "powershell"
+      ]
     },
     {
       "id": "apple-cross",
       "label": "Intel Mac and Apple Silicon cross targets",
-      "tools": ["llvm", "clang", "lld", "qemu"],
+      "tools": [
+        "llvm",
+        "clang",
+        "lld",
+        "qemu"
+      ],
       "target_registry": "config/compatibility/apple-cpu-targets.json",
       "status": "cross-target-metadata-platform-boot-and-driver-validation-required"
+    },
+    {
+      "id": "language-native-core",
+      "label": "Native C/C++ and Assembly",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py native-core --dry-run",
+      "description": "GCC, Clang/LLVM, Binutils, NASM, YASM and build utilities",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-systems",
+      "label": "Systems languages",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py systems --dry-run",
+      "description": "Rust, Go, Zig, Swift, Fortran, Ada, D, V and Odin; experimental Carbon remains provider-managed",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-managed",
+      "label": "Managed and JVM languages",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py managed --dry-run",
+      "description": "Java, Kotlin, Scala, Groovy, C#, F# and Visual Basic .NET",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-scripting",
+      "label": "Scripting and web languages",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py scripting --dry-run",
+      "description": "Python, PyPy, JavaScript, TypeScript, PHP, Ruby, Perl, Lua, R, Tcl, Raku and GNU Octave",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-functional-scientific",
+      "label": "Functional and scientific languages",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py functional-scientific --dry-run",
+      "description": "Haskell, OCaml, Pascal, COBOL, Elixir, Erlang, Clojure, Lisp, Scheme, Prolog, MATLAB/Wolfram/SAS external providers",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-assembly-analysis",
+      "label": "Assembly and reverse engineering",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py assembly-analysis --dry-run",
+      "description": "GNU/LLVM, NASM, YASM, FASM, LLVM ML, Capstone, radare2, Ghidra and external MASM/ARM/IAR tools",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-webassembly",
+      "label": "WebAssembly development",
+      "tools": [],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py webassembly --dry-run",
+      "description": "WASI/Clang, wasm-ld, WABT and Binaryen",
+      "status": "optional-explicit-install"
+    },
+    {
+      "id": "language-hardware-description",
+      "label": "Hardware description languages",
+      "tools": [
+        "iverilog",
+        "verilator",
+        "ghdl",
+        "nvc",
+        "yosys"
+      ],
+      "catalog": "toolchains/language-toolchain-catalog.json",
+      "install_command": "python3 tools/toolchain/install-language-profile.py hardware-description --dry-run",
+      "status": "optional-explicit-install"
     }
   ]
 }

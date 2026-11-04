@@ -18,6 +18,7 @@ on:
       - "kernel/core/process.cpp"
       - "kernel/tests/process_admission.cpp"
       - "desktop/aurora/aurora-launcher.cpp"
+      - ".github/workflows/chimera-runtime-contracts.yml"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -43,7 +44,9 @@ jobs:
           PY
       - name: Compile process admission regression
         run: |
-          g++ -std=c++17 -I kernel/include             kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp             -o /tmp/chimera-process-admission
+          g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I kernel/include \
+            kernel/core/elf64.cpp kernel/core/process_loader.cpp kernel/core/process.cpp \
+            kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
       - name: Compile Aurora launcher
         run: |

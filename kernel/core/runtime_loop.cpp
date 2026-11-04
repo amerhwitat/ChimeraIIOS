@@ -7,10 +7,29 @@ static void vga_hex(uint32_t row,uint32_t col,uint32_t value){static const char 
 static void vga_clear_status_row(){volatile uint16_t*v=(volatile uint16_t*)0xB8000;for(uint32_t c=0;c<80;++c)v[24*80+c]=0x0720;}
 static void vga_heartbeat(uint32_t sequence,uint32_t dispatched,uint32_t runnable){vga_clear_status_row();vga_text(24,0,"KORONOS SCHEDULER ALIVE");vga_hex(24,25,sequence);vga_text(24,34,"RUN");vga_hex(24,38,dispatched);vga_text(24,47,"READY");vga_hex(24,53,runnable);vga_text(24,62,"MB2");vga_hex(24,66,chimera_multiboot_module_count());}
 }
+namespace {
+static void debugcon_write(const char *text) {
+    if (!text) return;
+    while (*text) {
+        const uint8_t value = static_cast<uint8_t>(*text++);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(value));
+    }
+    __asm__ volatile("outb %0, $0xE9" : : "a"(static_cast<uint8_t>('\n')));
+}
+}
 extern "C" void koronos_idle_loop(void){
     uint32_t spin=0;
+    bool context_reported=false, context_fault_reported=false;
     for(;;){
         const uint32_t dispatched=chimera_sched_run_once(0);
+        if (!context_reported && chimera_sched_context_dispatch_count() > 0) {
+            debugcon_write("[SCH ] BSP scheduler callback executed on owned guarded stack; TSS.RSP0/PID verified");
+            context_reported=true;
+        }
+        if (!context_fault_reported && chimera_sched_context_fault_count() > 0) {
+            debugcon_write("[SCH ] ERROR: guarded callback context stack/TSS/PID validation failed");
+            context_fault_reported=true;
+        }
         ++spin;
         if((spin&0x0000FFFFu)==0)vga_heartbeat(spin,dispatched,chimera_sched_runnable_count());
 #if defined(__x86_64__)||defined(__i386__)
