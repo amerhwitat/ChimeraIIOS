@@ -1016,6 +1016,42 @@ prepare_apache_ecosystem(){
 }
 prepare_apache(){ prepare_apache_ecosystem; }
 stage_features(){
+  # Prepare a target-root FHS layout and stage the registry/network/media tools.
+  if [[ -x "$SCRIPT_DIR/tools/storage/create-fhs-layout.sh" ]]; then
+    bash "$SCRIPT_DIR/tools/storage/create-fhs-layout.sh" "$ROOTFS_DIR"
+  fi
+  install -d "$ROOTFS_DIR/usr/lib/chimera/registry" "$ROOTFS_DIR/usr/lib/chimera/network" \
+    "$ROOTFS_DIR/usr/share/chimera/registry" "$ROOTFS_DIR/usr/share/chimera/network" \
+    "$ROOTFS_DIR/usr/share/chimera/storage" "$ROOTFS_DIR/usr/share/applications" \
+    "$ROOTFS_DIR/usr/lib/systemd/system" "$ROOTFS_DIR/etc/chimera" \
+    "$ROOTFS_DIR/etc/samba"
+  for f in tools/registry/registry_hive.py tools/registry/registry_admin.py; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0644 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/lib/chimera/registry/"
+  done
+  for f in tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py \
+           tools/network/chimera-ldap-browse.py tools/network/install-interoperability-packages.sh; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0755 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/lib/chimera/network/"
+  done
+  [[ -f "$SCRIPT_DIR/tools/network/chimera-iso-mount" ]] && install -m 0755 "$SCRIPT_DIR/tools/network/chimera-iso-mount" "$ROOTFS_DIR/usr/bin/chimera-iso-mount"
+  [[ -f "$SCRIPT_DIR/tools/storage/create-fhs-layout.sh" ]] && install -m 0755 "$SCRIPT_DIR/tools/storage/create-fhs-layout.sh" "$ROOTFS_DIR/usr/bin/create-fhs-layout"
+  [[ -f "$SCRIPT_DIR/desktop/aurora/aurora-registry-editor" ]] && install -m 0755 "$SCRIPT_DIR/desktop/aurora/aurora-registry-editor" "$ROOTFS_DIR/usr/bin/chimera-registry-editor"
+  for f in system/registry/machine.defaults.json system/registry/environment.defaults.json \
+           system/registry/kernel.defaults.json system/registry/registry-editor-policy.json; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0644 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/registry/"
+  done
+  for f in system/network/smb-client.json system/network/smb-server.json system/network/package-dependencies.json; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0644 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/network/"
+  done
+  [[ -f "$SCRIPT_DIR/system/storage/fstab.chimera.example" ]] && install -m 0644 "$SCRIPT_DIR/system/storage/fstab.chimera.example" "$ROOTFS_DIR/usr/share/chimera/storage/"
+  [[ -f "$SCRIPT_DIR/system/security/chimera_ad_config.json" ]] && install -m 0644 "$SCRIPT_DIR/system/security/chimera_ad_config.json" "$ROOTFS_DIR/etc/chimera/"
+  [[ -f "$SCRIPT_DIR/system/samba/smb.conf" && ! -e "$ROOTFS_DIR/etc/samba/smb.conf" ]] && install -m 0644 "$SCRIPT_DIR/system/samba/smb.conf" "$ROOTFS_DIR/etc/samba/smb.conf"
+  for f in system/services/chimera-smbd.service system/services/chimera-smb-discovery.service; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0644 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/lib/systemd/system/"
+  done
+  [[ -f "$SCRIPT_DIR/desktop/aurora/aurora-registry-editor.desktop" ]] && install -m 0644 "$SCRIPT_DIR/desktop/aurora/aurora-registry-editor.desktop" "$ROOTFS_DIR/usr/share/applications/"
+  [[ -f "$SCRIPT_DIR/services/service_registry.json" ]] && install -m 0644 "$SCRIPT_DIR/services/service_registry.json" "$ROOTFS_DIR/usr/share/chimera/"
+  # Existing Aurora feature staging follows.
+
   # Install the bounded discovery worker and its data/configuration into the
   # rootfs so Aurora can run it from a user-level systemd timer at runtime.
   if [[ -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
