@@ -1,41 +1,97 @@
 #include "chimera/apic_topology.h"
+
 namespace {
-static uint32_t u32(const uint8_t *p) {
-    return (uint32_t)p[0] | ((uint32_t)p[1]<<8) | ((uint32_t)p[2]<<16) | ((uint32_t)p[3]<<24);
+uint32_t read_u32_le(const uint8_t *p) {
+    return static_cast<uint32_t>(p[0]) |
+           (static_cast<uint32_t>(p[1]) << 8) |
+           (static_cast<uint32_t>(p[2]) << 16) |
+           (static_cast<uint32_t>(p[3]) << 24);
 }
 }
-extern "C" int koronos_apic_topology_parse_madt(const void *data,uint32_t length,
-                                                  uint32_t bsp,koronos_apic_topology *out) {
-    if(!data||!out||length>1024u*1024u)return -1;
-    *out={};out->abi=KORONOS_APIC_TOPOLOGY_ABI;out->bsp_apic_id=bsp;out->bsp_index=UINT32_MAX;
-    const auto *p=static_cast<const uint8_t*>(data);
-    uint32_t offset=0;
-    while(offset<length) {
-        if(length-offset<2u)return -2;
-        const uint8_t type=p[offset],size=p[offset+1];
-        if(size<2u||size>length-offset)return -3;
-        uint32_t id=0,uid=0,flags=0;bool cpu=false;uint8_t source=type;
-        if(type==0u) {
-            if(size!=8u)return -4;
-            id=p[offset+3];uid=p[offset+2];flags=u32(p+offset+4);cpu=true;
-        } else if(type==9u) {
-            if(size!=16u)return -5;
-            id=u32(p+offset+4);uid=u32(p+offset+12);flags=u32(p+offset+8);cpu=true;
-            out->x2apic_present=1u;
+
+extern "C" int koronos_apic_topology_parse_madt(
+    const void *data, uint32_t length, uint32_t bsp_apic_id,
+    koronos_apic_topology *out) {
+    if (data == nullptr || out == nullptr || length > 1024u * 1024u) {
+        return -1;
+    }
+
+    *out = {};
+    out->abi = KORONOS_APIC_TOPOLOGY_ABI;
+    out->bsp_apic_id = bsp_apic_id;
+    out->bsp_index = UINT32_MAX;
+
+    const auto *bytes = static_cast<const uint8_t *>(data);
+    uint32_t offset = 0;
+    while (offset < length) {
+        if (length - offset < 2u) {
+            return -2;
         }
-        if(cpu && (flags&3u)) {
-            for(uint32_t i=0;i<out->count;i++)if(out->cpus[i].apic_id==id)return -6;
-            if(out->count>=KORONOS_APIC_MAX_CPUS)return -7;
-            koronos_apic_cpu &entry=out->cpus[out->count];
-            entry.apic_id=id;entry.acpi_uid=uid;entry.flags=flags;
-            entry.source_type=source;entry.enabled=(flags&1u)?1u:0u;
-            if(entry.enabled)++out->enabled_count;
-            if(id==bsp && entry.enabled)out->bsp_index=out->count;
+
+        const uint8_t type = bytes[offset];
+        const uint8_t size = bytes[offset + 1u];
+        if (size < 2u || size > length - offset) {
+            return -3;
+        }
+
+        uint32_t apic_id = 0;
+        uint32_t acpi_uid = 0;
+        uint32_t flags = 0;
+        bool is_processor = false;
+
+        if (type == 0u) {
+            if (size != 8u) {
+                return -4;
+            }
+            acpi_uid = bytes[offset + 2u];
+            apic_id = bytes[offset + 3u];
+            flags = read_u32_le(bytes + offset + 4u);
+            is_processor = true;
+        } else if (type == 9u) {
+            if (size != 16u) {
+                return -5;
+            }
+            apic_id = read_u32_le(bytes + offset + 4u);
+            flags = read_u32_le(bytes + offset + 8u);
+            acpi_uid = read_u32_le(bytes + offset + 12u);
+            is_processor = true;
+            out->x2apic_present = 1u;
+        }
+
+        /* Bit 0 means enabled; bit 1 means online-capable. Retain both,
+         * but only enabled processors count as currently enabled. */
+        if (is_processor && (flags & 3u) != 0u) {
+            for (uint32_t i = 0; i < out->count; ++i) {
+                if (out->cpus[i].apic_id == apic_id) {
+                    return -6;
+                }
+            }
+            if (out->count >= KORONOS_APIC_MAX_CPUS) {
+                return -7;
+            }
+
+            koronos_apic_cpu &cpu = out->cpus[out->count];
+            cpu.apic_id = apic_id;
+            cpu.acpi_uid = acpi_uid;
+            cpu.flags = flags;
+            cpu.source_type = type;
+            cpu.enabled = (flags & 1u) != 0u ? 1u : 0u;
+            if (cpu.enabled) {
+                ++out->enabled_count;
+                if (apic_id == bsp_apic_id) {
+                    out->bsp_index = out->count;
+                }
+            }
             ++out->count;
         }
-        offset+=size;
+        offset += size;
     }
-    if(offset!=length)return -2;
-    if(out->bsp_index==UINT32_MAX)return -8;
+
+    if (offset != length) {
+        return -2;
+    }
+    if (out->bsp_index == UINT32_MAX) {
+        return -8;
+    }
     return 0;
 }
