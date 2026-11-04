@@ -30,6 +30,14 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("one identical ISO SHA across Live/Installer/Recovery", self.text)
         self.assertIn("diagnostic probes, not six-case release evidence", self.text)
 
+    def test_legacy_tag_release_path_is_fail_closed(self):
+        legacy = (ROOT / ".github/workflows/chimera-release.yml").read_text(encoding="utf-8")
+        guard = legacy.index("Refuse legacy bootstrap ISO publication")
+        publish = legacy.index("Publish GitHub Release")
+        self.assertLess(guard, publish)
+        self.assertIn("exit 1", legacy[guard:publish])
+        self.assertIn("canonical full native Koronos ISO", legacy[guard:publish])
+
     def test_unverified_handoff_keeps_build_reviewable_but_blocks_release(self):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
         self.assertIn("no release will be published", self.text)
