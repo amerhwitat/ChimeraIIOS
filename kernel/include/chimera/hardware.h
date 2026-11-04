@@ -12,7 +12,10 @@ typedef enum chimera_architecture {
     CHIMERA_ARCH_UNKNOWN = 0,
     CHIMERA_ARCH_X86_64 = 1,
     CHIMERA_ARCH_AARCH64 = 2,
-    CHIMERA_ARCH_RISCV64 = 3
+    CHIMERA_ARCH_RISCV64 = 3,
+    CHIMERA_ARCH_X86_32 = 4,
+    CHIMERA_ARCH_RISCV32 = 5,
+    CHIMERA_ARCH_ARM32 = 6
 } chimera_architecture;
 
 typedef enum chimera_nbit_mode {
