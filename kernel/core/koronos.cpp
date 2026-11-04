@@ -13,7 +13,9 @@
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
 /* Idle-loop diagnostic wake target; zero means not registered yet. */
-extern "C" uint32_t koronos_monitor_task_id = 0;
+extern "C" {
+uint32_t koronos_monitor_task_id = 0;
+}
 
 namespace {
 volatile uint32_t koronos_state = 0;
