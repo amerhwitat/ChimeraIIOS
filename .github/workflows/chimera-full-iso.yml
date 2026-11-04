@@ -266,9 +266,11 @@ jobs:
           accepted=false
           if [[ "$rc" -eq 0 ]]; then accepted=true; fi
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
+          status=BLOCKED
+          if [[ "$accepted" == true ]]; then status=PASS; fi
           {
             echo "### Native Koronos six-case acceptance"
-            echo "- Status: **$([[ "$accepted" == true ]] && echo PASS || echo BLOCKED)**"
+            echo "- Status: **$status**"
             echo "- Canonical ISO: `$iso`"
             echo "- Evidence directory: `$evidence`"
             echo "- This gate requires one identical ISO SHA across Live/Installer/Recovery × BIOS/UEFI."
