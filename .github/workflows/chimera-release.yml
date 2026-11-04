@@ -1,4 +1,4 @@
-name: Chimera II OS Release
+name: Chimera II OS Release (legacy path fail-closed)
 
 on:
   push:
@@ -60,6 +60,14 @@ jobs:
             exit 1
           fi
           echo "QEMU stopped with rc=$rc after successful kernel handoff (timeout is expected for the parked kernel)."
+
+      - name: Refuse legacy bootstrap ISO publication without canonical six-case evidence
+        run: |
+          echo "::error::This tag workflow builds the legacy bootstrap ISO, not the canonical full native Koronos ISO."
+          echo "::error::The tag path has no six-case Live/Installer/Recovery x BIOS/UEFI evidence bound to one immutable ISO."
+          echo "::error::Rebuild through build-chimera-iso.sh --release only after the six-case verifier, VFS, real SMP, desktop, installer persistence and recovery gates pass."
+          echo "No release artifact will be published from this legacy path."
+          exit 1
 
       - name: Verify release tree
         run: |
