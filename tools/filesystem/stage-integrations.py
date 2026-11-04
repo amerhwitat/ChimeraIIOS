@@ -32,7 +32,7 @@ def stage(source,root):
  for name in ("machine","environment","kernel"):
   data=json.loads((cfg/(name+".defaults.json")).read_text())
   (cfg/(name+".json")).write_text(json.dumps(data,indent=2,sort_keys=True)+"\n")
-  (cfg/(name+".hive")).write_bytes(h.encode(data))
+  blob=h.encode(data);h.verify(blob);(cfg/(name+".hive")).write_bytes(blob)
  os.chmod(cfg,488)
  samba=root/"etc/samba";samba.mkdir(parents=True,exist_ok=True)
  smbconf=samba/"smb.conf";default=source/"services/network/smb.conf.default"
