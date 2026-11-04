@@ -24,6 +24,11 @@ mkdir -p "$BUILD"
 "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 "$ROOT/tests/kernel/run-cpu-profile-host-tests.sh"
 bash "$ROOT/tests/kernel/run-registry-host-tests.sh"
+mkdir -p "$ROOT/build/registry"
+for hive in machine environment kernel; do
+  python3 "$ROOT/tools/registry/registry_hive.py" build --input "$ROOT/system/registry/$hive.defaults.json" --output "$ROOT/build/registry/$hive.hive"
+  python3 "$ROOT/tools/registry/registry_hive.py" verify "$ROOT/build/registry/$hive.hive"
+done
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
