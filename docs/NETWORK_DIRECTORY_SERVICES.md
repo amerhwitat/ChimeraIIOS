@@ -16,7 +16,7 @@ Chimera uses maintained protocol implementations rather than a new, unreviewed S
 services/network/smb-browse.py --network performs local-link WS-Discovery and DNS-SD discovery.
 services/network/smb-browse.py files.example.org lists disk shares from an explicit SMB2/3 host using the existing Kerberos ticket cache.
 services/network/directoryctl.py status reports joined realms.
-services/network/directoryctl.py join example.org --user administrator requests a domain join using an existing Kerberos ticket.
+services/network/directoryctl.py join example.org --user administrator --elevate requests a domain join using an existing Kerberos ticket and an explicit PolicyKit administrator prompt.
 services/network/directoryctl.py ldap-search ldaps://dc.example.org dc=example,dc=org '(objectClass=computer)' performs a bounded GSSAPI LDAP query.
 
 Package installation is declared in system/integrations/*.json and staged by live-image/build.sh.
