@@ -80,7 +80,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     samba smbclient cifs-utils winbind libnss-winbind libpam-winbind \
     krb5-user realmd adcli sssd sssd-ad sssd-ldap sssd-tools ldap-utils \
     libsasl2-modules-gssapi-mit avahi-daemon avahi-utils gvfs-backends \
-    udisks2 util-linux xorriso udftools \
+    udisks2 util-linux xorriso udftools file eject \
     && if apt-cache show wsdd >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd || echo "[WARN] wsdd client install failed; DNS-SD remains available"; fi; \
     if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
@@ -99,6 +99,8 @@ RUN set -eux; \
     install -D -m 0644 /app/services/storage/chimera-fhs-layout.service /usr/lib/systemd/system/chimera-fhs-layout.service; \
     install -D -m 0644 /app/services/network/avahi-smb.service /etc/avahi/services/chimera-smb.service; \
     install -D -m 0644 /app/services/network/smb.conf.example /usr/share/chimera/examples/smb.conf.example; \
+    install -D -m 0644 /app/desktop/aurora/network-browser.desktop /usr/share/applications/chimera-network-browser.desktop; \
+    install -D -m 0644 /app/desktop/aurora/optical-media.desktop /usr/share/applications/chimera-optical-media.desktop; \
     getent group wsdd >/dev/null 2>&1 || groupadd --system wsdd; \
     id wsdd >/dev/null 2>&1 || useradd --system --gid wsdd --home-dir /nonexistent --shell /usr/sbin/nologin wsdd; \
     install -d -m 0755 /etc/systemd/system/multi-user.target.wants; \
