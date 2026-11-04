@@ -1184,13 +1184,16 @@ build_native_iso_pipeline(){
   if [[ "$RUN_NATIVE_SIX_CASE_DIAGNOSTICS" == 1 ]]; then
     local six_case_runner="$SCRIPT_DIR/tools/boot/run-six-case-qemu.py"
     local six_case_verifier="$SCRIPT_DIR/tools/boot/verify-six-case-matrix.py"
-    local ovmf_code="" ovmf_vars="" ovmf_dir
+    local ovmf_code="" ovmf_vars=""
     if [[ -f "$six_case_runner" && -f "$six_case_verifier" ]] && command -v qemu-system-x86_64 >/dev/null 2>&1; then
-      for ovmf_dir in /usr/share/OVMF /usr/share/ovmf /usr/share/qemu /usr/share/edk2/x64; do
-        [[ -d "$ovmf_dir" ]] || continue
-        [[ -n "$ovmf_code" ]] || ovmf_code="$(find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_CODE*.fd' -print -quit 2>/dev/null || true)"
-        [[ -n "$ovmf_vars" ]] || ovmf_vars="$(find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_VARS*.fd' -print -quit 2>/dev/null || true)"
-      done
+      # Match the exact OVMF pairs supported by run-six-case-qemu.py.
+      if [[ -s /usr/share/OVMF/OVMF_CODE_4M.fd && -s /usr/share/OVMF/OVMF_VARS_4M.fd ]]; then
+        ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd; ovmf_vars=/usr/share/OVMF/OVMF_VARS_4M.fd
+      elif [[ -s /usr/share/OVMF/OVMF_CODE.fd && -s /usr/share/OVMF/OVMF_VARS.fd ]]; then
+        ovmf_code=/usr/share/OVMF/OVMF_CODE.fd; ovmf_vars=/usr/share/OVMF/OVMF_VARS.fd
+      elif [[ -s /usr/share/edk2/ovmf/OVMF_CODE.fd && -s /usr/share/edk2/ovmf/OVMF_VARS.fd ]]; then
+        ovmf_code=/usr/share/edk2/ovmf/OVMF_CODE.fd; ovmf_vars=/usr/share/edk2/ovmf/OVMF_VARS.fd
+      fi
       if [[ -n "$ovmf_code" && -n "$ovmf_vars" ]]; then
         local six_case_evidence="$BUILD_DIR/native-six-case-evidence"
         log_info "Running diagnostic Live/Installer/Recovery BIOS+UEFI matrix against one immutable native ISO."
