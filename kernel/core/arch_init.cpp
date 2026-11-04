@@ -126,22 +126,30 @@ extern "C" void koronos_arch_init(const koronos_boot_context* ctx) {
     __asm__ volatile("mrs %0, ID_AA64MMFR0_EL1" : "=r"(mmfr0));
     __asm__ volatile("mrs %0, ID_AA64ISAR0_EL1" : "=r"(isar0));
     cpu.architecture=KORONOS_ARCH_AARCH64;
+    cpu.implementer=(uint32_t)((midr>>24)&0xffu);
+    cpu.variant=(uint32_t)((midr>>20)&0xfu);
     cpu.family=(uint32_t)((midr>>16)&0xfu);
-    cpu.model=(uint32_t)(midr&0xfffu);
+    cpu.model=(uint32_t)((midr>>4)&0xfffu);
     cpu.stepping=(uint32_t)(midr&0xfu);
     cpu.processor_id=(uint32_t)(mpidr&0xffffffu);
-    cpu.physical_address_bits=(uint32_t)(mmfr0&0xfu); /* raw PARange encoding; decode before use */
+    /* ID_AA64MMFR0_EL1.PARange is an encoding, not a bit count. */
+    static const uint8_t pa_bits[8]={32,36,40,42,44,48,52,56};
+    const uint32_t pa_encoding=(uint32_t)(mmfr0&0xfu);
+    if(pa_encoding<8u) cpu.physical_address_bits=pa_bits[pa_encoding];
     __builtin_memcpy(cpu.vendor,"ARM",4);
-    /* Preserve raw feature registers in the feature snapshot; they are not
-       permission to execute optional instructions until context support exists. */
-    cpu.feature_flags=pfr0 ^ mmfr0 ^ isar0;
+    /* Keep raw architectural ID registers separate from normalized feature
+       flags. A raw register value must never be interpreted as an enabled
+       instruction feature by the scheduler or context-switch path. */
+    cpu.architecture_features[0]=pfr0;
+    cpu.architecture_features[1]=mmfr0;
+    cpu.architecture_features[2]=isar0;
 #elif defined(__riscv)
 # if __riscv_xlen == 64
     cpu.architecture=KORONOS_ARCH_RISCV64;
 # else
     cpu.architecture=KORONOS_ARCH_RISCV32;
 # endif
-    cpu.logical_cpus=1;
+    cpu.logical_cpus=1; /* boot hart only; total topology remains unknown */
     __builtin_memcpy(cpu.vendor,"firmware",9);
     /* Koronos enters through OpenSBI in supervisor mode. M-mode-only CSRs
        (misa, mvendorid, marchid, mimpid, mhartid) are intentionally not read
