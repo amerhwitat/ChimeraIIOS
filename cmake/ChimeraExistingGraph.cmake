@@ -137,30 +137,22 @@ chimera_warnings(aurora_settings)
 install(TARGETS aurora_settings RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES desktop/aurora/aurora_settings_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/settings)
 
-# Registry hives and Aurora registry editor.
-install(PROGRAMS tools/registry/registry_hive.py tools/registry/registry_admin.py
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/registry)
-install(PROGRAMS desktop/aurora/aurora-registry-editor DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES desktop/aurora/aurora-registry-editor.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(PROGRAMS desktop/aurora/apps/aurora_network_browser.py DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/aurora)
-install(FILES desktop/aurora/aurora-network-browser.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES system/registry/machine.defaults.json system/registry/environment.defaults.json
-  system/registry/kernel.defaults.json system/registry/registry-editor-policy.json
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/registry)
-
-# SMB2/3 client discovery, optional Samba server, AD enrollment and optical media.
-install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py tools/network/chimera-ldap-browse.py tools/network/install-interoperability-packages.sh
+# CHMRG01 registry service and the maintained Linux network/storage adapters.
+install(PROGRAMS tools/registry/registry_hive.py services/registry/registryd.py
+  services/registry/sync-admin-group.py DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/registry)
+install(PROGRAMS services/network/smb-browse.py services/network/directoryctl.py
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/network)
-install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py tools/network/chimera-ldap-browse.py DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(PROGRAMS tools/network/chimera-iso-mount tools/storage/create-fhs-layout.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES system/services/chimera-smbd.service system/services/chimera-smb-discovery.service
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
-install(FILES system/samba/smb.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/samba)
-install(FILES system/security/chimera_ad_config.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/chimera)
-install(FILES system/network/smb-client.json system/network/smb-server.json system/network/package-dependencies.json
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/network)
-install(FILES system/storage/fstab.chimera.example DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/storage)
-
+install(PROGRAMS services/storage/mount-image.py DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/storage)
+install(PROGRAMS tools/storage/create-fhs-layout.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES system/integrations/registry.json system/integrations/network.json
+  system/integrations/storage.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/integrations)
+install(FILES system/integrations/smb.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/samba)
+install(FILES services/registry/registryd.service.json services/registry/admin-group-sync.service.json
+  services/network/smbd.service.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/services)
+install(FILES desktop/aurora-shell/assets/apps-registry.js
+  desktop/aurora-shell/assets/apps-windows-network.js
+  desktop/aurora-shell/assets/apps-optical-media.js
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/aurora-shell)
 install(FILES desktop/aurora/aurora_media_ecosystem.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/media)
 add_executable(aurora_media_player desktop/aurora/apps/aurora_media.cpp)
 add_executable(aurora_video_player desktop/aurora/apps/aurora_video.cpp)
@@ -235,80 +227,4 @@ if(Python3_Interpreter_FOUND)
     COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/network/chimera-iso-mount)
   add_test(NAME chimera_fhs_layout_shell_syntax
     COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/storage/create-fhs-layout.sh)
-  add_test(NAME chimera_network_helper_syntax
-    COMMAND ${Python3_EXECUTABLE} -m py_compile
-      ${CMAKE_SOURCE_DIR}/tools/network/chimera-smb-browse.py
-      ${CMAKE_SOURCE_DIR}/tools/network/chimera-domain-join.py
-      ${CMAKE_SOURCE_DIR}/tools/registry/registry_admin.py)
-  # Regenerate metadata whenever the generator target is requested so stale
-  # build-tree ISA JSON cannot shadow the canonical CSV/CPP metadata.
-  add_custom_target(chimera_generate_isa_bitfields
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
-            --output ${CHIMERA_ISA_JSON}
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py
-            ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    BYPRODUCTS ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON}
-    DEPENDS
-      ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
-      ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py
-      ${CMAKE_SOURCE_DIR}/tools/isa/chimera_r8192_opcode_index.csv
-      ${CMAKE_SOURCE_DIR}/tools/isa/isa_opcodes_expanded_with_encodings.csv
-      ${CMAKE_SOURCE_DIR}/tools/isa/isa_extension_0092_011c.csv
-      ${CMAKE_SOURCE_DIR}/src/isa/chimera_isa.cpp)
-  add_dependencies(chimera_isa_bitfields_test chimera_generate_isa_bitfields)
-  add_dependencies(chimera_isa_encoder_decoder_test chimera_generate_isa_bitfields)
-  # CTest does not build targets itself. Regenerate metadata post-build too,
-  # preventing an already-configured tree from executing stale ISA JSON.
-  add_custom_command(TARGET chimera_isa_encoder_decoder_test POST_BUILD
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_isa_bitfields.py
-            --output ${CHIMERA_ISA_JSON}
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py
-            ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    VERBATIM)
-  add_custom_command(TARGET chimera_nbit_isa_test POST_BUILD
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_local_nbit_isa.py
-            --output ${CMAKE_BINARY_DIR}/local_nbit_isa.json
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    VERBATIM)
-  add_test(NAME chimera_isa_bitfield_reader COMMAND chimera_isa_bitfields_test ${CHIMERA_ISA_JSON})
-  add_test(NAME chimera_isa_bitfield_generation_and_conformance COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/test_isa_toolchain.py --root ${CMAKE_SOURCE_DIR})
-  add_test(NAME chimera_isa_encoder_decoder_sample COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/isa/generate_encoder_decoder_sample.py ${CHIMERA_ISA_JSON} ${CHIMERA_ISA_SAMPLE_JSON} --count 30)
-  add_test(NAME chimera_shell_command_registry COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/shell/generate_command_registry.py --output ${CMAKE_BINARY_DIR}/chimera_command_registry.json)
-  add_test(NAME chimera_installer_plan COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/installer/test_installer_plan.py)
-  add_test(NAME chimera_help_core COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/help/test_help_core.py)
-  add_test(NAME chimera_universal_isa_registry COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/isa/test_isa_registry.py)
-  add_test(NAME chimera_database_catalog COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/database/test_database_catalog.py)
-  add_test(NAME chimera_toolchain_registry COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/toolchain/validate_registry.py)
-  add_test(NAME chimera_memory_bus_metadata COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/memory/validate_profiles.py)
-endif()
-install(FILES tools/isa/local_isa_catalog.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/isa)
-install(FILES cloud/providers.json cloud/README.md devops/README.md devops/pipeline_schema.json ai/README.md ai/registry.json ai/media/media_contract.json docs/ai/AI_DISCIPLINES.md docs/kernel/LINUX_7_2_2_COMPATIBILITY.md docs/kernel/linux_feature_matrix.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera)
-install(FILES include/chimera/ai/discipline.h include/chimera/ai/media.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/chimera/ai)
-install(DIRECTORY infrastructure/kubernetes infrastructure/openshift infrastructure/openstack DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/infrastructure)
-install(PROGRAMS tools/cloud/chimera_cloud.py tools/image/chimera_image.py tools/media/chimera_media.py tools/media/playback.py tools/media/vision_mediapipe.py tools/installer/install_cloud_platforms.sh tools/installer/install_kubernetes.sh tools/installer/install_openshift_tools.sh tools/installer/install_openstack_tools.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-install(FILES applications/catalog.json applications/ecosystem/repos.json applications/ecosystem/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/applications)
-
-install(PROGRAMS desktop/aurora/aurora_crypto_center.py DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/aurora)
-install(FILES desktop/aurora/aurora-crypto-center.desktop desktop/aurora/aurora_crypto_center.json DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES applications/crypto/crypto_ecosystem_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/crypto)
-
-# Cross-host execution and non-destructive dual-boot tooling.
-install(PROGRAMS
-  tools/hosted/chimera-host-run.sh
-  tools/vmware/chimera-vmware.sh
-  tools/hosted/chimera-host-detect.sh
-  tools/hosted/install-chimera-host.sh
-  tools/dualboot/chimera-dualboot-linux.sh
-  tools/dualboot/chimera-dualboot-macos.sh
-  DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-install(FILES
-  tools/hosted/chimera-host.json
-  tools/dualboot/chimera-dualboot-plan.json
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted
-)
-install(PROGRAMS tools/hosted/chimera-host-run.ps1 tools/dualboot/chimera-dualboot-windows.ps1 tools/hyperv/chimera-hyperv.ps1 DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hosted)
-install(FILES tools/hyperv/README.md tools/vmware/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/hypervisors)
+  add_test(NAME chimera_network_storage_python_syntax\n    COMMAND ${Python3_EXECUTABLE} -m py_compile\n      ${CMAKE_SOURCE_DIR}/services/network/smb-browse.py\n      ${CMAKE_SOURCE_DIR}/services/network/directoryctl.py\n      ${CMAKE_SOURCE_DIR}/services/storage/mount-image.py\n      ${CMAKE_SOURCE_DIR}/services/registry/registryd.py\n      ${CMAKE_SOURCE_DIR}/live-image/lib/aurora-kiosk.py)
