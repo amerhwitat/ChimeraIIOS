@@ -142,6 +142,8 @@ install(PROGRAMS tools/registry/registry_hive.py tools/registry/registry_admin.p
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/registry)
 install(PROGRAMS desktop/aurora/aurora-registry-editor DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES desktop/aurora/aurora-registry-editor.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(PROGRAMS desktop/aurora/apps/aurora_network_browser.py DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/aurora)
+install(FILES desktop/aurora/aurora-network-browser.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES system/registry/machine.defaults.json system/registry/environment.defaults.json
   system/registry/kernel.defaults.json system/registry/registry-editor-policy.json
   DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/registry)
