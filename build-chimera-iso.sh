@@ -618,6 +618,13 @@ create_boot_menu(){
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  # Ship the complete CPU/ISA reference matrix with the boot media. Inventory
+  # rows are descriptive; only explicit native backends are executable.
+  local cpu_matrix="$SCRIPT_DIR/data/isa/cpu_architecture_matrix.json"
+  local cpu_matrix_doc="$SCRIPT_DIR/docs/CPU_ARCHITECTURE_MATRIX.md"
+  [[ -s "$cpu_matrix" && -s "$cpu_matrix_doc" ]] || { log_error 'CPU architecture matrix or documentation is missing'; exit 1; }
+  install -m 0644 "$cpu_matrix" "$ISO_DIR/boot/koronos/cpu-architecture-matrix.json"
+  install -m 0644 "$cpu_matrix_doc" "$ISO_DIR/boot/koronos/CPU_ARCHITECTURE_MATRIX.md"
   # The native launcher requires exactly one target-specific USER_INIT_ELF.
   # Build-koronos.sh emits all three ET_EXEC payloads; package them explicitly.
   mkdir -p "$ISO_DIR/boot/targets"
@@ -1496,6 +1503,8 @@ verify_iso(){
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
     /boot/koronos/native-capability-audit.json
+    /boot/koronos/cpu-architecture-matrix.json
+    /boot/koronos/CPU_ARCHITECTURE_MATRIX.md
     /boot/targets/target-init-live.elf
     /boot/targets/target-init-installer.elf
     /boot/targets/target-init-recovery.elf
