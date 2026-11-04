@@ -119,3 +119,28 @@ The installed Linux live edition follows the conventional FHS layout. The Chimer
 ## Filesystem support truth
 
 The filesystem catalogue separates Linux live-image interoperability from Koronos native VFS support. ISO-9660, Rock Ridge, Joliet and UDF are mounted by the Linux live kernel/udisks2 path in this integration. CIFS/SMB and NFS are user-space/kernel Linux integrations. These are not evidence that Koronos has native drivers or a production VFS mount implementation. QFS remains a prototype until its format, crash consistency and mount path pass native tests.
+
+## FHS compatibility and usr-merge
+
+The installed root follows the Filesystem Hierarchy Standard conventions in
+addition to the Chimera-specific /system namespace:
+
+- /usr/bin and /usr/sbin contain user and administrator commands.
+- /usr/lib and /usr/lib64 contain architecture-specific libraries and services.
+- /usr/share contains architecture-independent registries, schemas, catalogs and desktop assets.
+- /etc contains local machine configuration; /var/lib contains persistent mutable state.
+- /run contains volatile runtime state; /tmp and /var/tmp are world-writable sticky directories.
+- /dev, /proc and /sys are mounted pseudo-filesystems, not ordinary persistent data.
+- /home and /root hold user and administrator data; /srv holds service data.
+- /opt holds optional third-party payloads; /mnt and /media are mount points.
+
+On usr-merged installations, /bin, /sbin, /lib and /lib64 are relative
+compatibility symlinks into /usr. The rootfs preparation helper only creates
+these links when the link and its target are absent; it never replaces an
+existing directory. It accepts only an explicit staging root and refuses /.
+
+Optical images and physical CD/DVD media are mounted on demand under /media
+using ISO9660 or UDF with read-only, nosuid, nodev and noexec options. The
+installer must discover filesystem UUIDs before generating /etc/fstab; the
+checked-in fstab example contains placeholders and must never be installed
+verbatim as a production mount table.
