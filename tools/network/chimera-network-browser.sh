@@ -26,7 +26,7 @@ valid_share() {
   printf -v dollar '%b' '\044'
   # Permit Windows hidden shares ending in a literal dollar without embedding it in a regex.
   [[ "$base" == *"$dollar" ]] && base="${base%?}"
-  [[ -n "$base" && "$base" != *[!A-Za-z0-9._\\ -]* ]] || die "Invalid share name."
+  [[ -n "$base" && "$base" != *[!A-Za-z0-9._\ -]* ]] || die "Invalid share name."
 }
 
 discover() {
