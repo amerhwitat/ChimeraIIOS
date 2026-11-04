@@ -9,7 +9,7 @@
 | Layer | Current status |
 |---|---|
 | Native Koronos build | x86-64 |
-| Additional detector branches | AArch64 and RV64 compile-time classification only; no bootable native pipeline |
+| Additional detector branches | x86-32 CPUID classification plus AArch64, ARM32, RV32 and RV64 compile-target classification; no bootable non-x86_64 pipeline |
 | x86 CPU identity/features | CPUID vendor/model, basic features and topology leaves 0x1F/0x0B; AMD extended topology fallback |
 | ACPI CPU discovery | MADT Local APIC and x2APIC entry parser; runtime ACPI root-table discovery still outstanding |
 | x86 interrupt/syscall | IDT and DPL3 INT 0x80 foundation; AP startup, full interrupt-controller integration and complete process scheduler remain outstanding |
@@ -35,7 +35,7 @@
 
 ## Linux syscall ABI reference table
 
-The entry instruction and register convention are architecture-specific. These are Linux user/kernel ABI references, not Koronos ABI promises.
+The entry instruction and register convention are architecture-specific. These are Linux user/kernel ABI references, not Koronos ABI promises. Entries marked ABI-specific must be checked against the exact kernel release and ABI variant before implementation.
 
 | Linux architecture | Entry | Syscall number | Arguments | Return |
 |---|---|---|---|---|
@@ -57,7 +57,7 @@ The entry instruction and register convention are architecture-specific. These a
 | Xtensa | configuration-specific syscall trap | a2 | ABI-specific | a2 |
 | Nios II | `trap` | r2 | ABI-specific | r2 |
 | MicroBlaze | `brki` | r12 | ABI-specific | r3 |
-| OpenRISC | `l.trap` | ABI-specific | ABI-specific | ABI-specific |
+| OpenRISC | architecture-specific trap (pin exact Linux port ABI) | ABI-specific | ABI-specific | ABI-specific |
 
 ## Interrupt architecture reference
 
