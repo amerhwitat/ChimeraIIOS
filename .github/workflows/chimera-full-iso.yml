@@ -289,7 +289,7 @@ jobs:
             build/iso/chimera-ii-os.iso.sha256
 
       - name: Publish validated ISO candidate to GitHub Releases
-        # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
+        # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance; no release will be published without all required gates.
         # Enable the repository variable only after the immutable six-case matrix, installed-disk persistence, recovery postcondition, and real SMP gates pass.
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.six_case_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
