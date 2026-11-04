@@ -1,48 +1,44 @@
-# Chimera II OS — native Koronos ISO chimera-ii-native-2026.11.04
+# Chimera II OS — native Koronos engineering candidate (2026-11-04)
 
-Single hybrid BIOS+UEFI image whose GRUB menu boots the Koronos microkernel and hands
-Live, Installer and Recovery their own ring-3 init payload.
+**Status: BLOCKED — not a production release.**
 
-| Field | Value |
-| --- | --- |
-| File | `chimera-ii-native-amd64.iso` |
-| Size | 159119360 bytes (151 MiB) |
-| SHA-256 | `82264c89159b118ad31b93296346ab6f8c66ae67add0d05a4725c93de922d602` |
-| Kernel | Koronos (Multiboot2 ELF64, in-tree kbuild), no Linux kernel involved |
-| Boot | GRUB 2.12 hybrid: El Torito BIOS + `efi.img` UEFI |
-| Targets | `target=live`, `target=installer`, `target=recovery` (one `chimera-user-init-elf` module per entry) |
-| Userspace | freestanding ELF64 init per target, high-half entry at 0x1_0000_0000 |
+This directory records the intended native Koronos BIOS/UEFI image contract. It is not proof that a releasable ISO exists or that its six target/firmware cases passed.
 
-## Verification (2026-11-04, unchanged fail-closed verifier)
+## Artifact identity
 
-| live / bios | PASS: target=live init entered user mode and reported readiness with a consistent PID |
-| live / uefi | PASS: target=live init entered user mode and reported readiness with a consistent PID |
-| installer / bios | PASS: target=installer init entered user mode and reported readiness with a consistent PID |
-| installer / uefi | PASS: target=installer init entered user mode and reported readiness with a consistent PID |
-| recovery / bios | PASS: target=recovery init entered user mode and reported readiness with a consistent PID |
-| recovery / uefi | PASS: target=recovery init entered user mode and reported readiness with a consistent PID |
+| Field | Status |
+|---|---|
+| Intended image | `chimera-ii-native-amd64.iso` |
+| Candidate SHA-256 previously listed | Withdrawn pending artifact verification |
+| Current exact-head ISO | Not established; the latest full-ISO workflow failed before producing the canonical ISO |
+| Boot chain | GRUB BIOS/UEFI → Koronos ELF64 |
+| Target payloads | Live, Installer and Recovery freestanding init ELF sources exist |
 
-Each PASS requires, in order: `[KRN ] KORONOS READY` → a CPL-3-originated
-`USER INIT SYSCALL: target=<t> init_pid=<n>` → `USERSPACE READY: target=<t> init_pid=<n>`
-from the user payload itself with the same PID. Traces are in `traces/`.
+The previous SHA-256 entry is not retained as a verified checksum because the corresponding ISO bytes and raw six-case traces are not available in the checked-in evidence directory.
 
-## What runs where
+## Verification status
 
-- **Live** — ring-3 text console session; prints the session banner, yields, reports ticks, exits.
-- **Installer** — storage/plan dry-run report. No block backend exists in ring 3, so it writes nothing.
-- **Recovery** — diagnostics report (syscall ABI self-check, tick count), exits.
+**0/6 production cases accepted.** The previous six PASS statements are withdrawn. The current release gate requires six independent boots of one immutable ISO SHA-256 and raw traces proving the same sequence in each case:
 
-The Aurora HTML desktop is *not* part of this native image; it runs in the Linux live
-ISO published separately (`live-image/`). See `docs/KORONOS_VS_LINUX_7X.md` for the
-subsystem-by-subsystem comparison and the deliberate non-goals.
+`[KRN ] KORONOS READY` → CPL3-originated `USER INIT SYSCALL` → matching nonzero-PID `USERSPACE READY`.
 
-## Fixes included
+No checked-in raw traces currently substantiate the earlier six PASS claims. The latest full-ISO CI run failed in the SDK build before producing the canonical ISO; its userspace and six-case checks correctly remained blocked.
 
-- Kernel tree synced so the ring-3 stack (address_space, physmap, frame_allocator,
-  target_launch, user_entry.asm) is present and linked.
-- `kernel/targets/{live,installer,recovery}_init.c` built by the kernel build script
-  (`target-init-<t>.elf`) and staged into the ISO at `/boot/targets/`.
-- GRUB menu graph now passes exactly one `chimera-user-init-elf` module per target.
-- Readiness matcher accepts the canonical `target=<t> init_pid=<n>` form (previously
-  only the legacy probe format matched, so a real payload was reported as missing).
-- `init_exit` passes its exit code; initramfs packing fails loudly when `cpio` is absent.
+## What the current target payloads do
+
+- **Live:** ring-3 text-console diagnostic; no native desktop session.
+- **Installer:** storage-plan dry run; no block-device writes or persistent installation.
+- **Recovery:** diagnostic report; no repair operation or verified repair postcondition.
+
+The kernel source contains a single-init CR3/ring-3 launch path and DPL3 syscall acknowledgement logic. Source presence and unit tests do not replace successful target boot traces. The process record remains a limited single-init lifecycle, not a general process/task implementation.
+
+## Remaining release blockers
+
+1. Rebuild the SDK and canonical ISO at one exact commit; inspect the embedded manifests and boot artifacts.
+2. Produce raw Live/Installer/Recovery × BIOS/UEFI traces against that same ISO SHA-256.
+3. Integrate a real kernel VFS, initramfs root publication, descriptor table and OPEN/READ/WRITE/CLOSE/SEEK semantics with user-pointer validation.
+4. Implement complete process/task lifecycle and service supervision.
+5. Implement AP startup, per-CPU scheduling and measured concurrent execution on at least two CPUs.
+6. Verify desktop health, installer persistence after cold reboot, and Recovery repair postconditions.
+
+**Publication rule:** keep this candidate unreleased until every required gate passes. Do not infer a pass from source code, host tests, a kernel-only boot, separately repacked diagnostic images, or a generated status document.
