@@ -229,6 +229,8 @@ if(Python3_Interpreter_FOUND)
     COMMAND bash ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
   add_test(NAME chimera_registry_admin_transactions
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/registry/test_registry_admin.py)
+  add_test(NAME chimera_network_helper_tests
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/network/test_network_helpers.py)
   add_test(NAME chimera_network_helper_syntax
     COMMAND ${Python3_EXECUTABLE} -m py_compile
       ${CMAKE_SOURCE_DIR}/tools/network/chimera-smb-browse.py
