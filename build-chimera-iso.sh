@@ -1129,23 +1129,72 @@ build_native_iso_pipeline(){
     log_info "Native boot/iso/build-iso.sh pipeline skipped by CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0"
     return 0
   fi
-  header 'STEP 11: RUN CANONICAL NATIVE ISO PIPELINE'
+  header 'STEP 11: COMPOSE CANONICAL NATIVE KORONOS RELEASE ISO'
   local native_script="$SCRIPT_DIR/boot/iso/build-iso.sh"
-  local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
+  local native_dir="$SCRIPT_DIR/boot/iso/dist"
+  local native_tree="$native_dir/iso"
+  local native_iso="$native_dir/output.iso"
   [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
-  # Forward the target system block size through the canonical native ISO boundary.
-  # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
   local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-4096}"
   [[ "$system_block_size" =~ ^[1-9][0-9]*$ ]] || { log_error "Invalid CHIMERA_SYSTEM_BLOCK_SIZE: $system_block_size"; return 2; }
-  # Pass both the canonical name and the compatibility alias explicitly: the
-  # native ISO builder and its contract verifier must see the same 4 KiB default.
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     SYSTEM_BLOCK_SIZE="$system_block_size" \
     CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
-  [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
-  (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
-  log_success "Canonical native ISO and checksum verified: $native_iso"
+  [[ -d "$native_tree" && -s "$native_iso" ]] || { log_error "Native ISO pipeline did not produce its ISO tree and image"; return 1; }
+
+  # Merge release payloads into the canonical Koronos ISO tree before final mastering.
+  # This keeps the native Koronos boot path authoritative while making the
+  # compiled desktop/SDK/application payload available on the installation media.
+  mkdir -p "$native_tree/opt/chimera" "$native_tree/opt/chimera/runtime/usr/share" \
+    "$native_tree/opt/chimera/runtime/usr/bin" "$native_tree/opt/chimera/runtime/usr/share/applications"
+  if [[ -d "$ISO_DIR/opt/chimera" ]]; then
+    cp -a "$ISO_DIR/opt/chimera/." "$native_tree/opt/chimera/"
+  fi
+  if [[ -d "$ROOTFS_DIR/usr/share/chimera" ]]; then
+    cp -a "$ROOTFS_DIR/usr/share/chimera" "$native_tree/opt/chimera/runtime/usr/share/"
+  fi
+  if [[ -d "$ROOTFS_DIR/usr/share/applications" ]]; then
+    cp -a "$ROOTFS_DIR/usr/share/applications/." "$native_tree/opt/chimera/runtime/usr/share/applications/"
+  fi
+  for bin in "$ROOTFS_DIR"/usr/bin/chimera-*; do
+    [[ -f "$bin" && -x "$bin" ]] || continue
+    cp -f "$bin" "$native_tree/opt/chimera/runtime/usr/bin/"
+  done
+  python3 - "$native_tree/opt/chimera/native-userspace-payload-manifest.json" "$native_tree/opt/chimera" <<'PYMANIFEST'
+import hashlib, json, pathlib, sys
+out, root = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+items=[]
+for p in sorted(root.rglob("*")):
+    if p.is_file() and p != out:
+        data=p.read_bytes()
+        items.append({"path":p.relative_to(root).as_posix(),"size_bytes":len(data),
+                      "sha256":hashlib.sha256(data).hexdigest()})
+out.write_text(json.dumps({
+    "schema":"chimera-native-iso-userspace-payload-v1",
+    "boot_kernel":"Koronos native Multiboot2 ELF",
+    "payloads":items,
+    "activation":"payloads are staged on ISO media; this manifest does not claim they are active in native userspace",
+    "acceptance":"CPL3 syscall acknowledgement, matching PID readiness, VFS and SMP evidence remain mandatory"
+},indent=2)+"\\n")
+PYMANIFEST
+
+  local tmp_iso="$native_dir/output.iso.tmp"
+  rm -f "$tmp_iso"
+  grub-mkrescue -o "$tmp_iso" "$native_tree" 2>&1 | tee "$LOG_DIR/native-iso-remaster.log"
+  [[ -s "$tmp_iso" ]] || { log_error "Native ISO remaster produced no image"; return 1; }
+  mv -f "$tmp_iso" "$native_iso"
+  (cd "$native_dir" && sha256sum output.iso > output.iso.sha256)
+  (cd "$native_dir" && sha256sum -c output.iso.sha256) || { log_error "Canonical native ISO checksum verification failed"; return 1; }
+  xorriso -indev "$native_iso" -report_el_torito plain | tee "$LOG_DIR/native-iso-el-torito.log"
+  grep -qi 'BIOS' "$LOG_DIR/native-iso-el-torito.log" || { log_error "Native Koronos ISO is missing BIOS El Torito boot"; return 1; }
+  grep -qi 'UEFI' "$LOG_DIR/native-iso-el-torito.log" || { log_error "Native Koronos ISO is missing UEFI El Torito boot"; return 1; }
+
+  local release_iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}-native-koronos.iso"
+  cp -f "$native_iso" "$release_iso"
+  sha256sum "$release_iso" > "$release_iso.sha256"
+  (cd "$ISO_OUTPUT_DIR" && sha256sum -c "$(basename "$release_iso").sha256") || { log_error "Published native ISO checksum verification failed"; return 1; }
+  log_success "Canonical native Koronos release candidate composed and verified: $release_iso"
 }
 
 
