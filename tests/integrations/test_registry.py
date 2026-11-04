@@ -41,6 +41,12 @@ class RegistryServiceTests(unittest.TestCase):
         self.assertEqual(reread["generation"], 2)
         self.assertEqual(next(x["value"] for x in reread["entries"] if x["path"] == "environment.locale"), "en_GB.UTF-8")
 
+    def test_binary_hive_must_match_source(self):
+        registryd._handle({"op": "read", "hive": "environment"}, False)
+        (registryd.ROOT / "environment.hive").write_bytes(b"corrupt")
+        with self.assertRaises(ValueError):
+            registryd._handle({"op": "read", "hive": "environment"}, False)
+
     def test_stale_and_boolean_generations_rejected(self):
         for generation in (0, True):
             with self.assertRaises(RuntimeError):
