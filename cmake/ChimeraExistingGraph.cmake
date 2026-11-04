@@ -149,7 +149,7 @@ install(FILES system/integrations/registry.json system/integrations/network.json
 install(FILES system/integrations/smb.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/samba)
 install(FILES services/registry/registryd.service.json services/registry/admin-group-sync.service.json
   services/network/smbd.service.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/services)
-install(FILES platform/systemd/chimera-admin-group-sync.service platform/systemd/chimera-registryd.service
+install(FILES platform/systemd/chimera-admin-group-sync.service platform/systemd/chimera-registryd.service platform/systemd/chimera-smbd.service
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
 install(DIRECTORY desktop/aurora-shell/ DESTINATION /opt/aurora/desktop/aurora-shell)
 install(FILES system/registry/machine.defaults.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/chimera/registry RENAME machine.json)
