@@ -24,6 +24,7 @@ mkdir -p "$BUILD"
 "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 bash "$ROOT/tests/kernel/run-vfs-host-tests.sh"
 bash "$ROOT/tests/kernel/run-process-fd-host-tests.sh"
+bash "$ROOT/tests/kernel/run-hardware-topology-host-tests.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
