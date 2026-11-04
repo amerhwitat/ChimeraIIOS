@@ -16,7 +16,8 @@
       "ldap-utils",
       "libsasl2-modules-gssapi-mit",
       "oddjob",
-      "oddjob-mkhomedir"
+      "oddjob-mkhomedir",
+      "dnsutils"
     ]
   },
   "commands": {
