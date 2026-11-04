@@ -60,6 +60,17 @@ class ArtifactManifestTests(unittest.TestCase):
             self.assertIn("required ISO artifacts missing", result.stderr)
             self.assertFalse(manifest.exists())
 
+    def test_canonical_aurora_artwork_is_restaged_after_generated_desktop_overlay(self):
+        root = Path(__file__).resolve().parents[2]
+        builder = (root / "tools/build-full-iso.sh").read_text()
+        overlay = 'cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"'
+        restage = 'for canonical_art in chimera-infinite-research-horizon.svg chimera-artwork-manifest.json aurora-wayland-glass.svg aurora-wayland-glass.png; do'
+        self.assertIn(overlay, builder)
+        self.assertIn(restage, builder)
+        self.assertLess(builder.index(overlay), builder.index(restage))
+        self.assertIn('install -D -m 0644 "$source_art" "$STAGE/desktop/aurora/assets/$canonical_art"', builder)
+        self.assertIn('install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/desktop/aurora/assets/Init.mp4"', builder[builder.index(overlay):])
+
     def test_native_build_stages_use_the_selected_build_directory(self):
         root = Path(__file__).resolve().parents[2]
         expected = {
