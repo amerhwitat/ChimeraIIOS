@@ -47,6 +47,27 @@ class SixCaseQemuRunnerTests(unittest.TestCase):
         self.assertIn("target-init-$target.elf", builder)
         self.assertIn('install -m 0644 "$artifact" "$STAGE/boot/targets/target-init-$target.elf"', builder)
 
+    def test_runner_reports_when_grub_booted_the_wrong_target(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            iso = root / "canonical.iso"
+            iso.write_bytes(b"immutable-iso")
+            evidence = root / "evidence"
+            fake_qemu = root / "fake-qemu"
+            fake_qemu.write_text(
+                "#!/usr/bin/env python3\\n"
+                "import pathlib, sys\\n"
+                "for i, arg in enumerate(sys.argv[:-1]):\\n"
+                "    if arg == '-debugcon': pathlib.Path(sys.argv[i+1][5:]).write_text('chimera-user-init-elf target=installer firmware=pc')\\n",
+                encoding="utf-8",
+            )
+            fake_qemu.chmod(0o755)
+            with patch.object(RUNNER, "select_grub_target"):
+                result = RUNNER.run_case(iso, evidence, "live", "bios",
+                                         str(fake_qemu), 5, None)
+            self.assertEqual(result["selected_target"], "installer")
+            self.assertIn("expected GRUB target live", result["selection_error"])
+
     def test_runner_never_adds_acceptance_markers_to_raw_trace(self):
         source = SCRIPT.read_text(encoding="utf-8")
         for marker in (
