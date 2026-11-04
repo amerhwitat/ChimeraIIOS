@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Microsoft Network
-Comment=Discover Windows computers and browse SMB network shares
-Exec=/usr/bin/python3 /usr/share/chimera/aurora/aurora_network_browser.py
-Icon=network-workgroup
-Terminal=false
-Categories=Network;FileManager;
-StartupNotify=true
