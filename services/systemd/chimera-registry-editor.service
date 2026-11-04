@@ -1,0 +1,15 @@
+[Unit]
+Description=Chimera Aurora Registry Editor API
+After=chimera-registryd.service
+Requires=chimera-registryd.service
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/registry-editor-api.py
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=localhost
