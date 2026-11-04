@@ -1551,8 +1551,23 @@ stage_application_payloads(){
     CHIMERA_DESKTOP_BUILD_DIR="$build_dir" bash "$SCRIPT_DIR/tools/build-desktop-binaries.sh" 2>&1 | tee "$LOG_DIR/desktop-binaries.log"
     [[ ! -d "$build_dir/bin" ]] || cp -a "$build_dir/bin/." "$ROOTFS_DIR/usr/local/bin/"
     [[ ! -s "$build_dir/manifests/desktop-build-manifest.json" ]] || { cp -f "$build_dir/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"; cp -f "$build_dir/manifests/desktop-build-manifest.json" "$ISO_DIR/system/desktop/"; }
+    if [[ -s "$build_dir/manifests/application-build-status.json" ]]; then
+      cp -f "$build_dir/manifests/application-build-status.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"
+      cp -f "$build_dir/manifests/application-build-status.json" "$ISO_DIR/system/desktop/"
+    else
+      log_error 'Desktop build completed without application-build-status.json; application evidence is BLOCKED.'
+      return 1
+    fi
   else
-    log_warning 'Desktop binary builder missing; staging catalog and launchers only.'
+    log_warning 'Desktop binary builder missing; application build status is BLOCKED.'
+    python3 - "$ROOTFS_DIR/usr/share/chimera/desktop/application-build-status.json" "$ISO_DIR/system/desktop/application-build-status.json" <<'PYAPPBLOCKED'
+import json,sys
+from pathlib import Path
+data={"schema":"CHM-APPLICATION-BUILD-STATUS-1","overall":"BLOCKED","reason":"desktop binary builder missing","results":{}}
+for p in sys.argv[1:]:
+    Path(p).parent.mkdir(parents=True,exist_ok=True)
+    Path(p).write_text(json.dumps(data,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+PYAPPBLOCKED
   fi
   if [[ -s "$SCRIPT_DIR/desktop/optional_apps_catalog.json" ]]; then
     cp -f "$SCRIPT_DIR/desktop/optional_apps_catalog.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"
