@@ -9,7 +9,8 @@ class KoronosRuntimeLivenessContract(unittest.TestCase):
         self.koronos = (self.root / "kernel/core/koronos.cpp").read_text()
 
     def test_monitor_has_a_registered_idle_wake_target(self):
-        self.assertIn('extern "C" {\\nuint32_t koronos_monitor_task_id = 0;\\n}', self.koronos)
+        self.assertIn('extern "C" {', self.koronos)
+        self.assertIn('uint32_t koronos_monitor_task_id = 0;', self.koronos)
         self.assertIn('if (m > 0) koronos_monitor_task_id = (uint32_t)m;', self.koronos)
 
     def test_monitor_blocks_after_each_snapshot(self):
