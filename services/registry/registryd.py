@@ -10,7 +10,6 @@ import re
 import socket
 import socketserver
 import struct
-import subprocess
 import sys
 import tempfile
 import threading
@@ -26,6 +25,13 @@ KEY_RE = re.compile(r"^[a-z0-9_-]+(?:[./][a-z0-9_-]+)*$")
 PROTECTED = ("cpu.", "machine.identity.", "security.", "kernel.smp.", "kernel.memory.", "kernel.architecture.")
 HIVE_PREFIXES = {"machine": ("machine.", "cpu.", "security."), "environment": ("environment.",), "kernel": ("kernel.",)}
 
+def _encode_hive(data):
+    tool_dir = str(TOOL.parent)
+    if tool_dir not in sys.path:
+        sys.path.insert(0, tool_dir)
+    import registry_hive
+    return registry_hive.encode(data)
+
 def _read(hive):
     if hive not in HIVES:
         raise ValueError("unknown hive")
@@ -33,6 +39,13 @@ def _read(hive):
     data = json.loads(path.read_text(encoding="utf-8"))
     if data.get("hive") != hive or data.get("schema_version") != 1:
         raise ValueError("invalid hive source")
+    expected = _encode_hive(data)
+    binary_path = ROOT / (hive + ".hive")
+    if binary_path.exists():
+        if binary_path.read_bytes() != expected:
+            raise ValueError("binary hive/source integrity mismatch")
+    else:
+        _atomic(binary_path, expected)
     return data
 
 def _peer_allowed(sock, write=False):
@@ -82,8 +95,13 @@ def _recover(hive):
     tx = json.loads(journal.read_text(encoding="utf-8"))
     if tx.get("hive") != hive:
         raise ValueError("transaction journal hive mismatch")
-    _atomic(ROOT / (hive + ".json"), base64.b64decode(tx["source"], validate=True))
-    _atomic(ROOT / (hive + ".hive"), base64.b64decode(tx["binary"], validate=True))
+    source = base64.b64decode(tx["source"], validate=True)
+    binary = base64.b64decode(tx["binary"], validate=True)
+    data = json.loads(source.decode("utf-8"))
+    if data.get("hive") != hive or _encode_hive(data) != binary:
+        raise ValueError("transaction journal source/binary integrity mismatch")
+    _atomic(ROOT / (hive + ".json"), source)
+    _atomic(ROOT / (hive + ".hive"), binary)
     journal.unlink()
     dfd = os.open(str(ROOT), os.O_RDONLY)
     try:
@@ -93,16 +111,8 @@ def _recover(hive):
 
 def _commit(hive, data):
     source = (json.dumps(data, indent=2, sort_keys=True) + "\n").encode()
+    binary = _encode_hive(data)
     ROOT.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="chm-reg-") as tmp:
-        source_path = pathlib.Path(tmp) / (hive + ".json")
-        binary_path = pathlib.Path(tmp) / (hive + ".hive")
-        source_path.write_bytes(source)
-        subprocess.run([sys.executable, str(TOOL), "build", "--input", str(source_path),
-                        "--output", str(binary_path)], check=True, timeout=20)
-        subprocess.run([sys.executable, str(TOOL), "verify", str(binary_path)],
-                       check=True, timeout=20)
-        binary = binary_path.read_bytes()
     journal = {
         "hive": hive,
         "source": base64.b64encode(source).decode("ascii"),
