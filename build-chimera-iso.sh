@@ -1727,6 +1727,7 @@ stage_knowledge(){
   [[ -s "$indexer" && -s "$chat" ]] || { log_error "Knowledge indexer/chat tool is missing"; return 1; }
   mkdir -p "$(dirname "$root_index")" "$(dirname "$iso_index")" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$ISO_DIR/opt/chimera/knowledge"
   python3 "$indexer" --out "$root_index"
+  python3 "$chat" --index "$root_index" --query "Aurora desktop" --limit 2 >/dev/null
   cp -f "$root_index" "$iso_index"
   install -m 0755 "$indexer" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/build-json-index.py"
   install -m 0755 "$chat" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/knowledge-chat.py"
