@@ -56,7 +56,7 @@ def validate(args):
 
 def search(args):
     db=read_db(args.database)
-    terms=set(re.findall(r"[\\w-]{2,}",args.query.casefold()))
+    terms=set(re.findall(r"[\w-]{2,}",args.query.casefold()))
     ranked=[]
     for row in db["entries"]:
         hay=(row["title"]+" "+row["summary"]+" "+" ".join(row["tags"])).casefold()
