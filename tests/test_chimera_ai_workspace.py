@@ -49,5 +49,15 @@ class AIWorkspaceTests(unittest.TestCase):
                                    capture_output=True, text=True, check=True).stdout
         self.assertIn("--knowledge-database", chat_help)
 
+    def test_chat_retrieval_uses_source_attributed_hardware_knowledge(self):
+        import importlib.util
+        database = Path(__file__).resolve().parents[1] / "data" / "ai" / "hardware_systems_knowledge.json"
+        spec = importlib.util.spec_from_file_location("chimera_ai_workspace_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        matches = module.retrieve_knowledge_context(str(database), "NVMe DMA queue", 5)
+        self.assertTrue(matches)
+        self.assertTrue(any(source.get("url") for source in matches[0].get("sources", [])))
+
 if __name__ == "__main__":
     unittest.main()
