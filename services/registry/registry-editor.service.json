@@ -9,7 +9,6 @@
   "restart": "on-failure",
   "sandbox": true,
   "user": "current-user",
-  "group": "chimera-admin",
   "network": "127.0.0.1:8765",
   "requires": [
     "python3",
