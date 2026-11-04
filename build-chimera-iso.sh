@@ -16,7 +16,7 @@ Options:
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
   --install-macos-sdk         Request Apple's interactive SDK installer on licensed macOS hardware; never downloads/vends SDK files.
   --skip-native-six-case-diagnostics Skip optional same-ISO BIOS/UEFI QEMU trace collection after native ISO mastering.
-  --release                 Require native CPL3, VFS, SMP and six-case firmware acceptance evidence.
+  --release                 Require native CPL3/VFS/process/SMP, Installer/Recovery and six-case acceptance evidence.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -137,6 +137,7 @@ BUILD_DOCKER=1
 BUILD_ISO=1
 RELEASE_BUILD=0
 RUN_NATIVE_SIX_CASE_DIAGNOSTICS=1
+NATIVE_AUDIT_ONLY=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -239,6 +240,7 @@ while [[ $# -gt 0 ]]; do
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
     --install-macos-sdk) bash "$SCRIPT_DIR/tools/macos-compat/install-sdk.sh" install; exit $?;;
     --release) RELEASE_BUILD=1; shift;;
+    --native-audit-only) NATIVE_AUDIT_ONLY=1; shift;;
     --skip-native-six-case-diagnostics) RUN_NATIVE_SIX_CASE_DIAGNOSTICS=0; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
@@ -434,7 +436,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace native-iso squashfs iso verify report'; local ci ti
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace native-capability-audit native-iso squashfs iso verify report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -664,6 +666,73 @@ create_boot_menu(){
   [[ -s "$ISO_DIR/boot/grub/grub.cfg" ]] || { log_error 'Staged GRUB configuration is empty'; exit 1; }
   [[ -s "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img" ]] || { log_error 'Recovery initramfs missing'; exit 1; }
   [[ -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" ]] || { log_error 'Live initramfs missing'; exit 1; }
+}
+
+
+audit_native_capabilities(){
+  header 'NATIVE KORONOS CAPABILITY AUDIT'
+  local audit="$ISO_DIR/boot/koronos/native-capability-audit.json"
+  mkdir -p "$(dirname "$audit")"
+  python3 - "$SCRIPT_DIR" "$audit" <<'PYNAUDIT'
+import json, pathlib, re, sys, datetime
+root=pathlib.Path(sys.argv[1]); out=pathlib.Path(sys.argv[2]); kernel=root/"kernel"
+exts={".c",".cc",".cpp",".h",".hpp",".S",".s",".asm"}
+files=[p for p in kernel.rglob("*") if p.is_file() and p.suffix in exts and not any(x in p.parts for x in ("build","CMakeFiles"))] if kernel.exists() else []
+texts={}
+for p in files:
+    try: texts[p.relative_to(root).as_posix()]=p.read_text(encoding="utf-8",errors="ignore")
+    except OSError: pass
+all_kernel="\n".join(texts.values())
+def has_all(patterns, text): return all(re.search(p,text,re.I|re.M) for p in patterns)
+def result(ok,evidence): return {"status":"PASS" if ok else "BLOCKED","evidence":evidence}
+entry_files=[p for p in kernel.rglob("*") if p.is_file() and p.suffix.lower() in {".asm",".s"}] if kernel.exists() else []
+entry_text="\n".join(p.read_text(encoding="utf-8",errors="ignore") for p in entry_files)
+vfs_paths=[p for p in files if "/vfs/" in p.as_posix().lower() or p.name.lower().startswith(("vfs","tmpfs"))]
+vfs_text="\n".join(texts[p.relative_to(root).as_posix()] for p in vfs_paths)
+proc_text="\n".join(v for k,v in texts.items() if any(t in k.lower() for t in ("process","scheduler","syscall")))
+smp_text="\n".join(v for k,v in texts.items() if any(t in k.lower() for t in ("smp","apic","ap_start","interrupt","scheduler","cpu")))
+def read_tree(paths):
+    chunks=[]
+    for base in paths:
+        b=root/base
+        candidates=[b] if b.is_file() else (list(b.rglob("*")) if b.is_dir() else [])
+        for p in candidates:
+            if p.is_file() and p.suffix in {".sh",".c",".cpp",".h",".json",".md"}:
+                try: chunks.append(p.read_text(encoding="utf-8",errors="ignore"))
+                except OSError: pass
+    return "\n".join(chunks)
+installer_text=read_tree(["tools/chimera-installer-runtime.sh","installer","install"])
+recovery_text=read_tree(["tools","boot/recovery","recovery"])
+parallel_stub=False
+for k,v in texts.items():
+    m=re.search(r"chimera_sched_run_parallel\s*\([^)]*\)\s*\{([^}]+)\}",v,re.S)
+    if m and re.search(r"return\s+0\s*;",m.group(1)): parallel_stub=True
+checks={
+ "cpl3_entry_foundation":result(bool(re.search(r"\biretq\b",entry_text,re.I)),["x86-64 user-entry assembly scanned; entry foundation is not runtime acceptance"]),
+ "native_vfs":result(bool(vfs_paths) and has_all([r"\bvfs_mount\b",r"\bvfs_open\b",r"\bvfs_read\b",r"\bvfs_write\b"],vfs_text),[p.relative_to(root).as_posix() for p in vfs_paths] or ["no native VFS source files found under kernel"]),
+ "process_lifecycle":result(has_all([r"\bprocess_create\b",r"\bprocess_exit\b",r"\bprocess_wait\b",r"\bprocess_reap\b"],proc_text),["process/scheduler/syscall sources scanned; create/exit/wait/reap required"]),
+ "real_smp":result(has_all([r"\b(?:smp_start_aps|start_application_processors|ap_startup)\b",r"\b(?:lapic_send_ipi|send_ipi)\b",r"\b(?:cpu_online|ap_online)\b"],smp_text) and not parallel_stub,["AP startup, IPI and online acknowledgement scanned","parallel scheduler stub detected" if parallel_stub else "no explicit parallel stub detected"]),
+ "installer_transaction":result(has_all([r"\b(?:sfdisk|sgdisk|parted)\b",r"\bmkfs(?:\.[a-z0-9]+)?\b",r"\bgrub-install\b",r"(?:confirm.{0,50}(?:disk|install)|(?:disk|install).{0,50}confirm)"],installer_text) and not re.search(r"dry.?run|writes?\s+no\s+block",installer_text,re.I),["installer runtime/contract scanned; partition, format, grub-install and explicit confirmation required"]),
+ "recovery_repair":result(has_all([r"\b(?:fsck|e2fsck|xfs_repair)\b",r"\b(?:mount|remount)\b.{0,120}\bro\b",r"\b(?:repair|fix|restore)\b",r"\b(?:verify|postcondition|check)\b"],recovery_text),["recovery/runtime sources scanned; read-only discovery, repair and postcondition required"]),
+}
+checks["overall_native_release_capabilities"]={"status":"PASS" if all(checks[k]["status"]=="PASS" for k in ("native_vfs","process_lifecycle","real_smp","installer_transaction","recovery_repair")) else "BLOCKED"}
+doc={"schema":"CHM-NATIVE-CAPABILITY-AUDIT-1","generated_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"checks":checks,"policy":"Source audit is a blocker detector, not runtime acceptance. Runtime evidence and six-case same-ISO verifier remain mandatory."}
+out.write_text(json.dumps(doc,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+for name,item in checks.items(): print(f"[NATIVE-AUDIT] {name}: {item['status']}")
+print(f"[NATIVE-AUDIT] manifest={out}")
+PYNAUDIT
+  install -m 0644 "$audit" "$ISO_DIR/boot/koronos/native-capability-audit.json"
+  if [[ "$RELEASE_BUILD" == 1 ]]; then
+    python3 - "$audit" <<'PYNRELEASE'
+import json,sys
+d=json.load(open(sys.argv[1],encoding="utf-8")); checks=d.get("checks",{})
+required=("native_vfs","process_lifecycle","real_smp","installer_transaction","recovery_repair")
+failed=[name for name in required if checks.get(name,{}).get("status")!="PASS"]
+if failed: raise SystemExit("Native release blocked by source audit: "+", ".join(failed))
+PYNRELEASE
+  else
+    log_warning "Source audit is diagnostic for engineering builds; BLOCKED capabilities remain visible and are not promoted."
+  fi
 }
 
 prepare_branding(){
@@ -1308,7 +1377,8 @@ EOF
 
   rm -rf "$p"
   [[ -s "$ISO_DIR/install/installer/installation.img" ]] || { log_error "Installer initramfs is empty"; exit 1; }
-  log_success "Native installer initramfs created: $ISO_DIR/install/installer/installation.img"
+  log_warning "Installer initramfs is early-userspace staging only; it does not prove disk writes, bootloader installation or cold-reboot persistence."
+  log_success "Installer initramfs created: $ISO_DIR/install/installer/installation.img"
 }
 
 build_squashfs(){
@@ -1427,6 +1497,7 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/koronos/native-capability-audit.json
     /boot/targets/target-init-live.elf
     /boot/targets/target-init-installer.elf
     /boot/targets/target-init-recovery.elf
@@ -1798,7 +1869,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace native-iso squashfs iso verify report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace native-capability-audit native-iso squashfs iso verify report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1823,6 +1894,7 @@ main(){
       macos-compat) run_stage macos-compat stage_macos_compat;;
       application-payloads) run_stage application-payloads stage_application_payloads;;
       ai-workspace) run_stage ai-workspace stage_ai_workspace;;
+      native-capability-audit) run_stage native-capability-audit audit_native_capabilities;;
     esac
     completed="$stage"
   done
