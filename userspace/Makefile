@@ -9,6 +9,7 @@
 DESTDIR ?=
 PREFIX ?= /usr
 SYSTEMD_UNIT_DIR ?= $(PREFIX)/lib/systemd/system
+USER_SYSTEMD_UNIT_DIR ?= $(PREFIX)/lib/systemd/user
 SYSUSERS_DIR ?= $(PREFIX)/lib/sysusers.d
 TMPFILES_DIR ?= $(PREFIX)/lib/tmpfiles.d
 DBUS_DIR ?= $(PREFIX)/share/dbus-1/system.d
@@ -16,6 +17,7 @@ BINDIR ?= $(PREFIX)/local/bin
 DOCDIR ?= $(PREFIX)/share/doc/aurora
 
 UNITS := $(wildcard systemd/*.service systemd/*.target)
+USER_UNITS := $(wildcard systemd/user/*.service)
 HELPERS := bin/aurora-session bin/aurora-profile-apply bin/aurora-profile-set bin/aurora-network-wait bin/voiceconnect-broker
 
 .PHONY: all install check uninstall help
@@ -31,8 +33,10 @@ $(SYSTEMD_UNIT_DIR):
 
 install:
 	@install -d $(DESTDIR)$(SYSTEMD_UNIT_DIR) $(DESTDIR)$(SYSUSERS_DIR) \
-		$(DESTDIR)$(TMPFILES_DIR) $(DESTDIR)$(DBUS_DIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(DOCDIR)
+		$(DESTDIR)$(TMPFILES_DIR) $(DESTDIR)$(DBUS_DIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(DOCDIR) \
+		$(DESTDIR)$(USER_SYSTEMD_UNIT_DIR)
 	@install -m 0644 $(UNITS) $(DESTDIR)$(SYSTEMD_UNIT_DIR)/
+	@if [ -n "$(USER_UNITS)" ]; then install -m 0644 $(USER_UNITS) $(DESTDIR)$(USER_SYSTEMD_UNIT_DIR)/; fi
 	@install -m 0644 sysusers/aurora.conf $(DESTDIR)$(SYSUSERS_DIR)/
 	@install -m 0644 tmpfiles/aurora.conf $(DESTDIR)$(TMPFILES_DIR)/
 	@install -m 0644 dbus/aurora.conf $(DESTDIR)$(DBUS_DIR)/aurora.conf
