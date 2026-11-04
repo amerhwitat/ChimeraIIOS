@@ -99,3 +99,23 @@ The target filesystem follows familiar Unix semantics while reserving Chimera-sp
 ## Transactional updates
 
 A future installer/update engine should create versioned `/system/chimera/kernel/<version>` and switch an EFI boot entry or bootloader generation atomically. Rollback keeps the previous generation intact until post-boot health checks succeed.
+
+
+## Linux Filesystem Hierarchy Standard compatibility
+
+The installed Linux live edition follows the conventional FHS layout. The Chimera-specific \`/system\` namespace is additive and must not replace standard paths.
+
+- \`/bin -> /usr/bin\`, \`/sbin -> /usr/sbin\`, \`/lib -> /usr/lib\`, and architecture-appropriate \`/lib64 -> /usr/lib64\` are compatibility links on usr-merged images.
+- \`/usr/local/{bin,sbin,lib,share}\` is reserved for administrator-installed software.
+- \`/etc\` contains host configuration; \`/etc/chimera/registry\` contains the editable CHMRG01 JSON source and generated binary hives.
+- \`/var/lib/chimera/registry\` is reserved for future transaction history and snapshots; the active service currently commits its journal beside the hive under \`/etc/chimera/registry\`.
+- \`/var/log\`, \`/var/cache\`, \`/var/tmp\`, \`/var/spool\` and \`/var/lib\` retain standard FHS meanings.
+- \`/run\` is volatile; \`/run/chimera/registry.sock\` is the local registry IPC endpoint.
+- \`/media/<user>/<label>\` is the desktop automount location for removable optical media. ISO files use udisks2 read-only loop devices.
+- \`/mnt/smb/<server>/<share>\` is the optional administrator-managed SMB mount convention. Desktop GVFS sessions may expose shares under \`/run/user/<uid>/gvfs\`.
+- \`/mnt\` is for temporary administrator mounts; \`/srv\` is for data exported by this host, not client mountpoints.
+- \`/dev\`, \`/proc\`, and \`/sys\` are runtime-managed device and kernel pseudo-filesystems and must not be populated as ordinary static directories.
+
+## Filesystem support truth
+
+The filesystem catalogue separates Linux live-image interoperability from Koronos native VFS support. ISO-9660, Rock Ridge, Joliet and UDF are mounted by the Linux live kernel/udisks2 path in this integration. CIFS/SMB and NFS are user-space/kernel Linux integrations. These are not evidence that Koronos has native drivers or a production VFS mount implementation. QFS remains a prototype until its format, crash consistency and mount path pass native tests.
