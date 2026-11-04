@@ -225,7 +225,7 @@ def main():
     with Server(str(SOCKET), Handler) as server:
         gid = grp.getgrnam(ADMIN_GROUP).gr_gid
         os.chown(SOCKET, 0, gid)
-        os.chmod(SOCKET, 0o660)
+        os.chmod(SOCKET, 0o666)
         server.serve_forever()
 
 if __name__ == "__main__":
