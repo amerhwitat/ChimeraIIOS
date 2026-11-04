@@ -42,6 +42,7 @@ jobs:
       - name: Compile knowledge tools
         run: |
           python -m py_compile tools/cognition/knowledge_database.py tools/cognition/trainable_rnn_lm.py tools/cognition/train_knowledge_rnn.py tools/chimera-ai-workspace.py
+          bash -n build-chimera-iso.sh boot/iso/build-iso.sh
       - name: Validate provenance and append semantics
         run: |
           python tools/cognition/knowledge_database.py validate --database data/ai/hardware_systems_knowledge.json
