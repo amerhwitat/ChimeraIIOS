@@ -72,7 +72,7 @@ if [[ -f "$ROOT/desktop/native/chimera-desktop-shell.cpp" ]]; then
   GTK_A11Y=none xvfb-run -a "$OUT/bin/chimera-desktop-shell" --desktop=aurora --self-test
   GTK_A11Y=none xvfb-run -a "$OUT/bin/chimera-desktop-shell" --desktop=marine --self-test
 fi
-while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
+while IFS= read -r -d '' py; do PYTHONPYCACHEPREFIX="$OUT/python-cache" python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
 cp -a "$ROOT/desktop/aurora/gates_menu.json" "$OUT/manifests/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/platform_personality_model.json" "$OUT/manifests/" 2>/dev/null || true
