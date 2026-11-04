@@ -50,10 +50,24 @@
       "Kerberos ticket cache"
     ],
     "signing": "required when negotiated by policy",
-    "share_defaults": "no shares exported by default"
+    "share_defaults": "no shares exported by default",
+    "server_default_interfaces": [
+      "lo"
+    ],
+    "server_default_enabled": false
   },
   "notes": [
     "Use Samba's maintained SMB implementation; this project does not reimplement SMB wire protocol.",
     "Browsing requires an explicit target or trusted directory/discovery source; no subnet-wide scanning."
-  ]
+  ],
+  "discovery": {
+    "primary": [
+      "WS-Discovery Probe",
+      "DNS-SD _smb._tcp"
+    ],
+    "supplementary": [
+      "Avahi/mDNS"
+    ],
+    "scope": "local-link multicast only; no IP-range scanning"
+  }
 }
