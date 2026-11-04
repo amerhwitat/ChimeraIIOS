@@ -1157,6 +1157,10 @@ build_native_iso_pipeline(){
   if [[ -d "$ROOTFS_DIR/usr/share/applications" ]]; then
     cp -a "$ROOTFS_DIR/usr/share/applications/." "$native_tree/opt/chimera/runtime/usr/share/applications/"
   fi
+  if [[ -d "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" ]]; then
+    mkdir -p "$native_tree/opt/chimera/runtime/usr/lib/chimera/tools"
+    cp -a "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$native_tree/opt/chimera/runtime/usr/lib/chimera/tools/"
+  fi
   for bin in "$ROOTFS_DIR"/usr/bin/chimera-*; do
     [[ -f "$bin" && -x "$bin" ]] || continue
     cp -f "$bin" "$native_tree/opt/chimera/runtime/usr/bin/"
@@ -1677,14 +1681,16 @@ PYBIN
 stage_knowledge(){
   header 'STEP: BUILD LOCAL KNOWLEDGE JSON DATABASE'
   local indexer="$SCRIPT_DIR/tools/knowledge/build-json-index.py"
+  local chat="$SCRIPT_DIR/tools/knowledge/knowledge-chat.py"
   local root_index="$ROOTFS_DIR/var/lib/chimera/knowledge/knowledge-index.json"
   local iso_index="$ISO_DIR/opt/chimera/knowledge/knowledge-index.json"
-  [[ -s "$indexer" ]] || { log_error "Knowledge indexer is missing: $indexer"; return 1; }
+  [[ -s "$indexer" && -s "$chat" ]] || { log_error "Knowledge indexer/chat tool is missing"; return 1; }
   mkdir -p "$(dirname "$root_index")" "$(dirname "$iso_index")" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$ISO_DIR/opt/chimera/knowledge"
   python3 "$indexer" --out "$root_index"
   cp -f "$root_index" "$iso_index"
   install -m 0755 "$indexer" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/build-json-index.py"
-  cp -f "$indexer" "$ISO_DIR/opt/chimera/knowledge/"
+  install -m 0755 "$chat" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/knowledge-chat.py"
+  cp -f "$indexer" "$chat" "$ISO_DIR/opt/chimera/knowledge/"
   cat > "$ROOTFS_DIR/usr/share/chimera/knowledge-runtime.json" <<'EOF'
 {
   "schema": "chimera-local-ai-runtime-contract-v1",
@@ -1705,6 +1711,15 @@ Name=Chimera Knowledge Index
 Comment=Refresh the local, provenance-tracked knowledge database
 Exec=x-terminal-emulator -e python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json
 Terminal=false
+Categories=Utility;Education;
+EOF
+  cat > "$ROOTFS_DIR/usr/share/applications/chimera-knowledge-chat.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Knowledge Chat
+Comment=Search the local knowledge database with source citations
+Exec=x-terminal-emulator -e python3 /usr/lib/chimera/tools/knowledge/knowledge-chat.py --index /var/lib/chimera/knowledge/knowledge-index.json
+Terminal=true
 Categories=Utility;Education;
 EOF
   log_info "Local JSON retrieval database staged; no model inference or training is claimed."
