@@ -57,6 +57,11 @@ struct koronos_cpu_features {
  uint64_t xcr0;
  uint64_t architecture_features[3];
  char brand[49];
+ uint32_t backend_status;
+ uint8_t entry_backend_present;
+ uint8_t interrupt_backend_present;
+ uint8_t syscall_backend_present;
+ uint8_t backend_reserved;
 };
 struct koronos_boot_context {
  uint32_t magic; uint32_t version; uint64_t boot_info; uint64_t kernel_base; uint64_t kernel_end;
