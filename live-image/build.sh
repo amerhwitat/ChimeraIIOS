@@ -105,7 +105,10 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
-      e2fsprogs dosfstools parted gdisk alsa-utils kmod
+      e2fsprogs dosfstools parted gdisk alsa-utils kmod \
+      samba smbclient cifs-utils wsdd avahi-daemon \
+      realmd adcli sssd-ad sssd-ldap sssd-tools libnss-sss libpam-sss \
+      krb5-user ldap-utils libsasl2-modules-gssapi-mit udisks2
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
@@ -132,6 +135,72 @@ if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
   mkdir -p "$PAY/desktop"
   cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
 fi
+
+# Install registry, SMB/AD/LDAP and optical-media user-space integrations.
+install -D -m 0755 "$REPO_DIR/services/registry/registryd.py" "$WORK/usr/lib/chimera/registry/registryd.py"
+install -D -m 0644 "$REPO_DIR/tools/registry/registry_hive.py" "$WORK/usr/lib/chimera/registry/registry_hive.py"
+install -D -m 0755 "$REPO_DIR/services/network/smb-browse.py" "$WORK/usr/lib/chimera/network/smb-browse.py"
+install -D -m 0755 "$REPO_DIR/services/network/directoryctl.py" "$WORK/usr/lib/chimera/network/directoryctl.py"
+install -D -m 0755 "$REPO_DIR/services/storage/mount-image.py" "$WORK/usr/lib/chimera/storage/mount-image.py"
+install -d "$WORK/etc/chimera/registry" "$WORK/usr/share/chimera/integrations"
+for hive in machine environment kernel; do
+  install -m 0644 "$REPO_DIR/system/registry/$hive.defaults.json" "$WORK/etc/chimera/registry/$hive.json"
+  python3 "$WORK/usr/lib/chimera/registry/registry_hive.py" build --input "$WORK/etc/chimera/registry/$hive.json" --output "$WORK/etc/chimera/registry/$hive.hive"
+  python3 "$WORK/usr/lib/chimera/registry/registry_hive.py" verify "$WORK/etc/chimera/registry/$hive.hive"
+done
+cp -a "$REPO_DIR/system/integrations/." "$WORK/usr/share/chimera/integrations/"
+groupadd --force chimera-admin
+if getent passwd user >/dev/null 2>&1; then usermod -aG chimera-admin user; fi
+install -d "$WORK/etc/systemd/system/multi-user.target.wants"
+cat > "$WORK/etc/systemd/system/chimera-registryd.service" <<'UNIT'
+[Unit]
+Description=Chimera CHMRG01 Registry Service
+After=local-fs.target
+Before=display-manager.service
+
+[Service]
+Type=simple
+User=root
+Group=chimera-admin
+UMask=0007
+RuntimeDirectory=chimera
+RuntimeDirectoryMode=0750
+Environment=CHIMERA_REGISTRY_TOOL=/usr/lib/chimera/registry/registry_hive.py
+ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/registryd.py
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/etc/chimera/registry /run/chimera
+RestrictAddressFamilies=AF_UNIX
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+ln -sfn ../chimera-registryd.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-registryd.service"
+cat > "$WORK/etc/samba/smb.conf" <<'SMB'
+[global]
+   workgroup = WORKGROUP
+   server role = standalone server
+   security = user
+   passdb backend = tdbsam
+   server min protocol = SMB2_10
+   server max protocol = SMB3
+   server signing = mandatory
+   smb ports = 445
+   disable netbios = yes
+   map to guest = never
+   restrict anonymous = 2
+   usershare allow guests = no
+   interfaces = lo
+   bind interfaces only = yes
+   load printers = no
+   printing = bsd
+   printcap name = /dev/null
+SMB
 
 python3 - "$ART" "$PAY" <<'PY'
 import json, os, subprocess, sys
