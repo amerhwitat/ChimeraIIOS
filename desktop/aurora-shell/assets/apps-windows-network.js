@@ -14,8 +14,14 @@
       const api = () => window.chimeraNetwork || null;
       const host = el("input"); host.placeholder = "SMB server (files.example.org)";
       const browse = el("button", "", "Browse shares"); browse.type = "button";
+      const openHost = el("button", "", "Open computer in File Manager"); openHost.type = "button";
       const discover = el("button", "", "Discover Microsoft network"); discover.type = "button";
       const shares = el("div", "listing");
+      openHost.addEventListener("click", async () => {
+        if (!host.value || !api() || typeof api().openSmb !== "function") return;
+        try { await api().openSmb(host.value, ""); }
+        catch (e) { shares.appendChild(el("p", "status", e.message || String(e))); }
+      });
       discover.addEventListener("click", async () => {
         shares.replaceChildren();
         if (!api() || typeof api().discoverSmb !== "function") {
@@ -63,7 +69,7 @@
           if (!result.shares?.length) shares.appendChild(el("p", "status", "No disk shares returned."));
         } catch (e) { shares.appendChild(el("p", "status", e.message || String(e))); }
       });
-      wrap.append(el("h3", "", "Microsoft network"), discover, host, browse, shares);
+      wrap.append(el("h3", "", "Microsoft network"), discover, host, browse, openHost, shares);
 
       const domain = el("input"); domain.placeholder = "Active Directory DNS domain";
       const user = el("input"); user.placeholder = "Administrator account (optional)";
