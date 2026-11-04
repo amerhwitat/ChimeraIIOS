@@ -25,49 +25,56 @@
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "FAT16",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "FAT32",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "exFAT",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "NTFS",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "ext2",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "ext3",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "qfs",
@@ -83,35 +90,40 @@
         32768,
         65536
       ],
-      "koronos_native": "prototype"
+      "koronos_native": false,
+      "koronos_status": "prototype"
     },
     {
       "name": "ext4",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "XFS",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "Btrfs",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "ZFS",
       "probe": true,
       "read": true,
       "write": false,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "ISO-9660",
@@ -119,7 +131,8 @@
       "read": true,
       "write": false,
       "koronos_native": false,
-      "linux_live_backend": "kernel-iso9660+udisks2"
+      "linux_live_backend": "kernel-iso9660+udisks2",
+      "koronos_status": "not-implemented"
     },
     {
       "name": "Rock Ridge",
@@ -127,7 +140,8 @@
       "read": true,
       "write": false,
       "koronos_native": false,
-      "linux_live_backend": "kernel-iso9660+udisks2"
+      "linux_live_backend": "kernel-iso9660+udisks2",
+      "koronos_status": "not-implemented"
     },
     {
       "name": "Joliet",
@@ -135,7 +149,8 @@
       "read": true,
       "write": false,
       "koronos_native": false,
-      "linux_live_backend": "kernel-iso9660+udisks2"
+      "linux_live_backend": "kernel-iso9660+udisks2",
+      "koronos_status": "not-implemented"
     },
     {
       "name": "UDF",
@@ -143,35 +158,40 @@
       "read": true,
       "write": false,
       "koronos_native": false,
-      "linux_live_backend": "kernel-udf+udisks2"
+      "linux_live_backend": "kernel-udf+udisks2",
+      "koronos_status": "not-implemented"
     },
     {
       "name": "SquashFS",
       "probe": true,
       "read": true,
       "write": false,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "tmpfs",
       "probe": true,
       "read": true,
       "write": true,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "proc",
       "probe": true,
       "read": true,
       "write": false,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "sysfs",
       "probe": true,
       "read": true,
       "write": false,
-      "koronos_native": false
+      "koronos_native": false,
+      "koronos_status": "not-implemented"
     },
     {
       "name": "network-filesystem",
@@ -179,8 +199,9 @@
       "read": true,
       "write": true,
       "koronos_native": false,
-      "linux_live_backend": "cifs-utils+nfs-utils"
+      "linux_live_backend": "cifs-utils+nfs-utils",
+      "koronos_status": "not-implemented"
     }
   ],
-  "note": "probe/read/write fields describe the planned or Linux live-image interoperability capability, not Koronos runtime support. koronos_native is the separate native-kernel status; catalog presence never proves a mounted or writable filesystem."
+  "note": "probe/read/write fields describe the planned or Linux live-image interoperability capability, not Koronos runtime support. koronos_native is a boolean and remains false for every listed filesystem; koronos_status provides the implementation stage. Catalogue presence never proves a mounted or writable filesystem."
 }
