@@ -14,7 +14,26 @@
       const api = () => window.chimeraNetwork || null;
       const host = el("input"); host.placeholder = "SMB server (files.example.org)";
       const browse = el("button", "", "Browse shares"); browse.type = "button";
+      const discover = el("button", "", "Discover Microsoft network"); discover.type = "button";
       const shares = el("div", "listing");
+      discover.addEventListener("click", async () => {
+        shares.replaceChildren();
+        if (!api() || typeof api().discoverSmb !== "function") {
+          shares.appendChild(el("p", "status", "Network discovery bridge is unavailable; install Avahi and enable local-link discovery."));
+          return;
+        }
+        try {
+          const result = await api().discoverSmb();
+          (result.servers || []).forEach((server) => {
+            const line = el("div", "row");
+            line.append(el("span", "", server.name), el("span", "", server.host),
+              el("span", "", server.address + ":" + server.port));
+            line.addEventListener("dblclick", () => { host.value = server.host; browse.click(); });
+            shares.appendChild(line);
+          });
+          if (!result.servers?.length) shares.appendChild(el("p", "status", "No SMB services announced on this local link."));
+        } catch (e) { shares.appendChild(el("p", "status", e.message || String(e))); }
+      });
       browse.addEventListener("click", async () => {
         shares.replaceChildren();
         if (!api() || typeof api().browseSmb !== "function") {
@@ -27,7 +46,7 @@
           if (!result.shares?.length) shares.appendChild(el("p", "status", "No disk shares returned."));
         } catch (e) { shares.appendChild(el("p", "status", e.message || String(e))); }
       });
-      wrap.append(el("h3", "", "Microsoft network"), host, browse, shares);
+      wrap.append(el("h3", "", "Microsoft network"), discover, host, browse, shares);
 
       const domain = el("input"); domain.placeholder = "Active Directory DNS domain";
       const user = el("input"); user.placeholder = "Administrator account (optional)";
