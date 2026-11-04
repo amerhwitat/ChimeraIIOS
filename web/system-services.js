@@ -13,6 +13,12 @@
     return node;
   };
   const reg = {hive:"machine",generation:0,entries:[]};
+  const registryAvailable = !!bridge("chimeraRegistry");
+  const networkAvailable = !!bridge("chimeraNetwork");
+  const storageAvailable = !!bridge("chimeraStorage");
+  ["systemRegistryAdd","systemRegistryReload"].forEach(id => { if ($(id)) $(id).disabled = !registryAvailable; });
+  ["systemSmbDiscover","systemSmbBrowse","systemRealmStatus","systemRealmJoin","systemLdapSearch"].forEach(id => { if ($(id)) $(id).disabled = !networkAvailable; });
+  ["systemIsoMount","systemOpticalDeviceMount","systemOpticalUnmount"].forEach(id => { if ($(id)) $(id).disabled = !storageAvailable; });
   const hiveSelect = $("systemHive");
   const search = $("systemRegistrySearch");
   const list = $("systemRegistryRows");
