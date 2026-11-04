@@ -51,7 +51,7 @@ install:
 	@echo "  INSTALL units -> $(DESTDIR)$(SYSTEMD_UNIT_DIR)"
 
 check:
-	@python3 scripts/check_units.py --units systemd --helpers bin
+	@python3 scripts/check_units.py --units systemd --user-units systemd/user --helpers bin
 
 uninstall:
 	@for u in $(UNITS); do rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/$$(basename $$u); done
