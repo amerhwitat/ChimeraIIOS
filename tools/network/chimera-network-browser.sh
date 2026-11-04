@@ -7,6 +7,8 @@ Usage:
   chimera-network-browser.sh discover
   chimera-network-browser.sh shares HOST
   chimera-network-browser.sh browse HOST [SHARE]
+  sudo chimera-network-browser.sh mount-share HOST SHARE MOUNTPOINT [USER]
+  sudo chimera-network-browser.sh unmount-share MOUNTPOINT
   chimera-network-browser.sh domain-discover DOMAIN
   chimera-network-browser.sh domain-join DOMAIN [--user USER]
   chimera-network-browser.sh ldap-search URI BASE_DN FILTER [BIND_DN]
@@ -31,6 +33,33 @@ browse(){
   target="//$host"; [[ -z "$share" ]] || target="$target/$share"
   need smbclient
   smbclient "$target" --option='client min protocol=SMB2' --option='client max protocol=SMB3'
+}
+mount_share(){
+  (( EUID == 0 )) || die "SMB mounting requires root; use sudo."
+  local host="$1" share="$2" target="$3" user="\${4:-}" cred uid
+  valid_host "$host"
+  [[ "$share" =~ ^[A-Za-z0-9._$ -]+$ ]] || die "Invalid share name."
+  [[ "$target" == /mnt/chimera/network/* && "$target" != *"/../"* ]] || die "Mountpoint must be below /mnt/chimera/network."
+  need mount.cifs
+  if [[ -z "$user" ]]; then read -r -p "SMB username: " user; fi
+  [[ "$user" =~ ^[A-Za-z0-9._@\\-\\\\]+$ ]] || die "Invalid SMB username."
+  local password
+  read -r -s -p "SMB password: " password; printf '\\n'
+  install -d -m 0755 /run/chimera
+  cred="$(mktemp /run/chimera/smb-credentials.XXXXXX)"
+  chmod 0600 "$cred"
+  trap 'rm -f -- "$cred"' RETURN
+  printf 'username=%s\\npassword=%s\\n' "$user" "$password" > "$cred"
+  unset password
+  install -d -m 0755 "$target"
+  mount -t cifs "//$host/$share" "$target" -o "credentials=$cred,vers=3.1.1,sec=ntlmssp,iocharset=utf8,nosuid,nodev,noexec,file_mode=0640,dir_mode=0750"
+  echo "[SUCCESS] Mounted //$host/$share at $target using SMB 3.1.1."
+}
+unmount_share(){
+  (( EUID == 0 )) || die "SMB unmount requires root."
+  [[ "$1" == /mnt/chimera/network/* && "$1" != *"/../"* ]] || die "Mountpoint must be below /mnt/chimera/network."
+  mountpoint -q "$1" || die "Not mounted: $1"
+  umount -- "$1"
 }
 domain_discover(){ [[ "$1" =~ ^[A-Za-z0-9.-]+$ ]] || die "Invalid DNS domain."; need realm; realm discover --verbose "$1"; }
 domain_join(){
@@ -60,6 +89,8 @@ main(){
     discover) (($#==0)) || die "discover takes no args"; discover;;
     shares) (($#==1)) || die "shares HOST"; shares "$1";;
     browse) (($#>=1 && $#<=2)) || die "browse HOST [SHARE]"; browse "$@";;
+    mount-share) (($#>=3 && $#<=4)) || die "mount-share HOST SHARE MOUNTPOINT [USER]"; mount_share "$@";;
+    unmount-share) (($#==1)) || die "unmount-share MOUNTPOINT"; unmount_share "$1";;
     domain-discover) (($#==1)) || die "domain-discover DOMAIN"; domain_discover "$1";;
     domain-join) (($#>=1)) || die "domain-join DOMAIN [--user USER]"; domain_join "$@";;
     ldap-search) (($#>=3 && $#<=4)) || die "ldap-search URI BASE_DN FILTER [BIND_DN]"; ldap_search "$@";;
