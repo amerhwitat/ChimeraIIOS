@@ -91,6 +91,11 @@ run_step() { # kind rel workdir cmd...
   tail_text="$(tail -n 6 "$log" 2>/dev/null | tr '\n' ' ')"
   record "$kind" "$rel" "$verdict" "$((end - start))" "$tail_text"
   printf '  %-8s %-52s %s (%ss)\n' "$kind" "$rel" "$verdict" "$((end - start))"
+  if [ "$status" -ne 0 ]; then
+    echo "---- $kind build diagnostics: $rel ----"
+    tail -n 30 "$log" 2>/dev/null || true
+    echo "---- end diagnostics ----"
+  fi
 }
 
 discover() { # prints "kind<TAB>relpath"
