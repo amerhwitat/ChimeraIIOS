@@ -21,6 +21,12 @@ class SixCaseQemuRunnerTests(unittest.TestCase):
     def test_firmware_and_target_order(self):
         self.assertEqual(RUNNER.TARGETS, ("live", "installer", "recovery"))
         self.assertEqual(RUNNER.FIRMWARES, ("bios", "uefi"))
+    def test_runner_waits_for_grub_before_selecting_target_and_stays_under_memory_ceiling(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("time.sleep(3.0)", source)
+        self.assertIn('monitor_command(connection, "sendkey shift")', source)
+        self.assertNotIn("sendkey shift 10000", source)
+        self.assertIn('"-m", "2048"', source)
 
     def test_firmware_identity_is_passed_by_real_grub_handoff(self):
         root = SCRIPT.parents[2]
