@@ -12,6 +12,8 @@ on:
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
+      - "build-chimera-iso.sh"
+      - "tests/test_build_cli_options.py"
       - "CMakeLists.txt"
       - "tests/boot/**"
       - ".github/workflows/chimera-full-iso.yml"
@@ -56,6 +58,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+
+      - name: Validate comprehensive ISO builder release-mode contract
+        run: |
+          bash -n build-chimera-iso.sh
+          python3 tests/test_build_cli_options.py
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
