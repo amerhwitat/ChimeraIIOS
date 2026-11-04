@@ -155,7 +155,7 @@ def run_case(iso: Path, evidence: Path, target: str, firmware: str,
     if before_hash != after_hash:
         raise RuntimeError(f"canonical ISO changed during {target}/{firmware} boot")
     trace_text = trace.read_text(encoding="utf-8", errors="replace")
-    selected = re.search(r"chimera-user-init-elf\\s+target=(live|installer|recovery)\\b", trace_text)
+    selected = re.search(r"chimera-user-init-elf\s+target=(live|installer|recovery)\b", trace_text)
     selected_target = selected.group(1) if selected else None
     if selected_target != target:
         selection_error = selection_error or (
