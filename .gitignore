@@ -133,3 +133,6 @@ emulation/catalog/*.local.json
 kernel/.config
 kernel/.config.json
 build/
+
+# Aurora userspace helpers are source, not build output
+!userspace/bin/
