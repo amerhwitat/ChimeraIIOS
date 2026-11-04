@@ -13,6 +13,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import threading
 
 ROOT = pathlib.Path(os.environ.get("CHIMERA_REGISTRY_ROOT", "/etc/chimera/registry"))
 RUNTIME = pathlib.Path(os.environ.get("CHIMERA_RUNTIME_DIR", "/run/chimera"))
@@ -20,6 +21,7 @@ SOCKET = pathlib.Path(os.environ.get("CHIMERA_REGISTRY_SOCKET", str(RUNTIME / "r
 ADMIN_GROUP = os.environ.get("CHIMERA_REGISTRY_GROUP", "chimera-admin")
 TOOL = pathlib.Path(os.environ.get("CHIMERA_REGISTRY_TOOL", "/usr/lib/chimera/registry/registry_hive.py"))
 HIVES = ("machine", "environment", "kernel")
+REQUEST_LOCK = threading.RLock()
 KEY_RE = re.compile(r"^[a-z0-9_-]+(?:[./][a-z0-9_-]+)*$")
 PROTECTED = ("cpu.", "machine.identity.", "security.", "kernel.smp.", "kernel.memory.", "kernel.architecture.")
 
@@ -185,7 +187,8 @@ class Handler(socketserver.StreamRequestHandler):
             op = req.get("op")
             if op in ("list", "read") and not readable:
                 raise PermissionError("local peer access denied")
-            response = _handle(req, writable)
+            with REQUEST_LOCK:
+                response = _handle(req, writable)
         except PermissionError as exc:
             response = {"ok": False, "error": "permission-denied", "message": str(exc)}
         except Exception as exc:
