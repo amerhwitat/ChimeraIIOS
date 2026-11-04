@@ -1,1 +1,8 @@
-[Desktop Entry]\nType=Application\nName=Registry Editor\nComment=View and edit machine, environment and kernel settings\nExec=python3 /usr/lib/chimera/registry/registry-editor-launcher.py\nIcon=preferences-system\nTerminal=false\nCategories=Settings;System;\n
+[Desktop Entry]
+Type=Application
+Name=Registry Editor
+Comment=View and edit machine, environment and kernel settings
+Exec=python3 /usr/lib/chimera/registry/registry-editor-launcher.py
+Icon=preferences-system
+Terminal=false
+Categories=Settings;System;
