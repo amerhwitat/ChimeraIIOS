@@ -77,8 +77,11 @@ def select_grub_target(monitor_path: Path, target: str,
             connection.recv(4096)  # HMP greeting/prompt
         except socket.timeout:
             pass
-        # Keep GRUB's 8-second menu from auto-selecting while firmware starts.
-        monitor_command(connection, "sendkey shift 10000")
+        # The HMP socket opens before firmware has reached GRUB. Sending menu
+        # keys immediately races firmware and silently leaves GRUB on its default.
+        time.sleep(3.0)
+        monitor_command(connection, "sendkey shift")
+        time.sleep(0.3)
         monitor_command(connection, "sendkey home")
         indices = menu_indices or MAIN_MENU_INDEX
         for _ in range(indices[target]):
@@ -105,7 +108,7 @@ def run_case(iso: Path, evidence: Path, target: str, firmware: str,
     before_hash = sha256(iso)
 
     command = [
-        qemu, "-machine", "q35,accel=tcg", "-cpu", "max", "-m", "4096",
+        qemu, "-machine", "q35,accel=tcg", "-cpu", "max", "-m", "2048",
         "-smp", "2", "-display", "none", "-serial", f"file:{serial}",
         "-monitor", f"unix:{monitor},server,nowait", "-no-reboot",
         "-no-shutdown", "-cdrom", str(iso), "-boot", "order=d",
