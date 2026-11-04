@@ -5,9 +5,13 @@
     "minimum_protocol": "SMB2",
     "authentication": "Kerberos credential cache",
     "anonymous": false,
-    "password_fallback": false
+    "password_fallback": false,
+    "share_open": "GVFS gio open; desktop credential prompt"
   },
-  "discovery": ["DNS-SD _smb._tcp via Avahi", "WS-Discovery multicast Probe"],
+  "discovery": [
+    "DNS-SD _smb._tcp via Avahi",
+    "WS-Discovery multicast Probe"
+  ],
   "active_directory": {
     "implementation": "realmd + adcli + SSSD",
     "join": "existing Kerberos ticket; no password argument",
@@ -23,11 +27,14 @@
   "smb_server": {
     "implementation": "Samba smbd",
     "enabled_by_default": false,
-    "default_bind_interfaces": ["lo"],
+    "default_bind_interfaces": [
+      "lo"
+    ],
     "shares": [],
     "minimum_protocol": "SMB2_10",
     "signing": "mandatory",
     "guest": false,
-    "netbios": false
+    "netbios": false,
+    "service_unit": "chimera-smbd.service"
   }
 }
