@@ -18,6 +18,7 @@ struct FilesystemProfile {
     SupportMode mode;
     std::string_view semantic_layer;
     std::string_view family;
+    constexpr bool koronos_native() const noexcept { return false; }
 };
 
 inline constexpr std::array<FilesystemProfile, 48> kFilesystemMatrix = {{
@@ -85,5 +86,11 @@ public:
 };
 
 inline constexpr FilesystemMatrix filesystem_matrix{};
+
+// Host support modes do not imply a native Koronos VFS implementation.
+static_assert(!kFilesystemMatrix[14].koronos_native(), "ISO-9660 is not a native Koronos mount");
+static_assert(!kFilesystemMatrix[15].koronos_native(), "UDF is not a native Koronos mount");
+static_assert(!kFilesystemMatrix[29].koronos_native(), "NFS is not a native Koronos mount");
+static_assert(!kFilesystemMatrix[30].koronos_native(), "SMB is not a native Koronos mount");
 
 } // namespace chimera::filesystem
