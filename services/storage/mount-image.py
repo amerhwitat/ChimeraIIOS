@@ -19,6 +19,10 @@ def validate_image(path):
     with image.open("rb") as stream:
         stream.seek(16 * 2048 + 1)
         signature = stream.read(5)
+        if signature == b"CD001":
+            stream.seek(16 * 2048)
+            if stream.read(1) != b"\x01":
+                raise ValueError("invalid ISO-9660 primary volume descriptor type")
         if signature == b"BEA01":
             found_udf = False
             for sector in range(17, 33):
@@ -67,7 +71,7 @@ def main():
             probe = run(["blkid", "-p", "-s", "TYPE", "-o", "value", a.device], timeout=10)
             if probe.returncode or probe.stdout.strip().lower() not in ("iso9660", "udf"):
                 raise ValueError("device does not contain a recognized optical filesystem")
-            mounted = run(["udisksctl", "mount", "--block-device", a.device])
+            mounted = run(["udisksctl", "mount", "--options", "ro", "--block-device", a.device])
             if mounted.returncode:
                 raise RuntimeError(mounted.stderr.strip() or "optical mount failed")
             print(json.dumps({"device": a.device, "read_only": True, "mount": mounted.stdout.strip()}))
