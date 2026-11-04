@@ -29,12 +29,20 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 def skipped(path: Path) -> bool:
-    if any(part.casefold() in SKIP_DIRS for part in path.parts):
-        return True
+    # os.walk prunes hidden directories before descending; this function handles
+    # hidden leaf files and sensitive names without rejecting an explicitly
+    # selected root merely because one of its parent directories is hidden.
     name = path.name.casefold()
-    if name in SENSITIVE_NAMES or name.startswith((".env", "id_rsa", "id_ed25519")):
+    if name.startswith(".") or name in SENSITIVE_NAMES:
         return True
-    if name.endswith((".pem", ".key", ".p12", ".pfx", ".kdbx", ".secret")) or name in {".netrc", ".npmrc", ".pypirc", ".git-credentials", "authorized_keys"}:
+    if name.startswith(("id_rsa", "id_ed25519")):
+        return True
+    if name in {".netrc", ".npmrc", ".pypirc", ".git-credentials",
+                "authorized_keys", "known_hosts"}:
+        return True
+    if name.endswith((".pem", ".key", ".p12", ".pfx", ".kdbx", ".secret")):
+        return True
+    if name in {"credentials", "secrets", "password-store", "private"}:
         return True
     return False
 
