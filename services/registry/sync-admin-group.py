@@ -2,10 +2,23 @@
 """Grant CHMRG01 write access only to local sudo administrators."""
 import grp
 import pwd
+import os
 import subprocess
 import sys
 
 def main():
+    if os.geteuid() != 0:
+        print("registry-admin group sync requires root", file=sys.stderr)
+        return 2
+    try:
+        admin = grp.getgrnam("chimera-admin")
+    except KeyError:
+        result = subprocess.run(["groupadd", "--system", "chimera-admin"], check=False,
+                                capture_output=True, text=True)
+        if result.returncode:
+            print("could not create chimera-admin group:", result.stderr, file=sys.stderr)
+            return result.returncode
+        admin = grp.getgrnam("chimera-admin")
     try:
         sudo = grp.getgrnam("sudo")
     except KeyError:
