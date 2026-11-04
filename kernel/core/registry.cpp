@@ -1,33 +1,234 @@
 #include "chimera/registry.h"
+
 namespace {
-static uint16_t r16(const uint8_t*p){return (uint16_t)p[0]|((uint16_t)p[1]<<8);}
-static uint32_t r32(const uint8_t*p){return (uint32_t)p[0]|((uint32_t)p[1]<<8)|((uint32_t)p[2]<<16)|((uint32_t)p[3]<<24);}
-static uint64_t r64(const uint8_t*p){return (uint64_t)r32(p)|((uint64_t)r32(p+4)<<32);}
-static bool valid_path(const uint8_t*p,uint16_t n){
- if(!p||!n||p[0]=='/'||p[n-1]=='/')return false;
- uint16_t segment=0;
- for(uint16_t i=0;i<n;++i){uint8_t x=p[i];if(x=='/'){if(!segment||(segment==1&&p[i-1]=='.')||(segment==2&&p[i-1]=='.'&&p[i-2]=='.'))return false;segment=0;continue;}
-  if(!((x>='a'&&x<='z')||(x>='0'&&x<='9')||x=='.'||x=='_'||x=='-'))return false;++segment;}
- return !((segment==1&&p[n-1]=='.')||(segment==2&&p[n-1]=='.'&&p[n-2]=='.'));
+static uint16_t read_u16(const uint8_t *p) {
+    return static_cast<uint16_t>(p[0]) |
+           (static_cast<uint16_t>(p[1]) << 8);
 }
-static bool path_eq(const uint8_t*p,uint16_t n,const char*s){uint16_t i=0;for(;i<n&&s[i];++i)if(p[i]!=(uint8_t)s[i])return false;return i==n&&s[i]==0;}
+
+static uint32_t read_u32(const uint8_t *p) {
+    return static_cast<uint32_t>(p[0]) |
+           (static_cast<uint32_t>(p[1]) << 8) |
+           (static_cast<uint32_t>(p[2]) << 16) |
+           (static_cast<uint32_t>(p[3]) << 24);
 }
-extern "C" uint32_t koronos_registry_crc32(const uint8_t*p,uint32_t n){uint32_t c=0xffffffffu;if(!p&&n)return 0;for(uint32_t i=0;i<n;++i){c^=p[i];for(uint32_t b=0;b<8;++b)c=(c>>1)^(0xedb88320u&(0u-(c&1u)));}return ~c;}
-extern "C" int koronos_registry_validate(const void*raw,uint32_t n,koronos_registry_view*out){
- static const uint8_t m[8]={'C','H','M','R','G','0','1',0};if(!raw||!out||n<40||n>(16u<<20))return 0;const uint8_t*p=(const uint8_t*)raw;
- for(uint32_t i=0;i<8;++i)if(p[i]!=m[i])return 0;
- uint32_t count=r32(p+20);if(r16(p+8)!=1||r16(p+10)!=0||r32(p+12)!=40||r32(p+16)!=n||count>4096||r32(p+36)!=koronos_registry_crc32(p,36)||r32(p+32)!=koronos_registry_crc32(p+40,n-40))return 0;
- uint32_t off=40;for(uint32_t i=0;i<count;++i){if(off>n||n-off<8)return 0;uint16_t pl=r16(p+off);uint8_t ty=p[off+2],fl=p[off+3];uint32_t vl=r32(p+off+4);off+=8;
- if(!pl||pl>255||fl||ty<1||ty>5||vl>(1u<<20)||(uint64_t)off+pl+vl>n)return 0;
- if(!valid_path(p+off,pl))return 0;
- uint32_t prev=40;for(uint32_t j=0;j<i;++j){uint16_t oldpl=r16(p+prev);uint32_t oldvl=r32(p+prev+4);if(oldpl==pl){bool same=true;for(uint32_t k=0;k<pl;++k)if(p[prev+8+k]!=p[off+k]){same=false;break;}if(same)return 0;}prev+=(uint32_t)8+oldpl+oldvl;}
- const uint8_t*v=p+off+pl;
- if((ty==3&&(vl!=1||v[0]>1))||(ty==1&&vl!=4)||(ty==2&&vl!=8))return 0;off+=(uint32_t)pl+vl;}
- if(off!=n)return 0;out->data=p;out->size=n;out->entry_count=count;out->generation=r64(p+24);return 1;
+
+static uint64_t read_u64(const uint8_t *p) {
+    return static_cast<uint64_t>(read_u32(p)) |
+           (static_cast<uint64_t>(read_u32(p + 4)) << 32);
 }
-extern "C" int koronos_registry_find(const koronos_registry_view*v,const char*s,uint8_t t,const uint8_t**value,uint32_t*size){
- if(!v||!v->data||!s||!value||!size)return 0;uint32_t off=40;for(uint32_t i=0;i<v->entry_count;++i){const uint8_t*p=v->data;uint16_t pl=r16(p+off);uint8_t ty=p[off+2];uint32_t vl=r32(p+off+4);off+=8;
- if(path_eq(p+off,pl,s)&&(!t||t==ty)){*value=p+off+pl;*size=vl;return 1;}off+=(uint32_t)pl+vl;}return 0;
+
+static bool valid_path(const uint8_t *path, uint16_t length) {
+    if (!path || length == 0 || path[0] == '/' || path[length - 1] == '/') {
+        return false;
+    }
+
+    uint16_t segment_length = 0;
+    for (uint16_t i = 0; i < length; ++i) {
+        const uint8_t ch = path[i];
+        if (ch == '/') {
+            if (segment_length == 0 ||
+                (segment_length == 1 && path[i - 1] == '.') ||
+                (segment_length == 2 && path[i - 1] == '.' && path[i - 2] == '.')) {
+                return false;
+            }
+            segment_length = 0;
+            continue;
+        }
+
+        const bool allowed = (ch >= 'a' && ch <= 'z') ||
+                             (ch >= '0' && ch <= '9') ||
+                             ch == '.' || ch == '_' || ch == '-';
+        if (!allowed) {
+            return false;
+        }
+        ++segment_length;
+    }
+
+    return !((segment_length == 1 && path[length - 1] == '.') ||
+             (segment_length == 2 && path[length - 1] == '.' &&
+              path[length - 2] == '.'));
 }
-extern "C" int koronos_registry_read_u64(const koronos_registry_view*v,const char*s,uint64_t*out){const uint8_t*p=nullptr;uint32_t n=0;if(!out)return 0;if(koronos_registry_find(v,s,KORONOS_REG_U32,&p,&n)&&n==4){*out=r32(p);return 1;}if(koronos_registry_find(v,s,KORONOS_REG_U64,&p,&n)&&n==8){*out=r64(p);return 1;}return 0;}
-extern "C" int koronos_registry_read_bool(const koronos_registry_view*v,const char*s,uint8_t*out){const uint8_t*p=nullptr;uint32_t n=0;if(!out||!koronos_registry_find(v,s,KORONOS_REG_BOOL,&p,&n)||n!=1||p[0]>1)return 0;*out=p[0];return 1;}
+
+static bool path_equals(const uint8_t *path, uint16_t length, const char *key) {
+    uint16_t i = 0;
+    for (; i < length && key[i] != 0; ++i) {
+        if (path[i] != static_cast<uint8_t>(key[i])) {
+            return false;
+        }
+    }
+    return i == length && key[i] == 0;
+}
+} // namespace
+
+extern "C" uint32_t koronos_registry_crc32(const uint8_t *data, uint32_t size) {
+    if (!data && size != 0) {
+        return 0;
+    }
+
+    uint32_t crc = 0xffffffffu;
+    for (uint32_t i = 0; i < size; ++i) {
+        crc ^= data[i];
+        for (uint32_t bit = 0; bit < 8; ++bit) {
+            crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1u)));
+        }
+    }
+    return ~crc;
+}
+
+extern "C" int koronos_registry_validate(const void *raw, uint32_t size,
+                                           koronos_registry_view *out) {
+    static const uint8_t magic[8] = {'C', 'H', 'M', 'R', 'G', '0', '1', 0};
+    constexpr uint32_t header_size = 40;
+    constexpr uint32_t max_entries = 4096;
+    constexpr uint32_t max_value_size = 1u << 20;
+    constexpr uint32_t max_hive_size = 16u << 20;
+
+    if (!raw || !out || size < header_size || size > max_hive_size) {
+        return 0;
+    }
+
+    const uint8_t *data = static_cast<const uint8_t *>(raw);
+    for (uint32_t i = 0; i < sizeof(magic); ++i) {
+        if (data[i] != magic[i]) {
+            return 0;
+        }
+    }
+
+    const uint32_t entry_count = read_u32(data + 20);
+    if (read_u16(data + 8) != 1 ||
+        read_u16(data + 10) != 0 ||
+        read_u32(data + 12) != header_size ||
+        read_u32(data + 16) != size ||
+        entry_count > max_entries ||
+        read_u32(data + 36) != koronos_registry_crc32(data, 36) ||
+        read_u32(data + 32) != koronos_registry_crc32(data + header_size,
+                                                       size - header_size)) {
+        return 0;
+    }
+
+    uint32_t offset = header_size;
+    for (uint32_t i = 0; i < entry_count; ++i) {
+        if (offset > size || size - offset < 8) {
+            return 0;
+        }
+
+        const uint16_t path_length = read_u16(data + offset);
+        const uint8_t type = data[offset + 2];
+        const uint8_t flags = data[offset + 3];
+        const uint32_t value_length = read_u32(data + offset + 4);
+        offset += 8;
+
+        if (path_length == 0 || path_length > 255 || flags != 0 ||
+            type < KORONOS_REG_U32 || type > KORONOS_REG_BYTES ||
+            value_length > max_value_size ||
+            static_cast<uint64_t>(offset) + path_length + value_length > size) {
+            return 0;
+        }
+
+        const uint8_t *path = data + offset;
+        if (!valid_path(path, path_length)) {
+            return 0;
+        }
+
+        uint32_t previous = header_size;
+        for (uint32_t j = 0; j < i; ++j) {
+            const uint16_t previous_path_length = read_u16(data + previous);
+            const uint32_t previous_value_length = read_u32(data + previous + 4);
+            if (previous_path_length == path_length) {
+                bool equal = true;
+                for (uint32_t k = 0; k < path_length; ++k) {
+                    if (data[previous + 8 + k] != path[k]) {
+                        equal = false;
+                        break;
+                    }
+                }
+                if (equal) {
+                    return 0;
+                }
+            }
+            previous += 8u + previous_path_length + previous_value_length;
+        }
+
+        const uint8_t *value = path + path_length;
+        if ((type == KORONOS_REG_BOOL &&
+             (value_length != 1 || value[0] > 1)) ||
+            (type == KORONOS_REG_U32 && value_length != 4) ||
+            (type == KORONOS_REG_U64 && value_length != 8)) {
+            return 0;
+        }
+
+        offset += static_cast<uint32_t>(path_length) + value_length;
+    }
+
+    if (offset != size) {
+        return 0;
+    }
+
+    out->data = data;
+    out->size = size;
+    out->entry_count = entry_count;
+    out->generation = read_u64(data + 24);
+    return 1;
+}
+
+extern "C" int koronos_registry_find(const koronos_registry_view *view,
+                                      const char *path, uint8_t expected_type,
+                                      const uint8_t **value,
+                                      uint32_t *value_size) {
+    if (!view || !view->data || !path || !value || !value_size) {
+        return 0;
+    }
+
+    uint32_t offset = 40;
+    for (uint32_t i = 0; i < view->entry_count; ++i) {
+        const uint16_t path_length = read_u16(view->data + offset);
+        const uint8_t type = view->data[offset + 2];
+        const uint32_t length = read_u32(view->data + offset + 4);
+        offset += 8;
+
+        if (path_equals(view->data + offset, path_length, path) &&
+            (expected_type == 0 || expected_type == type)) {
+            *value = view->data + offset + path_length;
+            *value_size = length;
+            return 1;
+        }
+        offset += static_cast<uint32_t>(path_length) + length;
+    }
+    return 0;
+}
+
+extern "C" int koronos_registry_read_u64(const koronos_registry_view *view,
+                                          const char *path, uint64_t *out) {
+    const uint8_t *value = nullptr;
+    uint32_t size = 0;
+    if (!out) {
+        return 0;
+    }
+
+    if (koronos_registry_find(view, path, KORONOS_REG_U32, &value, &size) &&
+        size == 4) {
+        *out = read_u32(value);
+        return 1;
+    }
+    if (koronos_registry_find(view, path, KORONOS_REG_U64, &value, &size) &&
+        size == 8) {
+        *out = read_u64(value);
+        return 1;
+    }
+    return 0;
+}
+
+extern "C" int koronos_registry_read_bool(const koronos_registry_view *view,
+                                           const char *path, uint8_t *out) {
+    const uint8_t *value = nullptr;
+    uint32_t size = 0;
+    if (!out ||
+        !koronos_registry_find(view, path, KORONOS_REG_BOOL, &value, &size) ||
+        size != 1 || value[0] > 1) {
+        return 0;
+    }
+
+    *out = value[0];
+    return 1;
+}
