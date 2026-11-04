@@ -76,4 +76,42 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
   "note": "Compatibility personalities are clean-room models; no proprietary Windows or macOS implementation is copied."
 }
 EOF
+python3 - "$ROOT" "$OUT" <<'PYDESKTOPSTATUS'
+import json,sys
+from pathlib import Path
+root,out=map(Path,sys.argv[1:])
+checks={
+ "aurora-launcher":("desktop/aurora/aurora-launcher.cpp","bin/aurora-launcher"),
+ "chimera-neural-chat":("desktop/aurora/apps/chimera_neural_chat.cpp","bin/chimera-neural-chat"),
+ "aurora-settings":("desktop/aurora/apps/aurora_settings.cpp","bin/aurora-settings"),
+ "aurora-peripherals":("desktop/aurora/apps/aurora_peripherals.cpp","bin/aurora-peripherals"),
+ "voiceconnect":("voice/cpp/src/voiceconnect.cpp","bin/voiceconnect"),
+ "chm-utf8":("userland/commands/chm-utf8.cpp","bin/chm-utf8"),
+ "aurora-utf-selftest":("desktop/aurora/i18n/aurora_utf_selftest.cpp","bin/aurora-utf-selftest"),
+}
+results={}
+for name,(source,artifact) in checks.items():
+    src=(root/source).is_file()
+    built=(out/artifact).is_file()
+    state="PASS" if src and built else ("SKIP" if not src else "BLOCKED")
+    results[name]={"status":state,"source":source,"artifact":artifact}
+for name,source,artifact in [
+ ("aurora-input","desktop/aurora/input/aurora_input.cpp","aurora_input.o"),
+ ("aurora-input-router","desktop/aurora/input/aurora_input_router.cpp","aurora_input_router.o"),
+ ("aurora-locale","desktop/aurora/i18n/aurora_locale.cpp","aurora_locale.o"),
+ ("aurora-utf","desktop/aurora/i18n/aurora_utf.cpp","aurora_utf.o"),
+ ("aurora-emoji","desktop/aurora/i18n/aurora_emoji.cpp","aurora_emoji.o"),
+ ("chimera-icons","desktop/aurora/icons/chimera_icons.cpp","chimera_icons.o"),
+]:
+    src=(root/source).is_file()
+    built=(out/artifact).is_file()
+    state="PASS" if src and built else ("SKIP" if not src else "BLOCKED")
+    results[name]={"status":state,"source":source,"artifact":artifact}
+py_sources=list((root/"desktop").rglob("*.py"))
+py_artifacts=list((root/"desktop").rglob("*.pyc"))
+py_ok=bool(py_sources) and bool(py_artifacts)
+results["desktop-python"]={"status":"PASS" if py_ok else ("SKIP" if not py_sources else "BLOCKED"),"sources":len(py_sources),"compiled_files":len(py_artifacts)}
+overall="BLOCKED" if any(v["status"]=="BLOCKED" for v in results.values()) else "PASS"
+(out/"manifests/application-build-status.json").write_text(json.dumps({"schema":"CHM-APPLICATION-BUILD-STATUS-1","overall":overall,"results":results},indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PYDESKTOPSTATUS
 printf 'Desktop build artifacts: %s\n' "$OUT"
