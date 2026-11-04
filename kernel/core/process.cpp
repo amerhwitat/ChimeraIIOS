@@ -85,7 +85,8 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
             static_cast<uint64_t>(i) * sizeof(koronos_elf64_phdr);
         copy_bytes(&s, bytes + offset, sizeof(s));
         if (s.p_type != PT_LOAD) continue;
-        if (s.p_memsz < s.p_filesz || !in(s.p_offset, s.p_filesz, size))
+        if ((s.p_flags & ~(uint32_t)7u) != 0 ||
+            s.p_memsz < s.p_filesz || !in(s.p_offset, s.p_filesz, size))
             return -3;
 
         uint64_t end = 0;

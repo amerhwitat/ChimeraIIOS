@@ -60,6 +60,13 @@ int main() {
     chimera_process_image rejected{};
     assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
                                      0x100700000, &rejected) < 0);
+    // Reject unknown p_flags bits rather than silently accepting a malformed ABI.
+    build_elf(elf, sizeof(elf));
+    put32(elf + 68, 0x105); // PF_R | PF_X plus an unsupported flag bit
+    chimera_process_image bad_flags{};
+    assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
+                                     0x100700000, &bad_flags) < 0);
+
     puts("ELF64 validation/admission: bounds and executable-entry checks passed");
     return 0;
 }
