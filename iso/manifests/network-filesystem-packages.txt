@@ -22,3 +22,5 @@ udisks2
 util-linux
 xorriso
 udftools
+file
+eject
