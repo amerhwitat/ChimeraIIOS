@@ -10,7 +10,7 @@
     render(body) {
       const wrap = el("div", "content");
       wrap.appendChild(el("h2", "", "Windows Network & Directory"));
-      wrap.appendChild(el("p", "status", "SMB2/3 browsing · Active Directory · LDAP over TLS"));
+      wrap.appendChild(el("p", "status", "SMB2/3 browsing and GVFS share opening · Active Directory · LDAP over TLS"));
       const api = () => window.chimeraNetwork || null;
       const host = el("input"); host.placeholder = "SMB server (files.example.org)";
       const browse = el("button", "", "Browse shares"); browse.type = "button";
@@ -42,7 +42,24 @@
         }
         try {
           const result = await api().browseSmb(host.value);
-          (result.shares || []).forEach((share) => shares.appendChild(el("div", "row", share.name + " — " + (share.comment || ""))));
+          (result.shares || []).forEach((share) => {
+            const line = el("div", "row", share.name + " — " + (share.comment || ""));
+            line.tabIndex = 0;
+            line.setAttribute("role", "button");
+            const open = async () => {
+              if (typeof api().openSmb !== "function") {
+                shares.appendChild(el("p", "status", "GVFS share opening is unavailable."));
+                return;
+              }
+              try { await api().openSmb(host.value, share.name); }
+              catch (error) { shares.appendChild(el("p", "status", error.message || String(error))); }
+            };
+            line.addEventListener("dblclick", open);
+            line.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+            });
+            shares.appendChild(line);
+          });
           if (!result.shares?.length) shares.appendChild(el("p", "status", "No disk shares returned."));
         } catch (e) { shares.appendChild(el("p", "status", e.message || String(e))); }
       });
