@@ -78,4 +78,18 @@ class SixCaseMatrixTests(unittest.TestCase):
         (self.evidence / c["postcondition_trace"]).write_text("RECOVERY REPAIR STARTED: transaction=a\nRECOVERY POSTCONDITION VERIFIED: transaction=b\n")
         self.assertEqual(self.run_verifier().returncode, 1)
 
+    def test_trace_path_cannot_escape_evidence_directory(self):
+        self.manifest["cases"][0]["trace"] = "../outside.log"
+        self.write_manifest()
+        self.assertEqual(self.run_verifier().returncode, 1)
+
+    def test_duplicate_case_is_blocked(self):
+        self.manifest["cases"].append(dict(self.manifest["cases"][0]))
+        self.write_manifest()
+        self.assertEqual(self.run_verifier().returncode, 1)
+
+    def test_non_object_manifest_is_blocked(self):
+        (self.evidence / "matrix.json").write_text("[]")
+        self.assertEqual(self.run_verifier().returncode, 1)
+
 if __name__ == "__main__": unittest.main()
