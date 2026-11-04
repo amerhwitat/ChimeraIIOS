@@ -17,7 +17,9 @@
     "krb5-user",
     "ldap-utils",
     "libsasl2-modules-gssapi-mit",
-    "udisks2"
+    "udisks2",
+    "oddjob",
+    "oddjob-mkhomedir"
   ],
   "files": [
     {
@@ -59,6 +61,21 @@
       "source": "system/registry/kernel.defaults.json",
       "target": "/etc/chimera/registry/kernel.json",
       "mode": "0644"
+    },
+    {
+      "source": "services/registry/sync-admin-group.py",
+      "target": "/usr/lib/chimera/registry/sync-admin-group.py",
+      "mode": "0755"
+    },
+    {
+      "source": "services/registry/registryd.service.json",
+      "target": "/usr/share/chimera/integrations/registryd.service.json",
+      "mode": "0644"
+    },
+    {
+      "source": "services/registry/admin-group-sync.service.json",
+      "target": "/usr/share/chimera/integrations/admin-group-sync.service.json",
+      "mode": "0644"
     }
   ],
   "groups": [
@@ -68,6 +85,7 @@
     "registryd": "enabled",
     "smbd": "disabled-by-default",
     "wsdd": "disabled-by-default",
-    "sssd": "enabled-after-explicit-domain-join"
+    "sssd": "enabled-after-explicit-domain-join",
+    "admin_group_sync": "enabled-before-desktop"
   }
 }
