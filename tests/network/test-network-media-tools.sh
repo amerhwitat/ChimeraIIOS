@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 for f in "$ROOT/tools/network/chimera-network-browser.sh" "$ROOT/tools/storage/chimera-media-mount.sh" "$ROOT/tools/storage/chimera-init-layout.sh"; do
   bash -n "$f"
   bash "$f" --help >/dev/null
