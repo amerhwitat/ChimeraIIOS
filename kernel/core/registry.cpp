@@ -12,7 +12,9 @@ extern "C" int koronos_registry_validate(const void*raw,uint32_t n,koronos_regis
  uint32_t count=r32(p+20);if(r16(p+8)!=1||r16(p+10)!=0||r32(p+12)!=40||r32(p+16)!=n||count>4096||r32(p+36)!=koronos_registry_crc32(p,36)||r32(p+32)!=koronos_registry_crc32(p+40,n-40))return 0;
  uint32_t off=40;for(uint32_t i=0;i<count;++i){if(off>n||n-off<8)return 0;uint16_t pl=r16(p+off);uint8_t ty=p[off+2],fl=p[off+3];uint32_t vl=r32(p+off+4);off+=8;
  if(!pl||pl>255||fl||ty<1||ty>5||vl>(1u<<20)||(uint64_t)off+pl+vl>n)return 0;
- for(uint32_t j=0;j<pl;++j)if(!p[off+j])return 0;const uint8_t*v=p+off+pl;
+ if(!valid_path(p+off,pl))return 0;
+ uint32_t prev=40;for(uint32_t j=0;j<i;++j){uint16_t oldpl=r16(p+prev);uint32_t oldvl=r32(p+prev+4);if(oldpl==pl){bool same=true;for(uint32_t k=0;k<pl;++k)if(p[prev+8+k]!=p[off+k]){same=false;break;}if(same)return 0;}prev+=(uint32_t)8+oldpl+oldvl;}
+ const uint8_t*v=p+off+pl;
  if((ty==3&&(vl!=1||v[0]>1))||(ty==1&&vl!=4)||(ty==2&&vl!=8))return 0;off+=(uint32_t)pl+vl;}
  if(off!=n)return 0;out->data=p;out->size=n;out->entry_count=count;out->generation=r64(p+24);return 1;
 }
