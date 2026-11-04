@@ -22,12 +22,12 @@ class NetworkInteropTests(unittest.TestCase):
  def test_ldap_uri_validation(self):
   self.assertTrue(directory.valid_ldap_uri("ldaps://ldap.corp.example:636"));self.assertTrue(directory.valid_ldap_uri("ldap://ldap.corp.example:389"))
   self.assertFalse(directory.valid_ldap_uri("ldap://ldap.corp.example:99999"));self.assertFalse(directory.valid_ldap_uri("ldap://user:pass@ldap.corp.example"))
-    @mock.patch.object(directory.shutil, "which", return_value="/usr/bin/pkexec")
+ @mock.patch.object(directory.shutil, "which", side_effect=lambda name: "/usr/bin/pkexec" if name == "pkexec" else "/usr/sbin/realm")
     @mock.patch.object(directory, "run", side_effect=[
         SimpleNamespace(returncode=0, stdout="", stderr=""),
         SimpleNamespace(returncode=0, stdout="joined", stderr="")
     ])
-    def test_ad_join_elevates_with_existing_private_ticket_cache(self, mocked, _which):
+ def test_ad_join_elevates_with_existing_private_ticket_cache(self, mocked, _which):
         old_argv = sys.argv
         with tempfile.NamedTemporaryFile() as cache:
             os.chmod(cache.name, 0o600)
