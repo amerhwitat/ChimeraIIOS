@@ -202,10 +202,10 @@ def chat(args) -> int:
             return 2
         excerpts = []
         for n, item in enumerate(matches, 1):
-            source_lines = "\\n".join(
+            source_lines = "\n".join(
                 f"  - {source.get('title','')} {source.get('url','')}"
                 for source in item.get("sources", []))
-            excerpts.append(f"[{n}] {item.get('root','')}/{item.get('path','')} sha256={item.get('sha256','')}\\n{item.get('text','')}\\nSources:\\n{source_lines}")
+            excerpts.append(f"[{n}] {item.get('root','')}/{item.get('path','')} sha256={item.get('sha256','')}\n{item.get('text','')}\nSources:\n{source_lines}")
         prompt = (
             "Answer the user's question using the local source excerpts below. "
             "Cite excerpt numbers for factual claims. If the excerpts do not support an answer, say so. "
