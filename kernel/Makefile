@@ -101,6 +101,7 @@ $(CONFIG_FILE):
 	@$(MAKE) -s defconfig
 
 all:
+	@bash $(ROOT)/tests/kernel/run-registry-host-tests.sh
 	@$(MAKE) -s $(OBJ_MK)
 	@$(MAKE) -s autoconf
 	@$(MAKE) -s __build
