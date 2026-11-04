@@ -26,6 +26,13 @@ int main(){
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
   chimera_process_image q{};
   assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
+  assert(chimera_process_count()==1);
+  assert(chimera_process_reap(pid,nullptr)==-3);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_EXITED)==0);
+  chimera_process_image reaped{};
+  assert(chimera_process_reap(pid,&reaped)==0 && reaped.pid==pid);
+  assert(reaped.state==CHIMERA_PROCESS_EXITED && chimera_process_count()==0);
+  assert(chimera_process_get(pid,&q)<0);
   make_elf(image,true);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x100700000,&q)<0);
   return 0;
