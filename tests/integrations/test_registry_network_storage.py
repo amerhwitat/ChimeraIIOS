@@ -137,7 +137,7 @@ class SmbBrowseTests(unittest.TestCase):
     def test_ad_join_rejects_invalid_domain(self):
         old_argv = sys.argv
         try:
-            sys.argv = ["directoryctl.py", "join", "-bad.example"]
+            sys.argv = ["directoryctl.py", "join", "bad..example"]
             with contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(directory.main(), 1)
         finally:
@@ -161,6 +161,22 @@ class OpticalImageTests(unittest.TestCase):
             data[17 * 2048 + 1:17 * 2048 + 6] = b"NSR03"
             path.write_bytes(data)
             self.assertEqual(storage.validate_image(path), path.resolve())
+
+
+    @mock.patch.object(storage, "run", side_effect=[
+        SimpleNamespace(returncode=0, stdout="udf\n", stderr=""),
+        SimpleNamespace(returncode=0, stdout="Mounted /dev/sr0 at /media/user/DVD.\n", stderr="")
+    ])
+    def test_physical_optical_mount_requests_read_only(self, mocked):
+        old_argv = sys.argv
+        try:
+            sys.argv = ["mount-image.py", "mount-device", "/dev/sr0"]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(storage.main(), 0)
+        finally:
+            sys.argv = old_argv
+        self.assertEqual(mocked.call_args_list[1].args[0],
+                         ["udisksctl", "mount", "--options", "ro", "--block-device", "/dev/sr0"])
 
     def test_random_file_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
