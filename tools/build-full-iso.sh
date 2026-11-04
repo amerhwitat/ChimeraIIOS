@@ -96,11 +96,9 @@ if results.get("sdk_overall", {}).get("status") != "PASS":
     raise SystemExit("mandatory SDK build/CTest did not pass")
 if any(item.get("status") == "BLOCKED" for item in results.values()):
     raise SystemExit("SDK manifest contains a BLOCKED toolchain result")
-if not (SDK_ROOT / "include" / "chimera" / "sdk.h").is_file():
-    pass
 PYSDK
 test -s "$SDK_INSTALLED/include/chimera/sdk.h"
-test -s "$SDK_INSTALLED/lib/libchimera_sdk.a" -o -s "$SDK_INSTALLED/lib64/libchimera_sdk.a"
+[[ -s "$SDK_INSTALLED/lib/libchimera_sdk.a" || -s "$SDK_INSTALLED/lib64/libchimera_sdk.a" ]]
 python3 - "$ROOT/build/desktop/manifests/application-build-status.json" <<'PYAPP'
 import json, pathlib, sys
 p=pathlib.Path(sys.argv[1])
