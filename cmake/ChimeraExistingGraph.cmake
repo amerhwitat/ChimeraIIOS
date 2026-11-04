@@ -231,6 +231,10 @@ if(Python3_Interpreter_FOUND)
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/registry/test_registry_admin.py)
   add_test(NAME chimera_network_helper_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/network/test_network_helpers.py)
+  add_test(NAME chimera_network_shell_syntax
+    COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/network/chimera-iso-mount)
+  add_test(NAME chimera_fhs_layout_shell_syntax
+    COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/storage/create-fhs-layout.sh)
   add_test(NAME chimera_network_helper_syntax
     COMMAND ${Python3_EXECUTABLE} -m py_compile
       ${CMAKE_SOURCE_DIR}/tools/network/chimera-smb-browse.py
