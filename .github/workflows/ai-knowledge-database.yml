@@ -10,6 +10,8 @@ on:
       - "tools/cognition/trainable_rnn_lm.py"
       - "tools/chimera-ai-workspace.py"
       - "system/ai/**"
+      - "build-chimera-iso.sh"
+      - "boot/iso/build-iso.sh"
       - "tests/cognition/**"
       - "tests/test_chimera_ai_workspace.py"
       - ".github/workflows/ai-knowledge-database.yml"
