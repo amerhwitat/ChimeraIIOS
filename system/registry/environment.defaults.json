@@ -32,6 +32,11 @@
       "path": "environment.network.workgroup",
       "type": "string",
       "value": "WORKGROUP"
+    },
+    {
+      "path": "environment.directory.preferred_domain",
+      "type": "string",
+      "value": ""
     }
   ]
 }
