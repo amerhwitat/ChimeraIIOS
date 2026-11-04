@@ -1,0 +1,64 @@
+/* SMB and directory browser — requires the native, policy-checked service bridge. */
+(function () {
+  "use strict";
+  const A = window.Aurora;
+  const { el } = A;
+  A.registerApp({
+    id: "windows-network",
+    name: "Windows Network",
+    glyph: "🖧",
+    render(body) {
+      const wrap = el("div", "content");
+      wrap.appendChild(el("h2", "", "Windows Network & Directory"));
+      wrap.appendChild(el("p", "status", "SMB2/3 browsing · Active Directory · LDAP over TLS"));
+      const api = () => window.chimeraNetwork || null;
+      const host = el("input"); host.placeholder = "SMB server (files.example.org)";
+      const browse = el("button", "", "Browse shares"); browse.type = "button";
+      const shares = el("div", "listing");
+      browse.addEventListener("click", async () => {
+        shares.replaceChildren();
+        if (!api() || typeof api().browseSmb !== "function") {
+          shares.appendChild(el("p", "status", "SMB browsing bridge is unavailable; install Samba client tools and the native network IPC adapter."));
+          return;
+        }
+        try {
+          const result = await api().browseSmb(host.value);
+          (result.shares || []).forEach((share) => shares.appendChild(el("div", "row", share.name + " — " + (share.comment || ""))));
+          if (!result.shares?.length) shares.appendChild(el("p", "status", "No disk shares returned."));
+        } catch (e) { shares.appendChild(el("p", "status", e.message || String(e))); }
+      });
+      wrap.append(el("h3", "", "Microsoft network"), host, browse, shares);
+
+      const domain = el("input"); domain.placeholder = "Active Directory DNS domain";
+      const user = el("input"); user.placeholder = "Administrator account (optional)";
+      const join = el("button", "", "Join domain"); join.type = "button";
+      const domainStatus = el("p", "status", "Domain join is an explicit privileged operation.");
+      join.addEventListener("click", async () => {
+        if (!api() || typeof api().joinDomain !== "function") {
+          domainStatus.textContent = "Directory service bridge unavailable; use the administrator-controlled realmd/SSSD integration.";
+          return;
+        }
+        if (!window.confirm("Request an Active Directory join for " + domain.value + "?")) return;
+        try { domainStatus.textContent = JSON.stringify(await api().joinDomain(domain.value, user.value)); }
+        catch (e) { domainStatus.textContent = e.message || String(e); }
+      });
+      wrap.append(el("h3", "", "Active Directory"), domain, user, join, domainStatus);
+
+      const uri = el("input"); uri.placeholder = "ldaps://dc.example.org";
+      const base = el("input"); base.placeholder = "Base DN: dc=example,dc=org";
+      const filter = el("input"); filter.placeholder = "LDAP filter: (objectClass=computer)";
+      const query = el("button", "", "Search directory"); query.type = "button";
+      const results = el("pre");
+      query.addEventListener("click", async () => {
+        if (!api() || typeof api().ldapSearch !== "function") {
+          results.textContent = "LDAP bridge unavailable. The system integration requires TLS validation and Kerberos GSSAPI.";
+          return;
+        }
+        try { results.textContent = JSON.stringify(await api().ldapSearch(uri.value, base.value, filter.value), null, 2); }
+        catch (e) { results.textContent = e.message || String(e); }
+      });
+      wrap.append(el("h3", "", "LDAP directory"), uri, base, filter, query, results);
+      body.appendChild(wrap);
+    }
+  });
+})();
