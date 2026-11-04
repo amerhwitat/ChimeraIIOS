@@ -19,7 +19,8 @@
       "sssd",
       "krb5",
       "openldap-clients",
-      "python3-ldap"
+      "python3-ldap",
+      "dnsutils"
     ],
     "optical_media": [
       "util-linux",
