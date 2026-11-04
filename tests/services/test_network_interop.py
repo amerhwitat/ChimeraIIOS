@@ -23,7 +23,7 @@ class NetworkInteropTests(unittest.TestCase):
   self.assertTrue(directory.valid_ldap_uri("ldaps://ldap.corp.example:636"));self.assertTrue(directory.valid_ldap_uri("ldap://ldap.corp.example:389"))
   self.assertFalse(directory.valid_ldap_uri("ldap://ldap.corp.example:99999"));self.assertFalse(directory.valid_ldap_uri("ldap://user:pass@ldap.corp.example"))
  @mock.patch.object(directory.shutil, "which", side_effect=lambda name: "/usr/bin/pkexec" if name == "pkexec" else "/usr/sbin/realm")
-    @mock.patch.object(directory, "run", side_effect=[
+ @mock.patch.object(directory, "run", side_effect=[
         SimpleNamespace(returncode=0, stdout="", stderr=""),
         SimpleNamespace(returncode=0, stdout="joined", stderr="")
     ])
