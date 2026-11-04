@@ -1533,6 +1533,7 @@ stage_sdks(){
   mkdir -p "$sdk_root/share/chimera"
   install -m 0644 "$SCRIPT_DIR/sdk/SDK_BUILD_MANIFEST.json" "$sdk_root/share/chimera/SDK_BUILD_MANIFEST.json"
   install -m 0644 "$SCRIPT_DIR/sdk/manifest.json" "$sdk_root/share/chimera/manifest.json"
+  mkdir -p "$sdk_root/source"
   cp -a "$SCRIPT_DIR/sdk/." "$sdk_root/source/"
   cp -a "$sdk_root/." "$sdk_iso/"
   find "$sdk_root" -maxdepth 4 -type f -print | sort > "$LOG_DIR/sdk-staged-files.txt"
