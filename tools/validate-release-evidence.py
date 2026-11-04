@@ -31,12 +31,21 @@ def main():
         raise SystemExit("[RELEASE-GATE] CPL3 syscall acknowledgement and nonzero init PID are required")
     if not re.fullmatch(r"[0-9a-fA-F]{64}", str(handoff.get("iso_sha256", ""))):
         raise SystemExit("[RELEASE-GATE] immutable ISO SHA-256 is required")
-    cases = {(case.get("edition"), case.get("firmware")) for case in handoff.get("cases", [])
-             if case.get("status") == "passed"}
+    cases = [case for case in handoff.get("cases", []) if case.get("status") == "passed"]
     expected = {(edition, firmware) for edition in ("Live", "Installer", "Recovery")
                 for firmware in ("BIOS", "UEFI")}
-    if not expected.issubset(cases):
+    actual = {(case.get("edition"), case.get("firmware")) for case in cases}
+    if not expected.issubset(actual):
         raise SystemExit("[RELEASE-GATE] all six Live/Installer/Recovery x BIOS/UEFI cases must pass")
+    expected_pid = int(handoff["init_pid"])
+    expected_iso = str(handoff["iso_sha256"]).lower()
+    for case in cases:
+        if str(case.get("iso_sha256", "")).lower() != expected_iso:
+            raise SystemExit("[RELEASE-GATE] every accepted target/firmware trace must bind to the same immutable ISO SHA-256")
+        if int(case.get("init_pid", 0)) != expected_pid:
+            raise SystemExit("[RELEASE-GATE] every accepted target/firmware trace must report the matching nonzero init PID")
+        if case.get("cpl3_syscall_ack") is not True:
+            raise SystemExit("[RELEASE-GATE] every accepted target/firmware trace must contain a CPL3-originated syscall acknowledgement")
     smp = load(args.smp)
     if smp.get("schema") != "CHIMERA-REAL-SMP-1" or smp.get("status") != "accepted":
         raise SystemExit("[RELEASE-GATE] real SMP evidence is not accepted")
