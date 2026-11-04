@@ -5,6 +5,10 @@ import json
 import re
 import subprocess
 import sys
+import socket
+import time
+import uuid
+import xml.etree.ElementTree as ET
 
 HOST = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,252}$")
 
@@ -32,6 +36,44 @@ def browse(host, kerberos=True):
             "returncode": code, "shares": shares,
             "error": err[-2000:] if code else None}
 
+def ws_discover(timeout=3.0):
+    """Send a bounded WS-Discovery Probe on the local link; never scan IP ranges."""
+    message_id = "urn:uuid:" + str(uuid.uuid4())
+    envelope = ('''<?xml version="1.0" encoding="UTF-8"?>
+<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+ xmlns:a="http://www.w3.org/2005/08/addressing"
+ xmlns:d="http://schemas.xmlsoap.org/ws/2005/04/discovery"
+ xmlns:dp="http://schemas.xmlsoap.org/ws/2006/02/devprof">
+ <s:Header>
+  <a:MessageID>''' + message_id + '''</a:MessageID>
+  <a:To>urn:schemas-xmlsoap-org:ws:2005:04:discovery</a:To>
+  <a:Action>http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe</a:Action>
+ </s:Header>
+ <s:Body><d:Probe><d:Types>dp:Device</d:Types></d:Probe></s:Body>
+</s:Envelope>''').encode("utf-8")
+    found = {}
+    deadline = time.monotonic() + max(0.5, min(timeout, 5.0))
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as sock:
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 1)
+        sock.settimeout(0.25)
+        sock.sendto(envelope, ("239.255.255.250", 3702))
+        while time.monotonic() < deadline:
+            try:
+                packet, peer = sock.recvfrom(65535)
+            except socket.timeout:
+                continue
+            try:
+                root = ET.fromstring(packet)
+                addresses = [node.text for node in root.iter()
+                             if node.tag.endswith("}XAddrs") and node.text]
+                endpoint = next((node.text for node in root.iter()
+                                 if node.tag.endswith("}Address") and node.text), "")
+                found[peer[0]] = {"address": peer[0], "endpoint": endpoint,
+                                  "xaddrs": addresses, "discovery": "WS-Discovery"}
+            except ET.ParseError:
+                continue
+    return list(found.values())
+
 def browse_network():
     """Discover SMB services announced on the local link via DNS-SD/mDNS."""
     code, out, err = run(["avahi-browse", "-rt", "_smb._tcp"], timeout=35)
@@ -45,8 +87,17 @@ def browse_network():
                             "name": fields[3], "domain": fields[5],
                             "host": fields[6], "address": fields[7],
                             "port": int(fields[8]) if fields[8].isdigit() else None})
-    return {"discovery": "DNS-SD _smb._tcp", "returncode": code,
-            "servers": servers, "error": err[-2000:] if code else None}
+    try:
+        wsd_servers = ws_discover()
+    except OSError as exc:
+        wsd_servers = []
+        err = (err + " " + str(exc)).strip()
+    merged = {item["address"]: item for item in wsd_servers}
+    for item in servers:
+        merged[item["address"]] = item
+    return {"discovery": ["DNS-SD _smb._tcp", "WS-Discovery Probe"],
+            "returncode": code, "servers": list(merged.values()),
+            "error": err[-2000:] if code or err else None}
 
 def main():
     p = argparse.ArgumentParser()
