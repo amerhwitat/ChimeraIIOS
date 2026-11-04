@@ -1561,7 +1561,7 @@ stage_application_payloads(){
   header 'STAGE COMPILED DESKTOP APPLICATIONS, LAUNCHERS AND CATALOGS'
   local build_dir="$BUILD_DIR/desktop-binaries"
   mkdir -p "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/usr/share/chimera/desktop" "$ISO_DIR/system/desktop" "$ISO_DIR/system/applications"
-  if [[ -x "$SCRIPT_DIR/tools/build-desktop-binaries.sh" ]]; then
+  if [[ -f "$SCRIPT_DIR/tools/build-desktop-binaries.sh" ]]; then
     CHIMERA_DESKTOP_BUILD_DIR="$build_dir" bash "$SCRIPT_DIR/tools/build-desktop-binaries.sh" 2>&1 | tee "$LOG_DIR/desktop-binaries.log"
     [[ ! -d "$build_dir/bin" ]] || cp -a "$build_dir/bin/." "$ROOTFS_DIR/usr/local/bin/"
     [[ ! -s "$build_dir/manifests/desktop-build-manifest.json" ]] || { cp -f "$build_dir/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"; cp -f "$build_dir/manifests/desktop-build-manifest.json" "$ISO_DIR/system/desktop/"; }
