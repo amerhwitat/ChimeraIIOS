@@ -611,6 +611,16 @@ create_boot_menu(){
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  # The native launcher requires exactly one target-specific USER_INIT_ELF.
+  # Build-koronos.sh emits all three ET_EXEC payloads; package them explicitly.
+  mkdir -p "$ISO_DIR/boot/targets"
+  for target in live installer recovery; do
+    local init_elf="$SCRIPT_DIR/build/koronos/x86_64/target-init-$target.elf"
+    [[ -s "$init_elf" ]] || { log_error "Missing native $target init ELF: $init_elf"; exit 1; }
+    readelf -h "$init_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { log_error "Native $target init is not ET_EXEC"; exit 1; }
+    readelf -lW "$init_elf" | grep -Eq 'LOAD.*R E' || { log_error "Native $target init has no executable PT_LOAD"; exit 1; }
+    install -m 0644 "$init_elf" "$ISO_DIR/boot/targets/target-init-$target.elf"
+  done
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
@@ -1364,6 +1374,9 @@ verify_iso(){
   grep -qi 'UEFI' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no UEFI El Torito boot entry'; exit 1; }
   grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB does not load the staged Koronos ELF through Multiboot2'; exit 1; }
   grep -q 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
+  grep -q 'module2 /boot/targets/target-init-live.elf chimera-user-init-elf target=live' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live entry is missing its native USER_INIT_ELF module'; exit 1; }
+  grep -q 'module2 /boot/targets/target-init-installer.elf chimera-user-init-elf target=installer' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB installer entry is missing its native USER_INIT_ELF module'; exit 1; }
+  grep -q 'module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB recovery entry is missing its native USER_INIT_ELF module'; exit 1; }
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
@@ -1372,6 +1385,9 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/targets/target-init-live.elf
+    /boot/targets/target-init-installer.elf
+    /boot/targets/target-init-recovery.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt
