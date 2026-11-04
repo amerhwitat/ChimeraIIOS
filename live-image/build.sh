@@ -108,7 +108,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       e2fsprogs dosfstools parted gdisk alsa-utils kmod \
       samba smbclient cifs-utils wsdd avahi-daemon \
       realmd adcli sssd-ad sssd-ldap sssd-tools libnss-sss libpam-sss \
-      krb5-user ldap-utils libsasl2-modules-gssapi-mit udisks2
+      krb5-user ldap-utils libsasl2-modules-gssapi-mit udisks2 oddjob oddjob-mkhomedir
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
@@ -138,6 +138,7 @@ fi
 
 # Install registry, SMB/AD/LDAP and optical-media user-space integrations.
 install -D -m 0755 "$REPO_DIR/services/registry/registryd.py" "$WORK/usr/lib/chimera/registry/registryd.py"
+install -D -m 0755 "$REPO_DIR/services/registry/sync-admin-group.py" "$WORK/usr/lib/chimera/registry/sync-admin-group.py"
 install -D -m 0644 "$REPO_DIR/tools/registry/registry_hive.py" "$WORK/usr/lib/chimera/registry/registry_hive.py"
 install -D -m 0755 "$REPO_DIR/services/network/smb-browse.py" "$WORK/usr/lib/chimera/network/smb-browse.py"
 install -D -m 0755 "$REPO_DIR/services/network/directoryctl.py" "$WORK/usr/lib/chimera/network/directoryctl.py"
@@ -152,10 +153,30 @@ cp -a "$REPO_DIR/system/integrations/." "$WORK/usr/share/chimera/integrations/"
 groupadd --force chimera-admin
 if getent passwd user >/dev/null 2>&1; then usermod -aG chimera-admin user; fi
 install -d "$WORK/etc/systemd/system/multi-user.target.wants"
+cat > "$WORK/etc/systemd/system/chimera-admin-group-sync.service" <<'UNIT'
+[Unit]
+Description=Synchronize Chimera registry administrators from sudo group
+After=local-fs.target
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/sync-admin-group.py
+RemainAfterExit=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/etc/group /etc/gshadow
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+ln -sfn ../chimera-admin-group-sync.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-admin-group-sync.service"
 cat > "$WORK/etc/systemd/system/chimera-registryd.service" <<'UNIT'
 [Unit]
 Description=Chimera CHMRG01 Registry Service
-After=local-fs.target
+After=local-fs.target chimera-admin-group-sync.service
 Before=display-manager.service
 
 [Service]
@@ -181,6 +202,8 @@ LockPersonality=yes
 WantedBy=multi-user.target
 UNIT
 ln -sfn ../chimera-registryd.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-registryd.service"
+systemctl --root="$WORK" enable avahi-daemon.service >/dev/null 2>&1 || true
+systemctl --root="$WORK" disable smbd.service nmbd.service wsdd.service sssd.service >/dev/null 2>&1 || true
 cat > "$WORK/etc/samba/smb.conf" <<'SMB'
 [global]
    workgroup = WORKGROUP
