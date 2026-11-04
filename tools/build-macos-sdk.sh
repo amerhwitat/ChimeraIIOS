@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -uo pipefail
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="\${1:-$ROOT/build/macos-sdk-report.json}"
-SDK_ROOT="\${MACOS_SDKROOT:-$ROOT/third_party/macos-extracted}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OUT="${1:-$ROOT/build/macos-sdk-report.json}"
+SDK_ROOT="${MACOS_SDKROOT:-$ROOT/third_party/macos-extracted}"
 mkdir -p "$(dirname "$OUT")"
 python3 - "$SDK_ROOT" "$OUT" <<'PY'
 import json, pathlib, shutil, sys
@@ -29,7 +29,7 @@ out.parent.mkdir(parents=True,exist_ok=True)
 out.write_text(json.dumps(report,indent=2)+"\n")
 print(json.dumps({"status":report["status"],"sdk_present":sdk.is_dir(),"darwin_cross_compiler":report["darwin_cross_compiler_available"]}))
 PY
-if [[ "\${MACOS_SDK_LICENSE_REVIEWED:-0}" == "1" && -d "$SDK_ROOT" ]]; then
+if [[ "${MACOS_SDK_LICENSE_REVIEWED:-0}" == "1" && -d "$SDK_ROOT" ]]; then
   compiler=""
   for candidate in o64-clang oa64-clang; do
     if command -v "$candidate" >/dev/null 2>&1; then compiler="$candidate"; break; fi
