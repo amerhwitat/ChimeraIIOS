@@ -23,7 +23,8 @@
       "dnsutils",
       "pkexec",
       "polkitd",
-      "mate-polkit"
+      "mate-polkit",
+      "sssd-kcm"
     ],
     "optical_media": [
       "util-linux",
