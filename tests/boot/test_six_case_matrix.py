@@ -65,6 +65,15 @@ class SixCaseMatrixTests(unittest.TestCase):
     def test_exit_78_is_blocked(self):
         p = self.evidence / self.manifest["cases"][0]["trace"]; p.write_text(p.read_text() + "NATIVE INIT BLOCKED: exit=78\n")
         self.assertEqual(self.run_verifier().returncode, 1)
+    def test_vfs_evidence_must_follow_cpl3_ack_and_precede_readiness(self):
+        p = self.evidence / self.manifest["cases"][0]["trace"]
+        lines = p.read_text().splitlines()
+        root = next(x for x in lines if "VFS ACCEPTANCE: ROOT MOUNTED" in x)
+        lines.remove(root)
+        ready = next(i for i,x in enumerate(lines) if "USERSPACE READY:" in x)
+        lines.insert(ready, root)
+        p.write_text("\\n".join(lines) + "\\n")
+        self.assertEqual(self.run_verifier().returncode, 1)
     def test_missing_smp_overlap_is_blocked(self):
         p = self.evidence / self.manifest["cases"][0]["trace"]
         p.write_text("\n".join(x for x in p.read_text().splitlines() if "SMP OVERLAP" not in x))
