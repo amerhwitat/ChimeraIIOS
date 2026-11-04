@@ -32,9 +32,9 @@ def skipped(path: Path) -> bool:
     if any(part.casefold() in SKIP_DIRS for part in path.parts):
         return True
     name = path.name.casefold()
-    if name in SENSITIVE_NAMES or name.startswith(("id_rsa", "id_ed25519")):
+    if name in SENSITIVE_NAMES or name.startswith((".env", "id_rsa", "id_ed25519")):
         return True
-    if name.endswith((".pem", ".key", ".p12", ".pfx", ".kdbx")):
+    if name.endswith((".pem", ".key", ".p12", ".pfx", ".kdbx", ".secret")) or name in {".netrc", ".npmrc", ".pypirc", ".git-credentials", "authorized_keys"}:
         return True
     return False
 
