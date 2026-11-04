@@ -50,7 +50,7 @@ def main():
         else:
             if (not valid_ldap_uri(a.uri) or not a.base_dn or "\n" in a.base_dn or
                     not re.fullmatch(r"[A-Za-z0-9=,._ -]{1,512}", a.base_dn) or
-                    not a.filter.startswith("(") or len(a.filter) > 4096 or "\n" in a.filter):
+                    not a.filter.startswith("(") or not a.filter.endswith(")") or len(a.filter) > 4096 or "\n" in a.filter or "\0" in a.filter):
                 raise ValueError("LDAP URI must be ldap(s)://host[:port]; base DN is required")
             if a.uri.startswith("ldap://"):
                 argv = ["ldapsearch", "-LLL", "-ZZ", "-o", "TLS_REQCERT=demand",
