@@ -205,7 +205,7 @@
     },
     {
       "id": "registry",
-      "lifecycle": "managed",
+      "lifecycle": "on-demand",
       "platforms": [
         "linux"
       ],
@@ -216,7 +216,7 @@
         "transaction-recovery"
       ],
       "backends": {
-        "linux": "chimera-registryd-local-unix-socket"
+        "linux": "chimera-registry-admin-transaction-library"
       }
     },
     {
@@ -279,7 +279,7 @@
         "physical-cd-dvd"
       ],
       "backends": {
-        "linux": "udisks2+loop+host-vfs"
+        "linux": "chimera-iso-mount+util-linux+kernel-iso9660-udf"
       }
     },
     {
