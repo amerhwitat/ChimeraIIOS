@@ -1,8 +1,8 @@
 {
   "schema": "CHIMERA-HARDWARE-SYSTEMS-KNOWLEDGE-1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "created_utc": "2026-11-04T00:00:00Z",
-  "updated_utc": "2026-11-04T00:00:00Z",
+  "updated_utc": "2026-11-04T19:45:00+03:00",
   "title": "Chimera / Koronos Hardware, Architectures, Languages, Toolchains, Drivers and ML Knowledge Base",
   "scope": [
     "CPU and execution architectures",
@@ -13,7 +13,7 @@
     "kernel architecture and validation",
     "RNN, CNN, LLM, RAG and ONNX deployment"
   ],
-  "coverage_note": "Curated, source-attributed technical knowledge and a 104-row repository architecture inventory. It is not exhaustive documentation of every chip, language, compiler, assembler, driver or device. Source links point to authoritative manuals and upstream documentation; exact versions and hardware applicability must be checked.",
+  "coverage_note": "Curated, source-attributed technical knowledge and the repository architecture inventory. Expanded with official firmware, PCIe, USB, NVMe, Virtio, LoongArch, Power ISA, SPARC, IBM Z, compiler and ELF references. It is not exhaustive documentation of every chip, language, compiler, assembler, driver or device. Source links point to authoritative manuals and upstream documentation; exact versions and hardware applicability must be checked.",
   "policy": {
     "append_only_preferred": true,
     "require_source_provenance": true,
@@ -23,7 +23,7 @@
     "license_review_required_before_redistributing_source_text": true,
     "external_upload": false
   },
-  "source_count": 42,
+  "source_count": 56,
   "sources": [
     {
       "id": "intel-sdm",
@@ -360,9 +360,121 @@
       "url": "https://docs.kernel.org/hwmon/hwmon-kernel-api.html",
       "kind": "sensor-driver-api",
       "authority": "upstream-primary"
+    },
+    {
+      "id": "uefi-spec",
+      "publisher": "UEFI Forum",
+      "title": "UEFI Specifications",
+      "url": "https://uefi.org/specifications",
+      "kind": "firmware-interface-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "acpi-spec",
+      "publisher": "UEFI Forum",
+      "title": "ACPI Specifications",
+      "url": "https://uefi.org/specifications",
+      "kind": "power-management-firmware-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "nvme-spec",
+      "publisher": "NVM Express",
+      "title": "NVM Express Specifications",
+      "url": "https://nvmexpress.org/specifications/",
+      "kind": "storage-device-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "pci-spec",
+      "publisher": "PCI-SIG",
+      "title": "PCI Express Specifications",
+      "url": "https://pcisig.com/specifications",
+      "kind": "interconnect-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "usb-spec",
+      "publisher": "USB-IF",
+      "title": "USB Specifications and Documents",
+      "url": "https://www.usb.org/documents",
+      "kind": "peripheral-bus-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "virtio-spec",
+      "publisher": "OASIS",
+      "title": "Virtual I/O Device (VIRTIO) Version 1.3",
+      "url": "https://docs.oasis-open.org/virtio/virtio/v1.3/virtio-v1.3.html",
+      "kind": "device-interface-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "loongarch-manual",
+      "publisher": "Loongson",
+      "title": "LoongArch Reference Manual",
+      "url": "https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html",
+      "kind": "architecture-manual",
+      "authority": "vendor-primary"
+    },
+    {
+      "id": "power-isa",
+      "publisher": "OpenPOWER Foundation",
+      "title": "Power ISA Specifications",
+      "url": "https://openpowerfoundation.org/specifications/isa/",
+      "kind": "architecture-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "sparc-spec",
+      "publisher": "SPARC International",
+      "title": "SPARC Technical Documents",
+      "url": "https://sparc.org/technical-documents/",
+      "kind": "architecture-specification",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "ibm-z-arch",
+      "publisher": "IBM",
+      "title": "IBM Z Architecture Documentation",
+      "url": "https://www.ibm.com/docs/en/systems-hardware/zsystems",
+      "kind": "architecture-manual",
+      "authority": "vendor-primary"
+    },
+    {
+      "id": "gcc-user",
+      "publisher": "GNU Project",
+      "title": "GCC Online Documentation",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/",
+      "kind": "compiler-user-manual",
+      "authority": "upstream-primary"
+    },
+    {
+      "id": "clang-docs",
+      "publisher": "LLVM Project",
+      "title": "Clang Documentation",
+      "url": "https://clang.llvm.org/docs/",
+      "kind": "compiler-user-manual",
+      "authority": "upstream-primary"
+    },
+    {
+      "id": "elf-gabi",
+      "publisher": "System V ABI",
+      "title": "ELF Generic ABI",
+      "url": "https://refspecs.linuxfoundation.org/elf/gabi4+/contents.html",
+      "kind": "binary-format-abi",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "arm-dev-docs",
+      "publisher": "Arm",
+      "title": "Arm Developer Documentation",
+      "url": "https://developer.arm.com/documentation",
+      "kind": "architecture-and-peripheral-manuals",
+      "authority": "vendor-primary"
     }
   ],
-  "entry_count": 151,
+  "entry_count": 166,
   "entries": [
     {
       "id": "arch-chimera-c8192",
@@ -6337,6 +6449,329 @@
       ],
       "status": "curated-reference",
       "verification": "summarized-from-upstream-driver-documentation"
+    },
+    {
+      "id": "uefi-boot-runtime-services",
+      "domain": "Firmware",
+      "title": "UEFI boot and runtime services",
+      "summary": "UEFI defines firmware interfaces for device discovery, boot services, runtime services, protocols, handles, image loading and boot-manager handoff. Boot services are generally terminated at ExitBootServices; runtime services have a distinct post-exit contract. An OS loader must obtain and validate the memory map, use the current map key for ExitBootServices, preserve required runtime regions and avoid assuming firmware services remain callable afterward.",
+      "tags": [
+        "UEFI",
+        "firmware",
+        "boot services",
+        "runtime services",
+        "memory map",
+        "ExitBootServices"
+      ],
+      "source_ids": [
+        "uefi-spec",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-UEFI-Forum-specification-index; exact revision required"
+    },
+    {
+      "id": "acpi-tables-and-power-management",
+      "domain": "Firmware",
+      "title": "ACPI tables, namespace and power management",
+      "summary": "ACPI describes platform configuration and power-management interfaces through firmware tables, the ACPI namespace and AML-defined control methods. OS code must validate table checksums, lengths, revisions and address ranges; parse MADT, FADT, MCFG and related tables defensively; and coordinate interrupt routing, processor topology, sleep states and device power with platform-specific constraints.",
+      "tags": [
+        "ACPI",
+        "MADT",
+        "FADT",
+        "MCFG",
+        "AML",
+        "interrupt routing",
+        "power management"
+      ],
+      "source_ids": [
+        "acpi-spec",
+        "linux-arch",
+        "linux-drivers"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-UEFI-Forum-ACPI-specification-index"
+    },
+    {
+      "id": "pcie-enumeration-and-bar-safety",
+      "domain": "Drivers",
+      "title": "PCI and PCI Express enumeration and BAR handling",
+      "summary": "PCI drivers discover functions through configuration space and the OS PCI core, match vendor/device/class identifiers, enable resources and bus mastering only when required, and map validated BAR ranges through the platform's I/O-memory APIs. Enumeration must account for bridges, capabilities, MSI/MSI-X, hot-plug, reset and IOMMU isolation; never trust a device-provided BAR without resource validation.",
+      "tags": [
+        "PCI",
+        "PCIe",
+        "configuration space",
+        "BAR",
+        "MSI-X",
+        "IOMMU",
+        "hot plug"
+      ],
+      "source_ids": [
+        "pci-spec",
+        "linux-pci",
+        "linux-drivers",
+        "linux-dma"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-PCI-SIG-and-Linux-PCI-documentation"
+    },
+    {
+      "id": "usb-enumeration-transfer-model",
+      "domain": "Drivers",
+      "title": "USB enumeration, endpoints and transfer lifecycle",
+      "summary": "USB host-controller drivers enumerate devices through descriptors and configuration selection, then manage endpoint state and control, bulk, interrupt or isochronous transfers. Correct lifecycle handling covers address assignment, configuration, interface binding, DMA mapping, transfer cancellation, disconnect races, power management and descriptor bounds. USB class protocols and controller-specific host-controller interfaces are separate layers.",
+      "tags": [
+        "USB",
+        "enumeration",
+        "descriptors",
+        "endpoints",
+        "URB",
+        "xHCI",
+        "DMA"
+      ],
+      "source_ids": [
+        "usb-spec",
+        "linux-usb",
+        "linux-drivers"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-USB-IF-and-Linux-USB-documentation"
+    },
+    {
+      "id": "nvme-queues-and-command-lifecycle",
+      "domain": "Drivers",
+      "title": "NVMe controller queues and command lifecycle",
+      "summary": "NVMe controllers expose admin and I/O submission/completion queues, doorbells, namespaces and feature/capability registers. Drivers must validate controller capabilities, configure queue memory with correct DMA constraints, use appropriate memory barriers, handle phase tags and completion status, and implement timeout, reset, namespace discovery and error recovery. NVMe protocol semantics do not imply that a particular OS driver is implemented.",
+      "tags": [
+        "NVMe",
+        "submission queue",
+        "completion queue",
+        "namespace",
+        "doorbell",
+        "DMA",
+        "storage"
+      ],
+      "source_ids": [
+        "nvme-spec",
+        "linux-drivers",
+        "linux-dma"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-NVM-Express-specification-index-and-Linux-driver-API"
+    },
+    {
+      "id": "virtio-device-driver-contract",
+      "domain": "Drivers",
+      "title": "Virtio device model and queue contract",
+      "summary": "Virtio standardizes paravirtual device interfaces using device status/features, configuration space and virtqueues. A driver negotiates only supported features, initializes descriptor/available/used rings, applies required ordering and notification rules, validates device-provided lengths and handles reset and queue teardown. Transport-specific details differ across PCI, MMIO and other transports.",
+      "tags": [
+        "virtio",
+        "virtqueue",
+        "descriptor ring",
+        "feature negotiation",
+        "PCI",
+        "MMIO"
+      ],
+      "source_ids": [
+        "virtio-spec",
+        "linux-drivers"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-OASIS-Virtio-1.3-specification"
+    },
+    {
+      "id": "loongarch-isa-and-abi",
+      "domain": "Architecture",
+      "title": "LoongArch ISA and ABI reference",
+      "summary": "LoongArch is a distinct RISC instruction-set architecture with its own instruction encodings, privilege model, exception handling, memory ordering, ABI and toolchain conventions. Architecture support must be tracked per ISA revision, ABI, CPU model, firmware and compiler backend; the existence of a QEMU target or catalog entry is not evidence of native kernel support.",
+      "tags": [
+        "LoongArch",
+        "RISC",
+        "ISA",
+        "ABI",
+        "privileged architecture",
+        "toolchain"
+      ],
+      "source_ids": [
+        "loongarch-manual",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-Loongson-reference-manual; native support separately gated"
+    },
+    {
+      "id": "power-isa-and-openpower",
+      "domain": "Architecture",
+      "title": "Power ISA and OpenPOWER architecture family",
+      "summary": "Power ISA defines instruction semantics, privilege and execution facilities for Power-family processors. Implementations and generations differ in optional facilities, vector/matrix extensions, virtualization and platform firmware. Toolchains and kernels must select the correct target ABI and feature set, and must not infer feature availability solely from a generic powerpc64 label.",
+      "tags": [
+        "Power ISA",
+        "OpenPOWER",
+        "POWER10",
+        "ABI",
+        "AltiVec",
+        "VSX",
+        "MMU"
+      ],
+      "source_ids": [
+        "power-isa",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-OpenPOWER-specification-index"
+    },
+    {
+      "id": "sparc-architecture-and-privilege",
+      "domain": "Architecture",
+      "title": "SPARC architecture and privileged execution",
+      "summary": "SPARC implementations span multiple architectural revisions and platform conventions. Privileged trap handling, register windows, memory models, MMU behavior and firmware interfaces vary by generation and implementation. A port must bind its decoder, ABI, boot protocol, trap frame and SMP model to a specific supported SPARC profile.",
+      "tags": [
+        "SPARC",
+        "SPARC V8",
+        "SPARC V9",
+        "register windows",
+        "trap table",
+        "MMU"
+      ],
+      "source_ids": [
+        "sparc-spec",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-SPARC-technical-document-index"
+    },
+    {
+      "id": "ibm-z-architecture-and-s390x",
+      "domain": "Architecture",
+      "title": "IBM Z architecture and s390x systems",
+      "summary": "IBM Z uses the z/Architecture instruction and system model, including distinctive addressing, interruption, channel-I/O, virtualization and system-control facilities. The s390x Linux ABI and QEMU target are useful references but do not replace the relevant IBM Principles of Operation, platform firmware and device/channel subsystem documentation.",
+      "tags": [
+        "IBM Z",
+        "z/Architecture",
+        "s390x",
+        "channel I/O",
+        "interruptions",
+        "virtualization"
+      ],
+      "source_ids": [
+        "ibm-z-arch",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-IBM-Z-documentation-index"
+    },
+    {
+      "id": "compiler-target-feature-contract",
+      "domain": "Compilers",
+      "title": "Compiler target triples, CPU features and ABI selection",
+      "summary": "A compiler target is more than an ISA name: target triples, CPU model, feature flags, ABI, object format, relocation model, calling convention and system root all affect generated code. Cross-compilation must keep compiler, assembler, linker, libraries and runtime ABI consistent; inspect emitted object metadata and run target-specific tests rather than assuming a successful compile proves execution support.",
+      "tags": [
+        "GCC",
+        "Clang",
+        "LLVM",
+        "target triple",
+        "CPU features",
+        "ABI",
+        "cross compiler"
+      ],
+      "source_ids": [
+        "gcc-user",
+        "clang-docs",
+        "llvm-backend",
+        "gcc-internals"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-GCC-and-Clang-documentation"
+    },
+    {
+      "id": "elf-object-relocation-and-loader-contract",
+      "domain": "Systems",
+      "title": "ELF object format, relocations and dynamic loading",
+      "summary": "ELF defines object and executable containers with headers, program/section tables, symbols, relocations and ABI-specific machine identifiers. Loaders must validate class, endianness, machine, sizes, offsets, alignment, segment permissions and relocation types before mapping or applying relocations. An ELF machine identifier or valid file is not proof that the OS supports its ABI or instructions.",
+      "tags": [
+        "ELF",
+        "relocation",
+        "symbol table",
+        "program headers",
+        "loader",
+        "ABI"
+      ],
+      "source_ids": [
+        "elf-gabi",
+        "binutils",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-System-V-ELF-ABI-and-GNU-Binutils"
+    },
+    {
+      "id": "assembler-linker-and-object-pipeline",
+      "domain": "Assemblers",
+      "title": "Assembler, linker and object pipeline across targets",
+      "summary": "Assemblers translate target-specific syntax and directives into relocatable objects; linkers resolve symbols, apply relocations, select scripts and produce target-format images. GNU as, LLVM integrated assemblers and vendor assemblers differ in syntax, pseudo-instructions, directives and supported extensions. Reproducible cross-target builds must record assembler version, target flags, object format and linker script.",
+      "tags": [
+        "GNU as",
+        "LLVM MC",
+        "assembler",
+        "linker",
+        "relocations",
+        "linker script",
+        "object format"
+      ],
+      "source_ids": [
+        "binutils",
+        "clang-docs",
+        "llvm-codegen",
+        "elf-gabi"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-GNU-Binutils-and-LLVM-documentation"
+    },
+    {
+      "id": "architecture-feature-matrix-governance",
+      "domain": "Architecture",
+      "title": "Architecture support matrix and specification revision governance",
+      "summary": "Maintain each architecture as a versioned profile with source revision, vendor/model applicability, execution modes, extensions, privilege level, ABI, endianness, memory model, interrupt controller, MMU, boot protocol and toolchain support. Distinguish inventory, parser/decoder, emulator, conformance-tested subset, kernel port, driver coverage and production acceptance as separate evidence states.",
+      "tags": [
+        "architecture matrix",
+        "ISA revision",
+        "profiles",
+        "conformance",
+        "toolchain",
+        "support levels"
+      ],
+      "source_ids": [
+        "repo-arch-matrix",
+        "riscv-spec",
+        "intel-sdm",
+        "arm-arm",
+        "power-isa",
+        "loongarch-manual"
+      ],
+      "status": "curated-reference",
+      "verification": "repository-policy-and-primary-specification-cross-reference"
+    },
+    {
+      "id": "driver-probe-bind-and-remove-lifecycle",
+      "domain": "Drivers",
+      "title": "Device driver probe, bind, suspend and remove lifecycle",
+      "summary": "A robust driver lifecycle validates device identity and resources during probe, unwinds every partial initialization on failure, registers interfaces only after initialization, synchronizes asynchronous work during removal, and handles suspend/resume and hot-unplug. Resource-managed APIs reduce leaks but do not replace ordering, concurrency and device-specific correctness tests.",
+      "tags": [
+        "driver model",
+        "probe",
+        "bind",
+        "remove",
+        "hot unplug",
+        "suspend",
+        "resume"
+      ],
+      "source_ids": [
+        "linux-device-model",
+        "linux-drivers",
+        "linux-arch"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-Linux-driver-model-documentation"
     }
   ],
   "training": {
