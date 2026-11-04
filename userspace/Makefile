@@ -53,7 +53,8 @@ check:
 	@python3 scripts/check_units.py --units systemd --user-units systemd/user --helpers bin
 
 uninstall:
-	@for u in $(UNITS); do rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/$$(basename $$u); done
+	@for u in $(UNITS); do rm -f $(DESTDIR)$(SYSTEMD_UNIT_DIR)/$(basename $u); done
+	@for u in $(USER_UNITS); do rm -f $(DESTDIR)$(USER_SYSTEMD_UNIT_DIR)/$(basename $u); done
 	@rm -f $(DESTDIR)$(SYSUSERS_DIR)/aurora.conf $(DESTDIR)$(TMPFILES_DIR)/aurora.conf
 	@rm -f $(DESTDIR)$(DBUS_DIR)/aurora.conf
 	@for h in $(HELPERS); do rm -f $(DESTDIR)$(BINDIR)/$$(basename $$h); done
