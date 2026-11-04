@@ -29,27 +29,30 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--units", required=True)
     ap.add_argument("--helpers", required=True)
+    ap.add_argument("--user-units")
     args = ap.parse_args()
 
     errors = []
     unit_names = set()
     units = {}
 
-    for name in sorted(os.listdir(args.units)):
-        if not name.endswith(SERVICE_SUFFIXES):
-            continue
-        path = os.path.join(args.units, name)
-        unit_names.add(name)
-        try:
-            parser = parse_unit(path)
-        except Exception as exc:  # noqa: BLE001
-            errors.append("%s: unparsable (%s)" % (name, exc))
-            continue
-        if not parser.has_section("Unit"):
-            errors.append("%s: missing [Unit]" % name)
-        elif not parser.get("Unit", "Description", fallback="").strip():
-            errors.append("%s: missing Description=" % name)
-        units[name] = parser
+    unit_dirs = [args.units] + ([args.user_units] if args.user_units else [])
+    for unit_dir in unit_dirs:
+        for name in sorted(os.listdir(unit_dir)):
+            if not name.endswith(SERVICE_SUFFIXES):
+                continue
+            path = os.path.join(unit_dir, name)
+            unit_names.add(name)
+            try:
+                parser = parse_unit(path)
+            except Exception as exc:  # noqa: BLE001
+                errors.append("%s: unparsable (%s)" % (name, exc))
+                continue
+            if not parser.has_section("Unit"):
+                errors.append("%s: missing [Unit]" % name)
+            elif not parser.get("Unit", "Description", fallback="").strip():
+                errors.append("%s: missing Description=" % name)
+            units[name] = parser
 
     helpers = {os.path.basename(p): p for p in
                (os.path.join(args.helpers, f) for f in os.listdir(args.helpers))
@@ -70,7 +73,7 @@ def main():
                 binary = exec_start.split()[0].lstrip("-@+!:")
                 base = os.path.basename(binary)
                 if binary.startswith("/") and not os.path.exists(os.path.join(args.helpers, base)) \
-                        and base not in ("startx", "openbox", "xsetroot", "feh", "xset", "ip", "sh", "python3"):
+                        and base not in ("startx", "openbox", "xsetroot", "feh", "xset", "ip", "sh", "python3", "polkit-mate-authentication-agent-1"):
                     errors.append("%s: ExecStart binary is not provided by userspace/: %s" % (name, binary))
         if parser.has_section("Install"):
             for key in ("WantedBy", "RequiredBy"):
