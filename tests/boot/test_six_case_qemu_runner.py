@@ -39,6 +39,7 @@ class SixCaseQemuRunnerTests(unittest.TestCase):
             self.assertIn(f"/boot/targets/target-init-{target}.elf", main_grub)
         builder = (root / "iso/chimera-live-iso.sh").read_text(encoding="utf-8")
         self.assertIn("target-init-$target.elf", builder)
+        self.assertIn('install -m 0644 "$artifact" "$STAGE/boot/targets/target-init-$target.elf"', builder)
 
     def test_runner_never_adds_acceptance_markers_to_raw_trace(self):
         source = SCRIPT.read_text(encoding="utf-8")
