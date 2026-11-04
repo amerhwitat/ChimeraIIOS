@@ -1677,6 +1677,42 @@ out.write_text(json.dumps({"schema":"chimera-native-app-bundle-v1",
 PYBIN
     cp -f "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" "$ISO_DIR/opt/chimera/apps/"
 
+    # Install source-provided desktop launchers and create menu entries only for
+    # the explicit first-party desktop binaries listed by the build manifest.
+    mkdir -p "$ROOTFS_DIR/usr/share/applications"
+    for desktop_root in "$SCRIPT_DIR/desktop/aurora" "$SCRIPT_DIR/desktop/marine"; do
+      [[ -d "$desktop_root" ]] || continue
+      while IFS= read -r -d '' desktop_file; do
+        local desktop_rel desktop_name
+        desktop_rel="${desktop_file#"$SCRIPT_DIR/desktop/"}"
+        desktop_name="$(printf '%s' "$desktop_rel" | tr '/' '-')"
+        install -D -m 0644 "$desktop_file" "$ROOTFS_DIR/usr/share/applications/chimera-source-$desktop_name"
+      done < <(find "$desktop_root" -type f -name '*.desktop' -print0)
+    done
+    if [[ -s "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" ]]; then
+      python3 - "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/opt/chimera/apps/bin/bin" "$ROOTFS_DIR/usr/share/applications" <<'PYDESKTOP'
+import json, pathlib, sys
+manifest_path, binaries, desktop_dir = map(pathlib.Path, sys.argv[1:])
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+for item in manifest.get("native_binaries", []):
+    name = pathlib.Path(item).name
+    binary = binaries / name
+    if not binary.is_file():
+        continue
+    terminal = name in {"chimera-neural-chat", "voiceconnect", "chm-utf8"}
+    title = name.replace("-", " ").replace("_", " ").title()
+    if name == "chimera-neural-chat":
+        title = "Chimera Neural Chat (prototype)"
+    entry = desktop_dir / ("chimera-built-" + name + ".desktop")
+    entry.write_text(
+        "[Desktop Entry]\nType=Application\nName=" + title +
+        "\nComment=First-party Chimera desktop application\nExec=/opt/chimera/apps/bin/bin/" + name +
+        "\nTerminal=" + ("true" if terminal else "false") +
+        "\nCategories=Utility;Development;\n",
+        encoding="utf-8")
+PYDESKTOP
+    fi
+
   else
     log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
   fi
