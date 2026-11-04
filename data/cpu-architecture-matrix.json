@@ -754,5 +754,25 @@
     "cpu_count_policy": "reported package/hart topology is not the number of processors currently online; only AP/hart acknowledgements establish online CPUs"
   },
   "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html",
-  "linux_syscall_abi_note": "Register calling convention only. Syscall numbers are versioned per architecture and are not copied into Koronos native syscall IDs."
+  "linux_syscall_abi_note": "Register calling convention only. Syscall numbers are versioned per architecture and are not copied into Koronos native syscall IDs.",
+  "runtime_dispatch": {
+    "registry_source": "kernel/core/arch_backend.cpp",
+    "registry_header": "kernel/include/chimera/arch_backend.h",
+    "detection_integration": "kernel/core/arch_init.cpp",
+    "selected_backend_fields": [
+      "backend_status",
+      "entry_backend_present",
+      "interrupt_backend_present",
+      "syscall_backend_present"
+    ],
+    "registry_entries": 22,
+    "policy": "The detector selects a descriptor by normalized architecture ID. It never calls an absent backend. A port-skeleton descriptor is not a bootable or syscall-capable kernel.",
+    "statuses": {
+      "x86_64": "partial",
+      "arm64": "port-skeleton",
+      "riscv64": "port-skeleton",
+      "all_other_architectures": "reference-only"
+    },
+    "regression_test": "tests/kernel/run-cpu-profile-host-tests.sh"
+  }
 }
