@@ -4,9 +4,9 @@
   const A = window.Aurora;
   const { el, row } = A;
   const HIVE_FILES = {
-    machine: "/system/registry/machine.defaults.json",
-    environment: "/system/registry/environment.defaults.json",
-    kernel: "/system/registry/kernel.defaults.json"
+    machine: "file:///opt/aurora/repo/system/registry/machine.defaults.json",
+    environment: "file:///opt/aurora/repo/system/registry/environment.defaults.json",
+    kernel: "file:///opt/aurora/repo/system/registry/kernel.defaults.json"
   };
   const state = { hive: "machine", generation: 0, entries: [], editable: false, query: "" };
   const bridge = () => window.chimeraRegistry || null;
@@ -29,7 +29,7 @@
   }
 
   function parseValue(type, raw) {
-    if (type === "bool") return raw === true || raw === "true";
+    if (type === "bool") { if (raw === true || raw === "true") return true; if (raw === false || raw === "false") return false; throw new Error("Enter true or false"); }
     if (type === "u32" || type === "u64") {
       if (!/^(0|[1-9][0-9]*)$/.test(String(raw))) throw new Error("Enter a non-negative integer");
       const n = Number(raw);
