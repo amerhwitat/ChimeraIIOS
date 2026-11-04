@@ -18,7 +18,7 @@ EXTS = {".md", ".txt", ".rst", ".json", ".jsonl", ".yaml", ".yml", ".toml",
         ".rs", ".js", ".ts", ".html", ".css", ".xml", ".csv"}
 DENY_PARTS = {".git", "build", "dist", "target", "node_modules", ".cache",
               ".venv", "__pycache__", "secrets", "credentials", ".ssh", "private"}
-DENY_NAMES = {".env", ".env.local", "id_rsa", "id_ed25519"}
+DENY_NAMES = {".env", ".env.local", "id_rsa", "id_ed25519", "knowledge-index.json"}
 DENY_NAME_PARTS = ("secret", "credential", "token", "password", "private", "apikey", "api_key")
 CHUNK = 1400
 OVERLAP = 180
