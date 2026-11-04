@@ -23,6 +23,8 @@ on:
       - 'tests/network/**'
       - 'installer/profiles/filesystem-support.json'
       - 'Dockerfile'
+      - 'README.md'
+      - 'docs/NETWORK_AND_MEDIA_INTEGRATION.md'
       - 'iso/manifests/network-filesystem-packages.txt'
 
 jobs:
