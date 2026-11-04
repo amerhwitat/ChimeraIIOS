@@ -1575,7 +1575,6 @@ stage_ai_workspace(){
   log_info 'CNN/RNN training and LLM inference activate only when compatible frameworks, datasets and model weights are supplied.'
 }
 
-main "$@"
 
 
 stage_macos_compat(){
