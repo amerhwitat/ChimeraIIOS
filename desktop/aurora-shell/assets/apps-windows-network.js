@@ -50,8 +50,14 @@
 
       const domain = el("input"); domain.placeholder = "Active Directory DNS domain";
       const user = el("input"); user.placeholder = "Administrator account (optional)";
-      const join = el("button", "", "Join domain"); join.type = "button";
-      const domainStatus = el("p", "status", "Domain join is an explicit privileged operation.");
+      const checkDomain = el("button", "", "Check domain membership"); checkDomain.type = "button";
+      const join = el("button", "", "Join domain using Kerberos ticket"); join.type = "button";
+      const domainStatus = el("p", "status", "Domain join requires an existing Kerberos ticket (kinit) and administrator authorization.");
+      checkDomain.addEventListener("click", async () => {
+        if (!api() || typeof api().realmStatus !== "function") { domainStatus.textContent = "Directory service bridge unavailable."; return; }
+        try { domainStatus.textContent = JSON.stringify(await api().realmStatus()); }
+        catch (e) { domainStatus.textContent = e.message || String(e); }
+      });
       join.addEventListener("click", async () => {
         if (!api() || typeof api().joinDomain !== "function") {
           domainStatus.textContent = "Directory service bridge unavailable; use the administrator-controlled realmd/SSSD integration.";
@@ -61,7 +67,7 @@
         try { domainStatus.textContent = JSON.stringify(await api().joinDomain(domain.value, user.value)); }
         catch (e) { domainStatus.textContent = e.message || String(e); }
       });
-      wrap.append(el("h3", "", "Active Directory"), domain, user, join, domainStatus);
+      wrap.append(el("h3", "", "Active Directory"), domain, user, checkDomain, join, domainStatus);
 
       const uri = el("input"); uri.placeholder = "ldaps://dc.example.org";
       const base = el("input"); base.placeholder = "Base DN: dc=example,dc=org";
