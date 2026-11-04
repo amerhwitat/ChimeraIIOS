@@ -1,0 +1,79 @@
+name: Native Koronos Release ISO
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "build-chimera-iso.sh"
+      - "boot/iso/**"
+      - "kernel/**"
+      - "tools/build-sdks.sh"
+      - "tools/build-desktop-binaries.sh"
+      - "tools/knowledge/**"
+      - ".github/workflows/native-koronos-release.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-koronos-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      CHIMERA_BUILD_DIR: ${{ runner.temp }}/chimera-build
+      CHIMERA_ROOTFS_DIR: ${{ runner.temp }}/chimera-rootfs
+      CHIMERA_ISO_OUTPUT_DIR: ${{ runner.temp }}/chimera-output
+      CHIMERA_BUILD_LOG_DIR: ${{ runner.temp }}/chimera-build/logs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install native ISO build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build nasm yasm \
+            grub-pc-bin grub-efi-amd64-bin xorriso mtools \
+            dosfstools qemu-system-x86 ovmf debootstrap \
+            squashfs-tools xz-utils zstd git python3 python3-pip \
+            pkg-config libgtk-4-dev xvfb xterm docker.io
+
+      - name: Verify Docker and toolchain
+        run: |
+          docker version
+          grub-mkrescue --version
+          xorriso -version
+          g++ --version
+          python3 --version
+
+      - name: Build comprehensive and canonical native Koronos ISOs
+        run: sudo -E ./build-chimera-iso.sh --clean-state
+
+      - name: Collect release candidates and evidence
+        if: always()
+        run: |
+          mkdir -p "${{ runner.temp }}/native-koronos-artifacts"
+          if [ -d "$CHIMERA_ISO_OUTPUT_DIR" ]; then
+            find "$CHIMERA_ISO_OUTPUT_DIR" -maxdepth 1 -type f \
+              \( -name '*.iso' -o -name '*.sha256' -o -name '*.json' \) \
+              -exec cp -f {} "${{ runner.temp }}/native-koronos-artifacts/" \;
+          fi
+          if [ -d "$CHIMERA_BUILD_DIR/logs" ]; then
+            cp -a "$CHIMERA_BUILD_DIR/logs" "${{ runner.temp }}/native-koronos-artifacts/build-logs"
+          fi
+          if [ -d "${{ runner.temp }}/native-koronos-artifacts" ]; then
+            (cd "${{ runner.temp }}/native-koronos-artifacts" && sha256sum * > SHA256SUMS 2>/dev/null || true)
+          fi
+
+      - name: Upload ISO and build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-native-koronos-release-candidate
+          path: ${{ runner.temp }}/native-koronos-artifacts/**
+          if-no-files-found: warn
+          compression-level: 0
