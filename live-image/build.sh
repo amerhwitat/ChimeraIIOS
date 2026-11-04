@@ -204,26 +204,7 @@ UNIT
 ln -sfn ../chimera-registryd.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-registryd.service"
 systemctl --root="$WORK" enable avahi-daemon.service >/dev/null 2>&1 || true
 for unit in smbd.service nmbd.service wsdd.service sssd.service; do systemctl --root="$WORK" disable "$unit" >/dev/null 2>&1 || true; done
-cat > "$WORK/etc/samba/smb.conf" <<'SMB'
-[global]
-   workgroup = WORKGROUP
-   server role = standalone server
-   security = user
-   passdb backend = tdbsam
-   server min protocol = SMB2_10
-   server max protocol = SMB3
-   server signing = mandatory
-   smb ports = 445
-   disable netbios = yes
-   map to guest = never
-   restrict anonymous = 2
-   usershare allow guests = no
-   interfaces = lo
-   bind interfaces only = yes
-   load printers = no
-   printing = bsd
-   printcap name = /dev/null
-SMB
+install -D -m 0644 "$REPO_DIR/system/integrations/smb.conf" "$WORK/etc/samba/smb.conf"
 
 python3 - "$ART" "$PAY" <<'PY'
 import json, os, subprocess, sys
