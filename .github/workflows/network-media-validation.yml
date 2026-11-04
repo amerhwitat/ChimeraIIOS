@@ -11,6 +11,7 @@ on:
       - 'tests/network/**'
       - 'installer/profiles/filesystem-support.json'
       - 'Dockerfile'
+      - 'README.md'
       - 'iso/manifests/network-filesystem-packages.txt'
       - '.github/workflows/network-media-validation.yml'
   pull_request:
