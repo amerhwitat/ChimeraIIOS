@@ -1571,6 +1571,7 @@ stage_ai_workspace(){
   cp -f "$SCRIPT_DIR/tools/chimera-ai-workspace.py" "$iso/chimera-ai-workspace.py"
   python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-ai-workspace"
   python3 -m json.tool "$share/chimera-ai-workspace.json" >/dev/null
+  python3 "$SCRIPT_DIR/tests/test_chimera_ai_workspace.py"
   log_info 'AI workspace installed; resource indexing is explicit/local and metadata-only unless text capture is opted in.'
   log_info 'CNN/RNN training and LLM inference activate only when compatible frameworks, datasets and model weights are supplied.'
 }
