@@ -32,6 +32,11 @@
       "path": "security.registry.allow_unknown_keys",
       "type": "bool",
       "value": false
+    },
+    {
+      "path": "machine.network.smb.minimum_protocol",
+      "type": "string",
+      "value": "SMB2_10"
     }
   ]
 }
