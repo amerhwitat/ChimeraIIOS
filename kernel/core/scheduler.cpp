@@ -115,12 +115,22 @@ extern "C" uint32_t chimera_sched_run_once(uint32_t cpu){
     if(current_index[cpu]==(int32_t)index)current_index[cpu]=-1;
     unlock();return 1;
 }
-extern "C" uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t n){
+extern "C" uint32_t chimera_sched_run_serial_range(uint32_t first_cpu,uint32_t n){
     lock();uint32_t total=cpus;unlock();
     if(first_cpu>=total||n==0)return 0;
-    uint32_t end=first_cpu+n;if(end<first_cpu||end>total)end=total;
-    uint32_t ran=0;for(uint32_t cpu=first_cpu;cpu<end;cpu++)ran+=chimera_sched_run_once(cpu);
+    uint32_t end=first_cpu+n;
+    if(end<first_cpu||end>total)end=total;
+    uint32_t ran=0;
+    for(uint32_t cpu=first_cpu;cpu<end;cpu++)
+        ran+=chimera_sched_run_once(cpu);
     return ran;
+}
+extern "C" uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t n){
+    /* Fail closed until AP startup, per-CPU workers and cross-CPU synchronization exist.
+       Serial stepping is exposed separately and must never be counted as SMP. */
+    (void)first_cpu;
+    (void)n;
+    return 0;
 }
 extern "C" int chimera_sched_yield_on_cpu(uint32_t cpu){return request_action(cpu,ACTION_YIELD);}
 extern "C" int chimera_sched_block_on_cpu(uint32_t cpu){return request_action(cpu,ACTION_BLOCK);}
