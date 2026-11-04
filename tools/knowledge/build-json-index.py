@@ -14,6 +14,7 @@ EXTS = {".md", ".txt", ".rst", ".json", ".jsonl", ".yaml", ".yml", ".toml",
 DENY_PARTS = {".git", "build", "dist", "target", "node_modules", ".cache",
               ".venv", "__pycache__", "secrets", "credentials", ".ssh", "private"}
 DENY_NAMES = {".env", ".env.local", "id_rsa", "id_ed25519"}
+DENY_NAME_PARTS = ("secret", "credential", "token", "password", "private", "apikey", "api_key")
 CHUNK = 1400
 OVERLAP = 180
 MAX_FILE = 1_000_000
@@ -60,7 +61,7 @@ def main():
             if not path.is_file() or path.is_symlink() or path.suffix.lower() not in EXTS:
                 continue
             rel = path.relative_to(ROOT)
-            if any(part.lower() in DENY_PARTS for part in rel.parts) or path.name.lower() in DENY_NAMES:
+            if any(part.lower() in DENY_PARTS for part in rel.parts) or path.name.lower() in DENY_NAMES or any(x in path.name.lower() for x in DENY_NAME_PARTS):
                 continue
             try:
                 size = path.stat().st_size
