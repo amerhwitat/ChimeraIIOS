@@ -1,0 +1,21 @@
+{
+  "schema": "CHIMERA-AI-WORKSPACE-1",
+  "runtime": "local-first",
+  "desktop_entry": "chimera-ai-workspace.desktop",
+  "resource_database": "~/.local/share/chimera-ai/resources.json",
+  "resource_indexer": "/usr/bin/chimera-ai-workspace",
+  "index_policy": {
+    "explicit_roots_only": true,
+    "metadata_only_by_default": true,
+    "text_extraction_requires_opt_in": true,
+    "exclude_credentials_keys_hidden_profiles_and_caches": true,
+    "network_upload": false
+  },
+  "model_families": {
+    "llm": {"backends": ["llama.cpp", "Ollama"], "weights_bundled": false},
+    "cnn": {"backends": ["ONNX Runtime", "PyTorch", "TensorFlow"], "weights_bundled": false},
+    "rnn": {"backends": ["ONNX Runtime", "PyTorch", "TensorFlow"], "weights_bundled": false}
+  },
+  "training_policy": "No automatic training or weight updates. CNN/RNN training requires a user-selected dataset, architecture, training budget, and output path. LLM inference requires a user-provided compatible model and local backend.",
+  "release_boundary": "Runtime probes and resource indexing do not establish that any model backend or model weights are installed."
+}
