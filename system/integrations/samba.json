@@ -8,7 +8,8 @@
       "smbclient",
       "cifs-utils",
       "wsdd",
-      "avahi-daemon"
+      "avahi-daemon",
+      "avahi-utils"
     ],
     "runtime": [
       "smbd",
