@@ -1,4 +1,5 @@
 #include "chimera/hardware.h"
+#include "chimera/cpu_arch_registry.h"
 #include <stddef.h>
 
 #if defined(__x86_64__) || defined(__i386__)
@@ -17,7 +18,8 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->maximum_emulated_nbit = CHIMERA_NBIT_8192;
 
 #if defined(__x86_64__) || defined(__i386__)
-    out->architecture = CHIMERA_ARCH_X86_64;
+    const koronos_cpu_arch_descriptor *arch = koronos_cpu_arch_current();
+    out->architecture = arch ? static_cast<chimera_architecture>(arch->kernel_arch) : CHIMERA_ARCH_UNKNOWN;
     out->native_pointer_bits = sizeof(void*) * 8u;
     out->native_nbit_mode = (sizeof(void*) == 8) ? CHIMERA_NBIT_64 : CHIMERA_NBIT_32;
     out->physical_address_bits = 36;
@@ -125,16 +127,20 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->architecture = CHIMERA_ARCH_AARCH64;
     out->native_pointer_bits = 64;
     out->native_nbit_mode = CHIMERA_NBIT_64;
-    out->physical_address_bits = 48;
-    out->virtual_address_bits = 48;
+    const koronos_cpu_arch_descriptor *arch = koronos_cpu_arch_current();
+    out->architecture = arch ? static_cast<chimera_architecture>(arch->kernel_arch) : CHIMERA_ARCH_UNKNOWN;
     out->logical_cpus = 1;
-    out->feature_bits |= CHIMERA_HW_NEON;
-#elif defined(__riscv) && (__riscv_xlen == 64)
-    out->architecture = CHIMERA_ARCH_RISCV64;
-    out->native_pointer_bits = 64;
-    out->native_nbit_mode = CHIMERA_NBIT_64;
-    out->physical_address_bits = 56;
-    out->virtual_address_bits = 39;
+#elif defined(__riscv)
+    const koronos_cpu_arch_descriptor *arch = koronos_cpu_arch_current();
+    out->architecture = arch ? static_cast<chimera_architecture>(arch->kernel_arch) : CHIMERA_ARCH_UNKNOWN;
+    out->native_pointer_bits = __riscv_xlen;
+    out->native_nbit_mode = __riscv_xlen == 64 ? CHIMERA_NBIT_64 : CHIMERA_NBIT_32;
+    out->logical_cpus = 1;
+#elif defined(__arm__)
+    const koronos_cpu_arch_descriptor *arch = koronos_cpu_arch_current();
+    out->architecture = arch ? static_cast<chimera_architecture>(arch->kernel_arch) : CHIMERA_ARCH_UNKNOWN;
+    out->native_pointer_bits = 32;
+    out->native_nbit_mode = CHIMERA_NBIT_32;
     out->logical_cpus = 1;
 #else
     out->architecture = CHIMERA_ARCH_UNKNOWN;
