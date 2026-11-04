@@ -143,7 +143,7 @@ static uint64_t dispatch_native(const koronos_user_syscall_frame *frame,uint64_t
             const uint64_t fd=frame->rdi,address=frame->rsi,length=frame->rdx;
             if(fd<3u||fd>=USER_FD_MAX)return static_cast<uint64_t>(-9ll);
             if(length>4096u)return static_cast<uint64_t>(-22ll);
-            if(!koronos_target_validate_user_buffer(address,length,1u))return static_cast<uint64_t>(-14ll);
+            if(length==0)return 0;\n            if(!koronos_target_validate_user_buffer(address,length,1u))return static_cast<uint64_t>(-14ll);
             uint8_t buffer[4096];
             const int64_t n=koronos_process_fd_read(pid,static_cast<int>(fd),buffer,length);
             if(n<0)return static_cast<uint64_t>(n);
