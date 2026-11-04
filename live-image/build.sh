@@ -109,7 +109,7 @@ if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 
       e2fsprogs dosfstools parted gdisk alsa-utils kmod \
       samba smbclient cifs-utils wsdd avahi-daemon avahi-utils \
       realmd adcli sssd-ad sssd-ldap sssd-tools libnss-sss libpam-sss \
-      krb5-user ldap-utils dnsutils libsasl2-modules-gssapi-mit udisks2 oddjob oddjob-mkhomedir
+      krb5-user ldap-utils dnsutils libsasl2-modules-gssapi-mit pkexec polkitd mate-polkit udisks2 oddjob oddjob-mkhomedir
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
