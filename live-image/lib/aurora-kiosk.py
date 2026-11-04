@@ -115,9 +115,9 @@ def dispatch(service, method, args, parent):
         if method == "read":
             return registry_call({"op": "read", "hive": args.get("hive")})
         if method == "set":
-            return registry_call({"op": "set", **args})
+            return registry_call({"op": "set", "hive": args.get("hive"), "path": args.get("path"), "type": args.get("type"), "value": args.get("value"), "generation": args.get("generation")})
         if method == "delete":
-            return registry_call({"op": "delete", **args})
+            return registry_call({"op": "delete", "hive": args.get("hive"), "path": args.get("path"), "generation": args.get("generation")})
     if service == "network":
         if method == "browseSmb":
             host = args.get("host", "")
