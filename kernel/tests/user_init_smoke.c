@@ -68,7 +68,11 @@ __attribute__((noreturn, used)) void _start(void) {
     /* The IDT's DPL3 INT 0x80 entry validates the CPU-saved CS.RPL and active
        CR3, then dispatches a real native syscall. This acknowledgement is not
        emitted by a kernel-authored readiness shortcut. */
-    __asm__ volatile("int $0x80" ::: "memory");
+    register long int80_number __asm__("rax")=0;
+    register long int80_arg1 __asm__("rdi")=0;
+    register long int80_arg2 __asm__("rsi")=0;
+    register long int80_arg3 __asm__("rdx")=0;
+    __asm__ volatile("int $0x80" : "+a"(int80_number) : "D"(int80_arg1),"S"(int80_arg2),"d"(int80_arg3) : "memory");
     register long number __asm__("rax")=2; /* CHM_SYS_GETPID */
     __asm__ volatile("syscall" : "+a"(number) : : "rcx","r11","memory");
     if(number<=0)fail_init();
