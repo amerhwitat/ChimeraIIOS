@@ -298,8 +298,8 @@ jobs:
           {
             echo "### Native Koronos six-case acceptance"
             echo "- Status: **$status**"
-            echo "- Canonical ISO: `$iso`"
-            echo "- Evidence directory: `$evidence`"
+            echo "- Canonical ISO: $iso"
+            echo "- Evidence directory: $evidence"
             echo "- This gate requires one identical ISO SHA across Live/Installer/Recovery × BIOS/UEFI."
             echo "- The existing per-target extracted/repacked smoke ISOs are diagnostic probes, not six-case release evidence."
           } >> "$GITHUB_STEP_SUMMARY"
