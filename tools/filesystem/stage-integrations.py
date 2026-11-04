@@ -7,7 +7,7 @@ def stage(source,root):
  source=Path(source).resolve();root=Path(root).resolve()
  spec=importlib.util.spec_from_file_location("fhs",source/"tools/filesystem/create-fhs-tree.py");m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.create(root)
  groups=[
- (["services/registry/registryd.py","services/registry/registry-editor-api.py","services/registry/registry-editor-launcher.py","tools/registry/registry_hive.py"],"usr/lib/chimera/registry",493),
+ (["services/registry/registryd.py","services/registry/registry-editor-api.py","services/registry/registry-editor-launcher.py","services/registry/registry_client.py","tools/registry/registry_hive.py"],"usr/lib/chimera/registry",493),
  (["services/network/smb-browse.py","services/network/directoryctl.py","services/network/directory-discovery.py","services/network/network-discoveryd.py"],"usr/lib/chimera/network",493),
  (["services/storage/mount-image.py"],"usr/lib/chimera/storage",493),
  (["desktop/aurora/registry-editor.html"],"usr/share/chimera/aurora",420),
