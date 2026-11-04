@@ -7,7 +7,8 @@
    map to guest = never
    guest account = nobody
    disable netbios = yes
-   interfaces = lo\n   bind interfaces only = yes\n   smb ports = 445
+   interfaces = lo
+   bind interfaces only = yes\n   smb ports = 445
    restrict anonymous = 2
    load printers = no
    printing = bsd
