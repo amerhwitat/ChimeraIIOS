@@ -8,9 +8,9 @@ def trace_for(target, firmware):
     return "\n".join([
         "[KRN ] KORONOS READY", f"BOOT FIRMWARE: {firmware.upper()}",
         f"USER INIT SYSCALL: target={target} init_pid=42",
-        f"USERSPACE READY: target={target} init_pid=42",
         f"VFS ACCEPTANCE: ROOT MOUNTED target={target} path=/",
         f"VFS ACCEPTANCE: TMP WRITE-READ VERIFIED target={target} path=/tmp",
+        f"USERSPACE READY: target={target} init_pid=42",
         "SMP CPU ONLINE: logical_id=0 apic_id=0", "SMP CPU ONLINE: logical_id=1 apic_id=1",
         "SMP OVERLAP VERIFIED: cpu_a=0 cpu_b=1 overlap_ticks=12"]) + "\n"
 
