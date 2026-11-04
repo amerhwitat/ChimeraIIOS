@@ -136,6 +136,28 @@ add_executable(aurora_settings desktop/aurora/apps/aurora_settings.cpp)
 chimera_warnings(aurora_settings)
 install(TARGETS aurora_settings RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES desktop/aurora/aurora_settings_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/settings)
+
+# Registry hives and Aurora registry editor.
+install(PROGRAMS tools/registry/registry_hive.py tools/registry/registry_admin.py
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/registry)
+install(PROGRAMS desktop/aurora/aurora-registry-editor DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES desktop/aurora/aurora-registry-editor.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES system/registry/machine.defaults.json system/registry/environment.defaults.json
+  system/registry/kernel.defaults.json system/registry/registry-editor-policy.json
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/registry)
+
+# SMB2/3 client discovery, optional Samba server, AD enrollment and optical media.
+install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/network)
+install(PROGRAMS tools/network/chimera-iso-mount DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES system/services/chimera-smbd.service system/services/chimera-smb-discovery.service
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+install(FILES system/samba/smb.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/samba)
+install(FILES system/security/chimera_ad_config.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/chimera)
+install(FILES system/network/smb-client.json system/network/smb-server.json
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/network)
+install(FILES system/storage/fstab.chimera.example DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/storage)
+
 install(FILES desktop/aurora/aurora_media_ecosystem.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/media)
 add_executable(aurora_media_player desktop/aurora/apps/aurora_media.cpp)
 add_executable(aurora_video_player desktop/aurora/apps/aurora_video.cpp)
@@ -200,6 +222,15 @@ if(CHIMERA_ENABLE_CVEL)
   add_test(NAME chimera_cvel COMMAND chimera_cvel_test)
 endif()
 if(Python3_Interpreter_FOUND)
+  add_test(NAME chimera_registry_hive_host
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
+  add_test(NAME chimera_registry_admin_transactions
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/registry/test_registry_admin.py)
+  add_test(NAME chimera_network_helper_syntax
+    COMMAND ${Python3_EXECUTABLE} -m py_compile
+      ${CMAKE_SOURCE_DIR}/tools/network/chimera-smb-browse.py
+      ${CMAKE_SOURCE_DIR}/tools/network/chimera-domain-join.py
+      ${CMAKE_SOURCE_DIR}/tools/registry/registry_admin.py)
   # Regenerate metadata whenever the generator target is requested so stale
   # build-tree ISA JSON cannot shadow the canonical CSV/CPP metadata.
   add_custom_target(chimera_generate_isa_bitfields
