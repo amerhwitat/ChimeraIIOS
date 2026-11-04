@@ -1753,7 +1753,7 @@ stage_ai_workspace(){
   install -m 0644 "$SCRIPT_DIR/tools/cognition/trainable_rnn_lm.py" "$share/trainable_rnn_lm.py"
   python3 "$SCRIPT_DIR/tools/cognition/knowledge_database.py" validate --database "$share/hardware-systems-knowledge.json"
   python3 "$SCRIPT_DIR/tools/cognition/train_knowledge_rnn.py" --database "$share/hardware-systems-knowledge.json" --output "$share/trained-hardware-systems-rnn.json" --epochs "${CHIMERA_AI_RNN_EPOCHS:-2}" --hidden 8
-  python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-ai-workspace" "$ROOTFS_DIR/usr/bin/chimera-ai-knowledge" "$share/train_knowledge_rnn.py"
+  python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-ai-workspace" "$ROOTFS_DIR/usr/bin/chimera-ai-knowledge" "$share/train_knowledge_rnn.py" "$share/trainable_rnn_lm.py"
   python3 "$SCRIPT_DIR/tests/cognition/test_knowledge_database.py"
   install -m 0755 "$SCRIPT_DIR/desktop/shared/chimera-ai-workspace-launcher.sh" "$ROOTFS_DIR/usr/local/bin/chimera-ai-workspace-launcher"
   install -m 0644 "$SCRIPT_DIR/desktop/aurora/chimera-ai-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/chimera-ai-workspace.desktop"
@@ -1769,6 +1769,7 @@ stage_ai_workspace(){
   cp -f "$share/trainable_rnn_lm.py" "$iso/"
   python3 -m json.tool "$share/chimera-ai-workspace.json" >/dev/null
   python3 -m json.tool "$share/hardware-systems-knowledge.json" >/dev/null
+  python3 -m json.tool "$share/hardware-systems-knowledge.schema.json" >/dev/null
   python3 -m json.tool "$share/trained-hardware-systems-rnn.json" >/dev/null
   python3 "$SCRIPT_DIR/tests/test_chimera_ai_workspace.py"
   log_info 'AI workspace installed; resource indexing is explicit/local and metadata-only unless text capture is opted in.'
