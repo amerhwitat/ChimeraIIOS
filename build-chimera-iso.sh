@@ -1718,7 +1718,7 @@ EOF
 Type=Application
 Name=Chimera Knowledge Chat
 Comment=Search the local knowledge database with source citations
-Exec=x-terminal-emulator -e python3 /usr/lib/chimera/tools/knowledge/knowledge-chat.py --index /var/lib/chimera/knowledge/knowledge-index.json
+Exec=xterm -e python3 /usr/lib/chimera/tools/knowledge/knowledge-chat.py --index /var/lib/chimera/knowledge/knowledge-index.json
 Terminal=true
 Categories=Utility;Education;
 EOF
