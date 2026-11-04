@@ -38,6 +38,14 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Keep Jasper recovery payload lookup aligned with prepare-layout and the
+# live-boot builder when --storage/CHIMERA_BUILD_DIR selects another volume.
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+LIVE_BOOT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_DIR/live-boot}"
+# Child ISO stages must inherit the selected storage paths. Without these
+# exports prepare-layout.sh falls back to $ROOT/build and misses artifacts
+# produced on the selected build volume.
+export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_LIVE_BOOT_DIR="$LIVE_BOOT"
 # Canonical system block-size contract. Forward this unchanged into the kernel
 # build and all downstream ISO stages; never silently accept malformed values.
 CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
@@ -74,7 +82,7 @@ cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 # Stage its dedicated initramfs and the canonical recovery menu after
 # prepare-layout, whose legacy recovery.cfg generation is intentionally kept
 # compatible with older installations.
-RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
+RECOVERY_BOOT="$LIVE_BOOT/boot/recovery"
 test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
 test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/recovery"

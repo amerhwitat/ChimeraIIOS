@@ -9,15 +9,38 @@ Usage:
   build-chimera-iso.sh [options] [arguments]
 
 Options:
-  -h, --help    Show this help and exit successfully.
-  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
-  --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
-  --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
-  --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  -h, --help                  Show this help and exit successfully.
+  --verbose, --debug          Emit detailed stage diagnostics (default).
+  --quiet                     Reduce console output; logs remain enabled.
+  --resume, --resume-auto     Resume after the last recorded completed stage.
+  --clean-state               Clear saved resume/failure state before building.
+  --storage-auto, --auto-storage
+                              Automatically select writable storage with >=20 GiB free.
+  --no-storage-prompt         Fail instead of prompting when storage is insufficient.
+  --storage PATH              Use PATH/chimera-build and PATH/chimera-output.
+  --docker-only               Build/publish only the Docker image.
+  --iso-only                  Build an ISO from an existing Docker image.
+  --full                      Force a clean full build, including native SDK compilation/tests and ISO staging.
+  --tag TAG                   Docker image tag (default: latest).
+  --background PATH           Aurora background artwork asset.
+  --skip-apache               Skip Apache ecosystem integration.
+  --apache-ecosystem          Enable Apache ecosystem integration.
+  --push / --no-push          Enable/disable Docker Hub image publishing.
+  --registry NAME             Set the package registry name.
+  --refresh-online-catalogs,
+  --refresh-isa-catalog       Refresh online ISA/OS catalogs.
+  --sync-dos-payloads         Fetch eligible DOS payloads for ISO staging.
+  --skip-native-iso           Skip the additional native boot/ISO pipeline.
+  --install-build-deps        Opt in to installing missing host build tools.
 
-Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
-  The script's existing command-line interface and environment variables remain unchanged.
+Environment:
+  CHIMERA_BUILD_DIR, CHIMERA_ROOTFS_DIR, CHIMERA_ISO_OUTPUT_DIR,
+  CHIMERA_BUILD_STORAGE_ROOT, CHIMERA_STORAGE_AUTO, CHIMERA_STORAGE_PROMPT,
+  CHIMERA_BUILD_STATE_FILE, CHIMERA_FAILED_STAGE_FILE, CHIMERA_PUSH,
+  CHIMERA_VERBOSE, CHIMERA_SQUASHFS_PROCESSORS and CHIMERA_* build controls.
+
+Resume safety:
+  Resume state is advisory. Use --clean-state to force a complete rebuild.
 CHIMERA_HELP
   exit 0
 fi
@@ -132,6 +155,8 @@ BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+CHIMERA_VERBOSE="${CHIMERA_VERBOSE:-1}"
+CHIMERA_CAPTURE_CONSOLE="${CHIMERA_CAPTURE_CONSOLE:-1}"
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -174,22 +199,65 @@ ensure_log_dir(){
 ensure_log_dir
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
-log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
-log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
-log_warning(){ echo -e "${YELLOW}[WARNING]${NC} $*"; }
-log_error(){ echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_file(){ ensure_log_dir || return 0; printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$LOG_DIR/chimera-build.log" 2>/dev/null || true; }
-log_both(){ log_info "$*"; log_file "$*"; }
+log_info(){ printf "${BLUE}[%s INFO]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "INFO $*"; }
+log_success(){ printf "${GREEN}[%s SUCCESS]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "SUCCESS $*"; }
+log_warning(){ printf "${YELLOW}[%s WARNING]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "WARNING $*"; }
+log_error(){ printf "${RED}[%s ERROR]${NC} %s\n" "$(date -u +%H:%M:%S)" "$*" >&2; log_file "ERROR $*"; }
+log_debug(){ [[ "$CHIMERA_VERBOSE" == 1 ]] || return 0; printf "[%s DEBUG] %s\n" "$(date -u +%H:%M:%S)" "$*"; log_file "DEBUG $*"; }
+log_both(){ log_info "$*"; }
+
+# Capture all child-tool output for post-failure diagnosis. Avoid `set -x`:
+# shell tracing can disclose expanded registry tokens and other credentials.
+if [[ "$CHIMERA_CAPTURE_CONSOLE" == 1 ]]; then
+  BUILD_CONSOLE_LOG="$LOG_DIR/build-console.log"
+  if touch "$BUILD_CONSOLE_LOG" 2>/dev/null; then
+    exec > >(tee -a "$BUILD_CONSOLE_LOG") 2>&1
+  else
+    log_warning "Could not enable full console capture at $BUILD_CONSOLE_LOG"
+  fi
+fi
+emit_build_diagnostics(){
+  header 'VERBOSE HOST / TOOLCHAIN / SOURCE DIAGNOSTICS'
+  log_info "UTC timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  log_info "Script: $SCRIPT_DIR/build-chimera-iso.sh"
+  log_info "Build=$BUILD_DIR Rootfs=$ROOTFS_DIR ISO-stage=$ISO_DIR ISO-output=$ISO_OUTPUT_DIR Temp=$ISO_TMP_DIR"
+  log_info "Host=$HOST_ARCH Target=$TARGET_ARCH Media=$MEDIA_FS_PROFILE Block-size=$CHIMERA_SYSTEM_BLOCK_SIZE"
+  log_info "Verbose=$CHIMERA_VERBOSE Console-capture=$CHIMERA_CAPTURE_CONSOLE"
+  log_info "Kernel: $(uname -srmo 2>/dev/null || uname -a)"
+  log_info "Distribution: $(. /etc/os-release 2>/dev/null; printf '%s %s' "${PRETTY_NAME:-unknown}" "${VERSION_ID:-}")"
+  log_info "CPU count: $(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo unknown)"
+  if command -v git >/dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    log_info "Source commit: $(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || echo unknown)"
+    log_info "Source branch: $(git -C "$SCRIPT_DIR" branch --show-current 2>/dev/null || echo detached)"
+    log_info "Worktree change rows: $(git -C "$SCRIPT_DIR" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
+  fi
+  for tool in docker cmake ctest ninja make gcc g++ clang clang++ nasm yasm grub-mkrescue grub-script-check xorriso mksquashfs cpio busybox python3 rustc cargo go javac java dotnet node npm qemu-system-x86_64; do
+    if command -v "$tool" >/dev/null 2>&1; then
+      local version_line
+      version_line="$("$tool" --version 2>&1 | head -n 1 || true)"
+      log_debug "tool=$tool version=${version_line:-available} path=$(command -v "$tool")"
+    else
+      log_debug "tool=$tool unavailable"
+    fi
+  done
+  for path in "$BUILD_DIR" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; do
+    [[ -e "$path" ]] || mkdir -p "$path" 2>/dev/null || true
+    log_info "Storage $path: $(df -h "$path" 2>/dev/null | awk 'NR==2 {print "size=" $2 " used=" $3 " free=" $4 " mount=" $6}')"
+  done
+  log_info "Console log: ${BUILD_CONSOLE_LOG:-disabled}; structured log: $LOG_DIR/chimera-build.log"
+}
+
 process_snapshot(){
   ensure_log_dir || return 0
   {
     echo "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) PROCESS SNAPSHOT ====="
     echo "-- host processes --"
-    ps -eo pid,ppid,stat,%cpu,%mem,etime,cmd --sort=-%cpu 2>/dev/null || true
+    ps -eo pid,ppid,stat,%cpu,%mem,etime,comm --sort=-%cpu 2>/dev/null || true
     echo "-- process tree --"
-    pstree -ap $$ 2>/dev/null | head -n 80 || true
+    pstree -p "$" 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
-    docker ps -a --no-trunc 2>/dev/null || true
+    docker ps -a --no-trunc --format '{{.ID}} {{.Image}} {{.Status}} {{.Names}}' 2>/dev/null || true
     echo "-- docker disk usage --"
     docker system df 2>/dev/null || true
     echo "-- storage --"
@@ -212,33 +280,54 @@ header(){ printf '\n============================================================
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
 DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
+FULL_BUILD=0
 
+require_option_value() {
+  local option="$1" value="${2:-}"
+  [[ -n "$value" && "$value" != --* ]] || { log_error "$option requires a value"; exit 2; }
+}
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -h|--help) sed -n '/^Chimera II OS script:/,/^CHIMERA_HELP$/p' "$0"; exit 0;;
     --refresh-online-catalogs|--refresh-isa-catalog) REFRESH_ONLINE_CATALOGS=1; shift;;
+    --verbose|--debug) CHIMERA_VERBOSE=1; shift;;
+    --quiet) CHIMERA_VERBOSE=0; shift;;
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
-    --resume) RESUME_BUILD=1; shift;;
+    --full) FULL_BUILD=1; RESUME_BUILD=0; CLEAN_STATE=1; export CHIMERA_FULL_BUILD=1 CHIMERA_BUILD_NATIVE_ISO_PIPELINE=1; shift;;
+    --resume|--resume-auto) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
-    --storage-auto) STORAGE_AUTO=1; shift;;
+    --storage-auto|--auto-storage) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
-    --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
-    --tag) DOCKER_TAG="$2"; shift 2;;
-    --background) export CHIMERA_AURORA_ASSET="$2"; shift 2;;
+    --storage) require_option_value "$1" "${2:-}"; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
+    --tag) require_option_value "$1" "${2:-}"; DOCKER_TAG="$2"; shift 2;;
+    --background) require_option_value "$1" "${2:-}"; export CHIMERA_AURORA_ASSET="$2"; shift 2;;
     --skip-apache) export APACHE_ECOSYSTEM=0; shift;;
     --apache-ecosystem) export APACHE_ECOSYSTEM=1; shift;;
     --push) export CHIMERA_PUSH=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
-    --registry) export REGISTRY_NAME="$2"; shift 2;;
+    --registry) require_option_value "$1" "${2:-}"; export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
 
+if [[ "$FULL_BUILD" == 1 ]]; then
+  # --full is an explicit complete-build request, regardless of option order.
+  BUILD_DOCKER=1
+  BUILD_ISO=1
+  RESUME_BUILD=0
+  CLEAN_STATE=1
+  export CHIMERA_FULL_BUILD=1 CHIMERA_BUILD_NATIVE_ISO_PIPELINE=1
+fi
+
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
+  [[ -n "$root" && -d "$root" && -w "$root" ]] || { log_error "Storage root must exist and be writable: $root"; exit 2; }
+  probe="$(mktemp "$root/.chimera-storage-test.XXXXXX" 2>/dev/null)" || { log_error "Storage root failed a write test: $root"; exit 2; }
+  rm -f "$probe"
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
   mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
   export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
@@ -371,6 +460,7 @@ choose_storage(){
   log_success "Build storage switched to $best"
 }
 preflight(){
+  emit_build_diagnostics
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
   header 'CPU / MEDIA PROFILE'
@@ -381,7 +471,12 @@ preflight(){
   header 'LARGE ISO / STORAGE PREFLIGHT'
   local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
-  if ((rg<20 || og<20)); then
+  # --storage-auto is an explicit request to select a suitable writable volume.
+  if [[ "$STORAGE_AUTO" == 1 && -z "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
+    choose_storage 20 || { log_error 'No suitable writable storage with at least 20 GiB free was found'; log_error 'Read-only WSL /mnt mounts are never selected.'; exit 1; }
+    rg="$(free_gib "$ROOTFS_DIR")"; og="$(free_gib "$ISO_OUTPUT_DIR")"
+    log_info "Automatic storage selected; rootfs free=${rg} GiB output free=${og} GiB"
+  elif ((rg<20 || og<20)); then
     if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable writable storage with enough free space found'; log_error 'A read-only /mnt drive is never selected automatically.'; exit 1; }
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
@@ -404,15 +499,71 @@ preflight(){
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
 }
 state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
-state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."; }
-state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
-state_done(){
-  local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
-  ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
-  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
+state_fingerprint(){
+  local head diff untracked
+  head="$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || printf 'no-git')"
+  diff="$(git -C "$SCRIPT_DIR" diff --binary HEAD -- . 2>/dev/null | sha256sum | awk '{print $1}')"
+  # Include untracked source/assets too: otherwise a newly added file could
+  # change the build inputs without invalidating a saved resume checkpoint.
+  untracked="$(git -C "$SCRIPT_DIR" ls-files --others --exclude-standard -z 2>/dev/null | xargs -0 -r sha256sum 2>/dev/null | sha256sum | awk '{print $1}')"
+  printf '%s:%s:%s' "$head" "${diff:-no-diff}" "${untracked:-no-untracked}"
 }
-run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark "$1"; CURRENT_STAGE=""; }
+state_mark(){
+  local fingerprint
+  fingerprint="$(state_fingerprint)"
+  printf 'schema=3\ncompleted=%s\nfingerprint=%s\nupdated=%s\n' "$1" "$fingerprint" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."
+}
+state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
+resume_artifacts_present(){
+  case "$1" in
+    docker) docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 ;;
+    rootfs) [[ -d "$ROOTFS_DIR/etc" ]] ;;
+    commands) [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] ;;
+    docker-publish) return 1 ;; # Re-publish idempotently rather than trusting an old push marker.
+    boot) [[ -s "$ISO_DIR/boot/grub/grub.cfg" || -s "$ISO_DIR/boot/grub.cfg" ]] ;;
+    installer) [[ -s "$ISO_DIR/install/installer/installation.img" ]] ;;
+    branding) [[ -d "$ISO_DIR/boot/visual" && -n "$(find "$ISO_DIR/boot/visual" -maxdepth 1 -type f -print -quit 2>/dev/null)" ]] ;;
+    apache|features|package-managers|games) return 1 ;; # Re-run until each stage has a dedicated completion manifest.
+    squashfs) [[ -s "$ISO_DIR/live/filesystem.squashfs" ]] ;;
+    iso) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso" ]] ;;
+    verify) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso.sha256" && -s "$LOG_DIR/iso-el-torito.log" ]] ;;
+    native-iso|report) return 1 ;;
+    *) return 1 ;;
+  esac
+}
+state_done(){
+  local completed="$1" target="$2" stored_fingerprint current_fingerprint
+  [[ -n "$completed" && -f "$STATE_FILE" ]] || return 1
+  stored_fingerprint="$(sed -n 's/^fingerprint=//p' "$STATE_FILE" | tail -1)"
+  current_fingerprint="$(state_fingerprint)"
+  # Older state files or changed source trees are deliberately not trusted.
+  [[ -n "$stored_fingerprint" && "$stored_fingerprint" == "$current_fingerprint" ]] || return 1
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
+  ci=$(printf '%s\n' "$order" | awk -v x="$completed" '{for(i=1;i<=NF;i++)if($i==x)print i}')
+  ti=$(printf '%s\n' "$order" | awk -v x="$target" '{for(i=1;i<=NF;i++)if($i==x)print i}')
+  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]] || return 1
+  resume_artifacts_present "$target"
+}
+run_stage(){
+  local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
+  started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  CURRENT_STAGE="$stage"
+  header "BEGIN STAGE: $stage"
+  log_info "Stage started=$started_utc function=$fn pid=${BASHPID:-unknown}"
+  if "$fn"; then
+    elapsed=$((SECONDS-started))
+    state_mark "$stage"
+    log_success "Stage completed=$stage duration=${elapsed}s"
+    log_file "STAGE_COMPLETE stage=$stage duration_seconds=$elapsed finished=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    CURRENT_STAGE=""
+  else
+    rc=$?
+    elapsed=$((SECONDS-started))
+    log_error "Stage failed=$stage exit=$rc duration=${elapsed}s function=$fn"
+    log_file "STAGE_FAILED stage=$stage exit=$rc duration_seconds=$elapsed"
+    return "$rc"
+  fi
+}
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
@@ -483,7 +634,9 @@ build_docker(){
   header 'STEP 1: BUILD DOCKER IMAGE'
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
   start_watchdog "Docker BuildKit image build"; set +e
-  BUILDKIT_PROGRESS=plain docker build --progress=plain -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  local -a docker_build_args=()
+  [[ "$FULL_BUILD" == 1 ]] && docker_build_args+=(--no-cache)
+  BUILDKIT_PROGRESS=plain docker build --progress=plain "${docker_build_args[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
 
@@ -1137,11 +1290,15 @@ build_native_iso_pipeline(){
   # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
   local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-4096}"
   [[ "$system_block_size" =~ ^[1-9][0-9]*$ ]] || { log_error "Invalid CHIMERA_SYSTEM_BLOCK_SIZE: $system_block_size"; return 2; }
-  # Pass both the canonical name and the compatibility alias explicitly: the
-  # native ISO builder and its contract verifier must see the same 4 KiB default.
+  # Pass the complete artifact path contract explicitly across this process
+  # boundary. The child builder re-exports these values to prepare-layout.sh
+  # and the Live producer; no stage should silently fall back to $SCRIPT_DIR/build.
+  local live_boot_dir="$BUILD_DIR/live-boot"
+  log_info "Native ISO artifact paths: BUILD_DIR=$BUILD_DIR LIVE_BOOT=$live_boot_dir"
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     SYSTEM_BLOCK_SIZE="$system_block_size" \
-    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" \
+    CHIMERA_LIVE_BOOT_DIR="$live_boot_dir" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
@@ -1207,13 +1364,14 @@ mkdir -p /proc /sys /dev /run /tmp /mnt /target
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-echo "CHIMERA II OS — NATIVE INSTALLER"
+echo "CHIMERA II OS — INSTALLER SHELL (DISK INSTALLATION DISABLED)"
 echo "[INST] Koronos installer environment online"
 echo "[INST] Aurora installation contracts loaded"
+echo "[INST] Disk installation is fail-closed: no OS-specific partition/deployment backend is configured."
 if [ -x /bin/chimera-installer-runtime.sh ]; then
   /bin/chimera-installer-runtime.sh /
 fi
-echo "[INST] Installation environment ready"
+echo "[INST] Installer diagnostic shell ready; no disk changes have been made."
 exec /bin/sh
 EOF
   chmod +x "$p/init"
@@ -1349,6 +1507,8 @@ verify_iso(){
     /boot/koronos/koronos.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
+    /boot/recovery/chimera-recovery-initramfs.img
+    /boot/recovery/recovery-manifest.json
     /boot/grub/aurora-theme.txt
     /boot/visual/aurora-boot.png
     /boot/visual/aurora-menu.png
@@ -1375,7 +1535,13 @@ verify_iso(){
     fi
   done
   xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
-  log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    if ! xorriso -indev "$iso" -find /install/sdk/SDK_BUILD_MANIFEST.json -type f | grep -q .; then
+      log_error "Full ISO is missing the staged native SDK build manifest."
+      exit 1
+    fi
+  fi
+  log_success "BIOS/UEFI boot files, Live/Recovery payloads, installer shell and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
     log_info 'Launching a non-asserting QEMU firmware smoke probe; timeout is not proof of boot success.'
     local qemu_probe_rc=0
@@ -1474,6 +1640,26 @@ build_command_runtime(){
   [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
 }
+build_native_sdk(){
+  header 'FULL BUILD: COMPILE, TEST AND STAGE CHIMERA SDK'
+  local sdk_src="$SCRIPT_DIR/sdk" sdk_build="$BUILD_DIR/sdk" sdk_dest="$ROOTFS_DIR/opt/chimera-sdk"
+  [[ -s "$sdk_src/CMakeLists.txt" ]] || { log_error "SDK CMake project is missing: $sdk_src/CMakeLists.txt"; return 1; }
+  command -v cmake >/dev/null 2>&1 || { log_error "CMake is required for --full SDK compilation"; return 2; }
+  command -v ctest >/dev/null 2>&1 || { log_error "CTest is required for --full SDK validation"; return 2; }
+  rm -rf -- "$sdk_build"
+  mkdir -p "$sdk_build" "$sdk_dest" "$ISO_DIR/install/sdk"
+  cmake -S "$sdk_src" -B "$sdk_build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/chimera-sdk
+  cmake --build "$sdk_build" --parallel "${CHIMERA_BUILD_JOBS:-2}"
+  ctest --test-dir "$sdk_build" --output-on-failure
+  DESTDIR="$ROOTFS_DIR" cmake --install "$sdk_build"
+  mkdir -p "$ISO_DIR/install/sdk/source"
+  cp -a "$sdk_src/." "$ISO_DIR/install/sdk/source/"
+  for manifest in manifest.json SDK_BUILD_MANIFEST.json runtime-profiles.json; do
+    [[ -s "$sdk_src/$manifest" ]] && cp -f "$sdk_src/$manifest" "$ISO_DIR/install/sdk/"
+  done
+  [[ -s "$sdk_dest/share/chimera/sdk/SDK_BUILD_MANIFEST.json" ]] || { log_error "Installed SDK build manifest missing from rootfs"; return 1; }
+  log_success "Native SDK compiled, CTest-validated, installed into rootfs and staged in ISO."
+}
 
 main(){
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
@@ -1515,7 +1701,13 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  local -a build_stages=(docker rootfs commands)
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    build_stages+=(sdk)
+    log_info "--full enabled: clean rebuild plus native SDK compilation, CTest and ISO staging."
+  fi
+  build_stages+=(docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report)
+  for stage in "${build_stages[@]}"; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1524,6 +1716,7 @@ main(){
       docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
+      sdk) run_stage sdk build_native_sdk;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
@@ -1542,5 +1735,5 @@ main(){
   cleanup_final_success_artifacts
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
