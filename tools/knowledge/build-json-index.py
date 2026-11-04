@@ -60,7 +60,7 @@ def main():
         for path in sorted(base.rglob("*")):
             if not path.is_file() or path.is_symlink() or path.suffix.lower() not in EXTS:
                 continue
-            rel = path.relative_to(ROOT)
+            rel = path.relative_to(root)
             if any(part.lower() in DENY_PARTS for part in rel.parts) or path.name.lower() in DENY_NAMES or any(x in path.name.lower() for x in DENY_NAME_PARTS):
                 continue
             try:
@@ -81,7 +81,7 @@ def main():
                              {"chunk_id": i, "text": part} for i, part in enumerate(parts)]})
     payload = {"schema": "chimera-local-knowledge-json-v1",
                "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-               "repository": ROOT.name, "scope": "repository-local allowlisted text resources only",
+               "repository": root.name, "scope": "repository-local allowlisted text resources only",
                "training": False, "inference_runtime": "not-provided-by-indexer",
                "privacy": "No home-directory, credential, secret, or arbitrary host-file ingestion.",
                "limits": {"max_file_bytes": MAX_FILE, "max_total_bytes": MAX_TOTAL,
