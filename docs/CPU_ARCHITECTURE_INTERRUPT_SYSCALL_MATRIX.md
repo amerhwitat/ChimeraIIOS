@@ -160,3 +160,16 @@ The Linux man-pages calling-convention reference documents the standard register
 - XNU x86_64 IDT, trap, interrupt and syscall stubs: https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/x86_64/idt64.s
 
 Linux's syscall table is the primary source for architecture ABI details. XNU is used as a comparative implementation reference only for its x86_64 and arm64 machine-dependent paths; it is not treated as a general RISC/CISC porting source.
+
+
+## Runtime backend selection
+
+CPU identification now feeds an in-kernel architecture dispatch registry rather than leaving the matrix as documentation alone:
+
+- `kernel/core/arch_init.cpp` normalizes the detected architecture and queries `koronos_arch_backend_lookup()`.
+- `kernel/core/arch_backend.cpp` contains 22 unique runtime backend descriptors. Each descriptor reports the ISA family, maturity, presence of an entry stub, interrupt backend and syscall backend, and the applicable trap/IRQ model.
+- `koronos_cpu_features` reports the selected backend status and which backend layers are actually present.
+- `tests/kernel/cpu_profile_host_test.cpp` verifies that all 22 IDs are unique, that every descriptor has explicit interrupt/syscall metadata, and that the detected CPU selects the matching descriptor.
+- `kernel/build-koronos.sh` compiles the registry and runs the host regression before linking the native x86_64 kernel.
+
+The runtime registry intentionally returns **partial** for x86_64, **port-skeleton** for AArch64 and RISC-V64, and **reference-only** for the remaining architectures. It does not dispatch into unimplemented backends. A port-skeleton entry stub is not a working interrupt controller, syscall path or bootable kernel.
