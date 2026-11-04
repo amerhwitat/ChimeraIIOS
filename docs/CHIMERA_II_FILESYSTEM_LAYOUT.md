@@ -99,3 +99,11 @@ The target filesystem follows familiar Unix semantics while reserving Chimera-sp
 ## Transactional updates
 
 A future installer/update engine should create versioned `/system/chimera/kernel/<version>` and switch an EFI boot entry or bootloader generation atomically. Rollback keeps the previous generation intact until post-boot health checks succeed.
+
+
+## Network and optical mount namespaces
+
+- `/mnt/chimera/network/<share>` — administrator-mounted SMB/CIFS network shares. The supplied helper uses SMB 3.1.1 and restrictive mount flags.
+- `/mnt/chimera/media/<image-or-device>` — read-only ISO-9660/UDF images and optical drives; execution and device nodes are disabled.
+- `/srv/smb` — optional server-side Samba export data; never expose it as a guest-writable share by default.
+- `/etc/chimera/identity` — local SSSD/realmd policy and non-secret directory-service configuration. Passwords and Kerberos tickets must remain in protected system credential stores, not this directory or the ISO.
