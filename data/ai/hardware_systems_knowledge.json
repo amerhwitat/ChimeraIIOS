@@ -23,7 +23,7 @@
     "license_review_required_before_redistributing_source_text": true,
     "external_upload": false
   },
-  "source_count": 33,
+  "source_count": 35,
   "sources": [
     {
       "id": "intel-sdm",
@@ -288,6 +288,22 @@
       "url": "https://onnxruntime.ai/docs/execution-providers/",
       "kind": "ml-hardware-acceleration",
       "authority": "project-primary"
+    },
+    {
+      "id": "amd64-apm",
+      "publisher": "AMD",
+      "title": "AMD64 Architecture Programmer's Manual, Volumes 1–5",
+      "url": "https://docs.amd.com/v/u/en-US/40332_4.09_APM_PUB",
+      "kind": "architecture-manual",
+      "authority": "vendor-primary"
+    },
+    {
+      "id": "repo-arch-matrix",
+      "publisher": "ChimeraIIOS",
+      "title": "Koronos CPU Architecture Matrix",
+      "url": "https://github.com/amerhwitat/ChimeraIIOS/blob/main/docs/CPU_ARCHITECTURE_MATRIX.md",
+      "kind": "repository-inventory",
+      "authority": "project-source"
     }
   ],
   "entry_count": 145,
@@ -335,7 +351,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -383,7 +399,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -431,7 +447,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "intel-sdm"
+        "intel-sdm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -479,7 +496,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "intel-sdm"
+        "intel-sdm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -527,7 +545,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -575,7 +594,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -623,7 +643,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -671,7 +692,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -719,7 +741,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -767,7 +789,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -815,7 +837,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -863,7 +885,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -911,7 +933,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -959,7 +981,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1007,7 +1029,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1055,7 +1077,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1103,7 +1125,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1151,7 +1173,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1199,7 +1221,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1247,7 +1269,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1295,7 +1317,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1343,7 +1365,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1391,7 +1413,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1439,7 +1461,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1487,7 +1509,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1535,7 +1557,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1583,7 +1605,8 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "amd64-apm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1631,7 +1654,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1679,7 +1702,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1727,7 +1750,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1775,7 +1798,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1823,7 +1847,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "intel-sdm"
+        "intel-sdm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1871,7 +1896,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1919,7 +1944,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -1967,7 +1992,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2015,7 +2040,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2063,7 +2088,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2111,7 +2136,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2159,7 +2184,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2207,7 +2232,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2255,7 +2280,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2303,7 +2328,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2351,7 +2376,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2399,7 +2424,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2447,7 +2472,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2495,7 +2521,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2543,7 +2570,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2591,7 +2619,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2639,7 +2668,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2687,7 +2717,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2735,7 +2766,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2783,7 +2815,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2831,7 +2863,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2879,7 +2911,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2927,7 +2959,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -2975,7 +3007,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3023,7 +3055,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3071,7 +3103,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "amd64-apm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3119,7 +3152,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3167,7 +3200,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3215,7 +3248,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3263,7 +3296,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3311,7 +3344,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3359,7 +3392,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3407,7 +3440,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3455,7 +3488,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3503,7 +3536,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3551,7 +3584,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3599,7 +3632,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3647,7 +3680,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3695,7 +3728,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3743,7 +3776,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3791,7 +3824,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3839,7 +3872,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3887,7 +3920,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3935,7 +3968,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -3983,7 +4016,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4031,7 +4064,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4079,7 +4113,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4127,7 +4161,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4175,7 +4209,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4223,7 +4257,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4271,7 +4305,8 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "amd64-apm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4319,7 +4354,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4367,7 +4402,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4415,7 +4451,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4463,7 +4500,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4511,7 +4549,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4559,7 +4597,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4607,7 +4645,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4655,7 +4693,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4703,7 +4741,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4751,7 +4789,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4799,7 +4837,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4847,7 +4885,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4895,7 +4933,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4943,7 +4981,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -4991,7 +5029,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -5039,7 +5077,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -5087,7 +5125,7 @@
         "non-CPU execution ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -5135,7 +5173,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "arm-arm"
+        "arm-arm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -5183,7 +5222,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "riscv-spec"
+        "riscv-spec",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -5231,7 +5271,8 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "intel-sdm"
+        "intel-sdm",
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
@@ -5279,7 +5320,7 @@
         "CPU/MCU/DSP ISA"
       ],
       "source_ids": [
-        "linux-arch"
+        "repo-arch-matrix"
       ],
       "status": "reference-inventory",
       "verification": "repository-matrix-entry; not independently hardware-validated"
