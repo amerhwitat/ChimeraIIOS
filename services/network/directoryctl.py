@@ -18,7 +18,8 @@ def valid_ldap_uri(value):
         return bool(parsed.hostname) and (parsed.port is None or 1 <= parsed.port <= 65535) and parsed.path in ("", "/")
     except ValueError:
         return False
-\ndef run(argv, timeout=90):
+
+def run(argv, timeout=90):
     return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
 
 def main():
