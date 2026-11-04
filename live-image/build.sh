@@ -151,6 +151,10 @@ for hive in machine environment kernel; do
   python3 "$WORK/usr/lib/chimera/registry/registry_hive.py" verify "$WORK/etc/chimera/registry/$hive.hive"
 done
 cp -a "$REPO_DIR/system/integrations/." "$WORK/usr/share/chimera/integrations/"
+install -D -m 0644 "$REPO_DIR/services/registry/registryd.service.json" "$WORK/usr/share/chimera/integrations/registryd.service.json"
+install -D -m 0644 "$REPO_DIR/services/registry/admin-group-sync.service.json" "$WORK/usr/share/chimera/integrations/admin-group-sync.service.json"
+install -D -m 0644 "$REPO_DIR/services/network/smbd.service.json" "$WORK/usr/share/chimera/integrations/smbd.service.json"
+install -D -m 0644 "$REPO_DIR/services/service_registry.json" "$WORK/usr/share/chimera/services/service_registry.json"
 chroot "$WORK" groupadd --force chimera-admin
 if chroot "$WORK" getent passwd user >/dev/null 2>&1; then chroot "$WORK" usermod -aG chimera-admin user; fi
 install -d "$WORK/etc/systemd/system/multi-user.target.wants"
