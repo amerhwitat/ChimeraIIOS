@@ -13,6 +13,7 @@
       wrap.appendChild(el("p", "status", "Images are mounted read-only through the authorized udisks2 loop-device service."));
       const status = el("p", "status", "No image selected.");
       const choose = el("button", "", "Choose ISO image"); choose.type = "button";
+      const drive = el("button", "", "Mount CD/DVD drive"); drive.type = "button";
       const unmount = el("button", "", "Unmount selected image"); unmount.type = "button";
       let device = null;
       choose.addEventListener("click", async () => {
@@ -29,13 +30,27 @@
           status.textContent = result.mount || ("Mounted read-only on " + device);
         } catch (e) { status.textContent = e.message || String(e); }
       });
+      drive.addEventListener("click", async () => {
+        const api = window.chimeraStorage;
+        if (!api || typeof api.mountOpticalDrive !== "function") {
+          status.textContent = "Native optical-drive bridge unavailable.";
+          return;
+        }
+        const opticalDevice = window.prompt("Optical device path", "/dev/sr0");
+        if (!opticalDevice) return;
+        try {
+          const result = await api.mountOpticalDrive(opticalDevice);
+          device = result.device;
+          status.textContent = result.mount || ("Mounted read-only from " + device);
+        } catch (e) { status.textContent = e.message || String(e); }
+      });
       unmount.addEventListener("click", async () => {
         const api = window.chimeraStorage;
         if (!device || !api || typeof api.unmountIso !== "function") return;
         try { await api.unmountIso(device); device = null; status.textContent = "Image unmounted."; }
         catch (e) { status.textContent = e.message || String(e); }
       });
-      wrap.append(choose, unmount, status);
+      wrap.append(choose, drive, unmount, status);
       body.appendChild(wrap);
     }
   });
