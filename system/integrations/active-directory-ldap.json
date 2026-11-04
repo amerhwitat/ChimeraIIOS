@@ -14,7 +14,9 @@
       "libpam-sss",
       "krb5-user",
       "ldap-utils",
-      "libsasl2-modules-gssapi-mit"
+      "libsasl2-modules-gssapi-mit",
+      "oddjob",
+      "oddjob-mkhomedir"
     ]
   },
   "commands": {
