@@ -1,6 +1,6 @@
 {
   "schema": "CHIMERA-RESEARCH-CATALOG-1",
-  "generated_at": "2026-10-16T17:26:39.777820+00:00",
+  "generated_at": "2026-11-03T17:41:53.474372+00:00",
   "policy": {
     "discovery_only": true,
     "remote_code_execution": false,
@@ -53,7 +53,7 @@
     {
       "path": "isa/generated/source-discovery-index.json",
       "bytes": 8018,
-      "sha256": "13b8ca7467833578e0b4a8406947f57bb9658514dd446165966ffa7509620b4f"
+      "sha256": "09ce09761ac144265e546953ee403fcc91520206c055a07d508b381d3d652d45"
     },
     {
       "path": "isa/koronos/architecture.json",
@@ -119,6 +119,11 @@
       "path": "tools/isa/MACHINE-CODE-TOOLCHAIN.md",
       "bytes": 2337,
       "sha256": "93bb668aecd7cdf7bd7779efd1103b62f927a582a0a9a6f667455290a623f1bb"
+    },
+    {
+      "path": "tools/isa/rv32-machine-tested-subset.json",
+      "bytes": 6394,
+      "sha256": "feff2a76f7b2cac9f33c8b79863a9cbc5fc6b0fb7124ba0d649c9f24a6421b46"
     },
     {
       "path": "tools/isa/rv32i-coverage.json",
@@ -252,8 +257,8 @@
     },
     {
       "path": "docs/AURORA_GLASS_DESKTOP_AND_TERMINAL.md",
-      "bytes": 4209,
-      "sha256": "0932d8f52fc56300620a8d282582aaf378e3bf1d8c6e21b57791bde7850e6f44"
+      "bytes": 5582,
+      "sha256": "85c833b22378b5117532e06422e585870b6ce1ec5ba51eced844cbc8603bd999"
     },
     {
       "path": "docs/AURORA_NATIVE_WEB_PARITY.md",
@@ -531,6 +536,11 @@
       "sha256": "f2df0c4cd77e127e9e41995776962cc550b283dafa9418bc9160d5f2d1805f30"
     },
     {
+      "path": "docs/DESKTOP_PARITY_IMPLEMENTATION_PLAN.md",
+      "bytes": 5319,
+      "sha256": "85fabfa03cee2ad4d1a475ee8c2ea6df096f70745ee218118723e7c5fff39094"
+    },
+    {
       "path": "docs/DRIVER_ACQUISITION.md",
       "bytes": 2679,
       "sha256": "e19954eb18295a44703c4c3896ebd59b26094220f1fd86b2a5dba2976a42dc40"
@@ -687,8 +697,8 @@
     },
     {
       "path": "docs/ISA_RNN_LLM_MAPPING.md",
-      "bytes": 2545,
-      "sha256": "d8e35baaafb582c10961c1c4777b37604a2d344371ff1fcda37d367cf315ac1d"
+      "bytes": 9944,
+      "sha256": "dd0fc360d1daf9384292aac65a1bda348e6b57773b051bee0443471d97b0e151"
     },
     {
       "path": "docs/ISA_TOOLCHAIN_AND_UNIX_COMPATIBILITY.md",
@@ -732,8 +742,8 @@
     },
     {
       "path": "docs/KORONOS_USERSPACE_HANDOFF_DIAGNOSIS.md",
-      "bytes": 3943,
-      "sha256": "c410cd231e20752455dd5794b89eb28888988492161f64f76b3579990a9c26f2"
+      "bytes": 7754,
+      "sha256": "18ba0e5e2d884683727ecd305b94a2e640ae0560297dcbb7238a59a678f28610"
     },
     {
       "path": "docs/KORONOS_VMWARE_BOOT_FIX.md",
@@ -761,6 +771,11 @@
       "sha256": "52270066925225f295baeb26e85442690fb6499c6d105f482f9713f4a2042916"
     },
     {
+      "path": "docs/linux-kernel-feature-parity-audit-2026-10.md",
+      "bytes": 8586,
+      "sha256": "a3370a97fe5ef17593defaf211d3c57d5b51184c9293eab323b7bdfacf336dd9"
+    },
+    {
       "path": "docs/LINUX_7X_CROSSWALK.md",
       "bytes": 1942,
       "sha256": "2d016a0d42d297f0cdef6a1ec4d59d836b7a5a32f886b704e1505721dab103aa"
@@ -779,6 +794,11 @@
       "path": "docs/LINUX_DISTRIBUTION_PROFILES.md",
       "bytes": 1740,
       "sha256": "bba425fb04f6394c58224620cbf2ea58090162ae716e850981726b76ecc2cc3a"
+    },
+    {
+      "path": "docs/LINUX_USERSPACE_GAP_MATRIX.md",
+      "bytes": 6893,
+      "sha256": "9754bb4b717fd92bc986a1b477354721b1748888d4c845f21d20f62f9b6597a2"
     },
     {
       "path": "docs/LIVE_CD_INSTALLER_ARCHITECTURE.md",
@@ -971,6 +991,11 @@
       "sha256": "9ac7e94201edc1a59b0923c661180e2cc05936e7edfb2eb02ea9dd3aa150437e"
     },
     {
+      "path": "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md",
+      "bytes": 3344,
+      "sha256": "32685f87f749628766c1ef0aa3f89111f13f037c214564fb477454477f9112bf"
+    },
+    {
       "path": "docs/cloud/OPERATIONS.md",
       "bytes": 1634,
       "sha256": "7e5573d80265182956b1b7dfa4670f0dabbbd655b1d380e1b6063d613328d536"
@@ -1017,8 +1042,8 @@
     },
     {
       "path": "docs/research/isa-command-research.json",
-      "bytes": 254096,
-      "sha256": "321903f9c4f2dd8e1e65604931e3feb04f8b2a43c4bd52ee7465cc48b4ccbed1"
+      "bytes": 255777,
+      "sha256": "1e03e685a37161c5477ed7558a1deda91a9c48ac1d54e623049b00a9da9a5516"
     },
     {
       "path": "docs/research/ISA_CANDIDATE_EXECUTION.md",
@@ -1027,8 +1052,8 @@
     },
     {
       "path": "docs/research/ISA_COMMAND_RESEARCH.md",
-      "bytes": 51063,
-      "sha256": "5b257281fa61092edfce252bc703d7a7c4b113e8afe7ccb97bbb6062fe1a05a1"
+      "bytes": 52371,
+      "sha256": "b6b0b19e3d57f673eab11ea386c8e57cef53d94b88f817341bc13a9d09eb7de9"
     },
     {
       "path": "docs/toolchains/managed-and-apple-compatibility.md",
@@ -1236,6 +1261,21 @@
       "sha256": "151524102b5df3902e55265697dd3c9e631959b9cede4bf11825cde8f555ecba"
     },
     {
+      "path": "docs/releases/chimera-ii-os-2026.11.02/RELEASE.md",
+      "bytes": 2521,
+      "sha256": "7df3a2b680e40a5c91b205721baf114d89737e6a8d0ffb768a1e765bfdf7450d"
+    },
+    {
+      "path": "docs/releases/chimera-ii-os-live-2026.11.02-desktop-64ca6a598f13/RELEASE.md",
+      "bytes": 2756,
+      "sha256": "18cc3768518f51b65f7114c8a99f008e94f380bfc81a1c36ebfa9a612717fba9"
+    },
+    {
+      "path": "docs/releases/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913/RELEASE.md",
+      "bytes": 960,
+      "sha256": "5be3a2b3fbfd5ffe83e3d0b0394b31ed273ad42b085951f61427b8c1f6db1b75"
+    },
+    {
       "path": "system/architecture/endianness.json",
       "bytes": 5650,
       "sha256": "4206b2bf44ee35de1aee86caf9465ae3437d7148cd9faf050c08ef7b704b4cd8"
@@ -1253,17 +1293,17 @@
     {
       "path": "system/commands/chimera-arabic.json",
       "bytes": 15130,
-      "sha256": "01fa7fe0ce65bfe4e808858daaaa2a0349992c2741fc8744c59d020cc20fab78"
+      "sha256": "41b972dcbcb28deba30c4101bac6e5cfc4f04b5b7ab14050a7fd77b844933795"
     },
     {
       "path": "system/commands/chimera-command-list.json",
-      "bytes": 18321,
-      "sha256": "d341f12a03c50562c14a687ccba43fdf7744cd8a11fb1ca0cef8c0de59a10be2"
+      "bytes": 22441,
+      "sha256": "c25792073b721640b7c96eb98e10bbd1a73cd05404c6f77c38c9767a253a7c52"
     },
     {
       "path": "system/commands/command-runtime-capabilities.json",
-      "bytes": 1495886,
-      "sha256": "f5da8bc63d649c4b050e05f1540eb25a57db1eeea76a784bb89cd75601f1f3c0"
+      "bytes": 1504211,
+      "sha256": "4d5324f39f67c6aae2ebf379064230e79f35a2901ddecee8ce785e460cfe4212"
     },
     {
       "path": "system/commands/compatibility-binary-policy.json",
@@ -1272,13 +1312,13 @@
     },
     {
       "path": "system/commands/online-command-catalog.json",
-      "bytes": 1479924,
-      "sha256": "fe6099fef55e5b20473693bd2af811b039db6e7fae8e08b55b2fc7cf195397f0"
+      "bytes": 1491009,
+      "sha256": "2ac035a488be06a80c06033b72c48b2682a74b0b566a2a42f94a385ef03c3d36"
     },
     {
       "path": "system/commands/ss64-command-catalog.ar.json",
-      "bytes": 859977,
-      "sha256": "455c7666e96c6cbae70dc78901aea3c3b82740e7b44f26bf623f39aebb804d32"
+      "bytes": 864753,
+      "sha256": "c1a7c52e138a839374af02272fac6f6df25e622ee7dd6d76f3e442135f9ba0b9"
     },
     {
       "path": "system/hardware/chimera-hardware-profile.json",
@@ -1382,7 +1422,7 @@
       "url": "https://docs.riscv.org/reference/isa/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:23:41.154359+00:00",
+      "checked_at": "2026-11-03T17:38:39.797749+00:00",
       "sha256": "f095c7c98f7bb5d8526f8b04206fd25aeb441b5b9cbad5d19b51d862a20e46b0",
       "snippet": "Redirecting to isa v20260120 \n   \n   \n     Redirecting to the latest version:  isa v20260120",
       "recursive_discovery": {
@@ -1536,18 +1576,18 @@
       "url": "https://docs.kernel.org/",
       "topic": "kernel",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:24:10.457359+00:00",
-      "sha256": "194986bb55958e516e4ae54630d1b09cc8ce6e1ae9168526dcabd19d3e641207",
-      "snippet": "The Linux Kernel documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development proc"
+      "checked_at": "2026-11-03T17:39:14.794713+00:00",
+      "sha256": "9f832bc45efaa6f524e63013bf51ef44a3116628ad019c82fde8e9e30f77df60",
+      "snippet": "The Linux Kernel documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development proc"
     },
     {
       "title": "Linux x86 architecture",
       "url": "https://docs.kernel.org/arch/x86/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:24:10.778188+00:00",
-      "sha256": "998ff1c4950a3075142737b05ce18b95f347fe8ff69d553a8210dd1789a1e495",
-      "snippet": "x86-specific Documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development pr",
+      "checked_at": "2026-11-03T17:39:15.147562+00:00",
+      "sha256": "81fee1280b77002ba74f7d5a28c7ecfd9d28979849b249edb25e6ad8c7e62760",
+      "snippet": "x86-specific Documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development pr",
       "recursive_discovery": {
         "pages_visited": 80,
         "depth_limit": 10,
@@ -1673,6 +1713,7 @@
           "https://docs.kernel.org/translations/zh_TW/process/submitting-patches.html",
           "https://docs.kernel.org/translations/it_IT/process/submitting-patches.html",
           "https://docs.kernel.org/translations/ja_JP/process/submitting-patches.html",
+          "https://docs.kernel.org/translations/pt_BR/process/submitting-patches.html",
           "https://docs.kernel.org/translations/sp_SP/process/submitting-patches.html",
           "https://docs.kernel.org/process/submit-checklist.html",
           "https://docs.kernel.org/devicetree/bindings/submitting-patches.html",
@@ -1681,7 +1722,6 @@
           "https://docs.kernel.org/process/security-bugs.html",
           "https://docs.kernel.org/process/stable-kernel-rules.html",
           "https://docs.kernel.org/process/email-clients.html",
-          "https://docs.kernel.org/process/coding-assistants.html",
           "https://docs.kernel.org/_sources/process/code-of-conduct.rst.txt",
           "https://docs.kernel.org/translations/zh_CN/process/code-of-conduct.html",
           "https://docs.kernel.org/translations/zh_TW/process/code-of-conduct.html",
@@ -1714,6 +1754,7 @@
           "https://docs.kernel.org/process/management-style.html",
           "https://docs.kernel.org/process/researcher-guidelines.html",
           "https://docs.kernel.org/process/generated-content.html",
+          "https://docs.kernel.org/process/coding-assistants.html",
           "https://docs.kernel.org/process/conclave.html",
           "https://docs.kernel.org/process/debugging/index.html",
           "https://docs.kernel.org/process/handling-regressions.html",
@@ -1816,6 +1857,7 @@
           "https://docs.kernel.org/driver-api/vfio-mediated-device.html",
           "https://docs.kernel.org/driver-api/vfio.html",
           "https://docs.kernel.org/driver-api/vfio-pci-device-specific-driver-acceptance.html",
+          "https://docs.kernel.org/driver-api/vfio-selftests.html",
           "https://docs.kernel.org/driver-api/auxiliary_bus.html",
           "https://docs.kernel.org/driver-api/cxl/index.html",
           "https://docs.kernel.org/driver-api/eisa.html",
@@ -1893,6 +1935,7 @@
           "https://docs.kernel.org/driver-api/sm501.html",
           "https://docs.kernel.org/driver-api/soundwire/index.html",
           "https://docs.kernel.org/driver-api/spi.html",
+          "https://docs.kernel.org/driver-api/steal-governor.html",
           "https://docs.kernel.org/driver-api/surface_aggregator/index.html",
           "https://docs.kernel.org/driver-api/switchtec.html",
           "https://docs.kernel.org/driver-api/sync_file.html",
@@ -2049,10 +2092,7 @@
           "https://docs.kernel.org/trace/events-power.html",
           "https://docs.kernel.org/trace/events-nmi.html",
           "https://docs.kernel.org/trace/events-msr.html",
-          "https://docs.kernel.org/trace/events-landlock.html",
-          "https://docs.kernel.org/trace/events-pci.html",
-          "https://docs.kernel.org/trace/events-pci-controller.html",
-          "https://docs.kernel.org/trace/boottime-trace.html"
+          "https://docs.kernel.org/trace/events-landlock.html"
         ]
       }
     },
@@ -2061,9 +2101,9 @@
       "url": "https://docs.kernel.org/arch/arm64/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:24:35.950238+00:00",
-      "sha256": "b6133c6604827a517152bd9469618c5a86ea78f48b2b94b47121750bfdf811c3",
-      "snippet": "ARM64 Architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n",
+      "checked_at": "2026-11-03T17:39:43.187398+00:00",
+      "sha256": "c45a334d1c23873a4a35a41f9c1c94c98d93575eb37c9bb722ecfadfc9133caf",
+      "snippet": "ARM64 Architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n",
       "recursive_discovery": {
         "pages_visited": 80,
         "depth_limit": 10,
@@ -2172,6 +2212,7 @@
           "https://docs.kernel.org/translations/zh_TW/process/submitting-patches.html",
           "https://docs.kernel.org/translations/it_IT/process/submitting-patches.html",
           "https://docs.kernel.org/translations/ja_JP/process/submitting-patches.html",
+          "https://docs.kernel.org/translations/pt_BR/process/submitting-patches.html",
           "https://docs.kernel.org/translations/sp_SP/process/submitting-patches.html",
           "https://docs.kernel.org/process/submit-checklist.html",
           "https://docs.kernel.org/devicetree/bindings/submitting-patches.html",
@@ -2180,7 +2221,6 @@
           "https://docs.kernel.org/process/security-bugs.html",
           "https://docs.kernel.org/process/stable-kernel-rules.html",
           "https://docs.kernel.org/process/email-clients.html",
-          "https://docs.kernel.org/process/coding-assistants.html",
           "https://docs.kernel.org/_sources/process/code-of-conduct.rst.txt",
           "https://docs.kernel.org/translations/zh_CN/process/code-of-conduct.html",
           "https://docs.kernel.org/translations/zh_TW/process/code-of-conduct.html",
@@ -2213,6 +2253,7 @@
           "https://docs.kernel.org/process/management-style.html",
           "https://docs.kernel.org/process/researcher-guidelines.html",
           "https://docs.kernel.org/process/generated-content.html",
+          "https://docs.kernel.org/process/coding-assistants.html",
           "https://docs.kernel.org/process/conclave.html",
           "https://docs.kernel.org/process/debugging/index.html",
           "https://docs.kernel.org/process/handling-regressions.html",
@@ -2315,6 +2356,7 @@
           "https://docs.kernel.org/driver-api/vfio-mediated-device.html",
           "https://docs.kernel.org/driver-api/vfio.html",
           "https://docs.kernel.org/driver-api/vfio-pci-device-specific-driver-acceptance.html",
+          "https://docs.kernel.org/driver-api/vfio-selftests.html",
           "https://docs.kernel.org/driver-api/auxiliary_bus.html",
           "https://docs.kernel.org/driver-api/cxl/index.html",
           "https://docs.kernel.org/driver-api/eisa.html",
@@ -2392,6 +2434,7 @@
           "https://docs.kernel.org/driver-api/sm501.html",
           "https://docs.kernel.org/driver-api/soundwire/index.html",
           "https://docs.kernel.org/driver-api/spi.html",
+          "https://docs.kernel.org/driver-api/steal-governor.html",
           "https://docs.kernel.org/driver-api/surface_aggregator/index.html",
           "https://docs.kernel.org/driver-api/switchtec.html",
           "https://docs.kernel.org/driver-api/sync_file.html",
@@ -2565,10 +2608,7 @@
           "https://docs.kernel.org/trace/osnoise-tracer.html",
           "https://docs.kernel.org/trace/timerlat-tracer.html",
           "https://docs.kernel.org/trace/user_events.html",
-          "https://docs.kernel.org/trace/uprobetracer.html",
-          "https://docs.kernel.org/trace/remotes.html",
-          "https://docs.kernel.org/_sources/trace/index.rst.txt",
-          "https://docs.kernel.org/fault-injection/fault-injection.html"
+          "https://docs.kernel.org/trace/uprobetracer.html"
         ]
       }
     },
@@ -2577,9 +2617,9 @@
       "url": "https://docs.kernel.org/arch/riscv/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:24:58.305064+00:00",
-      "sha256": "f9ac6444c7e2049520e917f54b9c35c0c4a43dd9637c9fde84d0956abcbb968a",
-      "snippet": "RISC-V architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  ",
+      "checked_at": "2026-11-03T17:40:09.757556+00:00",
+      "sha256": "ffce43f94e29601acf64685d36eef4a74f594fa211859dc94b49c2073c5d76c9",
+      "snippet": "RISC-V architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  ",
       "recursive_discovery": {
         "pages_visited": 80,
         "depth_limit": 10,
@@ -2673,6 +2713,7 @@
           "https://docs.kernel.org/translations/zh_TW/process/submitting-patches.html",
           "https://docs.kernel.org/translations/it_IT/process/submitting-patches.html",
           "https://docs.kernel.org/translations/ja_JP/process/submitting-patches.html",
+          "https://docs.kernel.org/translations/pt_BR/process/submitting-patches.html",
           "https://docs.kernel.org/translations/sp_SP/process/submitting-patches.html",
           "https://docs.kernel.org/process/submit-checklist.html",
           "https://docs.kernel.org/devicetree/bindings/submitting-patches.html",
@@ -2681,7 +2722,6 @@
           "https://docs.kernel.org/process/security-bugs.html",
           "https://docs.kernel.org/process/stable-kernel-rules.html",
           "https://docs.kernel.org/process/email-clients.html",
-          "https://docs.kernel.org/process/coding-assistants.html",
           "https://docs.kernel.org/_sources/process/code-of-conduct.rst.txt",
           "https://docs.kernel.org/translations/zh_CN/process/code-of-conduct.html",
           "https://docs.kernel.org/translations/zh_TW/process/code-of-conduct.html",
@@ -2714,6 +2754,7 @@
           "https://docs.kernel.org/process/management-style.html",
           "https://docs.kernel.org/process/researcher-guidelines.html",
           "https://docs.kernel.org/process/generated-content.html",
+          "https://docs.kernel.org/process/coding-assistants.html",
           "https://docs.kernel.org/process/conclave.html",
           "https://docs.kernel.org/process/debugging/index.html",
           "https://docs.kernel.org/process/handling-regressions.html",
@@ -2816,6 +2857,7 @@
           "https://docs.kernel.org/driver-api/vfio-mediated-device.html",
           "https://docs.kernel.org/driver-api/vfio.html",
           "https://docs.kernel.org/driver-api/vfio-pci-device-specific-driver-acceptance.html",
+          "https://docs.kernel.org/driver-api/vfio-selftests.html",
           "https://docs.kernel.org/driver-api/auxiliary_bus.html",
           "https://docs.kernel.org/driver-api/cxl/index.html",
           "https://docs.kernel.org/driver-api/eisa.html",
@@ -2893,6 +2935,7 @@
           "https://docs.kernel.org/driver-api/sm501.html",
           "https://docs.kernel.org/driver-api/soundwire/index.html",
           "https://docs.kernel.org/driver-api/spi.html",
+          "https://docs.kernel.org/driver-api/steal-governor.html",
           "https://docs.kernel.org/driver-api/surface_aggregator/index.html",
           "https://docs.kernel.org/driver-api/switchtec.html",
           "https://docs.kernel.org/driver-api/sync_file.html",
@@ -3081,10 +3124,7 @@
           "https://docs.kernel.org/livepatch/shadow-vars.html",
           "https://docs.kernel.org/livepatch/system-state.html",
           "https://docs.kernel.org/livepatch/reliable-stacktrace.html",
-          "https://docs.kernel.org/livepatch/api.html",
-          "https://docs.kernel.org/_sources/livepatch/index.rst.txt",
-          "https://docs.kernel.org/rust/quick-start.html",
-          "https://docs.kernel.org/rust/general-information.html"
+          "https://docs.kernel.org/livepatch/api.html"
         ]
       }
     },
@@ -3093,35 +3133,35 @@
       "url": "https://docs.kernel.org/driver-api/",
       "topic": "drivers",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:25:20.738156+00:00",
-      "sha256": "310c0d3be537c5e20631b7ddd85cb91bd27f860b2c6f49e64db9536ac082ac7d",
-      "snippet": "Driver implementer’s API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Developmen"
+      "checked_at": "2026-11-03T17:40:36.877682+00:00",
+      "sha256": "f7b60202c9283259b76323d33c45b197c23885e2837e201aa195df3425af7add",
+      "snippet": "Driver implementer’s API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Developmen"
     },
     {
       "title": "Linux scheduler",
       "url": "https://docs.kernel.org/scheduler/",
       "topic": "scheduler",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:25:21.008362+00:00",
-      "sha256": "d7e49f9c261db9f1052823f2b0506d708bc321477fa216cf7d1e8808b356164e",
-      "snippet": "Scheduler &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Submitt"
+      "checked_at": "2026-11-03T17:40:37.174574+00:00",
+      "sha256": "780c6669132b681659c50443a3bb5dcddf071baf328cd5b97250f30721949ac8",
+      "snippet": "Scheduler &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Submitt"
     },
     {
       "title": "Linux userspace/syscall APIs",
       "url": "https://docs.kernel.org/userspace-api/",
       "topic": "syscalls",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:25:21.445393+00:00",
-      "sha256": "bb691f4327fa6974378c76f0328407dd776aeb7ddf94f7ef9baf647f0ecd6dd3",
-      "snippet": "The Linux kernel user-space API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.3.0-rc7 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Dev"
+      "checked_at": "2026-11-03T17:40:37.468059+00:00",
+      "sha256": "743fa97a9fac38438538757f45ef57a7ee9752b31a05b8a7c86941d2d83f920f",
+      "snippet": "The Linux kernel user-space API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Dev"
     },
     {
       "title": "Android kernel architecture",
       "url": "https://source.android.com/docs/core/architecture/kernel",
       "topic": "mobile-os",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:25:22.262451+00:00",
-      "sha256": "1999e206c64f76d4257b69e167646bd31c8fc91c286084f182abf73d6ef145b7",
+      "checked_at": "2026-11-03T17:40:39.201538+00:00",
+      "sha256": "d1a49f5d330bf00dc77945dd03b2bcf1e925b0b0288d0d983a9be4238dfe5264",
       "snippet": "Kernel overview &nbsp;|&nbsp; Android OS core topics &nbsp;|&nbsp; Android Open Source Project \n\n    \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"Article\",\n    \n    \"headline\": \"Kernel overview\"\n  }\n  \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"BreadcrumbList\",\n    \"itemListElement\": [{\n      \"@type\": \"ListItem\",\n      \"position\": 1,\n      \"name\": \"Docs\",\n      \"item\": \"https://source.android.com/docs\"\n    },{\n      \"@type\": \"ListItem\",\n      \"position\": 2,\n      \"name\":"
     },
     {
@@ -3129,8 +3169,8 @@
       "url": "https://support.arm.com/documentation",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:25:23.101112+00:00",
-      "sha256": "8cee92dffdb3a5499ca8a3a56b2399d5bb54866a09aad813342b3b73eee1e06d",
+      "checked_at": "2026-11-03T17:40:40.073358+00:00",
+      "sha256": "89b98c1a7f15377ac42bff86c0912004ecfe15c8d6e495da555166e0e695ef95",
       "snippet": "window.docsHubConfig={\"REACT_APP_2FA_ACR\":\"B2C_1A_HV.SIGN-IN-CONF.1.1.0\",\"REACT_APP_2FA_AUTHORITY\":\"https://account.arm.com/tfp/armb2c.onmicrosoft.com/B2C_1A_HV.SIGN-IN-CONF.1.1.0/v2.0/\",\"REACT_APP_2FA_CLIENT_ID\":\"da089d53-3538-4d3e-8ea0-73dfe483f321\",\"REACT_APP_2FA_SCOPE\":\"openid https://armb2c.onmicrosoft.com/docsHub/read\",\"REACT_APP_ADOBE_LAUNCH_URL\":\"https://support.arm.com/arm-tag-manager/support.arm.com/atm.js\",\"REACT_APP_AI_ASSISTANCE_ENABLED\":\"true\",\"REACT_APP_ARM_DOCUMENTATION_IMAGE_ASS",
       "recursive_discovery": {
         "pages_visited": 1,
@@ -3144,8 +3184,8 @@
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:25:23.784058+00:00",
-      "sha256": "f5662b2208ad0e455b0daa27ca1896be09007430a80001cb6ed55943e2cab3fd",
+      "checked_at": "2026-11-03T17:40:41.002917+00:00",
+      "sha256": "d8ea75623bea841cbc8bc527f005df3e08b1ec79a09ec15a0b8f7b7715d7651e",
       "snippet": "Manuals for Intel® 64 and IA-32 Architectures \n    \n    \n    \n\n\n\n\n\n\n\n\n\n \n \n \n\n     \n     \n\n     \n     \n\n\n\n\n\n     \n      \n     \n      \n     \n      \n\n\n    \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    \n    \n        \n    \n\n\n\n\n    \n    \n    \n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n \n    var cq_tms = {\n        wa_emtcontenttype: \"emtcontenttype:designanddevelopmentreference/developerguide/developeruserguide,emtcontenttype:designanddevelopmentreference/developerguide,emtcontent",
       "recursive_discovery": {
         "pages_visited": 80,
@@ -3270,7 +3310,8 @@
           "https://www.intel.com/content/www/us/en/foundry/research.html",
           "https://www.intel.com/content/www/us/en/foundry/manufacturing/shuttle.html",
           "https://www.intel.com/content/www/us/en/secure/my-intel/dashboard.html",
-          "https://www.intel.com/content/www/us/en/products/systems-devices/googlebook.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-classiq-accelerate-scalable-quantum-computing.html",
+          "https://www.intel.com/content/www/us/en/customer-spotlight/stories/49ers-partnership.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/6-plus-series.html",
           "https://www.intel.com/content/www/us/en/customer-spotlight/stories/mclaren-racing.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/googlebook-launches-with-intel-core-ultra-series-3-processors.html",
@@ -3280,8 +3321,18 @@
           "https://www.intel.com/content/www/us/en/newsroom/subscribe.html",
           "https://www.intel.com/content/www/us/en/corporate-responsibility/our-values.html",
           "https://www.intel.com/content/www/us/en/newsroom/press-hub.html",
-          "https://www.intel.com/content/www/us/en/products/details/servers.html",
-          "https://www.intel.com/content/www/us/en/products/details/network-io/intelligent-fabric-processors.html",
+          "https://www.intel.com/content/www/us/en/ai-pc/business.html",
+          "https://www.intel.com/content/www/us/en/products/systems-devices/workstations.html",
+          "https://www.intel.com/content/www/us/en/products/details/processors/xeon/edge.html",
+          "https://www.intel.com/content/www/us/en/products/details/processors/core-ultra/edge.html",
+          "https://www.intel.com/content/www/us/en/products/details/processors/core/edge.html",
+          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/workstations/b-series.html",
+          "https://www.intel.com/content/www/us/en/products/details/wireless/killer-series.html",
+          "https://www.intel.com/content/www/us/en/products/details/wireless/wi-fi-7-series.html",
+          "https://www.intel.com/content/www/us/en/architecture-and-technology/thunderbolt/overview.html",
+          "https://www.intel.com/content/www/us/en/products/details/wireless/bluetooth-solutions.html",
+          "https://www.intel.com/content/www/us/en/products/details/servers",
+          "https://www.intel.com/content/www/us/en/products/details/network-io",
           "https://www.intel.com/content/www/us/en/support/products/80939/graphics.html",
           "https://www.intel.com/content/www/us/en/support/products/873/processors.html",
           "https://www.intel.com/content/www/us/en/support/products/59485/wireless.html",
@@ -3327,16 +3378,26 @@
           "https://www.intel.com/content/www/us/en/developer/tools/software-guard-extensions/library.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/core/i7/docs.html",
           "https://www.intel.com/content/www/us/en/developer/tools/documentation.html",
+          "https://www.intel.com/content/www/us/en/business/small-business/sme-pc-study.html",
+          "https://www.intel.com/content/www/us/en/policy/policy-human-trafficking-and-slavery.html",
           "https://www.intel.com/content/www/us/en/corporate/executive-leadership.html",
           "https://www.intel.com/content/www/us/en/corporate/board-directors.html",
           "https://www.intel.com/content/www/us/en/policy/policy-ip.html",
           "https://www.intel.com/content/www/us/en/support/campus-locations.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-accelerates-open-infrastructure-agentic-ai-era.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/what-is-the-intel-14a-pdk-0-9-and-why-it-matters.html",
+          "https://www.intel.com/content/www/us/en/newsroom/opinion/cognitive-cities-how-ai-drives-active-urban-decisions.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-demonstrates-physical-ai-action-with-sap.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-third-quarter-2026-financial-results.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-oracle-collaborate-on-enterprise-and-agentic-ai.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/data-center/agentic-ai-moving-fast-enterprise-infrastructure-needs-move-with-it.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-edge-ai-turns-football-crowd-data-into-revenue.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/data-center/amd-intel-simplify-x86-ai-development-with-pytorch.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-massrobotics-physical-ai-startup-speed.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-offers-day-0-support-for-meta-muse-spark-open.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-inference-microservices-tuned-llm-processors.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/deep-underground-intel-powered-robots-make-mining-safer.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-accelerates-open-infrastructure-agentic-ai-era.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ocp-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/confidential-computing-growing-momentum-sharpened-focus.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/scaling-sandboxed-agentic-ai-xeon-6.html",
@@ -3352,8 +3413,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/foundation-pltw-expand-semiconductor-careers.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ai-infra-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-outlines-architectures-for-agentic-ai-at-hot-chips-2026.html",
-          "https://www.intel.com/content/www/us/en/newsroom/opinion/count-the-work-not-just-the-cores.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/6-in-10-leaders-bet-big-on-robots-only-4-in-10-are-ready.html",
+          "https://www.intel.com/content/www/us/en/newsroom/opinion/count-the-work-not-just-the-cores.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-corporation-to-participate-in-upcoming-investor-conference-august-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-upsize-and-pricing-of-20-billion-common-stock-offering.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-proposed-15-billion-common-stock-offering.html",
@@ -3363,12 +3424,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/opinion/intel-secure-enclave-securing-high-performance-computing-at-the-tactical-edge.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-reports-second-quarter-2026-financial-results.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/artificial-intelligence/memory-bandwidth-may-be-most-overlooked-ai-performance-metric.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-powered-medical-exoskeleton-helps-patients-get-back-on-their-feet.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-google-cloud-announce-collaboration-to-accelerate-intel-ai-enabled-enterprise-transformation.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-invests-5-billion-euro-to-expand-manufacturing-in-europe.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-to-report-second-quarter-2026-financial-results.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/three-ways-intel-msi-co-engineered-worlds-first-arc-g3-handheld.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-leadership-appointment-at-intel-foundry-to-accelerate-development-and-manufacturing.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/computex-2026-an-intelligent-world-built-on-silicon.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-announces-new-ai-innovations-at-computex.html",
           "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/artificial-intelligence/press-kit-intel-at-computex-2026.html",
@@ -3385,9 +3442,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-ces-2026-intel-launches-series-3-cpus-with-200-laptop-designs.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/from-building-bricks-to-brilliance-model-of-intel-series-3-processor-steals-the-show.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/ces-2026-intel-core-ultra-series-3-debut-first-built-on-intel-18a.html",
-          "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/artificial-intelligence/press-kit-intel-at-ces-2026.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/2025-holiday-buyers-guide.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-brings-ai-pcs-to-arizona-state-university-football.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-powered-medical-exoskeleton-helps-patients-get-back-on-their-feet.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/three-ways-intel-msi-co-engineered-worlds-first-arc-g3-handheld.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/postcard-from-computex-2026-new-intel-core-series-3-laptops-for-everyday-creation-and-all-day-productivity.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/customers-choose-intel-for-edge-devices.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-arc-g-series-processors-set-a-new-standard-for-handheld-pc-gaming.html",
@@ -3410,6 +3466,9 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/postcard-from-computex-the-workstation-gets-a-new-life.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-products-unveils-assured-supply-chain-program.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/thunderbolt-share-using-multiple-pcs-handle-demanding-workflows.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/the-best-employee-experiences-start-with-technology-that-works-together.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-to-report-second-quarter-2026-financial-results.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-leadership-appointment-at-intel-foundry-to-accelerate-development-and-manufacturing.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/ceo-letter-2025-26-intel-corporate-responsibility-report.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-advances-growth-in-ai-era-2025-2026-csr-report.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intels-2025-outstanding-researcher-awards-honor-10-academic-innovators.html",
@@ -3436,9 +3495,6 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-key-leadership-appointments.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-and-trump-administration-reach-historic-agreement.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-corporation-to-participate-in-upcoming-investor-conferences-8-21-25.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/softbank-group-and-intel-corporation-sign-2b-investment-agreement.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intels-statement-following-the-meeting-with-president-trump.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/my-commitment-to-you-and-our-company.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-introduces-ethernet-e835-controllers-network-adapters.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-puts-agentic-ai-xeon-6-networking-ai-systems.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-and-sambanova-planning-multi-year-collaboration-for-xeon-based-ai-inference.html",
@@ -3446,6 +3502,7 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-and-aws-drive-cloud-innovation-powered-by-xeon-6-processors.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-shell-advance-immersion-cooling-xeon-based-data-centers.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-agent-toolkit-adds-nvidia-openshell-for-policy-enforced-sandboxes.html",
+          "https://www.intel.com/content/www/us/en/newsroom/opinion/building-america-capacity-to-innovate.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/how-intel-researchers-are-advancing-chemistry-behind-high-na-euv-tools.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/intel-foundry-asml-accelerate-industry-readiness-for-high-na-euv.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/intels-us-advanced-packaging-enables-next-generation-ai-semiconductors.html",
@@ -3458,8 +3515,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-the-ultimate-factory-tour.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-foundry-gathers-customers-partners-outlines-priorities.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-chip-roams-intel-factories.html",
-          "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/direct-connect-2025-keynote-livestream-replay.html",
+          "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-ceo-lip-bu-tan-headline-intel-foundry-direct-connect.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/how-intel-optimized-openclaw-runs-securely-cost-efficiently-intel-based-ai-pcs.html",
           "https://www.intel.com/content/www/us/en/newsroom/tech101/manufacturing/understanding-moores-law.html",
@@ -3477,7 +3534,6 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/wireless/postcard-mwc-2025-experience-living-city-future.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/wireless/postcard-mwc-2025-intel-xeon-6-soc-barcelona.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/wireless/mwc-2025-intel-xeon-6-proves-foundational-network-infrastructure.html",
-          "https://www.intel.com/content/www/us/en/products/details/processors/xeon/all.html",
           "https://www.intel.com/content/www/us/en/jobs/benefits.html",
           "https://www.intel.com/content/dam/www/central-libraries/us/en/documents/2026-08/csr-2025-26-full-report.pdf",
           "https://www.intel.com/content/dam/www/central-libraries/us/en/documents/2026-08/csr-2025-26-executive-summary.pdf",
@@ -3531,15 +3587,13 @@
           "https://www.intel.com/content/www/us/en/corporate-responsibility/a-world-of-opportunity-video.html",
           "https://www.intel.com/content/www/us/en/forms/privacy-contact-us.html",
           "https://www.intel.com/content/dam/www/central-libraries/us/en/documents/policy-human-rights.pdf",
+          "https://www.intel.com/content/www/us/en/products/details/processors/xeon/all.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/intel-processor.html",
           "https://www.intel.com/content/www/us/en/products/systems-devices/find-the-right-pc.html",
           "https://www.intel.com/content/www/us/en/products/systems-devices/laptops/evo.html",
           "https://www.intel.com/content/www/us/en/products/systems-devices/desktops.html",
           "https://www.intel.com/content/www/us/en/products/systems-devices/laptops.html",
-          "https://www.intel.com/content/www/us/en/products/systems-devices/workstations.html",
           "https://www.intel.com/content/www/us/en/content-details/871378/content-details.html",
-          "https://www.intel.com/content/www/us/en/ai-pc/business.html",
-          "https://www.intel.com/content/www/us/en/products/details/processors/core-ultra/edge.html",
           "https://www.intel.com/content/www/us/en/products/sku/245716/intel-core-ultra-5-processor-322-12m-cache-up-to-4-40-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245720/intel-core-ultra-5-processor-325-12m-cache-up-to-4-50-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245718/intel-core-ultra-5-processor-332-12m-cache-up-to-4-40-ghz/specifications.html",
@@ -3564,11 +3618,9 @@
           "https://www.intel.com/content/www/us/en/products/sku/246127/intel-core-5-processor-315-6m-cache-up-to-4-40-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/246019/intel-core-3-processor-305-6m-cache-up-to-4-30-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/246020/intel-core-3-processor-304-6m-cache-up-to-4-30-ghz/specifications.html",
-          "https://www.intel.com/content/www/us/en/products/details/processors/core/edge.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/6-p-core-series.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/5th-gen-xeon-scalable-processors.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/6-e-core-series.html",
-          "https://www.intel.com/content/www/us/en/products/details/processors/xeon/edge.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/entry.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/workstations.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/features.html",
@@ -3629,7 +3681,6 @@
           "https://www.intel.com/content/www/us/en/gaming/resources/how-to-choose-pre-built-vs-custom-pc.html",
           "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/software/drivers.html",
           "https://www.intel.com/content/www/us/en/gaming/overclocking-intel-processors.html",
-          "https://www.intel.com/content/www/us/en/architecture-and-technology/thunderbolt/overview.html",
           "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-security/overview.html",
           "https://www.intel.com/content/www/us/en/security/contributions-zero-trust.html",
           "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-manageability/overview.html",
@@ -3640,18 +3691,7 @@
           "https://www.intel.com/content/www/us/en/products/details/wireless/connectivity-performance-suite.html",
           "https://www.intel.com/content/www/us/en/content-details/914702/content.html",
           "https://www.intel.com/content/www/us/en/content-details/914706/content.html",
-          "https://www.intel.com/content/www/us/en/content-details/914707/content.html",
-          "https://www.intel.com/content/www/us/en/content-details/914708/content.html",
-          "https://www.intel.com/performance-vpro",
-          "https://www.intel.com/Performance-vPro",
-          "https://www.intel.com/content/www/us/en/security/security-as-a-component-of-tech.html",
-          "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/mobile/overview.html",
-          "https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/workstations/b-series/overview.html",
-          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/edge.html",
-          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/desktop/b-series.html",
-          "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/laptops.html",
-          "https://www.intel.com/content/www/us/en/products/docs/processors/cpu-vs-gpu.html",
-          "https://www.intel.com/content/www/us/en/now/ai-pc-possibilities.html"
+          "https://www.intel.com/content/www/us/en/content-details/914707/content.html"
         ]
       }
     },
@@ -3660,7 +3700,7 @@
       "url": "https://www.amd.com/en/search/documentation",
       "topic": "isa",
       "http_status": 0,
-      "checked_at": "2026-10-16T17:26:29.319655+00:00",
+      "checked_at": "2026-11-03T17:41:41.925503+00:00",
       "sha256": "0738e1d53e03cdde4e379859b024fb665340ccc62ac4ed215101772e5d81327b",
       "snippet": "HTTP Error 404: Not Found"
     },
@@ -3669,7 +3709,7 @@
       "url": "https://uefi.org/specifications",
       "topic": "firmware",
       "http_status": 0,
-      "checked_at": "2026-10-16T17:26:29.580802+00:00",
+      "checked_at": "2026-11-03T17:41:42.392681+00:00",
       "sha256": "2fbdaaa36a31ec4853f2062504fc20ecfc24512cfe648271bc840f246a542911",
       "snippet": "HTTP Error 403: Forbidden"
     },
@@ -3678,7 +3718,7 @@
       "url": "https://docs.freebsd.org/en/books/handbook/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:26:30.202847+00:00",
+      "checked_at": "2026-11-03T17:41:43.046810+00:00",
       "sha256": "109a95818d0d231bf26df6ab14366cb92c08d121416b71d4d2caddad6c2bcb3c",
       "snippet": "FreeBSD Handbook | FreeBSD Documentation Portal                     {\"@context\":\"http://schema.org\",\"@type\":\"Article\",\"url\":\"https:\\/\\/docs.freebsd.org\\/en\\/books\\/handbook\\/\",\"name\":\"FreeBSD Documentation Portal\",\"headline\":\"FreeBSD Documentation Portal\",\"description\":\"FreeBSD Documentation Portal\"}          \n           \n About\n      About    FreeBSD    FreeBSD Foundation    Code of Conduct      \n Get FreeBSD\n      Get FreeBSD    Release Information    Release Engineering    Security Advisories"
     },
@@ -3687,8 +3727,8 @@
       "url": "https://www.netbsd.org/docs/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-10-16T17:26:31.393559+00:00",
-      "sha256": "3efa17d6501c0bb3b2c0a7f5ccfe34ee9302e089d877226645600c4c9a08ebdb",
+      "checked_at": "2026-11-03T17:41:44.415451+00:00",
+      "sha256": "558c5fd65ec6d366b5728368c67678df09c238eb34d0ca2d716a03fb86dfcbaa",
       "snippet": "NetBSD Documentation \n   \n \n  \n  Skip to main content.  \n          \n  \n     \n     \n  \n  \n \n\t  Navigation:\n\t  \n \n \n\t  Home  \n  \n\t    Recent changes  \n  \n\t    NetBSD blog  \n  \n\t    Presentations  \n \n \n \n \n\t  About  \n  \n\t    Developers  \n  \n\t    Gallery  \n  \n\t    Ports  \n  \n\t    Packages  \n \n \n \n \n\t  Documentation  \n  \n\t    FAQ &amp; HOWTOs  \n  \n\t    The Guide  \n  \n\t    Manual pages  \n  \n\t    Wiki  \n \n \n \n \n\t  Support  \n  \n\t    Community  \n  \n\t    Mailing lists  \n  \n\t    Bug reports  \n  \n\t    Secur"
     }
   ],
@@ -3736,14 +3776,14 @@
       "status": 200,
       "url": "https://api.github.com/search/repositories?q=riscv+instruction+decoder&sort=updated&order=desc&per_page=8",
       "repositories": [
-        "Anas-Gebreel/riscv-ldpc-cfu-accelerator",
         "JignasuShah/riscv-processor",
+        "rahul-wrc/riscv32-single-cycle-processor-rtl-gds",
+        "rishikezz/riscv32i-cpu-core-tlverilog",
+        "Anas-Gebreel/riscv-ldpc-cfu-accelerator",
         "Pikachu287/RiscV_ISA_Sim",
         "Ruthik85/pipelined-16bit-riscv-core",
         "DharanidharanRavikumar/riscv-decoder",
-        "DharanidharanRavikumar/riscv-simulator",
-        "fzi-forschungszentrum-informatik/riscv-etrace",
-        "IITian-Ankit/RISCV_5_staged_Pipeline_Core"
+        "DharanidharanRavikumar/riscv-simulator"
       ]
     },
     {
@@ -3752,10 +3792,10 @@
       "url": "https://api.github.com/search/repositories?q=operating+system+kernel+scheduler+drivers&sort=updated&order=desc&per_page=8",
       "repositories": [
         "JorgeGBeltre/EspressoOS",
-        "sxbari/MyOS-x86",
+        "sxbari/Avalanche-OS",
+        "Aneesh495/stratum",
         "codeswithdev/DEV-OS",
         "aleksandraastojanovic/riscv-kernel",
-        "BengalEmpire/Bengal-Tiger-OS",
         "Onsase-cpu/Asterion-OS",
         "zizadhrmaa/rOSes-are-red_Operating-System",
         "sowjithanumola/NovaOS"
@@ -3766,14 +3806,14 @@
       "status": 200,
       "url": "https://api.github.com/search/repositories?q=android+common+kernel&sort=updated&order=desc&per_page=8",
       "repositories": [
-        "LDLDL-Android/android_kernel_common",
-        "mt6768-S/android_kernel_xiaomi_mt6768",
+        "ramabondanp/android_kernel_common-6.12",
+        "duckyduckG/android_kernel_xiaomi_sm8150_419",
+        "YuzakiKokuban/android_kernel_oneplus_sm8850",
         "LineageOS/android_kernel_ayn_common-modules",
-        "SylveonDeko/ack-tegra",
-        "lrqtech/android_kernel_xiaomi_warsaw_lineage24",
-        "SB233-Kanger/android_kernel_common_oneplus_sm8845",
-        "ramabondanp/android_kernel_common-5.10",
-        "vlxlxlv/android-kernel-common-5.10"
+        "dobraeuyan/android_kernel_qcom_msm8909-common",
+        "OP15T-SM8850-Development/android_kernel_common_modules_wonder",
+        "naifi1954/android_kernel_common",
+        "usermahiro/android_kernel_common"
       ]
     },
     {
@@ -3803,7 +3843,7 @@
       "description": "Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.",
       "language": "C",
       "stars": 447,
-      "updated_at": "2026-10-09T16:47:19Z",
+      "updated_at": "2026-10-19T18:53:06Z",
       "license": "BSD-2-Clause",
       "query": "uefi acpi firmware tables",
       "review_required": true
@@ -3814,7 +3854,7 @@
       "description": "Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.",
       "language": "Rust",
       "stars": 230,
-      "updated_at": "2026-09-18T13:13:39Z",
+      "updated_at": "2026-10-28T04:06:46Z",
       "license": "MIT",
       "query": "arm64 instruction decoder",
       "review_required": true
@@ -3824,43 +3864,21 @@
       "url": "https://github.com/overducast/RiftByte",
       "description": "Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.",
       "language": "C",
-      "stars": 24,
-      "updated_at": "2026-10-13T19:10:47Z",
+      "stars": 25,
+      "updated_at": "2026-10-21T13:53:51Z",
       "license": "MIT",
       "query": "arm64 instruction decoder",
       "review_required": true
     },
     {
-      "name": "vlxlxlv/android-kernel-common-5.10",
-      "url": "https://github.com/vlxlxlv/android-kernel-common-5.10",
-      "description": "v1llhaze! GKI Custom Kernel for 5.10 based (android12)",
+      "name": "duckyduckG/android_kernel_xiaomi_sm8150_419",
+      "url": "https://github.com/duckyduckG/android_kernel_xiaomi_sm8150_419",
+      "description": "WIP!!!!!!!!! to be rebased on common_qcom_419, be careful",
       "language": "C",
-      "stars": 17,
-      "updated_at": "2026-10-15T12:33:26Z",
+      "stars": 9,
+      "updated_at": "2026-11-02T17:20:40Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "ramabondanp/android_kernel_common-5.10",
-      "url": "https://github.com/ramabondanp/android_kernel_common-5.10",
-      "description": "android common kernel",
-      "language": "C",
-      "stars": 15,
-      "updated_at": "2026-10-15T15:01:42Z",
-      "license": "NOASSERTION",
-      "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "fzi-forschungszentrum-informatik/riscv-etrace",
-      "url": "https://github.com/fzi-forschungszentrum-informatik/riscv-etrace",
-      "description": "Decoder and tracer for RISC-V efficient instruction tracing.",
-      "language": "Rust",
-      "stars": 5,
-      "updated_at": "2026-09-16T16:29:14Z",
-      "license": "Apache-2.0",
-      "query": "riscv instruction decoder",
       "review_required": true
     },
     {
@@ -3941,45 +3959,23 @@
       "review_required": true
     },
     {
-      "name": "IITian-Ankit/RISCV_5_staged_Pipeline_Core",
-      "url": "https://github.com/IITian-Ankit/RISCV_5_staged_Pipeline_Core",
-      "description": "RISC-V 5-Stage Pipelined Processor implementing the RV32I instruction set in Verilog. Features Instruction Fetch, Decode, Execute, Memory, and Write Back stages, with hazard detection, forwarding, and branch handling for efficient execution.",
-      "language": "Verilog",
-      "stars": 1,
-      "updated_at": "2026-09-12T08:08:09Z",
-      "license": null,
-      "query": "riscv instruction decoder",
-      "review_required": true
-    },
-    {
-      "name": "BengalEmpire/Bengal-Tiger-OS",
-      "url": "https://github.com/BengalEmpire/Bengal-Tiger-OS",
-      "description": "Bengal Tiger OS is a 32-bit x86 (i386) open-source operating system written in ANSI C and x86 Assembly. Designed with modular architecture, hardware abstraction layers, VBE graphics, FAT filesystem persistence, Realtek network drivers, and a preemptive task scheduler,",
+      "name": "sxbari/Avalanche-OS",
+      "url": "https://github.com/sxbari/Avalanche-OS",
+      "description": "A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.",
       "language": "C",
       "stars": 1,
-      "updated_at": "2026-09-02T17:08:24Z",
+      "updated_at": "2026-10-30T15:01:22Z",
       "license": "MIT",
       "query": "operating system kernel scheduler drivers",
       "review_required": true
     },
     {
-      "name": "mt6768-S/android_kernel_xiaomi_mt6768",
-      "url": "https://github.com/mt6768-S/android_kernel_xiaomi_mt6768",
-      "description": "mt6768 common kernel",
+      "name": "usermahiro/android_kernel_common",
+      "url": "https://github.com/usermahiro/android_kernel_common",
+      "description": "",
       "language": "C",
       "stars": 1,
-      "updated_at": "2026-10-16T13:33:17Z",
-      "license": "NOASSERTION",
-      "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "lrqtech/android_kernel_xiaomi_warsaw_lineage24",
-      "url": "https://github.com/lrqtech/android_kernel_xiaomi_warsaw_lineage24",
-      "description": "Android common kernel for Xiaomi warsaw on LineageOS 24.",
-      "language": "C",
-      "stars": 1,
-      "updated_at": "2026-10-16T04:17:43Z",
+      "updated_at": "2026-11-03T16:17:17Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
@@ -4084,6 +4080,39 @@
       "review_required": true
     },
     {
+      "name": "JignasuShah/riscv-processor",
+      "url": "https://github.com/JignasuShah/riscv-processor",
+      "description": "Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.",
+      "language": "SystemVerilog",
+      "stars": 0,
+      "updated_at": "2026-11-03T05:35:38Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "rahul-wrc/riscv32-single-cycle-processor-rtl-gds",
+      "url": "https://github.com/rahul-wrc/riscv32-single-cycle-processor-rtl-gds",
+      "description": "Verilog RTL implementation of a 32-bit RISC-V single-cycle processor with instruction decoding, ALU operations, register file, immediate generation, and memory interfaces.",
+      "language": "Verilog",
+      "stars": 0,
+      "updated_at": "2026-10-28T12:00:33Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
+      "name": "rishikezz/riscv32i-cpu-core-tlverilog",
+      "url": "https://github.com/rishikezz/riscv32i-cpu-core-tlverilog",
+      "description": "RISC-V RV32I CPU core implemented in TL-Verilog using Makerchip, featuring instruction decoding, ALU operations, memory access and simulation visualization.",
+      "language": "TL-Verilog",
+      "stars": 0,
+      "updated_at": "2026-10-18T16:15:53Z",
+      "license": null,
+      "query": "riscv instruction decoder",
+      "review_required": true
+    },
+    {
       "name": "Anas-Gebreel/riscv-ldpc-cfu-accelerator",
       "url": "https://github.com/Anas-Gebreel/riscv-ldpc-cfu-accelerator",
       "description": "RISC-V (NEORV32) custom-instruction accelerator for fixed-point min-sum LDPC decoding on the Terasic DE2-115 (Cyclone IV E).",
@@ -4091,17 +4120,6 @@
       "stars": 0,
       "updated_at": "2026-10-13T10:57:20Z",
       "license": "MIT",
-      "query": "riscv instruction decoder",
-      "review_required": true
-    },
-    {
-      "name": "JignasuShah/riscv-processor",
-      "url": "https://github.com/JignasuShah/riscv-processor",
-      "description": "Design and implementation of a 32-bit single-cycle RISC-V processor using SystemVerilog. The project focuses on core datapath components, instruction decoding, control logic, register file design, and ALU operations, with simulation and verification using ModelSim and FPGA development tools.",
-      "language": null,
-      "stars": 0,
-      "updated_at": "2026-10-12T19:13:55Z",
-      "license": null,
       "query": "riscv instruction decoder",
       "review_required": true
     },
@@ -4155,18 +4173,18 @@
       "description": "EspressoOS: A from‑scratch operating system for ESP32-S3, written entirely in Rust. A Linux‑inspired kernel (VFS, scheduler, syscalls, everything is a file) with no dependencies on Espressif IDF or Arduino. Includes custom bootloader, memory management, drivers, OTA with A/B slots, and an interactive shell.",
       "language": "Rust",
       "stars": 0,
-      "updated_at": "2026-10-15T02:37:48Z",
+      "updated_at": "2026-10-22T17:28:30Z",
       "license": "MIT",
       "query": "operating system kernel scheduler drivers",
       "review_required": true
     },
     {
-      "name": "sxbari/MyOS-x86",
-      "url": "https://github.com/sxbari/MyOS-x86",
-      "description": "A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.",
+      "name": "Aneesh495/stratum",
+      "url": "https://github.com/Aneesh495/stratum",
+      "description": "Multiprocessor x86-64 operating system kernel booting via a custom UEFI loader into preemptive per-core scheduling, demand-paged copy-on-write memory, virtio drivers, journaled StrataFS, and TCP/IP.",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-13T14:39:41Z",
+      "updated_at": "2026-10-27T02:05:09Z",
       "license": "MIT",
       "query": "operating system kernel scheduler drivers",
       "review_required": true
@@ -4216,12 +4234,23 @@
       "review_required": true
     },
     {
-      "name": "LDLDL-Android/android_kernel_common",
-      "url": "https://github.com/LDLDL-Android/android_kernel_common",
-      "description": "Android common kernel downstream branches for LDLDL-Android devices",
+      "name": "ramabondanp/android_kernel_common-6.12",
+      "url": "https://github.com/ramabondanp/android_kernel_common-6.12",
+      "description": "",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-16T17:03:47Z",
+      "updated_at": "2026-11-03T16:46:24Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "YuzakiKokuban/android_kernel_oneplus_sm8850",
+      "url": "https://github.com/YuzakiKokuban/android_kernel_oneplus_sm8850",
+      "description": "OnePlus 15 Android 16 Linux 6.12.69 kernel, imported from cctv18/android_gki_kernel_common",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-02T10:13:31Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
@@ -4232,30 +4261,41 @@
       "description": "",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-16T07:50:51Z",
+      "updated_at": "2026-11-02T09:03:40Z",
       "license": "GPL-2.0",
       "query": "android common kernel",
       "review_required": true
     },
     {
-      "name": "SylveonDeko/ack-tegra",
-      "url": "https://github.com/SylveonDeko/ack-tegra",
-      "description": "Android common kernel for Tegra with Nintendo Switch fixes",
+      "name": "dobraeuyan/android_kernel_qcom_msm8909-common",
+      "url": "https://github.com/dobraeuyan/android_kernel_qcom_msm8909-common",
+      "description": "Linux 4.9 kernel source tree for Snapdragon 205/210/212",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-16T06:14:48Z",
+      "updated_at": "2026-11-02T04:29:39Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
     },
     {
-      "name": "SB233-Kanger/android_kernel_common_oneplus_sm8845",
-      "url": "https://github.com/SB233-Kanger/android_kernel_common_oneplus_sm8845",
-      "description": "",
-      "language": null,
+      "name": "OP15T-SM8850-Development/android_kernel_common_modules_wonder",
+      "url": "https://github.com/OP15T-SM8850-Development/android_kernel_common_modules_wonder",
+      "description": "AOSP Wonder module adapted for Qualcomm CNSS integration on OnePlus SM8850",
+      "language": "C",
       "stars": 0,
-      "updated_at": "2026-10-16T12:08:29Z",
+      "updated_at": "2026-11-01T16:37:06Z",
       "license": null,
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "naifi1954/android_kernel_common",
+      "url": "https://github.com/naifi1954/android_kernel_common",
+      "description": "",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-01T15:17:54Z",
+      "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
     },
