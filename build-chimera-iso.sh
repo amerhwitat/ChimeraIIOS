@@ -1589,7 +1589,10 @@ stage_application_payloads(){
     cp -a "$SCRIPT_DIR/desktop/aurora/apps/." "$ISO_DIR/system/desktop/apps/aurora/"
   fi
   if [[ -d "$SCRIPT_DIR/desktop/aurora" ]]; then
-    find "$SCRIPT_DIR/desktop/aurora" -maxdepth 1 -type f -name '*.desktop' -exec cp -f {} "$ROOTFS_DIR/usr/share/applications/" \;
+    for desktop_dir in "$SCRIPT_DIR/desktop/aurora" "$SCRIPT_DIR/desktop/marine"; do
+      [[ -d "$desktop_dir" ]] || continue
+      find "$desktop_dir" -maxdepth 1 -type f -name '*.desktop' -exec cp -f {} "$ROOTFS_DIR/usr/share/applications/" \;
+    done
   fi
   log_info 'First-party compiled binaries and launchers are staged; catalog-only third-party apps remain provider/license gated.'
 }
@@ -1604,6 +1607,7 @@ stage_ai_workspace(){
   install -m 0644 "$SCRIPT_DIR/system/ai/README.md" "$share/README.md"
   install -m 0755 "$SCRIPT_DIR/desktop/shared/chimera-ai-workspace-launcher.sh" "$ROOTFS_DIR/usr/local/bin/chimera-ai-workspace-launcher"
   install -m 0644 "$SCRIPT_DIR/desktop/aurora/chimera-ai-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/chimera-ai-workspace.desktop"
+  install -m 0644 "$SCRIPT_DIR/desktop/marine/chimera-ai-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/chimera-ai-workspace-marine.desktop"
   cp -f "$SCRIPT_DIR/system/ai/chimera-ai-workspace.json" "$iso/"
   cp -f "$SCRIPT_DIR/system/ai/README.md" "$iso/"
   cp -f "$SCRIPT_DIR/tools/chimera-ai-workspace.py" "$iso/chimera-ai-workspace.py"
