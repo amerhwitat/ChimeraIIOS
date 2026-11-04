@@ -7,7 +7,7 @@ def stage(source,root):
  source=Path(source).resolve();root=Path(root).resolve()
  spec=importlib.util.spec_from_file_location("fhs",source/"tools/filesystem/create-fhs-tree.py");m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.create(root)
  groups=[
- (["services/registry/registryd.py","services/registry/registry-editor-api.py","tools/registry/registry_hive.py"],"usr/lib/chimera/registry",493),
+ (["services/registry/registryd.py","services/registry/registry-editor-api.py","services/registry/registry-editor-launcher.py","tools/registry/registry_hive.py"],"usr/lib/chimera/registry",493),
  (["services/network/smb-browse.py","services/network/directoryctl.py","services/network/directory-discovery.py","services/network/network-discoveryd.py"],"usr/lib/chimera/network",493),
  (["services/storage/mount-image.py"],"usr/lib/chimera/storage",493),
  (["desktop/aurora/registry-editor.html"],"usr/share/chimera/aurora",420),
@@ -32,7 +32,10 @@ def stage(source,root):
   (cfg/(name+".json")).write_text(json.dumps(data,indent=2,sort_keys=True)+"\n")
   (cfg/(name+".hive")).write_bytes(h.encode(data))
  os.chmod(cfg,488)
- return {"root":str(root),"copied":copied,"hives":["machine","environment","kernel"]}
+ wants=root/"etc/systemd/system/multi-user.target.wants";wants.mkdir(parents=True,exist_ok=True)
+ service=wants/"chimera-registryd.service"
+ if not service.exists() and not service.is_symlink():service.symlink_to("/usr/lib/systemd/system/chimera-registryd.service")
+ return {"root":str(root),"copied":copied,"hives":["machine","environment","kernel"],"enabled":["chimera-registryd.service"]}
 def main():
  p=argparse.ArgumentParser();p.add_argument("--source",required=True);p.add_argument("--root",required=True);a=p.parse_args();print(json.dumps(stage(a.source,a.root),indent=2))
 if __name__=="__main__":main()
