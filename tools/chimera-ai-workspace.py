@@ -187,7 +187,11 @@ def chat(args) -> int:
         backend = "ollama" if shutil.which("ollama") else "llama.cpp" if shutil.which("llama-cli") else ""
     if backend not in {"ollama", "llama.cpp"}:
         raise SystemExit("No supported local LLM backend found; install Ollama or llama.cpp and configure a local model.")
-    database = load_resource_database(args.database)
+    try:
+        database = load_resource_database(args.database)
+    except SystemExit:
+        # Packaged curated knowledge is useful even before the user indexes files.
+        database = {"schema": SCHEMA, "resources": []}
     knowledge_path = Path(args.knowledge_database).expanduser()
     if not knowledge_path.is_file():
         packaged = Path("/usr/share/chimera/ai/hardware-systems-knowledge.json")
