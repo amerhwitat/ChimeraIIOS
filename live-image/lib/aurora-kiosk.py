@@ -85,7 +85,8 @@ def registry_call(request):
     return response
 
 def command_json(argv, timeout=60):
-    env = os.environ.copy()\n    env.update({"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
+    env = os.environ.copy()
+    env.update({"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
     result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
                             check=False, env=env)
     try:
