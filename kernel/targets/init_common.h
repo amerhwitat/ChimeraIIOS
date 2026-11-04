@@ -92,7 +92,9 @@ static int init_vfs_acceptance(void) {
     char buffer[sizeof(payload)];
     const long etc=init_open("/etc/os-release",0); if(etc<3) return 0;
     char release[8]; const long got=init_read(etc,release,sizeof(release));
-    const long etc_closed=init_close(etc); if(got<=0 || etc_closed!=0) return 0;
+    const long etc_closed=init_close(etc); if(got!=(long)sizeof(release) || etc_closed!=0) return 0;
+    static const char release_prefix[]="NAME=Kor";
+    for(long i=0;i<(long)sizeof(release_prefix)-1;i++) if(release[i]!=release_prefix[i]) return 0;
     const long fd=init_open("/tmp/koronos-acceptance",CHM_O_RDWR|CHM_O_CREAT); if(fd<3) return 0;
     const long wrote=init_write(fd,payload,(long)sizeof(payload)-1);
     const long seeked=init_seek(fd,0,CHM_SEEK_SET);
@@ -100,6 +102,12 @@ static int init_vfs_acceptance(void) {
     const long closed=init_close(fd);
     if(wrote!=(long)sizeof(payload)-1 || seeked!=0 || readn!=(long)sizeof(payload)-1 || closed!=0) return 0;
     for(long i=0;i<(long)sizeof(payload)-1;i++) if(buffer[i]!=payload[i]) return 0;
+    init_writestr("VFS ACCEPTANCE: ROOT MOUNTED target=");
+    init_writestr(CHIMERA_TARGET_NAME);
+    init_writestr(" path=/\\n");
+    init_writestr("VFS ACCEPTANCE: TMP WRITE-READ VERIFIED target=");
+    init_writestr(CHIMERA_TARGET_NAME);
+    init_writestr(" path=/tmp\\n");
     return 1;
 }
 static void init_emit_readiness(long pid) {
