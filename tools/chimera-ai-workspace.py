@@ -63,7 +63,12 @@ def probe() -> dict:
             modules[name] = {"available": True, "version": str(getattr(m, "__version__", ""))}
         except Exception:
             modules[name] = {"available": False, "version": ""}
-    return {"commands": commands, "python_modules": modules}
+    ai_dir = Path("/usr/share/chimera/ai")
+    knowledge = ai_dir / "hardware-systems-knowledge.json"
+    rnn_model = ai_dir / "trained-hardware-systems-rnn.json"
+    assets = {"knowledge_database": {"available": knowledge.is_file(), "path": str(knowledge)},
+              "trained_rnn": {"available": rnn_model.is_file(), "path": str(rnn_model)}}
+    return {"commands": commands, "python_modules": modules, "ai_assets": assets}
 
 def scan(args) -> int:
     roots = [Path(x).expanduser().resolve() for x in args.root]
@@ -302,6 +307,26 @@ def infer_onnx(args) -> int:
         print(encoded, end="")
     return 0
 
+def score_rnn(args) -> int:
+    """Score a sequence with the packaged small RNN; this is not semantic verification."""
+    import importlib.util
+    module_path = Path(args.runtime_module).expanduser()
+    if not module_path.is_file():
+        raise SystemExit(f"RNN runtime module not found: {module_path}")
+    spec = importlib.util.spec_from_file_location("chimera_trainable_rnn_lm", module_path)
+    if spec is None or spec.loader is None:
+        raise SystemExit("could not load RNN runtime module")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    model = module.CharRNN.load(str(Path(args.model).expanduser()))
+    result = {"schema": "CHIMERA-RNN-SCORE-1", "model_type": "trained-character-level-vanilla-RNN",
+              "score_kind": "mean-next-character-log-probability", "score": model.score(args.text),
+              "metadata": model.metadata if hasattr(model, "metadata") else
+                          json.loads(Path(args.model).expanduser().read_text(encoding="utf-8")).get("metadata", {}),
+              "scope": "advisory text-pattern score only; not factual validation or an LLM"}
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
@@ -332,6 +357,11 @@ def main() -> int:
     n.add_argument("--input-name")
     n.add_argument("--output", help="write result JSON to this path; stdout if omitted")
     n.set_defaults(func=infer_onnx)
+    r = sub.add_parser("rnn-score", help="score a text sequence with the packaged advisory RNN")
+    r.add_argument("--model", default="/usr/share/chimera/ai/trained-hardware-systems-rnn.json")
+    r.add_argument("--runtime-module", default="/usr/share/chimera/ai/trainable_rnn_lm.py")
+    r.add_argument("--text", required=True)
+    r.set_defaults(func=score_rnn)
     args = p.parse_args()
     return args.func(args)
 
