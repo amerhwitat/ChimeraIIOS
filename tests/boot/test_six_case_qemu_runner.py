@@ -59,11 +59,11 @@ class SixCaseQemuRunnerTests(unittest.TestCase):
             evidence = root / "evidence"
             fake_qemu = root / "fake-qemu"
             fake_qemu.write_text(
-                "#!/usr/bin/env python3\\n"
-                "import pathlib, sys\\n"
-                "for i, arg in enumerate(sys.argv[:-1]):\\n"
-                "    if arg == '-debugcon': pathlib.Path(sys.argv[i+1][5:]).write_text('raw qemu trace')\\n"
-                "    if arg == '-serial': pathlib.Path(sys.argv[i+1][5:]).write_text('raw serial trace')\\n",
+                "#!/usr/bin/env python3\n"
+                "import pathlib, sys\n"
+                "for i, arg in enumerate(sys.argv[:-1]):\n"
+                "    if arg == '-debugcon': pathlib.Path(sys.argv[i+1][5:]).write_text('raw qemu trace')\n"
+                "    if arg == '-serial': pathlib.Path(sys.argv[i+1][5:]).write_text('raw serial trace')\n",
                 encoding="utf-8",
             )
             fake_qemu.chmod(0o755)
@@ -74,7 +74,7 @@ class SixCaseQemuRunnerTests(unittest.TestCase):
             self.assertEqual(result["qemu_exit_code"], 0)
             self.assertIn("mock monitor", result["selection_error"])
             raw = (evidence / result["trace"]).read_text(encoding="utf-8")
-            self.assertEqual(raw, "raw qemu trace\\n")
+            self.assertEqual(raw, "raw qemu trace")
             self.assertNotIn("USERSPACE READY", raw)
 
 
