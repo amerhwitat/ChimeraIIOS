@@ -61,10 +61,22 @@ def check_runtime_contract(trace: str, target: str, firmware: str, failures: lis
     fw = FIRMWARE.search(trace)
     if not fw or fw.group(1).lower() != firmware:
         failures.append(f"{label}: trace does not prove {firmware.upper()} firmware execution")
-    if f"VFS ACCEPTANCE: ROOT MOUNTED target={target} path=/" not in trace:
+    root_marker = f"VFS ACCEPTANCE: ROOT MOUNTED target={target} path=/"
+    tmp_marker = f"VFS ACCEPTANCE: TMP WRITE-READ VERIFIED target={target} path=/tmp"
+    if root_marker not in trace:
         failures.append(f"{label}: root filesystem mount/read contract not proven")
-    if f"VFS ACCEPTANCE: TMP WRITE-READ VERIFIED target={target} path=/tmp" not in trace:
+    if tmp_marker not in trace:
         failures.append(f"{label}: writable /tmp syscall round-trip not proven")
+    matching = [(a, r) for a in ACK.finditer(trace) for r in READY.finditer(trace)
+                if a.group(1) == target and r.group(1) == target and a.group(2) == r.group(2)
+                and trace.find("[KRN ] KORONOS READY") < a.start() < r.start()]
+    if matching:
+        ack, ready = matching[0]
+        root_at, tmp_at = trace.find(root_marker), trace.find(tmp_marker)
+        if not (ack.start() < root_at < tmp_at < ready.start()):
+            failures.append(f"{label}: VFS checks are not ordered inside the acknowledged init process before readiness")
+    else:
+        failures.append(f"{label}: VFS markers cannot be tied to the matching CPL3 init handoff")
     cpu_pairs = {(m.group(1), m.group(2)) for m in CPU.finditer(trace)}
     logical_ids = {logical for logical, _ in cpu_pairs}
     apic_ids = {apic for _, apic in cpu_pairs}
