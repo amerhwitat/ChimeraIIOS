@@ -65,11 +65,14 @@ def check_runtime_contract(trace: str, target: str, firmware: str, failures: lis
         failures.append(f"{label}: root filesystem mount/read contract not proven")
     if f"VFS ACCEPTANCE: TMP WRITE-READ VERIFIED target={target} path=/tmp" not in trace:
         failures.append(f"{label}: writable /tmp syscall round-trip not proven")
-    cpus = {m.group(1) for m in CPU.finditer(trace)}
-    if len(cpus) < 2:
-        failures.append(f"{label}: fewer than two distinct online CPU identities")
-    if not any(m.group(1) in cpus and m.group(2) in cpus for m in OVERLAP.finditer(trace)):
-        failures.append(f"{label}: no measured overlapping execution interval across two online CPUs")
+    cpu_pairs = {(m.group(1), m.group(2)) for m in CPU.finditer(trace)}
+    logical_ids = {logical for logical, _ in cpu_pairs}
+    apic_ids = {apic for _, apic in cpu_pairs}
+    if len(logical_ids) < 2 or len(apic_ids) < 2:
+        failures.append(f"{label}: fewer than two distinct online logical/APIC CPU identities")
+    if not any(m.group(1) != m.group(2) and m.group(1) in logical_ids and m.group(2) in logical_ids
+               for m in OVERLAP.finditer(trace)):
+        failures.append(f"{label}: no measured overlapping execution interval across two distinct online CPUs")
 
 def check_desktop(root: Path, relative: str, profile: str, failures: list[str], label: str) -> None:
     trace = load_trace(root, relative, failures, label)
@@ -107,6 +110,8 @@ def verify(iso: Path, evidence_dir: Path) -> dict:
     try: manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         return {"schema": SCHEMA, "status": "BLOCKED", "iso_sha256": iso_hash, "failures": [f"invalid matrix.json: {exc}"], "cases": []}
+    if not isinstance(manifest, dict):
+        return {"schema": SCHEMA, "status": "BLOCKED", "iso_sha256": iso_hash, "failures": ["matrix.json root must be an object"], "cases": []}
     if manifest.get("schema") != SCHEMA: failures.append(f"matrix schema must be {SCHEMA}")
     if manifest.get("iso_sha256") != iso_hash: failures.append("matrix ISO SHA-256 does not match the canonical ISO under test")
     cases = manifest.get("cases")
@@ -117,6 +122,9 @@ def verify(iso: Path, evidence_dir: Path) -> dict:
         label = f"case[{index}]"
         if not isinstance(case, dict): failures.append(f"{label}: case entry must be an object"); continue
         target, firmware = case.get("target"), case.get("firmware")
+        if not isinstance(target, str) or not isinstance(firmware, str):
+            failures.append(f"{label}: target and firmware must be strings")
+            continue
         key = (target, firmware); observed.append(key)
         if key not in expected: failures.append(f"{label}: unsupported target/firmware pair {key!r}"); continue
         label = f"{target}/{firmware}"
