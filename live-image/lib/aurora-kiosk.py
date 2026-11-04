@@ -132,12 +132,13 @@ def dispatch(service, method, args, parent):
             share = args.get("share", "")
             if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.:-]{0,252}", host):
                 raise ValueError("invalid SMB host")
-            if not isinstance(share, str) or not re.fullmatch(r"[A-Za-z0-9._$ -]{1,80}", share) or share in (".", ".."):
+            if share not in (None, "") and (not isinstance(share, str) or
+                    not re.fullmatch(r"[A-Za-z0-9._$ -]{1,80}", share) or share in (".", "..")):
                 raise ValueError("invalid SMB share name")
             if not shutil.which("gio"):
                 raise RuntimeError("GVFS/GIO is required to open SMB shares")
             from urllib.parse import quote
-            uri = "smb://" + host + "/" + quote(share, safe="")
+            uri = "smb://" + host + (("/" + quote(share, safe="")) if share else "/")
             result = subprocess.run(["gio", "open", uri], capture_output=True, text=True,
                                     timeout=30, check=False,
                                     env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
