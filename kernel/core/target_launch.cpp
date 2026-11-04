@@ -9,6 +9,7 @@
 #include "chimera/elf64.h"
 #include "chimera/frame_allocator.h"
 #include "chimera/physmap.h"
+#include "chimera/vfs.h"
 
 namespace {
 constexpr uint64_t USER_STACK_TOP = 0x00007FFFFFFFE000ull; // Loader requires a page-aligned stack ceiling
@@ -130,6 +131,16 @@ static bool target_marker(const char *bytes, uint64_t length, Target target, uin
 }
 }
 
+extern "C" int koronos_target_validate_user_buffer(uint64_t address,uint64_t length,uint32_t write_access) {
+    if(!active_root || length>65536u) return 0;
+    if(!length) return 1;
+    return koronos_address_space_validate_user_range(active_root,address,length,write_access)==0 ? 1 : 0;
+}
+extern "C" int koronos_target_vfs_initialize(void) {
+    if(koronos_vfs_init()!=0 || koronos_vfs_mount_tmpfs()!=0) { koronos_target_log("[VFS] root/tmpfs initialization failed"); return -1; }
+    koronos_target_log("[VFS] root mounted; tmpfs /tmp mounted"); return 0;
+}
+extern "C" void koronos_syscall_reset_process_fds(void);
 extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
@@ -235,6 +246,14 @@ extern "C" int koronos_launch_selected_userspace(void) {
     active_target=target;
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
+    if(koronos_target_vfs_initialize()!=0) {
+        ops->destroy_address_space(nullptr,loaded.address_space);
+        (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
+        (void)chimera_process_reap(active_pid,nullptr);
+        active_target=TARGET_NONE; active_pid=0; active_root=0;
+        koronos_target_log("[RUN ] ERROR: native root/tmpfs mount failed"); return -12;
+    }
+    koronos_syscall_reset_process_fds();
     syscall_ack_seen=0;
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
