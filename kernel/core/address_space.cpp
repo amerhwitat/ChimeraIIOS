@@ -361,3 +361,26 @@ extern "C" int koronos_address_space_validate_user_range(uint64_t root_physical,
     return 0;
 }
 extern "C" uint64_t koronos_address_space_count(void) { return created_spaces; }
+
+extern "C" int koronos_copy_from_user(void *destination,uint64_t source,uint64_t length) {
+    if (length==0) return 0;
+    if (!destination || length>65536u) return -1;
+    uint64_t root=0;
+    __asm__ volatile("mov %%cr3,%0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root,source,length,0u)!=0) return -2;
+    uint8_t *out=static_cast<uint8_t*>(destination);
+    const volatile uint8_t *in=reinterpret_cast<const volatile uint8_t*>(static_cast<uintptr_t>(source));
+    for(uint64_t i=0;i<length;i++) out[i]=in[i];
+    return 0;
+}
+extern "C" int koronos_copy_to_user(uint64_t destination,const void *source,uint64_t length) {
+    if (length==0) return 0;
+    if (!source || length>65536u) return -1;
+    uint64_t root=0;
+    __asm__ volatile("mov %%cr3,%0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root,destination,length,1u)!=0) return -2;
+    volatile uint8_t *out=reinterpret_cast<volatile uint8_t*>(static_cast<uintptr_t>(destination));
+    const uint8_t *in=static_cast<const uint8_t*>(source);
+    for(uint64_t i=0;i<length;i++) out[i]=in[i];
+    return 0;
+}
