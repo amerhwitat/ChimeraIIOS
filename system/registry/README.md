@@ -1,9 +1,24 @@
-# Koronos CHMRG01 registry hives
+# CHMRG01 registry and settings
 
-CHMRG01 is an open, versioned hierarchical binary registry inspired by the operational model of Windows registry hives. It is **not** Microsoft's SAM file format and does not parse SAM databases.
+The registry is a Chimera-owned, versioned typed configuration store. Its hierarchical organization is inspired by the Windows registry, but it is not compatible with or derived from Microsoft's proprietary SAM database.
 
-Hives: machine (identity/detection policy), environment (process defaults), kernel (bounded diagnostics/scheduler preferences). 40-byte little-endian header: magic `CHMRG01\\0`, major/minor, header size, total size, entry count, generation, payload CRC-32 and header CRC-32. Header CRC covers bytes 0..35; payload CRC covers all records. Each record contains path length u16, type u8, flags u8, value length u32, canonical lowercase UTF-8 path and raw value. Types are u32/u64/bool/string/bytes. Duplicate paths, unknown versions/types, invalid lengths, bad CRCs and trailing bytes are rejected.
+## Hives
+- machine: host identity and machine-wide policy.
+- environment: desktop/session defaults and user environment policy.
+- kernel: boot-time and kernel policy. Values are descriptive until an explicitly implemented kernel consumer validates and adopts them.
 
-Build/verify: `python3 tools/registry/registry_hive.py build --input system/registry/machine.defaults.json --output build/registry/machine.hive`; then `verify build/registry/machine.hive`. Kernel parser exposes read-only views only. VFS ownership and authorization are mandatory for writes; use temporary-file + fsync + atomic rename and increment generation per commit.
+Immutable image defaults live in system/registry/*.defaults.json. Runtime source copies live under /var/lib/chimera/registry/source and compiled hives under /var/lib/chimera/registry/hives.
 
-Security boundary: editable hives cannot enable unsupported CPU features, alter syscall numbers, bypass privilege checks, widen detected physical-address limits or claim CPUs online. Hardware/firmware probes and compiled Kconfig remain authoritative. The Linux live edition includes a local Unix-socket registry daemon with peer-credential checks, admin-group authorization, generation-checked writes and write-ahead journal replay. Koronos VFS-backed mounting, native process credential integration and crash-recovery acceptance remain pending.
+## GUI and CLI
+Aurora Registry & System Settings lists, searches, adds, edits and deletes typed entries. CLI examples:
+
+    chimera-registry-editor list environment
+    chimera-registry-editor get environment environment.locale
+    chimera-registry-editor set environment environment.locale string en_US.UTF-8
+
+Machine and kernel changes require administrator privileges. The editor does not make unsupported kernel settings live; only implemented consumers may read them.
+
+## Transactions
+The transaction journal contains the complete next source and binary hive images. It is fsync'd before either destination is replaced. Recovery replays prepared transactions idempotently, and an advisory lock serializes local writers. This is a single-host transaction protocol, not distributed consensus.
+
+Never store passwords, Kerberos tickets, private keys, tokens or other secrets in registry values or repository defaults. Use the OS credential store.
