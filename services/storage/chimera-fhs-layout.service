@@ -10,8 +10,6 @@ ExecStart=/usr/local/sbin/chimera-init-layout.sh --root /
 RemainAfterExit=yes
 NoNewPrivileges=true
 ProtectSystem=full
-ProtectHome=read-only
-PrivateTmp=false
 
 [Install]
 WantedBy=multi-user.target
