@@ -9,7 +9,7 @@ import sys
 DOMAIN = re.compile(r"^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*$")
 URI = re.compile(r"^(ldaps://|ldap://)[A-Za-z0-9.-]+(?::[0-9]{1,5})?/?$")
 
-def run(argv, timeout=90):
+def valid_ldap_uri(value):\n    if not URI.fullmatch(value):\n        return False\n    try:\n        parsed = urlsplit(value)\n        return bool(parsed.hostname) and (parsed.port is None or 1 <= parsed.port <= 65535) and parsed.path in ('', '/')\n    except ValueError:\n        return False\n\ndef run(argv, timeout=90):
     return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
 
 def main():
@@ -39,7 +39,7 @@ def main():
         elif a.cmd == "status":
             result = run(["realm", "list"], timeout=15)
         else:
-            if (not URI.fullmatch(a.uri) or not a.base_dn or "\n" in a.base_dn or
+            if (not valid_ldap_uri(a.uri) or not a.base_dn or "\n" in a.base_dn or
                     not re.fullmatch(r"[A-Za-z0-9=,._ -]{1,512}", a.base_dn) or
                     not a.filter.startswith("(") or len(a.filter) > 4096 or "\n" in a.filter):
                 raise ValueError("LDAP URI must be ldap(s)://host[:port]; base DN is required")
