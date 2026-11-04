@@ -73,7 +73,7 @@ def main():
                 binary = exec_start.split()[0].lstrip("-@+!:")
                 base = os.path.basename(binary)
                 if binary.startswith("/") and not os.path.exists(os.path.join(args.helpers, base)) \
-                        and base not in ("startx", "openbox", "xsetroot", "feh", "xset", "ip", "sh", "python3", "polkit-mate-authentication-agent-1"):
+                        and base not in ("startx", "openbox", "xsetroot", "feh", "xset", "ip", "sh", "python3", "dbus-run-session", "polkit-mate-authentication-agent-1"):
                     errors.append("%s: ExecStart binary is not provided by userspace/: %s" % (name, binary))
         if parser.has_section("Install"):
             for key in ("WantedBy", "RequiredBy"):
