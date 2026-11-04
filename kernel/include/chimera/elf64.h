@@ -31,3 +31,11 @@ static inline int koronos_elf64_valid(const struct koronos_elf64_ehdr *h) {
  h->e_ident[2]==KORONOS_ELF_MAG2 && h->e_ident[3]==KORONOS_ELF_MAG3 &&
  h->e_ident[4]==KORONOS_ELFCLASS64 && h->e_ident[5]==KORONOS_ELFDATA2LSB;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int koronos_elf64_validate(const void *image, uint64_t size, uint16_t machine);
+#ifdef __cplusplus
+}
+#endif
