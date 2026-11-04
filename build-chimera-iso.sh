@@ -14,6 +14,7 @@ Options:
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --release                 Require native CPL3, VFS, SMP and six-case firmware acceptance evidence.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -132,6 +133,7 @@ BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+RELEASE_BUILD=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -232,6 +234,7 @@ while [[ $# -gt 0 ]]; do
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
+    --release) RELEASE_BUILD=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
@@ -373,6 +376,10 @@ choose_storage(){
 preflight(){
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
+  if [[ "$RELEASE_BUILD" == 1 ]]; then
+    header 'FAIL-CLOSED NATIVE KORONOS RELEASE ACCEPTANCE'
+    python3 "$SCRIPT_DIR/tools/validate-release-evidence.py" || { log_error 'Production release evidence is incomplete; engineering ISO may still be built without --release.'; return 1; }
+  fi
   header 'CPU / MEDIA PROFILE'
   log_info "Detected build-host CPU: $HOST_ARCH"
   log_info "Selected ISO target CPU: $TARGET_ARCH"
@@ -1515,7 +1522,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk application-payloads ai-workspace squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1537,26 +1544,73 @@ main(){
       native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
       sdk) run_stage sdk stage_sdks;;
+      application-payloads) run_stage application-payloads stage_application_payloads;;
+      ai-workspace) run_stage ai-workspace stage_ai_workspace;;
     esac
     completed="$stage"
   done
   cleanup_final_success_artifacts
 }
 
-stage_sdks(){
-  header 'STEP: COMPILE ALL REPOSITORY SDKS'
-  # Compiles every build definition the host toolchains support (CMake, Cargo,
-  # Swift, Dart, Maven, Gradle, dotnet, npm, Go, Python) and writes an honest
-  # report into the ISO. Missing toolchains are reported as skipped, not passed.
-  local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
-  mkdir -p "$(dirname "$report")"
-  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
-    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
-      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
-    log_info "SDK report staged at $report"
-  else
-    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+  local compiled_root="$SCRIPT_DIR/build/sdk"
+  local compiled_iso="$ISO_DIR/system/sdk/build-artifacts"
+  local compiled_rootfs="$ROOTFS_DIR/opt/chimera-sdk/build-artifacts"
+  mkdir -p "$compiled_iso" "$compiled_rootfs"
+  if [[ -d "$compiled_root" ]]; then
+    while IFS= read -r -d '' artifact; do
+      local rel
+      rel="$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1],sys.argv[2]))' "$artifact" "$compiled_root")"
+      mkdir -p "$compiled_iso/$(dirname "$rel")" "$compiled_rootfs/$(dirname "$rel")"
+      cp -f "$artifact" "$compiled_iso/$rel"
+      cp -f "$artifact" "$compiled_rootfs/$rel"
+    done < <(find "$compiled_root" -type f \( -name '*.a' -o -name '*.so' -o -name '*.so.*' -o -name '*.o' -o -name '*.jar' -o -name '*.wasm' -o -name '*.dll' -o -name '*.exe' \) -print0)
   fi
+  log_info "Compiled SDK libraries/objects staged when present: $compiled_iso"
+}
+
+stage_application_payloads(){
+  header 'STAGE COMPILED DESKTOP APPLICATIONS, LAUNCHERS AND CATALOGS'
+  local build_dir="$BUILD_DIR/desktop-binaries"
+  mkdir -p "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ROOTFS_DIR/usr/share/chimera/desktop" "$ISO_DIR/system/desktop" "$ISO_DIR/system/applications"
+  if [[ -x "$SCRIPT_DIR/tools/build-desktop-binaries.sh" ]]; then
+    CHIMERA_DESKTOP_BUILD_DIR="$build_dir" bash "$SCRIPT_DIR/tools/build-desktop-binaries.sh" 2>&1 | tee "$LOG_DIR/desktop-binaries.log"
+    [[ ! -d "$build_dir/bin" ]] || cp -a "$build_dir/bin/." "$ROOTFS_DIR/usr/local/bin/"
+    [[ ! -s "$build_dir/manifests/desktop-build-manifest.json" ]] || { cp -f "$build_dir/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"; cp -f "$build_dir/manifests/desktop-build-manifest.json" "$ISO_DIR/system/desktop/"; }
+  else
+    log_warning 'Desktop binary builder missing; staging catalog and launchers only.'
+  fi
+  if [[ -s "$SCRIPT_DIR/desktop/optional_apps_catalog.json" ]]; then
+    cp -f "$SCRIPT_DIR/desktop/optional_apps_catalog.json" "$ROOTFS_DIR/usr/share/chimera/desktop/"
+    cp -f "$SCRIPT_DIR/desktop/optional_apps_catalog.json" "$ISO_DIR/system/applications/"
+  fi
+  if [[ -d "$SCRIPT_DIR/desktop/aurora/apps" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/apps/aurora" "$ISO_DIR/system/desktop/apps/aurora"
+    cp -a "$SCRIPT_DIR/desktop/aurora/apps/." "$ROOTFS_DIR/usr/share/chimera/desktop/apps/aurora/"
+    cp -a "$SCRIPT_DIR/desktop/aurora/apps/." "$ISO_DIR/system/desktop/apps/aurora/"
+  fi
+  if [[ -d "$SCRIPT_DIR/desktop/aurora" ]]; then
+    find "$SCRIPT_DIR/desktop/aurora" -maxdepth 1 -type f -name '*.desktop' -exec cp -f {} "$ROOTFS_DIR/usr/share/applications/" \;
+  fi
+  log_info 'First-party compiled binaries and launchers are staged; catalog-only third-party apps remain provider/license gated.'
+}
+
+stage_ai_workspace(){
+  header 'STAGE LOCAL-FIRST CNN/RNN/LLM AI WORKSPACE'
+  local share="$ROOTFS_DIR/usr/share/chimera/ai"
+  local iso="$ISO_DIR/system/ai"
+  mkdir -p "$share" "$iso" "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications"
+  install -m 0755 "$SCRIPT_DIR/tools/chimera-ai-workspace.py" "$ROOTFS_DIR/usr/bin/chimera-ai-workspace"
+  install -m 0644 "$SCRIPT_DIR/system/ai/chimera-ai-workspace.json" "$share/chimera-ai-workspace.json"
+  install -m 0644 "$SCRIPT_DIR/system/ai/README.md" "$share/README.md"
+  install -m 0755 "$SCRIPT_DIR/desktop/shared/chimera-ai-workspace-launcher.sh" "$ROOTFS_DIR/usr/local/bin/chimera-ai-workspace-launcher"
+  install -m 0644 "$SCRIPT_DIR/desktop/aurora/chimera-ai-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/chimera-ai-workspace.desktop"
+  cp -f "$SCRIPT_DIR/system/ai/chimera-ai-workspace.json" "$iso/"
+  cp -f "$SCRIPT_DIR/system/ai/README.md" "$iso/"
+  cp -f "$SCRIPT_DIR/tools/chimera-ai-workspace.py" "$iso/chimera-ai-workspace.py"
+  python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-ai-workspace"
+  python3 -m json.tool "$share/chimera-ai-workspace.json" >/dev/null
+  log_info 'AI workspace installed; resource indexing is explicit/local and metadata-only unless text capture is opted in.'
+  log_info 'CNN/RNN training and LLM inference activate only when compatible frameworks, datasets and model weights are supplied.'
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
