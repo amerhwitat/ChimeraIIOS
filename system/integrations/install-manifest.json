@@ -20,7 +20,8 @@
     "udisks2",
     "oddjob",
     "oddjob-mkhomedir",
-    "avahi-utils"
+    "avahi-utils",
+    "dnsutils"
   ],
   "files": [
     {
@@ -92,6 +93,31 @@
       "source": "services/service_registry.json",
       "target": "/usr/share/chimera/services/service_registry.json",
       "mode": "0644"
+    },
+    {
+      "source": "services/registry/registry-editor-api.py",
+      "target": "/usr/lib/chimera/registry/registry-editor-api.py",
+      "mode": "0755"
+    },
+    {
+      "source": "services/registry/registry-editor-launcher.py",
+      "target": "/usr/lib/chimera/registry/registry-editor-launcher.py",
+      "mode": "0755"
+    },
+    {
+      "source": "desktop/aurora/registry-editor.html",
+      "target": "/usr/share/chimera/aurora/registry-editor.html",
+      "mode": "0644"
+    },
+    {
+      "source": "desktop/aurora/chimera-registry-editor.desktop",
+      "target": "/usr/share/applications/chimera-registry-editor.desktop",
+      "mode": "0644"
+    },
+    {
+      "source": "services/network/directory-discovery.py",
+      "target": "/usr/lib/chimera/network/directory-discovery.py",
+      "mode": "0755"
     }
   ],
   "groups": [
@@ -102,6 +128,7 @@
     "smbd": "disabled-by-default",
     "wsdd": "disabled-by-default",
     "sssd": "enabled-after-explicit-domain-join",
-    "admin_group_sync": "enabled-before-desktop"
+    "admin_group_sync": "enabled-before-desktop",
+    "registry_editor": "per-user-on-demand"
   }
 }
