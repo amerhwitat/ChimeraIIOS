@@ -33,7 +33,9 @@ policy before exposing a network share. This is not a new SMB server stack.
 ## Active Directory and LDAP
 
 Domain membership uses realmd/adcli/SSSD and requires an existing Kerberos
-ticket. The join command does not accept a password argument. Directory
+ticket. The GUI validates the user's private FILE cache and invokes the join
+through pkexec/PolicyKit for explicit administrator authentication. The join
+command does not accept a password argument. Directory
 queries use OpenLDAP ldapsearch with GSSAPI; ldap:// requires StartTLS and
 ldaps:// requires certificate validation. DNS SRV records and synchronized
 time are preconditions. Passwords, tickets and keys are never stored in the
