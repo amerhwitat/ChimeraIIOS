@@ -1,18 +1,58 @@
 # SMB, Microsoft network browsing and directory services
 
-Chimera integrates maintained protocol implementations rather than claiming a newly written SMB or Kerberos stack.
+The Linux live edition integrates mature protocol implementations through
+policy-checked Aurora IPC. These are user-space interoperability adapters, not
+Koronos-native protocol stacks.
 
-## SMB client and browser
-DNS-SD discovery queries Avahi for _smb._tcp advertisements. Share enumeration delegates SMB2/SMB3 negotiation and authentication to Samba's smbclient. Kerberos mode uses the existing credential cache. SMB1 and anonymous access are disabled by default. Install Samba client and Avahi packages to enable discovery. The helper returns hosts and shares as JSON; a file-manager integration must render these results.
+## Registry editor
+
+Aurora's Registry Editor uses a local Unix-domain socket bridge to registryd.
+The daemon checks SO_PEERCRED, permits reads from local users, restricts writes
+to root or the chimera-admin group, checks a generation number on every write,
+rejects protected CPU/identity/security/boot-critical keys, and commits a
+versioned JSON source plus CHMRG01 binary hive through a write-ahead journal.
+The GUI falls back to a read-only defaults view when the trusted native bridge
+is unavailable. It does not directly write hive files.
+
+## SMB client and Microsoft network browser
+
+The Aurora Windows Network app uses Samba's smbclient for SMB2/SMB3 share
+enumeration. Authentication uses the existing Kerberos credential cache;
+anonymous and plaintext-password fallback are disabled. Local-link discovery
+combines Avahi DNS-SD advertisements for _smb._tcp with a bounded WS-Discovery
+multicast Probe. It does not scan arbitrary address ranges.
 
 ## Optional SMB server
-The opt-in smbd unit runs the distribution's Samba daemon. The default configuration exports no shares, disables NetBIOS and SMB1, requires server signing and denies guest mapping. Administrators must configure shares, ACLs, firewall rules and accounts before enabling it. This is not a new SMB protocol implementation.
+
+The server uses the maintained Samba smbd implementation. It is disabled by
+default, binds to loopback in the shipped configuration, exports no shares,
+disables SMB1/NetBIOS and guest mapping, and requires server signing. An
+administrator must explicitly configure interfaces, shares, ACLs and firewall
+policy before exposing a network share. This is not a new SMB server stack.
 
 ## Active Directory and LDAP
-The domain helper uses realmd/adcli for discovery and interactive join, with SSSD/Kerberos as identity/authentication providers. LDAP password operations require TLS and signing. DNS SRV records and synchronized time are preconditions. Credentials are entered interactively and never stored in source control or registry hives. Directory browsing should use ldapsearch with StartTLS or LDAPS, never a clear-text password over plain LDAP.
+
+Domain membership uses realmd/adcli/SSSD and requires an existing Kerberos
+ticket. The join command does not accept a password argument. Directory
+queries use OpenLDAP ldapsearch with GSSAPI; ldap:// requires StartTLS and
+ldaps:// requires certificate validation. DNS SRV records and synchronized
+time are preconditions. Passwords, tickets and keys are never stored in the
+registry or source repository.
 
 ## Optical media
-chimera-iso-mount accepts an ISO image or optical block device and tries ISO9660 then UDF, always read-only with nosuid,nodev,noexec. It requires root and refuses non-empty or already-mounted targets.
+
+The Aurora Optical Media app validates ISO-9660 primary volume descriptors and
+UDF recognition sequences before requesting a read-only udisks2 loop mount.
+Physical CD/DVD mounting accepts only /dev/srN devices and requires blkid to
+identify ISO9660 or UDF. Unmount removes loop devices after a successful
+unmount. Mounting uses the Linux live kernel and udisks2, not Koronos VFS.
 
 ## Linux filesystem hierarchy
-The target follows FHS conventions: /usr/bin, /usr/sbin, /usr/lib, /usr/share, /etc, /var, /run, /dev, /proc, /sys, /home, /root, /opt, /srv, /mnt, /media and /tmp. Chimera payloads live under /system/chimera; machine policy under /etc/chimera; mutable state under /var/lib/chimera; volatile state under /run/chimera. /bin, /sbin, /lib and /lib64 are compatibility symlinks into /usr where supported.
+
+The installed tree follows FHS conventions: /usr/bin, /usr/sbin, /usr/lib,
+/usr/share, /etc, /var, /run, /dev, /proc, /sys, /home, /root, /opt, /srv,
+/mnt, /media and /tmp. Chimera payloads live under /system/chimera; machine
+policy under /etc/chimera; mutable state under /var/lib/chimera; volatile
+state under /run/chimera. usr-merged compatibility links /bin, /sbin, /lib
+and /lib64 are created only when absent. The rootfs helper accepts an explicit
+staging root and refuses to operate on /.
