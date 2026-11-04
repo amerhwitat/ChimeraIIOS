@@ -103,7 +103,7 @@ class SmbBrowseTests(unittest.TestCase):
         result = smb.browse("files.example.org")
         self.assertEqual(result["shares"][0]["name"], "public")
         argv = mocked.call_args.args[0]
-        self.assertIn("-k", argv)
+        self.assertIn("--use-kerberos=required", argv)
         self.assertTrue(any("SMB2" in item for item in argv))
         self.assertNotIn("--no-pass", argv)
 
