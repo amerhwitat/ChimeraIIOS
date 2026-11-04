@@ -1509,21 +1509,32 @@ build_command_runtime(){
 }
 
 stage_sdks(){
-  header 'STAGE COMPILED SDK BUILD ARTIFACTS'
-  local compiled_root="$SCRIPT_DIR/build/sdk"
-  local compiled_iso="$ISO_DIR/system/sdk/build-artifacts"
-  local compiled_rootfs="$ROOTFS_DIR/opt/chimera-sdk/build-artifacts"
-  mkdir -p "$compiled_iso" "$compiled_rootfs"
-  if [[ -d "$compiled_root" ]]; then
-    while IFS= read -r -d '' artifact; do
-      local rel
-      rel="$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1],sys.argv[2]))' "$artifact" "$compiled_root")"
-      mkdir -p "$compiled_iso/$(dirname "$rel")" "$compiled_rootfs/$(dirname "$rel")"
-      cp -f "$artifact" "$compiled_iso/$rel"
-      cp -f "$artifact" "$compiled_rootfs/$rel"
-    done < <(find "$compiled_root" -type f \( -name '*.a' -o -name '*.so' -o -name '*.so.*' -o -name '*.o' -o -name '*.jar' -o -name '*.wasm' -o -name '*.dll' -o -name '*.exe' \) -print0)
-  fi
-  log_info "Compiled SDK libraries/objects staged when present: $compiled_iso"
+  header 'BUILD, TEST AND STAGE THE POLYGLOT CHIMERA SDK'
+  local sdk_build="$BUILD_DIR/sdk"
+  local sdk_root="$ROOTFS_DIR/opt/chimera-sdk"
+  local sdk_iso="$ISO_DIR/system/sdk"
+  mkdir -p "$sdk_build" "$sdk_iso" "$ROOTFS_DIR"
+  CHIMERA_SDK_BUILD_DIR="$sdk_build" \
+    CHIMERA_SDK_DESTDIR="$ROOTFS_DIR" \
+    CHIMERA_SDK_PREFIX="/opt/chimera-sdk" \
+    CHIMERA_SDK_JOBS="${CHIMERA_SDK_JOBS:-2}" \
+    bash "$SCRIPT_DIR/sdk/tools/build-sdk.sh" 2>&1 | tee "$LOG_DIR/sdk-build.log"
+  [[ -s "$sdk_root/include/chimera/sdk.h" ]] || {
+    log_error "SDK headers were not staged into the ISO rootfs"; return 1;
+  }
+  [[ -s "$sdk_root/share/chimera/toolchain-smoke/status.txt" ]] || {
+    log_error "SDK toolchain smoke status was not staged into the ISO rootfs"; return 1;
+  }
+  mkdir -p "$sdk_root/share/chimera"
+  install -m 0644 "$SCRIPT_DIR/sdk/SDK_BUILD_MANIFEST.json" "$sdk_root/share/chimera/SDK_BUILD_MANIFEST.json"
+  install -m 0644 "$SCRIPT_DIR/sdk/manifest.json" "$sdk_root/share/chimera/manifest.json"
+  cp -a "$SCRIPT_DIR/sdk/." "$sdk_root/source/"
+  cp -a "$sdk_root/." "$sdk_iso/"
+  find "$sdk_root" -maxdepth 4 -type f -print | sort > "$LOG_DIR/sdk-staged-files.txt"
+  [[ -s "$LOG_DIR/sdk-staged-files.txt" ]] || {
+    log_error "SDK staging manifest is empty"; return 1;
+  }
+  log_success "SDK compiled, tested and staged at /opt/chimera-sdk"
 }
 
 stage_application_payloads(){
