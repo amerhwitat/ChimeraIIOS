@@ -36,6 +36,7 @@ obj-y += frame_allocator.o
 obj-y += physmap.o
 obj-y += address_space.o
 obj-y += target_launch.o
+obj-y += registry.o
 
 # Linux-style per-object flag override
 KORONOS_CXXFLAGS_nbit_note.o := -DCHIMERA_NBIT_IMAGE_BITS=$(CONFIG_KORONOS_NBIT_WIDTH)
