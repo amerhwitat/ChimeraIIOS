@@ -416,11 +416,8 @@ extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
     if (length == 0) return 0;
     if (length > 4096u) return -22;
-    uint64_t root = 0;
-    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
-    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0)
-        return -14;
-    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
+    uint8_t bytes[4096];
+    if (koronos_copy_from_user(bytes,address,length)!=0) return -14;
     (void)koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length);
     for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
     return static_cast<int64_t>(length);
