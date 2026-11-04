@@ -43,3 +43,11 @@ def test_full_iso_stages_sdk_before_squashfs_and_includes_toolchain_deps():
     assert 'stage_sdks' in script
     for dependency in ('clangd', 'llvm', 'cmake', 'ninja-build', 'libobjc-13-dev', 'gnustep-make'):
         assert dependency in dockerfile
+
+
+def test_iso_stages_only_a_real_macos_app_bundle():
+    script = (ROOT / "build-chimera-iso.sh").read_text()
+    assert 'if [[ -d "$macos_app" ]]' in script
+    assert 'cp -a "$macos_app"' in script
+    assert 'macos-app-build-manifest.json' in script
+    assert 'No macOS .app bundle staged' in script
