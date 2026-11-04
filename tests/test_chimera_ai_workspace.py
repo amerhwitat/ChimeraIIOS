@@ -45,6 +45,9 @@ class AIWorkspaceTests(unittest.TestCase):
             result = subprocess.run([sys.executable, str(SCRIPT), command, "--help"],
                                     capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
+        chat_help = subprocess.run([sys.executable, str(SCRIPT), "chat", "--help"],
+                                   capture_output=True, text=True, check=True).stdout
+        self.assertIn("--knowledge-database", chat_help)
 
 if __name__ == "__main__":
     unittest.main()
