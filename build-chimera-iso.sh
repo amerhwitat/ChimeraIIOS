@@ -14,6 +14,7 @@ Options:
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --install-macos-sdk         Request Apple's interactive SDK installer on licensed macOS hardware; never downloads/vends SDK files.
   --release                 Require native CPL3, VFS, SMP and six-case firmware acceptance evidence.
 
 Notes:
@@ -234,6 +235,7 @@ while [[ $# -gt 0 ]]; do
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
+    --install-macos-sdk) bash "$SCRIPT_DIR/tools/macos-compat/install-sdk.sh" install; exit $?;;
     --release) RELEASE_BUILD=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
@@ -415,7 +417,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -1482,79 +1484,8 @@ build_command_runtime(){
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
 }
 
-main(){
-  # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
-  if [[ "$BUILD_ISO" == 0 ]]; then
-    command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
-    run_stage docker build_docker
-    run_stage docker-publish push_docker_image
-    BUILD_SUCCEEDED=1
-    log_success "Docker-only pipeline completed."
-    return 0
-  fi
-  if [[ "$BUILD_DOCKER" == 0 ]]; then
-    docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 || {
-      log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
-      return 2
-    }
-  fi
-  if [[ "$DOS_FETCH_ON_BUILD" == 1 ]]; then
-    export CHIMERA_DOS_FETCH_ON_BUILD=1
-  fi
-  if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
-    log_info "Discovering legacy DOS applications and games from the official FreeDOS catalog"
-    python3 "$SCRIPT_DIR/tools/commands/dos-payload-builder.py" discover --output "$BUILD_DIR/dos-online-discovery.json" || { log_error "DOS online discovery failed"; return 1; }
-    log_info "Refreshing official ISA and OS-command indexes from the internet"
-    python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
-    log_info "Discovering official and machine-readable ISA source entry points"
-    python3 "$SCRIPT_DIR/tools/isa/crawl_sources.py" --refresh || { log_error "ISA source discovery failed"; return 1; }
-    log_info "Importing source-backed RISC-V opcode masks"
-    python3 "$SCRIPT_DIR/tools/isa/import_riscv_opcodes.py" || { log_error "RISC-V opcode import failed"; return 1; }
-  fi
-  if [[ -f "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" ]]; then
-    log_info "Appending source-backed ISA discoveries and command references to the local catalogs"
-    python3 "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" || { log_error "Online catalog merge failed"; return 1; }
-  fi
-  scan_isa_and_commands_before_network_crawl
-  [[ "$CLEAN_STATE" == 1 ]] && state_reset
-  CURRENT_STAGE="preflight"
-  preflight
-  check_deps
-  CURRENT_STAGE=""
-  local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk application-payloads ai-workspace squashfs iso verify native-iso report; do
-    if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
-    if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
-    if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
-    case "$stage" in
-      docker) run_stage docker build_docker;;
-      docker-publish) run_stage docker-publish push_docker_image;;
-      rootfs) run_stage rootfs export_rootfs;;
-      commands) run_stage commands build_command_runtime;;
-      boot) run_stage boot create_boot_menu;;
-      installer) run_stage installer create_installer;;
-      branding) run_stage branding prepare_branding;;
-      apache) run_stage apache prepare_apache;;
-      features) run_stage features stage_features;;
-      package-managers) run_stage package-managers stage_package_managers;;
-      games) run_stage games stage_games;;
-      squashfs) run_stage squashfs build_squashfs;;
-      iso) run_stage iso build_iso;;
-      verify) run_stage verify verify_iso;;
-      native-iso) run_stage native-iso build_native_iso_pipeline;;
-      report) run_stage report report_build;;
-      sdk) run_stage sdk stage_sdks;;
-      application-payloads) run_stage application-payloads stage_application_payloads;;
-      ai-workspace) run_stage ai-workspace stage_ai_workspace;;
-    esac
-    completed="$stage"
-  done
-  cleanup_final_success_artifacts
-}
-
-
 stage_sdks(){
-  header 'STAGE COMPILED SDK ARTIFACTS'
+  header 'STAGE COMPILED SDK BUILD ARTIFACTS'
   local compiled_root="$SCRIPT_DIR/build/sdk"
   local compiled_iso="$ISO_DIR/system/sdk/build-artifacts"
   local compiled_rootfs="$ROOTFS_DIR/opt/chimera-sdk/build-artifacts"
@@ -1622,3 +1553,155 @@ stage_ai_workspace(){
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
+
+
+stage_macos_compat(){
+  header 'MACOS SDK / PORTABLE FOUNDATION COMPATIBILITY'
+  local share="$ROOTFS_DIR/usr/share/chimera/macos-compat"
+  local iso="$ISO_DIR/system/macos-compat"
+  local build="$BUILD_DIR/macos-compat"
+  local extracted="$SCRIPT_DIR/third_party/macos-extracted"
+  local extracted_status="blocked"
+  local apple_status="not-available-on-this-host"
+  local portable_status="not-verified"
+  local cross_status="not-verified"
+  mkdir -p "$share" "$iso" "$build"
+  if [[ -d "$extracted" ]]; then
+    extracted_status="review-required"
+    log_warning "Found third_party/macos-extracted; contents are not copied or executed. License/provenance review is required."
+  else
+    log_warning "third_party/macos-extracted is absent; extracted Apple SDK inspection is BLOCKED."
+  fi
+  if bash "$SCRIPT_DIR/tools/macos-compat/check-sdk.sh" auto >"$build/toolchain-check.log" 2>&1; then
+    cat "$build/toolchain-check.log"
+    if [[ "$(uname -s)" == "Darwin" ]] && grep -q 'APPLE_MACOS_SDK_READY=1' "$build/toolchain-check.log"; then
+      apple_status="available"
+      if [[ -s "$SCRIPT_DIR/tests/macos_compat/hello_foundation.m" ]]; then
+        if bash "$SCRIPT_DIR/tools/macos-compat/build-app.sh" apple-macos "$SCRIPT_DIR/tests/macos_compat/hello_foundation.m" "$build/apple-foundation-smoke" >"$build/apple-build.log" 2>&1 &&
+           "$build/apple-foundation-smoke" >"$build/apple-run.log" 2>&1 &&
+           grep -q 'MACOS_COMPAT_SMOKE_OK' "$build/apple-run.log"; then
+          cross_status="passed"
+        else
+          cross_status="failed"
+          log_warning "Apple SDK smoke compile/runtime failed; inspect $build/apple-build.log and apple-run.log."
+        fi
+      fi
+    elif command -v gnustep-config >/dev/null 2>&1 && command -v clang >/dev/null 2>&1 &&
+         [[ -s "$SCRIPT_DIR/tests/macos_compat/hello_foundation.m" ]]; then
+      if bash "$SCRIPT_DIR/tools/macos-compat/build-app.sh" portable-gnustep "$SCRIPT_DIR/tests/macos_compat/hello_foundation.m" "$build/portable-foundation-smoke" >"$build/portable-build.log" 2>&1 &&
+         "$build/portable-foundation-smoke" >"$build/portable-run.log" 2>&1 &&
+         grep -q 'MACOS_COMPAT_SMOKE_OK' "$build/portable-run.log"; then
+        portable_status="passed"
+      else
+        portable_status="failed"
+        log_warning "GNUstep portable smoke compile/runtime failed; inspect $build/portable-build.log and portable-run.log."
+      fi
+    else
+      log_warning "No complete Apple SDK or GNUstep Foundation toolchain is available; macOS application cross-compilation is not verified."
+    fi
+  else
+    cat "$build/toolchain-check.log" >&2 || true
+    log_warning "macOS compatibility toolchain check failed; no compatibility build is claimed."
+  fi
+  python3 - "$build/status.json" "$extracted_status" "$apple_status" "$portable_status" "$cross_status" <<'PYMACOS'
+import json,sys
+from pathlib import Path
+out, extracted, apple, portable, cross = sys.argv[1:]
+data = {
+  "schema": "CHM-MACOS-BUILD-STATUS-1",
+  "extracted_sdk_inspection": extracted,
+  "apple_sdk_toolchain": apple,
+  "portable_gnustep_smoke": portable,
+  "macos_application_cross_compilation": cross,
+  "apple_sdk_redistributed": False,
+  "darwin_mach_o_runtime": "blocked-not-implemented"
+}
+Path(out).write_text(json.dumps(data, indent=2, sort_keys=True)+"\n", encoding="utf-8")
+print(json.dumps(data, sort_keys=True))
+PYMACOS
+  mkdir -p "$share/tools" "$iso/tools"
+  cp -a "$SCRIPT_DIR/tools/macos-compat/." "$share/tools/"
+  cp -a "$SCRIPT_DIR/tools/macos-compat/." "$iso/tools/"
+  install -m 0644 "$SCRIPT_DIR/tools/macos-compat/app-compatibility-manifest.json" "$share/"
+  install -m 0644 "$SCRIPT_DIR/tools/macos-compat/app-compatibility-manifest.json" "$iso/"
+  install -m 0644 "$build/status.json" "$share/build-status.json"
+  install -m 0644 "$build/status.json" "$iso/build-status.json"
+  install -m 0644 "$SCRIPT_DIR/docs/MACOS_COMPATIBILITY.md" "$share/"
+  install -m 0644 "$SCRIPT_DIR/docs/MACOS_COMPATIBILITY.md" "$iso/"
+  log_info "macOS compatibility status staged; Apple SDK contents are never copied into the ISO."
+}
+
+main(){
+  # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
+  if [[ "$BUILD_ISO" == 0 ]]; then
+    command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
+    run_stage docker build_docker
+    run_stage docker-publish push_docker_image
+    BUILD_SUCCEEDED=1
+    log_success "Docker-only pipeline completed."
+    return 0
+  fi
+  if [[ "$BUILD_DOCKER" == 0 ]]; then
+    docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 || {
+      log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
+      return 2
+    }
+  fi
+  if [[ "$DOS_FETCH_ON_BUILD" == 1 ]]; then
+    export CHIMERA_DOS_FETCH_ON_BUILD=1
+  fi
+  if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
+    log_info "Discovering legacy DOS applications and games from the official FreeDOS catalog"
+    python3 "$SCRIPT_DIR/tools/commands/dos-payload-builder.py" discover --output "$BUILD_DIR/dos-online-discovery.json" || { log_error "DOS online discovery failed"; return 1; }
+    log_info "Refreshing official ISA and OS-command indexes from the internet"
+    python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
+    log_info "Discovering official and machine-readable ISA source entry points"
+    python3 "$SCRIPT_DIR/tools/isa/crawl_sources.py" --refresh || { log_error "ISA source discovery failed"; return 1; }
+    log_info "Importing source-backed RISC-V opcode masks"
+    python3 "$SCRIPT_DIR/tools/isa/import_riscv_opcodes.py" || { log_error "RISC-V opcode import failed"; return 1; }
+  fi
+  if [[ -f "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" ]]; then
+    log_info "Appending source-backed ISA discoveries and command references to the local catalogs"
+    python3 "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" || { log_error "Online catalog merge failed"; return 1; }
+  fi
+  scan_isa_and_commands_before_network_crawl
+  [[ "$CLEAN_STATE" == 1 ]] && state_reset
+  CURRENT_STAGE="preflight"
+  preflight
+  check_deps
+  CURRENT_STAGE=""
+  local completed="$(state_get)"
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace squashfs iso verify native-iso report; do
+    if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
+    if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
+    if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
+    case "$stage" in
+      docker) run_stage docker build_docker;;
+      docker-publish) run_stage docker-publish push_docker_image;;
+      rootfs) run_stage rootfs export_rootfs;;
+      commands) run_stage commands build_command_runtime;;
+      boot) run_stage boot create_boot_menu;;
+      installer) run_stage installer create_installer;;
+      branding) run_stage branding prepare_branding;;
+      apache) run_stage apache prepare_apache;;
+      features) run_stage features stage_features;;
+      package-managers) run_stage package-managers stage_package_managers;;
+      games) run_stage games stage_games;;
+      squashfs) run_stage squashfs build_squashfs;;
+      iso) run_stage iso build_iso;;
+      verify) run_stage verify verify_iso;;
+      native-iso) run_stage native-iso build_native_iso_pipeline;;
+      report) run_stage report report_build;;
+      sdk) run_stage sdk stage_sdks;;
+      macos-compat) run_stage macos-compat stage_macos_compat;;
+      application-payloads) run_stage application-payloads stage_application_payloads;;
+      ai-workspace) run_stage ai-workspace stage_ai_workspace;;
+    esac
+    completed="$stage"
+  done
+  cleanup_final_success_artifacts
+}
+
+
+stage_sdks(){
+  header 'STAGE COMPILED SDK ARTIFACTS'
