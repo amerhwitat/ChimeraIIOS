@@ -1374,9 +1374,9 @@ verify_iso(){
   grep -qi 'UEFI' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no UEFI El Torito boot entry'; exit 1; }
   grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB does not load the staged Koronos ELF through Multiboot2'; exit 1; }
   grep -q 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
-  grep -q 'module2 /boot/targets/target-init-live.elf chimera-user-init-elf target=live' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live entry is missing its native USER_INIT_ELF module'; exit 1; }
-  grep -q 'module2 /boot/targets/target-init-installer.elf chimera-user-init-elf target=installer' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB installer entry is missing its native USER_INIT_ELF module'; exit 1; }
-  grep -q 'module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB recovery entry is missing its native USER_INIT_ELF module'; exit 1; }
+  grep -q 'module2 /boot/targets/target-init-live.elf chimera-user-init-elf target=live firmware=$grub_platform' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live entry is missing its native USER_INIT_ELF module'; exit 1; }
+  grep -q 'module2 /boot/targets/target-init-installer.elf chimera-user-init-elf target=installer firmware=$grub_platform' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB installer entry is missing its native USER_INIT_ELF module'; exit 1; }
+  grep -q 'module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery firmware=$grub_platform' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB recovery entry is missing its native USER_INIT_ELF module'; exit 1; }
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
