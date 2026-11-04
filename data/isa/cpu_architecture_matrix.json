@@ -1597,7 +1597,7 @@
       "target_kind": "CPU/MCU/DSP ISA",
       "linux": {
         "status": "upstream Linux architecture/ABI exists (verify kernel config/release)",
-        "entry": "TRAP 0",
+        "entry": "architecture-specific trap (pin exact Linux port ABI)",
         "number_register": "r11 (ABI-specific)",
         "argument_registers": "r3-r8 (ABI-specific)",
         "interrupt_model": "OpenRISC exception vectors and interrupt controller"
@@ -1628,7 +1628,7 @@
       "target_kind": "CPU/MCU/DSP ISA",
       "linux": {
         "status": "upstream Linux architecture/ABI exists (verify kernel config/release)",
-        "entry": "TRAP 0",
+        "entry": "architecture-specific trap (pin exact Linux port ABI)",
         "number_register": "r11 (ABI-specific)",
         "argument_registers": "r3-r8 (ABI-specific)",
         "interrupt_model": "OpenRISC exception vectors and interrupt controller"
@@ -1783,7 +1783,7 @@
       "target_kind": "CPU/MCU/DSP ISA",
       "linux": {
         "status": "upstream Linux architecture/ABI exists (verify kernel config/release)",
-        "entry": "BRKI",
+        "entry": "BRKI r14, 8",
         "number_register": "r12",
         "argument_registers": "r5-r10 (ABI-specific)",
         "interrupt_model": "MicroBlaze exception vectors and interrupt controller"
