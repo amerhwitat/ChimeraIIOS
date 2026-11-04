@@ -1,0 +1,59 @@
+name: AI hardware knowledge database and RNN validation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "data/ai/**"
+      - "data/isa/cpu_architecture_matrix.json"
+      - "tools/cognition/knowledge_database.py"
+      - "tools/cognition/train_knowledge_rnn.py"
+      - "tools/cognition/trainable_rnn_lm.py"
+      - "tools/chimera-ai-workspace.py"
+      - "system/ai/**"
+      - "tests/cognition/**"
+      - "tests/test_chimera_ai_workspace.py"
+      - ".github/workflows/ai-knowledge-database.yml"
+  push:
+    branches: [main]
+    paths:
+      - "data/ai/**"
+      - "data/isa/cpu_architecture_matrix.json"
+      - "tools/cognition/knowledge_database.py"
+      - "tools/cognition/train_knowledge_rnn.py"
+      - "tools/cognition/trainable_rnn_lm.py"
+      - "tools/chimera-ai-workspace.py"
+      - "system/ai/**"
+      - "tests/cognition/**"
+      - "tests/test_chimera_ai_workspace.py"
+      - ".github/workflows/ai-knowledge-database.yml"
+permissions:
+  contents: read
+jobs:
+  validate-and-train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile knowledge tools
+        run: |
+          python -m py_compile tools/cognition/knowledge_database.py tools/cognition/trainable_rnn_lm.py tools/cognition/train_knowledge_rnn.py tools/chimera-ai-workspace.py
+      - name: Validate provenance and append semantics
+        run: |
+          python tools/cognition/knowledge_database.py validate --database data/ai/hardware_systems_knowledge.json
+          python -m unittest tools.cognition.test_trainable_rnn_lm -v
+          python tests/cognition/test_knowledge_database.py
+          python tests/test_chimera_ai_workspace.py
+      - name: Train, hold out, evaluate and round-trip the knowledge RNN
+        run: |
+          python tools/cognition/train_knowledge_rnn.py --database data/ai/hardware_systems_knowledge.json --output build/trained-hardware-systems-rnn.json --epochs 2 --hidden 8
+          python -m json.tool build/trained-hardware-systems-rnn.json >/dev/null
+          test -s build/trained-hardware-systems-rnn.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-hardware-systems-rnn
+          path: build/trained-hardware-systems-rnn.json
+          if-no-files-found: error
+          retention-days: 14
