@@ -10,4 +10,5 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
+ReadWritePaths=%t
 RestrictAddressFamilies=AF_UNIX AF_INET
