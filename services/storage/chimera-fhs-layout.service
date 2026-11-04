@@ -9,7 +9,6 @@ Type=oneshot
 ExecStart=/usr/local/sbin/chimera-init-layout.sh --root /
 RemainAfterExit=yes
 NoNewPrivileges=true
-ProtectSystem=full
 
 [Install]
 WantedBy=multi-user.target
