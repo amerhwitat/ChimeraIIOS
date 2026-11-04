@@ -7,7 +7,8 @@ import re
 import subprocess
 import sys
 
-LOOP = re.compile(r"(/dev/loop[0-9]+)")\nOPTICAL = re.compile(r"^/dev/sr[0-9]+$")
+LOOP = re.compile(r"(/dev/loop[0-9]+)")
+OPTICAL = re.compile(r"^/dev/sr[0-9]+$")
 
 def run(argv, timeout=45):
     return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
@@ -39,7 +40,8 @@ def validate_image(path):
             raise ValueError("ISO-9660/UDF volume descriptor not found")
     return image
 
-def valid_optical_device(device):\n    return bool(OPTICAL.fullmatch(device))\n\ndef main():
+def valid_optical_device(device):
+    return bool(OPTICAL.fullmatch(device))\n\ndef main():
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("mount")
