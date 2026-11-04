@@ -4,9 +4,9 @@
   const A = window.Aurora;
   const { el, row } = A;
   const HIVE_FILES = {
-    machine: "file:///opt/aurora/repo/system/registry/machine.defaults.json",
-    environment: "file:///opt/aurora/repo/system/registry/environment.defaults.json",
-    kernel: "file:///opt/aurora/repo/system/registry/kernel.defaults.json"
+    machine: ["file:///opt/aurora/repo/system/registry/machine.defaults.json", "file:///opt/aurora/repo/vendor/chimera-ii-os/source/system/registry/machine.defaults.json"],
+    environment: ["file:///opt/aurora/repo/system/registry/environment.defaults.json", "file:///opt/aurora/repo/vendor/chimera-ii-os/source/system/registry/environment.defaults.json"],
+    kernel: ["file:///opt/aurora/repo/system/registry/kernel.defaults.json", "file:///opt/aurora/repo/vendor/chimera-ii-os/source/system/registry/kernel.defaults.json"]
   };
   const state = { hive: "machine", generation: 0, entries: [], editable: false, query: "" };
   const bridge = () => window.chimeraRegistry || null;
@@ -20,9 +20,14 @@
       state.editable = typeof api.set === "function" && typeof api.delete === "function";
       return;
     }
-    const response = await fetch(HIVE_FILES[state.hive], { cache: "no-store" });
-    if (!response.ok) throw new Error("Registry defaults are not available in this image");
-    const result = await response.json();
+    let result = null;
+    for (const source of HIVE_FILES[state.hive]) {
+      try {
+        const response = await fetch(source, { cache: "no-store" });
+        if (response.ok) { result = await response.json(); break; }
+      } catch (_) { /* try the vendored source snapshot */ }
+    }
+    if (!result) throw new Error("Registry defaults are not available in this image");
     state.generation = result.generation || 0;
     state.entries = result.entries || [];
     state.editable = false;
