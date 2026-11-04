@@ -1179,6 +1179,7 @@ out.write_text(json.dumps({
 },indent=2)+"\\n")
 PYMANIFEST
 
+  python3 "$SCRIPT_DIR/boot/iso/validate-iso.py" --tree "$native_tree" --write-manifest "$native_tree/checksums/SHA256SUMS"
   local tmp_iso="$native_dir/output.iso.tmp"
   rm -f "$tmp_iso"
   grub-mkrescue -o "$tmp_iso" "$native_tree" 2>&1 | tee "$LOG_DIR/native-iso-remaster.log"
@@ -1189,6 +1190,11 @@ PYMANIFEST
   xorriso -indev "$native_iso" -report_el_torito plain | tee "$LOG_DIR/native-iso-el-torito.log"
   grep -qi 'BIOS' "$LOG_DIR/native-iso-el-torito.log" || { log_error "Native Koronos ISO is missing BIOS El Torito boot"; return 1; }
   grep -qi 'UEFI' "$LOG_DIR/native-iso-el-torito.log" || { log_error "Native Koronos ISO is missing UEFI El Torito boot"; return 1; }
+  local required_native_path
+  for required_native_path in /boot/koronos/koronos.elf /boot/live/chimera-live-initramfs.img /boot/recovery/chimera-recovery-initramfs.img /opt/chimera/knowledge/knowledge-index.json /opt/chimera/native-userspace-payload-manifest.json; do
+    xorriso -indev "$native_iso" -find "$required_native_path" -type f | grep -q . || {
+      log_error "Remastered native ISO is missing required payload: $required_native_path"; return 1; }
+  done
 
   local release_iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}-native-koronos.iso"
   cp -f "$native_iso" "$release_iso"
