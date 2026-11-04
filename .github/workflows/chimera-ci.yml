@@ -113,6 +113,10 @@ jobs:
               "services/storage/mount-image.py",
           ):
               assert pathlib.Path(required_path).is_file(), required_path
+          session_unit = pathlib.Path("userspace/systemd/aurora-session.service").read_text()
+          session_script = pathlib.Path("userspace/bin/aurora-session").read_text()
+          assert "dbus-run-session" in session_unit
+          assert "/usr/libexec/polkit-mate-authentication-agent-1" in session_script
           print("registry/network/storage contracts: OK")
           PY
           make -C userspace check
