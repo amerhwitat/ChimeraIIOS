@@ -26,3 +26,20 @@ def test_sdk_build_script_runs_macos_probe():
     content = (ROOT / "tools/build-sdks.sh").read_text()
     assert "build-macos-sdk.sh" in content
     assert "macos-sdk-report.json" in content
+
+
+def test_macos_sample_build_requires_explicit_license_review():
+    helper = (ROOT / "tools/build-macos-sdk.sh").read_text()
+    assert 'MACOS_SDK_LICENSE_REVIEWED' in helper
+    assert 'cmake --build' in helper
+    assert 'application_build' in helper
+
+
+def test_full_iso_stages_sdk_before_squashfs_and_includes_toolchain_deps():
+    script = (ROOT / "build-chimera-iso.sh").read_text()
+    dockerfile = (ROOT / "Dockerfile").read_text()
+    stages = next(line for line in script.splitlines() if 'for stage in docker rootfs' in line)
+    assert stages.index('sdk') < stages.index('squashfs')
+    assert 'stage_sdks' in script
+    for dependency in ('clangd', 'llvm', 'cmake', 'ninja-build', 'libobjc-13-dev', 'gnustep-make'):
+        assert dependency in dockerfile
