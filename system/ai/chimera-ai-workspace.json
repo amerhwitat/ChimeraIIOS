@@ -46,6 +46,8 @@
     "inference_model": "/usr/share/chimera/ai/trained-hardware-systems-rnn.json",
     "training_tool": "/usr/share/chimera/ai/train_knowledge_rnn.py",
     "training": "small character-level RNN trained during ISO build from curated knowledge entries",
-    "role": "advisory text-pattern component; not authoritative and not an LLM"
+    "role": "advisory text-pattern component; not authoritative and not an LLM",
+    "score_command": "chimera-ai-workspace rnn-score --text <sequence>",
+    "score_semantics": "mean next-character log probability; advisory diagnostic only"
   }
 }
