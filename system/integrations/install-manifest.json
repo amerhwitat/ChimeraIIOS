@@ -21,7 +21,10 @@
     "oddjob",
     "oddjob-mkhomedir",
     "avahi-utils",
-    "dnsutils"
+    "dnsutils",
+    "pkexec",
+    "polkitd",
+    "mate-polkit"
   ],
   "files": [
     {
