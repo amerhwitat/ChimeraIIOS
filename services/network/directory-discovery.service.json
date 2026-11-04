@@ -12,5 +12,9 @@
   "requires": [
     "python3",
     "dnsutils"
-  ]
+  ],
+  "arguments": [
+    "dns-domain"
+  ],
+  "invocation": "systemctl start chimera-directory-discovery@corp.example.service"
 }
