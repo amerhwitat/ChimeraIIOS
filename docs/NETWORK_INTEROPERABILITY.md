@@ -56,5 +56,6 @@ The installed tree follows FHS conventions: /usr/bin, /usr/sbin, /usr/lib,
 /mnt, /media and /tmp. Chimera payloads live under /system/chimera; machine
 policy under /etc/chimera; mutable state under /var/lib/chimera; volatile
 state under /run/chimera. usr-merged compatibility links /bin, /sbin, /lib
-are created only when absent. The rootfs helper accepts an explicit
-staging root and refuses to operate on /.
+are created only when absent. The rootfs helper accepts an explicit staging root and refuses paths at or
+under host system directories; use a dedicated staging directory under /tmp
+or on a separate build volume.
