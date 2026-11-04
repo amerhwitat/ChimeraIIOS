@@ -29,15 +29,19 @@ def main():
         if a.cmd == "join":
             if not DOMAIN.fullmatch(a.domain):
                 raise ValueError("invalid AD DNS domain")
-            argv = ["realm", "join", "--membership-software=adcli",
+            argv = ["realm", "join", "--no-password", "--membership-software=adcli",
                     "--client-software=sssd", a.domain]
             if a.user:
+                if not re.fullmatch(r"[A-Za-z0-9._@-]{1,128}", a.user):
+                    raise ValueError("invalid directory account name")
                 argv += ["--user", a.user]
             result = run(argv, timeout=180)
         elif a.cmd == "status":
             result = run(["realm", "list"], timeout=15)
         else:
-            if not URI.fullmatch(a.uri) or not a.base_dn or "\n" in a.base_dn:
+            if (not URI.fullmatch(a.uri) or not a.base_dn or "\n" in a.base_dn or
+                    not re.fullmatch(r"[A-Za-z0-9=,._ -]{1,512}", a.base_dn) or
+                    not a.filter.startswith("(") or len(a.filter) > 4096 or "\n" in a.filter):
                 raise ValueError("LDAP URI must be ldap(s)://host[:port]; base DN is required")
             if a.uri.startswith("ldap://"):
                 argv = ["ldapsearch", "-LLL", "-ZZ", "-o", "TLS_REQCERT=demand",
