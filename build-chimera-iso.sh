@@ -1642,6 +1642,31 @@ stage_sdks(){
         cp -a "$SCRIPT_DIR/sdk/macos/." "$ISO_DIR/opt/chimera/sdk/macos/"
       fi
     fi
+    # Include an Objective-C macOS .app only when the license-gated cross-build produced it.
+    # A probe report or source template alone is never represented as a compiled app.
+    local macos_app="$BUILD_DIR/sdk/macos-objective-c-build/HelloMacOS.app"
+    if [[ -d "$macos_app" ]]; then
+      mkdir -p "$ROOTFS_DIR/opt/chimera/apps/macos" "$ISO_DIR/opt/chimera/apps/macos"
+      cp -a "$macos_app" "$ROOTFS_DIR/opt/chimera/apps/macos/"
+      cp -a "$macos_app" "$ISO_DIR/opt/chimera/apps/macos/"
+      python3 - "$macos_app" "$ROOTFS_DIR/opt/chimera/apps/macos/macos-app-build-manifest.json" <<'PYMAC'
+import hashlib, json, pathlib, sys
+root, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+items=[]
+for path in sorted(root.rglob("*")):
+    if path.is_file():
+        data=path.read_bytes()
+        items.append({"path":path.relative_to(root).as_posix(),"size_bytes":len(data),
+                      "sha256":hashlib.sha256(data).hexdigest()})
+out.write_text(json.dumps({"schema":"chimera-macos-app-build-v1",
+                           "status":"built","bundle":"HelloMacOS.app","files":items},indent=2)+"\\n")
+PYMAC
+      cp -f "$ROOTFS_DIR/opt/chimera/apps/macos/macos-app-build-manifest.json" "$ISO_DIR/opt/chimera/apps/macos/"
+      log_success "License-reviewed macOS Objective-C app bundle staged."
+    else
+      log_info "No macOS .app bundle staged; see macos-sdk-report.json for blocked/review-required status."
+    fi
+
     for manifest in sdk/third-party-sdk-manifest.json sdk/manifest.json; do
       if [[ -s "$SCRIPT_DIR/$manifest" ]]; then
         cp -f "$SCRIPT_DIR/$manifest" "$ROOTFS_DIR/usr/share/chimera/sdk/"
