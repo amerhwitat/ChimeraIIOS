@@ -154,9 +154,17 @@ def run_case(iso: Path, evidence: Path, target: str, firmware: str,
     after_hash = sha256(iso)
     if before_hash != after_hash:
         raise RuntimeError(f"canonical ISO changed during {target}/{firmware} boot")
+    trace_text = trace.read_text(encoding="utf-8", errors="replace")
+    selected = re.search(r"chimera-user-init-elf\\s+target=(live|installer|recovery)\\b", trace_text)
+    selected_target = selected.group(1) if selected else None
+    if selected_target != target:
+        selection_error = selection_error or (
+            f"expected GRUB target {target}, observed {selected_target or 'no target-init module'}"
+        )
     return {
         "target": target,
         "firmware": firmware,
+        "selected_target": selected_target,
         "iso_sha256": before_hash,
         "qemu_exit_code": qemu_rc,
         "trace": str(trace.relative_to(evidence)),
