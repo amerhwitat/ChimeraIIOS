@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "chimera/interrupt.h"
 #include "chimera/compat.h"
+#include "chimera/user_entry.h"
 
 /* Defined by kernel/arch/x86_64/interrupts.asm.  Keep this declaration at
  * global scope: placing it inside the anonymous namespace gives the symbol
@@ -128,7 +129,12 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
          * frame[16] is RIP and frame[17] is CS. INT 0x80's IDT gate is DPL3;
          * still check the CPU-saved RPL explicitly before acknowledging. */
         const uint64_t *saved = reinterpret_cast<const uint64_t *>(static_cast<uintptr_t>(frame));
-        (void)koronos_target_note_user_syscall(saved[16], saved[17]);
+        const uint32_t pid=koronos_target_note_user_syscall(saved[16],saved[17]);
+        if(pid && (saved[17]&3u)==3u) {
+            uint64_t *mutable_frame=reinterpret_cast<uint64_t *>(static_cast<uintptr_t>(frame));
+            mutable_frame[14]=koronos_syscall_int80_dispatch(
+                reinterpret_cast<const koronos_user_syscall_frame *>(mutable_frame),saved[16],saved[17]);
+        }
     }
     chimera_interrupt_identity identity{};
     chimera_compat_recognize_interrupt((uint32_t)vector, &identity);
