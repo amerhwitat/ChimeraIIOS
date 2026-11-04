@@ -22,5 +22,10 @@
     "udisks2",
     "util-linux",
     "blkid"
-  ]
+  ],
+  "arguments": {
+    "mount_image": "mount <image.iso>",
+    "mount_optical_device": "mount-device /dev/srN",
+    "unmount": "unmount /dev/loopN or /dev/srN"
+  }
 }
