@@ -76,5 +76,15 @@ if [ "$wm_ready" -ne 1 ]; then
   kill "$wm_pid" 2>/dev/null || true
   exit 1
 fi
+# The PolicyKit agent must share this session D-Bus address so pkexec can
+# present an administrator authentication prompt for explicit AD enrollment.
+POLKIT_AGENT=/usr/libexec/polkit-mate-authentication-agent-1
+if [ -x "$POLKIT_AGENT" ]; then
+  "$POLKIT_AGENT" >/tmp/aurora-polkit-agent.log 2>&1 &
+  echo "$!" > /run/aurora/polkit-agent.pid
+else
+  echo "[Aurora][WARN] PolicyKit agent missing; AD enrollment needs an administrator terminal." >&2
+fi
+
 echo "[Aurora] Openbox ready; starting fullscreen desktop (profile: $profile)."
 exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py "$uri"
