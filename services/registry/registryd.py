@@ -37,7 +37,9 @@ def _read(hive):
         raise ValueError("unknown hive")
     path = ROOT / (hive + ".json")
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("hive") != hive or data.get("schema_version") != 1:
+    if (data.get("hive") != hive or data.get("schema_version") != 1 or
+            isinstance(data.get("generation"), bool) or
+            not isinstance(data.get("generation"), int)):
         raise ValueError("invalid hive source")
     expected = _encode_hive(data)
     binary_path = ROOT / (hive + ".hive")
