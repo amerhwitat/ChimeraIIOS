@@ -5,6 +5,10 @@ import pathlib
 import subprocess
 import tempfile
 import unittest
+import contextlib
+import io
+import sys
+from types import SimpleNamespace
 from unittest import mock
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -18,6 +22,7 @@ def load_module(name, path):
 registryd = load_module("chimera_registryd", ROOT / "services/registry/registryd.py")
 smb = load_module("chimera_smb_browse", ROOT / "services/network/smb-browse.py")
 storage = load_module("chimera_mount_image", ROOT / "services/storage/mount-image.py")
+directory = load_module("chimera_directoryctl", ROOT / "services/network/directoryctl.py")
 
 class RegistryServiceTests(unittest.TestCase):
     def setUp(self):
@@ -68,6 +73,24 @@ class RegistryServiceTests(unittest.TestCase):
                 "path": "cpu.selection.policy", "type": "string", "value": "fake",
                 "generation": 1}, True)
 
+
+    def test_transaction_journal_replays_after_interrupted_commit(self):
+        source = json.dumps(self.data, sort_keys=True).encode()
+        with tempfile.TemporaryDirectory() as tmp:
+            binary = pathlib.Path(tmp) / "prepared.hive"
+            subprocess.run(["python3", str(registryd.TOOL), "build", "--input",
+                            str(registryd.ROOT / "environment.json"), "--output", str(binary)],
+                           check=True, capture_output=True)
+            journal = {"hive": "environment",
+                       "source": base64.b64encode(source).decode("ascii"),
+                       "binary": base64.b64encode(binary.read_bytes()).decode("ascii")}
+            (registryd.ROOT / "environment.transaction.json").write_text(json.dumps(journal))
+            (registryd.ROOT / "environment.json").write_text("{}")
+            registryd._recover("environment")
+        restored = json.loads((registryd.ROOT / "environment.json").read_text())
+        self.assertEqual(restored["generation"], 7)
+        self.assertTrue((registryd.ROOT / "environment.hive").is_file())
+
     def test_non_admin_cannot_write(self):
         with self.assertRaisesRegex(PermissionError, "group required"):
             registryd._handle({"op": "set", "hive": "environment",
@@ -95,6 +118,30 @@ class SmbBrowseTests(unittest.TestCase):
         result = smb.browse_network()
         self.assertEqual(result["servers"][0]["address"], "192.168.1.8")
         self.assertEqual(mocked.call_args.args[0], ["avahi-browse", "-rt", "_smb._tcp"])
+
+
+    @mock.patch.object(directory, "run", return_value=SimpleNamespace(returncode=0, stdout="joined", stderr=""))
+    def test_ad_join_uses_existing_kerberos_ticket_without_password_prompt(self, mocked):
+        old_argv = sys.argv
+        try:
+            sys.argv = ["directoryctl.py", "join", "example.org", "--user", "admin@example.org"]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(directory.main(), 0)
+        finally:
+            sys.argv = old_argv
+        argv = mocked.call_args.args[0]
+        self.assertIn("--no-password", argv)
+        self.assertIn("--user=admin@example.org", argv)
+        self.assertNotIn("--password", argv)
+
+    def test_ad_join_rejects_invalid_domain(self):
+        old_argv = sys.argv
+        try:
+            sys.argv = ["directoryctl.py", "join", "-bad.example"]
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(directory.main(), 1)
+        finally:
+            sys.argv = old_argv
 
 class OpticalImageTests(unittest.TestCase):
     def test_iso9660_primary_volume_descriptor(self):
