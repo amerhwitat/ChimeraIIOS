@@ -281,6 +281,20 @@
       "backends": {
         "linux": "udisks2+loop+host-vfs"
       }
+    },
+    {
+      "id": "registry-admin-group-sync",
+      "lifecycle": "boot-oneshot",
+      "platforms": [
+        "linux"
+      ],
+      "capabilities": [
+        "sudo-admin-group-provisioning",
+        "local-registry-write-authorization"
+      ],
+      "backends": {
+        "linux": "sync-admin-group.py"
+      }
     }
   ]
 }
