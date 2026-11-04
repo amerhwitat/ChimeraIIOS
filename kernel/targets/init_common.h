@@ -28,7 +28,13 @@
 #define CHM_SEEK_SET 0
 
 static void init_int80(void) {
-    __asm__ volatile("int $0x80" ::: "memory");
+    /* Deterministic unsupported probe: it proves CPL3 entry without letting
+       undefined entry-register contents accidentally select a real syscall. */
+    register long rax __asm__("rax")=0;
+    register long rdi __asm__("rdi")=0;
+    register long rsi __asm__("rsi")=0;
+    register long rdx __asm__("rdx")=0;
+    __asm__ volatile("int $0x80" : "+a"(rax) : "D"(rdi),"S"(rsi),"d"(rdx) : "memory");
 }
 
 static long init_syscall1(long number) {
