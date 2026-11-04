@@ -2,7 +2,10 @@
 """Active Directory and LDAP client integration through maintained system tools."""
 import argparse
 import json
+import os
 import re
+import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -31,6 +34,7 @@ def main():
     join = sub.add_parser("join")
     join.add_argument("domain", nargs="?")
     join.add_argument("--user")
+    join.add_argument("--elevate", action="store_true", help="use PolicyKit after validating the current user's Kerberos ticket cache")
     status = sub.add_parser("status")
     ldap = sub.add_parser("ldap-search")
     ldap.add_argument("uri")
@@ -49,6 +53,26 @@ def main():
                 if not re.fullmatch(r"[A-Za-z0-9._@-]{1,128}", a.user):
                     raise ValueError("invalid directory account name")
                 argv.insert(-1, "--user=" + a.user)
+            if a.elevate:
+                cache = os.environ.get("KRB5CCNAME", "FILE:/tmp/krb5cc_%d" % os.getuid())
+                if not cache.startswith("FILE:"):
+                    raise ValueError("elevated domain join requires a FILE: Kerberos ticket cache")
+                cache_path = Path(cache[5:])
+                try:
+                    st = cache_path.lstat()
+                except OSError as exc:
+                    raise ValueError("Kerberos ticket cache is unavailable; run kinit first") from exc
+                if (not stat.S_ISREG(st.st_mode) or st.st_uid != os.getuid() or
+                        stat.S_IMODE(st.st_mode) & 0o077):
+                    raise ValueError("Kerberos ticket cache must be a private regular file owned by this user")
+                ticket = run(["klist", "-s"], timeout=10)
+                if ticket.returncode:
+                    raise ValueError("no valid Kerberos ticket; run kinit before joining the domain")
+                pkexec = shutil.which("pkexec")
+                if not pkexec:
+                    raise RuntimeError("pkexec/PolicyKit is required for an administrator-approved domain join")
+                realm = shutil.which("realm") or "/usr/sbin/realm"
+                argv = [pkexec, "/usr/bin/env", "KRB5CCNAME=FILE:" + str(cache_path), realm] + argv[1:]
             result = run(argv, timeout=180)
         elif a.cmd == "status":
             result = run(["realm", "list"], timeout=15)
