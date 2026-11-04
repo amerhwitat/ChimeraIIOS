@@ -55,7 +55,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 ovmf gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -65,6 +65,7 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
           python3 -m unittest discover -s tests/boot -p "test_six_case_matrix.py" -v
+          python3 -m unittest discover -s tests/boot -p "test_six_case_qemu_runner.py" -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
@@ -258,6 +259,22 @@ jobs:
           else
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
+
+      - name: Boot the same canonical ISO in all six BIOS/UEFI target cases
+        id: same_iso_qemu
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          iso=build/iso/chimera-ii-os.iso
+          evidence=build/six-case-evidence
+          if [[ ! -s "$iso" ]]; then
+            echo "::warning::Canonical ISO missing; six-case evidence cannot be generated."
+            exit 0
+          fi
+          python3 tools/boot/run-six-case-qemu.py --iso "$iso" --evidence-dir "$evidence" --timeout 35
+          sha256sum "$iso" | tee build/six-case-evidence/canonical-iso.sha256
+          echo "Attempted six BIOS/UEFI boots from one unchanged ISO; raw traces are not acceptance until the strict verifier passes."
 
       - name: Verify immutable native Koronos six-case matrix
         id: six_case_gate
