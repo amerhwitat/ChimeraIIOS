@@ -88,7 +88,7 @@
         },
         {
           "kind": "test",
-          "ref": ".github/workflows/koronos-elf-loader-tests.yml",
+          "ref": ".github/workflows/elf64-admission.yml",
           "claim": "ELF admission and loader unit tests; not a six-case boot trace."
         }
       ],
