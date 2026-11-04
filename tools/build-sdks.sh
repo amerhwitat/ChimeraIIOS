@@ -179,11 +179,19 @@ for entry in "${FOUND[@]}"; do
 done
 
 # Plain-language sources that need no build system but must still parse.
+# Compile portable Java SDK/runtime sources as one compilation unit so
+# package dependencies resolve together. Android sources and JUnit test files
+# are excluded because they require separate Android/JUnit toolchains.
 if have javac; then
-  mapfile -t JAVA < <(cd "$ROOT" && find . -path ./.git -prune -o -name '*.java' -print 2>/dev/null | grep -v '/build/' | head -20)
+  JAVA=()
+  for base in java sdk/java services/java drivers/java isa/java applications/java desktop/java quantum/languages/java p2p/java network/java sdk/examples/java ISO-Tool/java/src/main/java vendor/chimera-ii-os/source/java vendor/chimera-ii-os/source/sdk/java vendor/chimera-ii-os/source/services/java vendor/chimera-ii-os/source/drivers/java vendor/chimera-ii-os/source/isa/java vendor/chimera-ii-os/source/applications/java vendor/chimera-ii-os/source/desktop/java vendor/chimera-ii-os/source/quantum/languages/java vendor/chimera-ii-os/source/p2p/java vendor/chimera-ii-os/source/network/java vendor/chimera-ii-os/source/sdk/examples/java vendor/chimera-ii-os/source/ISO-Tool/java/src/main/java; do
+    [ -d "$ROOT/$base" ] || continue
+    while IFS= read -r -d '' source_file; do JAVA+=("$source_file"); done < <(
+      find "$ROOT/$base" -type f -name '*.java' ! -name '*Test.java' -print0 2>/dev/null)
+  done
   if [ "${#JAVA[@]}" -gt 0 ]; then
     mkdir -p "$WORK/javac-out"
-    run_step java "java-sources" "$ROOT" javac -d "$WORK/javac-out" "${JAVA[@]}"
+    run_step java "portable-java-sources" "$ROOT" javac -d "$WORK/javac-out" "${JAVA[@]}"
   fi
 fi
 
