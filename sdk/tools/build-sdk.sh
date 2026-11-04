@@ -20,7 +20,7 @@ ctest --test-dir "$BUILD/cmake-sdk" --output-on-failure
 echo "c-cpp=PASS (CMake build and CTest)" >> "$SMOKE/status.txt"
 
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then
-  CHIMERA_SDK_JAVA_BUILD_DIR="$BUILD/java/classes" CHIMERA_SDK_JAVA_JAR="$BUILD/chimera-sdk.jar" "$ROOT/java/build.sh"
+  CHIMERA_SDK_JAVA_BUILD_DIR="$BUILD/java/classes" CHIMERA_SDK_JAVA_JAR="$BUILD/chimera-sdk.jar" bash "$ROOT/java/build.sh"
   echo "java=PASS (OpenJDK and JAR)" >> "$SMOKE/status.txt"
 else
   echo "java=SKIP (OpenJDK javac/jar unavailable)" >> "$SMOKE/status.txt"
