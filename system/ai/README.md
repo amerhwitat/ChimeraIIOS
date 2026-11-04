@@ -24,6 +24,19 @@ For Ollama, `<local-model>` is the local model name. For llama.cpp, it is a loca
 
 The desktop launcher opens this local chat workflow. If no model backend or model is configured, it reports the missing local prerequisite rather than downloading one.
 
+### Model configuration
+
+For an already-installed Ollama model, create `~/.config/chimera-ai/config.json`:
+
+```json
+{
+  "backend": "ollama",
+  "model": "llama3.2:latest"
+}
+```
+
+For llama.cpp, set `"backend": "llama.cpp"` and set `"model"` to the path of an existing local GGUF file. The CLI checks the local model inventory/file before launching, so it will not implicitly download model weights.
+
 ## CNN/RNN inference
 
 ONNX Runtime supports local CNN/RNN-compatible models when `numpy` and `onnxruntime` are installed:
