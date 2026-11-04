@@ -45,6 +45,8 @@ struct koronos_cpu_features {
  char vendor[13];
  /* Extended, normalized identification. Unknown values remain zero. */
  uint32_t architecture;
+ uint32_t implementer;
+ uint32_t variant;
  uint32_t family;
  uint32_t model;
  uint32_t stepping;
@@ -53,6 +55,7 @@ struct koronos_cpu_features {
  uint32_t virtual_address_bits;
  uint64_t feature_flags;
  uint64_t xcr0;
+ uint64_t architecture_features[3];
  char brand[49];
 };
 struct koronos_boot_context {
