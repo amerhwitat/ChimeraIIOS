@@ -1,4 +1,4 @@
-name: Koronos VMware/QEMU Boot Matrix
+name: Koronos kernel-only QEMU smoke (not production six-case matrix)
 
 on:
   workflow_dispatch:
@@ -79,6 +79,14 @@ jobs:
           cat qemu-debug.log
           grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
           grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
+      - name: Record scope boundary
+        run: |
+          {
+            echo "### QEMU scope"
+            echo "This job boots a minimal Multiboot2 kernel-only test ISO under BIOS."
+            echo "It is not the canonical ISO Live/Installer/Recovery x BIOS/UEFI acceptance matrix."
+            echo "It does not prove CPL3 init, VFS, desktop, installer persistence, recovery repair or SMP."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
