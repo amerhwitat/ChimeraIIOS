@@ -9,6 +9,8 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/frame_allocator.h"
+#include "chimera/address_space.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
@@ -296,12 +298,12 @@ static void task_installer(void *) {
             else console_write("[INST] WARNING: installer contract module missing");
             break;
         case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
+            console_write("[INST] Installer metadata phase entered; no installer userspace runtime is initialized");
+            console_write("[INST] Service start withheld: no process-backed installer workers are connected");
             break;
         case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
+            console_write("[INST] Kernel hardware inventory is diagnostic only; no installer worker is running");
+            console_write("[INST] Storage backend is not mounted; installer worker is not running");
             break;
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
@@ -369,8 +371,8 @@ static void task_kore(void *) {
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
-        console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Core storage/security/logging services active");
+        console_write("[KORE] Core service identities registered; no service start callbacks are installed");
+        console_write("[KORE] Storage/security/logging backends remain DECLARED, not RUNNING");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
@@ -412,10 +414,30 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
     console_write("[MB2 ] Scanned Multiboot2 modules");
+    const int frame_allocator_status = koronos_frame_allocator_init(
+        ctx->boot_info, ctx->kernel_base, ctx->kernel_end);
+    if (frame_allocator_status == 0) {
+        console_write("[MM  ] Physical frame allocator initialized (4-GiB ceiling)");
+        console_write("[MM  ] Free frames: ");
+        console_u32(static_cast<uint32_t>(koronos_frame_free_count()));
+    } else {
+        console_write("[MM  ] FRAME ALLOCATOR BLOCKED: boot memory map or supported physical range invalid");
+        console_write("[MM  ] No frame allocation or userspace launch may proceed");
+    }
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
     koronos_arch_init(ctx);
+    const int address_space_init = (frame_allocator_status == 0)
+        ? koronos_address_space_init() : -1;
+    const int address_space_test = (address_space_init == 0)
+        ? koronos_address_space_self_test() : -1;
+    if (address_space_test == 0) {
+        console_write("[MM  ] Address-space self-test passed: user/supervisor and W^X mappings validated; frames reclaimed");
+        console_write("[MM  ] Page-table accesses use the physical-to-virtual mapper (current default: low-4-GiB identity map)");
+    } else {
+        console_write("[MM  ] ADDRESS-SPACE BACKEND BLOCKED: user-image launch remains disabled");
+    }
     console_progress(25, "Architecture and interrupt setup complete");
 
     const struct koronos_cpu_features *f = koronos_get_cpu_features();

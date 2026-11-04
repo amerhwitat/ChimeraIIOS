@@ -3,14 +3,14 @@
 #include <stdint.h>
 #include <stdio.h>
 struct Region{uint64_t base=0,size=0;uint32_t flags=0;uint8_t bytes[65536]{};};
-struct Mock{Region regions[8]{};uint32_t count=0;bool destroyed=false;};
-static void*create_as(void*p){auto*m=(Mock*)p;m->count=0;m->destroyed=false;return m;}
+struct Mock{Region regions[8]{};uint32_t count=0,calls=0,fail_on_call=0,destroy_count=0;bool destroyed=false;};
+static void*create_as(void*p){auto*m=(Mock*)p;m->count=0;m->calls=0;m->destroy_count=0;m->destroyed=false;return m;}
 static int map_pages(void*p,void*as,uint64_t base,uint64_t size,uint32_t flags,void**alias){
- auto*m=(Mock*)p;if(as!=p||!alias||size>sizeof(m->regions[0].bytes)||m->count>=8)return -1;
+ auto*m=(Mock*)p;++m->calls;if(m->fail_on_call&&m->calls==m->fail_on_call)return -99;if(as!=p||!alias||size>sizeof(m->regions[0].bytes)||m->count>=8)return -1;
  for(uint32_t i=0;i<m->count;i++)if(base<m->regions[i].base+m->regions[i].size&&m->regions[i].base<base+size)return -2;
  auto&r=m->regions[m->count++];r.base=base;r.size=size;r.flags=flags;*alias=r.bytes;return 0;
 }
-static void destroy_as(void*p,void*as){assert(p==as);((Mock*)p)->destroyed=true;}
+static void destroy_as(void*p,void*as){assert(p==as);auto*m=(Mock*)p;m->destroyed=true;++m->destroy_count;}
 static void put16(uint8_t*p,uint16_t v){p[0]=(uint8_t)v;p[1]=(uint8_t)(v>>8);}
 static void put32(uint8_t*p,uint32_t v){for(int i=0;i<4;i++)p[i]=(uint8_t)(v>>(8*i));}
 static void put64(uint8_t*p,uint64_t v){for(int i=0;i<8;i++)p[i]=(uint8_t)(v>>(8*i));}
@@ -32,5 +32,15 @@ int main(){
  assert(m.regions[1].base==0x6fe000&&m.regions[1].flags==6);
  put32(elf+68,7);Mock bad{};chimera_loaded_elf untouched{};
  assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&bad,&untouched)<0);
- assert(bad.count==0);puts("process loader: PT_LOAD copy, BSS zeroing, W^X and stack mapping passed");return 0;
+ assert(bad.count==0);
+ put32(elf+68,5); // Restore RX permissions before exercising mapper failure.
+ // Inject failure while mapping the stack after the PT_LOAD mapping succeeded.
+ // The loader must destroy the partially built address space and leave the
+ // caller's output object untouched.
+ Mock rollback{};rollback.fail_on_call=2;
+ chimera_loaded_elf sentinel{};sentinel.abi=0xA5A5A5A5u;sentinel.entry=0xDEADBEEFull;
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x700000,8192,&ops,&rollback,&sentinel)<0);
+ assert(rollback.calls==2&&rollback.destroyed&&rollback.destroy_count==1);
+ assert(sentinel.abi==0xA5A5A5A5u&&sentinel.entry==0xDEADBEEFull);
+ puts("process loader: PT_LOAD copy, BSS zeroing, W^X, stack mapping and fault-injected rollback passed");return 0;
 }
