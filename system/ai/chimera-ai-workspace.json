@@ -28,11 +28,12 @@
     "weights_bundled": false,
     "automatic_training": false,
     "cnn_weights_bundled": false,
-    "cnn_training_status": "BLOCKED: no labelled, licensed hardware/driver image dataset supplied",
+    "cnn_training_status": "NOT TRAINED: no separately labelled, licensed CNN task dataset supplied",
     "rnn_weights_bundled": true,
-    "rnn_training_status": "trained during ISO build from the versioned knowledge database; report/evaluation metadata stored with weights"
+    "rnn_training_status": "trained during ISO build from the versioned knowledge database; report/evaluation metadata stored with weights",
+    "rnn_training_at_build": true
   },
-  "training_policy": "No automatic training or weight updates. CNN/RNN training requires a user-selected dataset, architecture, training budget, and output path. LLM chat uses local inference with retrieved text excerpts; it does not fine-tune model weights.",
+  "training_policy": "The small advisory RNN is trained and evaluated during ISO image staging from the versioned knowledge database; no runtime weight updates occur. CNN training requires a separately selected, labelled and licensed task dataset. LLM chat uses local inference with retrieved evidence and does not fine-tune LLM weights.",
   "release_boundary": "Runtime probes, indexing and local inference availability do not establish Koronos userspace readiness.",
   "knowledge_database": {
     "packaged": "/usr/share/chimera/ai/hardware-systems-knowledge.json",
