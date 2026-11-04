@@ -37,7 +37,7 @@ jobs:
           node-version: "22"
       - name: Python syntax
         run: |
-          python -m py_compile services/registry/registryd.py services/network/smb-browse.py services/network/directoryctl.py services/storage/mount-image.py live-image/lib/aurora-kiosk.py tools/registry/registry_hive.py
+          python -m py_compile services/registry/registryd.py services/registry/sync-admin-group.py services/network/smb-browse.py services/network/directoryctl.py services/storage/mount-image.py live-image/lib/aurora-kiosk.py tools/registry/registry_hive.py
       - name: Integration regression tests
         run: python -m unittest discover -s tests/integrations -v
       - name: Aurora JavaScript syntax
