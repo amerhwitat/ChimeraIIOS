@@ -1,0 +1,73 @@
+name: macOS SDK and compatibility contracts
+on:
+  pull_request:
+    paths:
+      - "tools/macos-compat/**"
+      - "docs/MACOS_COMPATIBILITY.md"
+      - "tests/macos_compat/**"
+      - ".github/workflows/macos-compatibility.yml"
+      - "build-chimera-iso.sh"
+      - "vendor/chimera-ii-os/source/build-chimera-iso.sh"
+  push:
+    branches: [main, "feat/perception-cv-bridge-2026-10"]
+    paths:
+      - "tools/macos-compat/**"
+      - "docs/MACOS_COMPATIBILITY.md"
+      - "tests/macos_compat/**"
+      - ".github/workflows/macos-compatibility.yml"
+      - "build-chimera-iso.sh"
+      - "vendor/chimera-ii-os/source/build-chimera-iso.sh"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portable-contract-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify shell syntax
+        run: |
+          bash -n tools/macos-compat/check-sdk.sh tools/macos-compat/install-sdk.sh tools/macos-compat/build-app.sh tools/macos-compat/run-app.sh
+          for builder in build-chimera-iso.sh vendor/chimera-ii-os/source/build-chimera-iso.sh; do
+            if [[ -f "$builder" ]]; then bash -n "$builder"; fi
+          done
+      - name: Install portable Foundation toolchain
+        run: |
+          sudo apt-get update
+          objc_dev="libobjc-$(gcc -dumpversion | cut -d. -f1)-dev"
+          sudo apt-get install --yes clang libgnustep-base-dev gobjc "$objc_dev"
+      - name: Verify script permissions and syntax
+        run: |
+          chmod +x tools/macos-compat/*.sh
+          python3 -m unittest discover -s tests/macos_compat -v
+      - name: Compile and execute portable Foundation smoke app
+        run: |
+          bash tools/macos-compat/build-app.sh portable-gnustep tests/macos_compat/hello_foundation.m /tmp/macos-compat-foundation-smoke
+          /tmp/macos-compat-foundation-smoke 2>&1 | tee /tmp/macos-compat-foundation.log
+          grep -q MACOS_COMPAT_SMOKE_OK /tmp/macos-compat-foundation.log
+      - name: Verify license guard
+        run: |
+          if bash tools/macos-compat/check-sdk.sh apple-sdk; then
+            echo "ERROR: Linux runner unexpectedly accepted Apple SDK profile" >&2
+            exit 1
+          else
+            status=$?
+            test "$status" -eq 2
+          fi
+  native-apple-sdk:
+    # GitHub-hosted macOS runners are Apple-branded hosts. The SDK remains on
+    # the runner and is never copied into the repository or ISO artifacts.
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify native Apple SDK toolchain
+        run: |
+          bash tools/macos-compat/install-sdk.sh check
+          bash tools/macos-compat/check-sdk.sh apple-sdk
+      - name: Compile and execute native Foundation smoke app
+        run: |
+          bash tools/macos-compat/build-app.sh apple-macos tests/macos_compat/hello_foundation.m /tmp/macos-sdk-foundation-smoke
+          /tmp/macos-sdk-foundation-smoke 2>&1 | tee /tmp/macos-sdk-foundation.log
+          grep -q MACOS_COMPAT_SMOKE_OK /tmp/macos-sdk-foundation.log
