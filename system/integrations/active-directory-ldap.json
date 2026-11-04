@@ -20,7 +20,8 @@
       "dnsutils",
       "pkexec",
       "polkitd",
-      "mate-polkit"
+      "mate-polkit",
+      "sssd-kcm"
     ]
   },
   "commands": {
