@@ -88,9 +88,10 @@ class SmbBrowseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             smb.browse("-bad-host")
 
+    @mock.patch.object(smb, "ws_discover", return_value=[])
     @mock.patch.object(smb, "run", return_value=(0,
         "=;eth0;IPv4;Office NAS;_smb._tcp;local;nas.local;192.168.1.8;445;\n", ""))
-    def test_network_discovery_parses_dns_sd(self, mocked):
+    def test_network_discovery_parses_dns_sd(self, mocked, _wsd_mock):
         result = smb.browse_network()
         self.assertEqual(result["servers"][0]["address"], "192.168.1.8")
         self.assertEqual(mocked.call_args.args[0], ["avahi-browse", "-rt", "_smb._tcp"])
