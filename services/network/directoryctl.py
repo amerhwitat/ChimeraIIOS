@@ -48,7 +48,7 @@ def main():
             if a.user:
                 if not re.fullmatch(r"[A-Za-z0-9._@-]{1,128}", a.user):
                     raise ValueError("invalid directory account name")
-                argv += ["--user=" + a.user]
+                argv.insert(-1, "--user=" + a.user)
             result = run(argv, timeout=180)
         elif a.cmd == "status":
             result = run(["realm", "list"], timeout=15)
