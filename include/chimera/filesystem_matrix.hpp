@@ -5,6 +5,7 @@
 
 namespace chimera::filesystem {
 
+// SupportMode describes the host/compatibility backend, not Koronos runtime readiness.
 enum class SupportMode {
     NativeReadWrite,
     NativeReadOnly,
