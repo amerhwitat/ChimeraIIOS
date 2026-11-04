@@ -1641,13 +1641,21 @@ stage_sdks(){
     fi
     # Ship only executable build products from known SDK/application output roots.
     # Build caches, logs and source trees are not copied as runnable applications.
-    local source bin rel dest
+    local source source_label bin rel dest
     for source in "$BUILD_DIR/sdk" "$SCRIPT_DIR/build/sdk" "$BUILD_DIR/desktop/bin" "$BUILD_DIR/apps/bin" "$SCRIPT_DIR/apps/bin" "$SCRIPT_DIR/desktop/aurora/apps"; do
       [[ -d "$source" ]] || continue
+      case "$source" in
+        "$BUILD_DIR/sdk") source_label="build-sdk" ;;
+        "$SCRIPT_DIR/build/sdk") source_label="repo-sdk" ;;
+        "$BUILD_DIR/desktop/bin") source_label="desktop-build" ;;
+        "$BUILD_DIR/apps/bin") source_label="build-apps" ;;
+        "$SCRIPT_DIR/apps/bin") source_label="repo-apps" ;;
+        *) source_label="aurora-apps" ;;
+      esac
       while IFS= read -r -d '' bin; do
         case "$bin" in *.log|*.tmp|*/CMakeFiles/*) continue;; esac
         rel="${bin#"$source"/}"
-        dest="$ROOTFS_DIR/opt/chimera/apps/bin/$(basename "$source")/$rel"
+        dest="$ROOTFS_DIR/opt/chimera/apps/bin/$source_label/$rel"
         install -D -m 0755 "$bin" "$dest"
         install -D -m 0755 "$bin" "$ISO_DIR/opt/chimera/apps/bin/$(basename "$source")/$rel"
       done < <(find "$source" -type f -perm /111 -print0 2>/dev/null)
@@ -1695,7 +1703,7 @@ PYBIN
       done < <(find "$desktop_root" -type f -name '*.desktop' -print0)
     done
     if [[ -s "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" ]]; then
-      python3 - "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/opt/chimera/apps/bin/bin" "$ROOTFS_DIR/usr/share/applications" <<'PYDESKTOP'
+      python3 - "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/opt/chimera/apps/bin/desktop-build" "$ROOTFS_DIR/usr/share/applications" <<'PYDESKTOP'
 import json, pathlib, sys
 manifest_path, binaries, desktop_dir = map(pathlib.Path, sys.argv[1:])
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -1711,7 +1719,7 @@ for item in manifest.get("native_binaries", []):
     entry = desktop_dir / ("chimera-built-" + name + ".desktop")
     entry.write_text(
         "[Desktop Entry]\nType=Application\nName=" + title +
-        "\nComment=First-party Chimera desktop application\nExec=/opt/chimera/apps/bin/bin/" + name +
+        "\nComment=First-party Chimera desktop application\nExec=/opt/chimera/apps/bin/desktop-build/" + name +
         "\nTerminal=" + ("true" if terminal else "false") +
         "\nCategories=Utility;Development;\n",
         encoding="utf-8")
