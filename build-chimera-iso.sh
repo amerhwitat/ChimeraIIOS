@@ -598,7 +598,7 @@ run_stage(){
   started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   CURRENT_STAGE="$stage"
   header "BEGIN STAGE: $stage"
-  log_info "Stage started=$started_utc function=$fn pid=$"
+  log_info "Stage started=$started_utc function=$fn pid=${BASHPID:-unknown}"
   if "$fn"; then
     elapsed=$((SECONDS-started))
     state_mark "$stage"
@@ -2202,10 +2202,15 @@ main(){
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 =======
+=======
+>>>>>>> 345d7690d (fix(build): preserve shell PID in verbose diagnostics)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> c80de39aa (fix(build): preserve shell PID in verbose diagnostics)
 
 stage_sdks(){
   header 'STEP: COMPILE ALL REPOSITORY SDKS'
@@ -2227,5 +2232,11 @@ stage_sdks(){
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: $"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+<<<<<<< HEAD
 >>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
+=======
+=======
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+>>>>>>> 840eb899f (fix(build): preserve shell PID in verbose diagnostics)
+>>>>>>> 345d7690d (fix(build): preserve shell PID in verbose diagnostics)
 main "$@"
