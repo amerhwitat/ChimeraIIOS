@@ -50,6 +50,19 @@ static const char *target_name(Target target) {
         default: return "unknown";
     }
 }
+
+/* GRUB expands grub_platform in the selected init module command line.
+ * This records the firmware path observed by the actual bootloader/kernel
+ * handoff; the QEMU harness never writes firmware markers into raw traces. */
+static void log_boot_firmware(const char *cmdline) {
+    if (token(cmdline, "firmware=efi")) {
+        koronos_target_log("BOOT FIRMWARE: UEFI");
+    } else if (token(cmdline, "firmware=pc")) {
+        koronos_target_log("BOOT FIRMWARE: BIOS");
+    } else {
+        koronos_target_log("[BOOT] firmware identity missing from GRUB module command line");
+    }
+}
 static void log_user_init_syscall(Target target, uint32_t pid) {
     char message[96];
     const char *name = target_name(target);
@@ -178,6 +191,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+    log_boot_firmware(selected->cmdline);
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
