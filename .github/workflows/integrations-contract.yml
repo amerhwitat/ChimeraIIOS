@@ -45,6 +45,7 @@ jobs:
           node --check desktop/aurora-shell/assets/apps-registry.js
           node --check desktop/aurora-shell/assets/apps-windows-network.js
           node --check desktop/aurora-shell/assets/apps-optical-media.js
+          node --check web/system-services.js
       - name: Validate JSON contracts and staged paths
         run: |
           python - <<'PY'
@@ -61,6 +62,8 @@ jobs:
           build = pathlib.Path("live-image/build.sh").read_text()
           for name in ("registryd.py", "smb-browse.py", "directoryctl.py", "mount-image.py"):
               assert name in build, name
+          web = pathlib.Path("web/index.html").read_text()
+          assert "system-services.js" in web and 'id="view-system"' in web
           print("integration contracts: OK")
           PY
       - name: Shell syntax
