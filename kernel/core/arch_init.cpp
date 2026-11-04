@@ -1,4 +1,5 @@
 #include "../include/chimera/koronos_abi.h"
+#include "chimera/arch_backend.h"
 
 static volatile uint32_t arch_state;
 static struct koronos_cpu_features cpu = {};
@@ -170,6 +171,13 @@ extern "C" void koronos_arch_init(const koronos_boot_context* ctx) {
     __builtin_memcpy(cpu.vendor,"unknown",8);
 #endif
     if(cpu.logical_cpus==0) cpu.logical_cpus=1;
+    const koronos_arch_backend *backend=koronos_arch_backend_lookup(cpu.architecture);
+    if(backend) {
+        cpu.backend_status=backend->status;
+        cpu.entry_backend_present=backend->entry_stub_present;
+        cpu.interrupt_backend_present=backend->interrupt_backend_present;
+        cpu.syscall_backend_present=backend->syscall_backend_present;
+    }
     uint32_t compat=0;
 #if defined(__x86_64__) || defined(__i386__)
     if(!cpu.long_mode || !cpu.sse2) compat=1;
