@@ -122,7 +122,8 @@ log "staging rootfs"
 rm -rf "$WORK"; mkdir -p "$WORK"
 tar -C "$BASE" -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . \
   2>/dev/null | tar -C "$WORK" -xf - 2>/dev/null
-mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media\npython3 "$REPO_DIR/tools/filesystem/create-fhs-tree.py" --root "$WORK"
+mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
+python3 "$REPO_DIR/tools/filesystem/create-fhs-tree.py" --root "$WORK"
 
 # ------------------------------------------------------------- payload
 log "staging payload"
@@ -140,9 +141,11 @@ fi
 # Install registry, SMB/AD/LDAP and optical-media user-space integrations.
 install -D -m 0755 "$REPO_DIR/services/registry/registryd.py" "$WORK/usr/lib/chimera/registry/registryd.py"
 install -D -m 0755 "$REPO_DIR/services/registry/sync-admin-group.py" "$WORK/usr/lib/chimera/registry/sync-admin-group.py"
-install -D -m 0644 "$REPO_DIR/tools/registry/registry_hive.py" "$WORK/usr/lib/chimera/registry/registry_hive.py"\ninstall -D -m 0644 "$REPO_DIR/services/registry/registry_client.py" "$WORK/usr/lib/chimera/registry/registry_client.py"
+install -D -m 0644 "$REPO_DIR/tools/registry/registry_hive.py" "$WORK/usr/lib/chimera/registry/registry_hive.py"
+install -D -m 0644 "$REPO_DIR/services/registry/registry_client.py" "$WORK/usr/lib/chimera/registry/registry_client.py"
 install -D -m 0755 "$REPO_DIR/services/network/smb-browse.py" "$WORK/usr/lib/chimera/network/smb-browse.py"
-install -D -m 0755 "$REPO_DIR/services/network/directoryctl.py" "$WORK/usr/lib/chimera/network/directoryctl.py"\ninstall -D -m 0755 "$REPO_DIR/services/network/directory-discovery.py" "$WORK/usr/lib/chimera/network/directory-discovery.py"
+install -D -m 0755 "$REPO_DIR/services/network/directoryctl.py" "$WORK/usr/lib/chimera/network/directoryctl.py"
+install -D -m 0755 "$REPO_DIR/services/network/directory-discovery.py" "$WORK/usr/lib/chimera/network/directory-discovery.py"
 install -D -m 0755 "$REPO_DIR/services/storage/mount-image.py" "$WORK/usr/lib/chimera/storage/mount-image.py"
 install -d "$WORK/etc/chimera/registry" "$WORK/usr/share/chimera/integrations"
 for hive in machine environment kernel; do
