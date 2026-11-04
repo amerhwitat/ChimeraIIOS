@@ -79,5 +79,5 @@ The script creates directories only. The installer remains responsible for mount
 - Prefer SMB3 encryption/signing on untrusted networks; firewall TCP/445 to trusted LANs.
 - AD domain joining is an explicit administrator operation; no credentials are embedded in the image.
 - LDAP certificate validation is mandatory by default.
-- Do not enable `smbd`, WS-Discovery, or Avahi on public/untrusted interfaces without firewall policy.
+- Keep SMB TCP/445 and WSD UDP/3702 plus TCP/5357 restricted to trusted local networks; WSD multicast is link-local by default. Do not enable `smbd`, WS-Discovery, or Avahi on public/untrusted interfaces without firewall policy.
 - These components integrate established Linux services; they do not reimplement SMB, Kerberos, LDAP or AD wire protocols from scratch.
