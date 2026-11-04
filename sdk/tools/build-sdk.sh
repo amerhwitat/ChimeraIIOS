@@ -7,6 +7,10 @@ DESTDIR="${CHIMERA_SDK_DESTDIR:-}"
 PREFIX="${CHIMERA_SDK_PREFIX:-/opt/chimera-sdk}"
 JOBS="${CHIMERA_SDK_JOBS:-2}"
 mkdir -p "$BUILD"
+SMOKE="$BUILD/toolchain-smoke"
+mkdir -p "$SMOKE"
+: > "$SMOKE/status.txt"
+trap 'rc=$?; if [[ $rc -ne 0 ]]; then printf "sdk_overall=BLOCKED (exit %s)\\n" "$rc" >> "$SMOKE/status.txt"; fi; exit "$rc"' ERR
 
 cmake -S "$ROOT" -B "$BUILD/cmake-sdk" \
   -DCMAKE_BUILD_TYPE=Release \
@@ -14,32 +18,36 @@ cmake -S "$ROOT" -B "$BUILD/cmake-sdk" \
 cmake --build "$BUILD/cmake-sdk" --target chimera_sdk chimera-sdk-config \
   --parallel "$JOBS"
 ctest --test-dir "$BUILD/cmake-sdk" --output-on-failure
+echo "c-cpp=PASS (CMake build and CTest)" >> "$SMOKE/status.txt"
 
 if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then
   CHIMERA_SDK_JAVA_BUILD_DIR="$BUILD/java/classes" CHIMERA_SDK_JAVA_JAR="$BUILD/chimera-sdk.jar" "$ROOT/java/build.sh"
+  echo "java=PASS (OpenJDK and JAR)" >> "$SMOKE/status.txt"
 else
+  echo "java=SKIP (OpenJDK javac/jar unavailable)" >> "$SMOKE/status.txt"
   echo "[SDK] OpenJDK unavailable; Java source retained but JAR build skipped." >&2
 fi
 if command -v dotnet >/dev/null 2>&1; then
   dotnet build "$ROOT/csharp/Chimera.Sdk.csproj" -c Release -p:BaseOutputPath="$BUILD/dotnet/bin/" -p:BaseIntermediateOutputPath="$BUILD/dotnet/obj/"
+  echo "csharp=PASS (.NET SDK build)" >> "$SMOKE/status.txt"
 else
+  echo "csharp=SKIP (.NET SDK unavailable)" >> "$SMOKE/status.txt"
   echo "[SDK] .NET SDK unavailable; C# source retained but managed build skipped." >&2
 fi
 if command -v cargo >/dev/null 2>&1; then
   CARGO_TARGET_DIR="$BUILD/rust-target" cargo test --manifest-path "$ROOT/rust/chimera-runtime/Cargo.toml" --locked
   CARGO_TARGET_DIR="$BUILD/rust-target" cargo build --release --manifest-path "$ROOT/rust/chimera-runtime/Cargo.toml" --locked
+  echo "rust=PASS (Cargo tests and release build)" >> "$SMOKE/status.txt"
 else
+  echo "rust=SKIP (Cargo unavailable)" >> "$SMOKE/status.txt"
   echo "[SDK] Cargo unavailable; Rust source retained but crate build skipped." >&2
 fi
 PYTHONPYCACHEPREFIX="$BUILD/python-pycache" python3 -m compileall -q "$ROOT/python/chimera_sdk"
+echo "python=PASS (compileall)" >> "$SMOKE/status.txt"
 
 # Optional frontends advertised by the repository language registry. Build a
 # real smoke artifact when the upstream compiler exists; never download a
 # toolchain or silently claim a skipped language was built.
-SMOKE="$BUILD/toolchain-smoke"
-mkdir -p "$SMOKE"
-: > "$SMOKE/status.txt"
-
 if command -v nasm >/dev/null 2>&1; then
   nasm -f elf64 "$ROOT/tests/toolchain-smoke/smoke.asm" -o "$SMOKE/chimera-asm-smoke.o"
   echo "asm=PASS (NASM x86_64)" >> "$SMOKE/status.txt"
@@ -116,4 +124,19 @@ if [[ -n "$DESTDIR" ]]; then
   fi
 fi
 
+echo "sdk_overall=PASS (native SDK install and mandatory tests completed)" >> "$SMOKE/status.txt"
+python3 - "$SMOKE/status.txt" "$BUILD/sdk-build-status.json" <<'PYSDKSTATUS'
+import json,sys
+from pathlib import Path
+rows={}
+for line in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
+    if "=" in line:
+        key,value=line.split("=",1)
+        state=value.split(" ",1)[0]
+        rows[key]={"status":state,"detail":value.strip()}
+Path(sys.argv[2]).write_text(json.dumps({"schema":"CHM-SDK-STATUS-1","results":rows},indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+PYSDKSTATUS
+if [[ -n "$DESTDIR" ]]; then
+  install -D -m 0644 "$BUILD/sdk-build-status.json" "$DESTDIR$PREFIX/share/chimera/sdk-build-status.json"
+fi
 echo "[SDK] Build and CTest completed: $BUILD/cmake-sdk"
