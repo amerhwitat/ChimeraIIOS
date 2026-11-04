@@ -21,6 +21,8 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/full"
 ISO_DIR="$ROOT/build/iso"
+SDK_BUILD="$BUILD/sdk"
+SDK_ROOT="$BUILD/sdk-root"
 mkdir -p "$BUILD" "$ISO_DIR"
 DISK_MANAGER="$ROOT/tools/disk-space-manager.sh"
 # Keep the working tree bounded for low-storage hosts.
@@ -72,6 +74,46 @@ cleanup_finished
 "$ROOT/tools/build-mobile-edition.sh"
 cleanup_finished
 "$ROOT/tools/build-desktop-binaries.sh"
+# Compile and test the SDK through its canonical driver. Optional language
+# frontends are recorded as SKIP; mandatory native SDK build/tests must pass.
+rm -rf "$SDK_ROOT"
+CHIMERA_SDK_BUILD_DIR="$SDK_BUILD" \
+CHIMERA_SDK_DESTDIR="$SDK_ROOT" \
+CHIMERA_SDK_PREFIX="/opt/chimera-sdk" \
+CHIMERA_SDK_JOBS="${CHIMERA_SDK_JOBS:-2}" \
+  bash "$ROOT/sdk/tools/build-sdk.sh"
+SDK_INSTALLED="$SDK_ROOT/opt/chimera-sdk"
+python3 - "$SDK_INSTALLED/share/chimera/sdk-build-status.json" <<'PYSDK'
+import json, pathlib, sys
+p=pathlib.Path(sys.argv[1])
+if not p.is_file():
+    raise SystemExit("SDK status manifest missing from DESTDIR install")
+d=json.loads(p.read_text(encoding="utf-8"))
+if d.get("schema") != "CHM-SDK-STATUS-1":
+    raise SystemExit("invalid SDK status manifest schema")
+results=d.get("results", {})
+if results.get("sdk_overall", {}).get("status") != "PASS":
+    raise SystemExit("mandatory SDK build/CTest did not pass")
+if any(item.get("status") == "BLOCKED" for item in results.values()):
+    raise SystemExit("SDK manifest contains a BLOCKED toolchain result")
+if not (SDK_ROOT / "include" / "chimera" / "sdk.h").is_file():
+    pass
+PYSDK
+test -s "$SDK_INSTALLED/include/chimera/sdk.h"
+test -s "$SDK_INSTALLED/lib/libchimera_sdk.a" -o -s "$SDK_INSTALLED/lib64/libchimera_sdk.a"
+python3 - "$ROOT/build/desktop/manifests/application-build-status.json" <<'PYAPP'
+import json, pathlib, sys
+p=pathlib.Path(sys.argv[1])
+if not p.is_file():
+    raise SystemExit("desktop application status manifest missing")
+d=json.loads(p.read_text(encoding="utf-8"))
+if d.get("schema") != "CHM-APPLICATION-BUILD-STATUS-1":
+    raise SystemExit("invalid desktop application status schema")
+if d.get("overall") != "PASS":
+    raise SystemExit("desktop application build did not pass")
+if any(item.get("status") == "BLOCKED" for item in d.get("results", {}).values()):
+    raise SystemExit("desktop application manifest contains BLOCKED results")
+PYAPP
 cleanup_finished
 "$ROOT/tools/build-live-boot-binaries.sh"
 cleanup_finished
@@ -149,6 +191,9 @@ cp -a "$ROOT/installer" "$STAGE/install/"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
+mkdir -p "$STAGE/system/desktop" "$STAGE/system/sdk"
+install -m 0644 "$ROOT/build/desktop/manifests/application-build-status.json" "$STAGE/system/desktop/application-build-status.json"
+cp -a "$SDK_INSTALLED/." "$STAGE/system/sdk/"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/system/security" "$STAGE/system/security"
 cp -a "$ROOT/tools/initialize-accounts.sh" "$STAGE/install/initialize-accounts.sh"
