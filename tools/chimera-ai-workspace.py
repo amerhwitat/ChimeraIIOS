@@ -12,7 +12,8 @@ from pathlib import Path
 
 SCHEMA = "CHIMERA-AI-RESOURCE-DB-1"
 SKIP_DIRS = {".git", ".hg", ".svn", ".cache", ".venv", "venv", "node_modules",
-             "__pycache__", ".pytest_cache", ".ssh", ".gnupg", "browser", "profiles"}
+             "__pycache__", ".pytest_cache", ".ssh", ".gnupg", "browser", "profiles",
+             "credentials", "secrets", "password-store", "private"}
 SENSITIVE_NAMES = {".env", ".env.local", ".env.production", "id_rsa", "id_ed25519",
                    "credentials", "secrets", "secrets.json", "token", "tokens.json",
                    "passwords", "password-store"}
@@ -29,20 +30,17 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 def skipped(path: Path) -> bool:
-    # os.walk prunes hidden directories before descending; this function handles
-    # hidden leaf files and sensitive names without rejecting an explicitly
-    # selected root merely because one of its parent directories is hidden.
+    # os.walk prunes hidden/sensitive directories before descending; this
+    # function handles hidden leaf files without rejecting a selected root
+    # because one of its parent directories happens to be hidden.
     name = path.name.casefold()
     if name.startswith(".") or name in SENSITIVE_NAMES:
         return True
-    if name.startswith(("id_rsa", "id_ed25519")):
+    if name.startswith(("id_rsa", "id_ed25519", "credential", "secret", "token")):
         return True
-    if name in {".netrc", ".npmrc", ".pypirc", ".git-credentials",
-                "authorized_keys", "known_hosts"}:
+    if name in {"authorized_keys", "known_hosts"}:
         return True
     if name.endswith((".pem", ".key", ".p12", ".pfx", ".kdbx", ".secret")):
-        return True
-    if name in {"credentials", "secrets", "password-store", "private"}:
         return True
     return False
 
