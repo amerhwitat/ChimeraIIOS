@@ -1,6 +1,10 @@
 {
   "schema": "CHIMERA-RESEARCH-CATALOG-1",
+<<<<<<< HEAD
   "generated_at": "2026-11-06T02:33:15.513514+00:00",
+=======
+  "generated_at": "2026-11-03T17:41:53.474372+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
   "policy": {
     "discovery_only": true,
     "remote_code_execution": false,
@@ -1042,8 +1046,13 @@
     },
     {
       "path": "docs/research/isa-command-research.json",
+<<<<<<< HEAD
       "bytes": 255768,
       "sha256": "4817a6fe2be99b5f628c09db23fa3176938ebb77ee77411a601335bdb44acb01"
+=======
+      "bytes": 255777,
+      "sha256": "1e03e685a37161c5477ed7558a1deda91a9c48ac1d54e623049b00a9da9a5516"
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
     },
     {
       "path": "docs/research/ISA_CANDIDATE_EXECUTION.md",
@@ -1052,8 +1061,13 @@
     },
     {
       "path": "docs/research/ISA_COMMAND_RESEARCH.md",
+<<<<<<< HEAD
       "bytes": 52448,
       "sha256": "2db0f4af776eae82c657c9583c4bee0821cf6610327aaf3530f21f7693ed4d62"
+=======
+      "bytes": 52371,
+      "sha256": "b6b0b19e3d57f673eab11ea386c8e57cef53d94b88f817341bc13a9d09eb7de9"
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
     },
     {
       "path": "docs/toolchains/managed-and-apple-compatibility.md",
@@ -1271,11 +1285,14 @@
       "sha256": "18cc3768518f51b65f7114c8a99f008e94f380bfc81a1c36ebfa9a612717fba9"
     },
     {
+<<<<<<< HEAD
       "path": "docs/releases/chimera-ii-os-live-2026.11.03-desktop-5c5ecae/RELEASE.md",
       "bytes": 1405,
       "sha256": "d0f0aebd4cd4e0a7fd6446bb67c6160d185664e53506527883a7fd2b53895d25"
     },
     {
+=======
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "path": "docs/releases/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913/RELEASE.md",
       "bytes": 960,
       "sha256": "5be3a2b3fbfd5ffe83e3d0b0394b31ed273ad42b085951f61427b8c1f6db1b75"
@@ -1427,7 +1444,11 @@
       "url": "https://docs.riscv.org/reference/isa/",
       "topic": "isa",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:30:32.327535+00:00",
+=======
+      "checked_at": "2026-11-03T17:38:39.797749+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "f095c7c98f7bb5d8526f8b04206fd25aeb441b5b9cbad5d19b51d862a20e46b0",
       "snippet": "Redirecting to isa v20260120 \n   \n   \n     Redirecting to the latest version:  isa v20260120",
       "recursive_discovery": {
@@ -1581,7 +1602,11 @@
       "url": "https://docs.kernel.org/",
       "topic": "kernel",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:31:03.061793+00:00",
+=======
+      "checked_at": "2026-11-03T17:39:14.794713+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "9f832bc45efaa6f524e63013bf51ef44a3116628ad019c82fde8e9e30f77df60",
       "snippet": "The Linux Kernel documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development proc"
     },
@@ -1590,7 +1615,11 @@
       "url": "https://docs.kernel.org/arch/x86/",
       "topic": "isa",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:31:03.370737+00:00",
+=======
+      "checked_at": "2026-11-03T17:39:15.147562+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "81fee1280b77002ba74f7d5a28c7ecfd9d28979849b249edb25e6ad8c7e62760",
       "snippet": "x86-specific Documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development pr",
       "recursive_discovery": {
@@ -2106,7 +2135,11 @@
       "url": "https://docs.kernel.org/arch/arm64/",
       "topic": "isa",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:31:27.570702+00:00",
+=======
+      "checked_at": "2026-11-03T17:39:43.187398+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "c45a334d1c23873a4a35a41f9c1c94c98d93575eb37c9bb722ecfadfc9133caf",
       "snippet": "ARM64 Architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n",
       "recursive_discovery": {
@@ -2622,7 +2655,11 @@
       "url": "https://docs.kernel.org/arch/riscv/",
       "topic": "isa",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:31:48.887093+00:00",
+=======
+      "checked_at": "2026-11-03T17:40:09.757556+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "ffce43f94e29601acf64685d36eef4a74f594fa211859dc94b49c2073c5d76c9",
       "snippet": "RISC-V architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  ",
       "recursive_discovery": {
@@ -3138,7 +3175,11 @@
       "url": "https://docs.kernel.org/driver-api/",
       "topic": "drivers",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:32:11.521726+00:00",
+=======
+      "checked_at": "2026-11-03T17:40:36.877682+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "f7b60202c9283259b76323d33c45b197c23885e2837e201aa195df3425af7add",
       "snippet": "Driver implementer’s API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Developmen"
     },
@@ -3147,7 +3188,11 @@
       "url": "https://docs.kernel.org/scheduler/",
       "topic": "scheduler",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:32:11.805534+00:00",
+=======
+      "checked_at": "2026-11-03T17:40:37.174574+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "780c6669132b681659c50443a3bb5dcddf071baf328cd5b97250f30721949ac8",
       "snippet": "Scheduler &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Submitt"
     },
@@ -3156,7 +3201,11 @@
       "url": "https://docs.kernel.org/userspace-api/",
       "topic": "syscalls",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:32:12.066721+00:00",
+=======
+      "checked_at": "2026-11-03T17:40:37.468059+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "743fa97a9fac38438538757f45ef57a7ee9752b31a05b8a7c86941d2d83f920f",
       "snippet": "The Linux kernel user-space API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Dev"
     },
@@ -3165,8 +3214,13 @@
       "url": "https://source.android.com/docs/core/architecture/kernel",
       "topic": "mobile-os",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:32:12.840795+00:00",
       "sha256": "480b4f927f70b15dc5a341cd00497363c7dbfe08d321858bfc69efe691a3d9d9",
+=======
+      "checked_at": "2026-11-03T17:40:39.201538+00:00",
+      "sha256": "d1a49f5d330bf00dc77945dd03b2bcf1e925b0b0288d0d983a9be4238dfe5264",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "snippet": "Kernel overview &nbsp;|&nbsp; Android OS core topics &nbsp;|&nbsp; Android Open Source Project \n\n    \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"Article\",\n    \n    \"headline\": \"Kernel overview\"\n  }\n  \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"BreadcrumbList\",\n    \"itemListElement\": [{\n      \"@type\": \"ListItem\",\n      \"position\": 1,\n      \"name\": \"Docs\",\n      \"item\": \"https://source.android.com/docs\"\n    },{\n      \"@type\": \"ListItem\",\n      \"position\": 2,\n      \"name\":"
     },
     {
@@ -3174,7 +3228,11 @@
       "url": "https://support.arm.com/documentation",
       "topic": "isa",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:32:13.276843+00:00",
+=======
+      "checked_at": "2026-11-03T17:40:40.073358+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "89b98c1a7f15377ac42bff86c0912004ecfe15c8d6e495da555166e0e695ef95",
       "snippet": "window.docsHubConfig={\"REACT_APP_2FA_ACR\":\"B2C_1A_HV.SIGN-IN-CONF.1.1.0\",\"REACT_APP_2FA_AUTHORITY\":\"https://account.arm.com/tfp/armb2c.onmicrosoft.com/B2C_1A_HV.SIGN-IN-CONF.1.1.0/v2.0/\",\"REACT_APP_2FA_CLIENT_ID\":\"da089d53-3538-4d3e-8ea0-73dfe483f321\",\"REACT_APP_2FA_SCOPE\":\"openid https://armb2c.onmicrosoft.com/docsHub/read\",\"REACT_APP_ADOBE_LAUNCH_URL\":\"https://support.arm.com/arm-tag-manager/support.arm.com/atm.js\",\"REACT_APP_AI_ASSISTANCE_ENABLED\":\"true\",\"REACT_APP_ARM_DOCUMENTATION_IMAGE_ASS",
       "recursive_discovery": {
@@ -3189,8 +3247,13 @@
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
       "topic": "isa",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:32:14.242710+00:00",
       "sha256": "76710dfac94107fb21dc0e17f1c6e33d38f2464ae2db81c6a270effa9f964935",
+=======
+      "checked_at": "2026-11-03T17:40:41.002917+00:00",
+      "sha256": "d8ea75623bea841cbc8bc527f005df3e08b1ec79a09ec15a0b8f7b7715d7651e",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "snippet": "Manuals for Intel® 64 and IA-32 Architectures \n    \n    \n    \n\n\n\n\n\n\n\n\n\n \n \n \n\n     \n     \n\n     \n     \n\n\n\n\n\n     \n      \n     \n      \n     \n      \n\n\n    \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    \n    \n        \n    \n\n\n\n\n    \n    \n    \n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n \n    var cq_tms = {\n        wa_emtcontenttype: \"emtcontenttype:designanddevelopmentreference/developerguide/developeruserguide,emtcontenttype:designanddevelopmentreference/developerguide,emtcontent",
       "recursive_discovery": {
         "pages_visited": 80,
@@ -3394,6 +3457,11 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/what-is-the-intel-14a-pdk-0-9-and-why-it-matters.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/cognitive-cities-how-ai-drives-active-urban-decisions.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-demonstrates-physical-ai-action-with-sap.html",
+<<<<<<< HEAD
+=======
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-third-quarter-2026-financial-results.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-oracle-collaborate-on-enterprise-and-agentic-ai.html",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/agentic-ai-moving-fast-enterprise-infrastructure-needs-move-with-it.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-edge-ai-turns-football-crowd-data-into-revenue.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/amd-intel-simplify-x86-ai-development-with-pytorch.html",
@@ -3418,8 +3486,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/foundation-pltw-expand-semiconductor-careers.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ai-infra-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-outlines-architectures-for-agentic-ai-at-hot-chips-2026.html",
-          "https://www.intel.com/content/www/us/en/newsroom/opinion/count-the-work-not-just-the-cores.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/6-in-10-leaders-bet-big-on-robots-only-4-in-10-are-ready.html",
+          "https://www.intel.com/content/www/us/en/newsroom/opinion/count-the-work-not-just-the-cores.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-corporation-to-participate-in-upcoming-investor-conference-august-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-upsize-and-pricing-of-20-billion-common-stock-offering.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-proposed-15-billion-common-stock-offering.html",
@@ -3445,6 +3513,10 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-from-embedded-world-meet-intel-core-series-2-processor-with-p-cores.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-ces-2026-intel-launches-series-3-cpus-with-200-laptop-designs.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/from-building-bricks-to-brilliance-model-of-intel-series-3-processor-steals-the-show.html",
+<<<<<<< HEAD
+=======
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/ces-2026-intel-core-ultra-series-3-debut-first-built-on-intel-18a.html",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-powered-medical-exoskeleton-helps-patients-get-back-on-their-feet.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/three-ways-intel-msi-co-engineered-worlds-first-arc-g3-handheld.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/postcard-from-computex-2026-new-intel-core-series-3-laptops-for-everyday-creation-and-all-day-productivity.html",
@@ -3470,7 +3542,10 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-products-unveils-assured-supply-chain-program.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/thunderbolt-share-using-multiple-pcs-handle-demanding-workflows.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/the-best-employee-experiences-start-with-technology-that-works-together.html",
+<<<<<<< HEAD
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-reports-second-quarter-2026-financial-results.html",
+=======
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-to-report-second-quarter-2026-financial-results.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-leadership-appointment-at-intel-foundry-to-accelerate-development-and-manufacturing.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/ceo-letter-2025-26-intel-corporate-responsibility-report.html",
@@ -3505,6 +3580,10 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/postcard-from-intel-tech-tour-arizona-intel-data-center-group-leader-kevork-kechichian-shows-off-xeon-6.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-and-aws-drive-cloud-innovation-powered-by-xeon-6-processors.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-shell-advance-immersion-cooling-xeon-based-data-centers.html",
+<<<<<<< HEAD
+=======
+          "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-agent-toolkit-adds-nvidia-openshell-for-policy-enforced-sandboxes.html",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
           "https://www.intel.com/content/www/us/en/newsroom/opinion/building-america-capacity-to-innovate.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/how-intel-researchers-are-advancing-chemistry-behind-high-na-euv-tools.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/intel-foundry-asml-accelerate-industry-readiness-for-high-na-euv.html",
@@ -3518,8 +3597,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-the-ultimate-factory-tour.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-foundry-gathers-customers-partners-outlines-priorities.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-chip-roams-intel-factories.html",
-          "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/direct-connect-2025-keynote-livestream-replay.html",
+          "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-ceo-lip-bu-tan-headline-intel-foundry-direct-connect.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/how-intel-optimized-openclaw-runs-securely-cost-efficiently-intel-based-ai-pcs.html",
           "https://www.intel.com/content/www/us/en/newsroom/tech101/manufacturing/understanding-moores-law.html",
@@ -3696,7 +3775,16 @@
           "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-manageability/overview.html",
           "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-apps-and-accessories.html",
           "https://www.intel.com/content/www/us/en/content-details/892383/content.html",
+<<<<<<< HEAD
           "https://www.intel.com/content/www/us/en/content-details/915267/content.html"
+=======
+          "https://www.intel.com/content/www/us/en/content-details/915267/content.html",
+          "https://www.intel.com/content/www/us/en/developer/articles/tool/battery-life-diagnostic-tool.html",
+          "https://www.intel.com/content/www/us/en/products/details/wireless/connectivity-performance-suite.html",
+          "https://www.intel.com/content/www/us/en/content-details/914702/content.html",
+          "https://www.intel.com/content/www/us/en/content-details/914706/content.html",
+          "https://www.intel.com/content/www/us/en/content-details/914707/content.html"
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
         ]
       }
     },
@@ -3705,7 +3793,11 @@
       "url": "https://www.amd.com/en/search/documentation",
       "topic": "isa",
       "http_status": 0,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:33:03.343222+00:00",
+=======
+      "checked_at": "2026-11-03T17:41:41.925503+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "0738e1d53e03cdde4e379859b024fb665340ccc62ac4ed215101772e5d81327b",
       "snippet": "HTTP Error 404: Not Found"
     },
@@ -3714,7 +3806,11 @@
       "url": "https://uefi.org/specifications",
       "topic": "firmware",
       "http_status": 0,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:33:04.047187+00:00",
+=======
+      "checked_at": "2026-11-03T17:41:42.392681+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "2fbdaaa36a31ec4853f2062504fc20ecfc24512cfe648271bc840f246a542911",
       "snippet": "HTTP Error 403: Forbidden"
     },
@@ -3723,7 +3819,11 @@
       "url": "https://docs.freebsd.org/en/books/handbook/",
       "topic": "other-os",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:33:04.763179+00:00",
+=======
+      "checked_at": "2026-11-03T17:41:43.046810+00:00",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "sha256": "109a95818d0d231bf26df6ab14366cb92c08d121416b71d4d2caddad6c2bcb3c",
       "snippet": "FreeBSD Handbook | FreeBSD Documentation Portal                     {\"@context\":\"http://schema.org\",\"@type\":\"Article\",\"url\":\"https:\\/\\/docs.freebsd.org\\/en\\/books\\/handbook\\/\",\"name\":\"FreeBSD Documentation Portal\",\"headline\":\"FreeBSD Documentation Portal\",\"description\":\"FreeBSD Documentation Portal\"}          \n           \n About\n      About    FreeBSD    FreeBSD Foundation    Code of Conduct      \n Get FreeBSD\n      Get FreeBSD    Release Information    Release Engineering    Security Advisories"
     },
@@ -3732,8 +3832,13 @@
       "url": "https://www.netbsd.org/docs/",
       "topic": "other-os",
       "http_status": 200,
+<<<<<<< HEAD
       "checked_at": "2026-11-06T02:33:06.295964+00:00",
       "sha256": "d49f5910fd91fff949453f73ed99cf904abeb91bbd6acee72b8a1f23c1db532b",
+=======
+      "checked_at": "2026-11-03T17:41:44.415451+00:00",
+      "sha256": "558c5fd65ec6d366b5728368c67678df09c238eb34d0ca2d716a03fb86dfcbaa",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "snippet": "NetBSD Documentation \n   \n \n  \n  Skip to main content.  \n          \n  \n     \n     \n  \n  \n \n\t  Navigation:\n\t  \n \n \n\t  Home  \n  \n\t    Recent changes  \n  \n\t    NetBSD blog  \n  \n\t    Presentations  \n \n \n \n \n\t  About  \n  \n\t    Developers  \n  \n\t    Gallery  \n  \n\t    Ports  \n  \n\t    Packages  \n \n \n \n \n\t  Documentation  \n  \n\t    FAQ &amp; HOWTOs  \n  \n\t    The Guide  \n  \n\t    Manual pages  \n  \n\t    Wiki  \n \n \n \n \n\t  Support  \n  \n\t    Community  \n  \n\t    Mailing lists  \n  \n\t    Bug reports  \n  \n\t    Secur"
     }
   ],
@@ -3811,6 +3916,7 @@
       "status": 200,
       "url": "https://api.github.com/search/repositories?q=android+common+kernel&sort=updated&order=desc&per_page=8",
       "repositories": [
+<<<<<<< HEAD
         "aosp-mirror-neo/kernel_common",
         "LineageOS/android_kernel_amlogic_common_drivers",
         "SavoryBanana/sailfish-linux-6.18",
@@ -3819,6 +3925,16 @@
         "ramabondanp/android_kernel_common-6.12",
         "at1600/android_kernel_xiaomi_common",
         "duckyduckG/android_kernel_xiaomi_sm8150_419"
+=======
+        "ramabondanp/android_kernel_common-6.12",
+        "duckyduckG/android_kernel_xiaomi_sm8150_419",
+        "YuzakiKokuban/android_kernel_oneplus_sm8850",
+        "LineageOS/android_kernel_ayn_common-modules",
+        "dobraeuyan/android_kernel_qcom_msm8909-common",
+        "OP15T-SM8850-Development/android_kernel_common_modules_wonder",
+        "naifi1954/android_kernel_common",
+        "usermahiro/android_kernel_common"
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       ]
     },
     {
@@ -3848,8 +3964,13 @@
       "url": "https://github.com/Jamesits/dropWPBT",
       "description": "Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.",
       "language": "C",
+<<<<<<< HEAD
       "stars": 448,
       "updated_at": "2026-11-05T18:22:46Z",
+=======
+      "stars": 447,
+      "updated_at": "2026-10-19T18:53:06Z",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "license": "BSD-2-Clause",
       "query": "uefi acpi firmware tables",
       "review_required": true
@@ -3888,6 +4009,7 @@
       "review_required": true
     },
     {
+<<<<<<< HEAD
       "name": "GoRhanHee/android_kernel_samsung_sm8550_common",
       "url": "https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common",
       "description": "Samsung SM8550 Platform Common Kernel Source",
@@ -3899,6 +4021,8 @@
       "review_required": true
     },
     {
+=======
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "name": "malfallah/symrisc",
       "url": "https://github.com/malfallah/symrisc",
       "description": "A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.",
@@ -3987,6 +4111,7 @@
       "review_required": true
     },
     {
+<<<<<<< HEAD
       "name": "aosp-mirror-neo/kernel_common",
       "url": "https://github.com/aosp-mirror-neo/kernel_common",
       "description": "Common Android Kernel Tree",
@@ -4004,6 +4129,14 @@
       "language": "C",
       "stars": 1,
       "updated_at": "2026-11-04T02:12:11Z",
+=======
+      "name": "usermahiro/android_kernel_common",
+      "url": "https://github.com/usermahiro/android_kernel_common",
+      "description": "",
+      "language": "C",
+      "stars": 1,
+      "updated_at": "2026-11-03T16:17:17Z",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
@@ -4273,17 +4406,71 @@
       "review_required": true
     },
     {
+<<<<<<< HEAD
       "name": "LineageOS/android_kernel_amlogic_common_drivers",
       "url": "https://github.com/LineageOS/android_kernel_amlogic_common_drivers",
       "description": "",
       "language": "C",
       "stars": 0,
       "updated_at": "2026-11-05T17:22:26Z",
+=======
+      "name": "ramabondanp/android_kernel_common-6.12",
+      "url": "https://github.com/ramabondanp/android_kernel_common-6.12",
+      "description": "",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-03T16:46:24Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "YuzakiKokuban/android_kernel_oneplus_sm8850",
+      "url": "https://github.com/YuzakiKokuban/android_kernel_oneplus_sm8850",
+      "description": "OnePlus 15 Android 16 Linux 6.12.69 kernel, imported from cctv18/android_gki_kernel_common",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-02T10:13:31Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "LineageOS/android_kernel_ayn_common-modules",
+      "url": "https://github.com/LineageOS/android_kernel_ayn_common-modules",
+      "description": "",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-02T09:03:40Z",
+      "license": "GPL-2.0",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "dobraeuyan/android_kernel_qcom_msm8909-common",
+      "url": "https://github.com/dobraeuyan/android_kernel_qcom_msm8909-common",
+      "description": "Linux 4.9 kernel source tree for Snapdragon 205/210/212",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-02T04:29:39Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "OP15T-SM8850-Development/android_kernel_common_modules_wonder",
+      "url": "https://github.com/OP15T-SM8850-Development/android_kernel_common_modules_wonder",
+      "description": "AOSP Wonder module adapted for Qualcomm CNSS integration on OnePlus SM8850",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-01T16:37:06Z",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "license": null,
       "query": "android common kernel",
       "review_required": true
     },
     {
+<<<<<<< HEAD
       "name": "SavoryBanana/sailfish-linux-6.18",
       "url": "https://github.com/SavoryBanana/sailfish-linux-6.18",
       "description": "Android Common Kernel 6.18 (Android 17) port for Google Pixel (sailfish)",
@@ -4312,6 +4499,14 @@
       "language": "C",
       "stars": 0,
       "updated_at": "2026-11-03T16:46:24Z",
+=======
+      "name": "naifi1954/android_kernel_common",
+      "url": "https://github.com/naifi1954/android_kernel_common",
+      "description": "",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-01T15:17:54Z",
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
       "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true

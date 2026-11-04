@@ -1,6 +1,10 @@
 # ISA, command, kernel and mobile OS research
 
+<<<<<<< HEAD
 Generated: 2026-11-06T02:33:15.513514+00:00
+=======
+Generated: 2026-11-03T17:41:53.474372+00:00
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -28,7 +32,10 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [pkgw/elfx86exts](https://github.com/pkgw/elfx86exts) — Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.; language Rust; stars 230; license MIT
 - [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 25; license MIT
 - [duckyduckG/android_kernel_xiaomi_sm8150_419](https://github.com/duckyduckG/android_kernel_xiaomi_sm8150_419) — WIP!!!!!!!!! to be rebased on common_qcom_419, be careful; language C; stars 9; license NOASSERTION
+<<<<<<< HEAD
 - [GoRhanHee/android_kernel_samsung_sm8550_common](https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common) — Samsung SM8550 Platform Common Kernel Source; language C; stars 7; license NOASSERTION
+=======
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
 - [malfallah/symrisc](https://github.com/malfallah/symrisc) — A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.; language Python; stars 2; license Apache-2.0
 - [FISC-Project/FISC-LLVM](https://github.com/FISC-Project/FISC-LLVM) — FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64; language C++; stars 2; license unspecified
 - [yntha/arm64_insn_decoder](https://github.com/yntha/arm64_insn_decoder) — Simple project to decode arm64 instructions and display all their encoded fields; language Python; stars 2; license GPL-3.0
@@ -37,9 +44,13 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [kobby-pentangeli/lc3box](https://github.com/kobby-pentangeli/lc3box) — Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture; language Rust; stars 1; license Apache-2.0
 - [gpellicci/InstructionSetArchitecture-code-assembler](https://github.com/gpellicci/InstructionSetArchitecture-code-assembler) — Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside; language Java; stars 1; license unspecified
 - [sxbari/Avalanche-OS](https://github.com/sxbari/Avalanche-OS) — A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.; language C; stars 1; license MIT
+<<<<<<< HEAD
 - [aosp-mirror-neo/kernel_common](https://github.com/aosp-mirror-neo/kernel_common) — Common Android Kernel Tree; language C; stars 1; license NOASSERTION
 - [at1600/android_kernel_xiaomi_common](https://github.com/at1600/android_kernel_xiaomi_common) — No description; language C; stars 1; license NOASSERTION
 - [ccclosed/pagh-api](https://github.com/ccclosed/pagh-api) — libpagh: native userland API (syscalls, runtime, filesystem, allocator) for the pagh-riscv kernel — no Linux compatibility layer; language Rust; stars 1; license unspecified
+=======
+- [usermahiro/android_kernel_common](https://github.com/usermahiro/android_kernel_common) — No description; language C; stars 1; license NOASSERTION
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
 - [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
 - [ArianaDadgostar/Instruction-Set-Architecture](https://github.com/ArianaDadgostar/Instruction-Set-Architecture) — This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.; language C#; stars 0; license unspecified
 - [BrandonDao/ProjectISA](https://github.com/BrandonDao/ProjectISA) — A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress); language C#; stars 0; license unspecified
@@ -63,10 +74,19 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
 - [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
 - [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
+<<<<<<< HEAD
 - [LineageOS/android_kernel_amlogic_common_drivers](https://github.com/LineageOS/android_kernel_amlogic_common_drivers) — No description; language C; stars 0; license unspecified
 - [SavoryBanana/sailfish-linux-6.18](https://github.com/SavoryBanana/sailfish-linux-6.18) — Android Common Kernel 6.18 (Android 17) port for Google Pixel (sailfish); language C; stars 0; license NOASSERTION
 - [etnperlong/android_kernel_common-6.1](https://github.com/etnperlong/android_kernel_common-6.1) — No description; language C; stars 0; license NOASSERTION
 - [ramabondanp/android_kernel_common-6.12](https://github.com/ramabondanp/android_kernel_common-6.12) — No description; language C; stars 0; license NOASSERTION
+=======
+- [ramabondanp/android_kernel_common-6.12](https://github.com/ramabondanp/android_kernel_common-6.12) — No description; language C; stars 0; license NOASSERTION
+- [YuzakiKokuban/android_kernel_oneplus_sm8850](https://github.com/YuzakiKokuban/android_kernel_oneplus_sm8850) — OnePlus 15 Android 16 Linux 6.12.69 kernel, imported from cctv18/android_gki_kernel_common; language C; stars 0; license NOASSERTION
+- [LineageOS/android_kernel_ayn_common-modules](https://github.com/LineageOS/android_kernel_ayn_common-modules) — No description; language C; stars 0; license GPL-2.0
+- [dobraeuyan/android_kernel_qcom_msm8909-common](https://github.com/dobraeuyan/android_kernel_qcom_msm8909-common) — Linux 4.9 kernel source tree for Snapdragon 205/210/212; language C; stars 0; license NOASSERTION
+- [OP15T-SM8850-Development/android_kernel_common_modules_wonder](https://github.com/OP15T-SM8850-Development/android_kernel_common_modules_wonder) — AOSP Wonder module adapted for Qualcomm CNSS integration on OnePlus SM8850; language C; stars 0; license unspecified
+- [naifi1954/android_kernel_common](https://github.com/naifi1954/android_kernel_common) — No description; language C; stars 0; license NOASSERTION
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
 - [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
 - [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
 - [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
@@ -280,9 +300,15 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
+<<<<<<< HEAD
 - docs/research/isa-command-research.json — 255768 bytes; SHA-256 4817a6fe2be99b5f628c09db23fa3176938ebb77ee77411a601335bdb44acb01
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
 - docs/research/ISA_COMMAND_RESEARCH.md — 52448 bytes; SHA-256 2db0f4af776eae82c657c9583c4bee0821cf6610327aaf3530f21f7693ed4d62
+=======
+- docs/research/isa-command-research.json — 255777 bytes; SHA-256 1e03e685a37161c5477ed7558a1deda91a9c48ac1d54e623049b00a9da9a5516
+- docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
+- docs/research/ISA_COMMAND_RESEARCH.md — 52371 bytes; SHA-256 b6b0b19e3d57f673eab11ea386c8e57cef53d94b88f817341bc13a9d09eb7de9
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
@@ -326,7 +352,10 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/superpowers/specs/2026-10-02-aurora-menu-features-sound-design.md — 6148 bytes; SHA-256 151524102b5df3902e55265697dd3c9e631959b9cede4bf11825cde8f555ecba
 - docs/releases/chimera-ii-os-2026.11.02/RELEASE.md — 2521 bytes; SHA-256 7df3a2b680e40a5c91b205721baf114d89737e6a8d0ffb768a1e765bfdf7450d
 - docs/releases/chimera-ii-os-live-2026.11.02-desktop-64ca6a598f13/RELEASE.md — 2756 bytes; SHA-256 18cc3768518f51b65f7114c8a99f008e94f380bfc81a1c36ebfa9a612717fba9
+<<<<<<< HEAD
 - docs/releases/chimera-ii-os-live-2026.11.03-desktop-5c5ecae/RELEASE.md — 1405 bytes; SHA-256 d0f0aebd4cd4e0a7fd6446bb67c6160d185664e53506527883a7fd2b53895d25
+=======
+>>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
 - docs/releases/chimera-ii-os-live-2026.11.03-desktop-bb29b308d913/RELEASE.md — 960 bytes; SHA-256 5be3a2b3fbfd5ffe83e3d0b0394b31ed273ad42b085951f61427b8c1f6db1b75
 - system/architecture/endianness.json — 5650 bytes; SHA-256 4206b2bf44ee35de1aee86caf9465ae3437d7148cd9faf050c08ef7b704b4cd8
 - system/aurora/chimera-log-window.json — 974 bytes; SHA-256 0b8c5ca38744b9f7e44e0c765bb59b28e9f83870aa340c46e6ee11856ed9976b
