@@ -6,7 +6,8 @@ LINKS={"bin":("usr/bin",),"sbin":("usr/sbin",),"lib":("usr/lib",),"var/run":("..
 def create(root):
  root=Path(root).expanduser().resolve()
  protected={Path("/"),Path("/bin"),Path("/boot"),Path("/dev"),Path("/etc"),Path("/home"),Path("/lib"),Path("/lib64"),Path("/media"),Path("/mnt"),Path("/opt"),Path("/proc"),Path("/root"),Path("/run"),Path("/sbin"),Path("/srv"),Path("/sys"),Path("/tmp"),Path("/usr"),Path("/var")}
- if root in protected:raise ValueError("refusing to create FHS layout on a host system directory; supply a dedicated staging root")
+ unsafe={p for p in protected if p not in (Path("/"),Path("/tmp"),Path("/mnt"))}
+ if root==Path("/") or any(root==p or p in root.parents for p in unsafe) or root in (Path("/tmp"),Path("/mnt")):raise ValueError("refusing to create FHS layout on or beneath a host system directory; use a dedicated staging root under /tmp or a separate build volume")
  root.mkdir(parents=True,exist_ok=True);made=[]
  for rel,mode in DIRS.items():
   p=root/rel
