@@ -242,6 +242,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ "$RELEASE_BUILD" == 1 && "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" == 0 ]]; then
+  log_error "--release cannot skip the canonical native Koronos ISO pipeline."
+  exit 2
+fi
+
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
@@ -1154,7 +1159,13 @@ build_native_iso_pipeline(){
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
-  log_success "Canonical native ISO and checksum verified: $native_iso"
+  # Embed the verified canonical Koronos ISO as the native candidate inside
+  # the comprehensive media, then generate a checksum for the staged filename.
+  local candidate_dir="$ISO_DIR/boot/candidates"
+  mkdir -p "$candidate_dir"
+  install -m 0644 "$native_iso" "$candidate_dir/koronos-native.iso"
+  sha256sum "$candidate_dir/koronos-native.iso" | awk '{print $1 "  koronos-native.iso"}' > "$candidate_dir/koronos-native.iso.sha256"
+  log_success "Canonical native Koronos ISO verified and staged: $candidate_dir"
 }
 
 
@@ -1376,6 +1387,9 @@ verify_iso(){
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
   )
+  if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" != 0 ]]; then
+    required_iso_paths+=(/boot/candidates/koronos-native.iso /boot/candidates/koronos-native.iso.sha256)
+  fi
   local required_path
   for required_path in "${required_iso_paths[@]}"; do
     if ! xorriso -indev "$iso" -find "$required_path" -type f | grep -q .; then
@@ -1384,6 +1398,16 @@ verify_iso(){
     fi
   done
   xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
+  if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" != 0 ]]; then
+    local extracted_native="$ISO_TMP_DIR/koronos-native-verify.iso"
+    local expected_native actual_native
+    rm -f "$extracted_native"
+    xorriso -osirrox on -indev "$iso" -extract /boot/candidates/koronos-native.iso "$extracted_native" >/dev/null 2>&1
+    expected_native="$(awk '{print $1}' "$ISO_DIR/boot/candidates/koronos-native.iso.sha256")"
+    actual_native="$(sha256sum "$extracted_native" | awk '{print $1}')"
+    [[ "$actual_native" == "$expected_native" ]] || { log_error "Embedded native Koronos ISO SHA-256 mismatch"; exit 1; }
+    log_success "Embedded native Koronos ISO re-extracted and SHA-256 verified."
+  fi
   log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
     log_info 'Launching a non-asserting QEMU firmware smoke probe; timeout is not proof of boot success.'
@@ -1671,7 +1695,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk macos-compat application-payloads ai-workspace native-iso squashfs iso verify report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1687,10 +1711,10 @@ main(){
       features) run_stage features stage_features;;
       package-managers) run_stage package-managers stage_package_managers;;
       games) run_stage games stage_games;;
+      native-iso) run_stage native-iso build_native_iso_pipeline;;
       squashfs) run_stage squashfs build_squashfs;;
       iso) run_stage iso build_iso;;
       verify) run_stage verify verify_iso;;
-      native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
       sdk) run_stage sdk stage_sdks;;
       macos-compat) run_stage macos-compat stage_macos_compat;;
