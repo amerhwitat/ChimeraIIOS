@@ -86,8 +86,9 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
-  log "installing shared package set (one-off)"
+PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v1"
+if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 2>/dev/null || true)" != "$PACKAGE_SET_VERSION" ]; then
+  log "installing/updating shared package set: $PACKAGE_SET_VERSION"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
@@ -113,7 +114,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  printf "%s\n" "$PACKAGE_SET_VERSION" > "$BASE/.packages-installed"
 fi
 
 # ------------------------------------------------------------- rootfs copy
