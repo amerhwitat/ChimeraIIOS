@@ -1552,6 +1552,9 @@ main(){
   cleanup_final_success_artifacts
 }
 
+
+stage_sdks(){
+  header 'STAGE COMPILED SDK ARTIFACTS'
   local compiled_root="$SCRIPT_DIR/build/sdk"
   local compiled_iso="$ISO_DIR/system/sdk/build-artifacts"
   local compiled_rootfs="$ROOTFS_DIR/opt/chimera-sdk/build-artifacts"
