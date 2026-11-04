@@ -1049,6 +1049,8 @@ stage_features(){
     [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0644 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/lib/systemd/system/"
   done
   [[ -f "$SCRIPT_DIR/desktop/aurora/aurora-registry-editor.desktop" ]] && install -m 0644 "$SCRIPT_DIR/desktop/aurora/aurora-registry-editor.desktop" "$ROOTFS_DIR/usr/share/applications/"
+  [[ -f "$SCRIPT_DIR/desktop/aurora/apps/aurora_network_browser.py" ]] && install -m 0755 "$SCRIPT_DIR/desktop/aurora/apps/aurora_network_browser.py" "$ROOTFS_DIR/usr/share/chimera/aurora/aurora_network_browser.py"
+  [[ -f "$SCRIPT_DIR/desktop/aurora/aurora-network-browser.desktop" ]] && install -m 0644 "$SCRIPT_DIR/desktop/aurora/aurora-network-browser.desktop" "$ROOTFS_DIR/usr/share/applications/"
   [[ -f "$SCRIPT_DIR/services/service_registry.json" ]] && install -m 0644 "$SCRIPT_DIR/services/service_registry.json" "$ROOTFS_DIR/usr/share/chimera/"
   # Existing Aurora feature staging follows.
 
