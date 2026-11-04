@@ -100,7 +100,7 @@ def main():
     payload = {
         "schema": "chimera-local-knowledge-json-v1",
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "repository": root.name,
+        "repository": root.name or "filesystem-root",
         "scope": "repository-local allowlisted text resources only",
         "training": False,
         "inference_runtime": "not-provided-by-indexer",
