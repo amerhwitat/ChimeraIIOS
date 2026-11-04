@@ -86,7 +86,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v4"
+PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v5"
 if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 2>/dev/null || true)" != "$PACKAGE_SET_VERSION" ]; then
   log "installing/updating shared package set: $PACKAGE_SET_VERSION"
   mount_chroot "$BASE"
@@ -108,7 +108,7 @@ if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod \
       samba smbclient cifs-utils wsdd avahi-daemon avahi-utils \
-      realmd adcli sssd-ad sssd-ldap sssd-tools libnss-sss libpam-sss \
+      realmd adcli sssd-ad sssd-ldap sssd-kcm sssd-tools libnss-sss libpam-sss \
       krb5-user ldap-utils dnsutils libsasl2-modules-gssapi-mit pkexec polkitd mate-polkit udisks2 oddjob oddjob-mkhomedir
     apt-get clean
     rm -rf /var/lib/apt/lists/*
