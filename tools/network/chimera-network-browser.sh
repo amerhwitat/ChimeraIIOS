@@ -21,10 +21,14 @@ need() { command -v "$1" >/dev/null 2>&1 || { echo "[ERROR] Missing command: $1"
 die() { echo "[ERROR] $*" >&2; exit 2; }
 valid_host() { [[ "$1" =~ ^[A-Za-z0-9._:-]+$ ]] || die "Invalid host name/address."; }
 valid_share() {
-  local share="${1:-}" base="${1:-}"
+  local share="${1:-}" base="${1:-}" dollar
   [[ -z "$share" ]] && return 0
-  # Windows administrative shares such as C$ and ADMIN$ end in a literal dollar.
-  [[ "$base" == *'
+  printf -v dollar '%b' '\\044'
+  # Permit Windows hidden shares ending in a literal dollar without embedding it in a regex.
+  [[ "$base" == *"$dollar" ]] && base="${base%?}"
+  [[ -n "$base" && "$base" != *[!A-Za-z0-9._\\ -]* ]] || die "Invalid share name."
+}
+
 discover() {
   echo "== DNS-SD SMB services =="
   if command -v avahi-browse >/dev/null 2>&1; then
