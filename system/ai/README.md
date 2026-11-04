@@ -76,3 +76,13 @@ An appended record must have a unique stable ID, domain, title, summary, tags, v
 - **CNN:** not trained or bundled. A reproducible CNN training run needs an explicitly licensed, labelled dataset and a defined task/metrics; no such dataset is part of this change.
 - **LLM:** local Ollama or llama.cpp inference remains a separately installed model. The JSON database supplies retrieval context; it does not fine-tune LLM weights. No LLM weights are redistributed by this ISO payload.
 - **Training is not runtime acceptance:** build-time model generation and RAG availability do not prove a running Koronos userspace process, a hardware driver, or a production-ready target architecture.
+
+### RNN diagnostic scoring
+
+The packaged model can be inspected with:
+
+```sh
+chimera-ai-workspace rnn-score --text "x86-64 interrupt and DMA driver"
+```
+
+This reports a character-sequence log-probability and the training metadata. It is a research diagnostic only; it does not establish factual correctness, architecture compatibility, driver safety, or executable support.
