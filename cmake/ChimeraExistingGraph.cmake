@@ -147,7 +147,7 @@ install(FILES system/registry/machine.defaults.json system/registry/environment.
   DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/registry)
 
 # SMB2/3 client discovery, optional Samba server, AD enrollment and optical media.
-install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py
+install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py tools/network/chimera-ldap-browse.py
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/network)
 install(PROGRAMS tools/network/chimera-iso-mount DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES system/services/chimera-smbd.service system/services/chimera-smb-discovery.service
@@ -223,7 +223,7 @@ if(CHIMERA_ENABLE_CVEL)
 endif()
 if(Python3_Interpreter_FOUND)
   add_test(NAME chimera_registry_hive_host
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
+    COMMAND bash ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
   add_test(NAME chimera_registry_admin_transactions
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/registry/test_registry_admin.py)
   add_test(NAME chimera_network_helper_syntax
