@@ -1,0 +1,59 @@
+{
+  "schema": "CHIMERA-FILESYSTEM-RUNTIME-1",
+  "principle": "A filesystem name in a capability matrix is not evidence of a kernel driver. Runtime availability is gated by a built and tested backend.",
+  "native_koronos": {
+    "vfs": "not-integrated",
+    "cpio_newc": "archive-scanner-only; transactional VFS publication pending",
+    "mount_namespace": "not-implemented",
+    "file_descriptors": "not-implemented",
+    "qfs": "format-and-contract-tools-only",
+    "write_delete": "not-available-until-VFS-backend-and-persistence-tests-pass"
+  },
+  "linux_live_backend": {
+    "provider": "Linux kernel in the Debian live edition",
+    "policy": "Use kernel filesystem drivers and packaged utilities; probe with blkid/lsblk and mount only allow-listed types.",
+    "read_write": [
+      "ext2",
+      "ext3",
+      "ext4",
+      "xfs",
+      "btrfs",
+      "vfat",
+      "exfat",
+      "ntfs3"
+    ],
+    "read_only": [
+      "iso9660",
+      "udf",
+      "squashfs"
+    ],
+    "network": [
+      "nfs4",
+      "cifs"
+    ],
+    "pseudo": [
+      "proc",
+      "sysfs",
+      "tmpfs",
+      "devtmpfs"
+    ],
+    "optical_mountpoint": "/media",
+    "device_nodes": "/dev managed by udev/devtmpfs"
+  },
+  "removable_policy": {
+    "optical": "read-only,nodev,nosuid,noexec",
+    "usb": "rw,nosuid,nodev,noexec for allow-listed filesystem types only",
+    "auto_format": false,
+    "auto_repair": false,
+    "unknown_filesystem": "do-not-mount"
+  },
+  "required_acceptance": [
+    "create/read/modify/rename/delete with ownership and permission checks",
+    "mount/unmount lifecycle and busy-mount handling",
+    "crash recovery and journal replay",
+    "read-only optical media",
+    "device hotplug and removal",
+    "loop-mounted ISO lifecycle",
+    "same-image BIOS/UEFI test"
+  ]
+}

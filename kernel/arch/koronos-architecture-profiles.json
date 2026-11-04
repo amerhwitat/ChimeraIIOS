@@ -1,0 +1,84 @@
+{
+  "schema": "KORONOS-ARCH-BOOT-PROFILES-1",
+  "profiles": [
+    {
+      "id": "x86_64",
+      "class": "CISC",
+      "boot": "Spit Fire -> Jasper/GRUB2 -> Multiboot2 Koronos ELF",
+      "status": "current-boot-pipeline",
+      "detection": "CPUID before feature-dependent dispatch",
+      "interrupts": [
+        "IDT",
+        "APIC",
+        "x2APIC-when-available"
+      ],
+      "abi": [
+        "ELF64",
+        "SysV AMD64"
+      ],
+      "endian": "little",
+      "notes": "Current canonical ISO builder emits x86_64 only."
+    },
+    {
+      "id": "i386",
+      "class": "CISC",
+      "boot": "separate 32-bit port required",
+      "status": "not-boot-accepted",
+      "detection": "CPUID",
+      "interrupts": [
+        "PIC",
+        "IOAPIC"
+      ],
+      "abi": [
+        "ELF32"
+      ],
+      "endian": "little"
+    },
+    {
+      "id": "aarch64",
+      "class": "RISC",
+      "boot": "UEFI or U-Boot -> AArch64 Koronos entry",
+      "status": "port-scaffold-only",
+      "detection": "MIDR_EL1/ID_AA64* registers in EL1",
+      "interrupts": [
+        "GICv2/v3"
+      ],
+      "abi": [
+        "AArch64 ELF64"
+      ],
+      "endian": "little"
+    },
+    {
+      "id": "riscv64",
+      "class": "RISC",
+      "boot": "OpenSBI or UEFI -> RV64 Koronos entry",
+      "status": "port-scaffold-only",
+      "detection": "misa/mvendorid/marchid/mimpid CSRs",
+      "interrupts": [
+        "PLIC",
+        "AIA/IMSIC"
+      ],
+      "abi": [
+        "RISC-V ELF64"
+      ],
+      "endian": "little"
+    }
+  ],
+  "common_requirements": [
+    "per-CPU interrupt controller and timer",
+    "architecture-specific syscall entry and return",
+    "MMU page-table activation and TLB shootdown",
+    "DMA API with IOMMU and cache-coherency policy",
+    "PCI/PCIe and platform-bus enumeration",
+    "ACPI on PC and Device Tree on ARM/RISC-V",
+    "explicit endian conversion for wire and on-disk formats",
+    "ELF machine/class validation before exec",
+    "per-architecture EFI application and bootloader artifacts"
+  ],
+  "bus_policy": {
+    "pci": "enumerate configuration space and BARs before driver binding",
+    "dma": "DMA map/unmap API, cache maintenance and IOMMU isolation required",
+    "device_tree": "required on non-ACPI platforms",
+    "acpi": "validate RSDP/XSDT and MADT/MCFG/DMAR tables before use"
+  }
+}
