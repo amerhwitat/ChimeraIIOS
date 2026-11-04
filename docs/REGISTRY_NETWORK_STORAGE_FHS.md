@@ -2,7 +2,7 @@
 
 ## Registry settings and Aurora editor
 
-CHMRG01 stores versioned typed settings in separate machine, environment and kernel hives. The Aurora Registry Editor is a loopback-only web UI at 127.0.0.1:8765 backed by registryd over a Unix socket. The daemon checks Unix peer credentials and chimera-admin group membership. Writes are generation-checked, journaled and atomically persisted. Hardware identity, discovered CPU features, privilege policy, memory limits, SMP acknowledgements and other boot-critical values remain immutable through the editor. Never put passwords, Kerberos tickets, hashes or private keys in registry values.
+CHMRG01 stores versioned typed settings in separate machine, environment and kernel hives. The Aurora Registry Editor is a loopback-only web UI at 127.0.0.1:8765 backed by registryd over a Unix socket. Its API requires a per-user runtime capability token; the API process runs as the desktop user and does not elevate itself into the administrator group. The daemon checks Unix peer credentials and chimera-admin group membership. Writes are generation-checked, journaled and atomically persisted. Hardware identity, discovered CPU features, privilege policy, memory limits, SMP acknowledgements and other boot-critical values remain immutable through the editor. Never put passwords, Kerberos tickets, hashes or private keys in registry values.
 
 ## SMB and Microsoft network browsing
 
