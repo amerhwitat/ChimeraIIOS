@@ -10,7 +10,7 @@ Use maintained Samba smbclient/smbd rather than a new SMB protocol stack. SMB2/3
 
 ## Active Directory and LDAP
 
-directory-discovery.py performs bounded DNS SRV lookups for LDAP/Kerberos domain controllers. directoryctl.py uses realmd + adcli + SSSD for administrator-authorized domain join, and ldapsearch with GSSAPI and certificate validation for directory queries. A join changes machine identity and system authentication configuration; it is never automatic. Credentials remain in Kerberos/keyring facilities, not registry files or command-line password arguments.
+directory-discovery.py performs bounded DNS SRV lookups for LDAP/Kerberos domain controllers. directoryctl.py uses realmd + adcli + SSSD for administrator-authorized domain join. The GUI requires kinit first, validates the user's private FILE credential cache, and requests explicit PolicyKit authentication through pkexec; no password is passed on a command line. LDAP uses ldapsearch with GSSAPI and certificate validation. A join changes machine identity and system authentication configuration; it is never automatic. Credentials remain in Kerberos/keyring facilities, not registry files or command-line password arguments.
 
 ## ISO/CD/DVD
 
