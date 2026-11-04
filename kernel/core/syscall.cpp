@@ -5,6 +5,7 @@
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
 #include "chimera/vfs.h"
+#include "chimera/process_fd.h"
 
 namespace {
 static volatile uint32_t g_initialized = 0;
@@ -96,93 +97,103 @@ extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" int koronos_target_validate_user_buffer(uint64_t,uint64_t,uint32_t);
-namespace {
-constexpr uint32_t PROCESS_FD_MAX=32u;
-struct ProcessFd { int handle; bool used; };
-static ProcessFd process_fds[PROCESS_FD_MAX];
-static int fd_allocate(int handle) {
-    for(uint32_t i=3;i<PROCESS_FD_MAX;i++) if(!process_fds[i].used) { process_fds[i]={handle,true}; return static_cast<int>(i); }
-    return -1;
-}
-static int fd_handle(uint64_t fd) { return fd>=3u && fd<PROCESS_FD_MAX && process_fds[fd].used ? process_fds[fd].handle : -1; }
-static bool copy_user_path(uint64_t address,char *out,uint64_t capacity) {
-    if(!out || capacity<2u) return false;
-    for(uint64_t i=0;i<capacity;i++) {
-        if(address>UINT64_MAX-i || !koronos_target_validate_user_buffer(address+i,1u,0u)) return false;
-        const char ch=*reinterpret_cast<const char*>(static_cast<uintptr_t>(address+i));
-        out[i]=ch; if(!ch) return i!=0;
-    }
-    out[capacity-1u]=0; return false;
-}
-}
-extern "C" void koronos_syscall_reset_process_fds(void) { for(uint32_t i=0;i<PROCESS_FD_MAX;i++) process_fds[i]={-1,false}; }
-extern "C" void koronos_syscall_close_process_fds(void) { for(uint32_t i=3;i<PROCESS_FD_MAX;i++) if(process_fds[i].used) { (void)koronos_vfs_close(process_fds[i].handle); process_fds[i]={-1,false}; } }
 extern "C" void koronos_target_log(const char *message);
+extern "C" int koronos_copy_from_user(void *destination,uint64_t source,uint64_t length);
+extern "C" int koronos_copy_to_user(uint64_t destination,const void *source,uint64_t length);
 
-extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
-    if (!frame) return static_cast<uint64_t>(-22ll);
-    /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
-     * from a native SYSCALL context/dispatch failure without manufacturing
-     * any userspace readiness marker. */
-    koronos_target_log("[SYSC] entered native user syscall dispatcher");
-    /* SYSCALL does not preserve caller CS. It may serve the active process,
-     * but it cannot produce the CPL3 acceptance acknowledgement. That proof
-     * is emitted only by the DPL3 INT 0x80 gate after checking saved CS.RPL. */
-    if (!koronos_target_validate_syscall_context(frame->rcx)) {
+namespace {
+constexpr uint64_t USER_FD_MAX=32u;
+static bool copy_user_path(uint64_t address,char *out,uint64_t capacity) {
+    if(!out||capacity<2u)return false;
+    for(uint64_t i=0;i<capacity;i++){
+        if(address>UINT64_MAX-i)return false;
+        char ch=0;
+        if(koronos_copy_from_user(&ch,address+i,1u)!=0)return false;
+        out[i]=ch;
+        if(ch==0)return i!=0;
+    }
+    out[capacity-1u]=0;
+    return false;
+}
+static uint64_t dispatch_native(const koronos_user_syscall_frame *frame,uint64_t user_rip) {
+    if(!frame)return static_cast<uint64_t>(-22ll);
+    if(!koronos_target_validate_syscall_context(user_rip)){
         koronos_target_log("[SYSC] rejected user syscall context (RIP/CR3/PID mismatch)");
         return static_cast<uint64_t>(-38ll);
     }
-    koronos_target_log("[SYSC] accepted user syscall context");
-    switch (frame->rax) {
-        case CHM_SYS_GETPID: {
-            /* PID comes from the active kernel-owned process record. Never
-             * fabricate PID 1 when no target process is actually running. */
-            const uint32_t pid = koronos_target_active_pid();
-            return pid ? static_cast<uint64_t>(pid) : static_cast<uint64_t>(-38ll);
-        }
+    const uint32_t pid=koronos_target_active_pid();
+    if(!pid)return static_cast<uint64_t>(-38ll);
+    switch(frame->rax){
+        case CHM_SYS_GETPID:
+            return static_cast<uint64_t>(pid);
         case CHM_SYS_YIELD:
-            // The bootstrap user entry is single-process until the scheduler owns
-            // address-space context switches; yielding is currently a safe no-op.
             return 0;
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
             const uint64_t fd=frame->rdi,address=frame->rsi,length=frame->rdx;
-            if(length>4096u || !koronos_target_validate_user_buffer(address,length,0u)) return static_cast<uint64_t>(-14ll);
-            if(fd<=2u) return static_cast<uint64_t>(koronos_console_write_user(address,length));
-            const int handle=fd_handle(fd); if(handle<0) return static_cast<uint64_t>(-9ll);
-            return static_cast<uint64_t>(koronos_vfs_write(handle,reinterpret_cast<const void*>(static_cast<uintptr_t>(address)),length));
+            if(length>4096u)return static_cast<uint64_t>(-22ll);
+            if(fd<=2u)return static_cast<uint64_t>(koronos_console_write_user(address,length));
+            if(fd>=USER_FD_MAX)return static_cast<uint64_t>(-9ll);
+            uint8_t buffer[4096];
+            if(koronos_copy_from_user(buffer,address,length)!=0)return static_cast<uint64_t>(-14ll);
+            return static_cast<uint64_t>(koronos_process_fd_write(pid,static_cast<int>(fd),buffer,length));
         }
         case CHM_SYS_READ: {
             const uint64_t fd=frame->rdi,address=frame->rsi,length=frame->rdx;
-            if(length>4096u || !koronos_target_validate_user_buffer(address,length,1u)) return static_cast<uint64_t>(-14ll);
-            const int handle=fd_handle(fd); if(handle<0) return static_cast<uint64_t>(-9ll);
-            return static_cast<uint64_t>(koronos_vfs_read(handle,reinterpret_cast<void*>(static_cast<uintptr_t>(address)),length));
+            if(fd<3u||fd>=USER_FD_MAX)return static_cast<uint64_t>(-9ll);
+            if(length>4096u)return static_cast<uint64_t>(-22ll);
+            if(!koronos_target_validate_user_buffer(address,length,1u))return static_cast<uint64_t>(-14ll);
+            uint8_t buffer[4096];
+            const int64_t n=koronos_process_fd_read(pid,static_cast<int>(fd),buffer,length);
+            if(n<0)return static_cast<uint64_t>(n);
+            if(koronos_copy_to_user(address,buffer,static_cast<uint64_t>(n))!=0)return static_cast<uint64_t>(-14ll);
+            return static_cast<uint64_t>(n);
         }
         case CHM_SYS_OPEN: {
+            if(frame->rsi>UINT32_MAX)return static_cast<uint64_t>(-22ll);
             char path[KORONOS_VFS_PATH_MAX];
-            if(frame->rsi>UINT32_MAX || !copy_user_path(frame->rdi,path,sizeof(path))) return static_cast<uint64_t>(-14ll);
-            const int handle=koronos_vfs_open(path,static_cast<uint32_t>(frame->rsi));
-            if(handle<0) return static_cast<uint64_t>(-2ll);
-            const int fd=fd_allocate(handle); if(fd<0) { (void)koronos_vfs_close(handle); return static_cast<uint64_t>(-24ll); }
+            if(!copy_user_path(frame->rdi,path,sizeof(path)))return static_cast<uint64_t>(-14ll);
+            const int fd=koronos_process_fd_open(pid,path,static_cast<uint32_t>(frame->rsi));
             return static_cast<uint64_t>(fd);
         }
-        case CHM_SYS_CLOSE: {
-            const uint64_t fd=frame->rdi; const int handle=fd_handle(fd);
-            if(handle<0) return static_cast<uint64_t>(-9ll);
-            const int rc=koronos_vfs_close(handle); process_fds[fd]={-1,false}; return static_cast<uint64_t>(rc);
-        }
-        case CHM_SYS_SEEK: {
-            const int handle=fd_handle(frame->rdi); if(handle<0) return static_cast<uint64_t>(-9ll);
-            return static_cast<uint64_t>(koronos_vfs_seek(handle,static_cast<int64_t>(frame->rsi),static_cast<uint32_t>(frame->rdx)));
-        }
+        case CHM_SYS_CLOSE:
+            if(frame->rdi>=USER_FD_MAX)return static_cast<uint64_t>(-9ll);
+            return static_cast<uint64_t>(koronos_process_fd_close(pid,static_cast<int>(frame->rdi)));
+        case CHM_SYS_SEEK:
+            if(frame->rdi>=USER_FD_MAX||frame->rdx>2u)return static_cast<uint64_t>(-22ll);
+            return static_cast<uint64_t>(koronos_process_fd_seek(pid,static_cast<int>(frame->rdi),
+                static_cast<int64_t>(frame->rsi),static_cast<uint32_t>(frame->rdx)));
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
-            koronos_syscall_close_process_fds();
-            koronos_user_exit_code = frame->rdi & 0xFFu;
+            (void)koronos_process_fd_close_all(pid);
+            koronos_user_exit_code=frame->rdi&0xFFu;
             koronos_target_log("[SYSC] userspace exit syscall received");
             return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
         default:
             return static_cast<uint64_t>(-38ll);
     }
+}
+}
+
+extern "C" void koronos_syscall_reset_process_fds(void) {
+    const uint32_t pid=koronos_target_active_pid();
+    if(pid)(void)koronos_process_fd_close_all(pid);
+}
+extern "C" void koronos_syscall_close_process_fds(void) {
+    const uint32_t pid=koronos_target_active_pid();
+    if(pid)(void)koronos_process_fd_close_all(pid);
+}
+extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
+    if(!frame)return static_cast<uint64_t>(-22ll);
+    koronos_target_log("[SYSC] entered native user syscall dispatcher");
+    return dispatch_native(frame,frame->rcx);
+}
+extern "C" uint64_t koronos_syscall_int80_dispatch(const koronos_user_syscall_frame *frame,
+                                                    uint64_t user_rip,uint64_t user_cs) {
+    if((user_cs&3u)!=3u)return static_cast<uint64_t>(-1ll);
+    if(!frame)return static_cast<uint64_t>(-22ll);
+    if(frame->rax==CHM_SYS_EXIT||frame->rax==CHM_SYS_EXIT_GROUP)
+        return static_cast<uint64_t>(-38ll);
+    return dispatch_native(frame,user_rip);
 }
