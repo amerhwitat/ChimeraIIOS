@@ -116,6 +116,7 @@ static bool copy_user_path(uint64_t address,char *out,uint64_t capacity) {
 }
 }
 extern "C" void koronos_syscall_reset_process_fds(void) { for(uint32_t i=0;i<PROCESS_FD_MAX;i++) process_fds[i]={-1,false}; }
+extern "C" void koronos_syscall_close_process_fds(void) { for(uint32_t i=3;i<PROCESS_FD_MAX;i++) if(process_fds[i].used) { (void)koronos_vfs_close(process_fds[i].handle); process_fds[i]={-1,false}; } }
 extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
@@ -177,6 +178,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
+            koronos_syscall_close_process_fds();
             koronos_user_exit_code = frame->rdi & 0xFFu;
             koronos_target_log("[SYSC] userspace exit syscall received");
             return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
