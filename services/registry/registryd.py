@@ -24,6 +24,7 @@ HIVES = ("machine", "environment", "kernel")
 REQUEST_LOCK = threading.RLock()
 KEY_RE = re.compile(r"^[a-z0-9_-]+(?:[./][a-z0-9_-]+)*$")
 PROTECTED = ("cpu.", "machine.identity.", "security.", "kernel.smp.", "kernel.memory.", "kernel.architecture.")
+HIVE_PREFIXES = {"machine": ("machine.", "cpu.", "security."), "environment": ("environment.",), "kernel": ("kernel.",)}
 
 def _read(hive):
     if hive not in HIVES:
@@ -133,12 +134,15 @@ def _handle(req, writable):
         raise ValueError("unsupported operation")
     if not writable:
         raise PermissionError("registry-admin group required")
-    if req.get("generation") != data["generation"]:
+    if isinstance(req.get("generation"), bool) or not isinstance(req.get("generation"), int) or req.get("generation") != data["generation"]:
         raise RuntimeError("generation conflict; reload before editing")
     key = req.get("path", "")
     if not isinstance(key, str) or not KEY_RE.fullmatch(key) or len(key) > 255:
         raise ValueError("invalid registry key")
-    if any(key.startswith(prefix) for prefix in PROTECTED):
+    normalized_key = key.replace("/", ".")
+    if not any(normalized_key.startswith(prefix) for prefix in HIVE_PREFIXES[hive]):
+        raise ValueError("registry key is outside the selected hive namespace")
+    if any(normalized_key.startswith(prefix) for prefix in PROTECTED):
         raise PermissionError("hardware, security and boot-critical keys are immutable here")
     entries = data["entries"]
     found = next((e for e in entries if e["path"] == key), None)
