@@ -18,6 +18,9 @@ const chimera_elf_load_ops *koronos_address_space_loader_ops(void);
 uint64_t koronos_address_space_root(const void *address_space);
 int koronos_address_space_validate_user_range(uint64_t root_physical, uint64_t address,
                                               uint64_t length, uint32_t write_access);
+/* Bounded current-address-space copies; validate every covered user page first. */
+int koronos_copy_from_user(void *kernel_destination, uint64_t user_source, uint64_t length);
+int koronos_copy_to_user(uint64_t user_destination, const void *kernel_source, uint64_t length);
 uint64_t koronos_address_space_count(void);
 
 #ifdef __cplusplus
