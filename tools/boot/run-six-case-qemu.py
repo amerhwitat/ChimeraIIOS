@@ -34,17 +34,16 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def ovmf_code() -> Path:
-    candidates = (
-        Path("/usr/share/OVMF/OVMF_CODE_4M.fd"),
-        Path("/usr/share/OVMF/OVMF_CODE.fd"),
-        Path("/usr/share/edk2/ovmf/OVMF_CODE.fd"),
-        Path("/usr/share/qemu/OVMF_CODE.fd"),
+def ovmf_images() -> tuple[Path, Path]:
+    pairs = (
+        (Path("/usr/share/OVMF/OVMF_CODE_4M.fd"), Path("/usr/share/OVMF/OVMF_VARS_4M.fd")),
+        (Path("/usr/share/OVMF/OVMF_CODE.fd"), Path("/usr/share/OVMF/OVMF_VARS.fd")),
+        (Path("/usr/share/edk2/ovmf/OVMF_CODE.fd"), Path("/usr/share/edk2/ovmf/OVMF_VARS.fd")),
     )
-    for candidate in candidates:
-        if candidate.is_file():
-            return candidate
-    raise FileNotFoundError("OVMF_CODE firmware image not found; install the ovmf package")
+    for code, variables in pairs:
+        if code.is_file() and variables.is_file():
+            return code, variables
+    raise FileNotFoundError("matching OVMF_CODE/OVMF_VARS pair not found; install the ovmf package")
 
 
 def monitor_command(sock: socket.socket, command: str) -> None:
@@ -95,7 +94,7 @@ def select_grub_target(monitor_path: Path, target: str,
 
 
 def run_case(iso: Path, evidence: Path, target: str, firmware: str,
-             qemu: str, timeout_seconds: int, ovmf: Path | None,
+             qemu: str, timeout_seconds: int, ovmf: tuple[Path, Path] | None,
              menu_indices: dict[str, int] | None = None) -> dict:
     case_dir = evidence / target / firmware
     case_dir.mkdir(parents=True, exist_ok=True)
@@ -114,8 +113,14 @@ def run_case(iso: Path, evidence: Path, target: str, firmware: str,
     ]
     if firmware == "uefi":
         if ovmf is None:
-            raise ValueError("UEFI case requires OVMF_CODE")
-        command[1:1] = ["-bios", str(ovmf)]
+            raise ValueError("UEFI case requires OVMF_CODE and OVMF_VARS")
+        code_image, vars_template = ovmf
+        vars_copy = case_dir / "OVMF_VARS.fd"
+        shutil.copy2(vars_template, vars_copy)
+        command[1:1] = [
+            "-drive", f"if=pflash,format=raw,readonly=on,file={code_image}",
+            "-drive", f"if=pflash,format=raw,file={vars_copy}",
+        ]
 
     qemu_rc = None
     selection_error = None
@@ -178,7 +183,7 @@ def main() -> int:
         parser.error(f"canonical ISO missing or empty: {iso}")
     if shutil.which(args.qemu) is None:
         parser.error(f"QEMU executable not found: {args.qemu}")
-    ovmf = ovmf_code() if "uefi" in args.firmwares else None
+    ovmf = ovmf_images() if "uefi" in args.firmwares else None
     menu_indices = dict(MAIN_MENU_INDEX)
     for item in args.main_menu_index:
         try:
