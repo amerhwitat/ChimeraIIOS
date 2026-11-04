@@ -1180,7 +1180,7 @@ out.write_text(json.dumps({
     "payloads":items,
     "activation":"payloads are staged on ISO media; this manifest does not claim they are active in native userspace",
     "acceptance":"CPL3 syscall acknowledgement, matching PID readiness, VFS and SMP evidence remain mandatory"
-},indent=2)+"\\n")
+},indent=2)+"\n")
 PYMANIFEST
 
   python3 "$SCRIPT_DIR/boot/iso/validate-iso.py" --tree "$native_tree" --write-manifest "$native_tree/checksums/SHA256SUMS"
@@ -1669,7 +1669,7 @@ for path in sorted(root.rglob("*")):
 out.write_text(json.dumps({"schema":"chimera-native-app-bundle-v1",
                            "binaries":items,
                            "policy":"Only executable first-party build outputs are staged; catalog references are not binaries."},
-                          indent=2)+"\\n")
+                          indent=2)+"\n")
 PYBIN
     cp -f "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" "$ISO_DIR/opt/chimera/apps/"
 
@@ -1709,7 +1709,7 @@ EOF
 Type=Application
 Name=Chimera Knowledge Index
 Comment=Refresh the local, provenance-tracked knowledge database
-Exec=x-terminal-emulator -e python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json
+Exec=xterm -e python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json --root /usr/share/chimera
 Terminal=false
 Categories=Utility;Education;
 EOF
