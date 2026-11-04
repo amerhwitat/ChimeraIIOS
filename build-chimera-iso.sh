@@ -1715,6 +1715,8 @@ for item in manifest.get("native_binaries", []):
         continue
     terminal = name in {"chimera-neural-chat", "voiceconnect", "chm-utf8"}
     title = name.replace("-", " ").replace("_", " ").title()
+    if name == "chimera-desktop-shell":
+        continue
     if name == "chimera-neural-chat":
         title = "Chimera Neural Chat (prototype)"
     entry = desktop_dir / ("chimera-built-" + name + ".desktop")
@@ -1725,6 +1727,22 @@ for item in manifest.get("native_binaries", []):
         "\nCategories=Utility;Development;\n",
         encoding="utf-8")
 PYDESKTOP
+      cat > "$ROOTFS_DIR/usr/share/applications/chimera-aurora-shell.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Aurora Native Shell
+Exec=/opt/chimera/apps/bin/desktop-build/chimera-desktop-shell --desktop=aurora
+Terminal=false
+Categories=System;DesktopSettings;
+EOF
+      cat > "$ROOTFS_DIR/usr/share/applications/chimera-marine-shell.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Marine Native Shell
+Exec=/opt/chimera/apps/bin/desktop-build/chimera-desktop-shell --desktop=marine
+Terminal=false
+Categories=System;DesktopSettings;
+EOF
     fi
 
   else
