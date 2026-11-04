@@ -2,7 +2,10 @@
 """Transactional CHMRG01 registry editor with a Tk GUI."""
 import argparse,base64,fcntl,json,os,pathlib,sys,tempfile,time
 HERE=pathlib.Path(__file__).resolve().parent
-ROOT=pathlib.Path(os.environ.get("CHIMERA_REGISTRY_ROOT","/var/lib/chimera/registry"))
+GLOBAL_ROOT=pathlib.Path(os.environ.get("CHIMERA_REGISTRY_ROOT","/var/lib/chimera/registry"))
+USER_STATE=pathlib.Path(os.environ.get("XDG_STATE_HOME",str(pathlib.Path.home()/".local/state")))
+USER_ROOT=pathlib.Path(os.environ.get("CHIMERA_USER_REGISTRY_ROOT",str(USER_STATE/"chimera/registry")))
+def root_for(h): return USER_ROOT if h=="environment" and "CHIMERA_REGISTRY_ROOT" not in os.environ else GLOBAL_ROOT
 DEFAULTS=pathlib.Path(os.environ.get("CHIMERA_REGISTRY_DEFAULTS","/usr/share/chimera/registry"))
 HIVES=("machine","environment","kernel")
 sys.path.insert(0,str(HERE))
@@ -22,42 +25,50 @@ def atomic_write(p,data):
   try: os.unlink(tmp)
   except OSError: pass
   raise
-def source_path(h): return ROOT/"source"/(h+".json")
-def hive_path(h): return ROOT/"hives"/(h+".hive")
-def recover_locked():
- j=ROOT/"transaction.json"
+def source_path(root,h): return root/"source"/(h+".json")
+def hive_path(root,h): return root/"hives"/(h+".hive")
+def recover_locked(root):
+ j=root/"transaction.json"
  if not j.exists(): return
  tx=json.loads(j.read_text())
  if tx.get("schema")!="CHM-REGISTRY-TXN-1" or tx.get("phase")!="prepared": raise RuntimeError("invalid transaction journal")
  for x in tx["hives"]:
   if x["name"] not in HIVES: raise RuntimeError("unknown hive in journal")
-  atomic_write(source_path(x["name"]),base64.b64decode(x["source"],validate=True))
-  atomic_write(hive_path(x["name"]),base64.b64decode(x["binary"],validate=True))
- j.unlink(); fsync_dir(ROOT)
+  if root_for(x["name"]) != root: raise RuntimeError("cross-scope transaction journal rejected")
+  atomic_write(source_path(root,x["name"]),base64.b64decode(x["source"],validate=True))
+  atomic_write(hive_path(root,x["name"]),base64.b64decode(x["binary"],validate=True))
+ j.unlink(); fsync_dir(root)
 def load_hive(h):
  if h not in HIVES: raise ValueError("unknown hive")
- ROOT.mkdir(parents=True,exist_ok=True)
- with (ROOT/".lock").open("a+b") as lock:
-  fcntl.flock(lock,fcntl.LOCK_EX); recover_locked()
-  p=source_path(h)
+ root=root_for(h); root.mkdir(parents=True,exist_ok=True)
+ with (root/".lock").open("a+b") as lock:
+  fcntl.flock(lock,fcntl.LOCK_EX); recover_locked(root)
+  p=source_path(root,h)
   if not p.exists():
    d=DEFAULTS/(h+".defaults.json")
    if not d.is_file(): raise FileNotFoundError("defaults not installed: "+str(d))
    atomic_write(p,d.read_bytes())
   obj=json.loads(p.read_text()); registry_hive.encode(obj); return obj
 def commit(objects):
- ROOT.mkdir(parents=True,exist_ok=True)
- with (ROOT/".lock").open("a+b") as lock:
-  fcntl.flock(lock,fcntl.LOCK_EX); recover_locked(); items=[]
+ if not objects: return
+ roots={root_for(h) for h in objects}
+ if len(roots)!=1: raise ValueError("one registry transaction cannot span privilege scopes")
+ root=next(iter(roots)); root.mkdir(parents=True,exist_ok=True)
+ with (root/".lock").open("a+b") as lock:
+  fcntl.flock(lock,fcntl.LOCK_EX); recover_locked(root); items=[]
   for h,obj in objects.items():
    if h not in HIVES: raise ValueError("unknown hive")
-   obj["generation"]=int(obj.get("generation",0))+1
+   current_path=source_path(root,h)
+   if current_path.exists(): current_generation=int(json.loads(current_path.read_text()).get("generation",0))
+   else: current_generation=int(json.loads((DEFAULTS/(h+".defaults.json")).read_text()).get("generation",0))
+   if int(obj.get("generation",0)) != current_generation: raise RuntimeError("registry generation conflict; reload before editing")
+   obj["generation"]=current_generation+1
    src=(json.dumps(obj,ensure_ascii=False,indent=2)+"\n").encode()
    binary=registry_hive.encode(obj)
    items.append({"name":h,"source":base64.b64encode(src).decode(),"binary":base64.b64encode(binary).decode()})
   journal={"schema":"CHM-REGISTRY-TXN-1","phase":"prepared","created_unix":int(time.time()),"hives":items}
-  atomic_write(ROOT/"transaction.json",(json.dumps(journal,separators=(",",":"))+"\n").encode())
-  recover_locked()
+  atomic_write(root/"transaction.json",(json.dumps(journal,separators=(",",":"))+"\n").encode())
+  recover_locked(root)
 def authorize(h,p):
  if (h in ("machine","kernel") or p.startswith(("machine.","kernel."))) and hasattr(os,"geteuid") and os.geteuid()!=0:
   raise PermissionError("machine/kernel changes require administrator privileges")
