@@ -69,7 +69,7 @@ inline constexpr std::array<FilesystemProfile, 48> kFilesystemMatrix = {{
     {"reiserfs", SupportMode::NativeReadOnly, "POSIX/VFS", "Linux"},
     {"hamer2", SupportMode::UserspaceCompatibility, "BSD VFS compatibility", "DragonFly BSD"},
     {"apfs", SupportMode::UserspaceCompatibility, "Apple filesystem compatibility", "Apple"},
-    {"qfs", SupportMode::NativeReadWrite, "Chimera Native VFS / QFS", "Chimera"}
+    {"qfs", SupportMode::UserspaceCompatibility, "QFS prototype; native VFS pending", "Chimera"}
 }};
 
 class FilesystemMatrix {
