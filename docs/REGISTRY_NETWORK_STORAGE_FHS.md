@@ -18,4 +18,4 @@ mount-image.py validates ISO-9660/UDF images and requests read-only loop mounts 
 
 ## Linux directory hierarchy
 
-fhs-layout.json describes a merged-/usr FHS-compatible root. create-fhs-tree.py --root <staging-root> creates the directory skeleton inside an explicit image root and adds /bin, /sbin and /lib links only when absent. It never writes to the host root by default. /proc, /sys, /dev, /run and /tmp are mount points; the script does not mount them.
+fhs-layout.json describes a merged-/usr FHS-compatible root. create-fhs-tree.py --root <staging-root> creates the directory skeleton inside an explicit image root and adds /bin, /sbin and /lib links only when absent. It rejects `/` and paths at or beneath host system directories; use a dedicated staging directory under `/tmp` or on a separate build volume. /proc, /sys, /dev, /run and /tmp are mount points; the script does not mount them.
