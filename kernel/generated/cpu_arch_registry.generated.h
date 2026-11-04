@@ -2,15 +2,6 @@
 #pragma once
 #include <stdint.h>
 #define KORONOS_CPU_ARCH_REGISTRY_COUNT 104u
-typedef struct koronos_cpu_arch_descriptor {
-    const char *id;
-    const char *class_name;
-    uint16_t word_bits;
-    uint8_t target_kind; /* 1=CPU/MCU/DSP, 2=GPU/VM, 0=other */
-    uint8_t kernel_arch; /* chimera_architecture numeric value; 0=unsupported */
-    uint8_t native_kernel;
-    uint8_t detection_method; /* 0=none, 1=compile-target only, 2=runtime CPUID */
-} koronos_cpu_arch_descriptor;
 static const koronos_cpu_arch_descriptor koronos_cpu_arch_registry[] = {
     {"chimera-c8192", "custom", 8192u, 1u, 0u, 0u, 0u},
     {"chimera-r8192", "custom", 8192u, 1u, 0u, 0u, 0u},
