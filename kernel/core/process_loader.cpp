@@ -5,7 +5,7 @@ static bool add_ok(uint64_t a,uint64_t b,uint64_t*out){if(a>UINT64_MAX-b)return 
 static bool align_up(uint64_t x,uint64_t*out){if(x>UINT64_MAX-(CHIMERA_ELF_PAGE_SIZE-1u))return false;*out=(x+CHIMERA_ELF_PAGE_SIZE-1u)&~(CHIMERA_ELF_PAGE_SIZE-1u);return true;}
 static uint64_t align_down(uint64_t x){return x&~(CHIMERA_ELF_PAGE_SIZE-1u);}
 static bool inside(uint64_t o,uint64_t n,uint64_t z){uint64_t e=0;return add_ok(o,n,&e)&&e<=z;}
-static bool user_addr(uint64_t a){return a<CHIMERA_ELF_USER_LIMIT;}
+static bool user_addr(uint64_t a){return a>=CHIMERA_ELF_USER_MIN&&a<CHIMERA_ELF_USER_LIMIT;}
 struct Plan{koronos_elf64_phdr ph;uint64_t base,size,delta,end;};
 }
 extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,uint16_t machine,
@@ -17,7 +17,7 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
     h.e_phentsize!=sizeof(koronos_elf64_phdr)||h.e_phnum==0||h.e_phnum>CHIMERA_ELF_LOADER_MAX_SEGMENTS)return -3;
  const uint64_t phbytes=(uint64_t)h.e_phnum*h.e_phentsize;
  if(!inside(h.e_phoff,phbytes,image_size))return -4;
- if(stack_size<CHIMERA_ELF_PAGE_SIZE||stack_size>CHIMERA_ELF_MAX_STACK_SIZE||!user_addr(stack_top)||
+ if(stack_size<CHIMERA_ELF_PAGE_SIZE||stack_size>CHIMERA_ELF_MAX_STACK_SIZE||(stack_size&(CHIMERA_ELF_PAGE_SIZE-1u))!=0||!user_addr(stack_top)||
     (stack_top&(CHIMERA_ELF_PAGE_SIZE-1u))||stack_top<stack_size)return -5;
  const uint64_t stack_base=stack_top-stack_size;
  if(!user_addr(stack_base)||stack_base>=stack_top)return -5;
