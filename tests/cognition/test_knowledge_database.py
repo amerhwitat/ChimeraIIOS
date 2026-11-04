@@ -1,5 +1,7 @@
-import json, shutil, tempfile, unittest
+import json, shutil, tempfile, unittest, sys
 from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
 from tools.cognition import knowledge_database as kb
 
 ROOT=Path(__file__).resolve().parents[2]
