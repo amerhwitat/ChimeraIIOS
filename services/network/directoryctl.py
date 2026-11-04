@@ -5,7 +5,10 @@ import json
 import re
 import subprocess
 import sys
+from pathlib import Path
 from urllib.parse import urlsplit
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "registry"))
+from registry_client import get_value
 
 DOMAIN = re.compile(r"^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*$")
 URI = re.compile(r"^(ldaps://|ldap://)[A-Za-z0-9.-]+(?::[0-9]{1,5})?/?$")
@@ -26,7 +29,7 @@ def main():
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
     join = sub.add_parser("join")
-    join.add_argument("domain")
+    join.add_argument("domain", nargs="?")
     join.add_argument("--user")
     status = sub.add_parser("status")
     ldap = sub.add_parser("ldap-search")
@@ -37,10 +40,11 @@ def main():
     a = p.parse_args()
     try:
         if a.cmd == "join":
-            if not DOMAIN.fullmatch(a.domain):
-                raise ValueError("invalid AD DNS domain")
+            domain = a.domain or get_value("environment", "environment.directory.preferred_domain", "")
+            if not isinstance(domain, str) or not DOMAIN.fullmatch(domain):
+                raise ValueError("supply a valid AD DNS domain or set environment.directory.preferred_domain")
             argv = ["realm", "join", "--no-password", "--membership-software=adcli",
-                    "--client-software=sssd", a.domain]
+                    "--client-software=sssd", domain]
             if a.user:
                 if not re.fullmatch(r"[A-Za-z0-9._@-]{1,128}", a.user):
                     raise ValueError("invalid directory account name")
