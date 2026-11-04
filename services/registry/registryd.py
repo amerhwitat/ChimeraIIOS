@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""Local-only CHMRG01 registry service with generation-checked, journaled writes."""
+import base64
+import grp
+import json
+import os
+import pathlib
+import pwd
+import re
+import socket
+import socketserver
+import struct
+import subprocess
+import sys
+import tempfile
+
+ROOT = pathlib.Path(os.environ.get("CHIMERA_REGISTRY_ROOT", "/etc/chimera/registry"))
+RUNTIME = pathlib.Path(os.environ.get("CHIMERA_RUNTIME_DIR", "/run/chimera"))
+SOCKET = pathlib.Path(os.environ.get("CHIMERA_REGISTRY_SOCKET", str(RUNTIME / "registry.sock")))
+ADMIN_GROUP = os.environ.get("CHIMERA_REGISTRY_GROUP", "chimera-admin")
+TOOL = pathlib.Path(os.environ.get("CHIMERA_REGISTRY_TOOL", "/usr/lib/chimera/registry/registry_hive.py"))
+HIVES = ("machine", "environment", "kernel")
+KEY_RE = re.compile(r"^[a-z0-9_-]+(?:[./][a-z0-9_-]+)*$")
+PROTECTED = ("cpu.", "machine.identity.", "security.", "kernel.smp.", "kernel.memory.", "kernel.architecture.")
+
+def _read(hive):
+    if hive not in HIVES:
+        raise ValueError("unknown hive")
+    path = ROOT / (hive + ".json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("hive") != hive or data.get("schema_version") != 1:
+        raise ValueError("invalid hive source")
+    return data
+
+def _peer_allowed(sock, write=False):
+    if not hasattr(socket, "SO_PEERCRED"):
+        return False
+    pid, uid, gid = struct.unpack("3i", sock.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+    if uid == 0:
+        return True
+    if not write:
+        return True
+    try:
+        admin_gid = grp.getgrnam(ADMIN_GROUP).gr_gid
+        status = pathlib.Path("/proc") / str(pid) / "status"
+        groups = set()
+        for line in status.read_text().splitlines():
+            if line.startswith("Groups:"):
+                groups = {int(x) for x in line.split()[1:]}
+                break
+        return gid == admin_gid or admin_gid in groups
+    except (KeyError, OSError, ValueError):
+        return False
+
+def _atomic(path, payload):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(name, path)
+        dfd = os.open(str(path.parent), os.O_RDONLY)
+        try:
+            os.fsync(dfd)
+        finally:
+            os.close(dfd)
+    finally:
+        try:
+            os.unlink(name)
+        except FileNotFoundError:
+            pass
+
+def _recover(hive):
+    journal = ROOT / (hive + ".transaction.json")
+    if not journal.exists():
+        return
+    tx = json.loads(journal.read_text(encoding="utf-8"))
+    if tx.get("hive") != hive:
+        raise ValueError("transaction journal hive mismatch")
+    _atomic(ROOT / (hive + ".json"), base64.b64decode(tx["source"], validate=True))
+    _atomic(ROOT / (hive + ".hive"), base64.b64decode(tx["binary"], validate=True))
+    journal.unlink()
+    dfd = os.open(str(ROOT), os.O_RDONLY)
+    try:
+        os.fsync(dfd)
+    finally:
+        os.close(dfd)
+
+def _commit(hive, data):
+    source = (json.dumps(data, indent=2, sort_keys=True) + "\n").encode()
+    ROOT.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="chm-reg-") as tmp:
+        source_path = pathlib.Path(tmp) / (hive + ".json")
+        binary_path = pathlib.Path(tmp) / (hive + ".hive")
+        source_path.write_bytes(source)
+        subprocess.run([sys.executable, str(TOOL), "build", "--input", str(source_path),
+                        "--output", str(binary_path)], check=True, timeout=20)
+        subprocess.run([sys.executable, str(TOOL), "verify", str(binary_path)],
+                       check=True, timeout=20)
+        binary = binary_path.read_bytes()
+    journal = {
+        "hive": hive,
+        "source": base64.b64encode(source).decode("ascii"),
+        "binary": base64.b64encode(binary).decode("ascii")
+    }
+    _atomic(ROOT / (hive + ".transaction.json"),
+            (json.dumps(journal, separators=(",", ":")) + "\n").encode())
+    _recover(hive)
+
+def _handle(req, writable):
+    op = req.get("op")
+    hive = req.get("hive", "")
+    if op == "list":
+        result = []
+        for name in HIVES:
+            _recover(name)
+            data = _read(name)
+            result.append({"hive": name, "generation": data["generation"],
+                           "entries": data["entries"]})
+        return {"ok": True, "hives": result}
+    if hive not in HIVES:
+        raise ValueError("unknown hive")
+    _recover(hive)
+    data = _read(hive)
+    if op == "read":
+        return {"ok": True, "hive": hive, "generation": data["generation"],
+                "entries": data["entries"]}
+    if op not in ("set", "delete"):
+        raise ValueError("unsupported operation")
+    if not writable:
+        raise PermissionError("registry-admin group required")
+    if req.get("generation") != data["generation"]:
+        raise RuntimeError("generation conflict; reload before editing")
+    key = req.get("path", "")
+    if not isinstance(key, str) or not KEY_RE.fullmatch(key) or len(key) > 255:
+        raise ValueError("invalid registry key")
+    if any(key.startswith(prefix) for prefix in PROTECTED):
+        raise PermissionError("hardware, security and boot-critical keys are immutable here")
+    entries = data["entries"]
+    found = next((e for e in entries if e["path"] == key), None)
+    if op == "delete":
+        if found is None:
+            raise KeyError("registry key not found")
+        entries.remove(found)
+    else:
+        typ, value = req.get("type"), req.get("value")
+        if typ not in ("u32", "u64", "bool", "string", "bytes"):
+            raise ValueError("unsupported value type")
+        if typ == "bool" and not isinstance(value, bool):
+            raise ValueError("boolean value required")
+        if typ in ("u32", "u64"):
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise ValueError("integer value required")
+            maximum = (1 << (32 if typ == "u32" else 64)) - 1
+            if value < 0 or value > maximum:
+                raise ValueError("integer out of range")
+        if typ == "string" and (not isinstance(value, str) or len(value.encode()) > 1 << 20):
+            raise ValueError("invalid string")
+        if typ == "bytes" and (not isinstance(value, str) or len(value) > 2 << 20):
+            raise ValueError("bytes must be hex text")
+        item = {"path": key, "type": typ, "value": value}
+        if found is None:
+            if len(entries) >= 4096:
+                raise ValueError("hive entry limit reached")
+            entries.append(item)
+        else:
+            found.update(item)
+    data["generation"] += 1
+    _commit(hive, data)
+    return {"ok": True, "hive": hive, "generation": data["generation"]}
+
+class Handler(socketserver.StreamRequestHandler):
+    def handle(self):
+        try:
+            writable = _peer_allowed(self.request, write=True)
+            readable = _peer_allowed(self.request, write=False)
+            raw = self.rfile.readline(2 << 20)
+            if not raw or len(raw) >= 2 << 20:
+                raise ValueError("request too large")
+            req = json.loads(raw)
+            if not isinstance(req, dict):
+                raise ValueError("request must be an object")
+            op = req.get("op")
+            if op in ("list", "read") and not readable:
+                raise PermissionError("local peer access denied")
+            response = _handle(req, writable)
+        except PermissionError as exc:
+            response = {"ok": False, "error": "permission-denied", "message": str(exc)}
+        except Exception as exc:
+            response = {"ok": False, "error": "request-failed", "message": str(exc)}
+        self.wfile.write((json.dumps(response, separators=(",", ":")) + "\n").encode())
+
+class Server(socketserver.ThreadingUnixStreamServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+def main():
+    ROOT.mkdir(parents=True, exist_ok=True)
+    for hive in HIVES:
+        _recover(hive)
+    RUNTIME.mkdir(parents=True, exist_ok=True)
+    try:
+        SOCKET.unlink()
+    except FileNotFoundError:
+        pass
+    with Server(str(SOCKET), Handler) as server:
+        gid = grp.getgrnam(ADMIN_GROUP).gr_gid
+        os.chown(SOCKET, 0, gid)
+        os.chmod(SOCKET, 0o660)
+        server.serve_forever()
+
+if __name__ == "__main__":
+    main()
