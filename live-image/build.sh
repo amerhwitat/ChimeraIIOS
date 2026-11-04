@@ -160,6 +160,7 @@ if chroot "$WORK" getent passwd user >/dev/null 2>&1; then chroot "$WORK" usermo
 install -d "$WORK/etc/systemd/system/multi-user.target.wants"
 install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-admin-group-sync.service" "$WORK/usr/lib/systemd/system/chimera-admin-group-sync.service"
 install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-registryd.service" "$WORK/usr/lib/systemd/system/chimera-registryd.service"
+install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-smbd.service" "$WORK/usr/lib/systemd/system/chimera-smbd.service"
 systemctl --root="$WORK" enable chimera-admin-group-sync.service chimera-registryd.service >/dev/null
 systemctl --root="$WORK" enable avahi-daemon.service >/dev/null 2>&1 || true
 for unit in smbd.service nmbd.service wsdd.service sssd.service; do systemctl --root="$WORK" disable "$unit" >/dev/null 2>&1 || true; done
