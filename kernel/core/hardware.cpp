@@ -59,6 +59,20 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
             topology_apic=td;
         }
     }
+    if(!package_logical && topology_leaf==0x1Fu){
+        topology_leaf=0x0Bu;
+        for(uint32_t sub=0;sub<8u;sub++){
+            uint32_t ta=0,tb=0,tc=0,td=0;
+            cpuid(topology_leaf,sub,&ta,&tb,&tc,&td);
+            const uint32_t level_count=tb&0xFFFFu;
+            const uint32_t level_type=(tc>>8)&0xFFu;
+            if(!level_count||!level_type)break;
+            if(level_count>package_logical)package_logical=level_count;
+            if(level_type==1u)smt_logical=level_count;
+            if(level_type==2u)core_logical=level_count;
+            topology_apic=td;
+        }
+    }
     if(package_logical){
         out->logical_cpus=package_logical;
         out->threads_per_core=smt_logical?smt_logical:1u;
@@ -129,6 +143,9 @@ extern "C" int chimera_hardware_probe(chimera_hardware_profile *out) {
     out->logical_cpus = 1;
 #endif
 
+    if(!out->logical_cpus)out->logical_cpus=1u;
+    if(!out->physical_cores)out->physical_cores=out->logical_cpus;
+    if(!out->threads_per_core)out->threads_per_core=1u;
     out->best_nbit_mode = (out->native_nbit_mode >= 64)
         ? static_cast<uint32_t>(CHIMERA_NBIT_64)
         : out->native_nbit_mode;
