@@ -127,6 +127,8 @@ jobs:
           test -f boot/spitfire/sf0_mbr.asm
           test -f boot/spitfire/sf1_longmode.asm
           test -f boot/spitfire/sf2_loader.cpp
+      - name: Verify Koronos scheduler monitor liveness contract
+        run: python3 -m unittest discover -s tests/kernel -p 'test_runtime_liveness_contract.py' -v
       - name: Build Koronos and Spit Fire artifacts
         run: |
           bash kernel/build-koronos.sh
