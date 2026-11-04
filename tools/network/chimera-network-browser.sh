@@ -47,7 +47,7 @@ shares() {
 browse() {
   local host="$1" share="${2:-}" target
   valid_host "$host"
-  [[ -z "$share" || "$share" =~ ^[A-Za-z0-9._$ -]+$ ]] || die "Invalid share name."
+  [[ -z "$share" || "$share" =~ $CHIMERA_SHARE_RE ]] || die "Invalid share name."
   target="//$host"
   [[ -z "$share" ]] || target="$target/$share"
   need smbclient
@@ -58,7 +58,7 @@ mount_share() {
   (( EUID == 0 )) || die "SMB mounting requires root; use sudo."
   local host="$1" share="$2" target="$3" user="${4:-}" cred password rc
   valid_host "$host"
-  [[ "$share" =~ ^[A-Za-z0-9._$ -]+$ ]] || die "Invalid share name."
+  [[ "$share" =~ $CHIMERA_SHARE_RE ]] || die "Invalid share name."
   target="$(realpath -m -- "$target")"
   [[ "$target" == /mnt/chimera/network/* ]] || die "Mountpoint must resolve below /mnt/chimera/network."
   need mount.cifs
