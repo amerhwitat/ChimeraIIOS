@@ -1,4 +1,5 @@
 #include "chimera/koronos_abi.h"
+#include "chimera/arch_backend.h"
 #include <cstdio>
 #include <cstring>
 #include <cassert>
@@ -19,6 +20,19 @@ int main() {
     if(f->max_extended_leaf>=0x80000004u) assert(f->brand[0]!=0);
     if(f->feature_flags&KORONOS_CPU_FEAT_AVX2) assert(f->feature_flags&KORONOS_CPU_FEAT_AVX);
     assert(ctx.detected_cores>=1);
+    assert(koronos_arch_backend_count()==22u);
+    const koronos_arch_backend *backend=koronos_arch_backend_lookup(f->architecture);
+    assert(backend!=nullptr);
+    assert(f->backend_status==backend->status);
+    assert(f->entry_backend_present==backend->entry_stub_present);
+    assert(f->interrupt_backend_present==backend->interrupt_backend_present);
+    assert(f->syscall_backend_present==backend->syscall_backend_present);
+    for(uint32_t i=0;i<koronos_arch_backend_count();++i) {
+        const koronos_arch_backend *row=koronos_arch_backend_at(i);
+        assert(row!=nullptr && row->name!=nullptr && row->interrupt_model!=nullptr && row->syscall_entry!=nullptr);
+        for(uint32_t j=i+1;j<koronos_arch_backend_count();++j)
+            assert(koronos_arch_backend_at(j)->architecture!=row->architecture);
+    }
     std::printf("[cpu-profile] PASS arch=%u vendor=%s family=%u model=%u stepping=%u logical=%u apic-id=%u\n",
         f->architecture,f->vendor,f->family,f->model,f->stepping,f->logical_cpus,f->processor_id);
 #else
