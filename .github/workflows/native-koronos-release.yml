@@ -28,6 +28,8 @@ jobs:
       CHIMERA_ROOTFS_DIR: ${{ runner.temp }}/chimera-rootfs
       CHIMERA_ISO_OUTPUT_DIR: ${{ runner.temp }}/chimera-output
       CHIMERA_BUILD_LOG_DIR: ${{ runner.temp }}/chimera-build/logs
+      CHIMERA_PUSH: "0"
+      CHIMERA_STORAGE_PROMPT: "0"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +42,7 @@ jobs:
             grub-pc-bin grub-efi-amd64-bin xorriso mtools \
             dosfstools qemu-system-x86 ovmf debootstrap \
             squashfs-tools xz-utils zstd git python3 python3-pip \
-            pkg-config libgtk-4-dev xvfb xterm docker.io
+            pkg-config libgtk-4-dev xvfb xterm
 
       - name: Verify Docker and toolchain
         run: |
