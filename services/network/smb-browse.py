@@ -23,7 +23,7 @@ def browse(host, kerberos=True):
         raise ValueError("host must be a DNS name or IPv4 address without URL syntax")
     argv = ["smbclient", "-g", "-L", "//" + host, "--option=client min protocol=SMB2"]
     if kerberos:
-        argv.append("-k")
+        argv.append("--use-kerberos=required")
     else:
         raise ValueError("password/guest fallback is disabled; use a Kerberos ticket or explicit administrator tooling")
     code, out, err = run(argv)
