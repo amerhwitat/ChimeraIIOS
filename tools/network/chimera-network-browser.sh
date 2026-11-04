@@ -72,6 +72,7 @@ mount_share() {
   printf 'username=%s\npassword=%s\n' "$user" "$password" > "$cred"
   unset password
   install -d -m 0755 "$target"
+  mountpoint -q "$target" && die "Already mounted: $target"
   if mount -t cifs "//$host/$share" "$target" -o "credentials=$cred,vers=3.1.1,sec=ntlmssp,iocharset=utf8,nosuid,nodev,noexec,file_mode=0640,dir_mode=0750"; then
     rm -f -- "$cred"
     echo "[SUCCESS] Mounted //$host/$share at $target using SMB 3.1.1."
