@@ -21,7 +21,14 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         release = self.text.split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[1]
         condition = next(line for line in release.splitlines() if line.strip().startswith("if:"))
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
+        self.assertIn("steps.six_case_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
+
+    def test_release_uses_original_iso_for_all_six_cases(self):
+        self.assertIn("id: six_case_gate", self.text)
+        self.assertIn("verify-six-case-matrix.py --iso \"$iso\"", self.text)
+        self.assertIn("one identical ISO SHA across Live/Installer/Recovery", self.text)
+        self.assertIn("diagnostic probes, not six-case release evidence", self.text)
 
     def test_unverified_handoff_keeps_build_reviewable_but_blocks_release(self):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
