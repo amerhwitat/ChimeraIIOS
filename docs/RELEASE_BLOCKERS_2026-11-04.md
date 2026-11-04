@@ -28,7 +28,7 @@ The Linux live initramfs and its shell are not evidence of native Koronos VFS in
 
 ### Process and service lifecycle — PARTIAL / BLOCKED
 
-The selected init can be admitted, loaded into an owned address space, run at CPL3, and have its address space reclaimed after exit/timeout. The process record receives RUNNING and EXITED/FAULTED state transitions.
+The selected init can be admitted, loaded into an owned address space, run at CPL3, and have its address space reclaimed after exit/timeout. The process record receives RUNNING and EXITED/FAULTED state transitions. Terminal EXITED/FAULTED records are now explicitly reaped and their registry slots returned, including the load-failure and timeout cleanup paths. This only closes the synchronous one-shot target-init record lifecycle; it does not provide a general scheduler-owned wait/reap service.
 
 This is not a complete process lifecycle: there is no demonstrated general scheduler-owned context switch across process address spaces, wait/reap contract, deferred process destruction, or production service manager lifecycle. The cooperative scheduler still dispatches callbacks.
 
