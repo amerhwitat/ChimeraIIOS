@@ -23,7 +23,7 @@
     "license_review_required_before_redistributing_source_text": true,
     "external_upload": false
   },
-  "source_count": 35,
+  "source_count": 38,
   "sources": [
     {
       "id": "intel-sdm",
@@ -304,6 +304,30 @@
       "url": "https://github.com/amerhwitat/ChimeraIIOS/blob/main/docs/CPU_ARCHITECTURE_MATRIX.md",
       "kind": "repository-inventory",
       "authority": "project-source"
+    },
+    {
+      "id": "python-language-reference",
+      "publisher": "Python Software Foundation",
+      "title": "Python Language Reference",
+      "url": "https://docs.python.org/3/reference/",
+      "kind": "language-reference",
+      "authority": "project-primary"
+    },
+    {
+      "id": "cpp-standard",
+      "publisher": "ISO",
+      "title": "ISO/IEC 14882:2024 Programming languages — C++",
+      "url": "https://www.iso.org/standard/83626.html",
+      "kind": "language-standard",
+      "authority": "standards-primary"
+    },
+    {
+      "id": "ada-2022-rm",
+      "publisher": "Ada Resource Association",
+      "title": "Ada Reference Manual, 2022 Edition",
+      "url": "https://www.adaic.org/resources/add_content/standards/22rm/html/RM-TTL.html",
+      "kind": "language-standard",
+      "authority": "standards-primary"
     }
   ],
   "entry_count": 145,
@@ -5633,8 +5657,8 @@
         "freestanding"
       ],
       "source_ids": [
-        "gcc-internals",
-        "llvm-backend"
+        "cpp-standard",
+        "gcc-internals"
       ],
       "status": "curated-reference",
       "verification": "summarized-from-listed-primary-documentation; verify exact revision before implementation"
@@ -5686,7 +5710,7 @@
         "C extension ABI"
       ],
       "source_ids": [
-        "go-spec"
+        "python-language-reference"
       ],
       "status": "curated-reference",
       "verification": "summarized-from-listed-primary-documentation; verify exact revision before implementation"
@@ -5724,7 +5748,7 @@
       "source_ids": [
         "swift-book",
         "zig-docs",
-        "gcc-internals"
+        "ada-2022-rm"
       ],
       "status": "curated-reference",
       "verification": "summarized-from-listed-primary-documentation; verify exact revision before implementation"
