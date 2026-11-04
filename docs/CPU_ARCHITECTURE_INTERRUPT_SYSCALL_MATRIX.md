@@ -15,12 +15,12 @@ Linux is the primary implementation workflow reference. XNU is a secondary compa
 
 | ISA family | Linux architecture / representative CPUs | Exception and interrupt entry model | Linux syscall entry and register ABI (summary) | Koronos status at this revision | macOS/XNU comparison |
 |---|---|---|---|---|---|
-| CISC | x86_64: Intel/AMD 64-bit, compatible CPUs | IDT gates; CPU exception frames; local APIC / IO-APIC or x2APIC; NMI and local timer paths | `SYSCALL`; number RAX; args RDI, RSI, RDX, R10, R8, R9; result RAX; `SYSRETQ`/IRET return paths | **Partial / experimental**: x86-64 boot and IDT exception frame code exists; current hardware IRQ implementation uses legacy PIC/PIT. CPUID detection is implemented with decoded family/model/stepping, feature bitmap, XCR0 and address widths. A DPL3 INT 0x80 acknowledgement path exists; full APIC routing, process-owned fd/VFS syscalls and production lifecycle remain separate gates. | XNU has x86_64 machine-dependent trap/interrupt and BSD/Mach syscall paths. Compare source; do not copy private syscall numbers. |
+| CISC | x86_64: Intel/AMD 64-bit, compatible CPUs | IDT gates; CPU exception frames; local APIC / IO-APIC or x2APIC; NMI and local timer paths | `SYSCALL`; number EAX; args RDI, RSI, RDX, R10, R8, R9; result RAX; `SYSRETQ`/IRET return paths | **Partial / experimental**: x86-64 boot and IDT exception frame code exists; current hardware IRQ implementation uses legacy PIC/PIT. CPUID detection is implemented with decoded family/model/stepping, feature bitmap, XCR0 and address widths. A DPL3 INT 0x80 acknowledgement path exists; full APIC routing, process-owned fd/VFS syscalls and production lifecycle remain separate gates. | XNU has x86_64 machine-dependent trap/interrupt and BSD/Mach syscall paths. Compare source; do not copy private syscall numbers. |
 | CISC | i386: Intel/AMD 32-bit x86 | IDT; PIC or APIC; privilege transitions via interrupt/trap gates | `int 0x80` or `SYSENTER`; number EAX; args EBX, ECX, EDX, ESI, EDI, EBP; result EAX | **Reference-only**: no 32-bit Koronos boot/entry backend verified | Historical XNU x86 support is not a current i386 target |
 | CISC | m68k: Motorola 680x0 | Vector table, synchronous traps and autovectors; platform interrupt controller | `trap #0`; Linux ABI uses D0 for number and architecture-defined data/address registers for arguments | **Reference-only** | No XNU backend |
 | CISC | s390x / s390: IBM Z | Program, supervisor-call, external and I/O interruption classes; lowcore interruption state | `svc`; Linux ABI is architecture-specific (SVC number/register convention); use the kernel syscall table and ABI headers as authority | **Reference-only** | No XNU backend |
 | CISC | Alpha: DEC Alpha | PALcode-assisted exception/interrupt entry and processor-specific vectors | `callsys`; V0 syscall number; A0-A5 arguments; architecture-defined error/result convention | **Reference-only** | No XNU backend |
-| RISC | arm64 / AArch64: Arm Cortex-A, Neoverse, Apple Silicon | Exception-level vector table; synchronous exceptions, IRQ/FIQ; GICv2/v3/v4 or platform controller | `SVC #0`; X8 number; X0-X5 arguments; X0 result; EL0↔EL1 transition | **Port skeleton / partial detector**: MIDR_EL1, MPIDR_EL1 and selected ID_AA64 registers are read by the detector; entry.S/priv.S are skeletons. No complete vector table, GIC, SVC, timer, PSCI, context-switch or boot acceptance | XNU supports arm64 and uses its own machine-dependent exception and Mach/BSD syscall layers. Apple Silicon belongs here; it is not x86. |
+| RISC | arm64 / AArch64: Arm Cortex-A, Neoverse, Apple Silicon | Exception-level vector table; synchronous exceptions, IRQ/FIQ; GICv2/v3/v4 or platform controller | `SVC #0`; W8 number; X0-X5 arguments; X0 result; EL0↔EL1 transition | **Port skeleton / partial detector**: MIDR_EL1, MPIDR_EL1 and selected ID_AA64 registers are read by the detector; entry.S/priv.S are skeletons. No complete vector table, GIC, SVC, timer, PSCI, context-switch or boot acceptance | XNU supports arm64 and uses its own machine-dependent exception and Mach/BSD syscall layers. Apple Silicon belongs here; it is not x86. |
 | RISC | arm / AArch32: Cortex-A/R and supported SoCs | Vector table; IRQ/FIQ; GIC or SoC interrupt controller; exception modes | `SVC`; EABI uses R7 number, R0-R6 arguments, R0 result (ABI variants must be explicit) | **Reference-only** | No current XNU 32-bit ARM target |
 | RISC | riscv64 / riscv32: RV64/RV32 implementations | `stvec` trap entry; supervisor exceptions/interrupts; SBI firmware boundary; PLIC or APLIC+IMSIC depending on platform | `ecall`; A7 number; A0-A5 arguments; A0 result | **Port skeleton / partial detector**: RV64 entry/privilege stubs exist and XLEN is identified at compile time. FDT/ACPI and SBI discovery, stvec dispatcher, timer, PLIC/APLIC+IMSIC, ECALL/SRET and boot acceptance are not implemented | No XNU backend |
 | RISC | powerpc / powerpc64 / powerpc64le: POWER and embedded PowerPC | Exception vector prefixes; external/decrementer interrupts; controller varies (XICS/XIVE, MPIC, etc.) | `sc`; R0 syscall number and R3-R8 arguments in the Linux ABI; return/error convention is architecture-specific | **Reference-only** | No XNU backend |
@@ -112,3 +112,51 @@ The machine-readable target registry is `kernel/arch/targets.json`; the per-arch
 - **Host regression:** `tests/kernel/run-cpu-profile-host-tests.sh` compiles and executes the CPUID profile test; the Koronos build invokes it before linking.
 
 A detector result is not proof of a native backend. Topology count is not an online-CPU count; AP/hart startup acknowledgements and concurrent execution are required for SMP claims.
+
+
+## Exact Linux syscall register ABI matrix
+
+The table below records the Linux *calling convention*, not Linux syscall numbers. Number tables change with kernel versions and ABI variants; use the target kernel's syscall table/UAPI as the versioned source of syscall numbers. Koronos syscall IDs remain its own stable semantic ABI and must never be copied from Linux.
+
+| ISA / ABI | Trap instruction / entry | Syscall number register | Argument registers | Return and error convention |
+|---|---|---|---|---|
+| x86_64 | `syscall` | EAX | RDI, RSI, RDX, R10, R8, R9 | RAX; negative errno |
+| i386 | `int $0x80` | EAX | EBX, ECX, EDX, ESI, EDI, EBP | EAX; EDX is secondary return |
+| m68k | `trap #0` | D0 | D1, D2, D3, D4, D5, A0 | D0 |
+| s390x | `svc 0` | R1 | R2, R3, R4, R5, R6, R7 | R2; R3 secondary return |
+| Alpha | `callsys` | V0 | A0, A1, A2, A3, A4, A5 | V0; A4 secondary return; A3 error flag |
+| ARM64 | `svc #0` | W8 | X0, X1, X2, X3, X4, X5 | X0; X1 secondary return |
+| ARM EABI | `swi 0x0` | R7 | R0, R1, R2, R3, R4, R5, R6 | R0; R1 secondary return |
+| RISC-V 64 | `ecall` | A7 | A0, A1, A2, A3, A4, A5 | A0; A1 secondary return |
+| RISC-V 32 | `ecall` | A7 | A0, A1, A2, A3, A4, A5 | A0; A1 secondary return |
+| PowerPC64 | `sc` | R0 | R3, R4, R5, R6, R7, R8 | R3; CR0.SO indicates error |
+| MIPS n32/n64 | `syscall` | V0 | A0, A1, A2, A3, A4, A5 | V0; V1 secondary return; A3 error flag |
+| MIPS o32 | `syscall` | V0 | A0, A1, A2, A3; arguments 5–8 on user stack | V0; V1 secondary return; A3 error flag |
+| SPARC64 | `t 0x6d` | G1 | O0, O1, O2, O3, O4, O5 | O0; O1 secondary return; PSR/CSR carry signals error |
+| LoongArch64 | `syscall 0` | A7 | A0, A1, A2, A3, A4, A5, A6 | A0 |
+| ARC | `trap0` | R8 | R0, R1, R2, R3, R4, R5 | R0 |
+| OpenRISC | `l.sys` syscall exception path | R11 | R3, R4, R5, R6, R7, R8 | R11 |
+| PA-RISC | `ble 0x100(%sr2,%r0)` | R20 | R26, R25, R24, R23, R22, R21 | R28 |
+| Nios II | `trap` | R2 | R4, R5, R6, R7, R8, R9 | R2; R7 error flag |
+| MicroBlaze | `brki r14,8` | R12 | R5, R6, R7, R8, R9, R10 | R3 |
+| Xtensa | `syscall` | A2 | A6, A3, A4, A5, A8, A9 | A2 |
+| SuperH | `trapa #31` | R3 | R4, R5, R6, R7, R0, R1, R2 | R0; R1 secondary return |
+| C-SKY | TRAP0 syscall entry | `syscallid` special register | A0-A3; ABI v1 uses R6/R7 for args 5/6; ABI v2 uses R4/R5 | A0; ABI-version-specific |
+| Hexagon | `trap0 #1` | R6 | R0, R1, R2, R3, R4, R5 | R0 |
+
+The Linux man-pages calling-convention reference documents the standard register tables and warns that ABI-specific argument alignment and clobber rules matter. C-SKY, Hexagon and OpenRISC details above are checked against their Linux architecture entry sources. Do not infer a convention for an architecture from another ISA family.
+
+### Reference source map
+
+- Linux syscall calling conventions: https://man7.org/linux/man-pages/man2/syscall.2.html
+- Linux exception/interrupt/syscall entry ordering and `noinstr` constraints: https://docs.kernel.org/core-api/entry.html
+- Linux architecture-specific source and boot/CPU feature documentation: https://docs.kernel.org/arch/
+- Linux generic syscall-table workflow: https://docs.kernel.org/process/adding-syscalls.html
+- Linux C-SKY entry source: https://github.com/torvalds/linux/blob/master/arch/csky/kernel/entry.S
+- Linux Hexagon trap/syscall source: https://github.com/torvalds/linux/blob/master/arch/hexagon/kernel/traps.c
+- Linux OpenRISC syscall entry source: https://github.com/torvalds/linux/blob/master/arch/openrisc/kernel/entry.S
+- XNU ARM64 exception/SVC dispatch: https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/arm64/sleh.c
+- XNU ARM64 bootstrap and per-CPU setup: https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/arm64/start.s
+- XNU x86_64 IDT, trap, interrupt and syscall stubs: https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/x86_64/idt64.s
+
+Linux's syscall table is the primary source for architecture ABI details. XNU is used as a comparative implementation reference only for its x86_64 and arm64 machine-dependent paths; it is not treated as a general RISC/CISC porting source.
