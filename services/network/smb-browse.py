@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 HOST = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,252}$")
 
 def run(argv, timeout=25):
-    env = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"}
+    env = os.environ.copy()\n    env.update({"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
     p = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
                        check=False, env=env)
     return p.returncode, p.stdout, p.stderr
