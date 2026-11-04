@@ -1635,7 +1635,11 @@ stage_sdks(){
     done
     # Compile the repository-owned Aurora application set and shell utilities before packaging.
     if [[ -x "$SCRIPT_DIR/tools/build-desktop-binaries.sh" || -f "$SCRIPT_DIR/tools/build-desktop-binaries.sh" ]]; then
-      CHIMERA_DESKTOP_BUILD_DIR="$BUILD_DIR/desktop" bash "$SCRIPT_DIR/tools/build-desktop-binaries.sh" \
+      docker run --rm --network none \
+        -v "$SCRIPT_DIR:/workspace:ro" -v "$BUILD_DIR:/out" \
+        -w /workspace -e CHIMERA_DESKTOP_BUILD_DIR=/out/desktop \
+        --entrypoint /bin/bash "$DOCKER_IMAGE:$DOCKER_TAG" \
+        /workspace/tools/build-desktop-binaries.sh \
         2>&1 | tee "$LOG_DIR/desktop-binary-build.log" || { log_error "Native desktop application compilation failed"; return 1; }
     else
       log_warning "tools/build-desktop-binaries.sh is missing; no desktop binary compilation was performed"
