@@ -4,6 +4,7 @@
 #include "chimera/compat.h"
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
+#include "chimera/vfs.h"
 
 namespace {
 static volatile uint32_t g_initialized = 0;
@@ -94,6 +95,27 @@ volatile uint64_t koronos_user_exit_code = 0;
 extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
+extern "C" int koronos_target_validate_user_buffer(uint64_t,uint64_t,uint32_t);
+namespace {
+constexpr uint32_t PROCESS_FD_MAX=32u;
+struct ProcessFd { int handle; bool used; };
+static ProcessFd process_fds[PROCESS_FD_MAX];
+static int fd_allocate(int handle) {
+    for(uint32_t i=3;i<PROCESS_FD_MAX;i++) if(!process_fds[i].used) { process_fds[i]={handle,true}; return static_cast<int>(i); }
+    return -1;
+}
+static int fd_handle(uint64_t fd) { return fd>=3u && fd<PROCESS_FD_MAX && process_fds[fd].used ? process_fds[fd].handle : -1; }
+static bool copy_user_path(uint64_t address,char *out,uint64_t capacity) {
+    if(!out || capacity<2u) return false;
+    for(uint64_t i=0;i<capacity;i++) {
+        if(address>UINT64_MAX-i || !koronos_target_validate_user_buffer(address+i,1u,0u)) return false;
+        const char ch=*reinterpret_cast<const char*>(static_cast<uintptr_t>(address+i));
+        out[i]=ch; if(!ch) return i!=0;
+    }
+    out[capacity-1u]=0; return false;
+}
+}
+extern "C" void koronos_syscall_reset_process_fds(void) { for(uint32_t i=0;i<PROCESS_FD_MAX;i++) process_fds[i]={-1,false}; }
 extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
@@ -124,11 +146,34 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
-            const uint64_t fd = frame->rdi;
-            const uint64_t address = frame->rsi;
-            const uint64_t length = frame->rdx;
-            if (fd > 2u || length > 4096u) return static_cast<uint64_t>(-22ll);
-            return static_cast<uint64_t>(koronos_console_write_user(address, length));
+            const uint64_t fd=frame->rdi,address=frame->rsi,length=frame->rdx;
+            if(length>4096u || !koronos_target_validate_user_buffer(address,length,0u)) return static_cast<uint64_t>(-14ll);
+            if(fd<=2u) return static_cast<uint64_t>(koronos_console_write_user(address,length));
+            const int handle=fd_handle(fd); if(handle<0) return static_cast<uint64_t>(-9ll);
+            return static_cast<uint64_t>(koronos_vfs_write(handle,reinterpret_cast<const void*>(static_cast<uintptr_t>(address)),length));
+        }
+        case CHM_SYS_READ: {
+            const uint64_t fd=frame->rdi,address=frame->rsi,length=frame->rdx;
+            if(length>4096u || !koronos_target_validate_user_buffer(address,length,1u)) return static_cast<uint64_t>(-14ll);
+            const int handle=fd_handle(fd); if(handle<0) return static_cast<uint64_t>(-9ll);
+            return static_cast<uint64_t>(koronos_vfs_read(handle,reinterpret_cast<void*>(static_cast<uintptr_t>(address)),length));
+        }
+        case CHM_SYS_OPEN: {
+            char path[KORONOS_VFS_PATH_MAX];
+            if(frame->rsi>UINT32_MAX || !copy_user_path(frame->rdi,path,sizeof(path))) return static_cast<uint64_t>(-14ll);
+            const int handle=koronos_vfs_open(path,static_cast<uint32_t>(frame->rsi));
+            if(handle<0) return static_cast<uint64_t>(-2ll);
+            const int fd=fd_allocate(handle); if(fd<0) { (void)koronos_vfs_close(handle); return static_cast<uint64_t>(-24ll); }
+            return static_cast<uint64_t>(fd);
+        }
+        case CHM_SYS_CLOSE: {
+            const uint64_t fd=frame->rdi; const int handle=fd_handle(fd);
+            if(handle<0) return static_cast<uint64_t>(-9ll);
+            const int rc=koronos_vfs_close(handle); process_fds[fd]={-1,false}; return static_cast<uint64_t>(rc);
+        }
+        case CHM_SYS_SEEK: {
+            const int handle=fd_handle(frame->rdi); if(handle<0) return static_cast<uint64_t>(-9ll);
+            return static_cast<uint64_t>(koronos_vfs_seek(handle,static_cast<int64_t>(frame->rsi),static_cast<uint32_t>(frame->rdx)));
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
