@@ -82,8 +82,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsasl2-modules-gssapi-mit avahi-daemon avahi-utils gvfs-backends \
     udisks2 util-linux xorriso udftools \
     && if apt-cache show wsdd >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd || echo "[WARN] wsdd client install failed; DNS-SD remains available"; fi; \
-    if apt-cache show wsdd-server >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd-server || echo "[WARN] wsdd-server install failed; WSD host advertisement unavailable"; fi \
-    && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
+    if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -100,6 +99,8 @@ RUN set -eux; \
     install -D -m 0644 /app/services/storage/chimera-fhs-layout.service /usr/lib/systemd/system/chimera-fhs-layout.service; \
     install -D -m 0644 /app/services/network/avahi-smb.service /etc/avahi/services/chimera-smb.service; \
     install -D -m 0644 /app/services/network/smb.conf.example /usr/share/chimera/examples/smb.conf.example; \
+    getent group wsdd >/dev/null 2>&1 || groupadd --system wsdd; \
+    id wsdd >/dev/null 2>&1 || useradd --system --gid wsdd --home-dir /nonexistent --shell /usr/sbin/nologin wsdd; \
     install -d -m 0755 /etc/systemd/system/multi-user.target.wants; \
     ln -sfn /usr/lib/systemd/system/chimera-fhs-layout.service /etc/systemd/system/multi-user.target.wants/chimera-fhs-layout.service
 
