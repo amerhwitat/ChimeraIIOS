@@ -10,7 +10,7 @@ User=root
 Group=chimera-admin
 UMask=0007
 RuntimeDirectory=chimera
-RuntimeDirectoryMode=0750
+RuntimeDirectoryMode=0755
 Environment=CHIMERA_REGISTRY_TOOL=/usr/lib/chimera/registry/registry_hive.py
 ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/registryd.py
 Restart=on-failure
