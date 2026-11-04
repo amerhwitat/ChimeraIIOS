@@ -277,7 +277,10 @@ static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
-        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+        if (!chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))
+            console_write("[REC ] Recovery initramfs is present, but no native recovery init ELF was supplied");
+        else
+            console_write("[REC ] Native recovery init ELF supplied; repair operations remain report-only until a repair backend is available");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
@@ -323,7 +326,10 @@ static void task_installer(void *) {
             break;
         case 4:
             console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
-            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
+            if (!chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))
+                console_write("[INST] No native installer init ELF was supplied; userspace handoff is unavailable");
+            else
+                console_write("[INST] Native installer init ELF supplied; this target payload remains a report-only dry run and performs no disk writes");
             chimera_sched_block();
             break;
         default:
