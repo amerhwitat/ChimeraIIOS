@@ -1,0 +1,53 @@
+import json
+import pathlib
+import subprocess
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+
+def test_macos_sdk_integration_is_license_gated_and_nonbundling(tmp_path):
+    helper = ROOT / "tools/build-macos-sdk.sh"
+    assert helper.is_file()
+    result = subprocess.run(
+        ["bash", str(helper), str(tmp_path / "report.json")],
+        cwd=ROOT, text=True, capture_output=True, check=True,
+    )
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["schema"] == "macos-cross-development-report-v1"
+    assert report["status"] in {"blocked", "review-required"}
+    assert report["sdk"]["redistribution"] == "prohibited-unless-license-explicitly-permits"
+    assert "never copy proprietary" in report["iso_policy"]
+    assert (ROOT / "sdk/macos/templates/DarwinCross.cmake").is_file()
+    assert (ROOT / "sdk/macos/examples/hello-macos/main.m").is_file()
+    assert "darwin_cross_compiler" in result.stdout
+
+
+def test_sdk_build_script_runs_macos_probe():
+    content = (ROOT / "tools/build-sdks.sh").read_text()
+    assert "build-macos-sdk.sh" in content
+    assert "macos-sdk-report.json" in content
+
+
+def test_macos_sample_build_requires_explicit_license_review():
+    helper = (ROOT / "tools/build-macos-sdk.sh").read_text()
+    assert 'MACOS_SDK_LICENSE_REVIEWED' in helper
+    assert 'cmake --build' in helper
+    assert 'application_build' in helper
+
+
+def test_full_iso_stages_sdk_before_squashfs_and_includes_toolchain_deps():
+    script = (ROOT / "build-chimera-iso.sh").read_text()
+    dockerfile = (ROOT / "Dockerfile").read_text()
+    stages = next(line for line in script.splitlines() if 'for stage in docker rootfs' in line)
+    assert stages.index('sdk') < stages.index('squashfs')
+    assert 'stage_sdks' in script
+    for dependency in ('clangd', 'llvm', 'cmake', 'ninja-build', 'libobjc-13-dev', 'gnustep-make'):
+        assert dependency in dockerfile
+
+
+def test_iso_stages_only_a_real_macos_app_bundle():
+    script = (ROOT / "build-chimera-iso.sh").read_text()
+    assert 'if [[ -d "$macos_app" ]]' in script
+    assert 'cp -a "$macos_app"' in script
+    assert 'macos-app-build-manifest.json' in script
+    assert 'No macOS .app bundle staged' in script

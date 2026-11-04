@@ -148,7 +148,14 @@ for spec in \
   }
 done
 
+# The repository-owned Init.mp4 is authoritative. Never let a stale build output
+# or a generated wallpaper fallback shadow the supplied project video.
+SOURCE_INIT_VIDEO="$ROOT/desktop/aurora/assets/Init.mp4"
+[[ -s "$SOURCE_INIT_VIDEO" ]] || { printf '[ERROR] Required repository Init.mp4 is missing: %s\n' "$SOURCE_INIT_VIDEO" >&2; exit 2; }
+export CHIMERA_AURORA_INIT_VIDEO="$SOURCE_INIT_VIDEO"
 bash "$ROOT/tools/generate-aurora-media.sh" "$OUT"
+# Prove that the ISO input is byte-for-byte the tracked source asset.
+cmp -s -- "$SOURCE_INIT_VIDEO" "$OUT/Init.mp4" || { printf '[ERROR] Generated Aurora Init.mp4 differs from repository source.\n' >&2; exit 2; }
 
 cat > "$OUT/progress/stages.json" <<'EOF'
 {"schema":"CHIMERA-AURORA-PROGRESS-2","visual_contract":"aurora-progress-v2","stages":[

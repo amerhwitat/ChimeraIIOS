@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.20)
+project(HelloMacOS LANGUAGES C OBJC)
+add_executable(HelloMacOS MACOSX_BUNDLE main.m)
+find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+target_link_libraries(HelloMacOS PRIVATE "${FOUNDATION_FRAMEWORK}")

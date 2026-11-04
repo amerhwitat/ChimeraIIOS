@@ -1,0 +1,43 @@
+# Koronos core objects (generated from the vendored build-koronos.sh source list)
+obj-y += koronos.o
+obj-y += elf64.o
+obj-y += module.o
+obj-y += relocate.o
+obj-y += arch_init.o
+obj-y += runtime.o
+obj-y += runtime_loop.o
+obj-y += scheduler.o
+obj-y += process.o
+obj-y += process_loader.o
+obj-y += thread.o
+obj-y += sync.o
+obj-y += timer.o
+obj-y += apc.o
+obj-y += dpc.o
+obj-y += hardware.o
+obj-y += nbit.o
+obj-y += firmware.o
+obj-y += device.o
+obj-y += multiboot_modules.o
+obj-y += parallel.o
+obj-y += driver.o
+obj-y += learning.o
+obj-y += microkernel.o
+obj-y += service.o
+obj-y += object.o
+obj-y += utf8.o
+obj-y += platform_features.o
+obj-y += compat.o
+obj-y += interrupt.o
+obj-y += syscall.o
+obj-y += isa_registry.o
+obj-y += ai_model.o
+obj-y += frame_allocator.o
+obj-y += physmap.o
+obj-y += address_space.o
+obj-y += target_launch.o
+
+# Linux-style per-object flag override
+KORONOS_CXXFLAGS_nbit_note.o := -DCHIMERA_NBIT_IMAGE_BITS=$(CONFIG_KORONOS_NBIT_WIDTH)
+obj-y += nbit_note.o
+

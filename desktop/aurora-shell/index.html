@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-profile="aurora">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aurora Desktop</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<body>
+<div id="shell">
+  <div id="wallpaper"></div>
+
+  <header id="menubar" role="menubar">
+    <div class="mb-brand"><span class="glyph" id="mbGlyph">◉</span><span id="mbBrand">Aurora</span></div>
+    <menu id="mbMenus">
+      <li><button data-menu="app">File</button></li>
+      <li><button data-menu="edit">Edit</button></li>
+      <li><button data-menu="view">View</button></li>
+      <li><button data-menu="go">Go</button></li>
+      <li><button data-menu="window">Window</button></li>
+      <li><button data-menu="help">Help</button></li>
+    </menu>
+    <div class="mb-right">
+      <span class="pill" id="mbNetwork">◌ offline</span>
+      <span class="pill" id="mbVoice" title="VoiceConnect">🎙</span>
+      <span class="pill" id="mbClock">--:--</span>
+      <button class="pill" id="mbQuick" title="Quick settings">⚙</button>
+    </div>
+  </header>
+
+  <main id="desktop">
+    <div id="desktopIcons"></div>
+  </main>
+
+  <nav id="taskbar" aria-label="Taskbar">
+    <div class="tb-group tb-left">
+      <button class="tb-btn" id="tbStart" title="Start">⊞</button>
+      <button class="tb-btn" id="tbSearch" title="Search">⌕</button>
+    </div>
+    <div class="tb-group" id="tbTasks"></div>
+    <div class="tb-group tb-right">
+      <button class="tb-btn" id="tbTrayNet" title="Network">🌐</button>
+      <button class="tb-btn" id="tbTrayVoice" title="VoiceConnect">🎙</button>
+      <div class="clock" id="tbClock">--:--<br><small>--/--/--</small></div>
+    </div>
+  </nav>
+
+  <nav id="dock" aria-label="Dock"></nav>
+
+  <section id="startMenu" aria-label="Launcher">
+    <input class="sm-search" id="smSearch" type="search" placeholder="Search apps, panels and settings…" autocomplete="off">
+    <h3>Applications</h3>
+    <div class="sm-grid" id="smApps"></div>
+    <h3>Panels</h3>
+    <div class="sm-grid" id="smPanels"></div>
+  </section>
+
+  <section id="overview" aria-label="Window overview">
+    <h2>Windows</h2>
+    <div class="ov-grid" id="ovGrid"></div>
+  </section>
+
+  <div id="windows"></div>
+  <div id="ctxMenu" role="menu"></div>
+  <div id="dialogLayer"></div>
+  <div id="toast" role="status"></div>
+</div>
+
+<script src="assets/shell.js"></script>
+<script src="assets/apps.js"></script>
+<script src="assets/apps-voiceconnect.js"></script>
+<script src="assets/apps-network.js"></script>
+<script>window.Aurora && window.Aurora.boot();</script>
+</body>
+</html>

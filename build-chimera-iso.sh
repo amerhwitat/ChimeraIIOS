@@ -408,7 +408,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -1129,23 +1129,86 @@ build_native_iso_pipeline(){
     log_info "Native boot/iso/build-iso.sh pipeline skipped by CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0"
     return 0
   fi
-  header 'STEP 11: RUN CANONICAL NATIVE ISO PIPELINE'
+  header 'STEP 11: COMPOSE CANONICAL NATIVE KORONOS RELEASE ISO'
   local native_script="$SCRIPT_DIR/boot/iso/build-iso.sh"
-  local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
+  local native_dir="$SCRIPT_DIR/boot/iso/dist"
+  local native_tree="$native_dir/iso"
+  local native_iso="$native_dir/output.iso"
   [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
-  # Forward the target system block size through the canonical native ISO boundary.
-  # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
   local system_block_size="${CHIMERA_SYSTEM_BLOCK_SIZE:-4096}"
   [[ "$system_block_size" =~ ^[1-9][0-9]*$ ]] || { log_error "Invalid CHIMERA_SYSTEM_BLOCK_SIZE: $system_block_size"; return 2; }
-  # Pass both the canonical name and the compatibility alias explicitly: the
-  # native ISO builder and its contract verifier must see the same 4 KiB default.
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     SYSTEM_BLOCK_SIZE="$system_block_size" \
     CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
-  [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
-  (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
-  log_success "Canonical native ISO and checksum verified: $native_iso"
+  [[ -d "$native_tree" && -s "$native_iso" ]] || { log_error "Native ISO pipeline did not produce its ISO tree and image"; return 1; }
+
+  # Merge release payloads into the canonical Koronos ISO tree before final mastering.
+  # This keeps the native Koronos boot path authoritative while making the
+  # compiled desktop/SDK/application payload available on the installation media.
+  mkdir -p "$native_tree/opt/chimera" "$native_tree/opt/chimera/runtime/usr/share" \
+    "$native_tree/opt/chimera/runtime/usr/bin" "$native_tree/opt/chimera/runtime/usr/share/applications"
+  if [[ -d "$ISO_DIR/opt/chimera" ]]; then
+    cp -a "$ISO_DIR/opt/chimera/." "$native_tree/opt/chimera/"
+  fi
+  if [[ -d "$ROOTFS_DIR/usr/share/chimera" ]]; then
+    cp -a "$ROOTFS_DIR/usr/share/chimera" "$native_tree/opt/chimera/runtime/usr/share/"
+  fi
+  if [[ -d "$ROOTFS_DIR/usr/share/applications" ]]; then
+    cp -a "$ROOTFS_DIR/usr/share/applications/." "$native_tree/opt/chimera/runtime/usr/share/applications/"
+  fi
+  if [[ -d "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" ]]; then
+    mkdir -p "$native_tree/opt/chimera/runtime/usr/lib/chimera/tools"
+    cp -a "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$native_tree/opt/chimera/runtime/usr/lib/chimera/tools/"
+  fi
+  if [[ -d "$ROOTFS_DIR/etc/xdg/autostart" ]]; then
+    mkdir -p "$native_tree/opt/chimera/runtime/etc/xdg"
+    cp -a "$ROOTFS_DIR/etc/xdg/autostart" "$native_tree/opt/chimera/runtime/etc/xdg/"
+  fi
+  for bin in "$ROOTFS_DIR"/usr/bin/chimera-*; do
+    [[ -f "$bin" && -x "$bin" ]] || continue
+    cp -f "$bin" "$native_tree/opt/chimera/runtime/usr/bin/"
+  done
+  python3 - "$native_tree/opt/chimera/native-userspace-payload-manifest.json" "$native_tree/opt/chimera" <<'PYMANIFEST'
+import hashlib, json, pathlib, sys
+out, root = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+items=[]
+for p in sorted(root.rglob("*")):
+    if p.is_file() and p != out:
+        data=p.read_bytes()
+        items.append({"path":p.relative_to(root).as_posix(),"size_bytes":len(data),
+                      "sha256":hashlib.sha256(data).hexdigest()})
+out.write_text(json.dumps({
+    "schema":"chimera-native-iso-userspace-payload-v1",
+    "boot_kernel":"Koronos native Multiboot2 ELF",
+    "payloads":items,
+    "activation":"payloads are staged on ISO media; this manifest does not claim they are active in native userspace",
+    "acceptance":"CPL3 syscall acknowledgement, matching PID readiness, VFS and SMP evidence remain mandatory"
+},indent=2)+"\n")
+PYMANIFEST
+
+  python3 "$SCRIPT_DIR/boot/iso/validate-iso.py" --tree "$native_tree" --write-manifest "$native_tree/checksums/SHA256SUMS"
+  local tmp_iso="$native_dir/output.iso.tmp"
+  rm -f "$tmp_iso"
+  grub-mkrescue -o "$tmp_iso" "$native_tree" 2>&1 | tee "$LOG_DIR/native-iso-remaster.log"
+  [[ -s "$tmp_iso" ]] || { log_error "Native ISO remaster produced no image"; return 1; }
+  mv -f "$tmp_iso" "$native_iso"
+  (cd "$native_dir" && sha256sum output.iso > output.iso.sha256)
+  (cd "$native_dir" && sha256sum -c output.iso.sha256) || { log_error "Canonical native ISO checksum verification failed"; return 1; }
+  xorriso -indev "$native_iso" -report_el_torito plain | tee "$LOG_DIR/native-iso-el-torito.log"
+  grep -qi 'BIOS' "$LOG_DIR/native-iso-el-torito.log" || { log_error "Native Koronos ISO is missing BIOS El Torito boot"; return 1; }
+  grep -qi 'UEFI' "$LOG_DIR/native-iso-el-torito.log" || { log_error "Native Koronos ISO is missing UEFI El Torito boot"; return 1; }
+  local required_native_path
+  for required_native_path in /boot/koronos/koronos.elf /boot/live/chimera-live-initramfs.img /boot/recovery/chimera-recovery-initramfs.img /opt/chimera/knowledge/knowledge-index.json /opt/chimera/native-userspace-payload-manifest.json; do
+    xorriso -indev "$native_iso" -find "$required_native_path" -type f | grep -q . || {
+      log_error "Remastered native ISO is missing required payload: $required_native_path"; return 1; }
+  done
+
+  local release_iso="$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}-native-koronos.iso"
+  cp -f "$native_iso" "$release_iso"
+  sha256sum "$release_iso" > "$release_iso.sha256"
+  (cd "$ISO_OUTPUT_DIR" && sha256sum -c "$(basename "$release_iso").sha256") || { log_error "Published native ISO checksum verification failed"; return 1; }
+  log_success "Canonical native Koronos release candidate composed and verified: $release_iso"
 }
 
 
@@ -1515,7 +1578,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk knowledge squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1536,10 +1599,258 @@ main(){
       verify) run_stage verify verify_iso;;
       native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
+      sdk) run_stage sdk stage_sdks;;
+      knowledge) run_stage knowledge stage_knowledge;;
     esac
     completed="$stage"
   done
   cleanup_final_success_artifacts
+}
+
+stage_sdks(){
+  header 'STEP: COMPILE ALL REPOSITORY SDKS'
+  # Compiles every build definition the host toolchains support (CMake, Cargo,
+  # Swift, Dart, Maven, Gradle, dotnet, npm, Go, Python) and writes an honest
+  # report into the ISO. Missing toolchains are reported as skipped, not passed.
+  local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
+  mkdir -p "$(dirname "$report")"
+  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+    python3 -c 'import json,pathlib,sys; p=pathlib.Path(sys.argv[1]); p.is_file() or sys.exit("SDK build report missing"); s=json.loads(p.read_text()).get("summary",{}); print("SDK build summary:",s); sys.exit(1 if int(s.get("failed",0))+int(s.get("timeout",0)) else 0)' "$report"
+    log_info "SDK report staged at $report"
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/reports" "$ROOTFS_DIR/usr/share/chimera/sdk" \
+      "$ROOTFS_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/sdk"
+    if [[ -d "$SCRIPT_DIR/build/sdk/javac-out" ]]; then
+      mkdir -p "$ROOTFS_DIR/opt/chimera/sdk/java-classes" "$ISO_DIR/opt/chimera/sdk/java-classes"
+      cp -a "$SCRIPT_DIR/build/sdk/javac-out/." "$ROOTFS_DIR/opt/chimera/sdk/java-classes/"
+      cp -a "$SCRIPT_DIR/build/sdk/javac-out/." "$ISO_DIR/opt/chimera/sdk/java-classes/"
+    fi
+    cp -f "$report" "$ROOTFS_DIR/usr/share/chimera/reports/sdk-build-report.json"
+    # macOS cross-development support: ship only first-party templates and an honest probe report.
+    # Apple SDK frameworks/headers/runtimes are intentionally never copied into the ISO.
+    local macos_report="$BUILD_DIR/sdk/macos-sdk-report.json"
+    if [[ -x "$SCRIPT_DIR/tools/build-macos-sdk.sh" ]]; then
+      bash "$SCRIPT_DIR/tools/build-macos-sdk.sh" "$macos_report" || log_warning "macOS SDK probe failed"
+      install -D -m 0644 "$macos_report" "$ROOTFS_DIR/usr/share/chimera/reports/macos-sdk-report.json"
+      install -D -m 0644 "$macos_report" "$ISO_DIR/opt/chimera/sdk/macos-sdk-report.json"
+      install -D -m 0755 "$SCRIPT_DIR/tools/build-macos-sdk.sh" "$ROOTFS_DIR/usr/lib/chimera/tools/build-macos-sdk.sh"
+      install -D -m 0755 "$SCRIPT_DIR/tools/build-macos-sdk.sh" "$ISO_DIR/opt/chimera/sdk/build-macos-sdk.sh"
+      if [[ -d "$SCRIPT_DIR/sdk/macos" ]]; then
+        mkdir -p "$ROOTFS_DIR/opt/chimera-sdk/macos" "$ISO_DIR/opt/chimera/sdk/macos"
+        cp -a "$SCRIPT_DIR/sdk/macos/." "$ROOTFS_DIR/opt/chimera-sdk/macos/"
+        cp -a "$SCRIPT_DIR/sdk/macos/." "$ISO_DIR/opt/chimera/sdk/macos/"
+      fi
+    fi
+    # Include an Objective-C macOS .app only when the license-gated cross-build produced it.
+    # A probe report or source template alone is never represented as a compiled app.
+    local macos_app="$BUILD_DIR/sdk/macos-objective-c-build/HelloMacOS.app"
+    if [[ -d "$macos_app" ]]; then
+      mkdir -p "$ROOTFS_DIR/opt/chimera/apps/macos" "$ISO_DIR/opt/chimera/apps/macos"
+      cp -a "$macos_app" "$ROOTFS_DIR/opt/chimera/apps/macos/"
+      cp -a "$macos_app" "$ISO_DIR/opt/chimera/apps/macos/"
+      python3 - "$macos_app" "$ROOTFS_DIR/opt/chimera/apps/macos/macos-app-build-manifest.json" <<'PYMAC'
+import hashlib, json, pathlib, sys
+root, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+items=[]
+for path in sorted(root.rglob("*")):
+    if path.is_file():
+        data=path.read_bytes()
+        items.append({"path":path.relative_to(root).as_posix(),"size_bytes":len(data),
+                      "sha256":hashlib.sha256(data).hexdigest()})
+out.write_text(json.dumps({"schema":"chimera-macos-app-build-v1",
+                           "status":"built","bundle":"HelloMacOS.app","files":items},indent=2)+"\n")
+PYMAC
+      cp -f "$ROOTFS_DIR/opt/chimera/apps/macos/macos-app-build-manifest.json" "$ISO_DIR/opt/chimera/apps/macos/"
+      log_success "License-reviewed macOS Objective-C app bundle staged."
+    else
+      log_info "No macOS .app bundle staged; see macos-sdk-report.json for blocked/review-required status."
+    fi
+
+    for manifest in sdk/third-party-sdk-manifest.json sdk/manifest.json; do
+      if [[ -s "$SCRIPT_DIR/$manifest" ]]; then
+        cp -f "$SCRIPT_DIR/$manifest" "$ROOTFS_DIR/usr/share/chimera/sdk/"
+        cp -f "$SCRIPT_DIR/$manifest" "$ISO_DIR/opt/chimera/sdk/"
+      fi
+    done
+    # Compile the repository-owned Aurora application set and shell utilities before packaging.
+    if [[ -x "$SCRIPT_DIR/tools/build-desktop-binaries.sh" || -f "$SCRIPT_DIR/tools/build-desktop-binaries.sh" ]]; then
+      docker run --rm --network none \
+        -v "$SCRIPT_DIR:/workspace:ro" -v "$BUILD_DIR:/out" \
+        -w /workspace -e CHIMERA_DESKTOP_BUILD_DIR=/out/desktop \
+        --entrypoint /bin/bash "$DOCKER_IMAGE:$DOCKER_TAG" \
+        /workspace/tools/build-desktop-binaries.sh \
+        2>&1 | tee "$LOG_DIR/desktop-binary-build.log" || { log_error "Native desktop application compilation failed"; return 1; }
+    else
+      log_warning "tools/build-desktop-binaries.sh is missing; no desktop binary compilation was performed"
+    fi
+    # Ship only executable build products from known SDK/application output roots.
+    # Build caches, logs and source trees are not copied as runnable applications.
+    local source source_label bin rel dest
+    for source in "$BUILD_DIR/sdk" "$SCRIPT_DIR/build/sdk" "$BUILD_DIR/desktop/bin" "$BUILD_DIR/apps/bin" "$SCRIPT_DIR/apps/bin" "$SCRIPT_DIR/desktop/aurora/apps"; do
+      [[ -d "$source" ]] || continue
+      case "$source" in
+        "$BUILD_DIR/sdk") source_label="build-sdk" ;;
+        "$SCRIPT_DIR/build/sdk") source_label="repo-sdk" ;;
+        "$BUILD_DIR/desktop/bin") source_label="desktop-build" ;;
+        "$BUILD_DIR/apps/bin") source_label="build-apps" ;;
+        "$SCRIPT_DIR/apps/bin") source_label="repo-apps" ;;
+        *) source_label="aurora-apps" ;;
+      esac
+      while IFS= read -r -d '' bin; do
+        case "$bin" in *.log|*.tmp|*/CMakeFiles/*) continue;; esac
+        rel="${bin#"$source"/}"
+        dest="$ROOTFS_DIR/opt/chimera/apps/bin/$source_label/$rel"
+        install -D -m 0755 "$bin" "$dest"
+        install -D -m 0755 "$bin" "$ISO_DIR/opt/chimera/apps/bin/$(basename "$source")/$rel"
+      done < <(find "$source" -type f -perm /111 -print0 2>/dev/null)
+    done
+    if [[ -d "$BUILD_DIR/desktop" ]]; then
+      mkdir -p "$ROOTFS_DIR/opt/chimera/apps/objects" "$ISO_DIR/opt/chimera/apps/objects"
+      find "$BUILD_DIR/desktop" -maxdepth 2 -type f -name '*.o' -print0 2>/dev/null |
+        while IFS= read -r -d '' obj; do
+          install -D -m 0644 "$obj" "$ROOTFS_DIR/opt/chimera/apps/objects/$(basename "$obj")"
+          install -D -m 0644 "$obj" "$ISO_DIR/opt/chimera/apps/objects/$(basename "$obj")"
+        done
+      if [[ -s "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" ]]; then
+        install -D -m 0644 "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/usr/share/chimera/desktop-build-manifest.json"
+        install -D -m 0644 "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ISO_DIR/opt/chimera/apps/desktop-build-manifest.json"
+      fi
+    fi
+    install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ROOTFS_DIR/usr/lib/chimera/tools/build-sdks.sh"
+    install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ISO_DIR/opt/chimera/sdk/build-sdks.sh"
+    python3 - "$ROOTFS_DIR/opt/chimera/apps/bin" "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" <<'PYBIN'
+import hashlib, json, pathlib, sys
+root, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+items=[]
+for path in sorted(root.rglob("*")):
+    if path.is_file():
+        data=path.read_bytes()
+        items.append({"path":path.relative_to(root).as_posix(),"size_bytes":len(data),
+                      "sha256":hashlib.sha256(data).hexdigest()})
+out.write_text(json.dumps({"schema":"chimera-native-app-bundle-v1",
+                           "binaries":items,
+                           "policy":"Only executable first-party build outputs are staged; catalog references are not binaries."},
+                          indent=2)+"\n")
+PYBIN
+    cp -f "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" "$ISO_DIR/opt/chimera/apps/"
+
+    # Install source-provided desktop launchers and create menu entries only for
+    # the explicit first-party desktop binaries listed by the build manifest.
+    mkdir -p "$ROOTFS_DIR/usr/share/applications"
+    for desktop_root in "$SCRIPT_DIR/desktop/aurora" "$SCRIPT_DIR/desktop/marine"; do
+      [[ -d "$desktop_root" ]] || continue
+      while IFS= read -r -d '' desktop_file; do
+        local desktop_rel desktop_name
+        desktop_rel="${desktop_file#"$SCRIPT_DIR/desktop/"}"
+        desktop_name="$(printf '%s' "$desktop_rel" | tr '/' '-')"
+        install -D -m 0644 "$desktop_file" "$ROOTFS_DIR/usr/share/applications/chimera-source-$desktop_name"
+      done < <(find "$desktop_root" -type f -name '*.desktop' -print0)
+    done
+    if [[ -s "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" ]]; then
+      python3 - "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/opt/chimera/apps/bin/desktop-build" "$ROOTFS_DIR/usr/share/applications" <<'PYDESKTOP'
+import json, pathlib, sys
+manifest_path, binaries, desktop_dir = map(pathlib.Path, sys.argv[1:])
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+for item in manifest.get("native_binaries", []):
+    name = pathlib.Path(item).name
+    binary = binaries / name
+    if not binary.is_file():
+        continue
+    terminal = name in {"chimera-neural-chat", "voiceconnect", "chm-utf8"}
+    title = name.replace("-", " ").replace("_", " ").title()
+    if name == "chimera-desktop-shell":
+        continue
+    if name == "chimera-neural-chat":
+        title = "Chimera Neural Chat (prototype)"
+    entry = desktop_dir / ("chimera-built-" + name + ".desktop")
+    entry.write_text(
+        "[Desktop Entry]\nType=Application\nName=" + title +
+        "\nComment=First-party Chimera desktop application\nExec=/opt/chimera/apps/bin/desktop-build/" + name +
+        "\nTerminal=" + ("true" if terminal else "false") +
+        "\nCategories=Utility;Development;\n",
+        encoding="utf-8")
+PYDESKTOP
+      cat > "$ROOTFS_DIR/usr/share/applications/chimera-aurora-shell.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Aurora Native Shell
+Exec=/opt/chimera/apps/bin/desktop-build/chimera-desktop-shell --desktop=aurora
+Terminal=false
+Categories=System;DesktopSettings;
+EOF
+      cat > "$ROOTFS_DIR/usr/share/applications/chimera-marine-shell.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Marine Native Shell
+Exec=/opt/chimera/apps/bin/desktop-build/chimera-desktop-shell --desktop=marine
+Terminal=false
+Categories=System;DesktopSettings;
+EOF
+    fi
+
+  else
+    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+  fi
+}
+
+stage_knowledge(){
+  header 'STEP: BUILD LOCAL KNOWLEDGE JSON DATABASE'
+  local indexer="$SCRIPT_DIR/tools/knowledge/build-json-index.py"
+  local chat="$SCRIPT_DIR/tools/knowledge/knowledge-chat.py"
+  local root_index="$ROOTFS_DIR/var/lib/chimera/knowledge/knowledge-index.json"
+  local iso_index="$ISO_DIR/opt/chimera/knowledge/knowledge-index.json"
+  [[ -s "$indexer" && -s "$chat" ]] || { log_error "Knowledge indexer/chat tool is missing"; return 1; }
+  mkdir -p "$(dirname "$root_index")" "$(dirname "$iso_index")" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$ISO_DIR/opt/chimera/knowledge"
+  python3 "$indexer" --out "$root_index"
+  python3 "$chat" --index "$root_index" --query "Aurora desktop" --limit 2 >/dev/null
+  cp -f "$root_index" "$iso_index"
+  install -m 0755 "$indexer" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/build-json-index.py"
+  install -m 0755 "$chat" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/knowledge-chat.py"
+  cp -f "$indexer" "$chat" "$ISO_DIR/opt/chimera/knowledge/"
+  cat > "$ROOTFS_DIR/usr/share/chimera/knowledge-runtime.json" <<'EOF'
+{
+  "schema": "chimera-local-ai-runtime-contract-v1",
+  "knowledge_database": "/var/lib/chimera/knowledge/knowledge-index.json",
+  "mode": "local-retrieval-index",
+  "cnn_inference": "requires separately installed model and runtime",
+  "rnn_inference": "requires separately installed model and runtime",
+  "llm_inference": "requires separately installed model and runtime",
+  "training": false,
+  "privacy": "repository-local allowlisted text only; no arbitrary host ingestion"
+}
+EOF
+  mkdir -p "$ROOTFS_DIR/usr/share/applications"
+  cat > "$ROOTFS_DIR/usr/share/applications/chimera-knowledge-index.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Knowledge Index
+Comment=Refresh the local, provenance-tracked knowledge database
+Exec=xterm -e python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json --root /usr/share/chimera
+Terminal=false
+Categories=Utility;Education;
+EOF
+  cat > "$ROOTFS_DIR/usr/share/applications/chimera-knowledge-chat.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Knowledge Chat
+Comment=Search the local knowledge database with source citations
+Exec=xterm -e python3 /usr/lib/chimera/tools/knowledge/knowledge-chat.py --index /var/lib/chimera/knowledge/knowledge-index.json
+Terminal=true
+Categories=Utility;Education;
+EOF
+  mkdir -p "$ROOTFS_DIR/etc/xdg/autostart"
+  cat > "$ROOTFS_DIR/etc/xdg/autostart/chimera-knowledge-refresh.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Knowledge Refresh
+Comment=Refresh the bounded local resource index at desktop login
+Exec=/usr/bin/python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json --root / --source usr/share/chimera --source opt/chimera --source usr/share/applications --source usr/local/share
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+EOF
+  log_info "Local JSON retrieval database staged; no model inference or training is claimed."
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT

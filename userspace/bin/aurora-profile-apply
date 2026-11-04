@@ -1,0 +1,11 @@
+#!/bin/sh
+# Ensure the runtime profile exists before the session starts (systemd ExecStartPre).
+set -eu
+mkdir -p /run/aurora
+if [ -s /run/aurora/profile ]; then exit 0; fi
+if [ -s /etc/aurora/profile ]; then
+  cp /etc/aurora/profile /run/aurora/profile
+  exit 0
+fi
+profile="$(sed -n 's/.*aurora\.profile=\([a-zA-Z0-9_-]*\).*/\1/p' /proc/cmdline 2>/dev/null | head -n1)"
+printf '%s\n' "${profile:-aurora}" > /run/aurora/profile

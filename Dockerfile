@@ -6,8 +6,8 @@ FROM ubuntu:${UBUNTU_VERSION} AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ binutils clang llvm lld nasm make cmake ninja-build \
-    python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless \
+    bash ca-certificates git gcc g++ binutils clang clangd llvm lld nasm make cmake ninja-build pkg-config \
+    gobjc libobjc-13-dev gnustep-make libgnustep-base-dev python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless \
     rustc cargo perl pciutils usbutils dmidecode iproute2 procps \
     systemd systemd-sysv dos2unix \
     && rm -rf /var/lib/apt/lists/*
@@ -75,7 +75,8 @@ FROM ubuntu:${UBUNTU_VERSION} AS runtime
 ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates python3 pciutils usbutils dmidecode iproute2 procps \
+    bash ca-certificates git python3 pciutils usbutils dmidecode iproute2 procps \
+    clang clangd llvm lld cmake ninja-build pkg-config gobjc libobjc-13-dev gnustep-make libgnustep-base-dev \
     systemd systemd-sysv dosbox \
     && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*

@@ -57,7 +57,22 @@ if [[ -f "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/desktop/aurora/i18n" "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" "$ROOT/desktop/aurora/i18n/aurora_utf.cpp" "$ROOT/desktop/aurora/i18n/aurora_emoji.cpp" -o "$OUT/bin/aurora-utf-selftest"
   "$OUT/bin/aurora-utf-selftest"
 fi
-while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
+if [[ -f "$ROOT/desktop/native/chimera-desktop-shell.cpp" ]]; then
+  command -v pkg-config >/dev/null 2>&1 && pkg-config --exists gtk4 || {
+    echo "GTK4 development files are required to compile the native desktop shell." >&2
+    exit 2
+  }
+  command -v xvfb-run >/dev/null 2>&1 || {
+    echo "xvfb-run is required for Aurora/Marine headless shell acceptance." >&2
+    exit 2
+  }
+  "$CXX" -std=c++20 -O2 -Wall -Wextra $(pkg-config --cflags gtk4) \
+    "$ROOT/desktop/native/chimera-desktop-shell.cpp" $(pkg-config --libs gtk4) \
+    -o "$OUT/bin/chimera-desktop-shell"
+  GTK_A11Y=none xvfb-run -a "$OUT/bin/chimera-desktop-shell" --desktop=aurora --self-test
+  GTK_A11Y=none xvfb-run -a "$OUT/bin/chimera-desktop-shell" --desktop=marine --self-test
+fi
+while IFS= read -r -d '' py; do PYTHONPYCACHEPREFIX="$OUT/python-cache" python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
 cp -a "$ROOT/desktop/aurora/gates_menu.json" "$OUT/manifests/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/platform_personality_model.json" "$OUT/manifests/" 2>/dev/null || true
@@ -66,9 +81,11 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
 {
   "schema": "CHM-DESKTOP-BUILD-3",
   "aurora": "Wayland Glass",
-  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals","bin/aurora-settings","bin/chm-utf8"],
+  "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals","bin/aurora-settings","bin/chm-utf8","bin/chimera-desktop-shell"],
   "native_objects": ["aurora_input.o","aurora_input_router.o","aurora_locale.o","aurora_utf.o","aurora_emoji.o","chimera_icons.o"],
   "source_tree": "aurora-source",
+  "shells": ["aurora", "marine"],
+  "headless_self_tests": ["aurora", "marine"],
   "internationalization": ["UTF-8","Unicode","BCP-47","CLDR-oriented","RTL","LTR","combining-marks","variation-selectors","emoji","logical-start-end"],
   "icons": {"provider":"native","fallback":"hardcoded-svg","emoji":true},
   "personalities": ["chimera","linux","unix","windows","macos","bsd"],

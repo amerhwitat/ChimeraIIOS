@@ -1,0 +1,6 @@
+# x86_64 entry, interrupt stubs and IO primitives
+obj-y += entry.asm
+obj-y += io.asm
+obj-y += mode_switch.asm
+obj-y += user_entry.asm
+obj-y += interrupts.asm

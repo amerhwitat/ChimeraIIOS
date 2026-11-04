@@ -128,3 +128,11 @@ emulation/catalog/*.local.json
 
 # live-image build helpers must be tracked (repo-wide lib/ rule above)
 !live-image/lib/
+
+# kernel build output
+kernel/.config
+kernel/.config.json
+build/
+
+# Aurora userspace helpers are source, not build output
+!userspace/bin/

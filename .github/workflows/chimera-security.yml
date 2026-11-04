@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install security test dependencies
+        run: sudo apt-get update && sudo apt-get install --yes python3-pytest
       - name: Compile security modules
         run: python3 -m compileall -q tools/security
       - name: Run security regression tests
