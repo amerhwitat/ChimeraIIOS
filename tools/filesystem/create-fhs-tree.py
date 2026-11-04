@@ -11,13 +11,13 @@ def create(root):
   p.mkdir(parents=True,exist_ok=True)
   if not p.is_dir():raise ValueError("not a directory: "+rel)
   os.chmod(p,mode,follow_symlinks=False);made.append("/"+rel)
- for name,target in LINKS.items():
+ for name,targets in LINKS.items():
   p=root/name
   if p.is_symlink():
-   if os.readlink(p)!=target:raise ValueError("unexpected merged-/usr link: "+name)
+   if os.readlink(p) not in targets:raise ValueError("unexpected FHS link: "+name)
   elif p.exists():
    if not p.is_dir():raise ValueError("refusing to replace non-directory "+name)
-  else:p.symlink_to(target)
+  else:p.symlink_to(targets[0])
  return {"root":str(root),"directories":made,"links":LINKS,"mount_points":["/dev","/proc","/sys","/run","/tmp"]}
 def main():
  p=argparse.ArgumentParser();p.add_argument("--root",required=True);a=p.parse_args();print(json.dumps(create(a.root),indent=2))
