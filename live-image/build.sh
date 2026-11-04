@@ -150,8 +150,8 @@ for hive in machine environment kernel; do
   python3 "$WORK/usr/lib/chimera/registry/registry_hive.py" verify "$WORK/etc/chimera/registry/$hive.hive"
 done
 cp -a "$REPO_DIR/system/integrations/." "$WORK/usr/share/chimera/integrations/"
-groupadd --force chimera-admin
-if getent passwd user >/dev/null 2>&1; then usermod -aG chimera-admin user; fi
+chroot "$WORK" groupadd --force chimera-admin
+if chroot "$WORK" getent passwd user >/dev/null 2>&1; then chroot "$WORK" usermod -aG chimera-admin user; fi
 install -d "$WORK/etc/systemd/system/multi-user.target.wants"
 cat > "$WORK/etc/systemd/system/chimera-admin-group-sync.service" <<'UNIT'
 [Unit]
