@@ -13,17 +13,39 @@
     "network_upload": false
   },
   "llm": {
-    "local_backends": ["Ollama", "llama.cpp"],
+    "local_backends": [
+      "Ollama",
+      "llama.cpp"
+    ],
     "retrieval_augmented_chat": true,
     "weights_bundled": false,
-    "automatic_training": false
+    "automatic_training": false,
+    "training_status": "NOT TRAINED: separately installed local model weights are not fine-tuned by knowledge ingestion"
   },
   "cnn_rnn": {
     "inference_backend": "ONNX Runtime",
     "requires_numpy": true,
     "weights_bundled": false,
-    "automatic_training": false
+    "automatic_training": false,
+    "cnn_weights_bundled": false,
+    "cnn_training_status": "BLOCKED: no labelled, licensed hardware/driver image dataset supplied",
+    "rnn_weights_bundled": true,
+    "rnn_training_status": "trained during ISO build from the versioned knowledge database; report/evaluation metadata stored with weights"
   },
   "training_policy": "No automatic training or weight updates. CNN/RNN training requires a user-selected dataset, architecture, training budget, and output path. LLM chat uses local inference with retrieved text excerpts; it does not fine-tune model weights.",
-  "release_boundary": "Runtime probes, indexing and local inference availability do not establish Koronos userspace readiness."
+  "release_boundary": "Runtime probes, indexing and local inference availability do not establish Koronos userspace readiness.",
+  "knowledge_database": {
+    "packaged": "/usr/share/chimera/ai/hardware-systems-knowledge.json",
+    "user_overlay": "~/.local/share/chimera-ai/knowledge.json",
+    "schema": "CHIMERA-HARDWARE-SYSTEMS-KNOWLEDGE-1",
+    "append_tool": "/usr/bin/chimera-ai-knowledge",
+    "source_attribution_required": true,
+    "retrieval_in_local_chat": true
+  },
+  "rnn": {
+    "inference_model": "/usr/share/chimera/ai/trained-hardware-systems-rnn.json",
+    "training_tool": "/usr/share/chimera/ai/train_knowledge_rnn.py",
+    "training": "small character-level RNN trained during ISO build from curated knowledge entries",
+    "role": "advisory text-pattern component; not authoritative and not an LLM"
+  }
 }
