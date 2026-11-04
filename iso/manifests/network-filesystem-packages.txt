@@ -17,7 +17,6 @@ libsasl2-modules-gssapi-mit
 avahi-daemon
 avahi-utils
 wsdd
-wsdd-server
 gvfs-backends
 udisks2
 util-linux
