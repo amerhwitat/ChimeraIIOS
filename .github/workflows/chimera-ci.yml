@@ -109,6 +109,7 @@ jobs:
               "services/registry/registry-editor-launcher.py",
               "desktop/aurora/registry-editor.html",
               "userspace/systemd/user/chimera-registry-editor.service",
+              "userspace/systemd/user/aurora-polkit-agent.service",
               "services/network/directory-discovery.py",
               "services/storage/mount-image.py",
           ):
