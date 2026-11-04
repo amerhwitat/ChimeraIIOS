@@ -564,6 +564,8 @@ export_rootfs(){
   }
   mkdir -p "$ROOTFS_DIR"/{run,tmp,var/log,var/cache,var/tmp,var/spool}
   chmod 1777 "$ROOTFS_DIR/tmp" "$ROOTFS_DIR/var/tmp" 2>/dev/null || true
+  python3 "$SCRIPT_DIR/tools/filesystem/stage-integrations.py" --source "$SCRIPT_DIR" --root "$ROOTFS_DIR" | tee -a "$LOG_DIR/integration-staging.log"
+  bash "$SCRIPT_DIR/tests/services/run-service-tests.sh" 2>&1 | tee -a "$LOG_DIR/service-regressions.log"
   rm -rf -- "$ROOTFS_DIR/var/lib/apt/lists/"* "$ROOTFS_DIR/root/.cache" 2>/dev/null || true
   [[ -d "$ROOTFS_DIR/bin" || -d "$ROOTFS_DIR/usr/bin" ]] || {
     log_error 'Rootfs export is incomplete'
