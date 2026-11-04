@@ -26,9 +26,9 @@
           const result = await api().discoverSmb();
           (result.servers || []).forEach((server) => {
             const line = el("div", "row");
-            line.append(el("span", "", server.name), el("span", "", server.host),
+            line.append(el("span", "", server.name), el("span", "", server.host || server.address),
               el("span", "", server.address + ":" + server.port));
-            line.addEventListener("dblclick", () => { host.value = server.host; browse.click(); });
+            line.addEventListener("dblclick", () => { host.value = server.host || server.address; browse.click(); });
             shares.appendChild(line);
           });
           if (!result.servers?.length) shares.appendChild(el("p", "status", "No SMB services announced on this local link."));
