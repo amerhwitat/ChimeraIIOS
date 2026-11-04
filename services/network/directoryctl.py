@@ -58,6 +58,8 @@ def main():
                 if not cache.startswith("FILE:"):
                     raise ValueError("elevated domain join requires a FILE: Kerberos ticket cache")
                 cache_path = Path(cache[5:])
+                if not cache_path.is_absolute() or "\n" in str(cache_path):
+                    raise ValueError("Kerberos ticket cache path must be absolute and single-line")
                 try:
                     st = cache_path.lstat()
                 except OSError as exc:
