@@ -1743,16 +1743,30 @@ stage_ai_workspace(){
   local iso="$ISO_DIR/system/ai"
   mkdir -p "$share" "$iso" "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications"
   install -m 0755 "$SCRIPT_DIR/tools/chimera-ai-workspace.py" "$ROOTFS_DIR/usr/bin/chimera-ai-workspace"
+  install -m 0755 "$SCRIPT_DIR/tools/cognition/knowledge_database.py" "$ROOTFS_DIR/usr/bin/chimera-ai-knowledge"
   install -m 0644 "$SCRIPT_DIR/system/ai/chimera-ai-workspace.json" "$share/chimera-ai-workspace.json"
   install -m 0644 "$SCRIPT_DIR/system/ai/README.md" "$share/README.md"
+  install -m 0644 "$SCRIPT_DIR/data/ai/hardware_systems_knowledge.json" "$share/hardware-systems-knowledge.json"
+  install -m 0644 "$SCRIPT_DIR/data/ai/hardware_systems_knowledge.schema.json" "$share/hardware-systems-knowledge.schema.json"
+  install -m 0644 "$SCRIPT_DIR/tools/cognition/knowledge_database.py" "$share/knowledge_database.py"
+  install -m 0644 "$SCRIPT_DIR/tools/cognition/train_knowledge_rnn.py" "$share/train_knowledge_rnn.py"
+  python3 "$SCRIPT_DIR/tools/cognition/knowledge_database.py" validate --database "$share/hardware-systems-knowledge.json"
+  python3 "$SCRIPT_DIR/tools/cognition/train_knowledge_rnn.py" --database "$share/hardware-systems-knowledge.json" --output "$share/trained-hardware-systems-rnn.json" --epochs "${CHIMERA_AI_RNN_EPOCHS:-2}" --hidden 8
+  python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-ai-workspace" "$ROOTFS_DIR/usr/bin/chimera-ai-knowledge" "$share/train_knowledge_rnn.py"
+  python3 "$SCRIPT_DIR/tests/cognition/test_knowledge_database.py"
   install -m 0755 "$SCRIPT_DIR/desktop/shared/chimera-ai-workspace-launcher.sh" "$ROOTFS_DIR/usr/local/bin/chimera-ai-workspace-launcher"
   install -m 0644 "$SCRIPT_DIR/desktop/aurora/chimera-ai-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/chimera-ai-workspace.desktop"
   install -m 0644 "$SCRIPT_DIR/desktop/marine/chimera-ai-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/chimera-ai-workspace-marine.desktop"
   cp -f "$SCRIPT_DIR/system/ai/chimera-ai-workspace.json" "$iso/"
   cp -f "$SCRIPT_DIR/system/ai/README.md" "$iso/"
   cp -f "$SCRIPT_DIR/tools/chimera-ai-workspace.py" "$iso/chimera-ai-workspace.py"
-  python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-ai-workspace"
+  cp -f "$share/hardware-systems-knowledge.json" "$iso/"
+  cp -f "$share/hardware-systems-knowledge.schema.json" "$iso/"
+  cp -f "$share/trained-hardware-systems-rnn.json" "$iso/"
+  cp -f "$share/knowledge_database.py" "$iso/"
   python3 -m json.tool "$share/chimera-ai-workspace.json" >/dev/null
+  python3 -m json.tool "$share/hardware-systems-knowledge.json" >/dev/null
+  python3 -m json.tool "$share/trained-hardware-systems-rnn.json" >/dev/null
   python3 "$SCRIPT_DIR/tests/test_chimera_ai_workspace.py"
   log_info 'AI workspace installed; resource indexing is explicit/local and metadata-only unless text capture is opted in.'
   log_info 'CNN/RNN training and LLM inference activate only when compatible frameworks, datasets and model weights are supplied.'
