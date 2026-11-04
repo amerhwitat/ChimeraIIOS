@@ -1579,6 +1579,22 @@ stage_sdks(){
     done
     install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ROOTFS_DIR/usr/lib/chimera/tools/build-sdks.sh"
     install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ISO_DIR/opt/chimera/sdk/build-sdks.sh"
+    python3 - "$ROOTFS_DIR/opt/chimera/apps/bin" "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" <<'PYBIN'
+import hashlib, json, pathlib, sys
+root, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+items=[]
+for path in sorted(root.rglob("*")):
+    if path.is_file():
+        data=path.read_bytes()
+        items.append({"path":path.relative_to(root).as_posix(),"size_bytes":len(data),
+                      "sha256":hashlib.sha256(data).hexdigest()})
+out.write_text(json.dumps({"schema":"chimera-native-app-bundle-v1",
+                           "binaries":items,
+                           "policy":"Only executable first-party build outputs are staged; catalog references are not binaries."},
+                          indent=2)+"\\n")
+PYBIN
+    cp -f "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" "$ISO_DIR/opt/chimera/apps/"
+
   else
     log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
   fi
