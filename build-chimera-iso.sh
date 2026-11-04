@@ -416,6 +416,11 @@ preflight(){
     fi
   fi
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
+  command -v cmake >/dev/null || { log_error 'CMake is required for the native SDK build'; exit 2; }
+  command -v ctest >/dev/null || { log_error 'CTest is required for SDK regression tests'; exit 2; }
+  command -v gcc >/dev/null || { log_error 'GCC is required for SDK native components'; exit 2; }
+  command -v g++ >/dev/null || { log_error 'G++ is required for SDK native components'; exit 2; }
+  command -v python3 >/dev/null || { log_error 'Python 3 is required for SDK and manifest validation'; exit 2; }
 }
 state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
 state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."; }
@@ -430,11 +435,11 @@ run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
-  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
+  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null || ! command -v cmake >/dev/null || ! command -v ctest >/dev/null || ! command -v gcc >/dev/null || ! command -v g++ >/dev/null || ! command -v python3 >/dev/null; then
     if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
       bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
     else
-      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso and mksquashfs; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
+      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso, mksquashfs, CMake/CTest, GCC/G++ and Python 3; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
       exit 2
     fi
   fi
