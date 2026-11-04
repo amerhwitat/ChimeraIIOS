@@ -2,6 +2,9 @@ name: Native Koronos Release ISO
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "release/native-iso-apps-knowledge-20261104"
   pull_request:
     paths:
       - "build-chimera-iso.sh"
