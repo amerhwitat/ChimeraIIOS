@@ -1613,10 +1613,17 @@ stage_sdks(){
         cp -f "$SCRIPT_DIR/$manifest" "$ISO_DIR/opt/chimera/sdk/"
       fi
     done
+    # Compile the repository-owned Aurora application set and shell utilities before packaging.
+    if [[ -x "$SCRIPT_DIR/tools/build-desktop-binaries.sh" || -f "$SCRIPT_DIR/tools/build-desktop-binaries.sh" ]]; then
+      CHIMERA_DESKTOP_BUILD_DIR="$BUILD_DIR/desktop" bash "$SCRIPT_DIR/tools/build-desktop-binaries.sh" \
+        2>&1 | tee "$LOG_DIR/desktop-binary-build.log" || { log_error "Native desktop application compilation failed"; return 1; }
+    else
+      log_warning "tools/build-desktop-binaries.sh is missing; no desktop binary compilation was performed"
+    fi
     # Ship only executable build products from known SDK/application output roots.
     # Build caches, logs and source trees are not copied as runnable applications.
     local source bin rel dest
-    for source in "$BUILD_DIR/sdk" "$BUILD_DIR/apps/bin" "$SCRIPT_DIR/apps/bin" "$SCRIPT_DIR/desktop/aurora/apps"; do
+    for source in "$BUILD_DIR/sdk" "$SCRIPT_DIR/build/sdk" "$BUILD_DIR/desktop/bin" "$BUILD_DIR/apps/bin" "$SCRIPT_DIR/apps/bin" "$SCRIPT_DIR/desktop/aurora/apps"; do
       [[ -d "$source" ]] || continue
       while IFS= read -r -d '' bin; do
         case "$bin" in *.log|*.tmp|*/CMakeFiles/*) continue;; esac
@@ -1626,6 +1633,18 @@ stage_sdks(){
         install -D -m 0755 "$bin" "$ISO_DIR/opt/chimera/apps/bin/$(basename "$source")/$rel"
       done < <(find "$source" -type f -perm /111 -print0 2>/dev/null)
     done
+    if [[ -d "$BUILD_DIR/desktop" ]]; then
+      mkdir -p "$ROOTFS_DIR/opt/chimera/apps/objects" "$ISO_DIR/opt/chimera/apps/objects"
+      find "$BUILD_DIR/desktop" -maxdepth 2 -type f -name '*.o' -print0 2>/dev/null |
+        while IFS= read -r -d '' obj; do
+          install -D -m 0644 "$obj" "$ROOTFS_DIR/opt/chimera/apps/objects/$(basename "$obj")"
+          install -D -m 0644 "$obj" "$ISO_DIR/opt/chimera/apps/objects/$(basename "$obj")"
+        done
+      if [[ -s "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" ]]; then
+        install -D -m 0644 "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ROOTFS_DIR/usr/share/chimera/desktop-build-manifest.json"
+        install -D -m 0644 "$BUILD_DIR/desktop/manifests/desktop-build-manifest.json" "$ISO_DIR/opt/chimera/apps/desktop-build-manifest.json"
+      fi
+    fi
     install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ROOTFS_DIR/usr/lib/chimera/tools/build-sdks.sh"
     install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ISO_DIR/opt/chimera/sdk/build-sdks.sh"
     python3 - "$ROOTFS_DIR/opt/chimera/apps/bin" "$ROOTFS_DIR/opt/chimera/apps/binary-manifest.json" <<'PYBIN'
