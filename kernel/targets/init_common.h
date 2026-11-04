@@ -104,10 +104,10 @@ static int init_vfs_acceptance(void) {
     for(long i=0;i<(long)sizeof(payload)-1;i++) if(buffer[i]!=payload[i]) return 0;
     init_writestr("VFS ACCEPTANCE: ROOT MOUNTED target=");
     init_writestr(CHIMERA_TARGET_NAME);
-    init_writestr(" path=/\\n");
+    init_writestr(" path=/\n");
     init_writestr("VFS ACCEPTANCE: TMP WRITE-READ VERIFIED target=");
     init_writestr(CHIMERA_TARGET_NAME);
-    init_writestr(" path=/tmp\\n");
+    init_writestr(" path=/tmp\n");
     return 1;
 }
 static void init_emit_readiness(long pid) {
