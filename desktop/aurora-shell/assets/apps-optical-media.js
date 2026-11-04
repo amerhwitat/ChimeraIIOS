@@ -22,8 +22,7 @@
           return;
         }
         try {
-          const selected = await api.selectIso();
-          const path = selected && selected.path;
+          const path = await api.selectIso();
           if (!path) return;
           const result = await api.mountIso(path);
           device = result.device;
