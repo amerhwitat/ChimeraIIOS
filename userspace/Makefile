@@ -47,7 +47,6 @@ install:
 		$(DESTDIR)$(USER_SYSTEMD_UNIT_DIR)/default.target.wants
 	@ln -sfn ../aurora.target $(DESTDIR)$(SYSTEMD_UNIT_DIR)/graphical.target.wants/aurora.target
 	@ln -sfn ../aurora-network.service $(DESTDIR)$(SYSTEMD_UNIT_DIR)/multi-user.target.wants/aurora-network.service
-	@ln -sfn ../aurora-polkit-agent.service $(DESTDIR)$(USER_SYSTEMD_UNIT_DIR)/default.target.wants/aurora-polkit-agent.service
 	@echo "  INSTALL units -> $(DESTDIR)$(SYSTEMD_UNIT_DIR)"
 
 check:
