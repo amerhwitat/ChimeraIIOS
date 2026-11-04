@@ -295,6 +295,36 @@
       "backends": {
         "linux": "sync-admin-group.py"
       }
+    },
+    {
+      "id": "ldap-browser",
+      "lifecycle": "on-demand",
+      "platforms": [
+        "linux"
+      ],
+      "capabilities": [
+        "ldap-search",
+        "starttls",
+        "ldaps",
+        "gssapi"
+      ],
+      "backends": {
+        "linux": "openldap-ldapsearch"
+      }
+    },
+    {
+      "id": "filesystem-layout",
+      "lifecycle": "install-time",
+      "platforms": [
+        "linux"
+      ],
+      "capabilities": [
+        "fhs-hierarchy",
+        "usr-merge-compatibility"
+      ],
+      "backends": {
+        "linux": "create-fhs-layout.sh"
+      }
     }
   ]
 }
