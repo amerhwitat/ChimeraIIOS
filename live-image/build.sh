@@ -86,7 +86,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v3"
+PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v4"
 if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 2>/dev/null || true)" != "$PACKAGE_SET_VERSION" ]; then
   log "installing/updating shared package set: $PACKAGE_SET_VERSION"
   mount_chroot "$BASE"
