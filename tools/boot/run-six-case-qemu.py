@@ -56,7 +56,8 @@ def monitor_command(sock: socket.socket, command: str) -> None:
         pass
 
 
-def select_grub_target(monitor_path: Path, target: str) -> None:
+def select_grub_target(monitor_path: Path, target: str,
+                       menu_indices: dict[str, int] | None = None) -> None:
     deadline = time.monotonic() + 20
     connection = None
     while time.monotonic() < deadline:
@@ -80,7 +81,8 @@ def select_grub_target(monitor_path: Path, target: str) -> None:
         # Keep GRUB's 8-second menu from auto-selecting while firmware starts.
         monitor_command(connection, "sendkey shift 10000")
         monitor_command(connection, "sendkey home")
-        for _ in range(MAIN_MENU_INDEX[target]):
+        indices = menu_indices or MAIN_MENU_INDEX
+        for _ in range(indices[target]):
             monitor_command(connection, "sendkey down")
         monitor_command(connection, "sendkey ret")
         if target == "recovery":
@@ -93,7 +95,8 @@ def select_grub_target(monitor_path: Path, target: str) -> None:
 
 
 def run_case(iso: Path, evidence: Path, target: str, firmware: str,
-             qemu: str, timeout_seconds: int, ovmf: Path | None) -> dict:
+             qemu: str, timeout_seconds: int, ovmf: Path | None,
+             menu_indices: dict[str, int] | None = None) -> dict:
     case_dir = evidence / target / firmware
     case_dir.mkdir(parents=True, exist_ok=True)
     trace = case_dir / "debugcon.log"
@@ -120,7 +123,7 @@ def run_case(iso: Path, evidence: Path, target: str, firmware: str,
         process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=log)
         try:
             try:
-                select_grub_target(monitor, target)
+                select_grub_target(monitor, target, menu_indices)
             except Exception as exc:  # preserve diagnostics; the verifier will block absent proof
                 selection_error = f"{type(exc).__name__}: {exc}"
             try:
@@ -164,6 +167,9 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=35)
     parser.add_argument("--targets", nargs="+", choices=TARGETS, default=list(TARGETS))
     parser.add_argument("--firmwares", nargs="+", choices=FIRMWARES, default=list(FIRMWARES))
+    parser.add_argument("--main-menu-index", action="append", default=[],
+                        metavar="TARGET=INDEX",
+                        help="Override a GRUB main-menu index for a different ISO menu layout")
     args = parser.parse_args()
 
     iso = args.iso.resolve()
@@ -173,6 +179,16 @@ def main() -> int:
     if shutil.which(args.qemu) is None:
         parser.error(f"QEMU executable not found: {args.qemu}")
     ovmf = ovmf_code() if "uefi" in args.firmwares else None
+    menu_indices = dict(MAIN_MENU_INDEX)
+    for item in args.main_menu_index:
+        try:
+            name, raw_index = item.split("=", 1)
+            index = int(raw_index)
+        except (ValueError, TypeError):
+            parser.error(f"invalid --main-menu-index {item!r}; expected TARGET=INDEX")
+        if name not in TARGETS or index < 0:
+            parser.error(f"invalid --main-menu-index {item!r}")
+        menu_indices[name] = index
     evidence.mkdir(parents=True, exist_ok=True)
     canonical_hash = sha256(iso)
     cases = []
@@ -181,7 +197,7 @@ def main() -> int:
             if sha256(iso) != canonical_hash:
                 raise RuntimeError("canonical ISO hash changed between cases")
             cases.append(run_case(iso, evidence, target, firmware, args.qemu,
-                                  args.timeout, ovmf))
+                                  args.timeout, ovmf, menu_indices))
     if sha256(iso) != canonical_hash:
         raise RuntimeError("canonical ISO hash changed after matrix execution")
 
