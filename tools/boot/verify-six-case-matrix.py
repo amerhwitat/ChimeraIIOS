@@ -120,6 +120,7 @@ def verify(iso: Path, evidence_dir: Path) -> dict:
         key = (target, firmware); observed.append(key)
         if key not in expected: failures.append(f"{label}: unsupported target/firmware pair {key!r}"); continue
         label = f"{target}/{firmware}"
+        case_failure_start = len(failures)
         if case.get("iso_sha256") != iso_hash: failures.append(f"{label}: case did not attest the exact canonical ISO SHA-256")
         if case.get("qemu_exit_code") not in (0, 124):
             failures.append(f"{label}: QEMU exit code must be 0 or expected idle timeout 124, got {case.get('qemu_exit_code')!r}")
@@ -138,7 +139,8 @@ def verify(iso: Path, evidence_dir: Path) -> dict:
                     if not isinstance(path, str) or not path: failures.append(f"{label}: missing {profile} desktop trace reference")
                     else: check_desktop(evidence_dir, path, profile, failures, label + "/" + profile)
         else: check_postcondition(evidence_dir, case, target, failures, label)
-        cases_report.append({"target": target, "firmware": firmware, "trace": rel, "status": "RECORDED"})
+        cases_report.append({"target": target, "firmware": firmware, "trace": rel,
+                             "status": "PASS" if len(failures) == case_failure_start else "BLOCKED"})
     if len(observed) != len(expected) or set(observed) != expected or len(observed) != len(set(observed)):
         failures.append("matrix must contain exactly one case for each Live/Installer/Recovery x BIOS/UEFI pair")
     return {"schema": SCHEMA, "status": "PASS" if not failures else "BLOCKED",
