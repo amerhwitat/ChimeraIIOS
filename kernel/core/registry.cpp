@@ -14,7 +14,7 @@ static bool path_eq(const uint8_t*p,uint16_t n,const char*s){uint16_t i=0;for(;i
 }
 extern "C" uint32_t koronos_registry_crc32(const uint8_t*p,uint32_t n){uint32_t c=0xffffffffu;if(!p&&n)return 0;for(uint32_t i=0;i<n;++i){c^=p[i];for(uint32_t b=0;b<8;++b)c=(c>>1)^(0xedb88320u&(0u-(c&1u)));}return ~c;}
 extern "C" int koronos_registry_validate(const void*raw,uint32_t n,koronos_registry_view*out){
- static const uint8_t m[8]={'C','H','M','R','G','0','1',0};if(!raw||!out||n<40)return 0;const uint8_t*p=(const uint8_t*)raw;
+ static const uint8_t m[8]={'C','H','M','R','G','0','1',0};if(!raw||!out||n<40||n>(16u<<20))return 0;const uint8_t*p=(const uint8_t*)raw;
  for(uint32_t i=0;i<8;++i)if(p[i]!=m[i])return 0;
  uint32_t count=r32(p+20);if(r16(p+8)!=1||r16(p+10)!=0||r32(p+12)!=40||r32(p+16)!=n||count>4096||r32(p+36)!=koronos_registry_crc32(p,36)||r32(p+32)!=koronos_registry_crc32(p+40,n-40))return 0;
  uint32_t off=40;for(uint32_t i=0;i<count;++i){if(off>n||n-off<8)return 0;uint16_t pl=r16(p+off);uint8_t ty=p[off+2],fl=p[off+3];uint32_t vl=r32(p+off+4);off+=8;
@@ -29,5 +29,5 @@ extern "C" int koronos_registry_find(const koronos_registry_view*v,const char*s,
  if(!v||!v->data||!s||!value||!size)return 0;uint32_t off=40;for(uint32_t i=0;i<v->entry_count;++i){const uint8_t*p=v->data;uint16_t pl=r16(p+off);uint8_t ty=p[off+2];uint32_t vl=r32(p+off+4);off+=8;
  if(path_eq(p+off,pl,s)&&(!t||t==ty)){*value=p+off+pl;*size=vl;return 1;}off+=(uint32_t)pl+vl;}return 0;
 }
-extern "C" int koronos_registry_read_u64(const koronos_registry_view*v,const char*s,uint64_t*out){const uint8_t*p=nullptr;uint32_t n=0;if(!out||!koronos_registry_find(v,s,0,&p,&n))return 0;if(n==4){*out=r32(p);return 1;}if(n==8){*out=r64(p);return 1;}return 0;}
+extern "C" int koronos_registry_read_u64(const koronos_registry_view*v,const char*s,uint64_t*out){const uint8_t*p=nullptr;uint32_t n=0;if(!out)return 0;if(koronos_registry_find(v,s,KORONOS_REG_U32,&p,&n)&&n==4){*out=r32(p);return 1;}if(koronos_registry_find(v,s,KORONOS_REG_U64,&p,&n)&&n==8){*out=r64(p);return 1;}return 0;}
 extern "C" int koronos_registry_read_bool(const koronos_registry_view*v,const char*s,uint8_t*out){const uint8_t*p=nullptr;uint32_t n=0;if(!out||!koronos_registry_find(v,s,KORONOS_REG_BOOL,&p,&n)||n!=1||p[0]>1)return 0;*out=p[0];return 1;}
