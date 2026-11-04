@@ -72,7 +72,7 @@ class SixCaseMatrixTests(unittest.TestCase):
         lines.remove(root)
         ready = next(i for i,x in enumerate(lines) if "USERSPACE READY:" in x)
         lines.insert(ready, root)
-        p.write_text("\\n".join(lines) + "\\n")
+        p.write_text("\n".join(lines) + "\n")
         self.assertEqual(self.run_verifier().returncode, 1)
     def test_missing_smp_overlap_is_blocked(self):
         p = self.evidence / self.manifest["cases"][0]["trace"]
