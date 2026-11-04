@@ -1,0 +1,67 @@
+name: Registry, SMB, Directory and Optical Integration
+on:
+  pull_request:
+    paths:
+      - "services/registry/**"
+      - "services/network/**"
+      - "services/storage/**"
+      - "system/integrations/**"
+      - "desktop/aurora-shell/**"
+      - "live-image/**"
+      - "tests/integrations/**"
+      - ".github/workflows/integrations-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "services/registry/**"
+      - "services/network/**"
+      - "services/storage/**"
+      - "system/integrations/**"
+      - "desktop/aurora-shell/**"
+      - "live-image/**"
+      - "tests/integrations/**"
+      - ".github/workflows/integrations-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Python syntax
+        run: |
+          python -m py_compile services/registry/registryd.py services/network/smb-browse.py services/network/directoryctl.py services/storage/mount-image.py live-image/lib/aurora-kiosk.py tools/registry/registry_hive.py
+      - name: Integration regression tests
+        run: python -m unittest discover -s tests/integrations -v
+      - name: Aurora JavaScript syntax
+        run: |
+          node --check desktop/aurora-shell/assets/apps-registry.js
+          node --check desktop/aurora-shell/assets/apps-windows-network.js
+          node --check desktop/aurora-shell/assets/apps-optical-media.js
+      - name: Validate JSON contracts and staged paths
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          for path in pathlib.Path("system/integrations").glob("*.json"):
+              json.loads(path.read_text())
+          services = json.loads(pathlib.Path("services/service_registry.json").read_text())
+          ids = {x["id"] for x in services["services"]}
+          required = {"registry", "smb-server", "smb-discovery", "directory-services", "optical-media"}
+          assert required <= ids, required - ids
+          index = pathlib.Path("desktop/aurora-shell/index.html").read_text()
+          for name in ("apps-registry.js", "apps-windows-network.js", "apps-optical-media.js"):
+              assert name in index, name
+          build = pathlib.Path("live-image/build.sh").read_text()
+          for name in ("registryd.py", "smb-browse.py", "directoryctl.py", "mount-image.py"):
+              assert name in build, name
+          print("integration contracts: OK")
+          PY
+      - name: Shell syntax
+        run: bash -n live-image/build.sh
