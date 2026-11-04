@@ -41,7 +41,9 @@ def validate_image(path):
     return image
 
 def valid_optical_device(device):
-    return bool(OPTICAL.fullmatch(device))\n\ndef main():
+    return bool(OPTICAL.fullmatch(device))
+
+def main():
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("mount")
