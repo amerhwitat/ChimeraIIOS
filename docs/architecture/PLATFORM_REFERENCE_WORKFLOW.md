@@ -20,6 +20,7 @@ This document defines how Linux, Windows and macOS are used as engineering refer
 - **Windows runners** validate Windows SDK/toolchain compatibility (MSVC/clang-cl where available), PE/COFF packaging, Win32 input/event contracts and application build/install/uninstall behavior. They do not replace QEMU boot evidence for Koronos.
 - **macOS runners** validate Apple Clang/Xcode, Objective-C/Foundation and Darwin SDK compatibility, signing/packaging metadata and desktop integration. Apple SDKs and proprietary system components must not be copied into the ISO.
 - A green host build is only a host-build result. It does not establish that the native kernel, firmware boot, userspace, filesystem, installer or desktop works.
+The repository host checks are defined by .github/workflows/chimera-build-matrix.yml (Linux/Windows/macOS portable CMake builds) and .github/workflows/apple-build.yml (Apple toolchain/project validation).
 
 ## Same-ISO six-case runner
 
