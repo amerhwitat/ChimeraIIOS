@@ -48,7 +48,7 @@ def ovmf_code() -> Path:
 
 
 def monitor_command(sock: socket.socket, command: str) -> None:
-    sock.sendall((command + "\\n").encode("ascii"))
+    sock.sendall((command + "\n").encode("ascii"))
     time.sleep(0.15)
     try:
         sock.recv(4096)
@@ -192,7 +192,7 @@ def main() -> int:
         "runner": "same-immutable-iso-qemu-diagnostic-runner-v1",
         "policy": "raw emulator traces only; no acceptance markers are synthesized",
     }
-    (evidence / "matrix.json").write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+    (evidence / "matrix.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     (evidence / "runner-summary.json").write_text(json.dumps({
         "schema": "koronos-six-case-runner-summary-v1",
         "iso_sha256": canonical_hash,
@@ -200,7 +200,7 @@ def main() -> int:
         "cases_expected": 6,
         "selection_errors": sum(bool(case["selection_error"]) for case in cases),
         "trace_files": [case["trace"] for case in cases],
-    }, indent=2) + "\\n", encoding="utf-8")
+    }, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"iso_sha256": canonical_hash, "cases_attempted": len(cases),
                       "evidence_dir": str(evidence)}, indent=2))
     return 0
