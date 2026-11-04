@@ -42,7 +42,8 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
         if (!add_ok(seg.p_vaddr, seg.p_memsz, &end) ||
             seg.p_vaddr < CHIMERA_ELF_USER_MIN ||
             end > CHIMERA_ELF_USER_LIMIT || seg.p_vaddr >= stack ||
-            end > stack || !up(end, &map_end)) return -6;
+            end > stack || !up(end, &map_end) ||
+            map_end > CHIMERA_ELF_USER_LIMIT) return -6;
 
         if (seg.p_align > 1u &&
             ((seg.p_align & (seg.p_align - 1u)) != 0 ||
