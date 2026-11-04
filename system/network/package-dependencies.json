@@ -20,7 +20,10 @@
       "krb5",
       "openldap-clients",
       "python3-ldap",
-      "dnsutils"
+      "dnsutils",
+      "pkexec",
+      "polkitd",
+      "mate-polkit"
     ],
     "optical_media": [
       "util-linux",
